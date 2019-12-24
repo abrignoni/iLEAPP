@@ -24,7 +24,10 @@ extracttype = args.o
 start = process_time()
 
 tosearch = {'mib':'*mobile_installation.log.*', 'iconstate':'*IconState.plist', 'lastbuild':'*LastBuildInfo.plist', 'iOSNotifications11':'*PushStore*', 'iOSNotifications12':'*private/var/mobile/Library/UserNotifications*',
-	'wireless':'*wireless/Library/Preferences/com.apple.*'}
+	'wireless':'*wireless/Library/Preferences/com.apple.*','knowledgec':'*knowledgeC.db'}
+'''	
+tosearch = {'iOSNotifications11':'*PushStore*'}
+'''	
 	
 os.makedirs(reportfolderbase)
 
@@ -84,6 +87,7 @@ else:
 
 shutil.rmtree(reportfolderbase+'temp/')		
 
-print(' ')
+#print(f'iOS version: {versionf} ')
+print('')
 print('Processes completed.')
 	

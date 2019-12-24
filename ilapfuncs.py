@@ -4,6 +4,12 @@ import glob
 import ccl_bplist
 import datetime
 import plistlib
+from parse3 import ParseProto
+import codecs
+import json
+import sqlite3
+import io
+import sys
 from time import process_time
 
 nl = '\n' 
@@ -13,7 +19,204 @@ reportfolderbase = './ILAP_Reports_'+currenttime+'/'
 temp = reportfolderbase+'temp/'
 #Create run directory 
 
+def knowledgec(filefound):
+	print(f'Incepted bplist extractions in knowlwdgeC.db executing.')
 
+	iOSversion = versionf
+
+	supportediOS = ['11', '12', '13']
+
+	if iOSversion not in supportediOS:
+		print ("Unsupported version")
+		sys.exit()
+
+	extension = '.bplist'
+	dump = True
+	#create directories
+	outpath = reportfolderbase+'knowledgeC_incepton_bplist/'
+
+
+	try: 
+		os.mkdir(outpath)
+		os.mkdir(outpath+"clean/")
+		os.mkdir(outpath+"/dirty")
+	except OSError:  
+		print("Error making directories")
+		
+	#connect sqlite databases
+	db = sqlite3.connect(filefound[0])
+	cursor = db.cursor()
+
+	#variable initializations
+	dirtcount = 0
+	cleancount = 0
+	intentc = {}
+	intentv = {}
+
+	cursor.execute('''
+	SELECT
+	Z_PK,
+	Z_DKINTENTMETADATAKEY__SERIALIZEDINTERACTION,
+	Z_DKINTENTMETADATAKEY__INTENTCLASS,
+	Z_DKINTENTMETADATAKEY__INTENTVERB
+	FROM ZSTRUCTUREDMETADATA
+	WHERE Z_DKINTENTMETADATAKEY__SERIALIZEDINTERACTION is not null
+	''')
+
+	all_rows = cursor.fetchall()
+
+	for row in all_rows:
+		pkv = str(row[0])
+		pkvplist = pkv+extension
+		f = row[1]
+		intentclass = str(row[2])
+		intententverb = str(row[3])
+		output_file = open(outpath+'/dirty/D_Z_PK'+pkvplist, 'wb') #export dirty from DB
+		output_file.write(f)
+		output_file.close()	
+
+		g = open(outpath+'/dirty/D_Z_PK'+pkvplist, 'rb')
+		plistg = ccl_bplist.load(g)
+		
+		if (iOSversion == '11'):
+			ns_keyed_archiver_obj = ccl_bplist.deserialise_NsKeyedArchiver(plistg)	
+			newbytearray = ns_keyed_archiver_obj
+		if (iOSversion == '12'):
+			ns_keyed_archiver_objg = ccl_bplist.deserialise_NsKeyedArchiver(plistg)
+			newbytearray = (ns_keyed_archiver_objg["NS.data"])
+		if (iOSversion == '13'):
+			ns_keyed_archiver_objg = ccl_bplist.deserialise_NsKeyedArchiver(plistg)
+			newbytearray = (ns_keyed_archiver_objg["NS.data"])
+
+		dirtcount = dirtcount+1
+			
+		binfile = open(outpath+'/clean/C_Z_PK'+pkvplist, 'wb')
+		binfile.write(newbytearray)
+		binfile.close()	
+		
+		#add to dictionaries
+		intentc['C_Z_PK'+pkvplist] = intentclass
+		intentv['C_Z_PK'+pkvplist] = intententverb
+		
+		cleancount = cleancount+1
+
+	h = open(outpath+'/Report.html', 'w')	
+	h.write('<html><body>')
+	h.write('<h2>iOS ' + iOSversion + ' - KnowledgeC ZSTRUCTUREDMETADATA bplist report</h2>')
+	h.write ('<style> table, th, td {border: 1px solid black; border-collapse: collapse;}</style>')
+	h.write('<br/>')
+
+	for filename in glob.glob(outpath+'/clean/*'+extension):	
+		p = open(filename, 'rb')
+		cfilename = os.path.basename(filename)
+		plist = ccl_bplist.load(p)
+		ns_keyed_archiver_obj = ccl_bplist.deserialise_NsKeyedArchiver(plist, parse_whole_structure=True)#deserialize clean
+		#Get dictionary values
+		A = intentc.get(cfilename)
+		B = intentv.get(cfilename)
+		
+		if A is None:
+			A = 'No value'
+		if B is None:
+			A = 'No value'
+		
+		#print some values from clean bplist
+		NSdata = (ns_keyed_archiver_obj["root"]["intent"]["backingStore"]["data"]["NS.data"])
+		
+		parsedNSData = ""
+		#Default true
+		if dump == True:	
+			nsdata_file = outpath+'/clean/'+cfilename+'_nsdata.bin'
+			binfile = open(nsdata_file, 'wb')
+			binfile.write(ns_keyed_archiver_obj["root"]["intent"]["backingStore"]["data"]["NS.data"])
+			binfile.close()
+			messages = ParseProto(nsdata_file)
+			messages_json_dump = json.dumps(messages, indent=4, sort_keys=True, ensure_ascii=False)
+			parsedNSData = str(messages_json_dump).encode(encoding='UTF-8',errors='ignore')
+		
+		NSstartDate = ccl_bplist.convert_NSDate((ns_keyed_archiver_obj["root"]["dateInterval"]["NS.startDate"]))
+		NSendDate = ccl_bplist.convert_NSDate((ns_keyed_archiver_obj["root"]["dateInterval"]["NS.endDate"]))
+		NSduration = ns_keyed_archiver_obj["root"]["dateInterval"]["NS.duration"]
+		Siri = ns_keyed_archiver_obj["root"]["_donatedBySiri"]
+		
+		h.write(cfilename)
+		h.write('<br />')
+		h.write('Intent Class: '+str(A))
+		h.write('<br />')
+		h.write('Intent Verb: '+str(B))
+		h.write('<br />')
+		h.write('<table>')
+		
+		
+		h.write('<tr>')
+		h.write('<th>Data type</th>')
+		h.write('<th>Value</th>')
+		h.write('</tr>')
+		
+		#Donated by Siri
+		h.write('<tr>')
+		h.write('<td>Siri</td>')
+		h.write('<td>'+str(Siri)+'</td>')
+		h.write('</tr>')
+			
+		#NSstartDate
+		h.write('<tr>')
+		h.write('<td>NSstartDate</td>')
+		h.write('<td>'+str(NSstartDate)+' Z</td>')
+		h.write('</tr>')
+		
+		#NSsendDate
+		h.write('<tr>')
+		h.write('<td>NSendDate</td>')
+		h.write('<td>'+str(NSendDate)+' Z</td>')
+		h.write('</tr>')
+		
+		#NSduration
+		h.write('<tr>')
+		h.write('<td>NSduration</td>')
+		h.write('<td>'+str(NSduration)+'</td>')
+		h.write('</tr>')
+		
+		#NSdata
+		h.write('<tr>')
+		h.write('<td>NSdata</td>')
+		h.write('<td>'+str(NSdata)+'</td>')
+		h.write('</tr>')
+
+		#NSdata better formatting
+		if parsedNSData:
+			h.write('<tr>')
+			h.write('<td>NSdata - Protobuf Decoded</td>')
+			h.write('<td><pre id=\"json\">'+str(parsedNSData).replace('\\n', '<br>')+'</pre></td>')
+			h.write('</tr>')
+		else:
+			#This will only run if -nd is used
+			h.write('<tr>')
+			h.write('<td>NSdata - Protobuf</td>')
+			h.write('<td>'+str(NSdata).replace('\\n', '<br>')+'</td>')
+			h.write('</tr>')	
+		
+		h.write('<table>')
+		h.write('<br />')
+		
+		#print(NSstartDate)
+		#print(NSendDate)
+		#print(NSduration)
+		#print(NSdata)
+		#print('')
+
+
+	print("")	
+	print("iOS - KnowledgeC ZSTRUCTUREDMETADATA bplist extractor")
+	print("By: @phillmoore & @AlexisBrignoni")
+	print("thinkdfir.com & abrignoni.com")
+	print("")
+	print("Bplists from the Z_DKINTENTMETADATAKEY__SERIALIZEDINTERACTION field.")
+	print("Exported bplists (dirty): "+str(dirtcount))
+	print("Exported bplists (clean): "+str(cleancount))
+	print("")
+	print(f'Triage report completed. See Reports.html.')
+	print('Incepted bplist extractions in knowlwdgeC.db completed')
 
 def mib(filefound):
 	print(f'Mobile Installation Logs function executing.')
@@ -417,18 +620,7 @@ def mib(filefound):
 
 	except:
 		print("Log files not found in "+input_path)
-'''
-def devicespecific(filefound):
-	print(f'Device Specific (IMEI, Phone number) function executing.')
-	os.makedirs(reportfolderbase+'Device_Specific/')
-	f =open(reportfolderbase+'Device_Specific/com.apple.commcenter.device_specific_nobackup.plist.txt','w')
-	p = open(filefound[0], 'rb')
-	plist = plistlib.load(p)
-	for key, val in plist.items():
-		f.write(f'{key} -> {val}{nl}')
-	f.close()
-	print(f'Device Specific function completed.')
-'''	
+	
 def wireless(filefound):
 	print(f'Cellular Wireless files function executing')
 	os.makedirs(reportfolderbase+'Cellular_Wireless_Info/')
@@ -455,6 +647,7 @@ def iconstate(filefound):
 	print(f'Iconstate function completed.')
 	
 def lastbuild(filefound):
+	global versionf
 	print(f'Lastbuild function executing.')
 	os.makedirs(reportfolderbase+'LastBuildInfo_Plist/')
 	f =open(reportfolderbase+'LastBuildInfo_Plist/ LastBuildInfo.plist.txt','w')
@@ -462,13 +655,281 @@ def lastbuild(filefound):
 	plist = plistlib.load(p)
 	for key, val in plist.items():
 		f.write(f'{key} -> {val}{nl}')
+		versionnum = val[0:2]
+		if versionnum in ('11','12','13'):
+			versionf = versionnum 
+			print(f'iOS version is: {versionf}')
 	f.close()
 	print(f'Lastbuild function completed.')
 
 def iOSNotifications11(filefound):
-	print(f'iOSNotifications 11 function executed.')
-	os.makedirs(reportfolderbase+'iOS_11_Notifications/')
+	print(f'iOSNotifications 11 function executing.')
+	
+	count = 0
+	notdircount = 0
+	exportedbplistcount = 0
+	unix = datetime.datetime(1970, 1, 1)  # UTC
+	cocoa = datetime.datetime(2001, 1, 1)  # UTC
+	delta = cocoa - unix 
+	
+	with open('NotificationParams.txt', 'r') as f:
+		notiparams = [line.strip() for line in f]	
+		pathfound = 0
+		count = 0
+		notdircount = 0
+		exportedbplistcount = 0
 
+	pathfound = str(filefound[0])
+
+	if pathfound == 0:
+		print("No PushStore directory located")
+	else:
+		folder = (reportfolderbase+'iOS_11_Notifications/') #add the date thing from phill
+		os.makedirs( folder )
+		#print("Processing:")
+		for filename in glob.iglob(pathfound+'\**', recursive=True):
+			if os.path.isfile(filename): # filter dirs
+				file_name = os.path.splitext(os.path.basename(filename))[0]
+					#get extension and iterate on those files
+					#file_extension = os.path.splitext(filename)
+					#print(file_extension)
+					#create directory
+				if filename.endswith('pushstore'):
+						#create directory where script is running from
+					print (filename) #full path
+					notdircount = notdircount + 1				
+						#print (os.path.basename(file_name)) #filename with  no extension
+					openplist = (os.path.basename(os.path.normpath(filename))) #filename with extension
+						#print (openplist)
+						#bundlepath = (os.path.basename(os.path.dirname(filename)))#previous directory
+					bundlepath = file_name
+					appdirect = (folder + "\\"+ bundlepath) 
+						#print(appdirect)
+					os.makedirs( appdirect )
+						
+						#open the plist
+					p = open(filename, 'rb')
+					plist = ccl_bplist.load(p)
+					plist2 = plist["$objects"]
+
+					long = len(plist2)
+					#print (long)
+					h = open('./'+appdirect+'/DeliveredNotificationsReport.html', 'w') #write report
+					h.write('<html><body>')
+					h.write('<h2>iOS Delivered Notifications Triage Report </h2>')
+					h.write(filename)
+					h.write('<br/>')
+					h.write ('<style> table, th, td {border: 1px solid black; border-collapse: collapse;}</style>')
+					h.write('<br/>')
+						
+					h.write('<button onclick="hideRows()">Hide rows</button>')
+					h.write('<button onclick="showRows()">Show rows</button>')
+						
+					with open("script.txt") as f:
+						for line in f:
+							h.write(line)
+						
+					h.write('<br>')
+					h.write('<table name="hide">')
+					h.write('<tr name="hide">')
+					h.write('<th>Data type</th>')
+					h.write('<th>Value</th>')
+					h.write('</tr>')
+										
+					h.write('<tr name="hide">')
+					h.write('<td>Plist</td>')
+					h.write('<td>Initial Values</td>')
+					h.write('</tr>')
+						
+					test = 0
+					for i in range (0, long):
+						try:
+							if (plist2[i]['$classes']):
+								h.write('<tr name="hide">')
+								h.write('<td>$classes</td>')
+								ob6 = str(plist2[i]['$classes'])
+								h.write('<td>')
+								h.write(str(ob6))
+								h.write('</td>')
+								h.write('</tr>')
+								test = 1
+						except:
+							pass
+						try:
+							if (plist2[i]['$class']):
+								h.write('<tr name="hide">')
+								h.write('<td>$class</td>')
+								ob5 = str(plist2[i]['$class'])
+								h.write('<td>')
+								h.write(str(ob5))
+								h.write('</td>')
+								h.write('</tr>')
+								test = 1
+						except:
+							pass
+						try:
+							if (plist2[i]['NS.keys']):
+								h.write('<tr name="hide">')
+								h.write('<td>NS.keys</td>')
+								ob0 = str(plist2[i]['NS.keys'])
+								h.write('<td>')
+								h.write(str(ob0))
+								h.write('</td>')
+								h.write('</tr>')
+								test = 1
+						except:
+							pass
+						try:
+							if (plist2[i]['NS.objects']):
+								ob1 = str(plist2[i]['NS.objects'])
+								h.write('<tr name="hide">')
+								h.write('<td>NS.objects</td>')
+								h.write('<td>')
+								h.write(str(ob1))
+								h.write('</td>')
+								h.write('</tr>')
+								
+								test = 1
+						except:
+							pass
+						try:
+							if (plist2[i]['NS.time']):
+								dia = str(plist2[i]['NS.time'])
+								dias = (dia.rsplit('.', 1)[0])
+								timestamp = datetime.datetime.fromtimestamp(int(dias)) + delta
+								#print (timestamp)
+							
+								h.write('<tr>')
+								h.write('<td>Time UTC</td>')
+								h.write('<td>')
+								h.write(str(timestamp))
+								#h.write(str(plist2[i]['NS.time']))
+								h.write('</td>')
+								h.write('</tr>')
+								
+								test = 1 
+						except:
+							pass
+						try:
+							if (plist2[i]['NS.base']):
+								ob2 = str(plist2[i]['NS.objects'])
+								h.write('<tr name="hide">')
+								h.write('<td>NS.base</td>')
+								h.write('<td>')
+								h.write(str(ob2))
+								h.write('</td>')
+								h.write('</tr>')
+								
+								test = 1 
+						except:
+							pass
+						try:
+							if (plist2[i]['$classname']):
+								ob3 = str(plist2[i]['$classname'])
+								h.write('<tr name="hide">')
+								h.write('<td>$classname</td>')
+								h.write('<td>')
+								h.write(str(ob3))
+								h.write('</td>')
+								h.write('</tr>')
+								
+								test = 1 
+						except:
+							pass
+						
+						try:
+							if test == 0:
+								if (plist2[i]) == "AppNotificationMessage":
+									h.write('</table>')
+									h.write('<br>')
+									h.write('<table>')
+									h.write('<tr>')
+									h.write('<th>Data type</th>')
+									h.write('<th>Value</th>')
+									h.write('</tr>')
+								
+									h.write('<tr name="hide">')
+									h.write('<td>ASCII</td>')
+									h.write('<td>'+str(plist2[i])+'</td>')
+									h.write('</tr>')
+									
+									
+								else:
+									if plist2[i] in notiparams:
+										h.write('<tr name="hide">')
+										h.write('<td>ASCII</td>')
+										h.write('<td>'+str(plist2[i])+'</td>')
+										h.write('</tr>')
+									elif plist2[i] == " ":
+										h.write('<tr name="hide">')
+										h.write('<td>Null</td>')
+										h.write('<td>'+str(plist2[i])+'</td>')
+										h.write('</tr>')
+									else:
+										h.write('<tr>')
+										h.write('<td>ASCII</td>')
+										h.write('<td>'+str(plist2[i])+'</td>')
+										h.write('</tr>')
+								
+						except:
+							pass
+							
+						test = 0
+									
+						
+						#h.write('test')
+					
+					
+					for dict in plist2:
+						liste = dict
+						types = (type(liste))
+						#print (types)
+						try:
+							for k, v in liste.items():
+								if k == 'NS.data':
+									chk = str(v)
+									reduced = (chk[2:8])
+									#print (reduced)
+									if reduced == "bplist":
+										count = count + 1
+										binfile = open('./'+appdirect+'/incepted'+str(count)+'.bplist', 'wb')
+										binfile.write(v)
+										binfile.close()
+
+										procfile = open('./'+appdirect+'/incepted'+str(count)+'.bplist', 'rb')
+										secondplist = ccl_bplist.load(procfile)
+										secondplistint = secondplist["$objects"]
+										print('Bplist processed and exported.')
+										exportedbplistcount = exportedbplistcount + 1
+										h.write('<tr name="hide">')
+										h.write('<td>NS.data</td>')
+										h.write('<td>')
+										h.write(str(secondplistint))
+										h.write('</td>')
+										h.write('</tr>')
+										
+										procfile.close()
+										count = 0
+									else:
+										h.write('<tr name="hide">')
+										h.write('<td>NS.data</td>')
+										h.write('<td>')
+										h.write(str(secondplistint))
+										h.write('</td>')
+										h.write('</tr>')
+						except:
+							pass
+					h.close()
+				elif 'AttachmentsList' in file_name:
+					test = 0 #future development
+
+
+	print("Total notification directories processed:"+str(notdircount))
+	print("Total exported bplists from notifications:"+str(exportedbplistcount))
+	if notdircount == 0:
+			print('No notifications located.')
+	print(f'iOSNotifications 11 function completed.')
+	
 def iOSNotifications12(filefound):
 	print(f'iOS 12 & 13 Notifications function executing')
 	os.makedirs(reportfolderbase+'iOS_12+13_Notifications/')
@@ -732,4 +1193,6 @@ def iOSNotifications12(filefound):
 
 	print("Total notification directories processed:"+str(notdircount))
 	print("Total exported bplists from notifications:"+str(exportedbplistcount))
+	if notdircount == 0:
+		print('No notifications located.')
 	print('iOS 12 & 13 Notifications function completed.')
