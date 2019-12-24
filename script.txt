@@ -1,0 +1,46 @@
+<script>
+var myStyles = (function() {
+
+
+  var sheet = document.styleSheets[0];
+
+
+  function deleteRule(selector) {
+
+
+    var rules = sheet.rules || sheet.cssRules; 
+
+
+    for (var i=0, iLen=rules.length; i<iLen; i++) {
+
+      if (selector == rules[i].selectorText) {
+        sheet.deleteRule(i);
+      }
+    }
+  }
+
+
+  function addRule(selector, text) {
+
+
+    deleteRule(selector);
+
+
+    sheet.insertRule(selector + text);
+  }
+
+
+  return {
+    'addRule': addRule,
+    'deleteRule': deleteRule
+  };
+}());
+
+function hideRows(){
+  myStyles.addRule('tr[name="hide"]','{display: none}');
+}
+function showRows(){
+  myStyles.deleteRule('tr[name="hide"]');
+}
+</script>
+
