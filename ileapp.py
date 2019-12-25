@@ -24,9 +24,9 @@ extracttype = args.o
 start = process_time()
 
 tosearch = {'mib':'*mobile_installation.log.*', 'iconstate':'*IconState.plist', 'lastbuild':'*LastBuildInfo.plist', 'iOSNotifications11':'*PushStore*', 'iOSNotifications12':'*private/var/mobile/Library/UserNotifications*',
-	'wireless':'*wireless/Library/Preferences/com.apple.*','knowledgec':'*knowledgeC.db'}
+	'wireless':'*wireless/Library/Preferences/com.apple.*','knowledgec':'*knowledgeC.db','applicationstate':'*pplicationState.db*'}
 '''	
-tosearch = {'iOSNotifications11':'*PushStore*'}
+tosearch = {'applicationstate':'*pplicationState.db*'}
 '''	
 	
 os.makedirs(reportfolderbase)
@@ -84,8 +84,9 @@ elif extracttype == 'tar':
 
 else:
 	print('Error on argument -o')
-
-shutil.rmtree(reportfolderbase+'temp/')		
+	
+if os.path.exists(reportfolderbase+'temp/'):
+	shutil.rmtree(reportfolderbase+'temp/')		
 
 #print(f'iOS version: {versionf} ')
 print('')
