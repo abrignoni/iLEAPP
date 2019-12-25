@@ -1,6 +1,6 @@
 # iLEAPP
 iOS Logs, Events, And Preferences Parser  
-Details in blog post here: pending
+Details in blog post here: https://abrignoni.blogspot.com/2019/12/ileapp-ios-logs-events-and-properties.html
 
 Supports iOS 11, 12 & 13.
 Select parsing directly from a compressed .tar file or a decompressed directory.
