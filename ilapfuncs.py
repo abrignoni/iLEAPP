@@ -12,6 +12,7 @@ import io
 import sys
 import csv
 import pathlib
+import shutil
 from time import process_time
 
 nl = '\n' 
@@ -96,6 +97,12 @@ def applicationstate(filefound):
 			filewrite = csv.writer(filedata, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 			filewrite.writerow([bid, bpath, bcontainer, bsandbox])
 			count = count + 1
+		
+	if os.path.exists(outpath+'exported-clean/'):
+		shutil.rmtree(outpath+'exported-clean/')	
+	if os.path.exists(outpath+'exported-dirty/'):
+		shutil.rmtree(outpath+'exported-dirty/')
+			
 	print(f'Installed app GUIDs and app locations processed: {count}')
 	print(f'ApplicationState.db queries completed.')
 	
@@ -104,12 +111,12 @@ def knowledgec(filefound):
 
 	iOSversion = versionf
 
-	supportediOS = ['11', '12', '13']
+	supportediOS = ['11', '12']
 
 	if iOSversion not in supportediOS:
-		print ("Unsupported version")
-		sys.exit()
-
+		print ("Unsupported version"+iOSversion)
+		return()
+		
 	extension = '.bplist'
 	dump = True
 	#create directories
@@ -297,6 +304,7 @@ def knowledgec(filefound):
 	print("")
 	print(f'Triage report completed. See Reports.html.')
 	print('Incepted bplist extractions in knowlwdgeC.db completed')
+re
 
 def mib(filefound):
 	print(f'Mobile Installation Logs function executing.')
