@@ -23,6 +23,7 @@ temp = reportfolderbase+'temp/'
 #Create run directory 
 
 def applicationstate(filefound):
+	iOSversion = versionf
 	print(f'ApplicationState.db queries executing.')
 	outpath = reportfolderbase +'ApplicationState_data/'
 	
@@ -85,7 +86,7 @@ def applicationstate(filefound):
 		p = open(filename, 'rb')
 		#cfilename = os.path.basename(filename)
 		plist = ccl_bplist.load(p)
-		ns_keyed_archiver_obj = ccl_bplist.deserialise_NsKeyedArchiver(plist, parse_whole_structure=False)#deserialize clean
+		ns_keyed_archiver_obj = ccl_bplist.deserialise_NsKeyedArchiver(plist, parse_whole_structure=False)#deserialize clean 
 		#print(cfilename)
 		bid = (ns_keyed_archiver_obj['bundleIdentifier'])
 		bpath = (ns_keyed_archiver_obj['bundlePath'])
@@ -110,8 +111,7 @@ def knowledgec(filefound):
 	print(f'Incepted bplist extractions in knowlwdgeC.db executing.')
 
 	iOSversion = versionf
-
-	supportediOS = ['11', '12']
+	supportediOS = ['11', '12', '13']
 
 	if iOSversion not in supportediOS:
 		print ("Unsupported version"+iOSversion)
@@ -208,14 +208,20 @@ def knowledgec(filefound):
 			A = 'No value'
 		
 		#print some values from clean bplist
-		NSdata = (ns_keyed_archiver_obj["root"]["intent"]["backingStore"]["data"]["NS.data"])
+		if iOSversion == '13':
+			NSdata = (ns_keyed_archiver_obj['root']['intent']['backingStore']['bytes'])
+		else:
+			NSdata = (ns_keyed_archiver_obj["root"]["intent"]["backingStore"]["data"]["NS.data"])
 		
 		parsedNSData = ""
 		#Default true
 		if dump == True:	
 			nsdata_file = outpath+'/clean/'+cfilename+'_nsdata.bin'
 			binfile = open(nsdata_file, 'wb')
-			binfile.write(ns_keyed_archiver_obj["root"]["intent"]["backingStore"]["data"]["NS.data"])
+			if iOSversion == '13':
+				binfile.write(ns_keyed_archiver_obj['root']['intent']['backingStore']['bytes'])
+			else:
+				binfile.write(ns_keyed_archiver_obj["root"]["intent"]["backingStore"]["data"]["NS.data"])
 			binfile.close()
 			messages = ParseProto(nsdata_file)
 			messages_json_dump = json.dumps(messages, indent=4, sort_keys=True, ensure_ascii=False)

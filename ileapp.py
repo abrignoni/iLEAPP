@@ -16,6 +16,8 @@ parser.add_argument('pathtodir',help='Path to directory')
 if len(sys.argv[1:])==0:
 	parser.print_help()
 	parser.exit()
+
+start = process_time()
 	
 args = parser.parse_args()
 
@@ -28,6 +30,7 @@ tosearch = {'mib':'*mobile_installation.log.*', 'iconstate':'*IconState.plist', 
 '''	
 tosearch = {'applicationstate':'*pplicationState.db*'}
 '''	
+
 	
 os.makedirs(reportfolderbase)
 
@@ -72,10 +75,12 @@ elif extracttype == 'tar':
 	for key, val in tosearch.items():
 		filefound = searchtar(pathto, val, reportfolderbase)
 		if not filefound:
+			
 			print()
 			print(f'No files found for {key} -> {val}.')
 			log.write(f'No files found for {key} -> {val}.{nl}')
 		else:
+			
 			print()
 			globals()[key](filefound)
 			for pathh in filefound:
@@ -91,4 +96,7 @@ if os.path.exists(reportfolderbase+'temp/'):
 #print(f'iOS version: {versionf} ')
 print('')
 print('Processes completed.')
+end = process_time()
+time = start - end
+print("Processing time: " + str(abs(time)) )
 	
