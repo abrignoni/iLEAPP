@@ -99,12 +99,12 @@ def applicationstate(filefound):
 		filewrite.writerow([bid, bpath, bcontainer, bsandbox])
 		count = count + 1
 		filedata.close()
-		
+	'''	
 	if os.path.exists(outpath+'exported-clean/'):
 		shutil.rmtree(outpath+'exported-clean/')	
 	if os.path.exists(outpath+'exported-dirty/'):
 		shutil.rmtree(outpath+'exported-dirty/')
-			
+	'''		
 	print(f'Installed app GUIDs and app locations processed: {count}')
 	print(f'ApplicationState.db queries completed.')
 	
