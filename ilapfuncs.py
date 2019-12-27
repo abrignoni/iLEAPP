@@ -94,10 +94,11 @@ def applicationstate(filefound):
 		bsandbox = (ns_keyed_archiver_obj['sandboxPath'])
 		
 		
-		with open(outpath+'ApplicationState_InstalledAppInfo.csv', mode='a+') as filedata:
-			filewrite = csv.writer(filedata, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-			filewrite.writerow([bid, bpath, bcontainer, bsandbox])
-			count = count + 1
+		filedata = open(outpath+'ApplicationState_InstalledAppInfo.csv', mode='a+')
+		filewrite = csv.writer(filedata, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+		filewrite.writerow([bid, bpath, bcontainer, bsandbox])
+		count = count + 1
+		filedata.close()
 		
 	if os.path.exists(outpath+'exported-clean/'):
 		shutil.rmtree(outpath+'exported-clean/')	
@@ -766,12 +767,17 @@ def iOSNotifications11(filefound):
 	cocoa = datetime.datetime(2001, 1, 1)  # UTC
 	delta = cocoa - unix 
 	
-	with open('NotificationParams.txt', 'r') as f:
-		notiparams = [line.strip() for line in f]	
-		pathfound = 0
-		count = 0
-		notdircount = 0
-		exportedbplistcount = 0
+	#with open('NotificationParams.txt', 'r') as f:
+	#	notiparams = [line.strip() for line in f]	
+	
+	f = open('NotificationParams.txt', 'r')
+	notiparams = [line.strip() for line in f]
+	f.close()
+		
+	pathfound = 0
+	count = 0
+	notdircount = 0
+	exportedbplistcount = 0
 
 	pathfound = str(filefound[0])
 
@@ -819,9 +825,10 @@ def iOSNotifications11(filefound):
 					h.write('<button onclick="hideRows()">Hide rows</button>')
 					h.write('<button onclick="showRows()">Show rows</button>')
 						
-					with open("script.txt") as f:
-						for line in f:
-							h.write(line)
+					f = open("script.txt")
+					for line in f:
+						h.write(line)
+					f.close()
 						
 					h.write('<br>')
 					h.write('<table name="hide">')
@@ -1035,8 +1042,12 @@ def iOSNotifications12(filefound):
 	cocoa = datetime.datetime(2001, 1, 1)  # UTC
 	delta = cocoa - unix 
 	
-	with open('NotificationParams.txt', 'r') as f:
-		notiparams = [line.strip() for line in f]
+	#with open('NotificationParams.txt', 'r') as f:
+	#	notiparams = [line.strip() for line in f]
+	
+	f = open('NotificationParams.txt', 'r')
+	notiparams = [line.strip() for line in f]
+	f.close()
 	
 	folder = (reportfolderbase+'iOS_12+13_Notifications/') 
 	#print("Processing:")
@@ -1077,9 +1088,10 @@ def iOSNotifications12(filefound):
 				h.write('<button onclick="hideRows()">Hide rows</button>')
 				h.write('<button onclick="showRows()">Show rows</button>')
 				
-				with open("script.txt") as f:
-					for line in f:
-						h.write(line)
+				f = open("script.txt")
+				for line in f:
+					h.write(line)
+				f.close()
 				
 				h.write('<br>')
 				h.write('<table name="hide">')
