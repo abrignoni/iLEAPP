@@ -19,4 +19,3 @@ def searchtar(pathto, val, reportfolderbase):
 				t.extract(member.name, path=temp)
 				pathlist.append(temp+member.name)
 	return pathlist
-

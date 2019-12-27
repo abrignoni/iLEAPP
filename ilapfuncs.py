@@ -743,6 +743,7 @@ def iconstate(filefound):
 	
 def lastbuild(filefound):
 	global versionf
+	versionnum = 0
 	print(f'Lastbuild function executing.')
 	os.makedirs(reportfolderbase+'LastBuildInfo_Plist/')
 	f =open(reportfolderbase+'LastBuildInfo_Plist/ LastBuildInfo.plist.txt','w')
@@ -750,11 +751,15 @@ def lastbuild(filefound):
 	plist = plistlib.load(p)
 	for key, val in plist.items():
 		f.write(f'{key} -> {val}{nl}')
-		versionnum = val[0:2]
-		if versionnum in ('11','12','13'):
-			versionf = versionnum 
-			print(f'iOS version is: {versionf}')
+		if key == ('ProductVersion'):
+			versionnum = val[0:2]		
+			if versionnum in ('11','12','13'):
+				versionf = versionnum 
+				print(f'iOS version is: {versionf}')
+			else:
+				versionf = 'Unknown'	
 	f.close()
+	
 	print(f'Lastbuild function completed.')
 
 def iOSNotifications11(filefound):
@@ -766,13 +771,9 @@ def iOSNotifications11(filefound):
 	unix = datetime.datetime(1970, 1, 1)  # UTC
 	cocoa = datetime.datetime(2001, 1, 1)  # UTC
 	delta = cocoa - unix 
-	
-	#with open('NotificationParams.txt', 'r') as f:
-	#	notiparams = [line.strip() for line in f]	
-	
-	f = open('NotificationParams.txt', 'r')
-	notiparams = [line.strip() for line in f]
-	f.close()
+
+	with open('NotificationParams.txt', 'r') as f:
+		notiparams = [line.strip() for line in f]	
 		
 	pathfound = 0
 	count = 0

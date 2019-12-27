@@ -25,8 +25,9 @@ pathto = args.pathtodir
 extracttype = args.o
 start = process_time()
 
-tosearch = {'mib':'*mobile_installation.log.*', 'iconstate':'*IconState.plist', 'lastbuild':'*LastBuildInfo.plist', 'iOSNotifications11':'*PushStore*', 'iOSNotifications12':'*private/var/mobile/Library/UserNotifications*',
-	'wireless':'*wireless/Library/Preferences/com.apple.*','knowledgec':'*knowledgeC.db','applicationstate':'*pplicationState.db*'}
+tosearch = {'mib':'*mobile_installation.log.*', 'iconstate':'*SpringBoard/IconState.plist', 'lastbuild':'*LastBuildInfo.plist', 'iOSNotifications11':'*PushStore*', 'iOSNotifications12':'*private/var/mobile/Library/UserNotifications*',
+	'wireless':'*wireless/Library/Preferences/com.apple.*','knowledgec':'*CoreDuet/Knowledge/knowledgeC.db','applicationstate':'*pplicationState.db*'}
+
 '''	
 tosearch = {'applicationstate':'*pplicationState.db*'}
 '''	
