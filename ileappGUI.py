@@ -58,7 +58,7 @@ while True:
 			
 	elif values[1] == True:
 		extracttype = 'fs'
-		pathto = values[3]
+		pathto = values[4]
 		if os.path.isdir(pathto):
 			pass
 		else:
