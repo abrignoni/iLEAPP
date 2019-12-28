@@ -18,9 +18,21 @@ from time import process_time
 nl = '\n' 
 now = datetime.datetime.now()
 currenttime = str(now.strftime('%Y-%m-%d_%A_%H%M%S'))
-reportfolderbase = './ILAP_Reports_'+currenttime+'/'
+reportfolderbase = './ILEAPP_Reports_'+currenttime+'/'
 temp = reportfolderbase+'temp/'
 #Create run directory 
+
+def conndevices(filefound):
+	print(f'Connected devices function executing.')
+	outpath = reportfolderbase +'Devices_iOS_Connected_To/'
+	os.mkdir(outpath)
+
+	string = (re.findall("[a-zA-Z0-9]+", open(filefound[0], "rb").read().decode('ISO-8859-1')))
+	f = open(outpath+'DevicesConnectedToReport.txt', 'w')
+	for item in string:
+		f.write("%s\n" % item)
+
+	print(f'Connected devices function completed. ')
 
 def applicationstate(filefound):
 	iOSversion = versionf
