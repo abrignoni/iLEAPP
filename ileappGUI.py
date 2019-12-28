@@ -28,7 +28,7 @@ sg.theme('DarkAmber')   # Add a touch of color
 
 layout = [  [sg.Text('iOS Logs, Events, And Properties Parser.')],
 			[sg.Text('https://github.com/abrignoni/iLEAPP')],
-			[sg.Text('Select a file type or directory of the target iOS full file system extraction for parsing.')],
+			[sg.Text('Select the file type or directory of the target iOS full file system extraction for parsing.')],
 			[sg.Radio('.Tar', "rad1", default=True), sg.Radio('Directory', "rad1"), sg.Radio('.Zip', "rad1")],
 			[sg.Text('File:', size=(8, 1)), sg.Input(), sg.FileBrowse()],
 			[sg.Text('Directory:', size=(8, 1)), sg.Input(), sg.FolderBrowse()],
