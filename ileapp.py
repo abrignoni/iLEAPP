@@ -10,7 +10,7 @@ import shutil
 
 
 parser = argparse.ArgumentParser(description='iLEAPP: iOS Logs, Events, and Preferences Parser.')
-parser.add_argument('-o', choices=['fs','tar'], required=True, action="store",help="Directory path or TAR filename and path(required).")
+parser.add_argument('-o', choices=['fs','tar', 'zip'], required=True, action="store",help="Directory path, TAR, or ZIP filename and path(required).")
 parser.add_argument('pathtodir',help='Path to directory')
 
 if len(sys.argv[1:])==0:
@@ -87,6 +87,29 @@ elif extracttype == 'tar':
 			for pathh in filefound:
 				log.write(f'Files for {val} located at {pathh}.{nl}')
 	log.close()
+
+elif extracttype == 'zip':
+		
+		print(f'File/Directory selected: {pathto}')
+		print('\n--------------------------------------------------------------------------------------')
+		print( )
+		log = open(reportfolderbase+'ProcessedFilesLog.txt', 'w+', encoding='utf8')
+		nl = '\n' #literal in order to have new lines in fstrings that create text files
+		log.write(f'Extraction/Path selected: {pathto}{nl}{nl}')	# tar searches and function calls
+		
+		for key, val in tosearch.items():
+			filefound = searchzip(pathto, val, reportfolderbase)
+			if not filefound:
+				print()
+				print(f'No files found for {key} -> {val}.')
+				log.write(f'No files found for {key} -> {val}.{nl}')
+			else:
+				
+				print()
+				globals()[key](filefound)
+				for pathh in filefound:
+					log.write(f'Files for {val} located at {pathh}.{nl}')
+		log.close()
 
 else:
 	print('Error on argument -o')

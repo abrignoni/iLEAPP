@@ -28,7 +28,7 @@ sg.theme('DarkAmber')   # Add a touch of color
 
 layout = [  [sg.Text('iOS Logs, Events, And Properties Parser.')],
 			[sg.Text('https://github.com/abrignoni/iLEAPP')],
-			[sg.Radio('.tar', "rad1", default=True), sg.Radio('Directory', "rad1")],
+			[sg.Radio('.Tar', "rad1", default=True), sg.Radio('Directory', "rad1"), sg.Radio('.Zip', "rad1")],
 			[sg.Text('File:', size=(8, 1)), sg.Input(), sg.FileBrowse()],
 			[sg.Text('Directory:', size=(8, 1)), sg.Input(), sg.FolderBrowse()],
 			[sg.Output(size=(80,20))],
@@ -48,13 +48,14 @@ while True:
 	if values[0] == True:
 		extracttype = 'tar'
 		pathto = values[2]
-		print(pathto)
+		#print(pathto)
 		if pathto.endswith('.tar'):
 			pass
 		else:
 			sg.PopupError('No file or no .tar extension selected. Run the program again.')
 			sys.exit()	
-	else:
+			
+	elif values[1] == True:
 		extracttype = 'fs'
 		pathto = values[3]
 		if os.path.isdir(pathto):
@@ -62,6 +63,15 @@ while True:
 		else:
 			sg.PopupError('No path or the one selected is invalid. Run the program again.', pathto)
 			sys.exit()
+	
+	elif values[2] == True:
+			extracttype = 'zip'
+			pathto = values[3]
+			if pathto.endswith('.zip'):
+				pass
+			else:
+				sg.PopupError('No file or no .zip extension selected. Run the program again.', pathto)
+				sys.exit()
 	
 	start = process_time()
 	
@@ -129,6 +139,33 @@ while True:
 				for pathh in filefound:
 					log.write(f'Files for {val} located at {pathh}.{nl}')
 		log.close()
+
+	elif extracttype == 'zip':
+			
+			print(f'File/Directory selected: {pathto}')
+			print('\n--------------------------------------------------------------------------------------')
+			print( )
+			window.refresh()
+			log = open(reportfolderbase+'ProcessedFilesLog.txt', 'w+', encoding='utf8')
+			nl = '\n' #literal in order to have new lines in fstrings that create text files
+			log.write(f'Extraction/Path selected: {pathto}{nl}{nl}')	# tar searches and function calls
+			
+			for key, val in tosearch.items():
+				filefound = searchzip(pathto, val, reportfolderbase)
+				window.refresh()
+				if not filefound:
+					window.refresh()
+					print()
+					print(f'No files found for {key} -> {val}.')
+					log.write(f'No files found for {key} -> {val}.{nl}')
+				else:
+					
+					print()
+					window.refresh()
+					globals()[key](filefound)
+					for pathh in filefound:
+						log.write(f'Files for {val} located at {pathh}.{nl}')
+			log.close()
 
 	else:
 		print('Error on argument -o')
