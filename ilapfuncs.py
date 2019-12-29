@@ -26,9 +26,10 @@ def conndevices(filefound):
 	print(f'Connected devices function executing.')
 	outpath = reportfolderbase +'Devices_iOS_Connected_To/'
 	os.mkdir(outpath)
-
+	nl = '\n' 
 	string = (re.findall("[a-zA-Z0-9]+", open(filefound[0], "rb").read().decode('ISO-8859-1')))
 	f = open(outpath+'DevicesConnectedToReport.txt', 'w')
+	f.write(f'Artifact name and path: {filefound[0]}{nl}{nl}')
 	for item in string:
 		f.write("%s\n" % item)
 
@@ -111,6 +112,10 @@ def applicationstate(filefound):
 		filewrite.writerow([bid, bpath, bcontainer, bsandbox])
 		count = count + 1
 		filedata.close()
+		
+		filemetadata = open(outpath+'ApplicationState_InstalledAppInfo_Path.txt', mode='w')
+		filemetadata.write(f'Artifact name and file path: {apstatefiledb} ')
+		filemetadata.close()
 	'''	
 	if os.path.exists(outpath+'exported-clean/'):
 		shutil.rmtree(outpath+'exported-clean/')	
@@ -745,12 +750,41 @@ def wireless(filefound):
 def iconstate(filefound):
 	print(f'Iconstate function executing.')
 	os.makedirs(reportfolderbase+'IconState_Plist/')
-	f =open(reportfolderbase+'IconState_Plist/ IconState.plist.txt','w')
+	f =open(reportfolderbase+'IconState_Plist/IconState_Plist.txt','w')
+	g =open(reportfolderbase+'IconState_Plist/IconState_Plist_Screen_Position.html','w')
+	g.write('<html>')
 	p = open(filefound[0], 'rb')
 	plist = plistlib.load(p)
 	for key, val in plist.items():
 		f.write(f'{key} -> {val}{nl}')
+		if key == 'buttonBar':
+			bbar = val
+		else:
+			icon = val
 	f.close()
+	for x in range(0, len(icon)):
+		page = icon[x]
+		g.write(f'<p><table><body>')
+		g.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}</style>')
+		g.write(f'<tr> <td colspan="4"> Icons screen #{x}</td>')
+		for y in range(0, len(page)):
+			rows = page[y]
+			if (y == 0) or (y % 4 == 0):
+				g.write('</tr><tr>')			
+			g.write(f'<td width = 25%>{rows}</td>')		
+		g.write('</tr></table>')
+	
+	#do bottom bar
+	g.write(f'<p><table><tr> <td colspan="4"> Icons bottom bar</td></tr><tr>')
+	for x in range(0, len(bbar)):			
+		g.write(f'<td width = 25%>{bbar[x]}</td>')		
+	g.write('</tr></table>')
+	
+	g.write('</html>')
+	g.close()
+	
+	print('Screens: '+str(len(icon)))
+	print('Icons in bottom bar: '+str(len(bbar)))
 	print(f'Iconstate function completed.')
 	
 def lastbuild(filefound):
