@@ -25,4 +25,6 @@ optional arguments:
   -o {fs,tar}  Directory path or TAR filename and path(required).
 
 Experimental:  
-Graphical user interface. Usage: ileappGUI.py
+Graphical user interface.    
+Usage: ileappGUI.py
+No parameter needed.
