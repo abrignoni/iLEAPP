@@ -759,7 +759,7 @@ def iconstate(filefound):
 		f.write(f'{key} -> {val}{nl}')
 		if key == 'buttonBar':
 			bbar = val
-		else:
+		elif key == 'iconLists':
 			icon = val
 	f.close()
 	for x in range(0, len(icon)):
