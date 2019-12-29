@@ -22,17 +22,52 @@ reportfolderbase = './ILEAPP_Reports_'+currenttime+'/'
 temp = reportfolderbase+'temp/'
 #Create run directory 
 
-def conndevices(filefound):
+def conndevices(filefound):	
+	with open(filefound[0], "rb") as f:
+		data = f.read()
+
 	print(f'Connected devices function executing.')
 	outpath = reportfolderbase +'Devices_iOS_Connected_To/'
 	os.mkdir(outpath)
 	nl = '\n' 
-	string = (re.findall("[a-zA-Z0-9]+", open(filefound[0], "rb").read().decode('ISO-8859-1')))
-	f = open(outpath+'DevicesConnectedToReport.txt', 'w')
-	f.write(f'Artifact name and path: {filefound[0]}{nl}{nl}')
-	for item in string:
-		f.write("%s\n" % item)
+	
+	userComps = ""
 
+	print("Data being interpreted for FRPD is of type: " + str(type(data)))
+	x = type(data)
+	byteArr = bytearray(data)
+	userByteArr = bytearray()
+	
+	magicOffset = byteArr.find(b'\x01\x01\x80\x00\x00')
+	magic = byteArr[magicOffset:magicOffset + 5]
+
+	flag = 0
+
+	if magic == b'\x01\x01\x80\x00\x00':
+		print("Found magic bytes in iTunes Prefs FRPD... Finding Usernames and Desktop names now")
+		f = open(outpath+'DevicesConnectedToReport.txt', 'w')
+		f.write(f'Artifact name and path: {filefound[0]}{nl}{nl}')
+		for x in range (int(magicOffset + 92), len(data)):
+			if (data[x]) == 0:
+				x = int(magicOffset) + 157
+				if userByteArr.decode() == "":
+					continue
+				else:
+					if flag == 0:
+						userComps += userByteArr.decode() + " - "
+						flag = 1
+					else:
+						userComps += userByteArr.decode() + "\n"
+						flag = 0
+					userByteArr = bytearray()
+					continue
+			else:
+				char =  (data[x])
+				userByteArr.append(char)
+
+		print(f'{userComps}{nl}')
+		f.write(f'{userComps}{nl}')
+	f.close()
 	print(f'Connected devices function completed. ')
 
 def applicationstate(filefound):
