@@ -20,7 +20,7 @@ now = datetime.datetime.now()
 currenttime = str(now.strftime('%Y-%m-%d_%A_%H%M%S'))
 reportfolderbase = './ILEAPP_Reports_'+currenttime+'/'
 temp = reportfolderbase+'temp/'
-#Create run directory 
+
 
 def conndevices(filefound):	
 	with open(filefound[0], "rb") as f:
@@ -1062,7 +1062,6 @@ def iOSNotifications11(filefound):
 						
 						#h.write('test')
 					
-					
 					for dict in plist2:
 						liste = dict
 						types = (type(liste))
@@ -1384,3 +1383,53 @@ def iOSNotifications12(filefound):
 	if notdircount == 0:
 		print('No notifications located.')
 	print('iOS 12 & 13 Notifications function completed.')
+
+def ktx(filefound):
+	print(f'Snapshots KTX file finder function executing.')
+	print(f'Snapshots located: {len(filefound)}')
+	outpath = reportfolderbase +'Snapshots_KTX_Files/'
+	outktx = outpath+'KTX_Files/'
+	os.mkdir(outpath)
+	os.mkdir(outktx)
+	nl = '\n'
+	
+	filedata = open(outpath+'_Snapshot_KTX_Files_List.csv', mode='a+')
+	filewrite = csv.writer(filedata, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+	filewrite.writerow([ 'Path', 'Filename', 'Modified date: Valid only for TAR & FS extractions'])
+	filedata.close()
+	
+	for filename in filefound:
+		p = pathlib.Path(filename)
+		head1, tail1 = os.path.split(filename)
+		head2, tail2 = os.path.split(head1)
+		
+		tail = ''
+		head = ''
+		fullp = ''
+		for x in p.parts:
+			head1, tail = os.path.split(head1)
+			fullp = tail+'/'+fullp
+			if tail == 'Library':
+				fullpw = fullp
+			
+		if os.path.exists(outktx+fullpw):
+			pass
+		else:
+			os.makedirs(outktx+fullpw)
+		#get the name, filepath, creationdate, modifieddate, accessdate and write to csv in outpath _KTX_Files_Report.csv
+		mdfields = os.stat(filename)
+		birthdate = datetime.datetime.fromtimestamp(mdfields.st_birthtime)
+		recentaccess = datetime.datetime.fromtimestamp(mdfields.st_atime)
+		
+		recentmod = datetime.datetime.fromtimestamp(mdfields.st_mtime)
+		#print(birthdate)
+		#print(recentaccess)
+		#print(recentmod)
+		#copy the files to the proper folder with metadata
+		filedata = open(outpath+'_Snapshot_KTX_Files_List.csv', mode='a+')
+		filewrite = csv.writer(filedata, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+		filewrite.writerow([filename, tail1, recentmod])
+		filedata.close()
+		if os.path.exists(filename):
+			shutil.copy2(filename, outktx+fullpw)
+	print(f'Snapshots KTX file finder function completed.')	
