@@ -7,7 +7,7 @@ from six.moves.configparser import RawConfigParser
 from time import process_time
 import  tarfile
 import shutil
-
+from report import *
 
 parser = argparse.ArgumentParser(description='iLEAPP: iOS Logs, Events, and Preferences Parser.')
 parser.add_argument('-o', choices=['fs','tar', 'zip'], required=True, action="store",help="Directory path, TAR, or ZIP filename and path(required).")
@@ -25,11 +25,12 @@ pathto = args.pathtodir
 extracttype = args.o
 start = process_time()
 
+
 tosearch = {'mib':'*mobile_installation.log.*', 'iconstate':'*SpringBoard/IconState.plist', 'lastbuild':'*LastBuildInfo.plist', 'iOSNotifications11':'*PushStore*', 'iOSNotifications12':'*private/var/mobile/Library/UserNotifications*',
 		'wireless':'*wireless/Library/Preferences/com.apple.*','knowledgec':'*CoreDuet/Knowledge/knowledgeC.db','applicationstate':'*pplicationState.db*', 'conndevices':'*/iTunes_Control/iTunes/iTunesPrefs', 'ktx':'*.ktx*'}
-
-
-
+'''
+tosearch = {'mib':'*mobile_installation.log.*', 'lastbuild':'*LastBuildInfo.plist','applicationstate':'*pplicationState.db*','iOSNotifications11':'*PushStore*', 'iOSNotifications12':'*private/var/mobile/Library/UserNotifications*'}
+'''
 	
 os.makedirs(reportfolderbase)
 
@@ -113,9 +114,12 @@ else:
 	print('Error on argument -o')
 	
 if os.path.exists(reportfolderbase+'temp/'):
-	shutil.rmtree(reportfolderbase+'temp/')		
+	shutil.rmtree(reportfolderbase+'temp/')
+	#call reporting script		
 
 #print(f'iOS version: {versionf} ')
+report(reportfolderbase)
+
 print('')
 print('Processes completed.')
 end = process_time()

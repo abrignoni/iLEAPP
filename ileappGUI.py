@@ -7,6 +7,7 @@ from six.moves.configparser import RawConfigParser
 from time import process_time
 import  tarfile
 import shutil
+from report import *
 import PySimpleGUI as sg
 
 '''
@@ -175,6 +176,7 @@ while True:
 		shutil.rmtree(reportfolderbase+'temp/')		
 
 	#print(f'iOS version: {versionf} ')
+	report(reportfolderbase)
 	print('')
 	print('Processes completed.')
 	end = process_time()

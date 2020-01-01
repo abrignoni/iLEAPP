@@ -27,7 +27,7 @@ def conndevices(filefound):
 		data = f.read()
 
 	print(f'Connected devices function executing.')
-	outpath = reportfolderbase +'Devices_iOS_Connected_To/'
+	outpath = reportfolderbase +'Devices Connected/'
 	os.mkdir(outpath)
 	nl = '\n' 
 	
@@ -45,8 +45,10 @@ def conndevices(filefound):
 
 	if magic == b'\x01\x01\x80\x00\x00':
 		print("Found magic bytes in iTunes Prefs FRPD... Finding Usernames and Desktop names now")
-		f = open(outpath+'DevicesConnectedToReport.txt', 'w')
-		f.write(f'Artifact name and path: {filefound[0]}{nl}{nl}')
+		f = open(outpath+'DevicesConnected.html', 'w')
+		f.write('<html>')
+		f.write(f'Artifact name and path: {filefound[0]}<br>')
+		f.write(f'Usernames and Computer names:<br><br>')
 		for x in range (int(magicOffset + 92), len(data)):
 			if (data[x]) == 0:
 				x = int(magicOffset) + 157
@@ -66,14 +68,15 @@ def conndevices(filefound):
 				userByteArr.append(char)
 
 		print(f'{userComps}{nl}')
-		f.write(f'{userComps}{nl}')
+		f.write(f'{userComps}<br>')
+	f.write(f'</html>')
 	f.close()
 	print(f'Connected devices function completed. ')
 
 def applicationstate(filefound):
 	iOSversion = versionf
 	print(f'ApplicationState.db queries executing.')
-	outpath = reportfolderbase +'ApplicationState_data/'
+	outpath = reportfolderbase +'Application State/'
 	
 	try: 
 		os.mkdir(outpath)
@@ -129,6 +132,17 @@ def applicationstate(filefound):
 		output_file = open(outpath+'exported-clean/'+bundleidplist, 'wb') 
 		output_file.write(plist)
 		output_file.close()
+	
+	#create html headers
+	filedatahtml = open(outpath+'Application State.html', mode='a+')
+	filedatahtml.write('<html><body>')
+	filedatahtml.write('<h2>iOS ApplicationState.db Report </h2>')
+	filedatahtml.write ('<style> table, th, td {border: 1px solid black; border-collapse: collapse;}</style>')
+	filedatahtml.write('<br/>')
+	filedatahtml.write('<table>')
+	filedatahtml.write(f'<tr><td colspan = "4">{apstatefiledb}</td></tr>')
+	filedatahtml.write('<tr><td>Bundle ID</td><td>Bundle Path</td><td>Bundle Container</td><td>Sandbox Path</td></tr>')
+	
 		
 	for filename in glob.glob(outpath+'exported-clean/*.bplist'):	
 		p = open(filename, 'rb')
@@ -141,22 +155,31 @@ def applicationstate(filefound):
 		bcontainer = (ns_keyed_archiver_obj['bundleContainerPath'])
 		bsandbox = (ns_keyed_archiver_obj['sandboxPath'])
 		
+		if bsandbox == '$null':
+			bsandbox = ''
+		if bcontainer == '$null':
+			bcontainer = ''
 		
+		
+		#csv report
 		filedata = open(outpath+'ApplicationState_InstalledAppInfo.csv', mode='a+')
 		filewrite = csv.writer(filedata, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 		filewrite.writerow([bid, bpath, bcontainer, bsandbox])
 		count = count + 1
 		filedata.close()
 		
+		#html report
+		filedatahtml.write(f'<tr><td>{bid}</td><td>{bpath}</td><td>{bcontainer}</td><td>{bsandbox}</td></tr>')
+		
+		
 		filemetadata = open(outpath+'ApplicationState_InstalledAppInfo_Path.txt', mode='w')
 		filemetadata.write(f'Artifact name and file path: {apstatefiledb} ')
 		filemetadata.close()
-	'''	
-	if os.path.exists(outpath+'exported-clean/'):
-		shutil.rmtree(outpath+'exported-clean/')	
-	if os.path.exists(outpath+'exported-dirty/'):
-		shutil.rmtree(outpath+'exported-dirty/')
-	'''		
+	
+	#close html footer
+	filedatahtml.write('</table></html>')
+	filedatahtml.close()
+	
 	print(f'Installed app GUIDs and app locations processed: {count}')
 	print(f'ApplicationState.db queries completed.')
 	
@@ -173,7 +196,7 @@ def knowledgec(filefound):
 	extension = '.bplist'
 	dump = True
 	#create directories
-	outpath = reportfolderbase+'knowledgeC_incepton_bplist/'
+	outpath = reportfolderbase+'KnowledgeC Protobuf/'
 
 
 	try: 
@@ -415,10 +438,19 @@ def mib(filefound):
 			matchObj = re.search( r"(Install Successful for)", line) #Regex for installed applications
 			if matchObj:
 				actiondesc = "Install successful"
-				matchObj = re.search( r"(?<=for \()(.*)(?=\))", line) #Regex for bundle id
-				if matchObj:
-					bundleid = matchObj.group(1)
-				
+				matchObj1 = re.search( r"(?<= for \(Placeholder:)(.*)(?=\))", line) #Regex for bundle id
+				matchObj2 = re.search( r"(?<= for \(Customer:)(.*)(?=\))", line) #Regex for bundle id	
+				matchObj3 = re.search( r"(?<= for \(System:)(.*)(?=\))", line) #Regex for bundle id	
+				matchObj4 = re.search( r"(?<= for \()(.*)(?=\))", line) #Regex for bundle id			
+				if matchObj1:
+					bundleid = matchObj1.group(1)
+				elif matchObj2:
+					bundleid = matchObj2.group(1)
+				elif matchObj3:
+					bundleid = matchObj3.group(1)
+				elif matchObj4:
+					bundleid = matchObj4.group(1)
+					
 				matchObj = re.search( r"(?<=^)(.*)(?= \[)", line) #Regex for timestamp
 				if matchObj:
 					timestamp = matchObj.group(1)
@@ -721,6 +753,21 @@ def mib(filefound):
 		f1.close()
 		f2.close()
 		
+		list =[]
+		path = reportfolderbase+'/Mobile_Installation_Logs/Apps_State/'
+		files = os.listdir(path)
+		for name in files:
+			list.append(f'<a href = "./{name}" target="content">{name}</a>')
+
+		filedatahtml = open(path+'/Apps State.html', mode='a+')
+		filedatahtml.write('Data from Mobile Installation Logs - App State / Installed and Uninstalled Apps <br>')
+		filedatahtml.write(f'Data location: {filename} <br><br>')
+		list.sort()
+		for items in list:
+			filedatahtml.write(items)
+			filedatahtml.write('<br>')
+		filedatahtml.close()
+				
 		#Query to create historical report per app
 					
 		cursor.execute('''SELECT distinct bundle_id from dimm''')
@@ -741,7 +788,27 @@ def mib(filefound):
 			f3.close()
 			historicalcount = historicalcount + 1
 		
+		list =[]
+		path = reportfolderbase+'/Mobile_Installation_Logs/Apps_Historical/'
+		files = os.listdir(path)
+		for name in files:
+			list.append(f'<a href = "./{name}" target="content">{name}</a>')
+
+		filedatahtml = open(path+'Apps Historical.html', mode='a+')
+		filedatahtml.write('Data from Mobile Installation Logs - Apps Historical <br>')
+		filedatahtml.write(f'Data location: {filename} <br><br>')
+		list.sort()
+		for items in list:
+			filedatahtml.write(items)
+			filedatahtml.write('<br>')
+		filedatahtml.close()
+		
 		#Query to create system events
+		
+		path = reportfolderbase+'/Mobile_Installation_Logs/System_State/'
+		filedatahtml = open(path+'System State.html', mode='a+')
+		filedatahtml.write('Data from Mobile Installation Logs - System State / Reboots <br>')
+		filedatahtml.write(f'Data location: {filename} <br><br>')
 					
 		cursor.execute('''SELECT * from dimm where action ='Reboot detected' order by time_stamp DESC''')
 		all_rows = cursor.fetchall()
@@ -750,10 +817,10 @@ def mib(filefound):
 			#print(row[0], row[1], row[2], row[3])
 			tofile4 = row[0] + ' ' + row[1] + ' ' + row[2] + ' ' + row[3] + '\n'
 			f4.write(tofile4)
+			filedatahtml.write(tofile4+'<br>')
 			sysstatecount = sysstatecount + 1		
 			
-		
-			
+		filedatahtml.close()	
 					
 		print ('Total apps: ', totalapps)
 		print ('Total installed apps: ', installedcount)
@@ -770,23 +837,29 @@ def mib(filefound):
 	
 def wireless(filefound):
 	print(f'Cellular Wireless files function executing')
-	os.makedirs(reportfolderbase+'Cellular_Wireless_Info/')
+	os.makedirs(reportfolderbase+'Cellular Wireless Info/')
 	for filepath in filefound:
 		basename = os.path.basename(filepath)
-		if basename.endswith('.plist'):	
-			f =open(reportfolderbase+'Cellular_Wireless_Info/'+basename+'.txt','w')
+		if basename =='com.apple.commcenter.device_specific_nobackup.plist' or basename =='com.apple.commcenter.plist':	
+			f =open(reportfolderbase+'Cellular Wireless Info/'+basename+'.html','w')
+			#header html mas tabla
+			f.write('<html>')
+			f.write(f'<p><body><table>')
+			f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}</style>')
+			f.write(f'<tr><td colspan="2">{basename}</td></tr>')
 			p = open(filepath, 'rb')
 			plist = plistlib.load(p)
 			for key, val in plist.items():
-				f.write(f'{key} -> {val}{nl}')
+				f.write(f'<tr><td>{key}</td><td>{val}</td></tr>')
+			f.write(f'</table></body></html>')
 			f.close()
 	print(f'Cellular Wireless files function completed')
 	
 def iconstate(filefound):
 	print(f'Iconstate function executing.')
-	os.makedirs(reportfolderbase+'IconState_Plist/')
-	f =open(reportfolderbase+'IconState_Plist/IconState_Plist.txt','w')
-	g =open(reportfolderbase+'IconState_Plist/IconState_Plist_Screen_Position.html','w')
+	os.makedirs(reportfolderbase+'Icon Positions/')
+	f =open(reportfolderbase+'Icon Positions/Icon Positions.txt','w')
+	g =open(reportfolderbase+'Icon Positions/Icon Positons.html','w')
 	g.write('<html>')
 	p = open(filefound[0], 'rb')
 	plist = plistlib.load(p)
@@ -826,12 +899,24 @@ def lastbuild(filefound):
 	global versionf
 	versionnum = 0
 	print(f'Lastbuild function executing.')
-	os.makedirs(reportfolderbase+'LastBuildInfo_Plist/')
-	f =open(reportfolderbase+'LastBuildInfo_Plist/ LastBuildInfo.plist.txt','w')
+	os.makedirs(reportfolderbase+'Build Info/')
+	f =open(reportfolderbase+'Build Info/LastBuildInfo.plist.txt','w')
 	p = open(filefound[0], 'rb')
 	plist = plistlib.load(p)
+	
+	#create html headers
+	filedatahtml = open(reportfolderbase+'Build Info/'+'Build_Info.html', mode='a+')
+	filedatahtml.write('<html><body>')
+	filedatahtml.write('<h2>Last Build Report </h2>')
+	filedatahtml.write ('<style> table, th, td {border: 1px solid black; border-collapse: collapse;}</style>')
+	filedatahtml.write('<table>')
+	filedatahtml.write(f'<tr><td colspan = "2">{filefound[0]}</td></tr>')
+	filedatahtml.write('<tr><td>Key</td><td>Value</td></tr>')
+	
+	
 	for key, val in plist.items():
 		f.write(f'{key} -> {val}{nl}')
+		filedatahtml.write(f'<tr><td>{key}</td><td>{val}</td></tr>')
 		if key == ('ProductVersion'):
 			versionnum = val[0:2]		
 			if versionnum in ('11','12','13'):
@@ -841,6 +926,9 @@ def lastbuild(filefound):
 				versionf = 'Unknown'	
 	f.close()
 	
+	#close html footer
+	filedatahtml.write('</table></html>')
+	filedatahtml.close()
 	print(f'Lastbuild function completed.')
 
 def iOSNotifications11(filefound):
@@ -866,7 +954,7 @@ def iOSNotifications11(filefound):
 	if pathfound == 0:
 		print("No PushStore directory located")
 	else:
-		folder = (reportfolderbase+'iOS_11_Notifications/') #add the date thing from phill
+		folder = (reportfolderbase+'iOS 11 Notifications/') #add the date thing from phill
 		os.makedirs( folder )
 		#print("Processing:")
 		for filename in glob.iglob(pathfound+'\**', recursive=True):
@@ -1104,17 +1192,28 @@ def iOSNotifications11(filefound):
 					h.close()
 				elif 'AttachmentsList' in file_name:
 					test = 0 #future development
-
+					
+	path = reportfolderbase+'/iOS 11 Notifications/'
+	list =[]
+	files = os.listdir(path)
+	for name in files:
+		list.append(f'<a href = "./{name}/DeliveredNotificationsReport.html" target="content">{name}</a>')
+			
+	filedatahtml = open(path+'iOS11_Notifications.html', mode='a+')
+	list.sort()
+	for items in list:
+		filedatahtml.write(items)
+		filedatahtml.write('<br>')
 
 	print("Total notification directories processed:"+str(notdircount))
 	print("Total exported bplists from notifications:"+str(exportedbplistcount))
 	if notdircount == 0:
 			print('No notifications located.')
-	print(f'iOSNotifications 11 function completed.')
+	print(f'iOS 11 Notifications function completed.')
 	
 def iOSNotifications12(filefound):
-	print(f'iOS 12 & 13 Notifications function executing')
-	os.makedirs(reportfolderbase+'iOS_12+13_Notifications/')
+	print(f'iOS 12+ Notifications function executing')
+	os.makedirs(reportfolderbase+'iOS 12 Notifications/')
 
 	count = 0
 	notdircount = 0
@@ -1130,7 +1229,7 @@ def iOSNotifications12(filefound):
 	notiparams = [line.strip() for line in f]
 	f.close()
 	
-	folder = (reportfolderbase+'iOS_12+13_Notifications/') 
+	folder = (reportfolderbase+'iOS 12 Notifications/') 
 	#print("Processing:")
 	pathfound = str(filefound[0])
 	#print(f'Posix to string is: {pathfound}')
@@ -1377,12 +1476,25 @@ def iOSNotifications12(filefound):
 				h.close()
 			elif 'AttachmentsList' in file_name:
 				test = 0 #future development
-
+	
+	path = reportfolderbase+'/iOS 12 Notifications/'
+	list =[]
+	files = os.listdir(path)
+	for name in files:
+		list.append(f'<a href = "./{name}/DeliveredNotificationsReport.html" target="content">{name}</a>')
+		
+	filedatahtml = open(path+'iOS12_Notifications.html', mode='a+')
+	list.sort()
+	for items in list:
+		filedatahtml.write(items)
+		filedatahtml.write('<br>')
+	
+	
 	print("Total notification directories processed:"+str(notdircount))
 	print("Total exported bplists from notifications:"+str(exportedbplistcount))
 	if notdircount == 0:
 		print('No notifications located.')
-	print('iOS 12 & 13 Notifications function completed.')
+	print('iOS 12+ Notifications function completed.')
 
 def ktx(filefound):
 	print(f'Snapshots KTX file finder function executing.')
@@ -1395,9 +1507,18 @@ def ktx(filefound):
 	
 	filedata = open(outpath+'_Snapshot_KTX_Files_List.csv', mode='a+')
 	filewrite = csv.writer(filedata, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-	filewrite.writerow([ 'Path', 'Filename', 'Modified date: Valid only for TAR & FS extractions'])
+	filewrite.writerow([ 'Path', 'Filename'])
 	filedata.close()
 	
+	filedatahtml = open(outpath+'KTX_Files.html', mode='a+')
+	filedatahtml.write('<html><body>')
+	filedatahtml.write('<h2>KTX Files Report </h2>')
+	filedatahtml.write ('<style> table, th, td {border: 1px solid black; border-collapse: collapse;}</style>')
+	filedatahtml.write('<br/>')
+	filedatahtml.write(f'Extracted KTX files can be examined in the {outpath}KTX_Files/ directory.<br>')
+	filedatahtml.write('<table>')
+	filedatahtml.write('<tr><td>Path</td><td>Filename</td></tr>')
+
 	for filename in filefound:
 		p = pathlib.Path(filename)
 		head1, tail1 = os.path.split(filename)
@@ -1416,20 +1537,14 @@ def ktx(filefound):
 			pass
 		else:
 			os.makedirs(outktx+fullpw)
-		#get the name, filepath, creationdate, modifieddate, accessdate and write to csv in outpath _KTX_Files_Report.csv
-		mdfields = os.stat(filename)
-		birthdate = datetime.datetime.fromtimestamp(mdfields.st_birthtime)
-		recentaccess = datetime.datetime.fromtimestamp(mdfields.st_atime)
-		
-		recentmod = datetime.datetime.fromtimestamp(mdfields.st_mtime)
-		#print(birthdate)
-		#print(recentaccess)
-		#print(recentmod)
-		#copy the files to the proper folder with metadata
+		#get the name, filepath write to csv in outpath _KTX_Files_Report.csv
+
 		filedata = open(outpath+'_Snapshot_KTX_Files_List.csv', mode='a+')
 		filewrite = csv.writer(filedata, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-		filewrite.writerow([filename, tail1, recentmod])
+		filewrite.writerow([filename, tail1])
+		filedatahtml.write(f'<tr><td>{filename}</td><td>{tail1}</td></tr>')
 		filedata.close()
 		if os.path.exists(filename):
 			shutil.copy2(filename, outktx+fullpw)
+	filedatahtml.close()
 	print(f'Snapshots KTX file finder function completed.')	
