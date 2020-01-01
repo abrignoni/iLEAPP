@@ -1476,19 +1476,27 @@ def iOSNotifications12(filefound):
 				h.close()
 			elif 'AttachmentsList' in file_name:
 				test = 0 #future development
-	
+
 	path = reportfolderbase+'/iOS 12 Notifications/'
-	list =[]
+	dict ={}
 	files = os.listdir(path)
 	for name in files:
-		list.append(f'<a href = "./{name}/DeliveredNotificationsReport.html" target="content">{name}</a>')
-		
+		try:
+			size = os.path.getsize(f'{path}{name}/DeliveredNotificationsReport.html')
+			key = (f'<a href = "{name}/DeliveredNotificationsReport.html" target="content">{name}</a>')
+			dict[key] = size
+		except NotADirectoryError as nade:
+			print(nade)
+			pass
+
 	filedatahtml = open(path+'iOS12_Notifications.html', mode='a+')
-	list.sort()
-	for items in list:
-		filedatahtml.write(items)
-		filedatahtml.write('<br>')
-	
+	filedatahtml.write('<html><body><table><style> table, td {border: 1px solid black; border-collapse: collapse;}</style><tr><td>Notifications by GUID (iOS13) or Bundle ID (iOS12) </td><td>Notification size in KB</td></tr>')
+	for k, v in dict.items():
+		v = v/1000
+		#print(f'{k} -> {v}')	
+		filedatahtml.write(f'<tr><td>{k}</td><td>{v}</td></tr>')
+	filedatahtml.write('</table></body></html>')
+	filedatahtml.close()
 	
 	print("Total notification directories processed:"+str(notdircount))
 	print("Total exported bplists from notifications:"+str(exportedbplistcount))
