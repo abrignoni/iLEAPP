@@ -27,14 +27,15 @@ args = parser.parse_args()
 sg.theme('DarkAmber')   # Add a touch of color
 # All the stuff inside your window.
 
-layout = [  [sg.Text('iOS Logs, Events, And Properties Parser.')],
-			[sg.Text('https://github.com/abrignoni/iLEAPP')],
-			[sg.Text('Select the file type or directory of the target iOS full file system extraction for parsing.')],
-			[sg.Radio('.Tar', "rad1", default=True), sg.Radio('Directory', "rad1"), sg.Radio('.Zip', "rad1")],
-			[sg.Text('File:', size=(8, 1)), sg.Input(), sg.FileBrowse()],
-			[sg.Text('Directory:', size=(8, 1)), sg.Input(), sg.FolderBrowse()],
-			[sg.Output(size=(80,20))],
-			[sg.Submit('Process'), sg.Button('Close')] ]
+layout = [  [sg.Text('iOS Logs, Events, And Properties Parser.', font=("Helvetica", 25))], #added font type and font size
+			[sg.Text('https://github.com/abrignoni/iLEAPP', font=("Helvetica", 18))],#added font type and font size
+			[sg.Text('Select the file type or directory of the target iOS full file system extraction for parsing.', font=("Helvetica", 16))],#added font type and font size
+			[sg.Radio('.Tar', "rad1", default=True, font=("Helvetica", 14)), sg.Radio('Directory', "rad1", font=("Helvetica", 14)), sg.Radio('.Zip', "rad1", font=("Helvetica", 14))], #added font type and font size
+			[sg.Text('File:', size=(8, 1), font=("Helvetica", 14)), sg.Input(), sg.FileBrowse(font=("Helvetica", 12))], #added font type and font size
+			[sg.Text('Directory:', size=(8, 1), font=("Helvetica", 14)), sg.Input(), sg.FolderBrowse(font=("Helvetica", 12))], #added font type and font size
+			[sg.Output(size=(100,40))], #changed size from (88,20)
+			[sg.Submit('Process',font=("Helvetica", 14)), sg.Button('Close', font=("Helvetica", 14))] ] #added font type and font size
+			
 
 # Create the Window
 window = sg.Window('iLEAPP', layout)
@@ -81,6 +82,8 @@ while True:
 		'wireless':'*wireless/Library/Preferences/com.apple.*','knowledgec':'*CoreDuet/Knowledge/knowledgeC.db','applicationstate':'*pplicationState.db*', 'conndevices':'*/iTunes_Control/iTunes/iTunesPrefs', 'ktx':'*.ktx*'}
 			
 	os.makedirs(reportfolderbase)
+	os.makedirs(reportfolderbase+'Script Logs')
+	
 	window.refresh()
 	print('\n--------------------------------------------------------------------------------------')
 	print('iLEAPP: iOS Logs, Events, and Preferences Parser')
@@ -94,9 +97,9 @@ while True:
 		print('\n--------------------------------------------------------------------------------------')
 		print( )
 		window.refresh()
-		log = open(reportfolderbase+'ProcessedFilesLog.txt', 'w+', encoding='utf8')
+		log = open(reportfolderbase+'Script Logs/ProcessedFilesLog.html', 'w+', encoding='utf8')
 		nl = '\n' #literal in order to have new lines in fstrings that create text files
-		log.write(f'Extraction/Path selected: {pathto}{nl}{nl}')
+		log.write(f'Extraction/Path selected: {pathto}<br><br>')
 		
 		# Search for the files per the arguments
 		for key, val in tosearch.items():
@@ -106,13 +109,13 @@ while True:
 				window.refresh()
 				print()
 				print(f'No files found for {key} -> {val}.')
-				log.write(f'No files found for {key} -> {val}.{nl}')
+				log.write(f'No files found for {key} -> {val}.<br><br>')
 			else:
 				print()
 				window.refresh()
 				globals()[key](filefound)
 				for pathh in filefound:
-					log.write(f'Files for {val} located at {pathh}.{nl}')
+					log.write(f'Files for {val} located at {pathh}.<br><br>')
 		log.close()
 
 	elif extracttype == 'tar':
@@ -121,9 +124,9 @@ while True:
 		print('\n--------------------------------------------------------------------------------------')
 		print( )
 		window.refresh()
-		log = open(reportfolderbase+'ProcessedFilesLog.txt', 'w+', encoding='utf8')
+		log = open(reportfolderbase+'Script Logs/ProcessedFilesLog.html', 'w+', encoding='utf8')
 		nl = '\n' #literal in order to have new lines in fstrings that create text files
-		log.write(f'Extraction/Path selected: {pathto}{nl}{nl}')	# tar searches and function calls
+		log.write(f'Extraction/Path selected: {pathto}<br><br>')	# tar searches and function calls
 		
 		for key, val in tosearch.items():
 			filefound = searchtar(pathto, val, reportfolderbase)
@@ -132,14 +135,14 @@ while True:
 				window.refresh()
 				print()
 				print(f'No files found for {key} -> {val}.')
-				log.write(f'No files found for {key} -> {val}.{nl}')
+				log.write(f'No files found for {key} -> {val}.<br><br>')
 			else:
 				
 				print()
 				window.refresh()
 				globals()[key](filefound)
 				for pathh in filefound:
-					log.write(f'Files for {val} located at {pathh}.{nl}')
+					log.write(f'Files for {val} located at {pathh}.<br><br>')
 		log.close()
 
 	elif extracttype == 'zip':
@@ -148,9 +151,9 @@ while True:
 			print('\n--------------------------------------------------------------------------------------')
 			print( )
 			window.refresh()
-			log = open(reportfolderbase+'ProcessedFilesLog.txt', 'w+', encoding='utf8')
+			log = open(reportfolderbase+'Script Logs/ProcessedFilesLog.html', 'w+', encoding='utf8')
 			nl = '\n' #literal in order to have new lines in fstrings that create text files
-			log.write(f'Extraction/Path selected: {pathto}{nl}{nl}')	# tar searches and function calls
+			log.write(f'Extraction/Path selected: {pathto}<br><br>')	# tar searches and function calls
 			
 			for key, val in tosearch.items():
 				filefound = searchzip(pathto, val, reportfolderbase)
@@ -159,14 +162,14 @@ while True:
 					window.refresh()
 					print()
 					print(f'No files found for {key} -> {val}.')
-					log.write(f'No files found for {key} -> {val}.{nl}')
+					log.write(f'No files found for {key} -> {val}.<br><br>')
 				else:
 					
 					print()
 					window.refresh()
 					globals()[key](filefound)
 					for pathh in filefound:
-						log.write(f'Files for {val} located at {pathh}.{nl}')
+						log.write(f'Files for {val} located at {pathh}.<br><br>')
 			log.close()
 
 	else:
