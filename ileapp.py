@@ -33,6 +33,7 @@ tosearch = {'mib':'*mobile_installation.log.*', 'lastbuild':'*LastBuildInfo.plis
 '''
 	
 os.makedirs(reportfolderbase)
+os.makedirs(reportfolderbase+'Script Logs')
 
 print('\n--------------------------------------------------------------------------------------')
 print('iLEAPP: iOS Logs, Events, and Preferences Parser')
@@ -45,9 +46,9 @@ if extracttype == 'fs':
 	print('\n--------------------------------------------------------------------------------------')
 	print( )
 
-	log = open(reportfolderbase+'ProcessedFilesLog.txt', 'w+', encoding='utf8')
+	log = open(reportfolderbase+'Script Logs/ProcessedFilesLog.html', 'w+', encoding='utf8')
 	nl = '\n' #literal in order to have new lines in fstrings that create text files
-	log.write(f'Extraction/Path selected: {pathto}{nl}{nl}')
+	log.write(f'Extraction/Path selected: {pathto}<br><br>')
 	
 	# Search for the files per the arguments
 	for key, val in tosearch.items():
@@ -55,12 +56,12 @@ if extracttype == 'fs':
 		if not filefound:
 			print()
 			print(f'No files found for {key} -> {val}.')
-			log.write(f'No files found for {key} -> {val}.{nl}')
+			log.write(f'No files found for {key} -> {val}.<br>')
 		else:
 			print()
 			globals()[key](filefound)
 			for pathh in filefound:
-				log.write(f'Files for {val} located at {pathh}.{nl}')
+				log.write(f'Files for {val} located at {pathh}.<br>')
 	log.close()
 
 elif extracttype == 'tar':
@@ -68,9 +69,9 @@ elif extracttype == 'tar':
 	print(f'File/Directory selected: {pathto}')
 	print('\n--------------------------------------------------------------------------------------')
 	
-	log = open(reportfolderbase+'ProcessedFilesLog.txt', 'w+', encoding='utf8')
+	log = open(reportfolderbase+'Script Logs/ProcessedFilesLog.html', 'w+', encoding='utf8')
 	nl = '\n' #literal in order to have new lines in fstrings that create text files
-	log.write(f'Extraction/Path selected: {pathto}{nl}{nl}')	# tar searches and function calls
+	log.write(f'Extraction/Path selected: {pathto}<br><br>')	# tar searches and function calls
 	
 	for key, val in tosearch.items():
 		filefound = searchtar(pathto, val, reportfolderbase)
@@ -78,13 +79,13 @@ elif extracttype == 'tar':
 			
 			print()
 			print(f'No files found for {key} -> {val}.')
-			log.write(f'No files found for {key} -> {val}.{nl}')
+			log.write(f'No files found for {key} -> {val}.<br>')
 		else:
 			
 			print()
 			globals()[key](filefound)
 			for pathh in filefound:
-				log.write(f'Files for {val} located at {pathh}.{nl}')
+				log.write(f'Files for {val} located at {pathh}.<br>')
 	log.close()
 
 elif extracttype == 'zip':
@@ -92,22 +93,21 @@ elif extracttype == 'zip':
 		print(f'File/Directory selected: {pathto}')
 		print('\n--------------------------------------------------------------------------------------')
 		print( )
-		log = open(reportfolderbase+'ProcessedFilesLog.txt', 'w+', encoding='utf8')
-		nl = '\n' #literal in order to have new lines in fstrings that create text files
-		log.write(f'Extraction/Path selected: {pathto}{nl}{nl}')	# tar searches and function calls
+		log = open(reportfolderbase+'Script Logs/ProcessedFilesLog.html', 'w+', encoding='utf8')
+		log.write(f'Extraction/Path selected: {pathto}<br><br>')	# tar searches and function calls
 		
 		for key, val in tosearch.items():
 			filefound = searchzip(pathto, val, reportfolderbase)
 			if not filefound:
 				print()
 				print(f'No files found for {key} -> {val}.')
-				log.write(f'No files found for {key} -> {val}.{nl}')
+				log.write(f'No files found for {key} -> {val}.<br>')
 			else:
 				
 				print()
 				globals()[key](filefound)
 				for pathh in filefound:
-					log.write(f'Files for {val} located at {pathh}.{nl}')
+					log.write(f'Files for {val} located at {pathh}.<br>')
 		log.close()
 
 else:
@@ -118,11 +118,12 @@ if os.path.exists(reportfolderbase+'temp/'):
 	#call reporting script		
 
 #print(f'iOS version: {versionf} ')
-report(reportfolderbase)
+
 
 print('')
 print('Processes completed.')
 end = process_time()
 time = start - end
+report(reportfolderbase, time, extracttype, pathto)
 print("Processing time: " + str(abs(time)) )
 	

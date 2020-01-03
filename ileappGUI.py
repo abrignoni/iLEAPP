@@ -80,9 +80,11 @@ while True:
 	
 	tosearch = {'mib':'*mobile_installation.log.*', 'iconstate':'*SpringBoard/IconState.plist', 'lastbuild':'*LastBuildInfo.plist', 'iOSNotifications11':'*PushStore*', 'iOSNotifications12':'*private/var/mobile/Library/UserNotifications*',
 		'wireless':'*wireless/Library/Preferences/com.apple.*','knowledgec':'*CoreDuet/Knowledge/knowledgeC.db','applicationstate':'*pplicationState.db*', 'conndevices':'*/iTunes_Control/iTunes/iTunesPrefs', 'ktx':'*.ktx*'}
+
 			
 	os.makedirs(reportfolderbase)
 	os.makedirs(reportfolderbase+'Script Logs')
+
 	
 	window.refresh()
 	print('\n--------------------------------------------------------------------------------------')
@@ -95,7 +97,7 @@ while True:
 		
 		print(f'File/Directory selected: {pathto}')
 		print('\n--------------------------------------------------------------------------------------')
-		print( )
+		print('')
 		window.refresh()
 		log = open(reportfolderbase+'Script Logs/ProcessedFilesLog.html', 'w+', encoding='utf8')
 		nl = '\n' #literal in order to have new lines in fstrings that create text files
@@ -122,11 +124,12 @@ while True:
 		
 		print(f'File/Directory selected: {pathto}')
 		print('\n--------------------------------------------------------------------------------------')
-		print( )
+		print('')
 		window.refresh()
 		log = open(reportfolderbase+'Script Logs/ProcessedFilesLog.html', 'w+', encoding='utf8')
 		nl = '\n' #literal in order to have new lines in fstrings that create text files
 		log.write(f'Extraction/Path selected: {pathto}<br><br>')	# tar searches and function calls
+		
 		
 		for key, val in tosearch.items():
 			filefound = searchtar(pathto, val, reportfolderbase)
@@ -149,7 +152,7 @@ while True:
 			
 			print(f'File/Directory selected: {pathto}')
 			print('\n--------------------------------------------------------------------------------------')
-			print( )
+			print('')
 			window.refresh()
 			log = open(reportfolderbase+'Script Logs/ProcessedFilesLog.html', 'w+', encoding='utf8')
 			nl = '\n' #literal in order to have new lines in fstrings that create text files
@@ -179,12 +182,13 @@ while True:
 		shutil.rmtree(reportfolderbase+'temp/')		
 
 	#print(f'iOS version: {versionf} ')
-	report(reportfolderbase)
+	
 	print('')
 	print('Processes completed.')
 	end = process_time()
 	time = start - end
 	print("Processing time in secs: " + str(abs(time)) )
+	report(reportfolderbase, time, extracttype, pathto)
 	locationmessage = ('Report name: '+reportfolderbase)
 	sg.Popup('Processing completed', locationmessage)
 	sys.exit()

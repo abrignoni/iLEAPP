@@ -1,7 +1,7 @@
 import sys, os, re, glob, pathlib, shutil
 from time import process_time
 
-def report(reportfolderbase):
+def report(reportfolderbase, time, extracttype, pathto):
 	os.mkdir(reportfolderbase+'/_elements')
 
 	abr = os.path.dirname(os.path.abspath(__file__))
@@ -10,7 +10,7 @@ def report(reportfolderbase):
 	<head>
 	<meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
 	<link rel='stylesheet' type='text/css' href='report.css'>
-	<title>Report menu</title>
+	<title>osTriage report menu</title>
 	</head>
 	<body class='menuBackground'>
 	<div class='menuBackgroundOverlay'>'''
@@ -130,16 +130,25 @@ def report(reportfolderbase):
 	<body>
 	<h1>iLEAPP 1.0 report</h1>
 	<hr>
-	<h2>Case information</h2>
+	<h2>Case </h2>
 	<table width='750' border='0'>
-	<tr>
-	</tr>
-	</table>
-	<br>
-	</body>
-	</html>'''
+	
+	'''
+	time = str(abs(time))
 	filedatahtml = open(reportfolderbase+'/_elements/data.html', mode='a+')
 	filedatahtml.write(fulldata)
+	filedatahtml.write(f'<tr><td>Extraction location: </td><td>{pathto}</td></tr>')
+	filedatahtml.write(f'<tr><td>Extraction type: </td><td>{extracttype}</td></tr>')
+	filedatahtml.write(f'<tr><td>Report directory: </td><td>{reportfolderbase}</td></tr>')
+	filedatahtml.write(f'<tr><td>Processing in secs: </td><td>{time}</td></tr>')
+	filedatahtml.write('</table><br>')
+	filedatahtml.write('<h2>Informational</h2>')
+	filedatahtml.write('<table width="750" border="0">')
+	filedatahtml.write('<tr>')
+	filedatahtml.write(f'<tr><td>Blog: </td><td><a href="https://abrignoni.com" target=”_blank”>abrignoni.com</a></td></tr>')
+	filedatahtml.write(f'<tr><td>Github: </td><td><a href="https://github.com/abrignoni" target=”_blank”>github.com/abrignoni</a></td></tr>')
+	filedatahtml.write(f'<tr><td>Twitter: </td><td><a href="https://twitter.com/AlexisBrignoni" target=”_blank”>@AlexisBrignoni</a></td></tr>')
+	filedatahtml.write('</table><br></body></html>')
 	filedatahtml.close()
 
 	shutil.copy2('logo.jpg', reportfolderbase+'/_elements/')
