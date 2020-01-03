@@ -41,7 +41,6 @@ def report(reportfolderbase):
 						notification12 = 1
 						filedatahtml.write('</ul>')
 						filedatahtml.write('</div>')
-						filedatahtml.write('<br>')
 						filedatahtml.write('<div id="button">')
 						filedatahtml.write(f'<div id="menuSub">iOS 12+ Notifications</div>')
 						filedatahtml.write('<ul>')
@@ -53,7 +52,6 @@ def report(reportfolderbase):
 						notification11 = 1
 						filedatahtml.write('</ul>')
 						filedatahtml.write('</div>')
-						filedatahtml.write('<br>')
 						filedatahtml.write('<div id="button">')
 						filedatahtml.write(f'<div id="menuSub">iOS 11 Notifications</div>')
 						filedatahtml.write('<ul>')
@@ -64,17 +62,16 @@ def report(reportfolderbase):
 					pass
 				else:
 					if control == SectionHeader:
-						filedatahtml.write(f'<li class="{SectionHeader}" ><a href="{abr}/{HtmlFilePath}" target="content">{tail}</a></li>')
+						filedatahtml.write(f'<li class="{SectionHeader}" ><a href="{abr}/{HtmlFilePath}" target="content"> {tail}</a></li>')
 						#print(fullpath)
 					else:
 						control = SectionHeader
 						filedatahtml.write('</ul>')
 						filedatahtml.write('</div>')
-						filedatahtml.write('<br>')
 						filedatahtml.write('<div id="button">')
 						filedatahtml.write(f'<div id="menuSub">{SectionHeader}</div>')
 						filedatahtml.write('<ul>')
-						filedatahtml.write(f'<li class="{SectionHeader}" ><a href="{abr}/{HtmlFilePath}" target="content">{tail}</a></li>')
+						filedatahtml.write(f'<li class="{SectionHeader}" ><a href="{abr}/{HtmlFilePath}" target="content"> {tail}</a></li>')
 				
 	filedatahtml.write('</ul>')
 	filedatahtml.write('</div>')
