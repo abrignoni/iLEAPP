@@ -79,7 +79,7 @@ while True:
 	start = process_time()
 	
 	tosearch = {'mib':'*mobile_installation.log.*', 'iconstate':'*SpringBoard/IconState.plist', 'lastbuild':'*LastBuildInfo.plist', 'iOSNotifications11':'*PushStore*', 'iOSNotifications12':'*private/var/mobile/Library/UserNotifications*',
-		'wireless':'*wireless/Library/Preferences/com.apple.*','knowledgec':'*CoreDuet/Knowledge/knowledgeC.db','applicationstate':'*pplicationState.db*', 'conndevices':'*/iTunes_Control/iTunes/iTunesPrefs', 'ktx':'*.ktx*'}
+		'wireless':'*wireless/Library/Preferences/com.apple.*','knowledgec':'*CoreDuet/Knowledge/knowledgeC.db','applicationstate':'*pplicationState.db*', 'conndevices':'*/iTunes_Control/iTunes/iTunesPrefs', 'ktx':'*.ktx*', 'calhist':'*CallHistory.storedata'}
 
 			
 	os.makedirs(reportfolderbase)
@@ -188,6 +188,11 @@ while True:
 	end = process_time()
 	time = start - end
 	print("Processing time in secs: " + str(abs(time)) )
+	
+	log = open(reportfolderbase+'Script Logs/ProcessedFilesLog.html', 'a', encoding='utf8')
+	log.write(f'Processing time in secs: {str(abs(time))}')
+	log.close()
+	
 	report(reportfolderbase, time, extracttype, pathto)
 	locationmessage = ('Report name: '+reportfolderbase)
 	sg.Popup('Processing completed', locationmessage)

@@ -27,7 +27,7 @@ start = process_time()
 
 
 tosearch = {'mib':'*mobile_installation.log.*', 'iconstate':'*SpringBoard/IconState.plist', 'lastbuild':'*LastBuildInfo.plist', 'iOSNotifications11':'*PushStore*', 'iOSNotifications12':'*private/var/mobile/Library/UserNotifications*',
-		'wireless':'*wireless/Library/Preferences/com.apple.*','knowledgec':'*CoreDuet/Knowledge/knowledgeC.db','applicationstate':'*pplicationState.db*', 'conndevices':'*/iTunes_Control/iTunes/iTunesPrefs', 'ktx':'*.ktx*'}
+		'wireless':'*wireless/Library/Preferences/com.apple.*','knowledgec':'*CoreDuet/Knowledge/knowledgeC.db','applicationstate':'*pplicationState.db*', 'conndevices':'*/iTunes_Control/iTunes/iTunesPrefs', 'ktx':'*.ktx*','calhist':'*CallHistory.storedata'}
 '''
 tosearch = {'mib':'*mobile_installation.log.*', 'lastbuild':'*LastBuildInfo.plist','applicationstate':'*pplicationState.db*','iOSNotifications11':'*PushStore*', 'iOSNotifications12':'*private/var/mobile/Library/UserNotifications*'}
 '''
@@ -124,6 +124,15 @@ print('')
 print('Processes completed.')
 end = process_time()
 time = start - end
-report(reportfolderbase, time, extracttype, pathto)
 print("Processing time: " + str(abs(time)) )
+
+log = open(reportfolderbase+'Script Logs/ProcessedFilesLog.html', 'a', encoding='utf8')
+log.write(f'Processing time in secs: {str(abs(time))}')
+log.close()
+
+print('Report generation started.')
+report(reportfolderbase, time, extracttype, pathto)
+print('Report generation Completed.')
+print('Report generation started.')
+print(f'Report name: {reportfolderbase}')
 	
