@@ -196,7 +196,7 @@ def knowledgec(filefound):
 	extension = '.bplist'
 	dump = True
 	#create directories
-	outpath = reportfolderbase+'KnowledgeC Protobuf/'
+	outpath = reportfolderbase+'KnowledgeC/'
 
 
 	try: 
@@ -263,7 +263,7 @@ def knowledgec(filefound):
 		
 		cleancount = cleancount+1
 
-	h = open(outpath+'/Report.html', 'w')	
+	h = open(outpath+'/StrucMetadata.html', 'w')	
 	h.write('<html><body>')
 	h.write('<h2>iOS ' + iOSversion + ' - KnowledgeC ZSTRUCTUREDMETADATA bplist report</h2>')
 	h.write ('<style> table, th, td {border: 1px solid black; border-collapse: collapse;}</style>')
@@ -384,9 +384,64 @@ def knowledgec(filefound):
 	print("Exported bplists (dirty): "+str(dirtcount))
 	print("Exported bplists (clean): "+str(cleancount))
 	print("")
-	print(f'Triage report completed. See Reports.html.')
+	print(f'Triage report completed.')
 	print('Incepted bplist extractions in knowlwdgeC.db completed')
-re
+	
+	print(f'Application Usage in knowlwdgeC.db executing.')
+
+	#outpath = reportfolderbase+'KnowledgeC App Use/'
+
+	#connect sqlite databases
+	db = sqlite3.connect(filefound[0])
+	cursor = db.cursor()
+
+	cursor.execute('''
+	SELECT
+	datetime(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH', 'LOCALTIME') as "ENTRY CREATION", 
+	CASE ZOBJECT.ZSTARTDAYOFWEEK 
+		WHEN "1" THEN "Sunday"
+		WHEN "2" THEN "Monday"
+		WHEN "3" THEN "Tuesday"
+		WHEN "4" THEN "Wednesday"
+		WHEN "5" THEN "Thursday"
+		WHEN "6" THEN "Friday"
+		WHEN "7" THEN "Saturday"
+	END "DAY OF WEEK",
+	ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
+	datetime(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH', 'LOCALTIME') as "START", 
+	datetime(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH', 'LOCALTIME') as "END", 
+	(ZOBJECT.ZENDDATE-ZOBJECT.ZSTARTDATE) as "USAGE IN SECONDS",
+	ZOBJECT.ZSTREAMNAME, 
+	ZOBJECT.ZVALUESTRING
+	FROM ZOBJECT
+	WHERE ZSTREAMNAME IS "/app/inFocus" 
+	ORDER BY "START"	''')
+
+	all_rows = cursor.fetchall()
+	usageentries = len(all_rows)
+	
+	with open(reportfolderbase+'KnowledgeC/App Usage.html', 'w') as f:
+		f.write('<html><body>')
+		f.write('<h2>iOS ' + iOSversion + ' - KnowledgeC App Usage report</h2>')
+		f.write(f'KnowledgeC App Usage entries: {usageentries}<br>')
+		f.write(f'KnowledgeC located at: {filefound[0]}<br>')
+		f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;}</style>')
+		f.write('<br/>')
+		f.write('')
+		f.write(f'<table>')
+		f.write(f'<tr><td>Entry Creation</td><td>Day of Week</td><td>GMT Offset</td><td>Start</td><td>End</td><td>Usage in Seconds</td><td>ZSTREAMNAME</td><td>ZVALUESTRING</td></tr>')
+		for row in all_rows:
+			ec = row[0]
+			dw = row[1]
+			go = row[2]
+			st = row[3]
+			en = row[4]
+			us = row[5]
+			zs = row[6]
+			zv = row[7]
+			f.write(f'<tr><td>{ec}</td><td>{dw}</td><td>{go}</td><td>{st}</td><td>{en}</td><td>{us}</td><td>{zs}</td><td>{zv}</td></tr>')
+		f.write(f'</table></body></html>')
+				
 
 def mib(filefound):
 	print(f'Mobile Installation Logs function executing.')
@@ -1556,3 +1611,6 @@ def ktx(filefound):
 			shutil.copy2(filename, outktx+fullpw)
 	filedatahtml.close()
 	print(f'Snapshots KTX file finder function completed.')	
+
+
+	
