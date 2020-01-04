@@ -442,6 +442,66 @@ def knowledgec(filefound):
 			f.write(f'<tr><td>{ec}</td><td>{dw}</td><td>{go}</td><td>{st}</td><td>{en}</td><td>{us}</td><td>{zs}</td><td>{zv}</td></tr>')
 		f.write(f'</table></body></html>')
 				
+	#connect sqlite databases
+	db = sqlite3.connect(filefound[0])
+	cursor = db.cursor()
+
+	cursor.execute('''
+	SELECT
+	datetime(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH', 'LOCALTIME') as "ENTRY CREATION", 
+		CASE ZOBJECT.ZSTARTDAYOFWEEK 
+		WHEN "1" THEN "Sunday"
+		WHEN "2" THEN "Monday"
+		WHEN "3" THEN "Tuesday"
+		WHEN "4" THEN "Wednesday"
+		WHEN "5" THEN "Thursday"
+		WHEN "6" THEN "Friday"
+		WHEN "7" THEN "Saturday"
+	END "DAY OF WEEK",
+	datetime(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH', 'LOCALTIME') as "START", 
+	datetime(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH', 'LOCALTIME') as "END", 
+	ZOBJECT.ZSTREAMNAME, 
+	ZOBJECT.ZVALUESTRING,
+	ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__ACTIVITYTYPE AS "ACTIVITY TYPE",  
+	ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__TITLE as "TITLE", 
+	datetime(ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__EXPIRATIONDATE+978307200,'UNIXEPOCH', 'LOCALTIME') as "EXPIRATION DATE",
+	ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__ITEMRELATEDCONTENTURL as "CONTENT URL",
+	datetime(ZSTRUCTUREDMETADATA.ZCOM_APPLE_CALENDARUIKIT_USERACTIVITY_DATE+978307200,'UNIXEPOCH', 'LOCALTIME')  as "CALENDAR DATE",
+	datetime(ZSTRUCTUREDMETADATA.ZCOM_APPLE_CALENDARUIKIT_USERACTIVITY_ENDDATE+978307200,'UNIXEPOCH', 'LOCALTIME')  as "CALENDAR END DATE"
+	FROM ZOBJECT
+	left join ZSTRUCTUREDMETADATA on ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK
+	left join ZSOURCE on ZOBJECT.ZSOURCE = ZSOURCE.Z_PK
+	WHERE ZSTREAMNAME is "/app/activity" 
+	ORDER BY "ENTRY CREATION"''')
+
+	all_rows = cursor.fetchall()
+	usageentries = len(all_rows)
+	
+	with open(reportfolderbase+'KnowledgeC/App Activity.html', 'w') as f:
+		f.write('<html><body>')
+		f.write('<h2>iOS ' + iOSversion + ' - KnowledgeC App Activity report</h2>')
+		f.write(f'KnowledgeC App Activity entries: {usageentries}<br>')
+		f.write(f'KnowledgeC located at: {filefound[0]}<br>')
+		f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;}</style>')
+		f.write('<br/>')
+		f.write('')
+		f.write(f'<table>')
+		f.write(f'<tr><td>Entry Creation</td><td>Day of Week</td><td>Start</td><td>End</td><td>ZSTREAMNAME</td><td>ZVALUESTRING</td><td>Activity Type</td><td>Title</td><td>Expiration Date</td><td>Content URL</td><td>Calendar Date</td><td>Calendar End Date</td></tr>')
+		for row in all_rows:
+			ec = row[0]
+			dw = row[1]
+			st = row[2]
+			en = row[3]
+			zs = row[4]
+			zv = row[5]
+			tl = row[6]
+			ed = row[7]
+			cu = row[8]
+			cd = row[9]
+			ce = row[10]
+			ced = row[11]
+			f.write(f'<tr><td>{ec}</td><td>{dw}</td><td>{st}</td><td>{en}</td><td>{zs}</td><td>{zv}</td><td>{tl}</td><td>{ed}</td><td>{cu}</td><td>{cd}</td><td>{ce}</td><td>{ced}</td></tr>')
+		f.write(f'</table></body></html>')
 
 def mib(filefound):
 	print(f'Mobile Installation Logs function executing.')
