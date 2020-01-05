@@ -388,7 +388,7 @@ def knowledgec(filefound):
 	print(f'Triage report completed.')
 	print('Incepted bplist extractions in knowlwdgeC.db completed')
 	
-	print(f'KnowledgeC.db App Usage executing.')
+	print(f'KnowledgeC.db App Usage executing')
 
 	#outpath = reportfolderbase+'KnowledgeC App Use/'
 
@@ -505,7 +505,8 @@ def knowledgec(filefound):
 			f.write(f'<tr><td>{ec}</td><td>{dw}</td><td>{st}</td><td>{en}</td><td>{zs}</td><td>{zv}</td><td>{tl}</td><td>{ed}</td><td>{cu}</td><td>{cd}</td><td>{ce}</td><td>{ced}</td></tr>')
 		f.write(f'</table></body></html>')
 	print(f'KnowledgeC App Activity completed')
-	print(f'KnowledgeC App in Focus executin')
+	
+	print(f'KnowledgeC App in Focus executing')
 	db = sqlite3.connect(filefound[0])
 	cursor = db.cursor()
 
@@ -547,7 +548,207 @@ def knowledgec(filefound):
 			f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td></tr>')
 		f.write(f'</table></body></html>')
 		print(f'KnowledgeC App in Focus completed')
+	
+	print(f'KnowledgeC App Battery Level executing')
+	cursor.execute('''
+	SELECT
+			ZOBJECT.ZVALUEDOUBLE as "BATTERY LEVEL",
+			(ZOBJECT.ZENDDATE - ZOBJECT.ZSTARTDATE) AS "USAGE IN SECONDS", 
+			CASE ZOBJECT.ZSTARTDAYOFWEEK 
+				WHEN "1" THEN "Sunday"
+				WHEN "2" THEN "Monday"
+				WHEN "3" THEN "Tuesday"
+				WHEN "4" THEN "Wednesday"
+				WHEN "5" THEN "Thursday"
+				WHEN "6" THEN "Friday"
+				WHEN "7" THEN "Saturday"
+			END "DAY OF WEEK",
+			ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
+			DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') as "START", 
+			DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') as "END",
+			DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') as "ENTRY CREATION",     
+			ZOBJECT.Z_PK AS "ZOBJECT TABLE ID"
+		FROM
+			ZOBJECT 
+			LEFT JOIN
+				ZSTRUCTUREDMETADATA 
+				ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
+			LEFT JOIN
+				ZSOURCE 
+				ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
+		WHERE
+			ZSTREAMNAME LIKE "/device/BatteryPercentage"
+	''')
 
+	all_rows = cursor.fetchall()
+	usageentries = len(all_rows)
+	
+	with open(reportfolderbase+'KnowledgeC/Battery Level.html', 'w') as f:
+		f.write('<html><body>')
+		f.write('<h2>KnowledgeC Battery Level report</h2>')
+		f.write(f'KnowledgeC Battery Level entries: {usageentries}<br>')
+		f.write(f'KnowledgeC Battery Level located at: {filefound[0]}<br>')
+		f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;}</style>')
+		f.write('<br/>')
+		f.write('')
+		f.write(f'<table>')
+		f.write(f'<tr><td>Battery Level</td><td>Usage in Seconds</td><td>Day of the Week</td><td>GMT Offset</td><td>Start</td><td>End</td><td>Entry Creation</td><td>ZOBJECT Table ID</td></tr>')
+		for row in all_rows:
+			f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td></tr>')
+		f.write(f'</table></body></html>')
+		print(f'KnowledgeC App Battery Level completed')
+	
+	print(f'KnowledgeC Apps Installed executing')
+	cursor.execute('''
+	SELECT
+			ZOBJECT.ZVALUESTRING AS "BUNDLE ID",
+			CASE ZOBJECT.ZSTARTDAYOFWEEK 
+				WHEN "1" THEN "Sunday"
+				WHEN "2" THEN "Monday"
+				WHEN "3" THEN "Tuesday"
+				WHEN "4" THEN "Wednesday"
+				WHEN "5" THEN "Thursday"
+				WHEN "6" THEN "Friday"
+				WHEN "7" THEN "Saturday"
+			END "DAY OF WEEK",
+			ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
+			DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') as "START", 
+			DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') as "END",
+			DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') as "ENTRY CREATION",	
+			ZOBJECT.Z_PK AS "ZOBJECT TABLE ID"
+		FROM
+		   ZOBJECT 
+		   LEFT JOIN
+		      ZSTRUCTUREDMETADATA 
+		      ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
+		   LEFT JOIN
+		      ZSOURCE 
+		      ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
+		WHERE ZSTREAMNAME is "/app/install"
+	''')
+
+	all_rows = cursor.fetchall()
+	usageentries = len(all_rows)
+	
+	with open(reportfolderbase+'KnowledgeC/Apps Installed.html', 'w') as f:
+		f.write('<html><body>')
+		f.write('<h2>KnowledgeC Apps Installed report</h2>')
+		f.write(f'KnowledgeC Apps Installed : {usageentries}<br>')
+		f.write(f'KnowledgeC Apps Installed located at: {filefound[0]}<br>')
+		f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;}</style>')
+		f.write('<br/>')
+		f.write('')
+		f.write(f'<table>')
+		f.write(f'<tr><td>Bundle ID</td><td>Day of the Week</td><td>GMT Offset</td><td>Start</td><td>End</td><td>Entry Creation</td></tr>')
+		for row in all_rows:
+			f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td></tr>')
+		f.write(f'</table></body></html>')
+		print(f'KnowledgeC Apps Installed completed')
+
+	print(f'KnowledgeC Device Locked executing')
+	cursor.execute('''
+	SELECT
+			CASE ZOBJECT.ZVALUEINTEGER
+				WHEN '0' THEN 'UNLOCKED' 
+				WHEN '1' THEN 'LOCKED' 
+			END "IS LOCKED",
+			(ZOBJECT.ZENDDATE - ZOBJECT.ZSTARTDATE) AS "USAGE IN SECONDS",  
+			CASE ZOBJECT.ZSTARTDAYOFWEEK 
+				WHEN "1" THEN "Sunday"
+				WHEN "2" THEN "Monday"
+				WHEN "3" THEN "Tuesday"
+				WHEN "4" THEN "Wednesday"
+				WHEN "5" THEN "Thursday"
+				WHEN "6" THEN "Friday"
+				WHEN "7" THEN "Saturday"
+			END "DAY OF WEEK",
+			ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
+			DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') as "START", 
+			DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') as "END",
+			DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') as "ENTRY CREATION", 
+			ZOBJECT.Z_PK AS "ZOBJECT TABLE ID" 
+		FROM
+			ZOBJECT 
+			LEFT JOIN
+				ZSTRUCTUREDMETADATA 
+				ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
+			LEFT JOIN
+				ZSOURCE 
+				ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
+		WHERE
+			ZSTREAMNAME LIKE "/device/isLocked"
+	''')
+
+	all_rows = cursor.fetchall()
+	usageentries = len(all_rows)
+		
+	with open(reportfolderbase+'KnowledgeC/Device Locked.html', 'w') as f:
+		f.write('<html><body>')
+		f.write('<h2>KnowledgeC Device Locked report</h2>')
+		f.write(f'KnowledgeC Device Locked: {usageentries}<br>')
+		f.write(f'KnowledgeC Device Locked located at: {filefound[0]}<br>')
+		f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;}</style>')
+		f.write('<br/>')
+		f.write('')
+		f.write(f'<table>')
+		f.write(f'<tr><td>Is Locked?</td><td>Usage in Seconds</td><td>Day of the Week</td><td>GMT Offset</td><td>Start</td><td>End</td><td>Entry Creation</td></tr>')
+		for row in all_rows:
+			f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td></tr>')
+		f.write(f'</table></body></html>')
+		print(f'KnowledgeC Device Locked completed')
+
+	print(f'KnowledgeC Plugged In executing')
+	cursor.execute('''
+	SELECT
+			CASE
+			ZOBJECT.ZVALUEINTEGER
+				WHEN '0' THEN 'UNPLUGGED' 
+				WHEN '1' THEN 'PLUGGED IN' 
+			END "IS PLUGGED IN",
+			(ZOBJECT.ZENDDATE - ZOBJECT.ZSTARTDATE) AS "USAGE IN SECONDS",  
+			CASE ZOBJECT.ZSTARTDAYOFWEEK 
+				WHEN "1" THEN "Sunday"
+				WHEN "2" THEN "Monday"
+				WHEN "3" THEN "Tuesday"
+				WHEN "4" THEN "Wednesday"
+				WHEN "5" THEN "Thursday"
+				WHEN "6" THEN "Friday"
+				WHEN "7" THEN "Saturday"
+			END "DAY OF WEEK",
+			ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
+			DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') as "START", 
+			DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') as "END",
+			DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') as "ENTRY CREATION", 
+			ZOBJECT.Z_PK AS "ZOBJECT TABLE ID" 
+		FROM
+			ZOBJECT 
+			LEFT JOIN
+				ZSTRUCTUREDMETADATA 
+				ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
+			LEFT JOIN
+				ZSOURCE 
+				ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
+		WHERE
+			ZSTREAMNAME LIKE "/device/isPluggedIn"
+	''')
+
+	all_rows = cursor.fetchall()
+	usageentries = len(all_rows)
+		
+	with open(reportfolderbase+'KnowledgeC/Plugged In.html', 'w') as f:
+		f.write('<html><body>')
+		f.write('<h2>KnowledgeC Plugged In report</h2>')
+		f.write(f'KnowledgeC Device Plugged In entries: {usageentries}<br>')
+		f.write(f'KnowledgeC Device Plugged In located at: {filefound[0]}<br>')
+		f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;}</style>')
+		f.write('<br/>')
+		f.write('')
+		f.write(f'<table>')
+		f.write(f'<tr><td>Is Plugged In?</td><td>Usage in Seconds</td><td>Day of the Week</td><td>GMT Offset</td><td>Start</td><td>End</td><td>Entry Creation</td></tr>')
+		for row in all_rows:
+			f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td></tr>')
+		f.write(f'</table></body></html>')
+		print(f'KnowledgeC Plugged In completed')
 
 def mib(filefound):
 	print(f'Mobile Installation Logs function executing.')
