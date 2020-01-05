@@ -2212,3 +2212,147 @@ def queryp(filefound):
 				print('No Query Predictions available')
 	except:
 		print('Error in the Query Predictions Section.')
+
+def powerlog(filefound):
+	os.makedirs(reportfolderbase+'Powerlog/')
+	try:
+		db = sqlite3.connect(filefound[0])
+		cursor = db.cursor()
+		cursor.execute('''
+		SELECT
+			   DATETIME(TIMESTAMP, 'unixepoch') AS TIMESTAMP,
+			   DATETIME(START, 'unixepoch') AS "START",
+			   DATETIME(END, 'unixepoch') AS "END",
+			   STATE as "STATE",
+			   FINISHED as "FINISHED",
+			   HASERROR AS "HAS ERROR",
+			   ID AS "PLXPCAGENT_EVENTPOINT_MOBILEBACKUPEVENTS TABLE ID" 
+			FROM
+			   PLXPCAGENT_EVENTPOINT_MOBILEBACKUPEVENTS		
+		''')
+
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			print(f'Powerlog Mobile Backup Events executing')
+			with open(reportfolderbase+'Powerlog/Mobile Backup Events.html', 'w') as f:
+				f.write('<html><body>')
+				f.write('<h2> Powerlog Mobile Backup Events report</h2>')
+				f.write(f'Mobile Backup Events entries: {usageentries}<br>')
+				f.write(f'Mobile Backup Events database located at: {filefound[0]}<br>')
+				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;}</style>')
+				f.write('<br/>')
+				f.write('')
+				f.write(f'<table>')
+				f.write(f'<tr><td>Timestamp</td><td>Start</td><td>End</td><td>State</td><td>Finished</td><td>Has Error</td><td>ID</td></tr>')
+				for row in all_rows:
+					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td></tr>')
+				f.write(f'</table></body></html>')
+				print(f'Powerlog Mobile Backup Events function completed')
+		else:
+				print('No Powerlog Mobile Backup Events available')
+	except:
+		print('Error in Powerlog Mobile Backup Events Section.')
+		
+	try:
+		db = sqlite3.connect(filefound[0])
+		cursor = db.cursor()
+		cursor.execute('''
+		SELECT
+				DATETIME(WIFIPROPERTIES_TIMESTAMP + SYSTEM, 'unixepoch') AS ADJUSTED_TIMESTAMP,
+				CURRENTSSID,
+				CURRENTCHANNEL,
+				DATETIME(TIME_OFFSET_TIMESTAMP, 'unixepoch') AS OFFSET_TIMESTAMP,
+				SYSTEM AS TIME_OFFSET,
+				WIFIPROPERTIES_ID AS "PLWIFIAGENT_EVENTBACKWARD_CUMULATIVEPROPERTIES TABLE ID" 
+		   	FROM
+		      (
+				SELECT
+					WIFIPROPERTIES_ID,
+					WIFIPROPERTIES_TIMESTAMP,
+					TIME_OFFSET_TIMESTAMP,
+					MAX(TIME_OFFSET_ID) AS MAX_ID,
+					CURRENTSSID,
+					CURRENTCHANNEL,
+					SYSTEM
+				FROM
+		            (
+					SELECT
+						PLWIFIAGENT_EVENTBACKWARD_CUMULATIVEPROPERTIES.TIMESTAMP AS WIFIPROPERTIES_TIMESTAMP,
+						CURRENTSSID,
+						CURRENTCHANNEL,
+						PLWIFIAGENT_EVENTBACKWARD_CUMULATIVEPROPERTIES.ID AS "WIFIPROPERTIES_ID" ,
+						PLSTORAGEOPERATOR_EVENTFORWARD_TIMEOFFSET.TIMESTAMP AS TIME_OFFSET_TIMESTAMP,
+						PLSTORAGEOPERATOR_EVENTFORWARD_TIMEOFFSET.ID AS TIME_OFFSET_ID,
+						PLSTORAGEOPERATOR_EVENTFORWARD_TIMEOFFSET.SYSTEM
+					FROM
+						PLWIFIAGENT_EVENTBACKWARD_CUMULATIVEPROPERTIES
+					LEFT JOIN
+						PLSTORAGEOPERATOR_EVENTFORWARD_TIMEOFFSET 
+		            )
+		            AS WIFIPROPERTIES_STATE 
+		        GROUP BY
+					WIFIPROPERTIES_ID 
+		      )	
+		''')
+
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			print(f'Powerlog WIFI Properties executing')
+			with open(reportfolderbase+'Powerlog/Powerlog WIFI Properties.html', 'w') as f:
+				f.write('<html><body>')
+				f.write('<h2> Powerlog WIFI Properties Events report</h2>')
+				f.write(f'Powerlog WIFI Properties entries: {usageentries}<br>')
+				f.write(f'Powerlog WIFI Properties database located at: {filefound[0]}<br>')
+				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;}</style>')
+				f.write('<br/>')
+				f.write('')
+				f.write(f'<table>')
+				f.write(f'<tr><td>Adj. Timestamp</td><td>Current SSID</td><td>Current Channel</td><td>Offset Timestamp</td><td>Time Offset</td><td>ID</td></tr>')
+				for row in all_rows:
+					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td></tr>')
+				f.write(f'</table></body></html>')
+				print(f'Powerlog WIFI Properties function completed')
+		else:
+				print('No Powerlog WIFI Properties available')
+	except:
+		print('Error in Powerlog WIFI Properties Section.')
+		
+	try:
+		db = sqlite3.connect(filefound[0])
+		cursor = db.cursor()
+		cursor.execute('''
+		SELECT
+			   DATETIME(TIMESTAMP, 'unixepoch') AS TIMESTAMP,
+			   BUILD,
+			   DEVICE,
+			   HWMODEL,
+			   PAIRINGID AS "PAIRING ID",
+			   ID AS "PLCONFIGAGENT_EVENTNONE_PAIREDDEVICECONFIG TABLE ID" 
+			FROM
+			   PLCONFIGAGENT_EVENTNONE_PAIREDDEVICECONFIG
+		''')
+
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			print(f'Powerlog Paired Device Config executing')
+			with open(reportfolderbase+'Powerlog/Paired Device Config.html', 'w') as f:
+				f.write('<html><body>')
+				f.write('<h2> Powerlog Paired Device Configuration report</h2>')
+				f.write(f'Powerlog Paired Device Configuration entries: {usageentries}<br>')
+				f.write(f'Powerlog Paired Device Configuration located at: {filefound[0]}<br>')
+				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;}</style>')
+				f.write('<br/>')
+				f.write('')
+				f.write(f'<table>')
+				f.write(f'<tr><td>Timestamp</td><td>Build</td><td>Device</td><td>HW Model</td><td>Pairing ID</td><td>ID</td></tr>')
+				for row in all_rows:
+					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td></tr>')
+				f.write(f'</table></body></html>')
+				print(f'Powerlog Paired Device Configuration function completed')
+		else:
+				print('No Powerlog Paired Device Configuration available')
+	except:
+		print('Error in Powerlog Paired Device Configuration Section.')
