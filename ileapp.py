@@ -27,10 +27,7 @@ start = process_time()
 
 
 tosearch = {'mib':'*mobile_installation.log.*', 'iconstate':'*SpringBoard/IconState.plist', 'lastbuild':'*LastBuildInfo.plist', 'iOSNotifications11':'*PushStore*', 'iOSNotifications12':'*private/var/mobile/Library/UserNotifications*',
-		'wireless':'*wireless/Library/Preferences/com.apple.*','knowledgec':'*CoreDuet/Knowledge/knowledgeC.db','applicationstate':'*pplicationState.db*', 'conndevices':'*/iTunes_Control/iTunes/iTunesPrefs', 'ktx':'*.ktx*','calhist':'*CallHistory.storedata'}
-'''
-tosearch = {'mib':'*mobile_installation.log.*', 'lastbuild':'*LastBuildInfo.plist','applicationstate':'*pplicationState.db*','iOSNotifications11':'*PushStore*', 'iOSNotifications12':'*private/var/mobile/Library/UserNotifications*'}
-'''
+		'wireless':'*wireless/Library/Preferences/com.apple.*','knowledgec':'*CoreDuet/Knowledge/knowledgeC.db','applicationstate':'*pplicationState.db*', 'conndevices':'*/iTunes_Control/iTunes/iTunesPrefs', 'ktx':'*.ktx*','calhist':'*CallHistory.storedata','smschat':'*sms.db','safari':'*History.db'}
 	
 os.makedirs(reportfolderbase)
 os.makedirs(reportfolderbase+'Script Logs')
@@ -112,11 +109,11 @@ elif extracttype == 'zip':
 
 else:
 	print('Error on argument -o')
-	
+'''	
 if os.path.exists(reportfolderbase+'temp/'):
 	shutil.rmtree(reportfolderbase+'temp/')
 	#call reporting script		
-
+'''
 #print(f'iOS version: {versionf} ')
 
 
@@ -130,9 +127,10 @@ log = open(reportfolderbase+'Script Logs/ProcessedFilesLog.html', 'a', encoding=
 log.write(f'Processing time in secs: {str(abs(time))}')
 log.close()
 
+print('')
 print('Report generation started.')
 report(reportfolderbase, time, extracttype, pathto)
 print('Report generation Completed.')
-print('Report generation started.')
+print('')
 print(f'Report name: {reportfolderbase}')
 	
