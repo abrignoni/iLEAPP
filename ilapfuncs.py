@@ -1974,37 +1974,40 @@ def safari(filefound):
 			print('No Safari History available')
 
 def queryp(filefound):
-	db = sqlite3.connect(filefound[0])
-	cursor = db.cursor()
-	cursor.execute('''
-	select 
-			content,
-			isSent,
-			conversationId,
-			id,
-			uuid,
-			datetime(creationTimestamp, "UNIXEPOCH", "LOCALTIME") as START
-			from messages
-	''')
+	try:
+		db = sqlite3.connect(filefound[0])
+		cursor = db.cursor()
+		cursor.execute('''
+		select 
+				content,
+				isSent,
+				conversationId,
+				id,
+				uuid,
+				datetime(creationTimestamp, "UNIXEPOCH", "LOCALTIME") as START
+				from messages
+		''')
 
-	all_rows = cursor.fetchall()
-	usageentries = len(all_rows)
-	if usageentries > 0:
-		print(f'Query Predictions function executing')
-		os.makedirs(reportfolderbase+'Query Predictions/')
-		with open(reportfolderbase+'Query Predictions/Query Predictions.html', 'w') as f:
-			f.write('<html><body>')
-			f.write('<h2> Query Predictions report</h2>')
-			f.write(f'Query Predictions entries: {usageentries}<br>')
-			f.write(f'Query Predictions database located at: {filefound[0]}<br>')
-			f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;}</style>')
-			f.write('<br/>')
-			f.write('')
-			f.write(f'<table>')
-			f.write(f'<tr><td>Content</td><td>Is Sent</td><td>Conversation ID</td><td>ID</td><td>UUID</td><td>Start</td></tr>')
-			for row in all_rows:
-				f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td></tr>')
-			f.write(f'</table></body></html>')
-			print(f'Query Predictions function completed')
-	else:
-			print('No Query Predictions available')
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			print(f'Query Predictions function executing')
+			os.makedirs(reportfolderbase+'Query Predictions/')
+			with open(reportfolderbase+'Query Predictions/Query Predictions.html', 'w') as f:
+				f.write('<html><body>')
+				f.write('<h2> Query Predictions report</h2>')
+				f.write(f'Query Predictions entries: {usageentries}<br>')
+				f.write(f'Query Predictions database located at: {filefound[0]}<br>')
+				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;}</style>')
+				f.write('<br/>')
+				f.write('')
+				f.write(f'<table>')
+				f.write(f'<tr><td>Content</td><td>Is Sent</td><td>Conversation ID</td><td>ID</td><td>UUID</td><td>Start</td></tr>')
+				for row in all_rows:
+					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td></tr>')
+				f.write(f'</table></body></html>')
+				print(f'Query Predictions function completed')
+		else:
+				print('No Query Predictions available')
+	except:
+		print('Error in the Query Predictions Section.')
