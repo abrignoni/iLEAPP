@@ -13,6 +13,7 @@ import sys
 import csv
 import pathlib
 import shutil
+import textwrap
 from time import process_time
 
 nl = '\n' 
@@ -387,7 +388,7 @@ def knowledgec(filefound):
 	print(f'Triage report completed.')
 	print('Incepted bplist extractions in knowlwdgeC.db completed')
 	
-	print(f'Application Usage in knowlwdgeC.db executing.')
+	print(f'KnowledgeC.db App Usage executing.')
 
 	#outpath = reportfolderbase+'KnowledgeC App Use/'
 
@@ -441,7 +442,8 @@ def knowledgec(filefound):
 			zv = row[7]
 			f.write(f'<tr><td>{ec}</td><td>{dw}</td><td>{go}</td><td>{st}</td><td>{en}</td><td>{us}</td><td>{zs}</td><td>{zv}</td></tr>')
 		f.write(f'</table></body></html>')
-				
+	print(f'KnowledgeC App Usage completed')
+	print(f'KnowledgeC App Activity Executing')			
 	#connect sqlite databases
 	db = sqlite3.connect(filefound[0])
 	cursor = db.cursor()
@@ -502,6 +504,50 @@ def knowledgec(filefound):
 			ced = row[11]
 			f.write(f'<tr><td>{ec}</td><td>{dw}</td><td>{st}</td><td>{en}</td><td>{zs}</td><td>{zv}</td><td>{tl}</td><td>{ed}</td><td>{cu}</td><td>{cd}</td><td>{ce}</td><td>{ced}</td></tr>')
 		f.write(f'</table></body></html>')
+	print(f'KnowledgeC App Activity completed')
+	print(f'KnowledgeC App in Focus executin')
+	db = sqlite3.connect(filefound[0])
+	cursor = db.cursor()
+
+	cursor.execute('''
+	SELECT
+	ZOBJECT.ZVALUESTRING AS "BUNDLE ID", 
+	(ZOBJECT.ZENDDATE-ZOBJECT.ZSTARTDATE) as "USAGE IN SECONDS",
+	CASE ZOBJECT.ZSTARTDAYOFWEEK 
+	    WHEN "1" THEN "Sunday"
+	    WHEN "2" THEN "Monday"
+	    WHEN "3" THEN "Tuesday"
+	    WHEN "4" THEN "Wednesday"
+	    WHEN "5" THEN "Thursday"
+	    WHEN "6" THEN "Friday"
+	    WHEN "7" THEN "Saturday"
+	END "DAY OF WEEK",
+	ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
+	DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') as "START", 
+	DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') as "END",
+	DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') as "ENTRY CREATION",	
+	ZOBJECT.Z_PK AS "ZOBJECT TABLE ID" 
+	FROM ZOBJECT
+	WHERE ZSTREAMNAME IS "/app/inFocus"''')
+
+	all_rows = cursor.fetchall()
+	usageentries = len(all_rows)
+	
+	with open(reportfolderbase+'KnowledgeC/App in Focus.html', 'w') as f:
+		f.write('<html><body>')
+		f.write('<h2>iOS ' + iOSversion + ' - KnowledgeC App App in Focus report</h2>')
+		f.write(f'KnowledgeC App in Focus entries: {usageentries}<br>')
+		f.write(f'KnowledgeC located at: {filefound[0]}<br>')
+		f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;}</style>')
+		f.write('<br/>')
+		f.write('')
+		f.write(f'<table>')
+		f.write(f'<tr><td>Bundle ID</td><td>Usage in Seconds</td><td>Day of the Week</td><td>GMT Offset</td><td>Start</td><td>End</td><td>Entry Creation</td><td>ZOBJECT Table ID</td></tr>')
+		for row in all_rows:
+			f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td></tr>')
+		f.write(f'</table></body></html>')
+		print(f'KnowledgeC App in Focus completed')
+
 
 def mib(filefound):
 	print(f'Mobile Installation Logs function executing.')
@@ -1672,5 +1718,257 @@ def ktx(filefound):
 	filedatahtml.close()
 	print(f'Snapshots KTX file finder function completed.')	
 
+def calhist(filefound):
+	db = sqlite3.connect(filefound[0])
+	cursor = db.cursor()
+	cursor.execute('''
+	SELECT 
+			ZADDRESS AS "ADDRESS", 
+			ZANSWERED AS "WAS ANSWERED", 
+			ZCALLTYPE AS "CALL TYPE", 
+			ZORIGINATED AS "ORIGINATED", 
+			ZDURATION AS "DURATION (IN SECONDS)",
+			ZISO_COUNTRY_CODE as "ISO COUNTY CODE",
+			ZLOCATION AS "LOCATION", 
+			ZSERVICE_PROVIDER AS "SERVICE PROVIDER",
+			DATETIME(ZDATE+978307200,'UNIXEPOCH') AS "TIMESTAMP"
+		FROM ZCALLRECORD ''')
 
-	
+	all_rows = cursor.fetchall()
+	usageentries = len(all_rows)
+	if usageentries > 0:
+		print(f'Call History function executing')
+		os.makedirs(reportfolderbase+'Call History/')
+		with open(reportfolderbase+'Call History/Call History.html', 'w') as f:
+			f.write('<html><body>')
+			f.write('<h2> Call History report</h2>')
+			f.write(f'Call History entries: {usageentries}<br>')
+			f.write(f'Call History database located at: {filefound[0]}<br>')
+			f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;}</style>')
+			f.write('<br/>')
+			f.write('')
+			f.write(f'<table>')
+			f.write(f'<tr><td>Address</td><td>Was Answered</td><td>Call Type</td><td>Originated</td><td>Duration in Secs</td><td>ISO County Code</td><td>Location</td><td>Service Provider</td><td>Timestamp</td></tr>')
+			for row in all_rows:
+				an = str(row[0])
+				an = (an.replace("b'", ''))
+				an = (an.replace("'", ''))
+				
+				f.write(f'<tr><td>{an}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td></tr>')
+			f.write(f'</table></body></html>')
+			print(f'Call History function completed')
+	else:
+		print('No call history available')
+
+def smschat(filefound):
+	db = sqlite3.connect(filefound[0])
+	cursor = db.cursor()
+	cursor.execute('''
+	SELECT
+			CASE
+				WHEN LENGTH(MESSAGE.DATE)=18 THEN DATETIME(MESSAGE.DATE/1000000000+978307200,'UNIXEPOCH')
+				WHEN LENGTH(MESSAGE.DATE)=9 THEN DATETIME(MESSAGE.DATE + 978307200,'UNIXEPOCH')
+				ELSE "N/A"
+	    		END "MESSAGE DATE",			
+			CASE 
+				WHEN LENGTH(MESSAGE.DATE_DELIVERED)=18 THEN DATETIME(MESSAGE.DATE_DELIVERED/1000000000+978307200,"UNIXEPOCH")
+				WHEN LENGTH(MESSAGE.DATE_DELIVERED)=9 THEN DATETIME(MESSAGE.DATE_DELIVERED+978307200,"UNIXEPOCH")
+				ELSE "N/A"
+			END "DATE DELIVERED",
+			CASE 
+				WHEN LENGTH(MESSAGE.DATE_READ)=18 THEN DATETIME(MESSAGE.DATE_READ/1000000000+978307200,"UNIXEPOCH")
+				WHEN LENGTH(MESSAGE.DATE_READ)=9 THEN DATETIME(MESSAGE.DATE_READ+978307200,"UNIXEPOCH")
+				ELSE "N/A"
+			END "DATE READ",
+			MESSAGE.TEXT as "MESSAGE",
+			HANDLE.ID AS "CONTACT ID",
+			MESSAGE.SERVICE AS "SERVICE",
+			MESSAGE.ACCOUNT AS "ACCOUNT",
+			MESSAGE.IS_DELIVERED AS "IS DELIVERED",
+			MESSAGE.IS_FROM_ME AS "IS FROM ME",
+			ATTACHMENT.FILENAME AS "FILENAME",
+			ATTACHMENT.MIME_TYPE AS "MIME TYPE",
+			ATTACHMENT.TRANSFER_NAME AS "TRANSFER TYPE",
+			ATTACHMENT.TOTAL_BYTES AS "TOTAL BYTES"
+		FROM MESSAGE
+		LEFT OUTER JOIN MESSAGE_ATTACHMENT_JOIN ON MESSAGE.ROWID = MESSAGE_ATTACHMENT_JOIN.MESSAGE_ID
+		LEFT OUTER JOIN ATTACHMENT ON MESSAGE_ATTACHMENT_JOIN.ATTACHMENT_ID = ATTACHMENT.ROWID
+		LEFT OUTER JOIN HANDLE ON MESSAGE.HANDLE_ID = HANDLE.ROWID''')
+
+	all_rows = cursor.fetchall()
+	usageentries = len(all_rows)
+	if usageentries > 0:
+		print(f'SMS Chat function executing')
+		os.makedirs(reportfolderbase+'SMS Chat/')
+		with open(reportfolderbase+'SMS Chat/SMS Chat.html', 'w') as f:
+			f.write('<html><body>')
+			f.write('<h2> SMS Chat report</h2>')
+			f.write(f'SMS Chat entries: {usageentries}<br>')
+			f.write(f'SMS Chat database located at: {filefound[0]}<br>')
+			f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;}</style>')
+			f.write('<br/>')
+			f.write('')
+			f.write(f'<table>')
+			f.write(f'<tr><td>Message Date</td><td>Date Delivered</td><td>Date Read</td><td>Message</td><td>Contact ID</td><td>Service</td><td>Account</td><td>Is Delivered</td><td>Is from Me</td><td>Filename</td><td>MIME Type</td><td>Transfer Type</td><td>Total Bytes</td></tr>')
+			for row in all_rows:
+				f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td><td>{row[9]}</td><td>{row[10]}</td><td>{row[11]}</td><td>{row[12]}</td></tr>')
+			f.write(f'</table></body></html>')
+			print(f'SMS Chat function completed')
+	else:
+			print('No SMS Chats available')
+			
+	db = sqlite3.connect(filefound[0])
+	cursor = db.cursor()
+	cursor.execute('''
+	SELECT
+			CASE
+	 			WHEN LENGTH(MESSAGE.DATE)=18 THEN DATETIME(MESSAGE.DATE/1000000000+978307200,'UNIXEPOCH')
+	 			WHEN LENGTH(MESSAGE.DATE)=9 THEN DATETIME(MESSAGE.DATE + 978307200,'UNIXEPOCH')
+	 			ELSE "N/A"
+			END "MESSAGE DATE",
+			CASE 
+				WHEN LENGTH(MESSAGE.DATE_DELIVERED)=18 THEN DATETIME(MESSAGE.DATE_DELIVERED/1000000000+978307200,"UNIXEPOCH")
+				WHEN LENGTH(MESSAGE.DATE_DELIVERED)=9 THEN DATETIME(MESSAGE.DATE_DELIVERED+978307200,"UNIXEPOCH")
+				ELSE "N/A"
+			END "DATE DELIVERED",
+			CASE 
+				WHEN LENGTH(MESSAGE.DATE_READ)=18 THEN DATETIME(MESSAGE.DATE_READ/1000000000+978307200,"UNIXEPOCH")
+				WHEN LENGTH(MESSAGE.DATE_READ)=9 THEN DATETIME(MESSAGE.DATE_READ+978307200,"UNIXEPOCH")
+				ELSE "N/A"
+			END "DATE READ",
+			MESSAGE.TEXT as "MESSAGE",
+			HANDLE.ID AS "CONTACT ID",
+			MESSAGE.SERVICE AS "SERVICE",
+			MESSAGE.ACCOUNT AS "ACCOUNT",
+			MESSAGE.IS_DELIVERED AS "IS DELIVERED",
+			MESSAGE.IS_FROM_ME AS "IS FROM ME",
+			ATTACHMENT.FILENAME AS "FILENAME",
+			ATTACHMENT.MIME_TYPE AS "MIME TYPE",
+			ATTACHMENT.TRANSFER_NAME AS "TRANSFER TYPE",
+			ATTACHMENT.TOTAL_BYTES AS "TOTAL BYTES"
+		FROM MESSAGE
+		LEFT OUTER JOIN MESSAGE_ATTACHMENT_JOIN ON MESSAGE.ROWID = MESSAGE_ATTACHMENT_JOIN.MESSAGE_ID
+		LEFT OUTER JOIN ATTACHMENT ON MESSAGE_ATTACHMENT_JOIN.ATTACHMENT_ID = ATTACHMENT.ROWID
+		LEFT OUTER JOIN HANDLE ON MESSAGE.HANDLE_ID = HANDLE.ROWID
+		WHERE "DATE DELIVERED" IS NOT "N/A"''')
+
+	all_rows = cursor.fetchall()
+	usageentries = len(all_rows)
+	if usageentries > 0:
+		print(f'SMS Chat Message Delivered function executing')
+		with open(reportfolderbase+'SMS Chat/SMS Message Delivered.html', 'w') as f:
+			f.write('<html><body>')
+			f.write('<h2> SMS Chat Message Delivered report</h2>')
+			f.write(f'SMS Chat Message Delivered entries: {usageentries}<br>')
+			f.write(f'SMS Chat Message Delivered database located at: {filefound[0]}<br>')
+			f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;}</style>')
+			f.write('<br/>')
+			f.write('')
+			f.write(f'<table>')
+			f.write(f'<tr><td>Message Date</td><td>Date Delivered</td><td>Date Read</td><td>Message</td><td>Contact ID</td><td>Service</td><td>Account</td><td>Is Delivered</td><td>Is from Me</td><td>Filename</td><td>MIME Type</td><td>Transfer Type</td><td>Total Bytes</td></tr>')
+			for row in all_rows:
+				f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td><td>{row[9]}</td><td>{row[10]}</td><td>{row[11]}</td><td>{row[12]}</td></tr>')
+			f.write(f'</table></body></html>')
+			print(f'SMS Chat Message function completed')
+	else:
+		print('No SMS Chat available')
+		
+	db = sqlite3.connect(filefound[0])
+	cursor = db.cursor()
+	cursor.execute('''
+	SELECT
+			CASE
+	 			WHEN LENGTH(MESSAGE.DATE)=18 THEN DATETIME(MESSAGE.DATE/1000000000+978307200,'UNIXEPOCH')
+	 			WHEN LENGTH(MESSAGE.DATE)=9 THEN DATETIME(MESSAGE.DATE + 978307200,'UNIXEPOCH')
+	 			ELSE "N/A"
+	     		END "MESSAGE DATE",
+			CASE 
+				WHEN LENGTH(MESSAGE.DATE_DELIVERED)=18 THEN DATETIME(MESSAGE.DATE_DELIVERED/1000000000+978307200,"UNIXEPOCH")
+				WHEN LENGTH(MESSAGE.DATE_DELIVERED)=9 THEN DATETIME(MESSAGE.DATE_DELIVERED+978307200,"UNIXEPOCH")
+				ELSE "N/A"
+			END "DATE DELIVERED",
+			CASE 
+				WHEN LENGTH(MESSAGE.DATE_READ)=18 THEN DATETIME(MESSAGE.DATE_READ/1000000000+978307200,"UNIXEPOCH")
+				WHEN LENGTH(MESSAGE.DATE_READ)=9 THEN DATETIME(MESSAGE.DATE_READ+978307200,"UNIXEPOCH")
+				ELSE "N/A"
+			END "DATE READ",
+			MESSAGE.TEXT as "MESSAGE",
+			HANDLE.ID AS "CONTACT ID",
+			MESSAGE.SERVICE AS "SERVICE",
+			MESSAGE.ACCOUNT AS "ACCOUNT",
+			MESSAGE.IS_DELIVERED AS "IS DELIVERED",
+			MESSAGE.IS_FROM_ME AS "IS FROM ME",
+			ATTACHMENT.FILENAME AS "FILENAME",
+			ATTACHMENT.MIME_TYPE AS "MIME TYPE",
+			ATTACHMENT.TRANSFER_NAME AS "TRANSFER TYPE",
+			ATTACHMENT.TOTAL_BYTES AS "TOTAL BYTES"
+		FROM MESSAGE
+		LEFT OUTER JOIN MESSAGE_ATTACHMENT_JOIN ON MESSAGE.ROWID = MESSAGE_ATTACHMENT_JOIN.MESSAGE_ID
+		LEFT OUTER JOIN ATTACHMENT ON MESSAGE_ATTACHMENT_JOIN.ATTACHMENT_ID = ATTACHMENT.ROWID
+		LEFT OUTER JOIN HANDLE ON MESSAGE.HANDLE_ID = HANDLE.ROWID
+		WHERE "DATE READ" IS NOT "N/A"''')
+
+	all_rows = cursor.fetchall()
+	usageentries = len(all_rows)
+	if usageentries > 0:
+		print(f'SMS Chat Message Read function executing')
+		with open(reportfolderbase+'SMS Chat/SMS Message Read.html', 'w') as f:
+			f.write('<html><body>')
+			f.write('<h2> SMS Chat Message Read report</h2>')
+			f.write(f'SMS Chat Message Read entries: {usageentries}<br>')
+			f.write(f'SMS Chat Message Readdatabase located at: {filefound[0]}<br>')
+			f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;}</style>')
+			f.write('<br/>')
+			f.write('')
+			f.write(f'<table>')
+			f.write(f'<tr><td>Message Date</td><td>Date Delivered</td><td>Date Read</td><td>Message</td><td>Contact ID</td><td>Service</td><td>Account</td><td>Is Delivered</td><td>Is from Me</td><td>Filename</td><td>MIME Type</td><td>Transfer Type</td><td>Total Bytes</td></tr>')
+			for row in all_rows:
+				f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td><td>{row[9]}</td><td>{row[10]}</td><td>{row[11]}</td><td>{row[12]}</td></tr>')
+			f.write(f'</table></body></html>')
+			print(f'SMS Chat Message Read function completed')
+	else:
+		print('No SMS Chat available')
+		
+def safari(filefound):
+	db = sqlite3.connect(filefound[0])
+	cursor = db.cursor()
+	cursor.execute('''
+	SELECT 
+			HISTORY_ITEMS.URL AS "URL",
+			HISTORY_ITEMS.VISIT_COUNT AS "VISIT COUNT",
+			HISTORY_VISITS.TITLE AS "TITLE",
+			CASE HISTORY_VISITS.ORIGIN
+				WHEN 1 THEN "ICLOUD SYNCED DEVICE"
+				WHEN 0 THEN "VISTED FROM THIS DEVICE"
+			END "ICLOUD SYNC",
+			HISTORY_VISITS.LOAD_SUCCESSFUL AS "LOAD SUCCESSFUL",
+			HISTORY_VISITS.REDIRECT_SOURCE AS "REDIRECT SOURCE",
+			HISTORY_VISITS.REDIRECT_DESTINATION AS "REDIRECT DESTINATION",
+			DATETIME(HISTORY_VISITS.VISIT_TIME+978307200,'UNIXEPOCH') AS "VISIT TIME",
+			HISTORY_VISITS.ID AS "HISTORY ITEM ID"
+		FROM HISTORY_ITEMS
+		LEFT OUTER JOIN HISTORY_VISITS ON HISTORY_ITEMS.ID == HISTORY_VISITS.HISTORY_ITEM
+	''')
+
+	all_rows = cursor.fetchall()
+	usageentries = len(all_rows)
+	if usageentries > 0:
+		print(f'Safari History function executing')
+		os.makedirs(reportfolderbase+'Safari/')
+		with open(reportfolderbase+'Safari/Safari History.html', 'w') as f:
+			f.write('<html><body>')
+			f.write('<h2> Safari History report</h2>')
+			f.write(f'Safari History entries: {usageentries}<br>')
+			f.write(f'Safari History database located at: {filefound[0]}<br>')
+			f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;}</style>')
+			f.write('<br/>')
+			f.write('')
+			f.write(f'<table>')
+			f.write(f'<tr><td>URL</td><td>Visit Count</td><td>Title</td><td>Icloud Sync</td><td>Load Sucessful</td><td>Redirect Source</td><td>Redirect Destination</td><td>Visit Time</td><td>History Item ID</td></tr>')
+			for row in all_rows:
+				url = textwrap.fill(row[0])
+				f.write(f'<tr><td>{url}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td></tr>')
+			f.write(f'</table></body></html>')
+			print(f'Safari History function completed')
+	else:
+			print('No Safari History available')
