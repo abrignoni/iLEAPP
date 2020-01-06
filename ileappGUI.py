@@ -178,8 +178,8 @@ while True:
 	else:
 		print('Error on argument -o')
 		
-	if os.path.exists(reportfolderbase+'temp/'):
-		shutil.rmtree(reportfolderbase+'temp/')		
+	#if os.path.exists(reportfolderbase+'temp/'):
+	#	shutil.rmtree(reportfolderbase+'temp/')		
 
 	#print(f'iOS version: {versionf} ')
 	
