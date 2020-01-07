@@ -23,8 +23,46 @@ reportfolderbase = './ILEAPP_Reports_'+currenttime+'/'
 temp = reportfolderbase+'temp/'
 
 
-def lse(filefound):
-	print(f'File found at: {filefound}')
+def accs(filefound):
+	os.makedirs(reportfolderbase+'Accounts/')
+	try:
+		db = sqlite3.connect(filefound[0])
+		cursor = db.cursor()
+		cursor.execute('''
+		SELECT
+		ZACCOUNTTYPEDESCRIPTION,
+		ZUSERNAME,
+		DATETIME(ZDATE+978307200,'UNIXEPOCH','UTC' ) AS 'ZDATE TIMESTAMP',
+		ZACCOUNTDESCRIPTION,
+		ZACCOUNT.ZIDENTIFIER,
+		ZACCOUNT.ZOWNINGBUNDLEID
+		FROM ZACCOUNT
+		JOIN ZACCOUNTTYPE ON ZACCOUNTTYPE.Z_PK=ZACCOUNT.ZACCOUNTTYPE
+		ORDER BY ZACCOUNTTYPEDESCRIPTION
+		''')
+
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			print(f'Account Data function executing')
+			with open(reportfolderbase+'Accounts/Accounts.html', 'w') as f:
+				f.write('<html><body>')
+				f.write('<h2> Account Data report</h2>')
+				f.write(f'Account Data entries: {usageentries}<br>')
+				f.write(f'Account Data located at: {filefound[0]}<br>')
+				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<br/>')
+				f.write('')
+				f.write(f'<table>')
+				f.write(f'<tr><td>Account Desc</td><td>Usermane</td><td>Timestamp</td><td>Description</td><td>Identifier</td><td>Bundle ID</td></tr>')
+				for row in all_rows:
+					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td></tr>')
+				f.write(f'</table></body></html>')
+				print(f'Account Data function completed')
+		else:
+				print('No Account Data available')
+	except:
+		print('Error in Account Data Section.')
 
 def conndevices(filefound):	
 	with open(filefound[0], "rb") as f:
@@ -2327,35 +2365,59 @@ def powerlog(filefound):
 		cursor = db.cursor()
 		cursor.execute('''
 		SELECT
-			   DATETIME(TIMESTAMP, 'unixepoch') AS TIMESTAMP,
-			   BUILD,
-			   DEVICE,
-			   HWMODEL,
-			   PAIRINGID AS "PAIRING ID",
-			   ID AS "PLCONFIGAGENT_EVENTNONE_PAIREDDEVICECONFIG TABLE ID" 
+				DATETIME(SBAUTOLOCK_TIMESTAMP + SYSTEM, 'unixepoch') AS ADJUSTED_TIMESTAMP,
+				AUTOLOCKTYPE AS "AUTO LOCK TYPE",
+				DATETIME(TIME_OFFSET_TIMESTAMP, 'unixepoch') AS OFFSET_TIMESTAMP,
+				SYSTEM AS TIME_OFFSET,
+				SBAUTOLOCK_ID AS "PLSPRINGBOARDAGENT_EVENTPOINT_SBAUTOLOCK TABLE ID" 
 			FROM
-			   PLCONFIGAGENT_EVENTNONE_PAIREDDEVICECONFIG
+			(
+				SELECT
+					SBAUTOLOCK_ID,
+					SBAUTOLOCK_TIMESTAMP,
+					TIME_OFFSET_TIMESTAMP,
+					MAX(TIME_OFFSET_ID) AS MAX_ID,
+					AUTOLOCKTYPE,
+					SYSTEM
+				FROM
+				(
+				SELECT
+					PLSPRINGBOARDAGENT_EVENTPOINT_SBAUTOLOCK.TIMESTAMP AS SBAUTOLOCK_TIMESTAMP,
+					AUTOLOCKTYPE,
+					PLSPRINGBOARDAGENT_EVENTPOINT_SBAUTOLOCK.ID AS "SBAUTOLOCK_ID" ,
+					PLSTORAGEOPERATOR_EVENTFORWARD_TIMEOFFSET.TIMESTAMP AS TIME_OFFSET_TIMESTAMP,
+					PLSTORAGEOPERATOR_EVENTFORWARD_TIMEOFFSET.ID AS TIME_OFFSET_ID,
+					PLSTORAGEOPERATOR_EVENTFORWARD_TIMEOFFSET.SYSTEM
+				FROM
+					PLSPRINGBOARDAGENT_EVENTPOINT_SBAUTOLOCK
+				LEFT JOIN
+					PLSTORAGEOPERATOR_EVENTFORWARD_TIMEOFFSET 
+				)
+				AS SBAUTOLOCK_STATE 
+				GROUP BY
+					SBAUTOLOCK_ID 
+			)
 		''')
 
 		all_rows = cursor.fetchall()
 		usageentries = len(all_rows)
 		if usageentries > 0:
-			print(f'Powerlog Paired Device Config executing')
-			with open(reportfolderbase+'Powerlog/Paired Device Config.html', 'w') as f:
+			print(f'Powerlog Device Screen Autolock executing')
+			with open(reportfolderbase+'Powerlog/Device Screen Autolock.html', 'w') as f:
 				f.write('<html><body>')
-				f.write('<h2> Powerlog Paired Device Configuration report</h2>')
-				f.write(f'Powerlog Paired Device Configuration entries: {usageentries}<br>')
-				f.write(f'Powerlog Paired Device Configuration located at: {filefound[0]}<br>')
+				f.write('<h2> Powerlog Device Screen Autolock report</h2>')
+				f.write(f'Powerlog Device Screen Autolock entries: {usageentries}<br>')
+				f.write(f'Powerlog Device Screen Autolock located at: {filefound[0]}<br>')
 				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
 				f.write('<br/>')
 				f.write('')
 				f.write(f'<table>')
-				f.write(f'<tr><td>Timestamp</td><td>Build</td><td>Device</td><td>HW Model</td><td>Pairing ID</td><td>ID</td></tr>')
+				f.write(f'<tr><td>Adj Timestamp</td><td>Auto Lock Type</td><td>Offset Timestamp</td><td>Time Offset</td><td>ID</td></tr>')
 				for row in all_rows:
-					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td></tr>')
+					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td></tr>')
 				f.write(f'</table></body></html>')
-				print(f'Powerlog Paired Device Configuration function completed')
+				print(f'Powerlog Device Screen Autolock function completed')
 		else:
-				print('No Powerlog Paired Device Configuration available')
+				print('No Powerlog Device Screen Autolock available')
 	except:
-		print('Error in Powerlog Paired Device Configuration Section.')
+		print('Error in Powerlog Device Screen Autolock Section.')
