@@ -22,6 +22,151 @@ currenttime = str(now.strftime('%Y-%m-%d_%A_%H%M%S'))
 reportfolderbase = './ILEAPP_Reports_'+currenttime+'/'
 temp = reportfolderbase+'temp/'
 
+def datausage(filefound):
+	os.makedirs(reportfolderbase+'Data Usage/')
+	try:
+		db = sqlite3.connect(filefound[0])
+		cursor = db.cursor()
+		cursor.execute('''
+		SELECT
+				DATETIME(ZPROCESS.ZTIMESTAMP + 978307200, 'unixepoch') AS "PROCESS TIMESTAMP",
+				DATETIME(ZPROCESS.ZFIRSTTIMESTAMP + 978307200, 'unixepoch') AS "PROCESS FIRST TIMESTAMP",
+				DATETIME(ZLIVEUSAGE.ZTIMESTAMP + 978307200, 'unixepoch') AS "LIVE USAGE TIMESTAMP",
+				ZBUNDLENAME AS "BUNDLE ID",
+				ZPROCNAME AS "PROCESS NAME",
+				ZWIFIIN AS "WIFI IN",
+				ZWIFIOUT AS "WIFI OUT",
+				ZWWANIN AS "WWAN IN",
+				ZWWANOUT AS "WWAN OUT",
+				ZLIVEUSAGE.Z_PK AS "ZLIVEUSAGE TABLE ID" 
+			FROM ZLIVEUSAGE 
+			LEFT JOIN ZPROCESS ON ZPROCESS.Z_PK = ZLIVEUSAGE.ZHASPROCESS
+		''')
+
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			print(f'Data Usage - Zliveusage function executing')
+			with open(reportfolderbase+'Data Usage/Zliveusage.html', 'w') as f:
+				f.write('<html><body>')
+				f.write('<h2> Zliveusage report</h2>')
+				f.write(f'Zliveusage entries: {usageentries}<br>')
+				f.write(f'Zliveusage located at: {filefound[0]}<br>')
+				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<br/>')
+				f.write('')
+				f.write(f'<table>')
+				f.write(f'<tr><td>Process Timestamp</td><td>Process First Timestamp</td><td>Live Usage Timestamp</td><td>Bundle ID</td><td>Process Name</td><td>WIFI In</td><td>WIFI Out</td><td>WWAN IN</td><td>WWAN Out</td><td>Table ID</td></tr>')
+				for row in all_rows:
+					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td><td>{row[9]}</td></tr>')
+				f.write(f'</table></body></html>')
+				print(f'Data Usage - Zliveusage function completed')
+		else:
+				print('No Data Usage - Zliveusage available')
+	except:
+		print('Error in Data Usage - Zliveusage section.')
+ 
+	try:
+		db = sqlite3.connect(filefound[0])
+		cursor = db.cursor()
+		cursor.execute('''
+		SELECT
+				DATETIME(ZPROCESS.ZTIMESTAMP+ 978307200, 'unixepoch') AS "TIMESTAMP",
+				DATETIME(ZPROCESS.ZFIRSTTIMESTAMP + 978307200, 'unixepoch') AS "PROCESS FIRST TIMESTAMP",
+				ZPROCESS.ZPROCNAME AS "PROCESS NAME",
+				ZPROCESS.ZBUNDLENAME AS "BUNDLE ID",
+				ZPROCESS.Z_PK AS "ZPROCESS TABLE ID" 
+			FROM ZPROCESS
+		''')
+
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			print(f'Data Usage - Zprocess function executing')
+			with open(reportfolderbase+'Data Usage/Zprocess.html', 'w') as f:
+				f.write('<html><body>')
+				f.write('<h2> Media Library report</h2>')
+				f.write(f'Zprocess entries: {usageentries}<br>')
+				f.write(f'Zprocess located at: {filefound[0]}<br>')
+				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<br/>')
+				f.write('')
+				f.write(f'<table>')
+				f.write(f'<tr><tr><td>Process Timestamp</td><td>Process First Timestamp</td><td>Live Usage Timestamp</td><td>Bundle ID</td><td>Table ID</td></tr>')
+				for row in all_rows:
+					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td></tr>')
+				f.write(f'</table></body></html>')
+				print(f'Data Usage - Zprocess function completed')
+		else:
+				print('No Data Usage - Zprocess available')
+	except:
+		print('Error in Data Usage - Zprocess Section.')
+
+def medlib(filefound):
+	os.makedirs(reportfolderbase+'Media Library/')
+	try:
+		db = sqlite3.connect(filefound[0])
+		cursor = db.cursor()
+		cursor.execute('''
+		select
+		ext.title AS "Title",
+		ext.media_kind AS "Media Type",
+		itep.format AS "File format",
+		ext.location AS "File",
+		ext.total_time_ms AS "Total time (ms)",
+		ext.file_size AS "File size",
+		ext.year AS "Year",
+		alb.album AS "Album Name",
+		alba.album_artist AS "Artist", 
+		com.composer AS "Composer", 
+		gen.genre AS "Genre",
+		art.artwork_token AS "Artwork",
+		itev.extended_content_rating AS "Content rating",
+		itev.movie_info AS "Movie information",
+		ext.description_long AS "Description",
+		ite.track_number AS "Track number",
+		sto.account_id AS "Account ID",
+		strftime('%d/%m/%Y %H:%M:%S', datetime(sto.date_purchased + 978397200,'unixepoch'))date_purchased,
+		sto.store_item_id AS "Item ID",
+		sto.purchase_history_id AS "Purchase History ID",
+		ext.copyright AS "Copyright"
+		from
+		item_extra ext
+		join item_store sto using (item_pid)
+		join item ite using (item_pid)
+		join item_stats ites using (item_pid)
+		join item_playback itep using (item_pid)
+		join item_video itev using (item_pid)
+		left join album alb on sto.item_pid=alb.representative_item_pid
+		left join album_artist alba on sto.item_pid=alba.representative_item_pid
+		left join composer com on sto.item_pid=com.representative_item_pid
+		left join genre gen on sto.item_pid=gen.representative_item_pid
+		left join item_artist itea on sto.item_pid=itea.representative_item_pid
+		left join artwork_token art on sto.item_pid=art.entity_pid 
+		''')
+
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			print(f'Media Library function executing')
+			with open(reportfolderbase+'Accounts/Accounts.html', 'w') as f:
+				f.write('<html><body>')
+				f.write('<h2> Media Library report</h2>')
+				f.write(f'Media Library entries: {usageentries}<br>')
+				f.write(f'Media Library located at: {filefound[0]}<br>')
+				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<br/>')
+				f.write('')
+				f.write(f'<table>')
+				f.write(f'<tr><td>Title</td><td>Media Type</td><td>File Format</td><td>File</td><td>Total Time (ms)</td><td>File Size</td><td>Year</td><td>Album Name</td><td>Artist</td><td>Composer</td><td>Genre</td><td>Artwork</td><td>Content Rating</td><td>Movie Information</td><td>Description</td><td>Track Number</td><td>Account ID</td><td>Date Purchased</td><td>Item ID</td><td>Purchase History ID</td><td>Copyright</td></tr>')
+				for row in all_rows:
+					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td><td>{row[9]}</td><td>{row[10]}</td><td>{row[11]}</td><td>{row[12]}</td><td>{row[13]}</td><td>{row[14]}</td><td>{row[15]}</td><td>{row[16]}</td><td>{row[17]}</td><td>{row[18]}</td><td>{row[19]}</td><td>{row[20]}</td></tr>')
+				f.write(f'</table></body></html>')
+				print(f'Media Library function completed')
+		else:
+				print('No Media Library available')
+	except:
+		print('Error in Media Library Section.')
 
 def accs(filefound):
 	os.makedirs(reportfolderbase+'Accounts/')
