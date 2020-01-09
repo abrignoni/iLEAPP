@@ -85,7 +85,7 @@ def datausage(filefound):
 			print(f'Data Usage - Zprocess function executing')
 			with open(reportfolderbase+'Data Usage/Zprocess.html', 'w') as f:
 				f.write('<html><body>')
-				f.write('<h2> Media Library report</h2>')
+				f.write('<h2> Zprocess report</h2>')
 				f.write(f'Zprocess entries: {usageentries}<br>')
 				f.write(f'Zprocess located at: {filefound[0]}<br>')
 				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
@@ -149,7 +149,7 @@ def medlib(filefound):
 		usageentries = len(all_rows)
 		if usageentries > 0:
 			print(f'Media Library function executing')
-			with open(reportfolderbase+'Accounts/Accounts.html', 'w') as f:
+			with open(reportfolderbase+'Media Library/Media Library.html', 'w') as f:
 				f.write('<html><body>')
 				f.write('<h2> Media Library report</h2>')
 				f.write(f'Media Library entries: {usageentries}<br>')
