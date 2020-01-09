@@ -2576,3 +2576,52 @@ def powerlog(filefound):
 				print('No Powerlog Device Screen Autolock available')
 	except:
 		print('Error in Powerlog Device Screen Autolock Section.')
+
+def delphotos(filefound):
+	db = sqlite3.connect(filefound[0])
+	cursor = db.cursor()
+	try:
+		cursor.execute('''
+		Select
+		z_pk,
+		zfilename AS "File Name",
+		zduration AS "Duration in Seconds",
+		case
+		when ztrashedstate = 1 then "Deleted"
+		else "N/A"
+		end AS "Is Deleted",
+		case
+		when zhidden =1 then "Hidden"
+		else 'N/A'
+		end AS "Is Hidden",
+		datetime(ztrasheddate+978307200,'unixepoch','localtime') AS "Date Deleted",
+		datetime(zaddeddate+978307200,'unixepoch','localtime') AS "Date Added",
+		datetime(zdatecreated+978307200,'unixepoch','localtime') AS "Date Created",
+		datetime(zmodificationdate+978307200,'unixepoch','localtime') AS "Date Modified",
+		zdirectory AS "File Path"
+		from zgenericasset
+			''')
+
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			print(f'Photos.sqlite metadata function executing')
+			os.makedirs(reportfolderbase+'Photos.sqlite Metadata/')
+			with open(reportfolderbase+'Photos.sqlite Metadata/Photos.sqLite DB.html', 'w') as f:
+				f.write('<html><body>')
+				f.write('<h2> Photos.sqlite Metadata report</h2>')
+				f.write(f'Photos.sqlite Metadata entries: {usageentries}<br>')
+				f.write(f'Photos.sqlite database located at: {filefound[0]}<br>')
+				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<br/>')
+				f.write('')
+				f.write(f'<table>')
+				f.write(f'<tr><td>Primary Key</td><td>File Name</td><td>Duration in seconds</td><td>Is Deleted</td><td>Is Hidden</td><td>Date Deleted</td><td>Date Added</td><td>Date Created</td><td>Date Modified</td><td>File Path</td></tr>')
+				for row in all_rows:
+					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td><td>{row[9]}</td></tr>')
+				f.write(f'</table></body></html>')
+				print(f'Photos.sqlite Metadata function completed')
+		else:
+				print('Photos.sqlite Metadata available')
+	except:
+		print('Error on Photos.sqlite function.')
