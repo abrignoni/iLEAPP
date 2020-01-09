@@ -2150,172 +2150,182 @@ def calhist(filefound):
 def smschat(filefound):
 	db = sqlite3.connect(filefound[0])
 	cursor = db.cursor()
-	cursor.execute('''
-	SELECT
-			CASE
-				WHEN LENGTH(MESSAGE.DATE)=18 THEN DATETIME(MESSAGE.DATE/1000000000+978307200,'UNIXEPOCH')
-				WHEN LENGTH(MESSAGE.DATE)=9 THEN DATETIME(MESSAGE.DATE + 978307200,'UNIXEPOCH')
-				ELSE "N/A"
-	    		END "MESSAGE DATE",			
-			CASE 
-				WHEN LENGTH(MESSAGE.DATE_DELIVERED)=18 THEN DATETIME(MESSAGE.DATE_DELIVERED/1000000000+978307200,"UNIXEPOCH")
-				WHEN LENGTH(MESSAGE.DATE_DELIVERED)=9 THEN DATETIME(MESSAGE.DATE_DELIVERED+978307200,"UNIXEPOCH")
-				ELSE "N/A"
-			END "DATE DELIVERED",
-			CASE 
-				WHEN LENGTH(MESSAGE.DATE_READ)=18 THEN DATETIME(MESSAGE.DATE_READ/1000000000+978307200,"UNIXEPOCH")
-				WHEN LENGTH(MESSAGE.DATE_READ)=9 THEN DATETIME(MESSAGE.DATE_READ+978307200,"UNIXEPOCH")
-				ELSE "N/A"
-			END "DATE READ",
-			MESSAGE.TEXT as "MESSAGE",
-			HANDLE.ID AS "CONTACT ID",
-			MESSAGE.SERVICE AS "SERVICE",
-			MESSAGE.ACCOUNT AS "ACCOUNT",
-			MESSAGE.IS_DELIVERED AS "IS DELIVERED",
-			MESSAGE.IS_FROM_ME AS "IS FROM ME",
-			ATTACHMENT.FILENAME AS "FILENAME",
-			ATTACHMENT.MIME_TYPE AS "MIME TYPE",
-			ATTACHMENT.TRANSFER_NAME AS "TRANSFER TYPE",
-			ATTACHMENT.TOTAL_BYTES AS "TOTAL BYTES"
-		FROM MESSAGE
-		LEFT OUTER JOIN MESSAGE_ATTACHMENT_JOIN ON MESSAGE.ROWID = MESSAGE_ATTACHMENT_JOIN.MESSAGE_ID
-		LEFT OUTER JOIN ATTACHMENT ON MESSAGE_ATTACHMENT_JOIN.ATTACHMENT_ID = ATTACHMENT.ROWID
-		LEFT OUTER JOIN HANDLE ON MESSAGE.HANDLE_ID = HANDLE.ROWID''')
+	try:
+		cursor.execute('''
+		SELECT
+				CASE
+					WHEN LENGTH(MESSAGE.DATE)=18 THEN DATETIME(MESSAGE.DATE/1000000000+978307200,'UNIXEPOCH')
+					WHEN LENGTH(MESSAGE.DATE)=9 THEN DATETIME(MESSAGE.DATE + 978307200,'UNIXEPOCH')
+					ELSE "N/A"
+		    		END "MESSAGE DATE",			
+				CASE 
+					WHEN LENGTH(MESSAGE.DATE_DELIVERED)=18 THEN DATETIME(MESSAGE.DATE_DELIVERED/1000000000+978307200,"UNIXEPOCH")
+					WHEN LENGTH(MESSAGE.DATE_DELIVERED)=9 THEN DATETIME(MESSAGE.DATE_DELIVERED+978307200,"UNIXEPOCH")
+					ELSE "N/A"
+				END "DATE DELIVERED",
+				CASE 
+					WHEN LENGTH(MESSAGE.DATE_READ)=18 THEN DATETIME(MESSAGE.DATE_READ/1000000000+978307200,"UNIXEPOCH")
+					WHEN LENGTH(MESSAGE.DATE_READ)=9 THEN DATETIME(MESSAGE.DATE_READ+978307200,"UNIXEPOCH")
+					ELSE "N/A"
+				END "DATE READ",
+				MESSAGE.TEXT as "MESSAGE",
+				HANDLE.ID AS "CONTACT ID",
+				MESSAGE.SERVICE AS "SERVICE",
+				MESSAGE.ACCOUNT AS "ACCOUNT",
+				MESSAGE.IS_DELIVERED AS "IS DELIVERED",
+				MESSAGE.IS_FROM_ME AS "IS FROM ME",
+				ATTACHMENT.FILENAME AS "FILENAME",
+				ATTACHMENT.MIME_TYPE AS "MIME TYPE",
+				ATTACHMENT.TRANSFER_NAME AS "TRANSFER TYPE",
+				ATTACHMENT.TOTAL_BYTES AS "TOTAL BYTES"
+			FROM MESSAGE
+			LEFT OUTER JOIN MESSAGE_ATTACHMENT_JOIN ON MESSAGE.ROWID = MESSAGE_ATTACHMENT_JOIN.MESSAGE_ID
+			LEFT OUTER JOIN ATTACHMENT ON MESSAGE_ATTACHMENT_JOIN.ATTACHMENT_ID = ATTACHMENT.ROWID
+			LEFT OUTER JOIN HANDLE ON MESSAGE.HANDLE_ID = HANDLE.ROWID
+			''')
 
-	all_rows = cursor.fetchall()
-	usageentries = len(all_rows)
-	if usageentries > 0:
-		print(f'SMS Chat function executing')
-		os.makedirs(reportfolderbase+'SMS Chat/')
-		with open(reportfolderbase+'SMS Chat/SMS Chat.html', 'w') as f:
-			f.write('<html><body>')
-			f.write('<h2> SMS Chat report</h2>')
-			f.write(f'SMS Chat entries: {usageentries}<br>')
-			f.write(f'SMS Chat database located at: {filefound[0]}<br>')
-			f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
-			f.write('<br/>')
-			f.write('')
-			f.write(f'<table>')
-			f.write(f'<tr><td>Message Date</td><td>Date Delivered</td><td>Date Read</td><td>Message</td><td>Contact ID</td><td>Service</td><td>Account</td><td>Is Delivered</td><td>Is from Me</td><td>Filename</td><td>MIME Type</td><td>Transfer Type</td><td>Total Bytes</td></tr>')
-			for row in all_rows:
-				f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td><td>{row[9]}</td><td>{row[10]}</td><td>{row[11]}</td><td>{row[12]}</td></tr>')
-			f.write(f'</table></body></html>')
-			print(f'SMS Chat function completed')
-	else:
-			print('No SMS Chats available')
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			print(f'SMS Chat function executing')
+			os.makedirs(reportfolderbase+'SMS Chat/')
+			with open(reportfolderbase+'SMS Chat/SMS Chat.html', 'w') as f:
+				f.write('<html><body>')
+				f.write('<h2> SMS Chat report</h2>')
+				f.write(f'SMS Chat entries: {usageentries}<br>')
+				f.write(f'SMS Chat database located at: {filefound[0]}<br>')
+				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<br/>')
+				f.write('')
+				f.write(f'<table>')
+				f.write(f'<tr><td>Message Date</td><td>Date Delivered</td><td>Date Read</td><td>Message</td><td>Contact ID</td><td>Service</td><td>Account</td><td>Is Delivered</td><td>Is from Me</td><td>Filename</td><td>MIME Type</td><td>Transfer Type</td><td>Total Bytes</td></tr>')
+				for row in all_rows:
+					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td><td>{row[9]}</td><td>{row[10]}</td><td>{row[11]}</td><td>{row[12]}</td></tr>')
+				f.write(f'</table></body></html>')
+				print(f'SMS Chat function completed')
+		else:
+				print('No SMS Chats available')
+	except:
+		print('Error on SMS Chat function. Possible empty database.')	
 			
 	db = sqlite3.connect(filefound[0])
 	cursor = db.cursor()
-	cursor.execute('''
-	SELECT
-			CASE
-	 			WHEN LENGTH(MESSAGE.DATE)=18 THEN DATETIME(MESSAGE.DATE/1000000000+978307200,'UNIXEPOCH')
-	 			WHEN LENGTH(MESSAGE.DATE)=9 THEN DATETIME(MESSAGE.DATE + 978307200,'UNIXEPOCH')
-	 			ELSE "N/A"
-			END "MESSAGE DATE",
-			CASE 
-				WHEN LENGTH(MESSAGE.DATE_DELIVERED)=18 THEN DATETIME(MESSAGE.DATE_DELIVERED/1000000000+978307200,"UNIXEPOCH")
-				WHEN LENGTH(MESSAGE.DATE_DELIVERED)=9 THEN DATETIME(MESSAGE.DATE_DELIVERED+978307200,"UNIXEPOCH")
-				ELSE "N/A"
-			END "DATE DELIVERED",
-			CASE 
-				WHEN LENGTH(MESSAGE.DATE_READ)=18 THEN DATETIME(MESSAGE.DATE_READ/1000000000+978307200,"UNIXEPOCH")
-				WHEN LENGTH(MESSAGE.DATE_READ)=9 THEN DATETIME(MESSAGE.DATE_READ+978307200,"UNIXEPOCH")
-				ELSE "N/A"
-			END "DATE READ",
-			MESSAGE.TEXT as "MESSAGE",
-			HANDLE.ID AS "CONTACT ID",
-			MESSAGE.SERVICE AS "SERVICE",
-			MESSAGE.ACCOUNT AS "ACCOUNT",
-			MESSAGE.IS_DELIVERED AS "IS DELIVERED",
-			MESSAGE.IS_FROM_ME AS "IS FROM ME",
-			ATTACHMENT.FILENAME AS "FILENAME",
-			ATTACHMENT.MIME_TYPE AS "MIME TYPE",
-			ATTACHMENT.TRANSFER_NAME AS "TRANSFER TYPE",
-			ATTACHMENT.TOTAL_BYTES AS "TOTAL BYTES"
-		FROM MESSAGE
-		LEFT OUTER JOIN MESSAGE_ATTACHMENT_JOIN ON MESSAGE.ROWID = MESSAGE_ATTACHMENT_JOIN.MESSAGE_ID
-		LEFT OUTER JOIN ATTACHMENT ON MESSAGE_ATTACHMENT_JOIN.ATTACHMENT_ID = ATTACHMENT.ROWID
-		LEFT OUTER JOIN HANDLE ON MESSAGE.HANDLE_ID = HANDLE.ROWID
-		WHERE "DATE DELIVERED" IS NOT "N/A"''')
+	try:
+		cursor.execute('''
+		SELECT
+				CASE
+		 			WHEN LENGTH(MESSAGE.DATE)=18 THEN DATETIME(MESSAGE.DATE/1000000000+978307200,'UNIXEPOCH')
+		 			WHEN LENGTH(MESSAGE.DATE)=9 THEN DATETIME(MESSAGE.DATE + 978307200,'UNIXEPOCH')
+		 			ELSE "N/A"
+				END "MESSAGE DATE",
+				CASE 
+					WHEN LENGTH(MESSAGE.DATE_DELIVERED)=18 THEN DATETIME(MESSAGE.DATE_DELIVERED/1000000000+978307200,"UNIXEPOCH")
+					WHEN LENGTH(MESSAGE.DATE_DELIVERED)=9 THEN DATETIME(MESSAGE.DATE_DELIVERED+978307200,"UNIXEPOCH")
+					ELSE "N/A"
+				END "DATE DELIVERED",
+				CASE 
+					WHEN LENGTH(MESSAGE.DATE_READ)=18 THEN DATETIME(MESSAGE.DATE_READ/1000000000+978307200,"UNIXEPOCH")
+					WHEN LENGTH(MESSAGE.DATE_READ)=9 THEN DATETIME(MESSAGE.DATE_READ+978307200,"UNIXEPOCH")
+					ELSE "N/A"
+				END "DATE READ",
+				MESSAGE.TEXT as "MESSAGE",
+				HANDLE.ID AS "CONTACT ID",
+				MESSAGE.SERVICE AS "SERVICE",
+				MESSAGE.ACCOUNT AS "ACCOUNT",
+				MESSAGE.IS_DELIVERED AS "IS DELIVERED",
+				MESSAGE.IS_FROM_ME AS "IS FROM ME",
+				ATTACHMENT.FILENAME AS "FILENAME",
+				ATTACHMENT.MIME_TYPE AS "MIME TYPE",
+				ATTACHMENT.TRANSFER_NAME AS "TRANSFER TYPE",
+				ATTACHMENT.TOTAL_BYTES AS "TOTAL BYTES"
+			FROM MESSAGE
+			LEFT OUTER JOIN MESSAGE_ATTACHMENT_JOIN ON MESSAGE.ROWID = MESSAGE_ATTACHMENT_JOIN.MESSAGE_ID
+			LEFT OUTER JOIN ATTACHMENT ON MESSAGE_ATTACHMENT_JOIN.ATTACHMENT_ID = ATTACHMENT.ROWID
+			LEFT OUTER JOIN HANDLE ON MESSAGE.HANDLE_ID = HANDLE.ROWID
+			WHERE "DATE DELIVERED" IS NOT "N/A"''')
 
-	all_rows = cursor.fetchall()
-	usageentries = len(all_rows)
-	if usageentries > 0:
-		print(f'SMS Chat Message Delivered function executing')
-		with open(reportfolderbase+'SMS Chat/SMS Message Delivered.html', 'w') as f:
-			f.write('<html><body>')
-			f.write('<h2> SMS Chat Message Delivered report</h2>')
-			f.write(f'SMS Chat Message Delivered entries: {usageentries}<br>')
-			f.write(f'SMS Chat Message Delivered database located at: {filefound[0]}<br>')
-			f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
-			f.write('<br/>')
-			f.write('')
-			f.write(f'<table>')
-			f.write(f'<tr><td>Message Date</td><td>Date Delivered</td><td>Date Read</td><td>Message</td><td>Contact ID</td><td>Service</td><td>Account</td><td>Is Delivered</td><td>Is from Me</td><td>Filename</td><td>MIME Type</td><td>Transfer Type</td><td>Total Bytes</td></tr>')
-			for row in all_rows:
-				f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td><td>{row[9]}</td><td>{row[10]}</td><td>{row[11]}</td><td>{row[12]}</td></tr>')
-			f.write(f'</table></body></html>')
-			print(f'SMS Chat Message function completed')
-	else:
-		print('No SMS Chat available')
-		
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			print(f'SMS Chat Message Delivered function executing')
+			with open(reportfolderbase+'SMS Chat/SMS Message Delivered.html', 'w') as f:
+				f.write('<html><body>')
+				f.write('<h2> SMS Chat Message Delivered report</h2>')
+				f.write(f'SMS Chat Message Delivered entries: {usageentries}<br>')
+				f.write(f'SMS Chat Message Delivered database located at: {filefound[0]}<br>')
+				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<br/>')
+				f.write('')
+				f.write(f'<table>')
+				f.write(f'<tr><td>Message Date</td><td>Date Delivered</td><td>Date Read</td><td>Message</td><td>Contact ID</td><td>Service</td><td>Account</td><td>Is Delivered</td><td>Is from Me</td><td>Filename</td><td>MIME Type</td><td>Transfer Type</td><td>Total Bytes</td></tr>')
+				for row in all_rows:
+					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td><td>{row[9]}</td><td>{row[10]}</td><td>{row[11]}</td><td>{row[12]}</td></tr>')
+				f.write(f'</table></body></html>')
+				print(f'SMS Chat Message function completed')
+		else:
+			print('No SMS Chat Message Delivered available')
+	except:
+		print('Error on SMS Chat Message Delivered function. Possible empty database.')
+				
 	db = sqlite3.connect(filefound[0])
 	cursor = db.cursor()
-	cursor.execute('''
-	SELECT
-			CASE
-	 			WHEN LENGTH(MESSAGE.DATE)=18 THEN DATETIME(MESSAGE.DATE/1000000000+978307200,'UNIXEPOCH')
-	 			WHEN LENGTH(MESSAGE.DATE)=9 THEN DATETIME(MESSAGE.DATE + 978307200,'UNIXEPOCH')
-	 			ELSE "N/A"
-	     		END "MESSAGE DATE",
-			CASE 
-				WHEN LENGTH(MESSAGE.DATE_DELIVERED)=18 THEN DATETIME(MESSAGE.DATE_DELIVERED/1000000000+978307200,"UNIXEPOCH")
-				WHEN LENGTH(MESSAGE.DATE_DELIVERED)=9 THEN DATETIME(MESSAGE.DATE_DELIVERED+978307200,"UNIXEPOCH")
-				ELSE "N/A"
-			END "DATE DELIVERED",
-			CASE 
-				WHEN LENGTH(MESSAGE.DATE_READ)=18 THEN DATETIME(MESSAGE.DATE_READ/1000000000+978307200,"UNIXEPOCH")
-				WHEN LENGTH(MESSAGE.DATE_READ)=9 THEN DATETIME(MESSAGE.DATE_READ+978307200,"UNIXEPOCH")
-				ELSE "N/A"
-			END "DATE READ",
-			MESSAGE.TEXT as "MESSAGE",
-			HANDLE.ID AS "CONTACT ID",
-			MESSAGE.SERVICE AS "SERVICE",
-			MESSAGE.ACCOUNT AS "ACCOUNT",
-			MESSAGE.IS_DELIVERED AS "IS DELIVERED",
-			MESSAGE.IS_FROM_ME AS "IS FROM ME",
-			ATTACHMENT.FILENAME AS "FILENAME",
-			ATTACHMENT.MIME_TYPE AS "MIME TYPE",
-			ATTACHMENT.TRANSFER_NAME AS "TRANSFER TYPE",
-			ATTACHMENT.TOTAL_BYTES AS "TOTAL BYTES"
-		FROM MESSAGE
-		LEFT OUTER JOIN MESSAGE_ATTACHMENT_JOIN ON MESSAGE.ROWID = MESSAGE_ATTACHMENT_JOIN.MESSAGE_ID
-		LEFT OUTER JOIN ATTACHMENT ON MESSAGE_ATTACHMENT_JOIN.ATTACHMENT_ID = ATTACHMENT.ROWID
-		LEFT OUTER JOIN HANDLE ON MESSAGE.HANDLE_ID = HANDLE.ROWID
-		WHERE "DATE READ" IS NOT "N/A"''')
+	try:
+		cursor.execute('''
+		SELECT
+				CASE
+		 			WHEN LENGTH(MESSAGE.DATE)=18 THEN DATETIME(MESSAGE.DATE/1000000000+978307200,'UNIXEPOCH')
+		 			WHEN LENGTH(MESSAGE.DATE)=9 THEN DATETIME(MESSAGE.DATE + 978307200,'UNIXEPOCH')
+		 			ELSE "N/A"
+		     		END "MESSAGE DATE",
+				CASE 
+					WHEN LENGTH(MESSAGE.DATE_DELIVERED)=18 THEN DATETIME(MESSAGE.DATE_DELIVERED/1000000000+978307200,"UNIXEPOCH")
+					WHEN LENGTH(MESSAGE.DATE_DELIVERED)=9 THEN DATETIME(MESSAGE.DATE_DELIVERED+978307200,"UNIXEPOCH")
+					ELSE "N/A"
+				END "DATE DELIVERED",
+				CASE 
+					WHEN LENGTH(MESSAGE.DATE_READ)=18 THEN DATETIME(MESSAGE.DATE_READ/1000000000+978307200,"UNIXEPOCH")
+					WHEN LENGTH(MESSAGE.DATE_READ)=9 THEN DATETIME(MESSAGE.DATE_READ+978307200,"UNIXEPOCH")
+					ELSE "N/A"
+				END "DATE READ",
+				MESSAGE.TEXT as "MESSAGE",
+				HANDLE.ID AS "CONTACT ID",
+				MESSAGE.SERVICE AS "SERVICE",
+				MESSAGE.ACCOUNT AS "ACCOUNT",
+				MESSAGE.IS_DELIVERED AS "IS DELIVERED",
+				MESSAGE.IS_FROM_ME AS "IS FROM ME",
+				ATTACHMENT.FILENAME AS "FILENAME",
+				ATTACHMENT.MIME_TYPE AS "MIME TYPE",
+				ATTACHMENT.TRANSFER_NAME AS "TRANSFER TYPE",
+				ATTACHMENT.TOTAL_BYTES AS "TOTAL BYTES"
+			FROM MESSAGE
+			LEFT OUTER JOIN MESSAGE_ATTACHMENT_JOIN ON MESSAGE.ROWID = MESSAGE_ATTACHMENT_JOIN.MESSAGE_ID
+			LEFT OUTER JOIN ATTACHMENT ON MESSAGE_ATTACHMENT_JOIN.ATTACHMENT_ID = ATTACHMENT.ROWID
+			LEFT OUTER JOIN HANDLE ON MESSAGE.HANDLE_ID = HANDLE.ROWID
+			WHERE "DATE READ" IS NOT "N/A"''')
 
-	all_rows = cursor.fetchall()
-	usageentries = len(all_rows)
-	if usageentries > 0:
-		print(f'SMS Chat Message Read function executing')
-		with open(reportfolderbase+'SMS Chat/SMS Message Read.html', 'w') as f:
-			f.write('<html><body>')
-			f.write('<h2> SMS Chat Message Read report</h2>')
-			f.write(f'SMS Chat Message Read entries: {usageentries}<br>')
-			f.write(f'SMS Chat Message Readdatabase located at: {filefound[0]}<br>')
-			f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
-			f.write('<br/>')
-			f.write('')
-			f.write(f'<table>')
-			f.write(f'<tr><td>Message Date</td><td>Date Delivered</td><td>Date Read</td><td>Message</td><td>Contact ID</td><td>Service</td><td>Account</td><td>Is Delivered</td><td>Is from Me</td><td>Filename</td><td>MIME Type</td><td>Transfer Type</td><td>Total Bytes</td></tr>')
-			for row in all_rows:
-				f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td><td>{row[9]}</td><td>{row[10]}</td><td>{row[11]}</td><td>{row[12]}</td></tr>')
-			f.write(f'</table></body></html>')
-			print(f'SMS Chat Message Read function completed')
-	else:
-		print('No SMS Chat available')
-		
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			print(f'SMS Chat Message Read function executing')
+			with open(reportfolderbase+'SMS Chat/SMS Message Read.html', 'w') as f:
+				f.write('<html><body>')
+				f.write('<h2> SMS Chat Message Read report</h2>')
+				f.write(f'SMS Chat Message Read entries: {usageentries}<br>')
+				f.write(f'SMS Chat Message Readdatabase located at: {filefound[0]}<br>')
+				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<br/>')
+				f.write('')
+				f.write(f'<table>')
+				f.write(f'<tr><td>Message Date</td><td>Date Delivered</td><td>Date Read</td><td>Message</td><td>Contact ID</td><td>Service</td><td>Account</td><td>Is Delivered</td><td>Is from Me</td><td>Filename</td><td>MIME Type</td><td>Transfer Type</td><td>Total Bytes</td></tr>')
+				for row in all_rows:
+					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td><td>{row[9]}</td><td>{row[10]}</td><td>{row[11]}</td><td>{row[12]}</td></tr>')
+				f.write(f'</table></body></html>')
+				print(f'SMS Chat Message Read function completed')
+		else:
+			print('No SMS Chat Message Read available')
+	except:
+		print('Error on SMS Chat Message Read available. Posible empty database. ')
+				
 def safari(filefound):
 	db = sqlite3.connect(filefound[0])
 	cursor = db.cursor()
