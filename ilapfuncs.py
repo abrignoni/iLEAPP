@@ -261,7 +261,7 @@ def conndevices(filefound):
 	print(f'Connected devices function completed. ')
 
 def applicationstate(filefound):
-	iOSversion = versionf
+	#iOSversion = versionf
 	print(f'ApplicationState.db queries executing.')
 	outpath = reportfolderbase +'Application State/'
 	
@@ -328,7 +328,7 @@ def applicationstate(filefound):
 	filedatahtml.write('<br/>')
 	filedatahtml.write('<table>')
 	filedatahtml.write(f'<tr><td colspan = "4">{apstatefiledb}</td></tr>')
-	filedatahtml.write('<tr><td>Bundle ID</td><td>Bundle Path</td><td>Bundle Container</td><td>Sandbox Path</td></tr>')
+	filedatahtml.write('<tr><td>Bundle ID</td><td>Bundle Path</td><td>Sandbox Path</td></tr>')
 	
 		
 	for filename in glob.glob(outpath+'exported-clean/*.bplist'):	
@@ -336,7 +336,7 @@ def applicationstate(filefound):
 		#cfilename = os.path.basename(filename)
 		plist = ccl_bplist.load(p)
 		ns_keyed_archiver_obj = ccl_bplist.deserialise_NsKeyedArchiver(plist, parse_whole_structure=False)#deserialize clean 
-		#print(cfilename)
+		#print(ns_keyed_archiver_obj)
 		bid = (ns_keyed_archiver_obj['bundleIdentifier'])
 		bpath = (ns_keyed_archiver_obj['bundlePath'])
 		bcontainer = (ns_keyed_archiver_obj['bundleContainerPath'])
@@ -356,7 +356,7 @@ def applicationstate(filefound):
 		filedata.close()
 		
 		#html report
-		filedatahtml.write(f'<tr><td>{bid}</td><td>{bpath}</td><td>{bcontainer}</td><td>{bsandbox}</td></tr>')
+		filedatahtml.write(f'<tr><td>{bid}</td><td>{bpath}</td><td>{bsandbox}</td></tr>')
 		
 		
 		filemetadata = open(outpath+'ApplicationState_InstalledAppInfo_Path.txt', mode='w')
