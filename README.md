@@ -5,7 +5,7 @@ Details in blog post here: https://abrignoni.blogspot.com/2019/12/ileapp-ios-log
 Supports iOS 11, 12 & 13.
 Select parsing directly from a compressed .tar/.zip file or a decompressed directory.
 
-Pre-requisites:
+Pre-requisites:  
 Python 3  
 Pip install six  
 Pip install PySimpleGUI  
