@@ -2622,6 +2622,6 @@ def delphotos(filefound):
 				f.write(f'</table></body></html>')
 				print(f'Photos.sqlite Metadata function completed')
 		else:
-				print('Photos.sqlite Metadata available')
+				print('No Photos.sqlite Metadata available')
 	except:
 		print('Error on Photos.sqlite function.')
