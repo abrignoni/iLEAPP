@@ -2329,47 +2329,50 @@ def smschat(filefound):
 def safari(filefound):
 	db = sqlite3.connect(filefound[0])
 	cursor = db.cursor()
-	cursor.execute('''
-	SELECT 
-			HISTORY_ITEMS.URL AS "URL",
-			HISTORY_ITEMS.VISIT_COUNT AS "VISIT COUNT",
-			HISTORY_VISITS.TITLE AS "TITLE",
-			CASE HISTORY_VISITS.ORIGIN
-				WHEN 1 THEN "ICLOUD SYNCED DEVICE"
-				WHEN 0 THEN "VISTED FROM THIS DEVICE"
-			END "ICLOUD SYNC",
-			HISTORY_VISITS.LOAD_SUCCESSFUL AS "LOAD SUCCESSFUL",
-			HISTORY_VISITS.REDIRECT_SOURCE AS "REDIRECT SOURCE",
-			HISTORY_VISITS.REDIRECT_DESTINATION AS "REDIRECT DESTINATION",
-			DATETIME(HISTORY_VISITS.VISIT_TIME+978307200,'UNIXEPOCH') AS "VISIT TIME",
-			HISTORY_VISITS.ID AS "HISTORY ITEM ID"
-		FROM HISTORY_ITEMS
-		LEFT OUTER JOIN HISTORY_VISITS ON HISTORY_ITEMS.ID == HISTORY_VISITS.HISTORY_ITEM
-	''')
+	try:
+		cursor.execute('''
+		SELECT 
+				HISTORY_ITEMS.URL AS "URL",
+				HISTORY_ITEMS.VISIT_COUNT AS "VISIT COUNT",
+				HISTORY_VISITS.TITLE AS "TITLE",
+				CASE HISTORY_VISITS.ORIGIN
+					WHEN 1 THEN "ICLOUD SYNCED DEVICE"
+					WHEN 0 THEN "VISTED FROM THIS DEVICE"
+				END "ICLOUD SYNC",
+				HISTORY_VISITS.LOAD_SUCCESSFUL AS "LOAD SUCCESSFUL",
+				HISTORY_VISITS.REDIRECT_SOURCE AS "REDIRECT SOURCE",
+				HISTORY_VISITS.REDIRECT_DESTINATION AS "REDIRECT DESTINATION",
+				DATETIME(HISTORY_VISITS.VISIT_TIME+978307200,'UNIXEPOCH') AS "VISIT TIME",
+				HISTORY_VISITS.ID AS "HISTORY ITEM ID"
+			FROM HISTORY_ITEMS
+			LEFT OUTER JOIN HISTORY_VISITS ON HISTORY_ITEMS.ID == HISTORY_VISITS.HISTORY_ITEM
+		''')
 
-	all_rows = cursor.fetchall()
-	usageentries = len(all_rows)
-	if usageentries > 0:
-		print(f'Safari History function executing')
-		os.makedirs(reportfolderbase+'Safari/')
-		with open(reportfolderbase+'Safari/Safari History.html', 'w', encoding='utf8') as f:
-			f.write('<html><body>')
-			f.write('<h2> Safari History report</h2>')
-			f.write(f'Safari History entries: {usageentries}<br>')
-			f.write(f'Safari History database located at: {filefound[0]}<br>')
-			f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
-			f.write('<br/>')
-			f.write('')
-			f.write(f'<table>')
-			f.write(f'<tr><td>URL</td><td>Visit Count</td><td>Title</td><td>Icloud Sync</td><td>Load Sucessful</td><td>Redirect Source</td><td>Redirect Destination</td><td>Visit Time</td><td>History Item ID</td></tr>')
-			for row in all_rows:
-				url = textwrap.fill(row[0])
-				f.write(f'<tr><td>{url}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td></tr>')
-			f.write(f'</table></body></html>')
-			print(f'Safari History function completed')
-	else:
-			print('No Safari History available')
-
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			print(f'Safari History function executing')
+			os.makedirs(reportfolderbase+'Safari/')
+			with open(reportfolderbase+'Safari/Safari History.html', 'w', encoding='utf8') as f:
+				f.write('<html><body>')
+				f.write('<h2> Safari History report</h2>')
+				f.write(f'Safari History entries: {usageentries}<br>')
+				f.write(f'Safari History database located at: {filefound[0]}<br>')
+				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<br/>')
+				f.write('')
+				f.write(f'<table>')
+				f.write(f'<tr><td>URL</td><td>Visit Count</td><td>Title</td><td>Icloud Sync</td><td>Load Sucessful</td><td>Redirect Source</td><td>Redirect Destination</td><td>Visit Time</td><td>History Item ID</td></tr>')
+				for row in all_rows:
+					url = textwrap.fill(row[0])
+					f.write(f'<tr><td>{url}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td></tr>')
+				f.write(f'</table></body></html>')
+				print(f'Safari History function completed')
+		else:
+				print('No Safari History available')
+	except:
+		print('Error on Safari History function.')
+		
 def queryp(filefound):
 	try:
 		db = sqlite3.connect(filefound[0])
