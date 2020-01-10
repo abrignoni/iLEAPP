@@ -16,7 +16,7 @@ parser.add_argument('-o', choices=['fs','tar'], required=True, action="store",he
 parser.add_argument('pathtodir',help='Path to directory')
 
 if len(sys.argv[1:])==0:
-	parser.print_help()
+	parser.logfunc_help()
 	parser.exit()
 
 start = process_time()
@@ -44,14 +44,12 @@ while True:
 	event, values = window.read()
 	if event in (None, 'Close'):   # if user closes window or clicks cancel
 		break
-	#print('Selected:', values)
-	print('Procesing started. Please wait. This may take a few minutes...')
-
+	#logfunc('Selected:', values)
 
 	if values[0] == True:
 		extracttype = 'tar'
 		pathto = values[3]
-		#print(pathto)
+		#logfunc(pathto)
 		if pathto.endswith('.tar'):
 			pass
 		else:
@@ -87,20 +85,21 @@ while True:
 			
 	os.makedirs(reportfolderbase)
 	os.makedirs(reportfolderbase+'Script Logs')
+	logfunc('Procesing started. Please wait. This may take a few minutes...')
 
 	
 	window.refresh()
-	print('\n--------------------------------------------------------------------------------------')
-	print('iLEAPP: iOS Logs, Events, and Preferences Parser')
-	print('Objective: Triage iOS Full System Extractions.')
-	print('By: Alexis Brignoni | @AlexisBrignoni | abrignoni.com')
+	logfunc('\n--------------------------------------------------------------------------------------')
+	logfunc('iLEAPP: iOS Logs, Events, and Preferences Parser')
+	logfunc('Objective: Triage iOS Full System Extractions.')
+	logfunc('By: Alexis Brignoni | @AlexisBrignoni | abrignoni.com')
 	window.refresh()
 	
 	if extracttype == 'fs':
 		
-		print(f'File/Directory selected: {pathto}')
-		print('\n--------------------------------------------------------------------------------------')
-		print('')
+		logfunc(f'File/Directory selected: {pathto}')
+		logfunc('\n--------------------------------------------------------------------------------------')
+		logfunc('')
 		window.refresh()
 		log = open(reportfolderbase+'Script Logs/ProcessedFilesLog.html', 'w+', encoding='utf8')
 		nl = '\n' #literal in order to have new lines in fstrings that create text files
@@ -112,11 +111,11 @@ while True:
 			window.refresh()
 			if not filefound:
 				window.refresh()
-				print()
-				print(f'No files found for {key} -> {val}.')
+				logfunc('')
+				logfunc(f'No files found for {key} -> {val}.')
 				log.write(f'No files found for {key} -> {val}.<br><br>')
 			else:
-				print()
+				logfunc('')
 				window.refresh()
 				globals()[key](filefound)
 				for pathh in filefound:
@@ -125,9 +124,9 @@ while True:
 
 	elif extracttype == 'tar':
 		
-		print(f'File/Directory selected: {pathto}')
-		print('\n--------------------------------------------------------------------------------------')
-		print('')
+		logfunc(f'File/Directory selected: {pathto}')
+		logfunc('\n--------------------------------------------------------------------------------------')
+		logfunc('')
 		window.refresh()
 		log = open(reportfolderbase+'Script Logs/ProcessedFilesLog.html', 'w+', encoding='utf8')
 		nl = '\n' #literal in order to have new lines in fstrings that create text files
@@ -139,12 +138,12 @@ while True:
 			window.refresh()
 			if not filefound:
 				window.refresh()
-				print()
-				print(f'No files found for {key} -> {val}.')
+				logfunc('')
+				logfunc(f'No files found for {key} -> {val}.')
 				log.write(f'No files found for {key} -> {val}.<br><br>')
 			else:
 				
-				print()
+				logfunc('')
 				window.refresh()
 				globals()[key](filefound)
 				for pathh in filefound:
@@ -153,9 +152,9 @@ while True:
 
 	elif extracttype == 'zip':
 			
-			print(f'File/Directory selected: {pathto}')
-			print('\n--------------------------------------------------------------------------------------')
-			print('')
+			logfunc(f'File/Directory selected: {pathto}')
+			logfunc('\n--------------------------------------------------------------------------------------')
+			logfunc('')
 			window.refresh()
 			log = open(reportfolderbase+'Script Logs/ProcessedFilesLog.html', 'w+', encoding='utf8')
 			nl = '\n' #literal in order to have new lines in fstrings that create text files
@@ -166,12 +165,12 @@ while True:
 				window.refresh()
 				if not filefound:
 					window.refresh()
-					print()
-					print(f'No files found for {key} -> {val}.')
+					logfunc('')
+					logfunc(f'No files found for {key} -> {val}.')
 					log.write(f'No files found for {key} -> {val}.<br><br>')
 				else:
 					
-					print()
+					logfunc('')
 					window.refresh()
 					globals()[key](filefound)
 					for pathh in filefound:
@@ -179,19 +178,19 @@ while True:
 			log.close()
 
 	else:
-		print('Error on argument -o')
+		logfunc('Error on argument -o')
 	
 		
 	#if os.path.exists(reportfolderbase+'temp/'):
 	#	shutil.rmtree(reportfolderbase+'temp/')		
 
-	#print(f'iOS version: {versionf} ')
+	#logfunc(f'iOS version: {versionf} ')
 	
-	print('')
-	print('Processes completed.')
+	logfunc('')
+	logfunc('Processes completed.')
 	end = process_time()
 	time = start - end
-	print("Processing time in secs: " + str(abs(time)) )
+	logfunc("Processing time in secs: " + str(abs(time)) )
 	
 	log = open(reportfolderbase+'Script Logs/ProcessedFilesLog.html', 'a', encoding='utf8')
 	log.write(f'Processing time in secs: {str(abs(time))}')

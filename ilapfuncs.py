@@ -22,6 +22,16 @@ currenttime = str(now.strftime('%Y-%m-%d_%A_%H%M%S'))
 reportfolderbase = './ILEAPP_Reports_'+currenttime+'/'
 temp = reportfolderbase+'temp/'
 
+def logfunc(message):
+	if pathlib.Path(reportfolderbase+'Script Logs/Screen Output.html').is_file():
+		with open(reportfolderbase+'Script Logs/Screen Output.html', 'a', encoding='utf8') as f:
+			print(message)
+			f.write(message+'<br>')
+	else:
+		with open(reportfolderbase+'Script Logs/Screen Output.html', 'a', encoding='utf8') as f:
+			print(message)
+			f.write(message+'<br>')
+
 def datausage(filefound):
 	os.makedirs(reportfolderbase+'Data Usage/')
 	try:
@@ -46,7 +56,7 @@ def datausage(filefound):
 		all_rows = cursor.fetchall()
 		usageentries = len(all_rows)
 		if usageentries > 0:
-			print(f'Data Usage - Zliveusage function executing')
+			logfunc(f'Data Usage - Zliveusage function executing')
 			with open(reportfolderbase+'Data Usage/Zliveusage.html', 'w', encoding='utf8') as f:
 				f.write('<html><body>')
 				f.write('<h2> Zliveusage report</h2>')
@@ -60,11 +70,11 @@ def datausage(filefound):
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td><td>{row[9]}</td></tr>')
 				f.write(f'</table></body></html>')
-				print(f'Data Usage - Zliveusage function completed')
+				logfunc(f'Data Usage - Zliveusage function completed')
 		else:
-				print('No Data Usage - Zliveusage available')
+				logfunc('No Data Usage - Zliveusage available')
 	except:
-		print('Error in Data Usage - Zliveusage section.')
+		logfunc('Error in Data Usage - Zliveusage section.')
  
 	try:
 		db = sqlite3.connect(filefound[0])
@@ -82,7 +92,7 @@ def datausage(filefound):
 		all_rows = cursor.fetchall()
 		usageentries = len(all_rows)
 		if usageentries > 0:
-			print(f'Data Usage - Zprocess function executing')
+			logfunc(f'Data Usage - Zprocess function executing')
 			with open(reportfolderbase+'Data Usage/Zprocess.html', 'w', encoding='utf8') as f:
 				f.write('<html><body>')
 				f.write('<h2> Zprocess report</h2>')
@@ -96,11 +106,11 @@ def datausage(filefound):
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td></tr>')
 				f.write(f'</table></body></html>')
-				print(f'Data Usage - Zprocess function completed')
+				logfunc(f'Data Usage - Zprocess function completed')
 		else:
-				print('No Data Usage - Zprocess available')
+				logfunc('No Data Usage - Zprocess available')
 	except:
-		print('Error in Data Usage - Zprocess Section.')
+		logfunc('Error in Data Usage - Zprocess Section.')
 
 def medlib(filefound):
 	os.makedirs(reportfolderbase+'Media Library/')
@@ -148,7 +158,7 @@ def medlib(filefound):
 		all_rows = cursor.fetchall()
 		usageentries = len(all_rows)
 		if usageentries > 0:
-			print(f'Media Library function executing')
+			logfunc(f'Media Library function executing')
 			with open(reportfolderbase+'Media Library/Media Library.html', 'w', encoding='utf8') as f:
 				f.write('<html><body>')
 				f.write('<h2> Media Library report</h2>')
@@ -162,11 +172,11 @@ def medlib(filefound):
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td><td>{row[9]}</td><td>{row[10]}</td><td>{row[11]}</td><td>{row[12]}</td><td>{row[13]}</td><td>{row[14]}</td><td>{row[15]}</td><td>{row[16]}</td><td>{row[17]}</td><td>{row[18]}</td><td>{row[19]}</td><td>{row[20]}</td></tr>')
 				f.write(f'</table></body></html>')
-				print(f'Media Library function completed')
+				logfunc(f'Media Library function completed')
 		else:
-				print('No Media Library available')
+				logfunc('No Media Library available')
 	except:
-		print('Error in Media Library Section.')
+		logfunc('Error in Media Library Section.')
 
 def accs(filefound):
 	os.makedirs(reportfolderbase+'Accounts/')
@@ -189,7 +199,7 @@ def accs(filefound):
 		all_rows = cursor.fetchall()
 		usageentries = len(all_rows)
 		if usageentries > 0:
-			print(f'Account Data function executing')
+			logfunc(f'Account Data function executing')
 			with open(reportfolderbase+'Accounts/Accounts.html', 'w', encoding='utf8') as f:
 				f.write('<html><body>')
 				f.write('<h2> Account Data report</h2>')
@@ -203,24 +213,24 @@ def accs(filefound):
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td></tr>')
 				f.write(f'</table></body></html>')
-				print(f'Account Data function completed')
+				logfunc(f'Account Data function completed')
 		else:
-				print('No Account Data available')
+				logfunc('No Account Data available')
 	except:
-		print('Error in Account Data Section.')
+		logfunc('Error in Account Data Section.')
 
 def conndevices(filefound):	
 	with open(filefound[0], "rb") as f:
 		data = f.read()
 
-	print(f'Connected devices function executing.')
+	logfunc(f'Connected devices function executing.')
 	outpath = reportfolderbase +'Devices Connected/'
 	os.mkdir(outpath)
 	nl = '\n' 
 	
 	userComps = ""
 
-	print("Data being interpreted for FRPD is of type: " + str(type(data)))
+	logfunc("Data being interpreted for FRPD is of type: " + str(type(data)))
 	x = type(data)
 	byteArr = bytearray(data)
 	userByteArr = bytearray()
@@ -231,7 +241,7 @@ def conndevices(filefound):
 	flag = 0
 
 	if magic == b'\x01\x01\x80\x00\x00':
-		print("Found magic bytes in iTunes Prefs FRPD... Finding Usernames and Desktop names now")
+		logfunc("Found magic bytes in iTunes Prefs FRPD... Finding Usernames and Desktop names now")
 		f = open(outpath+'DevicesConnected.html', 'w')
 		f.write('<html>')
 		f.write(f'Artifact name and path: {filefound[0]}<br>')
@@ -254,15 +264,15 @@ def conndevices(filefound):
 				char =  (data[x])
 				userByteArr.append(char)
 
-		print(f'{userComps}{nl}')
+		logfunc(f'{userComps}{nl}')
 		f.write(f'{userComps}<br>')
 	f.write(f'</html>')
 	f.close()
-	print(f'Connected devices function completed. ')
+	logfunc(f'Connected devices function completed. ')
 
 def applicationstate(filefound):
 	#iOSversion = versionf
-	print(f'ApplicationState.db queries executing.')
+	logfunc(f'ApplicationState.db queries executing.')
 	outpath = reportfolderbase +'Application State/'
 	
 	try: 
@@ -270,7 +280,7 @@ def applicationstate(filefound):
 		os.mkdir(outpath+"exported-dirty/")
 		os.mkdir(outpath+"exported-clean/")
 	except OSError:  
-		print("Error making directories")
+		logfunc("Error making directories")
 	
 	freepath = 1
 	
@@ -336,7 +346,7 @@ def applicationstate(filefound):
 		#cfilename = os.path.basename(filename)
 		plist = ccl_bplist.load(p)
 		ns_keyed_archiver_obj = ccl_bplist.deserialise_NsKeyedArchiver(plist, parse_whole_structure=False)#deserialize clean 
-		#print(ns_keyed_archiver_obj)
+		#logfunc(ns_keyed_archiver_obj)
 		bid = (ns_keyed_archiver_obj['bundleIdentifier'])
 		bpath = (ns_keyed_archiver_obj['bundlePath'])
 		bcontainer = (ns_keyed_archiver_obj['bundleContainerPath'])
@@ -367,17 +377,17 @@ def applicationstate(filefound):
 	filedatahtml.write('</table></html>')
 	filedatahtml.close()
 	
-	print(f'Installed app GUIDs and app locations processed: {count}')
-	print(f'ApplicationState.db queries completed.')
+	logfunc(f'Installed app GUIDs and app locations processed: {count}')
+	logfunc(f'ApplicationState.db queries completed.')
 	
 def knowledgec(filefound):
-	print(f'Incepted bplist extractions in knowlwdgeC.db executing.')
+	logfunc(f'Incepted bplist extractions in knowlwdgeC.db executing.')
 
 	iOSversion = versionf
 	supportediOS = ['11', '12', '13']
 
 	if iOSversion not in supportediOS:
-		print ("Unsupported version"+iOSversion)
+		logfunc ("Unsupported version"+iOSversion)
 		return()
 		
 	extension = '.bplist'
@@ -391,7 +401,7 @@ def knowledgec(filefound):
 		os.mkdir(outpath+"clean/")
 		os.mkdir(outpath+"/dirty")
 	except OSError:  
-		print("Error making directories")
+		logfunc("Error making directories")
 		
 	#connect sqlite databases
 	db = sqlite3.connect(filefound[0])
@@ -470,7 +480,7 @@ def knowledgec(filefound):
 		if B is None:
 			A = 'No value'
 		
-		#print some values from clean bplist
+		#logfunc some values from clean bplist
 		if iOSversion == '13':
 			NSdata = (ns_keyed_archiver_obj['root']['intent']['backingStore']['bytes'])
 		else:
@@ -555,26 +565,26 @@ def knowledgec(filefound):
 		h.write('<table>')
 		h.write('<br />')
 		
-		#print(NSstartDate)
-		#print(NSendDate)
-		#print(NSduration)
-		#print(NSdata)
-		#print('')
+		#logfunc(NSstartDate)
+		#logfunc(NSendDate)
+		#logfunc(NSduration)
+		#logfunc(NSdata)
+		#logfunc('')
 
 
-	print("")	
-	print("iOS - KnowledgeC ZSTRUCTUREDMETADATA bplist extractor")
-	print("By: @phillmoore & @AlexisBrignoni")
-	print("thinkdfir.com & abrignoni.com")
-	print("")
-	print("Bplists from the Z_DKINTENTMETADATAKEY__SERIALIZEDINTERACTION field.")
-	print("Exported bplists (dirty): "+str(dirtcount))
-	print("Exported bplists (clean): "+str(cleancount))
-	print("")
-	print(f'Triage report completed.')
-	print('Incepted bplist extractions in knowlwdgeC.db completed')
+	logfunc("")	
+	logfunc("iOS - KnowledgeC ZSTRUCTUREDMETADATA bplist extractor")
+	logfunc("By: @phillmoore & @AlexisBrignoni")
+	logfunc("thinkdfir.com & abrignoni.com")
+	logfunc("")
+	logfunc("Bplists from the Z_DKINTENTMETADATAKEY__SERIALIZEDINTERACTION field.")
+	logfunc("Exported bplists (dirty): "+str(dirtcount))
+	logfunc("Exported bplists (clean): "+str(cleancount))
+	logfunc("")
+	logfunc(f'Triage report completed.')
+	logfunc('Incepted bplist extractions in knowlwdgeC.db completed')
 	
-	print(f'KnowledgeC.db App Usage executing')
+	logfunc(f'KnowledgeC.db App Usage executing')
 
 	#outpath = reportfolderbase+'KnowledgeC App Use/'
 
@@ -628,8 +638,8 @@ def knowledgec(filefound):
 			zv = row[7]
 			f.write(f'<tr><td>{ec}</td><td>{dw}</td><td>{go}</td><td>{st}</td><td>{en}</td><td>{us}</td><td>{zs}</td><td>{zv}</td></tr>')
 		f.write(f'</table></body></html>')
-	print(f'KnowledgeC App Usage completed')
-	print(f'KnowledgeC App Activity Executing')			
+	logfunc(f'KnowledgeC App Usage completed')
+	logfunc(f'KnowledgeC App Activity Executing')			
 	#connect sqlite databases
 	db = sqlite3.connect(filefound[0])
 	cursor = db.cursor()
@@ -690,9 +700,9 @@ def knowledgec(filefound):
 			ced = row[11]
 			f.write(f'<tr><td>{ec}</td><td>{dw}</td><td>{st}</td><td>{en}</td><td>{zs}</td><td>{zv}</td><td>{tl}</td><td>{ed}</td><td>{cu}</td><td>{cd}</td><td>{ce}</td><td>{ced}</td></tr>')
 		f.write(f'</table></body></html>')
-	print(f'KnowledgeC App Activity completed')
+	logfunc(f'KnowledgeC App Activity completed')
 	
-	print(f'KnowledgeC App in Focus executing')
+	logfunc(f'KnowledgeC App in Focus executing')
 	db = sqlite3.connect(filefound[0])
 	cursor = db.cursor()
 
@@ -733,9 +743,9 @@ def knowledgec(filefound):
 		for row in all_rows:
 			f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td></tr>')
 		f.write(f'</table></body></html>')
-		print(f'KnowledgeC App in Focus completed')
+		logfunc(f'KnowledgeC App in Focus completed')
 	
-	print(f'KnowledgeC App Battery Level executing')
+	logfunc(f'KnowledgeC App Battery Level executing')
 	cursor.execute('''
 	SELECT
 			ZOBJECT.ZVALUEDOUBLE as "BATTERY LEVEL",
@@ -782,9 +792,9 @@ def knowledgec(filefound):
 		for row in all_rows:
 			f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td></tr>')
 		f.write(f'</table></body></html>')
-		print(f'KnowledgeC App Battery Level completed')
+		logfunc(f'KnowledgeC App Battery Level completed')
 	
-	print(f'KnowledgeC Apps Installed executing')
+	logfunc(f'KnowledgeC Apps Installed executing')
 	cursor.execute('''
 	SELECT
 			ZOBJECT.ZVALUESTRING AS "BUNDLE ID",
@@ -829,9 +839,9 @@ def knowledgec(filefound):
 		for row in all_rows:
 			f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td></tr>')
 		f.write(f'</table></body></html>')
-		print(f'KnowledgeC Apps Installed completed')
+		logfunc(f'KnowledgeC Apps Installed completed')
 
-	print(f'KnowledgeC Device Locked executing')
+	logfunc(f'KnowledgeC Device Locked executing')
 	cursor.execute('''
 	SELECT
 			CASE ZOBJECT.ZVALUEINTEGER
@@ -881,9 +891,9 @@ def knowledgec(filefound):
 		for row in all_rows:
 			f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td></tr>')
 		f.write(f'</table></body></html>')
-		print(f'KnowledgeC Device Locked completed')
+		logfunc(f'KnowledgeC Device Locked completed')
 
-	print(f'KnowledgeC Plugged In executing')
+	logfunc(f'KnowledgeC Plugged In executing')
 	cursor.execute('''
 	SELECT
 			CASE
@@ -934,10 +944,10 @@ def knowledgec(filefound):
 		for row in all_rows:
 			f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td></tr>')
 		f.write(f'</table></body></html>')
-		print(f'KnowledgeC Plugged In completed')
+		logfunc(f'KnowledgeC Plugged In completed')
 
 def mib(filefound):
-	print(f'Mobile Installation Logs function executing.')
+	logfunc(f'Mobile Installation Logs function executing.')
 	#initialize counters
 	counter = 0
 	filescounter = 0
@@ -1006,14 +1016,14 @@ def mib(filefound):
 					day = day_converter(day)
 					month = month_converter(month)
 					inserttime = str(year)+ '-'+ str(month) + '-' + str(day) + ' ' + str(time)
-					#print(inserttime)
-					#print(month)
-					#print(day)
-					#print(year)
-					#print(time)
-					#print ("Timestamp: ", timestamp)
+					#logfunc(inserttime)
+					#logfunc(month)
+					#logfunc(day)
+					#logfunc(year)
+					#logfunc(time)
+					#logfunc ("Timestamp: ", timestamp)
 				
-				#print(inserttime, actiondesc, bundleid)
+				#logfunc(inserttime, actiondesc, bundleid)
 				
 				#insert to database
 				cursor = db.cursor()
@@ -1021,18 +1031,18 @@ def mib(filefound):
 				cursor.execute('INSERT INTO dimm (time_stamp, action, bundle_id, path)  VALUES(?,?,?,?)', datainsert)
 				db.commit()
 				
-				#print()
+				#logfunc()
 					
 			
 			matchObj = re.search( r"(Destroying container with identifier)", line) #Regex for destroyed containers
 			if matchObj:
 				actiondesc = "Destroying container"
-				#print(actiondesc)
-				#print("Destroyed containers:")
+				#logfunc(actiondesc)
+				#logfunc("Destroyed containers:")
 				matchObj = re.search( r"(?<=identifier )(.*)(?= at )", line) #Regex for bundle id
 				if matchObj:
 					bundleid = matchObj.group(1)
-					#print ("Bundle ID: ", bundleid )
+					#logfunc ("Bundle ID: ", bundleid )
 			
 				matchObj = re.search( r"(?<=^)(.*)(?= \[)", line) #Regex for timestamp
 				if matchObj:
@@ -1041,20 +1051,20 @@ def mib(filefound):
 					day = day_converter(day)
 					month = month_converter(month)
 					inserttime = str(year)+ '-'+ str(month) + '-' + str(day) + ' ' + str(time)
-					#print(inserttime)
-					#print(month)
-					#print(day)
-					#print(year)
-					#print(time)
-					#print ("Timestamp: ", timestamp)
+					#logfunc(inserttime)
+					#logfunc(month)
+					#logfunc(day)
+					#logfunc(year)
+					#logfunc(time)
+					#logfunc ("Timestamp: ", timestamp)
 				
 				matchObj = re.search( r"(?<= at )(.*)(?=$)", line) #Regex for path
 				if matchObj:
 					path = matchObj.group(1)
-					#print ("Path: ", matchObj.group(1))
+					#logfunc ("Path: ", matchObj.group(1))
 				
 			
-				#print(inserttime, actiondesc, bundleid, path)			
+				#logfunc(inserttime, actiondesc, bundleid, path)			
 				
 				#insert to database
 				cursor = db.cursor()
@@ -1062,18 +1072,18 @@ def mib(filefound):
 				cursor.execute('INSERT INTO dimm (time_stamp, action, bundle_id, path)  VALUES(?,?,?,?)', datainsert)
 				db.commit()
 				
-				#print()
+				#logfunc()
 				
 
 			matchObj = re.search( r"(Data container for)", line) #Regex Moved data containers
 			if matchObj:
 				actiondesc = "Data container moved"
-				#print(actiondesc)
-				#print("Data container moved:")
+				#logfunc(actiondesc)
+				#logfunc("Data container moved:")
 				matchObj = re.search( r"(?<=for )(.*)(?= is now )", line) #Regex for bundle id
 				if matchObj:
 					bundleid = matchObj.group(1)
-					#print ("Bundle ID: ", bundleid )
+					#logfunc ("Bundle ID: ", bundleid )
 			
 				matchObj = re.search( r"(?<=^)(.*)(?= \[)", line) #Regex for timestamp
 				if matchObj:
@@ -1082,19 +1092,19 @@ def mib(filefound):
 					day = day_converter(day)
 					month = month_converter(month)
 					inserttime = str(year)+ '-'+ str(month) + '-' + str(day) + ' ' + str(time)
-					#print(inserttime)
-					#print(month)
-					#print(day)
-					#print(year)
-					#print(time)
-					#print ("Timestamp: ", timestamp)
+					#logfunc(inserttime)
+					#logfunc(month)
+					#logfunc(day)
+					#logfunc(year)
+					#logfunc(time)
+					#logfunc ("Timestamp: ", timestamp)
 				
 				matchObj = re.search( r"(?<= at )(.*)(?=$)", line) #Regex for path
 				if matchObj:
 					path = matchObj.group(1)
-					#print ("Path: ", matchObj.group(1))
+					#logfunc ("Path: ", matchObj.group(1))
 					
-				#print(inserttime, actiondesc, bundleid, path)			
+				#logfunc(inserttime, actiondesc, bundleid, path)			
 				
 				#insert to database
 				cursor = db.cursor()
@@ -1102,17 +1112,17 @@ def mib(filefound):
 				cursor.execute('INSERT INTO dimm (time_stamp, action, bundle_id, path)  VALUES(?,?,?,?)', datainsert)
 				db.commit()
 				
-				#print()
+				#logfunc()
 				
 			matchObj = re.search( r"(Made container live for)", line) #Regex for made container
 			if matchObj:
 				actiondesc = "Made container live"
-				#print(actiondesc)
-				#print("Made container:")
+				#logfunc(actiondesc)
+				#logfunc("Made container:")
 				matchObj = re.search( r"(?<=for )(.*)(?= at)", line) #Regex for bundle id
 				if matchObj:
 					bundleid = matchObj.group(1)
-					#print ("Bundle ID: ", bundleid )
+					#logfunc ("Bundle ID: ", bundleid )
 			
 				matchObj = re.search( r"(?<=^)(.*)(?= \[)", line) #Regex for timestamp
 				if matchObj:
@@ -1121,18 +1131,18 @@ def mib(filefound):
 					day = day_converter(day)
 					month = month_converter(month)
 					inserttime = str(year)+ '-'+ str(month) + '-' + str(day) + ' ' + str(time)
-					#print(inserttime)
-					#print(month)
-					#print(day)
-					#print(year)
-					#print(time)
-					#print ("Timestamp: ", timestamp)
+					#logfunc(inserttime)
+					#logfunc(month)
+					#logfunc(day)
+					#logfunc(year)
+					#logfunc(time)
+					#logfunc ("Timestamp: ", timestamp)
 				
 				matchObj = re.search( r"(?<= at )(.*)(?=$)", line) #Regex for path
 				if matchObj:
 					path = matchObj.group(1)
-					#print ("Path: ", matchObj.group(1))
-				#print(inserttime, actiondesc, bundleid, path)			
+					#logfunc ("Path: ", matchObj.group(1))
+				#logfunc(inserttime, actiondesc, bundleid, path)			
 				
 				#insert to database
 				cursor = db.cursor()
@@ -1143,12 +1153,12 @@ def mib(filefound):
 			matchObj = re.search( r"(Uninstalling identifier )", line) #Regex for made container
 			if matchObj:
 				actiondesc = "Uninstalling identifier"
-				#print(actiondesc)
-				#print("Uninstalling identifier")
+				#logfunc(actiondesc)
+				#logfunc("Uninstalling identifier")
 				matchObj = re.search( r"(?<=Uninstalling identifier )(.*)", line) #Regex for bundle id
 				if matchObj:
 					bundleid = matchObj.group(1)
-					#print ("Bundle ID: ", bundleid )
+					#logfunc ("Bundle ID: ", bundleid )
 			
 				matchObj = re.search( r"(?<=^)(.*)(?= \[)", line) #Regex for timestamp
 				if matchObj:
@@ -1157,12 +1167,12 @@ def mib(filefound):
 					day = day_converter(day)
 					month = month_converter(month)
 					inserttime = str(year)+ '-'+ str(month) + '-' + str(day) + ' ' + str(time)
-					#print(inserttime)
-					#print(month)
-					#print(day)
-					#print(year)
-					#print(time)
-					#print ("Timestamp: ", timestamp)
+					#logfunc(inserttime)
+					#logfunc(month)
+					#logfunc(day)
+					#logfunc(year)
+					#logfunc(time)
+					#logfunc ("Timestamp: ", timestamp)
 				
 				#insert to database
 				cursor = db.cursor()
@@ -1173,7 +1183,7 @@ def mib(filefound):
 			matchObj = re.search( r"(main: Reboot detected)", line) #Regex for reboots
 			if matchObj:
 				actiondesc = "Reboot detected"
-				#print(actiondesc)		
+				#logfunc(actiondesc)		
 				matchObj = re.search( r"(?<=^)(.*)(?= \[)", line) #Regex for timestamp
 				if matchObj:
 					timestamp = matchObj.group(1)
@@ -1181,12 +1191,12 @@ def mib(filefound):
 					day = day_converter(day)
 					month = month_converter(month)
 					inserttime = str(year)+ '-'+ str(month) + '-' + str(day) + ' ' + str(time)
-					#print(inserttime)
-					#print(month)
-					#print(day)
-					#print(year)
-					#print(time)
-					#print ("Timestamp: ", timestamp)
+					#logfunc(inserttime)
+					#logfunc(month)
+					#logfunc(day)
+					#logfunc(year)
+					#logfunc(time)
+					#logfunc ("Timestamp: ", timestamp)
 				
 				#insert to database
 				cursor = db.cursor()
@@ -1197,12 +1207,12 @@ def mib(filefound):
 			matchObj = re.search( r"(Attempting Delta patch update of )", line) #Regex for Delta patch
 			if matchObj:
 				actiondesc = "Attempting Delta patch"
-				#print(actiondesc)
-				#print("Made container:")
+				#logfunc(actiondesc)
+				#logfunc("Made container:")
 				matchObj = re.search( r"(?<=Attempting Delta patch update of )(.*)(?= from)", line) #Regex for bundle id
 				if matchObj:
 					bundleid = matchObj.group(1)
-					#print ("Bundle ID: ", bundleid )
+					#logfunc ("Bundle ID: ", bundleid )
 			
 				matchObj = re.search( r"(?<=^)(.*)(?= \[)", line) #Regex for timestamp
 				if matchObj:
@@ -1211,18 +1221,18 @@ def mib(filefound):
 					day = day_converter(day)
 					month = month_converter(month)
 					inserttime = str(year)+ '-'+ str(month) + '-' + str(day) + ' ' + str(time)
-					#print(inserttime)
-					#print(month)
-					#print(day)
-					#print(year)
-					#print(time)
-					#print ("Timestamp: ", timestamp)
+					#logfunc(inserttime)
+					#logfunc(month)
+					#logfunc(day)
+					#logfunc(year)
+					#logfunc(time)
+					#logfunc ("Timestamp: ", timestamp)
 				
 				matchObj = re.search( r"(?<= from )(.*)", line) #Regex for path
 				if matchObj:
 					path = matchObj.group(1)
-					#print ("Path: ", matchObj.group(1))
-				#print(inserttime, actiondesc, bundleid, path)			
+					#logfunc ("Path: ", matchObj.group(1))
+				#logfunc(inserttime, actiondesc, bundleid, path)			
 				
 				#insert to database
 				cursor = db.cursor()
@@ -1230,11 +1240,11 @@ def mib(filefound):
 				cursor.execute('INSERT INTO dimm (time_stamp, action, bundle_id, path)  VALUES(?,?,?,?)', datainsert)
 				db.commit()
 				
-				#print()
+				#logfunc()
 	try:
-		print ('Logs processed: ', filescounter)
-		print ('Lines processed: ', counter)
-		print ()
+		logfunc (f'Logs processed: {filescounter}')
+		logfunc (f'Lines processed: {counter}')
+		logfunc ('')
 		file.close
 
 
@@ -1266,32 +1276,32 @@ def mib(filefound):
 		cursor.execute('''SELECT distinct bundle_id from dimm''')
 		all_rows = cursor.fetchall()
 		for row in all_rows:
-			#print(row[0])
+			#logfunc(row[0])
 			distinctbundle = row[0]
 			cursor.execute('''SELECT * from dimm where bundle_id=? order by time_stamp desc limit 1''', (distinctbundle,))
 			all_rows_iu = cursor.fetchall()
 			for row in all_rows_iu:
-				#print(row[0], row[1], row[2], row[3])
+				#logfunc(row[0], row[1], row[2], row[3])
 				if row[2] == '':
 					continue
 				elif row[1] == 'Destroying container':
-					#print(row[0], row[1], row[2], row[3])
+					#logfunc(row[0], row[1], row[2], row[3])
 					uninstallcount = uninstallcount + 1
 					totalapps = totalapps + 1
 					#tofile1 = row[0] + ' ' + row[1] + ' ' + row[2] + ' ' + row[3] + '\n'
 					tofile1 = row[2] +  '\n'
 					f1.write(tofile1)
-					#print()
+					#logfunc()
 				elif row[1] == 'Uninstalling identifier':
-					#print(row[0], row[1], row[2], row[3])
+					#logfunc(row[0], row[1], row[2], row[3])
 					uninstallcount = uninstallcount + 1
 					totalapps = totalapps + 1
 					#tofile1 = row[0] + ' ' + row[1] + ' ' + row[2] + ' ' + row[3] + '\n'
 					tofile1 = row[2] +  '\n'
 					f1.write(tofile1)
-					#print()
+					#logfunc()
 				else:
-					#print(row[0], row[1], row[2], row[3])
+					#logfunc(row[0], row[1], row[2], row[3])
 					tofile2 = row[2] + '\n'
 					
 					f2.write(tofile2)
@@ -1321,7 +1331,7 @@ def mib(filefound):
 		cursor.execute('''SELECT distinct bundle_id from dimm''')
 		all_rows = cursor.fetchall()
 		for row in all_rows:
-			#print(row[0])
+			#logfunc(row[0])
 			distinctbundle = row[0]
 			if row[0] == '':
 				continue
@@ -1330,7 +1340,7 @@ def mib(filefound):
 				cursor.execute('''SELECT * from dimm where bundle_id=? order by time_stamp DESC''', (distinctbundle,)) #Query to create app history per bundle_id
 				all_rows_hist = cursor.fetchall()
 				for row in all_rows_hist:
-					#print(row[0], row[1], row[2], row[3])
+					#logfunc(row[0], row[1], row[2], row[3])
 					tofile3 = row[0] + ' ' + row[1] + ' ' + row[2] + ' ' + row[3] + '\n'
 					f3.write(tofile3)			
 			f3.close()
@@ -1361,8 +1371,8 @@ def mib(filefound):
 		cursor.execute('''SELECT * from dimm where action ='Reboot detected' order by time_stamp DESC''')
 		all_rows = cursor.fetchall()
 		for row in all_rows:
-			#print(row[0])
-			#print(row[0], row[1], row[2], row[3])
+			#logfunc(row[0])
+			#logfunc(row[0], row[1], row[2], row[3])
 			tofile4 = row[0] + ' ' + row[1] + ' ' + row[2] + ' ' + row[3] + '\n'
 			f4.write(tofile4)
 			filedatahtml.write(tofile4+'<br>')
@@ -1370,21 +1380,21 @@ def mib(filefound):
 			
 		filedatahtml.close()	
 					
-		print ('Total apps: ', totalapps)
-		print ('Total installed apps: ', installedcount)
-		print ('Total uninstalled apps: ', uninstallcount)
-		print ('Total historical app reports: ', historicalcount)
-		print ('Total system state events: ', sysstatecount)
-		print ('Mobile Installation Logs function completed.')
+		logfunc (f'Total apps: {totalapps}')
+		logfunc (f'Total installed apps: {installedcount}')
+		logfunc (f'Total uninstalled apps: {uninstallcount}')
+		logfunc (f'Total historical app reports: {historicalcount}')
+		logfunc (f'Total system state events: {sysstatecount}')
+		logfunc (f'Mobile Installation Logs function completed.')
 		f1.close()
 		f2.close()
 		f4.close()
 
 	except:
-		print("Log files not found in "+input_path)
+		logfunc(f'Log files not found in {filefound}')
 	
 def wireless(filefound):
-	print(f'Cellular Wireless files function executing')
+	logfunc(f'Cellular Wireless files function executing')
 	os.makedirs(reportfolderbase+'Cellular Wireless Info/')
 	for filepath in filefound:
 		basename = os.path.basename(filepath)
@@ -1401,10 +1411,10 @@ def wireless(filefound):
 				f.write(f'<tr><td>{key}</td><td>{val}</td></tr>')
 			f.write(f'</table></body></html>')
 			f.close()
-	print(f'Cellular Wireless files function completed')
+	logfunc(f'Cellular Wireless files function completed')
 	
 def iconstate(filefound):
-	print(f'Iconstate function executing.')
+	logfunc(f'Iconstate function executing.')
 	os.makedirs(reportfolderbase+'Icon Positions/')
 	f =open(reportfolderbase+'Icon Positions/Icon Positions.txt','w')
 	g =open(reportfolderbase+'Icon Positions/Icon Positons.html','w')
@@ -1439,14 +1449,14 @@ def iconstate(filefound):
 	g.write('</html>')
 	g.close()
 	
-	print('Screens: '+str(len(icon)))
-	print('Icons in bottom bar: '+str(len(bbar)))
-	print(f'Iconstate function completed.')
+	logfunc('Screens: '+str(len(icon)))
+	logfunc('Icons in bottom bar: '+str(len(bbar)))
+	logfunc(f'Iconstate function completed.')
 	
 def lastbuild(filefound):
 	global versionf
 	versionnum = 0
-	print(f'Lastbuild function executing.')
+	logfunc(f'Lastbuild function executing.')
 	os.makedirs(reportfolderbase+'Build Info/')
 	f =open(reportfolderbase+'Build Info/LastBuildInfo.plist.txt','w')
 	p = open(filefound[0], 'rb')
@@ -1469,7 +1479,7 @@ def lastbuild(filefound):
 			versionnum = val[0:2]		
 			if versionnum in ('11','12','13'):
 				versionf = versionnum 
-				print(f'iOS version is: {versionf}')
+				logfunc(f'iOS version is: {versionf}')
 			else:
 				versionf = 'Unknown'	
 	f.close()
@@ -1477,10 +1487,10 @@ def lastbuild(filefound):
 	#close html footer
 	filedatahtml.write('</table></html>')
 	filedatahtml.close()
-	print(f'Lastbuild function completed.')
+	logfunc(f'Lastbuild function completed.')
 
 def iOSNotifications11(filefound):
-	print(f'iOSNotifications 11 function executing.')
+	logfunc(f'iOSNotifications 11 function executing.')
 	
 	count = 0
 	notdircount = 0
@@ -1500,29 +1510,29 @@ def iOSNotifications11(filefound):
 	pathfound = str(filefound[0])
 
 	if pathfound == 0:
-		print("No PushStore directory located")
+		logfunc("No PushStore directory located")
 	else:
 		folder = (reportfolderbase+'iOS 11 Notifications/') #add the date thing from phill
 		os.makedirs( folder )
-		#print("Processing:")
+		#logfunc("Processing:")
 		for filename in glob.iglob(pathfound+'\**', recursive=True):
 			if os.path.isfile(filename): # filter dirs
 				file_name = os.path.splitext(os.path.basename(filename))[0]
 					#get extension and iterate on those files
 					#file_extension = os.path.splitext(filename)
-					#print(file_extension)
+					#logfunc(file_extension)
 					#create directory
 				if filename.endswith('pushstore'):
 						#create directory where script is running from
-					print (filename) #full path
+					logfunc (filename) #full path
 					notdircount = notdircount + 1				
-						#print (os.path.basename(file_name)) #filename with  no extension
+						#logfunc (os.path.basename(file_name)) #filename with  no extension
 					openplist = (os.path.basename(os.path.normpath(filename))) #filename with extension
-						#print (openplist)
+						#logfunc (openplist)
 						#bundlepath = (os.path.basename(os.path.dirname(filename)))#previous directory
 					bundlepath = file_name
 					appdirect = (folder + "\\"+ bundlepath) 
-						#print(appdirect)
+						#logfunc(appdirect)
 					os.makedirs( appdirect )
 						
 						#open the plist
@@ -1531,7 +1541,7 @@ def iOSNotifications11(filefound):
 					plist2 = plist["$objects"]
 
 					long = len(plist2)
-					#print (long)
+					#logfunc (long)
 					h = open('./'+appdirect+'/DeliveredNotificationsReport.html', 'w') #write report
 					h.write('<html><body>')
 					h.write('<h2>iOS Delivered Notifications Triage Report </h2>')
@@ -1616,7 +1626,7 @@ def iOSNotifications11(filefound):
 								dia = str(plist2[i]['NS.time'])
 								dias = (dia.rsplit('.', 1)[0])
 								timestamp = datetime.datetime.fromtimestamp(int(dias)) + delta
-								#print (timestamp)
+								#logfunc (timestamp)
 							
 								h.write('<tr>')
 								h.write('<td>Time UTC</td>')
@@ -1701,13 +1711,13 @@ def iOSNotifications11(filefound):
 					for dict in plist2:
 						liste = dict
 						types = (type(liste))
-						#print (types)
+						#logfunc (types)
 						try:
 							for k, v in liste.items():
 								if k == 'NS.data':
 									chk = str(v)
 									reduced = (chk[2:8])
-									#print (reduced)
+									#logfunc (reduced)
 									if reduced == "bplist":
 										count = count + 1
 										binfile = open('./'+appdirect+'/incepted'+str(count)+'.bplist', 'wb')
@@ -1717,7 +1727,7 @@ def iOSNotifications11(filefound):
 										procfile = open('./'+appdirect+'/incepted'+str(count)+'.bplist', 'rb')
 										secondplist = ccl_bplist.load(procfile)
 										secondplistint = secondplist["$objects"]
-										print('Bplist processed and exported.')
+										logfunc('Bplist processed and exported.')
 										exportedbplistcount = exportedbplistcount + 1
 										h.write('<tr name="hide">')
 										h.write('<td>NS.data</td>')
@@ -1753,14 +1763,14 @@ def iOSNotifications11(filefound):
 		filedatahtml.write(items)
 		filedatahtml.write('<br>')
 
-	print("Total notification directories processed:"+str(notdircount))
-	print("Total exported bplists from notifications:"+str(exportedbplistcount))
+	logfunc("Total notification directories processed:"+str(notdircount))
+	logfunc("Total exported bplists from notifications:"+str(exportedbplistcount))
 	if notdircount == 0:
-			print('No notifications located.')
-	print(f'iOS 11 Notifications function completed.')
+			logfunc('No notifications located.')
+	logfunc(f'iOS 11 Notifications function completed.')
 	
 def iOSNotifications12(filefound):
-	print(f'iOS 12+ Notifications function executing')
+	logfunc(f'iOS 12+ Notifications function executing')
 	os.makedirs(reportfolderbase+'iOS 12 Notifications/')
 
 	count = 0
@@ -1778,9 +1788,9 @@ def iOSNotifications12(filefound):
 	f.close()
 	
 	folder = (reportfolderbase+'iOS 12 Notifications/') 
-	#print("Processing:")
+	#logfunc("Processing:")
 	pathfound = str(filefound[0])
-	#print(f'Posix to string is: {pathfound}')
+	#logfunc(f'Posix to string is: {pathfound}')
 	for filename in glob.iglob(pathfound+'/**', recursive=True):
 		#create directory where script is running from
 		if os.path.isfile(filename): # filter dirs
@@ -1788,14 +1798,14 @@ def iOSNotifications12(filefound):
 			#create directory
 			if 'DeliveredNotifications' in file_name:
 				#create directory where script is running from
-				#print (filename) #full path
+				#logfunc (filename) #full path
 				notdircount = notdircount + 1				
-				#print (os.path.basename(file_name)) #filename with  no extension
+				#logfunc (os.path.basename(file_name)) #filename with  no extension
 				openplist = (os.path.basename(os.path.normpath(filename))) #filename with extension
-				#print (openplist)
+				#logfunc (openplist)
 				bundlepath = (os.path.basename(os.path.dirname(filename)))#previous directory
 				appdirect = (folder + "/"+ bundlepath) 
-				#print(appdirect)
+				#logfunc(appdirect)
 				os.makedirs( appdirect )
 				
 				#open the plist
@@ -1804,7 +1814,7 @@ def iOSNotifications12(filefound):
 				plist2 = plist["$objects"]
 
 				long = len(plist2)
-				#print (long)
+				#logfunc (long)
 				h = open('./'+appdirect+'/DeliveredNotificationsReport.html', 'w') #write report
 				h.write('<html><body>')
 				h.write('<h2>iOS Delivered Notifications Triage Report </h2>')
@@ -1889,7 +1899,7 @@ def iOSNotifications12(filefound):
 							dia = str(plist2[i]['NS.time'])
 							dias = (dia.rsplit('.', 1)[0])
 							timestamp = datetime.datetime.fromtimestamp(int(dias)) + delta
-							#print (timestamp)
+							#logfunc (timestamp)
 						
 							h.write('<tr>')
 							h.write('<td>Time UTC</td>')
@@ -1985,13 +1995,13 @@ def iOSNotifications12(filefound):
 				for dict in plist2:
 					liste = dict
 					types = (type(liste))
-					#print (types)
+					#logfunc (types)
 					try:
 						for k, v in liste.items():
 							if k == 'NS.data':
 								chk = str(v)
 								reduced = (chk[2:8])
-								#print (reduced)
+								#logfunc (reduced)
 								if reduced == "bplist":
 									count = count + 1
 									binfile = open('./'+appdirect+'/incepted'+str(count)+'.bplist', 'wb')
@@ -2001,7 +2011,7 @@ def iOSNotifications12(filefound):
 									procfile = open('./'+appdirect+'/incepted'+str(count)+'.bplist', 'rb')
 									secondplist = ccl_bplist.load(procfile)
 									secondplistint = secondplist["$objects"]
-									print('Bplist processed and exported.')
+									logfunc('Bplist processed and exported.')
 									exportedbplistcount = exportedbplistcount + 1
 									h.write('<tr name="hide">')
 									h.write('<td>NS.data</td>')
@@ -2034,27 +2044,27 @@ def iOSNotifications12(filefound):
 			key = (f'<a href = "{name}/DeliveredNotificationsReport.html" target="content">{name}</a>')
 			dict[key] = size
 		except NotADirectoryError as nade:
-			print(nade)
+			logfunc(nade)
 			pass
 
 	filedatahtml = open(path+'iOS12_Notifications.html', mode='a+')
 	filedatahtml.write('<html><body><table><style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style><tr><td>Notifications by GUID (iOS13) or Bundle ID (iOS12) </td><td>Notification size in KB</td></tr>')
 	for k, v in dict.items():
 		v = v/1000
-		#print(f'{k} -> {v}')	
+		#logfunc(f'{k} -> {v}')	
 		filedatahtml.write(f'<tr><td>{k}</td><td>{v}</td></tr>')
 	filedatahtml.write('</table></body></html>')
 	filedatahtml.close()
 	
-	print("Total notification directories processed:"+str(notdircount))
-	print("Total exported bplists from notifications:"+str(exportedbplistcount))
+	logfunc("Total notification directories processed:"+str(notdircount))
+	logfunc("Total exported bplists from notifications:"+str(exportedbplistcount))
 	if notdircount == 0:
-		print('No notifications located.')
-	print('iOS 12+ Notifications function completed.')
+		logfunc('No notifications located.')
+	logfunc('iOS 12+ Notifications function completed.')
 
 def ktx(filefound):
-	print(f'Snapshots KTX file finder function executing.')
-	print(f'Snapshots located: {len(filefound)}')
+	logfunc(f'Snapshots KTX file finder function executing.')
+	logfunc(f'Snapshots located: {len(filefound)}')
 	outpath = reportfolderbase +'Snapshots_KTX_Files/'
 	outktx = outpath+'KTX_Files/'
 	os.mkdir(outpath)
@@ -2103,7 +2113,7 @@ def ktx(filefound):
 		if os.path.exists(filename):
 			shutil.copy2(filename, outktx+fullpw)
 	filedatahtml.close()
-	print(f'Snapshots KTX file finder function completed.')	
+	logfunc(f'Snapshots KTX file finder function completed.')	
 
 def calhist(filefound):
 	db = sqlite3.connect(filefound[0])
@@ -2124,7 +2134,7 @@ def calhist(filefound):
 	all_rows = cursor.fetchall()
 	usageentries = len(all_rows)
 	if usageentries > 0:
-		print(f'Call History function executing')
+		logfunc(f'Call History function executing')
 		os.makedirs(reportfolderbase+'Call History/')
 		with open(reportfolderbase+'Call History/Call History.html', 'w', encoding='utf8') as f:
 			f.write('<html><body>')
@@ -2143,9 +2153,9 @@ def calhist(filefound):
 				
 				f.write(f'<tr><td>{an}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td></tr>')
 			f.write(f'</table></body></html>')
-			print(f'Call History function completed')
+			logfunc(f'Call History function completed')
 	else:
-		print('No call history available')
+		logfunc('No call history available')
 
 def smschat(filefound):
 	db = sqlite3.connect(filefound[0])
@@ -2187,7 +2197,7 @@ def smschat(filefound):
 		all_rows = cursor.fetchall()
 		usageentries = len(all_rows)
 		if usageentries > 0:
-			print(f'SMS Chat function executing')
+			logfunc(f'SMS Chat function executing')
 			os.makedirs(reportfolderbase+'SMS Chat/')
 			with open(reportfolderbase+'SMS Chat/SMS Chat.html', 'w', encoding='utf8') as f:
 				f.write('<html><body>')
@@ -2202,11 +2212,11 @@ def smschat(filefound):
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td><td>{row[9]}</td><td>{row[10]}</td><td>{row[11]}</td><td>{row[12]}</td></tr>')
 				f.write(f'</table></body></html>')
-				print(f'SMS Chat function completed')
+				logfunc(f'SMS Chat function completed')
 		else:
-				print('No SMS Chats available')
+				logfunc('No SMS Chats available')
 	except:
-		print('Error on SMS Chat function. Possible empty database.')	
+		logfunc('Error on SMS Chat function. Possible empty database.')	
 			
 	db = sqlite3.connect(filefound[0])
 	cursor = db.cursor()
@@ -2247,7 +2257,7 @@ def smschat(filefound):
 		all_rows = cursor.fetchall()
 		usageentries = len(all_rows)
 		if usageentries > 0:
-			print(f'SMS Chat Message Delivered function executing')
+			logfunc(f'SMS Chat Message Delivered function executing')
 			with open(reportfolderbase+'SMS Chat/SMS Message Delivered.html', 'w', encoding='utf8') as f:
 				f.write('<html><body>')
 				f.write('<h2> SMS Chat Message Delivered report</h2>')
@@ -2261,11 +2271,11 @@ def smschat(filefound):
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td><td>{row[9]}</td><td>{row[10]}</td><td>{row[11]}</td><td>{row[12]}</td></tr>')
 				f.write(f'</table></body></html>')
-				print(f'SMS Chat Message function completed')
+				logfunc(f'SMS Chat Message function completed')
 		else:
-			print('No SMS Chat Message Delivered available')
+			logfunc('No SMS Chat Message Delivered available')
 	except:
-		print('Error on SMS Chat Message Delivered function. Possible empty database.')
+		logfunc('Error on SMS Chat Message Delivered function. Possible empty database.')
 				
 	db = sqlite3.connect(filefound[0])
 	cursor = db.cursor()
@@ -2306,7 +2316,7 @@ def smschat(filefound):
 		all_rows = cursor.fetchall()
 		usageentries = len(all_rows)
 		if usageentries > 0:
-			print(f'SMS Chat Message Read function executing')
+			logfunc(f'SMS Chat Message Read function executing')
 			with open(reportfolderbase+'SMS Chat/SMS Message Read.html', 'w', encoding='utf8') as f:
 				f.write('<html><body>')
 				f.write('<h2> SMS Chat Message Read report</h2>')
@@ -2320,11 +2330,11 @@ def smschat(filefound):
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td><td>{row[9]}</td><td>{row[10]}</td><td>{row[11]}</td><td>{row[12]}</td></tr>')
 				f.write(f'</table></body></html>')
-				print(f'SMS Chat Message Read function completed')
+				logfunc(f'SMS Chat Message Read function completed')
 		else:
-			print('No SMS Chat Message Read available')
+			logfunc('No SMS Chat Message Read available')
 	except:
-		print('Error on SMS Chat Message Read available. Posible empty database. ')
+		logfunc('Error on SMS Chat Message Read available. Posible empty database. ')
 				
 def safari(filefound):
 	db = sqlite3.connect(filefound[0])
@@ -2351,7 +2361,7 @@ def safari(filefound):
 		all_rows = cursor.fetchall()
 		usageentries = len(all_rows)
 		if usageentries > 0:
-			print(f'Safari History function executing')
+			logfunc(f'Safari History function executing')
 			os.makedirs(reportfolderbase+'Safari/')
 			with open(reportfolderbase+'Safari/Safari History.html', 'w', encoding='utf8') as f:
 				f.write('<html><body>')
@@ -2367,11 +2377,11 @@ def safari(filefound):
 					url = textwrap.fill(row[0])
 					f.write(f'<tr><td>{url}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td></tr>')
 				f.write(f'</table></body></html>')
-				print(f'Safari History function completed')
+				logfunc(f'Safari History function completed')
 		else:
-				print('No Safari History available')
+				logfunc('No Safari History available')
 	except:
-		print('Error on Safari History function.')
+		logfunc('Error on Safari History function.')
 		
 def queryp(filefound):
 	try:
@@ -2391,7 +2401,7 @@ def queryp(filefound):
 		all_rows = cursor.fetchall()
 		usageentries = len(all_rows)
 		if usageentries > 0:
-			print(f'Query Predictions function executing')
+			logfunc(f'Query Predictions function executing')
 			os.makedirs(reportfolderbase+'Query Predictions/')
 			with open(reportfolderbase+'Query Predictions/Query Predictions.html', 'w', encoding='utf8') as f:
 				f.write('<html><body>')
@@ -2406,11 +2416,11 @@ def queryp(filefound):
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td></tr>')
 				f.write(f'</table></body></html>')
-				print(f'Query Predictions function completed')
+				logfunc(f'Query Predictions function completed')
 		else:
-				print('No Query Predictions available')
+				logfunc('No Query Predictions available')
 	except:
-		print('Error in the Query Predictions Section.')
+		logfunc('Error in the Query Predictions Section.')
 
 def powerlog(filefound):
 	os.makedirs(reportfolderbase+'Powerlog/')
@@ -2433,7 +2443,7 @@ def powerlog(filefound):
 		all_rows = cursor.fetchall()
 		usageentries = len(all_rows)
 		if usageentries > 0:
-			print(f'Powerlog Mobile Backup Events executing')
+			logfunc(f'Powerlog Mobile Backup Events executing')
 			with open(reportfolderbase+'Powerlog/Mobile Backup Events.html', 'w', encoding='utf8') as f:
 				f.write('<html><body>')
 				f.write('<h2> Powerlog Mobile Backup Events report</h2>')
@@ -2447,11 +2457,11 @@ def powerlog(filefound):
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td></tr>')
 				f.write(f'</table></body></html>')
-				print(f'Powerlog Mobile Backup Events function completed')
+				logfunc(f'Powerlog Mobile Backup Events function completed')
 		else:
-				print('No Powerlog Mobile Backup Events available')
+				logfunc('No Powerlog Mobile Backup Events available')
 	except:
-		print('Error in Powerlog Mobile Backup Events Section.')
+		logfunc('Error in Powerlog Mobile Backup Events Section.')
 		
 	try:
 		db = sqlite3.connect(filefound[0])
@@ -2498,7 +2508,7 @@ def powerlog(filefound):
 		all_rows = cursor.fetchall()
 		usageentries = len(all_rows)
 		if usageentries > 0:
-			print(f'Powerlog WIFI Properties executing')
+			logfunc(f'Powerlog WIFI Properties executing')
 			with open(reportfolderbase+'Powerlog/Powerlog WIFI Properties.html', 'w', encoding='utf8') as f:
 				f.write('<html><body>')
 				f.write('<h2> Powerlog WIFI Properties Events report</h2>')
@@ -2512,11 +2522,11 @@ def powerlog(filefound):
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td></tr>')
 				f.write(f'</table></body></html>')
-				print(f'Powerlog WIFI Properties function completed')
+				logfunc(f'Powerlog WIFI Properties function completed')
 		else:
-				print('No Powerlog WIFI Properties available')
+				logfunc('No Powerlog WIFI Properties available')
 	except:
-		print('Error in Powerlog WIFI Properties Section.')
+		logfunc('Error in Powerlog WIFI Properties Section.')
 		
 	try:
 		db = sqlite3.connect(filefound[0])
@@ -2560,7 +2570,7 @@ def powerlog(filefound):
 		all_rows = cursor.fetchall()
 		usageentries = len(all_rows)
 		if usageentries > 0:
-			print(f'Powerlog Device Screen Autolock executing')
+			logfunc(f'Powerlog Device Screen Autolock executing')
 			with open(reportfolderbase+'Powerlog/Device Screen Autolock.html', 'w', encoding='utf8') as f:
 				f.write('<html><body>')
 				f.write('<h2> Powerlog Device Screen Autolock report</h2>')
@@ -2574,11 +2584,11 @@ def powerlog(filefound):
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td></tr>')
 				f.write(f'</table></body></html>')
-				print(f'Powerlog Device Screen Autolock function completed')
+				logfunc(f'Powerlog Device Screen Autolock function completed')
 		else:
-				print('No Powerlog Device Screen Autolock available')
+				logfunc('No Powerlog Device Screen Autolock available')
 	except:
-		print('Error in Powerlog Device Screen Autolock Section.')
+		logfunc('Error in Powerlog Device Screen Autolock Section.')
 
 def delphotos(filefound):
 	db = sqlite3.connect(filefound[0])
@@ -2608,7 +2618,7 @@ def delphotos(filefound):
 		all_rows = cursor.fetchall()
 		usageentries = len(all_rows)
 		if usageentries > 0:
-			print(f'Photos.sqlite metadata function executing')
+			logfunc(f'Photos.sqlite metadata function executing')
 			os.makedirs(reportfolderbase+'Photos.sqlite Metadata/')
 			with open(reportfolderbase+'Photos.sqlite Metadata/Photos.sqLite DB.html', 'w', encoding='utf8') as f:
 				f.write('<html><body>')
@@ -2623,8 +2633,8 @@ def delphotos(filefound):
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td><td>{row[9]}</td></tr>')
 				f.write(f'</table></body></html>')
-				print(f'Photos.sqlite Metadata function completed')
+				logfunc(f'Photos.sqlite Metadata function completed')
 		else:
-				print('No Photos.sqlite Metadata available')
+				logfunc('No Photos.sqlite Metadata available')
 	except:
-		print('Error on Photos.sqlite function.')
+		logfunc('Error on Photos.sqlite function.')
