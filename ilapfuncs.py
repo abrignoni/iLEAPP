@@ -2638,3 +2638,25 @@ def delphotos(filefound):
 				logfunc('No Photos.sqlite Metadata available')
 	except:
 		logfunc('Error on Photos.sqlite function.')
+
+def timezone(filefound):
+	logfunc(f'Timezone function executing.')
+	p = open(filefound[0], 'rb')
+	plist = plistlib.load(p)
+	
+	#create html headers
+	filedatahtml = open(reportfolderbase+'Build Info/TimeZone.html', mode='a+')
+	filedatahtml.write('<html><body>')
+	filedatahtml.write('<h2>TimeZone Report </h2>')
+	filedatahtml.write(f'Timezone info located at: {filefound[0]}<br>')
+	filedatahtml.write ('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+	filedatahtml.write('<table>')
+	#filedatahtml.write(f'<tr><td colspan = "2">{filefound[0]}</td></tr>')
+	filedatahtml.write('<tr><td>Key</td><td>Value</td></tr>')
+
+	for key, val in plist.items():
+		filedatahtml.write(f'<tr><td>{key}</td><td>{val}</td></tr>')	
+
+	filedatahtml.write('</table></html>')
+	filedatahtml.close()
+	logfunc(f'Timezone function completed.')
