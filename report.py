@@ -160,6 +160,12 @@ def report(reportfolderbase, time, extracttype, pathto):
 	filedatahtml.write(f'<tr><td>Blog: </td><td><a href="https://abrignoni.com" target=”_blank”>abrignoni.com</a></td></tr>')
 	filedatahtml.write(f'<tr><td>Github: </td><td><a href="https://github.com/abrignoni" target=”_blank”>github.com/abrignoni</a></td></tr>')
 	filedatahtml.write(f'<tr><td>Twitter: </td><td><a href="https://twitter.com/AlexisBrignoni" target=”_blank”>@AlexisBrignoni</a></td></tr>')
+	filedatahtml.write('</table><br>')
+	filedatahtml.write('<h2>About</h2>')
+	filedatahtml.write('<table width="750" border="0">')
+	filedatahtml.write('<tr>')
+	filedatahtml.write(f'<tr><td>Artifact references: </td><td><a href="https://abrignoni.com" target=”_blank”>Pending</a></td></tr>')
+	filedatahtml.write(f'<tr><td>Awesome Friends: </td><td><a href="https://abrignoni.com" target=”_blank”>Pending</a></td></tr>')
 	filedatahtml.write('</table><br></body></html>')
 	filedatahtml.close()
 
