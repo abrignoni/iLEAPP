@@ -47,7 +47,7 @@ def datausage(filefound):
 		usageentries = len(all_rows)
 		if usageentries > 0:
 			print(f'Data Usage - Zliveusage function executing')
-			with open(reportfolderbase+'Data Usage/Zliveusage.html', 'w') as f:
+			with open(reportfolderbase+'Data Usage/Zliveusage.html', 'w', encoding='utf8') as f:
 				f.write('<html><body>')
 				f.write('<h2> Zliveusage report</h2>')
 				f.write(f'Zliveusage entries: {usageentries}<br>')
@@ -83,7 +83,7 @@ def datausage(filefound):
 		usageentries = len(all_rows)
 		if usageentries > 0:
 			print(f'Data Usage - Zprocess function executing')
-			with open(reportfolderbase+'Data Usage/Zprocess.html', 'w') as f:
+			with open(reportfolderbase+'Data Usage/Zprocess.html', 'w', encoding='utf8') as f:
 				f.write('<html><body>')
 				f.write('<h2> Zprocess report</h2>')
 				f.write(f'Zprocess entries: {usageentries}<br>')
@@ -149,7 +149,7 @@ def medlib(filefound):
 		usageentries = len(all_rows)
 		if usageentries > 0:
 			print(f'Media Library function executing')
-			with open(reportfolderbase+'Media Library/Media Library.html', 'w') as f:
+			with open(reportfolderbase+'Media Library/Media Library.html', 'w', encoding='utf8') as f:
 				f.write('<html><body>')
 				f.write('<h2> Media Library report</h2>')
 				f.write(f'Media Library entries: {usageentries}<br>')
@@ -190,7 +190,7 @@ def accs(filefound):
 		usageentries = len(all_rows)
 		if usageentries > 0:
 			print(f'Account Data function executing')
-			with open(reportfolderbase+'Accounts/Accounts.html', 'w') as f:
+			with open(reportfolderbase+'Accounts/Accounts.html', 'w', encoding='utf8') as f:
 				f.write('<html><body>')
 				f.write('<h2> Account Data report</h2>')
 				f.write(f'Account Data entries: {usageentries}<br>')
@@ -607,7 +607,7 @@ def knowledgec(filefound):
 	all_rows = cursor.fetchall()
 	usageentries = len(all_rows)
 	
-	with open(reportfolderbase+'KnowledgeC/App Usage.html', 'w') as f:
+	with open(reportfolderbase+'KnowledgeC/App Usage.html', 'w', encoding='utf8') as f:
 		f.write('<html><body>')
 		f.write('<h2>iOS ' + iOSversion + ' - KnowledgeC App Usage report</h2>')
 		f.write(f'KnowledgeC App Usage entries: {usageentries}<br>')
@@ -665,7 +665,7 @@ def knowledgec(filefound):
 	all_rows = cursor.fetchall()
 	usageentries = len(all_rows)
 	
-	with open(reportfolderbase+'KnowledgeC/App Activity.html', 'w') as f:
+	with open(reportfolderbase+'KnowledgeC/App Activity.html', 'w', encoding='utf8') as f:
 		f.write('<html><body>')
 		f.write('<h2>iOS ' + iOSversion + ' - KnowledgeC App Activity report</h2>')
 		f.write(f'KnowledgeC App Activity entries: {usageentries}<br>')
@@ -720,7 +720,7 @@ def knowledgec(filefound):
 	all_rows = cursor.fetchall()
 	usageentries = len(all_rows)
 	
-	with open(reportfolderbase+'KnowledgeC/App in Focus.html', 'w') as f:
+	with open(reportfolderbase+'KnowledgeC/App in Focus.html', 'w', encoding='utf8') as f:
 		f.write('<html><body>')
 		f.write('<h2>iOS ' + iOSversion + ' - KnowledgeC App App in Focus report</h2>')
 		f.write(f'KnowledgeC App in Focus entries: {usageentries}<br>')
@@ -769,7 +769,7 @@ def knowledgec(filefound):
 	all_rows = cursor.fetchall()
 	usageentries = len(all_rows)
 	
-	with open(reportfolderbase+'KnowledgeC/Battery Level.html', 'w') as f:
+	with open(reportfolderbase+'KnowledgeC/Battery Level.html', 'w', encoding='utf8') as f:
 		f.write('<html><body>')
 		f.write('<h2>KnowledgeC Battery Level report</h2>')
 		f.write(f'KnowledgeC Battery Level entries: {usageentries}<br>')
@@ -816,7 +816,7 @@ def knowledgec(filefound):
 	all_rows = cursor.fetchall()
 	usageentries = len(all_rows)
 	
-	with open(reportfolderbase+'KnowledgeC/Apps Installed.html', 'w') as f:
+	with open(reportfolderbase+'KnowledgeC/Apps Installed.html', 'w', encoding='utf8') as f:
 		f.write('<html><body>')
 		f.write('<h2>KnowledgeC Apps Installed report</h2>')
 		f.write(f'KnowledgeC Apps Installed : {usageentries}<br>')
@@ -868,7 +868,7 @@ def knowledgec(filefound):
 	all_rows = cursor.fetchall()
 	usageentries = len(all_rows)
 		
-	with open(reportfolderbase+'KnowledgeC/Device Locked.html', 'w') as f:
+	with open(reportfolderbase+'KnowledgeC/Device Locked.html', 'w', encoding='utf8') as f:
 		f.write('<html><body>')
 		f.write('<h2>KnowledgeC Device Locked report</h2>')
 		f.write(f'KnowledgeC Device Locked: {usageentries}<br>')
@@ -921,7 +921,7 @@ def knowledgec(filefound):
 	all_rows = cursor.fetchall()
 	usageentries = len(all_rows)
 		
-	with open(reportfolderbase+'KnowledgeC/Plugged In.html', 'w') as f:
+	with open(reportfolderbase+'KnowledgeC/Plugged In.html', 'w', encoding='utf8') as f:
 		f.write('<html><body>')
 		f.write('<h2>KnowledgeC Plugged In report</h2>')
 		f.write(f'KnowledgeC Device Plugged In entries: {usageentries}<br>')
@@ -2126,7 +2126,7 @@ def calhist(filefound):
 	if usageentries > 0:
 		print(f'Call History function executing')
 		os.makedirs(reportfolderbase+'Call History/')
-		with open(reportfolderbase+'Call History/Call History.html', 'w') as f:
+		with open(reportfolderbase+'Call History/Call History.html', 'w', encoding='utf8') as f:
 			f.write('<html><body>')
 			f.write('<h2> Call History report</h2>')
 			f.write(f'Call History entries: {usageentries}<br>')
@@ -2189,7 +2189,7 @@ def smschat(filefound):
 		if usageentries > 0:
 			print(f'SMS Chat function executing')
 			os.makedirs(reportfolderbase+'SMS Chat/')
-			with open(reportfolderbase+'SMS Chat/SMS Chat.html', 'w') as f:
+			with open(reportfolderbase+'SMS Chat/SMS Chat.html', 'w', encoding='utf8') as f:
 				f.write('<html><body>')
 				f.write('<h2> SMS Chat report</h2>')
 				f.write(f'SMS Chat entries: {usageentries}<br>')
@@ -2248,7 +2248,7 @@ def smschat(filefound):
 		usageentries = len(all_rows)
 		if usageentries > 0:
 			print(f'SMS Chat Message Delivered function executing')
-			with open(reportfolderbase+'SMS Chat/SMS Message Delivered.html', 'w') as f:
+			with open(reportfolderbase+'SMS Chat/SMS Message Delivered.html', 'w', encoding='utf8') as f:
 				f.write('<html><body>')
 				f.write('<h2> SMS Chat Message Delivered report</h2>')
 				f.write(f'SMS Chat Message Delivered entries: {usageentries}<br>')
@@ -2307,7 +2307,7 @@ def smschat(filefound):
 		usageentries = len(all_rows)
 		if usageentries > 0:
 			print(f'SMS Chat Message Read function executing')
-			with open(reportfolderbase+'SMS Chat/SMS Message Read.html', 'w') as f:
+			with open(reportfolderbase+'SMS Chat/SMS Message Read.html', 'w', encoding='utf8') as f:
 				f.write('<html><body>')
 				f.write('<h2> SMS Chat Message Read report</h2>')
 				f.write(f'SMS Chat Message Read entries: {usageentries}<br>')
@@ -2352,7 +2352,7 @@ def safari(filefound):
 	if usageentries > 0:
 		print(f'Safari History function executing')
 		os.makedirs(reportfolderbase+'Safari/')
-		with open(reportfolderbase+'Safari/Safari History.html', 'w') as f:
+		with open(reportfolderbase+'Safari/Safari History.html', 'w', encoding='utf8') as f:
 			f.write('<html><body>')
 			f.write('<h2> Safari History report</h2>')
 			f.write(f'Safari History entries: {usageentries}<br>')
@@ -2390,7 +2390,7 @@ def queryp(filefound):
 		if usageentries > 0:
 			print(f'Query Predictions function executing')
 			os.makedirs(reportfolderbase+'Query Predictions/')
-			with open(reportfolderbase+'Query Predictions/Query Predictions.html', 'w') as f:
+			with open(reportfolderbase+'Query Predictions/Query Predictions.html', 'w', encoding='utf8') as f:
 				f.write('<html><body>')
 				f.write('<h2> Query Predictions report</h2>')
 				f.write(f'Query Predictions entries: {usageentries}<br>')
@@ -2431,7 +2431,7 @@ def powerlog(filefound):
 		usageentries = len(all_rows)
 		if usageentries > 0:
 			print(f'Powerlog Mobile Backup Events executing')
-			with open(reportfolderbase+'Powerlog/Mobile Backup Events.html', 'w') as f:
+			with open(reportfolderbase+'Powerlog/Mobile Backup Events.html', 'w', encoding='utf8') as f:
 				f.write('<html><body>')
 				f.write('<h2> Powerlog Mobile Backup Events report</h2>')
 				f.write(f'Mobile Backup Events entries: {usageentries}<br>')
@@ -2496,7 +2496,7 @@ def powerlog(filefound):
 		usageentries = len(all_rows)
 		if usageentries > 0:
 			print(f'Powerlog WIFI Properties executing')
-			with open(reportfolderbase+'Powerlog/Powerlog WIFI Properties.html', 'w') as f:
+			with open(reportfolderbase+'Powerlog/Powerlog WIFI Properties.html', 'w', encoding='utf8') as f:
 				f.write('<html><body>')
 				f.write('<h2> Powerlog WIFI Properties Events report</h2>')
 				f.write(f'Powerlog WIFI Properties entries: {usageentries}<br>')
@@ -2558,7 +2558,7 @@ def powerlog(filefound):
 		usageentries = len(all_rows)
 		if usageentries > 0:
 			print(f'Powerlog Device Screen Autolock executing')
-			with open(reportfolderbase+'Powerlog/Device Screen Autolock.html', 'w') as f:
+			with open(reportfolderbase+'Powerlog/Device Screen Autolock.html', 'w', encoding='utf8') as f:
 				f.write('<html><body>')
 				f.write('<h2> Powerlog Device Screen Autolock report</h2>')
 				f.write(f'Powerlog Device Screen Autolock entries: {usageentries}<br>')
@@ -2607,7 +2607,7 @@ def delphotos(filefound):
 		if usageentries > 0:
 			print(f'Photos.sqlite metadata function executing')
 			os.makedirs(reportfolderbase+'Photos.sqlite Metadata/')
-			with open(reportfolderbase+'Photos.sqlite Metadata/Photos.sqLite DB.html', 'w') as f:
+			with open(reportfolderbase+'Photos.sqlite Metadata/Photos.sqLite DB.html', 'w', encoding='utf8') as f:
 				f.write('<html><body>')
 				f.write('<h2> Photos.sqlite Metadata report</h2>')
 				f.write(f'Photos.sqlite Metadata entries: {usageentries}<br>')
