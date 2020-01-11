@@ -165,7 +165,7 @@ def report(reportfolderbase, time, extracttype, pathto):
 	filedatahtml.write('<table width="750" border="0">')
 	filedatahtml.write('<tr>')
 	filedatahtml.write(f'<tr><td>Artifact references: </td><td><a href="https://abrignoni.com" target=”_blank”>Pending</a></td></tr>')
-	filedatahtml.write(f'<tr><td>Awesome Friends: </td><td><a href="https://abrignoni.com" target=”_blank”>Pending</a></td></tr>')
+	filedatahtml.write(f"<tr><td>Awesome Friends: </td><td><a href='https://abrignoni.blogspot.com/2020/01/awesome-friends.html' target='_blank'>Contributors I can't thank enough.</a></td></tr>")
 	filedatahtml.write('</table><br></body></html>')
 	filedatahtml.close()
 
