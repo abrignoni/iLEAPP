@@ -27,7 +27,7 @@ start = process_time()
 
 
 tosearch = {'mib':'*mobile_installation.log.*', 'iconstate':'*SpringBoard/IconState.plist', 'lastbuild':'*LastBuildInfo.plist', 'iOSNotifications11':'*PushStore*', 'iOSNotifications12':'*private/var/mobile/Library/UserNotifications*',
-	'wireless':'*wireless/Library/Preferences/com.apple.*','knowledgec':'*CoreDuet/Knowledge/knowledgeC.db','applicationstate':'*pplicationState.db*', 'conndevices':'*/iTunes_Control/iTunes/iTunesPrefs', 'ktx':'*.ktx*', 'calhist':'*CallHistory.storedata', 'smschat':'*sms.db', 'safari':'*History.db','queryp':'*query_predictions.db','powerlog':'*CurrentPowerlog.PLSQL','accs':'*Accounts3.sqlite','medlib':'*MediaLibrary.sqlitedb', 'datausage':'*DataUsage.sqlite', 'delphotos':'*Photos.sqlite', 'timezone':'*mobile/Library/Preferences/com.apple.preferences.datetime.plist'}
+	'wireless':'*wireless/Library/Preferences/com.apple.*','knowledgec':'*CoreDuet/Knowledge/knowledgeC.db','applicationstate':'*pplicationState.db*', 'conndevices':'*/iTunes_Control/iTunes/iTunesPrefs', 'ktx':'*.ktx*', 'calhist':'*CallHistory.storedata', 'smschat':'*sms.db', 'safari':'*History.db','queryp':'*query_predictions.db','powerlog':'*CurrentPowerlog.PLSQL','accs':'*Accounts3.sqlite','medlib':'*MediaLibrary.sqlitedb', 'datausage':'*DataUsage.sqlite', 'delphotos':'*Photos.sqlite', 'timezone':'*mobile/Library/Preferences/com.apple.preferences.datetime.plist','bkupstate':'*/com.apple.MobileBackup.plist', 'mobilact':'*mobileactivationd.log.*'}
 
 	
 os.makedirs(reportfolderbase)
