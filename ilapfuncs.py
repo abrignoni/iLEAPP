@@ -25,13 +25,13 @@ temp = reportfolderbase+'temp/'
 			
 def logfunc(message):
 	if pathlib.Path(reportfolderbase+'Script Logs/Screen Output.html').is_file():
-		with open(reportfolderbase+'Script Logs/Screen Output.html', 'a', encoding='utf8') as f:
+		with open(reportfolderbase+'Script Logs/Screen Output.html', 'a', encoding='utf8') as a:
 			print(message)
-			f.write(message+'<br>')
+			a.write(message+'<br>')
 	else:
-		with open(reportfolderbase+'Script Logs/Screen Output.html', 'a', encoding='utf8') as f:
+		with open(reportfolderbase+'Script Logs/Screen Output.html', 'a', encoding='utf8') as a:
 			print(message)
-			f.write(message+'<br>')
+			a.write(message+'<br>')
 
 
 def mobilact(filefound):
@@ -138,7 +138,7 @@ def mobilact(filefound):
 					year = txts[4]
 					devclass = txts[11]
 					f.write("<br>"+ day + " " + month + " " + year + " " + time + " Mobile Activation Device Class = " + devclass)
-
+			file.close()
 		f.write("<br><br>Found " + str(hitcount) + " Upgrade entries")
 		f.write("<br> Found " + str(activationcount) + " Mobile Activation Startup entries")
 		f.write('</body></html>')
@@ -2767,6 +2767,49 @@ def powerlog(filefound):
 	except:
 		logfunc('Error in Powerlog Device Screen Autolock Section.')
 
+	try:
+		db = sqlite3.connect(filefound[0])
+		cursor = db.cursor()
+		cursor.execute('''
+		SELECT
+				DATETIME(APPDELETEDDATE, 'unixepoch') AS "APP DELETED DATE",
+				DATETIME(TIMESTAMP, 'unixepoch') AS TIMESTAMP,
+				APPNAME AS "APP NAME",
+				APPEXECUTABLE AS "APP EXECUTABLE NAME",
+				APPBUNDLEID AS "BUNDLE ID",
+				APPBUILDVERSION AS "APP BUILD VERSION",
+				APPBUNDLEVERSION AS "APP BUNDLE VERSION",
+				APPTYPE AS "APP TYPE",
+				ID AS "PLAPPLICATIONAGENT_EVENTNONE_ALLAPPS TABLE ID" 
+			FROM
+				PLAPPLICATIONAGENT_EVENTNONE_ALLAPPS 
+			WHERE
+				APPDELETEDDATE > 0	
+		''')
+
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			logfunc(f'Powerlog App Deletion Events executing')
+			with open(reportfolderbase+'Powerlog/App Deletion.html', 'w', encoding='utf8') as f:
+				f.write('<html><body>')
+				f.write('<h2> Powerlog App Deletion Events report</h2>')
+				f.write(f'Powerlog App Deletion  Events entries: {usageentries}<br>')
+				f.write(f'Powerlog App Deletion  Events database located at: {filefound[0]}<br>')
+				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<br/>')
+				f.write('')
+				f.write(f'<table>')
+				f.write(f'<tr><td>App Deleted Date</td><td>Timestamp</td><td>App Name</td><td>Executable Name</td><td>Bundle ID</td><td>App Build Version</td><td>App Bundle Version</td><td>App Type</td><td>ID</td></tr>')
+				for row in all_rows:
+					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td></tr>')
+				f.write(f'</table></body></html>')
+				logfunc(f'Powerlog App DeletionEvents function completed')
+		else:
+				logfunc('No Powerlog App Deletion Events available')
+	except:
+		logfunc('Error in Powerlog App Deletion Events Section.')
+
 def delphotos(filefound):
 	db = sqlite3.connect(filefound[0])
 	cursor = db.cursor()
@@ -2837,3 +2880,71 @@ def timezone(filefound):
 	filedatahtml.write('</table></html>')
 	filedatahtml.close()
 	logfunc(f'Timezone function completed.')
+	
+def healthdb(filefound):
+	db = sqlite3.connect(filefound[0])
+	cursor = db.cursor()
+	try:
+		cursor.execute('''
+		Select
+		datetime(samples.start_date+978307200,'unixepoch','localtime') as "Start Date",
+		datetime(samples.end_date+978307200,'unixepoch','localtime') as "End Date",
+		samples.data_id, 
+		case
+		when samples.data_type = 3 then "weight"
+		when samples.data_type = 7 then "steps"
+		when samples.data_type = 8 then "dist in m"
+		when samples.data_type = 9 then "resting energy"
+		when samples.data_type = 10 then "active energy"
+		when samples.data_type = 12 then "flights climbed"
+		when samples.data_type = 67 then "weekly calorie goal"
+		when samples.data_type = 70 then "watch on"
+		when samples.data_type = 75 then "stand"
+		when samples.data_type = 76 then "activity"
+		when samples.data_type = 79 then "workout"
+		when samples.data_type = 83 then "some workouts"
+		end as "activity type",
+		quantity,
+		original_quantity,
+		unit_strings.unit_string,
+		original_unit,
+		correlations.correlation,
+		correlations.object,
+		correlations.provenance
+		string_value,
+		metadata_values.data_value,
+		metadata_values.numerical_value,
+		metadata_values.value_type,
+		metadata_keys.key
+		from samples
+		left outer join quantity_samples on samples.data_id = quantity_samples.data_id
+		left outer join unit_strings on quantity_samples.original_unit = unit_strings.RowID
+		left outer join correlations on samples.data_id = correlations.object
+		left outer join metadata_values on metadata_values.object_id = samples.data_id
+		left outer join metadata_keys on metadata_keys.ROWID = metadata_values.key_id
+		order by "Start Date" desc
+		''')
+
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			logfunc(f'Healthdb_secure.sqlite function executing')
+			os.makedirs(reportfolderbase+'HealthDB/')
+			with open(reportfolderbase+'HealthDB/Healthdb_secure.html', 'w', encoding='utf8') as f:
+				f.write('<html><body>')
+				f.write('<h2> Healthdb_secure.sqlite report</h2>')
+				f.write(f'Healthdb_secure.sqlite entries: {usageentries}<br>')
+				f.write(f'Healthdb_secure.sqlite database located at: {filefound[0]}<br>')
+				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<br/>')
+				f.write('')
+				f.write(f'<table>')
+				f.write(f'<tr><td>Start Date</td><td>End Date</td><td>Activity Type</td><td>Quantity</td><td>Original Quantity</td><td>Unit String</td><td>Original Unit</td><td>Correlation</td><td>String Value</td><td>Data Value</td><td>Numerical Value</td><td>Value Type</td><td>Key</td></tr>')
+				for row in all_rows:
+					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td><td>{row[9]}</td><td>{row[10]}</td><td>{row[11]}</td><td>{row[12]}</td></tr>')
+				f.write(f'</table></body></html>')
+				logfunc(f'Healthdb_secure.sqlite function completed')
+		else:
+				logfunc('No Healthdb_secure.sqlite available')
+	except:
+		logfunc('Error on Healthdb_secure.sqlite function.')
