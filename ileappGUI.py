@@ -7,6 +7,7 @@ from six.moves.configparser import RawConfigParser
 from time import process_time
 import  tarfile
 import shutil
+import webbrowser
 from report import *
 import PySimpleGUI as sg
 
@@ -197,6 +198,9 @@ while True:
 	log.close()
 	
 	report(reportfolderbase, time, extracttype, pathto)
-	locationmessage = ('Report name: '+reportfolderbase)
+	locationmessage = ('Report name: '+reportfolderbase+'index.html')
 	sg.Popup('Processing completed', locationmessage)
+	
+	basep = os.getcwd()
+	webbrowser.open_new_tab('file://'+basep+base+'index.html')
 	sys.exit()
