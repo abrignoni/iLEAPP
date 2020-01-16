@@ -2269,7 +2269,7 @@ def ktx(filefound):
 	os.mkdir(outktx)
 	nl = '\n'
 	
-	filedata = open(outpath+'_Snapshot_KTX_Files_List.csv', mode='a+')
+	filedata = open(outpath+'_Snapshot_KTX_Files_List.csv', mode='a+', encoding='utf8')
 	filewrite = csv.writer(filedata, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 	filewrite.writerow([ 'Path', 'Filename'])
 	filedata.close()
@@ -2303,7 +2303,7 @@ def ktx(filefound):
 			os.makedirs(outktx+fullpw)
 		#get the name, filepath write to csv in outpath _KTX_Files_Report.csv
 
-		filedata = open(outpath+'_Snapshot_KTX_Files_List.csv', mode='a+')
+		filedata = open(outpath+'_Snapshot_KTX_Files_List.csv', mode='a+', encoding='utf8')
 		filewrite = csv.writer(filedata, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 		filewrite.writerow([filename, tail1])
 		filedatahtml.write(f'<tr><td>{filename}</td><td>{tail1}</td></tr>')
