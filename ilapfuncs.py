@@ -20,9 +20,9 @@ nl = '\n'
 now = datetime.datetime.now()
 currenttime = str(now.strftime('%Y-%m-%d_%A_%H%M%S'))
 reportfolderbase = './ILEAPP_Reports_'+currenttime+'/'
+base = '/ILEAPP_Reports_'+currenttime+'/'
 temp = reportfolderbase+'temp/'
 
-			
 def logfunc(message):
 	if pathlib.Path(reportfolderbase+'Script Logs/Screen Output.html').is_file():
 		with open(reportfolderbase+'Script Logs/Screen Output.html', 'a', encoding='utf8') as a:
@@ -33,7 +33,28 @@ def logfunc(message):
 			print(message)
 			a.write(message+'<br>')
 
-
+def datark(filefound):
+	logfunc(f'Data_ark.plist function executing.')
+	try:
+		os.makedirs(reportfolderbase+'Data_Ark/')
+		with open(reportfolderbase+'Data_Ark/Data Ark.html','w') as f:
+			f.write('<html><body>')
+			f.write('<h2>Mobile Activation Report</h2>')
+			f.write(f'Data_ark.plist located at {filefound[0]}<br>')
+			f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+			f.write('<br/>')
+			f.write('')
+			f.write(f'<table>')
+			f.write(f'<tr><td>Key</td><td>Values</td></tr>')
+			with open(filefound[0], 'rb') as fp:
+				pl = plistlib.load(fp)
+				for key, val in pl.items():
+					f.write(f'<tr><td>{key}</td><td>{val}</td></tr>')
+			f.write(f'</table></body></html>')
+			logfunc(f'Data_ark.plist function completed')
+	except:
+		logfunc('Error in Sys Diagnose Network Preferences function.')
+		
 def mobilact(filefound):
 	logfunc(f'Mobile Activation function executing.')
 	try:
