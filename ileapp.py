@@ -8,6 +8,7 @@ from time import process_time
 import  tarfile
 import shutil
 from report import *
+import zipfile
 
 parser = argparse.ArgumentParser(description='iLEAPP: iOS Logs, Events, and Preferences Parser.')
 parser.add_argument('-o', choices=['fs','tar', 'zip'], required=True, action="store",help="Directory path, TAR, or ZIP filename and path(required).")
@@ -117,9 +118,11 @@ elif extracttype == 'zip':
 		logfunc('')
 		log = open(reportfolderbase+'Script Logs/ProcessedFilesLog.html', 'w+', encoding='utf8')
 		log.write(f'Extraction/Path selected: {pathto}<br><br>')	# tar searches and function calls
-		
+
+		z = zipfile.ZipFile(pathto)
+
 		for key, val in tosearch.items():
-			filefound = searchzip(pathto, val, reportfolderbase)
+			filefound = searchzip(z, val, reportfolderbase)
 			if not filefound:
 				logfunc('')
 				logfunc(f'No files found for {key} -> {val}.')
