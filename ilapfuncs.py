@@ -2664,12 +2664,30 @@ def timezone(filefound):
 def webclips(filefound):
 	logfunc('Webclips function executing')
 	# Determine unique webclips
-	print(filefound)
+	print(filefound) #DEBUG
 	webclip_ids = set()
+	info_plists = []
+	icons = []
+	webclip_data = {}
 	for path_val in filefound:
-		path_val = path_val.split("/WebClips/")[1]
-		unique_id = path_val.split(".webclip/")[0]
-		if unique_id != '':
-			webclip_ids.add(unique_id)
-	print(webclip_ids)
+		# Extract the unique identifier
+		unique_id = path_val.split("/WebClips/")[1].split(".webclip/")[0]
+		if unique_id != '' and unique_id not in webclip_data:
+			webclip_data[unique_id] = {'Info': '',
+								   'Icon': ''}
+
+		# Is this the path to the info.plist?
+		if "Info.plist" in path_val:
+			webclip_data[unique_id]['Info'] = path_val
+
+		# Is this the path to the icon?
+		if "icon.png" in path_val:
+			webclip_data[unique_id]['Icon'] = path_val
+
+	logfunc(f'Webclips found: {len(webclip_data)} ')
+
+	import json #DEBUG
+	print(json.dumps(webclip_data, indent=4)) #DEBUG
+
+
 	logfunc('Webclips function completed')
