@@ -135,6 +135,8 @@ elif extracttype == 'zip':
 					log.write(f'Files for {val} located at {pathh}.<br>')
 		log.close()
 
+		z.close()
+
 else:
 	logfunc('Error on argument -o')
 '''	
