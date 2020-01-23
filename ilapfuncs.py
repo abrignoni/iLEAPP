@@ -2957,7 +2957,6 @@ def webclips(filefound):
 	g.close()
 	
 	logfunc('Webclips function completed')
-=======
 	
 def healthdb(filefound):
 	db = sqlite3.connect(filefound[0])
