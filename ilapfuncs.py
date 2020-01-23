@@ -2905,57 +2905,60 @@ def timezone(filefound):
 
 def webclips(filefound):
 	logfunc('Webclips function executing')
+	try:
+		webclip_data = {}
+		for path_val in filefound:
+			# Extract the unique identifier
+			pathstr = str(path_val)
 
-	webclip_data = {}
-	for path_val in filefound:
-		# Extract the unique identifier
-		unique_id = path_val.split("/WebClips/")[1].split(".webclip/")[0]
-		if unique_id != '' and unique_id not in webclip_data:
-			webclip_data[unique_id] = {'Info': '',
-								   	   'Icon_path': '',
-									   'Icon_data': '',
-								       'Title': '',
-									   'URL': ''}
+			unique_id = pathstr.split("/WebClips/")[1].split(".webclip/")[0]
+			if unique_id != '' and unique_id not in webclip_data:
+				webclip_data[unique_id] = {'Info': '',
+									   	   'Icon_path': '',
+										   'Icon_data': '',
+									       'Title': '',
+										   'URL': ''}
 
-		# Is this the path to the info.plist?
-		if "Info.plist" in path_val:
-			webclip_data[unique_id]['Info'] = path_val
+			# Is this the path to the info.plist?
+			if "Info.plist" in pathstr:
+				webclip_data[unique_id]['Info'] = path_val
 
-		# Is this the path to the icon?
-		if "icon.png" in path_val:
-			webclip_data[unique_id]['Icon_path'] = path_val
+			# Is this the path to the icon?
+			if "icon.png" in pathstr:
+				webclip_data[unique_id]['Icon_path'] = path_val
 
-	logfunc(f'Webclips found: {len(webclip_data)} ')
+		logfunc(f'Webclips found: {len(webclip_data)} ')
 
-	for unique_id, data in webclip_data.items():
-		# Info plist information
-		info_plist_raw = open(data['Info'], 'rb')
-		info_plist = plistlib.load(info_plist_raw)
-		webclip_data[unique_id]['Title'] = info_plist['Title']
-		webclip_data[unique_id]['URL'] = info_plist['URL']
-		info_plist_raw.close()
+		for unique_id, data in webclip_data.items():
+			# Info plist information
+			info_plist_raw = open(data['Info'], 'rb')
+			info_plist = plistlib.load(info_plist_raw)
+			webclip_data[unique_id]['Title'] = info_plist['Title']
+			webclip_data[unique_id]['URL'] = info_plist['URL']
+			info_plist_raw.close()
 
-		# Open and convert icon into b64 for serialisation in report
-		icon_data_raw = open(data['Icon_path'], 'rb')
-		icon_data = base64.b64encode(icon_data_raw.read()).decode('utf-8')
-		webclip_data[unique_id]['Icon_data'] = icon_data
-		icon_data_raw.close()
+			# Open and convert icon into b64 for serialisation in report
+			icon_data_raw = open(data['Icon_path'], 'rb')
+			icon_data = base64.b64encode(icon_data_raw.read()).decode('utf-8')
+			webclip_data[unique_id]['Icon_data'] = icon_data
+			icon_data_raw.close()
 
-	# Create the report
-	g = open(reportfolderbase + 'Icon Positions/WebClips.html', 'w')
-	g.write("<html>")
-	g.write(f'<p><table><body>')
-	g.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
-	for unique_id, data in webclip_data.items():
-		g.write('<tr>')
-		g.write(f'<td><img src="data:image/png;base64,{data["Icon_data"]}"></td>')
-		g.write(f'<td><b>UID:{unique_id}</b><br>'
-				f'Title: {data["Title"]}<br>'
-				f'URL: {data["URL"]}</td>')
-		g.write('</tr>')
-	g.write("</table></html>")
-	g.close()
-	
+		# Create the report
+		g = open(reportfolderbase + 'Icon Positions/WebClips.html', 'w')
+		g.write("<html>")
+		g.write(f'<p><table><body>')
+		g.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+		for unique_id, data in webclip_data.items():
+			g.write('<tr>')
+			g.write(f'<td><img src="data:image/png;base64,{data["Icon_data"]}"></td>')
+			g.write(f'<td><b>UID:{unique_id}</b><br>'
+					f'Title: {data["Title"]}<br>'
+					f'URL: {data["URL"]}</td>')
+			g.write('</tr>')
+		g.write("</table></html>")
+		g.close()
+	except:
+		logfunc('Error on Webclips function.')	
 	logfunc('Webclips function completed')
 	
 def healthdb(filefound):
