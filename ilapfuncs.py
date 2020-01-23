@@ -24,7 +24,7 @@ reportfolderbase = './ILEAPP_Reports_'+currenttime+'/'
 base = '/ILEAPP_Reports_'+currenttime+'/'
 temp = reportfolderbase+'temp/'
 
-def logfunc(message):
+def logfunc(message=""):
 	if pathlib.Path(reportfolderbase+'Script Logs/Screen Output.html').is_file():
 		with open(reportfolderbase+'Script Logs/Screen Output.html', 'a', encoding='utf8') as a:
 			print(message)
