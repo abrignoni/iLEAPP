@@ -2660,3 +2660,16 @@ def timezone(filefound):
 	filedatahtml.write('</table></html>')
 	filedatahtml.close()
 	logfunc(f'Timezone function completed.')
+
+def webclips(filefound):
+	logfunc('Webclips function executing')
+	# Determine unique webclips
+	print(filefound)
+	webclip_ids = set()
+	for path_val in filefound:
+		path_val = path_val.split("/WebClips/")[1]
+		unique_id = path_val.split(".webclip/")[0]
+		if unique_id != '':
+			webclip_ids.add(unique_id)
+	print(webclip_ids)
+	logfunc('Webclips function completed')
