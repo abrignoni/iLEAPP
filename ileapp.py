@@ -28,7 +28,7 @@ start = process_time()
 
 tosearch = {'mib':'*mobile_installation.log.*',
 			'iconstate':'*SpringBoard/IconState.plist',
-			'webclips': '*WebClips/*',
+			'webclips': '*WebClips/*.webclip/*',
 			'lastbuild':'*LastBuildInfo.plist',
 			'iOSNotifications11':'*PushStore*',
 			'iOSNotifications12':'*private/var/mobile/Library/UserNotifications*',
