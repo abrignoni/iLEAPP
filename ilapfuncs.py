@@ -2909,7 +2909,7 @@ def webclips(filefound):
 		webclip_data = {}
 		for path_val in filefound:
 			# Extract the unique identifier
-			pathstr = str(path_val)
+			pathstr = str(path_val).replace("\\", "/")
 
 			unique_id = pathstr.split("/WebClips/")[1].split(".webclip/")[0]
 			if unique_id != '' and unique_id not in webclip_data:
@@ -2957,8 +2957,8 @@ def webclips(filefound):
 			g.write('</tr>')
 		g.write("</table></html>")
 		g.close()
-	except:
-		logfunc('Error on Webclips function.')	
+	except Exception:
+		logfunc('Error on Webclips function.')
 	logfunc('Webclips function completed')
 	
 def healthdb(filefound):
