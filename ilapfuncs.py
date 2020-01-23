@@ -2665,16 +2665,16 @@ def webclips(filefound):
 	logfunc('Webclips function executing')
 	# Determine unique webclips
 	print(filefound) #DEBUG
-	webclip_ids = set()
-	info_plists = []
-	icons = []
 	webclip_data = {}
 	for path_val in filefound:
 		# Extract the unique identifier
 		unique_id = path_val.split("/WebClips/")[1].split(".webclip/")[0]
 		if unique_id != '' and unique_id not in webclip_data:
 			webclip_data[unique_id] = {'Info': '',
-								   'Icon': ''}
+								   	   'Icon_path': '',
+									   'Icon_data': '',
+								       'Title': '',
+									   'URL': ''}
 
 		# Is this the path to the info.plist?
 		if "Info.plist" in path_val:
@@ -2682,12 +2682,18 @@ def webclips(filefound):
 
 		# Is this the path to the icon?
 		if "icon.png" in path_val:
-			webclip_data[unique_id]['Icon'] = path_val
+			webclip_data[unique_id]['Icon_path'] = path_val
 
 	logfunc(f'Webclips found: {len(webclip_data)} ')
 
+	for unique_id, data in webclip_data.items():
+		info_plist_raw = open(data['Info'], 'rb')
+		info_plist = plistlib.load(info_plist_raw)
+		webclip_data[unique_id]['Title'] = info_plist['Title']
+		webclip_data[unique_id]['URL'] = info_plist['URL']
+		info_plist_raw.close()
+
 	import json #DEBUG
 	print(json.dumps(webclip_data, indent=4)) #DEBUG
-
 
 	logfunc('Webclips function completed')
