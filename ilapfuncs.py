@@ -14,6 +14,7 @@ import csv
 import pathlib
 import shutil
 import textwrap
+import base64
 from time import process_time
 
 nl = '\n' 
@@ -2687,11 +2688,18 @@ def webclips(filefound):
 	logfunc(f'Webclips found: {len(webclip_data)} ')
 
 	for unique_id, data in webclip_data.items():
+		# Info plist information
 		info_plist_raw = open(data['Info'], 'rb')
 		info_plist = plistlib.load(info_plist_raw)
 		webclip_data[unique_id]['Title'] = info_plist['Title']
 		webclip_data[unique_id]['URL'] = info_plist['URL']
 		info_plist_raw.close()
+
+		# Open and convert icon into b64 for serialisation in report
+		icon_data_raw = open(data['Icon_path'], 'rb')
+		icon_data = base64.urlsafe_b64encode(icon_data_raw.read()).decode('utf-8')
+		webclip_data[unique_id]['Icon_data'] = icon_data
+		icon_data_raw.close()
 
 	import json #DEBUG
 	print(json.dumps(webclip_data, indent=4)) #DEBUG
