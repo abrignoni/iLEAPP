@@ -3028,3 +3028,133 @@ def healthdb(filefound):
 				logfunc('No Healthdb_secure.sqlite available')
 	except:
 		logfunc('Error on Healthdb_secure.sqlite function.')
+def wiloc(filefound):
+	logfunc('Wireless Locations function executing')
+	os.makedirs(reportfolderbase+'Wireless Locations/')
+	try:
+		db = sqlite3.connect(filefound[0])
+		cursor = db.cursor()
+		cursor.execute('''SELECT
+				MCC AS "MCC",
+				MNC AS "MNC",
+				CI AS "CI",
+				UARFCN AS "UARFCN",
+				PID AS "PID",
+				ALTITUDE AS "ALTITUDE",
+				SPEED AS "SPEED",
+				COURSE AS "COURSE",
+				CONFIDENCE AS "CONFIDENCE",
+				HORIZONTALACCURACY AS "HORIZONTAL ACCURACY",
+				VERTICALACCURACY AS "VERTICAL ACCURACY",
+				LATITUDE AS "LATITUDE",
+				LONGITUDE AS "LONGITUDE",
+				DATETIME(TIMESTAMP + 978307200,'UNIXEPOCH') AS "TIMESTAMP"
+			FROM LteCellLocation''')
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			logfunc(f'LTE cell locations function executing')
+			with open(reportfolderbase+'Wireless Locations/LTE cell locations.html', 'w', encoding='utf8') as f:
+				f.write('<html><body>')
+				f.write('<h2> LTE cell locations report</h2>')
+				f.write(f'LTE cell locations entries: {usageentries}<br>')
+				f.write(f'LTE cell locations database located at: {filefound[0]}<br>')
+				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<br/>')
+				f.write('')
+				f.write(f'<table>')
+				f.write(f'<tr><td>MCC</td><td>MNC</td><td>CI</td><td>UARFCN</td><td>PID</td><td>Altitude</td><td>Speed</td><td>Course</td><td>Confidence</td><td>Hoz. Acc.</td><td>Vert. Acc.</td><td>Latitude</td><td>Longitude</td><td>Timestamp</td></tr>')
+				for row in all_rows:
+					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td><td>{row[9]}</td><td>{row[10]}</td><td>{row[11]}</td><td>{row[12]}</td><td>{row[13]}</td></tr>')
+				f.write(f'</table></body></html>')
+				logfunc(f'LTE cell locations function completed')
+		else:
+				logfunc('No LTE cell locations available')
+	except:
+		logfunc('Error on LTE cell locations function.')
+	
+	try:
+		db = sqlite3.connect(filefound[0])
+		cursor = db.cursor()
+		cursor.execute('''SELECT
+				MCC AS "MCC",
+				SID AS "SID",
+				NID AS "NID",
+				BSID AS "BSID",
+				ZONEID AS "ZONEID",
+				BANDCLASS AS "BANDCLASS",
+				CHANNEL AS "CHANNEL",
+				PNOFFSET AS "PNOFFSET",
+				ALTITUDE AS "ALTITUDE",
+				SPEED AS "SPEED",
+				COURSE AS "COURSE",
+				CONFIDENCE AS "CONFIDENCE",
+				HORIZONTALACCURACY AS "HORIZONTAL ACCURACY",
+				VERTICALACCURACY AS "VERTICAL ACCURACY",
+				LATITUDE AS "LATITUDE",
+				LONGITUDE AS "LONGITUDE",
+				DATETIME(TIMESTAMP + 978307200,'UNIXEPOCH') AS "TIMESTAMP"
+			FROM CdmaCellLocation''')
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			logfunc(f'CDMA cell locations function executing')
+			with open(reportfolderbase+'Wireless Locations/CDMA cell locations.html', 'w', encoding='utf8') as f:
+				f.write('<html><body>')
+				f.write('<h2> CDMA cell locations report</h2>')
+				f.write(f'CDMA cell locations entries: {usageentries}<br>')
+				f.write(f'CDMA cell locations database located at: {filefound[0]}<br>')
+				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<br/>')
+				f.write('')
+				f.write(f'<table>')
+				f.write(f'<tr><td>MCC</td><td>SID</td><td>NID</td><td>BSID</td><td>Zone ID</td><td>Band Class</td><td>Channel</td><td>PNOFFSET</td><td>Altitude</td><td>Speed</td><td>Course</td><td>Confidence</td><td>Hoz. Acc.</td><td>Vert. Acc.</td><td>Latitude</td><td>Longitude</td><td>Timestamp</td></tr>')
+				for row in all_rows:
+					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td><td>{row[9]}</td><td>{row[10]}</td><td>{row[11]}</td><td>{row[12]}</td><td>{row[13]}</td><td>{row[14]}</td><td>{row[15]}</td><td>{row[16]}</td></tr>')
+				f.write(f'</table></body></html>')
+				logfunc(f'CDMA cell locations function completed')
+		else:
+				logfunc('No CDMA cell locations available')
+	except:
+			logfunc('Error on CDMA cell locations function.')
+
+	try:
+		db = sqlite3.connect(filefound[0])
+		cursor = db.cursor()
+		cursor.execute('''SELECT
+				MAC AS "Base10 MAC",
+				CHANNEL AS "CHANNEL",
+				INFOMASK AS "INFOMASK",
+				SPEED AS "SPEED",
+				COURSE AS "COURSE",
+				CONFIDENCE AS "CONFIDENCE",
+				SCORE AS "SCORE",
+				REACH AS "REACH",
+				HORIZONTALACCURACY AS "HORIZONTAL ACCURACY",
+				VERTICALACCURACY AS "VERTICAL ACCURACY",
+				LATITUDE AS "LATITUDE",
+				LONGITUDE AS "LONGITUDE",
+				DATETIME(TIMESTAMP + 978307200,'UNIXEPOCH') AS "TIMESTAMP"
+			FROM WifiLocation''')
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			logfunc(f'WiFi cell locations function executing')
+			with open(reportfolderbase+'Wireless Locations/WiFi locations.html', 'w', encoding='utf8') as f:
+				f.write('<html><body>')
+				f.write('<h2> WiFi locations report</h2>')
+				f.write(f'WiFi locations entries: {usageentries}<br>')
+				f.write(f'WiFi ocations database located at: {filefound[0]}<br>')
+				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<br/>')
+				f.write('')
+				f.write(f'<table>')
+				f.write(f'<tr><td>Base1o MAC</td><td>Channel</td><td>Infomask</td><td>Speed</td><td>Course</td><td>Confidence</td><td>Score</td><td>Reach</td><td>Hoz. Acc.</td><td>Vert. Acc.</td><td>Latitude</td><td>Longitude</td><td>Timestamp</td></tr>')
+				for row in all_rows:
+					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td><td>{row[9]}</td><td>{row[10]}</td><td>{row[11]}</td><td>{row[12]}</td></tr>')
+				f.write(f'</table></body></html>')
+				logfunc(f'WiFi locations function completed')
+		else:
+				logfunc('No WiFi locations available')
+	except:
+			logfunc('Error on WiFi locations function.')
