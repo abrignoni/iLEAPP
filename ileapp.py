@@ -9,6 +9,7 @@ import  tarfile
 import shutil
 from report import *
 from zipfile import ZipFile
+from tarfile import TarFile
 
 parser = argparse.ArgumentParser(description='iLEAPP: iOS Logs, Events, and Preferences Parser.')
 parser.add_argument('-o', choices=['fs','tar', 'zip'], required=True, action="store",help="Directory path, TAR, or ZIP filename and path(required).")
@@ -95,9 +96,11 @@ elif extracttype == 'tar':
 	log = open(reportfolderbase+'Script Logs/ProcessedFilesLog.html', 'w+', encoding='utf8')
 	nl = '\n' #literal in order to have new lines in fstrings that create text files
 	log.write(f'Extraction/Path selected: {pathto}<br><br>')	# tar searches and function calls
-	
+
+	t = TarFile(pathto)
+
 	for key, val in tosearch.items():
-		filefound = searchtar(pathto, val, reportfolderbase)
+		filefound = searchtar(t, val, reportfolderbase)
 		if not filefound:
 			
 			logfunc()
@@ -120,9 +123,9 @@ elif extracttype == 'zip':
 		log.write(f'Extraction/Path selected: {pathto}<br><br>')	# tar searches and function calls
 
 		z = ZipFile(pathto)
-
+		name_list = z.namelist()
 		for key, val in tosearch.items():
-			filefound = searchzip(z, val, reportfolderbase)
+			filefound = searchzip(z, name_list, val, reportfolderbase)
 			if not filefound:
 				logfunc('')
 				logfunc(f'No files found for {key} -> {val}.')
