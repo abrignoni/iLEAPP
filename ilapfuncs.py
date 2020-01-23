@@ -21,17 +21,215 @@ nl = '\n'
 now = datetime.datetime.now()
 currenttime = str(now.strftime('%Y-%m-%d_%A_%H%M%S'))
 reportfolderbase = './ILEAPP_Reports_'+currenttime+'/'
+base = '/ILEAPP_Reports_'+currenttime+'/'
 temp = reportfolderbase+'temp/'
 
 def logfunc(message):
 	if pathlib.Path(reportfolderbase+'Script Logs/Screen Output.html').is_file():
-		with open(reportfolderbase+'Script Logs/Screen Output.html', 'a', encoding='utf8') as f:
+		with open(reportfolderbase+'Script Logs/Screen Output.html', 'a', encoding='utf8') as a:
 			print(message)
-			f.write(message+'<br>')
+			a.write(message+'<br>')
 	else:
-		with open(reportfolderbase+'Script Logs/Screen Output.html', 'a', encoding='utf8') as f:
+		with open(reportfolderbase+'Script Logs/Screen Output.html', 'a', encoding='utf8') as a:
 			print(message)
-			f.write(message+'<br>')
+			a.write(message+'<br>')
+
+def datark(filefound):
+	logfunc(f'Data_ark.plist function executing.')
+	try:
+		os.makedirs(reportfolderbase+'Data_Ark/')
+		with open(reportfolderbase+'Data_Ark/Data Ark.html','w') as f:
+			f.write('<html><body>')
+			f.write('<h2>Mobile Activation Report</h2>')
+			f.write(f'Data_ark.plist located at {filefound[0]}<br>')
+			f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+			f.write('<br/>')
+			f.write('')
+			f.write(f'<table>')
+			f.write(f'<tr><td>Key</td><td>Values</td></tr>')
+			with open(filefound[0], 'rb') as fp:
+				pl = plistlib.load(fp)
+				for key, val in pl.items():
+					f.write(f'<tr><td>{key}</td><td>{val}</td></tr>')
+			f.write(f'</table></body></html>')
+			logfunc(f'Data_ark.plist function completed')
+	except:
+		logfunc('Error in Sys Diagnose Network Preferences function.')
+		
+def mobilact(filefound):
+	logfunc(f'Mobile Activation function executing.')
+	try:
+		linecount = 0
+		hitcount = 0
+		activationcount = 0
+		filescounter = 0
+		
+		if os.path.exists(reportfolderbase+'SysDiagnose/'):
+			pass
+		else:
+			os.makedirs(reportfolderbase+'SysDiagnose/')
+		
+		f =open(reportfolderbase+'SysDiagnose/Mobile Activation Logs.html','w')
+		f.write('<html><body>')
+		f.write('<h2>Mobile Activation Report</h2>')
+		f.write('Logs in private/var/mobile/Library/Logs/mobileactivationd/mobileactivationd.log.*<br>')
+		
+		for filename in filefound:
+			file = open(filename, 'r', encoding='utf8' )
+			filescounter = filescounter + 1
+			
+			for line in file:
+				linecount += 1
+				if 'perform_data_migration' in line:
+					hitcount += 1
+					#print("\n" + line)
+					txts = line.split()
+					#print(txts, linecount)
+					#print(len(txts))
+					dayofweek = txts[0]
+					month = txts[1]
+					day = txts[2]
+					time = txts[3]
+					year = txts[4]
+					frombuild = txts[12]
+					tobuild = txts[14]
+					f.write("<br><br>" + day + " " + month + " " + year + " " + time + " Upgraded from " + frombuild + " to " + tobuild + " [line " + str(linecount) + "]")
+			
+			
+				if 'MA: main: ____________________ Mobile Activation Startup _____________________' in line:
+					activationcount += 1
+					#print("\n" + line)
+					txts = line.split()
+					#print(txts, linecount)
+					#print(len(txts))
+					dayofweek = txts[0]
+					month = txts[1]
+					day = txts[2]
+					time = txts[3]
+					year = txts[4]
+					f.write("<br><br>" + day + " " + month + " " + year + " " + time + " Mobile Activation Startup " + " [line " + str(linecount) + "]")
+					
+				if 'MA: main: build_version:' in line:
+					#print("\n" + line)
+					txts = line.split()
+					#print(txts, linecount)
+					#print(len(txts))
+					dayofweek = txts[0]
+					month = txts[1]
+					day = txts[2]
+					time = txts[3]
+					year = txts[4]
+					buildver = txts[11]
+					f.write("<br>"+ day + " " + month + " " + year + " " + time + " Mobile Activation Build Version = " + buildver)
+					
+				if 'MA: main: hardware_model:' in line:
+					#print("\n" + line)
+					txts = line.split()
+					#print(txts, linecount)
+					#print(len(txts))
+					dayofweek = txts[0]
+					month = txts[1]
+					day = txts[2]
+					time = txts[3]
+					year = txts[4]
+					hwmodel = txts[11]
+					f.write("<br>" + day + " " + month + " " + year + " " + time + " Mobile Activation Hardware Model = " + hwmodel)
+					
+				if 'MA: main: product_type:' in line:
+					#print("\n" + line)
+					txts = line.split()
+					#print(txts, linecount)
+					#print(len(txts))
+					dayofweek = txts[0]
+					month = txts[1]
+					day = txts[2]
+					time = txts[3]
+					year = txts[4]
+					prod = txts[11]
+					f.write("<br>" + day + " " + month + " " + year + " " + time + " Mobile Activation Product Type = " + prod)
+					
+				if 'MA: main: device_class:' in line:
+					#print("\n" + line)
+					txts = line.split()
+					#print(txts, linecount)
+					#print(len(txts))
+					dayofweek = txts[0]
+					month = txts[1]
+					day = txts[2]
+					time = txts[3]
+					year = txts[4]
+					devclass = txts[11]
+					f.write("<br>"+ day + " " + month + " " + year + " " + time + " Mobile Activation Device Class = " + devclass)
+			file.close()
+		f.write("<br><br>Found " + str(hitcount) + " Upgrade entries")
+		f.write("<br> Found " + str(activationcount) + " Mobile Activation Startup entries")
+		f.write('</body></html>')
+		f.close()
+		
+		logfunc(f'Mobile Activation completed executing.')
+	except:
+		logfunc('Error in MobileActivation Logs section')
+		
+def bkupstate(filefound):
+	logfunc(f'BackupStateInfo function executing.')
+	try:	
+		if os.path.exists(reportfolderbase+'SysDiagnose/'):
+			pass
+		else:
+			os.makedirs(reportfolderbase+'SysDiagnose/')
+		
+		f =open(reportfolderbase+'SysDiagnose/BackupStateInfo.txt','w')
+		p = open(filefound[0], 'rb')
+		plist = plistlib.load(p)
+		#create html headers
+		filedatahtml = open(reportfolderbase+'SysDiagnose/BackupStateInfo.html', mode='a+')
+		filedatahtml.write('<html><body>')
+		filedatahtml.write('<h2>BackupStateInfo Report </h2>')
+		filedatahtml.write ('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+		
+		filedatahtml.write('<table>')
+		filedatahtml.write(f'<tr><td colspan = "2">BackupStateInfo Items</td></tr>')
+		
+		pl = plist # This code taken from https://github.com/cheeky4n6monkey/iOS_sysdiagnose_forensic_scripts/blob/master/sysdiagnose-mobilebackup.py
+		
+		if 'BackupStateInfo' in pl.keys():
+				for key, val in pl["BackupStateInfo"].items():
+					#print("key = " + str(key) + ", val = " + str(val))
+					if key == 'date':
+						filedatahtml.write(f'<tr><td>BackupStateInfo Date</td><td>{str(val)}</td></tr>')
+					if key == 'isCloud':
+						filedatahtml.write(f'<tr><td>BackupStateInfo isCloud</td><td>{str(val)}</td></tr>')
+						
+		if 'RestoreInfo' in pl.keys():
+			for key, val in pl["RestoreInfo"].items():
+				if key == 'RestoreDate':
+					filedatahtml.write(f'<tr><td>RestoreInfo Date</td><td>{str(val)}</td></tr>')
+				if key == 'BackupBuildVersion':
+					filedatahtml.write(f'<tr><td>RestoreInfo BackupBuildVersion</td><td>{str(val)}</td></tr>')
+				if key == 'DeviceBuildVersion':
+					filedatahtml.write(f'<tr><td>RestoreInfo DeviceBuildVersion</td><td>{str(val)}</td></tr>')
+				if key == 'WasCloudRestore':
+					filedatahtml.write(f'<tr><td>RestoreInfo WasCloudRestore</td><td>{str(val)}</td></tr>')
+		filedatahtml.write('</table></html>')
+		filedatahtml.write('<br>')
+		
+		filedatahtml.write('<table>')
+		filedatahtml.write(f'<tr><td colspan = "2">{filefound[0]}</td></tr>')
+		filedatahtml.write('<tr><td>Key</td><td>Value</td></tr>')
+		
+		
+		for key, val in plist.items():
+			f.write(f'{key}	{val}{nl}')
+			filedatahtml.write(f'<tr><td>{key}</td><td>{val}</td></tr>')
+				
+		f.close()
+		
+		#close html footer
+		filedatahtml.write('</table></html>')
+		filedatahtml.close()
+	except:
+		logfunc('Error in BackupStateInfo function section')
+	logfunc(f'BackupStateInfo function completed.')
 
 def datausage(filefound):
 	os.makedirs(reportfolderbase+'Data Usage/')
@@ -2072,7 +2270,7 @@ def ktx(filefound):
 	os.mkdir(outktx)
 	nl = '\n'
 	
-	filedata = open(outpath+'_Snapshot_KTX_Files_List.csv', mode='a+')
+	filedata = open(outpath+'_Snapshot_KTX_Files_List.csv', mode='a+', encoding='utf8')
 	filewrite = csv.writer(filedata, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 	filewrite.writerow([ 'Path', 'Filename'])
 	filedata.close()
@@ -2106,7 +2304,7 @@ def ktx(filefound):
 			os.makedirs(outktx+fullpw)
 		#get the name, filepath write to csv in outpath _KTX_Files_Report.csv
 
-		filedata = open(outpath+'_Snapshot_KTX_Files_List.csv', mode='a+')
+		filedata = open(outpath+'_Snapshot_KTX_Files_List.csv', mode='a+', encoding='utf8')
 		filewrite = csv.writer(filedata, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 		filewrite.writerow([filename, tail1])
 		filedatahtml.write(f'<tr><td>{filename}</td><td>{tail1}</td></tr>')
@@ -2591,6 +2789,49 @@ def powerlog(filefound):
 	except:
 		logfunc('Error in Powerlog Device Screen Autolock Section.')
 
+	try:
+		db = sqlite3.connect(filefound[0])
+		cursor = db.cursor()
+		cursor.execute('''
+		SELECT
+				DATETIME(APPDELETEDDATE, 'unixepoch') AS "APP DELETED DATE",
+				DATETIME(TIMESTAMP, 'unixepoch') AS TIMESTAMP,
+				APPNAME AS "APP NAME",
+				APPEXECUTABLE AS "APP EXECUTABLE NAME",
+				APPBUNDLEID AS "BUNDLE ID",
+				APPBUILDVERSION AS "APP BUILD VERSION",
+				APPBUNDLEVERSION AS "APP BUNDLE VERSION",
+				APPTYPE AS "APP TYPE",
+				ID AS "PLAPPLICATIONAGENT_EVENTNONE_ALLAPPS TABLE ID" 
+			FROM
+				PLAPPLICATIONAGENT_EVENTNONE_ALLAPPS 
+			WHERE
+				APPDELETEDDATE > 0	
+		''')
+
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			logfunc(f'Powerlog App Deletion Events executing')
+			with open(reportfolderbase+'Powerlog/App Deletion.html', 'w', encoding='utf8') as f:
+				f.write('<html><body>')
+				f.write('<h2> Powerlog App Deletion Events report</h2>')
+				f.write(f'Powerlog App Deletion  Events entries: {usageentries}<br>')
+				f.write(f'Powerlog App Deletion  Events database located at: {filefound[0]}<br>')
+				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<br/>')
+				f.write('')
+				f.write(f'<table>')
+				f.write(f'<tr><td>App Deleted Date</td><td>Timestamp</td><td>App Name</td><td>Executable Name</td><td>Bundle ID</td><td>App Build Version</td><td>App Bundle Version</td><td>App Type</td><td>ID</td></tr>')
+				for row in all_rows:
+					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td></tr>')
+				f.write(f'</table></body></html>')
+				logfunc(f'Powerlog App DeletionEvents function completed')
+		else:
+				logfunc('No Powerlog App Deletion Events available')
+	except:
+		logfunc('Error in Powerlog App Deletion Events Section.')
+
 def delphotos(filefound):
 	db = sqlite3.connect(filefound[0])
 	cursor = db.cursor()
@@ -2716,3 +2957,72 @@ def webclips(filefound):
 	g.close()
 	
 	logfunc('Webclips function completed')
+=======
+	
+def healthdb(filefound):
+	db = sqlite3.connect(filefound[0])
+	cursor = db.cursor()
+	try:
+		cursor.execute('''
+		Select
+		datetime(samples.start_date+978307200,'unixepoch','localtime') as "Start Date",
+		datetime(samples.end_date+978307200,'unixepoch','localtime') as "End Date",
+		samples.data_id, 
+		case
+		when samples.data_type = 3 then "weight"
+		when samples.data_type = 7 then "steps"
+		when samples.data_type = 8 then "dist in m"
+		when samples.data_type = 9 then "resting energy"
+		when samples.data_type = 10 then "active energy"
+		when samples.data_type = 12 then "flights climbed"
+		when samples.data_type = 67 then "weekly calorie goal"
+		when samples.data_type = 70 then "watch on"
+		when samples.data_type = 75 then "stand"
+		when samples.data_type = 76 then "activity"
+		when samples.data_type = 79 then "workout"
+		when samples.data_type = 83 then "some workouts"
+		end as "activity type",
+		quantity,
+		original_quantity,
+		unit_strings.unit_string,
+		original_unit,
+		correlations.correlation,
+		correlations.object,
+		correlations.provenance
+		string_value,
+		metadata_values.data_value,
+		metadata_values.numerical_value,
+		metadata_values.value_type,
+		metadata_keys.key
+		from samples
+		left outer join quantity_samples on samples.data_id = quantity_samples.data_id
+		left outer join unit_strings on quantity_samples.original_unit = unit_strings.RowID
+		left outer join correlations on samples.data_id = correlations.object
+		left outer join metadata_values on metadata_values.object_id = samples.data_id
+		left outer join metadata_keys on metadata_keys.ROWID = metadata_values.key_id
+		order by "Start Date" desc
+		''')
+
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			logfunc(f'Healthdb_secure.sqlite function executing')
+			os.makedirs(reportfolderbase+'HealthDB/')
+			with open(reportfolderbase+'HealthDB/Healthdb_secure.html', 'w', encoding='utf8') as f:
+				f.write('<html><body>')
+				f.write('<h2> Healthdb_secure.sqlite report</h2>')
+				f.write(f'Healthdb_secure.sqlite entries: {usageentries}<br>')
+				f.write(f'Healthdb_secure.sqlite database located at: {filefound[0]}<br>')
+				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<br/>')
+				f.write('')
+				f.write(f'<table>')
+				f.write(f'<tr><td>Start Date</td><td>End Date</td><td>Activity Type</td><td>Quantity</td><td>Original Quantity</td><td>Unit String</td><td>Original Unit</td><td>Correlation</td><td>String Value</td><td>Data Value</td><td>Numerical Value</td><td>Value Type</td><td>Key</td></tr>')
+				for row in all_rows:
+					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td><td>{row[9]}</td><td>{row[10]}</td><td>{row[11]}</td><td>{row[12]}</td></tr>')
+				f.write(f'</table></body></html>')
+				logfunc(f'Healthdb_secure.sqlite function completed')
+		else:
+				logfunc('No Healthdb_secure.sqlite available')
+	except:
+		logfunc('Error on Healthdb_secure.sqlite function.')

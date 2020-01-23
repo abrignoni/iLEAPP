@@ -7,22 +7,9 @@ from six.moves.configparser import RawConfigParser
 from time import process_time
 import  tarfile
 import shutil
+import webbrowser
 from report import *
 import PySimpleGUI as sg
-
-'''
-parser = argparse.ArgumentParser(description='iLEAPP: iOS Logs, Events, and Preferences Parser.')
-parser.add_argument('-o', choices=['fs','tar'], required=True, action="store",help="Directory path or TAR filename and path(required).")
-parser.add_argument('pathtodir',help='Path to directory')
-
-if len(sys.argv[1:])==0:
-	parser.logfunc_help()
-	parser.exit()
-
-start = process_time()
-	
-args = parser.parse_args()
-'''
 
 sg.theme('DarkAmber')   # Add a touch of color
 # All the stuff inside your window.
@@ -96,9 +83,12 @@ while True:
 				'datausage': '*DataUsage.sqlite',
 				'delphotos': '*Photos.sqlite',
 				'timezone': '*mobile/Library/Preferences/com.apple.preferences.datetime.plist'}
-
-	'''
-	tosearch = {'applicationstate':'*pplicationState.db*'}
+  
+  '''
+	tosearch = {'mib':'*mobile_installation.log.*', 'iconstate':'*SpringBoard/IconState.plist', 'lastbuild':'*LastBuildInfo.plist', 'iOSNotifications11':'*PushStore*', 'iOSNotifications12':'*private/var/mobile/Library/UserNotifications*',
+		'wireless':'*wireless/Library/Preferences/com.apple.*','knowledgec':'*CoreDuet/Knowledge/knowledgeC.db','applicationstate':'*pplicationState.db*', 'conndevices':'*/iTunes_Control/iTunes/iTunesPrefs', 'calhist':'*CallHistory.storedata', 'smschat':'*sms.db', 'safari':'*History.db','queryp':'*query_predictions.db','powerlog':'*CurrentPowerlog.PLSQL','accs':'*Accounts3.sqlite','medlib':'*MediaLibrary.sqlitedb', 'datausage':'*DataUsage.sqlite', 'delphotos':'*Photos.sqlite', 'timezone':'*mobile/Library/Preferences/com.apple.preferences.datetime.plist', 'bkupstate':'*/com.apple.MobileBackup.plist', 'mobilact':'*mobileactivationd.log.*', 'healthdb':'*healthdb_secure.sqlite','datark':'*Library/Lockdown/data_ark.plist'}
+    
+	tosearch = {'ktx':'*.ktx*'}
 	'''
 			
 	os.makedirs(reportfolderbase)
@@ -215,6 +205,9 @@ while True:
 	log.close()
 	
 	report(reportfolderbase, time, extracttype, pathto)
-	locationmessage = ('Report name: '+reportfolderbase)
+	locationmessage = ('Report name: '+reportfolderbase+'index.html')
 	sg.Popup('Processing completed', locationmessage)
+	
+	basep = os.getcwd()
+	webbrowser.open_new_tab('file://'+basep+base+'index.html')
 	sys.exit()
