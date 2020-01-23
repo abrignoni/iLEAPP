@@ -21,12 +21,11 @@ def searchtar(pathto, val, reportfolderbase):
 				pathlist.append(temp+member.name)
 	return pathlist
 
-def searchzip(pathto, val, reportfolderbase):
+def searchzip(z, val, reportfolderbase):
 	temp = reportfolderbase+'temp/'
 	pathlist = []
-	with ZipFile(pathto, mode='r') as z:
-		for member in z.namelist():
-			if fnmatch.fnmatch(member, val):
-				z.extract(member, path=temp)
-				pathlist.append(temp+member)
+	for member in z.namelist():
+		if fnmatch.fnmatch(member, val):
+			z.extract(member, path=temp)
+			pathlist.append(temp+member)
 	return pathlist
