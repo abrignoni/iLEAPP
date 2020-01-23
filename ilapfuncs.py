@@ -2664,8 +2664,7 @@ def timezone(filefound):
 
 def webclips(filefound):
 	logfunc('Webclips function executing')
-	# Determine unique webclips
-	print(filefound) #DEBUG
+
 	webclip_data = {}
 	for path_val in filefound:
 		# Extract the unique identifier
@@ -2697,11 +2696,23 @@ def webclips(filefound):
 
 		# Open and convert icon into b64 for serialisation in report
 		icon_data_raw = open(data['Icon_path'], 'rb')
-		icon_data = base64.urlsafe_b64encode(icon_data_raw.read()).decode('utf-8')
+		icon_data = base64.b64encode(icon_data_raw.read()).decode('utf-8')
 		webclip_data[unique_id]['Icon_data'] = icon_data
 		icon_data_raw.close()
 
-	import json #DEBUG
-	print(json.dumps(webclip_data, indent=4)) #DEBUG
-
+	# Create the report
+	g = open(reportfolderbase + 'Icon Positions/WebClips.html', 'w')
+	g.write("<html>")
+	g.write(f'<p><table><body>')
+	g.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+	for unique_id, data in webclip_data.items():
+		g.write('<tr>')
+		g.write(f'<td><img src="data:image/png;base64,{data["Icon_data"]}"></td>')
+		g.write(f'<td><b>UID:{unique_id}</b><br>'
+				f'Title: {data["Title"]}<br>'
+				f'URL: {data["URL"]}</td>')
+		g.write('</tr>')
+	g.write("</table></html>")
+	g.close()
+	
 	logfunc('Webclips function completed')
