@@ -34,6 +34,159 @@ def logfunc(message=""):
 			print(message)
 			a.write(message+'<br>')
 
+
+def aggdict(filefound):
+	logfunc(f'Aggregated dictionary funcion executing')
+	os.makedirs(reportfolderbase+'Aggregated Dict/')
+	try:
+		db = sqlite3.connect(filefound[0])
+		cursor = db.cursor()
+		cursor.execute('''
+		select
+		date(daysSince1970*86400, 'unixepoch', 'utc') as day,
+		key, 
+		value,
+		case
+			when value = -1 then '6 digit'
+			when value = 0 then 'No passcode'
+			when value = 1 then '4 digit'
+			when value = 2 then 'Custom alphanumeric'
+			when value = 3 then 'Custom numeric'
+			else value 
+			END as passcodeType
+		from Scalars
+		where key = 'com.apple.passcode.PasscodeType' 
+		''')
+
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			logfunc(f'Aggregated dictionary Passcode Type function executing')
+			with open(reportfolderbase+'Aggregated Dict/Passcode Type.html', 'w', encoding='utf8') as f:
+				f.write('<html><body>')
+				f.write('<h2> Passcode Type report</h2>')
+				f.write(f'Passcode Type entries: {usageentries}<br>')
+				f.write(f'Passcode Type located at: {filefound[0]}<br>')
+				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<br/>')
+				f.write('')
+				f.write(f'<table>')
+				f.write(f'<tr><td>Timestamp</td><td>Key</td><td>Value</td><td>Passcode Type</td></tr>')
+				for row in all_rows:
+					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td></tr>')
+				f.write(f'</table></body></html>')
+				logfunc(f'Aggregated dictionary Passcode Type function completed')
+		else:
+				logfunc('No Aggregated dictionary Passcode Type data available')
+	except:
+		logfunc('Error in Aggregated dictionary Passcode Type section.')
+
+	try:
+		db = sqlite3.connect(filefound[0])
+		cursor = db.cursor()
+		cursor.execute('''
+		select 
+		date(daysSince1970*86400, 'unixepoch', 'utc') as day,
+		key, value
+		from Scalars
+		where key like 'com.apple.passcode.NumPasscode%'
+		''')
+
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			logfunc(f'Aggregated dictionary Passcode Sucess-Fail function executing')
+			with open(reportfolderbase+'Aggregated Dict/Passcode Sucess-Fail.html', 'w', encoding='utf8') as f:
+				f.write('<html><body>')
+				f.write('<h2> Passcode Sucess-Fail report</h2>')
+				f.write(f'Passcode Sucess-Fail entries: {usageentries}<br>')
+				f.write(f'Passcode Sucess-Fail located at: {filefound[0]}<br>')
+				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<br/>')
+				f.write('')
+				f.write(f'<table>')
+				f.write(f'<tr><td>Timestamp</td><td>Key</td><td>Value</td></tr>')
+				for row in all_rows:
+					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td></tr>')
+				f.write(f'</table></body></html>')
+				logfunc(f'Aggregated dictionary Passcode Sucess-Fail function completed')
+		else:
+				logfunc('No Aggregated dictionary Passcode Sucess-Fail data available')
+	except:
+		logfunc('Error in Aggregated dictionary Passcode Sucess-Fail section.')
+
+	try:
+		db = sqlite3.connect(filefound[0])
+		cursor = db.cursor()
+		cursor.execute('''
+		SELECT
+		DATE(DAYSSINCE1970*86400, 'unixepoch') AS DAY,
+		KEY AS "KEY",
+		VALUE AS "VALUE"
+		FROM
+		SCALARS
+		where key = 'com.apple.fingerprintMain.templateCount'
+		''')
+
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			logfunc(f'Aggregated dictionary Passcode Finger Template function executing')
+			with open(reportfolderbase+'Aggregated Dict/Passcode Finger Template.html', 'w', encoding='utf8') as f:
+				f.write('<html><body>')
+				f.write('<h2> Passcode Finger Template report</h2>')
+				f.write(f'Passcode Finger Template entries: {usageentries}<br>')
+				f.write(f'Passcode Finger Template located at: {filefound[0]}<br>')
+				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<br/>')
+				f.write('')
+				f.write(f'<table>')
+				f.write(f'<tr><td>Timestamp</td><td>Key</td><td>Value</td></tr>')
+				for row in all_rows:
+					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td></tr>')
+				f.write(f'</table></body></html>')
+				logfunc(f'Aggregated dictionary Passcode Finger Template function completed')
+		else:
+				logfunc('No Aggregated dictionary Passcode Finger Template data available')
+	except:
+		logfunc('Error in Aggregated dictionary Passcode Finger Template section.')
+
+	try:
+		db = sqlite3.connect(filefound[0])
+		cursor = db.cursor()
+		cursor.execute('''
+		SELECT
+		       DATE(DAYSSINCE1970*86400, 'unixepoch') AS DAY,
+			   KEY AS "KEY",
+			   VALUE AS "VALUE"
+			FROM
+			   SCALARS
+		''')
+
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			logfunc(f'Aggregated dictionary Scalars function executing')
+			with open(reportfolderbase+'Aggregated Dict/Scalars.html', 'w', encoding='utf8') as f:
+				f.write('<html><body>')
+				f.write('<h2> Scalars report</h2>')
+				f.write(f'Scalar entries: {usageentries}<br>')
+				f.write(f'Scalars located at: {filefound[0]}<br>')
+				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<br/>')
+				f.write('')
+				f.write(f'<table>')
+				f.write(f'<tr><td>Timestamp</td><td>Key</td><td>Value</td></tr>')
+				for row in all_rows:
+					key = textwrap.fill(row[1])
+					f.write(f'<tr><td>{row[0]}</td><td>{key}</td><td>{row[2]}</td></tr>')
+				f.write(f'</table></body></html>')
+				logfunc(f'Aggregated dictionary Scalars function completed')
+		else:
+				logfunc('No Aggregated dictionary Scalars data available')
+	except:
+		logfunc('Error in Aggregated dictionary Scalars section.')
+
 def datark(filefound):
 	logfunc(f'Data_ark.plist function executing.')
 	try:
@@ -3028,6 +3181,7 @@ def healthdb(filefound):
 				logfunc('No Healthdb_secure.sqlite available')
 	except:
 		logfunc('Error on Healthdb_secure.sqlite function.')
+		
 def wiloc(filefound):
 	logfunc('Wireless Locations function executing')
 	os.makedirs(reportfolderbase+'Wireless Locations/')
