@@ -193,6 +193,46 @@ def aggdict(filefound):
 				logfunc('No Aggregated dictionary Scalars data available')
 	except:
 		logfunc('Error in Aggregated dictionary Scalars section.')
+
+	try:
+		db = sqlite3.connect(filefound[0])
+		cursor = db.cursor()
+		cursor.execute('''
+		SELECT
+				DATE(DISTRIBUTIONKEYS.DAYSSINCE1970*86400, 'unixepoch') AS "DAY",
+				DISTRIBUTIONVALUES.SECONDSINDAYOFFSET AS "SECONDS IN DAY OFFSET",
+				DISTRIBUTIONKEYS.KEY AS "KEY",
+				DISTRIBUTIONVALUES.VALUE AS "VALUE",
+				DISTRIBUTIONVALUES.DISTRIBUTIONID AS "DISTRIBUTIONVALUES TABLE ID"
+			FROM
+				DISTRIBUTIONKEYS 
+				LEFT JOIN
+					DISTRIBUTIONVALUES 
+					ON DISTRIBUTIONKEYS.ROWID = DISTRIBUTIONVALUES.DISTRIBUTIONID
+		''')
+
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			logfunc(f'Aggregated dictionary Distribution Keys function executing')
+			with open(reportfolderbase+'Aggregated Dict/Distribution Keys.html', 'w', encoding='utf8') as f:
+				f.write('<html><body>')
+				f.write('<h2> Distribution Keys report</h2>')
+				f.write(f'Distribution Keys entries: {usageentries}<br>')
+				f.write(f'Distribution Keys located at: {filefound[0]}<br>')
+				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<br/>')
+				f.write('')
+				f.write(f'<table>')
+				f.write(f'<tr><td>Day</td><td>Seconds in Day Offset</td><td>Key</td><td>Value</td><td>Table ID</td></tr>')
+				for row in all_rows:
+					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td></tr>')
+				f.write(f'</table></body></html>')
+				logfunc(f'Aggregated dictionary Distribution Keys function completed')
+		else:
+				logfunc('No Aggregated dictionary Distribution Keys data available')
+	except:
+		logfunc('Error in Aggregated dictionary Distribution Keys section.')
 	
 def dbbuff(filefound):
 	try:
@@ -770,7 +810,7 @@ def applicationstate(filefound):
 	logfunc(f'ApplicationState.db queries completed.')
 	
 def knowledgec(filefound):
-	logfunc(f'Incepted bplist extractions in knowlwdgeC.db executing.')
+	logfunc(f'Incepted bplist extractions in KnowledgeC.db executing.')
 
 	iOSversion = versionf
 	supportediOS = ['11', '12', '13']
@@ -971,8 +1011,8 @@ def knowledgec(filefound):
 	logfunc("Exported bplists (clean): "+str(cleancount))
 	logfunc("")
 	logfunc(f'Triage report completed.')
-	logfunc('Incepted bplist extractions in knowlwdgeC.db completed')
-	
+	logfunc('Incepted bplist extractions in KnowledgeC.db completed')
+	logfunc("")
 	logfunc(f'KnowledgeC.db App Usage executing')
 
 	#outpath = reportfolderbase+'KnowledgeC App Use/'
