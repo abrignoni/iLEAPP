@@ -37,7 +37,14 @@ def logfunc(message=""):
 
 def aggdict(filefound):
 	logfunc(f'Aggregated dictionary funcion executing')
-	os.makedirs(reportfolderbase+'Aggregated Dict/')
+	try:
+		if os.path.isdir(reportfolderbase+'Aggregated Dict/'):
+			pass
+		else:
+			os.makedirs(reportfolderbase+'Aggregated Dict/')
+	except:
+		logfunc('Error creating aggdict() report directory')
+
 	try:
 		db = sqlite3.connect(filefound[0])
 		cursor = db.cursor()
@@ -186,7 +193,37 @@ def aggdict(filefound):
 				logfunc('No Aggregated dictionary Scalars data available')
 	except:
 		logfunc('Error in Aggregated dictionary Scalars section.')
-
+	
+def dbbuff(filefound):
+	try:
+		if os.path.isdir(reportfolderbase+'Aggregated Dict/'):
+			pass
+		else:
+			os.makedirs(reportfolderbase+'Aggregated Dict/')
+		
+		logfunc(f'Aggregated dictionary DBbuffer function executing')
+		with open(reportfolderbase+'Aggregated Dict/DBbuffer.html', 'w', encoding='utf8') as f:
+			f.write('<html><body>')
+			f.write('<h2> DBbuffer report</h2>')
+			f.write(f'DBbuffer located at: {filefound[0]}<br>')
+			f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+			f.write('<br/>')
+			f.write('')
+			f.write(f'<table>')
+			f.write(f'<tr><td>Value</td><td>Value</td><td>Value</td><td>Value</td></tr>')
+			with open(filefound[0], 'r') as g:
+				for line in g.readlines():
+					line = line.strip()
+					values = line.split()
+					f.write('<tr>')
+					for value in values:
+						f.write('<td>%s</td>' % value)
+					f.write('</tr>')
+			f.write('</table></html>')
+		logfunc(f'Aggregated dictionary DBbuffer function completed')	
+	except:
+		logfunc('Error in Aggregated dictionary DBbuffer section.')
+		
 def datark(filefound):
 	logfunc(f'Data_ark.plist function executing.')
 	try:
