@@ -542,7 +542,6 @@ def datausage(filefound):
 		logfunc('Error in Data Usage - Zprocess Section.')
 
 def medlib(filefound):
-	os.makedirs(reportfolderbase+'Media Library/')
 	try:
 		db = sqlite3.connect(filefound[0])
 		cursor = db.cursor()
@@ -588,6 +587,7 @@ def medlib(filefound):
 		usageentries = len(all_rows)
 		if usageentries > 0:
 			logfunc(f'Media Library function executing')
+			os.makedirs(reportfolderbase+'Media Library/')
 			with open(reportfolderbase+'Media Library/Media Library.html', 'w', encoding='utf8') as f:
 				f.write('<html><body>')
 				f.write('<h2> Media Library report</h2>')
@@ -608,7 +608,6 @@ def medlib(filefound):
 		logfunc('Error in Media Library Section.')
 
 def accs(filefound):
-	os.makedirs(reportfolderbase+'Accounts/')
 	try:
 		db = sqlite3.connect(filefound[0])
 		cursor = db.cursor()
@@ -629,6 +628,7 @@ def accs(filefound):
 		usageentries = len(all_rows)
 		if usageentries > 0:
 			logfunc(f'Account Data function executing')
+			os.makedirs(reportfolderbase+'Accounts/')
 			with open(reportfolderbase+'Accounts/Accounts.html', 'w', encoding='utf8') as f:
 				f.write('<html><body>')
 				f.write('<h2> Account Data report</h2>')

@@ -114,6 +114,7 @@ while True:
 	
 	if extracttype == 'fs':
 		
+		logfunc(f'Artifact categories to parse: {str(len(tosearch))}')
 		logfunc(f'File/Directory selected: {pathto}')
 		logfunc('\n--------------------------------------------------------------------------------------')
 		logfunc('')
@@ -141,6 +142,7 @@ while True:
 
 	elif extracttype == 'tar':
 		
+		logfunc(f'Artifact categories to parse: {str(len(tosearch))}')
 		logfunc(f'File/Directory selected: {pathto}')
 		logfunc('\n--------------------------------------------------------------------------------------')
 		logfunc('')
@@ -170,6 +172,7 @@ while True:
 
 	elif extracttype == 'zip':
 			
+			logfunc(f'Artifact categories to parse: {str(len(tosearch))}')
 			logfunc(f'File/Directory selected: {pathto}')
 			logfunc('\n--------------------------------------------------------------------------------------')
 			logfunc('')

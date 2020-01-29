@@ -73,6 +73,7 @@ logfunc('By: Alexis Brignoni | @AlexisBrignoni | abrignoni.com')
 
 if extracttype == 'fs':
 	
+	logfunc(f'Artifact categories to parse: {str(len(tosearch))}')
 	logfunc(f'File/Directory selected: {pathto}')
 	logfunc('\n--------------------------------------------------------------------------------------')
 	logfunc( )
@@ -97,6 +98,7 @@ if extracttype == 'fs':
 
 elif extracttype == 'tar':
 	
+	logfunc(f'Artifact categories to parse: {str(len(tosearch))}')
 	logfunc(f'File/Directory selected: {pathto}')
 	logfunc('\n--------------------------------------------------------------------------------------')
 	
@@ -123,6 +125,7 @@ elif extracttype == 'tar':
 
 elif extracttype == 'zip':
 		
+		logfunc(f'Artifact categories to parse: {str(len(tosearch))}')
 		logfunc(f'File/Directory selected: {pathto}')
 		logfunc('\n--------------------------------------------------------------------------------------')
 		logfunc('')
