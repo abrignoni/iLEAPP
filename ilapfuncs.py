@@ -628,7 +628,12 @@ def accs(filefound):
 		usageentries = len(all_rows)
 		if usageentries > 0:
 			logfunc(f'Account Data function executing')
-			os.makedirs(reportfolderbase+'Accounts/')
+			
+			if os.path.isdir(reportfolderbase+'Accounts/'):
+				pass
+			else:
+				os.makedirs(reportfolderbase+'Accounts')
+				
 			with open(reportfolderbase+'Accounts/Accounts.html', 'w', encoding='utf8') as f:
 				f.write('<html><body>')
 				f.write('<h2> Account Data report</h2>')
@@ -3389,3 +3394,155 @@ def wiloc(filefound):
 				logfunc('No WiFi locations available')
 	except:
 			logfunc('Error on WiFi locations function.')
+
+def confaccts(filefound):
+	logfunc(f'Config Accounts function executing.')
+	
+	try:
+		if os.path.isdir(reportfolderbase+'Accounts/'):
+			pass
+		else:
+			os.makedirs(reportfolderbase+'Accounts')
+	except:
+		logfunc('Error creating confaccts() report directory')
+		
+	try:
+		with open(reportfolderbase+'Accounts/Config Accounts.html','w') as f:
+			f.write('<html><body>')
+			f.write('<h2>Config Accounts Report</h2>')
+			f.write(f'Config Accounts located at {filefound[0]}<br>')
+			f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+			f.write('<br/>')
+			f.write('')
+			f.write(f'<table>')
+			f.write(f'<tr><td>Key</td><td>Values</td></tr>')
+			with open(filefound[0], 'rb') as fp:
+				pl = plistlib.load(fp)
+				for key, val in pl.items():
+					f.write(f'<tr><td>{key}</td><td>{val}</td></tr>')
+			f.write(f'</table></body></html>')
+			logfunc(f'Config Accounts function completed')
+	except:
+		logfunc('Error in Config Accounts function.')
+	logfunc('Config Accounts function completed.')
+
+def calendar(filefound):
+	logfunc('Calendar function executing')
+	os.makedirs(reportfolderbase+'Calendars/')
+	try:
+		db = sqlite3.connect(filefound[0])
+		cursor = db.cursor()
+		cursor.execute('''
+		select 
+		title,
+		flags,
+		color,
+		symbolic_color_name,
+		external_id,
+		self_identity_email
+		from Calendar
+		''')
+		
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			logfunc(f'Calendar List function executing')
+			with open(reportfolderbase+'Calendars/Calendar List.html', 'w', encoding='utf8') as f:
+				f.write('<html><body>')
+				f.write('<h2> Calendars List report</h2>')
+				f.write(f'Calendar List entries: {usageentries}<br>')
+				f.write(f'Calendar List database located at: {filefound[0]}<br>')
+				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<br/>')
+				f.write('')
+				f.write(f'<table>')
+				f.write(f'<tr><td>Title</td><td>Flags</td><td>Color</td><td>Color Name</td><td>Ext. ID</td><td>Self ID Email</td></tr>')
+				for row in all_rows:
+					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td></tr>')
+				f.write(f'</table></body></html>')
+				logfunc(f'Calendar List function completed')
+		else:
+				logfunc('No Calendar List available')
+	except:
+		logfunc('Error on Calendar List function.')
+	
+	try:
+		db = sqlite3.connect(filefound[0])
+		cursor = db.cursor()
+		cursor.execute('''
+		Select
+		summary,
+		start_date,
+		DATETIME(start_date + 978307200, 'UNIXEPOCH') as startdate,
+		start_tz,
+		end_date,
+		DATETIME(end_date + 978307200, 'UNIXEPOCH') as enddate,
+		end_tz,
+		all_day,
+		calendar_id,
+		last_modified,
+		DATETIME(last_modified+ 978307200, 'UNIXEPOCH') as lastmod
+		from CalendarItem
+		''')
+		
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			logfunc(f'Calendar Items function executing')
+			with open(reportfolderbase+'Calendars/Calendar Items.html', 'w', encoding='utf8') as f:
+				f.write('<html><body>')
+				f.write('<h2> Calendar Items report</h2>')
+				f.write(f'Calendars Items entries: {usageentries}<br>')
+				f.write(f'Calendars Items database located at: {filefound[0]}<br>')
+				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<br/>')
+				f.write('')
+				f.write(f'<table>')
+				f.write(f'<tr><td>Summary</td><td>Start Date</td><td>Start Date Conv</td><td>Start TZ</td><td>End Date</td><td>End Date Conv</td><td>End TZ</td><td>All Day</td><td>Calendar ID</td><td>Last Mod Date</td><td>Mod Date Conv</td></tr>')
+				for row in all_rows:
+					if row[1] < 0:
+						f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td> </td><td>{row[3]}</td><td>{row[4]}</td><td> </td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td><td>{row[9]}</td><td>{row[10]}</td></tr>')
+					else:
+						f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td><td>{row[9]}</td><td>{row[10]}</td></tr>')
+				f.write(f'</table></body></html>')
+				logfunc(f'Calendar Items function completed')
+		else:
+				logfunc('No Calendar Items available')
+	except:
+		logfunc('Error on Calendar Items function.')
+
+	try:
+		db = sqlite3.connect(filefound[0])
+		cursor = db.cursor()
+		cursor.execute('''
+		SELECT
+		display_name,
+		address,
+		first_name,
+		last_name
+		from Identity
+		''')
+		
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			logfunc(f'Calendar Identity function executing')
+			with open(reportfolderbase+'Calendars/Calendar Identity.html', 'w', encoding='utf8') as f:
+				f.write('<html><body>')
+				f.write('<h2> Calendar Identity report</h2>')
+				f.write(f'Calendars Identity entries: {usageentries}<br>')
+				f.write(f'Calendars Identity database located at: {filefound[0]}<br>')
+				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<br/>')
+				f.write('')
+				f.write(f'<table>')
+				f.write(f'<tr><td>Display Name</td><td>Address</td><td>First Name</td><td>Last Name</td></tr>')
+				for row in all_rows:
+					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td></tr>')
+				f.write(f'</table></body></html>')
+				logfunc(f'Calendar Identity function completed')
+		else:
+				logfunc('No Calendar Identity data available')
+	except:
+		logfunc('Error on Calendar Identity function.')
+	logfunc('Calendar function completed.')
