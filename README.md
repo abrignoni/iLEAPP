@@ -6,7 +6,7 @@ Supports iOS 11, 12 & 13.
 Select parsing directly from a compressed .tar/.zip file or a decompressed directory.
 
 Pre-requisites:  
-Python 3  
+Python 3.7 +  
 Pip install six  
 Pip install PySimpleGUI  
 
