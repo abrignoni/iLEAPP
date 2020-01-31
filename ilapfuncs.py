@@ -3546,3 +3546,128 @@ def calendar(filefound):
 	except:
 		logfunc('Error on Calendar Identity function.')
 	logfunc('Calendar function completed.')
+
+def mailprotect(filefound):
+	logfunc('Protected Index Envelope emails function executing')		
+	try:
+		if os.path.isdir(reportfolderbase+'Emails/'):
+			pass
+		else:
+			os.makedirs(reportfolderbase+'Emails/')
+	except:
+		logfunc('Error creating mailprotect() report directory')
+	
+	try:
+		tempf, end = os.path.split(filefound[0])
+		
+		db = sqlite3.connect(tempf+'/emails.db')
+		cursor = db.cursor()
+		cursor.execute('''
+		create table email1(rowid int, ds text, dr text, size int, sender text, messid int, subject text, receipt text, cc text, bcc text)
+		''')
+		db.commit()
+
+		cursor.execute('''
+		create table email2(rowid int, data text)
+		''')
+		db.commit()
+
+
+		db = sqlite3.connect(tempf+'/Envelope Index')
+		db.execute(f'ATTACH DATABASE "{tempf}/Protected Index" AS PI')
+		db.execute(f'ATTACH DATABASE "{tempf}/emails.db" AS emails')
+
+		cursor = db.cursor()
+		cursor.execute('''
+		select  
+		main.messages.ROWID,
+		main.messages.date_sent,
+		main.messages.date_received,
+		main.messages.size,
+		PI.messages.sender,
+		PI.messages.message_id,
+		PI.messages.subject,
+		PI.messages._to,
+		PI.messages.cc,
+		PI.messages.bcc
+		from main.messages, PI.messages
+		where main.messages.ROWID =  PI.messages.message_id 
+		''')
+
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			print(f'Total emails {str(usageentries)}')
+			usageentries1 = str(usageentries)
+			for row in all_rows:
+				#print(row)
+				datainsert = (row[0], row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9])
+				cursor.execute('INSERT INTO emails.email1 (rowid, ds, dr, size, sender, messid, subject, receipt, cc, bcc)  VALUES(?,?,?,?,?,?,?,?,?,?)', datainsert)
+				db.commit()
+		else:
+			print('Zero rows')
+
+		cursor = db.cursor()
+		cursor.execute('''
+		select  
+		main.messages.ROWID,
+		PI.message_data.data
+		from main.message_data, main.messages, PI.messages, PI.message_data
+		where main.messages.ROWID = main.message_data.message_id and PI.messages.message_id = main.message_data.message_id 
+		and PI.message_data.message_data_id = main.message_data.ROWID
+		''')
+
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			print(f'Total emails with message data {str(usageentries)}')
+			usageentries2 = str(usageentries)
+			for row in all_rows:
+				datainsert = (row[0], row[1],)
+				cursor.execute('INSERT INTO emails.email2 (rowid, data)  VALUES(?,?)', datainsert)
+				db.commit()
+		else:
+			print('Zero rows')
+
+			
+		cursor.execute('''
+		select 
+		email1.rowid,
+		datetime(email1.ds, 'unixepoch', 'localtime') as ds,
+		datetime(email1.dr, 'unixepoch', 'localtime') as dr,
+		email1.sender, 
+		email1.messid, 
+		email1.subject, 
+		email1.receipt, 
+		email1.cc,
+		email1.bcc,
+		email2.data 
+		from email1
+		left outer join email2
+		on email2.rowid = email1.rowid
+		''')
+
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			logfunc(f'Protected Index Envelope emails executing')
+			with open(reportfolderbase+'Emails/Protected Index Env.html', 'w', encoding='utf8') as f:
+				f.write('<html><body>')
+				f.write('<h2> Protected Index and Envelope report</h2>')
+				f.write(f'Protected Index and Envelope emails total: {usageentries1}<br>')
+				f.write(f'Protected Index and Envelope emails with attachments: {usageentries2}<br>')
+				f.write(f'Protected Index and Envelope emails location: {tempf} -> Protected Envelope and Protected Index sqlite databases<br>')
+				f.write(f'Timestamps are LOCALTIME<br>')
+				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<br/>')
+				f.write('')
+				f.write(f'<table>')
+				f.write(f'<tr><td>Row ID</td><td>Date Sent</td><td>Date Received</td><td>Sender</td><td>Message ID</td><td>Subject</td><td>Recepient</td><td>CC</td><td>BCC</td><td>Message</td></tr>')
+				for row in all_rows:
+					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td><td>{row[9]}</td></tr>')
+				f.write(f'</table></body></html>')
+		else:
+				logfunc('No Protected Index Envelope emails available')
+	except:
+		logfunc('Error on Protected Index Envelope emails function')
+	logfunc(f'Protected Index Envelope emails function completed')
