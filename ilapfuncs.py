@@ -3570,6 +3570,9 @@ def mailprotect(filefound):
 		try:
 			tempf, end = os.path.split(filefound[0])
 			
+			if os.path.isfile(tempf+'/emails.db'):
+				os.remove(tempf+'/emails.db')
+			
 			db = sqlite3.connect(tempf+'/emails.db')
 			cursor = db.cursor()
 			cursor.execute('''
@@ -3683,6 +3686,9 @@ def mailprotect(filefound):
 	if iOSversion == '13':
 		logfunc('Support for iOS 13 Protected Index Envelope emails will be added soon.')
 	
+	if os.path.isfile(tempf+'/emails.db'):
+			os.remove(tempf+'/emails.db')
+			
 	logfunc(f'Protected Index Envelope emails function completed')
 	
 def screentime(filefound):
