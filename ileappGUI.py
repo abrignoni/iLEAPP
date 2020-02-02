@@ -96,9 +96,10 @@ while True:
 				'confaccts':'*com.apple.accounts.exists.plist',
 				'calendar':'*Calendar.sqlitedb',
 				'mailprotect':'*private/var/mobile/Library/Mail/* Index*',
-				'screentime': '*/Library/Application Support/com.apple.remotemanagementd/RMAdminStore*'}
+				'screentime': '*/Library/Application Support/com.apple.remotemanagementd/RMAdminStore*',
+				'bluetooths': '*/Library/Database/com.apple.MobileBluetooth*'}
 	'''
-	tosearch = {'searchs': '*com.apple.MobileBluetooth*'}
+	tosearch = {'bluetooths': '*/Library/Database/com.apple.MobileBluetooth*'}
 	'''	
 			
 	os.makedirs(reportfolderbase)

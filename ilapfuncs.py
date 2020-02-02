@@ -3726,9 +3726,10 @@ def mailprotect(filefound):
 		
 	if iOSversion == '13':
 		logfunc('Support for iOS 13 Protected Index Envelope emails will be added soon.')
-	
-	if os.path.isfile(tempf+'/emails.db'):
-			os.remove(tempf+'/emails.db')
+		
+		#add tempf code
+		#if os.path.isfile(tempf+'/emails.db'):
+		#	os.remove(tempf+'/emails.db')
 			
 	logfunc(f'Protected Index Envelope emails function completed')
 	
@@ -3925,8 +3926,92 @@ def screentime(filefound):
 		logfunc('Error on Screen Time Enabled Settings function')
 	logfunc(f'Screen Time function completed')
 	
-def search(filefound):
-	for x in filefound:
-		print(x)
+def bluetooths(filefound):
+	try:
+		if os.path.isdir(reportfolderbase+'Bluetooth/'):
+			pass
+		else:
+			os.makedirs(reportfolderbase+'Bluetooth/')
+	except:
+		logfunc('Error creating bluetooths() report directory')
+	
+	logfunc(f'Bluetooth function executing')
+	try:
+		tempf, end = os.path.split(filefound[0])
+		db = sqlite3.connect(tempf+'/com.apple.MobileBluetooth.ledevices.paired.db')
+		cursor = db.cursor()
+		
+		cursor.execute('''select 
+		Uuid,
+		Name,
+		NameOrigin,
+		Address,
+		ResolvedAddress,
+		LastSeenTime,
+		LastConnectionTime
+		from 
+		PairedDevices
+			''')
+		
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			logfunc(f'Bluetooth Paired Devices function executing')
+			with open(reportfolderbase+'Bluetooth/Bluetooth Paired.html', 'w', encoding='utf8') as f:
+				f.write('<html><body>')
+				f.write('<h2> Bluetooth Paired Devices report</h2>')
+				f.write(f'Bluetooth Paired Devices total: {usageentries}<br>')
+				f.write(f'Bluetooth Paired Devices location: {tempf}/com.apple.MobileBluetooth.ledevices.paired.db<br>')
+				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<br/>')
+				f.write('')
+				f.write(f'<table>')
+				f.write(f'<tr><td>UUID</td><td>Name</td><td>Name Origin</td><td>Address</td><td>Resolved Address</td><td>Last Seen Time</td><td>Last Connection Time</td></tr>')
+				for row in all_rows:
+					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td></tr>')
+				f.write(f'</table></body></html>')
+			logfunc(f'Bluetooth Paired Devices function completed')
+		else:
+			logfunc('No Bluetooth Paired Devices available')
+	except:
+		logfunc('Error on Blueetooth Paired Devices function')
+		
+	try:
+		tempf, end = os.path.split(filefound[0])
+		db = sqlite3.connect(tempf+'/com.apple.MobileBluetooth.ledevices.other.db')
+		cursor = db.cursor()
+		
+		cursor.execute('''SELECT
+		Name,
+		Address,
+		LastSeenTime,
+		Uuid
+		FROM
+		OtherDevices
+			''')
+		
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			logfunc(f'Bluetooth Other function executing')
+			with open(reportfolderbase+'Bluetooth/Bluetooth Other.html', 'w', encoding='utf8') as f:
+				f.write('<html><body>')
+				f.write('<h2> Bluetooth Other Devices report</h2>')
+				f.write(f'Bluetooth Other Devices total: {usageentries}<br>')
+				f.write(f'Bluetooth Other Devices location: {tempf}/com.apple.MobileBluetooth.ledevices.paired.db<br>')
+				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<br/>')
+				f.write('')
+				f.write(f'<table>')
+				f.write(f'<tr><td>Name</td><td>Address</td><td>Last Seen Time</td><td>UUID</td></tr>')
+				for row in all_rows:
+					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td></tr>')
+				f.write(f'</table></body></html>')
+			logfunc(f'Bluetooth Other function completed')
+		else:
+			logfunc('No Bluetooth Other Devices available')
+	except:
+		logfunc('Error on Blueetooth Other Devices function')		
+	logfunc(f'Bluetooth function completed')
 	
 	
