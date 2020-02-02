@@ -3421,7 +3421,6 @@ def confaccts(filefound):
 				for key, val in pl.items():
 					f.write(f'<tr><td>{key}</td><td>{val}</td></tr>')
 			f.write(f'</table></body></html>')
-			logfunc(f'Config Accounts function completed')
 	except:
 		logfunc('Error in Config Accounts function.')
 	logfunc('Config Accounts function completed.')
@@ -3685,3 +3684,57 @@ def mailprotect(filefound):
 		logfunc('Support for iOS 13 Protected Index Envelope emails will be added soon.')
 	
 	logfunc(f'Protected Index Envelope emails function completed')
+	
+def screentime(filefound):
+	try:
+		if os.path.isdir(reportfolderbase+'Screen Time/'):
+			pass
+		else:
+			os.makedirs(reportfolderbase+'Screen Time/')
+	except:
+		logfunc('Error creating screentime() report directory')
+	
+	try:
+		logfunc(f'Screen Time App Usage function executing')
+		tempf, end = os.path.split(filefound[0])
+		db = sqlite3.connect(tempf+'/RMAdminStore-Local.sqlite')
+		cursor = db.cursor()
+		
+		cursor.execute('''SELECT
+			ZUSAGETIMEDITEM.ZBUNDLEIDENTIFIER,
+			ZUSAGETIMEDITEM.ZDOMAIN,
+			ZUSAGETIMEDITEM.ZTOTALTIMEINSECONDS,
+			DATETIME(ZUSAGEBLOCK.ZSTARTDATE + 978307200, 'UNIXEPOCH', 'localtime') as startdate,
+			DATETIME(ZUSAGEBLOCK.ZLASTEVENTDATE + 978307200, 'UNIXEPOCH', 'localtime') as endate
+			from ZUSAGEBLOCK, ZUSAGETIMEDITEM, ZUSAGECATEGORY
+			where ZUSAGEBLOCK.Z_PK = ZUSAGECATEGORY.ZBLOCK and 
+			ZUSAGECATEGORY.Z_PK = ZUSAGETIMEDITEM.ZCATEGORY
+			order by ZBUNDLEIDENTIFIER
+			''')
+		
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			with open(reportfolderbase+'Screen Time/App Usage.html', 'w', encoding='utf8') as f:
+				f.write('<html><body>')
+				f.write('<h2> Screen Time App Usage report</h2>')
+				f.write(f'Screen Time App Usage total: {usageentries}<br>')
+				f.write(f'Screen Time App Usage  location: {tempf}/RMAdminStore-Local.sqlite <br>')
+				f.write(f'Timestamps are LOCALTIME<br>')
+				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<br/>')
+				f.write('')
+				f.write(f'<table>')
+				f.write(f'<tr><td>Bundle ID</td><td>Domain</td><td>Total Time Secs</td><td>Start Date</td><td>End Date</td></tr>')
+				for row in all_rows:
+					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td></tr>')
+				f.write(f'</table></body></html>')
+		else:
+			logfunc('No Screen Time App Usage available')
+	except:
+		logfunc('Error on Screen Time App Usage function')
+	logfunc(f'Screen Time App Usage function completed')
+	
+	
+	
+	

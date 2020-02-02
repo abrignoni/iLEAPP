@@ -95,12 +95,13 @@ while True:
 				'dbbuff':'*AggregateDictionary/dbbuffer',
 				'confaccts':'*com.apple.accounts.exists.plist',
 				'calendar':'*Calendar.sqlitedb',
-				'mailprotect':'*private/var/mobile/Library/Mail/* Index*'}
+				'mailprotect':'*private/var/mobile/Library/Mail/* Index*',
+				'screentime': '*/Library/Application Support/com.apple.remotemanagementd/RMAdminStore*'}
 	'''
 	tosearch = {'mib':'*mobile_installation.log.*', 'iconstate':'*SpringBoard/IconState.plist', 'lastbuild':'*LastBuildInfo.plist', 'iOSNotifications11':'*PushStore*', 'iOSNotifications12':'*private/var/mobile/Library/UserNotifications*',
 		'wireless':'*wireless/Library/Preferences/com.apple.*','knowledgec':'*CoreDuet/Knowledge/knowledgeC.db','applicationstate':'*pplicationState.db*', 'conndevices':'*/iTunes_Control/iTunes/iTunesPrefs', 'calhist':'*CallHistory.storedata', 'smschat':'*sms.db', 'safari':'*History.db','queryp':'*query_predictions.db','powerlog':'*CurrentPowerlog.PLSQL','accs':'*Accounts3.sqlite','medlib':'*MediaLibrary.sqlitedb', 'datausage':'*DataUsage.sqlite', 'delphotos':'*Photos.sqlite', 'timezone':'*mobile/Library/Preferences/com.apple.preferences.datetime.plist', 'bkupstate':'*/com.apple.MobileBackup.plist', 'mobilact':'*mobileactivationd.log.*', 'healthdb':'*healthdb_secure.sqlite','datark':'*Library/Lockdown/data_ark.plist'}
 	
-	tosearch = {'mailprotect':'*private/var/mobile/Library/Mail/* Index*'}
+	tosearch = {'screentime': '*/Library/Application Support/com.apple.remotemanagementd/RMAdminStore*'}
 	'''
 			
 	os.makedirs(reportfolderbase)

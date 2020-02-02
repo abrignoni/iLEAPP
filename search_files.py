@@ -12,7 +12,7 @@ def search(pathto, filename):
 	return list
 
 def searchtar(t, val, reportfolderbase):
-	temp = reportfolderbase+'temp'
+	temp = reportfolderbase+'temp/'
 	pathlist = []
 	for member in t.getmembers():
 		if fnmatch.fnmatch(member.name, val):
