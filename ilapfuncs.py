@@ -2858,6 +2858,7 @@ def queryp(filefound):
 
 def powerlog(filefound):
 	os.makedirs(reportfolderbase+'Powerlog/')
+	logfunc('Powerlog function executing')
 	try:
 		db = sqlite3.connect(filefound[0])
 		cursor = db.cursor()
@@ -3066,7 +3067,47 @@ def powerlog(filefound):
 				logfunc('No Powerlog App Deletion Events available')
 	except:
 		logfunc('Error in Powerlog App Deletion Events Section.')
+	
+	try:
+		db = sqlite3.connect(filefound[0])
+		cursor = db.cursor()
+		cursor.execute('''select 
+		ID,
+		datetime(timestamp, 'UNIXEPOCH', 'LOCALTIME') as timestart,
+		datetime(timestampEnd, 'UNIXEPOCH', 'LOCALTIME') as timeend,
+		ProcessName,
+		CellIn,
+		CellOut,
+		WifiIn,
+		WifiOut
+		FROM
+		PLProcessNetworkAgent_EventInterval_UsageDiff
+		''')
 
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			logfunc(f'Powerlog Network Data executing')
+			with open(reportfolderbase+'Powerlog/Network Data.html', 'w', encoding='utf8') as f:
+				f.write('<html><body>')
+				f.write('<h2> Powerlog Network Data report</h2>')
+				f.write(f'Powerlog Network Data entries: {usageentries}<br>')
+				f.write(f'Powerlog Network Data database located at: {filefound[0]}<br>')
+				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<br/>')
+				f.write('')
+				f.write(f'<table>')
+				f.write(f'<tr><td>ID</td><td>Time Start</td><td>Time End</td><td>Process Name</td><td>Mobile Bytes In</td><td>Mobile Bytes Out</td><td>WiFi Bytes In</td><td>WiFi Out</td></tr>')
+				for row in all_rows:
+					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td></tr>')
+				f.write(f'</table></body></html>')
+				logfunc(f'Powerlog Network Data function completed')
+		else:
+				logfunc('No Powerlog Network Data available')
+	except:
+		logfunc('Error in Powerlog Network Data Section.')
+	logfunc('Powerlog function completed.')
+	
 def delphotos(filefound):
 	db = sqlite3.connect(filefound[0])
 	cursor = db.cursor()
@@ -3848,8 +3889,44 @@ def screentime(filefound):
 	except:
 		logfunc('Error on Screen Time Core Device function')		
 	
+	try:
+		tempf, end = os.path.split(filefound[0])
+		db = sqlite3.connect(tempf+'/RMAdminStore-Local.sqlite')
+		cursor = db.cursor()
+		
+		cursor.execute('''SELECT
+		ZCLOUDSYNCENABLED,
+		ZSCREENTIMEENABLED
+		FROM
+		ZSCREENTIMESETTINGS
+			''')
+		
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			logfunc(f'Screen Time Core Enabled Settings executing')
+			with open(reportfolderbase+'Screen Time/Core Enabled Settings.html', 'w', encoding='utf8') as f:
+				f.write('<html><body>')
+				f.write('<h2> Screen Time Enabled Settings report</h2>')
+				f.write(f'Screen Time Enabled Settings total: {usageentries}<br>')
+				f.write(f'Screen Time Enabled Settings data location: {tempf}/RMAdminStore-Local.sqlite <br>')
+				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<br/>')
+				f.write('')
+				f.write(f'<table>')
+				f.write(f'<tr><td>Is Cloud Sync?</td><td>Is Screen Time?</td></tr>')
+				for row in all_rows:
+					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td></tr>')
+				f.write(f'</table></body></html>')
+		else:
+			logfunc('No Screen Time Enabled Settings available')
+		logfunc(f'Screen Time Enabled Settings function completed')
+	except:
+		logfunc('Error on Screen Time Enabled Settings function')
 	logfunc(f'Screen Time function completed')
 	
-	
+def search(filefound):
+	for x in filefound:
+		print(x)
 	
 	
