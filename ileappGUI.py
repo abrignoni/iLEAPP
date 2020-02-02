@@ -97,9 +97,9 @@ while True:
 				'calendar':'*Calendar.sqlitedb',
 				'mailprotect':'*private/var/mobile/Library/Mail/* Index*',
 				'screentime': '*/Library/Application Support/com.apple.remotemanagementd/RMAdminStore*'}
-	'''	
-	tosearch = {'search': '*restrictionspassword.plist'}
 	'''
+	tosearch = {'searchs': '*com.apple.MobileBluetooth*'}
+	'''	
 			
 	os.makedirs(reportfolderbase)
 	os.makedirs(reportfolderbase+'Script Logs')
