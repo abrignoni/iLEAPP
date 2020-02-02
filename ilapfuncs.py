@@ -3695,7 +3695,7 @@ def screentime(filefound):
 		logfunc('Error creating screentime() report directory')
 	
 	try:
-		logfunc(f'Screen Time App Usage function executing')
+		logfunc(f'Screen Time function executing')
 		tempf, end = os.path.split(filefound[0])
 		db = sqlite3.connect(tempf+'/RMAdminStore-Local.sqlite')
 		cursor = db.cursor()
@@ -3715,6 +3715,7 @@ def screentime(filefound):
 		all_rows = cursor.fetchall()
 		usageentries = len(all_rows)
 		if usageentries > 0:
+			logfunc(f'Screen Time App Usage function executing')
 			with open(reportfolderbase+'Screen Time/App Usage.html', 'w', encoding='utf8') as f:
 				f.write('<html><body>')
 				f.write('<h2> Screen Time App Usage report</h2>')
@@ -3731,9 +3732,117 @@ def screentime(filefound):
 				f.write(f'</table></body></html>')
 		else:
 			logfunc('No Screen Time App Usage available')
+		logfunc(f'Screen Time App Usage function completed')
 	except:
 		logfunc('Error on Screen Time App Usage function')
-	logfunc(f'Screen Time App Usage function completed')
+	
+	try:
+		tempf, end = os.path.split(filefound[0])
+		db = sqlite3.connect(tempf+'/RMAdminStore-Local.sqlite')
+		cursor = db.cursor()
+		
+		cursor.execute('''SELECT
+			ZBUNDLEIDENTIFIER,
+			ZUNIQUEIDENTIFIER
+			from ZINSTALLEDAPP
+			''')
+		
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			logfunc(f'Screen Time Installed Apps function executing')
+			with open(reportfolderbase+'Screen Time/Installed Apps.html', 'w', encoding='utf8') as f:
+				f.write('<html><body>')
+				f.write('<h2> Screen Time Installed Apps report</h2>')
+				f.write(f'Screen Time Installed Apps total: {usageentries}<br>')
+				f.write(f'Screen Time Installed Apps location: {tempf}/RMAdminStore-Local.sqlite <br>')
+				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<br/>')
+				f.write('')
+				f.write(f'<table>')
+				f.write(f'<tr><td>Bundle ID</td><td>Unique ID</td></tr>')
+				for row in all_rows:
+					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td></tr>')
+				f.write(f'</table></body></html>')
+		else:
+			logfunc('No Screen Time Installed Apps available')
+		logfunc(f'Screen Time Installed Apps function completed')
+	except:
+		logfunc('Error on Screen Time App Usage function')	
+		
+	try:
+		tempf, end = os.path.split(filefound[0])
+		db = sqlite3.connect(tempf+'/RMAdminStore-Local.sqlite')
+		cursor = db.cursor()
+		
+		cursor.execute('''SELECT
+		ZAPPLEID,
+		ZFAMILYNAME,
+		ZGIVENNAME,
+		ZFAMILYMEMBERTYPE,
+		ZISPARENT,
+		ZISFAMILYORGANIZER
+		from ZCOREUSER
+			''')
+		
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			logfunc(f'Screen Time Core User function executing')
+			with open(reportfolderbase+'Screen Time/Core User.html', 'w', encoding='utf8') as f:
+				f.write('<html><body>')
+				f.write('<h2> Screen Time Core User report</h2>')
+				f.write(f'Screen Time Core User total: {usageentries}<br>')
+				f.write(f'Screen Time Core User location: {tempf}/RMAdminStore-Local.sqlite <br>')
+				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<br/>')
+				f.write('')
+				f.write(f'<table>')
+				f.write(f'<tr><td>Apple ID</td><td>Family Name</td><td>Given Name</td><td>Family Member Type</td><td>Is Parent</td><td>Is Fam Organizer</td></tr>')
+				for row in all_rows:
+					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td></tr>')
+				f.write(f'</table></body></html>')
+		else:
+			logfunc('No Screen Time Core User available')
+		logfunc(f'Screen Time Core User function completed')
+	except:
+		logfunc('Error on Screen Time Core User function')		
+	
+	try:
+		tempf, end = os.path.split(filefound[0])
+		db = sqlite3.connect(tempf+'/RMAdminStore-Local.sqlite')
+		cursor = db.cursor()
+		
+		cursor.execute('''SELECT
+		ZNAME,
+		ZIDENTIFIER
+		FROM ZCOREDEVICE
+			''')
+		
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			logfunc(f'Screen Time Core Device function executing')
+			with open(reportfolderbase+'Screen Time/Core Device.html', 'w', encoding='utf8') as f:
+				f.write('<html><body>')
+				f.write('<h2> Screen Time Core Device report</h2>')
+				f.write(f'Screen Time Core Device total: {usageentries}<br>')
+				f.write(f'Screen Time Core Device location: {tempf}/RMAdminStore-Local.sqlite <br>')
+				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<br/>')
+				f.write('')
+				f.write(f'<table>')
+				f.write(f'<tr><td>Name</td><td>Identifier</td></tr>')
+				for row in all_rows:
+					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td></tr>')
+				f.write(f'</table></body></html>')
+		else:
+			logfunc('No Screen Time Core Device available')
+		logfunc(f'Screen Time Core Device function completed')
+	except:
+		logfunc('Error on Screen Time Core Device function')		
+	
+	logfunc(f'Screen Time function completed')
 	
 	
 	
