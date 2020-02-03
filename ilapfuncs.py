@@ -1018,7 +1018,7 @@ def knowledgec(filefound):
 	logfunc(f'Triage report completed.')
 	logfunc('Incepted bplist extractions in KnowledgeC.db completed')
 	logfunc("")
-	logfunc(f'KnowledgeC.db App Usage executing')
+	logfunc(f'KnowledgeC App Usage executing')
 
 	#outpath = reportfolderbase+'KnowledgeC App Use/'
 
@@ -1328,6 +1328,7 @@ def knowledgec(filefound):
 		logfunc(f'KnowledgeC Device Locked completed')
 
 	logfunc(f'KnowledgeC Plugged In executing')
+	
 	cursor.execute('''
 	SELECT
 			CASE
@@ -1379,6 +1380,54 @@ def knowledgec(filefound):
 			f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td></tr>')
 		f.write(f'</table></body></html>')
 		logfunc(f'KnowledgeC Plugged In completed')
+
+	
+	if iOSversion == ('13') or ('12'):
+		logfunc(f'KnowledgeC Serialized Interaction executing')
+		
+		cursor.execute('''
+		select 
+		ZSTRUCTUREDMETADATA.Z_PK  as ID,
+		ZSTRUCTUREDMETADATA.Z_DKINTENTMETADATAKEY__INTENTCLASS,
+		ZSTRUCTUREDMETADATA.Z_DKINTENTMETADATAKEY__INTENTVERB,
+		datetime(ZOBJECT.ZSTARTDATE+ 978307200, 'UNIXEPOCH')  as timestam,
+		ZOBJECT.ZVALUESTRING,
+		ZOBJECT.ZSTREAMNAME,
+		ZSTRUCTUREDMETADATA.Z_DKINTENTMETADATAKEY__SERIALIZEDINTERACTION
+		from ZSTRUCTUREDMETADATA, ZOBJECT
+		where ZSTRUCTUREDMETADATA.Z_DKINTENTMETADATAKEY__SERIALIZEDINTERACTION not NULL
+		and ZSTRUCTUREDMETADATA.Z_PK = ZOBJECT.ZSTRUCTUREDMETADATA
+		''')
+
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			os.mkdir(reportfolderbase+'KnowledgeC/expbplists/')
+			with open(reportfolderbase+'KnowledgeC/StrucMetadataCombined.html', 'w', encoding='utf8') as f:
+				f.write('<html><body>')
+				f.write('<h2>KnowledgeC Serialize Intents Bplists report</h2>')
+				f.write(f'KnowledgeC Serialize Intents Bplists entries: {usageentries}<br>')
+				f.write(f'KnowledgeC Serialize Intents Bplists located at: {filefound[0]}<br>')
+				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<br/>')
+				f.write('')
+				f.write(f'<table>')
+				f.write(f'<tr><td>ID</td><td>Intent Class</td><td>Intent Verb</td><td>Timestamp</td><td>String</td><td>Stream</td><td>Serialized Interaction bplist</td></tr>')
+				for row in all_rows:
+					binfile = outpath+'/clean/C_Z_PK'+str(row[0])+'.bplist_nsdata.bin'
+					if os.path.isfile(binfile):
+						messages = ParseProto(binfile)
+						messages_json_dump = json.dumps(messages, indent=4, sort_keys=True, ensure_ascii=False)
+						parsedNSData = str(messages_json_dump).encode(encoding='UTF-8',errors='ignore')
+					else:
+						parsedNSData = str(row[6])
+					
+					
+					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td><pre id=\"json\">'+str(parsedNSData).replace('\\n', '<br>')+'</pre></td></tr>')
+				f.write(f'</table></body></html>')
+			logfunc(f'KnowledgeC Serialized Interaction completed')
+		else:
+			logfunc(f'No KnowledgeC Serialized Interaction files available')
 
 def mib(filefound):
 	logfunc(f'Mobile Installation Logs function executing.')
