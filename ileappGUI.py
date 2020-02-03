@@ -99,8 +99,9 @@ while True:
 				'screentime': '*/Library/Application Support/com.apple.remotemanagementd/RMAdminStore*',
 				'bluetooths': '*/Library/Database/com.apple.MobileBluetooth*'}
 	'''
-	tosearch = {'bluetooths': '*/Library/Database/com.apple.MobileBluetooth*'}
-	'''	
+	tosearch = {'lastbuild': '*LastBuildInfo.plist',
+				'mailprotect':'*private/var/mobile/Library/Mail/* Index*'}
+	'''
 			
 	os.makedirs(reportfolderbase)
 	os.makedirs(reportfolderbase+'Script Logs')

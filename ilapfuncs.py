@@ -3725,11 +3725,61 @@ def mailprotect(filefound):
 			logfunc('Error on Protected Index Envelope emails function')
 		
 	if iOSversion == '13':
-		logfunc('Support for iOS 13 Protected Index Envelope emails will be added soon.')
+		try:
+			if os.path.isdir(reportfolderbase+'Emails/'):
+				pass
+			else:
+				os.makedirs(reportfolderbase+'Emails/')
+		except:
+			logfunc('Error creating mailprotect() report directory')
 		
-		#add tempf code
-		#if os.path.isfile(tempf+'/emails.db'):
-		#	os.remove(tempf+'/emails.db')
+		try:
+			tempf, end = os.path.split(filefound[0])
+			
+			db = sqlite3.connect(tempf+'/Envelope Index')
+			db.execute(f'ATTACH DATABASE "{tempf}/Protected Index" AS PI')
+
+			cursor = db.cursor()
+			cursor.execute('''
+			SELECT
+			datetime(main.messages.date_sent, 'UNIXEPOCH', 'localtime') as datesent,
+			datetime(main.messages.date_received, 'UNIXEPOCH', 'localtime') as datereceived,
+			PI.addresses.address,
+			PI.addresses.comment,
+			PI.subjects.subject,
+			PI.summaries.summary,
+			main.messages.read,
+			main.messages.flagged,
+			main.messages.deleted,
+			main.mailboxes.url
+			from main.mailboxes, main.messages, PI.subjects, PI.addresses, PI.summaries
+			where main.messages.subject = PI.subjects.ROWID 
+			and main.messages.sender = PI.addresses.ROWID 
+			and main.messages.summary = PI.summaries.ROWID
+			and main.mailboxes.ROWID = main.messages.mailbox
+			''')
+			
+			all_rows = cursor.fetchall()
+			usageentries = len(all_rows)
+			if usageentries > 0:
+				with open(reportfolderbase+'Emails/Protected Index Env.html', 'w', encoding='utf8') as f:
+					f.write('<html><body>')
+					f.write('<h2> Protected Index and Envelope report</h2>')
+					f.write(f'Protected Index and Envelope emails total: {usageentries}<br>')
+					f.write(f'Protected Index and Envelope emails location: {tempf} -> Protected Envelope and Protected Index sqlite databases<br>')
+					f.write(f'Timestamps are LOCALTIME<br>')
+					f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+					f.write('<br/>')
+					f.write('')
+					f.write(f'<table>')
+					f.write(f'<tr><td>Date Sent</td><td>Date Received</td><td>Address</td><td>Comment</td><td>Subject</td><td>Summary</td><td>Read?</td><td>Flagged?</td><td>Deleted?</td><td>Mailbox</td></tr>')
+					for row in all_rows:
+						f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td><td>{row[9]}</td></tr>')
+					f.write(f'</table></body></html>')
+			else:
+				logfunc('No Protected Index Envelope emails available')
+		except:
+			logfunc('Error on Protected Index Envelope emails function')
 			
 	logfunc(f'Protected Index Envelope emails function completed')
 	
@@ -3742,8 +3792,8 @@ def screentime(filefound):
 	except:
 		logfunc('Error creating screentime() report directory')
 	
+	logfunc(f'Screen Time function executing')
 	try:
-		logfunc(f'Screen Time function executing')
 		tempf, end = os.path.split(filefound[0])
 		db = sqlite3.connect(tempf+'/RMAdminStore-Local.sqlite')
 		cursor = db.cursor()
@@ -3919,9 +3969,9 @@ def screentime(filefound):
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td></tr>')
 				f.write(f'</table></body></html>')
+			logfunc(f'Screen Time Enabled Settings function completed')
 		else:
-			logfunc('No Screen Time Enabled Settings available')
-		logfunc(f'Screen Time Enabled Settings function completed')
+			logfunc('No Screen Time Core Enabled Settings available')
 	except:
 		logfunc('Error on Screen Time Enabled Settings function')
 	logfunc(f'Screen Time function completed')
@@ -4014,4 +4064,6 @@ def bluetooths(filefound):
 		logfunc('Error on Blueetooth Other Devices function')		
 	logfunc(f'Bluetooth function completed')
 	
-	
+def identser(filefound):
+	for x in filefound:
+		print(filefound)	
