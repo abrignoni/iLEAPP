@@ -4113,6 +4113,78 @@ def bluetooths(filefound):
 		logfunc('Error on Blueetooth Other Devices function')		
 	logfunc(f'Bluetooth function completed')
 	
-def identser(filefound):
-	for x in filefound:
-		print(filefound)	
+def whatsapp(filefound):
+	try:
+		if os.path.isdir(reportfolderbase+'Whatsapp/'):
+			pass
+		else:
+			os.makedirs(reportfolderbase+'Whatsapp/')
+	except:
+		logfunc('Error creating whatsapp() report directory')
+	
+	logfunc(f'Whatsapp function executing')
+	try:
+		db = sqlite3.connect(filefound[0])
+		cursor = db.cursor()
+		cursor.execute(''' SELECT
+		Z_PK, ZPARTNERNAME, ZCONTACTJID, ZLASTMESSAGEDATE
+		from ZWACHATSESSION
+		''')
+
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			f = open(reportfolderbase+'Whatsapp/Chats.html', 'w', encoding='utf8')
+				
+			for row in all_rows:
+				cursor = db.cursor()
+				cursor.execute('''SELECT
+				ZWAMESSAGE.Z_PK,
+				case 
+					when ZWAMESSAGE.ZISFROMME = 1 then "Sent to"
+					when ZWAMESSAGE.ZISFROMME = 0 then "Received from"
+				end as "directionality",
+				datetime(ZWAMESSAGE.ZMESSAGEDATE+ 978307200, 'UNIXEPOCH'),
+				ZWAMESSAGE.ZFROMJID,
+				ZWAMESSAGE.ZPUSHNAME,
+				ZWAMESSAGE.ZTOJID,
+				ZWAMESSAGE.ZTEXT
+				from ZWACHATSESSION, ZWAMESSAGE
+				where ZWACHATSESSION.z_pk = %s  and zwamessage.ZCHATSESSION = %s''' % (row[0], row[0]))
+				all_rows2 = cursor.fetchall()
+				usageentries2 = len(all_rows2)
+				if usageentries2 > 0:
+					f.write('<html><body>')
+					f.write('<h2> Whatsapp chats report</h2>')
+					f.write(f'Whatsapp chats total conversations: {usageentries2}<br>')
+					f.write(f'Whatsapp chats  location: {filefound[0]}<br>')
+					f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+					f.write('<br/>')
+					f.write('')
+					f.write(f'<table>')
+					f.write(f'<tr><td>ID</td><td>Timestamp</td><td>Direction</td><td>Partner</td><td>Message</td><td>From JID</td><td>Name</td><td>To JID</td><td>Media</td></tr>')
+					for row2 in all_rows2:
+					
+						cursor = db.cursor()
+						cursor.execute(''' select
+						ZWAMEDIAITEM.ZVCARDSTRING,
+						ZWAMEDIAITEM.ZMEDIALOCALPATH,
+						ZWAMEDIAITEM.ZFILESIZE
+						 from ZWAMEDIAITEM
+						where ZWAMEDIAITEM.ZMESSAGE = %s
+						''' % (row2[0]))
+						all_rows3 = cursor.fetchall()
+						usageentries3 = len(all_rows3)
+						if usageentries3 > 0:
+							for row3 in all_rows3:
+								#print all the data from all_rows2 and all_rows3
+								
+								f.write(f'<tr><td>{row2[0]}</td><td>{row2[2]}</td><td>{row2[1]}</td><td>{row[1]}</td><td>{row2[6]}</td><td>{row2[3]}</td><td>{row2[4]}</td><td>{row2[5]}</td><td>{row3[1]}</td></tr>')
+						else:
+							#print only the date from all_rows2	
+							f.write(f'<tr><td>{row2[0]}</td><td>{row2[2]}</td><td>{row2[1]}</td><td>{row[1]}</td><td>{row2[6]}</td><td>{row2[3]}</td><td>{row2[4]}</td><td>{row2[5]}</td><td> </td></tr>')
+					f.write(f'</table></body></html>')
+			f.close()
+	except:
+		logfunc('Error on Whatsapp function')		
+	logfunc(f'Whatsapp function completed')	

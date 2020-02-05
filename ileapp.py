@@ -58,7 +58,8 @@ tosearch = {'mib':'*mobile_installation.log.*',
 			'calendar':'*Calendar.sqlitedb',
 			'mailprotect':'*private/var/mobile/Library/Mail/* Index*',
 			'screentime': '*/Library/Application Support/com.apple.remotemanagementd/RMAdminStore*',
-			'bluetooths': '*/Library/Database/com.apple.MobileBluetooth*'}
+			'bluetooths': '*/Library/Database/com.apple.MobileBluetooth*',
+			'whatsapp':'*ChatStorage.sqlite'}
 '''
 tosearch = {'ktx':'*.ktx*',}
 '''
