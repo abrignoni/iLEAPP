@@ -1429,6 +1429,57 @@ def knowledgec(filefound):
 		else:
 			logfunc(f'No KnowledgeC Serialized Interaction files available')
 
+
+	logfunc(f'KnowledgeC Siri Usage executing')
+	cursor.execute('''
+	SELECT
+	  ZOBJECT.ZVALUESTRING AS "APP NAME",  
+		CASE ZOBJECT.ZSTARTDAYOFWEEK 
+			WHEN "1" THEN "Sunday"
+			WHEN "2" THEN "Monday"
+			WHEN "3" THEN "Tuesday"
+			WHEN "4" THEN "Wednesday"
+			WHEN "5" THEN "Thursday"
+			WHEN "6" THEN "Friday"
+			WHEN "7" THEN "Saturday"
+		END "DAY OF WEEK",
+		ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
+		DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
+		DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') AS "ENTRY CREATION",
+		ZOBJECT.ZUUID AS "UUID", 
+		ZOBJECT.Z_PK AS "ZOBJECT TABLE ID" 
+	FROM
+		ZOBJECT 
+		LEFT JOIN
+			ZSTRUCTUREDMETADATA 
+			ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
+		LEFT JOIN
+			ZSOURCE 
+			ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
+	WHERE
+		ZSTREAMNAME =  "/siri/ui" 
+	''')
+
+	all_rows = cursor.fetchall()
+	usageentries = len(all_rows)
+	if usageentries > 0:
+		with open(reportfolderbase+'KnowledgeC/Siri Usage.html', 'w', encoding='utf8') as f:
+			f.write('<html><body>')
+			f.write('<h2>KnowledgeC Siri Usage report</h2>')
+			f.write(f'KnowledgeC Siri Usage entries: {usageentries}<br>')
+			f.write(f'KnowledgeC Siri Usage located at: {filefound[0]}<br>')
+			f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+			f.write('<br/>')
+			f.write('')
+			f.write(f'<table>')
+			f.write(f'<tr><td>App Name</td><td>Weekday</td><td>GMT Offset</td><td>Start</td><td>Entry Creation</td><td>UUID</td><td>Table ID</td></tr>')
+			for row in all_rows:
+				f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td></tr>')
+			f.write(f'</table></body></html>')
+		logfunc(f'KnowledgeC Siri Usage completed')
+	else:
+		logfunc(f'No KnowledgeC Siri Usage files available')
+
 def mib(filefound):
 	logfunc(f'Mobile Installation Logs function executing.')
 	#initialize counters
