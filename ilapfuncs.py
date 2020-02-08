@@ -4373,7 +4373,7 @@ def wapcontact(filefound):
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td></tr>')
 		else:
-			logfunc('No Whatsapp contacts available')	
+			logfunc('No Whatsapp Contacts available')	
 	except:
-		logfunc('Error on Whatsapp contacts function')		
-	logfunc(f'Whatsapp contacts function completed')
+		logfunc('Error on Whatsapp Contacts function')		
+	logfunc(f'Whatsapp Contacts function completed')
