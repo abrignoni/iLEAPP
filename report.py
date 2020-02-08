@@ -12,6 +12,15 @@ def report(reportfolderbase, time, extracttype, pathto):
 	<link rel='stylesheet' type='text/css' href='report.css'>
 	<title>osTriage report menu</title>
 	</head>
+	<style> a {   
+			color: blue;   
+		}
+
+		a[tabindex]:focus {
+			color:red;
+			outline: none;
+		}
+	</style>
 	<body class='menuBackground'>
 	<div class='menuBackgroundOverlay'>'''
 
@@ -45,7 +54,7 @@ def report(reportfolderbase, time, extracttype, pathto):
 						filedatahtml.write('<div id="button">')
 						filedatahtml.write(f'<div id="menuSub">iOS 12+ Notifications</div>')
 						filedatahtml.write('<ul>')
-						filedatahtml.write(f'<li class="ios12" ><a href="../{SectionHeader}/{tail}" target="content">{SectionHeader}</a></li>')
+						filedatahtml.write(f'<li class="ios12" ><a href="../{SectionHeader}/{tail}" tabindex="1" target="content">{SectionHeader}</a></li>')
 					else:
 						pass		
 				elif 'iOS 11 Notifications' in fullpath:
@@ -56,9 +65,9 @@ def report(reportfolderbase, time, extracttype, pathto):
 						filedatahtml.write('<div id="button">')
 						filedatahtml.write(f'<div id="menuSub">iOS 11 Notifications</div>')
 						filedatahtml.write('<ul>')
-						filedatahtml.write(f'<li class="ios11" ><a href="../{SectionHeader}/{tail}" target="content">{SectionHeader}</a></li>')
+						filedatahtml.write(f'<li class="ios11" ><a href="../{SectionHeader}/{tail}" tabindex="1" target="content">{SectionHeader}</a></li>')
 					else:
-						filedatahtml.write(f'<li class="ios11" ><a href="../{SectionHeader}/{tail}" target="content">{SectionHeader}</a></li>')
+						filedatahtml.write(f'<li class="ios11" ><a href="../{SectionHeader}/{tail}" tabindex="1" target="content">{SectionHeader}</a></li>')
 				elif SectionHeader == '_elements':
 					pass
 				elif SectionHeader in mib:
@@ -74,7 +83,7 @@ def report(reportfolderbase, time, extracttype, pathto):
 						filedatahtml.write(f'<li class="{SectionHeader}" ><a href="../Mobile_Installation_Logs/{SectionHeader}/{tail}" target="content"> {tail}</a></li>')
 				else:
 					if control == SectionHeader:
-						filedatahtml.write(f'<li class="{SectionHeader}" ><a href="../{SectionHeader}/{tail}" target="content"> {tail}</a></li>')
+						filedatahtml.write(f'<li class="{SectionHeader}" ><a href="../{SectionHeader}/{tail}" tabindex="1" target="content"> {tail}</a></li>')
 						#print(fullpath)
 					else:
 						control = SectionHeader
@@ -83,7 +92,7 @@ def report(reportfolderbase, time, extracttype, pathto):
 						filedatahtml.write('<div id="button">')
 						filedatahtml.write(f'<div id="menuSub">{SectionHeader}</div>')
 						filedatahtml.write('<ul>')
-						filedatahtml.write(f'<li class="{SectionHeader}" ><a href="../{SectionHeader}/{tail}" target="content"> {tail}</a></li>')
+						filedatahtml.write(f'<li class="{SectionHeader}" ><a href="../{SectionHeader}/{tail}" tabindex="1" target="content"> {tail}</a></li>')
 				
 	filedatahtml.write('</ul>')
 	filedatahtml.write('</div>')
