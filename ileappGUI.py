@@ -98,9 +98,11 @@ while True:
 				'mailprotect':'*private/var/mobile/Library/Mail/* Index*',
 				'screentime': '*/Library/Application Support/com.apple.remotemanagementd/RMAdminStore*',
 				'bluetooths': '*/Library/Database/com.apple.MobileBluetooth*',
-				'whatsapp':'*ChatStorage.sqlite'}
+				'whatsapp':'*ChatStorage.sqlite',
+				'ipscl':'*.ips',
+				'wapcontact':'*ContactsV2.sqlite'}
 	'''
-	tosearch = {'whatsapp':'*ChatStorage.sqlite'}
+	tosearch = {'wapcontact':'*ContactsV2.sqlite'}
 	'''
 			
 	os.makedirs(reportfolderbase)

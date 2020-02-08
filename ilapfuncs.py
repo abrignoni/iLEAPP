@@ -74,11 +74,11 @@ def aggdict(filefound):
 				f.write('<h2> Passcode Type report</h2>')
 				f.write(f'Passcode Type entries: {usageentries}<br>')
 				f.write(f'Passcode Type located at: {filefound[0]}<br>')
-				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 				f.write('<br/>')
 				f.write('')
-				f.write(f'<table>')
-				f.write(f'<tr><td>Timestamp</td><td>Key</td><td>Value</td><td>Passcode Type</td></tr>')
+				f.write(f'<table class="table sticky">')
+				f.write(f'<tr><th>Timestamp</th><th>Key</th><th>Value</th><th>Passcode Type</th></tr>')
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td></tr>')
 				f.write(f'</table></body></html>')
@@ -108,11 +108,11 @@ def aggdict(filefound):
 				f.write('<h2> Passcode Sucess-Fail report</h2>')
 				f.write(f'Passcode Sucess-Fail entries: {usageentries}<br>')
 				f.write(f'Passcode Sucess-Fail located at: {filefound[0]}<br>')
-				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 				f.write('<br/>')
 				f.write('')
-				f.write(f'<table>')
-				f.write(f'<tr><td>Timestamp</td><td>Key</td><td>Value</td></tr>')
+				f.write(f'<table class="table sticky">')
+				f.write(f'<tr><th>Timestamp</th><th>Key</th><th>Value</th></tr>')
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td></tr>')
 				f.write(f'</table></body></html>')
@@ -144,11 +144,11 @@ def aggdict(filefound):
 				f.write('<h2> Passcode Finger Template report</h2>')
 				f.write(f'Passcode Finger Template entries: {usageentries}<br>')
 				f.write(f'Passcode Finger Template located at: {filefound[0]}<br>')
-				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 				f.write('<br/>')
 				f.write('')
-				f.write(f'<table>')
-				f.write(f'<tr><td>Timestamp</td><td>Key</td><td>Value</td></tr>')
+				f.write(f'<table class="table sticky">')
+				f.write(f'<tr><th>Timestamp</th><th>Key</th><th>Value</th></tr>')
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td></tr>')
 				f.write(f'</table></body></html>')
@@ -179,11 +179,11 @@ def aggdict(filefound):
 				f.write('<h2> Scalars report</h2>')
 				f.write(f'Scalar entries: {usageentries}<br>')
 				f.write(f'Scalars located at: {filefound[0]}<br>')
-				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 				f.write('<br/>')
 				f.write('')
-				f.write(f'<table>')
-				f.write(f'<tr><td>Timestamp</td><td>Key</td><td>Value</td></tr>')
+				f.write(f'<table class="table sticky">')
+				f.write(f'<tr><th>Timestamp</th><th>Key</th><th>Value</th></tr>')
 				for row in all_rows:
 					key = textwrap.fill(row[1])
 					f.write(f'<tr><td>{row[0]}</td><td>{key}</td><td>{row[2]}</td></tr>')
@@ -220,11 +220,11 @@ def aggdict(filefound):
 				f.write('<h2> Distribution Keys report</h2>')
 				f.write(f'Distribution Keys entries: {usageentries}<br>')
 				f.write(f'Distribution Keys located at: {filefound[0]}<br>')
-				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 				f.write('<br/>')
 				f.write('')
-				f.write(f'<table>')
-				f.write(f'<tr><td>Day</td><td>Seconds in Day Offset</td><td>Key</td><td>Value</td><td>Table ID</td></tr>')
+				f.write(f'<table class="table sticky">')
+				f.write(f'<tr><th>Day</th><th>Seconds in Day Offset</th><th>Key</th><th>Value</th><th>Table ID</th></tr>')
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td></tr>')
 				f.write(f'</table></body></html>')
@@ -246,11 +246,11 @@ def dbbuff(filefound):
 			f.write('<html><body>')
 			f.write('<h2> DBbuffer report</h2>')
 			f.write(f'DBbuffer located at: {filefound[0]}<br>')
-			f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+			f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 			f.write('<br/>')
 			f.write('')
-			f.write(f'<table>')
-			f.write(f'<tr><td>Value</td><td>Value</td><td>Value</td><td>Value</td></tr>')
+			f.write(f'<table class="table sticky">')
+			f.write(f'<tr><th>Value</th><th>Value</th><th>Value</th><th>Value</th></tr>')
 			with open(filefound[0], 'r') as g:
 				for line in g.readlines():
 					line = line.strip()
@@ -272,11 +272,11 @@ def datark(filefound):
 			f.write('<html><body>')
 			f.write('<h2>Mobile Activation Report</h2>')
 			f.write(f'Data_ark.plist located at {filefound[0]}<br>')
-			f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+			f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 			f.write('<br/>')
 			f.write('')
-			f.write(f'<table>')
-			f.write(f'<tr><td>Key</td><td>Values</td></tr>')
+			f.write(f'<table class="table sticky">')
+			f.write(f'<tr><th>Key</th><th>Values</th></tr>')
 			with open(filefound[0], 'rb') as fp:
 				pl = plistlib.load(fp)
 				for key, val in pl.items():
@@ -415,9 +415,8 @@ def bkupstate(filefound):
 		filedatahtml = open(reportfolderbase+'SysDiagnose/BackupStateInfo.html', mode='a+')
 		filedatahtml.write('<html><body>')
 		filedatahtml.write('<h2>BackupStateInfo Report </h2>')
-		filedatahtml.write ('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
-		
-		filedatahtml.write('<table>')
+		filedatahtml.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
+		filedatahtml.write('<table class="table sticky">')
 		filedatahtml.write(f'<tr><td colspan = "2">BackupStateInfo Items</td></tr>')
 		
 		pl = plist # This code taken from https://github.com/cheeky4n6monkey/iOS_sysdiagnose_forensic_scripts/blob/master/sysdiagnose-mobilebackup.py
@@ -443,9 +442,9 @@ def bkupstate(filefound):
 		filedatahtml.write('</table></html>')
 		filedatahtml.write('<br>')
 		
-		filedatahtml.write('<table>')
+		filedatahtml.write('<table class="table sticky">')
 		filedatahtml.write(f'<tr><td colspan = "2">{filefound[0]}</td></tr>')
-		filedatahtml.write('<tr><td>Key</td><td>Value</td></tr>')
+		filedatahtml.write('<tr><th>Key</th><th>Value</th></tr>')
 		
 		
 		for key, val in plist.items():
@@ -491,11 +490,11 @@ def datausage(filefound):
 				f.write('<h2> Zliveusage report</h2>')
 				f.write(f'Zliveusage entries: {usageentries}<br>')
 				f.write(f'Zliveusage located at: {filefound[0]}<br>')
-				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 				f.write('<br/>')
 				f.write('')
-				f.write(f'<table>')
-				f.write(f'<tr><td>Process Timestamp</td><td>Process First Timestamp</td><td>Live Usage Timestamp</td><td>Bundle ID</td><td>Process Name</td><td>WIFI In</td><td>WIFI Out</td><td>WWAN IN</td><td>WWAN Out</td><td>Table ID</td></tr>')
+				f.write(f'<table class="table sticky">')
+				f.write(f'<tr><th>Process Timestamp</th><th>Process First Timestamp</th><th>Live Usage Timestamp</th><th>Bundle ID</th><th>Process Name</th><th>WIFI In</th><th>WIFI Out</th><th>WWAN IN</th><th>WWAN Out</th><th>Table ID</th></tr>')
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td><td>{row[9]}</td></tr>')
 				f.write(f'</table></body></html>')
@@ -527,11 +526,11 @@ def datausage(filefound):
 				f.write('<h2> Zprocess report</h2>')
 				f.write(f'Zprocess entries: {usageentries}<br>')
 				f.write(f'Zprocess located at: {filefound[0]}<br>')
-				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 				f.write('<br/>')
 				f.write('')
-				f.write(f'<table>')
-				f.write(f'<tr><tr><td>Process Timestamp</td><td>Process First Timestamp</td><td>Live Usage Timestamp</td><td>Bundle ID</td><td>Table ID</td></tr>')
+				f.write(f'<table class="table sticky">')
+				f.write(f'<tr><th>Process Timestamp</th><th>Process First Timestamp</th><th>Live Usage Timestamp</th><th>Bundle ID</th><th>Table ID</th></tr>')
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td></tr>')
 				f.write(f'</table></body></html>')
@@ -593,11 +592,11 @@ def medlib(filefound):
 				f.write('<h2> Media Library report</h2>')
 				f.write(f'Media Library entries: {usageentries}<br>')
 				f.write(f'Media Library located at: {filefound[0]}<br>')
-				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 				f.write('<br/>')
 				f.write('')
-				f.write(f'<table>')
-				f.write(f'<tr><td>Title</td><td>Media Type</td><td>File Format</td><td>File</td><td>Total Time (ms)</td><td>File Size</td><td>Year</td><td>Album Name</td><td>Artist</td><td>Composer</td><td>Genre</td><td>Artwork</td><td>Content Rating</td><td>Movie Information</td><td>Description</td><td>Track Number</td><td>Account ID</td><td>Date Purchased</td><td>Item ID</td><td>Purchase History ID</td><td>Copyright</td></tr>')
+				f.write(f'<table class="table sticky">')
+				f.write(f'<tr><th>Title</th><th>Media Type</th><th>File Format</th><th>File</th><th>Total Time (ms)</th><th>File Size</th><th>Year</th><th>Album Name</th><th>Artist</th><th>Composer</th><th>Genre</th><th>Artwork</th><th>Content Rating</th><th>Movie Information</th><th>Description</th><th>Track Number</th><th>Account ID</th><th>Date Purchased</th><th>Item ID</th><th>Purchase History ID</th><th>Copyright</th></tr>')
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td><td>{row[9]}</td><td>{row[10]}</td><td>{row[11]}</td><td>{row[12]}</td><td>{row[13]}</td><td>{row[14]}</td><td>{row[15]}</td><td>{row[16]}</td><td>{row[17]}</td><td>{row[18]}</td><td>{row[19]}</td><td>{row[20]}</td></tr>')
 				f.write(f'</table></body></html>')
@@ -639,11 +638,11 @@ def accs(filefound):
 				f.write('<h2> Account Data report</h2>')
 				f.write(f'Account Data entries: {usageentries}<br>')
 				f.write(f'Account Data located at: {filefound[0]}<br>')
-				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 				f.write('<br/>')
 				f.write('')
-				f.write(f'<table>')
-				f.write(f'<tr><td>Account Desc</td><td>Usermane</td><td>Timestamp</td><td>Description</td><td>Identifier</td><td>Bundle ID</td></tr>')
+				f.write(f'<table class="table sticky">')
+				f.write(f'<tr><th>Account Desc</th><th>Usermane</th><th>Timestamp</th><th>Description</th><th>Identifier</th><th>Bundle ID</th></tr>')
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td></tr>')
 				f.write(f'</table></body></html>')
@@ -768,11 +767,11 @@ def applicationstate(filefound):
 	filedatahtml = open(outpath+'Application State.html', mode='a+')
 	filedatahtml.write('<html><body>')
 	filedatahtml.write('<h2>iOS ApplicationState.db Report </h2>')
-	filedatahtml.write ('<style> table, th, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;}</style>')
+	filedatahtml.write ('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 	filedatahtml.write('<br/>')
-	filedatahtml.write('<table>')
+	filedatahtml.write('<table class="table sticky">')
 	filedatahtml.write(f'<tr><td colspan = "4">{apstatefiledb}</td></tr>')
-	filedatahtml.write('<tr><td>Bundle ID</td><td>Bundle Path</td><td>Sandbox Path</td></tr>')
+	filedatahtml.write('<tr><th>Bundle ID</th><th>Bundle Path</th><th>Sandbox Path</th></tr>')
 	
 		
 	for filename in glob.glob(outpath+'exported-clean/*.bplist'):	
@@ -897,7 +896,7 @@ def knowledgec(filefound):
 	h = open(outpath+'/StrucMetadata.html', 'w')	
 	h.write('<html><body>')
 	h.write('<h2>iOS ' + iOSversion + ' - KnowledgeC ZSTRUCTUREDMETADATA bplist report</h2>')
-	h.write ('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+	h.write ('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 	h.write('<br/>')
 
 	for filename in glob.glob(outpath+'/clean/*'+extension):	
@@ -1056,11 +1055,11 @@ def knowledgec(filefound):
 		f.write('<h2>iOS ' + iOSversion + ' - KnowledgeC App Usage report</h2>')
 		f.write(f'KnowledgeC App Usage entries: {usageentries}<br>')
 		f.write(f'KnowledgeC located at: {filefound[0]}<br>')
-		f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+		f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 		f.write('<br/>')
 		f.write('')
-		f.write(f'<table>')
-		f.write(f'<tr><td>Entry Creation</td><td>Day of Week</td><td>GMT Offset</td><td>Start</td><td>End</td><td>Usage in Seconds</td><td>ZSTREAMNAME</td><td>ZVALUESTRING</td></tr>')
+		f.write(f'<table class="table sticky">')
+		f.write(f'<tr><th>Entry Creation</th><th>Day of Week</th><th>GMT Offset</th><th>Start</th><th>End</th><th>Usage in Seconds</th><th>ZSTREAMNAME</th><th>ZVALUESTRING</th></tr>')
 		for row in all_rows:
 			ec = row[0]
 			dw = row[1]
@@ -1114,11 +1113,11 @@ def knowledgec(filefound):
 		f.write('<h2>iOS ' + iOSversion + ' - KnowledgeC App Activity report</h2>')
 		f.write(f'KnowledgeC App Activity entries: {usageentries}<br>')
 		f.write(f'KnowledgeC located at: {filefound[0]}<br>')
-		f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+		f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 		f.write('<br/>')
 		f.write('')
-		f.write(f'<table>')
-		f.write(f'<tr><td>Entry Creation</td><td>Day of Week</td><td>Start</td><td>End</td><td>ZSTREAMNAME</td><td>ZVALUESTRING</td><td>Activity Type</td><td>Title</td><td>Expiration Date</td><td>Content URL</td><td>Calendar Date</td><td>Calendar End Date</td></tr>')
+		f.write(f'<table class="table sticky">')
+		f.write(f'<tr><th>Entry Creation</th><th>Day of Week</th><th>Start</th><th>End</th><th>ZSTREAMNAME</th><th>ZVALUESTRING</th><th>Activity Type</th><th>Title</th><th>Expiration Date</th><th>Content URL</th><th>Calendar Date</th><th>Calendar End Date</th></tr>')
 		for row in all_rows:
 			ec = row[0]
 			dw = row[1]
@@ -1169,11 +1168,11 @@ def knowledgec(filefound):
 		f.write('<h2>iOS ' + iOSversion + ' - KnowledgeC App App in Focus report</h2>')
 		f.write(f'KnowledgeC App in Focus entries: {usageentries}<br>')
 		f.write(f'KnowledgeC located at: {filefound[0]}<br>')
-		f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+		f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 		f.write('<br/>')
 		f.write('')
-		f.write(f'<table>')
-		f.write(f'<tr><td>Bundle ID</td><td>Usage in Seconds</td><td>Day of the Week</td><td>GMT Offset</td><td>Start</td><td>End</td><td>Entry Creation</td><td>ZOBJECT Table ID</td></tr>')
+		f.write(f'<table class="table sticky">')
+		f.write(f'<tr><th>Bundle ID</th><th>Usage in Seconds</th><th>Day of the Week</th><th>GMT Offset</th><th>Start</th><th>End</th><th>Entry Creation</th><th>ZOBJECT Table ID</th></tr>')
 		for row in all_rows:
 			f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td></tr>')
 		f.write(f'</table></body></html>')
@@ -1218,11 +1217,11 @@ def knowledgec(filefound):
 		f.write('<h2>KnowledgeC Battery Level report</h2>')
 		f.write(f'KnowledgeC Battery Level entries: {usageentries}<br>')
 		f.write(f'KnowledgeC Battery Level located at: {filefound[0]}<br>')
-		f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+		f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 		f.write('<br/>')
 		f.write('')
-		f.write(f'<table>')
-		f.write(f'<tr><td>Battery Level</td><td>Usage in Seconds</td><td>Day of the Week</td><td>GMT Offset</td><td>Start</td><td>End</td><td>Entry Creation</td><td>ZOBJECT Table ID</td></tr>')
+		f.write(f'<table class="table sticky">')
+		f.write(f'<tr><th>Battery Level</th><th>Usage in Seconds</th><th>Day of the Week</th><th>GMT Offset</th><th>Start</th><th>End</th><th>Entry Creation</th><th>ZOBJECT Table ID</th></tr>')
 		for row in all_rows:
 			f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td></tr>')
 		f.write(f'</table></body></html>')
@@ -1265,11 +1264,11 @@ def knowledgec(filefound):
 		f.write('<h2>KnowledgeC Apps Installed report</h2>')
 		f.write(f'KnowledgeC Apps Installed : {usageentries}<br>')
 		f.write(f'KnowledgeC Apps Installed located at: {filefound[0]}<br>')
-		f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+		f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 		f.write('<br/>')
 		f.write('')
-		f.write(f'<table>')
-		f.write(f'<tr><td>Bundle ID</td><td>Day of the Week</td><td>GMT Offset</td><td>Start</td><td>End</td><td>Entry Creation</td></tr>')
+		f.write(f'<table class="table sticky">')
+		f.write(f'<tr><th>Bundle ID</th><th>Day of the Week</th><th>GMT Offset</th><th>Start</th><th>End</th><th>Entry Creation</th></tr>')
 		for row in all_rows:
 			f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td></tr>')
 		f.write(f'</table></body></html>')
@@ -1317,11 +1316,11 @@ def knowledgec(filefound):
 		f.write('<h2>KnowledgeC Device Locked report</h2>')
 		f.write(f'KnowledgeC Device Locked: {usageentries}<br>')
 		f.write(f'KnowledgeC Device Locked located at: {filefound[0]}<br>')
-		f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+		f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 		f.write('<br/>')
 		f.write('')
-		f.write(f'<table>')
-		f.write(f'<tr><td>Is Locked?</td><td>Usage in Seconds</td><td>Day of the Week</td><td>GMT Offset</td><td>Start</td><td>End</td><td>Entry Creation</td></tr>')
+		f.write(f'<table class="table sticky">')
+		f.write(f'<tr><th>Is Locked?</th><th>Usage in Seconds</th><th>Day of the Week</th><th>GMT Offset</th><th>Start</th><th>End</th><th>Entry Creation</th></tr>')
 		for row in all_rows:
 			f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td></tr>')
 		f.write(f'</table></body></html>')
@@ -1371,11 +1370,11 @@ def knowledgec(filefound):
 		f.write('<h2>KnowledgeC Plugged In report</h2>')
 		f.write(f'KnowledgeC Device Plugged In entries: {usageentries}<br>')
 		f.write(f'KnowledgeC Device Plugged In located at: {filefound[0]}<br>')
-		f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+		f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 		f.write('<br/>')
 		f.write('')
-		f.write(f'<table>')
-		f.write(f'<tr><td>Is Plugged In?</td><td>Usage in Seconds</td><td>Day of the Week</td><td>GMT Offset</td><td>Start</td><td>End</td><td>Entry Creation</td></tr>')
+		f.write(f'<table class="table sticky">')
+		f.write(f'<tr><th>Is Plugged In?</th><th>Usage in Seconds</th><th>Day of the Week</th><th>GMT Offset</th><th>Start</th><th>End</th><th>Entry Creation</th></tr>')
 		for row in all_rows:
 			f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td></tr>')
 		f.write(f'</table></body></html>')
@@ -1408,11 +1407,11 @@ def knowledgec(filefound):
 				f.write('<h2>KnowledgeC Serialize Intents Bplists report</h2>')
 				f.write(f'KnowledgeC Serialize Intents Bplists entries: {usageentries}<br>')
 				f.write(f'KnowledgeC Serialize Intents Bplists located at: {filefound[0]}<br>')
-				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 				f.write('<br/>')
 				f.write('')
-				f.write(f'<table>')
-				f.write(f'<tr><td>ID</td><td>Intent Class</td><td>Intent Verb</td><td>Timestamp</td><td>String</td><td>Stream</td><td>Serialized Interaction bplist</td></tr>')
+				f.write(f'<table class="table sticky">')
+				f.write(f'<tr><th>ID</th><th>Intent Class</th><th>Intent Verb</th><th>Timestamp</th><th>String</th><th>Stream</th><th>Serialized Interaction bplist</th></tr>')
 				for row in all_rows:
 					binfile = outpath+'/clean/C_Z_PK'+str(row[0])+'.bplist_nsdata.bin'
 					if os.path.isfile(binfile):
@@ -1468,11 +1467,11 @@ def knowledgec(filefound):
 			f.write('<h2>KnowledgeC Siri Usage report</h2>')
 			f.write(f'KnowledgeC Siri Usage entries: {usageentries}<br>')
 			f.write(f'KnowledgeC Siri Usage located at: {filefound[0]}<br>')
-			f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+			f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 			f.write('<br/>')
 			f.write('')
-			f.write(f'<table>')
-			f.write(f'<tr><td>App Name</td><td>Weekday</td><td>GMT Offset</td><td>Start</td><td>Entry Creation</td><td>UUID</td><td>Table ID</td></tr>')
+			f.write(f'<table class="table sticky">')
+			f.write(f'<tr><th>App Name</th><th>Weekday</th><th>GMT Offset</th><th>Start</th><th>Entry Creation</th><th>UUID</th><th>Table ID</th></tr>')
 			for row in all_rows:
 				f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td></tr>')
 			f.write(f'</table></body></html>')
@@ -1937,7 +1936,7 @@ def wireless(filefound):
 			#header html mas tabla
 			f.write('<html>')
 			f.write(f'<p><body><table>')
-			f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+			f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 			f.write(f'<tr><td colspan="2">{basename}</td></tr>')
 			p = open(filepath, 'rb')
 			plist = plistlib.load(p)
@@ -1964,8 +1963,8 @@ def iconstate(filefound):
 	f.close()
 	for x in range(0, len(icon)):
 		page = icon[x]
-		g.write(f'<p><table><body>')
-		g.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+		g.write(f'<p><table><table>')
+		g.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 		g.write(f'<tr> <td colspan="4"> Icons screen #{x}</td>')
 		for y in range(0, len(page)):
 			rows = page[y]
@@ -2000,7 +1999,7 @@ def lastbuild(filefound):
 	filedatahtml = open(reportfolderbase+'Build Info/'+'Build_Info.html', mode='a+')
 	filedatahtml.write('<html><body>')
 	filedatahtml.write('<h2>Last Build Report </h2>')
-	filedatahtml.write ('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+	filedatahtml.write ('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 	filedatahtml.write('<table>')
 	filedatahtml.write(f'<tr><td colspan = "2">{filefound[0]}</td></tr>')
 	filedatahtml.write('<tr><td>Key</td><td>Value</td></tr>')
@@ -2081,7 +2080,7 @@ def iOSNotifications11(filefound):
 					h.write('<h2>iOS Delivered Notifications Triage Report </h2>')
 					h.write(filename)
 					h.write('<br/>')
-					h.write ('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+					h.write ('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 					h.write('<br/>')
 						
 					h.write('<button onclick="hideRows()">Hide rows</button>')
@@ -2352,7 +2351,7 @@ def iOSNotifications12(filefound):
 				h = open('./'+appdirect+'/DeliveredNotificationsReport.html', 'w') #write report
 				h.write('<html><body>')
 				h.write('<h2>iOS Delivered Notifications Triage Report </h2>')
-				h.write ('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				h.write ('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 				h.write(filename)
 				h.write('<br/>')
 				h.write('<br/>')
@@ -2582,7 +2581,7 @@ def iOSNotifications12(filefound):
 			pass
 
 	filedatahtml = open(path+'iOS12_Notifications.html', mode='a+')
-	filedatahtml.write('<html><body><table><style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style><tr><td>Notifications by GUID (iOS13) or Bundle ID (iOS12) </td><td>Notification size in KB</td></tr>')
+	filedatahtml.write('<html><body><table class="table sticky"><style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style><tr><th>Notifications by GUID (iOS13) or Bundle ID (iOS12) </th><th>Notification size in KB</th></tr>')
 	for k, v in dict.items():
 		v = v/1000
 		#logfunc(f'{k} -> {v}')	
@@ -2613,11 +2612,11 @@ def ktx(filefound):
 	filedatahtml = open(outpath+'KTX_Files.html', mode='a+')
 	filedatahtml.write('<html><body>')
 	filedatahtml.write('<h2>KTX Files Report </h2>')
-	filedatahtml.write ('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+	filedatahtml.write ('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 	filedatahtml.write('<br/>')
 	filedatahtml.write(f'Extracted KTX files can be examined in the {outpath}KTX_Files/ directory.<br>')
-	filedatahtml.write('<table>')
-	filedatahtml.write('<tr><td>Path</td><td>Filename</td></tr>')
+	filedatahtml.write('<table class="table sticky">')
+	filedatahtml.write('<tr><th>Path</th><th>Filename</th></tr>')
 
 	for filename in filefound:
 		p = pathlib.Path(filename)
@@ -2675,11 +2674,11 @@ def calhist(filefound):
 			f.write('<h2> Call History report</h2>')
 			f.write(f'Call History entries: {usageentries}<br>')
 			f.write(f'Call History database located at: {filefound[0]}<br>')
-			f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+			f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 			f.write('<br/>')
 			f.write('')
-			f.write(f'<table>')
-			f.write(f'<tr><td>Address</td><td>Was Answered</td><td>Call Type</td><td>Originated</td><td>Duration in Secs</td><td>ISO County Code</td><td>Location</td><td>Service Provider</td><td>Timestamp</td></tr>')
+			f.write(f'<table class="table sticky">')
+			f.write(f'<tr><th>Address</th><th>Was Answered</th><th>Call Type</th><th>Originated</th><th>Duration in Secs</th><th>ISO County Code</th><th>Location</th><th>Service Provider</th><th>Timestamp</th></tr>')
 			for row in all_rows:
 				an = str(row[0])
 				an = (an.replace("b'", ''))
@@ -2738,11 +2737,11 @@ def smschat(filefound):
 				f.write('<h2> SMS Chat report</h2>')
 				f.write(f'SMS Chat entries: {usageentries}<br>')
 				f.write(f'SMS Chat database located at: {filefound[0]}<br>')
-				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 				f.write('<br/>')
 				f.write('')
-				f.write(f'<table>')
-				f.write(f'<tr><td>Message Date</td><td>Date Delivered</td><td>Date Read</td><td>Message</td><td>Contact ID</td><td>Service</td><td>Account</td><td>Is Delivered</td><td>Is from Me</td><td>Filename</td><td>MIME Type</td><td>Transfer Type</td><td>Total Bytes</td></tr>')
+				f.write(f'<table class="table sticky">')
+				f.write(f'<tr><th>Message Date</th><th>Date Delivered</th><th>Date Read</th><th>Message</th><th>Contact ID</th><th>Service</th><th>Account</th><th>Is Delivered</th><th>Is from Me</th><th>Filename</th><th>MIME Type</th><th>Transfer Type</th><th>Total Bytes</th></tr>')
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td><td>{row[9]}</td><td>{row[10]}</td><td>{row[11]}</td><td>{row[12]}</td></tr>')
 				f.write(f'</table></body></html>')
@@ -2797,11 +2796,11 @@ def smschat(filefound):
 				f.write('<h2> SMS Chat Message Delivered report</h2>')
 				f.write(f'SMS Chat Message Delivered entries: {usageentries}<br>')
 				f.write(f'SMS Chat Message Delivered database located at: {filefound[0]}<br>')
-				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 				f.write('<br/>')
 				f.write('')
-				f.write(f'<table>')
-				f.write(f'<tr><td>Message Date</td><td>Date Delivered</td><td>Date Read</td><td>Message</td><td>Contact ID</td><td>Service</td><td>Account</td><td>Is Delivered</td><td>Is from Me</td><td>Filename</td><td>MIME Type</td><td>Transfer Type</td><td>Total Bytes</td></tr>')
+				f.write(f'<table class="table sticky">')
+				f.write(f'<tr><th>Message Date</th><th>Date Delivered</th><th>Date Read</th><th>Message</th><th>Contact ID</th><th>Service</th><th>Account</th><th>Is Delivered</th><th>Is from Me</th><th>Filename</th><th>MIME Type</th><th>Transfer Type</th><th>Total Bytes</th></tr>')
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td><td>{row[9]}</td><td>{row[10]}</td><td>{row[11]}</td><td>{row[12]}</td></tr>')
 				f.write(f'</table></body></html>')
@@ -2856,11 +2855,11 @@ def smschat(filefound):
 				f.write('<h2> SMS Chat Message Read report</h2>')
 				f.write(f'SMS Chat Message Read entries: {usageentries}<br>')
 				f.write(f'SMS Chat Message Readdatabase located at: {filefound[0]}<br>')
-				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 				f.write('<br/>')
 				f.write('')
-				f.write(f'<table>')
-				f.write(f'<tr><td>Message Date</td><td>Date Delivered</td><td>Date Read</td><td>Message</td><td>Contact ID</td><td>Service</td><td>Account</td><td>Is Delivered</td><td>Is from Me</td><td>Filename</td><td>MIME Type</td><td>Transfer Type</td><td>Total Bytes</td></tr>')
+				f.write(f'<table class="table sticky">')
+				f.write(f'<tr><th>Message Date</th><th>Date Delivered</th><th>Date Read</th><th>Message</th><th>Contact ID</th><th>Service</th><th>Account</th><th>Is Delivered</th><th>Is from Me</th><th>Filename</th><th>MIME Type</th><th>Transfer Type</th><th>Total Bytes</th></tr>')
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td><td>{row[9]}</td><td>{row[10]}</td><td>{row[11]}</td><td>{row[12]}</td></tr>')
 				f.write(f'</table></body></html>')
@@ -2902,11 +2901,11 @@ def safari(filefound):
 				f.write('<h2> Safari History report</h2>')
 				f.write(f'Safari History entries: {usageentries}<br>')
 				f.write(f'Safari History database located at: {filefound[0]}<br>')
-				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 				f.write('<br/>')
 				f.write('')
-				f.write(f'<table>')
-				f.write(f'<tr><td>URL</td><td>Visit Count</td><td>Title</td><td>Icloud Sync</td><td>Load Sucessful</td><td>Redirect Source</td><td>Redirect Destination</td><td>Visit Time</td><td>History Item ID</td></tr>')
+				f.write(f'<table class="table sticky">')
+				f.write(f'<tr><th>URL</th><th>Visit Count</th><th>Title</th><th>Icloud Sync</th><th>Load Sucessful</th><th>Redirect Source</th><th>Redirect Destination</th><th>Visit Time</th><th>History Item ID</th></tr>')
 				for row in all_rows:
 					url = textwrap.fill(row[0])
 					f.write(f'<tr><td>{url}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td></tr>')
@@ -2942,11 +2941,11 @@ def queryp(filefound):
 				f.write('<h2> Query Predictions report</h2>')
 				f.write(f'Query Predictions entries: {usageentries}<br>')
 				f.write(f'Query Predictions database located at: {filefound[0]}<br>')
-				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 				f.write('<br/>')
 				f.write('')
-				f.write(f'<table>')
-				f.write(f'<tr><td>Content</td><td>Is Sent</td><td>Conversation ID</td><td>ID</td><td>UUID</td><td>Start</td></tr>')
+				f.write(f'<table class="table sticky">')
+				f.write(f'<tr><th>Content</th><th>Is Sent</th><th>Conversation ID</th><th>ID</th><th>UUID</th><th>Start</th></tr>')
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td></tr>')
 				f.write(f'</table></body></html>')
@@ -2984,11 +2983,11 @@ def powerlog(filefound):
 				f.write('<h2> Powerlog Mobile Backup Events report</h2>')
 				f.write(f'Mobile Backup Events entries: {usageentries}<br>')
 				f.write(f'Mobile Backup Events database located at: {filefound[0]}<br>')
-				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 				f.write('<br/>')
 				f.write('')
-				f.write(f'<table>')
-				f.write(f'<tr><td>Timestamp</td><td>Start</td><td>End</td><td>State</td><td>Finished</td><td>Has Error</td><td>ID</td></tr>')
+				f.write(f'<table class="table sticky">')
+				f.write(f'<tr><th>Timestamp</th><th>Start</th><th>End</th><th>State</th><th>Finished</th><th>Has Error</th><th>ID</th></tr>')
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td></tr>')
 				f.write(f'</table></body></html>')
@@ -3049,11 +3048,11 @@ def powerlog(filefound):
 				f.write('<h2> Powerlog WIFI Properties Events report</h2>')
 				f.write(f'Powerlog WIFI Properties entries: {usageentries}<br>')
 				f.write(f'Powerlog WIFI Properties database located at: {filefound[0]}<br>')
-				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 				f.write('<br/>')
 				f.write('')
-				f.write(f'<table>')
-				f.write(f'<tr><td>Adj. Timestamp</td><td>Current SSID</td><td>Current Channel</td><td>Offset Timestamp</td><td>Time Offset</td><td>ID</td></tr>')
+				f.write(f'<table class="table sticky">')
+				f.write(f'<tr><th>Adj. Timestamp</th><th>Current SSID</th><th>Current Channel</th><th>Offset Timestamp</th><th>Time Offset</th><th>ID</th></tr>')
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td></tr>')
 				f.write(f'</table></body></html>')
@@ -3111,11 +3110,11 @@ def powerlog(filefound):
 				f.write('<h2> Powerlog Device Screen Autolock report</h2>')
 				f.write(f'Powerlog Device Screen Autolock entries: {usageentries}<br>')
 				f.write(f'Powerlog Device Screen Autolock located at: {filefound[0]}<br>')
-				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 				f.write('<br/>')
 				f.write('')
-				f.write(f'<table>')
-				f.write(f'<tr><td>Adj Timestamp</td><td>Auto Lock Type</td><td>Offset Timestamp</td><td>Time Offset</td><td>ID</td></tr>')
+				f.write(f'<table class="table sticky">')
+				f.write(f'<tr><th>Adj Timestamp</th><th>Auto Lock Type</th><th>Offset Timestamp</th><th>Time Offset</th><th>ID</th></tr>')
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td></tr>')
 				f.write(f'</table></body></html>')
@@ -3154,11 +3153,11 @@ def powerlog(filefound):
 				f.write('<h2> Powerlog App Deletion Events report</h2>')
 				f.write(f'Powerlog App Deletion  Events entries: {usageentries}<br>')
 				f.write(f'Powerlog App Deletion  Events database located at: {filefound[0]}<br>')
-				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 				f.write('<br/>')
 				f.write('')
-				f.write(f'<table>')
-				f.write(f'<tr><td>App Deleted Date</td><td>Timestamp</td><td>App Name</td><td>Executable Name</td><td>Bundle ID</td><td>App Build Version</td><td>App Bundle Version</td><td>App Type</td><td>ID</td></tr>')
+				f.write(f'<table class="table sticky">')
+				f.write(f'<tr><th>App Deleted Date</th><th>Timestamp</th><th>App Name</td><td>Executable Name</td><td>Bundle ID</td><td>App Build Version</td><td>App Bundle Version</td><td>App Type</td><td>ID</th></tr>')
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td></tr>')
 				f.write(f'</table></body></html>')
@@ -3193,11 +3192,11 @@ def powerlog(filefound):
 				f.write('<h2> Powerlog Network Data report</h2>')
 				f.write(f'Powerlog Network Data entries: {usageentries}<br>')
 				f.write(f'Powerlog Network Data database located at: {filefound[0]}<br>')
-				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 				f.write('<br/>')
 				f.write('')
-				f.write(f'<table>')
-				f.write(f'<tr><td>ID</td><td>Time Start</td><td>Time End</td><td>Process Name</td><td>Mobile Bytes In</td><td>Mobile Bytes Out</td><td>WiFi Bytes In</td><td>WiFi Out</td></tr>')
+				f.write(f'<table class="table sticky">')
+				f.write(f'<tr><th>ID</th><th>Time Start</th><th>Time End</th><th>Process Name</th><th>Mobile Bytes In</th><th>Mobile Bytes Out</th><th>WiFi Bytes In</th><th>WiFi Out</th></tr>')
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td></tr>')
 				f.write(f'</table></body></html>')
@@ -3243,11 +3242,11 @@ def delphotos(filefound):
 				f.write('<h2> Photos.sqlite Metadata report</h2>')
 				f.write(f'Photos.sqlite Metadata entries: {usageentries}<br>')
 				f.write(f'Photos.sqlite database located at: {filefound[0]}<br>')
-				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 				f.write('<br/>')
 				f.write('')
-				f.write(f'<table>')
-				f.write(f'<tr><td>Primary Key</td><td>File Name</td><td>Duration in seconds</td><td>Is Deleted</td><td>Is Hidden</td><td>Date Deleted</td><td>Date Added</td><td>Date Created</td><td>Date Modified</td><td>File Path</td></tr>')
+				f.write(f'<table class="table sticky">')
+				f.write(f'<tr><th>Primary Key</th><th>File Name</th><th>Duration in seconds</th><th>Is Deleted</th><th>Is Hidden</th><th>Date Deleted</th><th>Date Added</th><th>Date Created</th><th>Date Modified</th><th>File Path</th></tr>')
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td><td>{row[9]}</td></tr>')
 				f.write(f'</table></body></html>')
@@ -3267,7 +3266,7 @@ def timezone(filefound):
 	filedatahtml.write('<html><body>')
 	filedatahtml.write('<h2>TimeZone Report </h2>')
 	filedatahtml.write(f'Timezone info located at: {filefound[0]}<br>')
-	filedatahtml.write ('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+	filedatahtml.write ('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 	filedatahtml.write('<table>')
 	#filedatahtml.write(f'<tr><td colspan = "2">{filefound[0]}</td></tr>')
 	filedatahtml.write('<tr><td>Key</td><td>Value</td></tr>')
@@ -3323,7 +3322,7 @@ def webclips(filefound):
 		g = open(reportfolderbase + 'Icon Positions/WebClips.html', 'w')
 		g.write("<html>")
 		g.write(f'<p><table><body>')
-		g.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+		g.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 		for unique_id, data in webclip_data.items():
 			g.write('<tr>')
 			g.write(f'<td><img src="data:image/png;base64,{data["Icon_data"]}"></td>')
@@ -3391,11 +3390,11 @@ def healthdb(filefound):
 				f.write('<h2> Healthdb_secure.sqlite report</h2>')
 				f.write(f'Healthdb_secure.sqlite entries: {usageentries}<br>')
 				f.write(f'Healthdb_secure.sqlite database located at: {filefound[0]}<br>')
-				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 				f.write('<br/>')
 				f.write('')
-				f.write(f'<table>')
-				f.write(f'<tr><td>Start Date</td><td>End Date</td><td>Activity Type</td><td>Quantity</td><td>Original Quantity</td><td>Unit String</td><td>Original Unit</td><td>Correlation</td><td>String Value</td><td>Data Value</td><td>Numerical Value</td><td>Value Type</td><td>Key</td></tr>')
+				f.write(f'<table class="table sticky">')
+				f.write(f'<tr><th>Start Date</th><th>End Date</th><th>Activity Type</th><th>Quantity</th><th>Original Quantity</th><th>Unit String</th><th>Original Unit</th><th>Correlation</th><th>String Value</th><th>Data Value</th><th>Numerical Value</th><th>Value Type</th><th>Key</th></tr>')
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td><td>{row[9]}</td><td>{row[10]}</td><td>{row[11]}</td><td>{row[12]}</td></tr>')
 				f.write(f'</table></body></html>')
@@ -3436,11 +3435,11 @@ def wiloc(filefound):
 				f.write('<h2> LTE cell locations report</h2>')
 				f.write(f'LTE cell locations entries: {usageentries}<br>')
 				f.write(f'LTE cell locations database located at: {filefound[0]}<br>')
-				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 				f.write('<br/>')
 				f.write('')
-				f.write(f'<table>')
-				f.write(f'<tr><td>MCC</td><td>MNC</td><td>CI</td><td>UARFCN</td><td>PID</td><td>Altitude</td><td>Speed</td><td>Course</td><td>Confidence</td><td>Hoz. Acc.</td><td>Vert. Acc.</td><td>Latitude</td><td>Longitude</td><td>Timestamp</td></tr>')
+				f.write(f'<table class="table sticky">')
+				f.write(f'<tr><th>MCC</th><th>MNC</th><th>CI</th><th>UARFCN</th><th>PID</th><th>Altitude</th><th>Speed</th><th>Course</th><th>Confidence</th><th>Hoz. Acc.</th><th>Vert. Acc.</th><th>Latitude</th><th>Longitude</th><th>Timestamp</th></tr>')
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td><td>{row[9]}</td><td>{row[10]}</td><td>{row[11]}</td><td>{row[12]}</td><td>{row[13]}</td></tr>')
 				f.write(f'</table></body></html>')
@@ -3481,11 +3480,11 @@ def wiloc(filefound):
 				f.write('<h2> CDMA cell locations report</h2>')
 				f.write(f'CDMA cell locations entries: {usageentries}<br>')
 				f.write(f'CDMA cell locations database located at: {filefound[0]}<br>')
-				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 				f.write('<br/>')
 				f.write('')
-				f.write(f'<table>')
-				f.write(f'<tr><td>MCC</td><td>SID</td><td>NID</td><td>BSID</td><td>Zone ID</td><td>Band Class</td><td>Channel</td><td>PNOFFSET</td><td>Altitude</td><td>Speed</td><td>Course</td><td>Confidence</td><td>Hoz. Acc.</td><td>Vert. Acc.</td><td>Latitude</td><td>Longitude</td><td>Timestamp</td></tr>')
+				f.write(f'<table class="table sticky">')
+				f.write(f'<tr><th>MCC</th><th>SID</th><th>NID</th><th>BSID</th><th>Zone ID</th><th>Band Class</th><th>Channel</th><th>PNOFFSET</th><th>Altitude</th><th>Speed</th><th>Course</th><th>Confidence</th><th>Hoz. Acc.</th><th>Vert. Acc.</th><th>Latitude</th><th>Longitude</th><th>Timestamp</th></tr>')
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td><td>{row[9]}</td><td>{row[10]}</td><td>{row[11]}</td><td>{row[12]}</td><td>{row[13]}</td><td>{row[14]}</td><td>{row[15]}</td><td>{row[16]}</td></tr>')
 				f.write(f'</table></body></html>')
@@ -3522,11 +3521,11 @@ def wiloc(filefound):
 				f.write('<h2> WiFi locations report</h2>')
 				f.write(f'WiFi locations entries: {usageentries}<br>')
 				f.write(f'WiFi ocations database located at: {filefound[0]}<br>')
-				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 				f.write('<br/>')
 				f.write('')
-				f.write(f'<table>')
-				f.write(f'<tr><td>Base1o MAC</td><td>Channel</td><td>Infomask</td><td>Speed</td><td>Course</td><td>Confidence</td><td>Score</td><td>Reach</td><td>Hoz. Acc.</td><td>Vert. Acc.</td><td>Latitude</td><td>Longitude</td><td>Timestamp</td></tr>')
+				f.write(f'<table class="table sticky">')
+				f.write(f'<tr><th>Base10 MAC</th><th>Channel</th><th>Infomask</th><th>Speed</th><th>Course</th><th>Confidence</th><th>Score</th><th>Reach</th><th>Hoz. Acc.</th><th>Vert. Acc.</th><th>Latitude</th><th>Longitude</th><th>Timestamp</th></tr>')
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td><td>{row[9]}</td><td>{row[10]}</td><td>{row[11]}</td><td>{row[12]}</td></tr>')
 				f.write(f'</table></body></html>')
@@ -3552,7 +3551,7 @@ def confaccts(filefound):
 			f.write('<html><body>')
 			f.write('<h2>Config Accounts Report</h2>')
 			f.write(f'Config Accounts located at {filefound[0]}<br>')
-			f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+			f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 			f.write('<br/>')
 			f.write('')
 			f.write(f'<table>')
@@ -3592,11 +3591,11 @@ def calendar(filefound):
 				f.write('<h2> Calendars List report</h2>')
 				f.write(f'Calendar List entries: {usageentries}<br>')
 				f.write(f'Calendar List database located at: {filefound[0]}<br>')
-				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 				f.write('<br/>')
 				f.write('')
-				f.write(f'<table>')
-				f.write(f'<tr><td>Title</td><td>Flags</td><td>Color</td><td>Color Name</td><td>Ext. ID</td><td>Self ID Email</td></tr>')
+				f.write(f'<table class="table sticky">')
+				f.write(f'<tr><th>Title</th><th>Flags</th><th>Color</th><th>Color Name</th><th>Ext. ID</th><th>Self ID Email</th></tr>')
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td></tr>')
 				f.write(f'</table></body></html>')
@@ -3634,11 +3633,11 @@ def calendar(filefound):
 				f.write('<h2> Calendar Items report</h2>')
 				f.write(f'Calendars Items entries: {usageentries}<br>')
 				f.write(f'Calendars Items database located at: {filefound[0]}<br>')
-				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 				f.write('<br/>')
 				f.write('')
-				f.write(f'<table>')
-				f.write(f'<tr><td>Summary</td><td>Start Date</td><td>Start Date Conv</td><td>Start TZ</td><td>End Date</td><td>End Date Conv</td><td>End TZ</td><td>All Day</td><td>Calendar ID</td><td>Last Mod Date</td><td>Mod Date Conv</td></tr>')
+				f.write(f'<table class="table sticky">')
+				f.write(f'<tr><th>Summary</th><th>Start Date</th><th>Start Date Conv</th><th>Start TZ</th><th>End Date</th><th>End Date Conv</th><th>End TZ</th><th>All Day</th><th>Calendar ID</th><th>Last Mod Date</th><th>Mod Date Conv</th></tr>')
 				for row in all_rows:
 					if row[1] < 0:
 						f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td> </td><td>{row[3]}</td><td>{row[4]}</td><td> </td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td><td>{row[9]}</td><td>{row[10]}</td></tr>')
@@ -3672,11 +3671,11 @@ def calendar(filefound):
 				f.write('<h2> Calendar Identity report</h2>')
 				f.write(f'Calendars Identity entries: {usageentries}<br>')
 				f.write(f'Calendars Identity database located at: {filefound[0]}<br>')
-				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 				f.write('<br/>')
 				f.write('')
-				f.write(f'<table>')
-				f.write(f'<tr><td>Display Name</td><td>Address</td><td>First Name</td><td>Last Name</td></tr>')
+				f.write(f'<table class="table sticky">')
+				f.write(f'<tr><th>Display Name</th><th>Address</th><th>First Name</th><th>Last Name</th></tr>')
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td></tr>')
 				f.write(f'</table></body></html>')
@@ -3811,11 +3810,11 @@ def mailprotect(filefound):
 					f.write(f'Protected Index and Envelope emails with attachments: {usageentries2}<br>')
 					f.write(f'Protected Index and Envelope emails location: {tempf} -> Protected Envelope and Protected Index sqlite databases<br>')
 					f.write(f'Timestamps are LOCALTIME<br>')
-					f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+					f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 					f.write('<br/>')
 					f.write('')
-					f.write(f'<table>')
-					f.write(f'<tr><td>Row ID</td><td>Date Sent</td><td>Date Received</td><td>Sender</td><td>Message ID</td><td>Subject</td><td>Recepient</td><td>CC</td><td>BCC</td><td>Message</td></tr>')
+					f.write(f'<table class="table sticky">')
+					f.write(f'<tr><th>Row ID</th><th>Date Sent</th><th>Date Received</th><th>Sender</th><th>Message ID</th><th>Subject</th><th>Recepient</th><th>CC</th><th>BCC</th><th>Message</th></tr>')
 					for row in all_rows:
 						f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td><td>{row[9]}</td></tr>')
 					f.write(f'</table></body></html>')
@@ -3868,11 +3867,11 @@ def mailprotect(filefound):
 					f.write(f'Protected Index and Envelope emails total: {usageentries}<br>')
 					f.write(f'Protected Index and Envelope emails location: {tempf} -> Protected Envelope and Protected Index sqlite databases<br>')
 					f.write(f'Timestamps are LOCALTIME<br>')
-					f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+					f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 					f.write('<br/>')
 					f.write('')
-					f.write(f'<table>')
-					f.write(f'<tr><td>Date Sent</td><td>Date Received</td><td>Address</td><td>Comment</td><td>Subject</td><td>Summary</td><td>Read?</td><td>Flagged?</td><td>Deleted?</td><td>Mailbox</td></tr>')
+					f.write(f'<table class="table sticky">')
+					f.write(f'<tr><th>Date Sent</th><th>Date Received</th><th>Address</th><th>Comment</th><th>Subject</th><th>Summary</th><th>Read?</th><th>Flagged?</th><th>Deleted?</th><th>Mailbox</th></tr>')
 					for row in all_rows:
 						f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td><td>{row[9]}</td></tr>')
 					f.write(f'</table></body></html>')
@@ -3920,11 +3919,11 @@ def screentime(filefound):
 				f.write(f'Screen Time App Usage total: {usageentries}<br>')
 				f.write(f'Screen Time App Usage  location: {tempf}/RMAdminStore-Local.sqlite <br>')
 				f.write(f'Timestamps are LOCALTIME<br>')
-				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 				f.write('<br/>')
 				f.write('')
-				f.write(f'<table>')
-				f.write(f'<tr><td>Bundle ID</td><td>Domain</td><td>Total Time Secs</td><td>Start Date</td><td>End Date</td></tr>')
+				f.write(f'<table class="table sticky">')
+				f.write(f'<tr><th>Bundle ID</th><th>Domain</th><th>Total Time Secs</th><th>Start Date</th><th>End Date</th></tr>')
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td></tr>')
 				f.write(f'</table></body></html>')
@@ -3954,11 +3953,11 @@ def screentime(filefound):
 				f.write('<h2> Screen Time Installed Apps report</h2>')
 				f.write(f'Screen Time Installed Apps total: {usageentries}<br>')
 				f.write(f'Screen Time Installed Apps location: {tempf}/RMAdminStore-Local.sqlite <br>')
-				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 				f.write('<br/>')
 				f.write('')
-				f.write(f'<table>')
-				f.write(f'<tr><td>Bundle ID</td><td>Unique ID</td></tr>')
+				f.write(f'<table class="table sticky">')
+				f.write(f'<tr><th>Bundle ID</th><th>Unique ID</th></tr>')
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td></tr>')
 				f.write(f'</table></body></html>')
@@ -3992,11 +3991,11 @@ def screentime(filefound):
 				f.write('<h2> Screen Time Core User report</h2>')
 				f.write(f'Screen Time Core User total: {usageentries}<br>')
 				f.write(f'Screen Time Core User location: {tempf}/RMAdminStore-Local.sqlite <br>')
-				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 				f.write('<br/>')
 				f.write('')
-				f.write(f'<table>')
-				f.write(f'<tr><td>Apple ID</td><td>Family Name</td><td>Given Name</td><td>Family Member Type</td><td>Is Parent</td><td>Is Fam Organizer</td></tr>')
+				f.write(f'<table class="table sticky">')
+				f.write(f'<tr><th>Apple ID</th><th>Family Name</th><th>Given Name</th><th>Family Member Type</th><th>Is Parent</th><th>Is Fam Organizer</th></tr>')
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td></tr>')
 				f.write(f'</table></body></html>')
@@ -4026,11 +4025,11 @@ def screentime(filefound):
 				f.write('<h2> Screen Time Core Device report</h2>')
 				f.write(f'Screen Time Core Device total: {usageentries}<br>')
 				f.write(f'Screen Time Core Device location: {tempf}/RMAdminStore-Local.sqlite <br>')
-				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 				f.write('<br/>')
 				f.write('')
-				f.write(f'<table>')
-				f.write(f'<tr><td>Name</td><td>Identifier</td></tr>')
+				f.write(f'<table class="table sticky">')
+				f.write(f'<tr><th>Name</th><th>Identifier</th></tr>')
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td></tr>')
 				f.write(f'</table></body></html>')
@@ -4061,11 +4060,11 @@ def screentime(filefound):
 				f.write('<h2> Screen Time Enabled Settings report</h2>')
 				f.write(f'Screen Time Enabled Settings total: {usageentries}<br>')
 				f.write(f'Screen Time Enabled Settings data location: {tempf}/RMAdminStore-Local.sqlite <br>')
-				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 				f.write('<br/>')
 				f.write('')
-				f.write(f'<table>')
-				f.write(f'<tr><td>Is Cloud Sync?</td><td>Is Screen Time?</td></tr>')
+				f.write(f'<table class="table sticky">')
+				f.write(f'<tr><th>Is Cloud Sync?</th><th>Is Screen Time?</th></tr>')
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td></tr>')
 				f.write(f'</table></body></html>')
@@ -4112,11 +4111,11 @@ def bluetooths(filefound):
 				f.write('<h2> Bluetooth Paired Devices report</h2>')
 				f.write(f'Bluetooth Paired Devices total: {usageentries}<br>')
 				f.write(f'Bluetooth Paired Devices location: {tempf}/com.apple.MobileBluetooth.ledevices.paired.db<br>')
-				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 				f.write('<br/>')
 				f.write('')
-				f.write(f'<table>')
-				f.write(f'<tr><td>UUID</td><td>Name</td><td>Name Origin</td><td>Address</td><td>Resolved Address</td><td>Last Seen Time</td><td>Last Connection Time</td></tr>')
+				f.write(f'<table class="table sticky">')
+				f.write(f'<tr><th>UUID</th><th>Name</th><th>Name Origin</th><th>Address</th><th>Resolved Address</th><th>Last Seen Time</th><th>Last Connection Time</th></tr>')
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td></tr>')
 				f.write(f'</table></body></html>')
@@ -4149,11 +4148,11 @@ def bluetooths(filefound):
 				f.write('<h2> Bluetooth Other Devices report</h2>')
 				f.write(f'Bluetooth Other Devices total: {usageentries}<br>')
 				f.write(f'Bluetooth Other Devices location: {tempf}/com.apple.MobileBluetooth.ledevices.paired.db<br>')
-				f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+				f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 				f.write('<br/>')
 				f.write('')
-				f.write(f'<table>')
-				f.write(f'<tr><td>Name</td><td>Address</td><td>Last Seen Time</td><td>UUID</td></tr>')
+				f.write(f'<table class="table sticky">')
+				f.write(f'<tr><th>Name</th><th>Address</th><th>Last Seen Time</th><th>UUID</th></tr>')
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td></tr>')
 				f.write(f'</table></body></html>')
@@ -4209,11 +4208,11 @@ def whatsapp(filefound):
 					f.write('<h2> Whatsapp chats report</h2>')
 					f.write(f'Whatsapp chats total conversations: {usageentries2}<br>')
 					f.write(f'Whatsapp chats  location: {filefound[0]}<br>')
-					f.write('<style> table, th, td {border: 1px solid black; border-collapse: collapse;} tr:nth-child(even) {background-color: #f2f2f2;} </style>')
+					f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 					f.write('<br/>')
 					f.write('')
-					f.write(f'<table>')
-					f.write(f'<tr><td>ID</td><td>Timestamp</td><td>Direction</td><td>Partner</td><td>Message</td><td>From JID</td><td>Name</td><td>To JID</td><td>Media</td></tr>')
+					f.write(f'<table class="table sticky">')
+					f.write(f'<tr><th>ID</th><th>Timestamp</th><th>Direction</th><th>Partner</th><th>Message</th><th>From JID</th><th>Name</th><th>To JID</th><th>Media</th></tr>')
 					for row2 in all_rows2:
 					
 						cursor = db.cursor()
@@ -4238,4 +4237,143 @@ def whatsapp(filefound):
 			f.close()
 	except:
 		logfunc('Error on Whatsapp function')		
-	logfunc(f'Whatsapp function completed')	
+	logfunc(f'Whatsapp function completed')
+
+def ipscl(filefound):
+	try:
+		logfunc(f'App Crash Logs function executing')
+		try:
+			os.makedirs(reportfolderbase+'App Crash/')
+			db = sqlite3.connect(reportfolderbase+'App Crash/cl.db')
+			cursor = db.cursor()
+			cursor.execute('CREATE TABLE ips(timestampss TEXT, dnames TEXT, appversions TEXT, bundles TEXT, firstps TEXT, osversions TEXT, bgtypes TEXT, tails TEXT)')
+			db.commit()
+		except:
+			logfunc(f'DB could not be created')
+		
+		pathlist = []
+		
+		for w in filefound:
+			resultant = ''
+			times = ''
+			appname = ''
+			appversion = ''
+			bundle = ''
+			firstp = ''
+			osversion =''
+			dname = ''
+			tail = ''
+			bugtype = ''
+			
+			with open(w, 'r', encoding='utf8') as data:
+				for line in data:
+					resultant = resultant + line
+					if '}' in line:
+						break
+			try:
+				
+				resultantdict = json.loads(resultant) 
+
+				for x, y in resultantdict.items():
+					#import in a database
+					if x == 'timestamp':
+						times = y
+					if x == 'name':
+						dname = y
+					if x == 'app_version':
+						appversion = y
+					if x == 'bundleID':
+						bundle = y
+					if x == 'is_first_party':
+						firstp = y
+					if x == 'os_version':
+						osversion = y
+					if x == 'restore_type':
+						restoretype = y
+					if x == 'bug_type':
+						bugtype = y
+				
+				p = pathlib.Path(w)
+				head, tail = os.path.split(w)
+				
+				if head not in pathlist:
+					pathlist.append(head)
+				
+				datainsert = (times, dname, appversion, bundle, firstp, osversion, bugtype, tail,)
+				cursor.execute('INSERT INTO ips (timestampss, dnames, appversions, bundles, firstps, osversions, bgtypes, tails)  VALUES(?,?,?,?,?,?,?,?)', datainsert)
+				db.commit()
+			except:
+				logfunc (f'No valid dictionary header at {p}')
+		
+		try:	
+			cursor.execute('''SELECT
+			*
+			from ips
+			ORDER by dnames desc, timestampss ASC
+				''')
+			
+			all_rows = cursor.fetchall()
+			usageentries = len(all_rows)
+			if usageentries > 0:
+				with open(reportfolderbase+'App Crash/IPS files.html', 'w', encoding='utf8') as f:
+					f.write('<html><body>')
+					f.write('<h2> Application Crash Logs report</h2>')
+					f.write(f'Application Crash Logs: {usageentries}<br>')
+					f.write(f'Applicatipn CraSH Logs location: <br>')
+					for z in pathlist:
+						f.write(f'{z}<br>')
+					f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
+					f.write('<br/>')
+					f.write('')
+					f.write(f'<table class="table sticky">')
+					f.write(f'<tr><th>Timestamp</th><th>Name</th><th>App Version</th><th>Bundle ID</th><th>1st Party?</th><th>OS Version</th><th>Bug Type</th><th>Filename</th></tr>')
+					for row in all_rows:
+						f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td></tr>')
+					f.write(f'</table></body></html>')
+			else:
+				logfunc('No App Crash Logs available')
+		except:
+			logfunc('Error on App Crash Logs function')		
+		logfunc(f'App Crash Logs function completed')
+	except:
+		logfunc('Bad data input at App Crash Logs function')
+
+def wapcontact(filefound):		
+	logfunc(f'Whatsapp Contacts function executing')
+	try:
+		try:
+			if os.path.isdir(reportfolderbase+'Whatsapp/'):
+				pass
+			else:
+				os.makedirs(reportfolderbase+'Whatsapp/')
+		except:
+			logfunc('Error creating whatsapp() report directory')
+
+		db = sqlite3.connect(filefound[0])
+		cursor = db.cursor()
+		cursor.execute(''' SELECT
+		ZFULLNAME, ZPHONENUMBER, ZPHONENUMBERLABEL,
+		ZWHATSAPPID, ZABOUTTEXT
+		from ZWAADDRESSBOOKCONTACT
+		''')
+
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			with open(reportfolderbase+'Whatsapp/Contacts.html', 'w', encoding='utf8') as f:
+				f.write('<html><body>')
+				f.write('<h2> Whatsapp chats report</h2>')
+				f.write(f'Whatsapp Contacts total: {usageentries}<br>')
+				f.write(f'Whatsapp Contacts location: {filefound[0]}<br>')
+				f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
+				f.write('<br/>')
+				f.write('')
+				f.write(f'<table class="table sticky">')
+				f.write(f'<tr><th>Full Name</th><th>Phone Number</th><th>Label</th><th>ID</th><th>About Text</th></tr>')
+				for row in all_rows:
+					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td></tr>')
+		else:
+			logfunc('No Whatsapp contacts available')	
+	except:
+		logfunc('Error on Whatsapp contacts function')		
+	logfunc(f'Whatsapp contacts function completed')
