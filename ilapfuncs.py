@@ -4419,97 +4419,171 @@ def wapcontact(filefound):
 	logfunc(f'Whatsapp contacts function completed')
 	
 def actrec(filefound):
-	logfunc(f'Activation Record function executing')
-	
-	deviceinfo()
-
-	os.makedirs(reportfolderbase+'Activation Record/')
-	os.makedirs(reportfolderbase+'Activation Record/Incepted/')
-	resultant = ''
-	p = open(filefound[0], 'rb')
-	plist = plistlib.load(p)
-	
-	for key, val in plist.items():
-		if key == 'AccountToken':
-			
-			with open(reportfolderbase+'Activation Record/Incepted/AccToken.txt', 'wb') as fileto:#export dirty from DB
-				fileto.write(val)
-			
-			with open(reportfolderbase+'Activation Record/Incepted/AccToken.txt', 'r') as filefrom:#export dirty from DB
-				lines = filefrom.readlines()
-				alast = lines[-2]
-				for line in lines:
-					if line is alast:
-						line = line.replace('=', ':')
-						line = line.replace(';', ' ')
-						resultant = resultant + line
-					else:
-						line = line.replace('=', ':')
-						line = line.replace(';', ',')
-						resultant = resultant + line
-			
-			res = json.loads(resultant)
+	try:
+		logfunc(f'Activation Record function executing')
 		
-			for x, y in res.items():
-				if x == 'InternationalMobileEquipmentIdentity':
-					imei = y
-					ordes = 3
-					kas = 'IMEI'
-					vas = y
-					sources = filefound[0]
-					deviceinfoin(ordes, kas, vas, sources)
-					
-				if x == 'SerialNumber':
-					serial = y
-					ordes = 4
-					kas = 'Serial Number'
-					vas = y
-					sources = filefound[0]
-					deviceinfoin(ordes, kas, vas, sources)
-					
-				if x == 'UniqueDeviceID':
-					did = y
-					ordes = 5
-					kas = 'Unique Device ID'
-					vas = y
-					sources = filefound[0]
-					deviceinfoin(ordes, kas, vas, sources)
+		deviceinfo()
+
+		os.makedirs(reportfolderbase+'Activation Record/')
+		os.makedirs(reportfolderbase+'Activation Record/Incepted/')
+		resultant = ''
+		p = open(filefound[0], 'rb')
+		plist = plistlib.load(p)
+		
+		for key, val in plist.items():
+			if key == 'AccountToken':
 				
-				if x == 'ProductType':
-					pt = y
-					ordes = 6
-					kas = 'Prod. Type'
-					vas = y
-					sources = filefound[0]
-					deviceinfoin(ordes, kas, vas, sources)
+				with open(reportfolderbase+'Activation Record/Incepted/AccToken.txt', 'wb') as fileto:#export dirty from DB
+					fileto.write(val)
+				
+				with open(reportfolderbase+'Activation Record/Incepted/AccToken.txt', 'r') as filefrom:#export dirty from DB
+					lines = filefrom.readlines()
+					alast = lines[-2]
+					for line in lines:
+						if line is alast:
+							line = line.replace('=', ':')
+							line = line.replace(';', ' ')
+							resultant = resultant + line
+						else:
+							line = line.replace('=', ':')
+							line = line.replace(';', ',')
+							resultant = resultant + line
+				
+				res = json.loads(resultant)
 			
-			with open(reportfolderbase+'Activation Record/Activation Record.html', 'w', encoding='utf8') as f:
+				for x, y in res.items():
+					if x == 'InternationalMobileEquipmentIdentity':
+						imei = y
+						ordes = 3
+						kas = 'IMEI'
+						vas = y
+						sources = filefound[0]
+						deviceinfoin(ordes, kas, vas, sources)
+						
+					if x == 'SerialNumber':
+						serial = y
+						ordes = 4
+						kas = 'Serial Number'
+						vas = y
+						sources = filefound[0]
+						deviceinfoin(ordes, kas, vas, sources)
+						
+					if x == 'UniqueDeviceID':
+						did = y
+						ordes = 5
+						kas = 'Unique Device ID'
+						vas = y
+						sources = filefound[0]
+						deviceinfoin(ordes, kas, vas, sources)
+					
+					if x == 'ProductType':
+						pt = y
+						ordes = 6
+						kas = 'Prod. Type'
+						vas = y
+						sources = filefound[0]
+						deviceinfoin(ordes, kas, vas, sources)
+				
+				with open(reportfolderbase+'Activation Record/Activation Record.html', 'w', encoding='utf8') as f:
+					f.write('<html><body>')
+					f.write('<h2> Activation Record report</h2>')
+					f.write(f'Activation Record location: {filefound[0]}<br>')
+					f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
+					f.write('<br/>')
+					f.write('')
+					f.write(f'<table class="table sticky">')
+					f.write(f'<tr><th>Key</th><th>Value</th></tr>')
+					f.write(f'<tr><td>IMEI</td><td>{imei}</td></tr>')
+					f.write(f'<tr><td>Serial Number</td><td>{serial}</td></tr>')
+					f.write(f'<tr><td>Unique Device ID</td><td>{did}</td></tr>')
+					f.write(f'<tr><td>Product Type</td><td>{pt}</td></tr>')
+					f.write(f'</table></body></html>')
+				
+				logfunc(f'Activation Record function completed')
+	except:
+		logfunc(f'Error on Activation Record function')
+
+def DHCPL(filefound):
+	try:
+		logfunc(f'DHCP Received Lease function executing')
+		if len(filefound) > 1:
+			head, tail = os.path.split(filefound[1])
+			try:
+				if os.path.isdir(reportfolderbase+'DHCP/'):
+					pass
+				else:
+					os.makedirs(reportfolderbase+'DHCP/')
+			except:
+				logfunc('Error creating DHCP report directory')
+				
+			with open(reportfolderbase+'DHCP/Received Lease.html','w') as f:
 				f.write('<html><body>')
-				f.write('<h2> Activation Record report</h2>')
-				f.write(f'Activation Record location: {filefound[0]}<br>')
+				f.write('<h2>DHCP Received Lease Report</h2>')
+				f.write(f'DHCP Received Lease located at {filefound[1]}<br>')
 				f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 				f.write('<br/>')
 				f.write('')
 				f.write(f'<table class="table sticky">')
-				f.write(f'<tr><th>Key</th><th>Value</th></tr>')
-				f.write(f'<tr><td>IMEI</td><td>{imei}</td></tr>')
-				f.write(f'<tr><td>Serial Number</td><td>{serial}</td></tr>')
-				f.write(f'<tr><td>Unique Device ID</td><td>{did}</td></tr>')
-				f.write(f'<tr><td>Product Type</td><td>{pt}</td></tr>')
+				f.write(f'<tr><th>Key</th><th>Values</th></tr>')
+				f.write(f'<tr><td>iOS WiFi MAC</td><td>{tail}</td></tr>')
+			
+				with open(filefound[1], 'rb') as fp:
+					pl = plistlib.load(fp)
+					for key, val in pl.items():
+						if key == 'IPAddress':
+							f.write(f'<tr><td>{key}</td><td>{val}</td></tr>')
+						if key == 'LeaseLength':
+							f.write(f'<tr><td>{key}</td><td>{val}</td></tr>')
+						if key == 'LeaseStartDate':
+							f.write(f'<tr><td>{key}</td><td>{val}</td></tr>')
+						if key == 'RouterHardwareAddress':
+							f.write(f'<tr><td>{key}</td><td>{val}</td></tr>')
+						if key == 'RouterIPAddress':
+							f.write(f'<tr><td>{key}</td><td>{val}</td></tr>')
+						if key == 'SSID':
+							f.write(f'<tr><td>{key}</td><td>{val}</td></tr>')
 				f.write(f'</table></body></html>')
-				
-				
-				''' import to sqlite
-				for row in all_rows:
-					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td></tr>')
-				'''
-			
-				
+		else:
+			logfunc(f'No DHCP Received Lease available')	
+		logfunc(f'DHCP Received Lease function completed')		
+	except:
+		logfunc('Error on DHCP Received Lease function')		
 
+def DHCPhp(filefound):
+	try:
+		logfunc(f'DHCP Hotspot Clients function executing')
+		
+		if os.path.isdir(reportfolderbase+'DHCP/'):
+			pass
+		else:
+			os.makedirs(reportfolderbase+'DHCP/')
 			
-			logfunc(f'Activation Record function completed')
+		with open(reportfolderbase+'DHCP/Hotspot Clients.html','w') as f:
+			f.write('<html><body>')
+			f.write('<h2>DHCP Hotspot Clients Report</h2>')
+			f.write(f'DHCP Hotspot Clients located at {filefound[0]}<br>')
+			f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
+			f.write('<br/>')
+			f.write('')
 
-			
+			with open(filefound[0], 'r') as filefrom:
+				for line in filefrom:
+					cline = line.strip()
+					if cline == '{':
+						f.write('<table><tr><td>Key</td><td>Values</td></tr>')
+					elif cline == '}':
+						f.write('</table><br>')
+					#elif cline == '':
+					#	f.write('<br>')
+					else:
+						ll = cline.split('=')
+						f.write(f'<tr><td>{ll[0]}</td>')
+						f.write(f'<td>{ll[1]}</td></tr>')
+								
+		logfunc(f'DHCP Hotspot Clients function completed')
+	except:
+		logfunc('Error on DHCP Hotspot Clients function')
+
 def deviceinfo():	
 	if os.path.isdir(reportfolderbase+'Device Info/'):
 			pass

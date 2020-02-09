@@ -101,12 +101,11 @@ while True:
 				'whatsapp':'*ChatStorage.sqlite',
 				'ipscl':'*.ips',
 				'wapcontact':'*ContactsV2.sqlite',
-				'actrec':'*activation_record.plist'}
+				'actrec':'*activation_record.plist',
+				'DHCPhp':'*private/var/db/dhcpd_leases*',
+				'DHCPL':'*private/var/db/dhcpclient/leases/*'}
 	'''
-	tosearch = {'lastbuild': '*LastBuildInfo.plist',
-				'wireless': '*wireless/Library/Preferences/com.apple.*',
-				'datark':'*Library/Lockdown/data_ark.plist',
-				'actrec':'*activation_record.plist'}
+	tosearch = {'DHCPL':'*private/var/db/dhcpclient/leases/*'}
 	'''
 			
 	os.makedirs(reportfolderbase)

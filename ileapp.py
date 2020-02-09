@@ -62,7 +62,9 @@ tosearch = {'mib':'*mobile_installation.log.*',
 			'whatsapp':'*ChatStorage.sqlite',
 			'ipscl':'*.ips',
 			'wapcontact':'*ContactsV2.sqlite',
-			'actrec':'*activation_record.plist'}
+			'actrec':'*activation_record.plist',
+			'DHCPhp':'*private/var/db/dhcpd_leases*',
+			'DHCPL':'*private/var/db/dhcpclient/leases/*'}
 
 '''
 tosearch = {'ktx':'*.ktx*',}
