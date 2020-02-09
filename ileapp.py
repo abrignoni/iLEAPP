@@ -61,7 +61,8 @@ tosearch = {'mib':'*mobile_installation.log.*',
 			'bluetooths': '*/Library/Database/com.apple.MobileBluetooth*',
 			'whatsapp':'*ChatStorage.sqlite',
 			'ipscl':'*.ips',
-			'wapcontact':'*ContactsV2.sqlite'}
+			'wapcontact':'*ContactsV2.sqlite',
+			'actrec':'*activation_record.plist'}
 
 '''
 tosearch = {'ktx':'*.ktx*',}

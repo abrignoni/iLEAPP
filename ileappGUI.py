@@ -100,9 +100,13 @@ while True:
 				'bluetooths': '*/Library/Database/com.apple.MobileBluetooth*',
 				'whatsapp':'*ChatStorage.sqlite',
 				'ipscl':'*.ips',
-				'wapcontact':'*ContactsV2.sqlite'}
+				'wapcontact':'*ContactsV2.sqlite',
+				'actrec':'*activation_record.plist'}
 	'''
-	tosearch = {'wapcontact':'*ContactsV2.sqlite'}
+	tosearch = {'lastbuild': '*LastBuildInfo.plist',
+				'wireless': '*wireless/Library/Preferences/com.apple.*',
+				'datark':'*Library/Lockdown/data_ark.plist',
+				'actrec':'*activation_record.plist'}
 	'''
 			
 	os.makedirs(reportfolderbase)

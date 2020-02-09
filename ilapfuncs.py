@@ -265,7 +265,8 @@ def dbbuff(filefound):
 		logfunc('Error in Aggregated dictionary DBbuffer section.')
 		
 def datark(filefound):
-	logfunc(f'Data_ark.plist function executing.')
+	logfunc(f'Data_ark.plist function executing')
+	deviceinfo()
 	try:
 		os.makedirs(reportfolderbase+'Data_Ark/')
 		with open(reportfolderbase+'Data_Ark/Data Ark.html','w') as f:
@@ -281,13 +282,26 @@ def datark(filefound):
 				pl = plistlib.load(fp)
 				for key, val in pl.items():
 					f.write(f'<tr><td>{key}</td><td>{val}</td></tr>')
+					if key == '-DeviceName':
+						ordes = 1
+						kas = 'Device Name'
+						vas = val
+						sources = filefound[0]
+						deviceinfoin(ordes, kas, vas, sources)
+					if key == '-TimeZone':
+						ordes = 9
+						kas = 'Detected Time Zone'
+						vas = val
+						sources = filefound[0]
+						deviceinfoin(ordes, kas, vas, sources)
+						
 			f.write(f'</table></body></html>')
 			logfunc(f'Data_ark.plist function completed')
 	except:
 		logfunc('Error in Sys Diagnose Network Preferences function.')
 		
 def mobilact(filefound):
-	logfunc(f'Mobile Activation function executing.')
+	logfunc(f'Mobile Activation function executing')
 	try:
 		linecount = 0
 		hitcount = 0
@@ -396,12 +410,12 @@ def mobilact(filefound):
 		f.write('</body></html>')
 		f.close()
 		
-		logfunc(f'Mobile Activation completed executing.')
+		logfunc(f'Mobile Activation completed executing')
 	except:
 		logfunc('Error in MobileActivation Logs section')
 		
 def bkupstate(filefound):
-	logfunc(f'BackupStateInfo function executing.')
+	logfunc(f'BackupStateInfo function executing')
 	try:	
 		if os.path.exists(reportfolderbase+'SysDiagnose/'):
 			pass
@@ -656,7 +670,7 @@ def conndevices(filefound):
 	with open(filefound[0], "rb") as f:
 		data = f.read()
 
-	logfunc(f'Connected devices function executing.')
+	logfunc(f'Connected devices function executing')
 	outpath = reportfolderbase +'Devices Connected/'
 	os.mkdir(outpath)
 	nl = '\n' 
@@ -705,7 +719,7 @@ def conndevices(filefound):
 
 def applicationstate(filefound):
 	#iOSversion = versionf
-	logfunc(f'ApplicationState.db queries executing.')
+	logfunc(f'ApplicationState.db queries executing')
 	outpath = reportfolderbase +'Application State/'
 	
 	try: 
@@ -814,7 +828,7 @@ def applicationstate(filefound):
 	logfunc(f'ApplicationState.db queries completed.')
 	
 def knowledgec(filefound):
-	logfunc(f'Incepted bplist extractions in KnowledgeC.db executing.')
+	logfunc(f'Incepted bplist extractions in KnowledgeC.db executing')
 
 	iOSversion = versionf
 	supportediOS = ['11', '12', '13']
@@ -1480,7 +1494,7 @@ def knowledgec(filefound):
 		logfunc(f'No KnowledgeC Siri Usage files available')
 
 def mib(filefound):
-	logfunc(f'Mobile Installation Logs function executing.')
+	logfunc(f'Mobile Installation Logs function executing')
 	#initialize counters
 	counter = 0
 	filescounter = 0
@@ -1928,26 +1942,36 @@ def mib(filefound):
 	
 def wireless(filefound):
 	logfunc(f'Cellular Wireless files function executing')
-	os.makedirs(reportfolderbase+'Cellular Wireless Info/')
-	for filepath in filefound:
-		basename = os.path.basename(filepath)
-		if basename =='com.apple.commcenter.device_specific_nobackup.plist' or basename =='com.apple.commcenter.plist':	
-			f =open(reportfolderbase+'Cellular Wireless Info/'+basename+'.html','w')
-			#header html mas tabla
-			f.write('<html>')
-			f.write(f'<p><body><table>')
-			f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
-			f.write(f'<tr><td colspan="2">{basename}</td></tr>')
-			p = open(filepath, 'rb')
-			plist = plistlib.load(p)
-			for key, val in plist.items():
-				f.write(f'<tr><td>{key}</td><td>{val}</td></tr>')
-			f.write(f'</table></body></html>')
-			f.close()
+	try:
+		deviceinfo()
+		os.makedirs(reportfolderbase+'Cellular Wireless Info/')
+		for filepath in filefound:
+			basename = os.path.basename(filepath)
+			if basename =='com.apple.commcenter.device_specific_nobackup.plist' or basename =='com.apple.commcenter.plist':	
+				f =open(reportfolderbase+'Cellular Wireless Info/'+basename+'.html','w')
+				#header html mas tabla
+				f.write('<html>')
+				f.write(f'<p><body><table>')
+				f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
+				f.write(f'<tr><td colspan="2">{basename}</td></tr>')
+				p = open(filepath, 'rb')
+				plist = plistlib.load(p)
+				for key, val in plist.items():
+					f.write(f'<tr><td>{key}</td><td>{val}</td></tr>')
+					if key == 'ReportedPhoneNumber':
+						ordes = 2
+						kas = 'Reported Phone Number'
+						vas = val
+						sources = filefound[0]
+						deviceinfoin(ordes, kas, vas, sources)	
+				f.write(f'</table></body></html>')
+				f.close()
+	except:
+		logfunc(f'Error in Celullar Wireless files function')
 	logfunc(f'Cellular Wireless files function completed')
 	
 def iconstate(filefound):
-	logfunc(f'Iconstate function executing.')
+	logfunc(f'Iconstate function executing')
 	os.makedirs(reportfolderbase+'Icon Positions/')
 	f =open(reportfolderbase+'Icon Positions/Icon Positions.txt','w')
 	g =open(reportfolderbase+'Icon Positions/Icon Positons.html','w')
@@ -1987,9 +2011,10 @@ def iconstate(filefound):
 	logfunc(f'Iconstate function completed.')
 	
 def lastbuild(filefound):
+	deviceinfo()
 	global versionf
 	versionnum = 0
-	logfunc(f'Lastbuild function executing.')
+	logfunc(f'Lastbuild function executing')
 	os.makedirs(reportfolderbase+'Build Info/')
 	f =open(reportfolderbase+'Build Info/LastBuildInfo.plist.txt','w')
 	p = open(filefound[0], 'rb')
@@ -2009,12 +2034,26 @@ def lastbuild(filefound):
 		f.write(f'{key} -> {val}{nl}')
 		filedatahtml.write(f'<tr><td>{key}</td><td>{val}</td></tr>')
 		if key == ('ProductVersion'):
+			ordes = 7
+			kas = 'Product Version'
+			vas = val
+			sources = filefound[0]
+			deviceinfoin(ordes, kas, vas, sources)
+
 			versionnum = val[0:2]		
 			if versionnum in ('11','12','13'):
 				versionf = versionnum 
 				logfunc(f'iOS version is: {versionf}')
 			else:
-				versionf = 'Unknown'	
+				versionf = 'Unknown'
+					
+		if key == 'ProductBuildVersion':
+			ordes = 8
+			kas = 'Build Version'
+			vas = val
+			sources = filefound[0]
+			deviceinfoin(ordes, kas, vas, sources)
+
 	f.close()
 	
 	#close html footer
@@ -2023,7 +2062,7 @@ def lastbuild(filefound):
 	logfunc(f'Lastbuild function completed.')
 
 def iOSNotifications11(filefound):
-	logfunc(f'iOSNotifications 11 function executing.')
+	logfunc(f'iOSNotifications 11 function executing')
 	
 	count = 0
 	notdircount = 0
@@ -2596,7 +2635,7 @@ def iOSNotifications12(filefound):
 	logfunc('iOS 12+ Notifications function completed.')
 
 def ktx(filefound):
-	logfunc(f'Snapshots KTX file finder function executing.')
+	logfunc(f'Snapshots KTX file finder function executing')
 	logfunc(f'Snapshots located: {len(filefound)}')
 	outpath = reportfolderbase +'Snapshots_KTX_Files/'
 	outktx = outpath+'KTX_Files/'
@@ -3257,7 +3296,7 @@ def delphotos(filefound):
 		logfunc('Error on Photos.sqlite function.')
 
 def timezone(filefound):
-	logfunc(f'Timezone function executing.')
+	logfunc(f'Timezone function executing')
 	p = open(filefound[0], 'rb')
 	plist = plistlib.load(p)
 	
@@ -3536,7 +3575,7 @@ def wiloc(filefound):
 			logfunc('Error on WiFi locations function.')
 
 def confaccts(filefound):
-	logfunc(f'Config Accounts function executing.')
+	logfunc(f'Config Accounts function executing')
 	
 	try:
 		if os.path.isdir(reportfolderbase+'Accounts/'):
@@ -4372,8 +4411,120 @@ def wapcontact(filefound):
 				f.write(f'<tr><th>Full Name</th><th>Phone Number</th><th>Label</th><th>ID</th><th>About Text</th></tr>')
 				for row in all_rows:
 					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td></tr>')
+				f.write(f'</table></body></html>')
 		else:
-			logfunc('No Whatsapp Contacts available')	
+			logfunc('No Whatsapp contacts available')	
 	except:
-		logfunc('Error on Whatsapp Contacts function')		
-	logfunc(f'Whatsapp Contacts function completed')
+		logfunc('Error on Whatsapp contacts function')		
+	logfunc(f'Whatsapp contacts function completed')
+	
+def actrec(filefound):
+	logfunc(f'Activation Record function executing')
+	
+	deviceinfo()
+
+	os.makedirs(reportfolderbase+'Activation Record/')
+	os.makedirs(reportfolderbase+'Activation Record/Incepted/')
+	resultant = ''
+	p = open(filefound[0], 'rb')
+	plist = plistlib.load(p)
+	
+	for key, val in plist.items():
+		if key == 'AccountToken':
+			
+			with open(reportfolderbase+'Activation Record/Incepted/AccToken.txt', 'wb') as fileto:#export dirty from DB
+				fileto.write(val)
+			
+			with open(reportfolderbase+'Activation Record/Incepted/AccToken.txt', 'r') as filefrom:#export dirty from DB
+				lines = filefrom.readlines()
+				alast = lines[-2]
+				for line in lines:
+					if line is alast:
+						line = line.replace('=', ':')
+						line = line.replace(';', ' ')
+						resultant = resultant + line
+					else:
+						line = line.replace('=', ':')
+						line = line.replace(';', ',')
+						resultant = resultant + line
+			
+			res = json.loads(resultant)
+		
+			for x, y in res.items():
+				if x == 'InternationalMobileEquipmentIdentity':
+					imei = y
+					ordes = 3
+					kas = 'IMEI'
+					vas = y
+					sources = filefound[0]
+					deviceinfoin(ordes, kas, vas, sources)
+					
+				if x == 'SerialNumber':
+					serial = y
+					ordes = 4
+					kas = 'Serial Number'
+					vas = y
+					sources = filefound[0]
+					deviceinfoin(ordes, kas, vas, sources)
+					
+				if x == 'UniqueDeviceID':
+					did = y
+					ordes = 5
+					kas = 'Unique Device ID'
+					vas = y
+					sources = filefound[0]
+					deviceinfoin(ordes, kas, vas, sources)
+				
+				if x == 'ProductType':
+					pt = y
+					ordes = 6
+					kas = 'Prod. Type'
+					vas = y
+					sources = filefound[0]
+					deviceinfoin(ordes, kas, vas, sources)
+			
+			with open(reportfolderbase+'Activation Record/Activation Record.html', 'w', encoding='utf8') as f:
+				f.write('<html><body>')
+				f.write('<h2> Activation Record report</h2>')
+				f.write(f'Activation Record location: {filefound[0]}<br>')
+				f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
+				f.write('<br/>')
+				f.write('')
+				f.write(f'<table class="table sticky">')
+				f.write(f'<tr><th>Key</th><th>Value</th></tr>')
+				f.write(f'<tr><td>IMEI</td><td>{imei}</td></tr>')
+				f.write(f'<tr><td>Serial Number</td><td>{serial}</td></tr>')
+				f.write(f'<tr><td>Unique Device ID</td><td>{did}</td></tr>')
+				f.write(f'<tr><td>Product Type</td><td>{pt}</td></tr>')
+				f.write(f'</table></body></html>')
+				
+				
+				''' import to sqlite
+				for row in all_rows:
+					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td></tr>')
+				'''
+			
+				
+
+			
+			logfunc(f'Activation Record function completed')
+
+			
+def deviceinfo():	
+	if os.path.isdir(reportfolderbase+'Device Info/'):
+			pass
+	else:
+		os.makedirs(reportfolderbase+'Device Info/')
+		db = sqlite3.connect(reportfolderbase+'Device Info/di.db')
+		cursor = db.cursor()
+		cursor.execute('CREATE TABLE devinf (ord TEXT, ka TEXT, va TEXT, source TEXT)')
+		db.commit()
+
+				
+
+def deviceinfoin(ordes, kas, vas, sources):
+	db = sqlite3.connect(reportfolderbase+'Device Info/di.db')
+	cursor = db.cursor()
+	datainsert = (ordes, kas, vas, sources,)
+	cursor.execute('INSERT INTO devinf (ord, ka, va, source)  VALUES(?,?,?,?)', datainsert)
+	db.commit()
