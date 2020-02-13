@@ -16,7 +16,7 @@ Parses:
 ⚙️ Build Info (iOS version, etc.)  
 ⚙️ Wireless cellular service info (IMEI, number, etc.)  
 ⚙️ Screen icons list by screen and in grid order.  
-⚙️ ApplicationState.db support for app bundle ID to data contaner GUID correlation.   
+⚙️ ApplicationState.db support for app bundle ID to data container GUID correlation.   
 ⚙️ User and computer names that the iOS device connected to. Function updated by Jack Farley (@JackFarley248, http://farleyforensics.com/).  
 ⚙️ KnowldgeC + Powerlog artifacts.
 And many, many more...
