@@ -1,4 +1,4 @@
-import sys, os, re, glob, pathlib, shutil
+import sys, os, re, glob, pathlib, shutil, os.path, sqlite3
 from time import process_time
 
 def report(reportfolderbase, time, extracttype, pathto):
@@ -163,16 +163,37 @@ def report(reportfolderbase, time, extracttype, pathto):
 	filedatahtml.write(f'<tr><td>Report directory: </td><td>{reportfolderbase}</td></tr>')
 	filedatahtml.write(f'<tr><td>Processing in secs: </td><td>{time}</td></tr>')
 	filedatahtml.write('</table><br>')
+	
+	if os.path.isfile(reportfolderbase+'Device Info/di.db'):
+		db = sqlite3.connect(reportfolderbase+'Device Info/di.db')
+		cursor = db.cursor()
+		cursor.execute('''SELECT
+		* from devinf 
+		order by ord asc
+		''')
+
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			filedatahtml.write(f'<h2>Device Info</h2>')
+			filedatahtml.write('<table width="750" border="0">')			
+			for row in all_rows:
+				filedatahtml.write(f'<tr><td>{row[1]}</td><td>{row[2]}</td></tr>')
+			filedatahtml.write(f'</table><br>')
+			
+
+	
+	
 	filedatahtml.write('<h2>Informational</h2>')
 	filedatahtml.write('<table width="750" border="0">')
-	filedatahtml.write('<tr>')
+	#filedatahtml.write('<tr>')
 	filedatahtml.write(f'<tr><td>Blog: </td><td><a href="https://abrignoni.com" target=”_blank”>abrignoni.com</a></td></tr>')
 	filedatahtml.write(f'<tr><td>Github: </td><td><a href="https://github.com/abrignoni" target=”_blank”>github.com/abrignoni</a></td></tr>')
 	filedatahtml.write(f'<tr><td>Twitter: </td><td><a href="https://twitter.com/AlexisBrignoni" target=”_blank”>@AlexisBrignoni</a></td></tr>')
 	filedatahtml.write('</table><br>')
 	filedatahtml.write('<h2>About</h2>')
 	filedatahtml.write('<table width="750" border="0">')
-	filedatahtml.write('<tr>')
+	#filedatahtml.write('<tr>')
 	filedatahtml.write(f'<tr><td>Artifact references: </td><td><a href="https://abrignoni.com" target=”_blank”>Pending</a></td></tr>')
 	filedatahtml.write(f"<tr><td>Awesome Friends: </td><td><a href='https://abrignoni.blogspot.com/2020/01/awesome-friends.html' target='_blank'>Contributors I can't thank enough.</a></td></tr>")
 	filedatahtml.write('</table><br></body></html>')
