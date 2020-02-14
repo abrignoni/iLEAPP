@@ -4597,6 +4597,7 @@ def deviceinfo():
 				
 
 def deviceinfoin(ordes, kas, vas, sources):
+	sourcess = str(sources)
 	db = sqlite3.connect(reportfolderbase+'Device Info/di.db')
 	cursor = db.cursor()
 	datainsert = (ordes, kas, vas, sources,)
