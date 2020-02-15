@@ -4584,6 +4584,159 @@ def DHCPhp(filefound):
 	except:
 		logfunc('Error on DHCP Hotspot Clients function')
 
+def redditusers(filefound):
+	
+	unix = datetime.datetime(1970, 1, 1)  # UTC
+	cocoa = datetime.datetime(2001, 1, 1)  # UTC
+	delta = cocoa - unix
+	
+	try:
+		logfunc(f'Reddit User Accounts function executing')
+		try:
+			os.makedirs(reportfolderbase+'Reddit/')
+			db = sqlite3.connect(reportfolderbase+'Reddit/rusers.db')
+			cursor = db.cursor()
+			cursor.execute('CREATE TABLE users(username TEXT, userid TEXT, createdtime TEXT)')
+			db.commit()
+		except:
+			logfunc(f'DB could not be created')
+		
+		head, tail = os.path.split(filefound[1])
+		for filename in glob.glob(head+'/*'):
+			with open(filename, 'rb') as fp:
+				#anadir try except file not a bplist
+				plist = ccl_bplist.load(fp)
+				ns_keyed_archiver_obj = ccl_bplist.deserialise_NsKeyedArchiver(plist, parse_whole_structure=False)
+				username = (ns_keyed_archiver_obj['Username'])
+				if username != '$null':
+					userid = (ns_keyed_archiver_obj['PrimaryKey'])
+					date = (ns_keyed_archiver_obj['created'])
+					date = date['NS.time']
+					dia = str(date)
+					dias = (dia.rsplit('.', 1)[0])
+					timestamp = datetime.datetime.fromtimestamp(int(dias)) + delta
+					
+					db = sqlite3.connect(reportfolderbase+'Reddit/rusers.db')
+					cursor = db.cursor()
+					datainsert = (username, userid, timestamp,)
+					cursor.execute('INSERT INTO users(username, userid, createdtime)  VALUES(?,?,?)', datainsert)
+					db.commit()		
+					
+		db = sqlite3.connect(reportfolderbase+'Reddit/rusers.db')
+		cursor = db.cursor()
+		cursor.execute(''' SELECT
+		*
+		from users
+		''')
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			with open(reportfolderbase+'Reddit/User Accounts.html', 'w', encoding='utf8') as f:
+				f.write('<html><body>')
+				f.write('<h2> Reddit User Accounts report</h2>')
+				f.write(f'Reddit User Accounts total: {usageentries}<br>')
+				f.write(f'Reddit User Accounts location: {head}<br>')
+				f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
+				f.write('<br/>')
+				f.write('')
+				f.write(f'<table class="table sticky">')
+				f.write(f'<tr><th>Username</th><th>User ID</th><th>Creation Date</th></tr>')
+				for row in all_rows:
+					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td></tr>')
+				f.write(f'</table></body></html>')
+		logfunc(f'Reddit User Accounts function completed')
+	except:
+		logfunc('Error on Reddit User Accounts function')
+
+def redditchats(filefound):
+	logfunc(f'Reddit Chats + Contacts function executing')
+	try:
+		db = sqlite3.connect(reportfolderbase+'Reddit/rusers.db')
+		cursor = db.cursor()
+		cursor.execute(''' SELECT
+		*
+		from users
+		''')
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			for cpath in filefound:
+				cpath = str(cpath)
+				for row in all_rows:
+					reddituserid = row[1]
+					redditusername = row[0]
+					if reddituserid+'/chat/' in cpath:
+						db = sqlite3.connect(cpath)
+						cursor = db.cursor()
+						cursor.execute(''' select 
+						username,
+						userID,
+						createdAt,
+						profileThumbnailUrl
+						from Contact
+						''')
+						all_rows0 = cursor.fetchall() #selected all channelids
+						usageentries0 = len(all_rows0)
+						if usageentries0 > 0:
+							with open(reportfolderbase+'Reddit/Contacts - '+redditusername+'.html', 'w', encoding='utf8') as f:
+								f.write('<html><body>')
+								f.write(f'<h2> Reddit Contacts for {redditusername}</h2>')
+								f.write(f'Reddit Contacts location: {cpath}<br>')
+								f.write(f'Timestamps in UTC<br>')
+								f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
+								f.write('<br/>')
+								f.write(f'<table class="table sticky">')
+								f.write(f'<tr><th>Username</th><th>User ID</th><th>Creation Date</th><th>Thumbnail URL</th></tr>')
+								for row0 in all_rows0:
+									f.write(f'<tr><td>{row0[0]}</td><td>{row0[1]}</td><td>{row0[2]}</td><td>{row0[3]}</td></tr>')
+								f.write(f'</table></body></html>')
+
+						db = sqlite3.connect(cpath)
+						cursor = db.cursor()
+						cursor.execute(''' select 
+						distinct ChatMessage.channelID
+						from 
+						ChatMessage
+						''')
+						all_rows1 = cursor.fetchall() #selected all channelids
+						usageentries1 = len(all_rows1)
+						if usageentries1 > 0:
+							
+							with open(reportfolderbase+'Reddit/Chats - '+redditusername+'.html', 'w', encoding='utf8') as f:
+								f.write('<html><body>')
+								f.write(f'<h2> Reddit Chats by Channel for {redditusername}</h2>')
+								f.write(f'Reddit Chats by Channel location: {cpath}<br>')
+								f.write(f'Timestamps in UTC<br>')
+								f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
+								f.write('<br/>')
+								f.write('')
+								
+								for row1 in all_rows1: #select chats per channelid - table
+									chan = row1[0]
+									cursor = db.cursor()
+									cursor.execute(''' select 
+									Contact.username,
+									datetime(ChatMessage.timestamp / 1000, 'UNIXEPOCH') as utctime,
+									ChatMessage.messageBody,
+									ChatMessage.userID
+									from 
+									ChatMessage, Contact
+									where ChatMessage.channelId = ? and Contact.userID = ChatMessage.userID
+									order by ChatMessage.timestamp
+									''', (chan,))
+									all_rows2 = cursor.fetchall()
+									f.write(f'Channel #{chan}<br>')
+									f.write(f'<table>')
+									f.write(f'<tr><th>Username</th><th>Timestamp</th><th>Message</th><th>User ID</th></tr>')
+									for row2 in all_rows2:
+										f.write(f'<tr><td>{row2[0]}</td><td>{row2[1]}</td><td>{row2[2]}</td><td>{row2[3]}</td></tr>')
+									f.write(f'</table><br>')
+			logfunc(f'Reddit Chats + Contacts function completed')			
+		else:
+			logfunc('No Reddit User Accounts')
+	except:	
+		logfunc('Error on Reddit Chats + Contacts function')
+
 def deviceinfo():	
 	if os.path.isdir(reportfolderbase+'Device Info/'):
 			pass
@@ -4597,7 +4750,7 @@ def deviceinfo():
 				
 
 def deviceinfoin(ordes, kas, vas, sources):
-	sourcess = str(sources)
+	sources = str(sources)
 	db = sqlite3.connect(reportfolderbase+'Device Info/di.db')
 	cursor = db.cursor()
 	datainsert = (ordes, kas, vas, sources,)

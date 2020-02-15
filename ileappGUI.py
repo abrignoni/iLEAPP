@@ -103,9 +103,12 @@ while True:
 				'wapcontact':'*ContactsV2.sqlite',
 				'actrec':'*activation_record.plist',
 				'DHCPhp':'*private/var/db/dhcpd_leases*',
-				'DHCPL':'*private/var/db/dhcpclient/leases/*'}
+				'DHCPL':'*private/var/db/dhcpclient/leases/*',
+				'redditusers':'*Data/Application/*/Documents/*/accounts/*',
+				'redditchats':'*Data/Application/*/Documents/*/accountData/*/chat/*/chat.sqlite'}
 	'''
-	tosearch = {'DHCPL':'*private/var/db/dhcpclient/leases/*'}
+	tosearch = {'redditusers':'*Data/Application/*/Documents/*/accounts/*',
+				'redditchats':'*Data/Application/*/Documents/*/accountData/*/chat/*/chat.sqlite'}
 	'''
 			
 	os.makedirs(reportfolderbase)
