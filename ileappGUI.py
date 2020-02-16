@@ -22,6 +22,7 @@ layout = [  [sg.Text('iOS Logs, Events, And Properties Parser.', font=("Helvetic
 			[sg.Radio('.Tar', "rad1", default=True, font=("Helvetica", 14)), sg.Radio('Directory', "rad1", font=("Helvetica", 14)), sg.Radio('.Zip', "rad1", font=("Helvetica", 14))], #added font type and font size
 			[sg.Text('File:', size=(8, 1), font=("Helvetica", 14)), sg.Input(), sg.FileBrowse(font=("Helvetica", 12))], #added font type and font size
 			[sg.Text('Directory:', size=(8, 1), font=("Helvetica", 14)), sg.Input(), sg.FolderBrowse(font=("Helvetica", 12))], #added font type and font size
+			[sg.Checkbox('Generate CSV output (Additional processing time)', size=(50, 1), default=False, font=("Helvetica", 14))],
 			[sg.Output(size=(100,40))], #changed size from (88,20)
 			[sg.Submit('Process',font=("Helvetica", 14)), sg.Button('Close', font=("Helvetica", 14))] ] #added font type and font size
 			
@@ -33,7 +34,7 @@ while True:
 	event, values = window.read()
 	if event in (None, 'Close'):   # if user closes window or clicks cancel
 		break
-	#logfunc('Selected:', values)
+	
 
 	if values[0] == True:
 		extracttype = 'tar'
@@ -64,7 +65,7 @@ while True:
 				sys.exit()
 	
 	start = process_time()
-
+	
 	
 	tosearch = {'mib': '*mobile_installation.log.*',
 				'iconstate': '*SpringBoard/IconState.plist',
@@ -105,10 +106,11 @@ while True:
 				'DHCPhp':'*private/var/db/dhcpd_leases*',
 				'DHCPL':'*private/var/db/dhcpclient/leases/*',
 				'redditusers':'*Data/Application/*/Documents/*/accounts/*',
-				'redditchats':'*Data/Application/*/Documents/*/accountData/*/chat/*/chat.sqlite'}
+				'redditchats':'*Data/Application/*/Documents/*/accountData/*/chat/*/chat.sqlite',
+				'interactionc':'*interactionC.db'}
 	'''
-	tosearch = {'redditusers':'*Data/Application/*/Documents/*/accounts/*',
-				'redditchats':'*Data/Application/*/Documents/*/accountData/*/chat/*/chat.sqlite'}
+	tosearch = {'lastbuild': '*LastBuildInfo.plist',
+				'interactionc':'*interactionC.db'}
 	'''
 			
 	os.makedirs(reportfolderbase)
@@ -232,6 +234,21 @@ while True:
 	log.close()
 	
 	report(reportfolderbase, time, extracttype, pathto)
+	
+	
+	if values[5] == True:
+		start = process_time()
+		window.refresh()
+		logfunc('')
+		logfunc(f'CSV export starting. This might take a while...')
+		window.refresh()
+		html2csv(reportfolderbase)
+		
+	if values[5] == True:
+		end = process_time()
+		time = start - end
+		logfunc("CSV processing time in secs: " + str(abs(time)) )
+	
 	locationmessage = ('Report name: '+reportfolderbase+'index.html')
 	sg.Popup('Processing completed', locationmessage)
 	

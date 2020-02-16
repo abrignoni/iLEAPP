@@ -16,6 +16,8 @@ import shutil
 import textwrap
 import base64
 from time import process_time
+from bs4 import BeautifulSoup
+import codecs
 
 nl = '\n' 
 now = datetime.datetime.now()
@@ -4737,6 +4739,90 @@ def redditchats(filefound):
 	except:	
 		logfunc('Error on Reddit Chats + Contacts function')
 
+def interactionc(filefound):
+	logfunc(f'InteractionC function executing')
+	try:
+		iOSversion = versionf
+		supportediOS = ['11', '12', '13']
+
+		if iOSversion not in supportediOS:
+			logfunc ("Unsupported version"+iOSversion)
+			return()
+		
+		db = sqlite3.connect(filefound[0])
+		cursor = db.cursor()
+
+		cursor.execute('''SELECT
+		ZINTERACTIONS.ZBUNDLEID AS "BUNDLE ID",
+		ZCONTACTS.ZDISPLAYNAME AS "DISPLAY NAME",
+		ZCONTACTS.ZIDENTIFIER AS "IDENTIFIER",
+		ZCONTACTS.ZPERSONID AS "PERSONID",
+		ZINTERACTIONS.ZDIRECTION AS "DIRECTION",
+		ZINTERACTIONS.ZISRESPONSE AS "IS RESPONSE",
+		ZINTERACTIONS.ZMECHANISM AS "MECHANISM",
+		ZINTERACTIONS.ZRECIPIENTCOUNT AS "RECIPIENT COUNT",
+		DATETIME(ZINTERACTIONS.ZCREATIONDATE + 978307200, 'unixepoch') AS "ZINTERACTIONS CREATION DATE",
+		DATETIME(ZCONTACTS.ZCREATIONDATE + 978307200, 'unixepoch') AS "ZCONTACTS CREATION DATE",
+		DATETIME(ZINTERACTIONS.ZSTARTDATE + 978307200, 'unixepoch') AS "START DATE",
+		DATETIME(ZINTERACTIONS.ZENDDATE + 978307200, 'unixepoch') AS "END DATE",
+		DATETIME(ZCONTACTS.ZFIRSTINCOMINGRECIPIENTDATE + 978307200, 'unixepoch') AS "FIRST INCOMING RECIPIENT DATE",
+		DATETIME(ZCONTACTS.ZFIRSTINCOMINGSENDERDATE + 978307200, 'unixepoch') AS "FIRST INCOMING SENDER DATE",
+		DATETIME(ZCONTACTS.ZFIRSTOUTGOINGRECIPIENTDATE + 978307200, 'unixepoch') AS "FIRST OUTGOING RECIPIENT DATE",
+		DATETIME(ZCONTACTS.ZLASTINCOMINGSENDERDATE + 978307200, 'unixepoch') AS "LAST INCOMING SENDER DATE",
+		CASE
+			ZLASTINCOMINGRECIPIENTDATE 
+			WHEN
+				"0" 
+			THEN
+				"0" 
+			ELSE
+				DATETIME(ZCONTACTS.ZLASTINCOMINGRECIPIENTDATE + 978307200, 'unixepoch') 
+		END AS "LAST INCOMING RECIPIENT DATE", 
+		DATETIME(ZCONTACTS.ZLASTOUTGOINGRECIPIENTDATE + 978307200, 'unixepoch') AS "LAST OUTGOING RECIPIENT DATE", 
+		ZINTERACTIONS.ZACCOUNT AS "ACCOUNT", 
+		ZINTERACTIONS.ZDOMAINIDENTIFIER AS "DOMAIN IDENTIFIER", 
+		ZCONTACTS.ZINCOMINGRECIPIENTCOUNT AS "INCOMING RECIPIENT COUNT", 
+		ZCONTACTS.ZINCOMINGSENDERCOUNT AS "INCOMING SENDER COUNT", 
+		ZCONTACTS.ZOUTGOINGRECIPIENTCOUNT AS "OUTGOING RECIPIENT COUNT", 
+		ZCONTACTS.ZCUSTOMIDENTIFIER AS "CUSTOM IDENTIFIER", 
+		ZINTERACTIONS.ZCONTENTURL AS "CONTENT URL", 
+		ZINTERACTIONS.ZLOCATIONUUID AS "LOCATION UUID", 
+		ZINTERACTIONS.Z_PK AS "ZINTERACTIONS TABLE ID" 
+		FROM
+		ZINTERACTIONS 
+		LEFT JOIN
+			ZCONTACTS 
+			ON ZINTERACTIONS.ZSENDER = ZCONTACTS.Z_PK
+		''')
+
+		all_rows = cursor.fetchall()
+		usageentries = len(all_rows)
+		if usageentries > 0:
+			if os.path.isdir(reportfolderbase+'InteractionC/'):
+				pass
+			else:
+				os.makedirs(reportfolderbase+'InteractionC/')
+				
+			with open(reportfolderbase+'InteractionC/Interactions.html', 'w', encoding='utf8') as f:
+				f.write('<html><body>')
+				f.write('<h2>iOS ' + iOSversion + ' - InteractionC report</h2>')
+				f.write(f'InteractionC entries: {usageentries}<br>')
+				f.write(f'InteractionC located at: {filefound[0]}<br>')
+				f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
+				f.write('<br/>')
+				f.write('')
+				f.write(f'<table class="table sticky">')
+				f.write(f'<tr><th>Bundle ID</th><th>Display Name</th><th>Identifier</th><th>Person ID</th><th>Direction</th><th>Is Response</th><th>Mechanism</th><th>Recipient Count</th><th>Zinteractions Creation Date</th><th>Zcontacts Creation Date</th><th>Start Date</th><th>End Date</th><th>First Incoming Recipient Date</th><th>First Outgoing Recipient Date</th><th>Last Incoming Sender Date</th><th>Last Incoming Recipient Date</th><th>Last Outgoing Recipient Date</th><th>Account</th><th>Domain Identifier</th><th>Incoming Recipient Count</th><th>Incoming Sender Count</th><th>Outgoing Recipient Count</th><th>Custom Identifier</th><th>Content URL</th><th>Location UUID</th><th>Zinteractions Table ID</th></tr>')
+				for row in all_rows:
+					f.write(f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td><td>{row[8]}</td><td>{row[9]}</td><td>{row[10]}</td><td>{row[11]}</td><td>{row[12]}</td><td>{row[13]}</td><td>{row[14]}</td><td>{row[15]}</td><td>{row[17]}</td><td>{row[17]}</td><td>{row[18]}</td><td>{row[19]}</td><td>{row[20]}</td><td>{row[21]}</td><td>{row[22]}</td><td>{row[23]}</td><td>{row[24]}</td><td>{row[25]}</td><td>{row[26]}</td></tr>')
+				f.write(f'</table></body></html>')
+		else:
+			logfunc(f'No InteractionC records in database')
+	except:
+		logfunv(f'Error in InteractionC function')
+	logfunc(f'InteractionC function completed')
+
+
 def deviceinfo():	
 	if os.path.isdir(reportfolderbase+'Device Info/'):
 			pass
@@ -4756,3 +4842,42 @@ def deviceinfoin(ordes, kas, vas, sources):
 	datainsert = (ordes, kas, vas, sources,)
 	cursor.execute('INSERT INTO devinf (ord, ka, va, source)  VALUES(?,?,?,?)', datainsert)
 	db.commit()
+	
+def html2csv(reportfolderbase):
+	#List of items that take too long to convert or that shouldn't be converted
+	itemstoignore = ['index.html',
+					'Distribution Keys.html', 
+					'StrucMetadata.html']
+					
+	if os.path.isdir(reportfolderbase+'_CSV Exports/'):
+		pass
+	else:
+		os.makedirs(reportfolderbase+'_CSV Exports/')
+	for root, dirs, files in sorted(os.walk(reportfolderbase)):
+		for file in files:
+			if file.endswith(".html"):
+				fullpath = (os.path.join(root, file))
+				head, tail = os.path.split(fullpath)
+				if file in itemstoignore:
+					pass
+				else:
+					data = open(fullpath, 'r', encoding='utf8')
+					soup=BeautifulSoup(data,'html.parser')
+					tables = soup.find_all("table")
+					data.close()
+					output_final_rows=[]
+
+					for table in tables:
+						output_rows = []
+						for table_row in table.findAll('tr'):
+
+							columns = table_row.findAll('td')
+							output_row = []
+							for column in columns:
+									output_row.append(column.text)
+							output_rows.append(output_row)
+		
+
+						with codecs.open(reportfolderbase+'_CSV Exports/'+file+'.csv', 'a', 'utf-8-sig') as csvfile:
+							writer = csv.writer(csvfile, quotechar='"', quoting=csv.QUOTE_ALL)
+							writer.writerows(output_rows)

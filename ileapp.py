@@ -66,7 +66,8 @@ tosearch = {'mib':'*mobile_installation.log.*',
 			'DHCPhp':'*private/var/db/dhcpd_leases*',
 			'DHCPL':'*private/var/db/dhcpclient/leases/*',
 			'redditusers':'*Data/Application/*/Documents/*/accounts/*',
-			'redditchats':'*Data/Application/*/Documents/*/accountData/*/chat/*/chat.sqlite'}
+			'redditchats':'*Data/Application/*/Documents/*/accountData/*/chat/*/chat.sqlite',
+			'interactionc':'*interactionC.db'}
 
 '''
 tosearch = {'redditusers':'*Data/Application/*/Documents/*/accounts/*',
