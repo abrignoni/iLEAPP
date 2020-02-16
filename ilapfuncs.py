@@ -4847,7 +4847,8 @@ def html2csv(reportfolderbase):
 	#List of items that take too long to convert or that shouldn't be converted
 	itemstoignore = ['index.html',
 					'Distribution Keys.html', 
-					'StrucMetadata.html']
+					'StrucMetadata.html',
+					'StrucMetadataCombined.html']
 					
 	if os.path.isdir(reportfolderbase+'_CSV Exports/'):
 		pass
@@ -4877,7 +4878,7 @@ def html2csv(reportfolderbase):
 									output_row.append(column.text)
 							output_rows.append(output_row)
 		
-
+						file = (os.path.splitext(file)[0])
 						with codecs.open(reportfolderbase+'_CSV Exports/'+file+'.csv', 'a', 'utf-8-sig') as csvfile:
 							writer = csv.writer(csvfile, quotechar='"', quoting=csv.QUOTE_ALL)
 							writer.writerows(output_rows)
