@@ -4510,7 +4510,6 @@ def DHCPL(filefound):
 		logfunc(f'DHCP Received Lease function executing')
 		if filefound:
 			head, tail = os.path.split(filefound[0])
-			logfunc(f'DHCP: {head} - - {tail}')
 			try:
 				if os.path.isdir(reportfolderbase+'DHCP/'):
 					pass
