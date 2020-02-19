@@ -4508,8 +4508,9 @@ def actrec(filefound):
 def DHCPL(filefound):
 	try:
 		logfunc(f'DHCP Received Lease function executing')
-		if len(filefound) > 1:
-			head, tail = os.path.split(filefound[1])
+		if filefound:
+			head, tail = os.path.split(filefound[0])
+			logfunc(f'DHCP: {head} - - {tail}')
 			try:
 				if os.path.isdir(reportfolderbase+'DHCP/'):
 					pass
@@ -4521,7 +4522,7 @@ def DHCPL(filefound):
 			with open(reportfolderbase+'DHCP/Received Lease.html','w') as f:
 				f.write('<html><body>')
 				f.write('<h2>DHCP Received Lease Report</h2>')
-				f.write(f'DHCP Received Lease located at {filefound[1]}<br>')
+				f.write(f'DHCP Received Lease located at {filefound[0]}<br>')
 				f.write('<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>')
 				f.write('<br/>')
 				f.write('')
@@ -4529,7 +4530,7 @@ def DHCPL(filefound):
 				f.write(f'<tr><th>Key</th><th>Values</th></tr>')
 				f.write(f'<tr><td>iOS WiFi MAC</td><td>{tail}</td></tr>')
 			
-				with open(filefound[1], 'rb') as fp:
+				with open(filefound[0], 'rb') as fp:
 					pl = plistlib.load(fp)
 					for key, val in pl.items():
 						if key == 'IPAddress':
