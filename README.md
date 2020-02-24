@@ -5,10 +5,7 @@ Details in blog post here: https://abrignoni.blogspot.com/2019/12/ileapp-ios-log
 Supports iOS 11, 12 & 13.
 Select parsing directly from a compressed .tar/.zip file or a decompressed directory.
 
-Pre-requisites:  
-Python 3.7 +  
-Pip install six  
-Pip install PySimpleGUI  
+## Features
 
 Parses:  
 ⚙️ Mobile Installation Logs  
@@ -21,6 +18,25 @@ Parses:
 ⚙️ KnowldgeC + Powerlog artifacts.
 And many, many more...
 
+
+## Installation
+
+Pre-requisites:
+This project requires you to have Python > 3.7 installed on your system.
+
+To install dependencies, run:
+
+```
+pip install -r requirements.txt
+```
+
+## Usage
+
+### CLI
+
+```
+$ python ileapp.py --help
+
 Usage: ileapp.py [-h] -o {fs,tar,zip} pathtodir  
 iLEAPP: iOS Logs, Events, and Preferences Parser.  
 
@@ -30,7 +46,12 @@ positional arguments:
 optional arguments:
   -h, --help   show this help message and exit  
   -o {fs,tar}  Directory path or TAR filename and path(required).
- 
-Graphical user interface.    
-Usage: ileappGUI.py
-No parameter needed.
+```
+
+### GUI
+
+```
+$ python ileappGUI.py
+```
+
+The GUI will open in another window.
