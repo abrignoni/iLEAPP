@@ -133,3 +133,9 @@ dmypy.json
 
 # pytype static type analyzer
 .pytype/
+
+# Editor specific files
+*.swp
+
+# Project specific files
+ILEAPP_Reports_*
