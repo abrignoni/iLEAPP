@@ -7,10 +7,7 @@ from ilapfuncs import *
 
 
 def search(pathto, filename):
-	list = []
-	for file in Path(pathto).rglob(filename):
-		list.append(file)
-	return list
+	return [ fname for fname in Path(pathto).rglob(filename) ]
 
 def searchtar(t, val, reportfolderbase):
 	temp = reportfolderbase+'temp/'
