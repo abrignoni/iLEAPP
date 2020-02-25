@@ -1,3 +1,3 @@
 format:
-	black ilapfuncs.py
-	importanize ilapfuncs.py
+	black ilapfuncs.py contrib/
+	importanize ilapfuncs.py contrib/

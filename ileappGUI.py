@@ -13,6 +13,8 @@ from zipfile import ZipFile
 from tarfile import TarFile
 import PySimpleGUI as sg
 
+from settings import reportfolderbase
+
 sg.theme('DarkAmber')   # Add a touch of color
 # All the stuff inside your window.
 
