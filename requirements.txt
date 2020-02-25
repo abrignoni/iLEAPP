@@ -1,4 +1,14 @@
+appdirs==1.4.3
+attrs==19.3.0
 beautifulsoup4==4.8.2
+black==19.10b0
+Click==7.0
+importanize==0.7.0
+pathlib2==2.3.5
+pathspec==0.7.0
 PySimpleGUI==4.16.0
+regex==2020.2.20
 six==1.14.0
 soupsieve==2.0
+toml==0.10.0
+typed-ast==1.4.1
