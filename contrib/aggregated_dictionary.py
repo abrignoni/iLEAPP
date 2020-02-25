@@ -1,8 +1,9 @@
 import os
+import sqlite3
+import textwrap
 
-import sqlite
 from common import logfunc
-from settings import report_folder_base
+from settings import *
 
 
 AGGREGATED_DICT_DIR_NAME = "Aggregated Dict/"
@@ -11,7 +12,7 @@ passcode_type_query = """
     select
     date(daysSince1970*86400, 'unixepoch', 'utc') as day,
     key,
-    value
+    value,
     case
             when value = -1 then '6 digit'
             when value = 0 then 'No passcode'
@@ -22,7 +23,7 @@ passcode_type_query = """
             END as passcodeType
     from Scalars
     where key = 'com.apple.passcode.PasscodeType'
-"""
+    """
 
 
 def get_sql_output(query, db_path):
@@ -40,11 +41,52 @@ def get_sql_output(query, db_path):
     return rows
 
 
-def passcode_type_section():
+def write_html_to_file(file_path, rows, db_path, category, additional_cols=None):
+    """
+    """
+    with open(file_path, "w", encoding="utf8") as f:
+        f.write("<html><body>")
+        f.write(f"<h2> {category} report</h2>")
+        f.write(f"{category} entries: {len(rows)}<br>")
+        f.write(f"{category} located at: {db_path}<br>")
+        f.write(
+            "<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>"
+        )
+        f.write("<br/>")
+        f.write("")
+        f.write(f'<table class="table sticky">')
+
+        base_table_header_template = f"<tr><th>Timestamp</th><th>Key</th><th>Value</th>"
+        template = base_table_header_template
+
+        if additional_cols:
+            for col in additional_cols:
+                template = f"{template}<th>{col}</th>"
+
+        template = f"{template}</tr>"
+        f.write(f"{template}")
+
+        for row in rows:
+            base_table_row_template = (
+                f"<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td>"
+            )
+            if not additional_cols:
+                f.write(f"{base_table_row_template}</tr>")
+            else:
+                template = base_table_row_template
+                for ind in range(len(additional_cols)):
+                    template = f"{template}<td>{row[(3 + ind)]}</td>"
+                f.write(f"{template}</tr>")
+
+        f.write(f"</table></body></html>")
+    return
+
+
+def passcode_type_section(query, db_path):
     """
     Writes passcode type to HTML file
     """
-    rows = get_sql_output(passcode_type_query, filefound[0])
+    rows = get_sql_output(passcode_type_query, db_path)
 
     if not rows:
         logfunc("No Aggregated dictionary Passcode Type data available")
@@ -53,27 +95,11 @@ def passcode_type_section():
     logfunc(f"Aggregated dictionary Passcode Type function executing")
 
     fname = "Passcode Type.html"
-    full_fname = f"{report_folder_base}{AGGREGATED_DICT_DIR_NAME}{fname}"
+    fpath = f"{report_folder_base}{AGGREGATED_DICT_DIR_NAME}{fname}"
 
-    with open(full_fname, "w", encoding="utf8") as f:
-        f.write("<html><body>")
-        f.write("<h2> Passcode Type report</h2>")
-        f.write(f"Passcode Type entries: {len(rows)}<br>")
-        f.write(f"Passcode Type located at: {filefound[0]}<br>")
-        f.write(
-            "<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>"
-        )
-        f.write("<br/>")
-        f.write("")
-        f.write(f'<table class="table sticky">')
-        f.write(
-            f"<tr><th>Timestamp</th><th>Key</th><th>Value</th><th>Passcode Type</th></tr>"
-        )
-        for row in all_rows:
-            f.write(
-                f"<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td></tr>"
-            )
-        f.write(f"</table></body></html>")
+    write_html_to_file(
+        fpath, rows, db_path, "Passcode Type", additional_cols=["Passcode Type"]
+    )
 
     logfunc(f"Aggregated dictionary Passcode Type function completed")
 
@@ -83,12 +109,12 @@ def aggdict(filefound):
 
     try:
         dir_name = f"{report_folder_base}Aggregated Dict/"
-        os.makedirs(dir_name, exists_ok=True)
+        os.makedirs(dir_name, exist_ok=True)
     except Exception:
         logfunc("Error creating aggdict() report directory")
 
     try:
-        passcode_type_section()
+        passcode_type_section(passcode_type_query, filefound[0])
     except Exception:
         logfunc("Error in Aggregated dictionary Passcode Type section.")
 

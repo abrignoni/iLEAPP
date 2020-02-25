@@ -21,6 +21,7 @@ import ccl_bplist
 from common import logfunc
 from contrib.aggregated_dictionary import aggdict
 from parse3 import ParseProto
+from settings import *
 
 
 def dbbuff(filefound):

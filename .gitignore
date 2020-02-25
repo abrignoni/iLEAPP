@@ -134,7 +134,8 @@ dmypy.json
 # pytype static type analyzer
 .pytype/
 
-# Editor specific files
+# Editor / OS specific files
+.DS_Store
 *.swp
 
 # Project specific files
