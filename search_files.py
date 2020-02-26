@@ -1,8 +1,9 @@
-import os
-from pathlib import Path
-import tarfile
-from zipfile import ZipFile
 import fnmatch
+import os
+import tarfile
+from pathlib import Path
+from zipfile import ZipFile
+
 from ilapfuncs import *
 
 

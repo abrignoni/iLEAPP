@@ -1,5 +1,13 @@
-import sys, os, re, glob, pathlib, shutil, os.path, sqlite3
+import glob
+import os
+import os.path
+import pathlib
+import re
+import shutil
+import sqlite3
+import sys
 from time import process_time
+
 
 def report(reportfolderbase, time, extracttype, pathto):
 	os.mkdir(reportfolderbase+'/_elements')

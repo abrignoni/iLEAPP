@@ -1,15 +1,21 @@
-import sys, os, re, glob
-from search_files import *
-from ilapfuncs import *
 import argparse
-from argparse import RawTextHelpFormatter
-from six.moves.configparser import RawConfigParser
-from time import process_time
-import  tarfile
+import glob
+import os
+import re
 import shutil
-from report import *
-from zipfile import ZipFile
+import sys
+import tarfile
+from argparse import RawTextHelpFormatter
 from tarfile import TarFile
+from time import process_time
+from zipfile import ZipFile
+
+from six.moves.configparser import RawConfigParser
+
+from ilapfuncs import *
+from report import *
+from search_files import *
+
 
 parser = argparse.ArgumentParser(description='iLEAPP: iOS Logs, Events, and Preferences Parser.')
 parser.add_argument('-o', choices=['fs','tar', 'zip'], required=True, action="store",help="Directory path, TAR, or ZIP filename and path(required).")

@@ -1,19 +1,24 @@
-import sys, os, re, glob
-from search_files import *
-from ilapfuncs import *
 import argparse
-from argparse import RawTextHelpFormatter
-from six.moves.configparser import RawConfigParser
-from time import process_time
-import  tarfile
+import glob
+import os
+import re
 import shutil
+import sys
+import tarfile
 import webbrowser
-from report import *
-from zipfile import ZipFile
+from argparse import RawTextHelpFormatter
 from tarfile import TarFile
-import PySimpleGUI as sg
+from time import process_time
+from zipfile import ZipFile
 
+import PySimpleGUI as sg
+from six.moves.configparser import RawConfigParser
+
+from ilapfuncs import *
+from report import *
+from search_files import *
 from settings import reportfolderbase
+
 
 sg.theme('DarkAmber')   # Add a touch of color
 # All the stuff inside your window.
