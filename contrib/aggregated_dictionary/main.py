@@ -7,6 +7,9 @@ from contrib.utils import get_sql_output, write_html_to_file
 from settings import *
 
 from .sql import *
+from jinja2 import Environment, FileSystemLoader
+
+template_env = Environment(loader=FileSystemLoader('./contrib/aggregated_dictionary/html/'))
 
 
 AGGREGATED_DICT_DIR_NAME = "Aggregated Dict/"
@@ -14,6 +17,11 @@ AGGREGATED_DICT_DIR_NAME = "Aggregated Dict/"
 
 def fetch_and_write_data(query, db_path, category, additional_cols=None):
     rows = get_sql_output(passcode_type_query, db_path)
+    import ipdb; ipdb.set_trace()
+
+    template = template_env.get_template('trial.html')
+    print(template.render(rows=rows))
+
     if not rows:
         logfunc(f"No Aggregated dictionary {category} data available")
         return

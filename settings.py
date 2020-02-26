@@ -12,3 +12,9 @@ temp = reportfolderbase + "temp/"
 
 # aliases for new code to use
 report_folder_base = reportfolderbase
+
+# templates
+from jinja2 import Environment, FileSystemLoader
+
+import ipdb; ipdb.set_trace()
+env = Environment(FileSystemLoader('contrib/*/html'))

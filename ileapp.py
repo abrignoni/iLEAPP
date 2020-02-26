@@ -11,13 +11,11 @@ from report import *
 from zipfile import ZipFile
 from tarfile import TarFile
 
+from jinja2 import Environment
+
 parser = argparse.ArgumentParser(description='iLEAPP: iOS Logs, Events, and Preferences Parser.')
 parser.add_argument('-o', choices=['fs','tar', 'zip'], required=True, action="store",help="Directory path, TAR, or ZIP filename and path(required).")
 parser.add_argument('pathtodir',help='Path to directory')
-
-# if len(sys.argv[1:])==0:
-# 	parser.logfunc_help()
-# 	parser.exit()
 
 start = process_time()
 	
@@ -26,6 +24,7 @@ args = parser.parse_args()
 pathto = args.pathtodir
 extracttype = args.o
 start = process_time()
+
 
 tosearch = {'mib':'*mobile_installation.log.*',
 			'iconstate':'*SpringBoard/IconState.plist',
