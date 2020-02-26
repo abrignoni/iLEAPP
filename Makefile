@@ -1,6 +1,6 @@
 format:
-	black ilapfuncs.py contrib/
-	importanize ilapfuncs.py contrib/
+	black --exclude "/(parse3.py|ccl_bplist.py)" .
+	importanize .
 
 clean:
 	rm -rf ILEAPP_Reports*
