@@ -11,8 +11,6 @@ from report import *
 from zipfile import ZipFile
 from tarfile import TarFile
 
-from jinja2 import Environment
-
 parser = argparse.ArgumentParser(description='iLEAPP: iOS Logs, Events, and Preferences Parser.')
 parser.add_argument('-o', choices=['fs','tar', 'zip'], required=True, action="store",help="Directory path, TAR, or ZIP filename and path(required).")
 parser.add_argument('pathtodir',help='Path to directory')
@@ -68,11 +66,7 @@ tosearch = {'mib':'*mobile_installation.log.*',
 			'redditchats':'*Data/Application/*/Documents/*/accountData/*/chat/*/chat.sqlite',
 			'interactionc':'*interactionC.db'}
 
-'''
-tosearch = {'redditusers':'*Data/Application/*/Documents/*/accounts/*',
-			'redditchats':'*Data/Application/*/Documents/*/accountData/*/chat/*/chat.sqlite'}
-'''
-	
+
 os.makedirs(reportfolderbase)
 os.makedirs(reportfolderbase+'Script Logs')
 
