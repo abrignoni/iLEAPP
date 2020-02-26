@@ -6,83 +6,22 @@ from common import logfunc
 from contrib.utils import get_sql_output, write_html_to_file
 from settings import *
 
+from .sql import *
+
 
 AGGREGATED_DICT_DIR_NAME = "Aggregated Dict/"
 
 
 def fetch_and_write_data(query, db_path, category, additional_cols=None):
     rows = get_sql_output(passcode_type_query, db_path)
-
     if not rows:
         logfunc(f"No Aggregated dictionary {category} data available")
         return
 
     logfunc(f"Aggregated dictionary {category} function executing")
-
     fpath = f"{report_folder_base}{AGGREGATED_DICT_DIR_NAME}{category}.html"
-
     write_html_to_file(fpath, rows, db_path, category, additional_cols=additional_cols)
-
     logfunc(f"Aggregated dictionary {category} function completed")
-
-
-passcode_type_query = """
-    select
-    date(daysSince1970*86400, 'unixepoch', 'utc') as day,
-    key,
-    value,
-    case
-            when value = -1 then '6 digit'
-            when value = 0 then 'No passcode'
-            when value = 1 then '4 digit'
-            when value = 2 then 'Custom alphanumeric'
-            when value = 3 then 'Custom numeric'
-            else value 
-            END as passcodeType
-    from Scalars
-    where key = 'com.apple.passcode.PasscodeType'
-    """
-
-passcode_success_fail_query = """
-    select 
-    date(daysSince1970*86400, 'unixepoch', 'utc') as day,
-    key, value
-    from Scalars
-    where key like 'com.apple.passcode.NumPasscode%'
-    """
-
-passcode_finger_template_query = """
-    SELECT
-    DATE(DAYSSINCE1970*86400, 'unixepoch') AS DAY,
-    KEY AS "KEY",
-    VALUE AS "VALUE"
-    FROM
-    SCALARS
-    where key = 'com.apple.fingerprintMain.templateCount'
-    """
-
-scalars_query = """
-    SELECT
-           DATE(DAYSSINCE1970*86400, 'unixepoch') AS DAY,
-               KEY AS "KEY",
-               VALUE AS "VALUE"
-            FROM
-               SCALARS
-    """
-
-distribution_keys_query = """
-    SELECT
-                    DATE(DISTRIBUTIONKEYS.DAYSSINCE1970*86400, 'unixepoch') AS "DAY",
-                    DISTRIBUTIONVALUES.SECONDSINDAYOFFSET AS "SECONDS IN DAY OFFSET",
-                    DISTRIBUTIONKEYS.KEY AS "KEY",
-                    DISTRIBUTIONVALUES.VALUE AS "VALUE",
-                    DISTRIBUTIONVALUES.DISTRIBUTIONID AS "DISTRIBUTIONVALUES TABLE ID"
-            FROM
-                    DISTRIBUTIONKEYS 
-                    LEFT JOIN
-                            DISTRIBUTIONVALUES 
-                            ON DISTRIBUTIONKEYS.ROWID = DISTRIBUTIONVALUES.DISTRIBUTIONID
-    """
 
 
 def distribution_key_logic(distribution_keys_query, filefound):
@@ -163,6 +102,6 @@ def aggdict(filefound):
         logfunc("Error in Aggregated dictionary Scalars section.")
 
     try:
-        distribution_key_logic(distribution_key_query, filefound[0])
+        distribution_key_logic(distribution_keys_query, filefound[0])
     except:
         logfunc("Error in Aggregated dictionary Distribution Keys section.")
