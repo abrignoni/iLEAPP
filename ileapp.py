@@ -66,8 +66,6 @@ tosearch = {'mib':'*mobile_installation.log.*',
 			'redditchats':'*Data/Application/*/Documents/*/accountData/*/chat/*/chat.sqlite',
 			'interactionc':'*interactionC.db'}
 
-tosearch = {'aggdict':'*AggregateDictionary/ADDataStore.sqlitedb'}
-
 os.makedirs(reportfolderbase)
 os.makedirs(reportfolderbase+'Script Logs')
 

@@ -26,7 +26,7 @@ def fetch_and_write_data(
 ):
     logfunc(f"Aggregated dictionary {category} function executing")
 
-    rows = get_sql_output(passcode_type_query, db_path)
+    rows = get_sql_output(query, db_path)
     if not rows:
         logfunc(f"No Aggregated dictionary {category} data available")
         return
