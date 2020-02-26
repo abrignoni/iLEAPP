@@ -31,11 +31,8 @@
   <table class="table sticky">
 
     <tr>
-      <th>Timestamp</th>
-      <th>Key</th>
-      <th>Value</th>
-      {% for col in additional_cols %}
-      <th> {{ col }} </th>
+      {% for header in report_table_columns %}
+      <th>{{ header }}</th>
       {% endfor %}
     </tr>
 

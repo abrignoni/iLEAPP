@@ -17,12 +17,13 @@ template_env = Environment(
 
 
 AGGREGATED_DICT_DIR_NAME = "Aggregated Dict/"
+DEFAULT_REPORT_TABLE_COLUMNS = ("Timestamp", "Key", "Value")
 
 
 @silence_and_log("Error in {category} section")
-def fetch_and_write_data(query, db_path, category, additional_cols=None):
-    additional_cols = additional_cols or []
-
+def fetch_and_write_data(
+    query, db_path, category, report_table_columns=DEFAULT_REPORT_TABLE_COLUMNS
+):
     logfunc(f"Aggregated dictionary {category} function executing")
 
     rows = get_sql_output(passcode_type_query, db_path)
@@ -32,7 +33,10 @@ def fetch_and_write_data(query, db_path, category, additional_cols=None):
 
     template = template_env.get_template("passcode_type.html")
     rendered = template.render(
-        rows=rows, db_path=db_path, category=category, additional_cols=additional_cols
+        rows=rows,
+        db_path=db_path,
+        category=category,
+        report_table_columns=report_table_columns,
     )
     fpath = f"{report_folder_base}{AGGREGATED_DICT_DIR_NAME}{category}.html"
 
@@ -40,44 +44,6 @@ def fetch_and_write_data(query, db_path, category, additional_cols=None):
         fp.write(rendered)
 
     logfunc(f"Aggregated dictionary {category} function completed")
-
-
-@silence_and_log("Error in Distribution Keys section")
-def distribution_key_logic(distribution_keys_query, filefound):
-    """
-    This is a temporary method because I cannot directly use
-    the fetch_and_write_data() method due to the difference in HTML template.
-
-    When we switch out the custom HTML writing to jinja2, we will be able
-    to get rid of this method
-    """
-    rows = get_sql_output(distribution_keys_query, filefound)
-    if rows:
-        logfunc(f"Aggregated dictionary Distribution Keys function executing")
-        fpath = reportfolderbase + "Aggregated Dict/Distribution Keys.html"
-        num_entries = len(rows)
-        with open(fpath, "w", encoding="utf8") as f:
-            f.write("<html><body>")
-            f.write("<h2> Distribution Keys report</h2>")
-            f.write(f"Distribution Keys entries: {num_entries}<br>")
-            f.write(f"Distribution Keys located at: {filefound[0]}<br>")
-            f.write(
-                "<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>"
-            )
-            f.write("<br/>")
-            f.write("")
-            f.write(f'<table class="table sticky">')
-            f.write(
-                f"<tr><th>Day</th><th>Seconds in Day Offset</th><th>Key</th><th>Value</th><th>Table ID</th></tr>"
-            )
-            for row in rows:
-                f.write(
-                    f"<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td></tr>"
-                )
-            f.write(f"</table></body></html>")
-            logfunc(f"Aggregated dictionary Distribution Keys function completed")
-    else:
-        logfunc("No Aggregated dictionary Distribution Keys data available")
 
 
 def aggdict(filefound):
@@ -93,7 +59,7 @@ def aggdict(filefound):
         passcode_type_query,
         filefound[0],
         category="Passcode Type",
-        additional_cols=["Passcode Type"],
+        report_table_columns=list(DEFAULT_REPORT_TABLE_COLUMNS) + ["Passcode Type"],
     )
     fetch_and_write_data(
         passcode_success_fail_query, filefound[0], category="Passcode Success-Fail"
@@ -104,4 +70,9 @@ def aggdict(filefound):
         category="Passcode Finger Template",
     )
     fetch_and_write_data(scalars_query, filefound[0], category="Scalars")
-    distribution_key_logic(distribution_keys_query, filefound[0])
+    fetch_and_write_data(
+        distribution_keys_query,
+        filefound[0],
+        category="Distribution Keys",
+        report_table_columns=["Day", "Seconds in a Day", "Key", "Value", "Table ID"],
+    )
