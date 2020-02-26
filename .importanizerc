@@ -1,0 +1,20 @@
+{
+  "groups": [
+    {
+      "type": "stdlib"
+    },
+    {
+      "type": "sitepackages"
+    },
+    {
+      "type": "remainder"
+    },
+    {
+      "type": "local"
+    }
+  ],
+  "exclude": [
+    "*ccl_bplist.py",
+    "*parse3.py"
+  ]
+}
