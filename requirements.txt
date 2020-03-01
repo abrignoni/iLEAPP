@@ -5,7 +5,7 @@ black==19.10b0
 Click==7.0
 importanize==0.7.0
 Jinja2==2.10.3
-packaging=20.1
+packaging==20.1
 pathlib2==2.3.5
 pathspec==0.7.0
 PySimpleGUI==4.16.0
