@@ -1,3 +1,4 @@
+#ileapp
 import base64
 import codecs
 import csv
@@ -14,6 +15,7 @@ import sqlite3
 import sys
 import textwrap
 from time import process_time
+from packaging import version
 
 from bs4 import BeautifulSoup
 
@@ -26,14 +28,14 @@ from settings import *
 
 def dbbuff(filefound):
     try:
-        if os.path.isdir(reportfolderbase + "Aggregated Dict/"):
+        if os.path.isdir(os.path.join(reportfolderbase, "Aggregated Dict/")):
             pass
         else:
-            os.makedirs(reportfolderbase + "Aggregated Dict/")
+            os.makedirs(os.path.join(reportfolderbase, "Aggregated Dict/"))
 
         logfunc(f"Aggregated dictionary DBbuffer function executing")
         with open(
-            reportfolderbase + "Aggregated Dict/DBbuffer.html", "w", encoding="utf8"
+            os.path.join(reportfolderbase, "Aggregated Dict/DBbuffer.html"), "w", encoding="utf8"
         ) as f:
             f.write("<html><body>")
             f.write("<h2> DBbuffer report</h2>")
@@ -65,8 +67,8 @@ def datark(filefound):
     logfunc(f"Data_ark.plist function executing")
     deviceinfo()
     try:
-        os.makedirs(reportfolderbase + "Data_Ark/")
-        with open(reportfolderbase + "Data_Ark/Data Ark.html", "w") as f:
+        os.makedirs(os.path.join(reportfolderbase, "Data_Ark/"))
+        with open(os.path.join(reportfolderbase, "Data_Ark/Data Ark.html"), "w") as f:
             f.write("<html><body>")
             f.write("<h2>Mobile Activation Report</h2>")
             f.write(f"Data_ark.plist located at {filefound[0]}<br>")
@@ -108,12 +110,12 @@ def mobilact(filefound):
         activationcount = 0
         filescounter = 0
 
-        if os.path.exists(reportfolderbase + "SysDiagnose/"):
+        if os.path.exists(os.path.join(reportfolderbase, "SysDiagnose/")):
             pass
         else:
-            os.makedirs(reportfolderbase + "SysDiagnose/")
+            os.makedirs(os.path.join(reportfolderbase, "SysDiagnose/"))
 
-        f = open(reportfolderbase + "SysDiagnose/Mobile Activation Logs.html", "w")
+        f = open(os.path.join(reportfolderbase, "SysDiagnose/Mobile Activation Logs.html"), "w")
         f.write("<html><body>")
         f.write("<h2>Mobile Activation Report</h2>")
         f.write(
@@ -297,17 +299,17 @@ def mobilact(filefound):
 def bkupstate(filefound):
     logfunc(f"BackupStateInfo function executing")
     try:
-        if os.path.exists(reportfolderbase + "SysDiagnose/"):
+        if os.path.exists(os.path.join(reportfolderbase, "SysDiagnose/")):
             pass
         else:
-            os.makedirs(reportfolderbase + "SysDiagnose/")
+            os.makedirs(os.path.join(reportfolderbase, "SysDiagnose/"))
 
-        f = open(reportfolderbase + "SysDiagnose/BackupStateInfo.txt", "w")
+        f = open(os.path.join(reportfolderbase, "SysDiagnose/BackupStateInfo.txt"), "w")
         p = open(filefound[0], "rb")
         plist = plistlib.load(p)
         # create html headers
         filedatahtml = open(
-            reportfolderbase + "SysDiagnose/BackupStateInfo.html", mode="a+"
+            os.path.join(reportfolderbase, "SysDiagnose/BackupStateInfo.html"), mode="a+"
         )
         filedatahtml.write("<html><body>")
         filedatahtml.write("<h2>BackupStateInfo Report </h2>")
@@ -371,7 +373,7 @@ def bkupstate(filefound):
 
 
 def datausage(filefound):
-    os.makedirs(reportfolderbase + "Data Usage/")
+    os.makedirs(os.path.join(reportfolderbase, "Data Usage/"))
     try:
         db = sqlite3.connect(filefound[0])
         cursor = db.cursor()
@@ -398,7 +400,7 @@ def datausage(filefound):
         if usageentries > 0:
             logfunc(f"Data Usage - Zliveusage function executing")
             with open(
-                reportfolderbase + "Data Usage/Zliveusage.html", "w", encoding="utf8"
+                os.path.join(reportfolderbase, "Data Usage/Zliveusage.html"), "w", encoding="utf8"
             ) as f:
                 f.write("<html><body>")
                 f.write("<h2> Zliveusage report</h2>")
@@ -444,7 +446,7 @@ def datausage(filefound):
         if usageentries > 0:
             logfunc(f"Data Usage - Zprocess function executing")
             with open(
-                reportfolderbase + "Data Usage/Zprocess.html", "w", encoding="utf8"
+                os.path.join(reportfolderbase, "Data Usage/Zprocess.html"), "w", encoding="utf8"
             ) as f:
                 f.write("<html><body>")
                 f.write("<h2> Zprocess report</h2>")
@@ -519,9 +521,9 @@ def medlib(filefound):
         usageentries = len(all_rows)
         if usageentries > 0:
             logfunc(f"Media Library function executing")
-            os.makedirs(reportfolderbase + "Media Library/")
+            os.makedirs(os.path.join(reportfolderbase, "Media Library/"))
             with open(
-                reportfolderbase + "Media Library/Media Library.html",
+                os.path.join(reportfolderbase, "Media Library/Media Library.html"),
                 "w",
                 encoding="utf8",
             ) as f:
@@ -574,13 +576,13 @@ def accs(filefound):
         if usageentries > 0:
             logfunc(f"Account Data function executing")
 
-            if os.path.isdir(reportfolderbase + "Accounts/"):
+            if os.path.isdir(os.path.join(reportfolderbase, "Accounts/")):
                 pass
             else:
-                os.makedirs(reportfolderbase + "Accounts")
+                os.makedirs(os.path.join(reportfolderbase, "Accounts"))
 
             with open(
-                reportfolderbase + "Accounts/Accounts.html", "w", encoding="utf8"
+                os.path.join(reportfolderbase, "Accounts/Accounts.html"), "w", encoding="utf8"
             ) as f:
                 f.write("<html><body>")
                 f.write("<h2> Account Data report</h2>")
@@ -612,7 +614,7 @@ def conndevices(filefound):
         data = f.read()
 
     logfunc(f"Connected devices function executing")
-    outpath = reportfolderbase + "Devices Connected/"
+    outpath = os.path.join(reportfolderbase, "Devices Connected/")
     os.mkdir(outpath)
     nl = "\n"
 
@@ -664,7 +666,7 @@ def conndevices(filefound):
 def applicationstate(filefound):
     # iOSversion = versionf
     logfunc(f"ApplicationState.db queries executing")
-    outpath = reportfolderbase + "Application State/"
+    outpath = os.path.join(reportfolderbase, "Application State/")
 
     try:
         os.mkdir(outpath)
@@ -789,9 +791,7 @@ def knowledgec(filefound):
     logfunc(f"Incepted bplist extractions in KnowledgeC.db executing")
 
     iOSversion = versionf
-    supportediOS = ["11", "12", "13"]
-
-    if iOSversion not in supportediOS:
+    if version.parse(iOSversion) < version.parse("11"):
         logfunc("Unsupported version" + iOSversion)
         return ()
 
@@ -846,16 +846,13 @@ def knowledgec(filefound):
         g = open(outpath + "/dirty/D_Z_PK" + pkvplist, "rb")
         plistg = ccl_bplist.load(g)
 
-        if iOSversion == "11":
-            ns_keyed_archiver_obj = ccl_bplist.deserialise_NsKeyedArchiver(plistg)
-            newbytearray = ns_keyed_archiver_obj
-        if iOSversion == "12":
+        if version.parse(iOSversion) < version.parse("12"):
+            ns_keyed_archiver_objg = ccl_bplist.deserialise_NsKeyedArchiver(plistg)
+            newbytearray = ns_keyed_archiver_objg
+        else:
             ns_keyed_archiver_objg = ccl_bplist.deserialise_NsKeyedArchiver(plistg)
             newbytearray = ns_keyed_archiver_objg["NS.data"]
-        if iOSversion == "13":
-            ns_keyed_archiver_objg = ccl_bplist.deserialise_NsKeyedArchiver(plistg)
-            newbytearray = ns_keyed_archiver_objg["NS.data"]
-
+       
         dirtcount = dirtcount + 1
 
         binfile = open(outpath + "/clean/C_Z_PK" + pkvplist, "wb")
@@ -882,9 +879,7 @@ def knowledgec(filefound):
         p = open(filename, "rb")
         cfilename = os.path.basename(filename)
         plist = ccl_bplist.load(p)
-        ns_keyed_archiver_obj = ccl_bplist.deserialise_NsKeyedArchiver(
-            plist, parse_whole_structure=True
-        )  # deserialize clean
+        ns_keyed_archiver_obj = ccl_bplist.deserialise_NsKeyedArchiver(plist, parse_whole_structure=True)  # deserialize clean
         # Get dictionary values
         A = intentc.get(cfilename)
         B = intentv.get(cfilename)
@@ -895,27 +890,34 @@ def knowledgec(filefound):
             A = "No value"
 
         # logfunc some values from clean bplist
-        if iOSversion == "13":
-            NSdata = ns_keyed_archiver_obj["root"]["intent"]["backingStore"]["bytes"]
+        if version.parse(iOSversion) >= version.parse("13"):
+            try:
+                NSdata = ns_keyed_archiver_obj["root"]["intent"]["backingStore"]["bytes"]
+            except:
+                NSdata = ns_keyed_archiver_obj["root"]["intent"]["backingStore"]["data"]["NS.data"]
+                pass
         else:
-            NSdata = ns_keyed_archiver_obj["root"]["intent"]["backingStore"]["data"][
-                "NS.data"
-            ]
-
+            NSdata = ns_keyed_archiver_obj["root"]["intent"]["backingStore"]["data"]["NS.data"]
+            #logfunc(str(NSdata))
+            
         parsedNSData = ""
         # Default true
         if dump == True:
             nsdata_file = outpath + "/clean/" + cfilename + "_nsdata.bin"
             binfile = open(nsdata_file, "wb")
-            if iOSversion == "13":
-                binfile.write(
-                    ns_keyed_archiver_obj["root"]["intent"]["backingStore"]["bytes"]
-                )
+            if version.parse(iOSversion) >= version.parse("13"):
+                try:
+                    binfile.write(
+                        ns_keyed_archiver_obj["root"]["intent"]["backingStore"]["bytes"]
+                    )
+                except:
+                    binfile.write(
+                        ns_keyed_archiver_obj["root"]["intent"]["backingStore"]["data"]["NS.data"]
+                    )
+                    pass
             else:
                 binfile.write(
-                    ns_keyed_archiver_obj["root"]["intent"]["backingStore"]["data"][
-                        "NS.data"
-                    ]
+                    ns_keyed_archiver_obj["root"]["intent"]["backingStore"]["data"]["NS.data"]
                 )
             binfile.close()
             messages = ParseProto(nsdata_file)
@@ -1617,9 +1619,9 @@ def mib(filefound):
         return day
 
     # Create folders for this function
-    os.makedirs(reportfolderbase + "Mobile_Installation_Logs/")
+    os.makedirs(os.path.join(reportfolderbase, "Mobile_Installation_Logs"))# '.', 'ILEAPP_Reports_' + currenttime)
     # Create sqlite databases
-    db = sqlite3.connect(reportfolderbase + "Mobile_Installation_Logs/mib.db")
+    db = sqlite3.connect(os.path.join(reportfolderbase, "Mobile_Installation_Logs/mib.db"))
 
     cursor = db.cursor()
 
@@ -2282,13 +2284,9 @@ def lastbuild(filefound):
             sources = filefound[0]
             deviceinfoin(ordes, kas, vas, sources)
 
-            versionnum = val[0:2]
-            if versionnum in ("11", "12", "13"):
-                versionf = versionnum
-                logfunc(f"iOS version is: {versionf}")
-            else:
-                versionf = "Unknown"
-
+            versionf = val
+            logfunc(f"iOS version is: {versionf}")
+            
         if key == "ProductBuildVersion":
             ordes = 8
             kas = "Build Version"
