@@ -4283,15 +4283,14 @@ def mailprotect(filefound):
     logfunc("Protected Index Envelope emails function executing")
 
     iOSversion = versionf
-    supportediOS = ["12", "13"]
 
     logfunc(f"iOS version: {iOSversion}")
 
-    if iOSversion not in supportediOS:
+    if version.parse(iOSversion) < version.parse("12"):
         logfunc("Unsupported version" + iOSversion)
         return ()
 
-    if iOSversion == "12":
+    if version.parse(iOSversion) < version.parse("13"):
         try:
             if os.path.isdir(reportfolderbase + "Emails/"):
                 pass
@@ -4460,7 +4459,7 @@ def mailprotect(filefound):
         except:
             logfunc("Error on Protected Index Envelope emails function")
 
-    if iOSversion == "13":
+    if version.parse(iOSversion) < version.parse("14"):
         try:
             if os.path.isdir(reportfolderbase + "Emails/"):
                 pass
@@ -5574,9 +5573,9 @@ def interactionc(filefound):
     logfunc(f"InteractionC function executing")
     try:
         iOSversion = versionf
-        supportediOS = ["11", "12", "13"]
 
-        if iOSversion not in supportediOS:
+
+        if version.parse(iOSversion) < version.parse("11"):
             logfunc("Unsupported version" + iOSversion)
             return ()
 
