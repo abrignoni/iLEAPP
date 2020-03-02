@@ -20,18 +20,9 @@ AGGREGATED_DICT_DIR_NAME = "Aggregated Dict/"
 DEFAULT_REPORT_TABLE_COLUMNS = ("Timestamp", "Key", "Value")
 
 
-@silence_and_log("Error in {category} section")
-def fetch_and_write_data(
-    query, db_path, category, report_table_columns=DEFAULT_REPORT_TABLE_COLUMNS
-):
-    logfunc(f"Aggregated dictionary {category} function executing")
+def write_html_template(template, rows, db_path, category, report_table_columns):
 
-    rows = get_sql_output(query, db_path)
-    if not rows:
-        logfunc(f"No Aggregated dictionary {category} data available")
-        return
-
-    template = template_env.get_template("passcode_type.html")
+    template = template_env.get_template(template)
     rendered = template.render(
         rows=rows,
         db_path=db_path,
@@ -43,17 +34,34 @@ def fetch_and_write_data(
     with open(fpath, "w") as fp:
         fp.write(rendered)
 
+
+@silence_and_log("Error in {category} section")
+def fetch_and_write_data(
+    query, db_path, category, report_table_columns=DEFAULT_REPORT_TABLE_COLUMNS
+):
+    logfunc(f"Aggregated dictionary {category} function executing")
+
+    rows = get_sql_output(query, db_path)
+    if not rows:
+        logfunc(f"No Aggregated dictionary {category} data available")
+        return
+
+    write_html_template(
+        "passcode_type.html", rows, db_path, category, report_table_columns
+    )
+
     logfunc(f"Aggregated dictionary {category} function completed")
+
+
+def _create_aggregate_dict_dir():
+    dir_name = f"{report_folder_base}Aggregated Dict/"
+    os.makedirs(dir_name, exist_ok=True)
 
 
 def aggdict(filefound):
     logfunc(f"Aggregated dictionary funcion executing")
 
-    try:
-        dir_name = f"{report_folder_base}Aggregated Dict/"
-        os.makedirs(dir_name, exist_ok=True)
-    except Exception:
-        logfunc("Error creating aggdict() report directory")
+    _create_aggregate_dict_dir()
 
     fetch_and_write_data(
         passcode_type_query,
@@ -76,3 +84,25 @@ def aggdict(filefound):
         category="Distribution Keys",
         report_table_columns=["Day", "Seconds in a Day", "Key", "Value", "Table ID"],
     )
+
+
+def dbbuff(filefound):
+    logfunc(f"Aggregated dictionary DBbuffer function executing")
+
+    db_path = filefound[0]
+    category = "DBBuffer"
+
+    _create_aggregate_dict_dir()
+
+    with open(db_path, "r") as rfp:
+        rows = [line.split() for line in rfp.readlines()]
+
+    report_table_columns = ["Value"] * 4
+    write_html_template(
+        "passcode_type.html", rows, db_path, category, report_table_columns
+    )
+
+    try:
+        logfunc(f"Aggregated dictionary DBbuffer function completed")
+    except:
+        logfunc("Error in Aggregated dictionary DBbuffer section.")
