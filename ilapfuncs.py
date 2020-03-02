@@ -17,52 +17,13 @@ import textwrap
 from time import process_time
 
 from bs4 import BeautifulSoup
+from packaging import version
 
 import ccl_bplist
 from common import logfunc
-from contrib.aggregated_dictionary import aggdict
-from packaging import version
+from contrib.aggregated_dictionary import aggdict, dbbuff
 from parse3 import ParseProto
 from settings import *
-
-
-def dbbuff(filefound):
-    try:
-        if os.path.isdir(os.path.join(reportfolderbase, "Aggregated Dict/")):
-            pass
-        else:
-            os.makedirs(os.path.join(reportfolderbase, "Aggregated Dict/"))
-
-        logfunc(f"Aggregated dictionary DBbuffer function executing")
-        with open(
-            os.path.join(reportfolderbase, "Aggregated Dict/DBbuffer.html"),
-            "w",
-            encoding="utf8",
-        ) as f:
-            f.write("<html><body>")
-            f.write("<h2> DBbuffer report</h2>")
-            f.write(f"DBbuffer located at: {filefound[0]}<br>")
-            f.write(
-                "<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>"
-            )
-            f.write("<br/>")
-            f.write("")
-            f.write(f'<table class="table sticky">')
-            f.write(
-                f"<tr><th>Value</th><th>Value</th><th>Value</th><th>Value</th></tr>"
-            )
-            with open(filefound[0], "r") as g:
-                for line in g.readlines():
-                    line = line.strip()
-                    values = line.split()
-                    f.write("<tr>")
-                    for value in values:
-                        f.write("<td>%s</td>" % value)
-                    f.write("</tr>")
-            f.write("</table></html>")
-        logfunc(f"Aggregated dictionary DBbuffer function completed")
-    except:
-        logfunc("Error in Aggregated dictionary DBbuffer section.")
 
 
 def datark(filefound):
