@@ -17,11 +17,11 @@ import textwrap
 from time import process_time
 
 from bs4 import BeautifulSoup
+from packaging import version
 
 import ccl_bplist
 from common import logfunc
 from contrib.aggregated_dictionary import aggdict, dbbuff
-from packaging import version
 from parse3 import ParseProto
 from settings import *
 

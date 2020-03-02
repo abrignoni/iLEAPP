@@ -20,8 +20,8 @@ AGGREGATED_DICT_DIR_NAME = "Aggregated Dict/"
 DEFAULT_REPORT_TABLE_COLUMNS = ("Timestamp", "Key", "Value")
 
 
+@silence_and_log("Error in {category} section")
 def write_html_template(template, rows, db_path, category, report_table_columns):
-
     template = template_env.get_template(template)
     rendered = template.render(
         rows=rows,
@@ -102,7 +102,4 @@ def dbbuff(filefound):
         "passcode_type.html", rows, db_path, category, report_table_columns
     )
 
-    try:
-        logfunc(f"Aggregated dictionary DBbuffer function completed")
-    except:
-        logfunc("Error in Aggregated dictionary DBbuffer section.")
+    logfunc(f"Aggregated dictionary DBbuffer function completed")
