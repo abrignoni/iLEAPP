@@ -1,3 +1,10 @@
+import os
+import sqlite3
+
+from common import logfunc
+from settings import *
+
+
 def datausage(filefound):
     os.makedirs(os.path.join(reportfolderbase, "Data Usage/"))
     try:
@@ -101,4 +108,3 @@ def datausage(filefound):
             logfunc("No Data Usage - Zprocess available")
     except:
         logfunc("Error in Data Usage - Zprocess Section.")
-

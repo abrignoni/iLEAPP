@@ -1,3 +1,11 @@
+import os
+import plistlib
+import sqlite3
+
+from common import logfunc
+from settings import *
+
+
 def accs(filefound):
     try:
         db = sqlite3.connect(filefound[0])
@@ -88,4 +96,3 @@ def confaccts(filefound):
     except:
         logfunc("Error in Config Accounts function.")
     logfunc("Config Accounts function completed.")
-
