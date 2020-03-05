@@ -93,7 +93,6 @@ logfunc("Objective: Triage iOS Full System Extractions.")
 logfunc("By: Alexis Brignoni | @AlexisBrignoni | abrignoni.com")
 
 if extracttype == "fs":
-
     logfunc(f"Artifact categories to parse: {str(len(tosearch))}")
     logfunc(f"File/Directory selected: {pathto}")
     logfunc(
