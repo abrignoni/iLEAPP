@@ -5,33 +5,39 @@ from pathlib import Path
 from zipfile import ZipFile
 
 from ilapfuncs import *
+from settings import temp
 
 
 def search(pathto, filename):
     return [fname for fname in Path(pathto).rglob(filename)]
 
 
-def searchtar(t, val, reportfolderbase):
-    temp = os.path.join(reportfolderbase, "temp")
-    pathlist = []
-    for member in t.getmembers():
-        if fnmatch.fnmatch(member.name, val):
-            try:
-                t.extract(member.name, path=temp)
-                pathlist.append(os.path.join(temp, Path(member.name)))
-            except:
-                logfunc("Could not write file to filesystem")
-    return pathlist
+def get_archive_member_names(archive_obj):
+    """
+    Returns list of members names based on parent class of archive.
+    
+    Note: 
+    This function assumes that the caller has done the work to identify the
+    correct file type and wrap it in the right class.
+    """
+    if isinstance(archive_obj, tarfile.Tarfile):
+        member_names = archive_obj.getnames()
+    elif isinstance(archive_obj, ZipFile):
+        member_names = archive_obj.namelist()
+    else:
+        raise ValueError("This file type is not supported")
+    return member_names
 
 
-def searchzip(z, name_list, val, reportfolderbase):
-    temp = os.path.join(reportfolderbase, "temp")
-    pathlist = []
-    for member in name_list:
-        if fnmatch.fnmatch(member, val):
+def search_archive(archive_obj, search_path):
+    paths = list()
+    member_names = get_archive_member_names(archive_obj)
+
+    for member_name in member_names:
+        if fnmatch.fnmatch(member_name, search_path):
             try:
-                z.extract(member, path=temp)
-                pathlist.append(temp + member)
-            except:
+                archive_obj.extract(member_name, path=temp)
+                paths.append(os.path.join(temp, Path(member_name)))
+            except Exception:
                 logfunc("Could not write file to filesystem")
-    return pathlist
+    return paths

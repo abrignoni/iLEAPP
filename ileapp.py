@@ -92,7 +92,8 @@ logfunc("iLEAPP: iOS Logs, Events, and Preferences Parser")
 logfunc("Objective: Triage iOS Full System Extractions.")
 logfunc("By: Alexis Brignoni | @AlexisBrignoni | abrignoni.com")
 
-if extracttype == "fs":
+
+def pre_extraction():
     logfunc(f"Artifact categories to parse: {str(len(tosearch))}")
     logfunc(f"File/Directory selected: {pathto}")
     logfunc(
@@ -105,85 +106,47 @@ if extracttype == "fs":
     )
     nl = "\n"  # literal in order to have new lines in fstrings that create text files
     log.write(f"Extraction/Path selected: {pathto}<br><br>")
+    return log
 
-    # Search for the files per the arguments
+
+def process_file_found(filefound):
+    if not filefound:
+        logfunc()
+        logfunc(f"No files found for {key} -> {val}.")
+        log.write(f"No files found for {key} -> {val}.<br>")
+        return
+
+    logfunc()
+
+    globals()[key](filefound)
+    for pathh in filefound:
+        log.write(f"Files for {val} located at {pathh}.<br>")
+
+
+if extracttype == "fs":
+    log = pre_extraction()
     for key, val in tosearch.items():
         filefound = search(pathto, val)
-        if not filefound:
-            logfunc()
-            logfunc(f"No files found for {key} -> {val}.")
-            log.write(f"No files found for {key} -> {val}.<br>")
-        else:
-            logfunc()
-            globals()[key](filefound)
-            for pathh in filefound:
-                log.write(f"Files for {val} located at {pathh}.<br>")
+        process_file_found(tosearch, filefound)
     log.close()
 
 elif extracttype == "tar":
-
-    logfunc(f"Artifact categories to parse: {str(len(tosearch))}")
-    logfunc(f"File/Directory selected: {pathto}")
-    logfunc(
-        "\n--------------------------------------------------------------------------------------"
-    )
-
-    log = open(
-        reportfolderbase + "Script Logs/ProcessedFilesLog.html", "w+", encoding="utf8"
-    )
-    nl = "\n"  # literal in order to have new lines in fstrings that create text files
-    log.write(
-        f"Extraction/Path selected: {pathto}<br><br>"
-    )  # tar searches and function calls
-
+    log = pre_extraction()
     t = TarFile(pathto)
-
     for key, val in tosearch.items():
-        filefound = searchtar(t, val, reportfolderbase)
-        if not filefound:
-
-            logfunc()
-            logfunc(f"No files found for {key} -> {val}.")
-            log.write(f"No files found for {key} -> {val}.<br>")
-        else:
-
-            logfunc()
-            globals()[key](filefound)
-            for pathh in filefound:
-                log.write(f"Files for {val} located at {pathh}.<br>")
+        filefound = search_archive(t, val)
+        process_file_found(filefound)
     log.close()
 
 elif extracttype == "zip":
-
-    logfunc(f"Artifact categories to parse: {str(len(tosearch))}")
-    logfunc(f"File/Directory selected: {pathto}")
-    logfunc(
-        "\n--------------------------------------------------------------------------------------"
-    )
-    logfunc("")
-    log = open(
-        reportfolderbase + "Script Logs/ProcessedFilesLog.html", "w+", encoding="utf8"
-    )
-    log.write(
-        f"Extraction/Path selected: {pathto}<br><br>"
-    )  # tar searches and function calls
+    log = pre_extraction()
 
     z = ZipFile(pathto)
-    name_list = z.namelist()
+
     for key, val in tosearch.items():
-        filefound = searchzip(z, name_list, val, reportfolderbase)
-        if not filefound:
-            logfunc("")
-            logfunc(f"No files found for {key} -> {val}.")
-            log.write(f"No files found for {key} -> {val}.<br>")
-        else:
+        process_file_found(filefound)
 
-            logfunc("")
-            globals()[key](filefound)
-            for pathh in filefound:
-                log.write(f"Files for {val} located at {pathh}.<br>")
     log.close()
-
     z.close()
 
 else:
