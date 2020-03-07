@@ -21,9 +21,9 @@ from packaging import version
 
 import ccl_bplist
 from common import logfunc
-from contrib.accounts.main import accs, confaccts
+from contrib.accounts import accs, confaccts
 from contrib.aggregated_dictionary import aggdict, dbbuff
-from contrib.data_usage.main import datausage
+from contrib.data_usage import datausage
 from contrib.system_diagnosis import bkupstate, mobilact
 from parse3 import ParseProto
 from settings import *
