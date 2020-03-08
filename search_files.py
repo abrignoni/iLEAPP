@@ -20,7 +20,7 @@ def get_archive_member_names(archive_obj):
     This function assumes that the caller has done the work to identify the
     correct file type and wrap it in the right class.
     """
-    if isinstance(archive_obj, tarfile.Tarfile):
+    if isinstance(archive_obj, tarfile.TarFile):
         member_names = archive_obj.getnames()
     elif isinstance(archive_obj, ZipFile):
         member_names = archive_obj.namelist()
