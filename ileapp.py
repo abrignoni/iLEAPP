@@ -90,6 +90,7 @@ logfunc(
 )
 logfunc("iLEAPP: iOS Logs, Events, and Preferences Parser")
 logfunc("Objective: Triage iOS Full System Extractions.")
+logfunc("By: Agam Dua | @humbledmagpie")
 logfunc("By: Alexis Brignoni | @AlexisBrignoni | abrignoni.com")
 
 if extracttype == "fs":
