@@ -1,4 +1,13 @@
-from common import logfunc
+import os
+import tarfile
+from tarfile import TarFile
+from zipfile import ZipFile
+
+from ilapfuncs import *
+from report import *
+from search_files import *
+from settings import report_folder_base
+
 
 tosearch = {
     "mib": "*mobile_installation.log.*",
@@ -44,7 +53,31 @@ tosearch = {
     "interactionc": "*interactionC.db",
 }
 
-def pre_extraction():
+
+def extract_and_process(pathto, extraction_type, tosearch, log):
+    if extraction_type != "fs":
+        search = search_archive
+
+    if extraction_type == "tar":
+        pathto = TarFile(pathto)
+
+    if extraction_type == "zip":
+        pathto = ZipFile(pathto)
+
+    for key, val in tosearch.items():
+        filefound = search(pathto, val)
+        process_file_found(filefound, key, val, log)
+
+    if extraction_type == "zip":
+        pathto.close()
+
+    log.close()
+
+
+def pre_extraction(pathto):
+    os.makedirs(report_folder_base)
+    os.makedirs(report_folder_base + "Script Logs")
+
     logfunc(
         "\n--------------------------------------------------------------------------------------"
     )
@@ -60,13 +93,14 @@ def pre_extraction():
     logfunc()
 
     log = open(
-        reportfolderbase + "Script Logs/ProcessedFilesLog.html", "w+", encoding="utf8"
+        report_folder_base + "Script Logs/ProcessedFilesLog.html", "w+", encoding="utf8"
     )
     nl = "\n"  # literal in order to have new lines in fstrings that create text files
     log.write(f"Extraction/Path selected: {pathto}<br><br>")
     return log
 
-def process_file_found(filefound, key, val):
+
+def process_file_found(filefound, key, val, log):
     if not filefound:
         logfunc()
         logfunc(f"No files found for {key} -> {val}.")
@@ -77,33 +111,37 @@ def process_file_found(filefound, key, val):
 
     globals()[key](filefound)
 
-    for pathh in filefound:
-        log.write(f"Files for {val} located at {pathh}.<br>")
+    for path in filefound:
+        log.write(f"Files for {val} located at {path}.<br>")
 
 
 def calculate_time(start_time):
-    end = process_time()
-    time = start - end
-    logfunc("Processing time: " + str(abs(time)))
-    return time
+    end_time = process_time()
+    time_difference = start_time - end_time
+    logfunc("Processing time: " + str(abs(time_difference)))
+    return time_difference
 
-def post_extraction(start_time):
-    logfunc("")
-    logfunc("Processes completed.")
 
-    calculate_time(start_time)
-
-    fname = os.path.join(report_folder_base, "Script Logs","ProcessedFilesLog.html")
-
-    with open(fname, "a", encoding="utf8") as processed_file_log:
-        processed_file_log.write(f"Processing time in secs: {str(abs(time))}")
-
+def generate_report(report_folder_base, running_time, extracttype, pathto):
     logfunc("")
     logfunc("Report generation started.")
 
-    report(reportfolderbase, time, extracttype, pathto)
+    report(report_folder_base, running_time, extracttype, pathto)
 
     logfunc("Report generation Completed.")
     logfunc("")
-    logfunc(f"Report name: {reportfolderbase}")
+    logfunc(f"Report name: {report_folder_base}")
 
+
+def post_extraction(start_time, extracttype, pathto):
+    logfunc("")
+    logfunc("Processes completed.")
+
+    running_time = calculate_time(start_time)
+
+    fname = os.path.join(report_folder_base, "Script Logs", "ProcessedFilesLog.html")
+
+    with open(fname, "a", encoding="utf8") as processed_file_log:
+        processed_file_log.write(f"Processing time in secs: {str(abs(running_time))}")
+
+    generate_report(report_folder_base, running_time, extracttype, pathto)
