@@ -74,9 +74,13 @@ def extract_and_process(pathto, extraction_type, tosearch, log):
     log.close()
 
 
-def pre_extraction(pathto):
+def pre_extraction(pathto, gui=False):
     os.makedirs(report_folder_base)
     os.makedirs(report_folder_base + "Script Logs")
+    logfunc("Procesing started. Please wait. This may take a few minutes...")
+
+    if gui:
+        window.refresh()
 
     logfunc(
         "\n--------------------------------------------------------------------------------------"
@@ -91,6 +95,9 @@ def pre_extraction(pathto):
         "\n--------------------------------------------------------------------------------------"
     )
     logfunc()
+
+    if gui:
+        window.refresh()
 
     log = open(
         report_folder_base + "Script Logs/ProcessedFilesLog.html", "w+", encoding="utf8"
