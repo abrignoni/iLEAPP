@@ -112,8 +112,8 @@ while True:
             sys.exit()
 
     start = process_time()
-    log = pre_extraction(pathto)
-    extract_and_process(pathto, extracttype, tosearch, log)
+    log = pre_extraction(pathto, gui_window=window)
+    extract_and_process(pathto, extracttype, tosearch, log, gui_window=window)
     running_time = post_extraction(start, extracttype, pathto)
 
     if values[5] == True:

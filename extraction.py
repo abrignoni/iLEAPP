@@ -54,7 +54,7 @@ tosearch = {
 }
 
 
-def extract_and_process(pathto, extraction_type, tosearch, log):
+def extract_and_process(pathto, extraction_type, tosearch, log, gui_window=None):
     if extraction_type != "fs":
         search = search_archive
 
@@ -66,7 +66,7 @@ def extract_and_process(pathto, extraction_type, tosearch, log):
 
     for key, val in tosearch.items():
         filefound = search(pathto, val)
-        process_file_found(filefound, key, val, log)
+        process_file_found(filefound, key, val, log, gui_window)
 
     if extraction_type == "zip":
         pathto.close()
@@ -74,13 +74,13 @@ def extract_and_process(pathto, extraction_type, tosearch, log):
     log.close()
 
 
-def pre_extraction(pathto, gui=False):
+def pre_extraction(pathto, gui_window=None):
     os.makedirs(report_folder_base)
     os.makedirs(report_folder_base + "Script Logs")
     logfunc("Procesing started. Please wait. This may take a few minutes...")
 
-    if gui:
-        window.refresh()
+    if gui_window is not None:
+        gui_window.refresh()
 
     logfunc(
         "\n--------------------------------------------------------------------------------------"
@@ -97,8 +97,8 @@ def pre_extraction(pathto, gui=False):
     )
     logfunc()
 
-    if gui:
-        window.refresh()
+    if gui_window is not None:
+        gui_window.refresh()
 
     log = open(
         report_folder_base + "Script Logs/ProcessedFilesLog.html", "w+", encoding="utf8"
@@ -108,14 +108,19 @@ def pre_extraction(pathto, gui=False):
     return log
 
 
-def process_file_found(filefound, key, val, log):
+def process_file_found(filefound, key, val, log, gui_window=None):
     if not filefound:
+        if gui_window is not None:
+            gui_window.refresh()
         logfunc()
         logfunc(f"No files found for {key} -> {val}.")
         log.write(f"No files found for {key} -> {val}.<br>")
         return
 
     logfunc()
+
+    if gui_window is not None:
+        gui_window.refresh()
 
     globals()[key](filefound)
 
