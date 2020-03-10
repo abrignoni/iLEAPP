@@ -253,793 +253,288 @@ def applicationstate(filefound):
 
 
 def knowledgec(filefound):
-    logfunc(f"Incepted bplist extractions in KnowledgeC.db executing")
-
-    iOSversion = versionf
-    if version.parse(iOSversion) < version.parse("11"):
-        logfunc("Unsupported version" + iOSversion)
-        return ()
-
-    extension = ".bplist"
-    dump = True
-    # create directories
-    outpath = reportfolderbase + "KnowledgeC/"
-
     try:
-        os.mkdir(outpath)
-        os.mkdir(outpath + "clean/")
-        os.mkdir(outpath + "/dirty")
-    except OSError:
-        logfunc("Error making directories")
+        logfunc(f"Incepted bplist extractions in KnowledgeC.db executing")
 
-    # connect sqlite databases
-    db = sqlite3.connect(filefound[0])
-    cursor = db.cursor()
+        iOSversion = versionf
+        if version.parse(iOSversion) < version.parse("11"):
+            logfunc("Unsupported version" + iOSversion)
+            return ()
 
-    # variable initializations
-    dirtcount = 0
-    cleancount = 0
-    intentc = {}
-    intentv = {}
+        extension = ".bplist"
+        dump = True
+        # create directories
+        outpath = reportfolderbase + "KnowledgeC/"
 
-    cursor.execute(
-        """
-	SELECT
-	Z_PK,
-	Z_DKINTENTMETADATAKEY__SERIALIZEDINTERACTION,
-	Z_DKINTENTMETADATAKEY__INTENTCLASS,
-	Z_DKINTENTMETADATAKEY__INTENTVERB
-	FROM ZSTRUCTUREDMETADATA
-	WHERE Z_DKINTENTMETADATAKEY__SERIALIZEDINTERACTION is not null
-	"""
-    )
+        try:
+            os.mkdir(outpath)
+            os.mkdir(outpath + "clean/")
+            os.mkdir(outpath + "/dirty")
+        except OSError:
+            logfunc("Error making directories")
 
-    all_rows = cursor.fetchall()
+        # connect sqlite databases
+        db = sqlite3.connect(filefound[0])
+        cursor = db.cursor()
 
-    for row in all_rows:
-        pkv = str(row[0])
-        pkvplist = pkv + extension
-        f = row[1]
-        intentclass = str(row[2])
-        intententverb = str(row[3])
-        output_file = open(
-            outpath + "/dirty/D_Z_PK" + pkvplist, "wb"
-        )  # export dirty from DB
-        output_file.write(f)
-        output_file.close()
+        # variable initializations
+        dirtcount = 0
+        cleancount = 0
+        intentc = {}
+        intentv = {}
 
-        g = open(outpath + "/dirty/D_Z_PK" + pkvplist, "rb")
-        plistg = ccl_bplist.load(g)
+        cursor.execute(
+            """
+    	SELECT
+    	Z_PK,
+    	Z_DKINTENTMETADATAKEY__SERIALIZEDINTERACTION,
+    	Z_DKINTENTMETADATAKEY__INTENTCLASS,
+    	Z_DKINTENTMETADATAKEY__INTENTVERB
+    	FROM ZSTRUCTUREDMETADATA
+    	WHERE Z_DKINTENTMETADATAKEY__SERIALIZEDINTERACTION is not null
+    	"""
+        )
 
-        if version.parse(iOSversion) < version.parse("12"):
-            ns_keyed_archiver_objg = ccl_bplist.deserialise_NsKeyedArchiver(plistg)
-            newbytearray = ns_keyed_archiver_objg
-        else:
-            ns_keyed_archiver_objg = ccl_bplist.deserialise_NsKeyedArchiver(plistg)
-            newbytearray = ns_keyed_archiver_objg["NS.data"]
+        all_rows = cursor.fetchall()
 
-        dirtcount = dirtcount + 1
+        for row in all_rows:
+            pkv = str(row[0])
+            pkvplist = pkv + extension
+            f = row[1]
+            intentclass = str(row[2])
+            intententverb = str(row[3])
+            output_file = open(
+                outpath + "/dirty/D_Z_PK" + pkvplist, "wb"
+            )  # export dirty from DB
+            output_file.write(f)
+            output_file.close()
 
-        binfile = open(outpath + "/clean/C_Z_PK" + pkvplist, "wb")
-        binfile.write(newbytearray)
-        binfile.close()
+            g = open(outpath + "/dirty/D_Z_PK" + pkvplist, "rb")
+            plistg = ccl_bplist.load(g)
 
-        # add to dictionaries
-        intentc["C_Z_PK" + pkvplist] = intentclass
-        intentv["C_Z_PK" + pkvplist] = intententverb
+            if version.parse(iOSversion) < version.parse("12"):
+                ns_keyed_archiver_objg = ccl_bplist.deserialise_NsKeyedArchiver(plistg)
+                newbytearray = ns_keyed_archiver_objg
+            else:
+                ns_keyed_archiver_objg = ccl_bplist.deserialise_NsKeyedArchiver(plistg)
+                newbytearray = ns_keyed_archiver_objg["NS.data"]
 
-        cleancount = cleancount + 1
+            dirtcount = dirtcount + 1
 
-    h = open(outpath + "/StrucMetadata.html", "w")
-    h.write("<html><body>")
-    h.write(
-        "<h2>iOS " + iOSversion + " - KnowledgeC ZSTRUCTUREDMETADATA bplist report</h2>"
-    )
-    h.write(
-        "<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>"
-    )
-    h.write("<br/>")
+            binfile = open(outpath + "/clean/C_Z_PK" + pkvplist, "wb")
+            binfile.write(newbytearray)
+            binfile.close()
 
-    for filename in glob.glob(outpath + "/clean/*" + extension):
-        p = open(filename, "rb")
-        cfilename = os.path.basename(filename)
-        plist = ccl_bplist.load(p)
-        ns_keyed_archiver_obj = ccl_bplist.deserialise_NsKeyedArchiver(
-            plist, parse_whole_structure=True
-        )  # deserialize clean
-        # Get dictionary values
-        A = intentc.get(cfilename)
-        B = intentv.get(cfilename)
+            # add to dictionaries
+            intentc["C_Z_PK" + pkvplist] = intentclass
+            intentv["C_Z_PK" + pkvplist] = intententverb
 
-        if A is None:
-            A = "No value"
-        if B is None:
-            A = "No value"
+            cleancount = cleancount + 1
 
-        # logfunc some values from clean bplist
-        if version.parse(iOSversion) >= version.parse("13"):
-            try:
-                NSdata = ns_keyed_archiver_obj["root"]["intent"]["backingStore"][
-                    "bytes"
-                ]
-            except:
-                NSdata = ns_keyed_archiver_obj["root"]["intent"]["backingStore"][
-                    "data"
-                ]["NS.data"]
-                pass
-        else:
-            NSdata = ns_keyed_archiver_obj["root"]["intent"]["backingStore"]["data"][
-                "NS.data"
-            ]
-            # logfunc(str(NSdata))
+        h = open(outpath + "/StrucMetadata.html", "w")
+        h.write("<html><body>")
+        h.write(
+            "<h2>iOS " + iOSversion + " - KnowledgeC ZSTRUCTUREDMETADATA bplist report</h2>"
+        )
+        h.write(
+            "<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>"
+        )
+        h.write("<br/>")
 
-        parsedNSData = ""
-        # Default true
-        if dump == True:
-            nsdata_file = outpath + "/clean/" + cfilename + "_nsdata.bin"
-            binfile = open(nsdata_file, "wb")
+        for filename in glob.glob(outpath + "/clean/*" + extension):
+            p = open(filename, "rb")
+            cfilename = os.path.basename(filename)
+            plist = ccl_bplist.load(p)
+            ns_keyed_archiver_obj = ccl_bplist.deserialise_NsKeyedArchiver(
+                plist, parse_whole_structure=True
+            )  # deserialize clean
+            # Get dictionary values
+            A = intentc.get(cfilename)
+            B = intentv.get(cfilename)
+
+            if A is None:
+                A = "No value"
+            if B is None:
+                A = "No value"
+
+            # logfunc some values from clean bplist
             if version.parse(iOSversion) >= version.parse("13"):
                 try:
-                    binfile.write(
-                        ns_keyed_archiver_obj["root"]["intent"]["backingStore"]["bytes"]
-                    )
+                    NSdata = ns_keyed_archiver_obj["root"]["intent"]["backingStore"][
+                        "bytes"
+                    ]
                 except:
+                    NSdata = ns_keyed_archiver_obj["root"]["intent"]["backingStore"][
+                        "data"
+                    ]["NS.data"]
+                    pass
+            else:
+                NSdata = ns_keyed_archiver_obj["root"]["intent"]["backingStore"]["data"][
+                    "NS.data"
+                ]
+                # logfunc(str(NSdata))
+
+            parsedNSData = ""
+            # Default true
+            if dump == True:
+                nsdata_file = outpath + "/clean/" + cfilename + "_nsdata.bin"
+                binfile = open(nsdata_file, "wb")
+                if version.parse(iOSversion) >= version.parse("13"):
+                    try:
+                        binfile.write(
+                            ns_keyed_archiver_obj["root"]["intent"]["backingStore"]["bytes"]
+                        )
+                    except:
+                        binfile.write(
+                            ns_keyed_archiver_obj["root"]["intent"]["backingStore"]["data"][
+                                "NS.data"
+                            ]
+                        )
+                        pass
+                else:
                     binfile.write(
                         ns_keyed_archiver_obj["root"]["intent"]["backingStore"]["data"][
                             "NS.data"
                         ]
                     )
-                    pass
-            else:
-                binfile.write(
-                    ns_keyed_archiver_obj["root"]["intent"]["backingStore"]["data"][
-                        "NS.data"
-                    ]
+                binfile.close()
+                messages = ParseProto(nsdata_file)
+                messages_json_dump = json.dumps(
+                    messages, indent=4, sort_keys=True, ensure_ascii=False
                 )
-            binfile.close()
-            messages = ParseProto(nsdata_file)
-            messages_json_dump = json.dumps(
-                messages, indent=4, sort_keys=True, ensure_ascii=False
+                parsedNSData = str(messages_json_dump).encode(
+                    encoding="UTF-8", errors="ignore"
+                )
+
+            NSstartDate = ccl_bplist.convert_NSDate(
+                (ns_keyed_archiver_obj["root"]["dateInterval"]["NS.startDate"])
             )
-            parsedNSData = str(messages_json_dump).encode(
-                encoding="UTF-8", errors="ignore"
+            NSendDate = ccl_bplist.convert_NSDate(
+                (ns_keyed_archiver_obj["root"]["dateInterval"]["NS.endDate"])
             )
+            NSduration = ns_keyed_archiver_obj["root"]["dateInterval"]["NS.duration"]
+            Siri = ns_keyed_archiver_obj["root"]["_donatedBySiri"]
 
-        NSstartDate = ccl_bplist.convert_NSDate(
-            (ns_keyed_archiver_obj["root"]["dateInterval"]["NS.startDate"])
-        )
-        NSendDate = ccl_bplist.convert_NSDate(
-            (ns_keyed_archiver_obj["root"]["dateInterval"]["NS.endDate"])
-        )
-        NSduration = ns_keyed_archiver_obj["root"]["dateInterval"]["NS.duration"]
-        Siri = ns_keyed_archiver_obj["root"]["_donatedBySiri"]
+            h.write(cfilename)
+            h.write("<br />")
+            h.write("Intent Class: " + str(A))
+            h.write("<br />")
+            h.write("Intent Verb: " + str(B))
+            h.write("<br />")
+            h.write("<table>")
 
-        h.write(cfilename)
-        h.write("<br />")
-        h.write("Intent Class: " + str(A))
-        h.write("<br />")
-        h.write("Intent Verb: " + str(B))
-        h.write("<br />")
-        h.write("<table>")
-
-        h.write("<tr>")
-        h.write("<th>Data type</th>")
-        h.write("<th>Value</th>")
-        h.write("</tr>")
-
-        # Donated by Siri
-        h.write("<tr>")
-        h.write("<td>Siri</td>")
-        h.write("<td>" + str(Siri) + "</td>")
-        h.write("</tr>")
-
-        # NSstartDate
-        h.write("<tr>")
-        h.write("<td>NSstartDate</td>")
-        h.write("<td>" + str(NSstartDate) + " Z</td>")
-        h.write("</tr>")
-
-        # NSsendDate
-        h.write("<tr>")
-        h.write("<td>NSendDate</td>")
-        h.write("<td>" + str(NSendDate) + " Z</td>")
-        h.write("</tr>")
-
-        # NSduration
-        h.write("<tr>")
-        h.write("<td>NSduration</td>")
-        h.write("<td>" + str(NSduration) + "</td>")
-        h.write("</tr>")
-
-        # NSdata
-        h.write("<tr>")
-        h.write("<td>NSdata</td>")
-        h.write("<td>" + str(NSdata) + "</td>")
-        h.write("</tr>")
-
-        # NSdata better formatting
-        if parsedNSData:
             h.write("<tr>")
-            h.write("<td>NSdata - Protobuf Decoded</td>")
-            h.write(
-                '<td><pre id="json">'
-                + str(parsedNSData).replace("\\n", "<br>")
-                + "</pre></td>"
-            )
-            h.write("</tr>")
-        else:
-            # This will only run if -nd is used
-            h.write("<tr>")
-            h.write("<td>NSdata - Protobuf</td>")
-            h.write("<td>" + str(NSdata).replace("\\n", "<br>") + "</td>")
+            h.write("<th>Data type</th>")
+            h.write("<th>Value</th>")
             h.write("</tr>")
 
-        h.write("<table>")
-        h.write("<br />")
+            # Donated by Siri
+            h.write("<tr>")
+            h.write("<td>Siri</td>")
+            h.write("<td>" + str(Siri) + "</td>")
+            h.write("</tr>")
 
-        # logfunc(NSstartDate)
-        # logfunc(NSendDate)
-        # logfunc(NSduration)
-        # logfunc(NSdata)
-        # logfunc('')
+            # NSstartDate
+            h.write("<tr>")
+            h.write("<td>NSstartDate</td>")
+            h.write("<td>" + str(NSstartDate) + " Z</td>")
+            h.write("</tr>")
 
-    logfunc("")
-    logfunc("iOS - KnowledgeC ZSTRUCTUREDMETADATA bplist extractor")
-    logfunc("By: @phillmoore & @AlexisBrignoni")
-    logfunc("thinkdfir.com & abrignoni.com")
-    logfunc("")
-    logfunc("Bplists from the Z_DKINTENTMETADATAKEY__SERIALIZEDINTERACTION field.")
-    logfunc("Exported bplists (dirty): " + str(dirtcount))
-    logfunc("Exported bplists (clean): " + str(cleancount))
-    logfunc("")
-    logfunc(f"Triage report completed.")
-    logfunc("Incepted bplist extractions in KnowledgeC.db completed")
-    logfunc("")
-    logfunc(f"KnowledgeC App Usage executing")
+            # NSsendDate
+            h.write("<tr>")
+            h.write("<td>NSendDate</td>")
+            h.write("<td>" + str(NSendDate) + " Z</td>")
+            h.write("</tr>")
 
-    # outpath = reportfolderbase+'KnowledgeC App Use/'
+            # NSduration
+            h.write("<tr>")
+            h.write("<td>NSduration</td>")
+            h.write("<td>" + str(NSduration) + "</td>")
+            h.write("</tr>")
 
-    # connect sqlite databases
-    db = sqlite3.connect(filefound[0])
-    cursor = db.cursor()
+            # NSdata
+            h.write("<tr>")
+            h.write("<td>NSdata</td>")
+            h.write("<td>" + str(NSdata) + "</td>")
+            h.write("</tr>")
 
-    cursor.execute(
-        """
-	SELECT
-	datetime(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH', 'LOCALTIME') as "ENTRY CREATION", 
-	CASE ZOBJECT.ZSTARTDAYOFWEEK 
-		WHEN "1" THEN "Sunday"
-		WHEN "2" THEN "Monday"
-		WHEN "3" THEN "Tuesday"
-		WHEN "4" THEN "Wednesday"
-		WHEN "5" THEN "Thursday"
-		WHEN "6" THEN "Friday"
-		WHEN "7" THEN "Saturday"
-	END "DAY OF WEEK",
-	ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-	datetime(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH', 'LOCALTIME') as "START", 
-	datetime(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH', 'LOCALTIME') as "END", 
-	(ZOBJECT.ZENDDATE-ZOBJECT.ZSTARTDATE) as "USAGE IN SECONDS",
-	ZOBJECT.ZSTREAMNAME, 
-	ZOBJECT.ZVALUESTRING
-	FROM ZOBJECT
-	WHERE ZSTREAMNAME IS "/app/inFocus" 
-	ORDER BY "START"	"""
-    )
+            # NSdata better formatting
+            if parsedNSData:
+                h.write("<tr>")
+                h.write("<td>NSdata - Protobuf Decoded</td>")
+                h.write(
+                    '<td><pre id="json">'
+                    + str(parsedNSData).replace("\\n", "<br>")
+                    + "</pre></td>"
+                )
+                h.write("</tr>")
+            else:
+                # This will only run if -nd is used
+                h.write("<tr>")
+                h.write("<td>NSdata - Protobuf</td>")
+                h.write("<td>" + str(NSdata).replace("\\n", "<br>") + "</td>")
+                h.write("</tr>")
 
-    all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
+            h.write("<table>")
+            h.write("<br />")
+    except:
+        logfunc('Error in KnowledgeC ZSTRUCTUREDMETADATA')
+        
+    try:
+        logfunc("")
+        logfunc("iOS - KnowledgeC ZSTRUCTUREDMETADATA bplist extractor")
+        logfunc("By: @phillmoore & @AlexisBrignoni")
+        logfunc("thinkdfir.com & abrignoni.com")
+        logfunc("")
+        logfunc("Bplists from the Z_DKINTENTMETADATAKEY__SERIALIZEDINTERACTION field.")
+        logfunc("Exported bplists (dirty): " + str(dirtcount))
+        logfunc("Exported bplists (clean): " + str(cleancount))
+        logfunc("")
+        logfunc(f"Triage report completed.")
+        logfunc("Incepted bplist extractions in KnowledgeC.db completed")
+        logfunc("")
+        logfunc(f"KnowledgeC App Usage executing")
 
-    with open(
-        reportfolderbase + "KnowledgeC/App Usage.html", "w", encoding="utf8"
-    ) as f:
-        f.write("<html><body>")
-        f.write("<h2>iOS " + iOSversion + " - KnowledgeC App Usage report</h2>")
-        f.write(f"KnowledgeC App Usage entries: {usageentries}<br>")
-        f.write(f"KnowledgeC located at: {filefound[0]}<br>")
-        f.write(
-            "<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>"
-        )
-        f.write("<br/>")
-        f.write("")
-        f.write(f'<table class="table sticky">')
-        f.write(
-            f"<tr><th>Entry Creation</th><th>Day of Week</th><th>GMT Offset</th><th>Start</th><th>End</th><th>Usage in Seconds</th><th>ZSTREAMNAME</th><th>ZVALUESTRING</th></tr>"
-        )
-        for row in all_rows:
-            ec = row[0]
-            dw = row[1]
-            go = row[2]
-            st = row[3]
-            en = row[4]
-            us = row[5]
-            zs = row[6]
-            zv = row[7]
-            f.write(
-                f"<tr><td>{ec}</td><td>{dw}</td><td>{go}</td><td>{st}</td><td>{en}</td><td>{us}</td><td>{zs}</td><td>{zv}</td></tr>"
-            )
-        f.write(f"</table></body></html>")
-    logfunc(f"KnowledgeC App Usage completed")
-    logfunc(f"KnowledgeC App Activity Executing")
-    # connect sqlite databases
-    db = sqlite3.connect(filefound[0])
-    cursor = db.cursor()
+        # outpath = reportfolderbase+'KnowledgeC App Use/'
 
-    cursor.execute(
-        '''
-	SELECT
-	datetime(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH', 'LOCALTIME') as "ENTRY CREATION", 
-		CASE ZOBJECT.ZSTARTDAYOFWEEK 
-		WHEN "1" THEN "Sunday"
-		WHEN "2" THEN "Monday"
-		WHEN "3" THEN "Tuesday"
-		WHEN "4" THEN "Wednesday"
-		WHEN "5" THEN "Thursday"
-		WHEN "6" THEN "Friday"
-		WHEN "7" THEN "Saturday"
-	END "DAY OF WEEK",
-	datetime(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH', 'LOCALTIME') as "START", 
-	datetime(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH', 'LOCALTIME') as "END", 
-	ZOBJECT.ZSTREAMNAME, 
-	ZOBJECT.ZVALUESTRING,
-	ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__ACTIVITYTYPE AS "ACTIVITY TYPE",  
-	ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__TITLE as "TITLE", 
-	datetime(ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__EXPIRATIONDATE+978307200,'UNIXEPOCH', 'LOCALTIME') as "EXPIRATION DATE",
-	ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__ITEMRELATEDCONTENTURL as "CONTENT URL",
-	datetime(ZSTRUCTUREDMETADATA.ZCOM_APPLE_CALENDARUIKIT_USERACTIVITY_DATE+978307200,'UNIXEPOCH', 'LOCALTIME')  as "CALENDAR DATE",
-	datetime(ZSTRUCTUREDMETADATA.ZCOM_APPLE_CALENDARUIKIT_USERACTIVITY_ENDDATE+978307200,'UNIXEPOCH', 'LOCALTIME')  as "CALENDAR END DATE"
-	FROM ZOBJECT
-	left join ZSTRUCTUREDMETADATA on ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK
-	left join ZSOURCE on ZOBJECT.ZSOURCE = ZSOURCE.Z_PK
-	WHERE ZSTREAMNAME is "/app/activity" 
-	ORDER BY "ENTRY CREATION"'''
-    )
-
-    all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
-
-    with open(
-        reportfolderbase + "KnowledgeC/App Activity.html", "w", encoding="utf8"
-    ) as f:
-        f.write("<html><body>")
-        f.write("<h2>iOS " + iOSversion + " - KnowledgeC App Activity report</h2>")
-        f.write(f"KnowledgeC App Activity entries: {usageentries}<br>")
-        f.write(f"KnowledgeC located at: {filefound[0]}<br>")
-        f.write(
-            "<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>"
-        )
-        f.write("<br/>")
-        f.write("")
-        f.write(f'<table class="table sticky">')
-        f.write(
-            f"<tr><th>Entry Creation</th><th>Day of Week</th><th>Start</th><th>End</th><th>ZSTREAMNAME</th><th>ZVALUESTRING</th><th>Activity Type</th><th>Title</th><th>Expiration Date</th><th>Content URL</th><th>Calendar Date</th><th>Calendar End Date</th></tr>"
-        )
-        for row in all_rows:
-            ec = row[0]
-            dw = row[1]
-            st = row[2]
-            en = row[3]
-            zs = row[4]
-            zv = row[5]
-            tl = row[6]
-            ed = row[7]
-            cu = row[8]
-            cd = row[9]
-            ce = row[10]
-            ced = row[11]
-            f.write(
-                f"<tr><td>{ec}</td><td>{dw}</td><td>{st}</td><td>{en}</td><td>{zs}</td><td>{zv}</td><td>{tl}</td><td>{ed}</td><td>{cu}</td><td>{cd}</td><td>{ce}</td><td>{ced}</td></tr>"
-            )
-        f.write(f"</table></body></html>")
-    logfunc(f"KnowledgeC App Activity completed")
-
-    logfunc(f"KnowledgeC App in Focus executing")
-    db = sqlite3.connect(filefound[0])
-    cursor = db.cursor()
-
-    cursor.execute(
-        '''
-	SELECT
-	ZOBJECT.ZVALUESTRING AS "BUNDLE ID", 
-	(ZOBJECT.ZENDDATE-ZOBJECT.ZSTARTDATE) as "USAGE IN SECONDS",
-	CASE ZOBJECT.ZSTARTDAYOFWEEK 
-	    WHEN "1" THEN "Sunday"
-	    WHEN "2" THEN "Monday"
-	    WHEN "3" THEN "Tuesday"
-	    WHEN "4" THEN "Wednesday"
-	    WHEN "5" THEN "Thursday"
-	    WHEN "6" THEN "Friday"
-	    WHEN "7" THEN "Saturday"
-	END "DAY OF WEEK",
-	ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-	DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') as "START", 
-	DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') as "END",
-	DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') as "ENTRY CREATION",	
-	ZOBJECT.Z_PK AS "ZOBJECT TABLE ID" 
-	FROM ZOBJECT
-	WHERE ZSTREAMNAME IS "/app/inFocus"'''
-    )
-
-    all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
-
-    with open(
-        reportfolderbase + "KnowledgeC/App in Focus.html", "w", encoding="utf8"
-    ) as f:
-        f.write("<html><body>")
-        f.write("<h2>iOS " + iOSversion + " - KnowledgeC App App in Focus report</h2>")
-        f.write(f"KnowledgeC App in Focus entries: {usageentries}<br>")
-        f.write(f"KnowledgeC located at: {filefound[0]}<br>")
-        f.write(
-            "<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>"
-        )
-        f.write("<br/>")
-        f.write("")
-        f.write(f'<table class="table sticky">')
-        f.write(
-            f"<tr><th>Bundle ID</th><th>Usage in Seconds</th><th>Day of the Week</th><th>GMT Offset</th><th>Start</th><th>End</th><th>Entry Creation</th><th>ZOBJECT Table ID</th></tr>"
-        )
-        for row in all_rows:
-            f.write(
-                f"<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td></tr>"
-            )
-        f.write(f"</table></body></html>")
-        logfunc(f"KnowledgeC App in Focus completed")
-
-    logfunc(f"KnowledgeC App Battery Level executing")
-    cursor.execute(
-        """
-	SELECT
-			ZOBJECT.ZVALUEDOUBLE as "BATTERY LEVEL",
-			(ZOBJECT.ZENDDATE - ZOBJECT.ZSTARTDATE) AS "USAGE IN SECONDS", 
-			CASE ZOBJECT.ZSTARTDAYOFWEEK 
-				WHEN "1" THEN "Sunday"
-				WHEN "2" THEN "Monday"
-				WHEN "3" THEN "Tuesday"
-				WHEN "4" THEN "Wednesday"
-				WHEN "5" THEN "Thursday"
-				WHEN "6" THEN "Friday"
-				WHEN "7" THEN "Saturday"
-			END "DAY OF WEEK",
-			ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-			DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') as "START", 
-			DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') as "END",
-			DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') as "ENTRY CREATION",     
-			ZOBJECT.Z_PK AS "ZOBJECT TABLE ID"
-		FROM
-			ZOBJECT 
-			LEFT JOIN
-				ZSTRUCTUREDMETADATA 
-				ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
-			LEFT JOIN
-				ZSOURCE 
-				ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
-		WHERE
-			ZSTREAMNAME LIKE "/device/BatteryPercentage"
-	"""
-    )
-
-    all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
-
-    with open(
-        reportfolderbase + "KnowledgeC/Battery Level.html", "w", encoding="utf8"
-    ) as f:
-        f.write("<html><body>")
-        f.write("<h2>KnowledgeC Battery Level report</h2>")
-        f.write(f"KnowledgeC Battery Level entries: {usageentries}<br>")
-        f.write(f"KnowledgeC Battery Level located at: {filefound[0]}<br>")
-        f.write(
-            "<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>"
-        )
-        f.write("<br/>")
-        f.write("")
-        f.write(f'<table class="table sticky">')
-        f.write(
-            f"<tr><th>Battery Level</th><th>Usage in Seconds</th><th>Day of the Week</th><th>GMT Offset</th><th>Start</th><th>End</th><th>Entry Creation</th><th>ZOBJECT Table ID</th></tr>"
-        )
-        for row in all_rows:
-            f.write(
-                f"<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td></tr>"
-            )
-        f.write(f"</table></body></html>")
-        logfunc(f"KnowledgeC App Battery Level completed")
-
-    logfunc(f"KnowledgeC Apps Installed executing")
-    cursor.execute(
-        """
-	SELECT
-			ZOBJECT.ZVALUESTRING AS "BUNDLE ID",
-			CASE ZOBJECT.ZSTARTDAYOFWEEK 
-				WHEN "1" THEN "Sunday"
-				WHEN "2" THEN "Monday"
-				WHEN "3" THEN "Tuesday"
-				WHEN "4" THEN "Wednesday"
-				WHEN "5" THEN "Thursday"
-				WHEN "6" THEN "Friday"
-				WHEN "7" THEN "Saturday"
-			END "DAY OF WEEK",
-			ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-			DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') as "START", 
-			DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') as "END",
-			DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') as "ENTRY CREATION",	
-			ZOBJECT.Z_PK AS "ZOBJECT TABLE ID"
-		FROM
-		   ZOBJECT 
-		   LEFT JOIN
-		      ZSTRUCTUREDMETADATA 
-		      ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
-		   LEFT JOIN
-		      ZSOURCE 
-		      ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
-		WHERE ZSTREAMNAME is "/app/install"
-	"""
-    )
-
-    all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
-
-    with open(
-        reportfolderbase + "KnowledgeC/Apps Installed.html", "w", encoding="utf8"
-    ) as f:
-        f.write("<html><body>")
-        f.write("<h2>KnowledgeC Apps Installed report</h2>")
-        f.write(f"KnowledgeC Apps Installed : {usageentries}<br>")
-        f.write(f"KnowledgeC Apps Installed located at: {filefound[0]}<br>")
-        f.write(
-            "<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>"
-        )
-        f.write("<br/>")
-        f.write("")
-        f.write(f'<table class="table sticky">')
-        f.write(
-            f"<tr><th>Bundle ID</th><th>Day of the Week</th><th>GMT Offset</th><th>Start</th><th>End</th><th>Entry Creation</th></tr>"
-        )
-        for row in all_rows:
-            f.write(
-                f"<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td></tr>"
-            )
-        f.write(f"</table></body></html>")
-        logfunc(f"KnowledgeC Apps Installed completed")
-
-    logfunc(f"KnowledgeC Device Locked executing")
-    cursor.execute(
-        """
-	SELECT
-			CASE ZOBJECT.ZVALUEINTEGER
-				WHEN '0' THEN 'UNLOCKED' 
-				WHEN '1' THEN 'LOCKED' 
-			END "IS LOCKED",
-			(ZOBJECT.ZENDDATE - ZOBJECT.ZSTARTDATE) AS "USAGE IN SECONDS",  
-			CASE ZOBJECT.ZSTARTDAYOFWEEK 
-				WHEN "1" THEN "Sunday"
-				WHEN "2" THEN "Monday"
-				WHEN "3" THEN "Tuesday"
-				WHEN "4" THEN "Wednesday"
-				WHEN "5" THEN "Thursday"
-				WHEN "6" THEN "Friday"
-				WHEN "7" THEN "Saturday"
-			END "DAY OF WEEK",
-			ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-			DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') as "START", 
-			DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') as "END",
-			DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') as "ENTRY CREATION", 
-			ZOBJECT.Z_PK AS "ZOBJECT TABLE ID" 
-		FROM
-			ZOBJECT 
-			LEFT JOIN
-				ZSTRUCTUREDMETADATA 
-				ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
-			LEFT JOIN
-				ZSOURCE 
-				ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
-		WHERE
-			ZSTREAMNAME LIKE "/device/isLocked"
-	"""
-    )
-
-    all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
-
-    with open(
-        reportfolderbase + "KnowledgeC/Device Locked.html", "w", encoding="utf8"
-    ) as f:
-        f.write("<html><body>")
-        f.write("<h2>KnowledgeC Device Locked report</h2>")
-        f.write(f"KnowledgeC Device Locked: {usageentries}<br>")
-        f.write(f"KnowledgeC Device Locked located at: {filefound[0]}<br>")
-        f.write(
-            "<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>"
-        )
-        f.write("<br/>")
-        f.write("")
-        f.write(f'<table class="table sticky">')
-        f.write(
-            f"<tr><th>Is Locked?</th><th>Usage in Seconds</th><th>Day of the Week</th><th>GMT Offset</th><th>Start</th><th>End</th><th>Entry Creation</th></tr>"
-        )
-        for row in all_rows:
-            f.write(
-                f"<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td></tr>"
-            )
-        f.write(f"</table></body></html>")
-        logfunc(f"KnowledgeC Device Locked completed")
-
-    logfunc(f"KnowledgeC Plugged In executing")
-
-    cursor.execute(
-        """
-	SELECT
-			CASE
-			ZOBJECT.ZVALUEINTEGER
-				WHEN '0' THEN 'UNPLUGGED' 
-				WHEN '1' THEN 'PLUGGED IN' 
-			END "IS PLUGGED IN",
-			(ZOBJECT.ZENDDATE - ZOBJECT.ZSTARTDATE) AS "USAGE IN SECONDS",  
-			CASE ZOBJECT.ZSTARTDAYOFWEEK 
-				WHEN "1" THEN "Sunday"
-				WHEN "2" THEN "Monday"
-				WHEN "3" THEN "Tuesday"
-				WHEN "4" THEN "Wednesday"
-				WHEN "5" THEN "Thursday"
-				WHEN "6" THEN "Friday"
-				WHEN "7" THEN "Saturday"
-			END "DAY OF WEEK",
-			ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-			DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') as "START", 
-			DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') as "END",
-			DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') as "ENTRY CREATION", 
-			ZOBJECT.Z_PK AS "ZOBJECT TABLE ID" 
-		FROM
-			ZOBJECT 
-			LEFT JOIN
-				ZSTRUCTUREDMETADATA 
-				ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
-			LEFT JOIN
-				ZSOURCE 
-				ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
-		WHERE
-			ZSTREAMNAME LIKE "/device/isPluggedIn"
-	"""
-    )
-
-    all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
-
-    with open(
-        reportfolderbase + "KnowledgeC/Plugged In.html", "w", encoding="utf8"
-    ) as f:
-        f.write("<html><body>")
-        f.write("<h2>KnowledgeC Plugged In report</h2>")
-        f.write(f"KnowledgeC Device Plugged In entries: {usageentries}<br>")
-        f.write(f"KnowledgeC Device Plugged In located at: {filefound[0]}<br>")
-        f.write(
-            "<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>"
-        )
-        f.write("<br/>")
-        f.write("")
-        f.write(f'<table class="table sticky">')
-        f.write(
-            f"<tr><th>Is Plugged In?</th><th>Usage in Seconds</th><th>Day of the Week</th><th>GMT Offset</th><th>Start</th><th>End</th><th>Entry Creation</th></tr>"
-        )
-        for row in all_rows:
-            f.write(
-                f"<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td></tr>"
-            )
-        f.write(f"</table></body></html>")
-        logfunc(f"KnowledgeC Plugged In completed")
-
-    if iOSversion == ("13") or ("12"):
-        logfunc(f"KnowledgeC Serialized Interaction executing")
+        # connect sqlite databases
+        db = sqlite3.connect(filefound[0])
+        cursor = db.cursor()
 
         cursor.execute(
             """
-		select 
-		ZSTRUCTUREDMETADATA.Z_PK  as ID,
-		ZSTRUCTUREDMETADATA.Z_DKINTENTMETADATAKEY__INTENTCLASS,
-		ZSTRUCTUREDMETADATA.Z_DKINTENTMETADATAKEY__INTENTVERB,
-		datetime(ZOBJECT.ZSTARTDATE+ 978307200, 'UNIXEPOCH')  as timestam,
-		ZOBJECT.ZVALUESTRING,
-		ZOBJECT.ZSTREAMNAME,
-		ZSTRUCTUREDMETADATA.Z_DKINTENTMETADATAKEY__SERIALIZEDINTERACTION
-		from ZSTRUCTUREDMETADATA, ZOBJECT
-		where ZSTRUCTUREDMETADATA.Z_DKINTENTMETADATAKEY__SERIALIZEDINTERACTION not NULL
-		and ZSTRUCTUREDMETADATA.Z_PK = ZOBJECT.ZSTRUCTUREDMETADATA
-		"""
+    	SELECT
+    	datetime(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH', 'LOCALTIME') as "ENTRY CREATION", 
+    	CASE ZOBJECT.ZSTARTDAYOFWEEK 
+    		WHEN "1" THEN "Sunday"
+    		WHEN "2" THEN "Monday"
+    		WHEN "3" THEN "Tuesday"
+    		WHEN "4" THEN "Wednesday"
+    		WHEN "5" THEN "Thursday"
+    		WHEN "6" THEN "Friday"
+    		WHEN "7" THEN "Saturday"
+    	END "DAY OF WEEK",
+    	ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
+    	datetime(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH', 'LOCALTIME') as "START", 
+    	datetime(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH', 'LOCALTIME') as "END", 
+    	(ZOBJECT.ZENDDATE-ZOBJECT.ZSTARTDATE) as "USAGE IN SECONDS",
+    	ZOBJECT.ZSTREAMNAME, 
+    	ZOBJECT.ZVALUESTRING
+    	FROM ZOBJECT
+    	WHERE ZSTREAMNAME IS "/app/inFocus" 
+    	ORDER BY "START"	"""
         )
 
         all_rows = cursor.fetchall()
         usageentries = len(all_rows)
-        if usageentries > 0:
-            os.mkdir(reportfolderbase + "KnowledgeC/expbplists/")
-            with open(
-                reportfolderbase + "KnowledgeC/StrucMetadataCombined.html",
-                "w",
-                encoding="utf8",
-            ) as f:
-                f.write("<html><body>")
-                f.write("<h2>KnowledgeC Serialize Intents Bplists report</h2>")
-                f.write(
-                    f"KnowledgeC Serialize Intents Bplists entries: {usageentries}<br>"
-                )
-                f.write(
-                    f"KnowledgeC Serialize Intents Bplists located at: {filefound[0]}<br>"
-                )
-                f.write(
-                    "<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>"
-                )
-                f.write("<br/>")
-                f.write("")
-                f.write(f'<table class="table sticky">')
-                f.write(
-                    f"<tr><th>ID</th><th>Intent Class</th><th>Intent Verb</th><th>Timestamp</th><th>String</th><th>Stream</th><th>Serialized Interaction bplist</th></tr>"
-                )
-                for row in all_rows:
-                    binfile = (
-                        outpath + "/clean/C_Z_PK" + str(row[0]) + ".bplist_nsdata.bin"
-                    )
-                    if os.path.isfile(binfile):
-                        messages = ParseProto(binfile)
-                        messages_json_dump = json.dumps(
-                            messages, indent=4, sort_keys=True, ensure_ascii=False
-                        )
-                        parsedNSData = str(messages_json_dump).encode(
-                            encoding="UTF-8", errors="ignore"
-                        )
-                    else:
-                        parsedNSData = str(row[6])
 
-                    f.write(
-                        f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td><pre id="json">'
-                        + str(parsedNSData).replace("\\n", "<br>")
-                        + "</pre></td></tr>"
-                    )
-                f.write(f"</table></body></html>")
-            logfunc(f"KnowledgeC Serialized Interaction completed")
-        else:
-            logfunc(f"No KnowledgeC Serialized Interaction files available")
-
-    logfunc(f"KnowledgeC Siri Usage executing")
-    cursor.execute(
-        """
-	SELECT
-	  ZOBJECT.ZVALUESTRING AS "APP NAME",  
-		CASE ZOBJECT.ZSTARTDAYOFWEEK 
-			WHEN "1" THEN "Sunday"
-			WHEN "2" THEN "Monday"
-			WHEN "3" THEN "Tuesday"
-			WHEN "4" THEN "Wednesday"
-			WHEN "5" THEN "Thursday"
-			WHEN "6" THEN "Friday"
-			WHEN "7" THEN "Saturday"
-		END "DAY OF WEEK",
-		ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-		DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
-		DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') AS "ENTRY CREATION",
-		ZOBJECT.ZUUID AS "UUID", 
-		ZOBJECT.Z_PK AS "ZOBJECT TABLE ID" 
-	FROM
-		ZOBJECT 
-		LEFT JOIN
-			ZSTRUCTUREDMETADATA 
-			ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
-		LEFT JOIN
-			ZSOURCE 
-			ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
-	WHERE
-		ZSTREAMNAME =  "/siri/ui" 
-	"""
-    )
-
-    all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
-    if usageentries > 0:
         with open(
-            reportfolderbase + "KnowledgeC/Siri Usage.html", "w", encoding="utf8"
+            reportfolderbase + "KnowledgeC/App Usage.html", "w", encoding="utf8"
         ) as f:
             f.write("<html><body>")
-            f.write("<h2>KnowledgeC Siri Usage report</h2>")
-            f.write(f"KnowledgeC Siri Usage entries: {usageentries}<br>")
-            f.write(f"KnowledgeC Siri Usage located at: {filefound[0]}<br>")
+            f.write("<h2>iOS " + iOSversion + " - KnowledgeC App Usage report</h2>")
+            f.write(f"KnowledgeC App Usage entries: {usageentries}<br>")
+            f.write(f"KnowledgeC located at: {filefound[0]}<br>")
             f.write(
                 "<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>"
             )
@@ -1047,17 +542,545 @@ def knowledgec(filefound):
             f.write("")
             f.write(f'<table class="table sticky">')
             f.write(
-                f"<tr><th>App Name</th><th>Weekday</th><th>GMT Offset</th><th>Start</th><th>Entry Creation</th><th>UUID</th><th>Table ID</th></tr>"
+                f"<tr><th>Entry Creation</th><th>Day of Week</th><th>GMT Offset</th><th>Start</th><th>End</th><th>Usage in Seconds</th><th>ZSTREAMNAME</th><th>ZVALUESTRING</th></tr>"
+            )
+            for row in all_rows:
+                ec = row[0]
+                dw = row[1]
+                go = row[2]
+                st = row[3]
+                en = row[4]
+                us = row[5]
+                zs = row[6]
+                zv = row[7]
+                f.write(
+                    f"<tr><td>{ec}</td><td>{dw}</td><td>{go}</td><td>{st}</td><td>{en}</td><td>{us}</td><td>{zs}</td><td>{zv}</td></tr>"
+                )
+            f.write(f"</table></body></html>")
+        logfunc(f"KnowledgeC App Usage completed")
+    except:
+        logfunc('Error in KnowledgeC App Usage')
+    
+    try:
+        logfunc(f"KnowledgeC App Activity Executing")
+        # connect sqlite databases
+        db = sqlite3.connect(filefound[0])
+        cursor = db.cursor()
+
+        cursor.execute(
+            '''
+    	SELECT
+    	datetime(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH', 'LOCALTIME') as "ENTRY CREATION", 
+    		CASE ZOBJECT.ZSTARTDAYOFWEEK 
+    		WHEN "1" THEN "Sunday"
+    		WHEN "2" THEN "Monday"
+    		WHEN "3" THEN "Tuesday"
+    		WHEN "4" THEN "Wednesday"
+    		WHEN "5" THEN "Thursday"
+    		WHEN "6" THEN "Friday"
+    		WHEN "7" THEN "Saturday"
+    	END "DAY OF WEEK",
+    	datetime(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH', 'LOCALTIME') as "START", 
+    	datetime(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH', 'LOCALTIME') as "END", 
+    	ZOBJECT.ZSTREAMNAME, 
+    	ZOBJECT.ZVALUESTRING,
+    	ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__ACTIVITYTYPE AS "ACTIVITY TYPE",  
+    	ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__TITLE as "TITLE", 
+    	datetime(ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__EXPIRATIONDATE+978307200,'UNIXEPOCH', 'LOCALTIME') as "EXPIRATION DATE",
+    	ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__ITEMRELATEDCONTENTURL as "CONTENT URL",
+    	datetime(ZSTRUCTUREDMETADATA.ZCOM_APPLE_CALENDARUIKIT_USERACTIVITY_DATE+978307200,'UNIXEPOCH', 'LOCALTIME')  as "CALENDAR DATE",
+    	datetime(ZSTRUCTUREDMETADATA.ZCOM_APPLE_CALENDARUIKIT_USERACTIVITY_ENDDATE+978307200,'UNIXEPOCH', 'LOCALTIME')  as "CALENDAR END DATE"
+    	FROM ZOBJECT
+    	left join ZSTRUCTUREDMETADATA on ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK
+    	left join ZSOURCE on ZOBJECT.ZSOURCE = ZSOURCE.Z_PK
+    	WHERE ZSTREAMNAME is "/app/activity" 
+    	ORDER BY "ENTRY CREATION"'''
+        )
+
+        all_rows = cursor.fetchall()
+        usageentries = len(all_rows)
+
+        with open(
+            reportfolderbase + "KnowledgeC/App Activity.html", "w", encoding="utf8"
+        ) as f:
+            f.write("<html><body>")
+            f.write("<h2>iOS " + iOSversion + " - KnowledgeC App Activity report</h2>")
+            f.write(f"KnowledgeC App Activity entries: {usageentries}<br>")
+            f.write(f"KnowledgeC located at: {filefound[0]}<br>")
+            f.write(
+                "<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>"
+            )
+            f.write("<br/>")
+            f.write("")
+            f.write(f'<table class="table sticky">')
+            f.write(
+                f"<tr><th>Entry Creation</th><th>Day of Week</th><th>Start</th><th>End</th><th>ZSTREAMNAME</th><th>ZVALUESTRING</th><th>Activity Type</th><th>Title</th><th>Expiration Date</th><th>Content URL</th><th>Calendar Date</th><th>Calendar End Date</th></tr>"
+            )
+            for row in all_rows:
+                ec = row[0]
+                dw = row[1]
+                st = row[2]
+                en = row[3]
+                zs = row[4]
+                zv = row[5]
+                tl = row[6]
+                ed = row[7]
+                cu = row[8]
+                cd = row[9]
+                ce = row[10]
+                ced = row[11]
+                f.write(
+                    f"<tr><td>{ec}</td><td>{dw}</td><td>{st}</td><td>{en}</td><td>{zs}</td><td>{zv}</td><td>{tl}</td><td>{ed}</td><td>{cu}</td><td>{cd}</td><td>{ce}</td><td>{ced}</td></tr>"
+                )
+            f.write(f"</table></body></html>")
+        logfunc(f"KnowledgeC App Activity completed")
+    except:
+        logfunc("Error in KnowledgeC App Activity")
+    
+    try:
+        logfunc(f"KnowledgeC App in Focus executing")
+        db = sqlite3.connect(filefound[0])
+        cursor = db.cursor()
+
+        cursor.execute(
+            '''
+    	SELECT
+    	ZOBJECT.ZVALUESTRING AS "BUNDLE ID", 
+    	(ZOBJECT.ZENDDATE-ZOBJECT.ZSTARTDATE) as "USAGE IN SECONDS",
+    	CASE ZOBJECT.ZSTARTDAYOFWEEK 
+    	    WHEN "1" THEN "Sunday"
+    	    WHEN "2" THEN "Monday"
+    	    WHEN "3" THEN "Tuesday"
+    	    WHEN "4" THEN "Wednesday"
+    	    WHEN "5" THEN "Thursday"
+    	    WHEN "6" THEN "Friday"
+    	    WHEN "7" THEN "Saturday"
+    	END "DAY OF WEEK",
+    	ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
+    	DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') as "START", 
+    	DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') as "END",
+    	DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') as "ENTRY CREATION",	
+    	ZOBJECT.Z_PK AS "ZOBJECT TABLE ID" 
+    	FROM ZOBJECT
+    	WHERE ZSTREAMNAME IS "/app/inFocus"'''
+        )
+
+        all_rows = cursor.fetchall()
+        usageentries = len(all_rows)
+
+        with open(
+            reportfolderbase + "KnowledgeC/App in Focus.html", "w", encoding="utf8"
+        ) as f:
+            f.write("<html><body>")
+            f.write("<h2>iOS " + iOSversion + " - KnowledgeC App App in Focus report</h2>")
+            f.write(f"KnowledgeC App in Focus entries: {usageentries}<br>")
+            f.write(f"KnowledgeC located at: {filefound[0]}<br>")
+            f.write(
+                "<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>"
+            )
+            f.write("<br/>")
+            f.write("")
+            f.write(f'<table class="table sticky">')
+            f.write(
+                f"<tr><th>Bundle ID</th><th>Usage in Seconds</th><th>Day of the Week</th><th>GMT Offset</th><th>Start</th><th>End</th><th>Entry Creation</th><th>ZOBJECT Table ID</th></tr>"
+            )
+            for row in all_rows:
+                f.write(
+                    f"<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td></tr>"
+                )
+            f.write(f"</table></body></html>")
+            logfunc(f"KnowledgeC App in Focus completed")
+    except:
+        logfunc("Error in KnowledgeC App in Focus")
+    
+    try:
+        logfunc(f"KnowledgeC App Battery Level executing")
+        cursor.execute(
+            """
+    	SELECT
+    			ZOBJECT.ZVALUEDOUBLE as "BATTERY LEVEL",
+    			(ZOBJECT.ZENDDATE - ZOBJECT.ZSTARTDATE) AS "USAGE IN SECONDS", 
+    			CASE ZOBJECT.ZSTARTDAYOFWEEK 
+    				WHEN "1" THEN "Sunday"
+    				WHEN "2" THEN "Monday"
+    				WHEN "3" THEN "Tuesday"
+    				WHEN "4" THEN "Wednesday"
+    				WHEN "5" THEN "Thursday"
+    				WHEN "6" THEN "Friday"
+    				WHEN "7" THEN "Saturday"
+    			END "DAY OF WEEK",
+    			ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
+    			DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') as "START", 
+    			DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') as "END",
+    			DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') as "ENTRY CREATION",     
+    			ZOBJECT.Z_PK AS "ZOBJECT TABLE ID"
+    		FROM
+    			ZOBJECT 
+    			LEFT JOIN
+    				ZSTRUCTUREDMETADATA 
+    				ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
+    			LEFT JOIN
+    				ZSOURCE 
+    				ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
+    		WHERE
+    			ZSTREAMNAME LIKE "/device/BatteryPercentage"
+    	"""
+        )
+
+        all_rows = cursor.fetchall()
+        usageentries = len(all_rows)
+
+        with open(
+            reportfolderbase + "KnowledgeC/Battery Level.html", "w", encoding="utf8"
+        ) as f:
+            f.write("<html><body>")
+            f.write("<h2>KnowledgeC Battery Level report</h2>")
+            f.write(f"KnowledgeC Battery Level entries: {usageentries}<br>")
+            f.write(f"KnowledgeC Battery Level located at: {filefound[0]}<br>")
+            f.write(
+                "<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>"
+            )
+            f.write("<br/>")
+            f.write("")
+            f.write(f'<table class="table sticky">')
+            f.write(
+                f"<tr><th>Battery Level</th><th>Usage in Seconds</th><th>Day of the Week</th><th>GMT Offset</th><th>Start</th><th>End</th><th>Entry Creation</th><th>ZOBJECT Table ID</th></tr>"
+            )
+            for row in all_rows:
+                f.write(
+                    f"<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td><td>{row[7]}</td></tr>"
+                )
+            f.write(f"</table></body></html>")
+            logfunc(f"KnowledgeC App Battery Level completed")
+    except:
+        logfunc("Error in KnowledgeC App baterry Level")
+
+    try:
+        logfunc(f"KnowledgeC Apps Installed executing")
+        cursor.execute(
+            """
+    	SELECT
+    			ZOBJECT.ZVALUESTRING AS "BUNDLE ID",
+    			CASE ZOBJECT.ZSTARTDAYOFWEEK 
+    				WHEN "1" THEN "Sunday"
+    				WHEN "2" THEN "Monday"
+    				WHEN "3" THEN "Tuesday"
+    				WHEN "4" THEN "Wednesday"
+    				WHEN "5" THEN "Thursday"
+    				WHEN "6" THEN "Friday"
+    				WHEN "7" THEN "Saturday"
+    			END "DAY OF WEEK",
+    			ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
+    			DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') as "START", 
+    			DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') as "END",
+    			DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') as "ENTRY CREATION",	
+    			ZOBJECT.Z_PK AS "ZOBJECT TABLE ID"
+    		FROM
+    		   ZOBJECT 
+    		   LEFT JOIN
+    		      ZSTRUCTUREDMETADATA 
+    		      ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
+    		   LEFT JOIN
+    		      ZSOURCE 
+    		      ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
+    		WHERE ZSTREAMNAME is "/app/install"
+    	"""
+        )
+
+        all_rows = cursor.fetchall()
+        usageentries = len(all_rows)
+
+        with open(
+            reportfolderbase + "KnowledgeC/Apps Installed.html", "w", encoding="utf8"
+        ) as f:
+            f.write("<html><body>")
+            f.write("<h2>KnowledgeC Apps Installed report</h2>")
+            f.write(f"KnowledgeC Apps Installed : {usageentries}<br>")
+            f.write(f"KnowledgeC Apps Installed located at: {filefound[0]}<br>")
+            f.write(
+                "<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>"
+            )
+            f.write("<br/>")
+            f.write("")
+            f.write(f'<table class="table sticky">')
+            f.write(
+                f"<tr><th>Bundle ID</th><th>Day of the Week</th><th>GMT Offset</th><th>Start</th><th>End</th><th>Entry Creation</th></tr>"
+            )
+            for row in all_rows:
+                f.write(
+                    f"<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td></tr>"
+                )
+            f.write(f"</table></body></html>")
+            logfunc(f"KnowledgeC Apps Installed completed")
+    except:
+        logfunc("Error in KnowledgeC Apps Installed")
+        
+    try:
+        logfunc(f"KnowledgeC Device Locked executing")
+        cursor.execute(
+            """
+    	SELECT
+    			CASE ZOBJECT.ZVALUEINTEGER
+    				WHEN '0' THEN 'UNLOCKED' 
+    				WHEN '1' THEN 'LOCKED' 
+    			END "IS LOCKED",
+    			(ZOBJECT.ZENDDATE - ZOBJECT.ZSTARTDATE) AS "USAGE IN SECONDS",  
+    			CASE ZOBJECT.ZSTARTDAYOFWEEK 
+    				WHEN "1" THEN "Sunday"
+    				WHEN "2" THEN "Monday"
+    				WHEN "3" THEN "Tuesday"
+    				WHEN "4" THEN "Wednesday"
+    				WHEN "5" THEN "Thursday"
+    				WHEN "6" THEN "Friday"
+    				WHEN "7" THEN "Saturday"
+    			END "DAY OF WEEK",
+    			ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
+    			DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') as "START", 
+    			DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') as "END",
+    			DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') as "ENTRY CREATION", 
+    			ZOBJECT.Z_PK AS "ZOBJECT TABLE ID" 
+    		FROM
+    			ZOBJECT 
+    			LEFT JOIN
+    				ZSTRUCTUREDMETADATA 
+    				ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
+    			LEFT JOIN
+    				ZSOURCE 
+    				ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
+    		WHERE
+    			ZSTREAMNAME LIKE "/device/isLocked"
+    	"""
+        )
+
+        all_rows = cursor.fetchall()
+        usageentries = len(all_rows)
+
+        with open(
+            reportfolderbase + "KnowledgeC/Device Locked.html", "w", encoding="utf8"
+        ) as f:
+            f.write("<html><body>")
+            f.write("<h2>KnowledgeC Device Locked report</h2>")
+            f.write(f"KnowledgeC Device Locked: {usageentries}<br>")
+            f.write(f"KnowledgeC Device Locked located at: {filefound[0]}<br>")
+            f.write(
+                "<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>"
+            )
+            f.write("<br/>")
+            f.write("")
+            f.write(f'<table class="table sticky">')
+            f.write(
+                f"<tr><th>Is Locked?</th><th>Usage in Seconds</th><th>Day of the Week</th><th>GMT Offset</th><th>Start</th><th>End</th><th>Entry Creation</th></tr>"
             )
             for row in all_rows:
                 f.write(
                     f"<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td></tr>"
                 )
             f.write(f"</table></body></html>")
-        logfunc(f"KnowledgeC Siri Usage completed")
-    else:
-        logfunc(f"No KnowledgeC Siri Usage files available")
+            logfunc(f"KnowledgeC Device Locked completed")
+    except:
+        logfunc("Error in KnowledgeC Device Locked")
+        
+    try:    
+        logfunc(f"KnowledgeC Plugged In executing")
 
+        cursor.execute(
+            """
+    	SELECT
+    			CASE
+    			ZOBJECT.ZVALUEINTEGER
+    				WHEN '0' THEN 'UNPLUGGED' 
+    				WHEN '1' THEN 'PLUGGED IN' 
+    			END "IS PLUGGED IN",
+    			(ZOBJECT.ZENDDATE - ZOBJECT.ZSTARTDATE) AS "USAGE IN SECONDS",  
+    			CASE ZOBJECT.ZSTARTDAYOFWEEK 
+    				WHEN "1" THEN "Sunday"
+    				WHEN "2" THEN "Monday"
+    				WHEN "3" THEN "Tuesday"
+    				WHEN "4" THEN "Wednesday"
+    				WHEN "5" THEN "Thursday"
+    				WHEN "6" THEN "Friday"
+    				WHEN "7" THEN "Saturday"
+    			END "DAY OF WEEK",
+    			ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
+    			DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') as "START", 
+    			DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') as "END",
+    			DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') as "ENTRY CREATION", 
+    			ZOBJECT.Z_PK AS "ZOBJECT TABLE ID" 
+    		FROM
+    			ZOBJECT 
+    			LEFT JOIN
+    				ZSTRUCTUREDMETADATA 
+    				ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
+    			LEFT JOIN
+    				ZSOURCE 
+    				ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
+    		WHERE
+    			ZSTREAMNAME LIKE "/device/isPluggedIn"
+    	"""
+        )
+
+        all_rows = cursor.fetchall()
+        usageentries = len(all_rows)
+
+        with open(
+            reportfolderbase + "KnowledgeC/Plugged In.html", "w", encoding="utf8"
+        ) as f:
+            f.write("<html><body>")
+            f.write("<h2>KnowledgeC Plugged In report</h2>")
+            f.write(f"KnowledgeC Device Plugged In entries: {usageentries}<br>")
+            f.write(f"KnowledgeC Device Plugged In located at: {filefound[0]}<br>")
+            f.write(
+                "<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>"
+            )
+            f.write("<br/>")
+            f.write("")
+            f.write(f'<table class="table sticky">')
+            f.write(
+                f"<tr><th>Is Plugged In?</th><th>Usage in Seconds</th><th>Day of the Week</th><th>GMT Offset</th><th>Start</th><th>End</th><th>Entry Creation</th></tr>"
+            )
+            for row in all_rows:
+                f.write(
+                    f"<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td></tr>"
+                )
+            f.write(f"</table></body></html>")
+            logfunc(f"KnowledgeC Plugged In completed")
+    except:
+        logfunc("Error in KnowledgeC Plugged In")
+        
+    try:    
+        if iOSversion == ("13") or ("12"):
+            logfunc(f"KnowledgeC Serialized Interaction executing")
+
+            cursor.execute(
+                """
+    		select 
+    		ZSTRUCTUREDMETADATA.Z_PK  as ID,
+    		ZSTRUCTUREDMETADATA.Z_DKINTENTMETADATAKEY__INTENTCLASS,
+    		ZSTRUCTUREDMETADATA.Z_DKINTENTMETADATAKEY__INTENTVERB,
+    		datetime(ZOBJECT.ZSTARTDATE+ 978307200, 'UNIXEPOCH')  as timestam,
+    		ZOBJECT.ZVALUESTRING,
+    		ZOBJECT.ZSTREAMNAME,
+    		ZSTRUCTUREDMETADATA.Z_DKINTENTMETADATAKEY__SERIALIZEDINTERACTION
+    		from ZSTRUCTUREDMETADATA, ZOBJECT
+    		where ZSTRUCTUREDMETADATA.Z_DKINTENTMETADATAKEY__SERIALIZEDINTERACTION not NULL
+    		and ZSTRUCTUREDMETADATA.Z_PK = ZOBJECT.ZSTRUCTUREDMETADATA
+    		"""
+            )
+
+            all_rows = cursor.fetchall()
+            usageentries = len(all_rows)
+            if usageentries > 0:
+                os.mkdir(reportfolderbase + "KnowledgeC/expbplists/")
+                with open(
+                    reportfolderbase + "KnowledgeC/StrucMetadataCombined.html",
+                    "w",
+                    encoding="utf8",
+                ) as f:
+                    f.write("<html><body>")
+                    f.write("<h2>KnowledgeC Serialize Intents Bplists report</h2>")
+                    f.write(
+                        f"KnowledgeC Serialize Intents Bplists entries: {usageentries}<br>"
+                    )
+                    f.write(
+                        f"KnowledgeC Serialize Intents Bplists located at: {filefound[0]}<br>"
+                    )
+                    f.write(
+                        "<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>"
+                    )
+                    f.write("<br/>")
+                    f.write("")
+                    f.write(f'<table class="table sticky">')
+                    f.write(
+                        f"<tr><th>ID</th><th>Intent Class</th><th>Intent Verb</th><th>Timestamp</th><th>String</th><th>Stream</th><th>Serialized Interaction bplist</th></tr>"
+                    )
+                    for row in all_rows:
+                        binfile = (
+                            outpath + "/clean/C_Z_PK" + str(row[0]) + ".bplist_nsdata.bin"
+                        )
+                        if os.path.isfile(binfile):
+                            messages = ParseProto(binfile)
+                            messages_json_dump = json.dumps(
+                                messages, indent=4, sort_keys=True, ensure_ascii=False
+                            )
+                            parsedNSData = str(messages_json_dump).encode(
+                                encoding="UTF-8", errors="ignore"
+                            )
+                        else:
+                            parsedNSData = str(row[6])
+
+                        f.write(
+                            f'<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td><pre id="json">'
+                            + str(parsedNSData).replace("\\n", "<br>")
+                            + "</pre></td></tr>"
+                        )
+                    f.write(f"</table></body></html>")
+                logfunc(f"KnowledgeC Serialized Interaction completed")
+            else:
+                logfunc(f"No KnowledgeC Serialized Interaction files available")
+    except:
+        logfunc("Error in KnowledgeC Serialized Interaction")
+    try:
+        logfunc(f"KnowledgeC Siri Usage executing")
+        cursor.execute(
+            """
+    	SELECT
+    	  ZOBJECT.ZVALUESTRING AS "APP NAME",  
+    		CASE ZOBJECT.ZSTARTDAYOFWEEK 
+    			WHEN "1" THEN "Sunday"
+    			WHEN "2" THEN "Monday"
+    			WHEN "3" THEN "Tuesday"
+    			WHEN "4" THEN "Wednesday"
+    			WHEN "5" THEN "Thursday"
+    			WHEN "6" THEN "Friday"
+    			WHEN "7" THEN "Saturday"
+    		END "DAY OF WEEK",
+    		ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
+    		DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
+    		DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') AS "ENTRY CREATION",
+    		ZOBJECT.ZUUID AS "UUID", 
+    		ZOBJECT.Z_PK AS "ZOBJECT TABLE ID" 
+    	FROM
+    		ZOBJECT 
+    		LEFT JOIN
+    			ZSTRUCTUREDMETADATA 
+    			ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
+    		LEFT JOIN
+    			ZSOURCE 
+    			ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
+    	WHERE
+    		ZSTREAMNAME =  "/siri/ui" 
+    	"""
+        )
+
+        all_rows = cursor.fetchall()
+        usageentries = len(all_rows)
+        if usageentries > 0:
+            with open(
+                reportfolderbase + "KnowledgeC/Siri Usage.html", "w", encoding="utf8"
+            ) as f:
+                f.write("<html><body>")
+                f.write("<h2>KnowledgeC Siri Usage report</h2>")
+                f.write(f"KnowledgeC Siri Usage entries: {usageentries}<br>")
+                f.write(f"KnowledgeC Siri Usage located at: {filefound[0]}<br>")
+                f.write(
+                    "<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>"
+                )
+                f.write("<br/>")
+                f.write("")
+                f.write(f'<table class="table sticky">')
+                f.write(
+                    f"<tr><th>App Name</th><th>Weekday</th><th>GMT Offset</th><th>Start</th><th>Entry Creation</th><th>UUID</th><th>Table ID</th></tr>"
+                )
+                for row in all_rows:
+                    f.write(
+                        f"<tr><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td><td>{row[6]}</td></tr>"
+                    )
+                f.write(f"</table></body></html>")
+            logfunc(f"KnowledgeC Siri Usage completed")
+        else:
+            logfunc(f"No KnowledgeC Siri Usage files available")
+    except:
+        logfunc("Error in KnowledgeC Siri Usage")
 
 def mib(filefound):
     logfunc(f"Mobile Installation Logs function executing")
