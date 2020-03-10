@@ -19,18 +19,20 @@ from time import process_time
 from bs4 import BeautifulSoup
 from packaging import version
 
-from vendor import ccl_bplist
-from vendor.parse3 import ParseProto
 from common import logfunc
 from contrib.accounts.main import accs, confaccts
 from contrib.aggregated_dictionary import aggdict, dbbuff
-from contrib.data_usage.main import datausage
-from contrib.system_diagnosis import bkupstate, mobilact
-from contrib.connected_devices.main import conndevices
 from contrib.application_state.main import applicationstate
+from contrib.connected_devices.main import conndevices
+from contrib.data_usage.main import datausage
 from contrib.media_library.main import medlib
-#from parse3 import ParseProto
+from contrib.system_diagnosis import bkupstate, mobilact
 from settings import *
+from vendor import ccl_bplist
+from vendor.parse3 import ParseProto
+
+
+# from parse3 import ParseProto
 
 
 def datark(filefound):
@@ -70,6 +72,7 @@ def datark(filefound):
             logfunc(f"Data_ark.plist function completed")
     except:
         logfunc("Error in Sys Diagnose Network Preferences function.")
+
 
 def conndevices(filefound):
     with open(filefound[0], "rb") as f:

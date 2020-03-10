@@ -5,6 +5,7 @@ from common import logfunc
 from contrib.utils import silence_and_log
 from settings import *
 
+
 def conndevices(filefound):
     with open(filefound[0], "rb") as f:
         data = f.read()

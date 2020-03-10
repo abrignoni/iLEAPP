@@ -15,6 +15,7 @@
   ],
   "exclude": [
     "*ccl_bplist.py",
-    "*parse3.py"
+    "*parse3.py",
+    "*test_images/*"
   ]
 }

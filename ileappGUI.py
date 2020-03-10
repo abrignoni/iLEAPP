@@ -14,12 +14,11 @@ from zipfile import ZipFile
 import PySimpleGUI as sg
 from six.moves.configparser import RawConfigParser
 
+from extraction import *
 from ilapfuncs import *
 from report import *
 from search_files import *
 from settings import report_folder_base
-
-from extraction import *
 
 
 sg.theme("DarkAmber")  # Add a touch of color
