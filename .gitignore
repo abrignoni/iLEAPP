@@ -140,3 +140,6 @@ dmypy.json
 
 # Project specific files
 ILEAPP_Reports_*
+
+# large test data
+test_images/
