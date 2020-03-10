@@ -56,7 +56,9 @@ tosearch = {
 
 def extract_and_process(pathto, extraction_type, tosearch, log, gui_window=None):
     if extraction_type != "fs":
-        search = search_archive
+        search_func = search_archive
+    else:
+        search_func = search
 
     if extraction_type == "tar":
         pathto = TarFile(pathto)
@@ -65,7 +67,7 @@ def extract_and_process(pathto, extraction_type, tosearch, log, gui_window=None)
         pathto = ZipFile(pathto)
 
     for key, val in tosearch.items():
-        filefound = search(pathto, val)
+        filefound = search_func(pathto, val)
         process_file_found(filefound, key, val, log, gui_window)
 
     if extraction_type == "zip":
