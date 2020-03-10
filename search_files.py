@@ -12,7 +12,7 @@ def search(pathto, filename):
 
 
 def searchtar(t, val, reportfolderbase):
-    temp = os.path.join(reportfolderbase, "temp")
+    temp = os.path.join(reportfolderbase, "temp/")
     pathlist = []
     for member in t.getmembers():
         if fnmatch.fnmatch(member.name, val):
@@ -25,7 +25,7 @@ def searchtar(t, val, reportfolderbase):
 
 
 def searchzip(z, name_list, val, reportfolderbase):
-    temp = os.path.join(reportfolderbase, "temp")
+    temp = os.path.join(reportfolderbase, "temp/")
     pathlist = []
     for member in name_list:
         if fnmatch.fnmatch(member, val):
