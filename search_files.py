@@ -37,7 +37,7 @@ def search_archive(archive_obj, search_path):
         if fnmatch.fnmatch(member_name, search_path):
             try:
                 archive_obj.extract(member_name, path=temp)
-                paths.append(os.path.join(temp, Path(member_name)))
+                paths.append(temp+member_name)
             except Exception:
                 logfunc("Could not write file to filesystem")
     return paths
