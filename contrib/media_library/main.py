@@ -1,13 +1,14 @@
-import os
-import plistlib
-import pathlib
-import sqlite3
 import glob
+import os
+import pathlib
+import plistlib
+import sqlite3
 
-from vendor import ccl_bplist
 from common import logfunc
 from contrib.utils import silence_and_log
 from settings import *
+from vendor import ccl_bplist
+
 
 def medlib(filefound):
     try:
