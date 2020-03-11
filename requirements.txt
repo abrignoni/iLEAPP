@@ -3,6 +3,7 @@ attrs==19.3.0
 beautifulsoup4==4.8.2
 black==19.10b0
 Click==7.0
+filetype==1.0.5
 importanize==0.7.0
 Jinja2==2.10.3
 packaging==20.1
