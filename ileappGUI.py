@@ -38,11 +38,6 @@ layout = [
         )
     ],  # added font type and font size
     [
-        sg.Radio(".Tar", "rad1", default=True, font=("Helvetica", 14)),
-        sg.Radio("Directory", "rad1", font=("Helvetica", 14)),
-        sg.Radio(".Zip", "rad1", font=("Helvetica", 14)),
-    ],  # added font type and font size
-    [
         sg.Text("File:", size=(8, 1), font=("Helvetica", 14)),
         sg.Input(),
         sg.FileBrowse(font=("Helvetica", 12)),
@@ -70,52 +65,22 @@ layout = [
 
 # Create the Window
 window = sg.Window("iLEAPP", layout)
+
 # Event Loop to process "events" and get the "values" of the inputs
 while True:
     event, values = window.read()
     if event in (None, "Close"):  # if user closes window or clicks cancel
         break
 
-    if values[0] == True:
-        extracttype = "tar"
-        pathto = values[3]
-        # logfunc(pathto)
-        if pathto.endswith(".tar"):
-            pass
-        else:
-            sg.PopupError(
-                "No file or no .tar extension selected. Run the program again."
-            )
-            sys.exit()
+    pathto = values['Browse'] or values['Browse0']
 
-    elif values[1] == True:
-        extracttype = "fs"
-        pathto = values[4]
-        if os.path.isdir(pathto):
-            pass
-        else:
-            sg.PopupError(
-                "No path or the one selected is invalid. Run the program again.", pathto
-            )
-            sys.exit()
-
-    elif values[2] == True:
-        extracttype = "zip"
-        pathto = values[3]
-        if pathto.endswith(".zip"):
-            pass
-        else:
-            sg.PopupError(
-                "No file or no .zip extension selected. Run the program again.", pathto
-            )
-            sys.exit()
-
+    extracttype = get_filetype(pathto)
     start = process_time()
     log = pre_extraction(pathto, gui_window=window)
     extract_and_process(pathto, extracttype, tosearch, log, gui_window=window)
     running_time = post_extraction(start, extracttype, pathto)
 
-    if values[5] == True:
+    if values[2] == True:
         start = process_time()
         window.refresh()
         logfunc("")
@@ -123,7 +88,7 @@ while True:
         window.refresh()
         html2csv(report_folder_base)
 
-    if values[5] == True:
+    if values[2] == True:
         end = process_time()
         time = start - end
         logfunc("CSV processing time in secs: " + str(abs(time)))
