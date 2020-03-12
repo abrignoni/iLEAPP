@@ -35,23 +35,21 @@ pip install -r requirements.txt
 ### CLI
 
 ```
-$ python ileapp.py --help
-
-Usage: ileapp.py [-h] pathtodir
-iLEAPP: iOS Logs, Events, and Preferences Parser.  
-
-positional arguments:  
-  pathtodir    Path to directory  
-
-optional arguments:
-  -h, --help   show this help message and exit  
+$ python ileapp.py <path_to_image>
 ```
 
 ### GUI
 
 ```
-$ python ileappGUI.py
+$ python ileapp.py --gui
 ```
+
+### Help
+
+```
+$ python ileapp.py --help
+```
+
 
 The GUI will open in another window.
 
