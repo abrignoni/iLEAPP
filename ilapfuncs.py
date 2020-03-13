@@ -334,7 +334,9 @@ def knowledgec(filefound):
         h = open(outpath + "/StrucMetadata.html", "w")
         h.write("<html><body>")
         h.write(
-            "<h2>iOS " + iOSversion + " - KnowledgeC ZSTRUCTUREDMETADATA bplist report</h2>"
+            "<h2>iOS "
+            + iOSversion
+            + " - KnowledgeC ZSTRUCTUREDMETADATA bplist report</h2>"
         )
         h.write(
             "<style> table, td {border: 1px solid black; border-collapse: collapse;}tr:nth-child(even) {background-color: #f2f2f2;} .table th { background: #888888; color: #ffffff}.table.sticky th{ position:sticky; top: 0; }</style>"
@@ -369,9 +371,9 @@ def knowledgec(filefound):
                     ]["NS.data"]
                     pass
             else:
-                NSdata = ns_keyed_archiver_obj["root"]["intent"]["backingStore"]["data"][
-                    "NS.data"
-                ]
+                NSdata = ns_keyed_archiver_obj["root"]["intent"]["backingStore"][
+                    "data"
+                ]["NS.data"]
                 # logfunc(str(NSdata))
 
             parsedNSData = ""
@@ -382,13 +384,15 @@ def knowledgec(filefound):
                 if version.parse(iOSversion) >= version.parse("13"):
                     try:
                         binfile.write(
-                            ns_keyed_archiver_obj["root"]["intent"]["backingStore"]["bytes"]
+                            ns_keyed_archiver_obj["root"]["intent"]["backingStore"][
+                                "bytes"
+                            ]
                         )
                     except:
                         binfile.write(
-                            ns_keyed_archiver_obj["root"]["intent"]["backingStore"]["data"][
-                                "NS.data"
-                            ]
+                            ns_keyed_archiver_obj["root"]["intent"]["backingStore"][
+                                "data"
+                            ]["NS.data"]
                         )
                         pass
                 else:
@@ -478,8 +482,8 @@ def knowledgec(filefound):
             h.write("<table>")
             h.write("<br />")
     except:
-        logfunc('Error in KnowledgeC ZSTRUCTUREDMETADATA')
-        
+        logfunc("Error in KnowledgeC ZSTRUCTUREDMETADATA")
+
     try:
         logfunc("")
         logfunc("iOS - KnowledgeC ZSTRUCTUREDMETADATA bplist extractor")
@@ -559,8 +563,8 @@ def knowledgec(filefound):
             f.write(f"</table></body></html>")
         logfunc(f"KnowledgeC App Usage completed")
     except:
-        logfunc('Error in KnowledgeC App Usage')
-    
+        logfunc("Error in KnowledgeC App Usage")
+
     try:
         logfunc(f"KnowledgeC App Activity Executing")
         # connect sqlite databases
@@ -636,7 +640,7 @@ def knowledgec(filefound):
         logfunc(f"KnowledgeC App Activity completed")
     except:
         logfunc("Error in KnowledgeC App Activity")
-    
+
     try:
         logfunc(f"KnowledgeC App in Focus executing")
         db = sqlite3.connect(filefound[0])
@@ -672,7 +676,9 @@ def knowledgec(filefound):
             reportfolderbase + "KnowledgeC/App in Focus.html", "w", encoding="utf8"
         ) as f:
             f.write("<html><body>")
-            f.write("<h2>iOS " + iOSversion + " - KnowledgeC App App in Focus report</h2>")
+            f.write(
+                "<h2>iOS " + iOSversion + " - KnowledgeC App App in Focus report</h2>"
+            )
             f.write(f"KnowledgeC App in Focus entries: {usageentries}<br>")
             f.write(f"KnowledgeC located at: {filefound[0]}<br>")
             f.write(
@@ -692,7 +698,7 @@ def knowledgec(filefound):
             logfunc(f"KnowledgeC App in Focus completed")
     except:
         logfunc("Error in KnowledgeC App in Focus")
-    
+
     try:
         logfunc(f"KnowledgeC App Battery Level executing")
         cursor.execute(
@@ -814,7 +820,7 @@ def knowledgec(filefound):
             logfunc(f"KnowledgeC Apps Installed completed")
     except:
         logfunc("Error in KnowledgeC Apps Installed")
-        
+
     try:
         logfunc(f"KnowledgeC Device Locked executing")
         cursor.execute(
@@ -879,8 +885,8 @@ def knowledgec(filefound):
             logfunc(f"KnowledgeC Device Locked completed")
     except:
         logfunc("Error in KnowledgeC Device Locked")
-        
-    try:    
+
+    try:
         logfunc(f"KnowledgeC Plugged In executing")
 
         cursor.execute(
@@ -946,8 +952,8 @@ def knowledgec(filefound):
             logfunc(f"KnowledgeC Plugged In completed")
     except:
         logfunc("Error in KnowledgeC Plugged In")
-        
-    try:    
+
+    try:
         if iOSversion == ("13") or ("12"):
             logfunc(f"KnowledgeC Serialized Interaction executing")
 
@@ -995,7 +1001,10 @@ def knowledgec(filefound):
                     )
                     for row in all_rows:
                         binfile = (
-                            outpath + "/clean/C_Z_PK" + str(row[0]) + ".bplist_nsdata.bin"
+                            outpath
+                            + "/clean/C_Z_PK"
+                            + str(row[0])
+                            + ".bplist_nsdata.bin"
                         )
                         if os.path.isfile(binfile):
                             messages = ParseProto(binfile)
@@ -1081,6 +1090,7 @@ def knowledgec(filefound):
             logfunc(f"No KnowledgeC Siri Usage files available")
     except:
         logfunc("Error in KnowledgeC Siri Usage")
+
 
 def mib(filefound):
     logfunc(f"Mobile Installation Logs function executing")

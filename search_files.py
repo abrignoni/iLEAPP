@@ -35,7 +35,7 @@ def search_archive(archive_obj, search_path):
 
     for member_name in member_names:
         if fnmatch.fnmatch(member_name, search_path):
-            member_path = member_name.lstrip('/')
+            member_path = member_name.lstrip("/")
             try:
                 archive_obj.extract(member_name, path=temp)
                 paths.append(os.path.join(temp, member_path))
