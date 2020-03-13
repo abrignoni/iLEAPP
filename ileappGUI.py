@@ -72,7 +72,7 @@ def gui_event_loop(window):
         if event in (None, "Close"):  # if user closes window or clicks cancel
             break
 
-        pathto = values['Browse'] or values['Browse0']
+        pathto = values["Browse"] or values["Browse0"]
 
         extracttype = get_filetype(pathto)
         start = process_time()
