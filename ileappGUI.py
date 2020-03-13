@@ -21,9 +21,9 @@ from search_files import *
 from settings import report_folder_base
 
 
-sg.theme("DarkAmber")  # Add a touch of color
 # All the stuff inside your window.
 
+sg.theme("DarkAmber")  # Add a touch of color
 layout = [
     [
         sg.Text("iOS Logs, Events, And Properties Parser.", font=("Helvetica", 25))
@@ -64,38 +64,38 @@ layout = [
 
 
 # Create the Window
-window = sg.Window("iLEAPP", layout)
 
 # Event Loop to process "events" and get the "values" of the inputs
-while True:
-    event, values = window.read()
-    if event in (None, "Close"):  # if user closes window or clicks cancel
-        break
+def gui_event_loop(window):
+    while True:
+        event, values = window.read()
+        if event in (None, "Close"):  # if user closes window or clicks cancel
+            break
 
-    pathto = values['Browse'] or values['Browse0']
+        pathto = values["Browse"] or values["Browse0"]
 
-    extracttype = get_filetype(pathto)
-    start = process_time()
-    log = pre_extraction(pathto, gui_window=window)
-    extract_and_process(pathto, extracttype, tosearch, log, gui_window=window)
-    running_time = post_extraction(start, extracttype, pathto)
-
-    if values[2] == True:
+        extracttype = get_filetype(pathto)
         start = process_time()
-        window.refresh()
-        logfunc("")
-        logfunc(f"CSV export starting. This might take a while...")
-        window.refresh()
-        html2csv(report_folder_base)
+        log = pre_extraction(pathto, gui_window=window)
+        extract_and_process(pathto, extracttype, tosearch, log, gui_window=window)
+        running_time = post_extraction(start, extracttype, pathto)
 
-    if values[2] == True:
-        end = process_time()
-        time = start - end
-        logfunc("CSV processing time in secs: " + str(abs(time)))
+        if values[2] == True:
+            start = process_time()
+            window.refresh()
+            logfunc("")
+            logfunc(f"CSV export starting. This might take a while...")
+            window.refresh()
+            html2csv(report_folder_base)
 
-    locationmessage = "Report name: " + report_folder_base + "index.html"
-    sg.Popup("Processing completed", locationmessage)
+        if values[2] == True:
+            end = process_time()
+            time = start - end
+            logfunc("CSV processing time in secs: " + str(abs(time)))
 
-    basep = os.getcwd()
-    webbrowser.open_new_tab("file://" + basep + base + "index.html")
-    sys.exit()
+        locationmessage = "Report name: " + report_folder_base + "index.html"
+        sg.Popup("Processing completed", locationmessage)
+
+        basep = os.getcwd()
+        webbrowser.open_new_tab("file://" + basep + base + "index.html")
+        sys.exit()
