@@ -37,7 +37,7 @@ pip install -r requirements.txt
 ```
 $ python ileapp.py --help
 
-Usage: ileapp.py [-h] -o {fs,tar,zip} pathtodir  
+Usage: ileapp.py [-h] pathtodir
 iLEAPP: iOS Logs, Events, and Preferences Parser.  
 
 positional arguments:  
@@ -45,7 +45,6 @@ positional arguments:
 
 optional arguments:
   -h, --help   show this help message and exit  
-  -o {fs,tar}  Directory path or TAR filename and path(required).
 ```
 
 ### GUI

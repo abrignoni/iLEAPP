@@ -3,11 +3,15 @@ import tarfile
 from tarfile import TarFile
 from zipfile import ZipFile
 
+import filetype
+
 from ilapfuncs import *
 from report import *
 from search_files import *
 from settings import report_folder_base
 
+
+SUPPORTED_EXTENSIONS = ["fs", "zip", "tar"]
 
 tosearch = {
     "mib": "*mobile_installation.log.*",
@@ -52,6 +56,44 @@ tosearch = {
     "redditchats": "*Data/Application/*/Documents/*/accountData/*/chat/*/chat.sqlite",
     "interactionc": "*interactionC.db",
 }
+
+
+class UnsupportedFileType(Exception):
+    pass
+
+
+def get_filetype(fpath: str) -> str:
+    """
+    Returns a string with the extension of the library received.
+
+    Raises:
+       UnsupportedFileType: if the file type is not supported by iLEAPP
+            or cannot be guessed.
+
+    Leverages the `filetype` library:
+        https://github.com/h2non/filetype.py
+    """
+    try:
+        inferred_filetype = filetype.guess(fpath)
+    except IsADirectoryError:
+        # if it is a directory, we don't need to process further, it is one of
+        # our supported file types.
+        return "fs"
+    except Exception as e:
+        raise e
+
+    if inferred_filetype is None:
+        raise UnsupportedFileType(f"Could not detect file type for {fpath}")
+
+    extension = inferred_filetype.extension
+
+    if extension not in SUPPORTED_EXTENSIONS:
+        raise UnsupportedFileType(
+            f"Detected file type {extension} for file {fpath} not supported"
+            f" by iLEAPP.\nFile types supported are: {SUPPORTED_EXTENSIONS}"
+        )
+
+    return extension
 
 
 def extract_and_process(pathto, extraction_type, tosearch, log, gui_window=None):
