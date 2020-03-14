@@ -84,6 +84,7 @@ def applicationstate(filefound):
     filedatahtml.write("<br/>")
     filedatahtml.write('<table class="table sticky">')
     filedatahtml.write(f'<tr><td colspan = "4">{apstatefiledb}</td></tr>')
+    filedatahtml.write(f'<tr><td colspan = "4">Total bundle IDs: {str(len(all_rows))}</td></tr>')
     filedatahtml.write(
         "<tr><th>Bundle ID</th><th>Bundle Path</th><th>Sandbox Path</th></tr>"
     )
@@ -106,7 +107,7 @@ def applicationstate(filefound):
         if bcontainer == "$null":
             bcontainer = ""
 
-        # csv report
+        '''# csv report - Currently convertig the html to csv after all artifacts are done. No need to do it here for now.
         filedata = open(outpath + "ApplicationState_InstalledAppInfo.csv", mode="a+")
         filewrite = csv.writer(
             filedata, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL
@@ -114,12 +115,13 @@ def applicationstate(filefound):
         filewrite.writerow([bid, bpath, bcontainer, bsandbox])
         count = count + 1
         filedata.close()
-
+        '''
+        
         # html report
         filedatahtml.write(
             f"<tr><td>{bid}</td><td>{bpath}</td><td>{bsandbox}</td></tr>"
         )
-
+        
         filemetadata = open(
             outpath + "ApplicationState_InstalledAppInfo_Path.txt", mode="w"
         )

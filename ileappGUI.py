@@ -33,7 +33,7 @@ layout = [
     ],  # added font type and font size
     [
         sg.Text(
-            "Select the file type or directory of the target iOS full file system extraction for parsing.",
+            "Select a file (TAR, ZIP) or directory of the target iOS full file system extraction for parsing.",
             font=("Helvetica", 16),
         )
     ],  # added font type and font size
