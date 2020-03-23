@@ -28,7 +28,7 @@ def calhist(filefound):
     usageentries = len(all_rows)
     if usageentries > 0:
         logfunc(f"Call History function executing")
-        
+
         if os.path.isdir(os.path.join(reportfolderbase, "Call History/")):
             pass
         else:
