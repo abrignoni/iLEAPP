@@ -23,12 +23,12 @@ from common import logfunc
 from contrib.accounts.main import accs, confaccts
 from contrib.aggregated_dictionary import aggdict, dbbuff
 from contrib.application_state.main import applicationstate
+from contrib.call_history.main import calhist
 from contrib.connected_devices.main import conndevices
 from contrib.data_usage.main import datausage
 from contrib.media_library.main import medlib
-from contrib.system_diagnosis.main import bkupstate, mobilact
-from contrib.call_history.main import calhist
 from contrib.sms.main import smschat
+from contrib.system_diagnosis.main import bkupstate, mobilact
 from settings import *
 from vendor import ccl_bplist
 from vendor.parse3 import ParseProto
@@ -74,6 +74,7 @@ def datark(filefound):
             logfunc(f"Data_ark.plist function completed")
     except:
         logfunc("Error in Sys Diagnose Network Preferences function.")
+
 
 def knowledgec(filefound):
     try:
@@ -2326,7 +2327,6 @@ def ktx(filefound):
             shutil.copy2(filename, outktx + fullpw)
     filedatahtml.close()
     logfunc(f"Snapshots KTX file finder function completed.")
-
 
 
 def safari(filefound):

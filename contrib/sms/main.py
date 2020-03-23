@@ -5,6 +5,7 @@ from common import logfunc
 from contrib.utils import silence_and_log
 from settings import *
 
+
 def smschat(filefound):
     db = sqlite3.connect(filefound[0])
     cursor = db.cursor()
@@ -48,12 +49,12 @@ def smschat(filefound):
         usageentries = len(all_rows)
         if usageentries > 0:
             logfunc(f"SMS Chat function executing")
-            
+
             if os.path.isdir(os.path.join(reportfolderbase, "SMS Chat/")):
                 pass
             else:
                 os.makedirs(os.path.join(reportfolderbase, "SMS Chat"))
-            
+
             with open(
                 reportfolderbase + "SMS Chat/SMS Chat.html", "w", encoding="utf8"
             ) as f:
