@@ -13,3 +13,9 @@ add_plugin:
 	touch contrib/$(name)/__init__.py
 	touch contrib/$(name)/main.py
 	echo "from .main import *" > contrib/$(name)/__init__.py
+
+test:
+	@if [ ! -d ./test_images ]; then \
+		echo "[ERROR] The tests depend on test images being present in a ./test_images/ directory"; \
+	fi
+	time python tests.py
