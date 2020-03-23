@@ -131,7 +131,7 @@ def pre_extraction(pathto, gui_window=None):
     )
     logfunc("iLEAPP: iOS Logs, Events, and Preferences Parser")
     logfunc("Objective: Triage iOS Full System Extractions.")
-    logfunc("By: Agam Dua | @humbledmagpie | loopback.dev")
+    logfunc("By: Agam Dua | @loopbackdev | loopback.dev")
     logfunc("By: Alexis Brignoni | @AlexisBrignoni | abrignoni.com")
 
     logfunc(f"Artifact categories to parse: {str(len(tosearch))}")
