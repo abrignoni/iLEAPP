@@ -112,3 +112,13 @@ After this, one still needs to import the plugin to `ilapfuncs`:
 # in ilepfuncs.py
 from contrib.the_name_of_your_plugin import function_name
 ```
+
+### Tests
+
+Pre-requisite: the user must have test images in a directory called
+`./test_images/`. More docs can be found at the top of `./tests.py`.
+
+To actually run tests:
+```
+$ make test
+```

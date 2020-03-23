@@ -1,3 +1,41 @@
+"""
+What
+====
+This test suite runs as a "black box" testing mechanism.
+
+Goal
+====
+The goal of this test suite is to test whether changes that a contributor is
+making to the project on a local git branch will not change the behavior of the
+project from whatever is on their local master branch.
+
+Therefore, the tests assume that the local master branch on the user's system
+is the "golden standard", i.e., master is stable.
+
+Drawbacks
+=========
+This is not an ideal assumption, however it has been deemed a worthy compromise
+in order to have _some_ tests to begin with, especially while making large
+changes of the refactor variety, etc.
+
+Usage
+=====
+The tests here rely on the user having test images in a folder called
+./test_images.
+
+This directory can be created on *nix systems with:
+    mkdir -p test_images/
+
+The phone test images will have to be supplied by the contributor at this time.
+
+Future
+======
+
+The future of the test suite will include proper unit and integration tests. To
+get to that point a lot of refactors are being made which will be much easier to
+make with a test suite like this in place and prevent merging broken code to
+master (which has been done before).
+"""
 import os
 import subprocess
 import unittest
@@ -86,6 +124,10 @@ class TestReportSame(unittest.TestCase):
         print(reports)
 
     def test_unique_id_consistent(self):
+        """
+        Tests that the unique device id is present in each report
+        and is consistent for each image.
+        """
         for test_image, branch_reports in self.reports.items():
             search_items = list()
             for branch in branch_reports.keys():

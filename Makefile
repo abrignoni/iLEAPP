@@ -17,5 +17,6 @@ add_plugin:
 test:
 	@if [ ! -d ./test_images ]; then \
 		echo "[ERROR] The tests depend on test images being present in a ./test_images/ directory"; \
+		echo "Please refer documentation in the docstring of tests.py for more details."
 	fi
 	time python tests.py
