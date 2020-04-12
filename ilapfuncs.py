@@ -14,6 +14,7 @@ import shutil
 import sqlite3
 import sys
 import textwrap
+import shutil
 from time import process_time
 
 from bs4 import BeautifulSoup
@@ -1986,6 +1987,8 @@ def iOSNotifications12(filefound):
                 )  # previous directory
                 appdirect = folder + "/" + bundlepath
                 # logfunc(appdirect)
+                if os.path.isdir(appdirect):
+                	shutil.rmtree(appdirect)
                 os.makedirs(appdirect)
 
                 # open the plist
