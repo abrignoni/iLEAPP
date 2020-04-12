@@ -73,27 +73,27 @@ def get_filetype(fpath: str) -> str:
     Leverages the `filetype` library:
         https://github.com/h2non/filetype.py
     """
-    try:
-        inferred_filetype = filetype.guess(fpath)
-    except IsADirectoryError:
-        # if it is a directory, we don't need to process further, it is one of
-        # our supported file types.
+    if not os.path.isdir(fpath):
+        try:
+            inferred_filetype = filetype.guess(fpath)
+
+        except Exception as e:
+            raise e
+
+        if inferred_filetype is None:
+            raise UnsupportedFileType(f"Could not detect file type for {fpath}")
+
+        extension = inferred_filetype.extension
+
+        if extension not in SUPPORTED_EXTENSIONS:
+            raise UnsupportedFileType(
+                f"Detected file type {extension} for file {fpath} not supported"
+                f" by iLEAPP.\nFile types supported are: {SUPPORTED_EXTENSIONS}"
+            )
+
+        return extension
+    else:
         return "fs"
-    except Exception as e:
-        raise e
-
-    if inferred_filetype is None:
-        raise UnsupportedFileType(f"Could not detect file type for {fpath}")
-
-    extension = inferred_filetype.extension
-
-    if extension not in SUPPORTED_EXTENSIONS:
-        raise UnsupportedFileType(
-            f"Detected file type {extension} for file {fpath} not supported"
-            f" by iLEAPP.\nFile types supported are: {SUPPORTED_EXTENSIONS}"
-        )
-
-    return extension
 
 
 def extract_and_process(pathto, extraction_type, tosearch, log, gui_window=None):
