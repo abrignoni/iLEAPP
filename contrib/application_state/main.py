@@ -14,7 +14,7 @@ def applicationstate(filefound):
     # iOSversion = versionf
     logfunc(f"ApplicationState.db queries executing")
     outpath = os.path.join(reportfolderbase, "Application State/")
-
+    data_list = []
     try:
         os.mkdir(outpath)
         os.mkdir(outpath + "exported-dirty/")
@@ -69,10 +69,15 @@ def applicationstate(filefound):
         # plist = plistlib.load(g)
 
         plist = ccl_bplist.load(g)
-
-        output_file = open(outpath + "exported-clean/" + bundleidplist, "wb")
-        output_file.write(plist)
-        output_file.close()
+        if type(plist) is dict:
+            var1 = (plist['bundleIdentifier'])
+            var2 = (plist['bundlePath'])
+            var3 = (plist['sandboxPath'])
+            data_list.append((var1, var2, var3))
+        else:
+            output_file = open(outpath + "exported-clean/" + bundleidplist, "wb")
+            output_file.write(plist)
+            output_file.close()
 
     # create html headers
     filedatahtml = open(outpath + "Application State.html", mode="a+")
@@ -129,10 +134,32 @@ def applicationstate(filefound):
         )
         filemetadata.write(f"Artifact name and file path: {apstatefiledb} ")
         filemetadata.close()
+        
+    #Add json stragglers
+    N = 1
+    #print(str(data_list))
+    #print()
+    subList = [data_list[n:n+N] for n in range(0, len(data_list), N)]
+    for i in range(len(subList)):
+        print(f"Value of i: {i}")
+        takeout = (subList[i][0])
+        bid =(takeout[0])
+        bpath = (takeout[1])
+        bsandbox = (takeout[2])
+        #print(subList[i][1])
+        #print(subList[i][2])
+        print()
+        
+        # close html footer
+        # html report
+        filedatahtml.write(
+            f"<tr><td>{bid}</td><td>{bpath}</td><td>{bsandbox}</td></tr>"
+        )
 
-    # close html footer
     filedatahtml.write("</table></html>")
     filedatahtml.close()
-
-    logfunc(f"Installed app GUIDs and app locations processed: {count}")
+    
+    
+        
+    logfunc(f"Installed app GUIDs and app locations processed: {str(len(all_rows))}")
     logfunc(f"ApplicationState.db queries completed.")
