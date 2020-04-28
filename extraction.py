@@ -19,7 +19,7 @@ tosearch = {
     "webclips": "*WebClips/*.webclip/*",
     "lastbuild": "*LastBuildInfo.plist",
     "iOSNotifications11": "*PushStore*",
-    "iOSNotifications12": "*private/var/mobile/Library/UserNotifications*",
+    "iOSNotifications12": "*private/var/mobile/Library/UserNotifications/",
     "wireless": "*wireless/Library/Preferences/com.apple.*",
     "knowledgec": "*CoreDuet/Knowledge/knowledgeC.db",
     "applicationstate": "*pplicationState.db*",
