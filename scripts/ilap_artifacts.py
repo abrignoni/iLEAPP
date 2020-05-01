@@ -22,6 +22,7 @@ from scripts.artifacts.webClips import get_webClips
 from scripts.artifacts.notificationsXII import get_notificationsXII
 from scripts.artifacts.notificationsXI import get_notificationsXI
 from scripts.artifacts.celWireless import get_celWireless
+from scripts.artifacts.knowCincept import get_knowCincept
 
 from scripts.ilapfuncs import *
 
@@ -31,7 +32,7 @@ from scripts.ilapfuncs import *
 # For example: If modulename='profit', function name must be get_profit(..)
 # Don't forget to import the module above!!!!
 
-
+'''
 tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'dataArk':('IOS Build', '**/Library/Lockdown/data_ark.plist'),
             'applicationstate':('Installed Apps', '**/applicationState.db'),
@@ -51,9 +52,10 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
 
 # 'notificationsXI':('Notifications', '*PushStore*') //Need test iOS 11 image with notifications
 '''
-tosearch = {'celWireless':('Cellular Wireless', '*wireless/Library/Preferences/com.apple.*'),
+tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
+            'knowCincept':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
             }
-'''
+
 
 #'walStrings':('SQLite Journaling - Strings', '**/*-wal') takes a long time to run... Maybe a check mark to make it run?
 

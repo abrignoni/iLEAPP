@@ -1,12 +1,12 @@
 import os
 import plistlib
 import sqlite3
+import scripts.artifacts.artGlobals 
 
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, logdevinfo, is_platform_windows 
 
 def get_lastBuild(files_found, report_folder, seeker):
-    global versionf
     versionnum = 0
     data_list = []
     file_found = str(files_found[0])
@@ -15,9 +15,10 @@ def get_lastBuild(files_found, report_folder, seeker):
         for key, val in pl.items():
             data_list.append((key, val))
             if key == ("ProductVersion"):
-                versionf = val
-                logfunc(f"iOS version: {versionf}")
-                logdevinfo(f"iOS version: {versionf}")
+                #ilapfuncs.globalvars()
+                scripts.artifacts.artGlobals.versionf = val
+                logfunc(f"iOS version: {val}")
+                logdevinfo(f"iOS version: {val}")
             
             if key == "ProductBuildVersion":
                 logdevinfo(f"ProductBuildVersion: {val}")

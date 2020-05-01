@@ -15,7 +15,7 @@ normal_font = ("Helvetica", 12)
 
 layout = [  [sg.Text('iOS Logs, Events, And Protobuf Parser', font=("Helvetica", 22))],
             [sg.Text('https://github.com/abrignoni/iLEAPP', font=("Helvetica", 14))],
-            [sg.Text('Select the file type or directory of the target Android full file system extraction for parsing.', font=normal_font)],
+            [sg.Text('Select the file type or directory of the target iOS full file system extraction for parsing.', font=normal_font)],
             [sg.Radio('.Tar', "rad1", default=True, font=normal_font), sg.Radio('Directory', "rad1", font=normal_font), sg.Radio('.Zip', "rad1", font=normal_font)],
             [sg.Text('Input File/Folder', size=(12, 1), font=normal_font), sg.Input(), sg.FileBrowse(font=normal_font)],
             [sg.Text('Output Folder', size=(12, 1), font=normal_font), sg.Input(), sg.FolderBrowse(font=normal_font)],
