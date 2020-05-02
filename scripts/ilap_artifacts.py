@@ -23,6 +23,8 @@ from scripts.artifacts.notificationsXII import get_notificationsXII
 from scripts.artifacts.notificationsXI import get_notificationsXI
 from scripts.artifacts.celWireless import get_celWireless
 from scripts.artifacts.knowCincept import get_knowCincept
+from scripts.artifacts.knowCusage import get_knowCusage
+from scripts.artifacts.knowCact import get_knowCact
 
 from scripts.ilapfuncs import *
 
@@ -47,13 +49,18 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'iconsScreen':('iOS Screens', '**/SpringBoard/IconState.plist'),
             'webClips':('iOS Screens', '*WebClips/*.webclip/*'),
             'notificationsXII':('Notifications', '*private/var/mobile/Library/UserNotifications*'),
-            'celWireless':('Cellular Wireless', '*wireless/Library/Preferences/com.apple.*')
+            'celWireless':('Cellular Wireless', '*wireless/Library/Preferences/com.apple.*'),
+            'knowCincept':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+            'knowCusage':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+            'knowCact':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db')
             }
 
 # 'notificationsXI':('Notifications', '*PushStore*') //Need test iOS 11 image with notifications
 '''
 tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'knowCincept':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+            'knowCusage':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+            'knowCact':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db')
             }
 
 

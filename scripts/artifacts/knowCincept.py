@@ -177,67 +177,7 @@ def get_knowCincept(files_found, report_folder, seeker):
         NSduration = ns_keyed_archiver_obj["root"]["dateInterval"]["NS.duration"]
         Siri = ns_keyed_archiver_obj["root"]["_donatedBySiri"]
         
-        '''
-        h.write(cfilename)
-        h.write("<br />")
-        h.write("Intent Class: " + str(A))
-        h.write("<br />")
-        h.write("Intent Verb: " + str(B))
-        h.write("<br />")
-        h.write("<table>")
 
-        h.write("<tr>")
-        h.write("<th>Data type</th>")
-        h.write("<th>Value</th>")
-        h.write("</tr>")
-
-        # Donated by Siri
-        h.write("<tr>")
-        h.write("<td>Siri</td>")
-        h.write("<td>" + str(Siri) + "</td>")
-        h.write("</tr>")
-
-        # NSstartDate
-        h.write("<tr>")
-        h.write("<td>NSstartDate</td>")
-        h.write("<td>" + str(NSstartDate) + " Z</td>")
-        h.write("</tr>")
-
-        # NSsendDate
-        h.write("<tr>")
-        h.write("<td>NSendDate</td>")
-        h.write("<td>" + str(NSendDate) + " Z</td>")
-        h.write("</tr>")
-
-        # NSduration
-        h.write("<tr>")
-        h.write("<td>NSduration</td>")
-        h.write("<td>" + str(NSduration) + "</td>")
-        h.write("</tr>")
-
-        # NSdata
-        h.write("<tr>")
-        h.write("<td>NSdata</td>")
-        h.write("<td>" + str(NSdata) + "</td>")
-        h.write("</tr>")
-
-        # NSdata better formatting
-        if parsedNSData:
-            h.write("<tr>")
-            h.write("<td>NSdata - Protobuf Decoded</td>")
-            h.write(
-                '<td><pre id="json">'
-                + str(parsedNSData).replace("\\n", "<br>")
-                + "</pre></td>"
-            )
-            h.write("</tr>")
-        else:
-            # This will only run if -nd is used
-            h.write("<tr>")
-            h.write("<td>NSdata - Protobuf</td>")
-            h.write("<td>" + str(NSdata).replace("\\n", "<br>") + "</td>")
-            h.write("</tr>")
-        '''
         if parsedNSData:
             parsedf = str(parsedNSData).replace("\\n", "<br>")
         else:
@@ -245,6 +185,16 @@ def get_knowCincept(files_found, report_folder, seeker):
         
         data_list.append((str(A), str(B), str(Siri), str(NSstartDate), str(NSendDate), str(NSduration), parsedf, (textwrap.fill(str(NSdata), width=50)), cfilename))
 
+    logfunc("iOS - KnowledgeC ZSTRUCTUREDMETADATA bplist extractor")
+    logfunc("By: @phillmoore & @AlexisBrignoni")
+    logfunc("thinkdfir.com & abrignoni.com")
+    logfunc("")
+    logfunc("Bplists from the Z_DKINTENTMETADATAKEY__SERIALIZEDINTERACTION field.")
+    logfunc("Exported bplists (dirty): " + str(dirtcount))
+    logfunc("Exported bplists (clean): " + str(cleancount))
+    logfunc("")
+    logfunc("Incepted bplist extractions in KnowledgeC.db completed")
+    
     description = ''
     report = ArtifactHtmlReport('KnowledgeC Intents')
     report.start_artifact_report(report_folder, 'KnowledgeC Intents', description)
