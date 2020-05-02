@@ -31,9 +31,9 @@ while True:
     event, values = window.read()
     if event in (None, 'Close'):   # if user closes window or clicks cancel
         break
-          
+      
     output_folder = values[5]
-    if values[1] == 'True':
+    if values[1] == True:
         input_path = values[4]
     else:
         input_path = values[3]
