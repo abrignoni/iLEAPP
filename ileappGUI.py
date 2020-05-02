@@ -17,7 +17,8 @@ layout = [  [sg.Text('iOS Logs, Events, And Protobuf Parser', font=("Helvetica",
             [sg.Text('https://github.com/abrignoni/iLEAPP', font=("Helvetica", 14))],
             [sg.Text('Select the file type or directory of the target iOS full file system extraction for parsing.', font=normal_font)],
             [sg.Radio('.Tar', "rad1", default=True, font=normal_font), sg.Radio('Directory', "rad1", font=normal_font), sg.Radio('.Zip', "rad1", font=normal_font)],
-            [sg.Text('Input File/Folder', size=(12, 1), font=normal_font), sg.Input(), sg.FileBrowse(font=normal_font)],
+            [sg.Text('Input File', size=(12, 1), font=normal_font), sg.Input(), sg.FileBrowse(font=normal_font)],
+            [sg.Text('Input Folder', size=(12, 1), font=normal_font), sg.Input(), sg.FolderBrowse(font=normal_font)],
             [sg.Text('Output Folder', size=(12, 1), font=normal_font), sg.Input(), sg.FolderBrowse(font=normal_font)],
             [sg.Checkbox('Generate CSV output (Additional processing time)', size=(50, 1), default=False, font=normal_font)],
             [sg.Output(size=(104,20))], #changed size from (88,20)
@@ -30,9 +31,12 @@ while True:
     event, values = window.read()
     if event in (None, 'Close'):   # if user closes window or clicks cancel
         break
-        
-    output_folder = values[4]
-    input_path = values[3]
+          
+    output_folder = values[5]
+    if values[1] == 'True':
+        input_path = values[4]
+    else:
+        input_path = values[3]
 
     if len(output_folder) == 0:
         sg.PopupError('No OUTPUT folder selected. Run the program again.')
@@ -71,7 +75,7 @@ while True:
         out_params = OutputParameters(output_folder)
         ileapp.crunch_artifacts(extracttype, input_path, out_params)
         
-        if values[5] == True:
+        if values[6] == True:
             start = process_time()
             logfunc('')
             logfunc(f'CSV export starting. This might take a while...')
