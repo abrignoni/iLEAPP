@@ -65,7 +65,11 @@ def get_icon_name(category, artifact):
     elif category == 'IOS SCREENS':       icon = 'maximize'
     elif category == 'NOTIFICATIONS':     icon = 'bell'
     elif category == 'CELLULAR WIRELESS':     icon = 'wifi'
-    elif category == 'KNOWLEDGEC':     icon = 'clipboard'
+    elif category == 'KNOWLEDGEC':     
+        if artifact == 'KNOWLEDGEC DEVICE LOCKED':  icon = 'lock'
+        elif artifact == 'KNOWLEDGEC PLUGGED IN':   icon = 'battery-charging'
+        elif artifact == 'KNOWLEDGEC BATTERY LEVEL':   icon = 'battery'
+        else:                                icon = 'activity'
     elif category == 'USAGE STATS':     icon = 'bar-chart-2'
     elif category == 'WELLBEING' or category == 'WELLBEING ACCOUNT': 
         if artifact == 'ACCOUNT DATA':  icon = 'user'

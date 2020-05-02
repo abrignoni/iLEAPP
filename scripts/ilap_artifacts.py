@@ -25,6 +25,11 @@ from scripts.artifacts.celWireless import get_celWireless
 from scripts.artifacts.knowCincept import get_knowCincept
 from scripts.artifacts.knowCusage import get_knowCusage
 from scripts.artifacts.knowCact import get_knowCact
+from scripts.artifacts.knowCinfocus import get_knowCinfocus
+from scripts.artifacts.knowCbatlvl import get_knowCbatlvl
+from scripts.artifacts.knowCappsinstal import get_knowCappsinstal
+from scripts.artifacts.knowClocked import get_knowClocked
+from scripts.artifacts.knowCplugged import get_knowCplugged
 
 from scripts.ilapfuncs import *
 
@@ -34,7 +39,7 @@ from scripts.ilapfuncs import *
 # For example: If modulename='profit', function name must be get_profit(..)
 # Don't forget to import the module above!!!!
 
-'''
+
 tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'dataArk':('IOS Build', '**/Library/Lockdown/data_ark.plist'),
             'applicationstate':('Installed Apps', '**/applicationState.db'),
@@ -52,7 +57,12 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'celWireless':('Cellular Wireless', '*wireless/Library/Preferences/com.apple.*'),
             'knowCincept':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
             'knowCusage':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-            'knowCact':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db')
+            'knowCact':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+            'knowCinfocus':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+            'knowCbatlvl':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+            'knowCappsinstal':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+            'knowClocked':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+            'knowCplugged':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db')
             }
 
 # 'notificationsXI':('Notifications', '*PushStore*') //Need test iOS 11 image with notifications
@@ -60,10 +70,16 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
 tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'knowCincept':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
             'knowCusage':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-            'knowCact':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db')
+            'knowCact':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+            'knowCinfocus':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+            'knowCbatlvl':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+            'knowCappsinstal':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+            'knowClocked':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+            'knowCplugged':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db')
+            
             }
 
-
+'''
 #'walStrings':('SQLite Journaling - Strings', '**/*-wal') takes a long time to run... Maybe a check mark to make it run?
 
 
