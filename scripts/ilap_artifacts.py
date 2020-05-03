@@ -30,6 +30,7 @@ from scripts.artifacts.knowCbatlvl import get_knowCbatlvl
 from scripts.artifacts.knowCappsinstal import get_knowCappsinstal
 from scripts.artifacts.knowClocked import get_knowClocked
 from scripts.artifacts.knowCplugged import get_knowCplugged
+from scripts.artifacts.knowCsiri import get_knowCsiri
 
 from scripts.ilapfuncs import *
 
@@ -75,7 +76,8 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'knowCbatlvl':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
             'knowCappsinstal':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
             'knowClocked':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-            'knowCplugged':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db')
+            'knowCplugged':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+            'knowCsiri':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db')
             
             }
 
