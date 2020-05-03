@@ -40,7 +40,7 @@ def get_aggDict(files_found, report_folder, seeker):
 	report = ArtifactHtmlReport('Aggregate Dictionary Distributed Keys')
 	report.start_artifact_report(report_folder, 'Distributed Keys', description)
 	report.add_script()
-	data_headers = ('Day','Key','Value','Seconds in Day Offset','Distributi','UUID','ZOBJECT Table ID' )     
+	data_headers = ('Day','Key','Value','Seconds in Day Offset','Distribution Values Table ID' )     
 	report.write_artifact_data_table(data_headers, data_list, file_found)
 	report.end_artifact_report()
 	

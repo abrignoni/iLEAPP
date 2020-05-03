@@ -8,7 +8,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, is_platform_windows 
 from scripts.ccl import ccl_bplist
 
-def get_dataUsage(files_found, report_folder, seeker):
+def get_dataUsageA(files_found, report_folder, seeker):
     file_found = str(files_found[0])
     db = sqlite3.connect(file_found)
     cursor = db.cursor()

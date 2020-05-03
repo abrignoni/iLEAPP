@@ -12,7 +12,10 @@ from scripts.artifacts.confaccts import get_confaccts
 from scripts.artifacts.accs import get_accs
 from scripts.artifacts.callHistory import get_callHistory
 from scripts.artifacts.conDev import get_conDev
-from scripts.artifacts.dataUsage import get_dataUsage
+from scripts.artifacts.dataUsageA import get_dataUsageA
+from scripts.artifacts.dataUsageProcessA import get_dataUsageProcessA
+from scripts.artifacts.dataUsageB import get_dataUsageB
+from scripts.artifacts.dataUsageProcessB import get_dataUsageProcessB
 from scripts.artifacts.mobileInstall import get_mobileInstall
 from scripts.artifacts.sms import get_sms
 from scripts.artifacts.lastBuild import get_lastBuild
@@ -31,6 +34,15 @@ from scripts.artifacts.knowCappsinstal import get_knowCappsinstal
 from scripts.artifacts.knowClocked import get_knowClocked
 from scripts.artifacts.knowCplugged import get_knowCplugged
 from scripts.artifacts.knowCsiri import get_knowCsiri
+from scripts.artifacts.aggDict import get_aggDict
+from scripts.artifacts.aggDictScalars import get_aggDictScalars
+from scripts.artifacts.coreDuetAirplane import get_coreDuetAirplane
+from scripts.artifacts.coreDuetLock import get_coreDuetLock
+from scripts.artifacts.coreDuetPlugin import get_coreDuetPlugin
+from scripts.artifacts.healthDistance import get_healthDistance
+from scripts.artifacts.healthEcg import get_healthEcg
+from scripts.artifacts.healthFlights import get_healthFlights
+from scripts.artifacts.healthHr import get_healthHr
 
 from scripts.ilapfuncs import *
 
@@ -48,7 +60,10 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'confaccts':('Accounts', '**/com.apple.accounts.exists.plist'),
             'callHistory':('Call logs', '**/CallHistory.storedata'),
             'conDev':('Connected to', '**/iTunes_Control/iTunes/iTunesPrefs'),
-            'dataUsage':('Network data', '**/DataUsage.sqlite'),
+            'dataUsageA':('Data Usage', '**/DataUsage.sqlite'), 
+            'dataUsageB':('Data Usage', '**/DataUsage-watch.sqlite'),
+            'dataUsageProcessA':('Data Usage', '**/DataUsage-watch.sqlite'),
+            'dataUsageProcessB':('Data Usage', '**/DataUsage.sqlite'),
             'mobileInstall':('Mobile Installation Logs', '**/mobile_installation.log.*'), 
             'journalStrings':('SQLite Journaling', '**/*-journal'),
             'sms':('SMS & iMessage', '**/sms.db'),
@@ -64,25 +79,24 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'knowCappsinstal':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
             'knowClocked':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
             'knowCplugged':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-            'knowCsiri':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db')
+            'knowCsiri':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+            'aggDict':('Aggregate Dictionary', '*/AggregateDictionary/ADDataStore.sqlitedb'),
+            'aggDictScalars':('Aggregate Dictionary', '*/AggregateDictionary/ADDataStore.sqlitedb'),
+            'coreDuetAirplane':('CoreDuet', '*/coreduetd.db'),
+            'coreDuetLock':('CoreDuet', '*/coreduetd.db'),
+            'coreDuetPlugin':('CoreDuet', '*/coreduetd.db'),
+            'healthDistance':('Health Data', '**/healthdb_secure.sqlite'),
+            'healthEcg':('Health Data', '**/healthdb_secure.sqlite'),
+            'healthFlights':('Health Data', '**/healthdb_secure.sqlite'),
+            'healthHr':('Health Data', '**/healthdb_secure.sqlite')
             }
 
 # 'notificationsXI':('Notifications', '*PushStore*') //Need test iOS 11 image with notifications
 '''
-tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
-            'knowCincept':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-            'knowCusage':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-            'knowCact':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-            'knowCinfocus':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-            'knowCbatlvl':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-            'knowCappsinstal':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-            'knowClocked':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-            'knowCplugged':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-            'knowCsiri':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db')
-            
+tosearch = {'healthHr':('Health Data', '**/healthdb_secure.sqlite')
             }
-
 '''
+
 #'walStrings':('SQLite Journaling - Strings', '**/*-wal') takes a long time to run... Maybe a check mark to make it run?
 
 

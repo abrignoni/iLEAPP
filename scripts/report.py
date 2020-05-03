@@ -58,7 +58,7 @@ def get_icon_name(category, artifact):
     elif category == 'SCRIPT LOGS':     icon = 'archive'
     elif category == 'MOBILE INSTALLATION LOGS':     icon = 'clipboard'
     elif category == 'CONNECTED TO':     icon = 'zap'
-    elif category == 'NETWORK DATA':     icon = 'wifi'
+    elif category == 'DATA USAGE':     icon = 'wifi'
     elif category == 'SMS & IMESSAGE':       icon = 'message-square'
     elif category == 'IOS BUILD':       icon = 'git-commit'
     elif category == 'IOS SCREENS':       icon = 'maximize'
@@ -70,11 +70,12 @@ def get_icon_name(category, artifact):
         elif artifact == 'KNOWLEDGEC PLUGGED IN':   icon = 'battery-charging'
         elif artifact == 'KNOWLEDGEC BATTERY LEVEL':   icon = 'battery'
         else:                                icon = 'activity'
-    elif category == 'USAGE STATS':     icon = 'bar-chart-2'
-    elif category == 'WELLBEING' or category == 'WELLBEING ACCOUNT': 
-        if artifact == 'ACCOUNT DATA':  icon = 'user'
-        else:                           icon = 'layers'
-    
+    elif category == 'AGGREGATE DICTIONARY':     icon = 'book'
+    elif category == 'COREDUET':
+        if artifact == 'AIRPLANE MODE':  icon = 'pause'
+        if artifact == 'LOCK STATE':  icon = 'lock'
+        if artifact == 'PLUGGED IN':  icon = 'battery-charging'
+    elif category == 'HEALTH DATA':             icon = 'heart'
     return icon
     
 def generate_report(reportfolderbase, time_in_secs, time_HMS, extraction_type, image_input_path):
