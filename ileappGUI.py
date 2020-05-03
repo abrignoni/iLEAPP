@@ -32,7 +32,7 @@ layout = [  [sg.Text('iOS Logs, Events, And Protobuf Parser', font=("Helvetica",
             [sg.Submit('Process',font=normal_font), sg.Button('Close', font=normal_font)] ]
             
 # Create the Window
-window = sg.Window(f'ALEAPP version {aleapp_version}', layout)
+window = sg.Window(f'iLEAPP version {aleapp_version}', layout)
 GuiWindow.progress_bar_handle = window['PROGRESSBAR']
 # Event Loop to process "events" and get the "values" of the inputs
 while True:
