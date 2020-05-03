@@ -32,7 +32,14 @@ def is_platform_windows():
 class GuiWindow:
     '''This only exists to hold window handle if script is run from GUI'''
     window_handle = None # static variable 
+    progress_bar_total = 0
+    progress_bar_handle = None
 
+    @staticmethod
+    def SetProgressBar(n):
+        if GuiWindow.progress_bar_handle:
+            GuiWindow.progress_bar_handle.UpdateBar(n)
+            
 def logfunc(message=""):
     with open(OutputParameters.screen_output_file_path, 'a', encoding='utf8') as a:
         print(message)

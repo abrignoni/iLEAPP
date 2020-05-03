@@ -72,6 +72,7 @@ def crunch_artifacts(extracttype, input_path, out_params):
     nl = '\n' #literal in order to have new lines in fstrings that create text files
     log.write(f'Extraction/Path selected: {input_path}<br><br>')
     
+    categories_searched = 0
     # Search for the files per the arguments
     for key, val in tosearch.items():
         artifact_pretty_name = val[0]
@@ -86,6 +87,8 @@ def crunch_artifacts(extracttype, input_path, out_params):
             process_artifact(filefound, key, artifact_pretty_name, seeker, out_params.report_folder_base)
             for pathh in filefound:
                 log.write(f'Files for {artifact_search_regex} located at {pathh}<br><br>')
+        categories_searched += 1
+        GuiWindow.SetProgressBar(categories_searched)
     log.close()
 
     logfunc('')

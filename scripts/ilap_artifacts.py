@@ -63,7 +63,8 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'knowCbatlvl':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
             'knowCappsinstal':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
             'knowClocked':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-            'knowCplugged':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db')
+            'knowCplugged':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+            'knowCsiri':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db')
             }
 
 # 'notificationsXI':('Notifications', '*PushStore*') //Need test iOS 11 image with notifications
