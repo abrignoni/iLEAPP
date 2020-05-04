@@ -40,14 +40,17 @@ def get_healthEcg(files_found, report_folder, seeker):
 	all_rows = cursor.fetchall()
 	usageentries = len(all_rows)
 	data_list = []    
-	for row in all_rows:
-		data_list.append((row[0], row[1], row[2], row[3] ))
+	if usageentries == 0:
+		logfunc('No data available in table')
+	else:
+		for row in all_rows:
+			data_list.append((row[0], row[1], row[2], row[3] ))
 
-	description = ''
-	report = ArtifactHtmlReport('Health ECG Avg Heart Rate')
-	report.start_artifact_report(report_folder, 'ECG Avg. Heart Rate', description)
-	report.add_script()
-	data_headers = ('Start Date','End Date','ECG Avg. Heart Rate','Time in Seconds' )     
-	report.write_artifact_data_table(data_headers, data_list, file_found)
-	report.end_artifact_report()
+		description = ''
+		report = ArtifactHtmlReport('Health ECG Avg Heart Rate')
+		report.start_artifact_report(report_folder, 'ECG Avg. Heart Rate', description)
+		report.add_script()
+		data_headers = ('Start Date','End Date','ECG Avg. Heart Rate','Time in Seconds' )     
+		report.write_artifact_data_table(data_headers, data_list, file_found)
+		report.end_artifact_report()
 	

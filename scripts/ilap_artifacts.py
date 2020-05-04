@@ -43,6 +43,11 @@ from scripts.artifacts.healthDistance import get_healthDistance
 from scripts.artifacts.healthEcg import get_healthEcg
 from scripts.artifacts.healthFlights import get_healthFlights
 from scripts.artifacts.healthHr import get_healthHr
+from scripts.artifacts.healthSteps import get_healthSteps
+from scripts.artifacts.healthStandup import get_healthStandup
+from scripts.artifacts.healthWeight import get_healthWeight
+from scripts.artifacts.healthCadence import get_healthCadence
+from scripts.artifacts.healthElevation import get_healthElevation
 
 from scripts.ilapfuncs import *
 
@@ -88,12 +93,17 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'healthDistance':('Health Data', '**/healthdb_secure.sqlite'),
             'healthEcg':('Health Data', '**/healthdb_secure.sqlite'),
             'healthFlights':('Health Data', '**/healthdb_secure.sqlite'),
-            'healthHr':('Health Data', '**/healthdb_secure.sqlite')
+            'healthHr':('Health Data', '**/healthdb_secure.sqlite'),
+            'healthStandup':('Health Data', '**/healthdb_secure.sqlite'),
+            'healthWeight':('Health Data', '**/healthdb_secure.sqlite'),
+            'healthCadence':('Health Data', '**/healthdb_secure.sqlite'),
+            'healthElevation':('Health Data', '**/healthdb_secure.sqlite')
+            
             }
 
 # 'notificationsXI':('Notifications', '*PushStore*') //Need test iOS 11 image with notifications
 '''
-tosearch = {'healthHr':('Health Data', '**/healthdb_secure.sqlite')
+tosearch = {'notificationsXI':('Notifications', '*PushStore*')
             }
 '''
 

@@ -37,15 +37,18 @@ def get_healthHr(files_found, report_folder, seeker):
 
 	all_rows = cursor.fetchall()
 	usageentries = len(all_rows)
-	data_list = []    
-	for row in all_rows:
-		data_list.append((row[0], row[1], row[2], row[3], row[4] ))
+	data_list = []
+	if usageentries == 0:
+			logfunc('No data available in table')
+	else:
+		for row in all_rows:
+			data_list.append((row[0], row[1], row[2], row[3], row[4] ))
 
-	description = ''
-	report = ArtifactHtmlReport('Health Heart Rate')
-	report.start_artifact_report(report_folder, 'Heart Rate', description)
-	report.add_script()
-	data_headers = ('Date','Heart Rate','Units','Quantity','Samples Table ID' )     
-	report.write_artifact_data_table(data_headers, data_list, file_found)
-	report.end_artifact_report()
+		description = ''
+		report = ArtifactHtmlReport('Health Heart Rate')
+		report.start_artifact_report(report_folder, 'Heart Rate', description)
+		report.add_script()
+		data_headers = ('Date','Heart Rate','Units','Quantity','Samples Table ID' )     
+		report.write_artifact_data_table(data_headers, data_list, file_found)
+		report.end_artifact_report()
 	

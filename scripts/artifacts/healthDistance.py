@@ -39,14 +39,17 @@ def get_healthDistance(files_found, report_folder, seeker):
 	all_rows = cursor.fetchall()
 	usageentries = len(all_rows)
 	data_list = []    
-	for row in all_rows:
-		data_list.append((row[0], row[1], row[2], row[3], row[4], row[5] ))
+	if usageentries == 0:
+		logfunc('No data available in table')
+	else:
+		for row in all_rows:
+			data_list.append((row[0], row[1], row[2], row[3], row[4] ))
 
-	description = ''
-	report = ArtifactHtmlReport('Health Distance')
-	report.start_artifact_report(report_folder, 'Distance', description)
-	report.add_script()
-	data_headers = ('Start Date','End Date','Distance in Meters','Distance in Feet','Time in Seconds','Samples Table ID' )     
-	report.write_artifact_data_table(data_headers, data_list, file_found)
-	report.end_artifact_report()
+		description = ''
+		report = ArtifactHtmlReport('Health Distance')
+		report.start_artifact_report(report_folder, 'Distance', description)
+		report.add_script()
+		data_headers = ('Start Date','End Date','Distance in Meters','Distance in Feet','Time in Seconds','Samples Table ID' )     
+		report.write_artifact_data_table(data_headers, data_list, file_found)
+		report.end_artifact_report()
 	

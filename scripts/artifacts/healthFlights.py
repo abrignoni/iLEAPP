@@ -35,9 +35,12 @@ def get_healthFlights(files_found, report_folder, seeker):
 	all_rows = cursor.fetchall()
 	usageentries = len(all_rows)
 	data_list = []    
-	for row in all_rows:
-		data_list.append((row[0], row[1], row[2], row[3], row[4] ))
-
+	if usageentries == 0:
+				logfunc('No data available in table')
+	else:
+		for row in all_rows:
+			data_list.append((row[0], row[1], row[2], row[3], row[4] ))
+	
 	description = ''
 	report = ArtifactHtmlReport('Health Flights Climbed')
 	report.start_artifact_report(report_folder, 'Flights Climbed', description)

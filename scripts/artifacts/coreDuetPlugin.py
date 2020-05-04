@@ -29,15 +29,18 @@ def get_coreDuetPlugin(files_found, report_folder, seeker):
 
 	all_rows = cursor.fetchall()
 	usageentries = len(all_rows)
-	data_list = []    
-	for row in all_rows:
-		data_list.append((row[0], row[1], row[2], row[3] ))
+	data_list = []
+	if usageentries > 0:
+		data_list = []
+		for row in all_rows:
+			data_list.append((row[0], row[1], row[2], row[3] ))
 
-	description = ''
-	report = ArtifactHtmlReport('CoreDuet Plugged In')
-	report.start_artifact_report(report_folder, 'Plugged In', description)
-	report.add_script()
-	data_headers = ('Timestamp','Time Zone','Cable State' )     
-	report.write_artifact_data_table(data_headers, data_list, file_found)
-	report.end_artifact_report()
-	
+		description = ''
+		report = ArtifactHtmlReport('CoreDuet Plugged In')
+		report.start_artifact_report(report_folder, 'Plugged In', description)
+		report.add_script()
+		data_headers = ('Timestamp','Time Zone','Cable State' )     
+		report.write_artifact_data_table(data_headers, data_list, file_found)
+		report.end_artifact_report()
+	else:
+		logfunc('No data available in table')
