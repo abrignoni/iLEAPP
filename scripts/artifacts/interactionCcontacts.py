@@ -15,7 +15,6 @@ def get_interactionCcontacts(files_found, report_folder, seeker):
     db = sqlite3.connect(file_found)
     
     iOSversion = scripts.artifacts.artGlobals.versionf
-    logfunc(str(iOSversion))
     if version.parse(iOSversion) >= version.parse("10"):
         cursor = db.cursor()
         cursor.execute('''

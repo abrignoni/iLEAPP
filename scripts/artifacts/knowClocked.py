@@ -57,7 +57,7 @@ def get_knowClocked(files_found, report_folder, seeker):
 
 	description = ''
 	report = ArtifactHtmlReport('KnowledgeC Device Locked')
-	report.start_artifact_report(report_folder, 'KnowledgeC Device Locked', description)
+	report.start_artifact_report(report_folder, 'Device Locked', description)
 	report.add_script()
 	data_headers = ('Is Locked?','Usage in Seconds','Day of the Week','GMT Offset','Start','End','Entry Creation', 'ZOBJECT Table ID' )     
 	report.write_artifact_data_table(data_headers, data_list, file_found)

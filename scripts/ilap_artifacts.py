@@ -30,7 +30,6 @@ from scripts.artifacts.knowCusage import get_knowCusage
 from scripts.artifacts.knowCact import get_knowCact
 from scripts.artifacts.knowCinfocus import get_knowCinfocus
 from scripts.artifacts.knowCbatlvl import get_knowCbatlvl
-from scripts.artifacts.knowCappsinstal import get_knowCappsinstal
 from scripts.artifacts.knowClocked import get_knowClocked
 from scripts.artifacts.knowCplugged import get_knowCplugged
 from scripts.artifacts.knowCsiri import get_knowCsiri
@@ -51,6 +50,13 @@ from scripts.artifacts.healthElevation import get_healthElevation
 from scripts.artifacts.healthWorkoutGen import get_healthWorkoutGen
 from scripts.artifacts.interactionCcontacts import get_interactionCcontacts
 from scripts.artifacts.knowCnotes import get_knowCnotes
+from scripts.artifacts.knowCactivitylvl import get_knowCactivitylvl
+from scripts.artifacts.knowCappact import get_knowCappact
+from scripts.artifacts.knowCappactcal import get_knowCappactcal
+from scripts.artifacts.knowCappactsafari import get_knowCappactsafari
+from scripts.artifacts.knowCinstall import get_knowCinstall
+from scripts.artifacts.safariHistory import get_safariHistory
+from scripts.artifacts.safariWebsearch import get_safariWebsearch
 
 from scripts.ilapfuncs import *
 
@@ -60,7 +66,7 @@ from scripts.ilapfuncs import *
 # For example: If modulename='profit', function name must be get_profit(..)
 # Don't forget to import the module above!!!!
 
-'''
+
 tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'dataArk':('IOS Build', '**/Library/Lockdown/data_ark.plist'),
             'applicationstate':('Installed Apps', '**/applicationState.db'),
@@ -89,6 +95,12 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'knowClocked':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
             'knowCplugged':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
             'knowCsiri':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+            'knowCnotes':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+            'knowCactivitylvl':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+            'knowCappact':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+            'knowCappactcal':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+            'knowCappactsafari':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+            'knowCinstall':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
             'aggDict':('Aggregate Dictionary', '*/AggregateDictionary/ADDataStore.sqlitedb'),
             'aggDictScalars':('Aggregate Dictionary', '*/AggregateDictionary/ADDataStore.sqlitedb'),
             'coreDuetAirplane':('CoreDuet', '*/coreduetd.db'),
@@ -103,15 +115,19 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'healthCadence':('Health Data', '**/healthdb_secure.sqlite'),
             'healthElevation':('Health Data', '**/healthdb_secure.sqlite'),
             'healthWorkoutGen':('Health Data', '**/healthdb_secure.sqlite'),
+            'safariHistory':('Safari Browser', '*/History.db'),
+            'safariWebsearch':('Safari Browser', '**/Safari/History.db')
+            
             
             }
 
 
 #'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
 '''
-tosearch = {'knowCnotes':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+tosearch = {'safariHistory':('Safari Browser', '*/History.db'),
+            'safariWebsearch':('Safari Browser', '**/Safari/History.db')
             }
-
+'''
 
 #'walStrings':('SQLite Journaling - Strings', '**/*-wal') takes a long time to run... Maybe a check mark to make it run?
 

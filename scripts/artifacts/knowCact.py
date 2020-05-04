@@ -52,7 +52,7 @@ def get_knowCact(files_found, report_folder, seeker):
 
 	description = ''
 	report = ArtifactHtmlReport('KnowledgeC App Activity')
-	report.start_artifact_report(report_folder, 'KnowledgeC App Activity', description)
+	report.start_artifact_report(report_folder, 'App Activity', description)
 	report.add_script()
 	data_headers = ('Entry Creation','Day of the Week','Start','End','ZSTREAMNAME', 'ZVALUESTRING', 'Activity Type', 'Title', 'Expiration Date', 'Content URL', 'Calendar Date', 'Calendar End Date' )     
 	report.write_artifact_data_table(data_headers, data_list, file_found)

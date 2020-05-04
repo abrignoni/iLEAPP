@@ -54,7 +54,7 @@ def get_knowCbatlvl(files_found, report_folder, seeker):
 
 	description = ''
 	report = ArtifactHtmlReport('KnowledgeC Battery Level')
-	report.start_artifact_report(report_folder, 'KnowledgeC Battery Level', description)
+	report.start_artifact_report(report_folder, 'Battery Level', description)
 	report.add_script()
 	data_headers = ('Battery Level','Usage in Seconds','Day of the Week','GMT Offset','Start','End','Entry Creation', 'ZOBJECT Table ID' )     
 	report.write_artifact_data_table(data_headers, data_list, file_found)

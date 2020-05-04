@@ -59,7 +59,7 @@ def get_knowCplugged(files_found, report_folder, seeker):
 
 	description = ''
 	report = ArtifactHtmlReport('KnowledgeC Plugged In')
-	report.start_artifact_report(report_folder, 'KnowledgeC Plugged In', description)
+	report.start_artifact_report(report_folder, 'Plugged In', description)
 	report.add_script()
 	data_headers = ('Is Plugged In?','Usage in Seconds','Day of the Week','GMT Offset','Start','End','Entry Creation', 'ZOBJECT Table ID' )     
 	report.write_artifact_data_table(data_headers, data_list, file_found)

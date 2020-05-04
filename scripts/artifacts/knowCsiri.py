@@ -53,7 +53,7 @@ def get_knowCsiri(files_found, report_folder, seeker):
 
 	description = ''
 	report = ArtifactHtmlReport('KnowledgeC Siri Usage')
-	report.start_artifact_report(report_folder, 'KnowledgeC Siri Usage', description)
+	report.start_artifact_report(report_folder, 'Siri Usage', description)
 	report.add_script()
 	data_headers = ('App Name','Weekday','GMT Offset','Start','Entry Creation','UUID','ZOBJECT Table ID' )     
 	report.write_artifact_data_table(data_headers, data_list, file_found)
