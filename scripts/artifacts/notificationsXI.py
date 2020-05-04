@@ -28,11 +28,11 @@ def get_notificationsXI(files_found, report_folder, seeker):
     f.close()
     
     pathfound = str(files_found[0])
-    logfunc(pathfound)
+    #logfunc(pathfound)
     if pathfound == 0:
         logfunc("No PushStore directory located")
     else:
-        logfunc('Pathfound was found')
+        #logfunc('Pathfound was found')
         folder = report_folder 
         # logfunc("Processing:")
         for filename in glob.iglob(pathfound + "/**", recursive=True):
@@ -44,7 +44,7 @@ def get_notificationsXI(files_found, report_folder, seeker):
                 # create directory
                 if filename.endswith("pushstore"):
                     # create directory where script is running from
-                    logfunc(filename)  # full path
+                    #logfunc(filename)  # full path
                     notdircount = notdircount + 1
                     # logfunc (os.path.basename(file_name)) #filename with  no extension
                     openplist = os.path.basename(
@@ -53,7 +53,7 @@ def get_notificationsXI(files_found, report_folder, seeker):
                     # logfunc (openplist)
                     # bundlepath = (os.path.basename(os.path.dirname(filename)))#previous directory
                     bundlepath = file_name
-                    appdirect = folder + "\\" + bundlepath
+                    appdirect = folder + bundlepath
                     # logfunc(appdirect)
                     os.makedirs(appdirect)
 
@@ -65,7 +65,7 @@ def get_notificationsXI(files_found, report_folder, seeker):
                     long = len(plist2)
                     # logfunc (long)
                     h = open(
-                        "./"  + "/" + appdirect + "/DeliveredNotificationsReport.html", "w"
+                        appdirect + "/DeliveredNotificationsReport.html", "w"
                     )  # write report
                     h.write("<html><body>")
                     h.write("<h2>iOS Delivered Notifications Triage Report </h2>")
@@ -79,11 +79,11 @@ def get_notificationsXI(files_found, report_folder, seeker):
                     h.write('<button onclick="hideRows()">Hide rows</button>')
                     h.write('<button onclick="showRows()">Show rows</button>')
 
-                    f = open("script.txt")
+                    f = open(os.path.join(__location__,"script.txt"), "r")
                     for line in f:
                         h.write(line)
                     f.close()
-
+                    
                     h.write("<br>")
                     h.write('<table name="hide">')
                     h.write('<tr name="hide">')
@@ -267,7 +267,7 @@ def get_notificationsXI(files_found, report_folder, seeker):
                                         )
                                         secondplist = ccl_bplist.load(procfile)
                                         secondplistint = secondplist["$objects"]
-                                        logfunc("Bplist processed and exported.")
+                                        #logfunc("Bplist processed and exported.")
                                         exportedbplistcount = exportedbplistcount + 1
                                         h.write('<tr name="hide">')
                                         h.write("<td>NS.data</td>")
@@ -294,20 +294,26 @@ def get_notificationsXI(files_found, report_folder, seeker):
     path = report_folder
     level2, level1 = (os.path.split(path))
     
-    list = []
+    #final = level2+'/'+level1
+    dict = {}
     files = os.listdir(path)
     for name in files:
-        list.append(
-            f'<a href = "{level2}/{name}/DeliveredNotificationsReport.html" target="content">{name}</a>'
-        )
+        try:
+            size = os.path.getsize(f"{path}{name}/DeliveredNotificationsReport.html")
+            key = (f'<a href = "{level2}/{name}/DeliveredNotificationsReport.html" style = "color:blue" target="content">{name}</a>')
+            dict[key] = size
+        except NotADirectoryError as nade:
+            logfunc(nade)
+            pass
 
-    filedatahtml = open(path + "iOS11_Notifications.html", mode="a+")
-    list.sort()
-    for items in list:
-        filedatahtml.write(items)
-        filedatahtml.write("<br>")
-    '''
-    location =''
+        
+    data_list = []
+    for k, v in dict.items():
+        v = v / 1000
+        # logfunc(f'{k} -> {v}')
+        data_list.append((k, v))
+    
+    location = pathfound
     description = 'iOS <= 11 Notifications'
     report = ArtifactHtmlReport('iOS Notificatons')
     report.start_artifact_report(report_folder, 'iOS Notifications', description)
@@ -315,7 +321,7 @@ def get_notificationsXI(files_found, report_folder, seeker):
     data_headers = ('Bundle GUID', 'Reports Size')
     report.write_artifact_data_table(data_headers, data_list, location, html_escape=False)
     report.end_artifact_report()
-    '''
+    
 
     logfunc("Total notification directories processed:" + str(notdircount))
     logfunc("Total exported bplists from notifications:" + str(exportedbplistcount))
@@ -323,33 +329,6 @@ def get_notificationsXI(files_found, report_folder, seeker):
         logfunc("No notifications located.")
     
         
-   
-
-
-
-
-
-
-
-
-'''
-        data_list.append((k, v))
-    
-    location =''
-    description = 'iOS > 12 Notifications'
-    report = ArtifactHtmlReport('iOS Notificatons')
-    report.start_artifact_report(report_folder, 'iOS Notifications', description)
-    report.add_script()
-    data_headers = ('Bundle ID', 'Reports Size')
-    report.write_artifact_data_table(data_headers, data_list, location, html_escape=False)
-    report.end_artifact_report()
-
-    logfunc("Total notification directories processed:" + str(notdircount))
-    logfunc("Total exported bplists from notifications:" + str(exportedbplistcount))
-    if notdircount == 0:
-        logfunc("No notifications located.")
-        
-'''
        
 
 

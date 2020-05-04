@@ -48,6 +48,9 @@ from scripts.artifacts.healthStandup import get_healthStandup
 from scripts.artifacts.healthWeight import get_healthWeight
 from scripts.artifacts.healthCadence import get_healthCadence
 from scripts.artifacts.healthElevation import get_healthElevation
+from scripts.artifacts.healthWorkoutGen import get_healthWorkoutGen
+from scripts.artifacts.interactionCcontacts import get_interactionCcontacts
+from scripts.artifacts.knowCnotes import get_knowCnotes
 
 from scripts.ilapfuncs import *
 
@@ -57,7 +60,7 @@ from scripts.ilapfuncs import *
 # For example: If modulename='profit', function name must be get_profit(..)
 # Don't forget to import the module above!!!!
 
-
+'''
 tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'dataArk':('IOS Build', '**/Library/Lockdown/data_ark.plist'),
             'applicationstate':('Installed Apps', '**/applicationState.db'),
@@ -74,6 +77,7 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'sms':('SMS & iMessage', '**/sms.db'),
             'iconsScreen':('iOS Screens', '**/SpringBoard/IconState.plist'),
             'webClips':('iOS Screens', '*WebClips/*.webclip/*'),
+            'notificationsXI':('Notifications', '*PushStore*'),
             'notificationsXII':('Notifications', '*private/var/mobile/Library/UserNotifications*'),
             'celWireless':('Cellular Wireless', '*wireless/Library/Preferences/com.apple.*'),
             'knowCincept':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
@@ -97,15 +101,17 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'healthStandup':('Health Data', '**/healthdb_secure.sqlite'),
             'healthWeight':('Health Data', '**/healthdb_secure.sqlite'),
             'healthCadence':('Health Data', '**/healthdb_secure.sqlite'),
-            'healthElevation':('Health Data', '**/healthdb_secure.sqlite')
+            'healthElevation':('Health Data', '**/healthdb_secure.sqlite'),
+            'healthWorkoutGen':('Health Data', '**/healthdb_secure.sqlite'),
             
             }
 
-# 'notificationsXI':('Notifications', '*PushStore*') //Need test iOS 11 image with notifications
+
+#'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
 '''
-tosearch = {'notificationsXI':('Notifications', '*PushStore*')
+tosearch = {'knowCnotes':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
             }
-'''
+
 
 #'walStrings':('SQLite Journaling - Strings', '**/*-wal') takes a long time to run... Maybe a check mark to make it run?
 
