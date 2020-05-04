@@ -43,7 +43,7 @@ def get_healthDistance(files_found, report_folder, seeker):
 		logfunc('No data available in table')
 	else:
 		for row in all_rows:
-			data_list.append((row[0], row[1], row[2], row[3], row[4] ))
+			data_list.append((row[0], row[1], row[2], row[3], row[4], row[5] ))
 
 		description = ''
 		report = ArtifactHtmlReport('Health Distance')
