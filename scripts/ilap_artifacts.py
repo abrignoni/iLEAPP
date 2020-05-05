@@ -57,6 +57,11 @@ from scripts.artifacts.knowCappactsafari import get_knowCappactsafari
 from scripts.artifacts.knowCinstall import get_knowCinstall
 from scripts.artifacts.safariHistory import get_safariHistory
 from scripts.artifacts.safariWebsearch import get_safariWebsearch
+from scripts.artifacts.queryPredictions import get_queryPredictions
+from scripts.artifacts.dhcpl import get_dhcpl
+from scripts.artifacts.dhcphp import get_dhcphp
+from scripts.artifacts.powerlogWifiprop import get_powerlogWifiprop
+from scripts.artifacts.powerlogVolume import get_powerlogVolume
 
 from scripts.ilapfuncs import *
 
@@ -66,7 +71,7 @@ from scripts.ilapfuncs import *
 # For example: If modulename='profit', function name must be get_profit(..)
 # Don't forget to import the module above!!!!
 
-
+'''
 tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'dataArk':('IOS Build', '**/Library/Lockdown/data_ark.plist'),
             'applicationstate':('Installed Apps', '**/applicationState.db'),
@@ -116,18 +121,21 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'healthElevation':('Health Data', '**/healthdb_secure.sqlite'),
             'healthWorkoutGen':('Health Data', '**/healthdb_secure.sqlite'),
             'safariHistory':('Safari Browser', '*/History.db'),
-            'safariWebsearch':('Safari Browser', '**/Safari/History.db')
-            
+            'safariWebsearch':('Safari Browser', '**/Safari/History.db'),
+            'queryPredictions':('SMS & iMessage', '**/query_predictions.db'),
+            'dhcpl':('DHCP', '**private/var/db/dhcpclient/leases/en*'),
+            'dhcphp':('DHCP', '**private/var/db/dhcpd_leases*'),
+            'powerlogWifiprop':('Powerlog', '**/CurrentPowerlog.PLSQL'),
+            'powerlogVolume':('Powerlog', '**/CurrentPowerlog.PLSQL')
             
             }
 
 
 #'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
 '''
-tosearch = {'safariHistory':('Safari Browser', '*/History.db'),
-            'safariWebsearch':('Safari Browser', '**/Safari/History.db')
+tosearch = {'powerlogVolume':('Powerlog', '**/CurrentPowerlog.PLSQL')
             }
-'''
+
 
 #'walStrings':('SQLite Journaling - Strings', '**/*-wal') takes a long time to run... Maybe a check mark to make it run?
 
