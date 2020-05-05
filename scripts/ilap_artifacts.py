@@ -71,7 +71,7 @@ from scripts.ilapfuncs import *
 # For example: If modulename='profit', function name must be get_profit(..)
 # Don't forget to import the module above!!!!
 
-'''
+
 tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'dataArk':('IOS Build', '**/Library/Lockdown/data_ark.plist'),
             'applicationstate':('Installed Apps', '**/applicationState.db'),
@@ -135,7 +135,7 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
 '''
 tosearch = {'powerlogVolume':('Powerlog', '**/CurrentPowerlog.PLSQL')
             }
-
+'''
 
 #'walStrings':('SQLite Journaling - Strings', '**/*-wal') takes a long time to run... Maybe a check mark to make it run?
 
