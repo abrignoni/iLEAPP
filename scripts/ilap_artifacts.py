@@ -62,6 +62,17 @@ from scripts.artifacts.dhcpl import get_dhcpl
 from scripts.artifacts.dhcphp import get_dhcphp
 from scripts.artifacts.powerlogWifiprop import get_powerlogWifiprop
 from scripts.artifacts.powerlogVolume import get_powerlogVolume
+from scripts.artifacts.powerlogVideo import get_powerlogVideo
+from scripts.artifacts.powerlogTorch import get_powerlogTorch
+from scripts.artifacts.powerlogTimezone import get_powerlogTimezone
+from scripts.artifacts.powerlogAggnotifications import get_powerlogAggnotifications
+from scripts.artifacts.powerlogAggbulletins import get_powerlogAggbulletins
+from scripts.artifacts.powerlogPushreceived import get_powerlogPushreceived
+from scripts.artifacts.powerlogProcessdatausage import get_powerlogProcessdatausage
+from scripts.artifacts.powerlogPaireddevconf import get_powerlogPaireddevconf
+from scripts.artifacts.knowClocation import get_knowClocation
+from scripts.artifacts.knowCappshortcut import get_knowCappshortcut
+from scripts.artifacts.knowCwebusage import get_knowCwebusage
 
 from scripts.ilapfuncs import *
 
@@ -106,6 +117,9 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'knowCappactcal':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
             'knowCappactsafari':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
             'knowCinstall':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+            'knowClocation':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+            'knowCappshortcut':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+            'knowCwebusage':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
             'aggDict':('Aggregate Dictionary', '*/AggregateDictionary/ADDataStore.sqlitedb'),
             'aggDictScalars':('Aggregate Dictionary', '*/AggregateDictionary/ADDataStore.sqlitedb'),
             'coreDuetAirplane':('CoreDuet', '*/coreduetd.db'),
@@ -126,14 +140,24 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'dhcpl':('DHCP', '**private/var/db/dhcpclient/leases/en*'),
             'dhcphp':('DHCP', '**private/var/db/dhcpd_leases*'),
             'powerlogWifiprop':('Powerlog', '**/CurrentPowerlog.PLSQL'),
-            'powerlogVolume':('Powerlog', '**/CurrentPowerlog.PLSQL')
+            'powerlogVolume':('Powerlog', '**/CurrentPowerlog.PLSQL'),
+            'powerlogTorch':('Powerlog', '**/CurrentPowerlog.PLSQL'),
+            'powerlogVideo':('Powerlog', '**/CurrentPowerlog.PLSQL'),
+            'powerlogTimezone':('Powerlog', '**/CurrentPowerlog.PLSQL'),
+            'powerlogAggnotifications':('Powerlog', '**/CurrentPowerlog.PLSQL'),
+            'powerlogAggbulletins':('Powerlog', '**/CurrentPowerlog.PLSQL'),
+            'powerlogPushreceived':('Powerlog', '**/CurrentPowerlog.PLSQL'),
+            'powerlogProcessdatausage':('Powerlog', '**/CurrentPowerlog.PLSQL'),
+            'powerlogPaireddevconf':('Powerlog', '**/CurrentPowerlog.PLSQL')
+            
             
             }
 
 
 #'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
 '''
-tosearch = {'powerlogVolume':('Powerlog', '**/CurrentPowerlog.PLSQL')
+tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
+            'knowCwebusage':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db')
             }
 '''
 
