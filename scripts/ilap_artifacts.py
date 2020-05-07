@@ -140,12 +140,13 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'knowCall':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
             'powerlogAll':('Powerlog', '**/CurrentPowerlog.PLSQL'),
             'healthAll':('Health Data', '**/healthdb_secure.sqlite'),
-            'locationDparkedhistorical':('LocationD', '**/Local.sqlite')
+            'locationDparkedhistorical':('LocationD', '**/Local.sqlite'),
+            'locationDparked':('LocationD', '**/Local.sqlite')
             }
 
 '''
 tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
-            'healthAll':('Health Data', '**/healthdb_secure.sqlite'),
+            'locationDparked':('LocationD', '**/Local.sqlite')
             }
 
 
