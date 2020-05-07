@@ -73,6 +73,20 @@ from scripts.artifacts.powerlogPaireddevconf import get_powerlogPaireddevconf
 from scripts.artifacts.knowClocation import get_knowClocation
 from scripts.artifacts.knowCappshortcut import get_knowCappshortcut
 from scripts.artifacts.knowCwebusage import get_knowCwebusage
+from scripts.artifacts.knowCbluetooth import get_knowCbluetooth
+from scripts.artifacts.knowCmediaplaying import get_knowCmediaplaying
+from scripts.artifacts.knowCcarplaycon import get_knowCcarplaycon
+from scripts.artifacts.knowCinferredmotion import get_knowCinferredmotion
+from scripts.artifacts.knowCbacklit import get_knowCbacklit
+from scripts.artifacts.knowCorientation import get_knowCorientation
+from scripts.artifacts.knowCwatchnear import get_knowCwatchnear
+from scripts.artifacts.knowCdisksub import get_knowCdisksub
+from scripts.artifacts.knowCsafari import get_knowCsafari
+from scripts.artifacts.knowCdonotdisturb import get_knowCdonotdisturb
+from scripts.artifacts.knowCuserwaking import get_knowCuserwaking
+from scripts.artifacts.knowCwidget import get_knowCwidget
+from scripts.artifacts.locationDparkedhistorical import get_locationDparkedhistorical
+from scripts.artifacts.locationDparked import get_locationDparked
 
 from scripts.ilapfuncs import *
 
@@ -107,7 +121,6 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'knowCact':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
             'knowCinfocus':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
             'knowCbatlvl':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-            'knowCappsinstal':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
             'knowClocked':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
             'knowCplugged':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
             'knowCsiri':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
@@ -120,6 +133,18 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'knowClocation':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
             'knowCappshortcut':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
             'knowCwebusage':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+            'knowCbluetooth':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+            'knowCmediaplaying':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+            'knowCcarplaycon':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+            'knowCinferredmotion':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+            'knowCbacklit':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+            'knowCorientation':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+            'knowCwatchnear':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+            'knowCdisksub':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+            'knowCsafari':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+            'knowCdonotdisturb':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+            'knowCuserwaking':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+            'knowCwidget':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
             'aggDict':('Aggregate Dictionary', '*/AggregateDictionary/ADDataStore.sqlitedb'),
             'aggDictScalars':('Aggregate Dictionary', '*/AggregateDictionary/ADDataStore.sqlitedb'),
             'coreDuetAirplane':('CoreDuet', '*/coreduetd.db'),
@@ -148,16 +173,15 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'powerlogAggbulletins':('Powerlog', '**/CurrentPowerlog.PLSQL'),
             'powerlogPushreceived':('Powerlog', '**/CurrentPowerlog.PLSQL'),
             'powerlogProcessdatausage':('Powerlog', '**/CurrentPowerlog.PLSQL'),
-            'powerlogPaireddevconf':('Powerlog', '**/CurrentPowerlog.PLSQL')
-            
-            
+            'powerlogPaireddevconf':('Powerlog', '**/CurrentPowerlog.PLSQL'),
+            'locationDparkedhistorical':('LocationD', '**/Local.sqlite')
             }
 
 
 #'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
 '''
 tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
-            'knowCwebusage':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db')
+            'locationDparked':('LocationD', '**/Local.sqlite')
             }
 '''
 

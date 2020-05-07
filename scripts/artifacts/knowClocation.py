@@ -14,7 +14,7 @@ from scripts.ilapfuncs import logfunc, is_platform_windows
 def get_knowClocation(files_found, report_folder, seeker):
 	iOSversion = scripts.artifacts.artGlobals.versionf
 	if version.parse(iOSversion) < version.parse("12"):
-		logfunc("Unsupported version for KnowledgC Location" + iOSversion)
+		logfunc("Unsupported version for KnowledgC Location on iOS " + iOSversion)
 		return ()
 
 	file_found = str(files_found[0])
