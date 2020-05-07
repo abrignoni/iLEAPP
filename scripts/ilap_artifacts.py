@@ -48,6 +48,7 @@ from scripts.artifacts.healthWeight import get_healthWeight
 from scripts.artifacts.healthCadence import get_healthCadence
 from scripts.artifacts.healthElevation import get_healthElevation
 from scripts.artifacts.healthWorkoutGen import get_healthWorkoutGen
+from scripts.artifacts.healthAll import get_healthAll
 from scripts.artifacts.interactionCcontacts import get_interactionCcontacts
 from scripts.artifacts.knowCnotes import get_knowCnotes
 from scripts.artifacts.knowCactivitylvl import get_knowCactivitylvl
@@ -70,6 +71,14 @@ from scripts.artifacts.powerlogAggbulletins import get_powerlogAggbulletins
 from scripts.artifacts.powerlogPushreceived import get_powerlogPushreceived
 from scripts.artifacts.powerlogProcessdatausage import get_powerlogProcessdatausage
 from scripts.artifacts.powerlogPaireddevconf import get_powerlogPaireddevconf
+from scripts.artifacts.powerlogLocuseapp import get_powerlogLocuseapp
+from scripts.artifacts.powerlogAirdrop import get_powerlogAirdrop
+from scripts.artifacts.powerlogAudio import get_powerlogAudio
+from scripts.artifacts.powerlogLightplug import get_powerlogLightplug
+from scripts.artifacts.powerlogAppinfo import get_powerlogAppinfo
+from scripts.artifacts.powerlogBackupinfo import get_powerlogBackupinfo
+from scripts.artifacts.powerlogDeletedapps import get_powerlogDeletedapps
+from scripts.artifacts.powerlogAll import get_powerlogAll
 from scripts.artifacts.knowClocation import get_knowClocation
 from scripts.artifacts.knowCappshortcut import get_knowCappshortcut
 from scripts.artifacts.knowCwebusage import get_knowCwebusage
@@ -87,6 +96,7 @@ from scripts.artifacts.knowCuserwaking import get_knowCuserwaking
 from scripts.artifacts.knowCwidget import get_knowCwidget
 from scripts.artifacts.locationDparkedhistorical import get_locationDparkedhistorical
 from scripts.artifacts.locationDparked import get_locationDparked
+from scripts.artifacts.knowCall import get_knowCall
 
 from scripts.ilapfuncs import *
 
@@ -97,6 +107,7 @@ from scripts.ilapfuncs import *
 # Don't forget to import the module above!!!!
 
 
+
 tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'dataArk':('IOS Build', '**/Library/Lockdown/data_ark.plist'),
             'applicationstate':('Installed Apps', '**/applicationState.db'),
@@ -104,6 +115,16 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'confaccts':('Accounts', '**/com.apple.accounts.exists.plist'),
             'callHistory':('Call logs', '**/CallHistory.storedata'),
             'conDev':('Connected to', '**/iTunes_Control/iTunes/iTunesPrefs'),
+            'aggDict':('Aggregate Dictionary', '*/AggregateDictionary/ADDataStore.sqlitedb'),
+            'aggDictScalars':('Aggregate Dictionary', '*/AggregateDictionary/ADDataStore.sqlitedb'),
+            'coreDuetAirplane':('CoreDuet', '*/coreduetd.db'),
+            'coreDuetLock':('CoreDuet', '*/coreduetd.db'),
+            'coreDuetPlugin':('CoreDuet', '*/coreduetd.db'),
+            'safariHistory':('Safari Browser', '*/History.db'),
+            'safariWebsearch':('Safari Browser', '**/Safari/History.db'),
+            'queryPredictions':('SMS & iMessage', '**/query_predictions.db'),
+            'dhcpl':('DHCP', '**private/var/db/dhcpclient/leases/en*'),
+            'dhcphp':('DHCP', '**private/var/db/dhcpd_leases*'),
             'dataUsageA':('Data Usage', '**/DataUsage.sqlite'), 
             'dataUsageB':('Data Usage', '**/DataUsage-watch.sqlite'),
             'dataUsageProcessA':('Data Usage', '**/DataUsage-watch.sqlite'),
@@ -116,73 +137,76 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'notificationsXI':('Notifications', '*PushStore*'),
             'notificationsXII':('Notifications', '*private/var/mobile/Library/UserNotifications*'),
             'celWireless':('Cellular Wireless', '*wireless/Library/Preferences/com.apple.*'),
-            'knowCincept':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-            'knowCusage':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-            'knowCact':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-            'knowCinfocus':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-            'knowCbatlvl':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-            'knowClocked':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-            'knowCplugged':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-            'knowCsiri':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-            'knowCnotes':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-            'knowCactivitylvl':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-            'knowCappact':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-            'knowCappactcal':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-            'knowCappactsafari':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-            'knowCinstall':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-            'knowClocation':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-            'knowCappshortcut':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-            'knowCwebusage':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-            'knowCbluetooth':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-            'knowCmediaplaying':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-            'knowCcarplaycon':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-            'knowCinferredmotion':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-            'knowCbacklit':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-            'knowCorientation':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-            'knowCwatchnear':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-            'knowCdisksub':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-            'knowCsafari':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-            'knowCdonotdisturb':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-            'knowCuserwaking':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-            'knowCwidget':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-            'aggDict':('Aggregate Dictionary', '*/AggregateDictionary/ADDataStore.sqlitedb'),
-            'aggDictScalars':('Aggregate Dictionary', '*/AggregateDictionary/ADDataStore.sqlitedb'),
-            'coreDuetAirplane':('CoreDuet', '*/coreduetd.db'),
-            'coreDuetLock':('CoreDuet', '*/coreduetd.db'),
-            'coreDuetPlugin':('CoreDuet', '*/coreduetd.db'),
-            'healthDistance':('Health Data', '**/healthdb_secure.sqlite'),
-            'healthEcg':('Health Data', '**/healthdb_secure.sqlite'),
-            'healthFlights':('Health Data', '**/healthdb_secure.sqlite'),
-            'healthHr':('Health Data', '**/healthdb_secure.sqlite'),
-            'healthStandup':('Health Data', '**/healthdb_secure.sqlite'),
-            'healthWeight':('Health Data', '**/healthdb_secure.sqlite'),
-            'healthCadence':('Health Data', '**/healthdb_secure.sqlite'),
-            'healthElevation':('Health Data', '**/healthdb_secure.sqlite'),
-            'healthWorkoutGen':('Health Data', '**/healthdb_secure.sqlite'),
-            'safariHistory':('Safari Browser', '*/History.db'),
-            'safariWebsearch':('Safari Browser', '**/Safari/History.db'),
-            'queryPredictions':('SMS & iMessage', '**/query_predictions.db'),
-            'dhcpl':('DHCP', '**private/var/db/dhcpclient/leases/en*'),
-            'dhcphp':('DHCP', '**private/var/db/dhcpd_leases*'),
-            'powerlogWifiprop':('Powerlog', '**/CurrentPowerlog.PLSQL'),
-            'powerlogVolume':('Powerlog', '**/CurrentPowerlog.PLSQL'),
-            'powerlogTorch':('Powerlog', '**/CurrentPowerlog.PLSQL'),
-            'powerlogVideo':('Powerlog', '**/CurrentPowerlog.PLSQL'),
-            'powerlogTimezone':('Powerlog', '**/CurrentPowerlog.PLSQL'),
-            'powerlogAggnotifications':('Powerlog', '**/CurrentPowerlog.PLSQL'),
-            'powerlogAggbulletins':('Powerlog', '**/CurrentPowerlog.PLSQL'),
-            'powerlogPushreceived':('Powerlog', '**/CurrentPowerlog.PLSQL'),
-            'powerlogProcessdatausage':('Powerlog', '**/CurrentPowerlog.PLSQL'),
-            'powerlogPaireddevconf':('Powerlog', '**/CurrentPowerlog.PLSQL'),
+            'knowCall':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+            'powerlogAll':('Powerlog', '**/CurrentPowerlog.PLSQL'),
+            'healthAll':('Health Data', '**/healthdb_secure.sqlite'),
             'locationDparkedhistorical':('LocationD', '**/Local.sqlite')
             }
 
-
-#'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
 '''
 tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
-            'locationDparked':('LocationD', '**/Local.sqlite')
+            'healthAll':('Health Data', '**/healthdb_secure.sqlite'),
             }
+
+
+# Individual artifacts. Slow parsing when extracting the same data multiple times for each artifact.
+tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
+    'knowCincept':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+    'knowCusage':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+    'knowCact':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+    'knowCinfocus':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+    'knowCbatlvl':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+    'knowClocked':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+    'knowCplugged':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+    'knowCsiri':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+    'knowCnotes':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+    'knowCactivitylvl':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+    'knowCappact':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+    'knowCappactcal':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+    'knowCappactsafari':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+    'knowCinstall':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+    'knowClocation':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+    'knowCappshortcut':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+    'knowCwebusage':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+    'knowCbluetooth':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+    'knowCmediaplaying':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+    'knowCcarplaycon':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+    'knowCinferredmotion':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+    'knowCbacklit':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+    'knowCorientation':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+    'knowCwatchnear':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+    'knowCdisksub':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+    'knowCsafari':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+    'knowCdonotdisturb':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+    'knowCuserwaking':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+    'knowCwidget':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
+    'powerlogWifiprop':('Powerlog', '**/CurrentPowerlog.PLSQL'),
+    'powerlogVolume':('Powerlog', '**/CurrentPowerlog.PLSQL'),
+    'powerlogTorch':('Powerlog', '**/CurrentPowerlog.PLSQL'),
+    'powerlogVideo':('Powerlog', '**/CurrentPowerlog.PLSQL'),
+    'powerlogTimezone':('Powerlog', '**/CurrentPowerlog.PLSQL'),
+    'powerlogAggnotifications':('Powerlog', '**/CurrentPowerlog.PLSQL'),
+    'powerlogAggbulletins':('Powerlog', '**/CurrentPowerlog.PLSQL'),
+    'powerlogPushreceived':('Powerlog', '**/CurrentPowerlog.PLSQL'),
+    'powerlogProcessdatausage':('Powerlog', '**/CurrentPowerlog.PLSQL'),
+    'powerlogPaireddevconf':('Powerlog', '**/CurrentPowerlog.PLSQL'),
+    'powerlogLocuseapp':('Powerlog', '**/CurrentPowerlog.PLSQL'),
+    'powerlogAirdrop':('Powerlog', '**/CurrentPowerlog.PLSQL'),
+    'powerlogAudio':('Powerlog', '**/CurrentPowerlog.PLSQL'),
+    'powerlogDeletedapps':('Powerlog', '**/CurrentPowerlog.PLSQL'),
+    'powerlogAppinfo':('Powerlog', '**/CurrentPowerlog.PLSQL'),
+    'powerlogBackupinfo':('Powerlog', '**/CurrentPowerlog.PLSQL'),
+    'powerlogLightplug':('Powerlog', '**/CurrentPowerlog.PLSQL'),
+    'healthDistance':('Health Data', '**/healthdb_secure.sqlite'),
+    'healthEcg':('Health Data', '**/healthdb_secure.sqlite'),
+    'healthFlights':('Health Data', '**/healthdb_secure.sqlite'),
+    'healthHr':('Health Data', '**/healthdb_secure.sqlite'),
+    'healthStandup':('Health Data', '**/healthdb_secure.sqlite'),
+    'healthWeight':('Health Data', '**/healthdb_secure.sqlite'),
+    'healthCadence':('Health Data', '**/healthdb_secure.sqlite'),
+    'healthElevation':('Health Data', '**/healthdb_secure.sqlite'),
+    'healthWorkoutGen':('Health Data', '**/healthdb_secure.sqlite'),
+    }
 '''
 
 #'walStrings':('SQLite Journaling - Strings', '**/*-wal') takes a long time to run... Maybe a check mark to make it run?
