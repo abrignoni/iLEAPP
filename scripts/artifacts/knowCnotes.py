@@ -6,7 +6,7 @@ import sqlite3
 import scripts.artifacts.artGlobals #use to get iOS version -> iOSversion = scripts.artifacts.artGlobals.versionf
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
 from scripts.ccl import ccl_bplist
 
 def get_knowCnotes(files_found, report_folder, seeker):
@@ -56,12 +56,15 @@ def get_knowCnotes(files_found, report_folder, seeker):
         data_list = []
         for row in all_rows:    data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12],row[13],row[14]))
 
-        report = ArtifactHtmlReport('KnowledgeC')
+        report = ArtifactHtmlReport('KnowledgeC Notes - Activity')
         report.start_artifact_report(report_folder, 'Notes - Activity')
         report.add_script()
         data_headers = ('Start','End','Bundle ID','Activity Type','User Activity Required String','ID','Unique ID','Activity UUID','Source ID','Day of Week','GMT Offset','Entry Creation','Expiration Date', 'UUID','ZOBJECT Table ID' )   
         report.write_artifact_data_table(data_headers, data_list, file_found)
         report.end_artifact_report()
+        
+        tsvname = 'KnowledgeC Notes Activity'
+        tsv(report_folder, data_headers, data_list, tsvname)
     else:
         logfunc('No data available in table')
 

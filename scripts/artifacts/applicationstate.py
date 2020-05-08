@@ -5,7 +5,7 @@ import plistlib
 import sqlite3
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
 from scripts.ccl import ccl_bplist
 
 def get_applicationstate(files_found, report_folder, seeker):
@@ -80,6 +80,9 @@ def get_applicationstate(files_found, report_folder, seeker):
         data_headers = ('Bundle ID','Bundle Path','Sandbox Path' )     
         report.write_artifact_data_table(data_headers, data_list, file_found)
         report.end_artifact_report()
+        
+        tsvname = 'Application State'
+        tsv(report_folder, data_headers, data_list, tsvname)
     else:
         logfunc('No Application State data available')
 

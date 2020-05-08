@@ -91,3 +91,20 @@ def html2csv(reportfolderbase):
                         with codecs.open(os.path.join(reportfolderbase, '_CSV Exports',  file +'.csv'), 'a', 'utf-8-sig') as csvfile:
                             writer = csv.writer(csvfile, quotechar='"', quoting=csv.QUOTE_ALL)
                             writer.writerows(output_rows)
+
+def tsv(report_folder, data_headers, data_list, tsvname):
+    report_folder = report_folder.rstrip('/')
+    report_folder_base, tail = os.path.split(report_folder)
+    tsv_report_folder = os.path.join(report_folder_base, '_TSV Exports')
+    
+    if os.path.isdir(tsv_report_folder):
+        pass
+    else:
+        os.makedirs(tsv_report_folder)
+    
+    
+    with codecs.open(os.path.join(tsv_report_folder + '/' + tsvname +'.tsv'), 'a', 'utf-8-sig') as tsvfile:
+        tsv_writer = csv.writer(tsvfile, delimiter='\t')
+        tsv_writer.writerow(data_headers)
+        for i in data_list:
+            tsv_writer.writerow(i)

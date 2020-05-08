@@ -8,7 +8,7 @@ from packaging import version
 import scripts.artifacts.artGlobals
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
 
 
 def get_knowClocation(files_found, report_folder, seeker):
@@ -89,4 +89,7 @@ def get_knowClocation(files_found, report_folder, seeker):
 	data_headers = ('Start','End','Bundle ID','Coordinates','Name','Display Name','Formatted Address', 'City','State/Province','Country','Postal Code','Subthoroughfare','Thoroughfare','Phone Numebers','URL','Activity Type', 'Content Description','User Activity Required String','Content URL','Unique ID','Latitude','Logitude','Source ID','Activity UUID','Item ID','Source ID','Day of the Week','GMT Offset','Entry Creation','UUID','Zonject Table ID')     
 	report.write_artifact_data_table(data_headers, data_list, file_found)
 	report.end_artifact_report()
+	
+	tsvname = 'KnowledgeC Location Activity'
+	tsv(report_folder, data_headers, data_list, tsvname)
 	

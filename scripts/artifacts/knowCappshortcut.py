@@ -8,7 +8,7 @@ from packaging import version
 import scripts.artifacts.artGlobals
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
 
 
 def get_knowCappshortcut(files_found, report_folder, seeker):
@@ -59,6 +59,9 @@ def get_knowCappshortcut(files_found, report_folder, seeker):
 		data_headers = ('Start','End','Bundle ID','Day of the Week','GMT Offset','Entry Creation','UUID','Zobject Table ID')     
 		report.write_artifact_data_table(data_headers, data_list, file_found)
 		report.end_artifact_report()
+		
+		tsvname = 'KnowledgeC Application Relevant Shortcuts'
+		tsv(report_folder, data_headers, data_list, tsvname)
 	else:
 		logfunc('No data available in table')
 

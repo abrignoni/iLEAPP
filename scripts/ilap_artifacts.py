@@ -116,8 +116,6 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'confaccts':('Accounts', '**/com.apple.accounts.exists.plist'),
             'callHistory':('Call logs', '**/CallHistory.storedata'),
             'conDev':('Connected to', '**/iTunes_Control/iTunes/iTunesPrefs'),
-            'aggDict':('Aggregate Dictionary', '*/AggregateDictionary/ADDataStore.sqlitedb'),
-            'aggDictScalars':('Aggregate Dictionary', '*/AggregateDictionary/ADDataStore.sqlitedb'),
             'coreDuetAirplane':('CoreDuet', '*/coreduetd.db'),
             'coreDuetLock':('CoreDuet', '*/coreduetd.db'),
             'coreDuetPlugin':('CoreDuet', '*/coreduetd.db'),
@@ -131,7 +129,6 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'dataUsageProcessA':('Data Usage', '**/DataUsage-watch.sqlite'),
             'dataUsageProcessB':('Data Usage', '**/DataUsage.sqlite'),
             'mobileInstall':('Mobile Installation Logs', '**/mobile_installation.log.*'), 
-            'journalStrings':('SQLite Journaling', '**/*-journal'),
             'sms':('SMS & iMessage', '**/sms.db'),
             'iconsScreen':('iOS Screens', '**/SpringBoard/IconState.plist'),
             'webClips':('iOS Screens', '*WebClips/*.webclip/*'),
@@ -147,8 +144,7 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             }
 
 '''
-tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
-            'mailprotect':('iOS Mail', '**private/var/mobile/Library/Mail/* Index*')
+tosearch = {'sms':('SMS & iMessage', '**/sms.db')
             }
 
 
@@ -209,11 +205,44 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
     'healthCadence':('Health Data', '**/healthdb_secure.sqlite'),
     'healthElevation':('Health Data', '**/healthdb_secure.sqlite'),
     'healthWorkoutGen':('Health Data', '**/healthdb_secure.sqlite'),
+    'dataArk':('IOS Build', '**/Library/Lockdown/data_ark.plist'),
+    'applicationstate':('Installed Apps', '**/applicationState.db'),
+    'accs':('Accounts', '**/Accounts3.sqlite'),
+    'confaccts':('Accounts', '**/com.apple.accounts.exists.plist'),
+    'callHistory':('Call logs', '**/CallHistory.storedata'),
+    'conDev':('Connected to', '**/iTunes_Control/iTunes/iTunesPrefs'),
+    'coreDuetAirplane':('CoreDuet', '*/coreduetd.db'),
+    'coreDuetLock':('CoreDuet', '*/coreduetd.db'),
+    'coreDuetPlugin':('CoreDuet', '*/coreduetd.db'),
+    'safariHistory':('Safari Browser', '*/History.db'),
+    'safariWebsearch':('Safari Browser', '**/Safari/History.db'),
+    'queryPredictions':('SMS & iMessage', '**/query_predictions.db'),
+    'dhcpl':('DHCP', '**private/var/db/dhcpclient/leases/en*'),
+    'dhcphp':('DHCP', '**private/var/db/dhcpd_leases*'),
+    'dataUsageA':('Data Usage', '**/DataUsage.sqlite'), 
+    'dataUsageB':('Data Usage', '**/DataUsage-watch.sqlite'),
+    'dataUsageProcessA':('Data Usage', '**/DataUsage-watch.sqlite'),
+    'dataUsageProcessB':('Data Usage', '**/DataUsage.sqlite'),
+    'mobileInstall':('Mobile Installation Logs', '**/mobile_installation.log.*'), 
+    'sms':('SMS & iMessage', '**/sms.db'),
+    'iconsScreen':('iOS Screens', '**/SpringBoard/IconState.plist'),
+    'webClips':('iOS Screens', '*WebClips/*.webclip/*'),
+    'notificationsXI':('Notifications', '*PushStore*'),
+    'notificationsXII':('Notifications', '*private/var/mobile/Library/UserNotifications*'),
+    'celWireless':('Cellular Wireless', '*wireless/Library/Preferences/com.apple.*'),
+    'mailprotect':('iOS Mail', '**private/var/mobile/Library/Mail/* Index*'),
+    'locationDparkedhistorical':('LocationD', '**/Local.sqlite'),
+    'locationDparked':('LocationD', '**/Local.sqlite')
     }
+    
+#    Artifacts take long to run. Useful in specific situations only.
+#    'aggDict':('Aggregate Dictionary', '*/AggregateDictionary/ADDataStore.sqlitedb')
+#    'aggDictScalars':('Aggregate Dictionary', '*/AggregateDictionary/ADDataStore.sqlitedb')
+#    'journalStrings':('SQLite Journaling', '**/*-journal')
+#    'walStrings':('SQLite Journaling - Strings', '**/*-wal')
 '''
 
-#'walStrings':('SQLite Journaling - Strings', '**/*-wal') takes a long time to run... Maybe a check mark to make it run?
-
+# takes a long time to run... Maybe a check mark to make it run?
 
 slash = '\\' if is_platform_windows() else '/'
 

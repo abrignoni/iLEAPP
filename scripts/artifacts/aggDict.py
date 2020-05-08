@@ -6,7 +6,7 @@ import sqlite3
 import json
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, is_platform_windows
 
 
 def get_aggDict(files_found, report_folder, seeker):
@@ -43,4 +43,7 @@ def get_aggDict(files_found, report_folder, seeker):
 	data_headers = ('Day','Key','Value','Seconds in Day Offset','Distribution Values Table ID' )     
 	report.write_artifact_data_table(data_headers, data_list, file_found)
 	report.end_artifact_report()
+	
+	tsvname = 'Agg Dict Dist Keys'
+	tsv(report_folder, data_headers, data_list, tsvname)
 	

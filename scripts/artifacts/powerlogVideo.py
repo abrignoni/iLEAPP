@@ -6,7 +6,7 @@ import sqlite3
 import scripts.artifacts.artGlobals #use to get iOS version -> iOSversion = scripts.artifacts.artGlobals.versionf
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
 from scripts.ccl import ccl_bplist
 
 def get_powerlogVideo(files_found, report_folder, seeker):
@@ -67,6 +67,9 @@ def get_powerlogVideo(files_found, report_folder, seeker):
         data_headers = ('Adjusted Timestamp','Client Display ID','State','Client PID','Offset Timestamp','Time Offset','Event Forward Video Table ID')   
         report.write_artifact_data_table(data_headers, data_list, file_found)
         report.end_artifact_report()
+        
+        tsvname = 'Powerlog Video'
+        tsv(report_folder, data_headers, data_list, tsvname)
     else:
         logfunc('No data available in table')
 

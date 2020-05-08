@@ -6,7 +6,7 @@ import sqlite3
 import json
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
 
 
 def get_knowCplugged(files_found, report_folder, seeker):
@@ -64,3 +64,6 @@ def get_knowCplugged(files_found, report_folder, seeker):
 	data_headers = ('Is Plugged In?','Usage in Seconds','Day of the Week','GMT Offset','Start','End','Entry Creation', 'ZOBJECT Table ID' )     
 	report.write_artifact_data_table(data_headers, data_list, file_found)
 	report.end_artifact_report()
+	
+	tsvname = 'KnowledgeC Plugged In'
+	tsv(report_folder, data_headers, data_list, tsvname)

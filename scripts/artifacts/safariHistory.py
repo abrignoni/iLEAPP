@@ -6,7 +6,7 @@ import sqlite3
 import json
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
 
 
 def get_safariHistory(files_found, report_folder, seeker):
@@ -50,6 +50,9 @@ def get_safariHistory(files_found, report_folder, seeker):
 		data_headers = ('Visit Time','URL','Visit Count','Title','iCloud Sync','Load Successful','Visit ID','Redirect Source','Redirect Destination','History Item ID' )     
 		report.write_artifact_data_table(data_headers, data_list, file_found)
 		report.end_artifact_report()
+		
+		tsvname = 'Safari Browser History'
+		tsv(report_folder, data_headers, data_list, tsvname)
 	else:
 		logfunc('No data available in table')
 	

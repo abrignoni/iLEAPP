@@ -7,7 +7,7 @@ import scripts.artifacts.artGlobals #use to get iOS version -> iOSversion = scri
 from packaging import version #use to search per version number
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
 from scripts.ccl import ccl_bplist
 
 def get_powerlogLocuseapp(files_found, report_folder, seeker):
@@ -83,12 +83,15 @@ def get_powerlogLocuseapp(files_found, report_folder, seeker):
                 for row in all_rows:    
                     data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11]))
 
-                report = ArtifactHtmlReport('Powerlog Location Use by APp')
+                report = ArtifactHtmlReport('Powerlog Location Use by App')
                 report.start_artifact_report(report_folder, 'Location Use by App')
                 report.add_script()
                 data_headers = ('Adjusted Timestamp','Timestamp Logged','Timestamp End','Bundle ID','Type','Location Desired Accuracy','Location Distance Filter','Client','Executable','Offset Timestamp','Time Offset', 'Client Status Table ID' )   
                 report.write_artifact_data_table(data_headers, data_list, file_found)
                 report.end_artifact_report()
+                
+                tsvname = 'Powerlog Locatio Use by App'
+                tsv(report_folder, data_headers, data_list, tsvname)
 
         else:
             logfunc('No data available in Location Use by App')

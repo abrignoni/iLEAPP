@@ -6,7 +6,7 @@ import sqlite3
 import scripts.artifacts.artGlobals #use to get iOS version -> iOSversion = scripts.artifacts.artGlobals.versionf
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
 from scripts.ccl import ccl_bplist
 
 def get_healthElevation(files_found, report_folder, seeker):
@@ -70,6 +70,9 @@ def get_healthElevation(files_found, report_folder, seeker):
         data_headers = ('Start Date','End Date','Elevation in Meters','Elevation in Feet','Workout Type','Duration in Min.','Calories Burned','Distance in KM','Distance in Miles','Total Base Energy Burned','Goal Type','Goal','Flights Climbed','Steps' )   
         report.write_artifact_data_table(data_headers, data_list, file_found)
         report.end_artifact_report()
+        
+        tsvname = 'Health Elevation'
+        tsv(report_folder, data_headers, data_list, tsvname)
     else:
         logfunc('No data available in table')
 

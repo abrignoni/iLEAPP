@@ -6,7 +6,7 @@ import sqlite3
 import scripts.artifacts.artGlobals #use to get iOS version -> iOSversion = scripts.artifacts.artGlobals.versionf
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
 from scripts.ccl import ccl_bplist
 
 def get_powerlogTorch(files_found, report_folder, seeker):
@@ -69,6 +69,9 @@ def get_powerlogTorch(files_found, report_folder, seeker):
         data_headers = ('Adjusted Timestamp','Bundle ID','Status','Original Torch Timestamp','Offset Timestamp','Time Offset','Torch ID')   
         report.write_artifact_data_table(data_headers, data_list, file_found)
         report.end_artifact_report()
+        
+        tsvname = 'Powerlog Torch'
+        tsv(report_folder, data_headers, data_list, tsvname)
     else:
         logfunc('No data available in table')
 

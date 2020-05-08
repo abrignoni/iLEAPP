@@ -6,7 +6,7 @@ import sqlite3
 import json
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
 
 
 def get_aggDictScalars(files_found, report_folder, seeker):
@@ -38,4 +38,7 @@ def get_aggDictScalars(files_found, report_folder, seeker):
 	data_headers = ('Day','Key','Value' )     
 	report.write_artifact_data_table(data_headers, data_list, file_found)
 	report.end_artifact_report()
+	
+	tsvname = 'Agg Dict Scalars'
+	tsv(report_folder, data_headers, data_list, tsvname)
 	

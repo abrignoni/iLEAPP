@@ -6,7 +6,7 @@ import sqlite3
 import json
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
 
     
 def get_knowCusage(files_found, report_folder, seeker):
@@ -61,3 +61,6 @@ def get_knowCusage(files_found, report_folder, seeker):
     data_headers = ('Start','End','Bundle ID','Usage in Seconds','Usage in Minutes','Device ID','Day of the Week','GMT Offset','Entry Creation','UUID','Zobject Table ID' )     
     report.write_artifact_data_table(data_headers, data_list, file_found, html_escape=False)
     report.end_artifact_report()
+
+    tsvname = 'KnowledgeC App Usage'
+    tsv(report_folder, data_headers, data_list, tsvname)

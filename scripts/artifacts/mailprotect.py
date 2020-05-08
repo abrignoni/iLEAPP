@@ -9,7 +9,7 @@ import scripts.artifacts.artGlobals
  
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
 from scripts.ccl import ccl_bplist
 from scripts.parse3 import ParseProto
 
@@ -152,7 +152,10 @@ def get_mailprotect(files_found, report_folder, seeker):
 			report.add_script()
 			data_headers = ('Row ID','Date Sent','Date Received','Sender','Message ID', 'Subject', 'Recipient', 'Message', 'CC', 'BCC')     
 			report.write_artifact_data_table(data_headers, data_list, file_found)
-			report.end_artifact_report()		
+			report.end_artifact_report()
+			
+			tsvname = 'iOS Mail'
+			tsv(report_folder, data_headers, data_list, tsvname)		
 		else:
 			logfunc("No iOS emails available")
 
@@ -199,6 +202,9 @@ def get_mailprotect(files_found, report_folder, seeker):
 			data_headers = ('Date Sent','Date Received','Address','Comment','Subject', 'Summary', 'Read?', 'Flagged?', 'Deleted', 'Mailbox')     
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
+			
+			tsvname = 'iOS Mail'
+			tsv(report_folder, data_headers, data_list, tsvname)
 				
 		else:
 			logfunc("No iOS emails available")

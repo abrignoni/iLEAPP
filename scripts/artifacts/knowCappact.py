@@ -7,7 +7,7 @@ import scripts.artifacts.artGlobals #use to get iOS version -> iOSversion = scri
 from packaging import version #use to search per version number
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
 from scripts.ccl import ccl_bplist
 
 def get_knowCappact(files_found, report_folder, seeker):
@@ -107,6 +107,10 @@ def get_knowCappact(files_found, report_folder, seeker):
             data_headers = ('Start','End','Bundle ID','Group ID','Activity Type', 'Content Description', 'User Activity Required String', 'Content URL','Suggest Invocation Phrase','Unique ID','Source ID','ID','Activity UUID','Day of Week','GMT Offset','Entry Creation','Expiration Date','UUID','ZOBJECT Table ID' )   
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
+            
+            tsvname = 'KnowledgeC Application Activity'
+            tsv(report_folder, data_headers, data_list, tsvname)
+
         else:
             for row in all_rows:    data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11]))
             
@@ -116,6 +120,9 @@ def get_knowCappact(files_found, report_folder, seeker):
             data_headers = ('Start','End','Bundle ID','Activity Type', 'Title','Content URL','Day of Week','GMT Offset','Entry Creation','Expiration Date','ZOBJECT Table ID' ) 
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
+            
+            tsvname = 'KnowledgeC Application Activity'
+            tsv(report_folder, data_headers, data_list, tsvname)
     else:
         logfunc('No data available in table')
 

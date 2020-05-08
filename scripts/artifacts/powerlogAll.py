@@ -9,7 +9,7 @@ import scripts.artifacts.artGlobals
  
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, is_platform_windows  
 from scripts.ccl import ccl_bplist
 from scripts.parse3 import ParseProto
 
@@ -52,6 +52,9 @@ def get_powerlogAll(files_found, report_folder, seeker):
                 data_headers = ('Timestamp','Timestamped Logged','Bundle ID','Assertion Name','Audio Route','Mirroring State','Operation','PID', 'Audio App Table ID' )   
                 report.write_artifact_data_table(data_headers, data_list, file_found)
                 report.end_artifact_report()
+                
+                tsvname = 'Powerlog Audio Routing via App'
+                tsv(report_folder, data_headers, data_list, tsvname)
 
         else:
             logfunc('No data available in Airdop Connection Info')
@@ -81,6 +84,9 @@ def get_powerlogAll(files_found, report_folder, seeker):
             data_headers = ('Timestamp','Bulletin Bundle ID','Time Interval in Seconds','Count','Post Type','Aggregate Table ID')   
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
+            
+            tsvname = 'Powerlog Agg Bulletins'
+            tsv(report_folder, data_headers, data_list, tsvname)
         else:
             logfunc('No data available in Aggregate Bulletins')
     
@@ -109,6 +115,9 @@ def get_powerlogAll(files_found, report_folder, seeker):
             data_headers = ('Timestamp','Notification Bundle ID','Time Interval in Seconds','Count','Notification Type','Aggregate Table ID')   
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
+            
+            tsvname = 'Powerlog Agg Notifications'
+            tsv(report_folder, data_headers, data_list, tsvname)
         else:
             logfunc('No data available in Aggregate Notifications')
             
@@ -176,6 +185,9 @@ def get_powerlogAll(files_found, report_folder, seeker):
                 data_headers = ('Adjusted Timestamp','State','Subevent','Bundle ID','PID','Original Airdrop Timestamp','Offset Timestamp','Time Offset', 'Airdrop Table ID' )   
                 report.write_artifact_data_table(data_headers, data_list, file_found)
                 report.end_artifact_report()
+                
+                tsvname = 'Powerlog Airdrop Connections Info'
+                tsv(report_folder, data_headers, data_list, tsvname)
 
         else:
             logfunc('No data available in Airdop Connection Info')
@@ -214,6 +226,9 @@ def get_powerlogAll(files_found, report_folder, seeker):
                 data_headers = ('Timestamp','App Name','App Executable Name','Bundle ID','App Build Version','App Bundle Version','App TYpe','App Deleted Date','Table ID' )   
                 report.write_artifact_data_table(data_headers, data_list, file_found)
                 report.end_artifact_report()
+                
+                tsvname = 'Powerlog App Info'
+                tsv(report_folder, data_headers, data_list, tsvname)
 
         else:
             logfunc('No data available in Powerlog App Info')
@@ -252,6 +267,9 @@ def get_powerlogAll(files_found, report_folder, seeker):
                 data_headers = ('Timestamp','App Name','App Executable Name','Bundle ID','App Build Version','App Bundle Version','App TYpe','App Deleted Date','Table ID' )   
                 report.write_artifact_data_table(data_headers, data_list, file_found)
                 report.end_artifact_report()
+                
+                tsvname = 'Powerlog App Info'
+                tsv(report_folder, data_headers, data_list, tsvname)
 
         else:
             logfunc('No data available in Powerlog App Info')
@@ -289,9 +307,12 @@ def get_powerlogAll(files_found, report_folder, seeker):
                 data_headers = ('Timestamp','Timestamped Logged','Bundle ID','Assertion Name','Audio Route','Mirroring State','Operation','PID', 'Audio App Table ID' )   
                 report.write_artifact_data_table(data_headers, data_list, file_found)
                 report.end_artifact_report()
+                
+                tsvname = 'Powerlog Audio Routing via App'
+                tsv(report_folder, data_headers, data_list, tsvname)
 
         else:
-            logfunc('No data available in Airdop Connection Info')
+            logfunc('No data available in Audio Routing Info')
 
     if version.parse(iOSversion) >= version.parse("11"):
         cursor = db.cursor()
@@ -322,6 +343,9 @@ def get_powerlogAll(files_found, report_folder, seeker):
                 data_headers = ('Timestamp','Start','End','State','Finished','Has error','Table ID' )   
                 report.write_artifact_data_table(data_headers, data_list, file_found)
                 report.end_artifact_report()
+                
+                tsvname = 'Powerlog Backup Info'
+                tsv(report_folder, data_headers, data_list, tsvname)
 
         else:
             logfunc('No data available in Powerlog Backup Info')
@@ -398,6 +422,9 @@ def get_powerlogAll(files_found, report_folder, seeker):
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
             
+            tsvname = 'Powerlog Deleted Apps'
+            tsv(report_folder, data_headers, data_list, tsvname)
+            
         elif version.parse(iOSversion) == version.parse("10"):
             for row in all_rows:    
                 data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8]))
@@ -409,6 +436,9 @@ def get_powerlogAll(files_found, report_folder, seeker):
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
             
+            tsvname = 'Powerlog Deleted Apps'
+            tsv(report_folder, data_headers, data_list, tsvname)
+            
         elif version.parse(iOSversion) == version.parse("9"):
             for row in all_rows:    
                 data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6]))
@@ -419,6 +449,9 @@ def get_powerlogAll(files_found, report_folder, seeker):
             data_headers = ('App Deleted Date','Timestamp','App Name','Bundle ID','Table ID') 
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
+            
+            tsvname = 'Powerlog Deleted Apps'
+            tsv(report_folder, data_headers, data_list, tsvname)
     else:
         logfunc('No data available in Powerlog Deleted Apps')
 
@@ -478,6 +511,9 @@ def get_powerlogAll(files_found, report_folder, seeker):
                 data_headers = ('Adjusted Timestamp','Accesory Power Mode','Original Lightnint Connector Timestamp','Offset Timestamp','Table ID' )   
                 report.write_artifact_data_table(data_headers, data_list, file_found)
                 report.end_artifact_report()
+                
+                tsvname = 'Powerlog Lightning Connector Status'
+                tsv(report_folder, data_headers, data_list, tsvname)
 
         else:
             logfunc('No data available in Powerlog Lightning Connector Status')
@@ -550,12 +586,15 @@ def get_powerlogAll(files_found, report_folder, seeker):
                 for row in all_rows:    
                     data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11]))
 
-                report = ArtifactHtmlReport('Powerlog Location Use by APp')
+                report = ArtifactHtmlReport('Powerlog Location Use by App')
                 report.start_artifact_report(report_folder, 'Location Use by App')
                 report.add_script()
                 data_headers = ('Adjusted Timestamp','Timestamp Logged','Timestamp End','Bundle ID','Type','Location Desired Accuracy','Location Distance Filter','Client','Executable','Offset Timestamp','Time Offset', 'Client Status Table ID' )   
                 report.write_artifact_data_table(data_headers, data_list, file_found)
                 report.end_artifact_report()
+                
+                tsvname = 'Powerlog Location Use by App'
+                tsv(report_folder, data_headers, data_list, tsvname)
 
         else:
             logfunc('No data available in Location Use by App')
@@ -600,6 +639,9 @@ def get_powerlogAll(files_found, report_folder, seeker):
             data_headers = ('Timestamp','Build','Device','HW Model','Pairing ID','PairedDeviceConfig Table ID' )   
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
+            
+            tsvname = 'Powerlog Paired Device Conf'
+            tsv(report_folder, data_headers, data_list, tsvname)
         
         else:
             for row in all_rows:    data_list.append((row[0],row[1],row[2],row[3]))
@@ -610,6 +652,9 @@ def get_powerlogAll(files_found, report_folder, seeker):
             data_headers = ('Timestamp','Build','Device','PairedDeviceConfig Table ID' )  
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
+            
+            tsvname = 'Powerlog Paired Device Conf'
+            tsv(report_folder, data_headers, data_list, tsvname)
     else:
         logfunc('No data available in table')
         
@@ -682,6 +727,9 @@ def get_powerlogAll(files_found, report_folder, seeker):
             data_headers = ('Adjusted Timestamp','Adjusted End Timestamp','Bundle ID','Process Name','Cell In','Cell Out','WiFI In','WiFi Out','Original Timestamp','Offset Timestamp','Time Offset','Usage Diff Table ID')   
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
+            
+            tsvname = 'Powerlog Process Data Usage'
+            tsv(report_folder, data_headers, data_list, tsvname)
         else:
             logfunc('No data available in table')
             
@@ -756,6 +804,9 @@ def get_powerlogAll(files_found, report_folder, seeker):
             data_headers = ('Adjusted Timestamp','Bundle ID','Connection Type','Is Dropped','Link Quality','Priority','Topic','Server Hostname','Server IP','Original Timestamp','Offset Timestamp','Time Offset','Aggregate Table ID')   
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
+            
+            tsvname = 'Powerlog Push Message Received'
+            tsv(report_folder, data_headers, data_list, tsvname)
         else:
             logfunc('No data available in table')
             
@@ -824,6 +875,9 @@ def get_powerlogAll(files_found, report_folder, seeker):
             data_headers = ('Adjusted Timestamp','Timezone Name','Country Code','Locale ID','Seconds from GMT','Timezone in DTS','Trigger','Offset Timestamp','Time Offset','Timezon Table ID')   
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
+            
+            tsvname = 'Powerlog Timezones'
+            tsv(report_folder, data_headers, data_list, tsvname)
         else:
             logfunc('No data available in Powerlog Timezones')
     
@@ -885,6 +939,9 @@ def get_powerlogAll(files_found, report_folder, seeker):
             data_headers = ('Adjusted Timestamp','Bundle ID','Status','Original Torch Timestamp','Offset Timestamp','Time Offset','Torch ID')   
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
+            
+            tsvname = 'Powerlog Torch'
+            tsv(report_folder, data_headers, data_list, tsvname)
         else:
             logfunc('No data available in Powerlog Torch')
 
@@ -944,6 +1001,9 @@ def get_powerlogAll(files_found, report_folder, seeker):
             data_headers = ('Adjusted Timestamp','Client Display ID','State','Client PID','Offset Timestamp','Time Offset','Event Forward Video Table ID')   
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
+            
+            tsvname = 'Powerlog App Playing Video'
+            tsv(report_folder, data_headers, data_list, tsvname)
         else:
             logfunc('No data available in Powerlog App Playing Video')
             
@@ -974,6 +1034,9 @@ def get_powerlogAll(files_found, report_folder, seeker):
             data_headers = ('Timestamp','Volume','Muted','Event Forward Output Table ID')   
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
+            
+            tsvname = 'Powerlog Volume'
+            tsv(report_folder, data_headers, data_list, tsvname)
         else:
             logfunc('No data available in Powerlog Volume')
     
@@ -1030,5 +1093,8 @@ def get_powerlogAll(files_found, report_folder, seeker):
             data_headers = ('Adjusted Timestamp','Current SSID','Current Channel','Offset Timestamp','Time Offset','Cummilative Prop. Table ID')   
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
+            
+            tsvname = 'Powerlog Wifi Network Connections'
+            tsv(report_folder, data_headers, data_list, tsvname)
         else:
             logfunc('No data available in Powerlog WiFi Network Connections')

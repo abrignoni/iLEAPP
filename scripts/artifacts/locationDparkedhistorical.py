@@ -8,7 +8,7 @@ from packaging import version
 import scripts.artifacts.artGlobals
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
 
 
 def get_locationDparkedhistorical(files_found, report_folder, seeker):
@@ -50,6 +50,9 @@ def get_locationDparkedhistorical(files_found, report_folder, seeker):
 		data_headers = ('Date','Location Date','Coordinates','Location Uncertainty','Identifier','Latitude','Longitude','Table ID')     
 		report.write_artifact_data_table(data_headers, data_list, file_found)
 		report.end_artifact_report()
+		
+		tsvname = 'LocationD Parked Vehicle Historical'
+		tsv(report_folder, data_headers, data_list, tsvname)
 	else:
 		logfunc('No data available in table')
 

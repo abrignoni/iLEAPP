@@ -8,7 +8,7 @@ from packaging import version
 import scripts.artifacts.artGlobals
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
 
 
 def get_knowCbacklit(files_found, report_folder, seeker):
@@ -109,6 +109,9 @@ def get_knowCbacklit(files_found, report_folder, seeker):
 			data_headers = ('Start','End','Screen is Backlit','Usage in Seconds','Usage in Minutes','Hardware UUID','Day of Week','GMT Offset','Entry Creation','UUID','ZOBJECT Table ID')  
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
+			
+			tsvname = 'KnowledgeC Device is Backlit'
+			tsv(report_folder, data_headers, data_list, tsvname)
 		elif version.parse(iOSversion) == version.parse("11"):
 			for row in all_rows:    
 				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6]))
@@ -119,6 +122,9 @@ def get_knowCbacklit(files_found, report_folder, seeker):
 			data_headers = ('Screen is Backlit','Usage in Seconds','Usage in Minutes','Day of Week','GMT Offset','Start','End','Entry Creation','UUID','ZOBJECT Table ID' ) 
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
+			
+			tsvname = 'KnowledgeC Device is Backlit'
+			tsv(report_folder, data_headers, data_list, tsvname)
 	else:
 		logfunc('No data available in table')
 

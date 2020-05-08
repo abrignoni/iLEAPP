@@ -6,7 +6,7 @@ import sqlite3
 import json
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
 
     
 def get_knowCact(files_found, report_folder, seeker):
@@ -57,3 +57,6 @@ def get_knowCact(files_found, report_folder, seeker):
 	data_headers = ('Entry Creation','Day of the Week','Start','End','ZSTREAMNAME', 'ZVALUESTRING', 'Activity Type', 'Title', 'Expiration Date', 'Content URL', 'Calendar Date', 'Calendar End Date' )     
 	report.write_artifact_data_table(data_headers, data_list, file_found)
 	report.end_artifact_report()
+	
+	tsvname = 'KnowledgeC App Activity'
+	tsv(report_folder, data_headers, data_list, tsvname)

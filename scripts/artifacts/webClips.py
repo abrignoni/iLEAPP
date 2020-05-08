@@ -3,7 +3,7 @@ import plistlib
 import base64
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, is_platform_windows 
+from scripts.ilapfuncs import logfunc, logdevinfo, tsv, is_platform_windows 
 
 
 def get_webClips(files_found, report_folder, seeker):

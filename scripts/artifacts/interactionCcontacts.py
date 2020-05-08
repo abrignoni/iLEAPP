@@ -7,7 +7,7 @@ import scripts.artifacts.artGlobals #use to get iOS version -> iOSversion = scri
 from packaging import version #use to search per version number
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
 from scripts.ccl import ccl_bplist
 
 def get_interactionCcontacts(files_found, report_folder, seeker):
@@ -119,6 +119,9 @@ def get_interactionCcontacts(files_found, report_folder, seeker):
             data_headers = ('Start Date','End Date','Bundle ID','Display Name','Identifier','Person ID','Direction','Is Response','Mechanism','Recipient Count','Zinteractions Creation Date','Zcontacs Creation Date','First Incoming Recipient Date', 'First Incoming Sender Date','First Outgoing Recipient Date','Last Incoming Sender Date','Last Incoming Recipient Date','Last Outgoing Recipient Date','Account','Domain Identifier','Incoming Recipient Count','Incoming Sender Count','Outgoing Recepient Count','Custom Identifier','Content URL','Location UUID','Zinteractions Table ID' )   
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
+            
+            tsvname = 'InteractionC Contacts'
+            tsv(report_folder, data_headers, data_list, tsvname)
         else:
             for row in all_rows:    data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12],row[13],row[14],row[15],row[16],row[17],row[18],row[19],row[20],row[21],row[22],row[23],row[24]))
             
@@ -128,6 +131,9 @@ def get_interactionCcontacts(files_found, report_folder, seeker):
             data_headers = ('Start Date','End Date','Zinteractions Creation Date','Bundle ID','Display Name','Identifier','Person ID','Direction','Is Response','Mechanism','Zcontacs Creation Date','First Incoming Recipient Date', 'First Incoming Sender Date','First Outgoing Recipient Date','Last Incoming Sender Date','Last Incoming Recipient Date','Last Outgoing Recipient Date','Account','Domain Identifier','Incoming Recipient Count','Incoming Sender Count','Outgoing Recipient Count','Content URL','Location UUID','Zinteractions Table ID' )  
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
+            
+            tsvname = 'InteractionC Contacts'
+            tsv(report_folder, data_headers, data_list, tsvname)
     else:
         logfunc('No data available in table')
 

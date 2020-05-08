@@ -9,7 +9,7 @@ import scripts.artifacts.artGlobals
  
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
 from scripts.ccl import ccl_bplist
 from scripts.parse3 import ParseProto
 
@@ -77,6 +77,9 @@ def get_healthAll(files_found, report_folder, seeker):
             data_headers = ('Start Date','End Date','Strides per Min.','Workout Type','Duration in Mins.','Calories Burned','Distance in KM','Distance in Miles','Total Base Energy','Goal Type','Goal','Flights Climbed','Steps' )   
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
+            
+            tsvname = 'Health Workout Cadence'
+            tsv(report_folder, data_headers, data_list, tsvname)
         else:
             logfunc('No data available in Workout Cadence')
             
@@ -120,6 +123,9 @@ def get_healthAll(files_found, report_folder, seeker):
             data_headers = ('Start Date','End Date','Distance in Meters','Distance in Feet','Time in Seconds','Samples Table ID' )     
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
+            
+            tsvname = 'Health Distance'
+            tsv(report_folder, data_headers, data_list, tsvname)
     
     if version.parse(iOSversion) >= version.parse("12"):
         cursor = db.cursor()
@@ -162,6 +168,9 @@ def get_healthAll(files_found, report_folder, seeker):
             data_headers = ('Start Date','End Date','ECG Avg. Heart Rate','Time in Seconds' )     
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
+            
+            tsvname = 'Health ECG Avg Heart Rate'
+            tsv(report_folder, data_headers, data_list, tsvname)
 
     if version.parse(iOSversion) >= version.parse("12"):    
         cursor = db.cursor()
@@ -222,6 +231,10 @@ def get_healthAll(files_found, report_folder, seeker):
             data_headers = ('Start Date','End Date','Elevation in Meters','Elevation in Feet','Workout Type','Duration in Min.','Calories Burned','Distance in KM','Distance in Miles','Total Base Energy Burned','Goal Type','Goal','Flights Climbed','Steps' )   
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
+            
+            tsvname = 'Health Workout Indoor Elevation'
+            tsv(report_folder, data_headers, data_list, tsvname)
+            
         else:
             logfunc('No data available in Workout Indoor Elevation')
             
@@ -260,7 +273,10 @@ def get_healthAll(files_found, report_folder, seeker):
         report.add_script()
         data_headers = ('Start Date','End Date','Flights Climbed','Time in Seconds','Samples Table ID' )     
         report.write_artifact_data_table(data_headers, data_list, file_found)
-        report.end_artifact_report()  
+        report.end_artifact_report()
+        
+        tsvname = 'Health Flights Climbed'
+        tsv(report_folder, data_headers, data_list, tsvname)
 
     if version.parse(iOSversion) >= version.parse("9"):
         cursor = db.cursor()
@@ -302,6 +318,9 @@ def get_healthAll(files_found, report_folder, seeker):
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
             
+            tsvname = 'Health Heart Rate'
+            tsv(report_folder, data_headers, data_list, tsvname)
+            
     if version.parse(iOSversion) >= version.parse("9"):
         cursor = db.cursor()
         cursor.execute('''
@@ -333,6 +352,9 @@ def get_healthAll(files_found, report_folder, seeker):
             data_headers = ('Start Date','End Date','Stood Up','TIme in Seconds','Table ID' )   
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
+            
+            tsvname = 'Health Stood Up'
+            tsv(report_folder, data_headers, data_list, tsvname)
         else:
             logfunc('No data available in Stood Up')
 
@@ -367,6 +389,9 @@ def get_healthAll(files_found, report_folder, seeker):
             data_headers = ('Start Date','End Date','Steps','Time in Seconds','Samples Table ID' )   
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
+            
+            tsvname = 'Health Steps'
+            tsv(report_folder, data_headers, data_list, tsvname)
         else:
             logfunc('No data available in Steps')
 
@@ -399,6 +424,9 @@ def get_healthAll(files_found, report_folder, seeker):
             data_headers = ('Date','Weight in KG','Weight in LBS','Samples Table ID' )   
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
+            
+            tsvname = 'Health Weight'
+            tsv(report_folder, data_headers, data_list, tsvname)
         else:
             logfunc('No data available in Weight')
 
@@ -460,5 +488,8 @@ def get_healthAll(files_found, report_folder, seeker):
             data_headers = ('Start Date','End Date','Workout Type','Duration in Min.','Calories Burned','Distance in KM','Distance in Miles','Total Base Energy Burned','Goal Type','Goal','Flights Climbed','Steps' )   
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
+            
+            tsvname = 'Health Workout General'
+            tsv(report_folder, data_headers, data_list, tsvname)
         else:
             logfunc('No data available in Workout General')

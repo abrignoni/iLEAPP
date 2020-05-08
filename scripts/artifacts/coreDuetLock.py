@@ -6,7 +6,7 @@ import sqlite3
 import json
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
 
 
 def get_coreDuetLock(files_found, report_folder, seeker):
@@ -43,6 +43,9 @@ def get_coreDuetLock(files_found, report_folder, seeker):
 		data_headers = ('Create Time','Local Device Time','Time Zone','Lock State' )     
 		report.write_artifact_data_table(data_headers, data_list, file_found)
 		report.end_artifact_report()
+		
+		tsvname = 'CoreDuet Lock State'
+		tsv(report_folder, data_headers, data_list, tsvname)
 	else:
 		logfunc('No data available in table')
 	

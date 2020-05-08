@@ -3,7 +3,7 @@ import plistlib
 import sqlite3
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, is_platform_windows 
+from scripts.ilapfuncs import logfunc, logdevinfo, tsv, is_platform_windows 
 
 def get_dataArk(files_found, report_folder, seeker):
     data_list = []
@@ -28,4 +28,7 @@ def get_dataArk(files_found, report_folder, seeker):
     data_headers = ('Key','Values' )     
     report.write_artifact_data_table(data_headers, data_list, file_found)
     report.end_artifact_report()
+    
+    tsvname = 'Data Ark'
+    tsv(report_folder, data_headers, data_list, tsvname)
             

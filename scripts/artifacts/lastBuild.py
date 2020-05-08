@@ -4,7 +4,7 @@ import sqlite3
 import scripts.artifacts.artGlobals 
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, is_platform_windows 
+from scripts.ilapfuncs import logfunc, logdevinfo, tsv, is_platform_windows 
 
 def get_lastBuild(files_found, report_folder, seeker):
     versionnum = 0
@@ -34,4 +34,7 @@ def get_lastBuild(files_found, report_folder, seeker):
     data_headers = ('Key','Values' )     
     report.write_artifact_data_table(data_headers, data_list, file_found)
     report.end_artifact_report()
+    
+    tsvname = 'Last Build'
+    tsv(report_folder, data_headers, data_list, tsvname)
             

@@ -5,7 +5,7 @@ import plistlib
 import sqlite3
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
 from scripts.ccl import ccl_bplist
 
 def get_dataUsageB(files_found, report_folder, seeker):
@@ -41,6 +41,9 @@ def get_dataUsageB(files_found, report_folder, seeker):
         data_headers = ('Process Timestamp','Process First Timestamp','Live Usage Timestamp','Bundle ID','Process Name','WIFI In','WIFI Out','WWAN IN','WWAN Out','Table ID' )   
         report.write_artifact_data_table(data_headers, data_list, file_found)
         report.end_artifact_report()
+        
+        tsvname = 'Data Usage'
+        tsv(report_folder, data_headers, data_list, tsvname)
     else:
         logfunc('No Data Usage available')
 

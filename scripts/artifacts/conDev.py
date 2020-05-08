@@ -5,7 +5,7 @@ import plistlib
 import sqlite3
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
 from scripts.ccl import ccl_bplist
 
 def get_conDev(files_found, report_folder, seeker):
@@ -54,6 +54,9 @@ def get_conDev(files_found, report_folder, seeker):
     data_headers = ('User & Computer Names', )     
     report.write_artifact_data_table(data_headers, data_list, file_found)
     report.end_artifact_report()
+    
+    tsvname = 'Connected Devices'
+    tsv(report_folder, data_headers, data_list, tsvname)
     
     return      
     

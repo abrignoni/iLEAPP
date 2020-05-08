@@ -6,7 +6,7 @@ import sqlite3
 import json
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
 
 
 def get_knowCsiri(files_found, report_folder, seeker):
@@ -58,4 +58,7 @@ def get_knowCsiri(files_found, report_folder, seeker):
 	data_headers = ('App Name','Weekday','GMT Offset','Start','Entry Creation','UUID','ZOBJECT Table ID' )     
 	report.write_artifact_data_table(data_headers, data_list, file_found)
 	report.end_artifact_report()
+	
+	tsvname = 'KnowledgeC Siri'
+	tsv(report_folder, data_headers, data_list, tsvname)
 	

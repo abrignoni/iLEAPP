@@ -7,7 +7,7 @@ import scripts.artifacts.artGlobals #use to get iOS version -> iOSversion = scri
 from packaging import version #use to search per version number
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
 from scripts.ccl import ccl_bplist
 
 def get_powerlogAppinfo(files_found, report_folder, seeker):
@@ -49,6 +49,9 @@ def get_powerlogAppinfo(files_found, report_folder, seeker):
                 data_headers = ('Timestamp','App Name','App Executable Name','Bundle ID','App Build Version','App Bundle Version','App TYpe','App Deleted Date','Table ID' )   
                 report.write_artifact_data_table(data_headers, data_list, file_found)
                 report.end_artifact_report()
+                
+                tsvname = 'Powerlog App Info'
+                tsv(report_folder, data_headers, data_list, tsvname)
 
         else:
             logfunc('No data available in Powerlog App Info')
