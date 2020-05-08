@@ -97,6 +97,7 @@ from scripts.artifacts.knowCwidget import get_knowCwidget
 from scripts.artifacts.locationDparkedhistorical import get_locationDparkedhistorical
 from scripts.artifacts.locationDparked import get_locationDparked
 from scripts.artifacts.knowCall import get_knowCall
+from scripts.artifacts.mailprotect import get_mailprotect
 
 from scripts.ilapfuncs import *
 
@@ -140,13 +141,14 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'knowCall':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
             'powerlogAll':('Powerlog', '**/CurrentPowerlog.PLSQL'),
             'healthAll':('Health Data', '**/healthdb_secure.sqlite'),
+            'mailprotect':('iOS Mail', '**private/var/mobile/Library/Mail/* Index*'),
             'locationDparkedhistorical':('LocationD', '**/Local.sqlite'),
             'locationDparked':('LocationD', '**/Local.sqlite')
             }
 
 '''
 tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
-            'locationDparked':('LocationD', '**/Local.sqlite')
+            'mailprotect':('iOS Mail', '**private/var/mobile/Library/Mail/* Index*')
             }
 
 
