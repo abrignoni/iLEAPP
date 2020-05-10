@@ -98,6 +98,12 @@ from scripts.artifacts.locationDparkedhistorical import get_locationDparkedhisto
 from scripts.artifacts.locationDparked import get_locationDparked
 from scripts.artifacts.knowCall import get_knowCall
 from scripts.artifacts.mailprotect import get_mailprotect
+from scripts.artifacts.screentimeGenerichour import get_screentimeGenerichour
+from scripts.artifacts.screentimeTimeditems import get_screentimeTimeditems
+from scripts.artifacts.screentimeCounteditems import get_screentimeCounteditems
+from scripts.artifacts.screentimeAll import get_screentimeAll
+from scripts.artifacts.bluetoothPaired import get_bluetoothPaired
+from scripts.artifacts.bluetoothOther import get_bluetoothOther
 
 from scripts.ilapfuncs import *
 
@@ -138,14 +144,19 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'knowCall':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
             'powerlogAll':('Powerlog', '**/CurrentPowerlog.PLSQL'),
             'healthAll':('Health Data', '**/healthdb_secure.sqlite'),
+            'screentimeAll':('Screentime', '**/RMAdminStore-Local.sqlite'),
             'mailprotect':('iOS Mail', '**private/var/mobile/Library/Mail/* Index*'),
             'locationDparkedhistorical':('LocationD', '**/Local.sqlite'),
-            'locationDparked':('LocationD', '**/Local.sqlite')
+            'locationDparked':('LocationD', '**/Local.sqlite'),
+            'bluetoothPaired':('Bluetooth', '**/Library/Database/com.apple.MobileBluetooth.ledevices.paired.db'),
+            'bluetoothOther':('Bluetooth', '**/Library/Database/com.apple.MobileBluetooth.ledevices.other.db')
+            
             }
-
 '''
-tosearch = {'sms':('SMS & iMessage', '**/sms.db')
+tosearch = {'bluetoothPaired':('Bluetooth', '**/Library/Database/com.apple.MobileBluetooth.ledevices.paired.db'),
+            'bluetoothOther':('Bluetooth', '**/Library/Database/com.apple.MobileBluetooth.ledevices.other.db')
             }
+#'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
 
 
 # Individual artifacts. Slow parsing when extracting the same data multiple times for each artifact.
@@ -232,7 +243,10 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
     'celWireless':('Cellular Wireless', '*wireless/Library/Preferences/com.apple.*'),
     'mailprotect':('iOS Mail', '**private/var/mobile/Library/Mail/* Index*'),
     'locationDparkedhistorical':('LocationD', '**/Local.sqlite'),
-    'locationDparked':('LocationD', '**/Local.sqlite')
+    'locationDparked':('LocationD', '**/Local.sqlite'),
+    'screentimeGenerichour':('Screentime', '**/RMAdminStore-Local.sqlite'),
+    'screentimeTimeditems':('Screentime', '**/RMAdminStore-Local.sqlite'),
+    'screentimeCounteditems':('Screentime', '**/RMAdminStore-Local.sqlite')
     }
     
 #    Artifacts take long to run. Useful in specific situations only.
