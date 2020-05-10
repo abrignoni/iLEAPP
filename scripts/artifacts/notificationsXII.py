@@ -66,6 +66,8 @@ def get_notificationsXII(files_found, report_folder, seeker):
                     for k, v in item.items():
                         if k == 'AppNotificationCreationDate': creation_date = str(v)
                         elif k == 'AppNotificationMessage': message = v
+                        elif k == 'AppNotificationTitle': title = v
+                        elif k == 'AppNotificationSubtitle': subtitle = v
                         else:
                             if isinstance(v, bytes):
                                 logfunc(f'Found binary data, look into this one later k={k}!')
