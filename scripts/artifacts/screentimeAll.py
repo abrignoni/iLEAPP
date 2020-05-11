@@ -315,7 +315,7 @@ def get_screentimeAll(files_found, report_folder, seeker):
 			report = ArtifactHtmlReport('Screentime Generic by Hour')
 			report.start_artifact_report(report_folder, 'Generic by Hour')
 			report.add_script()
-			data_headers = ('Hour','Screentime in Seconds','Screentime in Minutes','Given Name', 'Family Name','Name','Platform','Device ID','Local User Device State','Longest Session Start','Longest Session End','Last Event Data','Longest Session Time in Seconds','Longest Session Time in Minutes','Family Member Type','Apple ID','DSID','Alt DSID')  
+			data_headers = ('Hour','Screentime in Seconds','Screentime in Minutes','Given Name', 'Family Name','Name','Platform','Device ID','Local User Device State','Longest Session Start','Longest Session End','Last Event Date','Longest Session Time in Seconds','Longest Session Time in Minutes','Family Member Type','Apple ID','DSID','Alt DSID')  
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
@@ -323,12 +323,12 @@ def get_screentimeAll(files_found, report_folder, seeker):
 			tsv(report_folder, data_headers, data_list, tsvname)
 		else:
 			for row in all_rows: 
-				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12],row[13],row[14],row[15],row[16]))
+				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12],row[13],row[14],row[15]))
 					
 			report = ArtifactHtmlReport('Screentime Generic by Hour')
 			report.start_artifact_report(report_folder, 'Generic Hour')
 			report.add_script()
-			data_headers = ('Hour','Screentime in Seconds','Screentime in Minutes','Given Name', 'Family Name','Name','Device ID','Local User Device State','Longest Session Start','Longest Session End','Last Event Data','Longest Session Time in Seconds','Longest Session Time in Minutes','Family Member Type','Apple ID','DSID','Alt DSID')  
+			data_headers = ('Hour','Screentime in Seconds','Screentime in Minutes','Given Name', 'Family Name','Name','Device ID','Local User Device State','Longest Session Start','Longest Session End','Last Event Date','Longest Session Time in Seconds','Longest Session Time in Minutes','Family Member Type','Apple ID','DSID')  
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			

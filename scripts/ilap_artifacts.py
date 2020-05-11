@@ -122,7 +122,7 @@ from scripts.ilapfuncs import *
 # For example: If modulename='profit', function name must be get_profit(..)
 # Don't forget to import the module above!!!!
 
-
+'''
 tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'dataArk':('IOS Build', '**/Library/Lockdown/data_ark.plist'),
             'applicationstate':('Installed Apps', '**/applicationState.db'),
@@ -161,6 +161,11 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'bluetoothOther':('Bluetooth', '**/Library/Database/com.apple.MobileBluetooth.ledevices.other.db'),
             'calendarAll':('Calendar', '**/Calendar.sqlitedb'),
             'photosMetadata':('Photos', '**/Photos.sqlite')
+            }
+
+'''
+tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
+            'screentimeAll':('Screentime', '**/RMAdminStore-Local.sqlite')
             }
 
 '''
@@ -270,8 +275,6 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
 #    'journalStrings':('SQLite Journaling', '**/*-journal')
 #    'walStrings':('SQLite Journaling - Strings', '**/*-wal')
 '''
-
-# takes a long time to run... Maybe a check mark to make it run?
 
 slash = '\\' if is_platform_windows() else '/'
 
