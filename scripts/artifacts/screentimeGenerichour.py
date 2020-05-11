@@ -110,7 +110,7 @@ def get_screentimeGenerichour(files_found, report_folder, seeker):
 			report = ArtifactHtmlReport('Screentime Generic by Hour')
 			report.start_artifact_report(report_folder, 'Generic Hour')
 			report.add_script()
-			data_headers = ('Hour','Screentime in Seconds','Screentime in Minutes','Given Name', 'Family Name','Name','Device ID','Local User Device State','Longest Session Start','Longest Session End','Last Event Data','Longest Session Time in Seconds','Longest Session Time in Minutes','Family Member Type','Apple ID','DSID','Alt DSID')  
+			data_headers = ('Hour','Screentime in Seconds','Screentime in Minutes','Given Name', 'Family Name','Name','Device ID','Local User Device State','Longest Session Start','Longest Session End','Last Event Data','Longest Session Time in Seconds','Longest Session Time in Minutes','Family Member Type','Apple ID','DSID')  
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
