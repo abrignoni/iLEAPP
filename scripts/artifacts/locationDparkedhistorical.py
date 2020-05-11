@@ -14,7 +14,7 @@ from scripts.ilapfuncs import logfunc, tsv, is_platform_windows
 def get_locationDparkedhistorical(files_found, report_folder, seeker):
 	iOSversion = scripts.artifacts.artGlobals.versionf
 	if version.parse(iOSversion) < version.parse("11"):
-		logfunc("Unsupported version for LocationD Parked Historical " + iOSversion)
+		logfunc("Unsupported version for RoutineD Parked Historical " + iOSversion)
 		return ()
 
 	file_found = str(files_found[0])
@@ -44,17 +44,17 @@ def get_locationDparkedhistorical(files_found, report_folder, seeker):
 			data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]))
 
 		description = ''
-		report = ArtifactHtmlReport('LocationD Parked Vehicle Historical')
+		report = ArtifactHtmlReport('RoutineD Parked Vehicle Historical')
 		report.start_artifact_report(report_folder, 'Parked Vehicle Historical', description)
 		report.add_script()
 		data_headers = ('Date','Location Date','Coordinates','Location Uncertainty','Identifier','Latitude','Longitude','Table ID')     
 		report.write_artifact_data_table(data_headers, data_list, file_found)
 		report.end_artifact_report()
 		
-		tsvname = 'LocationD Parked Vehicle Historical'
+		tsvname = 'RoutineD Parked Vehicle Historical'
 		tsv(report_folder, data_headers, data_list, tsvname)
 	else:
-		logfunc('No data available in table')
+		logfunc('No data available in Routine Parked Vehicle Historical')
 
 	db.close()
 	return      

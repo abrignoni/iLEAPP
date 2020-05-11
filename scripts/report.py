@@ -71,6 +71,9 @@ def get_icon_name(category, artifact):
     elif category == 'IOS MAIL':     icon = 'mail'
     elif category == 'SCREENTIME':     icon = 'monitor'
     elif category == 'BLUETOOTH':     icon = 'bluetooth'
+    elif category == 'ROUTINED':     icon = 'map'
+    elif category == 'CALENDAR':     icon = 'calendar'
+    elif category == 'PHOTOS':     icon = 'image'
     elif category == 'INTERACTIONC':
          if artifact == 'CONTACTS':  icon = 'user'   
     elif category == 'KNOWLEDGEC':     

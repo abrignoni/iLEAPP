@@ -104,6 +104,15 @@ from scripts.artifacts.screentimeCounteditems import get_screentimeCounteditems
 from scripts.artifacts.screentimeAll import get_screentimeAll
 from scripts.artifacts.bluetoothPaired import get_bluetoothPaired
 from scripts.artifacts.bluetoothOther import get_bluetoothOther
+from scripts.artifacts.locationDcellloc import get_locationDcellloc
+from scripts.artifacts.locationDappharvest import get_locationDappharvest
+from scripts.artifacts.locationDcdmaloc1 import get_locationDcdmaloc1
+from scripts.artifacts.locationDwifilocB import get_locationDwifilocB
+from scripts.artifacts.locationDlteloc import get_locationDlteloc
+from scripts.artifacts.locationDsteps import get_locationDsteps
+from scripts.artifacts.locationDallB import get_locationDallB
+from scripts.artifacts.calendarAll import get_calendarAll
+from scripts.artifacts.photosMetadata import get_photosMetadata
 
 from scripts.ilapfuncs import *
 
@@ -112,7 +121,6 @@ from scripts.ilapfuncs import *
 # Here modulename must match the get_xxxxxx function name for that module. 
 # For example: If modulename='profit', function name must be get_profit(..)
 # Don't forget to import the module above!!!!
-
 
 
 tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
@@ -144,21 +152,18 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'knowCall':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
             'powerlogAll':('Powerlog', '**/CurrentPowerlog.PLSQL'),
             'healthAll':('Health Data', '**/healthdb_secure.sqlite'),
+            'locationDallB':('LocationD', '**/cache_encryptedB.db'),
             'screentimeAll':('Screentime', '**/RMAdminStore-Local.sqlite'),
             'mailprotect':('iOS Mail', '**private/var/mobile/Library/Mail/* Index*'),
-            'locationDparkedhistorical':('LocationD', '**/Local.sqlite'),
-            'locationDparked':('LocationD', '**/Local.sqlite'),
+            'locationDparkedhistorical':('RoutineD', '**/Local.sqlite'),
+            'locationDparked':('RoutineD', '**/Local.sqlite'),
             'bluetoothPaired':('Bluetooth', '**/Library/Database/com.apple.MobileBluetooth.ledevices.paired.db'),
-            'bluetoothOther':('Bluetooth', '**/Library/Database/com.apple.MobileBluetooth.ledevices.other.db')
-            
+            'bluetoothOther':('Bluetooth', '**/Library/Database/com.apple.MobileBluetooth.ledevices.other.db'),
+            'calendarAll':('Calendar', '**/Calendar.sqlitedb'),
+            'photosMetadata':('Photos', '**/Photos.sqlite')
             }
+
 '''
-tosearch = {'bluetoothPaired':('Bluetooth', '**/Library/Database/com.apple.MobileBluetooth.ledevices.paired.db'),
-            'bluetoothOther':('Bluetooth', '**/Library/Database/com.apple.MobileBluetooth.ledevices.other.db')
-            }
-#'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
-
-
 # Individual artifacts. Slow parsing when extracting the same data multiple times for each artifact.
 tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
     'knowCincept':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
@@ -242,11 +247,21 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
     'notificationsXII':('Notifications', '*private/var/mobile/Library/UserNotifications*'),
     'celWireless':('Cellular Wireless', '*wireless/Library/Preferences/com.apple.*'),
     'mailprotect':('iOS Mail', '**private/var/mobile/Library/Mail/* Index*'),
-    'locationDparkedhistorical':('LocationD', '**/Local.sqlite'),
-    'locationDparked':('LocationD', '**/Local.sqlite'),
+    'locationDparkedhistorical':('RoutineD', '**/Local.sqlite'),
+    'locationDparked':('RoutineD', '**/Local.sqlite'),
     'screentimeGenerichour':('Screentime', '**/RMAdminStore-Local.sqlite'),
     'screentimeTimeditems':('Screentime', '**/RMAdminStore-Local.sqlite'),
-    'screentimeCounteditems':('Screentime', '**/RMAdminStore-Local.sqlite')
+    'screentimeCounteditems':('Screentime', '**/RMAdminStore-Local.sqlite'),
+    'bluetoothPaired':('Bluetooth', '**/Library/Database/com.apple.MobileBluetooth.ledevices.paired.db'),
+    'bluetoothOther':('Bluetooth', '**/Library/Database/com.apple.MobileBluetooth.ledevices.other.db'),
+    'locationDcellloc':('LocationD', '**/cache_encryptedB.db'),
+    'locationDappharvest':('LocationD', '**/cache_encryptedB.db'),
+    'locationDwifilocB':('LocationD', '**/cache_encryptedB.db'),
+    'locationDlteloc':('LocationD', '**/cache_encryptedB.db'),
+    'locationDsteps':('LocationD', '**/cache_encryptedC.db'),
+    'locationDcdmaloc1':('LocationD', '**/cache_encryptedB.db'),
+    'calendarAll':('Calendar', '**/Calendar.sqlitedb'),
+    'photosMetadata':('Photos', '**/Photos.sqlite')
     }
     
 #    Artifacts take long to run. Useful in specific situations only.

@@ -26,6 +26,7 @@ def get_bluetoothOther(files_found, report_folder, seeker):
 	Uuid
 	FROM
 	OtherDevices
+	order by Name desc
 	""")
 
 	all_rows = cursor.fetchall()

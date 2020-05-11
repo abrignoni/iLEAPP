@@ -65,29 +65,29 @@ def get_locationDparked(files_found, report_folder, seeker):
             
             for row in all_rows:    data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12],row[13]))
 
-            report = ArtifactHtmlReport('LocationD Vehicle Location')
+            report = ArtifactHtmlReport('RoutineD Vehicle Location')
             report.start_artifact_report(report_folder, 'Vehicle Location')
             report.add_script()
             data_headers = ('Date','Location Date','Coordinates','Vehicle Identifier', 'Location Identifier', 'Identifier','Location Quality','User Set Location','Usual Location','Notes','Photo Data','Latitude','Longitude','Table ID')  
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
             
-            tsvname = 'LocationD Vehicle Location'
+            tsvname = 'RoutineD Vehicle Location'
             tsv(report_folder, data_headers, data_list, tsvname)
         else:
             for row in all_rows:    data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12],row[13]))
             
-            report = ArtifactHtmlReport('LocationD Vehicle Location')
+            report = ArtifactHtmlReport('RoutineD Vehicle Location')
             report.start_artifact_report(report_folder, 'Vehicle Location')
             report.add_script()
             data_headers = ('Date','Location Date','Coordinates','Vehicle Identifier', 'Location Identifier', 'Identifier','Location Quality','User Set Location','Usual Location','Notes','Geo Map Item','Latitude','Longitude','Table ID')  
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
             
-            tsvname = 'LocationD Vehicle Location'
+            tsvname = 'RoutineD Vehicle Location'
             tsv(report_folder, data_headers, data_list, tsvname)
     else:
-        logfunc('No data available in table')
+        logfunc('No data available in RoutineD Vehicle Location')
 
     db.close()
     return      
