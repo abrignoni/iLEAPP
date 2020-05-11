@@ -35,7 +35,7 @@ pip install -r requirements.txt
 ### CLI
 
 ```
-$ python ileapp.py -i <path_to_extraction> -o <path_for_report_output>
+$ python ileapp.py -t <zip | tar | fs> -i <path_to_extraction> -o <path_for_report_output>
 ```
 
 ### GUI
