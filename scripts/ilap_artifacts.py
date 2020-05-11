@@ -122,7 +122,7 @@ from scripts.ilapfuncs import *
 # For example: If modulename='profit', function name must be get_profit(..)
 # Don't forget to import the module above!!!!
 
-'''
+
 tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'dataArk':('IOS Build', '**/Library/Lockdown/data_ark.plist'),
             'applicationstate':('Installed Apps', '**/applicationState.db'),
@@ -168,7 +168,7 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'screentimeAll':('Screentime', '**/RMAdminStore-Local.sqlite')
             }
 
-'''
+
 # Individual artifacts. Slow parsing when extracting the same data multiple times for each artifact.
 tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
     'knowCincept':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
