@@ -14,7 +14,7 @@ aleapp_contributors = [
     [ 'Mike Williamson', 'https://forensicmike1.com', '@forensicmike1', 'https://github.com/forensicmike'],
     [ 'Geraldine Blay', 'https://gforce4n6.blogspot.com', '@i_am_the_gia', ''],
     [ 'Christopher Vance', 'https://blog.d204n6.com', '@cScottVance', ''],
-    [ 'Brooke', '', '@xbrookego', ''],
+    [ 'Brooke Gottlieb', '', '@xbrookego', ''],
     [ 'Jack Farley', 'http://farleyforensics.com', '@JackFarley248', ''],
     [ 'Shafik Punja', '', '@qubytelogic', ''],
     [ 'Cheeky4N6Monkey', 'https://cheeky4n6monkey.blogspot.com', '@Cheeky4n6Monkey', 'https://github.com/cheeky4n6monkey'],
