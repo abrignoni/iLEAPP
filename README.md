@@ -30,6 +30,10 @@ To install dependencies, run:
 pip install -r requirements.txt
 ```
 
+To run on **Linux**, you will also need to install `tkinter` separately like so:
+
+`sudo apt-get install python3-tk`
+
 ## Usage
 
 ### CLI
