@@ -6,6 +6,7 @@ aleapp_version = '1.2'
 aleapp_contributors = [
     [ 'Alexis Brignoni', 'https://abrignoni.com', '@AlexisBrignoni', 'https://github.com/abrignoni'],
     [ 'Yogesh Khatri', 'https://swiftforensics.com', '@SwiftForensics', 'https://github.com/ydkhatri'],
+    [ 'Agam Dua', 'https://loopback.dev', '@loopbackdev', 'https://github.com/agamdua'],
     [ 'Sarah Edwards', 'https://www.mac4n6.com', '@iamevltwin', 'https://github.com/mac4n6'],
     [ 'Heather Mahalik', 'https://smarterforensics.com', '@HeatherMahalik', ''],
     [ 'Jessica Hyde', 'https://twitter.com/B1N2H3X', '@B1N2H3X', ''],
