@@ -78,18 +78,21 @@ def get_knowClocation(files_found, report_folder, seeker):
 
 	all_rows = cursor.fetchall()
 	usageentries = len(all_rows)
-	data_list = []    
-	for row in all_rows:
-		data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18], row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27], row[28], row[29], row[30]))
+	if usageentries > 0:
+		data_list = []    
+		for row in all_rows:
+			data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18], row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27], row[28], row[29], row[30]))
 
-	description = ''
-	report = ArtifactHtmlReport('KnowledgeC Location Activity')
-	report.start_artifact_report(report_folder, 'Location Activity', description)
-	report.add_script()
-	data_headers = ('Start','End','Bundle ID','Coordinates','Name','Display Name','Formatted Address', 'City','State/Province','Country','Postal Code','Subthoroughfare','Thoroughfare','Phone Numebers','URL','Activity Type', 'Content Description','User Activity Required String','Content URL','Unique ID','Latitude','Logitude','Source ID','Activity UUID','Item ID','Source ID','Day of the Week','GMT Offset','Entry Creation','UUID','Zonject Table ID')     
-	report.write_artifact_data_table(data_headers, data_list, file_found)
-	report.end_artifact_report()
-	
-	tsvname = 'KnowledgeC Location Activity'
-	tsv(report_folder, data_headers, data_list, tsvname)
+		description = ''
+		report = ArtifactHtmlReport('KnowledgeC Location Activity')
+		report.start_artifact_report(report_folder, 'Location Activity', description)
+		report.add_script()
+		data_headers = ('Start','End','Bundle ID','Coordinates','Name','Display Name','Formatted Address', 'City','State/Province','Country','Postal Code','Subthoroughfare','Thoroughfare','Phone Numebers','URL','Activity Type', 'Content Description','User Activity Required String','Content URL','Unique ID','Latitude','Logitude','Source ID','Activity UUID','Item ID','Source ID','Day of the Week','GMT Offset','Entry Creation','UUID','Zonject Table ID')     
+		report.write_artifact_data_table(data_headers, data_list, file_found)
+		report.end_artifact_report()
+		
+		tsvname = 'KnowledgeC Location Activity'
+		tsv(report_folder, data_headers, data_list, tsvname)
+	else:
+		logfunc('No data available for KnowledgeC Location Activity')
 	
