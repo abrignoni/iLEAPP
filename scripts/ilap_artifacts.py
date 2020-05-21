@@ -124,7 +124,7 @@ from scripts.ilapfuncs import *
 # For example: If modulename='profit', function name must be get_profit(..)
 # Don't forget to import the module above!!!!
 
-'''
+
 tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'aggDictpasscode':('Aggregate Dictionary', '*/AggregateDictionary/ADDataStore.sqlitedb'),
             'aggDictpasscodetype':('Aggregate Dictionary', '*/AggregateDictionary/ADDataStore.sqlitedb'),
@@ -171,7 +171,7 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
 tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'knowCinstall':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db')
             }
-'''
+
 # Individual artifacts. Slow parsing when extracting the same data multiple times for each artifact.
 tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
     'aggDictpasscode':('Aggregate Dictionary', '*/AggregateDictionary/ADDataStore.sqlitedb'),
