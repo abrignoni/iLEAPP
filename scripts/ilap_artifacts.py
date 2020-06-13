@@ -115,6 +115,7 @@ from scripts.artifacts.calendarAll import get_calendarAll
 from scripts.artifacts.photosMetadata import get_photosMetadata
 from scripts.artifacts.aggDictpasscode import get_aggDictpasscode
 from scripts.artifacts.aggDictpasscodetype import get_aggDictpasscodetype
+from scripts.artifacts.ooklaSpeedtest import get_ooklaSpeedtest
 
 from scripts.ilapfuncs import *
 
@@ -164,7 +165,8 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'bluetoothPaired':('Bluetooth', '**/Library/Database/com.apple.MobileBluetooth.ledevices.paired.db'),
             'bluetoothOther':('Bluetooth', '**/Library/Database/com.apple.MobileBluetooth.ledevices.other.db'),
             'calendarAll':('Calendar', '**/Calendar.sqlitedb'),
-            'photosMetadata':('Photos', '**/Photos.sqlite')
+            'photosMetadata':('Photos', '**/Photos.sqlite'),
+            'ooklaSpeedtest':('Networks', '**/speedtest.sqlite')
             }
 
 '''
