@@ -9,7 +9,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
 
 
-def get_safariHistory(files_found, report_folder, seeker):
+def get_ooklaSpeedtest(files_found, report_folder, seeker):
 	file_found = str(files_found[0])
 	db = sqlite3.connect(file_found)
 	cursor = db.cursor()
