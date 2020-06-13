@@ -166,7 +166,7 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'bluetoothOther':('Bluetooth', '**/Library/Database/com.apple.MobileBluetooth.ledevices.other.db'),
             'calendarAll':('Calendar', '**/Calendar.sqlitedb'),
             'photosMetadata':('Photos', '**/Photos.sqlite'),
-            'ooklaSpeedtest':('Networks', '**/speedtest.sqlite')
+            'ooklaSpeedtest':('Wifi Profiles', '**/speedtest.sqlite')
             }
 
 '''
