@@ -42,7 +42,7 @@ def get_ooklaSpeedtest(files_found, report_folder, seeker):
 		report = ArtifactHtmlReport('WIFI PROFILES')
 		report.start_artifact_report(report_folder, 'Ookla Speedtest', description)
 		report.add_script()
-		data_headers = ('Date','External IP Address','Internal IP Address','Carrier Name','ISP','Device Model','WAN Type','WIFI SSID','Device Model' )     
+		data_headers = ('Date','External IP Address','Internal IP Address','Carrier Name','ISP','WAN Type','WIFI SSID','Device Model' )     
 		report.write_artifact_data_table(data_headers, data_list, file_found)
 		report.end_artifact_report()
 		
