@@ -10,7 +10,7 @@ from scripts.version_info import aleapp_version
 from time import process_time, gmtime, strftime
 
 def main():
-    parser = argparse.ArgumentParser(description='iLEAPP: iOS Logs, Events, and Plists Parser.')
+    parser = argparse.ArgumentParser(description='iLEAPP: iOS Logs, Events, and Properties Parser.')
     parser.add_argument('-t', choices=['fs','tar','zip'], required=True, action="store", help="Input type (fs = extracted to file system folder)")
     parser.add_argument('-o', '--output_path', required=True, action="store", help='Output folder path')
     parser.add_argument('-i', '--input_path', required=True, action="store", help='Path to input file/folder')
@@ -24,7 +24,7 @@ def main():
     if len(output_path) == 0:
         print('No OUTPUT folder selected. Run the program again.')
         return
-
+        
     if len(input_path) == 0:
         print('No INPUT file or folder selected. Run the program again.')
         return
@@ -35,20 +35,19 @@ def main():
 
     out_params = OutputParameters(output_path)
 
-    crunch_artifacts(extracttype, input_path, out_params)
-        
-def crunch_artifacts(extracttype, input_path, out_params):
+    crunch_artifacts(tosearch, extracttype, input_path, out_params, 1)
+
+def crunch_artifacts(search_list, extracttype, input_path, out_params, ratio):
     start = process_time()
 
     logfunc('Procesing started. Please wait. This may take a few minutes...')
 
     logfunc('\n--------------------------------------------------------------------------------------')
-    logfunc(f'iLEAPP v{aleapp_version}: iOS Logs, Events, and Plists Parser')
+    logfunc(f'iLEAPP v{aleapp_version}: iLEAPP Logs, Events, and Properties Parser')
     logfunc('Objective: Triage iOS Full System Extractions.')
     logfunc('By: Alexis Brignoni | @AlexisBrignoni | abrignoni.com')
     logfunc('By: Yogesh Khatri | @SwiftForensics | swiftforensics.com')
-    logdevinfo()
-    
+
     seeker = None
     if extracttype == 'fs':
         seeker = FileSeekerDir(input_path)
@@ -64,7 +63,7 @@ def crunch_artifacts(extracttype, input_path, out_params):
         return
 
     # Now ready to run
-    logfunc(f'Artifact categories to parse: {str(len(tosearch))}')
+    logfunc(f'Artifact categories to parse: {str(len(search_list))}')
     logfunc(f'File/Directory selected: {input_path}')
     logfunc('\n--------------------------------------------------------------------------------------')
 
@@ -74,21 +73,29 @@ def crunch_artifacts(extracttype, input_path, out_params):
     
     categories_searched = 0
     # Search for the files per the arguments
-    for key, val in tosearch.items():
+    for key, val in search_list.items():
+        search_regexes = []
         artifact_pretty_name = val[0]
-        artifact_search_regex = val[1]
-        filefound = seeker.search(artifact_search_regex)
-        if not filefound:
-            logfunc()
-            logfunc(f'No files found for {key} -> {artifact_search_regex}')
-            log.write(f'No files found for {key} -> {artifact_search_regex}<br><br>')
+        if isinstance(val[1], list) or isinstance(val[1], tuple):
+            search_regexes = val[1]
         else:
+            search_regexes.append(val[1])
+        files_found = []
+        for artifact_search_regex in search_regexes:
+            found = seeker.search(artifact_search_regex)
+            if not found:
+                logfunc()
+                logfunc(f'No files found for {key} -> {artifact_search_regex}')
+                log.write(f'No files found for {key} -> {artifact_search_regex}<br><br>')
+            else:
+                files_found.extend(found)
+        if files_found:
             logfunc()
-            process_artifact(filefound, key, artifact_pretty_name, seeker, out_params.report_folder_base)
-            for pathh in filefound:
+            process_artifact(files_found, key, artifact_pretty_name, seeker, out_params.report_folder_base)
+            for pathh in files_found:
                 log.write(f'Files for {artifact_search_regex} located at {pathh}<br><br>')
         categories_searched += 1
-        GuiWindow.SetProgressBar(categories_searched)
+        GuiWindow.SetProgressBar(categories_searched*ratio)
     log.close()
 
     logfunc('')

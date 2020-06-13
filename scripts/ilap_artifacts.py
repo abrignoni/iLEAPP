@@ -114,6 +114,7 @@ from scripts.artifacts.locationDallB import get_locationDallB
 from scripts.artifacts.calendarAll import get_calendarAll
 from scripts.artifacts.photosMetadata import get_photosMetadata
 from scripts.artifacts.aggDictpasscode import get_aggDictpasscode
+from scripts.artifacts.aggDictpasscodetype import get_aggDictpasscodetype
 
 from scripts.ilapfuncs import *
 
@@ -126,6 +127,7 @@ from scripts.ilapfuncs import *
 
 tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'aggDictpasscode':('Aggregate Dictionary', '*/AggregateDictionary/ADDataStore.sqlitedb'),
+            'aggDictpasscodetype':('Aggregate Dictionary', '*/AggregateDictionary/ADDataStore.sqlitedb'),
             'dataArk':('IOS Build', '**/Library/Lockdown/data_ark.plist'),
             'applicationstate':('Installed Apps', '**/applicationState.db'),
             'accs':('Accounts', '**/Accounts3.sqlite'),
@@ -166,13 +168,14 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             }
 
 '''
-tosearch = {'aggDictpasscode':('Aggregate Dictionary', '*/AggregateDictionary/ADDataStore.sqlitedb')
+tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
+            'knowCinstall':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db')
             }
-
 
 # Individual artifacts. Slow parsing when extracting the same data multiple times for each artifact.
 tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
     'aggDictpasscode':('Aggregate Dictionary', '*/AggregateDictionary/ADDataStore.sqlitedb'),
+    'aggDictpasscodetype':('Aggregate Dictionary', '*/AggregateDictionary/ADDataStore.sqlitedb'),
     'knowCincept':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
     'knowCusage':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
     'knowCact':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
