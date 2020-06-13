@@ -17,22 +17,17 @@ def get_safariHistory(files_found, report_folder, seeker):
 	cursor.execute(
 	"""
 	SELECT
-		DATETIME(HISTORY_VISITS.VISIT_TIME+978307200,'UNIXEPOCH') AS "VISIT TIME",
-		HISTORY_ITEMS.URL AS "URL",
-		HISTORY_ITEMS.VISIT_COUNT AS "VISIT COUNT",
-		HISTORY_VISITS.TITLE AS "TITLE",
-		CASE HISTORY_VISITS.ORIGIN
-			WHEN 1 THEN "ICLOUD SYNCED DEVICE"
-			WHEN 0 THEN "VISITED FROM THIS DEVICE"
-			ELSE HISTORY_VISITS.ORIGIN
-		END "ICLOUD SYNC",
-		HISTORY_VISITS.LOAD_SUCCESSFUL AS "LOAD SUCCESSFUL",
-		HISTORY_VISITS.id AS "VISIT ID",
-		HISTORY_VISITS.REDIRECT_SOURCE AS "REDIRECT SOURCE",
-		HISTORY_VISITS.REDIRECT_DESTINATION AS "REDIRECT DESTINATION",
-		HISTORY_VISITS.ID AS "HISTORY ITEM ID"
-	FROM HISTORY_ITEMS
-	LEFT OUTER JOIN HISTORY_VISITS ON HISTORY_ITEMS.ID == HISTORY_VISITS.HISTORY_ITEM
+		datetime(("ZDATE")+strftime('%s', '2001-01-01 00:00:00'), 'unixepoch') as 'Date',
+		"ZEXTERNALIP" as 'External IP Address',
+		"ZINTERNALIP" as 'Internal IP Address',
+		"ZCARRIERNAME" as 'Carrier Name',
+		"ZISP" as 'ISP',
+		"ZWIFISSID" as 'Wifi SSID',
+		"ZWANTYPE" as 'WAN Type',
+		"ZDEVICEMODEL" as 'Device Model'
+	FROM ZSPEEDTESTRESULT
+	
+	ORDER BY "ZDATE" DESC	
 	"""
 	)
 
@@ -47,7 +42,7 @@ def get_safariHistory(files_found, report_folder, seeker):
 		report = ArtifactHtmlReport('Ookla Speedtest')
 		report.start_artifact_report(report_folder, 'Ookla Speedtest', description)
 		report.add_script()
-		data_headers = ('Date','External IP Address','Carrier Name','Device Model','Internal IP Address','ISP','WAN Type','WIFI SSID' )     
+		data_headers = ('Date','External IP Address','Internal IP Address','Carrier Name','ISP','Device Model','WAN Type','WIFI SSID','Device Model' )     
 		report.write_artifact_data_table(data_headers, data_list, file_found)
 		report.end_artifact_report()
 		
