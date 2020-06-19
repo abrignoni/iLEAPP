@@ -20,15 +20,21 @@ class FileSeekerDir(FileSeekerBase):
     def __init__(self, directory):
         FileSeekerBase.__init__(self)
         self.directory = directory
+        self._all_files = []
+        logfunc('Building files listing')
+        self.build_files_list(directory)
+
+    def build_files_list(self, directory):
+        '''Populates all paths in directory into _all_files'''
+        files_list = os.listdir(directory)
+        for item in files_list:
+            full_path = os.path.join(directory, item)
+            self._all_files.append(full_path)
+            if os.path.isdir(full_path):
+                self.build_files_list(full_path)
 
     def search(self, filepattern):
-        list = []
-        for file in Path(self.directory).rglob(filepattern):
-            try:
-                list.append(file)
-            except:
-                logfunc('No files located')
-        return list
+        return fnmatch.filter(self._all_files, filepattern)
 
 class FileSeekerTar(FileSeekerBase):
     def __init__(self, tar_file_path, temp_folder):
