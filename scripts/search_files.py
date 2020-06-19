@@ -24,7 +24,10 @@ class FileSeekerDir(FileSeekerBase):
     def search(self, filepattern):
         list = []
         for file in Path(self.directory).rglob(filepattern):
-            list.append(file)
+            try:
+                list.append(file)
+            except:
+                logfunc('No files located')
         return list
 
 class FileSeekerTar(FileSeekerBase):

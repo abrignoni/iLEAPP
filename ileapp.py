@@ -47,7 +47,8 @@ def crunch_artifacts(search_list, extracttype, input_path, out_params, ratio):
     logfunc('Objective: Triage iOS Full System Extractions.')
     logfunc('By: Alexis Brignoni | @AlexisBrignoni | abrignoni.com')
     logfunc('By: Yogesh Khatri | @SwiftForensics | swiftforensics.com')
-
+    logdevinfo()
+    
     seeker = None
     if extracttype == 'fs':
         seeker = FileSeekerDir(input_path)
