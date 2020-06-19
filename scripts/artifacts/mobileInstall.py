@@ -415,7 +415,7 @@ def get_mobileInstall(files_found, report_folder, seeker):
     sysstatecount = 0
     
     # created folders for reports for App history
-    os.makedirs(report_folder + "Apps_Historical/")
+    os.makedirs(os.path.join(report_folder, "Apps_Historical"))
 
 
     data_list_installed = []
@@ -490,13 +490,9 @@ def get_mobileInstall(files_found, report_folder, seeker):
         if row[0] == "":
             continue
         else:
-            f3 = open(
-                report_folder
-                + "Apps_Historical/"
-                + distinctbundle
-                + ".txt",
+            f3 = open(os.path.join(report_folder, "Apps_Historical", distinctbundle + ".txt"),
                 "w+",
-                encoding="utf8",
+                encoding="utf8"
             )  # Create historical app report per app
             cursor.execute(
                 """SELECT * from dimm where bundle_id=? order by time_stamp DESC""",
@@ -512,7 +508,7 @@ def get_mobileInstall(files_found, report_folder, seeker):
 
     list = []
     data_list =[]
-    path = report_folder + "/Apps_Historical/"
+    path = os.path.join(report_folder, "Apps_Historical")
     files = os.listdir(path)
     for name in files:
         bun = (f'{name}')
