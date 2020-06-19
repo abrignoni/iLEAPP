@@ -121,6 +121,12 @@ while True:
             GuiWindow.window_handle = window
             input_path = values[0]
             output_folder = values[1]
+
+            # ios file system extractions contain paths > 260 char, which causes problems
+            # This fixes the problem by prefixing \\?\ on each windows path.
+            if is_platform_windows():
+                if input_path[1] == ':' and extracttype =='fs': input_path = '\\\\?\\' + input_path.replace('/', '\\')
+                if output_folder[1] == ':': output_folder = '\\\\?\\' + output_folder.replace('/', '\\')
             
             # re-create modules list based on user selection
             search_list = {}
@@ -156,6 +162,8 @@ while True:
             locationmessage = 'Report name: ' + report_path
             sg.Popup('Processing completed', locationmessage)
             
+            if report_path.startswith('\\\\?\\'): # windows
+                report_path = report_path[4:]
             if report_path.startswith('\\\\'): # UNC path
                 report_path = report_path[2:]
             webbrowser.open_new_tab('file://' + report_path)
