@@ -26,8 +26,8 @@ def get_applicationstate(files_found, report_folder, seeker):
     all_rows = cursor.fetchall()
     usageentries = len(all_rows)
     if usageentries > 0:
-        os.mkdir(report_folder + "exported-dirty/")
-        os.mkdir(report_folder + "exported-clean/")
+        os.mkdir(os.path.join(report_folder, "exported-dirty"))
+        os.mkdir(os.path.join(report_folder, "exported-clean"))
         data_list = []
         for row in all_rows:
             bundleid = str(row[0])
@@ -35,12 +35,12 @@ def get_applicationstate(files_found, report_folder, seeker):
             f = row[1]
             
             output_file = open(
-                report_folder + "/exported-dirty/" + bundleidplist, "wb"
+                os.path.join(report_folder, "exported-dirty", bundleidplist), "wb"
             )  # export dirty from DB
             output_file.write(f)
             output_file.close()
             
-            g = open(report_folder + "/exported-dirty/" + bundleidplist, "rb")
+            g = open(os.path.join(report_folder, "exported-dirty", bundleidplist), "rb")
             # plist = plistlib.load(g)
 
             plist = ccl_bplist.load(g)
@@ -51,7 +51,7 @@ def get_applicationstate(files_found, report_folder, seeker):
                 var3 = (plist['sandboxPath'])
                 data_list.append((var1, var2, var3))
             else:
-                output_file = open(report_folder + "exported-clean/" + bundleidplist, "wb")
+                output_file = open(os.path.join(report_folder, "exported-clean", bundleidplist), "wb")
                 output_file.write(plist)
                 output_file.close()
             
