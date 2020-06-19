@@ -218,6 +218,7 @@ def process_nsa_plist(input_path, f):
     try:
         if not use_as_library:
             print('Reading file .. ' + input_path)
+        f = extract_nsa_plist(f)
         ccl_bplist.set_object_converter(ccl_bplist.NSKeyedArchiver_common_objects_convertor)
         plist = ccl_bplist.load(f)
         ns_keyed_archiver_obj = ccl_bplist.deserialise_NsKeyedArchiver(plist, parse_whole_structure=True)
@@ -369,7 +370,6 @@ def main():
     # All OK, process the file now
     try:
         f = open(input_path, 'rb')
-        f = extract_nsa_plist(f)
         if f:
             deserialised_plist = process_nsa_plist(input_path, f)
             f.close()
