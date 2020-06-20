@@ -903,8 +903,8 @@ def get_knowCall(files_found, report_folder, seeker):
 		outpath = report_folder
 
 		try:
-			os.mkdir(report_folder + "/clean/")
-			os.mkdir(report_folder+ "/dirty/")
+			os.mkdir(os.path.join(report_folder, "clean"))
+			os.mkdir(os.path.join(report_folder, "dirty"))
 		except OSError:
 			logfunc("Error making directories")
 		file_found = str(files_found[0])
@@ -938,13 +938,11 @@ def get_knowCall(files_found, report_folder, seeker):
 			f = row[1]
 			intentclass = str(row[2])
 			intententverb = str(row[3])
-			output_file = open(
-				outpath + "/dirty/D_Z_PK" + pkvplist, "wb"
-			)  # export dirty from DB
+			output_file = open(os.path.join(outpath, "dirty", "D_Z_PK" + pkvplist), "wb") # export dirty from DB
 			output_file.write(f)
 			output_file.close()
 
-			g = open(outpath + "/dirty/D_Z_PK" + pkvplist, "rb")
+			g = open(os.path.join(outpath, "dirty", "D_Z_PK" + pkvplist), "rb")
 			plistg = ccl_bplist.load(g)
 
 			if version.parse(iOSversion) < version.parse("12"):
@@ -956,7 +954,7 @@ def get_knowCall(files_found, report_folder, seeker):
 
 			dirtcount = dirtcount + 1
 
-			binfile = open(outpath + "/clean/C_Z_PK" + pkvplist, "wb")
+			binfile = open(os.path.join(outpath, "clean", "C_Z_PK" + pkvplist), "wb")
 			binfile.write(newbytearray)
 			binfile.close()
 
@@ -1014,7 +1012,7 @@ def get_knowCall(files_found, report_folder, seeker):
 			parsedNSData = ""
 			# Default true
 			if dump == True:
-				nsdata_file = outpath + "/clean/" + cfilename + "_nsdata.bin"
+				nsdata_file = os.path.join(outpath, "clean", cfilename + "_nsdata.bin")
 				binfile = open(nsdata_file, "wb")
 				if version.parse(iOSversion) >= version.parse("13"):
 					try:

@@ -50,8 +50,8 @@ def ValidateInput(values, window):
     return True, ext_type
 
 # initialize CheckBox control with module name   
-def CheckList(mtxt, lkey, mdstring):
-    return [sg.CBox(mtxt, default=True, key=lkey, metadata=mdstring)]
+def CheckList(mtxt, lkey, mdstring, disable=False):
+    return [sg.CBox(mtxt, default=True, key=lkey, metadata=mdstring, disabled=disable)]
 
 # verify module (.py) file exists; only then add it to the "list"
 def pickModules():
@@ -63,7 +63,8 @@ def pickModules():
     indx = 1000     # arbitrary number to not interfere with other controls
     for key, val in tosearch.items():
         plugin_path = os.path.join(script_path, key + '.py')
-        mlist.append( CheckList(key + '.py [' + val[0] + ']', indx, key) )
+        disabled = False if key != 'lastBuild' else True # lastBuild.py is REQUIRED
+        mlist.append( CheckList(key + '.py [' + val[0] + ']', indx, key, disabled) )
         indx = indx + 1
         
 sg.theme('DarkAmber')   # Add a touch of color
@@ -113,7 +114,7 @@ while True:
     if event == "DESELECT ALL":  
          # none modules
         for x in range(1000,indx):
-            window[x].Update(False) 
+            window[x].Update(False if window[x].metadata != 'lastBuild' else True)  # lastBuild.py is REQUIRED
     if event == 'Process':
         #check is selections made properly; if not we will return to input form without exiting app altogether
         is_valid, extracttype = ValidateInput(values, window)
@@ -121,6 +122,12 @@ while True:
             GuiWindow.window_handle = window
             input_path = values[0]
             output_folder = values[1]
+
+            # ios file system extractions contain paths > 260 char, which causes problems
+            # This fixes the problem by prefixing \\?\ on each windows path.
+            if is_platform_windows():
+                if input_path[1] == ':' and extracttype =='fs': input_path = '\\\\?\\' + input_path.replace('/', '\\')
+                if output_folder[1] == ':': output_folder = '\\\\?\\' + output_folder.replace('/', '\\')
             
             # re-create modules list based on user selection
             search_list = {}
@@ -131,8 +138,8 @@ while True:
                         search_list[window[x].metadata] = tosearch[window[x].metadata]
                         s_items = s_items + 1 #for progress bar
                 
-            # no more selections allowed
-            window[x].Update(disabled = True)
+                # no more selections allowed
+                window[x].Update(disabled = True)
                 
             window['SELECT ALL'].update(disabled=True)
             window['DESELECT ALL'].update(disabled=True)
@@ -156,6 +163,8 @@ while True:
             locationmessage = 'Report name: ' + report_path
             sg.Popup('Processing completed', locationmessage)
             
+            if report_path.startswith('\\\\?\\'): # windows
+                report_path = report_path[4:]
             if report_path.startswith('\\\\'): # UNC path
                 report_path = report_path[2:]
             webbrowser.open_new_tab('file://' + report_path)

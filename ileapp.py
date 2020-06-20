@@ -94,6 +94,8 @@ def crunch_artifacts(search_list, extracttype, input_path, out_params, ratio):
             logfunc()
             process_artifact(files_found, key, artifact_pretty_name, seeker, out_params.report_folder_base)
             for pathh in files_found:
+                if pathh.startswith('\\\\?\\'):
+                    pathh = pathh[4:]
                 log.write(f'Files for {artifact_search_regex} located at {pathh}<br><br>')
         categories_searched += 1
         GuiWindow.SetProgressBar(categories_searched*ratio)
@@ -108,6 +110,12 @@ def crunch_artifacts(search_list, extracttype, input_path, out_params, ratio):
 
     logfunc('')
     logfunc('Report generation started.')
+    # remove the \\?\ prefix we added to input and output paths, so it does not reflect in report
+    if is_platform_windows(): 
+        if out_params.report_folder_base.startswith('\\\\?\\'):
+            out_params.report_folder_base = out_params.report_folder_base[4:]
+        if input_path.startswith('\\\\?\\'):
+            input_path = input_path[4:]
     report.generate_report(out_params.report_folder_base, run_time_secs, run_time_HMS, extracttype, input_path)
     logfunc('Report generation Completed.')
     logfunc('')
