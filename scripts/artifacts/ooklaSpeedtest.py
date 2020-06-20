@@ -20,6 +20,9 @@ def get_ooklaSpeedtest(files_found, report_folder, seeker):
 	datetime(("ZDATE")+strftime('%s', '2001-01-01 00:00:00'), 'unixepoch') as 'Date',
 	"ZEXTERNALIP" as 'External IP Address',
 	"ZINTERNALIP" as 'Internal IP Address',
+	"ZLATITUDE" as 'Latitude',
+	"ZLONGITUDE" as 'Longitude',
+	"ZHORIZONTALACCURACY" as 'Accuracy in Meters',
 	"ZCARRIERNAME" as 'Carrier Name',
 	"ZISP" as 'ISP',
 	"ZWIFISSID" as 'Wifi SSID',
@@ -147,13 +150,13 @@ def get_ooklaSpeedtest(files_found, report_folder, seeker):
 	data_list = []    
 	if usageentries > 0:
 		for row in all_rows:
-			data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]))
+			data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10]))
 	
 		description = ''
 		report = ArtifactHtmlReport('WIFI PROFILES')
 		report.start_artifact_report(report_folder, 'Ookla Speedtest', description)
 		report.add_script()
-		data_headers = ('Date','External IP Address','Internal IP Address','Carrier Name','ISP','WIFI SSID','WAN Type','Device Model' )     
+		data_headers = ('Date','External IP Address','Internal IP Address','Latitude','Longitude','Accuracy (Meters)','Carrier Name','ISP','WIFI SSID','WAN Type','Device Model')     
 		report.write_artifact_data_table(data_headers, data_list, file_found)
 		report.end_artifact_report()
 		
