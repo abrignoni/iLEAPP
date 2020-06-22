@@ -22,6 +22,7 @@ def get_icon_name(category, artifact):
     if category.find('ACCOUNT') >= 0:
         if artifact.find('AUTH') >= 0:  icon = 'key'
         else:                           icon = 'user'
+    elif category == 'APPLICATIONS':    icon = 'grid'
     elif category == 'CALL LOGS':       icon = 'phone'
     elif category == 'USER DICTIONARY': icon = 'book'
     elif category == 'CHROME':          
