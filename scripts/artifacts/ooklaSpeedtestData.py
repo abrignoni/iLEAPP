@@ -10,7 +10,7 @@ from scripts.ccl import ccl_bplist
 
 def get_ooklaSpeedtestData(files_found, report_folder, seeker):
     for file_found in files_found:
-        file_found = str(files_found[0])
+        file_found = str(file_found)
         
         if file_found.endswith('speedtest.sqlite'):
             break
@@ -163,7 +163,7 @@ def get_ooklaSpeedtestData(files_found, report_folder, seeker):
             tsvname = 'Ookla Speedtest Data'
             tsv(report_folder, data_headers, data_list, tsvname)
         else:
-                logfunc('No Ookla Speedtest Application data available')
+            logfunc('No Ookla Speedtest Application data available')
         
         db.close()
         return 
