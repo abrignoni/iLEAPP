@@ -5,7 +5,6 @@ from pathlib import Path
 from scripts.ilapfuncs import *
 from tarfile import TarFile
 from zipfile import ZipFile
-from datetime import datetime
 
 class FileSeekerBase:
     # This is an abstract base class
