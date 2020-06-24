@@ -26,12 +26,11 @@ class FileSeekerDir(FileSeekerBase):
 
     def build_files_list(self, directory):
         '''Populates all paths in directory into _all_files'''
-        files_list = os.listdir(directory)
+        files_list = os.scandir(directory)
         for item in files_list:
-            full_path = os.path.join(directory, item)
-            self._all_files.append(full_path)
-            if os.path.isdir(full_path):
-                self.build_files_list(full_path)
+            self._all_files.append(item.path)
+            if item.is_dir(follow_symlinks=False):
+                self.build_files_list(item.path)
 
     def search(self, filepattern):
         return fnmatch.filter(self._all_files, filepattern)
