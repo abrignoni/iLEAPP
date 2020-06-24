@@ -24,7 +24,6 @@ class FileSeekerDir(FileSeekerBase):
         self._all_files = []
         logfunc('Building files listing')
         self.build_files_list(directory)
-        print(datetime.now())
 
     def build_files_list(self, directory):
         '''Populates all paths in directory into _all_files'''
