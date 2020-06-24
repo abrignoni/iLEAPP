@@ -1,12 +1,11 @@
 import glob
 import os
 import pathlib
-import plistlib
 import sqlite3
 
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
-from scripts.ccl import ccl_bplist
+
 
 def get_ooklaSpeedtestData(files_found, report_folder, seeker):
     for file_found in files_found:
