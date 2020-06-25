@@ -32,14 +32,14 @@ def get_powerlogVolume(files_found, report_folder, seeker):
         for row in all_rows:    
             data_list.append((row[0],row[1],row[2],row[3]))
 
-        report = ArtifactHtmlReport('Powerlog Volume')
-        report.start_artifact_report(report_folder, 'Volume')
+        report = ArtifactHtmlReport('Powerlog Volume Level')
+        report.start_artifact_report(report_folder, 'Volume Level')
         report.add_script()
         data_headers = ('Timestamp','Volume','Muted','Event Forward Output Table ID')   
         report.write_artifact_data_table(data_headers, data_list, file_found)
         report.end_artifact_report()
         
-        tsvname = 'Powerlog Volume'
+        tsvname = 'Powerlog Volume Level'
         tsv(report_folder, data_headers, data_list, tsvname)
     else:
         logfunc('No data available in table')
