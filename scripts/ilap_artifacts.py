@@ -62,7 +62,6 @@ from scripts.artifacts.queryPredictions import get_queryPredictions
 from scripts.artifacts.dhcpl import get_dhcpl
 from scripts.artifacts.dhcphp import get_dhcphp
 from scripts.artifacts.powerlogWifiprop import get_powerlogWifiprop
-from scripts.artifacts.powerlogVolume import get_powerlogVolume
 from scripts.artifacts.powerlogVolumePercentage import get_powerlogVolumePercentage
 from scripts.artifacts.powerlogVideo import get_powerlogVideo
 from scripts.artifacts.powerlogTorch import get_powerlogTorch
@@ -209,7 +208,6 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
     'knowCuserwaking':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
     'knowCwidget':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
     'powerlogWifiprop':('Powerlog', '**/CurrentPowerlog.PLSQL'),
-    'powerlogVolume':('Powerlog', '**/CurrentPowerlog.PLSQL'),
     'powerlogVolumePercentage':('Powerlog', '**/CurrentPowerlog.PLSQL'),
     'powerlogTorch':('Powerlog', '**/CurrentPowerlog.PLSQL'),
     'powerlogVideo':('Powerlog', '**/CurrentPowerlog.PLSQL'),
