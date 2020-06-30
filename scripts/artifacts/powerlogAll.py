@@ -1006,39 +1006,6 @@ def get_powerlogAll(files_found, report_folder, seeker):
             tsv(report_folder, data_headers, data_list, tsvname)
         else:
             logfunc('No data available in Powerlog App Playing Video')
-            
-    if version.parse(iOSversion) >= version.parse("9"):
-        cursor = db.cursor()
-        cursor.execute('''
-        SELECT
-        DATETIME(TIMESTAMP, 'UNIXEPOCH') AS TIMESTAMP,
-        VOLUME,
-        CASE MUTED 
-            WHEN "0" THEN "NO" 
-            WHEN "1" THEN "YES" 
-        END "MUTED", 
-        ID AS "PLAUDIOAGENT_EVENTFORWARD_OUTPUT TABLE ID" 
-        FROM
-        PLAUDIOAGENT_EVENTFORWARD_OUTPUT
-        ''')
-        all_rows = cursor.fetchall()
-        usageentries = len(all_rows)
-        if usageentries > 0:
-            data_list = []
-            for row in all_rows:    
-                data_list.append((row[0],row[1],row[2],row[3]))
-
-            report = ArtifactHtmlReport('Powerlog Volume')
-            report.start_artifact_report(report_folder, 'Volume')
-            report.add_script()
-            data_headers = ('Timestamp','Volume','Muted','Event Forward Output Table ID')   
-            report.write_artifact_data_table(data_headers, data_list, file_found)
-            report.end_artifact_report()
-            
-            tsvname = 'Powerlog Volume'
-            tsv(report_folder, data_headers, data_list, tsvname)
-        else:
-            logfunc('No data available in Powerlog Volume')
 
     if version.parse(iOSversion) >= version.parse("9"):
         db = sqlite3.connect(file_found)
