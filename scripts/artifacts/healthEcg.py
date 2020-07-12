@@ -6,7 +6,7 @@ import sqlite3
 import json
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows 
 
 
 def get_healthEcg(files_found, report_folder, seeker):
@@ -55,4 +55,7 @@ def get_healthEcg(files_found, report_folder, seeker):
 		
 		tsvname = 'Health ECG'
 		tsv(report_folder, data_headers, data_list, tsvname)
+		
+		tlactivity = 'Health ECG'
+		timeline(report_folder, tlactivity, data_list)
 	

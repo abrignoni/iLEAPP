@@ -5,7 +5,7 @@ import plistlib
 import sqlite3
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows 
 from scripts.ccl import ccl_bplist
 
 def get_healthCadence(files_found, report_folder, seeker):
@@ -71,6 +71,9 @@ def get_healthCadence(files_found, report_folder, seeker):
         
         tsvname = 'Health Cadence'
         tsv(report_folder, data_headers, data_list, tsvname)
+        
+        tlactivity = 'Health Cadence'
+        timeline(report_folder, tlactivity, data_list)
     else:
         logfunc('No data available in table')
 

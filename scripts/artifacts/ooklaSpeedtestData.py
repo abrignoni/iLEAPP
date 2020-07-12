@@ -4,7 +4,7 @@ import pathlib
 import sqlite3
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows 
 
 
 def get_ooklaSpeedtestData(files_found, report_folder, seeker):
@@ -161,6 +161,9 @@ def get_ooklaSpeedtestData(files_found, report_folder, seeker):
             
             tsvname = 'Ookla Speedtest Data'
             tsv(report_folder, data_headers, data_list, tsvname)
+        
+            tlactivity = 'Ookla Speedtest Data'
+            timeline(report_folder, tlactivity, data_list)
         else:
             logfunc('No Ookla Speedtest Application data available')
         
