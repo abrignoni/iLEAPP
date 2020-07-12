@@ -9,7 +9,7 @@ import scripts.artifacts.artGlobals
  
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows 
 from scripts.ccl import ccl_bplist
 from scripts.parse3 import ParseProto
 
@@ -73,6 +73,9 @@ def get_knowCall(files_found, report_folder, seeker):
 			
 			tsvname = 'KnowledgeC Inferred Motion'
 			tsv(report_folder, data_headers, data_list, tsvname)
+			
+			tlactivity = 'KnowledgeC Inferred Motion'
+			timeline(report_folder, tlactivity, data_list)
 		else:
 			logfunc('No data available in Inferred Motion')
 
@@ -122,7 +125,10 @@ def get_knowCall(files_found, report_folder, seeker):
 	report.end_artifact_report()
 	
 	tsvname = 'KnowledgeC App Activity'
-	tsv(report_folder, data_headers, data_list, tsvname)   
+	tsv(report_folder, data_headers, data_list, tsvname)
+	
+	tlactivity = 'KnowledgeC App Activity'
+	timeline(report_folder, tlactivity, data_list)   
 	
 	if version.parse(iOSversion) >= version.parse("12"):
 		cursor = db.cursor()
@@ -219,6 +225,9 @@ def get_knowCall(files_found, report_folder, seeker):
 				
 				tsvname = 'KnowledgeC Application Activity'
 				tsv(report_folder, data_headers, data_list, tsvname)
+				
+				tlactivity = 'KnowledgeC Application Activity'
+				timeline(report_folder, tlactivity, data_list)
 			else:
 				for row in all_rows:    
 					data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11]))
@@ -231,6 +240,9 @@ def get_knowCall(files_found, report_folder, seeker):
 				
 				tsvname = 'KnowledgeC Application Activity'
 				tsv(report_folder, data_headers, data_list, tsvname)
+				
+				tlactivity = 'KnowledgeC Application Activity'
+				timeline(report_folder, tlactivity, data_list)
 		else:
 			logfunc('No data available in Application Activity')
 	
@@ -329,6 +341,9 @@ def get_knowCall(files_found, report_folder, seeker):
 			
 			tsvname = 'KnowledgeC Application Activity Calendar'
 			tsv(report_folder, data_headers, data_list, tsvname)
+			
+			tlactivity = 'KnowledgeC Application Activity Calendar'
+			timeline(report_folder, tlactivity, data_list)
 		else:
 			for row in all_rows:    
 				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11]))
@@ -342,6 +357,9 @@ def get_knowCall(files_found, report_folder, seeker):
 			
 			tsvname = 'KnowledgeC Application Activity Calendar'
 			tsv(report_folder, data_headers, data_list, tsvname)
+			
+			tlactivity = 'KnowledgeC Application Activity Calendar'
+			timeline(report_folder, tlactivity, data_list)
 	else:
 		logfunc('No data available in Application Activity Calendar')
 			
@@ -443,6 +461,9 @@ def get_knowCall(files_found, report_folder, seeker):
 			
 			tsvname = 'KnowledgeC Application Activity Safari'
 			tsv(report_folder, data_headers, data_list, tsvname)
+			
+			tlactivity = 'KnowledgeC Application Activity Safari'
+			timeline(report_folder, tlactivity, data_list)
 		else:
 			for row in all_rows:    
 				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12],row[13]))
@@ -456,6 +477,9 @@ def get_knowCall(files_found, report_folder, seeker):
 			
 			tsvname = 'KnowledgeC Application Activity Safari'
 			tsv(report_folder, data_headers, data_list, tsvname)
+			
+			tlactivity = 'KnowledgeC Application Activity Safari'
+			timeline(report_folder, tlactivity, data_list)
 	else:
 		logfunc('No data available in Appplication Activity Safari')
 
@@ -503,6 +527,9 @@ def get_knowCall(files_found, report_folder, seeker):
 			
 			tsvname = 'KnowledgeC Application Relevant Shortcuts'
 			tsv(report_folder, data_headers, data_list, tsvname)
+			
+			tlactivity = 'KnowledgeC Application Relevant Shortcuts'
+			timeline(report_folder, tlactivity, data_list)
 		else:
 			logfunc('No data available in Relevant Shortcuts')
 	
@@ -549,6 +576,8 @@ def get_knowCall(files_found, report_folder, seeker):
 		cursor.execute(
 		"""
 		SELECT
+			DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
+			DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') AS "END",
 			CASE ZOBJECT.ZVALUEINTEGER
 				WHEN '0' THEN 'NO' 
 				WHEN '1' THEN 'YES' 
@@ -565,8 +594,7 @@ def get_knowCall(files_found, report_folder, seeker):
 				WHEN "7" THEN "Saturday"
 			END "DAY OF WEEK", 
 			ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-			DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
-			DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') AS "END",
+			
 			DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') AS "ENTRY CREATION",
 			ZOBJECT.ZUUID AS "UUID", 
 			ZOBJECT.Z_PK AS "ZOBJECT TABLE ID"
@@ -603,6 +631,9 @@ def get_knowCall(files_found, report_folder, seeker):
 			tsvname = 'KnowledgeC Device is Backlit'
 			tsv(report_folder, data_headers, data_list, tsvname)
 			
+			tlactivity = 'KnowledgeC Device is Backlit'
+			timeline(report_folder, tlactivity, data_list)
+			
 		elif version.parse(iOSversion) == version.parse("11"):
 			for row in all_rows:    
 				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6]))
@@ -610,12 +641,15 @@ def get_knowCall(files_found, report_folder, seeker):
 			report = ArtifactHtmlReport('KnowledgeC Device is Backlit')
 			report.start_artifact_report(report_folder, 'Device is Backlit')
 			report.add_script()
-			data_headers = ('Screen is Backlit','Usage in Seconds','Usage in Minutes','Day of Week','GMT Offset','Start','End','Entry Creation','UUID','ZOBJECT Table ID' ) 
+			data_headers = ('Start','End','Screen is Backlit','Usage in Seconds','Usage in Minutes','Day of Week','GMT Offset','Entry Creation','UUID','ZOBJECT Table ID' ) 
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
 			tsvname = 'KnowledgeC Device is Backlit'
 			tsv(report_folder, data_headers, data_list, tsvname)
+			
+			tlactivity = 'KnowledgeC Device is Backlit'
+			timeline(report_folder, tlactivity, data_list)
 	else:
 		logfunc('No data available in Device is Backlit')
 	
@@ -623,6 +657,8 @@ def get_knowCall(files_found, report_folder, seeker):
 		cursor.execute(
 			"""
 			SELECT
+			DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') as "START", 
+			DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') as "END",
 			ZOBJECT.ZVALUEDOUBLE as "BATTERY LEVEL",
 			(ZOBJECT.ZENDDATE - ZOBJECT.ZSTARTDATE) AS "USAGE IN SECONDS", 
 			CASE ZOBJECT.ZSTARTDAYOFWEEK 
@@ -635,8 +671,6 @@ def get_knowCall(files_found, report_folder, seeker):
 			WHEN "7" THEN "Saturday"
 			END "DAY OF WEEK",
 			ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-			DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') as "START", 
-			DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') as "END",
 			DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') as "ENTRY CREATION",     
 			ZOBJECT.Z_PK AS "ZOBJECT TABLE ID"
 			FROM
@@ -662,12 +696,15 @@ def get_knowCall(files_found, report_folder, seeker):
 		report = ArtifactHtmlReport('KnowledgeC Battery Level')
 		report.start_artifact_report(report_folder, 'Battery Level', description)
 		report.add_script()
-		data_headers = ('Battery Level','Usage in Seconds','Day of the Week','GMT Offset','Start','End','Entry Creation', 'ZOBJECT Table ID' )     
+		data_headers = ('Start','End','Battery Level','Usage in Seconds','Day of the Week','GMT Offset','Entry Creation', 'ZOBJECT Table ID' )     
 		report.write_artifact_data_table(data_headers, data_list, file_found)
 		report.end_artifact_report()
 		
 		tsvname = 'KnowledgeC Battery Level'
 		tsv(report_folder, data_headers, data_list, tsvname)
+		
+		tlactivity = 'KnowledgeC Battery Level'
+		timeline(report_folder, tlactivity, data_list)
 		
 	if version.parse(iOSversion) >= version.parse("11"):
 
@@ -723,6 +760,9 @@ def get_knowCall(files_found, report_folder, seeker):
 			
 			tsvname = 'KnowledgeC Bluetooth Connections'
 			tsv(report_folder, data_headers, data_list, tsvname)
+			
+			tlactivity = 'KnowledgeC Bluetooth Connections'
+			timeline(report_folder, tlactivity, data_list)
 		else:
 			logfunc('No data available in Bluetooth Connections')
 	
@@ -781,6 +821,9 @@ def get_knowCall(files_found, report_folder, seeker):
 			
 			tsvname = 'KnowledgeC Car Play Connections'
 			tsv(report_folder, data_headers, data_list, tsvname)
+			
+			tlactivity = 'KnowledgeC Car Play Connections'
+			timeline(report_folder, tlactivity, data_list)
 		else:
 			logfunc('No data available in Car Play Connections')
 
@@ -836,6 +879,9 @@ def get_knowCall(files_found, report_folder, seeker):
 			
 			tsvname = 'KnowledgeC Disk Subsystem Access'
 			tsv(report_folder, data_headers, data_list, tsvname)
+			
+			tlactivity = 'KnowledgeC Disk Subsystem Access'
+			timeline(report_folder, tlactivity, data_list)
 		else:
 			logfunc('No data available in Disk Subsystem Access')
 			
@@ -890,6 +936,9 @@ def get_knowCall(files_found, report_folder, seeker):
 			
 			tsvname = 'KnowledgeC Do Not Disturb'
 			tsv(report_folder, data_headers, data_list, tsvname)
+			
+			tlactivity = 'KnowledgeC Do Not Disturb'
+			timeline(report_folder, tlactivity, data_list)
 		else:
 			logfunc('No data available in Do Not Disturb')
 	
@@ -1058,7 +1107,7 @@ def get_knowCall(files_found, report_folder, seeker):
 			else:
 				parsedf = str(NSdata).replace("\\n", "<br>")
 			
-			data_list.append((str(A), str(B), str(Siri), str(NSstartDate), str(NSendDate), str(NSduration), parsedf, (textwrap.fill(str(NSdata), width=50)), cfilename))
+			data_list.append(( str(NSstartDate),str(A), str(B), str(Siri), str(NSendDate), str(NSduration), parsedf, (textwrap.fill(str(NSdata), width=50)), cfilename))
 
 		logfunc("iOS - KnowledgeC ZSTRUCTUREDMETADATA bplist extractor")
 		logfunc("By: @phillmoore & @AlexisBrignoni")
@@ -1074,9 +1123,12 @@ def get_knowCall(files_found, report_folder, seeker):
 		report = ArtifactHtmlReport('KnowledgeC Intents')
 		report.start_artifact_report(report_folder, 'Intents', description)
 		report.add_script()
-		data_headers = ('Intent Class','Intent Verb','Siri?','NS Start Date','NS Send Date','NS Duration','NS Data Protobuf', 'NS Data', 'Traceback' )     
+		data_headers = ('NS Start Date','Intent Class','Intent Verb','Siri?','NS Send Date','NS Duration','NS Data Protobuf', 'NS Data', 'Traceback' )     
 		report.write_artifact_data_table(data_headers, data_list, file_found, html_escape=False)
 		report.end_artifact_report()
+		
+		tlactivity = 'KnowledgeC Intents'
+		timeline(report_folder, tlactivity, data_list)
 
 	if version.parse(iOSversion) >= version.parse("12"):
 		cursor = db.cursor()
@@ -1150,6 +1202,9 @@ def get_knowCall(files_found, report_folder, seeker):
 			
 			tsvname = 'KnowledgeC Application in Focus'
 			tsv(report_folder, data_headers, data_list, tsvname)
+			
+			tlactivity = 'KnowledgeC Application in Focus'
+			timeline(report_folder, tlactivity, data_list)
 		else:
 			for row in all_rows:    
 				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8]))
@@ -1163,6 +1218,9 @@ def get_knowCall(files_found, report_folder, seeker):
 			
 			tsvname = 'KnowledgeC Application in Focus'
 			tsv(report_folder, data_headers, data_list, tsvname)
+			
+			tlactivity = 'KnowledgeC Application in Focus'
+			timeline(report_folder, tlactivity, data_list)
 	else:
 		logfunc('No data available in Application in Focus')
 	
@@ -1245,6 +1303,9 @@ def get_knowCall(files_found, report_folder, seeker):
 			
 			tsvname = 'KnowledgeC Installed Apps'
 			tsv(report_folder, data_headers, data_list, tsvname)
+			
+			tlactivity = 'KnowledgeC Installed Apps'
+			timeline(report_folder, tlactivity, data_list)
 		else:
 			for row in all_rows:    
 				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6]))
@@ -1258,6 +1319,9 @@ def get_knowCall(files_found, report_folder, seeker):
 			
 			tsvname = 'KnowledgeC Installed Apps'
 			tsv(report_folder, data_headers, data_list, tsvname)
+			
+			tlactivity = 'KnowledgeC Installed Apps'
+			timeline(report_folder, tlactivity, data_list)
 	else:
 		logfunc('No data available in Installed Apps')
 		
@@ -1333,12 +1397,16 @@ def get_knowCall(files_found, report_folder, seeker):
 		
 		tsvname = 'KnowledgeC Location Activity'
 		tsv(report_folder, data_headers, data_list, tsvname)
-
+		
+		tlactivity = 'KnowledgeC Location Activity'
+		timeline(report_folder, tlactivity, data_list)
 
 	if version.parse(iOSversion) >= version.parse("11"):
 		cursor.execute(
 		"""
 		SELECT
+		DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') as "START", 
+		DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') as "END",
 		CASE ZOBJECT.ZVALUEINTEGER
 		WHEN '0' THEN 'UNLOCKED' 
 		WHEN '1' THEN 'LOCKED' 
@@ -1354,8 +1422,6 @@ def get_knowCall(files_found, report_folder, seeker):
 		WHEN "7" THEN "Saturday"
 		END "DAY OF WEEK",
 		ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-		DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') as "START", 
-		DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') as "END",
 		DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') as "ENTRY CREATION", 
 		ZOBJECT.Z_PK AS "ZOBJECT TABLE ID" 
 		FROM
@@ -1381,12 +1447,15 @@ def get_knowCall(files_found, report_folder, seeker):
 		report = ArtifactHtmlReport('KnowledgeC Device Locked')
 		report.start_artifact_report(report_folder, 'Device Locked', description)
 		report.add_script()
-		data_headers = ('Is Locked?','Usage in Seconds','Day of the Week','GMT Offset','Start','End','Entry Creation', 'ZOBJECT Table ID' )     
+		data_headers = ('Start','End','Is Locked?','Usage in Seconds','Day of the Week','GMT Offset','Entry Creation', 'ZOBJECT Table ID' )     
 		report.write_artifact_data_table(data_headers, data_list, file_found)
 		report.end_artifact_report()
 		
 		tsvname = 'KnowledgeC Device Locked'
 		tsv(report_folder, data_headers, data_list, tsvname)
+		
+		tlactivity = 'KnowledgeC Device Locked'
+		timeline(report_folder, tlactivity, data_list)
 
 		
 	if version.parse(iOSversion) >= version.parse("11"):
@@ -1445,6 +1514,9 @@ def get_knowCall(files_found, report_folder, seeker):
 			
 			tsvname = 'KnowledgeC Media Playing'
 			tsv(report_folder, data_headers, data_list, tsvname)
+			
+			tlactivity = 'KnowledgeC Media Playing'
+			timeline(report_folder, tlactivity, data_list)
 
 		else:
 			logfunc('No data available in Media Playing')
@@ -1502,6 +1574,9 @@ def get_knowCall(files_found, report_folder, seeker):
 			
 			tsvname = 'KnowledgeC Notes Activity'
 			tsv(report_folder, data_headers, data_list, tsvname)
+			
+			tlactivity = 'KnowledgeC Notes Activity'
+			timeline(report_folder, tlactivity, data_list)
 
 		else:
 			logfunc('No data available in Notes Activity')
@@ -1561,6 +1636,9 @@ def get_knowCall(files_found, report_folder, seeker):
 			
 			tsvname = 'KnowledgeC Screen Orientation'
 			tsv(report_folder, data_headers, data_list, tsvname)
+			
+			tlactivity = 'KnowledgeC Screen Orientation'
+			timeline(report_folder, tlactivity, data_list)
 
 		else:
 			logfunc('No data available in Screen Orientation')
@@ -1569,6 +1647,8 @@ def get_knowCall(files_found, report_folder, seeker):
 		cursor.execute(
 			"""
 			SELECT
+			DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') as "START", 
+			DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') as "END",
 			CASE
 			ZOBJECT.ZVALUEINTEGER
 			WHEN '0' THEN 'UNPLUGGED' 
@@ -1585,8 +1665,6 @@ def get_knowCall(files_found, report_folder, seeker):
 			WHEN "7" THEN "Saturday"
 			END "DAY OF WEEK",
 			ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-			DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') as "START", 
-			DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') as "END",
 			DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') as "ENTRY CREATION", 
 			ZOBJECT.Z_PK AS "ZOBJECT TABLE ID" 
 			FROM
@@ -1613,13 +1691,15 @@ def get_knowCall(files_found, report_folder, seeker):
 		report = ArtifactHtmlReport('KnowledgeC Plugged In')
 		report.start_artifact_report(report_folder, 'Plugged In', description)
 		report.add_script()
-		data_headers = ('Is Plugged In?','Usage in Seconds','Day of the Week','GMT Offset','Start','End','Entry Creation', 'ZOBJECT Table ID' )     
+		data_headers = ('Start','End','Is Plugged In?','Usage in Seconds','Day of the Week','GMT Offset','Entry Creation', 'ZOBJECT Table ID' )     
 		report.write_artifact_data_table(data_headers, data_list, file_found)
 		report.end_artifact_report()
 		
 		tsvname = 'KnowledgeC Plugged In'
 		tsv(report_folder, data_headers, data_list, tsvname)
-
+		
+		tlactivity = 'KnowledgeC Plugged In'
+		timeline(report_folder, tlactivity, data_list)
 
 	if version.parse(iOSversion) >= version.parse("12"):
 		cursor = db.cursor()
@@ -1658,6 +1738,8 @@ def get_knowCall(files_found, report_folder, seeker):
 		cursor = db.cursor()
 		cursor.execute('''
 		SELECT
+				DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
+				DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') AS "END",
 				ZOBJECT.ZVALUESTRING AS "URL", 
 				ZSOURCE.ZBUNDLEID AS "BUNDLE ID",
 				CASE ZOBJECT.ZSTARTDAYOFWEEK 
@@ -1670,8 +1752,6 @@ def get_knowCall(files_found, report_folder, seeker):
 					WHEN "7" THEN "Saturday"
 				END "DAY OF WEEK", 
 				ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-				DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
-				DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') AS "END",
 				DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') AS "ENTRY CREATION", 
 				ZOBJECT.Z_PK AS "ZOBJECT TABLE ID"
 			FROM
@@ -1707,6 +1787,9 @@ def get_knowCall(files_found, report_folder, seeker):
 			
 			tsvname = 'KnowledgeC Safari Browsing'
 			tsv(report_folder, data_headers, data_list, tsvname)
+			
+			tlactivity = 'KnowledgeC Safari Browsing'
+			timeline(report_folder, tlactivity, data_list)
 
 		else:
 			for row in all_rows:    
@@ -1715,12 +1798,15 @@ def get_knowCall(files_found, report_folder, seeker):
 			report = ArtifactHtmlReport('KnowledgeC Safari Browsing')
 			report.start_artifact_report(report_folder, 'Safari Browsing')
 			report.add_script()
-			data_headers = ('URL','Bundle ID','Day of Week','GMT Offset','Start','End','Entry Creation','ZOBJECT Table ID' ) 
+			data_headers = ('Start','End','URL','Bundle ID','Day of Week','GMT Offset','Entry Creation','ZOBJECT Table ID' ) 
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
 			tsvname = 'KnowledgeC Safari Browsing'
 			tsv(report_folder, data_headers, data_list, tsvname)
+			
+			tlactivity = 'KnowledgeC Safari Browsing'
+			timeline(report_folder, tlactivity, data_list)
 
 	else:
 		logfunc('No data available in Safari Browsing')
@@ -1729,6 +1815,7 @@ def get_knowCall(files_found, report_folder, seeker):
 		cursor.execute(
 		"""
 		SELECT
+		DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
 		ZOBJECT.ZVALUESTRING AS "APP NAME",  
 		CASE ZOBJECT.ZSTARTDAYOFWEEK 
 		WHEN "1" THEN "Sunday"
@@ -1740,7 +1827,6 @@ def get_knowCall(files_found, report_folder, seeker):
 		WHEN "7" THEN "Saturday"
 		END "DAY OF WEEK",
 		ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-		DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
 		DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') AS "ENTRY CREATION",
 		ZOBJECT.ZUUID AS "UUID", 
 		ZOBJECT.Z_PK AS "ZOBJECT TABLE ID" 
@@ -1767,13 +1853,15 @@ def get_knowCall(files_found, report_folder, seeker):
 		report = ArtifactHtmlReport('KnowledgeC Siri Usage')
 		report.start_artifact_report(report_folder, 'Siri Usage', description)
 		report.add_script()
-		data_headers = ('App Name','Weekday','GMT Offset','Start','Entry Creation','UUID','ZOBJECT Table ID' )     
+		data_headers = ('Start','App Name','Weekday','GMT Offset','Entry Creation','UUID','ZOBJECT Table ID' )     
 		report.write_artifact_data_table(data_headers, data_list, file_found)
 		report.end_artifact_report()
 		
 		tsvname = 'KnowledgeC Siri Usage'
 		tsv(report_folder, data_headers, data_list, tsvname)
-
+		
+		tlactivity = 'KnowledgeC Siri Usage'
+		timeline(report_folder, tlactivity, data_list)
 	
 	if version.parse(iOSversion) >= version.parse("12"):
 		cursor.execute(
@@ -1825,7 +1913,9 @@ def get_knowCall(files_found, report_folder, seeker):
 	
 	tsvname = 'KnowledgeC App Usage'
 	tsv(report_folder, data_headers, data_list, tsvname)
-
+	
+	tlactivity = 'KnowledgeC App Usage'
+	timeline(report_folder, tlactivity, data_list)
 
 	if version.parse(iOSversion) >= version.parse("12"):
 		cursor.execute(
@@ -1875,6 +1965,9 @@ def get_knowCall(files_found, report_folder, seeker):
 			
 			tsvname = 'KnowledgeC User Waking Events'
 			tsv(report_folder, data_headers, data_list, tsvname)
+			
+			tlactivity = 'KnowledgeC User Waking Events'
+			timeline(report_folder, tlactivity, data_list)
 
 		else:
 			logfunc('No data available in User Waking Event')
@@ -1933,6 +2026,9 @@ def get_knowCall(files_found, report_folder, seeker):
 			
 			tsvname = 'KnowledgeC Watch Wear'
 			tsv(report_folder, data_headers, data_list, tsvname)
+			
+			tlactivity = 'KnowledgeC Watch Wear'
+			timeline(report_folder, tlactivity, data_list)
 
 		else:
 			logfunc('No data available in Watch Near')
@@ -1992,6 +2088,9 @@ def get_knowCall(files_found, report_folder, seeker):
 			
 			tsvname = 'KnowledgeC Web Usage'
 			tsv(report_folder, data_headers, data_list, tsvname)
+			
+			tlactivity = 'KnowledgeC Web Usage'
+			timeline(report_folder, tlactivity, data_list)
 
 		else:
 			logfunc('No data available in Web Usage')
@@ -2047,6 +2146,9 @@ def get_knowCall(files_found, report_folder, seeker):
 			
 			tsvname = 'KnowledgeC Widgets Viewed'
 			tsv(report_folder, data_headers, data_list, tsvname)
+			
+			tlactivity = 'KnowledgeC Widgets Viewed'
+			timeline(report_folder, tlactivity, data_list)
 
 		else:
 			logfunc('No data available in Widgets Viewed')

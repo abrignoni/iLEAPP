@@ -6,7 +6,7 @@ import sqlite3
 import scripts.artifacts.artGlobals #use to get iOS version -> iOSversion = scripts.artifacts.artGlobals.versionf
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows 
 from scripts.ccl import ccl_bplist
 
 def get_knowCactivitylvl(files_found, report_folder, seeker):
@@ -59,6 +59,9 @@ def get_knowCactivitylvl(files_found, report_folder, seeker):
         
         tsvname = 'KnowledgeC Activity Level'
         tsv(report_folder, data_headers, data_list, tsvname)
+        
+        tlactivity = 'KnowledgeC Activity Level'
+        timeline(report_folder, tlactivity, data_list)
 
     else:
         logfunc('No data available in table')

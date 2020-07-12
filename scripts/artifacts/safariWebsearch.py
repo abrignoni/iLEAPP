@@ -6,7 +6,7 @@ import sqlite3
 import json
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows 
 
 
 def get_safariWebsearch(files_found, report_folder, seeker):
@@ -44,18 +44,21 @@ def get_safariWebsearch(files_found, report_folder, seeker):
 		for row in all_rows:
 			search = row[1].split('search?q=')[1].split('&')[0]
 			search = search.replace('+', ' ')
-			data_list.append((search, row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9]))
+			data_list.append((row[0], search, row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9]))
 	
 		description = ''
 		report = ArtifactHtmlReport('Safari Browser')
 		report.start_artifact_report(report_folder, 'Search Terms', description)
 		report.add_script()
-		data_headers = ('Search Term','Visit Time','URL','Visit Count','Title','iCloud Sync','Load Successful','Visit ID','Redirect Source','Redirect Destination','History Item ID' )     
+		data_headers = ('Visit Time','Search Term','URL','Visit Count','Title','iCloud Sync','Load Successful','Visit ID','Redirect Source','Redirect Destination','History Item ID' )     
 		report.write_artifact_data_table(data_headers, data_list, file_found)
 		report.end_artifact_report()
 		
 		tsvname = 'Safari Web Search'
 		tsv(report_folder, data_headers, data_list, tsvname)
+		
+		tlactivity = 'Safari Web Search'
+		timeline(report_folder, tlactivity, data_list)
 	else:
 		logfunc('No data available in table')
 	
