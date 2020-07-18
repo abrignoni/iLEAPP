@@ -55,6 +55,7 @@ def logdevinfo(message=""):
     
 def tsv(report_folder, data_headers, data_list, tsvname):
     report_folder = report_folder.rstrip('/')
+    report_folder = report_folder.rstrip('\\')
     report_folder_base, tail = os.path.split(report_folder)
     tsv_report_folder = os.path.join(report_folder_base, '_TSV Exports')
     
@@ -72,6 +73,7 @@ def tsv(report_folder, data_headers, data_list, tsvname):
             
 def timeline(report_folder, tlactivity, data_list):
     report_folder = report_folder.rstrip('/')
+    report_folder = report_folder.rstrip('\\')
     report_folder_base, tail = os.path.split(report_folder)
     tl_report_folder = os.path.join(report_folder_base, '_Timeline')
 
