@@ -34,6 +34,7 @@ def get_notificationsXII(files_found, report_folder, seeker):
 
     bundle_info = get_bundle_info(files_found)
     data_list = []
+    tsv_data_list = []
     exportedbplistcount = 0
 
     pathfound = str(files_found[0])
@@ -79,7 +80,8 @@ def get_notificationsXII(files_found, report_folder, seeker):
                     if subtitle:
                         title += f'[{subtitle}]'
                     data_list.append((creation_date, bundle_name, title, message, str(other_dict)))
-                p.close()
+                    tsv_data_list.append((creation_date, bundle_name, title, message))
+                    p.close()
                 
             elif "AttachmentsList" in file_name:
                 pass  # future development
@@ -89,6 +91,7 @@ def get_notificationsXII(files_found, report_folder, seeker):
     report.start_artifact_report(report_folder, 'iOS Notifications', description)
     report.add_script()
     data_headers = ('Creation Time', 'Bundle', 'Title[Subtitle]', 'Message', 'Other Details')
+    tsv_data_headers = ('Creation Time', 'Bundle', 'Title[Subtitle]', 'Message')
     report.write_artifact_data_table(data_headers, data_list, filepath)
     report.end_artifact_report()
 
@@ -96,7 +99,7 @@ def get_notificationsXII(files_found, report_folder, seeker):
     #logfunc("Total exported bplists from notifications:" + str(exportedbplistcount))
     
     tsvname = 'Notifications'
-    tsv(report_folder, data_headers, data_list, tsvname)
+    tsv(report_folder, tsv_data_headers, tsv_data_list, tsvname)
 
     tlactivity = 'Notifications'
     timeline(report_folder, tlactivity, data_list)
