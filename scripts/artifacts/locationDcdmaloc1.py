@@ -8,7 +8,7 @@ import sqlite3
 import json
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows 
 
 
 def get_locationDcdmaloc1(files_found, report_folder, seeker):
@@ -58,6 +58,9 @@ def get_locationDcdmaloc1(files_found, report_folder, seeker):
 		
 		tsvname = 'LocationD CDMA Location'
 		tsv(report_folder, data_headers, data_list, tsvname)
+		
+		tlactivity = 'LocationD CDMA Location'
+		timeline(report_folder, tlactivity, data_list)
 	else:
 		logfunc('No data available for LocationD CDMA Location')
 	

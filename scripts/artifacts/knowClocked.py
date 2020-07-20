@@ -6,7 +6,7 @@ import sqlite3
 import json
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows 
 
 
 def get_knowClocked(files_found, report_folder, seeker):
@@ -17,6 +17,8 @@ def get_knowClocked(files_found, report_folder, seeker):
 	cursor.execute(
 	"""
 	SELECT
+	DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') as "START", 
+	DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') as "END",
 	CASE ZOBJECT.ZVALUEINTEGER
 	WHEN '0' THEN 'UNLOCKED' 
 	WHEN '1' THEN 'LOCKED' 
@@ -51,18 +53,24 @@ def get_knowClocked(files_found, report_folder, seeker):
 
 	all_rows = cursor.fetchall()
 	usageentries = len(all_rows)
-	data_list = []    
-	for row in all_rows:
-		data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]))
+	data_list = []
+	if usageentries > 0:    
+		for row in all_rows:
+			data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]))
 
-	description = ''
-	report = ArtifactHtmlReport('KnowledgeC Device Locked')
-	report.start_artifact_report(report_folder, 'Device Locked', description)
-	report.add_script()
-	data_headers = ('Is Locked?','Usage in Seconds','Day of the Week','GMT Offset','Start','End','Entry Creation', 'ZOBJECT Table ID' )     
-	report.write_artifact_data_table(data_headers, data_list, file_found)
-	report.end_artifact_report()
-	
-	tsvname = 'KnowledgeC Device Locked'
-	tsv(report_folder, data_headers, data_list, tsvname)
+		description = ''
+		report = ArtifactHtmlReport('KnowledgeC Device Locked')
+		report.start_artifact_report(report_folder, 'Device Locked', description)
+		report.add_script()
+		data_headers = ('Start','End','Is Locked?','Usage in Seconds','Day of the Week','GMT Offset','Entry Creation', 'ZOBJECT Table ID' )     
+		report.write_artifact_data_table(data_headers, data_list, file_found)
+		report.end_artifact_report()
+		
+		tsvname = 'KnowledgeC Device Locked'
+		tsv(report_folder, data_headers, data_list, tsvname)
+		
+		tlactivity = 'KnowledgeC Device Locked'
+		timeline(report_folder, tlactivity, data_list)
+	else:
+		logfunc('No data available for KnowledgeC Device Locked')
 	

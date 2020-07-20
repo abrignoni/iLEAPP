@@ -6,7 +6,7 @@ import sqlite3
 import json
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows 
 
 
 def get_knowCbatlvl(files_found, report_folder, seeker):
@@ -17,6 +17,8 @@ def get_knowCbatlvl(files_found, report_folder, seeker):
 	cursor.execute(
 	"""
 	SELECT
+	DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') as "START", 
+	DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') as "END",
 	ZOBJECT.ZVALUEDOUBLE as "BATTERY LEVEL",
 	(ZOBJECT.ZENDDATE - ZOBJECT.ZSTARTDATE) AS "USAGE IN SECONDS", 
 	CASE ZOBJECT.ZSTARTDAYOFWEEK 
@@ -29,8 +31,6 @@ def get_knowCbatlvl(files_found, report_folder, seeker):
 	WHEN "7" THEN "Saturday"
 	END "DAY OF WEEK",
 	ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-	DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') as "START", 
-	DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') as "END",
 	DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') as "ENTRY CREATION",     
 	ZOBJECT.Z_PK AS "ZOBJECT TABLE ID"
 	FROM
@@ -48,17 +48,23 @@ def get_knowCbatlvl(files_found, report_folder, seeker):
 
 	all_rows = cursor.fetchall()
 	usageentries = len(all_rows)
-	data_list = []    
-	for row in all_rows:
-		data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]))
+	data_list = []
+	if usageentries > 0:    
+		for row in all_rows:
+			data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]))
 
-	description = ''
-	report = ArtifactHtmlReport('KnowledgeC Battery Level')
-	report.start_artifact_report(report_folder, 'Battery Level', description)
-	report.add_script()
-	data_headers = ('Battery Level','Usage in Seconds','Day of the Week','GMT Offset','Start','End','Entry Creation', 'ZOBJECT Table ID' )     
-	report.write_artifact_data_table(data_headers, data_list, file_found)
-	report.end_artifact_report()
-	
-	tsvname = 'KnowledgeC Battery Level'
-	tsv(report_folder, data_headers, data_list, tsvname)
+		description = ''
+		report = ArtifactHtmlReport('KnowledgeC Battery Level')
+		report.start_artifact_report(report_folder, 'Battery Level', description)
+		report.add_script()
+		data_headers = ('Start','End','Battery Level','Usage in Seconds','Day of the Week','GMT Offset','Entry Creation', 'ZOBJECT Table ID' )     
+		report.write_artifact_data_table(data_headers, data_list, file_found)
+		report.end_artifact_report()
+		
+		tsvname = 'KnowledgeC Battery Level'
+		tsv(report_folder, data_headers, data_list, tsvname)
+		
+		tlactivity = 'KnowledgeC Battery Level'
+		timeline(report_folder, tlactivity, data_list)
+	else:
+			logfunc('No data available in table')

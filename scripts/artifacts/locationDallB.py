@@ -10,7 +10,7 @@ import scripts.artifacts.artGlobals
 
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows 
 
 
 def get_locationDallB(files_found, report_folder, seeker):
@@ -63,6 +63,9 @@ def get_locationDallB(files_found, report_folder, seeker):
 			
 			tsvname = 'LocationD Cell App Harvest'
 			tsv(report_folder, data_headers, data_list, tsvname)
+			
+			tlactivity = 'LocationD Cell App Harvest'
+			timeline(report_folder, tlactivity, data_list)
 		else:
 			logfunc('No data available for LocationD App Harvest')
 			
@@ -108,6 +111,9 @@ def get_locationDallB(files_found, report_folder, seeker):
 		
 		tsvname = 'LocationD CDMA Location'
 		tsv(report_folder, data_headers, data_list, tsvname)
+		
+		tlactivity = 'LocationD CDMA Location'
+		timeline(report_folder, tlactivity, data_list)
 	else:
 		logfunc('No data available for LocationD CDMA Location')
 		
@@ -151,6 +157,9 @@ def get_locationDallB(files_found, report_folder, seeker):
 		
 		tsvname = 'LocationD Cell Location'
 		tsv(report_folder, data_headers, data_list, tsvname)
+		
+		tlactivity = 'LocationD Cell Location'
+		timeline(report_folder, tlactivity, data_list)
 	else:
 		logfunc('No data available for LocationD Cell Location')
 
@@ -193,6 +202,9 @@ def get_locationDallB(files_found, report_folder, seeker):
 		
 		tsvname = 'LocationD LTE Location'
 		tsv(report_folder, data_headers, data_list, tsvname)
+		
+		tlactivity = 'LocationD LTE Location'
+		timeline(report_folder, tlactivity, data_list)
 	else:
 		logfunc('No data available for LocationD LTE Location')
 		
@@ -235,6 +247,9 @@ def get_locationDallB(files_found, report_folder, seeker):
 		
 		tsvname = 'LocationD WiFi Location'
 		tsv(report_folder, data_headers, data_list, tsvname)
+		
+		tlactivity = 'LocationD WiFi Location'
+		timeline(report_folder, tlactivity, data_list)
 	else:
 		logfunc('No data available for LocationD WiFi Location')
 	

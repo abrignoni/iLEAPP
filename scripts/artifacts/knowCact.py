@@ -6,7 +6,7 @@ import sqlite3
 import json
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows 
 
     
 def get_knowCact(files_found, report_folder, seeker):
@@ -46,17 +46,27 @@ def get_knowCact(files_found, report_folder, seeker):
 
 	all_rows = cursor.fetchall()
 	usageentries = len(all_rows)
-	data_list = [] 
-	for row in all_rows:
-		data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11]))
+	data_list = []
+	if usageentries > 0: 
+		for row in all_rows:
+			data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11]))
 
-	description = ''
-	report = ArtifactHtmlReport('KnowledgeC App Activity')
-	report.start_artifact_report(report_folder, 'App Activity', description)
-	report.add_script()
-	data_headers = ('Entry Creation','Day of the Week','Start','End','ZSTREAMNAME', 'ZVALUESTRING', 'Activity Type', 'Title', 'Expiration Date', 'Content URL', 'Calendar Date', 'Calendar End Date' )     
-	report.write_artifact_data_table(data_headers, data_list, file_found)
-	report.end_artifact_report()
-	
-	tsvname = 'KnowledgeC App Activity'
-	tsv(report_folder, data_headers, data_list, tsvname)
+		description = ''
+		report = ArtifactHtmlReport('KnowledgeC App Activity')
+		report.start_artifact_report(report_folder, 'App Activity', description)
+		report.add_script()
+		data_headers = ('Entry Creation','Day of the Week','Start','End','ZSTREAMNAME', 'ZVALUESTRING', 'Activity Type', 'Title', 'Expiration Date', 'Content URL', 'Calendar Date', 'Calendar End Date' )     
+		report.write_artifact_data_table(data_headers, data_list, file_found)
+		report.end_artifact_report()
+		
+		tsvname = 'KnowledgeC App Activity'
+		tsv(report_folder, data_headers, data_list, tsvname)
+		
+		tlactivity = 'KnowledgeC App Activity'
+		timeline(report_folder, tlactivity, data_list)
+	else:
+		logfunc('No data available in table')
+		
+	db.close()
+	return 
+
