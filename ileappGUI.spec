@@ -2,20 +2,13 @@
 
 block_cipher = None
 
-
-#
-# Update baseDir to the location where you downloaded the iLEAPP repository
-#
-
-baseDir = 'C:\\Users\\forensic user\\Documents\\GitHub\\iLEAPP'
-
 a = Analysis(['ileappGUI.py'],
-             pathex=[baseDir],
+             pathex=[],
              binaries=[],
-             datas=[(baseDir + '\\scripts\\logo.jpg', '.\\scripts'),
-                    (baseDir + '\\scripts\\dashboard.css', '.\\scripts'),
-                    (baseDir + '\\scripts\\feather.min.js', '.\\scripts'),
-                    (baseDir + '\\scripts\\MDB-Free_4.13.0', '.\\scripts\\MDB-Free_4.13.0')],
+             datas=[('.\\scripts\\logo.jpg', '.\\scripts'),
+                    ('.\\scripts\\dashboard.css', '.\\scripts'),
+                    ('.\\scripts\\feather.min.js', '.\\scripts'),
+                    ('.\\scripts\\MDB-Free_4.13.0', '.\\scripts\\MDB-Free_4.13.0')],
              hiddenimports=[],
              hookspath=[],
              runtime_hooks=[],
