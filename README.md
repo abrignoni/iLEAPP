@@ -43,13 +43,13 @@ sudo apt-get install python3-tk
 
 To compile to an executable so you can run this on a system without python installed.
 
-To create ileapp.exe, run:
+To create ileapp.exe, update ileapp.spec file with directory script located in then run:
 
 ```
 pyinstaller --onefile ileapp.spec
 ````
 
-To create iLeappGUI.exe, run:
+To create ileappGUI.exe, update ileappGUI.spec file with directory script located in then run:
 
 ```
 pyinstaller --onefile --noconsole ileappGUI.spec
