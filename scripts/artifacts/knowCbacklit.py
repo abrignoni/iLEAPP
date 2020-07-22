@@ -8,7 +8,7 @@ from packaging import version
 import scripts.artifacts.artGlobals
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows 
 
 
 def get_knowCbacklit(files_found, report_folder, seeker):
@@ -112,6 +112,10 @@ def get_knowCbacklit(files_found, report_folder, seeker):
 			
 			tsvname = 'KnowledgeC Device is Backlit'
 			tsv(report_folder, data_headers, data_list, tsvname)
+			
+			tlactivity = 'KnowledgeC Device is Backlit'
+			timeline(report_folder, tlactivity, data_list)
+			
 		elif version.parse(iOSversion) == version.parse("11"):
 			for row in all_rows:    
 				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6]))
@@ -125,6 +129,9 @@ def get_knowCbacklit(files_found, report_folder, seeker):
 			
 			tsvname = 'KnowledgeC Device is Backlit'
 			tsv(report_folder, data_headers, data_list, tsvname)
+			
+			tlactivity = 'KnowledgeC Device is Backlit'
+			timeline(report_folder, tlactivity, data_list)
 	else:
 		logfunc('No data available in table')
 

@@ -4,6 +4,7 @@ import os
 import pathlib
 import sys
 import codecs
+import sqlite3
 
 from bs4 import BeautifulSoup
 
@@ -52,48 +53,9 @@ def logdevinfo(message=""):
     with open(OutputParameters.screen_output_file_path_devinfo, 'a', encoding='utf8') as b:
         b.write(message + '<br>' + OutputParameters.nl)
     
-def html2csv(reportfolderbase):
-    #List of items that take too long to convert or that shouldn't be converted
-    itemstoignore = ['index.html',
-                    'Distribution Keys.html', 
-                    'StrucMetadata.html',
-                    'StrucMetadataCombined.html']
-                    
-    if os.path.isdir(os.path.join(reportfolderbase, '_CSV Exports')):
-        pass
-    else:
-        os.makedirs(os.path.join(reportfolderbase, '_CSV Exports'))
-    for root, dirs, files in sorted(os.walk(reportfolderbase)):
-        for file in files:
-            if file.endswith(".html"):
-                fullpath = (os.path.join(root, file))
-                head, tail = os.path.split(fullpath)
-                if file in itemstoignore:
-                    pass
-                else:
-                    data = open(fullpath, 'r', encoding='utf8')
-                    soup=BeautifulSoup(data,'html.parser')
-                    tables = soup.find_all("table")
-                    data.close()
-                    output_final_rows=[]
-
-                    for table in tables:
-                        output_rows = []
-                        for table_row in table.findAll('tr'):
-
-                            columns = table_row.findAll('td')
-                            output_row = []
-                            for column in columns:
-                                    output_row.append(column.text)
-                            output_rows.append(output_row)
-        
-                        file = (os.path.splitext(file)[0])
-                        with codecs.open(os.path.join(reportfolderbase, '_CSV Exports',  file +'.csv'), 'a', 'utf-8-sig') as csvfile:
-                            writer = csv.writer(csvfile, quotechar='"', quoting=csv.QUOTE_ALL)
-                            writer.writerows(output_rows)
-
 def tsv(report_folder, data_headers, data_list, tsvname):
     report_folder = report_folder.rstrip('/')
+    report_folder = report_folder.rstrip('\\')
     report_folder_base, tail = os.path.split(report_folder)
     tsv_report_folder = os.path.join(report_folder_base, '_TSV Exports')
     
@@ -108,3 +70,34 @@ def tsv(report_folder, data_headers, data_list, tsvname):
         tsv_writer.writerow(data_headers)
         for i in data_list:
             tsv_writer.writerow(i)
+            
+def timeline(report_folder, tlactivity, data_list):
+    report_folder = report_folder.rstrip('/')
+    report_folder = report_folder.rstrip('\\')
+    report_folder_base, tail = os.path.split(report_folder)
+    tl_report_folder = os.path.join(report_folder_base, '_Timeline')
+
+    if os.path.isdir(tl_report_folder):
+        tldb = os.path.join(tl_report_folder, 'tl.db')
+        db = sqlite3.connect(tldb)
+        cursor = db.cursor()
+        cursor.execute('''PRAGMA synchronous = EXTRA''')
+        cursor.execute('''PRAGMA journal_mode = WAL''')
+    else:
+        os.makedirs(tl_report_folder)
+        #create database
+        tldb = os.path.join(tl_report_folder, 'tl.db')
+        db = sqlite3.connect(tldb, isolation_level = 'exclusive')
+        cursor = db.cursor()
+        cursor.execute(
+        """
+        CREATE TABLE data(key TEXT, activity TEXT, datalist TEXT)
+        """
+            )
+        db.commit()
+    
+    for i in data_list:
+        #datainsert = (str(i[0]), tlactivity, str(i),)
+        cursor.executemany("INSERT INTO data VALUES(?,?,?)", [(str(i[0]), tlactivity, str(i))])
+    db.commit()
+    db.close()

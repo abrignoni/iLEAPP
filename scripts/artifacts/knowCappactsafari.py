@@ -4,7 +4,7 @@ import scripts.artifacts.artGlobals #use to get iOS version -> iOSversion = scri
 from packaging import version #use to search per version number
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows 
 from scripts.ccl import ccl_bplist
 
 def get_knowCappactsafari(files_found, report_folder, seeker):
@@ -110,6 +110,9 @@ def get_knowCappactsafari(files_found, report_folder, seeker):
             
             tsvname = 'KnowledgeC Application Activity Safari'
             tsv(report_folder, data_headers, data_list, tsvname)
+            
+            tlactivity = 'KnowledgeC Application Activity Safari'
+            timeline(report_folder, tlactivity, data_list)
         else:
             for row in all_rows:    data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12],row[13]))
             
@@ -122,6 +125,9 @@ def get_knowCappactsafari(files_found, report_folder, seeker):
             
             tsvname = 'KnowledgeC Application Activity Safari'
             tsv(report_folder, data_headers, data_list, tsvname)
+            
+            tlactivity = 'KnowledgeC Application Activity Safari'
+            timeline(report_folder, tlactivity, data_list)
     else:
         logfunc('No data available in table')
 

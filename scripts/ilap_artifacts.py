@@ -62,7 +62,7 @@ from scripts.artifacts.queryPredictions import get_queryPredictions
 from scripts.artifacts.dhcpl import get_dhcpl
 from scripts.artifacts.dhcphp import get_dhcphp
 from scripts.artifacts.powerlogWifiprop import get_powerlogWifiprop
-from scripts.artifacts.powerlogVolume import get_powerlogVolume
+from scripts.artifacts.powerlogVolumePercentage import get_powerlogVolumePercentage
 from scripts.artifacts.powerlogVideo import get_powerlogVideo
 from scripts.artifacts.powerlogTorch import get_powerlogTorch
 from scripts.artifacts.powerlogTimezone import get_powerlogTimezone
@@ -115,6 +115,7 @@ from scripts.artifacts.calendarAll import get_calendarAll
 from scripts.artifacts.photosMetadata import get_photosMetadata
 from scripts.artifacts.aggDictpasscode import get_aggDictpasscode
 from scripts.artifacts.aggDictpasscodetype import get_aggDictpasscodetype
+from scripts.artifacts.ooklaSpeedtestData import get_ooklaSpeedtestData
 
 from scripts.ilapfuncs import *
 
@@ -164,7 +165,8 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'bluetoothPaired':('Bluetooth', '**/Library/Database/com.apple.MobileBluetooth.ledevices.paired.db'),
             'bluetoothOther':('Bluetooth', '**/Library/Database/com.apple.MobileBluetooth.ledevices.other.db'),
             'calendarAll':('Calendar', '**/Calendar.sqlitedb'),
-            'photosMetadata':('Photos', '**/Photos.sqlite')
+            'photosMetadata':('Photos', '**/Photos.sqlite'),
+            'ooklaSpeedtestData':('Applications', '**/speedtest.sqlite*')
             }
 
 '''
@@ -206,7 +208,7 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
     'knowCuserwaking':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
     'knowCwidget':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
     'powerlogWifiprop':('Powerlog', '**/CurrentPowerlog.PLSQL'),
-    'powerlogVolume':('Powerlog', '**/CurrentPowerlog.PLSQL'),
+    'powerlogVolumePercentage':('Powerlog', '**/CurrentPowerlog.PLSQL'),
     'powerlogTorch':('Powerlog', '**/CurrentPowerlog.PLSQL'),
     'powerlogVideo':('Powerlog', '**/CurrentPowerlog.PLSQL'),
     'powerlogTimezone':('Powerlog', '**/CurrentPowerlog.PLSQL'),

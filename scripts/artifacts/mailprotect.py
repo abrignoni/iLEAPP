@@ -9,7 +9,7 @@ import scripts.artifacts.artGlobals
  
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows 
 from scripts.ccl import ccl_bplist
 from scripts.parse3 import ParseProto
 
@@ -143,19 +143,22 @@ def get_mailprotect(files_found, report_folder, seeker):
 		if usageentries > 0:
 			data_list = [] 
 			for row in all_rows:
-				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[9],row[7],row[8]))
+				data_list.append((row[1],row[2],row[3],row[4],row[5],row[6],row[9],row[7],row[8],row[0]))
 			
 			file_found = head
 			description = ''
 			report = ArtifactHtmlReport('iOS Mail')
 			report.start_artifact_report(report_folder, 'Emails', description)
 			report.add_script()
-			data_headers = ('Row ID','Date Sent','Date Received','Sender','Message ID', 'Subject', 'Recipient', 'Message', 'CC', 'BCC')     
+			data_headers = ('Date Sent','Date Received','Sender','Message ID', 'Subject', 'Recipient', 'Message', 'CC', 'BCC','Row ID')     
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
 			tsvname = 'iOS Mail'
-			tsv(report_folder, data_headers, data_list, tsvname)		
+			tsv(report_folder, data_headers, data_list, tsvname)
+			
+			tlactivity = 'iOS Mail'
+			timeline(report_folder, tlactivity, data_list)		
 		else:
 			logfunc("No iOS emails available")
 
@@ -205,6 +208,9 @@ def get_mailprotect(files_found, report_folder, seeker):
 			
 			tsvname = 'iOS Mail'
 			tsv(report_folder, data_headers, data_list, tsvname)
+			
+			tlactivity = 'iOS Mail'
+			timeline(report_folder, tlactivity, data_list)
 				
 		else:
 			logfunc("No iOS emails available")

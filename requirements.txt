@@ -3,3 +3,4 @@ pathlib2==2.3.5
 PySimpleGUI==4.16.0
 biplist
 bs4
+pyinstaller

@@ -30,10 +30,29 @@ To install dependencies, run:
 pip install -r requirements.txt
 ```
 
+To install dependencies offline Troy Schnack has a neat process here:
+https://twitter.com/TroySchnack/status/1266085323651444736?s=19
+
 To run on **Linux**, you will also need to install `tkinter` separately like so:
 
 ```
 sudo apt-get install python3-tk
+```
+
+## Compile to executable
+
+To compile to an executable so you can run this on a system without python installed.
+
+To create ileapp.exe, run:
+
+```
+pyinstaller --onefile ileapp.spec
+````
+
+To create ileappGUI.exe, run:
+
+```
+pyinstaller --onefile --noconsole ileappGUI.spec
 ```
 
 ## Usage

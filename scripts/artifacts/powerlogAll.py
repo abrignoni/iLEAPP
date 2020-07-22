@@ -9,7 +9,7 @@ import scripts.artifacts.artGlobals
  
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, is_platform_windows  
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows  
 from scripts.ccl import ccl_bplist
 from scripts.parse3 import ParseProto
 
@@ -55,6 +55,9 @@ def get_powerlogAll(files_found, report_folder, seeker):
                 
                 tsvname = 'Powerlog Audio Routing via App'
                 tsv(report_folder, data_headers, data_list, tsvname)
+                
+                tlactivity = 'Powerlog Audio Routing via App'
+                timeline(report_folder, tlactivity, data_list)
 
         else:
             logfunc('No data available in Airdop Connection Info')
@@ -87,6 +90,9 @@ def get_powerlogAll(files_found, report_folder, seeker):
             
             tsvname = 'Powerlog Agg Bulletins'
             tsv(report_folder, data_headers, data_list, tsvname)
+            
+            tlactivity = 'Powerlog Agg Bulletins'
+            timeline(report_folder, tlactivity, data_list)
         else:
             logfunc('No data available in Aggregate Bulletins')
     
@@ -118,6 +124,9 @@ def get_powerlogAll(files_found, report_folder, seeker):
             
             tsvname = 'Powerlog Agg Notifications'
             tsv(report_folder, data_headers, data_list, tsvname)
+            
+            tlactivity = 'Powerlog Agg Notifications'
+            timeline(report_folder, tlactivity, data_list)
         else:
             logfunc('No data available in Aggregate Notifications')
             
@@ -188,6 +197,9 @@ def get_powerlogAll(files_found, report_folder, seeker):
                 
                 tsvname = 'Powerlog Airdrop Connections Info'
                 tsv(report_folder, data_headers, data_list, tsvname)
+                
+                tlactivity = 'Powerlog Airdrop Connections Info'
+                timeline(report_folder, tlactivity, data_list)
 
         else:
             logfunc('No data available in Airdop Connection Info')
@@ -229,6 +241,9 @@ def get_powerlogAll(files_found, report_folder, seeker):
                 
                 tsvname = 'Powerlog App Info'
                 tsv(report_folder, data_headers, data_list, tsvname)
+                
+                tlactivity = 'Powerlog App Info'
+                timeline(report_folder, tlactivity, data_list)
 
         else:
             logfunc('No data available in Powerlog App Info')
@@ -270,49 +285,12 @@ def get_powerlogAll(files_found, report_folder, seeker):
                 
                 tsvname = 'Powerlog App Info'
                 tsv(report_folder, data_headers, data_list, tsvname)
+                
+                tlactivity = 'Powerlog App Info'
+                timeline(report_folder, tlactivity, data_list)
 
         else:
             logfunc('No data available in Powerlog App Info')
-            
-    if version.parse(iOSversion) >= version.parse("9"):
-        cursor = db.cursor()
-        cursor.execute('''
-        SELECT
-            DATETIME(TIMESTAMP, 'UNIXEPOCH') AS TIMESTAMP,
-            DATETIME(TIMESTAMPLOGGED, 'UNIXEPOCH') AS "TIMESTAMP LOGGED",
-            APPLICATIONNAME AS "APPLICATION NAME / BUNDLE ID",
-            ASSERTIONID AS "ASERTION ID",
-            ASSERTIONNAME AS "ASSERTION NAME",
-            AUDIOROUTE AS "AUDIO ROUTE",
-            MIRRORINGSTATE AS "MIRRORING STATE",
-            OPERATION,
-            PID,
-            ID AS "PLAUDIOAGENT_EVENTPOINT_AUDIOAPP TABLE ID" 
-            FROM
-            PLAUDIOAGENT_EVENTPOINT_AUDIOAPP
-        ''')
-        
-        
-        all_rows = cursor.fetchall()
-        usageentries = len(all_rows)
-        if usageentries > 0:
-            data_list = []
-            if version.parse(iOSversion) >= version.parse("9"):
-                for row in all_rows:    
-                    data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8]))
-
-                report = ArtifactHtmlReport('Powerlog Audio Routing via App')
-                report.start_artifact_report(report_folder, 'Audio Routing')
-                report.add_script()
-                data_headers = ('Timestamp','Timestamped Logged','Bundle ID','Assertion Name','Audio Route','Mirroring State','Operation','PID', 'Audio App Table ID' )   
-                report.write_artifact_data_table(data_headers, data_list, file_found)
-                report.end_artifact_report()
-                
-                tsvname = 'Powerlog Audio Routing via App'
-                tsv(report_folder, data_headers, data_list, tsvname)
-
-        else:
-            logfunc('No data available in Audio Routing Info')
 
     if version.parse(iOSversion) >= version.parse("11"):
         cursor = db.cursor()
@@ -346,6 +324,9 @@ def get_powerlogAll(files_found, report_folder, seeker):
                 
                 tsvname = 'Powerlog Backup Info'
                 tsv(report_folder, data_headers, data_list, tsvname)
+                
+                tlactivity = 'Powerlog Backup Info'
+                timeline(report_folder, tlactivity, data_list)
 
         else:
             logfunc('No data available in Powerlog Backup Info')
@@ -425,6 +406,9 @@ def get_powerlogAll(files_found, report_folder, seeker):
             tsvname = 'Powerlog Deleted Apps'
             tsv(report_folder, data_headers, data_list, tsvname)
             
+            tlactivity = 'Powerlog Deleted Apps'
+            timeline(report_folder, tlactivity, data_list)
+            
         elif version.parse(iOSversion) == version.parse("10"):
             for row in all_rows:    
                 data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8]))
@@ -439,6 +423,9 @@ def get_powerlogAll(files_found, report_folder, seeker):
             tsvname = 'Powerlog Deleted Apps'
             tsv(report_folder, data_headers, data_list, tsvname)
             
+            tlactivity = 'Powerlog Deleted Apps'
+            timeline(report_folder, tlactivity, data_list)
+            
         elif version.parse(iOSversion) == version.parse("9"):
             for row in all_rows:    
                 data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6]))
@@ -452,6 +439,9 @@ def get_powerlogAll(files_found, report_folder, seeker):
             
             tsvname = 'Powerlog Deleted Apps'
             tsv(report_folder, data_headers, data_list, tsvname)
+            
+            tlactivity = 'Powerlog Deleted Apps'
+            timeline(report_folder, tlactivity, data_list)
     else:
         logfunc('No data available in Powerlog Deleted Apps')
 
@@ -514,6 +504,9 @@ def get_powerlogAll(files_found, report_folder, seeker):
                 
                 tsvname = 'Powerlog Lightning Connector Status'
                 tsv(report_folder, data_headers, data_list, tsvname)
+                
+                tlactivity = 'Powerlog Lightning Connector Status'
+                timeline(report_folder, tlactivity, data_list)
 
         else:
             logfunc('No data available in Powerlog Lightning Connector Status')
@@ -595,6 +588,9 @@ def get_powerlogAll(files_found, report_folder, seeker):
                 
                 tsvname = 'Powerlog Location Use by App'
                 tsv(report_folder, data_headers, data_list, tsvname)
+                
+                tlactivity = 'Powerlog Location Use by App'
+                timeline(report_folder, tlactivity, data_list)
 
         else:
             logfunc('No data available in Location Use by App')
@@ -642,6 +638,9 @@ def get_powerlogAll(files_found, report_folder, seeker):
             
             tsvname = 'Powerlog Paired Device Conf'
             tsv(report_folder, data_headers, data_list, tsvname)
+            
+            tlactivity = 'Powerlog Paired Device Configuration'
+            timeline(report_folder, tlactivity, data_list)
         
         else:
             for row in all_rows:    data_list.append((row[0],row[1],row[2],row[3]))
@@ -655,6 +654,9 @@ def get_powerlogAll(files_found, report_folder, seeker):
             
             tsvname = 'Powerlog Paired Device Conf'
             tsv(report_folder, data_headers, data_list, tsvname)
+            
+            tlactivity = 'Powerlog Paired Device Configuration'
+            timeline(report_folder, tlactivity, data_list)
     else:
         logfunc('No data available in table')
         
@@ -730,6 +732,9 @@ def get_powerlogAll(files_found, report_folder, seeker):
             
             tsvname = 'Powerlog Process Data Usage'
             tsv(report_folder, data_headers, data_list, tsvname)
+            
+            tlactivity = 'Powerlog Process Data Usage'
+            timeline(report_folder, tlactivity, data_list)
         else:
             logfunc('No data available in table')
             
@@ -807,6 +812,9 @@ def get_powerlogAll(files_found, report_folder, seeker):
             
             tsvname = 'Powerlog Push Message Received'
             tsv(report_folder, data_headers, data_list, tsvname)
+            
+            tlactivity = 'Powerlog Push Message Received'
+            timeline(report_folder, tlactivity, data_list)
         else:
             logfunc('No data available in table')
             
@@ -878,6 +886,9 @@ def get_powerlogAll(files_found, report_folder, seeker):
             
             tsvname = 'Powerlog Timezones'
             tsv(report_folder, data_headers, data_list, tsvname)
+            
+            tlactivity = 'Powerlog Timezones'
+            timeline(report_folder, tlactivity, data_list)
         else:
             logfunc('No data available in Powerlog Timezones')
     
@@ -942,6 +953,9 @@ def get_powerlogAll(files_found, report_folder, seeker):
             
             tsvname = 'Powerlog Torch'
             tsv(report_folder, data_headers, data_list, tsvname)
+            
+            tlactivity = 'Powerlog Torch'
+            timeline(report_folder, tlactivity, data_list)
         else:
             logfunc('No data available in Powerlog Torch')
 
@@ -1004,42 +1018,79 @@ def get_powerlogAll(files_found, report_folder, seeker):
             
             tsvname = 'Powerlog App Playing Video'
             tsv(report_folder, data_headers, data_list, tsvname)
+            
+            tlactivity = 'Powerlog App Playing Video'
+            timeline(report_folder, tlactivity, data_list)
         else:
             logfunc('No data available in Powerlog App Playing Video')
-            
+
     if version.parse(iOSversion) >= version.parse("9"):
+        db = sqlite3.connect(file_found)
         cursor = db.cursor()
         cursor.execute('''
         SELECT
-        DATETIME(TIMESTAMP, 'UNIXEPOCH') AS TIMESTAMP,
-        VOLUME,
+        DATETIME(VOLUME_TIMESTAMP + SYSTEM, 'UNIXEPOCH') AS ADJUSTED_TIMESTAMP,
+        VOLUME AS "VOLUME PERCENTAGE",
         CASE MUTED 
             WHEN "0" THEN "NO" 
             WHEN "1" THEN "YES" 
-        END "MUTED", 
-        ID AS "PLAUDIOAGENT_EVENTFORWARD_OUTPUT TABLE ID" 
+        END AS "MUTED",
+        DATETIME(VOLUME_TIMESTAMP, 'UNIXEPOCH') AS ORIGINAL_VOLUME_TIMESTAMP,
+        DATETIME(TIME_OFFSET_TIMESTAMP, 'UNIXEPOCH') AS OFFSET_TIMESTAMP,
+        SYSTEM AS TIME_OFFSET,
+        VOLUME_ID AS "PLAUDIOAGENT_EVENTFORWARD_OUTPUT TABLE ID" 
         FROM
-        PLAUDIOAGENT_EVENTFORWARD_OUTPUT
+        (
+        SELECT
+            VOLUME_ID,
+            VOLUME_TIMESTAMP,
+            TIME_OFFSET_TIMESTAMP,
+            MAX(TIME_OFFSET_ID) AS MAX_ID,
+            VOLUME,
+            MUTED,
+            SYSTEM
+        FROM
+            (
+            SELECT
+                PLAUDIOAGENT_EVENTFORWARD_OUTPUT.TIMESTAMP AS VOLUME_TIMESTAMP,
+                VOLUME,
+                MUTED,
+                PLAUDIOAGENT_EVENTFORWARD_OUTPUT.ID AS "VOLUME_ID" ,
+                PLSTORAGEOPERATOR_EVENTFORWARD_TIMEOFFSET.TIMESTAMP AS TIME_OFFSET_TIMESTAMP,
+                PLSTORAGEOPERATOR_EVENTFORWARD_TIMEOFFSET.ID AS TIME_OFFSET_ID,
+                PLSTORAGEOPERATOR_EVENTFORWARD_TIMEOFFSET.SYSTEM
+            FROM
+                PLAUDIOAGENT_EVENTFORWARD_OUTPUT
+            LEFT JOIN
+                PLSTORAGEOPERATOR_EVENTFORWARD_TIMEOFFSET
+            )
+            AS VOLUME_STATE 
+        GROUP BY
+            VOLUME_ID 
+        )
         ''')
         all_rows = cursor.fetchall()
         usageentries = len(all_rows)
         if usageentries > 0:
             data_list = []
             for row in all_rows:    
-                data_list.append((row[0],row[1],row[2],row[3]))
+                data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6]))
 
-            report = ArtifactHtmlReport('Powerlog Volume')
-            report.start_artifact_report(report_folder, 'Volume')
+            report = ArtifactHtmlReport('Powerlog Volume Percentage')
+            report.start_artifact_report(report_folder, 'Volume Percentage')
             report.add_script()
-            data_headers = ('Timestamp','Volume','Muted','Event Forward Output Table ID')   
+            data_headers = ('Adjusted Timestamp','Volume Percentage','Muted','Original Volume Timestamp','Offset Timestamp','Time Offset','Event Forward Output Table ID')   
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
             
-            tsvname = 'Powerlog Volume'
+            tsvname = 'Powerlog Volume Percentage'
             tsv(report_folder, data_headers, data_list, tsvname)
+            
+            tlactivity = 'Powerlog Volumen Percentage'
+            timeline(report_folder, tlactivity, data_list)
         else:
-            logfunc('No data available in Powerlog Volume')
-    
+            logfunc('No data available in table')
+
     if version.parse(iOSversion) >= version.parse("9"):
         cursor = db.cursor()
         cursor.execute('''
@@ -1096,5 +1147,8 @@ def get_powerlogAll(files_found, report_folder, seeker):
             
             tsvname = 'Powerlog Wifi Network Connections'
             tsv(report_folder, data_headers, data_list, tsvname)
+            
+            tlactivity = 'Powerlog Wifi Network Connections'
+            timeline(report_folder, tlactivity, data_list)
         else:
             logfunc('No data available in Powerlog WiFi Network Connections')
