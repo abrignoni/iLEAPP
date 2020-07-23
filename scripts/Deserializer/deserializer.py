@@ -52,7 +52,7 @@ def RecurseSafely(uid, plist, root, object_table):
     '''Returns False if infinite recursion was detected'''
     global rec_uids
     if uid in rec_uids:
-        print(f'Possible INFINITE RECURSION detected - breaking loop! uid={uid} , LIST={str(rec_uids)}')
+        #print(f'Possible INFINITE RECURSION detected - breaking loop! uid={uid} , LIST={str(rec_uids)}')
         #if isinstance(plist, list):
         #    plist.append('ERROR - Infinite Recursion')
         return False
@@ -95,12 +95,12 @@ def recurseCreatePlist(plist, root, object_table):
             # is most likely going to be a string. This has to be done, else writing a plist back will fail.
             if v == None:
                 v = ''
-                if key != 'NS.base': # NS.base is usually UID:0, which is usually None
-                    print('Changing NULL to empty string for key={}'.format(key))
+                #if key != 'NS.base': # NS.base is usually UID:0, which is usually None
+                #    print('Changing NULL to empty string for key={}'.format(key))
             # Keys must be string, else plist writing will fail!
             if not isinstance(key, str):
                 key = str(key)
-                print(f'Converting non-string key {key} to string')
+                #print(f'Converting non-string key {key} to string')
             if add_this_item:
                 plist[key] = v
     else: # must be list
@@ -129,8 +129,8 @@ def recurseCreatePlist(plist, root, object_table):
             # is most likely going to be a string. This has to be done, else writing a plist back will fail.
             if v == None:
                 v = ''
-                if key != 'NS.base': # NS.base is usually UID:0, which is usually None
-                    print('Changing NULL to empty string for key={}'.format(key))
+                #if key != 'NS.base': # NS.base is usually UID:0, which is usually None
+                #    print('Changing NULL to empty string for key={}'.format(key))
             if add_this_item:
                 plist.append(v)
     rec_depth -= 1
