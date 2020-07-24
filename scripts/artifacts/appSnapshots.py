@@ -1,3 +1,4 @@
+import datetime
 import os
 import shutil
 
@@ -29,8 +30,8 @@ def save_ktx_to_png_if_valid(ktx_path, save_to_path):
 def get_applicationSnapshots(files_found, report_folder, seeker):
     
     slash = '\\' if is_platform_windows() else '/'
-    data_headers = ('App Name', 'Source Path', 'Snapshot')
-    data_list = [] # Format=  [ [ 'App Name', 'ktx_path', 'png_path' ], .. ]
+    data_headers = ('App Name', 'Source Path', 'Date Modified', 'Snapshot')
+    data_list = [] # Format=  [ [ 'App Name', 'ktx_path', mod_date, 'png_path' ], .. ]
 
     for file_found in files_found:
         file_found = str(file_found)
@@ -47,7 +48,8 @@ def get_applicationSnapshots(files_found, report_folder, seeker):
 
             png_path = os.path.join(report_folder, app_name + '_' + parts[-1][:-4] + '.png')
             if save_ktx_to_png_if_valid(file_found, png_path):
-                data_list.append([app_name, file_found, png_path])
+                last_modified_date = datetime.datetime.fromtimestamp(os.path.getmtime(file_found))
+                data_list.append([app_name, file_found, last_modified_date, png_path])
 
         elif file_found.lower().endswith('.jpeg'):
             parts = file_found.split(slash)
@@ -65,25 +67,25 @@ def get_applicationSnapshots(files_found, report_folder, seeker):
 
             jpg_path = os.path.join(report_folder, app_name + '_' + parts[-1])
             if shutil.copy2(file_found, jpg_path):
-                data_list.append([app_name, file_found, jpg_path])
+                last_modified_date = datetime.datetime.fromtimestamp(os.path.getmtime(file_found))
+                data_list.append([app_name, file_found, last_modified_date, jpg_path])
     
     if len(data_list):
-        description = "Snapshots saved by iOS for individual apps appear here. Blank screenshots are excluded here."
+        description = "Snapshots saved by iOS for individual apps appear here. Blank screenshots are excluded here. Dates and times shown are from file modified timestamps"
         report = ArtifactHtmlReport('App Snapshots (screenshots)')
-        report.start_artifact_report(report_folder, 'App Screenshots', description)
+        report.start_artifact_report(report_folder, 'App Snapshots', description)
         report.add_script()
         report_folder_name = os.path.basename(report_folder.rstrip(slash))
         data_list_for_report = []
-        for app_name, ktx_path, png_path in data_list:
+        for app_name, ktx_path, mod_date, png_path in data_list:
             dir_path, base_name = os.path.split(png_path)
             img_html = '<a href="{1}/{0}"><img src="{1}/{0}" class="img-fluid" style="max-height:300px; max-width:400px"></a>'.format(base_name, report_folder_name)
-            data_list_for_report.append( (app_name, ktx_path, img_html) )
+            data_list_for_report.append( (app_name, ktx_path, mod_date, img_html) )
         report.write_artifact_data_table(data_headers, data_list_for_report, '', html_escape=False, write_location=False)
         report.end_artifact_report()
 
         tsvname = 'App Snapshots'
-        tsv_headers = ('App Name', 'Source Path')
+        tsv_headers = ('App Name', 'Source Path', 'Date Modified')
         tsv(report_folder, tsv_headers, data_list, tsvname)
     else:
         logfunc('No snapshots available')
-    return
