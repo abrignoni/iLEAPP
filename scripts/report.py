@@ -216,10 +216,19 @@ def create_index_html(reportfolderbase, time_in_secs, time_HMS, extraction_type,
     content += '</div>' # CARD end
 
     authors_data = ''
-    for author in aleapp_contributors:
-        authors_data += individual_contributor.format(author[0], author[1], 
-                        ('https://twitter.com/' + author[2]) if author[2] else '',
-                        author[3])
+    for author_name, blog, tweet_handle, git in aleapp_contributors:
+        author_data = individual_contributor.format(author_name, blog, 
+                        ('https://twitter.com/' + tweet_handle) if tweet_handle else '',
+                        git)
+        if not blog:
+            author_data = author_data.replace(blog_icon, blank_icon)
+        if not tweet_handle:
+            author_data = author_data.replace(twitter_icon, blank_icon)
+        if not git:
+            author_data = author_data.replace(github_icon, blank_icon)
+
+        authors_data += author_data
+
     credits_code = credits_block.format(authors_data)
 
     # WRITE INDEX.HTML LAST

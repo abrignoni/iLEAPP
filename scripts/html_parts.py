@@ -223,13 +223,17 @@ credits_block = \
         </ul>
     </div>
 """
+blog_icon = "fab fa-blogger-b fa-fw"
+twitter_icon = "fab fa-twitter fa-fw"
+github_icon = "fab fa-github fa-fw"
+blank_icon = "fab fa-fw"
 individual_contributor = \
 """
             <li class="list-group-item d-flex justify-content-between align-items-center">{} 
                 <span>
-                    <a href="{}" target="_blank"><i class="fab fa-blogger-b"></i></a> &nbsp;
-                    <a href="{}" target="_blank"><i class="fab fa-twitter"></i></a> &nbsp;
-                    <a href="{}" target="_blank"><i class="fab fa-github"></i></a>
+                    <a href="{}" target="_blank"><i class="fab fa-blogger-b fa-fw"></i></a> &nbsp;
+                    <a href="{}" target="_blank"><i class="fab fa-twitter fa-fw"></i></a> &nbsp;
+                    <a href="{}" target="_blank"><i class="fab fa-github fa-fw"></i></a>
                 </span>
             </li>
 """
