@@ -1,4 +1,5 @@
 import os
+import shutil
 
 from PIL import Image
 from scripts.artifact_report import ArtifactHtmlReport
@@ -45,9 +46,23 @@ def get_applicationSnapshots(files_found, report_folder, seeker):
                 app_name = parts[-3].split(' ')[0]
 
             png_path = os.path.join(report_folder, app_name + '_' + parts[-1][:-4] + '.png')
-
             if save_ktx_to_png_if_valid(file_found, png_path):
                 data_list.append([app_name, file_found, png_path])
+
+        elif file_found.lower().endswith('.jpeg'):
+            parts = file_found.split(slash)
+            if parts[-2] != 'downscaled':
+                app_name = parts[-2].split(' ')[0]
+            else:
+                app_name = parts[-3].split(' ')[0]
+            if app_name.startswith('sceneID'):
+                app_name = app_name[8:]
+            if app_name.endswith('-default'):
+                app_name = app_name[:-8]
+
+            jpg_path = os.path.join(report_folder, app_name + '_' + parts[-1])
+            if shutil.copy2(file_found, jpg_path):
+                data_list.append([app_name, file_found, jpg_path])
     
     if len(data_list):
         description = "Snapshots saved by iOS for individual apps appear here. Blank screenshots are excluded here."
