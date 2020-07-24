@@ -223,19 +223,22 @@ credits_block = \
         </ul>
     </div>
 """
-blog_icon = "fab fa-blogger-b fa-fw"
-twitter_icon = "fab fa-twitter fa-fw"
-github_icon = "fab fa-github fa-fw"
-blank_icon = "fab fa-fw"
+blog_icon = '<i class="fab fa-blogger-b fa-fw"></i>'
+twitter_icon = '<i class="fab fa-twitter fa-fw"></i>'
+github_icon = '<i class="fab fa-github fa-fw"></i>'
+blank_icon = '<i class="fab fa-fw"></i>'
 individual_contributor = \
 """
-            <li class="list-group-item d-flex justify-content-between align-items-center">{} 
+            <li class="list-group-item d-flex justify-content-between align-items-center"><i class="fas fa-medal"></i>{}
                 <span>
+                    {}
+                </span>
+            </li>
+"""
+""" sample contibutor data..
                     <a href="{}" target="_blank"><i class="fab fa-blogger-b fa-fw"></i></a> &nbsp;
                     <a href="{}" target="_blank"><i class="fab fa-twitter fa-fw"></i></a> &nbsp;
                     <a href="{}" target="_blank"><i class="fab fa-github fa-fw"></i></a>
-                </span>
-            </li>
 """
 body_main_trailer = \
 """

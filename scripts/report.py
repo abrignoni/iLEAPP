@@ -215,20 +215,7 @@ def create_index_html(reportfolderbase, time_in_secs, time_HMS, extraction_type,
 
     content += '</div>' # CARD end
 
-    authors_data = ''
-    for author_name, blog, tweet_handle, git in aleapp_contributors:
-        author_data = individual_contributor.format(author_name, blog, 
-                        ('https://twitter.com/' + tweet_handle) if tweet_handle else '',
-                        git)
-        if not blog:
-            author_data = author_data.replace(blog_icon, blank_icon)
-        if not tweet_handle:
-            author_data = author_data.replace(twitter_icon, blank_icon)
-        if not git:
-            author_data = author_data.replace(github_icon, blank_icon)
-
-        authors_data += author_data
-
+    authors_data = generate_authors_table_code(aleapp_contributors)
     credits_code = credits_block.format(authors_data)
 
     # WRITE INDEX.HTML LAST
@@ -248,6 +235,26 @@ def create_index_html(reportfolderbase, time_in_secs, time_HMS, extraction_type,
     f.write(credits_code)
     f.write(body_main_trailer + body_end + page_footer)
     f.close()
+
+def generate_authors_table_code(aleapp_contributors):
+    authors_data = ''
+    for author_name, blog, tweet_handle, git in aleapp_contributors:
+        author_data = ''
+        if blog:
+            author_data += f'<a href="{blog}" target="_blank">{blog_icon}</a> &nbsp;\n'
+        else:
+            author_data += f'{blank_icon} &nbsp;\n'
+        if tweet_handle:
+            author_data += f'<a href="https://twitter.com/{tweet_handle}" target="_blank">{twitter_icon}</a> &nbsp;\n'
+        else:
+            author_data += f'{blank_icon} &nbsp;\n'
+        if git:
+            author_data += f'<a href="{git}" target="_blank">{github_icon}</a>\n'
+        else:
+            author_data += f'{blank_icon}'
+
+        authors_data += individual_contributor.format(author_name, author_data)
+    return authors_data
 
 def generate_key_val_table_without_headings(title, data_list, html_escape=True, width="70%"):
     '''Returns the html code for a key-value table (2 cols) without col names'''
