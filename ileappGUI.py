@@ -160,13 +160,13 @@ while True:
                 logfunc("CSV processing time = {}".format(csv_time_HMS))
             '''
             report_path = os.path.join(out_params.report_folder_base, 'index.html')
-            locationmessage = 'Report name: ' + report_path
-            sg.Popup('Processing completed', locationmessage)
             
             if report_path.startswith('\\\\?\\'): # windows
                 report_path = report_path[4:]
             if report_path.startswith('\\\\'): # UNC path
                 report_path = report_path[2:]
+            locationmessage = 'Report name: ' + report_path
+            sg.Popup('Processing completed', locationmessage)
             webbrowser.open_new_tab('file://' + report_path)
             break
 window.close()

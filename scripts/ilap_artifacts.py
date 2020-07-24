@@ -6,6 +6,7 @@
 import traceback
 
 from scripts.artifacts.applicationstate import get_applicationstate
+from scripts.artifacts.appSnapshots import get_applicationSnapshots
 from scripts.artifacts.journalStrings import get_journalStrings 
 from scripts.artifacts.walStrings import get_walStrings
 from scripts.artifacts.confaccts import get_confaccts
@@ -121,6 +122,7 @@ from scripts.ilapfuncs import *
 
 # GREP searches for each module
 # Format is Key='modulename', Value=Tuple('Module Pretty Name', 'regex term')
+#   regex_term can be a string or a list/tuple of strings
 # Here modulename must match the get_xxxxxx function name for that module. 
 # For example: If modulename='profit', function name must be get_profit(..)
 # Don't forget to import the module above!!!!
@@ -131,6 +133,7 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'aggDictpasscodetype':('Aggregate Dictionary', '*/AggregateDictionary/ADDataStore.sqlitedb'),
             'dataArk':('IOS Build', '**/Library/Lockdown/data_ark.plist'),
             'applicationstate':('Installed Apps', '**/applicationState.db'),
+            'applicationSnapshots':('Installed Apps', ('**/Library/Caches/Snapshots/*', '**/Library/SplashBoard/Snapshots/*')),
             'accs':('Accounts', '**/Accounts3.sqlite'),
             'confaccts':('Accounts', '**/com.apple.accounts.exists.plist'),
             'callHistory':('Call logs', '**/CallHistory.storedata'),
