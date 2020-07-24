@@ -57,8 +57,11 @@ def get_applicationSnapshots(files_found, report_folder, seeker):
                 app_name = parts[-3].split(' ')[0]
             if app_name.startswith('sceneID'):
                 app_name = app_name[8:]
-            if app_name.endswith('-default'):
-                app_name = app_name[:-8]
+            #if app_name.endswith('-default'):
+            #    app_name = app_name[:-8]
+            dash_pos = app_name.find('-') 
+            if dash_pos > 0:
+                app_name = app_name[0:dash_pos]
 
             jpg_path = os.path.join(report_folder, app_name + '_' + parts[-1])
             if shutil.copy2(file_found, jpg_path):
@@ -73,7 +76,7 @@ def get_applicationSnapshots(files_found, report_folder, seeker):
         data_list_for_report = []
         for app_name, ktx_path, png_path in data_list:
             dir_path, base_name = os.path.split(png_path)
-            img_html = '<a href="{1}/{0}"><img src="{1}/{0}" class="img-fluid" style="max-height:300px; max-width:300px"></a>'.format(base_name, report_folder_name)
+            img_html = '<a href="{1}/{0}"><img src="{1}/{0}" class="img-fluid" style="max-height:300px; max-width:400px"></a>'.format(base_name, report_folder_name)
             data_list_for_report.append( (app_name, ktx_path, img_html) )
         report.write_artifact_data_table(data_headers, data_list_for_report, '', html_escape=False, write_location=False)
         report.end_artifact_report()
