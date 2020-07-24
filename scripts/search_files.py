@@ -3,7 +3,7 @@ import os
 
 from pathlib import Path
 from scripts.ilapfuncs import *
-from tarfile import TarFile, ExFileObject
+from tarfile import TarFile, ExFileObject, TarInfo
 from zipfile import ZipFile
 
 class FileSeekerBase:
@@ -56,6 +56,8 @@ class FileSeekerTar(FileSeekerBase):
                             os.makedirs(parent_dir)
                         with open(full_path, "wb") as fout:
                             fout.write(ExFileObject(self.tar_file, member).read())
+                            fout.close()
+                        os.utime(full_path, (member.mtime, member.mtime))
                     pathlist.append(full_path)
                 except Exception as ex:
                     logfunc(f'Could not write file to filesystem, path was {member.name}' + str(ex))
