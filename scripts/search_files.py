@@ -3,7 +3,7 @@ import os
 
 from pathlib import Path
 from scripts.ilapfuncs import *
-from tarfile import TarFile
+from tarfile import TarFile, ExFileObject
 from zipfile import ZipFile
 
 class FileSeekerBase:
@@ -46,10 +46,19 @@ class FileSeekerTar(FileSeekerBase):
         for member in self.tar_file.getmembers():
             if fnmatch.fnmatch(member.name, filepattern):
                 try:
-                    self.tar_file.extract(member.name, path=self.temp_folder)
-                    pathlist.append(os.path.join(self.temp_folder, Path(member.name)))
-                except:
-                    logfunc('Could not write file to filesystem')
+                    clean_name = sanitize_file_path(member.name)
+                    full_path = os.path.join(self.temp_folder, Path(clean_name))
+                    if member.isdir():
+                        os.makedirs(full_path)
+                    else:
+                        parent_dir = os.path.dirname(full_path)
+                        if not os.path.exists(parent_dir):
+                            os.makedirs(parent_dir)
+                        with open(full_path, "wb") as fout:
+                            fout.write(ExFileObject(self.tar_file, member).read())
+                    pathlist.append(full_path)
+                except Exception as ex:
+                    logfunc(f'Could not write file to filesystem, path was {member.name}' + str(ex))
         return pathlist
 
     def cleanup(self):
@@ -70,8 +79,8 @@ class FileSeekerZip(FileSeekerBase):
                     self.zip_file.extract(member, path=self.temp_folder)
                     member = member.lstrip("/")
                     pathlist.append(os.path.join(self.temp_folder, Path(member)))
-                except:
-                    logfunc('Could not write file to filesystem')    
+                except Exception as ex:
+                    logfunc(f'Could not write file to filesystem, path was {member}' + str(ex))
         return pathlist
 
     def cleanup(self):
