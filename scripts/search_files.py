@@ -78,9 +78,11 @@ class FileSeekerZip(FileSeekerBase):
         for member in self.name_list:
             if fnmatch.fnmatch(member, filepattern):
                 try:
-                    self.zip_file.extract(member, path=self.temp_folder)
+                    self.zip_file.extract(member, path=self.temp_folder) # already replaces illegal chars with _ when exporting
                     member = member.lstrip("/")
-                    pathlist.append(os.path.join(self.temp_folder, Path(member)))
+                    clean_name = sanitize_file_path(member) # replace illegal chars in path (if any)
+                    full_path = os.path.join(self.temp_folder, Path(clean_name))
+                    pathlist.append(full_path)
                 except Exception as ex:
                     logfunc(f'Could not write file to filesystem, path was {member}' + str(ex))
         return pathlist
