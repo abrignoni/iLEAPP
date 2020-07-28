@@ -1,7 +1,7 @@
 astc_decomp
 biplist
 bs4
-liblzfse
+pyliblzfse
 packaging==20.1
 pathlib2==2.3.5
 pillow
