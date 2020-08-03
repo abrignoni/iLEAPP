@@ -117,6 +117,13 @@ from scripts.artifacts.photosMetadata import get_photosMetadata
 from scripts.artifacts.aggDictpasscode import get_aggDictpasscode
 from scripts.artifacts.aggDictpasscodetype import get_aggDictpasscodetype
 from scripts.artifacts.ooklaSpeedtestData import get_ooklaSpeedtestData
+from scripts.artifacts.appleMapsGroup import get_appleMapsGroup
+from scripts.artifacts.appleMapsApplication import get_appleMapsApplication
+from scripts.artifacts.routineDlocations import get_routineDlocations
+from scripts.artifacts.routineDCloud import get_routineDCloud
+from scripts.artifacts.routineDLocationsLocal import get_routineDLocationsLocal
+from scripts.artifacts.cacheRoutesGmap import get_cacheRoutesGmap
+from scripts.artifacts.appleWifiPlist import get_appleWifiPlist  
 
 from scripts.ilapfuncs import *
 
@@ -160,16 +167,23 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'knowCall':('KnowledgeC', '**/CoreDuet/Knowledge/knowledgeC.db'),
             'powerlogAll':('Powerlog', '**/CurrentPowerlog.PLSQL'),
             'healthAll':('Health Data', '**/healthdb_secure.sqlite'),
-            'locationDallB':('LocationD', '**/cache_encryptedB.db'),
+            'locationDallB':('Locations', '**/cache_encryptedB.db'),
             'screentimeAll':('Screentime', '**/RMAdminStore-Local.sqlite'),
             'mailprotect':('iOS Mail', '**/private/var/mobile/Library/Mail/* Index*'),
-            'locationDparkedhistorical':('RoutineD', '**/Local.sqlite'),
-            'locationDparked':('RoutineD', '**/Local.sqlite'),
+            'locationDparkedhistorical':('Locations', '**/Local.sqlite'),
+            'locationDparked':('Locations', '**/Local.sqlite'),
             'bluetoothPaired':('Bluetooth', '**/Library/Database/com.apple.MobileBluetooth.ledevices.paired.db'),
             'bluetoothOther':('Bluetooth', '**/Library/Database/com.apple.MobileBluetooth.ledevices.other.db'),
             'calendarAll':('Calendar', '**/Calendar.sqlitedb'),
             'photosMetadata':('Photos', '**/Photos.sqlite'),
-            'ooklaSpeedtestData':('Applications', '**/speedtest.sqlite*')
+            'ooklaSpeedtestData':('Applications', '**/speedtest.sqlite*'),
+            'appleMapsGroup':('Locations', '**/Shared/AppGroup/*/Library/Preferences/group.com.apple.Maps.plist'),
+            'appleMapsApplication':('Locations', '**/Data/Application/*/Library/Preferences/com.apple.Maps.plist'),
+            'routineDlocations':('Locations', '**/com.apple.routined/Cache.sqlite*'),
+            'routineDLocationsLocal':('Locations', '**/private/var/mobile/Library/Caches/com.apple.routined/Local.sqlite*'),
+            'routineDCloud':('Locations', '**/Library/Caches/com.apple.routined/Cloud-V2.sqlite*'),
+            'cacheRoutesGmap':('Locations', '**/Library/Application Support/CachedRoutes/*.plist'),
+            'appleWifiPlist':('Wireless Networks', '**/SystemConfiguration/com.apple.wifi.plist')
             }
 
 '''
@@ -262,19 +276,19 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
     'notificationsXII':('Notifications', '*private/var/mobile/Library/UserNotifications*'),
     'celWireless':('Cellular Wireless', '*wireless/Library/Preferences/com.apple.*'),
     'mailprotect':('iOS Mail', '**private/var/mobile/Library/Mail/* Index*'),
-    'locationDparkedhistorical':('RoutineD', '**/Local.sqlite'),
-    'locationDparked':('RoutineD', '**/Local.sqlite'),
+    'locationDparkedhistorical':('Locations', '**/Local.sqlite'),
+    'locationDparked':('Locations', '**/Local.sqlite'),
     'screentimeGenerichour':('Screentime', '**/RMAdminStore-Local.sqlite'),
     'screentimeTimeditems':('Screentime', '**/RMAdminStore-Local.sqlite'),
     'screentimeCounteditems':('Screentime', '**/RMAdminStore-Local.sqlite'),
     'bluetoothPaired':('Bluetooth', '**/Library/Database/com.apple.MobileBluetooth.ledevices.paired.db'),
     'bluetoothOther':('Bluetooth', '**/Library/Database/com.apple.MobileBluetooth.ledevices.other.db'),
-    'locationDcellloc':('LocationD', '**/cache_encryptedB.db'),
-    'locationDappharvest':('LocationD', '**/cache_encryptedB.db'),
-    'locationDwifilocB':('LocationD', '**/cache_encryptedB.db'),
-    'locationDlteloc':('LocationD', '**/cache_encryptedB.db'),
+    'locationDcellloc':('Locations', '**/cache_encryptedB.db'),
+    'locationDappharvest':('Locations', '**/cache_encryptedB.db'),
+    'locationDwifilocB':('Locations', '**/cache_encryptedB.db'),
+    'locationDlteloc':('Locations', '**/cache_encryptedB.db'),
     'locationDsteps':('LocationD', '**/cache_encryptedC.db'),
-    'locationDcdmaloc1':('LocationD', '**/cache_encryptedB.db'),
+    'locationDcdmaloc1':('Locations', '**/cache_encryptedB.db'),
     'calendarAll':('Calendar', '**/Calendar.sqlitedb'),
     'photosMetadata':('Photos', '**/Photos.sqlite')
     }
