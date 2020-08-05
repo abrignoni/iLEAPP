@@ -27,7 +27,7 @@ def ValidateInput(values, window):
     elif os.path.isdir(i_path):
         ext_type = 'fs'
     else: # must be an existing file then
-        if not i_path.lower().endswith('.tar') and not i_path.lower().endswith('.zip'):
+        if not i_path.lower().endswith('.tar') and not i_path.lower().endswith('.zip') and not i_path.lower().endswith('.gz'):
             sg.PopupError('Input file is not a supported archive! ', i_path)
             return False, ext_type
         else:
@@ -128,7 +128,7 @@ while True:
             if is_platform_windows():
                 if input_path[1] == ':' and extracttype =='fs': input_path = '\\\\?\\' + input_path.replace('/', '\\')
                 if output_folder[1] == ':': output_folder = '\\\\?\\' + output_folder.replace('/', '\\')
-            
+
             # re-create modules list based on user selection
             search_list = {}
             s_items = 0
@@ -140,14 +140,14 @@ while True:
                 
                 # no more selections allowed
                 window[x].Update(disabled = True)
-                
+
             window['SELECT ALL'].update(disabled=True)
             window['DESELECT ALL'].update(disabled=True)
-        
+
             GuiWindow.window_handle = window
             out_params = OutputParameters(output_folder)
             ileapp.crunch_artifacts(search_list, extracttype, input_path, out_params, len(ileapp.tosearch)/s_items)
-            
+
             '''
             if values[5] == True:
                 start = process_time()
