@@ -77,7 +77,7 @@ pickModules()
 GuiWindow.progress_bar_total = len(ileapp.tosearch)
 
 
-layout = [  [sg.Text('iOS Logs, Events, And Properties Parser', font=("Helvetica", 22))],
+layout = [  [sg.Text('iOS Logs, Events, And Plists Parser', font=("Helvetica", 22))],
             [sg.Text('https://github.com/abrignoni/iLEAPP', font=("Helvetica", 14))],
             [sg.Frame(layout=[
                     [sg.Input(size=(97,1)), 
