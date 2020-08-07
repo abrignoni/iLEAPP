@@ -1,5 +1,5 @@
 import plistlib
-import scripts.blackboxprotobuf as blackboxprotobuf
+import blackboxprotobuf
 import scripts.artifacts.artGlobals
 
 from scripts.artifact_report import ArtifactHtmlReport
