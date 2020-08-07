@@ -56,15 +56,17 @@ def get_wifi(files_found, report_folder, seeker):
                         
                     data_list.append((ssid, bssid, netusage, countrycode, devname, mfr, serialnum, modelname, lastjoined, lastautojoined, enabled))
 
-
-    report = ArtifactHtmlReport('Wifi')
-    report.start_artifact_report(report_folder, 'Wifi')
-    report.add_script()
-    data_headers = ('SSID','BSSID', 'Network usage', 'Country code', 'Device name', 'Manufacturer', 'Serial number', 'Model name', 'Last joined', 'Last autojoined', 'Enabled')     
-    report.write_artifact_data_table(data_headers, data_list, file_found)
-    report.end_artifact_report()
-    
-    tsvname = 'Wifi'
-    tsv(report_folder, data_headers, data_list, tsvname)
+    if len(data_list) > 0:
+        report = ArtifactHtmlReport('Wifi')
+        report.start_artifact_report(report_folder, 'Wifi')
+        report.add_script()
+        data_headers = ('SSID','BSSID', 'Network usage', 'Country code', 'Device name', 'Manufacturer', 'Serial number', 'Model name', 'Last joined', 'Last autojoined', 'Enabled')     
+        report.write_artifact_data_table(data_headers, data_list, file_found)
+        report.end_artifact_report()
+        
+        tsvname = 'Wifi'
+        tsv(report_folder, data_headers, data_list, tsvname)
+    else:
+        logfunc('No Networks data')
 
     

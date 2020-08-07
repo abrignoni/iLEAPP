@@ -7,3 +7,4 @@ pathlib2==2.3.5
 pillow
 pyinstaller
 PySimpleGUI==4.16.0
+blackboxprotobuf

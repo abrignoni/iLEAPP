@@ -51,12 +51,15 @@ def get_iCloudWifi(files_found, report_folder, seeker):
                                     added_at = 'Not Available'
                                 data_list.append((bssid, ssid, added_by, enabled, added_at))
 
-    report = ArtifactHtmlReport('iCloud Wifi Networks')
-    report.start_artifact_report(report_folder, 'iCloud Wifi Networks')
-    report.add_script()
-    data_headers = ('BSSID','SSID', 'Added By', 'Enabled', 'Added At')     
-    report.write_artifact_data_table(data_headers, data_list, file_found)
-    report.end_artifact_report()
-    
-    tsvname = 'iCloud Wifi Networks'
-    tsv(report_folder, data_headers, data_list, tsvname)
+    if len(data_list) > 0:
+        report = ArtifactHtmlReport('iCloud Wifi Networks')
+        report.start_artifact_report(report_folder, 'iCloud Wifi Networks')
+        report.add_script()
+        data_headers = ('BSSID','SSID', 'Added By', 'Enabled', 'Added At')     
+        report.write_artifact_data_table(data_headers, data_list, file_found)
+        report.end_artifact_report()
+        
+        tsvname = 'iCloud Wifi Networks'
+        tsv(report_folder, data_headers, data_list, tsvname)
+    else:
+        logfunc('No data on iCloud WiFi networks')
