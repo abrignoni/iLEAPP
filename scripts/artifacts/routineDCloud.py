@@ -61,7 +61,7 @@ def get_routineDCloud(files_found, report_folder, seeker):
             timeline(report_folder, tlactivity, data_list)
 
         else:
-            logfunc('No RoutineD Cloud data available')
+            logfunc('No RoutineD Cloud Addresses data available')
             
     if version.parse(iOSversion) >= version.parse("13"):
       cursor.execute('''
@@ -163,7 +163,7 @@ def get_routineDCloud(files_found, report_folder, seeker):
           timeline(report_folder, tlactivity, data_list)
 
       else:
-          logfunc('No RoutineD Map Items Cloud-V2.sqlite data available')
+          logfunc('No RoutineD Cloud Map Items data available')
     
     if (version.parse(iOSversion) >= version.parse("13")):
       cursor.execute('''
@@ -227,24 +227,26 @@ def get_routineDCloud(files_found, report_folder, seeker):
           for row in all_rows:
               data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18], row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27], row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35], row[36], row[37], row[38]))
           
-          description = 'Significant Locations - Vist Entry (Historical)'
+          description = 'Significant Locations - Vist Entry & Exit (Historical)'
           report = ArtifactHtmlReport('Locations')
-          report.start_artifact_report(report_folder, 'RoutineD Cloud Visit Entry', description)
+          report.start_artifact_report(report_folder, 'RoutineD Cloud Visit Entry Exit', description)
           report.add_script()
           data_headers = ('Visit Entry','Visit Exit','Visit Time (Minutes)','Coordinates','Place ID','Data Point Count','Country','Country Code','Postal Code', 'Locality','Sublocality','Throroughfare','Subthroroughfare','Subadministrative Area','Area of Interest','Ocean', 'Inland Water', 'Island', 'Location Uncertainty', 'Confidence','Visit Creation','Visit Expiration','Device Class','Device Model','Device Name','Learned Placed Creation', 'Learned Place Expiration','Address Creation', 'Latitude','Longitude','Map Item Coordinates','Map Item Creation Date','Map Item Expiration Date','Map Item Latitude','Map Item Longitude','Uncertainty','Map Item Language','Map Item Name','Table ID' )     
           report.write_artifact_data_table(data_headers, data_list, file_found)
           report.end_artifact_report()
           
-          tsvname = 'RoutineD Cloud Visit Entry'
+          tsvname = 'RoutineD Cloud Visit Entry Exit'
           tsv(report_folder, data_headers, data_list, tsvname)
           
-          tlactivity = 'RoutineD Cloud Visit Entry'
+          tlactivity = 'RoutineD Cloud Visit Entry Exit'
           timeline(report_folder, tlactivity, data_list)
 
       else:
-          logfunc('No RoutineD Significant Locations - Vist Entry (Historical)')
+          logfunc('No RoutineD Significant Locations - Vist Entry & Exit (Historical)')
           
           
+        
+
       '''
       data_headers = ('Inbound Start Date','Inbound Stop Date','Inbound Time (Minutes)','Coordinates','Place ID','Data Point Count','Country','Country Code','Postal Code', 'Locality','Sublocality','Throroughfare','Subthroroughfare','Subadministrative Area','Area of Interest','Ocean', 'Inland Water', 'Island', 'Location Uncertainty', 'Confidence','Visit Entry','Visit Exit','Visit Creation','Visit Expiration','Device Class','Device Model','Device Name','Learned Placed Creation', 'Learned Place Expiration','Address Creation', 'Latitude','Longitude','Map Item Coordinates','Map Item Creation Date','Map Item Expiration Date','Map Item Latitude','Map Item Longitude','Uncertainty','Map Item Language','Map Item Name','Map Item Geomapitem (Hex Protobuf)','Table ID' )     
         '''
