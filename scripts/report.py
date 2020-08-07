@@ -69,13 +69,14 @@ def get_icon_name(category, artifact):
     elif category == 'NOTIFICATIONS':     icon = 'bell'
     elif category == 'CELLULAR WIRELESS':     icon = 'bar-chart'
     elif category == 'SAFARI BROWSER':     icon = 'compass'
-    elif category == 'LOCATIOND':     icon = 'map-pin'
+    elif category == 'LOCATIONS':     icon = 'map-pin'
     elif category == 'IOS MAIL':     icon = 'mail'
     elif category == 'SCREENTIME':     icon = 'monitor'
     elif category == 'BLUETOOTH':     icon = 'bluetooth'
     elif category == 'ROUTINED':     icon = 'map'
     elif category == 'CALENDAR':     icon = 'calendar'
     elif category == 'PHOTOS':     icon = 'image'
+    elif category == 'WIRELESS NETWORKS':     icon = 'wifi'
     elif category == 'INTERACTIONC':
          if artifact == 'CONTACTS':  icon = 'user'   
     elif category == 'KNOWLEDGEC':     
