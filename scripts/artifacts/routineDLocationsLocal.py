@@ -160,49 +160,6 @@ def get_routineDLocationsLocal(files_found, report_folder, seeker):
 
           else:
               logfunc('No RoutineD Significant Locations Transtition Start data available')
-        
-        if version.parse(iOSversion) >= version.parse("12"):
-          cursor.execute('''
-          SELECT
-               DATETIME(ZRTLEARNEDLOCATIONOFINTERESTTRANSITIONMO.ZSTARTDATE + 978307200, 'UNIXEPOCH') AS "START",
-               DATETIME(ZRTLEARNEDLOCATIONOFINTERESTTRANSITIONMO.ZSTOPDATE + 978307200, 'UNIXEPOCH') AS "STOP",
-               (ZRTLEARNEDLOCATIONOFINTERESTVISITMO.ZEXITDATE-ZRTLEARNEDLOCATIONOFINTERESTVISITMO.ZENTRYDATE)/60.00 AS "TRANSITION TIME (MINUTES)",
-               ZRTLEARNEDLOCATIONOFINTERESTMO.ZLOCATIONLATITUDE || ", " || ZRTLEARNEDLOCATIONOFINTERESTMO.ZLOCATIONLONGITUDE AS "COORDINATES",
-               DATETIME(ZRTLEARNEDLOCATIONOFINTERESTTRANSITIONMO.ZCREATIONDATE + 978307200, 'UNIXEPOCH') AS "CREATION DATE",
-               DATETIME(ZRTLEARNEDLOCATIONOFINTERESTTRANSITIONMO.ZEXPIRATIONDATE + 978307200, 'UNIXEPOCH') AS "EXPIRATION",
-               ZRTLEARNEDLOCATIONOFINTERESTMO.ZLOCATIONLATITUDE AS "LATITUDE",
-               ZRTLEARNEDLOCATIONOFINTERESTMO.ZLOCATIONLONGITUDE AS "LONGITUDE",
-               ZRTLEARNEDLOCATIONOFINTERESTTRANSITIONMO.Z_PK AS "ZRTLEARNEDLOCATIONOFINTERESTTRANSITIONMO TABLE ID" 
-            FROM
-               ZRTLEARNEDLOCATIONOFINTERESTTRANSITIONMO 
-               LEFT JOIN
-                  ZRTLEARNEDLOCATIONOFINTERESTMO 
-                  ON ZRTLEARNEDLOCATIONOFINTERESTMO.Z_PK = ZRTLEARNEDLOCATIONOFINTERESTTRANSITIONMO.ZLOCATIONOFINTEREST
-          ''')
-
-          all_rows = cursor.fetchall()
-          usageentries = len(all_rows)
-          data_list = []    
-          if usageentries > 0:
-              for row in all_rows:
-                  data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8]))
-              
-              description = 'Significant Locations - Location of Interest Transition Stop (Historical)'
-              report = ArtifactHtmlReport('Locations')
-              report.start_artifact_report(report_folder, 'RoutineD Transtition Stop', description)
-              report.add_script()
-              data_headers = ('Start','Stop','Transition Time (Minutes)','Coordinates','Creation Date', 'Expiration','Latitude','Longitude', 'Table ID' )     
-              report.write_artifact_data_table(data_headers, data_list, file_found)
-              report.end_artifact_report()
-              
-              tsvname = 'RoutineD Transtition Stop'
-              tsv(report_folder, data_headers, data_list, tsvname)
-              
-              tlactivity = 'RoutineD Transtition Stop'
-              timeline(report_folder, tlactivity, data_list)
-
-          else:
-              logfunc('No RoutineD Significant Locations Transtition Stop data available')
 
         if (version.parse(iOSversion) >= version.parse("11")) and (version.parse(iOSversion) < version.parse("12")):
           cursor.execute('''
