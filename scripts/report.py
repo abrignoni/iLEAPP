@@ -35,6 +35,7 @@ def get_icon_name(category, artifact):
         else:                           icon = 'chrome'
     elif category == 'DEVICE INFO':     
         if artifact == 'BUILD INFO':    icon = 'terminal'
+        elif artifact == 'IOS SYSTEM VERSION':          icon = 'git-commit'
         elif artifact == 'PARTNER SETTINGS':    icon = 'settings'
         elif artifact.find('SETTINGS_SECURE_') >= 0:    icon = 'settings'
         else:                           icon = 'info'
@@ -89,6 +90,17 @@ def get_icon_name(category, artifact):
         if artifact == 'LOCK STATE':  icon = 'lock'
         if artifact == 'PLUGGED IN':  icon = 'battery-charging'
     elif category == 'HEALTH DATA':             icon = 'heart'
+    elif category == 'MOBILE ACTIVATION LOGS':    icon = 'clipboard'
+    elif category == 'MOBILE BACKUP':       icon = 'save'
+    elif category == 'MOBILE CONTAINER MANAGER':       icon = 'save'
+    elif category == 'APP CONDUIT':       icon = 'activity'
+    elif category == 'APP UPDATES':         icon = 'codepen'
+    elif category == 'MEDIA LIBRARY':         icon = 'play-circle'
+    elif category == 'WIFI CONNECTIONS': 
+        if artifact == 'ICLOUD WIFI NETWORKS':        icon = 'wifi'
+        elif artifact == 'WIFI':        icon = 'wifi'
+        elif artifact == 'WIFI PLIST':       icon = 'save'
+
     return icon
     
 def generate_report(reportfolderbase, time_in_secs, time_HMS, extraction_type, image_input_path):

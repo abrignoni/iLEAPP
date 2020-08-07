@@ -10,8 +10,8 @@ from scripts.version_info import aleapp_version
 from time import process_time, gmtime, strftime
 
 def main():
-    parser = argparse.ArgumentParser(description='iLEAPP: iOS Logs, Events, and Properties Parser.')
-    parser.add_argument('-t', choices=['fs','tar','zip'], required=True, action="store", help="Input type (fs = extracted to file system folder)")
+    parser = argparse.ArgumentParser(description='iLEAPP: iOS Logs, Events, and Plists Parser.')
+    parser.add_argument('-t', choices=['fs','tar','zip', 'gz'], required=True, action="store", help="Input type (fs = extracted to file system folder)")
     parser.add_argument('-o', '--output_path', required=True, action="store", help='Output folder path')
     parser.add_argument('-i', '--input_path', required=True, action="store", help='Path to input file/folder')
         
@@ -53,7 +53,7 @@ def crunch_artifacts(search_list, extracttype, input_path, out_params, ratio):
     if extracttype == 'fs':
         seeker = FileSeekerDir(input_path)
 
-    elif extracttype == 'tar':
+    elif extracttype in ('tar', 'gz'):
         seeker = FileSeekerTar(input_path, out_params.temp_folder)
 
     elif extracttype == 'zip':

@@ -1,5 +1,5 @@
 # iLEAPP
-iOS Logs, Events, And Preferences Parser  
+iOS Logs, Events, And Plists Parser  
 Details in blog post here: https://abrignoni.blogspot.com/2019/12/ileapp-ios-logs-events-and-properties.html
 
 Supports iOS 11, 12 & 13.
@@ -29,9 +29,6 @@ To install dependencies, run:
 ```
 pip install -r requirements.txt
 ```
-
-To install dependencies offline Troy Schnack has a neat process here:
-https://twitter.com/TroySchnack/status/1266085323651444736?s=19
 
 To run on **Linux**, you will also need to install `tkinter` separately like so:
 
