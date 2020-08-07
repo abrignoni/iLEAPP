@@ -190,7 +190,7 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'routineDLocationsLocal':('Locations', '**/private/var/mobile/Library/Caches/com.apple.routined/Local.sqlite*'),
             'routineDCloud':('Locations', '**/Library/Caches/com.apple.routined/Cloud-V2.sqlite*'),
             'cacheRoutesGmap':('Locations', '**/Library/Application Support/CachedRoutes/*.plist'),
-            'appleWifiPlist':('Wireless Networks', '**/SystemConfiguration/com.apple.wifi.plist')
+            'appleWifiPlist':('Wireless Networks', '**/SystemConfiguration/com.apple.wifi.plist'),
             #'systemVersion':('Device Info', '**/SystemVersion.plist'),
             'mobileActivationLogs':('Mobile Activation Logs', '**/mobileactivationd.log*'),
             'iCloudWifi':('Wifi Connections', '**/com.apple.wifid.plist'),
