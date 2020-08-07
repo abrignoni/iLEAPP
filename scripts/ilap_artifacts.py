@@ -117,7 +117,13 @@ from scripts.artifacts.photosMetadata import get_photosMetadata
 from scripts.artifacts.aggDictpasscode import get_aggDictpasscode
 from scripts.artifacts.aggDictpasscodetype import get_aggDictpasscodetype
 from scripts.artifacts.ooklaSpeedtestData import get_ooklaSpeedtestData
-
+from scripts.artifacts.appConduit import get_appConduit
+from scripts.artifacts.mobileActivationLogs import get_mobileActivationLogs
+from scripts.artifacts.iCloudWifi import get_iCloudWifi
+from scripts.artifacts.mobileBackup import get_mobileBackup
+from scripts.artifacts.wifi import get_wifi
+from scripts.artifacts.mobileContainerManager import get_mobileContainerManager
+from scripts.artifacts.mediaLibrary import get_mediaLibrary
 from scripts.ilapfuncs import *
 
 # GREP searches for each module
@@ -169,13 +175,19 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'bluetoothOther':('Bluetooth', '**/Library/Database/com.apple.MobileBluetooth.ledevices.other.db'),
             'calendarAll':('Calendar', '**/Calendar.sqlitedb'),
             'photosMetadata':('Photos', '**/Photos.sqlite'),
-            'ooklaSpeedtestData':('Applications', '**/speedtest.sqlite*')
+            'ooklaSpeedtestData':('Applications', '**/speedtest.sqlite*'),
+            #'systemVersion':('Device Info', '**/SystemVersion.plist'),
+            'mobileActivationLogs':('Mobile Activation Logs', '**/mobileactivationd.log*'),
+            'iCloudWifi':('Wifi Connections', '**/com.apple.wifid.plist'),
+            'mobileBackup':('Mobile Backup', '*/Preferences/com.apple.MobileBackup.plist'),
+            'wifi':('Wifi Connections', '**/com.apple.wifi.plist'),
+            'mobileContainerManager':('Mobile Container Manager', '**/containermanagerd.log.*'),
+            #'appUpdates':('App Updates', '**/AppUpdates.sqlitedb'),
+            'appConduit':('App Conduit', '**/AppConduit.log.*'),
+            'mediaLibrary':('Media Library', '**/Medialibrary.sqlitedb')
             }
 
 '''
-tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
-            'knowCinstall':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db')
-            }
 
 # Individual artifacts. Slow parsing when extracting the same data multiple times for each artifact.
 tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
@@ -276,9 +288,19 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
     'locationDsteps':('LocationD', '**/cache_encryptedC.db'),
     'locationDcdmaloc1':('LocationD', '**/cache_encryptedB.db'),
     'calendarAll':('Calendar', '**/Calendar.sqlitedb'),
-    'photosMetadata':('Photos', '**/Photos.sqlite')
+    'photosMetadata':('Photos', '**/Photos.sqlite'),
+    'systemVersion':('Device Info', '**/SystemVersion.plist'),
+    'mobileActivationLogs':('Mobile Activation Logs', '**/mobileactivationd.log*'),
+    'iCloudWifi':('Wifi Connections', '**/com.apple.wifid.plist'),
+    'mobileBackup':('Mobile Backup', '*/Preferences/com.apple.MobileBackup.plist'),
+    'wifi':('Wifi Connections', '**/com.apple.wifi.plist'),
+    'mobileContainerManager':('Mobile Container Manager', '**/containermanagerd.log.*'),
+    'appUpdates':('App Updates', '**/AppUpdates.sqlitedb'),
+    'appConduit':('App Conduit', '**/AppConduit.log.*'),
+    'mediaLibrary':('Media Library', '**/Medialibrary.sqlitedb'),
+    'applicationstate':('Installed Apps', '**/applicationState.db'),
     }
-    
+
 #    Artifacts take long to run. Useful in specific situations only.
 #    'aggDict':('Aggregate Dictionary', '*/AggregateDictionary/ADDataStore.sqlitedb')
 #    'aggDictScalars':('Aggregate Dictionary', '*/AggregateDictionary/ADDataStore.sqlitedb')

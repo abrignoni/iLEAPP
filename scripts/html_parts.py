@@ -272,7 +272,7 @@ default_responsive_table_script = \
 """
     <script>
         $(document).ready(function() {
-            $('#dtBasicExample').DataTable({
+            $('.table').DataTable({
                 //"scrollY": "60vh",
                 //"scrollX": "10%",
                 //"scrollCollapse": true,

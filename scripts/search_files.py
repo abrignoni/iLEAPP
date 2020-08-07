@@ -1,9 +1,9 @@
 import fnmatch
 import os
+import tarfile
 
 from pathlib import Path
 from scripts.ilapfuncs import *
-from tarfile import TarFile, ExFileObject, TarInfo
 from zipfile import ZipFile
 
 class FileSeekerBase:
@@ -38,7 +38,9 @@ class FileSeekerDir(FileSeekerBase):
 class FileSeekerTar(FileSeekerBase):
     def __init__(self, tar_file_path, temp_folder):
         FileSeekerBase.__init__(self)
-        self.tar_file = TarFile(tar_file_path)
+        self.is_gzip = tar_file_path.lower().endswith('gz')
+        mode ='r:gz' if self.is_gzip else 'r'
+        self.tar_file = tarfile.open(tar_file_path, mode)
         self.temp_folder = temp_folder
 
     def search(self, filepattern):
@@ -55,7 +57,7 @@ class FileSeekerTar(FileSeekerBase):
                         if not os.path.exists(parent_dir):
                             os.makedirs(parent_dir)
                         with open(full_path, "wb") as fout:
-                            fout.write(ExFileObject(self.tar_file, member).read())
+                            fout.write(tarfile.ExFileObject(self.tar_file, member).read())
                             fout.close()
                         os.utime(full_path, (member.mtime, member.mtime))
                     pathlist.append(full_path)
