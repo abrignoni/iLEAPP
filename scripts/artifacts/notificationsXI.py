@@ -21,7 +21,7 @@ def get_notificationsXI(files_found, report_folder, seeker):
     cocoa = datetime.datetime(2001, 1, 1)  # UTC
     delta = cocoa - unix
 
-    __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
+    __location__ = os.path.dirname(os.path.abspath(__file__))
 
     f = open(os.path.join(__location__,"NotificationParams.txt"), "r")
     notiparams = [line.strip() for line in f]

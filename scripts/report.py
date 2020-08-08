@@ -176,11 +176,7 @@ def generate_report(reportfolderbase, time_in_secs, time_HMS, extraction_type, i
     elements_folder = os.path.join(reportfolderbase, '_elements')
     os.mkdir(elements_folder)
     
-    __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
-    
-    
-    #print(str(os.path.join(__location__,"logo.jpg")))
-    #logfunc(str(os.path.join(__location__,"logo.jpg")))
+    __location__ = os.path.dirname(os.path.abspath(__file__))
     
     shutil.copy2(os.path.join(__location__,"logo.jpg"), elements_folder)
     shutil.copy2(os.path.join(__location__,"dashboard.css"), elements_folder)
