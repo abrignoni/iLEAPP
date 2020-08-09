@@ -33,6 +33,12 @@ def main():
         print('INPUT file/folder does not exist! Run the program again.')
         return  
 
+    # ios file system extractions contain paths > 260 char, which causes problems
+    # This fixes the problem by prefixing \\?\ on each windows path.
+    if is_platform_windows():
+        if input_path[1] == ':' and extracttype =='fs': input_path = '\\\\?\\' + input_path.replace('/', '\\')
+        if output_path[1] == ':': output_path = '\\\\?\\' + output_path.replace('/', '\\')
+
     out_params = OutputParameters(output_path)
 
     crunch_artifacts(tosearch, extracttype, input_path, out_params, 1)
