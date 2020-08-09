@@ -8,6 +8,8 @@ page_header = \
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
         <title>{0}</title>
+        <!-- Dark mode -->
+        <link rel="stylesheet" href="_elements/dark-mode.css">
         <!-- Font Awesome -->
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.11.2/css/all.css">
         <!-- Google Fonts Roboto -->
@@ -34,6 +36,11 @@ body_start = \
     <!-- Start your project here-->
     <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
         <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">{0}</a>
+        <div class="custom-control custom-switch">
+            <input type="checkbox" class="custom-control-input" id="darkSwitch" />
+            <label class="custom-control-label mr-2" for="darkSwitch" style="color:white">Dark Switch</label>
+        </div>
+        <script src="_elements/dark-mode-switch.js"></script>
     </nav>
 
     <div class="container-fluid">
@@ -190,7 +197,7 @@ thank_you_note = \
                 <br /><br /><br />
                 <div class="text-center">
                     <br />
-                    <div class="card mb-3" style="max-width: 500px; margin:auto">
+                    <div class="card bg-white mb-3" style="max-width: 500px; margin:auto">
                         <div class="row no-gutters">
                             <div class="col-md-4">
                                 <img src="_elements/logo.jpg" class="card-img" alt="DFIR">
@@ -216,7 +223,7 @@ thank_you_note = \
 # Variable: HTML List of individual contributors (for index.html)
 credits_block = \
 """
-    <div class="alert alert-light mb-4">
+    <div class="alert alert-light mb-4 bg-white" style="border-style: none">
         <h4 class="text-center">iLEAPP contributors</h4>
         <ul class="list-group" style="max-width: 500px; margin:auto">
             {}
@@ -229,7 +236,7 @@ github_icon = '<i class="fab fa-github fa-fw"></i>'
 blank_icon = '<i class="fab fa-fw"></i>'
 individual_contributor = \
 """
-            <li class="list-group-item d-flex justify-content-between align-items-center"><i class="fas fa-medal"></i>{}
+            <li class="list-group-item d-flex justify-content-between align-items-center bg-white"><i class="fas fa-medal"></i>{}
                 <span>
                     {}
                 </span>

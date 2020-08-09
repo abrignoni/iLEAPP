@@ -53,18 +53,19 @@ def ValidateInput(values, window):
 def CheckList(mtxt, lkey, mdstring, disable=False):
     return [sg.CBox(mtxt, default=True, key=lkey, metadata=mdstring, disabled=disable)]
 
-# verify module (.py) file exists; only then add it to the "list"
 def pickModules():
     global indx
     global mlist
     
     script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'scripts', 'artifacts')
 
+    # Create sorted dict from 'tosearch' dictionary based on plugin category
+    sorted_tosearch = {k: v for k, v in sorted(tosearch.items(), key=lambda item: item[1][0].upper())}
+
     indx = 1000     # arbitrary number to not interfere with other controls
-    for key, val in tosearch.items():
-        plugin_path = os.path.join(script_path, key + '.py')
-        disabled = False if key != 'lastBuild' else True # lastBuild.py is REQUIRED
-        mlist.append( CheckList(key + '.py [' + val[0] + ']', indx, key, disabled) )
+    for key, val in sorted_tosearch.items():
+        disabled = False if key != 'lastBuild' else True # lastBuild is REQUIRED
+        mlist.append( CheckList(val[0] + f' [{key}]', indx, key, disabled) )
         indx = indx + 1
         
 sg.theme('DarkAmber')   # Add a touch of color
@@ -130,12 +131,13 @@ while True:
                 if output_folder[1] == ':': output_folder = '\\\\?\\' + output_folder.replace('/', '\\')
 
             # re-create modules list based on user selection
-            search_list = {}
+            search_list = { 'lastBuild' : tosearch['lastBuild'] } # hardcode lastBuild as first item
             s_items = 0
             for x in range(1000,indx):
                 if window.FindElement(x).Get():
-                    if window[x].metadata in tosearch:
-                        search_list[window[x].metadata] = tosearch[window[x].metadata]
+                    key = window[x].metadata
+                    if (key in tosearch) and (key != 'lastBuild'):
+                        search_list[key] = tosearch[key]
                         s_items = s_items + 1 #for progress bar
                 
                 # no more selections allowed
