@@ -6,6 +6,9 @@ import re
 import sys
 import codecs
 import sqlite3
+import string
+import binascii
+import math
 
 from bs4 import BeautifulSoup
 
@@ -150,3 +153,64 @@ def timeline(report_folder, tlactivity, data_list):
         cursor.executemany("INSERT INTO data VALUES(?,?,?)", [(str(i[0]), tlactivity, str(i))])
     db.commit()
     db.close()
+
+''' Returns string of printable characters. Replacing non-printable characters
+    with '.', or CHR(46)
+'''
+def strings_raw(data):
+    return "".join([chr(byte) if byte >= 0x20 and byte < 0x7F else chr(46) for byte in data])
+
+''' Returns string of printable characters. Works similar to the Linux
+    `string` function.
+'''
+def strings(data):
+    cleansed = "".join([chr(byte) if byte >= 0x20 and byte < 0x7F else chr(0) for byte in data])
+    return filter(lambda string: len(string) >= 4, cleansed.split(chr(0)))
+
+''' Retuns HTML table of the hexdump of the passed in data.
+'''
+def generate_hexdump(data, char_per_row = 5):
+	data_hex = binascii.hexlify(data).decode('utf-8')
+	str_raw = strings_raw(data)
+	str_hex = ''
+	str_ascii = ''
+
+	''' Generates offset column
+	'''
+	offset_rows = math.ceil(len(data_hex)/(char_per_row * 2))
+	offsets = [i for i in  range(0, len(data_hex), char_per_row)][:offset_rows]
+	str_offset = '<br>'.join([ str(hex(s)[2:]).zfill(4).upper() for s in offsets ])
+
+	''' Generates hex data column
+	'''
+	c = 0
+	for i in range(0, len(data_hex), 2):
+		str_hex += data_hex[i:i + 2] + '&nbsp;'
+
+		if c == char_per_row - 1:
+			str_hex += '<br>'
+			c = 0
+		else:
+			c += 1
+	
+	''' Generates ascii column of data
+	'''
+	for i in range(0, len(str_raw), char_per_row):
+		str_ascii += str_raw[i:i + char_per_row] + '<br>'
+
+	return f'''
+	<table id="GeoLocationHexTable" aria-describedby="GeoLocationHexTable" cellspacing="0">
+	<thead>
+		<tr>
+		<th style="border-right: 1px solid #000;border-bottom: 1px solid #000;">Offset</th>
+		<th style="width: 100px; border-right: 1px solid #000;border-bottom: 1px solid #000;">Hex</th>
+		<th style="border-bottom: 1px solid #000;">Ascii</th>
+	</tr>
+	</thead>
+	<tbody>
+	<tr>
+	<td style="white-space:nowrap; border-right: 1px solid #000;">{str_offset}</td>
+	<td style="border-right: 1px solid #000; white-space:nowrap;">{str_hex}</td>
+	<td style="white-space:nowrap;">{str_ascii}</td>
+	</tr></tbody></table>
+	'''

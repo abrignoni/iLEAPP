@@ -117,20 +117,9 @@ from scripts.artifacts.photosMetadata import get_photosMetadata
 from scripts.artifacts.aggDictpasscode import get_aggDictpasscode
 from scripts.artifacts.aggDictpasscodetype import get_aggDictpasscodetype
 from scripts.artifacts.ooklaSpeedtestData import get_ooklaSpeedtestData
-from scripts.artifacts.appleMapsGroup import get_appleMapsGroup
-from scripts.artifacts.appleMapsApplication import get_appleMapsApplication
-from scripts.artifacts.routineDlocations import get_routineDlocations
-from scripts.artifacts.routineDCloud import get_routineDCloud
-from scripts.artifacts.routineDLocationsLocal import get_routineDLocationsLocal
-from scripts.artifacts.cacheRoutesGmap import get_cacheRoutesGmap
-from scripts.artifacts.appleWifiPlist import get_appleWifiPlist  
-from scripts.artifacts.appConduit import get_appConduit
-from scripts.artifacts.mobileActivationLogs import get_mobileActivationLogs
-from scripts.artifacts.iCloudWifi import get_iCloudWifi
-from scripts.artifacts.mobileBackup import get_mobileBackup
-from scripts.artifacts.wifi import get_wifi
-from scripts.artifacts.mobileContainerManager import get_mobileContainerManager
-from scripts.artifacts.mediaLibrary import get_mediaLibrary
+from scripts.artifacts.geodMapTiles import get_geodMapTiles
+from scripts.artifacts.geodPDPlaceCache import get_geodPDPlaceCache
+from scripts.artifacts.geodApplications import get_geodApplications
 
 from scripts.ilapfuncs import *
 
@@ -174,36 +163,25 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'knowCall':('KnowledgeC', '**/CoreDuet/Knowledge/knowledgeC.db'),
             'powerlogAll':('Powerlog', '**/CurrentPowerlog.PLSQL'),
             'healthAll':('Health Data', '**/healthdb_secure.sqlite'),
-            'locationDallB':('Locations', '**/cache_encryptedB.db'),
+            'locationDallB':('LocationD', '**/cache_encryptedB.db'),
             'screentimeAll':('Screentime', '**/RMAdminStore-Local.sqlite'),
             'mailprotect':('iOS Mail', '**/private/var/mobile/Library/Mail/* Index*'),
-            'locationDparkedhistorical':('Locations', '**/Local.sqlite'),
-            'locationDparked':('Locations', '**/Local.sqlite'),
+            'locationDparkedhistorical':('RoutineD', '**/Local.sqlite'),
+            'locationDparked':('RoutineD', '**/Local.sqlite'),
             'bluetoothPaired':('Bluetooth', '**/Library/Database/com.apple.MobileBluetooth.ledevices.paired.db'),
             'bluetoothOther':('Bluetooth', '**/Library/Database/com.apple.MobileBluetooth.ledevices.other.db'),
             'calendarAll':('Calendar', '**/Calendar.sqlitedb'),
             'photosMetadata':('Photos', '**/Photos.sqlite'),
             'ooklaSpeedtestData':('Applications', '**/speedtest.sqlite*'),
-            'appleMapsGroup':('Locations', '**/Shared/AppGroup/*/Library/Preferences/group.com.apple.Maps.plist'),
-            'appleMapsApplication':('Locations', '**/Data/Application/*/Library/Preferences/com.apple.Maps.plist'),
-            'routineDlocations':('Locations', '**/com.apple.routined/Cache.sqlite*'),
-            'routineDLocationsLocal':('Locations', '**/private/var/mobile/Library/Caches/com.apple.routined/Local.sqlite*'),
-            'routineDCloud':('Locations', '**/Library/Caches/com.apple.routined/Cloud-V2.sqlite*'),
-            'cacheRoutesGmap':('Locations', '**/Library/Application Support/CachedRoutes/*.plist'),
-            'appleWifiPlist':('Wireless Networks', '**/SystemConfiguration/com.apple.wifi.plist'),
-            #'systemVersion':('Device Info', '**/SystemVersion.plist'),
-            'mobileActivationLogs':('Mobile Activation Logs', '**/mobileactivationd.log*'),
-            'iCloudWifi':('Wifi Connections', '**/com.apple.wifid.plist'),
-            'mobileBackup':('Mobile Backup', '*/Preferences/com.apple.MobileBackup.plist'),
-            'wifi':('Wifi Connections', '**/com.apple.wifi.plist'),
-            'mobileContainerManager':('Mobile Container Manager', '**/containermanagerd.log.*'),
-            #'appUpdates':('App Updates', '**/AppUpdates.sqlitedb'),
-            'appConduit':('App Conduit', '**/AppConduit.log.*'),
-            'mediaLibrary':('Media Library', '**/Medialibrary.sqlitedb')
-
+            'geodMapTiles': ('Geolocation', '**/MapTiles.sqlitedb'),
+            'geodPDPlaceCache': ('Geolocation', '**/PDPlaceCache.db'),
+            'geodApplications': ('Geolocation', '**/AP.db')
             }
 
 '''
+tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
+            'knowCinstall':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db')
+            }
 
 # Individual artifacts. Slow parsing when extracting the same data multiple times for each artifact.
 tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
@@ -290,33 +268,26 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
     'notificationsXII':('Notifications', '*private/var/mobile/Library/UserNotifications*'),
     'celWireless':('Cellular Wireless', '*wireless/Library/Preferences/com.apple.*'),
     'mailprotect':('iOS Mail', '**private/var/mobile/Library/Mail/* Index*'),
-    'locationDparkedhistorical':('Locations', '**/Local.sqlite'),
-    'locationDparked':('Locations', '**/Local.sqlite'),
+    'locationDparkedhistorical':('RoutineD', '**/Local.sqlite'),
+    'locationDparked':('RoutineD', '**/Local.sqlite'),
     'screentimeGenerichour':('Screentime', '**/RMAdminStore-Local.sqlite'),
     'screentimeTimeditems':('Screentime', '**/RMAdminStore-Local.sqlite'),
     'screentimeCounteditems':('Screentime', '**/RMAdminStore-Local.sqlite'),
     'bluetoothPaired':('Bluetooth', '**/Library/Database/com.apple.MobileBluetooth.ledevices.paired.db'),
     'bluetoothOther':('Bluetooth', '**/Library/Database/com.apple.MobileBluetooth.ledevices.other.db'),
-    'locationDcellloc':('Locations', '**/cache_encryptedB.db'),
-    'locationDappharvest':('Locations', '**/cache_encryptedB.db'),
-    'locationDwifilocB':('Locations', '**/cache_encryptedB.db'),
-    'locationDlteloc':('Locations', '**/cache_encryptedB.db'),
+    'locationDcellloc':('LocationD', '**/cache_encryptedB.db'),
+    'locationDappharvest':('LocationD', '**/cache_encryptedB.db'),
+    'locationDwifilocB':('LocationD', '**/cache_encryptedB.db'),
+    'locationDlteloc':('LocationD', '**/cache_encryptedB.db'),
     'locationDsteps':('LocationD', '**/cache_encryptedC.db'),
-    'locationDcdmaloc1':('Locations', '**/cache_encryptedB.db'),
+    'locationDcdmaloc1':('LocationD', '**/cache_encryptedB.db'),
     'calendarAll':('Calendar', '**/Calendar.sqlitedb'),
     'photosMetadata':('Photos', '**/Photos.sqlite'),
-    'systemVersion':('Device Info', '**/SystemVersion.plist'),
-    'mobileActivationLogs':('Mobile Activation Logs', '**/mobileactivationd.log*'),
-    'iCloudWifi':('Wifi Connections', '**/com.apple.wifid.plist'),
-    'mobileBackup':('Mobile Backup', '*/Preferences/com.apple.MobileBackup.plist'),
-    'wifi':('Wifi Connections', '**/com.apple.wifi.plist'),
-    'mobileContainerManager':('Mobile Container Manager', '**/containermanagerd.log.*'),
-    'appUpdates':('App Updates', '**/AppUpdates.sqlitedb'),
-    'appConduit':('App Conduit', '**/AppConduit.log.*'),
-    'mediaLibrary':('Media Library', '**/Medialibrary.sqlitedb'),
-    'applicationstate':('Installed Apps', '**/applicationState.db'),
+    'geodMapTiles': ('Geolocation', '**/MapTiles.sqlitedb'),
+    'geodPDPlaceCache': ('Geolocation', '**/PDPlaceCache.db'),
+    'geodApplications': ('Geolocation', '**/AP.db')
     }
-
+    
 #    Artifacts take long to run. Useful in specific situations only.
 #    'aggDict':('Aggregate Dictionary', '*/AggregateDictionary/ADDataStore.sqlitedb')
 #    'aggDictScalars':('Aggregate Dictionary', '*/AggregateDictionary/ADDataStore.sqlitedb')
@@ -342,7 +313,7 @@ def process_artifact(files_found, artifact_func, artifact_name, seeker, report_f
             seeker: FileSeeker object to pass to method
     '''
     
-    logfunc('{} [{}] artifact executing'.format(artifact_name, artifact_func))
+    logfunc('{} artifact executing'.format(artifact_name))
     report_folder = os.path.join(report_folder_base, artifact_name) + slash
     try:
         if os.path.isdir(report_folder):
@@ -363,4 +334,4 @@ def process_artifact(files_found, artifact_func, artifact_name, seeker, report_f
         logfunc('Exception Traceback: {}'.format(traceback.format_exc()))
         return
 
-    logfunc('{} [{}] artifact completed'.format(artifact_name, artifact_func))
+    logfunc('{} artifact completed'.format(artifact_name))
