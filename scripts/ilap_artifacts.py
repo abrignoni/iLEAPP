@@ -134,6 +134,7 @@ from scripts.artifacts.mediaLibrary import get_mediaLibrary
 from scripts.artifacts.geodMapTiles import get_geodMapTiles
 from scripts.artifacts.geodPDPlaceCache import get_geodPDPlaceCache
 from scripts.artifacts.geodApplications import get_geodApplications
+from scripts.artifacts.tileApp import get_tileApp
 
 from scripts.ilapfuncs import *
 
@@ -205,7 +206,8 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'mediaLibrary':('Media Library', '**/Medialibrary.sqlitedb'),
             'geodMapTiles': ('Geolocation', '**/MapTiles.sqlitedb'),
             'geodPDPlaceCache': ('Geolocation', '**/PDPlaceCache.db'),
-            'geodApplications': ('Geolocation', '**/AP.db')
+            'geodApplications': ('Geolocation', '**/AP.db'),
+            'tileApp': ('Locations', '*private/var/mobile/Containers/Data/Application/*/Library/log/com.thetileapp.tile*')
             }
 
 '''
