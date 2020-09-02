@@ -38,9 +38,9 @@ def get_tileApp(files_found, report_folder, seeker):
                         data_list.append((datestamp, lat.lstrip(), longi.lstrip(), counter, head_tail[1]))
 
     if len(data_list) > 0:
-        description = 'Tile app recorded langitude and longitude coordinates.'
+        description = 'Tile app log recorded langitude and longitude coordinates.'
         report = ArtifactHtmlReport('Locations')
-        report.start_artifact_report(report_folder, 'Tile App Geolocation', description)
+        report.start_artifact_report(report_folder, 'Tile App Geolocation Logs', description)
         report.add_script()
         data_headers = ('Timestamp', 'Latitude', 'Longitude', 'Row Number', 'Source File' )     
         report.write_artifact_data_table(data_headers, data_list, head_tail[0])
