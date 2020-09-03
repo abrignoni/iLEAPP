@@ -131,6 +131,10 @@ from scripts.artifacts.mobileBackup import get_mobileBackup
 from scripts.artifacts.wifi import get_wifi
 from scripts.artifacts.mobileContainerManager import get_mobileContainerManager
 from scripts.artifacts.mediaLibrary import get_mediaLibrary
+from scripts.artifacts.geodMapTiles import get_geodMapTiles
+from scripts.artifacts.geodPDPlaceCache import get_geodPDPlaceCache
+from scripts.artifacts.geodApplications import get_geodApplications
+from scripts.artifacts.tileApp import get_tileApp
 
 from scripts.ilapfuncs import *
 
@@ -199,8 +203,11 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'mobileContainerManager':('Mobile Container Manager', '**/containermanagerd.log.*'),
             #'appUpdates':('App Updates', '**/AppUpdates.sqlitedb'),
             'appConduit':('App Conduit', '**/AppConduit.log.*'),
-            'mediaLibrary':('Media Library', '**/Medialibrary.sqlitedb')
-
+            'mediaLibrary':('Media Library', '**/Medialibrary.sqlitedb'),
+            'geodMapTiles': ('Geolocation', '**/MapTiles.sqlitedb'),
+            'geodPDPlaceCache': ('Geolocation', '**/PDPlaceCache.db'),
+            'geodApplications': ('Geolocation', '**/AP.db'),
+            'tileApp': ('Locations', '*private/var/mobile/Containers/Data/Application/*/Library/log/com.thetileapp.tile*')
             }
 
 '''
@@ -315,6 +322,9 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
     'appConduit':('App Conduit', '**/AppConduit.log.*'),
     'mediaLibrary':('Media Library', '**/Medialibrary.sqlitedb'),
     'applicationstate':('Installed Apps', '**/applicationState.db'),
+    'geodMapTiles': ('Geolocation', '**/MapTiles.sqlitedb'),
+    'geodPDPlaceCache': ('Geolocation', '**/PDPlaceCache.db'),
+    'geodApplications': ('Geolocation', '**/AP.db')
     }
 
 #    Artifacts take long to run. Useful in specific situations only.

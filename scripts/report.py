@@ -100,6 +100,10 @@ def get_icon_name(category, artifact):
         if artifact == 'ICLOUD WIFI NETWORKS':        icon = 'wifi'
         elif artifact == 'WIFI':        icon = 'wifi'
         elif artifact == 'WIFI PLIST':       icon = 'save'
+    elif category == 'GEOLOCATION':
+        if artifact == 'APPLICATIONS': icon = 'grid'
+        elif artifact == 'MAP TILE CACHE': icon = 'map'
+        elif artifact == 'PD PLACE CACHE': icon = 'map-pin'
 
     return icon
     
