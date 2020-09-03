@@ -135,6 +135,9 @@ from scripts.artifacts.geodMapTiles import get_geodMapTiles
 from scripts.artifacts.geodPDPlaceCache import get_geodPDPlaceCache
 from scripts.artifacts.geodApplications import get_geodApplications
 from scripts.artifacts.tileApp import get_tileApp
+from scripts.artifacts.tileAppDb import get_tileAppDb
+from scripts.artifacts.tileAppNetDb import get_tileAppNetDb
+from scripts.artifacts.tileAppDisc import get_tileAppDisc
 
 from scripts.ilapfuncs import *
 
@@ -207,7 +210,11 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'geodMapTiles': ('Geolocation', '**/MapTiles.sqlitedb'),
             'geodPDPlaceCache': ('Geolocation', '**/PDPlaceCache.db'),
             'geodApplications': ('Geolocation', '**/AP.db'),
-            'tileApp': ('Locations', '*private/var/mobile/Containers/Data/Application/*/Library/log/com.thetileapp.tile*')
+            'tileApp': ('Locations', '*private/var/mobile/Containers/Data/Application/*/Library/log/com.thetileapp.tile*'),
+            'tileAppDb': ('Locations', '*private/var/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-TileNetworkDB.sqlite*'),
+            'tileAppNetDb': ('Accounts', '*/private/var/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-TileNetworkDB.sqlite*'),
+            'tileAppDisc': ('Accounts', '*/private/var/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-DiscoveredTileDB.sqlite*')
+            
             }
 
 '''
