@@ -105,6 +105,7 @@ from scripts.artifacts.screentimeCounteditems import get_screentimeCounteditems
 from scripts.artifacts.screentimeAll import get_screentimeAll
 from scripts.artifacts.bluetoothPaired import get_bluetoothPaired
 from scripts.artifacts.bluetoothOther import get_bluetoothOther
+from scripts.artifacts.bluetoothPairedReg import get_bluetoothPairedReg
 from scripts.artifacts.locationDcellloc import get_locationDcellloc
 from scripts.artifacts.locationDappharvest import get_locationDappharvest
 from scripts.artifacts.locationDcdmaloc1 import get_locationDcdmaloc1
@@ -187,6 +188,7 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'locationDparkedhistorical':('Locations', '**/Local.sqlite'),
             'locationDparked':('Locations', '**/Local.sqlite'),
             'bluetoothPaired':('Bluetooth', '**/Library/Database/com.apple.MobileBluetooth.ledevices.paired.db'),
+            'bluetoothPairedReg':('Bluetooth', '**/Library/Preferences/com.apple.MobileBluetooth.devices.plist'),
             'bluetoothOther':('Bluetooth', '**/Library/Database/com.apple.MobileBluetooth.ledevices.other.db'),
             'calendarAll':('Calendar', '**/Calendar.sqlitedb'),
             'photosMetadata':('Photos', '**/Photos.sqlite'),

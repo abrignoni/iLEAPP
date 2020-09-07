@@ -8,7 +8,7 @@ import sqlite3
 import json
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows 
 
 
 def get_bluetoothOther(files_found, report_folder, seeker):
@@ -34,18 +34,20 @@ def get_bluetoothOther(files_found, report_folder, seeker):
 	data_list = []    
 	if usageentries > 0:
 		for row in all_rows:
-			data_list.append((row[0], row[1], row[2], row[3]))
+			data_list.append((row[0], row[1], row[3]))
 	
 		description = ''
-		report = ArtifactHtmlReport('Bluetooth Other')
-		report.start_artifact_report(report_folder, 'Other', description)
+		report = ArtifactHtmlReport('Bluetooth Other LE')
+		report.start_artifact_report(report_folder, 'Other LE', description)
 		report.add_script()
-		data_headers = ('Name','Address','Last Seen Time','UUID' )     
+		data_headers = ('Name','Address','UUID' )     
 		report.write_artifact_data_table(data_headers, data_list, file_found)
 		report.end_artifact_report()
 		
-		tsvname = 'Bluetooth Other'
+		tsvname = 'Bluetooth Other LE'
 		tsv(report_folder, data_headers, data_list, tsvname)
+
+		
 	else:
 		logfunc('No data available for Bluetooth Other')
 	
