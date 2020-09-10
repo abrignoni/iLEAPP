@@ -80,6 +80,7 @@ from scripts.artifacts.powerlogAppinfo import get_powerlogAppinfo
 from scripts.artifacts.powerlogBackupinfo import get_powerlogBackupinfo
 from scripts.artifacts.powerlogDeletedapps import get_powerlogDeletedapps
 from scripts.artifacts.powerlogAll import get_powerlogAll
+from scripts.artifacts.powerlogGZ import get_powerlogGZ
 from scripts.artifacts.knowClocation import get_knowClocation
 from scripts.artifacts.knowCappshortcut import get_knowCappshortcut
 from scripts.artifacts.knowCwebusage import get_knowCwebusage
@@ -181,6 +182,7 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'celWireless':('Cellular Wireless', '*wireless/Library/Preferences/com.apple.*'),
             'knowCall':('KnowledgeC', '**/CoreDuet/Knowledge/knowledgeC.db'),
             'powerlogAll':('Powerlog', '**/CurrentPowerlog.PLSQL'),
+            'powerlogGZ':('Powerlog Backups', '**/Library/BatteryLife/Archives/powerlog_*.PLSQL.gz'),
             'healthAll':('Health Data', '**/healthdb_secure.sqlite'),
             'locationDallB':('Locations', '**/cache_encryptedB.db'),
             'screentimeAll':('Screentime', '**/RMAdminStore-Local.sqlite'),

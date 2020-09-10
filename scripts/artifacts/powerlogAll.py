@@ -333,8 +333,7 @@ def get_powerlogAll(files_found, report_folder, seeker):
 
     if version.parse(iOSversion) >= version.parse("11"):
         cursor = db.cursor()
-        cursor.execute(
-        """
+        cursor.execute("""
         SELECT
                 DATETIME(APPDELETEDDATE, 'UNIXEPOCH') AS "APP DELETED DATE",
                 DATETIME(TIMESTAMP, 'UNIXEPOCH') AS TIMESTAMP,
@@ -353,8 +352,7 @@ def get_powerlogAll(files_found, report_folder, seeker):
         """)
     elif version.parse(iOSversion) == version.parse("10"):
         cursor = db.cursor()
-        cursor.execute(
-        """
+        cursor.execute("""
         SELECT
                 DATETIME(APPDELETEDDATE, 'UNIXEPOCH') AS "APP DELETED DATE",
                 DATETIME(TIMESTAMP, 'UNIXEPOCH') AS TIMESTAMP,
@@ -372,8 +370,7 @@ def get_powerlogAll(files_found, report_folder, seeker):
         """)
     elif version.parse(iOSversion) == version.parse("9"):
         cursor = db.cursor()
-        cursor.execute(
-        """
+        cursor.execute("""
         SELECT
                 DATETIME(APPDELETEDDATE, 'UNIXEPOCH') AS "APP DELETED DATE",
                 DATETIME(TIMESTAMP, 'UNIXEPOCH') AS TIMESTAMP,
