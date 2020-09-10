@@ -65,6 +65,7 @@ def get_icon_name(category, artifact):
     elif category == 'IOS BUILD':       icon = 'git-commit'
     elif category == 'IOS SCREENS':       icon = 'maximize'
     elif category == 'POWERLOG':       icon = 'power'
+    elif category == 'POWERLOG BACKUPS':       icon = 'power'
     elif category == 'DHCP':       icon = 'settings'
     elif category == 'NOTIFICATIONS':     icon = 'bell'
     elif category == 'CELLULAR WIRELESS':     icon = 'bar-chart'
