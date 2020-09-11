@@ -54,7 +54,7 @@ def get_powerlogAppinfo(files_found, report_folder, seeker):
                 tsv(report_folder, data_headers, data_list, tsvname)
                 
                 tlactivity = 'Powerlog App Info'
-                timeline(report_folder, tlactivity, data_list)
+                timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
             logfunc('No data available in Powerlog App Info')

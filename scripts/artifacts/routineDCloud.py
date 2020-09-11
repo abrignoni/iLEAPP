@@ -58,7 +58,7 @@ def get_routineDCloud(files_found, report_folder, seeker):
             tsv(report_folder, data_headers, data_list, tsvname)
             
             tlactivity = 'RoutineD Cloud Addresses'
-            timeline(report_folder, tlactivity, data_list)
+            timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
             logfunc('No RoutineD Cloud Addresses data available')
@@ -109,7 +109,7 @@ def get_routineDCloud(files_found, report_folder, seeker):
           tsv(report_folder, data_headers, data_list, tsvname)
           
           tlactivity = 'RoutineD Cloud Map Items'
-          timeline(report_folder, tlactivity, data_list)
+          timeline(report_folder, tlactivity, data_list, data_headers)
 
       else:
           logfunc('No RoutineD Map Items Cloud-V2.sqlite data available')
@@ -160,7 +160,7 @@ def get_routineDCloud(files_found, report_folder, seeker):
           tsv(report_folder, data_headers, data_list, tsvname)
           
           tlactivity = 'RoutineD Cloud Map Items'
-          timeline(report_folder, tlactivity, data_list)
+          timeline(report_folder, tlactivity, data_list, data_headers)
 
       else:
           logfunc('No RoutineD Cloud Map Items data available')
@@ -239,7 +239,7 @@ def get_routineDCloud(files_found, report_folder, seeker):
           tsv(report_folder, data_headers, data_list, tsvname)
           
           tlactivity = 'RoutineD Cloud Visit Entry Exit'
-          timeline(report_folder, tlactivity, data_list)
+          timeline(report_folder, tlactivity, data_list, data_headers)
 
       else:
           logfunc('No RoutineD Significant Locations - Vist Entry & Exit (Historical)')

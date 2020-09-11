@@ -57,5 +57,5 @@ def get_healthEcg(files_found, report_folder, seeker):
 		tsv(report_folder, data_headers, data_list, tsvname)
 		
 		tlactivity = 'Health ECG'
-		timeline(report_folder, tlactivity, data_list)
+		timeline(report_folder, tlactivity, data_list, data_headers)
 	

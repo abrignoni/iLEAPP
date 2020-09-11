@@ -24,17 +24,20 @@ def get_geodApplications(files_found, report_folder, seeker):
 	data_list = []
 	if usageentries > 0:
 		for row in all_rows:
-			data_list.append((row[0], row[1], row[2]))
+			data_list.append((row[2], row[0], row[1] ))
 			description = ''
 		report = ArtifactHtmlReport('Geolocation')
 		report.start_artifact_report(report_folder, 'Applications', description)
 		report.add_script()
-		data_headers = ("Count ID", "Application", "Creation Time")
+		data_headers = ("Creation Time", "Count ID", "Application")
 		report.write_artifact_data_table(data_headers, data_list, file_found, html_escape = False)
 		report.end_artifact_report()
 
 		tsvname = 'Geolocation Applications'
 		tsv(report_folder, data_headers, data_list, tsvname)
+		
+		tlactivity = 'Geolocation Applications'
+		timeline(report_folder, tlactivity, data_list, data_headers)
 
 	else:
 		logfunc('No data available for Geolocation Applications')
