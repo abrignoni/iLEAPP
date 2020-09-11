@@ -119,8 +119,11 @@ def get_geodMapTiles(files_found, report_folder, seeker):
         report.write_artifact_data_table(data_headers, data_list, file_found, html_escape = False)
         report.end_artifact_report()
 
-        tsvname = 'Geolocation'
+        tsvname = 'Geolocation Map Tiles'
         tsv(report_folder, data_headers, data_list, tsvname)
+        
+        tlactivity = 'Geolocation Map tiles'
+        timeline(report_folder, tlactivity, data_list, data_headers)
 
     else:
         logfunc('No data available for Geolocation')

@@ -63,7 +63,7 @@ def get_routineDLocationsLocal(files_found, report_folder, seeker):
             tsv(report_folder, data_headers, data_list, tsvname)
             
             tlactivity = 'RoutineD Locations Entry'
-            timeline(report_folder, tlactivity, data_list)
+            timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
             logfunc('No RoutineD Significant Locations Entry data available')
@@ -108,7 +108,7 @@ def get_routineDLocationsLocal(files_found, report_folder, seeker):
             tsv(report_folder, data_headers, data_list, tsvname)
             
             tlactivity = 'RoutineD Locations Exit'
-            timeline(report_folder, tlactivity, data_list)
+            timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
             logfunc('No RoutineD Significant Locations Exit data available')
@@ -156,7 +156,7 @@ def get_routineDLocationsLocal(files_found, report_folder, seeker):
               tsv(report_folder, data_headers, data_list, tsvname)
               
               tlactivity = 'RoutineD Transtition Start'
-              timeline(report_folder, tlactivity, data_list)
+              timeline(report_folder, tlactivity, data_list, data_headers)
 
           else:
               logfunc('No RoutineD Significant Locations Transtition Start data available')
@@ -199,7 +199,7 @@ def get_routineDLocationsLocal(files_found, report_folder, seeker):
               tsv(report_folder, data_headers, data_list, tsvname)
               
               tlactivity = 'RoutineD Transtition Stop'
-              timeline(report_folder, tlactivity, data_list)
+              timeline(report_folder, tlactivity, data_list, data_headers)
 
           else:
               logfunc('No RoutineD Significant Locations Transtition Stop data available')

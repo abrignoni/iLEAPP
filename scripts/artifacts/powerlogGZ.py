@@ -819,7 +819,7 @@ def get_powerlogGZ(files_found, report_folder, seeker):
 			tsv(report_folder, data_headers1, data_list1, tsvname)
 
 			tlactivity = 'Powerlog Audio Routing via App from GZ backup'
-			timeline(report_folder, tlactivity, data_list1)
+			timeline(report_folder, tlactivity, data_list1, data_headers1)
 
 	if version.parse(iOSversion) >= version.parse("10"):
 		if len(data_list2) > 0:
@@ -834,7 +834,7 @@ def get_powerlogGZ(files_found, report_folder, seeker):
 			tsv(report_folder, data_headers2, data_list2, tsvname)
 			
 			tlactivity = 'Powerlog Agg Bulletins from GZ backup'
-			timeline(report_folder, tlactivity, data_list2)
+			timeline(report_folder, tlactivity, data_list2, data_headers2)
 			
 	if version.parse(iOSversion) >= version.parse("10"):
 		if len(data_list3) > 0:
@@ -849,7 +849,7 @@ def get_powerlogGZ(files_found, report_folder, seeker):
 			tsv(report_folder, data_headers3, data_list3, tsvname)
 			
 			tlactivity = 'Powerlog Agg Notifications from GZ backup'
-			timeline(report_folder, tlactivity, data_list3)
+			timeline(report_folder, tlactivity, data_list3, data_headers3)
 
 	if version.parse(iOSversion) >= version.parse("9"):
 		if len(data_list4) > 0:
@@ -864,7 +864,7 @@ def get_powerlogGZ(files_found, report_folder, seeker):
 			tsv(report_folder, data_headers4, data_list4, tsvname)
 
 			tlactivity = 'Powerlog Airdrop Connections Info from GZ backup'
-			timeline(report_folder, tlactivity, data_list4)
+			timeline(report_folder, tlactivity, data_list4, data_headers4)
 
 	if version.parse(iOSversion) >= version.parse("9"):
 		if len(data_list5) > 0:
@@ -879,7 +879,7 @@ def get_powerlogGZ(files_found, report_folder, seeker):
 			tsv(report_folder, data_headers5, data_list5, tsvname)
 
 			tlactivity = 'Powerlog App Info from GZ backup'
-			timeline(report_folder, tlactivity, data_list5)
+			timeline(report_folder, tlactivity, data_list5, data_headers5)
 	
 	if version.parse(iOSversion) >= version.parse("11"):
 		if len(data_list6) > 0:
@@ -894,7 +894,7 @@ def get_powerlogGZ(files_found, report_folder, seeker):
 			tsv(report_folder, data_headers6, data_list6, tsvname)
 
 			tlactivity = 'Powerlog Backup Info from GZ backup'
-			timeline(report_folder, tlactivity, data_list6)
+			timeline(report_folder, tlactivity, data_list6, data_headers6)
 
 	if version.parse(iOSversion) >= version.parse("11"):
 		if len(data_list7) > 0:
@@ -909,7 +909,7 @@ def get_powerlogGZ(files_found, report_folder, seeker):
 			tsv(report_folder, data_headers7, data_list7, tsvname)
 			
 			tlactivity = 'Powerlog Deleted Apps from GZ backup'
-			timeline(report_folder, tlactivity, data_list7)
+			timeline(report_folder, tlactivity, data_list7, data_headers7)
 			
 	if version.parse(iOSversion) == version.parse("10"):
 		if len(data_list7) > 0:
@@ -924,7 +924,7 @@ def get_powerlogGZ(files_found, report_folder, seeker):
 			tsv(report_folder, data_headers7, data_list7, tsvname)
 			
 			tlactivity = 'Powerlog Deleted Apps from GZ backup'
-			timeline(report_folder, tlactivity, data_list7)
+			timeline(report_folder, tlactivity, data_list7, data_headers7)
 			
 	if version.parse(iOSversion) == version.parse("9"):
 		if len(data_list7) > 0:
@@ -939,7 +939,7 @@ def get_powerlogGZ(files_found, report_folder, seeker):
 			tsv(report_folder, data_headers7, data_list7, tsvname)
 			
 			tlactivity = 'Powerlog Deleted Apps from GZ backup'
-			timeline(report_folder, tlactivity, data_list7)
+			timeline(report_folder, tlactivity, data_list7, data_headers7)
 
 	if version.parse(iOSversion) >= version.parse("10"):
 		if len(data_list8) > 0:
@@ -954,7 +954,7 @@ def get_powerlogGZ(files_found, report_folder, seeker):
 			tsv(report_folder, data_headers8, data_list8, tsvname)
 
 			tlactivity = 'Powerlog Lightning Connector Status from GZ backup'
-			timeline(report_folder, tlactivity, data_list8)
+			timeline(report_folder, tlactivity, data_list8, data_headers8)
 			
 	if version.parse(iOSversion) >= version.parse("9"):
 		if len(data_list9) > 0:
@@ -969,7 +969,7 @@ def get_powerlogGZ(files_found, report_folder, seeker):
 			tsv(report_folder, data_headers9, data_list9, tsvname)
 			
 			tlactivity = 'Powerlog Location Use by App from GZ backup'
-			timeline(report_folder, tlactivity, data_list9)
+			timeline(report_folder, tlactivity, data_list9, data_headers9)
 	
 	if version.parse(iOSversion) >= version.parse("10"):
 		if len(data_list11) > 0:
@@ -984,7 +984,7 @@ def get_powerlogGZ(files_found, report_folder, seeker):
 			tsv(report_folder, data_headers11, data_list11, tsvname)
 			
 			tlactivity = 'Powerlog Paired Device Configuration from GZ backup'
-			timeline(report_folder, tlactivity, data_list11)
+			timeline(report_folder, tlactivity, data_list11, data_headers11)
 	else:
 		if len(data_list11) > 0:
 			report = ArtifactHtmlReport('Powerlog Paired Device Configuration')
@@ -998,7 +998,7 @@ def get_powerlogGZ(files_found, report_folder, seeker):
 			tsv(report_folder, data_headers11, data_list11, tsvname)
 			
 			tlactivity = 'Powerlog Paired Device Configuration from GZ backup'
-			timeline(report_folder, tlactivity, data_list11)
+			timeline(report_folder, tlactivity, data_list11, data_headers11)
 			
 	if version.parse(iOSversion) >= version.parse("9"):
 		if len(data_list12) > 0:
@@ -1013,7 +1013,7 @@ def get_powerlogGZ(files_found, report_folder, seeker):
 			tsv(report_folder, data_headers12, data_list12, tsvname)
 			
 			tlactivity = 'Powerlog Process Data Usage from GZ backup'
-			timeline(report_folder, tlactivity, data_list12)
+			timeline(report_folder, tlactivity, data_list12, data_headers12)
 			
 	if version.parse(iOSversion) >= version.parse("9"):
 		if len(data_list13) > 0:		
@@ -1028,7 +1028,7 @@ def get_powerlogGZ(files_found, report_folder, seeker):
 			tsv(report_folder, data_headers13, data_list13, tsvname)
 			
 			tlactivity = 'Powerlog Push Message Received from GZ backup'
-			timeline(report_folder, tlactivity, data_list13)
+			timeline(report_folder, tlactivity, data_list13, data_headers13)
 
 	if version.parse(iOSversion) >= version.parse("9"):
 		if len(data_list14) > 0:
@@ -1043,7 +1043,7 @@ def get_powerlogGZ(files_found, report_folder, seeker):
 			tsv(report_folder, data_headers14, data_list14, tsvname)
 			
 			tlactivity = 'Powerlog Timezones from GZ backup'
-			timeline(report_folder, tlactivity, data_list14)
+			timeline(report_folder, tlactivity, data_list14, data_headers14)
 			
 	if version.parse(iOSversion) >= version.parse("9"):
 		if len(data_list15) > 0:
@@ -1058,7 +1058,7 @@ def get_powerlogGZ(files_found, report_folder, seeker):
 			tsv(report_folder, data_headers15, data_list15, tsvname)
 			
 			tlactivity = 'Powerlog Torch from GZ backup'
-			timeline(report_folder, tlactivity, data_list15)
+			timeline(report_folder, tlactivity, data_list15, data_headers15)
 			
 	if version.parse(iOSversion) >= version.parse("9"):
 		if len(data_list16) > 0:
@@ -1073,7 +1073,7 @@ def get_powerlogGZ(files_found, report_folder, seeker):
 			tsv(report_folder, data_headers16, data_list16, tsvname)
 			
 			tlactivity = 'Powerlog App Playing Video from GZ backup'
-			timeline(report_folder, tlactivity, data_list16)
+			timeline(report_folder, tlactivity, data_list16, data_headers16)
 						
 	if version.parse(iOSversion) >= version.parse("9"):	
 		if len(data_list17) > 0:		
@@ -1088,7 +1088,7 @@ def get_powerlogGZ(files_found, report_folder, seeker):
 			tsv(report_folder, data_headers17, data_list17, tsvname)
 			
 			tlactivity = 'Powerlog Volumen Percentage from GZ backup'
-			timeline(report_folder, tlactivity, data_list17)
+			timeline(report_folder, tlactivity, data_list17, data_headers17)
 			
 	if version.parse(iOSversion) >= version.parse("9"):
 		if len(data_list18) > 0:
@@ -1103,4 +1103,4 @@ def get_powerlogGZ(files_found, report_folder, seeker):
 			tsv(report_folder, data_headers18, data_list18, tsvname)
 			
 			tlactivity = 'Powerlog Wifi Network Connections from GZ backup'
-			timeline(report_folder, tlactivity, data_list18)
+			timeline(report_folder, tlactivity, data_list18, data_headers18)

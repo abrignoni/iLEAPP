@@ -44,7 +44,7 @@ def get_aggDictScalars(files_found, report_folder, seeker):
 		tsv(report_folder, data_headers, data_list, tsvname)
 		
 		tlactivity = 'Aggregate Dictionary Distributed Keys'
-		timeline(report_folder, tlactivity, data_list)
+		timeline(report_folder, tlactivity, data_list, data_headers)
 	else:
 		logfunc("No Aggregate Dictionary Distributed Keys Data available")
 	

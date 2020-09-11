@@ -102,7 +102,7 @@ def get_knowCsafari(files_found, report_folder, seeker):
 			tsv(report_folder, data_headers, data_list, tsvname)
 			
 			tlactivity = 'KnowledgeC Safari Browsing'
-			timeline(report_folder, tlactivity, data_list)
+			timeline(report_folder, tlactivity, data_list, data_headers)
 		else:
 			for row in all_rows:    
 				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7]))
@@ -118,7 +118,7 @@ def get_knowCsafari(files_found, report_folder, seeker):
 			tsv(report_folder, data_headers, data_list, tsvname)
 			
 			tlactivity = 'KnowledgeC Safari Browsing'
-			timeline(report_folder, tlactivity, data_list)
+			timeline(report_folder, tlactivity, data_list, data_headers)
 	else:
 		logfunc('No data available in table')
 

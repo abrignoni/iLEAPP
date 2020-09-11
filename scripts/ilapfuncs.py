@@ -123,7 +123,7 @@ def tsv(report_folder, data_headers, data_list, tsvname):
         for i in data_list:
             tsv_writer.writerow(i)
             
-def timeline(report_folder, tlactivity, data_list):
+def timeline(report_folder, tlactivity, data_list, data_headers):
     report_folder = report_folder.rstrip('/')
     report_folder = report_folder.rstrip('\\')
     report_folder_base, tail = os.path.split(report_folder)
@@ -148,9 +148,12 @@ def timeline(report_folder, tlactivity, data_list):
             )
         db.commit()
     
-    for i in data_list:
-        #datainsert = (str(i[0]), tlactivity, str(i),)
-        cursor.executemany("INSERT INTO data VALUES(?,?,?)", [(str(i[0]), tlactivity, str(i))])
+    a = 0
+    length = (len(data_list))
+    while a < length: 
+        modifiedList = list(map(lambda x, y: x + ': ' +  str(y), data_headers, data_list[a]))
+        cursor.executemany("INSERT INTO data VALUES(?,?,?)", [(str(data_list[a][0]), tlactivity, str(modifiedList))])
+        a += 1
     db.commit()
     db.close()
 

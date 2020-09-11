@@ -82,7 +82,7 @@ def get_healthAll(files_found, report_folder, seeker):
             tsv(report_folder, data_headers, data_list, tsvname)
             
             tlactivity = 'Health Workout Cadence'
-            timeline(report_folder, tlactivity, data_list)
+            timeline(report_folder, tlactivity, data_list, data_headers)
         else:
             logfunc('No data available in Workout Cadence')
             
@@ -131,7 +131,7 @@ def get_healthAll(files_found, report_folder, seeker):
             tsv(report_folder, data_headers, data_list, tsvname)
             
             tlactivity = 'Health Distance'
-            timeline(report_folder, tlactivity, data_list)
+            timeline(report_folder, tlactivity, data_list, data_headers)
     
     if version.parse(iOSversion) >= version.parse("12"):
         cursor = db.cursor()
@@ -179,7 +179,7 @@ def get_healthAll(files_found, report_folder, seeker):
             tsv(report_folder, data_headers, data_list, tsvname)
             
             tlactivity = 'Health ECG Avg Heart Rate'
-            timeline(report_folder, tlactivity, data_list)
+            timeline(report_folder, tlactivity, data_list, data_headers)
 
     if version.parse(iOSversion) >= version.parse("12"):    
         cursor = db.cursor()
@@ -245,7 +245,7 @@ def get_healthAll(files_found, report_folder, seeker):
             tsv(report_folder, data_headers, data_list, tsvname)
             
             tlactivity = 'Health Workout Indoor Elevation'
-            timeline(report_folder, tlactivity, data_list)
+            timeline(report_folder, tlactivity, data_list, data_headers)
             
         else:
             logfunc('No data available in Workout Indoor Elevation')
@@ -291,7 +291,7 @@ def get_healthAll(files_found, report_folder, seeker):
         tsv(report_folder, data_headers, data_list, tsvname)
         
         tlactivity = 'Health Flights Climbed'
-        timeline(report_folder, tlactivity, data_list)
+        timeline(report_folder, tlactivity, data_list, data_headers)
 
     if version.parse(iOSversion) >= version.parse("9"):
         cursor = db.cursor()
@@ -337,7 +337,7 @@ def get_healthAll(files_found, report_folder, seeker):
             tsv(report_folder, data_headers, data_list, tsvname)
             
             tlactivity = 'Health Heart Rate'
-            timeline(report_folder, tlactivity, data_list)
+            timeline(report_folder, tlactivity, data_list, data_headers)
             
     if version.parse(iOSversion) >= version.parse("9"):
         cursor = db.cursor()
@@ -375,7 +375,7 @@ def get_healthAll(files_found, report_folder, seeker):
             tsv(report_folder, data_headers, data_list, tsvname)
             
             tlactivity = 'Health Stood Up'
-            timeline(report_folder, tlactivity, data_list)
+            timeline(report_folder, tlactivity, data_list, data_headers)
         else:
             logfunc('No data available in Stood Up')
 
@@ -415,7 +415,7 @@ def get_healthAll(files_found, report_folder, seeker):
             tsv(report_folder, data_headers, data_list, tsvname)
             
             tlactivity = 'Health Steps'
-            timeline(report_folder, tlactivity, data_list)
+            timeline(report_folder, tlactivity, data_list, data_headers)
         else:
             logfunc('No data available in Steps')
 
@@ -453,7 +453,7 @@ def get_healthAll(files_found, report_folder, seeker):
             tsv(report_folder, data_headers, data_list, tsvname)
             
             tlactivity = 'Health Weight'
-            timeline(report_folder, tlactivity, data_list)
+            timeline(report_folder, tlactivity, data_list, data_headers)
         else:
             logfunc('No data available in Weight')
 
@@ -520,6 +520,6 @@ def get_healthAll(files_found, report_folder, seeker):
             tsv(report_folder, data_headers, data_list, tsvname)
             
             tlactivity = 'Health Workout General'
-            timeline(report_folder, tlactivity, data_list)
+            timeline(report_folder, tlactivity, data_list, data_headers)
         else:
             logfunc('No data available in Workout General')

@@ -60,7 +60,7 @@ def get_locationDcdmaloc1(files_found, report_folder, seeker):
 		tsv(report_folder, data_headers, data_list, tsvname)
 		
 		tlactivity = 'LocationD CDMA Location'
-		timeline(report_folder, tlactivity, data_list)
+		timeline(report_folder, tlactivity, data_list, data_headers)
 	else:
 		logfunc('No data available for LocationD CDMA Location')
 	

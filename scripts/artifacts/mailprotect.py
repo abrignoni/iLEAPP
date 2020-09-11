@@ -158,7 +158,7 @@ def get_mailprotect(files_found, report_folder, seeker):
 			tsv(report_folder, data_headers, data_list, tsvname)
 			
 			tlactivity = 'iOS Mail'
-			timeline(report_folder, tlactivity, data_list)		
+			timeline(report_folder, tlactivity, data_list, data_headers)		
 		else:
 			logfunc("No iOS emails available")
 
@@ -210,7 +210,7 @@ def get_mailprotect(files_found, report_folder, seeker):
 			tsv(report_folder, data_headers, data_list, tsvname)
 			
 			tlactivity = 'iOS Mail'
-			timeline(report_folder, tlactivity, data_list)
+			timeline(report_folder, tlactivity, data_list, data_headers)
 				
 		else:
 			logfunc("No iOS emails available")
