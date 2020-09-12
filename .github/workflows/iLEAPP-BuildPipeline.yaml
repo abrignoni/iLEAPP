@@ -35,16 +35,11 @@ jobs:
       with:
         args: zip -qq -r dist/iLEAPP-windows.zip dist/windows
         
-    - name: Create Github Release
+    - name: Lookup Release URL
       id: githubrelease
-      uses: actions/create-release@v1
+      uses: bruceadams/get-release@v1.2.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
-        draft: false
-        prerelease: false
         
     - name: Upload Release Asset
       uses: actions/upload-release-asset@v1
