@@ -97,6 +97,7 @@ def get_icon_name(category, artifact):
     elif category == 'APP CONDUIT':       icon = 'activity'
     elif category == 'APP UPDATES':         icon = 'codepen'
     elif category == 'MEDIA LIBRARY':         icon = 'play-circle'
+    elif category == 'DISCORD CHATS':         icon = 'message-square'
     elif category == 'WIFI CONNECTIONS': 
         if artifact == 'ICLOUD WIFI NETWORKS':        icon = 'wifi'
         elif artifact == 'WIFI':        icon = 'wifi'
