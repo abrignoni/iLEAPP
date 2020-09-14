@@ -219,7 +219,7 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'tileAppDb': ('Locations', '*private/var/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-TileNetworkDB.sqlite*'),
             'tileAppNetDb': ('Accounts', '*/private/var/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-TileNetworkDB.sqlite*'),
             'tileAppDisc': ('Accounts', '*/private/var/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-DiscoveredTileDB.sqlite*'),
-            'discordJson': ('Discord Chats', '**/private/var/mobile/Containers/Data/Application/*/Library/Caches/com.hammerandchisel.discord/fsCachedData/*'),
+            'discordJson': ('Discord Chats', '*/com.hammerandchisel.discord/fsCachedData/*'),
             
             }
 

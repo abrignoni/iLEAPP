@@ -23,115 +23,116 @@ def get_discordJson(files_found, report_folder, seeker):
 		pathed = file_found
 		
 		try:
-			with open(file_found) as f_in:
-				for jsondata in f_in:
-					#jsondata = jsondata[1:-1]
-					jsonfinal = json.loads(jsondata)
-					#print (jsonfinal)
-					
-					x = 0
-					emdeddedauthor = ''
-					authorurl = ''
-					authoriconurl = ''
-					embededurl = ''
-					embededurl = ''
-					embededdescript = ''
-					footertext = ''
-					footericonurl = ''
-					
-					listlength = len(jsonfinal)
-					if isinstance(jsonfinal, list):	
-						while x < listlength:
-							
-							if 'author' in jsonfinal[x]:
-								username = (jsonfinal[x]['author']['username'])
-								userid = (jsonfinal[x]['author']['id'])
-								if 'bot' in jsonfinal[x]['author']:
-									botuser = (jsonfinal[x]['author']['bot'])
-								else:
-									botuser = ''
+			if os.path.isfile(file_found):
+				with open(file_found) as f_in:
+					for jsondata in f_in:
+						#jsondata = jsondata[1:-1]
+						jsonfinal = json.loads(jsondata)
+						#print (jsonfinal)
+						
+						x = 0
+						emdeddedauthor = ''
+						authorurl = ''
+						authoriconurl = ''
+						embededurl = ''
+						embededurl = ''
+						embededdescript = ''
+						footertext = ''
+						footericonurl = ''
+						
+						listlength = len(jsonfinal)
+						if isinstance(jsonfinal, list):	
+							while x < listlength:
 								
-							if 'timestamp' in jsonfinal[x]:
-								timestamp = (jsonfinal[x]['timestamp'])
+								if 'author' in jsonfinal[x]:
+									username = (jsonfinal[x]['author']['username'])
+									userid = (jsonfinal[x]['author']['id'])
+									if 'bot' in jsonfinal[x]['author']:
+										botuser = (jsonfinal[x]['author']['bot'])
+									else:
+										botuser = ''
+									
+								if 'timestamp' in jsonfinal[x]:
+									timestamp = (jsonfinal[x]['timestamp'])
+									
+								if 'edited_timestamp' in jsonfinal[x]:
+									editedtimestamp = (jsonfinal[x]['edited_timestamp'])
 								
-							if 'edited_timestamp' in jsonfinal[x]:
-								editedtimestamp = (jsonfinal[x]['edited_timestamp'])
-							
-							if 'content' in jsonfinal[x]:
-								content = jsonfinal[x]['content']
-							
-							if 'channel_id' in jsonfinal[x]:
-								channelid = jsonfinal[x]['channel_id']
+								if 'content' in jsonfinal[x]:
+									content = jsonfinal[x]['content']
 								
-							
-							if 'attachments' in jsonfinal[x]:
-								'''
-								attachments = jsonfinal[x]['attachments']
-								if len(attachments) > 0:
-									string = (attachments[0]['url'])
-									attachments = string
-									recfolder = Path(file_found)
-									recfolder = Path(recfolder.parent)
-									desde = string.replace('https://', str(recfolder) + '/exported/')
-									para = string.replace('https://','/')
-									head, tail =  os.path.split(para)
+								if 'channel_id' in jsonfinal[x]:
+									channelid = jsonfinal[x]['channel_id']
 									
 								
-									try:
-										os.makedirs(report_folder + '/' + head)
-										shutil.copy(desde, report_folder + '/' + head)
-										fileinreport = report_folder + '/' + head
-										attachments = f'<a href="{fileinreport}" style="color:red;" target="_blank">{attachments}</a>'
-									except:
-										pass
-								#print(report_folder)
-								else:
+								if 'attachments' in jsonfinal[x]:
+									'''
+									attachments = jsonfinal[x]['attachments']
+									if len(attachments) > 0:
+										string = (attachments[0]['url'])
+										attachments = string
+										recfolder = Path(file_found)
+										recfolder = Path(recfolder.parent)
+										desde = string.replace('https://', str(recfolder) + '/exported/')
+										para = string.replace('https://','/')
+										head, tail =  os.path.split(para)
+										
+									
+										try:
+											os.makedirs(report_folder + '/' + head)
+											shutil.copy(desde, report_folder + '/' + head)
+											fileinreport = report_folder + '/' + head
+											attachments = f'<a href="{fileinreport}" style="color:red;" target="_blank">{attachments}</a>'
+										except:
+											pass
+									#print(report_folder)
+									else:
+										attachments = ''
+									'''
 									attachments = ''
-								'''
-								attachments = ''
-									
-							if 'embeds' in jsonfinal[x]:
-								if len(jsonfinal[x]['embeds']) > 0:
-									y = 0
-									lenembeds = (len(jsonfinal[x]['embeds']))		
-									while y < lenembeds:
-										#print(jsonfinal[x]['embeds'])
-										if 'url' in jsonfinal[x]['embeds'][y]:
-											embededurl = (jsonfinal[x]['embeds'][y]['url'])
-										else:
-											embededurl = ''
 										
-										if 'description' in jsonfinal[x]['embeds'][y]:
-											embededdescript = (jsonfinal[x]['embeds'][y]['description'])
-										else:
-											embededdescript = ''
+								if 'embeds' in jsonfinal[x]:
+									if len(jsonfinal[x]['embeds']) > 0:
+										y = 0
+										lenembeds = (len(jsonfinal[x]['embeds']))		
+										while y < lenembeds:
+											#print(jsonfinal[x]['embeds'])
+											if 'url' in jsonfinal[x]['embeds'][y]:
+												embededurl = (jsonfinal[x]['embeds'][y]['url'])
+											else:
+												embededurl = ''
 											
-										if 'author' in jsonfinal[x]['embeds'][y]:
-											emdeddedauthor = (jsonfinal[x]['embeds'][y]['author']['name'])
-											if 'url' in jsonfinal[x]['embeds'][y]['author']:
-												authorurl = (jsonfinal[x]['embeds'][y]['author']['url'])
+											if 'description' in jsonfinal[x]['embeds'][y]:
+												embededdescript = (jsonfinal[x]['embeds'][y]['description'])
 											else:
-												authorurl = '' 
-											if 'icon_url' in jsonfinal[x]['embeds'][y]['author']:
-												authoriconurl =(jsonfinal[x]['embeds'][y]['author']['icon_url'])
+												embededdescript = ''
+												
+											if 'author' in jsonfinal[x]['embeds'][y]:
+												emdeddedauthor = (jsonfinal[x]['embeds'][y]['author']['name'])
+												if 'url' in jsonfinal[x]['embeds'][y]['author']:
+													authorurl = (jsonfinal[x]['embeds'][y]['author']['url'])
+												else:
+													authorurl = '' 
+												if 'icon_url' in jsonfinal[x]['embeds'][y]['author']:
+													authoriconurl =(jsonfinal[x]['embeds'][y]['author']['icon_url'])
+												else:
+													authoriconurl = ''
 											else:
-												authoriconurl = ''
-										else:
-											emdeddedauthor = ''
-										
-										if 'footer' in jsonfinal[x]['embeds']:
-											footertext = (jsonfinal[x]['embeds'][y]['footer']['text'])
-											footericonurl = (jsonfinal[x]['embeds'][y]['footer']['icon_url'])
-										else:
-											footertext = ''
-											footericonurl = ''
+												emdeddedauthor = ''
+											
+											if 'footer' in jsonfinal[x]['embeds']:
+												footertext = (jsonfinal[x]['embeds'][y]['footer']['text'])
+												footericonurl = (jsonfinal[x]['embeds'][y]['footer']['icon_url'])
+											else:
+												footertext = ''
+												footericonurl = ''
 
-										y = y + 1
-										
-								
-							data_list.append((timestamp, editedtimestamp, username,  botuser, content, attachments, userid, channelid, emdeddedauthor, authorurl, authoriconurl, embededurl, embededdescript, footertext, footericonurl, pathed))
+											y = y + 1
+											
+									
+								data_list.append((timestamp, editedtimestamp, username,  botuser, content, attachments, userid, channelid, emdeddedauthor, authorurl, authoriconurl, embededurl, embededdescript, footertext, footericonurl, pathed))
 
-							x = x + 1
+								x = x + 1
 					else:
 						logfunc('JSON data is no expected list')
 		except ValueError as e:
