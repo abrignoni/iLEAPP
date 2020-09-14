@@ -151,8 +151,8 @@ def timeline(report_folder, tlactivity, data_list, data_headers):
     a = 0
     length = (len(data_list))
     while a < length: 
-        modifiedList = list(map(lambda x, y: x + ': ' +  str(y), data_headers, data_list[a]))
-        cursor.executemany("INSERT INTO data VALUES(?,?,?)", [(str(data_list[a][0]), tlactivity, str(modifiedList))])
+        modifiedList = list(map(lambda x, y: x.upper() + ': ' +  str(y), data_headers, data_list[a]))
+        cursor.executemany("INSERT INTO data VALUES(?,?,?)", [(str(data_list[a][0]), tlactivity.upper(), str(modifiedList))])
         a += 1
     db.commit()
     db.close()
