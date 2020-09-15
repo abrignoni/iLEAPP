@@ -13,13 +13,11 @@ from scripts.ilapfuncs import logfunc, logdevinfo, timeline, tsv, is_platform_wi
 
 
 def get_discordJson(files_found, report_folder, seeker):
-	logfunc('Discord files:')
-	logfunc('')
 	data_list = []
 	jsonval = 1
 	for file_found in files_found:
 		file_found = str(file_found)
-		logfunc(file_found)
+		#logfunc(file_found)
 		pathed = file_found
 		
 		try:
@@ -117,12 +115,14 @@ def get_discordJson(files_found, report_folder, seeker):
 
 								x = x + 1
 						else:
-							logfunc('JSON data is no expected list')
+							pass
+							#logfunc('JSON data is no expected list')
 		except ValueError as e:
-			logfunc('JSON error: %s' % e)
-		logfunc('')
-
-	if len(data_list) > 0:		
+			pass
+			#logfunc('JSON error: %s' % e)
+		#logfunc('')
+	if len(data_list) > 0:
+		logfunc(f'Files found:{len(files_found)}')		
 		report = ArtifactHtmlReport('Discord Messages')
 		report.start_artifact_report(report_folder, 'Discord Messages')
 		report.add_script()

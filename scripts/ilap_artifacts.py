@@ -141,6 +141,7 @@ from scripts.artifacts.tileAppDb import get_tileAppDb
 from scripts.artifacts.tileAppNetDb import get_tileAppNetDb
 from scripts.artifacts.tileAppDisc import get_tileAppDisc
 from scripts.artifacts.discordJson import get_discordJson
+from scripts.artifacts.discordAcct import get_discordAcct
 
 from scripts.ilapfuncs import *
 
@@ -219,7 +220,8 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'tileAppDb': ('Locations', '*private/var/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-TileNetworkDB.sqlite*'),
             'tileAppNetDb': ('Accounts', '*/private/var/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-TileNetworkDB.sqlite*'),
             'tileAppDisc': ('Accounts', '*/private/var/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-DiscoveredTileDB.sqlite*'),
-            'discordJson': ('Discord Chats', '*/com.hammerandchisel.discord/fsCachedData/*'),
+            'discordJson': ('Discord', '*/com.hammerandchisel.discord/fsCachedData/*'),
+            'discordAcct': ('Discord', '*/var/mobile/Containers/Data/Application/*/Documents/mmkv/mmkv.default')
             
             }
 
