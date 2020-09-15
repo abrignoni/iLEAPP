@@ -66,31 +66,14 @@ def get_discordJson(files_found, report_folder, seeker):
 									
 								
 								if 'attachments' in jsonfinal[x]:
-									'''
 									attachments = jsonfinal[x]['attachments']
+									
 									if len(attachments) > 0:
 										string = (attachments[0]['url'])
 										attachments = string
-										recfolder = Path(file_found)
-										recfolder = Path(recfolder.parent)
-										desde = string.replace('https://', str(recfolder) + '/exported/')
-										para = string.replace('https://','/')
-										head, tail =  os.path.split(para)
-										
-									
-										try:
-											os.makedirs(report_folder + '/' + head)
-											shutil.copy(desde, report_folder + '/' + head)
-											fileinreport = report_folder + '/' + head
-											attachments = f'<a href="{fileinreport}" style="color:red;" target="_blank">{attachments}</a>'
-										except:
-											pass
-									#print(report_folder)
 									else:
 										attachments = ''
-									'''
-									attachments = ''
-										
+							
 								if 'embeds' in jsonfinal[x]:
 									if len(jsonfinal[x]['embeds']) > 0:
 										y = 0
@@ -129,12 +112,12 @@ def get_discordJson(files_found, report_folder, seeker):
 
 											y = y + 1
 											
-									
-								data_list.append((timestamp, editedtimestamp, username,  botuser, content, attachments, userid, channelid, emdeddedauthor, authorurl, authoriconurl, embededurl, embededdescript, footertext, footericonurl, pathed))
+								pathedhead, pathedtail = os.path.split(pathed)	
+								data_list.append((timestamp, editedtimestamp, username,  botuser, content, attachments, userid, channelid, emdeddedauthor, authorurl, authoriconurl, embededurl, embededdescript, footertext, footericonurl, pathedtail))
 
 								x = x + 1
-					else:
-						logfunc('JSON data is no expected list')
+						else:
+							logfunc('JSON data is no expected list')
 		except ValueError as e:
 			logfunc('JSON error: %s' % e)
 		logfunc('')
@@ -144,7 +127,7 @@ def get_discordJson(files_found, report_folder, seeker):
 		report.start_artifact_report(report_folder, 'Discord Messages')
 		report.add_script()
 		data_headers = ('Timestamp','Edited Timestamp','Username','Bot?','Content','Attachments','User ID','Channel ID','Embedded Author','Author URL','Author Icon URL','Embedded URL','Embedded Script','Footer Text', 'Footer Icon URL', 'Source File')   
-		report.write_artifact_data_table(data_headers, data_list, file_found, html_escape=False)
+		report.write_artifact_data_table(data_headers, data_list, pathedhead)
 		report.end_artifact_report()
 		
 		tsvname = 'Discord Messages'
