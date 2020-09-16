@@ -65,6 +65,7 @@ def get_icon_name(category, artifact):
     elif category == 'IOS BUILD':       icon = 'git-commit'
     elif category == 'IOS SCREENS':       icon = 'maximize'
     elif category == 'POWERLOG':       icon = 'power'
+    elif category == 'POWERLOG BACKUPS':       icon = 'power'
     elif category == 'DHCP':       icon = 'settings'
     elif category == 'NOTIFICATIONS':     icon = 'bell'
     elif category == 'CELLULAR WIRELESS':     icon = 'bar-chart'
@@ -96,7 +97,10 @@ def get_icon_name(category, artifact):
     elif category == 'APP CONDUIT':       icon = 'activity'
     elif category == 'APP UPDATES':         icon = 'codepen'
     elif category == 'MEDIA LIBRARY':         icon = 'play-circle'
-    elif category == 'WIFI CONNECTIONS': 
+    elif category == 'DISCORD':         
+        if artifact == 'DISCORD MESSAGES':        icon = 'message-square'
+        if artifact == 'DISCORD ACCOUNT':        icon = 'user'
+    elif category == 'WIFI CONNECTIONS':         
         if artifact == 'ICLOUD WIFI NETWORKS':        icon = 'wifi'
         elif artifact == 'WIFI':        icon = 'wifi'
         elif artifact == 'WIFI PLIST':       icon = 'save'

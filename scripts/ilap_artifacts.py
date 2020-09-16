@@ -80,6 +80,7 @@ from scripts.artifacts.powerlogAppinfo import get_powerlogAppinfo
 from scripts.artifacts.powerlogBackupinfo import get_powerlogBackupinfo
 from scripts.artifacts.powerlogDeletedapps import get_powerlogDeletedapps
 from scripts.artifacts.powerlogAll import get_powerlogAll
+from scripts.artifacts.powerlogGZ import get_powerlogGZ
 from scripts.artifacts.knowClocation import get_knowClocation
 from scripts.artifacts.knowCappshortcut import get_knowCappshortcut
 from scripts.artifacts.knowCwebusage import get_knowCwebusage
@@ -105,6 +106,7 @@ from scripts.artifacts.screentimeCounteditems import get_screentimeCounteditems
 from scripts.artifacts.screentimeAll import get_screentimeAll
 from scripts.artifacts.bluetoothPaired import get_bluetoothPaired
 from scripts.artifacts.bluetoothOther import get_bluetoothOther
+from scripts.artifacts.bluetoothPairedReg import get_bluetoothPairedReg
 from scripts.artifacts.locationDcellloc import get_locationDcellloc
 from scripts.artifacts.locationDappharvest import get_locationDappharvest
 from scripts.artifacts.locationDcdmaloc1 import get_locationDcdmaloc1
@@ -135,6 +137,11 @@ from scripts.artifacts.geodMapTiles import get_geodMapTiles
 from scripts.artifacts.geodPDPlaceCache import get_geodPDPlaceCache
 from scripts.artifacts.geodApplications import get_geodApplications
 from scripts.artifacts.tileApp import get_tileApp
+from scripts.artifacts.tileAppDb import get_tileAppDb
+from scripts.artifacts.tileAppNetDb import get_tileAppNetDb
+from scripts.artifacts.tileAppDisc import get_tileAppDisc
+from scripts.artifacts.discordJson import get_discordJson
+from scripts.artifacts.discordAcct import get_discordAcct
 
 from scripts.ilapfuncs import *
 
@@ -177,6 +184,7 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'celWireless':('Cellular Wireless', '*wireless/Library/Preferences/com.apple.*'),
             'knowCall':('KnowledgeC', '**/CoreDuet/Knowledge/knowledgeC.db'),
             'powerlogAll':('Powerlog', '**/CurrentPowerlog.PLSQL'),
+            'powerlogGZ':('Powerlog Backups', '**/Library/BatteryLife/Archives/powerlog_*.PLSQL.gz'),
             'healthAll':('Health Data', '**/healthdb_secure.sqlite'),
             'locationDallB':('Locations', '**/cache_encryptedB.db'),
             'screentimeAll':('Screentime', '**/RMAdminStore-Local.sqlite'),
@@ -184,6 +192,7 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'locationDparkedhistorical':('Locations', '**/Local.sqlite'),
             'locationDparked':('Locations', '**/Local.sqlite'),
             'bluetoothPaired':('Bluetooth', '**/Library/Database/com.apple.MobileBluetooth.ledevices.paired.db'),
+            'bluetoothPairedReg':('Bluetooth', '**/Library/Preferences/com.apple.MobileBluetooth.devices.plist'),
             'bluetoothOther':('Bluetooth', '**/Library/Database/com.apple.MobileBluetooth.ledevices.other.db'),
             'calendarAll':('Calendar', '**/Calendar.sqlitedb'),
             'photosMetadata':('Photos', '**/Photos.sqlite'),
@@ -207,7 +216,13 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'geodMapTiles': ('Geolocation', '**/MapTiles.sqlitedb'),
             'geodPDPlaceCache': ('Geolocation', '**/PDPlaceCache.db'),
             'geodApplications': ('Geolocation', '**/AP.db'),
-            'tileApp': ('Locations', '*private/var/mobile/Containers/Data/Application/*/Library/log/com.thetileapp.tile*')
+            'tileApp': ('Locations', '*private/var/mobile/Containers/Data/Application/*/Library/log/com.thetileapp.tile*'),
+            'tileAppDb': ('Locations', '*private/var/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-TileNetworkDB.sqlite*'),
+            'tileAppNetDb': ('Accounts', '*/private/var/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-TileNetworkDB.sqlite*'),
+            'tileAppDisc': ('Accounts', '*/private/var/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-DiscoveredTileDB.sqlite*'),
+            'discordJson': ('Discord', '*/com.hammerandchisel.discord/fsCachedData/*'),
+            'discordAcct': ('Discord', '*/var/mobile/Containers/Data/Application/*/Documents/mmkv/mmkv.default')
+            
             }
 
 '''

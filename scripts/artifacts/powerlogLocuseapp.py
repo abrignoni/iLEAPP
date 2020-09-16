@@ -94,7 +94,7 @@ def get_powerlogLocuseapp(files_found, report_folder, seeker):
                 tsv(report_folder, data_headers, data_list, tsvname)
                 
                 tlactivity = 'Powerlog Location Use by App'
-                timeline(report_folder, tlactivity, data_list)
+                timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
             logfunc('No data available in Location Use by App')

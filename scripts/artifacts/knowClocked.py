@@ -70,7 +70,7 @@ def get_knowClocked(files_found, report_folder, seeker):
 		tsv(report_folder, data_headers, data_list, tsvname)
 		
 		tlactivity = 'KnowledgeC Device Locked'
-		timeline(report_folder, tlactivity, data_list)
+		timeline(report_folder, tlactivity, data_list, data_headers)
 	else:
 		logfunc('No data available for KnowledgeC Device Locked')
 	

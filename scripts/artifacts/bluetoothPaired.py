@@ -8,7 +8,7 @@ import sqlite3
 import json
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows 
 
 
 def get_bluetoothPaired(files_found, report_folder, seeker):
@@ -36,20 +36,21 @@ def get_bluetoothPaired(files_found, report_folder, seeker):
 	data_list = []    
 	if usageentries > 0:
 		for row in all_rows:
-			data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6]))
+			data_list.append((row[0], row[1], row[2], row[3], row[4],row[6]))
 	
 		description = ''
-		report = ArtifactHtmlReport('Bluetooth Paired')
-		report.start_artifact_report(report_folder, 'Paired', description)
+		report = ArtifactHtmlReport('Bluetooth Paired LE')
+		report.start_artifact_report(report_folder, 'Paired LE', description)
 		report.add_script()
-		data_headers = ('UUID','Name','Name Origin','Address','Resolved Address','Last Seen Time','Last Connection Time' )     
+		data_headers = ('UUID','Name','Name Origin','Address','Resolved Address','Last Connection Time' )     
 		report.write_artifact_data_table(data_headers, data_list, file_found)
 		report.end_artifact_report()
 		
-		tsvname = 'Bluetooth paired'
+		tsvname = 'Bluetooth Paired LE'
 		tsv(report_folder, data_headers, data_list, tsvname)
+
 	else:
-		logfunc('No data available for Bluetooth Paired')
+		logfunc('No data available for Bluetooth Paired LE')
 	
 	db.close()
 	return 

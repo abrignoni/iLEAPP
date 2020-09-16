@@ -1,0 +1,52 @@
+name: Build iLEAPP executables and generate release
+
+on:
+  push:
+    tags:
+      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+
+jobs:
+  build:
+ 
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Package iLEAPP
+      uses: JackMcKew/pyinstaller-action-windows@main
+      with:
+        path: .
+        spec: ileapp.spec
+        
+    - name: Package iLEAPP GUI
+      uses: JackMcKew/pyinstaller-action-windows@main
+      with:
+        path: .
+        spec: ileappGUI.spec
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: iLEAPP
+        path: dist/windows
+        
+    - name: Zip All The Things
+      uses: montudor/action-zip@v0.1.0
+      with:
+        args: zip -qq -r dist/iLEAPP-windows.zip dist/windows
+        
+    - name: Lookup Release URL
+      id: githubrelease
+      uses: bruceadams/get-release@v1.2.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.githubrelease.outputs.upload_url }}
+        asset_path: dist/iLEAPP-windows.zip
+        asset_name: iLEAPP-windows.zip
+        asset_content_type: application/zip
