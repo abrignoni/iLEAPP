@@ -100,6 +100,7 @@ def get_icon_name(category, artifact):
     elif category == 'DISCORD':         
         if artifact == 'DISCORD MESSAGES':        icon = 'message-square'
         if artifact == 'DISCORD ACCOUNT':        icon = 'user'
+        if artifact == 'DISCORD MANIFEST':        icon = 'file-text'
     elif category == 'WIFI CONNECTIONS':         
         if artifact == 'ICLOUD WIFI NETWORKS':        icon = 'wifi'
         elif artifact == 'WIFI':        icon = 'wifi'
