@@ -43,12 +43,18 @@ def get_discordAcct(files_found, report_folder, seeker):
 			if 'user_id_cache' in x:
 				#print(x)
 				wf = searchlist[counter].split('"')
-				data_list.append(('USER_ID_CACHE', wf[1]))
+				try:
+					data_list.append(('USER_ID_CACHE', wf[1]))
+				except:
+					pass
 				
 			if 'email_cache' in x:
 				#print(x)
 				wfa = searchlist[counter].split('"')
-				data_list.append(('EMAIL_CACHE', wfa[1]))
+				try:
+					data_list.append(('EMAIL_CACHE', wfa[1]))
+				except:
+					pass
 
 	if len(data_list) > 0:		
 		report = ArtifactHtmlReport('Discord Account')

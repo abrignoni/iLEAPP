@@ -14,7 +14,6 @@ from scripts.ilapfuncs import logfunc, logdevinfo, timeline, tsv, is_platform_wi
 
 def get_discordJson(files_found, report_folder, seeker):
 	data_list = []
-	jsonval = 1
 	for file_found in files_found:
 		file_found = str(file_found)
 		#logfunc(file_found)
