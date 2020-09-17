@@ -93,7 +93,11 @@ def get_icloudSharedalbums(files_found, report_folder, seeker):
 				with open(file_found, "rb") as fp:        
 					pl = plistlib.load(fp)
 					for x, y in pl.items():
-						data_list_cloudinfo.append((albumid, x, y, albumpath))
+						if x == 'DCIMLastDirectoryNumber':
+							dcimlastdictnum = y
+						if x == 'DCIMLastFileNumber':
+							dcimlastfilenum = y
+					data_list_cloudinfo.append((albumid, dcimlastdictnum, dcimlastfilenum, albumpath))
 				
 		else:
 			pass
@@ -114,17 +118,17 @@ def get_icloudSharedalbums(files_found, report_folder, seeker):
 		
 	if len(data_list_cloudinfo) > 0:
 		location = 'See report entry'
-		report = ArtifactHtmlReport('iCloud DCIM Cloud Album Metadata')
-		report.start_artifact_report(report_folder, 'iCloud DCIM Cloud Album Data')
+		report = ArtifactHtmlReport('iCloud Shared Album data')
+		report.start_artifact_report(report_folder, 'iCloud Shared Album Data')
 		report.add_script()
 		data_headers = ('Album Name', 'DCIM Last Directory Number','DCIM LAst File Number', 'File location' )     
 		report.write_artifact_data_table(data_headers, data_list_cloudinfo, location)
 		report.end_artifact_report()
 		
-		tsvname = 'iCloud DCIM Cloud Album Data'
+		tsvname = 'iCloud Shared Album Data'
 		tsv(report_folder, data_headers, data_list_cloudinfo, tsvname)
 	else:
-		logfunc('No iCloud DCIM Cloud Album Data')
+		logfunc('No iCloud Shared Album Data')
 
 	if len(data_list_sharedpersoninfos) > 0:
 		location = file_found
@@ -138,18 +142,18 @@ def get_icloudSharedalbums(files_found, report_folder, seeker):
 		tsvname = 'iCloud Shared Person Info'
 		tsv(report_folder, data_headers, data_list_sharedpersoninfos, tsvname)
 	else:
-		logfunc('No iCloud Shared Person Info')
+		logfunc('No iCloud Shared Album Persons Info')
 		
 	if len(data_list_sharedemails) > 0:
 		location = file_found
-		report = ArtifactHtmlReport('iCloud Shared Album Emails')
+		report = ArtifactHtmlReport('iCloud Shared Albums Emails')
 		report.start_artifact_report(report_folder, 'iCloud Shared Emails')
 		report.add_script()
 		data_headers = ('Key', 'Value' )     
 		report.write_artifact_data_table(data_headers, data_list_sharedemails, location)
 		report.end_artifact_report()
 		
-		tsvname = 'iCloud Shared Emails'
+		tsvname = 'iCloud Shared Albums Emails'
 		tsv(report_folder, data_headers, data_list_sharedemails, tsvname)
 	else:
 		logfunc('No iCloud Shared Emails')
