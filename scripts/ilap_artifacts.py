@@ -143,6 +143,7 @@ from scripts.artifacts.tileAppDisc import get_tileAppDisc
 from scripts.artifacts.discordJson import get_discordJson
 from scripts.artifacts.discordAcct import get_discordAcct
 from scripts.artifacts.discordManifest import get_discordManifest
+from scripts.artifacts.icloudSharedalbums import get_icloudSharedalbums
 
 from scripts.ilapfuncs import *
 
@@ -223,7 +224,9 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'tileAppDisc': ('Accounts', '*/private/var/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-DiscoveredTileDB.sqlite*'),
             'discordJson': ('Discord', '*/com.hammerandchisel.discord/fsCachedData/*'),
             'discordAcct': ('Discord', '*/var/mobile/Containers/Data/Application/*/Documents/mmkv/mmkv.default'),
-            'discordManifest': ('Discord', '*/private/var/mobile/Containers/Data/Application/*/Documents/RCTAsyncLocalStorage_V1/manifest.json')
+            'discordManifest': ('Discord', '*/private/var/mobile/Containers/Data/Application/*/Documents/RCTAsyncLocalStorage_V1/manifest.json'),
+            #'icloudSharedalbums': ('iCloud Shared Albums', '*/PhotoCloudSharingData/*')
+            'icloudSharedalbums': ('iCloud Shared Albums', '*/private/var/mobile/Media/PhotoData/PhotoCloudSharingData/*'),
             
             }
 
