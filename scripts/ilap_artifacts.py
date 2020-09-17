@@ -226,7 +226,7 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'discordAcct': ('Discord', '*/var/mobile/Containers/Data/Application/*/Documents/mmkv/mmkv.default'),
             'discordManifest': ('Discord', '*/private/var/mobile/Containers/Data/Application/*/Documents/RCTAsyncLocalStorage_V1/manifest.json'),
             #'icloudSharedalbums': ('iCloud', '*/private/var/mobile/Media/PhotoData/PhotoCloudSharingData/*'),
-            'icloudSharedalbums': ('iCloud Shared Albums', '*/PhotoCloudSharingData/*'),
+            'icloudSharedalbums': ('iCloud Shared Albums', '*/private/var/mobile/Media/PhotoData/PhotoCloudSharingData/*'),
             
             }
 
