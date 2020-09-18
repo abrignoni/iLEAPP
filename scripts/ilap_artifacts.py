@@ -146,6 +146,7 @@ from scripts.artifacts.discordManifest import get_discordManifest
 from scripts.artifacts.filesAppsm import get_filesAppsm
 from scripts.artifacts.filesAppsdb import get_filesAppsdb
 from scripts.artifacts.filesAppsclient import get_filesAppsclient
+from scripts.artifacts.icloudSharedalbums import get_icloudSharedalbums
 
 from scripts.ilapfuncs import *
 
@@ -230,6 +231,8 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'filesAppsm': ('Files App', '*private/var/mobile/Containers/Shared/AppGroup/*/smartfolders.db*'),
             'filesAppsdb': ('Files App', '*private/var/mobile/Library/Application Support/CloudDocs/session/db/server.db*'),
             'filesAppsclient': ('Files App', '*private/var/mobile/Library/Application Support/CloudDocs/session/db/client.db*'),
+            'icloudSharedalbums': ('iCloud Shared Albums', '*/private/var/mobile/Media/PhotoData/PhotoCloudSharingData/*'),
+            
             }
 
 '''
