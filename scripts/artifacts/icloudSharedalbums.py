@@ -63,6 +63,7 @@ def get_icloudSharedalbums(files_found, report_folder, seeker):
 					cloudsubscriptiondate = ''
 					cloudrelationshipstate  = ''
 					cloudownerhashedpersonid = ''
+					clowdoenweremail = ''
 					title = ''
 					
 					for x, y in pl.items():
