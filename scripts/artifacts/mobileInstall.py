@@ -8,7 +8,7 @@ import sqlite3
 from html import escape
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, is_platform_windows
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows
 
 def month_converter(month):
     months = [
@@ -39,6 +39,7 @@ def day_converter(day):
 def get_mobileInstall(files_found, report_folder, seeker):
     counter = 0
     filescounter = 0
+    tsv_tml_data_list = []
     
     mibdatabase = os.path.join(report_folder, 'mib.db')
     db = sqlite3.connect(mibdatabase)
@@ -113,7 +114,9 @@ def get_mobileInstall(files_found, report_folder, seeker):
                     datainsert,
                 )
                 db.commit()
-
+                
+                tsv_tml_data_list.append((inserttime, actiondesc, bundleid, path))
+                
                 # logfunc()
 
             matchObj = re.search(
@@ -167,6 +170,7 @@ def get_mobileInstall(files_found, report_folder, seeker):
                 )
                 db.commit()
 
+                tsv_tml_data_list.append((inserttime, actiondesc, bundleid, path))
                 # logfunc()
 
             matchObj = re.search(
@@ -219,7 +223,8 @@ def get_mobileInstall(files_found, report_folder, seeker):
                     datainsert,
                 )
                 db.commit()
-
+                
+                tsv_tml_data_list.append((inserttime, actiondesc, bundleid, path))
                 # logfunc()
 
             matchObj = re.search(
@@ -272,6 +277,8 @@ def get_mobileInstall(files_found, report_folder, seeker):
                 )
                 db.commit()
 
+                tsv_tml_data_list.append((inserttime, actiondesc, bundleid, path))
+                
             matchObj = re.search(
                 r"(Uninstalling identifier )", line
             )  # Regex for made container
@@ -315,6 +322,8 @@ def get_mobileInstall(files_found, report_folder, seeker):
                     datainsert,
                 )
                 db.commit()
+                
+                tsv_tml_data_list.append((inserttime, actiondesc, bundleid, path))
 
             matchObj = re.search(r"(main: Reboot detected)", line)  # Regex for reboots
             if matchObj:
@@ -349,7 +358,9 @@ def get_mobileInstall(files_found, report_folder, seeker):
                     datainsert,
                 )
                 db.commit()
-
+                
+                tsv_tml_data_list.append((inserttime, actiondesc, bundleid, path))
+                
             matchObj = re.search(
                 r"(Attempting Delta patch update of )", line
             )  # Regex for Delta patch
@@ -400,6 +411,7 @@ def get_mobileInstall(files_found, report_folder, seeker):
                 )
                 db.commit()
 
+                tsv_tml_data_list.append((inserttime, actiondesc, bundleid, path))
                 # logfunc()
 
     logfunc(f"Logs processed: {filescounter}")
@@ -551,11 +563,30 @@ def get_mobileInstall(files_found, report_folder, seeker):
     logfunc(f"Total uninstalled apps: {uninstallcount}")
     logfunc(f"Total historical app reports: {historicalcount}")
     logfunc(f"Total system state events: {sysstatecount}")
-
-
-
-
     
+    
+    tsvname = 'Mobile Installation Logs - Reboots'
+    tsv(report_folder, data_headers_reboots, data_list_reboots, tsvname)
+    
+    tsvname = 'Mobile Installation Logs - History'
+    tsv(report_folder, tsv_data_headers, tsv_tml_data_list, tsvname)
+    
+    '''
+    data_headers_reboots = ('Timestamp (Local Time)', 'Description')
+    tsv_data_headers = ('Timestamp (Local Time)', 'Action', 'Bundle ID', 'Path')
+    
+    tsvname = 'Mobile Installation Logs - Reboots'
+    tsv(report_folder, data_headers_reboots, data_list_reboots, tsvname)
+    
+    tlactivity = 'Mobile Installation Logs - Reboots'
+    timeline(report_folder, tlactivity, data_list_reboots, data_headers_reboots)
+    
+    tsvname = 'Mobile Installation Logs - History'
+    tsv(report_folder, tsv_data_headers, tsv_tml_data_list, tsvname)
+    
+    tlactivity = 'Mobile Installation Logs - History'
+    timeline(report_folder, tlactivity, tsv_tml_data_list, tsv_data_headers)
+    '''
     
     
     
