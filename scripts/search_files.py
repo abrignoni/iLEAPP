@@ -1,9 +1,11 @@
 import fnmatch
 import os
+import sqlite3
 import tarfile
 
 from pathlib import Path
 from scripts.ilapfuncs import *
+from shutil import copyfile
 from zipfile import ZipFile
 
 class FileSeekerBase:
@@ -34,6 +36,50 @@ class FileSeekerDir(FileSeekerBase):
 
     def search(self, filepattern):
         return fnmatch.filter(self._all_files, filepattern)
+
+class FileSeekerItunes(FileSeekerBase):
+    def __init__(self, directory, temp_folder):
+        FileSeekerBase.__init__(self)
+        self.directory = directory
+        self._all_files = {}
+        self.temp_folder = temp_folder
+        logfunc('Building files listing')
+        self.build_files_list(directory)
+
+    def build_files_list(self, directory):
+        '''Populates paths from Manifest.db files into _all_files'''
+        db = sqlite3.connect(directory + "Manifest.db")
+        cursor = db.cursor()
+        cursor.execute(
+            """
+            SELECT
+            fileID,
+            relativePath
+            FROM
+            Files
+            WHERE
+            flags=1
+            """
+        )
+        all_rows = cursor.fetchall()
+        for row in all_rows:
+            self._all_files[row[1]] = row[0]
+        db.close()
+
+    def search(self, filepattern):
+        pathlist = []
+        matching_keys = fnmatch.filter(self._all_files, filepattern)
+        for key in matching_keys:
+            hash_filename = self._all_files[key]
+            original_location = os.path.join(self.directory, hash_filename[:2], self._all_files[key])
+            temp_location = os.path.join(self.temp_folder, key)
+            try:
+                os.makedirs(os.path.dirname(temp_location), exist_ok=True)
+                copyfile(original_location, temp_location)
+                pathlist.append(temp_location)
+            except:
+                logfunc('Could not copy {original_location} to {temp_location}'.format(original_location=original_location, temp_location=temp_location))
+        return pathlist
 
 class FileSeekerTar(FileSeekerBase):
     def __init__(self, tar_file_path, temp_folder):
