@@ -34,8 +34,8 @@ class FileSeekerDir(FileSeekerBase):
                 self._all_files.append(item.path)
                 if item.is_dir(follow_symlinks=False):
                     self.build_files_list(item.path)
-        except:
-            logfunc('Error reading {directory}'.format(directory=directory))
+        except Exception as ex::
+            logfunc(f'Error reading {directory} ' + str(ex))
 
     def search(self, filepattern):
         return fnmatch.filter(self._all_files, filepattern)
@@ -84,8 +84,8 @@ class FileSeekerItunes(FileSeekerBase):
                 os.makedirs(os.path.dirname(temp_location), exist_ok=True)
                 copyfile(original_location, temp_location)
                 pathlist.append(temp_location)
-            except:
-                logfunc('Could not copy {original_location} to {temp_location}'.format(original_location=original_location, temp_location=temp_location))
+            except Exception as ex:
+                logfunc(f'Could not copy {original_location} to {temp_location} ' + str(ex))
         return pathlist
 
 class FileSeekerTar(FileSeekerBase):
@@ -115,7 +115,7 @@ class FileSeekerTar(FileSeekerBase):
                         os.utime(full_path, (member.mtime, member.mtime))
                     pathlist.append(full_path)
                 except Exception as ex:
-                    logfunc(f'Could not write file to filesystem, path was {member.name}' + str(ex))
+                    logfunc(f'Could not write file to filesystem, path was {member.name} ' + str(ex))
         return pathlist
 
     def cleanup(self):
@@ -137,7 +137,7 @@ class FileSeekerZip(FileSeekerBase):
                     member = member.lstrip("/")
                     pathlist.append(extracted_path)
                 except Exception as ex:
-                    logfunc(f'Could not write file to filesystem, path was {member}' + str(ex))
+                    logfunc(f'Could not write file to filesystem, path was {member} ' + str(ex))
         return pathlist
 
     def cleanup(self):
