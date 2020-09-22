@@ -140,7 +140,7 @@ while True:
                     key = window[x].metadata
                     if (key in tosearch) and (key != 'lastBuild'):
                         search_list[key] = tosearch[key]
-                        s_items = s_items + 1 #for progress bar
+                    s_items = s_items + 1 # for progress bar
                 
                 # no more selections allowed
                 window[x].Update(disabled = True)

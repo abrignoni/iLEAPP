@@ -82,6 +82,18 @@ def crunch_artifacts(search_list, extracttype, input_path, out_params, ratio):
     log.write(f'Extraction/Path selected: {input_path}<br><br>')
     
     categories_searched = 0
+    # Special processing for iTunesBackup Info.plist as it is a seperate entity, not part of the Manifest.db. Seeker won't find it
+    if extracttype == 'itunes':
+        info_plist_path = os.path.join(input_path, 'Info.plist')
+        if os.path.exists(info_plist_path):
+            process_artifact([info_plist_path], 'iTunesBackupInfo', 'Device Info', seeker, out_params.report_folder_base)
+            del search_list['lastBuild'] # removing lastBuild as this takes its place
+        else:
+            logfunc('Info.plist not found for iTunes Backup!')
+            log.write('Info.plist not found for iTunes Backup!')
+        categories_searched += 1
+        GuiWindow.SetProgressBar(categories_searched * ratio)
+
     # Search for the files per the arguments
     for key, val in search_list.items():
         search_regexes = []
@@ -107,7 +119,7 @@ def crunch_artifacts(search_list, extracttype, input_path, out_params, ratio):
                     pathh = pathh[4:]
                 log.write(f'Files for {artifact_search_regex} located at {pathh}<br><br>')
         categories_searched += 1
-        GuiWindow.SetProgressBar(categories_searched*ratio)
+        GuiWindow.SetProgressBar(categories_searched * ratio)
     log.close()
 
     logfunc('')
