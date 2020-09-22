@@ -11,7 +11,7 @@ from time import process_time, gmtime, strftime
 
 def main():
     parser = argparse.ArgumentParser(description='iLEAPP: iOS Logs, Events, and Plists Parser.')
-    parser.add_argument('-t', choices=['fs','tar','zip', 'gz'], required=True, action="store", help="Input type (fs = extracted to file system folder)")
+    parser.add_argument('-t', choices=['fs','tar','zip', 'gz', 'itunes'], required=True, action="store", help="Input type (fs = extracted to file system folder)")
     parser.add_argument('-o', '--output_path', required=True, action="store", help='Output folder path')
     parser.add_argument('-i', '--input_path', required=True, action="store", help='Path to input file/folder')
         
@@ -64,6 +64,9 @@ def crunch_artifacts(search_list, extracttype, input_path, out_params, ratio):
 
     elif extracttype == 'zip':
         seeker = FileSeekerZip(input_path, out_params.temp_folder)
+
+    elif extracttype == 'itunes':
+        seeker = FileSeekerItunes(input_path, out_params.temp_folder)
 
     else:
         logfunc('Error on argument -o (input type)')

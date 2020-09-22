@@ -24,6 +24,8 @@ def ValidateInput(values, window):
     elif not os.path.exists(i_path):
         sg.PopupError('INPUT file/folder does not exist!')
         return False, ext_type
+    elif os.path.isdir(i_path) and os.path.exists(os.path.join(i_path, "Manifest.db")):
+        ext_type = 'itunes'
     elif os.path.isdir(i_path):
         ext_type = 'fs'
     else: # must be an existing file then
