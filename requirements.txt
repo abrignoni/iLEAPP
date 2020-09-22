@@ -9,3 +9,4 @@ pyinstaller
 PySimpleGUI==4.16.0
 blackboxprotobuf
 nska-deserialize
+biplist
