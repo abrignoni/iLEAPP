@@ -34,7 +34,7 @@ class FileSeekerDir(FileSeekerBase):
                 self._all_files.append(item.path)
                 if item.is_dir(follow_symlinks=False):
                     self.build_files_list(item.path)
-        except Exception as ex::
+        except Exception as ex:
             logfunc(f'Error reading {directory} ' + str(ex))
 
     def search(self, filepattern):
