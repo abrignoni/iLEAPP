@@ -43,7 +43,8 @@ def get_icloudSharedalbums(files_found, report_folder, seeker):
 								email = b[0]
 							if a == 'lastName':
 								lastname = b
-
+						
+						file_found_persons = file_found
 						data_list_sharedpersoninfos.append((email, firstname, lastname, fullname, x))	
 		
 			elif pathedtail == 'Info.plist':
@@ -132,7 +133,7 @@ def get_icloudSharedalbums(files_found, report_folder, seeker):
 		logfunc('No iCloud Shared Album Data')
 
 	if len(data_list_sharedpersoninfos) > 0:
-		location = file_found
+		location = file_found_persons
 		report = ArtifactHtmlReport('iCloud Shared Album Persons Info')
 		report.start_artifact_report(report_folder, 'iCloud Shared Person Info')
 		report.add_script()
