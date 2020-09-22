@@ -3,7 +3,7 @@ iOS Logs, Events, And Plists Parser
 Details in blog post here: https://abrignoni.blogspot.com/2019/12/ileapp-ios-logs-events-and-properties.html
 
 Supports iOS 11, 12 & 13.
-Select parsing directly from a compressed .tar/.zip file or a decompressed directory.
+Select parsing directly from a compressed .tar/.zip file, or a decompressed directory, or an iTunes/Finder backup.
 
 ## Features
 
@@ -57,7 +57,7 @@ pyinstaller --onefile --noconsole ileappGUI.spec
 ### CLI
 
 ```
-$ python ileapp.py -t <zip | tar | fs> -i <path_to_extraction> -o <path_for_report_output>
+$ python ileapp.py -t <zip | tar | fs | gz | itunes> -i <path_to_extraction> -o <path_for_report_output>
 ```
 
 ### GUI

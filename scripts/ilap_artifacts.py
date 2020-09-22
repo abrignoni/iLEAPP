@@ -142,6 +142,12 @@ from scripts.artifacts.tileAppNetDb import get_tileAppNetDb
 from scripts.artifacts.tileAppDisc import get_tileAppDisc
 from scripts.artifacts.discordJson import get_discordJson
 from scripts.artifacts.discordAcct import get_discordAcct
+from scripts.artifacts.discordManifest import get_discordManifest
+from scripts.artifacts.filesAppsm import get_filesAppsm
+from scripts.artifacts.filesAppsdb import get_filesAppsdb
+from scripts.artifacts.filesAppsclient import get_filesAppsclient
+from scripts.artifacts.icloudSharedalbums import get_icloudSharedalbums
+from scripts.artifacts.appGrouplisting import get_appGrouplisting
 
 from scripts.ilapfuncs import *
 
@@ -221,8 +227,13 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'tileAppNetDb': ('Accounts', '*/private/var/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-TileNetworkDB.sqlite*'),
             'tileAppDisc': ('Accounts', '*/private/var/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-DiscoveredTileDB.sqlite*'),
             'discordJson': ('Discord', '*/com.hammerandchisel.discord/fsCachedData/*'),
-            'discordAcct': ('Discord', '*/var/mobile/Containers/Data/Application/*/Documents/mmkv/mmkv.default')
-            
+            'discordAcct': ('Discord', '*/var/mobile/Containers/Data/Application/*/Documents/mmkv/mmkv.default'),
+            'discordManifest': ('Discord', '*/private/var/mobile/Containers/Data/Application/*/Documents/RCTAsyncLocalStorage_V1/manifest.json'),
+            'filesAppsm': ('Files App', '*private/var/mobile/Containers/Shared/AppGroup/*/smartfolders.db*'),
+            'filesAppsdb': ('Files App', '*private/var/mobile/Library/Application Support/CloudDocs/session/db/server.db*'),
+            'filesAppsclient': ('Files App', '*private/var/mobile/Library/Application Support/CloudDocs/session/db/client.db*'),
+            'icloudSharedalbums': ('iCloud Shared Albums', '*/private/var/mobile/Media/PhotoData/PhotoCloudSharingData/*'),
+            'appGrouplisting': ('Installed Apps', '*/private/var/mobile/Containers/Shared/AppGroup/*/*.metadata.plist'),
             }
 
 '''
