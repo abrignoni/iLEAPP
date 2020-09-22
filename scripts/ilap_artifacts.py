@@ -147,6 +147,7 @@ from scripts.artifacts.filesAppsm import get_filesAppsm
 from scripts.artifacts.filesAppsdb import get_filesAppsdb
 from scripts.artifacts.filesAppsclient import get_filesAppsclient
 from scripts.artifacts.icloudSharedalbums import get_icloudSharedalbums
+from scripts.artifacts.appGrouplisting import get_appGrouplisting
 
 from scripts.ilapfuncs import *
 
@@ -232,7 +233,7 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'filesAppsdb': ('Files App', '*private/var/mobile/Library/Application Support/CloudDocs/session/db/server.db*'),
             'filesAppsclient': ('Files App', '*private/var/mobile/Library/Application Support/CloudDocs/session/db/client.db*'),
             'icloudSharedalbums': ('iCloud Shared Albums', '*/private/var/mobile/Media/PhotoData/PhotoCloudSharingData/*'),
-            
+            'appGrouplisting': ('Installed Apps', '*/private/var/mobile/Containers/Shared/AppGroup/*/*.metadata.plist'),
             }
 
 '''
