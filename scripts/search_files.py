@@ -66,16 +66,20 @@ class FileSeekerItunes(FileSeekerBase):
         )
         all_rows = cursor.fetchall()
         for row in all_rows:
-            self._all_files[row[1]] = row[0]
+            hash_filename = row[0]
+            relative_path = row[1]
+            self._all_files[relative_path] = hash_filename
         db.close()
 
     def search(self, filepattern):
         pathlist = []
         matching_keys = fnmatch.filter(self._all_files, filepattern)
-        for key in matching_keys:
-            hash_filename = self._all_files[key]
-            original_location = os.path.join(self.directory, hash_filename[:2], self._all_files[key])
-            temp_location = os.path.join(self.temp_folder, key)
+        for relative_path in matching_keys:
+            hash_filename = self._all_files[relative_path]
+            original_location = os.path.join(self.directory, hash_filename[:2], hash_filename)
+            temp_location = os.path.join(self.temp_folder, relative_path)
+            if is_platform_windows():
+                temp_location = temp_location.replace('/', '\\')
             try:
                 os.makedirs(os.path.dirname(temp_location), exist_ok=True)
                 copyfile(original_location, temp_location)
