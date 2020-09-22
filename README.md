@@ -3,7 +3,7 @@ iOS Logs, Events, And Plists Parser
 Details in blog post here: https://abrignoni.blogspot.com/2019/12/ileapp-ios-logs-events-and-properties.html
 
 Supports iOS 11, 12 & 13.
-Select parsing directly from a compressed .tar/.zip file, or a decompressed directory, or an iTunes/Finder backup.
+Select parsing directly from a compressed .tar/.zip file, or a decompressed directory, or an iTunes/Finder backup folder.
 
 ## Features
 
