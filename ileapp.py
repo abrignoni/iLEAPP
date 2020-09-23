@@ -46,6 +46,7 @@ def main():
     crunch_artifacts(tosearch, extracttype, input_path, out_params, 1)
 
 def crunch_artifacts(search_list, extracttype, input_path, out_params, ratio):
+    '''Returns true/false on success/failure'''
     start = process_time()
 
     logfunc('Procesing started. Please wait. This may take a few minutes...')
@@ -73,14 +74,14 @@ def crunch_artifacts(search_list, extracttype, input_path, out_params, ratio):
 
         else:
             logfunc('Error on argument -o (input type)')
-            return
+            return False
     except Exception as ex:
         logfunc('Had an exception in Seeker - see details below. Terminating Program!')
         temp_file = io.StringIO()
         traceback.print_exc(file=temp_file)
         logfunc(temp_file.getvalue())
         temp_file.close()
-        return
+        return False
 
     # Now ready to run
     logfunc(f'Artifact categories to parse: {str(len(search_list))}')
@@ -151,6 +152,7 @@ def crunch_artifacts(search_list, extracttype, input_path, out_params, ratio):
     logfunc('Report generation Completed.')
     logfunc('')
     logfunc(f'Report location: {out_params.report_folder_base}')
+    return True
 
 if __name__ == '__main__':
     main()
