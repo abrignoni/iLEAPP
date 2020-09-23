@@ -534,8 +534,12 @@ def get_mobileInstall(files_found, report_folder, seeker):
     report.start_artifact_report(report_folder, 'Apps - Historical', description)
     report.add_script()
     data_headers = ('Bundle ID', 'Report Link')
+    tsv_data_headers = ('Bundle ID', 'Report Link')
     report.write_artifact_data_table(data_headers, data_list, location, html_escape=False)
     report.end_artifact_report()
+    
+    tsvname = 'Mobile Installation Logs - History'
+    tsv(report_folder, tsv_data_headers, tsv_tml_data_list, tsvname)
 
     # Query to create system events
     data_list_reboots = []
@@ -549,14 +553,18 @@ def get_mobileInstall(files_found, report_folder, seeker):
         data_list_reboots.append((row[0],row[1]))
         sysstatecount = sysstatecount + 1
     
-    location =f'{filename}'
-    description = 'Reboots detected in Local Time.'
-    report = ArtifactHtmlReport('State - Reboots')
-    report.start_artifact_report(report_folder, 'State - Reboots', description)
-    report.add_script()
-    data_headers = ('Timestamp (Local Time)', 'Description')
-    report.write_artifact_data_table(data_headers, data_list_reboots, location)
-    report.end_artifact_report()
+    if len(all_rows) > 0:
+        location =f'{filename}'
+        description = 'Reboots detected in Local Time.'
+        report = ArtifactHtmlReport('State - Reboots')
+        report.start_artifact_report(report_folder, 'State - Reboots', description)
+        report.add_script()
+        data_headers_reboots = ('Timestamp (Local Time)', 'Description')
+        report.write_artifact_data_table(data_headers_reboots, data_list_reboots, location)
+        report.end_artifact_report()
+        
+        tsvname = 'Mobile Installation Logs - Reboots'
+        tsv(report_folder, data_headers_reboots, data_list_reboots, tsvname)
 
     logfunc(f"Total apps: {totalapps}")
     logfunc(f"Total installed apps: {installedcount}")
@@ -565,11 +573,9 @@ def get_mobileInstall(files_found, report_folder, seeker):
     logfunc(f"Total system state events: {sysstatecount}")
     
     
-    tsvname = 'Mobile Installation Logs - Reboots'
-    tsv(report_folder, data_headers_reboots, data_list_reboots, tsvname)
     
-    tsvname = 'Mobile Installation Logs - History'
-    tsv(report_folder, tsv_data_headers, tsv_tml_data_list, tsvname)
+    
+    
     
     '''
     data_headers_reboots = ('Timestamp (Local Time)', 'Description')
