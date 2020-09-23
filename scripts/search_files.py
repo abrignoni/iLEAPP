@@ -73,6 +73,7 @@ class FileSeekerItunes(FileSeekerBase):
             db.close()
         except Exception as ex:
             logfunc(f'Error opening Manifest.db from {directory}, ' + str(ex))
+            raise ex
 
     def search(self, filepattern):
         pathlist = []
