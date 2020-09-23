@@ -51,25 +51,28 @@ class FileSeekerItunes(FileSeekerBase):
 
     def build_files_list(self, directory):
         '''Populates paths from Manifest.db files into _all_files'''
-        db = sqlite3.connect(os.path.join(directory, "Manifest.db"))
-        cursor = db.cursor()
-        cursor.execute(
-            """
-            SELECT
-            fileID,
-            relativePath
-            FROM
-            Files
-            WHERE
-            flags=1
-            """
-        )
-        all_rows = cursor.fetchall()
-        for row in all_rows:
-            hash_filename = row[0]
-            relative_path = row[1]
-            self._all_files[relative_path] = hash_filename
-        db.close()
+        try: 
+            db = sqlite3.connect(os.path.join(directory, "Manifest.db"))
+            cursor = db.cursor()
+            cursor.execute(
+                """
+                SELECT
+                fileID,
+                relativePath
+                FROM
+                Files
+                WHERE
+                flags=1
+                """
+            )
+            all_rows = cursor.fetchall()
+            for row in all_rows:
+                hash_filename = row[0]
+                relative_path = row[1]
+                self._all_files[relative_path] = hash_filename
+            db.close()
+        except Exception as ex:
+            logfunc(f'Error opening Manifest.db from {directory}, ' + str(ex))
 
     def search(self, filepattern):
         pathlist = []
