@@ -31,7 +31,6 @@ def get_kikMessages(files_found, report_folder, seeker):
     ZKIKMESSAGE.ZUSER,
     ZKIKUSER.ZDISPLAYNAME,
     ZKIKUSER.ZUSERNAME,
-    ZKIKATTACHMENT.ZTIMESTAMP as ZTIMESTAMP1,
     ZKIKATTACHMENT.ZCONTENT
     from ZKIKMESSAGE
     left join ZKIKUSER on ZKIKMESSAGE.ZUSER = ZKIKUSER.Z_PK
@@ -44,13 +43,13 @@ def get_kikMessages(files_found, report_folder, seeker):
     
     if usageentries > 0:
         for row in all_rows:
-            data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8]))
+            data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]))
 
         description = 'Kik Messages'
         report = ArtifactHtmlReport('Kik Messages')
         report.start_artifact_report(report_folder, 'Kik Messages', description)
         report.add_script()
-        data_headers = ('Received Time', 'Timestamp', 'Message', 'Type', 'User', 'Display Name', 'Username', 'Media Timestamp','Content' )     
+        data_headers = ('Received Time', 'Timestamp', 'Message', 'Type', 'User', 'Display Name', 'Username','Content' )     
         report.write_artifact_data_table(data_headers, data_list, file_found)
         report.end_artifact_report()
         
