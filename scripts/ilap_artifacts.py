@@ -19,7 +19,7 @@ from scripts.artifacts.dataUsageB import get_dataUsageB
 from scripts.artifacts.dataUsageProcessB import get_dataUsageProcessB
 from scripts.artifacts.mobileInstall import get_mobileInstall
 from scripts.artifacts.sms import get_sms
-from scripts.artifacts.lastBuild import get_lastBuild
+from scripts.artifacts.lastBuild import get_lastBuild, get_iTunesBackupInfo
 from scripts.artifacts.dataArk import get_dataArk
 from scripts.artifacts.iconsScreen import get_iconsScreen
 from scripts.artifacts.webClips import get_webClips

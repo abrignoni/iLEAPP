@@ -1,7 +1,9 @@
 import argparse
+import io
 import os
 import scripts.report as report
 import shutil
+import traceback
 
 from scripts.search_files import *
 from scripts.ilapfuncs import *
@@ -11,7 +13,7 @@ from time import process_time, gmtime, strftime
 
 def main():
     parser = argparse.ArgumentParser(description='iLEAPP: iOS Logs, Events, and Plists Parser.')
-    parser.add_argument('-t', choices=['fs','tar','zip', 'gz'], required=True, action="store", help="Input type (fs = extracted to file system folder)")
+    parser.add_argument('-t', choices=['fs','tar','zip', 'gz', 'itunes'], required=True, action="store", help="Input type (fs = extracted to file system folder)")
     parser.add_argument('-o', '--output_path', required=True, action="store", help='Output folder path')
     parser.add_argument('-i', '--input_path', required=True, action="store", help='Path to input file/folder')
         
@@ -44,6 +46,7 @@ def main():
     crunch_artifacts(tosearch, extracttype, input_path, out_params, 1)
 
 def crunch_artifacts(search_list, extracttype, input_path, out_params, ratio):
+    '''Returns true/false on success/failure'''
     start = process_time()
 
     logfunc('Procesing started. Please wait. This may take a few minutes...')
@@ -56,18 +59,29 @@ def crunch_artifacts(search_list, extracttype, input_path, out_params, ratio):
     logdevinfo()
     
     seeker = None
-    if extracttype == 'fs':
-        seeker = FileSeekerDir(input_path)
+    try:
+        if extracttype == 'fs':
+            seeker = FileSeekerDir(input_path)
 
-    elif extracttype in ('tar', 'gz'):
-        seeker = FileSeekerTar(input_path, out_params.temp_folder)
+        elif extracttype in ('tar', 'gz'):
+            seeker = FileSeekerTar(input_path, out_params.temp_folder)
 
-    elif extracttype == 'zip':
-        seeker = FileSeekerZip(input_path, out_params.temp_folder)
+        elif extracttype == 'zip':
+            seeker = FileSeekerZip(input_path, out_params.temp_folder)
 
-    else:
-        logfunc('Error on argument -o (input type)')
-        return
+        elif extracttype == 'itunes':
+            seeker = FileSeekerItunes(input_path, out_params.temp_folder)
+
+        else:
+            logfunc('Error on argument -o (input type)')
+            return False
+    except Exception as ex:
+        logfunc('Had an exception in Seeker - see details below. Terminating Program!')
+        temp_file = io.StringIO()
+        traceback.print_exc(file=temp_file)
+        logfunc(temp_file.getvalue())
+        temp_file.close()
+        return False
 
     # Now ready to run
     logfunc(f'Artifact categories to parse: {str(len(search_list))}')
@@ -79,6 +93,18 @@ def crunch_artifacts(search_list, extracttype, input_path, out_params, ratio):
     log.write(f'Extraction/Path selected: {input_path}<br><br>')
     
     categories_searched = 0
+    # Special processing for iTunesBackup Info.plist as it is a seperate entity, not part of the Manifest.db. Seeker won't find it
+    if extracttype == 'itunes':
+        info_plist_path = os.path.join(input_path, 'Info.plist')
+        if os.path.exists(info_plist_path):
+            process_artifact([info_plist_path], 'iTunesBackupInfo', 'Device Info', seeker, out_params.report_folder_base)
+            del search_list['lastBuild'] # removing lastBuild as this takes its place
+        else:
+            logfunc('Info.plist not found for iTunes Backup!')
+            log.write('Info.plist not found for iTunes Backup!')
+        categories_searched += 1
+        GuiWindow.SetProgressBar(categories_searched * ratio)
+
     # Search for the files per the arguments
     for key, val in search_list.items():
         search_regexes = []
@@ -104,7 +130,7 @@ def crunch_artifacts(search_list, extracttype, input_path, out_params, ratio):
                     pathh = pathh[4:]
                 log.write(f'Files for {artifact_search_regex} located at {pathh}<br><br>')
         categories_searched += 1
-        GuiWindow.SetProgressBar(categories_searched*ratio)
+        GuiWindow.SetProgressBar(categories_searched * ratio)
     log.close()
 
     logfunc('')
@@ -126,6 +152,7 @@ def crunch_artifacts(search_list, extracttype, input_path, out_params, ratio):
     logfunc('Report generation Completed.')
     logfunc('')
     logfunc(f'Report location: {out_params.report_folder_base}')
+    return True
 
 if __name__ == '__main__':
     main()

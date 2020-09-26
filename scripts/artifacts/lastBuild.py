@@ -1,6 +1,6 @@
+import datetime
 import os
 import plistlib
-import sqlite3
 import scripts.artifacts.artGlobals 
 
 from scripts.artifact_report import ArtifactHtmlReport
@@ -52,11 +52,11 @@ def get_iTunesBackupInfo(files_found, report_folder, seeker):
                             'MEID', 'Phone Number', 'Product Name', 'Product Type',
                             'Product Version', 'Serial Number'):
                     logdevinfo(f"{key}: {val}")
-                
+
                 if key == ('Product Version'):
                     scripts.artifacts.artGlobals.versionf = val
                     logfunc(f"iOS version: {val}")
-                    
+
             elif key == "Installed Applications":
                 data_list.append((key, ', '.join(val)))
   
@@ -69,4 +69,3 @@ def get_iTunesBackupInfo(files_found, report_folder, seeker):
     
     tsvname = 'iTunes Backup'
     tsv(report_folder, data_headers, data_list, tsvname)
-
