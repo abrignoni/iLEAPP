@@ -38,8 +38,7 @@ def get_lastBuild(files_found, report_folder, seeker):
     tsvname = 'Last Build'
     tsv(report_folder, data_headers, data_list, tsvname)
             
-<<<<<<< Updated upstream
-=======
+
 def get_iTunesBackupInfo(files_found, report_folder, seeker):
     versionnum = 0
     data_list = []
@@ -70,4 +69,4 @@ def get_iTunesBackupInfo(files_found, report_folder, seeker):
     
     tsvname = 'iTunes Backup'
     tsv(report_folder, data_headers, data_list, tsvname)
->>>>>>> Stashed changes
+
