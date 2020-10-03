@@ -32,6 +32,6 @@ def get_appGrouplisting(files_found, report_folder, seeker):
         tsvname = 'Bundle ID - AppGroup ID'
         tsv(report_folder, data_headers, data_list, tsvname)
     else:
-        logfunc('Bundle ID - AppGroup ID')
+        logfunc('No data on Bundle ID - AppGroup ID')
 
     

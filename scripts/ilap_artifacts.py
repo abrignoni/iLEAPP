@@ -152,6 +152,7 @@ from scripts.artifacts.icloudSharedalbums import get_icloudSharedalbums
 from scripts.artifacts.appGrouplisting import get_appGrouplisting
 from scripts.artifacts.deviceActivator import get_deviceActivator
 from scripts.artifacts.kikMessages import get_kikMessages
+from scripts.artifacts.appItunesmeta import get_appItunesmeta
 
 from scripts.ilapfuncs import *
 
@@ -240,7 +241,8 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'icloudSharedalbums': ('iCloud Shared Albums', '*/private/var/mobile/Media/PhotoData/PhotoCloudSharingData/*'),
             'appGrouplisting': ('Installed Apps', '*/private/var/mobile/Containers/Shared/AppGroup/*/*.metadata.plist'),
             'deviceActivator': ('IOS Build', '*private/var/mobile/Library/Logs/mobileactivationd/ucrt_oob_request.txt'),
-            'kikMessages': ('Kik', '**/kik.sqlite*')
+            'kikMessages': ('Kik', '**/kik.sqlite*'),
+            'appItunesmeta':('Installed Apps', ('**/iTunesMetadata.plist', '**/BundleMetadata.plist'))
             }
 
 '''
