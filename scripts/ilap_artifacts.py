@@ -239,7 +239,7 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'filesAppsdb': ('Files App', '*private/var/mobile/Library/Application Support/CloudDocs/session/db/server.db*'),
             'filesAppsclient': ('Files App', '*private/var/mobile/Library/Application Support/CloudDocs/session/db/client.db*'),
             'icloudSharedalbums': ('iCloud Shared Albums', '*/private/var/mobile/Media/PhotoData/PhotoCloudSharingData/*'),
-            'appGrouplisting': ('Installed Apps', '*/private/var/mobile/Containers/Shared/AppGroup/*/*.metadata.plist'),
+            'appGrouplisting': ('Installed Apps', ('*/private/var/mobile/Containers/Shared/AppGroup/*/*.metadata.plist','**/PluginKitPlugin/*.metadata.plist')),
             'deviceActivator': ('IOS Build', '*private/var/mobile/Library/Logs/mobileactivationd/ucrt_oob_request.txt'),
             'kikMessages': ('Kik', '**/kik.sqlite*'),
             'appItunesmeta':('Installed Apps', ('**/iTunesMetadata.plist', '**/BundleMetadata.plist'))
