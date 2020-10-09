@@ -15,23 +15,24 @@ def get_appGrouplisting(files_found, report_folder, seeker):
         
         p = pathlib.Path(file_found)
         appgroupid = p.parent.name
-        
-        data_list.append((bundleid, appgroupid))
         fileloc = str(p.parents[1])
-
-    if len(data_list) > 0:
+        typedir = str(p.parents[1].name)
         
+        data_list.append((bundleid, typedir, appgroupid, fileloc))
+        
+    if len(data_list) > 0:
+        filelocdesc = 'Path column in the report'
         description = 'List can included once installed but not present apps. Each file is named .com.apple.mobile_container_manager.metadata.plist'
-        report = ArtifactHtmlReport('Bundle ID - AppGroup ID')
-        report.start_artifact_report(report_folder, 'Bundle ID - AppGroup ID', description)
+        report = ArtifactHtmlReport('Bundle ID by AppGroup & PluginKit IDs')
+        report.start_artifact_report(report_folder, 'Bundle ID by AppGroup & PluginKit IDs', description)
         report.add_script()
-        data_headers = ('Bundle ID','AppGroup')     
-        report.write_artifact_data_table(data_headers, data_list, fileloc)
+        data_headers = ('Bundle ID','Type','Directory GUID','Path')     
+        report.write_artifact_data_table(data_headers, data_list, filelocdesc)
         report.end_artifact_report()
         
-        tsvname = 'Bundle ID - AppGroup ID'
+        tsvname = 'Bundle ID - AppGroup ID - PluginKit ID'
         tsv(report_folder, data_headers, data_list, tsvname)
     else:
-        logfunc('Bundle ID - AppGroup ID')
+        logfunc('No data on Bundle ID - AppGroup ID - PluginKit ID')
 
     

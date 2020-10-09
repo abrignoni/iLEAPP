@@ -59,6 +59,8 @@ from scripts.artifacts.knowCappactsafari import get_knowCappactsafari
 from scripts.artifacts.knowCinstall import get_knowCinstall
 from scripts.artifacts.safariHistory import get_safariHistory
 from scripts.artifacts.safariWebsearch import get_safariWebsearch
+from scripts.artifacts.safariBookmarks import get_safariBookmarks
+from scripts.artifacts.safariTabs import get_safariTabs
 from scripts.artifacts.queryPredictions import get_queryPredictions
 from scripts.artifacts.dhcpl import get_dhcpl
 from scripts.artifacts.dhcphp import get_dhcphp
@@ -149,6 +151,8 @@ from scripts.artifacts.filesAppsclient import get_filesAppsclient
 from scripts.artifacts.icloudSharedalbums import get_icloudSharedalbums
 from scripts.artifacts.appGrouplisting import get_appGrouplisting
 from scripts.artifacts.deviceActivator import get_deviceActivator
+from scripts.artifacts.kikMessages import get_kikMessages
+from scripts.artifacts.appItunesmeta import get_appItunesmeta
 
 from scripts.ilapfuncs import *
 
@@ -165,7 +169,7 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'aggDictpasscodetype':('Aggregate Dictionary', '*/AggregateDictionary/ADDataStore.sqlitedb'),
             'dataArk':('IOS Build', '**/Library/Lockdown/data_ark.plist'),
             'applicationstate':('Installed Apps', '**/applicationState.db'),
-            'applicationSnapshots':('Installed Apps', ('**/Library/Caches/Snapshots/*', '**/Library/SplashBoard/Snapshots/*')),
+            'applicationSnapshots':('Installed Apps', ('**/Library/Caches/Snapshots/*', '**/SplashBoard/Snapshots/*')),
             'accs':('Accounts', '**/Accounts3.sqlite'),
             'confaccts':('Accounts', '**/com.apple.accounts.exists.plist'),
             'callHistory':('Call logs', '**/CallHistory.storedata'),
@@ -175,6 +179,8 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'coreDuetPlugin':('CoreDuet', '**/coreduetd.db'),
             'safariHistory':('Safari Browser', '**/Safari/History.db'),
             'safariWebsearch':('Safari Browser', '**/Safari/History.db'),
+            'safariBookmarks':('Safari Browser', '**/Safari/Bookmarks.db'),
+            'safariTabs':('Safari Browser', '**/Safari/BrowserState.db'),
             'queryPredictions':('SMS & iMessage', '**/query_predictions.db'),
             'dhcpl':('DHCP', '**/private/var/db/dhcpclient/leases/en*'),
             'dhcphp':('DHCP', '**/private/var/db/dhcpd_leases*'),
@@ -198,8 +204,8 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'mailprotect':('iOS Mail', '**/private/var/mobile/Library/Mail/* Index*'),
             'locationDparkedhistorical':('Locations', '**/Local.sqlite'),
             'locationDparked':('Locations', '**/Local.sqlite'),
-            'bluetoothPaired':('Bluetooth', '**/Library/Database/com.apple.MobileBluetooth.ledevices.paired.db'),
-            'bluetoothPairedReg':('Bluetooth', '**/Library/Preferences/com.apple.MobileBluetooth.devices.plist'),
+            'bluetoothPaired':('Bluetooth', '**/com.apple.MobileBluetooth.ledevices.paired.db'),
+            'bluetoothPairedReg':('Bluetooth', '**/com.apple.MobileBluetooth.devices.plist'),
             'bluetoothOther':('Bluetooth', '**/Library/Database/com.apple.MobileBluetooth.ledevices.other.db'),
             'calendarAll':('Calendar', '**/Calendar.sqlitedb'),
             'photosMetadata':('Photos', '**/Photos.sqlite'),
@@ -210,12 +216,11 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'routineDLocationsLocal':('Locations', '**/private/var/mobile/Library/Caches/com.apple.routined/Local.sqlite*'),
             'routineDCloud':('Locations', '**/Library/Caches/com.apple.routined/Cloud-V2.sqlite*'),
             'cacheRoutesGmap':('Locations', '**/Library/Application Support/CachedRoutes/*.plist'),
-            'appleWifiPlist':('Wireless Networks', '**/SystemConfiguration/com.apple.wifi.plist'),
+            'appleWifiPlist':('Wireless Networks', '**/com.apple.wifi.plist'),
             #'systemVersion':('Device Info', '**/SystemVersion.plist'),
             'mobileActivationLogs':('Mobile Activation Logs', '**/mobileactivationd.log*'),
             'iCloudWifi':('Wifi Connections', '**/com.apple.wifid.plist'),
             'mobileBackup':('Mobile Backup', '*/Preferences/com.apple.MobileBackup.plist'),
-            'wifi':('Wifi Connections', '**/com.apple.wifi.plist'),
             'mobileContainerManager':('Mobile Container Manager', '**/containermanagerd.log.*'),
             #'appUpdates':('App Updates', '**/AppUpdates.sqlitedb'),
             'appConduit':('App Conduit', '**/AppConduit.log.*'),
@@ -234,8 +239,10 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'filesAppsdb': ('Files App', '*private/var/mobile/Library/Application Support/CloudDocs/session/db/server.db*'),
             'filesAppsclient': ('Files App', '*private/var/mobile/Library/Application Support/CloudDocs/session/db/client.db*'),
             'icloudSharedalbums': ('iCloud Shared Albums', '*/private/var/mobile/Media/PhotoData/PhotoCloudSharingData/*'),
-            'appGrouplisting': ('Installed Apps', '*/private/var/mobile/Containers/Shared/AppGroup/*/*.metadata.plist'),
-            'deviceActivator': ('IOS Build', '*private/var/mobile/Library/Logs/mobileactivationd/ucrt_oob_request.txt')
+            'appGrouplisting': ('Installed Apps', ('*/private/var/mobile/Containers/Shared/AppGroup/*/*.metadata.plist','**/PluginKitPlugin/*.metadata.plist')),
+            'deviceActivator': ('IOS Build', '*private/var/mobile/Library/Logs/mobileactivationd/ucrt_oob_request.txt'),
+            'kikMessages': ('Kik', '**/kik.sqlite*'),
+            'appItunesmeta':('Installed Apps', ('**/iTunesMetadata.plist', '**/BundleMetadata.plist'))
             }
 
 '''
