@@ -17,6 +17,8 @@ def get_powerlogLightplug(files_found, report_folder, seeker):
     iOSversion = scripts.artifacts.artGlobals.versionf
     if version.parse(iOSversion) >= version.parse("10"):
         cursor = db.cursor()
+        # The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/powerlog_lightnining_connector_status.txt
+        # from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
         cursor.execute('''
         SELECT
         DATETIME(LIGHTNINGCONNECTOR_TIMESTAMP + SYSTEM, 'UNIXEPOCH','LOCALTIME') AS ADJUSTED_TIMESTAMP,
