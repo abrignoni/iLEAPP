@@ -14,6 +14,8 @@ def get_knowCact(files_found, report_folder, seeker):
 
 	db = sqlite3.connect(file_found)
 	cursor = db.cursor()
+	# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_app_activity.txt
+	# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
 	cursor.execute(
 		'''
 	SELECT

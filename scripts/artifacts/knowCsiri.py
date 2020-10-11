@@ -13,7 +13,9 @@ def get_knowCsiri(files_found, report_folder, seeker):
 	file_found = str(files_found[0])
 	db = sqlite3.connect(file_found)
 	cursor = db.cursor()
-
+	if version.parse(iOSversion) >= version.parse("12"):
+	# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_siri.txt
+	# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt	
 	cursor.execute(
 	"""
 	SELECT

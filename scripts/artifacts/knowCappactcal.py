@@ -17,6 +17,8 @@ def get_knowCappactcal(files_found, report_folder, seeker):
     iOSversion = scripts.artifacts.artGlobals.versionf
     if version.parse(iOSversion) >= version.parse("12"):
         cursor = db.cursor()
+        # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_app_activity_calendar.txt
+        # from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
         cursor.execute('''
         SELECT
             DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
@@ -56,6 +58,8 @@ def get_knowCappactcal(files_found, report_folder, seeker):
         ''')
     else:
         cursor = db.cursor()
+        # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_app_activity_calendar.txt
+        # from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
         cursor.execute('''
         SELECT
             DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
