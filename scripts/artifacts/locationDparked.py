@@ -14,6 +14,8 @@ def get_locationDparked(files_found, report_folder, seeker):
     iOSversion = scripts.artifacts.artGlobals.versionf
     if version.parse(iOSversion) >= version.parse("12"):
         cursor = db.cursor()
+        # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/routined_local_vehicle_parked.txt
+        # from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
         cursor.execute('''
         SELECT
            DATETIME(ZRTVEHICLEEVENTMO.ZDATE + 978307200, 'UNIXEPOCH') AS "DATE",
@@ -35,6 +37,8 @@ def get_locationDparked(files_found, report_folder, seeker):
         ''')
     else:
         cursor = db.cursor()
+        # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/routined_local_vehicle_parked.txt
+        # from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
         cursor.execute('''
        SELECT
          DATETIME(ZRTVEHICLEEVENTMO.ZDATE + 978307200, 'UNIXEPOCH') AS "DATE",
