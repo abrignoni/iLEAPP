@@ -13,9 +13,9 @@ from time import process_time, gmtime, strftime
 
 def main():
     parser = argparse.ArgumentParser(description='iLEAPP: iOS Logs, Events, and Plists Parser.')
-    parser.add_argument('-t', choices=['fs','tar','zip', 'gz', 'itunes'], required=True, action="store", help="Input type (fs = extracted to file system folder)")
-    parser.add_argument('-o', '--output_path', required=True, action="store", help='Output folder path')
-    parser.add_argument('-i', '--input_path', required=True, action="store", help='Path to input file/folder')
+    parser.add_argument('-t', choices=['fs','tar','zip', 'gz', 'itunes'], required=False, action="store", help="Input type (fs = extracted to file system folder)")
+    parser.add_argument('-o', '--output_path', required=False, action="store", help='Output folder path')
+    parser.add_argument('-i', '--input_path', required=False, action="store", help='Path to input file/folder')
     parser.add_argument('-p', '--artifact_paths', required=False, action="store_true", help='Text file list of artifact paths')
         
     args = parser.parse_args()
