@@ -17,6 +17,8 @@ def get_knowCsafari(files_found, report_folder, seeker):
 	iOSversion = scripts.artifacts.artGlobals.versionf
 	if version.parse(iOSversion) >= version.parse("12"):
 		cursor = db.cursor()
+		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_safari_browsing.txt
+		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt	
 		cursor.execute('''
 		SELECT
 				DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
@@ -50,6 +52,8 @@ def get_knowCsafari(files_found, report_folder, seeker):
 			''')
 	elif version.parse(iOSversion) == version.parse("11"):
 		cursor = db.cursor()
+		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_safari_browsing.txt
+		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt	
 		cursor.execute('''
 		SELECT
 				DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
@@ -102,7 +106,7 @@ def get_knowCsafari(files_found, report_folder, seeker):
 			tsv(report_folder, data_headers, data_list, tsvname)
 			
 			tlactivity = 'KnowledgeC Safari Browsing'
-			timeline(report_folder, tlactivity, data_list)
+			timeline(report_folder, tlactivity, data_list, data_headers)
 		else:
 			for row in all_rows:    
 				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7]))
@@ -118,7 +122,7 @@ def get_knowCsafari(files_found, report_folder, seeker):
 			tsv(report_folder, data_headers, data_list, tsvname)
 			
 			tlactivity = 'KnowledgeC Safari Browsing'
-			timeline(report_folder, tlactivity, data_list)
+			timeline(report_folder, tlactivity, data_list, data_headers)
 	else:
 		logfunc('No data available in table')
 

@@ -1,9 +1,11 @@
 import fnmatch
 import os
+import sqlite3
 import tarfile
 
 from pathlib import Path
 from scripts.ilapfuncs import *
+from shutil import copyfile
 from zipfile import ZipFile
 
 class FileSeekerBase:
@@ -26,14 +28,69 @@ class FileSeekerDir(FileSeekerBase):
 
     def build_files_list(self, directory):
         '''Populates all paths in directory into _all_files'''
-        files_list = os.scandir(directory)
-        for item in files_list:
-            self._all_files.append(item.path)
-            if item.is_dir(follow_symlinks=False):
-                self.build_files_list(item.path)
+        try:
+            files_list = os.scandir(directory)
+            for item in files_list:
+                self._all_files.append(item.path)
+                if item.is_dir(follow_symlinks=False):
+                    self.build_files_list(item.path)
+        except Exception as ex:
+            logfunc(f'Error reading {directory} ' + str(ex))
 
     def search(self, filepattern):
         return fnmatch.filter(self._all_files, filepattern)
+
+class FileSeekerItunes(FileSeekerBase):
+    def __init__(self, directory, temp_folder):
+        FileSeekerBase.__init__(self)
+        self.directory = directory
+        self._all_files = {}
+        self.temp_folder = temp_folder
+        logfunc('Building files listing')
+        self.build_files_list(directory)
+
+    def build_files_list(self, directory):
+        '''Populates paths from Manifest.db files into _all_files'''
+        try: 
+            db = sqlite3.connect(os.path.join(directory, "Manifest.db"))
+            cursor = db.cursor()
+            cursor.execute(
+                """
+                SELECT
+                fileID,
+                relativePath
+                FROM
+                Files
+                WHERE
+                flags=1
+                """
+            )
+            all_rows = cursor.fetchall()
+            for row in all_rows:
+                hash_filename = row[0]
+                relative_path = row[1]
+                self._all_files[relative_path] = hash_filename
+            db.close()
+        except Exception as ex:
+            logfunc(f'Error opening Manifest.db from {directory}, ' + str(ex))
+            raise ex
+
+    def search(self, filepattern):
+        pathlist = []
+        matching_keys = fnmatch.filter(self._all_files, filepattern)
+        for relative_path in matching_keys:
+            hash_filename = self._all_files[relative_path]
+            original_location = os.path.join(self.directory, hash_filename[:2], hash_filename)
+            temp_location = os.path.join(self.temp_folder, relative_path)
+            if is_platform_windows():
+                temp_location = temp_location.replace('/', '\\')
+            try:
+                os.makedirs(os.path.dirname(temp_location), exist_ok=True)
+                copyfile(original_location, temp_location)
+                pathlist.append(temp_location)
+            except Exception as ex:
+                logfunc(f'Could not copy {original_location} to {temp_location} ' + str(ex))
+        return pathlist
 
 class FileSeekerTar(FileSeekerBase):
     def __init__(self, tar_file_path, temp_folder):
@@ -62,7 +119,7 @@ class FileSeekerTar(FileSeekerBase):
                         os.utime(full_path, (member.mtime, member.mtime))
                     pathlist.append(full_path)
                 except Exception as ex:
-                    logfunc(f'Could not write file to filesystem, path was {member.name}' + str(ex))
+                    logfunc(f'Could not write file to filesystem, path was {member.name} ' + str(ex))
         return pathlist
 
     def cleanup(self):
@@ -84,7 +141,7 @@ class FileSeekerZip(FileSeekerBase):
                     member = member.lstrip("/")
                     pathlist.append(extracted_path)
                 except Exception as ex:
-                    logfunc(f'Could not write file to filesystem, path was {member}' + str(ex))
+                    logfunc(f'Could not write file to filesystem, path was {member} ' + str(ex))
         return pathlist
 
     def cleanup(self):

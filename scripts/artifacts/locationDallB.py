@@ -24,6 +24,8 @@ def get_locationDallB(files_found, report_folder, seeker):
 		logfunc(iOSversion)
 		db = sqlite3.connect(file_found)
 		cursor = db.cursor()
+		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/locationd_cacheencryptedAB_appharvest.txt
+		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
 		cursor.execute(
 		"""
 		SELECT
@@ -65,11 +67,13 @@ def get_locationDallB(files_found, report_folder, seeker):
 			tsv(report_folder, data_headers, data_list, tsvname)
 			
 			tlactivity = 'LocationD Cell App Harvest'
-			timeline(report_folder, tlactivity, data_list)
+			timeline(report_folder, tlactivity, data_list, data_headers)
 		else:
 			logfunc('No data available for LocationD App Harvest')
 			
 	cursor = db.cursor()
+	# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/locationd_cacheencryptedAB_cdmacelllocation.txt
+	# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
 	cursor.execute(
 	"""
 	SELECT
@@ -113,11 +117,13 @@ def get_locationDallB(files_found, report_folder, seeker):
 		tsv(report_folder, data_headers, data_list, tsvname)
 		
 		tlactivity = 'LocationD CDMA Location'
-		timeline(report_folder, tlactivity, data_list)
+		timeline(report_folder, tlactivity, data_list, data_headers)
 	else:
 		logfunc('No data available for LocationD CDMA Location')
 		
 	cursor = db.cursor()
+	# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/locationd_cacheencryptedAB_celllocation.txt
+	# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
 	cursor.execute(
 	"""
 	SELECT
@@ -159,11 +165,13 @@ def get_locationDallB(files_found, report_folder, seeker):
 		tsv(report_folder, data_headers, data_list, tsvname)
 		
 		tlactivity = 'LocationD Cell Location'
-		timeline(report_folder, tlactivity, data_list)
+		timeline(report_folder, tlactivity, data_list, data_headers)
 	else:
 		logfunc('No data available for LocationD Cell Location')
 
 	cursor = db.cursor()
+	# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/locationd_cacheencryptedAB_ltecelllocation.txt
+	# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
 	cursor.execute(
 	"""
 	SELECT 
@@ -204,12 +212,14 @@ def get_locationDallB(files_found, report_folder, seeker):
 		tsv(report_folder, data_headers, data_list, tsvname)
 		
 		tlactivity = 'LocationD LTE Location'
-		timeline(report_folder, tlactivity, data_list)
+		timeline(report_folder, tlactivity, data_list, data_headers)
 	else:
 		logfunc('No data available for LocationD LTE Location')
 		
 
 	cursor = db.cursor()
+	# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/locationd_cacheencryptedAB_wifilocation.txt
+	# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
 	cursor.execute(
 	"""
 	SELECT
@@ -249,7 +259,7 @@ def get_locationDallB(files_found, report_folder, seeker):
 		tsv(report_folder, data_headers, data_list, tsvname)
 		
 		tlactivity = 'LocationD WiFi Location'
-		timeline(report_folder, tlactivity, data_list)
+		timeline(report_folder, tlactivity, data_list, data_headers)
 	else:
 		logfunc('No data available for LocationD WiFi Location')
 	

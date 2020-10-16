@@ -45,7 +45,7 @@ def get_tileAppNetDb(files_found, report_folder, seeker):
         tsv(report_folder, data_headers, data_list, tsvname)
         
         tlactivity = 'Tile App Account Information'
-        timeline(report_folder, tlactivity, data_list)
+        timeline(report_folder, tlactivity, data_list, data_headers)
     else:
         logfunc('No Tile App DB account data available')
     

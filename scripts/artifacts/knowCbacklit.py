@@ -18,6 +18,8 @@ def get_knowCbacklit(files_found, report_folder, seeker):
 	iOSversion = scripts.artifacts.artGlobals.versionf
 	if version.parse(iOSversion) >= version.parse("12"):
 		cursor = db.cursor()
+		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_device_is_backlit.txt
+		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
 		cursor.execute(
 		"""
 			SELECT
@@ -114,7 +116,7 @@ def get_knowCbacklit(files_found, report_folder, seeker):
 			tsv(report_folder, data_headers, data_list, tsvname)
 			
 			tlactivity = 'KnowledgeC Device is Backlit'
-			timeline(report_folder, tlactivity, data_list)
+			timeline(report_folder, tlactivity, data_list, data_headers)
 			
 		elif version.parse(iOSversion) == version.parse("11"):
 			for row in all_rows:    
@@ -131,7 +133,7 @@ def get_knowCbacklit(files_found, report_folder, seeker):
 			tsv(report_folder, data_headers, data_list, tsvname)
 			
 			tlactivity = 'KnowledgeC Device is Backlit'
-			timeline(report_folder, tlactivity, data_list)
+			timeline(report_folder, tlactivity, data_list, data_headers)
 	else:
 		logfunc('No data available in table')
 

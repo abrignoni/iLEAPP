@@ -21,6 +21,8 @@ def get_locationDsteps(files_found, report_folder, seeker):
 	iOSversion = scripts.artifacts.artGlobals.versionf
 	if version.parse(iOSversion) >= version.parse("10"):
 		cursor = db.cursor()
+		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/locationd_cacheencryptedC_stepcounthistory.txt
+		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
 		cursor.execute(
 		"""
 		SELECT 
@@ -59,7 +61,7 @@ def get_locationDsteps(files_found, report_folder, seeker):
 			tsv(report_folder, data_headers, data_list, tsvname)
 			
 			tlactivity = 'LocationD Steps'
-			timeline(report_folder, tlactivity, data_list)
+			timeline(report_folder, tlactivity, data_list, data_headers)
 		else:
 			logfunc('No data available for Steps')
 			

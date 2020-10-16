@@ -21,6 +21,8 @@ def get_routineDLocationsLocal(files_found, report_folder, seeker):
                 
         db = sqlite3.connect(file_found)
         cursor = db.cursor()
+        # The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/routined_local_learned_location_of_interest_entry.txt
+        # from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
         cursor.execute('''
         SELECT
             DATETIME(ZRTLEARNEDLOCATIONOFINTERESTVISITMO.ZENTRYDATE + 978307200, 'UNIXEPOCH') AS "ENTRY",
@@ -63,12 +65,13 @@ def get_routineDLocationsLocal(files_found, report_folder, seeker):
             tsv(report_folder, data_headers, data_list, tsvname)
             
             tlactivity = 'RoutineD Locations Entry'
-            timeline(report_folder, tlactivity, data_list)
+            timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
             logfunc('No RoutineD Significant Locations Entry data available')
             
-        
+        # The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/routined_local_learned_location_of_interest_entry.txt
+        # from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
         cursor.execute('''
         SELECT
                DATETIME(ZRTLEARNEDLOCATIONOFINTERESTVISITMO.ZENTRYDATE + 978307200, 'UNIXEPOCH') AS "ENTRY",
@@ -108,12 +111,14 @@ def get_routineDLocationsLocal(files_found, report_folder, seeker):
             tsv(report_folder, data_headers, data_list, tsvname)
             
             tlactivity = 'RoutineD Locations Exit'
-            timeline(report_folder, tlactivity, data_list)
+            timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
             logfunc('No RoutineD Significant Locations Exit data available')
             
         if version.parse(iOSversion) >= version.parse("12"):
+          # The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/routined_local_learned_location_of_interest_entry.txt
+          # from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
           cursor.execute('''
           SELECT
                   DATETIME(ZRTLEARNEDLOCATIONOFINTERESTVISITMO.ZENTRYDATE + 978307200, 'UNIXEPOCH') AS "ENTRY",
@@ -156,12 +161,14 @@ def get_routineDLocationsLocal(files_found, report_folder, seeker):
               tsv(report_folder, data_headers, data_list, tsvname)
               
               tlactivity = 'RoutineD Transtition Start'
-              timeline(report_folder, tlactivity, data_list)
+              timeline(report_folder, tlactivity, data_list, data_headers)
 
           else:
               logfunc('No RoutineD Significant Locations Transtition Start data available')
 
         if (version.parse(iOSversion) >= version.parse("11")) and (version.parse(iOSversion) < version.parse("12")):
+          # The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/routined_local_learned_location_of_interest_entry.txt
+          # from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
           cursor.execute('''
           ELECT
                DATETIME(ZRTLEARNEDLOCATIONOFINTERESTTRANSITIONMO.ZSTARTDATE + 978307200, 'UNIXEPOCH') AS "START",
@@ -199,7 +206,7 @@ def get_routineDLocationsLocal(files_found, report_folder, seeker):
               tsv(report_folder, data_headers, data_list, tsvname)
               
               tlactivity = 'RoutineD Transtition Stop'
-              timeline(report_folder, tlactivity, data_list)
+              timeline(report_folder, tlactivity, data_list, data_headers)
 
           else:
               logfunc('No RoutineD Significant Locations Transtition Stop data available')

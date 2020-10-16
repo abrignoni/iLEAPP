@@ -19,6 +19,8 @@ def get_routineDCloud(files_found, report_folder, seeker):
     db = sqlite3.connect(file_found)
     cursor = db.cursor()
     if version.parse(iOSversion) >= version.parse("12"):
+      # The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/routined_cloud_visit_entry.txt
+      # from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
         cursor.execute('''
         SELECT 
             DATETIME(ZRTADDRESSMO.ZCREATIONDATE + 978307200, 'unixepoch') AS "ADDRESS CREATION DATE",
@@ -58,12 +60,14 @@ def get_routineDCloud(files_found, report_folder, seeker):
             tsv(report_folder, data_headers, data_list, tsvname)
             
             tlactivity = 'RoutineD Cloud Addresses'
-            timeline(report_folder, tlactivity, data_list)
+            timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
             logfunc('No RoutineD Cloud Addresses data available')
             
     if version.parse(iOSversion) >= version.parse("13"):
+      # The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/routined_cloud_visit_entry.txt
+      # from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
       cursor.execute('''
       SELECT
         DATETIME(ZRTMAPITEMMO.ZCREATIONDATE + 978307200, 'UNIXEPOCH') AS "MAP ITEM CREATION DATE",
@@ -109,12 +113,14 @@ def get_routineDCloud(files_found, report_folder, seeker):
           tsv(report_folder, data_headers, data_list, tsvname)
           
           tlactivity = 'RoutineD Cloud Map Items'
-          timeline(report_folder, tlactivity, data_list)
+          timeline(report_folder, tlactivity, data_list, data_headers)
 
       else:
           logfunc('No RoutineD Map Items Cloud-V2.sqlite data available')
     
     if (version.parse(iOSversion) >= version.parse("12")) and (version.parse(iOSversion) < version.parse("13")):
+      # The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/routined_cloud_visit_entry.txt
+      # from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
       cursor.execute('''
       SELECT 
         DATETIME(ZRTMAPITEMMO.ZCREATIONDATE + 978307200, 'UNIXEPOCH') AS "MAP ITEM CREATION DATE",
@@ -160,12 +166,14 @@ def get_routineDCloud(files_found, report_folder, seeker):
           tsv(report_folder, data_headers, data_list, tsvname)
           
           tlactivity = 'RoutineD Cloud Map Items'
-          timeline(report_folder, tlactivity, data_list)
+          timeline(report_folder, tlactivity, data_list, data_headers)
 
       else:
           logfunc('No RoutineD Cloud Map Items data available')
     
     if (version.parse(iOSversion) >= version.parse("13")):
+      # The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/routined_cloud_visit_entry.txt
+      # from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
       cursor.execute('''
       SELECT
           DATETIME(ZRTLEARNEDVISITMO.ZENTRYDATE + 978307200, 'UNIXEPOCH') AS "VISIT ENTRY",
@@ -239,7 +247,7 @@ def get_routineDCloud(files_found, report_folder, seeker):
           tsv(report_folder, data_headers, data_list, tsvname)
           
           tlactivity = 'RoutineD Cloud Visit Entry Exit'
-          timeline(report_folder, tlactivity, data_list)
+          timeline(report_folder, tlactivity, data_list, data_headers)
 
       else:
           logfunc('No RoutineD Significant Locations - Vist Entry & Exit (Historical)')

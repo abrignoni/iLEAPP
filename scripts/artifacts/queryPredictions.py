@@ -41,7 +41,7 @@ def get_queryPredictions(files_found, report_folder, seeker):
         tsv(report_folder, data_headers, data_list, tsvname)
         
         tlactivity = 'Query Predictions'
-        timeline(report_folder, tlactivity, data_list)
+        timeline(report_folder, tlactivity, data_list, data_headers)
     else:
         logfunc('No data available in table')
 

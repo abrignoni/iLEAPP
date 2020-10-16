@@ -21,6 +21,8 @@ def get_powerlogAll(files_found, report_folder, seeker):
     iOSversion = scripts.artifacts.artGlobals.versionf
     if version.parse(iOSversion) >= version.parse("9"):
         cursor = db.cursor()
+        # The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/locationd_cacheencryptedC_stepcounthistory.txt
+        # from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
         cursor.execute('''
         SELECT
             DATETIME(TIMESTAMP, 'UNIXEPOCH') AS TIMESTAMP,
@@ -57,12 +59,14 @@ def get_powerlogAll(files_found, report_folder, seeker):
                 tsv(report_folder, data_headers, data_list, tsvname)
                 
                 tlactivity = 'Powerlog Audio Routing via App'
-                timeline(report_folder, tlactivity, data_list)
+                timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
             logfunc('No data available in Airdop Connection Info')
 
     if version.parse(iOSversion) >= version.parse("10"):
+        # The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/powerlog_springboard_aggregate_bulletins.txt
+        # from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
         cursor.execute('''
         SELECT
             DATETIME(TIMESTAMP, 'UNIXEPOCH') AS TIMESTAMP,
@@ -92,11 +96,13 @@ def get_powerlogAll(files_found, report_folder, seeker):
             tsv(report_folder, data_headers, data_list, tsvname)
             
             tlactivity = 'Powerlog Agg Bulletins'
-            timeline(report_folder, tlactivity, data_list)
+            timeline(report_folder, tlactivity, data_list, data_headers)
         else:
             logfunc('No data available in Aggregate Bulletins')
     
     if version.parse(iOSversion) >= version.parse("10"):
+        # The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/powerlog_springboard_aggregate_notifications.txt
+        # from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
         cursor.execute('''
         SELECT
             DATETIME(TIMESTAMP, 'UNIXEPOCH') AS TIMESTAMP,
@@ -126,12 +132,14 @@ def get_powerlogAll(files_found, report_folder, seeker):
             tsv(report_folder, data_headers, data_list, tsvname)
             
             tlactivity = 'Powerlog Agg Notifications'
-            timeline(report_folder, tlactivity, data_list)
+            timeline(report_folder, tlactivity, data_list, data_headers)
         else:
             logfunc('No data available in Aggregate Notifications')
             
     if version.parse(iOSversion) >= version.parse("9"):
         cursor = db.cursor()
+        # The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/powerlog_airdrop.txt
+        # from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
         cursor.execute('''
         SELECT
                 DATETIME(AIRDROP_TIMESTAMP + SYSTEM, 'UNIXEPOCH') AS ADJUSTED_TIMESTAMP,
@@ -199,13 +207,15 @@ def get_powerlogAll(files_found, report_folder, seeker):
                 tsv(report_folder, data_headers, data_list, tsvname)
                 
                 tlactivity = 'Powerlog Airdrop Connections Info'
-                timeline(report_folder, tlactivity, data_list)
+                timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
             logfunc('No data available in Airdop Connection Info')
             
     if version.parse(iOSversion) >= version.parse("9"):
         cursor = db.cursor()
+        # The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/powerlog_app_info.txt
+        # from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
         cursor.execute('''
         SELECT
             DATETIME(TIMESTAMP, 'UNIXEPOCH') AS TIMESTAMP,
@@ -243,13 +253,15 @@ def get_powerlogAll(files_found, report_folder, seeker):
                 tsv(report_folder, data_headers, data_list, tsvname)
                 
                 tlactivity = 'Powerlog App Info'
-                timeline(report_folder, tlactivity, data_list)
+                timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
             logfunc('No data available in Powerlog App Info')
         
     if version.parse(iOSversion) >= version.parse("9"):
         cursor = db.cursor()
+        # The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/powerlog_app_info.txt
+        # from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
         cursor.execute('''
         SELECT
             DATETIME(TIMESTAMP, 'UNIXEPOCH') AS TIMESTAMP,
@@ -287,13 +299,15 @@ def get_powerlogAll(files_found, report_folder, seeker):
                 tsv(report_folder, data_headers, data_list, tsvname)
                 
                 tlactivity = 'Powerlog App Info'
-                timeline(report_folder, tlactivity, data_list)
+                timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
             logfunc('No data available in Powerlog App Info')
 
     if version.parse(iOSversion) >= version.parse("11"):
         cursor = db.cursor()
+        # The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/powerlog_mobilebackup.txt
+        # from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
         cursor.execute('''
         SELECT
             DATETIME(TIMESTAMP, 'UNIXEPOCH') AS TIMESTAMP,
@@ -326,13 +340,15 @@ def get_powerlogAll(files_found, report_folder, seeker):
                 tsv(report_folder, data_headers, data_list, tsvname)
                 
                 tlactivity = 'Powerlog Backup Info'
-                timeline(report_folder, tlactivity, data_list)
+                timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
             logfunc('No data available in Powerlog Backup Info')
 
     if version.parse(iOSversion) >= version.parse("11"):
         cursor = db.cursor()
+        # The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/tree/master/modules
+        # from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
         cursor.execute("""
         SELECT
                 DATETIME(APPDELETEDDATE, 'UNIXEPOCH') AS "APP DELETED DATE",
@@ -352,6 +368,8 @@ def get_powerlogAll(files_found, report_folder, seeker):
         """)
     elif version.parse(iOSversion) == version.parse("10"):
         cursor = db.cursor()
+        # The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/tree/master/modules
+        # from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
         cursor.execute("""
         SELECT
                 DATETIME(APPDELETEDDATE, 'UNIXEPOCH') AS "APP DELETED DATE",
@@ -370,6 +388,8 @@ def get_powerlogAll(files_found, report_folder, seeker):
         """)
     elif version.parse(iOSversion) == version.parse("9"):
         cursor = db.cursor()
+        # The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/tree/master/modules
+        # from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
         cursor.execute("""
         SELECT
                 DATETIME(APPDELETEDDATE, 'UNIXEPOCH') AS "APP DELETED DATE",
@@ -404,7 +424,7 @@ def get_powerlogAll(files_found, report_folder, seeker):
             tsv(report_folder, data_headers, data_list, tsvname)
             
             tlactivity = 'Powerlog Deleted Apps'
-            timeline(report_folder, tlactivity, data_list)
+            timeline(report_folder, tlactivity, data_list, data_headers)
             
         elif version.parse(iOSversion) == version.parse("10"):
             for row in all_rows:    
@@ -421,7 +441,7 @@ def get_powerlogAll(files_found, report_folder, seeker):
             tsv(report_folder, data_headers, data_list, tsvname)
             
             tlactivity = 'Powerlog Deleted Apps'
-            timeline(report_folder, tlactivity, data_list)
+            timeline(report_folder, tlactivity, data_list, data_headers)
             
         elif version.parse(iOSversion) == version.parse("9"):
             for row in all_rows:    
@@ -438,12 +458,14 @@ def get_powerlogAll(files_found, report_folder, seeker):
             tsv(report_folder, data_headers, data_list, tsvname)
             
             tlactivity = 'Powerlog Deleted Apps'
-            timeline(report_folder, tlactivity, data_list)
+            timeline(report_folder, tlactivity, data_list, data_headers)
     else:
         logfunc('No data available in Powerlog Deleted Apps')
 
     if version.parse(iOSversion) >= version.parse("10"):
         cursor = db.cursor()
+        # The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/powerlog_lightnining_connector_status.txt
+        # from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
         cursor.execute('''
         SELECT
         DATETIME(LIGHTNINGCONNECTOR_TIMESTAMP + SYSTEM, 'UNIXEPOCH','LOCALTIME') AS ADJUSTED_TIMESTAMP,
@@ -503,13 +525,15 @@ def get_powerlogAll(files_found, report_folder, seeker):
                 tsv(report_folder, data_headers, data_list, tsvname)
                 
                 tlactivity = 'Powerlog Lightning Connector Status'
-                timeline(report_folder, tlactivity, data_list)
+                timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
             logfunc('No data available in Powerlog Lightning Connector Status')
     
     if version.parse(iOSversion) >= version.parse("9"):
         cursor = db.cursor()
+        # The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/powerlog_location_client_status.txt
+        # from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
         cursor.execute('''
         SELECT
             DATETIME(LOCATIONAGENT_TIMESTAMP + SYSTEM, 'UNIXEPOCH') AS ADJUSTED_TIMESTAMP,
@@ -587,13 +611,15 @@ def get_powerlogAll(files_found, report_folder, seeker):
                 tsv(report_folder, data_headers, data_list, tsvname)
                 
                 tlactivity = 'Powerlog Location Use by App'
-                timeline(report_folder, tlactivity, data_list)
+                timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
             logfunc('No data available in Location Use by App')
 
     if version.parse(iOSversion) >= version.parse("10"):
         cursor = db.cursor()
+        # The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/powerlog_location_client_status.txt
+        # from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
         cursor.execute('''
         SELECT
             DATETIME(TIMESTAMP, 'UNIXEPOCH') AS TIMESTAMP,
@@ -607,6 +633,8 @@ def get_powerlogAll(files_found, report_folder, seeker):
         ''')
     else:
         cursor = db.cursor()
+        # The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/powerlog_paired_device_config.txt
+        # from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
         cursor.execute('''
         SELECT
             DATETIME(TIMESTAMP, 'UNIXEPOCH') AS TIMESTAMP,
@@ -637,7 +665,7 @@ def get_powerlogAll(files_found, report_folder, seeker):
             tsv(report_folder, data_headers, data_list, tsvname)
             
             tlactivity = 'Powerlog Paired Device Configuration'
-            timeline(report_folder, tlactivity, data_list)
+            timeline(report_folder, tlactivity, data_list, data_headers)
         
         else:
             for row in all_rows:    data_list.append((row[0],row[1],row[2],row[3]))
@@ -653,13 +681,15 @@ def get_powerlogAll(files_found, report_folder, seeker):
             tsv(report_folder, data_headers, data_list, tsvname)
             
             tlactivity = 'Powerlog Paired Device Configuration'
-            timeline(report_folder, tlactivity, data_list)
+            timeline(report_folder, tlactivity, data_list, data_headers)
     else:
         logfunc('No data available in table')
         
 
     if version.parse(iOSversion) >= version.parse("9"):
         cursor = db.cursor()
+        # The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/powerlog_app_usage.txt
+        # from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
         cursor.execute('''
         SELECT
                 DATETIME(TIMESTAMP + SYSTEM, 'UNIXEPOCH') AS ADJUSTED_TIMESTAMP,
@@ -731,12 +761,14 @@ def get_powerlogAll(files_found, report_folder, seeker):
             tsv(report_folder, data_headers, data_list, tsvname)
             
             tlactivity = 'Powerlog Process Data Usage'
-            timeline(report_folder, tlactivity, data_list)
+            timeline(report_folder, tlactivity, data_list, data_headers)
         else:
             logfunc('No data available in table')
             
     if version.parse(iOSversion) >= version.parse("9"):
         cursor = db.cursor()
+        # The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/powerlog_push_message_received.txt
+        # from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
         cursor.execute('''
         SELECT
             DATETIME(TIMESTAMP + SYSTEM, 'UNIXEPOCH') AS ADJUSTED_TIMESTAMP,
@@ -811,12 +843,14 @@ def get_powerlogAll(files_found, report_folder, seeker):
             tsv(report_folder, data_headers, data_list, tsvname)
             
             tlactivity = 'Powerlog Push Message Received'
-            timeline(report_folder, tlactivity, data_list)
+            timeline(report_folder, tlactivity, data_list, data_headers)
         else:
             logfunc('No data available in table')
             
     if version.parse(iOSversion) >= version.parse("9"):
         cursor = db.cursor()
+        # The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/powerlog_timezone.txt
+        # from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
         cursor.execute('''
          SELECT
         DATETIME(TIMEZONE_TIMESTAMP + SYSTEM, 'UNIXEPOCH') AS ADJUSTED_TIMESTAMP,
@@ -885,11 +919,13 @@ def get_powerlogAll(files_found, report_folder, seeker):
             tsv(report_folder, data_headers, data_list, tsvname)
             
             tlactivity = 'Powerlog Timezones'
-            timeline(report_folder, tlactivity, data_list)
+            timeline(report_folder, tlactivity, data_list, data_headers)
         else:
             logfunc('No data available in Powerlog Timezones')
     
     if version.parse(iOSversion) >= version.parse("9"):
+        # The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/powerlog_torch_state.txt
+        # from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
         cursor = db.cursor()
         cursor.execute('''
         SELECT
@@ -952,12 +988,14 @@ def get_powerlogAll(files_found, report_folder, seeker):
             tsv(report_folder, data_headers, data_list, tsvname)
             
             tlactivity = 'Powerlog Torch'
-            timeline(report_folder, tlactivity, data_list)
+            timeline(report_folder, tlactivity, data_list, data_headers)
         else:
             logfunc('No data available in Powerlog Torch')
 
     if version.parse(iOSversion) >= version.parse("9"):
         cursor = db.cursor()
+        # The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/powerlog_video.txt
+        # from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
         cursor.execute('''
         SELECT
         DATETIME(VIDEO_TIMESTAMP + SYSTEM, 'UNIXEPOCH') AS ADJUSTED_TIMESTAMP,
@@ -1017,13 +1055,15 @@ def get_powerlogAll(files_found, report_folder, seeker):
             tsv(report_folder, data_headers, data_list, tsvname)
             
             tlactivity = 'Powerlog App Playing Video'
-            timeline(report_folder, tlactivity, data_list)
+            timeline(report_folder, tlactivity, data_list, data_headers)
         else:
             logfunc('No data available in Powerlog App Playing Video')
 
     if version.parse(iOSversion) >= version.parse("9"):
         db = sqlite3.connect(file_found)
         cursor = db.cursor()
+        # The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/powerlog_audio_volume.txt
+        # from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
         cursor.execute('''
         SELECT
         DATETIME(VOLUME_TIMESTAMP + SYSTEM, 'UNIXEPOCH') AS ADJUSTED_TIMESTAMP,
@@ -1084,12 +1124,14 @@ def get_powerlogAll(files_found, report_folder, seeker):
             tsv(report_folder, data_headers, data_list, tsvname)
             
             tlactivity = 'Powerlog Volumen Percentage'
-            timeline(report_folder, tlactivity, data_list)
+            timeline(report_folder, tlactivity, data_list, data_headers)
         else:
             logfunc('No data available in table')
 
     if version.parse(iOSversion) >= version.parse("9"):
         cursor = db.cursor()
+        # The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/powerlog_wifi_properties.txt
+        # from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
         cursor.execute('''
         SELECT
         DATETIME(WIFIPROPERTIES_TIMESTAMP + SYSTEM, 'UNIXEPOCH') AS ADJUSTED_TIMESTAMP,
@@ -1146,6 +1188,6 @@ def get_powerlogAll(files_found, report_folder, seeker):
             tsv(report_folder, data_headers, data_list, tsvname)
             
             tlactivity = 'Powerlog Wifi Network Connections'
-            timeline(report_folder, tlactivity, data_list)
+            timeline(report_folder, tlactivity, data_list, data_headers)
         else:
             logfunc('No data available in Powerlog WiFi Network Connections')

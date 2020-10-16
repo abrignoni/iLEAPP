@@ -21,6 +21,8 @@ def get_routineDlocations(files_found, report_folder, seeker):
                 
         db = sqlite3.connect(file_found)
         cursor = db.cursor()
+        # The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/routined_local_learned_location_of_interest_entry.txt
+        # from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
         cursor.execute('''
         SELECT
             DATETIME(ZTIMESTAMP + 978307200, 'UNIXEPOCH') AS "TIMESTAMP",
@@ -58,12 +60,13 @@ def get_routineDlocations(files_found, report_folder, seeker):
             tsv(report_folder, data_headers, data_list, tsvname)
             
             tlactivity = 'RoutineD ZRTCLLOCATIONMO'
-            timeline(report_folder, tlactivity, data_list)
+            timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
             logfunc('No RoutineD ZRTCLLOCATIONMO data available')
             
-        
+        # The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/routined_local_learned_location_of_interest_entry.txt
+        # from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
         cursor.execute('''
         SELECT
             DATETIME(ZDATE + 978307200, 'UNIXEPOCH') AS "TIMESTAMP",
@@ -95,11 +98,13 @@ def get_routineDlocations(files_found, report_folder, seeker):
             tsv(report_folder, data_headers, data_list, tsvname)
             
             tlactivity = 'RoutineD ZRTHINTMO'
-            timeline(report_folder, tlactivity, data_list)
+            timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
             logfunc('No RoutineD ZRTHINTMO data available')
-            
+        
+        # The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/routined_local_learned_location_of_interest_entry.txt
+        # from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt    
         cursor.execute('''
         SELECT
                 DATETIME(ZENTRYDATE + 978307200, 'UNIXEPOCH') AS "ENTRY TIMESTAMP",
@@ -136,7 +141,7 @@ def get_routineDlocations(files_found, report_folder, seeker):
             tsv(report_folder, data_headers, data_list, tsvname)
             
             tlactivity = 'RoutineD ZRTVISITMO'
-            timeline(report_folder, tlactivity, data_list)
+            timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
             logfunc('No RoutineD ZRTVISITMO data available')

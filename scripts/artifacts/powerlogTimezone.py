@@ -13,6 +13,8 @@ def get_powerlogTimezone(files_found, report_folder, seeker):
     file_found = str(files_found[0])
     db = sqlite3.connect(file_found)
     cursor = db.cursor()
+    # The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/powerlog_timezone.txt
+    # from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
     cursor.execute('''
      SELECT
     DATETIME(TIMEZONE_TIMESTAMP + SYSTEM, 'UNIXEPOCH') AS ADJUSTED_TIMESTAMP,
@@ -81,7 +83,7 @@ def get_powerlogTimezone(files_found, report_folder, seeker):
         tsv(report_folder, data_headers, data_list, tsvname)
         
         tlactivity = 'Powerlog Timezones'
-        timeline(report_folder, tlactivity, data_list)
+        timeline(report_folder, tlactivity, data_list, data_headers)
     else:
         logfunc('No data available in table')
 
