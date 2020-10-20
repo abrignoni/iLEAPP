@@ -22,7 +22,8 @@ def get_knowCall(files_found, report_folder, seeker):
 		file_found = str(files_found[0])
 		db = sqlite3.connect(file_found)
 		cursor = db.cursor()
-
+		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_device_inferred_motion.txt
+		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
 		cursor.execute(
 		"""
 		  SELECT
@@ -80,6 +81,9 @@ def get_knowCall(files_found, report_folder, seeker):
 			logfunc('No data available in Inferred Motion')
 
 	cursor = db.cursor()
+	# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_app_activity.txt
+	# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
+
 	cursor.execute(
 		'''
 	SELECT
@@ -132,6 +136,8 @@ def get_knowCall(files_found, report_folder, seeker):
 	
 	if version.parse(iOSversion) >= version.parse("12"):
 		cursor = db.cursor()
+		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_app_activity.txt
+		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
 		cursor.execute('''
 		SELECT
 				DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
@@ -175,6 +181,8 @@ def get_knowCall(files_found, report_folder, seeker):
 		''')
 	else:
 		cursor = db.cursor()
+		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_app_activity.txt
+		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
 		cursor.execute('''
 		SELECT
 				DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
@@ -249,6 +257,8 @@ def get_knowCall(files_found, report_folder, seeker):
 	
 	if version.parse(iOSversion) >= version.parse("12"):
 		cursor = db.cursor()
+		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_app_activity_calendar.txt
+		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
 		cursor.execute('''
 		SELECT
 			DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
@@ -288,6 +298,8 @@ def get_knowCall(files_found, report_folder, seeker):
 			''')
 	else:
 		cursor = db.cursor()
+		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_app_activity_calendar.txt
+		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
 		cursor.execute('''
 		SELECT
 			DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
@@ -365,6 +377,8 @@ def get_knowCall(files_found, report_folder, seeker):
 			
 	if version.parse(iOSversion) >= version.parse("12"):
 		cursor = db.cursor()
+		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_app_activity_safari.txt
+		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
 		cursor.execute('''
 		SELECT
 			DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
@@ -406,6 +420,8 @@ def get_knowCall(files_found, report_folder, seeker):
 			''')
 	else:
 		cursor = db.cursor()
+		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_app_activity_safari.txt
+		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
 		cursor.execute('''
 		SELECT
 			DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
@@ -485,7 +501,8 @@ def get_knowCall(files_found, report_folder, seeker):
 
 	if version.parse(iOSversion) >= version.parse("12"):
 		cursor = db.cursor()
-
+		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_app_relevantshortcuts.txt
+		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
 		cursor.execute(
 		"""
 		SELECT
@@ -535,6 +552,8 @@ def get_knowCall(files_found, report_folder, seeker):
 	
 	if version.parse(iOSversion) >= version.parse("12"):
 		cursor = db.cursor()
+		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_device_is_backlit.txt
+		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
 		cursor.execute(
 		"""
 			SELECT
@@ -573,6 +592,8 @@ def get_knowCall(files_found, report_folder, seeker):
 		""")
 	elif version.parse(iOSversion) == version.parse("11"):
 		cursor = db.cursor()
+		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_device_is_backlit.txt
+		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
 		cursor.execute(
 		"""
 		SELECT
@@ -653,7 +674,9 @@ def get_knowCall(files_found, report_folder, seeker):
 	else:
 		logfunc('No data available in Device is Backlit')
 	
-	if version.parse(iOSversion) >= version.parse("11"):	
+	if version.parse(iOSversion) >= version.parse("11"):
+		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_device_batterylevel.txt
+		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt	
 		cursor.execute(
 			"""
 			SELECT
@@ -707,7 +730,8 @@ def get_knowCall(files_found, report_folder, seeker):
 		timeline(report_folder, tlactivity, data_list, data_headers)
 		
 	if version.parse(iOSversion) >= version.parse("11"):
-
+		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_audio_bluetooth_connected.txt
+		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt	
 		cursor.execute(
 		"""
 		SELECT
@@ -767,7 +791,8 @@ def get_knowCall(files_found, report_folder, seeker):
 			logfunc('No data available in Bluetooth Connections')
 	
 	if version.parse(iOSversion) >= version.parse("11"):
-		
+		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_device_carplay_connected.txt
+		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt	
 		cursor.execute(
 			"""
 			SELECT
@@ -828,6 +853,8 @@ def get_knowCall(files_found, report_folder, seeker):
 			logfunc('No data available in Car Play Connections')
 
 	if version.parse(iOSversion) >= version.parse("13"):
+		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_disk_subsystem_access.txt
+		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt	
 		cursor.execute(
 		"""
 		SELECT
@@ -886,6 +913,8 @@ def get_knowCall(files_found, report_folder, seeker):
 			logfunc('No data available in Disk Subsystem Access')
 			
 	if version.parse(iOSversion) >= version.parse("12"):
+		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_settings_doNotDisturb.txt
+		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt	
 		cursor.execute(
 		"""
 		  SELECT
@@ -1132,6 +1161,8 @@ def get_knowCall(files_found, report_folder, seeker):
 
 	if version.parse(iOSversion) >= version.parse("12"):
 		cursor = db.cursor()
+		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_app_inFocus.txt
+		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt	
 		cursor.execute('''
 		SELECT
 				DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
@@ -1161,6 +1192,8 @@ def get_knowCall(files_found, report_folder, seeker):
 			''')
 	else:
 		cursor = db.cursor()
+		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_app_inFocus.txt
+		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt	
 		cursor.execute('''
 		SELECT
 			DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
@@ -1225,6 +1258,8 @@ def get_knowCall(files_found, report_folder, seeker):
 		logfunc('No data available in Application in Focus')
 	
 	if version.parse(iOSversion) >= version.parse("12"):
+		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_app_install.txt
+		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt			
 		cursor.execute('''
 		SELECT
 			DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
@@ -1326,6 +1361,8 @@ def get_knowCall(files_found, report_folder, seeker):
 		logfunc('No data available in Installed Apps')
 		
 	if version.parse(iOSversion) >= version.parse("12"):
+		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_app_location_activity.txt
+		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt			
 		cursor.execute(
 		"""
 		SELECT
@@ -1405,6 +1442,8 @@ def get_knowCall(files_found, report_folder, seeker):
 			logfunc('No data available in Location Activity')
 			
 	if version.parse(iOSversion) >= version.parse("11"):
+		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_device_locked.txt
+		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt	
 		cursor.execute(
 		"""
 		SELECT
@@ -1464,6 +1503,8 @@ def get_knowCall(files_found, report_folder, seeker):
 			logfunc('No data in KnowledgeC Device Locked')
 		
 	if version.parse(iOSversion) >= version.parse("11"):
+		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_audio_media_nowplaying.txt
+		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt	
 		cursor.execute(
 		"""
 		SELECT
@@ -1527,6 +1568,8 @@ def get_knowCall(files_found, report_folder, seeker):
 			logfunc('No data available in Media Playing')
 
 	if version.parse(iOSversion) >= version.parse("12"):
+		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_app_activity_notes.txt
+		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt	
 		cursor.execute('''
 		SELECT
 			DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
@@ -1587,6 +1630,8 @@ def get_knowCall(files_found, report_folder, seeker):
 			logfunc('No data available in Notes Activity')
 	
 	if version.parse(iOSversion) >= version.parse("11"):
+		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_device_orientation.txt
+		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt			
 		cursor.execute(
 		"""
 		SELECT
@@ -1649,6 +1694,8 @@ def get_knowCall(files_found, report_folder, seeker):
 			logfunc('No data available in Screen Orientation')
 			
 	if version.parse(iOSversion) >= version.parse("11"):
+		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_device_pluggedin.txt
+		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt	
 		cursor.execute(
 			"""
 			SELECT
@@ -1711,6 +1758,8 @@ def get_knowCall(files_found, report_folder, seeker):
 
 	if version.parse(iOSversion) >= version.parse("12"):
 		cursor = db.cursor()
+		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_safari_browsing.txt
+		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt	
 		cursor.execute('''
 		SELECT
 				DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
@@ -1744,6 +1793,8 @@ def get_knowCall(files_found, report_folder, seeker):
 			''')
 	elif version.parse(iOSversion) == version.parse("11"):
 		cursor = db.cursor()
+		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_safari_browsing.txt
+		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt	
 		cursor.execute('''
 		SELECT
 				DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
@@ -1820,6 +1871,8 @@ def get_knowCall(files_found, report_folder, seeker):
 		logfunc('No data available in Safari Browsing')
 		
 	if version.parse(iOSversion) >= version.parse("12"):
+		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_siri.txt
+		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt	
 		cursor.execute(
 		"""
 		SELECT
@@ -1875,6 +1928,8 @@ def get_knowCall(files_found, report_folder, seeker):
 			logfunc('No data in KnowledgeC Siri Usage')
 	
 	if version.parse(iOSversion) >= version.parse("12"):
+		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_app_usage.txt
+		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt	
 		cursor.execute(
 	        """
 		SELECT
@@ -1932,6 +1987,8 @@ def get_knowCall(files_found, report_folder, seeker):
 		logfunc('No data in KnowledgeC App Usage')
 
 	if version.parse(iOSversion) >= version.parse("12"):
+		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_system_userwakingevent.txt
+		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt	
 		cursor.execute(
 		"""
 		SELECT
@@ -1987,6 +2044,8 @@ def get_knowCall(files_found, report_folder, seeker):
 			logfunc('No data available in User Waking Event')
 	
 	if version.parse(iOSversion) == version.parse("11"):
+		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_device_watch_nearby.txt
+		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
 		cursor.execute(
 		"""
 		SELECT
@@ -2048,6 +2107,8 @@ def get_knowCall(files_found, report_folder, seeker):
 			logfunc('No data available in Watch Near')
 			
 	if version.parse(iOSversion) >= version.parse("12"):
+		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_app_webusage.txt
+		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
 		cursor.execute(
 		"""
 		SELECT
@@ -2110,6 +2171,8 @@ def get_knowCall(files_found, report_folder, seeker):
 			logfunc('No data available in Web Usage')
 
 	if version.parse(iOSversion) < version.parse("12"):
+		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_widgets_viewed.txt
+		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
 		cursor.execute(
 		"""
 		SELECT

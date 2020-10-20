@@ -16,7 +16,8 @@ def get_locationDcdmaloc1(files_found, report_folder, seeker):
 	#os.chmod(file_found, 0o0777)
 	db = sqlite3.connect(file_found)
 	cursor = db.cursor()
-
+	# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/locationd_cacheencryptedAB_cdmacelllocation.txt
+	# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
 	cursor.execute(
 	"""
 	SELECT
