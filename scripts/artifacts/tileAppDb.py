@@ -4,7 +4,7 @@ import pathlib
 import sqlite3
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, kmlgen, timeline, is_platform_windows 
 
 
 def get_tileAppDb(files_found, report_folder, seeker):
@@ -53,6 +53,9 @@ def get_tileAppDb(files_found, report_folder, seeker):
         
             tlactivity = 'Tile App DB Info Geolocation'
             timeline(report_folder, tlactivity, data_list, data_headers)
+            
+            kmlactivity = 'Tile App DB Info Geolocation'
+            kmlgen(report_folder, kmlactivity, data_list, data_headers)
     else:
         logfunc('No Tile App DB data available')
 

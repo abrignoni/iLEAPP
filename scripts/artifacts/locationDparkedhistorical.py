@@ -8,7 +8,7 @@ from packaging import version
 import scripts.artifacts.artGlobals
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, timeline, kmlgen, is_platform_windows 
 
 
 def get_locationDparkedhistorical(files_found, report_folder, seeker):
@@ -48,7 +48,7 @@ def get_locationDparkedhistorical(files_found, report_folder, seeker):
 		report = ArtifactHtmlReport('RoutineD Parked Vehicle Historical')
 		report.start_artifact_report(report_folder, 'Parked Vehicle Historical', description)
 		report.add_script()
-		data_headers = ('Date','Location Date','Coordinates','Location Uncertainty','Identifier','Latitude','Longitude','Table ID')     
+		data_headers = ('Timestamp','Location Date','Coordinates','Location Uncertainty','Identifier','Latitude','Longitude','Table ID')     
 		report.write_artifact_data_table(data_headers, data_list, file_found)
 		report.end_artifact_report()
 		
@@ -57,6 +57,9 @@ def get_locationDparkedhistorical(files_found, report_folder, seeker):
 		
 		tlactivity = 'RoutineD Parked Vehicle Historical'
 		timeline(report_folder, tlactivity, data_list, data_headers)
+		
+		kmlactivity = 'RoutineD Parked Vehicle Historical'
+		kmlgen(report_folder, kmlactivity, data_list, data_headers)
 	else:
 		logfunc('No data available in Routine Parked Vehicle Historical')
 

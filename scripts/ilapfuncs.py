@@ -136,6 +136,7 @@ def timeline(report_folder, tlactivity, data_list, data_headers):
         cursor = db.cursor()
         cursor.execute('''PRAGMA synchronous = EXTRA''')
         cursor.execute('''PRAGMA journal_mode = WAL''')
+        db.commit()
     else:
         os.makedirs(tl_report_folder)
         #create database
@@ -165,9 +166,23 @@ def kmlgen(report_folder, kmlactivity, data_list, data_headers):
     kml_report_folder = os.path.join(report_folder_base, '_KML Exports')
     
     if os.path.isdir(kml_report_folder):
-        pass
+        latlongdb = os.path.join(kml_report_folder, '_latlong.db')
+        db = sqlite3.connect(latlongdb)
+        cursor = db.cursor()
+        cursor.execute('''PRAGMA synchronous = EXTRA''')
+        cursor.execute('''PRAGMA journal_mode = WAL''')
+        db.commit()
     else:
         os.makedirs(kml_report_folder)
+        latlongdb = os.path.join(kml_report_folder, '_latlong.db')
+        db = sqlite3.connect(latlongdb)
+        cursor = db.cursor()
+        cursor.execute(
+        """
+        CREATE TABLE data(key TEXT, latitude TEXT, longitude TEXT, activity TEXT)
+        """
+            )
+        db.commit()
     
     kml = simplekml.Kml(open=1)
     
@@ -175,14 +190,18 @@ def kmlgen(report_folder, kmlactivity, data_list, data_headers):
     length = (len(data_list))
     while a < length:
         modifiedDict = dict(zip(data_headers, data_list[a]))
-        pnt = kml.newpoint()
-        pnt.name = modifiedDict['Timestamp']
-        
-        pnt.description = f"Timestamp: {modifiedDict['Timestamp']} - {kmlactivity}"
+        times = modifiedDict['Timestamp']
         lon = modifiedDict['Longitude']
         lat = modifiedDict['Latitude']
-        pnt.coords = [(lon, lat)]
+        if lat:
+            pnt = kml.newpoint()
+            pnt.name = times
+            pnt.description = f"Timestamp: {times} - {kmlactivity}"
+            pnt.coords = [(lon, lat)]
+            cursor.execute("INSERT INTO data VALUES(?,?,?,?)", (times, lat, lon, kmlactivity))
         a += 1
+    db.commit()
+    db.close()
     kml.save(os.path.join(kml_report_folder, f'{kmlactivity}.kml'))
     
 ''' Returns string of printable characters. Replacing non-printable characters
