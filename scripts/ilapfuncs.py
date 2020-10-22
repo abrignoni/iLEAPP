@@ -9,6 +9,7 @@ import sqlite3
 import string
 import binascii
 import math
+import simplekml
 
 from bs4 import BeautifulSoup
 
@@ -157,6 +158,33 @@ def timeline(report_folder, tlactivity, data_list, data_headers):
     db.commit()
     db.close()
 
+def kmlgen(report_folder, kmlactivity, data_list, data_headers):
+    report_folder = report_folder.rstrip('/')
+    report_folder = report_folder.rstrip('\\')
+    report_folder_base, tail = os.path.split(report_folder)
+    kml_report_folder = os.path.join(report_folder_base, '_KML Exports')
+    
+    if os.path.isdir(kml_report_folder):
+        pass
+    else:
+        os.makedirs(kml_report_folder)
+    
+    kml = simplekml.Kml(open=1)
+    
+    a = 0
+    length = (len(data_list))
+    while a < length:
+        modifiedDict = dict(zip(data_headers, data_list[a]))
+        pnt = kml.newpoint()
+        pnt.name = modifiedDict['Timestamp']
+        
+        pnt.description = f"Timestamp: {modifiedDict['Timestamp']} - {kmlactivity}"
+        lon = modifiedDict['Longitude']
+        lat = modifiedDict['Latitude']
+        pnt.coords = [(lon, lat)]
+        a += 1
+    kml.save(os.path.join(kml_report_folder, f'{kmlactivity}.kml'))
+    
 ''' Returns string of printable characters. Replacing non-printable characters
 with '.', or CHR(46)
 ``'''
