@@ -113,6 +113,9 @@ def get_icon_name(category, artifact):
         if artifact == 'APPLICATIONS': icon = 'grid'
         elif artifact == 'MAP TILE CACHE': icon = 'map'
         elif artifact == 'PD PLACE CACHE': icon = 'map-pin'
+    elif category == 'CLOUDKIT':
+        if artifact == 'PARTICIPANTS': icon = 'user'
+        elif artifact == 'NOTE SHARING': icon = 'share-2'
 
     return icon
     
