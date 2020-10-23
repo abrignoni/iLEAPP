@@ -8,7 +8,7 @@ import sqlite3
 import json
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, timeline, kmlgen, is_platform_windows 
 
 
 def get_locationDwifilocB(files_found, report_folder, seeker):
@@ -58,6 +58,9 @@ def get_locationDwifilocB(files_found, report_folder, seeker):
 		
 		tlactivity = 'LocationD WiFi Location'
 		timeline(report_folder, tlactivity, data_list, data_headers)
+		
+		kmlactivity = 'LocationD WiFi Location'
+		kmlgen(report_folder, kmlactivity, data_list, data_headers)
 	else:
 		logfunc('No data available for LocationD WiFi Location')
 	

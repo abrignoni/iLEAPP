@@ -8,7 +8,7 @@ from packaging import version
 import scripts.artifacts.artGlobals
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, kmlgen, timeline, is_platform_windows 
 
 
 def get_knowClocation(files_found, report_folder, seeker):
@@ -88,7 +88,7 @@ def get_knowClocation(files_found, report_folder, seeker):
 		report = ArtifactHtmlReport('KnowledgeC Location Activity')
 		report.start_artifact_report(report_folder, 'Location Activity', description)
 		report.add_script()
-		data_headers = ('Start','End','Bundle ID','Coordinates','Name','Display Name','Formatted Address', 'City','State/Province','Country','Postal Code','Subthoroughfare','Thoroughfare','Phone Numebers','URL','Activity Type', 'Content Description','User Activity Required String','Content URL','Unique ID','Latitude','Logitude','Source ID','Activity UUID','Item ID','Source ID','Day of the Week','GMT Offset','Entry Creation','UUID','Zonject Table ID')     
+		data_headers = ('Timestamp','End','Bundle ID','Coordinates','Name','Display Name','Formatted Address', 'City','State/Province','Country','Postal Code','Subthoroughfare','Thoroughfare','Phone Numebers','URL','Activity Type', 'Content Description','User Activity Required String','Content URL','Unique ID','Latitude','Logitude','Source ID','Activity UUID','Item ID','Source ID','Day of the Week','GMT Offset','Entry Creation','UUID','Zonject Table ID')     
 		report.write_artifact_data_table(data_headers, data_list, file_found)
 		report.end_artifact_report()
 		
@@ -97,6 +97,9 @@ def get_knowClocation(files_found, report_folder, seeker):
 		
 		tlactivity = 'KnowledgeC Location Activity'
 		timeline(report_folder, tlactivity, data_list, data_headers)
+		
+		kmlactivity = 'KnowledgeC Location Activity'
+		kmlgen(report_folder, kmlactivity, data_list, data_headers)
 	else:
 		logfunc('No data available for KnowledgeC Location Activity')
 	

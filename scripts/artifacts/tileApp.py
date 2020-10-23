@@ -5,7 +5,7 @@ import scripts.artifacts.artGlobals
 
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, timeline, tsv, is_platform_windows 
+from scripts.ilapfuncs import logfunc, logdevinfo, timeline, kmlgen,tsv, is_platform_windows 
 
 
 def get_tileApp(files_found, report_folder, seeker):
@@ -51,5 +51,8 @@ def get_tileApp(files_found, report_folder, seeker):
         
         tlactivity = 'Tile App Lat Long'
         timeline(report_folder, tlactivity, data_list, data_headers)
+        
+        kmlactivity = 'Tile App Lat Long'
+        kmlgen(report_folder, kmlactivity, data_list, data_headers)
     
         

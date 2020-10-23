@@ -9,7 +9,7 @@ import json
 import scripts.artifacts.artGlobals
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, timeline, kmlgen, is_platform_windows 
 from packaging import version
 
 def get_locationDappharvest(files_found, report_folder, seeker):
@@ -67,6 +67,9 @@ def get_locationDappharvest(files_found, report_folder, seeker):
 		
 		tlactivity = 'LocationD Cell App Harvest'
 		timeline(report_folder, tlactivity, data_list, data_headers)
+		
+		kmlactivity = 'LocationD Cell App Harvest'
+		kmlgen(report_folder, kmlactivity, data_list, data_headers)
 	else:
 		logfunc('No data available for LocationD App Harvest')
 	
