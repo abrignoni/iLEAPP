@@ -10,54 +10,55 @@ from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows
 
 
 def get_cloudkitParticipants(files_found, report_folder, seeker):
-    for file_found in files_found:
-        file_found = str(file_found)
 
     user_dictionary = {}    
 
-    # Can add a separate section for each file this information is found in.
-    # This is for Apple Notes.
-    if file_found.endswith('NoteStore.sqlite'):
-        db = sqlite3.connect(file_found)
-        cursor = db.cursor()
-        cursor.execute('''
-        SELECT Z_PK, ZSERVERSHAREDATA 
-        FROM
-        ZICCLOUDSYNCINGOBJECT
-        WHERE
-        ZSERVERSHAREDATA NOT NULL
-        ''')
+    for file_found in files_found:
+        file_found = str(file_found)
 
-        all_rows = cursor.fetchall()
-        for row in all_rows:
-            
-            filename = os.path.join(report_folder, 'zserversharedata_'+str(row[0])+'.bplist')
-            output_file = open(filename, "wb") 
-            output_file.write(row[1])
-            output_file.close()
-            
-            deserialized_plist = nd.deserialize_plist(io.BytesIO(row[1]))
-            for item in deserialized_plist:
-                if 'Participants' in item:
-                    for participant in item['Participants']:
-                        record_id = participant['UserIdentity']['UserRecordID']['RecordName']
-                        email_address = participant['UserIdentity']['LookupInfo']['EmailAddress']
-                        phone_number = participant['UserIdentity']['LookupInfo']['PhoneNumber']
-                        first_name = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate']['NS.givenName']
-                        middle_name = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate']['NS.middleName']
-                        last_name = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate']['NS.familyName']
-                        name_prefix = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate']['NS.namePrefix']
-                        name_suffix = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate']['NS.nameSuffix']
-                        nickname = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate']['NS.nickname']
-            
-                        user_dictionary[record_id] = [record_id, email_address, phone_number, name_prefix, first_name, middle_name, last_name, name_suffix, nickname]
-        db.close()
+        # Can add a separate section for each file this information is found in.
+        # This is for Apple Notes.
+        if file_found.endswith('NoteStore.sqlite'):
+            db = sqlite3.connect(file_found)
+            cursor = db.cursor()
+            cursor.execute('''
+            SELECT Z_PK, ZSERVERSHAREDATA 
+            FROM
+            ZICCLOUDSYNCINGOBJECT
+            WHERE
+            ZSERVERSHAREDATA NOT NULL
+            ''')
+
+            all_rows = cursor.fetchall()
+            for row in all_rows:
+                
+                filename = os.path.join(report_folder, 'zserversharedata_'+str(row[0])+'.bplist')
+                output_file = open(filename, "wb") 
+                output_file.write(row[1])
+                output_file.close()
+                
+                deserialized_plist = nd.deserialize_plist(io.BytesIO(row[1]))
+                for item in deserialized_plist:
+                    if 'Participants' in item:
+                        for participant in item['Participants']:
+                            record_id = participant['UserIdentity']['UserRecordID']['RecordName']
+                            email_address = participant['UserIdentity']['LookupInfo']['EmailAddress']
+                            phone_number = participant['UserIdentity']['LookupInfo']['PhoneNumber']
+                            first_name = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate']['NS.givenName']
+                            middle_name = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate']['NS.middleName']
+                            last_name = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate']['NS.familyName']
+                            name_prefix = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate']['NS.namePrefix']
+                            name_suffix = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate']['NS.nameSuffix']
+                            nickname = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate']['NS.nickname']
+                
+                            user_dictionary[record_id] = [record_id, email_address, phone_number, name_prefix, first_name, middle_name, last_name, name_suffix, nickname]
+            db.close()
     
-    # Build the array        
+    # Build the array after dealing with all the files 
     user_list = list(user_dictionary.values())
 
     if len(user_list) > 0:
-        description = 'Cloudkit Participants - Cloudkit accounts participating in CloudKit shares.'
+        description = 'CloudKit Participants - Cloudkit accounts participating in CloudKit shares.'
         report = ArtifactHtmlReport('Participants')
         report.start_artifact_report(report_folder, 'Participants', description)
         report.add_script()
