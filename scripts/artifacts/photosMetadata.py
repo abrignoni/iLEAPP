@@ -10,7 +10,7 @@ import scripts.artifacts.artGlobals
  
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, kmlgen, timeline, is_platform_windows 
 
 
 def get_photosMetadata(files_found, report_folder, seeker):
@@ -295,20 +295,27 @@ def get_photosMetadata(files_found, report_folder, seeker):
 							logfunc('Error reading exported bplist from Asset PK'+ row[0])
 							deserialized_plist = None
 							
-				data_list.append((row[0],postal_address, postal_address_subadminarea, postal_address_sublocality, row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9], row[10],row[11],row[12],row[13],row[14],row[15],row[16],row[17],row[18],row[19],row[20],row[21],row[22],row[23],row[24],row[25],row[26],row[27],row[28],row[29], row[30],row[31],row[32],row[33],row[34],row[35],row[36],row[37],row[38],row[39],row[40],row[41],row[42],row[43],row[44],row[45],row[46],row[47],row[48],row[49],row[50],row[51],row[52],row[53],row[54],row[55],row[56],row[57],row[58],row[59],row[60],row[61],row[62],row[63],row[64],row[65],row[66],row[67],row[68],row[69],row[70],row[71],row[72],row[73],row[74],row[75],row[76],row[77],row[78],row[79],row[80]))
-				
+				data_list.append((row[0],row[0],postal_address, postal_address_subadminarea, postal_address_sublocality, row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9], row[10],row[11],row[12],row[13],row[14],row[15],row[16],row[17],row[18],row[19],row[20],row[21],row[22],row[23],row[24],row[25],row[26],row[27],row[28],row[29], row[30],row[31],row[32],row[33],row[34],row[35],row[36],row[37],row[38],row[39],row[40],row[41],row[42],row[43],row[44],row[45],row[46],row[47],row[48],row[49],row[50],row[51],row[52],row[53],row[54],row[55],row[56],row[57],row[58],row[59],row[60],row[61],row[62],row[63],row[64],row[65],row[66],row[67],row[68],row[69],row[70],row[71],row[72],row[73],row[74],row[75],row[76],row[77],row[78],row[79],row[80]))
+			
 				counter += 1
 				
 			description = ''
 			report = ArtifactHtmlReport('Photos.sqlite')
 			report.start_artifact_report(report_folder, 'Metadata', description)
 			report.add_script()
-			data_headers = ('Date Created','Postal Address','Postal Subadmin Area', 'Postal Sublocality','Generic Asset ZPK','Add Attributes Key','Detected Face Asset','Kind','EXIF Timestamp','Scene Analysis Timestamp','Analysis State Modified Date','Add Date','Filename','Original Filename','Album Title','Creator Bundle ID','Editor Bundle ID','Directory','Uniform ID','Saved Asset Type','Face Detected in Photo', 'Display Name','Full Name', 'Face Count','Person','Contact Blob','Person UUID','Detected Face Quality','Age Type Estimate','Gender','Glasses Type','Facial Hair Type','Baldness','Color Space','Duration','Video Duration','Complete','Visibility State','Favorite','Hidden Fie?','Trash State','File Trash Date','View Count','Play Count','Share Count','Last Shared Date','File Modification Date', 'Has Adjustments?','Adjustment Timestamp','Original File Size','File Height','Org File Height','File Width','Org File Width', 'Orientation','Org Orientation','Timezone Name','Timezone Offset','Infered Timezone Offset','File Location Data','Latitude', 'Longitude','Shifted Location Valid','Reverse Lcoation Data is Valid','Org File Reverse Location Data','Thumbnail Index','Embedded Thumbnail Width','Embedded Thumbnail Height','Embedded Thumbnail Offset','Embedded Thumbnail Lenght','Moment PK','Moment Start Date','Moment Representative Date','Moment Modification Date','Moment End Date','Moment Title','Moment Approx Latitude','Moment Approx Longitude','UUID','Media Group UUID','Cloud Assest GUID','Public Global UUID','Master Fingetprint','Adjusted Fingerprint')     
+			data_headers = ('Timestamp','Date Created','Postal Address','Postal Subadmin Area', 'Postal Sublocality','Generic Asset ZPK','Add Attributes Key','Detected Face Asset','Kind','EXIF Timestamp','Scene Analysis Timestamp','Analysis State Modified Date','Add Date','Filename','Original Filename','Album Title','Creator Bundle ID','Editor Bundle ID','Directory','Uniform ID','Saved Asset Type','Face Detected in Photo', 'Display Name','Full Name', 'Face Count','Person','Contact Blob','Person UUID','Detected Face Quality','Age Type Estimate','Gender','Glasses Type','Facial Hair Type','Baldness','Color Space','Duration','Video Duration','Complete','Visibility State','Favorite','Hidden Fie?','Trash State','File Trash Date','View Count','Play Count','Share Count','Last Shared Date','File Modification Date', 'Has Adjustments?','Adjustment Timestamp','Original File Size','File Height','Org File Height','File Width','Org File Width', 'Orientation','Org Orientation','Timezone Name','Timezone Offset','Infered Timezone Offset','File Location Data','Latitude', 'Longitude','Shifted Location Valid','Reverse Lcoation Data is Valid','Org File Reverse Location Data','Thumbnail Index','Embedded Thumbnail Width','Embedded Thumbnail Height','Embedded Thumbnail Offset','Embedded Thumbnail Lenght','Moment PK','Moment Start Date','Moment Representative Date','Moment Modification Date','Moment End Date','Moment Title','Moment Approx Latitude','Moment Approx Longitude','UUID','Media Group UUID','Cloud Assest GUID','Public Global UUID','Master Fingetprint','Adjusted Fingerprint')     
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
 			tsvname = 'Photos-sqlite Metadata'
 			tsv(report_folder, data_headers, data_list, tsvname)
+			
+			tlactivity = 'Photos-sqlite Metadata'
+			timeline(report_folder, tlactivity, data_list, data_headers)
+			
+			kmlactivity = 'Photos-sqlite Metadata'
+			kmlgen(report_folder, kmlactivity, data_list, data_headers)
+
 		else:
 			logfunc('No data available for Photos.sqlite metadata')
 		
@@ -599,7 +606,9 @@ def get_photosMetadata(files_found, report_folder, seeker):
 							logfunc('Error reading exported bplist from Asset PK'+ row[0])
 							deserialized_plist = None
 							
-				data_list.append((row[0],postal_address, postal_address_subadminarea, postal_address_sublocality, row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9], row[10],row[11],row[12],row[13],row[14],row[15],row[16],row[17],row[18],row[19],row[20],row[21],row[22],row[23],row[24],row[25],row[26],row[27],row[28],row[29], row[30],row[31],row[32],row[33],row[34],row[35],row[36],row[37],row[38],row[39],row[40],row[41],row[42],row[43],row[44],row[45],row[46],row[47],row[48],row[49],row[50],row[51],row[52],row[53],row[54],row[55],row[56],row[57],row[58],row[59],row[60],row[61],row[62],row[63],row[64],row[65],row[66],row[67],row[68],row[69],row[70],row[71],row[72],row[73],row[74],row[75],row[76],row[77],row[78],row[79],row[80],row[81]))
+
+				data_list.append((row[0],row[0],postal_address, postal_address_subadminarea, postal_address_sublocality,row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9], row[10],row[11],row[12],row[13],row[14],row[15],row[16],row[17],row[18],row[19],row[20],row[21],row[22],row[23],row[24],row[25],row[26],row[27],row[28],row[29], row[30],row[31],row[32],row[33],row[34],row[35],row[36],row[37],row[38],row[39],row[40],row[41],row[42],row[43],row[44],row[45],row[46],row[47],row[48],row[49],row[50],row[51],row[52],row[53],row[54],row[55],row[56],row[57],row[58],row[59],row[60],row[61],row[62],row[63],row[64],row[65],row[66],row[67],row[68],row[69],row[70],row[71],row[72],row[73],row[74],row[75],row[76],row[77],row[78],row[79],row[80],row[81]))
+
 				
 				counter += 1
 				
@@ -607,12 +616,19 @@ def get_photosMetadata(files_found, report_folder, seeker):
 			report = ArtifactHtmlReport('Photos.sqlite')
 			report.start_artifact_report(report_folder, 'Metadata', description)
 			report.add_script()
-			data_headers = ('Date Created','Postal Address','Postal Subadmin Area', 'Postal Sublocality','Asset ZPK','Add Attributes Key','Detected Face Asset','Kind','EXIF Timestamp','Scene Analysis Timestamp','Analysis State Modified Date','Add Date','Filename','Original Filename','Album Title','Creator Bundle ID','Editor Bundle ID','Directory','Uniform ID','Saved Asset Type','Face Detected in Photo', 'Display Name','Full Name', 'Face Count','Person','Contact Blob','Person UUID','Detected Face Quality','Age Type Estimate','Gender','Glasses Type','Facial Hair Type','Baldness','Color Space','Duration','Video Duration','Complete','Visibility State','Favorite','Hidden Fie?','Trash State','File Trash Date','View Count','Play Count','Share Count','Last Shared Date','File Modification Date', 'Has Adjustments?','Adjustment Timestamp','Original File Size','File Height','Org File Height','File Width','Org File Width', 'Orientation','Org Orientation','Timezone Name','Timezone Offset','Infered Timezone Offset','File Location Data','Latitude', 'Longitude','Shifted Location Valid','Reverse Lcoation Data is Valid','Org File Reverse Location Data','Thumbnail Index','Embedded Thumbnail Width','Embedded Thumbnail Height','Embedded Thumbnail Offset','Embedded Thumbnail Lenght','Moment PK','Moment Title','Moment Start Date','Moment Representative Date','Moment Modification Date','Moment End Date','Moment Trash State','Moment Approx Latitude','Moment Approx Longitude','UUID','Media Group UUID','Cloud Assest GUID','Public Global UUID','Master Fingetprint','Adjusted Fingerprint')     
+			data_headers = ('Timestamp','Date Created','Postal Address','Postal Subadmin Area', 'Postal Sublocality','Asset ZPK','Add Attributes Key','Detected Face Asset','Kind','EXIF Timestamp','Scene Analysis Timestamp','Analysis State Modified Date','Add Date','Filename','Original Filename','Album Title','Creator Bundle ID','Editor Bundle ID','Directory','Uniform ID','Saved Asset Type','Face Detected in Photo', 'Display Name','Full Name', 'Face Count','Person','Contact Blob','Person UUID','Detected Face Quality','Age Type Estimate','Gender','Glasses Type','Facial Hair Type','Baldness','Color Space','Duration','Video Duration','Complete','Visibility State','Favorite','Hidden Fie?','Trash State','File Trash Date','View Count','Play Count','Share Count','Last Shared Date','File Modification Date', 'Has Adjustments?','Adjustment Timestamp','Original File Size','File Height','Org File Height','File Width','Org File Width', 'Orientation','Org Orientation','Timezone Name','Timezone Offset','Infered Timezone Offset','File Location Data','Latitude', 'Longitude','Shifted Location Valid','Reverse Lcoation Data is Valid','Org File Reverse Location Data','Thumbnail Index','Embedded Thumbnail Width','Embedded Thumbnail Height','Embedded Thumbnail Offset','Embedded Thumbnail Lenght','Moment PK','Moment Title','Moment Start Date','Moment Representative Date','Moment Modification Date','Moment End Date','Moment Trash State','Moment Approx Latitude','Moment Approx Longitude','UUID','Media Group UUID','Cloud Assest GUID','Public Global UUID','Master Fingetprint','Adjusted Fingerprint')     
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
 			tsvname = 'Photos-sqlite Metadata'
 			tsv(report_folder, data_headers, data_list, tsvname)
+			
+			tlactivity = 'Photos-sqlite Metadata'
+			timeline(report_folder, tlactivity, data_list, data_headers)
+			
+			kmlactivity = 'Photos-sqlite Metadata'
+			kmlgen(report_folder, kmlactivity, data_list, data_headers)
+
 		else:
 			logfunc('No data available for Photos.sqlite metadata')
 		

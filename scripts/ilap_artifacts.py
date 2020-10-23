@@ -153,6 +153,8 @@ from scripts.artifacts.appGrouplisting import get_appGrouplisting
 from scripts.artifacts.deviceActivator import get_deviceActivator
 from scripts.artifacts.kikMessages import get_kikMessages
 from scripts.artifacts.appItunesmeta import get_appItunesmeta
+from scripts.artifacts.cloudkitParticipants import get_cloudkitParticipants
+from scripts.artifacts.cloudkitNoteSharing import get_cloudkitNoteSharing
 
 from scripts.ilapfuncs import *
 
@@ -242,7 +244,9 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'appGrouplisting': ('Installed Apps', ('*/private/var/mobile/Containers/Shared/AppGroup/*/*.metadata.plist','**/PluginKitPlugin/*.metadata.plist')),
             'deviceActivator': ('IOS Build', '*private/var/mobile/Library/Logs/mobileactivationd/ucrt_oob_request.txt'),
             'kikMessages': ('Kik', '**/kik.sqlite*'),
-            'appItunesmeta':('Installed Apps', ('**/iTunesMetadata.plist', '**/BundleMetadata.plist'))
+            'appItunesmeta':('Installed Apps', ('**/iTunesMetadata.plist', '**/BundleMetadata.plist')),
+            'cloudkitParticipants': ('Cloudkit', '*NoteStore.sqlite*'),
+            'cloudkitNoteSharing': ('Cloudkit', '*NoteStore.sqlite*')
             }
 
 '''

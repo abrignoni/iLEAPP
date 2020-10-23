@@ -5,7 +5,7 @@ import scripts.artifacts.artGlobals
 
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, timeline, tsv, is_platform_windows 
+from scripts.ilapfuncs import logfunc, logdevinfo, timeline, kmlgen, tsv, is_platform_windows 
 
 
 def get_routineDCloud(files_found, report_folder, seeker):
@@ -61,6 +61,7 @@ def get_routineDCloud(files_found, report_folder, seeker):
             
             tlactivity = 'RoutineD Cloud Addresses'
             timeline(report_folder, tlactivity, data_list, data_headers)
+            
 
         else:
             logfunc('No RoutineD Cloud Addresses data available')
@@ -105,7 +106,7 @@ def get_routineDCloud(files_found, report_folder, seeker):
           report = ArtifactHtmlReport('Locations')
           report.start_artifact_report(report_folder, 'RoutineD Cloud Map Items', description)
           report.add_script()
-          data_headers = ('Map Item Creation Date','Map Item Expiration Date','Map Item Coordinates','Map Item Name','Country','Country Code','Postal Code', 'Locality','Sublocality','Throroughfare','Subthroroughfare','Subadministrative Area','Area of Interest','Ocean', 'Inland Water', 'Island', 'Latitude','Longitude','Uncertainty','Map Item Language','Table ID' )    
+          data_headers = ('Timestamp','Map Item Expiration Date','Map Item Coordinates','Map Item Name','Country','Country Code','Postal Code', 'Locality','Sublocality','Throroughfare','Subthroroughfare','Subadministrative Area','Area of Interest','Ocean', 'Inland Water', 'Island', 'Latitude','Longitude','Uncertainty','Map Item Language','Table ID' )    
           report.write_artifact_data_table(data_headers, data_list, file_found)
           report.end_artifact_report()
           
@@ -114,6 +115,9 @@ def get_routineDCloud(files_found, report_folder, seeker):
           
           tlactivity = 'RoutineD Cloud Map Items'
           timeline(report_folder, tlactivity, data_list, data_headers)
+          
+          kmlactivity = 'RoutineD Cloud Map Items'
+          kmlgen(report_folder, kmlactivity, data_list, data_headers)
 
       else:
           logfunc('No RoutineD Map Items Cloud-V2.sqlite data available')
@@ -158,7 +162,7 @@ def get_routineDCloud(files_found, report_folder, seeker):
           report = ArtifactHtmlReport('Locations')
           report.start_artifact_report(report_folder, 'RoutineD Cloud Map Items', description)
           report.add_script()
-          data_headers = ('Map Item Creation Date','Map Item Expiration Date','Map Item Coordinates','Map Item Name','Country','Country Code','Postal Code', 'Locality','Sublocality','Throroughfare','Subthroroughfare','Subadministrative Area','Area of Interest','Ocean', 'Inland Water', 'Island', 'Latitude','Longitude','Uncertainty','Table ID')        
+          data_headers = ('Timestamp','Map Item Expiration Date','Map Item Coordinates','Map Item Name','Country','Country Code','Postal Code', 'Locality','Sublocality','Throroughfare','Subthroroughfare','Subadministrative Area','Area of Interest','Ocean', 'Inland Water', 'Island', 'Latitude','Longitude','Uncertainty','Table ID')        
           report.write_artifact_data_table(data_headers, data_list, file_found)
           report.end_artifact_report()
           
@@ -167,6 +171,9 @@ def get_routineDCloud(files_found, report_folder, seeker):
           
           tlactivity = 'RoutineD Cloud Map Items'
           timeline(report_folder, tlactivity, data_list, data_headers)
+          
+          kmlactivity = 'RoutineD Cloud Map Items'
+          kmlgen(report_folder, kmlactivity, data_list, data_headers)
 
       else:
           logfunc('No RoutineD Cloud Map Items data available')
@@ -239,7 +246,7 @@ def get_routineDCloud(files_found, report_folder, seeker):
           report = ArtifactHtmlReport('Locations')
           report.start_artifact_report(report_folder, 'RoutineD Cloud Visit Entry Exit', description)
           report.add_script()
-          data_headers = ('Visit Entry','Visit Exit','Visit Time (Minutes)','Coordinates','Place ID','Data Point Count','Country','Country Code','Postal Code', 'Locality','Sublocality','Throroughfare','Subthroroughfare','Subadministrative Area','Area of Interest','Ocean', 'Inland Water', 'Island', 'Location Uncertainty', 'Confidence','Visit Creation','Visit Expiration','Device Class','Device Model','Device Name','Learned Placed Creation', 'Learned Place Expiration','Address Creation', 'Latitude','Longitude','Map Item Coordinates','Map Item Creation Date','Map Item Expiration Date','Map Item Latitude','Map Item Longitude','Uncertainty','Map Item Language','Map Item Name','Table ID' )     
+          data_headers = ('Timestamp','Visit Exit','Visit Time (Minutes)','Coordinates','Place ID','Data Point Count','Country','Country Code','Postal Code', 'Locality','Sublocality','Throroughfare','Subthroroughfare','Subadministrative Area','Area of Interest','Ocean', 'Inland Water', 'Island', 'Location Uncertainty', 'Confidence','Visit Creation','Visit Expiration','Device Class','Device Model','Device Name','Learned Placed Creation', 'Learned Place Expiration','Address Creation', 'Latitude','Longitude','Map Item Coordinates','Map Item Creation Date','Map Item Expiration Date','Map Item Latitude','Map Item Longitude','Uncertainty','Map Item Language','Map Item Name','Table ID' )     
           report.write_artifact_data_table(data_headers, data_list, file_found)
           report.end_artifact_report()
           
@@ -248,13 +255,11 @@ def get_routineDCloud(files_found, report_folder, seeker):
           
           tlactivity = 'RoutineD Cloud Visit Entry Exit'
           timeline(report_folder, tlactivity, data_list, data_headers)
+          
+          kmlactivity = 'RoutineD Cloud Visit Entry Exit'
+          kmlgen(report_folder, kmlactivity, data_list, data_headers)
 
       else:
           logfunc('No RoutineD Significant Locations - Vist Entry & Exit (Historical)')
           
           
-        
-
-      '''
-      data_headers = ('Inbound Start Date','Inbound Stop Date','Inbound Time (Minutes)','Coordinates','Place ID','Data Point Count','Country','Country Code','Postal Code', 'Locality','Sublocality','Throroughfare','Subthroroughfare','Subadministrative Area','Area of Interest','Ocean', 'Inland Water', 'Island', 'Location Uncertainty', 'Confidence','Visit Entry','Visit Exit','Visit Creation','Visit Expiration','Device Class','Device Model','Device Name','Learned Placed Creation', 'Learned Place Expiration','Address Creation', 'Latitude','Longitude','Map Item Coordinates','Map Item Creation Date','Map Item Expiration Date','Map Item Latitude','Map Item Longitude','Uncertainty','Map Item Language','Map Item Name','Map Item Geomapitem (Hex Protobuf)','Table ID' )     
-        '''

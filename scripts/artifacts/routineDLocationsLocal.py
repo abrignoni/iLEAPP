@@ -5,7 +5,7 @@ import scripts.artifacts.artGlobals
 
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, timeline, tsv, is_platform_windows 
+from scripts.ilapfuncs import logfunc, logdevinfo, timeline, tsv, kmlgen, is_platform_windows 
 
 
 def get_routineDLocationsLocal(files_found, report_folder, seeker):
@@ -57,7 +57,7 @@ def get_routineDLocationsLocal(files_found, report_folder, seeker):
             report = ArtifactHtmlReport('Locations')
             report.start_artifact_report(report_folder, 'RoutineD Locations Entry', description)
             report.add_script()
-            data_headers = ('Entry','Exit','Entry Time (Minutes)','Coordinates','Latitude', 'Longitude','Confidence','Location Uncertainty','Data Point Count','Place Creation Date','Expiration','Visit latitude', 'Visit Longitude', 'Table ID' )     
+            data_headers = ('Timestamp','Exit','Entry Time (Minutes)','Coordinates','Latitude', 'Longitude','Confidence','Location Uncertainty','Data Point Count','Place Creation Date','Expiration','Visit latitude', 'Visit Longitude', 'Table ID' )     
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
             
@@ -66,6 +66,9 @@ def get_routineDLocationsLocal(files_found, report_folder, seeker):
             
             tlactivity = 'RoutineD Locations Entry'
             timeline(report_folder, tlactivity, data_list, data_headers)
+            
+            kmlactivity = 'RoutineD Locations Entry'
+            kmlgen(report_folder, kmlactivity, data_list, data_headers)
 
         else:
             logfunc('No RoutineD Significant Locations Entry data available')
@@ -103,7 +106,7 @@ def get_routineDLocationsLocal(files_found, report_folder, seeker):
             report = ArtifactHtmlReport('Locations')
             report.start_artifact_report(report_folder, 'RoutineD Locations Exit', description)
             report.add_script()
-            data_headers = ('Entry','Exit','Entry Time (Minutes)','Coordinates','Latitude', 'Longitude','Confidence','Location Uncertainty','Data Point Count','Place Creation Date','Expiration','Visit latitude', 'Visit Longitude', 'Table ID' )     
+            data_headers = ('Timestamp','Exit','Entry Time (Minutes)','Coordinates','Latitude', 'Longitude','Confidence','Location Uncertainty','Data Point Count','Place Creation Date','Expiration','Visit latitude', 'Visit Longitude', 'Table ID' )     
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
             
@@ -153,12 +156,15 @@ def get_routineDLocationsLocal(files_found, report_folder, seeker):
               report = ArtifactHtmlReport('Locations')
               report.start_artifact_report(report_folder, 'RoutineD Transtition Start', description)
               report.add_script()
-              data_headers = ('Start','Stop','Transition Time (Minutes)','Coordinates','Creation Date', 'Expiration','Latitude','Longitude', 'Table ID' )     
+              data_headers = ('Timestamp','Stop','Transition Time (Minutes)','Coordinates','Creation Date', 'Expiration','Latitude','Longitude', 'Table ID' )     
               report.write_artifact_data_table(data_headers, data_list, file_found)
               report.end_artifact_report()
               
               tsvname = 'RoutineD Transtition Start'
               tsv(report_folder, data_headers, data_list, tsvname)
+              
+              tlactivity = 'RoutineD Transtition Start'
+              timeline(report_folder, tlactivity, data_list, data_headers)
               
               tlactivity = 'RoutineD Transtition Start'
               timeline(report_folder, tlactivity, data_list, data_headers)
@@ -198,12 +204,15 @@ def get_routineDLocationsLocal(files_found, report_folder, seeker):
               report = ArtifactHtmlReport('Locations')
               report.start_artifact_report(report_folder, 'RoutineD Transtition Stop', description)
               report.add_script()
-              data_headers = ('Start','Stop','Transition Time (Minutes)','Coordinates','Creation Date', 'Expiration','Latitude','Longitude', 'Table ID' )     
+              data_headers = ('Timestamp','Stop','Transition Time (Minutes)','Coordinates','Creation Date', 'Expiration','Latitude','Longitude', 'Table ID' )     
               report.write_artifact_data_table(data_headers, data_list, file_found)
               report.end_artifact_report()
               
               tsvname = 'RoutineD Transtition Stop'
               tsv(report_folder, data_headers, data_list, tsvname)
+              
+              tlactivity = 'RoutineD Transtition Stop'
+              timeline(report_folder, tlactivity, data_list, data_headers)
               
               tlactivity = 'RoutineD Transtition Stop'
               timeline(report_folder, tlactivity, data_list, data_headers)

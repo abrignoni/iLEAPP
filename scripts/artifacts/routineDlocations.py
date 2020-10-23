@@ -5,7 +5,7 @@ import scripts.artifacts.artGlobals
 
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, timeline, tsv, is_platform_windows 
+from scripts.ilapfuncs import logfunc, logdevinfo, timeline, tsv, kmlgen, is_platform_windows 
 
 
 def get_routineDlocations(files_found, report_folder, seeker):
@@ -61,6 +61,9 @@ def get_routineDlocations(files_found, report_folder, seeker):
             
             tlactivity = 'RoutineD ZRTCLLOCATIONMO'
             timeline(report_folder, tlactivity, data_list, data_headers)
+            
+            kmlactivity = 'RoutineD ZRTCLLOCATIONMO'
+            kmlgen(report_folder, kmlactivity, data_list, data_headers)
 
         else:
             logfunc('No RoutineD ZRTCLLOCATIONMO data available')
@@ -99,6 +102,9 @@ def get_routineDlocations(files_found, report_folder, seeker):
             
             tlactivity = 'RoutineD ZRTHINTMO'
             timeline(report_folder, tlactivity, data_list, data_headers)
+            
+            kmlactivity = 'RoutineD ZRTHINTMO'
+            kmlgen(report_folder, kmlactivity, data_list, data_headers)
 
         else:
             logfunc('No RoutineD ZRTHINTMO data available')
@@ -133,7 +139,7 @@ def get_routineDlocations(files_found, report_folder, seeker):
             report = ArtifactHtmlReport('Locations')
             report.start_artifact_report(report_folder, 'RoutineD ZRTVISITMO', description)
             report.add_script()
-            data_headers = ('Entry Timestamp','Exit Timestamp','Coordinates','Detection Timestamp','Visit Time (Minutes)', 'Type','Latitude','Longitude','Uncertainty','Data Point Count', 'Table ID' )     
+            data_headers = ('Timestamp','Exit Timestamp','Coordinates','Detection Timestamp','Visit Time (Minutes)', 'Type','Latitude','Longitude','Uncertainty','Data Point Count', 'Table ID' )     
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
             
@@ -142,6 +148,9 @@ def get_routineDlocations(files_found, report_folder, seeker):
             
             tlactivity = 'RoutineD ZRTVISITMO'
             timeline(report_folder, tlactivity, data_list, data_headers)
+            
+            kmlactivity = 'RoutineD ZRTVISITMO'
+            kmlgen(report_folder, kmlactivity, data_list, data_headers)
 
         else:
             logfunc('No RoutineD ZRTVISITMO data available')
