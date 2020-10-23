@@ -63,7 +63,7 @@ def get_cloudkitParticipants(files_found, report_folder, seeker):
         report.start_artifact_report(report_folder, 'Participants', description)
         report.add_script()
         user_headers = ('Record ID','Email Address','Phone Number','Name Prefix','First Name','Middle Name','Last Name','Name Suffix','Nickname')     
-        report.write_artifact_data_table(user_headers, user_list, file_found)
+        report.write_artifact_data_table(user_headers, user_list, '', write_location=False)
         report.end_artifact_report()
         
         tsvname = 'Cloudkit Participants'
