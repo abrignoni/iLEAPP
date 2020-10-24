@@ -62,9 +62,8 @@ def get_appleWifiPlist(files_found, report_folder, seeker):
                         last_auto_joined = str(known_network['networkUsage'])
 
                     if '80211D_IE' in known_network:
-                        for tmp_key, tmp_val in known_network.items():
-                            if tmp_key == 'IE_KEY_80211D_COUNTRY_CODE':
-                                country_code = str(tmp_val)
+                        if 'IE_KEY_80211D_COUNTRY_CODE' in known_network['80211D_IE']:
+                            country_code = str(known_network['80211D_IE']['IE_KEY_80211D_COUNTRY_CODE'])
 
                     if 'lastUpdated' in known_network:
                         last_updated = str(known_network['lastUpdated'])
@@ -82,16 +81,15 @@ def get_appleWifiPlist(files_found, report_folder, seeker):
                         enabled = str(known_network['enabled'])
 
                     if 'WPS_PROB_RESP_IE' in known_network:
-                        for tmp_key, tmp_val in known_network['WPS_PROB_RESP_IE'].items():
-                                
-                            if tmp_key == 'IE_KEY_WPS_DEV_NAME':
-                                    device_name = tmp_val
-                            if tmp_key == 'IE_KEY_WPS_MANUFACTURER':
-                                    manufacturer = tmp_val
-                            if tmp_key == 'IE_KEY_WPS_SERIAL_NUM':
-                                    serial_number = tmp_val
-                            if tmp_key == 'IE_KEY_WPS_MODEL_NAME':
-                                model_name = tmp_val
+                    
+                        if 'IE_KEY_WPS_DEV_NAME' in known_network['WPS_PROB_RESP_IE']: 
+                            device_name = known_network['WPS_PROB_RESP_IE']['IE_KEY_WPS_DEV_NAME']
+                        if 'IE_KEY_WPS_MANUFACTURER' in known_network['WPS_PROB_RESP_IE']: 
+                            manufacturer = known_network['WPS_PROB_RESP_IE']['IE_KEY_WPS_MANUFACTURER']
+                        if 'IE_KEY_WPS_SERIAL_NUM' in known_network['WPS_PROB_RESP_IE']: 
+                            serial_number = known_network['WPS_PROB_RESP_IE']['IE_KEY_WPS_SERIAL_NUM']
+                        if 'IE_KEY_WPS_MODEL_NAME' in known_network['WPS_PROB_RESP_IE']: 
+                            model_name = known_network['WPS_PROB_RESP_IE']['IE_KEY_WPS_MODEL_NAME']
                     
                     all_data = str(known_network)
                     known_data_list.append([ssid, bssid, net_usage, country_code, device_name, manufacturer, serial_number, model_name, last_joined, last_auto_joined, last_updated, enabled, wnpmd, all_data]) 
