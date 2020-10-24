@@ -91,8 +91,7 @@ def get_appleWifiPlist(files_found, report_folder, seeker):
                         if 'IE_KEY_WPS_MODEL_NAME' in known_network['WPS_PROB_RESP_IE']: 
                             model_name = known_network['WPS_PROB_RESP_IE']['IE_KEY_WPS_MODEL_NAME']
                     
-                    all_data = str(known_network)
-                    known_data_list.append([ssid, bssid, net_usage, country_code, device_name, manufacturer, serial_number, model_name, last_joined, last_auto_joined, last_updated, enabled, wnpmd, all_data]) 
+                    known_data_list.append([ssid, bssid, net_usage, country_code, device_name, manufacturer, serial_number, model_name, last_joined, last_auto_joined, last_updated, enabled, wnpmd, file_found]) 
 
             if 'List of scanned networks with private mac' in deserialized:
                 scanned_files.append(file_found)
@@ -127,15 +126,14 @@ def get_appleWifiPlist(files_found, report_folder, seeker):
                         if 'PRIVATE_MAC_ADDRESS_IN_USE' in scanned_network['PRIVATE_MAC_ADDRESS']:
                             private_mac_in_use = str(_bytes_to_mac_address(scanned_network['PRIVATE_MAC_ADDRESS']['PRIVATE_MAC_ADDRESS_IN_USE']))
                     
-                    all_data = str(scanned_network)
-                    scanned_data_list.append([ssid, bssid, added_at, last_joined, last_updated, private_mac_in_use, in_known_networks, all_data]) 
+                    scanned_data_list.append([ssid, bssid, added_at, last_joined, last_updated, private_mac_in_use, in_known_networks, file_found]) 
             
     if len(known_data_list) > 0:
         description = 'WiFi known networks data. Dates are taken straight from the source plist.'
         report = ArtifactHtmlReport('Locations')
         report.start_artifact_report(report_folder, 'WiFi Known Networks', description)
         report.add_script()
-        data_headers = ('SSID','BSSID','Network Usage','Country Code','Device Name','Manufacturer','Serial Number','Model Name','Last Joined','Last Auto Joined','Last Updated','Enabled','WiFi Network Password Modification Date', 'All Data' )     
+        data_headers = ['SSID','BSSID','Network Usage','Country Code','Device Name','Manufacturer','Serial Number','Model Name','Last Joined','Last Auto Joined','Last Updated','Enabled','WiFi Network Password Modification Date','File']
         report.write_artifact_data_table(data_headers, known_data_list, ', '.join(known_files))
         report.end_artifact_report()
         
@@ -150,7 +148,7 @@ def get_appleWifiPlist(files_found, report_folder, seeker):
         report = ArtifactHtmlReport('Locations')
         report.start_artifact_report(report_folder, 'WiFi Networks Scanned (private)', description)
         report.add_script()
-        data_headers = ('SSID','BSSID','Added At','Last Joined','Last Updated','Private MAC Used by Device','In Known Networks','All Data' )     
+        data_headers = ['SSID','BSSID','Added At','Last Joined','Last Updated','Private MAC Used by Device','In Known Networks','File']
         report.write_artifact_data_table(data_headers, scanned_data_list, ', '.join(scanned_files))
         report.end_artifact_report()
         
@@ -159,5 +157,3 @@ def get_appleWifiPlist(files_found, report_folder, seeker):
         
         tlactivity = 'WiFi Networks Scanned (private)'
         timeline(report_folder, tlactivity, scanned_data_list, data_headers)
-    
-        
