@@ -59,7 +59,7 @@ def get_appleWifiPlist(files_found, report_folder, seeker):
                         bssid = str(known_network['BSSID'])
 
                     if 'networkUsage' in known_network:
-                        last_auto_joined = str(known_network['networkUsage'])
+                        net_usage = str(known_network['networkUsage'])
 
                     if '80211D_IE' in known_network:
                         if 'IE_KEY_80211D_COUNTRY_CODE' in known_network['80211D_IE']:
