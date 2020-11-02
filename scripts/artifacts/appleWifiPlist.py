@@ -101,6 +101,8 @@ def get_appleWifiPlist(files_found, report_folder, seeker):
                     last_updated = ''
                     last_joined = ''
                     private_mac_in_use = ''
+                    private_mac_value = ''
+                    private_mac_valid = ''
                     added_at = ''
                     in_known_networks = ''
 
@@ -125,8 +127,12 @@ def get_appleWifiPlist(files_found, report_folder, seeker):
                     if 'PRIVATE_MAC_ADDRESS' in scanned_network:
                         if 'PRIVATE_MAC_ADDRESS_IN_USE' in scanned_network['PRIVATE_MAC_ADDRESS']:
                             private_mac_in_use = str(_bytes_to_mac_address(scanned_network['PRIVATE_MAC_ADDRESS']['PRIVATE_MAC_ADDRESS_IN_USE']))
+                        if 'PRIVATE_MAC_ADDRESS_VALUE' in scanned_network['PRIVATE_MAC_ADDRESS']:
+                            private_mac_value = str(_bytes_to_mac_address(scanned_network['PRIVATE_MAC_ADDRESS']['PRIVATE_MAC_ADDRESS_VALUE']))
+                        if 'PRIVATE_MAC_ADDRESS_VALID' in scanned_network['PRIVATE_MAC_ADDRESS']:
+                            private_mac_valid = str(scanned_network['PRIVATE_MAC_ADDRESS']['PRIVATE_MAC_ADDRESS_VALID'])
                     
-                    scanned_data_list.append([ssid, bssid, added_at, last_joined, last_updated, private_mac_in_use, in_known_networks, file_found]) 
+                    scanned_data_list.append([ssid, bssid, added_at, last_joined, last_updated, private_mac_in_use, private_mac_value, private_mac_valid, in_known_networks, file_found]) 
             
     if len(known_data_list) > 0:
         description = 'WiFi known networks data. Dates are taken straight from the source plist.'
@@ -148,7 +154,7 @@ def get_appleWifiPlist(files_found, report_folder, seeker):
         report = ArtifactHtmlReport('Locations')
         report.start_artifact_report(report_folder, 'WiFi Networks Scanned (private)', description)
         report.add_script()
-        data_headers = ['SSID','BSSID','Added At','Last Joined','Last Updated','Private MAC Used by Device','In Known Networks','File']
+        data_headers = ['SSID','BSSID','Added At','Last Joined','Last Updated','MAC Used For Network','Private MAC Computed For Network','MAC Valid','In Known Networks','File']
         report.write_artifact_data_table(data_headers, scanned_data_list, ', '.join(scanned_files))
         report.end_artifact_report()
         
