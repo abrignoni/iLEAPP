@@ -59,7 +59,7 @@ def get_kikMessages(files_found, report_folder, seeker):
         tlactivity = 'Kik Messages'
         timeline(report_folder, tlactivity, data_list, data_headers)
     else:
-        logfuc('No Kik data available')
+        logfunc('No Kik data available')
     
     db.close()
     return 
