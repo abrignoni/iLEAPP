@@ -114,7 +114,7 @@ def get_mobileInstall(files_found, report_folder, seeker):
                     datainsert,
                 )
                 db.commit()
-                
+                path = ''
                 tsv_tml_data_list.append((inserttime, actiondesc, bundleid, path))
                 
                 # logfunc()
