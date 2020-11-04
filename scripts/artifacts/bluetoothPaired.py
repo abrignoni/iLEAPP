@@ -13,7 +13,6 @@ from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows
 
 def get_bluetoothPaired(files_found, report_folder, seeker):
 	file_found = str(files_found[0])
-	os.chmod(file_found, 0o0777)
 	db = sqlite3.connect(file_found)
 	cursor = db.cursor()
 
