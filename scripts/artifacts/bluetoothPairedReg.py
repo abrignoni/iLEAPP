@@ -13,7 +13,6 @@ from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows
 
 def get_bluetoothPairedReg(files_found, report_folder, seeker):
 	file_found = str(files_found[0])
-	os.chmod(file_found, 0o0777)
 	data_list = [] 
 	with open(file_found, 'rb') as f:
 		deserialized = plistlib.load(f)
