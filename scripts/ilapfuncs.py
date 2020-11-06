@@ -164,7 +164,6 @@ def kmlgen(report_folder, kmlactivity, data_list, data_headers):
     report_folder = report_folder.rstrip('\\')
     report_folder_base, tail = os.path.split(report_folder)
     kml_report_folder = os.path.join(report_folder_base, '_KML Exports')
-    
     if os.path.isdir(kml_report_folder):
         latlongdb = os.path.join(kml_report_folder, '_latlong.db')
         db = sqlite3.connect(latlongdb)
