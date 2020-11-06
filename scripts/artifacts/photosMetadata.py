@@ -14,7 +14,6 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, kmlgen, timeline, is_platform_windows
 
 thumbnail_root='/private/var/mobile/Media/PhotoData/Thumbnails/V2/'
-thumb_size = 100, 100
 
 def get_photosMetadata(files_found, report_folder, seeker):
     iOSversion = scripts.artifacts.artGlobals.versionf
