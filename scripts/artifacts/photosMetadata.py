@@ -13,7 +13,11 @@ from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, kmlgen, timeline, is_platform_windows
 
-thumbnail_root='/private/var/mobile/Media/PhotoData/Thumbnails/V2/'
+from PIL import Image
+
+thumbnail_root = '**/Media/PhotoData/Thumbnails/**/'
+media_root = '**/Media/'
+thumb_size = 256, 256
 
 def get_photosMetadata(files_found, report_folder, seeker):
     iOSversion = scripts.artifacts.artGlobals.versionf
@@ -239,6 +243,7 @@ def get_photosMetadata(files_found, report_folder, seeker):
                         DateTime( ZMOMENT.ZSTARTDATE + 978307200, 'UNIXEPOCH' ) AS 'MomentStartDate',
                         DateTime( ZMOMENT.Zrepresentativedate + 978307200, 'UNIXEPOCH' ) AS 'MomentRepresentativeDate',
                         DateTime( ZMOMENT.ZMODIFICATIONDATE + 978307200, 'UNIXEPOCH' ) AS 'MomentModificationDate',
+                        DateTime( ZMOMENT.ZENDDATE + 978307200, 'UNIXEPOCH' ) AS 'MomentEndDate',
                         ZMOMENT.ZTITLE AS 'MomentTitle',
                 CASE
                                 ZMOMENT.Zapproximatelatitude
@@ -296,14 +301,26 @@ def get_photosMetadata(files_found, report_folder, seeker):
                 #searching for thumbnail to insert in html
                 thumb = thumbnail_root+row[13]+'/'+row[8]+'/'
                 thumblist = seeker.search(thumb+'**.JPG')
-                htmlThumbTag = '<img src="{0}"></img>'
-                pathToThumb=''
+                thumbname = row[13].replace('/','_')+'_'+row[8]+'.JPG'
+                pathToThumb = os.path.join(os.path.basename(os.path.abspath(report_folder)), thumbname)
+                htmlThumbTag = '<img src="{0}"></img>'.format(pathToThumb)
                 if thumblist:
-                    thumbname = row[13].replace('/','_')+'_'+row[8]+'.JPG'
                     shutil.copyfile(thumblist[0],os.path.join(report_folder, thumbname))
-                    pathToThumb = os.path.join(os.path.basename(os.path.abspath(report_folder)), thumbname)
+                
+                else:
+                    #recreate thumbnail from image
+                    #TODO: handle videos and HEIC
+                    files = seeker.search(media_root+row[13]+'/'+row[8])
+                    if files:
+                        try:
+                            im = Image.open(files[0])
+                            im.thumbnail(thumb_size)
+                            im.save(os.path.join(report_folder, thumbname))
+                        except:
+                            pass #unsupported format
 
-                data_list.append((htmlThumbTag.format(pathToThumb),row[0],row[0],postal_address, postal_address_subadminarea, postal_address_sublocality, row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9], row[10],row[11],row[12],row[13],row[14],row[15],row[16],row[17],row[18],row[19],row[20],row[21],row[22],row[23],row[24],row[25],row[26],row[27],row[28],row[29], row[30],row[31],row[32],row[33],row[34],row[35],row[36],row[37],row[38],row[39],row[40],row[41],row[42],row[43],row[44],row[45],row[46],row[47],row[48],row[49],row[50],row[51],row[52],row[53],row[54],row[55],row[56],row[57],row[58],row[59],row[60],row[61],row[62],row[63],row[64],row[65],row[66],row[67],row[68],row[69],row[70],row[71],row[72],row[73],row[74],row[75],row[76],row[77]))
+
+                data_list.append((htmlThumbTag,row[0],row[0],postal_address, postal_address_subadminarea, postal_address_sublocality, row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9], row[10],row[11],row[12],row[13],row[14],row[15],row[16],row[17],row[18],row[19],row[20],row[21],row[22],row[23],row[24],row[25],row[26],row[27],row[28],row[29], row[30],row[31],row[32],row[33],row[34],row[35],row[36],row[37],row[38],row[39],row[40],row[41],row[42],row[43],row[44],row[45],row[46],row[47],row[48],row[49],row[50],row[51],row[52],row[53],row[54],row[55],row[56],row[57],row[58],row[59],row[60],row[61],row[62],row[63],row[64],row[65],row[66],row[67],row[68],row[69],row[70],row[71],row[72],row[73],row[74],row[75],row[76],row[77]))
 
                 counter += 1
 
