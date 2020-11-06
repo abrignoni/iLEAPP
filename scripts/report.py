@@ -9,6 +9,7 @@ from collections import OrderedDict
 from scripts.html_parts import *
 from scripts.ilapfuncs import logfunc
 from scripts.version_info import aleapp_version, aleapp_contributors
+from scripts.location_map_report import generate_location_map
 
 def get_icon_name(category, artifact):
     ''' Returns the icon name from the feathericons collection. To add an icon type for 
@@ -120,6 +121,9 @@ def get_icon_name(category, artifact):
     return icon
     
 def generate_report(reportfolderbase, time_in_secs, time_HMS, extraction_type, image_input_path):
+    
+    #generate loaation map with all KML files
+    generate_location_map(reportfolderbase, "Legend")
 
     control = None
     side_heading = \
