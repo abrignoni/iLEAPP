@@ -53,7 +53,7 @@ def geodfToFeatures(df, f, props):
 
 def generate_location_map(reportfolderbase,legend_title):
     KML_path = os.path.join(reportfolderbase,iLEAPP_KMLs)
-    if not os.path.isdir(KML_path) or not os.path.listdir(KML_path):
+    if not os.path.isdir(KML_path) or not os.listdir(KML_path):
         return
 
     location_path = os.path.join(reportfolderbase, 'LOCATIONS')
