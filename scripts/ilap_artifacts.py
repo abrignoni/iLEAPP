@@ -132,7 +132,6 @@ from scripts.artifacts.appConduit import get_appConduit
 from scripts.artifacts.mobileActivationLogs import get_mobileActivationLogs
 from scripts.artifacts.iCloudWifi import get_iCloudWifi
 from scripts.artifacts.mobileBackup import get_mobileBackup
-from scripts.artifacts.wifi import get_wifi
 from scripts.artifacts.mobileContainerManager import get_mobileContainerManager
 from scripts.artifacts.mediaLibrary import get_mediaLibrary
 from scripts.artifacts.geodMapTiles import get_geodMapTiles
@@ -153,6 +152,8 @@ from scripts.artifacts.appGrouplisting import get_appGrouplisting
 from scripts.artifacts.deviceActivator import get_deviceActivator
 from scripts.artifacts.kikMessages import get_kikMessages
 from scripts.artifacts.appItunesmeta import get_appItunesmeta
+from scripts.artifacts.cloudkitParticipants import get_cloudkitParticipants
+from scripts.artifacts.cloudkitNoteSharing import get_cloudkitNoteSharing
 
 from scripts.ilapfuncs import *
 
@@ -216,7 +217,7 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'routineDLocationsLocal':('Locations', '**/private/var/mobile/Library/Caches/com.apple.routined/Local.sqlite*'),
             'routineDCloud':('Locations', '**/Library/Caches/com.apple.routined/Cloud-V2.sqlite*'),
             'cacheRoutesGmap':('Locations', '**/Library/Application Support/CachedRoutes/*.plist'),
-            'appleWifiPlist':('Wireless Networks', '**/com.apple.wifi.plist'),
+            'appleWifiPlist':('Wireless Networks', ('**/com.apple.wifi.plist','**/com.apple.wifi-networks.plist.backup','**/com.apple.wifi.known-networks.plist','**/com.apple.wifi-private-mac-networks.plist')),
             #'systemVersion':('Device Info', '**/SystemVersion.plist'),
             'mobileActivationLogs':('Mobile Activation Logs', '**/mobileactivationd.log*'),
             'iCloudWifi':('Wifi Connections', '**/com.apple.wifid.plist'),
@@ -242,7 +243,9 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'appGrouplisting': ('Installed Apps', ('*/private/var/mobile/Containers/Shared/AppGroup/*/*.metadata.plist','**/PluginKitPlugin/*.metadata.plist')),
             'deviceActivator': ('IOS Build', '*private/var/mobile/Library/Logs/mobileactivationd/ucrt_oob_request.txt'),
             'kikMessages': ('Kik', '**/kik.sqlite*'),
-            'appItunesmeta':('Installed Apps', ('**/iTunesMetadata.plist', '**/BundleMetadata.plist'))
+            'appItunesmeta':('Installed Apps', ('**/iTunesMetadata.plist', '**/BundleMetadata.plist')),
+            'cloudkitParticipants': ('Cloudkit', '*NoteStore.sqlite*'),
+            'cloudkitNoteSharing': ('Cloudkit', '*NoteStore.sqlite*')
             }
 
 '''
@@ -351,7 +354,6 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
     'mobileActivationLogs':('Mobile Activation Logs', '**/mobileactivationd.log*'),
     'iCloudWifi':('Wifi Connections', '**/com.apple.wifid.plist'),
     'mobileBackup':('Mobile Backup', '*/Preferences/com.apple.MobileBackup.plist'),
-    'wifi':('Wifi Connections', '**/com.apple.wifi.plist'),
     'mobileContainerManager':('Mobile Container Manager', '**/containermanagerd.log.*'),
     'appUpdates':('App Updates', '**/AppUpdates.sqlitedb'),
     'appConduit':('App Conduit', '**/AppConduit.log.*'),
