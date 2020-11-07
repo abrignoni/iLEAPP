@@ -10,8 +10,14 @@ import string
 import binascii
 import math
 import simplekml
+import shutil
 
 from bs4 import BeautifulSoup
+from PIL import Image
+
+thumbnail_root = '**/Media/PhotoData/Thumbnails/**/'
+media_root = '**/Media/'
+thumb_size = 256, 256
 
 class OutputParameters:
     '''Defines the parameters that are common for '''
@@ -263,3 +269,27 @@ def generate_hexdump(data, char_per_row = 5):
     <td style="white-space:nowrap;">{str_ascii}</td>
     </tr></tbody></table>
     '''
+
+'''
+searching for thumbnails, copy it to report folder and return tag  to insert in html
+'''
+def generate_thumbnail(imDirectory, imFilename, seeker, report_folder):
+    thumb = thumbnail_root+imDirectory+'/'+imFilename+'/'
+    thumblist = seeker.search(thumb+'**.JPG')
+    thumbname = imDirectory.replace('/','_')+'_'+imFilename+'.JPG'
+    pathToThumb = os.path.join(os.path.basename(os.path.abspath(report_folder)), thumbname)
+    htmlThumbTag = '<img src="{0}"></img>'.format(pathToThumb)
+    if thumblist:
+        shutil.copyfile(thumblist[0],os.path.join(report_folder, thumbname))
+    else:
+        #recreate thumbnail from image
+        #TODO: handle videos and HEIC
+        files = seeker.search(media_root+imDirectory+'/'+imFilename)
+        if files:
+            try:
+                im = Image.open(files[0])
+                im.thumbnail(thumb_size)
+                im.save(os.path.join(report_folder, thumbname))
+            except:
+                pass #unsupported format
+    return htmlThumbTag
