@@ -22,7 +22,8 @@ def get_dataUsageA(files_found, report_folder, seeker):
         ZWIFIIN AS "WIFI IN",
         ZWIFIOUT AS "WIFI OUT",
         ZWWANIN AS "WWAN IN",
-        ZWWANOUT AS "WWAN OUT"
+        ZWWANOUT AS "WWAN OUT",
+        ZLIVEUSAGE.Z_PK AS "ZLIVEUSAGE TABLE ID" 
     FROM ZLIVEUSAGE 
     LEFT JOIN ZPROCESS ON ZPROCESS.Z_PK = ZLIVEUSAGE.ZHASPROCESS
     ''')
@@ -32,7 +33,7 @@ def get_dataUsageA(files_found, report_folder, seeker):
     if usageentries > 0:
         data_list = []
         for row in all_rows:
-            data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8]))
+            data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9]))
 
         report = ArtifactHtmlReport('Data Usage')
         report.start_artifact_report(report_folder, 'Data Usage')
