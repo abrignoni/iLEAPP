@@ -63,6 +63,8 @@ def get_mediaLibrary(files_found, report_folder, seeker):
                     media_type = "Film"
                 if media_type == 33:
                     media_type = "Video M4V"
+		if media_type = 4:
+		    media_type = "Podcast"
             if col_count == 4:
                 media_type = int(media_type)
 
