@@ -1292,7 +1292,7 @@ def get_knowCall(files_found, report_folder, seeker):
 		"""
 		select
 				datetime(zobject.zstartdate+978307200,'unixepoch'), 
-		      	datetime(zobject.zenddate+978307200,'unixepoch'),
+		    datetime(zobject.zenddate+978307200,'unixepoch'),
 				zobject.zvaluestring,
 				zstructuredmetadata.z_dklocationapplicationactivitymetadatakey__locationname,
 				zstructuredmetadata.z_dklocationapplicationactivitymetadatakey__displayname,
@@ -1350,7 +1350,7 @@ def get_knowCall(files_found, report_folder, seeker):
 			report = ArtifactHtmlReport('KnowledgeC Location Activity')
 			report.start_artifact_report(report_folder, 'Location Activity', description)
 			report.add_script()
-			data_headers = ('Timestamp','End','Bundle ID','Name','Display Name','Formatted Address', 'City','State/Province','Country','Postal Code','Subthoroughfare','Thoroughfare','Phone Numebers','URL','Activity Type', 'Content Description','User Activity Required String','Content URL','Unique ID','Latitude','Logitude','Source ID','Item ID','Source ID','Day of the Week','GMT Offset','Entry Creation')     
+			data_headers = ('Timestamp','End','Bundle ID','Name','Display Name','Formatted Address', 'City','State/Province','Country','Postal Code','Subthoroughfare','Thoroughfare','Phone Numbers','URL','Activity Type', 'Content Description','User Activity Required String','Content URL','Unique ID','Latitude','Logitude','Source ID','Item ID','Source ID','Day of the Week','GMT Offset','Entry Creation')     
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			

@@ -38,7 +38,7 @@ class ArtifactHtmlReport:
 
     def write_artifact_data_table(self, data_headers, data_list, source_path, 
             write_total=True, write_location=True, html_escape=True, cols_repeated_at_bottom=True,
-            table_responsive=True, table_style='', table_id='dtBasicExample'):
+            table_responsive=True, table_style='', table_id='dtBasicExample', html_no_escape=[]):
         ''' Writes info about data, then writes the table to html file
             Parameters
             ----------
@@ -61,6 +61,8 @@ class ArtifactHtmlReport:
             table_style    : Specify table style like "width: 100%;"
 
             table_id       : Specify an identifier string, which will be referenced in javascript
+
+            html_no_escape  : if html_escape=True, list of columns not to escape
         '''
         if (not self.report_file):
             raise ValueError('Output report file is closed/unavailable!')
@@ -86,7 +88,10 @@ class ArtifactHtmlReport:
 
         if html_escape:
             for row in data_list:
-                self.report_file.write('<tr>' + ''.join( ('<td>{}</td>'.format(html.escape(str(x) if x != None else '')) for x in row) ) + '</tr>')
+                if html_no_escape:
+                    self.report_file.write('<tr>' + ''.join( ('<td>{}</td>'.format(html.escape(str(x) if x != None else '')) if h not in html_no_escape else '<td>{}</td>'.format(str(x) if x != None else '') for x,h in zip(row, data_headers)) )  + '</tr>')
+                else:
+                    self.report_file.write('<tr>' + ''.join( ('<td>{}</td>'.format(html.escape(str(x) if x != None else '')) for x in row) ) + '</tr>')
         else:
             for row in data_list:
                 self.report_file.write('<tr>' + ''.join( ('<td>{}</td>'.format(str(x) if x != None else '') for x in row) ) + '</tr>')
