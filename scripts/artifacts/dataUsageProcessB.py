@@ -17,8 +17,7 @@ def get_dataUsageProcessB(files_found, report_folder, seeker):
     DATETIME(ZPROCESS.ZTIMESTAMP+ 978307200, 'UNIXEPOCH') AS "TIMESTAMP",
     DATETIME(ZPROCESS.ZFIRSTTIMESTAMP + 978307200, 'UNIXEPOCH') AS "PROCESS FIRST TIMESTAMP",
     ZPROCESS.ZPROCNAME AS "PROCESS NAME",
-    ZPROCESS.ZBUNDLENAME AS "BUNDLE ID",
-    ZPROCESS.Z_PK AS "ZPROCESS TABLE ID" 
+    ZPROCESS.ZBUNDLENAME AS "BUNDLE ID"
     FROM ZPROCESS
     ''')
 
@@ -27,7 +26,7 @@ def get_dataUsageProcessB(files_found, report_folder, seeker):
     if usageentries > 0:
         data_list = []
         for row in all_rows:
-            data_list.append((row[0],row[1],row[2],row[3],row[4]))
+            data_list.append((row[0],row[1],row[2],row[3]))
 
         report = ArtifactHtmlReport('Data Usage')
         report.start_artifact_report(report_folder, 'Data Usage Process')
