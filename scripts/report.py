@@ -9,7 +9,6 @@ from collections import OrderedDict
 from scripts.html_parts import *
 from scripts.ilapfuncs import logfunc
 from scripts.version_info import aleapp_version, aleapp_contributors
-from scripts.location_map_report import generate_location_map
 
 def get_icon_name(category, artifact):
     ''' Returns the icon name from the feathericons collection. To add an icon type for 
@@ -117,13 +116,10 @@ def get_icon_name(category, artifact):
     elif category == 'CLOUDKIT':
         if artifact == 'PARTICIPANTS': icon = 'user'
         elif artifact == 'NOTE SHARING': icon = 'share-2'
-
+    elif category == 'APPLE WALLET': icon = 'dollar-sign'
     return icon
     
 def generate_report(reportfolderbase, time_in_secs, time_HMS, extraction_type, image_input_path):
-    
-    #generate loaation map with all KML files
-    generate_location_map(reportfolderbase, "Legend")
 
     control = None
     side_heading = \
@@ -196,23 +192,13 @@ def generate_report(reportfolderbase, time_in_secs, time_HMS, extraction_type, i
     elements_folder = os.path.join(reportfolderbase, '_elements')
     os.mkdir(elements_folder)
     __location__ = os.path.dirname(os.path.abspath(__file__))
-   
-    def copy_no_perm(src, dst, *, follow_symlinks=True):
-        if not os.path.isdir(dst):
-            shutil.copyfile(src, dst)
-        return dst
-
-    try:
-        shutil.copyfile(os.path.join(__location__,"logo.jpg"), os.path.join(elements_folder,"logo.jpg"))
-        shutil.copyfile(os.path.join(__location__,"dashboard.css"), os.path.join(elements_folder,"dashboard.css"))
-        shutil.copyfile(os.path.join(__location__,"feather.min.js"), os.path.join(elements_folder,"feather.min.js"))
-        shutil.copyfile(os.path.join(__location__,"dark-mode.css"), os.path.join(elements_folder,"dark-mode.css"))
-        shutil.copyfile(os.path.join(__location__,"dark-mode-switch.js"), os.path.join(elements_folder,"dark-mode-switch.js"))
-        shutil.copytree(os.path.join(__location__,"MDB-Free_4.13.0"), os.path.join(elements_folder, 'MDB-Free_4.13.0'), copy_function=copy_no_perm)
-    except shutil.Error:
-        print("shutil reported an error. Maybe due to recursive directory copying.")
-        if os.path.exists(os.path.join(elements_folder,'MDB-Free_4.13.0')):
-            print("_elements folder seems fine. Probably nothing to worry about")
+    
+    shutil.copy2(os.path.join(__location__,"logo.jpg"), elements_folder)
+    shutil.copy2(os.path.join(__location__,"dashboard.css"), elements_folder)
+    shutil.copy2(os.path.join(__location__,"feather.min.js"), elements_folder)
+    shutil.copy2(os.path.join(__location__,"dark-mode.css"), elements_folder)
+    shutil.copy2(os.path.join(__location__,"dark-mode-switch.js"), elements_folder)
+    shutil.copytree(os.path.join(__location__,"MDB-Free_4.13.0"), os.path.join(elements_folder, 'MDB-Free_4.13.0'))
 
 def get_file_content(path):
     f = open(path, 'r', encoding='utf8')

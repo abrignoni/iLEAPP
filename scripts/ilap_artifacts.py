@@ -154,6 +154,7 @@ from scripts.artifacts.kikMessages import get_kikMessages
 from scripts.artifacts.appItunesmeta import get_appItunesmeta
 from scripts.artifacts.cloudkitParticipants import get_cloudkitParticipants
 from scripts.artifacts.cloudkitNoteSharing import get_cloudkitNoteSharing
+from scripts.artifacts.applewalletTransactions import get_applewalletTransactions
 
 from scripts.ilapfuncs import *
 
@@ -245,7 +246,8 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'kikMessages': ('Kik', '**/kik.sqlite*'),
             'appItunesmeta':('Installed Apps', ('**/iTunesMetadata.plist', '**/BundleMetadata.plist')),
             'cloudkitParticipants': ('Cloudkit', '*NoteStore.sqlite*'),
-            'cloudkitNoteSharing': ('Cloudkit', '*NoteStore.sqlite*')
+            'cloudkitNoteSharing': ('Cloudkit', '*NoteStore.sqlite*'),
+            'applewalletTransactions': ('Apple Wallet', '**/passes23.sqlite')
             }
 
 '''
