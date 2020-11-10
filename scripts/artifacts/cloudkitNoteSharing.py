@@ -17,11 +17,11 @@ def get_cloudkitNoteSharing(files_found, report_folder, seeker):
             db = sqlite3.connect(file_found)
             cursor = db.cursor()
             cursor.execute('''
-            SELECT Z_PK, ZSERVERRECORDDATA 
-            FROM
-            ZICCLOUDSYNCINGOBJECT
-            WHERE
-            ZSERVERRECORDDATA NOT NULL
+            select z_pk, zserverrecorddata 
+            from
+            ziccloudsyncingobject
+            where
+            zserverrecorddata not null
             ''')
 
             note_data = []
@@ -77,3 +77,4 @@ def get_cloudkitNoteSharing(files_found, report_folder, seeker):
 
             db.close()
 
+            

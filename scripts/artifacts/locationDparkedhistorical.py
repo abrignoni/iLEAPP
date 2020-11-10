@@ -20,21 +20,16 @@ def get_locationDparkedhistorical(files_found, report_folder, seeker):
 	file_found = str(files_found[0])
 	db = sqlite3.connect(file_found)
 	cursor = db.cursor()
-	# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/routined_local_vehicle_parked.txt
-	# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
-	cursor.execute(
-	"""
-	SELECT
-		   DATETIME(ZRTVEHICLEEVENTHISTORYMO.ZDATE + 978307200, 'UNIXEPOCH') AS "DATE",
-		   DATETIME(ZRTVEHICLEEVENTHISTORYMO.ZLOCDATE + 978307200, 'UNIXEPOCH') AS "LOCATION DATE",
-		   ZLOCLATITUDE || ", " || ZLOCLONGITUDE AS "COORDINATES",
-		   ZLOCUNCERTAINTY AS "LOCATION UNCERTAINTY",
-		   ZIDENTIFIER AS "IDENTIFIER",
-		   ZLOCLATITUDE AS "LATITUDE",
-		   ZLOCLONGITUDE AS "LONGITUDE",
-		   ZRTVEHICLEEVENTHISTORYMO.Z_PK AS "ZRTLEARNEDVISITMO TABLE ID" 
-		FROM
-		   ZRTVEHICLEEVENTHISTORYMO
+	cursor.execute("""
+	select
+	datetime(zrtvehicleeventhistorymo.zdate + 978307200, 'unixepoch'),
+	datetime(zrtvehicleeventhistorymo.zlocdate + 978307200, 'unixepoch'),
+	zlocuncertainty,
+	zidentifier,
+	zloclatitude,
+	zloclongitude
+	from
+	zrtvehicleeventhistorymo
 	""")
 
 	all_rows = cursor.fetchall()
@@ -42,13 +37,13 @@ def get_locationDparkedhistorical(files_found, report_folder, seeker):
 	if usageentries > 0:
 		data_list = []    
 		for row in all_rows:
-			data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]))
+			data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6]))
 
 		description = ''
 		report = ArtifactHtmlReport('RoutineD Parked Vehicle Historical')
 		report.start_artifact_report(report_folder, 'Parked Vehicle Historical', description)
 		report.add_script()
-		data_headers = ('Timestamp','Location Date','Coordinates','Location Uncertainty','Identifier','Latitude','Longitude','Table ID')     
+		data_headers = ('Timestamp','Location Date','Location Uncertainty','Identifier','Latitude','Longitude')     
 		report.write_artifact_data_table(data_headers, data_list, file_found)
 		report.end_artifact_report()
 		
