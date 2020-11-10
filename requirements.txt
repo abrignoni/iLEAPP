@@ -13,4 +13,3 @@ biplist
 simplekml
 folium
 pandas
-geopandas
