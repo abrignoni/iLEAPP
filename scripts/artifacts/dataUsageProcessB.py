@@ -17,7 +17,7 @@ def get_dataUsageProcessB(files_found, report_folder, seeker):
     datetime(zprocess.ztimestamp+ 978307200, 'unixepoch'),
     datetime(zprocess.zfirsttimestamp + 978307200, 'unixepoch'),
     zprocess.zprocname,
-    zprocess.zbundlename,
+    zprocess.zbundlename
     from zprocess
     ''')
 

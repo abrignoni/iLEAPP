@@ -68,76 +68,22 @@ def get_routineDLocationsLocal(files_found, report_folder, seeker):
         else:
             logfunc('No RoutineD Significant Locations Entry data available')
             
-        # The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/routined_local_learned_location_of_interest_entry.txt
-        # from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
-        cursor.execute('''
-        SELECT
-               DATETIME(ZRTLEARNEDLOCATIONOFINTERESTVISITMO.ZENTRYDATE + 978307200, 'UNIXEPOCH') AS "ENTRY",
-               DATETIME(ZRTLEARNEDLOCATIONOFINTERESTVISITMO.ZEXITDATE + 978307200, 'UNIXEPOCH') AS "EXIT",
-               (ZRTLEARNEDLOCATIONOFINTERESTVISITMO.ZEXITDATE-ZRTLEARNEDLOCATIONOFINTERESTVISITMO.ZENTRYDATE)/60.00 AS "EXIT TIME (MINUTES)",
-               ZRTLEARNEDLOCATIONOFINTERESTMO.ZLOCATIONLATITUDE || ", " || ZRTLEARNEDLOCATIONOFINTERESTMO.ZLOCATIONLONGITUDE AS "COORDINATES",
-               ZRTLEARNEDLOCATIONOFINTERESTMO.ZLOCATIONLATITUDE AS "LATITUDE",
-               ZRTLEARNEDLOCATIONOFINTERESTMO.ZLOCATIONLONGITUDE AS "LONGITUDE",
-               ZRTLEARNEDLOCATIONOFINTERESTVISITMO.ZCONFIDENCE AS "CONFIDENCE",
-               ZRTLEARNEDLOCATIONOFINTERESTVISITMO.ZLOCATIONUNCERTAINTY AS "LOCATION UNCERTAINTY",
-               ZRTLEARNEDLOCATIONOFINTERESTVISITMO.ZDATAPOINTCOUNT AS "DATA POINT COUNT",
-               DATETIME(ZRTLEARNEDLOCATIONOFINTERESTVISITMO.ZCREATIONDATE + 978307200, 'UNIXEPOCH') AS "PLACE CREATION DATE",
-               DATETIME(ZRTLEARNEDLOCATIONOFINTERESTVISITMO.ZEXPIRATIONDATE + 978307200, 'UNIXEPOCH') AS "EXPIRATION",
-               ZRTLEARNEDLOCATIONOFINTERESTVISITMO.ZLOCATIONLATITUDE AS "VISIT LATITUDE",
-               ZRTLEARNEDLOCATIONOFINTERESTVISITMO.ZLOCATIONLONGITUDE AS "VISIT LONGITUDE",
-               ZRTLEARNEDLOCATIONOFINTERESTVISITMO.Z_PK AS "ZRTLEARNEDLOCATIONOFINTERESTVISITMO TABLE ID" 
-            FROM
-               ZRTLEARNEDLOCATIONOFINTERESTVISITMO 
-               LEFT JOIN
-                  ZRTLEARNEDLOCATIONOFINTERESTMO 
-                  ON ZRTLEARNEDLOCATIONOFINTERESTMO.Z_PK = ZRTLEARNEDLOCATIONOFINTERESTVISITMO.ZLOCATIONOFINTEREST
-        ''')
-
-        if usageentries > 0:
-            for row in all_rows:
-                data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11], row[12], row[13]))
-            
-            description = 'Significant Locations - Location of Interest Exit (Historical)'
-            report = ArtifactHtmlReport('Locations')
-            report.start_artifact_report(report_folder, 'RoutineD Locations Exit', description)
-            report.add_script()
-            data_headers = ('Timestamp','Exit','Entry Time (Minutes)','Coordinates','Latitude', 'Longitude','Confidence','Location Uncertainty','Data Point Count','Place Creation Date','Expiration','Visit latitude', 'Visit Longitude', 'Table ID' )     
-            report.write_artifact_data_table(data_headers, data_list, file_found)
-            report.end_artifact_report()
-            
-            tsvname = 'RoutineD Locations Exit'
-            tsv(report_folder, data_headers, data_list, tsvname)
-            
-            tlactivity = 'RoutineD Locations Exit'
-            timeline(report_folder, tlactivity, data_list, data_headers)
-
-        else:
-            logfunc('No RoutineD Significant Locations Exit data available')
+        
             
         if version.parse(iOSversion) >= version.parse("12"):
-          # The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/routined_local_learned_location_of_interest_entry.txt
-          # from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
           cursor.execute('''
-          SELECT
-                  DATETIME(ZRTLEARNEDLOCATIONOFINTERESTVISITMO.ZENTRYDATE + 978307200, 'UNIXEPOCH') AS "ENTRY",
-                  DATETIME(ZRTLEARNEDLOCATIONOFINTERESTVISITMO.ZEXITDATE + 978307200, 'UNIXEPOCH') AS "EXIT",
-                  (ZRTLEARNEDLOCATIONOFINTERESTVISITMO.ZEXITDATE-ZRTLEARNEDLOCATIONOFINTERESTVISITMO.ZENTRYDATE)/60.00 AS "EXIT TIME (MINUTES)",
-                  ZRTLEARNEDLOCATIONOFINTERESTMO.ZLOCATIONLATITUDE || ", " || ZRTLEARNEDLOCATIONOFINTERESTMO.ZLOCATIONLONGITUDE AS "COORDINATES",
-                  ZRTLEARNEDLOCATIONOFINTERESTMO.ZLOCATIONLATITUDE AS "LATITUDE",
-                  ZRTLEARNEDLOCATIONOFINTERESTMO.ZLOCATIONLONGITUDE AS "LONGITUDE",
-                  ZRTLEARNEDLOCATIONOFINTERESTVISITMO.ZCONFIDENCE AS "CONFIDENCE",
-                  ZRTLEARNEDLOCATIONOFINTERESTVISITMO.ZLOCATIONUNCERTAINTY AS "LOCATION UNCERTAINTY",
-                  ZRTLEARNEDLOCATIONOFINTERESTVISITMO.ZDATAPOINTCOUNT AS "DATA POINT COUNT",
-                  DATETIME(ZRTLEARNEDLOCATIONOFINTERESTVISITMO.ZCREATIONDATE + 978307200, 'UNIXEPOCH') AS "PLACE CREATION DATE",
-                  DATETIME(ZRTLEARNEDLOCATIONOFINTERESTVISITMO.ZEXPIRATIONDATE + 978307200, 'UNIXEPOCH') AS "EXPIRATION",
-                  ZRTLEARNEDLOCATIONOFINTERESTVISITMO.ZLOCATIONLATITUDE AS "VISIT LATITUDE",
-                  ZRTLEARNEDLOCATIONOFINTERESTVISITMO.ZLOCATIONLONGITUDE AS "VISIT LONGITUDE",
-                  ZRTLEARNEDLOCATIONOFINTERESTVISITMO.Z_PK AS "ZRTLEARNEDLOCATIONOFINTERESTVISITMO TABLE ID" 
-              FROM
-                  ZRTLEARNEDLOCATIONOFINTERESTVISITMO 
-                  LEFT JOIN
-                    ZRTLEARNEDLOCATIONOFINTERESTMO 
-                    ON ZRTLEARNEDLOCATIONOFINTERESTMO.Z_PK = ZRTLEARNEDLOCATIONOFINTERESTVISITMO.ZLOCATIONOFINTEREST       
+          select
+          datetime(zrtlearnedlocationofinteresttransitionmo.zstartdate + 978307200, 'unixepoch'),
+          datetime(zrtlearnedlocationofinteresttransitionmo.zstopdate + 978307200, 'unixepoch'),
+          datetime(zrtlearnedlocationofinteresttransitionmo.zcreationdate + 978307200, 'unixepoch'),
+          datetime(zrtlearnedlocationofinteresttransitionmo.zexpirationdate + 978307200, 'unixepoch'),
+          zrtlearnedlocationofinterestmo.zlocationlatitude,
+          zrtlearnedlocationofinterestmo.zlocationlongitude
+          from
+          zrtlearnedlocationofinteresttransitionmo 
+          left join
+          zrtlearnedlocationofinterestmo 
+          on zrtlearnedlocationofinterestmo.z_pk = zrtlearnedlocationofinteresttransitionmo.zlocationofinterest
           ''')
 
           all_rows = cursor.fetchall()
@@ -145,13 +91,13 @@ def get_routineDLocationsLocal(files_found, report_folder, seeker):
           data_list = []    
           if usageentries > 0:
               for row in all_rows:
-                  data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8]))
+                  data_list.append((row[0], row[1], row[2], row[3], row[4], row[5]))
               
               description = 'Significant Locations - Location of Interest Transition Start (Historical)'
               report = ArtifactHtmlReport('Locations')
               report.start_artifact_report(report_folder, 'RoutineD Transtition Start', description)
               report.add_script()
-              data_headers = ('Timestamp','Stop','Transition Time (Minutes)','Coordinates','Creation Date', 'Expiration','Latitude','Longitude', 'Table ID' )     
+              data_headers = ('Timestamp','Stop','Creation Date', 'Expiration','Latitude','Longitude' )     
               report.write_artifact_data_table(data_headers, data_list, file_found)
               report.end_artifact_report()
               
@@ -167,25 +113,18 @@ def get_routineDLocationsLocal(files_found, report_folder, seeker):
           else:
               logfunc('No RoutineD Significant Locations Transtition Start data available')
 
-        if (version.parse(iOSversion) >= version.parse("11")) and (version.parse(iOSversion) < version.parse("12")):
-          # The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/routined_local_learned_location_of_interest_entry.txt
-          # from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
+        if (version.parse(iOSversion) >= version.parse("12")):
           cursor.execute('''
-          ELECT
-               DATETIME(ZRTLEARNEDLOCATIONOFINTERESTTRANSITIONMO.ZSTARTDATE + 978307200, 'UNIXEPOCH') AS "START",
-               DATETIME(ZRTLEARNEDLOCATIONOFINTERESTTRANSITIONMO.ZSTOPDATE + 978307200, 'UNIXEPOCH') AS "STOP",
-               (ZRTLEARNEDLOCATIONOFINTERESTVISITMO.ZEXITDATE-ZRTLEARNEDLOCATIONOFINTERESTVISITMO.ZENTRYDATE)/60.00 AS "TRANSITION TIME (MINUTES)",
-               ZRTLEARNEDLOCATIONOFINTERESTMO.ZLOCATIONLATITUDE || ", " || ZRTLEARNEDLOCATIONOFINTERESTMO.ZLOCATIONLONGITUDE AS "COORDINATES",
-               DATETIME(ZRTLEARNEDLOCATIONOFINTERESTTRANSITIONMO.ZCREATIONDATE + 978307200, 'UNIXEPOCH') AS "CREATION DATE",
-               DATETIME(ZRTLEARNEDLOCATIONOFINTERESTTRANSITIONMO.ZEXPIRATIONDATE + 978307200, 'UNIXEPOCH') AS "EXPIRATION",
-               ZRTLEARNEDLOCATIONOFINTERESTMO.ZLOCATIONLATITUDE AS "LATITUDE",
-               ZRTLEARNEDLOCATIONOFINTERESTMO.ZLOCATIONLONGITUDE AS "LONGITUDE",
-               ZRTLEARNEDLOCATIONOFINTERESTTRANSITIONMO.Z_PK AS "ZRTLEARNEDLOCATIONOFINTERESTTRANSITIONMO TABLE ID" 
-            FROM
-               ZRTLEARNEDLOCATIONOFINTERESTTRANSITIONMO 
-               LEFT JOIN
-                  ZRTLEARNEDLOCATIONOFINTERESTMO 
-                  ON ZRTLEARNEDLOCATIONOFINTERESTMO.Z_PK = ZRTLEARNEDLOCATIONOFINTERESTTRANSITIONMO.ZLOCATIONOFINTEREST
+          select
+          datetime(zrtlearnedlocationofinteresttransitionmo.zstartdate + 978307200, 'unixepoch'),
+          datetime(zrtlearnedlocationofinteresttransitionmo.zstopdate + 978307200, 'unixepoch'),
+          datetime(zrtlearnedlocationofinteresttransitionmo.zcreationdate + 978307200, 'unixepoch'),
+          datetime(zrtlearnedlocationofinteresttransitionmo.zexpirationdate + 978307200, 'unixepoch'),
+          zrtlearnedlocationofinterestmo.zlocationlatitude,
+          zrtlearnedlocationofinterestmo.zlocationlongitude
+          from
+          zrtlearnedlocationofinteresttransitionmo, zrtlearnedlocationofinterestmo 
+          where zrtlearnedlocationofinterestmo.z_pk = zrtlearnedlocationofinteresttransitionmo.zlocationofinterest
           ''')
 
           all_rows = cursor.fetchall()
@@ -193,13 +132,13 @@ def get_routineDLocationsLocal(files_found, report_folder, seeker):
           data_list = []    
           if usageentries > 0:
               for row in all_rows:
-                  data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8]))
+                  data_list.append((row[0], row[1], row[2], row[3], row[4], row[5]))
               
               description = 'Significant Locations - Location of Interest Transition Stop (Historical)'
               report = ArtifactHtmlReport('Locations')
               report.start_artifact_report(report_folder, 'RoutineD Transtition Stop', description)
               report.add_script()
-              data_headers = ('Timestamp','Stop','Transition Time (Minutes)','Coordinates','Creation Date', 'Expiration','Latitude','Longitude', 'Table ID' )     
+              data_headers = ('Timestamp','Stop','Creation Date', 'Expiration','Latitude','Longitude' )     
               report.write_artifact_data_table(data_headers, data_list, file_found)
               report.end_artifact_report()
               
