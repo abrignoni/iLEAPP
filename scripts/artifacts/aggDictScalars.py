@@ -14,14 +14,13 @@ def get_aggDictScalars(files_found, report_folder, seeker):
 	db = sqlite3.connect(file_found)
 	cursor = db.cursor()
 
-	cursor.execute(
-	"""
-	SELECT
-	   DATE(DAYSSINCE1970*86400, 'unixepoch') AS DAY,
-	   KEY AS "KEY",
-	   VALUE AS "VALUE"
-	FROM
-	   SCALARS
+	cursor.execute("""
+	select
+	date(dayssince1970*86400, 'unixepoch'),
+	key,
+	value
+	from
+	scalars
 	"""
 	)
 
