@@ -10,19 +10,17 @@ def get_accs(files_found, report_folder, seeker):
     file_found = str(files_found[0])
     db = sqlite3.connect(file_found)
     cursor = db.cursor()
-    cursor.execute(
-        """
-		SELECT
-        DATETIME(ZDATE+978307200,'UNIXEPOCH','UTC' ) AS 'ZDATE TIMESTAMP',
-		ZACCOUNTTYPEDESCRIPTION,
-		ZUSERNAME,
-		ZACCOUNTDESCRIPTION,
-		ZACCOUNT.ZIDENTIFIER,
-		ZACCOUNT.ZOWNINGBUNDLEID
-		FROM ZACCOUNT
-		JOIN ZACCOUNTTYPE ON ZACCOUNTTYPE.Z_PK=ZACCOUNT.ZACCOUNTTYPE
-		ORDER BY ZACCOUNTTYPEDESCRIPTION
-		"""
+    cursor.execute("""
+    select
+    datetime(zdate+978307200,'unixepoch','utc' ),
+    zaccounttypedescription,
+    zusername,
+    zaccountdescription,
+    zaccount.zidentifier,
+    zaccount.zowningbundleid
+    from zaccount, zaccounttype 
+    where zaccounttype.z_pk=zaccount.zaccounttype
+    """
     )
 
     all_rows = cursor.fetchall()
@@ -47,3 +45,4 @@ def get_accs(files_found, report_folder, seeker):
     else:
         logfunc("No Account Data available")
 
+        

@@ -16,8 +16,7 @@ def get_bluetoothPaired(files_found, report_folder, seeker):
 	db = sqlite3.connect(file_found)
 	cursor = db.cursor()
 
-	cursor.execute(
-	"""
+	cursor.execute("""
 	select 
 	Uuid,
 	Name,
