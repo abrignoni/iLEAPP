@@ -13,3 +13,4 @@ biplist
 simplekml
 folium
 pandas
+shapely

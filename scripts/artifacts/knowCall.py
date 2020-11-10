@@ -31,25 +31,19 @@ def get_knowCall(files_found, report_folder, seeker):
 		(zobject.zenddate - zobject.zstartdate),
 		(zobject.zenddate - zobject.zstartdate)/60.00,   
 		case zobject.zstartdayofweek 
-		when "1" then "sunday"
-		when "2" then "monday"
-		when "3" then "tuesday"
-		when "4" then "wednesday"
-		when "5" then "thursday"
-		when "6" then "friday"
-		when "7" then "saturday"
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
 		end,
 		datetime(zobject.zcreationdate+978307200,'unixepoch')
 		from
 		zobject 
-		left join
-		zstructuredmetadata 
-		on zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
-		left join
-		zsource 
-		on zobject.zsource = zsource.z_pk 
 		where
-		zstreamname = "/inferred/motion" 	
+		zstreamname = '/inferred/motion'  	
 		""")
 
 		all_rows = cursor.fetchall()
@@ -80,13 +74,13 @@ def get_knowCall(files_found, report_folder, seeker):
 		select
 		datetime(zobject.zcreationdate+978307200,'unixepoch'), 
 		case zobject.zstartdayofweek 
-		when "1" then "sunday"
-		when "2" then "monday"
-		when "3" then "tuesday"
-		when "4" then "wednesday"
-		when "5" then "thursday"
-		when "6" then "friday"
-		when "7" then "saturday"
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
 		end,
 		datetime(zobject.zstartdate+978307200,'unixepoch'), 
 		datetime(zobject.zenddate+978307200,'unixepoch'), 
@@ -97,11 +91,11 @@ def get_knowCall(files_found, report_folder, seeker):
 		zstructuredmetadata.z_dkapplicationactivitymetadatakey__itemrelatedcontenturl,
 		datetime(zstructuredmetadata.zcom_apple_calendaruikit_useractivity_date+978307200,'unixepoch'),
 		datetime(zstructuredmetadata.zcom_apple_calendaruikit_useractivity_enddate+978307200,'unixepoch')
-		from zobject
-		left join zstructuredmetadata on zobject.zstructuredmetadata = zstructuredmetadata.z_pk
-		left join zsource on zobject.zsource = zsource.z_pk
-		where zstreamname is "/app/activity" 
-		order by "entry creation"
+		from zobject, zstructuredmetadata, zsource 
+		where zobject.zstructuredmetadata = zstructuredmetadata.z_pk
+		and zobject.zsource = zsource.z_pk
+		and zstreamname = '/app/activity' 
+		order by 'entry creation'
 	''')
 
 	all_rows = cursor.fetchall()
@@ -142,27 +136,21 @@ def get_knowCall(files_found, report_folder, seeker):
 		zstructuredmetadata.z_dkapplicationactivitymetadatakey__itemidentifier,
 		zstructuredmetadata.z_dkapplicationactivitymetadatakey__useractivityuuid,
 		case zobject.zstartdayofweek 
-		when "1" then "sunday"
-		when "2" then "monday"
-		when "3" then "tuesday"
-		when "4" then "wednesday"
-		when "5" then "thursday"
-		when "6" then "friday"
-		when "7" then "saturday"
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
 		end,
 		zobject.zsecondsfromgmt/3600,
 		datetime(zobject.zcreationdate + 978307200, 'unixepoch'),
 		datetime(zstructuredmetadata.z_dkapplicationactivitymetadatakey__expirationdate + 978307200, 'unixepoch')
-		from
-		zobject 
-		left join
-		zstructuredmetadata 
-		on zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
-		left join
-		zsource 
-		on zobject.zsource = zsource.z_pk 
-		where
-		zstreamname is "/app/activity"
+		from zobject, zstructuredmetadata, zsource 
+		where zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
+		and zobject.zsource = zsource.z_pk 
+		and zstreamname = '/app/activity'
 		''')
 	else:
 		cursor = db.cursor()
@@ -175,28 +163,22 @@ def get_knowCall(files_found, report_folder, seeker):
 		zstructuredmetadata.z_dkapplicationactivitymetadatakey__title, 
 		zstructuredmetadata.z_dkapplicationactivitymetadatakey__itemrelatedcontenturl,
 		case zobject.zstartdayofweek 
-		when "1" then "sunday"
-		when "2" then "monday"
-		when "3" then "tuesday"
-		when "4" then "wednesday"
-		when "5" then "thursday"
-		when "6" then "friday"
-		when "7" then "saturday"
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
 		end,
 		zobject.zsecondsfromgmt/3600,
 		datetime(zobject.zcreationdate + 978307200, 'unixepoch'),
 		datetime(zstructuredmetadata.z_dkapplicationactivitymetadatakey__expirationdate + 978307200, 'unixepoch')
-		from
-		zobject 
-		left join
-		zstructuredmetadata 
-		on zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
-		left join
-		zsource 
-		on zobject.zsource = zsource.z_pk 
-		where
-		zstreamname is "/app/activity"
-				''')
+		from zobject, zstructuredmetadata, zsource 
+		where zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
+		and zobject.zsource = zsource.z_pk 
+		and zstreamname = '/app/activity'
+		''')
 
 		all_rows = cursor.fetchall()
 		usageentries = len(all_rows)
@@ -271,9 +253,9 @@ def get_knowCall(files_found, report_folder, seeker):
 		zsource 
 		on zobject.zsource = zsource.z_pk 
 		where
-		zstreamname is "/app/activity" 
+		zstreamname = "/app/activity" 
 		and (zvaluestring = "com.apple.mobilecal" or zvaluestring = "com.apple.ical")
-			''')
+		''')
 	else:
 		cursor = db.cursor()
 		cursor.execute('''
@@ -282,32 +264,28 @@ def get_knowCall(files_found, report_folder, seeker):
 		datetime(zobject.zenddate+978307200,'unixepoch'),
 		zobject.zvaluestring, 
 		zstructuredmetadata.z_dkapplicationactivitymetadatakey__activitytype, 
+		zstructuredmetadata.z_dkapplicationactivitymetadatakey__useractivityrequiredstring ,
 		zstructuredmetadata.z_dkapplicationactivitymetadatakey__title, 
-		datetime(zstructuredmetadata.z_dkapplicationactivitymetadatakey__expirationdate + 978307200, 'unixepoch'), 
 		datetime(zstructuredmetadata.zcom_apple_calendaruikit_useractivity_date + 978307200, 'unixepoch'), 
 		datetime(zstructuredmetadata.zcom_apple_calendaruikit_useractivity_enddate + 978307200, 'unixepoch'),
+		zsource.zsourceid,
 		case zobject.zstartdayofweek 
-		when "1" then "sunday"
-		when "2" then "monday"
-		when "3" then "tuesday"
-		when "4" then "wednesday"
-		when "5" then "thursday"
-		when "6" then "friday"
-		when "7" then "saturday"
-		end, 
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
+		end , 
 		zobject.zsecondsfromgmt/3600,
-		datetime(zobject.zcreationdate + 978307200, 'unixepoch')
-		from
-		zobject 
-		left join
-		zstructuredmetadata 
-		on zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
-		left join
-		zsource 
-		on zobject.zsource = zsource.z_pk 
-		where
-		zstreamname is "/app/activity" 
-		and (zvaluestring = "com.apple.mobilecal" or zvaluestring = "com.apple.ical")
+		datetime(zobject.zcreationdate + 978307200, 'unixepoch'),
+		datetime(zstructuredmetadata.z_dkapplicationactivitymetadatakey__expirationdate + 978307200, 'unixepoch')
+		from zobject, zstructuredmetadata, zsource 
+		where zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
+		and zobject.zsource = zsource.z_pk 
+		and zstreamname = '/app/activity'
+		and (zvaluestring = 'com.apple.mobilecal' or zvaluestring = 'com.apple.ical')
 					''')
 
 	all_rows = cursor.fetchall()
@@ -366,28 +344,22 @@ def get_knowCall(files_found, report_folder, seeker):
 		zstructuredmetadata.z_dkapplicationactivitymetadatakey__useractivityuuid,
 		zsource.zsourceid,
 		case zobject.zstartdayofweek 
-		when "1" then "sunday"
-		when "2" then "monday"
-		when "3" then "tuesday"
-		when "4" then "wednesday"
-		when "5" then "thursday"
-		when "6" then "friday"
-		when "7" then "saturday"
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
 		end,
 		zobject.zsecondsfromgmt/3600,
 		datetime(zobject.zcreationdate + 978307200, 'unixepoch'),
 		datetime(zstructuredmetadata.z_dkapplicationactivitymetadatakey__expirationdate + 978307200, 'unixepoch')
-		from
-		zobject 
-		left join
-		zstructuredmetadata 
-		on zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
-		left join
-		zsource 
-		on zobject.zsource = zsource.z_pk 
-		where
-		zstreamname is "/app/activity"
-		and (zobject.zvaluestring = "com.apple.mobilesafari" or zobject.zvaluestring = "com.apple.safari")
+		from zobject, zstructuredmetadata, zsource 
+		where zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
+		and zobject.zsource = zsource.z_pk 
+		and zstreamname = '/app/activity'
+		and (zobject.zvaluestring = 'com.apple.mobilesafari' or zobject.zvaluestring = 'com.apple.safari')
 			''')
 	else:
 		cursor = db.cursor()
@@ -402,28 +374,22 @@ def get_knowCall(files_found, report_folder, seeker):
 		zstructuredmetadata.z_dkapplicationactivitymetadatakey__itemrelateduniqueidentifier,
 		zsource.zsourceid,
 		case zobject.zstartdayofweek 
-		when "1" then "sunday"
-		when "2" then "monday"
-		when "3" then "tuesday"
-		when "4" then "wednesday"
-		when "5" then "thursday"
-		when "6" then "friday"
-		when "7" then "saturday"
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
 		end,
 		zobject.zsecondsfromgmt/3600,
 		datetime(zobject.zcreationdate + 978307200, 'unixepoch'),
 		datetime(zstructuredmetadata.z_dkapplicationactivitymetadatakey__expirationdate + 978307200, 'unixepoch')
-		from
-		zobject 
-		left join
-		zstructuredmetadata 
-		on zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
-		left join
-		zsource 
-		on zobject.zsource = zsource.z_pk 
-		where
-		zstreamname is "/app/activity"
-		and (zobject.zvaluestring = "com.apple.mobilesafari" or zobject.zvaluestring = "com.apple.safari")
+		from zobject, zstructuredmetadata, zsource 
+		where zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
+		and zobject.zsource = zsource.z_pk 
+		and zstreamname = '/app/activity'
+		and (zobject.zvaluestring = 'com.apple.mobilesafari' or zobject.zvaluestring = 'com.apple.safari')
 		''')
 
 	all_rows = cursor.fetchall()
@@ -474,18 +440,18 @@ def get_knowCall(files_found, report_folder, seeker):
 		datetime(zobject.zenddate+978307200,'unixepoch'),
 		zobject.zvaluestring, 
 		case zobject.zstartdayofweek 
-		when "1" then "sunday"
-		when "2" then "monday"
-		when "3" then "tuesday"
-		when "4" then "wednesday"
-		when "5" then "thursday"
-		when "6" then "friday"
-		when "7" then "saturday"
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
 		end,
 		zobject.zsecondsfromgmt/3600,
 		datetime(zobject.zcreationdate+978307200,'unixepoch')
 		from zobject
-		where zstreamname is '/app/relevantShortcuts'		
+		where zstreamname = '/app/relevantShortcuts'		
 		""")
 
 		all_rows = cursor.fetchall()
@@ -522,29 +488,21 @@ def get_knowCall(files_found, report_folder, seeker):
 		when '1' then 'yes' 
 		end,
 		(zobject.zenddate - zobject.zstartdate),
-		(zobject.zenddate - zobject.zstartdate)/60.00,  
-		zsource.zdeviceid,
+		(zobject.zenddate - zobject.zstartdate)/60.00,
 		case zobject.zstartdayofweek 
-		when "1" then "sunday"
-		when "2" then "monday"
-		when "3" then "tuesday"
-		when "4" then "wednesday"
-		when "5" then "thursday"
-		when "6" then "friday"
-		when "7" then "saturday"
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
 		end, 
 		zobject.zsecondsfromgmt/3600,
 		datetime(zobject.zcreationdate+978307200,'unixepoch')
-		from
-		zobject 
-		left join
-		zstructuredmetadata 
-		on zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
-		left join
-		zsource 
-		on zobject.zsource = zsource.z_pk 
+		from zobject
 		where
-		zstreamname is '/display/isBacklit'	
+		zobject.zstreamname = '/display/isBacklit'	
 		""")
 	elif version.parse(iOSversion) == version.parse("11"):
 		cursor = db.cursor()
@@ -557,28 +515,21 @@ def get_knowCall(files_found, report_folder, seeker):
 		when '1' then 'yes' 
 		end,
 		(zobject.zenddate - zobject.zstartdate),
-			(zobject.zenddate - zobject.zstartdate)/60.00,  
+		(zobject.zenddate - zobject.zstartdate)/60.00,  
 		case zobject.zstartdayofweek 
-		when "1" then "sunday"
-		when "2" then "monday"
-		when "3" then "tuesday"
-		when "4" then "wednesday"
-		when "5" then "thursday"
-		when "6" then "friday"
-		when "7" then "saturday"
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
 		end, 
 		zobject.zsecondsfromgmt/3600,
 		datetime(zobject.zcreationdate+978307200,'unixepoch')
-		from
-		zobject 
-		left join
-		zstructuredmetadata 
-		on zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
-		left join
-		zsource 
-		on zobject.zsource = zsource.z_pk 
+		from zobject
 		where
-		zstreamname is '/display/isBacklit'
+		zobject.zstreamname = '/display/isBacklit'
 		""")
 	else:
 		logfunc("Unsupported version for KnowledgC Backlit" + iOSversion)
@@ -590,12 +541,12 @@ def get_knowCall(files_found, report_folder, seeker):
 		data_list = []
 		if version.parse(iOSversion) >= version.parse("12"):	
 			for row in all_rows:    
-				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8]))
+				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7]))
 
 			report = ArtifactHtmlReport('KnowledgeC Device is Backlit')
 			report.start_artifact_report(report_folder, 'Device is Backlit')
 			report.add_script()
-			data_headers = ('Start','End','Screen is Backlit','Usage in Seconds','Usage in Minutes','Hardware UUID','Day of Week','GMT Offset','Entry Creation')  
+			data_headers = ('Start','End','Screen is Backlit','Usage in Seconds','Usage in Minutes','Day of Week','GMT Offset','Entry Creation')  
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
@@ -624,36 +575,28 @@ def get_knowCall(files_found, report_folder, seeker):
 	else:
 		logfunc('No data available in Device is Backlit')
 	
-	if version.parse(iOSversion) >= version.parse("11"):
-		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_device_batterylevel.txt
-		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt	
+	if version.parse(iOSversion) >= version.parse("11"):	
 		cursor.execute("""
-			select
-			datetime(zobject.zstartdate+978307200,'unixepoch'), 
-			datetime(zobject.zenddate+978307200,'unixepoch'),
-			zobject.zvaluedouble,
-			(zobject.zenddate - zobject.zstartdate), 
-			case zobject.zstartdayofweek 
-			when "1" then "sunday"
-			when "2" then "monday"
-			when "3" then "tuesday"
-			when "4" then "wednesday"
-			when "5" then "thursday"
-			when "6" then "friday"
-			when "7" then "saturday"
-			end,
-			zobject.zsecondsfromgmt/3600,
-			datetime(zobject.zcreationdate+978307200,'unixepoch')
-			from
-			zobject 
-			left join
-			zstructuredmetadata 
-			on zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
-			left join
-			zsource 
-			on zobject.zsource = zsource.z_pk 
-			where
-			zstreamname like '/device/BatteryPercentage'
+		select
+		datetime(zobject.zstartdate+978307200,'unixepoch'), 
+		datetime(zobject.zenddate+978307200,'unixepoch'),
+		zobject.zvaluedouble,
+		(zobject.zenddate - zobject.zstartdate), 
+		case zobject.zstartdayofweek 
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
+		end,
+		zobject.zsecondsfromgmt/3600,
+		datetime(zobject.zcreationdate+978307200,'unixepoch')
+		from
+		zobject 
+		where
+		zstreamname like '/device/BatteryPercentage'
 			"""
 			)
 
@@ -687,24 +630,20 @@ def get_knowCall(files_found, report_folder, seeker):
 		(zobject.zenddate - zobject.zstartdate),
 		(zobject.zenddate - zobject.zstartdate)/60.00,  
 		case zobject.zstartdayofweek 
-		when "1" then "sunday"
-		when "2" then "monday"
-		when "3" then "tuesday"
-		when "4" then "wednesday"
-		when "5" then "thursday"
-		when "6" then "friday"
-		when "7" then "saturday"
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
 		end,
 		zobject.zsecondsfromgmt/3600,
 		datetime(zobject.zcreationdate+978307200,'unixepoch')
 		from
-		zobject 
-		left join
+		zobject,
 		zstructuredmetadata 
 		on zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
-		left join
-		zsource 
-		on zobject.zsource = zsource.z_pk 
 		where
 		zstreamname = '/bluetooth/isConnected'
 		"""
@@ -735,36 +674,30 @@ def get_knowCall(files_found, report_folder, seeker):
 	
 	if version.parse(iOSversion) >= version.parse("11"):
 		cursor.execute("""
-			select
-			datetime(zobject.zstartdate+978307200,'unixepoch'), 
-			datetime(zobject.zenddate+978307200,'unixepoch'),
-			case zobject.zvalueinteger
-			when '0' then 'disconnected' 
-			when '1' then 'connected' 
-			end,
-			(zobject.zenddate - zobject.zstartdate),
-			(zobject.zenddate - zobject.zstartdate)/60.00,  
-			case zobject.zstartdayofweek 
-			when "1" then "sunday"
-			when "2" then "monday"
-			when "3" then "tuesday"
-			when "4" then "wednesday"
-			when "5" then "thursday"
-			when "6" then "friday"
-			when "7" then "saturday"
-			end, 
-			zobject.zsecondsfromgmt/3600,
-			datetime(zobject.zcreationdate+978307200,'unixepoch')
-			from
-			zobject 
-			left join
-			zstructuredmetadata 
-			on zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
-			left join
-			zsource 
-			on zobject.zsource = zsource.z_pk 
-			where
-			zstreamname is '/carplay/isConnected'	
+		select
+		datetime(zobject.zstartdate+978307200,'unixepoch'), 
+		datetime(zobject.zenddate+978307200,'unixepoch'),
+		case zobject.zvalueinteger
+		when '0' then 'disconnected' 
+		when '1' then 'connected' 
+		end,
+		(zobject.zenddate - zobject.zstartdate),
+		(zobject.zenddate - zobject.zstartdate)/60.00,  
+		case zobject.zstartdayofweek 
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
+		end, 
+		zobject.zsecondsfromgmt/3600,
+		datetime(zobject.zcreationdate+978307200,'unixepoch')
+		from
+		zobject
+		where
+		zstreamname is '/carplay/isConnected'	
 			""")
 
 		all_rows = cursor.fetchall()
@@ -800,26 +733,20 @@ def get_knowCall(files_found, report_folder, seeker):
 		(zobject.zenddate - zobject.zstartdate),
 		(zobject.zenddate - zobject.zstartdate)/60.00,  
 		case zobject.zstartdayofweek 
-		when "1" then "sunday"
-		when "2" then "monday"
-		when "3" then "tuesday"
-		when "4" then "wednesday"
-		when "5" then "thursday"
-		when "6" then "friday"
-		when "7" then "saturday"
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
 		end, 
 		zobject.zsecondsfromgmt/3600,
 		datetime(zobject.zcreationdate+978307200,'unixepoch')
 		from
-		zobject 
-		left join
-		zstructuredmetadata 
-		on zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
-		left join
-		zsource 
-		on zobject.zsource = zsource.z_pk 
-		where
-		zstreamname is '/disk/subsystemAccess'
+		zobject, zsource 
+		where zobject.zsource = zsource.z_pk 
+		and zstreamname = '/disk/subsystemAccess'
 		""")
 
 		all_rows = cursor.fetchall()
@@ -847,31 +774,25 @@ def get_knowCall(files_found, report_folder, seeker):
 			
 	if version.parse(iOSversion) >= version.parse("12"):
 		cursor.execute("""
-		  select
+		select
 		datetime(zobject.zstartdate+978307200,'unixepoch'), 
 		datetime(zobject.zenddate+978307200,'unixepoch'),
 		zobject.zvalueinteger,
 		(zobject.zenddate - zobject.zstartdate),
 		(zobject.zenddate - zobject.zstartdate)/60.00,   
 		case zobject.zstartdayofweek 
-		when "1" then "sunday"
-		when "2" then "monday"
-		when "3" then "tuesday"
-		when "4" then "wednesday"
-		when "5" then "thursday"
-		when "6" then "friday"
-		when "7" then "saturday"
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
 		end,
 		zobject.zsecondsfromgmt/3600,
 		datetime(zobject.zcreationdate+978307200,'unixepoch')
 		from
 		zobject 
-		left join
-		zstructuredmetadata 
-		on zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
-		left join
-		zsource 
-		on zobject.zsource = zsource.z_pk 
 		where
 		zstreamname = '/inferred/motion' 	
 			""")
@@ -1087,70 +1008,42 @@ def get_knowCall(files_found, report_folder, seeker):
 		tlactivity = 'KnowledgeC Intents'
 		timeline(report_folder, tlactivity, data_list, data_headers)
 
-	if version.parse(iOSversion) >= version.parse("12"):
+	if version.parse(iOSversion) >= version.parse("9"):
 		cursor = db.cursor()	
 		cursor.execute('''
 		select
 		datetime(zobject.zstartdate+978307200,'unixepoch'), 
 		datetime(zobject.zenddate+978307200,'unixepoch'),
 		zobject.zvaluestring, 
-		zstructuredmetadata .z_dkapplicationmetadatakey__launchreason,
 		(zobject.zenddate-zobject.zstartdate),
 		(zobject.zenddate-zobject.zstartdate)/60.00,
 		case zobject.zstartdayofweek 
-		when "1" then "sunday"
-		when "2" then "monday"
-		when "3" then "tuesday"
-		when "4" then "wednesday"
-		when "5" then "thursday"
-		when "6" then "friday"
-		when "7" then "saturday"
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
 		end,
 		zobject.zsecondsfromgmt/3600,
 		datetime(zobject.zcreationdate+978307200,'unixepoch')
 		from zobject
-		left join
-		zstructuredmetadata 
-		on zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
 		where zstreamname is '/app/inFocus'
 		''')
-	else:
-		cursor = db.cursor()	
-		cursor.execute('''
-		select
-		datetime(zobject.zstartdate+978307200,'unixepoch'), 
-		datetime(zobject.zenddate+978307200,'unixepoch'),
-		zobject.zvaluestring, 
-		(zobject.zenddate-zobject.zstartdate),
-		(zobject.zenddate-zobject.zstartdate)/60.00,
-		case zobject.zstartdayofweek 
-		when "1" then "sunday"
-		when "2" then "monday"
-		when "3" then "tuesday"
-		when "4" then "wednesday"
-		when "5" then "thursday"
-		when "6" then "friday"
-		when "7" then "saturday"
-		end,
-		zobject.zsecondsfromgmt/3600,
-		datetime(zobject.zcreationdate+978307200,'unixepoch')	
-		from zobject
-		where zstreamname is "/app/inFocus"
-		''')
-
+	
 	all_rows = cursor.fetchall()
 	usageentries = len(all_rows)
 	if usageentries > 0:
 		data_list = []
-		if version.parse(iOSversion) >= version.parse("12"):
-					
+		if version.parse(iOSversion) >= version.parse("9"):
 			for row in all_rows:    
-				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8]))
+				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7]))
 
 			report = ArtifactHtmlReport('KnowledgeC Application In Focus')
 			report.start_artifact_report(report_folder, 'App In Focus')
 			report.add_script()
-			data_headers = ('Start','End','Bundle ID','Launch Reason', 'Usage in Seconds', 'Usage in Minutes','Day of Week','GMT Offset','Entry Creation')  
+			data_headers = ('Start','End','Bundle ID', 'Usage in Seconds', 'Usage in Minutes','Day of Week','GMT Offset','Entry Creation')  
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
@@ -1159,28 +1052,11 @@ def get_knowCall(files_found, report_folder, seeker):
 			
 			tlactivity = 'KnowledgeC Application in Focus'
 			timeline(report_folder, tlactivity, data_list, data_headers)
-		else:
-			for row in all_rows:    
-				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7]))
-					
-			report = ArtifactHtmlReport('KnowledgeC Application In Focus')
-			report.start_artifact_report(report_folder, 'App in Focus')
-			report.add_script()
-			data_headers = ('Start','End','Bundle ID','Usage in Seconds','Usage in Minutes','Day of Week','GMT Offset','Entry Creation' ) 
-			report.write_artifact_data_table(data_headers, data_list, file_found)
-			report.end_artifact_report()
-			
-			tsvname = 'KnowledgeC Application in Focus'
-			tsv(report_folder, data_headers, data_list, tsvname)
-			
-			tlactivity = 'KnowledgeC Application in Focus'
-			timeline(report_folder, tlactivity, data_list, data_headers)
+		
 	else:
 		logfunc('No data available in Application in Focus')
 	
-	if version.parse(iOSversion) >= version.parse("12"):
-		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_app_install.txt
-		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt			
+	if version.parse(iOSversion) >= version.parse("12"):			
 		cursor.execute('''
 		select
 		datetime(zobject.zstartdate+978307200,'unixepoch'), 
@@ -1189,26 +1065,20 @@ def get_knowCall(files_found, report_folder, seeker):
 		zstructuredmetadata .z_dkappinstallmetadatakey__primarycategory,
 		zstructuredmetadata .z_dkappinstallmetadatakey__title,
 		case zobject.zstartdayofweek 
-		when "1" then "sunday"
-		when "2" then "monday"
-		when "3" then "tuesday"
-		when "4" then "wednesday"
-		when "5" then "thursday"
-		when "6" then "friday"
-		when "7" then "saturday"
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
 		end,
 		zobject.zsecondsfromgmt/3600,
 		datetime(zobject.zcreationdate+978307200,'unixepoch')
 		from
-		zobject 
-		left join
-		zstructuredmetadata 
-		on zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
-		left join
-		zsource 
-		on zobject.zsource = zsource.z_pk 
-		where
-		zstreamname = "/app/install"
+		zobject, zstructuredmetadata 
+		where zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
+		and zstreamname = '/app/install'
 			''')
 	else:
 		cursor.execute('''
@@ -1217,26 +1087,21 @@ def get_knowCall(files_found, report_folder, seeker):
 		datetime(zobject.zenddate+978307200,'unixepoch'),
 		zobject.zvaluestring,
 		case zobject.zstartdayofweek 
-		when "1" then "sunday"
-		when "2" then "monday"
-		when "3" then "tuesday"
-		when "4" then "wednesday"
-		when "5" then "thursday"
-		when "6" then "friday"
-		when "7" then "saturday"
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
 		end,
 		zobject.zsecondsfromgmt/3600,
 		datetime(zobject.zcreationdate+978307200,'unixepoch')
 		from
-		zobject 
-		left join
-		zstructuredmetadata 
-		on zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
-		left join
-		zsource 
-		on zobject.zsource = zsource.z_pk 
-		where zstreamname is '/app/install' 
-				''')
+		zobject, zstructuredmetadata 
+		where zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
+		and zstreamname = "/app/install"
+		''')
 
 	all_rows = cursor.fetchall()
 	usageentries = len(all_rows)
@@ -1284,7 +1149,6 @@ def get_knowCall(files_found, report_folder, seeker):
 		datetime(zobject.zstartdate+978307200,'unixepoch'), 
 		datetime(zobject.zenddate+978307200,'unixepoch'),
 		zobject.zvaluestring, 
-		zstructuredmetadata.z_dklocationapplicationactivitymetadatakey__latitude || ", " || zstructuredmetadata.z_dklocationapplicationactivitymetadatakey__longitude,
 		zstructuredmetadata.z_dklocationapplicationactivitymetadatakey__locationname,
 		zstructuredmetadata.z_dklocationapplicationactivitymetadatakey__displayname,
 		zstructuredmetadata.z_dklocationapplicationactivitymetadatakey__fullyformattedaddress,
@@ -1308,26 +1172,21 @@ def get_knowCall(files_found, report_folder, seeker):
 		zsource.zitemid,
 		zsource.zsourceid,
 		case zobject.zstartdayofweek 
-		when "1" then "sunday"
-		when "2" then "monday"
-		when "3" then "tuesday"
-		when "4" then "wednesday"
-		when "5" then "thursday"
-		when "6" then "friday"
-		when "7" then "saturday"
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
 		end,
 		zobject.zsecondsfromgmt/3600,
 		datetime(zobject.zcreationdate+978307200,'unixepoch')
 		from
-		zobject 
-		left join
-		zstructuredmetadata 
-		on zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
-		left join
-		zsource 
-		on zobject.zsource = zsource.z_pk 
-		where
-		zstreamname = '/app/locationActivity'
+		zobject, zstructuredmetadata, zsource 
+		where zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
+		and zobject.zsource = zsource.z_pk 
+		and zstreamname = '/app/locationActivity'
 		"""
 		)
 
@@ -1336,13 +1195,13 @@ def get_knowCall(files_found, report_folder, seeker):
 		if usageentries > 0:
 			data_list = []
 			for row in all_rows:
-				data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18], row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27], row[28]))
+				data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18], row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27]))
 
 			description = ''
 			report = ArtifactHtmlReport('KnowledgeC Location Activity')
 			report.start_artifact_report(report_folder, 'Location Activity', description)
 			report.add_script()
-			data_headers = ('Timestamp','End','Bundle ID','Coordinates','Name','Display Name','Formatted Address', 'City','State/Province','Country','Postal Code','Subthoroughfare','Thoroughfare','Phone Numebers','URL','Activity Type', 'Content Description','User Activity Required String','Content URL','Unique ID','Latitude','Longitude','Source ID','Activity UUID','Item ID','Source ID','Day of the Week','GMT Offset','Entry Creation')     
+			data_headers = ('Timestamp','End','Bundle ID','Name','Display Name','Formatted Address', 'City','State/Province','Country','Postal Code','Subthoroughfare','Thoroughfare','Phone Numebers','URL','Activity Type', 'Content Description','User Activity Required String','Content URL','Unique ID','Latitude','Longitude','Source ID','Activity UUID','Item ID','Source ID','Day of the Week','GMT Offset','Entry Creation')     
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
@@ -1368,26 +1227,19 @@ def get_knowCall(files_found, report_folder, seeker):
 		end,
 		(zobject.zenddate - zobject.zstartdate),  
 		case zobject.zstartdayofweek 
-		when "1" then "sunday"
-		when "2" then "monday"
-		when "3" then "tuesday"
-		when "4" then "wednesday"
-		when "5" then "thursday"
-		when "6" then "friday"
-		when "7" then "saturday"
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
 		end,
 		zobject.zsecondsfromgmt/3600,
 		datetime(zobject.zcreationdate+978307200,'unixepoch')
 		from
-		zobject 
-		left join
-		zstructuredmetadata 
-		on zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
-		left join
-		zsource 
-		on zobject.zsource = zsource.z_pk 
-		where
-		zstreamname like '/device/islocked'
+		zobject
+		where zstreamname = '/device/isLocked'
 		""")
 
 		all_rows = cursor.fetchall()
@@ -1427,26 +1279,20 @@ def get_knowCall(files_found, report_folder, seeker):
 		(zobject.zenddate - zobject.zstartdate),
 		(zobject.zenddate - zobject.zstartdate)/60.00,    
 		case zobject.zstartdayofweek 
-		when "1" then "sunday"
-		when "2" then "monday"
-		when "3" then "tuesday"
-		when "4" then "wednesday"
-		when "5" then "thursday"
-		when "6" then "friday"
-		when "7" then "saturday"
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
 		end,
 		zobject.zsecondsfromgmt/3600,
 		datetime(zobject.zcreationdate+978307200,'unixepoch')
 		from
-		zobject 
-		left join
-		zstructuredmetadata 
-		on zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
-		left join
-		zsource 
-		on zobject.zsource = zsource.z_pk 
-		where
-		zstreamname =  '/media/nowPlaying'
+		zobject, zstructuredmetadata 
+		where zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
+		and zstreamname =  '/media/nowPlaying'
 		""")
 
 		all_rows = cursor.fetchall()
@@ -1484,41 +1330,34 @@ def get_knowCall(files_found, report_folder, seeker):
 		zstructuredmetadata.z_dkapplicationactivitymetadatakey__itemidentifier,
 		zstructuredmetadata.z_dkapplicationactivitymetadatakey__itemrelateduniqueidentifier,
 		zstructuredmetadata.z_dkapplicationactivitymetadatakey__useractivityuuid,
-		zsource.zsourceid,
 		case zobject.zstartdayofweek 
-		when "1" then "sunday"
-		when "2" then "monday"
-		when "3" then "tuesday"
-		when "4" then "wednesday"
-		when "5" then "thursday"
-		when "6" then "friday"
-		when "7" then "saturday"
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
 		end,
 		zobject.zsecondsfromgmt/3600,
 		datetime(zobject.zcreationdate + 978307200, 'unixepoch'),
 		datetime(zstructuredmetadata.z_dkapplicationactivitymetadatakey__expirationdate + 978307200, 'unixepoch')
 		from
-		zobject 
-		left join
-		zstructuredmetadata 
-		on zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
-		left join
-		zsource 
-		on zobject.zsource = zsource.z_pk 
-		where
-		zstreamname is "/app/activity"
-		and (zobject.zvaluestring = "com.apple.mobilenotes" or zobject.zvaluestring = "com.apple.Notes")
+		zobject, zstructuredmetadata 
+		where zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
+		and zstreamname = '/app/activity'
+		and (zobject.zvaluestring = 'com.apple.mobilenotes' or zobject.zvaluestring = 'com.apple.Notes')
 		''')
 		all_rows = cursor.fetchall()
 		usageentries = len(all_rows)
 		if usageentries > 0:
 			data_list = []
-			for row in all_rows:    data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12]))
+			for row in all_rows:    data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11]))
 
 			report = ArtifactHtmlReport('KnowledgeC Notes - Activity')
 			report.start_artifact_report(report_folder, 'Notes - Activity')
 			report.add_script()
-			data_headers = ('Start','End','Bundle ID','Activity Type','User Activity Required String','ID','Unique ID','Activity UUID','Source ID','Day of Week','GMT Offset','Entry Creation','Expiration Date' )   
+			data_headers = ('Start','End','Bundle ID','Activity Type','User Activity Required String','ID','Unique ID','Activity UUID','Day of Week','GMT Offset','Entry Creation','Expiration Date' )   
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
@@ -1544,26 +1383,20 @@ def get_knowCall(files_found, report_folder, seeker):
 		(zobject.zenddate - zobject.zstartdate),
 		(zobject.zenddate - zobject.zstartdate)/60.00,   
 		case zobject.zstartdayofweek 
-		when "1" then "sunday"
-		when "2" then "monday"
-		when "3" then "tuesday"
-		when "4" then "wednesday"
-		when "5" then "thursday"
-		when "6" then "friday"
-		when "7" then "saturday"
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
 		end,
 		zobject.zsecondsfromgmt/3600,
 		datetime(zobject.zcreationdate+978307200,'unixepoch')
 		from
 		zobject 
-		left join
-		zstructuredmetadata 
-		on zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
-		left join
-		zsource 
-		on zobject.zsource = zsource.z_pk 
 		where
-		zstreamname is "/display/orientation"	
+		zstreamname = '/display/orientation'	
 		""")
 
 		all_rows = cursor.fetchall()
@@ -1602,26 +1435,20 @@ def get_knowCall(files_found, report_folder, seeker):
 			end,
 			(zobject.zenddate - zobject.zstartdate),  
 			case zobject.zstartdayofweek 
-			when "1" then "sunday"
-			when "2" then "monday"
-			when "3" then "tuesday"
-			when "4" then "wednesday"
-			when "5" then "thursday"
-			when "6" then "friday"
-			when "7" then "saturday"
+			when '1' then 'sunday'
+			when '2' then 'monday'
+			when '3' then 'tuesday'
+			when '4' then 'wednesday'
+			when '5' then 'thursday'
+			when '6' then 'friday'
+			when '7' then 'saturday'
 			end,
 			zobject.zsecondsfromgmt/3600,
 			datetime(zobject.zcreationdate+978307200,'unixepoch')
 			from
 			zobject 
-			left join
-			zstructuredmetadata 
-			on zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
-			left join
-			zsource 
-			on zobject.zsource = zsource.z_pk 
 			where
-			zstreamname like "/device/ispluggedin"
+			zstreamname = '/device/isPluggedIn'
 			""")
 
 		all_rows = cursor.fetchall()
@@ -1657,26 +1484,22 @@ def get_knowCall(files_found, report_folder, seeker):
 		zobject.zvaluestring, 
 		zsource.zbundleid,
 		case zobject.zstartdayofweek 
-		when "1" then "sunday"
-		when "2" then "monday"
-		when "3" then "tuesday"
-		when "4" then "wednesday"
-		when "5" then "thursday"
-		when "6" then "friday"
-		when "7" then "saturday"
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
 		end, 
 		zobject.zsecondsfromgmt/3600,
 		datetime(zobject.zcreationdate+978307200,'unixepoch')
 		from
-		zobject 
-		left join
-		zstructuredmetadata 
-		on zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
-		left join
-		zsource 
-		on zobject.zsource = zsource.z_pk 
-		where
-		zstreamname is "/safari/history"
+		zobject,
+		zstructuredmetadata, zsource 
+		where zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
+		and  zobject.zsource = zsource.z_pk 
+		and zstreamname = '/safari/history'
 		''')
 	elif version.parse(iOSversion) == version.parse("11"):
 		cursor = db.cursor()	
@@ -1687,26 +1510,20 @@ def get_knowCall(files_found, report_folder, seeker):
 		zobject.zvaluestring, 
 		zsource.zbundleid,
 		case zobject.zstartdayofweek 
-		when "1" then "sunday"
-		when "2" then "monday"
-		when "3" then "tuesday"
-		when "4" then "wednesday"
-		when "5" then "thursday"
-		when "6" then "friday"
-		when "7" then "saturday"
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
 		end, 
 		zobject.zsecondsfromgmt/3600,
 		datetime(zobject.zcreationdate+978307200,'unixepoch')
 		from
-		zobject 
-		left join
-		zstructuredmetadata 
-		on zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
-		left join
-		zsource 
-		on zobject.zsource = zsource.z_pk 
-		where
-		zstreamname is "/safari/history"	
+		zobject, zsource
+		where zobject.zsource = zsource.z_pk 
+		and zstreamname = '/safari/history'	
 		''')
 	else:
 		logfunc("Unsupported version for KnowledgC Safari iOS " + iOSversion)
@@ -1760,26 +1577,20 @@ def get_knowCall(files_found, report_folder, seeker):
 		datetime(zobject.zstartdate+978307200,'unixepoch'), 
 		zobject.zvaluestring,  
 		case zobject.zstartdayofweek 
-		when "1" then "sunday"
-		when "2" then "monday"
-		when "3" then "tuesday"
-		when "4" then "wednesday"
-		when "5" then "thursday"
-		when "6" then "friday"
-		when "7" then "saturday"
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
 		end,
 		zobject.zsecondsfromgmt/3600,
 		datetime(zobject.zcreationdate+978307200,'unixepoch')
 		from
 		zobject 
-		left join
-		zstructuredmetadata 
-		on zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
-		left join
-		zsource 
-		on zobject.zsource = zsource.z_pk 
 		where
-		zstreamname =  "/siri/ui" 
+		zstreamname =  '/siri/ui' 
 		"""
 		)
 
@@ -1814,41 +1625,33 @@ def get_knowCall(files_found, report_folder, seeker):
 		zobject.zvaluestring, 
 		(zobject.zenddate - zobject.zstartdate),
 		(zobject.zenddate - zobject.zstartdate)/60.00,  
-		zsource.zdeviceid, 
 		case zobject.zstartdayofweek 
-		when "1" then "sunday"
-		when "2" then "monday"
-		when "3" then "tuesday"
-		when "4" then "wednesday"
-		when "5" then "thursday"
-		when "6" then "friday"
-		when "7" then "saturday"
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
 		end,
 		zobject.zsecondsfromgmt/3600,
 		datetime(zobject.zcreationdate+978307200,'unixepoch')
 		from
-		zobject 
-		left join
-		zstructuredmetadata 
-		on zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
-		left join
-		zsource 
-		on zobject.zsource = zsource.z_pk 
-		where
-		zstreamname = "/app/usage" 
+		zobject
+		where zstreamname = '/app/usage' 
 		""")
 	all_rows = cursor.fetchall()
 	usageentries = len(all_rows)
 	if usageentries > 0:
 		data_list = []    
 		for row in all_rows:
-			data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8]))
+			data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]))
 
 		description = ''
 		report = ArtifactHtmlReport('KnowledgeC App Usage')
 		report.start_artifact_report(report_folder, 'App Usage', description)
 		report.add_script()
-		data_headers = ('Start','End','Bundle ID','Usage in Seconds','Usage in Minutes','Device ID','Day of the Week','GMT Offset','Entry Creation')     
+		data_headers = ('Start','End','Bundle ID','Usage in Seconds','Usage in Minutes','Day of the Week','GMT Offset','Entry Creation')     
 		report.write_artifact_data_table(data_headers, data_list, file_found, html_escape=False)
 		report.end_artifact_report()
 		
@@ -1866,26 +1669,19 @@ def get_knowCall(files_found, report_folder, seeker):
 		datetime(zobject.zstartdate+978307200,'unixepoch'), 
 		datetime(zobject.zenddate+978307200,'unixepoch'),
 		case zobject.zstartdayofweek 
-		when "1" then "sunday"
-		when "2" then "monday"
-		when "3" then "tuesday"
-		when "4" then "wednesday"
-		when "5" then "thursday"
-		when "6" then "friday"
-		when "7" then "saturday"
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
 		end,
 		zobject.zsecondsfromgmt/3600,
 		datetime(zobject.zcreationdate+978307200,'unixepoch')
 		from
 		zobject 
-		left join
-		zstructuredmetadata 
-		on zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
-		left join
-		zsource 
-		on zobject.zsource = zsource.z_pk 
-		where
-		zstreamname = '/system/userWakingEvent'
+		where zstreamname = '/system/userWakingEvent'
 		""")
 
 		all_rows = cursor.fetchall()
@@ -1911,64 +1707,6 @@ def get_knowCall(files_found, report_folder, seeker):
 
 		else:
 			logfunc('No data available in User Waking Event')
-	
-	if version.parse(iOSversion) == version.parse("11"):
-		cursor.execute("""
-		select
-		datetime(zobject.zstartdate+978307200,'unixepoch'), 
-		datetime(zobject.zenddate+978307200,'unixepoch'),
-		case zobject.zvalueinteger
-		when '0' then 'no' 
-		when '1' then 'yes' 
-		end,
-		(zobject.zenddate - zobject.zstartdate),
-		(zobject.zenddate - zobject.zstartdate)/60.00,   
-		case zobject.zstartdayofweek 
-		when "1" then "sunday"
-		when "2" then "monday"
-		when "3" then "tuesday"
-		when "4" then "wednesday"
-		when "5" then "thursday"
-		when "6" then "friday"
-		when "7" then "saturday"
-		end, 
-		zobject.zsecondsfromgmt/3600,
-		datetime(zobject.zcreationdate+978307200,'unixepoch')
-		from
-		zobject 
-		left join
-		zstructuredmetadata 
-		on zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
-		left join
-		zsource 
-		on zobject.zsource = zsource.z_pk 
-		where
-		zstreamname is "/watch/nearby"
-		""")
-
-		all_rows = cursor.fetchall()
-		usageentries = len(all_rows)
-		if usageentries > 0:
-			data_list = []    
-			for row in all_rows:
-				data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]))
-
-			description = ''
-			report = ArtifactHtmlReport('KnowledgeC Watch Near')
-			report.start_artifact_report(report_folder, 'Watch Near', description)
-			report.add_script()
-			data_headers = ('Start','End','Watch Nearby','Usage in Seconds','Usage in Minutes','Day of Week','GMT Offset','Entry Creation')     
-			report.write_artifact_data_table(data_headers, data_list, file_found)
-			report.end_artifact_report()
-			
-			tsvname = 'KnowledgeC Watch Wear'
-			tsv(report_folder, data_headers, data_list, tsvname)
-			
-			tlactivity = 'KnowledgeC Watch Wear'
-			timeline(report_folder, tlactivity, data_list, data_headers)
-
-		else:
-			logfunc('No data available in Watch Near')
 			
 	if version.parse(iOSversion) >= version.parse("12"):
 		cursor.execute("""
@@ -1980,28 +1718,21 @@ def get_knowCall(files_found, report_folder, seeker):
 		(zobject.zenddate - zobject.zstartdate)/60.00,   
 		zstructuredmetadata .z_dkdigitalhealthmetadatakey__webdomain,
 		zstructuredmetadata .z_dkdigitalhealthmetadatakey__webpageurl,
-		zsource.zdeviceid,
 		case zobject.zstartdayofweek 
-		when "1" then "sunday"
-		when "2" then "monday"
-		when "3" then "tuesday"
-		when "4" then "wednesday"
-		when "5" then "thursday"
-		when "6" then "friday"
-		when "7" then "saturday"
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
 		end,
 		zobject.zsecondsfromgmt/3600,
 		datetime(zobject.zcreationdate+978307200,'unixepoch')
 		from
-		zobject 
-		left join
-		zstructuredmetadata 
-		on zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
-		left join
-		zsource 
-		on zobject.zsource = zsource.z_pk 
-		where
-		zstreamname = "/app/webUsage"
+		zobject, zstructuredmetadata 
+		where zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
+		and zstreamname = '/app/webUsage'
 		"""
 		)
 
@@ -2010,13 +1741,13 @@ def get_knowCall(files_found, report_folder, seeker):
 		if usageentries > 0:
 			data_list = []    
 			for row in all_rows:
-				data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10]))
+				data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9]))
 
 			description = ''
 			report = ArtifactHtmlReport('KnowledgeC Web Usage')
 			report.start_artifact_report(report_folder, 'Web Usage', description)
 			report.add_script()
-			data_headers = ('Start','End','App Name','Usage in Seconds','Usage in Minutes','Domain','URL','Device ID','Day of the Wekk','GMT Offset','Entry Creation')     
+			data_headers = ('Start','End','App Name','Usage in Seconds','Usage in Minutes','Domain','URL','Day of the Wekk','GMT Offset','Entry Creation')     
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
@@ -2038,26 +1769,20 @@ def get_knowCall(files_found, report_folder, seeker):
 		(zobject.zenddate - zobject.zstartdate),
 		(zobject.zenddate - zobject.zstartdate)/60.00,   
 		case zobject.zstartdayofweek 
-		when "1" then "sunday"
-		when "2" then "monday"
-		when "3" then "tuesday"
-		when "4" then "wednesday"
-		when "5" then "thursday"
-		when "6" then "friday"
-		when "7" then "saturday"
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
 		end,
 		zobject.zsecondsfromgmt/3600,
 		datetime(zobject.zcreationdate+978307200,'unixepoch')
 		from
 		zobject 
-		left join
-		zstructuredmetadata 
-		on zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
-		left join
-		zsource 
-		on zobject.zsource = zsource.z_pk 
 		where
-		zstreamname = "/widgets/viewed"
+		zstreamname = '/widgets/viewed'
 		""")
 
 		all_rows = cursor.fetchall()
