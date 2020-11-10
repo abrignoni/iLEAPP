@@ -188,6 +188,11 @@ def generate_report(reportfolderbase, time_in_secs, time_HMS, extraction_type, i
                 pass # Perhaps it was not empty!
 
     # Create index.html's page content
+    create_index_html(reportfolderbase, time_in_secs, time_HMS, extraction_type, image_input_path, nav_list_data)
+    elements_folder = os.path.join(reportfolderbase, '_elements')
+    os.mkdir(elements_folder)
+    __location__ = os.path.dirname(os.path.abspath(__file__))
+   
     def copy_no_perm(src, dst, *, follow_symlinks=True):
         if not os.path.isdir(dst):
             shutil.copyfile(src, dst)
@@ -204,7 +209,7 @@ def generate_report(reportfolderbase, time_in_secs, time_HMS, extraction_type, i
         print("shutil reported an error. Maybe due to recursive directory copying.")
         if os.path.exists(os.path.join(elements_folder,'MDB-Free_4.13.0')):
             print("_elements folder seems fine. Probably nothing to worry about")
-            
+
 def get_file_content(path):
     f = open(path, 'r', encoding='utf8')
     data = f.read()
