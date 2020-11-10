@@ -16,15 +16,15 @@ def get_coreDuetLock(files_found, report_folder, seeker):
 
 	cursor.execute(
 	"""
-	SELECT 
-		DATETIME(ZCREATIONDATE+978307200,"UNIXEPOCH") AS "CREATE TIME",
-		TIME(ZLOCALTIME,"UNIXEPOCH") AS "LOCAL DEVICE TIME",
-		TIME(ZCREATIONDATE-ZLOCALTIME,"UNIXEPOCH") AS "TIME ZONE",
-		CASE ZLOCKSTATE
-		    WHEN "0" THEN "UNLOCKED"
-		    WHEN "1" THEN "LOCKED"
-		END "LOCK STATE"
-	FROM ZCDDMSCREENLOCKEVENT	
+	select 
+	datetime(zcreationdate+978307200,'unixepoch'),
+	time(zlocaltime,'unixepoch'),
+	time(zcreationdate-zlocaltime,'unixepoch'),
+	case zlockstate
+	when '0' then 'unlocked'
+	when '1' then 'locked'
+	end
+	from zcddmscreenlockeven	
 	"""
 	)
 

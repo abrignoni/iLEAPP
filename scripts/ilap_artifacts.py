@@ -31,16 +31,6 @@ from scripts.artifacts.aggDictScalars import get_aggDictScalars
 from scripts.artifacts.coreDuetAirplane import get_coreDuetAirplane
 from scripts.artifacts.coreDuetLock import get_coreDuetLock
 from scripts.artifacts.coreDuetPlugin import get_coreDuetPlugin
-from scripts.artifacts.healthDistance import get_healthDistance
-from scripts.artifacts.healthEcg import get_healthEcg
-from scripts.artifacts.healthFlights import get_healthFlights
-from scripts.artifacts.healthHr import get_healthHr
-from scripts.artifacts.healthSteps import get_healthSteps
-from scripts.artifacts.healthStandup import get_healthStandup
-from scripts.artifacts.healthWeight import get_healthWeight
-from scripts.artifacts.healthCadence import get_healthCadence
-from scripts.artifacts.healthElevation import get_healthElevation
-from scripts.artifacts.healthWorkoutGen import get_healthWorkoutGen
 from scripts.artifacts.healthAll import get_healthAll
 from scripts.artifacts.interactionCcontacts import get_interactionCcontacts
 from scripts.artifacts.safariHistory import get_safariHistory
@@ -50,41 +40,16 @@ from scripts.artifacts.safariTabs import get_safariTabs
 from scripts.artifacts.queryPredictions import get_queryPredictions
 from scripts.artifacts.dhcpl import get_dhcpl
 from scripts.artifacts.dhcphp import get_dhcphp
-from scripts.artifacts.powerlogWifiprop import get_powerlogWifiprop
-from scripts.artifacts.powerlogVolumePercentage import get_powerlogVolumePercentage
-from scripts.artifacts.powerlogVideo import get_powerlogVideo
-from scripts.artifacts.powerlogTorch import get_powerlogTorch
-from scripts.artifacts.powerlogTimezone import get_powerlogTimezone
-from scripts.artifacts.powerlogAggnotifications import get_powerlogAggnotifications
-from scripts.artifacts.powerlogAggbulletins import get_powerlogAggbulletins
-from scripts.artifacts.powerlogPushreceived import get_powerlogPushreceived
-from scripts.artifacts.powerlogProcessdatausage import get_powerlogProcessdatausage
-from scripts.artifacts.powerlogPaireddevconf import get_powerlogPaireddevconf
-from scripts.artifacts.powerlogLocuseapp import get_powerlogLocuseapp
-from scripts.artifacts.powerlogAirdrop import get_powerlogAirdrop
-from scripts.artifacts.powerlogAudio import get_powerlogAudio
-from scripts.artifacts.powerlogLightplug import get_powerlogLightplug
-from scripts.artifacts.powerlogAppinfo import get_powerlogAppinfo
-from scripts.artifacts.powerlogBackupinfo import get_powerlogBackupinfo
-from scripts.artifacts.powerlogDeletedapps import get_powerlogDeletedapps
 from scripts.artifacts.powerlogAll import get_powerlogAll
 from scripts.artifacts.powerlogGZ import get_powerlogGZ
 from scripts.artifacts.locationDparkedhistorical import get_locationDparkedhistorical
 from scripts.artifacts.locationDparked import get_locationDparked
 from scripts.artifacts.knowCall import get_knowCall
 from scripts.artifacts.mailprotect import get_mailprotect
-from scripts.artifacts.screentimeGenerichour import get_screentimeGenerichour
-from scripts.artifacts.screentimeTimeditems import get_screentimeTimeditems
-from scripts.artifacts.screentimeCounteditems import get_screentimeCounteditems
 from scripts.artifacts.screentimeAll import get_screentimeAll
 from scripts.artifacts.bluetoothPaired import get_bluetoothPaired
 from scripts.artifacts.bluetoothOther import get_bluetoothOther
 from scripts.artifacts.bluetoothPairedReg import get_bluetoothPairedReg
-from scripts.artifacts.locationDcellloc import get_locationDcellloc
-from scripts.artifacts.locationDappharvest import get_locationDappharvest
-from scripts.artifacts.locationDcdmaloc1 import get_locationDcdmaloc1
-from scripts.artifacts.locationDwifilocB import get_locationDwifilocB
-from scripts.artifacts.locationDlteloc import get_locationDlteloc
 from scripts.artifacts.locationDsteps import get_locationDsteps
 from scripts.artifacts.locationDallB import get_locationDallB
 from scripts.artifacts.calendarAll import get_calendarAll
@@ -172,6 +137,7 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'powerlogAll':('Powerlog', '**/CurrentPowerlog.PLSQL'),
             'powerlogGZ':('Powerlog Backups', '**/Library/BatteryLife/Archives/powerlog_*.PLSQL.gz'),
             'healthAll':('Health Data', '**/healthdb_secure.sqlite'),
+            'interactionCcontacts':('InteractionC', '**/interactionC.db'),
             'locationDallB':('Locations', '**/cache_encryptedB.db'),
             'screentimeAll':('Screentime', '**/RMAdminStore-Local.sqlite'),
             'mailprotect':('iOS Mail', '**/private/var/mobile/Library/Mail/* Index*'),
