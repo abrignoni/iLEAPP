@@ -1,11 +1,11 @@
 import os
 import sqlite3
 import pandas as pd
-import json
+import shutil
 
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows
-from scripts.chat_rendering import render_chat
+from scripts.chat_rendering import render_chat, chat_HTML
 
 def get_sms(files_found, report_folder, seeker):
     file_found = str(files_found[0])
@@ -52,31 +52,28 @@ def get_sms(files_found, report_folder, seeker):
         report.add_script()
 
         sms_df = sms_df.rename(
-                columns={"MESSAGE DATE":"data-time","MESSAGE":"message","CONTACT ID":"data-name","IS FROM ME":"from_me"}
+                columns={"MESSAGE DATE":"data-time","MESSAGE":"message","CONTACT ID":"data-name","IS FROM ME":"from_me","MIME TYPE":"content-type"}
                 )
-        sms_df["ts"] = pd.to_datetime(sms_df["data-time"])
-        latest_mess = sms_df.groupby("data-name", as_index=False)["ts"].max()
-        sms_df = pd.merge(
-                    sms_df, 
-                    latest_mess, 
-                    on=["data-name"], 
-                    how='right', 
-                    suffixes=["","_latest"]
-                    ).sort_values(by=['ts_latest','data-name'], ascending=[False, True])
+        sms_df["data-time"] = pd.to_datetime(sms_df["data-time"])
 
-        chats = {}
-        for c in sms_df["data-name"].unique():
-            chats[c] = sms_df[sms_df["data-name"] == c][["data-name","from_me","message","data-time"]].reset_index(drop=True).to_dict(orient='index')
+        def copyAttachments(rec):
+            pathToAttachment = None
+            if rec["FILENAME"]:
+                attachment = seeker.search('**'+rec["FILENAME"].replace('~',''))
+                pathToAttachment = os.path.join((os.path.basename(os.path.abspath(report_folder))), os.path.basename(rec["FILENAME"]))
+                shutil.copyfile(attachment[0],os.path.join(report_folder, os.path.basename(rec["FILENAME"])))
+            return pathToAttachment
         
-        rendering = render_chat(json.dumps(chats))
+        sms_df["file-path"] = sms_df.apply(lambda rec: copyAttachments(rec), axis=1)
+
         num_entries = sms_df.shape[0]
         report.write_minor_header(f'Total number of entries: {num_entries}', 'h6')
     
         if file_found.startswith('\\\\?\\'):
             file_found = file_found[4:]
         report.write_lead_text(f'SMS - iMessage located at: {file_found}')
-        report.write_raw_html(rendering['HTML'])
-        report.add_script(rendering['js'])
+        report.write_raw_html(chat_HTML)
+        report.add_script(render_chat(sms_df))
 
         data_headers = ('Message Date','Date Delivered','Date Read','Message','Contact ID','Service','Account','Is Delivered','Is from Me','Filename','MIME Type','Transfer Type','Total Bytes' )
         report.write_artifact_data_table(data_headers, data_list, file_found, write_total=False, write_location=False)

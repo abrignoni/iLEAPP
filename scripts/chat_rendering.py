@@ -1,4 +1,7 @@
 # coding: utf-8
+import os
+import pandas as pd
+import json
 
 """
 This helper renders chat conversations passed as a json dump of a dictionary:
@@ -41,9 +44,8 @@ example:
     }
 
 """
-import json
 
-HTML= """
+chat_HTML= """
 <div class="container clearfix">
     <div class="people-list" id="people-list">
       <ul class="list" id="list">
@@ -66,6 +68,7 @@ HTML= """
 <br />
 <br />
 """
+
 js = """
 <script>
 function createDivMessages (m){
@@ -92,7 +95,7 @@ function createDivMessages (m){
     res += '</span>';
     res += '</div>';
     res += messType;
-    res += m["message"];
+    res += m["body_to_render"];
     res += '</div>';
     res += '</li>';
 
@@ -149,11 +152,86 @@ $(document).ready(function() {
 </script>
 """
 
-def render_chat(chat_json):
+mimeTypeIcon = {
+    "image":"📷",
+    "audio":"🎧",
+    "video":"🎥",
+    "animated":"🎡",
+    "application":"📎",
+}
+
+"""
+format JS to include in report html
+"""
+def render_js_chat(chat_json):
     json_js = """
     <script>
      var json = {0!r};
     </script>
     """.format(chat_json)
-    return {'HTML':HTML,'js':'\n'.join([json_js,js])}
+    return '\n'.join([json_js,js])
+
+"""
+helper to render body with attachments
+"""
+def integrateAtt(rec):
+    if rec["file-path"]:
+        att_type = rec["content-type"].split('/')[0] if rec["content-type"] else 'application'
+        filename = os.path.basename(rec["file-path"])
+        body = rec["message"] if rec["message"] else ''
+        if att_type == 'image':               
+            source = '<img src="{}" width="256" height="256"/>'.format(rec["file-path"])
+        
+        elif att_type == 'audio':
+            source = """
+            <audio controls>
+              <source src="{0}" type="{1}">
+              <p><a href="{0}"></a> </p>
+            </audio>
+            """.format(rec["content-type"])
+        elif att_type == 'video':
+            source = """
+            <video controls width="256">
+              <source src="{0}" type="{1}">
+              <p><a href="{0}"></a> </p>
+            </video>
+            """.format(rec["content-type"])
+        else:
+            source = '<a href="{}">{}</a>'.format(rec["file-path"],filename)
+        
+        return "\n".join([body,mimeTypeIcon[att_type]+' '+source])
+    else:
+        return rec["message"]
+
+
+"""
+transform a chat df to be rendered to js
+input : df with following columns:
+    - data-name str : contact name / number
+    - data-time dt : time of message (needs to be datetime format)
+    - message str : text message
+    - content-type str : mime type of atachement or None (ex : 'image/jpeg')
+    - file-path str : path of attachment to render
+    - from_me bool : 0 if received, 1 if sent
+output : 
+    str including script and data to include in report html
+
+"""
+def render_chat(df):
+    df["body_to_render"] = df.apply(lambda rec: integrateAtt(rec),axis=1)
+    latest_mess = df.groupby("data-name", as_index=False)["data-time"].max()
+    df = df.merge(latest_mess, on=["data-name"], how='right', suffixes=["","_latest"]).sort_values(by=['data-time_latest','data-name'], ascending=[False, True])
+    df["data-time"] = df["data-time"].dt.strftime('%Y-%m-%d %H:%M:%S')
+    chats = {}
+    for c in df["data-name"].unique():
+        chats[c]=df[df["data-name"] == c][["data-name","from_me","body_to_render","data-time"]].reset_index(drop=True).to_dict(orient='index')
+
+    json_chat = json.dumps(chats)
+    return render_js_chat(json_chat)
+
+
+
+
+
+
 
