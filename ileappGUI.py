@@ -53,7 +53,7 @@ def ValidateInput(values, window):
 
 # initialize CheckBox control with module name   
 def CheckList(mtxt, lkey, mdstring, disable=False):
-    if mdstring == 'photosMetadata': #items in the if are modules that take a long time to run. Deselects them by default.
+    if mdstring == 'photosMetadata' or mdstring == 'journalStrings' or mdstring == 'walStrings': #items in the if are modules that take a long time to run. Deselects them by default.
         dstate = False
     else:
         dstate = True

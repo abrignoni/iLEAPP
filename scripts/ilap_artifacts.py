@@ -184,15 +184,15 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'appItunesmeta':('Installed Apps', ('**/iTunesMetadata.plist', '**/BundleMetadata.plist')),
             'cloudkitParticipants': ('Cloudkit', '*NoteStore.sqlite*'),
             'cloudkitNoteSharing': ('Cloudkit', '*NoteStore.sqlite*'),
-            'applewalletTransactions': ('Apple Wallet', '**/passes23.sqlite')
+            'applewalletTransactions': ('Apple Wallet', '**/passes23.sqlite'),
+            'journalStrings':('SQLite Journaling - journal', '**/*-journal'),
+            'walStrings':('SQLite Journaling - wal', '**/*-wal')
             }
 
 '''
 #    Artifacts take long to run. Useful in specific situations only.
 #    'aggDict':('Aggregate Dictionary', '*/AggregateDictionary/ADDataStore.sqlitedb')
 #    'aggDictScalars':('Aggregate Dictionary', '*/AggregateDictionary/ADDataStore.sqlitedb')
-#    'journalStrings':('SQLite Journaling', '**/*-journal')
-#    'walStrings':('SQLite Journaling - Strings', '**/*-wal')
 '''
 
 slash = '\\' if is_platform_windows() else '/'
