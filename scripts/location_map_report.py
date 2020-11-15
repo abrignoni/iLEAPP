@@ -54,6 +54,7 @@ def generate_location_map(reportfolderbase,legend_title):
         return
 
     location_path = os.path.join(reportfolderbase, 'LOCATIONS')
+    os.makedirs(location_path,exist_ok=True)
     db = sqlite3.connect(os.path.join(KML_path,"_latlong.db"))
     df = pd.read_sql_query("SELECT key as Name, Activity as Description, latitude, longitude FROM data ;", db)
     df["Point"] = df.apply(lambda row: Point(float(row['longitude']),float(row['latitude']),.0), axis=1)
