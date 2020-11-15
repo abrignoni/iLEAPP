@@ -27,5 +27,6 @@ aleapp_contributors = [
     [ 'Christopher Vance', 'https://blog.d204n6.com/', '@cScottVance', 'https://github.com/cScottVance'],
     [ 'Jesse Spangenberger', 'https://cyberfenixtech.blogspot.com/', '@AzuleOnyx', 'https://github.com/flamusdiu'],
     [ 'Jon Baumann', 'https://ciofecaforensics.com/', '@CiofecaForensic', 'https://github.com/threeplanetssoftware'],
-    [ 'Scott Koenig', '', '@Scott_Kjr', ''] 
+    [ 'Scott Koenig', '', '@Scott_Kjr', ''],
+    [ 'Kevin Pagano', 'https://stark4n6.com/', '@KevinPagano3', 'https://github.com/stark4n6']
 ]

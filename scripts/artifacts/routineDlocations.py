@@ -21,24 +21,20 @@ def get_routineDlocations(files_found, report_folder, seeker):
                 
         db = sqlite3.connect(file_found)
         cursor = db.cursor()
-        # The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/routined_local_learned_location_of_interest_entry.txt
-        # from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
         cursor.execute('''
-        SELECT
-            DATETIME(ZTIMESTAMP + 978307200, 'UNIXEPOCH') AS "TIMESTAMP",
-            ZLATITUDE || ", " || ZLONGITUDE AS "COORDINATES",
-            ZALTITUDE AS "ALTITUDE",
-            ZCOURSE AS "COURSE",
-            ZSPEED AS "SPEED (M/S)",
-            ZSPEED*2.23694 AS "SPEED (MPH)",
-            ZSPEED*3.6 AS "SPEED (KMPH)",
-            ZHORIZONTALACCURACY AS "HORIZONTAL ACCURACY",
-            ZVERTICALACCURACY AS "VERTICAL ACCURACY",
-            ZLATITUDE AS "LATITUDE",
-            ZLONGITUDE AS "LONGITUDE",
-            ZRTCLLOCATIONMO.Z_PK AS "ZRTCLLOCATIONMO TABLE ID" 
-            FROM
-            ZRTCLLOCATIONMO
+        select
+        datetime(ztimestamp + 978307200, 'unixepoch'),
+        zaltitude,
+        zcourse,
+        zspeed,
+        zspeed*2.23694,
+        zspeed*3.6,
+        zhorizontalaccuracy,
+        zverticalaccuracy,
+        zlatitude,
+        zlongitude 
+        from
+        zrtcllocationmo
         ''')
 
         all_rows = cursor.fetchall()
@@ -46,13 +42,13 @@ def get_routineDlocations(files_found, report_folder, seeker):
         data_list = []    
         if usageentries > 0:
             for row in all_rows:
-                data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11]))
+                data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9]))
             
             description = 'Granular location data (~ 1 week)'
             report = ArtifactHtmlReport('Locations')
             report.start_artifact_report(report_folder, 'RoutineD ZRTCLLOCATIONMO', description)
             report.add_script()
-            data_headers = ('Timestamp','Coordinates','Altitude','Course','Speed (M/S)', 'Speed (MPH)','Speed (KMPH)','Horizontal Accuracy','Vertical Accuracy','Latitude','Longitude','Table ID' )     
+            data_headers = ('Timestamp','Altitude','Course','Speed (M/S)', 'Speed (MPH)','Speed (KMPH)','Horizontal Accuracy','Vertical Accuracy','Latitude','Longitude' )     
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
             
@@ -68,18 +64,14 @@ def get_routineDlocations(files_found, report_folder, seeker):
         else:
             logfunc('No RoutineD ZRTCLLOCATIONMO data available')
             
-        # The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/routined_local_learned_location_of_interest_entry.txt
-        # from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
         cursor.execute('''
-        SELECT
-            DATETIME(ZDATE + 978307200, 'UNIXEPOCH') AS "TIMESTAMP",
-            ZLATITUDE || ", " || ZLONGITUDE AS "COORDINATES",
-            ZSOURCE AS "SOURCE",
-            ZLATITUDE AS "LATITUDE",
-            ZLONGITUDE AS "LONGITUDE",
-            ZRTHINTMO.Z_PK AS "ZRTHINTMO TABLE ID" 
-        FROM
-            ZRTHINTMO 
+        select
+        datetime(zdate + 978307200, 'unixepoch'),
+        zsource,
+        zlatitude,
+        zlongitude
+        from
+        zrthintmo 
         ''')
 
         all_rows = cursor.fetchall()
@@ -87,13 +79,13 @@ def get_routineDlocations(files_found, report_folder, seeker):
         data_list = []    
         if usageentries > 0:
             for row in all_rows:
-                data_list.append((row[0], row[1], row[2], row[3], row[4], row[5]))
+                data_list.append((row[0], row[1], row[2], row[3]))
             
             description = 'Semi-granular location data (~ 1 week)'
             report = ArtifactHtmlReport('Locations')
             report.start_artifact_report(report_folder, 'RoutineD ZRTHINTMO', description)
             report.add_script()
-            data_headers = ('Timestamp','Coordinates','Source','Latitude','Longitude','Table ID' )     
+            data_headers = ('Timestamp','Source','Latitude','Longitude' )     
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
             
@@ -109,23 +101,19 @@ def get_routineDlocations(files_found, report_folder, seeker):
         else:
             logfunc('No RoutineD ZRTHINTMO data available')
         
-        # The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/routined_local_learned_location_of_interest_entry.txt
-        # from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt    
+        
         cursor.execute('''
-        SELECT
-                DATETIME(ZENTRYDATE + 978307200, 'UNIXEPOCH') AS "ENTRY TIMESTAMP",
-                DATETIME(ZEXITDATE + 978307200, 'UNIXEPOCH') AS "EXIT TIMESTAMP",
-                ZLOCATIONLATITUDE || ", " ||   ZLOCATIONLONGITUDE AS "COORDINATES",
-                DATETIME(ZDETECTIONDATE + 978307200, 'UNIXEPOCH') AS "DETECTION TIMESTAMP",
-                (ZEXITDATE-ZENTRYDATE)/60.00 AS "VISIT TIME (MINUTES)",
-                ZTYPE AS "TYPE",
-                ZLOCATIONLATITUDE AS "LATITUDE",
-                ZLOCATIONLONGITUDE AS "LONGITUDE",
-                ZLOCATIONUNCERTAINTY AS "UNCERTAINTY",
-                ZDATAPOINTCOUNT AS "DATA POINT COUNT",
-                Z_PK AS "ZRTVISITMO TABLE ID" 
-            FROM
-                ZRTVISITMO
+        select
+        datetime(zentrydate + 978307200, 'unixepoch'),
+        datetime(zexitdate + 978307200, 'unixepoch'),
+        datetime(zdetectiondate + 978307200, 'unixepoch'),
+        (zexitdate-zentrydate)/60.00,
+        ztype,
+        zlocationlatitude,
+        zlocationlongitude,
+        zlocationuncertainty
+        from
+        zrtvisitmo
         ''')
 
         all_rows = cursor.fetchall()
@@ -133,13 +121,13 @@ def get_routineDlocations(files_found, report_folder, seeker):
         data_list = []    
         if usageentries > 0:
             for row in all_rows:
-                data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10]))
+                data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]))
             
             description = 'Visit locations'
             report = ArtifactHtmlReport('Locations')
             report.start_artifact_report(report_folder, 'RoutineD ZRTVISITMO', description)
             report.add_script()
-            data_headers = ('Timestamp','Exit Timestamp','Coordinates','Detection Timestamp','Visit Time (Minutes)', 'Type','Latitude','Longitude','Uncertainty','Data Point Count', 'Table ID' )     
+            data_headers = ('Timestamp','Exit Timestamp','Detection Timestamp','Visit Time (Minutes)', 'Type','Latitude','Longitude','Uncertainty')     
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
             
@@ -154,6 +142,7 @@ def get_routineDlocations(files_found, report_folder, seeker):
 
         else:
             logfunc('No RoutineD ZRTVISITMO data available')
+            
             
             
             

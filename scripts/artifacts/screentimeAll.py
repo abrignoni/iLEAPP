@@ -22,97 +22,82 @@ def get_screentimeAll(files_found, report_folder, seeker):
 	
 	if version.parse(iOSversion) >= version.parse("13"):
 		cursor = db.cursor()
-		# The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/screentime_by_hour.txt
-		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
 		cursor.execute('''
-		SELECT 
-			DATETIME(ZUSAGEBLOCK.ZSTARTDATE+978307200,'UNIXEPOCH') AS 'HOUR',
-			ZUSAGETIMEDITEM.ZBUNDLEIDENTIFIER AS  'BUNDLE ID',
-			ZUSAGETIMEDITEM.ZDOMAIN AS 'DOMAIN',
-			CASE ZUSAGECATEGORY.ZIDENTIFIER 
-				WHEN 'DH0011' THEN 'Unspecified1'
-				WHEN 'DH0012' THEN 'Unspecified2'
-				WHEN 'DH0013' THEN 'Unspecified3'
-				WHEN 'DH1001' THEN 'Games'
-				WHEN 'DH1002' THEN 'Social Networking'
-				WHEN 'DH1003' THEN 'Entertainment'
-				WHEN 'DH1004' THEN 'Creativity'
-				WHEN 'DH1005' THEN 'Productivity'
-				WHEN 'DH1006' THEN 'Education'
-				WHEN 'DH1007' THEN 'Reading & Reference'
-				WHEN 'DH1008' THEN 'Health & Fitness'
-				WHEN 'DH1009' THEN 'Other'
-				ELSE ZUSAGECATEGORY.ZIDENTIFIER
-			END AS 'CATEGORY ID',
-			ZUSAGETIMEDITEM.ZTOTALTIMEINSECONDS  AS 'APP USAGE TIME ITEM (SECONDS)',	
-			ZUSAGETIMEDITEM.ZTOTALTIMEINSECONDS/60.00 AS 'APP USAGE TIME ITEM (MINUTES)',	
-			ZUSAGEBLOCK.ZNUMBEROFPICKUPSWITHOUTAPPLICATIONUSAGE AS 'NUMBER OF PICKUPS W/O APP USAGE',	
-			ZCOREDEVICE.ZNAME AS 'NAME',
-			ZCOREDEVICE.ZIDENTIFIER AS 'DEVICE ID',
-			ZCOREDEVICE.ZLOCALUSERDEVICESTATE AS 'LOCAL USER DEVICE STATE',
-			CASE ZCOREDEVICE.ZPLATFORM
-				WHEN 0 THEN 'Unknown'
-				WHEN 1 THEN 'macOS'
-				WHEN 2 THEN 'iOS'
-				WHEN 4 THEN 'Apple Watch'
-				ELSE ZPLATFORM
-			END AS PLATFORM,
-			ZCOREUSER.ZGIVENNAME AS 'GIVEN NAME',
-			ZCOREUSER.ZFAMILYNAME AS 'FAMILY NAME',
-			ZCOREUSER.ZFAMILYMEMBERTYPE AS 'FAMILY MEMBER TYPE',
-			ZCOREUSER.ZAPPLEID AS 'APPLE ID',
-			ZCOREUSER.ZDSID AS 'DSID',
-			ZCOREUSER.ZALTDSID AS 'ALT DSID',
-			ZUSAGETIMEDITEM.Z_PK AS 'ZUSAGETIMEDITEM TABLE ID'
-		FROM ZUSAGETIMEDITEM
-		LEFT JOIN ZUSAGECATEGORY ON ZUSAGECATEGORY.Z_PK == ZUSAGETIMEDITEM.ZCATEGORY
-		LEFT JOIN ZUSAGEBLOCK ON ZUSAGECATEGORY.ZBLOCK == ZUSAGEBLOCK.Z_PK
-		LEFT JOIN ZUSAGE ON ZUSAGEBLOCK.ZUSAGE == ZUSAGE.Z_PK
-		LEFT JOIN ZCOREUSER ON ZUSAGE.ZUSER == ZCOREUSER.Z_PK
-		LEFT JOIN ZCOREDEVICE ON ZUSAGE.ZDEVICE == ZCOREDEVICE.Z_PK
+		select 
+		datetime(zusageblock.zstartdate+978307200,'unixepoch'),
+		zusagetimeditem.zbundleidentifier,
+		zusagetimeditem.zdomain,
+		case zusagecategory.zidentifier 
+		when 'DH0011' then 'unspecified1'
+		when 'DH0012' then 'unspecified2'
+		when 'DH0013' then 'unspecified3'
+		when 'DH1001' then 'games'
+		when 'DH1002' then 'social networking'
+		when 'DH1003' then 'entertainment'
+		when 'DH1004' then 'creativity'
+		when 'DH1005' then 'productivity'
+		when 'DH1006' then 'education'
+		when 'DH1007' then 'reading & reference'
+		when 'DH1008' then 'health & fitness'
+		when 'DH1009' then 'other'
+		else zusagecategory.zidentifier
+		end,
+		zusagetimeditem.ztotaltimeinseconds,	
+		zusagetimeditem.ztotaltimeinseconds/60.00,	
+		zusageblock.znumberofpickupswithoutapplicationusage,	
+		zcoredevice.zname,
+		case zcoredevice.zplatform
+		when 0 then 'unknown'
+		when 1 then 'macos'
+		when 2 then 'ios'
+		when 4 then 'apple watch'
+		else zplatform
+		end,
+		zcoreuser.zgivenname as 'given name',
+		zcoreuser.zfamilyname as 'family name',
+		zcoreuser.zfamilymembertype
+		from zusagetimeditem, zusagecategory, zusageblock, zusage, zcoreuser, zcoredevice 
+		where zusagecategory.z_pk = zusagetimeditem.zcategory
+		and zusagecategory.zblock = zusageblock.z_pk
+		and zusageblock.zusage = zusage.z_pk
+		and zusage.zuser = zcoreuser.z_pk
+		and zusage.zdevice = zcoredevice.z_pk
 			''')
 	else:
 			cursor = db.cursor()
-			# The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/screentime_by_hour.txt
-			# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
 			cursor.execute('''
-			SELECT 
-				DATETIME(ZUSAGEBLOCK.ZSTARTDATE+978307200,'UNIXEPOCH') AS 'HOUR',
-				ZUSAGETIMEDITEM.ZBUNDLEIDENTIFIER AS  'BUNDLE ID',
-				ZUSAGETIMEDITEM.ZDOMAIN AS 'DOMAIN',
-				CASE ZUSAGECATEGORY.ZIDENTIFIER 
-					WHEN 'DH0011' THEN 'Unspecified1'
-					WHEN 'DH0012' THEN 'Unspecified2'
-					WHEN 'DH0013' THEN 'Unspecified3'
-					WHEN 'DH1001' THEN 'Games'
-					WHEN 'DH1002' THEN 'Social Networking'
-					WHEN 'DH1003' THEN 'Entertainment'
-					WHEN 'DH1004' THEN 'Creativity'
-					WHEN 'DH1005' THEN 'Productivity'
-					WHEN 'DH1006' THEN 'Education'
-					WHEN 'DH1007' THEN 'Reading & Reference'
-					WHEN 'DH1008' THEN 'Health & Fitness'
-					WHEN 'DH1009' THEN 'Other'
-					ELSE ZUSAGECATEGORY.ZIDENTIFIER
-				END AS 'CATEGORY ID',
-				ZUSAGETIMEDITEM.ZTOTALTIMEINSECONDS  AS 'APP USAGE TIME ITEM (SECONDS)',	
-				ZUSAGETIMEDITEM.ZTOTALTIMEINSECONDS/60.00 AS 'APP USAGE TIME ITEM (MINUTES)',	
-				ZUSAGEBLOCK.ZNUMBEROFPICKUPSWITHOUTAPPLICATIONUSAGE AS 'NUMBER OF PICKUPS W/O APP USAGE',	
-				ZCOREDEVICE.ZNAME AS 'NAME',
-				ZCOREDEVICE.ZIDENTIFIER AS 'DEVICE ID',
-				ZCOREDEVICE.ZLOCALUSERDEVICESTATE AS 'LOCAL USER DEVICE STATE',
-				ZCOREUSER.ZGIVENNAME AS 'GIVEN NAME',
-				ZCOREUSER.ZFAMILYNAME AS 'FAMILY NAME',
-				ZCOREUSER.ZFAMILYMEMBERTYPE AS 'FAMILY MEMBER TYPE',
-				ZCOREUSER.ZAPPLEID AS 'APPLE ID',
-				ZCOREUSER.ZDSID AS 'DSID',
-				ZUSAGETIMEDITEM.Z_PK AS 'ZUSAGETIMEDITEM TABLE ID'
-			FROM ZUSAGETIMEDITEM
-			LEFT JOIN ZUSAGECATEGORY ON ZUSAGECATEGORY.Z_PK == ZUSAGETIMEDITEM.ZCATEGORY
-			LEFT JOIN ZUSAGEBLOCK ON ZUSAGECATEGORY.ZBLOCK == ZUSAGEBLOCK.Z_PK
-			LEFT JOIN ZUSAGE ON ZUSAGEBLOCK.ZUSAGE == ZUSAGE.Z_PK
-			LEFT JOIN ZCOREUSER ON ZUSAGE.ZUSER == ZCOREUSER.Z_PK
-			LEFT JOIN ZCOREDEVICE ON ZUSAGE.ZDEVICE == ZCOREDEVICE.Z_PK
+			select 
+			datetime(zusageblock.zstartdate+978307200,'unixepoch'),
+			zusagetimeditem.zbundleidentifier,
+			zusagetimeditem.zdomain,
+			case zusagecategory.zidentifier 
+			when 'DH0011' then 'unspecified1'
+			when 'DH0012' then 'unspecified2'
+			when 'DH0013' then 'unspecified3'
+			when 'DH1001' then 'games'
+			when 'DH1002' then 'social networking'
+			when 'DH1003' then 'entertainment'
+			when 'DH1004' then 'creativity'
+			when 'DH1005' then 'productivity'
+			when 'DH1006' then 'education'
+			when 'DH1007' then 'reading & reference'
+			when 'DH1008' then 'health & fitness'
+			when 'DH1009' then 'other'
+			else zusagecategory.zidentifier
+			end,
+			zusagetimeditem.ztotaltimeinseconds,	
+			zusagetimeditem.ztotaltimeinseconds/60.00,	
+			zusageblock.znumberofpickupswithoutapplicationusage,	
+			zcoredevice.zname,
+			zcoredevice.zlocaluserdevicestate,
+			zcoreuser.zgivenname,
+			zcoreuser.zfamilyname
+			from zusagetimeditem, zusagecategory, zusageblock, zusage, zcoreuser, zcoredevice
+			where zusagecategory.z_pk = zusagetimeditem.zcategory
+			and zusagecategory.zblock = zusageblock.z_pk
+			and zusageblock.zusage = zusage.z_pk
+			and zusage.zuser = zcoreuser.z_pk
+			and zusage.zdevice = zcoredevice.z_pk
 			''')
 
 	all_rows = cursor.fetchall()
@@ -122,12 +107,12 @@ def get_screentimeAll(files_found, report_folder, seeker):
 		if version.parse(iOSversion) >= version.parse("13"):
 					
 			for row in all_rows:
-				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12],row[13],row[14],row[15],row[16],row[17]))
+				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11]))
 
 			report = ArtifactHtmlReport('Screentime Timed Items')
 			report.start_artifact_report(report_folder, 'Timed Items')
 			report.add_script()
-			data_headers = ('Hour','Bundle ID','Domain','Category ID', 'App Usage Time Item in Seconds','App Usage Time Item in Minutes','Number of Pickpus w/o App Usage','Name','Device ID','Local User Device State','Platform','Given Name','Family Name','Family Member Type','AppleID','DSID','Alt DSID','Table ID')  
+			data_headers = ('Hour','Bundle ID','Domain','Category ID', 'App Usage Time Item in Seconds','App Usage Time Item in Minutes','Number of Pickpus w/o App Usage','Name','Platform','Given Name','Family Name','Family Member Type')  
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
@@ -135,12 +120,12 @@ def get_screentimeAll(files_found, report_folder, seeker):
 			tsv(report_folder, data_headers, data_list, tsvname)
 		else:
 			for row in all_rows: 
-				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12],row[13],row[14],row[15]))
+				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10]))
 					
 			report = ArtifactHtmlReport('Screentime Timed Items')
 			report.start_artifact_report(report_folder, 'Timed Items')
 			report.add_script()
-			data_headers = ('Hour','Bundle ID','Domain','Category ID', 'App Usage Time Item in Seconds','App Usage Time Item in Minutes','Number of Pickpus w/o App Usage','Name','Device ID','Local User Device State','Given Name','Family Name','Family Member Type','AppleID','DSID','Table ID')   
+			data_headers = ('Hour','Bundle ID','Domain','Category ID', 'App Usage Time Item in Seconds','App Usage Time Item in Minutes','Number of Pickpus w/o App Usage','Name','Local User Device State','Given Name','Family Name')   
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
@@ -151,63 +136,50 @@ def get_screentimeAll(files_found, report_folder, seeker):
 
 	if version.parse(iOSversion) >= version.parse("13"):
 		cursor = db.cursor()
-		# The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/screentime_by_hour.txt
-		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
 		cursor.execute('''
-		SELECT 
-				DATETIME(ZUSAGEBLOCK.ZSTARTDATE+978307200,'UNIXEPOCH') AS 'HOUR',
-				ZUSAGECOUNTEDITEM.ZBUNDLEIDENTIFIER AS 'BUNDLE ID', 
-				ZUSAGECOUNTEDITEM.ZNUMBEROFNOTIFICATIONS AS 'NUMBER OF NOTIFICATIONS',
-				ZUSAGECOUNTEDITEM.ZNUMBEROFPICKUPS AS 'NUMBER OF PICKUPS',
-				DATETIME(ZUSAGEBLOCK.ZFIRSTPICKUPDATE+978307200,'UNIXEPOCH') AS 'FIRST PICKUP',
-				ZUSAGEBLOCK.ZNUMBEROFPICKUPSWITHOUTAPPLICATIONUSAGE AS 'NUMBER OF PICKUPS W/O APP USAGE',
-				ZCOREDEVICE.ZNAME AS 'NAME',
-				ZCOREDEVICE.ZIDENTIFIER AS 'DEVICE ID',
-				ZCOREDEVICE.ZLOCALUSERDEVICESTATE AS 'LOCAL USER DEVICE STATE',
-				CASE ZCOREDEVICE.ZPLATFORM
-					WHEN 0 THEN 'Unknown'
-					WHEN 1 THEN 'macOS'
-					WHEN 2 THEN 'iOS'
-					WHEN 4 THEN 'Apple Watch'
-					ELSE ZPLATFORM
-				END AS PLATFORM,
-				ZCOREUSER.ZGIVENNAME AS 'GIVEN NAME',
-				ZCOREUSER.ZFAMILYNAME AS 'FAMILY NAME',
-				ZCOREUSER.ZFAMILYMEMBERTYPE AS 'FAMILY MEMBER TYPE',
-				ZCOREUSER.ZAPPLEID AS 'APPLE ID',
-				ZCOREUSER.ZDSID AS 'DSID',
-				ZCOREUSER.ZALTDSID AS 'ALT DSID',
-				ZUSAGECOUNTEDITEM.Z_PK AS "ZUSAGECOUNTEDITEM TABLE ID"
-			FROM ZUSAGECOUNTEDITEM
-			LEFT JOIN ZUSAGEBLOCK ON ZUSAGECOUNTEDITEM.ZBLOCK == ZUSAGEBLOCK.Z_PK
-			LEFT JOIN ZUSAGE ON ZUSAGEBLOCK.ZUSAGE == ZUSAGE.Z_PK
-			LEFT JOIN ZCOREUSER ON ZUSAGE.ZUSER == ZCOREUSER.Z_PK
-			LEFT JOIN ZCOREDEVICE ON ZUSAGE.ZDEVICE == ZCOREDEVICE.Z_PK
+		select 
+		datetime(zusageblock.zstartdate+978307200,'unixepoch'),
+		zusagecounteditem.zbundleidentifier, 
+		zusagecounteditem.znumberofnotifications,
+		zusagecounteditem.znumberofpickups,
+		datetime(zusageblock.zfirstpickupdate+978307200,'unixepoch'),
+		zusageblock.znumberofpickupswithoutapplicationusage,
+		zcoredevice.zname,
+		zcoredevice.zlocaluserdevicestate,
+		case zcoredevice.zplatform
+		when 0 then 'unknown'
+		when 1 then 'macos'
+		when 2 then 'ios'
+		when 4 then 'apple watch'
+		else zplatform
+		end,
+		zcoreuser.zgivenname,
+		zcoreuser.zfamilyname
+		from zusagecounteditem, zusageblock, zusage, zcoreuser, zcoredevice  
+		where zusagecounteditem.zblock = zusageblock.z_pk
+		and zusageblock.zusage = zusage.z_pk
+		and zusage.zuser = zcoreuser.z_pk
+		and zusage.zdevice = zcoredevice.z_pk
 			''')
 	else:
 			cursor = db.cursor()
 			cursor.execute('''
-			SELECT 
-					DATETIME(ZUSAGEBLOCK.ZSTARTDATE+978307200,'UNIXEPOCH') AS 'HOUR',
-					ZUSAGECOUNTEDITEM.ZBUNDLEIDENTIFIER AS 'BUNDLE ID', 
-					ZUSAGECOUNTEDITEM.ZNUMBEROFNOTIFICATIONS AS 'NUMBER OF NOTIFICATIONS',
-					ZUSAGECOUNTEDITEM.ZNUMBEROFPICKUPS AS 'NUMBER OF PICKUPS',
-					DATETIME(ZUSAGEBLOCK.ZFIRSTPICKUPDATE+978307200,'UNIXEPOCH') AS 'FIRST PICKUP',
-					ZUSAGEBLOCK.ZNUMBEROFPICKUPSWITHOUTAPPLICATIONUSAGE AS 'NUMBER OF PICKUPS W/O APP USAGE',
-					ZCOREDEVICE.ZNAME AS 'NAME',
-					ZCOREDEVICE.ZIDENTIFIER AS 'DEVICE ID',
-					ZCOREDEVICE.ZLOCALUSERDEVICESTATE AS 'LOCAL USER DEVICE STATE',
-					ZCOREUSER.ZGIVENNAME AS 'GIVEN NAME',
-					ZCOREUSER.ZFAMILYNAME AS 'FAMILY NAME',
-					ZCOREUSER.ZFAMILYMEMBERTYPE AS 'FAMILY MEMBER TYPE',
-					ZCOREUSER.ZAPPLEID AS 'APPLE ID',
-					ZCOREUSER.ZDSID AS 'DSID',
-					ZUSAGECOUNTEDITEM.Z_PK AS "ZUSAGECOUNTEDITEM TABLE ID"
-				FROM ZUSAGECOUNTEDITEM
-				LEFT JOIN ZUSAGEBLOCK ON ZUSAGECOUNTEDITEM.ZBLOCK == ZUSAGEBLOCK.Z_PK
-				LEFT JOIN ZUSAGE ON ZUSAGEBLOCK.ZUSAGE == ZUSAGE.Z_PK
-				LEFT JOIN ZCOREUSER ON ZUSAGE.ZUSER == ZCOREUSER.Z_PK
-				LEFT JOIN ZCOREDEVICE ON ZUSAGE.ZDEVICE == ZCOREDEVICE.Z_PK
+			select 
+			datetime(zusageblock.zstartdate+978307200,'unixepoch'),
+			zusagecounteditem.zbundleidentifier, 
+			zusagecounteditem.znumberofnotifications,
+			zusagecounteditem.znumberofpickups,
+			datetime(zusageblock.zfirstpickupdate+978307200,'unixepoch'),
+			zusageblock.znumberofpickupswithoutapplicationusage,
+			zcoredevice.zname,
+			zcoredevice.zlocaluserdevicestate,
+			zcoreuser.zgivenname,
+			zcoreuser.zfamilyname
+			from zusagecounteditem, zusageblock, zusage, zcoreuser, zcoredevice 
+			where zusagecounteditem.zblock == zusageblock.z_pk
+			and zusageblock.zusage == zusage.z_pk
+			and zusage.zuser == zcoreuser.z_pk
+			and zusage.zdevice == zcoredevice.z_pk
 			''')
 
 	all_rows = cursor.fetchall()
@@ -217,12 +189,12 @@ def get_screentimeAll(files_found, report_folder, seeker):
 		if version.parse(iOSversion) >= version.parse("13"):
 					
 			for row in all_rows:
-				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12],row[13],row[14],row[15],row[16]))
+				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10]))
 
 			report = ArtifactHtmlReport('Screentime Counted Items')
 			report.start_artifact_report(report_folder, 'Counted Items')
 			report.add_script()
-			data_headers = ('Hour','Bundle ID','Number of Notifications','Number of Pickups', 'First Pickup','Number of Pickups W/O App Usage','Name','Device ID','Local User Device State','Platform','Given Name','Family Name','Family Member Type','AppleID','DSID','Alt DSID','Table ID')  
+			data_headers = ('Hour','Bundle ID','Number of Notifications','Number of Pickups', 'First Pickup','Number of Pickups W/O App Usage','Name','Local User Device State','Platform','Given Name','Family Name')  
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
@@ -230,12 +202,12 @@ def get_screentimeAll(files_found, report_folder, seeker):
 			tsv(report_folder, data_headers, data_list, tsvname)
 		else:
 			for row in all_rows: 
-				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12],row[13],row[14]))
+				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9]))
 					
 			report = ArtifactHtmlReport('Screentime Counted Items')
 			report.start_artifact_report(report_folder, 'Counted Items')
 			report.add_script()
-			data_headers = ('Hour','Bundle ID','Number of Notifications','Number of Pickups', 'First Pickup','Number of Pickups W/O App Usage','Name','Device ID','Local User Device State','Given Name','Family Name','Family Member Type','AppleID','DSID','Table ID')  
+			data_headers = ('Hour','Bundle ID','Number of Notifications','Number of Pickups', 'First Pickup','Number of Pickups W/O App Usage','Name','Local User Device State','Given Name','Family Name')  
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
@@ -246,73 +218,36 @@ def get_screentimeAll(files_found, report_folder, seeker):
 	
 	if version.parse(iOSversion) >= version.parse("13"):
 		cursor = db.cursor()
-		# The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/screentime_by_hour.txt
-		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
 		cursor.execute('''
-		SELECT
-			DISTINCT
-			DATETIME(ZUSAGEBLOCK.ZSTARTDATE+978307200,'UNIXEPOCH') AS 'HOUR',
-			ZUSAGEBLOCK.ZSCREENTIMEINSECONDS AS 'SCREENTIME (SECONDS)',
-			ZUSAGEBLOCK.ZSCREENTIMEINSECONDS/60.00 AS 'SCREENTIME (MINUTES)',	
-			ZCOREUSER.ZGIVENNAME AS 'GIVEN NAME',
-			ZCOREUSER.ZFAMILYNAME AS 'FAMILY NAME',
-			ZCOREDEVICE.ZNAME AS 'NAME',
-			CASE ZCOREDEVICE.ZPLATFORM
-				WHEN 0 THEN 'Unknown'
-				WHEN 1 THEN 'macOS'
-				WHEN 2 THEN 'iOS'
-				WHEN 4 THEN 'Apple Watch'
-				ELSE ZPLATFORM
-			END AS PLATFORM,
-			ZCOREDEVICE.ZIDENTIFIER AS 'DEVICE ID',
-			ZCOREDEVICE.ZLOCALUSERDEVICESTATE AS 'LOCAL USER DEVICE STATE',
-			DATETIME(ZUSAGEBLOCK.ZLONGESTSESSIONSTARTDATE+978307200,'UNIXEPOCH') AS 'LONGEST SESSION START',
-			DATETIME(ZUSAGEBLOCK.ZLONGESTSESSIONENDDATE+978307200,'UNIXEPOCH') AS 'LONGEST SESSION END',
-			DATETIME(ZUSAGEBLOCK.ZLASTEVENTDATE+978307200,'UNIXEPOCH') AS 'LAST EVENT DATE',
-			(ZLONGESTSESSIONENDDATE-ZLONGESTSESSIONSTARTDATE) AS 'LONGEST SESSION TIME (SECONDS)',
-			(ZLONGESTSESSIONENDDATE-ZLONGESTSESSIONSTARTDATE)/60.00 AS 'LONGEST SESSION TIME (MINUTES)',
-			ZCOREUSER.ZFAMILYMEMBERTYPE AS 'FAMILY MEMBER TYPE',
-			ZCOREUSER.ZAPPLEID AS 'APPLE ID',
-			ZCOREUSER.ZDSID AS 'DSID',
-			ZCOREUSER.ZALTDSID AS 'ALT DSID'
-		FROM ZUSAGETIMEDITEM
-		LEFT JOIN ZUSAGECATEGORY ON ZUSAGECATEGORY.Z_PK == ZUSAGETIMEDITEM.ZCATEGORY
-		LEFT JOIN ZUSAGEBLOCK ON ZUSAGECATEGORY.ZBLOCK == ZUSAGEBLOCK.Z_PK
-		LEFT JOIN ZUSAGE ON ZUSAGEBLOCK.ZUSAGE == ZUSAGE.Z_PK
-		LEFT JOIN ZCOREUSER ON ZUSAGE.ZUSER == ZCOREUSER.Z_PK
-		LEFT JOIN ZCOREDEVICE ON ZUSAGE.ZDEVICE == ZCOREDEVICE.Z_PK
-			''')
-	else:
-			cursor = db.cursor()
-			# The following SQL query is taken from # The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/screentime_by_hour.txt
-			# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
-			cursor.execute('''
-			SELECT
-				DISTINCT
-				DATETIME(ZUSAGEBLOCK.ZSTARTDATE+978307200,'UNIXEPOCH') AS 'HOUR',
-				ZUSAGEBLOCK.ZSCREENTIMEINSECONDS AS 'SCREENTIME (SECONDS)',
-				ZUSAGEBLOCK.ZSCREENTIMEINSECONDS/60.00 AS 'SCREENTIME (MINUTES)',	
-				ZCOREUSER.ZGIVENNAME AS 'GIVEN NAME',
-				ZCOREUSER.ZFAMILYNAME AS 'FAMILY NAME',
-				ZCOREDEVICE.ZNAME AS 'NAME',
-				ZCOREDEVICE.ZIDENTIFIER AS 'DEVICE ID',
-				ZCOREDEVICE.ZLOCALUSERDEVICESTATE AS 'LOCAL USER DEVICE STATE',
-				DATETIME(ZUSAGEBLOCK.ZLONGESTSESSIONSTARTDATE+978307200,'UNIXEPOCH') AS 'LONGEST SESSION START',
-				DATETIME(ZUSAGEBLOCK.ZLONGESTSESSIONENDDATE+978307200,'UNIXEPOCH') AS 'LONGEST SESSION END',
-				DATETIME(ZUSAGEBLOCK.ZLASTEVENTDATE+978307200,'UNIXEPOCH') AS 'LAST EVENT DATE',
-				(ZLONGESTSESSIONENDDATE-ZLONGESTSESSIONSTARTDATE) AS 'LONGEST SESSION TIME (SECONDS)',
-				(ZLONGESTSESSIONENDDATE-ZLONGESTSESSIONSTARTDATE)/60.00 AS 'LONGEST SESSION TIME (MINUTES)',
-				ZCOREUSER.ZFAMILYMEMBERTYPE AS 'FAMILY MEMBER TYPE',
-				ZCOREUSER.ZAPPLEID AS 'APPLE ID',
-				ZCOREUSER.ZDSID AS 'DSID'
-			FROM ZUSAGETIMEDITEM
-			LEFT JOIN ZUSAGECATEGORY ON ZUSAGECATEGORY.Z_PK == ZUSAGETIMEDITEM.ZCATEGORY
-			LEFT JOIN ZUSAGEBLOCK ON ZUSAGECATEGORY.ZBLOCK == ZUSAGEBLOCK.Z_PK
-			LEFT JOIN ZUSAGE ON ZUSAGEBLOCK.ZUSAGE == ZUSAGE.Z_PK
-			LEFT JOIN ZCOREUSER ON ZUSAGE.ZUSER == ZCOREUSER.Z_PK
-			LEFT JOIN ZCOREDEVICE ON ZUSAGE.ZDEVICE == ZCOREDEVICE.Z_PK
-			''')
-
+		select
+		distinct
+		datetime(zusageblock.zstartdate+978307200,'unixepoch'),
+		zusageblock.zscreentimeinseconds,
+		zusageblock.zscreentimeinseconds/60.00,	
+		zcoreuser.zgivenname,
+		zcoreuser.zfamilyname,
+		zcoredevice.zname,
+		case zcoredevice.zplatform
+		when 0 then 'unknown'
+		when 1 then 'macos'
+		when 2 then 'ios'
+		when 4 then 'apple watch'
+		else zplatform
+		end,
+		zcoredevice.zlocaluserdevicestate as 'local user device state',
+		datetime(zusageblock.zlongestsessionstartdate+978307200,'unixepoch'),
+		datetime(zusageblock.zlongestsessionenddate+978307200,'unixepoch'),
+		datetime(zusageblock.zlasteventdate+978307200,'unixepoch'),
+		(zlongestsessionenddate-zlongestsessionstartdate),
+		(zlongestsessionenddate-zlongestsessionstartdate)/60.00 
+		from zusagetimeditem, zusagecategory, zusageblock, zusage, zcoreuser, zcoredevice 
+		where zusagecategory.z_pk == zusagetimeditem.zcategory
+		and  zusagecategory.zblock == zusageblock.z_pk
+		and  zusageblock.zusage == zusage.z_pk
+		and  zusage.zuser == zcoreuser.z_pk
+		and zusage.zdevice == zcoredevice.z_pk
+		''')
+		
 	all_rows = cursor.fetchall()
 	usageentries = len(all_rows)
 	if usageentries > 0:
@@ -320,29 +255,18 @@ def get_screentimeAll(files_found, report_folder, seeker):
 		if version.parse(iOSversion) >= version.parse("13"):
 					
 			for row in all_rows:
-				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12],row[13],row[14],row[15],row[16],row[17]))
+				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12]))
 
 			report = ArtifactHtmlReport('Screentime Generic by Hour')
 			report.start_artifact_report(report_folder, 'Generic by Hour')
 			report.add_script()
-			data_headers = ('Hour','Screentime in Seconds','Screentime in Minutes','Given Name', 'Family Name','Name','Platform','Device ID','Local User Device State','Longest Session Start','Longest Session End','Last Event Date','Longest Session Time in Seconds','Longest Session Time in Minutes','Family Member Type','Apple ID','DSID','Alt DSID')  
+			data_headers = ('Hour','Screentime in Seconds','Screentime in Minutes','Given Name', 'Family Name','Name','Platform','Local User Device State','Longest Session Start','Longest Session End','Last Event Date','Longest Session Time in Seconds','Longest Session Time in Minutes')  
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
 			tsvname = 'Screentime Generic by Hour'
 			tsv(report_folder, data_headers, data_list, tsvname)
-		else:
-			for row in all_rows: 
-				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12],row[13],row[14],row[15]))
-					
-			report = ArtifactHtmlReport('Screentime Generic by Hour')
-			report.start_artifact_report(report_folder, 'Generic Hour')
-			report.add_script()
-			data_headers = ('Hour','Screentime in Seconds','Screentime in Minutes','Given Name', 'Family Name','Name','Device ID','Local User Device State','Longest Session Start','Longest Session End','Last Event Date','Longest Session Time in Seconds','Longest Session Time in Minutes','Family Member Type','Apple ID','DSID')  
-			report.write_artifact_data_table(data_headers, data_list, file_found)
-			report.end_artifact_report()
-			
-			tsvname = 'Screentime Generic by Hour'
-			tsv(report_folder, data_headers, data_list, tsvname)
+		
 	else:
 		logfunc('No data available in table foe Screentime Generic by Hour')
+		

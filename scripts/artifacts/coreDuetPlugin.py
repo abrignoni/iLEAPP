@@ -16,14 +16,14 @@ def get_coreDuetPlugin(files_found, report_folder, seeker):
 
 	cursor.execute(
 	"""
-	SELECT 
-	DATETIME(ZCREATIONDATE+978307200,'UNIXEPOCH') AS "TIMESTAMP",
-	TIME(ZCREATIONDATE-ZLOCALTIME,'UNIXEPOCH') AS "TIME ZONE", 
-	CASE ZCABLESTATE
-	    WHEN "0" THEN "UNPLUGGED"
-	    WHEN "1" THEN "PLUGGED IN"
-	END "CABLE STATE"
-	FROM ZCDDMPLUGINEVENT	
+	select 
+	datetime(zcreationdate+978307200,'unixepoch'),
+	time(zcreationdate-zlocaltime,'unixepoch'),
+	case zcablestate
+	when '0' then 'unplugged'
+	when '1' then 'plugged in'
+	end
+	from zcddmpluginevent	
 	"""
 	)
 

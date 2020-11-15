@@ -11,3 +11,6 @@ blackboxprotobuf
 nska-deserialize
 biplist
 simplekml
+folium
+pandas
+shapely
