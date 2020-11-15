@@ -89,12 +89,12 @@ class ArtifactHtmlReport:
         if html_escape:
             for row in data_list:
                 if html_no_escape:
-                    self.report_file.write('<tr>' + ''.join( ('<td>{}</td>'.format(html.escape(str(x) if x != None else '')) if h not in html_no_escape else '<td>{}</td>'.format(str(x) if x != None else '') for x,h in zip(row, data_headers)) )  + '</tr>')
+                    self.report_file.write('<tr>' + ''.join( ('<td>{}</td>'.format(html.escape(str(x) if x not in [None, 'N/A'] else '')) if h not in html_no_escape else '<td>{}</td>'.format(str(x) if x not in [None, 'N/A'] else '') for x,h in zip(row, data_headers)) )  + '</tr>')
                 else:
-                    self.report_file.write('<tr>' + ''.join( ('<td>{}</td>'.format(html.escape(str(x) if x != None else '')) for x in row) ) + '</tr>')
+                    self.report_file.write('<tr>' + ''.join( ('<td>{}</td>'.format(html.escape(str(x) if x not in [None, 'N/A'] else '')) for x in row) ) + '</tr>')
         else:
             for row in data_list:
-                self.report_file.write('<tr>' + ''.join( ('<td>{}</td>'.format(str(x) if x != None else '') for x in row) ) + '</tr>')
+                self.report_file.write('<tr>' + ''.join( ('<td>{}</td>'.format(str(x) if x not in [None, 'N/A'] else '') for x in row) ) + '</tr>')
         
         self.report_file.write('</tbody>')
         if cols_repeated_at_bottom:
