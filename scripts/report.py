@@ -91,6 +91,8 @@ def get_icon_name(category, artifact):
         if artifact == 'LOCK STATE':  icon = 'lock'
         if artifact == 'PLUGGED IN':  icon = 'battery-charging'
     elif category == 'HEALTH DATA':             icon = 'heart'
+    elif category == 'SQLITE JOURNALING - WAL': icon = 'book-open'
+    elif category == 'SQLITE JOURNALING - JOURNAL': icon = 'book-open'
     elif category == 'MOBILE ACTIVATION LOGS':    icon = 'clipboard'
     elif category == 'MOBILE BACKUP':       icon = 'save'
     elif category == 'MOBILE CONTAINER MANAGER':       icon = 'save'
