@@ -50,7 +50,7 @@ body_start = \
 body_sidebar_setup = \
 """
             <nav class="col-md-2 d-none d-md-block bg-light sidebar">
-                <div class="sidebar-sticky">
+                <div class="sidebar-sticky" id="sidebar_id>
                     <ul class="nav flex-column">
 """
 # The 'active' class must be set only for the current page, it will highlight that entry in blue
@@ -113,6 +113,7 @@ body_sidebar_dynamic_data_placeholder = '<!--__INSERT-NAV-BAR-DATA-HERE__-->'
 body_sidebar_trailer = \
 """
                     </ul>
+                    <br /><br />
                 </div>
             </nav>
 """
@@ -274,7 +275,37 @@ body_end = \
         feather.replace()
     </script>
 """
-icon_display_trigger = '<script>feather.replace()</script>'
+
+nav_bar_script = \
+"""
+    <script>
+        feather.replace();
+        var element = document.getElementById("sidebar_id");
+        var searchParams = new URLSearchParams(window.location.search);
+        if (searchParams.has('navpos')) {
+            var nav_pos = parseInt(searchParams.get('navpos'));
+            if (!isNaN(nav_pos))
+                element.scrollTop = nav_pos;
+        }
+    </script>
+"""
+
+nav_bar_script_footer = \
+"""
+    <script>
+        var elemScrollTop = document.getElementById("sidebar_id").scrollTop.toString();
+        document.addEventListener("DOMContentLoaded", function() {
+            var element = document.getElementById("sidebar_id");
+            element.addEventListener("scroll", function() {
+                elemScrollTop = document.getElementById("sidebar_id").scrollTop.toString();
+            });
+        });
+        $('a.nav-link').click(function(e) {
+            e.preventDefault();
+            location.href = $(this).attr('href') + "?navpos=" + elemScrollTop;
+        });
+    </script>
+"""
 
 default_responsive_table_script = \
 """
