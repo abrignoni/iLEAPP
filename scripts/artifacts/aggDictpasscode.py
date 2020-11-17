@@ -14,15 +14,14 @@ def get_aggDictpasscode(files_found, report_folder, seeker):
 	db = sqlite3.connect(file_found)
 	cursor = db.cursor()
 
-	cursor.execute(
-	"""
-	SELECT
-	DATE(DAYSSINCE1970*86400, 'unixepoch') AS DAY,
-	KEY AS "KEY",
-	VALUE AS "VALUE"
-	FROM
-	SCALARS
-	where key like 'com.apple.passcode.NumPasscode%'
+	cursor.execute("""
+	select
+	date(dayssince1970*86400, 'unixepoch'),
+	key,
+	value
+	from
+	scalars
+	where key like 'com.apple.passcode.numpasscode%'
 	"""
 	)
 
@@ -48,3 +47,4 @@ def get_aggDictpasscode(files_found, report_folder, seeker):
 		timeline(report_folder, tlactivity, data_list, data_headers)
 	else:
 		logfunc("No Agg Dict Dictionary Data available")
+		

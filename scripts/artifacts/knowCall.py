@@ -22,39 +22,28 @@ def get_knowCall(files_found, report_folder, seeker):
 		file_found = str(files_found[0])
 		db = sqlite3.connect(file_found)
 		cursor = db.cursor()
-		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_device_inferred_motion.txt
-		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
-		cursor.execute(
-		"""
-		  SELECT
-				DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
-				DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') AS "END",
-				ZOBJECT.ZVALUEINTEGER AS "VALUE",
-				(ZOBJECT.ZENDDATE - ZOBJECT.ZSTARTDATE) AS "USAGE IN SECONDS",
-				(ZOBJECT.ZENDDATE - ZOBJECT.ZSTARTDATE)/60.00 AS "USAGE IN MINUTES",   
-				CASE ZOBJECT.ZSTARTDAYOFWEEK 
-					WHEN "1" THEN "Sunday"
-					WHEN "2" THEN "Monday"
-					WHEN "3" THEN "Tuesday"
-					WHEN "4" THEN "Wednesday"
-					WHEN "5" THEN "Thursday"
-					WHEN "6" THEN "Friday"
-					WHEN "7" THEN "Saturday"
-				END "DAY OF WEEK",
-				ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-				DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') AS "ENTRY CREATION",
-				ZOBJECT.ZUUID AS "UUID", 
-				ZOBJECT.Z_PK AS "ZOBJECT TABLE ID" 
-			FROM
-				ZOBJECT 
-				LEFT JOIN
-					ZSTRUCTUREDMETADATA 
-					ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
-				LEFT JOIN
-					ZSOURCE 
-					ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
-			WHERE
-				ZSTREAMNAME = "/inferred/motion" 	
+		cursor.execute("""
+		select
+		datetime(zobject.zstartdate+978307200,'unixepoch'), 
+		datetime(zobject.zenddate+978307200,'unixepoch'),
+		zobject.zsecondsfromgmt/3600,
+		zobject.zvalueinteger,
+		(zobject.zenddate - zobject.zstartdate),
+		(zobject.zenddate - zobject.zstartdate)/60.00,   
+		case zobject.zstartdayofweek 
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
+		end,
+		datetime(zobject.zcreationdate+978307200,'unixepoch')
+		from
+		zobject 
+		where
+		zstreamname = '/inferred/motion'  	
 		""")
 
 		all_rows = cursor.fetchall()
@@ -62,13 +51,13 @@ def get_knowCall(files_found, report_folder, seeker):
 		if usageentries > 0:
 			data_list = []    
 			for row in all_rows:
-				data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9]))
+				data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]))
 
 			description = ''
 			report = ArtifactHtmlReport('KnowledgeC Inferred Motion')
 			report.start_artifact_report(report_folder, 'Inferred Motion', description)
 			report.add_script()
-			data_headers = ('Start','End','Value','Usage in Seconds','Usage in Minutes','Day of Week','GMT Offset','Entry Creation','UUID','Zobject Table ID')     
+			data_headers = ('Start','End','GMT Offset','Value','Usage in Seconds','Usage in Minutes','Day of Week','Entry Creation')     
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
@@ -81,50 +70,45 @@ def get_knowCall(files_found, report_folder, seeker):
 			logfunc('No data available in Inferred Motion')
 
 	cursor = db.cursor()
-	# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_app_activity.txt
-	# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
-
-	cursor.execute(
-		'''
-	SELECT
-	datetime(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') as "ENTRY CREATION", 
-		CASE ZOBJECT.ZSTARTDAYOFWEEK 
-		WHEN "1" THEN "Sunday"
-		WHEN "2" THEN "Monday"
-		WHEN "3" THEN "Tuesday"
-		WHEN "4" THEN "Wednesday"
-		WHEN "5" THEN "Thursday"
-		WHEN "6" THEN "Friday"
-		WHEN "7" THEN "Saturday"
-	END "DAY OF WEEK",
-	datetime(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') as "START", 
-	datetime(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') as "END", 
-	ZOBJECT.ZSTREAMNAME, 
-	ZOBJECT.ZVALUESTRING,
-	ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__ACTIVITYTYPE AS "ACTIVITY TYPE",  
-	ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__TITLE as "TITLE", 
-	datetime(ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__EXPIRATIONDATE+978307200,'UNIXEPOCH') as "EXPIRATION DATE",
-	ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__ITEMRELATEDCONTENTURL as "CONTENT URL",
-	datetime(ZSTRUCTUREDMETADATA.ZCOM_APPLE_CALENDARUIKIT_USERACTIVITY_DATE+978307200,'UNIXEPOCH')  as "CALENDAR DATE",
-	datetime(ZSTRUCTUREDMETADATA.ZCOM_APPLE_CALENDARUIKIT_USERACTIVITY_ENDDATE+978307200,'UNIXEPOCH')  as "CALENDAR END DATE"
-	FROM ZOBJECT
-	left join ZSTRUCTUREDMETADATA on ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK
-	left join ZSOURCE on ZOBJECT.ZSOURCE = ZSOURCE.Z_PK
-	WHERE ZSTREAMNAME is "/app/activity" 
-	ORDER BY "ENTRY CREATION"'''
-	)
+	cursor.execute('''
+		select
+		datetime(zobject.zcreationdate+978307200,'unixepoch'), 
+		case zobject.zstartdayofweek 
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
+		end,
+		datetime(zobject.zstartdate+978307200,'unixepoch'), 
+		datetime(zobject.zenddate+978307200,'unixepoch'), 
+		zobject.zvaluestring,
+		zstructuredmetadata.z_dkapplicationactivitymetadatakey__activitytype,  
+		zstructuredmetadata.z_dkapplicationactivitymetadatakey__title, 
+		datetime(zstructuredmetadata.z_dkapplicationactivitymetadatakey__expirationdate+978307200,'unixepoch'),
+		zstructuredmetadata.z_dkapplicationactivitymetadatakey__itemrelatedcontenturl,
+		datetime(zstructuredmetadata.zcom_apple_calendaruikit_useractivity_date+978307200,'unixepoch'),
+		datetime(zstructuredmetadata.zcom_apple_calendaruikit_useractivity_enddate+978307200,'unixepoch')
+		from zobject, zstructuredmetadata, zsource 
+		where zobject.zstructuredmetadata = zstructuredmetadata.z_pk
+		and zobject.zsource = zsource.z_pk
+		and zstreamname = '/app/activity' 
+		order by 'entry creation'
+	''')
 
 	all_rows = cursor.fetchall()
 	usageentries = len(all_rows)
 	data_list = [] 
 	for row in all_rows:
-		data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11]))
+		data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10]))
 
 	description = ''
 	report = ArtifactHtmlReport('KnowledgeC App Activity')
 	report.start_artifact_report(report_folder, 'App Activity', description)
 	report.add_script()
-	data_headers = ('Entry Creation','Day of the Week','Start','End','ZSTREAMNAME', 'ZVALUESTRING', 'Activity Type', 'Title', 'Expiration Date', 'Content URL', 'Calendar Date', 'Calendar End Date' )     
+	data_headers = ('Entry Creation','Day of the Week','Start','End','Value String', 'Activity Type', 'Title', 'Expiration Date', 'Content URL', 'Calendar Date', 'Calendar End Date' )     
 	report.write_artifact_data_table(data_headers, data_list, file_found)
 	report.end_artifact_report()
 	
@@ -136,85 +120,65 @@ def get_knowCall(files_found, report_folder, seeker):
 	
 	if version.parse(iOSversion) >= version.parse("12"):
 		cursor = db.cursor()
-		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_app_activity.txt
-		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
 		cursor.execute('''
-		SELECT
-				DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
-				DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') AS "END",
-				ZOBJECT.ZVALUESTRING AS "BUNDLE ID", 
-				ZSOURCE.ZGROUPID AS "GROUP ID",
-				ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__ACTIVITYTYPE AS "ACTIVITY TYPE", 
-				ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__CONTENTDESCRIPTION AS "CONTENT DESCRIPTION",
-				ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__USERACTIVITYREQUIREDSTRING AS "USER ACTIVITY REQUIRED STRING",
-				ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__ITEMRELATEDCONTENTURL AS "CONTENT URL",
-				ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__SUGGESTEDINVOCATIONPHRASE AS "SUGGESTED IN VOCATION PHRASE",
-				ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__ITEMRELATEDUNIQUEIDENTIFIER AS "UNIQUE ID",
-				ZSOURCE.ZSOURCEID AS "SOURCE ID",
-				ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__ITEMIDENTIFIER AS "ID",
-				ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__USERACTIVITYUUID AS "ACTIVITY UUID",
-				CASE ZOBJECT.ZSTARTDAYOFWEEK 
-						WHEN "1" THEN "Sunday"
-						WHEN "2" THEN "Monday"
-						WHEN "3" THEN "Tuesday"
-						WHEN "4" THEN "Wednesday"
-						WHEN "5" THEN "Thursday"
-						WHEN "6" THEN "Friday"
-						WHEN "7" THEN "Saturday"
-				END "DAY OF WEEK",
-				ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-				DATETIME(ZOBJECT.ZCREATIONDATE + 978307200, 'UNIXEPOCH') AS "ENTRY CREATION",
-				DATETIME(ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__EXPIRATIONDATE + 978307200, 'UNIXEPOCH') AS "EXPIRATION DATE",
-				ZOBJECT.ZUUID AS "UUID", 
-				ZOBJECT.Z_PK AS "ZOBJECT TABLE ID" 
-		FROM
-			 ZOBJECT 
-			 LEFT JOIN
-					ZSTRUCTUREDMETADATA 
-					ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
-			 LEFT JOIN
-					ZSOURCE 
-					ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
-		WHERE
-			 ZSTREAMNAME IS "/app/activity"
-
+		select
+		datetime(zobject.zstartdate+978307200,'unixepoch'), 
+		datetime(zobject.zenddate+978307200,'unixepoch'),
+		zobject.zvaluestring, 
+		zsource.zgroupid,
+		zstructuredmetadata.z_dkapplicationactivitymetadatakey__activitytype, 
+		zstructuredmetadata.z_dkapplicationactivitymetadatakey__contentdescription,
+		zstructuredmetadata.z_dkapplicationactivitymetadatakey__useractivityrequiredstring,
+		zstructuredmetadata.z_dkapplicationactivitymetadatakey__itemrelatedcontenturl,
+		zstructuredmetadata.z_dkapplicationactivitymetadatakey__suggestedinvocationphrase,
+		zstructuredmetadata.z_dkapplicationactivitymetadatakey__itemrelateduniqueidentifier,
+		zsource.zsourceid,
+		zstructuredmetadata.z_dkapplicationactivitymetadatakey__itemidentifier,
+		zstructuredmetadata.z_dkapplicationactivitymetadatakey__useractivityuuid,
+		case zobject.zstartdayofweek 
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
+		end,
+		zobject.zsecondsfromgmt/3600,
+		datetime(zobject.zcreationdate + 978307200, 'unixepoch'),
+		datetime(zstructuredmetadata.z_dkapplicationactivitymetadatakey__expirationdate + 978307200, 'unixepoch')
+		from zobject, zstructuredmetadata, zsource 
+		where zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
+		and zobject.zsource = zsource.z_pk 
+		and zstreamname = '/app/activity'
 		''')
 	else:
 		cursor = db.cursor()
-		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_app_activity.txt
-		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
 		cursor.execute('''
-		SELECT
-				DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
-				DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') AS "END",
-				ZOBJECT.ZVALUESTRING AS "BUNDLE ID", 
-				ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__ACTIVITYTYPE AS "ACTIVITY TYPE", 
-				ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__TITLE AS "TITLE", 
-				ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__ITEMRELATEDCONTENTURL AS "CONTENT URL",
-				CASE ZOBJECT.ZSTARTDAYOFWEEK 
-						WHEN "1" THEN "Sunday"
-						WHEN "2" THEN "Monday"
-						WHEN "3" THEN "Tuesday"
-						WHEN "4" THEN "Wednesday"
-						WHEN "5" THEN "Thursday"
-						WHEN "6" THEN "Friday"
-						WHEN "7" THEN "Saturday"
-				END "DAY OF WEEK",
-				ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-				DATETIME(ZOBJECT.ZCREATIONDATE + 978307200, 'UNIXEPOCH') AS "ENTRY CREATION",
-				DATETIME(ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__EXPIRATIONDATE + 978307200, 'UNIXEPOCH') AS "EXPIRATION DATE", 
-				ZOBJECT.Z_PK AS "ZOBJECT TABLE ID" 
-		FROM
-			 ZOBJECT 
-			 LEFT JOIN
-					ZSTRUCTUREDMETADATA 
-					ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
-			 LEFT JOIN
-					ZSOURCE 
-					ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
-		WHERE
-			 ZSTREAMNAME IS "/app/activity"
-				''')
+		select
+		datetime(zobject.zstartdate+978307200,'unixepoch'), 
+		datetime(zobject.zenddate+978307200,'unixepoch'),
+		zobject.zvaluestring, 
+		zstructuredmetadata.z_dkapplicationactivitymetadatakey__activitytype, 
+		zstructuredmetadata.z_dkapplicationactivitymetadatakey__title, 
+		zstructuredmetadata.z_dkapplicationactivitymetadatakey__itemrelatedcontenturl,
+		case zobject.zstartdayofweek 
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
+		end,
+		zobject.zsecondsfromgmt/3600,
+		datetime(zobject.zcreationdate + 978307200, 'unixepoch'),
+		datetime(zstructuredmetadata.z_dkapplicationactivitymetadatakey__expirationdate + 978307200, 'unixepoch')
+		from zobject, zstructuredmetadata, zsource 
+		where zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
+		and zobject.zsource = zsource.z_pk 
+		and zstreamname = '/app/activity'
+		''')
 
 		all_rows = cursor.fetchall()
 		usageentries = len(all_rows)
@@ -222,12 +186,12 @@ def get_knowCall(files_found, report_folder, seeker):
 			data_list = []
 			
 			if version.parse(iOSversion) >= version.parse("12"):
-				for row in all_rows:    data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12],row[13],row[14],row[15],row[16],row[17],row[18]))
+				for row in all_rows:    data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12],row[13],row[14],row[15],row[16]))
 
 				report = ArtifactHtmlReport('KnowledgeC Application Activity')
 				report.start_artifact_report(report_folder, 'Application Activity')
 				report.add_script()
-				data_headers = ('Start','End','Bundle ID','Group ID','Activity Type', 'Content Description', 'User Activity Required String', 'Content URL','Suggest Invocation Phrase','Unique ID','Source ID','ID','Activity UUID','Day of Week','GMT Offset','Entry Creation','Expiration Date','UUID','ZOBJECT Table ID' )   
+				data_headers = ('Start','End','Bundle ID','Group ID','Activity Type', 'Content Description', 'User Activity Required String', 'Content URL','Suggest Invocation Phrase','Unique ID','Source ID','ID','Activity UUID','Day of Week','GMT Offset','Entry Creation','Expiration Date' )   
 				report.write_artifact_data_table(data_headers, data_list, file_found)
 				report.end_artifact_report()
 				
@@ -238,11 +202,11 @@ def get_knowCall(files_found, report_folder, seeker):
 				timeline(report_folder, tlactivity, data_list, data_headers)
 			else:
 				for row in all_rows:    
-					data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11]))
+					data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9]))
 				report = ArtifactHtmlReport('KnowledgeC Application Activity')
 				report.start_artifact_report(report_folder, 'Application Activity')
 				report.add_script()
-				data_headers = ('Start','End','Bundle ID','Activity Type', 'Title','Content URL','Day of Week','GMT Offset','Entry Creation','Expiration Date','ZOBJECT Table ID' ) 
+				data_headers = ('Start','End','Bundle ID','Activity Type', 'Title','Content URL','Day of Week','GMT Offset','Entry Creation','Expiration Date') 
 				report.write_artifact_data_table(data_headers, data_list, file_found)
 				report.end_artifact_report()
 				
@@ -257,82 +221,71 @@ def get_knowCall(files_found, report_folder, seeker):
 	
 	if version.parse(iOSversion) >= version.parse("12"):
 		cursor = db.cursor()
-		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_app_activity_calendar.txt
-		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
 		cursor.execute('''
-		SELECT
-			DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
-			DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') AS "END",
-			ZOBJECT.ZVALUESTRING AS "BUNDLE ID", 
-			ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__ACTIVITYTYPE AS "ACTIVITY TYPE", 
-			ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__USERACTIVITYREQUIREDSTRING  AS "USER ACTIVITY REQUIRED STRING",
-			ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__TITLE AS "TITLE", 
-			DATETIME(ZSTRUCTUREDMETADATA.ZCOM_APPLE_CALENDARUIKIT_USERACTIVITY_DATE + 978307200, 'UNIXEPOCH') AS "CALENDAR DATE", 
-			DATETIME(ZSTRUCTUREDMETADATA.ZCOM_APPLE_CALENDARUIKIT_USERACTIVITY_ENDDATE + 978307200, 'UNIXEPOCH') AS "CALENDAR END DATE",
-			ZSOURCE.ZSOURCEID AS "SOURCE ID",
-			CASE ZOBJECT.ZSTARTDAYOFWEEK 
-				WHEN "1" THEN "Sunday"
-				WHEN "2" THEN "Monday"
-				WHEN "3" THEN "Tuesday"
-				WHEN "4" THEN "Wednesday"
-				WHEN "5" THEN "Thursday"
-				WHEN "6" THEN "Friday"
-				WHEN "7" THEN "Saturday"
-			END "DAY OF WEEK", 
-			ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-			DATETIME(ZOBJECT.ZCREATIONDATE + 978307200, 'UNIXEPOCH') AS "ENTRY CREATION",
-			DATETIME(ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__EXPIRATIONDATE + 978307200, 'UNIXEPOCH') AS "EXPIRATION DATE",
-			ZOBJECT.ZUUID AS "UUID",
-			ZOBJECT.Z_PK AS "ZOBJECT TABLE ID" 
-		FROM
-			 ZOBJECT 
-			 LEFT JOIN
-					ZSTRUCTUREDMETADATA 
-					ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
-			 LEFT JOIN
-					ZSOURCE 
-					ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
-		WHERE
-			 ZSTREAMNAME IS "/app/activity" 
-			 AND (ZVALUESTRING = "com.apple.mobilecal" OR ZVALUESTRING = "com.apple.iCal")
-			''')
+		select
+		datetime(zobject.zstartdate+978307200,'unixepoch'), 
+		datetime(zobject.zenddate+978307200,'unixepoch'),
+		zobject.zvaluestring, 
+		zstructuredmetadata.z_dkapplicationactivitymetadatakey__activitytype, 
+		zstructuredmetadata.z_dkapplicationactivitymetadatakey__useractivityrequiredstring ,
+		zstructuredmetadata.z_dkapplicationactivitymetadatakey__title, 
+		datetime(zstructuredmetadata.zcom_apple_calendaruikit_useractivity_date + 978307200, 'unixepoch'), 
+		datetime(zstructuredmetadata.zcom_apple_calendaruikit_useractivity_enddate + 978307200, 'unixepoch'),
+		zsource.zsourceid,
+		case zobject.zstartdayofweek 
+		when "1" then "sunday"
+		when "2" then "monday"
+		when "3" then "tuesday"
+		when "4" then "wednesday"
+		when "5" then "thursday"
+		when "6" then "friday"
+		when "7" then "saturday"
+		end , 
+		zobject.zsecondsfromgmt/3600,
+		datetime(zobject.zcreationdate + 978307200, 'unixepoch'),
+		datetime(zstructuredmetadata.z_dkapplicationactivitymetadatakey__expirationdate + 978307200, 'unixepoch')
+		from
+		zobject 
+		left join
+		zstructuredmetadata 
+		on zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
+		left join
+		zsource 
+		on zobject.zsource = zsource.z_pk 
+		where
+		zstreamname = "/app/activity" 
+		and (zvaluestring = "com.apple.mobilecal" or zvaluestring = "com.apple.ical")
+		''')
 	else:
 		cursor = db.cursor()
-		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_app_activity_calendar.txt
-		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
 		cursor.execute('''
-		SELECT
-			DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
-			DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') AS "END",
-			ZOBJECT.ZVALUESTRING AS "BUNDLE ID", 
-			ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__ACTIVITYTYPE AS "ACTIVITY TYPE", 
-			ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__TITLE AS "TITLE", 
-			DATETIME(ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__EXPIRATIONDATE + 978307200, 'UNIXEPOCH') AS "EXPIRATION DATE", 
-			DATETIME(ZSTRUCTUREDMETADATA.ZCOM_APPLE_CALENDARUIKIT_USERACTIVITY_DATE + 978307200, 'UNIXEPOCH') AS "CALENDAR DATE", 
-			DATETIME(ZSTRUCTUREDMETADATA.ZCOM_APPLE_CALENDARUIKIT_USERACTIVITY_ENDDATE + 978307200, 'UNIXEPOCH') AS "CALENDAR END DATE",
-			CASE ZOBJECT.ZSTARTDAYOFWEEK 
-				WHEN "1" THEN "Sunday"
-				WHEN "2" THEN "Monday"
-				WHEN "3" THEN "Tuesday"
-				WHEN "4" THEN "Wednesday"
-				WHEN "5" THEN "Thursday"
-				WHEN "6" THEN "Friday"
-				WHEN "7" THEN "Saturday"
-			END "DAY OF WEEK", 
-			ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-			DATETIME(ZOBJECT.ZCREATIONDATE + 978307200, 'UNIXEPOCH') AS "ENTRY CREATION",
-			ZOBJECT.Z_PK AS "ZOBJECT TABLE ID" 
-		FROM
-			 ZOBJECT 
-			 LEFT JOIN
-					ZSTRUCTUREDMETADATA 
-					ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
-			 LEFT JOIN
-					ZSOURCE 
-					ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
-		WHERE
-			 ZSTREAMNAME IS "/app/activity" 
-			 AND (ZVALUESTRING = "com.apple.mobilecal" OR ZVALUESTRING = "com.apple.iCal")
+		select
+		datetime(zobject.zstartdate+978307200,'unixepoch'), 
+		datetime(zobject.zenddate+978307200,'unixepoch'),
+		zobject.zvaluestring, 
+		zstructuredmetadata.z_dkapplicationactivitymetadatakey__activitytype, 
+		zstructuredmetadata.z_dkapplicationactivitymetadatakey__useractivityrequiredstring ,
+		zstructuredmetadata.z_dkapplicationactivitymetadatakey__title, 
+		datetime(zstructuredmetadata.zcom_apple_calendaruikit_useractivity_date + 978307200, 'unixepoch'), 
+		datetime(zstructuredmetadata.zcom_apple_calendaruikit_useractivity_enddate + 978307200, 'unixepoch'),
+		zsource.zsourceid,
+		case zobject.zstartdayofweek 
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
+		end , 
+		zobject.zsecondsfromgmt/3600,
+		datetime(zobject.zcreationdate + 978307200, 'unixepoch'),
+		datetime(zstructuredmetadata.z_dkapplicationactivitymetadatakey__expirationdate + 978307200, 'unixepoch')
+		from zobject, zstructuredmetadata, zsource 
+		where zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
+		and zobject.zsource = zsource.z_pk 
+		and zstreamname = '/app/activity'
+		and (zvaluestring = 'com.apple.mobilecal' or zvaluestring = 'com.apple.ical')
 					''')
 
 	all_rows = cursor.fetchall()
@@ -342,12 +295,12 @@ def get_knowCall(files_found, report_folder, seeker):
 			
 		if version.parse(iOSversion) >= version.parse("12"):
 					
-			for row in all_rows:    data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12],row[13],row[14]))
+			for row in all_rows:    data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12]))
 
 			report = ArtifactHtmlReport('InteractionC Application Activity Calendar')
 			report.start_artifact_report(report_folder, 'Application Activity Calendar')
 			report.add_script()
-			data_headers = ('Start','End','Bundle ID','Activity Type','User Activity Required String','Title','Calendar Date','Calendar End Date','Source ID','Day of Week','GMT Offset','Entry Creation','Expiration Date','UUID','ZOBJECT Table ID' )   
+			data_headers = ('Start','End','Bundle ID','Activity Type','User Activity Required String','Title','Calendar Date','Calendar End Date','Source ID','Day of Week','GMT Offset','Entry Creation','Expiration Date')   
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
@@ -358,12 +311,12 @@ def get_knowCall(files_found, report_folder, seeker):
 			timeline(report_folder, tlactivity, data_list, data_headers)
 		else:
 			for row in all_rows:    
-				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11]))
+				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10]))
 			
 			report = ArtifactHtmlReport('InteractionC Application Activty Calendar')
 			report.start_artifact_report(report_folder, 'Application Activity Calendar')
 			report.add_script()
-			data_headers = ('Start','End','Bundle ID','Activity Type', 'Title','Expiration Date','Calendar Date','Calendar End Date','Day of Week','GMT Offset','Entry Creation','ZOBJECT Table ID' ) 
+			data_headers = ('Start','End','Bundle ID','Activity Type', 'Title','Expiration Date','Calendar Date','Calendar End Date','Day of Week','GMT Offset','Entry Creation' ) 
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
@@ -377,87 +330,67 @@ def get_knowCall(files_found, report_folder, seeker):
 			
 	if version.parse(iOSversion) >= version.parse("12"):
 		cursor = db.cursor()
-		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_app_activity_safari.txt
-		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
 		cursor.execute('''
-		SELECT
-			DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
-			DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') AS "END",
-			ZOBJECT.ZVALUESTRING AS "BUNDLE ID", 
-			ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__ACTIVITYTYPE AS "ACTIVITY TYPE", 
-			ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__CONTENTDESCRIPTION AS "CONTENT DESCRIPTION",
-			ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__ITEMRELATEDCONTENTURL AS "CONTENT URL",
-			ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__USERACTIVITYREQUIREDSTRING AS "USER ACTIVITY REQUIRED STRING",
-			ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__ITEMIDENTIFIER AS "ID",
-			ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__ITEMRELATEDUNIQUEIDENTIFIER AS "UNIQUE ID",
-			ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__USERACTIVITYUUID AS "ACTIVITY UUID",
-			ZSOURCE.ZSOURCEID AS "SOURCE ID",
-			CASE ZOBJECT.ZSTARTDAYOFWEEK 
-				WHEN "1" THEN "Sunday"
-				WHEN "2" THEN "Monday"
-				WHEN "3" THEN "Tuesday"
-				WHEN "4" THEN "Wednesday"
-				WHEN "5" THEN "Thursday"
-				WHEN "6" THEN "Friday"
-				WHEN "7" THEN "Saturday"
-			END "DAY OF WEEK",
-			ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-			DATETIME(ZOBJECT.ZCREATIONDATE + 978307200, 'UNIXEPOCH') AS "ENTRY CREATION",
-			DATETIME(ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__EXPIRATIONDATE + 978307200, 'UNIXEPOCH') AS "EXPIRATION DATE",
-			ZOBJECT.ZUUID AS "UUID", 
-			ZOBJECT.Z_PK AS "ZOBJECT TABLE ID" 
-		FROM
-			 ZOBJECT 
-			 LEFT JOIN
-					ZSTRUCTUREDMETADATA 
-					ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
-			 LEFT JOIN
-					ZSOURCE 
-					ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
-		WHERE
-			 ZSTREAMNAME IS "/app/activity"
-			 AND ("BUNDLE ID" = "com.apple.mobilesafari" OR "BUNDLE ID" = "com.apple.Safari")
+		select
+		datetime(zobject.zstartdate+978307200,'unixepoch'), 
+		datetime(zobject.zenddate+978307200,'unixepoch'),
+		zobject.zvaluestring, 
+		zstructuredmetadata.z_dkapplicationactivitymetadatakey__activitytype, 
+		zstructuredmetadata.z_dkapplicationactivitymetadatakey__contentdescription,
+		zstructuredmetadata.z_dkapplicationactivitymetadatakey__itemrelatedcontenturl,
+		zstructuredmetadata.z_dkapplicationactivitymetadatakey__useractivityrequiredstring,
+		zstructuredmetadata.z_dkapplicationactivitymetadatakey__itemidentifier,
+		zstructuredmetadata.z_dkapplicationactivitymetadatakey__itemrelateduniqueidentifier,
+		zstructuredmetadata.z_dkapplicationactivitymetadatakey__useractivityuuid,
+		zsource.zsourceid,
+		case zobject.zstartdayofweek 
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
+		end,
+		zobject.zsecondsfromgmt/3600,
+		datetime(zobject.zcreationdate + 978307200, 'unixepoch'),
+		datetime(zstructuredmetadata.z_dkapplicationactivitymetadatakey__expirationdate + 978307200, 'unixepoch')
+		from zobject, zstructuredmetadata, zsource 
+		where zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
+		and zobject.zsource = zsource.z_pk 
+		and zstreamname = '/app/activity'
+		and (zobject.zvaluestring = 'com.apple.mobilesafari' or zobject.zvaluestring = 'com.apple.safari')
 			''')
 	else:
 		cursor = db.cursor()
-		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_app_activity_safari.txt
-		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
 		cursor.execute('''
-		SELECT
-			DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
-			DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') AS "END",
-			ZOBJECT.ZVALUESTRING AS "BUNDLE ID", 
-			ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__ACTIVITYTYPE AS "ACTIVITY TYPE", 
-			ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__ITEMRELATEDCONTENTURL AS "CONTENT URL",
-			ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__ITEMIDENTIFIER AS "ID",
-			ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__ITEMRELATEDUNIQUEIDENTIFIER AS "UNIQUE ID",
-			ZSOURCE.ZSOURCEID AS "SOURCE ID",
-			CASE ZOBJECT.ZSTARTDAYOFWEEK 
-				WHEN "1" THEN "Sunday"
-				WHEN "2" THEN "Monday"
-				WHEN "3" THEN "Tuesday"
-				WHEN "4" THEN "Wednesday"
-				WHEN "5" THEN "Thursday"
-				WHEN "6" THEN "Friday"
-				WHEN "7" THEN "Saturday"
-			END "DAY OF WEEK",
-			ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-			DATETIME(ZOBJECT.ZCREATIONDATE + 978307200, 'UNIXEPOCH') AS "ENTRY CREATION",
-			DATETIME(ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__EXPIRATIONDATE + 978307200, 'UNIXEPOCH') AS "EXPIRATION DATE",
-			ZOBJECT.ZUUID AS "UUID", 
-			ZOBJECT.Z_PK AS "ZOBJECT TABLE ID" 
-		FROM
-			 ZOBJECT 
-			 LEFT JOIN
-					ZSTRUCTUREDMETADATA 
-					ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
-			 LEFT JOIN
-					ZSOURCE 
-					ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
-		WHERE
-			 ZSTREAMNAME IS "/app/activity"
-			 AND ("BUNDLE ID" = "com.apple.mobilesafari" OR "BUNDLE ID" = "com.apple.Safari")
-					''')
+		select
+		datetime(zobject.zstartdate+978307200,'unixepoch'), 
+		datetime(zobject.zenddate+978307200,'unixepoch'),
+		zobject.zvaluestring, 
+		zstructuredmetadata.z_dkapplicationactivitymetadatakey__activitytype, 
+		zstructuredmetadata.z_dkapplicationactivitymetadatakey__itemrelatedcontenturl,
+		zstructuredmetadata.z_dkapplicationactivitymetadatakey__itemidentifier,
+		zstructuredmetadata.z_dkapplicationactivitymetadatakey__itemrelateduniqueidentifier,
+		zsource.zsourceid,
+		case zobject.zstartdayofweek 
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
+		end,
+		zobject.zsecondsfromgmt/3600,
+		datetime(zobject.zcreationdate + 978307200, 'unixepoch'),
+		datetime(zstructuredmetadata.z_dkapplicationactivitymetadatakey__expirationdate + 978307200, 'unixepoch')
+		from zobject, zstructuredmetadata, zsource 
+		where zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
+		and zobject.zsource = zsource.z_pk 
+		and zstreamname = '/app/activity'
+		and (zobject.zvaluestring = 'com.apple.mobilesafari' or zobject.zvaluestring = 'com.apple.safari')
+		''')
 
 	all_rows = cursor.fetchall()
 	usageentries = len(all_rows)
@@ -466,12 +399,12 @@ def get_knowCall(files_found, report_folder, seeker):
 			
 		if version.parse(iOSversion) >= version.parse("12"):
 			
-			for row in all_rows:    data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12],row[13],row[14],row[15],row[16]))
+			for row in all_rows:    data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12],row[13],row[14]))
 
 			report = ArtifactHtmlReport('KnowledgeC Application Activity Safari')
 			report.start_artifact_report(report_folder, 'Application Activity Safari')
 			report.add_script()
-			data_headers = ('Start','End','Bundle ID','Activity Type', 'Content Description', 'Content URL','User Activity Required String','ID','Unique ID','Activity UUID','Source ID','Day of Week','GMT Offset','Entry Creation','Expiration Date','UUID','ZOBJECT Table ID')  
+			data_headers = ('Start','End','Bundle ID','Activity Type', 'Content Description', 'Content URL','User Activity Required String','ID','Unique ID','Activity UUID','Source ID','Day of Week','GMT Offset','Entry Creation','Expiration Date')  
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
@@ -482,12 +415,12 @@ def get_knowCall(files_found, report_folder, seeker):
 			timeline(report_folder, tlactivity, data_list, data_headers)
 		else:
 			for row in all_rows:    
-				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12],row[13]))
+				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11]))
 			
 			report = ArtifactHtmlReport('KnowledgeC Application Activty Safari')
 			report.start_artifact_report(report_folder, 'Application Activity Safari')
 			report.add_script()
-			data_headers = ('Start','End','Bundle ID','Activity Type','Content URL','ID','Unique ID','Source ID','Day of Week','GMT Offset','Entry Creation','Expiration Date','UUID','ZOBJECT Table ID' ) 
+			data_headers = ('Start','End','Bundle ID','Activity Type','Content URL','ID','Unique ID','Source ID','Day of Week','GMT Offset','Entry Creation','Expiration Date') 
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
@@ -501,44 +434,38 @@ def get_knowCall(files_found, report_folder, seeker):
 
 	if version.parse(iOSversion) >= version.parse("12"):
 		cursor = db.cursor()
-		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_app_relevantshortcuts.txt
-		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
-		cursor.execute(
-		"""
-		SELECT
-		DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
-		DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') AS "END",
-		ZOBJECT.ZVALUESTRING AS "BUNDLE ID", 
-		CASE ZOBJECT.ZSTARTDAYOFWEEK 
-		    WHEN "1" THEN "Sunday"
-		    WHEN "2" THEN "Monday"
-		    WHEN "3" THEN "Tuesday"
-		    WHEN "4" THEN "Wednesday"
-		    WHEN "5" THEN "Thursday"
-		    WHEN "6" THEN "Friday"
-		    WHEN "7" THEN "Saturday"
-		END "DAY OF WEEK",
-		ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-		DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') AS "ENTRY CREATION",
-		ZOBJECT.ZUUID AS "UUID",	
-		ZOBJECT.Z_PK AS "ZOBJECT TABLE ID" 
-		FROM ZOBJECT
-		WHERE ZSTREAMNAME IS "/app/relevantShortcuts"
-		"""
-		)
+		cursor.execute("""
+		select
+		datetime(zobject.zstartdate+978307200,'unixepoch'), 
+		datetime(zobject.zenddate+978307200,'unixepoch'),
+		zobject.zvaluestring, 
+		case zobject.zstartdayofweek 
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
+		end,
+		zobject.zsecondsfromgmt/3600,
+		datetime(zobject.zcreationdate+978307200,'unixepoch')
+		from zobject
+		where zstreamname = '/app/relevantShortcuts'		
+		""")
 
 		all_rows = cursor.fetchall()
 		usageentries = len(all_rows)
 		if usageentries > 0:
 			data_list = []    
 			for row in all_rows:
-				data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]))
+				data_list.append((row[0], row[1], row[2], row[3], row[4], row[5]))
 
 			description = ''
 			report = ArtifactHtmlReport('KnowledgeC Application Relevant Shortcuts')
 			report.start_artifact_report(report_folder, 'App Relevant Shortcuts', description)
 			report.add_script()
-			data_headers = ('Start','End','Bundle ID','Day of the Week','GMT Offset','Entry Creation','UUID','Zobject Table ID')     
+			data_headers = ('Start','End','Bundle ID','Day of the Week','GMT Offset','Entry Creation')     
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
@@ -552,83 +479,57 @@ def get_knowCall(files_found, report_folder, seeker):
 	
 	if version.parse(iOSversion) >= version.parse("12"):
 		cursor = db.cursor()
-		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_device_is_backlit.txt
-		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
-		cursor.execute(
-		"""
-			SELECT
-				DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
-				DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') AS "END",
-				CASE ZOBJECT.ZVALUEINTEGER
-					WHEN '0' THEN 'NO' 
-					WHEN '1' THEN 'YES' 
-				END "SCREEN IS BACKLIT",
-				(ZOBJECT.ZENDDATE - ZOBJECT.ZSTARTDATE) AS "USAGE IN SECONDS",
-				(ZOBJECT.ZENDDATE - ZOBJECT.ZSTARTDATE)/60.00 AS "USAGE IN MINUTES",  
-				ZSOURCE.ZDEVICEID AS "DEVICE ID (HARDWARE UUID)",
-				CASE ZOBJECT.ZSTARTDAYOFWEEK 
-					WHEN "1" THEN "Sunday"
-					WHEN "2" THEN "Monday"
-					WHEN "3" THEN "Tuesday"
-					WHEN "4" THEN "Wednesday"
-					WHEN "5" THEN "Thursday"
-					WHEN "6" THEN "Friday"
-					WHEN "7" THEN "Saturday"
-				END "DAY OF WEEK", 
-				ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-				DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') AS "ENTRY CREATION",
-				ZOBJECT.ZUUID AS "UUID", 
-				ZOBJECT.Z_PK AS "ZOBJECT TABLE ID"
-			FROM
-				ZOBJECT 
-				LEFT JOIN
-					ZSTRUCTUREDMETADATA 
-					ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
-				LEFT JOIN
-					ZSOURCE 
-					ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
-			WHERE
-				ZSTREAMNAME is "/display/isBacklit"	
+		cursor.execute("""
+		select
+		datetime(zobject.zstartdate+978307200,'unixepoch'), 
+		datetime(zobject.zenddate+978307200,'unixepoch'),
+		case zobject.zvalueinteger
+		when '0' then 'no' 
+		when '1' then 'yes' 
+		end,
+		(zobject.zenddate - zobject.zstartdate),
+		(zobject.zenddate - zobject.zstartdate)/60.00,
+		case zobject.zstartdayofweek 
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
+		end, 
+		zobject.zsecondsfromgmt/3600,
+		datetime(zobject.zcreationdate+978307200,'unixepoch')
+		from zobject
+		where
+		zobject.zstreamname = '/display/isBacklit'	
 		""")
 	elif version.parse(iOSversion) == version.parse("11"):
 		cursor = db.cursor()
-		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_device_is_backlit.txt
-		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
-		cursor.execute(
-		"""
-		SELECT
-			DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
-			DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') AS "END",
-			CASE ZOBJECT.ZVALUEINTEGER
-				WHEN '0' THEN 'NO' 
-				WHEN '1' THEN 'YES' 
-			END "SCREEN IS BACKLIT",
-			(ZOBJECT.ZENDDATE - ZOBJECT.ZSTARTDATE) AS "USAGE IN SECONDS",
-		  (ZOBJECT.ZENDDATE - ZOBJECT.ZSTARTDATE)/60.00 AS "USAGE IN MINUTES",  
-			CASE ZOBJECT.ZSTARTDAYOFWEEK 
-				WHEN "1" THEN "Sunday"
-				WHEN "2" THEN "Monday"
-				WHEN "3" THEN "Tuesday"
-				WHEN "4" THEN "Wednesday"
-				WHEN "5" THEN "Thursday"
-				WHEN "6" THEN "Friday"
-				WHEN "7" THEN "Saturday"
-			END "DAY OF WEEK", 
-			ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-			
-			DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') AS "ENTRY CREATION",
-			ZOBJECT.ZUUID AS "UUID", 
-			ZOBJECT.Z_PK AS "ZOBJECT TABLE ID"
-		FROM
-			ZOBJECT 
-			LEFT JOIN
-				ZSTRUCTUREDMETADATA 
-				ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
-			LEFT JOIN
-				ZSOURCE 
-				ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
-		WHERE
-			ZSTREAMNAME is "/display/isBacklit"
+		cursor.execute("""
+		select
+		datetime(zobject.zstartdate+978307200,'unixepoch'), 
+		datetime(zobject.zenddate+978307200,'unixepoch'),
+		case zobject.zvalueinteger
+		when '0' then 'no' 
+		when '1' then 'yes' 
+		end,
+		(zobject.zenddate - zobject.zstartdate),
+		(zobject.zenddate - zobject.zstartdate)/60.00,  
+		case zobject.zstartdayofweek 
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
+		end, 
+		zobject.zsecondsfromgmt/3600,
+		datetime(zobject.zcreationdate+978307200,'unixepoch')
+		from zobject
+		where
+		zobject.zstreamname = '/display/isBacklit'
 		""")
 	else:
 		logfunc("Unsupported version for KnowledgC Backlit" + iOSversion)
@@ -640,12 +541,12 @@ def get_knowCall(files_found, report_folder, seeker):
 		data_list = []
 		if version.parse(iOSversion) >= version.parse("12"):	
 			for row in all_rows:    
-				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10]))
+				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7]))
 
 			report = ArtifactHtmlReport('KnowledgeC Device is Backlit')
 			report.start_artifact_report(report_folder, 'Device is Backlit')
 			report.add_script()
-			data_headers = ('Start','End','Screen is Backlit','Usage in Seconds','Usage in Minutes','Hardware UUID','Day of Week','GMT Offset','Entry Creation','UUID','ZOBJECT Table ID')  
+			data_headers = ('Start','End','Screen is Backlit','Usage in Seconds','Usage in Minutes','Day of Week','GMT Offset','Entry Creation')  
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
@@ -662,7 +563,7 @@ def get_knowCall(files_found, report_folder, seeker):
 			report = ArtifactHtmlReport('KnowledgeC Device is Backlit')
 			report.start_artifact_report(report_folder, 'Device is Backlit')
 			report.add_script()
-			data_headers = ('Start','End','Screen is Backlit','Usage in Seconds','Usage in Minutes','Day of Week','GMT Offset','Entry Creation','UUID','ZOBJECT Table ID' ) 
+			data_headers = ('Start','End','Screen is Backlit','Usage in Seconds','Usage in Minutes','Day of Week','GMT Offset','Entry Creation') 
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
@@ -674,38 +575,28 @@ def get_knowCall(files_found, report_folder, seeker):
 	else:
 		logfunc('No data available in Device is Backlit')
 	
-	if version.parse(iOSversion) >= version.parse("11"):
-		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_device_batterylevel.txt
-		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt	
-		cursor.execute(
-			"""
-			SELECT
-			DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') as "START", 
-			DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') as "END",
-			ZOBJECT.ZVALUEDOUBLE as "BATTERY LEVEL",
-			(ZOBJECT.ZENDDATE - ZOBJECT.ZSTARTDATE) AS "USAGE IN SECONDS", 
-			CASE ZOBJECT.ZSTARTDAYOFWEEK 
-			WHEN "1" THEN "Sunday"
-			WHEN "2" THEN "Monday"
-			WHEN "3" THEN "Tuesday"
-			WHEN "4" THEN "Wednesday"
-			WHEN "5" THEN "Thursday"
-			WHEN "6" THEN "Friday"
-			WHEN "7" THEN "Saturday"
-			END "DAY OF WEEK",
-			ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-			DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') as "ENTRY CREATION",     
-			ZOBJECT.Z_PK AS "ZOBJECT TABLE ID"
-			FROM
-			ZOBJECT 
-			LEFT JOIN
-			ZSTRUCTUREDMETADATA 
-			ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
-			LEFT JOIN
-			ZSOURCE 
-			ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
-			WHERE
-			ZSTREAMNAME LIKE "/device/BatteryPercentage"
+	if version.parse(iOSversion) >= version.parse("11"):	
+		cursor.execute("""
+		select
+		datetime(zobject.zstartdate+978307200,'unixepoch'), 
+		datetime(zobject.zenddate+978307200,'unixepoch'),
+		zobject.zvaluedouble,
+		(zobject.zenddate - zobject.zstartdate), 
+		case zobject.zstartdayofweek 
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
+		end,
+		zobject.zsecondsfromgmt/3600,
+		datetime(zobject.zcreationdate+978307200,'unixepoch')
+		from
+		zobject 
+		where
+		zstreamname like '/device/BatteryPercentage'
 			"""
 			)
 
@@ -713,13 +604,13 @@ def get_knowCall(files_found, report_folder, seeker):
 		usageentries = len(all_rows)
 		data_list = []    
 		for row in all_rows:
-			data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]))
+			data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6]))
 
 		description = ''
 		report = ArtifactHtmlReport('KnowledgeC Battery Level')
 		report.start_artifact_report(report_folder, 'Battery Level', description)
 		report.add_script()
-		data_headers = ('Start','End','Battery Level','Usage in Seconds','Day of the Week','GMT Offset','Entry Creation', 'ZOBJECT Table ID' )     
+		data_headers = ('Start','End','Battery Level','Usage in Seconds','Day of the Week','GMT Offset','Entry Creation' )     
 		report.write_artifact_data_table(data_headers, data_list, file_found)
 		report.end_artifact_report()
 		
@@ -730,40 +621,31 @@ def get_knowCall(files_found, report_folder, seeker):
 		timeline(report_folder, tlactivity, data_list, data_headers)
 		
 	if version.parse(iOSversion) >= version.parse("11"):
-		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_audio_bluetooth_connected.txt
-		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt	
-		cursor.execute(
-		"""
-		SELECT
-			DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
-			DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') AS "END",
-			ZSTRUCTUREDMETADATA.Z_DKBLUETOOTHMETADATAKEY__ADDRESS AS "BLUETOOTH ADDRESS", 
-			ZSTRUCTUREDMETADATA.Z_DKBLUETOOTHMETADATAKEY__NAME AS "BLUETOOTH NAME",
-			(ZOBJECT.ZENDDATE - ZOBJECT.ZSTARTDATE) AS "USAGE IN SECONDS",
-			(ZOBJECT.ZENDDATE - ZOBJECT.ZSTARTDATE)/60.00 AS "USAGE IN MINUTES",  
-			CASE ZOBJECT.ZSTARTDAYOFWEEK 
-				WHEN "1" THEN "Sunday"
-				WHEN "2" THEN "Monday"
-				WHEN "3" THEN "Tuesday"
-				WHEN "4" THEN "Wednesday"
-				WHEN "5" THEN "Thursday"
-				WHEN "6" THEN "Friday"
-				WHEN "7" THEN "Saturday"
-			END "DAY OF WEEK",
-			ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-			DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') AS "ENTRY CREATION",
-			ZOBJECT.ZUUID AS "UUID", 
-			ZOBJECT.Z_PK AS "ZOBJECT TABLE ID" 
-		FROM
-			ZOBJECT 
-			LEFT JOIN
-				ZSTRUCTUREDMETADATA 
-				ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
-			LEFT JOIN
-				ZSOURCE 
-				ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
-		WHERE
-			ZSTREAMNAME = "/bluetooth/isConnected"
+		cursor.execute("""
+		select
+		datetime(zobject.zstartdate+978307200,'unixepoch'), 
+		datetime(zobject.zenddate+978307200,'unixepoch'),
+		zstructuredmetadata.z_dkbluetoothmetadatakey__address, 
+		zstructuredmetadata.z_dkbluetoothmetadatakey__name,
+		(zobject.zenddate - zobject.zstartdate),
+		(zobject.zenddate - zobject.zstartdate)/60.00,  
+		case zobject.zstartdayofweek 
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
+		end,
+		zobject.zsecondsfromgmt/3600,
+		datetime(zobject.zcreationdate+978307200,'unixepoch')
+		from
+		zobject,
+		zstructuredmetadata 
+		on zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
+		where
+		zstreamname = '/bluetooth/isConnected'
 		"""
 		)
 
@@ -772,13 +654,13 @@ def get_knowCall(files_found, report_folder, seeker):
 		if usageentries > 0:
 			data_list = []    
 			for row in all_rows:
-				data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10]))
+				data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8]))
 
 			description = ''
 			report = ArtifactHtmlReport('KnowledgeC Bluetooth Connections')
 			report.start_artifact_report(report_folder, 'Bluetooth Connections', description)
 			report.add_script()
-			data_headers = ('Start','End','Bluetooth Address','Bluetooth Name','Usage in Seconds','Usage in Minutes','Day of Week','GMT Offset','Entry Creation','UUID','Zobject Table ID')     
+			data_headers = ('Start','End','Bluetooth Address','Bluetooth Name','Usage in Seconds','Usage in Minutes','Day of Week','GMT Offset','Entry Creation')     
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
@@ -791,42 +673,31 @@ def get_knowCall(files_found, report_folder, seeker):
 			logfunc('No data available in Bluetooth Connections')
 	
 	if version.parse(iOSversion) >= version.parse("11"):
-		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_device_carplay_connected.txt
-		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt	
-		cursor.execute(
-			"""
-			SELECT
-				DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
-				DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') AS "END",
-				CASE ZOBJECT.ZVALUEINTEGER
-					WHEN '0' THEN 'DISCONNECTED' 
-					WHEN '1' THEN 'CONNECTED' 
-				END "CARPLAY CONNECTED",
-				(ZOBJECT.ZENDDATE - ZOBJECT.ZSTARTDATE) AS "USAGE IN SECONDS",
-				(ZOBJECT.ZENDDATE - ZOBJECT.ZSTARTDATE)/60.00 AS "USAGE IN MINUTES",  
-				CASE ZOBJECT.ZSTARTDAYOFWEEK 
-					WHEN "1" THEN "Sunday"
-					WHEN "2" THEN "Monday"
-					WHEN "3" THEN "Tuesday"
-					WHEN "4" THEN "Wednesday"
-					WHEN "5" THEN "Thursday"
-					WHEN "6" THEN "Friday"
-					WHEN "7" THEN "Saturday"
-				END "DAY OF WEEK", 
-				ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-				DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') AS "ENTRY CREATION",
-				ZOBJECT.ZUUID AS "UUID", 
-				ZOBJECT.Z_PK AS "ZOBJECT TABLE ID"
-			FROM
-				ZOBJECT 
-				LEFT JOIN
-					ZSTRUCTUREDMETADATA 
-					ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
-				LEFT JOIN
-					ZSOURCE 
-					ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
-			WHERE
-				ZSTREAMNAME is "/carplay/isConnected"	
+		cursor.execute("""
+		select
+		datetime(zobject.zstartdate+978307200,'unixepoch'), 
+		datetime(zobject.zenddate+978307200,'unixepoch'),
+		case zobject.zvalueinteger
+		when '0' then 'disconnected' 
+		when '1' then 'connected' 
+		end,
+		(zobject.zenddate - zobject.zstartdate),
+		(zobject.zenddate - zobject.zstartdate)/60.00,  
+		case zobject.zstartdayofweek 
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
+		end, 
+		zobject.zsecondsfromgmt/3600,
+		datetime(zobject.zcreationdate+978307200,'unixepoch')
+		from
+		zobject
+		where
+		zstreamname is '/carplay/isConnected'	
 			""")
 
 		all_rows = cursor.fetchall()
@@ -834,13 +705,13 @@ def get_knowCall(files_found, report_folder, seeker):
 		if usageentries > 0:
 			data_list = []    
 			for row in all_rows:
-				data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9]))
+				data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]))
 
 			description = ''
 			report = ArtifactHtmlReport('KnowledgeC Car Play Connections')
 			report.start_artifact_report(report_folder, 'Car Play Connections', description)
 			report.add_script()
-			data_headers = ('Start','End','Car Play Connected','Usage in Seconds','Usage in Minutes','Day of Week','GMT Offset','Entry Creation','UUID','Zobject Table ID')     
+			data_headers = ('Start','End','Car Play Connected','Usage in Seconds','Usage in Minutes','Day of Week','GMT Offset','Entry Creation')     
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
@@ -853,40 +724,29 @@ def get_knowCall(files_found, report_folder, seeker):
 			logfunc('No data available in Car Play Connections')
 
 	if version.parse(iOSversion) >= version.parse("13"):
-		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_disk_subsystem_access.txt
-		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt	
-		cursor.execute(
-		"""
-		SELECT
-				DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
-				DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') AS "END",
-				ZSOURCE.ZBUNDLEID AS "BUNDLE ID",
-				ZOBJECT.ZVALUESTRING,
-				(ZOBJECT.ZENDDATE - ZOBJECT.ZSTARTDATE) AS "USAGE IN SECONDS",
-				(ZOBJECT.ZENDDATE - ZOBJECT.ZSTARTDATE)/60.00 AS "USAGE IN MINUTES",  
-				CASE ZOBJECT.ZSTARTDAYOFWEEK 
-					WHEN "1" THEN "Sunday"
-					WHEN "2" THEN "Monday"
-					WHEN "3" THEN "Tuesday"
-					WHEN "4" THEN "Wednesday"
-					WHEN "5" THEN "Thursday"
-					WHEN "6" THEN "Friday"
-					WHEN "7" THEN "Saturday"
-				END "DAY OF WEEK", 
-				ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-				DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') AS "ENTRY CREATION",
-				ZOBJECT.ZUUID AS "UUID", 
-				ZOBJECT.Z_PK AS "ZOBJECT TABLE ID"
-			FROM
-				ZOBJECT 
-				LEFT JOIN
-					ZSTRUCTUREDMETADATA 
-					ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
-				LEFT JOIN
-					ZSOURCE 
-					ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
-			WHERE
-				ZSTREAMNAME is "/disk/subsystemAccess"
+		cursor.execute("""
+		select
+		datetime(zobject.zstartdate+978307200,'unixepoch'), 
+		datetime(zobject.zenddate+978307200,'unixepoch'),
+		zsource.zbundleid,
+		zobject.zvaluestring,
+		(zobject.zenddate - zobject.zstartdate),
+		(zobject.zenddate - zobject.zstartdate)/60.00,  
+		case zobject.zstartdayofweek 
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
+		end, 
+		zobject.zsecondsfromgmt/3600,
+		datetime(zobject.zcreationdate+978307200,'unixepoch')
+		from
+		zobject, zsource 
+		where zobject.zsource = zsource.z_pk 
+		and zstreamname = '/disk/subsystemAccess'
 		""")
 
 		all_rows = cursor.fetchall()
@@ -894,13 +754,13 @@ def get_knowCall(files_found, report_folder, seeker):
 		if usageentries > 0:
 			data_list = []    
 			for row in all_rows:
-				data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],row[10]))
+				data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8]))
 
 			description = ''
 			report = ArtifactHtmlReport('KnowledgeC Disk Subsystem Access')
 			report.start_artifact_report(report_folder, 'Disk Subsystem Access', description)
 			report.add_script()
-			data_headers = ('Start','End','Bundle ID','Value String','Usage in Seconds','Usage in Minutes','Day of Week','GMT Offset','Entry Creation','UUID','Zobject Table ID')     
+			data_headers = ('Start','End','Bundle ID','Value String','Usage in Seconds','Usage in Minutes','Day of Week','GMT Offset','Entry Creation')     
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
@@ -913,39 +773,28 @@ def get_knowCall(files_found, report_folder, seeker):
 			logfunc('No data available in Disk Subsystem Access')
 			
 	if version.parse(iOSversion) >= version.parse("12"):
-		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_settings_doNotDisturb.txt
-		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt	
-		cursor.execute(
-		"""
-		  SELECT
-				DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
-				DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') AS "END",
-				ZOBJECT.ZVALUEINTEGER AS "VALUE",
-				(ZOBJECT.ZENDDATE - ZOBJECT.ZSTARTDATE) AS "USAGE IN SECONDS",
-				(ZOBJECT.ZENDDATE - ZOBJECT.ZSTARTDATE)/60.00 AS "USAGE IN MINUTES",   
-				CASE ZOBJECT.ZSTARTDAYOFWEEK 
-					WHEN "1" THEN "Sunday"
-					WHEN "2" THEN "Monday"
-					WHEN "3" THEN "Tuesday"
-					WHEN "4" THEN "Wednesday"
-					WHEN "5" THEN "Thursday"
-					WHEN "6" THEN "Friday"
-					WHEN "7" THEN "Saturday"
-				END "DAY OF WEEK",
-				ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-				DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') AS "ENTRY CREATION",
-				ZOBJECT.ZUUID AS "UUID", 
-				ZOBJECT.Z_PK AS "ZOBJECT TABLE ID" 
-			FROM
-				ZOBJECT 
-				LEFT JOIN
-					ZSTRUCTUREDMETADATA 
-					ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
-				LEFT JOIN
-					ZSOURCE 
-					ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
-			WHERE
-				ZSTREAMNAME = "/inferred/motion" 	
+		cursor.execute("""
+		select
+		datetime(zobject.zstartdate+978307200,'unixepoch'), 
+		datetime(zobject.zenddate+978307200,'unixepoch'),
+		zobject.zvalueinteger,
+		(zobject.zenddate - zobject.zstartdate),
+		(zobject.zenddate - zobject.zstartdate)/60.00,   
+		case zobject.zstartdayofweek 
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
+		end,
+		zobject.zsecondsfromgmt/3600,
+		datetime(zobject.zcreationdate+978307200,'unixepoch')
+		from
+		zobject 
+		where
+		zstreamname = '/inferred/motion' 	
 			""")
 
 		all_rows = cursor.fetchall()
@@ -953,13 +802,13 @@ def get_knowCall(files_found, report_folder, seeker):
 		if usageentries > 0:
 			data_list = []    
 			for row in all_rows:
-				data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9]))
+				data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]))
 
 			description = ''
 			report = ArtifactHtmlReport('KnowledgeC Do Not Disturb')
 			report.start_artifact_report(report_folder, 'Do Not Disturb', description)
 			report.add_script()
-			data_headers = ('Start','End','Value','Usage in Seconds','Usage in Minutes','Day of Week','GMT Offset','Entry Creation','UUID','Zobject Table ID')     
+			data_headers = ('Start','End','Value','Usage in Seconds','Usage in Minutes','Day of Week','GMT Offset','Entry Creation')     
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
@@ -1159,77 +1008,42 @@ def get_knowCall(files_found, report_folder, seeker):
 		tlactivity = 'KnowledgeC Intents'
 		timeline(report_folder, tlactivity, data_list, data_headers)
 
-	if version.parse(iOSversion) >= version.parse("12"):
-		cursor = db.cursor()
-		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_app_inFocus.txt
-		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt	
+	if version.parse(iOSversion) >= version.parse("9"):
+		cursor = db.cursor()	
 		cursor.execute('''
-		SELECT
-				DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
-				DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') AS "END",
-				ZOBJECT.ZVALUESTRING AS "BUNDLE ID", 
-				ZSTRUCTUREDMETADATA .Z_DKAPPLICATIONMETADATAKEY__LAUNCHREASON AS "LAUNCH REASON",
-				(ZOBJECT.ZENDDATE-ZOBJECT.ZSTARTDATE) AS "USAGE IN SECONDS",
-				(ZOBJECT.ZENDDATE-ZOBJECT.ZSTARTDATE)/60.00 AS "USAGE IN MINUTES",
-				CASE ZOBJECT.ZSTARTDAYOFWEEK 
-				    WHEN "1" THEN "Sunday"
-				    WHEN "2" THEN "Monday"
-				    WHEN "3" THEN "Tuesday"
-				    WHEN "4" THEN "Wednesday"
-				    WHEN "5" THEN "Thursday"
-				    WHEN "6" THEN "Friday"
-				    WHEN "7" THEN "Saturday"
-				END "DAY OF WEEK",
-				ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-				DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') AS "ENTRY CREATION",
-				ZOBJECT.ZUUID AS "UUID",	
-				ZOBJECT.Z_PK AS "ZOBJECT TABLE ID" 
-			FROM ZOBJECT
-			LEFT JOIN
-		         ZSTRUCTUREDMETADATA 
-		         ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
-			WHERE ZSTREAMNAME IS "/app/inFocus"
-			''')
-	else:
-		cursor = db.cursor()
-		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_app_inFocus.txt
-		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt	
-		cursor.execute('''
-		SELECT
-			DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
-			DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') AS "END",
-			ZOBJECT.ZVALUESTRING AS "BUNDLE ID", 
-			(ZOBJECT.ZENDDATE-ZOBJECT.ZSTARTDATE) AS "USAGE IN SECONDS",
-			(ZOBJECT.ZENDDATE-ZOBJECT.ZSTARTDATE)/60.00 AS "USAGE IN MINUTES",
-			CASE ZOBJECT.ZSTARTDAYOFWEEK 
-			    WHEN "1" THEN "Sunday"
-			    WHEN "2" THEN "Monday"
-			    WHEN "3" THEN "Tuesday"
-			    WHEN "4" THEN "Wednesday"
-			    WHEN "5" THEN "Thursday"
-			    WHEN "6" THEN "Friday"
-			    WHEN "7" THEN "Saturday"
-			END "DAY OF WEEK",
-			ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-			DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') AS "ENTRY CREATION",	
-			ZOBJECT.Z_PK AS "ZOBJECT TABLE ID" 
-		FROM ZOBJECT
-		WHERE ZSTREAMNAME IS "/app/inFocus"
-				''')
-
+		select
+		datetime(zobject.zstartdate+978307200,'unixepoch'), 
+		datetime(zobject.zenddate+978307200,'unixepoch'),
+		zobject.zvaluestring, 
+		(zobject.zenddate-zobject.zstartdate),
+		(zobject.zenddate-zobject.zstartdate)/60.00,
+		case zobject.zstartdayofweek 
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
+		end,
+		zobject.zsecondsfromgmt/3600,
+		datetime(zobject.zcreationdate+978307200,'unixepoch')
+		from zobject
+		where zstreamname is '/app/inFocus'
+		''')
+	
 	all_rows = cursor.fetchall()
 	usageentries = len(all_rows)
 	if usageentries > 0:
 		data_list = []
-		if version.parse(iOSversion) >= version.parse("12"):
-					
+		if version.parse(iOSversion) >= version.parse("9"):
 			for row in all_rows:    
-				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10]))
+				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7]))
 
 			report = ArtifactHtmlReport('KnowledgeC Application In Focus')
 			report.start_artifact_report(report_folder, 'App In Focus')
 			report.add_script()
-			data_headers = ('Start','End','Bundle ID','Launch Reason', 'Usage in Seconds', 'Usage in Minutes','Day of Week','GMT Offset','Entry Creation','UUID','ZOBJECT Table ID')  
+			data_headers = ('Start','End','Bundle ID', 'Usage in Seconds', 'Usage in Minutes','Day of Week','GMT Offset','Entry Creation')  
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
@@ -1238,87 +1052,56 @@ def get_knowCall(files_found, report_folder, seeker):
 			
 			tlactivity = 'KnowledgeC Application in Focus'
 			timeline(report_folder, tlactivity, data_list, data_headers)
-		else:
-			for row in all_rows:    
-				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8]))
-					
-			report = ArtifactHtmlReport('KnowledgeC Application In Focus')
-			report.start_artifact_report(report_folder, 'App in Focus')
-			report.add_script()
-			data_headers = ('Start','End','Bundle ID','Usage in Seconds','Usage in Minutes','Day of Week','GMT Offset','Entry Creation','ZOBJECT Table ID' ) 
-			report.write_artifact_data_table(data_headers, data_list, file_found)
-			report.end_artifact_report()
-			
-			tsvname = 'KnowledgeC Application in Focus'
-			tsv(report_folder, data_headers, data_list, tsvname)
-			
-			tlactivity = 'KnowledgeC Application in Focus'
-			timeline(report_folder, tlactivity, data_list, data_headers)
+		
 	else:
 		logfunc('No data available in Application in Focus')
 	
-	if version.parse(iOSversion) >= version.parse("12"):
-		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_app_install.txt
-		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt			
+	if version.parse(iOSversion) >= version.parse("12"):			
 		cursor.execute('''
-		SELECT
-			DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
-			DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') AS "END",
-			ZOBJECT.ZVALUESTRING AS "BUNDLE ID", 
-			ZSTRUCTUREDMETADATA .Z_DKAPPINSTALLMETADATAKEY__PRIMARYCATEGORY AS "APP CATEGORY",
-			ZSTRUCTUREDMETADATA .Z_DKAPPINSTALLMETADATAKEY__TITLE AS "APP NAME",
-			 CASE ZOBJECT.ZSTARTDAYOFWEEK 
-					WHEN "1" THEN "Sunday"
-					WHEN "2" THEN "Monday"
-					WHEN "3" THEN "Tuesday"
-					WHEN "4" THEN "Wednesday"
-					WHEN "5" THEN "Thursday"
-					WHEN "6" THEN "Friday"
-					WHEN "7" THEN "Saturday"
-			 END "DAY OF WEEK",
-			ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-			DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') AS "ENTRY CREATION",
-			ZOBJECT.ZUUID AS "UUID", 
-			ZOBJECT.Z_PK AS "ZOBJECT TABLE ID" 
-			FROM
-				ZOBJECT 
-				LEFT JOIN
-					ZSTRUCTUREDMETADATA 
-					ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
-				LEFT JOIN
-					ZSOURCE 
-					ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
-			WHERE
-				ZSTREAMNAME = "/app/install"
+		select
+		datetime(zobject.zstartdate+978307200,'unixepoch'), 
+		datetime(zobject.zenddate+978307200,'unixepoch'),
+		zobject.zvaluestring, 
+		zstructuredmetadata .z_dkappinstallmetadatakey__primarycategory,
+		zstructuredmetadata .z_dkappinstallmetadatakey__title,
+		case zobject.zstartdayofweek 
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
+		end,
+		zobject.zsecondsfromgmt/3600,
+		datetime(zobject.zcreationdate+978307200,'unixepoch')
+		from
+		zobject, zstructuredmetadata 
+		where zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
+		and zstreamname = '/app/install'
 			''')
 	else:
 		cursor.execute('''
-		SELECT
-			DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
-			DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') AS "END",
-			ZOBJECT.ZVALUESTRING AS "BUNDLE ID",
-			CASE ZOBJECT.ZSTARTDAYOFWEEK 
-				WHEN "1" THEN "Sunday"
-				WHEN "2" THEN "Monday"
-				WHEN "3" THEN "Tuesday"
-				WHEN "4" THEN "Wednesday"
-				WHEN "5" THEN "Thursday"
-				WHEN "6" THEN "Friday"
-				WHEN "7" THEN "Saturday"
-			END "DAY OF WEEK",
-			ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-			DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') AS "ENTRY CREATION",	
-			ZOBJECT.Z_PK AS "ZOBJECT TABLE ID"
-		FROM
-		   ZOBJECT 
-		   LEFT JOIN
-		      ZSTRUCTUREDMETADATA 
-		      ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
-		   LEFT JOIN
-		      ZSOURCE 
-		      ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
-		WHERE ZSTREAMNAME is "/app/install" 
-				''')
+		select
+		datetime(zobject.zstartdate+978307200,'unixepoch'), 
+		datetime(zobject.zenddate+978307200,'unixepoch'),
+		zobject.zvaluestring,
+		case zobject.zstartdayofweek 
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
+		end,
+		zobject.zsecondsfromgmt/3600,
+		datetime(zobject.zcreationdate+978307200,'unixepoch')
+		from
+		zobject, zstructuredmetadata 
+		where zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
+		and zstreamname = "/app/install"
+		''')
 
 	all_rows = cursor.fetchall()
 	usageentries = len(all_rows)
@@ -1327,12 +1110,12 @@ def get_knowCall(files_found, report_folder, seeker):
 		if version.parse(iOSversion) >= version.parse("12"):
 					
 			for row in all_rows:    
-				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9]))
+				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7]))
 
 			report = ArtifactHtmlReport('KnowledgeC Installed Apps')
 			report.start_artifact_report(report_folder, 'Installed Apps')
 			report.add_script()
-			data_headers = ('Start','End','Bundle ID','App Category', 'App Name','Day of Week','GMT Offset','Entry Creation','UUID','ZOBJECT Table ID')  
+			data_headers = ('Start','End','Bundle ID','App Category', 'App Name','Day of Week','GMT Offset','Entry Creation')  
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
@@ -1343,12 +1126,12 @@ def get_knowCall(files_found, report_folder, seeker):
 			timeline(report_folder, tlactivity, data_list, data_headers)
 		else:
 			for row in all_rows:    
-				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6]))
+				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5]))
 					
 			report = ArtifactHtmlReport('KnowledgeC Installed Apps')
 			report.start_artifact_report(report_folder, 'Installed Apps')
 			report.add_script()
-			data_headers = ('Start','End','Bundle ID','Day of Week','GMT Offset','Entry Creation','ZOBJECT Table ID' ) 
+			data_headers = ('Start','End','Bundle ID','Day of Week','GMT Offset','Entry Creation' ) 
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
@@ -1360,61 +1143,50 @@ def get_knowCall(files_found, report_folder, seeker):
 	else:
 		logfunc('No data available in Installed Apps')
 		
-	if version.parse(iOSversion) >= version.parse("12"):
-		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_app_location_activity.txt
-		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt			
-		cursor.execute(
-		"""
-		SELECT
-			DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
-	      	DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') AS "END",
-			ZOBJECT.ZVALUESTRING AS "BUNDLE ID", 
-			ZSTRUCTUREDMETADATA.Z_DKLOCATIONAPPLICATIONACTIVITYMETADATAKEY__LATITUDE || ", " || ZSTRUCTUREDMETADATA.Z_DKLOCATIONAPPLICATIONACTIVITYMETADATAKEY__LONGITUDE AS "COORDINATES",
-			ZSTRUCTUREDMETADATA.Z_DKLOCATIONAPPLICATIONACTIVITYMETADATAKEY__LOCATIONNAME AS "NAME",
-			ZSTRUCTUREDMETADATA.Z_DKLOCATIONAPPLICATIONACTIVITYMETADATAKEY__DISPLAYNAME AS "DISPLAY NAME",
-			ZSTRUCTUREDMETADATA.Z_DKLOCATIONAPPLICATIONACTIVITYMETADATAKEY__FULLYFORMATTEDADDRESS AS "FORMATTED ADDRESS",
-			ZSTRUCTUREDMETADATA.Z_DKLOCATIONAPPLICATIONACTIVITYMETADATAKEY__CITY AS "CITY",
-			ZSTRUCTUREDMETADATA.Z_DKLOCATIONAPPLICATIONACTIVITYMETADATAKEY__STATEORPROVINCE AS "STATE/PROVINCE",
-			ZSTRUCTUREDMETADATA.Z_DKLOCATIONAPPLICATIONACTIVITYMETADATAKEY__COUNTRY AS "COUNTRY",
-			ZSTRUCTUREDMETADATA.Z_DKLOCATIONAPPLICATIONACTIVITYMETADATAKEY__POSTALCODE_V2 AS "POSTAL CODE",
-			ZSTRUCTUREDMETADATA.Z_DKLOCATIONAPPLICATIONACTIVITYMETADATAKEY__SUBTHOROUGHFARE AS "SUBTHOROUGHFARE",
-			ZSTRUCTUREDMETADATA.Z_DKLOCATIONAPPLICATIONACTIVITYMETADATAKEY__THOROUGHFARE AS "THOROUGHFARE",
-			ZSTRUCTUREDMETADATA.Z_DKLOCATIONAPPLICATIONACTIVITYMETADATAKEY__PHONENUMBERS AS "PHONE NUMBERS",
-			ZSTRUCTUREDMETADATA.Z_DKLOCATIONAPPLICATIONACTIVITYMETADATAKEY__URL AS "URL",
-			ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__ACTIVITYTYPE AS "ACTIVITY TYPE", 
-			ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__CONTENTDESCRIPTION AS "CONTENT DESCRIPTION",
-			ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__USERACTIVITYREQUIREDSTRING AS "USER ACTIVITY REQUIRED STRING",
-			ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__ITEMRELATEDCONTENTURL AS "CONTENT URL",
-			ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__ITEMRELATEDUNIQUEIDENTIFIER AS "UNIQUE ID",
-			ZSTRUCTUREDMETADATA.Z_DKLOCATIONAPPLICATIONACTIVITYMETADATAKEY__LATITUDE AS "LATITUDE",
-			ZSTRUCTUREDMETADATA.Z_DKLOCATIONAPPLICATIONACTIVITYMETADATAKEY__LONGITUDE AS "LONGITUDE",
-			ZSOURCE.ZSOURCEID AS "SOURCE ID",
-			ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__USERACTIVITYUUID AS "ACTIVITY UUID",
-			ZSOURCE.ZITEMID AS "ITEM ID",
-			ZSOURCE.ZSOURCEID AS "SOURCE ID",
-	      CASE ZOBJECT.ZSTARTDAYOFWEEK 
-	         WHEN "1" THEN "Sunday"
-	         WHEN "2" THEN "Monday"
-	         WHEN "3" THEN "Tuesday"
-	         WHEN "4" THEN "Wednesday"
-	         WHEN "5" THEN "Thursday"
-	         WHEN "6" THEN "Friday"
-	         WHEN "7" THEN "Saturday"
-	      END "DAY OF WEEK",
-	      ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-	      DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') AS "ENTRY CREATION", 
-	      ZOBJECT.ZUUID AS "UUID",
-	      ZOBJECT.Z_PK AS "ZOBJECT TABLE ID" 
-	   FROM
-	      ZOBJECT 
-	      LEFT JOIN
-	         ZSTRUCTUREDMETADATA 
-	         ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
-	      LEFT JOIN
-	         ZSOURCE 
-	         ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
-	   WHERE
-	      ZSTREAMNAME = "/app/locationActivity" 
+	if version.parse(iOSversion) >= version.parse("12"):			
+		cursor.execute("""
+		select
+		datetime(zobject.zstartdate+978307200,'unixepoch'), 
+		datetime(zobject.zenddate+978307200,'unixepoch'),
+		zobject.zvaluestring, 
+		zstructuredmetadata.z_dklocationapplicationactivitymetadatakey__locationname,
+		zstructuredmetadata.z_dklocationapplicationactivitymetadatakey__displayname,
+		zstructuredmetadata.z_dklocationapplicationactivitymetadatakey__fullyformattedaddress,
+		zstructuredmetadata.z_dklocationapplicationactivitymetadatakey__city,
+		zstructuredmetadata.z_dklocationapplicationactivitymetadatakey__stateorprovince,
+		zstructuredmetadata.z_dklocationapplicationactivitymetadatakey__country,
+		zstructuredmetadata.z_dklocationapplicationactivitymetadatakey__postalcode_v2,
+		zstructuredmetadata.z_dklocationapplicationactivitymetadatakey__subthoroughfare,
+		zstructuredmetadata.z_dklocationapplicationactivitymetadatakey__thoroughfare,
+		zstructuredmetadata.z_dklocationapplicationactivitymetadatakey__phonenumbers,
+		zstructuredmetadata.z_dklocationapplicationactivitymetadatakey__url,
+		zstructuredmetadata.z_dkapplicationactivitymetadatakey__activitytype, 
+		zstructuredmetadata.z_dkapplicationactivitymetadatakey__contentdescription,
+		zstructuredmetadata.z_dkapplicationactivitymetadatakey__useractivityrequiredstring,
+		zstructuredmetadata.z_dkapplicationactivitymetadatakey__itemrelatedcontenturl,
+		zstructuredmetadata.z_dkapplicationactivitymetadatakey__itemrelateduniqueidentifier,
+		zstructuredmetadata.z_dklocationapplicationactivitymetadatakey__latitude,
+		zstructuredmetadata.z_dklocationapplicationactivitymetadatakey__longitude,
+		zsource.zsourceid,
+		zstructuredmetadata.z_dkapplicationactivitymetadatakey__useractivityuuid,
+		zsource.zitemid,
+		zsource.zsourceid,
+		case zobject.zstartdayofweek 
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
+		end,
+		zobject.zsecondsfromgmt/3600,
+		datetime(zobject.zcreationdate+978307200,'unixepoch')
+		from
+		zobject, zstructuredmetadata, zsource 
+		where zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
+		and zobject.zsource = zsource.z_pk 
+		and zstreamname = '/app/locationActivity'
 		"""
 		)
 
@@ -1423,13 +1195,13 @@ def get_knowCall(files_found, report_folder, seeker):
 		if usageentries > 0:
 			data_list = []
 			for row in all_rows:
-				data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18], row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27], row[28], row[29], row[30]))
+				data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18], row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27]))
 
 			description = ''
 			report = ArtifactHtmlReport('KnowledgeC Location Activity')
 			report.start_artifact_report(report_folder, 'Location Activity', description)
 			report.add_script()
-			data_headers = ('Timestamp','End','Bundle ID','Coordinates','Name','Display Name','Formatted Address', 'City','State/Province','Country','Postal Code','Subthoroughfare','Thoroughfare','Phone Numebers','URL','Activity Type', 'Content Description','User Activity Required String','Content URL','Unique ID','Latitude','Logitude','Source ID','Activity UUID','Item ID','Source ID','Day of the Week','GMT Offset','Entry Creation','UUID','Zonject Table ID')     
+			data_headers = ('Timestamp','End','Bundle ID','Name','Display Name','Formatted Address', 'City','State/Province','Country','Postal Code','Subthoroughfare','Thoroughfare','Phone Numebers','URL','Activity Type', 'Content Description','User Activity Required String','Content URL','Unique ID','Latitude','Longitude','Source ID','Activity UUID','Item ID','Source ID','Day of the Week','GMT Offset','Entry Creation')     
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
@@ -1445,55 +1217,43 @@ def get_knowCall(files_found, report_folder, seeker):
 			logfunc('No data available in Location Activity')
 			
 	if version.parse(iOSversion) >= version.parse("11"):
-		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_device_locked.txt
-		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt	
-		cursor.execute(
-		"""
-		SELECT
-		DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') as "START", 
-		DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') as "END",
-		CASE ZOBJECT.ZVALUEINTEGER
-		WHEN '0' THEN 'UNLOCKED' 
-		WHEN '1' THEN 'LOCKED' 
-		END "IS LOCKED",
-		(ZOBJECT.ZENDDATE - ZOBJECT.ZSTARTDATE) AS "USAGE IN SECONDS",  
-		CASE ZOBJECT.ZSTARTDAYOFWEEK 
-		WHEN "1" THEN "Sunday"
-		WHEN "2" THEN "Monday"
-		WHEN "3" THEN "Tuesday"
-		WHEN "4" THEN "Wednesday"
-		WHEN "5" THEN "Thursday"
-		WHEN "6" THEN "Friday"
-		WHEN "7" THEN "Saturday"
-		END "DAY OF WEEK",
-		ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-		DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') as "ENTRY CREATION", 
-		ZOBJECT.Z_PK AS "ZOBJECT TABLE ID" 
-		FROM
-		ZOBJECT 
-		LEFT JOIN
-		ZSTRUCTUREDMETADATA 
-		ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
-		LEFT JOIN
-		ZSOURCE 
-		ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
-		WHERE
-		ZSTREAMNAME LIKE "/device/isLocked"
-		"""
-		)
+		cursor.execute("""
+		select
+		datetime(zobject.zstartdate+978307200,'unixepoch'), 
+		datetime(zobject.zenddate+978307200,'unixepoch'),
+		case zobject.zvalueinteger
+		when '0' then 'unlocked' 
+		when '1' then 'locked' 
+		end,
+		(zobject.zenddate - zobject.zstartdate),  
+		case zobject.zstartdayofweek 
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
+		end,
+		zobject.zsecondsfromgmt/3600,
+		datetime(zobject.zcreationdate+978307200,'unixepoch')
+		from
+		zobject
+		where zstreamname = '/device/isLocked'
+		""")
 
 		all_rows = cursor.fetchall()
 		usageentries = len(all_rows)
 		if usageentries > 0:
 			data_list = []
 			for row in all_rows:
-				data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]))
+				data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6]))
 
 			description = ''
 			report = ArtifactHtmlReport('KnowledgeC Device Locked')
 			report.start_artifact_report(report_folder, 'Device Locked', description)
 			report.add_script()
-			data_headers = ('Start','End','Is Locked?','Usage in Seconds','Day of the Week','GMT Offset','Entry Creation', 'ZOBJECT Table ID' )     
+			data_headers = ('Start','End','Is Locked?','Usage in Seconds','Day of the Week','GMT Offset','Entry Creation' )     
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
@@ -1505,45 +1265,34 @@ def get_knowCall(files_found, report_folder, seeker):
 		else:
 			logfunc('No data in KnowledgeC Device Locked')
 		
-	if version.parse(iOSversion) >= version.parse("11"):
-		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_audio_media_nowplaying.txt
-		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt	
-		cursor.execute(
-		"""
-		SELECT
-			DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
-			DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') AS "END",
-			ZOBJECT.ZVALUESTRING AS "BUNDLE ID", 
-			ZSTRUCTUREDMETADATA.Z_DKNOWPLAYINGMETADATAKEY__ALBUM AS "NOW PLAYING ALBUM", 
-			ZSTRUCTUREDMETADATA.Z_DKNOWPLAYINGMETADATAKEY__ARTIST AS "NOW PLAYING ARTIST", 
-			ZSTRUCTUREDMETADATA.Z_DKNOWPLAYINGMETADATAKEY__GENRE AS "NOW PLAYING GENRE", 
-			ZSTRUCTUREDMETADATA.Z_DKNOWPLAYINGMETADATAKEY__TITLE AS "NOW PLAYING TITLE", 
-			ZSTRUCTUREDMETADATA.Z_DKNOWPLAYINGMETADATAKEY__DURATION AS "NOW PLAYING DURATION",
-			(ZOBJECT.ZENDDATE - ZOBJECT.ZSTARTDATE) AS "USAGE IN SECONDS",
-			(ZOBJECT.ZENDDATE - ZOBJECT.ZSTARTDATE)/60.00 AS "USAGE IN MINUTES",    
-			CASE ZOBJECT.ZSTARTDAYOFWEEK 
-				WHEN "1" THEN "Sunday"
-				WHEN "2" THEN "Monday"
-				WHEN "3" THEN "Tuesday"
-				WHEN "4" THEN "Wednesday"
-				WHEN "5" THEN "Thursday"
-				WHEN "6" THEN "Friday"
-				WHEN "7" THEN "Saturday"
-			END "DAY OF WEEK",
-			ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-			DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') AS "ENTRY CREATION", 
-			ZOBJECT.ZUUID AS "UUID",
-			ZOBJECT.Z_PK AS "ZOBJECT TABLE ID"
-		FROM
-			ZOBJECT 
-			LEFT JOIN
-				ZSTRUCTUREDMETADATA 
-				ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
-			LEFT JOIN
-				ZSOURCE 
-				ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
-		WHERE
-			ZSTREAMNAME = "/media/nowPlaying"	
+	if version.parse(iOSversion) >= version.parse("11"):	
+		cursor.execute("""
+		select
+		datetime(zobject.zstartdate+978307200,'unixepoch'), 
+		datetime(zobject.zenddate+978307200,'unixepoch'),
+		zobject.zvaluestring, 
+		zstructuredmetadata.z_dknowplayingmetadatakey__album, 
+		zstructuredmetadata.z_dknowplayingmetadatakey__artist, 
+		zstructuredmetadata.z_dknowplayingmetadatakey__genre, 
+		zstructuredmetadata.z_dknowplayingmetadatakey__title, 
+		zstructuredmetadata.z_dknowplayingmetadatakey__duration,
+		(zobject.zenddate - zobject.zstartdate),
+		(zobject.zenddate - zobject.zstartdate)/60.00,    
+		case zobject.zstartdayofweek 
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
+		end,
+		zobject.zsecondsfromgmt/3600,
+		datetime(zobject.zcreationdate+978307200,'unixepoch')
+		from
+		zobject, zstructuredmetadata 
+		where zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
+		and zstreamname =  '/media/nowPlaying'
 		""")
 
 		all_rows = cursor.fetchall()
@@ -1551,13 +1300,13 @@ def get_knowCall(files_found, report_folder, seeker):
 		if usageentries > 0:
 			data_list = []    
 			for row in all_rows:
-				data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11], row[12], row[13], row[14]))
+				data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11], row[12]))
 
 			description = ''
 			report = ArtifactHtmlReport('KnowledgeC Media Playing')
 			report.start_artifact_report(report_folder, 'Media Playing', description)
 			report.add_script()
-			data_headers = ('Start','End','Bundle ID','Now Playing Album','Now Playing Artists','Playing Genre','Playing Title', 'Now Playing Duration','Usage in Seconds','Usage in Minutes','Day of Week','GMT Offset','Entry Creation','UUID','Zobject Table ID')     
+			data_headers = ('Start','End','Bundle ID','Now Playing Album','Now Playing Artists','Playing Genre','Playing Title', 'Now Playing Duration','Usage in Seconds','Usage in Minutes','Day of Week','GMT Offset','Entry Creation')     
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
@@ -1570,56 +1319,45 @@ def get_knowCall(files_found, report_folder, seeker):
 		else:
 			logfunc('No data available in Media Playing')
 
-	if version.parse(iOSversion) >= version.parse("12"):
-		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_app_activity_notes.txt
-		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt	
+	if version.parse(iOSversion) >= version.parse("12"):	
 		cursor.execute('''
-		SELECT
-			DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
-			DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') AS "END",
-			ZOBJECT.ZVALUESTRING AS "BUNDLE ID",
-			ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__ACTIVITYTYPE AS "ACTIVITY TYPE", 
-			ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__USERACTIVITYREQUIREDSTRING AS "USER ACTIVITY REQUIRED STRING",
-			ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__ITEMIDENTIFIER AS "ID",
-			ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__ITEMRELATEDUNIQUEIDENTIFIER AS "UNIQUE ID",
-			ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__USERACTIVITYUUID AS "ACTIVITY UUID",
-			ZSOURCE.ZSOURCEID AS "SOURCE ID",
-			CASE ZOBJECT.ZSTARTDAYOFWEEK 
-				WHEN "1" THEN "Sunday"
-				WHEN "2" THEN "Monday"
-				WHEN "3" THEN "Tuesday"
-				WHEN "4" THEN "Wednesday"
-				WHEN "5" THEN "Thursday"
-				WHEN "6" THEN "Friday"
-				WHEN "7" THEN "Saturday"
-			END "DAY OF WEEK",
-			ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-			DATETIME(ZOBJECT.ZCREATIONDATE + 978307200, 'UNIXEPOCH') AS "ENTRY CREATION",
-			DATETIME(ZSTRUCTUREDMETADATA.Z_DKAPPLICATIONACTIVITYMETADATAKEY__EXPIRATIONDATE + 978307200, 'UNIXEPOCH') AS "EXPIRATION DATE",
-			ZOBJECT.ZUUID AS "UUID", 
-			ZOBJECT.Z_PK AS "ZOBJECT TABLE ID" 
-		FROM
-			ZOBJECT 
-			LEFT JOIN
-				ZSTRUCTUREDMETADATA 
-				ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
-			LEFT JOIN
-				ZSOURCE 
-				ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
-		WHERE
-			ZSTREAMNAME IS "/app/activity"
-			AND ("BUNDLE ID" = "com.apple.mobilenotes" OR "BUNDLE ID" = "com.apple.Notes")
+		select
+		datetime(zobject.zstartdate+978307200,'unixepoch'), 
+		datetime(zobject.zenddate+978307200,'unixepoch'),
+		zobject.zvaluestring,
+		zstructuredmetadata.z_dkapplicationactivitymetadatakey__activitytype, 
+		zstructuredmetadata.z_dkapplicationactivitymetadatakey__useractivityrequiredstring,
+		zstructuredmetadata.z_dkapplicationactivitymetadatakey__itemidentifier,
+		zstructuredmetadata.z_dkapplicationactivitymetadatakey__itemrelateduniqueidentifier,
+		zstructuredmetadata.z_dkapplicationactivitymetadatakey__useractivityuuid,
+		case zobject.zstartdayofweek 
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
+		end,
+		zobject.zsecondsfromgmt/3600,
+		datetime(zobject.zcreationdate + 978307200, 'unixepoch'),
+		datetime(zstructuredmetadata.z_dkapplicationactivitymetadatakey__expirationdate + 978307200, 'unixepoch')
+		from
+		zobject, zstructuredmetadata 
+		where zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
+		and zstreamname = '/app/activity'
+		and (zobject.zvaluestring = 'com.apple.mobilenotes' or zobject.zvaluestring = 'com.apple.Notes')
 		''')
 		all_rows = cursor.fetchall()
 		usageentries = len(all_rows)
 		if usageentries > 0:
 			data_list = []
-			for row in all_rows:    data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12],row[13],row[14]))
+			for row in all_rows:    data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11]))
 
 			report = ArtifactHtmlReport('KnowledgeC Notes - Activity')
 			report.start_artifact_report(report_folder, 'Notes - Activity')
 			report.add_script()
-			data_headers = ('Start','End','Bundle ID','Activity Type','User Activity Required String','ID','Unique ID','Activity UUID','Source ID','Day of Week','GMT Offset','Entry Creation','Expiration Date', 'UUID','ZOBJECT Table ID' )   
+			data_headers = ('Start','End','Bundle ID','Activity Type','User Activity Required String','ID','Unique ID','Activity UUID','Day of Week','GMT Offset','Entry Creation','Expiration Date' )   
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
@@ -1632,44 +1370,33 @@ def get_knowCall(files_found, report_folder, seeker):
 		else:
 			logfunc('No data available in Notes Activity')
 	
-	if version.parse(iOSversion) >= version.parse("11"):
-		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_device_orientation.txt
-		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt			
-		cursor.execute(
-		"""
-		SELECT
-				DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
-				DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') AS "END",
-				CASE ZOBJECT.ZVALUEINTEGER
-					WHEN '0' THEN 'PORTRAIT' 
-					WHEN '1' THEN 'LANDSCAPE' 
-				 ELSE ZOBJECT.ZVALUEINTEGER
-				END "ORIENTATION",
-				(ZOBJECT.ZENDDATE - ZOBJECT.ZSTARTDATE) AS "USAGE IN SECONDS",
-			  (ZOBJECT.ZENDDATE - ZOBJECT.ZSTARTDATE)/60.00 AS "USAGE IN MINUTES",   
-				CASE ZOBJECT.ZSTARTDAYOFWEEK 
-					WHEN "1" THEN "Sunday"
-					WHEN "2" THEN "Monday"
-					WHEN "3" THEN "Tuesday"
-					WHEN "4" THEN "Wednesday"
-					WHEN "5" THEN "Thursday"
-					WHEN "6" THEN "Friday"
-					WHEN "7" THEN "Saturday"
-				END "DAY OF WEEK",
-				ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-				DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') AS "ENTRY CREATION",
-				ZOBJECT.ZUUID AS "UUID", 
-				ZOBJECT.Z_PK AS "ZOBJECT TABLE ID"
-			FROM
-				ZOBJECT 
-				LEFT JOIN
-					ZSTRUCTUREDMETADATA 
-					ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
-				LEFT JOIN
-					ZSOURCE 
-					ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
-			WHERE
-				ZSTREAMNAME is "/display/orientation"  	
+	if version.parse(iOSversion) >= version.parse("11"):		
+		cursor.execute("""
+		select
+		datetime(zobject.zstartdate+978307200,'unixepoch'), 
+		datetime(zobject.zenddate+978307200,'unixepoch'),
+		case zobject.zvalueinteger
+		when '0' then 'portrait' 
+		when '1' then 'landscape' 
+		else zobject.zvalueinteger
+		end,
+		(zobject.zenddate - zobject.zstartdate),
+		(zobject.zenddate - zobject.zstartdate)/60.00,   
+		case zobject.zstartdayofweek 
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
+		end,
+		zobject.zsecondsfromgmt/3600,
+		datetime(zobject.zcreationdate+978307200,'unixepoch')
+		from
+		zobject 
+		where
+		zstreamname = '/display/orientation'	
 		""")
 
 		all_rows = cursor.fetchall()
@@ -1677,13 +1404,13 @@ def get_knowCall(files_found, report_folder, seeker):
 		if usageentries > 0:
 			data_list = []    
 			for row in all_rows:
-				data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9]))
+				data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]))
 
 			description = ''
 			report = ArtifactHtmlReport('KnowledgeC Screen Orientation')
 			report.start_artifact_report(report_folder, 'Screen Orientation', description)
 			report.add_script()
-			data_headers = ('Start','End','Orientation','Usage in Seconds','Usage in Minutes','Day of Week','GMT Offset','Entry Creation','UUID','Zobject Table ID')     
+			data_headers = ('Start','End','Orientation','Usage in Seconds','Usage in Minutes','Day of Week','GMT Offset','Entry Creation')     
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
@@ -1697,57 +1424,45 @@ def get_knowCall(files_found, report_folder, seeker):
 			logfunc('No data available in Screen Orientation')
 			
 	if version.parse(iOSversion) >= version.parse("11"):
-		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_device_pluggedin.txt
-		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt	
-		cursor.execute(
-			"""
-			SELECT
-			DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') as "START", 
-			DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') as "END",
-			CASE
-			ZOBJECT.ZVALUEINTEGER
-			WHEN '0' THEN 'UNPLUGGED' 
-			WHEN '1' THEN 'PLUGGED IN' 
-			END "IS PLUGGED IN",
-			(ZOBJECT.ZENDDATE - ZOBJECT.ZSTARTDATE) AS "USAGE IN SECONDS",  
-			CASE ZOBJECT.ZSTARTDAYOFWEEK 
-			WHEN "1" THEN "Sunday"
-			WHEN "2" THEN "Monday"
-			WHEN "3" THEN "Tuesday"
-			WHEN "4" THEN "Wednesday"
-			WHEN "5" THEN "Thursday"
-			WHEN "6" THEN "Friday"
-			WHEN "7" THEN "Saturday"
-			END "DAY OF WEEK",
-			ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-			DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') as "ENTRY CREATION", 
-			ZOBJECT.Z_PK AS "ZOBJECT TABLE ID" 
-			FROM
-			ZOBJECT 
-			LEFT JOIN
-			ZSTRUCTUREDMETADATA 
-			ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
-			LEFT JOIN
-			ZSOURCE 
-			ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
-			WHERE
-			ZSTREAMNAME LIKE "/device/isPluggedIn"
-			"""
-
-		)
+		cursor.execute("""
+			select
+			datetime(zobject.zstartdate+978307200,'unixepoch') , 
+			datetime(zobject.zenddate+978307200,'unixepoch'), 
+			case
+			zobject.zvalueinteger
+			when '0' then 'unplugged' 
+			when '1' then 'plugged in' 
+			end,
+			(zobject.zenddate - zobject.zstartdate),  
+			case zobject.zstartdayofweek 
+			when '1' then 'sunday'
+			when '2' then 'monday'
+			when '3' then 'tuesday'
+			when '4' then 'wednesday'
+			when '5' then 'thursday'
+			when '6' then 'friday'
+			when '7' then 'saturday'
+			end,
+			zobject.zsecondsfromgmt/3600,
+			datetime(zobject.zcreationdate+978307200,'unixepoch')
+			from
+			zobject 
+			where
+			zstreamname = '/device/isPluggedIn'
+			""")
 
 		all_rows = cursor.fetchall()
 		usageentries = len(all_rows)
 		if usageentries > 0:
 			data_list = []    
 			for row in all_rows:
-				data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]))
+				data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6]))
 
 			description = ''
 			report = ArtifactHtmlReport('KnowledgeC Plugged In')
 			report.start_artifact_report(report_folder, 'Plugged In', description)
 			report.add_script()
-			data_headers = ('Start','End','Is Plugged In?','Usage in Seconds','Day of the Week','GMT Offset','Entry Creation', 'ZOBJECT Table ID' )     
+			data_headers = ('Start','End','Is Plugged In?','Usage in Seconds','Day of the Week','GMT Offset','Entry Creation' )     
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
@@ -1760,73 +1475,56 @@ def get_knowCall(files_found, report_folder, seeker):
 			logfunc('No data in KnowledgeC Plugged In')
 
 	if version.parse(iOSversion) >= version.parse("12"):
-		cursor = db.cursor()
-		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_safari_browsing.txt
-		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt	
+		cursor = db.cursor()	
 		cursor.execute('''
-		SELECT
-				DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
-				DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') AS "END",
-				ZSTRUCTUREDMETADATA.Z_DKSAFARIHISTORYMETADATAKEY__TITLE AS "TITLE",
-				ZOBJECT.ZVALUESTRING AS "URL", 
-				ZSOURCE.ZBUNDLEID AS "BUNDLE ID",
-				CASE ZOBJECT.ZSTARTDAYOFWEEK 
-					WHEN "1" THEN "Sunday"
-					WHEN "2" THEN "Monday"
-					WHEN "3" THEN "Tuesday"
-					WHEN "4" THEN "Wednesday"
-					WHEN "5" THEN "Thursday"
-					WHEN "6" THEN "Friday"
-					WHEN "7" THEN "Saturday"
-				END "DAY OF WEEK", 
-				ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-				DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') AS "ENTRY CREATION",
-				ZOBJECT.ZUUID AS "UUID", 
-				ZOBJECT.Z_PK AS "ZOBJECT TABLE ID"
-			FROM
-				ZOBJECT 
-				LEFT JOIN
-					ZSTRUCTUREDMETADATA 
-					ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
-				LEFT JOIN
-					ZSOURCE 
-					ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
-			WHERE
-				ZSTREAMNAME IS "/safari/history"
-			''')
+		select
+		datetime(zobject.zstartdate+978307200,'unixepoch'), 
+		datetime(zobject.zenddate+978307200,'unixepoch'),
+		zstructuredmetadata.z_dksafarihistorymetadatakey__title,
+		zobject.zvaluestring, 
+		zsource.zbundleid,
+		case zobject.zstartdayofweek 
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
+		end, 
+		zobject.zsecondsfromgmt/3600,
+		datetime(zobject.zcreationdate+978307200,'unixepoch')
+		from
+		zobject,
+		zstructuredmetadata, zsource 
+		where zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
+		and  zobject.zsource = zsource.z_pk 
+		and zstreamname = '/safari/history'
+		''')
 	elif version.parse(iOSversion) == version.parse("11"):
-		cursor = db.cursor()
-		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_safari_browsing.txt
-		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt	
+		cursor = db.cursor()	
 		cursor.execute('''
-		SELECT
-				DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
-				DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') AS "END",
-				ZOBJECT.ZVALUESTRING AS "URL", 
-				ZSOURCE.ZBUNDLEID AS "BUNDLE ID",
-				CASE ZOBJECT.ZSTARTDAYOFWEEK 
-					WHEN "1" THEN "Sunday"
-					WHEN "2" THEN "Monday"
-					WHEN "3" THEN "Tuesday"
-					WHEN "4" THEN "Wednesday"
-					WHEN "5" THEN "Thursday"
-					WHEN "6" THEN "Friday"
-					WHEN "7" THEN "Saturday"
-				END "DAY OF WEEK", 
-				ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-				DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') AS "ENTRY CREATION", 
-				ZOBJECT.Z_PK AS "ZOBJECT TABLE ID"
-			FROM
-				ZOBJECT 
-				LEFT JOIN
-					ZSTRUCTUREDMETADATA 
-					ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
-				LEFT JOIN
-					ZSOURCE 
-					ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
-			WHERE
-				ZSTREAMNAME IS "/safari/history"	
-					''')
+		select
+		datetime(zobject.zstartdate+978307200,'unixepoch'), 
+		datetime(zobject.zenddate+978307200,'unixepoch'),
+		zobject.zvaluestring, 
+		zsource.zbundleid,
+		case zobject.zstartdayofweek 
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
+		end, 
+		zobject.zsecondsfromgmt/3600,
+		datetime(zobject.zcreationdate+978307200,'unixepoch')
+		from
+		zobject, zsource
+		where zobject.zsource = zsource.z_pk 
+		and zstreamname = '/safari/history'	
+		''')
 	else:
 		logfunc("Unsupported version for KnowledgC Safari iOS " + iOSversion)
 		return ()
@@ -1838,12 +1536,12 @@ def get_knowCall(files_found, report_folder, seeker):
 		if version.parse(iOSversion) >= version.parse("12"):
 					
 			for row in all_rows:    
-				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9]))
+				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7]))
 
 			report = ArtifactHtmlReport('KnowledgeC Safari Browsing')
 			report.start_artifact_report(report_folder, 'Safari Browsing')
 			report.add_script()
-			data_headers = ('Start','End','Title','URL', 'Bundle ID','Day of Week','GMT Offset','Entry Creation','UUID','ZOBJECT Table ID')  
+			data_headers = ('Start','End','Title','URL', 'Bundle ID','Day of Week','GMT Offset','Entry Creation')  
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
@@ -1855,12 +1553,12 @@ def get_knowCall(files_found, report_folder, seeker):
 
 		else:
 			for row in all_rows:    
-				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7]))
+				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6]))
 					
 			report = ArtifactHtmlReport('KnowledgeC Safari Browsing')
 			report.start_artifact_report(report_folder, 'Safari Browsing')
 			report.add_script()
-			data_headers = ('Start','End','URL','Bundle ID','Day of Week','GMT Offset','Entry Creation','ZOBJECT Table ID' ) 
+			data_headers = ('Start','End','URL','Bundle ID','Day of Week','GMT Offset','Entry Creation' ) 
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
@@ -1873,37 +1571,26 @@ def get_knowCall(files_found, report_folder, seeker):
 	else:
 		logfunc('No data available in Safari Browsing')
 		
-	if version.parse(iOSversion) >= version.parse("12"):
-		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_siri.txt
-		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt	
-		cursor.execute(
-		"""
-		SELECT
-		DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
-		ZOBJECT.ZVALUESTRING AS "APP NAME",  
-		CASE ZOBJECT.ZSTARTDAYOFWEEK 
-		WHEN "1" THEN "Sunday"
-		WHEN "2" THEN "Monday"
-		WHEN "3" THEN "Tuesday"
-		WHEN "4" THEN "Wednesday"
-		WHEN "5" THEN "Thursday"
-		WHEN "6" THEN "Friday"
-		WHEN "7" THEN "Saturday"
-		END "DAY OF WEEK",
-		ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-		DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') AS "ENTRY CREATION",
-		ZOBJECT.ZUUID AS "UUID", 
-		ZOBJECT.Z_PK AS "ZOBJECT TABLE ID" 
-		FROM
-		ZOBJECT 
-		LEFT JOIN
-		ZSTRUCTUREDMETADATA 
-		ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
-		LEFT JOIN
-		ZSOURCE 
-		ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
-		WHERE
-		ZSTREAMNAME =  "/siri/ui" 
+	if version.parse(iOSversion) >= version.parse("12"):	
+		cursor.execute("""
+		select
+		datetime(zobject.zstartdate+978307200,'unixepoch'), 
+		zobject.zvaluestring,  
+		case zobject.zstartdayofweek 
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
+		end,
+		zobject.zsecondsfromgmt/3600,
+		datetime(zobject.zcreationdate+978307200,'unixepoch')
+		from
+		zobject 
+		where
+		zstreamname =  '/siri/ui' 
 		"""
 		)
 
@@ -1912,13 +1599,13 @@ def get_knowCall(files_found, report_folder, seeker):
 		if usageentries > 0:
 			data_list = []   
 			for row in all_rows:
-				data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6]))
+				data_list.append((row[0], row[1], row[2], row[3], row[4]))
 
 			description = ''
 			report = ArtifactHtmlReport('KnowledgeC Siri Usage')
 			report.start_artifact_report(report_folder, 'Siri Usage', description)
 			report.add_script()
-			data_headers = ('Start','App Name','Weekday','GMT Offset','Entry Creation','UUID','ZOBJECT Table ID' )     
+			data_headers = ('Start','App Name','Weekday','GMT Offset','Entry Creation' )     
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
@@ -1930,54 +1617,41 @@ def get_knowCall(files_found, report_folder, seeker):
 		else:
 			logfunc('No data in KnowledgeC Siri Usage')
 	
-	if version.parse(iOSversion) >= version.parse("12"):
-		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_app_usage.txt
-		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt	
-		cursor.execute(
-	        """
-		SELECT
-				DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
-				DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') AS "END",
-				ZOBJECT.ZVALUESTRING AS "BUNDLE ID", 
-				(ZOBJECT.ZENDDATE - ZOBJECT.ZSTARTDATE) AS "USAGE IN SECONDS",
-				(ZOBJECT.ZENDDATE - ZOBJECT.ZSTARTDATE)/60.00 AS "USAGE IN MINUTES",  
-				ZSOURCE.ZDEVICEID AS "DEVICE ID (HARDWARE UUID)", 
-				CASE ZOBJECT.ZSTARTDAYOFWEEK 
-					WHEN "1" THEN "Sunday"
-					WHEN "2" THEN "Monday"
-					WHEN "3" THEN "Tuesday"
-					WHEN "4" THEN "Wednesday"
-					WHEN "5" THEN "Thursday"
-					WHEN "6" THEN "Friday"
-					WHEN "7" THEN "Saturday"
-				END "DAY OF WEEK",
-				ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-				DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') AS "ENTRY CREATION", 
-				ZOBJECT.ZUUID AS "UUID",
-				ZOBJECT.Z_PK AS "ZOBJECT TABLE ID" 
-			FROM
-				ZOBJECT 
-				LEFT JOIN
-					ZSTRUCTUREDMETADATA 
-					ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
-				LEFT JOIN
-					ZSOURCE 
-					ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
-			WHERE
-				ZSTREAMNAME = "/app/usage" 
+	if version.parse(iOSversion) >= version.parse("12"):	
+		cursor.execute("""
+		select
+		datetime(zobject.zstartdate+978307200,'unixepoch'), 
+		datetime(zobject.zenddate+978307200,'unixepoch'),
+		zobject.zvaluestring, 
+		(zobject.zenddate - zobject.zstartdate),
+		(zobject.zenddate - zobject.zstartdate)/60.00,  
+		case zobject.zstartdayofweek 
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
+		end,
+		zobject.zsecondsfromgmt/3600,
+		datetime(zobject.zcreationdate+978307200,'unixepoch')
+		from
+		zobject
+		where zstreamname = '/app/usage' 
 		""")
 	all_rows = cursor.fetchall()
 	usageentries = len(all_rows)
 	if usageentries > 0:
 		data_list = []    
 		for row in all_rows:
-			data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10]))
+			data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]))
 
 		description = ''
 		report = ArtifactHtmlReport('KnowledgeC App Usage')
 		report.start_artifact_report(report_folder, 'App Usage', description)
 		report.add_script()
-		data_headers = ('Start','End','Bundle ID','Usage in Seconds','Usage in Minutes','Device ID','Day of the Week','GMT Offset','Entry Creation','UUID','Zobject Table ID' )     
+		data_headers = ('Start','End','Bundle ID','Usage in Seconds','Usage in Minutes','Day of the Week','GMT Offset','Entry Creation')     
 		report.write_artifact_data_table(data_headers, data_list, file_found, html_escape=False)
 		report.end_artifact_report()
 		
@@ -1990,36 +1664,24 @@ def get_knowCall(files_found, report_folder, seeker):
 		logfunc('No data in KnowledgeC App Usage')
 
 	if version.parse(iOSversion) >= version.parse("12"):
-		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_system_userwakingevent.txt
-		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt	
-		cursor.execute(
-		"""
-		SELECT
-				DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
-				DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') AS "END",
-				CASE ZOBJECT.ZSTARTDAYOFWEEK 
-					WHEN "1" THEN "Sunday"
-					WHEN "2" THEN "Monday"
-					WHEN "3" THEN "Tuesday"
-					WHEN "4" THEN "Wednesday"
-					WHEN "5" THEN "Thursday"
-					WHEN "6" THEN "Friday"
-					WHEN "7" THEN "Saturday"
-				END "DAY OF WEEK",
-				ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-				DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') AS "ENTRY CREATION",
-				ZOBJECT.ZUUID AS "UUID", 
-				ZOBJECT.Z_PK AS "ZOBJECT TABLE ID" 
-			FROM
-				ZOBJECT 
-				LEFT JOIN
-					ZSTRUCTUREDMETADATA 
-					ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
-				LEFT JOIN
-					ZSOURCE 
-					ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
-			WHERE
-				ZSTREAMNAME = "/system/userWakingEvent" 
+		cursor.execute("""
+		select
+		datetime(zobject.zstartdate+978307200,'unixepoch'), 
+		datetime(zobject.zenddate+978307200,'unixepoch'),
+		case zobject.zstartdayofweek 
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
+		end,
+		zobject.zsecondsfromgmt/3600,
+		datetime(zobject.zcreationdate+978307200,'unixepoch')
+		from
+		zobject 
+		where zstreamname = '/system/userWakingEvent'
 		""")
 
 		all_rows = cursor.fetchall()
@@ -2027,13 +1689,13 @@ def get_knowCall(files_found, report_folder, seeker):
 		if usageentries > 0:
 			data_list = []    
 			for row in all_rows:
-				data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6]))
+				data_list.append((row[0], row[1], row[2], row[3], row[4]))
 
 			description = ''
 			report = ArtifactHtmlReport('KnowledgeC User Waking Event')
 			report.start_artifact_report(report_folder, 'User Waking Event', description)
 			report.add_script()
-			data_headers = ('Start','End','Day of Week','GMT Offset','Entry Creation','UUID','Zobject Table ID')     
+			data_headers = ('Start','End','Day of Week','GMT Offset','Entry Creation')     
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
@@ -2045,45 +1707,34 @@ def get_knowCall(files_found, report_folder, seeker):
 
 		else:
 			logfunc('No data available in User Waking Event')
-	
-	if version.parse(iOSversion) == version.parse("11"):
-		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_device_watch_nearby.txt
-		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
-		cursor.execute(
+			
+	if version.parse(iOSversion) >= version.parse("12"):
+		cursor.execute("""
+		select
+		datetime(zobject.zstartdate+978307200,'unixepoch'), 
+		datetime(zobject.zenddate+978307200,'unixepoch'),
+		zobject.zvaluestring, 
+		(zobject.zenddate - zobject.zstartdate),
+		(zobject.zenddate - zobject.zstartdate)/60.00,   
+		zstructuredmetadata .z_dkdigitalhealthmetadatakey__webdomain,
+		zstructuredmetadata .z_dkdigitalhealthmetadatakey__webpageurl,
+		case zobject.zstartdayofweek 
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
+		end,
+		zobject.zsecondsfromgmt/3600,
+		datetime(zobject.zcreationdate+978307200,'unixepoch')
+		from
+		zobject, zstructuredmetadata 
+		where zobject.zstructuredmetadata = zstructuredmetadata.z_pk 
+		and zstreamname = '/app/webUsage'
 		"""
-		SELECT
-				DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
-				DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') AS "END",
-				CASE ZOBJECT.ZVALUEINTEGER
-					WHEN '0' THEN 'NO' 
-					WHEN '1' THEN 'YES' 
-				END "WATCH NEARBY",
-				(ZOBJECT.ZENDDATE - ZOBJECT.ZSTARTDATE) AS "USAGE IN SECONDS",
-			  (ZOBJECT.ZENDDATE - ZOBJECT.ZSTARTDATE)/60.00 AS "USAGE IN MINUTES",   
-				CASE ZOBJECT.ZSTARTDAYOFWEEK 
-					WHEN "1" THEN "Sunday"
-					WHEN "2" THEN "Monday"
-					WHEN "3" THEN "Tuesday"
-					WHEN "4" THEN "Wednesday"
-					WHEN "5" THEN "Thursday"
-					WHEN "6" THEN "Friday"
-					WHEN "7" THEN "Saturday"
-				END "DAY OF WEEK", 
-				ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-				DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') AS "ENTRY CREATION",
-				ZOBJECT.ZUUID AS "UUID", 
-				ZOBJECT.Z_PK AS "ZOBJECT TABLE ID"
-			FROM
-				ZOBJECT 
-				LEFT JOIN
-					ZSTRUCTUREDMETADATA 
-					ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
-				LEFT JOIN
-					ZSOURCE 
-					ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
-			WHERE
-				ZSTREAMNAME is "/watch/nearby" 	
-		""")
+		)
 
 		all_rows = cursor.fetchall()
 		usageentries = len(all_rows)
@@ -2093,74 +1744,10 @@ def get_knowCall(files_found, report_folder, seeker):
 				data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9]))
 
 			description = ''
-			report = ArtifactHtmlReport('KnowledgeC Watch Near')
-			report.start_artifact_report(report_folder, 'Watch Near', description)
-			report.add_script()
-			data_headers = ('Start','End','Watch Nearby','Usage in Seconds','Usage in Minutes','Day of Week','GMT Offset','Entry Creation','UUID','Zobject Table ID')     
-			report.write_artifact_data_table(data_headers, data_list, file_found)
-			report.end_artifact_report()
-			
-			tsvname = 'KnowledgeC Watch Wear'
-			tsv(report_folder, data_headers, data_list, tsvname)
-			
-			tlactivity = 'KnowledgeC Watch Wear'
-			timeline(report_folder, tlactivity, data_list, data_headers)
-
-		else:
-			logfunc('No data available in Watch Near')
-			
-	if version.parse(iOSversion) >= version.parse("12"):
-		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_app_webusage.txt
-		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
-		cursor.execute(
-		"""
-		SELECT
-			DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
-			DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') AS "END",
-			ZOBJECT.ZVALUESTRING AS "APP NAME", 
-			(ZOBJECT.ZENDDATE - ZOBJECT.ZSTARTDATE) AS "USAGE IN SECONDS",
-			(ZOBJECT.ZENDDATE - ZOBJECT.ZSTARTDATE)/60.00 AS "USAGE IN MINUTES",   
-			ZSTRUCTUREDMETADATA .Z_DKDIGITALHEALTHMETADATAKEY__WEBDOMAIN AS "DOMAIN",
-			ZSTRUCTUREDMETADATA .Z_DKDIGITALHEALTHMETADATAKEY__WEBPAGEURL AS "URL",
-			ZSOURCE.ZDEVICEID AS "DEVICE ID (HARDWARE UUID)",
-			CASE ZOBJECT.ZSTARTDAYOFWEEK 
-				WHEN "1" THEN "Sunday"
-				WHEN "2" THEN "Monday"
-				WHEN "3" THEN "Tuesday"
-				WHEN "4" THEN "Wednesday"
-				WHEN "5" THEN "Thursday"
-				WHEN "6" THEN "Friday"
-				WHEN "7" THEN "Saturday"
-			END "DAY OF WEEK",
-			ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-			DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') AS "ENTRY CREATION",
-			ZOBJECT.ZUUID AS "UUID", 
-			ZOBJECT.Z_PK AS "ZOBJECT TABLE ID" 
-		FROM
-			ZOBJECT 
-			LEFT JOIN
-				ZSTRUCTUREDMETADATA 
-				ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
-			LEFT JOIN
-				ZSOURCE 
-				ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
-		WHERE
-			ZSTREAMNAME = "/app/webUsage" 
-		"""
-		)
-
-		all_rows = cursor.fetchall()
-		usageentries = len(all_rows)
-		if usageentries > 0:
-			data_list = []    
-			for row in all_rows:
-				data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11], row[12]))
-
-			description = ''
 			report = ArtifactHtmlReport('KnowledgeC Web Usage')
 			report.start_artifact_report(report_folder, 'Web Usage', description)
 			report.add_script()
-			data_headers = ('Start','End','App Name','Usage in Seconds','Usage in Minutes','Domain','URL','Device ID','Day of the Wekk','GMT Offset','Entry Creation','UUID','Zobject Table ID')     
+			data_headers = ('Start','End','App Name','Usage in Seconds','Usage in Minutes','Domain','URL','Day of the Wekk','GMT Offset','Entry Creation')     
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
@@ -2174,39 +1761,28 @@ def get_knowCall(files_found, report_folder, seeker):
 			logfunc('No data available in Web Usage')
 
 	if version.parse(iOSversion) < version.parse("12"):
-		# The following SQL query is taken from https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_widgets_viewed.txt
-		# from Sarah Edward's APOLLO project, and used under terms of its license found under Licenses/apollo.LICENSE.txt
-		cursor.execute(
-		"""
-		SELECT
-				DATETIME(ZOBJECT.ZSTARTDATE+978307200,'UNIXEPOCH') AS "START", 
-				DATETIME(ZOBJECT.ZENDDATE+978307200,'UNIXEPOCH') AS "END",
-				ZOBJECT.ZVALUESTRING AS "BUNDLE ID",  
-				(ZOBJECT.ZENDDATE - ZOBJECT.ZSTARTDATE) AS "USAGE IN SECONDS",
-				(ZOBJECT.ZENDDATE - ZOBJECT.ZSTARTDATE)/60.00 AS "USAGE IN MINUTES",   
-				CASE ZOBJECT.ZSTARTDAYOFWEEK 
-					WHEN "1" THEN "Sunday"
-					WHEN "2" THEN "Monday"
-					WHEN "3" THEN "Tuesday"
-					WHEN "4" THEN "Wednesday"
-					WHEN "5" THEN "Thursday"
-					WHEN "6" THEN "Friday"
-					WHEN "7" THEN "Saturday"
-				END "DAY OF WEEK",
-				ZOBJECT.ZSECONDSFROMGMT/3600 AS "GMT OFFSET",
-				DATETIME(ZOBJECT.ZCREATIONDATE+978307200,'UNIXEPOCH') AS "ENTRY CREATION",
-				ZOBJECT.ZUUID AS "UUID", 
-				ZOBJECT.Z_PK AS "ZOBJECT TABLE ID" 
-			FROM
-				ZOBJECT 
-				LEFT JOIN
-					ZSTRUCTUREDMETADATA 
-					ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK 
-				LEFT JOIN
-					ZSOURCE 
-					ON ZOBJECT.ZSOURCE = ZSOURCE.Z_PK 
-			WHERE
-				ZSTREAMNAME = "/widgets/viewed" 
+		cursor.execute("""
+		select
+		datetime(zobject.zstartdate+978307200,'unixepoch'), 
+		datetime(zobject.zenddate+978307200,'unixepoch'),
+		zobject.zvaluestring,  
+		(zobject.zenddate - zobject.zstartdate),
+		(zobject.zenddate - zobject.zstartdate)/60.00,   
+		case zobject.zstartdayofweek 
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
+		end,
+		zobject.zsecondsfromgmt/3600,
+		datetime(zobject.zcreationdate+978307200,'unixepoch')
+		from
+		zobject 
+		where
+		zstreamname = '/widgets/viewed'
 		""")
 
 		all_rows = cursor.fetchall()
@@ -2214,13 +1790,13 @@ def get_knowCall(files_found, report_folder, seeker):
 		if usageentries > 0:
 			data_list = []    
 			for row in all_rows:
-				data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9]))
+				data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]))
 
 			description = ''
 			report = ArtifactHtmlReport('KnowledgeC Widgets Viewed')
 			report.start_artifact_report(report_folder, 'Widgets Viewed', description)
 			report.add_script()
-			data_headers = ('Start','End','Bundle ID','Usage in Seconds','Usage in Minutes','Day of Week','GMT Offset','Entry Creation','UUID','Zobject Table ID')     
+			data_headers = ('Start','End','Bundle ID','Usage in Seconds','Usage in Minutes','Day of Week','GMT Offset','Entry Creation')     
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			

@@ -20,6 +20,7 @@ page_header = \
         <link rel="stylesheet" href="_elements/MDB-Free_4.13.0/css/mdb.min.css">
         <!-- Your custom styles (optional) -->
         <link rel="stylesheet" href="_elements/dashboard.css">
+        <link rel="stylesheet" href="_elements/chats.css">
         <!-- MDBootstrap Datatables  -->
         <link rel="stylesheet" href="_elements/MDB-Free_4.13.0/css/addons/datatables.min.css" rel="stylesheet">
 

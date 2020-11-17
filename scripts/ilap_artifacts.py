@@ -26,37 +26,13 @@ from scripts.artifacts.webClips import get_webClips
 from scripts.artifacts.notificationsXII import get_notificationsXII
 from scripts.artifacts.notificationsXI import get_notificationsXI
 from scripts.artifacts.celWireless import get_celWireless
-from scripts.artifacts.knowCincept import get_knowCincept
-from scripts.artifacts.knowCusage import get_knowCusage
-from scripts.artifacts.knowCact import get_knowCact
-from scripts.artifacts.knowCinfocus import get_knowCinfocus
-from scripts.artifacts.knowCbatlvl import get_knowCbatlvl
-from scripts.artifacts.knowClocked import get_knowClocked
-from scripts.artifacts.knowCplugged import get_knowCplugged
-from scripts.artifacts.knowCsiri import get_knowCsiri
 from scripts.artifacts.aggDict import get_aggDict
 from scripts.artifacts.aggDictScalars import get_aggDictScalars
 from scripts.artifacts.coreDuetAirplane import get_coreDuetAirplane
 from scripts.artifacts.coreDuetLock import get_coreDuetLock
 from scripts.artifacts.coreDuetPlugin import get_coreDuetPlugin
-from scripts.artifacts.healthDistance import get_healthDistance
-from scripts.artifacts.healthEcg import get_healthEcg
-from scripts.artifacts.healthFlights import get_healthFlights
-from scripts.artifacts.healthHr import get_healthHr
-from scripts.artifacts.healthSteps import get_healthSteps
-from scripts.artifacts.healthStandup import get_healthStandup
-from scripts.artifacts.healthWeight import get_healthWeight
-from scripts.artifacts.healthCadence import get_healthCadence
-from scripts.artifacts.healthElevation import get_healthElevation
-from scripts.artifacts.healthWorkoutGen import get_healthWorkoutGen
 from scripts.artifacts.healthAll import get_healthAll
 from scripts.artifacts.interactionCcontacts import get_interactionCcontacts
-from scripts.artifacts.knowCnotes import get_knowCnotes
-from scripts.artifacts.knowCactivitylvl import get_knowCactivitylvl
-from scripts.artifacts.knowCappact import get_knowCappact
-from scripts.artifacts.knowCappactcal import get_knowCappactcal
-from scripts.artifacts.knowCappactsafari import get_knowCappactsafari
-from scripts.artifacts.knowCinstall import get_knowCinstall
 from scripts.artifacts.safariHistory import get_safariHistory
 from scripts.artifacts.safariWebsearch import get_safariWebsearch
 from scripts.artifacts.safariBookmarks import get_safariBookmarks
@@ -64,56 +40,16 @@ from scripts.artifacts.safariTabs import get_safariTabs
 from scripts.artifacts.queryPredictions import get_queryPredictions
 from scripts.artifacts.dhcpl import get_dhcpl
 from scripts.artifacts.dhcphp import get_dhcphp
-from scripts.artifacts.powerlogWifiprop import get_powerlogWifiprop
-from scripts.artifacts.powerlogVolumePercentage import get_powerlogVolumePercentage
-from scripts.artifacts.powerlogVideo import get_powerlogVideo
-from scripts.artifacts.powerlogTorch import get_powerlogTorch
-from scripts.artifacts.powerlogTimezone import get_powerlogTimezone
-from scripts.artifacts.powerlogAggnotifications import get_powerlogAggnotifications
-from scripts.artifacts.powerlogAggbulletins import get_powerlogAggbulletins
-from scripts.artifacts.powerlogPushreceived import get_powerlogPushreceived
-from scripts.artifacts.powerlogProcessdatausage import get_powerlogProcessdatausage
-from scripts.artifacts.powerlogPaireddevconf import get_powerlogPaireddevconf
-from scripts.artifacts.powerlogLocuseapp import get_powerlogLocuseapp
-from scripts.artifacts.powerlogAirdrop import get_powerlogAirdrop
-from scripts.artifacts.powerlogAudio import get_powerlogAudio
-from scripts.artifacts.powerlogLightplug import get_powerlogLightplug
-from scripts.artifacts.powerlogAppinfo import get_powerlogAppinfo
-from scripts.artifacts.powerlogBackupinfo import get_powerlogBackupinfo
-from scripts.artifacts.powerlogDeletedapps import get_powerlogDeletedapps
 from scripts.artifacts.powerlogAll import get_powerlogAll
 from scripts.artifacts.powerlogGZ import get_powerlogGZ
-from scripts.artifacts.knowClocation import get_knowClocation
-from scripts.artifacts.knowCappshortcut import get_knowCappshortcut
-from scripts.artifacts.knowCwebusage import get_knowCwebusage
-from scripts.artifacts.knowCbluetooth import get_knowCbluetooth
-from scripts.artifacts.knowCmediaplaying import get_knowCmediaplaying
-from scripts.artifacts.knowCcarplaycon import get_knowCcarplaycon
-from scripts.artifacts.knowCinferredmotion import get_knowCinferredmotion
-from scripts.artifacts.knowCbacklit import get_knowCbacklit
-from scripts.artifacts.knowCorientation import get_knowCorientation
-from scripts.artifacts.knowCwatchnear import get_knowCwatchnear
-from scripts.artifacts.knowCdisksub import get_knowCdisksub
-from scripts.artifacts.knowCsafari import get_knowCsafari
-from scripts.artifacts.knowCdonotdisturb import get_knowCdonotdisturb
-from scripts.artifacts.knowCuserwaking import get_knowCuserwaking
-from scripts.artifacts.knowCwidget import get_knowCwidget
 from scripts.artifacts.locationDparkedhistorical import get_locationDparkedhistorical
 from scripts.artifacts.locationDparked import get_locationDparked
 from scripts.artifacts.knowCall import get_knowCall
 from scripts.artifacts.mailprotect import get_mailprotect
-from scripts.artifacts.screentimeGenerichour import get_screentimeGenerichour
-from scripts.artifacts.screentimeTimeditems import get_screentimeTimeditems
-from scripts.artifacts.screentimeCounteditems import get_screentimeCounteditems
 from scripts.artifacts.screentimeAll import get_screentimeAll
 from scripts.artifacts.bluetoothPaired import get_bluetoothPaired
 from scripts.artifacts.bluetoothOther import get_bluetoothOther
 from scripts.artifacts.bluetoothPairedReg import get_bluetoothPairedReg
-from scripts.artifacts.locationDcellloc import get_locationDcellloc
-from scripts.artifacts.locationDappharvest import get_locationDappharvest
-from scripts.artifacts.locationDcdmaloc1 import get_locationDcdmaloc1
-from scripts.artifacts.locationDwifilocB import get_locationDwifilocB
-from scripts.artifacts.locationDlteloc import get_locationDlteloc
 from scripts.artifacts.locationDsteps import get_locationDsteps
 from scripts.artifacts.locationDallB import get_locationDallB
 from scripts.artifacts.calendarAll import get_calendarAll
@@ -132,7 +68,6 @@ from scripts.artifacts.appConduit import get_appConduit
 from scripts.artifacts.mobileActivationLogs import get_mobileActivationLogs
 from scripts.artifacts.iCloudWifi import get_iCloudWifi
 from scripts.artifacts.mobileBackup import get_mobileBackup
-from scripts.artifacts.wifi import get_wifi
 from scripts.artifacts.mobileContainerManager import get_mobileContainerManager
 from scripts.artifacts.mediaLibrary import get_mediaLibrary
 from scripts.artifacts.geodMapTiles import get_geodMapTiles
@@ -155,6 +90,7 @@ from scripts.artifacts.kikMessages import get_kikMessages
 from scripts.artifacts.appItunesmeta import get_appItunesmeta
 from scripts.artifacts.cloudkitParticipants import get_cloudkitParticipants
 from scripts.artifacts.cloudkitNoteSharing import get_cloudkitNoteSharing
+from scripts.artifacts.applewalletTransactions import get_applewalletTransactions
 
 from scripts.ilapfuncs import *
 
@@ -201,6 +137,7 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'powerlogAll':('Powerlog', '**/CurrentPowerlog.PLSQL'),
             'powerlogGZ':('Powerlog Backups', '**/Library/BatteryLife/Archives/powerlog_*.PLSQL.gz'),
             'healthAll':('Health Data', '**/healthdb_secure.sqlite'),
+            'interactionCcontacts':('InteractionC', '**/interactionC.db'),
             'locationDallB':('Locations', '**/cache_encryptedB.db'),
             'screentimeAll':('Screentime', '**/RMAdminStore-Local.sqlite'),
             'mailprotect':('iOS Mail', '**/private/var/mobile/Library/Mail/* Index*'),
@@ -218,7 +155,7 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'routineDLocationsLocal':('Locations', '**/private/var/mobile/Library/Caches/com.apple.routined/Local.sqlite*'),
             'routineDCloud':('Locations', '**/Library/Caches/com.apple.routined/Cloud-V2.sqlite*'),
             'cacheRoutesGmap':('Locations', '**/Library/Application Support/CachedRoutes/*.plist'),
-            'appleWifiPlist':('Wireless Networks', '**/com.apple.wifi.plist'),
+            'appleWifiPlist':('Wireless Networks', ('**/com.apple.wifi.plist','**/com.apple.wifi-networks.plist.backup','**/com.apple.wifi.known-networks.plist','**/com.apple.wifi-private-mac-networks.plist')),
             #'systemVersion':('Device Info', '**/SystemVersion.plist'),
             'mobileActivationLogs':('Mobile Activation Logs', '**/mobileactivationd.log*'),
             'iCloudWifi':('Wifi Connections', '**/com.apple.wifid.plist'),
@@ -246,131 +183,16 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'kikMessages': ('Kik', '**/kik.sqlite*'),
             'appItunesmeta':('Installed Apps', ('**/iTunesMetadata.plist', '**/BundleMetadata.plist')),
             'cloudkitParticipants': ('Cloudkit', '*NoteStore.sqlite*'),
-            'cloudkitNoteSharing': ('Cloudkit', '*NoteStore.sqlite*')
+            'cloudkitNoteSharing': ('Cloudkit', '*NoteStore.sqlite*'),
+            'applewalletTransactions': ('Apple Wallet', '**/passes23.sqlite'),
+            'journalStrings':('SQLite Journaling - journal', '**/*-journal'),
+            'walStrings':('SQLite Journaling - wal', '**/*-wal')
             }
 
 '''
-
-# Individual artifacts. Slow parsing when extracting the same data multiple times for each artifact.
-tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
-    'aggDictpasscode':('Aggregate Dictionary', '*/AggregateDictionary/ADDataStore.sqlitedb'),
-    'aggDictpasscodetype':('Aggregate Dictionary', '*/AggregateDictionary/ADDataStore.sqlitedb'),
-    'knowCincept':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-    'knowCusage':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-    'knowCact':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-    'knowCinfocus':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-    'knowCbatlvl':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-    'knowClocked':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-    'knowCplugged':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-    'knowCsiri':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-    'knowCnotes':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-    'knowCactivitylvl':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-    'knowCappact':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-    'knowCappactcal':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-    'knowCappactsafari':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-    'knowCinstall':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-    'knowClocation':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-    'knowCappshortcut':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-    'knowCwebusage':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-    'knowCbluetooth':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-    'knowCmediaplaying':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-    'knowCcarplaycon':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-    'knowCinferredmotion':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-    'knowCbacklit':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-    'knowCorientation':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-    'knowCwatchnear':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-    'knowCdisksub':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-    'knowCsafari':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-    'knowCdonotdisturb':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-    'knowCuserwaking':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-    'knowCwidget':('KnowledgeC', '*/CoreDuet/Knowledge/knowledgeC.db'),
-    'powerlogWifiprop':('Powerlog', '**/CurrentPowerlog.PLSQL'),
-    'powerlogVolumePercentage':('Powerlog', '**/CurrentPowerlog.PLSQL'),
-    'powerlogTorch':('Powerlog', '**/CurrentPowerlog.PLSQL'),
-    'powerlogVideo':('Powerlog', '**/CurrentPowerlog.PLSQL'),
-    'powerlogTimezone':('Powerlog', '**/CurrentPowerlog.PLSQL'),
-    'powerlogAggnotifications':('Powerlog', '**/CurrentPowerlog.PLSQL'),
-    'powerlogAggbulletins':('Powerlog', '**/CurrentPowerlog.PLSQL'),
-    'powerlogPushreceived':('Powerlog', '**/CurrentPowerlog.PLSQL'),
-    'powerlogProcessdatausage':('Powerlog', '**/CurrentPowerlog.PLSQL'),
-    'powerlogPaireddevconf':('Powerlog', '**/CurrentPowerlog.PLSQL'),
-    'powerlogLocuseapp':('Powerlog', '**/CurrentPowerlog.PLSQL'),
-    'powerlogAirdrop':('Powerlog', '**/CurrentPowerlog.PLSQL'),
-    'powerlogAudio':('Powerlog', '**/CurrentPowerlog.PLSQL'),
-    'powerlogDeletedapps':('Powerlog', '**/CurrentPowerlog.PLSQL'),
-    'powerlogAppinfo':('Powerlog', '**/CurrentPowerlog.PLSQL'),
-    'powerlogBackupinfo':('Powerlog', '**/CurrentPowerlog.PLSQL'),
-    'powerlogLightplug':('Powerlog', '**/CurrentPowerlog.PLSQL'),
-    'healthDistance':('Health Data', '**/healthdb_secure.sqlite'),
-    'healthEcg':('Health Data', '**/healthdb_secure.sqlite'),
-    'healthFlights':('Health Data', '**/healthdb_secure.sqlite'),
-    'healthHr':('Health Data', '**/healthdb_secure.sqlite'),
-    'healthStandup':('Health Data', '**/healthdb_secure.sqlite'),
-    'healthWeight':('Health Data', '**/healthdb_secure.sqlite'),
-    'healthCadence':('Health Data', '**/healthdb_secure.sqlite'),
-    'healthElevation':('Health Data', '**/healthdb_secure.sqlite'),
-    'healthWorkoutGen':('Health Data', '**/healthdb_secure.sqlite'),
-    'dataArk':('IOS Build', '**/Library/Lockdown/data_ark.plist'),
-    'applicationstate':('Installed Apps', '**/applicationState.db'),
-    'accs':('Accounts', '**/Accounts3.sqlite'),
-    'confaccts':('Accounts', '**/com.apple.accounts.exists.plist'),
-    'callHistory':('Call logs', '**/CallHistory.storedata'),
-    'conDev':('Connected to', '**/iTunes_Control/iTunes/iTunesPrefs'),
-    'coreDuetAirplane':('CoreDuet', '*/coreduetd.db'),
-    'coreDuetLock':('CoreDuet', '*/coreduetd.db'),
-    'coreDuetPlugin':('CoreDuet', '*/coreduetd.db'),
-    'safariHistory':('Safari Browser', '*/History.db'),
-    'safariWebsearch':('Safari Browser', '**/Safari/History.db'),
-    'queryPredictions':('SMS & iMessage', '**/query_predictions.db'),
-    'dhcpl':('DHCP', '**private/var/db/dhcpclient/leases/en*'),
-    'dhcphp':('DHCP', '**private/var/db/dhcpd_leases*'),
-    'dataUsageA':('Data Usage', '**/DataUsage.sqlite'), 
-    'dataUsageB':('Data Usage', '**/DataUsage-watch.sqlite'),
-    'dataUsageProcessA':('Data Usage', '**/DataUsage-watch.sqlite'),
-    'dataUsageProcessB':('Data Usage', '**/DataUsage.sqlite'),
-    'mobileInstall':('Mobile Installation Logs', '**/mobile_installation.log.*'), 
-    'sms':('SMS & iMessage', '**/sms.db'),
-    'iconsScreen':('iOS Screens', '**/SpringBoard/IconState.plist'),
-    'webClips':('iOS Screens', '*WebClips/*.webclip/*'),
-    'notificationsXI':('Notifications', '*PushStore*'),
-    'notificationsXII':('Notifications', '*private/var/mobile/Library/UserNotifications*'),
-    'celWireless':('Cellular Wireless', '*wireless/Library/Preferences/com.apple.*'),
-    'mailprotect':('iOS Mail', '**private/var/mobile/Library/Mail/* Index*'),
-    'locationDparkedhistorical':('Locations', '**/Local.sqlite'),
-    'locationDparked':('Locations', '**/Local.sqlite'),
-    'screentimeGenerichour':('Screentime', '**/RMAdminStore-Local.sqlite'),
-    'screentimeTimeditems':('Screentime', '**/RMAdminStore-Local.sqlite'),
-    'screentimeCounteditems':('Screentime', '**/RMAdminStore-Local.sqlite'),
-    'bluetoothPaired':('Bluetooth', '**/Library/Database/com.apple.MobileBluetooth.ledevices.paired.db'),
-    'bluetoothOther':('Bluetooth', '**/Library/Database/com.apple.MobileBluetooth.ledevices.other.db'),
-    'locationDcellloc':('Locations', '**/cache_encryptedB.db'),
-    'locationDappharvest':('Locations', '**/cache_encryptedB.db'),
-    'locationDwifilocB':('Locations', '**/cache_encryptedB.db'),
-    'locationDlteloc':('Locations', '**/cache_encryptedB.db'),
-    'locationDsteps':('LocationD', '**/cache_encryptedC.db'),
-    'locationDcdmaloc1':('Locations', '**/cache_encryptedB.db'),
-    'calendarAll':('Calendar', '**/Calendar.sqlitedb'),
-    'photosMetadata':('Photos', '**/Photos.sqlite'),
-    'systemVersion':('Device Info', '**/SystemVersion.plist'),
-    'mobileActivationLogs':('Mobile Activation Logs', '**/mobileactivationd.log*'),
-    'iCloudWifi':('Wifi Connections', '**/com.apple.wifid.plist'),
-    'mobileBackup':('Mobile Backup', '*/Preferences/com.apple.MobileBackup.plist'),
-    'wifi':('Wifi Connections', '**/com.apple.wifi.plist'),
-    'mobileContainerManager':('Mobile Container Manager', '**/containermanagerd.log.*'),
-    'appUpdates':('App Updates', '**/AppUpdates.sqlitedb'),
-    'appConduit':('App Conduit', '**/AppConduit.log.*'),
-    'mediaLibrary':('Media Library', '**/Medialibrary.sqlitedb'),
-    'applicationstate':('Installed Apps', '**/applicationState.db'),
-    'geodMapTiles': ('Geolocation', '**/MapTiles.sqlitedb'),
-    'geodPDPlaceCache': ('Geolocation', '**/PDPlaceCache.db'),
-    'geodApplications': ('Geolocation', '**/AP.db')
-    }
-
 #    Artifacts take long to run. Useful in specific situations only.
 #    'aggDict':('Aggregate Dictionary', '*/AggregateDictionary/ADDataStore.sqlitedb')
 #    'aggDictScalars':('Aggregate Dictionary', '*/AggregateDictionary/ADDataStore.sqlitedb')
-#    'journalStrings':('SQLite Journaling', '**/*-journal')
-#    'walStrings':('SQLite Journaling - Strings', '**/*-wal')
 '''
 
 slash = '\\' if is_platform_windows() else '/'

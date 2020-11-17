@@ -53,7 +53,11 @@ def ValidateInput(values, window):
 
 # initialize CheckBox control with module name   
 def CheckList(mtxt, lkey, mdstring, disable=False):
-    return [sg.CBox(mtxt, default=True, key=lkey, metadata=mdstring, disabled=disable)]
+    if mdstring == 'photosMetadata' or mdstring == 'journalStrings' or mdstring == 'walStrings': #items in the if are modules that take a long time to run. Deselects them by default.
+        dstate = False
+    else:
+        dstate = True
+    return [sg.CBox(mtxt, default=dstate, key=lkey, metadata=mdstring, disabled=disable)]
 
 def pickModules():
     global indx
