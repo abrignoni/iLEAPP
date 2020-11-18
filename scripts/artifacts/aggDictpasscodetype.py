@@ -14,22 +14,21 @@ def get_aggDictpasscodetype(files_found, report_folder, seeker):
 	db = sqlite3.connect(file_found)
 	cursor = db.cursor()
 
-	cursor.execute(
-	"""
-	SELECT
-	DATE(DAYSSINCE1970*86400, 'unixepoch') AS DAY,
-	KEY AS "KEY",
-	CASE 
-		WHEN VALUE=-1 THEN '6-Digit'
-		WHEN VALUE=0 THEN 'No Passcode'
-		WHEN VALUE=1 THEN '4-Digit'
-		WHEN VALUE=2 THEN 'Custom Alphanumeric'
-		WHEN VALUE=3 THEN 'Custom Numeric'
-		ELSE "N/A"
-	END "VALUE"
-	FROM
-	SCALARS
-	where key like 'com.apple.passcode.PasscodeType%'
+	cursor.execute("""
+	select
+	date(dayssince1970*86400, 'unixepoch'),
+	key,
+	case 
+	when value=-1 then '6-digit'
+	when value=0 then 'no passcode'
+	when value=1 then '4-digit'
+	when value=2 then 'custom alphanumeric'
+	when value=3 then 'custom numeric'
+	else "n/a"
+	end "value"
+	from
+	scalars
+	where key like 'com.apple.passcode.passcodetype%'
 	"""
 	)
 

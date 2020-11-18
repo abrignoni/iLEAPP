@@ -86,7 +86,7 @@ def crunch_artifacts(search_list, extracttype, input_path, out_params, ratio):
     logfunc(f'iLEAPP v{aleapp_version}: iLEAPP Logs, Events, and Properties Parser')
     logfunc('Objective: Triage iOS Full System Extractions.')
     logfunc('By: Alexis Brignoni | @AlexisBrignoni | abrignoni.com')
-    logfunc('By: Yogesh Khatri | @SwiftForensics | swiftforensics.com')
+    logfunc('By: Yogesh Khatri   | @SwiftForensics | swiftforensics.com')
     logdevinfo()
     
     seeker = None

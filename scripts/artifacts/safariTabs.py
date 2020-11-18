@@ -15,17 +15,16 @@ def get_safariTabs(files_found, report_folder, seeker):
 	cursor = db.cursor()
 
 	cursor.execute("""
-	Select
-		DATETIME(last_viewed_time+978307200,'UNIXEPOCH')as lastviewedtime, 
-		title, 
-		url, 
-		user_visible_url, 
-		opened_from_link, 
-		private_browsing
-	FROM
-		tabs
-
-			""")
+	select
+	datetime(last_viewed_time+978307200,'unixepoch'), 
+	title, 
+	url, 
+	user_visible_url, 
+	opened_from_link, 
+	private_browsing
+	from
+	tabs
+	""")
 
 	all_rows = cursor.fetchall()
 	usageentries = len(all_rows)

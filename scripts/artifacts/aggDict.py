@@ -14,19 +14,16 @@ def get_aggDict(files_found, report_folder, seeker):
 	db = sqlite3.connect(file_found)
 	cursor = db.cursor()
 
-	cursor.execute(
-	"""
-	SELECT
-		DATE(DISTRIBUTIONKEYS.DAYSSINCE1970*86400, 'unixepoch') AS "DAY",
-		DISTRIBUTIONKEYS.KEY AS "KEY",
-		DISTRIBUTIONVALUES.VALUE AS "VALUE",
-		DISTRIBUTIONVALUES.SECONDSINDAYOFFSET AS "SECONDS IN DAY OFFSET",
-		DISTRIBUTIONVALUES.DISTRIBUTIONID AS "DISTRIBUTIONVALUES TABLE ID"
-	FROM
-		DISTRIBUTIONKEYS 
-		LEFT JOIN
-			DISTRIBUTIONVALUES 
-			ON DISTRIBUTIONKEYS.ROWID = DISTRIBUTIONVALUES.DISTRIBUTIONID
+	cursor.execute("""
+	select
+	date(distributionkeys.dayssince1970*86400, 'unixepoch'),
+	distributionkeys.key,
+	distributionvalues.value,
+	distributionvalues.secondsindayoffset,
+	distributionvalues.distributionid
+	from
+	distributionkeys, distributionvalues 
+	where distributionkeys.rowid = distributionvalues.distributionid
 	"""
 	)
 

@@ -1,6 +1,7 @@
 import html
 import os
 from scripts.html_parts import *
+from scripts.ilapfuncs import is_platform_windows
 from scripts.version_info import aleapp_version
 
 class ArtifactHtmlReport:
@@ -32,9 +33,9 @@ class ArtifactHtmlReport:
     def add_script(self, script=''):
         '''Adds a default script or the script supplied'''
         if script:
-            self.script_code += script
+            self.script_code += script + nav_bar_script_footer
         else:
-            self.script_code += default_responsive_table_script
+            self.script_code += default_responsive_table_script + nav_bar_script_footer
 
     def write_artifact_data_table(self, data_headers, data_list, source_path, 
             write_total=True, write_location=True, html_escape=True, cols_repeated_at_bottom=True,
@@ -70,6 +71,8 @@ class ArtifactHtmlReport:
         num_entries = len(data_list)
         if write_total:
             self.write_minor_header(f'Total number of entries: {num_entries}', 'h6')
+            if is_platform_windows():
+                source_path = source_path.replace('/', '\\')
         if write_location:
             if source_path.startswith('\\\\?\\'):
                 source_path = source_path[4:]
@@ -89,12 +92,12 @@ class ArtifactHtmlReport:
         if html_escape:
             for row in data_list:
                 if html_no_escape:
-                    self.report_file.write('<tr>' + ''.join( ('<td>{}</td>'.format(html.escape(str(x) if x != None else '')) if h not in html_no_escape else '<td>{}</td>'.format(str(x) if x != None else '') for x,h in zip(row, data_headers)) )  + '</tr>')
+                    self.report_file.write('<tr>' + ''.join( ('<td>{}</td>'.format(html.escape(str(x) if x not in [None, 'N/A'] else '')) if h not in html_no_escape else '<td>{}</td>'.format(str(x) if x not in [None, 'N/A'] else '') for x,h in zip(row, data_headers)) )  + '</tr>')
                 else:
-                    self.report_file.write('<tr>' + ''.join( ('<td>{}</td>'.format(html.escape(str(x) if x != None else '')) for x in row) ) + '</tr>')
+                    self.report_file.write('<tr>' + ''.join( ('<td>{}</td>'.format(html.escape(str(x) if x not in [None, 'N/A'] else '')) for x in row) ) + '</tr>')
         else:
             for row in data_list:
-                self.report_file.write('<tr>' + ''.join( ('<td>{}</td>'.format(str(x) if x != None else '') for x in row) ) + '</tr>')
+                self.report_file.write('<tr>' + ''.join( ('<td>{}</td>'.format(str(x) if x not in [None, 'N/A'] else '') for x in row) ) + '</tr>')
         
         self.report_file.write('</tbody>')
         if cols_repeated_at_bottom:
