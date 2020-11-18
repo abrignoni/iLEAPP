@@ -50,7 +50,7 @@ body_start = \
 body_sidebar_setup = \
 """
             <nav class="col-md-2 d-none d-md-block bg-light sidebar">
-                <div class="sidebar-sticky" id="sidebar_id>
+                <div class="sidebar-sticky" id="sidebar_id">
                     <ul class="nav flex-column">
 """
 # The 'active' class must be set only for the current page, it will highlight that entry in blue
