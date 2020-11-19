@@ -29,4 +29,5 @@ aleapp_contributors = [
     [ 'Jon Baumann', 'https://ciofecaforensics.com/', '@CiofecaForensic', 'https://github.com/threeplanetssoftware'],
     [ 'Scott Koenig', '', '@Scott_Kjr', ''],
     [ 'Kevin Pagano', 'https://stark4n6.com/', '@KevinPagano3', 'https://github.com/stark4n6']
+    [ 'Matthieu Regnery', '', '@xpery', 'https://github.com/xperylabhub']
 ]
