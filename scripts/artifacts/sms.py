@@ -61,7 +61,15 @@ def get_sms(files_found, report_folder, seeker):
             if rec["FILENAME"]:
                 attachment = seeker.search('**'+rec["FILENAME"].replace('~',''))
                 pathToAttachment = os.path.join((os.path.basename(os.path.abspath(report_folder))), os.path.basename(rec["FILENAME"]))
-                shutil.copyfile(attachment[0],os.path.join(report_folder, os.path.basename(rec["FILENAME"])))
+                if is_platform_windows():
+                    invalid = '<>:"/\|?*'
+                    cleanFilename = os.path.basename(rec["FILENAME"])
+                    for values in invalid:
+                        cleanFilename = cleanFilename.replace(values,'')
+                    shutil.copy(attachment[0],os.path.join(report_folder, cleanFilename))
+                    pathToAttachment = os.path.join(report_folder, cleanFilename)
+                else:
+                    shutil.copy(attachment[0],os.path.join(report_folder, os.path.basename(rec["FILENAME"])))
             return pathToAttachment
         
         sms_df["file-path"] = sms_df.apply(lambda rec: copyAttachments(rec), axis=1)

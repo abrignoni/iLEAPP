@@ -9,7 +9,6 @@ from collections import OrderedDict
 from scripts.html_parts import *
 from scripts.ilapfuncs import logfunc
 from scripts.version_info import aleapp_version, aleapp_contributors
-from scripts.location_map_report import generate_location_map
 
 def get_icon_name(category, artifact):
     ''' Returns the icon name from the feathericons collection. To add an icon type for 
@@ -92,6 +91,8 @@ def get_icon_name(category, artifact):
         if artifact == 'LOCK STATE':  icon = 'lock'
         if artifact == 'PLUGGED IN':  icon = 'battery-charging'
     elif category == 'HEALTH DATA':             icon = 'heart'
+    elif category == 'SQLITE JOURNALING - WAL': icon = 'book-open'
+    elif category == 'SQLITE JOURNALING - JOURNAL': icon = 'book-open'
     elif category == 'MOBILE ACTIVATION LOGS':    icon = 'clipboard'
     elif category == 'MOBILE BACKUP':       icon = 'save'
     elif category == 'MOBILE CONTAINER MANAGER':       icon = 'save'
@@ -121,9 +122,6 @@ def get_icon_name(category, artifact):
     return icon
     
 def generate_report(reportfolderbase, time_in_secs, time_HMS, extraction_type, image_input_path):
-
-    #generate loaation map with all KML files
-    generate_location_map(reportfolderbase, "Legend")
 
     control = None
     side_heading = \
@@ -174,7 +172,7 @@ def generate_report(reportfolderbase, time_in_secs, time_HMS, extraction_type, i
             old_filename = os.path.basename(path)
             filename = old_filename.replace(".temphtml", ".html")
             # search for it in nav_list_data, then mark that one as 'active' tab
-            active_nav_list_data = mark_item_active(nav_list_data, filename) + icon_display_trigger
+            active_nav_list_data = mark_item_active(nav_list_data, filename) + nav_bar_script
             artifact_data = get_file_content(path)
 
             # Now write out entire html page for artifact
@@ -264,7 +262,7 @@ def create_index_html(reportfolderbase, time_in_secs, time_HMS, extraction_type,
     page_title = 'iLEAPP Report'
     body_heading = 'iOS Logs Events And Protobuf Parser'
     body_description = 'iLEAPP is an open source project that aims to parse every known iOS artifact for the purpose of forensic analysis.'
-    active_nav_list_data = mark_item_active(nav_list_data, filename)
+    active_nav_list_data = mark_item_active(nav_list_data, filename) + nav_bar_script
 
     f = open(os.path.join(reportfolderbase, filename), 'w', encoding='utf8')
     f.write(page_header.format(page_title))
@@ -274,7 +272,7 @@ def create_index_html(reportfolderbase, time_in_secs, time_HMS, extraction_type,
     f.write(content)
     f.write(thank_you_note)
     f.write(credits_code)
-    f.write(body_main_trailer + body_end + page_footer)
+    f.write(body_main_trailer + body_end + nav_bar_script_footer + page_footer)
     f.close()
 
 def generate_authors_table_code(aleapp_contributors):

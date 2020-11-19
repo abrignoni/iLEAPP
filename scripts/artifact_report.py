@@ -1,6 +1,7 @@
 import html
 import os
 from scripts.html_parts import *
+from scripts.ilapfuncs import is_platform_windows
 from scripts.version_info import aleapp_version
 
 class ArtifactHtmlReport:
@@ -32,9 +33,9 @@ class ArtifactHtmlReport:
     def add_script(self, script=''):
         '''Adds a default script or the script supplied'''
         if script:
-            self.script_code += script
+            self.script_code += script + nav_bar_script_footer
         else:
-            self.script_code += default_responsive_table_script
+            self.script_code += default_responsive_table_script + nav_bar_script_footer
 
     def write_artifact_data_table(self, data_headers, data_list, source_path, 
             write_total=True, write_location=True, html_escape=True, cols_repeated_at_bottom=True,
@@ -71,6 +72,8 @@ class ArtifactHtmlReport:
         if write_total:
             self.write_minor_header(f'Total number of entries: {num_entries}', 'h6')
         if write_location:
+            if is_platform_windows():
+                source_path = source_path.replace('/', '\\')
             if source_path.startswith('\\\\?\\'):
                 source_path = source_path[4:]
             self.write_lead_text(f'{self.artifact_name} located at: {source_path}')
