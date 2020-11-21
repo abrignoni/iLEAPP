@@ -10,18 +10,17 @@ import scripts.artifacts.artGlobals
 
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, kmlgen, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, timeline, kmlgen, is_platform_windows, open_sqlite_db_readonly
 
 
 def get_locationDallB(files_found, report_folder, seeker):
 	file_found = str(files_found[0])
-	db = sqlite3.connect(file_found)
+	db = open_sqlite_db_readonly(file_found)
 	iOSversion = scripts.artifacts.artGlobals.versionf
 	if version.parse(iOSversion) >= version.parse("11"):
 		logfunc("Unsupported version for LocationD App Harvest on iOS " + iOSversion)
 	else:
 		logfunc(iOSversion)
-		db = sqlite3.connect(file_found)
 		cursor = db.cursor()
 		cursor.execute("""
 		select

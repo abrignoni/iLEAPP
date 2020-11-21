@@ -7,7 +7,7 @@ import sqlite3
 import zlib
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, generate_hexdump
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, generate_hexdump, open_sqlite_db_readonly
 
 def ReadVLOC(data):
     names = []
@@ -74,7 +74,7 @@ def get_hex(num):
 def get_geodMapTiles(files_found, report_folder, seeker):
     file_found = str(files_found[0])
     #os.chmod(file_found, 0o0777)
-    db = sqlite3.connect(file_found)
+    db = open_sqlite_db_readonly(file_found)
     db.row_factory = sqlite3.Row
     cursor = db.cursor()
     cursor.execute(

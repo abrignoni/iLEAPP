@@ -5,7 +5,7 @@ import sqlite3
 import datetime
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
 
 
 def get_filesAppsclient(files_found, report_folder, seeker):
@@ -15,7 +15,7 @@ def get_filesAppsclient(files_found, report_folder, seeker):
         if file_found.endswith('client.db'):
             break
             
-    db = sqlite3.connect(file_found)
+    db = open_sqlite_db_readonly(file_found)
     cursor = db.cursor()
     cursor.execute('''
     SELECT
