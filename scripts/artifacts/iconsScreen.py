@@ -25,6 +25,15 @@ def get_iconsScreen(files_found, report_folder, seeker):
                 rows = page[y]
                 if (y == 0) or (y % 4 == 0):
                     htmlstring = htmlstring + ("</tr><tr>")
+                    
+                if isinstance(rows, dict):
+                    var = rows
+                    foldername = var['displayName']
+                    rows = (f'Folder: {foldername}')
+                    bundlesinfolder = var['iconLists'][0]
+                    for items in bundlesinfolder:
+                        rows = rows + '<br>' + items
+                
                 htmlstring = htmlstring + (f"<td width = 25%>{rows}</td>")
             htmlstring = htmlstring + ("</tr></table>")
             data_list.append((htmlstring,))
@@ -45,3 +54,4 @@ def get_iconsScreen(files_found, report_folder, seeker):
         report.write_artifact_data_table(data_headers, data_list, file_found, html_escape=False)
         report.end_artifact_report()
      
+        
