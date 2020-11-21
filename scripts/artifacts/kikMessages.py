@@ -4,7 +4,7 @@ import scripts.artifacts.artGlobals
 
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, timeline, tsv, is_platform_windows 
+from scripts.ilapfuncs import logfunc, logdevinfo, timeline, tsv, is_platform_windows, open_sqlite_db_readonly
 
 
 def get_kikMessages(files_found, report_folder, seeker):
@@ -15,7 +15,7 @@ def get_kikMessages(files_found, report_folder, seeker):
         if file_found.endswith('.sqlite'):
             break
             
-    db = sqlite3.connect(file_found)
+    db = open_sqlite_db_readonly(file_found)
     cursor = db.cursor()
     cursor.execute('''
     SELECT

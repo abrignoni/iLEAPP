@@ -4,12 +4,12 @@ import pandas as pd
 import shutil
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
 from scripts.chat_rendering import render_chat, chat_HTML
 
 def get_sms(files_found, report_folder, seeker):
     file_found = str(files_found[0])
-    db = sqlite3.connect(file_found)
+    db = open_sqlite_db_readonly(file_found)
     sms_df = pd.read_sql_query('''
     SELECT
     CASE

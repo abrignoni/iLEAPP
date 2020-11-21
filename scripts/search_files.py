@@ -52,7 +52,7 @@ class FileSeekerItunes(FileSeekerBase):
     def build_files_list(self, directory):
         '''Populates paths from Manifest.db files into _all_files'''
         try: 
-            db = sqlite3.connect(os.path.join(directory, "Manifest.db"))
+            db = open_sqlite_db_readonly(os.path.join(directory, "Manifest.db"))
             cursor = db.cursor()
             cursor.execute(
                 """
