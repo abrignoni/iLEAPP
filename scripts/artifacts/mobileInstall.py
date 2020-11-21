@@ -540,6 +540,18 @@ def get_mobileInstall(files_found, report_folder, seeker):
     
     tsvname = 'Mobile Installation Logs - History'
     tsv(report_folder, tsv_data_headers, tsv_tml_data_list, tsvname)
+    tlactivity = 'Mobile Installation Logs - History'
+    tml_data_headers = ('Timestamp','Event', 'Bundle ID', 'Event Path')
+    timeline(report_folder, tlactivity, tsv_tml_data_list, tml_data_headers)
+    
+    #All event historical in html report
+    description = 'Historical App report from the Mobile Installation Logs. All timestamps are in Local Time'
+    report = ArtifactHtmlReport('Apps - Historical')
+    report.start_artifact_report(report_folder, 'Apps - Historical Combined', description)
+    report.add_script()
+    data_headers = ('Timestamp','Event', 'Bundle ID', 'Event Path')
+    report.write_artifact_data_table(data_headers, tsv_tml_data_list, location)
+    report.end_artifact_report()
 
     # Query to create system events
     data_list_reboots = []
