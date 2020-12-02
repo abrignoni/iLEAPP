@@ -72,6 +72,19 @@ def get_next_unused_name(path):
         num += 1
     return os.path.join(folder, new_name)
 
+def open_sqlite_db_readonly(path):
+    '''Opens an sqlite db in read-only mode, so original db (and -wal/journal are intact)'''
+    if is_platform_windows():
+        if path.startswith('\\\\?\\UNC\\'): # UNC long path
+            path = "%5C%5C%3F%5C" + path[4:]
+        elif path.startswith('\\\\?\\'):    # normal long path
+            path = "%5C%5C%3F%5C" + path[4:]
+        elif path.startswith('\\\\'):       # UNC path
+            path = "%5C%5C%3F%5C\\UNC" + path[1:]
+        else:                               # normal path
+            path = "%5C%5C%3F%5C" + path
+    return sqlite3.connect (f"file:{path}?mode=ro", uri=True)
+
 def does_column_exist_in_db(db, table_name, col_name):
     '''Checks if a specific col exists'''
     col_name = col_name.lower()
@@ -275,7 +288,7 @@ searching for thumbnails, copy it to report folder and return tag  to insert in 
 '''
 def generate_thumbnail(imDirectory, imFilename, seeker, report_folder):
     thumb = thumbnail_root+imDirectory+'/'+imFilename+'/'
-    thumblist = seeker.search(thumb+'**.JPG')
+    thumblist = seeker.search(thumb+'**.JPG', return_on_first_hit=True)
     thumbname = imDirectory.replace('/','_')+'_'+imFilename+'.JPG'
     pathToThumb = os.path.join(os.path.basename(os.path.abspath(report_folder)), thumbname)
     htmlThumbTag = '<img src="{0}"></img>'.format(pathToThumb)
@@ -284,7 +297,7 @@ def generate_thumbnail(imDirectory, imFilename, seeker, report_folder):
     else:
         #recreate thumbnail from image
         #TODO: handle videos and HEIC
-        files = seeker.search(media_root+imDirectory+'/'+imFilename)
+        files = seeker.search(media_root+imDirectory+'/'+imFilename, return_on_first_hit=True)
         if files:
             try:
                 im = Image.open(files[0])

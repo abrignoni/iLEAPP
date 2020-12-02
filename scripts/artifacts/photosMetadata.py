@@ -11,7 +11,7 @@ import shutil
 
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, kmlgen, timeline, is_platform_windows, generate_thumbnail
+from scripts.ilapfuncs import logfunc, tsv, kmlgen, timeline, is_platform_windows, generate_thumbnail, open_sqlite_db_readonly
 
 def get_photosMetadata(files_found, report_folder, seeker):
     iOSversion = scripts.artifacts.artGlobals.versionf
@@ -19,7 +19,7 @@ def get_photosMetadata(files_found, report_folder, seeker):
         logfunc("Unsupported version for Photos.sqlite metadata on iOS " + iOSversion)
     if (version.parse(iOSversion) >= version.parse("12")) & (version.parse(iOSversion) < version.parse("13")) :
         file_found = str(files_found[0])
-        db = sqlite3.connect(file_found)
+        db = open_sqlite_db_readonly(file_found)
         cursor = db.cursor()
 
         cursor.execute("""
@@ -326,7 +326,7 @@ def get_photosMetadata(files_found, report_folder, seeker):
     elif (version.parse(iOSversion) >= version.parse("13")) & (version.parse(iOSversion) < version.parse("14")) :
         file_found = str(files_found[0])
         #os.chmod(file_found, 0o0777)
-        db = sqlite3.connect(file_found)
+        db = open_sqlite_db_readonly(file_found)
         cursor = db.cursor()
 
         cursor.execute("""
@@ -632,7 +632,7 @@ def get_photosMetadata(files_found, report_folder, seeker):
     elif (version.parse(iOSversion) >= version.parse("14")):
         file_found = str(files_found[0])
         #os.chmod(file_found, 0o0777)
-        db = sqlite3.connect(file_found)
+        db = open_sqlite_db_readonly(file_found)
         cursor = db.cursor()
 
         cursor.execute("""

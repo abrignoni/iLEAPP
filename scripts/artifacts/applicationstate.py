@@ -3,12 +3,12 @@ import scripts.Deserializer.deserializer as deserializer
 import sqlite3
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, is_platform_windows
+from scripts.ilapfuncs import logfunc, tsv, is_platform_windows, open_sqlite_db_readonly
 
 
 def get_applicationstate(files_found, report_folder, seeker):
     file_found = str(files_found[0])
-    db = sqlite3.connect(file_found)
+    db = open_sqlite_db_readonly(file_found)
     cursor = db.cursor()
     cursor.execute('''
     select ait.application_identifier as ai, kvs.value as compat_info,

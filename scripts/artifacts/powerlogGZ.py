@@ -8,7 +8,7 @@ import scripts.artifacts.artGlobals
 
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, timeline, tsv, is_platform_windows 
+from scripts.ilapfuncs import logfunc, logdevinfo, timeline, tsv, is_platform_windows, open_sqlite_db_readonly
 
 
 def get_powerlogGZ(files_found, report_folder, seeker):
@@ -40,10 +40,11 @@ def get_powerlogGZ(files_found, report_folder, seeker):
 		with gzip.open(file_found, 'rb') as f_in:
 			with open(ungzipedfile, 'wb') as f_out:
 				shutil.copyfileobj(f_in, f_out)
+				f_out.close()
 				logfunc(str(filename.stem))
 				file_found = str(Path(filename.parent))
 				
-				db = sqlite3.connect(ungzipedfile)
+				db = open_sqlite_db_readonly(str(ungzipedfile))
 				cursor = db.cursor()
 				
 			if version.parse(iOSversion) >= version.parse("9"):

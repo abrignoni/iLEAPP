@@ -10,7 +10,7 @@ from zipfile import ZipFile
 
 class FileSeekerBase:
     # This is an abstract base class
-    def search(self, filepattern_to_search):
+    def search(self, filepattern_to_search, return_on_first_hit=False):
         '''Returns a list of paths for files/folders that matched'''
         pass
 
@@ -23,8 +23,9 @@ class FileSeekerDir(FileSeekerBase):
         FileSeekerBase.__init__(self)
         self.directory = directory
         self._all_files = []
-        logfunc('Building files listing')
+        logfunc('Building files listing...')
         self.build_files_list(directory)
+        logfunc(f'File listing complete - {len(self._all_files)} files')
 
     def build_files_list(self, directory):
         '''Populates all paths in directory into _all_files'''
@@ -37,7 +38,12 @@ class FileSeekerDir(FileSeekerBase):
         except Exception as ex:
             logfunc(f'Error reading {directory} ' + str(ex))
 
-    def search(self, filepattern):
+    def search(self, filepattern, return_on_first_hit=False):
+        if return_on_first_hit:
+            for item in self._all_files:
+                if fnmatch.fnmatch(item, filepattern):
+                    return [item]
+            return []
         return fnmatch.filter(self._all_files, filepattern)
 
 class FileSeekerItunes(FileSeekerBase):
@@ -46,13 +52,14 @@ class FileSeekerItunes(FileSeekerBase):
         self.directory = directory
         self._all_files = {}
         self.temp_folder = temp_folder
-        logfunc('Building files listing')
+        logfunc('Building files listing...')
         self.build_files_list(directory)
+        logfunc(f'File listing complete - {len(self._all_files)} files')
 
     def build_files_list(self, directory):
         '''Populates paths from Manifest.db files into _all_files'''
         try: 
-            db = sqlite3.connect(os.path.join(directory, "Manifest.db"))
+            db = open_sqlite_db_readonly(os.path.join(directory, "Manifest.db"))
             cursor = db.cursor()
             cursor.execute(
                 """
@@ -75,7 +82,7 @@ class FileSeekerItunes(FileSeekerBase):
             logfunc(f'Error opening Manifest.db from {directory}, ' + str(ex))
             raise ex
 
-    def search(self, filepattern):
+    def search(self, filepattern, return_on_first_hit=False):
         pathlist = []
         matching_keys = fnmatch.filter(self._all_files, filepattern)
         for relative_path in matching_keys:
@@ -100,7 +107,7 @@ class FileSeekerTar(FileSeekerBase):
         self.tar_file = tarfile.open(tar_file_path, mode)
         self.temp_folder = temp_folder
 
-    def search(self, filepattern):
+    def search(self, filepattern, return_on_first_hit=False):
         pathlist = []
         for member in self.tar_file.getmembers():
             if fnmatch.fnmatch(member.name, filepattern):
@@ -132,15 +139,15 @@ class FileSeekerZip(FileSeekerBase):
         self.name_list = self.zip_file.namelist()
         self.temp_folder = temp_folder
 
-    def search(self, filepattern):
+    def search(self, filepattern, return_on_first_hit=False):
         pathlist = []
         for member in self.name_list:
             if fnmatch.fnmatch(member, filepattern):
                 try:
                     extracted_path = self.zip_file.extract(member, path=self.temp_folder) # already replaces illegal chars with _ when exporting
-                    member = member.lstrip("/")
                     pathlist.append(extracted_path)
                 except Exception as ex:
+                    member = member.lstrip("/")
                     logfunc(f'Could not write file to filesystem, path was {member} ' + str(ex))
         return pathlist
 

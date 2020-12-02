@@ -4,7 +4,7 @@ import pathlib
 import sqlite3
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
 
 
 def get_tileAppNetDb(files_found, report_folder, seeker):
@@ -14,7 +14,7 @@ def get_tileAppNetDb(files_found, report_folder, seeker):
         if file_found.endswith('tile-TileNetworkDB.sqlite'):
             break
             
-    db = sqlite3.connect(file_found)
+    db = open_sqlite_db_readonly(file_found)
     cursor = db.cursor()
     cursor.execute('''
     SELECT
