@@ -91,6 +91,9 @@ from scripts.artifacts.appItunesmeta import get_appItunesmeta
 from scripts.artifacts.cloudkitParticipants import get_cloudkitParticipants
 from scripts.artifacts.cloudkitNoteSharing import get_cloudkitNoteSharing
 from scripts.artifacts.applewalletTransactions import get_applewalletTransactions
+from scripts.artifacts.walStrings import get_walStrings
+from scripts.artifacts.webClips import get_webClips
+from scripts.artifacts.tcc import get_tcc
 
 from scripts.ilapfuncs import *
 
@@ -167,6 +170,7 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'geodMapTiles': ('Geolocation', '**/MapTiles.sqlitedb'),
             'geodPDPlaceCache': ('Geolocation', '**/PDPlaceCache.db'),
             'geodApplications': ('Geolocation', '**/AP.db'),
+            'tcc':('App Permissions', '*TCC.db*'),
             'tileApp': ('Locations', '*private/var/mobile/Containers/Data/Application/*/Library/log/com.thetileapp.tile*'),
             'tileAppDb': ('Locations', '*private/var/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-TileNetworkDB.sqlite*'),
             'tileAppNetDb': ('Accounts', '*/private/var/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-TileNetworkDB.sqlite*'),

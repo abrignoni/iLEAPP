@@ -119,6 +119,7 @@ def get_icon_name(category, artifact):
         if artifact == 'PARTICIPANTS': icon = 'user'
         elif artifact == 'NOTE SHARING': icon = 'share-2'
     elif category == 'APPLE WALLET': icon = 'dollar-sign'
+    elif category == 'APP PERMISSIONS': icon = 'key'
     return icon
     
 def generate_report(reportfolderbase, time_in_secs, time_HMS, extraction_type, image_input_path):
