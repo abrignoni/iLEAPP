@@ -89,6 +89,23 @@ from scripts.artifacts.sms import get_sms
 from scripts.artifacts.tileApp import get_tileApp
 from scripts.artifacts.tileAppDb import get_tileAppDb
 from scripts.artifacts.tileAppDisc import get_tileAppDisc
+from scripts.artifacts.discordJson import get_discordJson
+from scripts.artifacts.discordAcct import get_discordAcct
+from scripts.artifacts.discordManifest import get_discordManifest
+from scripts.artifacts.filesAppsm import get_filesAppsm
+from scripts.artifacts.filesAppsdb import get_filesAppsdb
+from scripts.artifacts.filesAppsclient import get_filesAppsclient
+from scripts.artifacts.icloudSharedalbums import get_icloudSharedalbums
+from scripts.artifacts.appGrouplisting import get_appGrouplisting
+from scripts.artifacts.deviceActivator import get_deviceActivator
+from scripts.artifacts.kikMessages import get_kikMessages
+from scripts.artifacts.appItunesmeta import get_appItunesmeta
+from scripts.artifacts.cloudkitParticipants import get_cloudkitParticipants
+from scripts.artifacts.cloudkitNoteSharing import get_cloudkitNoteSharing
+from scripts.artifacts.applewalletTransactions import get_applewalletTransactions
+from scripts.artifacts.walStrings import get_walStrings
+from scripts.artifacts.webClips import get_webClips
+from scripts.artifacts.tcc import get_tcc
 from scripts.artifacts.tileAppNetDb import get_tileAppNetDb
 from scripts.artifacts.walStrings import get_walStrings
 from scripts.artifacts.webClips import get_webClips
@@ -164,6 +181,13 @@ tosearch = {'lastBuild':('IOS Build', '*LastBuildInfo.plist'),
             'mobileActivationLogs':('Mobile Activation Logs', '**/mobileactivationd.log*'),
             'mobileBackup':('Mobile Backup', '*/Preferences/com.apple.MobileBackup.plist'),
             'mobileContainerManager':('Mobile Container Manager', '**/containermanagerd.log.*'),
+            #'appUpdates':('App Updates', '**/AppUpdates.sqlitedb'),
+            'appConduit':('App Conduit', '**/AppConduit.log.*'),
+            'mediaLibrary':('Media Library', '**/Medialibrary.sqlitedb'),
+            'geodMapTiles': ('Geolocation', '**/MapTiles.sqlitedb'),
+            'geodPDPlaceCache': ('Geolocation', '**/PDPlaceCache.db'),
+            'geodApplications': ('Geolocation', '**/AP.db'),
+            'tcc':('App Permissions', '*TCC.db*'),
             'mobileInstall':('Mobile Installation Logs', '**/mobile_installation.log.*'), 
             'notificationsXI':('Notifications', '*PushStore*'),
             'notificationsXII':('Notifications', '*private/var/mobile/Library/UserNotifications*'),
