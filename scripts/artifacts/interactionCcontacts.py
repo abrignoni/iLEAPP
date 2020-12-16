@@ -64,7 +64,7 @@ def get_interactionCcontacts(files_found, report_folder, seeker):
         cursor = db.cursor()
         cursor.execute('''
         select
-            ZINTERACTIONS.ZCREATIONDATE,
+            datetime(zinteractions.ZCREATIONDATE + 978307200, 'unixepoch'),
             ZINTERACTIONS.zbundleid,
             ZINTERACTIONS.ztargetbundleid,
             ZINTERACTIONS.zuuid,
