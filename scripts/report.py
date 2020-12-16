@@ -79,7 +79,8 @@ def get_icon_name(category, artifact):
     elif category == 'PHOTOS':     icon = 'image'
     elif category == 'WIRELESS NETWORKS':     icon = 'wifi'
     elif category == 'INTERACTIONC':
-         if artifact == 'CONTACTS':  icon = 'user'   
+        if artifact == 'CONTACTS':  icon = 'user'
+        elif artifact == 'ATTACHMENTS': icon = 'paperclip'
     elif category == 'KNOWLEDGEC':     
         if artifact == 'KNOWLEDGEC DEVICE LOCKED':  icon = 'lock'
         elif artifact == 'KNOWLEDGEC PLUGGED IN':   icon = 'battery-charging'

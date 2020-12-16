@@ -59,6 +59,45 @@ def get_interactionCcontacts(files_found, report_folder, seeker):
             timeline(report_folder, tlactivity, data_list, data_headers)
     else:
         logfunc('No data available in InteractionC Contacts')
+        
+    if version.parse(iOSversion) >= version.parse("10"):
+        cursor = db.cursor()
+        cursor.execute('''
+        select
+            ZINTERACTIONS.ZCREATIONDATE,
+            ZINTERACTIONS.zbundleid,
+            ZINTERACTIONS.ztargetbundleid,
+            ZINTERACTIONS.zuuid,
+            ZATTACHMENT.zcontenturl
+            from zinteractions
+            inner join z_1interactions
+            on zinteractions.z_pk = z_1interactions.z_3interactions
+            inner join zattachment on z_1interactions.z_1attachments = zattachment.z_pk
+        ''')
+        
+    all_rows = cursor.fetchall()
+    usageentries = len(all_rows)
+    if usageentries > 0:
+        data_list = []
+        
+        if version.parse(iOSversion) >= version.parse("10"):
+            for row in all_rows:    data_list.append((row[0],row[1],row[2],row[3],row[4]))
+            
+            report = ArtifactHtmlReport('InteractionC')
+            report.start_artifact_report(report_folder, 'Attachments')
+            report.add_script()
+            data_headers = ('Creation Date', 'Bundle ID', 'Target Bundle ID', 'ZUUID', 'Content URL')
+            report.write_artifact_data_table(data_headers, data_list, file_found)
+            report.end_artifact_report()
+            
+            tsvname = 'InteractionC Attachments'
+            tsv(report_folder, data_headers, data_list, tsvname)
+            
+            tlactivity = 'InteractionC Attachments'
+            timeline(report_folder, tlactivity, data_list, data_headers)
+    else:
+        logfunc('No data available in InteractionC Attachments')
+    
 
     db.close()
     return      
