@@ -12,10 +12,10 @@ def get_reminders(files_found, report_folder, seeker):
             cursor = db.cursor()
             cursor.execute('''
                 SELECT
-                DATETIME(ZCREATIONDATE+978307200,'UNIXEPOCH') as "DATE OF CREATION",
-                DATETIME(ZLASTMODIFIEDDATE+978307200,'UNIXEPOCH') as "LAST MODIFIED",
-                ZNOTES as "NOTE",
-                ZTITLE1 as "Title"
+                DATETIME(ZCREATIONDATE+978307200,'UNIXEPOCH'),
+                DATETIME(ZLASTMODIFIEDDATE+978307200,'UNIXEPOCH'),
+                ZNOTES,
+                ZTITLE1
                 FROM ZREMCDOBJECT
                 WHERE ZTITLE1 <> ''
                 ''')
@@ -27,18 +27,18 @@ def get_reminders(files_found, report_folder, seeker):
                 for row in all_rows:
                     data_list.append((row[0], row[3], row[2], row[1]))
 
-                report = ArtifactHtmlReport('Reminders')
-                report.start_artifact_report(report_folder, 'Reminders')
-                report.add_script()
-                data_headers = ('Creation Date', 'Title', 'Note', 'Last Modified')
-                report.write_artifact_data_table(data_headers, data_list, file_found)
-                report.end_artifact_report()
+        report = ArtifactHtmlReport('Reminders')
+        report.start_artifact_report(report_folder, 'Reminders')
+        report.add_script()
+        data_headers = ('Creation Date', 'Title', 'Note', 'Last Modified')
+        report.write_artifact_data_table(data_headers, data_list, file_found)
+        report.end_artifact_report()
 
-                tsvname = 'Reminders'
-                tsv(report_folder, data_headers, data_list, tsvname)
+        tsvname = 'Reminders'
+        tsv(report_folder, data_headers, data_list, tsvname)
 
-                tlactivity = 'Reminders'
-                timeline(report_folder, tlactivity, data_list, data_headers)
+        tlactivity = 'Reminders'
+        timeline(report_folder, tlactivity, data_list, data_headers)
 
     else:
         logfunc('No Reminders available')
