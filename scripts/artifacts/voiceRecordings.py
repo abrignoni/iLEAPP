@@ -50,7 +50,7 @@ def get_voiceRecordings(files_found, report_folder, seeker):
         report.start_artifact_report(report_folder, 'Voice Recordings')
         report.add_script()
         data_headers = ('Creation Date', 'Title', 'Path to File', 'Audio File')
-        report.write_artifact_data_table(data_headers, data_list, ', '.join(files_found), html_no_escape=['Audio File'])
+        report.write_artifact_data_table(data_headers, data_list, dirname(files_found), html_no_escape=['Audio File'])
         report.end_artifact_report()
 
         tsvname = 'Voice Recordings'
