@@ -22,10 +22,10 @@ def get_reminders(files_found, report_folder, seeker):
     
         all_rows = cursor.fetchall()
         entries = len(all_rows)
-        if entries > 0:
-            filelocation = file_found
-            for row in all_rows:
-                data_list.append((row[0], row[3], row[2], row[1], filelocation))
+    if entries > 0:
+        filelocation = file_found
+        for row in all_rows:
+            data_list.append((row[0], row[3], row[2], row[1], filelocation))
 
     if len(data_list) > 0:
         report = ArtifactHtmlReport('Reminders')
