@@ -57,7 +57,6 @@ from scripts.artifacts.iCloudWifi import get_iCloudWifi
 from scripts.artifacts.icloudSharedalbums import get_icloudSharedalbums
 from scripts.artifacts.iconsScreen import get_iconsScreen
 from scripts.artifacts.interactionCcontacts import get_interactionCcontacts
-from scripts.artifacts.journalStrings import get_journalStrings
 from scripts.artifacts.kikMessages import get_kikMessages
 from scripts.artifacts.knowCall import get_knowCall
 from scripts.artifacts.lastBuild import get_lastBuild, get_iTunesBackupInfo
@@ -182,7 +181,6 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'iCloud Shared Albums', '*/private/var/mobile/Media/PhotoData/PhotoCloudSharingData/*'),
             'iconsScreen': ('iOS Screens', '**/SpringBoard/IconState.plist'),
             'interactionCcontacts': ('InteractionC', '**/interactionC.db'),
-            'journalStrings': ('SQLite Journaling - journal', '**/*-journal'),
             'kikMessages': ('Kik', '**/kik.sqlite*'),
             'knowCall': ('KnowledgeC', '**/CoreDuet/Knowledge/knowledgeC.db'),
             'locationDallB': ('Locations', '**/cache_encryptedB.db'),
@@ -227,7 +225,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
                             '*/private/var/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-DiscoveredTileDB.sqlite*'),
             'tileAppNetDb': (
             'Accounts', '*/private/var/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-TileNetworkDB.sqlite*'),
-            'walStrings': ('SQLite Journaling - wal', '**/*-wal'),
+            'walStrings': ('SQLite Journaling', ('**/*-wal', '**/*-journal')),
             'webClips': ('iOS Screens', '*WebClips/*.webclip/*'),
             'reminders': ('Reminders', '**/Reminders/Container_v1/Stores/*.sqlite'),
             'voiceRecordings': (

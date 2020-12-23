@@ -160,9 +160,7 @@ def get_icon_name(category, artifact):
             icon = 'battery-charging'
     elif category == 'HEALTH DATA':
         icon = 'heart'
-    elif category == 'SQLITE JOURNALING - WAL':
-        icon = 'book-open'
-    elif category == 'SQLITE JOURNALING - JOURNAL':
+    elif category == 'SQLITE JOURNALING':
         icon = 'book-open'
     elif category == 'MOBILE ACTIVATION LOGS':
         icon = 'clipboard'
