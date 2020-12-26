@@ -2,10 +2,12 @@ import datetime
 import os
 import shutil
 
+from html import escape
 from PIL import Image
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, is_platform_windows
 from scripts.ktx.ios_ktx2png import KTX_reader, liblzfse
+from urllib.parse import quote
 
 def save_ktx_to_png_if_valid(ktx_path, save_to_path):
     '''Excludes all white or all black blank images'''
@@ -79,8 +81,8 @@ def get_applicationSnapshots(files_found, report_folder, seeker):
         data_list_for_report = []
         for app_name, ktx_path, mod_date, png_path in data_list:
             dir_path, base_name = os.path.split(png_path)
-            img_html = '<a href="{1}/{0}"><img src="{1}/{0}" class="img-fluid" style="max-height:300px; max-width:400px"></a>'.format(base_name, report_folder_name)
-            data_list_for_report.append( (app_name, ktx_path, mod_date, img_html) )
+            img_html = '<a href="{1}/{0}"><img src="{1}/{0}" class="img-fluid" style="max-height:300px; max-width:400px"></a>'.format(quote(base_name), quote(report_folder_name))
+            data_list_for_report.append( (escape(app_name), escape(ktx_path), mod_date, img_html) )
         report.write_artifact_data_table(data_headers, data_list_for_report, '', html_escape=False, write_location=False)
         report.end_artifact_report()
 
