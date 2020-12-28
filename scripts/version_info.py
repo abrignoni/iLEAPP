@@ -1,4 +1,4 @@
-aleapp_version = '1.6.4'
+aleapp_version = '1.6.5'
 
 # Contributors List
 # Format = [ Name, Blog-url, Twitter-handle, Github-url]
@@ -29,5 +29,6 @@ aleapp_contributors = [
     [ 'Jon Baumann', 'https://ciofecaforensics.com/', '@CiofecaForensic', 'https://github.com/threeplanetssoftware'],
     [ 'Scott Koenig', '', '@Scott_Kjr', ''],
     [ 'Kevin Pagano', 'https://stark4n6.com/', '@KevinPagano3', 'https://github.com/stark4n6'],
-    [ 'Matthieu Regnery', '', '@xpery', 'https://github.com/xperylabhub']
+    ['Ed Michael', '', '@EdXlg123', 'https://github.com/edmichael'],
+    ['Anna-Mariya Mateyna', '', '@any333_snickers', 'https://github.com/any333']
 ]
