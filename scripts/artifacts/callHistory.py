@@ -1,19 +1,14 @@
-import glob
-import os
-import pathlib
-import plistlib
-import sqlite3
-
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows 
-from scripts.ccl import ccl_bplist
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
+
 
 def get_callHistory(files_found, report_folder, seeker):
     file_found = str(files_found[0])
-    db = sqlite3.connect(file_found)
+    db = open_sqlite_db_readonly(file_found)
     cursor = db.cursor()
     cursor.execute('''
     SELECT 
+    Z_PK as "CALL ID",
     ZADDRESS AS "ADDRESS", 
     ZANSWERED AS "WAS ANSWERED", 
     ZCALLTYPE AS "CALL TYPE", 
@@ -31,15 +26,15 @@ def get_callHistory(files_found, report_folder, seeker):
     if usageentries > 0:
         data_list = []
         for row in all_rows:
-            an = str(row[0])
+            an = str(row[1])
             an = an.replace("b'", "")
             an = an.replace("'", "")
-            data_list.append((row[8],an,row[1],row[2],row[3],row[4],row[5],row[6],row[7]))
+            data_list.append((row[9], row[0], an, row[2], row[3], row[4], row[5], row[6], row[7], row[8]))
 
         report = ArtifactHtmlReport('Call Logs')
         report.start_artifact_report(report_folder, 'Call Logs')
         report.add_script()
-        data_headers = ('Timestamp','Address','Was Answered','Call Type','Originated','Duration in Secs','ISO County Code','Location','Service Provider' )     
+        data_headers = ('Timestamp', 'Call ID', 'Address', 'Was Answered', 'Call Type', 'Originated', 'Duration in Secs', 'ISO County Code', 'Location', 'Service Provider')
         report.write_artifact_data_table(data_headers, data_list, file_found)
         report.end_artifact_report()
         
@@ -52,6 +47,4 @@ def get_callHistory(files_found, report_folder, seeker):
         logfunc('No Call History data available')
 
     db.close()
-    return      
-    
-    
+    return

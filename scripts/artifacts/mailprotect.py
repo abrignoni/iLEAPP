@@ -22,8 +22,7 @@ def get_mailprotect(files_found, report_folder, seeker):
 
 	if version.parse(iOSversion) < version.parse("13"):
 		head, end = os.path.split(files_found[0])
-		tempf = report_folder
-		db = sqlite3.connect(report_folder + "/emails.db")
+		db = sqlite3.connect(os.path.join(report_folder, "emails.db"))
 		cursor = db.cursor()
 		cursor.execute(
 			"""
@@ -38,10 +37,11 @@ def get_mailprotect(files_found, report_folder, seeker):
 		"""
 		)
 		db.commit()
+		db.close()
 
-		db = sqlite3.connect(head + "/Envelope Index")
+		db = sqlite3.connect(os.path.join(head, "Envelope Index"))
 		db.execute(f'ATTACH DATABASE "{head}/Protected Index" AS PI')
-		db.execute(f'ATTACH DATABASE "{tempf}/emails.db" AS emails')
+		db.execute(f'ATTACH DATABASE "{report_folder}/emails.db" AS emails')
 
 		cursor = db.cursor()
 		cursor.execute(
@@ -65,8 +65,7 @@ def get_mailprotect(files_found, report_folder, seeker):
 		all_rows = cursor.fetchall()
 		usageentries = len(all_rows)
 		if usageentries > 0:
-			print(f"Total emails {str(usageentries)}")
-			usageentries1 = str(usageentries)
+			print(f"Total emails {usageentries}")
 			for row in all_rows:
 				# print(row)
 				datainsert = (
@@ -82,7 +81,7 @@ def get_mailprotect(files_found, report_folder, seeker):
 					row[9],
 				)
 				cursor.execute(
-					"INSERT INTO emails.email1 (rowid, ds, dr, size, sender, messid, subject, receipt, cc, bcc)  VALUES(?,?,?,?,?,?,?,?,?,?)",
+					"INSERT INTO emails.email1 (rowid, ds, dr, size, sender, messid, subject, receipt, cc, bcc) VALUES (?,?,?,?,?,?,?,?,?,?)",
 					datainsert,
 				)
 				db.commit()
@@ -104,8 +103,7 @@ def get_mailprotect(files_found, report_folder, seeker):
 		all_rows = cursor.fetchall()
 		usageentries = len(all_rows)
 		if usageentries > 0:
-			print(f"Total emails with message data {str(usageentries)}")
-			usageentries2 = str(usageentries)
+			print(f"Total emails with message data {usageentries}")
 			for row in all_rows:
 				datainsert = (
 					row[0],
@@ -161,11 +159,11 @@ def get_mailprotect(files_found, report_folder, seeker):
 			timeline(report_folder, tlactivity, data_list, data_headers)		
 		else:
 			logfunc("No iOS emails available")
+		db.close()
 
 	if version.parse(iOSversion) >= version.parse("13"):
 		head, end = os.path.split(files_found[0])
-		tempf = report_folder
-		db = sqlite3.connect(head + "/Envelope Index")
+		db = sqlite3.connect(os.path.join(head, "Envelope Index"))
 		db.execute(f'ATTACH DATABASE "{head}/Protected Index" AS PI')
 
 		cursor = db.cursor()

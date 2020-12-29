@@ -1,22 +1,23 @@
 import os
-import sqlite3
 import pandas as pd
 import shutil
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
 from scripts.chat_rendering import render_chat, chat_HTML
+
 
 def get_sms(files_found, report_folder, seeker):
     file_found = str(files_found[0])
-    db = sqlite3.connect(file_found)
+    db = open_sqlite_db_readonly(file_found)
     sms_df = pd.read_sql_query('''
     SELECT
     CASE
         WHEN LENGTH(MESSAGE.DATE)=18 THEN DATETIME(MESSAGE.DATE/1000000000+978307200,'UNIXEPOCH')
         WHEN LENGTH(MESSAGE.DATE)=9 THEN DATETIME(MESSAGE.DATE + 978307200,'UNIXEPOCH')
         ELSE "N/A"
-		END "MESSAGE DATE",			
+    END "MESSAGE DATE",
+    MESSAGE.ROWID as "MESSAGE ID",
     CASE 
         WHEN LENGTH(MESSAGE.DATE_DELIVERED)=18 THEN DATETIME(MESSAGE.DATE_DELIVERED/1000000000+978307200,"UNIXEPOCH")
         WHEN LENGTH(MESSAGE.DATE_DELIVERED)=9 THEN DATETIME(MESSAGE.DATE_DELIVERED+978307200,"UNIXEPOCH")
@@ -52,24 +53,24 @@ def get_sms(files_found, report_folder, seeker):
         report.add_script()
 
         sms_df = sms_df.rename(
-                columns={"MESSAGE DATE":"data-time","MESSAGE":"message","CONTACT ID":"data-name","IS FROM ME":"from_me","MIME TYPE":"content-type"}
+                columns={"MESSAGE DATE": "data-time", 'MESSAGE ID': "message-id", "MESSAGE": "message", "CONTACT ID": "data-name", "IS FROM ME": "from_me", "MIME TYPE": "content-type"}
                 )
         sms_df["data-time"] = pd.to_datetime(sms_df["data-time"])
 
         def copyAttachments(rec):
             pathToAttachment = None
             if rec["FILENAME"]:
-                attachment = seeker.search('**'+rec["FILENAME"].replace('~',''))
+                attachment = seeker.search('**'+rec["FILENAME"].replace('~', ''), return_on_first_hit=True)
                 pathToAttachment = os.path.join((os.path.basename(os.path.abspath(report_folder))), os.path.basename(rec["FILENAME"]))
                 if is_platform_windows():
                     invalid = '<>:"/\|?*'
                     cleanFilename = os.path.basename(rec["FILENAME"])
                     for values in invalid:
-                        cleanFilename = cleanFilename.replace(values,'')
-                    shutil.copy(attachment[0],os.path.join(report_folder, cleanFilename))
+                        cleanFilename = cleanFilename.replace(values, '')
+                    shutil.copy(attachment[0], os.path.join(report_folder, cleanFilename))
                     pathToAttachment = os.path.join(report_folder, cleanFilename)
                 else:
-                    shutil.copy(attachment[0],os.path.join(report_folder, os.path.basename(rec["FILENAME"])))
+                    shutil.copy(attachment[0], os.path.join(report_folder, os.path.basename(rec["FILENAME"])))
             return pathToAttachment
         
         sms_df["file-path"] = sms_df.apply(lambda rec: copyAttachments(rec), axis=1)
@@ -83,7 +84,7 @@ def get_sms(files_found, report_folder, seeker):
         report.write_raw_html(chat_HTML)
         report.add_script(render_chat(sms_df))
 
-        data_headers = ('Message Date','Date Delivered','Date Read','Message','Contact ID','Service','Account','Is Delivered','Is from Me','Filename','MIME Type','Transfer Type','Total Bytes' )
+        data_headers = ('Message Date', 'Message ID', 'Date Delivered', 'Date Read', 'Message', 'Contact ID', 'Service', 'Account', 'Is Delivered', 'Is from Me', 'Filename', 'MIME Type', 'Transfer Type', 'Total Bytes')
         report.write_artifact_data_table(data_headers, data_list, file_found, write_total=False, write_location=False)
         report.end_artifact_report()
         
@@ -96,6 +97,4 @@ def get_sms(files_found, report_folder, seeker):
         logfunc('No SMS & iMessage data available')
 
     db.close()
-    return      
-    
-    
+    return
