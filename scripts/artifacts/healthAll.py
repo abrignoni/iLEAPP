@@ -1,17 +1,11 @@
-import glob
-import os
-import pathlib
-import plistlib
-import sqlite3
-import json
-import textwrap
+import pandas as pd
+from dateutil import parser
+from itertools import chain
 import scripts.artifacts.artGlobals
 
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
-from scripts.ccl import ccl_bplist
-from scripts.parse3 import ParseProto
 
 
 def get_healthAll(files_found, report_folder, seeker):
@@ -303,8 +297,22 @@ def get_healthAll(files_found, report_folder, seeker):
         usageentries = len(all_rows)
         if usageentries > 0:
             data_list = []
+            daily_steps_nested_list = []
+
             for row in all_rows:
                 data_list.append((row[0], row[1], row[2], row[3]))
+
+                date, hour = row[0].split(' ')
+
+                if date not in chain(*daily_steps_nested_list):
+                    daily_steps_nested_list.append([date, row[2], row[3]])
+                else:
+                    for entry in daily_steps_nested_list:
+                        if entry[0] == date:
+                            entry[1] += row[2]
+                            entry[2] += row[3]
+
+            daily_steps_list = [tuple(t) for t in daily_steps_nested_list]
 
             report = ArtifactHtmlReport('Health Steps')
             report.start_artifact_report(report_folder, 'Steps')
@@ -318,6 +326,20 @@ def get_healthAll(files_found, report_folder, seeker):
 
             tlactivity = 'Health Steps'
             timeline(report_folder, tlactivity, data_list, data_headers)
+
+            report = ArtifactHtmlReport('Health Steps per Day')
+            report.start_artifact_report(report_folder, 'Steps per Day')
+            report.add_script()
+            data_headers = ('Date', 'Steps', 'Time in Seconds')
+            report.write_artifact_data_table(data_headers, daily_steps_list, file_found)
+            report.end_artifact_report()
+
+            tsvname = 'Health Steps per Day'
+            tsv(report_folder, data_headers, daily_steps_list, tsvname)
+
+            tlactivity = 'Health Steps per Day'
+            timeline(report_folder, tlactivity, daily_steps_list, data_headers)
+
         else:
             logfunc('No data available in Steps')
 
