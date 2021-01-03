@@ -281,14 +281,17 @@ def get_healthAll(files_found, report_folder, seeker):
     if version.parse(iOSversion) >= version.parse("9"):
         cursor = db.cursor()
         cursor.execute('''
-        select
-        datetime(samples.start_date + 978307200, 'unixepoch'),
-        datetime(samples.end_date + 978307200, 'unixepoch'),
-        quantity,
-        (samples.end_date-samples.start_date)
-        from samples, quantity_samples 
-        where samples.data_type = 7 
-        and samples.data_id = quantity_samples.data_id    
+        SELECT
+        datetime(SAMPLES.START_DATE + 978307200, 'unixepoch'),
+        datetime(SAMPLES.END_DATE + 978307200, 'unixepoch'),
+        QUANTITY_SAMPLES.QUANTITY,
+        (SAMPLES.END_DATE - SAMPLES.START_DATE),
+        DATA_PROVENANCES.ORIGIN_PRODUCT_TYPE
+        FROM SAMPLES, QUANTITY_SAMPLES, DATA_PROVENANCES, OBJECTS
+        WHERE SAMPLES.DATA_TYPE = 7 
+            AND SAMPLES.DATA_ID = QUANTITY_SAMPLES.DATA_ID
+            AND SAMPLES.DATA_ID = OBJECTS.DATA_ID
+            AND OBJECTS.PROVENANCE = data_provenances.ROWID  
         ''')
 
         all_rows = cursor.fetchall()
@@ -297,8 +300,9 @@ def get_healthAll(files_found, report_folder, seeker):
             data_list = []
             daily_steps_nested_list = []
 
+            c = 0
             for row in all_rows:
-                data_list.append((row[0], row[1], row[2], row[3]))
+                data_list.append((row[0], row[1], row[2], row[3], row[4]))
 
                 date, hour = row[0].split(' ')
 
@@ -315,7 +319,7 @@ def get_healthAll(files_found, report_folder, seeker):
             report = ArtifactHtmlReport('Health Steps')
             report.start_artifact_report(report_folder, 'Steps')
             report.add_script()
-            data_headers = ('Start Date', 'End Date', 'Steps', 'Time in Seconds')
+            data_headers = ('Start Date', 'End Date', 'Steps', 'Time in Seconds', 'Origin')
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
