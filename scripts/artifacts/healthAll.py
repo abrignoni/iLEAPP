@@ -329,8 +329,9 @@ def get_healthAll(files_found, report_folder, seeker):
             tlactivity = 'Health Steps'
             timeline(report_folder, tlactivity, data_list, data_headers)
 
+            description = 'Cumulative total of the steps gathered from all available sources for each day'
             report = ArtifactHtmlReport('Health Steps per Day')
-            report.start_artifact_report(report_folder, 'Steps per Day')
+            report.start_artifact_report(report_folder, 'Steps per Day', description)
             report.add_script()
             data_headers = ('Date', 'Steps', 'Time in Seconds')
             report.write_artifact_data_table(data_headers, daily_steps_list, file_found)
