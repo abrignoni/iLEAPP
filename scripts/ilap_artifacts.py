@@ -21,9 +21,7 @@ from scripts.artifacts.appleMapsGroup import get_appleMapsGroup
 from scripts.artifacts.appleWifiPlist import get_appleWifiPlist
 from scripts.artifacts.applewalletTransactions import get_applewalletTransactions
 from scripts.artifacts.applicationstate import get_applicationstate
-from scripts.artifacts.bluetoothOther import get_bluetoothOther
-from scripts.artifacts.bluetoothPaired import get_bluetoothPaired
-from scripts.artifacts.bluetoothPairedReg import get_bluetoothPairedReg
+from scripts.artifacts.bluetooth import get_bluetooth
 from scripts.artifacts.cacheRoutesGmap import get_cacheRoutesGmap
 from scripts.artifacts.calendarAll import get_calendarAll
 from scripts.artifacts.callHistory import get_callHistory
@@ -137,9 +135,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'appleWifiPlist': ('Wireless Networks', ('**/com.apple.wifi.plist', '**/com.apple.wifi-networks.plist.backup', '**/com.apple.wifi.known-networks.plist', '**/com.apple.wifi-private-mac-networks.plist')),
             'applicationSnapshots': ('Installed Apps', ('**/Library/Caches/Snapshots/*', '**/SplashBoard/Snapshots/*')),
             'applicationstate': ('Installed Apps', '**/applicationState.db'),
-            'bluetoothOther': ('Bluetooth', '**/Library/Database/com.apple.MobileBluetooth.ledevices.other.db'),
-            'bluetoothPaired': ('Bluetooth', '**/com.apple.MobileBluetooth.ledevices.paired.db'),
-            'bluetoothPairedReg': ('Bluetooth', '**/com.apple.MobileBluetooth.devices.plist'),
+            'bluetooth': ('Bluetooth', '**/com.apple.MobileBluetooth.*'),
             'cacheRoutesGmap': ('Locations', '**/Library/Application Support/CachedRoutes/*.plist'),
             'calendarAll': ('Calendar', '**/Calendar.sqlitedb'),
             'callHistory': ('Call logs', '**/CallHistory.storedata'),
