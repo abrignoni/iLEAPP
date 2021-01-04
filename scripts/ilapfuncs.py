@@ -98,8 +98,19 @@ def does_column_exist_in_db(db, table_name, col_name):
             if row['name'].lower() == col_name:
                 return True
     except sqlite3.Error as ex:
-        print(f"Query error, query={query} Error={str(ex)}")
+        logfunc(f"Query error, query={query} Error={str(ex)}")
         pass
+    return False
+
+def does_table_exist(db, table_name):
+    '''Checks if a table with specified name exists in an sqlite db'''
+    try:
+        query = f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}'"
+        cursor = db.execute(query)
+        for row in cursor:
+            return True
+    except sqlite3Error as ex:
+        logfunc(f"Query error, query={query} Error={str(ex)}")
     return False
 
 class GuiWindow:
