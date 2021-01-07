@@ -133,8 +133,6 @@ def get_icon_name(category, artifact):
         icon = 'calendar'
     elif category == 'PHOTOS':
         icon = 'image'
-    elif category == 'WIRELESS NETWORKS':
-        icon = 'wifi'
     elif category == 'INTERACTIONC':
         if artifact == 'CONTACTS':
             icon = 'user'
@@ -189,12 +187,7 @@ def get_icon_name(category, artifact):
         if artifact == 'KIK MESSAGES':
             icon = 'message-square'
     elif category == 'WIFI CONNECTIONS':
-        if artifact == 'ICLOUD WIFI NETWORKS':
-            icon = 'wifi'
-        elif artifact == 'WIFI':
-            icon = 'wifi'
-        elif artifact == 'WIFI PLIST':
-            icon = 'save'
+        icon = 'wifi'
     elif category == 'GEOLOCATION':
         if artifact == 'APPLICATIONS':
             icon = 'grid'

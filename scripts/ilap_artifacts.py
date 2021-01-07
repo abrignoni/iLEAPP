@@ -80,6 +80,7 @@ from scripts.artifacts.routineDLocationsLocal import get_routineDLocationsLocal
 from scripts.artifacts.routineDlocations import get_routineDlocations
 from scripts.artifacts.safariBookmarks import get_safariBookmarks
 from scripts.artifacts.safariHistory import get_safariHistory
+from scripts.artifacts.safariRecentWebSearches import get_safariRecentWebSearches
 from scripts.artifacts.safariTabs import get_safariTabs
 from scripts.artifacts.safariWebsearch import get_safariWebsearch
 from scripts.artifacts.screentimeAll import get_screentimeAll
@@ -132,7 +133,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'appleMapsApplication': ('Locations', '**/Data/Application/*/Library/Preferences/com.apple.Maps.plist'),
             'appleMapsGroup': ('Locations', '**/Shared/AppGroup/*/Library/Preferences/group.com.apple.Maps.plist'),
             'applewalletTransactions': ('Apple Wallet', '**/passes23.sqlite'),
-            'appleWifiPlist': ('Wireless Networks', ('**/com.apple.wifi.plist', '**/com.apple.wifi-networks.plist.backup', '**/com.apple.wifi.known-networks.plist', '**/com.apple.wifi-private-mac-networks.plist')),
+            'appleWifiPlist': ('Wifi Connections', ('**/com.apple.wifi.plist', '**/com.apple.wifi-networks.plist.backup', '**/com.apple.wifi.known-networks.plist', '**/com.apple.wifi-private-mac-networks.plist')),
             'applicationSnapshots': ('Installed Apps', ('**/Library/Caches/Snapshots/*', '**/SplashBoard/Snapshots/*')),
             'applicationstate': ('Installed Apps', '**/applicationState.db'),
             'bluetooth': ('Bluetooth', '**/com.apple.MobileBluetooth.*'),
@@ -193,6 +194,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'routineDLocationsLocal': ('Locations', '**/private/var/mobile/Library/Caches/com.apple.routined/Local.sqlite*'),
             'safariBookmarks': ('Safari Browser', '**/Safari/Bookmarks.db'),
             'safariHistory': ('Safari Browser', '**/Safari/History.db'),
+            'safariRecentWebSearches': ('Safari Browser', '**/Library/Preferences/com.apple.mobilesafari.plist'),
             'safariTabs': ('Safari Browser', '**/Safari/BrowserState.db'),
             'safariWebsearch': ('Safari Browser', '**/Safari/History.db'),
             'screentimeAll': ('Screentime', '**/RMAdminStore-Local.sqlite'),
