@@ -88,7 +88,7 @@ class FileSeekerItunes(FileSeekerBase):
         for relative_path in matching_keys:
             hash_filename = self._all_files[relative_path]
             original_location = os.path.join(self.directory, hash_filename[:2], hash_filename)
-            temp_location = os.path.join(self.temp_folder, relative_path)
+            temp_location = os.path.join(self.temp_folder, sanitize_file_path(relative_path))
             if is_platform_windows():
                 temp_location = temp_location.replace('/', '\\')
             try:

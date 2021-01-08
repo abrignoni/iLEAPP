@@ -10,6 +10,7 @@ from html import escape
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows
 
+
 def month_converter(month):
     months = [
         "Jan",
@@ -30,28 +31,30 @@ def month_converter(month):
         month = f"{month:02d}"
     return month
 
+
 def day_converter(day):
     day = int(day)
     if day < 10:
         day = f"{day:02d}"
     return day
 
+
 def get_mobileInstall(files_found, report_folder, seeker):
     counter = 0
     filescounter = 0
     tsv_tml_data_list = []
-    
+
     mibdatabase = os.path.join(report_folder, 'mib.db')
     db = sqlite3.connect(mibdatabase)
     cursor = db.cursor()
     cursor.execute(
-    """
+        """
     CREATE TABLE dimm(time_stamp TEXT, action TEXT, bundle_id TEXT, path TEXT)
     """
-        )
+    )
 
     db.commit()
-   
+
     for filename in files_found:
         file = open(filename, "r", encoding="utf8")
         filescounter = filescounter + 1
@@ -90,7 +93,7 @@ def get_mobileInstall(files_found, report_folder, seeker):
                     day = day_converter(day)
                     month = month_converter(month)
                     inserttime = (
-                        str(year) + "-" + str(month) + "-" + str(day) + " " + str(time)
+                            str(year) + "-" + str(month) + "-" + str(day) + " " + str(time)
                     )
                     # logfunc(inserttime)
                     # logfunc(month)
@@ -116,7 +119,7 @@ def get_mobileInstall(files_found, report_folder, seeker):
                 db.commit()
                 path = ''
                 tsv_tml_data_list.append((inserttime, actiondesc, bundleid, path))
-                
+
                 # logfunc()
 
             matchObj = re.search(
@@ -140,7 +143,7 @@ def get_mobileInstall(files_found, report_folder, seeker):
                     day = day_converter(day)
                     month = month_converter(month)
                     inserttime = (
-                        str(year) + "-" + str(month) + "-" + str(day) + " " + str(time)
+                            str(year) + "-" + str(month) + "-" + str(day) + " " + str(time)
                     )
                     # logfunc(inserttime)
                     # logfunc(month)
@@ -194,7 +197,7 @@ def get_mobileInstall(files_found, report_folder, seeker):
                     day = day_converter(day)
                     month = month_converter(month)
                     inserttime = (
-                        str(year) + "-" + str(month) + "-" + str(day) + " " + str(time)
+                            str(year) + "-" + str(month) + "-" + str(day) + " " + str(time)
                     )
                     # logfunc(inserttime)
                     # logfunc(month)
@@ -223,7 +226,7 @@ def get_mobileInstall(files_found, report_folder, seeker):
                     datainsert,
                 )
                 db.commit()
-                
+
                 tsv_tml_data_list.append((inserttime, actiondesc, bundleid, path))
                 # logfunc()
 
@@ -248,7 +251,7 @@ def get_mobileInstall(files_found, report_folder, seeker):
                     day = day_converter(day)
                     month = month_converter(month)
                     inserttime = (
-                        str(year) + "-" + str(month) + "-" + str(day) + " " + str(time)
+                            str(year) + "-" + str(month) + "-" + str(day) + " " + str(time)
                     )
                     # logfunc(inserttime)
                     # logfunc(month)
@@ -278,7 +281,7 @@ def get_mobileInstall(files_found, report_folder, seeker):
                 db.commit()
 
                 tsv_tml_data_list.append((inserttime, actiondesc, bundleid, path))
-                
+
             matchObj = re.search(
                 r"(Uninstalling identifier )", line
             )  # Regex for made container
@@ -300,7 +303,7 @@ def get_mobileInstall(files_found, report_folder, seeker):
                     day = day_converter(day)
                     month = month_converter(month)
                     inserttime = (
-                        str(year) + "-" + str(month) + "-" + str(day) + " " + str(time)
+                            str(year) + "-" + str(month) + "-" + str(day) + " " + str(time)
                     )
                     # logfunc(inserttime)
                     # logfunc(month)
@@ -322,7 +325,7 @@ def get_mobileInstall(files_found, report_folder, seeker):
                     datainsert,
                 )
                 db.commit()
-                
+
                 tsv_tml_data_list.append((inserttime, actiondesc, bundleid, path))
 
             matchObj = re.search(r"(main: Reboot detected)", line)  # Regex for reboots
@@ -336,7 +339,7 @@ def get_mobileInstall(files_found, report_folder, seeker):
                     day = day_converter(day)
                     month = month_converter(month)
                     inserttime = (
-                        str(year) + "-" + str(month) + "-" + str(day) + " " + str(time)
+                            str(year) + "-" + str(month) + "-" + str(day) + " " + str(time)
                     )
                     # logfunc(inserttime)
                     # logfunc(month)
@@ -358,9 +361,9 @@ def get_mobileInstall(files_found, report_folder, seeker):
                     datainsert,
                 )
                 db.commit()
-                
+
                 tsv_tml_data_list.append((inserttime, actiondesc, bundleid, path))
-                
+
             matchObj = re.search(
                 r"(Attempting Delta patch update of )", line
             )  # Regex for Delta patch
@@ -382,7 +385,7 @@ def get_mobileInstall(files_found, report_folder, seeker):
                     day = day_converter(day)
                     month = month_converter(month)
                     inserttime = (
-                        str(year) + "-" + str(month) + "-" + str(day) + " " + str(time)
+                            str(year) + "-" + str(month) + "-" + str(day) + " " + str(time)
                     )
                     # logfunc(inserttime)
                     # logfunc(month)
@@ -425,15 +428,13 @@ def get_mobileInstall(files_found, report_folder, seeker):
     uninstallcount = 0
     historicalcount = 0
     sysstatecount = 0
-    
+
     # created folders for reports for App history
     os.makedirs(os.path.join(report_folder, "Apps_Historical"))
 
-
     data_list_installed = []
     data_list_uninstalled = []
-    
-    
+
     # Initialize database connection
     db = sqlite3.connect(mibdatabase)
     cursor = db.cursor()
@@ -457,41 +458,39 @@ def get_mobileInstall(files_found, report_folder, seeker):
                 uninstallcount = uninstallcount + 1
                 totalapps = totalapps + 1
                 # tofile1 = row[0] + ' ' + row[1] + ' ' + row[2] + ' ' + row[3] + '\n'
-                data_list_uninstalled.append((row[2],))
+                data_list_uninstalled.append((row[0], row[2],))
                 # logfunc()
             elif row[1] == "Uninstalling identifier":
                 # logfunc(row[0], row[1], row[2], row[3])
                 uninstallcount = uninstallcount + 1
                 totalapps = totalapps + 1
                 # tofile1 = row[0] + ' ' + row[1] + ' ' + row[2] + ' ' + row[3] + '\n'
-                data_list_uninstalled.append((row[2],))
+                data_list_uninstalled.append((row[0], row[2],))
                 # logfunc()
             else:
                 # logfunc(row[0], row[1], row[2], row[3])
-                data_list_installed.append((row[2],))
+                data_list_installed.append((row[0], row[2],))
                 installedcount = installedcount + 1
                 totalapps = totalapps + 1
 
-    
-    location =f'{filename}'
+    location = f'{filename}'
     description = 'List of Uninstalled apps.'
     report = ArtifactHtmlReport('Apps - Uninstalled')
     report.start_artifact_report(report_folder, 'Apps - Uninstalled', description)
     report.add_script()
-    data_headers = ('Bundle ID',)
+    data_headers = ('Last Uninstalled', 'Bundle ID',)
     report.write_artifact_data_table(data_headers, data_list_uninstalled, location)
     report.end_artifact_report()
-    
-    
-    location =f'{filename}'
+
+    location = f'{filename}'
     description = 'List of Installed apps.'
     report = ArtifactHtmlReport('Apps - Installed')
     report.start_artifact_report(report_folder, 'Apps - Installed', description)
     report.add_script()
-    data_headers = ('Bundle ID',)
+    data_headers = ('Last Installed', 'Bundle ID',)
     report.write_artifact_data_table(data_headers, data_list_installed, location)
     report.end_artifact_report()
-    
+
     # Query to create historical report per app
 
     cursor.execute("""SELECT distinct bundle_id from dimm""")
@@ -503,9 +502,9 @@ def get_mobileInstall(files_found, report_folder, seeker):
             continue
         else:
             f3 = open(os.path.join(report_folder, "Apps_Historical", distinctbundle + ".txt"),
-                "w+",
-                encoding="utf8"
-            )  # Create historical app report per app
+                      "w+",
+                      encoding="utf8"
+                      )  # Create historical app report per app
             cursor.execute(
                 """SELECT * from dimm where bundle_id=? order by time_stamp DESC""",
                 (distinctbundle,),
@@ -519,16 +518,16 @@ def get_mobileInstall(files_found, report_folder, seeker):
         historicalcount = historicalcount + 1
 
     list = []
-    data_list =[]
+    data_list = []
     path = os.path.join(report_folder, "Apps_Historical")
     files = os.listdir(path)
     for name in files:
         bun = (f'{name}')
-        appendval = (f'<a href = "./Mobile Installation Logs/Apps_Historical/{name}" style = "color:blue" target="content">Report</a>')
+        appendval = (
+            f'<a href = "./Mobile Installation Logs/Apps_Historical/{name}" style = "color:blue" target="content">Report</a>')
         data_list.append((bun, appendval))
-        
-        
-    location =f'{filename}'
+
+    location = f'{filename}'
     description = 'Historical App report from the Mobile Installation Logs. All timestamps are in Local Time'
     report = ArtifactHtmlReport('Apps - Historical')
     report.start_artifact_report(report_folder, 'Apps - Historical', description)
@@ -537,19 +536,19 @@ def get_mobileInstall(files_found, report_folder, seeker):
     tsv_data_headers = ('Bundle ID', 'Report Link')
     report.write_artifact_data_table(data_headers, data_list, location, html_escape=False)
     report.end_artifact_report()
-    
+
     tsvname = 'Mobile Installation Logs - History'
     tsv(report_folder, tsv_data_headers, tsv_tml_data_list, tsvname)
     tlactivity = 'Mobile Installation Logs - History'
-    tml_data_headers = ('Timestamp','Event', 'Bundle ID', 'Event Path')
+    tml_data_headers = ('Timestamp', 'Event', 'Bundle ID', 'Event Path')
     timeline(report_folder, tlactivity, tsv_tml_data_list, tml_data_headers)
-    
-    #All event historical in html report
+
+    # All event historical in html report
     description = 'Historical App report from the Mobile Installation Logs. All timestamps are in Local Time'
     report = ArtifactHtmlReport('Apps - Historical')
     report.start_artifact_report(report_folder, 'Apps - Historical Combined', description)
     report.add_script()
-    data_headers = ('Timestamp','Event', 'Bundle ID', 'Event Path')
+    data_headers = ('Timestamp', 'Event', 'Bundle ID', 'Event Path')
     report.write_artifact_data_table(data_headers, tsv_tml_data_list, location)
     report.end_artifact_report()
 
@@ -562,11 +561,11 @@ def get_mobileInstall(files_found, report_folder, seeker):
     for row in all_rows:
         # logfunc(row[0])
         # logfunc(row[0], row[1], row[2], row[3])
-        data_list_reboots.append((row[0],row[1]))
+        data_list_reboots.append((row[0], row[1]))
         sysstatecount = sysstatecount + 1
-    
+
     if len(all_rows) > 0:
-        location =f'{filename}'
+        location = f'{filename}'
         description = 'Reboots detected in Local Time.'
         report = ArtifactHtmlReport('State - Reboots')
         report.start_artifact_report(report_folder, 'State - Reboots', description)
@@ -574,7 +573,7 @@ def get_mobileInstall(files_found, report_folder, seeker):
         data_headers_reboots = ('Timestamp (Local Time)', 'Description')
         report.write_artifact_data_table(data_headers_reboots, data_list_reboots, location)
         report.end_artifact_report()
-        
+
         tsvname = 'Mobile Installation Logs - Reboots'
         tsv(report_folder, data_headers_reboots, data_list_reboots, tsvname)
 
@@ -583,12 +582,7 @@ def get_mobileInstall(files_found, report_folder, seeker):
     logfunc(f"Total uninstalled apps: {uninstallcount}")
     logfunc(f"Total historical app reports: {historicalcount}")
     logfunc(f"Total system state events: {sysstatecount}")
-    
-    
-    
-    
-    
-    
+
     '''
     data_headers_reboots = ('Timestamp (Local Time)', 'Description')
     tsv_data_headers = ('Timestamp (Local Time)', 'Action', 'Bundle ID', 'Path')
@@ -605,17 +599,8 @@ def get_mobileInstall(files_found, report_folder, seeker):
     tlactivity = 'Mobile Installation Logs - History'
     timeline(report_folder, tlactivity, tsv_tml_data_list, tsv_data_headers)
     '''
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
+
 '''    
     
     x = 0
@@ -647,4 +632,3 @@ def get_mobileInstall(files_found, report_folder, seeker):
     report.write_artifact_data_table(data_headers, data_list, location, html_escape=False)
     report.end_artifact_report()
 '''
-  

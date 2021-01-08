@@ -1,17 +1,9 @@
-import glob
-import os
-import pathlib
-import plistlib
-import sqlite3
-import json
-import textwrap
+from itertools import chain
 import scripts.artifacts.artGlobals
 
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
-from scripts.ccl import ccl_bplist
-from scripts.parse3 import ParseProto
 
 
 def get_healthAll(files_found, report_folder, seeker):
@@ -68,8 +60,8 @@ def get_healthAll(files_found, report_folder, seeker):
             report.start_artifact_report(report_folder, 'Workout Cadence')
             report.add_script()
             data_headers = (
-            'Start Date', 'End Date', 'Strides per Min.', 'Workout Type', 'Duration in Mins.', 'Calories Burned',
-            'Distance in KM', 'Distance in Miles', 'Goal Type', 'Goal', 'Flights Climbed', 'Steps')
+                'Start Date', 'End Date', 'Strides per Min.', 'Workout Type', 'Duration in Mins.', 'Calories Burned',
+                'Distance in KM', 'Distance in Miles', 'Goal Type', 'Goal', 'Flights Climbed', 'Steps')
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
@@ -289,27 +281,45 @@ def get_healthAll(files_found, report_folder, seeker):
     if version.parse(iOSversion) >= version.parse("9"):
         cursor = db.cursor()
         cursor.execute('''
-        select
-        datetime(samples.start_date + 978307200, 'unixepoch'),
-        datetime(samples.end_date + 978307200, 'unixepoch'),
-        quantity,
-        (samples.end_date-samples.start_date)
-        from samples, quantity_samples 
-        where samples.data_type = 7 
-        and samples.data_id = quantity_samples.data_id    
+        SELECT
+        datetime(SAMPLES.START_DATE + 978307200, 'unixepoch'),
+        datetime(SAMPLES.END_DATE + 978307200, 'unixepoch'),
+        QUANTITY_SAMPLES.QUANTITY,
+        (SAMPLES.END_DATE - SAMPLES.START_DATE),
+        DATA_PROVENANCES.ORIGIN_PRODUCT_TYPE
+        FROM SAMPLES, QUANTITY_SAMPLES, DATA_PROVENANCES, OBJECTS
+        WHERE SAMPLES.DATA_TYPE = 7 
+            AND SAMPLES.DATA_ID = QUANTITY_SAMPLES.DATA_ID
+            AND SAMPLES.DATA_ID = OBJECTS.DATA_ID
+            AND OBJECTS.PROVENANCE = data_provenances.ROWID  
         ''')
 
         all_rows = cursor.fetchall()
         usageentries = len(all_rows)
         if usageentries > 0:
             data_list = []
+            daily_steps_nested_list = []
+
+            c = 0
             for row in all_rows:
-                data_list.append((row[0], row[1], row[2], row[3]))
+                data_list.append((row[0], row[1], row[2], row[3], row[4]))
+
+                date, hour = row[0].split(' ')
+
+                if date not in chain(*daily_steps_nested_list):
+                    daily_steps_nested_list.append([date, row[2], row[3]])
+                else:
+                    for entry in daily_steps_nested_list:
+                        if entry[0] == date:
+                            entry[1] += row[2]
+                            entry[2] += row[3]
+
+            daily_steps_list = [tuple(t) for t in daily_steps_nested_list]
 
             report = ArtifactHtmlReport('Health Steps')
             report.start_artifact_report(report_folder, 'Steps')
             report.add_script()
-            data_headers = ('Start Date', 'End Date', 'Steps', 'Time in Seconds')
+            data_headers = ('Start Date', 'End Date', 'Steps', 'Time in Seconds', 'Origin')
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
@@ -318,6 +328,21 @@ def get_healthAll(files_found, report_folder, seeker):
 
             tlactivity = 'Health Steps'
             timeline(report_folder, tlactivity, data_list, data_headers)
+
+            description = 'Cumulative total of the steps gathered from all available sources for each day'
+            report = ArtifactHtmlReport('Health Steps per Day')
+            report.start_artifact_report(report_folder, 'Steps per Day', description)
+            report.add_script()
+            data_headers = ('Date', 'Steps', 'Time in Seconds')
+            report.write_artifact_data_table(data_headers, daily_steps_list, file_found)
+            report.end_artifact_report()
+
+            tsvname = 'Health Steps per Day'
+            tsv(report_folder, data_headers, daily_steps_list, tsvname)
+
+            tlactivity = 'Health Steps per Day'
+            timeline(report_folder, tlactivity, daily_steps_list, data_headers)
+
         else:
             logfunc('No data available in Steps')
 
@@ -407,7 +432,8 @@ def get_healthAll(files_found, report_folder, seeker):
             report.start_artifact_report(report_folder, 'Workout General')
             report.add_script()
             data_headers = (
-            'Start Date', 'End Date', 'Workout Type', 'Duration in Min.', 'Calories Burned', 'Distance in KM', 'Distance in Miles', 'Total Base Energy Burned', 'Goal Type', 'Goal', 'Flights Climbed', 'Steps')
+                'Start Date', 'End Date', 'Workout Type', 'Duration in Min.', 'Calories Burned', 'Distance in KM',
+                'Distance in Miles', 'Total Base Energy Burned', 'Goal Type', 'Goal', 'Flights Climbed', 'Steps')
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
@@ -451,3 +477,36 @@ def get_healthAll(files_found, report_folder, seeker):
             timeline(report_folder, tlactivity, data_list, data_headers)
         else:
             logfunc('No data available in Environmental Sound Levels')
+
+    if version.parse(iOSversion) >= version.parse("9"):
+        cursor = db.cursor()
+        cursor.execute('''
+        SELECT 
+        DATETIME(SAMPLES.START_DATE + 978307200, 'UNIXEPOCH'),
+        DATETIME(SAMPLES.END_DATE + 978307200, 'UNIXEPOCH'),
+        (SAMPLES.END_DATE - SAMPLES.START_DATE)
+        FROM SAMPLES
+        WHERE SAMPLES.DATA_TYPE = 63
+        ''')
+
+        all_rows = cursor.fetchall()
+        usageentries = len(all_rows)
+        if usageentries > 0:
+            data_list = []
+            for row in all_rows:
+                data_list.append((row[0], row[1], row[2]))
+
+            report = ArtifactHtmlReport('Sleep Analysis')
+            report.start_artifact_report(report_folder, 'Sleep Analysis')
+            report.add_script()
+            data_headers = ('Start Date', 'End Date', 'Time in Seconds')
+            report.write_artifact_data_table(data_headers, data_list, file_found)
+            report.end_artifact_report()
+
+            tsvname = 'Sleep Analysis'
+            tsv(report_folder, data_headers, data_list, tsvname)
+
+            tlactivity = 'Sleep Analysis'
+            timeline(report_folder, tlactivity, data_list, data_headers)
+        else:
+            logfunc('No data available in Sleep Analysis')
