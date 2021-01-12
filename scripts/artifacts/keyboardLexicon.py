@@ -1,4 +1,5 @@
 import string
+from os.path import dirname
 
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline
@@ -22,13 +23,16 @@ def get_keyboardLexicon(files_found, report_folder, seeker):
                             strings_list.append(found_str)
                             found_str = ''
 
-            data_list.append((file_found, '<br>'.join(strings_list)))
+            location_file_found = file_found.split("Keyboard/", 1)[1]
+            data_list.append(('<br>'.join(strings_list), location_file_found))
+
+        dir_file_found = dirname(file_found).split('Keyboard', 1)[0] + 'Keyboard'
 
         report = ArtifactHtmlReport('Keyboard Dynamic Lexicon')
         report.start_artifact_report(report_folder, 'Keyboard Dynamic Lexicon')
         report.add_script()
-        data_headers = ('Filename', 'Found Strings')
-        report.write_artifact_data_table(data_headers, data_list, ', '.join(files_found), html_no_escape=['Found Strings'])
+        data_headers = ('Found Strings', 'File Location')
+        report.write_artifact_data_table(data_headers, data_list, dir_file_found, html_no_escape=['Found Strings'])
         report.end_artifact_report()
 
         tsvname = 'Keyboard Dynamic Lexicon'
