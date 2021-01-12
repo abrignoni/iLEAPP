@@ -55,6 +55,7 @@ from scripts.artifacts.iCloudWifi import get_iCloudWifi
 from scripts.artifacts.icloudSharedalbums import get_icloudSharedalbums
 from scripts.artifacts.iconsScreen import get_iconsScreen
 from scripts.artifacts.interactionCcontacts import get_interactionCcontacts
+from scripts.artifacts.keyboardLexicon import get_keyboardLexicon
 from scripts.artifacts.kikMessages import get_kikMessages
 from scripts.artifacts.knowCall import get_knowCall
 from scripts.artifacts.lastBuild import get_lastBuild, get_iTunesBackupInfo
@@ -169,6 +170,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'iCloudWifi': ('Wifi Connections', '**/com.apple.wifid.plist'),
             'iconsScreen': ('iOS Screens', '**/SpringBoard/IconState.plist'),
             'interactionCcontacts': ('InteractionC', '**/interactionC.db'),
+            'keyboardLexicon': ('Keyboard Dynamic Lexicon', '*/private/var/mobile/Library/Keyboard/*-dynamic.lm/dynamic-lexicon.dat'),
             'kikMessages': ('Kik', '**/kik.sqlite*'),
             'knowCall': ('KnowledgeC', '**/CoreDuet/Knowledge/knowledgeC.db'),
             'locationDallB': ('Locations', '**/cache_encryptedB.db'),
