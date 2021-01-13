@@ -210,6 +210,10 @@ def get_icon_name(category, artifact):
         icon = 'mic'
     elif category == 'VOICE-TRIGGERS':
         icon = 'mic'
+    elif category == 'KEYBOARD DYNAMIC LEXICON':
+        icon = 'type'
+    elif category == 'KEYBOARD APPLICATION USAGE':
+        icon = 'type'
     return icon
 
 
