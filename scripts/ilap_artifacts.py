@@ -66,6 +66,7 @@ from scripts.artifacts.locationDparkedhistorical import get_locationDparkedhisto
 from scripts.artifacts.locationDsteps import get_locationDsteps
 from scripts.artifacts.mailprotect import get_mailprotect
 from scripts.artifacts.mediaLibrary import get_mediaLibrary
+from scripts.artifacts.medicalID import get_medicalID
 from scripts.artifacts.mobileActivationLogs import get_mobileActivationLogs
 from scripts.artifacts.mobileBackup import get_mobileBackup
 from scripts.artifacts.mobileContainerManager import get_mobileContainerManager
@@ -181,6 +182,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'locationDparkedhistorical': ('Locations', '**/Local.sqlite'),
             'mailprotect': ('iOS Mail', '**/private/var/mobile/Library/Mail/* Index*'),
             'mediaLibrary': ('Media Library', '**/Medialibrary.sqlitedb'),
+            'medicalID': ('Medical ID', '*/private/var/mobile/Library/MedicalID/MedicalIDData.archive'),
             'mobileActivationLogs': ('Mobile Activation Logs', '**/mobileactivationd.log*'),
             'mobileBackup': ('Mobile Backup', '*/Preferences/com.apple.MobileBackup.plist'),
             'mobileContainerManager': ('Mobile Container Manager', '**/containermanagerd.log.*'),
