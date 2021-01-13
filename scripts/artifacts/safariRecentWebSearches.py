@@ -33,6 +33,6 @@ def get_safariRecentWebSearches(files_found, report_folder, seeker):
         
         tsvname = 'Recent WebSearches'
         tsv(report_folder, data_headers, data_list, tsvname)
-        timeline(report_folder, data_headers, data_list, tsvname)
+        timeline(report_folder, tsvname, data_list, data_headers)
     else:
         logfunc('No data for recent web searches')
