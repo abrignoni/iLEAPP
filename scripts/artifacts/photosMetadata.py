@@ -4,7 +4,6 @@ import sys
 import stat
 import pathlib
 import sqlite3
-import biplist
 import nska_deserialize as nd
 import scripts.artifacts.artGlobals
 import shutil
@@ -16,6 +15,8 @@ from scripts.ilapfuncs import logfunc, tsv, kmlgen, timeline, is_platform_window
 
 
 def get_photosMetadata(files_found, report_folder, seeker):
+    if report_folder.endswith('/') or report_folder.endswith('\\'):
+        report_folder = report_folder[:-1]
     iOSversion = scripts.artifacts.artGlobals.versionf
     if version.parse(iOSversion) < version.parse("12"):
         logfunc("Unsupported version for Photos.sqlite metadata on iOS " + iOSversion)
@@ -290,11 +291,15 @@ def get_photosMetadata(files_found, report_folder, seeker):
                             postal_address_subadminarea = deserialized_plist['postalAddress']['_subAdministrativeArea']
                             postal_address_sublocality = deserialized_plist['postalAddress']['_subLocality']
 
-                        except:
-                            logfunc('Error reading exported bplist from Asset PK' + row[0])
+                        except (KeyError, ValueError, TypeError) as ex:
+                            if str(ex).find("does not contain an '$archiver' key") >= 0:
+                                logfunc('plist was Not an NSKeyedArchive ' + row[0])
+                            else:
+                                logfunc('Error reading exported bplist from Asset PK ' + row[0])
                             deserialized_plist = None
 
                 htmlThumbTag = generate_thumbnail(row[13], row[8], seeker, report_folder)
+
 
                 data_list.append((htmlThumbTag, row[0], row[0], postal_address, postal_address_subadminarea,
                                   postal_address_sublocality, row[1], row[2], row[3], row[4], row[5], row[6], row[7],
