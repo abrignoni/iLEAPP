@@ -70,6 +70,9 @@ def get_sms(files_found, report_folder, seeker):
                     shutil.copy(attachment[0], os.path.join(report_folder, cleanFilename))
                     pathToAttachment = os.path.join(report_folder, cleanFilename)
                 else:
+                    if not attachment:
+                        logfunc(' [!] Unable to extract attachment file: "{}"'.format(rec['FILENAME']))
+                        return
                     shutil.copy(attachment[0], os.path.join(report_folder, os.path.basename(rec["FILENAME"])))
             return pathToAttachment
         
