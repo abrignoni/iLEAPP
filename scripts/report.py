@@ -143,6 +143,8 @@ def get_icon_name(category, artifact):
         icon = 'clipboard'
     elif category == 'MEDIA LIBRARY':
         icon = 'play-circle'
+    elif category == 'NOTES':
+        icon = 'file-text'
     elif category == 'NOTIFICATIONS':
         icon = 'bell'
     elif category == 'PHOTOS':
