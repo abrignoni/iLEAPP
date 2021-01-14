@@ -15,24 +15,24 @@ def get_appItunesmeta(files_found, report_folder, seeker):
         file_found = str(file_found)
 
         if file_found.endswith('iTunesMetadata.plist'):
-                with open(file_found, "rb") as fp:
+            with open(file_found, "rb") as fp:
                 if sys.version_info >= (3, 9):
                     plist = plistlib.load(fp)
                 else:
                     plist = biplist.readPlist(fp)
                 
-                purchasedate = (plist['com.apple.iTunesStore.downloadInfo']['purchaseDate'])
-                bundleid = (plist['softwareVersionBundleId'])
-                itemname = (plist['itemName'])
-                artistname = (plist['artistName'])
-                versionnum = (plist['bundleShortVersionString'])
-                downloadedby = (plist['com.apple.iTunesStore.downloadInfo']['accountInfo']['AppleID'])
-                genre = (plist['genre'])
-                factoryinstall = (plist['isFactoryInstall'])
-                appreleasedate = (plist['releaseDate'])
-                sourceapp = (plist['sourceApp'])
-                sideloaded = (plist['sideLoadedDeviceBasedVPP'])
-                variantid = (plist['variantID'])
+                purchasedate = plist.get('com.apple.iTunesStore.downloadInfo', {}).get('purchaseDate', '')
+                bundleid = plist.get('softwareVersionBundleId', '')
+                itemname = plist.get('itemName', '')
+                artistname = plist.get('artistName', '')
+                versionnum = plist.get('bundleShortVersionString', '')
+                downloadedby = plist.get('com.apple.iTunesStore.downloadInfo', {}) .get('accountInfo', {}).get('AppleID', '')
+                genre = plist.get('genre', '')
+                factoryinstall = plist.get('isFactoryInstall', '')
+                appreleasedate = plist.get('releaseDate', '')
+                sourceapp = plist.get('sourceApp', '')
+                sideloaded = plist.get('sideLoadedDeviceBasedVPP', '')
+                variantid = plist.get('variantID', '')
                 
                 p = pathlib.Path(file_found)
                 parent = p.parent
@@ -41,7 +41,7 @@ def get_appItunesmeta(files_found, report_folder, seeker):
                 if os.path.exists(itunes_metadata_path):
                     with open(itunes_metadata_path, 'rb') as f:
                         deserialized_plist = nd.deserialize_plist(f)
-                        install_date = (deserialized_plist['installDate'])
+                        install_date = deserialized_plist.get('installDate', '')
                 else:
                     install_date = ''
         
