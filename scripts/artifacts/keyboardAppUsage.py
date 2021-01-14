@@ -5,16 +5,17 @@ from scripts.ilapfuncs import logfunc, tsv, timeline
 
 
 def get_keyboardAppUsage(files_found, report_folder, seeker):
-    if len(files_found) > 0:
-        data_list = []
+    data_list = []
 
-        for file_found in files_found:
-            with open(file_found, "rb") as plist_file:
-                plist_content = plistlib.load(plist_file)
-                for app in plist_content:
-                    for entry in plist_content[app]:
-                        data_list.append((entry['startDate'] ,app, entry['appTime'], ', '.join(map(str, entry['keyboardTimes']))))
+    for file_found in files_found:
+        file_found = str(file_found)
+        with open(file_found, "rb") as plist_file:
+            plist_content = plistlib.load(plist_file)
+            for app in plist_content:
+                for entry in plist_content[app]:
+                    data_list.append((entry['startDate'], app, entry['appTime'], ', '.join(map(str, entry['keyboardTimes']))))
 
+    if len(data_list) > 0:
         report = ArtifactHtmlReport('Keyboard Application Usage')
         report.start_artifact_report(report_folder, 'Keyboard Application Usage')
         report.add_script()
@@ -30,5 +31,3 @@ def get_keyboardAppUsage(files_found, report_folder, seeker):
 
     else:
         logfunc('No Keyboard Application Usage found')
-
-    return
