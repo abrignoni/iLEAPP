@@ -6,28 +6,33 @@ from scripts.ilapfuncs import logfunc, tsv, timeline
 
 
 def get_keyboardLexicon(files_found, report_folder, seeker):
-    if len(files_found) > 0:
-        data_list = []
+    data_list = []
+    tsv_data_list = []
+    for file_found in files_found:
+        strings_list = []
+        with open(file_found, 'rb') as dat_file:
+            dat_content = dat_file.read()
+            dat_content_decoded = str(dat_content, 'utf-8', 'ignore')
+            found_str = ''
+            for char in dat_content_decoded:
+                if char in string.printable:
+                    found_str += char
+                else:
+                    if found_str:
+                        strings_list.append(found_str)
+                        found_str = ''
 
-        for file_found in files_found:
-            strings_list = []
-            with open(file_found, 'rb') as dat_file:
-                dat_content = dat_file.read()
-                dat_content_decoded = str(dat_content, 'utf-8', 'ignore')
-                found_str = ''
-                for char in dat_content_decoded:
-                    if char in string.printable:
-                        found_str += char
-                    else:
-                        if found_str:
-                            strings_list.append(found_str)
-                            found_str = ''
-
-            location_file_found = file_found.split("Keyboard/", 1)[1]
-            data_list.append(('<br>'.join(strings_list), location_file_found))
+        if file_found.find("Keyboard/") >= 0:
+            slash = '/'
+        else:
+            slash = '\\'
+        location_file_found = file_found.split(f"Keyboard{slash}", 1)[1]
+        data_list.append(('<br>'.join(strings_list), location_file_found))
+        tsv_data_list.append((','.join(strings_list), location_file_found))
 
         dir_file_found = dirname(file_found).split('Keyboard', 1)[0] + 'Keyboard'
 
+    if data_list:
         report = ArtifactHtmlReport('Keyboard Dynamic Lexicon')
         report.start_artifact_report(report_folder, 'Keyboard Dynamic Lexicon')
         report.add_script()
@@ -36,12 +41,12 @@ def get_keyboardLexicon(files_found, report_folder, seeker):
         report.end_artifact_report()
 
         tsvname = 'Keyboard Dynamic Lexicon'
-        tsv(report_folder, data_headers, data_list, tsvname)
+        tsv(report_folder, data_headers, tsv_data_list, tsvname)
 
         tlactivity = 'Keyboard Dynamic Lexicon'
-        timeline(report_folder, tlactivity, data_list, data_headers)
+        timeline(report_folder, tlactivity, tsv_data_list, data_headers)
 
     else:
-        logfunc('No Keyboard Dynamic Lexicon found')
+        logfunc('No Keyboard Dynamic Lexicon data found')
 
     return
