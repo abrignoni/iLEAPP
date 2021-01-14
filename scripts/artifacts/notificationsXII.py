@@ -1,6 +1,6 @@
 import os
 import glob
-from scripts.Deserializer import deserializer
+import nska_deserialize as nd
 
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows
@@ -9,7 +9,7 @@ def get_bundle_id_and_names_from_plist(library_plist_file_path):
     '''Parses Library.plist and returns a dictionary where Key=Bundle_ID, Value=Bundle_Name'''
     bundle_info = {}
     f = open(library_plist_file_path, 'rb')
-    plist = deserializer.process_nsa_plist("", f)
+    plist = nd.deserialize_plist(f)
     for k, v in plist.items():
         bundle_info[v] = k
     f.close()
@@ -47,7 +47,7 @@ def get_notificationsXII(files_found, report_folder, seeker):
                 bundle_id = os.path.basename(os.path.dirname(filepath))
                 # open the plist
                 p = open(filepath, "rb")
-                plist = deserializer.process_nsa_plist("", p)
+                plist = nd.deserialize_plist(p)
                 
                 # Empty plist will be { 'root': None }
                 if isinstance(plist, dict):
