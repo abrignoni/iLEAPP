@@ -19,10 +19,10 @@ Parses:
 And many, many more...
 
 
-## Installation
+## Pre-requisites:
+This project requires you to have Python > 3.7.4 installed on your system. **Ideally use Python 3.9 (significantly faster processing!)**
 
-Pre-requisites:
-This project requires you to have Python > 3.7.4 < 3.8.6 installed on your system.
+## Installation
 
 To install dependencies, run:
 

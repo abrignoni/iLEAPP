@@ -3,7 +3,7 @@ import pandas as pd
 import shutil
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, sanitize_file_name
 from scripts.chat_rendering import render_chat, chat_HTML
 
 
@@ -61,19 +61,15 @@ def get_sms(files_found, report_folder, seeker):
             pathToAttachment = None
             if rec["FILENAME"]:
                 attachment = seeker.search('**'+rec["FILENAME"].replace('~', '', 1), return_on_first_hit=True)
-                pathToAttachment = os.path.join((os.path.basename(os.path.abspath(report_folder))), os.path.basename(rec["FILENAME"]))
+                if not attachment:
+                    logfunc(' [!] Unable to extract attachment file: "{}"'.format(rec['FILENAME']))
+                    return
                 if is_platform_windows():
-                    invalid = '<>:"/\|?*'
-                    cleanFilename = os.path.basename(rec["FILENAME"])
-                    for values in invalid:
-                        cleanFilename = cleanFilename.replace(values, '')
-                    shutil.copy(attachment[0], os.path.join(report_folder, cleanFilename))
-                    pathToAttachment = os.path.join(report_folder, cleanFilename)
+                    destFileName = sanitize_file_name(os.path.basename(rec["FILENAME"]))
                 else:
-                    if not attachment:
-                        logfunc(' [!] Unable to extract attachment file: "{}"'.format(rec['FILENAME']))
-                        return
-                    shutil.copy(attachment[0], os.path.join(report_folder, os.path.basename(rec["FILENAME"])))
+                    destFileName = os.path.basename(rec["FILENAME"])
+                pathToAttachment = os.path.join((os.path.basename(os.path.abspath(report_folder))), destFileName)
+                shutil.copy(attachment[0], os.path.join(report_folder, destFileName))
             return pathToAttachment
         
         sms_df["file-path"] = sms_df.apply(lambda rec: copyAttachments(rec), axis=1)
