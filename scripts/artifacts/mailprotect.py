@@ -9,8 +9,7 @@ import scripts.artifacts.artGlobals
  
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows 
-from scripts.ccl import ccl_bplist
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows
 from scripts.parse3 import ParseProto
 
 def get_mailprotect(files_found, report_folder, seeker):
