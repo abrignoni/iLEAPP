@@ -5,7 +5,6 @@ from packaging import version #use to search per version number
 
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, kmlgen, is_platform_windows, open_sqlite_db_readonly
-from scripts.ccl import ccl_bplist
 
 def get_locationDparked(files_found, report_folder, seeker):
     file_found = str(files_found[0])
