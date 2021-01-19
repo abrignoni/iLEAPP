@@ -7,19 +7,22 @@ from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly
 def get_reminders(files_found, report_folder, seeker):
     data_list = []
     for file_found in files_found:
-        db = open_sqlite_db_readonly(file_found)
-        cursor = db.cursor()
-        cursor.execute('''
-            SELECT
-            DATETIME(ZCREATIONDATE+978307200,'UNIXEPOCH'),
-            DATETIME(ZLASTMODIFIEDDATE+978307200,'UNIXEPOCH'),
-            ZNOTES,
-            ZTITLE1
-            FROM ZREMCDOBJECT
-            WHERE ZTITLE1 <> ''
-            ''')
-    
-        all_rows = cursor.fetchall()
+        file_found = str(file_found)
+
+        if file_found.endswith('.sqlite'):
+            db = open_sqlite_db_readonly(file_found)
+            cursor = db.cursor()
+            cursor.execute('''
+                SELECT
+                DATETIME(ZCREATIONDATE+978307200,'UNIXEPOCH'),
+                DATETIME(ZLASTMODIFIEDDATE+978307200,'UNIXEPOCH'),
+                ZNOTES,
+                ZTITLE1
+                FROM ZREMCDOBJECT
+                WHERE ZTITLE1 <> ''
+                ''')
+
+            all_rows = cursor.fetchall()
 
     if len(all_rows) > 0:
         location_file_found = file_found.split('Stores/', 1)[1]

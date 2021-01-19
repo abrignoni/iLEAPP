@@ -29,6 +29,8 @@ def get_icon_name(category, artifact):
             icon = 'user'
     elif category == 'ADDRESS BOOK':
         icon = 'book-open'
+    elif category == 'ALARMS':
+        icon = 'clock'
     elif category == 'APPLE WALLET':
         icon = 'dollar-sign'
     elif category == 'APP CONDUIT':
