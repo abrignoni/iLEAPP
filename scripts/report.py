@@ -147,6 +147,43 @@ def get_icon_name(category, artifact):
         icon = 'play-circle'
     elif category == 'NOTES':
         icon = 'file-text'
+    elif category == 'ICLOUD RETURNS':
+        icon = 'cloud'
+    elif category == 'ICLOUD SHARED ALBUMS':
+        icon = 'cloud'
+    elif category == 'DISCORD':
+        if artifact == 'DISCORD MESSAGES':
+            icon = 'message-square'
+        if artifact == 'DISCORD ACCOUNT':
+            icon = 'user'
+        if artifact == 'DISCORD MANIFEST':
+            icon = 'file-text'
+    elif category == 'KIK':
+        if artifact == 'KIK MESSAGES':
+            icon = 'message-square'
+    elif category == 'WIFI CONNECTIONS':
+        if artifact == 'ICLOUD WIFI NETWORKS':
+            icon = 'wifi'
+        elif artifact == 'WIFI':
+            icon = 'wifi'
+        elif artifact == 'WIFI PLIST':
+            icon = 'save'
+    elif category == 'GEOLOCATION':
+        if artifact == 'APPLICATIONS':
+            icon = 'grid'
+        elif artifact == 'MAP TILE CACHE':
+            icon = 'map'
+        elif artifact == 'PD PLACE CACHE':
+            icon = 'map-pin'
+    elif category == 'CLOUDKIT':
+        if artifact == 'PARTICIPANTS':
+            icon = 'user'
+        elif artifact == 'NOTE SHARING':
+            icon = 'share-2'
+    elif category == 'APPLE WALLET':
+        icon = 'dollar-sign'
+    elif category == 'APP PERMISSIONS':
+        icon = 'key'
     elif category == 'NOTIFICATIONS':
         icon = 'bell'
     elif category == 'PHOTOS':
@@ -415,3 +452,4 @@ def mark_item_active(data, itemname):
     else:
         ret = data[0: pos] + " active" + data[pos:]
         return ret
+    
