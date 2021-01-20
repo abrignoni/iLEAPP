@@ -92,19 +92,21 @@ def get_geodMapTiles(files_found, report_folder, seeker):
             tcol_places = ''
             vmp4_places = ''
             data_parsed = ''
-            if row['data'][:11] == b'\xff\xd8\xff\xe0\x00\x10\x4a\x46\x49\x46\x00':
-                img_base64 = base64.b64encode(row['data']).decode('utf-8')
-                img_html = f'<img src="data:image/jpeg;base64, {img_base64}" alt="Map Tile" />'
-                data_parsed = img_html
-            elif row['data'][:4] == b'TCOL':
-                vmp4_places, tcol_places = ParseTCOL(row['data'])
-                vmp4_places = ", ".join(vmp4_places)
-                tcol_places = ", ".join(tcol_places)
-            elif row['data'][:4] == b'VMP4':
-                vmp4_places = ParseVMP4(row['data'])
-                vmp4_places = ", ".join(vmp4_places)
+            data = row['data']
+            if data: # NULL sometimes
+                if len(data) >= 11 and data[:11] == b'\xff\xd8\xff\xe0\x00\x10\x4a\x46\x49\x46\x00':
+                    img_base64 = base64.b64encode(data).decode('utf-8')
+                    img_html = f'<img src="data:image/jpeg;base64, {img_base64}" alt="Map Tile" />'
+                    data_parsed = img_html
+                elif len(data) >= 4 and data[:4] == b'TCOL':
+                    vmp4_places, tcol_places = ParseTCOL(data)
+                    vmp4_places = ", ".join(vmp4_places)
+                    tcol_places = ", ".join(tcol_places)
+                elif len(data) >=4 and data[:4] == b'VMP4':
+                    vmp4_places = ParseVMP4(data)
+                    vmp4_places = ", ".join(vmp4_places)
             #else:
-                #header_bytes = row['data'][:28]
+                #header_bytes = data[:28]
                 #hexdump = generate_hexdump(header_bytes, 5) if header_bytes else ''
                 #data_parsed = hexdump
                             

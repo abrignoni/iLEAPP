@@ -63,6 +63,15 @@
     color: #eee;
 }
 
+[data-theme="dark"] pre {
+    color: #bdbdbd;
+}
+
+/* Table hover */
+
+[data-theme="dark"] .table-hover tbody tr:hover {
+    background-color: rgba(200, 200, 200, 0.975);
+}
 
 /* Table band odd rows */
 

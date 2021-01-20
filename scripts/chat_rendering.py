@@ -158,6 +158,7 @@ mimeTypeIcon = {
     "video":"🎥",
     "animated":"🎡",
     "application":"📎",
+    "text":"Ŧ"
 }
 
 """
@@ -188,14 +189,14 @@ def integrateAtt(rec):
               <source src="{0}" type="{1}">
               <p><a href="{0}"></a> </p>
             </audio>
-            """.format(rec["content-type"])
+            """.format(rec['file-path'], rec["content-type"])
         elif att_type == 'video':
             source = """
             <video controls width="256">
               <source src="{0}" type="{1}">
               <p><a href="{0}"></a> </p>
             </video>
-            """.format(rec["content-type"])
+            """.format(rec['file-path'], rec["content-type"])
         else:
             source = '<a href="{}">{}</a>'.format(rec["file-path"],filename)
         

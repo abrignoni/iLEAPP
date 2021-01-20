@@ -7,7 +7,6 @@ import scripts.artifacts.artGlobals #use to get iOS version -> iOSversion = scri
 
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
-from scripts.ccl import ccl_bplist
 
 def get_queryPredictions(files_found, report_folder, seeker):
     file_found = str(files_found[0])

@@ -2,6 +2,8 @@ import biplist
 import pathlib
 import os
 import nska_deserialize as nd
+import plistlib
+import sys
 
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows
@@ -13,34 +15,37 @@ def get_appItunesmeta(files_found, report_folder, seeker):
         file_found = str(file_found)
 
         if file_found.endswith('iTunesMetadata.plist'):
-            plist = biplist.readPlist(file_found)
-            
-            purchasedate = (plist['com.apple.iTunesStore.downloadInfo']['purchaseDate'])
-            bundleid = (plist['softwareVersionBundleId'])
-            itemname = (plist['itemName'])
-            artistname = (plist['artistName'])
-            versionnum = (plist['bundleShortVersionString'])
-            downloadedby = (plist['com.apple.iTunesStore.downloadInfo']['accountInfo']['AppleID'])
-            genre = (plist['genre'])
-            factoryinstall = (plist['isFactoryInstall'])
-            appreleasedate = (plist['releaseDate'])
-            sourceapp = (plist['sourceApp'])
-            sideloaded = (plist['sideLoadedDeviceBasedVPP'])
-            variantid = (plist['variantID'])
-            
-            p = pathlib.Path(file_found)
-            parent = p.parent
+            with open(file_found, "rb") as fp:
+                if sys.version_info >= (3, 9):
+                    plist = plistlib.load(fp)
+                else:
+                    plist = biplist.readPlist(fp)
+                
+                purchasedate = plist.get('com.apple.iTunesStore.downloadInfo', {}).get('purchaseDate', '')
+                bundleid = plist.get('softwareVersionBundleId', '')
+                itemname = plist.get('itemName', '')
+                artistname = plist.get('artistName', '')
+                versionnum = plist.get('bundleShortVersionString', '')
+                downloadedby = plist.get('com.apple.iTunesStore.downloadInfo', {}) .get('accountInfo', {}).get('AppleID', '')
+                genre = plist.get('genre', '')
+                factoryinstall = plist.get('isFactoryInstall', '')
+                appreleasedate = plist.get('releaseDate', '')
+                sourceapp = plist.get('sourceApp', '')
+                sideloaded = plist.get('sideLoadedDeviceBasedVPP', '')
+                variantid = plist.get('variantID', '')
+                
+                p = pathlib.Path(file_found)
+                parent = p.parent
 
-            itunes_metadata_path = (os.path.join(parent, "BundleMetadata.plist"))
-            if os.path.exists(itunes_metadata_path):
-                with open(itunes_metadata_path, 'rb') as f:
-                    deserialized_plist = nd.deserialize_plist(f)
-                    install_date = (deserialized_plist['installDate'])
-            else:
-                install_date = ''
-    
-            
-            data_list.append((install_date, purchasedate, bundleid, itemname, artistname, versionnum, downloadedby, genre, factoryinstall, appreleasedate, sourceapp, sideloaded, variantid, parent))   
+                itunes_metadata_path = (os.path.join(parent, "BundleMetadata.plist"))
+                if os.path.exists(itunes_metadata_path):
+                    with open(itunes_metadata_path, 'rb') as f:
+                        deserialized_plist = nd.deserialize_plist(f)
+                        install_date = deserialized_plist.get('installDate', '')
+                else:
+                    install_date = ''
+        
+                data_list.append((install_date, purchasedate, bundleid, itemname, artistname, versionnum, downloadedby, genre, factoryinstall, appreleasedate, sourceapp, sideloaded, variantid, parent))   
 
     if len(data_list) > 0:
         fileloc = 'See source file location column'

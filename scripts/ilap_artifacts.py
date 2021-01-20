@@ -12,6 +12,7 @@ from scripts.artifacts.aggDict import get_aggDict
 from scripts.artifacts.aggDictScalars import get_aggDictScalars
 from scripts.artifacts.aggDictpasscode import get_aggDictpasscode
 from scripts.artifacts.aggDictpasscodetype import get_aggDictpasscodetype
+from scripts.artifacts.alarms import get_alarms
 from scripts.artifacts.appConduit import get_appConduit
 from scripts.artifacts.appGrouplisting import get_appGrouplisting
 from scripts.artifacts.appItunesmeta import get_appItunesmeta
@@ -21,9 +22,7 @@ from scripts.artifacts.appleMapsGroup import get_appleMapsGroup
 from scripts.artifacts.appleWifiPlist import get_appleWifiPlist
 from scripts.artifacts.applewalletTransactions import get_applewalletTransactions
 from scripts.artifacts.applicationstate import get_applicationstate
-from scripts.artifacts.bluetoothOther import get_bluetoothOther
-from scripts.artifacts.bluetoothPaired import get_bluetoothPaired
-from scripts.artifacts.bluetoothPairedReg import get_bluetoothPairedReg
+from scripts.artifacts.bluetooth import get_bluetooth
 from scripts.artifacts.cacheRoutesGmap import get_cacheRoutesGmap
 from scripts.artifacts.calendarAll import get_calendarAll
 from scripts.artifacts.callHistory import get_callHistory
@@ -58,6 +57,8 @@ from scripts.artifacts.iCloudWifi import get_iCloudWifi
 from scripts.artifacts.icloudSharedalbums import get_icloudSharedalbums
 from scripts.artifacts.iconsScreen import get_iconsScreen
 from scripts.artifacts.interactionCcontacts import get_interactionCcontacts
+from scripts.artifacts.keyboardAppUsage import get_keyboardAppUsage
+from scripts.artifacts.keyboardLexicon import get_keyboardLexicon
 from scripts.artifacts.kikMessages import get_kikMessages
 from scripts.artifacts.knowCall import get_knowCall
 from scripts.artifacts.lastBuild import get_lastBuild, get_iTunesBackupInfo
@@ -67,10 +68,12 @@ from scripts.artifacts.locationDparkedhistorical import get_locationDparkedhisto
 from scripts.artifacts.locationDsteps import get_locationDsteps
 from scripts.artifacts.mailprotect import get_mailprotect
 from scripts.artifacts.mediaLibrary import get_mediaLibrary
+from scripts.artifacts.medicalID import get_medicalID
 from scripts.artifacts.mobileActivationLogs import get_mobileActivationLogs
 from scripts.artifacts.mobileBackup import get_mobileBackup
 from scripts.artifacts.mobileContainerManager import get_mobileContainerManager
 from scripts.artifacts.mobileInstall import get_mobileInstall
+from scripts.artifacts.notes import get_notes
 from scripts.artifacts.notificationsXI import get_notificationsXI
 from scripts.artifacts.notificationsXII import get_notificationsXII
 from scripts.artifacts.ooklaSpeedtestData import get_ooklaSpeedtestData
@@ -83,6 +86,7 @@ from scripts.artifacts.routineDLocationsLocal import get_routineDLocationsLocal
 from scripts.artifacts.routineDlocations import get_routineDlocations
 from scripts.artifacts.safariBookmarks import get_safariBookmarks
 from scripts.artifacts.safariHistory import get_safariHistory
+from scripts.artifacts.safariRecentWebSearches import get_safariRecentWebSearches
 from scripts.artifacts.safariTabs import get_safariTabs
 from scripts.artifacts.safariWebsearch import get_safariWebsearch
 from scripts.artifacts.screentimeAll import get_screentimeAll
@@ -129,22 +133,17 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'addressBook': ('Address Book', '**/AddressBook.sqlitedb'),
             'aggDictpasscode': ('Aggregate Dictionary', '*/AggregateDictionary/ADDataStore.sqlitedb'),
             'aggDictpasscodetype': ('Aggregate Dictionary', '*/AggregateDictionary/ADDataStore.sqlitedb'),
+            'alarms': ('Alarms', '*private/var/mobile/Library/Preferences/com.apple.mobiletimerd.plist'),
             'appConduit': ('App Conduit', '**/AppConduit.log.*'),
-            'appGrouplisting': ('Installed Apps', ('*/private/var/mobile/Containers/Shared/AppGroup/*/*.metadata.plist',
-                                                   '**/PluginKitPlugin/*.metadata.plist')),
+            'appGrouplisting': ('Installed Apps', ('*/private/var/mobile/Containers/Shared/AppGroup/*/*.metadata.plist', '**/PluginKitPlugin/*.metadata.plist')),
             'appItunesmeta': ('Installed Apps', ('**/iTunesMetadata.plist', '**/BundleMetadata.plist')),
             'appleMapsApplication': ('Locations', '**/Data/Application/*/Library/Preferences/com.apple.Maps.plist'),
             'appleMapsGroup': ('Locations', '**/Shared/AppGroup/*/Library/Preferences/group.com.apple.Maps.plist'),
-            'appleWifiPlist': ('Wireless Networks', (
-            '**/com.apple.wifi.plist', '**/com.apple.wifi-networks.plist.backup',
-            '**/com.apple.wifi.known-networks.plist', '**/com.apple.wifi-private-mac-networks.plist')),
             'applewalletTransactions': ('Apple Wallet', '**/passes23.sqlite'),
+            'appleWifiPlist': ('Wifi Connections', ('**/com.apple.wifi.plist', '**/com.apple.wifi-networks.plist.backup', '**/com.apple.wifi.known-networks.plist', '**/com.apple.wifi-private-mac-networks.plist')),
             'applicationSnapshots': ('Installed Apps', ('**/Library/Caches/Snapshots/*', '**/SplashBoard/Snapshots/*')),
             'applicationstate': ('Installed Apps', '**/applicationState.db'),
-            # 'appUpdates':('App Updates', '**/AppUpdates.sqlitedb'),
-            'bluetoothOther': ('Bluetooth', '**/Library/Database/com.apple.MobileBluetooth.ledevices.other.db'),
-            'bluetoothPaired': ('Bluetooth', '**/com.apple.MobileBluetooth.ledevices.paired.db'),
-            'bluetoothPairedReg': ('Bluetooth', '**/com.apple.MobileBluetooth.devices.plist'),
+            'bluetooth': ('Bluetooth', '**/com.apple.MobileBluetooth.*'),
             'cacheRoutesGmap': ('Locations', '**/Library/Application Support/CachedRoutes/*.plist'),
             'calendarAll': ('Calendar', '**/Calendar.sqlitedb'),
             'callHistory': ('Call logs', '**/CallHistory.storedata'),
@@ -166,23 +165,21 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'dhcpl': ('DHCP', '**/private/var/db/dhcpclient/leases/en*'),
             'discordAcct': ('Discord', '*/var/mobile/Containers/Data/Application/*/Documents/mmkv/mmkv.default'),
             'discordJson': ('Discord', '*/com.hammerandchisel.discord/fsCachedData/*'),
-            'discordManifest': ('Discord',
-                                '*/private/var/mobile/Containers/Data/Application/*/Documents/RCTAsyncLocalStorage_V1/manifest.json'),
-            'filesAppsclient': (
-            'Files App', '*private/var/mobile/Library/Application Support/CloudDocs/session/db/client.db*'),
-            'filesAppsdb': (
-            'Files App', '*private/var/mobile/Library/Application Support/CloudDocs/session/db/server.db*'),
+            'discordManifest': ('Discord', '*/private/var/mobile/Containers/Data/Application/*/Documents/RCTAsyncLocalStorage_V1/manifest.json'),
+            'filesAppsclient': ('Files App', '*private/var/mobile/Library/Application Support/CloudDocs/session/db/client.db*'),
+            'filesAppsdb': ('Files App', '*private/var/mobile/Library/Application Support/CloudDocs/session/db/server.db*'),
             'filesAppsm': ('Files App', '*private/var/mobile/Containers/Shared/AppGroup/*/smartfolders.db*'),
             'geodApplications': ('Geolocation', '**/AP.db'),
             'geodMapTiles': ('Geolocation', '**/MapTiles.sqlitedb'),
             'geodPDPlaceCache': ('Geolocation', '**/PDPlaceCache.db'),
             'healthAll': ('Health Data', '**/healthdb_secure.sqlite'),
             'icloudMeta': ('iCloud Returns', '*/iclouddrive/Metadata.txt'),
+            'icloudSharedalbums': ('iCloud Shared Albums', '*/private/var/mobile/Media/PhotoData/PhotoCloudSharingData/*'),
             'iCloudWifi': ('Wifi Connections', '**/com.apple.wifid.plist'),
-            'icloudSharedalbums': (
-            'iCloud Shared Albums', '*/private/var/mobile/Media/PhotoData/PhotoCloudSharingData/*'),
             'iconsScreen': ('iOS Screens', '**/SpringBoard/IconState.plist'),
             'interactionCcontacts': ('InteractionC', '**/interactionC.db'),
+            'keyboardAppUsage': ('Keyboard Application Usage', '*/private/var/mobile/Library/Keyboard/app_usage_database.plist'),
+            'keyboardLexicon': ('Keyboard Dynamic Lexicon', '*/private/var/mobile/Library/Keyboard/*-dynamic.lm/dynamic-lexicon.dat'),
             'kikMessages': ('Kik', '**/kik.sqlite*'),
             'knowCall': ('KnowledgeC', '**/CoreDuet/Knowledge/knowledgeC.db'),
             'locationDallB': ('Locations', '**/cache_encryptedB.db'),
@@ -190,17 +187,12 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'locationDparkedhistorical': ('Locations', '**/Local.sqlite'),
             'mailprotect': ('iOS Mail', '**/private/var/mobile/Library/Mail/* Index*'),
             'mediaLibrary': ('Media Library', '**/Medialibrary.sqlitedb'),
+            'medicalID': ('Medical ID', '*/private/var/mobile/Library/MedicalID/MedicalIDData.archive'),
             'mobileActivationLogs': ('Mobile Activation Logs', '**/mobileactivationd.log*'),
             'mobileBackup': ('Mobile Backup', '*/Preferences/com.apple.MobileBackup.plist'),
             'mobileContainerManager': ('Mobile Container Manager', '**/containermanagerd.log.*'),
-            # 'appUpdates':('App Updates', '**/AppUpdates.sqlitedb'),
-            'appConduit': ('App Conduit', '**/AppConduit.log.*'),
-            'mediaLibrary': ('Media Library', '**/Medialibrary.sqlitedb'),
-            'geodMapTiles': ('Geolocation', '**/MapTiles.sqlitedb'),
-            'geodPDPlaceCache': ('Geolocation', '**/PDPlaceCache.db'),
-            'geodApplications': ('Geolocation', '**/AP.db'),
-            'tcc': ('App Permissions', '*TCC.db*'),
             'mobileInstall': ('Mobile Installation Logs', '**/mobile_installation.log.*'),
+            'notes': ('Notes', '*/NoteStore.sqlite*'),
             'notificationsXI': ('Notifications', '*PushStore*'),
             'notificationsXII': ('Notifications', '*private/var/mobile/Library/UserNotifications*'),
             'ooklaSpeedtestData': ('Applications', '**/speedtest.sqlite*'),
@@ -208,31 +200,28 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'powerlogAll': ('Powerlog', '**/CurrentPowerlog.PLSQL'),
             'powerlogGZ': ('Powerlog Backups', '**/Library/BatteryLife/Archives/powerlog_*.PLSQL.gz'),
             'queryPredictions': ('SMS & iMessage', '**/query_predictions.db'),
+            'reminders': ('Reminders', '**/Reminders/Container_v1/Stores/*.sqlite*'),
             'routineDCloud': ('Locations', '**/Library/Caches/com.apple.routined/Cloud-V2.sqlite*'),
-            'routineDLocationsLocal': (
-            'Locations', '**/private/var/mobile/Library/Caches/com.apple.routined/Local.sqlite*'),
             'routineDlocations': ('Locations', '**/com.apple.routined/Cache.sqlite*'),
+            'routineDLocationsLocal': ('Locations', '**/private/var/mobile/Library/Caches/com.apple.routined/Local.sqlite*'),
             'safariBookmarks': ('Safari Browser', '**/Safari/Bookmarks.db'),
             'safariHistory': ('Safari Browser', '**/Safari/History.db'),
+            'safariRecentWebSearches': ('Safari Browser', '**/Library/Preferences/com.apple.mobilesafari.plist'),
             'safariTabs': ('Safari Browser', '**/Safari/BrowserState.db'),
             'safariWebsearch': ('Safari Browser', '**/Safari/History.db'),
             'screentimeAll': ('Screentime', '**/RMAdminStore-Local.sqlite'),
             'sms': ('SMS & iMessage', '**/sms.db'),
-            # 'systemVersion':('Device Info', '**/SystemVersion.plist'),
-            'tileApp': (
-            'Locations', '*private/var/mobile/Containers/Data/Application/*/Library/log/com.thetileapp.tile*'),
-            'tileAppDb': (
-            'Locations', '*private/var/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-TileNetworkDB.sqlite*'),
-            'tileAppDisc': ('Accounts',
-                            '*/private/var/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-DiscoveredTileDB.sqlite*'),
-            'tileAppNetDb': (
-            'Accounts', '*/private/var/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-TileNetworkDB.sqlite*'),
+            'tcc': ('App Permissions', '*TCC.db*'),
+            'tileApp': ('Locations', '*private/var/mobile/Containers/Data/Application/*/Library/log/com.thetileapp.tile*'),
+            'tileAppDb': ('Locations', '*private/var/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-TileNetworkDB.sqlite*'),
+            'tileAppDisc': ('Accounts','*/private/var/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-DiscoveredTileDB.sqlite*'),
+            'tileAppNetDb': ('Accounts', '*/private/var/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-TileNetworkDB.sqlite*'),
+            'voiceRecordings': ('Voice-Recordings', ('**/Recordings/*.composition/manifest.plist', '**/Recordings/*.m4a')),
+            'voiceTriggers': ('Voice-Triggers', ('**/td/audio/*.json', '**/td/audio/*.wav')),
             'walStrings': ('SQLite Journaling', ('**/*-wal', '**/*-journal')),
             'webClips': ('iOS Screens', '*WebClips/*.webclip/*'),
-            'reminders': ('Reminders', '**/Reminders/Container_v1/Stores/*.sqlite'),
-            'voiceRecordings': (
-            'Voice-Recordings', ('**/Recordings/*.composition/manifest.plist', '**/Recordings/*.m4a')),
-            'voiceTriggers': ('Voice-Triggers', ('**/td/audio/*.json', '**/td/audio/*.wav')),
+            # 'appUpdates':('App Updates', '**/AppUpdates.sqlitedb'),
+            # 'systemVersion':('Device Info', '**/SystemVersion.plist'),
             }
 
 '''

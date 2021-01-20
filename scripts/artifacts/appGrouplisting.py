@@ -1,5 +1,7 @@
 import biplist
 import pathlib
+import plistlib
+import sys
 
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, is_platform_windows
@@ -9,16 +11,19 @@ def get_appGrouplisting(files_found, report_folder, seeker):
     data_list = []       
     for file_found in files_found:
         file_found = str(file_found)
-
-        plist = biplist.readPlist(file_found)
-        bundleid = plist['MCMMetadataIdentifier']
-        
-        p = pathlib.Path(file_found)
-        appgroupid = p.parent.name
-        fileloc = str(p.parents[1])
-        typedir = str(p.parents[1].name)
-        
-        data_list.append((bundleid, typedir, appgroupid, fileloc))
+        with open(file_found, "rb") as fp:
+            if sys.version_info >= (3, 9):
+                plist = plistlib.load(fp)
+            else:
+                plist = biplist.readPlist(fp)
+            bundleid = plist['MCMMetadataIdentifier']
+            
+            p = pathlib.Path(file_found)
+            appgroupid = p.parent.name
+            fileloc = str(p.parents[1])
+            typedir = str(p.parents[1].name)
+            
+            data_list.append((bundleid, typedir, appgroupid, fileloc))
         
     if len(data_list) > 0:
         filelocdesc = 'Path column in the report'
