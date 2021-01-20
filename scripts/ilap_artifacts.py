@@ -53,6 +53,7 @@ from scripts.artifacts.geodApplications import get_geodApplications
 from scripts.artifacts.geodMapTiles import get_geodMapTiles
 from scripts.artifacts.geodPDPlaceCache import get_geodPDPlaceCache
 from scripts.artifacts.healthAll import get_healthAll
+from scripts.artifacts.icloudMeta import get_icloudMeta
 from scripts.artifacts.iCloudWifi import get_iCloudWifi
 from scripts.artifacts.icloudSharedalbums import get_icloudSharedalbums
 from scripts.artifacts.iconsScreen import get_iconsScreen
@@ -176,6 +177,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'geodMapTiles': ('Geolocation', '**/MapTiles.sqlitedb'),
             'geodPDPlaceCache': ('Geolocation', '**/PDPlaceCache.db'),
             'healthAll': ('Health Data', '**/healthdb_secure.sqlite'),
+            'icloudMeta': ('iCloud Returns', '*/iclouddrive/Metadata.txt'),
             'iCloudWifi': ('Wifi Connections', '**/com.apple.wifid.plist'),
             'icloudSharedalbums': (
             'iCloud Shared Albums', '*/private/var/mobile/Media/PhotoData/PhotoCloudSharingData/*'),

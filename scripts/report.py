@@ -176,6 +176,8 @@ def get_icon_name(category, artifact):
         icon = 'play-circle'
     elif category == 'FILES APP':
         icon = 'file-text'
+    elif category == 'ICLOUD RETURNS':
+        icon = 'cloud'
     elif category == 'ICLOUD SHARED ALBUMS':
         icon = 'cloud'
     elif category == 'DISCORD':
@@ -453,3 +455,4 @@ def mark_item_active(data, itemname):
     else:
         ret = data[0: pos] + " active" + data[pos:]
         return ret
+    
