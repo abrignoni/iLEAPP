@@ -47,7 +47,7 @@ def get_icloudMeta(files_found, report_folder, seeker):
                     else:
                         lasteditorname = ''
                     basehash = (jsonconv[i].get('basehash', ''))
-                data_list.append((btime, ctime, mtime, name, lasteditorname, docid, parid, typee, deleted, size, zone, exe, hid))	
+                    data_list.append((btime, ctime, mtime, name, lasteditorname, docid, parid, typee, deleted, size, zone, exe, hid))	
             
         
             if len(data_list) > 0:
