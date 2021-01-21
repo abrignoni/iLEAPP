@@ -39,7 +39,7 @@ def get_filesAppsdb(files_found, report_folder, seeker):
         report.write_artifact_data_table(data_headers, data_list, file_found)
         report.end_artifact_report()
         
-        tsvname = 'Files App - Filenames'
+        tsvname = 'Files App - iCloud Sync Names'
         tsv(report_folder, data_headers, data_list, tsvname)
     
     else:
