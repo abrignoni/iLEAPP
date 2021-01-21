@@ -2,6 +2,7 @@ import json
 import datetime
 import base64
 import plistlib
+import os
 import scripts.artifacts.artGlobals #use to get iOS version -> iOSversion = scripts.artifacts.artGlobals.versionf
 
 from scripts.artifact_report import ArtifactHtmlReport
@@ -9,6 +10,7 @@ from scripts.ilapfuncs import logfunc, tsv, kmlgen, is_platform_windows
 
 def get_icloudPhotoMeta(files_found, report_folder, seeker):
     counter = 0
+    os.makedirs(os.path.join(report_folder, "bplists"))
     for file_found in files_found:
         file_found = str(file_found)
         counter = counter + 1
@@ -54,6 +56,7 @@ def get_icloudPhotoMeta(files_found, report_folder, seeker):
                     exif = ''
                     
                     id = (jsonconv[i].get('id', ''))
+                    rowid = str(i)
                     recordtype = (jsonconv[i].get('recordType', ''))
                     
                     if (jsonconv[i].get('created', '')):
@@ -108,8 +111,8 @@ def get_icloudPhotoMeta(files_found, report_folder, seeker):
                         if coded_bplist is not None:
                             decoded_bplist = base64.b64decode(coded_bplist)
                             # If needed send the full bplist to report folder by editing the outputpath below
-                            #with open(f'{outputpath}/{i}.bplist', 'wb') as g: 
-                            #    g.write(decoded_bplist)
+                            with open(os.path.join(report_folder, "bplists", rowid + ".bplist"), 'wb') as g: 
+                                g.write(decoded_bplist)
                             pl = plistlib.loads(decoded_bplist)
                             if (pl.get('{TIFF}')):
                                 #print('YESS TIFF # '+str(i))
@@ -130,14 +133,14 @@ def get_icloudPhotoMeta(files_found, report_folder, seeker):
                                     #with open(f'{outputpath}/{i}.moop', 'wb') as g:
                                     #    g.write(pl.get('moop'))
                                         
-                    data_list.append((created_timestamp, recordtype, decoded, title, org_filesize, latitude,longitude,altitude,datestamp,timestamp,added_date, timezoneoffse, decoded_tz ,is_deleted,is_expunged, import_date, rec_mod_date,res_org_filesize, id, tiff, exif))
+                    data_list.append((created_timestamp, rowid, recordtype, decoded, title, org_filesize, latitude,longitude,altitude,datestamp,timestamp,added_date, timezoneoffse, decoded_tz ,is_deleted,is_expunged, import_date, rec_mod_date,res_org_filesize, id, tiff, exif))
             
         
         if len(data_list) > 0:
             report = ArtifactHtmlReport('iCloud - Photos Metadata'+' '+str(counter))
             report.start_artifact_report(report_folder, 'iCloud - Photos Metadata'+' '+str(counter))
             report.add_script()
-            data_headers = ('Timestamp','Record Type','Decoded', 'Title', 'Filesize', 'Latitude', 'Longitude', 'Altitude', 'GPS Datestamp','GPS Time', 'Added Date', 'Timezone Offset','Decoded TZ', 'Is Deleted?','Is Expunged?','Import Date', 'Modification Date', 'Filesize', 'ID', 'TIFF', 'EXIF')
+            data_headers = ('Timestamp', 'Row ID','Record Type','Decoded', 'Title', 'Filesize', 'Latitude', 'Longitude', 'Altitude', 'GPS Datestamp','GPS Time', 'Added Date', 'Timezone Offset','Decoded TZ', 'Is Deleted?','Is Expunged?','Import Date', 'Modification Date', 'Filesize', 'ID', 'TIFF', 'EXIF')
             report.write_artifact_data_table(data_headers, data_list, file_found, html_escape=False)
             report.end_artifact_report()
             
