@@ -8,6 +8,18 @@ import scripts.artifacts.artGlobals #use to get iOS version -> iOSversion = scri
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, kmlgen, is_platform_windows 
 
+def timefactorconversion(timeinutc):
+    #timeinutc has to be a string
+    if (len(timeinutc) == 16):
+        timefactor = 1000000
+    else:
+        timefactor = 1000
+    timeinutc = int(timeinutc)
+    if timeinutc > 0:
+        timeinutc = datetime.datetime.fromtimestamp(timeinutc/timefactor)
+        timeinutc = str(timeinutc)
+    return timeinutc
+
 def get_icloudPhotoMeta(files_found, report_folder, seeker):
     counter = 0
     os.makedirs(os.path.join(report_folder, "bplists"))
@@ -60,20 +72,14 @@ def get_icloudPhotoMeta(files_found, report_folder, seeker):
                     recordtype = (jsonconv[i].get('recordType', ''))
                     
                     if (jsonconv[i].get('created', '')):
-                        created_timestamp = str(jsonconv[i]['created'].get('timestamp', ''))
-                        created_timestamp = int(created_timestamp.rstrip("0")) 
-                        if isinstance(created_timestamp, int):
-                            created_timestamp = datetime.datetime.fromtimestamp(created_timestamp/1000)
-                            created_timestamp = str(created_timestamp)
+                        created_timestamp = (jsonconv[i]['created'].get('timestamp', ''))
+                        created_timestamp = timefactorconversion(str(created_timestamp))
                         #created_user = (jsonconv[i]['created'].get('user', ''))
                         #created_device = (jsonconv[i]['created'].get('device', ''))
                         
                     if(jsonconv[i].get('modified', '')):
-                        modified_timestamp = str(jsonconv[i]['created'].get('timestamp', ''))
-                        modified_timestamp = int(modified_timestamp.rstrip("0")) 
-                        if isinstance(modified_timestamp, int):
-                            modified_timestamp = datetime.datetime.fromtimestamp(modified_timestamp/1000)
-                            modified_timestamp = str(modified_timestamp)
+                        modified_timestamp = (jsonconv[i]['modified'].get('timestamp', ''))
+                        modified_timestamp = timefactorconversion(str(modified_timestamp))
                         #modified_user = (jsonconv[i]['modified'].get('user', ''))
                         #modified_device = (jsonconv[i]['modified'].get('device', ''))
                         
@@ -87,24 +93,28 @@ def get_icloudPhotoMeta(files_found, report_folder, seeker):
                         is_deleted = (jsonconv[i]['fields'].get('isDeleted', ''))
                         is_expunged = (jsonconv[i]['fields'].get('isExpunged', ''))
                         org_filesize = (jsonconv[i]['fields'].get('resOriginalFileSize', ''))
+                        res_org_filesize = (jsonconv[i]['fields'].get('resOriginalFileSize', ''))
+                        
+                        if (jsonconv[i]['fields'].get('originalCreationDate', '')):
+                            created_timestamp = (jsonconv[i]['fields'].get('originalCreationDate', ''))
+                            created_timestamp = timefactorconversion(str(created_timestamp))
+                        
                         rec_mod_date = (jsonconv[i]['fields'].get('recordModificationDate', ''))
                         if isinstance(rec_mod_date, int):
-                            if rec_mod_date > 0:
-                                rec_mod_date = datetime.datetime.fromtimestamp(rec_mod_date/1000)
-                                rec_mod_date = str(rec_mod_date)
+                            rec_mod_date = timefactorconversion(str(rec_mod_date))
+                        
                         import_date = (jsonconv[i]['fields'].get('importDate', ''))
                         if isinstance(import_date, int):
-                            import_date = datetime.datetime.fromtimestamp(import_date/1000)
-                            import_date = str(import_date)
+                            import_date  = timefactorconversion(str(import_date))
+                            
                         f_org_creation_date = (jsonconv[i]['fields'].get('originalCreationDate', ''))
                         if isinstance(f_org_creation_date, int):
-                            f_org_creation_date = datetime.datetime.fromtimestamp(f_org_creation_date/1000)
-                            f_org_creation_date = str(f_org_creation_date)
-                        res_org_filesize = (jsonconv[i]['fields'].get('resOriginalFileSize', ''))
+                            f_org_creation_date  = timefactorconversion(str(f_org_creation_date))
+                            
                         added_date = (jsonconv[i]['fields'].get('addedDate', ''))
                         if isinstance(added_date, int):
-                            added_date = datetime.datetime.fromtimestamp(added_date/1000)
-                            added_date = str(added_date)
+                            added_date  = timefactorconversion(str(added_date))
+                        
                         timezoneoffse = (jsonconv[i]['fields'].get('timeZoneOffse', ''))
                         title = (jsonconv[i]['fields'].get('title', ''))
                         decodedt = base64.b64decode(title)
