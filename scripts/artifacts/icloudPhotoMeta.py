@@ -87,8 +87,9 @@ def get_icloudPhotoMeta(files_found, report_folder, seeker):
                         org_filesize = (jsonconv[i]['fields'].get('resOriginalFileSize', ''))
                         rec_mod_date = (jsonconv[i]['fields'].get('recordModificationDate', ''))
                         if isinstance(rec_mod_date, int):
-                            rec_mod_date = datetime.datetime.fromtimestamp(rec_mod_date/1000)
-                            rec_mod_date = str(rec_mod_date)
+                            if rec_mod_date > 0:
+                                rec_mod_date = datetime.datetime.fromtimestamp(rec_mod_date/1000)
+                                rec_mod_date = str(rec_mod_date)
                         import_date = (jsonconv[i]['fields'].get('importDate', ''))
                         if isinstance(import_date, int):
                             import_date = datetime.datetime.fromtimestamp(import_date/1000)
