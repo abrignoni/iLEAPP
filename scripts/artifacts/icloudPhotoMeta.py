@@ -60,7 +60,8 @@ def get_icloudPhotoMeta(files_found, report_folder, seeker):
                     recordtype = (jsonconv[i].get('recordType', ''))
                     
                     if (jsonconv[i].get('created', '')):
-                        created_timestamp = (jsonconv[i]['created'].get('timestamp', ''))
+                        created_timestamp = str(jsonconv[i]['created'].get('timestamp', ''))
+                        created_timestamp = int(created_timestamp.rstrip("0")) 
                         if isinstance(created_timestamp, int):
                             created_timestamp = datetime.datetime.fromtimestamp(created_timestamp/1000)
                             created_timestamp = str(created_timestamp)
@@ -68,7 +69,8 @@ def get_icloudPhotoMeta(files_found, report_folder, seeker):
                         #created_device = (jsonconv[i]['created'].get('device', ''))
                         
                     if(jsonconv[i].get('modified', '')):
-                        modified_timestamp = (jsonconv[i]['modified'].get('timestamp', ''))
+                        modified_timestamp = str(jsonconv[i]['created'].get('timestamp', ''))
+                        modified_timestamp = int(modified_timestamp.rstrip("0")) 
                         if isinstance(modified_timestamp, int):
                             modified_timestamp = datetime.datetime.fromtimestamp(modified_timestamp/1000)
                             modified_timestamp = str(modified_timestamp)
