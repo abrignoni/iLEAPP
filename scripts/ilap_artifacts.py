@@ -12,6 +12,7 @@ from scripts.artifacts.aggDict import get_aggDict
 from scripts.artifacts.aggDictScalars import get_aggDictScalars
 from scripts.artifacts.aggDictpasscode import get_aggDictpasscode
 from scripts.artifacts.aggDictpasscodetype import get_aggDictpasscodetype
+from scripts.artifacts.alarms import get_alarms
 from scripts.artifacts.appConduit import get_appConduit
 from scripts.artifacts.appGrouplisting import get_appGrouplisting
 from scripts.artifacts.appItunesmeta import get_appItunesmeta
@@ -51,6 +52,7 @@ from scripts.artifacts.geodApplications import get_geodApplications
 from scripts.artifacts.geodMapTiles import get_geodMapTiles
 from scripts.artifacts.geodPDPlaceCache import get_geodPDPlaceCache
 from scripts.artifacts.healthAll import get_healthAll
+from scripts.artifacts.icloudMeta import get_icloudMeta
 from scripts.artifacts.iCloudWifi import get_iCloudWifi
 from scripts.artifacts.icloudSharedalbums import get_icloudSharedalbums
 from scripts.artifacts.iconsScreen import get_iconsScreen
@@ -131,6 +133,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'addressBook': ('Address Book', '**/AddressBook.sqlitedb'),
             'aggDictpasscode': ('Aggregate Dictionary', '*/AggregateDictionary/ADDataStore.sqlitedb'),
             'aggDictpasscodetype': ('Aggregate Dictionary', '*/AggregateDictionary/ADDataStore.sqlitedb'),
+            'alarms': ('Alarms', '*private/var/mobile/Library/Preferences/com.apple.mobiletimerd.plist'),
             'appConduit': ('App Conduit', '**/AppConduit.log.*'),
             'appGrouplisting': ('Installed Apps', ('*/private/var/mobile/Containers/Shared/AppGroup/*/*.metadata.plist', '**/PluginKitPlugin/*.metadata.plist')),
             'appItunesmeta': ('Installed Apps', ('**/iTunesMetadata.plist', '**/BundleMetadata.plist')),
@@ -170,6 +173,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'geodMapTiles': ('Geolocation', '**/MapTiles.sqlitedb'),
             'geodPDPlaceCache': ('Geolocation', '**/PDPlaceCache.db'),
             'healthAll': ('Health Data', '**/healthdb_secure.sqlite'),
+            'icloudMeta': ('iCloud Returns', '*/iclouddrive/Metadata.txt'),
             'icloudSharedalbums': ('iCloud Shared Albums', '*/private/var/mobile/Media/PhotoData/PhotoCloudSharingData/*'),
             'iCloudWifi': ('Wifi Connections', '**/com.apple.wifid.plist'),
             'iconsScreen': ('iOS Screens', '**/SpringBoard/IconState.plist'),
@@ -188,7 +192,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'mobileBackup': ('Mobile Backup', '*/Preferences/com.apple.MobileBackup.plist'),
             'mobileContainerManager': ('Mobile Container Manager', '**/containermanagerd.log.*'),
             'mobileInstall': ('Mobile Installation Logs', '**/mobile_installation.log.*'),
-            'notes': ('Notes', '*/NoteStore.sqlite'),
+            'notes': ('Notes', '*/NoteStore.sqlite*'),
             'notificationsXI': ('Notifications', '*PushStore*'),
             'notificationsXII': ('Notifications', '*private/var/mobile/Library/UserNotifications*'),
             'ooklaSpeedtestData': ('Applications', '**/speedtest.sqlite*'),
@@ -196,7 +200,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'powerlogAll': ('Powerlog', '**/CurrentPowerlog.PLSQL'),
             'powerlogGZ': ('Powerlog Backups', '**/Library/BatteryLife/Archives/powerlog_*.PLSQL.gz'),
             'queryPredictions': ('SMS & iMessage', '**/query_predictions.db'),
-            'reminders': ('Reminders', '**/Reminders/Container_v1/Stores/*.sqlite'),
+            'reminders': ('Reminders', '**/Reminders/Container_v1/Stores/*.sqlite*'),
             'routineDCloud': ('Locations', '**/Library/Caches/com.apple.routined/Cloud-V2.sqlite*'),
             'routineDlocations': ('Locations', '**/com.apple.routined/Cache.sqlite*'),
             'routineDLocationsLocal': ('Locations', '**/private/var/mobile/Library/Caches/com.apple.routined/Local.sqlite*'),
