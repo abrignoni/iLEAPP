@@ -19,6 +19,7 @@ from scripts.artifacts.appItunesmeta import get_appItunesmeta
 from scripts.artifacts.appSnapshots import get_applicationSnapshots
 from scripts.artifacts.appleMapsApplication import get_appleMapsApplication
 from scripts.artifacts.appleMapsGroup import get_appleMapsGroup
+from scripts.artifacts.appleMapsSearchHistory import get_appleMapsSearchHistory
 from scripts.artifacts.appleWifiPlist import get_appleWifiPlist
 from scripts.artifacts.applewalletTransactions import get_applewalletTransactions
 from scripts.artifacts.applicationstate import get_applicationstate
@@ -114,6 +115,7 @@ from scripts.artifacts.webClips import get_webClips
 from scripts.artifacts.tcc import get_tcc
 from scripts.artifacts.tileAppNetDb import get_tileAppNetDb
 from scripts.artifacts.walStrings import get_walStrings
+from scripts.artifacts.weatherAppLocations import get_weatherAppLocations
 from scripts.artifacts.webClips import get_webClips
 from scripts.artifacts.reminders import get_reminders
 from scripts.artifacts.voiceTriggers import get_voiceTriggers
@@ -140,6 +142,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'appItunesmeta': ('Installed Apps', ('**/iTunesMetadata.plist', '**/BundleMetadata.plist')),
             'appleMapsApplication': ('Locations', '**/Data/Application/*/Library/Preferences/com.apple.Maps.plist'),
             'appleMapsGroup': ('Locations', '**/Shared/AppGroup/*/Library/Preferences/group.com.apple.Maps.plist'),
+            'appleMapsSearchHistory': ('Locations', '*private/var/mobile/Containers/Data/Application/*/Library/Maps/GeoHistory.mapsdata'),
             'applewalletTransactions': ('Apple Wallet', '**/passes23.sqlite'),
             'appleWifiPlist': ('Wifi Connections', ('**/com.apple.wifi.plist', '**/com.apple.wifi-networks.plist.backup', '**/com.apple.wifi.known-networks.plist', '**/com.apple.wifi-private-mac-networks.plist')),
             'applicationSnapshots': ('Installed Apps', ('**/Library/Caches/Snapshots/*', '**/SplashBoard/Snapshots/*')),
@@ -180,8 +183,8 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'iCloudWifi': ('Wifi Connections', '**/com.apple.wifid.plist'),
             'iconsScreen': ('iOS Screens', '**/SpringBoard/IconState.plist'),
             'interactionCcontacts': ('InteractionC', '**/interactionC.db'),
-            'keyboardAppUsage': ('Keyboard Application Usage', '*/private/var/mobile/Library/Keyboard/app_usage_database.plist'),
-            'keyboardLexicon': ('Keyboard Dynamic Lexicon', '*/private/var/mobile/Library/Keyboard/*-dynamic.lm/dynamic-lexicon.dat'),
+            'keyboardAppUsage': ('Keyboard', '*/private/var/mobile/Library/Keyboard/app_usage_database.plist'),
+            'keyboardLexicon': ('Keyboard', '*/private/var/mobile/Library/Keyboard/*-dynamic.lm/dynamic-lexicon.dat'),
             'kikMessages': ('Kik', '**/kik.sqlite*'),
             'knowCall': ('KnowledgeC', '**/CoreDuet/Knowledge/knowledgeC.db'),
             'locationDallB': ('Locations', '**/cache_encryptedB.db'),
@@ -221,6 +224,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'voiceRecordings': ('Voice-Recordings', ('**/Recordings/*.composition/manifest.plist', '**/Recordings/*.m4a')),
             'voiceTriggers': ('Voice-Triggers', ('**/td/audio/*.json', '**/td/audio/*.wav')),
             'walStrings': ('SQLite Journaling', ('**/*-wal', '**/*-journal')),
+            'weatherAppLocations': ('Locations', '*/private/var/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.com.apple.weather.plist'),
             'webClips': ('iOS Screens', '*WebClips/*.webclip/*'),
             # 'appUpdates':('App Updates', '**/AppUpdates.sqlitedb'),
             # 'systemVersion':('Device Info', '**/SystemVersion.plist'),
