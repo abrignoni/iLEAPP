@@ -23,13 +23,14 @@ def get_reminders(files_found, report_folder, seeker):
                 ''')
 
             all_rows = cursor.fetchall()
+            sqlite_file = file_found
 
     if len(all_rows) > 0:
-        location_file_found = file_found.split('Stores/', 1)[1]
+        location_file_found = sqlite_file.split('Stores/', 1)[1]
         for row in all_rows:
             data_list.append((row[0], row[3], row[2], row[1], location_file_found))
 
-        dir_file_found = dirname(file_found).split('Stores', 1)[0] + 'Stores'
+        dir_file_found = dirname(sqlite_file).split('Stores', 1)[0] + 'Stores'
 
         report = ArtifactHtmlReport('Reminders')
         report.start_artifact_report(report_folder, 'Reminders')

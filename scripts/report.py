@@ -113,10 +113,11 @@ def get_icon_name(category, artifact):
         icon = 'mail'
     elif category == 'IOS SCREENS':
         icon = 'maximize'
-    elif category == 'KEYBOARD DYNAMIC LEXICON':
-        icon = 'type'
-    elif category == 'KEYBOARD APPLICATION USAGE':
-        icon = 'type'
+    elif category == 'KEYBOARD':
+        if artifact == 'KEYBOARD DYNAMIC LEXICON':
+            icon = 'type'
+        elif artifact == 'KEYBOARD APPLICATION USAGE':
+            icon = 'type'
     elif category == 'KIK':
         if artifact == 'KIK MESSAGES':
             icon = 'message-square'
@@ -130,7 +131,10 @@ def get_icon_name(category, artifact):
         else:
             icon = 'activity'
     elif category == 'LOCATIONS':
-        icon = 'map-pin'
+        if artifact == 'APPLE MAPS SEARCH HISTORY':
+            icon = 'search'
+        else:
+            icon = 'map-pin'
     elif category == 'MEDIA METADATA':
         icon = 'file-plus'
     elif category == 'MEDICAL ID':

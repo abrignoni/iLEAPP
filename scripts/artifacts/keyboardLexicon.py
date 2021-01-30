@@ -19,7 +19,7 @@ def get_keyboardLexicon(files_found, report_folder, seeker):
                     found_str += char
                 else:
                     if found_str:
-                        if len(found_str) > 3: # reduce noise
+                        if len(found_str) > 2:  # reduce noise
                             strings_list.append(found_str)
                         found_str = ''
 
