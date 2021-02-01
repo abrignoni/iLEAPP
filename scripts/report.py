@@ -220,6 +220,8 @@ def get_icon_name(category, artifact):
         icon = 'mic'
     elif category == 'WIFI CONNECTIONS':
         icon = 'wifi'
+    elif category == 'ICLOUD QUICK LOOK':
+        icon = 'file'
     return icon
 
 
