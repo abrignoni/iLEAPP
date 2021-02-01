@@ -55,6 +55,7 @@ from scripts.artifacts.geodPDPlaceCache import get_geodPDPlaceCache
 from scripts.artifacts.healthAll import get_healthAll
 from scripts.artifacts.icloudMeta import get_icloudMeta
 from scripts.artifacts.icloudPhotoMeta import get_icloudPhotoMeta
+from scripts.artifacts.quickLook import get_quickLook
 from scripts.artifacts.iCloudWifi import get_iCloudWifi
 from scripts.artifacts.icloudSharedalbums import get_icloudSharedalbums
 from scripts.artifacts.iconsScreen import get_iconsScreen
@@ -205,6 +206,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'powerlogAll': ('Powerlog', '**/CurrentPowerlog.PLSQL'),
             'powerlogGZ': ('Powerlog Backups', '**/Library/BatteryLife/Archives/powerlog_*.PLSQL.gz'),
             'queryPredictions': ('SMS & iMessage', '**/query_predictions.db'),
+            'quickLook': ('iCloud Quick Look', '*/Quick Look/cloudthumbnails.db*'),
             'reminders': ('Reminders', '**/Reminders/Container_v1/Stores/*.sqlite*'),
             'routineDCloud': ('Locations', '**/Library/Caches/com.apple.routined/Cloud-V2.sqlite*'),
             'routineDlocations': ('Locations', '**/com.apple.routined/Cache.sqlite*'),
