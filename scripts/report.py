@@ -32,7 +32,10 @@ def get_icon_name(category, artifact):
     elif category == 'ALARMS':
         icon = 'clock'
     elif category == 'APPLE WALLET':
-        icon = 'dollar-sign'
+        if artifact == 'TRANSACTIONS':
+            icon = 'dollar-sign'
+        if artifact == 'CARDS':
+            icon = 'credit-card'
     elif category == 'APP CONDUIT':
         icon = 'activity'
     elif category == 'APP PERMISSIONS':
@@ -184,8 +187,6 @@ def get_icon_name(category, artifact):
             icon = 'user'
         elif artifact == 'NOTE SHARING':
             icon = 'share-2'
-    elif category == 'APPLE WALLET':
-        icon = 'dollar-sign'
     elif category == 'APP PERMISSIONS':
         icon = 'key'
     elif category == 'NOTIFICATIONS':

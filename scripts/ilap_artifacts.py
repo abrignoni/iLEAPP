@@ -21,7 +21,8 @@ from scripts.artifacts.appleMapsApplication import get_appleMapsApplication
 from scripts.artifacts.appleMapsGroup import get_appleMapsGroup
 from scripts.artifacts.appleMapsSearchHistory import get_appleMapsSearchHistory
 from scripts.artifacts.appleWifiPlist import get_appleWifiPlist
-from scripts.artifacts.applewalletTransactions import get_applewalletTransactions
+from scripts.artifacts.appleWalletTransactions import get_appleWalletTransactions
+from scripts.artifacts.appleWalletCards import get_appleWalletCards
 from scripts.artifacts.applicationstate import get_applicationstate
 from scripts.artifacts.bluetooth import get_bluetooth
 from scripts.artifacts.cacheRoutesGmap import get_cacheRoutesGmap
@@ -110,7 +111,7 @@ from scripts.artifacts.kikMessages import get_kikMessages
 from scripts.artifacts.appItunesmeta import get_appItunesmeta
 from scripts.artifacts.cloudkitParticipants import get_cloudkitParticipants
 from scripts.artifacts.cloudkitNoteSharing import get_cloudkitNoteSharing
-from scripts.artifacts.applewalletTransactions import get_applewalletTransactions
+from scripts.artifacts.appleWalletTransactions import get_appleWalletTransactions
 from scripts.artifacts.walStrings import get_walStrings
 from scripts.artifacts.webClips import get_webClips
 from scripts.artifacts.tcc import get_tcc
@@ -144,7 +145,8 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'appleMapsApplication': ('Locations', '**/Data/Application/*/Library/Preferences/com.apple.Maps.plist'),
             'appleMapsGroup': ('Locations', '**/Shared/AppGroup/*/Library/Preferences/group.com.apple.Maps.plist'),
             'appleMapsSearchHistory': ('Locations', '*private/var/mobile/Containers/Data/Application/*/Library/Maps/GeoHistory.mapsdata'),
-            'applewalletTransactions': ('Apple Wallet', '**/passes23.sqlite'),
+            'appleWalletTransactions': ('Apple Wallet', '**/passes23.sqlite'),
+            'appleWalletCards': ('Apple Wallet', '*/private/var/mobile/Containers/Data/Application/*/Library/Caches/com.apple.Passbook/Cache.db*'),
             'appleWifiPlist': ('Wifi Connections', ('**/com.apple.wifi.plist', '**/com.apple.wifi-networks.plist.backup', '**/com.apple.wifi.known-networks.plist', '**/com.apple.wifi-private-mac-networks.plist')),
             'applicationSnapshots': ('Installed Apps', ('**/Library/Caches/Snapshots/*', '**/SplashBoard/Snapshots/*')),
             'applicationstate': ('Installed Apps', '**/applicationState.db'),
