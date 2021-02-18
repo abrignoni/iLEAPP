@@ -32,7 +32,12 @@ def get_icon_name(category, artifact):
     elif category == 'ALARMS':
         icon = 'clock'
     elif category == 'APPLE WALLET':
-        icon = 'dollar-sign'
+        if artifact == 'TRANSACTIONS':
+            icon = 'dollar-sign'
+        if artifact == 'CARDS':
+            icon = 'credit-card'
+        if artifact == 'PASSES':
+            icon = 'send'
     elif category == 'APP CONDUIT':
         icon = 'activity'
     elif category == 'APP PERMISSIONS':
@@ -113,10 +118,11 @@ def get_icon_name(category, artifact):
         icon = 'mail'
     elif category == 'IOS SCREENS':
         icon = 'maximize'
-    elif category == 'KEYBOARD DYNAMIC LEXICON':
-        icon = 'type'
-    elif category == 'KEYBOARD APPLICATION USAGE':
-        icon = 'type'
+    elif category == 'KEYBOARD':
+        if artifact == 'KEYBOARD DYNAMIC LEXICON':
+            icon = 'type'
+        elif artifact == 'KEYBOARD APPLICATION USAGE':
+            icon = 'type'
     elif category == 'KIK':
         if artifact == 'KIK MESSAGES':
             icon = 'message-square'
@@ -130,7 +136,10 @@ def get_icon_name(category, artifact):
         else:
             icon = 'activity'
     elif category == 'LOCATIONS':
-        icon = 'map-pin'
+        if artifact == 'APPLE MAPS SEARCH HISTORY':
+            icon = 'search'
+        else:
+            icon = 'map-pin'
     elif category == 'MEDIA METADATA':
         icon = 'file-plus'
     elif category == 'MEDICAL ID':
@@ -180,8 +189,6 @@ def get_icon_name(category, artifact):
             icon = 'user'
         elif artifact == 'NOTE SHARING':
             icon = 'share-2'
-    elif category == 'APPLE WALLET':
-        icon = 'dollar-sign'
     elif category == 'APP PERMISSIONS':
         icon = 'key'
     elif category == 'NOTIFICATIONS':
@@ -216,6 +223,8 @@ def get_icon_name(category, artifact):
         icon = 'mic'
     elif category == 'WIFI CONNECTIONS':
         icon = 'wifi'
+    elif category == 'ICLOUD QUICK LOOK':
+        icon = 'file'
     return icon
 
 
