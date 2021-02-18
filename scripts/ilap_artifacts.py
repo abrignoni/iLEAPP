@@ -21,8 +21,9 @@ from scripts.artifacts.appleMapsApplication import get_appleMapsApplication
 from scripts.artifacts.appleMapsGroup import get_appleMapsGroup
 from scripts.artifacts.appleMapsSearchHistory import get_appleMapsSearchHistory
 from scripts.artifacts.appleWifiPlist import get_appleWifiPlist
-from scripts.artifacts.appleWalletTransactions import get_appleWalletTransactions
 from scripts.artifacts.appleWalletCards import get_appleWalletCards
+from scripts.artifacts.appleWalletPasses import get_appleWalletPasses
+from scripts.artifacts.appleWalletTransactions import get_appleWalletTransactions
 from scripts.artifacts.applicationstate import get_applicationstate
 from scripts.artifacts.bluetooth import get_bluetooth
 from scripts.artifacts.cacheRoutesGmap import get_cacheRoutesGmap
@@ -145,8 +146,9 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'appleMapsApplication': ('Locations', '**/Data/Application/*/Library/Preferences/com.apple.Maps.plist'),
             'appleMapsGroup': ('Locations', '**/Shared/AppGroup/*/Library/Preferences/group.com.apple.Maps.plist'),
             'appleMapsSearchHistory': ('Locations', '*private/var/mobile/Containers/Data/Application/*/Library/Maps/GeoHistory.mapsdata'),
-            'appleWalletTransactions': ('Apple Wallet', '**/passes23.sqlite'),
             'appleWalletCards': ('Apple Wallet', '*/private/var/mobile/Containers/Data/Application/*/Library/Caches/com.apple.Passbook/Cache.db*'),
+            'appleWalletPasses': ('Apple Wallet', ('**/nanopasses.sqlite3*', '**/Cards/*.pkpass/pass.json')),
+            'appleWalletTransactions': ('Apple Wallet', '**/passes23.sqlite'),
             'appleWifiPlist': ('Wifi Connections', ('**/com.apple.wifi.plist', '**/com.apple.wifi-networks.plist.backup', '**/com.apple.wifi.known-networks.plist', '**/com.apple.wifi-private-mac-networks.plist')),
             'applicationSnapshots': ('Installed Apps', ('**/Library/Caches/Snapshots/*', '**/SplashBoard/Snapshots/*')),
             'applicationstate': ('Installed Apps', '**/applicationState.db'),
