@@ -36,6 +36,8 @@ def get_icon_name(category, artifact):
             icon = 'dollar-sign'
         if artifact == 'CARDS':
             icon = 'credit-card'
+        if artifact == 'PASSES':
+            icon = 'send'
     elif category == 'APP CONDUIT':
         icon = 'activity'
     elif category == 'APP PERMISSIONS':
