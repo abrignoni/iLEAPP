@@ -7,14 +7,20 @@ def get_appleWalletTransactions(files_found, report_folder, seeker):
     db = open_sqlite_db_readonly(file_found)
     cursor = db.cursor()
     cursor.execute('''SELECT
-                    DATETIME(PAYMENT_TRANSACTION.TRANSACTION_DATE + 978307200,'UNIXEPOCH') AS "TRANSACTION DATE",
-                    PAYMENT_TRANSACTION.MERCHANT_NAME AS "MERCHANT",
-                    PAYMENT_TRANSACTION.CURRENCY_CODE AS "CURRENCY TYPE",
-                    CAST (PAYMENT_TRANSACTION.AMOUNT AS REAL)/100  AS  "CURRENCY AMOUNT",
-                    PAYMENT_TRANSACTION.PEER_PAYMENT_COUNTERPART_HANDLE AS "PEER PAYMENT HANDLE",
-                    PAYMENT_TRANSACTION.PEER_PAYMENT_MEMO AS "PAYMENT MEMO",
-                    PAYMENT_TRANSACTION.TRANSACTION_STATUS AS "TRANSACTION STATUS",
-                    PAYMENT_TRANSACTION.TRANSACTION_TYPE AS "TRANSACTION TYPE"
+                    DATETIME(TRANSACTION_DATE + 978307200,'UNIXEPOCH'),
+                    MERCHANT_NAME,
+                    LOCALITY,
+                    ADMINISTRATIVE_AREA,
+                    CAST(AMOUNT AS REAL)/100,
+                    CURRENCY_CODE,
+                    DATETIME(LOCATION_DATE + 978307200,'UNIXEPOCH'),
+                    LOCATION_LATITUDE,
+                    LOCATION_LONGITUDE,
+                    LOCATION_ALTITUDE,
+                    PEER_PAYMENT_COUNTERPART_HANDLE,
+                    PEER_PAYMENT_MEMO,
+                    TRANSACTION_STATUS,
+                    TRANSACTION_TYPE
                     FROM PAYMENT_TRANSACTION
                     ''')
 
@@ -23,12 +29,12 @@ def get_appleWalletTransactions(files_found, report_folder, seeker):
     if usageentries > 0:
         data_list = []
         for row in all_rows:
-            data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]))
+            data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11], row[12], row[13]))
 
         report = ArtifactHtmlReport('Transactions')
         report.start_artifact_report(report_folder, 'Transactions')
         report.add_script()
-        data_headers = ('Transaction Date', 'Merchant', 'Currency Type', 'Currency Amount', 'Peer Payment Handle', 'Payment Memo', 'Transaction Status', 'Transaction Type')
+        data_headers = ('Transaction Date', 'Merchant', 'Locality', 'Administrative Area', 'Currency Amount', 'Currency Type', 'Location Date', 'Latitude', 'Longitude', 'Altitude', 'Peer Payment Handle', 'Payment Memo', 'Transaction Status', 'Transaction Type')
         report.write_artifact_data_table(data_headers, data_list, file_found)
         report.end_artifact_report()
 
