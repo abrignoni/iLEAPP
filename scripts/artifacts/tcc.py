@@ -10,9 +10,13 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
 
 def get_tcc(files_found, report_folder, seeker):
-    file_found = str(files_found[0])
+    for file_found in files_found:
+        file_found = str(file_found)
+        
+        if file_found.endswith('TCC.db'):
+            break
+        
     db = open_sqlite_db_readonly(file_found)
-    
     iOSversion = scripts.artifacts.artGlobals.versionf
     if version.parse(iOSversion) >= version.parse("9"):
         cursor = db.cursor()
