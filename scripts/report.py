@@ -220,6 +220,11 @@ def get_icon_name(category, artifact):
         icon = 'wifi'
     elif category == 'ICLOUD QUICK LOOK':
         icon = 'file'
+    elif category == 'TIKTOK':
+        if artifact == 'MESSAGES':
+            icon = 'message-square'
+        if artifact == 'CONTACTS':
+            icon = 'user'
     return icon
 
 
