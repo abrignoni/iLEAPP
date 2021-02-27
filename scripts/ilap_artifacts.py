@@ -116,6 +116,7 @@ from scripts.artifacts.appleWalletTransactions import get_appleWalletTransaction
 from scripts.artifacts.walStrings import get_walStrings
 from scripts.artifacts.webClips import get_webClips
 from scripts.artifacts.tcc import get_tcc
+from scripts.artifacts.tikTok import get_tikTok
 from scripts.artifacts.tileAppNetDb import get_tileAppNetDb
 from scripts.artifacts.walStrings import get_walStrings
 from scripts.artifacts.weatherAppLocations import get_weatherAppLocations
@@ -223,6 +224,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'screentimeAll': ('Screentime', '**/RMAdminStore-Local.sqlite'),
             'sms': ('SMS & iMessage', '**/sms.db'),
             'tcc': ('App Permissions', '*TCC.db*'),
+            'tikTok': ('TikTok', ('*_im.db*', '*db_im_xx*')),
             'tileApp': ('Locations', '*private/var/mobile/Containers/Data/Application/*/Library/log/com.thetileapp.tile*'),
             'tileAppDb': ('Locations', '*private/var/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-TileNetworkDB.sqlite*'),
             'tileAppDisc': ('Accounts','*/private/var/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-DiscoveredTileDB.sqlite*'),
