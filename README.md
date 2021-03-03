@@ -2,7 +2,7 @@
 iOS Logs, Events, And Plists Parser  
 Details in blog post here: https://abrignoni.blogspot.com/2019/12/ileapp-ios-logs-events-and-properties.html
 
-Supports iOS 11, 12 & 13.
+Supports iOS/iPadOS 11, 12, 13 and 14.
 Select parsing directly from a compressed .tar/.zip file, or a decompressed directory, or an iTunes/Finder backup folder.
 
 ## Features
@@ -19,10 +19,10 @@ Parses:
 And many, many more...
 
 
-## Installation
+## Pre-requisites:
+This project requires you to have Python > 3.7.4 installed on your system. **Ideally use Python 3.9 (significantly faster processing!)**
 
-Pre-requisites:
-This project requires you to have Python > 3.7.4 < 3.8.6 installed on your system.
+## Installation
 
 To install dependencies, run:
 

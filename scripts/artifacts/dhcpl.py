@@ -6,8 +6,7 @@ import sqlite3
 import scripts.artifacts.artGlobals #use to get iOS version -> iOSversion = scripts.artifacts.artGlobals.versionf
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
-from scripts.ccl import ccl_bplist
+from scripts.ilapfuncs import logfunc, tsv, is_platform_windows
 
 def get_dhcpl(files_found, report_folder, seeker):
     file_found = str(files_found[0])

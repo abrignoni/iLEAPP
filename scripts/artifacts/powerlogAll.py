@@ -10,7 +10,6 @@ import scripts.artifacts.artGlobals
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
-from scripts.ccl import ccl_bplist
 from scripts.parse3 import ParseProto
 
 

@@ -48,14 +48,14 @@ def get_tileAppDb(files_found, report_folder, seeker):
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
             
-            tsvname = 'Tile App DB Info Geolocation'
-            tsv(report_folder, data_headers, data_list, tsvname)
+        tsvname = 'Tile App DB Info Geolocation'
+        tsv(report_folder, data_headers, data_list, tsvname)
         
-            tlactivity = 'Tile App DB Info Geolocation'
-            timeline(report_folder, tlactivity, data_list, data_headers)
-            
-            kmlactivity = 'Tile App DB Info Geolocation'
-            kmlgen(report_folder, kmlactivity, data_list, data_headers)
+        tlactivity = 'Tile App DB Info Geolocation'
+        timeline(report_folder, tlactivity, data_list, data_headers)
+        
+        kmlactivity = 'Tile App DB Info Geolocation'
+        kmlgen(report_folder, kmlactivity, data_list, data_headers)    
     else:
         logfunc('No Tile App DB data available')
 
