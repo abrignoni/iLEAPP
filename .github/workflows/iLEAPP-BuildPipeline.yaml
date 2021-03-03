@@ -14,13 +14,13 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Package iLEAPP
-      uses: JackMcKew/pyinstaller-action-windows@main
+      uses: forensicmike/pyinstaller-action-windows@main # Newly forked for latest python build
       with:
         path: .
         spec: ileapp.spec
         
     - name: Package iLEAPP GUI
-      uses: JackMcKew/pyinstaller-action-windows@main
+      uses: forensicmike/pyinstaller-action-windows@main # Newly forked for latest python build
       with:
         path: .
         spec: ileappGUI.spec

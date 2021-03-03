@@ -7,7 +7,6 @@ import scripts.artifacts.artGlobals #use to get iOS version -> iOSversion = scri
 
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
-from scripts.ccl import ccl_bplist
 
 def get_dhcphp(files_found, report_folder, seeker):
     file_found = str(files_found[0])

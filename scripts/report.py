@@ -20,34 +20,58 @@ def get_icon_name(category, artifact):
     artifact = artifact.upper()
     icon = 'alert-triangle'  # default (if not defined!)
 
+    ## Please keep list below SORTED by category
+
     if category.find('ACCOUNT') >= 0:
         if artifact.find('AUTH') >= 0:
             icon = 'key'
         else:
             icon = 'user'
-    elif category == 'APPLICATIONS':
-        icon = 'grid'
-    elif category == 'CALL LOGS':
-        icon = 'phone'
     elif category == 'ADDRESS BOOK':
         icon = 'book-open'
-    elif category == 'USER DICTIONARY':
+    elif category == 'ALARMS':
+        icon = 'clock'
+    elif category == 'APPLE WALLET':
+        if artifact == 'TRANSACTIONS':
+            icon = 'dollar-sign'
+        if artifact == 'CARDS':
+            icon = 'credit-card'
+        if artifact == 'PASSES':
+            icon = 'send'
+    elif category == 'APP CONDUIT':
+        icon = 'activity'
+    elif category == 'APP PERMISSIONS':
+        icon = 'key'
+    elif category == 'APP UPDATES':
+        icon = 'codepen'
+    elif category == 'APPLICATIONS':
+        icon = 'grid'
+    elif category == 'AGGREGATE DICTIONARY':
         icon = 'book'
-    elif category == 'CHROME':
-        if artifact == 'SEARCH TERMS':
-            icon = 'search'
-        elif artifact == 'CHROME SEARCH TERMS':
-            icon = 'search'
-        elif artifact == 'DOWNLOADS':
-            icon = 'download'
-        elif artifact == 'BOOKMARKS':
-            icon = 'bookmark'
-        elif artifact == 'TOP SITES':
-            icon = 'list'
-        elif artifact == 'OFFLINE PAGES':
-            icon = 'download'
-        else:
-            icon = 'chrome'
+    elif category == 'BLUETOOTH':
+        icon = 'bluetooth'
+    elif category == 'CALENDAR':
+        icon = 'calendar'
+    elif category == 'CALL LOGS':
+        icon = 'phone'
+    elif category == 'CELLULAR WIRELESS':
+        icon = 'bar-chart'
+    elif category == 'CLOUDKIT':
+        if artifact == 'PARTICIPANTS':
+            icon = 'user'
+        elif artifact == 'NOTE SHARING':
+            icon = 'share-2'
+    elif category == 'CONNECTED TO':
+        icon = 'zap'
+    elif category == 'COREDUET':
+        if artifact == 'AIRPLANE MODE':
+            icon = 'pause'
+        if artifact == 'LOCK STATE':
+            icon = 'lock'
+        if artifact == 'PLUGGED IN':
+            icon = 'battery-charging'
+    elif category == 'DATA USAGE':
+        icon = 'wifi'
     elif category == 'DEVICE INFO':
         if artifact == 'BUILD INFO':
             icon = 'terminal'
@@ -59,87 +83,49 @@ def get_icon_name(category, artifact):
             icon = 'settings'
         else:
             icon = 'info'
-    elif category == 'GOOGLE PLAY':
-        if artifact == 'GOOGLE PLAY SEARCHES':
-            icon = 'search'
-        else:
-            icon = 'play'
-    elif category == 'WEB BROWSER':
-        if artifact == 'BROWSER WEB SEARCH TERMS':
-            icon = 'search'
-        elif artifact == 'WEB SEARCH TERMS':
-            icon = 'search'
-        elif artifact == 'BROWSER DOWNLOADS':
-            icon = 'download'
-        elif artifact == 'BROWSER BOOKMARKS':
-            icon = 'bookmark'
-        elif artifact == 'BROWSER TOP SITES':
-            icon = 'list'
-        else:
-            icon = 'compass'
-    elif category == 'INSTALLED APPS':
-        icon = 'package'
-    elif category == 'MEDIA METADATA':
-        icon = 'file-plus'
-    elif category == 'WIFI PROFILES':
-        icon = 'wifi'
-    elif category == 'SQLITE JOURNALING':
-        icon = 'book-open'
-    elif category == 'GOOGLE NOW & QUICKSEARCH':
-        icon = 'search'
-    elif category == 'RECENT ACTIVITY':
-        icon = 'activity'
-    elif category == 'NOW PLAYING':
-        icon = 'music'
-    elif category == 'SAMSUNG_CMH':
-        icon = 'disc'
-    elif category == 'SCRIPT LOGS':
-        icon = 'archive'
-    elif category == 'MOBILE INSTALLATION LOGS':
-        icon = 'clipboard'
-    elif category == 'CONNECTED TO':
-        icon = 'zap'
-    elif category == 'DATA USAGE':
-        icon = 'wifi'
-    elif category == 'SMS & IMESSAGE':
-        icon = 'message-square'
-    elif category == 'IOS BUILD':
-        icon = 'git-commit'
-    elif category == 'IOS SCREENS':
-        icon = 'maximize'
-    elif category == 'POWERLOG':
-        icon = 'power'
-    elif category == 'POWERLOG BACKUPS':
-        icon = 'power'
     elif category == 'DHCP':
         icon = 'settings'
-    elif category == 'NOTIFICATIONS':
-        icon = 'bell'
-    elif category == 'CELLULAR WIRELESS':
-        icon = 'bar-chart'
-    elif category == 'SAFARI BROWSER':
-        icon = 'compass'
-    elif category == 'LOCATIONS':
-        icon = 'map-pin'
-    elif category == 'IOS MAIL':
-        icon = 'mail'
-    elif category == 'SCREENTIME':
-        icon = 'monitor'
-    elif category == 'BLUETOOTH':
-        icon = 'bluetooth'
-    elif category == 'ROUTINED':
-        icon = 'map'
-    elif category == 'CALENDAR':
-        icon = 'calendar'
-    elif category == 'PHOTOS':
-        icon = 'image'
-    elif category == 'WIRELESS NETWORKS':
-        icon = 'wifi'
+    elif category == 'DISCORD':
+        if artifact == 'DISCORD MESSAGES':
+            icon = 'message-square'
+        if artifact == 'DISCORD ACCOUNT':
+            icon = 'user'
+        if artifact == 'DISCORD MANIFEST':
+            icon = 'file-text'
+    elif category == 'FILES APP':
+        icon = 'file-text'
+    elif category == 'GEOLOCATION':
+        if artifact == 'APPLICATIONS':
+            icon = 'grid'
+        elif artifact == 'MAP TILE CACHE':
+            icon = 'map'
+        elif artifact == 'PD PLACE CACHE':
+            icon = 'map-pin'
+    elif category == 'HEALTH DATA':
+        icon = 'heart'
+    elif category == 'ICLOUD SHARED ALBUMS':
+        icon = 'cloud'
+    elif category == 'INSTALLED APPS':
+        icon = 'package'
     elif category == 'INTERACTIONC':
         if artifact == 'CONTACTS':
             icon = 'user'
         elif artifact == 'ATTACHMENTS':
             icon = 'paperclip'
+    elif category == 'IOS BUILD':
+        icon = 'git-commit'
+    elif category == 'IOS MAIL':
+        icon = 'mail'
+    elif category == 'IOS SCREENS':
+        icon = 'maximize'
+    elif category == 'KEYBOARD':
+        if artifact == 'KEYBOARD DYNAMIC LEXICON':
+            icon = 'type'
+        elif artifact == 'KEYBOARD APPLICATION USAGE':
+            icon = 'type'
+    elif category == 'KIK':
+        if artifact == 'KIK MESSAGES':
+            icon = 'message-square'
     elif category == 'KNOWLEDGEC':
         if artifact == 'KNOWLEDGEC DEVICE LOCKED':
             icon = 'lock'
@@ -149,33 +135,29 @@ def get_icon_name(category, artifact):
             icon = 'battery'
         else:
             icon = 'activity'
-    elif category == 'AGGREGATE DICTIONARY':
-        icon = 'book'
-    elif category == 'COREDUET':
-        if artifact == 'AIRPLANE MODE':
-            icon = 'pause'
-        if artifact == 'LOCK STATE':
-            icon = 'lock'
-        if artifact == 'PLUGGED IN':
-            icon = 'battery-charging'
-    elif category == 'HEALTH DATA':
-        icon = 'heart'
-    elif category == 'SQLITE JOURNALING':
-        icon = 'book-open'
+    elif category == 'LOCATIONS':
+        if artifact == 'APPLE MAPS SEARCH HISTORY':
+            icon = 'search'
+        else:
+            icon = 'map-pin'
+    elif category == 'MEDIA METADATA':
+        icon = 'file-plus'
+    elif category == 'MEDICAL ID':
+        icon = 'thermometer'
     elif category == 'MOBILE ACTIVATION LOGS':
         icon = 'clipboard'
     elif category == 'MOBILE BACKUP':
         icon = 'save'
     elif category == 'MOBILE CONTAINER MANAGER':
         icon = 'save'
-    elif category == 'APP CONDUIT':
-        icon = 'activity'
-    elif category == 'APP UPDATES':
-        icon = 'codepen'
+    elif category == 'MOBILE INSTALLATION LOGS':
+        icon = 'clipboard'
     elif category == 'MEDIA LIBRARY':
         icon = 'play-circle'
-    elif category == 'FILES APP':
+    elif category == 'NOTES':
         icon = 'file-text'
+    elif category == 'ICLOUD RETURNS':
+        icon = 'cloud'
     elif category == 'ICLOUD SHARED ALBUMS':
         icon = 'cloud'
     elif category == 'DISCORD':
@@ -189,12 +171,7 @@ def get_icon_name(category, artifact):
         if artifact == 'KIK MESSAGES':
             icon = 'message-square'
     elif category == 'WIFI CONNECTIONS':
-        if artifact == 'ICLOUD WIFI NETWORKS':
-            icon = 'wifi'
-        elif artifact == 'WIFI':
-            icon = 'wifi'
-        elif artifact == 'WIFI PLIST':
-            icon = 'save'
+        icon = 'wifi'
     elif category == 'GEOLOCATION':
         if artifact == 'APPLICATIONS':
             icon = 'grid'
@@ -207,16 +184,47 @@ def get_icon_name(category, artifact):
             icon = 'user'
         elif artifact == 'NOTE SHARING':
             icon = 'share-2'
-    elif category == 'APPLE WALLET':
-        icon = 'dollar-sign'
     elif category == 'APP PERMISSIONS':
         icon = 'key'
+    elif category == 'NOTIFICATIONS':
+        icon = 'bell'
+    elif category == 'PHOTOS':
+        icon = 'image'
+    elif category == 'POWERLOG':
+        icon = 'power'
+    elif category == 'POWERLOG BACKUPS':
+        icon = 'power'
+    elif category == 'RECENT ACTIVITY':
+        icon = 'activity'
     elif category == 'REMINDERS':
         icon = 'list'
+    elif category == 'ROUTINED':
+        icon = 'map'
+    elif category == 'SAFARI BROWSER':
+        icon = 'compass'
+    elif category == 'SCREENTIME':
+        icon = 'monitor'
+    elif category == 'SCRIPT LOGS':
+        icon = 'archive'
+    elif category == 'SMS & IMESSAGE':
+        icon = 'message-square'
+    elif category == 'SQLITE JOURNALING':
+        icon = 'book-open'
+    elif category == 'USER DICTIONARY':
+        icon = 'book'
     elif category == 'VOICE-RECORDINGS':
         icon = 'mic'
     elif category == 'VOICE-TRIGGERS':
         icon = 'mic'
+    elif category == 'WIFI CONNECTIONS':
+        icon = 'wifi'
+    elif category == 'ICLOUD QUICK LOOK':
+        icon = 'file'
+    elif category == 'TIKTOK':
+        if artifact == 'MESSAGES':
+            icon = 'message-square'
+        if artifact == 'CONTACTS':
+            icon = 'user'
     return icon
 
 
@@ -453,3 +461,4 @@ def mark_item_active(data, itemname):
     else:
         ret = data[0: pos] + " active" + data[pos:]
         return ret
+    

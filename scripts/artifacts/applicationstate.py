@@ -1,10 +1,12 @@
+import biplist
 import io
-import scripts.Deserializer.deserializer as deserializer
+import nska_deserialize as nd
+import plistlib
 import sqlite3
+import sys
 
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, is_platform_windows, open_sqlite_db_readonly
-
 
 def get_applicationstate(files_found, report_folder, seeker):
     file_found = str(files_found[0])
@@ -32,9 +34,18 @@ def get_applicationstate(files_found, report_folder, seeker):
         for row in all_rows:
             bundleid = str(row[0])
             plist_file_object = io.BytesIO(row[1])
-            try:
-                plist = deserializer.process_nsa_plist('', plist_file_object)
-                
+            if row[1].find(b'NSKeyedArchiver') == -1:
+                if sys.version_info >= (3, 9):
+                    plist = plistlib.load(plist_file_object)
+                else:
+                    plist = biplist.readPlist(plist_file_object)
+            else:
+                try:
+                    plist = nd.deserialize_plist(plist_file_object)                    
+                except (nd.DeserializeError, nd.biplist.NotBinaryPlistException, nd.biplist.InvalidPlistException,
+                        nd.plistlib.InvalidFileException, nd.ccl_bplist.BplistError, ValueError, TypeError, OSError, OverflowError) as ex:
+                    logfunc(f'Failed to read plist for {row[0]}, error was:' + str(ex))
+            if plist:
                 if type(plist) is dict:
                     var1 = plist.get('bundleIdentifier', '')
                     var2 = plist.get('bundlePath', '')
@@ -44,9 +55,8 @@ def get_applicationstate(files_found, report_folder, seeker):
                         snap_info_list.append((var1, var2, var3, row[2]))
                 else:
                     logfunc(f'For {row[0]} Unexpected type "' + str(type(plist)) + '" found as plist root, can\'t process')
-            except (ValueError, OSError, deserializer.ccl_bplist.BplistError) as ex:
-                logfunc(f'Failed to read plist for {row[0]}, error was:' + str(ex))
-
+            else:
+                logfunc(f'For {row[0]}, plist could not be read!')
         report = ArtifactHtmlReport('Application State')
         report.start_artifact_report(report_folder, 'Application State DB')
         report.add_script()
