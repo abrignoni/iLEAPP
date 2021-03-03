@@ -92,6 +92,8 @@ def get_icon_name(category, artifact):
             icon = 'user'
         if artifact == 'DISCORD MANIFEST':
             icon = 'file-text'
+    elif category == 'FACEBOOK MESSENGER':
+        icon = 'facebook'
     elif category == 'FILES APP':
         icon = 'file-text'
     elif category == 'GEOLOCATION':
