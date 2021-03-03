@@ -61,6 +61,8 @@ def get_sms(files_found, report_folder, seeker):
             pathToAttachment = None
             if rec["FILENAME"]:
                 attachment = seeker.search('**'+rec["FILENAME"].replace('~', ''), return_on_first_hit=True)
+                if not attachment:
+                    return ''
                 pathToAttachment = os.path.join((os.path.basename(os.path.abspath(report_folder))), os.path.basename(rec["FILENAME"]))
                 if is_platform_windows():
                     invalid = '<>:"/\|?*'
