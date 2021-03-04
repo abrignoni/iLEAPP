@@ -48,6 +48,7 @@ from scripts.artifacts.dhcpl import get_dhcpl
 from scripts.artifacts.discordAcct import get_discordAcct
 from scripts.artifacts.discordJson import get_discordJson
 from scripts.artifacts.discordManifest import get_discordManifest
+from scripts.artifacts.FacebookMessenger import get_FacebookMessenger
 from scripts.artifacts.filesAppsclient import get_filesAppsclient
 from scripts.artifacts.filesAppsdb import get_filesAppsdb
 from scripts.artifacts.filesAppsm import get_filesAppsm
@@ -176,6 +177,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'discordAcct': ('Discord', '*/var/mobile/Containers/Data/Application/*/Documents/mmkv/mmkv.default'),
             'discordJson': ('Discord', '*/com.hammerandchisel.discord/fsCachedData/*'),
             'discordManifest': ('Discord', '*/private/var/mobile/Containers/Data/Application/*/Documents/RCTAsyncLocalStorage_V1/manifest.json'),
+            'FacebookMessenger': ('Facebook Messenger', '**/lightspeed-*.db*'),
             'filesAppsclient': ('Files App', '*private/var/mobile/Library/Application Support/CloudDocs/session/db/client.db*'),
             'filesAppsdb': ('Files App', '*private/var/mobile/Library/Application Support/CloudDocs/session/db/server.db*'),
             'filesAppsm': ('Files App', '*private/var/mobile/Containers/Shared/AppGroup/*/smartfolders.db*'),
