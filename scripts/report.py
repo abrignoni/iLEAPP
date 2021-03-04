@@ -227,6 +227,19 @@ def get_icon_name(category, artifact):
             icon = 'message-square'
         if artifact == 'CONTACTS':
             icon = 'user'
+    elif category == 'SLACK':
+        if artifact == 'MESSAGES':
+            icon = 'message-square'
+        if artifact == 'USER DATA':
+            icon = 'user'
+        if artifact == 'ATTACHMENTS':
+            icon = 'paperclip'
+        if artifact == 'WORKSPACE DATA':
+            icon = 'slack'
+        if artifact == 'TEAM DATA':
+            icon = 'slack'
+        if artifact == 'CHANNEL DATA':
+            icon = 'slack'
     return icon
 
 
