@@ -72,7 +72,7 @@ def get_slack(files_found, report_folder, seeker):
             
         description = 'Slack Messages'
         report = ArtifactHtmlReport('Slack Messages')
-        report.start_artifact_report(report_folder, 'Messages', description)
+        report.start_artifact_report(report_folder, 'Slack Messages', description)
         report.add_script()
         data_headers = ('Timestamp', 'From', 'From Name', 'Channel Name', 'Message', 'Shared File', 'Channel ID','Channel SID', 'Channel SID1','User SID' )
         report.write_artifact_data_table(data_headers, data_list, file_found)
@@ -84,7 +84,7 @@ def get_slack(files_found, report_folder, seeker):
         tlactivity = 'Slack Messages'
         timeline(report_folder, tlactivity, data_list, data_headers)
     else:
-        logfunc('No Slack Meesages data available')
+        logfunc('No Slack Messages data available')
         
     if deprecated == 1:
         squery = ('''
@@ -136,7 +136,7 @@ def get_slack(files_found, report_folder, seeker):
 
         description = 'Slack User Data'
         report = ArtifactHtmlReport('Slack User Data')
-        report.start_artifact_report(report_folder, 'User Data', description)
+        report.start_artifact_report(report_folder, 'Slack User Data', description)
         report.add_script()
         data_headers = ('Admin', 'Owner', 'Real Name', 'First Name', 'Last Name', 'Display Name', 'Name','Phone', 'Timezone','Timezone Offset', 'Timezone Title', 'Title', 'SID', 'Team ID' )
         report.write_artifact_data_table(data_headers, data_list, file_found)
@@ -214,7 +214,7 @@ def get_slack(files_found, report_folder, seeker):
             
         description = 'Slack Attachments'
         report = ArtifactHtmlReport('Slack Attachments')
-        report.start_artifact_report(report_folder, 'Attachments', description)
+        report.start_artifact_report(report_folder, 'Slack Attachments', description)
         report.add_script()
         data_headers = ('Timestamp', 'From', 'From Name', 'Channel Name', 'Message', 'Shared File', 'Mode', 'Title', 'Type', 'File Timestamp', 'Preview', 'Size', 'Private Download URL', 'Permalink URL', 'Channel ID','Channel SID', 'Channel SID1','User SID' )
         report.write_artifact_data_table(data_headers, data_list, file_found)
@@ -277,7 +277,7 @@ def get_slack(files_found, report_folder, seeker):
             
         description = 'Slack Channel Data'
         report = ArtifactHtmlReport('Slack Channel Data')
-        report.start_artifact_report(report_folder, 'Channel Data', description)
+        report.start_artifact_report(report_folder, 'Slack Channel Data', description)
         report.add_script()
         data_headers = ('Timestamp Created', 'Purpose Last Set', 'Topic Last Set', 'Latest', 'Channel Names','DM Channels', 'Other Channels', 'User ID', 'Creator ID', 'Purpose Creator ID', 'Purpose Text', 'Topic Creator ID', 'Topic Text' )
         report.write_artifact_data_table(data_headers, data_list, file_found)
@@ -323,7 +323,7 @@ def get_slack(files_found, report_folder, seeker):
             
         description = 'Slack Team Data'
         report = ArtifactHtmlReport('Slack Team Data')
-        report.start_artifact_report(report_folder, 'Team Data', description)
+        report.start_artifact_report(report_folder, 'Slack Team Data', description)
         report.add_script()
         data_headers = ('Name', 'Domain Name', 'Author User ID', 'SID' )
         report.write_artifact_data_table(data_headers, data_list, file_found)
