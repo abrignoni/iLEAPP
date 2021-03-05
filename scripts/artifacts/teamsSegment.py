@@ -67,7 +67,73 @@ def get_teamsSegment(files_found, report_folder, seeker):
         kmlactivity = 'Microsoft Teams Locations'
         kmlgen(report_folder, kmlactivity, data_list_location, data_headers_location)
     else:
-        logfunc('Microsoft Teams Locations')
+        logfunc('No Microsoft Teams Locations data')
     
         
+    if len(data_list_motion) > 0:
+        report = ArtifactHtmlReport('Microsoft Teams Motion')
+        report.start_artifact_report(report_folder, 'Teams Motion')
+        report.add_script()
+        data_headers_motion = ('Timestamp', 'Activity')
+        report.write_artifact_data_table(data_headers_motion, data_list_motion, file_found)
+        report.end_artifact_report()
         
+        tsvname = 'Microsoft Teams Motion'
+        tsv(report_folder, data_headers_motion, data_list_motion, tsvname)
+        
+        tlactivity = 'Microsoft Teams Motion'
+        timeline(report_folder, tlactivity, data_list_motion, data_headers_motion)
+        
+    else:
+        logfunc('No Microsoft Teams Motion data')
+        
+    if len(data_list_timecheck) > 0:
+        report = ArtifactHtmlReport('Microsoft Teams Timezone')
+        report.start_artifact_report(report_folder, 'Teams Timezone')
+        report.add_script()
+        data_headers_timecheck = ('Timestamp', 'Timezone', 'Timezone Offset', 'Timezone reason')
+        report.write_artifact_data_table(data_headers_timecheck, data_list_timecheck, file_found)
+        report.end_artifact_report()
+        
+        tsvname = 'Microsoft Teams Timezone'
+        tsv(report_folder, data_headers_timecheck, data_list_timecheck, tsvname)
+        
+        tlactivity = 'Microsoft Teams Timezone'
+        timeline(report_folder, tlactivity, data_list_timecheck, data_headers_timecheck)
+        
+    else:
+        logfunc('No Microsoft Teams Timezone data')
+        
+    if len(data_list_power) > 0:
+        report = ArtifactHtmlReport('Microsoft Teams Power Log')
+        report.start_artifact_report(report_folder, 'Teams Power Log')
+        report.add_script()
+        data_headers_power = ('Timestamp', 'Is plugged in?', 'Battery Level')
+        report.write_artifact_data_table(data_headers_power, data_list_power, file_found)
+        report.end_artifact_report()
+        
+        tsvname = 'Microsoft Teams Power Log'
+        tsv(report_folder, data_headers_power, data_list_power, tsvname)
+        
+        tlactivity = 'Microsoft Teams Power Log'
+        timeline(report_folder, tlactivity, data_list_power, data_headers_power)
+        
+    else:
+        logfunc('No Microsoft Teams Power Log data')
+
+    if len(data_list_statechange) > 0:
+        report = ArtifactHtmlReport('Microsoft Teams State Change')
+        report.start_artifact_report(report_folder, 'Teams State Change')
+        report.add_script()
+        data_headers_statechange = ('Timestamp', 'Change')
+        report.write_artifact_data_table(data_headers_statechange, data_list_statechange, file_found)
+        report.end_artifact_report()
+        
+        tsvname = 'Microsoft Teams State Change'
+        tsv(report_folder, data_headers_statechange, data_list_statechange, tsvname)
+        
+        tlactivity = 'Microsoft Teams State Change'
+        timeline(report_folder, tlactivity, data_list_statechange, data_headers_statechange)
+        
+    else:
+        logfunc('No Microsoft Teams Power State Change')

@@ -243,6 +243,14 @@ def get_icon_name(category, artifact):
     elif category == 'MICROSOFT TEAMS - LOGS':
         if artifact == 'TEAMS LOCATIONS':
             icon = 'map-pin'
+        if artifact == 'TEAMS MOTION':
+            icon = 'move'
+        if artifact == 'TEAMS STATE CHANGE':
+            icon = 'truck'
+        if artifact == 'TEAMS POWER LOG':
+            icon = 'battery-charging'
+        if artifact == 'TEAMS TIMEZONE':
+            icon = 'clock'
     return icon
 
 
