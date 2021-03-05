@@ -223,22 +223,22 @@ def get_icon_name(category, artifact):
     elif category == 'ICLOUD QUICK LOOK':
         icon = 'file'
     elif category == 'TIKTOK':
-        if artifact == 'MESSAGES':
+        if artifact == 'TIKTOK MESSAGES':
             icon = 'message-square'
-        if artifact == 'CONTACTS':
+        if artifact == 'TIKTOK CONTACTS':
             icon = 'user'
     elif category == 'SLACK':
-        if artifact == 'MESSAGES':
+        if artifact == 'SLACK MESSAGES':
             icon = 'message-square'
-        if artifact == 'USER DATA':
+        if artifact == 'SLACK USER DATA':
             icon = 'user'
-        if artifact == 'ATTACHMENTS':
+        if artifact == 'SLACK ATTACHMENTS':
             icon = 'paperclip'
-        if artifact == 'WORKSPACE DATA':
+        if artifact == 'SLACK WORKSPACE DATA':
             icon = 'slack'
-        if artifact == 'TEAM DATA':
+        if artifact == 'SLACK TEAM DATA':
             icon = 'slack'
-        if artifact == 'CHANNEL DATA':
+        if artifact == 'SLACK CHANNEL DATA':
             icon = 'slack'
     return icon
 
