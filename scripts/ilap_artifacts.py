@@ -118,6 +118,7 @@ from scripts.artifacts.appleWalletTransactions import get_appleWalletTransaction
 from scripts.artifacts.walStrings import get_walStrings
 from scripts.artifacts.webClips import get_webClips
 from scripts.artifacts.tcc import get_tcc
+from scripts.artifacts.teamsSegment import get_teamsSegment 
 from scripts.artifacts.tikTok import get_tikTok
 from scripts.artifacts.tileAppNetDb import get_tileAppNetDb
 from scripts.artifacts.walStrings import get_walStrings
@@ -228,7 +229,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'sms': ('SMS & iMessage', '**/sms.db'),
             'slack': ('Slack', '*/var/mobile/Containers/Data/Application/*/Library/Application Support/Slack/*/Database/main_db*'),
             'tcc': ('App Permissions', '*TCC.db*'),
-            'teamsSegment': ('Teams Logs', '*/var/mobile/Containers/Data/Application/*/Library/DriveIQ/segments/current/*.*'),
+            'teamsSegment': ('Microsoft Teams - Logs', '*/var/mobile/Containers/Data/Application/*/Library/DriveIQ/segments/current/*.*'),
             'tikTok': ('TikTok', ('*/Application/*/Library/Application Support/ChatFiles/*/db.sqlite*', '*AwemeIM.db*')),
             'tileApp': ('Locations', '*private/var/mobile/Containers/Data/Application/*/Library/log/com.thetileapp.tile*'),
             'tileAppDb': ('Locations', '*private/var/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-TileNetworkDB.sqlite*'),

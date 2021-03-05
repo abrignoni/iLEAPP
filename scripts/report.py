@@ -240,6 +240,9 @@ def get_icon_name(category, artifact):
             icon = 'slack'
         if artifact == 'SLACK CHANNEL DATA':
             icon = 'slack'
+    elif category == 'MICROSOFT TEAMS - LOGS':
+        if artifact == 'TEAMS LOCATIONS':
+            icon = 'map-pin'
     return icon
 
 
@@ -476,4 +479,5 @@ def mark_item_active(data, itemname):
     else:
         ret = data[0: pos] + " active" + data[pos:]
         return ret
+    
     
