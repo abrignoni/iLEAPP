@@ -1,5 +1,8 @@
 import sqlite3
 import os
+import re
+import shutil
+import nska_deserialize as nd
 import scripts.artifacts.artGlobals
 
 from packaging import version
@@ -8,14 +11,20 @@ from scripts.ilapfuncs import logfunc, logdevinfo, timeline, tsv, is_platform_wi
 
 
 def get_teams(files_found, report_folder, seeker):
-    
+    CacheFile = 0
     for file_found in files_found:
         file_found = str(file_found)
         
         if file_found.endswith('.sqlite'):
-            break
-            
-    db = open_sqlite_db_readonly(file_found)
+            databasedata = file_found
+        if file_found.endswith('CacheFile'):
+            CacheFile = file_found
+    
+    if CacheFile != 0:
+        with open(CacheFile ,'rb') as nsfile:
+            nsplist = nd.deserialize_plist(nsfile)
+    
+    db = open_sqlite_db_readonly(databasedata)
     cursor = db.cursor()
     cursor.execute('''
     SELECT
@@ -31,14 +40,26 @@ def get_teams(files_found, report_folder, seeker):
     
     if usageentries > 0:
         for row in all_rows:
-            data_list.append((row[0], row[1], row[2]))
+            thumb =''
+            if '<div><img src=' in row[2]:
+                matches = re.search('"([^"]+)"',row[2])
+                imageURL = (matches[0].strip('\"'))
+                if imageURL in nsplist.keys():
+                    data_file_real_path = nsplist[imageURL]
+                    for match in files_found:
+                        if data_file_real_path in match:
+                            shutil.copy2(match, report_folder)
+                            data_file_name = os.path.basename(match)
+                            thumb = f'<img src="{report_folder}/{data_file_name}"></img>'
+            data_list.append((row[0], row[1], row[2], thumb))
 
         description = 'Teams Messages'
         report = ArtifactHtmlReport('Teams Messages')
         report.start_artifact_report(report_folder, 'Teams Messages', description)
         report.add_script()
-        data_headers = ('Timestamp', 'Name', 'Message')
-        report.write_artifact_data_table(data_headers, data_list, file_found)
+        data_headers = ('Timestamp', 'Name', 'Message', 'Shared Media')
+        report.write_artifact_data_table(data_headers, data_list, file_found, html_no_escape=['Shared Media']
+)
         report.end_artifact_report()
         
         tsvname = 'Teams Messages'
