@@ -230,7 +230,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'sms': ('SMS & iMessage', '**/sms.db'),
             'slack': ('Slack', '*/var/mobile/Containers/Data/Application/*/Library/Application Support/Slack/*/Database/main_db*'),
             'tcc': ('App Permissions', '*TCC.db*'),
-            'teams': ('Microsoft Teams', '*/var/mobile/Containers/Shared/AppGroup/*/Skype*/*/Skype*.sqlite*'),
+            'teams': ('Microsoft Teams', ('*/var/mobile/Containers/Shared/AppGroup/*/Skype*/*/Skype*.sqlite*','*/var/mobile/Containers/Shared/AppGroup/*/Skype*/Downloads/*/Images/*')),
             'teamsSegment': ('Microsoft Teams - Logs', '*/var/mobile/Containers/Data/Application/*/Library/DriveIQ/segments/current/*.*'),
             'tikTok': ('TikTok', ('*/Application/*/Library/Application Support/ChatFiles/*/db.sqlite*', '*AwemeIM.db*')),
             'tileApp': ('Locations', '*private/var/mobile/Containers/Data/Application/*/Library/log/com.thetileapp.tile*'),
@@ -296,3 +296,4 @@ def process_artifact(files_found, artifact_func, artifact_name, seeker, report_f
     run_time_secs = end_time - start_time
     # run_time_HMS = strftime('%H:%M:%S', gmtime(run_time_secs))
     logfunc('{} [{}] artifact completed in time {} seconds'.format(artifact_name, artifact_func, run_time_secs))
+    
