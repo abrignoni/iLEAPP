@@ -258,6 +258,10 @@ def get_icon_name(category, artifact):
             icon = 'users'
         if artifact == 'TEAMS USER':
             icon = 'user'
+        if artifact == 'TEAMS CALL LOGS':
+            icon = 'phone'
+        if artifact == 'TEAMS SHARED LOCATIONS':
+            icon = 'map-pin'
     return icon
 
 
