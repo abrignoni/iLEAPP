@@ -1,13 +1,16 @@
 import sqlite3
+import io
+import json
 import os
 import re
 import shutil
+import datetime
 import nska_deserialize as nd
 import scripts.artifacts.artGlobals
 
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, timeline, tsv, is_platform_windows, open_sqlite_db_readonly
+from scripts.ilapfuncs import logfunc, logdevinfo, timeline, kmlgen, tsv, is_platform_windows, open_sqlite_db_readonly
 
 
 def get_teams(files_found, report_folder, seeker):
@@ -134,7 +137,107 @@ def get_teams(files_found, report_folder, seeker):
     else:
         logfunc('No Teams User data available')
         
+    cursor.execute('''
+    SELECT
+    ZCOMPOSETIME,
+    zfrom,
+    ZIMDISPLAYNAME,
+    zcontent,
+    ZPROPERTIES
+    from ZSMESSAGE, ZMESSAGEPROPERTIES
+    where ZSMESSAGE.ZTSID = ZMESSAGEPROPERTIES.ZTSID
+    order by ZCOMPOSETIME
+    ''')
     
+    all_rows = cursor.fetchall()
+    usageentries = len(all_rows)
+    data_list_calls = []
+    data_list_cards = []
+    data_list_unparsed = []
+    
+    if usageentries > 0:
+        for row in all_rows:
+            plist = ''
+            composetime = row[0].replace('T',' ')
+            plist_file_object = io.BytesIO(row[4])
+            if row[4].find(b'NSKeyedArchiver') == -1:
+                if sys.version_info >= (3, 9):
+                    plist = plistlib.load(plist_file_object)
+                else:
+                    plist = biplist.readPlist(plist_file_object)
+            else:
+                try:
+                    plist = nd.deserialize_plist(plist_file_object)                    
+                except (nd.DeserializeError, nd.biplist.NotBinaryPlistException, nd.biplist.InvalidPlistException,
+                        nd.plistlib.InvalidFileException, nd.ccl_bplist.BplistError, ValueError, TypeError, OSError, OverflowError) as ex:
+                    logfunc(f'Failed to read plist for {row[4]}, error was:' + str(ex))
+            if 'call-log' in plist:
+                datacalls = json.loads(plist['call-log'])
+                callstart = (datacalls.get('startTime'))
+                callstart = callstart.replace('T',' ')
+                callconnect = (datacalls.get('connectTime'))
+                callconnect = callconnect.replace('T',' ')
+                callend = (datacalls['endTime'])
+                callend = callend.replace('T',' ')
+                calldirection = (datacalls['callDirection'])
+                calltype = (datacalls['callType'])
+                callstate = (datacalls['callState'])
+                calloriginator = (datacalls['originator'])
+                calltarget = (datacalls['target'])
+                calloriginatordname = (datacalls['originatorParticipant']['displayName'])
+                callparticipantdname = (datacalls['targetParticipant']['displayName'])
+                data_list_calls.append((composetime, row[1], row[2], row[3], callstart, callconnect, callend, calldirection, calltype, callstate, calloriginator, calltarget, calloriginatordname, callparticipantdname))
+            elif 'cards' in plist:
+                cards = json.loads(plist['cards'])
+                cardurl = (cards[0]['content']['body'][0]['selectAction']['url'])
+                cardtitle = (cards[0]['content']['body'][0]['selectAction']['title'])
+                cardtext = (cards[0]['content']['body'][1]['text'])
+                cardurl2 = (cards[0]['content']['body'][0]['url'])
+                if (cards[0]['content']['body'][0].get('id')) is not None:
+                    idcontent = json.loads(cards[0]['content']['body'][0]['id'])
+                    cardlat = (idcontent.get('latitude'))
+                    cardlong = (idcontent.get('longitude'))
+                    cardexpires = (idcontent.get('expiresAt'))
+                    cardexpires  = datetime.datetime.fromtimestamp(cardexpires  / 1000)
+                    carddevid = (idcontent.get('deviceId'))
+                data_list_cards.append((composetime, row[1], row[2], row[3], cardurl, cardtitle, cardtext, cardurl2, cardlat, cardlong, cardexpires, carddevid))
+            else:
+                data_list_unparsed.append(composetime, row[1], row[2], row[3], plist)
+                
+        description = 'Microsoft Teams Call Logs'
+        report = ArtifactHtmlReport('Microsoft Teams Call Logs')
+        report.start_artifact_report(report_folder, 'Teams Call Logs', description)
+        report.add_script()
+        data_headers = ('Compose Timestamp', 'From', 'Display Name', 'Content',' Call Start', 'Call Connect', 'Call End', 'Call Direction', 'Call Type', 'Call State', 'Call Originator', 'Call Target', 'Call Originator Name', 'Call Participant Name')
+        report.write_artifact_data_table(data_headers, data_list_calls, file_found)
+        report.end_artifact_report()
+        
+        tsvname = 'Microsoft Teams Call Logs'
+        tsv(report_folder, data_headers, data_list_calls, tsvname)
+        
+        tlactivity = 'Microsoft Teams Call Logs'
+        timeline(report_folder, tlactivity, data_list_calls, data_headers)
+        
+        description = 'Microsoft Teams Shared Locations'
+        report = ArtifactHtmlReport('Microsoft Teams Shared Locations')
+        report.start_artifact_report(report_folder, 'Teams Shared Locations', description)
+        report.add_script()
+        data_headers = ('Timestamp', 'From', 'Display Name', 'Content','Card URL', 'Card Title', 'Card Text', 'Card URL2', 'Latitude', 'Longitude', 'Card Expires', 'Device ID')
+        report.write_artifact_data_table(data_headers, data_list_cards, file_found)
+        report.end_artifact_report()
+        
+        tsvname = 'Microsoft Teams Shared Locations'
+        tsv(report_folder, data_headers, data_list_cards, tsvname)
+        
+        tlactivity = 'Microsoft Teams Shared Locations'
+        timeline(report_folder, tlactivity, data_list_cards, data_headers)
+        
+        kmlactivity = 'Microsoft Teams Shared Locations'
+        kmlgen(report_folder, kmlactivity, data_list_cards, data_headers)
+        
+    else:
+        logfunc('No Microsoft Teams Call Logs & Cards data available')
+        
     
     db.close()
     
