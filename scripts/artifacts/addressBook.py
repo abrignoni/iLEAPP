@@ -29,9 +29,12 @@ def get_addressBook(files_found, report_folder, seeker):
     if usageentries > 0:
         data_list = []
         for row in all_rows:
-            numbers = row[1].split(" +")
-            number = numbers[1].split(" ")
-            phone_number = "+{}".format(number[0])
+            if row[1] is not None:
+                numbers = row[1].split(" +")
+                number = numbers[1].split(" ")
+                phone_number = "+{}".format(number[0])
+            else:
+                phone_number = ''
 
             data_list.append((row[0], phone_number, row[2], row[3], row[4], row[5], row[6], row[7], row[8]))
 
