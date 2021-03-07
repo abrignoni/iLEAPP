@@ -34,7 +34,7 @@ def get_callHistory(files_found, report_folder, seeker):
         report = ArtifactHtmlReport('Call Logs')
         report.start_artifact_report(report_folder, 'Call Logs')
         report.add_script()
-        data_headers = ('Timestamp', 'Call ID', 'Address', 'Was Answered', 'Call Type', 'Originated', 'Duration in Secs', 'ISO County Code', 'Location', 'Service Provider')
+        data_headers = ('Timestamp', 'Call ID', 'Address', 'Was Answered', 'Call Type', 'Originated', 'Duration in Secs', 'ISO Country Code', 'Location', 'Service Provider')
         report.write_artifact_data_table(data_headers, data_list, file_found)
         report.end_artifact_report()
         
