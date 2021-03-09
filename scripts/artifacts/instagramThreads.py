@@ -29,6 +29,7 @@ def get_instagramThreads(files_found, report_folder, seeker):
     fila = 0
     userdict = {}
     data_list = []
+    video_calls = []
     
     if usageentries > 0:
         for row in all_rows:
@@ -47,9 +48,10 @@ def get_instagramThreads(files_found, report_folder, seeker):
                     logfunc(f'Failed to read plist for {row[0]}, error was:' + str(ex))
             
             for i in plist['NSArray<IGUser *>*users']:
-                userPk = plist['NSArray<IGUser *>*users'][0]['pk']
-                userFull = (plist['NSArray<IGUser *>*users'][0]['fullName'])
-                userdict[userPk] = userFull
+                for x, y in enumerate(plist['NSArray<IGUser *>*users']):
+                    userPk = plist['NSArray<IGUser *>*users'][x]['pk']
+                    userFull = (plist['NSArray<IGUser *>*users'][x]['fullName'])
+                    userdict[userPk] = userFull
                 
             inviterPk = plist['IGUser*inviter']['pk']
             inviterFull = plist['IGUser*inviter']['fullName']
@@ -107,6 +109,7 @@ def get_instagramThreads(files_found, report_folder, seeker):
                 videoChatTitle = plist['IGDirectPublishedMessageContent*content']['IGDirectThreadActivityAnnouncement*threadActivity']['NSString*voipTitle']
                 videoChatCallID = plist['IGDirectPublishedMessageContent*content']['IGDirectThreadActivityAnnouncement*threadActivity']['NSString*videoCallId']
                 
+                
             #Reactions
             reactions = (plist['NSArray<IGDirectMessageReaction *>*reactions'])
             if reactions:
@@ -125,6 +128,8 @@ def get_instagramThreads(files_found, report_folder, seeker):
                 user = ''
                 
             data_list.append((serverTimestamp, senderpk, user, message, videoChatTitle, videoChatCallID, dmreaction, reactionServerTimestamp, reactionUserID, sharedMediaID, sharedMediaURL))
+            if videoChatTitle:
+                video_calls.append((serverTimestamp, senderpk, user, videoChatTitle, videoChatCallID))
 
         description = 'Instagram Threads'
         report = ArtifactHtmlReport('Instagram Threads')
@@ -139,9 +144,27 @@ def get_instagramThreads(files_found, report_folder, seeker):
         
         tlactivity = 'Instagram Threads'
         timeline(report_folder, tlactivity, data_list, data_headers)
+        
     else:
         logfunc('No Instagram Threads data available')
+        
+    if len(video_calls) > 0:
+        description = 'Instagram Threads Calls'
+        report = ArtifactHtmlReport('Instagram Threads Calls')
+        report.start_artifact_report(report_folder, 'Instagram Threads Calls', description)
+        report.add_script()
+        data_headersv = ('Timestamp', 'Sender ID', 'Username',  'Video Chat Title', 'Video Chat ID')
+        report.write_artifact_data_table(data_headersv, video_calls, file_found)
+        report.end_artifact_report()
+        
+        tsvname = 'Instagram Threads Calls'
+        tsv(report_folder, data_headersv, video_calls, tsvname)
+        
+        tlactivity = 'Instagram Threads Calls'
+        timeline(report_folder, tlactivity, video_calls, data_headersv)
     
+    else:
+        logfunc('No Instagram Threads Video Calls data available')
         
     db.close()
     

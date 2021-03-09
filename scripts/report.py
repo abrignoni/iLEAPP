@@ -265,6 +265,8 @@ def get_icon_name(category, artifact):
     elif category == 'INSTAGRAM':
         if artifact == 'INSTAGRAM THREADS':
             icon = 'message-square'
+        if artifact == 'INSTAGRAM THREADS CALLS':
+            icon = 'phone'
             
     return icon
 

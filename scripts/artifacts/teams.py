@@ -65,13 +65,13 @@ def get_teams(files_found, report_folder, seeker):
 )
         report.end_artifact_report()
         
-        tsvname = 'Teams Messages'
+        tsvname = 'Microsoft Teams Messages'
         tsv(report_folder, data_headers, data_list, tsvname)
         
-        tlactivity = 'Teams Messages'
+        tlactivity = 'Microsoft Teams Messages'
         timeline(report_folder, tlactivity, data_list, data_headers)
     else:
-        logfunc('No Teams Messages data available')
+        logfunc('No Microsoft Teams Messages data available')
     
     cursor.execute('''
     SELECT
@@ -128,10 +128,10 @@ def get_teams(files_found, report_folder, seeker):
         report.write_artifact_data_table(data_headers, data_list, file_found)
         report.end_artifact_report()
         
-        tsvname = 'Teams User'
+        tsvname = 'Microsoft Teams User'
         tsv(report_folder, data_headers, data_list, tsvname)
         
-        tlactivity = 'Teams User'
+        tlactivity = 'Microsoft Teams User'
         timeline(report_folder, tlactivity, data_list, data_headers)
         
     else:
