@@ -62,6 +62,7 @@ from scripts.artifacts.quickLook import get_quickLook
 from scripts.artifacts.iCloudWifi import get_iCloudWifi
 from scripts.artifacts.icloudSharedalbums import get_icloudSharedalbums
 from scripts.artifacts.iconsScreen import get_iconsScreen
+from scripts.artifacts.instagramThreads import get_instagramThreads
 from scripts.artifacts.interactionCcontacts import get_interactionCcontacts
 from scripts.artifacts.keyboardAppUsage import get_keyboardAppUsage
 from scripts.artifacts.keyboardLexicon import get_keyboardLexicon
@@ -193,6 +194,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'icloudSharedalbums': ('iCloud Shared Albums', '*/private/var/mobile/Media/PhotoData/PhotoCloudSharingData/*'),
             'iCloudWifi': ('Wifi Connections', '**/com.apple.wifid.plist'),
             'iconsScreen': ('iOS Screens', '**/SpringBoard/IconState.plist'),
+            'instagramThreads':('Instagram', '*/mobile/Containers/Data/Application/*/Library/Application Support/DirectSQLiteDatabase/*.db*'),
             'interactionCcontacts': ('InteractionC', '**/interactionC.db'),
             'keyboardAppUsage': ('Keyboard', '*/private/var/mobile/Library/Keyboard/app_usage_database.plist'),
             'keyboardLexicon': ('Keyboard', '*/private/var/mobile/Library/Keyboard/*-dynamic.lm/dynamic-lexicon.dat'),

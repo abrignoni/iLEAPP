@@ -262,6 +262,10 @@ def get_icon_name(category, artifact):
             icon = 'phone'
         if artifact == 'TEAMS SHARED LOCATIONS':
             icon = 'map-pin'
+    elif category == 'INSTAGRAM':
+        if artifact == 'INSTAGRAM THREADS':
+            icon = 'message-square'
+            
     return icon
 
 
