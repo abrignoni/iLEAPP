@@ -107,6 +107,11 @@ def get_icon_name(category, artifact):
         icon = 'heart'
     elif category == 'ICLOUD SHARED ALBUMS':
         icon = 'cloud'
+    elif category == 'IMO HD CHAT':
+        if artifact == 'IMO HD CHAT - MESSAGES':
+            icon = 'message-circle'
+        if artifact == 'IMO HD CHAT - CONTACTS':
+            icon = 'user'
     elif category == 'INSTALLED APPS':
         icon = 'package'
     elif category == 'INTERACTIONC':
