@@ -62,6 +62,7 @@ from scripts.artifacts.quickLook import get_quickLook
 from scripts.artifacts.iCloudWifi import get_iCloudWifi
 from scripts.artifacts.icloudSharedalbums import get_icloudSharedalbums
 from scripts.artifacts.iconsScreen import get_iconsScreen
+from scripts.artifacts.imoHD_Chat import get_imoHD_Chat
 from scripts.artifacts.instagramThreads import get_instagramThreads
 from scripts.artifacts.interactionCcontacts import get_interactionCcontacts
 from scripts.artifacts.keyboardAppUsage import get_keyboardAppUsage
@@ -194,6 +195,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'icloudSharedalbums': ('iCloud Shared Albums', '*/private/var/mobile/Media/PhotoData/PhotoCloudSharingData/*'),
             'iCloudWifi': ('Wifi Connections', '**/com.apple.wifid.plist'),
             'iconsScreen': ('iOS Screens', '**/SpringBoard/IconState.plist'),
+            'imoHD_Chat': ('IMO HD Chat', ('**/IMODb2.sqlite*','private/var/mobile/Containers/Data/Application/*/Library/Caches/videos/*.webp')),
             'instagramThreads':('Instagram', '*/mobile/Containers/Data/Application/*/Library/Application Support/DirectSQLiteDatabase/*.db*'),
             'interactionCcontacts': ('InteractionC', '**/interactionC.db'),
             'keyboardAppUsage': ('Keyboard', '*/private/var/mobile/Library/Keyboard/app_usage_database.plist'),
