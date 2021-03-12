@@ -54,7 +54,7 @@ def get_tikTok(files_found, report_folder, seeker):
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6],row[7], row[8], row[9]))
 
         report = ArtifactHtmlReport('TikTok Messages')
-        report.start_artifact_report(report_folder, 'Messages')
+        report.start_artifact_report(report_folder, 'TikTok Messages')
         report.add_script()
         data_headers = ('Timestamp','Sender','Custom ID','Nickname','Message', 'Local Response','Link GIF Name','Link GIF URL','Server Create Timestamps','Profile Pic URL')
         report.write_artifact_data_table(data_headers, data_list, file_found)
@@ -91,7 +91,7 @@ def get_tikTok(files_found, report_folder, seeker):
             data_list1.append((row[0], row[1], row[2], row[3], row[4]))
             
         report = ArtifactHtmlReport('TikTok Contacts')
-        report.start_artifact_report(report_folder, 'Contacts', description)
+        report.start_artifact_report(report_folder, 'TikTok Contacts', description)
         report.add_script()
         data_headers1 = ('Timestamp','Nickname','Unique ID','Custom ID','URL')
         report.write_artifact_data_table(data_headers1, data_list1, file_found)

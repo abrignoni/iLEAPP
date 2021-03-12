@@ -223,10 +223,51 @@ def get_icon_name(category, artifact):
     elif category == 'ICLOUD QUICK LOOK':
         icon = 'file'
     elif category == 'TIKTOK':
-        if artifact == 'MESSAGES':
+        if artifact == 'TIKTOK MESSAGES':
             icon = 'message-square'
-        if artifact == 'CONTACTS':
+        if artifact == 'TIKTOK CONTACTS':
             icon = 'user'
+    elif category == 'SLACK':
+        if artifact == 'SLACK MESSAGES':
+            icon = 'message-square'
+        if artifact == 'SLACK USER DATA':
+            icon = 'user'
+        if artifact == 'SLACK ATTACHMENTS':
+            icon = 'paperclip'
+        if artifact == 'SLACK WORKSPACE DATA':
+            icon = 'slack'
+        if artifact == 'SLACK TEAM DATA':
+            icon = 'slack'
+        if artifact == 'SLACK CHANNEL DATA':
+            icon = 'slack'
+    elif category == 'MICROSOFT TEAMS - LOGS':
+        if artifact == 'TEAMS LOCATIONS':
+            icon = 'map-pin'
+        if artifact == 'TEAMS MOTION':
+            icon = 'move'
+        if artifact == 'TEAMS STATE CHANGE':
+            icon = 'truck'
+        if artifact == 'TEAMS POWER LOG':
+            icon = 'battery-charging'
+        if artifact == 'TEAMS TIMEZONE':
+            icon = 'clock'
+    elif category == 'MICROSOFT TEAMS':
+        if artifact == 'TEAMS MESSAGES':
+            icon = 'message-square'
+        if artifact == 'TEAMS CONTACT':
+            icon = 'users'
+        if artifact == 'TEAMS USER':
+            icon = 'user'
+        if artifact == 'TEAMS CALL LOGS':
+            icon = 'phone'
+        if artifact == 'TEAMS SHARED LOCATIONS':
+            icon = 'map-pin'
+    elif category == 'INSTAGRAM':
+        if artifact == 'INSTAGRAM THREADS':
+            icon = 'message-square'
+        if artifact == 'INSTAGRAM THREADS CALLS':
+            icon = 'phone'
+            
     return icon
 
 
@@ -463,4 +504,5 @@ def mark_item_active(data, itemname):
     else:
         ret = data[0: pos] + " active" + data[pos:]
         return ret
+    
     

@@ -11,16 +11,17 @@ def get_addressBook(files_found, report_folder, seeker):
     cursor.execute('''
     SELECT 
     ABPerson.ROWID,
-    VALUE,
+    c16Phone,
     FIRST,
     MIDDLE,
     LAST,
+    c17Email,
     DATETIME(CREATIONDATE+978307200,'UNIXEPOCH'),
     DATETIME(MODIFICATIONDATE+978307200,'UNIXEPOCH'),
     NAME
     FROM ABPerson
-    LEFT OUTER JOIN ABMultiValue ON ABPerson.ROWID = ABMultiValue.RECORD_ID
     LEFT OUTER JOIN ABStore ON ABPerson.STOREID = ABStore.ROWID
+    LEFT OUTER JOIN ABPersonFullTextSearch_content on ABPerson.ROWID = ABPersonFullTextSearch_content.ROWID
     ''')
 
     all_rows = cursor.fetchall()
@@ -28,15 +29,19 @@ def get_addressBook(files_found, report_folder, seeker):
     if usageentries > 0:
         data_list = []
         for row in all_rows:
-            an = str(row[0])
-            an = an.replace("b'", "")
-            an = an.replace("'", "")
-            data_list.append((an, row[1], row[2], row[3], row[4], row[5], row[6], row[7]))
+            if row[1] is not None:
+                numbers = row[1].split(" +")
+                number = numbers[1].split(" ")
+                phone_number = "+{}".format(number[0])
+            else:
+                phone_number = ''
+
+            data_list.append((row[0], phone_number, row[2], row[3], row[4], row[5], row[6], row[7], row[8]))
 
         report = ArtifactHtmlReport('Address Book Contacts')
         report.start_artifact_report(report_folder, 'Address Book Contacts')
         report.add_script()
-        data_headers = ('Contact ID', 'Contact Number', 'First Name', 'Middle Name', 'Last Name', 'Creation Date', 'Modification Date', 'Storage Place')
+        data_headers = ('Contact ID', 'Contact Number', 'First Name', 'Middle Name', 'Last Name', 'Email Address', 'Creation Date', 'Modification Date', 'Storage Place')
         report.write_artifact_data_table(data_headers, data_list, file_found)
         report.end_artifact_report()
 
