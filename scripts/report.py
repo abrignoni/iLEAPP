@@ -179,6 +179,10 @@ def get_icon_name(category, artifact):
             icon = 'message-square'
     elif category == 'WIFI CONNECTIONS':
         icon = 'wifi'
+    elif category == 'WIFI NETWORKS SCANNED (PRIVATE)':
+        icon = 'wifi'
+    elif category == 'WIFI NETWORKS SCANNED (PUBLIC)':
+        icon = 'wifi'
     elif category == 'GEOLOCATION':
         if artifact == 'APPLICATIONS':
             icon = 'grid'
@@ -223,7 +227,7 @@ def get_icon_name(category, artifact):
         icon = 'mic'
     elif category == 'VOICE-TRIGGERS':
         icon = 'mic'
-    elif category == 'WIFI CONNECTIONS':
+    elif category == 'WIFI KNOWN NETWORKS':
         icon = 'wifi'
     elif category == 'ICLOUD QUICK LOOK':
         icon = 'file'
@@ -509,5 +513,6 @@ def mark_item_active(data, itemname):
     else:
         ret = data[0: pos] + " active" + data[pos:]
         return ret
+    
     
     
