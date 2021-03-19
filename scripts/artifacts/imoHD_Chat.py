@@ -75,7 +75,6 @@ def get_imoHD_Chat(files_found, report_folder, seeker):
                         logfunc(f'Failed to read plist for {row[0]}, error was:' + str(ex))
                     
                 itemAction = plist['type']
-                logfunc(itemAction)
                 
                 #Check for Attachments
                 if plist.get('objects') is not None:
