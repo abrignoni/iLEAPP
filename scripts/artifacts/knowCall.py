@@ -1808,3 +1808,103 @@ def get_knowCall(files_found, report_folder, seeker):
 
 		else:
 			logfunc('No data available in Widgets Viewed')
+
+	if version.parse(iOSversion) >= version.parse("12"):
+		cursor = db.cursor()
+		cursor.execute("""
+		select
+		datetime(zobject.zstartdate+978307200,'unixepoch'), 
+		datetime(zobject.zenddate+978307200,'unixepoch'),
+		case zobject.zvalueinteger
+		when '0' then 'no' 
+		when '1' then 'yes' 
+		end,
+		(zobject.zenddate - zobject.zstartdate),
+		(zobject.zenddate - zobject.zstartdate)/60.00,
+		case zobject.zstartdayofweek 
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
+		end, 
+		zobject.zsecondsfromgmt/3600,
+		datetime(zobject.zcreationdate+978307200,'unixepoch')
+		from zobject
+		where
+		zobject.zstreamname = '/user/isFirstBacklightOnAfterWakeup'	
+		""")
+	elif version.parse(iOSversion) == version.parse("11"):
+		cursor = db.cursor()
+		cursor.execute("""
+		select
+		datetime(zobject.zstartdate+978307200,'unixepoch'), 
+		datetime(zobject.zenddate+978307200,'unixepoch'),
+		case zobject.zvalueinteger
+		when '0' then 'no' 
+		when '1' then 'yes' 
+		end,
+		(zobject.zenddate - zobject.zstartdate),
+		(zobject.zenddate - zobject.zstartdate)/60.00,  
+		case zobject.zstartdayofweek 
+		when '1' then 'sunday'
+		when '2' then 'monday'
+		when '3' then 'tuesday'
+		when '4' then 'wednesday'
+		when '5' then 'thursday'
+		when '6' then 'friday'
+		when '7' then 'saturday'
+		end, 
+		zobject.zsecondsfromgmt/3600,
+		datetime(zobject.zcreationdate+978307200,'unixepoch')
+		from zobject
+		where
+		zobject.zstreamname = '/user/isFirstBacklightOnAfterWakeup'
+		""")
+	else:
+		logfunc("Unsupported version for KnowledgC First Backlight On After Wakeup" + iOSversion)
+		return ()
+
+	all_rows = cursor.fetchall()
+	usageentries = len(all_rows)
+	if usageentries > 0:
+		data_list = []
+		if version.parse(iOSversion) >= version.parse("12"):
+			for row in all_rows:
+				data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]))
+
+			report = ArtifactHtmlReport('KnowledgeC First Backlight On After Wakeup')
+			report.start_artifact_report(report_folder, 'First Backlight On After Wakeup')
+			report.add_script()
+			data_headers = ('Start', 'End', 'Backlight', 'Usage in Seconds', 'Usage in Minutes', 'Day of Week',
+							'GMT Offset', 'Entry Creation')
+			report.write_artifact_data_table(data_headers, data_list, file_found)
+			report.end_artifact_report()
+
+			tsvname = 'KnowledgeC First Backlight On After Wakeup'
+			tsv(report_folder, data_headers, data_list, tsvname)
+
+			tlactivity = 'KnowledgeC First Backlight On After Wakeup'
+			timeline(report_folder, tlactivity, data_list, data_headers)
+
+		elif version.parse(iOSversion) == version.parse("11"):
+			for row in all_rows:
+				data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6]))
+
+			report = ArtifactHtmlReport('No data available foor First Backlight on after Wakeup')
+			report.start_artifact_report(report_folder, 'No data available foor First Backlight on after Wakeup')
+			report.add_script()
+			data_headers = ('Start', 'End', 'Backlight', 'Usage in Seconds', 'Usage in Minutes', 'Day of Week',
+							'GMT Offset', 'Entry Creation')
+			report.write_artifact_data_table(data_headers, data_list, file_found)
+			report.end_artifact_report()
+
+			tsvname = 'KnowledgeC First Backlight On After Wakeup'
+			tsv(report_folder, data_headers, data_list, tsvname)
+
+			tlactivity = 'KnowledgeC First Backlight On After Wakeup'
+			timeline(report_folder, tlactivity, data_list, data_headers)
+	else:
+		logfunc('No data available foor First Backlight on after Wakeup')
