@@ -125,6 +125,8 @@ from scripts.artifacts.teamsSegment import get_teamsSegment
 from scripts.artifacts.tikTok import get_tikTok
 from scripts.artifacts.tileAppNetDb import get_tileAppNetDb
 from scripts.artifacts.walStrings import get_walStrings
+from scripts.artifacts.whatsappContacts import get_whatsappContacts
+from scripts.artifacts.whatsappMessages import get_whatsappMessages
 from scripts.artifacts.weatherAppLocations import get_weatherAppLocations
 from scripts.artifacts.webClips import get_webClips
 from scripts.artifacts.reminders import get_reminders
@@ -244,6 +246,8 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'voiceRecordings': ('Voice-Recordings', ('**/Recordings/*.composition/manifest.plist', '**/Recordings/*.m4a')),
             'voiceTriggers': ('Voice-Triggers', ('**/td/audio/*.json', '**/td/audio/*.wav')),
             'walStrings': ('SQLite Journaling', ('**/*-wal', '**/*-journal')),
+            'whatsappMessages': ('Whatsapp', ('*/var/mobile/Containers/Shared/AppGroup/*/ChatStorage.sqlite*','*/var/mobile/Containers/Shared/AppGroup/*/Message/Media/*/*/*/*.*')),
+            'whatsappContacts': ('Whatsapp', ('*/var/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*')),
             'weatherAppLocations': ('Locations', '*/private/var/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.com.apple.weather.plist'),
             'webClips': ('iOS Screens', '*WebClips/*.webclip/*'),
             # 'appUpdates':('App Updates', '**/AppUpdates.sqlitedb'),

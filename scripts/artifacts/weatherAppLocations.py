@@ -41,6 +41,10 @@ def get_weatherAppLocations(files_found, report_folder, seeker):
 
         tlactivity = 'Weather App Locations'
         timeline(report_folder, tlactivity, data_list, data_headers)
+        
+        kmlactivity = 'Weather App Locations'
+        kmlgen(report_folder, kmlactivity, data_list, data_headers)
 
     else:
         logfunc('No data available for Weather App Locations')
+      

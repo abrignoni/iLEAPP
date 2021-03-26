@@ -260,6 +260,11 @@ def get_icon_name(category, artifact):
             icon = 'battery-charging'
         if artifact == 'TEAMS TIMEZONE':
             icon = 'clock'
+    elif category == 'WHATSAPP':
+        if artifact == 'WHATSAPP - MESSAGES':
+            icon = 'message-square'
+        if artifact == 'WHATSAPP - CONTACTS':
+            icon = 'users'
     elif category == 'MICROSOFT TEAMS':
         if artifact == 'TEAMS MESSAGES':
             icon = 'message-square'
