@@ -2,7 +2,7 @@ import plistlib
 import time
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows
+from scripts.ilapfuncs import logfunc, tsv, kmlgen, timeline, is_platform_windows
 
 
 def get_weatherAppLocations(files_found, report_folder, seeker):
