@@ -179,10 +179,6 @@ def get_icon_name(category, artifact):
             icon = 'message-square'
     elif category == 'WIFI CONNECTIONS':
         icon = 'wifi'
-    elif category == 'WIFI NETWORKS SCANNED (PRIVATE)':
-        icon = 'wifi'
-    elif category == 'WIFI NETWORKS SCANNED (PUBLIC)':
-        icon = 'wifi'
     elif category == 'GEOLOCATION':
         if artifact == 'APPLICATIONS':
             icon = 'grid'
