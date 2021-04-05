@@ -76,24 +76,17 @@ def get_healthAll(files_found, report_folder, seeker):
     if version.parse(iOSversion) >= version.parse("9"):
         cursor = db.cursor()
         cursor.execute("""
-        select
-        datetime(samples.start_date + 978307200, 'unixepoch'),
-        datetime(samples.end_date + 978307200, 'unixepoch'),
-        quantity,
-        quantity*3.28084,
-        (samples.end_date-samples.start_date)
-        from
-        samples 
-        left join
-        quantity_samples 
-        on samples.data_id = quantity_samples.data_id 
-        left join
-        correlations 
-        on samples.data_id = correlations.object 
-        where
-        samples.data_type = 8
-        """
-                       )
+        SELECT
+        DATETIME(SAMPLES.START_DATE + 978307200, 'UNIXEPOCH'),
+        DATETIME(SAMPLES.END_DATE + 978307200, 'UNIXEPOCH'),
+        QUANTITY,
+        QUANTITY*3.28084,
+        (SAMPLES.END_DATE-SAMPLES.START_DATE)
+        FROM
+        SAMPLES INNER JOIN QUANTITY_SAMPLES ON SAMPLES.DATA_ID = QUANTITY_SAMPLES.DATA_ID 
+        WHERE
+        SAMPLES.DATA_TYPE = 8
+        """)
 
         all_rows = cursor.fetchall()
         usageentries = len(all_rows)
