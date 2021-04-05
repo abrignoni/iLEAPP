@@ -86,8 +86,7 @@ def get_healthAll(files_found, report_folder, seeker):
         SAMPLES INNER JOIN QUANTITY_SAMPLES ON SAMPLES.DATA_ID = QUANTITY_SAMPLES.DATA_ID 
         WHERE
         SAMPLES.DATA_TYPE = 8
-        """
-                       )
+        """)
 
         all_rows = cursor.fetchall()
         usageentries = len(all_rows)
