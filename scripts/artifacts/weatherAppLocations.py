@@ -47,4 +47,3 @@ def get_weatherAppLocations(files_found, report_folder, seeker):
 
     else:
         logfunc('No data available for Weather App Locations')
-      
