@@ -78,5 +78,3 @@ The GUI will open in another window.  <br><br>
 ## Acknowledgements
 
 This tool is the result of a collaborative effort of many people in the DFIR community.
-
-This product includes software developed by Sarah Edwards (Station X Labs, LLC, @iamevltwin, mac4n6.com) and other contributors as part of APOLLO (Apple Pattern of Life Lazy Output'er).
