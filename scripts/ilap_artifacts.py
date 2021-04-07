@@ -8,10 +8,6 @@ import traceback
 from time import process_time, gmtime, strftime
 from scripts.artifacts.accs import get_accs
 from scripts.artifacts.addressBook import get_addressBook
-from scripts.artifacts.aggDict import get_aggDict
-from scripts.artifacts.aggDictScalars import get_aggDictScalars
-from scripts.artifacts.aggDictpasscode import get_aggDictpasscode
-from scripts.artifacts.aggDictpasscodetype import get_aggDictpasscodetype
 from scripts.artifacts.alarms import get_alarms
 from scripts.artifacts.appConduit import get_appConduit
 from scripts.artifacts.appGrouplisting import get_appGrouplisting
@@ -34,14 +30,6 @@ from scripts.artifacts.cloudkitNoteSharing import get_cloudkitNoteSharing
 from scripts.artifacts.cloudkitParticipants import get_cloudkitParticipants
 from scripts.artifacts.conDev import get_conDev
 from scripts.artifacts.confaccts import get_confaccts
-from scripts.artifacts.coreDuetAirplane import get_coreDuetAirplane
-from scripts.artifacts.coreDuetLock import get_coreDuetLock
-from scripts.artifacts.coreDuetPlugin import get_coreDuetPlugin
-from scripts.artifacts.dataArk import get_dataArk
-from scripts.artifacts.dataUsageA import get_dataUsageA
-from scripts.artifacts.dataUsageB import get_dataUsageB
-from scripts.artifacts.dataUsageProcessA import get_dataUsageProcessA
-from scripts.artifacts.dataUsageProcessB import get_dataUsageProcessB
 from scripts.artifacts.deviceActivator import get_deviceActivator
 from scripts.artifacts.dhcphp import get_dhcphp
 from scripts.artifacts.dhcpl import get_dhcpl
@@ -55,7 +43,6 @@ from scripts.artifacts.filesAppsm import get_filesAppsm
 from scripts.artifacts.geodApplications import get_geodApplications
 from scripts.artifacts.geodMapTiles import get_geodMapTiles
 from scripts.artifacts.geodPDPlaceCache import get_geodPDPlaceCache
-from scripts.artifacts.healthAll import get_healthAll
 from scripts.artifacts.icloudMeta import get_icloudMeta
 from scripts.artifacts.icloudPhotoMeta import get_icloudPhotoMeta
 from scripts.artifacts.quickLook import get_quickLook
@@ -68,12 +55,7 @@ from scripts.artifacts.interactionCcontacts import get_interactionCcontacts
 from scripts.artifacts.keyboardAppUsage import get_keyboardAppUsage
 from scripts.artifacts.keyboardLexicon import get_keyboardLexicon
 from scripts.artifacts.kikMessages import get_kikMessages
-from scripts.artifacts.knowCall import get_knowCall
 from scripts.artifacts.lastBuild import get_lastBuild, get_iTunesBackupInfo
-from scripts.artifacts.locationDallB import get_locationDallB
-from scripts.artifacts.locationDparked import get_locationDparked
-from scripts.artifacts.locationDparkedhistorical import get_locationDparkedhistorical
-from scripts.artifacts.locationDsteps import get_locationDsteps
 from scripts.artifacts.mailprotect import get_mailprotect
 from scripts.artifacts.mediaLibrary import get_mediaLibrary
 from scripts.artifacts.medicalID import get_medicalID
@@ -86,12 +68,7 @@ from scripts.artifacts.notificationsXI import get_notificationsXI
 from scripts.artifacts.notificationsXII import get_notificationsXII
 from scripts.artifacts.ooklaSpeedtestData import get_ooklaSpeedtestData
 from scripts.artifacts.photosMetadata import get_photosMetadata
-from scripts.artifacts.powerlogAll import get_powerlogAll
-from scripts.artifacts.powerlogGZ import get_powerlogGZ
 from scripts.artifacts.queryPredictions import get_queryPredictions
-from scripts.artifacts.routineDCloud import get_routineDCloud
-from scripts.artifacts.routineDLocationsLocal import get_routineDLocationsLocal
-from scripts.artifacts.routineDlocations import get_routineDlocations
 from scripts.artifacts.safariBookmarks import get_safariBookmarks
 from scripts.artifacts.safariHistory import get_safariHistory
 from scripts.artifacts.safariRecentWebSearches import get_safariRecentWebSearches
@@ -146,8 +123,6 @@ from scripts.ilapfuncs import *
 tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'accs': ('Accounts', '**/Accounts3.sqlite'),
             'addressBook': ('Address Book', '**/AddressBook.sqlitedb'),
-            'aggDictpasscode': ('Aggregate Dictionary', '*/AggregateDictionary/ADDataStore.sqlitedb'),
-            'aggDictpasscodetype': ('Aggregate Dictionary', '*/AggregateDictionary/ADDataStore.sqlitedb'),
             'alarms': ('Alarms', '*private/var/mobile/Library/Preferences/com.apple.mobiletimerd.plist'),
             'appConduit': ('App Conduit', '**/AppConduit.log.*'),
             'appGrouplisting': ('Installed Apps', ('*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist', '**/PluginKitPlugin/*.metadata.plist')),
@@ -170,14 +145,6 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'cloudkitParticipants': ('Cloudkit', '*NoteStore.sqlite*'),
             'conDev': ('Connected to', '**/iTunes_Control/iTunes/iTunesPrefs'),
             'confaccts': ('Accounts', '**/com.apple.accounts.exists.plist'),
-            'coreDuetAirplane': ('CoreDuet', '**/coreduetd.db'),
-            'coreDuetLock': ('CoreDuet', '**/coreduetd.db'),
-            'coreDuetPlugin': ('CoreDuet', '**/coreduetd.db'),
-            'dataArk': ('IOS Build', '**/Library/Lockdown/data_ark.plist'),
-            'dataUsageA': ('Data Usage', '**/DataUsage.sqlite'),
-            'dataUsageB': ('Data Usage', '**/DataUsage-watch.sqlite'),
-            'dataUsageProcessA': ('Data Usage', '**/DataUsage-watch.sqlite'),
-            'dataUsageProcessB': ('Data Usage', '**/DataUsage.sqlite'),
             'deviceActivator': ('IOS Build', '*private/var/mobile/Library/Logs/mobileactivationd/ucrt_oob_request.txt'),
             'dhcphp': ('DHCP', '**/private/var/db/dhcpd_leases*'),
             'dhcpl': ('DHCP', '**/private/var/db/dhcpclient/leases/en*'),
@@ -191,7 +158,6 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'geodApplications': ('Geolocation', '**/AP.db'),
             'geodMapTiles': ('Geolocation', '**/MapTiles.sqlitedb'),
             'geodPDPlaceCache': ('Geolocation', '**/PDPlaceCache.db'),
-            'healthAll': ('Health Data', '**/healthdb_secure.sqlite'),
             'icloudMeta': ('iCloud Returns', '*/iclouddrive/Metadata.txt'),
             'icloudPhotoMeta': ('iCloud Returns', '*/cloudphotolibrary/Metadata.txt'),
             'icloudSharedalbums': ('iCloud Shared Albums', '*/private/var/mobile/Media/PhotoData/PhotoCloudSharingData/*'),
@@ -203,10 +169,6 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'keyboardAppUsage': ('Keyboard', '*/private/var/mobile/Library/Keyboard/app_usage_database.plist'),
             'keyboardLexicon': ('Keyboard', '*/private/var/mobile/Library/Keyboard/*-dynamic.lm/dynamic-lexicon.dat'),
             'kikMessages': ('Kik', '**/kik.sqlite*'),
-            'knowCall': ('KnowledgeC', '**/CoreDuet/Knowledge/knowledgeC.db'),
-            'locationDallB': ('Locations', '**/cache_encryptedB.db'),
-            'locationDparked': ('Locations', '**/Local.sqlite'),
-            'locationDparkedhistorical': ('Locations', '**/Local.sqlite'),
             'mailprotect': ('iOS Mail', '**/private/var/mobile/Library/Mail/* Index*'),
             'mediaLibrary': ('Media Library', '**/Medialibrary.sqlitedb'),
             'medicalID': ('Medical ID', '*/private/var/mobile/Library/MedicalID/MedicalIDData.archive'),
@@ -219,14 +181,9 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'notificationsXII': ('Notifications', '*private/var/mobile/Library/UserNotifications*'),
             'ooklaSpeedtestData': ('Applications', '**/speedtest.sqlite*'),
             'photosMetadata': ('Photos', '**/Photos.sqlite'),
-            'powerlogAll': ('Powerlog', '**/CurrentPowerlog.PLSQL'),
-            'powerlogGZ': ('Powerlog Backups', '**/Library/BatteryLife/Archives/powerlog_*.PLSQL.gz'),
             'queryPredictions': ('SMS & iMessage', '**/query_predictions.db'),
             'quickLook': ('iCloud Quick Look', '*/Quick Look/cloudthumbnails.db*'),
             'reminders': ('Reminders', '**/Reminders/Container_v1/Stores/*.sqlite*'),
-            'routineDCloud': ('Locations', '**/Library/Caches/com.apple.routined/Cloud-V2.sqlite*'),
-            'routineDlocations': ('Locations', '**/com.apple.routined/Cache.sqlite*'),
-            'routineDLocationsLocal': ('Locations', '**/private/var/mobile/Library/Caches/com.apple.routined/Local.sqlite*'),
             'safariBookmarks': ('Safari Browser', '**/Safari/Bookmarks.db'),
             'safariHistory': ('Safari Browser', '**/Safari/History.db'),
             'safariRecentWebSearches': ('Safari Browser', '**/Library/Preferences/com.apple.mobilesafari.plist'),
