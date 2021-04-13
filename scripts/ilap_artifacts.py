@@ -71,6 +71,7 @@ from scripts.artifacts.photosMetadata import get_photosMetadata
 from scripts.artifacts.queryPredictions import get_queryPredictions
 from scripts.artifacts.safariBookmarks import get_safariBookmarks
 from scripts.artifacts.safariHistory import get_safariHistory
+from scripts.artifacts.safariFavicons import get_safariFavicons
 from scripts.artifacts.safariRecentWebSearches import get_safariRecentWebSearches
 from scripts.artifacts.safariTabs import get_safariTabs
 from scripts.artifacts.safariWebsearch import get_safariWebsearch
@@ -189,6 +190,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'safariRecentWebSearches': ('Safari Browser', '**/Library/Preferences/com.apple.mobilesafari.plist'),
             'safariTabs': ('Safari Browser', '**/Safari/BrowserState.db'),
             'safariWebsearch': ('Safari Browser', '**/Safari/History.db'),
+            'safariFavicons': ('Safari Browser', '*/Containers/Data/Application/*/Library/Image Cache/Favicons/Favicons.db*'),
             'screentimeAll': ('Screentime', '**/RMAdminStore-Local.sqlite'),
             'sms': ('SMS & iMessage', '**/sms.db'),
             'slack': ('Slack', '*/var/mobile/Containers/Data/Application/*/Library/Application Support/Slack/*/Database/main_db*'),

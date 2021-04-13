@@ -1,4 +1,4 @@
-aleapp_version = '1.15.8'
+aleapp_version = '1.16.8'
 
 # Contributors List
 # Format = [ Name, Blog-url, Twitter-handle, Github-url]
@@ -31,5 +31,6 @@ aleapp_contributors = [
     ['Kevin Pagano', 'https://stark4n6.com/', '@KevinPagano3', 'https://github.com/stark4n6'],
     ['Ed Michael', '', '@EdXlg123', 'https://github.com/edmichael'],
     ['Anna-Mariya Mateyna', '', '@any333_snickers', 'https://github.com/any333'],
-    ['Tommy Harris', '', '@tobraha', 'https://github.com/tobraha']
+    ['Tommy Harris', '', '@tobraha', 'https://github.com/tobraha'],
+    ['Troy Schnack', '', '@TroySchnack', '']
 ]
