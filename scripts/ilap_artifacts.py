@@ -74,7 +74,6 @@ from scripts.artifacts.safariRecentWebSearches import get_safariRecentWebSearche
 from scripts.artifacts.safariTabs import get_safariTabs
 from scripts.artifacts.safariWebsearch import get_safariWebsearch
 from scripts.artifacts.slack import get_slack
-from scripts.artifacts.sms import get_sms
 from scripts.artifacts.tileApp import get_tileApp
 from scripts.artifacts.tileAppDb import get_tileAppDb
 from scripts.artifacts.tileAppDisc import get_tileAppDisc
@@ -186,7 +185,6 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'safariTabs': ('Safari Browser', '**/Safari/BrowserState.db'),
             'safariWebsearch': ('Safari Browser', '**/Safari/History.db'),
             'safariFavicons': ('Safari Browser', '*/Containers/Data/Application/*/Library/Image Cache/Favicons/Favicons.db*'),
-            'sms': ('SMS & iMessage', '**/sms.db'),
             'slack': ('Slack', '*/var/mobile/Containers/Data/Application/*/Library/Application Support/Slack/*/Database/main_db*'),
             'tcc': ('App Permissions', '*TCC.db*'),
             'teams': ('Microsoft Teams', ('*/var/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*','*/var/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/Downloads/*/Images/*')),
