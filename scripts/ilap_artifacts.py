@@ -24,7 +24,6 @@ from scripts.artifacts.applicationstate import get_applicationstate
 from scripts.artifacts.bluetooth import get_bluetooth
 from scripts.artifacts.cacheRoutesGmap import get_cacheRoutesGmap
 from scripts.artifacts.calendarAll import get_calendarAll
-from scripts.artifacts.callHistory import get_callHistory
 from scripts.artifacts.celWireless import get_celWireless
 from scripts.artifacts.cloudkitNoteSharing import get_cloudkitNoteSharing
 from scripts.artifacts.cloudkitParticipants import get_cloudkitParticipants
@@ -139,7 +138,6 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'bluetooth': ('Bluetooth', '**/com.apple.MobileBluetooth.*'),
             'cacheRoutesGmap': ('Locations', '**/Library/Application Support/CachedRoutes/*.plist'),
             'calendarAll': ('Calendar', '**/Calendar.sqlitedb'),
-            'callHistory': ('Call logs', '**/CallHistory.storedata'),
             'celWireless': ('Cellular Wireless', '*wireless/Library/Preferences/com.apple.*'),
             'cloudkitNoteSharing': ('Cloudkit', '*NoteStore.sqlite*'),
             'cloudkitParticipants': ('Cloudkit', '*NoteStore.sqlite*'),
