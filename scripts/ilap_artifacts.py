@@ -69,7 +69,6 @@ from scripts.artifacts.ooklaSpeedtestData import get_ooklaSpeedtestData
 from scripts.artifacts.photosMetadata import get_photosMetadata
 from scripts.artifacts.queryPredictions import get_queryPredictions
 from scripts.artifacts.safariBookmarks import get_safariBookmarks
-from scripts.artifacts.safariHistory import get_safariHistory
 from scripts.artifacts.safariFavicons import get_safariFavicons
 from scripts.artifacts.safariRecentWebSearches import get_safariRecentWebSearches
 from scripts.artifacts.safariTabs import get_safariTabs
@@ -183,7 +182,6 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'quickLook': ('iCloud Quick Look', '*/Quick Look/cloudthumbnails.db*'),
             'reminders': ('Reminders', '**/Reminders/Container_v1/Stores/*.sqlite*'),
             'safariBookmarks': ('Safari Browser', '**/Safari/Bookmarks.db'),
-            'safariHistory': ('Safari Browser', '**/Safari/History.db'),
             'safariRecentWebSearches': ('Safari Browser', '**/Library/Preferences/com.apple.mobilesafari.plist'),
             'safariTabs': ('Safari Browser', '**/Safari/BrowserState.db'),
             'safariWebsearch': ('Safari Browser', '**/Safari/History.db'),
