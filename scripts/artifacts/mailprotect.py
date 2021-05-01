@@ -9,8 +9,7 @@ import scripts.artifacts.artGlobals
  
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
-from scripts.ccl import ccl_bplist
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows
 from scripts.parse3 import ParseProto
 
 def get_mailprotect(files_found, report_folder, seeker):
@@ -22,8 +21,7 @@ def get_mailprotect(files_found, report_folder, seeker):
 
 	if version.parse(iOSversion) < version.parse("13"):
 		head, end = os.path.split(files_found[0])
-		tempf = report_folder
-		db = sqlite3.connect(report_folder + "/emails.db")
+		db = sqlite3.connect(os.path.join(report_folder, "emails.db"))
 		cursor = db.cursor()
 		cursor.execute(
 			"""
@@ -38,10 +36,11 @@ def get_mailprotect(files_found, report_folder, seeker):
 		"""
 		)
 		db.commit()
+		db.close()
 
-		db = sqlite3.connect(head + "/Envelope Index")
+		db = sqlite3.connect(os.path.join(head, "Envelope Index"))
 		db.execute(f'ATTACH DATABASE "{head}/Protected Index" AS PI')
-		db.execute(f'ATTACH DATABASE "{tempf}/emails.db" AS emails')
+		db.execute(f'ATTACH DATABASE "{report_folder}/emails.db" AS emails')
 
 		cursor = db.cursor()
 		cursor.execute(
@@ -65,8 +64,7 @@ def get_mailprotect(files_found, report_folder, seeker):
 		all_rows = cursor.fetchall()
 		usageentries = len(all_rows)
 		if usageentries > 0:
-			print(f"Total emails {str(usageentries)}")
-			usageentries1 = str(usageentries)
+			print(f"Total emails {usageentries}")
 			for row in all_rows:
 				# print(row)
 				datainsert = (
@@ -82,7 +80,7 @@ def get_mailprotect(files_found, report_folder, seeker):
 					row[9],
 				)
 				cursor.execute(
-					"INSERT INTO emails.email1 (rowid, ds, dr, size, sender, messid, subject, receipt, cc, bcc)  VALUES(?,?,?,?,?,?,?,?,?,?)",
+					"INSERT INTO emails.email1 (rowid, ds, dr, size, sender, messid, subject, receipt, cc, bcc) VALUES (?,?,?,?,?,?,?,?,?,?)",
 					datainsert,
 				)
 				db.commit()
@@ -104,8 +102,7 @@ def get_mailprotect(files_found, report_folder, seeker):
 		all_rows = cursor.fetchall()
 		usageentries = len(all_rows)
 		if usageentries > 0:
-			print(f"Total emails with message data {str(usageentries)}")
-			usageentries2 = str(usageentries)
+			print(f"Total emails with message data {usageentries}")
 			for row in all_rows:
 				datainsert = (
 					row[0],
@@ -143,26 +140,29 @@ def get_mailprotect(files_found, report_folder, seeker):
 		if usageentries > 0:
 			data_list = [] 
 			for row in all_rows:
-				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[9],row[7],row[8]))
+				data_list.append((row[1],row[2],row[3],row[4],row[5],row[6],row[9],row[7],row[8],row[0]))
 			
 			file_found = head
 			description = ''
 			report = ArtifactHtmlReport('iOS Mail')
 			report.start_artifact_report(report_folder, 'Emails', description)
 			report.add_script()
-			data_headers = ('Row ID','Date Sent','Date Received','Sender','Message ID', 'Subject', 'Recipient', 'Message', 'CC', 'BCC')     
+			data_headers = ('Date Sent','Date Received','Sender','Message ID', 'Subject', 'Recipient', 'Message', 'CC', 'BCC','Row ID')     
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
 			tsvname = 'iOS Mail'
-			tsv(report_folder, data_headers, data_list, tsvname)		
+			tsv(report_folder, data_headers, data_list, tsvname)
+			
+			tlactivity = 'iOS Mail'
+			timeline(report_folder, tlactivity, data_list, data_headers)		
 		else:
 			logfunc("No iOS emails available")
+		db.close()
 
 	if version.parse(iOSversion) >= version.parse("13"):
 		head, end = os.path.split(files_found[0])
-		tempf = report_folder
-		db = sqlite3.connect(head + "/Envelope Index")
+		db = sqlite3.connect(os.path.join(head, "Envelope Index"))
 		db.execute(f'ATTACH DATABASE "{head}/Protected Index" AS PI')
 
 		cursor = db.cursor()
@@ -205,6 +205,9 @@ def get_mailprotect(files_found, report_folder, seeker):
 			
 			tsvname = 'iOS Mail'
 			tsv(report_folder, data_headers, data_list, tsvname)
+			
+			tlactivity = 'iOS Mail'
+			timeline(report_folder, tlactivity, data_list, data_headers)
 				
 		else:
 			logfunc("No iOS emails available")

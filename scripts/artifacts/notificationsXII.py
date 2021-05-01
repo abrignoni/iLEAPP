@@ -1,15 +1,15 @@
 import os
 import glob
-from scripts.Deserializer import deserializer
+import nska_deserialize as nd
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, is_platform_windows
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows
 
 def get_bundle_id_and_names_from_plist(library_plist_file_path):
     '''Parses Library.plist and returns a dictionary where Key=Bundle_ID, Value=Bundle_Name'''
     bundle_info = {}
     f = open(library_plist_file_path, 'rb')
-    plist = deserializer.process_nsa_plist("", f)
+    plist = nd.deserialize_plist(f)
     for k, v in plist.items():
         bundle_info[v] = k
     f.close()
@@ -47,7 +47,7 @@ def get_notificationsXII(files_found, report_folder, seeker):
                 bundle_id = os.path.basename(os.path.dirname(filepath))
                 # open the plist
                 p = open(filepath, "rb")
-                plist = deserializer.process_nsa_plist("", p)
+                plist = nd.deserialize_plist(p)
                 
                 # Empty plist will be { 'root': None }
                 if isinstance(plist, dict):
@@ -78,7 +78,7 @@ def get_notificationsXII(files_found, report_folder, seeker):
                             other_dict[k] = str(v)
                     if subtitle:
                         title += f'[{subtitle}]'
-                    data_list.append((bundle_name, title, message, creation_date, str(other_dict)))
+                    data_list.append((creation_date, bundle_name, title, message, str(other_dict)))
                 p.close()
                 
             elif "AttachmentsList" in file_name:
@@ -88,11 +88,17 @@ def get_notificationsXII(files_found, report_folder, seeker):
     report = ArtifactHtmlReport('iOS Notificatons')
     report.start_artifact_report(report_folder, 'iOS Notifications', description)
     report.add_script()
-    data_headers = ('Bundle', 'Title[Subtitle]', 'Message', 'Creation Time', 'Other Details')
+    data_headers = ('Creation Time', 'Bundle', 'Title[Subtitle]', 'Message', 'Other Details')
     report.write_artifact_data_table(data_headers, data_list, filepath)
     report.end_artifact_report()
 
     logfunc("Total notifications processed:" + str(len(data_list)))
     #logfunc("Total exported bplists from notifications:" + str(exportedbplistcount))
+    
+    tsvname = 'Notifications'
+    tsv(report_folder, data_headers, data_list, tsvname)
+
+    tlactivity = 'Notifications'
+    timeline(report_folder, tlactivity, data_list, data_headers)
     if len(data_list) == 0:
         logfunc("No notifications found.")

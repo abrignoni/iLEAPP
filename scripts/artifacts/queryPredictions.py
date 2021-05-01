@@ -6,12 +6,11 @@ import sqlite3
 import scripts.artifacts.artGlobals #use to get iOS version -> iOSversion = scripts.artifacts.artGlobals.versionf
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
-from scripts.ccl import ccl_bplist
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
 
 def get_queryPredictions(files_found, report_folder, seeker):
     file_found = str(files_found[0])
-    db = sqlite3.connect(file_found)
+    db = open_sqlite_db_readonly(file_found)
     cursor = db.cursor()
     cursor.execute('''
     select
@@ -39,6 +38,9 @@ def get_queryPredictions(files_found, report_folder, seeker):
         
         tsvname = 'Query Predictions'
         tsv(report_folder, data_headers, data_list, tsvname)
+        
+        tlactivity = 'Query Predictions'
+        timeline(report_folder, tlactivity, data_list, data_headers)
     else:
         logfunc('No data available in table')
 

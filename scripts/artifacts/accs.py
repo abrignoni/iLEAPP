@@ -3,26 +3,24 @@ import plistlib
 import sqlite3
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly 
 
 
 def get_accs(files_found, report_folder, seeker):
     file_found = str(files_found[0])
-    db = sqlite3.connect(file_found)
+    db = open_sqlite_db_readonly(file_found)
     cursor = db.cursor()
-    cursor.execute(
-        """
-		SELECT
-		ZACCOUNTTYPEDESCRIPTION,
-		ZUSERNAME,
-		DATETIME(ZDATE+978307200,'UNIXEPOCH','UTC' ) AS 'ZDATE TIMESTAMP',
-		ZACCOUNTDESCRIPTION,
-		ZACCOUNT.ZIDENTIFIER,
-		ZACCOUNT.ZOWNINGBUNDLEID
-		FROM ZACCOUNT
-		JOIN ZACCOUNTTYPE ON ZACCOUNTTYPE.Z_PK=ZACCOUNT.ZACCOUNTTYPE
-		ORDER BY ZACCOUNTTYPEDESCRIPTION
-		"""
+    cursor.execute("""
+    select
+    datetime(zdate+978307200,'unixepoch','utc' ),
+    zaccounttypedescription,
+    zusername,
+    zaccountdescription,
+    zaccount.zidentifier,
+    zaccount.zowningbundleid
+    from zaccount, zaccounttype 
+    where zaccounttype.z_pk=zaccount.zaccounttype
+    """
     )
 
     all_rows = cursor.fetchall()
@@ -34,13 +32,17 @@ def get_accs(files_found, report_folder, seeker):
         report = ArtifactHtmlReport('Account Data')
         report.start_artifact_report(report_folder, 'Account Data')
         report.add_script()
-        data_headers = ('Account Desc.','Username','Timestamp','Description','Identifier','Bundle ID' )     
+        data_headers = ('Timestamp','Account Desc.','Username','Description','Identifier','Bundle ID' )     
         report.write_artifact_data_table(data_headers, data_list, file_found)
         report.end_artifact_report()
         
         tsvname = 'Account Data'
         tsv(report_folder, data_headers, data_list, tsvname)
+        
+        tlactivity = 'Account Data'
+        timeline(report_folder, tlactivity, data_list, data_headers)
 
     else:
         logfunc("No Account Data available")
 
+        

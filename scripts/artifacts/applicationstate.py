@@ -1,83 +1,66 @@
-import glob
-import os
-import pathlib
+import biplist
+import io
+import nska_deserialize as nd
 import plistlib
 import sqlite3
+import sys
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
-from scripts.ccl import ccl_bplist
+from scripts.ilapfuncs import logfunc, tsv, is_platform_windows, open_sqlite_db_readonly
 
 def get_applicationstate(files_found, report_folder, seeker):
     file_found = str(files_found[0])
-    db = sqlite3.connect(file_found)
+    db = open_sqlite_db_readonly(file_found)
     cursor = db.cursor()
     cursor.execute('''
-    select
-    application_identifier_tab.[application_identifier],
-    kvs.[value]
-    from kvs, key_tab,application_identifier_tab
-    where 
-    key_tab.[key]='compatibilityInfo' and kvs.[key] = key_tab.[id]
-    and application_identifier_tab.[id] = kvs.[application_identifier]
-    order by application_identifier_tab.[id]  
+    select ait.application_identifier as ai, kvs.value as compat_info,
+    (SELECT kvs.value from kvs left join application_identifier_tab on application_identifier_tab.id = kvs.application_identifier
+    left join key_tab on kvs.key = key_tab.id  
+    WHERE key_tab.key='XBApplicationSnapshotManifest' and kvs.key = key_tab.id
+    and application_identifier_tab.id = ait.id
+    ) as snap_info
+    from kvs 
+    left join application_identifier_tab ait on ait.id = kvs.application_identifier
+    left join key_tab on kvs.key = key_tab.id 
+    where key_tab.key='compatibilityInfo' 
+    order by ait.id
     ''')
 
     all_rows = cursor.fetchall()
     usageentries = len(all_rows)
     if usageentries > 0:
-        os.mkdir(report_folder + "exported-dirty/")
-        os.mkdir(report_folder + "exported-clean/")
         data_list = []
+        snap_info_list = []
         for row in all_rows:
             bundleid = str(row[0])
-            bundleidplist = bundleid + ".bplist"
-            f = row[1]
-            
-            output_file = open(
-                report_folder + "/exported-dirty/" + bundleidplist, "wb"
-            )  # export dirty from DB
-            output_file.write(f)
-            output_file.close()
-            
-            g = open(report_folder + "/exported-dirty/" + bundleidplist, "rb")
-            # plist = plistlib.load(g)
-
-            plist = ccl_bplist.load(g)
-            
-            if type(plist) is dict:
-                var1 = (plist['bundleIdentifier'])
-                var2 = (plist['bundlePath'])
-                var3 = (plist['sandboxPath'])
-                data_list.append((var1, var2, var3))
+            plist_file_object = io.BytesIO(row[1])
+            if row[1].find(b'NSKeyedArchiver') == -1:
+                if sys.version_info >= (3, 9):
+                    plist = plistlib.load(plist_file_object)
+                else:
+                    plist = biplist.readPlist(plist_file_object)
             else:
-                output_file = open(report_folder + "exported-clean/" + bundleidplist, "wb")
-                output_file.write(plist)
-                output_file.close()
-            
-        for filename in glob.glob(report_folder + "exported-clean/*.bplist"):
-            p = open(filename, "rb")
-            # cfilename = os.path.basename(filename)
-            plist = ccl_bplist.load(p)
-            ns_keyed_archiver_obj = ccl_bplist.deserialise_NsKeyedArchiver(
-                plist, parse_whole_structure=False
-            )  # deserialize clean
-            # logfunc(ns_keyed_archiver_obj)
-            bid = ns_keyed_archiver_obj["bundleIdentifier"]
-            bpath = ns_keyed_archiver_obj["bundlePath"]
-            bcontainer = ns_keyed_archiver_obj["bundleContainerPath"]
-            bsandbox = ns_keyed_archiver_obj["sandboxPath"]
-
-            if bsandbox == "$null":
-                bsandbox = ""
-            if bcontainer == "$null":
-                bcontainer = ""
-            data_list.append((bid,bpath,bsandbox))
-
+                try:
+                    plist = nd.deserialize_plist(plist_file_object)                    
+                except (nd.DeserializeError, nd.biplist.NotBinaryPlistException, nd.biplist.InvalidPlistException,
+                        nd.plistlib.InvalidFileException, nd.ccl_bplist.BplistError, ValueError, TypeError, OSError, OverflowError) as ex:
+                    logfunc(f'Failed to read plist for {row[0]}, error was:' + str(ex))
+            if plist:
+                if type(plist) is dict:
+                    var1 = plist.get('bundleIdentifier', '')
+                    var2 = plist.get('bundlePath', '')
+                    var3 = plist.get('sandboxPath', '')
+                    data_list.append((var1, var2, var3))
+                    if row[2]:
+                        snap_info_list.append((var1, var2, var3, row[2]))
+                else:
+                    logfunc(f'For {row[0]} Unexpected type "' + str(type(plist)) + '" found as plist root, can\'t process')
+            else:
+                logfunc(f'For {row[0]}, plist could not be read!')
         report = ArtifactHtmlReport('Application State')
         report.start_artifact_report(report_folder, 'Application State DB')
         report.add_script()
-        data_headers = ('Bundle ID','Bundle Path','Sandbox Path' )     
+        data_headers = ('Bundle ID','Bundle Path','Sandbox Path')     
         report.write_artifact_data_table(data_headers, data_list, file_found)
         report.end_artifact_report()
         

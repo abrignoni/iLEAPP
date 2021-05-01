@@ -6,7 +6,6 @@ import sqlite3
 
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
-from scripts.ccl import ccl_bplist
 
 def get_conDev(files_found, report_folder, seeker):
     file_found = str(files_found[0])
