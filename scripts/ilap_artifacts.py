@@ -25,8 +25,7 @@ from scripts.artifacts.bluetooth import get_bluetooth
 from scripts.artifacts.cacheRoutesGmap import get_cacheRoutesGmap
 from scripts.artifacts.calendarAll import get_calendarAll
 from scripts.artifacts.celWireless import get_celWireless
-from scripts.artifacts.cloudkitNoteSharing import get_cloudkitNoteSharing
-from scripts.artifacts.cloudkitParticipants import get_cloudkitParticipants
+from scripts.artifacts.cloudkitSharing import get_cloudkitSharing
 from scripts.artifacts.conDev import get_conDev
 from scripts.artifacts.confaccts import get_confaccts
 from scripts.artifacts.deviceActivator import get_deviceActivator
@@ -88,8 +87,7 @@ from scripts.artifacts.appGrouplisting import get_appGrouplisting
 from scripts.artifacts.deviceActivator import get_deviceActivator
 from scripts.artifacts.kikMessages import get_kikMessages
 from scripts.artifacts.appItunesmeta import get_appItunesmeta
-from scripts.artifacts.cloudkitParticipants import get_cloudkitParticipants
-from scripts.artifacts.cloudkitNoteSharing import get_cloudkitNoteSharing
+from scripts.artifacts.cloudkitSharing import get_cloudkitSharing
 from scripts.artifacts.appleWalletTransactions import get_appleWalletTransactions
 from scripts.artifacts.walStrings import get_walStrings
 from scripts.artifacts.webClips import get_webClips
@@ -137,8 +135,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'cacheRoutesGmap': ('Locations', '**/Library/Application Support/CachedRoutes/*.plist'),
             'calendarAll': ('Calendar', '**/Calendar.sqlitedb'),
             'celWireless': ('Cellular Wireless', '*wireless/Library/Preferences/com.apple.*'),
-            'cloudkitNoteSharing': ('Cloudkit', '*NoteStore.sqlite*'),
-            'cloudkitParticipants': ('Cloudkit', '*NoteStore.sqlite*'),
+            'cloudkitSharing': ('Cloudkit', '*NoteStore.sqlite*'),
             'conDev': ('Connected to', '**/iTunes_Control/iTunes/iTunesPrefs'),
             'confaccts': ('Accounts', '**/com.apple.accounts.exists.plist'),
             'deviceActivator': ('IOS Build', '*private/var/mobile/Library/Logs/mobileactivationd/ucrt_oob_request.txt'),
