@@ -16,6 +16,7 @@ from scripts.artifacts.appSnapshots import get_applicationSnapshots
 from scripts.artifacts.appleMapsApplication import get_appleMapsApplication
 from scripts.artifacts.appleMapsGroup import get_appleMapsGroup
 from scripts.artifacts.appleMapsSearchHistory import get_appleMapsSearchHistory
+from scripts.artifacts.applePodcasts import get_applePodcasts
 from scripts.artifacts.appleWifiPlist import get_appleWifiPlist
 from scripts.artifacts.appleWalletCards import get_appleWalletCards
 from scripts.artifacts.appleWalletPasses import get_appleWalletPasses
@@ -125,6 +126,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'appleMapsApplication': ('Locations', '**/Data/Application/*/Library/Preferences/com.apple.Maps.plist'),
             'appleMapsGroup': ('Locations', '**/Shared/AppGroup/*/Library/Preferences/group.com.apple.Maps.plist'),
             'appleMapsSearchHistory': ('Locations', '*private/var/mobile/Containers/Data/Application/*/Library/Maps/GeoHistory.mapsdata'),
+            'applePodcasts': ('Apple Podcasts', '**/MTLibrary.sqlite*'),
             'appleWalletCards': ('Apple Wallet', '*/private/var/mobile/Containers/Data/Application/*/Library/Caches/com.apple.Passbook/Cache.db*'),
             'appleWalletPasses': ('Apple Wallet', ('**/nanopasses.sqlite3*', '**/Cards/*.pkpass/pass.json')),
             'appleWalletTransactions': ('Apple Wallet', '**/passes23.sqlite'),
