@@ -107,6 +107,13 @@ def get_icon_name(category, artifact):
             icon = 'map'
         elif artifact == 'PD PLACE CACHE':
             icon = 'map-pin'
+    elif category == 'GOOGLE DUO':
+        if artifact == 'GOOGLE DUO - CALL HISTORY':
+            icon = 'phone-call'
+        if artifact == 'GOOGLE DUO - CONTACTS':
+            icon = 'user'
+        if artifact == 'GOOGLE DUO - CLIPS':
+            icon = 'video'
     elif category == 'HEALTH DATA':
         icon = 'heart'
     elif category == 'ICLOUD SHARED ALBUMS':
