@@ -106,6 +106,7 @@ from scripts.artifacts.webClips import get_webClips
 from scripts.artifacts.reminders import get_reminders
 from scripts.artifacts.voiceTriggers import get_voiceTriggers
 from scripts.artifacts.voiceRecordings import get_voiceRecordings
+from scripts.artifacts.recentApphistory import get_recentApphistory
 
 from scripts.ilapfuncs import *
 
@@ -179,6 +180,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'photosMetadata': ('Photos', '**/Photos.sqlite'),
             'queryPredictions': ('SMS & iMessage', '**/query_predictions.db'),
             'quickLook': ('iCloud Quick Look', '*/Quick Look/cloudthumbnails.db*'),
+            'recentApphistory':('CarPlay', '*/com.apple.CarPlayApp.plist'),
             'reminders': ('Reminders', '**/Reminders/Container_v1/Stores/*.sqlite*'),
             'safariBookmarks': ('Safari Browser', '**/Safari/Bookmarks.db'),
             'safariRecentWebSearches': ('Safari Browser', '**/Library/Preferences/com.apple.mobilesafari.plist'),

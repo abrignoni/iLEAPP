@@ -42,6 +42,8 @@ def get_icon_name(category, artifact):
         icon = 'activity'
     elif category == 'APP PERMISSIONS':
         icon = 'key'
+    elif category == 'CARPLAY':
+        icon = 'package'
     elif category == 'APP UPDATES':
         icon = 'codepen'
     elif category == 'APPLICATIONS':
