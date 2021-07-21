@@ -42,6 +42,7 @@ from scripts.artifacts.filesAppsm import get_filesAppsm
 from scripts.artifacts.geodApplications import get_geodApplications
 from scripts.artifacts.geodMapTiles import get_geodMapTiles
 from scripts.artifacts.geodPDPlaceCache import get_geodPDPlaceCache
+from scripts.artifacts.googleDuo import get_googleDuo
 from scripts.artifacts.icloudMeta import get_icloudMeta
 from scripts.artifacts.icloudPhotoMeta import get_icloudPhotoMeta
 from scripts.artifacts.quickLook import get_quickLook
@@ -154,6 +155,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'geodApplications': ('Geolocation', '**/AP.db'),
             'geodMapTiles': ('Geolocation', '**/MapTiles.sqlitedb'),
             'geodPDPlaceCache': ('Geolocation', '**/PDPlaceCache.db'),
+            'googleDuo': ('Google Duo', ('*/Application Support/DataStore*','*/Application Support/ClipsCache/*.png')),
             'icloudMeta': ('iCloud Returns', '*/iclouddrive/Metadata.txt'),
             'icloudPhotoMeta': ('iCloud Returns', '*/cloudphotolibrary/Metadata.txt'),
             'icloudSharedalbums': ('iCloud Shared Albums', '*/private/var/mobile/Media/PhotoData/PhotoCloudSharingData/*'),
