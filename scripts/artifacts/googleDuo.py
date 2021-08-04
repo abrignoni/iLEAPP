@@ -136,7 +136,7 @@ def get_googleDuo(files_found, report_folder, seeker):
                     if clip_name in match:
                         shutil.copy2(match, report_folder)
                         data_file_name = os.path.basename(match)
-                        thumb = f'<img src="{report_folder}/{data_file_name}"></img>'
+                        thumb = f'<img src="{report_folder}/{data_file_name}" width="300"></img>'
       
                 data_list.append((clip_creation, clip_message, clip_viewed, local_id, clip_direction ,text_rep, message_id, content_size, transferred_size, thumb))
             
