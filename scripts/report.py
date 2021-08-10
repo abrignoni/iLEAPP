@@ -146,6 +146,8 @@ def get_icon_name(category, artifact):
             icon = 'message-square'
         if artifact == 'KIK USERS':
             icon = 'user'
+        if artifact == 'KIK MEDIA METADATA':
+            icon = 'file-plus'
     elif category == 'KNOWLEDGEC':
         if artifact == 'KNOWLEDGEC DEVICE LOCKED':
             icon = 'lock'
@@ -527,6 +529,7 @@ def mark_item_active(data, itemname):
     else:
         ret = data[0: pos] + " active" + data[pos:]
         return ret
+    
     
     
     

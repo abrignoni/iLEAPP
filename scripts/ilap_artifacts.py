@@ -55,6 +55,7 @@ from scripts.artifacts.interactionCcontacts import get_interactionCcontacts
 from scripts.artifacts.keyboardAppUsage import get_keyboardAppUsage
 from scripts.artifacts.keyboardLexicon import get_keyboardLexicon
 from scripts.artifacts.kikMessages import get_kikMessages
+from scripts.artifacts.kikBplistmeta import get_kikBplistmeta
 from scripts.artifacts.lastBuild import get_lastBuild, get_iTunesBackupInfo
 from scripts.artifacts.mailprotect import get_mailprotect
 from scripts.artifacts.mediaLibrary import get_mediaLibrary
@@ -167,6 +168,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'keyboardAppUsage': ('Keyboard', '*/private/var/mobile/Library/Keyboard/app_usage_database.plist'),
             'keyboardLexicon': ('Keyboard', '*/private/var/mobile/Library/Keyboard/*-dynamic.lm/dynamic-lexicon.dat'),
             'kikMessages': ('Kik', '**/kik.sqlite*'),
+            'kikBplistmeta': ('Kik', '*/mobile/Containers/Shared/AppGroup/*/cores/private/*/content_manager/metadata_cache/*'),
             'mailprotect': ('iOS Mail', '**/private/var/mobile/Library/Mail/* Index*'),
             'mediaLibrary': ('Media Library', '**/Medialibrary.sqlitedb'),
             'medicalID': ('Medical ID', '*/private/var/mobile/Library/MedicalID/MedicalIDData.archive'),
