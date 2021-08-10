@@ -15,6 +15,7 @@ def get_kikBplistmeta(files_found, report_folder, seeker):
 		if isDirectory:
 			pass
 		else:
+			sha1org = sha1scaled = blockhash = appname = layout = allowforward = filesize = filename = thumb = appid = id = ''
 			with open(file_found, 'rb') as f:
 				plist = biplist.readPlist(f)
 				for key,val in plist.items():
@@ -23,23 +24,23 @@ def get_kikBplistmeta(files_found, report_folder, seeker):
 					elif key == 'hashes':
 						for x in val:
 							if x['name'] == 'sha1-original':
-								sha1org = x['value']
+								sha1org = x.get('value', '')
 							if x['name'] == 'sha1-scaled':
-								sha1scaled = x['value']
+								sha1scaled = x.get('value', '')
 							if x['name'] == 'blockhash-scaled':
-								blockhash = x['value']
+								blockhash = x.get('value', '')
 					elif key == 'string':
 						for x in val:
 							if x['name'] == 'app-name':
-								appname = x['value']
+								appname = x.get('value', '')
 							if x['name'] == 'layout':
-								layout = x['value']
+								layout = x.get('value', '')
 							if x['name'] == 'allow-forward':
-								allowforward= x['value']
+								allowforward = x.get('value', '')
 							if x['name'] == 'file-size':
-								filesize = x['value']
+								filesize = x.get('value', '')
 							if x['name'] == 'file-name':
-								filename = x['value']
+								filename = x.get('value', '')
 					elif key == 'image':
 						thumbfilename = id+'.jpg'
 						file = open(f'{report_folder}{thumbfilename}', "wb")
