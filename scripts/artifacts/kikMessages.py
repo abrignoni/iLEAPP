@@ -23,11 +23,11 @@ def get_kikMessages(files_found, report_folder, seeker):
     datetime(ZKIKMESSAGE.ZTIMESTAMP +978307200,'UNIXEPOCH') as TIMESTAMP,
     ZKIKMESSAGE.ZBODY,
     case ZKIKMESSAGE.ZTYPE
-        when 1 then 'rcvd'
-        when 2 then 'sent'
-        when 3 then 'grp admin'
-        when 4 then 'grp msg'
-        else 'unkn' end as 'Type',
+        when 1 then 'Received'
+        when 2 then 'Sent'
+        when 3 then 'Group Admin'
+        when 4 then 'Group Message'
+        else 'Unknown' end as 'Type',
     ZKIKMESSAGE.ZUSER,
     ZKIKUSER.ZDISPLAYNAME,
     ZKIKUSER.ZUSERNAME,
@@ -49,7 +49,7 @@ def get_kikMessages(files_found, report_folder, seeker):
         report = ArtifactHtmlReport('Kik Messages')
         report.start_artifact_report(report_folder, 'Kik Messages', description)
         report.add_script()
-        data_headers = ('Received Time', 'Timestamp', 'Message', 'Type', 'User', 'Display Name', 'Username','Content' )     
+        data_headers = ('Received Time', 'Timestamp', 'Message', 'Type', 'User', 'Display Name', 'User Name','Attachment')     
         report.write_artifact_data_table(data_headers, data_list, file_found)
         report.end_artifact_report()
         
@@ -59,7 +59,45 @@ def get_kikMessages(files_found, report_folder, seeker):
         tlactivity = 'Kik Messages'
         timeline(report_folder, tlactivity, data_list, data_headers)
     else:
-        logfunc('No Kik data available')
+        logfunc('No Kik Messages data available')
+        
+    cursor.execute('''
+    SELECT
+    Z_PK,
+    ZDISPLAYNAME,
+    ZUSERNAME,
+    ZEMAIL,
+    ZJID,
+    ZFIRSTNAME,
+    ZLASTNAME,
+    datetime(ZPPTIMESTAMP/1000,'unixepoch'),
+    ZPPURL
+    FROM ZKIKUSER
+    ''')
+
+    all_rows = cursor.fetchall()
+    usageentries = len(all_rows)
+    data_list = []  
+    
+    if usageentries > 0:
+        for row in all_rows:
+            data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8]))
+
+        description = 'Kik Users'
+        report = ArtifactHtmlReport('Kik Users')
+        report.start_artifact_report(report_folder, 'Kik Users', description)
+        report.add_script()
+        data_headers = ('PK','Display Name','User Name','Email','JID','First Name','Last Name','Profile Pic Timestamp','Profile Pic URL')     
+        report.write_artifact_data_table(data_headers, data_list, file_found)
+        report.end_artifact_report()
+        
+        tsvname = 'Kik Users'
+        tsv(report_folder, data_headers, data_list, tsvname)
+        
+        tlactivity = 'Kik Users'
+        timeline(report_folder, tlactivity, data_list, data_headers)
+    else:
+        logfunc('No Kik Users data available')
     
     db.close()
     return 
