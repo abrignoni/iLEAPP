@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import os
-import nska_deserialize as nd
+import biplist
 
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, is_platform_windows
@@ -9,27 +9,47 @@ from scripts.ilapfuncs import logfunc, tsv, is_platform_windows
 
 def get_kikBplistmeta(files_found, report_folder, seeker):
 	data_list = []
-	aggregate = ''
 	for file_found in files_found:
 		file_found = str(file_found)
 		isDirectory = os.path.isdir(file_found)
 		if isDirectory:
 			pass
-		else:    
+		else:
 			with open(file_found, 'rb') as f:
-				fileurl = contentid = appid = ''
-				deserialized_plist = nd.deserialize_plist(f)
-				for key,val in deserialized_plist['$0'].items():
-					if key == 'fileURL':
-						fileurl = val
-					elif key == 'contentID':
-						contentid = val
-					elif key == 'appID':
-						appid = val 
-					else:
-						aggregate = aggregate + f'{key}: {val} <br>'
+				plist = biplist.readPlist(f)
+				for key,val in plist.items():
+					if key == 'id':
+						id = val
+					elif key == 'hashes':
+						for x in val:
+							if x['name'] == 'sha1-original':
+								sha1org = x['value']
+							if x['name'] == 'sha1-scaled':
+								sha1scaled = x['value']
+							if x['name'] == 'blockhash-scaled':
+								blockhash = x['value']
+					elif key == 'string':
+						for x in val:
+							if x['name'] == 'app-name':
+								appname = x['value']
+							if x['name'] == 'layout':
+								layout = x['value']
+							if x['name'] == 'allow-forward':
+								allowforward= x['value']
+							if x['name'] == 'file-size':
+								filesize = x['value']
+							if x['name'] == 'file-name':
+								filename = x['value']
+					elif key == 'image':
+						thumbfilename = id+'.jpg'
+						file = open(f'{report_folder}{thumbfilename}', "wb")
+						file.write(val[0]['value'])
+						file.close()
+						thumb = f'<img src="{report_folder}{thumbfilename}"  width="300"></img>'
+					elif key == 'app-id':
+						appid = val
 						
-				data_list.append((contentid, appid, fileurl, aggregate))
+				data_list.append((id, filename, filesize, allowforward, layout, appname, appid, sha1org, sha1scaled, blockhash, thumb  ))
 				aggregate = ''
 				
 	if len(data_list) > 0:
@@ -38,7 +58,7 @@ def get_kikBplistmeta(files_found, report_folder, seeker):
 		report = ArtifactHtmlReport('Kik Attachments Bplist Metadata')
 		report.start_artifact_report(report_folder, 'Kik Media Metadata', description)
 		report.add_script()
-		data_headers = ('Content ID / Filename','App ID','File URL','Additional Metadata')
+		data_headers = ('Content ID ', 'Filename', 'File Size', 'Allow Forward', 'Layout','App Name','App ID', 'SHA1 Original','SHA1 Scaled','Blockhash Scaled', 'Internal Thumbnail')
 		report.write_artifact_data_table(data_headers, data_list, head_tail[0],html_escape=False)
 		report.end_artifact_report()
 		
