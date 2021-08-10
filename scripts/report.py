@@ -144,6 +144,8 @@ def get_icon_name(category, artifact):
     elif category == 'KIK':
         if artifact == 'KIK MESSAGES':
             icon = 'message-square'
+        if artifact == 'KIK USERS':
+            icon = 'user'
     elif category == 'KNOWLEDGEC':
         if artifact == 'KNOWLEDGEC DEVICE LOCKED':
             icon = 'lock'
