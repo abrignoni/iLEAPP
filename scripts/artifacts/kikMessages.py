@@ -1,5 +1,6 @@
-import sqlite3
 import os
+import shutil
+import sqlite3
 import scripts.artifacts.artGlobals
 
 from packaging import version
@@ -43,14 +44,25 @@ def get_kikMessages(files_found, report_folder, seeker):
     
     if usageentries > 0:
         for row in all_rows:
-            data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]))
+        
+            attachmentName = str(row[7])
+            thumb = ''
+        
+            for match in files_found:
+                if attachmentName in match:
+                    shutil.copy2(match, report_folder)
+                    data_file_name = os.path.basename(match)
+                    thumb = f'<img src="{report_folder}{data_file_name}"  width="300"></img>'
+        
+        
+            data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], thumb))
 
         description = 'Kik Messages'
         report = ArtifactHtmlReport('Kik Messages')
         report.start_artifact_report(report_folder, 'Kik Messages', description)
         report.add_script()
-        data_headers = ('Received Time', 'Timestamp', 'Message', 'Type', 'User', 'Display Name', 'User Name','Attachment')     
-        report.write_artifact_data_table(data_headers, data_list, file_found)
+        data_headers = ('Received Time', 'Timestamp', 'Message', 'Type', 'User', 'Display Name', 'User Name','Attachment Name','Attachment')
+        report.write_artifact_data_table(data_headers, data_list, file_found, html_no_escape=['Attachment'])
         report.end_artifact_report()
         
         tsvname = 'Kik Messages'
