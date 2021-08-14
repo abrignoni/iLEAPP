@@ -148,6 +148,8 @@ def get_icon_name(category, artifact):
             icon = 'user'
         if artifact == 'KIK MEDIA METADATA':
             icon = 'file-plus'
+        if artifact == 'KIK PENDING UPLOADS':
+            icon = 'upload'
     elif category == 'KNOWLEDGEC':
         if artifact == 'KNOWLEDGEC DEVICE LOCKED':
             icon = 'lock'
