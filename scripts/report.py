@@ -42,6 +42,8 @@ def get_icon_name(category, artifact):
             icon = 'send'
     elif category == 'APP CONDUIT':
         icon = 'activity'
+    elif category == 'PROTON MAIL':
+        icon = 'mail'
     elif category == 'APP PERMISSIONS':
         icon = 'key'
     elif category == 'CARPLAY':
