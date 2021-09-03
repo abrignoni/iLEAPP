@@ -69,6 +69,7 @@ from scripts.artifacts.notificationsXI import get_notificationsXI
 from scripts.artifacts.notificationsXII import get_notificationsXII
 from scripts.artifacts.ooklaSpeedtestData import get_ooklaSpeedtestData
 from scripts.artifacts.photosMetadata import get_photosMetadata
+from scripts.artifacts.protonMail import get_protonMail
 from scripts.artifacts.queryPredictions import get_queryPredictions
 from scripts.artifacts.safariBookmarks import get_safariBookmarks
 from scripts.artifacts.safariFavicons import get_safariFavicons
@@ -181,6 +182,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'notificationsXII': ('Notifications', '*private/var/mobile/Library/UserNotifications*'),
             'ooklaSpeedtestData': ('Applications', '**/speedtest.sqlite*'),
             'photosMetadata': ('Photos', '**/Photos.sqlite'),
+            'protonMail': ('Proton Mail', ('*/group.ch.protonmail.protonmail.plist','*/ProtonMail.sqlite*')),
             'queryPredictions': ('SMS & iMessage', '**/query_predictions.db'),
             'quickLook': ('iCloud Quick Look', '*/Quick Look/cloudthumbnails.db*'),
             'recentApphistory':('CarPlay', '*/com.apple.CarPlayApp.plist'),
