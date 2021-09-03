@@ -73,7 +73,11 @@ def get_protonMail(files_found, report_folder, seeker):
       prefplist = plistlib.load(p)
       
       
-    enc_val = prefplist['authKeychainStoreKeyProtectedWithMainKey']
+    if 	keychainVal[b'authKeychainStoreKeyProtectedWithMainKey']:
+      enc_val = keychainVal[b'authKeychainStoreKeyProtectedWithMainKey']
+    else:
+      enc_val = prefplist['authKeychainStoreKeyProtectedWithMainKey']
+        
     dec_val = decryptWithMainKey(enc_val)
     
     keychainStorePlist1 = ccl_bplist.load(BytesIO(dec_val))
@@ -139,11 +143,14 @@ def get_protonMail(files_found, report_folder, seeker):
             aggregatorfor = f"Name: {name} <br> Address: {address} <br><br>"
         except:
           aggregatorfor = ''
-          
-        sender = json.loads(plistlib.loads(decryptWithMainKey(row[5]))[0])
-        name = sender['Name']
-        address = sender['Address']
-        sender_info = f'Name: {name} <br> Address: {address}<br><br>'
+        
+        try:
+          sender = json.loads(plistlib.loads(decryptWithMainKey(row[5]))[0])
+          name = sender['Name']
+          address = sender['Address']
+          sender_info = f'Name: {name} <br> Address: {address}<br><br>'
+        except:
+          sender_info = '<Not Decoded>'
         
         title = plistlib.loads(decryptWithMainKey(row[6]))[0]
         
