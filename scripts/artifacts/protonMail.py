@@ -24,11 +24,11 @@ def get_protonMail(files_found, report_folder, seeker):
     #platform = is_platform_windows()
     #if platform:
     #  my_path = my_path.replace('/', '\\')
-  
       
-    if len(os.listdir(my_path)) == 0:
+    if len(os.listdir(my_path)) == 1:
       logfunc("No keychain provided")
-
+      return
+  
     else:
       file = os.listdir(my_path)
       for x in file:
