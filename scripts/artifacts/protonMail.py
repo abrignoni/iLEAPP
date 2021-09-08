@@ -12,7 +12,7 @@ from io import BytesIO
 from Crypto.Cipher import AES
 from pathlib import Path
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
 
 def get_protonMail(files_found, report_folder, seeker):
     data_list = []
@@ -74,7 +74,7 @@ def get_protonMail(files_found, report_folder, seeker):
       
       
     enc_val = prefplist.get('authKeychainStoreKeyProtectedWithMainKey', 'empty')
-    if enc_val is not 'empty':
+    if enc_val != 'empty':
       pass
     elif keychainVal[b'authKeychainStoreKeyProtectedWithMainKey']:
       enc_val = keychainVal[b'authKeychainStoreKeyProtectedWithMainKey']
@@ -104,7 +104,7 @@ def get_protonMail(files_found, report_folder, seeker):
         return encm
       
       
-    db = sqlite3.connect(db_name)
+    db = open_sqlite_db_readonly(db_name)
     cursor = db.cursor()
     cursor.execute('''SELECT
       ZTIME,
