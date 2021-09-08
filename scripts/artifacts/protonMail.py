@@ -73,11 +73,15 @@ def get_protonMail(files_found, report_folder, seeker):
       prefplist = plistlib.load(p)
       
       
-    if 	keychainVal[b'authKeychainStoreKeyProtectedWithMainKey']:
+    enc_val = prefplist.get('authKeychainStoreKeyProtectedWithMainKey', 'empty')
+    if enc_val is not 'empty':
+      pass
+    elif keychainVal[b'authKeychainStoreKeyProtectedWithMainKey']:
       enc_val = keychainVal[b'authKeychainStoreKeyProtectedWithMainKey']
     else:
-      enc_val = prefplist['authKeychainStoreKeyProtectedWithMainKey']
-        
+      logfunc('Decryption key not found in the keychain or the application plist.')
+      return
+  
     dec_val = decryptWithMainKey(enc_val)
     
     keychainStorePlist1 = ccl_bplist.load(BytesIO(dec_val))
