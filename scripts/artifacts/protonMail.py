@@ -107,16 +107,20 @@ def get_protonMail(files_found, report_folder, seeker):
     db = open_sqlite_db_readonly(db_name)
     cursor = db.cursor()
     cursor.execute('''SELECT
-      ZTIME,
-      ZBODY,
-      ZMIMETYPE,
-      ZTOLIST,
-      ZREPLYTOS,
-      ZSENDER,
-      ZTITLE,
-      ZISENCRYPTED
-      FROM
-      ZMESSAGE
+      ZMESSAGE.ZTIME,
+	  ZMESSAGE.ZBODY,
+	  ZMESSAGE.ZMIMETYPE,
+	  ZMESSAGE.ZTOLIST,
+	  ZMESSAGE.ZREPLYTOS,
+	  ZMESSAGE.ZSENDER,
+	  ZMESSAGE.ZTITLE,
+	  ZMESSAGE.ZISENCRYPTED,
+	  ZMESSAGE.ZNUMATTACHMENTS,
+	  ZATTACHMENT.ZFILESIZE,
+      ZATTACHMENT.ZFILENAME,
+      ZATTACHMENT.ZMIMETYPE
+	  FROM ZMESSAGE
+	  LEFT JOIN ZATTACHMENT ON ZMESSAGE.Z_PK = ZATTACHMENT.ZMESSAGE	  
             ''')
     
     all_rows = cursor.fetchall()
@@ -137,14 +141,14 @@ def get_protonMail(files_found, report_folder, seeker):
         for r in to:
           address = r['Address']
           name = r['Name']
-          aggregatorto = f"Name: {name} <br> Address: {address} <br><br>"
+          aggregatorto = f"{address} {name}"
           
         try: 
           replyto = json.loads(plistlib.loads(decryptWithMainKey(row[4]))[0])
           for r in replyto:
             address = r['Address']
             name = r['Name']
-            aggregatorfor = f"Name: {name} <br> Address: {address} <br><br>"
+            aggregatorfor = f"{address} {name}"
         except:
           aggregatorfor = ''
         
@@ -152,7 +156,7 @@ def get_protonMail(files_found, report_folder, seeker):
           sender = json.loads(plistlib.loads(decryptWithMainKey(row[5]))[0])
           name = sender['Name']
           address = sender['Address']
-          sender_info = f'Name: {name} <br> Address: {address}<br><br>'
+          sender_info = f'{address} {name}'
         except:
           sender_info = '<Not Decoded>'
         
@@ -160,15 +164,28 @@ def get_protonMail(files_found, report_folder, seeker):
         
         isencrypted = row[7]
         
-        data_list.append((decryptedtime, sender_info, aggregatorto, aggregatorfor, title, decryptedbody, mime, isencrypted))
-
+        ZNUMATTACHMENTS = row[8]
+        
+        ZFILESIZE = row[9]
+        
+        try:
+          ZFILENAME = plistlib.loads(decryptWithMainKey(row[10]))[0]
+        except:
+          ZFILENAME = ""
+          
+        try:
+          AMIMETYPE = plistlib.loads(decryptWithMainKey(row[11]))[0]
+        except:
+          AMIMETYPE = ""     
+        
+        data_list.append((decryptedtime, sender_info, aggregatorto, aggregatorfor, title, decryptedbody, mime, isencrypted, ZNUMATTACHMENTS, ZFILESIZE, ZFILENAME, AMIMETYPE))
   
     if len(data_list) > 0:
       report = ArtifactHtmlReport('Proton Mail - Decrypted Emails')
       report.start_artifact_report(report_folder, 'Proton Mail - Decrypted Emails')
       report.add_script()
-      data_headers = ('Timestamp', 'Sender', 'To', 'Reply To', 'Title', 'Body', 'Mime', 'Is encrypted?')
-      report.write_artifact_data_table(data_headers, data_list, file_found, html_no_escape=['Sender', 'To', 'Reply To', 'Body'])
+      data_headers = ('Timestamp', 'Sender', 'To', 'Reply To', 'Title', 'Body', 'Mime', 'Is encrypted?', '# Attachments', 'File Size', 'File Name', 'Type')
+      report.write_artifact_data_table(data_headers, data_list, file_found, html_no_escape=['Sender', 'To', 'Reply To', 'Body', 'File Name', 'Type'])
       report.end_artifact_report()
 
       tsvname = 'Proton Mail - Decrypted Emails'
