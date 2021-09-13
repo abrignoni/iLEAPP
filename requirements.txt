@@ -5,6 +5,7 @@ bs4
 pyliblzfse
 packaging==20.1
 pathlib2==2.3.5
+PGPy
 pillow
 pyinstaller
 PySimpleGUI==4.16.0
