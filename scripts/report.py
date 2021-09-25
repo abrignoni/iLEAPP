@@ -31,6 +31,8 @@ def get_icon_name(category, artifact):
         icon = 'book-open'
     elif category == 'ALARMS':
         icon = 'clock'
+    elif category == 'APPLE PODCASTS':
+        icon = 'play-circle'
     elif category == 'APPLE WALLET':
         if artifact == 'TRANSACTIONS':
             icon = 'dollar-sign'
@@ -40,8 +42,12 @@ def get_icon_name(category, artifact):
             icon = 'send'
     elif category == 'APP CONDUIT':
         icon = 'activity'
+    elif category == 'PROTON MAIL':
+        icon = 'mail'
     elif category == 'APP PERMISSIONS':
         icon = 'key'
+    elif category == 'CARPLAY':
+        icon = 'package'
     elif category == 'APP UPDATES':
         icon = 'codepen'
     elif category == 'APPLICATIONS':
@@ -103,6 +109,13 @@ def get_icon_name(category, artifact):
             icon = 'map'
         elif artifact == 'PD PLACE CACHE':
             icon = 'map-pin'
+    elif category == 'GOOGLE DUO':
+        if artifact == 'GOOGLE DUO - CALL HISTORY':
+            icon = 'phone-call'
+        if artifact == 'GOOGLE DUO - CONTACTS':
+            icon = 'user'
+        if artifact == 'GOOGLE DUO - CLIPS':
+            icon = 'video'
     elif category == 'HEALTH DATA':
         icon = 'heart'
     elif category == 'ICLOUD SHARED ALBUMS':
@@ -133,6 +146,12 @@ def get_icon_name(category, artifact):
     elif category == 'KIK':
         if artifact == 'KIK MESSAGES':
             icon = 'message-square'
+        if artifact == 'KIK USERS':
+            icon = 'user'
+        if artifact == 'KIK MEDIA METADATA':
+            icon = 'file-plus'
+        if artifact == 'KIK PENDING UPLOADS':
+            icon = 'upload'
     elif category == 'KNOWLEDGEC':
         if artifact == 'KNOWLEDGEC DEVICE LOCKED':
             icon = 'lock'
@@ -514,6 +533,7 @@ def mark_item_active(data, itemname):
     else:
         ret = data[0: pos] + " active" + data[pos:]
         return ret
+    
     
     
     

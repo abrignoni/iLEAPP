@@ -16,6 +16,7 @@ from scripts.artifacts.appSnapshots import get_applicationSnapshots
 from scripts.artifacts.appleMapsApplication import get_appleMapsApplication
 from scripts.artifacts.appleMapsGroup import get_appleMapsGroup
 from scripts.artifacts.appleMapsSearchHistory import get_appleMapsSearchHistory
+from scripts.artifacts.applePodcasts import get_applePodcasts
 from scripts.artifacts.appleWifiPlist import get_appleWifiPlist
 from scripts.artifacts.appleWalletCards import get_appleWalletCards
 from scripts.artifacts.appleWalletPasses import get_appleWalletPasses
@@ -25,8 +26,7 @@ from scripts.artifacts.bluetooth import get_bluetooth
 from scripts.artifacts.cacheRoutesGmap import get_cacheRoutesGmap
 from scripts.artifacts.calendarAll import get_calendarAll
 from scripts.artifacts.celWireless import get_celWireless
-from scripts.artifacts.cloudkitNoteSharing import get_cloudkitNoteSharing
-from scripts.artifacts.cloudkitParticipants import get_cloudkitParticipants
+from scripts.artifacts.cloudkitSharing import get_cloudkitSharing
 from scripts.artifacts.conDev import get_conDev
 from scripts.artifacts.confaccts import get_confaccts
 from scripts.artifacts.deviceActivator import get_deviceActivator
@@ -42,6 +42,7 @@ from scripts.artifacts.filesAppsm import get_filesAppsm
 from scripts.artifacts.geodApplications import get_geodApplications
 from scripts.artifacts.geodMapTiles import get_geodMapTiles
 from scripts.artifacts.geodPDPlaceCache import get_geodPDPlaceCache
+from scripts.artifacts.googleDuo import get_googleDuo
 from scripts.artifacts.icloudMeta import get_icloudMeta
 from scripts.artifacts.icloudPhotoMeta import get_icloudPhotoMeta
 from scripts.artifacts.quickLook import get_quickLook
@@ -54,6 +55,8 @@ from scripts.artifacts.interactionCcontacts import get_interactionCcontacts
 from scripts.artifacts.keyboardAppUsage import get_keyboardAppUsage
 from scripts.artifacts.keyboardLexicon import get_keyboardLexicon
 from scripts.artifacts.kikMessages import get_kikMessages
+from scripts.artifacts.kikBplistmeta import get_kikBplistmeta
+from scripts.artifacts.kikPendingUploads import get_kikPendingUploads
 from scripts.artifacts.lastBuild import get_lastBuild, get_iTunesBackupInfo
 from scripts.artifacts.mailprotect import get_mailprotect
 from scripts.artifacts.mediaLibrary import get_mediaLibrary
@@ -67,6 +70,7 @@ from scripts.artifacts.notificationsXI import get_notificationsXI
 from scripts.artifacts.notificationsXII import get_notificationsXII
 from scripts.artifacts.ooklaSpeedtestData import get_ooklaSpeedtestData
 from scripts.artifacts.photosMetadata import get_photosMetadata
+from scripts.artifacts.protonMail import get_protonMail
 from scripts.artifacts.queryPredictions import get_queryPredictions
 from scripts.artifacts.safariBookmarks import get_safariBookmarks
 from scripts.artifacts.safariFavicons import get_safariFavicons
@@ -88,8 +92,7 @@ from scripts.artifacts.appGrouplisting import get_appGrouplisting
 from scripts.artifacts.deviceActivator import get_deviceActivator
 from scripts.artifacts.kikMessages import get_kikMessages
 from scripts.artifacts.appItunesmeta import get_appItunesmeta
-from scripts.artifacts.cloudkitParticipants import get_cloudkitParticipants
-from scripts.artifacts.cloudkitNoteSharing import get_cloudkitNoteSharing
+from scripts.artifacts.cloudkitSharing import get_cloudkitSharing
 from scripts.artifacts.appleWalletTransactions import get_appleWalletTransactions
 from scripts.artifacts.walStrings import get_walStrings
 from scripts.artifacts.webClips import get_webClips
@@ -106,6 +109,7 @@ from scripts.artifacts.webClips import get_webClips
 from scripts.artifacts.reminders import get_reminders
 from scripts.artifacts.voiceTriggers import get_voiceTriggers
 from scripts.artifacts.voiceRecordings import get_voiceRecordings
+from scripts.artifacts.recentApphistory import get_recentApphistory
 
 from scripts.ilapfuncs import *
 
@@ -127,6 +131,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'appleMapsApplication': ('Locations', '**/Data/Application/*/Library/Preferences/com.apple.Maps.plist'),
             'appleMapsGroup': ('Locations', '**/Shared/AppGroup/*/Library/Preferences/group.com.apple.Maps.plist'),
             'appleMapsSearchHistory': ('Locations', '*private/var/mobile/Containers/Data/Application/*/Library/Maps/GeoHistory.mapsdata'),
+            'applePodcasts': ('Apple Podcasts', '**/MTLibrary.sqlite*'),
             'appleWalletCards': ('Apple Wallet', '*/private/var/mobile/Containers/Data/Application/*/Library/Caches/com.apple.Passbook/Cache.db*'),
             'appleWalletPasses': ('Apple Wallet', ('**/nanopasses.sqlite3*', '**/Cards/*.pkpass/pass.json')),
             'appleWalletTransactions': ('Apple Wallet', '**/passes23.sqlite'),
@@ -137,8 +142,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'cacheRoutesGmap': ('Locations', '**/Library/Application Support/CachedRoutes/*.plist'),
             'calendarAll': ('Calendar', '**/Calendar.sqlitedb'),
             'celWireless': ('Cellular Wireless', '*wireless/Library/Preferences/com.apple.*'),
-            'cloudkitNoteSharing': ('Cloudkit', '*NoteStore.sqlite*'),
-            'cloudkitParticipants': ('Cloudkit', '*NoteStore.sqlite*'),
+            'cloudkitSharing': ('Cloudkit', '*NoteStore.sqlite*'),
             'conDev': ('Connected to', '**/iTunes_Control/iTunes/iTunesPrefs'),
             'confaccts': ('Accounts', '**/com.apple.accounts.exists.plist'),
             'deviceActivator': ('IOS Build', '*private/var/mobile/Library/Logs/mobileactivationd/ucrt_oob_request.txt'),
@@ -154,6 +158,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'geodApplications': ('Geolocation', '**/AP.db'),
             'geodMapTiles': ('Geolocation', '**/MapTiles.sqlitedb'),
             'geodPDPlaceCache': ('Geolocation', '**/PDPlaceCache.db'),
+            'googleDuo': ('Google Duo', ('*/Application Support/DataStore*','*/Application Support/ClipsCache/*.png')),
             'icloudMeta': ('iCloud Returns', '*/iclouddrive/Metadata.txt'),
             'icloudPhotoMeta': ('iCloud Returns', '*/cloudphotolibrary/Metadata.txt'),
             'icloudSharedalbums': ('iCloud Shared Albums', '*/private/var/mobile/Media/PhotoData/PhotoCloudSharingData/*'),
@@ -164,7 +169,9 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'interactionCcontacts': ('InteractionC', '**/interactionC.db'),
             'keyboardAppUsage': ('Keyboard', '*/private/var/mobile/Library/Keyboard/app_usage_database.plist'),
             'keyboardLexicon': ('Keyboard', '*/private/var/mobile/Library/Keyboard/*-dynamic.lm/dynamic-lexicon.dat'),
-            'kikMessages': ('Kik', '**/kik.sqlite*'),
+            'kikMessages': ('Kik', ('**/kik.sqlite*','*/mobile/Containers/Shared/AppGroup/*/cores/private/*/content_manager/data_cache/*')),
+            'kikBplistmeta': ('Kik', '*/mobile/Containers/Shared/AppGroup/*/cores/private/*/attachments/*'),
+            'kikPendingUploads': ('Kik', ('*/mobile/Containers/Shared/AppGroup/*/cores/private/*/chunked_upload_storage/pending_uploads','*/mobile/Containers/Shared/AppGroup/*/cores/private/*/chunked_upload_storage/data_cache/*')),
             'mailprotect': ('iOS Mail', '**/private/var/mobile/Library/Mail/* Index*'),
             'mediaLibrary': ('Media Library', '**/Medialibrary.sqlitedb'),
             'medicalID': ('Medical ID', '*/private/var/mobile/Library/MedicalID/MedicalIDData.archive'),
@@ -177,8 +184,10 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'notificationsXII': ('Notifications', '*private/var/mobile/Library/UserNotifications*'),
             'ooklaSpeedtestData': ('Applications', '**/speedtest.sqlite*'),
             'photosMetadata': ('Photos', '**/Photos.sqlite'),
+            'protonMail': ('Proton Mail', ('*/group.ch.protonmail.protonmail.plist','*/ProtonMail.sqlite*')),
             'queryPredictions': ('SMS & iMessage', '**/query_predictions.db'),
             'quickLook': ('iCloud Quick Look', '*/Quick Look/cloudthumbnails.db*'),
+            'recentApphistory':('CarPlay', '*/com.apple.CarPlayApp.plist'),
             'reminders': ('Reminders', '**/Reminders/Container_v1/Stores/*.sqlite*'),
             'safariBookmarks': ('Safari Browser', '**/Safari/Bookmarks.db'),
             'safariRecentWebSearches': ('Safari Browser', '**/Library/Preferences/com.apple.mobilesafari.plist'),

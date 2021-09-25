@@ -13,15 +13,20 @@ def get_appleMapsSearchHistory(files_found, report_folder, seeker):
             plist_content = plistlib.load(plist_file)
             for entry in plist_content['MSPHistory']['records']:
                 search_history = plist_content['MSPHistory']['records'][entry]
-                content = search_history.get('contents').decode('UTF-8', 'ignore')
+                content = search_history.get('contents')
+                if content:
+                    content = content.decode('UTF-8', 'ignore')
+                else:
+                    content = None
                 timestamp = search_history.get('modificationDate')
                 formatted_timestamp = timestamp.strftime('%Y-%m-%d %H:%M:%S')
-                if len(content) < 300:
-                    id_search_entry = content.split('\n')
-                    search_entry = id_search_entry[1].split('"')
-                    search_entry_split = str(search_entry[0]).split('\x12')
-                    search_entry_filtered = list(filter(None, search_entry_split))
-                    data_list.append((formatted_timestamp, ', '.join(search_entry_filtered)))
+                if content:
+                    if len(content) < 300:
+                        id_search_entry = content.split('\n')
+                        search_entry = id_search_entry[1].split('"')
+                        search_entry_split = str(search_entry[0]).split('\x12')
+                        search_entry_filtered = list(filter(None, search_entry_split))
+                        data_list.append((formatted_timestamp, ', '.join(search_entry_filtered)))
 
     if len(data_list) > 0:
         report = ArtifactHtmlReport('Apple Maps Search History')
