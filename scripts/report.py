@@ -102,6 +102,8 @@ def get_icon_name(category, artifact):
         icon = 'facebook'
     elif category == 'FILES APP':
         icon = 'file-text'
+    elif category == 'LOCATION SERVICES CONFIGURATIONS':
+        icon = 'settings'
     elif category == 'GEOLOCATION':
         if artifact == 'APPLICATIONS':
             icon = 'grid'
