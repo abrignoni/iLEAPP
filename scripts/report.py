@@ -48,6 +48,8 @@ def get_icon_name(category, artifact):
         icon = 'key'
     elif category == 'CARPLAY':
         icon = 'package'
+    elif category == 'CASH APP':
+        icon = 'credit-card'
     elif category == 'APP UPDATES':
         icon = 'codepen'
     elif category == 'APPLICATIONS':

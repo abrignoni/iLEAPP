@@ -35,7 +35,7 @@ def get_appleWalletCards(files_found, report_folder, seeker):
         report = ArtifactHtmlReport('Cards')
         report.start_artifact_report(report_folder, 'Cards')
         report.add_script()
-        data_headers = ('Timestap (Card Added)', 'Card Number', 'Expiration Date', 'Type')
+        data_headers = ('Timestamp (Card Added)', 'Card Number', 'Expiration Date', 'Type')
         report.write_artifact_data_table(data_headers, data_list, db_file)
         report.end_artifact_report()
 
