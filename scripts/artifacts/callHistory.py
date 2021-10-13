@@ -16,6 +16,7 @@ def get_callHistory(files_found, report_folder, seeker):
     select
     datetime(ZDATE+978307200,'unixepoch'),
     ZADDRESS,
+    ZNAME,
     case ZANSWERED
         when 0 then 'No'
         when 1 then 'Yes'
@@ -47,12 +48,12 @@ def get_callHistory(files_found, report_folder, seeker):
             an = str(row[1])
             an = an.replace("b'", "")
             an = an.replace("'", "")
-            data_list.append((row[0], an, row[2], row[3], row[4], row[5], row[6], row[7], row[8]))
+            data_list.append((row[0], an, row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9]))
 
         report = ArtifactHtmlReport('Call Logs')
         report.start_artifact_report(report_folder, 'Call Logs')
         report.add_script()
-        data_headers = ('Timestamp', 'Phone Number', 'Answered', 'Call Type', 'Call Direction', 'Call Duration', 'ISO Country Code', 'Location', 'Service Provider')
+        data_headers = ('Timestamp', 'Phone Number', 'Name', 'Answered', 'Call Type', 'Call Direction', 'Call Duration', 'ISO Country Code', 'Location', 'Service Provider')
         report.write_artifact_data_table(data_headers, data_list, file_found)
         report.end_artifact_report()
         
