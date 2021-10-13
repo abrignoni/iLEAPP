@@ -61,7 +61,7 @@ def get_icon_name(category, artifact):
     elif category == 'CALENDAR':
         icon = 'calendar'
     elif category == 'CALL LOGS':
-        icon = 'phone'
+        icon = 'phone-call'
     elif category == 'CELLULAR WIRELESS':
         icon = 'bar-chart'
     elif category == 'CLOUDKIT':
