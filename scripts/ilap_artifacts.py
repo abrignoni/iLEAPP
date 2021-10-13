@@ -25,6 +25,7 @@ from scripts.artifacts.applicationstate import get_applicationstate
 from scripts.artifacts.bluetooth import get_bluetooth
 from scripts.artifacts.cacheRoutesGmap import get_cacheRoutesGmap
 from scripts.artifacts.calendarAll import get_calendarAll
+from scripts.artifacts.callHistory import get_callHistory
 from scripts.artifacts.cashApp import get_cashApp
 from scripts.artifacts.celWireless import get_celWireless
 from scripts.artifacts.cloudkitSharing import get_cloudkitSharing
@@ -144,6 +145,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'bluetooth': ('Bluetooth', '**/com.apple.MobileBluetooth.*'),
             'cacheRoutesGmap': ('Locations', '**/Library/Application Support/CachedRoutes/*.plist'),
             'calendarAll': ('Calendar', '**/Calendar.sqlitedb'),
+            'callHistory': ('Call History', '**/CallHistory.storedata*'),
             'cashApp': ('Cash App', '**private/var/mobile/Containers/Shared/AppGroup/*/CCEntitySync-api.squareup.com.sqlite*'),
             'celWireless': ('Cellular Wireless', '*wireless/Library/Preferences/com.apple.*'),
             'cloudkitSharing': ('Cloudkit', '*NoteStore.sqlite*'),
