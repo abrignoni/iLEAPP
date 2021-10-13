@@ -22,6 +22,7 @@ def get_callHistory(files_found, report_folder, seeker):
         when 1 then 'Yes'
     end,
     case ZCALLTYPE
+        when 0 then 'Third-Party App'
         when 1 then 'Phone'
         when 8 then 'FaceTime Video'
         when 16 then 'FaceTime Audio'
