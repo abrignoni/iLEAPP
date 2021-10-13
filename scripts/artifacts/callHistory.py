@@ -51,8 +51,8 @@ def get_callHistory(files_found, report_folder, seeker):
             an = an.replace("'", "")
             data_list.append((row[0], an, row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9]))
 
-        report = ArtifactHtmlReport('Call Logs')
-        report.start_artifact_report(report_folder, 'Call Logs')
+        report = ArtifactHtmlReport('Call History')
+        report.start_artifact_report(report_folder, 'Call History')
         report.add_script()
         data_headers = ('Timestamp', 'Phone Number', 'Name', 'Answered', 'Call Type', 'Call Direction', 'Call Duration', 'ISO Country Code', 'Location', 'Service Provider')
         report.write_artifact_data_table(data_headers, data_list, file_found)
