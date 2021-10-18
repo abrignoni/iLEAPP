@@ -182,6 +182,8 @@ def get_icon_name(category, artifact):
         icon = 'save'
     elif category == 'MOBILE INSTALLATION LOGS':
         icon = 'clipboard'
+    elif category == 'MOBILE SOFTWARE UPDATE':
+        icon = 'refresh-cw'
     elif category == 'MEDIA LIBRARY':
         icon = 'play-circle'
     elif category == 'NOTES':
