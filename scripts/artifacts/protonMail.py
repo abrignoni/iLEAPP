@@ -6,13 +6,15 @@ import json
 import ccl_bplist
 import sqlite3
 import hashlib
+import random
+import magic
 from base64 import b64encode, b64decode
 from datetime import datetime
 from io import BytesIO
 from Crypto.Cipher import AES
 from pathlib import Path
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, media_to_html
 
 def get_protonMail(files_found, report_folder, seeker):
     data_list = []
@@ -102,26 +104,50 @@ def get_protonMail(files_found, report_folder, seeker):
           return html.unescape(decm.encode('cp1252', errors='ignore').decode('utf8', errors='ignore'))
       else:
         return encm
+    
+    def decrypt_attachment(proton_path, out_path, key, pwdKey, keyPacket, encfilename, decfilename):
+      att = None
+      for r, _, f in os.walk(proton_path):
+        for file in f:
+          if encfilename in file:
+            att=os.path.join(r,file)
+            break
+      if att:
+        with key.unlock(pwdKey):
+          assert key.is_unlocked
+          with open(att, 'rb') as attfh:
+            buf = b64decode(keyPacket)
+            buf += attfh.read()
+            att_from_blob = pgpy.PGPMessage.from_blob(buf)
+            decatt = key.decrypt(att_from_blob).message
+            itemnum = str(random.random())
+            with open(os.path.join(out_path,itemnum+decfilename),'wb') as outatt:
+              outatt.write(decatt)
+            return os.path.join(out_path,itemnum+decfilename)
       
+      return None
       
     db = open_sqlite_db_readonly(db_name)
     cursor = db.cursor()
     cursor.execute('''SELECT
-      ZMESSAGE.ZTIME,
-	  ZMESSAGE.ZBODY,
-	  ZMESSAGE.ZMIMETYPE,
-	  ZMESSAGE.ZTOLIST,
-	  ZMESSAGE.ZREPLYTOS,
-	  ZMESSAGE.ZSENDER,
-	  ZMESSAGE.ZTITLE,
-	  ZMESSAGE.ZISENCRYPTED,
-	  ZMESSAGE.ZNUMATTACHMENTS,
-	  ZATTACHMENT.ZFILESIZE,
-      ZATTACHMENT.ZFILENAME,
-      ZATTACHMENT.ZMIMETYPE
-	  FROM ZMESSAGE
-	  LEFT JOIN ZATTACHMENT ON ZMESSAGE.Z_PK = ZATTACHMENT.ZMESSAGE	  
-            ''')
+    ZMESSAGE.ZTIME,
+    ZMESSAGE.ZBODY,
+    ZMESSAGE.ZMIMETYPE,
+    ZMESSAGE.ZTOLIST,
+    ZMESSAGE.ZREPLYTOS,
+    ZMESSAGE.ZSENDER,
+    ZMESSAGE.ZTITLE,
+    ZMESSAGE.ZISENCRYPTED,
+    ZMESSAGE.ZNUMATTACHMENTS,
+    ZATTACHMENT.ZFILESIZE,
+    ZATTACHMENT.ZFILENAME,
+    ZATTACHMENT.ZMIMETYPE,
+    ZATTACHMENT.ZHEADERINFO,
+    ZATTACHMENT.ZLOCALURL,
+    ZATTACHMENT.ZKEYPACKET
+    FROM ZMESSAGE
+    LEFT JOIN ZATTACHMENT ON ZMESSAGE.Z_PK = ZATTACHMENT.ZMESSAGE
+              ''')
     
     all_rows = cursor.fetchall()
     data_list = []	
@@ -176,16 +202,45 @@ def get_protonMail(files_found, report_folder, seeker):
         try:
           AMIMETYPE = plistlib.loads(decryptWithMainKey(row[11]))[0]
         except:
-          AMIMETYPE = ""     
+          AMIMETYPE = ""
         
-        data_list.append((decryptedtime, sender_info, aggregatorto, aggregatorfor, title, decryptedbody, mime, isencrypted, ZNUMATTACHMENTS, ZFILESIZE, ZFILENAME, AMIMETYPE))
-  
+        if row[12]:
+          zheaderinfo = decryptWithMainKey(row[12])
+        
+        attpath = ''
+        if row[13]:
+          encfilename = plistlib.loads(row[13])['$objects'][2].split('/')[-1]
+          guidi = plistlib.loads(row[13])['$objects'][2].split('/')[-4]
+          out_path = report_folder
+        
+          for match in files_found:
+            if f'/Data/Application/{guidi}/tmp/attachments' in match:
+              proton_path = match.split('/attachments')[0]
+              break
+            elif f'\\Data\\Application\\{guidi}\\tmp\\attachments' in match:
+              proton_path = match.split('\\attachments')[0]
+          
+          attpath = decrypt_attachment(proton_path, out_path, key, pwdKey, row[14], encfilename, ZFILENAME)
+          
+          mimetype = magic.from_file(attpath, mime = True)
+          
+          if 'video' in mimetype:
+            attpath = f'<video width="320" height="240" controls="controls"><source src="{attpath}" type="video/mp4">Your browser does not support the video tag.</video>'
+          elif 'image' in mimetype:
+            attpath = f'<img src="{attpath}"width="300"></img>'
+          else:
+            attpath = f'<a href="{attpath}"> Link to {mimetype} </>'
+        
+        data_list.append((decryptedtime, sender_info, aggregatorto, aggregatorfor, title, decryptedbody, mime, isencrypted, ZFILESIZE, attpath, ZFILENAME, AMIMETYPE))
+        
+        encfilename = ''
+        
     if len(data_list) > 0:
       report = ArtifactHtmlReport('Proton Mail - Decrypted Emails')
       report.start_artifact_report(report_folder, 'Proton Mail - Decrypted Emails')
       report.add_script()
-      data_headers = ('Timestamp', 'Sender', 'To', 'Reply To', 'Title', 'Body', 'Mime', 'Is encrypted?', '# Attachments', 'File Size', 'File Name', 'Type')
-      report.write_artifact_data_table(data_headers, data_list, file_found, html_no_escape=['Sender', 'To', 'Reply To', 'Body', 'File Name', 'Type'])
+      data_headers = ('Timestamp', 'Sender', 'To', 'Reply To', 'Title', 'Body', 'Mime', 'Is encrypted?', 'File Size','Attachment','Decrypted Attachment Filename', 'Type')
+      report.write_artifact_data_table(data_headers, data_list, file_found, html_no_escape=['Sender', 'To', 'Reply To', 'Body', 'File Name', 'Type','Attachment'])
       report.end_artifact_report()
 
       tsvname = 'Proton Mail - Decrypted Emails'

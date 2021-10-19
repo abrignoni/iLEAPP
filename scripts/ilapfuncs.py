@@ -11,6 +11,7 @@ import binascii
 import math
 import simplekml
 import shutil
+import magic
 
 from bs4 import BeautifulSoup
 from PIL import Image
@@ -317,3 +318,59 @@ def generate_thumbnail(imDirectory, imFilename, seeker, report_folder):
             except:
                 pass #unsupported format
     return htmlThumbTag
+
+def media_to_html(media_path, files_found, report_folder):
+    
+    def relative_paths(source, splitter):
+        splitted_a = source.split(splitter)
+        for x in splitted_a:
+            if 'LEAPP_Reports_' in x:
+                report_folder = x
+                
+        splitted_b = source.split(report_folder)
+        return '.'+ splitted_b[1]
+    
+    platform = is_platform_windows()
+    if platform:
+        media_path = media_path.replace('/', '\\')
+        splitter = '\\'
+    else:
+        splitter = '/'
+        
+    thumb = media_path
+    for match in files_found:
+        filename = os.path.basename(match)
+        if filename.startswith('~'):
+            continue
+        if filename.startswith('._'):
+            continue
+        
+        if media_path in match:
+            
+            dirs = os.path.dirname(report_folder)
+            dirs = os.path.dirname(dirs)
+            env_path = os.path.join(dirs, 'temp')
+            if env_path in match:
+                source = match
+                source = relative_paths(source, splitter)
+            else:
+                path = os.path.dirname(match)
+                dirname = os.path.basename(path)
+                filename = Path(match)
+                filename = filename.name
+                locationfiles = Path(report_folder).joinpath(dirname)
+                Path(f'{locationfiles}').mkdir(parents=True, exist_ok=True)
+                shutil.copy2(match, locationfiles)
+                source = Path(locationfiles, filename)
+                source = relative_paths(str(source), splitter)
+                
+            mimetype = magic.from_file(match, mime = True)
+            
+            if 'video' in mimetype:
+                thumb = f'<video width="320" height="240" controls="controls"><source src="{source}" type="video/mp4">Your browser does not support the video tag.</video>'
+            elif 'image' in mimetype:
+                thumb = f'<img src="{source}"width="300"></img>'
+            else:
+                thumb = f'<a href="{source}"> Link to {mimetype} </>'
+    return thumb
+
