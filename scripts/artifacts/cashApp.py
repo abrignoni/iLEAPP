@@ -10,6 +10,7 @@ def get_cashApp(files_found, report_folder, seeker):
 
         if file_found.endswith('.sqlite'):
             db = open_sqlite_db_readonly(file_found)
+            db.text_factory = lambda b: b.decode(errors = 'ignore')
             cursor = db.cursor()
             cursor.execute('''SELECT
 
