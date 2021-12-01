@@ -15,4 +15,4 @@ biplist
 simplekml
 pandas
 pycryptodome
-python-magic-bin
+python-magic
