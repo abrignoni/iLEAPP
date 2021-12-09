@@ -146,7 +146,7 @@ class FileSeekerZip(FileSeekerBase):
             if fnmatch.fnmatch(member, filepattern):
                 try:
                     extracted_path = self.zip_file.extract(member, path=self.temp_folder) # already replaces illegal chars with _ when exporting
-                    f = extracted_path.infolist()
+                    f = self.zip_file.getinfo(member)
                     date_time = f.date_time
                     date_time = time.mktime(date_time + (0, 0, -1))
                     os.utime(extracted_path, (date_time, date_time))
