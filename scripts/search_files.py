@@ -2,6 +2,7 @@ import fnmatch
 import os
 import sqlite3
 import tarfile
+import time
 
 from pathlib import Path
 from scripts.ilapfuncs import *
@@ -145,6 +146,10 @@ class FileSeekerZip(FileSeekerBase):
             if fnmatch.fnmatch(member, filepattern):
                 try:
                     extracted_path = self.zip_file.extract(member, path=self.temp_folder) # already replaces illegal chars with _ when exporting
+                    f = self.zip_file.getinfo(member)
+                    date_time = f.date_time
+                    date_time = time.mktime(date_time + (0, 0, -1))
+                    os.utime(extracted_path, (date_time, date_time))
                     pathlist.append(extracted_path)
                 except Exception as ex:
                     member = member.lstrip("/")
@@ -153,3 +158,4 @@ class FileSeekerZip(FileSeekerBase):
 
     def cleanup(self):
         self.zip_file.close()
+        
