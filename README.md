@@ -19,7 +19,7 @@ etc...
 
 
 ## Pre-requisites:
-This project requires you to have Python > 3.7.4 installed on your system. **Ideally use Python 3.9 (significantly faster processing!)**
+Python 3.9.x
 
 ## Installation
 
