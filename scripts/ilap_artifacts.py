@@ -276,4 +276,3 @@ def process_artifact(files_found, artifact_func, artifact_name, seeker, report_f
     run_time_secs = end_time - start_time
     # run_time_HMS = strftime('%H:%M:%S', gmtime(run_time_secs))
     logfunc('{} [{}] artifact completed in time {} seconds'.format(artifact_name, artifact_func, run_time_secs))
-    
