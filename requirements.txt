@@ -1,4 +1,4 @@
-numpy==1.19.3
+numpy==1.21.4
 astc_decomp
 biplist
 bs4
@@ -15,4 +15,6 @@ biplist
 simplekml
 pandas
 pycryptodome
-python-magic-bin==0.4.14
+python-magic==0.4.24; platform_system == "Linux"
+python-magic-bin==0.4.14; platform_system == "Windows"
+python-magic-bin==0.4.14; platform_system == "Darwin"
