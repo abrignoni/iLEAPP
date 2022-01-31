@@ -22,6 +22,7 @@ from scripts.artifacts.appleWalletCards import get_appleWalletCards
 from scripts.artifacts.appleWalletPasses import get_appleWalletPasses
 from scripts.artifacts.appleWalletTransactions import get_appleWalletTransactions
 from scripts.artifacts.applicationstate import get_applicationstate
+from scripts.artifacts.airtags import get_airtags
 from scripts.artifacts.bluetooth import get_bluetooth
 from scripts.artifacts.cacheRoutesGmap import get_cacheRoutesGmap
 from scripts.artifacts.calendarAll import get_calendarAll
@@ -144,6 +145,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'appleWifiPlist': ('Wifi Connections', ('**/com.apple.wifi.plist', '**/com.apple.wifi-networks.plist.backup', '**/com.apple.wifi.known-networks.plist', '**/com.apple.wifi-private-mac-networks.plist')),
             'applicationSnapshots': ('Installed Apps', ('**/Library/Caches/Snapshots/*', '**/SplashBoard/Snapshots/*')),
             'applicationstate': ('Installed Apps', '**/applicationState.db'),
+            'airtags': ('Airtags', '*/Caches/com.apple.findmy.fmipcore/Items.data'),
             'bluetooth': ('Bluetooth', '**/com.apple.MobileBluetooth.*'),
             'cacheRoutesGmap': ('Locations', '**/Library/Application Support/CachedRoutes/*.plist'),
             'calendarAll': ('Calendar', '**/Calendar.sqlitedb'),
