@@ -83,6 +83,7 @@ from scripts.artifacts.safariRecentWebSearches import get_safariRecentWebSearche
 from scripts.artifacts.safariTabs import get_safariTabs
 from scripts.artifacts.safariWebsearch import get_safariWebsearch
 from scripts.artifacts.slack import get_slack
+from scripts.artifacts.textinputTyping import get_textinputTyping
 from scripts.artifacts.tileApp import get_tileApp
 from scripts.artifacts.tileAppDb import get_tileAppDb
 from scripts.artifacts.tileAppDisc import get_tileAppDisc
@@ -208,6 +209,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'slack': ('Slack', '*/var/mobile/Containers/Data/Application/*/Library/Application Support/Slack/*/Database/main_db*'),
             'tcc': ('App Permissions', '*TCC.db*'),
             'teams': ('Microsoft Teams', ('*/var/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*','*/var/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/Downloads/*/Images/*')),
+            'textinputTyping': ('Text Input Messages', '*/DES/Records/com.apple.TextInput.TypingDESPlugin/*.desdata'),
             'teamsSegment': ('Microsoft Teams - Logs', '*/var/mobile/Containers/Data/Application/*/Library/DriveIQ/segments/current/*.*'),
             'tikTok': ('TikTok', ('*/Application/*/Library/Application Support/ChatFiles/*/db.sqlite*', '*AwemeIM.db*')),
             'tileApp': ('Locations', '*private/var/mobile/Containers/Data/Application/*/Library/log/com.thetileapp.tile*'),

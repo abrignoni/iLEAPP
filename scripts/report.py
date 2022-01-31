@@ -31,6 +31,8 @@ def get_icon_name(category, artifact):
         icon = 'book-open'
     elif category == 'ALARMS':
         icon = 'clock'
+    elif category == 'TEXT INPUT MESSAGES':
+        icon = 'message-square'
     elif category == 'AIRTAGS':
         icon = 'map-pin'
     elif category == 'APPLE PODCASTS':
