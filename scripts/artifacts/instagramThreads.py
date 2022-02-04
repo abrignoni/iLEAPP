@@ -106,8 +106,8 @@ def get_instagramThreads(files_found, report_folder, seeker):
             
             #VOIP calls
             if plist['IGDirectPublishedMessageContent*content'].get('IGDirectThreadActivityAnnouncement*threadActivity') is not None:
-                videoChatTitle = plist['IGDirectPublishedMessageContent*content']['IGDirectThreadActivityAnnouncement*threadActivity']['NSString*voipTitle']
-                videoChatCallID = plist['IGDirectPublishedMessageContent*content']['IGDirectThreadActivityAnnouncement*threadActivity']['NSString*videoCallId']
+                videoChatTitle = plist['IGDirectPublishedMessageContent*content']['IGDirectThreadActivityAnnouncement*threadActivity'].get('NSString*voipTitle')
+                videoChatCallID = plist['IGDirectPublishedMessageContent*content']['IGDirectThreadActivityAnnouncement*threadActivity'].get('NSString*videoCallId')
                 
                 
             #Reactions
@@ -119,8 +119,17 @@ def get_instagramThreads(files_found, report_folder, seeker):
                 
             #Shared media
             if (plist['IGDirectPublishedMessageContent*content'].get('IGDirectPublishedMessageMedia*media')): 
-                sharedMediaID = plist['IGDirectPublishedMessageContent*content']['IGDirectPublishedMessageMedia*media']['IGDirectPublishedMessagePermanentMedia*permanentMedia']['IGPhoto*photo']['kIGPhotoMediaID']
-                sharedMediaURL =  plist['IGDirectPublishedMessageContent*content']['IGDirectPublishedMessageMedia*media']['IGDirectPublishedMessagePermanentMedia*permanentMedia']['IGPhoto*photo']['imageVersions'][0]['url']['NS.relative']
+                try:
+                    sharedMediaID = plist['IGDirectPublishedMessageContent*content']['IGDirectPublishedMessageMedia*media']['IGDirectPublishedMessagePermanentMedia*permanentMedia']['IGPhoto*photo']['kIGPhotoMediaID']
+                except (KeyError, ValueError, TypeError, OSError, OverflowError) as ex:
+                    print('Had exception: ' + str(ex))
+                    sharedMediaID = None
+                    
+                try:
+                    sharedMediaURL =  plist['IGDirectPublishedMessageContent*content']['IGDirectPublishedMessageMedia*media']['IGDirectPublishedMessagePermanentMedia*permanentMedia']['IGPhoto*photo']['imageVersions'][0]['url']['NS.relative']
+                except (KeyError, ValueError, TypeError, OSError, OverflowError) as ex:
+                    print('Had exception: ' + str(ex))
+                    sharedMediaURL= None
                 
             if senderpk in userdict:
                 user = userdict[senderpk]
