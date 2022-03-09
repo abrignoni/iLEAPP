@@ -31,8 +31,9 @@ import json
 
 import scripts.artifacts.artGlobals
 from packaging import version
+from html import escape
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, timeline, kmlgen, tsv, is_platform_windows, open_sqlite_db_readonly
+from scripts.ilapfuncs import logfunc, logdevinfo, timeline, kmlgen, tsv, is_platform_windows, open_sqlite_db_readonly, media_to_html
 
 
 def get_viber(files_found, report_folder, seeker):
@@ -372,17 +373,22 @@ def get_viber(files_found, report_folder, seeker):
 							temp_list[0] = viber_settings['_myUserName']
 							temp_list[1] = ''
 							temp_list[2] = viber_settings['_myPhoneNumber']
-							
+						
+						if row[15] is not None:
+							thumb = media_to_html(row[15], files_found, report_folder)
+						else:
+							thumb = ''
+						
 						row = tuple(temp_list)
-						data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],row[19], row[20], row[21], row[22], row[23], row[24], row[25]))
+						data_list.append((row[6], row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[14], row[15], thumb, row[8], row[9], row[10], row[11], row[12], row[16], row[17], row[18],row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[13]))
 						
 
 				if usageentries > 0:
 					report = ArtifactHtmlReport('Viber - Chats')
 					report.start_artifact_report(report_folder, 'Viber - Chats')
 					report.add_script()
-					data_headers = ('Sender (Display Full Name)','Sender (Display Short Name)','Sender (Phone)','Chat Name','Chat Participant(s)','Chat Phone(s)', 'Message Creation Date - UTC','Message Change State Date - UTC','Call Date - UTC','Call Type','State','Duration (Seconds)','System Type Description','Message Metadata','Message Content','Attachment Name','Attachment Type','Attachment Size','Latitude','Longitude','Conversation Deleted','Message Deleted','Time Bomb Duration','Time Bomb Timestamp','Conversation Marked Favorite','Likes Count')
-					report.write_artifact_data_table(data_headers, data_list, file_found, html_escape=False)
+					data_headers = ('Timestamp', 'Sender (Display Full Name)','Sender (Display Short Name)','Sender (Phone)','Chat Name','Chat Participant(s)','Chat Phone(s)', 'Message Creation Date - UTC','Message Change State Date - UTC','Message Content','Attachment Name', 'Attachment','Call Date - UTC','Call Type','State','Duration (Seconds)','System Type Description','Attachment Type','Attachment Size','Latitude','Longitude','Conversation Deleted','Message Deleted','Time Bomb Duration','Time Bomb Timestamp','Conversation Marked Favorite','Likes Count','Message Metadata')
+					report.write_artifact_data_table(data_headers, data_list, file_found, html_no_escape=['Attachment']) #html_escape=False
 					report.end_artifact_report()
 					
 					kmlactivity = 'Viber - Chats'
