@@ -51,6 +51,11 @@ def get_appleWifiPlist(files_found, report_folder, seeker):
                     model_name = ''
                     enabled = ''
                     last_joined = ''
+                    add_reason = ''
+                    carplay = ''
+                    bundle = ''
+                    system_joined = ''
+                    user_joined = ''
 
                     if 'SSID_STR' in known_network:
                         ssid = str(known_network['SSID_STR'])
@@ -90,8 +95,103 @@ def get_appleWifiPlist(files_found, report_folder, seeker):
                             serial_number = known_network['WPS_PROB_RESP_IE']['IE_KEY_WPS_SERIAL_NUM']
                         if 'IE_KEY_WPS_MODEL_NAME' in known_network['WPS_PROB_RESP_IE']: 
                             model_name = known_network['WPS_PROB_RESP_IE']['IE_KEY_WPS_MODEL_NAME']
+
+                    if 'CARPLAY_NETWORK' in known_network:
+                        carplay = str(known_network['CARPLAY_NETWORK'])
                     
-                    known_data_list.append([ssid, bssid, net_usage, country_code, device_name, manufacturer, serial_number, model_name, last_joined, last_auto_joined, last_updated, enabled, wnpmd, file_found]) 
+                    known_data_list.append([ssid,
+                                            bssid, 
+                                            net_usage, 
+                                            country_code, 
+                                            device_name, 
+                                            manufacturer, 
+                                            serial_number, 
+                                            model_name, 
+                                            last_joined, 
+                                            last_auto_joined, 
+                                            system_joined,
+                                            user_joined,
+                                            last_updated, 
+                                            enabled, 
+                                            wnpmd, 
+                                            carplay, 
+                                            add_reason, 
+                                            bundle, 
+                                            file_found]) 
+
+            if 'com.apple.wifi.known-networks.plist' in file_found:
+                known_files.append(file_found)
+                for network_key in deserialized:
+                    known_network = deserialized[network_key]
+                    ssid = ''
+                    bssid = ''
+                    last_updated = ''
+                    last_auto_joined = ''
+                    wnpmd = ''
+                    net_usage = ''
+                    country_code = ''
+                    device_name = ''
+                    manufacturer = ''
+                    serial_number = ''
+                    model_name = ''
+                    enabled = ''
+                    last_joined = ''
+                    add_reason = ''
+                    bundle = ''
+                    system_joined = ''
+                    user_joined = ''
+
+                    if 'SSID' in known_network:
+                        ssid = str(known_network['SSID'])
+
+                    if 'AddReason' in known_network:
+                        add_reason = str(known_network['AddReason'])
+
+                    if 'UpdatedAt' in known_network:
+                        last_updated = str(known_network['UpdatedAt'])
+
+                    if 'JoinedBySystemAt' in known_network:
+                        system_joined = str(known_network['JoinedBySystemAt'])
+
+                    if 'JoinedByUserAt' in known_network:
+                        user_joined = str(known_network['JoinedByUserAt'])
+
+                    if 'BundleID' in known_network:
+                        bundle = str(known_network['BundleID'])
+
+                    if '__OSSpecific__' in known_network:
+
+                        if 'BSSID' in known_network['__OSSpecific__']:
+                            bssid = str(known_network['__OSSpecific__']['BSSID'])
+
+                        if 'networkUsage' in known_network['__OSSpecific__']:
+                            net_usage = str(known_network['__OSSpecific__']['networkUsage'])
+
+                        if 'WiFiNetworkPasswordModificationDate' in known_network['__OSSpecific__']:
+                            wnpmd = str(known_network['__OSSpecific__']['WiFiNetworkPasswordModificationDate'])
+
+                        if 'CARPLAY_NETWORK' in known_network['__OSSpecific__']:
+                            carplay = str(known_network['__OSSpecific__']['CARPLAY_NETWORK'])
+
+                    known_data_list.append([ssid,
+                                            bssid, 
+                                            net_usage, 
+                                            country_code, 
+                                            device_name, 
+                                            manufacturer, 
+                                            serial_number, 
+                                            model_name, 
+                                            last_joined, 
+                                            last_auto_joined, 
+                                            system_joined,
+                                            user_joined,
+                                            last_updated, 
+                                            enabled, 
+                                            wnpmd, 
+                                            carplay, 
+                                            add_reason, 
+                                            bundle, 
+                                            file_found]) 
 
             if 'List of scanned networks with private mac' in deserialized:
                 scanned_files.append(file_found)
@@ -139,7 +239,7 @@ def get_appleWifiPlist(files_found, report_folder, seeker):
         report = ArtifactHtmlReport('Locations')
         report.start_artifact_report(report_folder, 'WiFi Known Networks', description)
         report.add_script()
-        data_headers = ['SSID','BSSID','Network Usage','Country Code','Device Name','Manufacturer','Serial Number','Model Name','Last Joined','Last Auto Joined','Last Updated','Enabled','WiFi Network Password Modification Date','File']
+        data_headers = ['SSID','BSSID','Network Usage','Country Code','Device Name','Manufacturer','Serial Number','Model Name','Last Joined','Last Auto Joined','System Joined','User Joined','Last Updated','Enabled','WiFi Network Password Modification Date','Carplay Network','Add Reason','Bundle ID','File']
         report.write_artifact_data_table(data_headers, known_data_list, ', '.join(known_files))
         report.end_artifact_report()
         
