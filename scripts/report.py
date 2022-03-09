@@ -31,8 +31,6 @@ def get_icon_name(category, artifact):
         icon = 'book-open'
     elif category == 'ALARMS':
         icon = 'clock'
-    elif category == 'TEXT INPUT MESSAGES':
-        icon = 'message-square'
     elif category == 'AIRTAGS':
         icon = 'map-pin'
     elif category == 'APPLE PODCASTS':
@@ -46,8 +44,6 @@ def get_icon_name(category, artifact):
             icon = 'send'
     elif category == 'APP CONDUIT':
         icon = 'activity'
-    elif category == 'PROTON MAIL':
-        icon = 'mail'
     elif category == 'APP PERMISSIONS':
         icon = 'key'
     elif category == 'CARPLAY':
@@ -108,8 +104,6 @@ def get_icon_name(category, artifact):
         icon = 'facebook'
     elif category == 'FILES APP':
         icon = 'file-text'
-    elif category == 'LOCATION SERVICES CONFIGURATIONS':
-        icon = 'settings'
     elif category == 'GEOLOCATION':
         if artifact == 'APPLICATIONS':
             icon = 'grid'
@@ -126,6 +120,10 @@ def get_icon_name(category, artifact):
             icon = 'video'
     elif category == 'HEALTH DATA':
         icon = 'heart'
+    elif category == 'ICLOUD QUICK LOOK':
+        icon = 'file'
+    elif category == 'ICLOUD RETURNS':
+        icon = 'cloud'
     elif category == 'ICLOUD SHARED ALBUMS':
         icon = 'cloud'
     elif category == 'IMO HD CHAT':
@@ -133,6 +131,11 @@ def get_icon_name(category, artifact):
             icon = 'message-circle'
         if artifact == 'IMO HD CHAT - CONTACTS':
             icon = 'user'
+    elif category == 'INSTAGRAM':
+        if artifact == 'INSTAGRAM THREADS':
+            icon = 'message-square'
+        if artifact == 'INSTAGRAM THREADS CALLS':
+            icon = 'phone'
     elif category == 'INSTALLED APPS':
         icon = 'package'
     elif category == 'INTERACTIONC':
@@ -174,10 +177,36 @@ def get_icon_name(category, artifact):
             icon = 'search'
         else:
             icon = 'map-pin'
+    elif category == 'LOCATION SERVICES CONFIGURATIONS':
+        icon = 'settings'
+    elif category == 'MEDIA LIBRARY':
+        icon = 'play-circle'
     elif category == 'MEDIA METADATA':
         icon = 'file-plus'
     elif category == 'MEDICAL ID':
         icon = 'thermometer'
+    elif category == 'MICROSOFT TEAMS - LOGS':
+        if artifact == 'TEAMS LOCATIONS':
+            icon = 'map-pin'
+        if artifact == 'TEAMS MOTION':
+            icon = 'move'
+        if artifact == 'TEAMS STATE CHANGE':
+            icon = 'truck'
+        if artifact == 'TEAMS POWER LOG':
+            icon = 'battery-charging'
+        if artifact == 'TEAMS TIMEZONE':
+            icon = 'clock'
+    elif category == 'MICROSOFT TEAMS':
+        if artifact == 'TEAMS MESSAGES':
+            icon = 'message-square'
+        if artifact == 'TEAMS CONTACT':
+            icon = 'users'
+        if artifact == 'TEAMS USER':
+            icon = 'user'
+        if artifact == 'TEAMS CALL LOGS':
+            icon = 'phone'
+        if artifact == 'TEAMS SHARED LOCATIONS':
+            icon = 'map-pin'
     elif category == 'MOBILE ACTIVATION LOGS':
         icon = 'clipboard'
     elif category == 'MOBILE BACKUP':
@@ -188,40 +217,8 @@ def get_icon_name(category, artifact):
         icon = 'clipboard'
     elif category == 'MOBILE SOFTWARE UPDATE':
         icon = 'refresh-cw'
-    elif category == 'MEDIA LIBRARY':
-        icon = 'play-circle'
     elif category == 'NOTES':
         icon = 'file-text'
-    elif category == 'ICLOUD RETURNS':
-        icon = 'cloud'
-    elif category == 'ICLOUD SHARED ALBUMS':
-        icon = 'cloud'
-    elif category == 'DISCORD':
-        if artifact == 'DISCORD MESSAGES':
-            icon = 'message-square'
-        if artifact == 'DISCORD ACCOUNT':
-            icon = 'user'
-        if artifact == 'DISCORD MANIFEST':
-            icon = 'file-text'
-    elif category == 'KIK':
-        if artifact == 'KIK MESSAGES':
-            icon = 'message-square'
-    elif category == 'WIFI CONNECTIONS':
-        icon = 'wifi'
-    elif category == 'GEOLOCATION':
-        if artifact == 'APPLICATIONS':
-            icon = 'grid'
-        elif artifact == 'MAP TILE CACHE':
-            icon = 'map'
-        elif artifact == 'PD PLACE CACHE':
-            icon = 'map-pin'
-    elif category == 'CLOUDKIT':
-        if artifact == 'PARTICIPANTS':
-            icon = 'user'
-        elif artifact == 'NOTE SHARING':
-            icon = 'share-2'
-    elif category == 'APP PERMISSIONS':
-        icon = 'key'
     elif category == 'NOTIFICATIONS':
         icon = 'bell'
     elif category == 'PHOTOS':
@@ -230,6 +227,8 @@ def get_icon_name(category, artifact):
         icon = 'power'
     elif category == 'POWERLOG BACKUPS':
         icon = 'power'
+    elif category == 'PROTON MAIL':
+        icon = 'mail'
     elif category == 'RECENT ACTIVITY':
         icon = 'activity'
     elif category == 'REMINDERS':
@@ -242,25 +241,6 @@ def get_icon_name(category, artifact):
         icon = 'monitor'
     elif category == 'SCRIPT LOGS':
         icon = 'archive'
-    elif category == 'SMS & IMESSAGE':
-        icon = 'message-square'
-    elif category == 'SQLITE JOURNALING':
-        icon = 'book-open'
-    elif category == 'USER DICTIONARY':
-        icon = 'book'
-    elif category == 'VOICE-RECORDINGS':
-        icon = 'mic'
-    elif category == 'VOICE-TRIGGERS':
-        icon = 'mic'
-    elif category == 'WIFI KNOWN NETWORKS':
-        icon = 'wifi'
-    elif category == 'ICLOUD QUICK LOOK':
-        icon = 'file'
-    elif category == 'TIKTOK':
-        if artifact == 'TIKTOK MESSAGES':
-            icon = 'message-square'
-        if artifact == 'TIKTOK CONTACTS':
-            icon = 'user'
     elif category == 'SLACK':
         if artifact == 'SLACK MESSAGES':
             icon = 'message-square'
@@ -274,38 +254,19 @@ def get_icon_name(category, artifact):
             icon = 'slack'
         if artifact == 'SLACK CHANNEL DATA':
             icon = 'slack'
-    elif category == 'MICROSOFT TEAMS - LOGS':
-        if artifact == 'TEAMS LOCATIONS':
-            icon = 'map-pin'
-        if artifact == 'TEAMS MOTION':
-            icon = 'move'
-        if artifact == 'TEAMS STATE CHANGE':
-            icon = 'truck'
-        if artifact == 'TEAMS POWER LOG':
-            icon = 'battery-charging'
-        if artifact == 'TEAMS TIMEZONE':
-            icon = 'clock'
-    elif category == 'WHATSAPP':
-        if artifact == 'WHATSAPP - MESSAGES':
+    elif category == 'SMS & IMESSAGE':
+        icon = 'message-square'
+    elif category == 'SQLITE JOURNALING':
+        icon = 'book-open'
+    elif category == 'TEXT INPUT MESSAGES':
+        icon = 'message-square'
+    elif category == 'TIKTOK':
+        if artifact == 'TIKTOK MESSAGES':
             icon = 'message-square'
-        if artifact == 'WHATSAPP - CONTACTS':
-            icon = 'users'
-    elif category == 'MICROSOFT TEAMS':
-        if artifact == 'TEAMS MESSAGES':
-            icon = 'message-square'
-        if artifact == 'TEAMS CONTACT':
-            icon = 'users'
-        if artifact == 'TEAMS USER':
+        if artifact == 'TIKTOK CONTACTS':
             icon = 'user'
-        if artifact == 'TEAMS CALL LOGS':
-            icon = 'phone'
-        if artifact == 'TEAMS SHARED LOCATIONS':
-            icon = 'map-pin'
-    elif category == 'INSTAGRAM':
-        if artifact == 'INSTAGRAM THREADS':
-            icon = 'message-square'
-        if artifact == 'INSTAGRAM THREADS CALLS':
-            icon = 'phone'
+    elif category == 'USER DICTIONARY':
+        icon = 'book'
     elif category == 'VENMO':
         icon = 'dollar-sign'  
     elif category == 'VIBER':
@@ -314,7 +275,21 @@ def get_icon_name(category, artifact):
         if artifact == 'VIBER - CONTACTS':
             icon = 'users'
         if artifact == 'VIBER - CHATS':
-            icon = 'message-square'              
+            icon = 'message-square'
+    elif category == 'VOICE-RECORDINGS':
+        icon = 'mic'
+    elif category == 'VOICE-TRIGGERS':
+        icon = 'mic'
+    elif category == 'WHATSAPP':
+        if artifact == 'WHATSAPP - MESSAGES':
+            icon = 'message-square'
+        if artifact == 'WHATSAPP - CONTACTS':
+            icon = 'users'
+    elif category == 'WIFI CONNECTIONS':
+        icon = 'wifi'
+    elif category == 'WIFI KNOWN NETWORKS':
+        icon = 'wifi'
+                  
     return icon
 
 
