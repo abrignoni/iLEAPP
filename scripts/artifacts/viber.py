@@ -47,7 +47,7 @@ def get_viber(files_found, report_folder, seeker):
 		if version.parse(iOSversion) >= version.parse("14"):
 			if file_found.endswith('Settings.data'):
 				db = open_sqlite_db_readonly(file_found)
-				cursor = db.cursor(),
+				cursor = db.cursor()
 				cursor.execute('''
 					SELECT
 						Data.key,value
