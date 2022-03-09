@@ -117,6 +117,7 @@ from scripts.artifacts.voiceTriggers import get_voiceTriggers
 from scripts.artifacts.voiceRecordings import get_voiceRecordings
 from scripts.artifacts.recentApphistory import get_recentApphistory
 from scripts.artifacts.venmo import get_venmo
+from scripts.artifacts.viber import get_viber
 
 from scripts.ilapfuncs import *
 
@@ -224,6 +225,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'weatherAppLocations': ('Locations', '*/private/var/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.com.apple.weather.plist'),
             'webClips': ('iOS Screens', '*WebClips/*.webclip/*'),
             'venmo':('Venmo', ('*PrivateFeed', '*PublicFeed', '*FriendsFeed')),
+            'viber' : ('Viber', ('**/com.viber/settings/Settings.data','**/com.viber/database/Contacts.data')),
             # 'appUpdates':('App Updates', '**/AppUpdates.sqlitedb'),
             # 'systemVersion':('Device Info', '**/SystemVersion.plist'),
             }

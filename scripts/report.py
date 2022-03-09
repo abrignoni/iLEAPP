@@ -307,7 +307,14 @@ def get_icon_name(category, artifact):
         if artifact == 'INSTAGRAM THREADS CALLS':
             icon = 'phone'
     elif category == 'VENMO':
-        icon = 'dollar-sign'            
+        icon = 'dollar-sign'  
+    elif category == 'VIBER':
+        if artifact == 'VIBER - SETTINGS':
+            icon = 'settings'
+        if artifact == 'VIBER - CONTACTS':
+            icon = 'users'
+        if artifact == 'VIBER - CHATS':
+            icon = 'message-square'              
     return icon
 
 
