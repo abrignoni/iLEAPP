@@ -220,7 +220,7 @@ def kmlgen(report_folder, kmlactivity, data_list, data_headers):
     length = (len(data_list))
     while a < length:
         modifiedDict = dict(zip(data_headers, data_list[a]))
-        times = modifiedDict['Timestamp']
+        times = modifiedDict.get('Timestamp','N/A')
         lon = modifiedDict['Longitude']
         lat = modifiedDict['Latitude']
         if lat:
