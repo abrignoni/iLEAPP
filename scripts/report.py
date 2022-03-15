@@ -276,6 +276,8 @@ def get_icon_name(category, artifact):
             icon = 'users'
         if artifact == 'VIBER - CHATS':
             icon = 'message-square'
+        if artifact == 'VIBER - CALL REMNANTS':
+            icon = 'phone-call'
     elif category == 'VOICE-RECORDINGS':
         icon = 'mic'
     elif category == 'VOICE-TRIGGERS':
