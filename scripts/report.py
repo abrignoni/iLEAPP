@@ -159,6 +159,8 @@ def get_icon_name(category, artifact):
             icon = 'message-square'
         if artifact == 'KIK USERS':
             icon = 'user'
+        if artifact == 'KIK USERS IN GROUPS':
+            icon = 'user'
         if artifact == 'KIK MEDIA METADATA':
             icon = 'file-plus'
         if artifact == 'KIK PENDING UPLOADS':
