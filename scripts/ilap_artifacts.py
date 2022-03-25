@@ -60,6 +60,7 @@ from scripts.artifacts.keyboardLexicon import get_keyboardLexicon
 from scripts.artifacts.kikMessages import get_kikMessages
 from scripts.artifacts.kikBplistmeta import get_kikBplistmeta
 from scripts.artifacts.kikPendingUploads import get_kikPendingUploads
+from scripts.artifacts.kikUsersgroups import get_kikUsersgroups
 from scripts.artifacts.locServicesconfig import get_locServicesconfig
 from scripts.artifacts.lastBuild import get_lastBuild, get_iTunesBackupInfo
 from scripts.artifacts.mailprotect import get_mailprotect
@@ -168,6 +169,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'kikMessages': ('Kik', ('**/kik.sqlite*','*/mobile/Containers/Shared/AppGroup/*/cores/private/*/content_manager/data_cache/*')),
             'kikBplistmeta': ('Kik', '*/mobile/Containers/Shared/AppGroup/*/cores/private/*/attachments/*'),
             'kikPendingUploads': ('Kik', ('*/mobile/Containers/Shared/AppGroup/*/cores/private/*/chunked_upload_storage/pending_uploads','*/mobile/Containers/Shared/AppGroup/*/cores/private/*/chunked_upload_storage/data_cache/*')),
+            'kikUsersgroups':('Kik', ('*/kik.sqlite*')),
             'locServicesconfig': ('Location Services Configurations', ('*/Library/Preferences/com.apple.locationd.plist','*/Library/Caches/locationd/clients.plist', '*/Library/Preferences/com.apple.routined.plist')),
             'mailprotect': ('iOS Mail', '**/private/var/mobile/Library/Mail/* Index*'),
             'mediaLibrary': ('Media Library', '**/Medialibrary.sqlitedb'),
