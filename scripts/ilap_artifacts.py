@@ -216,7 +216,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'weatherAppLocations': ('Locations', '*/private/var/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.com.apple.weather.plist'),
             'webClips': ('iOS Screens', '*WebClips/*.webclip/*'),
             'venmo':('Venmo', ('*PrivateFeed', '*PublicFeed', '*FriendsFeed')),
-            'viber' : ('Viber', ('**/com.viber/settings/Settings.data','**/com.viber/database/Contacts.data','*/var/mobile/Containers/Data/Application/*/Documents/Attachments/*.*')),
+            'viber' : ('Viber', ('**/com.viber/settings/Settings.data','**/com.viber/database/Contacts.data','**/Containers/Data/Application/*/Documents/Attachments/*.*','**/com.viber/ViberIcons/*.*')),
             # 'appUpdates':('App Updates', '**/AppUpdates.sqlitedb'),
             # 'systemVersion':('Device Info', '**/SystemVersion.plist'),
             }

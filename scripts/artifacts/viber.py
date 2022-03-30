@@ -1,14 +1,14 @@
 # Get Viber settings, contacts, recent calls and messages information
 # Author : Evangelos Dragonas (@theAtropos4n6)
 # website : atropos4n6.com
-# Date : 2022-03-09
-# Version : 0.0.1
+# Date : 2022-03-15
+# Version : 0.0.2
 # 
 # The script queries Settings.data and Contacts.data Viber dbs and creates a report of findings including KML geolcation data
 # Settings hold the user's personal data and configurations
 # Contacts hold contacts, calls, messages and more..
 # 
-# The code is divided in 3 queries-artifacts blocks. 
+# The code is divided in 4 queries-artifacts blocks. 
 # 
 # The 1st parses settings db, extracts and reports on user's available information regarding Viber configuartion
 #
@@ -16,11 +16,15 @@
 # Be advised that a contact may not participate in a chat (therefore a contact is not a chat 'member') and vice versa. A chat 'member' may not be registered as a Viber contact. 
 # Hope it makes sense.
 #
-# The 3rd parses contacts db, extracts and reports on user's chats. 2 extra columns with each chat's grouped participants and phone numbers is also available. 
+# The 3rd parses contacts db, extracts and reports on user's recent calls that have no corresponding message (ZVIBERMESSAGE) entry. This indicates that these messages have been deleted and therefore
+# calls are deleted as well. Unfortunately no remote partner information can be retrieved at this moment. 
+#
+# The 4rth parses contacts db, extracts and reports on user's chats. 2 extra columns with each chat's grouped participants and phone numbers is also available. 
 #
 # Also, be aware that there is more information stored within the above databases. This artifact assist in parsing the most out of it (but not all).
 #
 # Should you face a bug or want a specific field extracted, DM me.
+#
 
 
 import glob
@@ -69,7 +73,8 @@ def get_viber(files_found, report_folder, seeker):
 						'_savedDeviceId',
 						'_attemptsToDownloadBackupForRestore',
 						'_backupAttemptsCount',
-						'_hiddenChatsPINData'
+						'_hiddenChatsPINData',
+						'_myPhotoLocalID'
 						)
 					UNION
 					SELECT
@@ -100,6 +105,8 @@ def get_viber(files_found, report_folder, seeker):
 						temp_list = list(row)
 						if temp_list[0] == '_appVersion':
 							temp_list[0] = 'Application Version'
+						elif temp_list[0] == '_lastBackupStartDate':
+							temp_list[0] = 'Last Backup Start Date - UTC'
 						elif temp_list[0] == '_myUserName':
 							temp_list[0] = 'User Name'
 						elif temp_list[0] == '_currentEmail':
@@ -126,6 +133,16 @@ def get_viber(files_found, report_folder, seeker):
 							temp_list[0] = 'Last Known User Location'
 						elif temp_list[0] == '_savedDeviceId':
 							temp_list[0] = 'Device ID'
+						elif temp_list[0] == '_myPhotoLocalID':
+							temp_list[0] = 'Profile Picture'
+							try:
+								if temp_list[1] is not None:
+									thumb = media_to_html(temp_list[1], files_found, report_folder)
+									temp_list[1] = thumb
+								else:
+									thumb = ''								
+							except:
+								pass
 						elif temp_list[0] == '_attemptsToDownloadBackupForRestore':
 							temp_list[0] = 'Attempts To Download Backup For Restore'
 							try:
@@ -213,6 +230,48 @@ def get_viber(files_found, report_folder, seeker):
 					tsvname = 'Viber - Contacts'
 					tsv(report_folder, data_headers, data_list, tsvname)
 					
+				cursor.execute('''
+					SELECT
+						datetime(ZRECENT.ZDATE+ 978307200,'unixepoch') AS 'Timestamp - UTC',
+						ZRECENT.ZRECENTSLINE AS 'EMPTY DUMMY COLUMN',
+						CASE
+								WHEN ZRECENT.ZCALLTYPE = 'missed' THEN 'Missed Audio Call'
+								WHEN ZRECENT.ZCALLTYPE = 'missed_with_video' THEN 'Missed Video Call'
+								WHEN ZRECENT.ZCALLTYPE = 'outgoing_viber' THEN 'Outgoing Audio Call'
+								WHEN ZRECENT.ZCALLTYPE = 'outgoing_viber_with_video' THEN 'Outgoing Video Call'
+								WHEN ZRECENT.ZCALLTYPE = 'incoming_with_video' THEN 'Incoming Video Call'
+								WHEN ZRECENT.ZCALLTYPE = 'incoming' THEN 'Incoming Audio Call'
+								ELSE ZRECENT.ZCALLTYPE
+						end  AS 'Call Type',
+						ZRECENT.ZDURATION AS 'Duration'
+					FROM ZRECENT
+					WHERE ZRECENT.ZCALLLOGMESSAGE IS NULL AND ZRECENT.ZRECENTSLINE IS NULL
+				''')
+
+				all_rows = cursor.fetchall()
+				usageentries = len(all_rows)
+				if usageentries > 0:
+					data_list =[]
+					for row in all_rows: 
+						temp_list = list(row)
+						try:
+							if 'Outgoing' in temp_list[2]:
+								temp_list[1] = str(viber_settings['_myUserName']) + ',' + str(viber_settings['_myPhoneNumber'])
+						except TypeError:
+							pass
+						row = tuple(temp_list)
+						data_list.append((row[0], row[1], row[2], row[3]))
+
+
+
+				if usageentries > 0:
+					report = ArtifactHtmlReport('Viber - Call Remnants')
+					report.start_artifact_report(report_folder, 'Viber - Call Remnants')
+					report.add_script()
+					data_headers = ('Timestamp - UTC','Caller','Call Type','Duration')
+					report.write_artifact_data_table(data_headers, data_list, file_found, html_escape=False)
+					report.end_artifact_report()
+
 
 				cursor.execute('''
 					SELECT 	
@@ -258,8 +317,9 @@ def get_viber(files_found, report_folder, seeker):
 								WHEN ZVIBERMESSAGE.ZBEINGDELETED = 0 THEN 'False'
 								ELSE ZVIBERMESSAGE.ZBEINGDELETED
 							END AS 'Message Deleted',
-							ZVIBERMESSAGE.ZTIMEBOMBDURATION AS 'Time Bomb Duration',
-							ZVIBERMESSAGE.ZTIMEBOMBTIMESTAMP AS 'Time Bomb Timestamp',
+							CHATS.ZTIMEBOMBDURATION AS 'Conversation Time Bomb Duration',
+							ZVIBERMESSAGE.ZTIMEBOMBDURATION AS 'Message Time Bomb Duration',
+							datetime(ZVIBERMESSAGE.ZTIMEBOMBTIMESTAMP+ 978307200,'unixepoch') AS 'Message Time Bomb Timestamp',
 							CASE 
 								WHEN CHATS.Chat_Favorite= 1 THEN 'True'
 								WHEN CHATS.Chat_Favorite = 0 THEN 'False'
@@ -274,6 +334,7 @@ def get_viber(files_found, report_folder, seeker):
 								ZCONVERSATION.ZNAME AS 'Chat_Name',
 								ZCONVERSATION.ZBEINGDELETED AS 'Chat_Deleted',
 								ZCONVERSATION.ZFAVORITE AS 'Chat_Favorite',
+								ZCONVERSATION.ZTIMEBOMBDURATION,
 								coalesce(ZVIBERMESSAGE.ZPHONENUMINDEX,ZCONVERSATION.ZINTERLOCUTOR) AS 'MEMBER_ID',
 								MEMBER.ZDISPLAYFULLNAME,
 								MEMBER.ZDISPLAYSHORTNAME,
@@ -362,13 +423,242 @@ def get_viber(files_found, report_folder, seeker):
 						if temp_list[13]:
 							y = json.loads(temp_list[13], strict=False) # the key that stores geolocation data is ['pa_message_data']['rich_media']['Buttons'][2]['Map']
 							#if the 'Map' key is identified successfully it will assign lat,lon to the corresponding columns, otherwise it will continue on (passing any key,index errors)
+							temp_list[13] = ''
 							try:
 								temp_list[18] = y['pa_message_data']['rich_media']['Buttons'][2]['Map']['Latitude']
 								temp_list[19] = y['pa_message_data']['rich_media']['Buttons'][2]['Map']['Longitude']
-							except KeyError:
+							except (KeyError,IndexError) as e:
 								pass
-							except IndexError:
-								pass
+
+							#What this ugly long list of dict keys simply does is that it extracts only specific fields identified as important from the whole dictionary.
+							#The reason why we extract only specific fields is because the report is much prettier. In order to have a complete picture you will have to go through the whole dictionary
+							#while inspecting the .db itself. Therefore this column is named as 'Message Metadata Fragments'
+
+							#general values
+							if "Text" in y:
+								try:
+									temp_list[13] += "Text: "+ str(y['Text'])+","
+								except KeyError:
+									pass
+							if "Title" in y:
+								try:
+									temp_list[13] += "Title: "+ str(y['Title'])+","
+								except KeyError:
+									pass
+							if "URL" in y:
+								try:
+									temp_list[13] += "URL: "+ str(y['URL'])+","
+								except KeyError:
+									pass
+							if "ThumbnailURL" in y:
+								try:
+									temp_list[13] += "ThumbnailURL: "+ str(y['ThumbnailURL'])+","
+								except KeyError:
+									pass
+							if "Type" in y:
+								try:
+									temp_list[13] += "Type: "+ str(y['Type'])+","
+								except KeyError:
+									pass
+						
+							if "generalFwdInfo" in y:
+								try:
+									temp_list[13] += "Original Chat ID: "+ str(y['generalFwdInfo']['orig_chat_id'])+","
+								except KeyError:
+									pass
+
+							if "audio_ptt" in y:
+								try:
+									temp_list[13] += "Audio Duration: "+ str(y['audio_ptt']['duration'])+","
+								except KeyError:
+									pass
+
+							#fileInfo values
+							if "fileInfo" in y:
+								try:
+									temp_list[13] += "File Info - Content Type: "+ str(y['fileInfo']['ContentType'])+","
+								except KeyError:
+									pass
+								try:
+									temp_list[13] += "File Info - Type: "+ str(y['fileInfo']['Type'])+","
+								except KeyError:
+									pass
+								try:
+									temp_list[13] += "File Info - Hash: "+ str(y['fileInfo']['FileHash'])+","
+								except KeyError:
+									pass
+								try:
+									temp_list[13] += "File Info - Name: "+ str(y['fileInfo']['FileName'])+","
+								except KeyError:
+									pass
+								try:
+									temp_list[13] += "File Info - Extension: "+ str(y['fileInfo']['FileExt'])+","
+								except KeyError:
+									pass
+								try:
+									temp_list[13] += "File Info - Duration: "+ str(y['fileInfo']['Duration'])+","
+								except KeyError:
+									pass
+								try:
+									temp_list[13] += "File Info - Size: "+ str(y['fileInfo']['FileSize'])+","
+								except KeyError:
+									pass
+								try:
+									temp_list[13] += "File Info - Original Size: "+ str(y['fileInfo']['OrigSize'])+","
+								except KeyError:
+									pass
+								try:
+									temp_list[13] += "File|Media Info - iOS Origin: "+ str(y['fileInfo']['mediaInfo']['ios_origin'])+","
+								except KeyError:
+									pass
+								try:
+									temp_list[13] += "File|Media Info - Width: "+ str(y['fileInfo']['mediaInfo']['Width'])+","
+								except KeyError:
+									pass
+								try:
+									temp_list[13] += "File|Media Info - Height: "+ str(y['fileInfo']['mediaInfo']['Height'])+","
+								except KeyError:
+									pass
+								try:
+									temp_list[13] += "File|Media Info - Media Type: "+ str(y['fileInfo']['mediaInfo']['MediaType'])+","
+								except KeyError:
+									pass
+
+							#custom_sticker_info values
+							if "custom_sticker_info" in y:
+								try:
+									temp_list[13] += "Custom Sticker Info - Package ID: "+ str(y['custom_sticker_info']['package_id'])+","
+								except KeyError:
+									pass
+								try:
+									temp_list[13] += "Custom Sticker Info - Sticker ID: "+ str(y['custom_sticker_info']['sticker_id'])+","
+								except KeyError:
+									pass
+
+							#groupReferralInfo values
+							if "groupReferralInfo" in y:
+								try:
+									temp_list[13] += "Group ID: "+ str(y['groupReferralInfo']['groupID'])+","
+								except KeyError:
+									pass
+								try:
+									temp_list[13] += "Group Name: "+ str(y['groupReferralInfo']['groupName'])+","
+								except KeyError:
+									pass
+								try:
+									temp_list[13] += "Invite Link: "+ str(y['groupReferralInfo']['inviteLink'])+","
+								except KeyError:
+									pass
+
+							#pa_message_data values
+							if "pa_message_data" in y:
+								try:
+									temp_list[13] += "Message Data - Text: "+ str(y['pa_message_data']['text'])+","
+								except KeyError:
+									pass
+								try:
+									temp_list[13] += "Message Data - Sender Name: "+ str(y['pa_message_data']['sender']['name'])+","
+								except KeyError:
+									pass
+								try:
+									temp_list[13] += "Message Data - Alt Text: "+ str(y['pa_message_data']['alt_text'])+"," 
+								except KeyError:
+									pass
+								try:
+									temp_list[13] += "Message Data - Favorites Metadata - URL: "+ str(y['pa_message_data']['rich_media']['FavoritesMetadata']['url'])+","
+								except KeyError:
+									pass
+
+							#pin values
+							if "pin" in y:
+								try:
+									temp_list[13] += "Pin - Action: "+ str(y['pin']['action'])+","
+								except KeyError:
+									pass
+								try:
+									temp_list[13] += "Pin - Text: "+ str(y['pin']['text'])+","
+								except KeyError:
+									pass
+								try:
+									temp_list[13] += "Pin - Description: "+ str(y['pin']['extended']['descr'])+","
+								except KeyError:
+									pass
+
+							#poll values
+							if "poll" in y:
+								try:
+									temp_list[13] += "Poll - Group ID: "+ str(y['poll']['groupID'])+","
+								except KeyError:
+									pass
+								try:
+									temp_list[13] += "Poll - Type: "+ str(y['poll']['type'])+","
+								except KeyError:
+									pass
+								try:
+									temp_list[13] += "Poll - Sender ID: "+ str(y['poll']['senderID'])+","
+								except KeyError:
+									pass
+								try:
+									temp_list[13] += "Poll - Multiple: "+ str(y['poll']['multiple'])+","
+								except KeyError:
+									pass
+								try:
+									temp_list[13] += "Poll - Quiz Text: "+ str(y['poll']['quiz_text'])+","
+								except KeyError:
+									pass
+								try:
+									temp_list[13] += "Poll - Description: "+ str(y['poll']['extended']['descr'])+","
+								except KeyError:
+									pass
+								try:
+									if y['poll']['options']:
+										z = ''
+										for x in y['poll']['options']:
+											try:
+												z = x['count']
+												temp_list[13] += "Poll - Options - Count: "+ str(z)+","
+											except (KeyError,IndexError) as e:
+												pass
+											try:
+												z = x['name']
+												temp_list[13] += "Poll - Options - Name: "+ str(z)+","
+											except (KeyError,IndexError) as e:
+												pass
+											try:
+												z = x['isLiked']
+												temp_list[13] += "Poll - Options - Is Liked: "+ str(z)+","
+											except (KeyError,IndexError) as e:
+												pass
+								except (KeyError,IndexError) as e:
+									pass
+
+							#quote values
+							if "quote" in y:
+								try:
+									temp_list[13] += "Quote - Text: "+ str(y['quote']['text'])+","
+								except KeyError:
+									pass
+								try:
+									temp_list[13] += "Quote - Name: "+ str(y['quote']['name'])+","
+								except KeyError:
+									pass
+								try:
+									temp_list[13] += "Quote - Attachment Name: "+ str(y['quote']['attachmentName'])+","
+								except KeyError:
+									pass
+								try:
+									temp_list[13] += "Quote - Attachment UID: "+ str(y['quote']['attachmentUID'])+","
+								except KeyError:
+									pass
+								try:
+									temp_list[13] += "Quote - Attachment Preview Path: "+ str(y['quote']['attachmentPreviewPath'])+","
+								except KeyError:
+									pass
+								try:
+									temp_list[13] += "Quote - Text Meta Info - Data: "+ y['quote']['textMetaInfo_v2'][0]['data']+","
+								except (KeyError,IndexError) as e:
+									pass
+		
 						if temp_list[10] == 'Outgoing':
 							temp_list[0] = viber_settings['_myUserName']
 							temp_list[1] = ''
@@ -380,14 +670,14 @@ def get_viber(files_found, report_folder, seeker):
 							thumb = ''
 						
 						row = tuple(temp_list)
-						data_list.append((row[6], row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[14], row[15], thumb, row[8], row[9], row[10], row[11], row[12], row[16], row[17], row[18],row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[13]))
+						data_list.append((row[6], row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[14], row[15], thumb, row[8], row[9], row[10], row[11], row[12], row[16], row[17], row[18],row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[13]))
 						
 
 				if usageentries > 0:
 					report = ArtifactHtmlReport('Viber - Chats')
 					report.start_artifact_report(report_folder, 'Viber - Chats')
 					report.add_script()
-					data_headers = ('Timestamp', 'Sender (Display Full Name)','Sender (Display Short Name)','Sender (Phone)','Chat Name','Chat Participant(s)','Chat Phone(s)', 'Message Creation Date - UTC','Message Change State Date - UTC','Message Content','Attachment Name', 'Attachment','Call Date - UTC','Call Type','State','Duration (Seconds)','System Type Description','Attachment Type','Attachment Size','Latitude','Longitude','Conversation Deleted','Message Deleted','Time Bomb Duration','Time Bomb Timestamp','Conversation Marked Favorite','Likes Count','Message Metadata')
+					data_headers = ('Timestamp', 'Sender (Display Full Name)','Sender (Display Short Name)','Sender (Phone)','Chat Name','Chat Participant(s)','Chat Phone(s)', 'Message Creation Date - UTC','Message Change State Date - UTC','Message Content','Attachment Name', 'Attachment','Call Date - UTC','Call Type','State','Duration (Seconds)','System Type Description','Attachment Type','Attachment Size','Latitude','Longitude','Conversation Deleted','Message Deleted', 'Conversation Time Bomb Duration','Message Time Bomb Duration','Message Time Bomb Timestamp - UTC','Conversation Marked Favorite','Likes Count','Message Metadata Fragments')
 					report.write_artifact_data_table(data_headers, data_list, file_found, html_no_escape=['Attachment']) #html_escape=False
 					report.end_artifact_report()
 					
@@ -396,8 +686,8 @@ def get_viber(files_found, report_folder, seeker):
 
 					tsvname = 'Viber - Chats'
 					tsv(report_folder, data_headers, data_list, tsvname)
-					
+				
 				db.close()
 			else:
 				logfunc('No Viber data found.')
-		
+	
