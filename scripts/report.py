@@ -157,6 +157,10 @@ def get_icon_name(category, artifact):
     elif category == 'KIK':
         if artifact == 'KIK MESSAGES':
             icon = 'message-square'
+        if artifact == 'KIK GROUP ADMINISTRATORS':
+            icon = 'user-plus'
+        if artifact == 'KIK LOCAL ACCOUNT':
+            icon = 'user-check'
         if artifact == 'KIK USERS':
             icon = 'user'
         if artifact == 'KIK USERS IN GROUPS':
