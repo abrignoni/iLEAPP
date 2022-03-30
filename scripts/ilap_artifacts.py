@@ -57,6 +57,8 @@ from scripts.artifacts.instagramThreads import get_instagramThreads
 from scripts.artifacts.interactionCcontacts import get_interactionCcontacts
 from scripts.artifacts.keyboardAppUsage import get_keyboardAppUsage
 from scripts.artifacts.keyboardLexicon import get_keyboardLexicon
+from scripts.artifacts.kikGroupadmins import get_kikGroupadmins
+from scripts.artifacts.kikLocaladmin import get_kikLocaladmin
 from scripts.artifacts.kikMessages import get_kikMessages
 from scripts.artifacts.kikBplistmeta import get_kikBplistmeta
 from scripts.artifacts.kikPendingUploads import get_kikPendingUploads
@@ -168,6 +170,8 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'keyboardLexicon': ('Keyboard', '*/private/var/mobile/Library/Keyboard/*-dynamic.lm/dynamic-lexicon.dat'),
             'kikMessages': ('Kik', ('**/kik.sqlite*','*/mobile/Containers/Shared/AppGroup/*/cores/private/*/content_manager/data_cache/*')),
             'kikBplistmeta': ('Kik', '*/mobile/Containers/Shared/AppGroup/*/cores/private/*/attachments/*'),
+            'kikGroupadmins': ('Kik', ('*/kik.sqlite*')),
+            'kikLocaladmin': ('Kik', ('*/kik.sqlite*')),
             'kikPendingUploads': ('Kik', ('*/mobile/Containers/Shared/AppGroup/*/cores/private/*/chunked_upload_storage/pending_uploads','*/mobile/Containers/Shared/AppGroup/*/cores/private/*/chunked_upload_storage/data_cache/*')),
             'kikUsersgroups':('Kik', ('*/kik.sqlite*')),
             'locServicesconfig': ('Location Services Configurations', ('*/Library/Preferences/com.apple.locationd.plist','*/Library/Caches/locationd/clients.plist', '*/Library/Preferences/com.apple.routined.plist')),
