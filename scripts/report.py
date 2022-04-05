@@ -391,6 +391,12 @@ def generate_report(reportfolderbase, time_in_secs, time_HMS, extraction_type, i
         shutil.copyfile(os.path.join(__location__, "chats.css"), os.path.join(elements_folder, "chats.css"))
         shutil.copytree(os.path.join(__location__, "MDB-Free_4.13.0"), os.path.join(elements_folder, 'MDB-Free_4.13.0'),
                         copy_function=copy_no_perm)
+        
+        #Copies custom.css & sidebard.js files to local directory
+        shutil.copyfile(os.path.join(__location__, "custom.css"), os.path.join(elements_folder, "custom.css"))
+        shutil.copyfile(os.path.join(__location__, "sidebar.js"), os.path.join(elements_folder, "sidebar.js"))
+        
+        
     except shutil.Error:
         print("shutil reported an error. Maybe due to recursive directory copying.")
         if os.path.exists(os.path.join(elements_folder, 'MDB-Free_4.13.0')):
