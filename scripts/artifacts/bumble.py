@@ -1,3 +1,9 @@
+# Module Description: Parses Bumble chat messages and some local user account details
+# Author: @KevinPagano3
+# Date: 2022-04-16
+# Artifact version: 0.0.1
+# Requirements: none
+
 import datetime
 import io
 import nska_deserialize as nd
