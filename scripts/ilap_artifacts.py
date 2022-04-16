@@ -24,6 +24,7 @@ from scripts.artifacts.appleWalletTransactions import get_appleWalletTransaction
 from scripts.artifacts.applicationstate import get_applicationstate
 from scripts.artifacts.airtags import get_airtags
 from scripts.artifacts.bluetooth import get_bluetooth
+from scripts.artifacts.bumble import get_bumble
 from scripts.artifacts.cacheRoutesGmap import get_cacheRoutesGmap
 from scripts.artifacts.calendarAll import get_calendarAll
 from scripts.artifacts.callHistory import get_callHistory
@@ -136,6 +137,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'applicationstate': ('Installed Apps', '**/applicationState.db'),
             'airtags': ('Airtags', '*/Caches/com.apple.findmy.fmipcore/Items.data'),
             'bluetooth': ('Bluetooth', '**/com.apple.MobileBluetooth.*'),
+            'bumble': ('Bumble', ('**/Library/Caches/Chat.sqlite*','**/Documents/yap-database.sqlite*')),
             'cacheRoutesGmap': ('Locations', '**/Library/Application Support/CachedRoutes/*.plist'),
             'calendarAll': ('Calendar', '**/Calendar.sqlitedb'),
             'callHistory': ('Call History', '**/CallHistory.storedata*'),
