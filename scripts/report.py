@@ -1,4 +1,4 @@
-import html
+    import html
 import os
 import pathlib
 import shutil
@@ -58,6 +58,11 @@ def get_icon_name(category, artifact):
         icon = 'book'
     elif category == 'BLUETOOTH':
         icon = 'bluetooth'
+    elif category == 'BUMBLE':
+        if artifact == 'BUMBLE - MESSAGES':
+            icon = 'message-circle'
+        if artifact == 'BUMBLE - ACCOUNT DETAILS':
+            icon = 'user'
     elif category == 'CALENDAR':
         icon = 'calendar'
     elif category == 'CALL HISTORY':
