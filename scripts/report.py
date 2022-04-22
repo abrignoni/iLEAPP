@@ -116,6 +116,11 @@ def get_icon_name(category, artifact):
             icon = 'map'
         elif artifact == 'PD PLACE CACHE':
             icon = 'map-pin'
+    elif category == 'GMAIL':
+        if artifact == 'GMAIL - LABEL DETAILS':
+            icon = 'mail'
+        if artifact == 'GMAIL - OFFLINE SEARCH':
+            icon = 'search'
     elif category == 'GOOGLE DUO':
         if artifact == 'GOOGLE DUO - CALL HISTORY':
             icon = 'phone-call'
