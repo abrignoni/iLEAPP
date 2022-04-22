@@ -46,6 +46,7 @@ from scripts.artifacts.filesAppsm import get_filesAppsm
 from scripts.artifacts.geodApplications import get_geodApplications
 from scripts.artifacts.geodMapTiles import get_geodMapTiles
 from scripts.artifacts.geodPDPlaceCache import get_geodPDPlaceCache
+from scripts.artifacts.Gmail import get_Gmail
 from scripts.artifacts.googleDuo import get_googleDuo
 from scripts.artifacts.icloudMeta import get_icloudMeta
 from scripts.artifacts.icloudPhotoMeta import get_icloudPhotoMeta
@@ -159,6 +160,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'geodApplications': ('Geolocation', '**/AP.db'),
             'geodMapTiles': ('Geolocation', '**/MapTiles.sqlitedb'),
             'geodPDPlaceCache': ('Geolocation', '**/PDPlaceCache.db'),
+            'Gmail': ('Gmail', ('**/private/var/mobile/Containers/Data/Application/*/Library/Application Support/data/*/searchsqlitedb*','**/private/var/mobile/Containers/Data/Application/*/Library/Application Support/data/*/sqlitedb*')),
             'googleDuo': ('Google Duo', ('*/Application Support/DataStore*','*/Application Support/ClipsCache/*.png')),
             'icloudMeta': ('iCloud Returns', '*/iclouddrive/Metadata.txt'),
             'icloudPhotoMeta': ('iCloud Returns', '*/cloudphotolibrary/Metadata.txt'),
