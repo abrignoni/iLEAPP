@@ -1,6 +1,6 @@
-# Module Description: Parses Gmail label details and offline search
+# Module Description: Parses Gmail label details and offline search content
 # Author: @KevinPagano3
-# Date: 2022-04-19
+# Date: 2022-04-21
 # Artifact version: 0.0.1
 # Requirements: none
 
