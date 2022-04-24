@@ -74,7 +74,7 @@ def pickModules():
         mlist.append( CheckList(val[0] + f' [{key}]', indx, key, disabled) )
         indx = indx + 1
         
-sg.theme('DarkAmber')   # Add a touch of color
+sg.theme('DarkTeal4')   # Add a touch of color
 # All the stuff inside your window.
 
 normal_font = ("Helvetica", 12)
@@ -84,8 +84,8 @@ pickModules()
 GuiWindow.progress_bar_total = len(ileapp.tosearch)
 
 
-layout = [  [sg.Text('iOS Logs, Events, And Plists Parser', font=("Helvetica", 22))],
-            [sg.Text('https://github.com/abrignoni/iLEAPP', font=("Helvetica", 14))],
+layout = [  [sg.Text('iLTriage', font=("Helvetica", 22))],
+            [sg.Text('https://github.com/22WEAT4N6/iLTriage', font=("Helvetica", 14))],
             [sg.Frame(layout=[
                     [sg.Input(size=(97,1)), 
                      sg.FileBrowse(font=normal_font, button_text='Browse File', key='INPUTFILEBROWSE'),
@@ -104,7 +104,7 @@ layout = [  [sg.Text('iOS Logs, Events, And Plists Parser', font=("Helvetica", 2
             [sg.Submit('Process',font=normal_font), sg.Button('Close', font=normal_font)] ]
             
 # Create the Window
-window = sg.Window(f'iLEAPP version {aleapp_version}', layout)
+window = sg.Window(f'iLTriage version {aleapp_version}', layout)
 GuiWindow.progress_bar_handle = window['PROGRESSBAR']
 
 

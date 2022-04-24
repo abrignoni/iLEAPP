@@ -206,13 +206,13 @@ thank_you_note = \
                             </div>
                             <div class="col-md-8">
                             <div class="card-body">
-                                <h5 class="card-title">Thank you for using iLEAPP</h5>
+                                <h5 class="card-title">Thank you for using iLTriage</h5>
                                 <p class="card-text">
                                     Support open source and report any bugs!
                                 </p>
                                 <!--Github-->
-                                <a class="btn-floating btn-git" type="button" role="button" href="https://github.com/abrignoni/ileapp" target="_blank"><i class="fab fa-github"></i> Project Home </a>
-                                <p class="card-text fadeIn"><small class="text-muted">iLEAPP Team</small></p>
+                                <a class="btn-floating btn-git" type="button" role="button" href="https://github.com/22WEAT4N6/iLTriage" target="_blank"><i class="fab fa-github"></i> Project Home </a>
+                                <p class="card-text fadeIn"><small class="text-muted">iLTriage Team</small></p>
                             </div>
                             </div>
                         </div>
@@ -226,7 +226,7 @@ thank_you_note = \
 credits_block = \
 """
     <div class="alert alert-light mb-4 bg-white" style="border-style: none">
-        <h4 class="text-center">iLEAPP contributors</h4>
+        <h4 class="text-center">iLTriage contributors</h4>
         <ul class="list-group" style="max-width: 500px; margin:auto">
             {}
         </ul>
