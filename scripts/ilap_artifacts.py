@@ -75,6 +75,7 @@ from scripts.artifacts.mobileBackup import get_mobileBackup
 from scripts.artifacts.mobileContainerManager import get_mobileContainerManager
 from scripts.artifacts.mobileInstall import get_mobileInstall
 from scripts.artifacts.notes import get_notes
+from scripts.artifacts.notificationsDuet import get_notificationsDuet
 from scripts.artifacts.notificationsXI import get_notificationsXI
 from scripts.artifacts.notificationsXII import get_notificationsXII
 from scripts.artifacts.ooklaSpeedtestData import get_ooklaSpeedtestData
@@ -187,6 +188,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'mobileContainerManager': ('Mobile Container Manager', '**/containermanagerd.log.*'),
             'mobileInstall': ('Mobile Installation Logs', '**/mobile_installation.log.*'),
             'notes': ('Notes', '*/NoteStore.sqlite*'),
+            'notificationsDuet': ('Notifications', '*/DuetExpertCenter/streams/userNotificationEvents/local/*'),
             'notificationsXI': ('Notifications', '*PushStore*'),
             'notificationsXII': ('Notifications', '*private/var/mobile/Library/UserNotifications*'),
             'ooklaSpeedtestData': ('Applications', '**/speedtest.sqlite*'),
