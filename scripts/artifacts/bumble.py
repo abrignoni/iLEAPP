@@ -172,6 +172,6 @@ def get_bumble(files_found, report_folder, seeker):
         timeline(report_folder, tlactivity, data_list_account, data_headers_account)
         
     else:
-        logfunc('Bumble - Account Details data available')
+        logfunc('No Bumble - Account Details data available')
     
     db.close()
