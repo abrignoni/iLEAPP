@@ -9,6 +9,7 @@ from time import process_time, gmtime, strftime
 from scripts.artifacts.accs import get_accs
 from scripts.artifacts.addressBook import get_addressBook
 from scripts.artifacts.alarms import get_alarms
+from scripts.artifacts.AllTrails import get_AllTrails
 from scripts.artifacts.appConduit import get_appConduit
 from scripts.artifacts.appGrouplisting import get_appGrouplisting
 from scripts.artifacts.appItunesmeta import get_appItunesmeta
@@ -124,6 +125,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'accs': ('Accounts', '**/Accounts3.sqlite'),
             'addressBook': ('Address Book', '**/AddressBook.sqlitedb'),
             'alarms': ('Alarms', '*private/var/mobile/Library/Preferences/com.apple.mobiletimerd.plist'),
+            'AllTrails': ('AllTrails', '**/Documents/AllTrails.sqlite*'),
             'appConduit': ('App Conduit', '**/AppConduit.log.*'),
             'appGrouplisting': ('Installed Apps', ('*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist', '**/PluginKitPlugin/*.metadata.plist')),
             'appItunesmeta': ('Installed Apps', ('**/iTunesMetadata.plist', '**/BundleMetadata.plist')),
