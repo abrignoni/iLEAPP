@@ -9,6 +9,7 @@ from time import process_time, gmtime, strftime
 from scripts.artifacts.accs import get_accs
 from scripts.artifacts.addressBook import get_addressBook
 from scripts.artifacts.alarms import get_alarms
+from scripts.artifacts.AllTrails import get_AllTrails
 from scripts.artifacts.appConduit import get_appConduit
 from scripts.artifacts.appGrouplisting import get_appGrouplisting
 from scripts.artifacts.appItunesmeta import get_appItunesmeta
@@ -33,6 +34,7 @@ from scripts.artifacts.celWireless import get_celWireless
 from scripts.artifacts.cloudkitSharing import get_cloudkitSharing
 from scripts.artifacts.conDev import get_conDev
 from scripts.artifacts.confaccts import get_confaccts
+from scripts.artifacts.ControlCenter import get_ControlCenter
 from scripts.artifacts.deviceActivator import get_deviceActivator
 from scripts.artifacts.dhcphp import get_dhcphp
 from scripts.artifacts.dhcpl import get_dhcpl
@@ -124,6 +126,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'accs': ('Accounts', '**/Accounts3.sqlite'),
             'addressBook': ('Address Book', '**/AddressBook.sqlitedb'),
             'alarms': ('Alarms', '*private/var/mobile/Library/Preferences/com.apple.mobiletimerd.plist'),
+            'AllTrails': ('AllTrails', '**/Documents/AllTrails.sqlite*'),
             'appConduit': ('App Conduit', '**/AppConduit.log.*'),
             'appGrouplisting': ('Installed Apps', ('*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist', '**/PluginKitPlugin/*.metadata.plist')),
             'appItunesmeta': ('Installed Apps', ('**/iTunesMetadata.plist', '**/BundleMetadata.plist')),
@@ -148,6 +151,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'cloudkitSharing': ('Cloudkit', '*NoteStore.sqlite*'),
             'conDev': ('Connected to', '**/iTunes_Control/iTunes/iTunesPrefs'),
             'confaccts': ('Accounts', '**/com.apple.accounts.exists.plist'),
+            'ControlCenter': ('Control Center', '**private/var/mobile/Library/ControlCenter/ModuleConfiguration.plist'),
             'deviceActivator': ('IOS Build', '*private/var/mobile/Library/Logs/mobileactivationd/ucrt_oob_request.txt'),
             'dhcphp': ('DHCP', '**/private/var/db/dhcpd_leases*'),
             'dhcpl': ('DHCP', '**/private/var/db/dhcpclient/leases/en*'),

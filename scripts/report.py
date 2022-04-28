@@ -29,10 +29,15 @@ def get_icon_name(category, artifact):
             icon = 'user'
     elif category == 'ADDRESS BOOK':
         icon = 'book-open'
-    elif category == 'ALARMS':
-        icon = 'clock'
     elif category == 'AIRTAGS':
         icon = 'map-pin'
+    elif category == 'ALARMS':
+        icon = 'clock'
+    elif category == 'ALLTRAILS':
+        if artifact == 'ALLTRAILS - TRAIL DETAILS':
+            icon = 'map'
+        if artifact == 'ALLTRAILS - USER INFO':
+            icon = 'user'
     elif category == 'APPLE PODCASTS':
         icon = 'play-circle'
     elif category == 'APPLE WALLET':
@@ -46,10 +51,6 @@ def get_icon_name(category, artifact):
         icon = 'activity'
     elif category == 'APP PERMISSIONS':
         icon = 'key'
-    elif category == 'CARPLAY':
-        icon = 'package'
-    elif category == 'CASH APP':
-        icon = 'credit-card'
     elif category == 'APP UPDATES':
         icon = 'codepen'
     elif category == 'APPLICATIONS':
@@ -67,6 +68,10 @@ def get_icon_name(category, artifact):
         icon = 'calendar'
     elif category == 'CALL HISTORY':
         icon = 'phone-call'
+    elif category == 'CARPLAY':
+        icon = 'package'
+    elif category == 'CASH APP':
+        icon = 'credit-card'
     elif category == 'CELLULAR WIRELESS':
         icon = 'bar-chart'
     elif category == 'CLOUDKIT':
@@ -76,6 +81,13 @@ def get_icon_name(category, artifact):
             icon = 'share-2'
     elif category == 'CONNECTED TO':
         icon = 'zap'
+    elif category == 'CONTROL CENTER':
+        if artifact == 'CONTROL CENTER - DISABLED CONTROLS':
+            icon = 'x-square'
+        if artifact == 'CONTROL CENTER - ACTIVE CONTROLS':
+            icon = 'sliders'
+        if artifact == 'CONTROL CENTER - USER TOGGLED CONTROLS':
+            icon = 'check-square'
     elif category == 'COREDUET':
         if artifact == 'AIRPLANE MODE':
             icon = 'pause'
