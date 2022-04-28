@@ -208,7 +208,7 @@ thank_you_note = \
                     <br />
                     <div class="card bg-white mb-3" style="max-width: 500px; margin:auto">
                         <div class="row no-gutters">
-                            <div class="col-md-4">
+                            <center><div class="col-md-4">
                                 <img src="_elements/logo.jpg" class="card-img" alt="DFIR">
                             </div>
                             <div class="col-md-8">
@@ -221,7 +221,7 @@ thank_you_note = \
                                 <a class="btn-floating btn-git" type="button" role="button" href="https://github.com/abrignoni/ileapp" target="_blank"><i class="fab fa-github"></i> Project Home </a>
                                 <p class="card-text fadeIn"><small class="text-muted">iLEAPP Team</small></p>
                             </div>
-                            </div>
+                            </div></center>
                         </div>
                     </div>
                     <br />
