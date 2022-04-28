@@ -76,6 +76,13 @@ def get_icon_name(category, artifact):
             icon = 'share-2'
     elif category == 'CONNECTED TO':
         icon = 'zap'
+    elif category == 'CONTROL CENTER':
+        if artifact == 'CONTROL CENTER - DISABLED CONTROLS':
+            icon = 'x-square'
+        if artifact == 'CONTROL CENTER - ACTIVE CONTROLS':
+            icon = 'sliders'
+        if artifact == 'CONTROL CENTER - USER TOGGLED CONTROLS':
+            icon = 'check-square'
     elif category == 'COREDUET':
         if artifact == 'AIRPLANE MODE':
             icon = 'pause'

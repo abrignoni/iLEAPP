@@ -33,6 +33,7 @@ from scripts.artifacts.celWireless import get_celWireless
 from scripts.artifacts.cloudkitSharing import get_cloudkitSharing
 from scripts.artifacts.conDev import get_conDev
 from scripts.artifacts.confaccts import get_confaccts
+from scripts.artifacts.ControlCenter import get_ControlCenter
 from scripts.artifacts.deviceActivator import get_deviceActivator
 from scripts.artifacts.dhcphp import get_dhcphp
 from scripts.artifacts.dhcpl import get_dhcpl
@@ -147,6 +148,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'cloudkitSharing': ('Cloudkit', '*NoteStore.sqlite*'),
             'conDev': ('Connected to', '**/iTunes_Control/iTunes/iTunesPrefs'),
             'confaccts': ('Accounts', '**/com.apple.accounts.exists.plist'),
+            'ControlCenter': ('Control Center', '**private/var/mobile/Library/ControlCenter/ModuleConfiguration.plist'),
             'deviceActivator': ('IOS Build', '*private/var/mobile/Library/Logs/mobileactivationd/ucrt_oob_request.txt'),
             'dhcphp': ('DHCP', '**/private/var/db/dhcpd_leases*'),
             'dhcpl': ('DHCP', '**/private/var/db/dhcpclient/leases/en*'),
