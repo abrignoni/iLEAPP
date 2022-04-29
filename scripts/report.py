@@ -126,6 +126,8 @@ def get_icon_name(category, artifact):
             icon = 'grid'
         elif artifact == 'MAP TILE CACHE':
             icon = 'map'
+        elif artifact == 'MAPSSYNC':
+            icon = 'map'
         elif artifact == 'PD PLACE CACHE':
             icon = 'map-pin'
     elif category == 'GMAIL':
