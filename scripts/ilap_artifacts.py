@@ -69,6 +69,7 @@ from scripts.artifacts.kikPendingUploads import get_kikPendingUploads
 from scripts.artifacts.kikUsersgroups import get_kikUsersgroups
 from scripts.artifacts.locServicesconfig import get_locServicesconfig
 from scripts.artifacts.lastBuild import get_lastBuild, get_iTunesBackupInfo
+from scripts.artifacts.mapsSync import get_mapsSync
 from scripts.artifacts.mailprotect import get_mailprotect
 from scripts.artifacts.mediaLibrary import get_mediaLibrary
 from scripts.artifacts.medicalID import get_medicalID
@@ -77,6 +78,7 @@ from scripts.artifacts.mobileBackup import get_mobileBackup
 from scripts.artifacts.mobileContainerManager import get_mobileContainerManager
 from scripts.artifacts.mobileInstall import get_mobileInstall
 from scripts.artifacts.notes import get_notes
+from scripts.artifacts.notificationsDuet import get_notificationsDuet
 from scripts.artifacts.notificationsXI import get_notificationsXI
 from scripts.artifacts.notificationsXII import get_notificationsXII
 from scripts.artifacts.ooklaSpeedtestData import get_ooklaSpeedtestData
@@ -183,6 +185,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'kikPendingUploads': ('Kik', ('*/mobile/Containers/Shared/AppGroup/*/cores/private/*/chunked_upload_storage/pending_uploads','*/mobile/Containers/Shared/AppGroup/*/cores/private/*/chunked_upload_storage/data_cache/*')),
             'kikUsersgroups':('Kik', ('*/kik.sqlite*')),
             'locServicesconfig': ('Location Services Configurations', ('*/Library/Preferences/com.apple.locationd.plist','*/Library/Caches/locationd/clients.plist', '*/Library/Preferences/com.apple.routined.plist')),
+            'mapsSync': ('Geolocation', '*/MapsSync_0.0.1*'),
             'mailprotect': ('iOS Mail', '**/private/var/mobile/Library/Mail/* Index*'),
             'mediaLibrary': ('Media Library', '**/Medialibrary.sqlitedb'),
             'medicalID': ('Medical ID', '*/private/var/mobile/Library/MedicalID/MedicalIDData.archive'),
@@ -191,6 +194,7 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'mobileContainerManager': ('Mobile Container Manager', '**/containermanagerd.log.*'),
             'mobileInstall': ('Mobile Installation Logs', '**/mobile_installation.log.*'),
             'notes': ('Notes', '*/NoteStore.sqlite*'),
+            'notificationsDuet': ('Notifications', '*/DuetExpertCenter/streams/userNotificationEvents/local/*'),
             'notificationsXI': ('Notifications', '*PushStore*'),
             'notificationsXII': ('Notifications', '*private/var/mobile/Library/UserNotifications*'),
             'ooklaSpeedtestData': ('Applications', '**/speedtest.sqlite*'),
