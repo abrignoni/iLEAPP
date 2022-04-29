@@ -133,7 +133,7 @@ def get_mapsSync(files_found, report_folder, seeker):
             
 
         if usageentries > 0:
-            description = 'MapSync values. Medium confidence. Locations and searches from other linked devices might show up here. Travel may or may not have happened.'
+            description = 'Disclaimer: Entries should be corroborated. Locations and searches from other linked devices might show up here. Travel should be confirmed. Medium confidence.'
             report = ArtifactHtmlReport('MapsSync')
             report.start_artifact_report(report_folder, 'MapsSync', description)
             report.add_script()
