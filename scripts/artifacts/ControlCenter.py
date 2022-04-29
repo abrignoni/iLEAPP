@@ -69,7 +69,7 @@ def get_ControlCenter(files_found, report_folder, seeker):
         report.end_artifact_report()
         
         tsvname = 'Control Center - Disabled Controls'
-        tsv(report_folder, data_headers, known_data_list, tsvname)
+        tsv(report_folder, data_headers, data_list_disabled, tsvname)
         
     else:
         logfunc('No Control Center - Disabled Controls data available')
