@@ -117,12 +117,12 @@ def get_notificationsDuet(files_found, report_folder, seeker):
             mensaje.read(27)
             """ #Revisit to get date out.
             date2 = mensaje.read(8) #Date in hex
-            print(f'Date2: {date2}')
+            #print(f'Date2: {date2}')
             for x in date2:
-                print(hex(x))
+                #print(hex(x))
             date2 = (struct.unpack_from("<d",date2)[0])
             convertedtime2 = timestampsconv(date2)
-            print(convertedtime2)
+            #print(convertedtime2)
             """
             test = mensaje.read(1)
             if test == b'\x12':
@@ -139,6 +139,8 @@ def get_notificationsDuet(files_found, report_folder, seeker):
                 #print('there is x1a')
                 titlelength = mensaje.read(1)
                 #print(titlelength)
+                if titlelength >= b'\x80':
+                    mensaje.read(1)
                 lengthtoread = (int(titlelength.hex(), 16))
                 #print(lengthtoread)
                 title = mensaje.read(lengthtoread)
@@ -147,20 +149,22 @@ def get_notificationsDuet(files_found, report_folder, seeker):
                 
                 title = (utf8_in_extended_ascii(title)[1])
                 #print(f'Title: {title}')
-                
-                
                 checksubtitle = mensaje.read(1)
-                if checksubtitle == b'\x22':
-                    #print('there is x22')
-                    checksubtitlelength = mensaje.read(1)
-                    #print(checksubtitlelength)
-                    subtitlelengthtoread = (int(checksubtitlelength.hex(), 16))
-                    #print(subtitlelengthtoread )
-                    subtitle = mensaje.read(subtitlelengthtoread )
-                    subtitle = (subtitle.decode('latin-1'))
-                    subtitle= (utf8_in_extended_ascii(subtitle)[1])
-                    #print(f'Subtitle: {subtitle}')
-                    bodylenght = mensaje.read(1)
+            else:
+                checksubtitle = checktitle
+            if  checksubtitle == b'\x22':
+                #print('there is x22')
+                checksubtitlelength = mensaje.read(1)
+                #print(checksubtitlelength)
+                if checksubtitlelength >= b'\x80':
+                    mensaje.read(1)
+                subtitlelengthtoread = (int(checksubtitlelength.hex(), 16))
+                #print(subtitlelengthtoread )
+                subtitle = mensaje.read(subtitlelengthtoread )
+                subtitle = (subtitle.decode('latin-1'))
+                subtitle= (utf8_in_extended_ascii(subtitle)[1])
+                #print(f'Subtitle: {subtitle}')
+                bodylenght = mensaje.read(1)
             else:
                 body = checktitle
                 #print(f'Checktitle: {body}')
@@ -212,7 +216,7 @@ def get_notificationsDuet(files_found, report_folder, seeker):
                 bodytoread = (int(bodylenght.hex(), 16))
                 
             #print(f'Body to read afuera: {bodytoread}')
-                
+            
             if bodylenght == b'\x00':
                 bundlelen = mensaje.read(1)
                 bundlelen = mensaje.read(1)
@@ -223,7 +227,7 @@ def get_notificationsDuet(files_found, report_folder, seeker):
                 bundledata = (utf8_in_extended_ascii(bundledata)[1])
                 #print(f'Bundle ID: {bundledata}')
                 optionaltextcheck = mensaje.read(3)
-                #print(f'Optional cuando mensaje es 00: {optionaltextcheck}'
+                #print(f'Optional cuando mensaje es 00: {optionaltextcheck}')
             else:
                 
                 bodyread= mensaje.read(bodytoread)
@@ -281,13 +285,21 @@ def get_notificationsDuet(files_found, report_folder, seeker):
                 
             checkappleid = mensaje.read(2)
             if checkappleid == b'\xA2\x01':
-                appleidlen = mensaje.read(1)
-                appleidlen = (int(appleidlen.hex(), 16))
-                appleidread = mensaje.read(appleidlen)
-                appleidread  = (appleidread .decode('latin-1'))
-                appleidread = (utf8_in_extended_ascii(appleidread)[1])
-                #print(f'Apple ID: {appleidread}')
-                mensaje.read(3)
+                appleidread = ''
+                while True:
+                    appleidlen = mensaje.read(1)
+                    appleidlen = (int(appleidlen.hex(), 16))
+                    appleidread = mensaje.read(appleidlen)
+                    appleidread  = (appleidread .decode('latin-1'))
+                    appleidread = (utf8_in_extended_ascii(appleidread)[1])
+                    #print(f'Apple ID: {appleidread}')
+                    appleidread = appleidread + ' ' + appleidread
+                    innercheck = mensaje.read(2)
+                    if innercheck == b'\xA2\x01':
+                        pass
+                    else:
+                        mensaje.read(1)
+                        break
             else:
                 mensaje.read(3)
                 
@@ -295,10 +307,8 @@ def get_notificationsDuet(files_found, report_folder, seeker):
             #print(lastdate)
             date2 = (struct.unpack_from("<d",lastdate)[0])
             convertedtime2 = timestampsconv(date2)
-            #print(f'Date2: {convertedtime2}')    
-            
-            
-            data_list.append((convertedtime1,guid,title,subtitle,bundledata,bodyread,bundleidread,optionaltextread,bundleid2read,optionalgmarkeread,appleidread,convertedtime2, filename))
+            #print(f'Date2: {convertedtime2}')
+            data_list.append((convertedtime1,guid,title,subtitle,bundledata,bodyread,bundleidread,optionaltextread,bundleid2read,optionalgmarkeread,appleidread,convertedtime2))
             
             convertedtime1 = guid = title = subtitle = bundledata = bodyread = bundleidread = optionaltextread = bundleid2read = optionalgmarkeread = appleidread = convertedtime2 = ''
             
