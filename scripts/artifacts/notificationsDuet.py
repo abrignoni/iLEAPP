@@ -308,9 +308,9 @@ def get_notificationsDuet(files_found, report_folder, seeker):
             date2 = (struct.unpack_from("<d",lastdate)[0])
             convertedtime2 = timestampsconv(date2)
             #print(f'Date2: {convertedtime2}')
-            data_list.append((convertedtime1,guid,title,subtitle,bundledata,bodyread,bundleidread,optionaltextread,bundleid2read,optionalgmarkeread,appleidread,convertedtime2))
+            data_list.append((convertedtime1,guid,title,subtitle,bundledata,bodyread,bundleidread,optionaltextread,bundleid2read,optionalgmarkeread,appleidread,convertedtime2, filename))
             
-            convertedtime1 = guid = title = subtitle = bundledata = bodyread = bundleidread = optionaltextread = bundleid2read = optionalgmarkeread = appleidread = convertedtime2 = ''
+            convertedtime1 = guid = title = subtitle = bundledata = bodyread = bundleidread = optionaltextread = bundleid2read = optionalgmarkeread = appleidread = convertedtime2 =  ''
             
             modresult = (sizeofnotificaton % 8)
             resultante =  8 - modresult
