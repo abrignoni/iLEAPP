@@ -123,6 +123,7 @@ def get_restoreLog(files_found, report_folder, seeker):
     "19D52":"15.3.1",
     "19E241":"15.4",
     "19E258":"15.4.1",
+    "19F77":"15.5",
     }
 
     for file_found in files_found:
