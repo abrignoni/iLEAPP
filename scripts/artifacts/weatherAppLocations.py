@@ -12,7 +12,11 @@ def get_weatherAppLocations(files_found, report_folder, seeker):
         file_found = str(file_found)
         with open(file_found, "rb") as plist_file:
             plist_content = plistlib.load(plist_file)
-
+            
+            if plist_content.get('Cities', '0') == '0':
+              logfunc('No cities available')
+              return
+            
             for city in plist_content['Cities']:
                 update_time = city['UpateTime']
                 update_time_formatted = update_time.strftime('%Y-%m-%d %H:%M:%S')

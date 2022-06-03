@@ -5,19 +5,28 @@ import os
 import scripts.artifacts.artGlobals
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, strings, open_sqlite_db_readonly
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, strings, open_sqlite_db_readonly, does_table_exist
 
 
 def get_geodPDPlaceCache(files_found, report_folder, seeker):
-	file_found = str(files_found[0])
+	for file_found in files_found:
+		file_found = str(file_found)
+		
+		if file_found.endswith('.db'):
+			break
+		
 	db = open_sqlite_db_readonly(file_found)
-	cursor = db.cursor()
-	cursor.execute(
-	"""
+	if does_table_exist(db, 'pdplacelookup'):
+		query = ("""
 	SELECT requestkey, pdplacelookup.pdplacehash, datetime('2001-01-01', "lastaccesstime" || ' seconds') as lastaccesstime, datetime('2001-01-01', "expiretime" || ' seconds') as expiretime, pdplace
 	FROM pdplacelookup
 	INNER JOIN pdplaces on pdplacelookup.pdplacehash = pdplaces.pdplacehash
 	""")
+	else:
+		logfunc()
+	cursor = db.cursor()
+	cursor.execute(query)
+	
 
 	all_rows = cursor.fetchall()
 	usageentries = len(all_rows)
@@ -45,4 +54,5 @@ def get_geodPDPlaceCache(files_found, report_folder, seeker):
 
 	db.close()
 	return
+	
 	

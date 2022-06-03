@@ -15,6 +15,12 @@ from scripts.ilapfuncs import logfunc, tsv, kmlgen, timeline, is_platform_window
 
 
 def get_photosMetadata(files_found, report_folder, seeker):
+    for file_found in files_found:
+      file_found = str(file_found)
+      
+      if file_found.endswith('.sqlite'):
+        break
+      
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iOSversion = scripts.artifacts.artGlobals.versionf
@@ -337,10 +343,10 @@ def get_photosMetadata(files_found, report_folder, seeker):
                 'File Location Data', 'Latitude', 'Longitude', 'Shifted Location Valid',
                 'Reverse Location Data is Valid',
                 'Org File Reverse Location Data', 'Thumbnail Index', 'Embedded Thumbnail Width',
-                'Embedded Thumbnail Height', 'Embedded Thumbnail Offset', 'Embedded Thumbnail Lenght', 'Moment PK',
+                'Embedded Thumbnail Height', 'Embedded Thumbnail Offset', 'Embedded Thumbnail Length', 'Moment PK',
                 'Moment Start Date', 'Moment Representative Date', 'Moment Modification Date', 'Moment End Date',
                 'Moment Title', 'Moment Approx Latitude', 'Moment Approx Longitude', 'UUID', 'Media Group UUID',
-                'Cloud Assest GUID', 'Public Global UUID', 'Master Fingetprint', 'Adjusted Fingerprint')
+                'Cloud Assets GUID', 'Public Global UUID', 'Master Fingerprint', 'Adjusted Fingerprint')
             report.write_artifact_data_table(data_headers, data_list, file_found, html_no_escape=['Thumbnail'])
             report.end_artifact_report()
 
@@ -1035,3 +1041,4 @@ def get_photosMetadata(files_found, report_folder, seeker):
 
         db.close()
         return
+  

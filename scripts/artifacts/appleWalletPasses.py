@@ -10,6 +10,7 @@ from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly
 
 def get_appleWalletPasses(files_found, report_folder, seeker):
     data_list = []
+    all_rows = 0
     for file_found in files_found:
         file_found = str(file_found)
 

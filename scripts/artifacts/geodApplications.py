@@ -5,20 +5,28 @@ import os
 import scripts.artifacts.artGlobals
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, does_table_exist
 
 
 def get_geodApplications(files_found, report_folder, seeker):
-	file_found = str(files_found[0])
+	for file_found in files_found:
+		file_found = str(file_found)
+		
+		if file_found.endswith('.db'):
+			break
+	
 	db = open_sqlite_db_readonly(file_found)
 	cursor = db.cursor()
-	cursor.execute(
-	"""
-	SELECT count_type, app_id, createtime
-	FROM mkcount
-	""")
+	
+	if does_table_exist(db, 'mkcount'):
+		query = "SELECT count_type, app_id, createtime FROM mkcount"
+	elif does_table_exist(db, 'dailycounts'):
+		query = "SELECT count_type, app_id, createtime FROM dailycounts"
+
+	cursor.execute(query)
 
 	all_rows = cursor.fetchall()
+	
 	usageentries = len(all_rows)
 	data_list = []
 	if usageentries > 0:
@@ -43,4 +51,5 @@ def get_geodApplications(files_found, report_folder, seeker):
 
 	db.close()
 	return
+	
 	

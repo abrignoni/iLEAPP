@@ -1,11 +1,19 @@
 import os
 import plistlib
 import sqlite3
+import scripts.artifacts.artGlobals #use to get iOS version -> iOSversion = scripts.artifacts.artGlobals.versionf
+from packaging import version #use to search per version number
+
 
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, logdevinfo, is_platform_windows 
 
 def get_iconsScreen(files_found, report_folder, seeker):
+    iOSversion = scripts.artifacts.artGlobals.versionf
+    if version.parse(iOSversion) >= version.parse("14"):
+        logfunc(f'iOS Screen artifact not compatible with iOS {iOSversion}')
+        return
+    
     data_list = []
     data_pre_list = []
     file_found = str(files_found[0])

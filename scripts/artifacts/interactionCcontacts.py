@@ -10,7 +10,12 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
 
 def get_interactionCcontacts(files_found, report_folder, seeker):
-    file_found = str(files_found[0])
+    for file_found in files_found:
+        file_found = str(file_found)
+        
+        if file_found.endswith('.db'):
+            break
+    
     db = open_sqlite_db_readonly(file_found)
     
     iOSversion = scripts.artifacts.artGlobals.versionf
@@ -54,7 +59,7 @@ def get_interactionCcontacts(files_found, report_folder, seeker):
             tsvname = 'InteractionC Contacts'
             tsv(report_folder, data_headers, data_list, tsvname)
             
-            tlactivity = 'InteractonC Contacts'
+            tlactivity = 'InteractionC Contacts'
             timeline(report_folder, tlactivity, data_list, data_headers)
     else:
         logfunc('No data available in InteractionC Contacts')
