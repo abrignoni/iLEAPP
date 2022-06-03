@@ -26,7 +26,7 @@ def get_protonMail(files_found, report_folder, seeker):
     #platform = is_platform_windows()
     #if platform:
     #  my_path = my_path.replace('/', '\\')
-      
+    
     if len(os.listdir(my_path)) == 1:
       logfunc("No keychain provided")
       return
@@ -62,8 +62,11 @@ def get_protonMail(files_found, report_folder, seeker):
               if 'protonmail' in str(dd['svce']):
                 #print(dd)
                 keychainVal[dd['acct']]=dd['v_Data']
-                
-    mainKey = keychainVal[b'NoneProtection']
+    try:
+      mainKey = keychainVal[b'NoneProtection']
+    except:
+      logfunc("No Protonmail data in the key chain")
+      return
     IVsize = 16
     
     def decryptWithMainKey(encrypted):
