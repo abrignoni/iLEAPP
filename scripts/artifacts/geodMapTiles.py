@@ -72,7 +72,12 @@ def get_hex(num):
     return ''
 
 def get_geodMapTiles(files_found, report_folder, seeker):
-    file_found = str(files_found[0])
+    for file_found in files_found:
+        file_found = str(file_found)
+        
+        if file_found.endswith('.sqlitedb'):
+            break
+        
     #os.chmod(file_found, 0o0777)
     db = open_sqlite_db_readonly(file_found)
     db.row_factory = sqlite3.Row
@@ -131,3 +136,4 @@ def get_geodMapTiles(files_found, report_folder, seeker):
         logfunc('No data available for Geolocation')
 
     db.close()
+    

@@ -10,7 +10,7 @@ from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly
 
 def get_appleWalletPasses(files_found, report_folder, seeker):
     data_list = []
-    all_rows = 0
+    all_rowsc = 0
     for file_found in files_found:
         file_found = str(file_found)
 
@@ -31,9 +31,10 @@ def get_appleWalletPasses(files_found, report_folder, seeker):
                             ''')
 
             all_rows = cursor.fetchall()
+            all_rowsc = len(all_rows)
             db_file = file_found
 
-    if len(all_rows) > 0:
+    if all_rowsc > 0:
         for row in all_rows:
             for json_file in json_files:
                 if row[0] in basename(json_file):
@@ -65,6 +66,3 @@ def get_appleWalletPasses(files_found, report_folder, seeker):
         timeline(report_folder, tlactivity, data_list, data_headers)
     else:
         logfunc('No Apple Wallet Passes available')
-
-    db.close()
-    return
