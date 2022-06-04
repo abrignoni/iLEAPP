@@ -140,6 +140,7 @@ def get_appleWifiPlist(files_found, report_folder, seeker):
                     bundle = ''
                     system_joined = ''
                     user_joined = ''
+                    carplay = ''
 
                     if 'SSID' in known_network:
                         ssid = str(known_network['SSID'])

@@ -10,7 +10,12 @@ from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_
 
 
 def get_safariTabs(files_found, report_folder, seeker):
-	file_found = str(files_found[0])
+	for file_found in files_found:
+		file_found = str(file_found)
+		
+		if file_found.endswith('.db'):
+			break
+		
 	db = open_sqlite_db_readonly(file_found)
 	cursor = db.cursor()
 

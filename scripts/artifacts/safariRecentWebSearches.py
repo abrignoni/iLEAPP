@@ -9,19 +9,23 @@ def get_safariRecentWebSearches(files_found, report_folder, seeker):
     data_list = []
     for file_found in files_found:
         file_found = str(file_found)
-        with open(file_found, "rb") as fp:
-            try:
-                if sys.version_info >= (3, 9):
-                    plist = plistlib.load(fp)
-                else:
-                    plist = biplist.readPlist(fp)
-                searches = plist.get('RecentWebSearches', [])
-                for search in searches:
-                    term = search.get('SearchString', '')
-                    date = search.get('Date', '')
-                    data_list.append((date, term))
-            except (biplist.InvalidPlistException, plistlib.InvalidFileException) as ex:
-                logfunc(f'Failed to read plist {file_found} ' + str(ex))
+        
+        if file_found.endswith('.db'):
+            break
+        
+    with open(file_found, "rb") as fp:
+        try:
+            if sys.version_info >= (3, 9):
+                plist = plistlib.load(fp)
+            else:
+                plist = biplist.readPlist(fp)
+            searches = plist.get('RecentWebSearches', [])
+            for search in searches:
+                term = search.get('SearchString', '')
+                date = search.get('Date', '')
+                data_list.append((date, term))
+        except (biplist.InvalidPlistException, plistlib.InvalidFileException) as ex:
+            logfunc(f'Failed to read plist {file_found} ' + str(ex))
                 
     if data_list:
         report = ArtifactHtmlReport('Safari Recent WebSearches')
