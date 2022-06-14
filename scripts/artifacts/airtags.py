@@ -18,7 +18,7 @@ def get_airtags(files_found, report_folder, seeker):
     for file_found in files_found:
         file_found = str(file_found)
         
-        with open(file_found, 'r') as f:
+        with open(file_found, mode='r', encoding="UTF-8") as f:
             deserialized = json.load(f)
             
         for x in deserialized:
