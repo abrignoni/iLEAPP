@@ -61,6 +61,7 @@ from scripts.artifacts.instagramThreads import get_instagramThreads
 from scripts.artifacts.interactionCcontacts import get_interactionCcontacts
 from scripts.artifacts.keyboardAppUsage import get_keyboardAppUsage
 from scripts.artifacts.keyboardLexicon import get_keyboardLexicon
+from scripts.artifacts.kijijiConversations import get_kijijiConversations
 from scripts.artifacts.kikGroupadmins import get_kikGroupadmins
 from scripts.artifacts.kikLocaladmin import get_kikLocaladmin
 from scripts.artifacts.kikMessages import get_kikMessages
@@ -178,12 +179,13 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'interactionCcontacts': ('InteractionC', '**/interactionC.db*'),
             'keyboardAppUsage': ('Keyboard', '*/private/var/mobile/Library/Keyboard/app_usage_database.plist'),
             'keyboardLexicon': ('Keyboard', '*/private/var/mobile/Library/Keyboard/*-dynamic.lm/dynamic-lexicon.dat'),
+            'kijijiConversations':('Kijiji Conversations', ('*/Library/Caches/conversation_cache')),
             'kikMessages': ('Kik', ('**/kik.sqlite*','*/mobile/Containers/Shared/AppGroup/*/cores/private/*/content_manager/data_cache/*')),
             'kikBplistmeta': ('Kik', '*/mobile/Containers/Shared/AppGroup/*/cores/private/*/attachments/*'),
             'kikGroupadmins': ('Kik', ('*/kik.sqlite*')),
             'kikLocaladmin': ('Kik', ('*/kik.sqlite*')),
             'kikPendingUploads': ('Kik', ('*/mobile/Containers/Shared/AppGroup/*/cores/private/*/chunked_upload_storage/pending_uploads','*/mobile/Containers/Shared/AppGroup/*/cores/private/*/chunked_upload_storage/data_cache/*')),
-            'kikUsersgroups':('Kik', ('*/kik.sqlite*')),
+            'kikUsersgroups':('Kik', ('*/kik.sqlite*')),            
             'locServicesconfig': ('Location Services Configurations', ('*/Library/Preferences/com.apple.locationd.plist','*/Library/Caches/locationd/clients.plist', '*/Library/Preferences/com.apple.routined.plist')),
             'mapsSync': ('Geolocation', '*/MapsSync_0.0.1*'),
             'mailprotect': ('iOS Mail', '**/private/var/mobile/Library/Mail/* Index*'),
