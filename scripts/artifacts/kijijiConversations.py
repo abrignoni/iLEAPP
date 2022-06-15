@@ -19,6 +19,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv
 
 LOCAL_USER = 'Local User'
+UNIX_EPOCH = 978307200
 
 def get_kijijiConversations(files_found, report_folder, seeker):
     data_list_conversation = []
@@ -81,7 +82,7 @@ def AppendMessageRowsToDataList(data_list,
             recipientId = ''
             recipientName = LOCAL_USER
 
-        messageTimestamp = (datetime.datetime.fromtimestamp(int(message['sentDate']) + 978307200).strftime('%Y-%m-%d %H:%M:%S'))
+        messageTimestamp = (datetime.datetime.fromtimestamp(int(message['sentDate']) + UNIX_EPOCH).strftime('%Y-%m-%d %H:%M:%S'))
 
         data_list.append((messageTimestamp, 
             conversationId, 
