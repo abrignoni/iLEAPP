@@ -16,7 +16,7 @@ import json
 import datetime
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, logdevinfo, kmlgen
+from scripts.ilapfuncs import logfunc, tsv
 
 LOCAL_USER = 'Local User'
 
@@ -49,7 +49,7 @@ def get_kijijiConversations(files_found, report_folder, seeker):
                 report = ArtifactHtmlReport('Kijiji Conversations')
                 report.start_artifact_report(report_folder, 'Kijiji Conversations')
                 report.add_script()
-                data_headers = ('Date Sent', 'Conversation ID', 'Ad ID', 'Ad Title', 'Message ID', 'Sender ID', 'Sender Name', 'Recipient ID', 'Recipient Name', 'State', 'Message')
+                data_headers = ('Timestamp (Local Time)', 'Conversation ID', 'Ad ID', 'Ad Title', 'Message ID', 'Sender ID', 'Sender Name', 'Recipient ID', 'Recipient Name', 'State', 'Message')
                 report.write_artifact_data_table(data_headers, data_list_conversation, file_found)
                 report.end_artifact_report()
                 
@@ -61,7 +61,6 @@ def get_kijijiConversations(files_found, report_folder, seeker):
             return True
 
 # Appends a row for each message sent in a unique conversation thread.
-#  Row ordinal: Date Sent, Message ID, Sender ID, Sender Name, Recipient ID, Recipient Name, State, Message
 def AppendMessageRowsToDataList(data_list, 
     conversationId, 
     advertId,
@@ -83,6 +82,7 @@ def AppendMessageRowsToDataList(data_list,
             recipientName = LOCAL_USER
 
         messageTimestamp = (datetime.datetime.fromtimestamp(int(message['sentDate']) + 978307200).strftime('%Y-%m-%d %H:%M:%S'))
+
         data_list.append((messageTimestamp, 
             conversationId, 
             advertId, 
