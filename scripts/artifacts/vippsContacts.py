@@ -68,8 +68,8 @@ def get_vippsContacts(files_found, report_folder, seeker):
            
             data_list.append((thumb, name, phonenumbers))
         
-        report = ArtifactHtmlReport('Vipps Contacts')
-        report.start_artifact_report(report_folder, 'Vipps Contacts')
+        report = ArtifactHtmlReport('Vipps - Contacts')
+        report.start_artifact_report(report_folder, 'Vipps - Contacts')
         report.add_script()
         data_headers = ('Profile Image', 'Name', 'Telephones')
         report.write_artifact_data_table(data_headers, data_list, file_found, html_no_escape=['Profile Image'])
