@@ -78,8 +78,8 @@ def get_vipps(files_found, report_folder, seeker):
             
             data_list.append((timestamp, telephone, name, message, amount, statustext, statuscat, direction, transcaid, dtype))
 
-        report = ArtifactHtmlReport('Vipps')
-        report.start_artifact_report(report_folder, 'Vipps')
+        report = ArtifactHtmlReport('Vipps - Transactions')
+        report.start_artifact_report(report_folder, 'Vipps - Transactions')
         report.add_script()
         data_headers = ('Timestamp', 'Telephone', 'Name', 'Message','Amount','Status Text','Status Category','Direction','Transaction ID','Type')
         report.write_artifact_data_table(data_headers, data_list, file_found)
