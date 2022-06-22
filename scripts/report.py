@@ -297,6 +297,11 @@ def get_icon_name(category, artifact):
             icon = 'user'
     elif category == 'USER DICTIONARY':
         icon = 'book'
+    elif category == 'VIPPS':
+        if artifact == 'VIPPS CONTACTS':
+            icon = 'users'
+        else:
+            icon = 'dollar-sign'
     elif category == 'VENMO':
         icon = 'dollar-sign'  
     elif category == 'VIBER':

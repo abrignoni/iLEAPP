@@ -108,6 +108,8 @@ from scripts.artifacts.webClips import get_webClips
 from scripts.artifacts.weatherAppLocations import get_weatherAppLocations
 from scripts.artifacts.whatsappContacts import get_whatsappContacts
 from scripts.artifacts.whatsappMessages import get_whatsappMessages
+from scripts.artifacts.vipps import get_vipps
+from scripts.artifacts.vippsContacts import get_vippsContacts
 from scripts.artifacts.venmo import get_venmo
 from scripts.artifacts.viber import get_viber
 from scripts.artifacts.voiceTriggers import get_voiceTriggers
@@ -227,6 +229,8 @@ tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
             'whatsappContacts': ('Whatsapp', ('*/var/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*')),
             'weatherAppLocations': ('Locations', '*/private/var/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.com.apple.weather.plist'),
             'webClips': ('iOS Screens', '*WebClips/*.webclip/*'),
+            'vipps':('Vipps', ('*/Vipps.sqlite*')),
+            'vippsContacts':('Vipps', ('*/Vipps.sqlite*')),
             'venmo':('Venmo', ('*PrivateFeed', '*PublicFeed', '*FriendsFeed')),
             'viber' : ('Viber', ('**/com.viber/settings/Settings.data','**/com.viber/database/Contacts.data','**/Containers/Data/Application/*/Documents/Attachments/*.*','**/com.viber/ViberIcons/*.*')),
             # 'appUpdates':('App Updates', '**/AppUpdates.sqlitedb'),
