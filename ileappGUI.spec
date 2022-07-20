@@ -33,7 +33,6 @@ exe = EXE(pyz,
           bootloader_ignore_signals=False,
           strip=False,
           upx=True,
-          console=False,
           upx_exclude=[],
           runtime_tmpdir=None,
           console=False )
