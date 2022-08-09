@@ -1,0 +1,221 @@
+From 1cc4a1a9968794894a494f7f5d3eabb0d71cd9c1 Mon Sep 17 00:00:00 2001
+From: abrignoni <abrignoni@gmail.com>
+Date: Wed, 13 Jul 2022 15:04:34 -0400
+Subject: [PATCH 09/19] Updated artifacts
+
+First set of updated artifacts
+---
+ aleapp.py                                   |  9 +++++++--
+ scripts/artifacts/accounts_ce.py            | 11 +++++++++--
+ scripts/artifacts/accounts_ce_authtokens.py |  9 ++++++++-
+ scripts/artifacts/accounts_de.py            | 10 +++++++++-
+ scripts/artifacts/adb_hosts.py              |  7 +++++++
+ scripts/artifacts/airGuard.py               |  7 ++++++-
+ scripts/artifacts/appLockerfishingnet.py    |  9 ++++++++-
+ scripts/artifacts/appicons.py               |  8 +++++++-
+ scripts/artifacts/vlcMedia.py               | 11 ++++++-----
+ scripts/artifacts/vlcThumbs.py              |  7 ++++++-
+ 10 files changed, 73 insertions(+), 15 deletions(-)
+
+diff --git a/aleapp.py b/aleapp.py
+index 0434da2..5d27f62 100644
+--- a/aleapp.py
++++ b/aleapp.py
+@@ -141,17 +141,22 @@ def crunch_artifacts(
+         for artifact_search_regex in search_regexes:
+             found = seeker.search(artifact_search_regex)
+             if not found:
+-                logfunc()
+-                logfunc(f'No files found for {plugin.name} -> {artifact_search_regex}')
++                #logfunc()
++                #logfunc(f'No files found for {plugin.name} -> {artifact_search_regex}')
+                 log.write(f'No files found for {plugin.name} -> {artifact_search_regex}<br><br>')
+             else:
+                 for pathh in found:
+                     if pathh.startswith('\\\\?\\'):
+                         pathh = pathh[4:]
++<<<<<<< Updated upstream
++=======
++                        #logfunc(f'Files for {artifact_search_regex} located at {pathh}')
++>>>>>>> Stashed changes
+                     log.write(f'Files for {artifact_search_regex} located at {pathh}<br><br>')
+                 files_found.extend(found)
+         if files_found:
+             logfunc()
++            logfunc('{} [{}] artifact started'.format(plugin.name, plugin.module_name))
+             category_folder = os.path.join(out_params.report_folder_base, plugin.category)
+             if not os.path.exists(category_folder):
+                 try:
+diff --git a/scripts/artifacts/accounts_ce.py b/scripts/artifacts/accounts_ce.py
+index b1e5971..a341f33 100644
+--- a/scripts/artifacts/accounts_ce.py
++++ b/scripts/artifacts/accounts_ce.py
+@@ -56,5 +56,12 @@ def process_accounts_ce(folder, uid, report_folder):
+         tsvname = f'accounts ce {uid}'
+         tsv(report_folder, data_headers, data_list, tsvname)
+     else:
+-        logfunc(f'No accounts_ce_{uid} data available')    
+-    db.close()
+\ No newline at end of file
++        logfunc(f'No accounts_ce_{uid} data available')
++    db.close()
++    
++__artifacts__ = {
++        "Accounts_ce": (
++                "Accounts_ce",
++                ('*/data/system_ce/*/accounts_ce.db'),
++                get_accounts_ce)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/accounts_ce_authtokens.py b/scripts/artifacts/accounts_ce_authtokens.py
+index 23ad846..ec6b060 100644
+--- a/scripts/artifacts/accounts_ce_authtokens.py
++++ b/scripts/artifacts/accounts_ce_authtokens.py
+@@ -60,4 +60,11 @@ def process_accounts_ce_authtokens(folder, uid, report_folder):
+         tsv(report_folder, data_headers, data_list, tsvname)
+     else:
+         logfunc(f'No Authtokens_{uid} data available')    
+-    db.close()
+\ No newline at end of file
++    db.close()
++    
++__artifacts__ = {
++        "Accounts_ce authtokens": (
++                "Accounts_ce",
++                ('*/data/system_ce/*/accounts_ce.db'),
++                get_accounts_ce_authtokens)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/accounts_de.py b/scripts/artifacts/accounts_de.py
+index cb4bfdb..068ad74 100644
+--- a/scripts/artifacts/accounts_de.py
++++ b/scripts/artifacts/accounts_de.py
+@@ -60,4 +60,12 @@ def process_accounts_de(folder, uid, report_folder):
+         timeline(report_folder, tlactivity, data_list, data_headers)
+     else:
+         logfunc(f'No accounts_de_{uid} data available')    
+-    db.close()
+\ No newline at end of file
++    db.close()
++    
++    
++__artifacts__ = {
++        "Accounts_de": (
++                "Accounts_de",
++                ('*/data/system_de/*/accounts_de.db'),
++                get_accounts_de)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/adb_hosts.py b/scripts/artifacts/adb_hosts.py
+index dd8fae8..bae6df0 100644
+--- a/scripts/artifacts/adb_hosts.py
++++ b/scripts/artifacts/adb_hosts.py
+@@ -24,3 +24,10 @@ def get_adb_hosts(files_found, report_folder, seeker, wrap_text):
+         
+     else:
+         logfunc(f'No ADB Hosts file available')
++
++__artifacts__ = {
++        "Adb hosts": (
++                "adb hosts",
++                ('*/data/misc/adb/adb_keys'),
++                get_adb_hosts)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/airGuard.py b/scripts/artifacts/airGuard.py
+index 6cf7911..5457c42 100644
+--- a/scripts/artifacts/airGuard.py
++++ b/scripts/artifacts/airGuard.py
+@@ -54,4 +54,9 @@ def get_airGuard(files_found, report_folder, seeker, wrap_text):
+         
+     db.close()
+ 
+-    
+\ No newline at end of file
++__artifacts__ = {
++        "AirGuard": (
++                "AirTags",
++                ('*/data/de.seemoo.at_tracking_detection.release/databases/attd_db'),
++                get_airGuard)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/appLockerfishingnet.py b/scripts/artifacts/appLockerfishingnet.py
+index 4a44fe8..112cf7c 100644
+--- a/scripts/artifacts/appLockerfishingnet.py
++++ b/scripts/artifacts/appLockerfishingnet.py
+@@ -83,4 +83,11 @@ def get_appLockerfishingnet(files_found, report_folder, seeker, wrap_text):
+             
+             
+         else:
+-            logfunc('No Calculator Locker data available')
+\ No newline at end of file
++            logfunc('No Calculator Locker data available')
++
++__artifacts__ = {
++        "App Locker": (
++                "Encrypting Media Apps",
++                ('*/.privacy_safe/picture/*', '*/.privacy_safe/video/*'),
++                get_appLockerfishingnet)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/appicons.py b/scripts/artifacts/appicons.py
+index 236421a..8b91cba 100644
+--- a/scripts/artifacts/appicons.py
++++ b/scripts/artifacts/appicons.py
+@@ -96,4 +96,10 @@ def get_appicons(files_found, report_folder, seeker, wrap_text):
+                 data_list.append(( escape(app.name), escape(app.package), main_icon_html, other_icons_html ))
+             report.write_artifact_data_table(data_headers, data_list, file_found, html_escape=False)
+             report.end_artifact_report()
+-            return
+\ No newline at end of file
++
++__artifacts__ = {
++        "App Icons": (
++                "Installed Apps",
++                ('*/data/com.google.android.apps.nexuslauncher/databases/app_icons.db*'),
++                get_appicons)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/vlcMedia.py b/scripts/artifacts/vlcMedia.py
+index 4d4fc1b..73aecac 100644
+--- a/scripts/artifacts/vlcMedia.py
++++ b/scripts/artifacts/vlcMedia.py
+@@ -51,8 +51,9 @@ def get_vlcMedia(files_found, report_folder, seeker, wrap_text):
+     else:
+         logfunc('No VLC Media data available')
+     
+-    db.close()
+-    return 
+-
+-        
+-        
+\ No newline at end of file
++__artifacts__ = {
++        "VLC": (
++                "VLC",
++                ('*vlc_media.db*'),
++                get_vlcMedia)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/vlcThumbs.py b/scripts/artifacts/vlcThumbs.py
+index 18be991..5a1156c 100644
+--- a/scripts/artifacts/vlcThumbs.py
++++ b/scripts/artifacts/vlcThumbs.py
+@@ -30,7 +30,12 @@ def get_vlcThumbs(files_found, report_folder, seeker, wrap_text):
+     tsvname = 'VLC Thumbnails'
+     tsv(report_folder, data_headers, data_list, tsvname)
+         
+-
++__artifacts__ = {
++        "VLC Thumbs": (
++                "VLC",
++                ('*/org.videolan.vlc/files/medialib/*.jpg'),
++                get_vlcThumbs)
++}
+ 
+         
+         
+\ No newline at end of file
+-- 
+2.34.1
+

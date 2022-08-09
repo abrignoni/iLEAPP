@@ -1,0 +1,120 @@
+From f0d21dedd5a9a2bfc1d5151c92ef8ddb9faaa8ed Mon Sep 17 00:00:00 2001
+From: abrignoni <abrignoni@gmail.com>
+Date: Wed, 6 Jul 2022 14:59:40 -0400
+Subject: [PATCH 05/19] Usages-history.xml
+
+Support for legacy app usage xml data store.
+---
+ scripts/artifacts/contacts.py     |  2 +-
+ scripts/artifacts/usageHistory.py | 51 +++++++++++++++++++++++++++++++
+ scripts/ilap_artifacts.py         |  2 ++
+ scripts/report.py                 |  1 +
+ 4 files changed, 55 insertions(+), 1 deletion(-)
+ create mode 100644 scripts/artifacts/usageHistory.py
+
+diff --git a/scripts/artifacts/contacts.py b/scripts/artifacts/contacts.py
+index 845c769..904056a 100644
+--- a/scripts/artifacts/contacts.py
++++ b/scripts/artifacts/contacts.py
+@@ -66,7 +66,7 @@ def get_contacts(files_found, report_folder, seeker, wrap_text):
+             tsvname = f'Contacts'
+             tsv(report_folder, data_headers, data_list, tsvname, source_file)
+ 
+-            tlactivity = f'Contaccts'
++            tlactivity = f'Contacts'
+             timeline(report_folder, tlactivity, data_list, data_headers)
+             
+         else:
+diff --git a/scripts/artifacts/usageHistory.py b/scripts/artifacts/usageHistory.py
+new file mode 100644
+index 0000000..7122cc3
+--- /dev/null
++++ b/scripts/artifacts/usageHistory.py
+@@ -0,0 +1,51 @@
++import xml.etree.ElementTree as ET  
++import datetime
++
++from scripts.artifact_report import ArtifactHtmlReport
++from scripts.ilapfuncs import timeline, tsv, is_platform_windows, open_sqlite_db_readonly
++
++
++def get_usageHistory(files_found, report_folder, seeker, wrap_text):
++    
++    for file_found in files_found:
++        file_found = str(file_found)
++        
++        if file_found.endswith('usage-history.xml'):
++            break
++            
++    data_list = []
++    
++    tree = ET.parse(file_found)
++    root = tree.getroot()
++    
++    for elem in root:
++        for subelem in elem:
++            pkg = elem.attrib['name']
++            subitem = subelem.attrib['name']
++            time = subelem.attrib['lrt']
++            if time != ' ':
++                time = int(time)
++                time = datetime.datetime.fromtimestamp(time/1000)
++            data_list.append((time, pkg, subitem))
++    
++    if len(data_list) > 0:
++
++        description = 'Usage History'
++        report = ArtifactHtmlReport('Usage History')
++        report.start_artifact_report(report_folder, 'Usage History', description)
++        report.add_script()
++        data_headers = ('Timestamp', 'Package', 'Subitem', )
++        report.write_artifact_data_table(data_headers, data_list, file_found)
++        report.end_artifact_report()
++        
++        tsvname = 'Usage History'
++        tsv(report_folder, data_headers, data_list, tsvname)
++        
++        tlactivity = 'Usage History'
++        timeline(report_folder, tlactivity, data_list, data_headers)
++    else:
++        logfunc('Usage History data available')
++    
++
++        
++        
+\ No newline at end of file
+diff --git a/scripts/ilap_artifacts.py b/scripts/ilap_artifacts.py
+index dd2730c..b1b791f 100644
+--- a/scripts/ilap_artifacts.py
++++ b/scripts/ilap_artifacts.py
+@@ -149,6 +149,7 @@ from scripts.artifacts.torThumbs import get_torThumbs
+ from scripts.artifacts.Turbo_Battery import get_Turbo_Battery
+ from scripts.artifacts.Turbo_AppUsage import get_Turbo_AppUsage
+ from scripts.artifacts.usageapps import get_usageapps
++from scripts.artifacts.usageHistory import get_usageHistory
+ from scripts.artifacts.usagestats import get_usagestats
+ from scripts.artifacts.usagestatsVersion import get_usagestatsVersion
+ from scripts.artifacts.userDict import get_userDict
+@@ -324,6 +325,7 @@ tosearch = {
+     'Turbo_Battery': ('Device Health Services', ('*/com.google.android.apps.turbo/databases/turbo.db*','*/com.google.android.apps.turbo/databases/bluetooth.db*',)),
+     'Turbo_AppUsage': ('Device Health Services', '*/com.google.android.apps.turbo/shared_prefs/app_usage_stats.xml'),
+     'usageapps': ('App Interaction', '**/com.google.android.as/databases/reflection_gel_events.db*'),
++    'usageHistory': ('App Interaction', '*/usage-history.xml'),
+     'usagestats':('Usage Stats', ('*/system/usagestats/*', '**/system_ce/*/usagestats*')), # fs: matches only 1st level folders under usagestats/, tar/zip matches every single file recursively under usagestats/
+     'usagestatsVersion':('Usage Stats', ('*/system/usagestats/*/version', '*/system_ce/*/usagestats/version')),
+     'userDict':('User Dictionary', '**/com.android.providers.userdictionary/databases/user_dict.db*'),
+diff --git a/scripts/report.py b/scripts/report.py
+index e4899a6..9a15071 100644
+--- a/scripts/report.py
++++ b/scripts/report.py
+@@ -157,6 +157,7 @@ def get_icon_name(category, artifact):
+     elif category == 'SMS & MMS':       icon = 'message-square'
+     elif category == 'SQLITE JOURNALING': icon = 'book-open'
+     elif category == 'USAGE STATS':     icon = 'bar-chart-2'
++    elif category == 'USAGE HISTORY':     icon = 'bar-chart-2'
+     elif category == 'USER DICTIONARY': icon = 'book'
+     elif category == 'WAZE': icon = 'navigation-2'
+     elif category == 'WELLBEING' or category == 'WELLBEING ACCOUNT': 
+-- 
+2.34.1
+

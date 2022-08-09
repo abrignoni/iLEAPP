@@ -69,7 +69,7 @@ from scripts.artifacts.kikBplistmeta import get_kikBplistmeta
 from scripts.artifacts.kikPendingUploads import get_kikPendingUploads
 from scripts.artifacts.kikUsersgroups import get_kikUsersgroups
 from scripts.artifacts.locServicesconfig import get_locServicesconfig
-from scripts.artifacts.lastBuild import get_lastBuild, get_iTunesBackupInfo
+#from scripts.artifacts.lastBuild import get_lastBuild, get_iTunesBackupInfo
 from scripts.artifacts.mapsSync import get_mapsSync
 from scripts.artifacts.mailprotect import get_mailprotect
 from scripts.artifacts.mediaLibrary import get_mediaLibrary

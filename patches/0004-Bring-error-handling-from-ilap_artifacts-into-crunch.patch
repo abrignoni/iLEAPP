@@ -1,0 +1,71 @@
+From ec960a8a3654b25c8358f8aa7b6f0b996185076a Mon Sep 17 00:00:00 2001
+From: Alex Caithness <acaithness@cclgroupltd.com>
+Date: Wed, 6 Jul 2022 11:23:47 +0100
+Subject: [PATCH 04/19] Bring error handling from ilap_artifacts into
+ crunch_artifacts
+
+---
+ aleapp.py | 24 +++++++++++++++++-------
+ 1 file changed, 17 insertions(+), 7 deletions(-)
+
+diff --git a/aleapp.py b/aleapp.py
+index 0ffa9a5..29f863f 100644
+--- a/aleapp.py
++++ b/aleapp.py
+@@ -1,20 +1,16 @@
+ import argparse
+ import io
+-import os
+ import os.path
+ import typing
+-
+ import plugin_loader
+ import scripts.report as report
+-import shutil
+ import traceback
+-
+ from scripts.search_files import *
+ from scripts.ilapfuncs import *
+-#from scripts.ilap_artifacts import *
+ from scripts.version_info import aleapp_version
+ from time import process_time, gmtime, strftime
+ 
++
+ def main():
+     parser = argparse.ArgumentParser(description='ALEAPP: Android Logs, Events, and Protobuf Parser.')
+     parser.add_argument('-t', choices=['fs','tar','zip', 'gz'], required=False, type=str.lower, action="store", help="Input type (fs = extracted to file system folder)")
+@@ -156,8 +152,21 @@ def crunch_artifacts(
+             #process_artifact(files_found, key, artifact_pretty_name, seeker, out_params.report_folder_base, wrap_text)
+             category_folder = os.path.join(out_params.report_folder_base, plugin.category)
+             if not os.path.exists(category_folder):
+-                os.mkdir(category_folder)
+-            plugin.method(files_found, category_folder, seeker, wrap_text)
++                try:
++                    os.mkdir(category_folder)
++                except (FileExistsError, FileNotFoundError) as ex:
++                    logfunc('Error creating {} report directory at path {}'.format(plugin.name, category_folder))
++                    # logfunc('Reading {} artifact failed!'.format(plugin.name))
++                    logfunc('Error was {}'.format(str(ex)))
++                    continue  # cannot do work
++            try:
++                plugin.method(files_found, category_folder, seeker, wrap_text)
++            except Exception as ex:
++                logfunc('Reading {} artifact had errors!'.format(plugin.name))
++                logfunc('Error was {}'.format(str(ex)))
++                logfunc('Exception Traceback: {}'.format(traceback.format_exc()))
++                continue  # nope
++
+             for pathh in files_found:
+                 if pathh.startswith('\\\\?\\'):
+                     pathh = pathh[4:]
+@@ -187,5 +196,6 @@ def crunch_artifacts(
+     logfunc(f'Report location: {out_params.report_folder_base}')
+     return True
+ 
++
+ if __name__ == '__main__':
+     main()
+\ No newline at end of file
+-- 
+2.34.1
+

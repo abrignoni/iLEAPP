@@ -1,0 +1,95 @@
+From 4eb393dcbf1c387145800349598574cb3b641526 Mon Sep 17 00:00:00 2001
+From: Alex Caithness <acaithness@cclgroupltd.com>
+Date: Tue, 12 Jul 2022 11:09:50 +0100
+Subject: [PATCH 07/19] Move the "files found" messages into a more sensible
+ place.
+
+---
+ aleapp.py | 26 ++++++++++++--------------
+ 1 file changed, 12 insertions(+), 14 deletions(-)
+
+diff --git a/aleapp.py b/aleapp.py
+index f3b56bb..72d7d16 100644
+--- a/aleapp.py
++++ b/aleapp.py
+@@ -13,11 +13,14 @@ from time import process_time, gmtime, strftime
+ 
+ def main():
+     parser = argparse.ArgumentParser(description='ALEAPP: Android Logs, Events, and Protobuf Parser.')
+-    parser.add_argument('-t', choices=['fs','tar','zip', 'gz'], required=False, type=str.lower, action="store", help="Input type (fs = extracted to file system folder)")
++    parser.add_argument('-t', choices=['fs', 'tar', 'zip', 'gz'], required=False, type=str.lower, action="store",
++                        help="Input type (fs = extracted to file system folder)")
+     parser.add_argument('-o', '--output_path', required=False, action="store", help='Output folder path')
+     parser.add_argument('-i', '--input_path', required=False, action="store", help='Path to input file/folder')
+-    parser.add_argument('-p', '--artifact_paths', required=False, action="store_true", help='Text file list of artifact paths')
+-    parser.add_argument('-w', '--wrap_text', required=False, action="store_false", help='do not wrap text for output of data files')
++    parser.add_argument('-p', '--artifact_paths', required=False, action="store_true",
++                        help='Text file list of artifact paths')
++    parser.add_argument('-w', '--wrap_text', required=False, action="store_false",
++                        help='do not wrap text for output of data files')
+         
+     args = parser.parse_args()
+ 
+@@ -26,9 +29,7 @@ def main():
+     if args.artifact_paths:
+         print('Artifact path list generation started.')
+         print('')
+-        #for key, value in tosearch.items():
+         for plugin in loader.plugins:
+-            #if type(value[1]) is tuple:
+             if isinstance(plugin.search, tuple):
+                 for x in plugin.search:
+                     print(x)
+@@ -125,14 +126,12 @@ def crunch_artifacts(
+     logfunc('\n--------------------------------------------------------------------------------------')
+ 
+     log = open(os.path.join(out_params.report_folder_base, 'Script Logs', 'ProcessedFilesLog.html'), 'w+', encoding='utf8')
+-    nl = '\n' #literal in order to have new lines in fstrings that create text files
++    nl = '\n'  # literal in order to have new lines in fstrings that create text files
+     log.write(f'Extraction/Path selected: {input_path}<br><br>')
+     
+     categories_searched = 0
+     # Search for the files per the arguments
+-    #for key, val in search_list.items():
+     for plugin in plugins:
+-        #search_regexes = []
+         artifact_pretty_name = plugin.name
+         if isinstance(plugin.search, list) or isinstance(plugin.search, tuple):
+             search_regexes = plugin.search
+@@ -146,17 +145,20 @@ def crunch_artifacts(
+                 logfunc(f'No files found for {plugin.name} -> {artifact_search_regex}')
+                 log.write(f'No files found for {plugin.name} -> {artifact_search_regex}<br><br>')
+             else:
++                for pathh in found:
++                    if pathh.startswith('\\\\?\\'):
++                        pathh = pathh[4:]
++                    logfunc(f'Files for {artifact_search_regex} located at {pathh}')
++                    log.write(f'Files for {artifact_search_regex} located at {pathh}<br><br>')
+                 files_found.extend(found)
+         if files_found:
+             logfunc()
+-            #process_artifact(files_found, key, artifact_pretty_name, seeker, out_params.report_folder_base, wrap_text)
+             category_folder = os.path.join(out_params.report_folder_base, plugin.category)
+             if not os.path.exists(category_folder):
+                 try:
+                     os.mkdir(category_folder)
+                 except (FileExistsError, FileNotFoundError) as ex:
+                     logfunc('Error creating {} report directory at path {}'.format(plugin.name, category_folder))
+-                    # logfunc('Reading {} artifact failed!'.format(plugin.name))
+                     logfunc('Error was {}'.format(str(ex)))
+                     continue  # cannot do work
+             try:
+@@ -169,10 +171,6 @@ def crunch_artifacts(
+ 
+             logfunc('{} [{}] artifact completed'.format(plugin.name, plugin.module_name))
+ 
+-            for pathh in files_found:
+-                if pathh.startswith('\\\\?\\'):
+-                    pathh = pathh[4:]
+-                log.write(f'Files for {artifact_search_regex} located at {pathh}<br><br>')
+         categories_searched += 1
+         GuiWindow.SetProgressBar(categories_searched * ratio)
+     log.close()
+-- 
+2.34.1
+

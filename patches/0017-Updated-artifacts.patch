@@ -1,0 +1,3996 @@
+From 964a5106250b386efe0456f24f66f4c1a64567a4 Mon Sep 17 00:00:00 2001
+From: abrignoni <abrignoni@gmail.com>
+Date: Fri, 15 Jul 2022 18:50:29 -0400
+Subject: [PATCH 17/19] Updated artifacts
+
+---
+ LICENSE                                       |   0
+ README.md                                     |   0
+ aleapp.py                                     |   4 --
+ aleapp.spec                                   |   0
+ aleappGUI.py                                  |   2 +-
+ aleappGUI.spec                                |   2 +-
+ hook-plugin_loader.py                         |   0
+ plugin_loader.py                              |   0
+ requirements.txt                              |   0
+ .../css/addons/datatables-select.min.css      |   0
+ .../css/addons/datatables.min.css             |   0
+ .../css/addons/directives.min.css             |   0
+ .../MDB-Free_4.13.0/css/addons/flag.min.css   |   0
+ .../jquery.zmd.hierarchical-display.min.css   |   0
+ .../MDB-Free_4.13.0/css/addons/rating.min.css |   0
+ scripts/MDB-Free_4.13.0/css/bootstrap.css     |   0
+ scripts/MDB-Free_4.13.0/css/bootstrap.min.css |   0
+ scripts/MDB-Free_4.13.0/css/mdb.css           |   0
+ scripts/MDB-Free_4.13.0/css/mdb.lite.css      |   0
+ scripts/MDB-Free_4.13.0/css/mdb.lite.min.css  |   0
+ scripts/MDB-Free_4.13.0/css/mdb.min.css       |   0
+ .../css/modules/animations-extended.min.css   |   0
+ scripts/MDB-Free_4.13.0/css/style.css         |   0
+ scripts/MDB-Free_4.13.0/img/overlays/01.png   | Bin
+ scripts/MDB-Free_4.13.0/img/overlays/02.png   | Bin
+ scripts/MDB-Free_4.13.0/img/overlays/03.png   | Bin
+ scripts/MDB-Free_4.13.0/img/overlays/04.png   | Bin
+ scripts/MDB-Free_4.13.0/img/overlays/05.png   | Bin
+ scripts/MDB-Free_4.13.0/img/overlays/06.png   | Bin
+ scripts/MDB-Free_4.13.0/img/overlays/07.png   | Bin
+ scripts/MDB-Free_4.13.0/img/overlays/08.png   | Bin
+ scripts/MDB-Free_4.13.0/img/overlays/09.png   | Bin
+ .../MDB-Free_4.13.0/img/svg/arrow_left.svg    |   0
+ .../MDB-Free_4.13.0/img/svg/arrow_right.svg   |   0
+ .../js/addons/datatables-select.min.js        |   0
+ .../js/addons/datatables.min.js               |   0
+ .../js/addons/directives.min.js               |   0
+ scripts/MDB-Free_4.13.0/js/addons/flag.min.js |   0
+ .../js/addons/imagesloaded.pkgd.min.js        |   0
+ .../jquery.zmd.hierarchical-display.min.js    |   0
+ .../js/addons/masonry.pkgd.min.js             |   0
+ .../MDB-Free_4.13.0/js/addons/rating.min.js   |   0
+ scripts/MDB-Free_4.13.0/js/bootstrap.js       |   0
+ scripts/MDB-Free_4.13.0/js/bootstrap.min.js   |   0
+ scripts/MDB-Free_4.13.0/js/jquery.js          |   0
+ scripts/MDB-Free_4.13.0/js/jquery.min.js      |   0
+ scripts/MDB-Free_4.13.0/js/mdb.js             |   0
+ scripts/MDB-Free_4.13.0/js/mdb.min.js         |   0
+ .../js/modules/animations-extended.min.js     |   0
+ .../js/modules/forms-free.min.js              |   0
+ .../js/modules/scrolling-navbar.min.js        |   0
+ .../js/modules/treeview.min.js                |   0
+ scripts/MDB-Free_4.13.0/js/modules/wow.min.js |   0
+ scripts/MDB-Free_4.13.0/js/popper.js          |   0
+ scripts/MDB-Free_4.13.0/js/popper.min.js      |   0
+ scripts/artifact_report.py                    |   0
+ scripts/artifacts/AVG.py                      |   9 +++-
+ scripts/artifacts/BashHistory.py              |   9 +++-
+ scripts/artifacts/Cast.py                     |   8 ++-
+ scripts/artifacts/Cello.py                    |   8 ++-
+ scripts/artifacts/ChessComAccount.py          |   8 ++-
+ scripts/artifacts/ChessComFriends.py          |   7 ++-
+ scripts/artifacts/ChessComGames.py            |   6 +++
+ scripts/artifacts/ChessComMessages.py         |   7 ++-
+ scripts/artifacts/ChessWithFriends.py         |   9 +++-
+ scripts/artifacts/DocList.py                  |   8 ++-
+ scripts/artifacts/FacebookMessenger.py        |   9 +++-
+ .../artifacts/FilesByGoogle_FilesMaster.py    |  12 ++++-
+ .../artifacts/FilesByGoogle_SearchHistory.py  |  12 +++--
+ scripts/artifacts/HideX.py                    |   8 ++-
+ scripts/artifacts/NQVault.py                  |   7 ++-
+ scripts/artifacts/Oruxmaps.py                 |   8 ++-
+ scripts/artifacts/Turbo_AppUsage.py           |   9 +++-
+ scripts/artifacts/Turbo_Battery.py            |   8 ++-
+ scripts/artifacts/Viber.py                    |   7 ++-
+ scripts/artifacts/WhatsApp.py                 |   8 ++-
+ scripts/artifacts/WordsWithFriends.py         |   8 ++-
+ scripts/artifacts/Xender.py                   |   8 ++-
+ scripts/artifacts/Zapya.py                    |   8 ++-
+ scripts/artifacts/accounts_ce.py              |   0
+ scripts/artifacts/accounts_ce_authtokens.py   |   0
+ scripts/artifacts/accounts_de.py              |   0
+ scripts/artifacts/adb_hosts.py                |   4 +-
+ scripts/artifacts/airGuard.py                 |   0
+ scripts/artifacts/appLockerfishingnet.py      |   0
+ scripts/artifacts/appLockerfishingnetdb.py    |   9 +++-
+ scripts/artifacts/appLockerfishingnetpat.py   |   9 +++-
+ scripts/artifacts/appicons.py                 |   0
+ scripts/artifacts/appopSetupWiz.py            |   9 +++-
+ scripts/artifacts/appops.py                   |   9 +++-
+ scripts/artifacts/artGlobals.py               |   0
+ scripts/artifacts/atrackerdetect.py           |   9 +++-
+ scripts/artifacts/battery_usage_v4.py         |   8 ++-
+ scripts/artifacts/bluetoothConnections.py     |   8 ++-
+ scripts/artifacts/browserlocation.py          |   7 +++
+ scripts/artifacts/build.py                    |   8 ++-
+ scripts/artifacts/burner.py                   |  11 +++-
+ scripts/artifacts/cachelocation.py            |   8 ++-
+ scripts/artifacts/calllog.py                  |   8 ++-
+ scripts/artifacts/calllogs.py                 |   0
+ scripts/artifacts/cashApp.py                  |   8 ++-
+ scripts/artifacts/chrome.py                   |   9 +++-
+ scripts/artifacts/chromeAutofill.py           |   7 +++
+ scripts/artifacts/chromeBookmarks.py          |   7 +++
+ scripts/artifacts/chromeCookies.py            |   7 +++
+ scripts/artifacts/chromeLoginData.py          |   9 +++-
+ scripts/artifacts/chromeMediaHistory.py       |   8 ++-
+ .../artifacts/chromeNetworkActionPredictor.py |   8 ++-
+ scripts/artifacts/chromeOfflinePages.py       |   9 +++-
+ scripts/artifacts/chromeTopSites.py           |   9 +++-
+ scripts/artifacts/clipBoard.py                |   8 ++-
+ scripts/artifacts/cmh.py                      |   8 ++-
+ scripts/artifacts/contacts.py                 |   2 +-
+ scripts/artifacts/discreteNative.py           |   9 +++-
+ scripts/artifacts/duckThumbs.py               |   9 ++--
+ scripts/artifacts/emulatedSmeta.py            |  15 +++---
+ scripts/artifacts/errp.py                     |   9 +++-
+ scripts/artifacts/etc_hosts.py                |   9 +++-
+ scripts/artifacts/factory_reset.py            |   9 +++-
+ scripts/artifacts/firefox.py                  |   9 +++-
+ scripts/artifacts/firefoxCookies.py           |   9 +++-
+ scripts/artifacts/firefoxDownloads.py         |   9 +++-
+ scripts/artifacts/firefoxFormHistory.py       |   9 +++-
+ scripts/artifacts/firefoxPermissions.py       |   9 +++-
+ .../artifacts/firefoxRecentlyClosedTabs.py    |   9 +++-
+ scripts/artifacts/firefoxTopSites.py          |   9 +++-
+ scripts/artifacts/fitbitActivity.py           |   7 +++
+ scripts/artifacts/fitbitDevices.py            |   9 +++-
+ scripts/artifacts/fitbitExercise.py           |   9 +++-
+ scripts/artifacts/fitbitHeart.py              |   9 +++-
+ scripts/artifacts/fitbitSleep.py              |   7 ++-
+ scripts/artifacts/fitbitSocial.py             |   7 ++-
+ scripts/artifacts/fitbitWalk.py               |   7 ++-
+ scripts/artifacts/gboard.py                   |   7 +++
+ scripts/artifacts/gmail.py                    |   9 +++-
+ scripts/artifacts/googleCallScreen.py         |   8 ++-
+ scripts/artifacts/googleChat.py               |   9 +++-
+ scripts/artifacts/googleDuo.py                |   8 ++-
+ scripts/artifacts/googleFitGMS.py             |   7 ++-
+ scripts/artifacts/googleKeepNotes.py          |   8 ++-
+ scripts/artifacts/googleMessages.py           |   9 +++-
+ scripts/artifacts/googleNowPlaying.py         |  21 ++++----
+ scripts/artifacts/googlePhotos.py             |   8 ++-
+ scripts/artifacts/googlePlaySearches.py       |   7 ++-
+ scripts/artifacts/googleQuickSearchbox.py     |   9 +++-
+ .../artifacts/googleQuickSearchboxRecent.py   |   9 +++-
+ scripts/artifacts/googleTasks.py              |   8 ++-
+ scripts/artifacts/googlemapaudio.py           |   6 +++
+ scripts/artifacts/googlemaplocation.py        |   7 +++
+ scripts/artifacts/groupMe.py                  |   9 +++-
+ scripts/artifacts/imagemngCache.py            |   8 ++-
+ scripts/artifacts/imo.py                      |   8 ++-
+ scripts/artifacts/installedappsGass.py        |   7 +++
+ scripts/artifacts/installedappsLibrary.py     |   8 ++-
+ scripts/artifacts/installedappsVending.py     |   8 ++-
+ scripts/artifacts/kijijiConversations.py      |   7 +++
+ scripts/artifacts/kijijiLocalUserInfo.py      |   8 ++-
+ scripts/artifacts/kijijiRecentSearches.py     |   8 ++-
+ scripts/artifacts/last_boot_time.py           |   9 +++-
+ scripts/artifacts/lgRCS.py                    |   8 ++-
+ scripts/artifacts/line.py                     |   7 ++-
+ scripts/artifacts/mega.py                     |   9 +++-
+ scripts/artifacts/mega_transfers.py           |   6 +++
+ scripts/artifacts/mewe.py                     |   7 +++
+ scripts/artifacts/pSettings.py                |   7 ++-
+ scripts/artifacts/packageGplinks.py           |   8 ++-
+ scripts/artifacts/packageInfo.py              |   8 ++-
+ scripts/artifacts/permissions.py              |   8 ++-
+ scripts/artifacts/persistentProp.py           |   9 +++-
+ scripts/artifacts/playgroundVault.py          |   8 ++-
+ scripts/artifacts/powerOffReset.py            |   7 +++
+ scripts/artifacts/protonmailContacts.py       |   9 +++-
+ scripts/artifacts/protonmailMessages.py       |   9 +++-
+ scripts/artifacts/recentactivity.py           |   8 ++-
+ scripts/artifacts/roles.py                    |   7 ++-
+ scripts/artifacts/runtimePerms.py             |   7 ++-
+ scripts/artifacts/sRecoveryhist.py            |   9 +++-
+ scripts/artifacts/sWipehist.py                |   9 +++-
+ scripts/artifacts/samsungSmartThings.py       |   7 +++
+ scripts/artifacts/samsungWeatherClock.py      |   9 +++-
+ scripts/artifacts/scontextLog.py              |   8 ++-
+ scripts/artifacts/settingsSecure.py           |   7 ++-
+ scripts/artifacts/setupWizardinfo.py          |   9 +++-
+ scripts/artifacts/shareit.py                  |   8 ++-
+ scripts/artifacts/shutdown_checkpoints.py     |   7 +++
+ scripts/artifacts/siminfo.py                  |   9 +++-
+ scripts/artifacts/skout.py                    |   8 ++-
+ scripts/artifacts/skype.py                    |   7 ++-
+ scripts/artifacts/slopes.py                   |   8 ++-
+ scripts/artifacts/smanagerCrash.py            |   8 ++-
+ scripts/artifacts/smanagerLow.py              |   8 ++-
+ scripts/artifacts/smembersAppInv.py           |   8 ++-
+ scripts/artifacts/smembersEvents.py           |   8 ++-
+ scripts/artifacts/smsmms.py                   |   7 +++
+ scripts/artifacts/smyFiles.py                 |   8 ++-
+ scripts/artifacts/smyfilesRecents.py          |   8 ++-
+ scripts/artifacts/smyfilesStored.py           |   8 ++-
+ scripts/artifacts/smyfilescache.py            |   8 ++-
+ scripts/artifacts/snapchat.py                 |   7 +++
+ scripts/artifacts/suggestions.py              |   9 +++-
+ scripts/artifacts/swellbeing.py               |   8 ++-
+ scripts/artifacts/tangomessage.py             |   8 ++-
+ scripts/artifacts/teams.py                    |   8 ++-
+ scripts/artifacts/textnow.py                  |   7 ++-
+ scripts/artifacts/tikTok.py                   |   8 ++-
+ scripts/artifacts/torThumbs.py                |   9 ++--
+ scripts/artifacts/usageHistory.py             |  51 ------------------
+ scripts/artifacts/usageapps.py                |   8 ++-
+ scripts/artifacts/usagestats.py               |   9 +++-
+ scripts/artifacts/usagestatsVersion.py        |   0
+ .../usagestats_pb/configuration_pb2.py        |   0
+ .../artifacts/usagestats_pb/descriptor_pb2.py |   0
+ scripts/artifacts/usagestats_pb/locale_pb2.py |   0
+ .../artifacts/usagestats_pb/privacy_pb2.py    |   0
+ scripts/artifacts/usagestats_pb/rect_pb2.py   |   0
+ .../usagestats_pb/usagestatsservice_pb2.py    |   0
+ .../usagestats_pb/usagestatsservice_v2_pb2.py |   0
+ .../usagestats_pb/window_configuration_pb2.py |   0
+ scripts/artifacts/userDict.py                 |   8 ++-
+ scripts/artifacts/vaulty_files.py             |   7 +++
+ scripts/artifacts/vaulty_info.py              |   7 +++
+ scripts/artifacts/vlcMedia.py                 |   0
+ scripts/artifacts/vlcThumbs.py                |   0
+ scripts/artifacts/walStrings.py               |   8 ++-
+ scripts/artifacts/waze.py                     |   6 +++
+ scripts/artifacts/wellbeing.py                |   8 ++-
+ scripts/artifacts/wellbeingURLs.py            |   8 ++-
+ scripts/artifacts/wellbeingaccount.py         |   9 +++-
+ scripts/artifacts/wifiConfigstore.py          |   9 +++-
+ scripts/artifacts/wifiHotspot.py              |   9 +++-
+ scripts/artifacts/wifiProfiles.py             |   8 ++-
+ scripts/dark-mode-switch.js                   |   0
+ scripts/dark-mode.css                         |   0
+ scripts/dashboard.css                         |   0
+ scripts/feather.min.js                        |   0
+ scripts/html_parts.py                         |   0
+ scripts/ilap_artifacts.py                     |   2 -
+ scripts/ilapfuncs.py                          |   0
+ scripts/logo.jpg                              | Bin
+ scripts/parse3.py                             |   0
+ scripts/report.py                             |   2 +-
+ scripts/search_files.py                       |   0
+ scripts/version_info.py                       |   0
+ 243 files changed, 1110 insertions(+), 224 deletions(-)
+ mode change 100644 => 100755 LICENSE
+ mode change 100644 => 100755 README.md
+ mode change 100644 => 100755 aleapp.py
+ mode change 100644 => 100755 aleapp.spec
+ mode change 100644 => 100755 aleappGUI.py
+ mode change 100644 => 100755 aleappGUI.spec
+ mode change 100644 => 100755 hook-plugin_loader.py
+ mode change 100644 => 100755 plugin_loader.py
+ mode change 100644 => 100755 requirements.txt
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/css/addons/datatables-select.min.css
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/css/addons/datatables.min.css
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/css/addons/directives.min.css
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/css/addons/flag.min.css
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/css/addons/jquery.zmd.hierarchical-display.min.css
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/css/addons/rating.min.css
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/css/bootstrap.css
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/css/bootstrap.min.css
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/css/mdb.css
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/css/mdb.lite.css
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/css/mdb.lite.min.css
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/css/mdb.min.css
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/css/modules/animations-extended.min.css
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/css/style.css
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/img/overlays/01.png
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/img/overlays/02.png
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/img/overlays/03.png
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/img/overlays/04.png
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/img/overlays/05.png
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/img/overlays/06.png
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/img/overlays/07.png
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/img/overlays/08.png
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/img/overlays/09.png
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/img/svg/arrow_left.svg
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/img/svg/arrow_right.svg
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/js/addons/datatables-select.min.js
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/js/addons/datatables.min.js
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/js/addons/directives.min.js
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/js/addons/flag.min.js
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/js/addons/imagesloaded.pkgd.min.js
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/js/addons/jquery.zmd.hierarchical-display.min.js
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/js/addons/masonry.pkgd.min.js
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/js/addons/rating.min.js
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/js/bootstrap.js
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/js/bootstrap.min.js
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/js/jquery.js
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/js/jquery.min.js
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/js/mdb.js
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/js/mdb.min.js
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/js/modules/animations-extended.min.js
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/js/modules/forms-free.min.js
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/js/modules/scrolling-navbar.min.js
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/js/modules/treeview.min.js
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/js/modules/wow.min.js
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/js/popper.js
+ mode change 100644 => 100755 scripts/MDB-Free_4.13.0/js/popper.min.js
+ mode change 100644 => 100755 scripts/artifact_report.py
+ mode change 100644 => 100755 scripts/artifacts/AVG.py
+ mode change 100644 => 100755 scripts/artifacts/BashHistory.py
+ mode change 100644 => 100755 scripts/artifacts/Cast.py
+ mode change 100644 => 100755 scripts/artifacts/Cello.py
+ mode change 100644 => 100755 scripts/artifacts/ChessComAccount.py
+ mode change 100644 => 100755 scripts/artifacts/ChessComFriends.py
+ mode change 100644 => 100755 scripts/artifacts/ChessComGames.py
+ mode change 100644 => 100755 scripts/artifacts/ChessComMessages.py
+ mode change 100644 => 100755 scripts/artifacts/ChessWithFriends.py
+ mode change 100644 => 100755 scripts/artifacts/DocList.py
+ mode change 100644 => 100755 scripts/artifacts/FacebookMessenger.py
+ mode change 100644 => 100755 scripts/artifacts/FilesByGoogle_FilesMaster.py
+ mode change 100644 => 100755 scripts/artifacts/FilesByGoogle_SearchHistory.py
+ mode change 100644 => 100755 scripts/artifacts/HideX.py
+ mode change 100644 => 100755 scripts/artifacts/NQVault.py
+ mode change 100644 => 100755 scripts/artifacts/Oruxmaps.py
+ mode change 100644 => 100755 scripts/artifacts/Turbo_AppUsage.py
+ mode change 100644 => 100755 scripts/artifacts/Turbo_Battery.py
+ mode change 100644 => 100755 scripts/artifacts/Viber.py
+ mode change 100644 => 100755 scripts/artifacts/WhatsApp.py
+ mode change 100644 => 100755 scripts/artifacts/WordsWithFriends.py
+ mode change 100644 => 100755 scripts/artifacts/Xender.py
+ mode change 100644 => 100755 scripts/artifacts/Zapya.py
+ mode change 100644 => 100755 scripts/artifacts/accounts_ce.py
+ mode change 100644 => 100755 scripts/artifacts/accounts_ce_authtokens.py
+ mode change 100644 => 100755 scripts/artifacts/accounts_de.py
+ mode change 100644 => 100755 scripts/artifacts/adb_hosts.py
+ mode change 100644 => 100755 scripts/artifacts/airGuard.py
+ mode change 100644 => 100755 scripts/artifacts/appLockerfishingnet.py
+ mode change 100644 => 100755 scripts/artifacts/appLockerfishingnetdb.py
+ mode change 100644 => 100755 scripts/artifacts/appLockerfishingnetpat.py
+ mode change 100644 => 100755 scripts/artifacts/appicons.py
+ mode change 100644 => 100755 scripts/artifacts/appopSetupWiz.py
+ mode change 100644 => 100755 scripts/artifacts/appops.py
+ mode change 100644 => 100755 scripts/artifacts/artGlobals.py
+ mode change 100644 => 100755 scripts/artifacts/atrackerdetect.py
+ mode change 100644 => 100755 scripts/artifacts/battery_usage_v4.py
+ mode change 100644 => 100755 scripts/artifacts/bluetoothConnections.py
+ mode change 100644 => 100755 scripts/artifacts/browserlocation.py
+ mode change 100644 => 100755 scripts/artifacts/build.py
+ mode change 100644 => 100755 scripts/artifacts/burner.py
+ mode change 100644 => 100755 scripts/artifacts/cachelocation.py
+ mode change 100644 => 100755 scripts/artifacts/calllog.py
+ mode change 100644 => 100755 scripts/artifacts/calllogs.py
+ mode change 100644 => 100755 scripts/artifacts/cashApp.py
+ mode change 100644 => 100755 scripts/artifacts/chrome.py
+ mode change 100644 => 100755 scripts/artifacts/chromeAutofill.py
+ mode change 100644 => 100755 scripts/artifacts/chromeBookmarks.py
+ mode change 100644 => 100755 scripts/artifacts/chromeCookies.py
+ mode change 100644 => 100755 scripts/artifacts/chromeLoginData.py
+ mode change 100644 => 100755 scripts/artifacts/chromeMediaHistory.py
+ mode change 100644 => 100755 scripts/artifacts/chromeNetworkActionPredictor.py
+ mode change 100644 => 100755 scripts/artifacts/chromeOfflinePages.py
+ mode change 100644 => 100755 scripts/artifacts/chromeTopSites.py
+ mode change 100644 => 100755 scripts/artifacts/clipBoard.py
+ mode change 100644 => 100755 scripts/artifacts/cmh.py
+ mode change 100644 => 100755 scripts/artifacts/contacts.py
+ mode change 100644 => 100755 scripts/artifacts/discreteNative.py
+ mode change 100644 => 100755 scripts/artifacts/duckThumbs.py
+ mode change 100644 => 100755 scripts/artifacts/emulatedSmeta.py
+ mode change 100644 => 100755 scripts/artifacts/errp.py
+ mode change 100644 => 100755 scripts/artifacts/etc_hosts.py
+ mode change 100644 => 100755 scripts/artifacts/factory_reset.py
+ mode change 100644 => 100755 scripts/artifacts/firefox.py
+ mode change 100644 => 100755 scripts/artifacts/firefoxCookies.py
+ mode change 100644 => 100755 scripts/artifacts/firefoxDownloads.py
+ mode change 100644 => 100755 scripts/artifacts/firefoxFormHistory.py
+ mode change 100644 => 100755 scripts/artifacts/firefoxPermissions.py
+ mode change 100644 => 100755 scripts/artifacts/firefoxRecentlyClosedTabs.py
+ mode change 100644 => 100755 scripts/artifacts/firefoxTopSites.py
+ mode change 100644 => 100755 scripts/artifacts/fitbitActivity.py
+ mode change 100644 => 100755 scripts/artifacts/fitbitDevices.py
+ mode change 100644 => 100755 scripts/artifacts/fitbitExercise.py
+ mode change 100644 => 100755 scripts/artifacts/fitbitHeart.py
+ mode change 100644 => 100755 scripts/artifacts/fitbitSleep.py
+ mode change 100644 => 100755 scripts/artifacts/fitbitSocial.py
+ mode change 100644 => 100755 scripts/artifacts/fitbitWalk.py
+ mode change 100644 => 100755 scripts/artifacts/gboard.py
+ mode change 100644 => 100755 scripts/artifacts/gmail.py
+ mode change 100644 => 100755 scripts/artifacts/googleCallScreen.py
+ mode change 100644 => 100755 scripts/artifacts/googleChat.py
+ mode change 100644 => 100755 scripts/artifacts/googleDuo.py
+ mode change 100644 => 100755 scripts/artifacts/googleFitGMS.py
+ mode change 100644 => 100755 scripts/artifacts/googleKeepNotes.py
+ mode change 100644 => 100755 scripts/artifacts/googleMessages.py
+ mode change 100644 => 100755 scripts/artifacts/googleNowPlaying.py
+ mode change 100644 => 100755 scripts/artifacts/googlePhotos.py
+ mode change 100644 => 100755 scripts/artifacts/googlePlaySearches.py
+ mode change 100644 => 100755 scripts/artifacts/googleQuickSearchbox.py
+ mode change 100644 => 100755 scripts/artifacts/googleQuickSearchboxRecent.py
+ mode change 100644 => 100755 scripts/artifacts/googleTasks.py
+ mode change 100644 => 100755 scripts/artifacts/googlemapaudio.py
+ mode change 100644 => 100755 scripts/artifacts/googlemaplocation.py
+ mode change 100644 => 100755 scripts/artifacts/groupMe.py
+ mode change 100644 => 100755 scripts/artifacts/imagemngCache.py
+ mode change 100644 => 100755 scripts/artifacts/imo.py
+ mode change 100644 => 100755 scripts/artifacts/installedappsGass.py
+ mode change 100644 => 100755 scripts/artifacts/installedappsLibrary.py
+ mode change 100644 => 100755 scripts/artifacts/installedappsVending.py
+ mode change 100644 => 100755 scripts/artifacts/kijijiConversations.py
+ mode change 100644 => 100755 scripts/artifacts/kijijiLocalUserInfo.py
+ mode change 100644 => 100755 scripts/artifacts/kijijiRecentSearches.py
+ mode change 100644 => 100755 scripts/artifacts/last_boot_time.py
+ mode change 100644 => 100755 scripts/artifacts/lgRCS.py
+ mode change 100644 => 100755 scripts/artifacts/line.py
+ mode change 100644 => 100755 scripts/artifacts/mega.py
+ mode change 100644 => 100755 scripts/artifacts/mega_transfers.py
+ mode change 100644 => 100755 scripts/artifacts/mewe.py
+ mode change 100644 => 100755 scripts/artifacts/pSettings.py
+ mode change 100644 => 100755 scripts/artifacts/packageGplinks.py
+ mode change 100644 => 100755 scripts/artifacts/packageInfo.py
+ mode change 100644 => 100755 scripts/artifacts/permissions.py
+ mode change 100644 => 100755 scripts/artifacts/persistentProp.py
+ mode change 100644 => 100755 scripts/artifacts/playgroundVault.py
+ mode change 100644 => 100755 scripts/artifacts/powerOffReset.py
+ mode change 100644 => 100755 scripts/artifacts/protonmailContacts.py
+ mode change 100644 => 100755 scripts/artifacts/protonmailMessages.py
+ mode change 100644 => 100755 scripts/artifacts/recentactivity.py
+ mode change 100644 => 100755 scripts/artifacts/roles.py
+ mode change 100644 => 100755 scripts/artifacts/runtimePerms.py
+ mode change 100644 => 100755 scripts/artifacts/sRecoveryhist.py
+ mode change 100644 => 100755 scripts/artifacts/sWipehist.py
+ mode change 100644 => 100755 scripts/artifacts/samsungSmartThings.py
+ mode change 100644 => 100755 scripts/artifacts/samsungWeatherClock.py
+ mode change 100644 => 100755 scripts/artifacts/scontextLog.py
+ mode change 100644 => 100755 scripts/artifacts/settingsSecure.py
+ mode change 100644 => 100755 scripts/artifacts/setupWizardinfo.py
+ mode change 100644 => 100755 scripts/artifacts/shareit.py
+ mode change 100644 => 100755 scripts/artifacts/shutdown_checkpoints.py
+ mode change 100644 => 100755 scripts/artifacts/siminfo.py
+ mode change 100644 => 100755 scripts/artifacts/skout.py
+ mode change 100644 => 100755 scripts/artifacts/skype.py
+ mode change 100644 => 100755 scripts/artifacts/slopes.py
+ mode change 100644 => 100755 scripts/artifacts/smanagerCrash.py
+ mode change 100644 => 100755 scripts/artifacts/smanagerLow.py
+ mode change 100644 => 100755 scripts/artifacts/smembersAppInv.py
+ mode change 100644 => 100755 scripts/artifacts/smembersEvents.py
+ mode change 100644 => 100755 scripts/artifacts/smsmms.py
+ mode change 100644 => 100755 scripts/artifacts/smyFiles.py
+ mode change 100644 => 100755 scripts/artifacts/smyfilesRecents.py
+ mode change 100644 => 100755 scripts/artifacts/smyfilesStored.py
+ mode change 100644 => 100755 scripts/artifacts/smyfilescache.py
+ mode change 100644 => 100755 scripts/artifacts/snapchat.py
+ mode change 100644 => 100755 scripts/artifacts/suggestions.py
+ mode change 100644 => 100755 scripts/artifacts/swellbeing.py
+ mode change 100644 => 100755 scripts/artifacts/tangomessage.py
+ mode change 100644 => 100755 scripts/artifacts/teams.py
+ mode change 100644 => 100755 scripts/artifacts/textnow.py
+ mode change 100644 => 100755 scripts/artifacts/tikTok.py
+ mode change 100644 => 100755 scripts/artifacts/torThumbs.py
+ delete mode 100644 scripts/artifacts/usageHistory.py
+ mode change 100644 => 100755 scripts/artifacts/usageapps.py
+ mode change 100644 => 100755 scripts/artifacts/usagestats.py
+ mode change 100644 => 100755 scripts/artifacts/usagestatsVersion.py
+ mode change 100644 => 100755 scripts/artifacts/usagestats_pb/configuration_pb2.py
+ mode change 100644 => 100755 scripts/artifacts/usagestats_pb/descriptor_pb2.py
+ mode change 100644 => 100755 scripts/artifacts/usagestats_pb/locale_pb2.py
+ mode change 100644 => 100755 scripts/artifacts/usagestats_pb/privacy_pb2.py
+ mode change 100644 => 100755 scripts/artifacts/usagestats_pb/rect_pb2.py
+ mode change 100644 => 100755 scripts/artifacts/usagestats_pb/usagestatsservice_pb2.py
+ mode change 100644 => 100755 scripts/artifacts/usagestats_pb/usagestatsservice_v2_pb2.py
+ mode change 100644 => 100755 scripts/artifacts/usagestats_pb/window_configuration_pb2.py
+ mode change 100644 => 100755 scripts/artifacts/userDict.py
+ mode change 100644 => 100755 scripts/artifacts/vaulty_files.py
+ mode change 100644 => 100755 scripts/artifacts/vaulty_info.py
+ mode change 100644 => 100755 scripts/artifacts/vlcMedia.py
+ mode change 100644 => 100755 scripts/artifacts/vlcThumbs.py
+ mode change 100644 => 100755 scripts/artifacts/walStrings.py
+ mode change 100644 => 100755 scripts/artifacts/waze.py
+ mode change 100644 => 100755 scripts/artifacts/wellbeing.py
+ mode change 100644 => 100755 scripts/artifacts/wellbeingURLs.py
+ mode change 100644 => 100755 scripts/artifacts/wellbeingaccount.py
+ mode change 100644 => 100755 scripts/artifacts/wifiConfigstore.py
+ mode change 100644 => 100755 scripts/artifacts/wifiHotspot.py
+ mode change 100644 => 100755 scripts/artifacts/wifiProfiles.py
+ mode change 100644 => 100755 scripts/dark-mode-switch.js
+ mode change 100644 => 100755 scripts/dark-mode.css
+ mode change 100644 => 100755 scripts/dashboard.css
+ mode change 100644 => 100755 scripts/feather.min.js
+ mode change 100644 => 100755 scripts/html_parts.py
+ mode change 100644 => 100755 scripts/ilap_artifacts.py
+ mode change 100644 => 100755 scripts/ilapfuncs.py
+ mode change 100644 => 100755 scripts/logo.jpg
+ mode change 100644 => 100755 scripts/parse3.py
+ mode change 100644 => 100755 scripts/report.py
+ mode change 100644 => 100755 scripts/search_files.py
+ mode change 100644 => 100755 scripts/version_info.py
+
+diff --git a/LICENSE b/LICENSE
+old mode 100644
+new mode 100755
+diff --git a/README.md b/README.md
+old mode 100644
+new mode 100755
+diff --git a/aleapp.py b/aleapp.py
+old mode 100644
+new mode 100755
+index 5d27f62..e657ddf
+--- a/aleapp.py
++++ b/aleapp.py
+@@ -148,10 +148,6 @@ def crunch_artifacts(
+                 for pathh in found:
+                     if pathh.startswith('\\\\?\\'):
+                         pathh = pathh[4:]
+-<<<<<<< Updated upstream
+-=======
+-                        #logfunc(f'Files for {artifact_search_regex} located at {pathh}')
+->>>>>>> Stashed changes
+                     log.write(f'Files for {artifact_search_regex} located at {pathh}<br><br>')
+                 files_found.extend(found)
+         if files_found:
+diff --git a/aleapp.spec b/aleapp.spec
+old mode 100644
+new mode 100755
+diff --git a/aleappGUI.py b/aleappGUI.py
+old mode 100644
+new mode 100755
+index 545b775..9c0b418
+--- a/aleappGUI.py
++++ b/aleappGUI.py
+@@ -68,7 +68,7 @@ def pickModules():
+     loader = plugin_loader.PluginLoader()
+ 
+     indx = MODULE_START_INDEX     # arbitrary number to not interfere with other controls
+-    for plugin in sorted(loader.plugins, key=lambda p: p.name.upper()):
++    for plugin in sorted(loader.plugins, key=lambda p: p.category.upper()):
+         disabled = plugin.module_name == 'usagestatsVersion'
+         mlist.append(CheckList(f'{plugin.category} [{plugin.name} - {plugin.module_name}.py]', indx, plugin.name, disabled))
+         indx = indx + 1
+diff --git a/aleappGUI.spec b/aleappGUI.spec
+old mode 100644
+new mode 100755
+index fab6032..12c0b3b
+--- a/aleappGUI.spec
++++ b/aleappGUI.spec
+@@ -36,4 +36,4 @@ exe = EXE(pyz,
+           upx=True,
+           console=False,
+           upx_exclude=[],
+-          runtime_tmpdir=None )
++          runtime_tmpdir=None )
+\ No newline at end of file
+diff --git a/hook-plugin_loader.py b/hook-plugin_loader.py
+old mode 100644
+new mode 100755
+diff --git a/plugin_loader.py b/plugin_loader.py
+old mode 100644
+new mode 100755
+diff --git a/requirements.txt b/requirements.txt
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/css/addons/datatables-select.min.css b/scripts/MDB-Free_4.13.0/css/addons/datatables-select.min.css
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/css/addons/datatables.min.css b/scripts/MDB-Free_4.13.0/css/addons/datatables.min.css
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/css/addons/directives.min.css b/scripts/MDB-Free_4.13.0/css/addons/directives.min.css
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/css/addons/flag.min.css b/scripts/MDB-Free_4.13.0/css/addons/flag.min.css
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/css/addons/jquery.zmd.hierarchical-display.min.css b/scripts/MDB-Free_4.13.0/css/addons/jquery.zmd.hierarchical-display.min.css
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/css/addons/rating.min.css b/scripts/MDB-Free_4.13.0/css/addons/rating.min.css
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/css/bootstrap.css b/scripts/MDB-Free_4.13.0/css/bootstrap.css
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/css/bootstrap.min.css b/scripts/MDB-Free_4.13.0/css/bootstrap.min.css
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/css/mdb.css b/scripts/MDB-Free_4.13.0/css/mdb.css
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/css/mdb.lite.css b/scripts/MDB-Free_4.13.0/css/mdb.lite.css
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/css/mdb.lite.min.css b/scripts/MDB-Free_4.13.0/css/mdb.lite.min.css
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/css/mdb.min.css b/scripts/MDB-Free_4.13.0/css/mdb.min.css
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/css/modules/animations-extended.min.css b/scripts/MDB-Free_4.13.0/css/modules/animations-extended.min.css
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/css/style.css b/scripts/MDB-Free_4.13.0/css/style.css
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/img/overlays/01.png b/scripts/MDB-Free_4.13.0/img/overlays/01.png
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/img/overlays/02.png b/scripts/MDB-Free_4.13.0/img/overlays/02.png
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/img/overlays/03.png b/scripts/MDB-Free_4.13.0/img/overlays/03.png
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/img/overlays/04.png b/scripts/MDB-Free_4.13.0/img/overlays/04.png
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/img/overlays/05.png b/scripts/MDB-Free_4.13.0/img/overlays/05.png
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/img/overlays/06.png b/scripts/MDB-Free_4.13.0/img/overlays/06.png
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/img/overlays/07.png b/scripts/MDB-Free_4.13.0/img/overlays/07.png
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/img/overlays/08.png b/scripts/MDB-Free_4.13.0/img/overlays/08.png
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/img/overlays/09.png b/scripts/MDB-Free_4.13.0/img/overlays/09.png
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/img/svg/arrow_left.svg b/scripts/MDB-Free_4.13.0/img/svg/arrow_left.svg
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/img/svg/arrow_right.svg b/scripts/MDB-Free_4.13.0/img/svg/arrow_right.svg
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/js/addons/datatables-select.min.js b/scripts/MDB-Free_4.13.0/js/addons/datatables-select.min.js
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/js/addons/datatables.min.js b/scripts/MDB-Free_4.13.0/js/addons/datatables.min.js
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/js/addons/directives.min.js b/scripts/MDB-Free_4.13.0/js/addons/directives.min.js
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/js/addons/flag.min.js b/scripts/MDB-Free_4.13.0/js/addons/flag.min.js
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/js/addons/imagesloaded.pkgd.min.js b/scripts/MDB-Free_4.13.0/js/addons/imagesloaded.pkgd.min.js
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/js/addons/jquery.zmd.hierarchical-display.min.js b/scripts/MDB-Free_4.13.0/js/addons/jquery.zmd.hierarchical-display.min.js
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/js/addons/masonry.pkgd.min.js b/scripts/MDB-Free_4.13.0/js/addons/masonry.pkgd.min.js
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/js/addons/rating.min.js b/scripts/MDB-Free_4.13.0/js/addons/rating.min.js
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/js/bootstrap.js b/scripts/MDB-Free_4.13.0/js/bootstrap.js
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/js/bootstrap.min.js b/scripts/MDB-Free_4.13.0/js/bootstrap.min.js
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/js/jquery.js b/scripts/MDB-Free_4.13.0/js/jquery.js
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/js/jquery.min.js b/scripts/MDB-Free_4.13.0/js/jquery.min.js
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/js/mdb.js b/scripts/MDB-Free_4.13.0/js/mdb.js
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/js/mdb.min.js b/scripts/MDB-Free_4.13.0/js/mdb.min.js
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/js/modules/animations-extended.min.js b/scripts/MDB-Free_4.13.0/js/modules/animations-extended.min.js
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/js/modules/forms-free.min.js b/scripts/MDB-Free_4.13.0/js/modules/forms-free.min.js
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/js/modules/scrolling-navbar.min.js b/scripts/MDB-Free_4.13.0/js/modules/scrolling-navbar.min.js
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/js/modules/treeview.min.js b/scripts/MDB-Free_4.13.0/js/modules/treeview.min.js
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/js/modules/wow.min.js b/scripts/MDB-Free_4.13.0/js/modules/wow.min.js
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/js/popper.js b/scripts/MDB-Free_4.13.0/js/popper.js
+old mode 100644
+new mode 100755
+diff --git a/scripts/MDB-Free_4.13.0/js/popper.min.js b/scripts/MDB-Free_4.13.0/js/popper.min.js
+old mode 100644
+new mode 100755
+diff --git a/scripts/artifact_report.py b/scripts/artifact_report.py
+old mode 100644
+new mode 100755
+diff --git a/scripts/artifacts/AVG.py b/scripts/artifacts/AVG.py
+old mode 100644
+new mode 100755
+index 1b94547..1ad9e6b
+--- a/scripts/artifacts/AVG.py
++++ b/scripts/artifacts/AVG.py
+@@ -317,4 +317,11 @@ def get_AVG(files_found, report_folder, seeker, wrap_text):
+         tsvname = f'AVG - Media Files'
+         tsv(report_folder, data_headers, media_data_list, tsvname)                  
+     else:
+-        logfunc('No files found to decrypt')
+\ No newline at end of file
++        logfunc('No files found to decrypt')
++        
++__artifacts__ = {
++        "AVG": (
++                "Encrypting Media Apps",
++                ('*/data/data/com.antivirus/shared_prefs/PinSettingsImpl.xml', '*/Vault/*'),
++                get_AVG)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/BashHistory.py b/scripts/artifacts/BashHistory.py
+old mode 100644
+new mode 100755
+index 0571356..7bf4f48
+--- a/scripts/artifacts/BashHistory.py
++++ b/scripts/artifacts/BashHistory.py
+@@ -25,4 +25,11 @@ def get_BashHistory(files_found, report_folder, seeker, wrap_text):
+         tsv(report_folder, data_headers, data_list, tsvname)
+         
+     else:
+-        logfunc(f'No Bash History file available')
+\ No newline at end of file
++        logfunc(f'No Bash History file available')
++    
++__artifacts__ = {
++        "Bash History": (
++                "Bash History",
++                ('**/.bash_history'),
++                get_BashHistory)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/Cast.py b/scripts/artifacts/Cast.py
+old mode 100644
+new mode 100755
+index acffa3e..2fe3697
+--- a/scripts/artifacts/Cast.py
++++ b/scripts/artifacts/Cast.py
+@@ -62,4 +62,10 @@ def get_Cast(files_found, report_folder, seeker, wrap_text):
+         logfunc('No Cast data available')
+     
+     db.close()
+-    return
++
++__artifacts__ = {
++        "Cast": (
++                "Cast",
++                ('*/com.google.android.gms/databases/cast.db'),
++                get_Cast)
++}
+diff --git a/scripts/artifacts/Cello.py b/scripts/artifacts/Cello.py
+old mode 100644
+new mode 100755
+index 2c23cda..9fa41e8
+--- a/scripts/artifacts/Cello.py
++++ b/scripts/artifacts/Cello.py
+@@ -132,4 +132,10 @@ def get_Cello(files_found, report_folder, seeker, wrap_text):
+         logfunc('No Google Drive - Cello data available')
+     
+     db.close()
+-    return
++
++__artifacts__ = {
++        "Cello": (
++                "Google Drive",
++                ('*/com.google.android.apps.docs/app_cello/*/cello.db*', '*/com.google.android.apps.docs/files/shiny_blobs/blobs/*'),
++                get_Cello)
++}
+diff --git a/scripts/artifacts/ChessComAccount.py b/scripts/artifacts/ChessComAccount.py
+old mode 100644
+new mode 100755
+index 3ea15ee..c982a08
+--- a/scripts/artifacts/ChessComAccount.py
++++ b/scripts/artifacts/ChessComAccount.py
+@@ -48,5 +48,11 @@ def get_ChessComAccount(files_found, report_folder, seeker, wrap_text):
+     
+     tsv(report_folder, data_headers, data_list, title)
+ 
+-
++__artifacts__ = {
++        "ChessComAcct": (
++                "Chess.com",
++                ('*/data/data/com.chess/shared_prefs/com.chess.app.login_credentials.xml', '*/data/data/com.chess/shared_prefs/com.chess.app.session_preferences.xml'),
++                get_ChessComAccount)
++}
++ 
+ 
+diff --git a/scripts/artifacts/ChessComFriends.py b/scripts/artifacts/ChessComFriends.py
+old mode 100644
+new mode 100755
+index ff41980..964f119
+--- a/scripts/artifacts/ChessComFriends.py
++++ b/scripts/artifacts/ChessComFriends.py
+@@ -31,5 +31,10 @@ def get_ChessComFriends(files_found, report_folder, seeker, wrap_text):
+     
+     tsv(report_folder, data_headers, data_list, title)
+ 
+-
++__artifacts__ = {
++        "ChessComFriends": (
++                "Chess.com",
++                ('*/data/data/com.chess/databases/chess-database*'),
++                get_ChessComFriends)
++}
+ 
+diff --git a/scripts/artifacts/ChessComGames.py b/scripts/artifacts/ChessComGames.py
+old mode 100644
+new mode 100755
+index 56b6302..9be9f3a
+--- a/scripts/artifacts/ChessComGames.py
++++ b/scripts/artifacts/ChessComGames.py
+@@ -43,5 +43,11 @@ def get_ChessComGames(files_found, report_folder, seeker, wrap_text):
+     
+     tsv(report_folder, data_headers, data_list, title)
+ 
++__artifacts__ = {
++        "ChessComGames": (
++                "Chess.com",
++                ('*/data/data/com.chess/databases/chess-database*', '*/data/data/com.chess/shared_prefs/com.chess.app.session_preferences.xml'),
++                get_ChessComGames)
++}
+ 
+ 
+diff --git a/scripts/artifacts/ChessComMessages.py b/scripts/artifacts/ChessComMessages.py
+old mode 100644
+new mode 100755
+index 7ee4bb7..b9e2685
+--- a/scripts/artifacts/ChessComMessages.py
++++ b/scripts/artifacts/ChessComMessages.py
+@@ -31,5 +31,10 @@ def get_ChessComMessages(files_found, report_folder, seeker, wrap_text):
+     
+     tsv(report_folder, data_headers, data_list, title)
+ 
+-
++__artifacts__ = {
++        "ChessComMessages": (
++                "Chess.com",
++                ('*/data/data/com.chess/databases/chess-database*'),
++                get_ChessComMessages)
++}
+ 
+diff --git a/scripts/artifacts/ChessWithFriends.py b/scripts/artifacts/ChessWithFriends.py
+old mode 100644
+new mode 100755
+index aa360a1..2b5e229
+--- a/scripts/artifacts/ChessWithFriends.py
++++ b/scripts/artifacts/ChessWithFriends.py
+@@ -46,5 +46,10 @@ def get_ChessWithFriends(files_found, report_folder, seeker, wrap_text):
+         logfunc('No Chess With Friends data available')
+     
+     db.close()
+-    return
+-
++    
++__artifacts__ = {
++        "ChessWithFriends": (
++                "Chats",
++                ('*/data/data/com.zynga.chess.googleplay/databases/wf_database.sqlite', '*/data/data/com.zynga.chess.googleplay/db/wf_database.sqlite'),
++                get_ChessWithFriends)
++}
+diff --git a/scripts/artifacts/DocList.py b/scripts/artifacts/DocList.py
+old mode 100644
+new mode 100755
+index 167a61b..7be96b0
+--- a/scripts/artifacts/DocList.py
++++ b/scripts/artifacts/DocList.py
+@@ -62,4 +62,10 @@ def get_DocList(files_found, report_folder, seeker, wrap_text):
+         logfunc('No Google Drive - DocList data available')
+     
+     db.close()
+-    return
++
++__artifacts__ = {
++        "DocList'": (
++                "Google Drive",
++                ('*/data/data/com.google.android.apps.docs/databases/DocList.db*'),
++                get_DocList)
++}
+diff --git a/scripts/artifacts/FacebookMessenger.py b/scripts/artifacts/FacebookMessenger.py
+old mode 100644
+new mode 100755
+index 3b88194..609af25
+--- a/scripts/artifacts/FacebookMessenger.py
++++ b/scripts/artifacts/FacebookMessenger.py
+@@ -205,5 +205,10 @@ def get_FacebookMessenger(files_found, report_folder, seeker, wrap_text):
+             logfunc(f'No Facebook{typeof}- Contacts data available{usernum}')
+         
+         db.close()
+-
+-        
+\ No newline at end of file
++        
++__artifacts__ = {
++        "FacebookMessenger": (
++                "Facebook Messenger",
++                ('*/threads_db2*'),
++                get_FacebookMessenger)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/FilesByGoogle_FilesMaster.py b/scripts/artifacts/FilesByGoogle_FilesMaster.py
+old mode 100644
+new mode 100755
+index c641cfa..65ae767
+--- a/scripts/artifacts/FilesByGoogle_FilesMaster.py
++++ b/scripts/artifacts/FilesByGoogle_FilesMaster.py
+@@ -60,8 +60,16 @@ def get_FilesByGoogle_FilesMaster(files_found, report_folder, seeker, wrap_text)
+             
+             tlactivity = f'Files By Google - Files Master'
+             timeline(report_folder, tlactivity, data_list, data_headers)
++            
++            db.close()
+         else:
+             logfunc('No Files By Google - Files Master data available')
++            db.close()
+     
+-    db.close()
+-    return
++
++__artifacts__ = {
++        "FilesMaster": (
++                "Files by Google",
++                ('*/com.google.android.apps.nbu.files/databases/files_master_database*'),
++                get_FilesByGoogle_FilesMaster)
++}
+diff --git a/scripts/artifacts/FilesByGoogle_SearchHistory.py b/scripts/artifacts/FilesByGoogle_SearchHistory.py
+old mode 100644
+new mode 100755
+index cab7c3c..9b76c4f
+--- a/scripts/artifacts/FilesByGoogle_SearchHistory.py
++++ b/scripts/artifacts/FilesByGoogle_SearchHistory.py
+@@ -42,8 +42,14 @@ def get_FilesByGoogle_SearchHistory(files_found, report_folder, seeker, wrap_tex
+             
+             tlactivity = f'Files By Google - Search History'
+             timeline(report_folder, tlactivity, data_list, data_headers)
++            db.close()
+         else:
+             logfunc('No Files By Google - Search History data available')
+-    
+-    db.close()
+-    return
++            db.close()
++
++__artifacts__ = {
++        "FilesSearchHist": (
++                "Files by Google",
++                ('*/com.google.android.apps.nbu.files/databases/search_history_database*'),
++                get_FilesByGoogle_SearchHistory)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/HideX.py b/scripts/artifacts/HideX.py
+old mode 100644
+new mode 100755
+index d5ad79a..21d46ac
+--- a/scripts/artifacts/HideX.py
++++ b/scripts/artifacts/HideX.py
+@@ -43,4 +43,10 @@ def get_HideX(files_found, report_folder, seeker, wrap_text):
+         logfunc('No HideX data available')
+     
+     db.close()
+-    return
++
++__artifacts__ = {
++        "HideX": (
++                "GroupMe",
++                ('*/com.flatfish.cal.privacy/databases/hidex.db*'),
++                get_HideX)
++}
+diff --git a/scripts/artifacts/NQVault.py b/scripts/artifacts/NQVault.py
+old mode 100644
+new mode 100755
+index 273bd6c..21ca945
+--- a/scripts/artifacts/NQVault.py
++++ b/scripts/artifacts/NQVault.py
+@@ -190,6 +190,11 @@ def get_NQVault(files_found, report_folder, seeker, wrap_text):
+             logfunc('No Encrypted Media Present in Database.')
+             return
+ 
+-
++__artifacts__ = {
++        "NQVault": (
++                "Encrypting Media apps",
++                ('*/emulated/0/Android/data/com.netqin.ps/files/Documents/SystemAndroid/Data/322w465ay423xy11', '*/SystemAndroid/Data/*'),
++                get_NQVault)
++}
+ 
+ 
+diff --git a/scripts/artifacts/Oruxmaps.py b/scripts/artifacts/Oruxmaps.py
+old mode 100644
+new mode 100755
+index e19a215..f302011
+--- a/scripts/artifacts/Oruxmaps.py
++++ b/scripts/artifacts/Oruxmaps.py
+@@ -69,4 +69,10 @@ def get_Oruxmaps(files_found, report_folder, seeker, wrap_text):
+         logfunc('No Oruxmaps Tracks data available')
+ 
+     db.close()
+-    return
+\ No newline at end of file
++
++__artifacts__ = {
++        "Oruxmaps": (
++                "GEO Location",
++                ('**/oruxmaps/tracklogs/oruxmapstracks.db*'),
++                get_Oruxmaps)
++}
+diff --git a/scripts/artifacts/Turbo_AppUsage.py b/scripts/artifacts/Turbo_AppUsage.py
+old mode 100644
+new mode 100755
+index 96aecfe..3d6bc13
+--- a/scripts/artifacts/Turbo_AppUsage.py
++++ b/scripts/artifacts/Turbo_AppUsage.py
+@@ -43,4 +43,11 @@ def get_Turbo_AppUsage(files_found, report_folder, seeker, wrap_text):
+         tlactivity = f'Turbo - Application Usage'
+         timeline(report_folder, tlactivity, data_list, data_headers)
+     else:
+-        logfunc(f'No Turbo - Application Usage data available')
+\ No newline at end of file
++        logfunc(f'No Turbo - Application Usage data available')
++
++__artifacts__ = {
++        "Turbo_AppUsage": (
++                "Device Health Services",
++                ('*/com.google.android.apps.turbo/shared_prefs/app_usage_stats.xml'),
++                get_Turbo_AppUsage)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/Turbo_Battery.py b/scripts/artifacts/Turbo_Battery.py
+old mode 100644
+new mode 100755
+index 7bbda53..4eded5d
+--- a/scripts/artifacts/Turbo_Battery.py
++++ b/scripts/artifacts/Turbo_Battery.py
+@@ -111,4 +111,10 @@ def get_Turbo_Battery(files_found, report_folder, seeker, wrap_text):
+         logfunc('No Turbo - Bluetooth Device Info data available')
+     
+     db.close()
+-    return
++
++__artifacts__ = {
++        "Turbo_Battery": (
++                "Device Health Services",
++                ('*/com.google.android.apps.turbo/databases/turbo.db*','*/com.google.android.apps.turbo/databases/bluetooth.db*'),
++                get_Turbo_Battery)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/Viber.py b/scripts/artifacts/Viber.py
+old mode 100644
+new mode 100755
+index a3e864f..cf0ef8b
+--- a/scripts/artifacts/Viber.py
++++ b/scripts/artifacts/Viber.py
+@@ -211,4 +211,9 @@ def get_Viber(files_found, report_folder, seeker, wrap_text):
+ 
+     db.close()
+ 
+-    return
+\ No newline at end of file
++__artifacts__ = {
++  "Viber": (
++    "Viber",
++    ('*/com.viber.voip/databases/*'),
++    get_Viber)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/WhatsApp.py b/scripts/artifacts/WhatsApp.py
+old mode 100644
+new mode 100755
+index 8a9e056..1a91bdc
+--- a/scripts/artifacts/WhatsApp.py
++++ b/scripts/artifacts/WhatsApp.py
+@@ -459,4 +459,10 @@ def get_WhatsApp(files_found, report_folder, seeker, wrap_text):
+                     timeline(report_folder, tlactivity, data_list, data_headers)
+                 else:
+                     logfunc("No WhatsApp - Profile data found")
+-    return 
++
++__artifacts__ = {
++    "WhatsApp": (
++        "WhatsApp",
++        ('*/com.whatsapp/databases/*.db*','**/com.whatsapp/shared_prefs/com.whatsapp_preferences_light.xml','*/WhatsApp Images/*.*','*/WhatsApp Video/*.*'),
++        get_WhatsApp)
++}
+diff --git a/scripts/artifacts/WordsWithFriends.py b/scripts/artifacts/WordsWithFriends.py
+old mode 100644
+new mode 100755
+index 6b9bfa7..0e0787e
+--- a/scripts/artifacts/WordsWithFriends.py
++++ b/scripts/artifacts/WordsWithFriends.py
+@@ -49,4 +49,10 @@ def get_WordsWithFriends(files_found, report_folder, seeker, wrap_text):
+         logfunc('No Words With Friends data available')
+     
+     db.close()
+-    return
++
++__artifacts__ = {
++        "WordsWithFriends": (
++                "Chats",
++                ('*/com.zynga.words/db/wf_database.sqlite'),
++                get_WordsWithFriends)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/Xender.py b/scripts/artifacts/Xender.py
+old mode 100644
+new mode 100755
+index 6003e31..946f5e6
+--- a/scripts/artifacts/Xender.py
++++ b/scripts/artifacts/Xender.py
+@@ -89,4 +89,10 @@ def get_Xender(files_found, report_folder, seeker, wrap_text):
+         logfunc('No Xender file transfer messages data available')
+ 
+     db.close()
+-    return
+\ No newline at end of file
++
++__artifacts__ = {
++        "Xender": (
++                "File Transfer",
++                ('*/cn.xender/databases/trans-history-db*'),
++                get_Xender)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/Zapya.py b/scripts/artifacts/Zapya.py
+old mode 100644
+new mode 100755
+index fd28f81..2e54482
+--- a/scripts/artifacts/Zapya.py
++++ b/scripts/artifacts/Zapya.py
+@@ -47,4 +47,10 @@ def get_Zapya(files_found, report_folder, seeker, wrap_text):
+         logfunc('No Zapya data available')
+     
+     db.close()
+-    return
+\ No newline at end of file
++
++__artifacts__ = {
++        "Zapya": (
++                "File Transfer",
++                ('*/com.dewmobile.kuaiya.play/databases/transfer20.db*'),
++                get_Zapya)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/accounts_ce.py b/scripts/artifacts/accounts_ce.py
+old mode 100644
+new mode 100755
+diff --git a/scripts/artifacts/accounts_ce_authtokens.py b/scripts/artifacts/accounts_ce_authtokens.py
+old mode 100644
+new mode 100755
+diff --git a/scripts/artifacts/accounts_de.py b/scripts/artifacts/accounts_de.py
+old mode 100644
+new mode 100755
+diff --git a/scripts/artifacts/adb_hosts.py b/scripts/artifacts/adb_hosts.py
+old mode 100644
+new mode 100755
+index bae6df0..9d47dd4
+--- a/scripts/artifacts/adb_hosts.py
++++ b/scripts/artifacts/adb_hosts.py
+@@ -26,8 +26,8 @@ def get_adb_hosts(files_found, report_folder, seeker, wrap_text):
+         logfunc(f'No ADB Hosts file available')
+ 
+ __artifacts__ = {
+-        "Adb hosts": (
+-                "adb hosts",
++        "adb hosts": (
++                "Adb Hosts",
+                 ('*/data/misc/adb/adb_keys'),
+                 get_adb_hosts)
+ }
+\ No newline at end of file
+diff --git a/scripts/artifacts/airGuard.py b/scripts/artifacts/airGuard.py
+old mode 100644
+new mode 100755
+diff --git a/scripts/artifacts/appLockerfishingnet.py b/scripts/artifacts/appLockerfishingnet.py
+old mode 100644
+new mode 100755
+diff --git a/scripts/artifacts/appLockerfishingnetdb.py b/scripts/artifacts/appLockerfishingnetdb.py
+old mode 100644
+new mode 100755
+index 4792024..ea91279
+--- a/scripts/artifacts/appLockerfishingnetdb.py
++++ b/scripts/artifacts/appLockerfishingnetdb.py
+@@ -28,4 +28,11 @@ def get_appLockerfishingnetdb(files_found, report_folder, seeker, wrap_text):
+             
+             
+         else:
+-            logfunc('No Calculator Locker Database data available')
+\ No newline at end of file
++            logfunc('No Calculator Locker Database data available')
++            
++__artifacts__ = {
++        "App Locker DB": (
++                "Encrypting Media Apps",
++                ('*/.privacy_safe/db/privacy_safe.db'),
++                get_appLockerfishingnetdb)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/appLockerfishingnetpat.py b/scripts/artifacts/appLockerfishingnetpat.py
+old mode 100644
+new mode 100755
+index 3372745..02a8784
+--- a/scripts/artifacts/appLockerfishingnetpat.py
++++ b/scripts/artifacts/appLockerfishingnetpat.py
+@@ -37,4 +37,11 @@ def get_appLockerfishingnetpat(files_found, report_folder, seeker, wrap_text):
+             
+             
+         else:
+-            logfunc('No Calculator Locker Pattern data available')
+\ No newline at end of file
++            logfunc('No Calculator Locker Pattern data available')
++            
++__artifacts__ = {
++        "App Locker Pat": (
++                "Encrypting Media Apps",
++                ('*/data/com.hld.anzenbokusufake/shared_prefs/share_privacy_safe.xml'),
++                get_appLockerfishingnetpat)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/appicons.py b/scripts/artifacts/appicons.py
+old mode 100644
+new mode 100755
+diff --git a/scripts/artifacts/appopSetupWiz.py b/scripts/artifacts/appopSetupWiz.py
+old mode 100644
+new mode 100755
+index bd2fafd..1feb2eb
+--- a/scripts/artifacts/appopSetupWiz.py
++++ b/scripts/artifacts/appopSetupWiz.py
+@@ -48,4 +48,11 @@ def get_appopSetupWiz(files_found, report_folder, seeker, wrap_text):
+             tlactivity = f'Appops Setup Wizard data'
+             timeline(report_folder, tlactivity, data_list, data_headers)
+         else:
+-            logfunc('No Appops Setup Wizard data available')
+\ No newline at end of file
++            logfunc('No Appops Setup Wizard data available')
++
++__artifacts__ = {
++        "appopSetupWiz": (
++                "Wipe & Setup",
++                ('*/data/system/appops.xml'),
++                get_appopSetupWiz)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/appops.py b/scripts/artifacts/appops.py
+old mode 100644
+new mode 100755
+index 4c8105e..583f33c
+--- a/scripts/artifacts/appops.py
++++ b/scripts/artifacts/appops.py
+@@ -68,4 +68,11 @@ def get_appops(files_found, report_folder, seeker, wrap_text):
+             tlactivity = f'Appops.xml data'
+             timeline(report_folder, tlactivity, data_list, data_headers)
+         else:
+-            logfunc('No Appops.xml data available')
+\ No newline at end of file
++            logfunc('No Appops.xml data available')
++            
++__artifacts__ = {
++        "appops": (
++                "Permissions",
++                ('*/data/system/appops.xml'),
++                get_appops)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/artGlobals.py b/scripts/artifacts/artGlobals.py
+old mode 100644
+new mode 100755
+diff --git a/scripts/artifacts/atrackerdetect.py b/scripts/artifacts/atrackerdetect.py
+old mode 100644
+new mode 100755
+index 37ed6fc..505817b
+--- a/scripts/artifacts/atrackerdetect.py
++++ b/scripts/artifacts/atrackerdetect.py
+@@ -35,4 +35,11 @@ def get_atrackerdetect(files_found, report_folder, seeker, wrap_text):
+             tsv(report_folder, data_headers, data_list, tsvname)
+             
+         else:
+-            logfunc('No Apple Tracker Detect Prefs data available')
+\ No newline at end of file
++            logfunc('No Apple Tracker Detect Prefs data available')
++
++__artifacts__ = {
++        "atrackerdetect": (
++                "AirTags",
++                ('*/data/com.apple.trackerdetect/shared_prefs/com.apple.trackerdetect_preferences.xml'),
++                get_atrackerdetect)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/battery_usage_v4.py b/scripts/artifacts/battery_usage_v4.py
+old mode 100644
+new mode 100755
+index 258cc7d..e87b2e6
+--- a/scripts/artifacts/battery_usage_v4.py
++++ b/scripts/artifacts/battery_usage_v4.py
+@@ -59,4 +59,10 @@ def get_battery_usage_v4(files_found, report_folder, seeker, wrap_text):
+         logfunc('No Settings Services - Battery Usage data available')
+     
+     db.close()
+-    return
++
++__artifacts__ = {
++        "battery_usage_v4": (
++                "Settings Services",
++                ('**/com.google.android.settings.intelligence/databases/battery-usage-db-v4*'),
++                get_battery_usage_v4)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/bluetoothConnections.py b/scripts/artifacts/bluetoothConnections.py
+old mode 100644
+new mode 100755
+index 49a0457..9c53523
+--- a/scripts/artifacts/bluetoothConnections.py
++++ b/scripts/artifacts/bluetoothConnections.py
+@@ -93,4 +93,10 @@ def get_bluetoothConnections(files_found, report_folder, seeker, wrap_text):
+         tsv(report_folder, data_headers, data_list, tsvname)
+     else:
+         logfunc(f'No Bluetooth Adapter Information data available')
+-                    
+\ No newline at end of file
++
++__artifacts__ = {
++        "Bluetooth Connections": (
++                "Bluetooth Connections",
++                ('*/data/misc/bluedroid/bt_config.conf'),
++                get_bluetoothConnections)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/browserlocation.py b/scripts/artifacts/browserlocation.py
+old mode 100644
+new mode 100755
+index 32a4a2b..de72f32
+--- a/scripts/artifacts/browserlocation.py
++++ b/scripts/artifacts/browserlocation.py
+@@ -49,4 +49,11 @@ def get_browserlocation(files_found, report_folder, seeker, wrap_text):
+             logfunc('No Browser Locations found')
+             
+         db.close()
++        
++__artifacts__ = {
++        "Browser Location": (
++                "GEO Location",
++                ('**/com.android.browser/app_geolocation/CachedGeoposition.db'),
++                get_browserlocation)
++}
+     
+\ No newline at end of file
+diff --git a/scripts/artifacts/build.py b/scripts/artifacts/build.py
+old mode 100644
+new mode 100755
+index b3900d8..abe152f
+--- a/scripts/artifacts/build.py
++++ b/scripts/artifacts/build.py
+@@ -67,4 +67,10 @@ def get_build(files_found, report_folder, seeker, wrap_text):
+         tsv(report_folder, data_headers, data_list, tsvname)
+     else:
+         logfunc(f'No Build Info data available')    
+-   
+\ No newline at end of file
++
++__artifacts__ = {
++        "Build": (
++                "Device Info",
++                ('*/vendor/build.prop'),
++                get_build)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/burner.py b/scripts/artifacts/burner.py
+old mode 100644
+new mode 100755
+index 5977768..3c9bc53
+--- a/scripts/artifacts/burner.py
++++ b/scripts/artifacts/burner.py
+@@ -39,7 +39,7 @@ def get_burner(files_found, report_folder, seeker, wrap_text):
+         all_rows = cursor.fetchall()
+         usageentries = len(all_rows)
+         if usageentries > 0:
+-            logfunc(str(all_rows))
++            #logfunc(str(all_rows))
+             report = ArtifactHtmlReport('Number Information')
+             report.start_artifact_report(report_folder, 'Number Information')
+             report.add_script()
+@@ -106,4 +106,11 @@ def get_burner(files_found, report_folder, seeker, wrap_text):
+         else:
+             logfunc('No Burner Communication Information data available')
+                 
+-        db.close()
+\ No newline at end of file
++        db.close()
++        
++__artifacts__ = {
++        "Burner": (
++                "Burner",
++                ('*/com.adhoclabs.burner/databases/burners.db'),
++                get_burner)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/cachelocation.py b/scripts/artifacts/cachelocation.py
+old mode 100644
+new mode 100755
+index e64936d..cbc193b
+--- a/scripts/artifacts/cachelocation.py
++++ b/scripts/artifacts/cachelocation.py
+@@ -37,7 +37,7 @@ def get_cachelocation(files_found, report_folder, seeker, wrap_text):
+             report = ArtifactHtmlReport('Cache Locations')
+             report.start_artifact_report(report_folder, 'Cache Locations')
+             report.add_script()
+-            data_headers = ('accuracy', 'confidence', 'latitude', 'longitude', 'readtime') # Don't remove the comma, that is required to make this a tuple as there is only 1 element
++            data_headers = ('Accuracy', 'Confidence', 'Latitude', 'Longitude', 'Readtime') # Don't remove the comma, that is required to make this a tuple as there is only 1 element
+ 
+             report.write_artifact_data_table(data_headers, data_list, file_found)
+             report.end_artifact_report()
+@@ -51,3 +51,9 @@ def get_cachelocation(files_found, report_folder, seeker, wrap_text):
+         else:
+             logfunc('No Cachelocation Logs found')
+ 
++__artifacts__ = {
++        "Cache Location": (
++                "GEO Location",
++                ('*/com.google.android.location/files/cache.cell/cache.cell', '*/com.google.android.location/files/cache.wifi/cache.wifi'),
++                get_cachelocation)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/calllog.py b/scripts/artifacts/calllog.py
+old mode 100644
+new mode 100755
+index 979d208..3c221f8
+--- a/scripts/artifacts/calllog.py
++++ b/scripts/artifacts/calllog.py
+@@ -84,4 +84,10 @@ def get_calllog(files_found, report_folder, seeker, wrap_text):
+         logfunc('No Call Log data available')
+     
+     db.close()
+-    return
+\ No newline at end of file
++
++__artifacts__ = {
++        "Call logs ": (
++                "Call Logs",
++                ('*/data/com.android.providers.contacts/databases/calllog.db'),
++                get_calllog)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/calllogs.py b/scripts/artifacts/calllogs.py
+old mode 100644
+new mode 100755
+diff --git a/scripts/artifacts/cashApp.py b/scripts/artifacts/cashApp.py
+old mode 100644
+new mode 100755
+index 6eac99f..d8437e2
+--- a/scripts/artifacts/cashApp.py
++++ b/scripts/artifacts/cashApp.py
+@@ -53,5 +53,11 @@ def get_cashApp(files_found, report_folder, seeker, wrap_text):
+         logfunc('No Cash App Transactions data available')
+     
+     db.close()
+-    return
++
++__artifacts__ = {
++        "Cash App": (
++                "Cash App",
++                ('*/data/data/com.squareup.cash/databases/cash_money.db*'),
++                get_cashApp)
++}
+ 
+diff --git a/scripts/artifacts/chrome.py b/scripts/artifacts/chrome.py
+old mode 100644
+new mode 100755
+index 83820d1..e0e29cb
+--- a/scripts/artifacts/chrome.py
++++ b/scripts/artifacts/chrome.py
+@@ -343,4 +343,11 @@ def get_chrome(files_found, report_folder, seeker, wrap_text):
+             logfunc(f'No {browser_name} - Keyword Search Terms data available')
+         
+         
+-        db.close()
+\ No newline at end of file
++        db.close()
++
++__artifacts__ = {
++        "Chrome": (
++                "Chromium",
++                ('*/data/data/*/app_chrome/Default/History*', '*/data/data/*/app_sbrowser/Default/History*', '*/data/data/*/app_opera/History*'),
++                get_chrome)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/chromeAutofill.py b/scripts/artifacts/chromeAutofill.py
+old mode 100644
+new mode 100755
+index 8646399..4ff3ec4
+--- a/scripts/artifacts/chromeAutofill.py
++++ b/scripts/artifacts/chromeAutofill.py
+@@ -154,3 +154,10 @@ def get_chromeAutofill(files_found, report_folder, seeker, wrap_text):
+             logfunc(f'No {browser_name} - Autofill - Profiles data available')
+         
+         db.close()
++
++__artifacts__ = {
++        "ChromeAutofill": (
++                "Chromium",
++                ('*/data/data/*/app_chrome/Default/Web Data*', '*/data/data/*/app_sbrowser/Default/Web Data*', '*/data/data/*/app_opera/Web Data*'),
++                get_chromeAutofill)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/chromeBookmarks.py b/scripts/artifacts/chromeBookmarks.py
+old mode 100644
+new mode 100755
+index 721e9a0..ac162fa
+--- a/scripts/artifacts/chromeBookmarks.py
++++ b/scripts/artifacts/chromeBookmarks.py
+@@ -70,3 +70,10 @@ def get_chromeBookmarks(files_found, report_folder, seeker, wrap_text):
+             timeline(report_folder, tlactivity, data_list, data_headers)
+         else:
+             logfunc(f'No {browser_name} - Bookmarks data available')
++
++__artifacts__ = {
++        "ChromeBookmarks": (
++                "Chromium",
++                ('*/data/data/*/app_chrome/Default/Bookmarks*', '*/data/data/*/app_sbrowser/Default/Bookmarks*', '*/data/data/*/app_opera/Bookmarks*'),
++                get_chromeBookmarks)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/chromeCookies.py b/scripts/artifacts/chromeCookies.py
+old mode 100644
+new mode 100755
+index d2b5c2f..0517c57
+--- a/scripts/artifacts/chromeCookies.py
++++ b/scripts/artifacts/chromeCookies.py
+@@ -98,3 +98,10 @@ def get_chromeCookies(files_found, report_folder, seeker, wrap_text):
+             logfunc(f'No {browser_name} - Cookies data available')
+         
+         db.close()
++
++__artifacts__ = {
++        "ChromeCookies": (
++                "Chromium",
++                ('*/data/data/*/app_chrome/Default/Cookies*', '*/data/data/*/app_sbrowser/Default/Cookies*', '*/data/data/*/app_opera/Cookies*'),
++                get_chromeCookies)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/chromeLoginData.py b/scripts/artifacts/chromeLoginData.py
+old mode 100644
+new mode 100755
+index 1339392..b223d60
+--- a/scripts/artifacts/chromeLoginData.py
++++ b/scripts/artifacts/chromeLoginData.py
+@@ -114,4 +114,11 @@ def get_chromeLoginData(files_found, report_folder, seeker, wrap_text):
+         else:
+             logfunc(f'No {browser_name} - Login Data available')
+         
+-        db.close()
+\ No newline at end of file
++        db.close()
++    
++__artifacts__ = {
++        "ChromeLoginData": (
++                "Chromium",
++                ('*/data/data/*/app_chrome/Default/Login Data*', '*/data/data/*/app_sbrowser/Default/Login Data*', '*/data/data/*/app_opera/Login Data*'),
++                get_chromeLoginData)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/chromeMediaHistory.py b/scripts/artifacts/chromeMediaHistory.py
+old mode 100644
+new mode 100755
+index ce5edd3..c4dba9a
+--- a/scripts/artifacts/chromeMediaHistory.py
++++ b/scripts/artifacts/chromeMediaHistory.py
+@@ -148,4 +148,10 @@ def get_chromeMediaHistory(files_found, report_folder, seeker, wrap_text):
+             logfunc(f'No {browser_name} - Media History - Origins data available')
+         
+         db.close()
+-        return
+\ No newline at end of file
++
++__artifacts__ = {
++        "ChromeMediaHistory": (
++                "Chromium",
++                ('*/data/data/*/app_chrome/Default/Media History*','*/data/data/*/app_sbrowser/Default/Media History*', '*/data/data/*/app_opera/Media History*'),
++                get_chromeMediaHistory)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/chromeNetworkActionPredictor.py b/scripts/artifacts/chromeNetworkActionPredictor.py
+old mode 100644
+new mode 100755
+index 9e59906..8184c5b
+--- a/scripts/artifacts/chromeNetworkActionPredictor.py
++++ b/scripts/artifacts/chromeNetworkActionPredictor.py
+@@ -64,4 +64,10 @@ def get_chromeNetworkActionPredictor(files_found, report_folder, seeker, wrap_te
+             logfunc(f'No {browser_name} - Network Action Predictor data available')
+         
+         db.close()
+-        return
+\ No newline at end of file
++
++__artifacts__ = {
++        "ChromeNetworkActionPredictor": (
++                "Chromium",
++                ('*/data/data/*/app_Chrome/Default/Network Action Predictor*','*/data/data/*/app_sbrowser/Default/Network Action Predictor*', '*/data/data/*/app_opera/Network Action Predicator*'),
++                get_chromeNetworkActionPredictor)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/chromeOfflinePages.py b/scripts/artifacts/chromeOfflinePages.py
+old mode 100644
+new mode 100755
+index 0de8876..f8ca273
+--- a/scripts/artifacts/chromeOfflinePages.py
++++ b/scripts/artifacts/chromeOfflinePages.py
+@@ -71,4 +71,11 @@ def get_chromeOfflinePages(files_found, report_folder, seeker, wrap_text):
+         else:
+             logfunc(f'No {browser_name} - Offline Pages data available')
+         
+-        db.close()
+\ No newline at end of file
++        db.close()
++
++__artifacts__ = {
++        "ChromeOfflinePages": (
++                "Chromium",
++                ('*/data/data/*/app_chrome/Default/Offline Pages/metadata/OfflinePages.db*', '*/data/data/*/app_sbrowser/Default/Offline Pages/metadata/OfflinePages.db*'),
++                get_chromeOfflinePages)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/chromeTopSites.py b/scripts/artifacts/chromeTopSites.py
+old mode 100644
+new mode 100755
+index f971f36..0caf669
+--- a/scripts/artifacts/chromeTopSites.py
++++ b/scripts/artifacts/chromeTopSites.py
+@@ -67,4 +67,11 @@ def get_chromeTopSites(files_found, report_folder, seeker, wrap_text):
+         else:
+             logfunc(f'No {browser_name} - Top Sites data available')
+         
+-        db.close()
+\ No newline at end of file
++        db.close()
++        
++__artifacts__ = {
++        "ChromeTopSites": (
++                "Chromium",
++                ('*/data/data/*/app_chrome/Default/Top Sites*', '*/data/data/*/app_sbrowser/Default/Top Sites*', '*/data/*/app_opera/Top Sites*'),
++                get_chromeTopSites)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/clipBoard.py b/scripts/artifacts/clipBoard.py
+old mode 100644
+new mode 100755
+index 8faafd9..bcf38e9
+--- a/scripts/artifacts/clipBoard.py
++++ b/scripts/artifacts/clipBoard.py
+@@ -71,4 +71,10 @@ def get_clipBoard(files_found, report_folder, seeker, wrap_text):
+         
+     else:
+         logfunc(f'No Clipboard Data available')
+-    
+\ No newline at end of file
++
++__artifacts__ = {
++        "ClipBoard": (
++                "Clipboard",
++                ('*/data/*clipboard/*/*'),
++                get_clipBoard)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/cmh.py b/scripts/artifacts/cmh.py
+old mode 100644
+new mode 100755
+index d23d84f..5e38ffd
+--- a/scripts/artifacts/cmh.py
++++ b/scripts/artifacts/cmh.py
+@@ -54,4 +54,10 @@ def get_cmh(files_found, report_folder, seeker, wrap_text):
+     else:
+         logfunc(f'No Samsung_CMH_GeoData available')    
+     db.close()
+-    return
+\ No newline at end of file
++
++__artifacts__ = {
++        "cmh": (
++                "Samsung_CMH",
++                ('*/cmh.db'),
++                get_cmh)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/contacts.py b/scripts/artifacts/contacts.py
+old mode 100644
+new mode 100755
+index 61e5ec2..e96ce68
+--- a/scripts/artifacts/contacts.py
++++ b/scripts/artifacts/contacts.py
+@@ -66,7 +66,7 @@ def get_contacts(files_found, report_folder, seeker, wrap_text):
+             tsvname = f'Contacts'
+             tsv(report_folder, data_headers, data_list, tsvname, source_file)
+ 
+-            tlactivity = f'Contacts'
++            tlactivity = f'Contaccts'
+             timeline(report_folder, tlactivity, data_list, data_headers)
+             
+         else:
+diff --git a/scripts/artifacts/discreteNative.py b/scripts/artifacts/discreteNative.py
+old mode 100644
+new mode 100755
+index 0febbd3..d2f5be7
+--- a/scripts/artifacts/discreteNative.py
++++ b/scripts/artifacts/discreteNative.py
+@@ -74,4 +74,11 @@ def get_discreteNative(files_found, report_folder, seeker, wrap_text):
+         tlactivity = f'Privacy Dashboard'
+         timeline(report_folder, tlactivity, data_list, data_headers)
+     else:
+-        logfunc('No Privacy Dashboard data available')
+\ No newline at end of file
++        logfunc('No Privacy Dashboard data available')
++        
++__artifacts__ = {
++        "DiscreteNative": (
++                "Privacy Dashboard",
++                ('*/data/system/appops/discrete/*'),
++                get_discreteNative)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/duckThumbs.py b/scripts/artifacts/duckThumbs.py
+old mode 100644
+new mode 100755
+index 17b9124..83b1206
+--- a/scripts/artifacts/duckThumbs.py
++++ b/scripts/artifacts/duckThumbs.py
+@@ -43,6 +43,9 @@ def get_duckThumbs(files_found, report_folder, seeker, wrap_text):
+     else:
+         logfunc('No DuckDuckGo Tab Thumbnails data available')
+         
+-
+-        
+-        
+\ No newline at end of file
++__artifacts__ = {
++        "DuckThumbs'": (
++                "DuckDuckGo",
++                ('*/com.duckduckgo.mobile.android/cache/tabPreviews/*/*.jpg'),
++                get_duckThumbs)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/emulatedSmeta.py b/scripts/artifacts/emulatedSmeta.py
+old mode 100644
+new mode 100755
+index cd6fa9d..87ea393
+--- a/scripts/artifacts/emulatedSmeta.py
++++ b/scripts/artifacts/emulatedSmeta.py
+@@ -236,11 +236,12 @@ def get_emulatedSmeta(files_found, report_folder, seeker, wrap_text):
+             timeline(report_folder, tlactivity, data_list, data_headers)
+         else:
+             logfunc('No Emulated Storage Metadata Videos data available')
+-        
+-        
+-        
+-        
+-        
+-        
++
+         db.close()
+-        return
+\ No newline at end of file
++
++__artifacts__ = {
++        "EmulatedSmeta'": (
++                "Emulated Storage Metadata",
++                ('*/data/data/com.google.android.providers.media.module/databases/external.db*'),
++                get_emulatedSmeta)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/errp.py b/scripts/artifacts/errp.py
+old mode 100644
+new mode 100755
+index aa6170a..c5feef6
+--- a/scripts/artifacts/errp.py
++++ b/scripts/artifacts/errp.py
+@@ -44,4 +44,11 @@ def get_errp(files_found, report_folder, seeker, wrap_text):
+             tlactivity = f'Samsung Samsung eRR.p'
+             timeline(report_folder, tlactivity, data_list, data_headers)
+         else:
+-            logfunc('No Samsung Samsung eRR.p data available')
+\ No newline at end of file
++            logfunc('No Samsung Samsung eRR.p data available')
++            
++__artifacts__ = {
++        "Errp": (
++                "Wipe & Setup",
++                ('*/data/system/users/service/eRR.p'),
++                get_errp)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/etc_hosts.py b/scripts/artifacts/etc_hosts.py
+old mode 100644
+new mode 100755
+index 18692fd..6a0f589
+--- a/scripts/artifacts/etc_hosts.py
++++ b/scripts/artifacts/etc_hosts.py
+@@ -32,4 +32,11 @@ def get_etc_hosts(files_found, report_folder, seeker, wrap_text):
+         tsv(report_folder, data_headers, data_list, tsvname)
+         
+     else:
+-        logfunc(f'No etc hosts file available, or nothing significant found.')
+\ No newline at end of file
++        logfunc(f'No etc hosts file available, or nothing significant found.')
++        
++__artifacts__ = {
++        "Etc_hosts": (
++                "Etc Hosts",
++                ('*/system/etc/hosts'),
++                get_etc_hosts)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/factory_reset.py b/scripts/artifacts/factory_reset.py
+old mode 100644
+new mode 100755
+index 0328ce5..e93a23c
+--- a/scripts/artifacts/factory_reset.py
++++ b/scripts/artifacts/factory_reset.py
+@@ -35,4 +35,11 @@ def get_factory_reset(files_found, report_folder, seeker, wrap_text):
+             timeline(report_folder, tlactivity, data_list, data_headers)
+             
+         else:
+-            logfunc('No Factory Reset data available')
+\ No newline at end of file
++            logfunc('No Factory Reset data available')
++
++__artifacts__ = {
++        "Factory_reset": (
++                "Wipe & Setup",
++                ('*/data/misc/bootstat/factory_reset'),
++                get_factory_reset)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/firefox.py b/scripts/artifacts/firefox.py
+old mode 100644
+new mode 100755
+index 9a242fc..9bd82d0
+--- a/scripts/artifacts/firefox.py
++++ b/scripts/artifacts/firefox.py
+@@ -185,4 +185,11 @@ def get_firefox(files_found, report_folder, seeker, wrap_text):
+         else:
+             logfunc('No Firefox - Search Terms data available')
+         
+-        db.close()
+\ No newline at end of file
++        db.close()
++    
++__artifacts__ = {
++        "Firefox": (
++                "Firefox",
++                ('*/data/data/org.mozilla.firefox/files/places.sqlite*'),
++                get_firefox)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/firefoxCookies.py b/scripts/artifacts/firefoxCookies.py
+old mode 100644
+new mode 100755
+index 21f39fa..258d653
+--- a/scripts/artifacts/firefoxCookies.py
++++ b/scripts/artifacts/firefoxCookies.py
+@@ -49,4 +49,11 @@ def get_firefoxCookies(files_found, report_folder, seeker, wrap_text):
+         else:
+             logfunc('No Firefox - Cookies data available')
+         
+-        db.close()
+\ No newline at end of file
++        db.close()
++    
++__artifacts__ = {
++        "FirefoxCookies": (
++                "Firefox",
++                ('*/data/data/org.mozilla.firefox/files/mozilla/*.default/cookies.sqlite*'),
++                get_firefoxCookies)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/firefoxDownloads.py b/scripts/artifacts/firefoxDownloads.py
+old mode 100644
+new mode 100755
+index c193cda..43eb0be
+--- a/scripts/artifacts/firefoxDownloads.py
++++ b/scripts/artifacts/firefoxDownloads.py
+@@ -53,4 +53,11 @@ def get_firefoxDownloads(files_found, report_folder, seeker, wrap_text):
+         else:
+             logfunc('No Firefox - Downloads data available')
+         
+-        db.close()
+\ No newline at end of file
++        db.close()
++    
++__artifacts__ = {
++        "FirefoxDownloads": (
++                "Firefox",
++                ('*/data/data/org.mozilla.firefox/databases/mozac_downloads_database*'),
++                get_firefoxDownloads)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/firefoxFormHistory.py b/scripts/artifacts/firefoxFormHistory.py
+old mode 100644
+new mode 100755
+index 550bb6d..6fc3411
+--- a/scripts/artifacts/firefoxFormHistory.py
++++ b/scripts/artifacts/firefoxFormHistory.py
+@@ -48,4 +48,11 @@ def get_firefoxFormHistory(files_found, report_folder, seeker, wrap_text):
+         else:
+             logfunc('No Firefox - Form History data available')
+         
+-        db.close()
+\ No newline at end of file
++        db.close()
++    
++__artifacts__ = {
++        "FirefoxFormHistory": (
++                "Firefox",
++                ('*/data/data/org.mozilla.firefox/files/mozilla/*.default/formhistory.sqlite*'),
++                get_firefoxFormHistory)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/firefoxPermissions.py b/scripts/artifacts/firefoxPermissions.py
+old mode 100644
+new mode 100755
+index 1969f55..09d8814
+--- a/scripts/artifacts/firefoxPermissions.py
++++ b/scripts/artifacts/firefoxPermissions.py
+@@ -53,4 +53,11 @@ def get_firefoxPermissions(files_found, report_folder, seeker, wrap_text):
+         else:
+             logfunc('No Firefox - Permissions data available')
+         
+-        db.close()
+\ No newline at end of file
++        db.close()
++    
++__artifacts__ = {
++        "FirefoxPermissions": (
++                "Firefox",
++                ('*/data/data/org.mozilla.firefox/files/mozilla/*.default/permissions.sqlite*'),
++                get_firefoxPermissions)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/firefoxRecentlyClosedTabs.py b/scripts/artifacts/firefoxRecentlyClosedTabs.py
+old mode 100644
+new mode 100755
+index 62fe9bc..d298db6
+--- a/scripts/artifacts/firefoxRecentlyClosedTabs.py
++++ b/scripts/artifacts/firefoxRecentlyClosedTabs.py
+@@ -44,4 +44,11 @@ def get_firefoxRecentlyClosedTabs(files_found, report_folder, seeker, wrap_text)
+         else:
+             logfunc('No Firefox - Recently Closed Tabs data available')
+         
+-        db.close()
+\ No newline at end of file
++        db.close()
++
++__artifacts__ = {
++        "FirefoxRecentlyClosedTabs": (
++                "Firefox",
++                ('*/data/data/org.mozilla.firefox/databases/recently_closed_tabs*'),
++                get_firefoxRecentlyClosedTabs)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/firefoxTopSites.py b/scripts/artifacts/firefoxTopSites.py
+old mode 100644
+new mode 100755
+index 8cb294b..9afba2a
+--- a/scripts/artifacts/firefoxTopSites.py
++++ b/scripts/artifacts/firefoxTopSites.py
+@@ -48,4 +48,11 @@ def get_firefoxTopSites(files_found, report_folder, seeker, wrap_text):
+         else:
+             logfunc('No Firefox - Top Sites data available')
+         
+-        db.close()
+\ No newline at end of file
++        db.close()
++    
++__artifacts__ = {
++        "FirefoxTopSites": (
++                "Firefox",
++                ('*/data/data/org.mozilla.firefox/databases/top_sites*'),
++                get_firefoxTopSites)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/fitbitActivity.py b/scripts/artifacts/fitbitActivity.py
+old mode 100644
+new mode 100755
+index 6d88a4e..7477928
+--- a/scripts/artifacts/fitbitActivity.py
++++ b/scripts/artifacts/fitbitActivity.py
+@@ -67,5 +67,12 @@ def get_fitbitActivity(files_found, report_folder, seeker, wrap_text):
+         logfunc('No Fitbit Activity data available')
+         
+     db.close()
++    
++__artifacts__ = {
++        "FitbitActivity": (
++                "Fitbit",
++                ('*/data/data/com.fitbit.FitbitMobile/databases/activity_db*'),
++                get_fitbitActivity)
++}
+ 
+     
+\ No newline at end of file
+diff --git a/scripts/artifacts/fitbitDevices.py b/scripts/artifacts/fitbitDevices.py
+old mode 100644
+new mode 100755
+index c0b4f84..df2bafc
+--- a/scripts/artifacts/fitbitDevices.py
++++ b/scripts/artifacts/fitbitDevices.py
+@@ -46,4 +46,11 @@ def get_fitbitDevices(files_found, report_folder, seeker, wrap_text):
+             timeline(report_folder, tlactivity, data_list, data_headers)
+             
+         else:
+-            logfunc('No Fitbit Device Info data available')
+\ No newline at end of file
++            logfunc('No Fitbit Device Info data available')
++            
++__artifacts__ = {
++        "FitbitDevices": (
++                "Fitbit",
++                ('*/data/data/com.fitbit.FitbitMobile/databases/device_database*'),
++                get_fitbitDevices)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/fitbitExercise.py b/scripts/artifacts/fitbitExercise.py
+old mode 100644
+new mode 100755
+index 1234200..e4d6e2f
+--- a/scripts/artifacts/fitbitExercise.py
++++ b/scripts/artifacts/fitbitExercise.py
+@@ -65,4 +65,11 @@ def get_fitbitExercise(files_found, report_folder, seeker, wrap_text):
+             tlactivity = f'Fitbit Exercise'
+             timeline(report_folder, tlactivity, data_list, data_headers)
+         else:
+-            logfunc(f'No Fitbit - Exercise data available')
+\ No newline at end of file
++            logfunc(f'No Fitbit - Exercise data available')
++            
++__artifacts__ = {
++        "FitbitExercise": (
++                "Fitbit",
++                ('*/data/data/com.fitbit.FitbitMobile/databases/exercise_db*'),
++                get_fitbitExercise)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/fitbitHeart.py b/scripts/artifacts/fitbitHeart.py
+old mode 100644
+new mode 100755
+index 6710cc4..5b7c54c
+--- a/scripts/artifacts/fitbitHeart.py
++++ b/scripts/artifacts/fitbitHeart.py
+@@ -42,5 +42,10 @@ def get_fitbitHeart(files_found, report_folder, seeker, wrap_text):
+         logfunc('No Fitbit Heart Rate Summary data available')
+         
+     db.close()
+-
+-    
+\ No newline at end of file
++    
++__artifacts__ = {
++        "FitbitHeart": (
++                "Fitbit",
++                ('*/data/data/com.fitbit.FitbitMobile/databases/heart_rate_db*'),
++                get_fitbitHeart)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/fitbitSleep.py b/scripts/artifacts/fitbitSleep.py
+old mode 100644
+new mode 100755
+index 262cda8..917008e
+--- a/scripts/artifacts/fitbitSleep.py
++++ b/scripts/artifacts/fitbitSleep.py
+@@ -80,4 +80,9 @@ def get_fitbitSleep(files_found, report_folder, seeker, wrap_text):
+         
+     db.close()
+ 
+-    
+\ No newline at end of file
++__artifacts__ = {
++        "fitbitSleep": (
++                "Fitbit",
++                ('*/data/data/com.fitbit.FitbitMobile/databases/sleep*'),
++                get_fitbitSleep)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/fitbitSocial.py b/scripts/artifacts/fitbitSocial.py
+old mode 100644
+new mode 100755
+index d4f6648..6709400
+--- a/scripts/artifacts/fitbitSocial.py
++++ b/scripts/artifacts/fitbitSocial.py
+@@ -87,4 +87,9 @@ def get_fitbitSocial(files_found, report_folder, seeker, wrap_text):
+         
+     db.close()
+ 
+-    
+\ No newline at end of file
++__artifacts__ = {
++        "FitbitSocial": (
++                "Fitbit",
++                ('*/data/data/com.fitbit.FitbitMobile/databases/social_db*'),
++                get_fitbitSocial)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/fitbitWalk.py b/scripts/artifacts/fitbitWalk.py
+old mode 100644
+new mode 100755
+index 9978ea8..0c7523e
+--- a/scripts/artifacts/fitbitWalk.py
++++ b/scripts/artifacts/fitbitWalk.py
+@@ -45,4 +45,9 @@ def get_fitbitWalk(files_found, report_folder, seeker, wrap_text):
+         
+     db.close()
+ 
+-    
+\ No newline at end of file
++__artifacts__ = {
++        "FitbitWalk": (
++                "Fitbit",
++                ('*/data/data/com.fitbit.FitbitMobile/databases/mobile_track_db*'),
++                get_fitbitWalk)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/gboard.py b/scripts/artifacts/gboard.py
+old mode 100644
+new mode 100755
+index 8a51ec6..16b5d80
+--- a/scripts/artifacts/gboard.py
++++ b/scripts/artifacts/gboard.py
+@@ -242,3 +242,10 @@ def read_trainingcachev3_sessions(file_found, report_folder, seeker):
+ 
+     # Close
+     conn.close()
++
++__artifacts__ = {
++        "GboardCache": (
++                "Gboard Keyboard",
++                ('**/com.google.android.inputmethod.latin/databases/trainingcache*.db'),
++                get_gboardCache)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/gmail.py b/scripts/artifacts/gmail.py
+old mode 100644
+new mode 100755
+index 1f4822b..351234f
+--- a/scripts/artifacts/gmail.py
++++ b/scripts/artifacts/gmail.py
+@@ -46,4 +46,11 @@ def get_gmailActive(files_found, report_folder, seeker, wrap_text):
+         tsvname = f'Gmail - Active'
+         tsv(report_folder, data_headers, data_list, tsvname)
+     else:
+-        logfunc('No active Gmail account found')
+\ No newline at end of file
++        logfunc('No active Gmail account found')
++
++__artifacts__ = {
++        "GmailActive": (
++                "Gmail",
++                ('**/com.google.android.gm/shared_prefs/Gmail.xml'),
++                get_gmailActive)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/googleCallScreen.py b/scripts/artifacts/googleCallScreen.py
+old mode 100644
+new mode 100755
+index a0c2fe2..b8d5bad
+--- a/scripts/artifacts/googleCallScreen.py
++++ b/scripts/artifacts/googleCallScreen.py
+@@ -96,4 +96,10 @@ def get_googleCallScreen(files_found, report_folder, seeker, wrap_text):
+             logfunc('No Google Call Screen data available')
+     
+         db.close()
+-    return
++
++__artifacts__ = {
++        "GoogleCallScreen": (
++                "Google Call Screen",
++                ('**/com.google.android.dialer/databases/callscreen_transcripts*','**/com.google.android.dialer/files/callscreenrecordings/*.*'),
++                get_googleCallScreen)
++}
+diff --git a/scripts/artifacts/googleChat.py b/scripts/artifacts/googleChat.py
+old mode 100644
+new mode 100755
+index 5726ea9..52b65d5
+--- a/scripts/artifacts/googleChat.py
++++ b/scripts/artifacts/googleChat.py
+@@ -134,4 +134,11 @@ def get_googleChat(files_found, report_folder, seeker, wrap_text):
+         else:
+             logfunc('No Google Chat Group Information data available')
+                 
+-        db.close()
+\ No newline at end of file
++        db.close()
++
++__artifacts__ = {
++        "GoogleChat": (
++                "Google Chat",
++                ('*/com.google.android.gm/databases/user_accounts/*/dynamite*.db','*/com.google.android.apps.dynamite/databases/dynamite*.db'),
++                get_googleChat)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/googleDuo.py b/scripts/artifacts/googleDuo.py
+old mode 100644
+new mode 100755
+index e5ddeaa..2717ec5
+--- a/scripts/artifacts/googleDuo.py
++++ b/scripts/artifacts/googleDuo.py
+@@ -168,4 +168,10 @@ def get_googleDuo(files_found, report_folder, seeker, wrap_text):
+             logfunc('No Google Duo - Notes data available')
+     
+     db.close()
+-    return
++
++__artifacts__ = {
++        "googleDuo": (
++                "Google Duo",
++                ('*/com.google.android.apps.tachyon/databases/tachyon.db*','*/com.google.android.apps.tachyon/files/media/*.*'),
++                get_googleDuo)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/googleFitGMS.py b/scripts/artifacts/googleFitGMS.py
+old mode 100644
+new mode 100755
+index feeca3a..c4dc1f3
+--- a/scripts/artifacts/googleFitGMS.py
++++ b/scripts/artifacts/googleFitGMS.py
+@@ -58,4 +58,9 @@ def get_googleFitGMS(files_found, report_folder, seeker, wrap_text):
+         else:
+             logfunc('No Google Fit (GMS) - Activity Sessions data available')
+                 
+-        db.close()
+\ No newline at end of file
++__artifacts__ = {
++        "GoogleFitGMS": (
++                "Google Fit (GMS)",
++                ('*/data/data/com.google.android.gms/databases/fitness.db.*'),
++                get_googleFitGMS)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/googleKeepNotes.py b/scripts/artifacts/googleKeepNotes.py
+old mode 100644
+new mode 100755
+index 845a101..7ea2469
+--- a/scripts/artifacts/googleKeepNotes.py
++++ b/scripts/artifacts/googleKeepNotes.py
+@@ -133,4 +133,10 @@ def get_googleKeepNotes(files_found, report_folder, seeker, wrap_text):
+         else:
+             logfunc("No Google Keep - Notes Sharing data found")
+         db.close()
+-        return
++        
++__artifacts__ = {
++        "GoogleKeepNotes": (
++                "Google Keep",
++                ('*/data/com.google.android.keep/databases/keep.db*'),
++                get_googleKeepNotes)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/googleMessages.py b/scripts/artifacts/googleMessages.py
+old mode 100644
+new mode 100755
+index 4b98c70..38c9eb0
+--- a/scripts/artifacts/googleMessages.py
++++ b/scripts/artifacts/googleMessages.py
+@@ -62,4 +62,11 @@ def get_googleMessages(files_found, report_folder, seeker, wrap_text):
+         else:
+             logfunc('No Google Messages data available')
+         
+-        db.close()
+\ No newline at end of file
++        db.close()
++
++__artifacts__ = {
++        "GoogleMessages": (
++                "Google Messages",
++                ('*/com.google.android.apps.messaging/databases/bugle_db*'),
++                get_googleMessages)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/googleNowPlaying.py b/scripts/artifacts/googleNowPlaying.py
+old mode 100644
+new mode 100755
+index e8eb360..bfd0def
+--- a/scripts/artifacts/googleNowPlaying.py
++++ b/scripts/artifacts/googleNowPlaying.py
+@@ -35,12 +35,7 @@ def FilterInvalidValue(obj):
+     return obj
+ 
+ def AreContentsSame(last_data_set, timezones, songtitle, artist, duration, album, year):
+-    return last_data_set[1] == timezones and \
+-            last_data_set[2] == songtitle and \
+-            last_data_set[3] == artist and \
+-            last_data_set[4] == duration and \
+-            last_data_set[5] == album and \
+-            last_data_set[6] == year
++    return last_data_set[1] == timezones and last_data_set[2] == songtitle and last_data_set[3] == artist and last_data_set[4] == duration and last_data_set[5] == album and last_data_set[6] == year
+         
+ 
+ def get_googleNowPlaying(files_found, report_folder, seeker, wrap_text):
+@@ -73,11 +68,7 @@ def get_googleNowPlaying(files_found, report_folder, seeker, wrap_text):
+         all_rows = cursor.fetchall()
+         usageentries = len(all_rows)
+         if usageentries > 0:
+-            description = 'This is data stored by the Now Playing feature in Pixel phones, which '\
+-                        'shows song data on the lock screen for any music playing nearby. It\'s ' \
+-                        'part of <a href="https://play.google.com/store/apps/details?id=com.google.intelligence.sense"'\
+-                        ' target="_blank">Pixel Ambient Services</a> or part of <a href="https://play.google.com/store/apps/details?id=com.google.android.as"'\
+-                        ' target="_blank">Pixel Device Personalization Services</a> depending on OS version.'
++            description = 'This is data stored by the Now Playing feature in Pixel phones, which shows song data on the lock screen for any music playing nearby. It\'s part of <a href="https://play.google.com/store/apps/details?id=com.google.intelligence.sense" target="_blank">Pixel Ambient Services</a> or part of <a href="https://play.google.com/store/apps/details?id=com.google.android.as" target="_blank">Pixel Device Personalization Services</a> depending on OS version.'
+             report = ArtifactHtmlReport('Now Playing History')
+             report.start_artifact_report(report_folder, 'Now Playing', description)
+             report.add_script()
+@@ -145,4 +136,10 @@ def get_googleNowPlaying(files_found, report_folder, seeker, wrap_text):
+             logfunc('No Google Now Playing history')
+ 
+         db.close()
+-        return
++
++__artifacts__ = {
++        "GoogleNowPlaying": (
++                "Now Playing",
++                ('*/data/data/com.google.intelligence.sense/db/history_db*','*/data/data/com.google.android.as/databases/history_db*'),
++                get_googleNowPlaying)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/googlePhotos.py b/scripts/artifacts/googlePhotos.py
+old mode 100644
+new mode 100755
+index f1bbcae..5b89b65
+--- a/scripts/artifacts/googlePhotos.py
++++ b/scripts/artifacts/googlePhotos.py
+@@ -406,4 +406,10 @@ def get_googlePhotos(files_found, report_folder, seeker, wrap_text):
+         logfunc('No Google Photos - Local Trash data available')
+     
+     db.close()
+-    return
++
++__artifacts__ = {
++        "GooglePhotos": (
++                "Google Photos",
++                ('*/data/data/com.google.android.apps.photos/databases/gphotos0.db*','*/data/data/com.google.android.apps.photos/databases/disk_cache*','*/data/data/com.google.android.apps.photos/cache/glide_cache/*','*/data/data/com.google.android.apps.photos/databases/local_trash.db*','*/data/data/com.google.android.apps.photos/files/trash_files/*'),
++                get_googlePhotos)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/googlePlaySearches.py b/scripts/artifacts/googlePlaySearches.py
+old mode 100644
+new mode 100755
+index 48fa265..454cd04
+--- a/scripts/artifacts/googlePlaySearches.py
++++ b/scripts/artifacts/googlePlaySearches.py
+@@ -40,5 +40,10 @@ def get_googlePlaySearches(files_found, report_folder, seeker, wrap_text):
+         logfunc('No Google Play Searches data available')
+     
+     db.close()
+-    return
+ 
++__artifacts__ = {
++        "GooglePlaySearches": (
++                "Google Play",
++                ('*/data/data/com.android.vending/databases/suggestions.db*'),
++                get_googlePlaySearches)
++}
+diff --git a/scripts/artifacts/googleQuickSearchbox.py b/scripts/artifacts/googleQuickSearchbox.py
+old mode 100644
+new mode 100755
+index 28e4125..199ee9f
+--- a/scripts/artifacts/googleQuickSearchbox.py
++++ b/scripts/artifacts/googleQuickSearchbox.py
+@@ -155,5 +155,12 @@ def get_quicksearch(files_found, report_folder, seeker, wrap_text):
+         tlactivity = f'Google Quick Search Box'
+         timeline(report_folder, tlactivity, data_list, data_headers)
+     else:
+-        logfunc('No recent quick search or now data available')            
++        logfunc('No recent quick search or now data available')
++
++__artifacts__ = {
++        "Quicksearch": (
++                "Google Now & QuickSearch",
++                ('*/com.google.android.googlequicksearchbox/app_session/*.binarypb'),
++                get_quicksearch)
++}
+             
+\ No newline at end of file
+diff --git a/scripts/artifacts/googleQuickSearchboxRecent.py b/scripts/artifacts/googleQuickSearchboxRecent.py
+old mode 100644
+new mode 100755
+index 46a8e5c..1389fb5
+--- a/scripts/artifacts/googleQuickSearchboxRecent.py
++++ b/scripts/artifacts/googleQuickSearchboxRecent.py
+@@ -107,4 +107,11 @@ def get_quicksearch_recent(files_found, report_folder, seeker, wrap_text):
+         tsvname = f'google quick search box recent'
+         tsv(report_folder, data_headers, data_list, tsvname)
+     else:
+-        logfunc('No recent quick search or now data available')
+\ No newline at end of file
++        logfunc('No recent quick search or now data available')
++
++__artifacts__ = {
++        "Quicksearch_recent": (
++                "Google Now & QuickSearch",
++                ('*/com.google.android.googlequicksearchbox/files/recently/*'),
++                get_quicksearch_recent)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/googleTasks.py b/scripts/artifacts/googleTasks.py
+old mode 100644
+new mode 100755
+index d44c08b..9bc6d0c
+--- a/scripts/artifacts/googleTasks.py
++++ b/scripts/artifacts/googleTasks.py
+@@ -85,4 +85,10 @@ def get_googleTasks(files_found, report_folder, seeker, wrap_text):
+ 
+         
+         db.close()
+-    return
+\ No newline at end of file
++        
++__artifacts__ = {
++        "GoogleTasks": (
++                "Google Tasks",
++                ('*/com.google.android.apps.tasks/files/tasks-*/data.db'),
++                get_googleTasks)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/googlemapaudio.py b/scripts/artifacts/googlemapaudio.py
+old mode 100644
+new mode 100755
+index 9c6c2a7..419dffc
+--- a/scripts/artifacts/googlemapaudio.py
++++ b/scripts/artifacts/googlemapaudio.py
+@@ -67,3 +67,9 @@ def get_googlemapaudio(files_found, report_folder, seeker, wrap_text):
+     else:
+         logfunc('No Google Audio Locations found')
+             
++__artifacts__ = {
++        "Googlemapaudio": (
++                "Google Maps Voice Guidance",
++                ('*/data/data/com.google.android.apps.maps/app_tts-cache/*_*'),
++                get_googlemapaudio)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/googlemaplocation.py b/scripts/artifacts/googlemaplocation.py
+old mode 100644
+new mode 100755
+index 58a04c3..7109dbe
+--- a/scripts/artifacts/googlemaplocation.py
++++ b/scripts/artifacts/googlemaplocation.py
+@@ -57,4 +57,11 @@ def get_googlemaplocation(files_found, report_folder, seeker, wrap_text):
+             logfunc('No Google Map Locations found')
+             
+         db.close()
++        
++__artifacts__ = {
++        "Googlemaplocation": (
++                "GEO Location",
++                ('*/com.google.android.apps.maps/databases/da_destination_history*'),
++                get_googlemaplocation)
++}
+     
+\ No newline at end of file
+diff --git a/scripts/artifacts/groupMe.py b/scripts/artifacts/groupMe.py
+old mode 100644
+new mode 100755
+index 64a3a9d..3873606
+--- a/scripts/artifacts/groupMe.py
++++ b/scripts/artifacts/groupMe.py
+@@ -119,4 +119,11 @@ def get_groupMe(files_found, report_folder, seeker, wrap_text):
+         else:
+             logfunc('No GroupMe Chat Information data available')
+                 
+-        db.close()
+\ No newline at end of file
++        db.close()
++
++__artifacts__ = {
++        "GroupMe": (
++                "GroupMe",
++                ('**/com.groupme.android/databases/groupme.db'),
++                get_groupMe)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/imagemngCache.py b/scripts/artifacts/imagemngCache.py
+old mode 100644
+new mode 100755
+index 8a5f440..8593495
+--- a/scripts/artifacts/imagemngCache.py
++++ b/scripts/artifacts/imagemngCache.py
+@@ -29,4 +29,10 @@ def get_imagemngCache(files_found, report_folder, seeker, wrap_text):
+         timeline(report_folder, tlactivity, data_list, data_headers)
+     else:
+         logfunc(f'No Image Manager Cache files available')
+-        
+\ No newline at end of file
++
++__artifacts__ = {
++        "ImagemngCache": (
++                "Image Manager Cache",
++                ('*/data/data/*/cache/image_manager_disk_cache/*.*'),
++                get_imagemngCache)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/imo.py b/scripts/artifacts/imo.py
+old mode 100644
+new mode 100755
+index f2e2cb3..8841081
+--- a/scripts/artifacts/imo.py
++++ b/scripts/artifacts/imo.py
+@@ -108,4 +108,10 @@ def get_imo(files_found, report_folder, seeker, wrap_text):
+ 
+     db.close
+     
+-    return
++__artifacts__ = {
++        "Imo": (
++                "IMO",
++                ('**/com.imo.android.imous/databases/*.db*'),
++                get_imo)
++}
++    
+\ No newline at end of file
+diff --git a/scripts/artifacts/installedappsGass.py b/scripts/artifacts/installedappsGass.py
+old mode 100644
+new mode 100755
+index a6932bb..894765a
+--- a/scripts/artifacts/installedappsGass.py
++++ b/scripts/artifacts/installedappsGass.py
+@@ -43,3 +43,10 @@ def get_installedappsGass(files_found, report_folder, seeker, wrap_text):
+                 logfunc('No Installed Apps data available{usernum}')
+             
+             db.close()
++
++__artifacts__ = {
++        "installedappsGass": (
++                "Installed Apps",
++                ('*/data/data/com.google.android.gms/databases/gass.db*', '*/data/user/*/com.google.android.gms/databases/gass.db*'),
++                get_installedappsGass)
++}
+diff --git a/scripts/artifacts/installedappsLibrary.py b/scripts/artifacts/installedappsLibrary.py
+old mode 100644
+new mode 100755
+index 7766381..34121f9
+--- a/scripts/artifacts/installedappsLibrary.py
++++ b/scripts/artifacts/installedappsLibrary.py
+@@ -43,4 +43,10 @@ def get_installedappsLibrary(files_found, report_folder, seeker, wrap_text):
+         logfunc('No Installed Apps (Library) data available')
+     
+     db.close()
+-    return
+\ No newline at end of file
++
++__artifacts__ = {
++        "InstalledappsLibrary": (
++                "Installed Apps",
++                ('*/data/data/com.android.vending/databases/library.db'),
++                get_installedappsLibrary)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/installedappsVending.py b/scripts/artifacts/installedappsVending.py
+old mode 100644
+new mode 100755
+index 149bc3d..e7f1361
+--- a/scripts/artifacts/installedappsVending.py
++++ b/scripts/artifacts/installedappsVending.py
+@@ -60,4 +60,10 @@ def get_installedappsVending(files_found, report_folder, seeker, wrap_text):
+             logfunc('No Installed Apps data available')
+     
+     db.close()
+-    return
+\ No newline at end of file
++
++__artifacts__ = {
++        "InstalledappsVending": (
++                "Installed Apps",
++                ('*/data/data/com.android.vending/databases/localappstate.db'),
++                get_installedappsVending)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/kijijiConversations.py b/scripts/artifacts/kijijiConversations.py
+old mode 100644
+new mode 100755
+index 4fd2dad..9a4dc11
+--- a/scripts/artifacts/kijijiConversations.py
++++ b/scripts/artifacts/kijijiConversations.py
+@@ -111,3 +111,10 @@ def AppendMessageRowsToDataList(data_list,
+             recipientName = LOCAL_USER
+ 
+         data_list.append((message['sortByDate'], conversationId, advertId, advertTitle, message['identifier'], senderId, senderName, recipientId, recipientName, message['state'], message['text']))
++
++__artifacts__ = {
++        "kijijiConversations": (
++                "Kijiji Conversations",
++                ('*/com.ebay.kijiji.ca/databases/messageBoxDatabase.*'),
++                get_kijijiConversations)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/kijijiLocalUserInfo.py b/scripts/artifacts/kijijiLocalUserInfo.py
+old mode 100644
+new mode 100755
+index 1b93478..0b76918
+--- a/scripts/artifacts/kijijiLocalUserInfo.py
++++ b/scripts/artifacts/kijijiLocalUserInfo.py
+@@ -54,4 +54,10 @@ def get_kijijiLocalUserInfo(files_found, report_folder, seeker, wrap_text):
+     
+     tsvname = f'Kijiji Local User Information'
+     tsv(report_folder, data_headers, data_list, tsvname)    
+-    return True
++
++__artifacts__ = {
++        "kijijiLocalUserInfo": (
++                "Kijiji Local User Information",
++                ('*/com.ebay.kijiji.ca/shared_prefs/LoginData.xml'),
++                get_kijijiLocalUserInfo)
++}
+diff --git a/scripts/artifacts/kijijiRecentSearches.py b/scripts/artifacts/kijijiRecentSearches.py
+old mode 100644
+new mode 100755
+index c55345c..f79c025
+--- a/scripts/artifacts/kijijiRecentSearches.py
++++ b/scripts/artifacts/kijijiRecentSearches.py
+@@ -75,4 +75,10 @@ def get_kijijiRecentSearches(files_found, report_folder, seeker, wrap_text):
+         logfunc('No Kijiji Recent Search data was found.')
+ 
+     db.close()
+-    return True
+\ No newline at end of file
++
++__artifacts__ = {
++    "kijijiRecentSearches": (
++        "Kijiji Recent Searches",
++        ('*/com.ebay.kijiji.ca/databases/searches.*'),
++        get_kijijiRecentSearches)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/last_boot_time.py b/scripts/artifacts/last_boot_time.py
+old mode 100644
+new mode 100755
+index 326e11a..2892492
+--- a/scripts/artifacts/last_boot_time.py
++++ b/scripts/artifacts/last_boot_time.py
+@@ -35,4 +35,11 @@ def get_last_boot_time(files_found, report_folder, seeker, wrap_text):
+             timeline(report_folder, tlactivity, data_list, data_headers)
+             
+         else:
+-            logfunc('No Last Boot Time data available')
+\ No newline at end of file
++            logfunc('No Last Boot Time data available')
++
++__artifacts__ = {
++        "last_boot_time": (
++                "Power Events",
++                ('*/data/misc/bootstat/last_boot_time_utc'),
++                get_last_boot_time)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/lgRCS.py b/scripts/artifacts/lgRCS.py
+old mode 100644
+new mode 100755
+index 501bb30..dc8c14b
+--- a/scripts/artifacts/lgRCS.py
++++ b/scripts/artifacts/lgRCS.py
+@@ -90,4 +90,10 @@ def get_lgRCS(files_found, report_folder, seeker, wrap_text):
+         logfunc('No RCS Chats - LG data available')
+     
+     db.close()
+-    return
++
++__artifacts__ = {
++        "lgRCS": (
++                "RCS Chats",
++                ('*/mmssms.db*'),
++                get_lgRCS)
++}
+diff --git a/scripts/artifacts/line.py b/scripts/artifacts/line.py
+old mode 100644
+new mode 100755
+index e29e7b9..3849eea
+--- a/scripts/artifacts/line.py
++++ b/scripts/artifacts/line.py
+@@ -179,4 +179,9 @@ def get_line(files_found, report_folder, seeker, wrap_text):
+ 
+     db.close
+     
+-    return
+\ No newline at end of file
++__artifacts__ = {
++        "line": (
++                "Line",
++                ('**/jp.naver.line.android/databases/**'),
++                get_line)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/mega.py b/scripts/artifacts/mega.py
+old mode 100644
+new mode 100755
+index 590892a..9abfaff
+--- a/scripts/artifacts/mega.py
++++ b/scripts/artifacts/mega.py
+@@ -81,4 +81,11 @@ def get_mega(files_found, report_folder, seeker, wrap_text):
+         else:
+             logfunc('No MEGA - Chat data available')
+         
+-        db.close()
+\ No newline at end of file
++        db.close()
++
++__artifacts__ = {
++        "mega": (
++                "Mega",
++                ('*/data/data/mega.privacy.android.app/karere-*.db*'),
++                get_mega)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/mega_transfers.py b/scripts/artifacts/mega_transfers.py
+old mode 100644
+new mode 100755
+index 071256e..467aee9
+--- a/scripts/artifacts/mega_transfers.py
++++ b/scripts/artifacts/mega_transfers.py
+@@ -92,3 +92,9 @@ def get_mega_transfers(files_found, report_folder, seeker, wrap_text):
+     else:
+         logfunc('No MEGA files data available')
+     
++__artifacts__ = {
++        "mega_transfers": (
++                "Mega",
++                ('*/data/data/mega.privacy.android.app/databases/megapreferences'),
++                get_mega_transfers)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/mewe.py b/scripts/artifacts/mewe.py
+old mode 100644
+new mode 100755
+index e30eb8e..344749f
+--- a/scripts/artifacts/mewe.py
++++ b/scripts/artifacts/mewe.py
+@@ -133,3 +133,10 @@ def get_mewe(files_found, report_folder, seeker, wrap_text):
+     ]
+     if not (True in artifacts):
+         logfunc(f'{APP_NAME} data not found')
++
++__artifacts__ = {
++        "mewe": (
++                "MeWe",
++                ('*/com.mewe/databases/app_database', '*/com.mewe/shared_prefs/SGSession.xml'),
++                get_mewe)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/pSettings.py b/scripts/artifacts/pSettings.py
+old mode 100644
+new mode 100755
+index 1048ea1..86632f1
+--- a/scripts/artifacts/pSettings.py
++++ b/scripts/artifacts/pSettings.py
+@@ -36,5 +36,10 @@ def get_pSettings(files_found, report_folder, seeker, wrap_text):
+         logfunc('No Partner Settings data available')
+     
+     db.close()
+-    return
+ 
++__artifacts__ = {
++        "pSettings": (
++                "Device Info",
++                ('*/data/data/com.google.android.gsf/databases/googlesettings.db*'),
++                get_pSettings)
++}
+diff --git a/scripts/artifacts/packageGplinks.py b/scripts/artifacts/packageGplinks.py
+old mode 100644
+new mode 100755
+index faacb18..07f818f
+--- a/scripts/artifacts/packageGplinks.py
++++ b/scripts/artifacts/packageGplinks.py
+@@ -33,4 +33,10 @@ def get_packageGplinks(files_found, report_folder, seeker, wrap_text):
+         
+     else:
+         logfunc('No Google Play Links for Apps data available')
+-            
+\ No newline at end of file
++
++__artifacts__ = {
++        "packageGplinks": (
++                "Installed Apps",
++                ('*/system/packages.list'),
++                get_packageGplinks)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/packageInfo.py b/scripts/artifacts/packageInfo.py
+old mode 100644
+new mode 100755
+index ad17b49..1168edd
+--- a/scripts/artifacts/packageInfo.py
++++ b/scripts/artifacts/packageInfo.py
+@@ -94,4 +94,10 @@ def get_package_info(files_found, report_folder, seeker, wrap_text):
+         timeline(report_folder, tlactivity, data_list, data_headers)
+     else:
+         logfunc('No package data available')            
+-            
+\ No newline at end of file
++
++__artifacts__ = {
++        "package_info": (
++                "Installed Apps",
++                ('*/system/packages.xml'),
++                get_package_info)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/permissions.py b/scripts/artifacts/permissions.py
+old mode 100644
+new mode 100755
+index 458ba3f..5767d9a
+--- a/scripts/artifacts/permissions.py
++++ b/scripts/artifacts/permissions.py
+@@ -90,4 +90,10 @@ def get_permissions(files_found, report_folder, seeker, wrap_text):
+                     
+                     tsvname = f'Permissions - Packages and Shared User'
+                     tsv(report_folder, data_headers, data_list_packages_su, tsvname)
+-            
+\ No newline at end of file
++
++__artifacts__ = {
++        "permissions": (
++                "Permissions",
++                ('*/system/packages.xml'),
++                get_permissions)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/persistentProp.py b/scripts/artifacts/persistentProp.py
+old mode 100644
+new mode 100755
+index f79f85c..6b504a4
+--- a/scripts/artifacts/persistentProp.py
++++ b/scripts/artifacts/persistentProp.py
+@@ -47,4 +47,11 @@ def get_persistentProp(files_found, report_folder, seeker, wrap_text):
+             tlactivity = f'Persistent Properties'
+             timeline(report_folder, tlactivity, data_list, data_headers)
+         else:
+-            logfunc('No Persistent Properties data available')
+\ No newline at end of file
++            logfunc('No Persistent Properties data available')
++            
++__artifacts__ = {
++        "persistentProp": (
++                "Wipe & Setup",
++                ('*/data/property/persistent_properties'),
++                get_persistentProp)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/playgroundVault.py b/scripts/artifacts/playgroundVault.py
+old mode 100644
+new mode 100755
+index c24e3de..3ac2649
+--- a/scripts/artifacts/playgroundVault.py
++++ b/scripts/artifacts/playgroundVault.py
+@@ -98,4 +98,10 @@ def get_playgroundVault(files_found, report_folder, seeker, wrap_text):
+             
+         else:
+             logfunc('No Playground Vault data available')
+-        
+\ No newline at end of file
++
++__artifacts__ = {
++        "playgroundVault": (
++                "Encrypting Media Apps",
++                ('*/playground.develop.applocker/shared_prefs/crypto.KEY_256.xml','*/applocker/vault/*'),
++                get_playgroundVault)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/powerOffReset.py b/scripts/artifacts/powerOffReset.py
+old mode 100644
+new mode 100755
+index 0ba594f..e8e3381
+--- a/scripts/artifacts/powerOffReset.py
++++ b/scripts/artifacts/powerOffReset.py
+@@ -56,3 +56,10 @@ def get_powerOffReset(files_found, report_folder, seeker, wrap_text):
+         
+     else:
+         logfunc('No Power Off Reset data available')
++
++__artifacts__ = {
++        "powerOffReset": (
++                "Power Events",
++                ('*/data/log/power_off_reset_reason.txt','*/data/log/power_off_reset_reason_backup.txt'),
++                get_powerOffReset)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/protonmailContacts.py b/scripts/artifacts/protonmailContacts.py
+old mode 100644
+new mode 100755
+index b90c4da..b4eab2d
+--- a/scripts/artifacts/protonmailContacts.py
++++ b/scripts/artifacts/protonmailContacts.py
+@@ -46,4 +46,11 @@ def get_protonmailContacts(files_found, report_folder, seeker, wrap_text):
+         else:
+             logfunc('No ProtonMail - Contacts data available')
+         
+-        db.close()
+\ No newline at end of file
++        db.close()
++        
++__artifacts__ = {
++        "protonmailContacts": (
++                "ProtonMail",
++                ('*/data/data/ch.protonmail.android/databases/*-ContactsDatabase.db*'),
++                get_protonmailContacts)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/protonmailMessages.py b/scripts/artifacts/protonmailMessages.py
+old mode 100644
+new mode 100755
+index f54de55..ffc6dd0
+--- a/scripts/artifacts/protonmailMessages.py
++++ b/scripts/artifacts/protonmailMessages.py
+@@ -70,4 +70,11 @@ def get_protonmailMessages(files_found, report_folder, seeker, wrap_text):
+         else:
+             logfunc('No ProtonMail - Messages data available')
+         
+-        db.close()
+\ No newline at end of file
++        db.close()
++        
++__artifacts__ = {
++        "protonmailMessages": (
++                "ProtonMail",
++                ('*/data/data/ch.protonmail.android/databases/*-MessagesDatabase.db*'),
++                get_protonmailMessages)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/recentactivity.py b/scripts/artifacts/recentactivity.py
+old mode 100644
+new mode 100755
+index 5c8b6ab..c8a6d48
+--- a/scripts/artifacts/recentactivity.py
++++ b/scripts/artifacts/recentactivity.py
+@@ -207,4 +207,10 @@ def process_recentactivity(folder, uid, report_folder):
+             report.write_raw_html('<br />')
+         
+         report.end_artifact_report()
+-    
+\ No newline at end of file
++
++__artifacts__ = {
++        "recentactivity": (
++                "Recent Activity",
++                ('*/data/system_ce/*'),
++                get_recentactivity)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/roles.py b/scripts/artifacts/roles.py
+old mode 100644
+new mode 100755
+index 3676473..2df39b1
+--- a/scripts/artifacts/roles.py
++++ b/scripts/artifacts/roles.py
+@@ -58,5 +58,10 @@ def get_roles(files_found, report_folder, seeker, wrap_text):
+                     tsvname = f'App Roles_{user}'
+                     tsv(report_folder, data_headers, data_list, tsvname)
+ 
+-                
++__artifacts__ = {
++        "roles": (
++                "App Roles",
++                ('*/system/users/*/roles.xml','*/misc_de/*/apexdata/com.android.permission/roles.xml'),
++                get_roles)
++}
+             
+\ No newline at end of file
+diff --git a/scripts/artifacts/runtimePerms.py b/scripts/artifacts/runtimePerms.py
+old mode 100644
+new mode 100755
+index 867bc2f..ceb8c90
+--- a/scripts/artifacts/runtimePerms.py
++++ b/scripts/artifacts/runtimePerms.py
+@@ -61,4 +61,9 @@ def get_runtimePerms(files_found, report_folder, seeker, wrap_text):
+                     tsvname = f'Runtime Permissions_{user}'
+                     tsv(report_folder, data_headers, data_list, tsvname)
+                 
+-            
+\ No newline at end of file
++__artifacts__ = {
++        "runtimePerms": (
++                "Permissions",
++                ('*/system/users/*/runtime-permissions.xml','*/misc_de/*/apexdata/com.android.permission/runtime-permissions.xml'),
++                get_runtimePerms)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/sRecoveryhist.py b/scripts/artifacts/sRecoveryhist.py
+old mode 100644
+new mode 100755
+index 1e4f050..0ddaf1f
+--- a/scripts/artifacts/sRecoveryhist.py
++++ b/scripts/artifacts/sRecoveryhist.py
+@@ -69,4 +69,11 @@ def get_sRecoveryhist(files_found, report_folder, seeker, wrap_text):
+             tlactivity = f'Samsung Recovery History'
+             timeline(report_folder, tlactivity, data_list, data_headers)
+         else:
+-            logfunc('No Samsung Recovery History data available')
+\ No newline at end of file
++            logfunc('No Samsung Recovery History data available')
++
++__artifacts__ = {
++        "sRecoveryhist": (
++                "Wipe & Setup",
++                ('*/efs/recovery/history'),
++                get_sRecoveryhist)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/sWipehist.py b/scripts/artifacts/sWipehist.py
+old mode 100644
+new mode 100755
+index 92c526f..b9ec50a
+--- a/scripts/artifacts/sWipehist.py
++++ b/scripts/artifacts/sWipehist.py
+@@ -71,4 +71,11 @@ def get_sWipehist(files_found, report_folder, seeker, wrap_text):
+             tlactivity = f'Samsung Wipe History'
+             timeline(report_folder, tlactivity, data_list, data_headers)
+         else:
+-            logfunc('No Samsung Wipe History data available')
+\ No newline at end of file
++            logfunc('No Samsung Wipe History data available')
++
++__artifacts__ = {
++        "sWipehist": (
++                "Wipe & Setup",
++                ('*/efs/recovery/history'),
++                get_sWipehist)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/samsungSmartThings.py b/scripts/artifacts/samsungSmartThings.py
+old mode 100644
+new mode 100755
+index 55c9004..52b96ae
+--- a/scripts/artifacts/samsungSmartThings.py
++++ b/scripts/artifacts/samsungSmartThings.py
+@@ -55,3 +55,10 @@ def get_samsungSmartThings(files_found, report_folder, seeker, wrap_text):
+             logfunc('No Samsung SmartThings - Quick Connect data available')
+         
+         db.close()
++        
++__artifacts__ = {
++        "samsungSmartThings": (
++                "Samsung SmartThings",
++                ('*/com.samsung.android.oneconnect/databases/QcDB.db*'),
++                get_samsungSmartThings)
++}
+diff --git a/scripts/artifacts/samsungWeatherClock.py b/scripts/artifacts/samsungWeatherClock.py
+old mode 100644
+new mode 100755
+index c9a945e..6af3e65
+--- a/scripts/artifacts/samsungWeatherClock.py
++++ b/scripts/artifacts/samsungWeatherClock.py
+@@ -135,4 +135,11 @@ def get_samsungWeatherClock(files_found, report_folder, seeker, wrap_text):
+             logfunc('No Samsung Weather Clock - Hourly data available')
+         
+     db.close()
+-    return
++
++__artifacts__ = {
++        "samsungWeatherClock": (
++                "Samsung Weather Clock",
++                ('*/com.sec.android.daemonapp/databases/WeatherClock*'),
++                get_samsungWeatherClock)
++}
++
+diff --git a/scripts/artifacts/scontextLog.py b/scripts/artifacts/scontextLog.py
+old mode 100644
+new mode 100755
+index 2c036e2..85a2326
+--- a/scripts/artifacts/scontextLog.py
++++ b/scripts/artifacts/scontextLog.py
+@@ -48,4 +48,10 @@ def get_scontextLog(files_found, report_folder, seeker, wrap_text):
+         logfunc('No Samsung Context Log data available')
+     
+     db.close()
+-    return
+\ No newline at end of file
++
++__artifacts__ = {
++        "scontextLog": (
++                "App Interaction",
++                ('*/com.samsung.android.providers.context/databases/ContextLog.db'),
++                get_scontextLog)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/settingsSecure.py b/scripts/artifacts/settingsSecure.py
+old mode 100644
+new mode 100755
+index 0fd8690..cbf3356
+--- a/scripts/artifacts/settingsSecure.py
++++ b/scripts/artifacts/settingsSecure.py
+@@ -67,4 +67,9 @@ def process_ssecure(file_path, uid, report_folder):
+     else:
+         logfunc('No Settings Secure data available')
+         
+-    
+\ No newline at end of file
++__artifacts__ = {
++        "settingsSecure": (
++                "Device Info",
++                ('*/system/users/*/settings_secure.xml'),
++                get_settingsSecure)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/setupWizardinfo.py b/scripts/artifacts/setupWizardinfo.py
+old mode 100644
+new mode 100755
+index ae3681c..d09ceef
+--- a/scripts/artifacts/setupWizardinfo.py
++++ b/scripts/artifacts/setupWizardinfo.py
+@@ -35,4 +35,11 @@ def get_setupWizardinfo(files_found, report_folder, seeker, wrap_text):
+             tlactivity = f'Setup_Wizard_Info XML data'
+             timeline(report_folder, tlactivity, data_list, data_headers)
+         else:
+-            logfunc('No Setup_Wizard_Info XML data available')
+\ No newline at end of file
++            logfunc('No Setup_Wizard_Info XML data available')
++            
++__artifacts__ = {
++        "setupWizardinfo": (
++                "Wipe & Setup",
++                ('*/data/com.google.android.settings.intelligence/shared_prefs/setup_wizard_info.xml'),
++                get_setupWizardinfo)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/shareit.py b/scripts/artifacts/shareit.py
+old mode 100644
+new mode 100755
+index 1ba4d36..5d1e972
+--- a/scripts/artifacts/shareit.py
++++ b/scripts/artifacts/shareit.py
+@@ -53,4 +53,10 @@ def get_shareit(files_found, report_folder, seeker, wrap_text):
+         logfunc('No Shareit file transfer data available')
+ 
+     db.close()
+-    return
++
++__artifacts__ = {
++        "shareit": (
++                "File Transfer",
++                ('*/com.lenovo.anyshare.gps/databases/history.db*'),
++                get_shareit)
++}
+diff --git a/scripts/artifacts/shutdown_checkpoints.py b/scripts/artifacts/shutdown_checkpoints.py
+old mode 100644
+new mode 100755
+index 7145784..45df74d
+--- a/scripts/artifacts/shutdown_checkpoints.py
++++ b/scripts/artifacts/shutdown_checkpoints.py
+@@ -49,3 +49,10 @@ def get_shutdown_checkpoints(files_found, report_folder, seeker, wrap_text):
+         
+     else:
+         logfunc('No Shutdown Checkpoints data available')
++
++__artifacts__ = {
++        "shutdown_checkpoints": (
++                "Power Events",
++                ('*/data/system/shutdown-checkpoints/*'),
++                get_shutdown_checkpoints)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/siminfo.py b/scripts/artifacts/siminfo.py
+old mode 100644
+new mode 100755
+index 219dc43..aa1ca56
+--- a/scripts/artifacts/siminfo.py
++++ b/scripts/artifacts/siminfo.py
+@@ -86,4 +86,11 @@ def process_siminfo(folder, uid, report_folder):
+         tsv(report_folder, data_headers, data_list, tsvname)
+     else:
+         logfunc(f'No SIM_Info{uid} data available')    
+-    db.close()
+\ No newline at end of file
++    db.close()
++
++__artifacts__ = {
++        "siminfo": (
++                "Device Info",
++                ('*/user_de/*/com.android.providers.telephony/databases/telephony.db'),
++                get_siminfo)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/skout.py b/scripts/artifacts/skout.py
+old mode 100644
+new mode 100755
+index c14b97b..1e70466
+--- a/scripts/artifacts/skout.py
++++ b/scripts/artifacts/skout.py
+@@ -92,4 +92,10 @@ def get_skout(files_found, report_folder, seeker, wrap_text):
+                 
+         
+     db.close()
+-    
+\ No newline at end of file
++
++__artifacts__ = {
++        "skout": (
++                "Skout",
++                ('*/data/com.skout.android/databases/skoutDatabase*'),
++                get_skout)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/skype.py b/scripts/artifacts/skype.py
+old mode 100644
+new mode 100755
+index bd21427..b08856a
+--- a/scripts/artifacts/skype.py
++++ b/scripts/artifacts/skype.py
+@@ -203,4 +203,9 @@ def get_skype(files_found, report_folder, seeker, wrap_text):
+ 
+         db.close
+         
+-    return
+\ No newline at end of file
++__artifacts__ = {
++        "skype": (
++                "Skype",
++                ('*/com.skype.raider/databases/live*'),
++                get_skype)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/slopes.py b/scripts/artifacts/slopes.py
+old mode 100644
+new mode 100755
+index 78fd4cd..d62c09f
+--- a/scripts/artifacts/slopes.py
++++ b/scripts/artifacts/slopes.py
+@@ -146,4 +146,10 @@ def get_slopes(files_found, report_folder, seeker, wrap_text):
+             logfunc('No Slopes - Lift Details data available')
+ 
+         db.close()
+-        return
++
++__artifacts__ = {
++        "slopes": (
++                "Slopes",
++                ('*/data/com.consumedbycode.slopes/databases/slopes.db*'),
++                get_slopes)
++}
+diff --git a/scripts/artifacts/smanagerCrash.py b/scripts/artifacts/smanagerCrash.py
+old mode 100644
+new mode 100755
+index 508c46c..a4d836d
+--- a/scripts/artifacts/smanagerCrash.py
++++ b/scripts/artifacts/smanagerCrash.py
+@@ -39,4 +39,10 @@ def get_smanagerCrash(files_found, report_folder, seeker, wrap_text):
+         logfunc('No Samsung Smart Manager - Crash data available')
+     
+     db.close()
+-    return
+\ No newline at end of file
++
++__artifacts__ = {
++        "smanagerCrash": (
++                "App Interaction",
++                ('*/com.samsung.android.sm/databases/sm.db'),
++                get_smanagerCrash)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/smanagerLow.py b/scripts/artifacts/smanagerLow.py
+old mode 100644
+new mode 100755
+index 830e1f1..dd404ed
+--- a/scripts/artifacts/smanagerLow.py
++++ b/scripts/artifacts/smanagerLow.py
+@@ -44,4 +44,10 @@ def get_smanagerLow(files_found, report_folder, seeker, wrap_text):
+         logfunc('No Samsung Smart Manager - Usage data available')
+     
+     db.close()
+-    return
+\ No newline at end of file
++
++__artifacts__ = {
++        "smanagerLow": (
++                "App Interaction",
++                ('*/com.samsung.android.sm/databases/lowpowercontext-system-db'),
++                get_smanagerLow)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/smembersAppInv.py b/scripts/artifacts/smembersAppInv.py
+old mode 100644
+new mode 100755
+index b61b494..6ee76ca
+--- a/scripts/artifacts/smembersAppInv.py
++++ b/scripts/artifacts/smembersAppInv.py
+@@ -44,4 +44,10 @@ def get_smembersAppInv(files_found, report_folder, seeker, wrap_text):
+         logfunc('No Samsung Members - Apps data available')
+     
+     db.close()
+-    return
+\ No newline at end of file
++
++__artifacts__ = {
++        "smembersAppInv": (
++                "App Interaction",
++                ('*/com.samsung.oh/databases/com_pocketgeek_sdk_app_inventory.db'),
++                get_smembersAppInv)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/smembersEvents.py b/scripts/artifacts/smembersEvents.py
+old mode 100644
+new mode 100755
+index 404e4a7..17fbeaf
+--- a/scripts/artifacts/smembersEvents.py
++++ b/scripts/artifacts/smembersEvents.py
+@@ -41,4 +41,10 @@ def get_smembersEvents(files_found, report_folder, seeker, wrap_text):
+         logfunc('No Samsung Members - Events data available')
+     
+     db.close()
+-    return
+\ No newline at end of file
++
++__artifacts__ = {
++        "smembersEvents": (
++                "App Interaction",
++                ('*/com.samsung.oh/databases/com_pocketgeek_sdk.db'),
++                get_smembersEvents)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/smsmms.py b/scripts/artifacts/smsmms.py
+old mode 100644
+new mode 100755
+index 232853e..1164508
+--- a/scripts/artifacts/smsmms.py
++++ b/scripts/artifacts/smsmms.py
+@@ -277,3 +277,10 @@ def read_mms_messages(db, report_folder, file_found, seeker):
+         logfunc('No MMS messages found!')
+         return False
+     return True
++
++__artifacts__ = {
++        "sms_mms": (
++                "SMS & MMS",
++                ('*/com.android.providers.telephony/databases/mmssms*'),
++                get_sms_mms)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/smyFiles.py b/scripts/artifacts/smyFiles.py
+old mode 100644
+new mode 100755
+index 5537d5d..3f59030
+--- a/scripts/artifacts/smyFiles.py
++++ b/scripts/artifacts/smyFiles.py
+@@ -93,4 +93,10 @@ def get_smyFiles(files_found, report_folder, seeker, wrap_text):
+         logfunc('No My Files DB Recent Files data available')
+ 
+     db.close()
+-    return
+\ No newline at end of file
++
++__artifacts__ = {
++        "smyFiles": (
++                "My Files",
++                ('*/com.sec.android.app.myfiles/databases/MyFiles*.db*'),
++                get_smyFiles)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/smyfilesRecents.py b/scripts/artifacts/smyfilesRecents.py
+old mode 100644
+new mode 100755
+index 738d42e..f2ccf01
+--- a/scripts/artifacts/smyfilesRecents.py
++++ b/scripts/artifacts/smyfilesRecents.py
+@@ -49,4 +49,10 @@ def get_smyfilesRecents(files_found, report_folder, seeker, wrap_text):
+         logfunc('No My Files DB Recents data available')
+     
+     db.close()
+-    return
+\ No newline at end of file
++
++__artifacts__ = {
++        "smyfilesRecents": (
++                "My Files",
++                ('*/com.sec.android.app.myfiles/databases/myfiles.db'),
++                get_smyfilesRecents)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/smyfilesStored.py b/scripts/artifacts/smyfilesStored.py
+old mode 100644
+new mode 100755
+index 46c4a4e..fc2c790
+--- a/scripts/artifacts/smyfilesStored.py
++++ b/scripts/artifacts/smyfilesStored.py
+@@ -43,4 +43,10 @@ def get_smyfilesStored(files_found, report_folder, seeker, text_wrap):
+         logfunc('No My Files DB Stored data available')
+     
+     db.close()
+-    return
+\ No newline at end of file
++
++__artifacts__ = {
++        "smyfilesStored": (
++                "My Files",
++                ('*/com.sec.android.app.myfiles/databases/FileCache.db*'),
++                get_smyfilesStored)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/smyfilescache.py b/scripts/artifacts/smyfilescache.py
+old mode 100644
+new mode 100755
+index b284210..cf4d7a9
+--- a/scripts/artifacts/smyfilescache.py
++++ b/scripts/artifacts/smyfilescache.py
+@@ -58,4 +58,10 @@ def get_smyfilescache(files_found, report_folder, seeker, text_wrap):
+         logfunc('No My Files DB Stored data available')
+     
+     db.close()
+-    return
+\ No newline at end of file
++
++__artifacts__ = {
++        "smyfilescache": (
++                "My Files",
++                ('*/com.sec.android.app.myfiles/databases/FileCache.db*','*/com.sec.android.app.myfiles/cache/*.*'),
++                get_smyfilescache)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/snapchat.py b/scripts/artifacts/snapchat.py
+old mode 100644
+new mode 100755
+index 83af283..5067eb1
+--- a/scripts/artifacts/snapchat.py
++++ b/scripts/artifacts/snapchat.py
+@@ -382,3 +382,10 @@ def get_snapchat(files_found, report_folder, seeker, wrap_text):
+     ]
+     if not (True in artifacts):
+         logfunc(f'{APP_NAME} data not found')
++
++__artifacts__ = {
++        "snapchat": (
++                "Snapchat",
++                ('*/data/com.snapchat.android/databases/*.db', '*/data/com.snapchat.android/shared_prefs/*.xml'),
++                get_snapchat)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/suggestions.py b/scripts/artifacts/suggestions.py
+old mode 100644
+new mode 100755
+index 39142f0..3b6050f
+--- a/scripts/artifacts/suggestions.py
++++ b/scripts/artifacts/suggestions.py
+@@ -41,4 +41,11 @@ def get_suggestions(files_found, report_folder, seeker, wrap_text):
+             tlactivity = f'Suggestions XML data'
+             timeline(report_folder, tlactivity, data_list, data_headers)
+         else:
+-            logfunc('No Suggestions XML data available')
+\ No newline at end of file
++            logfunc('No Suggestions XML data available')
++
++__artifacts__ = {
++        "suggestions": (
++                "Wipe & Setup",
++                ('*/data/com.google.android.settings.intelligence/shared_prefs/suggestions.xml'),
++                get_suggestions)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/swellbeing.py b/scripts/artifacts/swellbeing.py
+old mode 100644
+new mode 100755
+index d53ba83..43459e0
+--- a/scripts/artifacts/swellbeing.py
++++ b/scripts/artifacts/swellbeing.py
+@@ -65,4 +65,10 @@ def get_swellbeing(files_found, report_folder, seeker, wrap_text):
+             logfunc('No Samsung Wellbeing event data available')
+         
+         db.close()
+-        return
+\ No newline at end of file
++
++__artifacts__ = {
++        "swellbeing": (
++                "Wellbeing",
++                ('*/com.samsung.android.forest/databases/dwbCommon.db*'),
++                get_swellbeing)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/tangomessage.py b/scripts/artifacts/tangomessage.py
+old mode 100644
+new mode 100755
+index cc81c4d..fe4c14e
+--- a/scripts/artifacts/tangomessage.py
++++ b/scripts/artifacts/tangomessage.py
+@@ -65,4 +65,10 @@ def get_tangomessage(files_found, report_folder, seeker, wrap_text):
+         logfunc('No Tango Messages data available')
+ 
+     db.close()
+-    return
++
++__artifacts__ = {
++        "tangomessage": (
++                "Tango",
++                ('*/com.sgiggle.production/files/tc.db*'),
++                get_tangomessage)
++}
+diff --git a/scripts/artifacts/teams.py b/scripts/artifacts/teams.py
+old mode 100644
+new mode 100755
+index 4ca43bb..c516a88
+--- a/scripts/artifacts/teams.py
++++ b/scripts/artifacts/teams.py
+@@ -198,6 +198,12 @@ def get_teams(files_found, report_folder, seeker, wrap_text):
+         else:
+             logfunc('No Teams File Info data available')
+             
+-            
+     db.close()
++
++__artifacts__ = {
++        "teams": (
++                "Teams",
++                ('*/com.microsoft.teams/databases/SkypeTeams.db*'),
++                get_teams)
++}
+     
+\ No newline at end of file
+diff --git a/scripts/artifacts/textnow.py b/scripts/artifacts/textnow.py
+old mode 100644
+new mode 100755
+index 658bb6b..247b96c
+--- a/scripts/artifacts/textnow.py
++++ b/scripts/artifacts/textnow.py
+@@ -165,4 +165,9 @@ def get_textnow(files_found, report_folder, seeker, wrap_text):
+ 
+     db.close
+     
+-    return
+\ No newline at end of file
++__artifacts__ = {
++    "textnow": (
++        "Text Now",
++        ('*/com.enflick.android.TextNow/databases/textnow_data.db*'),
++        get_textnow)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/tikTok.py b/scripts/artifacts/tikTok.py
+old mode 100644
+new mode 100755
+index e680b8e..6b48a5a
+--- a/scripts/artifacts/tikTok.py
++++ b/scripts/artifacts/tikTok.py
+@@ -93,4 +93,10 @@ def get_tikTok(files_found, report_folder, seeker, wrap_text):
+         logfunc('No TikTok Contacts available')
+     
+     db.close()
+-    
+\ No newline at end of file
++
++__artifacts__ = {
++        "tikTok": (
++                "TikTok",
++                ('*_im.db*', '*db_im_xx*'),
++                get_tikTok)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/torThumbs.py b/scripts/artifacts/torThumbs.py
+old mode 100644
+new mode 100755
+index 7f761c0..e12ad2c
+--- a/scripts/artifacts/torThumbs.py
++++ b/scripts/artifacts/torThumbs.py
+@@ -53,6 +53,9 @@ def get_torThumbs(files_found, report_folder, seeker, wrap_text):
+     else:
+         logfunc('No TOR Thumbnails data available')
+         
+-
+-        
+-        
+\ No newline at end of file
++__artifacts__ = {
++        "torThumbs": (
++                "TOR",
++                ('*/org.torproject.torbrowser/cache/mozac_browser_thumbnails/thumbnails/*.0'),
++                get_torThumbs)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/usageHistory.py b/scripts/artifacts/usageHistory.py
+deleted file mode 100644
+index 7122cc3..0000000
+--- a/scripts/artifacts/usageHistory.py
++++ /dev/null
+@@ -1,51 +0,0 @@
+-import xml.etree.ElementTree as ET  
+-import datetime
+-
+-from scripts.artifact_report import ArtifactHtmlReport
+-from scripts.ilapfuncs import timeline, tsv, is_platform_windows, open_sqlite_db_readonly
+-
+-
+-def get_usageHistory(files_found, report_folder, seeker, wrap_text):
+-    
+-    for file_found in files_found:
+-        file_found = str(file_found)
+-        
+-        if file_found.endswith('usage-history.xml'):
+-            break
+-            
+-    data_list = []
+-    
+-    tree = ET.parse(file_found)
+-    root = tree.getroot()
+-    
+-    for elem in root:
+-        for subelem in elem:
+-            pkg = elem.attrib['name']
+-            subitem = subelem.attrib['name']
+-            time = subelem.attrib['lrt']
+-            if time != ' ':
+-                time = int(time)
+-                time = datetime.datetime.fromtimestamp(time/1000)
+-            data_list.append((time, pkg, subitem))
+-    
+-    if len(data_list) > 0:
+-
+-        description = 'Usage History'
+-        report = ArtifactHtmlReport('Usage History')
+-        report.start_artifact_report(report_folder, 'Usage History', description)
+-        report.add_script()
+-        data_headers = ('Timestamp', 'Package', 'Subitem', )
+-        report.write_artifact_data_table(data_headers, data_list, file_found)
+-        report.end_artifact_report()
+-        
+-        tsvname = 'Usage History'
+-        tsv(report_folder, data_headers, data_list, tsvname)
+-        
+-        tlactivity = 'Usage History'
+-        timeline(report_folder, tlactivity, data_list, data_headers)
+-    else:
+-        logfunc('Usage History data available')
+-    
+-
+-        
+-        
+\ No newline at end of file
+diff --git a/scripts/artifacts/usageapps.py b/scripts/artifacts/usageapps.py
+old mode 100644
+new mode 100755
+index 0417b62..51e0474
+--- a/scripts/artifacts/usageapps.py
++++ b/scripts/artifacts/usageapps.py
+@@ -117,6 +117,10 @@ def get_usageapps(files_found, report_folder, seeker, wrap_text):
+             logfunc('No Usage Apps data available')
+         
+         db.close()
+-        return
+-    
+ 
++__artifacts__ = {
++        "usageapps": (
++                "App Interaction",
++                ('*/com.google.android.as/databases/reflection_gel_events.db*'),
++                get_usageapps)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/usagestats.py b/scripts/artifacts/usagestats.py
+old mode 100644
+new mode 100755
+index e83ba61..e424d4b
+--- a/scripts/artifacts/usagestats.py
++++ b/scripts/artifacts/usagestats.py
+@@ -568,4 +568,11 @@ def process_usagestats(folder, uid, report_folder, version):
+     timeline(report_folder, tlactivity, data_list, data_headers)
+ 
+     logfunc(f'Records processed for user {uid}: {processed}')
+-    db.close()
+\ No newline at end of file
++    db.close()
++    
++__artifacts__ = {
++    "usagestats": (
++        "Usage Stats",
++        ('*/system/usagestats/*', '*/system_ce/*/usagestats*'),
++        get_usagestats)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/usagestatsVersion.py b/scripts/artifacts/usagestatsVersion.py
+old mode 100644
+new mode 100755
+diff --git a/scripts/artifacts/usagestats_pb/configuration_pb2.py b/scripts/artifacts/usagestats_pb/configuration_pb2.py
+old mode 100644
+new mode 100755
+diff --git a/scripts/artifacts/usagestats_pb/descriptor_pb2.py b/scripts/artifacts/usagestats_pb/descriptor_pb2.py
+old mode 100644
+new mode 100755
+diff --git a/scripts/artifacts/usagestats_pb/locale_pb2.py b/scripts/artifacts/usagestats_pb/locale_pb2.py
+old mode 100644
+new mode 100755
+diff --git a/scripts/artifacts/usagestats_pb/privacy_pb2.py b/scripts/artifacts/usagestats_pb/privacy_pb2.py
+old mode 100644
+new mode 100755
+diff --git a/scripts/artifacts/usagestats_pb/rect_pb2.py b/scripts/artifacts/usagestats_pb/rect_pb2.py
+old mode 100644
+new mode 100755
+diff --git a/scripts/artifacts/usagestats_pb/usagestatsservice_pb2.py b/scripts/artifacts/usagestats_pb/usagestatsservice_pb2.py
+old mode 100644
+new mode 100755
+diff --git a/scripts/artifacts/usagestats_pb/usagestatsservice_v2_pb2.py b/scripts/artifacts/usagestats_pb/usagestatsservice_v2_pb2.py
+old mode 100644
+new mode 100755
+diff --git a/scripts/artifacts/usagestats_pb/window_configuration_pb2.py b/scripts/artifacts/usagestats_pb/window_configuration_pb2.py
+old mode 100644
+new mode 100755
+diff --git a/scripts/artifacts/userDict.py b/scripts/artifacts/userDict.py
+old mode 100644
+new mode 100755
+index cc01165..f4fafc6
+--- a/scripts/artifacts/userDict.py
++++ b/scripts/artifacts/userDict.py
+@@ -39,5 +39,11 @@ def get_userDict(files_found, report_folder, seeker, wrap_text):
+         logfunc('No User Dictionary data available')
+     
+     db.close()
+-    return
++
++__artifacts__ = {
++    "userDict": (
++        "User Dictionary",
++        ('*/com.android.providers.userdictionary/databases/user_dict.db*'),
++        get_userDict)
++}
+ 
+diff --git a/scripts/artifacts/vaulty_files.py b/scripts/artifacts/vaulty_files.py
+old mode 100644
+new mode 100755
+index 5767db3..4df90db
+--- a/scripts/artifacts/vaulty_files.py
++++ b/scripts/artifacts/vaulty_files.py
+@@ -30,3 +30,10 @@ def get_vaulty_files(files_found, report_folder, seeker, wrap_text):
+     report.end_artifact_report()
+     
+     tsv(report_folder, data_headers, data_list, title)
++
++__artifacts__ = {
++    "vaulty_files": (
++        "Vaulty",
++        ('*/data/data/com.theronrogers.vaultyfree/databases/media.db'),
++        get_vaulty_files)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/vaulty_info.py b/scripts/artifacts/vaulty_info.py
+old mode 100644
+new mode 100755
+index f0691fc..02ef717
+--- a/scripts/artifacts/vaulty_info.py
++++ b/scripts/artifacts/vaulty_info.py
+@@ -84,3 +84,10 @@ def get_vaulty_info(files_found, report_folder, seeker, wrap_text):
+     report.end_artifact_report()
+     
+     tsv(report_folder, data_headers, data_list, title)
++
++__artifacts__ = {
++    "vaulty_info": (
++        "Vaulty",
++        ('*/data/data/com.theronrogers.vaultyfree/shared_prefs/com.theronrogers.vaultyfree_preferences.xml'),
++        get_vaulty_info)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/vlcMedia.py b/scripts/artifacts/vlcMedia.py
+old mode 100644
+new mode 100755
+diff --git a/scripts/artifacts/vlcThumbs.py b/scripts/artifacts/vlcThumbs.py
+old mode 100644
+new mode 100755
+diff --git a/scripts/artifacts/walStrings.py b/scripts/artifacts/walStrings.py
+old mode 100644
+new mode 100755
+index a32e569..23bf007
+--- a/scripts/artifacts/walStrings.py
++++ b/scripts/artifacts/walStrings.py
+@@ -58,4 +58,10 @@ def get_walStrings(files_found, report_folder, seeker, wrap_text):
+     report.write_artifact_data_table(data_headers, data_list, location, html_escape=False)
+     report.end_artifact_report()
+ 
+-  
+\ No newline at end of file
++__artifacts__ = {
++        "walStrings": (
++                "SQLite Journaling",
++                ('*/*-wal', '*/*-journal'),
++                get_walStrings)
++}
++    
+\ No newline at end of file
+diff --git a/scripts/artifacts/waze.py b/scripts/artifacts/waze.py
+old mode 100644
+new mode 100755
+index 0cfc5f2..83e570b
+--- a/scripts/artifacts/waze.py
++++ b/scripts/artifacts/waze.py
+@@ -51,4 +51,10 @@ def get_waze(files_found, report_folder, seeker, wrap_text):
+         
+     db.close()
+ 
++__artifacts__ = {
++        "waze": (
++                "Waze",
++                ('*/com.waze/user.db*'),
++                get_waze)
++}
+     
+\ No newline at end of file
+diff --git a/scripts/artifacts/wellbeing.py b/scripts/artifacts/wellbeing.py
+old mode 100644
+new mode 100755
+index 7172fb0..13dd498
+--- a/scripts/artifacts/wellbeing.py
++++ b/scripts/artifacts/wellbeing.py
+@@ -57,4 +57,10 @@ def get_wellbeing(files_found, report_folder, seeker, wrap_text):
+             logfunc('No Wellbeing event data available')
+         
+         db.close()
+-        return
+\ No newline at end of file
++
++__artifacts__ = {
++        "wellbeing": (
++                "Wellbeing",
++                ('*/com.google.android.apps.wellbeing/databases/app_usage*'),
++                get_wellbeing)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/wellbeingURLs.py b/scripts/artifacts/wellbeingURLs.py
+old mode 100644
+new mode 100755
+index a537ba9..3315344
+--- a/scripts/artifacts/wellbeingURLs.py
++++ b/scripts/artifacts/wellbeingURLs.py
+@@ -53,4 +53,10 @@ def get_wellbeingURLs(files_found, report_folder, seeker, wrap_text):
+             logfunc('No Wellbeing URL event data available')
+         
+         db.close()
+-        return
+\ No newline at end of file
++
++__artifacts__ = {
++        "wellbeingURLs": (
++                "Wellbeing",
++                ('*/com.google.android.apps.wellbeing/databases/app_usage*'),
++                get_wellbeingURLs)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/wellbeingaccount.py b/scripts/artifacts/wellbeingaccount.py
+old mode 100644
+new mode 100755
+index 45d543f..c41ffcd
+--- a/scripts/artifacts/wellbeingaccount.py
++++ b/scripts/artifacts/wellbeingaccount.py
+@@ -22,4 +22,11 @@ def get_wellbeingaccount(files_found, report_folder, seeker, wrap_text):
+     report.end_artifact_report()
+     
+     tsvname = f'wellbeing account'
+-    tsv(report_folder, data_headers, data_list, tsvname)
+\ No newline at end of file
++    tsv(report_folder, data_headers, data_list, tsvname)
++
++__artifacts__ = {
++        "wellbeingaccount": (
++                "Wellbeing",
++                ('*/com.google.android.apps.wellbeing/files/AccountData.pb'),
++                get_wellbeingaccount)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/wifiConfigstore.py b/scripts/artifacts/wifiConfigstore.py
+old mode 100644
+new mode 100755
+index d8405fb..0115bd8
+--- a/scripts/artifacts/wifiConfigstore.py
++++ b/scripts/artifacts/wifiConfigstore.py
+@@ -65,4 +65,11 @@ def get_wifiConfigstore(files_found, report_folder, seeker, wrap_text):
+             tlactivity = f'Wifi Configuration Store data'
+             timeline(report_folder, tlactivity, data_list, data_headers)
+         else:
+-            logfunc('No Wifi Configuration Store data available')
+\ No newline at end of file
++            logfunc('No Wifi Configuration Store data available')
++            
++__artifacts__ = {
++        "wifiConfigstore": (
++                "WiFi Profiles",
++                ('*/misc/wifi/WifiConfigStore.xml', '*/misc**/apexdata/com.android.wifi/WifiConfigStore.xml'),
++                get_wifiConfigstore)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/wifiHotspot.py b/scripts/artifacts/wifiHotspot.py
+old mode 100644
+new mode 100755
+index aefbb7e..395bfca
+--- a/scripts/artifacts/wifiHotspot.py
++++ b/scripts/artifacts/wifiHotspot.py
+@@ -52,4 +52,11 @@ def get_wifiHotspot(files_found, report_folder, seeker, wrap_text):
+         tsvname = f'wifi hotspot'
+         tsv(report_folder, data_headers, data_list, tsvname)
+     else:
+-        logfunc('No Wi-Fi Hotspot data available')
+\ No newline at end of file
++        logfunc('No Wi-Fi Hotspot data available')
++
++__artifacts__ = {
++        "wifiHotspot": (
++                "WiFi Profiles",
++                ('*/misc/wifi/softap.conf', '*/misc**/apexdata/com.android.wifi/WifiConfigStoreSoftAp.xml'),
++                get_wifiHotspot)
++}
+\ No newline at end of file
+diff --git a/scripts/artifacts/wifiProfiles.py b/scripts/artifacts/wifiProfiles.py
+old mode 100644
+new mode 100755
+index 55c87dc..54abaf3
+--- a/scripts/artifacts/wifiProfiles.py
++++ b/scripts/artifacts/wifiProfiles.py
+@@ -166,4 +166,10 @@ def get_wifiProfiles(files_found, report_folder, seeker, wrap_text):
+         tsv(report_folder, data_headers, data_list, tsvname)
+     else:
+         logfunc('No Wi-Fi Profiles data available')
+-  
+\ No newline at end of file
++
++__artifacts__ = {
++        "wifiProfiles": (
++                "WiFi Profiles",
++                ('*/misc/wifi/WifiConfigStore.xml', '*/misc**/apexdata/com.android.wifi/WifiConfigStore.xml'),
++                get_wifiProfiles)
++}
+\ No newline at end of file
+diff --git a/scripts/dark-mode-switch.js b/scripts/dark-mode-switch.js
+old mode 100644
+new mode 100755
+diff --git a/scripts/dark-mode.css b/scripts/dark-mode.css
+old mode 100644
+new mode 100755
+diff --git a/scripts/dashboard.css b/scripts/dashboard.css
+old mode 100644
+new mode 100755
+diff --git a/scripts/feather.min.js b/scripts/feather.min.js
+old mode 100644
+new mode 100755
+diff --git a/scripts/html_parts.py b/scripts/html_parts.py
+old mode 100644
+new mode 100755
+diff --git a/scripts/ilap_artifacts.py b/scripts/ilap_artifacts.py
+old mode 100644
+new mode 100755
+index b1b791f..dd2730c
+--- a/scripts/ilap_artifacts.py
++++ b/scripts/ilap_artifacts.py
+@@ -149,7 +149,6 @@ from scripts.artifacts.torThumbs import get_torThumbs
+ from scripts.artifacts.Turbo_Battery import get_Turbo_Battery
+ from scripts.artifacts.Turbo_AppUsage import get_Turbo_AppUsage
+ from scripts.artifacts.usageapps import get_usageapps
+-from scripts.artifacts.usageHistory import get_usageHistory
+ from scripts.artifacts.usagestats import get_usagestats
+ from scripts.artifacts.usagestatsVersion import get_usagestatsVersion
+ from scripts.artifacts.userDict import get_userDict
+@@ -325,7 +324,6 @@ tosearch = {
+     'Turbo_Battery': ('Device Health Services', ('*/com.google.android.apps.turbo/databases/turbo.db*','*/com.google.android.apps.turbo/databases/bluetooth.db*',)),
+     'Turbo_AppUsage': ('Device Health Services', '*/com.google.android.apps.turbo/shared_prefs/app_usage_stats.xml'),
+     'usageapps': ('App Interaction', '**/com.google.android.as/databases/reflection_gel_events.db*'),
+-    'usageHistory': ('App Interaction', '*/usage-history.xml'),
+     'usagestats':('Usage Stats', ('*/system/usagestats/*', '**/system_ce/*/usagestats*')), # fs: matches only 1st level folders under usagestats/, tar/zip matches every single file recursively under usagestats/
+     'usagestatsVersion':('Usage Stats', ('*/system/usagestats/*/version', '*/system_ce/*/usagestats/version')),
+     'userDict':('User Dictionary', '**/com.android.providers.userdictionary/databases/user_dict.db*'),
+diff --git a/scripts/ilapfuncs.py b/scripts/ilapfuncs.py
+old mode 100644
+new mode 100755
+diff --git a/scripts/logo.jpg b/scripts/logo.jpg
+old mode 100644
+new mode 100755
+diff --git a/scripts/parse3.py b/scripts/parse3.py
+old mode 100644
+new mode 100755
+diff --git a/scripts/report.py b/scripts/report.py
+old mode 100644
+new mode 100755
+index 9a15071..a3146be
+--- a/scripts/report.py
++++ b/scripts/report.py
+@@ -89,6 +89,7 @@ def get_icon_name(category, artifact):
+         if artifact.find('GROUP INFORMATION') >= 0:         icon = 'users'
+         elif artifact.find('CHAT MESSAGES') >= 0:           icon = 'message-circle'
+     elif category == 'GOOGLE DRIVE':     icon = 'file'
++    elif category == 'FILES BY GOOGLE':     icon = 'file'
+     elif category == 'GOOGLE DUO':
+         if artifact.find('CALL HISTORY') >= 0:      icon = 'phone-call'
+         elif artifact.find('CONTACTS') >= 0:      icon = 'users'
+@@ -157,7 +158,6 @@ def get_icon_name(category, artifact):
+     elif category == 'SMS & MMS':       icon = 'message-square'
+     elif category == 'SQLITE JOURNALING': icon = 'book-open'
+     elif category == 'USAGE STATS':     icon = 'bar-chart-2'
+-    elif category == 'USAGE HISTORY':     icon = 'bar-chart-2'
+     elif category == 'USER DICTIONARY': icon = 'book'
+     elif category == 'WAZE': icon = 'navigation-2'
+     elif category == 'WELLBEING' or category == 'WELLBEING ACCOUNT': 
+diff --git a/scripts/search_files.py b/scripts/search_files.py
+old mode 100644
+new mode 100755
+diff --git a/scripts/version_info.py b/scripts/version_info.py
+old mode 100644
+new mode 100755
+-- 
+2.34.1
+

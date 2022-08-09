@@ -1,0 +1,28 @@
+From 9dafdb2eaba9bee9a2e2850df574db4f32c1c8cc Mon Sep 17 00:00:00 2001
+From: abrignoni <abrignoni@gmail.com>
+Date: Wed, 13 Jul 2022 15:07:03 -0400
+Subject: [PATCH 10/19] Updated artifacts
+
+First set of updated artifacts
+---
+ aleapp.py | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/aleapp.py b/aleapp.py
+index 5d27f62..e657ddf 100644
+--- a/aleapp.py
++++ b/aleapp.py
+@@ -148,10 +148,6 @@ def crunch_artifacts(
+                 for pathh in found:
+                     if pathh.startswith('\\\\?\\'):
+                         pathh = pathh[4:]
+-<<<<<<< Updated upstream
+-=======
+-                        #logfunc(f'Files for {artifact_search_regex} located at {pathh}')
+->>>>>>> Stashed changes
+                     log.write(f'Files for {artifact_search_regex} located at {pathh}<br><br>')
+                 files_found.extend(found)
+         if files_found:
+-- 
+2.34.1
+
