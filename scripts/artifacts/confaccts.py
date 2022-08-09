@@ -6,7 +6,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
 
 
-def get_confaccts(files_found, report_folder, seeker):
+def get_confaccts(files_found, report_folder, seeker, wrap_text):
     data_list = []
     file_found = str(files_found[0])
     with open(file_found, "rb") as fp:
@@ -24,4 +24,9 @@ def get_confaccts(files_found, report_folder, seeker):
     tsvname = 'Account Configuration'
     tsv(report_folder, data_headers, data_list, tsvname)
             
-    
+__artifacts__ = {
+    "confaccts": (
+        "Accounts",
+        ('**/com.apple.accounts.exists.plist'),
+        get_confaccts)
+}

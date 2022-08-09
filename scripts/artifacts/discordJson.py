@@ -12,7 +12,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, logdevinfo, timeline, tsv, is_platform_windows 
 
 
-def get_discordJson(files_found, report_folder, seeker):
+def get_discordJson(files_found, report_folder, seeker, wrap_text):
 	data_list = []
 	for file_found in files_found:
 		file_found = str(file_found)
@@ -134,3 +134,10 @@ def get_discordJson(files_found, report_folder, seeker):
 		
 		tlactivity = 'Discord Messages'
 		timeline(report_folder, tlactivity, data_list, data_headers)
+
+__artifacts__ = {
+    "discordjson": (
+        "Discord",
+        ('*/com.hammerandchisel.discord/fsCachedData/*'),
+        get_discordJson)
+}

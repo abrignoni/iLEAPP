@@ -8,7 +8,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
 
 
-def get_filesAppsclient(files_found, report_folder, seeker):
+def get_filesAppsclient(files_found, report_folder, seeker, wrap_text):
     for file_found in files_found:
         file_found = str(file_found)
         
@@ -51,3 +51,9 @@ def get_filesAppsclient(files_found, report_folder, seeker):
     else:
         logfunc('No Files App - iCloud Client Items data available')
     
+__artifacts__ = {
+    "filesappsclient": (
+        "Files App",
+        ('*private/var/mobile/Library/Application Support/CloudDocs/session/db/client.db*'),
+        get_filesAppsclient)
+}

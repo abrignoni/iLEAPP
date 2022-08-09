@@ -4,7 +4,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly
 
 
-def get_appleWalletCards(files_found, report_folder, seeker):
+def get_appleWalletCards(files_found, report_folder, seeker, wrap_text):
     data_list = []
     for file_found in files_found:
         file_found = str(file_found)
@@ -76,3 +76,10 @@ def get_card_type(card_num, num_length):
         return 'Diners Club Carte Blanche'
     else:
         return 'Unknown'
+
+__artifacts__ = {
+    "applewalletcards": (
+        "Apple Wallet",
+        ('*/private/var/mobile/Containers/Data/Application/*/Library/Caches/com.apple.Passbook/Cache.db*'),
+        get_appleWalletCards)
+}

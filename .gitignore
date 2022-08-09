@@ -45,6 +45,9 @@ coverage.xml
 .pytest_cache/
 pytestdebug.log
 
+# Output test
+iLEAPP_Reports_*
+
 # PyBuilder
 target/
 

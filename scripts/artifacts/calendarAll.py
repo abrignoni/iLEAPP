@@ -11,7 +11,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
 
 
-def get_calendarAll(files_found, report_folder, seeker):
+def get_calendarAll(files_found, report_folder, seeker, wrap_text):
 	file_found = str(files_found[0])
 	#os.chmod(file_found, 0o0777)
 	db = open_sqlite_db_readonly(file_found)
@@ -115,3 +115,10 @@ def get_calendarAll(files_found, report_folder, seeker):
 		tsv(report_folder, data_headers, data_list, tsvname)
 	else:
 		logfunc('No data available for Calendar Identity')
+
+__artifacts__ = {
+    "calendarall": (
+        "Calendar",
+        ('**/Calendar.sqlitedb'),
+        get_calendarAll)
+}

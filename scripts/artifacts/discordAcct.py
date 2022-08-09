@@ -26,7 +26,7 @@ def strings(filename, min=4):
 		if len(result) >= min:  # catch result at EOF
 			yield result
 
-def get_discordAcct(files_found, report_folder, seeker):
+def get_discordAcct(files_found, report_folder, seeker, wrap_text):
 	searchlist = []
 	for file_found in files_found:
 		file_found = str(file_found)
@@ -66,3 +66,10 @@ def get_discordAcct(files_found, report_folder, seeker):
 		
 		tsvname = 'Discord Account'
 		tsv(report_folder, data_headers, data_list, tsvname)
+
+__artifacts__ = {
+    "discordacct": (
+        "Discord",
+        ('*/var/mobile/Containers/Data/Application/*/Documents/mmkv/mmkv.default'),
+        get_discordAcct)
+}

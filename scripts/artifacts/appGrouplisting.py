@@ -7,7 +7,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, is_platform_windows
 
 
-def get_appGrouplisting(files_found, report_folder, seeker):
+def get_appGrouplisting(files_found, report_folder, seeker, wrap_text):
     data_list = []       
     for file_found in files_found:
         file_found = str(file_found)
@@ -40,4 +40,9 @@ def get_appGrouplisting(files_found, report_folder, seeker):
     else:
         logfunc('No data on Bundle ID - AppGroup ID - PluginKit ID')
 
-    
+__artifacts__ = {
+    "appgrouplisting": (
+        "Installed Apps",
+        ('*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist', '**/PluginKitPlugin/*.metadata.plist'),
+        get_appGrouplisting)
+}

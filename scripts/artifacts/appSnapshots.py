@@ -29,7 +29,7 @@ def save_ktx_to_png_if_valid(ktx_path, save_to_path):
             logfunc(f'Had an exception - {str(ex)}')
     return False
 
-def get_applicationSnapshots(files_found, report_folder, seeker):
+def get_applicationSnapshots(files_found, report_folder, seeker, wrap_text):
     
     slash = '\\' if is_platform_windows() else '/'
     data_headers = ('App Name', 'Source Path', 'Date Modified', 'Snapshot')
@@ -91,3 +91,10 @@ def get_applicationSnapshots(files_found, report_folder, seeker):
         tsv(report_folder, tsv_headers, data_list, tsvname)
     else:
         logfunc('No snapshots available')
+
+__artifacts__ = {
+    "applicationsnapshots": (
+        "Installed Apps",
+        ('**/Library/Caches/Snapshots/*', '**/SplashBoard/Snapshots/*'),
+        get_applicationSnapshots)
+}

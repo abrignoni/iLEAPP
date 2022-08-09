@@ -9,7 +9,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows
 
 
-def get_appItunesmeta(files_found, report_folder, seeker):
+def get_appItunesmeta(files_found, report_folder, seeker, wrap_text):
     data_list = []       
     for file_found in files_found:
         file_found = str(file_found)
@@ -64,5 +64,12 @@ def get_appItunesmeta(files_found, report_folder, seeker):
         timeline(report_folder, tlactivity, data_list, data_headers)
     else:
         logfunc('No data on Apps - Itunes Bundle Metadata')
+
+__artifacts__ = {
+    "appitunesmeta": (
+        "Installed Apps",
+        ('**/iTunesMetadata.plist', '**/BundleMetadata.plist'),
+        get_appItunesmeta)
+}
 
     

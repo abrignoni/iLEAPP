@@ -7,7 +7,7 @@ import xml.etree.ElementTree as ET
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, logdevinfo, is_platform_windows
 
-def get_deviceActivator(files_found, report_folder, seeker):
+def get_deviceActivator(files_found, report_folder, seeker, wrap_text):
     data_list = []
     alllines = ''    
     file_found = str(files_found[0])
@@ -61,4 +61,9 @@ def get_deviceActivator(files_found, report_folder, seeker):
     else:
         logfunc('No iOS Device Activator Data')
 
-    
+__artifacts__ = {
+    "deviceactivator": (
+        "IOS Build",
+        ('*private/var/mobile/Library/Logs/mobileactivationd/ucrt_oob_request.txt'),
+        get_deviceActivator)
+}
