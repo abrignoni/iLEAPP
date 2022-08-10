@@ -7,7 +7,7 @@ from scripts.ilapfuncs import logfunc, logdevinfo, tsv, is_platform_windows
 
 # Backup version of iOS, iOS version installed at the time of recovery, 
 # recovery date, and whether the backup was restored from iCloud.
-def get_mobileBackup(files_found, report_folder, seeker):
+def get_mobileBackup(files_found, report_folder, seeker, wrap_text):
     data_list = []
     file_found = str(files_found[0])
     
@@ -44,3 +44,10 @@ def get_mobileBackup(files_found, report_folder, seeker):
     
     tsvname = 'Mobile Backup'
     tsv(report_folder, data_headers, data_list, tsvname)
+
+__artifacts__ = {
+    "mobileBackup": (
+        "Mobile Backup",
+        ('*/Preferences/com.apple.MobileBackup.plist'),
+        get_mobileBackup)
+}

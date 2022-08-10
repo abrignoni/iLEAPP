@@ -128,17 +128,6 @@ from scripts.ilapfuncs import *
 
 tosearch = {
             
-            'FacebookMessenger': ('Facebook Messenger', '**/lightspeed-*.db*'),
-            'filesAppsclient': ('Files App', '*private/var/mobile/Library/Application Support/CloudDocs/session/db/client.db*'),
-            'filesAppsdb': ('Files App', '*private/var/mobile/Library/Application Support/CloudDocs/session/db/server.db*'),
-            'filesAppsm': ('Files App', '*private/var/mobile/Containers/Shared/AppGroup/*/smartfolders.db*'),
-            'geodApplications': ('Geolocation', '**/AP.db*'),
-            'geodMapTiles': ('Geolocation', '**/MapTiles.sqlitedb*'),
-            'geodPDPlaceCache': ('Geolocation', '**/PDPlaceCache.db*'),
-            'Gmail': ('Gmail', ('**/private/var/mobile/Containers/Data/Application/*/Library/Application Support/data/*/searchsqlitedb*','**/private/var/mobile/Containers/Data/Application/*/Library/Application Support/data/*/sqlitedb*')),
-            'googleDuo': ('Google Duo', ('*/Application Support/DataStore*','*/Application Support/ClipsCache/*.png')),
-            'icloudMeta': ('iCloud Returns', '*/iclouddrive/Metadata.txt'),
-            'icloudPhotoMeta': ('iCloud Returns', '*/cloudphotolibrary/Metadata.txt'),
             'icloudSharedalbums': ('iCloud Shared Albums', '*/private/var/mobile/Media/PhotoData/PhotoCloudSharingData/*'),
             'iCloudWifi': ('Wifi Connections', '**/com.apple.wifid.plist'),
             'iconsScreen': ('iOS Screens', '**/SpringBoard/IconState.plist'),
@@ -244,7 +233,7 @@ def process_artifact(files_found, artifact_func, artifact_name, seeker, report_f
         return
     try:
         method = globals()['get_' + artifact_func]
-        method(files_found, report_folder, seeker)
+        method(files_found, report_folder, seeker, wrap_text)
     except Exception as ex:
         logfunc('Reading {} artifact had errors!'.format(artifact_name))
         logfunc('Error was {}'.format(str(ex)))

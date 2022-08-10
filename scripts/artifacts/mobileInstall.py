@@ -39,7 +39,7 @@ def day_converter(day):
     return day
 
 
-def get_mobileInstall(files_found, report_folder, seeker):
+def get_mobileInstall(files_found, report_folder, seeker, wrap_text):
     counter = 0
     filescounter = 0
     tsv_tml_data_list = []
@@ -632,3 +632,10 @@ def get_mobileInstall(files_found, report_folder, seeker):
     report.write_artifact_data_table(data_headers, data_list, location, html_escape=False)
     report.end_artifact_report()
 '''
+
+__artifacts__ = {
+    "mobileInstall": (
+        "Mobile Installation Logs",
+        ('**/mobile_installation.log.*'),
+        get_mobileInstall)
+}

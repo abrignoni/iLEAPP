@@ -12,7 +12,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows
 from scripts.parse3 import ParseProto
 
-def get_mailprotect(files_found, report_folder, seeker):
+def get_mailprotect(files_found, report_folder, seeker, wrap_text):
 	iOSversion = scripts.artifacts.artGlobals.versionf
 
 	if version.parse(iOSversion) <= version.parse("11"):
@@ -212,3 +212,9 @@ def get_mailprotect(files_found, report_folder, seeker):
 		else:
 			logfunc("No iOS emails available")
 
+__artifacts__ = {
+    "mailprotect": (
+        "iOS Mail",
+        ('**/private/var/mobile/Library/Mail/* Index*'),
+        get_mailprotect)
+}

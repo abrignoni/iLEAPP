@@ -14,7 +14,7 @@ def format_time(date_time_str):
     return formatted
 
 
-def get_voiceTriggers(files_found, report_folder, seeker):
+def get_voiceTriggers(files_found, report_folder, seeker, wrap_text):
     info_files = []
     data_list = []
     if len(files_found) > 1:
@@ -62,3 +62,10 @@ def get_voiceTriggers(files_found, report_folder, seeker):
         logfunc('No Voice Triggers found')
 
     return
+
+__artifacts__ = {
+    "voiceTriggers": (
+        "Voice-Triggers",
+        ('**/td/audio/*.json','**/td/audio/*.wav'),
+        get_voiceTriggers)
+}

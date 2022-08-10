@@ -32,7 +32,7 @@ def get_recursively(search_dict, field):
                         
     return fields_found
 
-def get_mapsSync(files_found, report_folder, seeker):
+def get_mapsSync(files_found, report_folder, seeker, wrap_text):
     
     for file_found in files_found:
         file_found = str(file_found)
@@ -152,3 +152,10 @@ def get_mapsSync(files_found, report_folder, seeker):
             kmlgen(report_folder, kmlactivity, data_list, data_headers)
         else:
             logfunc('No MapsSync data available')
+
+__artifacts__ = {
+    "mapsSync": (
+        "Geolocation",
+        ('*/MapsSync_0.0.1*'),
+        get_mapsSync)
+}

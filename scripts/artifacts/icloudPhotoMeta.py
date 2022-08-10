@@ -20,7 +20,7 @@ def timefactorconversion(timeinutc):
         timeinutc = str(timeinutc)
     return timeinutc
 
-def get_icloudPhotoMeta(files_found, report_folder, seeker):
+def get_icloudPhotoMeta(files_found, report_folder, seeker, wrap_text):
     counter = 0
     os.makedirs(os.path.join(report_folder, "bplists"))
     for file_found in files_found:
@@ -165,3 +165,9 @@ def get_icloudPhotoMeta(files_found, report_folder, seeker):
         else:
             logfunc('No data available')
                 
+__artifacts__ = {
+    "aicloudphotometa": (
+        "iCloud Returns",
+        ('*/cloudphotolibrary/Metadata.txt'),
+        get_icloudPhotoMeta)
+}

@@ -5,7 +5,7 @@ import scripts.artifacts.artGlobals #use to get iOS version -> iOSversion = scri
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
 
-def get_icloudMeta(files_found, report_folder, seeker):
+def get_icloudMeta(files_found, report_folder, seeker, wrap_text):
     counter = 0
     for file_found in files_found:
         file_found = str(file_found)
@@ -62,3 +62,10 @@ def get_icloudMeta(files_found, report_folder, seeker):
                 tsv(report_folder, data_headers, data_list, tsvname)
             else:
                 logfunc('No data available')
+
+__artifacts__ = {
+    "icloudmeta": (
+        "iCloud Returns",
+        ('*/iclouddrive/Metadata.txt'),
+        get_icloudMeta)
+}

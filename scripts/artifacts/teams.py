@@ -13,7 +13,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, logdevinfo, timeline, kmlgen, tsv, is_platform_windows, open_sqlite_db_readonly
 
 
-def get_teams(files_found, report_folder, seeker):
+def get_teams(files_found, report_folder, seeker, wrap_text):
     CacheFile = 0
     for file_found in files_found:
         file_found = str(file_found)
@@ -241,6 +241,11 @@ def get_teams(files_found, report_folder, seeker):
     
     db.close()
     
-
+__artifacts__ = {
+    "teams": (
+        "Microsoft Teams",
+        ('*/var/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*','*/var/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/Downloads/*/Images/*'),
+        get_teams)
+}
         
         

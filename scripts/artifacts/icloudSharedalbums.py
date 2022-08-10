@@ -5,7 +5,7 @@ from pathlib import Path
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, logdevinfo, tsv, is_platform_windows 
 
-def get_icloudSharedalbums(files_found, report_folder, seeker):
+def get_icloudSharedalbums(files_found, report_folder, seeker, wrap_text):
 	data_list_sharedemails = []
 	data_list_sharedpersoninfos = []
 	data_list_sharedinfos = []
@@ -159,3 +159,10 @@ def get_icloudSharedalbums(files_found, report_folder, seeker):
 		tsv(report_folder, data_headers, data_list_sharedemails, tsvname)
 	else:
 		logfunc('No iCloud Shared Emails')
+	
+__artifacts__ = {
+    "icloudSharedalbums": (
+        "iCloud Shared Albums",
+        ('*/private/var/mobile/Media/PhotoData/PhotoCloudSharingData/*'),
+        get_icloudSharedalbums)
+}

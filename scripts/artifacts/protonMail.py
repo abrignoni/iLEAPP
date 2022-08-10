@@ -16,7 +16,7 @@ from pathlib import Path
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, media_to_html
 
-def get_protonMail(files_found, report_folder, seeker):
+def get_protonMail(files_found, report_folder, seeker, wrap_text):
     data_list = []
 
     p = Path(__file__).parents[1]
@@ -255,5 +255,9 @@ def get_protonMail(files_found, report_folder, seeker):
     else:
       logfunc('No Proton Mail - Decrypted Emails')
 
-
-      
+__artifacts__ = {
+    "protonMail": (
+        "Proton Mail",
+        ('*/group.ch.protonmail.protonmail.plist','*/ProtonMail.sqlite*','*/Containers/Data/Application/*/tmp/*'),
+        get_protonMail)
+}
