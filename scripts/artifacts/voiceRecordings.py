@@ -14,7 +14,7 @@ def unix_epoch_to_readable_date(unix_epoch_time):
     return readable_time
 
 
-def get_voiceRecordings(files_found, report_folder, seeker):
+def get_voiceRecordings(files_found, report_folder, seeker, wrap_text):
     if len(files_found) > 0:
         data_list = []
         plist_files = []
@@ -63,3 +63,10 @@ def get_voiceRecordings(files_found, report_folder, seeker):
         logfunc('No Voice Recordings found')
 
     return
+
+__artifacts__ = {
+    "voiceRecordings": (
+        "Voice-Recordings",
+        ('**/Recordings/*.composition/manifest.plist','**/Recordings/*.m4a'),
+        get_voiceRecordings)
+}

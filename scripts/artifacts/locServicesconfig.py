@@ -14,7 +14,7 @@ def convertcocoa(timevalue):
     timestamp = datetime.datetime.fromtimestamp(timevalue) + delta 
     return (timestamp.strftime('%Y-%m-%d %H:%M:%S'))
 
-def get_locServicesconfig(files_found, report_folder, seeker):
+def get_locServicesconfig(files_found, report_folder, seeker, wrap_text):
     
     data_list_clientsplist = []
     data_list_routinedplist= []
@@ -106,4 +106,10 @@ def get_locServicesconfig(files_found, report_folder, seeker):
       
     else:
       logfunc('No LSC - clients.plist')
-      
+
+__artifacts__ = {
+    "locServicesconfig": (
+        "Location Services Configurations",
+        ('*/Library/Preferences/com.apple.locationd.plist','*/Library/Caches/locationd/clients.plist','*/Library/Preferences/com.apple.routined.plist'),
+        get_locServicesconfig)
+}

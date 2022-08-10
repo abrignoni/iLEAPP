@@ -69,7 +69,7 @@ from scripts.artifacts.kikBplistmeta import get_kikBplistmeta
 from scripts.artifacts.kikPendingUploads import get_kikPendingUploads
 from scripts.artifacts.kikUsersgroups import get_kikUsersgroups
 from scripts.artifacts.locServicesconfig import get_locServicesconfig
-from scripts.artifacts.lastBuild import get_lastBuild, get_iTunesBackupInfo
+#from scripts.artifacts.lastBuild import get_lastBuild, get_iTunesBackupInfo
 from scripts.artifacts.mapsSync import get_mapsSync
 from scripts.artifacts.mailprotect import get_mailprotect
 from scripts.artifacts.mediaLibrary import get_mediaLibrary
@@ -126,53 +126,8 @@ from scripts.ilapfuncs import *
 # Don't forget to import the module above!!!!
 
 
-tosearch = {'lastBuild': ('IOS Build', '*LastBuildInfo.plist'),
-            'accs': ('Accounts', '**/Accounts3.sqlite'),
-            'addressBook': ('Address Book', '**/AddressBook.sqlitedb*'),
-            'alarms': ('Alarms', '*private/var/mobile/Library/Preferences/com.apple.mobiletimerd.plist'),
-            'AllTrails': ('AllTrails', '**/Documents/AllTrails.sqlite*'),
-            'appConduit': ('App Conduit', '**/AppConduit.log.*'),
-            'appGrouplisting': ('Installed Apps', ('*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist', '**/PluginKitPlugin/*.metadata.plist')),
-            'appItunesmeta': ('Installed Apps', ('**/iTunesMetadata.plist', '**/BundleMetadata.plist')),
-            'appleMapsApplication': ('Locations', '**/Data/Application/*/Library/Preferences/com.apple.Maps.plist'),
-            'appleMapsGroup': ('Locations', '**/Shared/AppGroup/*/Library/Preferences/group.com.apple.Maps.plist'),
-            'appleMapsSearchHistory': ('Locations', '*private/var/mobile/Containers/Data/Application/*/Library/Maps/GeoHistory.mapsdata'),
-            'applePodcasts': ('Apple Podcasts', '**/MTLibrary.sqlite*'),
-            'appleWalletCards': ('Apple Wallet', '*/private/var/mobile/Containers/Data/Application/*/Library/Caches/com.apple.Passbook/Cache.db*'),
-            'appleWalletPasses': ('Apple Wallet', ('**/nanopasses.sqlite3*', '**/Cards/*.pkpass/pass.json')),
-            'appleWalletTransactions': ('Apple Wallet', '**/passes23.sqlite'),
-            'appleWifiPlist': ('Wifi Connections', ('**/com.apple.wifi.plist', '**/com.apple.wifi-networks.plist.backup', '**/com.apple.wifi.known-networks.plist', '**/com.apple.wifi-private-mac-networks.plist')),
-            'applicationSnapshots': ('Installed Apps', ('**/Library/Caches/Snapshots/*', '**/SplashBoard/Snapshots/*')),
-            'applicationstate': ('Installed Apps', '**/applicationState.db'),
-            'airtags': ('Airtags', '*/Caches/com.apple.findmy.fmipcore/Items.data'),
-            'bluetooth': ('Bluetooth', '**/com.apple.MobileBluetooth.*'),
-            'bumble': ('Bumble', ('**/Library/Caches/Chat.sqlite*','**/Documents/yap-database.sqlite*')),
-            'cacheRoutesGmap': ('Locations', '**/Library/Application Support/CachedRoutes/*.plist'),
-            'calendarAll': ('Calendar', '**/Calendar.sqlitedb'),
-            'callHistory': ('Call History', '**/CallHistory.storedata*'),
-            'cashApp': ('Cash App', ('**private/var/mobile/Containers/Shared/AppGroup/*/CCEntitySync-api.squareup.com.sqlite*', '**private/var/mobile/Containers/Shared/AppGroup/*/CCEntitySync-internal.cashappapi.com.sqlite*')),
-            'celWireless': ('Cellular Wireless', '*wireless/Library/Preferences/com.apple.*'),
-            'cloudkitSharing': ('Cloudkit', '*NoteStore.sqlite*'),
-            'conDev': ('Connected to', '**/iTunes_Control/iTunes/iTunesPrefs'),
-            'confaccts': ('Accounts', '**/com.apple.accounts.exists.plist'),
-            'ControlCenter': ('Control Center', '**private/var/mobile/Library/ControlCenter/ModuleConfiguration.plist'),
-            'deviceActivator': ('IOS Build', '*private/var/mobile/Library/Logs/mobileactivationd/ucrt_oob_request.txt'),
-            'dhcphp': ('DHCP', '**/private/var/db/dhcpd_leases*'),
-            'dhcpl': ('DHCP', '**/private/var/db/dhcpclient/leases/en*'),
-            'discordAcct': ('Discord', '*/var/mobile/Containers/Data/Application/*/Documents/mmkv/mmkv.default'),
-            'discordJson': ('Discord', '*/com.hammerandchisel.discord/fsCachedData/*'),
-            'discordManifest': ('Discord', '*/private/var/mobile/Containers/Data/Application/*/Documents/RCTAsyncLocalStorage_V1/manifest.json'),
-            'FacebookMessenger': ('Facebook Messenger', '**/lightspeed-*.db*'),
-            'filesAppsclient': ('Files App', '*private/var/mobile/Library/Application Support/CloudDocs/session/db/client.db*'),
-            'filesAppsdb': ('Files App', '*private/var/mobile/Library/Application Support/CloudDocs/session/db/server.db*'),
-            'filesAppsm': ('Files App', '*private/var/mobile/Containers/Shared/AppGroup/*/smartfolders.db*'),
-            'geodApplications': ('Geolocation', '**/AP.db*'),
-            'geodMapTiles': ('Geolocation', '**/MapTiles.sqlitedb*'),
-            'geodPDPlaceCache': ('Geolocation', '**/PDPlaceCache.db*'),
-            'Gmail': ('Gmail', ('**/private/var/mobile/Containers/Data/Application/*/Library/Application Support/data/*/searchsqlitedb*','**/private/var/mobile/Containers/Data/Application/*/Library/Application Support/data/*/sqlitedb*')),
-            'googleDuo': ('Google Duo', ('*/Application Support/DataStore*','*/Application Support/ClipsCache/*.png')),
-            'icloudMeta': ('iCloud Returns', '*/iclouddrive/Metadata.txt'),
-            'icloudPhotoMeta': ('iCloud Returns', '*/cloudphotolibrary/Metadata.txt'),
+tosearch = {
+            
             'icloudSharedalbums': ('iCloud Shared Albums', '*/private/var/mobile/Media/PhotoData/PhotoCloudSharingData/*'),
             'iCloudWifi': ('Wifi Connections', '**/com.apple.wifid.plist'),
             'iconsScreen': ('iOS Screens', '**/SpringBoard/IconState.plist'),
@@ -278,7 +233,7 @@ def process_artifact(files_found, artifact_func, artifact_name, seeker, report_f
         return
     try:
         method = globals()['get_' + artifact_func]
-        method(files_found, report_folder, seeker)
+        method(files_found, report_folder, seeker, wrap_text)
     except Exception as ex:
         logfunc('Reading {} artifact had errors!'.format(artifact_name))
         logfunc('Error was {}'.format(str(ex)))

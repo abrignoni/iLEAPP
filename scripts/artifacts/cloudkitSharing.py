@@ -8,15 +8,15 @@ import io
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
 
-def get_cloudkitSharing(files_found, report_folder, seeker):
+def get_cloudkitSharing(files_found, report_folder, seeker, wrap_text):
     for file_found in files_found:
         file_found = str(file_found)
 
         if file_found.endswith('NoteStore.sqlite'):
-            get_cloudkitServerRecordData(file_found, report_folder, seeker)
-            get_cloudkitServerSharedData(file_found, report_folder, seeker)
+            get_cloudkitServerRecordData(file_found, report_folder, seeker, wrap_text)
+            get_cloudkitServerSharedData(file_found, report_folder, seeker, wrap_text)
 
-def get_cloudkitServerSharedData(file_found, report_folder, seeker):
+def get_cloudkitServerSharedData(file_found, report_folder, seeker, wrap_text):
     user_dictionary = {}
 
     db = open_sqlite_db_readonly(file_found)
@@ -71,7 +71,7 @@ def get_cloudkitServerSharedData(file_found, report_folder, seeker):
     else:
         logfunc('No Cloudkit - Cloudkit Participants data available')
     
-def get_cloudkitServerRecordData(file_found, report_folder, seeker):
+def get_cloudkitServerRecordData(file_found, report_folder, seeker, wrap_text):
     db = open_sqlite_db_readonly(file_found)
     cursor = db.cursor()
     cursor.execute('''
@@ -134,3 +134,10 @@ def get_cloudkitServerRecordData(file_found, report_folder, seeker):
         logfunc('No Cloudkit - Cloudkit Note Sharing data available')
 
     db.close()
+
+__artifacts__ = {
+    "cloudkitsharing": (
+        "Cloudkit",
+        ('*NoteStore.sqlite*'),
+        get_cloudkitSharing)
+}

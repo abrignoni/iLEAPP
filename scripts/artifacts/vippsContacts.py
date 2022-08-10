@@ -17,7 +17,7 @@ def relative_paths(source, splitter):
     return '.'+ splitted_b[1]
 
 
-def get_vippsContacts(files_found, report_folder, seeker):
+def get_vippsContacts(files_found, report_folder, seeker, wrap_text):
     for file_found in files_found:
         file_found = str(file_found)
         
@@ -83,4 +83,9 @@ def get_vippsContacts(files_found, report_folder, seeker):
     else:
         logfunc('No data available for Vipps Contacts')
         
-    
+__artifacts__ = {
+    "vippsContacts": (
+        "Vipps",
+        ('*/Vipps.sqlite*'),
+        get_vippsContacts)
+}

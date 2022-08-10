@@ -5,7 +5,7 @@ import sys
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline
 
-def get_safariRecentWebSearches(files_found, report_folder, seeker):
+def get_safariRecentWebSearches(files_found, report_folder, seeker, wrap_text):
     data_list = []
     for file_found in files_found:
         file_found = str(file_found)
@@ -40,3 +40,10 @@ def get_safariRecentWebSearches(files_found, report_folder, seeker):
         timeline(report_folder, tsvname, data_list, data_headers)
     else:
         logfunc('No data for recent web searches')
+
+__artifacts__ = {
+    "safariRecentWebSearches": (
+        "Safari Browser",
+        ('**/Library/Preferences/com.apple.mobilesafari.plist'),
+        get_safariRecentWebSearches)
+}

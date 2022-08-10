@@ -6,7 +6,7 @@ import scripts.artifacts.artGlobals
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, logdevinfo, tsv, is_platform_windows 
 
-def get_lastBuild(files_found, report_folder, seeker):
+def get_lastBuild(files_found, report_folder, seeker, wrap_text):
     versionnum = 0
     data_list = []
     file_found = str(files_found[0])
@@ -39,7 +39,7 @@ def get_lastBuild(files_found, report_folder, seeker):
     tsv(report_folder, data_headers, data_list, tsvname)
             
 
-def get_iTunesBackupInfo(files_found, report_folder, seeker):
+def get_iTunesBackupInfo(files_found, report_folder, seeker, wrap_text):
     versionnum = 0
     data_list = []
     file_found = str(files_found[0])
@@ -69,3 +69,10 @@ def get_iTunesBackupInfo(files_found, report_folder, seeker):
     
     tsvname = 'iTunes Backup'
     tsv(report_folder, data_headers, data_list, tsvname)
+
+__artifacts__ = {
+    "lastbuild": (
+        "IOS Build",
+        ('*LastBuildInfo.plist'),
+        get_lastBuild)
+}

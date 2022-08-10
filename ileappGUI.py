@@ -1,14 +1,14 @@
+import typing
 import ileapp
-import os
 import PySimpleGUI as sg
-import sys
 import webbrowser
-
+import plugin_loader
 from scripts.ilapfuncs import *
 from scripts.version_info import aleapp_version
 from time import process_time, gmtime, strftime
-from scripts.ilap_artifacts import *
 from scripts.search_files import *
+
+MODULE_START_INDEX = 1000
 
 def ValidateInput(values, window):
     '''Returns tuple (success, extraction_type)'''
@@ -62,26 +62,25 @@ def CheckList(mtxt, lkey, mdstring, disable=False):
 def pickModules():
     global indx
     global mlist
-    
-    script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'scripts', 'artifacts')
+    global loader
 
-    # Create sorted dict from 'tosearch' dictionary based on plugin category
-    sorted_tosearch = {k: v for k, v in sorted(tosearch.items(), key=lambda item: item[1][0].upper())}
+    loader = plugin_loader.PluginLoader()
 
-    indx = 1000     # arbitrary number to not interfere with other controls
-    for key, val in sorted_tosearch.items():
-        disabled = False if key != 'lastBuild' else True # lastBuild is REQUIRED
-        mlist.append( CheckList(val[0] + f' [{key}]', indx, key, disabled) )
+    indx = MODULE_START_INDEX     # arbitrary number to not interfere with other controls
+    for plugin in sorted(loader.plugins, key=lambda p: p.category.upper()):
+        disabled = plugin.module_name == 'usagestatsVersion'
+        mlist.append(CheckList(f'{plugin.category} [{plugin.name} - {plugin.module_name}.py]', indx, plugin.name, disabled))
         indx = indx + 1
         
 sg.theme('DarkAmber')   # Add a touch of color
 # All the stuff inside your window.
 
 normal_font = ("Helvetica", 12)
+loader: typing.Optional[plugin_loader.PluginLoader] = None
 mlist = []
 # go through list of available modules and confirm they exist on the disk
 pickModules()
-GuiWindow.progress_bar_total = len(ileapp.tosearch)
+GuiWindow.progress_bar_total = len(loader)
 
 
 layout = [  [sg.Text('iOS Logs, Events, And Plists Parser', font=("Helvetica", 22))],
@@ -116,11 +115,11 @@ while True:
 
     if event == "SELECT ALL":  
         # mark all modules
-        for x in range(1000,indx):
+        for x in range(MODULE_START_INDEX, indx):
             window[x].Update(True)
     if event == "DESELECT ALL":  
          # none modules
-        for x in range(1000,indx):
+        for x in range(MODULE_START_INDEX, indx):
             window[x].Update(False if window[x].metadata != 'lastBuild' else True)  # lastBuild.py is REQUIRED
     if event == 'Process':
         #check is selections made properly; if not we will return to input form without exiting app altogether
@@ -137,24 +136,28 @@ while True:
                 if output_folder[1] == ':': output_folder = '\\\\?\\' + output_folder.replace('/', '\\')
 
             # re-create modules list based on user selection
-            search_list = { 'lastBuild' : tosearch['lastBuild'] } # hardcode lastBuild as first item
+            # search_list = { 'lastBuild' : tosearch['lastBuild'] } # hardcode lastBuild as first item
+            search_list = [loader['lastbuild']] # hardcode lastBuild as first item
+
             s_items = 0
-            for x in range(1000,indx):
+            for x in range(MODULE_START_INDEX, indx):
                 if window.FindElement(x).Get():
                     key = window[x].metadata
-                    if (key in tosearch) and (key != 'lastBuild'):
-                        search_list[key] = tosearch[key]
+                    if key in loader and key != 'lastbuild':
+                        search_list.append(loader[key])
                     s_items = s_items + 1 # for progress bar
                 
                 # no more selections allowed
-                window[x].Update(disabled = True)
+                window[x].Update(disabled=True)
 
             window['SELECT ALL'].update(disabled=True)
             window['DESELECT ALL'].update(disabled=True)
 
             GuiWindow.window_handle = window
             out_params = OutputParameters(output_folder)
-            crunch_successful = ileapp.crunch_artifacts(search_list, extracttype, input_path, out_params, len(ileapp.tosearch)/s_items)
+            wrap_text = True
+            crunch_successful = ileapp.crunch_artifacts(
+                search_list, extracttype, input_path, out_params, len(loader)/s_items, wrap_text)
             if crunch_successful:
                 report_path = os.path.join(out_params.report_folder_base, 'index.html')
                 

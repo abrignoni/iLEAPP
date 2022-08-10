@@ -9,7 +9,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, logdevinfo, timeline, kmlgen, tsv, is_platform_windows, open_sqlite_db_readonly
 
 
-def get_instagramThreads(files_found, report_folder, seeker):
+def get_instagramThreads(files_found, report_folder, seeker, wrap_text):
     for file_found in files_found:
         file_found = str(file_found)
         
@@ -178,5 +178,9 @@ def get_instagramThreads(files_found, report_folder, seeker):
     db.close()
     
 
-        
-        
+__artifacts__ = {
+    "instagramThreads": (
+        "Instagram",
+        ('*/mobile/Containers/Data/Application/*/Library/Application Support/DirectSQLiteDatabase/*.db*'),
+        get_instagramThreads)
+}

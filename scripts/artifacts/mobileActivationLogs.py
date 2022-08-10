@@ -8,7 +8,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, logdevinfo, tsv, is_platform_windows 
 
 
-def get_mobileActivationLogs(files_found, report_folder, seeker):
+def get_mobileActivationLogs(files_found, report_folder, seeker, wrap_text):
     data_list = []
     data_list_info = []
 
@@ -72,4 +72,10 @@ def get_mobileActivationLogs(files_found, report_folder, seeker):
     tsvname = 'Mobile Activation Logs'
     tsv(report_folder, data_headers, data_list, tsvname)
     tsv(report_folder, data_headers_info, data_list_info, tsvname)
-    
+
+__artifacts__ = {
+    "mobileActivationLogs": (
+        "Mobile Activation Logs",
+        ('**/mobileactivationd.log*'),
+        get_mobileActivationLogs)
+}

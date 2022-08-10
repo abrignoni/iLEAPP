@@ -6,7 +6,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly 
 
 
-def get_accs(files_found, report_folder, seeker):
+def get_accs(files_found, report_folder, seeker, wrap_text):
     file_found = str(files_found[0])
     db = open_sqlite_db_readonly(file_found)
     cursor = db.cursor()
@@ -45,4 +45,10 @@ def get_accs(files_found, report_folder, seeker):
     else:
         logfunc("No Account Data available")
 
+__artifacts__ = {
+    "accs": (
+        "Accounts",
+        ('**/Accounts3.sqlite'),
+        get_accs)
+}
         

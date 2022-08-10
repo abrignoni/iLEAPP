@@ -21,7 +21,7 @@ def _bytes_to_mac_address(encoded_bytes):
 
     return to_return
 
-def get_appleWifiPlist(files_found, report_folder, seeker):
+def get_appleWifiPlist(files_found, report_folder, seeker, wrap_text):
     known_data_list = []
     scanned_data_list = []
     known_files = []
@@ -264,3 +264,10 @@ def get_appleWifiPlist(files_found, report_folder, seeker):
         
         tlactivity = 'WiFi Networks Scanned (private)'
         timeline(report_folder, tlactivity, scanned_data_list, data_headers)
+
+__artifacts__ = {
+    "applewifiplist": (
+        "Wifi Connections",
+        ('**/com.apple.wifi.plist', '**/com.apple.wifi-networks.plist.backup', '**/com.apple.wifi.known-networks.plist', '**/com.apple.wifi-private-mac-networks.plist'),
+        get_appleWifiPlist)
+}

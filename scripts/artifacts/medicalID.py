@@ -14,7 +14,7 @@ def get_name(name_with_prefix):
         retval = retval[:-3]
     return retval
 
-def get_medicalID(files_found, report_folder, seeker):
+def get_medicalID(files_found, report_folder, seeker, wrap_text):
     data_list = []
     file_found = str(files_found[0])
     with open(file_found, 'rb') as f:
@@ -49,3 +49,10 @@ def get_medicalID(files_found, report_folder, seeker):
         timeline(report_folder, tlactivity, data_list, data_headers)
     else:
         logfunc('No data on Medical ID')
+
+__artifacts__ = {
+    "medicalID": (
+        "Medical ID",
+        ('*/private/var/mobile/Library/MedicalID/MedicalIDData.archive'),
+        get_medicalID)
+}

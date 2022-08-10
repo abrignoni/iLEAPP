@@ -8,7 +8,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly
 
 
-def get_appleWalletPasses(files_found, report_folder, seeker):
+def get_appleWalletPasses(files_found, report_folder, seeker, wrap_text):
     data_list = []
     all_rowsc = 0
     for file_found in files_found:
@@ -66,3 +66,10 @@ def get_appleWalletPasses(files_found, report_folder, seeker):
         timeline(report_folder, tlactivity, data_list, data_headers)
     else:
         logfunc('No Apple Wallet Passes available')
+
+__artifacts__ = {
+    "applewalletpasses": (
+        "Apple Wallet",
+        ('**/nanopasses.sqlite3*', '**/Cards/*.pkpass/pass.json'),
+        get_appleWalletPasses)
+}

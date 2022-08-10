@@ -14,7 +14,7 @@ from scripts.ilapfuncs import logfunc, tsv, kmlgen, timeline, is_platform_window
     open_sqlite_db_readonly
 
 
-def get_photosMetadata(files_found, report_folder, seeker):
+def get_photosMetadata(files_found, report_folder, seeker, wrap_text):
     for file_found in files_found:
       file_found = str(file_found)
       
@@ -1041,4 +1041,10 @@ def get_photosMetadata(files_found, report_folder, seeker):
 
         db.close()
         return
-  
+
+__artifacts__ = {
+    "photosMetadata": (
+        "Photos",
+        ('**/Photos.sqlite*'),
+        get_photosMetadata)
+}

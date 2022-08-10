@@ -5,7 +5,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly
 
 
-def get_tikTok(files_found, report_folder, seeker):
+def get_tikTok(files_found, report_folder, seeker, wrap_text):
     data_list = []
     data_list1 = []
     
@@ -107,4 +107,10 @@ def get_tikTok(files_found, report_folder, seeker):
         logfunc('No TikTok Contacts available')
     
     db.close()
-    
+
+__artifacts__ = {
+    "tikTok": (
+        "TikTok",
+        ('*/Application/*/Library/Application Support/ChatFiles/*/db.sqlite*','*AwemeIM.db*'),
+        get_tikTok)
+}

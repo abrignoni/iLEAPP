@@ -4,7 +4,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline
 
 
-def get_alarms(files_found, report_folder, seeker):
+def get_alarms(files_found, report_folder, seeker, wrap_text):
     data_list = []
 
     for file_found in files_found:
@@ -74,3 +74,10 @@ def decode_repeat_schedule(repeat_schedule_value):
             repeat_schedule_value -= day
             schedule.append(days_list[day])
     return reversed(schedule)
+
+__artifacts__ = {
+    "alarms": (
+        "Alarms",
+        ('*private/var/mobile/Library/Preferences/com.apple.mobiletimerd.plist'),
+        get_alarms)
+}

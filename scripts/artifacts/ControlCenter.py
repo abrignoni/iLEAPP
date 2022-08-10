@@ -11,7 +11,7 @@ from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, logdevinfo, tsv, is_platform_windows 
 
-def get_ControlCenter(files_found, report_folder, seeker):
+def get_ControlCenter(files_found, report_folder, seeker, wrap_text):
     data_list_disabled = []
     data_list_modules = []
     data_list_userenabled = []
@@ -103,3 +103,10 @@ def get_ControlCenter(files_found, report_folder, seeker):
     
     else:
         logfunc('No Control Center - User Toggled Controls data available')
+
+__artifacts__ = {
+    "controlcenter": (
+        "Control Center",
+        ('**private/var/mobile/Library/ControlCenter/ModuleConfiguration.plist'),
+        get_ControlCenter)
+}

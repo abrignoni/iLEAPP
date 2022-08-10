@@ -8,7 +8,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, logdevinfo, timeline, kmlgen,tsv, is_platform_windows 
 
 
-def get_tileApp(files_found, report_folder, seeker):
+def get_tileApp(files_found, report_folder, seeker, wrap_text):
     data_list = []
     
     for file_found in files_found:
@@ -55,4 +55,9 @@ def get_tileApp(files_found, report_folder, seeker):
         kmlactivity = 'Tile App Lat Long'
         kmlgen(report_folder, kmlactivity, data_list, data_headers)
     
-        
+__artifacts__ = {
+    "tileApp": (
+        "Locations",
+        ('*private/var/mobile/Containers/Data/Application/*/Library/log/com.thetileapp.tile*'),
+        get_tileApp)
+}

@@ -4,7 +4,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly
 
 
-def get_cashApp(files_found, report_folder, seeker):
+def get_cashApp(files_found, report_folder, seeker, wrap_text):
     for file_found in files_found:
         file_found = str(file_found)
 
@@ -75,3 +75,10 @@ ORDER BY ZPAYMENT.ZDISPLAYDATE ASC
 
     db.close()
     return
+
+__artifacts__ = {
+    "cashapp": (
+        "Cash App",
+        ('**private/var/mobile/Containers/Shared/AppGroup/*/CCEntitySync-api.squareup.com.sqlite*', '**private/var/mobile/Containers/Shared/AppGroup/*/CCEntitySync-internal.cashappapi.com.sqlite*'),
+        get_cashApp)
+}

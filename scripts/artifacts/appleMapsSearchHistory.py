@@ -4,7 +4,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows
 
 
-def get_appleMapsSearchHistory(files_found, report_folder, seeker):
+def get_appleMapsSearchHistory(files_found, report_folder, seeker, wrap_text):
     data_list = []
 
     for file_found in files_found:
@@ -44,3 +44,10 @@ def get_appleMapsSearchHistory(files_found, report_folder, seeker):
 
     else:
         logfunc('No data available for Apple Maps Search History')
+
+__artifacts__ = {
+    "applemapssearchhistory": (
+        "Locations",
+        ('*private/var/mobile/Containers/Data/Application/*/Library/Maps/GeoHistory.mapsdata'),
+        get_appleMapsSearchHistory)
+}

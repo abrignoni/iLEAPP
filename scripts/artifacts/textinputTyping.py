@@ -6,7 +6,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly 
 
 
-def get_textinputTyping(files_found, report_folder, seeker):
+def get_textinputTyping(files_found, report_folder, seeker, wrap_text):
     count = 0
     for file_found in files_found:
         logfunc(str(file_found))
@@ -65,4 +65,9 @@ def get_textinputTyping(files_found, report_folder, seeker):
         else:
             logfunc(f"No Messages {count} available")
 
-        
+__artifacts__ = {
+    "textinputTyping": (
+        "Text Input Messages",
+        ('*/DES/Records/com.apple.TextInput.TypingDESPlugin/*.desdata'),
+        get_textinputTyping)
+}

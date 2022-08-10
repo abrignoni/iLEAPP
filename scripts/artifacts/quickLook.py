@@ -7,7 +7,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, kmlgen, timeline, is_platform_windows, open_sqlite_db_readonly
 
 
-def get_quickLook(files_found, report_folder, seeker):
+def get_quickLook(files_found, report_folder, seeker, wrap_text):
     for file_found in files_found:
         file_found = str(file_found)
         
@@ -50,3 +50,10 @@ def get_quickLook(files_found, report_folder, seeker):
 
     db.close()
     return 
+
+__artifacts__ = {
+    "quickLook": (
+        "iCloud Quick Look",
+        ('*/Quick Look/cloudthumbnails.db*'),
+        get_quickLook)
+}
