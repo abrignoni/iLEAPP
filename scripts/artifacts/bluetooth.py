@@ -4,17 +4,17 @@ import datetime
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
 
-def get_bluetooth(files_found, report_folder, seeker):
+def get_bluetooth(files_found, report_folder, seeker, wrap_text):
     for file_found in files_found:
         file_found = str(file_found)
         if file_found.endswith('com.apple.MobileBluetooth.ledevices.other.db'): # regex '**/Library/Database/com.apple.MobileBluetooth.ledevices.other.db'
-            get_bluetoothOther(file_found, report_folder, seeker)
+            get_bluetoothOther(file_found, report_folder, seeker, wrap_text)
         elif file_found.endswith('com.apple.MobileBluetooth.ledevices.paired.db'): # regex '**/com.apple.MobileBluetooth.ledevices.paired.db'
-            get_bluetoothPaired(file_found, report_folder, seeker)
+            get_bluetoothPaired(file_found, report_folder, seeker, wrap_text)
         elif file_found.endswith('com.apple.MobileBluetooth.devices.plist'): # regex '**/com.apple.MobileBluetooth.devices.plist'
-            get_bluetoothPairedReg(file_found, report_folder, seeker)
+            get_bluetoothPairedReg(file_found, report_folder, seeker, wrap_text)
 
-def get_bluetoothOther(file_found, report_folder, seeker):
+def get_bluetoothOther(file_found, report_folder, seeker, wrap_text):
     db = open_sqlite_db_readonly(file_found)
     cursor = db.cursor()
 
@@ -52,7 +52,7 @@ def get_bluetoothOther(file_found, report_folder, seeker):
     
     db.close()
 
-def get_bluetoothPaired(file_found, report_folder, seeker):
+def get_bluetoothPaired(file_found, report_folder, seeker, wrap_text):
     db = open_sqlite_db_readonly(file_found)
     cursor = db.cursor()
 
@@ -91,7 +91,7 @@ def get_bluetoothPaired(file_found, report_folder, seeker):
     
     db.close()
 
-def get_bluetoothPairedReg(file_found, report_folder, seeker):
+def get_bluetoothPairedReg(file_found, report_folder, seeker, wrap_text):
     data_list = [] 
     with open(file_found, 'rb') as f:
         plist = plistlib.load(f)
@@ -140,3 +140,10 @@ def get_bluetoothPairedReg(file_found, report_folder, seeker):
         timeline(report_folder, tlactivity, data_list, data_headers)
     else:
         logfunc('No Bluetooth paired devices')
+
+__artifacts__ = {
+    "bluetooth": (
+        "Bluetooth",
+        ('**/com.apple.MobileBluetooth.*'),
+        get_bluetooth)
+}

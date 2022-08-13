@@ -12,7 +12,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, is_platform_windows
 
 
-def get_notificationsXI(files_found, report_folder, seeker):
+def get_notificationsXI(files_found, report_folder, seeker, wrap_text):
     pathfound = 0
     count = 0
     notdircount = 0
@@ -328,7 +328,12 @@ def get_notificationsXI(files_found, report_folder, seeker):
     if notdircount == 0:
         logfunc("No notifications located.")
     
-        
+__artifacts__ = {
+    "notificationsXI": (
+        "Notifications",
+        ('*PushStore*'),
+        get_notificationsXI)
+}  
        
 
 

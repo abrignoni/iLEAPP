@@ -9,7 +9,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, logdevinfo, timeline, tsv, is_platform_windows 
 
 
-def get_discordManifest(files_found, report_folder, seeker):
+def get_discordManifest(files_found, report_folder, seeker, wrap_text):
 	data_list = []
 	for file_found in files_found:
 		file_found = str(file_found)
@@ -34,3 +34,9 @@ def get_discordManifest(files_found, report_folder, seeker):
 		tsvname = 'Discord Manifest'
 		tsv(report_folder, data_headers, data_list, tsvname)
 		
+__artifacts__ = {
+    "discordmanifest": (
+        "Discord",
+        ('*/private/var/mobile/Containers/Data/Application/*/Documents/RCTAsyncLocalStorage_V1/manifest.json'),
+        get_discordManifest)
+}

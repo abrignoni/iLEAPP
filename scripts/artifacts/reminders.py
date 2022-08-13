@@ -4,7 +4,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly
 
 
-def get_reminders(files_found, report_folder, seeker):
+def get_reminders(files_found, report_folder, seeker, wrap_text):
     data_list = []
     for file_found in files_found:
         file_found = str(file_found)
@@ -49,3 +49,10 @@ def get_reminders(files_found, report_folder, seeker):
 
     db.close()
     return
+
+__artifacts__ = {
+    "reminders": (
+        "Reminders",
+        ('**/Reminders/Container_v1/Stores/*.sqlite*'),
+        get_reminders)
+}

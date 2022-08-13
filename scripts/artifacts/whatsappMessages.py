@@ -11,7 +11,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, logdevinfo, timeline, kmlgen, tsv, is_platform_windows, open_sqlite_db_readonly
 
 
-def get_whatsappMessages(files_found, report_folder, seeker):
+def get_whatsappMessages(files_found, report_folder, seeker, wrap_text):
     
     for file_found in files_found:
         file_found = str(file_found)
@@ -114,4 +114,9 @@ def get_whatsappMessages(files_found, report_folder, seeker):
     else:
         logfunc('Whatsapp - Messages data available')
         
-    
+__artifacts__ = {
+    "whatsappMessages": (
+        "Whatsapp",
+        ('*/var/mobile/Containers/Shared/AppGroup/*/ChatStorage.sqlite*','*/var/mobile/Containers/Shared/AppGroup/*/Message/Media/*/*/*/*.*'),
+        get_whatsappMessages)
+}

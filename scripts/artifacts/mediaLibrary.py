@@ -8,7 +8,7 @@ import re
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, is_platform_windows, open_sqlite_db_readonly
 
-def get_mediaLibrary(files_found, report_folder, seeker):
+def get_mediaLibrary(files_found, report_folder, seeker, wrap_text):
     file_found = str(files_found[0])
     db = open_sqlite_db_readonly(file_found)
     cursor = db.cursor()
@@ -110,3 +110,9 @@ def get_mediaLibrary(files_found, report_folder, seeker):
     tsv(report_folder, data_headers_info, data_list_info, tsvname)
     tsv(report_folder, data_headers, data_list, tsvname)
     
+__artifacts__ = {
+    "mediaLibrary": (
+        "Media Library",
+        ('**/Medialibrary.sqlitedb'),
+        get_mediaLibrary)
+}

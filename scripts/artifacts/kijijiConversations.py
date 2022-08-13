@@ -21,7 +21,7 @@ from scripts.ilapfuncs import logfunc, tsv
 LOCAL_USER = 'Local User'
 UNIX_EPOCH = 978307200
 
-def get_kijijiConversations(files_found, report_folder, seeker):
+def get_kijijiConversations(files_found, report_folder, seeker, wrap_text):
     data_list_conversation = []
     for file_found in files_found:
         file_found = str(file_found)
@@ -94,3 +94,10 @@ def AppendMessageRowsToDataList(data_list,
             recipientName, 
             message['messageStatus'], 
             message['text']))
+
+__artifacts__ = {
+    "kijijiConversations": (
+        "Kijiji Conversations",
+        ('*/Library/Caches/conversation_cache'),
+        get_kijijiConversations)
+}

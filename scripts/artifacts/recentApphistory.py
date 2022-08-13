@@ -5,7 +5,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows
 
 
-def get_recentApphistory(files_found, report_folder, seeker):
+def get_recentApphistory(files_found, report_folder, seeker, wrap_text):
     data_list = []
     for file_found in files_found:
         file_found = str(file_found)
@@ -37,4 +37,10 @@ def get_recentApphistory(files_found, report_folder, seeker):
     else:
         logfunc('No data on CarPlay Recent App History')
 
+__artifacts__ = {
+    "recentApphistory": (
+        "CarPlay",
+        ('*/com.apple.CarPlayApp.plist'),
+        get_recentApphistory)
+}
     

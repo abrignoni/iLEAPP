@@ -71,7 +71,7 @@ def get_hex(num):
         return hex(num).upper()
     return ''
 
-def get_geodMapTiles(files_found, report_folder, seeker):
+def get_geodMapTiles(files_found, report_folder, seeker, wrap_text):
     for file_found in files_found:
         file_found = str(file_found)
         
@@ -154,3 +154,9 @@ def get_geodMapTiles(files_found, report_folder, seeker):
 
     db.close()
     
+__artifacts__ = {
+    "geodmaptiles": (
+        "Geolocation",
+        ('**/MapTiles.sqlitedb*'),
+        get_geodMapTiles)
+}

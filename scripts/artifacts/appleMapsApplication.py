@@ -6,7 +6,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, logdevinfo, tsv, is_platform_windows 
 
 
-def get_appleMapsApplication(files_found, report_folder, seeker):
+def get_appleMapsApplication(files_found, report_folder, seeker, wrap_text):
     versionnum = 0
     file_found = str(files_found[0])
     
@@ -36,3 +36,10 @@ def get_appleMapsApplication(files_found, report_folder, seeker):
             
             tsvname = 'Apple Maps Application'
             tsv(report_folder, data_headers, data_list, tsvname)
+
+__artifacts__ = {
+    "applemapsapplication": (
+        "Locations",
+        ('**/Data/Application/*/Library/Preferences/com.apple.Maps.plist'),
+        get_appleMapsApplication)
+}

@@ -8,7 +8,7 @@ from packaging import version #use to search per version number
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, logdevinfo, is_platform_windows 
 
-def get_iconsScreen(files_found, report_folder, seeker):
+def get_iconsScreen(files_found, report_folder, seeker, wrap_text):
     iOSversion = scripts.artifacts.artGlobals.versionf
     if version.parse(iOSversion) >= version.parse("14"):
         logfunc(f'iOS Screen artifact not compatible with iOS {iOSversion}')
@@ -36,7 +36,7 @@ def get_iconsScreen(files_found, report_folder, seeker):
                     
                 if isinstance(rows, dict):
                     var = rows
-                    foldername = var['displayName']
+                    foldername = var['displayName'] # TODO throws an error if key not found.
                     rows = (f'Folder: {foldername}')
                     bundlesinfolder = var['iconLists'][0]
                     for items in bundlesinfolder:
@@ -62,4 +62,9 @@ def get_iconsScreen(files_found, report_folder, seeker):
         report.write_artifact_data_table(data_headers, data_list, file_found, html_escape=False)
         report.end_artifact_report()
      
-        
+__artifacts__ = {
+    "iconsScreen": (
+        "iOS Screens",
+        ('**/SpringBoard/IconState.plist'),
+        get_iconsScreen)
+}

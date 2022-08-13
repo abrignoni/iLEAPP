@@ -6,7 +6,7 @@ import json
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
 
-def get_vipps(files_found, report_folder, seeker):
+def get_vipps(files_found, report_folder, seeker, wrap_text):
     for file_found in files_found:
         file_found = str(file_found)
         
@@ -95,4 +95,9 @@ def get_vipps(files_found, report_folder, seeker):
     else:
         logfunc('No data available for Vipps')
     
-    
+__artifacts__ = {
+    "vipps": (
+        "Vipps",
+        ('*/Vipps.sqlite*'),
+        get_vipps)
+}

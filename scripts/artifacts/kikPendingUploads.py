@@ -9,7 +9,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, is_platform_windows
 
 
-def get_kikPendingUploads(files_found, report_folder, seeker):
+def get_kikPendingUploads(files_found, report_folder, seeker, wrap_text):
     data_list = []
     appID = ''
     contentID = ''
@@ -83,3 +83,10 @@ def get_kikPendingUploads(files_found, report_folder, seeker):
             tsv(report_folder, data_headers, data_list, tsvname)
         else:
             logfunc('No data on Kik Pending Uploads')
+
+__artifacts__ = {
+    "kikPendingUploads": (
+        "Kik",
+        ('*/mobile/Containers/Shared/AppGroup/*/cores/private/*/chunked_upload_storage/pending_uploads','*/mobile/Containers/Shared/AppGroup/*/cores/private/*/chunked_upload_storage/data_cache/*'),
+        get_kikPendingUploads)
+}

@@ -8,7 +8,7 @@ import sys
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, is_platform_windows, open_sqlite_db_readonly
 
-def get_applicationstate(files_found, report_folder, seeker):
+def get_applicationstate(files_found, report_folder, seeker, wrap_text):
     file_found = str(files_found[0])
     db = open_sqlite_db_readonly(file_found)
     cursor = db.cursor()
@@ -71,3 +71,10 @@ def get_applicationstate(files_found, report_folder, seeker):
 
     db.close()
     return      
+
+__artifacts__ = {
+    "applicationstate": (
+        "Installed Apps",
+        ('**/applicationState.db'),
+        get_applicationstate)
+}

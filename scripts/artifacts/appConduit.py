@@ -14,7 +14,7 @@ from html import escape
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
 
-def get_appConduit(files_found, report_folder, seeker):
+def get_appConduit(files_found, report_folder, seeker, wrap_text):
     data_list = []
     device_type_and_info = []
 
@@ -82,3 +82,9 @@ def get_appConduit(files_found, report_folder, seeker):
     tsvname = 'App Conduit'
     tsv(report_folder, data_headers, data_list, tsvname)        
     
+__artifacts__ = {
+    "appconduit": (
+        "App Conduit",
+        ('**/AppConduit.log.*'),
+        get_appConduit)
+}

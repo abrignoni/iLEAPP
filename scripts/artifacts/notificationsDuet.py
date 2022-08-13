@@ -70,7 +70,7 @@ def timestampsconv(webkittime):
     finaltime = datetime.utcfromtimestamp(unix_timestamp)
     return(finaltime)
 
-def get_notificationsDuet(files_found, report_folder, seeker):
+def get_notificationsDuet(files_found, report_folder, seeker, wrap_text):
     
     for file_found in files_found:
         file_found = str(file_found)
@@ -344,10 +344,14 @@ def get_notificationsDuet(files_found, report_folder, seeker):
             report.end_artifact_report()
             
             tsvname = f'Notifications Duet - {filename}'
-            tsv(report_folder, data_headers, data_list, tsvname)
+            tsv(report_folder, data_headers, data_list, tsvname) # TODO: _csv.Error: need to escape, but no escapechar set
         else:
             logfunc(f'No data available for Notifications Duet')
     
 
-
-    
+__artifacts__ = {
+    "notificationsDuet": (
+        "Notifications",
+        ('*/DuetExpertCenter/streams/userNotificationEvents/local/*'),
+        get_notificationsDuet)
+}

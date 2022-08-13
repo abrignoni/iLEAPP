@@ -7,7 +7,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, logdevinfo, tsv, is_platform_windows 
 
 
-def get_iCloudWifi(files_found, report_folder, seeker):
+def get_iCloudWifi(files_found, report_folder, seeker, wrap_text):
     data_list = []
     file_found = str(files_found[0])
     with open(file_found, 'rb') as fp:
@@ -63,3 +63,10 @@ def get_iCloudWifi(files_found, report_folder, seeker):
         tsv(report_folder, data_headers, data_list, tsvname)
     else:
         logfunc('No data on iCloud WiFi networks')
+
+__artifacts__ = {
+    "iCloudWifi": (
+        "Wifi Connections",
+        ('**/com.apple.wifid.plist'),
+        get_iCloudWifi)
+}

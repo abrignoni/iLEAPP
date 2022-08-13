@@ -6,7 +6,7 @@ from datetime import datetime
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, is_platform_windows
 
-def get_mobileContainerManager(files_found, report_folder, seeker):
+def get_mobileContainerManager(files_found, report_folder, seeker, wrap_text):
 
     data_list = []
 
@@ -48,3 +48,10 @@ def get_mobileContainerManager(files_found, report_folder, seeker):
         
     tsvname = 'Mobile Container Manager'
     tsv(report_folder, data_headers, data_list, tsvname)
+
+__artifacts__ = {
+    "mobileContainerManager": (
+        "Mobile Container Manager",
+        ('**/containermanagerd.log.*'),
+        get_mobileContainerManager)
+}

@@ -9,7 +9,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
 
 
-def get_cloudkitParticipants(files_found, report_folder, seeker):
+def get_cloudkitParticipants(files_found, report_folder, seeker, wrap_text):
 
     user_dictionary = {}    
 
@@ -72,3 +72,9 @@ def get_cloudkitParticipants(files_found, report_folder, seeker):
         logfunc('No Cloudkit - Cloudkit Participants data available')
 
     
+__artifacts__ = {
+    "cloudkitparticipants": (
+        "Cloudkit",
+        ('*NoteStore.sqlite*'), # TODO confirm this is the correct file ref see issue #322
+        get_cloudkitParticipants)
+}

@@ -6,7 +6,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, logdevinfo, tsv, is_platform_windows 
 
 
-def get_webClips(files_found, report_folder, seeker):
+def get_webClips(files_found, report_folder, seeker, wrap_text):
     webclip_data = {}
     data_list = []
     for path_val in files_found:
@@ -67,6 +67,9 @@ def get_webClips(files_found, report_folder, seeker):
     report.write_artifact_data_table(data_headers, data_list, files_found[0], html_escape=False)
     report.end_artifact_report()
 
-
-
-
+__artifacts__ = {
+    "webClips": (
+        "iOS Screens",
+        ('*WebClips/*.webclip/*'),
+        get_webClips)
+}

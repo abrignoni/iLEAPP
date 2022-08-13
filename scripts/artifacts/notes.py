@@ -12,7 +12,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly, does_column_exist_in_db
 
 
-def get_notes(files_found, report_folder, seeker):
+def get_notes(files_found, report_folder, seeker, wrap_text):
     data_list = []
     for file_found in files_found:
         file_found = str(file_found)
@@ -219,3 +219,10 @@ def save_original_attachment_as_thumbnail(file, store_path):
     thumbnail_max_size = (350, 350)
     image.thumbnail(thumbnail_max_size)
     image.save(store_path)
+
+__artifacts__ = {
+    "notes": (
+        "Notes",
+        ('*/NoteStore.sqlite*'),
+        get_notes)
+}

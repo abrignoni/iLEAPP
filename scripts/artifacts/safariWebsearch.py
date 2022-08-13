@@ -9,7 +9,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
 
 
-def get_safariWebsearch(files_found, report_folder, seeker):
+def get_safariWebsearch(files_found, report_folder, seeker, wrap_text):
 	file_found = str(files_found[0])
 	db = open_sqlite_db_readonly(file_found)
 	cursor = db.cursor()
@@ -62,4 +62,10 @@ def get_safariWebsearch(files_found, report_folder, seeker):
 	
 	db.close()
 	return 
-	
+
+__artifacts__ = {
+    "safariWebsearch": (
+        "Safari Browser",
+        ('**/Safari/History.db*'),
+        get_safariWebsearch)
+}

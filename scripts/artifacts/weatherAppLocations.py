@@ -5,7 +5,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, kmlgen, timeline, is_platform_windows
 
 
-def get_weatherAppLocations(files_found, report_folder, seeker):
+def get_weatherAppLocations(files_found, report_folder, seeker, wrap_text):
     data_list = []
 
     for file_found in files_found:
@@ -51,4 +51,10 @@ def get_weatherAppLocations(files_found, report_folder, seeker):
 
     else:
         logfunc('No data available for Weather App Locations')
-      
+
+__artifacts__ = {
+    "weatherAppLocations": (
+        "Locations",
+        ('*/private/var/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.com.apple.weather.plist'),
+        get_weatherAppLocations)
+}

@@ -5,7 +5,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline
 
 
-def get_keyboardLexicon(files_found, report_folder, seeker):
+def get_keyboardLexicon(files_found, report_folder, seeker, wrap_text):
     data_list = []
     tsv_data_list = []
     for file_found in files_found:
@@ -51,3 +51,10 @@ def get_keyboardLexicon(files_found, report_folder, seeker):
         logfunc('No Keyboard Dynamic Lexicon data found')
 
     return
+
+__artifacts__ = {
+    "keyboardLexicon": (
+        "Keyboard",
+        ('*/private/var/mobile/Library/Keyboard/*-dynamic.lm/dynamic-lexicon.dat'),
+        get_keyboardLexicon)
+}

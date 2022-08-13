@@ -8,7 +8,7 @@ import scripts.artifacts.artGlobals #use to get iOS version -> iOSversion = scri
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, is_platform_windows
 
-def get_dhcpl(files_found, report_folder, seeker):
+def get_dhcpl(files_found, report_folder, seeker, wrap_text):
     file_found = str(files_found[0])
     data_list = []
     with open(file_found, "rb") as fp:
@@ -39,4 +39,11 @@ def get_dhcpl(files_found, report_folder, seeker):
         tsv(report_folder, data_headers, data_list, tsvname)
     else:
         logfunc('No data available')
-    return   
+    return
+
+__artifacts__ = {
+    "dhcpl": (
+        "DHCP",
+        ('**/private/var/db/dhcpclient/leases/en*'),
+        get_dhcpl)
+}

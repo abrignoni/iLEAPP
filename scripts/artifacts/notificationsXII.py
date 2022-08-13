@@ -30,7 +30,7 @@ def get_bundle_info(files_found):
                 return bundle_info
     return {}
 
-def get_notificationsXII(files_found, report_folder, seeker):
+def get_notificationsXII(files_found, report_folder, seeker, wrap_text):
 
     bundle_info = get_bundle_info(files_found)
     data_list = []
@@ -102,3 +102,10 @@ def get_notificationsXII(files_found, report_folder, seeker):
     timeline(report_folder, tlactivity, data_list, data_headers)
     if len(data_list) == 0:
         logfunc("No notifications found.")
+
+__artifacts__ = {
+    "notificationsXII": (
+        "Notifications",
+        ('*private/var/mobile/Library/UserNotifications*'),
+        get_notificationsXII)
+}

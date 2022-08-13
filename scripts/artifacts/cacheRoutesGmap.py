@@ -9,7 +9,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, logdevinfo, kmlgen, timeline, tsv, is_platform_windows 
 
 
-def get_cacheRoutesGmap(files_found, report_folder, seeker):
+def get_cacheRoutesGmap(files_found, report_folder, seeker, wrap_text):
     data_list = []
     for file_found in files_found:
         file_found = str(file_found)
@@ -43,3 +43,10 @@ def get_cacheRoutesGmap(files_found, report_folder, seeker):
     
         kmlactivity = 'Google Maps Cache Routes'
         kmlgen(report_folder, kmlactivity, data_list, data_headers)
+
+__artifacts__ = {
+    "cacheroutesgmap": (
+        "Locations",
+        ('**/Library/Application Support/CachedRoutes/*.plist'),
+        get_cacheRoutesGmap)
+}

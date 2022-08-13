@@ -4,7 +4,7 @@ import scripts.artifacts.artGlobals #use to get iOS version -> iOSversion = scri
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, timeline, kmlgen, tsv, is_platform_windows
 
-def get_teamsSegment(files_found, report_folder, seeker):
+def get_teamsSegment(files_found, report_folder, seeker, wrap_text):
     data_list_location = []
     data_list_motion = []
     data_list_timecheck = []
@@ -137,3 +137,10 @@ def get_teamsSegment(files_found, report_folder, seeker):
         
     else:
         logfunc('No Microsoft Teams Power State Change')
+
+__artifacts__ = {
+    "teamsSegment": (
+        "Microsoft Teams - Logs",
+        ('*/var/mobile/Containers/Data/Application/*/Library/DriveIQ/segments/current/*.*'),
+        get_teamsSegment)
+}
