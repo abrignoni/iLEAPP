@@ -31,6 +31,8 @@ def get_icon_name(category, artifact):
         icon = 'book-open'
     elif category == 'AIRTAGS':
         icon = 'map-pin'
+    elif category == 'INTENTS':
+        icon = 'command'
     elif category == 'ALARMS':
         icon = 'clock'
     elif category == 'ALLTRAILS':
