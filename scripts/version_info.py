@@ -32,5 +32,6 @@ aleapp_contributors = [
     ['Anna-Mariya Mateyna', '', '@any333_snickers', 'https://github.com/any333'],
     ['Tommy Harris', '', '@tobraha', 'https://github.com/tobraha'],
     ['Troy Schnack', '', '@TroySchnack', ''],
-    ['Bo Amos', '', '@Bo_Knows_65', '']
+    ['Bo Amos', '', '@Bo_Knows_65', ''],
+    ['Joshua James', 'https://dfir.science', '@dfirscience', 'https://github.com/dfirscience']
 ]
