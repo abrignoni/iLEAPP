@@ -59,7 +59,3 @@ class PluginLoader:
     def __len__(self):
         return len(self._plugins)
 
-
-
-
-
