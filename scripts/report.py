@@ -144,7 +144,7 @@ def get_icon_name(category, artifact):
             icon = 'user'
         if artifact == 'GOOGLE DUO - CLIPS':
             icon = 'video'
-    elif category == 'HEALTH DATA':
+    elif category == 'HEALTH':
         icon = 'heart'
     elif category == 'ICLOUD QUICK LOOK':
         icon = 'file'
