@@ -138,7 +138,7 @@ def get_biomeIntents(files_found, report_folder, seeker, wrap_text):
                 if dataflag == 3:
                     protostuff = 'Deleted'
                 else:
-                    with open(os.path.join(report_folder, str(offset)), 'wb') as wr:
+                    with open(os.path.join(report_folder, str(filename) + '-' + str(offset)), 'wb') as wr:
                         wr.write(protostuff)
                         
                     protostuff, types = blackboxprotobuf.decode_message(protostuff)
