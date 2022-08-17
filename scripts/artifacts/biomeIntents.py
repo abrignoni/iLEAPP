@@ -200,7 +200,7 @@ def get_biomeIntents(files_found, report_folder, seeker, wrap_text):
                     elif typeofintent == 'com.apple.MobileSMS':
                         
                         a = (protostuffinner['5']['1']['2'].decode()) #content
-                        b = (protostuffinner['8'].decode())#threadid
+                        b = (protostuffinner['8'])#threadid
                         c = (protostuffinner.get('15', ''))#senderid if not binary show dict
                         #d = (protostuffinner['2']['1']['4'])
                         
