@@ -158,8 +158,10 @@ def get_biomeIntents(files_found, report_folder, seeker, wrap_text):
                         action = protostuff.get('5')
                     #print(protostuff['6']) #unknown
                     #print(protostuff['7']) #unknown
-                    
-                    deserialized_plist = nd.deserialize_plist_from_string(protostuff['8'])
+                    try:
+                        deserialized_plist = nd.deserialize_plist_from_string(protostuff['8'])
+                    except:
+                        break
                     #print(deserialized_plist)
                     startdate = (deserialized_plist['dateInterval']['NS.startDate'])
                     enddate = (deserialized_plist['dateInterval']['NS.endDate'])
