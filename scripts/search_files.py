@@ -1,6 +1,5 @@
 import fnmatch
 import os
-import sqlite3
 import tarfile
 import time
 
@@ -8,6 +7,10 @@ from pathlib import Path
 from scripts.ilapfuncs import *
 from shutil import copyfile
 from zipfile import ZipFile
+
+from fnmatch import _compile_pattern
+from functools import lru_cache
+normcase = lru_cache(maxsize=None)(os.path.normcase)
 
 class FileSeekerBase:
     # This is an abstract base class
@@ -40,12 +43,18 @@ class FileSeekerDir(FileSeekerBase):
             logfunc(f'Error reading {directory} ' + str(ex))
 
     def search(self, filepattern, return_on_first_hit=False):
+        pat = _compile_pattern( normcase(filepattern) )
+        root = normcase("root/")
         if return_on_first_hit:
             for item in self._all_files:
-                if fnmatch.fnmatch(item, filepattern):
+                if pat( root + normcase(item) ) is not None:
                     return [item]
             return []
-        return fnmatch.filter(self._all_files, filepattern)
+        pathlist = []
+        for item in self._all_files:
+            if pat( root + normcase(item) ) is not None:
+                pathlist.append(item)
+        return pathlist
 
 class FileSeekerItunes(FileSeekerBase):
     def __init__(self, directory, temp_folder):
@@ -107,16 +116,19 @@ class FileSeekerTar(FileSeekerBase):
         mode ='r:gz' if self.is_gzip else 'r'
         self.tar_file = tarfile.open(tar_file_path, mode)
         self.temp_folder = temp_folder
+        self.directory = temp_folder
 
     def search(self, filepattern, return_on_first_hit=False):
         pathlist = []
+        pat = _compile_pattern( normcase(filepattern) )
+        root = normcase("root/")
         for member in self.tar_file.getmembers():
-            if fnmatch.fnmatch(member.name, filepattern):
+            if pat( root + normcase(member.name) ) is not None:
                 try:
                     clean_name = sanitize_file_path(member.name)
                     full_path = os.path.join(self.temp_folder, Path(clean_name))
                     if member.isdir():
-                        os.makedirs(full_path)
+                        os.makedirs(full_path, exist_ok=True)
                     else:
                         parent_dir = os.path.dirname(full_path)
                         if not os.path.exists(parent_dir):
@@ -139,11 +151,14 @@ class FileSeekerZip(FileSeekerBase):
         self.zip_file = ZipFile(zip_file_path)
         self.name_list = self.zip_file.namelist()
         self.temp_folder = temp_folder
+        self.directory = temp_folder
 
     def search(self, filepattern, return_on_first_hit=False):
         pathlist = []
+        pat = _compile_pattern( normcase(filepattern) )
+        root = normcase("root/")
         for member in self.name_list:
-            if fnmatch.fnmatch(member, filepattern):
+            if pat( root + normcase(member) ) is not None:
                 try:
                     extracted_path = self.zip_file.extract(member, path=self.temp_folder) # already replaces illegal chars with _ when exporting
                     f = self.zip_file.getinfo(member)
