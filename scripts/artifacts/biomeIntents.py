@@ -283,8 +283,8 @@ def get_biomeIntents(files_found, report_folder, seeker, wrap_text):
                         datos = ''
                         datoshtml = 'Unsupported intent.'
                         
-                    data_list.append((startdate, enddate, durationinterval, donatedbysiri, appid, classname, action, direction, datoshtml, offset))
-                    data_list_tsv.append((startdate, enddate, durationinterval, donatedbysiri, appid, classname, action, direction, datos, offset))
+                    data_list.append((startdate, enddate, durationinterval, donatedbysiri, appid, classname, action, direction, datoshtml, filename, offset))
+                    data_list_tsv.append((startdate, enddate, durationinterval, donatedbysiri, appid, classname, action, direction, datos, filename, offset))
                     
                 modresult = (datalenght % 8)
                 resultante =  8 - modresult
@@ -300,7 +300,7 @@ def get_biomeIntents(files_found, report_folder, seeker, wrap_text):
             report = ArtifactHtmlReport(f'Intents')
             report.start_artifact_report(report_folder, f'Intents - {filename}', description)
             report.add_script()
-            data_headers = ('Timestamp','End Date','Duration Interval','Donated by Siri','App ID','Classname','Action', 'Direction', 'Data', 'Protobuf data Offset')
+            data_headers = ('Timestamp','End Date','Duration Interval','Donated by Siri','App ID','Classname','Action', 'Direction', 'Data', 'Filename', 'Protobuf data Offset')
             report.write_artifact_data_table(data_headers, data_list, file_found, html_escape=False)
             report.end_artifact_report()
             
