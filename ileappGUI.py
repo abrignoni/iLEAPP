@@ -1,3 +1,5 @@
+import json
+import pathlib
 import typing
 import ileapp
 import PySimpleGUI as sg
@@ -12,7 +14,7 @@ MODULE_START_INDEX = 1000
 
 def ValidateInput(values, window):
     '''Returns tuple (success, extraction_type)'''
-    global indx
+    global module_end_index
 
     i_path = values[0] # input file/folder
     o_path = values[1] # output folder
@@ -41,7 +43,7 @@ def ValidateInput(values, window):
         return False, ext_type
 
     one_element_is_selected = False
-    for x in range(1000, indx):
+    for x in range(1000, module_end_index):
         if window.FindElement(x).Get():
             one_element_is_selected = True
             break
@@ -60,17 +62,17 @@ def CheckList(mtxt, lkey, mdstring, disable=False):
     return [sg.CBox(mtxt, default=dstate, key=lkey, metadata=mdstring, disabled=disable)]
 
 def pickModules():
-    global indx
+    global module_end_index
     global mlist
     global loader
 
     loader = plugin_loader.PluginLoader()
 
-    indx = MODULE_START_INDEX     # arbitrary number to not interfere with other controls
+    module_end_index = MODULE_START_INDEX     # arbitrary number to not interfere with other controls
     for plugin in sorted(loader.plugins, key=lambda p: p.category.upper()):
         disabled = plugin.module_name == 'usagestatsVersion'
-        mlist.append(CheckList(f'{plugin.category} [{plugin.name} - {plugin.module_name}.py]', indx, plugin.name, disabled))
-        indx = indx + 1
+        mlist.append(CheckList(f'{plugin.category} [{plugin.name} - {plugin.module_name}.py]', module_end_index, plugin.name, disabled))
+        module_end_index = module_end_index + 1
         
 sg.theme('DarkAmber')   # Add a touch of color
 # All the stuff inside your window.
@@ -91,21 +93,29 @@ layout = [  [sg.Text('iOS Logs, Events, And Plists Parser', font=("Helvetica", 2
                      sg.FolderBrowse(font=normal_font, button_text='Browse Folder', target=(sg.ThisRow, -2), key='INPUTFOLDERBROWSE')
                     ]
                 ],
-                title='Select the file type or directory of the target iOS full file system extraction for parsing:')],
+                title='Select the file (tar/zip/gz) or directory of the target iOS full file system extraction for parsing:')],
             [sg.Frame(layout=[
                     [sg.Input(size=(112,1)), sg.FolderBrowse(font=normal_font, button_text='Browse Folder')]
                 ], 
                     title='Select Output Folder:')],
             [sg.Text('Available Modules')],
-            [sg.Button('SELECT ALL'), sg.Button('DESELECT ALL')], 
+            [sg.Button('Select All', key='SELECT ALL'), sg.Button('Deselect All', key='DESELECT ALL'),
+             sg.Button('Load Profile', key='LOAD PROFILE'), sg.Button('Save Profile', key='SAVE PROFILE')
+             # sg.FileBrowse(
+             #     button_text='Load Profile', key='LOADPROFILE', enable_events=True, target='LOADPROFILE',
+             #     file_types=(('ALEAPP Profile (*.alprofile)', '*.alprofile'), ('All Files', '*'))),
+             # sg.FileSaveAs(
+             #     button_text='Save Profile', key='SAVEPROFILE', enable_events=True, target='SAVEPROFILE',
+             #     file_types=(('ALEAPP Profile (*.alprofile)', '*.alprofile'), ('All Files', '*')),
+             #     default_extension='.alprofile')
+             ],
             [sg.Column(mlist, size=(300,310), scrollable=True),  sg.Output(size=(85,20))] ,
-            [sg.ProgressBar(max_value=GuiWindow.progress_bar_total, orientation='h', size=(86, 7), key='PROGRESSBAR', bar_color=('Red', 'White'))],
-            [sg.Submit('Process',font=normal_font), sg.Button('Close', font=normal_font)] ]
+            [sg.ProgressBar(max_value=GuiWindow.progress_bar_total, orientation='h', size=(86, 7), key='PROGRESSBAR', bar_color=('DarkGreen', 'White'))],
+            [sg.Submit('Process', font=normal_font), sg.Button('Close', font=normal_font)] ]
             
 # Create the Window
 window = sg.Window(f'iLEAPP version {aleapp_version}', layout)
 GuiWindow.progress_bar_handle = window['PROGRESSBAR']
-
 
 # Event Loop to process "events" and get the "values" of the inputs
 while True:
@@ -115,12 +125,62 @@ while True:
 
     if event == "SELECT ALL":  
         # mark all modules
-        for x in range(MODULE_START_INDEX, indx):
+        for x in range(MODULE_START_INDEX, module_end_index):
             window[x].Update(True)
     if event == "DESELECT ALL":  
          # none modules
-        for x in range(MODULE_START_INDEX, indx):
+        for x in range(MODULE_START_INDEX, module_end_index):
             window[x].Update(False if window[x].metadata != 'lastBuild' else True)  # lastBuild.py is REQUIRED
+    if event == "SAVE PROFILE":
+        destination_path = sg.popup_get_file(
+            "Save a profile", save_as=True,
+            file_types=(('ALEAPP Profile (*.alprofile)', '*.alprofile'),),
+            default_extension='.alprofile', no_window=True)
+
+        if destination_path:
+            ticked = []
+            for x in range(MODULE_START_INDEX, module_end_index):
+                if window.FindElement(x).Get():
+                    key = window[x].metadata
+                    ticked.append(key)
+            with open(destination_path, "wt", encoding="utf-8") as profile_out:
+                json.dump({"leapp": "aleapp", "format_version": 1, "plugins": ticked}, profile_out)
+            sg.Popup(f"Profile saved: {destination_path}")
+
+    if event == "LOAD PROFILE":
+        destination_path = sg.popup_get_file(
+            "Load a profile", save_as=False,
+            file_types=(('ALEAPP Profile (*.alprofile)', '*.alprofile'), ('All Files', '*')),
+            default_extension='.alprofile', no_window=True)
+
+        if destination_path and os.path.exists(destination_path):
+            profile_load_error = None
+            with open(destination_path, "rt", encoding="utf-8") as profile_in:
+                try:
+                    profile = json.load(profile_in)
+                except json.JSONDecodeError as json_ex:
+                    profile_load_error = f"File was not a valid profile file: {json_ex}"
+
+            if not profile_load_error:
+                if isinstance(profile, dict):
+                    if profile.get("leapp") != "aleapp" or profile.get("format_version") != 1:
+                        profile_load_error = "File was not a valid profile file: incorrect LEAPP or version"
+                    else:
+                        ticked = set(profile.get("plugins", []))
+                        ticked.add("lastbuild")  # always
+                        for x in range(MODULE_START_INDEX, module_end_index):
+                            if window[x].metadata in ticked:
+                                window[x].update(True)
+                            else:
+                                window[x].update(False)
+                else:
+                    profile_load_error = "File was not a valid profile file: invalid format"
+
+            if profile_load_error:
+                sg.popup(profile_load_error)
+            else:
+                sg.popup(f"Loaded profile: {destination_path}")
+
     if event == 'Process':
         #check is selections made properly; if not we will return to input form without exiting app altogether
         is_valid, extracttype = ValidateInput(values, window)
@@ -140,7 +200,7 @@ while True:
             search_list = [loader['lastbuild']] # hardcode lastBuild as first item
 
             s_items = 0
-            for x in range(MODULE_START_INDEX, indx):
+            for x in range(MODULE_START_INDEX, module_end_index):
                 if window.FindElement(x).Get():
                     key = window[x].metadata
                     if key in loader and key != 'lastbuild':
