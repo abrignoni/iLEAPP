@@ -148,10 +148,10 @@ def get_biomeIntents(files_found, report_folder, seeker, wrap_text):
                 else:
                     
                     #print(protostuff['1'], 'proto1') apple absolute time. Needs to be turned to double and then datetime. No need for it so far.
-                    appid = (protostuff['2'])
-                    typeofintent = protostuff['2']
+                    appid = (protostuff.get('2',''))
+                    typeofintent = protostuff.get('2','')
                     #print(protostuff['3']) #always says intents
-                    classname = (protostuff['4'])
+                    classname = (protostuff.get('4',''))
                     if protostuff.get('5') is not None:
                         action = protostuff.get('5').decode()
                     else:
