@@ -44,6 +44,7 @@ def get_whatsappMessages(files_found, report_folder, seeker, wrap_text):
     ''')
     all_rows = cursor.fetchall()
     usageentries = len(all_rows)
+    thumb = ''
     
     if usageentries > 0:
         for row in all_rows:
