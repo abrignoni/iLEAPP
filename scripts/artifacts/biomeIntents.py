@@ -150,6 +150,7 @@ def get_biomeIntents(files_found, report_folder, seeker, wrap_text):
                     #print(protostuff['1'], 'proto1') apple absolute time. Needs to be turned to double and then datetime. No need for it so far.
                     appid = (protostuff.get('2',''))
                     typeofintent = protostuff.get('2','')
+                    typeofintent = typeofintent.decode()
                     #print(protostuff['3']) #always says intents
                     classname = (protostuff.get('4',''))
                     if protostuff.get('5') is not None:
@@ -158,10 +159,9 @@ def get_biomeIntents(files_found, report_folder, seeker, wrap_text):
                         action = protostuff.get('5')
                     #print(protostuff['6']) #unknown
                     #print(protostuff['7']) #unknown
-                    try:
-                        deserialized_plist = nd.deserialize_plist_from_string(protostuff['8'])
-                    except:
-                        break
+                    
+                    deserialized_plist = nd.deserialize_plist_from_string(protostuff['8'])
+                    
                     #print(deserialized_plist)
                     startdate = (deserialized_plist['dateInterval']['NS.startDate'])
                     enddate = (deserialized_plist['dateInterval']['NS.endDate'])
@@ -201,10 +201,10 @@ def get_biomeIntents(files_found, report_folder, seeker, wrap_text):
                     #sms
                     elif typeofintent == 'com.apple.MobileSMS':
                         
-                        a = (protostuffinner['5']['1']['2']) #content
+                        a = (protostuffinner['5']['1']['2']).decode() #content
                         b = (protostuffinner['8'])#threadid
                         c = (protostuffinner.get('15', ''))#senderid if not binary show dict
-                        #d = (protostuffinner['2']['1']['4'])
+                        d = (protostuffinner['2']['1']['4'])
                         
                         datos = f'Thread ID: {b}, Sender ID: {c}, Content: {a}'
                         datoshtml = (datos.replace(',', '<br>'))
