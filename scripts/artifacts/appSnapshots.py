@@ -23,7 +23,10 @@ def save_ktx_to_png_if_valid(ktx_path, save_to_path):
                 #     logfunc('Skipping image as it is blank')
                 #     return False
                     
-                dec_img.save(save_to_path, "PNG")
+                dec_img.save(save_to_path, "PNG", compress_type=3)
+                #                                    ^
+                # as per https://github.com/python-pillow/Pillow/issues/5986
+
                 return True
         except (OSError, ValueError, liblzfse.error) as ex:
             logfunc(f'Had an exception - {str(ex)}')
