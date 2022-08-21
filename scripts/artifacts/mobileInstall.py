@@ -58,6 +58,7 @@ def get_mobileInstall(files_found, report_folder, seeker, wrap_text):
     for filename in files_found:
         file = open(filename, "r", encoding="utf8")
         filescounter = filescounter + 1
+        file_datainserts = []
         for line in file:
             counter = counter + 1
             matchObj = re.search(
@@ -112,11 +113,12 @@ def get_mobileInstall(files_found, report_folder, seeker, wrap_text):
                     bundleid,
                     "",
                 )
-                cursor.execute(
-                    "INSERT INTO dimm (time_stamp, action, bundle_id, path)  VALUES(?,?,?,?)",
-                    datainsert,
-                )
-                db.commit()
+                # cursor.execute(
+                #     "INSERT INTO dimm (time_stamp, action, bundle_id, path)  VALUES(?,?,?,?)",
+                #     datainsert,
+                # )
+                # db.commit()
+                file_datainserts.append(datainsert)
                 path = ''
                 tsv_tml_data_list.append((inserttime, actiondesc, bundleid, path))
 
@@ -167,11 +169,12 @@ def get_mobileInstall(files_found, report_folder, seeker, wrap_text):
                     bundleid,
                     path,
                 )
-                cursor.execute(
-                    "INSERT INTO dimm (time_stamp, action, bundle_id, path)  VALUES(?,?,?,?)",
-                    datainsert,
-                )
-                db.commit()
+                # cursor.execute(
+                #     "INSERT INTO dimm (time_stamp, action, bundle_id, path)  VALUES(?,?,?,?)",
+                #     datainsert,
+                # )
+                # db.commit()
+                file_datainserts.append(datainsert)
 
                 tsv_tml_data_list.append((inserttime, actiondesc, bundleid, path))
                 # logfunc()
@@ -221,11 +224,12 @@ def get_mobileInstall(files_found, report_folder, seeker, wrap_text):
                     bundleid,
                     path,
                 )
-                cursor.execute(
-                    "INSERT INTO dimm (time_stamp, action, bundle_id, path)  VALUES(?,?,?,?)",
-                    datainsert,
-                )
-                db.commit()
+                # cursor.execute(
+                #     "INSERT INTO dimm (time_stamp, action, bundle_id, path)  VALUES(?,?,?,?)",
+                #     datainsert,
+                # )
+                # db.commit()
+                file_datainserts.append(datainsert)
 
                 tsv_tml_data_list.append((inserttime, actiondesc, bundleid, path))
                 # logfunc()
@@ -274,11 +278,12 @@ def get_mobileInstall(files_found, report_folder, seeker, wrap_text):
                     bundleid,
                     path,
                 )
-                cursor.execute(
-                    "INSERT INTO dimm (time_stamp, action, bundle_id, path)  VALUES(?,?,?,?)",
-                    datainsert,
-                )
-                db.commit()
+                # cursor.execute(
+                #     "INSERT INTO dimm (time_stamp, action, bundle_id, path)  VALUES(?,?,?,?)",
+                #     datainsert,
+                # )
+                # db.commit()
+                file_datainserts.append(datainsert)
 
                 tsv_tml_data_list.append((inserttime, actiondesc, bundleid, path))
 
@@ -320,11 +325,12 @@ def get_mobileInstall(files_found, report_folder, seeker, wrap_text):
                     bundleid,
                     "",
                 )
-                cursor.execute(
-                    "INSERT INTO dimm (time_stamp, action, bundle_id, path)  VALUES(?,?,?,?)",
-                    datainsert,
-                )
-                db.commit()
+                # cursor.execute(
+                #     "INSERT INTO dimm (time_stamp, action, bundle_id, path)  VALUES(?,?,?,?)",
+                #     datainsert,
+                # )
+                # db.commit()
+                file_datainserts.append(datainsert)
 
                 tsv_tml_data_list.append((inserttime, actiondesc, bundleid, path))
 
@@ -356,11 +362,12 @@ def get_mobileInstall(files_found, report_folder, seeker, wrap_text):
                     "",
                     "",
                 )
-                cursor.execute(
-                    "INSERT INTO dimm (time_stamp, action, bundle_id, path)  VALUES(?,?,?,?)",
-                    datainsert,
-                )
-                db.commit()
+                # cursor.execute(
+                #     "INSERT INTO dimm (time_stamp, action, bundle_id, path)  VALUES(?,?,?,?)",
+                #     datainsert,
+                # )
+                # db.commit()
+                file_datainserts.append(datainsert)
 
                 tsv_tml_data_list.append((inserttime, actiondesc, bundleid, path))
 
@@ -408,14 +415,24 @@ def get_mobileInstall(files_found, report_folder, seeker, wrap_text):
                     bundleid,
                     path,
                 )
-                cursor.execute(
-                    "INSERT INTO dimm (time_stamp, action, bundle_id, path)  VALUES(?,?,?,?)",
-                    datainsert,
-                )
-                db.commit()
+                # cursor.execute(
+                #     "INSERT INTO dimm (time_stamp, action, bundle_id, path)  VALUES(?,?,?,?)",
+                #     datainsert,
+                # )
+                # db.commit()
+                file_datainserts.append(datainsert)
 
                 tsv_tml_data_list.append((inserttime, actiondesc, bundleid, path))
                 # logfunc()
+        # end for line in file:
+        if file_datainserts:
+            cursor.executemany(
+                "INSERT INTO dimm (time_stamp, action, bundle_id, path)  VALUES(?,?,?,?)",
+                file_datainserts,
+            )
+            db.commit()
+        else:
+            print("Had no commits to do...")
 
     logfunc(f"Logs processed: {filescounter}")
     logfunc(f"Lines processed: {counter}")

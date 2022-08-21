@@ -30,18 +30,18 @@ def get_walStrings(files_found, report_folder, seeker, wrap_text):
         final = level2 + '/' + level1
         
         unique_items = set() # For deduplication of strings found
-        with open(outputpath, 'w') as g:
-            with open(file_found, errors="ignore") as f:  # Python 3.x
-                data =  f.read()
-                #for match in not_control_char_re.finditer(data): # This gets all unicode chars, can include lot of garbage if you only care about English, will miss out other languages
-                for match in ascii_chars_re.finditer(data): # Matches ONLY Ascii (old behavior) , good if you only care about English
-                    if match.group() not in unique_items:
-                        g.write(match.group())
-                        g.write('\n')
-                        unique_items.add(match.group())
-            g.close()
+        out_lines = []
+        with open(file_found, errors="ignore") as f:  # Python 3.x
+            data =  f.read()
+            #for match in not_control_char_re.finditer(data): # This gets all unicode chars, can include lot of garbage if you only care about English, will miss out other languages
+            for match in ascii_chars_re.findall(data): # Matches ONLY Ascii (old behavior) , good if you only care about English
+                if match not in unique_items:
+                    out_lines.append(match)
+                    unique_items.add(match)
 
         if unique_items:
+            with open(outputpath, 'w') as g:
+                g.write('\n'.join(out_lines) + '\n')
             out = (f'<a href="{final}" style = "color:blue" target="_blank">{journalName}</a>')
             data_list.append((out, file_found))
         else:
