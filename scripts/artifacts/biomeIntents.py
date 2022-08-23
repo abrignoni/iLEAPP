@@ -148,11 +148,22 @@ def get_biomeIntents(files_found, report_folder, seeker, wrap_text):
                 else:
                     
                     #print(protostuff['1'], 'proto1') apple absolute time. Needs to be turned to double and then datetime. No need for it so far.
-                    appid = (protostuff.get('2',''))
+                    
                     typeofintent = protostuff.get('2','')
-                    typeofintent = typeofintent.decode()
+                    try:
+                        typeofintent = typeofintent.decode()
+                    except:
+                        break
+                    appid = typeofintent
+                    
                     #print(protostuff['3']) #always says intents
+                    
                     classname = (protostuff.get('4',''))
+                    try:
+                        classname = classname.decode()
+                    except:
+                        pass
+                    
                     if protostuff.get('5') is not None:
                         action = protostuff.get('5').decode()
                     else:
@@ -161,6 +172,12 @@ def get_biomeIntents(files_found, report_folder, seeker, wrap_text):
                     #print(protostuff['7']) #unknown
                     
                     deserialized_plist = nd.deserialize_plist_from_string(protostuff['8'])
+                    
+                    with open(os.path.join(report_folder, str(filename) + '-' + str(offset) + '.bplist'), 'wb') as wr:
+                        wr.write(protostuff['8']) #keep here
+                        
+                    with open(os.path.join(report_folder, str(filename) + '-' + str(offset) + '.des_bplist'), 'w') as wr:
+                        wr.write(str(deserialized_plist))
                     
                     #print(deserialized_plist)
                     startdate = (deserialized_plist['dateInterval']['NS.startDate'])
@@ -197,16 +214,54 @@ def get_biomeIntents(files_found, report_folder, seeker, wrap_text):
                         
                         datos = f'Number: {a}'
                         datoshtml = (datos.replace(',', '<br>'))
+                    
+                    #whatsapp
+                    elif typeofintent == 'net.whatsapp.WhatsApp':
                         
+                        a = (protostuffinner['8'].decode())
+                        b = (protostuffinner['1']['16'].decode())
+                        c = (protostuffinner['1']['2'].decode())
+                        d = (protostuffinner['2']['1']['7']['1'].decode())
+                        e = (protostuffinner['2']['1']['6']['2'].decode())
+                        
+                        datos = f'{a}, {b}, {c}, {d}, {e}'
+                        datoshtml = (datos.replace(',', '<br>'))
+                    
+                        
+                    elif typeofintent == 'org.whispersystems.signal':
+                        a = (protostuffinner['8'].decode())
+                        b = (protostuffinner['1']['16'].decode())
+                        c = (protostuffinner['1']['2'].decode())
+                        d = (protostuffinner['2']['1']['7']['1'].decode())
+                        #e = (protostuffinner['2']['1']['6']['2'].decode())
+                        f = (protostuffinner['2']['1']['2'].decode())
+                        g = (protostuffinner['2']['1']['4'].decode())
+                        e = (protostuffinner['2']['1']['3'])
+                
+                        h = (protostuffinner['10']['1']['7']['1'].decode())
+                        #i = (protostuffinner['10']['1']['6']['2'].decode())
+                        j = (protostuffinner['10']['1']['2'].decode())
+                        k = (protostuffinner['10']['1']['4'].decode())
+                        l = (protostuffinner['10']['1']['3'])
+                        
+                        datos = f'{a}, {b}, {c}, {d}, {f}, {g}, {e}, {h}, {j}, {k}, {l}'
+                        datoshtml = (datos.replace(',', '<br>'))
+                    
                     #sms
                     elif typeofintent == 'com.apple.MobileSMS':
                         
-                        a = (protostuffinner['5']['1']['2']).decode() #content
-                        b = (protostuffinner['8'])#threadid
+                        if type(protostuffinner['5']['1']['2']) is not dict:
+                            a = protostuffinner['5']['1']['2'].decode()
+                        else:
+                            a = protostuffinner['5']['1']['2']
+                        
+                        #a = (protostuffinner['5']['1']['2']) #content
+                        
+                        b = (protostuffinner['8']).decode()#threadid
                         c = (protostuffinner.get('15', ''))#senderid if not binary show dict
                         d = (protostuffinner['2']['1']['4'])
                         
-                        datos = f'Thread ID: {b}, Sender ID: {c}, Content: {a}'
+                        datos = f'Thread ID: {b}, Sender ID: {c}, Content:, {a}'
                         datoshtml = (datos.replace(',', '<br>'))
                         
                     #maps
@@ -283,8 +338,8 @@ def get_biomeIntents(files_found, report_folder, seeker, wrap_text):
                         datos = ''
                         datoshtml = 'Unsupported intent.'
                         
-                    data_list.append((startdate, enddate, durationinterval, donatedbysiri, appid, classname, action, direction, datoshtml, filename, offset))
-                    data_list_tsv.append((startdate, enddate, durationinterval, donatedbysiri, appid, classname, action, direction, datos, filename, offset))
+                    data_list.append((startdate, enddate, durationinterval, donatedbysiri, appid, classname, action, direction,groupid, datoshtml, filename, offset))
+                    data_list_tsv.append((startdate, enddate, durationinterval, donatedbysiri, appid, classname, action, direction, groupid, datos, filename, offset))
                     
                 modresult = (datalenght % 8)
                 resultante =  8 - modresult
@@ -300,7 +355,7 @@ def get_biomeIntents(files_found, report_folder, seeker, wrap_text):
             report = ArtifactHtmlReport(f'Intents')
             report.start_artifact_report(report_folder, f'Intents - {filename}', description)
             report.add_script()
-            data_headers = ('Timestamp','End Date','Duration Interval','Donated by Siri','App ID','Classname','Action', 'Direction', 'Data', 'Filename', 'Protobuf data Offset')
+            data_headers = ('Timestamp','End Date','Duration Interval','Donated by Siri','App ID','Classname','Action', 'Direction', 'Group ID', 'Data', 'Filename', 'Protobuf data Offset')
             report.write_artifact_data_table(data_headers, data_list, file_found, html_escape=False)
             report.end_artifact_report()
             
