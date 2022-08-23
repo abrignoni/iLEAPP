@@ -4,7 +4,7 @@
 # Artifact version: 0.0.1
 # Requirements: none
 
-# Some scripts provided by Heather Mahalik and Jared Barnhart as part of their SANS DFIR Summit 2022 talk
+# Queries are derivitive of work provided by Heather Mahalik and Jared Barnhart as part of their SANS DFIR Summit 2022 talk
 # https://for585.com/dfirsummit22
 
 import sqlite3
