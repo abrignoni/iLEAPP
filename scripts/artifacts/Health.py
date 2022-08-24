@@ -1,7 +1,7 @@
 # Module Description: Parses Apple Health details
 # Author: @KevinPagano3
 # Date: 2022-08-15
-# Artifact version: 0.0.1
+# Artifact version: 0.0.3
 # Requirements: none
 
 # Queries are derivitive of work provided by Heather Mahalik and Jared Barnhart as part of their SANS DFIR Summit 2022 talk
@@ -321,7 +321,7 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
     LEFT OUTER JOIN METADATA_KEYS ON METADATA_KEYS.ROWID = METADATA_VALUES.KEY_ID
     LEFT OUTER JOIN WORKOUTS ON WORKOUTS.DATA_ID = SAMPLES.DATA_ID
     WHERE WORKOUTS.ACTIVITY_TYPE NOT NULL AND (KEY IS NULL OR KEY IS "HKIndoorWorkout")
-    ORDER BY "start date" desc
+    ORDER BY "start date" DESC
     ''')
 
     all_rows = cursor.fetchall()
@@ -336,7 +336,7 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
         report.start_artifact_report(report_folder, 'Health - Workouts')
         report.add_script()
         data_headers = (
-            'Start Date', 'End Date', 'Workout Type', 'Workout Duration', 'Duration (In Mintues)', 'Distance (In KM)', 'Distance (In Miles)', 'Calories Burned', 'Total Basel Energy Burned', 'Goal Type', 'Goal', 'Flights Climbed', 'Steps', 'String Value')
+            'Start Timestamp', 'End Timestamp', 'Workout Type', 'Workout Duration', 'Duration (In Mintues)', 'Distance (In KM)', 'Distance (In Miles)', 'Calories Burned', 'Total Basel Energy Burned', 'Goal Type', 'Goal', 'Flights Climbed', 'Steps', 'String Value')
         report.write_artifact_data_table(data_headers, data_list, file_found)
         report.end_artifact_report()
 
@@ -398,7 +398,131 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
         timeline(report_folder, tlactivity, data_list, data_headers)
     else:
         logfunc('No data available in Health - Provenances')
+        
+    cursor.execute('''
+    select
+    datetime(samples.start_date+978307200,'unixepoch','localtime') as "Start Date",
+    datetime(samples.end_date+978307200,'unixepoch','localtime') as "End Date",
+    quantity_samples.quantity,
+    metadata_values.string_value,
+    metadata_keys.key,
+    samples.data_id
+    from samples
+    left outer join quantity_samples on samples.data_id = quantity_samples.data_id
+    left outer join correlations on samples.data_id = correlations.object
+    left outer join metadata_values on metadata_values.object_id = samples.data_id
+    left outer join metadata_keys on metadata_keys.ROWID = metadata_values.key_id
+    where samples.data_type = 173
+    ''')
+    
+    all_rows = cursor.fetchall()
+    usageentries = len(all_rows)
+    if usageentries > 0:
+        data_list = []
+        for row in all_rows:
+            data_list.append(
+                (row[0], row[1], row[2], row[3], row[4], row[5]))
 
+        report = ArtifactHtmlReport('Health - Headphone Audio Levels')
+        report.start_artifact_report(report_folder, 'Health - Headphone Audio Levels')
+        report.add_script()
+        data_headers = (
+            'Start Timestamp', 'End Timestamp', 'Volume Level (%)', 'Bundle Name', 'Key', 'Data ID')
+        report.write_artifact_data_table(data_headers, data_list, file_found)
+        report.end_artifact_report()
+
+        tsvname = 'Health - Headphone Audio Levels'
+        tsv(report_folder, data_headers, data_list, tsvname)
+
+        tlactivity = 'Health - Headphone Audio Levels'
+        timeline(report_folder, tlactivity, data_list, data_headers)
+    else:
+        logfunc('No data available in Health - Headphone Audio Levels')
+        
+    cursor.execute('''
+    select
+    datetime(samples.start_date+978307200,'unixepoch','localtime') as "Start Date",
+    datetime(samples.end_date+978307200,'unixepoch','localtime') as "End Date",
+    case
+    when samples.data_type = 5 then "Heart Rate"
+    when samples.data_type = 118 then "Resting Heart Rate"
+    end as "Heart Rate",
+    quantity_samples.quantity,
+    quantity_samples.original_quantity,
+    metadata_keys.key,
+    samples.data_id
+    from samples
+    left outer join quantity_samples on samples.data_id = quantity_samples.data_id
+    left outer join metadata_values on metadata_values.object_id = samples.data_id
+    left outer join metadata_keys on metadata_keys.ROWID = metadata_values.key_id
+    where samples.data_type in (5,118) and samples.start_date not null
+    order by "Start Date" desc
+    ''')
+    
+    heart_rate = ''
+    all_rows = cursor.fetchall()
+    usageentries = len(all_rows)
+    if usageentries > 0:
+        data_list = []
+        for row in all_rows:
+            if row[2] == 'Heart Rate':
+                heart_rate = row[4]
+            if row[2] == 'Resting Heart Rate':
+                heart_rate = row[3]
+        
+            data_list.append((row[0], row[1], row[2], heart_rate, row[5], row[6]))
+
+        report = ArtifactHtmlReport('Health - Heart Rate')
+        report.start_artifact_report(report_folder, 'Health - Heart Rate')
+        report.add_script()
+        data_headers = (
+            'Start Timestamp', 'End Timestamp', 'Type', 'Heart Rate', 'Key', 'Data ID')
+        report.write_artifact_data_table(data_headers, data_list, file_found)
+        report.end_artifact_report()
+
+        tsvname = 'Health - Heart Rate'
+        tsv(report_folder, data_headers, data_list, tsvname)
+
+        tlactivity = 'Health - Heart Rate'
+        timeline(report_folder, tlactivity, data_list, data_headers)
+    else:
+        logfunc('No data available in Health - Heart Rate')
+    
+    cursor.execute('''
+    select
+    datetime(created_date+978307200,'unixepoch') as "Created Timestamp",
+    earned_date,
+    template_unique_name,
+    value_in_canonical_unit,
+    value_canonical_unit,
+    creator_device
+    from ACHAchievementsPlugin_earned_instances
+    ''')
+    
+    all_rows = cursor.fetchall()
+    usageentries = len(all_rows)
+    if usageentries > 0:
+        data_list = []
+        for row in all_rows:
+        
+            data_list.append((row[0], row[1], row[2], row[3], row[4], row[5]))
+
+        report = ArtifactHtmlReport('Health - Achievements')
+        report.start_artifact_report(report_folder, 'Health - Achievements')
+        report.add_script()
+        data_headers = (
+            'Created Timestamp', 'Earned Date', 'Achievement', 'Value', 'Unit', 'Creator Device')
+        report.write_artifact_data_table(data_headers, data_list, file_found)
+        report.end_artifact_report()
+
+        tsvname = 'Health - Achievements'
+        tsv(report_folder, data_headers, data_list, tsvname)
+
+        tlactivity = 'Health - Achievements'
+        timeline(report_folder, tlactivity, data_list, data_headers)
+    else:
+        logfunc('No data available in Health - Achievements')
+        
 __artifacts__ = {
     "health": (
         "Health",
