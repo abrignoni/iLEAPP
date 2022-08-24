@@ -321,7 +321,7 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
     LEFT OUTER JOIN METADATA_KEYS ON METADATA_KEYS.ROWID = METADATA_VALUES.KEY_ID
     LEFT OUTER JOIN WORKOUTS ON WORKOUTS.DATA_ID = SAMPLES.DATA_ID
     WHERE WORKOUTS.ACTIVITY_TYPE NOT NULL AND (KEY IS NULL OR KEY IS "HKIndoorWorkout")
-    ORDER BY "start date" DESC
+    ORDER BY "START DATE" DESC
     ''')
 
     all_rows = cursor.fetchall()
