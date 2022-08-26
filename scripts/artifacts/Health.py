@@ -4,8 +4,10 @@
 # Artifact version: 0.0.3
 # Requirements: none
 
-# Queries are derivitive of work provided by Heather Mahalik and Jared Barnhart as part of their SANS DFIR Summit 2022 talk
+# Queries are a derivitive of research provided by Heather Mahalik and Jared Barnhart as part of their SANS DFIR Summit 2022 talk
+# as well as research provided by Sarah Edwards as part of her APOLLO project.
 # https://for585.com/dfirsummit22
+# https://github.com/mac4n6/APOLLO
 
 import sqlite3
 import textwrap
@@ -214,15 +216,25 @@ OS_dict = {
 }
 
 def get_Health(files_found, report_folder, seeker, wrap_text):
+
+    healthdb_secure = ''
+    healthdb = ''
+    source_file_healthdb_secure = ''
+    source_file_healthdb = ''
    
     for file_found in files_found:
-        file_found = str(file_found)
-        if not file_found.endswith('healthdb_secure.sqlite'):
-            continue # Skip all other files
-   
-    db = open_sqlite_db_readonly(file_found)
+        file_name = str(file_found)
+        if file_name.endswith('healthdb_secure.sqlite'):
+           healthdb_secure = str(file_found)
+           source_file_healthdb_secure = file_found.replace(seeker.directory, '')
 
+        if file_name.endswith('healthdb.sqlite'):
+           healthdb = str(file_found)
+           source_file_healthdb = file_found.replace(seeker.directory, '')
+   
+    db = open_sqlite_db_readonly(healthdb_secure)
     cursor = db.cursor()
+    
     cursor.execute('''
     SELECT
     DATETIME(SAMPLES.START_DATE + 978307200, 'UNIXEPOCH') AS "START DATE",
@@ -337,7 +349,7 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
         report.add_script()
         data_headers = (
             'Start Timestamp', 'End Timestamp', 'Workout Type', 'Workout Duration', 'Duration (In Mintues)', 'Distance (In KM)', 'Distance (In Miles)', 'Calories Burned', 'Total Basel Energy Burned', 'Goal Type', 'Goal', 'Flights Climbed', 'Steps', 'String Value')
-        report.write_artifact_data_table(data_headers, data_list, file_found)
+        report.write_artifact_data_table(data_headers, data_list, healthdb_secure)
         report.end_artifact_report()
 
         tsvname = 'Health - Workouts'
@@ -388,7 +400,7 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
         report.start_artifact_report(report_folder, 'Health - Provenances')
         report.add_script()
         data_headers = ('Row ID','Origin Product Type','Origin OS Build','Local Product Type','Local OS Build','Source Version','Timezone','Source ID','Device ID','Sync Provenance')
-        report.write_artifact_data_table(data_headers, data_list, file_found)
+        report.write_artifact_data_table(data_headers, data_list, healthdb_secure)
         report.end_artifact_report()
 
         tsvname = 'Health - Provenances'
@@ -398,21 +410,29 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
         timeline(report_folder, tlactivity, data_list, data_headers)
     else:
         logfunc('No data available in Health - Provenances')
-        
+    
+    cursor.execute('''attach database "''' + healthdb + '''" as healthdb ''')
+ 
     cursor.execute('''
-    select
-    datetime(samples.start_date+978307200,'unixepoch','localtime') as "Start Date",
-    datetime(samples.end_date+978307200,'unixepoch','localtime') as "End Date",
-    quantity_samples.quantity,
-    metadata_values.string_value,
-    metadata_keys.key,
-    samples.data_id
+    Select
+    datetime(samples.start_date+978307200,'unixepoch') as "Start Date",
+    datetime(samples.end_date+978307200,'unixepoch') as "End Date",
+    quantity_samples.quantity as "Decibels",
+    metadata_values.string_value as "Bundle Name",
+    healthdb.source_devices.name as "Device Name",
+    healthdb.source_devices.manufacturer as "Device Manufacturer",
+    healthdb.source_devices.model as "Device Model",
+    healthdb.source_devices.localIdentifier as "Local Identifier",
+    metadata_keys.key as "Key",
+    samples.data_id as "Data ID"
     from samples
     left outer join quantity_samples on samples.data_id = quantity_samples.data_id
-    left outer join correlations on samples.data_id = correlations.object
     left outer join metadata_values on metadata_values.object_id = samples.data_id
     left outer join metadata_keys on metadata_keys.ROWID = metadata_values.key_id
-    where samples.data_type = 173
+    left outer join objects on samples.data_id = objects.data_id
+    left outer join data_provenances on objects.provenance = data_provenances.ROWID
+    left outer join healthdb.source_devices on healthdb.source_devices.ROWID = data_provenances.device_id
+    WHERE samples.data_type = 173 AND metadata_keys.key != "_HKPrivateMetadataKeyHeadphoneAudioDataIsTransient"
     ''')
     
     all_rows = cursor.fetchall()
@@ -421,14 +441,14 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
         data_list = []
         for row in all_rows:
             data_list.append(
-                (row[0], row[1], row[2], row[3], row[4], row[5]))
+                (row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9]))
 
         report = ArtifactHtmlReport('Health - Headphone Audio Levels')
         report.start_artifact_report(report_folder, 'Health - Headphone Audio Levels')
         report.add_script()
         data_headers = (
-            'Start Timestamp', 'End Timestamp', 'Volume Level (%)', 'Bundle Name', 'Key', 'Data ID')
-        report.write_artifact_data_table(data_headers, data_list, file_found)
+            'Start Timestamp', 'End Timestamp', 'Decibels', 'Bundle Name', 'Device Name', 'Device Manufacturer', 'Device Model', 'Local Identifier', 'Key', 'Data ID')
+        report.write_artifact_data_table(data_headers, data_list, healthdb_secure)
         report.end_artifact_report()
 
         tsvname = 'Health - Headphone Audio Levels'
@@ -441,8 +461,8 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
         
     cursor.execute('''
     select
-    datetime(samples.start_date+978307200,'unixepoch','localtime') as "Start Date",
-    datetime(samples.end_date+978307200,'unixepoch','localtime') as "End Date",
+    datetime(samples.start_date+978307200,'unixepoch') as "Start Date",
+    datetime(samples.end_date+978307200,'unixepoch') as "End Date",
     case
     when samples.data_type = 5 then "Heart Rate"
     when samples.data_type = 118 then "Resting Heart Rate"
@@ -477,7 +497,7 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
         report.add_script()
         data_headers = (
             'Start Timestamp', 'End Timestamp', 'Type', 'Heart Rate', 'Key', 'Data ID')
-        report.write_artifact_data_table(data_headers, data_list, file_found)
+        report.write_artifact_data_table(data_headers, data_list, healthdb_secure)
         report.end_artifact_report()
 
         tsvname = 'Health - Heart Rate'
@@ -512,7 +532,7 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
         report.add_script()
         data_headers = (
             'Created Timestamp', 'Earned Date', 'Achievement', 'Value', 'Unit', 'Creator Device')
-        report.write_artifact_data_table(data_headers, data_list, file_found)
+        report.write_artifact_data_table(data_headers, data_list, healthdb_secure)
         report.end_artifact_report()
 
         tsvname = 'Health - Achievements'
@@ -526,6 +546,6 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
 __artifacts__ = {
     "health": (
         "Health",
-        ('**/Health/healthdb_secure.sqlite*'),
+        ('**/Health/healthdb_secure.sqlite*','**/Health/healthdb.sqlite*'),
         get_Health)
 }
