@@ -183,6 +183,7 @@ def crunch_artifacts(
                 continue  # nope
 
             logfunc('{} [{}] artifact completed'.format(plugin.name, plugin.module_name))
+            logfunc('')
 
         categories_searched += 1
         GuiWindow.SetProgressBar(categories_searched * ratio)
