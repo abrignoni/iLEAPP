@@ -8,7 +8,7 @@ import traceback
 from scripts.search_files import *
 from scripts.ilapfuncs import *
 from scripts.version_info import aleapp_version
-from time import process_time, gmtime, strftime
+from time import process_time, gmtime, strftime, perf_counter
 
 def main():
     parser = argparse.ArgumentParser(description='iLEAPP: iOS Logs, Events, and Plists Parser.')
@@ -87,6 +87,7 @@ def main():
 def crunch_artifacts(
         plugins: typing.Sequence[plugin_loader.PluginSpec], extracttype, input_path, out_params, ratio, wrap_text):
     start = process_time()
+    start_wall = perf_counter()
  
     logfunc('Processing started. Please wait. This may take a few minutes...')
 
@@ -192,9 +193,13 @@ def crunch_artifacts(
     logfunc('')
     logfunc('Processes completed.')
     end = process_time()
+    end_wall = perf_counter()
     run_time_secs =  end - start
     run_time_HMS = strftime('%H:%M:%S', gmtime(run_time_secs))
     logfunc("Processing time = {}".format(run_time_HMS))
+    run_time_secs =  end_wall - start_wall
+    run_time_HMS = strftime('%H:%M:%S', gmtime(run_time_secs))
+    logfunc("Processing time (wall)= {}".format(run_time_HMS))
 
     logfunc('')
     logfunc('Report generation started.')
