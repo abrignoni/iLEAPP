@@ -1,5 +1,5 @@
 numpy==1.21.4
-astc_decomp
+astc_decomp_faster
 biplist
 bs4
 pyliblzfse
