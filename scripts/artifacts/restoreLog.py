@@ -126,6 +126,8 @@ def get_restoreLog(files_found, report_folder, seeker, wrap_text):
     "19F77":"iOS 15.5",
     "19G71":"iOS 15.6",
     "19G82":"iOS 15.6.1",
+    "19H12":"iOS 15.7",
+    "20A362":"iOS 16.0",
     }
 
     for file_found in files_found:
