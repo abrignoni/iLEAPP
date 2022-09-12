@@ -51,6 +51,18 @@ def get_appleMapsSearchHistory(files_found, report_folder, seeker, wrap_text):
                                 protostuff, types = blackboxprotobuf.decode_message(h)
                                 #pp.pprint(protostuff)
                                 #print(protostuff)
+                                if protostuff.get('7'):
+                                    for look in (protostuff.get('7')['1']['1'][0]['2']['1']['4']):
+                                        if look.get('8'):
+                                            data = (look['8'].get('1'))
+                                            if data is not None:
+                                                pname = (data['10']['3'].decode())
+                                                
+                                if protostuff.get('6'):
+                                    location = protostuff['6']['1'].decode()
+                                    location = location + ', ' + protostuff['6']['2'].decode() #GPs after it?
+                                    
+                                    
                                 if protostuff.get('8'):
                                     
                                     if (protostuff['8']['2']['1'].get('201')):
@@ -86,7 +98,9 @@ def get_appleMapsSearchHistory(files_found, report_folder, seeker, wrap_text):
                                                     
                                                 except:
                                                     pass
-                                                    
+                                                
+                                                if mira.get('8'):
+                                                    pname = (mira.get('8')['1']['10']['3'].decode())
                                 try: 
                                     if protostuff.get('7'):
                                         shortstuff = shortbase64proto(protostuff.get('7')['1']['1'][0]['2']['1']['4'][8]['11']['2'].decode(), shorttypes)
