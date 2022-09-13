@@ -215,6 +215,8 @@ OS_dict = {
 "19T252":"watchOS 8.5.1",
 "19T572":"watchOS 8.6",
 "19U66":"watchOS 8.7",
+"19U67":"watchOS 8.7.1",
+"20R361":"watchOS 9.0",
 }
 
 def get_Health(files_found, report_folder, seeker, wrap_text):
