@@ -62,12 +62,12 @@ def get_appleMapsSearchHistory(files_found, report_folder, seeker, wrap_text):
                                     location = protostuff['6']['1'].decode()
                                     location = location + ', ' + protostuff['6']['2'].decode() #GPs after it?
                                     
-                                    
-                                if protostuff.get('8'):
-                                    
-                                    if (protostuff['8']['2']['1'].get('201')):
-                                        usersearchnotinproto = (protostuff['8']['2']['1']['201']['2']['2']['1'].decode())
-                                        
+                                try:    
+                                    if protostuff.get('8'):
+                                        if (protostuff['8']['2']['1'].get('201')):
+                                            usersearchnotinproto = (protostuff['8']['2']['1']['201']['2']['2']['1'].decode())
+                                except:
+                                    pass
                                         
                                     for mira in (protostuff['8']['2']['1']['4']):
                                         #print(mira)
