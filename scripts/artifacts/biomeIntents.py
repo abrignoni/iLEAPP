@@ -259,8 +259,11 @@ def get_biomeIntents(files_found, report_folder, seeker, wrap_text):
                         
                         b = (protostuffinner['8']).decode()#threadid
                         c = (protostuffinner.get('15', ''))#senderid if not binary show dict
-                        d = (protostuffinner['2']['1']['4'])
-                        
+                        try:
+                            d = (protostuffinner['2']['1']['4'])
+                        except:
+                            d = ''
+                            
                         datos = f'Thread ID: {b}, Sender ID: {c}, Content:, {a}'
                         datoshtml = (datos.replace(',', '<br>'))
                         
