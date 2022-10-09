@@ -103,7 +103,10 @@ def get_notificationsDuet(files_found, report_folder, seeker, wrap_text):
         while True:
             #print('----')
             sizeofnotificatoninhex = (ab.read(4))
-            sizeofnotificaton = (struct.unpack_from("<i",sizeofnotificatoninhex)[0])
+            try:
+                sizeofnotificaton = (struct.unpack_from("<i",sizeofnotificatoninhex)[0])
+            except:
+                break
             if sizeofnotificaton == 0:
                 break
             notificatonmessage = (ab.read(sizeofnotificaton + 28))
@@ -352,6 +355,6 @@ def get_notificationsDuet(files_found, report_folder, seeker, wrap_text):
 __artifacts__ = {
     "notificationsDuet": (
         "Notifications",
-        ('*/DuetExpertCenter/streams/userNotificationEvents/local/*'),
+        ('*/DuetExpertCenter/streams/userNotificationEvents/local/*', '*/userNotificationEvents/local/*'),
         get_notificationsDuet)
 }

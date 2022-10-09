@@ -257,7 +257,8 @@ def get_biomeIntents(files_found, report_folder, seeker, wrap_text):
                         
                         #a = (protostuffinner['5']['1']['2']) #content
                         
-                        b = (protostuffinner['8']).decode()#threadid
+                        b = (protostuffinner.get('8', ''))#threadid
+                        
                         c = (protostuffinner.get('15', ''))#senderid if not binary show dict
                         try:
                             d = (protostuffinner['2']['1']['4'])
@@ -374,6 +375,6 @@ def get_biomeIntents(files_found, report_folder, seeker, wrap_text):
 __artifacts__ = {
     "Intents": (
         "Intents",
-        ('*/private/var/mobile/Library/Biome/streams/public/AppIntent/local/*'),
+        ('*/private/var/mobile/Library/Biome/streams/public/AppIntent/local/*','*/AppIntent/local/*'),
         get_biomeIntents)
 }
