@@ -59,6 +59,8 @@ def get_icon_name(category, artifact):
         icon = 'grid'
     elif category == 'AGGREGATE DICTIONARY':
         icon = 'book'
+    elif category == 'BIOME':
+        icon = 'eye'
     elif category == 'BLUETOOTH':
         icon = 'bluetooth'
     elif category == 'BUMBLE':

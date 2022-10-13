@@ -550,6 +550,6 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
 __artifacts__ = {
     "health": (
         "Health",
-        ('**/Health/healthdb_secure.sqlite*','**/Health/healthdb.sqlite*'),
+        ('*/Health/healthdb_secure.sqlite*','*/Health/healthdb.sqlite*'),
         get_Health)
 }
