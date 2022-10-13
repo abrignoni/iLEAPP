@@ -71,10 +71,10 @@ def timestampsconv(webkittime):
     finaltime = datetime.utcfromtimestamp(unix_timestamp)
     return(finaltime)
 
-def get_biomeInfocus(files_found, report_folder, seeker, wrap_text):
+def get_biomeAppinstall(files_found, report_folder, seeker, wrap_text):
 
-    typess = {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'str', 'name': ''}, '2': {'type': 'message', 'message_typedef': {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''}}, 'name': ''}}, 'name': ''}, 
-        '2': {'type': 'double', 'name': ''}, '3': {'type': 'double', 'name': ''}, '4': {'type': 'message', 'message_typedef': {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''}}, 'name': ''}, '3': {'type': 'str', 'name': ''}}, 'name': ''}, '5': {'type': 'str', 'name': ''}, '7': {'type': 'message', 'message_typedef': {'1': {'type': 'message', 'message_typedef': {}, 'name': ''}, '2': {'type': 'message', 'message_typedef': {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''}}, 'name': ''}, '3': {'type': 'str', 'name': ''}}, 'name': ''}, '3': {'type': 'int', 'name': ''}}, 'name': ''}, '8': {'type': 'double', 'name': ''}, '10': {'type': 'int', 'name': ''}}
+    typess = {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'str', 'name': ''}, '2': {'type': 'message', 'message_typedef': {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''}}, 'name': ''}}, 'name': ''}, '2': {'type': 'double', 'name': ''}, '3': {'type': 'double', 'name': ''}, '4': {'type': 'message', 'message_typedef': {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''}}, 'name': ''}, '3': {'type': 'str', 'name': ''}}, 'name': ''}, '5': {'type': 'str', 'name': ''}, '7': {'type': 'message', 'message_typedef': {'1': {'type': 'message', 'message_typedef': {}, 'name': ''}, '2': {'type': 'message', 'message_typedef': {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''}}, 'name': ''}, '4': {'type': 'int', 'name': ''}, '3': {'type': 'str', 'name': ''}}, 'name': ''}, '3': {'type': 'int', 'name': ''}}, 'name': ''}, '8': {'type': 'double', 'name': ''}, '10': {'type': 'int', 'name': ''}}
+    
 
     for file_found in files_found:
         file_found = str(file_found)
@@ -92,7 +92,7 @@ def get_biomeInfocus(files_found, report_folder, seeker, wrap_text):
         with open(file_found, 'rb') as file:
             data = file.read()
             
-        data_list = []    
+        data_list = []
         headerloc = data.index(b'SEGB')
         #print(headerloc)
         
@@ -103,7 +103,7 @@ def get_biomeInfocus(files_found, report_folder, seeker, wrap_text):
         #print('---- Start of Notifications ----')
         
         while True:
-            #print('----')
+            print('----')
             sizeofnotificatoninhex = (ab.read(4))
             try:
                 sizeofnotificaton = (struct.unpack_from("<i",sizeofnotificatoninhex)[0])
@@ -120,25 +120,29 @@ def get_biomeInfocus(files_found, report_folder, seeker, wrap_text):
             if check == b'\x00':
                 pass
             else:
-                protostuff, types = blackboxprotobuf.decode_message(protostuff,typess)
-                #print(protostuff)
-                
+                protostuff, types = blackboxprotobuf.decode_message(protostuff, typess)
+            
                 activity = (protostuff['1']['1'])
                 timestart = (timestampsconv(protostuff['2']))
                 timeend = (timestampsconv(protostuff['3']))
-                actionguid = (protostuff['5'])
+            
                 bundleid = (protostuff['4']['3'])
+                actionguid = (protostuff['5'])
+                appinfo1 = appinfo2 = ''
                 if protostuff.get('7', '') != '':
                     if isinstance(protostuff['7'], list):
-                        transition = (protostuff['7'][0]['2']['3'])
+                        appinfo1 = (protostuff['7'][0]['2'].get('3', ''))
+                        bundleinfo = (protostuff['7'][1]['2'].get('3', ''))
+                        appinfo2 = (protostuff['7'][2]['2'].get('3', ''))
                     else:
-                        transition = (protostuff['7']['2']['3'])
+                        bundleinfo = ''
                 else:
-                    transition = ''
+                    bundleinfo = ''
+                
                 timewrite = (timestampsconv(protostuff['8']))
                 
-                data_list.append((timestart, timeend, timewrite, activity, bundleid, transition, actionguid))
-                
+                data_list.append((timestart, timeend, timewrite, activity, bundleid, bundleinfo, appinfo1, appinfo2, actionguid ))
+        
             modresult = (sizeofnotificaton % 8)
             resultante =  8 - modresult
             
@@ -146,31 +150,30 @@ def get_biomeInfocus(files_found, report_folder, seeker, wrap_text):
                 pass
             else:
                 ab.read(resultante)
-                #print("--------")
         
         if len(data_list) > 0:
         
             description = ''
-            report = ArtifactHtmlReport(f'Biome AppInFocus')
-            report.start_artifact_report(report_folder, f'Biome AppInFocus - {filename}', description)
+            report = ArtifactHtmlReport(f'Biome AppInstall')
+            report.start_artifact_report(report_folder, f'Biome AppInstall - {filename}', description)
             report.add_script()
-            data_headers = ('Time Start','Time End','Time Write','Activity','Bundle ID','Transition','Action GUID')
+            data_headers = ('Time Start','Time End','Time Write','Activity','Bundle ID','Bundle Info', 'App Info', 'App Info', 'Action GUID')
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
             
-            tsvname = f'Biome AppInFocus- {filename}'
+            tsvname = f'Biome AppInstall - {filename}'
             tsv(report_folder, data_headers, data_list, tsvname) # TODO: _csv.Error: need to escape, but no escapechar set
             
-            tlactivity = f'Biome AppInFocus - {filename}'
+            tlactivity = f'Biome AppInstall - {filename}'
             timeline(report_folder, tlactivity, data_list, data_headers)
             
         else:
-            logfunc(f'No data available for Biome AppInFocus')
+            logfunc(f'No data available for Biome AppInstall')
     
 
 __artifacts__ = {
-    "biomeInFocus": (
+    "biomeAppinstall": (
         "Biome",
-        ('*/biome/streams/restricted/_DKEvent.App.InFocus/local/*'),
-        get_biomeInfocus)
+        ('*/biome/streams/restricted/_DKEvent.App.Install/local/*'),
+        get_biomeAppinstall)
 }
