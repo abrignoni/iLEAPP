@@ -1,6 +1,7 @@
 import os
 import struct
 import blackboxprotobuf
+import nska_deserialize as nd
 from datetime import datetime
 from time import mktime
 from io import StringIO
@@ -71,9 +72,9 @@ def timestampsconv(webkittime):
     finaltime = datetime.utcfromtimestamp(unix_timestamp)
     return(finaltime)
 
-def get_biomeAppinstall(files_found, report_folder, seeker, wrap_text):
+def get_biomeLocationactivity(files_found, report_folder, seeker, wrap_text):
 
-    typess = {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'str', 'name': ''}, '2': {'type': 'message', 'message_typedef': {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''}}, 'name': ''}}, 'name': ''}, '2': {'type': 'double', 'name': ''}, '3': {'type': 'double', 'name': ''}, '4': {'type': 'message', 'message_typedef': {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''}}, 'name': ''}, '3': {'type': 'str', 'name': ''}}, 'name': ''}, '5': {'type': 'str', 'name': ''}, '7': {'type': 'message', 'message_typedef': {'1': {'type': 'message', 'message_typedef': {}, 'name': ''}, '2': {'type': 'message', 'message_typedef': {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''}}, 'name': ''}, '4': {'type': 'int', 'name': ''}, '3': {'type': 'str', 'name': ''}}, 'name': ''}, '3': {'type': 'int', 'name': ''}}, 'name': ''}, '8': {'type': 'double', 'name': ''}, '10': {'type': 'int', 'name': ''}}
+    typess = {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'str', 'name': ''}, '2': {'type': 'message', 'message_typedef': {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''}}, 'name': ''}}, 'name': ''}, '2': {'type': 'double', 'name': ''}, '3': {'type': 'double', 'name': ''}, '4': {'type': 'message', 'message_typedef': {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''}}, 'name': ''}, '3': {'type': 'str', 'name': ''}}, 'name': ''}, '5': {'type': 'str', 'name': ''}, '6': {'type': 'message', 'message_typedef': {'1': {'type': 'str', 'name': ''}, '2': {'type': 'str', 'name': ''}, '3': {'type': 'bytes', 'name': ''}, '6': {'type': 'int', 'name': ''}}, 'name': ''}, '7': {'type': 'message', 'message_typedef': {'1': {'type': 'message', 'message_typedef': {}, 'name': ''}, '2': {'type': 'message', 'message_typedef': {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''}}, 'name': ''}, '3': {'type': 'bytes', 'name': ''}, '5': {'type': 'fixed64', 'name': ''}, '4': {'type': 'int', 'name': ''}, '6': {'type': 'bytes', 'name': ''}, '7': {'type': 'fixed64', 'name': ''}}, 'name': ''}, '3': {'type': 'int', 'name': ''}}, 'name': ''}, '8': {'type': 'double', 'name': ''}, '10': {'type': 'int', 'name': ''}}
     
 
     for file_found in files_found:
@@ -112,36 +113,63 @@ def get_biomeAppinstall(files_found, report_folder, seeker, wrap_text):
             if sizeofnotificaton == 0:
                 break
             
-            ignore1 = ab.read(28)
+            allocation = ab.read(4)
+            
+            date1 = ab.read(8) 
+            date1 = (struct.unpack_from("<d",date1)[0])
+            convertedtime1 = timestampsconv(date1)
+            #print(convertedtime1)
+            
+            date2 = ab.read(8)
+            date2 = (struct.unpack_from("<d",date2)[0])
+            convertedtime1 = timestampsconv(date2)
+            #print(convertedtime1)
+            
+            
+            ignore1 = ab.read(8)
             
             protostuff = ab.read(sizeofnotificaton)
+            
             checkforempty = BytesIO(protostuff)
             check = checkforempty.read(1)
             if check == b'\x00':
                 pass
             else:
-                protostuff, types = blackboxprotobuf.decode_message(protostuff, typess)
-            
+                
+                protostuff, types = blackboxprotobuf.decode_message(protostuff,typess)
+                
+                #pp = pprint.PrettyPrinter(indent=4)
+                #pp.pprint(protostuff)
+                
                 activity = (protostuff['1']['1'])
                 timestart = (timestampsconv(protostuff['2']))
                 timeend = (timestampsconv(protostuff['3']))
-            
-                bundleid = (protostuff['4']['3'])
+                bundle = (protostuff['4']['3'])
                 actionguid = (protostuff['5'])
-                appinfo1 = appinfo2 = ''
-                if protostuff.get('7', '') != '':
-                    if isinstance(protostuff['7'], list):
-                        appinfo1 = (protostuff['7'][0]['2'].get('3', ''))
-                        bundleinfo = (protostuff['7'][1]['2'].get('3', ''))
-                        appinfo2 = (protostuff['7'][2]['2'].get('3', ''))
-                    else:
-                        bundleinfo = ''
-                else:
-                    bundleinfo = ''
+                data0 = (protostuff['6']['1'])
+                bundle2 = (protostuff['6']['2'])
+                data1 = (protostuff['7'][2]['2']['3'].decode())
+                data2 = (protostuff['7'][3]['2'].get('3',''))
+                data3 = (protostuff['7'][4]['2']['3'].decode())
                 
+                data4 = (protostuff['7'][10]['2'].get('6',''))
+                if isinstance(data4, bytes):
+                    deserialized_plist = nd.deserialize_plist_from_string(data4)
+                    data4 = (deserialized_plist['NS.relative'])
+                    
+                data5 = (protostuff['7'][13]['2'].get('6',''))
+                if isinstance(data5, bytes):
+                    deserialized_plist = nd.deserialize_plist_from_string(data5)
+                    data5 = (deserialized_plist)
+                    
+                data6 = (protostuff['7'][16]['2'].get('6',''))
+                if isinstance(data6, bytes):
+                    deserialized_plist = nd.deserialize_plist_from_string(data6)
+                    data6 = (deserialized_plist['NS.relative'])
+                    
                 timewrite = (timestampsconv(protostuff['8']))
                 
-                data_list.append((timestart, timeend, timewrite, activity, bundleid, bundleinfo, appinfo1, appinfo2, actionguid ))
+                data_list.append((timestart, timeend, timewrite, activity, bundle, bundle2, data0, data1, data2, data3, data4, data5, data6, actionguid ))
         
             modresult = (sizeofnotificaton % 8)
             resultante =  8 - modresult
@@ -154,26 +182,26 @@ def get_biomeAppinstall(files_found, report_folder, seeker, wrap_text):
         if len(data_list) > 0:
         
             description = ''
-            report = ArtifactHtmlReport(f'Biome AppInstall')
-            report.start_artifact_report(report_folder, f'Biome AppInstall - {filename}', description)
+            report = ArtifactHtmlReport(f'Biome LocationActivity')
+            report.start_artifact_report(report_folder, f'Biome LocationActivity - {filename}', description)
             report.add_script()
-            data_headers = ('Time Start','Time End','Time Write','Activity','Bundle ID','Bundle Info', 'App Info', 'App Info', 'Action GUID')
+            data_headers = ('Time Start','Time End','Time Write','Activity','Bundle ID','Bundle ID', 'Data 0', 'Data 1', 'Data 2', 'Data 3', 'Data 4' , 'Data 5', 'Data 6', 'Action GUID')
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
             
-            tsvname = f'Biome AppInstall - {filename}'
+            tsvname = f'Biome LocationActivity - {filename}'
             tsv(report_folder, data_headers, data_list, tsvname) # TODO: _csv.Error: need to escape, but no escapechar set
             
-            tlactivity = f'Biome AppInstall - {filename}'
+            tlactivity = f'Biome LocationActivity - {filename}'
             timeline(report_folder, tlactivity, data_list, data_headers)
             
         else:
-            logfunc(f'No data available for Biome AppInstall')
+            logfunc(f'No data available for Biome LocationActivity')
     
 
 __artifacts__ = {
-    "biomeAppinstall": (
+    "biomeLocationactivity": (
         "Biome",
-        ('*/biome/streams/restricted/_DKEvent.App.Install/local/*'),
-        get_biomeAppinstall)
+        ('*/biome/streams/restricted/_DKEvent.App.LocationActivity/local/*'),
+        get_biomeLocationactivity)
 }
