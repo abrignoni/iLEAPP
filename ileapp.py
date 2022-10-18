@@ -28,12 +28,15 @@ def main():
     if args.artifact_paths:
         print('Artifact path list generation started.')
         print('')
-        for plugin in loader.plugins:
-            if isinstance(plugin.search, tuple):
-                for x in plugin.search:
-                    print(x)
-            else:  # TODO check that this is actually a string?
-                print(plugin.search)
+        with open('path_list.txt', 'a') as paths:
+            for plugin in loader.plugins:
+                if isinstance(plugin.search, tuple):
+                    for x in plugin.search:
+                        paths.write(x+'\n')
+                        print(x)
+                else:  # TODO check that this is actually a string?
+                    paths.write(plugin.search+'\n')
+                    print(plugin.search)
         print('')
         print('Artifact path list generation completed')    
         return
@@ -212,3 +215,4 @@ def crunch_artifacts(
 
 if __name__ == '__main__':
     main()
+    
