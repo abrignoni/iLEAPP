@@ -20,11 +20,13 @@ def main():
                         help='Text file list of artifact paths')
     parser.add_argument('-w', '--wrap_text', required=False, action="store_false",
                         help='do not wrap text for output of data files')
-        
-    args = parser.parse_args()
     
     loader = plugin_loader.PluginLoader()
 
+    print(f"Info: {len(loader)} plugins loaded.")
+    
+    args = parser.parse_args()
+    
     if args.artifact_paths:
         print('Artifact path list generation started.')
         print('')
