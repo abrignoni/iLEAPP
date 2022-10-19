@@ -181,8 +181,8 @@ def get_biomeSafari(files_found, report_folder, seeker, wrap_text):
     
 
 __artifacts__ = {
-    "biomeSsafari": (
+    "biomeSafari": (
         "Biome",
-        ('*/Brigs/biome/streams/restricted/_DKEvent.Safari.History/local/*'),
+        ('*/Biome/streams/restricted/_DKEvent.Safari.History/local/*'),
         get_biomeSafari)
 }

@@ -174,6 +174,6 @@ def get_biomeAppinstall(files_found, report_folder, seeker, wrap_text):
 __artifacts__ = {
     "biomeAppinstall": (
         "Biome",
-        ('*/biome/streams/restricted/_DKEvent.App.Install/local/*'),
+        ('*/Biome/streams/restricted/_DKEvent.App.Install/local/*'),
         get_biomeAppinstall)
 }
