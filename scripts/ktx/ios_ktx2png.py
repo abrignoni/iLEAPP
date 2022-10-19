@@ -31,7 +31,7 @@
     See main 
 """
 
-import astc_decomp 
+import astc_decomp_faster 
 import liblzfse
 import os
 import struct
