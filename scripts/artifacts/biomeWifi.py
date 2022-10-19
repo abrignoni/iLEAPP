@@ -178,6 +178,6 @@ def get_biomeWifi(files_found, report_folder, seeker, wrap_text):
 __artifacts__ = {
     "biomeWifi": (
         "Biome",
-        ('*/biome/streams/restricted/_DKEvent.Wifi.Connection/local/*'),
+        ('*/Biome/streams/restricted/_DKEvent.Wifi.Connection/local/*'),
         get_biomeWifi)
 }

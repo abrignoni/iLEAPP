@@ -203,6 +203,6 @@ def get_biomeUseractmeta(files_found, report_folder, seeker, wrap_text):
 __artifacts__ = {
     "biomeUseractmeta": (
         "Biome",
-        ('*/biome/streams/restricted/UserActivityMetadata/local*'),
+        ('*/Biome/streams/restricted/UserActivityMetadata/local*'),
         get_biomeUseractmeta)
 }
