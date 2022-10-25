@@ -87,7 +87,7 @@ def get_bumble(files_found, report_folder, seeker, wrap_text):
         data_headers = (
             'Created Timestamp','Modified Timestamp','Sender ID','Receiver ID','Message','Message Direction','Message Read')  # Don't remove the comma, that is required to make this a tuple as there is only 1 element
         
-        report.write_artifact_data_table(data_headers, data_list, file_found)
+        report.write_artifact_data_table(data_headers, data_list, chat_db)
         report.end_artifact_report()
         
         tsvname = f'Bumble - Messages'
@@ -162,7 +162,7 @@ def get_bumble(files_found, report_folder, seeker, wrap_text):
         data_headers_account = (
             'Key', 'Values')  # Don't remove the comma, that is required to make this a tuple as there is only 1 element
         
-        report.write_artifact_data_table(data_headers_account, data_list_account, file_found)
+        report.write_artifact_data_table(data_headers_account, data_list_account, account_db)
         report.end_artifact_report()
         
         tsvname = f'Bumble - Account Details'
