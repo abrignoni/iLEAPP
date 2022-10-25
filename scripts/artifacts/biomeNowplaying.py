@@ -127,8 +127,10 @@ def get_biomeNowplaying(files_found, report_folder, seeker, wrap_text):
                 info = (protostuff.get('10',''))
                 info2 = (protostuff.get('8',''))
                 info3 = (protostuff.get('5',''))
-                output = (protostuff['14']['3'])
-                
+                if (protostuff.get('14','')) != '':
+                    output = protostuff['14']['3']
+                else:
+                    output = ''
                 data_list.append((timestart, bundleid, output, info, info2, info3))
                 
             modresult = (sizeofnotificaton % 8)

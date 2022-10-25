@@ -27,11 +27,15 @@ def get_appleWalletCards(files_found, report_folder, seeker, wrap_text):
         for row in all_rows:
             card_info = str(row[1], 'utf-8', 'ignore')
             card_number = get_bank_card_number(card_info)
-            expiration_date = re.findall(r'\d{2}/\d{2}', card_info)
-            card_type = get_card_type(card_number, len(card_number))
+            if card_number is None:
+                pass
+            else:
+                expiration_date = re.findall(r'\d{2}/\d{2}', card_info)
+                card_type = get_card_type(card_number, len(card_number))
 
-            data_list.append((row[0], card_number, expiration_date[0], card_type))
-
+                data_list.append((row[0], card_number, expiration_date[0], card_type))
+                
+    if len(data_list) > 0:
         report = ArtifactHtmlReport('Cards')
         report.start_artifact_report(report_folder, 'Cards')
         report.add_script()

@@ -113,7 +113,14 @@ def get_biomeIntents(files_found, report_folder, seeker, wrap_text):
             
             while True:
                 datalenght = ab.read(4)
-                datalenght = (struct.unpack_from("<I",datalenght)[0])
+                breakfull = 0
+                try:
+                    datalenght = (struct.unpack_from("<I",datalenght)[0])
+                except:
+                    breakfull = 1
+                
+                if breakfull == 1:
+                    break
                 
                 if datalenght == 0:
                     break
@@ -207,10 +214,17 @@ def get_biomeIntents(files_found, report_folder, seeker, wrap_text):
                         datos = f'Action: {a}, Data Field 1: {b}, Data Field 2: {c}'
                         datoshtml = (datos.replace(',', '<br>'))
                         
+                    #telegraph
+                    elif typeofintent == 'ph.telegra.Telegraph':
+                        datoshtml = deserialized_plist['intent']['backingStore']['bytes'].decode('latin-1')
+                        
                     #calls
                     elif typeofintent == 'com.apple.InCallService':
                         #print(protostuffinner)
-                        a = (protostuffinner['5']['1']['4'].decode()) #content number
+                        try:
+                            a = (protostuffinner['5']['1']['4'].decode()) #content number
+                        except:
+                            print(protostuffinner)
                         
                         datos = f'Number: {a}'
                         datoshtml = (datos.replace(',', '<br>'))
@@ -249,25 +263,26 @@ def get_biomeIntents(files_found, report_folder, seeker, wrap_text):
                     
                     #sms
                     elif typeofintent == 'com.apple.MobileSMS':
-                        
-                        if type(protostuffinner['5']['1']['2']) is not dict:
-                            a = protostuffinner['5']['1']['2'].decode()
-                        else:
-                            a = protostuffinner['5']['1']['2']
-                        
-                        #a = (protostuffinner['5']['1']['2']) #content
-                        
-                        b = (protostuffinner.get('8', ''))#threadid
-                        
-                        c = (protostuffinner.get('15', ''))#senderid if not binary show dict
-                        try:
-                            d = (protostuffinner['2']['1']['4'])
-                        except:
-                            d = ''
+                        if protostuffinner.get('5', '') != '':
+                            if type(protostuffinner['5']['1']['2']) is not dict:
+                                a = protostuffinner['5']['1']['2'].decode()
+                            else:
+                                a = protostuffinner['5']['1']['2']
                             
-                        datos = f'Thread ID: {b}, Sender ID: {c}, Content:, {a}'
-                        datoshtml = (datos.replace(',', '<br>'))
-                        
+                            #a = (protostuffinner['5']['1']['2']) #content
+                            
+                            b = (protostuffinner.get('8', ''))#threadid
+                            
+                            c = (protostuffinner.get('15', ''))#senderid if not binary show dict
+                            try:
+                                d = (protostuffinner['2']['1']['4'])
+                            except:
+                                d = ''
+                                
+                            datos = f'Thread ID: {b}, Sender ID: {c}, Content:, {a}'
+                            datoshtml = (datos.replace(',', '<br>'))
+                        else:
+                            print('Mobile SMS' + str(protostuffinner))
                     #maps
                     elif typeofintent == 'com.apple.Maps':
                         #print(protostuffinner)
@@ -288,56 +303,20 @@ def get_biomeIntents(files_found, report_folder, seeker, wrap_text):
                             datoshtml = (datos.replace(',', '<br>'))
                             
                         else:
+                            datos = ''
                             a = (protostuffinner['3'].decode()) #action
                             b = (protostuffinner['1']['16'].decode()) #value
                             
-                            c = (protostuffinner['4'][0]['1'].decode()) #subadministrativearea
-                            d = (protostuffinner['4'][0]['2']['2']['2'].decode()) #value of above
+                            datos = datos + f'{a}: {b},'
                             
-                            e = (protostuffinner['4'][1]['1'].decode()) #street
-                            f = (protostuffinner['4'][1]['2']['2']['2'].decode()) #value of above
-                            
-                            g = (protostuffinner['4'][2]['1'].decode()) #zip
-                            h = (protostuffinner['4'][2]['2']['2']['2'].decode()) #value of above
-                            
-                            i = (protostuffinner['4'][3]['1'].decode()) #state
-                            j = (protostuffinner['4'][3]['2']['2']['2'].decode()) #value of above
-                            
-                            k = (protostuffinner['4'][4]['1'].decode()) #category type
-                            l = (protostuffinner['4'][4]['2']['2']['2'].decode()) #value of above
-                            
-                            m = (protostuffinner['4'][5]['1'].decode()) #element
-                            n = (protostuffinner['4'][5]['2']['2']['2'].decode()) #value of above
-                            
-                            o = (protostuffinner['4'][6]['1'].decode()) #country code
-                            p = (protostuffinner['4'][6]['2']['2']['2'].decode()) #value of above
-                            
-                            q = (protostuffinner['4'][7]['1'].decode()) #name
-                            r = (protostuffinner['4'][7]['2']['2']['2'].decode()) #value of above
-                            
-                            s = (protostuffinner['4'][8]['1'].decode()) #title
-                            t = (protostuffinner['4'][8]['2']['2']['2'].decode()) #value of above
-                            
-                            u = (protostuffinner['4'][9]['1'].decode()) #source
-                            v = (protostuffinner['4'][9]['2']['2']['2'].decode()) #value of above
-                            
-                            w = (protostuffinner['4'][10]['1'].decode()) #thoroughfare
-                            x = (protostuffinner['4'][10]['2']['2']['2'].decode()) #value of above
-                            
-                            y = (protostuffinner['4'][11]['1'].decode()) #subthoroughfare
-                            z = (protostuffinner['4'][11]['2']['2']['2'].decode()) #value of above
-                            
-                            aa = (protostuffinner['4'][12]['1'].decode()) #poi identifier
-                            bb = (protostuffinner['4'][12]['2']['2']['2'].decode()) #value of above
-                            
-                            cc = (protostuffinner['4'][13]['1'].decode()) #country
-                            dd = (protostuffinner['4'][13]['2']['2']['2'].decode()) #value of above
-                            
-                            ee = (protostuffinner['4'][14]['1'].decode()) #city
-                            ff = (protostuffinner['4'][14]['2']['2']['2'].decode()) #value of above
-                            
-                            datos = f'{a}: {b}, {c}: {d}, {e}: {f}, {g}: {h}, {i}: {j}, {k}: {l}, {m}: {n}, {o}: {p}, {q}: {r}, {s}: {t}, {u}: {v}, {w}: {x}, {y}: {z}, {aa}: {bb}, {cc}: {dd}, {ee}: {ff}'
+                            for loopy in protostuffinner['4']:
+                                a = loopy['1'].decode()
+                                b = loopy['2']['2']['2'].decode()
+                                datos = datos + f'{a}: {b},'
+                                
                             datoshtml = (datos.replace(',', '<br>'))
+                        
+                            #logfunc('Maps' + str(protostuffinner))
                     else:
                         datos = ''
                         datoshtml = 'Unsupported intent.'
