@@ -163,9 +163,16 @@ def get_biomeUseractmeta(files_found, report_folder, seeker, wrap_text):
                 internalbplist = (deserialized_plist.get('contentAttributeSetData',''))
                 
                 if internalbplist != '':
-                    internalbplist = (deserialized_plist['contentAttributeSetData']['NS.data'])
-                    deserialized_plist2 = nd.deserialize_plist_from_string(internalbplist)
-                    container = (deserialized_plist2['container'])
+                    if type(internalbplist) != str:
+                        try:
+                            internalbplist = (deserialized_plist['contentAttributeSetData']['NS.data'])
+                        except Exception as ex:
+                            print(ex)
+                            print('Processing as bplist["container"] directly.')
+                        deserialized_plist2 = nd.deserialize_plist_from_string(internalbplist)
+                        container = (deserialized_plist2['container'])
+                    else:
+                        container = internalbplist
                 else:
                     container =''
                     

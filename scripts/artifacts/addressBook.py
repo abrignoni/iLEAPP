@@ -35,9 +35,12 @@ def get_addressBook(files_found, report_folder, seeker, wrap_text):
         data_list = []
         for row in all_rows:
             if row[1] is not None:
-                numbers = row[1].split(" +")
-                number = numbers[1].split(" ")
-                phone_number = "+{}".format(number[0])
+                try:
+                    numbers = row[1].split(" +")
+                    number = numbers[1].split(" ")
+                    phone_number = "+{}".format(number[0])
+                except:
+                    phone_number = row[1]
             else:
                 phone_number = ''
 
