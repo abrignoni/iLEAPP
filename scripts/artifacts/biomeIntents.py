@@ -205,8 +205,17 @@ def get_biomeIntents(files_found, report_folder, seeker, wrap_text):
                     protostuffinner = (deserialized_plist['intent']['backingStore']['bytes'])
                     protostuffinner, types = blackboxprotobuf.decode_message(protostuffinner)
                     
+                    
+                    #Instagram
+                    if typeofintent == 'com.burbn.instagram':
+                        datoshtml = deserialized_plist['intent']['backingStore']['bytes'].decode('latin-1')
+                        
                     #notes
-                    if typeofintent == 'com.apple.mobilenotes':
+                    elif typeofintent == 'com.apple.assistant_service':
+                        datoshtml = deserialized_plist['intent']['backingStore']['bytes'].decode('latin-1')
+                    
+                    #notes
+                    elif typeofintent == 'com.apple.mobilenotes':
                         a = (protostuffinner['1']['16'].decode()) #create
                         b = (protostuffinner['2']['1'].decode()) #message
                         c = (protostuffinner['2']['2'].decode()) #message
