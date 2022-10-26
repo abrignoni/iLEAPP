@@ -240,35 +240,12 @@ def get_biomeIntents(files_found, report_folder, seeker, wrap_text):
                     
                     #whatsapp
                     elif typeofintent == 'net.whatsapp.WhatsApp':
-                        
-                        a = (protostuffinner['8'].decode())
-                        b = (protostuffinner['1']['16'].decode())
-                        c = (protostuffinner['1']['2'].decode())
-                        d = (protostuffinner['2']['1']['7']['1'].decode())
-                        e = (protostuffinner['2']['1']['6']['2'].decode())
-                        
-                        datos = f'{a}, {b}, {c}, {d}, {e}'
-                        datoshtml = (datos.replace(',', '<br>'))
+                        datoshtml = str(protostuffinner)
                     
                         
                     elif typeofintent == 'org.whispersystems.signal':
-                        a = (protostuffinner['8'].decode())
-                        b = (protostuffinner['1']['16'].decode())
-                        c = (protostuffinner['1']['2'].decode())
-                        d = (protostuffinner['2']['1']['7']['1'].decode())
-                        #e = (protostuffinner['2']['1']['6']['2'].decode())
-                        f = (protostuffinner['2']['1']['2'].decode())
-                        g = (protostuffinner['2']['1']['4'].decode())
-                        e = (protostuffinner['2']['1']['3'])
-                
-                        h = (protostuffinner['10']['1']['7']['1'].decode())
-                        #i = (protostuffinner['10']['1']['6']['2'].decode())
-                        j = (protostuffinner['10']['1']['2'].decode())
-                        k = (protostuffinner['10']['1']['4'].decode())
-                        l = (protostuffinner['10']['1']['3'])
+                        datoshtml = str(protostuffinner)
                         
-                        datos = f'{a}, {b}, {c}, {d}, {f}, {g}, {e}, {h}, {j}, {k}, {l}'
-                        datoshtml = (datos.replace(',', '<br>'))
                     
                     #sms
                     elif typeofintent == 'com.apple.MobileSMS':
