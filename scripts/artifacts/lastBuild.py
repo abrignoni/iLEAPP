@@ -74,5 +74,9 @@ __artifacts__ = {
     "lastbuild": (
         "IOS Build",
         ('*LastBuildInfo.plist'),
-        get_lastBuild)
+        get_lastBuild),
+    "iTunesBackupInfo": (
+        "IOS Build (iTunes Backup)",
+        ('*LastBuildInfo.plist'),
+        get_iTunesBackupInfo)
 }

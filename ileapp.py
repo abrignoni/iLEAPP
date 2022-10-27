@@ -86,11 +86,12 @@ def main():
 
         out_params = OutputParameters(output_path)
 
-        crunch_artifacts(list(loader.plugins), extracttype, input_path, out_params, 1, wrap_text)
+        crunch_artifacts(list(loader.plugins), extracttype, input_path, out_params, 1, wrap_text, loader)
 
 
 def crunch_artifacts(
-        plugins: typing.Sequence[plugin_loader.PluginSpec], extracttype, input_path, out_params, ratio, wrap_text):
+        plugins: typing.Sequence[plugin_loader.PluginSpec], extracttype, input_path, out_params, ratio, wrap_text,
+        loader: plugin_loader.PluginLoader):
     start = process_time()
     start_wall = perf_counter()
  
@@ -143,9 +144,10 @@ def crunch_artifacts(
         info_plist_path = os.path.join(input_path, 'Info.plist')
         if os.path.exists(info_plist_path):
             # process_artifact([info_plist_path], 'iTunesBackupInfo', 'Device Info', seeker, out_params.report_folder_base)
-            plugin.method([info_plist_path], out_params.report_folder_base, seeker, wrap_text)
+            #plugin.method([info_plist_path], out_params.report_folder_base, seeker, wrap_text)
+            loader["iTunesBackupInfo"].method([info_plist_path], out_params.report_folder_base, seeker, wrap_text)
             #del search_list['lastBuild'] # removing lastBuild as this takes its place
-            print([info_plist_path]) # TODO Remove special consideration for itunes? Merge into main search
+            print([info_plist_path])  # TODO Remove special consideration for itunes? Merge into main search
         else:
             logfunc('Info.plist not found for iTunes Backup!')
             log.write('Info.plist not found for iTunes Backup!')

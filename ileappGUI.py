@@ -217,7 +217,7 @@ while True:
             out_params = OutputParameters(output_folder)
             wrap_text = True
             crunch_successful = ileapp.crunch_artifacts(
-                search_list, extracttype, input_path, out_params, len(loader)/s_items, wrap_text)
+                search_list, extracttype, input_path, out_params, len(loader)/s_items, wrap_text, loader)
             if crunch_successful:
                 report_path = os.path.join(out_params.report_folder_base, 'index.html')
                 
