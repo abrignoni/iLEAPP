@@ -34,6 +34,8 @@ def get_filesAppsm(files_found, report_folder, seeker, wrap_text):
             output_file.write(row[1])
             output_file.close()
             
+            creationdate = contentmodificationdate = userinfo = childitemcount = flags = ''
+            
             with open(os.path.join(report_folder, row[2]+'.bplist'), "rb") as f:
                 deserialized_plist = nd.deserialize_plist(f)
             for x, y in deserialized_plist.items():

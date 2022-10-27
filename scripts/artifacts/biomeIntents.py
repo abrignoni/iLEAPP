@@ -209,11 +209,18 @@ def get_biomeIntents(files_found, report_folder, seeker, wrap_text):
                     #Instagram
                     if typeofintent == 'com.burbn.instagram':
                         datoshtml = deserialized_plist['intent']['backingStore']['bytes'].decode('latin-1')
+                        datos = datoshtml
+                    
+                    #snapchat
+                    elif typeofintent == 'com.toyopagroup.picaboo':
+                        datoshtml = deserialized_plist['intent']['backingStore']['bytes'].decode('latin-1')
+                        datos = datoshtml
                         
                     #notes
                     elif typeofintent == 'com.apple.assistant_service':
                         datoshtml = deserialized_plist['intent']['backingStore']['bytes'].decode('latin-1')
-                    
+                        datos = datoshtml
+                        
                     #notes
                     elif typeofintent == 'com.apple.mobilenotes':
                         a = (protostuffinner['1']['16'].decode()) #create
@@ -226,6 +233,7 @@ def get_biomeIntents(files_found, report_folder, seeker, wrap_text):
                     #telegraph
                     elif typeofintent == 'ph.telegra.Telegraph':
                         datoshtml = deserialized_plist['intent']['backingStore']['bytes'].decode('latin-1')
+                        datos = datoshtml
                         
                     #calls
                     elif typeofintent == 'com.apple.InCallService':
@@ -241,11 +249,11 @@ def get_biomeIntents(files_found, report_folder, seeker, wrap_text):
                     #whatsapp
                     elif typeofintent == 'net.whatsapp.WhatsApp':
                         datoshtml = str(protostuffinner)
-                    
+                        datos = datoshtml
                         
                     elif typeofintent == 'org.whispersystems.signal':
                         datoshtml = str(protostuffinner)
-                        
+                        datos = datoshtml
                     
                     #sms
                     elif typeofintent == 'com.apple.MobileSMS':
