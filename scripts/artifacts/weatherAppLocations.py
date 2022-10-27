@@ -15,7 +15,7 @@ def get_weatherAppLocations(files_found, report_folder, seeker, wrap_text):
             plist_content = plistlib.load(plist_file)
             
           
-            if plist_content['PrefsVersion'] == '2.1':
+            if plist_content.get('PrefsVersion') == '2.1':
               lastupdated = (plist_content['LastUpdated'])
               
               if plist_content.get('Cities', '0') == '0':
