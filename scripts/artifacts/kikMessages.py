@@ -5,7 +5,7 @@ import scripts.artifacts.artGlobals
 
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, timeline, tsv, is_platform_windows, open_sqlite_db_readonly
+from scripts.ilapfuncs import logfunc, logdevinfo, timeline, tsv, is_platform_windows, open_sqlite_db_readonly, media_to_html
 
 
 def get_kikMessages(files_found, report_folder, seeker, wrap_text):
@@ -46,15 +46,8 @@ def get_kikMessages(files_found, report_folder, seeker, wrap_text):
         for row in all_rows:
         
             attachmentName = str(row[7])
-            thumb = ''
-        
-            for match in files_found:
-                if attachmentName in match:
-                    shutil.copy2(match, report_folder)
-                    data_file_name = os.path.basename(match)
-                    thumb = f'<img src="{report_folder}{data_file_name}"  width="300"></img>'
-        
-        
+            thumb = media_to_html(attachmentName, files_found, report_folder)
+            
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], thumb))
 
         description = 'Kik Messages'
