@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-
+from pathlib import Path
 import os
 import biplist
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, is_platform_windows
+from scripts.ilapfuncs import logfunc, tsv, is_platform_windows, media_to_html
 
 
 def get_kikBplistmeta(files_found, report_folder, seeker, wrap_text):
@@ -42,11 +42,21 @@ def get_kikBplistmeta(files_found, report_folder, seeker, wrap_text):
 							if x['name'] == 'file-name':
 								filename = x.get('value', '')
 					elif key == 'image':
-						thumbfilename = id+'.jpg'
-						file = open(f'{report_folder}{thumbfilename}', "wb")
+						thumbfilename = id
+						
+						complete = Path(report_folder).joinpath('Kik')
+						if not complete.exists():
+							Path(f'{complete}').mkdir(parents=True, exist_ok=True)
+						
+						file = open(f'{complete}{thumbfilename}', "wb")
 						file.write(val[0]['value'])
 						file.close()
-						thumb = f'<img src="{report_folder}{thumbfilename}"  width="300"></img>'
+						
+						imagetofind = []
+						imagetofind.append(f'{complete}{thumbfilename}')
+						thumb = media_to_html(id, imagetofind, report_folder)
+					
+					
 					elif key == 'app-id':
 						appid = val
 						
