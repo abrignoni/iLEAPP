@@ -142,7 +142,7 @@ def get_biomeUseractmeta(files_found, report_folder, seeker, wrap_text):
                 #pp.pprint(protostuff)
                 #print(types)
                 
-                guid = (protostuff['10'].decode())
+                #guid = (protostuff['10'].decode())
                 bplistdata = (protostuff['2'])
                 desc1 = (protostuff['4'].decode())
                 desc2 = (protostuff['5'].decode())

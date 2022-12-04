@@ -131,9 +131,12 @@ def get_biomeAppinstall(files_found, report_folder, seeker, wrap_text):
                 appinfo1 = appinfo2 = ''
                 if protostuff.get('7', '') != '':
                     if isinstance(protostuff['7'], list):
-                        appinfo1 = (protostuff['7'][0]['2'].get('3', ''))
-                        bundleinfo = (protostuff['7'][1]['2'].get('3', ''))
-                        appinfo2 = (protostuff['7'][2]['2'].get('3', ''))
+                        if len(protostuff['7']) < 3:
+                            appinfo1 = (protostuff['7'][0]['2'].get('3', ''))
+                        else:
+                            appinfo1 = (protostuff['7'][0]['2'].get('3', ''))
+                            bundleinfo = (protostuff['7'][1]['2'].get('3', ''))
+                            appinfo2 = (protostuff['7'][2]['2'].get('3', ''))
                     else:
                         bundleinfo = ''
                 else:
