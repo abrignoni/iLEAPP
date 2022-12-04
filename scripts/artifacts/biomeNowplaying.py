@@ -128,7 +128,10 @@ def get_biomeNowplaying(files_found, report_folder, seeker, wrap_text):
                 info2 = (protostuff.get('8',''))
                 info3 = (protostuff.get('5',''))
                 if (protostuff.get('14','')) != '':
-                    output = protostuff['14']['3']
+                    if isinstance(protostuff['14'], dict):
+                        output = protostuff['14']['3']
+                    else:
+                        output = (f"{protostuff['14'][0]['3']} <-> {protostuff['14'][1]['3']}")
                 else:
                     output = ''
                 data_list.append((timestart, bundleid, output, info, info2, info3))
