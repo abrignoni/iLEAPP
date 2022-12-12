@@ -224,8 +224,8 @@ def get_biomeIntents(files_found, report_folder, seeker, wrap_text):
                     #notes
                     elif typeofintent == 'com.apple.mobilenotes':
                         a = (protostuffinner['1']['16'].decode()) #create
-                        b = (protostuffinner['2']['1'].decode()) #message
-                        c = (protostuffinner['2']['2'].decode()) #message
+                        b = (protostuffinner['2']['1']) #message
+                        c = (protostuffinner['2']['2']) #message
                         
                         datos = f'Action: {a}, Data Field 1: {b}, Data Field 2: {c}'
                         datoshtml = (datos.replace(',', '<br>'))
