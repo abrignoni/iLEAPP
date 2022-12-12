@@ -142,7 +142,10 @@ def get_biomeBluetooth(files_found, report_folder, seeker, wrap_text):
                 #print(types)
                 
                 mac = protostuff['1'].decode()
-                desc = protostuff['2'].decode()
+                if isinstance(protostuff['2'], dict):
+                    desc = protostuff['2']
+                else:
+                    desc = protostuff['2'].decode()
                 data_list.append((segbtime,mac,desc))
                 
         

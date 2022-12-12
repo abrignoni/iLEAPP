@@ -148,9 +148,19 @@ def get_biomeLocationactivity(files_found, report_folder, seeker, wrap_text):
                 actionguid = (protostuff['5'])
                 data0 = (protostuff['6']['1'])
                 bundle2 = (protostuff['6']['2'])
-                data1 = (protostuff['7'][2]['2']['3'].decode())
-                data2 = (protostuff['7'][3]['2'].get('3',''))
-                data3 = (protostuff['7'][4]['2']['3'].decode())
+                
+                if (protostuff['7'][2]['2'].get('3','')) != '':
+                    data1 = (protostuff['7'][2]['2']['3'].decode())
+                else:
+                    data1 = ''
+                if (protostuff['7'][3]['2'].get('3','')) != '':
+                    data2 = (protostuff['7'][3]['2'].get('3',''))
+                else:
+                    data2 = ''
+                if (protostuff['7'][4]['2'].get('3','')) != '':
+                    data3 = (protostuff['7'][4]['2']['3'].decode())
+                else:
+                    data3 = ''
                 
                 data4 = (protostuff['7'][10]['2'].get('6',''))
                 if isinstance(data4, bytes):
