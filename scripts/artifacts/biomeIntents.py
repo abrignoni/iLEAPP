@@ -172,7 +172,7 @@ def get_biomeIntents(files_found, report_folder, seeker, wrap_text):
                         pass
                     
                     if protostuff.get('5') is not None:
-                        action = protostuff.get('5').decode()
+                        action = protostuff.get('5')
                     else:
                         action = protostuff.get('5')
                     #print(protostuff['6']) #unknown
