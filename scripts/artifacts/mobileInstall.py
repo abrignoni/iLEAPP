@@ -325,14 +325,14 @@ def get_mobileInstall(files_found, report_folder, seeker, wrap_text):
                     bundleid,
                     "",
                 )
-                # cursor.execute(
+                # cursor.execute( 
                 #     "INSERT INTO dimm (time_stamp, action, bundle_id, path)  VALUES(?,?,?,?)",
                 #     datainsert,
                 # )
                 # db.commit()
                 file_datainserts.append(datainsert)
 
-                tsv_tml_data_list.append((inserttime, actiondesc, bundleid, path))
+                tsv_tml_data_list.append((inserttime, actiondesc, bundleid, ''))
 
             matchObj = re.search(r"(main: Reboot detected)", line)  # Regex for reboots
             if matchObj:
