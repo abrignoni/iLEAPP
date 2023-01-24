@@ -72,7 +72,9 @@ def get_restoreLog(files_found, report_folder, seeker, wrap_text):
     "16H30":"iOS 12.5.2",
     "16H41":"iOS 12.5.3",
     "16H50":"iOS 12.5.4",
-    "16H62":"iOS 12.5.5",   
+    "16H62":"iOS 12.5.5",
+    "16H71":"iOS 12.5.6",
+    "16H81":"iOS 12.5.7",
     "17A577":"iOS 13.0",
     "17A844":"iOS 13.1",
     "17A854":"iOS 13.1.1",
@@ -127,6 +129,9 @@ def get_restoreLog(files_found, report_folder, seeker, wrap_text):
     "19G71":"iOS 15.6",
     "19G82":"iOS 15.6.1",
     "19H12":"iOS 15.7",
+    "19H117":"iOS 15.7.1",
+    "19G218":"iOS 15.7.2",
+    "19H307":"iOS 15.7.3",
     "20A362":"iOS 16.0",
     "20A371":"iOS 16.0.1",
     "20A380":"iOS 16.0.2",
@@ -135,6 +140,7 @@ def get_restoreLog(files_found, report_folder, seeker, wrap_text):
     "20B101":"iOS 16.1.1",
     "20B110":"iOS 16.1.2",
     "20C65":"iOS 16.2",
+    "20D47":"iOS 16.3",
     }
 
     for file_found in files_found:
