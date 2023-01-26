@@ -343,6 +343,8 @@ def get_icon_name(category, artifact):
         icon = 'wifi'
     elif category == 'WIFI KNOWN NETWORKS':
         icon = 'wifi'
+    elif category == 'OFFLINE PAGES':
+        icon = 'cloud-off'
                   
     return icon
 
