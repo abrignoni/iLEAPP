@@ -72,6 +72,8 @@ def get_interactionCcontacts(files_found, report_folder, seeker, wrap_text):
             ZINTERACTIONS.zbundleid,
             ZINTERACTIONS.ztargetbundleid,
             ZINTERACTIONS.zuuid,
+            ZATTACHMENT.zcontenttext,
+            ZATTACHMENT.zuti,
             ZATTACHMENT.zcontenturl
             from zinteractions
             inner join z_1interactions
@@ -85,12 +87,12 @@ def get_interactionCcontacts(files_found, report_folder, seeker, wrap_text):
         data_list = []
         
         if version.parse(iOSversion) >= version.parse("10"):
-            for row in all_rows:    data_list.append((row[0],row[1],row[2],row[3],row[4]))
+            for row in all_rows:    data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6]))
             
             report = ArtifactHtmlReport('InteractionC')
             report.start_artifact_report(report_folder, 'Attachments')
             report.add_script()
-            data_headers = ('Creation Date', 'Bundle ID', 'Target Bundle ID', 'ZUUID', 'Content URL')
+            data_headers = ('Creation Date', 'Bundle ID', 'Target Bundle ID', 'ZUUID', 'Content Text', 'Uniform Type ID', 'Content URL')
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
             
