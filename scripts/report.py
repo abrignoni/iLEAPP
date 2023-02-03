@@ -29,6 +29,8 @@ def get_icon_name(category, artifact):
             icon = 'user'
     elif category == 'ADDRESS BOOK':
         icon = 'book-open'
+    elif category == 'CACHE DATA':
+        icon = 'box'
     elif category == 'AIRTAGS':
         icon = 'map-pin'
     elif category == 'SIM INFO':
@@ -345,6 +347,8 @@ def get_icon_name(category, artifact):
         icon = 'wifi'
     elif category == 'WIFI KNOWN NETWORKS':
         icon = 'wifi'
+    elif category == 'OFFLINE PAGES':
+        icon = 'cloud-off'
                   
     return icon
 
