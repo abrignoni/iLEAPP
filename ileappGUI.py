@@ -243,6 +243,12 @@ while True:
             GuiWindow.window_handle = window
             out_params = OutputParameters(output_folder)
             wrap_text = True
+            
+            try:
+                casedata
+            except NameError:
+                casedata = {}
+            
             crunch_successful = ileapp.crunch_artifacts(
                 search_list, extracttype, input_path, out_params, len(loader)/s_items, wrap_text, loader, casedata)
             if crunch_successful:
