@@ -175,7 +175,7 @@ def get_biomeCarplayisconnected(files_found, report_folder, seeker, wrap_text):
 
 __artifacts__ = {
     "biomeCarplayisconnected": (
-        "Biome",
+        "Biome CarPlay Conn",
         ('*/Biome/streams/restricted/_DKEvent.Carplay.IsConnected/local/*'),
         get_biomeCarplayisconnected)
 }

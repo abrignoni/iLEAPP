@@ -175,7 +175,7 @@ def get_biomeHardware(files_found, report_folder, seeker, wrap_text):
 
 __artifacts__ = {
     "biomeHardware": (
-        "Biome",
+        "Biome Hardware",
         ('*/Biome/streams/restricted/OSAnalytics.Hardware.Reliability/local/*'),
         get_biomeHardware)
 }

@@ -177,7 +177,7 @@ def get_biomeWifi(files_found, report_folder, seeker, wrap_text):
 
 __artifacts__ = {
     "biomeWifi": (
-        "Biome",
+        "Biome WIFI",
         ('*/Biome/streams/restricted/_DKEvent.Wifi.Connection/local/*'),
         get_biomeWifi)
 }

@@ -181,7 +181,7 @@ def get_biomeBattperc(files_found, report_folder, seeker, wrap_text):
 
 __artifacts__ = {
     "biomeBattperc": (
-        "Biome",
+        "Biome Battery Perc",
         ('*/biome/streams/restricted/_DKEvent.Device.BatteryPercentage/local/*'),
         get_biomeBattperc)
 }

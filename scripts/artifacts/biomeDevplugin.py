@@ -180,7 +180,7 @@ def get_biomeDevplugin(files_found, report_folder, seeker, wrap_text):
 
 __artifacts__ = {
     "biomeDevplugin": (
-        "Biome",
+        "Biome Device Plug",
         ('*/biome/streams/restricted/_DKEvent.Device.IsPluggedIn/local/*'),
         get_biomeDevplugin)
 }
