@@ -266,6 +266,9 @@ def get_icon_name(category, artifact):
         icon = 'clipboard'
     elif category == 'MOBILE SOFTWARE UPDATE':
         icon = 'refresh-cw'
+    elif category == 'NETWORK USAGE':
+        if artifact.find('APP DATA') >= 0:   icon = 'activity'
+        if artifact.find('CONNECTIONS') >= 0:   icon = 'bar-chart'
     elif category == 'NOTES':
         icon = 'file-text'
     elif category == 'NOTIFICATIONS':
