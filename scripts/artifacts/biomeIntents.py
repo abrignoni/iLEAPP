@@ -73,6 +73,8 @@ def timestampsconv(webkittime):
 
 def get_biomeIntents(files_found, report_folder, seeker, wrap_text):
     
+    files_found = sorted(files_found)
+    
     for file_found in files_found:
         filename = os.path.basename(file_found)
         if filename.startswith('.'):

@@ -20,7 +20,7 @@ def main():
                         help='Text file list of artifact paths')
     parser.add_argument('-w', '--wrap_text', required=False, action="store_false",
                         help='do not wrap text for output of data files')
-    
+        
     loader = plugin_loader.PluginLoader()
 
     print(f"Info: {len(loader)} plugins loaded.")
@@ -85,13 +85,18 @@ def main():
             if output_path[1] == ':': output_path = '\\\\?\\' + output_path.replace('/', '\\')
 
         out_params = OutputParameters(output_path)
-
-        crunch_artifacts(list(loader.plugins), extracttype, input_path, out_params, 1, wrap_text, loader)
+        
+        try:
+            casedata
+        except NameError:
+            casedata = {}
+            
+        crunch_artifacts(list(loader.plugins), extracttype, input_path, out_params, 1, wrap_text, loader, casedata)
 
 
 def crunch_artifacts(
         plugins: typing.Sequence[plugin_loader.PluginSpec], extracttype, input_path, out_params, ratio, wrap_text,
-        loader: plugin_loader.PluginLoader):
+        loader: plugin_loader.PluginLoader, casedata):
     start = process_time()
     start_wall = perf_counter()
  
@@ -216,7 +221,9 @@ def crunch_artifacts(
             out_params.report_folder_base = out_params.report_folder_base[4:]
         if input_path.startswith('\\\\?\\'):
             input_path = input_path[4:]
-    report.generate_report(out_params.report_folder_base, run_time_secs, run_time_HMS, extracttype, input_path)
+    
+        
+    report.generate_report(out_params.report_folder_base, run_time_secs, run_time_HMS, extracttype, input_path, casedata)
     logfunc('Report generation Completed.')
     logfunc('')
     logfunc(f'Report location: {out_params.report_folder_base}')
