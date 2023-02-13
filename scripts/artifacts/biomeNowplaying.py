@@ -167,7 +167,7 @@ def get_biomeNowplaying(files_found, report_folder, seeker, wrap_text):
 
 __artifacts__ = {
     "biomeNowplaying": (
-        "Biome",
+        "Biome Now Playing",
         ('*/Biome/streams/public/NowPlaying/local/*'),
         get_biomeNowplaying)
 }

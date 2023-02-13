@@ -65,6 +65,42 @@ def get_icon_name(category, artifact):
         icon = 'book'
     elif category == 'BIOME':
         icon = 'eye'
+    elif category == 'BIOME APP INSTALL':
+        icon = 'eye'
+    elif category == 'BIOME BACKLIGHT':
+        icon = 'eye'
+    elif category == 'BIOME BATTERY PERC':
+        icon = 'eye'
+    elif category == 'BIOME BLUETOOTH':
+        icon = 'eye'
+    elif category == 'BIOME CARPLAY CONN':
+        icon = 'eye'
+    elif category == 'BIOME DEVICE PLUG':
+        icon = 'eye'
+    elif category == 'BIOME HARDWARE':
+        icon = 'eye'
+    elif category == 'BIOME IN FOCUS':
+        icon = 'eye'
+    elif category == 'BIOME INTENTS':
+        icon = 'eye'
+    elif category == 'BIOME LOCATION ACT':
+        icon = 'eye'
+    elif category == 'BIOME INTENTS':
+        icon = 'eye'
+    elif category == 'BIOME NOTES':
+        icon = 'eye'
+    elif category == 'BIOME NOTIFICATIONS PUB':
+        icon = 'eye'
+    elif category == 'BIOME NOW PLAYING':
+        icon = 'eye'
+    elif category == 'BIOME SAFARI':
+        icon = 'eye'
+    elif category == 'BIOME TEXT INPUT':
+        icon = 'eye'
+    elif category == 'BIOME USER ACT META':
+        icon = 'eye'
+    elif category == 'BIOME WIFI':
+        icon = 'eye'
     elif category == 'BLUETOOTH':
         icon = 'bluetooth'
     elif category == 'BUMBLE':

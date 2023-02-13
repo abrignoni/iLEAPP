@@ -158,7 +158,7 @@ def get_biomeBacklight(files_found, report_folder, seeker, wrap_text):
 
 __artifacts__ = {
     "biomeBacklight": (
-        "Biome",
+        "Biome Backlight",
         ('*/Biome/streams/public/Backlight/local/*'),
         get_biomeBacklight)
 }

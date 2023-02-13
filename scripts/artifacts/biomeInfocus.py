@@ -170,7 +170,7 @@ def get_biomeInfocus(files_found, report_folder, seeker, wrap_text):
 
 __artifacts__ = {
     "biomeInFocus": (
-        "Biome",
+        "Biome in Focus",
         ('*/biome/streams/restricted/_DKEvent.App.InFocus/local/*'),
         get_biomeInfocus)
 }

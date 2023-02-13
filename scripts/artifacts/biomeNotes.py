@@ -169,7 +169,7 @@ def get_biomeNotes(files_found, report_folder, seeker, wrap_text):
 
 __artifacts__ = {
     "biomeNotes": (
-        "Biome",
+        "Biome Notes",
         ('*/Biome/streams/restricted/NotesContent/local/*'),
         get_biomeNotes)
 }

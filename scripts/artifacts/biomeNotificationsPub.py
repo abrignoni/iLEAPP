@@ -166,7 +166,7 @@ def get_biomeNotificationsPub(files_found, report_folder, seeker, wrap_text):
 
 __artifacts__ = {
     "biomeNotificationsPub": (
-        "Biome",
+        "Biome Notifications Pub",
         ('*/Biome/streams/public/Notification/local/*'),
         get_biomeNotificationsPub)
 }
