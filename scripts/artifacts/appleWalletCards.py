@@ -84,6 +84,6 @@ def get_card_type(card_num, num_length):
 __artifacts__ = {
     "applewalletcards": (
         "Apple Wallet",
-        ('*/private/var/mobile/Containers/Data/Application/*/Library/Caches/com.apple.Passbook/Cache.db*'),
+        ('*/mobile/Containers/Data/Application/*/Library/Caches/com.apple.Passbook/Cache.db*'),
         get_appleWalletCards)
 }

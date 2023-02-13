@@ -21,9 +21,9 @@ def get_tcc(files_found, report_folder, seeker, wrap_text):
     if version.parse(iOSversion) >= version.parse("9"):
         cursor = db.cursor()
         cursor.execute('''
+        datetime(last_modified,'unixepoch').
         select client,
-        service,
-        datetime(last_modified,'unixepoch')
+        service
         from access
         order by client
         ''')
@@ -39,17 +39,16 @@ def get_tcc(files_found, report_folder, seeker, wrap_text):
             report = ArtifactHtmlReport('TCC - Permissions')
             report.start_artifact_report(report_folder, 'TCC - Permissions')
             report.add_script()
-            data_headers = ('Bundle ID','Permissions','Last Modified Timestamp')
+            data_headers = ('Last Modified Timestamp','Bundle ID','Permissions')
             report.write_artifact_data_table(data_headers, data_list, file_found, html_escape=False)
             report.end_artifact_report()
             
-            '''
-            tsvname = 'InteractionC Contacts'
+            tsvname = 'TCC - Permissions'
             tsv(report_folder, data_headers, data_list, tsvname)
             
-            tlactivity = 'InteractonC Contacts'
+            tlactivity = 'TCC - Permissions'
             timeline(report_folder, tlactivity, data_list, data_headers)
-            '''
+            
         else:
             logfunc('No data available in TCC database.')
 
