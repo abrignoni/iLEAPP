@@ -21,7 +21,7 @@ def get_tcc(files_found, report_folder, seeker, wrap_text):
     if version.parse(iOSversion) >= version.parse("9"):
         cursor = db.cursor()
         cursor.execute('''
-        datetime(last_modified,'unixepoch').
+        datetime(last_modified,'unixepoch'),
         select client,
         service
         from access

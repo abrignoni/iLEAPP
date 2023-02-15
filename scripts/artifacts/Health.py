@@ -20,6 +20,8 @@ from scripts.ilapfuncs import logfunc, logdevinfo, tsv, timeline, is_platform_wi
 og_os_build = ''
 local_os_build = ''
 
+#Via https://www.gkgigs.com/list-apple-ios-version-history/
+# https://www.gkgigs.com/latest-watchos-version/
 OS_dict = {
 "15A372":"iOS 11.0",
 "15A402":"iOS 11.0.1",
@@ -141,6 +143,7 @@ OS_dict = {
 "20B110":"iOS 16.1.2",
 "20C65":"iOS 16.2",
 "20D47":"iOS 16.3",
+"20D67":"iOS 16.3.1",
 "12S507":"watchOS 1.0",
 "12S632":"watchOS 1.0.1",
 "13S344":"watchOS 2.0",
@@ -235,6 +238,7 @@ OS_dict = {
 "20S75":"watchOS 9.1",
 "20S361":"watchOS 9.2",
 "20S648":"watchOS 9.3",
+"20S664":"watchOS 9.3.1",
 }
 
 def get_Health(files_found, report_folder, seeker, wrap_text):
