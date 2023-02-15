@@ -20,6 +20,7 @@ def get_restoreLog(files_found, report_folder, seeker, wrap_text):
     originalOSBuild = ''
     currentOSBuild = ''
     
+    #Via https://www.gkgigs.com/list-apple-ios-version-history/
     OS_dict = {
     "15A372":"iOS 11.0",
     "15A402":"iOS 11.0.1",
@@ -141,6 +142,7 @@ def get_restoreLog(files_found, report_folder, seeker, wrap_text):
     "20B110":"iOS 16.1.2",
     "20C65":"iOS 16.2",
     "20D47":"iOS 16.3",
+    "20D67":"iOS 16.3.1",
     }
 
     for file_found in files_found:
