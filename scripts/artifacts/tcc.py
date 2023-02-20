@@ -23,7 +23,13 @@ def get_tcc(files_found, report_folder, seeker, wrap_text):
         cursor.execute('''
         select datetime(last_modified,'unixepoch'),
         client,
-        service
+        service,
+        case auth_value
+            when 0 then 'Not allowed'
+            when 2 then 'Allowed'
+            when 3 then 'Limited'
+            else auth_value
+        end
         from access
         order by client
         ''')
@@ -33,13 +39,13 @@ def get_tcc(files_found, report_folder, seeker, wrap_text):
         if usageentries > 0:
             data_list =[]
             for row in all_rows: 
-                data_list.append((row[0], row[1], row[2]))
+                data_list.append((row[0], row[1], row[2].replace("kTCCService",""), row[3]))
 
         if usageentries > 0:
             report = ArtifactHtmlReport('TCC - Permissions')
             report.start_artifact_report(report_folder, 'TCC - Permissions')
             report.add_script()
-            data_headers = ('Last Modified Timestamp','Bundle ID','Permissions')
+            data_headers = ('Last Modified Timestamp','Bundle ID','Service','Access')
             report.write_artifact_data_table(data_headers, data_list, file_found, html_escape=False)
             report.end_artifact_report()
             
