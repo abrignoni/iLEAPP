@@ -355,6 +355,8 @@ def get_icon_name(category, artifact):
             icon = 'message-square'
         if artifact == 'TIKTOK CONTACTS':
             icon = 'user'
+        if artifact == 'TIKTOK SEARCH':
+            icon = 'search'
     elif category == 'USER DICTIONARY':
         icon = 'book'
     elif category == 'VIPPS':
