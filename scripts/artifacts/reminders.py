@@ -1,11 +1,14 @@
 from os.path import dirname
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
 
 
 def get_reminders(files_found, report_folder, seeker, wrap_text):
     data_list = []
+    
+    slash = '\\' if is_platform_windows() else '/'
+    
     for file_found in files_found:
         file_found = str(file_found)
 
@@ -26,7 +29,7 @@ def get_reminders(files_found, report_folder, seeker, wrap_text):
             sqlite_file = file_found
 
     if len(all_rows) > 0:
-        location_file_found = sqlite_file.split('Stores/', 1)[1]
+        location_file_found = sqlite_file.split('Stores'+slash, 1)[1]
         for row in all_rows:
             data_list.append((row[0], row[3], row[2], row[1], location_file_found))
 
