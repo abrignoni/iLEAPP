@@ -195,6 +195,8 @@ def get_icon_name(category, artifact):
             icon = 'headphones'
         elif artifact == 'HEALTH - HEART RATE':
             icon = 'activity'
+        elif artifact == 'HEALTH - RESTING HEART RATE':
+            icon = 'activity'
         elif artifact == 'HEALTH - WORKOUTS':
             icon = 'activity'
         else:
