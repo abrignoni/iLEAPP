@@ -295,8 +295,7 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
     ELSE healthdb.source_devices.name
     END AS 'Device', 
     healthdb.source_devices.manufacturer, healthdb.source_devices.hardware, healthdb.sources.name AS 'Source',
-    data_provenances.source_version AS 'Software version', data_provenances.origin_build,
-    data_provenances.tz_name,
+    data_provenances.source_version AS 'Software version', data_provenances.tz_name,
     quantity_sample_series.hfd_key, quantity_sample_series.count, healthdb.sources.source_options
     FROM samples
     LEFT JOIN quantity_samples on samples.data_id = quantity_samples.data_id
@@ -316,14 +315,20 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
         data_list = []
         for row in all_rows:
             hardware = device_id.get(row[7], row[7])
-            software_version = OS_build.get(row[10], row[10]) if row[14] == 2 else row[9]
+            os_family = ''
+            if row[13] == 2:
+                if 'Watch' in row[7]:
+                    os_family = 'watchOS '
+                elif 'iPhone' in row[7]:
+                    os_family = 'iOS '
+            software_version = f'{os_family}{row[9]}'
             if version.parse(iOS_version) >= version.parse("15"):
-                if row[12] and row[13] > 0:
+                if row[11] and row[12] > 0:
                     cursor.execute('''
                     SELECT datetime('2001-01-01', quantity_series_data.timestamp || ' seconds') AS 'Date (UTC)',
                     CAST(round(quantity_series_data.value *60) AS INT)
                     FROM quantity_series_data
-                    WHERE quantity_series_data.series_identifier = ''' + str(row[12]) + '''
+                    WHERE quantity_series_data.series_identifier = ''' + str(row[11]) + '''
                     ORDER BY quantity_series_data.timestamp DESC
                     ''')
                     series_rows = cursor.fetchall()
@@ -339,7 +344,7 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
                                 hardware,
                                 row[8],
                                 software_version,
-                                row[11]
+                                row[10]
                             ))
                 else:
                     data_list.append((
@@ -352,7 +357,7 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
                         hardware,
                         row[8],
                         software_version,
-                        row[11]
+                        row[10]
                     ))
             else:
                 data_list.append((
@@ -366,7 +371,7 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
                     hardware,
                     row[8],
                     software_version,
-                    row[11]
+                    row[10]
                 ))
 
         report = ArtifactHtmlReport('Health - Heart Rate')
