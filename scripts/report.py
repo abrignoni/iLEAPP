@@ -118,6 +118,18 @@ def get_icon_name(category, artifact):
         icon = 'credit-card'
     elif category == 'CELLULAR WIRELESS':
         icon = 'bar-chart'
+    elif category == 'CHROMIUM':          
+        if artifact.find('AUTOFILL') >= 0:        icon = 'edit-3'
+        elif artifact.find('BOOKMARKS') >= 0:       icon = 'bookmark'
+        elif artifact.find('DOWNLOADS') >= 0:       icon = 'download'
+        elif artifact.find('LOGIN') >= 0:           icon = 'log-in'
+        elif artifact.find('MEDIA HISTORY') >= 0:   icon = 'video'
+        elif artifact.find('NETWORK ACTION PREDICTOR') >=0:    icon = 'type'
+        elif artifact.find('OFFLINE PAGES') >= 0:   icon = 'cloud-off'
+        elif artifact.find('SEARCH TERMS') >= 0:      icon = 'search'
+        elif artifact.find('TOP SITES') >= 0:       icon = 'list'
+        elif artifact.find('WEB VISITS') >= 0:      icon = 'globe'
+        else:                                       icon = 'chrome'
     elif category == 'CLOUDKIT':
         if artifact == 'PARTICIPANTS':
             icon = 'user'
