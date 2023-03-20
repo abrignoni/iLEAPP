@@ -44,14 +44,12 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
    
     db = open_sqlite_db_readonly(healthdb_secure)
     cursor = db.cursor()
-    
-    iOS_version = scripts.artifacts.artGlobals.versionf
-    if version.parse(iOS_version) <= version.parse("16"):
-        cursor.execute('''
-        SELECT
-        DATETIME(SAMPLES.START_DATE + 978307200, 'UNIXEPOCH') AS "START DATE",
-        DATETIME(SAMPLES.END_DATE + 978307200, 'UNIXEPOCH') AS "END DATE",
-        CASE WORKOUTS.ACTIVITY_TYPE
+
+    cursor.execute('''attach database "''' + healthdb + '''" as healthdb ''')
+
+    # Workouts
+
+    activity_types = '''
         WHEN 1 THEN "AMERICAN FOOTBALL"
         WHEN 2 THEN "ARCHERY"
         WHEN 3 THEN "AUSTRALIAN FOOTBALL"
@@ -124,7 +122,27 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
         WHEN 73 THEN "MIXED CARDIO"
         WHEN 74 THEN "HAND CYCLING"
         WHEN 3000 THEN "OTHER"  
-        ELSE "UNKNOWN" || "-" || WORKOUTS.ACTIVITY_TYPE
+    '''
+
+    goal_types = '''
+        WHEN 0 THEN "Open"
+        WHEN 1 THEN "Distance in meters"
+        WHEN 2 THEN "Time in seconds"
+        WHEN 3 THEN "Kilocalories"
+        ELSE "Unknown" || "-" || workouts.goal_type
+    '''
+
+    query = ""
+    data_headers = ()
+
+    iOS_version = scripts.artifacts.artGlobals.versionf
+    if version.parse(iOS_version) < version.parse("16"):
+        query = '''
+        SELECT 
+        DATETIME(SAMPLES.START_DATE + 978307200, 'UNIXEPOCH') AS "START DATE",
+        DATETIME(SAMPLES.END_DATE + 978307200, 'UNIXEPOCH') AS "END DATE",
+        CASE WORKOUTS.ACTIVITY_TYPE''' + activity_types + '''
+        ELSE "Unknown" || "-" || WORKOUTS.ACTIVITY_TYPE
         END "WORKOUT TYPE",
         strftime('%H:%M:%S',WORKOUTS.DURATION, 'unixepoch') AS "WORKOUT DURATION",
         WORKOUTS.DURATION / 60.00 AS "DURATION (IN MINUTES)",
@@ -132,9 +150,7 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
         WORKOUTS.TOTAL_DISTANCE*0.621371 AS "DISTANCE IN MILES",
         WORKOUTS.TOTAL_ENERGY_BURNED AS "CALORIES BURNED",
         WORKOUTS.TOTAL_BASAL_ENERGY_BURNED AS "TOTAL BASEL ENERGY BURNED",
-        CASE WORKOUTS.GOAL_TYPE
-        WHEN 2 THEN "MINUTES"
-        WHEN 0 THEN "OPEN"
+        CASE WORKOUTS.GOAL_TYPE ''' + goal_types + '''
         END "GOAL TYPE",
         WORKOUTS.GOAL AS "GOAL",
         WORKOUTS.TOTAL_FLIGHTS_CLIMBED AS "FLIGHTS CLIMBED",
@@ -146,33 +162,134 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
         LEFT OUTER JOIN WORKOUTS ON WORKOUTS.DATA_ID = SAMPLES.DATA_ID
         WHERE WORKOUTS.ACTIVITY_TYPE NOT NULL AND (KEY IS NULL OR KEY IS "HKIndoorWorkout")
         ORDER BY "START DATE" DESC
-        ''')
+        '''
+        
+        data_headers = (
+            'Start Timestamp', 'End Timestamp', 'Workout Type', 'Workout Duration', 'Duration (In Mintues)', 
+            'Distance (In KM)', 'Distance (In Miles)', 'Calories Burned', 'Total Basel Energy Burned', 
+            'Goal Type', 'Goal', 'Flights Climbed', 'Steps', 'String Value')
+    
+    else:
+        query = '''
+        SELECT workout_activities.ROWID, workout_activities.owner_id,
+        datetime('2001-01-01', workout_activities.start_date || ' seconds'),
+        datetime('2001-01-01', workout_activities.end_date || ' seconds'),
+        CASE workout_activities.activity_type''' + activity_types + '''
+        ELSE "Unknown" || "-" || workout_activities.activity_type
+        END,
+        strftime('%H:%M:%S', workout_activities.duration, 'unixepoch'),
+        printf('%.2f', workouts.total_distance),
+        printf('%.2f', workouts.total_distance * 0.621371),
+        CASE workouts.goal_type''' + goal_types + '''
+        END,
+        CAST(workouts.goal AS INT),
+        healthdb.source_devices.hardware, healthdb.sources.name, data_provenances.source_version, 
+        datetime('2001-01-01', objects.creation_date || ' seconds'), data_provenances.tz_name
+        FROM workout_activities
+        LEFT OUTER JOIN workouts ON workout_activities.owner_id = workouts.data_id
+        LEFT JOIN objects ON workout_activities.owner_id = objects.data_id
+        LEFT JOIN data_provenances ON objects.provenance = data_provenances.ROWID
+        LEFT JOIN healthdb.sources ON data_provenances.source_id = healthdb.sources.ROWID
+        LEFT JOIN healthdb.source_devices ON data_provenances.device_id = healthdb.source_devices.ROWID
+        ORDER BY workout_activities.start_date
+        '''
+       
+        statistics_query = '''
+        SELECT workout_statistics.data_type, 
+        printf('%.2f', workout_statistics.quantity)
+        FROM workout_statistics
+        WHERE workout_statistics.workout_activity_id = '''
 
-        all_rows = cursor.fetchall()
-        usageentries = len(all_rows)
-        if usageentries > 0:
-            data_list = []
+        metadata_query = '''
+        SELECT metadata_keys.key, metadata_values.numerical_value
+        FROM metadata_values
+        LEFT JOIN metadata_keys ON metadata_values.key_id = metadata_keys.ROWID
+        WHERE metadata_values.object_id = '''
+
+        data_headers = (
+            'Start Timestamp (UTC)', 'End Timestamp (UTC)', 'Type', 'Duration', 'Distance (In KM)', 'Distance (In Miles)', 
+            'Goal Type', 'Goal', 'Total Resting Energy (kcal)', 'Total Active Energy (kcal)', 'Average METs', 
+            'Min. Heart Rate (BPM)', 'Max. Heart Rate (BPM)', 'Average Heart Rate (BPM)', 'Temperature (°C)', 'Temperature (°F)', 
+            'Humidity (%)', 
+            'Hardware', 'Source', 'Software Version', 'Date added to Health (UTC)', 
+            'Timezone')
+
+    cursor.execute(query)
+
+    all_rows = cursor.fetchall()
+    usageentries = len(all_rows)
+    if usageentries > 0:
+        data_list = []
+        if version.parse(iOS_version) < version.parse("16"):
             for row in all_rows:
                 data_list.append(
                     (row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11], row[12], row[13]))
-
-            report = ArtifactHtmlReport('Health - Workouts')
-            report.start_artifact_report(report_folder, 'Health - Workouts')
-            report.add_script()
-            data_headers = (
-                'Start Timestamp', 'End Timestamp', 'Workout Type', 'Workout Duration', 'Duration (In Mintues)', 'Distance (In KM)', 'Distance (In Miles)', 'Calories Burned', 'Total Basel Energy Burned', 'Goal Type', 'Goal', 'Flights Climbed', 'Steps', 'String Value')
-            report.write_artifact_data_table(data_headers, data_list, healthdb_secure)
-            report.end_artifact_report()
-
-            tsvname = 'Health - Workouts'
-            tsv(report_folder, data_headers, data_list, tsvname)
-
-            tlactivity = 'Health - Workouts'
-            timeline(report_folder, tlactivity, data_list, data_headers)
         else:
-            logfunc('No data available in Health - Workouts')
+            for row in all_rows:
+                hardware = device_id.get(row[10], row[10])
+                os_family = ''
+                if 'Watch' in row[10]:
+                    os_family = 'watchOS '
+                elif 'iPhone' in row[10]:
+                    os_family = 'iOS '
+                software_version = f'{os_family}{row[12]}'
+                resting_energy = None
+                active_energy = None
+                min_heart_rate = None
+                max_heart_rate = None
+                avg_heart_rate = None
+                avg_mets = None
+                temperature = None
+                temp_celcius = None
+                humidity = None
+                
+                cursor.execute(f'{statistics_query}{row[0]}')
+                all_statistics = cursor.fetchall()
+                if len(all_statistics) > 0:
+                    for statistic in all_statistics:
+                        if statistic[0] == 9:
+                            resting_energy = statistic[1]
+                        elif statistic[0] == 10:
+                            active_energy = statistic[1]
+                
+                cursor.execute(f'{metadata_query}{row[1]}')
+                all_metadata = cursor.fetchall()
+                if len(all_metadata) > 0:
+                    for metadata in all_metadata:
+                        if metadata[0] == '_HKPrivateWorkoutMinHeartRate':
+                            min_heart_rate = round(int(metadata[1] * 60))
+                        elif metadata[0] == '_HKPrivateWorkoutMaxHeartRate':
+                            max_heart_rate = round(int(metadata[1] * 60))
+                        elif metadata[0] == '_HKPrivateWorkoutAverageHeartRate':
+                            avg_heart_rate = round(int(metadata[1] * 60))
+                        elif metadata[0] == 'HKAverageMETs':
+                            avg_mets = round(metadata[1], 1)
+                        elif metadata[0] == 'HKWeatherTemperature':
+                            temperature = round(metadata[1], 2)
+                            temp_celcius = round(((temperature - 32) * (5 / 9)), 2)
+                        elif metadata[0] == 'HKWeatherHumidity':
+                            humidity = metadata[1]
+
+                data_list.append(
+                    (row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], resting_energy, active_energy, 
+                     avg_mets, min_heart_rate, max_heart_rate, avg_heart_rate, temp_celcius, temperature, humidity, 
+                     hardware, row[11], software_version, row[13], row[14]))
+
+        report = ArtifactHtmlReport('Health - Workouts')
+        report.start_artifact_report(report_folder, 'Health - Workouts')
+        report.add_script()
+        report.write_artifact_data_table(data_headers, data_list, healthdb_secure)
+        report.end_artifact_report()
+
+        tsvname = 'Health - Workouts'
+        tsv(report_folder, data_headers, data_list, tsvname)
+
+        tlactivity = 'Health - Workouts'
+        timeline(report_folder, tlactivity, data_list, data_headers)
     else:
-        logfunc("Health - Workouts: iOS 16 is not supported yet.")
+        logfunc('No data available in Health - Workouts')
+
+    # Provenances
 
     cursor.execute('''
     select
@@ -195,7 +312,6 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
         data_list = []
         
         for row in all_rows:
-        
             for key, value in OS_build.items():
                 if str(row[2]) == key:
                     og_os_build = value
@@ -224,9 +340,9 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
         timeline(report_folder, tlactivity, data_list, data_headers)
     else:
         logfunc('No data available in Health - Provenances')
-    
-    cursor.execute('''attach database "''' + healthdb + '''" as healthdb ''')
- 
+
+    # Headphone Audio Levels
+     
     cursor.execute('''
     Select
     datetime(samples.start_date+978307200,'unixepoch') as "Start Date",
@@ -272,6 +388,8 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
         timeline(report_folder, tlactivity, data_list, data_headers)
     else:
         logfunc('No data available in Health - Headphone Audio Levels')
+    
+    # Heart Rate
         
     cursor.execute('''
     SELECT datetime('2001-01-01', samples.start_date || ' seconds') AS 'Start Date (UTC)',
@@ -417,6 +535,8 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
     else:
         logfunc('No data available in Health - Heart Rate')
     
+    # Resting Heart Rate
+    
     cursor.execute('''
     SELECT datetime('2001-01-01', samples.start_date || ' seconds') AS 'Start Date (UTC)',
     datetime('2001-01-01', samples.end_date || ' seconds') AS 'End Date (UTC)',
@@ -457,7 +577,7 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
     else:
         logfunc('No data available in Health - Resting Heart Rate')
 
-
+    # Achievements
 
     cursor.execute('''
     select
