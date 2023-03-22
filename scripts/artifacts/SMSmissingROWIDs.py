@@ -31,9 +31,7 @@ def get_SMS(files_found, report_folder, seeker, wrap_text):
     
     cursor.execute('''
     SELECT * FROM (
-        SELECT LAG (ROWID,1) OVER (ORDER BY ROWID) AS "Previous ROWID", -- This column uses the LAG function to obtain the ROWID value prior to a missing row
-        ROWID AS "ROWID", -- This column obtains the ROWID value following the missing row
-        (ROWID - (LAG (ROWID,1) OVER (ORDER BY ROWID)) - 1) AS "Number of Missing Rows", -- This column is a subtraction of the first two columns, minus one additional value, to obtain the number of missing rows
+        SELECT 
         CASE -- This column is the same as the very first column but obtaining timestamp instead of the ROWID value. A CASE statement is used to capture data whether using seconds since Jan 1, 1970 or microseconds since Jan 1, 1970
             WHEN length(DATE) = 18 
             THEN LAG(DATETIME(DATE/1000000000 + 978307200, 'UNIXEPOCH'),1) OVER (ORDER BY ROWID) 
@@ -45,7 +43,10 @@ def get_SMS(files_found, report_folder, seeker, wrap_text):
             THEN DATETIME(DATE/1000000000 + 978307200, 'UNIXEPOCH') 
             WHEN length(DATE) = 9
             THEN DATETIME(DATE + 978307200, 'UNIXEPOCH')
-            END  AS "Ending Timestamp"
+            END  AS "Ending Timestamp",
+		LAG (ROWID,1) OVER (ORDER BY ROWID) AS "Previous ROWID", -- This column uses the LAG function to obtain the ROWID value prior to a missing row
+        ROWID AS "ROWID", -- This column obtains the ROWID value following the missing row
+        (ROWID - (LAG (ROWID,1) OVER (ORDER BY ROWID)) - 1) AS "Number of Missing Rows" -- This column is a subtraction of the first two columns, minus one additional value, to obtain the number of missing rows
         FROM message) list
         WHERE ROWID - "Previous ROWID" > 1;
     ''')
@@ -62,7 +63,7 @@ def get_SMS(files_found, report_folder, seeker, wrap_text):
         report.start_artifact_report(report_folder, 'SMS - Missing ROWIDs')
         report.add_script()
         data_headers = (
-            'Previous ROWID', 'ROWID', 'Number of Missing Rows', 'Beginning Timestamp', 'Ending Timestamp')
+            'Beginning Timestamp', 'Ending Timestamp','Previous ROWID', 'ROWID', 'Number of Missing Rows')
         report.write_artifact_data_table(data_headers, data_list, sms)
         report.end_artifact_report()
 
@@ -76,7 +77,7 @@ def get_SMS(files_found, report_folder, seeker, wrap_text):
         
 __artifacts__ = {
     "SMS Missing ROWIDs": (
-        "SMS Missing ROWIDs",
+        "SMS & iMessage",
         ('*/var/mobile/Library/SMS/sms*'),
         get_SMS)
 }
