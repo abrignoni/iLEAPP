@@ -95,6 +95,8 @@ def get_icon_name(category, artifact):
         icon = 'eye'
     elif category == 'BIOME SAFARI':
         icon = 'eye'
+    elif category == 'BIOME SYNC':
+        icon = 'smartphone'
     elif category == 'BIOME TEXT INPUT':
         icon = 'eye'
     elif category == 'BIOME USER ACT META':
