@@ -50,6 +50,8 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
 
     cursor.execute('''attach database "''' + healthdb + '''" as healthdb ''')
 
+    iOS_version = scripts.artifacts.artGlobals.versionf
+
     # Workouts
 
     activity_types = '''
@@ -141,216 +143,141 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
         ELSE "Unknown" || "-" || workouts.goal_type
     '''
 
-    query = ""
-    data_headers = ()
+    distance_and_goals = '''
+        round(workouts.total_distance, 2) AS 'Distance (in Km)',
+        round(workouts.total_distance * 0.621371, 2) AS 'Distance (in Miles)',
+        CASE workouts.goal_type''' + goal_types + '''
+        END AS 'Goal Type',
+        CAST(workouts.goal AS INT) AS 'Goal',
+    '''
 
-    iOS_version = scripts.artifacts.artGlobals.versionf
+    metadata = '''
+        MAX(
+        CASE WHEN "metadata_keys"."key" = 'HKAverageMETs' THEN round(metadata_values.numerical_value, 1) ELSE NULL
+        END) AS 'Average METs',
+        MAX(
+        CASE WHEN "metadata_keys"."key" = '_HKPrivateWorkoutMinHeartRate' THEN CAST(round(metadata_values.numerical_value * 60) AS INT) ELSE NULL
+        END) AS 'Min. Heart Rate (BPM)',
+        MAX(
+        CASE WHEN "metadata_keys"."key" = '_HKPrivateWorkoutMaxHeartRate' THEN CAST(round(metadata_values.numerical_value * 60) AS INT) ELSE NULL
+        END) AS 'Max. Heart Rate (BPM)',
+        MAX(
+        CASE WHEN "metadata_keys"."key" = '_HKPrivateWorkoutAverageHeartRate' THEN CAST(round(metadata_values.numerical_value * 60) AS INT) ELSE NULL
+        END) AS 'Average Heart Rate (BPM)',
+        MAX(
+        CASE WHEN "metadata_keys"."key" = 'HKWeatherTemperature' THEN round(metadata_values.numerical_value, 2) ELSE NULL
+        END) AS 'Temperature (°F)',
+        MAX(
+        CASE WHEN "metadata_keys"."key" = 'HKWeatherHumidity' THEN CAST(metadata_values.numerical_value AS INT) ELSE NULL
+        END) AS 'Humidity (%)',
+        MAX(
+        CASE WHEN "metadata_keys"."key" = '_HKPrivateWorkoutWeatherLocationCoordinatesLatitude' THEN metadata_values.numerical_value ELSE NULL
+        END) AS 'Latitude',
+        MAX(
+        CASE WHEN "metadata_keys"."key" = '_HKPrivateWorkoutWeatherLocationCoordinatesLongitude' THEN metadata_values.numerical_value ELSE NULL
+        END) AS 'Longitude',
+        MAX(
+        CASE WHEN "metadata_keys"."key" = '_HKPrivateWorkoutMinGroundElevation' THEN round(metadata_values.numerical_value, 2) ELSE NULL
+        END) AS 'Min. ground elevation (in Meters)',
+        MAX(
+        CASE WHEN "metadata_keys"."key" = '_HKPrivateWorkoutMaxGroundElevation' THEN round(metadata_values.numerical_value, 2) ELSE NULL
+        END) AS 'Max ground elevation (in Meters)',
+    '''
+
+    source = '''
+        healthdb.source_devices.hardware AS 'Hardware',
+        healthdb.sources.name AS 'Source',
+        data_provenances.source_version AS 'Software Version',
+        data_provenances.tz_name AS 'Timezone',
+        datetime('2001-01-01', objects.creation_date || ' seconds') AS 'Timestamp added to Health (UTC)'
+    '''
+
     if version.parse(iOS_version) < version.parse("16"):
         query = '''
-        SELECT 
-        DATETIME(SAMPLES.START_DATE + 978307200, 'UNIXEPOCH') AS "START DATE",
-        DATETIME(SAMPLES.END_DATE + 978307200, 'UNIXEPOCH') AS "END DATE",
-        CASE
-            WHEN CAST((strftime('%s', samples.end_date - samples.start_date, 'UNIXEPOCH')) % 86400 % 3600 / 60 AS TEXT) = 1
-            THEN CAST((strftime('%s', samples.end_date - samples.start_date, 'UNIXEPOCH')) % 86400 % 3600 / 60 AS TEXT) || " minute and "
-            WHEN CAST((strftime('%s', samples.end_date - samples.start_date, 'UNIXEPOCH')) % 86400 % 3600 / 60 AS TEXT) != 1
-            THEN CAST((strftime('%s', samples.end_date - samples.start_date, 'UNIXEPOCH')) % 86400 % 3600 / 60 AS TEXT) || " minutes and "
-            END || 
-        CASE
-            WHEN ((SUBSTR((datetime(samples.end_date + 978307200, 'UNIXEPOCH')),18,2)) - (SUBSTR((datetime(samples.start_date + 978307200, 'UNIXEPOCH')),18,2))) = 1
-            THEN (((SUBSTR((datetime(samples.end_date + 978307200, 'UNIXEPOCH')),18,2)) - (SUBSTR((datetime(samples.start_date + 978307200, 'UNIXEPOCH')),18,2))) || " second")
-            WHEN ((SUBSTR((datetime(samples.end_date + 978307200, 'UNIXEPOCH')),18,2)) - (SUBSTR((datetime(samples.start_date + 978307200, 'UNIXEPOCH')),18,2))) > 0
-            THEN (((SUBSTR((datetime(samples.end_date + 978307200, 'UNIXEPOCH')),18,2)) - (SUBSTR((datetime(samples.start_date + 978307200, 'UNIXEPOCH')),18,2))) || " seconds")
-            WHEN ((SUBSTR((datetime(samples.end_date + 978307200, 'UNIXEPOCH')),18,2)) - (SUBSTR((datetime(samples.start_date + 978307200, 'UNIXEPOCH')),18,2))) = 0
-            THEN (((SUBSTR((datetime(samples.end_date + 978307200, 'UNIXEPOCH')),18,2)) - (SUBSTR((datetime(samples.start_date + 978307200, 'UNIXEPOCH')),18,2))) || " seconds")
-            WHEN ((SUBSTR((datetime(samples.end_date + 978307200, 'UNIXEPOCH')),18,2)) - (SUBSTR((datetime(samples.start_date + 978307200, 'UNIXEPOCH')),18,2))) < 0
-            THEN CASE 
-                WHEN (((SUBSTR((datetime(samples.end_date + 978307200, 'UNIXEPOCH')),18,2)) - (SUBSTR((datetime(samples.start_date + 978307200, 'UNIXEPOCH')),18,2))) + 60) = 1
-                THEN (((SUBSTR((datetime(samples.end_date + 978307200, 'UNIXEPOCH')),18,2)) - (SUBSTR((datetime(samples.start_date + 978307200, 'UNIXEPOCH')),18,2))) + 60) || " second"
-                WHEN (((SUBSTR((datetime(samples.end_date + 978307200, 'UNIXEPOCH')),18,2)) - (SUBSTR((datetime(samples.start_date + 978307200, 'UNIXEPOCH')),18,2))) + 60) != 1
-                THEN (((SUBSTR((datetime(samples.end_date + 978307200, 'UNIXEPOCH')),18,2)) - (SUBSTR((datetime(samples.start_date + 978307200, 'UNIXEPOCH')),18,2))) + 60) || " seconds"
-                END
-            END as "TOTAL TIME DURATION",
-        CASE
-            WHEN CAST((strftime('%s', workouts.duration, 'UNIXEPOCH')) % 86400 % 3600 / 60 AS TEXT) = 1
-            THEN CAST((strftime('%s', workouts.duration, 'UNIXEPOCH')) % 86400 % 3600 / 60 AS TEXT) || " minute and "
-            WHEN CAST((strftime('%s', workouts.duration, 'UNIXEPOCH')) % 86400 % 3600 / 60 AS TEXT) != 1
-            THEN CAST((strftime('%s', workouts.duration, 'UNIXEPOCH')) % 86400 % 3600 / 60 AS TEXT) || " minutes and "
-            END || 
-            CASE
-                WHEN CAST((strftime('%s', workouts.duration, 'UNIXEPOCH')) % 86400 % 3600 % 60 AS TEXT) = 1
-                THEN CAST((strftime('%s', workouts.duration, 'UNIXEPOCH')) % 86400 % 3600 % 60 AS TEXT) || " second"
-                WHEN CAST((strftime('%s', workouts.duration, 'UNIXEPOCH')) % 86400 % 3600 % 60 AS TEXT) != 1
-                THEN CAST((strftime('%s', workouts.duration, 'UNIXEPOCH')) % 86400 % 3600 % 60 AS TEXT) || " seconds"
-            END as "WORKOUT DURATION",
-        CASE WORKOUTS.ACTIVITY_TYPE''' + activity_types + '''
-        ELSE "Unknown" || "-" || WORKOUTS.ACTIVITY_TYPE
-        END "WORKOUT TYPE",
-        MAX(CASE 
-            WHEN METADATA_KEYS.KEY = '_HKPrivateWorkoutWeatherLocationCoordinatesLatitude'
-            THEN METADATA_VALUES.NUMERICAL_VALUE
-            ELSE NULL
-            END) as "LATITUDE",
-        MAX(CASE 
-            WHEN METADATA_KEYS.KEY = '_HKPrivateWorkoutWeatherLocationCoordinatesLongitude'
-            THEN METADATA_VALUES.NUMERICAL_VALUE
-            ELSE NULL
-            END) as "LONGITUDE",
-        WORKOUTS.TOTAL_DISTANCE AS "DISTANCE IN KILOMETERS",
-        WORKOUTS.TOTAL_DISTANCE*0.621371 AS "DISTANCE IN MILES",
-        WORKOUTS.TOTAL_ENERGY_BURNED AS "CALORIES BURNED",
-        WORKOUTS.TOTAL_BASAL_ENERGY_BURNED AS "TOTAL BASEL ENERGY BURNED",
-        CASE WORKOUTS.GOAL_TYPE ''' + goal_types + '''
-        END "GOAL TYPE",
-        WORKOUTS.GOAL AS "GOAL",
-        WORKOUTS.TOTAL_FLIGHTS_CLIMBED AS "FLIGHTS CLIMBED",
-        WORKOUTS.TOTAL_W_STEPS AS "STEPS",
-        MAX(CASE 
-            WHEN METADATA_KEYS.KEY = 'HKTimeZone'
-            THEN METADATA_VALUES.STRING_VALUE
-            ELSE NULL
-            END) AS "TIME ZONE",
-        SUBSTR(MAX(CASE 
-            WHEN METADATA_KEYS.KEY = 'HKWeatherTemperature'
-            THEN METADATA_VALUES.NUMERICAL_VALUE
-            ELSE NULL
-            END),1,5) || "°F" AS "TEMPERATURE",
-        SUBSTR((MAX(CASE 
-            WHEN METADATA_KEYS.KEY = 'HKWeatherHumidity'
-            THEN METADATA_VALUES.NUMERICAL_VALUE
-            ELSE NULL
-            END)),
-            (INSTR((MAX(CASE 
-            WHEN METADATA_KEYS.KEY = 'HKWeatherHumidity'
-            THEN METADATA_VALUES.NUMERICAL_VALUE
-            ELSE NULL
-            END)),'.')), -3) || "%" AS "HUMIDITY"
-        FROM SAMPLES
-        LEFT OUTER JOIN METADATA_VALUES ON SAMPLES.DATA_ID = METADATA_VALUES.OBJECT_ID 
-        LEFT OUTER JOIN METADATA_KEYS ON METADATA_KEYS.ROWID = METADATA_VALUES.KEY_ID 
-        LEFT OUTER JOIN WORKOUTS ON SAMPLES.DATA_ID = WORKOUTS.DATA_ID 
-        LEFT OUTER JOIN QUANTITY_SAMPLES ON SAMPLES.DATA_ID = QUANTITY_SAMPLES.DATA_ID 
-        LEFT OUTER JOIN OBJECTS ON SAMPLES.DATA_ID = OBJECTS.DATA_ID 
-        LEFT OUTER JOIN DATA_PROVENANCES ON OBJECTS.PROVENANCE = DATA_PROVENANCES.ROWID 
-        WHERE WORKOUTS.ACTIVITY_TYPE NOT NULL
-        GROUP BY OBJECT_ID
-        ORDER BY "START DATE" DESC
-        '''
-        
-        data_headers = (
-            'Start Timestamp', 'End Timestamp', 'Total Time Duration', 'Workout Duration', 'Workout Type', 'Latitude',  
-            'Longitude', 'Distance (In KM)', 'Distance (In Miles)', 'Calories Burned', 'Total Basel Energy Burned', 
-            'Goal Type', 'Goal', 'Flights Climbed', 'Steps', 'Time Zone', 'Temperature', 'Humidity')
-    
+        SELECT datetime('2001-01-01', samples.start_date || ' seconds') AS 'Start timestamp (UTC)',
+        datetime('2001-01-01', samples.end_date || ' seconds') AS 'End timestamp (UTC)',
+        CASE workouts.activity_type''' + activity_types + '''
+        ELSE "Unknown" || "-" || workouts.activity_type
+        END AS 'Type',        
+        strftime('%H:%M:%S', workouts.duration, 'unixepoch') AS 'Duration',
+        ''' + distance_and_goals + '''
+        round(workouts.total_energy_burned, 2) AS 'Total Active Energy (kcal)',
+        round(workouts.total_basal_energy_burned, 2) AS 'Total Resting Energy (kcal)',
+        ''' + metadata + source + '''
+        FROM workouts
+        LEFT OUTER JOIN samples ON samples.data_id = workouts.data_id
+        LEFT OUTER JOIN metadata_values ON metadata_values.object_id = workouts.data_id
+        LEFT OUTER JOIN metadata_keys ON metadata_keys.ROWID = metadata_values.key_id
+        LEFT OUTER JOIN objects ON objects.data_id = workouts.data_id
+        LEFT OUTER JOIN data_provenances ON data_provenances.ROWID = objects.provenance
+        LEFT OUTER JOIN healthdb.source_devices ON healthdb.source_devices.ROWID = data_provenances.device_id
+        LEFT OUTER JOIN healthdb.sources ON healthdb.sources.ROWID = data_provenances.source_id
+        GROUP BY workouts.data_id
+        ORDER BY samples.start_date
+        '''   
     else:
         query = '''
-        SELECT workout_activities.ROWID, workout_activities.owner_id,
-        datetime('2001-01-01', workout_activities.start_date || ' seconds'),
-        datetime('2001-01-01', workout_activities.end_date || ' seconds'),
+        SELECT datetime('2001-01-01', workout_activities.start_date || ' seconds') AS 'Start Timestamp (UTC)',
+        datetime('2001-01-01', workout_activities.end_date || ' seconds') AS 'End Timestamp (UTC)',
         CASE workout_activities.activity_type''' + activity_types + '''
         ELSE "Unknown" || "-" || workout_activities.activity_type
-        END,
-        strftime('%H:%M:%S', workout_activities.duration, 'unixepoch'),
-        printf('%.2f', workouts.total_distance),
-        printf('%.2f', workouts.total_distance * 0.621371),
-        CASE workouts.goal_type''' + goal_types + '''
-        END,
-        CAST(workouts.goal AS INT),
-        healthdb.source_devices.hardware, healthdb.sources.name, data_provenances.source_version, 
-        datetime('2001-01-01', objects.creation_date || ' seconds'), data_provenances.tz_name
+        END AS 'Type',        
+        strftime('%H:%M:%S', workout_activities.duration, 'unixepoch') AS 'Duration',
+        ''' + distance_and_goals + '''
+        MAX(
+        CASE WHEN workout_statistics.data_type = 10 THEN round(workout_statistics.quantity, 2) ELSE NULL
+        END) AS 'Total Active Energy (kcal)',
+        MAX(
+        CASE WHEN workout_statistics.data_type = 9 THEN round(workout_statistics.quantity, 2)  ELSE NULL
+        END) AS 'Total Resting Energy (kcal)',
+        ''' + metadata + source + '''
         FROM workout_activities
-        LEFT OUTER JOIN workouts ON workout_activities.owner_id = workouts.data_id
-        LEFT JOIN objects ON workout_activities.owner_id = objects.data_id
-        LEFT JOIN data_provenances ON objects.provenance = data_provenances.ROWID
-        LEFT JOIN healthdb.sources ON data_provenances.source_id = healthdb.sources.ROWID
-        LEFT JOIN healthdb.source_devices ON data_provenances.device_id = healthdb.source_devices.ROWID
+        LEFT OUTER JOIN workouts ON workouts.data_id = workout_activities.owner_id
+        LEFT OUTER JOIN workout_statistics ON workout_statistics.workout_activity_id = workout_activities.ROWID
+        LEFT OUTER JOIN metadata_values ON metadata_values.object_id = workout_activities.owner_id
+        LEFT OUTER JOIN metadata_keys ON metadata_keys.ROWID = metadata_values.key_id
+        LEFT OUTER JOIN objects ON objects.data_id = workout_activities.owner_id
+        LEFT OUTER JOIN data_provenances ON data_provenances.ROWID = objects.provenance
+        LEFT OUTER JOIN healthdb.source_devices ON healthdb.source_devices.ROWID = data_provenances.device_id
+        LEFT OUTER JOIN healthdb.sources ON healthdb.sources.ROWID = data_provenances.source_id
+        GROUP BY workout_activities.ROWID
         ORDER BY workout_activities.start_date
         '''
        
-        statistics_query = '''
-        SELECT workout_statistics.data_type, 
-        printf('%.2f', workout_statistics.quantity)
-        FROM workout_statistics
-        WHERE workout_statistics.workout_activity_id = '''
-
-        metadata_query = '''
-        SELECT metadata_keys.key, metadata_values.numerical_value
-        FROM metadata_values
-        LEFT JOIN metadata_keys ON metadata_values.key_id = metadata_keys.ROWID
-        WHERE metadata_values.object_id = '''
-
-        data_headers = (
-            'Start Timestamp (UTC)', 'End Timestamp (UTC)', 'Type', 'Duration', 'Distance (In KM)', 'Distance (In Miles)', 
-            'Goal Type', 'Goal', 'Total Resting Energy (kcal)', 'Total Active Energy (kcal)', 'Average METs', 
-            'Min. Heart Rate (BPM)', 'Max. Heart Rate (BPM)', 'Average Heart Rate (BPM)', 'Temperature (°C)', 'Temperature (°F)', 
-            'Humidity (%)', 
-            'Hardware', 'Source', 'Software Version', 'Date added to Health (UTC)', 
-            'Timezone')
-
     cursor.execute(query)
 
     all_rows = cursor.fetchall()
     usageentries = len(all_rows)
-    if usageentries > 0:
-        data_list = []
-        if version.parse(iOS_version) < version.parse("16"):
-            for row in all_rows:
-                data_list.append(
-                    (row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17]))
-        else:
-            for row in all_rows:
-                hardware = device_id.get(row[10], row[10])
-                os_family = ''
-                if 'Watch' in row[10]:
-                    os_family = 'watchOS '
-                elif 'iPhone' in row[10]:
-                    os_family = 'iOS '
-                software_version = f'{os_family}{row[12]}'
-                resting_energy = None
-                active_energy = None
-                min_heart_rate = None
-                max_heart_rate = None
-                avg_heart_rate = None
-                avg_mets = None
-                temperature = None
-                temp_celcius = None
-                humidity = None
-                
-                cursor.execute(f'{statistics_query}{row[0]}')
-                all_statistics = cursor.fetchall()
-                if len(all_statistics) > 0:
-                    for statistic in all_statistics:
-                        if statistic[0] == 9:
-                            resting_energy = statistic[1]
-                        elif statistic[0] == 10:
-                            active_energy = statistic[1]
-                
-                cursor.execute(f'{metadata_query}{row[1]}')
-                all_metadata = cursor.fetchall()
-                if len(all_metadata) > 0:
-                    for metadata in all_metadata:
-                        if metadata[0] == '_HKPrivateWorkoutMinHeartRate':
-                            min_heart_rate = round(int(metadata[1] * 60))
-                        elif metadata[0] == '_HKPrivateWorkoutMaxHeartRate':
-                            max_heart_rate = round(int(metadata[1] * 60))
-                        elif metadata[0] == '_HKPrivateWorkoutAverageHeartRate':
-                            avg_heart_rate = round(int(metadata[1] * 60))
-                        elif metadata[0] == 'HKAverageMETs':
-                            avg_mets = round(metadata[1], 1)
-                        elif metadata[0] == 'HKWeatherTemperature':
-                            temperature = round(metadata[1], 2)
-                            temp_celcius = round(((temperature - 32) * (5 / 9)), 2)
-                        elif metadata[0] == 'HKWeatherHumidity':
-                            humidity = metadata[1]
 
-                data_list.append(
-                    (row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], resting_energy, active_energy, 
-                     avg_mets, min_heart_rate, max_heart_rate, avg_heart_rate, temp_celcius, temperature, humidity, 
-                     hardware, row[11], software_version, row[13], row[14]))
+    if usageentries > 0:
+        celcius_temp = None
+        data_list = []
+        for row in all_rows:
+            hardware = device_id.get(row[20], row[20])
+            os_family = ''
+            if 'Watch' in row[20]:
+                os_family = 'watchOS '
+            elif 'iPhone' in row[20]:
+                os_family = 'iOS '
+            software_version = f'{os_family}{row[22]}'
+            if row[14]:
+                celcius_temp = round(((row[14] - 32) * (5 / 9)), 2)  
+            data_list.append(
+                (row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], 
+                row[10], row[11], row[12], row[13], celcius_temp, row[14], row[15], row[16], row[17], 
+                row[18], row[19], hardware, row[21], software_version, row[23], row[24])
+                )
 
         report = ArtifactHtmlReport('Health - Workouts')
         report.start_artifact_report(report_folder, 'Health - Workouts')
         report.add_script()
+        data_headers = (
+            'Start Timestamp (UTC)', 'End Timestamp (UTC)', 'Type', 'Duration', 'Distance (in KM)', 'Distance (in Miles)', 
+            'Goal Type', 'Goal', 'Total Active Energy (kcal)', 'Total Resting Energy (kcal)', 'Average METs', 
+            'Min. Heart Rate (BPM)', 'Max. Heart Rate (BPM)', 'Average Heart Rate (BPM)', 'Temperature (°C)', 'Temperature (°F)', 
+            'Humidity (%)', 'Latitude', 'Longitude', 'Min. ground elevation (in Meters)', 'Max. ground elevation (in Meters)',
+            'Hardware', 'Source', 'Software Version', 'Timezone', 'Timestamp added to Health (UTC)'
+            )
         report.write_artifact_data_table(data_headers, data_list, healthdb_secure)
         report.end_artifact_report()
 
@@ -409,8 +336,6 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
         tsvname = 'Health - Provenances'
         tsv(report_folder, data_headers, data_list, tsvname)
 
-        tlactivity = 'Health - Provenances'
-        timeline(report_folder, tlactivity, data_list, data_headers)
     else:
         logfunc('No data available in Health - Provenances')
 
