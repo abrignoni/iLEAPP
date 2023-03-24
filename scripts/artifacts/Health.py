@@ -12,6 +12,9 @@
 # Updates: @JohannPLW
 # Date: 2023-03-02
 
+# Updates: @SQLMcGee
+# Date: 2023-03-21
+
 import sqlite3
 import textwrap
 import scripts.artifacts.artGlobals
@@ -121,6 +124,12 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
         WHEN 72 THEN "TAI CHI"
         WHEN 73 THEN "MIXED CARDIO"
         WHEN 74 THEN "HAND CYCLING"
+        WHEN 75 THEN "DISC SPORTS"
+        WHEN 76 THEN "FITNESS GAMING"
+        WHEN 77 THEN "DANCE"
+        WHEN 78 THEN "SOCIAL DANCE"
+        WHEN 79 THEN "PICKLEBALL"
+        WHEN 80 THEN "COOLDOWN"
         WHEN 3000 THEN "OTHER"  
     '''
 
@@ -141,11 +150,52 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
         SELECT 
         DATETIME(SAMPLES.START_DATE + 978307200, 'UNIXEPOCH') AS "START DATE",
         DATETIME(SAMPLES.END_DATE + 978307200, 'UNIXEPOCH') AS "END DATE",
+        CASE
+            WHEN CAST((strftime('%s', samples.end_date - samples.start_date, 'UNIXEPOCH')) % 86400 % 3600 / 60 AS TEXT) = 1
+            THEN CAST((strftime('%s', samples.end_date - samples.start_date, 'UNIXEPOCH')) % 86400 % 3600 / 60 AS TEXT) || " minute and "
+            WHEN CAST((strftime('%s', samples.end_date - samples.start_date, 'UNIXEPOCH')) % 86400 % 3600 / 60 AS TEXT) != 1
+            THEN CAST((strftime('%s', samples.end_date - samples.start_date, 'UNIXEPOCH')) % 86400 % 3600 / 60 AS TEXT) || " minutes and "
+            END || 
+        CASE
+            WHEN ((SUBSTR((datetime(samples.end_date + 978307200, 'UNIXEPOCH')),18,2)) - (SUBSTR((datetime(samples.start_date + 978307200, 'UNIXEPOCH')),18,2))) = 1
+            THEN (((SUBSTR((datetime(samples.end_date + 978307200, 'UNIXEPOCH')),18,2)) - (SUBSTR((datetime(samples.start_date + 978307200, 'UNIXEPOCH')),18,2))) || " second")
+            WHEN ((SUBSTR((datetime(samples.end_date + 978307200, 'UNIXEPOCH')),18,2)) - (SUBSTR((datetime(samples.start_date + 978307200, 'UNIXEPOCH')),18,2))) > 0
+            THEN (((SUBSTR((datetime(samples.end_date + 978307200, 'UNIXEPOCH')),18,2)) - (SUBSTR((datetime(samples.start_date + 978307200, 'UNIXEPOCH')),18,2))) || " seconds")
+            WHEN ((SUBSTR((datetime(samples.end_date + 978307200, 'UNIXEPOCH')),18,2)) - (SUBSTR((datetime(samples.start_date + 978307200, 'UNIXEPOCH')),18,2))) = 0
+            THEN (((SUBSTR((datetime(samples.end_date + 978307200, 'UNIXEPOCH')),18,2)) - (SUBSTR((datetime(samples.start_date + 978307200, 'UNIXEPOCH')),18,2))) || " seconds")
+            WHEN ((SUBSTR((datetime(samples.end_date + 978307200, 'UNIXEPOCH')),18,2)) - (SUBSTR((datetime(samples.start_date + 978307200, 'UNIXEPOCH')),18,2))) < 0
+            THEN CASE 
+                WHEN (((SUBSTR((datetime(samples.end_date + 978307200, 'UNIXEPOCH')),18,2)) - (SUBSTR((datetime(samples.start_date + 978307200, 'UNIXEPOCH')),18,2))) + 60) = 1
+                THEN (((SUBSTR((datetime(samples.end_date + 978307200, 'UNIXEPOCH')),18,2)) - (SUBSTR((datetime(samples.start_date + 978307200, 'UNIXEPOCH')),18,2))) + 60) || " second"
+                WHEN (((SUBSTR((datetime(samples.end_date + 978307200, 'UNIXEPOCH')),18,2)) - (SUBSTR((datetime(samples.start_date + 978307200, 'UNIXEPOCH')),18,2))) + 60) != 1
+                THEN (((SUBSTR((datetime(samples.end_date + 978307200, 'UNIXEPOCH')),18,2)) - (SUBSTR((datetime(samples.start_date + 978307200, 'UNIXEPOCH')),18,2))) + 60) || " seconds"
+                END
+            END as "TOTAL TIME DURATION",
+        CASE
+            WHEN CAST((strftime('%s', workouts.duration, 'UNIXEPOCH')) % 86400 % 3600 / 60 AS TEXT) = 1
+            THEN CAST((strftime('%s', workouts.duration, 'UNIXEPOCH')) % 86400 % 3600 / 60 AS TEXT) || " minute and "
+            WHEN CAST((strftime('%s', workouts.duration, 'UNIXEPOCH')) % 86400 % 3600 / 60 AS TEXT) != 1
+            THEN CAST((strftime('%s', workouts.duration, 'UNIXEPOCH')) % 86400 % 3600 / 60 AS TEXT) || " minutes and "
+            END || 
+            CASE
+                WHEN CAST((strftime('%s', workouts.duration, 'UNIXEPOCH')) % 86400 % 3600 % 60 AS TEXT) = 1
+                THEN CAST((strftime('%s', workouts.duration, 'UNIXEPOCH')) % 86400 % 3600 % 60 AS TEXT) || " second"
+                WHEN CAST((strftime('%s', workouts.duration, 'UNIXEPOCH')) % 86400 % 3600 % 60 AS TEXT) != 1
+                THEN CAST((strftime('%s', workouts.duration, 'UNIXEPOCH')) % 86400 % 3600 % 60 AS TEXT) || " seconds"
+            END as "WORKOUT DURATION",
         CASE WORKOUTS.ACTIVITY_TYPE''' + activity_types + '''
         ELSE "Unknown" || "-" || WORKOUTS.ACTIVITY_TYPE
         END "WORKOUT TYPE",
-        strftime('%H:%M:%S',WORKOUTS.DURATION, 'unixepoch') AS "WORKOUT DURATION",
-        WORKOUTS.DURATION / 60.00 AS "DURATION (IN MINUTES)",
+        MAX(CASE 
+            WHEN METADATA_KEYS.KEY = '_HKPrivateWorkoutWeatherLocationCoordinatesLatitude'
+            THEN METADATA_VALUES.NUMERICAL_VALUE
+            ELSE NULL
+            END) as "LATITUDE",
+        MAX(CASE 
+            WHEN METADATA_KEYS.KEY = '_HKPrivateWorkoutWeatherLocationCoordinatesLongitude'
+            THEN METADATA_VALUES.NUMERICAL_VALUE
+            ELSE NULL
+            END) as "LONGITUDE",
         WORKOUTS.TOTAL_DISTANCE AS "DISTANCE IN KILOMETERS",
         WORKOUTS.TOTAL_DISTANCE*0.621371 AS "DISTANCE IN MILES",
         WORKOUTS.TOTAL_ENERGY_BURNED AS "CALORIES BURNED",
@@ -155,19 +205,42 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
         WORKOUTS.GOAL AS "GOAL",
         WORKOUTS.TOTAL_FLIGHTS_CLIMBED AS "FLIGHTS CLIMBED",
         WORKOUTS.TOTAL_W_STEPS AS "STEPS",
-        metadata_values.string_value
+        MAX(CASE 
+            WHEN METADATA_KEYS.KEY = 'HKTimeZone'
+            THEN METADATA_VALUES.STRING_VALUE
+            ELSE NULL
+            END) AS "TIME ZONE",
+        SUBSTR(MAX(CASE 
+            WHEN METADATA_KEYS.KEY = 'HKWeatherTemperature'
+            THEN METADATA_VALUES.NUMERICAL_VALUE
+            ELSE NULL
+            END),1,5) || "°F" AS "TEMPERATURE",
+        SUBSTR((MAX(CASE 
+            WHEN METADATA_KEYS.KEY = 'HKWeatherHumidity'
+            THEN METADATA_VALUES.NUMERICAL_VALUE
+            ELSE NULL
+            END)),
+            (INSTR((MAX(CASE 
+            WHEN METADATA_KEYS.KEY = 'HKWeatherHumidity'
+            THEN METADATA_VALUES.NUMERICAL_VALUE
+            ELSE NULL
+            END)),'.')), -3) || "%" AS "HUMIDITY"
         FROM SAMPLES
-        LEFT OUTER JOIN METADATA_VALUES ON METADATA_VALUES.OBJECT_ID = SAMPLES.DATA_ID
-        LEFT OUTER JOIN METADATA_KEYS ON METADATA_KEYS.ROWID = METADATA_VALUES.KEY_ID
-        LEFT OUTER JOIN WORKOUTS ON WORKOUTS.DATA_ID = SAMPLES.DATA_ID
-        WHERE WORKOUTS.ACTIVITY_TYPE NOT NULL AND (KEY IS NULL OR KEY IS "HKIndoorWorkout")
+        LEFT OUTER JOIN METADATA_VALUES ON SAMPLES.DATA_ID = METADATA_VALUES.OBJECT_ID 
+        LEFT OUTER JOIN METADATA_KEYS ON METADATA_KEYS.ROWID = METADATA_VALUES.KEY_ID 
+        LEFT OUTER JOIN WORKOUTS ON SAMPLES.DATA_ID = WORKOUTS.DATA_ID 
+        LEFT OUTER JOIN QUANTITY_SAMPLES ON SAMPLES.DATA_ID = QUANTITY_SAMPLES.DATA_ID 
+        LEFT OUTER JOIN OBJECTS ON SAMPLES.DATA_ID = OBJECTS.DATA_ID 
+        LEFT OUTER JOIN DATA_PROVENANCES ON OBJECTS.PROVENANCE = DATA_PROVENANCES.ROWID 
+        WHERE WORKOUTS.ACTIVITY_TYPE NOT NULL
+        GROUP BY OBJECT_ID
         ORDER BY "START DATE" DESC
         '''
         
         data_headers = (
-            'Start Timestamp', 'End Timestamp', 'Workout Type', 'Workout Duration', 'Duration (In Mintues)', 
-            'Distance (In KM)', 'Distance (In Miles)', 'Calories Burned', 'Total Basel Energy Burned', 
-            'Goal Type', 'Goal', 'Flights Climbed', 'Steps', 'String Value')
+            'Start Timestamp', 'End Timestamp', 'Total Time Duration', 'Workout Duration', 'Workout Type', 'Latitude',  
+            'Longitude', 'Distance (In KM)', 'Distance (In Miles)', 'Calories Burned', 'Total Basel Energy Burned', 
+            'Goal Type', 'Goal', 'Flights Climbed', 'Steps', 'Time Zone', 'Temperature', 'Humidity')
     
     else:
         query = '''
@@ -223,7 +296,7 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
         if version.parse(iOS_version) < version.parse("16"):
             for row in all_rows:
                 data_list.append(
-                    (row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11], row[12], row[13]))
+                    (row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17]))
         else:
             for row in all_rows:
                 hardware = device_id.get(row[10], row[10])
