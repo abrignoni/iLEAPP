@@ -12,6 +12,9 @@
 # Updates: @JohannPLW
 # Date: 2023-03-02
 
+# Updates: @SQLMcGee
+# Date: 2023-03-21
+
 import sqlite3
 import textwrap
 import scripts.artifacts.artGlobals
