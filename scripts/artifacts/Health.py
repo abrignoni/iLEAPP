@@ -25,9 +25,6 @@ from scripts.ilapfuncs import logfunc, logdevinfo, tsv, timeline, is_platform_wi
 
 from scripts.builds_ids import OS_build, device_id
 
-og_os_build = ''
-local_os_build = ''
-
 def get_Health(files_found, report_folder, seeker, wrap_text):
 
     healthdb_secure = ''
@@ -252,16 +249,21 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
     if usageentries > 0:
         celcius_temp = None
         data_list = []
+        
         for row in all_rows:
             hardware = device_id.get(row[20], row[20])
             os_family = ''
+            
             if 'Watch' in row[20]:
                 os_family = 'watchOS '
             elif 'iPhone' in row[20]:
                 os_family = 'iOS '
+            
             software_version = f'{os_family}{row[22]}'
+            
             if row[14]:
                 celcius_temp = round(((row[14] - 32) * (5 / 9)), 2)  
+            
             data_list.append(
                 (row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], 
                 row[10], row[11], row[12], row[13], celcius_temp, row[14], row[15], row[16], row[17], 
@@ -272,11 +274,11 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
         report.start_artifact_report(report_folder, 'Health - Workouts')
         report.add_script()
         data_headers = (
-            'Start Timestamp (UTC)', 'End Timestamp (UTC)', 'Type', 'Duration', 'Distance (in KM)', 'Distance (in Miles)', 
+            'Start Timestamp', 'End Timestamp', 'Type', 'Duration', 'Distance (in KM)', 'Distance (in Miles)', 
             'Goal Type', 'Goal', 'Total Active Energy (kcal)', 'Total Resting Energy (kcal)', 'Average METs', 
             'Min. Heart Rate (BPM)', 'Max. Heart Rate (BPM)', 'Average Heart Rate (BPM)', 'Temperature (°C)', 'Temperature (°F)', 
             'Humidity (%)', 'Latitude', 'Longitude', 'Min. ground elevation (in Meters)', 'Max. ground elevation (in Meters)',
-            'Hardware', 'Source', 'Software Version', 'Timezone', 'Timestamp added to Health (UTC)'
+            'Hardware', 'Source', 'Software Version', 'Timezone', 'Timestamp added to Health'
             )
         report.write_artifact_data_table(data_headers, data_list, healthdb_secure)
         report.end_artifact_report()
@@ -292,44 +294,49 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
     # Provenances
 
     cursor.execute('''
-    select
-    ROWID,
-    origin_product_type,
-    origin_build,
-    local_product_type,
-    local_build,
-    source_version,
-    tz_name,
-    source_id,
-    device_id,
-    sync_provenance
-    from data_provenances
+    SELECT data_provenances.ROWID AS 'Row ID', 
+    data_provenances.origin_product_type AS 'Origin Product Type',
+    data_provenances.origin_build AS 'Origin OS Build',
+    data_provenances.local_product_type AS 'Local Product Type',
+    data_provenances.local_build AS 'Local OS Build',
+    data_provenances.source_id AS 'Source ID',
+    healthdb.sources.name AS ' Source Name',
+    data_provenances.source_version AS 'Source Version',
+    data_provenances.device_id AS 'Device ID',
+    CASE
+    WHEN healthdb.source_devices.name = '__NONE__' THEN '' ELSE healthdb.source_devices.name
+    END AS 'Device',
+    data_provenances.tz_name AS 'Timezone'
+    FROM data_provenances
+    LEFT OUTER JOIN healthdb.sources ON healthdb.sources.ROWID = data_provenances.source_id
+    LEFT OUTER JOIN healthdb.source_devices ON healthdb.source_devices.ROWID = data_provenances.device_id
+    ORDER BY data_provenances.ROWID
     ''')
     
     all_rows = cursor.fetchall()
     usageentries = len(all_rows)
+
     if usageentries > 0:
         data_list = []
         
         for row in all_rows:
-            for key, value in OS_build.items():
-                if str(row[2]) == key:
-                    og_os_build = value
-                    break
-                else: og_os_build = row[2]
-            
-            for key2, value2 in OS_build.items():
-                if str(row[4]) == key2:
-                    local_os_build = value2
-                    break
-                else: local_os_build = row[4]
-        
-            data_list.append((row[0], row[1], og_os_build, row[3], local_os_build, row[5], row[6], row[7], row[8], row[9]))
+            origin_product_type = device_id.get(row[1], row[1])
+            origin_build = OS_build.get(row[2], row[2])
+            local_product_type = device_id.get(row[3], row[3])
+            local_build = OS_build.get(row[4], row[4])
+
+            data_list.append(
+                (row[0], origin_product_type, origin_build, local_product_type, local_build, row[5], row[6], 
+                 row[7], row[8], row[9], row[10])
+                )
 
         report = ArtifactHtmlReport('Health - Provenances')
         report.start_artifact_report(report_folder, 'Health - Provenances')
         report.add_script()
-        data_headers = ('Row ID','Origin Product Type','Origin OS Build','Local Product Type','Local OS Build','Source Version','Timezone','Source ID','Device ID','Sync Provenance')
+        data_headers = (
+            'Row ID', 'Origin Product Type', 'Origin OS Build', 'Local Product Type', 'Local OS Build', 
+            'Source ID', 'Source Name', 'Source Version', 'Device ID', 'Device', 'Timezone'
+            )
         report.write_artifact_data_table(data_headers, data_list, healthdb_secure)
         report.end_artifact_report()
 
