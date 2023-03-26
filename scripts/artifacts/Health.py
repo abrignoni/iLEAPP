@@ -13,7 +13,9 @@
 # Date: 2023-03-02
 
 # Updates: @SQLMcGee
-# Date: 2023-03-21
+# Date: 2023-03-25 Added column within Health - Workouts for Total Time Duration
+# Total Time Duration reviewed side by side with Workout Duration can show variations which could be significant within an investigation/examination
+# Additional details published within "Enriching Investigations with Apple Watch Data Through the healthdb_secure.sqlite Database" at https://dfir.pubpub.org/pub/xqvcn3hj/release/1
 
 import sqlite3
 import textwrap
@@ -195,7 +197,8 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
         datetime('2001-01-01', samples.end_date || ' seconds') AS 'End timestamp (UTC)',
         CASE workouts.activity_type''' + activity_types + '''
         ELSE "Unknown" || "-" || workouts.activity_type
-        END AS 'Type',        
+        END AS 'Type',
+        strftime('%H:%M:%S', samples.end_date - samples.start_date, 'unixepoch') AS 'Total Time Duration',
         strftime('%H:%M:%S', workouts.duration, 'unixepoch') AS 'Duration',
         ''' + distance_and_goals + '''
         round(workouts.total_energy_burned, 2) AS 'Total Active Energy (kcal)',
@@ -218,7 +221,8 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
         datetime('2001-01-01', workout_activities.end_date || ' seconds') AS 'End Timestamp (UTC)',
         CASE workout_activities.activity_type''' + activity_types + '''
         ELSE "Unknown" || "-" || workout_activities.activity_type
-        END AS 'Type',        
+        END AS 'Type',
+        strftime('%H:%M:%S', samples.end_date - samples.start_date, 'unixepoch') AS 'Total Time Duration',
         strftime('%H:%M:%S', workout_activities.duration, 'unixepoch') AS 'Duration',
         ''' + distance_and_goals + '''
         MAX(
@@ -251,30 +255,30 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
         data_list = []
         
         for row in all_rows:
-            hardware = device_id.get(row[20], row[20])
+            hardware = device_id.get(row[21], row[21])
             os_family = ''
             
-            if 'Watch' in row[20]:
+            if 'Watch' in row[21]:
                 os_family = 'watchOS '
-            elif 'iPhone' in row[20]:
+            elif 'iPhone' in row[21]:
                 os_family = 'iOS '
             
-            software_version = f'{os_family}{row[22]}'
+            software_version = f'{os_family}{row[23]}'
             
-            if row[14]:
-                celcius_temp = round(((row[14] - 32) * (5 / 9)), 2)  
+            if row[15]:
+                celcius_temp = round(((row[15] - 32) * (5 / 9)), 2)  
             
             data_list.append(
                 (row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], 
-                row[10], row[11], row[12], row[13], celcius_temp, row[14], row[15], row[16], row[17], 
-                row[18], row[19], hardware, row[21], software_version, row[23], row[24])
+                row[10], row[11], row[12], row[13], row[14], celcius_temp, row[15], row[16], row[17], row[18], 
+                row[19], row[20], hardware, row[22], software_version, row[24], row[25])
                 )
 
         report = ArtifactHtmlReport('Health - Workouts')
         report.start_artifact_report(report_folder, 'Health - Workouts')
         report.add_script()
         data_headers = (
-            'Start Timestamp', 'End Timestamp', 'Type', 'Duration', 'Distance (in KM)', 'Distance (in Miles)', 
+            'Start Timestamp', 'End Timestamp', 'Type', 'Total Time Duration', 'Duration', 'Distance (in KM)', 'Distance (in Miles)', 
             'Goal Type', 'Goal', 'Total Active Energy (kcal)', 'Total Resting Energy (kcal)', 'Average METs', 
             'Min. Heart Rate (BPM)', 'Max. Heart Rate (BPM)', 'Average Heart Rate (BPM)', 'Temperature (°C)', 'Temperature (°F)', 
             'Humidity (%)', 'Latitude', 'Longitude', 'Min. ground elevation (in Meters)', 'Max. ground elevation (in Meters)',
