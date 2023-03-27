@@ -95,6 +95,8 @@ def get_icon_name(category, artifact):
         icon = 'eye'
     elif category == 'BIOME SAFARI':
         icon = 'eye'
+    elif category == 'BIOME SYNC':
+        icon = 'smartphone'
     elif category == 'BIOME TEXT INPUT':
         icon = 'eye'
     elif category == 'BIOME USER ACT META':
@@ -118,6 +120,18 @@ def get_icon_name(category, artifact):
         icon = 'credit-card'
     elif category == 'CELLULAR WIRELESS':
         icon = 'bar-chart'
+    elif category == 'CHROMIUM':          
+        if artifact.find('AUTOFILL') >= 0:        icon = 'edit-3'
+        elif artifact.find('BOOKMARKS') >= 0:       icon = 'bookmark'
+        elif artifact.find('DOWNLOADS') >= 0:       icon = 'download'
+        elif artifact.find('LOGIN') >= 0:           icon = 'log-in'
+        elif artifact.find('MEDIA HISTORY') >= 0:   icon = 'video'
+        elif artifact.find('NETWORK ACTION PREDICTOR') >=0:    icon = 'type'
+        elif artifact.find('OFFLINE PAGES') >= 0:   icon = 'cloud-off'
+        elif artifact.find('SEARCH TERMS') >= 0:      icon = 'search'
+        elif artifact.find('TOP SITES') >= 0:       icon = 'list'
+        elif artifact.find('WEB VISITS') >= 0:      icon = 'globe'
+        else:                                       icon = 'chrome'
     elif category == 'CLOUDKIT':
         if artifact == 'PARTICIPANTS':
             icon = 'user'
@@ -196,6 +210,8 @@ def get_icon_name(category, artifact):
         elif artifact == 'HEALTH - HEADPHONE AUDIO LEVELS':
             icon = 'headphones'
         elif artifact == 'HEALTH - HEART RATE':
+            icon = 'activity'
+        elif artifact == 'HEALTH - RESTING HEART RATE':
             icon = 'activity'
         elif artifact == 'HEALTH - WORKOUTS':
             icon = 'activity'
@@ -392,7 +408,12 @@ def get_icon_name(category, artifact):
         icon = 'wifi'
     elif category == 'OFFLINE PAGES':
         icon = 'cloud-off'
-                  
+    elif category == 'HIKVISION':
+        if artifact.find('CCTV CHANNELS') >=0: icon = 'film'
+        elif artifact.find('CCTV ACTIVITY') >=0: icon = 'activity'
+        elif artifact.find('CCTV INFO') >=0: icon = 'settings'
+        elif artifact.find('USER CREATED MEDIA') >= 0:    icon = 'video'  
+
     return icon
 
 
