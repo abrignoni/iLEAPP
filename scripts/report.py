@@ -406,7 +406,12 @@ def get_icon_name(category, artifact):
         icon = 'wifi'
     elif category == 'OFFLINE PAGES':
         icon = 'cloud-off'
-                  
+    elif category == 'HIKVISION':
+        if artifact.find('CCTV CHANNELS') >=0: icon = 'film'
+        elif artifact.find('CCTV ACTIVITY') >=0: icon = 'activity'
+        elif artifact.find('CCTV INFO') >=0: icon = 'settings'
+        elif artifact.find('USER CREATED MEDIA') >= 0:    icon = 'video'  
+
     return icon
 
 
