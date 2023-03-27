@@ -1,5 +1,6 @@
 #Via https://www.gkgigs.com/list-apple-ios-version-history/
 # https://www.gkgigs.com/latest-watchos-version/
+# https://www.gkgigs.com/list-of-all-macos-version-history/
 
 OS_build = {
 "15A372":"iOS 11.0",
@@ -123,6 +124,7 @@ OS_build = {
 "20C65":"iOS 16.2",
 "20D47":"iOS 16.3",
 "20D67":"iOS 16.3.1",
+"20E247":"iOS 16.4",
 "4K78":"macOS 10.0.1",
 "4L13":"macOS 10.0.1",
 "4P12":"macOS 10.0.2",
@@ -562,6 +564,7 @@ OS_build = {
 "20S361":"watchOS 9.2",
 "20S648":"watchOS 9.3",
 "20S664":"watchOS 9.3.1",
+"20T253":"watchOS 9.4",
 }
 
 device_id = {
