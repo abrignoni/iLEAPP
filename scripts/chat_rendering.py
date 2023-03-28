@@ -82,7 +82,7 @@ function createDivMessages (m){
         messType = '<div class="message other-message float-right">';
         liTag = '<li class="clearfix">'
         messDataTag = '<div class="message-data align-right">';
-        name = "Me";
+        name = "Local User";
     }
 
     var res = liTag;
