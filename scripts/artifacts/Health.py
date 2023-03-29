@@ -236,7 +236,6 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
         END) AS 'Total Resting Energy (kcal)',
         ''' + metadata + source + '''
         FROM workout_activities
-        LEFT OUTER JOIN samples ON samples.data_id = workouts.data_id
         LEFT OUTER JOIN workouts ON workouts.data_id = workout_activities.owner_id
         LEFT OUTER JOIN workout_statistics ON workout_statistics.workout_activity_id = workout_activities.ROWID
         LEFT OUTER JOIN metadata_values ON metadata_values.object_id = workout_activities.owner_id
@@ -245,6 +244,7 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
         LEFT OUTER JOIN data_provenances ON data_provenances.ROWID = objects.provenance
         LEFT OUTER JOIN healthdb.source_devices ON healthdb.source_devices.ROWID = data_provenances.device_id
         LEFT OUTER JOIN healthdb.sources ON healthdb.sources.ROWID = data_provenances.source_id
+        LEFT OUTER JOIN samples ON samples.data_id = workouts.data_id
         GROUP BY workout_activities.ROWID
         ORDER BY workout_activities.start_date
         '''
