@@ -43,7 +43,10 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
         if file_name.endswith('healthdb.sqlite'):
            healthdb = str(file_found)
            source_file_healthdb = file_found.replace(seeker.directory, '')
-   
+        
+        else:
+            continue
+    
     db = open_sqlite_db_readonly(healthdb_secure)
     cursor = db.cursor()
 
@@ -233,6 +236,7 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
         END) AS 'Total Resting Energy (kcal)',
         ''' + metadata + source + '''
         FROM workout_activities
+        LEFT OUTER JOIN samples ON samples.data_id = workouts.data_id
         LEFT OUTER JOIN workouts ON workouts.data_id = workout_activities.owner_id
         LEFT OUTER JOIN workout_statistics ON workout_statistics.workout_activity_id = workout_activities.ROWID
         LEFT OUTER JOIN metadata_values ON metadata_values.object_id = workout_activities.owner_id
