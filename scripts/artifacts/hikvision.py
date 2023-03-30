@@ -24,6 +24,8 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly,media_to_html
 
 def get_hikvision(files_found, report_folder, seeker, wrap_text):
+    separator_1 = '/'
+    separator_2 = "\\"
     media_data_list = []
     for file_found in files_found:
         file_found = str(file_found)
@@ -138,9 +140,23 @@ def get_hikvision(files_found, report_folder, seeker, wrap_text):
 
         #CCTV - User Created Media - Collecting Files
         if file_name.endswith(".jpg") or file_name.endswith(".mov") or file_name.endswith(".mp4"):
-            temp_tuple = ()
-            temp_tuple = (file_found,file_name,file_name)
-            media_data_list.append(temp_tuple)
+            #The files found grep input returns many files are not part of the app (false positives). This block of code ensures that each media file collected is part of the app's data
+            if separator_1 in file_found:
+                media_file_path = file_found.split(separator_1)
+            else:
+                media_file_path = file_found.split(separator_2)
+
+            if len(media_file_path) > 5:
+                doc_in_path = "True" if media_file_path[-5] == "Documents" else "False"
+                year_in_path = "True" if media_file_path[-4].isdigit() and len(media_file_path[-4]) == 4 else "False"
+                month_in_path = "True" if media_file_path[-3].isdigit() and len(media_file_path[-3]) == 2 else "False"
+                day_in_path = "True" if media_file_path[-2].isdigit() and len(media_file_path[-2]) == 2 else "False"
+                path_flags = [doc_in_path,year_in_path,month_in_path,day_in_path]
+
+                if "False" not in path_flags:
+                    temp_tuple = ()
+                    temp_tuple = (file_found,file_name,file_name)
+                    media_data_list.append(temp_tuple)
             
     #CCTV - User Created Media - Reporting Files
     media_files =  len(media_data_list)
