@@ -43,7 +43,10 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
         if file_name.endswith('healthdb.sqlite'):
            healthdb = str(file_found)
            source_file_healthdb = file_found.replace(seeker.directory, '')
-   
+        
+        else:
+            continue
+    
     db = open_sqlite_db_readonly(healthdb_secure)
     cursor = db.cursor()
 
@@ -241,6 +244,7 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
         LEFT OUTER JOIN data_provenances ON data_provenances.ROWID = objects.provenance
         LEFT OUTER JOIN healthdb.source_devices ON healthdb.source_devices.ROWID = data_provenances.device_id
         LEFT OUTER JOIN healthdb.sources ON healthdb.sources.ROWID = data_provenances.source_id
+        LEFT OUTER JOIN samples ON samples.data_id = workouts.data_id
         GROUP BY workout_activities.ROWID
         ORDER BY workout_activities.start_date
         '''
