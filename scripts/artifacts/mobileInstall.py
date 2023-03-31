@@ -123,7 +123,62 @@ def get_mobileInstall(files_found, report_folder, seeker, wrap_text):
                 tsv_tml_data_list.append((inserttime, actiondesc, bundleid, path))
 
                 # logfunc()
-
+            
+            matchObj = re.search(
+                r"(Destroying container )", line
+            )  # Regex for destroyed containers
+            if matchObj:
+                actiondesc = "Destroying container"
+                # logfunc(actiondesc)
+                # logfunc("Destroyed containers:")
+                matchObj = re.search(
+                    r"(?<=identifier )(.*)(?= at )", line
+                )  # Regex for bundle id
+                if matchObj:
+                    bundleid = matchObj.group(1)
+                    # logfunc ("Bundle ID: ", bundleid )
+                  
+                matchObj = re.search(r"(?<=^)(.*)(?= \[)", line)  # Regex for timestamp
+                if matchObj:
+                    timestamp = matchObj.group(1)
+                    weekday, month, day, time, year = str.split(timestamp)
+                    day = day_converter(day)
+                    month = month_converter(month)
+                    inserttime = (
+                            str(year) + "-" + str(month) + "-" + str(day) + " " + str(time)
+                    )
+                    # logfunc(inserttime)
+                    # logfunc(month)
+                    # logfunc(day)
+                    # logfunc(year)
+                    # logfunc(time)
+                    # logfunc ("Timestamp: ", timestamp)
+                  
+                matchObj = re.search(r"(?<= at )(.*)(?=$)", line)  # Regex for path
+                if matchObj:
+                    path = matchObj.group(1)
+                    # logfunc ("Path: ", matchObj.group(1))
+                  
+                # logfunc(inserttime, actiondesc, bundleid, path)
+                  
+                # insert to database
+                cursor = db.cursor()
+                datainsert = (
+                    inserttime,
+                    actiondesc,
+                    bundleid,
+                    path,
+                )
+                # cursor.execute(
+                #     "INSERT INTO dimm (time_stamp, action, bundle_id, path)  VALUES(?,?,?,?)",
+                #     datainsert,
+                # )
+                # db.commit()
+                file_datainserts.append(datainsert)
+              
+                tsv_tml_data_list.append((inserttime, actiondesc, bundleid, path))
+                # logfunc()
+              
             matchObj = re.search(
                 r"(Destroying container with identifier)", line
             )  # Regex for destroyed containers
