@@ -16,6 +16,7 @@
 # Date: 2023-03-25 Added column within Health - Workouts for Total Time Duration
 # Total Time Duration reviewed side by side with Workout Duration can show variations which could be significant within an investigation/examination
 # Additional details published within "Enriching Investigations with Apple Watch Data Through the healthdb_secure.sqlite Database" at https://dfir.pubpub.org/pub/xqvcn3hj/release/1
+# Height / Weight parsing added 2023-04-04
 
 import sqlite3
 import textwrap
@@ -626,6 +627,87 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
         timeline(report_folder, tlactivity, data_list, data_headers)
     else:
         logfunc('No data available in Health - Achievements')
+        
+# Height
+
+    cursor.execute('''
+    select
+    datetime(samples.start_date+978307200,'unixepoch') as "Height Value Timestamp",
+    quantity_samples.quantity as "Height (in Meters)",
+    CAST((quantity_samples.quantity * 100) as INT) as "Height (in Centimeters)",
+    replace(quantity_samples.quantity * '3.281', substr((quantity_samples.quantity * '3.281'),2,8),"'" ||
+    rtrim((substr((substr((quantity_samples.quantity * '3.281'),2,8) * '12'),1,2)), '.') || '"') as "Height (Feet and Inches)"
+    FROM samples
+    LEFT OUTER JOIN quantity_samples ON samples.data_id = quantity_samples.data_id
+    WHERE samples.data_type = '2'
+    ORDER BY samples.start_date DESC
+    ''')
+    
+    all_rows = cursor.fetchall()
+    usageentries = len(all_rows)
+    if usageentries > 0:
+        data_list = []
+        for row in all_rows:
+        
+            data_list.append((row[0], row[1], row[2], row[3]))
+
+        report = ArtifactHtmlReport('Health - User Entered Data - Height')
+        report.start_artifact_report(report_folder, 'Health - User Entered Data - Height')
+        report.add_script()
+        data_headers = (
+            'Height Value Timestamp', 'Height (in Meters)', 'Height (in Centimeters)', 'Height (Feet and Inches)')
+        report.write_artifact_data_table(data_headers, data_list, healthdb_secure)
+        report.end_artifact_report()
+
+        tsvname = 'Health - User Entered Data - Height'
+        tsv(report_folder, data_headers, data_list, tsvname)
+
+        tlactivity = 'Health - User Entered Data - Height'
+        timeline(report_folder, tlactivity, data_list, data_headers)
+    else:
+        logfunc('No data available in Health - User Entered Data - Height')
+
+# Weight
+
+    cursor.execute('''
+    select
+    datetime(samples.start_date+978307200,'unixepoch') as "Weight Value Timestamp",
+    substr(quantity_samples.quantity,1,5) as "Weight (in Kilograms)",
+    CASE 
+        WHEN SUBSTR(CAST(ROUND(((quantity_samples.quantity / 6.35029317) - CAST(quantity_samples.quantity / 6.35029317 AS INT)) * 14) AS VARCHAR), 1, INSTR(CAST(ROUND(((quantity_samples.quantity / 6.35029317) - CAST(quantity_samples.quantity / 6.35029317 AS INT)) * 14) AS VARCHAR), '.') - 1) = '14'
+        THEN ((CAST(quantity_samples.quantity / 6.35029317 AS INT) + 1) || ' Stone 0 Pounds')
+        ELSE ((CAST(quantity_samples.quantity / 6.35029317 AS INT) || ' Stone ' || SUBSTR(CAST(ROUND(((quantity_samples.quantity / 6.35029317) - CAST(quantity_samples.quantity / 6.35029317 AS INT)) * 14) AS VARCHAR), 1, INSTR(CAST(ROUND(((quantity_samples.quantity / 6.35029317) - CAST(quantity_samples.quantity / 6.35029317 AS INT)) * 14) AS VARCHAR), '.') - 1) || ' Pounds')) 
+        END as "Weight (in Stones and Pounds)",
+    substr((quantity_samples.quantity * '2.20462262'),1,6) as "Weight (Approximate in Pounds)"
+    FROM samples
+    LEFT OUTER JOIN quantity_samples ON samples.data_id = quantity_samples.data_id
+    WHERE samples.data_type = '3'
+    ORDER BY samples.start_date DESC
+    ''')
+    
+    all_rows = cursor.fetchall()
+    usageentries = len(all_rows)
+    if usageentries > 0:
+        data_list = []
+        for row in all_rows:
+        
+            data_list.append((row[0], row[1], row[2], row[3]))
+
+        report = ArtifactHtmlReport('Health - User Entered Data - Weight')
+        report.start_artifact_report(report_folder, 'Health - User Entered Data - Weight')
+        report.add_script()
+        data_headers = (
+            'Weight Value Timestamp', 'Weight (in Kilograms)', 'Weight (in Stone)', 'Weight (Approximate in Pounds)')
+        report.write_artifact_data_table(data_headers, data_list, healthdb_secure)
+        report.end_artifact_report()
+
+        tsvname = 'Health - User Entered Data - Weight'
+        tsv(report_folder, data_headers, data_list, tsvname)
+
+        tlactivity = 'Health - User Entered Data - Weight'
+        timeline(report_folder, tlactivity, data_list, data_headers)
+    else:
+        logfunc('No data available in Health - User Entered Data - Weight')
         
 __artifacts__ = {
     "health": (
