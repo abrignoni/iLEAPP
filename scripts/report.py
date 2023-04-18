@@ -411,6 +411,14 @@ def get_icon_name(category, artifact):
         elif artifact.find('CCTV ACTIVITY') >=0: icon = 'activity'
         elif artifact.find('CCTV INFO') >=0: icon = 'settings'
         elif artifact.find('USER CREATED MEDIA') >= 0:    icon = 'video'  
+    elif category == 'DAHUA TECHNOLOGY (DMSS)':
+        if artifact.find('PIN') >=0: icon = 'unlock'
+        elif artifact.find('CHANNELS') >=0: icon = 'film'
+        elif artifact.find('INFO') >=0: icon = 'settings'
+        elif artifact.find('USER CREATED MEDIA') >= 0:   icon = 'video'
+        elif artifact.find('SENSORS') >=0: icon = 'smartphone'
+        elif artifact.find('DEVICES') >=0: icon = 'tablet'
+        elif artifact.find('NOTIFICATIONS') >=0: icon = 'bell'
 
     return icon
 
