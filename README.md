@@ -39,6 +39,12 @@ To run on **Linux**, you will also need to install `tkinter` separately like so:
 To install dependencies offline Troy Schnack has a neat process here:
 https://twitter.com/TroySchnack/status/1266085323651444736?s=19
 
+To install on Windows follow the guide, courtesy of Hexordia, here:
+https://www.hexordia.com/s/ILEAPP-Walkthrough.pdf
+
+Windows installation and walkthrough video, by Hexordia, here:
+https://www.youtube.com/watch?v=7qvVFfBM2NU
+
 ## Compile to executable
 
 To compile to an executable so you can run this on a system without python installed.

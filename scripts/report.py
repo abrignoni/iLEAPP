@@ -155,6 +155,8 @@ def get_icon_name(category, artifact):
             icon = 'battery-charging'
     elif category == 'DATA USAGE':
         icon = 'wifi'
+    elif category == 'BITTORRENT':
+        icon = 'share'
     elif category == 'DEVICE INFO':
         if artifact == 'BUILD INFO':
             icon = 'terminal'
@@ -393,6 +395,8 @@ def get_icon_name(category, artifact):
             icon = 'phone-call'
     elif category == 'VOICE-RECORDINGS':
         icon = 'mic'
+    elif category == 'TELEGRAM':
+        icon = 'message-square'
     elif category == 'VOICE-TRIGGERS':
         icon = 'mic'
     elif category == 'WHATSAPP':
@@ -666,3 +670,4 @@ def mark_item_active(data, itemname):
     
     
     
+  
