@@ -313,6 +313,11 @@ def get_biomeIntents(files_found, report_folder, seeker, wrap_text):
                             datoshtml = (datos.replace(',', '<br>'))
                         
                             #logfunc('Maps' + str(protostuffinner))
+                    
+                    #maps
+                    elif typeofintent == 'com.facebook.Messenger':
+                        logfunc(str(protostuffinner))
+                        
                     else:
                         datos = ''
                         datoshtml = 'Unsupported intent.'

@@ -175,9 +175,17 @@ def get_biomeUseractmeta(files_found, report_folder, seeker, wrap_text):
                         container = internalbplist
                 else:
                     container =''
-                    
                 
-                data_list.append((when, actype, desc1, desc2, title, payload, container))
+                agg = ''
+                for a, b in deserialized_plist.items():
+                    if a == 'payload':
+                        pass
+                    else:
+                        if b == ' ':
+                            b = 'NULL'
+                        agg = agg + f'{a} = {b}<br>'
+                
+                data_list.append((when, actype, desc1, desc2, title, agg.strip(), payload, container))
         
             modresult = (sizeofnotificaton % 8)
             resultante =  8 - modresult
@@ -193,8 +201,8 @@ def get_biomeUseractmeta(files_found, report_folder, seeker, wrap_text):
             report = ArtifactHtmlReport(f'Biome User Activity Metadata')
             report.start_artifact_report(report_folder, f'Biome User Activity Metadata - {filename}', description)
             report.add_script()
-            data_headers = ('Time Start','Activity type','Description','Description','Title','Payload Data','Container Data')
-            report.write_artifact_data_table(data_headers, data_list, file_found)
+            data_headers = ('Time Start','Activity type','Description','Description','Title', 'Bplist Data','Payload Data','Container Data')
+            report.write_artifact_data_table(data_headers, data_list, file_found, html_no_escape=['Bplist Data'])
             report.end_artifact_report()
             
             tsvname = f'Biome User Activity Metadata - {filename}'
@@ -204,7 +212,7 @@ def get_biomeUseractmeta(files_found, report_folder, seeker, wrap_text):
             timeline(report_folder, tlactivity, data_list, data_headers)
             
         else:
-            logfunc(f'No data available for Biome Battery Percentage')
+            logfunc(f'No data available for Biome User Activity Metadata')
     
 
 __artifacts__ = {
