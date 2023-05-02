@@ -693,6 +693,7 @@ OS_build = {
     "20F5028e": "iOS 16.5 beta 1",
     "20F5039e": "iOS 16.5 beta 2",
     "20F5050f": "iOS 16.5 beta 3",
+    "20F5059a": "iOS 16.5 beta 4",
     "4K78": "Mac OS X 10.0",
     "4L8": "Mac OS X 10.0.1",
     "4L13": "Mac OS X 10.0.1",
@@ -1785,6 +1786,7 @@ OS_build = {
     "22F5027f": "macOS 13.4 beta 1",
     "22F5037d": "macOS 13.4 beta 2",
     "22F5049e": "macOS 13.4 beta 3",
+    "22F5059b": "macOS 13.4 beta 4",
     "12S507": "watchOS 1.0",
     "12S632": "watchOS 1.0.1",
     "13S5254w": "watchOS 2.0 beta 1",
@@ -2120,6 +2122,7 @@ OS_build = {
     "20T5527c": "watchOS 9.5 beta 1",
     "20T5538d": "watchOS 9.5 beta 2",
     "20T5549e": "watchOS 9.5 beta 3",
+    "20T5560a": "watchOS 9.5 beta 4",
 }
 
 device_id = {
