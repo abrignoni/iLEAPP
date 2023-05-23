@@ -154,6 +154,7 @@ def get_biomeAppinstall(files_found, report_folder, seeker, wrap_text):
             else:
                 ab.read(resultante)
         
+        
         if len(data_list) > 0:
         
             description = ''

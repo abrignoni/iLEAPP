@@ -243,7 +243,8 @@ def get_biomeIntents(files_found, report_folder, seeker, wrap_text):
                         try:
                             a = (protostuffinner['5']['1']['4'].decode()) #content number
                         except:
-                            print(protostuffinner)
+                            pass
+                            #print(protostuffinner)
                         
                         datos = f'Number: {a}'
                         datoshtml = (datos.replace(',', '<br>'))
@@ -316,7 +317,8 @@ def get_biomeIntents(files_found, report_folder, seeker, wrap_text):
                     
                     #maps
                     elif typeofintent == 'com.facebook.Messenger':
-                        logfunc(str(protostuffinner))
+                        pass
+                        #logfunc(str(protostuffinner))
                         
                     else:
                         datos = ''
