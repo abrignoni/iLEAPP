@@ -308,17 +308,12 @@ def get_biomeIntents(files_found, report_folder, seeker, wrap_text):
                             
                             for loopy in protostuffinner['4']:
                                 a = loopy['1'].decode()
-                                b = loopy['2']['2']['2'].decode()
+                                b = loopy['2']['2']['2']
                                 datos = datos + f'{a}: {b},'
                                 
                             datoshtml = (datos.replace(',', '<br>'))
                         
                             #logfunc('Maps' + str(protostuffinner))
-                    
-                    #maps
-                    elif typeofintent == 'com.facebook.Messenger':
-                        pass
-                        #logfunc(str(protostuffinner))
                         
                     else:
                         datos = ''
