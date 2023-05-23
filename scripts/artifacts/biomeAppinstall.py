@@ -154,11 +154,12 @@ def get_biomeAppinstall(files_found, report_folder, seeker, wrap_text):
             else:
                 ab.read(resultante)
         
+        timefilename = timestampsconv(int(filename))
         if len(data_list) > 0:
         
             description = ''
             report = ArtifactHtmlReport(f'Biome AppInstall')
-            report.start_artifact_report(report_folder, f'Biome AppInstall - {filename}', description)
+            report.start_artifact_report(report_folder, f'Biome AppInstall - {timefilename}', description)
             report.add_script()
             data_headers = ('Time Start','Time End','Time Write','Activity','Bundle ID','Bundle Info', 'App Info', 'App Info', 'Action GUID')
             report.write_artifact_data_table(data_headers, data_list, file_found)
