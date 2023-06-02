@@ -700,6 +700,7 @@ OS_build = {
     "20F65": "iOS 16.5 RC",
     "20F66": "iOS 16.5",
     "20G5026e": "iOS 16.6 beta 1",
+    "20G5037d": "iOS 16.6 beta 2",
     "4K78": "Mac OS X 10.0",
     "4L8": "Mac OS X 10.0.1",
     "4L13": "Mac OS X 10.0.1",
@@ -1691,6 +1692,8 @@ OS_build = {
     "21G1338": "macOS 11.7.7 RC 2",
     "20G1342": "macOS 11.7.7 RC 3",
     "20G1345": "macOS 11.7.7",
+    "20G1403": "macOS 11.7.8 RC 1",
+    "20G1407": "macOS 11.7.8 RC 2",
     "21A5248p": "macOS 12.0 beta 1",
     "21A5268h": "macOS 12.0 beta 2",
     "21A5284e": "macOS 12.0 beta 3",
@@ -1761,6 +1764,8 @@ OS_build = {
     "21G639": "macOS 12.6.6 RC 3",
     "21G644": "macOS 12.6.6 RC 4",
     "21G646": "macOS 12.6.6",
+    "21G703": "macOS 12.6.7 RC 1",
+    "21G708": "macOS 12.6.7 RC 2",
     "22A5266r": "macOS 13.0 beta 1",
     "22A5286j": "macOS 13.0 beta 2",
     "22A5295h": "macOS 13.0 beta 3",
@@ -1802,6 +1807,7 @@ OS_build = {
     "22F63": "macOS 13.4 RC 2",
     "22F66": "macOS 13.4",
     "22G5027e": "macOS 13.5 beta 1",
+    "22G5038d": "macOS 13.5 beta 2",
     "12S507": "watchOS 1.0",
     "12S632": "watchOS 1.0.1",
     "13S5254w": "watchOS 2.0 beta 1",
@@ -2139,7 +2145,9 @@ OS_build = {
     "20T5549e": "watchOS 9.5 beta 3",
     "20T5560a": "watchOS 9.5 beta 4",
     "20T562": "watchOS 9.5",
+    "20T570": "watchOS 9.5.1",
     "20U5527c": "watchOS 9.6 beta 1",
+    "20U5538d": "watchOS 9.6 beta 2",
 }
 
 device_id = {
