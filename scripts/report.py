@@ -288,6 +288,10 @@ def get_icon_name(category, artifact):
         icon = 'file-plus'
     elif category == 'MEDICAL ID':
         icon = 'thermometer'
+    elif category == 'METAMASK':
+        if artifact.find('BROWSER') >= 0:   icon = 'globe'
+        elif artifact.find('CONTACTS') >= 0:   icon = 'users'
+        else:   icon = 'dollar-sign'
     elif category == 'MICROSOFT TEAMS - LOGS':
         if artifact == 'TEAMS LOCATIONS':
             icon = 'map-pin'
