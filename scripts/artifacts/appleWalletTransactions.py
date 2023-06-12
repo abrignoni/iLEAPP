@@ -3,29 +3,34 @@ from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_
 
 
 def get_appleWalletTransactions(files_found, report_folder, seeker, wrap_text):
-    file_found = str(files_found[0])
-    db = open_sqlite_db_readonly(file_found)
-    cursor = db.cursor()
-    cursor.execute('''SELECT
-                    DATETIME(TRANSACTION_DATE + 978307200,'UNIXEPOCH'),
-                    MERCHANT_NAME,
-                    LOCALITY,
-                    ADMINISTRATIVE_AREA,
-                    CAST(AMOUNT AS REAL)/100,
-                    CURRENCY_CODE,
-                    DATETIME(LOCATION_DATE + 978307200,'UNIXEPOCH'),
-                    LOCATION_LATITUDE,
-                    LOCATION_LONGITUDE,
-                    LOCATION_ALTITUDE,
-                    PEER_PAYMENT_COUNTERPART_HANDLE,
-                    PEER_PAYMENT_MEMO,
-                    TRANSACTION_STATUS,
-                    TRANSACTION_TYPE
-                    FROM PAYMENT_TRANSACTION
-                    ''')
-
-    all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
+    for file_found in files_found:
+        file_found = str(file_found)
+        
+        if file_found.endswith('passes23.sqlite'):
+            
+            db = open_sqlite_db_readonly(file_found)
+            cursor = db.cursor()
+            cursor.execute('''SELECT
+                            DATETIME(TRANSACTION_DATE + 978307200,'UNIXEPOCH'),
+                            MERCHANT_NAME,
+                            LOCALITY,
+                            ADMINISTRATIVE_AREA,
+                            CAST(AMOUNT AS REAL)/100,
+                            CURRENCY_CODE,
+                            DATETIME(LOCATION_DATE + 978307200,'UNIXEPOCH'),
+                            LOCATION_LATITUDE,
+                            LOCATION_LONGITUDE,
+                            LOCATION_ALTITUDE,
+                            PEER_PAYMENT_COUNTERPART_HANDLE,
+                            PEER_PAYMENT_MEMO,
+                            TRANSACTION_STATUS,
+                            TRANSACTION_TYPE
+                            FROM PAYMENT_TRANSACTION
+                            ''')
+        
+            all_rows = cursor.fetchall()
+            usageentries = len(all_rows)
+    
     if usageentries > 0:
         data_list = []
         for row in all_rows:
@@ -52,6 +57,6 @@ def get_appleWalletTransactions(files_found, report_folder, seeker, wrap_text):
 __artifacts__ = {
     "applewallettransactions": (
         "Apple Wallet",
-        ('**/passes23.sqlite'),
+        ('*/passes23.sqlite*'),
         get_appleWalletTransactions)
 }

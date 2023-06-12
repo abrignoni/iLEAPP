@@ -118,6 +118,17 @@ def does_table_exist(db, table_name):
         logfunc(f"Query error, query={query} Error={str(ex)}")
     return False
 
+def does_view_exist(db, table_name):
+    '''Checks if a table with specified name exists in an sqlite db'''
+    try:
+        query = f"SELECT name FROM sqlite_master WHERE type='view' AND name='{table_name}'"
+        cursor = db.execute(query)
+        for row in cursor:
+            return True
+    except sqlite3Error as ex:
+        logfunc(f"Query error, query={query} Error={str(ex)}")
+    return False
+
 class GuiWindow:
     '''This only exists to hold window handle if script is run from GUI'''
     window_handle = None # static variable 
