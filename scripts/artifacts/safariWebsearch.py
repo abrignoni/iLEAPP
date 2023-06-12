@@ -10,33 +10,37 @@ from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_
 
 
 def get_safariWebsearch(files_found, report_folder, seeker, wrap_text):
-	file_found = str(files_found[0])
-	db = open_sqlite_db_readonly(file_found)
-	cursor = db.cursor()
-
-	cursor.execute("""
-	select
-	datetime(history_visits.visit_time+978307200,'unixepoch') ,
-	history_items.url,
-	history_items.visit_count,
-	history_visits.title,
-	case history_visits.origin
-	when 1 then "icloud synced"
-	when 0 then "visited local device"
-	else history_visits.origin
-	end "icloud sync",
-	history_visits.load_successful,
-	history_visits.id,
-	history_visits.redirect_source,
-	history_visits.redirect_destination
-	from history_items, history_visits 
-	where history_items.id = history_visits.history_item
-	and history_items.url like '%search?q=%'
-	"""
-	)
-
-	all_rows = cursor.fetchall()
-	usageentries = len(all_rows)
+	for file_found in files_found:
+		file_found = str(file_found)
+		
+		if file_found.endswith('History.db'):
+			db = open_sqlite_db_readonly(file_found)
+			cursor = db.cursor()
+		
+			cursor.execute("""
+			select
+			datetime(history_visits.visit_time+978307200,'unixepoch') ,
+			history_items.url,
+			history_items.visit_count,
+			history_visits.title,
+			case history_visits.origin
+			when 1 then "icloud synced"
+			when 0 then "visited local device"
+			else history_visits.origin
+			end "icloud sync",
+			history_visits.load_successful,
+			history_visits.id,
+			history_visits.redirect_source,
+			history_visits.redirect_destination
+			from history_items, history_visits 
+			where history_items.id = history_visits.history_item
+			and history_items.url like '%search?q=%'
+			"""
+			)
+		
+			all_rows = cursor.fetchall()
+			usageentries = len(all_rows)
+			
 	data_list = []    
 	if usageentries > 0:
 		for row in all_rows:
