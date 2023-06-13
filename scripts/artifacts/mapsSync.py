@@ -82,46 +82,64 @@ def get_mapsSync(files_found, report_folder, seeker, wrap_text):
                     message, types = blackboxprotobuf.decode_message(row[8])
                     
                     for x in message['1']:
-                        if x['2'].get('1','') != '':
-                            for y in x['2']['1']['4']:
-                                z = y.get('8')
-                                if z == None:
-                                    pass
-                                else:
-                                    if isinstance(z, dict):
-                                        w = z.get('31')
-                                        if w == None:
-                                            pass
-                                        else:
-                                            three = get_recursively(w, '3')
-                                            if three[1] == b'create':
-                                                #print(f'Three: {three[1]}')
-                                                if message['1'][1]['1'].get('2') is not None:
-                                                    if type(message['1'][1]['1'].get('2')) == bytes:
-                                                        agg1 = agg1 + ' ' + (message['1'][1]['1'].get('2').decode('latin-1'))
-                                                    else:
-                                                        for address in (message['1'][1]['1']['2']['6']):
-                                                            directa = directa + ' ' + (address.decode('latin-1'))
-                                                            #print(row[0],directa, 'directa')
-                                                        if agg1 == '':
-                                                            agg1 = directa
-                                                            directa = ''
+                        
+                        if isinstance(x, dict):
+                            check = x.get('2')
+                            if check is None:
+                                pass
+                            elif x['2'].get('1','') != '':
+                                for y in x['2']['1']['4']:
+                                    z = y.get('8')
+                                    if z == None:
+                                        pass
+                                    else:
+                                        if isinstance(z, dict):
+                                            w = z.get('31')
+                                            if w == None:
+                                                pass
+                                            else:
+                                                three = get_recursively(w, '3')
+                                                if three[1] == b'create':
+                                                    #print(f'Three: {three[1]}')
+                                                    if message['1'][1]['1'].get('2') is not None:
+                                                        if type(message['1'][1]['1'].get('2')) == bytes:
+                                                            agg1 = agg1 + ' ' + (message['1'][1]['1'].get('2').decode('latin-1'))
                                                         else:
-                                                            agg1 = agg1 + ' <---> ' + directa
-                                                        
-                                                else:
-                                                    for address in (w['1']['101']['2']['11']):
-                                                        directa = directa + ' ' + (address.decode('latin-1'))
-                                                        #print(row[0], directb, 'directb')
-                                                    if agg1 == '':
-                                                        agg1 = directa
-                                                        directa = ''
+                                                            for address in (message['1'][1]['1']['2']['6']):
+                                                                directa = directa + ' ' + (address.decode('latin-1'))
+                                                                #print(row[0],directa, 'directa')
+                                                            if agg1 == '':
+                                                                agg1 = directa
+                                                                directa = ''
+                                                            else:
+                                                                agg1 = agg1 + ' <---> ' + directa
+                                                            
                                                     else:
-                                                        agg1 = agg1 + ' <---> ' + directa
+                                                        try:
+                                                            for address in (w['1']['101']['2']['11']):
+                                                                directa = directa + ' ' + (address.decode('latin-1'))
+                                                                #print(row[0], directb, 'directb')
+                                                            if agg1 == '':
+                                                                agg1 = directa
+                                                                directa = ''
+                                                            else:
+                                                                agg1 = agg1 + ' <---> ' + directa
+                                                        except:
+                                                            for address in (w['1']['101']['2']):
+                                                                directa = directa + ' ' + str(address)
+                                                                #print(row[0], directb, 'directb')
+                                                            if agg1 == '':
+                                                                agg1 = directa
+                                                                directa = ''
+                                                            else:
+                                                                agg1 = agg1 + ' <---> ' + directa
                                                     
                                                     
                         else:
-                            agg1 = (x['2']['8']['1'].decode() + ' -> ' + x['2']['8']['3'].decode())
+                            try:
+                                agg1 = (x['2']['8']['1'].decode() + ' -> ' + x['2']['8']['3'].decode())
+                            except:
+                                agg1 = ''
                             
                 if row[9] is None:
                     pass
