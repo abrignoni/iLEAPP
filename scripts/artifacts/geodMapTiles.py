@@ -98,7 +98,11 @@ def get_geodMapTiles(files_found, report_folder, seeker, wrap_text):
             SELECT datetime(retrieved, 'unixepoch') as timestamp, a, b, c, d, tileset, data, size, etag
             FROM image
             '''
-    cursor.execute(query)
+    try:
+        cursor.execute(query)
+    except:
+        logfunc('Table is missing columns. No data available.')
+        return
 
     all_rows = cursor.fetchall()
     usageentries = len(all_rows)
