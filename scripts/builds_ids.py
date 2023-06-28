@@ -2172,7 +2172,7 @@ OS_build = {
     "20U5527c": "watchOS 9.6 beta 1",
     "20U5538d": "watchOS 9.6 beta 2",
     "20U5548c": "watchOS 9.6 beta 3",
-    "20U5559c": "watchOS 9.6 beta 3",
+    "20U5559c": "watchOS 9.6 beta 4",
     "21R5275t": "watchOS 10.0 beta 1",
     "21R5295g": "watchOS 10.0 beta 2",
 }
