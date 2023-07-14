@@ -381,7 +381,7 @@ def media_to_html(media_path, files_found, report_folder):
         mimetype = magic.from_file(match, mime = True)
 
         if 'video' in mimetype:
-            thumb = f'<video width="320" height="240" controls="controls"><source src="{source}" type="video/mp4">Your browser does not support the video tag.</video>'
+            thumb = f'<video width="320" height="240" controls="controls"><source src="{source}" type="video/mp4" preload="none">Your browser does not support the video tag.</video>'
         elif 'image' in mimetype:
             thumb = f'<a href="{source}" target="_blank"><img src="{source}"width="300"></img></a>'
         elif 'audio' in mimetype:
