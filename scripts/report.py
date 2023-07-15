@@ -427,7 +427,8 @@ def get_icon_name(category, artifact):
         elif artifact.find('SENSORS') >=0: icon = 'smartphone'
         elif artifact.find('DEVICES') >=0: icon = 'tablet'
         elif artifact.find('NOTIFICATIONS') >=0: icon = 'bell'
-
+    elif category == 'SECRET CALCULATOR PHOTO ALBUM':
+        icon = 'image'
     return icon
 
 
