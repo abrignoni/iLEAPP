@@ -1,12 +1,18 @@
-import os
+# Core Accessories - AccessoryD
+# Author:  John Hyla
+# Version: 1.0.0
+#
+#   Description:
+#   Parses records found in the plists located in the accessoryd database related to accessories that are connected.
+#
+
 import plistlib
 
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, logdevinfo, tsv, is_platform_windows, open_sqlite_db_readonly
 import datetime
 
-# Backup version of iOS, iOS version installed at the time of recovery, 
-# recovery date, and whether the backup was restored from iCloud.
+
 def get_coreAccessories(files_found, report_folder, seeker, wrap_text):
 
     for file_found in files_found:
@@ -61,8 +67,6 @@ def get_coreAccessories(files_found, report_folder, seeker, wrap_text):
     report.write_artifact_data_table(all_keys_list, data_list, file_found)
     report.end_artifact_report()
 
-    tsvname = 'Mobile Backup'
-    # tsv(report_folder, data_headers, data_list, tsvname)
 
 __artifacts__ = {
     "coreAccessories": (
