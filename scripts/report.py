@@ -429,6 +429,12 @@ def get_icon_name(category, artifact):
         elif artifact.find('NOTIFICATIONS') >=0: icon = 'bell'
     elif category == 'SECRET CALCULATOR PHOTO ALBUM':
         icon = 'image'
+    elif category == 'CORE ACCESSORIES':
+        if artifact == 'USER EVENT AGENT':
+            icon = 'activity'
+        elif artifact == 'ACCESSORYD':
+            icon = 'zap'
+
     return icon
 
 
