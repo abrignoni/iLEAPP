@@ -334,7 +334,10 @@ def get_icon_name(category, artifact):
     elif category == 'OFFLINE PAGES':
         icon = 'cloud-off'
     elif category == 'PHOTOS':
-        icon = 'image'
+        if artifact == 'MIGRATIONS':
+            icon = 'chevrons-up'
+        else:
+            icon = 'image'
     elif category == 'POWERLOG':
         icon = 'power'
     elif category == 'POWERLOG BACKUPS':
