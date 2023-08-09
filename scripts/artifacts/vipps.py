@@ -13,7 +13,7 @@ class ItemClass(object):
             self.telephone, 
             self.name, 
             self.message, 
-            self.amount, 
+            str(self.amount)[:-2]+"."+str(self.amount)[-2:] # Vipps does not accept cents/øre
             self.statusText, 
             self.statusCategory, 
             self.direction, 
