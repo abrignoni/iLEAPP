@@ -6,6 +6,38 @@ import json
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
 
+class ItemClass(object):
+  @property 
+  def data(self):
+    return (self.messageTimeStamp.replace('T', ' ').replace('Z', '').strip(), 
+            self.telephone, 
+            self.name, 
+            self.message, 
+            self.amount, 
+            self.statusText, 
+            self.statusCategory, 
+            self.direction, 
+            self.transactionID, 
+            self.type)
+  
+  def set(self, var, value):
+    setattr(self, var, value)
+  
+  def get(self, var):
+    return getattr(self, var)
+  
+  def __init__(self, telephone, name):
+    self.telephone          = telephone
+    self.name               = name
+    self.message            = ""
+    self.messageTimeStamp   = ""
+    self.type               = ""
+    self.direction          = ""
+    self.amount             = ""
+    self.statusCategory     = ""
+    self.statusText         = ""
+    self.transactionID      = ""
+      
 def get_vipps(files_found, report_folder, seeker, wrap_text):
     for file_found in files_found:
         file_found = str(file_found)
@@ -47,6 +79,10 @@ def get_vipps(files_found, report_folder, seeker, wrap_text):
                     logfunc(f'Failed to read plist for {row[0]}, error was:' + str(ex))
                 
             for i, y in plist.items():
+                msg_keys = ["message", "messageTimeStamp","type","direction"]
+                pay_keys = ["amount", "statusCategory", "message", "statusText", "transactionID", "type", "direction", "messageTimeStamp"]
+                req_keys = ["amount", "status", "message", "statusText", "orderID", "direction", "p2pPayment", "ts"]
+                
                 jsonitems = json.loads(y)
                 telephone = row[0].split('-')[1]
 
@@ -54,11 +90,11 @@ def get_vipps(files_found, report_folder, seeker, wrap_text):
                 cursor1.execute(f'''
                 SELECT 
                 ZNAME,
-                ZPHONENUMBERS,
+                ZRAWPHONENUMBERS,
                 ZPROFILEIMAGEDATA,
                 ZCONTACTSTOREIDENTIFIER
                 FROM ZCONTACTMODEL
-                WHERE ZPHONENUMBERS LIKE "%{telephone}%"
+                WHERE ZRAWPHONENUMBERS LIKE "%{telephone}%"
                 ''')
                 all_rows1 = cursor1.fetchall()
                 usageentries1 = len(all_rows1)
@@ -67,14 +103,10 @@ def get_vipps(files_found, report_folder, seeker, wrap_text):
                     for row1 in all_rows1:
                         name = row1[0]
                 
-                timestamp = (jsonitems['data']['messageTimeStamp'].replace('T', ' '). replace('Z', '').strip())
-                message = (jsonitems['data']['message'])
-                amount = (jsonitems['data'].get('amount', ''))
-                statustext = (jsonitems['data'].get('statusText', ''))
-                statuscat = (jsonitems['data'].get('statusCategory', ''))
-                direction = (jsonitems['data']['direction'])
-                transcaid = (jsonitems['data'].get('transactionId', ''))
-                dtype = (jsonitems['data']['type'])
+                if jsonitems['model'] == "CHAT":
+                  for key in jsonitems['data'].keys():
+                    data.set(key, jsonitems['data'][key])
+                data_list.append(data.data)
             
             data_list.append((timestamp, telephone, name, message, amount, statustext, statuscat, direction, transcaid, dtype))
 
