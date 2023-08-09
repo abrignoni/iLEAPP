@@ -32,7 +32,7 @@ def get_vippsContacts(files_found, report_folder, seeker, wrap_text):
     cursor.execute('''
     SELECT 
     ZNAME,
-    ZPHONENUMBERS,
+    ZRAWPHONENUMBERS,
     ZPROFILEIMAGEDATA,
     ZCONTACTSTOREIDENTIFIER
     FROM ZCONTACTMODEL
