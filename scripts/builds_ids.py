@@ -720,6 +720,7 @@ OS_build = {
     "21A5303d": "iOS 17.0 beta 5",
     "21A5312c": "iOS 17.0 beta 6",
     "21A5319a": "iOS 17.0 beta 7",
+    "21A5326a": "iOS 17.0 beta 8",
     "4K78": "Mac OS X 10.0",
     "4L8": "Mac OS X 10.0.1",
     "4L13": "Mac OS X 10.0.1",
@@ -2212,6 +2213,7 @@ OS_build = {
     "21R5332f": "watchOS 10.0 beta 5",
     "21R5341c": "watchOS 10.0 beta 6",
     "21R5349b": "watchOS 10.0 beta 7",
+    "21R5355a": "watchOS 10.0 beta 8",
 }
 
 device_id = {
