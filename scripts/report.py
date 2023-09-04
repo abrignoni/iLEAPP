@@ -197,6 +197,8 @@ def get_icon_name(category, artifact):
             icon = 'mail'
         if artifact == 'GMAIL - OFFLINE SEARCH':
             icon = 'search'
+    elif category == 'GOOGLE CHAT':
+        icon = 'message-square'
     elif category == 'GOOGLE DUO':
         if artifact == 'GOOGLE DUO - CALL HISTORY':
             icon = 'phone-call'
