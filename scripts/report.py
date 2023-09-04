@@ -190,6 +190,8 @@ def get_icon_name(category, artifact):
             icon = 'map'
         elif artifact == 'PD PLACE CACHE':
             icon = 'map-pin'
+        else:
+          icon = 'map-pin'
     elif category == 'DRAFT NATIVE MESSAGES':
           icon = 'message-circle'
     elif category == 'GMAIL':
