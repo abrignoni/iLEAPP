@@ -148,8 +148,10 @@ def get_duetLocations(files_found, report_folder, seeker, wrap_text):
                             timestamp = timestampsconv(timestamp)
                         elif key == 'kCLLocationCodingKeyAltitude':
                             altitude = value
+                        elif key == 'kCLLocationCodingKeySpeed':
+                            speed = value
                             
-                    data_list.append((timestamp,latitude,longitude,horzacc,altitude))
+                    data_list.append((timestamp,latitude,longitude,horzacc,altitude,speed))
                     timestamp = latitude = longitude = horzacc, altitude = ''
                     
                 except (nd.DeserializeError, nd.biplist.NotBinaryPlistException, nd.biplist.InvalidPlistException,
@@ -170,7 +172,7 @@ def get_duetLocations(files_found, report_folder, seeker, wrap_text):
             report = ArtifactHtmlReport(f'Duet Locations')
             report.start_artifact_report(report_folder, f'Duet Locations - {filename}', description)
             report.add_script()
-            data_headers = ('Timestamp','Latitude','Longitude','Horizontal Accuracy','Altitude')
+            data_headers = ('Timestamp','Latitude','Longitude','Horizontal Accuracy','Altitude','Speed')
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
             
