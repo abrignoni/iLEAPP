@@ -71,6 +71,7 @@ def get_googleChat(files_found, report_folder, seeker, wrap_text):
             
             if check == b'\xfe\xff\x00':
                 media = ''
+                mediafilename = ''
             else:
                 protostuff, types = blackboxprotobuf.decode_message(protobufmedia)
                 checkkeyten = (protostuff['1'].get('10'))
@@ -85,7 +86,7 @@ def get_googleChat(files_found, report_folder, seeker, wrap_text):
                         thumb = media_to_html(attachment[0], (attachment[0],), report_folder)
                 else:
                     mediafilename = ''
-                    media = ''    
+                    media = ''
             
             data_list.append((row[0],row[1],row[2],row[3],row[4],mediafilename,thumb,reaction,reactionuser))
             mediafilename = thumb = reaction = reactionuser = ''
