@@ -12,7 +12,7 @@ a = Analysis(['ileappGUI.py'],
                     ('.\\scripts\\dark-mode-switch.js', '.\\scripts'),
                     ('.\\scripts\\feather.min.js', '.\\scripts'),
                     ('.\\scripts\\MDB-Free_4.13.0', '.\\scripts\\MDB-Free_4.13.0'),
-                    ('.\\scripts\\artifacts', '\\scripts\\artifacts')],
+                    ('.\\scripts\\artifacts', '.\\scripts\\artifacts')],
 
              hiddenimports=[],
              hookspath=['.\\'],
