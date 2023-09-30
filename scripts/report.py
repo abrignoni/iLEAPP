@@ -223,6 +223,12 @@ def get_icon_name(category, artifact):
             icon = 'heart'
     elif category == 'ICLOUD QUICK LOOK':
         icon = 'file'
+    elif category == 'PREFERENCES PLIST':
+        icon = 'file'
+    elif category == 'DEVICE DATA':
+        icon = 'file'
+    elif category == 'IDENTIFIERS':
+        icon = 'file'
     elif category == 'ICLOUD RETURNS':
         icon = 'cloud'
     elif category == 'ICLOUD SHARED ALBUMS':
