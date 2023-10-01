@@ -16,9 +16,10 @@ from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly
 def get_voicemail(files_found, report_folder, seeker, wrap_text):
     artifact_name = 'Voicemail'
     new_report_folder = join(report_folder[:-12], artifact_name)
-    mkdir(new_report_folder)
     voicemail_db = ''    
     if len(files_found) > 0:
+        if next((True for file in files_found if 'amr' in file), False):
+            mkdir(new_report_folder)
         for file_found in files_found:
             amr_file = search("./Voicemail/[0-9]*\.amr$", file_found)
             if amr_file:
