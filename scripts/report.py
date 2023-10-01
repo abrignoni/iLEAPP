@@ -113,7 +113,12 @@ def get_icon_name(category, artifact):
     elif category == 'CALENDAR':
         icon = 'calendar'
     elif category == 'CALL HISTORY':
-        icon = 'phone-call'
+        if artifact == 'CALL HISTORY':
+            icon = 'phone-call'
+        if artifact == 'VOICEMAIL':
+            icon = 'mic'
+        if artifact == 'DELETED VOICEMAIL':
+            icon = 'mic-off'
     elif category == 'CARPLAY':
         icon = 'package'
     elif category == 'CASH APP':

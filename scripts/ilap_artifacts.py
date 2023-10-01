@@ -113,6 +113,7 @@ from scripts.artifacts.vipps import get_vipps
 from scripts.artifacts.vippsContacts import get_vippsContacts
 from scripts.artifacts.venmo import get_venmo
 from scripts.artifacts.viber import get_viber
+from scripts.artifacts.voicemail import get_voicemail
 from scripts.artifacts.voiceTriggers import get_voiceTriggers
 from scripts.artifacts.voiceRecordings import get_voiceRecordings
 
@@ -189,6 +190,7 @@ tosearch = {
             'vipps':('Vipps', ('*/Vipps.sqlite*')),
             'vippsContacts':('Vipps', ('*/Vipps.sqlite*')),
             'venmo':('Venmo', ('*PrivateFeed', '*PublicFeed', '*FriendsFeed')),
+            'voicemail': ('Voicemail', ('**/Voicemail/voicemail.db','**/Voicemail/*.amr')),
             'viber' : ('Viber', ('**/com.viber/settings/Settings.data','**/com.viber/database/Contacts.data','**/Containers/Data/Application/*/Documents/Attachments/*.*','**/com.viber/ViberIcons/*.*')),
             # 'appUpdates':('App Updates', '**/AppUpdates.sqlitedb'),
             # 'systemVersion':('Device Info', '**/SystemVersion.plist'),
