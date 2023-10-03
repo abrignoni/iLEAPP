@@ -29,7 +29,10 @@ def get_TorrentData(files_found, report_folder, seeker, wrap_text):
                         if ikey == b'piece length':
                             pass
                         if ikey == b'name':
-                            torrentname = (ivalue.decode())
+                            try:
+                                torrentname = (ivalue.decode())
+                            except:
+                                torrentname = ivalue
                             #print(torrentname)
                         if ikey == b'files':
                             aggf = '<table>'
@@ -39,11 +42,19 @@ def get_TorrentData(files_found, report_folder, seeker, wrap_text):
                                         lenghtf = (iivalue)
                                     if iikey == b'path':
                                         if len(iivalue) > 1:
-                                            dirr = (iivalue[0].decode())
-                                            filen = (iivalue[1].decode())
+                                            try:
+                                                dirr = (iivalue[0].decode())
+                                                filen = (iivalue[1].decode())
+                                            except:
+                                                dirr = (iivalue[0])
+                                                filen = (iivalue[1])
                                         else:
                                             dirr = ''
-                                            filen = (iivalue[0].decode())
+                                            try:
+                                                filen = (iivalue[0].decode())
+                                            except:
+                                                filen = (iivalue[0])
+                                                
                                     #print(f'Path: {dirr}/{filen}')
                                 aggf = aggf + f'<tr><td>{dirr}</td><td>{filen}</td></tr>'
                             aggf = aggf + f'</table>'    
