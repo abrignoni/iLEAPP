@@ -46,7 +46,7 @@ def get_serialNumber(files_found, report_folder, seeker, wrap_text):
         tsv(report_folder, data_headers, data_list, tsvname)
         
     else:
-        logfunc('Serial Number')
+        logfunc('No Serial Number available in consolidated.db')
         
 __artifacts__ = {
     "serialNumber": (
