@@ -26,7 +26,7 @@ def get_wifiIdent(files_found, report_folder, seeker, wrap_text):
                 #print(key, value)
                 if key == 'Interfaces':
                     for y in value:
-                        print(y)
+                        #print(y)
                         hexstring = (y['IOMACAddress'])
                         hexstring = "%x:%x:%x:%x:%x:%x" % struct.unpack("BBBBBB",hexstring)
                         userdefinedname = y['SCNetworkInterfaceInfo']['UserDefinedName']
