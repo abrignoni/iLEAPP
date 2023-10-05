@@ -10,23 +10,14 @@ from os import mkdir
 from os.path import join, basename, dirname
 from re import search
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly
+from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly, media_to_html
 
 
 def get_voicemail(files_found, report_folder, seeker, wrap_text):
-    artifact_name = 'Voicemail'
-    new_report_folder = join(report_folder[:-12], artifact_name)
-    voicemail_db = ''    
-    if len(files_found) > 0:
-        if next((True for file in files_found if 'amr' in file), False):
-            mkdir(new_report_folder)
-        for file_found in files_found:
-            amr_file = search("./Voicemail/[0-9]*\.amr$", file_found)
-            if amr_file:
-                filename = basename(file_found)
-                shutil.copyfile(file_found, join(new_report_folder, filename))
-            elif file_found.endswith('voicemail.db'):
-                voicemail_db = str(file_found)
+
+    for file_found in files_found:
+        if file_found.endswith('voicemail.db'):
+            voicemail_db = str(file_found)
 
         db = open_sqlite_db_readonly(voicemail_db)
         cursor = db.cursor()
@@ -47,12 +38,8 @@ def get_voicemail(files_found, report_folder, seeker, wrap_text):
         if usageentries > 0:
             data_list = []
             for row in all_rows:
-                audio_file = join(artifact_name, f'{row[5]}.amr')
-                audio_tag = f''' 
-                        <audio controls src="{audio_file}" type="audio/amr" preload="none">
-                            <p>Your browser does not support HTML5 audio elements.</p>
-                        </audio> 
-                        '''
+                audio_file = f'{row[5]}.amr'
+                audio_tag = media_to_html(audio_file, files_found, report_folder)
                 data_list.append(
                     (row[0], row[1], row[2], row[3], row[4], audio_tag))
 
@@ -95,12 +82,8 @@ def get_voicemail(files_found, report_folder, seeker, wrap_text):
         if usageentries > 0:
             data_list = []
             for row in all_rows:
-                audio_file = join(artifact_name, f'{row[6]}.amr')
-                audio_tag = f''' 
-                        <audio controls src="{audio_file}" type="audio/amr" preload="none">
-                            <p>Your browser does not support HTML5 audio elements.</p>
-                        </audio> 
-                        '''
+                audio_file = f'{row[6]}.amr'
+                audio_tag = media_to_html(audio_file, files_found, report_folder)
                 data_list.append(
                     (row[0], row[1], row[2], row[3], row[4], row[5], audio_tag))
 
