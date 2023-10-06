@@ -416,7 +416,7 @@ def media_to_html(media_path, files_found, report_folder):
     thumb = media_path
     for match in filter(media_path_filter, files_found):
         filename = os.path.basename(match)
-        if filename.startswith('~') or filename.startswith('._'):
+        if filename.startswith('~') or filename.startswith('._') or filename != thumb:
             continue
         
         dirs = os.path.dirname(report_folder)
@@ -445,6 +445,6 @@ def media_to_html(media_path, files_found, report_folder):
         elif 'audio' in mimetype:
             thumb = f'<audio controls><source src="{source}" type="audio/ogg"><source src="{source}" type="audio/mpeg">Your browser does not support the audio element.</audio>'
         else:
-            thumb = f'<a href="{source}" target="_blank"> Link to {mimetype} </>'
+            thumb = f'<a href="{source}" target="_blank"> Link to {filename} file</>'
     return thumb
 
