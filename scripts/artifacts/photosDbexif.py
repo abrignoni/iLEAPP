@@ -111,10 +111,12 @@ def get_photosDbexif(files_found, report_folder, seeker, wrap_text):
                                 convertedlist.append(convertedfilepath)
                                 thumb = media_to_html(f'{searchbase}.jpg', convertedlist, report_folder)
                                 convertedlist = []
-                            else:
-                                thumb = media_to_html(search, files_found,report_folder)
                             
-                            if (search.endswith('JPG')) or (search.endswith('PNG')) or (search.endswith('HEIC')):
+                            if (search.endswith('JPG')) or (search.endswith('PNG')) or (search.endswith('JPEG')):
+                                thumb = media_to_html(zfilename,files_found,report_folder)
+                            
+                            if (search.endswith('JPG')) or (search.endswith('PNG')) or (search.endswith('JPEG')) or (search.endswith('HEIC')):
+                                
                                 image_info = get_exif(search)
                                 results = get_geotagging(image_info)
                                 
