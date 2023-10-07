@@ -215,7 +215,7 @@ def get_photosDbexif(files_found, report_folder, seeker, wrap_text):
                                 data_list.append((thumb,suspecttime,offset, suspectcoordinates,zdatecreated,zmodificationdate,zdirectory,zfilename,zlatitude,zlongitude,creationchanged,latitude,longitude,exifdata))
                         
                             else:
-                                """
+                                """ videos. Nees to figure this out
                                 #print(filenamedec)
                                 thumb = media_to_html(file_found, files_found, report_folder)
                                 latitude = ''
@@ -228,11 +228,11 @@ def get_photosDbexif(files_found, report_folder, seeker, wrap_text):
                     
                 
             if data_list:
-                description = 'All times labeled as False require validation. Could be a false negative. Compare database times and geolocation points to their EXIF counterparts.'
+                description = 'All times labeled as False require validation. Compare database times and geolocation points to their EXIF counterparts. Timestamp value is in UTC. Exif Creation/Change timestamp is on local time. Use Possible Exif Offset column value to compare the times.'
                 report = ArtifactHtmlReport(f'Photos.sqlite Analysis')
                 report.start_artifact_report(report_folder, f'Photos.sqlite Analysis', description)
                 report.add_script()
-                data_headers = ('Media','Same Timestamps?','Exif Offset','Same Coordinates?','Timestamp','Timestamp Modification','Directory','Filename','Latitude DB','Longitude DB','Exif Creation/Changed','Latitude','Longitude','Exif')
+                data_headers = ('Media','Same Timestamps?','Possible Exif Offset','Same Coordinates?','Timestamp','Timestamp Modification','Directory','Filename','Latitude DB','Longitude DB','Exif Creation/Changed','Latitude','Longitude','Exif')
                 report.write_artifact_data_table(data_headers, data_list, file_found, html_no_escape=['Media','Exif'])
                 report.end_artifact_report()
                 
