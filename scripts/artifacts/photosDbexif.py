@@ -117,102 +117,106 @@ def get_photosDbexif(files_found, report_folder, seeker, wrap_text):
                             
                             if (search.endswith('JPG')) or (search.endswith('PNG')) or (search.endswith('JPEG')) or (search.endswith('HEIC')):
                                 
-                                image_info = get_exif(search)
-                                results = get_geotagging(image_info)
-                                
-                                if results is None:
-                                    latitude = ''
-                                    longitude = ''
-                                else:
-                                    directionlat = results['GPSLatitudeRef']
-                                    latitude = results['GPSLatitude']
-                                    latitude = (latitude.replace('(','').replace(')','').split(', '))
-                                    latitude = (float(latitude[0]) + float(latitude[1])/60 + float(latitude[2])/(60*60)) * (-1 if directionlat in ['W', 'S'] else 1)
+                                try:
+                                    image_info = get_exif(search)
+                                    results = get_geotagging(image_info)
                                     
-                                    
-                                    directionlon = results['GPSLongitudeRef']
-                                    longitude = results['GPSLongitude']
-                                    longitude = (longitude.replace('(','').replace(')','').split(', '))
-                                    longitude = (float(longitude[0]) + float(longitude[1])/60 + float(longitude[2])/(60*60)) * (-1 if directionlon in ['W', 'S'] else 1)
-                                    
-                                    #datamap = []
-                                    #datamap.append((originalcreationdate,latitude,longitude))
-                                    #kmlactivity = f'{search}'
-                                    #data_headers = ('Timestamp','Latitude','Longitude')
-                                    #print(report_folder)
-                                    #kmlgen(report_folder, kmlactivity, datamap, data_headers)
-                                    
-                                exifall = get_all_exif(search)
-                                exifdata = ''
-                                
-                                creationchanged = ''
-                                for x, y in exifall.items():
-                                    if x == 271:
-                                        exifdata = exifdata + f'Manufacturer: {y}<br>'
-                                    elif x == 272:
-                                        exifdata = exifdata + f'Model: {y}<br>'
-                                    elif x == 305:
-                                        exifdata = exifdata + f'Software: {y}<br>'
-                                    elif x == 274:
-                                        exifdata = exifdata + f'Orientation: {y}<br>'
-                                    elif x == 306:
-                                        exifdata = exifdata + f'Creation/Changed: {y}<br>'
-                                        creationchanged = y
-                                    elif x == 282:
-                                        exifdata = exifdata + f'Resolution X: {y}<br>'
-                                    elif x == 283:
-                                        exifdata = exifdata + f'Resolution Y: {y}<br>'
-                                    elif x == 316:
-                                        exifdata = exifdata + f'Host device: {y}<br>'
+                                    if results is None:
+                                        latitude = ''
+                                        longitude = ''
                                     else:
-                                        exifdata = exifdata + f'{x}: {y}<br>'
-                                
-                                if (isinstance(zlatitude, float)) and (isinstance(latitude, float)):
-                                    suspectcoordinatesA = isclose(zlatitude,latitude )
-                                    if (isinstance(zlongitude, float)) and (isinstance(longitude, float)):
-                                        suspectcoordinatesb = isclose(zlongitude,longitude )
-                                        if suspectcoordinatesA and suspectcoordinatesb:
-                                            suspectcoordinates = 'True'
+                                        directionlat = results['GPSLatitudeRef']
+                                        latitude = results['GPSLatitude']
+                                        latitude = (latitude.replace('(','').replace(')','').split(', '))
+                                        latitude = (float(latitude[0]) + float(latitude[1])/60 + float(latitude[2])/(60*60)) * (-1 if directionlat in ['W', 'S'] else 1)
+                                        
+                                        
+                                        directionlon = results['GPSLongitudeRef']
+                                        longitude = results['GPSLongitude']
+                                        longitude = (longitude.replace('(','').replace(')','').split(', '))
+                                        longitude = (float(longitude[0]) + float(longitude[1])/60 + float(longitude[2])/(60*60)) * (-1 if directionlon in ['W', 'S'] else 1)
+                                        
+                                        #datamap = []
+                                        #datamap.append((originalcreationdate,latitude,longitude))
+                                        #kmlactivity = f'{search}'
+                                        #data_headers = ('Timestamp','Latitude','Longitude')
+                                        #print(report_folder)
+                                        #kmlgen(report_folder, kmlactivity, datamap, data_headers)
+                                        
+                                    exifall = get_all_exif(search)
+                                    exifdata = ''
+                                    
+                                    creationchanged = ''
+                                    for x, y in exifall.items():
+                                        if x == 271:
+                                            exifdata = exifdata + f'Manufacturer: {y}<br>'
+                                        elif x == 272:
+                                            exifdata = exifdata + f'Model: {y}<br>'
+                                        elif x == 305:
+                                            exifdata = exifdata + f'Software: {y}<br>'
+                                        elif x == 274:
+                                            exifdata = exifdata + f'Orientation: {y}<br>'
+                                        elif x == 306:
+                                            exifdata = exifdata + f'Creation/Changed: {y}<br>'
+                                            creationchanged = y
+                                        elif x == 282:
+                                            exifdata = exifdata + f'Resolution X: {y}<br>'
+                                        elif x == 283:
+                                            exifdata = exifdata + f'Resolution Y: {y}<br>'
+                                        elif x == 316:
+                                            exifdata = exifdata + f'Host device: {y}<br>'
                                         else:
-                                            suspectcoordinates = 'False'
-                                        
-                                if creationchanged != '':
-                                    mytz = pytz.timezone('UTC')             ## Set your timezone
-                                    
-                                    dbdate = datetime.fromisoformat(row[0])
-                                    dbdate = mytz.normalize(mytz.localize(dbdate, is_dst=True))
-                                    
-                                    exifdate = creationchanged
-                                    exifdate = exifdate.replace(':','-',2)
-                                    creationchanged = exifdate
-                                    exifdate = exifdate[:-1]
-                                    
-                                    
-                                    time_list =[]
-                                    for timeZone in pytz.all_timezones:
-                                        dbtimezonedate = dbdate.astimezone(pytz.timezone(timeZone))
-                                        time_list.append((str(dbtimezonedate),(timeZone)))
-                                        
-                                    for date in time_list:
-                                        if exifdate in date[0]:
-                                            responsive = date[0]
-                                            suspecttime = 'True'
-                                            break
-                                        elif exifdate[:-1] in date[0][:-7]:
-                                            responsive = date[0]
-                                            suspecttime = 'True'
-                                            break
-                                        elif exifdate[:-2] in date[0][:-8]:
-                                            responsive = date[0]
-                                            suspecttime = 'True'
-                                            break
-                                        
-                                        else:
-                                            responsive = ''
-                                            suspecttime = 'False'
-                                            offset = ''
+                                            exifdata = exifdata + f'{x}: {y}<br>'
                                             
-                                    offset = responsive[-6:]
+                                    if (isinstance(zlatitude, float)) and (isinstance(latitude, float)):
+                                        suspectcoordinatesA = isclose(zlatitude,latitude )
+                                        if (isinstance(zlongitude, float)) and (isinstance(longitude, float)):
+                                            suspectcoordinatesb = isclose(zlongitude,longitude )
+                                            if suspectcoordinatesA and suspectcoordinatesb:
+                                                suspectcoordinates = 'True'
+                                            else:
+                                                suspectcoordinates = 'False'
+                                                
+                                    if creationchanged != '':
+                                        mytz = pytz.timezone('UTC')             ## Set your timezone
+                                        
+                                        dbdate = datetime.fromisoformat(row[0])
+                                        dbdate = mytz.normalize(mytz.localize(dbdate, is_dst=True))
+                                        
+                                        exifdate = creationchanged
+                                        exifdate = exifdate.replace(':','-',2)
+                                        creationchanged = exifdate
+                                        exifdate = exifdate[:-1]
+                                        
+                                        
+                                        time_list =[]
+                                        for timeZone in pytz.all_timezones:
+                                            dbtimezonedate = dbdate.astimezone(pytz.timezone(timeZone))
+                                            time_list.append((str(dbtimezonedate),(timeZone)))
+                                            
+                                        for date in time_list:
+                                            if exifdate in date[0]:
+                                                responsive = date[0]
+                                                suspecttime = 'True'
+                                                break
+                                            elif exifdate[:-1] in date[0][:-7]:
+                                                responsive = date[0]
+                                                suspecttime = 'True'
+                                                break
+                                            elif exifdate[:-2] in date[0][:-8]:
+                                                responsive = date[0]
+                                                suspecttime = 'True'
+                                                break
+                                            
+                                            else:
+                                                responsive = ''
+                                                suspecttime = 'False'
+                                                offset = ''
+                                                
+                                        offset = responsive[-6:]
+                                except:
+                                    results = None
+                                    logfunc(f'Error getting exif on: {search}')
                                 
                                 data_list.append((thumb,suspecttime,offset, suspectcoordinates,zdatecreated,zmodificationdate,zdirectory,zfilename,zlatitude,zlongitude,creationchanged,latitude,longitude,exifdata))
                         
