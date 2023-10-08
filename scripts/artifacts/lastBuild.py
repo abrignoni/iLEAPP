@@ -48,18 +48,24 @@ def get_iTunesBackupInfo(files_found, report_folder, seeker, wrap_text):
         for key, val in pl.items():
             if isinstance(val, str) or isinstance(val, int) or isinstance(val, datetime.datetime):
                 data_list.append((key, val))
-                if key in ('Build Version', 'Device Name', 'ICCID', 'IMEI', 'Last Backup Date', 
-                            'MEID', 'Phone Number', 'Product Name', 'Product Type',
-                            'Product Version', 'Serial Number'):
-                    logdevinfo(f"{key}: {val}")
-
                 if key == ('Product Version'):
                     scripts.artifacts.artGlobals.versionf = val
                     logfunc(f"iOS version: {val}")
 
             elif key == "Installed Applications":
                 data_list.append((key, ', '.join(val)))
-  
+
+    keys = [data[0] for data in data_list]
+    device_info = ('Product Name', 'Product Type', 'Device Name', 'Product Version', 'Build Version', 
+                   'Serial Number', 'MEID', 'IMEI', 'IMEI 2', 'ICCID', 'Phone Number', 
+                   'Unique Identifier', 'Last Backup Date')
+    for info in device_info:
+        if info in keys:
+            index = keys.index(info)
+            info_key = data_list[index][0]
+            value_key = data_list[index][1]
+            logdevinfo(f"{info_key}: {value_key}")
+
     report = ArtifactHtmlReport('iTunes Backup')
     report.start_artifact_report(report_folder, 'iTunes Backup Information')
     report.add_script()
