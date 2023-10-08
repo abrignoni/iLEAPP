@@ -255,7 +255,7 @@ def get_icon_name(category, artifact):
             icon = 'user'
         elif artifact == 'ATTACHMENTS':
             icon = 'paperclip'
-    elif category == 'IOS BUILD':
+    elif category == 'IOS BUILD' or 'IOS BUILD (ITUNES BACKUP)':
         icon = 'git-commit'
     elif category == 'IOS MAIL':
         icon = 'mail'

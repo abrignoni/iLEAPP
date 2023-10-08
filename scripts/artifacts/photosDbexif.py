@@ -257,6 +257,6 @@ def get_photosDbexif(files_found, report_folder, seeker, wrap_text):
 __artifacts__ = {
         "photosDbexif": (
             "Photos",
-            ('*/mobile/Media/PhotoData/Photos.sqlite*','*/mobile/Media/DCIM/*/**'),
+            ('*Media/PhotoData/Photos.sqlite*','*Media/DCIM/*/**'),
             get_photosDbexif)
 }
