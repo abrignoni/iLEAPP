@@ -70,6 +70,6 @@ def get_discordAcct(files_found, report_folder, seeker, wrap_text):
 __artifacts__ = {
     "discordacct": (
         "Discord",
-        ('*/var/mobile/Containers/Data/Application/*/Documents/mmkv/mmkv.default'),
+        ('*/mobile/Containers/Data/Application/*/Documents/mmkv/mmkv.default'),
         get_discordAcct)
 }

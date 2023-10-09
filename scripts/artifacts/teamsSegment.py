@@ -141,6 +141,6 @@ def get_teamsSegment(files_found, report_folder, seeker, wrap_text):
 __artifacts__ = {
     "teamsSegment": (
         "Microsoft Teams - Logs",
-        ('*/var/mobile/Containers/Data/Application/*/Library/DriveIQ/segments/current/*.*'),
+        ('*/mobile/Containers/Data/Application/*/Library/DriveIQ/segments/current/*.*'),
         get_teamsSegment)
 }

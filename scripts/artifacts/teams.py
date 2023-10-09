@@ -244,7 +244,7 @@ def get_teams(files_found, report_folder, seeker, wrap_text):
 __artifacts__ = {
     "teams": (
         "Microsoft Teams",
-        ('*/var/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*','*/var/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/Downloads/*/Images/*'),
+        ('*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*','*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/Downloads/*/Images/*'),
         get_teams)
 }
         

@@ -334,19 +334,19 @@ def get_biomeIntents(files_found, report_folder, seeker, wrap_text):
         
             description = 'App Intents. Protobuf data for unsupported apps is located in the Intents directory within the report folder. Use the offset name for identification and further processing.'
             report = ArtifactHtmlReport(f'Intents')
-            report.start_artifact_report(report_folder, f'Intents - {filename}', description)
+            report.start_artifact_report(report_folder, f'Biome Intents - {filename}', description)
             report.add_script()
             data_headers = ('Timestamp','End Date','Duration Interval','Donated by Siri','App ID','Classname','Action', 'Direction', 'Group ID', 'Data', 'Filename', 'Protobuf data Offset')
             report.write_artifact_data_table(data_headers, data_list, file_found, html_escape=False)
             report.end_artifact_report()
             
-            tsvname = f'Intents - {filename}'
+            tsvname = f'Biome Intents - {filename}'
             tsv(report_folder, data_headers, data_list_tsv, tsvname) # TODO: _csv.Error: need to escape, but no escapechar set
             
-            tlactivity = f'Intents - {filename}'
+            tlactivity = f'Biome Intents - {filename}'
             timeline(report_folder, tlactivity, data_list_tsv, data_headers)
         else:
-            logfunc(f'No data available for Intents')
+            logfunc(f'No data available for Biome Intents')
     
 
 __artifacts__ = {
