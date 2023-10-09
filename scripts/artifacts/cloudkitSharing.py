@@ -1,3 +1,21 @@
+__artifacts_v2__ = {
+    "cloudkitsharing": {
+        "name": "Cloudkit Sharing",
+        "description": "This module processes data related to CloudKit sharing, encompassing information on notes "
+                       "shared via CloudKit and the accounts participating in CloudKit shares. It allows for the "
+                       "retrieval of Record ID from the ZICCLOUDSYNCINGOBJECT.ZIDENTIFIER column for shared notes, "
+                       "and provides details on CloudKit participants.",
+        "author": "@DFIRScience",
+        "version": "0.3",
+        "date": "2022-08-09",
+        "requirements": "",
+        "category": "Cloudkit",
+        "notes": "",
+        "paths": ('*NoteStore.sqlite*',),
+        "function": "get_cloudkitSharing"
+    }
+}
+
 import glob
 import os
 import nska_deserialize as nd
@@ -8,6 +26,7 @@ import io
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
 
+
 def get_cloudkitSharing(files_found, report_folder, seeker, wrap_text):
     for file_found in files_found:
         file_found = str(file_found)
@@ -15,6 +34,7 @@ def get_cloudkitSharing(files_found, report_folder, seeker, wrap_text):
         if file_found.endswith('NoteStore.sqlite'):
             get_cloudkitServerRecordData(file_found, report_folder, seeker, wrap_text)
             get_cloudkitServerSharedData(file_found, report_folder, seeker, wrap_text)
+
 
 def get_cloudkitServerSharedData(file_found, report_folder, seeker, wrap_text):
     user_dictionary = {}
@@ -31,12 +51,12 @@ def get_cloudkitServerSharedData(file_found, report_folder, seeker, wrap_text):
 
     all_rows = cursor.fetchall()
     for row in all_rows:
-        
-        filename = os.path.join(report_folder, 'zserversharedata_'+str(row[0])+'.bplist')
-        output_file = open(filename, "wb") 
+
+        filename = os.path.join(report_folder, 'zserversharedata_' + str(row[0]) + '.bplist')
+        output_file = open(filename, "wb")
         output_file.write(row[1])
         output_file.close()
-        
+
         deserialized_plist = nd.deserialize_plist(io.BytesIO(row[1]))
         for item in deserialized_plist:
             if 'Participants' in item:
@@ -44,14 +64,20 @@ def get_cloudkitServerSharedData(file_found, report_folder, seeker, wrap_text):
                     record_id = participant['UserIdentity']['UserRecordID']['RecordName']
                     email_address = participant['UserIdentity']['LookupInfo']['EmailAddress']
                     phone_number = participant['UserIdentity']['LookupInfo']['PhoneNumber']
-                    first_name = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate']['NS.givenName']
-                    middle_name = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate']['NS.middleName']
-                    last_name = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate']['NS.familyName']
-                    name_prefix = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate']['NS.namePrefix']
-                    name_suffix = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate']['NS.nameSuffix']
+                    first_name = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate'][
+                        'NS.givenName']
+                    middle_name = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate'][
+                        'NS.middleName']
+                    last_name = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate'][
+                        'NS.familyName']
+                    name_prefix = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate'][
+                        'NS.namePrefix']
+                    name_suffix = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate'][
+                        'NS.nameSuffix']
                     nickname = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate']['NS.nickname']
-        
-                    user_dictionary[record_id] = [record_id, email_address, phone_number, name_prefix, first_name, middle_name, last_name, name_suffix, nickname]
+
+                    user_dictionary[record_id] = [record_id, email_address, phone_number, name_prefix, first_name,
+                                                  middle_name, last_name, name_suffix, nickname]
     db.close()
 
     # Build the array after dealing with all the files 
@@ -62,15 +88,18 @@ def get_cloudkitServerSharedData(file_found, report_folder, seeker, wrap_text):
         report = ArtifactHtmlReport('Participants')
         report.start_artifact_report(report_folder, 'Participants', description)
         report.add_script()
-        user_headers = ('Record ID','Email Address','Phone Number','Name Prefix','First Name','Middle Name','Last Name','Name Suffix','Nickname')     
+        user_headers = (
+        'Record ID', 'Email Address', 'Phone Number', 'Name Prefix', 'First Name', 'Middle Name', 'Last Name',
+        'Name Suffix', 'Nickname')
         report.write_artifact_data_table(user_headers, user_list, '', write_location=False)
         report.end_artifact_report()
-        
+
         tsvname = 'Cloudkit Participants'
         tsv(report_folder, user_headers, user_list, tsvname)
     else:
         logfunc('No Cloudkit - Cloudkit Participants data available')
-    
+
+
 def get_cloudkitServerRecordData(file_found, report_folder, seeker, wrap_text):
     db = open_sqlite_db_readonly(file_found)
     cursor = db.cursor()
@@ -88,12 +117,12 @@ def get_cloudkitServerRecordData(file_found, report_folder, seeker, wrap_text):
     if result_number > 0:
 
         for row in all_rows:
-            
-            filename = os.path.join(report_folder, 'zserverrecorddata_'+str(row[0])+'.bplist')
-            output_file = open(filename, "wb") 
+
+            filename = os.path.join(report_folder, 'zserverrecorddata_' + str(row[0]) + '.bplist')
+            output_file = open(filename, "wb")
             output_file.write(row[1])
             output_file.close()
-            
+
             deserialized_plist = nd.deserialize_plist(io.BytesIO(row[1]))
             creator_id = ''
             last_modified_id = ''
@@ -117,17 +146,19 @@ def get_cloudkitServerRecordData(file_found, report_folder, seeker, wrap_text):
                     record_type = item['RecordType']
                 elif 'RecordID' in item:
                     record_id = item['RecordID']['RecordName']
-            
-            note_data.append([record_id,record_type,creation_date,creator_id,last_modified_date,last_modified_id,last_modified_device])
+
+            note_data.append([record_id, record_type, creation_date, creator_id, last_modified_date, last_modified_id,
+                              last_modified_device])
 
         description = 'CloudKit Note Sharing - Notes information shared via CloudKit. Look up the Record ID in the ZICCLOUDSYYNCINGOBJECT.ZIDENTIFIER column. '
         report = ArtifactHtmlReport('Note Sharing')
         report.start_artifact_report(report_folder, 'Note Sharing', description)
         report.add_script()
-        note_headers = ('Record ID','Record Type','Creation Date','Creator ID','Modified Date','Modifier ID','Modifier Device')     
+        note_headers = (
+        'Record ID', 'Record Type', 'Creation Date', 'Creator ID', 'Modified Date', 'Modifier ID', 'Modifier Device')
         report.write_artifact_data_table(note_headers, note_data, file_found)
         report.end_artifact_report()
-        
+
         tsvname = 'Cloudkit Note Sharing'
         tsv(report_folder, note_headers, note_data, tsvname)
     else:
@@ -135,9 +166,9 @@ def get_cloudkitServerRecordData(file_found, report_folder, seeker, wrap_text):
 
     db.close()
 
-__artifacts__ = {
-    "cloudkitsharing": (
-        "Cloudkit",
-        ('*NoteStore.sqlite*'),
-        get_cloudkitSharing)
-}
+# __artifacts__ = {
+#     "cloudkitsharing": (
+#         "Cloudkit",
+#         ('*NoteStore.sqlite*'),
+#         get_cloudkitSharing)
+# }

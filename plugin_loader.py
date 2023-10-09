@@ -35,16 +35,20 @@ class PluginLoader:
     def _load_plugins(self):
         for py_file in self._plugin_path.glob("*.py"):
             mod = PluginLoader.load_module_lazy(py_file)
-            try:
-                mod_artifacts = mod.__artifacts__
-            except AttributeError:
+            mod_artifacts = getattr(mod, '__artifacts_v2__', None) or getattr(mod, '__artifacts__', None)
+            if mod_artifacts is None:
                 continue  # no artifacts defined in this plugin
 
-            for name, (category, search, func) in mod_artifacts.items():
-                #self._plugins.append(PluginSpec(name, search, func))
+            version = 2 if '__artifacts_v2__' in dir(mod) else 1  # determine the version
+
+            for name, artifact in mod_artifacts.items():
+                category, search, func_name = (
+                artifact.get('category'), artifact.get('paths'), artifact.get('function')) if version == 2 else artifact
+                func = getattr(mod, func_name) if version == 2 and isinstance(func_name, str) else func_name
                 if name in self._plugins:
                     raise KeyError("Duplicate plugin")
                 self._plugins[name] = PluginSpec(name, py_file.stem, category, search, func)
+
 
     @property
     def plugins(self) -> typing.Iterable[PluginSpec]:

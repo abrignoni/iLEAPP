@@ -1,3 +1,11 @@
+__artifacts_v2__ = {
+    "adId": {
+        "category": "Identifiers",
+        "paths": ('*/containers/Shared/SystemGroup/*/Library/Caches/com.apple.lsdidentifiers.plist',),
+        "function": 'get_adId'
+    }
+}
+
 import datetime
 import os
 import plistlib
@@ -16,9 +24,9 @@ def get_adId(files_found, report_folder, seeker, wrap_text):
                 adId = val
                 logdevinfo(f"Advertiser Identifier: {adId}")
                 
-__artifacts__ = {
-    "adId": (
-        "Identifiers",
-        ('*/containers/Shared/SystemGroup/*/Library/Caches/com.apple.lsdidentifiers.plist'),
-        get_adId)
-}
+# __artifacts__ = {
+#     "adId": (
+#         "Identifiers",
+#         ('*/containers/Shared/SystemGroup/*/Library/Caches/com.apple.lsdidentifiers.plist'),
+#         get_adId)
+# }
