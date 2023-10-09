@@ -1,30 +1,33 @@
-# Get Viber settings, contacts, recent calls and messages information
-# Author : Evangelos Dragonas (@theAtropos4n6)
-# website : atropos4n6.com
-# Date : 2022-03-15
-# Version : 0.0.2
-# 
-# The script queries Settings.data and Contacts.data Viber dbs and creates a report of findings including KML geolcation data
-# Settings hold the user's personal data and configurations
-# Contacts hold contacts, calls, messages and more..
-# 
-# The code is divided in 4 queries-artifacts blocks. 
-# 
-# The 1st parses settings db, extracts and reports on user's available information regarding Viber configuartion
-#
-# The 2nd parses contacts db, extracts and reports on user's contacts. 
-# Be advised that a contact may not participate in a chat (therefore a contact is not a chat 'member') and vice versa. A chat 'member' may not be registered as a Viber contact. 
-# Hope it makes sense.
-#
-# The 3rd parses contacts db, extracts and reports on user's recent calls that have no corresponding message (ZVIBERMESSAGE) entry. This indicates that these messages have been deleted and therefore
-# calls are deleted as well. Unfortunately no remote partner information can be retrieved at this moment. 
-#
-# The 4rth parses contacts db, extracts and reports on user's chats. 2 extra columns with each chat's grouped participants and phone numbers is also available. 
-#
-# Also, be aware that there is more information stored within the above databases. This artifact assist in parsing the most out of it (but not all).
-#
-# Should you face a bug or want a specific field extracted, DM me.
-#
+__artifacts_v2__ = {
+    "viber": {
+        "name": "Viber Artifacts",
+        "description": "Get Viber settings, contacts, recent calls and messages information. This script queries "
+					   "Settings.data and Contacts.data Viber dbs and creates a report of findings including KML "
+					   "geolocation data. Settings hold the user's personal data and configurations. Contacts hold "
+					   "contacts, calls, messages and more.",
+        "author": "Evangelos Dragonas (@theAtropos4n6)",
+        "version": "0.0.2",
+        "date": "2022-03-15",
+        "requirements": "",
+        "category": "Viber",
+        "notes": "The code is divided into 4 queries-artifacts blocks. The 1st parses settings db, extracts and "
+				 "reports on user's available information regarding Viber configuration. The 2nd parses contacts db, "
+				 "extracts and reports on user's contacts. Be advised that a contact may not participate in a chat ("
+				 "therefore a contact is not a chat 'member') and vice versa. A chat 'member' may not be registered as "
+				 "a Viber contact. The 3rd parses contacts db, extracts and reports on user's "
+				 "recent calls that have no corresponding message (ZVIBERMESSAGE) entry, indicating these messages "
+				 "have been deleted. The 4th parses contacts db, extracts and reports on user's chats, including extra "
+				 "columns with each chat's grouped participants and phone numbers. More information is stored within "
+				 "the above databases, and this artifact assists in parsing the most out of it. ",
+        "paths": (
+            '**/com.viber/settings/Settings.data',
+            '**/com.viber/database/Contacts.data',
+            '**/Containers/Data/Application/*/Documents/Attachments/*.*',
+            '**/com.viber/ViberIcons/*.*'
+        ),
+        "function": "get_viber"
+    }
+}
 
 
 import glob
@@ -690,10 +693,3 @@ def get_viber(files_found, report_folder, seeker, wrap_text):
 				db.close()
 			else:
 				logfunc('No Viber data found.')
-	
-__artifacts__ = {
-    "viber": (
-        "Viber",
-        ('**/com.viber/settings/Settings.data','**/com.viber/database/Contacts.data','**/Containers/Data/Application/*/Documents/Attachments/*.*','**/com.viber/ViberIcons/*.*'),
-        get_viber)
-}

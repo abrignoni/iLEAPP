@@ -1,3 +1,23 @@
+__artifacts_v2__ = {
+    "TelegramMessages": {
+        "name": "Telegram Messages",
+        "description": "",
+        "author": "Stek29 / Victor Oreshkin",
+        "version": "",
+        "date": "",
+        "requirements": "",
+        "category": "Telegram",
+        "notes": "Github: https://gist.github.com/stek29; "
+                 "Code: https://gist.github.com/stek29/8a7ac0e673818917525ec4031d77a713",
+        "paths": (
+            '*/telegram-data/account-*/postbox/db/db_sqlite',
+            '*/telegram-data/account-*/postbox/media/**'
+        ),
+        "function": "get_telegramMessages"
+    }
+}
+
+
 import sqlite3
 import io
 import struct
