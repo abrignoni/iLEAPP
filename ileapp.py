@@ -10,23 +10,52 @@ from scripts.ilapfuncs import *
 from scripts.version_info import aleapp_version
 from time import process_time, gmtime, strftime, perf_counter
 
+def validate_args(args):
+    if args.artifact_paths:
+        return  # Skip further validation if --artifact_paths is used
+
+    # Ensure other arguments are provided
+    mandatory_args = ['input_path', 'output_path', 't']
+    for arg in mandatory_args:
+        value = getattr(args, arg)
+        if value is None:
+            raise argparse.ArgumentError(None, f'No {arg.upper()} provided. Run the program again.')
+
+    # Check existence of paths
+    if not os.path.exists(args.input_path):
+        raise argparse.ArgumentError(None, 'INPUT file/folder does not exist! Run the program again.')
+
+    if not os.path.exists(args.output_path):
+        raise argparse.ArgumentError(None, 'OUTPUT folder does not exist! Run the program again.')
+
+
 def main():
     parser = argparse.ArgumentParser(description='iLEAPP: iOS Logs, Events, and Plists Parser.')
-    parser.add_argument('-t', choices=['fs','tar','zip', 'gz', 'itunes'], required=False, action="store", 
-                        help="Input type (fs = extracted to file system folder)")
-    parser.add_argument('-o', '--output_path', required=False, action="store", help='Output folder path')
+    parser.add_argument('-t', choices=['fs', 'tar', 'zip', 'gz', 'itunes'], required=False, action="store",
+                        help=("Specify the input type. "
+                              "'fs' for a folder containing extracted files with normal paths and names, "
+                              "'tar', 'zip', or 'gz' for compressed packages containing files with normal names, "
+                              "or 'itunes' for a folder containing a raw iTunes backup with hashed paths and names."))
+    parser.add_argument('-o', '--output_path', required=False, action="store",
+                        help='Path to base output folder (this must exist)')
     parser.add_argument('-i', '--input_path', required=False, action="store", help='Path to input file/folder')
-    parser.add_argument('-p', '--artifact_paths', required=False, action="store_true", 
-                        help='Text file list of artifact paths')
-    parser.add_argument('-w', '--wrap_text', required=False, action="store_false",
-                        help='do not wrap text for output of data files')
-        
+    parser.add_argument('-w', '--wrap_text', required=False, action="store_false", default=True,
+                        help='Do not wrap text for output of data files')
+    parser.add_argument('-p', '--artifact_paths', required=False, action="store_true",
+                        help=("Generate a text file list of artifact paths. "
+                              "This argument is meant to be used alone, without any other arguments."))
+
     loader = plugin_loader.PluginLoader()
 
     print(f"Info: {len(loader)} plugins loaded.")
-    
+
     args = parser.parse_args()
-    
+
+    try:
+        validate_args(args)
+    except argparse.ArgumentError as e:
+        parser.error(str(e))
+
     if args.artifact_paths:
         print('Artifact path list generation started.')
         print('')
@@ -34,64 +63,34 @@ def main():
             for plugin in loader.plugins:
                 if isinstance(plugin.search, tuple):
                     for x in plugin.search:
-                        paths.write(x+'\n')
+                        paths.write(x + '\n')
                         print(x)
                 else:  # TODO check that this is actually a string?
-                    paths.write(plugin.search+'\n')
+                    paths.write(plugin.search + '\n')
                     print(plugin.search)
         print('')
-        print('Artifact path list generation completed')    
+        print('Artifact path list generation completed')
         return
 
-    else:
-        input_path = args.input_path
-        extracttype = args.t
+    input_path = args.input_path
+    extracttype = args.t
+    wrap_text = args.wrap_text
+    output_path = os.path.abspath(args.output_path)
 
-        if args.wrap_text is None:
-            wrap_text = True
-        else:
-            wrap_text = args.wrap_text 
-        
-        if args.output_path is None:
-            parser.error('No OUTPUT folder path provided')
-            return
-        else:
-            output_path = os.path.abspath(args.output_path)
-        
-        if output_path is None:
-            parser.error('No OUTPUT folder selected. Run the program again.')
-            return
-            
-        if input_path is None:
-            parser.error('No INPUT file or folder selected. Run the program again.')
-            return
-        
-        if args.t is None:
-            parser.error('No INPUT file or folder selected. Run the program again.')
-            return
+    # ios file system extractions contain paths > 260 char, which causes problems
+    # This fixes the problem by prefixing \\?\ on each windows path.
+    if is_platform_windows():
+        if input_path[1] == ':' and extracttype =='fs': input_path = '\\\\?\\' + input_path.replace('/', '\\')
+        if output_path[1] == ':': output_path = '\\\\?\\' + output_path.replace('/', '\\')
 
-        if not os.path.exists(input_path):
-            parser.error('INPUT file/folder does not exist! Run the program again.')
-            return
-        
-        if not os.path.exists(output_path):
-            parser.error('OUTPUT folder does not exist! Run the program again.')
-            return  
+    out_params = OutputParameters(output_path)
 
-        # ios file system extractions contain paths > 260 char, which causes problems
-        # This fixes the problem by prefixing \\?\ on each windows path.
-        if is_platform_windows():
-            if input_path[1] == ':' and extracttype =='fs': input_path = '\\\\?\\' + input_path.replace('/', '\\')
-            if output_path[1] == ':': output_path = '\\\\?\\' + output_path.replace('/', '\\')
+    try:
+        casedata
+    except NameError:
+        casedata = {}
 
-        out_params = OutputParameters(output_path)
-        
-        try:
-            casedata
-        except NameError:
-            casedata = {}
-            
-        crunch_artifacts(list(loader.plugins), extracttype, input_path, out_params, 1, wrap_text, loader, casedata)
+    crunch_artifacts(list(loader.plugins), extracttype, input_path, out_params, 1, wrap_text, loader, casedata)
 
 
 def crunch_artifacts(
