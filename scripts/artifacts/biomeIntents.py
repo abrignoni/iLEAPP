@@ -352,6 +352,6 @@ def get_biomeIntents(files_found, report_folder, seeker, wrap_text):
 __artifacts__ = {
     "Intents": (
         "Biome Intents",
-        ('*/private/var/mobile/Library/Biome/streams/public/AppIntent/local/*','*/AppIntent/local/*'),
+        ('*/mobile/Library/Biome/streams/public/AppIntent/local/*','*/AppIntent/local/*'),
         get_biomeIntents)
 }

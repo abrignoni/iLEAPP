@@ -54,6 +54,6 @@ def get_filesAppsclient(files_found, report_folder, seeker, wrap_text):
 __artifacts__ = {
     "filesappsclient": (
         "Files App",
-        ('*private/var/mobile/Library/Application Support/CloudDocs/session/db/client.db*'),
+        ('*/mobile/Library/Application Support/CloudDocs/session/db/client.db*'),
         get_filesAppsclient)
 }

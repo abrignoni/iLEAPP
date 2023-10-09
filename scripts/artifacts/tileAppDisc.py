@@ -53,6 +53,6 @@ def get_tileAppDisc(files_found, report_folder, seeker, wrap_text):
 __artifacts__ = {
     "tileAppDisc": (
         "Accounts",
-        ('*/private/var/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-DiscoveredTileDB.sqlite*'),
+        ('*/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-DiscoveredTileDB.sqlite*'),
         get_tileAppDisc)
 }

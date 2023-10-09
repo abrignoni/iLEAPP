@@ -215,6 +215,6 @@ def get_mailprotect(files_found, report_folder, seeker, wrap_text):
 __artifacts__ = {
     "mailprotect": (
         "iOS Mail",
-        ('**/private/var/mobile/Library/Mail/* Index*'),
+        ('*/mobile/Library/Mail/* Index*'),
         get_mailprotect)
 }

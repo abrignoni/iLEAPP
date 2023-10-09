@@ -58,6 +58,6 @@ def get_tileApp(files_found, report_folder, seeker, wrap_text):
 __artifacts__ = {
     "tileApp": (
         "Locations",
-        ('*private/var/mobile/Containers/Data/Application/*/Library/log/com.thetileapp.tile*'),
+        ('*/mobile/Containers/Data/Application/*/Library/log/com.thetileapp.tile*'),
         get_tileApp)
 }

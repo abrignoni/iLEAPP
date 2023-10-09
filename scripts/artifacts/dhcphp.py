@@ -47,6 +47,6 @@ def get_dhcphp(files_found, report_folder, seeker, wrap_text):
 __artifacts__ = {
     "dhcphp": (
         "DHCP",
-        ('**/private/var/db/dhcpd_leases*'),
+        ('*/db/dhcpd_leases*'),
         get_dhcphp)
 }

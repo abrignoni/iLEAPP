@@ -35,6 +35,6 @@ def get_keyboardAppUsage(files_found, report_folder, seeker, wrap_text):
 __artifacts__ = {
     "keyboardAppUsage": (
         "Keyboard",
-        ('*/private/var/mobile/Library/Keyboard/app_usage_database.plist'),
+        ('*/mobile/Library/Keyboard/app_usage_database.plist'),
         get_keyboardAppUsage)
 }

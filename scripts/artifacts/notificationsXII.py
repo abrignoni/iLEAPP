@@ -106,6 +106,6 @@ def get_notificationsXII(files_found, report_folder, seeker, wrap_text):
 __artifacts__ = {
     "notificationsXII": (
         "Notifications",
-        ('*private/var/mobile/Library/UserNotifications*'),
+        ('*/mobile/Library/UserNotifications*'),
         get_notificationsXII)
 }

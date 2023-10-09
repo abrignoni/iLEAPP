@@ -163,6 +163,6 @@ def get_icloudSharedalbums(files_found, report_folder, seeker, wrap_text):
 __artifacts__ = {
     "icloudSharedalbums": (
         "iCloud Shared Albums",
-        ('*/private/var/mobile/Media/PhotoData/PhotoCloudSharingData/*'),
+        ('*/mobile/Media/PhotoData/PhotoCloudSharingData/*'),
         get_icloudSharedalbums)
 }

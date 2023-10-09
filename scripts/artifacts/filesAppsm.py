@@ -74,6 +74,6 @@ def get_filesAppsm(files_found, report_folder, seeker, wrap_text):
 __artifacts__ = {
     "filesAppsm": (
         "Files App",
-        ('*private/var/mobile/Containers/Shared/AppGroup/*/smartfolders.db*'),
+        ('*/mobile/Containers/Shared/AppGroup/*/smartfolders.db*'),
         get_filesAppsm)
 }

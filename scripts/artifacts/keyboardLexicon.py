@@ -55,6 +55,6 @@ def get_keyboardLexicon(files_found, report_folder, seeker, wrap_text):
 __artifacts__ = {
     "keyboardLexicon": (
         "Keyboard",
-        ('*/private/var/mobile/Library/Keyboard/*-dynamic.lm/dynamic-lexicon.dat'),
+        ('*/mobile/Library/Keyboard/*-dynamic.lm/dynamic-lexicon.dat'),
         get_keyboardLexicon)
 }

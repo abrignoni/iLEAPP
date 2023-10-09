@@ -150,6 +150,6 @@ def get_imoHD_Chat(files_found, report_folder, seeker, wrap_text):
 __artifacts__ = {
     "imoHD_Chat": (
         "IMO HD Chat",
-        ('**/IMODb2.sqlite*','private/var/mobile/Containers/Data/Application/*/Library/Caches/videos/*.webp'),
+        ('*/IMODb2.sqlite*','*/mobile/Containers/Data/Application/*/Library/Caches/videos/*.webp'),
         get_imoHD_Chat)
 }

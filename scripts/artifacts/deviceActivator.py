@@ -64,6 +64,6 @@ def get_deviceActivator(files_found, report_folder, seeker, wrap_text):
 __artifacts__ = {
     "deviceactivator": (
         "IOS Build",
-        ('*private/var/mobile/Library/Logs/mobileactivationd/ucrt_oob_request.txt'),
+        ('*/mobile/Library/Logs/mobileactivationd/ucrt_oob_request.txt'),
         get_deviceActivator)
 }

@@ -188,6 +188,6 @@ def get_appleMapsSearchHistory(files_found, report_folder, seeker, wrap_text):
 __artifacts__ = {
     "applemapssearchhistory": (
         "Locations",
-        ('*private/var/mobile/Containers/Data/Application/*/Library/Maps/GeoHistory.mapsdata','*/GeoHistory.mapsdata'),
+        ('*/mobile/Containers/Data/Application/*/Library/Maps/GeoHistory.mapsdata','*/GeoHistory.mapsdata'),
         get_appleMapsSearchHistory)
 }
