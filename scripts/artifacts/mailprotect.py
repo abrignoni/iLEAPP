@@ -196,25 +196,25 @@ def get_mailprotect(files_found, report_folder, seeker, wrap_text):
 			
 			file_found = head
 			description = ''
-			report = ArtifactHtmlReport('iOS Mail')
+			report = ArtifactHtmlReport('Apple Mail')
 			report.start_artifact_report(report_folder, 'Emails', description)
 			report.add_script()
 			data_headers = ('Date Sent','Date Received','Address','Comment','Subject', 'Summary', 'Read?', 'Flagged?', 'Deleted', 'Mailbox')     
 			report.write_artifact_data_table(data_headers, data_list, file_found)
 			report.end_artifact_report()
 			
-			tsvname = 'iOS Mail'
+			tsvname = 'Apple Mail'
 			tsv(report_folder, data_headers, data_list, tsvname)
 			
-			tlactivity = 'iOS Mail'
+			tlactivity = 'Apple Mail'
 			timeline(report_folder, tlactivity, data_list, data_headers)
 				
 		else:
-			logfunc("No iOS emails available")
+			logfunc("No Apple Mail emails available")
 
 __artifacts__ = {
     "mailprotect": (
-        "iOS Mail",
+        "Apple Mail",
         ('*/mobile/Library/Mail/* Index*'),
         get_mailprotect)
 }

@@ -482,7 +482,7 @@ def get_slack(files_found, report_folder, seeker, wrap_text):
 __artifacts__ = {
     "slack": (
         "Slack",
-        ('*/var/mobile/Containers/Data/Application/*/Library/Application Support/Slack/*/*/main_db*'),
+        ('*/mobile/Containers/Data/Application/*/Library/Application Support/Slack/*/*/main_db*'),
         get_slack)
 }
     

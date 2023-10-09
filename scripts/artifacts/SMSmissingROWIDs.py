@@ -78,6 +78,6 @@ def get_SMS(files_found, report_folder, seeker, wrap_text):
 __artifacts__ = {
     "SMS Missing ROWIDs": (
         "SMS & iMessage",
-        ('*/var/mobile/Library/SMS/sms*'),
+        ('*/mobile/Library/SMS/sms*'),
         get_SMS)
 }

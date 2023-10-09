@@ -118,6 +118,6 @@ def get_whatsappMessages(files_found, report_folder, seeker, wrap_text):
 __artifacts__ = {
     "whatsappMessages": (
         "Whatsapp",
-        ('*/var/mobile/Containers/Shared/AppGroup/*/ChatStorage.sqlite*','*/var/mobile/Containers/Shared/AppGroup/*/Message/Media/*/*/*/*.*'),
+        ('*/mobile/Containers/Shared/AppGroup/*/ChatStorage.sqlite*','*/mobile/Containers/Shared/AppGroup/*/Message/Media/*/*/*/*.*'),
         get_whatsappMessages)
 }
