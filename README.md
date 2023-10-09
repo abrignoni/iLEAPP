@@ -149,6 +149,21 @@ the timeline. Functions for generating this output can be found in the `artifact
 At a high level, an example might resemble:
 
 ```python
+__artifacts_v2__ = {
+    "cool_artifact_1": {
+        "name": "Cool Artifact 1",
+        "description": "Extracts cool data from database files",
+        "author": "@username",  # Replace with the actual author's username or name
+        "version": "0.1",  # Version number
+        "date": "2022-10-25",  # Date of the latest version
+        "requirements": "none",
+        "category": "Really cool artifacts",
+        "notes": "",
+        "paths": ('*/com.android.cooldata/databases/database*.db',),
+        "function": "get_cool_data1"
+    }
+}
+
 import datetime
 from scripts.artifact_report import ArtifactHtmlReport
 import scripts.ilapfuncs
@@ -176,13 +191,6 @@ def get_cool_data1(files_found, report_folder, seeker, wrap_text):
     # Timeline:
     scripts.ilapfuncs.timeline(report_folder, report_name, rows, headers)
 
-
-__artifacts__ = {
-    "cool_artifact_1": (
-        "Really cool artifacts",
-        ('*/com.android.cooldata/databases/database*.db'),
-        get_cool_data1)
-}
 ```
 
 ## Acknowledgements
