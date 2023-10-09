@@ -105,6 +105,6 @@ def get_restoreLog(files_found, report_folder, seeker, wrap_text):
 __artifacts__ = {
     "restoreLog": (
         "Mobile Software Update",
-        ('**/private/var/mobile/MobileSoftwareUpdate/restore.log'),
+        ('*/mobile/MobileSoftwareUpdate/restore.log'),
         get_restoreLog)
 }

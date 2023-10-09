@@ -90,6 +90,6 @@ def get_weatherAppLocations(files_found, report_folder, seeker, wrap_text):
 __artifacts__ = {
     "weatherAppLocations": (
         "Locations",
-        ('*/private/var/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.com.apple.weather.plist'),
+        ('*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.com.apple.weather.plist'),
         get_weatherAppLocations)
 }

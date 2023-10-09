@@ -83,6 +83,6 @@ def get_filesAppsdb(files_found, report_folder, seeker, wrap_text):
 __artifacts__ = {
     "filesappsdb": (
         "Files App",
-        ('*private/var/mobile/Library/Application Support/CloudDocs/session/db/server.db*'),
+        ('*/mobile/Library/Application Support/CloudDocs/session/db/server.db*'),
         get_filesAppsdb)
 }

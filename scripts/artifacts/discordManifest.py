@@ -37,6 +37,6 @@ def get_discordManifest(files_found, report_folder, seeker, wrap_text):
 __artifacts__ = {
     "discordmanifest": (
         "Discord",
-        ('*/private/var/mobile/Containers/Data/Application/*/Documents/RCTAsyncLocalStorage_V1/manifest.json'),
+        ('*/mobile/Containers/Data/Application/*/Documents/RCTAsyncLocalStorage_V1/manifest.json'),
         get_discordManifest)
 }

@@ -107,6 +107,6 @@ def get_ControlCenter(files_found, report_folder, seeker, wrap_text):
 __artifacts__ = {
     "controlcenter": (
         "Control Center",
-        ('**private/var/mobile/Library/ControlCenter/ModuleConfiguration.plist'),
+        ('*/mobile/Library/ControlCenter/ModuleConfiguration.plist'),
         get_ControlCenter)
 }

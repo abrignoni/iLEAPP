@@ -44,6 +44,6 @@ def get_dhcpl(files_found, report_folder, seeker, wrap_text):
 __artifacts__ = {
     "dhcpl": (
         "DHCP",
-        ('**/private/var/db/dhcpclient/leases/en*'),
+        ('*/db/dhcpclient/leases/en*'),
         get_dhcpl)
 }

@@ -53,6 +53,6 @@ def get_medicalID(files_found, report_folder, seeker, wrap_text):
 __artifacts__ = {
     "medicalID": (
         "Medical ID",
-        ('*/private/var/mobile/Library/MedicalID/MedicalIDData.archive'),
+        ('*/mobile/Library/MedicalID/MedicalIDData.archive'),
         get_medicalID)
 }

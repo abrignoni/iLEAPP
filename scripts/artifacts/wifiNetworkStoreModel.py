@@ -71,6 +71,6 @@ def get_wifiNetworkStoreModel(files_found, report_folder, seeker, wrap_text):
 __artifacts__ = {
     "wifiNetworkStoreModel": (
         "Wifi Known Networks",
-        ('**/private/var/root/Library/Application Support/WiFiNetworkStoreModel.sqlite*'),
+        ('*/root/Library/Application Support/WiFiNetworkStoreModel.sqlite*'),
         get_wifiNetworkStoreModel)
 }

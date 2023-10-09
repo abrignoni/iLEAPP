@@ -78,6 +78,6 @@ def decode_repeat_schedule(repeat_schedule_value):
 __artifacts__ = {
     "alarms": (
         "Alarms",
-        ('*private/var/mobile/Library/Preferences/com.apple.mobiletimerd.plist'),
+        ('*/mobile/Library/Preferences/com.apple.mobiletimerd.plist'),
         get_alarms)
 }

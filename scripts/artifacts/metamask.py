@@ -89,6 +89,6 @@ def get_metamask(files_found, report_folder, seeker, wrap_text):
 __artifacts__ = {
     "metamask": (
         "Metamask",
-        ('*/private/var/mobile/Containers/Data/Application/*/Documents/persistStore/persist-root'),
+        ('*/mobile/Containers/Data/Application/*/Documents/persistStore/persist-root'),
         get_metamask)
 }

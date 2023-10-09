@@ -65,6 +65,6 @@ def get_tileAppDb(files_found, report_folder, seeker, wrap_text):
 __artifacts__ = {
     "tileAppDb": (
         "Locations",
-        ('*private/var/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-TileNetworkDB.sqlite*'),
+        ('*/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-TileNetworkDB.sqlite*'),
         get_tileAppDb)
 }

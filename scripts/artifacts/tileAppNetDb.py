@@ -55,6 +55,6 @@ def get_tileAppNetDb(files_found, report_folder, seeker, wrap_text):
 __artifacts__ = {
     "tileAppNetDb": (
         "Accounts",
-        ('*/private/var/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-TileNetworkDB.sqlite*'),
+        ('*/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-TileNetworkDB.sqlite*'),
         get_tileAppNetDb)
 }

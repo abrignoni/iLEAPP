@@ -71,6 +71,6 @@ def get_coreAccessories(files_found, report_folder, seeker, wrap_text):
 __artifacts__ = {
     "coreAccessories": (
         "Core Accessories",
-        ('*/private/var/mobile/Library/CoreAccessories/Analytics/acc_analytics_accessoryd_v3.db*'),
+        ('*/mobile/Library/CoreAccessories/Analytics/acc_analytics_accessoryd_v3.db*'),
         get_coreAccessories)
 }

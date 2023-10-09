@@ -79,6 +79,6 @@ ORDER BY ZPAYMENT.ZDISPLAYDATE ASC
 __artifacts__ = {
     "cashapp": (
         "Cash App",
-        ('**private/var/mobile/Containers/Shared/AppGroup/*/CCEntitySync-api.squareup.com.sqlite*', '**private/var/mobile/Containers/Shared/AppGroup/*/CCEntitySync-internal.cashappapi.com.sqlite*'),
+        ('*/mobile/Containers/Shared/AppGroup/*/CCEntitySync-api.squareup.com.sqlite*', '*/mobile/Containers/Shared/AppGroup/*/CCEntitySync-internal.cashappapi.com.sqlite*'),
         get_cashApp)
 }
