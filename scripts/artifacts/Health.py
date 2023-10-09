@@ -18,6 +18,9 @@
 # Additional details published within "Enriching Investigations with Apple Watch Data Through the healthdb_secure.sqlite Database" at https://dfir.pubpub.org/pub/xqvcn3hj/release/1
 # Height / Weight parsing added 2023-04-04
 
+# Updates: @KevinPagano3 | @stark4n6
+# Date: 2023-10-06 - Added steps details
+
 import sqlite3
 import textwrap
 import scripts.artifacts.artGlobals
@@ -628,7 +631,7 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
     else:
         logfunc('No data available in Health - Achievements')
         
-# Height
+    # Height
 
     cursor.execute('''
     select
@@ -667,7 +670,7 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
     else:
         logfunc('No data available in Health - User Entered Data - Height')
 
-# Weight
+    # Weight
 
     cursor.execute('''
     select
@@ -708,6 +711,47 @@ def get_Health(files_found, report_folder, seeker, wrap_text):
         timeline(report_folder, tlactivity, data_list, data_headers)
     else:
         logfunc('No data available in Health - User Entered Data - Weight')
+        
+    # Steps
+    
+    cursor.execute('''
+    select
+    datetime(samples.start_date + 978307200, 'unixepoch') as "Start Date",
+    datetime(samples.end_date + 978307200, 'unixepoch') as "End Date",
+    quantity_samples.quantity as "Steps",
+    (samples.end_date - samples.start_date) as "Duration (Seconds)",
+    data_provenances.origin_product_type as "Device"
+    from samples, quantity_samples, data_provenances, objects
+    where samples.data_type = 7 
+    and samples.data_id = quantity_samples.data_id
+    and samples.data_id = objects.data_id
+    and objects.provenance = data_provenances.rowid
+    ''')
+    
+    all_rows = cursor.fetchall()
+    usageentries = len(all_rows)
+    if usageentries > 0:
+        data_list = []
+        for row in all_rows:
+            hardware = device_id.get(row[4], row[4])
+            data_list.append((row[0], row[1], row[2], row[3], hardware))
+
+        report = ArtifactHtmlReport('Health - Steps')
+        report.start_artifact_report(report_folder, 'Health - Steps')
+        report.add_script()
+        data_headers = (
+            'Start Time','End Time','Steps','Duration (Seconds)','Device')
+        report.write_artifact_data_table(data_headers, data_list, healthdb_secure)
+        report.end_artifact_report()
+
+        tsvname = 'Health - Steps'
+        tsv(report_folder, data_headers, data_list, tsvname)
+
+        tlactivity = 'Health - Steps'
+        timeline(report_folder, tlactivity, data_list, data_headers)
+    else:
+        logfunc('No data available in Health - Steps')
+    
         
 __artifacts__ = {
     "health": (
