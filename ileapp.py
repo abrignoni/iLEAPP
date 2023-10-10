@@ -16,6 +16,7 @@ def main():
                         help="Input type (fs = extracted to file system folder)")
     parser.add_argument('-o', '--output_path', required=False, action="store", help='Output folder path')
     parser.add_argument('-i', '--input_path', required=False, action="store", help='Path to input file/folder')
+    parser.add_argument('--time_offset', required=False, type=int, choices=range(-12,14), metavar="[-12 to 14]",  help='Numeric timezone values. Default is 0 for UTC.', default=0)
     parser.add_argument('-p', '--artifact_paths', required=False, action="store_true", 
                         help='Text file list of artifact paths')
     parser.add_argument('-w', '--wrap_text', required=False, action="store_false",
@@ -51,6 +52,13 @@ def main():
             wrap_text = True
         else:
             wrap_text = args.wrap_text 
+            
+        if args.time_offset < -12:
+            time_offset = 0
+        elif args.time_offset > 14:
+            time_offset = 0
+        else:
+            time_offset = args.time_offset 
         
         if args.output_path is None:
             parser.error('No OUTPUT folder path provided')
@@ -91,12 +99,12 @@ def main():
         except NameError:
             casedata = {}
             
-        crunch_artifacts(list(loader.plugins), extracttype, input_path, out_params, 1, wrap_text, loader, casedata)
+        crunch_artifacts(list(loader.plugins), extracttype, input_path, out_params, 1, wrap_text, loader, casedata, time_offset)
 
 
 def crunch_artifacts(
         plugins: typing.Sequence[plugin_loader.PluginSpec], extracttype, input_path, out_params, ratio, wrap_text,
-        loader: plugin_loader.PluginLoader, casedata):
+        loader: plugin_loader.PluginLoader, casedata, time_offset):
     start = process_time()
     start_wall = perf_counter()
  
@@ -150,7 +158,7 @@ def crunch_artifacts(
         if os.path.exists(info_plist_path):
             # process_artifact([info_plist_path], 'iTunesBackupInfo', 'Device Info', seeker, out_params.report_folder_base)
             #plugin.method([info_plist_path], out_params.report_folder_base, seeker, wrap_text)
-            loader["iTunesBackupInfo"].method([info_plist_path], out_params.report_folder_base, seeker, wrap_text)
+            loader["iTunesBackupInfo"].method([info_plist_path], out_params.report_folder_base, seeker, wrap_text, time_offset)
             #del search_list['lastBuild'] # removing lastBuild as this takes its place
             print([info_plist_path])  # TODO Remove special consideration for itunes? Merge into main search
         else:
@@ -188,7 +196,7 @@ def crunch_artifacts(
                     logfunc('Error was {}'.format(str(ex)))
                     continue  # cannot do work
             try:
-                plugin.method(files_found, category_folder, seeker, wrap_text)
+                plugin.method(files_found, category_folder, seeker, wrap_text, time_offset)
             except Exception as ex:
                 logfunc('Reading {} artifact had errors!'.format(plugin.name))
                 logfunc('Error was {}'.format(str(ex)))

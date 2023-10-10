@@ -2,6 +2,7 @@ import json
 import pathlib
 import typing
 import ileapp
+from icecream import ic
 import PySimpleGUI as sg
 import webbrowser
 import plugin_loader
@@ -109,7 +110,14 @@ layout = [  [sg.Text('iOS Logs, Events, And Plists Parser', font=("Helvetica", 2
              #     file_types=(('ALEAPP Profile (*.alprofile)', '*.alprofile'), ('All Files', '*')),
              #     default_extension='.alprofile')
             sg.Text('  |', font=("Helvetica", 14)),
-            sg.Button('Load Case Data', key='LOAD CASE DATA') 
+            sg.Button('Load Case Data', key='LOAD CASE DATA'),
+            sg.Text('  |', font=("Helvetica", 14)),
+            sg.Text('Timezone Offset:', font=("Helvetica", 14)),
+            sg.Slider(range=(-12,14),
+                        default_value=0,
+                        size=(20,15),
+                        orientation='horizontal',
+                        font=('Helvetica', 14))
             ],
             [sg.Column(mlist, size=(300,310), scrollable=True),  sg.Output(size=(85,20))] ,
             [sg.ProgressBar(max_value=GuiWindow.progress_bar_total, orientation='h', size=(86, 7), key='PROGRESSBAR', bar_color=('DarkGreen', 'White'))],
@@ -243,6 +251,7 @@ while True:
             GuiWindow.window_handle = window
             out_params = OutputParameters(output_folder)
             wrap_text = True
+            time_offset = values[2]
             
             try:
                 casedata
@@ -250,7 +259,7 @@ while True:
                 casedata = {}
             
             crunch_successful = ileapp.crunch_artifacts(
-                search_list, extracttype, input_path, out_params, len(loader)/s_items, wrap_text, loader, casedata)
+                search_list, extracttype, input_path, out_params, len(loader)/s_items, wrap_text, loader, casedata, time_offset)
             if crunch_successful:
                 report_path = os.path.join(out_params.report_folder_base, 'index.html')
                 
