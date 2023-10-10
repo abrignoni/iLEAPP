@@ -44,6 +44,8 @@ def get_icon_name(category, artifact):
             icon = 'map'
         if artifact == 'ALLTRAILS - USER INFO':
             icon = 'user'
+    elif category == 'APPLE MAIL':
+        icon = 'mail'
     elif category == 'APPLE PODCASTS':
         icon = 'play-circle'
     elif category == 'APPLE WALLET':
@@ -103,6 +105,8 @@ def get_icon_name(category, artifact):
         icon = 'eye'
     elif category == 'BIOME WIFI':
         icon = 'eye'
+    elif category == 'BITTORRENT':
+        icon = 'share'
     elif category == 'BLUETOOTH':
         icon = 'bluetooth'
     elif category == 'BUMBLE':
@@ -160,8 +164,6 @@ def get_icon_name(category, artifact):
             icon = 'battery-charging'
     elif category == 'DATA USAGE':
         icon = 'wifi'
-    elif category == 'BITTORRENT':
-        icon = 'share'
     elif category == 'DEVICE INFO':
         if artifact == 'BUILD INFO':
             icon = 'terminal'
@@ -259,8 +261,6 @@ def get_icon_name(category, artifact):
             icon = 'paperclip'
     elif category == 'IOS BUILD' or category == 'IOS BUILD (ITUNES BACKUP)':
         icon = 'git-commit'
-    elif category == 'IOS MAIL':
-        icon = 'mail'
     elif category == 'IOS SCREENS':
         icon = 'maximize'
     elif category == 'KEYBOARD':

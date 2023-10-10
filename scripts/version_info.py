@@ -1,4 +1,4 @@
-aleapp_version = '1.18.6'
+aleapp_version = '1.18.7'
 
 # Contributors List
 # Format = [ Name, Blog-url, Twitter-handle, Github-url]
@@ -14,7 +14,7 @@ aleapp_contributors = [
     ['Mike Williamson', 'https://forensicmike1.com', '@forensicmike1', 'https://github.com/forensicmike'],
     ['Geraldine Blay', 'https://gforce4n6.blogspot.com', '@i_am_the_gia', ''],
     ['Johann Polewczyk', '', '@johannplw', 'https://github.com/Johann-PLW'],
-    ['Christopher Vance', 'https://blog.d204n6.com', '@cScottVance', ''],
+    ['Christopher Vance', 'https://blog.d204n6.com/', '@cScottVance', 'https://github.com/cScottVance'],
     ['Brooke Gottlieb', '', '@xbrookego', ''],
     ['Jack Farley', 'http://farleyforensics.com', '@JackFarley248', ''],
     ['Shafik Punja', '', '@qubytelogic', ''],
@@ -24,11 +24,10 @@ aleapp_contributors = [
     ['Claudia Meda', '', '@KlodiaMaida', 'https://github.com/KlodiaMaida'],
     ['Silvia Spallarossa', '', '@SilviaSpallaro1', 'https://github.com/spatimbs'],
     ['Francesca Maestri', '', '@franc3sca_m', 'https://github.com/francyM'],
-    ['Christopher Vance', 'https://blog.d204n6.com/', '@cScottVance', 'https://github.com/cScottVance'],
     ['Jesse Spangenberger', 'https://cyberfenixtech.blogspot.com/', '@AzuleOnyx', 'https://github.com/flamusdiu'],
     ['Jon Baumann', 'https://ciofecaforensics.com/', '@CiofecaForensic', 'https://github.com/threeplanetssoftware'],
     ['Scott Koenig', '', '@Scott_Kjr', ''],
-    ['Kevin Pagano', 'https://stark4n6.com/', '@KevinPagano3', 'https://github.com/stark4n6'],
+    ['Kevin Pagano', 'https://startme.stark4n6.com/', '@KevinPagano3', 'https://github.com/stark4n6'],
     ['Ed Michael', '', '@EdXlg123', 'https://github.com/edmichael'],
     ['Anna-Mariya Mateyna', '', '@any333_snickers', 'https://github.com/any333'],
     ['Tommy Harris', '', '@tobraha', 'https://github.com/tobraha'],
@@ -36,5 +35,6 @@ aleapp_contributors = [
     ['Bo Amos', '', '@Bo_Knows_65', ''],
     ['Joshua James', 'https://dfir.science', '@dfirscience', 'https://github.com/dfirscience'],
     ['Evangelos Dragonas', 'https://atropos4n6.com/','@theAtropos4n6','https://github.com/theAtropos4n6'],
-    ['Viktor Oreshkin', 'https://stek29.rocks/','@stek29','https://gist.github.com/stek29']
+    ['Viktor Oreshkin', 'https://stek29.rocks/','@stek29','https://gist.github.com/stek29'],
+    ['James Habben', 'https://4n6ir.com/','@JamesHabben','https://github.com/JamesHabben']
 ]
