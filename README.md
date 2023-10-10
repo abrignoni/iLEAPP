@@ -36,9 +36,6 @@ To run on **Linux**, you will also need to install `tkinter` separately like so:
 
 `sudo apt-get install python3-tk`
 
-To install dependencies offline Troy Schnack has a neat process here:
-https://twitter.com/TroySchnack/status/1266085323651444736?s=19
-
 To install on Windows follow the guide, courtesy of Hexordia, here:
 https://www.hexordia.com/s/ILEAPP-Walkthrough.pdf
 
