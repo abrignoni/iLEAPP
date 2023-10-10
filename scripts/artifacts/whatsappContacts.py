@@ -73,4 +73,3 @@ def get_whatsappContacts(files_found, report_folder, seeker, wrap_text):
         
     else:
         logfunc('Whatsapp - Contacts data available')
-        

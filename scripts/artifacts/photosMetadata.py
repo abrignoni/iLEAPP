@@ -1045,6 +1045,6 @@ def get_photosMetadata(files_found, report_folder, seeker, wrap_text):
 __artifacts__ = {
     "photosMetadata": (
         "Photos",
-        ('**/Photos.sqlite*'),
+        ('*/mobile/Media/PhotoData/Photos.sqlite*'),
         get_photosMetadata)
 }
