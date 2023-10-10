@@ -84,27 +84,49 @@ $ python ileapp.py --help
 
 ## Contributing artifact plugins
 
-Each plugin is a Python source file which should be added to the `scripts/artifacts` folder which will be loaded 
-dynamically each time ILEAPP is run.
+Each plugin is a Python source file which should be added to the `scripts/artifacts` folder which will be loaded dynamically each time ILEAPP is run.
 
-The plugin source file must contain a dictionary named `__artifacts__` which defines the artifacts which the plugin 
-processes. The keys in the `__artifacts__` dictionary should be IDs for the artifact(s) which must be unique within
-ILEAPP; the values should be tuples containing 3 items: the category of the artifact as a string; a tuple of strings
-containing glob search patterns to match the path of the data that the plugin expects for the artifact; and the function 
-which is the entry point for the artifact's processing (more on this shortly).
+The plugin source file must contain a dictionary named `__artifacts_v2__` at the very beginning of the module, which defines the artifacts that the plugin processes. The keys in the `__artifacts_v2__` dictionary should be IDs for the artifact(s) which must be unique within ILEAPP. The values should be dictionaries containing the following keys:
+
+- `name`: The name of the artifact as a string.
+- `description`: A description of the artifact as a string.
+- `author`: The author of the plugin as a string.
+- `version`: The version of the artifact as a string.
+- `date`: The date of the last update to the artifact as a string.
+- `requirements`: Any requirements for processing the artifact as a string.
+- `category`: The category of the artifact as a string.
+- `notes`: Any additional notes as a string.
+- `paths`: A tuple of strings containing glob search patterns to match the path of the data that the plugin expects for the artifact.
+- `function`: The name of the function which is the entry point for the artifact's processing as a string.
 
 For example:
 
 ```python
-__artifacts__ = {
-    "cool_artifact_1": (
-        "Really cool artifacts",
-        ('*/com.android.cooldata/databases/database*.db'),
-        get_cool_data1),
-    "cool_artifact_2": (
-        "Really cool artifacts",
-        ('*/com.android.cooldata/files/cool.xml'),
-        get_cool_data2)
+__artifacts_v2__ = {
+    "cool_artifact_1": {
+        "name": "Cool Artifact 1",
+        "description": "Extracts cool data from database files",
+        "author": "@username",
+        "version": "0.1",
+        "date": "2022-10-25",
+        "requirements": "none",
+        "category": "Really cool artifacts",
+        "notes": "",
+        "paths": ('*/com.android.cooldata/databases/database*.db',),
+        "function": "get_cool_data1"
+    },
+    "cool_artifact_2": {
+        "name": "Cool Artifact 2",
+        "description": "Extracts cool data from XML files",
+        "author": "@username",
+        "version": "0.1",
+        "date": "2022-10-25",
+        "requirements": "none",
+        "category": "Really cool artifacts",
+        "notes": "",
+        "paths": ('*/com.android.cooldata/files/cool.xml',),
+        "function": "get_cool_data2"
+    }
 }
 ```
 
@@ -127,6 +149,21 @@ the timeline. Functions for generating this output can be found in the `artifact
 At a high level, an example might resemble:
 
 ```python
+__artifacts_v2__ = {
+    "cool_artifact_1": {
+        "name": "Cool Artifact 1",
+        "description": "Extracts cool data from database files",
+        "author": "@username",  # Replace with the actual author's username or name
+        "version": "0.1",  # Version number
+        "date": "2022-10-25",  # Date of the latest version
+        "requirements": "none",
+        "category": "Really cool artifacts",
+        "notes": "",
+        "paths": ('*/com.android.cooldata/databases/database*.db',),
+        "function": "get_cool_data1"
+    }
+}
+
 import datetime
 from scripts.artifact_report import ArtifactHtmlReport
 import scripts.ilapfuncs
@@ -154,13 +191,6 @@ def get_cool_data1(files_found, report_folder, seeker, wrap_text):
     # Timeline:
     scripts.ilapfuncs.timeline(report_folder, report_name, rows, headers)
 
-
-__artifacts__ = {
-    "cool_artifact_1": (
-        "Really cool artifacts",
-        ('*/com.android.cooldata/databases/database*.db'),
-        get_cool_data1)
-}
 ```
 
 ## Acknowledgements

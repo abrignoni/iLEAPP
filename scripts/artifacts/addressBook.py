@@ -1,3 +1,19 @@
+__artifacts_v2__ = {
+    "addressbook": {
+        "name": "Address Book Contacts",
+        "description": "Extract information from the native contacts application",
+        "author": "@AlexisBrignoni",
+        "version": "0.3",
+        "date": "2022-10-25",
+        "requirements": "none",
+        "category": "Address Book",
+        "notes": "",
+        "paths": ('**/AddressBook.sqlitedb*',),
+        "function": "get_addressBook"
+    }
+}
+
+
 import sqlite3
 
 from scripts.artifact_report import ArtifactHtmlReport
@@ -64,9 +80,9 @@ def get_addressBook(files_found, report_folder, seeker, wrap_text):
     db.close()
     return
 
-__artifacts__ = {
-    "addressbook": (
-        "Address Book",
-        ('**/AddressBook.sqlitedb*'),
-        get_addressBook)
-}
+# __artifacts__ = {
+#     "addressbook": (
+#         "Address Book",
+#         ('**/AddressBook.sqlitedb*'),
+#         get_addressBook)
+# }

@@ -1,3 +1,19 @@
+__artifacts_v2__ = {
+    "whatsappContacts": {
+        "name": "Whatsapp Contacts",
+        "description": "",
+        "author": "",
+        "version": "",
+        "date": "",
+        "requirements": "",
+        "category": "Whatsapp",
+        "notes": "",
+        "paths": ('*/var/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*',),
+        "function": "get_whatsappContacts"
+    }
+}
+
+
 import sqlite3
 import io
 import json
@@ -57,10 +73,3 @@ def get_whatsappContacts(files_found, report_folder, seeker, wrap_text):
         
     else:
         logfunc('Whatsapp - Contacts data available')
-        
-__artifacts__ = {
-    "whatsappContacts": (
-        "Whatsapp",
-        ('*/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*'),
-        get_whatsappContacts)
-}
