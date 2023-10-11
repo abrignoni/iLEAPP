@@ -26,7 +26,7 @@ def strings(filename, min=4):
 		if len(result) >= min:  # catch result at EOF
 			yield result
 
-def get_discordAcct(files_found, report_folder, seeker, wrap_text):
+def get_discordAcct(files_found, report_folder, seeker, wrap_text, timezone_offset):
 	searchlist = []
 	for file_found in files_found:
 		file_found = str(file_found)

@@ -7,7 +7,7 @@ import xml.etree.ElementTree as ET
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, logdevinfo, is_platform_windows
 
-def get_deviceActivator(files_found, report_folder, seeker, wrap_text):
+def get_deviceActivator(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
     alllines = ''    
     file_found = str(files_found[0])

@@ -158,7 +158,7 @@ def deserialize_plist(plist_path):
 
     return deserialized_plist
 
-def get_venmo(files_found, report_folder, seeker, wrap_text):
+def get_venmo(files_found, report_folder, seeker, wrap_text, timezone_offset):
     """
     Parse venmo transactions. It's pretty simply stored in a serialized plist, but an awesome resource for learning more is:
     https://thebinaryhick.blog/2019/11/07/venmo-the-app-for-virtual-ballers/

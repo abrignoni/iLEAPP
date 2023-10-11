@@ -6,7 +6,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly 
 
 
-def get_textinputTyping(files_found, report_folder, seeker, wrap_text):
+def get_textinputTyping(files_found, report_folder, seeker, wrap_text, timezone_offset):
     count = 0
     for file_found in files_found:
         count = count + 1

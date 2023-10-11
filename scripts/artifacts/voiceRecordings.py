@@ -14,7 +14,7 @@ def unix_epoch_to_readable_date(unix_epoch_time):
     return readable_time
 
 
-def get_voiceRecordings(files_found, report_folder, seeker, wrap_text):
+def get_voiceRecordings(files_found, report_folder, seeker, wrap_text, timezone_offset):
     if len(files_found) > 0:
         data_list = []
         plist_files = []

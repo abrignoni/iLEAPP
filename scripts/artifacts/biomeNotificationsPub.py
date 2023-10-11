@@ -71,7 +71,7 @@ def timestampsconv(webkittime):
     finaltime = datetime.utcfromtimestamp(unix_timestamp)
     return(finaltime)
 
-def get_biomeNotificationsPub(files_found, report_folder, seeker, wrap_text):
+def get_biomeNotificationsPub(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
     typess = {'1': {'type': 'str', 'name': ''}, '2': {'type': 'double', 'name': ''}, '3': {'type': 'int', 'name': ''}, '4': {'type': 'str', 'name': ''}, '5': {'type': 'str', 'name': ''}, '8': {'type': 'str', 'name': ''}, '9': {'type': 'str', 'name': ''}, '11': {'type': 'int', 'name': ''}, '12': {'type': 'str', 'name': ''}, '14': {'type': 'str', 'name': ''}, '16': {'type': 'int', 'name': ''}}
 

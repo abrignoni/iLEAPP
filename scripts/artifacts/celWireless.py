@@ -5,7 +5,7 @@ import sqlite3
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, logdevinfo, tsv, is_platform_windows 
 
-def get_celWireless(files_found, report_folder, seeker, wrap_text):
+def get_celWireless(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
     for filepath in files_found:
         basename = os.path.basename(filepath)

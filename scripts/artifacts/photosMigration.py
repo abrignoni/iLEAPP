@@ -15,7 +15,7 @@ from scripts.ilapfuncs import logfunc, tsv, kmlgen, timeline, is_platform_window
 from scripts.builds_ids import OS_build
 
 
-def get_photosMigration(files_found, report_folder, seeker, wrap_text):
+def get_photosMigration(files_found, report_folder, seeker, wrap_text, timezone_offset):
     for file_found in files_found:
         file_found = str(file_found)
 

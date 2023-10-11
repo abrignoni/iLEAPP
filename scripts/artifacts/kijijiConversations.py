@@ -21,7 +21,7 @@ from scripts.ilapfuncs import logfunc, tsv
 LOCAL_USER = 'Local User'
 UNIX_EPOCH = 978307200
 
-def get_kijijiConversations(files_found, report_folder, seeker, wrap_text):
+def get_kijijiConversations(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list_conversation = []
     for file_found in files_found:
         file_found = str(file_found)

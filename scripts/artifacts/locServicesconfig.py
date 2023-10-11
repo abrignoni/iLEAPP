@@ -14,7 +14,7 @@ def convertcocoa(timevalue):
     timestamp = datetime.datetime.fromtimestamp(timevalue) + delta 
     return (timestamp.strftime('%Y-%m-%d %H:%M:%S'))
 
-def get_locServicesconfig(files_found, report_folder, seeker, wrap_text):
+def get_locServicesconfig(files_found, report_folder, seeker, wrap_text, timezone_offset):
     
     data_list_clientsplist = []
     data_list_routinedplist= []

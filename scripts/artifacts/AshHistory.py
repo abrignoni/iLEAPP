@@ -2,7 +2,7 @@ import codecs
 import csv
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, is_platform_windows
-def get_AshHistory(files_found, report_folder, seeker, wrap_text):
+def get_AshHistory(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
     file_found = str(files_found[0])
     counter = 1

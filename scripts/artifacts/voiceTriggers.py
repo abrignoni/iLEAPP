@@ -14,7 +14,7 @@ def format_time(date_time_str):
     return formatted
 
 
-def get_voiceTriggers(files_found, report_folder, seeker, wrap_text):
+def get_voiceTriggers(files_found, report_folder, seeker, wrap_text, timezone_offset):
     info_files = []
     data_list = []
     if len(files_found) > 1:

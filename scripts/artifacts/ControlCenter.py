@@ -21,7 +21,7 @@ from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, logdevinfo, tsv, is_platform_windows 
 
-def get_ControlCenter(files_found, report_folder, seeker, wrap_text):
+def get_ControlCenter(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list_disabled = []
     data_list_modules = []
     data_list_userenabled = []

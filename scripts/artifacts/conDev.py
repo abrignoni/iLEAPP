@@ -7,7 +7,7 @@ import sqlite3
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
 
-def get_conDev(files_found, report_folder, seeker, wrap_text):
+def get_conDev(files_found, report_folder, seeker, wrap_text, timezone_offset):
     file_found = str(files_found[0])
     with open(file_found, "rb") as f:
         data = f.read()

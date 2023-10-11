@@ -14,7 +14,7 @@ def get_name(name_with_prefix):
         retval = retval[:-3]
     return retval
 
-def get_medicalID(files_found, report_folder, seeker, wrap_text):
+def get_medicalID(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
     file_found = str(files_found[0])
     with open(file_found, 'rb') as f:

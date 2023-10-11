@@ -20,7 +20,7 @@ def timefactorconversion(timeinutc):
         timeinutc = str(timeinutc)
     return timeinutc
 
-def get_icloudPhotoMeta(files_found, report_folder, seeker, wrap_text):
+def get_icloudPhotoMeta(files_found, report_folder, seeker, wrap_text, timezone_offset):
     counter = 0
     os.makedirs(os.path.join(report_folder, "bplists"))
     for file_found in files_found:

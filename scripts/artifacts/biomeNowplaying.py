@@ -71,7 +71,7 @@ def timestampsconv(webkittime):
     finaltime = datetime.utcfromtimestamp(unix_timestamp)
     return(finaltime)
 
-def get_biomeNowplaying(files_found, report_folder, seeker, wrap_text):
+def get_biomeNowplaying(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
     typess = {'2': {'type': 'double', 'name': ''}, '3': {'type': 'int', 'name': ''}, '5': {'type': 'str', 'name': ''}, '6': {'type': 'int', 'name': ''}, '8': {'type': 'str', 'name': ''}, '9': {'type': 'int', 'name': ''}, '10': {'type': 'str', 'name': ''}, '13': {'type': 'int', 'name': ''}, '14': {'type': 'message', 'message_typedef': {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''}, '3': {'type': 'str', 'name': ''}}, 'name': ''}, '15': {'type': 'str', 'name': ''}}
 

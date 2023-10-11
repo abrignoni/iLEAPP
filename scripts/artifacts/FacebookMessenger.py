@@ -6,7 +6,7 @@ from os.path import basename
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, get_next_unused_name, open_sqlite_db_readonly, does_table_exist, does_view_exist
 
-def get_FacebookMessenger(files_found, report_folder, seeker, wrap_text):
+def get_FacebookMessenger(files_found, report_folder, seeker, wrap_text, timezone_offset):
     
     for file_found in files_found:
         file_found = str(file_found)

@@ -13,7 +13,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, logdevinfo, timeline, kmlgen, tsv, is_platform_windows, open_sqlite_db_readonly
 
 
-def get_teams(files_found, report_folder, seeker, wrap_text):
+def get_teams(files_found, report_folder, seeker, wrap_text, timezone_offset):
     CacheFile = 0
     for file_found in files_found:
         file_found = str(file_found)
@@ -44,16 +44,19 @@ def get_teams(files_found, report_folder, seeker, wrap_text):
     if usageentries > 0:
         for row in all_rows:
             thumb =''
-            if '<div><img src=' in row[2]:
-                matches = re.search('"([^"]+)"',row[2])
-                imageURL = (matches[0].strip('\"'))
-                if imageURL in nsplist.keys():
-                    data_file_real_path = nsplist[imageURL]
-                    for match in files_found:
-                        if data_file_real_path in match:
-                            shutil.copy2(match, report_folder)
-                            data_file_name = os.path.basename(match)
-                            thumb = f'<img src="{report_folder}/{data_file_name}"></img>'
+            try:
+                if '<div><img src=' in row[2]:
+                    matches = re.search('"([^"]+)"',row[2])
+                    imageURL = (matches[0].strip('\"'))
+                    if imageURL in nsplist.keys():
+                        data_file_real_path = nsplist[imageURL]
+                        for match in files_found:
+                            if data_file_real_path in match:
+                                shutil.copy2(match, report_folder)
+                                data_file_name = os.path.basename(match)
+                                thumb = f'<img src="{report_folder}/{data_file_name}"></img>'
+            except:
+                logfunc(f'Error on block lines 47 - 57, content on {row[0]}')
             data_list.append((row[0], row[1], row[2], thumb))
 
         description = 'Teams Messages'
@@ -202,7 +205,7 @@ def get_teams(files_found, report_folder, seeker, wrap_text):
                     carddevid = (idcontent.get('deviceId'))
                 data_list_cards.append((composetime, row[1], row[2], row[3], cardurl, cardtitle, cardtext, cardurl2, cardlat, cardlong, cardexpires, carddevid))
             else:
-                data_list_unparsed.append(composetime, row[1], row[2], row[3], plist)
+                data_list_unparsed.append((composetime, row[1], row[2], row[3], plist))
                 
         description = 'Microsoft Teams Call Logs'
         report = ArtifactHtmlReport('Microsoft Teams Call Logs')

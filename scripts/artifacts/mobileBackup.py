@@ -7,7 +7,7 @@ from scripts.ilapfuncs import logfunc, logdevinfo, tsv, is_platform_windows
 
 # Backup version of iOS, iOS version installed at the time of recovery, 
 # recovery date, and whether the backup was restored from iCloud.
-def get_mobileBackup(files_found, report_folder, seeker, wrap_text):
+def get_mobileBackup(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
     file_found = str(files_found[0])
     

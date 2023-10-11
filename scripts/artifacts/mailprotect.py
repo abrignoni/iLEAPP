@@ -12,7 +12,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows
 from scripts.parse3 import ParseProto
 
-def get_mailprotect(files_found, report_folder, seeker, wrap_text):
+def get_mailprotect(files_found, report_folder, seeker, wrap_text, timezone_offset):
 	iOSversion = scripts.artifacts.artGlobals.versionf
 
 	if version.parse(iOSversion) <= version.parse("11"):

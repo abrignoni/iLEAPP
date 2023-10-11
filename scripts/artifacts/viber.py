@@ -43,7 +43,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, logdevinfo, timeline, kmlgen, tsv, is_platform_windows, open_sqlite_db_readonly, media_to_html
 
 
-def get_viber(files_found, report_folder, seeker, wrap_text):
+def get_viber(files_found, report_folder, seeker, wrap_text, timezone_offset):
 	viber_settings = {}
 	for file_found in files_found:
 		file_found = str(file_found)
