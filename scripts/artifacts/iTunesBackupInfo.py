@@ -96,7 +96,7 @@ def get_iTunesBackupInfo(files_found, report_folder, seeker, wrap_text, timezone
             for installed_app in installed_apps:
                 apps[installed_app] = {'info_plist_bundle_id': installed_app}
         apps_iTunesMetadata = get_iTunesMetadata(apps)
-    elif installed_app:
+    elif installed_apps:
         data_list.append(("Installed Applications", ', '.join(installed_apps)))
 
 
