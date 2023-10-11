@@ -32,7 +32,8 @@ def validate_args(args):
     try:
         timezone = pytz.timezone(args.timezone)
     except pytz.UnknownTimeZoneError:
-        print("Error: Unknown timezone name.")
+      raise argparse.ArgumentError(None, 'Unknown timezone! Run the program again.')
+        
 
 def main():
     parser = argparse.ArgumentParser(description='iLEAPP: iOS Logs, Events, and Plists Parser.')
@@ -148,7 +149,7 @@ def crunch_artifacts(
     log = open(os.path.join(out_params.report_folder_base, 'Script Logs', 'ProcessedFilesLog.html'), 'w+', encoding='utf8')
     nl = '\n' #literal in order to have new lines in fstrings that create text files
     log.write(f'Extraction/Path selected: {input_path}<br><br>')
-    log.write(f'Timezone selected: {time_offset}')
+    log.write(f'Timezone selected: {time_offset}<br><br>')
     
     categories_searched = 0
     # Special processing for iTunesBackup Info.plist as it is a seperate entity, not part of the Manifest.db. Seeker won't find it
