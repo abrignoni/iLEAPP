@@ -1,5 +1,5 @@
 import csv
-import datetime
+from datetime import *
 import os
 import pathlib
 import re
@@ -12,6 +12,7 @@ import math
 import simplekml
 import shutil
 import magic
+import pytz
 from pathlib import Path
 
 from bs4 import BeautifulSoup
@@ -31,7 +32,7 @@ class OutputParameters:
     screen_output_file_path = ''
 
     def __init__(self, output_folder):
-        now = datetime.datetime.now()
+        now = datetime.now()
         currenttime = str(now.strftime('%Y-%m-%d_%A_%H%M%S'))
         self.report_folder_base = os.path.join(output_folder, 'iLEAPP_Reports_' + currenttime) # aleapp , aleappGUI, ileap_artifacts, report.py
         self.temp_folder = os.path.join(self.report_folder_base, 'temp')
@@ -40,6 +41,33 @@ class OutputParameters:
 
         os.makedirs(os.path.join(self.report_folder_base, 'Script Logs'))
         os.makedirs(self.temp_folder)
+
+def convert_time_obj_to_utc(ts):
+    timestamp = ts.replace(tzinfo=timezone.utc)
+    return timestamp
+
+def convert_utc_human_to_timezone(utc_time, time_offset): 
+    #fetch the timezone information
+    timezone = pytz.timezone(time_offset)
+    
+    #convert utc to timezone
+    timezone_time = utc_time.astimezone(timezone)
+    
+    #return the converted value
+    return timezone_time
+
+
+def convert_ts_human_to_utc(ts): #This is for timestamp in human form
+    if '.' in ts:
+        ts = ts.split('.')[0]
+        
+    dt = datetime.strptime(ts, '%Y-%m-%d %H:%M:%S') #Make it a datetime object
+    timestamp = dt.replace(tzinfo=timezone.utc) #Make it UTC
+    return timestamp
+
+def convert_ts_int_to_utc(ts): #This int timestamp to human format & utc
+    timestamp = datetime.fromtimestamp(ts, tz=timezone.utc)
+    return timestamp
 
 def is_platform_windows():
     '''Returns True if running on Windows'''
