@@ -6,7 +6,7 @@ from time import mktime
 from io import StringIO
 from io import BytesIO
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, convert_ts_human_to_utc, convert_utc_human_to_timezone, convert_time_obj_to_utc 
 
 def utf8_in_extended_ascii(input_string, *, raise_on_unexpected=False):
     """Returns a tuple of bool (whether mis-encoded utf-8 is present) and str (the converted string)"""
@@ -161,7 +161,7 @@ def get_biomeAppinstall(files_found, report_folder, seeker, wrap_text, timezone_
             report = ArtifactHtmlReport(f'Biome AppInstall')
             report.start_artifact_report(report_folder, f'Biome AppInstall - {filename}', description)
             report.add_script()
-            data_headers = ('Time Start','Time End','Time Write','Activity','Bundle ID','Bundle Info', 'App Info', 'App Info', 'Action GUID')
+            data_headers = ('Timestamp','Time End','Time Write','Activity','Bundle ID','Bundle Info', 'App Info', 'App Info', 'Action GUID')
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
             
