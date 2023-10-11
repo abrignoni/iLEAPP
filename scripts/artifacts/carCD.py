@@ -12,7 +12,7 @@ def timestampsconv(webkittime):
     finaltime = datetime.utcfromtimestamp(unix_timestamp)
     return(finaltime)
 
-def get_carCD(files_found, report_folder, seeker, wrap_text):
+def get_carCD(files_found, report_folder, seeker, wrap_text, timezone_offset):
     
     data_list = []
     

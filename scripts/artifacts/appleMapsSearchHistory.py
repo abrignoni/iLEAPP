@@ -16,7 +16,7 @@ def shortbase64proto(shortstuff, shorttypes):
     shortstuff, t = blackboxprotobuf.decode_message(base64.b64decode(shortstuff), shorttypes)
     return shortstuff
 
-def get_appleMapsSearchHistory(files_found, report_folder, seeker, wrap_text):
+def get_appleMapsSearchHistory(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
 
     shorttypes = {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'bytes', 'name': ''}}, 'name': ''}, '7': {'type': 'int', 'name': ''}, '8': {'type': 'message', 'message_typedef': {'4': {'type': 'message', 'message_typedef': {'3': {'type': 'int', 'name': ''}, '4': {'type': 'message', 'message_typedef': {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'double', 'name': ''}, '2': {'type': 'double', 'name': ''}}, 'name': ''}}, 'name': ''}}, 'name': ''}}, 'name': ''}}

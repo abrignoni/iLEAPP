@@ -9,7 +9,7 @@ def timestampcalc(timevalue):
     timestamp = (datetime.datetime.fromtimestamp(int(timevalue)/1000).strftime('%Y-%m-%d %H:%M:%S'))
     return timestamp
 
-def get_airtags(files_found, report_folder, seeker, wrap_text):
+def get_airtags(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list_info = []
     data_list_safeloc = []
     data_list_location = []

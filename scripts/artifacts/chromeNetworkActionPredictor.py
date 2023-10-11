@@ -16,7 +16,7 @@ def get_browser_name(file_name):
     else:
         return 'Unknown'
 
-def get_chromeNetworkActionPredictor(files_found, report_folder, seeker, wrap_text):
+def get_chromeNetworkActionPredictor(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
     for file_found in files_found:
         file_found = str(file_found)

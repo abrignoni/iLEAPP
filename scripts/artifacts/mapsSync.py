@@ -32,7 +32,7 @@ def get_recursively(search_dict, field):
                         
     return fields_found
 
-def get_mapsSync(files_found, report_folder, seeker, wrap_text):
+def get_mapsSync(files_found, report_folder, seeker, wrap_text, timezone_offset):
     
     for file_found in files_found:
         file_found = str(file_found)

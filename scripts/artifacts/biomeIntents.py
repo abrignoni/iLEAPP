@@ -71,7 +71,7 @@ def timestampsconv(webkittime):
     finaltime = datetime.utcfromtimestamp(unix_timestamp)
     return(finaltime)
 
-def get_biomeIntents(files_found, report_folder, seeker, wrap_text):
+def get_biomeIntents(files_found, report_folder, seeker, wrap_text, timezone_offset):
     
     files_found = sorted(files_found)
     

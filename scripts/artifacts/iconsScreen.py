@@ -8,7 +8,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, logdevinfo, is_platform_windows
 
 
-def get_iconsScreen(files_found, report_folder, seeker, wrap_text):
+def get_iconsScreen(files_found, report_folder, seeker, wrap_text, timezone_offset):
     # iOSversion = scripts.artifacts.artGlobals.versionf
     # if version.parse(iOSversion) >= version.parse("14"):
     #     logfunc(f'iOS Screen artifact not compatible with iOS {iOSversion}')

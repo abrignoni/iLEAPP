@@ -14,7 +14,7 @@ from scripts.ilapfuncs import logfunc, tsv, kmlgen, timeline, is_platform_window
     open_sqlite_db_readonly
 
 
-def get_photosMetadata(files_found, report_folder, seeker, wrap_text):
+def get_photosMetadata(files_found, report_folder, seeker, wrap_text, timezone_offset):
     for file_found in files_found:
       file_found = str(file_found)
       

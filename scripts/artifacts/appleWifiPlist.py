@@ -21,7 +21,7 @@ def _bytes_to_mac_address(encoded_bytes):
 
     return to_return
 
-def get_appleWifiPlist(files_found, report_folder, seeker, wrap_text):
+def get_appleWifiPlist(files_found, report_folder, seeker, wrap_text, timezone_offset):
     known_data_list = []
     scanned_data_list = []
     known_files = []

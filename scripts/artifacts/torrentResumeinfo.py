@@ -10,7 +10,7 @@ def timestampcalc(timevalue):
     timestamp = (datetime.datetime.fromtimestamp(int(timevalue)).strftime('%Y-%m-%d %H:%M:%S'))
     return timestamp
 
-def get_torrentResumeinfo(files_found, report_folder, seeker, wrap_text):
+def get_torrentResumeinfo(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
     data_list = []
     for file_found in files_found:

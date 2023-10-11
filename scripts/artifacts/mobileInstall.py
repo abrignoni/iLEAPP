@@ -39,7 +39,7 @@ def day_converter(day):
     return day
 
 
-def get_mobileInstall(files_found, report_folder, seeker, wrap_text):
+def get_mobileInstall(files_found, report_folder, seeker, wrap_text, timezone_offset):
     counter = 0
     filescounter = 0
     tsv_tml_data_list = []

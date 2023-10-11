@@ -23,7 +23,7 @@ import scripts.artifacts.artGlobals
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly,media_to_html
 
-def get_hikvision(files_found, report_folder, seeker, wrap_text):
+def get_hikvision(files_found, report_folder, seeker, wrap_text, timezone_offset):
     separator_1 = '/'
     separator_2 = "\\"
     media_data_list = []

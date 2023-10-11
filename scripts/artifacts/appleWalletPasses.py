@@ -8,7 +8,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly
 
 
-def get_appleWalletPasses(files_found, report_folder, seeker, wrap_text):
+def get_appleWalletPasses(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
     all_rowsc = 0
     for file_found in files_found:

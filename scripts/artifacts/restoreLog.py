@@ -5,7 +5,7 @@ from scripts.builds_ids import OS_build
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows
 
-def get_restoreLog(files_found, report_folder, seeker, wrap_text):
+def get_restoreLog(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
     data_list = []
     pattern = 'data = '

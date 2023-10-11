@@ -5,7 +5,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline
 
 
-def get_keyboardLexicon(files_found, report_folder, seeker, wrap_text):
+def get_keyboardLexicon(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
     tsv_data_list = []
     for file_found in files_found:

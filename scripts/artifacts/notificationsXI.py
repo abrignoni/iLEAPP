@@ -12,7 +12,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, is_platform_windows
 
 
-def get_notificationsXI(files_found, report_folder, seeker, wrap_text):
+def get_notificationsXI(files_found, report_folder, seeker, wrap_text, timezone_offset):
     pathfound = 0
     count = 0
     notdircount = 0

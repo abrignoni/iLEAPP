@@ -32,7 +32,7 @@ def save_ktx_to_png_if_valid(ktx_path, save_to_path):
             logfunc(f'Had an exception - {str(ex)}')
     return False
 
-def get_applicationSnapshots(files_found, report_folder, seeker, wrap_text):
+def get_applicationSnapshots(files_found, report_folder, seeker, wrap_text, timezone_offset):
     
     slash = '\\' if is_platform_windows() else '/'
     data_headers = ('Date Modified', 'App Name', 'Source Path', 'Snapshot')

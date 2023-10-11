@@ -10,7 +10,7 @@ def timestampsconv(webkittime):
     finaltime = datetime.utcfromtimestamp(unix_timestamp)
     return(finaltime)
 
-def get_backupSettings(files_found, report_folder, seeker, wrap_text):
+def get_backupSettings(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
     file_found = str(files_found[0])
     with open(file_found, "rb") as fp:

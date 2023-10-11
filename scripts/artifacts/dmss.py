@@ -34,7 +34,7 @@ import scripts.artifacts.artGlobals
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly,media_to_html
 
-def get_dmss(files_found, report_folder, seeker, wrap_text):
+def get_dmss(files_found, report_folder, seeker, wrap_text, timezone_offset):
     separator_1 = '/'
     separator_2 = "\\"
     dmss_db_file_list = []

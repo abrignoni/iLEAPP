@@ -31,7 +31,7 @@ from scripts.ilapfuncs import logfunc, logdevinfo, tsv, timeline, is_platform_wi
 
 from scripts.builds_ids import OS_build, device_id
 
-def get_Health(files_found, report_folder, seeker, wrap_text):
+def get_Health(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
     healthdb_secure = ''
     healthdb = ''

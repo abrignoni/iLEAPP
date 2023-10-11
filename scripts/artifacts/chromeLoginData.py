@@ -54,7 +54,7 @@ def get_valid_date(d1, d2):
     else:
         return d2
 
-def get_chromeLoginData(files_found, report_folder, seeker, wrap_text):
+def get_chromeLoginData(files_found, report_folder, seeker, wrap_text, timezone_offset):
     
     for file_found in files_found:
         file_found = str(file_found)

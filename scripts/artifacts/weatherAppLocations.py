@@ -6,7 +6,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, kmlgen, timeline, is_platform_windows
 
 
-def get_weatherAppLocations(files_found, report_folder, seeker, wrap_text):
+def get_weatherAppLocations(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
     data_list_two_one = []
     for file_found in files_found:
