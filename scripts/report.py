@@ -177,6 +177,8 @@ def get_icon_name(category, artifact):
             icon = 'info'
     elif category == 'DHCP':
         icon = 'settings'
+    elif category == 'IOS ATXDATASTORE':
+        icon = 'database'
     elif category == 'DISCORD':
         if artifact == 'DISCORD MESSAGES':
             icon = 'message-square'

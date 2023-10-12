@@ -7,7 +7,7 @@
 import re
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly
+from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly, kmlgen
 
 
 def get_atxDatastore(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -55,12 +55,12 @@ LEFT JOIN Local.ZRTLEARNEDLOCATIONOFINTERESTMO on Local.ZRTLEARNEDLOCATIONOFINTE
         
         data_list = []
         for row in all_rows:
-            data_list.append((row[0],row[5], row[2],row[3],row[4],row[6],row[7],row[8],row[9]))
+            data_list.append((row[5], row[2],row[3],row[4],row[6],row[7],row[8],row[9],row[0]))
 
         report = ArtifactHtmlReport('ATXDataStore')
         report.start_artifact_report(report_folder, 'ATXDataStore')
         report.add_script()
-        data_headers = ('ID', 'Date', 'Type', 'Lat', 'Long', 'AppSessionStartDate', 'AppSessionEndDate', 'Location', 'Previous Location')
+        data_headers = ('Timestamp', 'Type', 'Latitude', 'Longitude', 'AppSessionStartDate', 'AppSessionEndDate', 'Location', 'Previous Location','ID', )
         report.write_artifact_data_table(data_headers, data_list, atxdb)
         report.end_artifact_report()
 
@@ -69,6 +69,9 @@ LEFT JOIN Local.ZRTLEARNEDLOCATIONOFINTERESTMO on Local.ZRTLEARNEDLOCATIONOFINTE
 
         tlactivity = 'ATXDataStore'
         timeline(report_folder, tlactivity, data_list, data_headers)
+        
+        kmlactivity = 'ATXDataStore'
+        kmlgen(report_folder, kmlactivity, data_list, data_headers)
     else:
         logfunc('No items in ATXDataStore')
 
