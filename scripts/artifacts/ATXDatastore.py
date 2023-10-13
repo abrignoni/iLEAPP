@@ -5,9 +5,9 @@
 # Requirements: none
 
 import re
-
+from datetime import datetime, timezone
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly, kmlgen
+from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly, kmlgen, convert_ts_human_to_utc, convert_utc_human_to_timezone
 
 
 def get_atxDatastore(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -36,7 +36,7 @@ alog.bundleId AS bundleId,
 alogAction.actionType as ptype,
 Local.ZRTLEARNEDLOCATIONOFINTERESTMO.ZLOCATIONLATITUDE as latitude, 
 Local.ZRTLEARNEDLOCATIONOFINTERESTMO.ZLOCATIONLONGITUDE as longitude,
-DateTime(alog.date + 978307200, 'UNIXEPOCH', 'localtime') as date,
+DateTime(alog.date + 978307200, 'UNIXEPOCH') as date,
 DateTime(alog.appSessionStartDate + 978307200, 'UNIXEPOCH') as appSessionStartDate,
 DateTime(alog.appSessionEndDate + 978307200, 'UNIXEPOCH') as appSessionEndDate,
 hex(alog.location) as location,
@@ -55,7 +55,16 @@ LEFT JOIN Local.ZRTLEARNEDLOCATIONOFINTERESTMO on Local.ZRTLEARNEDLOCATIONOFINTE
         
         data_list = []
         for row in all_rows:
-            data_list.append((row[5], row[2],row[3],row[4],row[6],row[7],row[8],row[9],row[0]))
+            timestamp = convert_ts_human_to_utc(row[5])
+            timestamp = convert_utc_human_to_timezone(timestamp,timezone_offset)
+            
+            startdate = convert_ts_human_to_utc(row[6])
+            startdate = convert_utc_human_to_timezone(startdate,timezone_offset)
+            
+            enddate = convert_ts_human_to_utc(row[7])
+            enddate = convert_utc_human_to_timezone(enddate,timezone_offset)
+            
+            data_list.append((timestamp, row[2],row[3],row[4],startdate,enddate,row[8],row[9],row[0]))
 
         report = ArtifactHtmlReport('ATXDataStore')
         report.start_artifact_report(report_folder, 'ATXDataStore')
