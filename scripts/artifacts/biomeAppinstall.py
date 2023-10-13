@@ -1,7 +1,7 @@
 import os
 import struct
 import blackboxprotobuf
-from datetime import datetime
+from datetime import datetime, timezone
 from time import mktime
 from io import StringIO
 from io import BytesIO
@@ -68,7 +68,7 @@ def utf8_in_extended_ascii(input_string, *, raise_on_unexpected=False):
 
 def timestampsconv(webkittime):
     unix_timestamp = webkittime + 978307200
-    finaltime = datetime.utcfromtimestamp(unix_timestamp)
+    finaltime = datetime.fromtimestamp(unix_timestamp, tz=timezone.utc)
     return(finaltime)
 
 def get_biomeAppinstall(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -124,8 +124,12 @@ def get_biomeAppinstall(files_found, report_folder, seeker, wrap_text, timezone_
             
                 activity = (protostuff['1']['1'])
                 timestart = (timestampsconv(protostuff['2']))
+                timestart = convert_utc_human_to_timezone(timestart, timezone_offset)
+                
+                
                 timeend = (timestampsconv(protostuff['3']))
-            
+                timeend = convert_utc_human_to_timezone(timeend, timezone_offset)
+                
                 bundleid = (protostuff['4']['3'])
                 actionguid = (protostuff['5'])
                 appinfo1 = appinfo2 = ''
@@ -143,6 +147,7 @@ def get_biomeAppinstall(files_found, report_folder, seeker, wrap_text, timezone_
                     bundleinfo = ''
                 
                 timewrite = (timestampsconv(protostuff['8']))
+                timewrite = convert_utc_human_to_timezone(timewrite, timezone_offset)
                 
                 data_list.append((timestart, timeend, timewrite, activity, bundleid, bundleinfo, appinfo1, appinfo2, actionguid ))
         
