@@ -38,7 +38,28 @@ def get_tileAppDb(files_found, report_folder, seeker, wrap_text, timezone_offset
     data_list = []    
     if usageentries > 0:
         for row in all_rows:
-            data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11]))
+            timestamp = row[0]
+            if timestamp is None:
+                pass
+            else:
+                timestamp = convert_ts_human_to_utc(timestamp)
+                timestamp = convert_utc_human_to_timezone(timestamp,timezone_offset)
+                
+            acttimestamp = row[2]
+            if acttimestamp is None:
+                pass
+            else:
+                acttimestamp = convert_ts_human_to_utc(acttimestamp)
+                acttimestamp= convert_utc_human_to_timezone(acttimestamp,timezone_offset)
+                
+            regtimestamp = row[3]
+            if acttimestamp is None:
+                pass
+            else:
+                regtimestamp = convert_ts_human_to_utc(regtimestamp)
+                regtimestamp = convert_utc_human_to_timezone(regtimestamp,timezone_offset)
+                
+            data_list.append((timestamp, row[1], acttimestamp, regtimestamp, row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11]))
         
             description = ''
             report = ArtifactHtmlReport('Tile App - Tile Information & Geolocation')

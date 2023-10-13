@@ -2,12 +2,12 @@ import os
 import struct
 import blackboxprotobuf
 import nska_deserialize as nd
-from datetime import datetime
+from datetime import datetime, timezone
 from time import mktime
 from io import StringIO
 from io import BytesIO
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, convert_utc_human_to_timezone, timestampsconv
 
 def utf8_in_extended_ascii(input_string, *, raise_on_unexpected=False):
     """Returns a tuple of bool (whether mis-encoded utf-8 is present) and str (the converted string)"""
@@ -66,11 +66,6 @@ def utf8_in_extended_ascii(input_string, *, raise_on_unexpected=False):
         handle_bad_data(len(input_string), "")
     
     return mis_encoded_utf8_present, "".join(output)
-
-def timestampsconv(webkittime):
-    unix_timestamp = webkittime + 978307200
-    finaltime = datetime.utcfromtimestamp(unix_timestamp)
-    return(finaltime)
 
 def get_biomeLocationactivity(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
@@ -143,7 +138,11 @@ def get_biomeLocationactivity(files_found, report_folder, seeker, wrap_text, tim
                 
                 activity = (protostuff['1']['1'])
                 timestart = (timestampsconv(protostuff['2']))
+                timestart = convert_utc_human_to_timezone(timestart, timezone_offset)
+                
                 timeend = (timestampsconv(protostuff['3']))
+                timeend = convert_utc_human_to_timezone(timeend, timezone_offset)
+                
                 bundle = (protostuff['4']['3'])
                 actionguid = (protostuff['5'])
                 data0 = (protostuff['6']['1'])
@@ -178,6 +177,7 @@ def get_biomeLocationactivity(files_found, report_folder, seeker, wrap_text, tim
                     data6 = (deserialized_plist['NS.relative'])
                     
                 timewrite = (timestampsconv(protostuff['8']))
+                timewrite = convert_utc_human_to_timezone(timewrite, timezone_offset)
                 
                 data_list.append((timestart, timeend, timewrite, activity, bundle, bundle2, data0, data1, data2, data3, data4, data5, data6, actionguid ))
         

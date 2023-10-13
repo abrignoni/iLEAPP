@@ -56,6 +56,10 @@ def convert_utc_human_to_timezone(utc_time, time_offset):
     #return the converted value
     return timezone_time
 
+def timestampsconv(webkittime):
+    unix_timestamp = webkittime + 978307200
+    finaltime = datetime.fromtimestamp(unix_timestamp, tz=timezone.utc)
+    return(finaltime)
 
 def convert_ts_human_to_utc(ts): #This is for timestamp in human form
     if '.' in ts:
