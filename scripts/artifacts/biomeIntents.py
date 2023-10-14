@@ -314,7 +314,10 @@ def get_biomeIntents(files_found, report_folder, seeker, wrap_text, timezone_off
                             
                             for loopy in protostuffinner['4']:
                                 a = loopy['1'].decode()
-                                b = loopy['2']['2']['2']
+                                try:
+                                    b = loopy['2']['2']['2']
+                                except:
+                                    b = loopy['2']
                                 datos = datos + f'{a}: {b},'
                                 
                             datoshtml = (datos.replace(',', '<br>'))
