@@ -52,7 +52,7 @@ def get_biomeSync(files_found, report_folder, seeker, wrap_text, timezone_offset
                     timestamp = row[0]
                 else:
                     timestamp = row[0]
-                    timestamp = convert_time_obj_to_utc(timestamp)
+                    timestamp = convert_ts_human_to_utc(timestamp)
                     timestamp = convert_utc_human_to_timezone(timestamp, timezone_offset)
                 
                 for key, value in OS_build.items():

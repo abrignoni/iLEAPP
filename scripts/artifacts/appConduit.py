@@ -12,7 +12,7 @@ import textwrap
 from html import escape
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
+from scripts.ilapfuncs import logfunc, tsv, is_platform_windows, convert_time_obj_to_utc, convert_time_obj_to_utc 
 
 def get_appConduit(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
@@ -44,6 +44,9 @@ def get_appConduit(files_found, report_folder, seeker, wrap_text, timezone_offse
                 date_time = line_match.group(3, 5, 4)
                 conv_time = ' '.join(date_time)
                 dtime_obj = datetime.datetime.strptime(conv_time, '%b %d %Y %H:%M:%S')
+                dtime_obj = convert_time_obj_to_utc(dtime_obj)
+                dtime_obj = convert_utc_human_to_timezone(dtime_obj, timezone_offset)
+                
                 values  = line_match.group(9)
                 device_id = line_match.group(11)
 
