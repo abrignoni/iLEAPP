@@ -136,9 +136,8 @@ def utf8_in_extended_ascii(input_string, *, raise_on_unexpected=False):
     return mis_encoded_utf8_present, "".join(output)
 
 def sanitize_file_path(filename, replacement_char='_'):
-    '''
-    Removes illegal characters (for windows) from the string passed. Does not replace \ or /
-    '''
+
+    # Removes illegal characters (for windows) from the string passed. Does not replace \ or /
     return re.sub(r'[*?:"<>|\'\r\n]', replacement_char, filename)
 
 def sanitize_file_name(filename, replacement_char='_'):
