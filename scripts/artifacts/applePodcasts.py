@@ -2,7 +2,7 @@ import sqlite3
 import textwrap
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, get_next_unused_name, open_sqlite_db_readonly
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, get_next_unused_name, open_sqlite_db_readonly, convert_ts_human_to_utc, convert_utc_human_to_timezone
 
 def get_applePodcasts(files_found, report_folder, seeker, wrap_text, timezone_offset):
     
@@ -36,7 +36,19 @@ def get_applePodcasts(files_found, report_folder, seeker, wrap_text, timezone_of
             data_headers = ('Date Added','Date Last Played','Date Last Updated','Date Downloaded','Author','Title','Feed URL','Description','Web Page URL') # Don't remove the comma, that is required to make this a tuple as there is only 1 element
             data_list = []
             for row in all_rows:
-                data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8]))
+                timestampadded = convert_ts_human_to_utc(row[0])
+                timestampadded = convert_utc_human_to_timezone(timestampadded,timezone_offset)
+                
+                timestampdateplayed = convert_ts_human_to_utc(row[1])
+                timestampdateplayed  = convert_utc_human_to_timezone(timestampdateplayed,timezone_offset)
+                
+                timestampdupdate = convert_ts_human_to_utc(row[2])
+                timestampdupdate = convert_utc_human_to_timezone(timestampdupdate,timezone_offset)
+
+                timestampdowndate = convert_ts_human_to_utc(row[3])
+                timestampdowndate  = convert_utc_human_to_timezone(timestampdowndate,timezone_offset)
+                
+                data_list.append((timestampadded,timestampdateplayed,timestampdupdate,timestampdupdate,row[4],row[5],row[6],row[7],row[8]))
 
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
@@ -81,7 +93,25 @@ def get_applePodcasts(files_found, report_folder, seeker, wrap_text, timezone_of
             data_headers = ('Import Date','Metadata Timestamp','Date Last Played','Play State Last Modified','Download Date','Play Count','Author','Title','Subtitle','Asset URL','Web Page URL','Duration','Size','Play State') # Don't remove the comma, that is required to make this a tuple as there is only 1 element
             data_list = []
             for row in all_rows:
-                data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12],row[13]))
+                timestampimport = convert_ts_human_to_utc(row[0])
+                timestampimport = convert_utc_human_to_timezone(timestampimport ,timezone_offset)
+                
+                if row[1] == '':
+                    timestampmeta = ''
+                else:
+                    timestampdameta = convert_ts_human_to_utc(row[1])
+                    timestampdameta = convert_utc_human_to_timezone(timestampdameta,timezone_offset)
+                
+                timestamplastplay = convert_ts_human_to_utc(row[2])
+                timestamplastplay = convert_utc_human_to_timezone(timestamplastplay,timezone_offset)
+                
+                timestamplastmod = convert_ts_human_to_utc(row[3])
+                timestamplastmod = convert_utc_human_to_timezone(timestamplastmod,timezone_offset)
+                
+                timestampdowndate = convert_ts_human_to_utc(row[4])
+                timestampdowndate = convert_utc_human_to_timezone(timestampdupdate,timezone_offset)
+                
+                append((timestampimport,timestampmeta,timestamplastplay,timestamplastmod,timestampdowndate,row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12],row[13]))
 
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
