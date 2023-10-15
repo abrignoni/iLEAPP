@@ -34,7 +34,14 @@ def get_appleWalletTransactions(files_found, report_folder, seeker, wrap_text, t
     if usageentries > 0:
         data_list = []
         for row in all_rows:
-            data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11], row[12], row[13]))
+            
+            timestamptrdate = convert_ts_human_to_utc(row[0])
+            timestamptrdate = convert_utc_human_to_timezone(timestamptrdate,timezone_offset)
+            
+            timestamplocdate = convert_ts_human_to_utc(row[6])
+            timestamplocdate = convert_utc_human_to_timezone(timestamplocdate,timezone_offset)
+            
+            data_list.append((timestamptrdate, row[1], row[2], row[3], row[4], row[5], timestamplocdate, row[7], row[8], row[9], row[10], row[11], row[12], row[13]))
 
         report = ArtifactHtmlReport('Transactions')
         report.start_artifact_report(report_folder, 'Transactions')
