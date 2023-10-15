@@ -5,7 +5,7 @@ from re import search, DOTALL
 from os.path import isfile, join, basename, dirname
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly
+from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly, convert_ts_human_to_utc, convert_utc_human_to_timezone
 
 
 def get_appleWalletPasses(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -33,7 +33,7 @@ def get_appleWalletPasses(files_found, report_folder, seeker, wrap_text, timezon
                     desc = counter
                 
                 report = ArtifactHtmlReport('PK Passes')
-                report.start_artifact_report(report_folder, f'PK Pass: {desc}')
+                report.start_artifact_report(report_folder, f'PK Pass - {desc}')
                 report.add_script()
                 data_headers = ('Key','Value')
                 report.write_artifact_data_table(data_headers, data_list_json, file_found)
@@ -104,10 +104,13 @@ def get_appleWalletPasses(files_found, report_folder, seeker, wrap_text, timezon
                             
                     back_field = agg
                     
-                    data_list.append((row[4], row[0], row[1], row[2], row[3], row[5], front_field, back_field, encoded_pass))
+                    timestamp = convert_ts_human_to_utc(row[4])
+                    timestamp = convert_utc_human_to_timezone(timestamp,timezone_offset)
+                    
+                    data_list.append((timestamp, row[0], row[1], row[2], row[3], row[5], front_field, back_field, encoded_pass))
         
                 report = ArtifactHtmlReport('Nano Passes')
-                report.start_artifact_report(report_folder, f'Nano Passes: {typeID}')
+                report.start_artifact_report(report_folder, f'Nano Pass - {typeID}')
                 report.add_script()
                 data_headers = ('Pass Added','Unique ID', 'Organization Name', 'Type', 'Localized Description',
                                 'Pending Delete', 'Front Fields Content', 'Back Fields Content', 'Encoded Pass')
