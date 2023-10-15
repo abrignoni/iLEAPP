@@ -1,5 +1,5 @@
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, convert_ts_human_to_utc, convert_utc_human_to_timezone 
 
 
 def get_appleWalletTransactions(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -15,7 +15,7 @@ def get_appleWalletTransactions(files_found, report_folder, seeker, wrap_text, t
                             MERCHANT_NAME,
                             LOCALITY,
                             ADMINISTRATIVE_AREA,
-                            CAST(AMOUNT AS REAL)/100,
+                            CAST(AMOUNT AS REAL)/10000,
                             CURRENCY_CODE,
                             DATETIME(LOCATION_DATE + 978307200,'UNIXEPOCH'),
                             LOCATION_LATITUDE,
@@ -35,11 +35,20 @@ def get_appleWalletTransactions(files_found, report_folder, seeker, wrap_text, t
         data_list = []
         for row in all_rows:
             
-            timestamptrdate = convert_ts_human_to_utc(row[0])
-            timestamptrdate = convert_utc_human_to_timezone(timestamptrdate,timezone_offset)
+            timestamptrdate = row[0]
+            timestamplocdate = row[6]
             
-            timestamplocdate = convert_ts_human_to_utc(row[6])
-            timestamplocdate = convert_utc_human_to_timezone(timestamplocdate,timezone_offset)
+            if (timestamptrdate == '') or (timestamptrdate == None):
+                timestamptrdate = ''
+            else:
+                timestamptrdate = convert_ts_human_to_utc(row[0])
+                timestamptrdate = convert_utc_human_to_timezone(timestamptrdate,timezone_offset)
+            
+            if (timestamplocdate == '') or (timestamplocdate == None):
+                timestamplocdate = ''
+            else:
+                timestamplocdate = convert_ts_human_to_utc(row[6])
+                timestamplocdate = convert_utc_human_to_timezone(timestamplocdate,timezone_offset)
             
             data_list.append((timestamptrdate, row[1], row[2], row[3], row[4], row[5], timestamplocdate, row[7], row[8], row[9], row[10], row[11], row[12], row[13]))
 
