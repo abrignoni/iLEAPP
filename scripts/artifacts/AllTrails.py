@@ -1,8 +1,8 @@
 import sqlite3
 import textwrap
-
+from datetime import datetime, timezone
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, get_next_unused_name, open_sqlite_db_readonly
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, get_next_unused_name, open_sqlite_db_readonly, convert_ts_human_to_utc, convert_utc_human_to_timezone
 
 def get_AllTrails(files_found, report_folder, seeker, wrap_text, timezone_offset):
     
@@ -91,7 +91,9 @@ def get_AllTrails(files_found, report_folder, seeker, wrap_text, timezone_offset
             data_headers = ('Creation Timestamp','First Name','Last Name','User Name','Email','Referral Link','Latitude','Longitude','City','Region','Region Name','Country','Country Name','Zip Code') # Don't remove the comma, that is required to make this a tuple as there is only 1 element
             data_list = []
             for row in all_rows:
-                data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12],row[13]))
+                timestamp = convert_ts_human_to_utc(row[0])
+                timestamp = convert_utc_human_to_timezone(timestamp,timezone_offset)
+                data_list.append((timestamp,row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12],row[13]))
 
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()

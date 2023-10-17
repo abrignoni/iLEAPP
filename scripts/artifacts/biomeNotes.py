@@ -1,13 +1,13 @@
 import os
 import struct
 import blackboxprotobuf
-from datetime import datetime
+from datetime import datetime, timezone
 from time import mktime
 from io import StringIO
 from io import BytesIO
 from pathlib import Path
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, convert_utc_human_to_timezone, timestampsconv
 
 def utf8_in_extended_ascii(input_string, *, raise_on_unexpected=False):
     """Returns a tuple of bool (whether mis-encoded utf-8 is present) and str (the converted string)"""
@@ -67,11 +67,6 @@ def utf8_in_extended_ascii(input_string, *, raise_on_unexpected=False):
     
     return mis_encoded_utf8_present, "".join(output)
 
-def timestampsconv(webkittime):
-    unix_timestamp = webkittime + 978307200
-    finaltime = datetime.utcfromtimestamp(unix_timestamp)
-    return(finaltime)
-
 def get_biomeNotes(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
     typess = {'1': {'type': 'str', 'name': ''}, '2': {'type': 'str', 'name': ''}, '3': {'type': 'double', 'name': ''}, '5': {'type': 'str', 'name': ''}}
@@ -126,6 +121,7 @@ def get_biomeNotes(files_found, report_folder, seeker, wrap_text, timezone_offse
                 #print(protostuff)
                 recordcounter = recordcounter + 1
                 time = (timestampsconv(protostuff['3']))
+                time = convert_utc_human_to_timezone(time, timezone_offset)
                 identifier1 = protostuff['1']
                 identifier2 = protostuff['2']
                 message = protostuff['5']

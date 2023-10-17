@@ -1,5 +1,5 @@
 import json
-import time
+#import time
 import pathlib
 import typing
 import ileapp
@@ -114,7 +114,7 @@ layout = [  [sg.Text('iOS Logs, Events, And Plists Parser', font=("Helvetica", 2
             sg.Text('  |', font=("Helvetica", 14)),
             sg.Button('Load Case Data', key='LOAD CASE DATA'),
             sg.Text('  |', font=("Helvetica", 14)),
-                    sg.Text('Timezone Offset (Not Implemented Yet):', font=("Helvetica", 14)),
+                    sg.Text('Timezone Offset:', font=("Helvetica", 14)),
                     sg.Combo(list(tzvalues), size=(20,15), key='timezone',readonly=True)
             ],
             [sg.Column(mlist, size=(300,310), scrollable=True),  sg.Output(size=(85,20))] ,

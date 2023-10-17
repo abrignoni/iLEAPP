@@ -1,9 +1,9 @@
 import os
 import plistlib
 import sqlite3
-
+from datetime import datetime, timezone
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly 
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, convert_ts_human_to_utc, convert_utc_human_to_timezone 
 
 
 def get_accs(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -12,7 +12,7 @@ def get_accs(files_found, report_folder, seeker, wrap_text, timezone_offset):
     cursor = db.cursor()
     cursor.execute("""
     select
-    datetime(zdate+978307200,'unixepoch','utc' ),
+    datetime(zdate+978307200,'unixepoch'),
     zaccounttypedescription,
     zusername,
     zaccountdescription,
@@ -28,7 +28,14 @@ def get_accs(files_found, report_folder, seeker, wrap_text, timezone_offset):
     if usageentries > 0:
         data_list = []
         for row in all_rows:
-            data_list.append((row[0],row[1],row[2],row[3],row[4],row[5]))                
+            timestamp = row[0]
+            if timestamp is None:
+                pass
+            else:
+                timestamp = convert_ts_human_to_utc(timestamp)
+                timestamp = convert_utc_human_to_timezone(timestamp,timezone_offset)
+            
+            data_list.append((timestamp,row[1],row[2],row[3],row[4],row[5]))                
         report = ArtifactHtmlReport('Account Data')
         report.start_artifact_report(report_folder, 'Account Data')
         report.add_script()

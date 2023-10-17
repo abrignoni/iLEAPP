@@ -2,10 +2,11 @@ import gzip
 import re
 import os
 import scripts.artifacts.artGlobals
-
+from datetime import datetime, timezone
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, timeline, kmlgen,tsv, is_platform_windows 
+from scripts.ilapfuncs import logfunc, logdevinfo, timeline, kmlgen,tsv, is_platform_windows, convert_ts_human_to_utc, convert_utc_human_to_timezone 
+
 
 
 def get_tileApp(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -27,6 +28,8 @@ def get_tileApp(files_found, report_folder, seeker, wrap_text, timezone_offset):
                 counter +=1
                 if datestamp != None:
                     datestamp = datestamp.group(0)
+                    datestamp  = convert_ts_human_to_utc(datestamp)
+                    datestamp = convert_utc_human_to_timezone(datestamp ,timezone_offset)
                     regexlatlong = r"<[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)>"
                     latlong = re.search(regexlatlong, line)
                     if latlong != None:
@@ -38,7 +41,7 @@ def get_tileApp(files_found, report_folder, seeker, wrap_text, timezone_offset):
                         data_list.append((datestamp, lat.lstrip(), longi.lstrip(), counter, head_tail[1]))
 
     if len(data_list) > 0:
-        description = 'Tile app log recorded langitude and longitude coordinates.'
+        description = 'Tile app log recorded latitude and longitude coordinates.'
         report = ArtifactHtmlReport('Locations')
         report.start_artifact_report(report_folder, 'Tile App Geolocation Logs', description)
         report.add_script()

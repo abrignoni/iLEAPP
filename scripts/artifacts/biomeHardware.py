@@ -1,12 +1,12 @@
 import os
 import struct
 import blackboxprotobuf
-from datetime import datetime
+from datetime import datetime, timezone
 from time import mktime
 from io import StringIO
 from io import BytesIO
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, convert_ts_human_to_utc, convert_utc_human_to_timezone, convert_time_obj_to_utc
 
 def utf8_in_extended_ascii(input_string, *, raise_on_unexpected=False):
     """Returns a tuple of bool (whether mis-encoded utf-8 is present) and str (the converted string)"""
@@ -68,7 +68,7 @@ def utf8_in_extended_ascii(input_string, *, raise_on_unexpected=False):
 
 def timestampsconv(webkittime):
     unix_timestamp = webkittime + 978307200
-    finaltime = datetime.utcfromtimestamp(unix_timestamp)
+    finaltime = datetime.fromtimestamp(unix_timestamp, tz=timezone.utc)
     return(finaltime)
 
 def get_biomeHardware(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -117,6 +117,7 @@ def get_biomeHardware(files_found, report_folder, seeker, wrap_text, timezone_of
             date1 = ab.read(8) 
             date1 = (struct.unpack_from("<d",date1)[0])
             convertedtime1 = timestampsconv(date1)
+            convertedtime1 = convert_utc_human_to_timezone(convertedtime1, timezone_offset)
             #print(convertedtime1)
             segbtime = convertedtime1
             

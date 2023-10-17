@@ -1,12 +1,12 @@
 import os
 import struct
 import blackboxprotobuf
-from datetime import datetime
+from datetime import datetime, timezone
 from time import mktime
 from io import StringIO
 from io import BytesIO
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, convert_utc_human_to_timezone
 
 def utf8_in_extended_ascii(input_string, *, raise_on_unexpected=False):
     """Returns a tuple of bool (whether mis-encoded utf-8 is present) and str (the converted string)"""
@@ -68,7 +68,7 @@ def utf8_in_extended_ascii(input_string, *, raise_on_unexpected=False):
 
 def timestampsconv(webkittime):
     unix_timestamp = webkittime + 978307200
-    finaltime = datetime.utcfromtimestamp(unix_timestamp)
+    finaltime = datetime.fromtimestamp(unix_timestamp, tz=timezone.utc)
     return(finaltime)
 
 def get_biomeNotificationsPub(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -123,6 +123,7 @@ def get_biomeNotificationsPub(files_found, report_folder, seeker, wrap_text, tim
                 #print(protostuff)
                 
                 timestart = (timestampsconv(protostuff['2']))
+                timestart = convert_utc_human_to_timezone(timestart, timezone_offset)
                 bundleid = (protostuff['14'])
                 data1 = (protostuff.get('8',''))
                 data2 = (protostuff.get('9',''))
@@ -150,7 +151,7 @@ def get_biomeNotificationsPub(files_found, report_folder, seeker, wrap_text, tim
             report = ArtifactHtmlReport(f'Biome Notifications Public')
             report.start_artifact_report(report_folder, f'Biome Notifications Public - {filename}', description)
             report.add_script()
-            data_headers = ('Time Start','Bundle ID','Field 1','Field 2','Field 3','Field 4','Field 5','Field 6')
+            data_headers = ('Timestamp','Bundle ID','Field 1','Field 2','Field 3','Field 4','Field 5','Field 6')
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
             

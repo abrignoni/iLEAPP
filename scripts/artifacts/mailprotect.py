@@ -9,7 +9,7 @@ import scripts.artifacts.artGlobals
  
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, convert_ts_human_to_utc, convert_utc_human_to_timezone
 from scripts.parse3 import ParseProto
 
 def get_mailprotect(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -140,7 +140,13 @@ def get_mailprotect(files_found, report_folder, seeker, wrap_text, timezone_offs
 		if usageentries > 0:
 			data_list = [] 
 			for row in all_rows:
-				data_list.append((row[1],row[2],row[3],row[4],row[5],row[6],row[9],row[7],row[8],row[0]))
+				timestampds = convert_ts_human_to_utc(row[1])
+				timestampds = convert_utc_human_to_timezone(timestampds,timezone_offset)
+				
+				timestampdr = convert_ts_human_to_utc(row[2])
+				timestampdr = convert_utc_human_to_timezone(timestampdr,timezone_offset)
+				
+				data_list.append((timestampds,timestampdr,row[3],row[4],row[5],row[6],row[9],row[7],row[8],row[0]))
 			
 			file_found = head
 			description = ''
@@ -192,7 +198,13 @@ def get_mailprotect(files_found, report_folder, seeker, wrap_text, timezone_offs
 		if usageentries > 0:
 			data_list = [] 
 			for row in all_rows:
-				data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9]))
+				timestampds = convert_ts_human_to_utc(row[0])
+				timestampds = convert_utc_human_to_timezone(timestampds,timezone_offset)
+				
+				timestampdr = convert_ts_human_to_utc(row[1])
+				timestampdr = convert_utc_human_to_timezone(timestampdr,timezone_offset)
+				
+				data_list.append((timestampds,timestampdr,row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9]))
 			
 			file_found = head
 			description = ''
