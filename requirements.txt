@@ -1,25 +1,26 @@
-numpy
 astc_decomp_faster
+bencoding
 biplist
+blackboxprotobuf
 bs4
-pyliblzfse
+mmh3
+nska-deserialize>=1.3.1
+nska_deserialize
+numpy
 packaging==20.1
+pandas
 pathlib2==2.3.5
 PGPy
 pillow
 pillow_heif
+pycryptodome
 pyinstaller
 PySimpleGUI==4.16.0
-blackboxprotobuf
-nska-deserialize>=1.3.1
-nska_deserialize
-simplekml
-pandas
-mmh3
-bencoding
-pycryptodome
+pyliblzfse
 python-magic==0.4.24; platform_system == "Linux"
 python-magic-bin==0.4.14; platform_system == "Windows"
 python-magic-bin==0.4.14; platform_system == "Darwin"
 python-magic; platform_system == "Darwin" and platform_machine == "arm64"
 pytz
+simplekml
+
