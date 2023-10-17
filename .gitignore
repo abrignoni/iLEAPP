@@ -47,6 +47,7 @@ pytestdebug.log
 
 # Output test
 iLEAPP_Reports_*
+path_list.txt
 
 # PyBuilder
 target/
@@ -83,6 +84,9 @@ venv.bak/
 ### VisualStudioCode Patch ###
 # Ignore all local history of files
 .history
+
+# PyCharm
+.idea/
 
 ### Windows ###
 # Windows thumbnail cache files
