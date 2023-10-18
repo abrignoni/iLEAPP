@@ -1,7 +1,7 @@
 # common standard imports
 import codecs
 import csv
-import datetime
+from datetime import *
 import os
 import pathlib
 import re
@@ -37,7 +37,7 @@ class OutputParameters:
     screen_output_file_path = ''
 
     def __init__(self, output_folder):
-        now = datetime.datetime.now()
+        now = datetime.now()
         currenttime = str(now.strftime('%Y-%m-%d_%A_%H%M%S'))
         self.report_folder_base = os.path.join(output_folder,
                                                'iLEAPP_Reports_' + currenttime)  # aleapp , aleappGUI, ileap_artifacts, report.py
