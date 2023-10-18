@@ -28,7 +28,7 @@ def validate_args(args):
 
     if not os.path.exists(args.output_path):
         raise argparse.ArgumentError(None, 'OUTPUT folder does not exist! Run the program again.')
-    
+
     try:
         timezone = pytz.timezone(args.timezone)
     except pytz.UnknownTimeZoneError:

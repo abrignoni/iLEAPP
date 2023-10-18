@@ -1,23 +1,28 @@
+# common standard imports
+import codecs
 import csv
-from datetime import *
+import datetime
 import os
 import pathlib
 import re
-import sys
-import codecs
-import sqlite3
-import string
-import binascii
-import math
-import simplekml
 import shutil
-import magic
-import pytz
+import sqlite3
+import sys
+from functools import lru_cache
 from pathlib import Path
 
+# common third party imports
+import magic
+import pytz
+import simplekml
 from bs4 import BeautifulSoup
+
+# LEAPP version unique imports
+import binascii
+import math
+import string
 from PIL import Image
-from functools import lru_cache
+
 
 os.path.basename = lru_cache(maxsize=None)(os.path.basename)
 
@@ -32,12 +37,15 @@ class OutputParameters:
     screen_output_file_path = ''
 
     def __init__(self, output_folder):
-        now = datetime.now()
+        now = datetime.datetime.now()
         currenttime = str(now.strftime('%Y-%m-%d_%A_%H%M%S'))
-        self.report_folder_base = os.path.join(output_folder, 'iLEAPP_Reports_' + currenttime) # aleapp , aleappGUI, ileap_artifacts, report.py
+        self.report_folder_base = os.path.join(output_folder,
+                                               'iLEAPP_Reports_' + currenttime)  # aleapp , aleappGUI, ileap_artifacts, report.py
         self.temp_folder = os.path.join(self.report_folder_base, 'temp')
-        OutputParameters.screen_output_file_path = os.path.join(self.report_folder_base, 'Script Logs', 'Screen Output.html')
-        OutputParameters.screen_output_file_path_devinfo = os.path.join(self.report_folder_base, 'Script Logs', 'DeviceInfo.html')
+        OutputParameters.screen_output_file_path = os.path.join(self.report_folder_base, 'Script Logs',
+                                                                'Screen Output.html')
+        OutputParameters.screen_output_file_path_devinfo = os.path.join(self.report_folder_base, 'Script Logs',
+                                                                        'DeviceInfo.html')
 
         os.makedirs(os.path.join(self.report_folder_base, 'Script Logs'))
         os.makedirs(self.temp_folder)
@@ -136,8 +144,9 @@ def utf8_in_extended_ascii(input_string, *, raise_on_unexpected=False):
     return mis_encoded_utf8_present, "".join(output)
 
 def sanitize_file_path(filename, replacement_char='_'):
-
-    # Removes illegal characters (for windows) from the string passed. Does not replace \ or /
+    '''
+    Removes illegal characters (for windows) from the string passed. Does not replace \ or /
+    '''
     return re.sub(r'[*?:"<>|\'\r\n]', replacement_char, filename)
 
 def sanitize_file_name(filename, replacement_char='_'):
@@ -177,7 +186,8 @@ def open_sqlite_db_readonly(path):
             path = "%5C%5C%3F%5C\\UNC" + path[1:]
         else:                               # normal path
             path = "%5C%5C%3F%5C" + path
-    return sqlite3.connect (f"file:{path}?mode=ro", uri=True)
+    return sqlite3.connect(f"file:{path}?mode=ro", uri=True)
+
 
 def does_column_exist_in_db(db, table_name, col_name):
     '''Checks if a specific col exists'''
@@ -220,7 +230,7 @@ def does_view_exist(db, table_name):
 
 class GuiWindow:
     '''This only exists to hold window handle if script is run from GUI'''
-    window_handle = None # static variable 
+    window_handle = None  # static variable
     progress_bar_total = 0
     progress_bar_handle = None
 
@@ -228,7 +238,7 @@ class GuiWindow:
     def SetProgressBar(n):
         if GuiWindow.progress_bar_handle:
             GuiWindow.progress_bar_handle.UpdateBar(n)
-            
+
 def logfunc(message=""):
     with open(OutputParameters.screen_output_file_path, 'a', encoding='utf8') as a:
         print(message)
@@ -240,13 +250,13 @@ def logfunc(message=""):
 def logdevinfo(message=""):
     with open(OutputParameters.screen_output_file_path_devinfo, 'a', encoding='utf8') as b:
         b.write(message + '<br>' + OutputParameters.nl)
-    
+
 def tsv(report_folder, data_headers, data_list, tsvname):
     report_folder = report_folder.rstrip('/')
     report_folder = report_folder.rstrip('\\')
     report_folder_base, tail = os.path.split(report_folder)
     tsv_report_folder = os.path.join(report_folder_base, '_TSV Exports')
-    
+
     if os.path.isdir(tsv_report_folder):
         pass
     else:
@@ -274,15 +284,15 @@ def timeline(report_folder, tlactivity, data_list, data_headers):
         db.commit()
     else:
         os.makedirs(tl_report_folder)
-        #create database
+        # create database
         tldb = os.path.join(tl_report_folder, 'tl.db')
         db = sqlite3.connect(tldb, isolation_level = 'exclusive')
         cursor = db.cursor()
         cursor.execute(
-        """
-        CREATE TABLE data(key TEXT, activity TEXT, datalist TEXT)
-        """
-            )
+            """
+            CREATE TABLE data(key TEXT, activity TEXT, datalist TEXT)
+            """
+        )
         db.commit()
     
     a = 0
@@ -427,29 +437,29 @@ def media_to_html(media_path, files_found, report_folder):
 
     def media_path_filter(name):
         return media_path in name
-    
+
     def relative_paths(source, splitter):
         splitted_a = source.split(splitter)
         for x in splitted_a:
             if 'LEAPP_Reports_' in x:
                 report_folder = x
-                
+
         splitted_b = source.split(report_folder)
-        return '.'+ splitted_b[1]
-    
+        return '.' + splitted_b[1]
+
     platform = is_platform_windows()
     if platform:
         media_path = media_path.replace('/', '\\')
         splitter = '\\'
     else:
         splitter = '/'
-        
+
     thumb = media_path
     for match in filter(media_path_filter, files_found):
         filename = os.path.basename(match)
         if filename.startswith('~') or filename.startswith('._') or filename != media_path:
             continue
-        
+
         dirs = os.path.dirname(report_folder)
         dirs = os.path.dirname(dirs)
         env_path = os.path.join(dirs, 'temp')
@@ -466,8 +476,8 @@ def media_to_html(media_path, files_found, report_folder):
             shutil.copy2(match, locationfiles)
             source = Path(locationfiles, filename)
             source = relative_paths(str(source), splitter)
-                
-        mimetype = magic.from_file(match, mime = True)
+
+        mimetype = magic.from_file(match, mime=True)
 
         if 'video' in mimetype:
             thumb = f'<video width="320" height="240" controls="controls"><source src="{source}" type="video/mp4" preload="none">Your browser does not support the video tag.</video>'

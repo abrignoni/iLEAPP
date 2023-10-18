@@ -1,61 +1,29 @@
-
-### Python ###
-# Byte-compiled / optimized / DLL files
+# Compiled files
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
 
 # Distribution / packaging
 .Python
 build/
-develop-eggs/
 dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-pip-wheel-metadata/
-share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
 MANIFEST
 
-# Installer logs
+# Installers
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+
+# Logs
+*.log
 pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
-.pytest_cache/
 pytestdebug.log
-
-# Output test
-iLEAPP_Reports_*
-
-# PyBuilder
-target/
-
-# pyenv
-.python-version
-
-# PEP 582; used by e.g. github.com/David-OConnor/pyflow
-__pypackages__/
 
 # Environments
 .env
@@ -66,45 +34,69 @@ ENV/
 env.bak/
 venv.bak/
 
-# Pyre type checker
-.pyre/
+# Testing
+.coverage
+.coverage.*
+*.cover
+*.py,cover
+htmlcov/
+.tox/
+.nox/
+.cache
+nosetests.xml
+coverage.xml
+.hypothesis/
+.pytest_cache/
 
-# pytype static type analyzer
-.pytype/
+# IDEs
+.vscode/
+.idea/
+.spyderproject
+.spyproject
+.ropeproject
 
-### VisualStudioCode ###
-.vscode/*
-#!.vscode/settings.json
-#!.vscode/tasks.json
-#!.vscode/launch.json
-#!.vscode/extensions.json
-*.code-workspace
-
-### VisualStudioCode Patch ###
-# Ignore all local history of files
-.history
-
-### Windows ###
-# Windows thumbnail cache files
+# OS
+*.DS_Store
 Thumbs.db
 Thumbs.db:encryptable
 ehthumbs.db
 ehthumbs_vista.db
-
-# Folder config file
 [Dd]esktop.ini
-
-# Recycle Bin used on file shares
 $RECYCLE.BIN/
 
-# Windows Installer files
-*.cab
-*.msi
-*.msix
-*.msm
-*.msp
+# Project specific
+?LEAPP_Reports_*
+path_list.txt
+coordinates.db
 
-# Windows shortcuts
-*.lnk
+# Documentation
+docs/_build/
+/site
+target/
 
-*.DS_Store
+# Misc
+*.sage.py
+celerybeat-schedule
+__pypackages__/
+.mypy_cache/
+.pyre/
+.pytype/
+
+# Version control
+.history
+
+# Other tools
+*.pot
+*.mo
+*.manifest
+*.spec
+pip-wheel-metadata/
+share/python-wheels/
+wheels/
+local_settings.py
+instance/
+.webassets-cache
+.scrapy
+.ipynb_checkpoints
+.python-version
+

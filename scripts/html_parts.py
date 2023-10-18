@@ -28,7 +28,6 @@ page_header = \
         <!-- Icons -->
         <!--script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script-->
         <script src="_elements/feather.min.js"></script>
-        
     </head>
     <body>
 """
@@ -38,7 +37,6 @@ body_start = \
 """
     <!-- Start your project here-->
     <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
-     
         <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">{0}</a>
         <div class="custom-control custom-switch">
             <input type="checkbox" class="custom-control-input" id="darkSwitch" />
@@ -52,10 +50,9 @@ body_start = \
 """
 body_sidebar_setup = \
 """
-            <nav class="col-md-2 d-none d-md-block bg-light sidebar"> 
-                <div class="sidebar-sticky"  id="sidebar_id">
+            <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+                <div class="sidebar-sticky" id="sidebar_id">
                     <ul class="nav flex-column">
-                   
 """
 # The 'active' class must be set only for the current page, it will highlight that entry in blue
 #   class="nav-link active"
@@ -124,7 +121,7 @@ body_sidebar_trailer = \
 
 body_main_header = \
 """
-            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4" > 
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
 """
 # Variable {title}, {description}
 body_main_data_title = \
@@ -279,7 +276,6 @@ body_end = \
         feather.replace()
     </script>
 """
-
 nav_bar_script = \
 """
     <script>
@@ -310,7 +306,6 @@ nav_bar_script_footer = \
         });
     </script>
 """
-
 default_responsive_table_script = \
 """
     <script>
@@ -326,7 +321,6 @@ default_responsive_table_script = \
             //$('#infiniteLoading').remove();
         });
     </script>
-    
 """
 
 page_footer = \
