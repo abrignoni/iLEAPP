@@ -42,6 +42,10 @@ icon_mappings = \
     },
     'ADDRESS BOOK': 'book-open',
     'AGGREGATE DICTIONARY': 'book',
+    'AIRDROP DISCOVERABLE': 'search',
+    'AIRDROP EMAILS': 'send',
+    'AIRDROP NUMBERS': 'smartphone',
+    'AIRDROP REAL NAMES': 'user',
     'AIRTAGS': 'map-pin',
     'ALARMS': 'clock',
     'ALLTRAILS': {
@@ -52,6 +56,7 @@ icon_mappings = \
     'APP PERMISSIONS': 'key',
     'APP UPDATES': 'codepen',
     'APPLE MAIL': 'mail',
+    'APPLE NOTES': 'book-open',
     'APPLE PODCASTS': 'play-circle',
     'APPLE WALLET': {
         'CARDS': 'credit-card',
@@ -95,6 +100,7 @@ icon_mappings = \
     'CARPLAY': 'package',
     'CASH APP': 'credit-card',
     'CELLULAR WIRELESS': 'bar-chart',
+    'CHASE RETURNS': 'paperclip',
     'CHROMIUM': {
         'AUTOFILL': 'edit-3',
         'BOOKMARKS': 'bookmark',
@@ -113,7 +119,16 @@ icon_mappings = \
         'NOTE SHARING': 'share-2',
         'PARTICIPANTS': 'user',
     },
+    'COINBASE ARCHIVE': {
+        '3RD': 'log-in',
+        'CARD': 'credit-card',
+        'PERSONAL': 'user',
+        'SITE': 'activity',
+        'TRANS': 'archive',
+        'default': 'monitor',
+    },
     'CONNECTED TO': 'zap',
+    'CONTACTS': 'user',
     'CONTROL CENTER': {
         'CONTROL CENTER - ACTIVE CONTROLS': 'sliders',
         'CONTROL CENTER - DISABLED CONTROLS': 'x-square',
@@ -140,12 +155,17 @@ icon_mappings = \
     },
     'DATA USAGE': 'wifi',
     'DEVICE DATA': 'file',
+    'DEVICE HEALTH SERVICES': {
+        'BLUETOOTH': 'bluetooth',
+        'BATTERY': 'battery-charging',
+        'default': 'bar-chart-2'
+    },
     'DEVICE INFO': {
         'BUILD INFO': 'terminal',
-        'DEFAULT': 'info',
         'IOS SYSTEM VERSION': 'git-commit',
         'PARTNER SETTINGS': 'settings',
         'SETTINGS_SECURE_': 'settings',
+        'default': 'info',
         '_mode': 'search',
     },
     'DHCP': 'settings',
@@ -154,15 +174,17 @@ icon_mappings = \
         'DISCORD MANIFEST': 'file-text',
         'DISCORD MESSAGES': 'message-square',
     },
+    'DISCORD RETURNS': 'message-square',
     'DRAFT NATIVE MESSAGES': 'message-circle',
     'FACEBOOK MESSENGER': 'facebook',
+    'FACEBOOK - INSTAGRAM RETURNS': 'facebook',
     'FILES APP': 'file-text',
     'GEOLOCATION': {
         'APPLICATIONS': 'grid',
-        'DEFAULT': 'map-pin',
         'MAP TILE CACHE': 'map',
         'MAPSSYNC': 'map',
         'PD PLACE CACHE': 'map-pin',
+        'default': 'map-pin',
     },
     'GMAIL': {
         'GMAIL - LABEL DETAILS': 'mail',
@@ -174,6 +196,67 @@ icon_mappings = \
         'GOOGLE DUO - CLIPS': 'video',
         'GOOGLE DUO - CONTACTS': 'user',
     },
+    'GOOGLE RETURNS': {
+        'GOOGLE RETURNS - ACTIVITIES': 'activity',
+        'default': 'chrome'
+    },
+    'GOOGLE RETURNS MBOXES': 'mail',
+    'GOOGLE RETURNS SUBSCRIBER INFO': 'user',
+    'GOOGLE RETURNS PLAY USER ACT': 'smartphone',
+    'GOOGLE RETURNS ANDROID DEVICE CONFIG': 'smartphone',
+    'GOOGLE RETURNS MY ACTIVITY IMAGE SEARCH': 'search',
+    'GOOGLE RETURNS MY ACTIVITY SEARCH': 'search',
+    'GOOGLE RETURNS YOUTUBE SUBS INFO': 'search',
+    'GOOGLE RETURNS ACCOUNT TARGET ASSOC. PHONE': 'target',
+    'GOOGLE RETURNS ACCOUNT TARGET ASSOC. COOKIES': 'target',
+    'GOOGLE RETURNS GOOGLE PLAY STORE DEVICES': 'tablet',
+    'GOOGLE RETURNS GOOGLE PLAY INSTALLS': 'shield',
+    'GOOGLE RETURNS GOOGLE PLAY LIBRARY': 'book-open',
+    'GOOGLE RETURNS GOOGLE PLAY USER REVIEWS': 'book-open',
+    'GOOGLE TAKEOUT ARCHIVE': {
+        'CHROME WEB HISTORY': 'chrome',
+        'CHROME ARC PACKAGES': 'package',
+        'CHROME AUTOFILL': 'edit-3',
+        'CHROME BOOKMARKS': 'star',
+        'CHROME DEVICE INFO': 'chrome',
+        'CHROME EXTENSIONS': 'tool',
+        'CHROME OS SETTINGS': 'settings',
+        'CHROME READING LIST': 'book',
+        'CHROME SEARCH ENGINES': 'search',
+        'CHROME OMNIBOX': 'search',
+        'FITBIT ACCOUNT PROFILE': 'user',
+        'FITBIT ACTIVITY GOALS': 'check-circle',
+        'FITBIT COMPUTED TEMPERATURE': 'thermometer',
+        'FITBIT OXYGEN SATURATION': 'droplet',
+        'FITBIT SLEEP': 'moon',
+        'FITBIT STRESS': 'activity',
+        'FITBIT TRACKERS': 'watch',
+        'GOOGLE ACCESS LOG ACTIVITIES': 'activity',
+        'GOOGLE ACCESS LOG DEVICES': 'smartphone',
+        'GOOGLE CHAT - MESSAGES': 'message-square',
+        'GOOGLE FI - USER INFO RECORDS': 'phone',
+        'GOOGLE FIT - DAILY ACTIVITY METRICS': 'trending-up',
+        'GOOGLE LOCATION HISTORY - LOCATION HISTORY': 'map-pin',
+        'GOOGLE PAY TRANSACTIONS': 'credit-card',
+        'GOOGLE PLAY STORE DEVICES': 'smartphone',
+        'GOOGLE PLAY STORE INSTALLS': 'box',
+        'GOOGLE PLAY STORE LIBRARY': 'grid',
+        'GOOGLE PLAY STORE PURCHASE HISTORY': 'shopping-cart',
+        'GOOGLE PLAY STORE REVIEWS': 'edit-3',
+        'GOOGLE PLAY STORE SUBSCRIPTIONS': 'refresh-cw',
+        'GOOGLE PROFILE': 'user',
+        'GOOGLE SEMANTIC LOCATION HISTORY - PLACE VISITS': 'map-pin',
+        'GOOGLE SEMANTIC LOCATION HISTORY - ACTIVITY SEGMENTS': 'activity',
+        'GOOGLE TASKS': 'check-circle',
+        'MBOX': 'mail',
+        'SAVED LINKS - DEFAULT LIST': 'list',
+        'SAVED LINKS - FAVORITE IMAGES': 'image',
+        'SAVED LINKS - FAVORITE PAGES': 'link-2',
+        'SAVED LINKS - WANT TO GO': 'navigation-2',
+        'YOUTUBE SUBSCRIPTIONS': 'youtube',
+        'default': 'user'
+    },
+    'GOOGLE TAKEOUT SEMANTIC LOCATIONS BY MONTH': 'map-pin',
     'HEALTH': {
         'DEFAULT': 'heart',
         'HEALTH - ACHIEVEMENTS': 'star',
@@ -190,8 +273,12 @@ icon_mappings = \
         'USER CREATED MEDIA': 'video',
         '_mode': 'search',
     },
+    'ICLOUD DOCUMENTS FOLDERS': 'book-open',
     'ICLOUD QUICK LOOK': 'file',
-    'ICLOUD RETURNS': 'cloud',
+    'ICLOUD RETURNS': {
+        'ICLOUD - ACCOUNT FEATURES': 'user',
+        'default': 'cloud'
+    },
     'ICLOUD SHARED ALBUMS': 'cloud',
     'IDENTIFIERS': 'file',
     'IMO HD CHAT': {
@@ -201,6 +288,11 @@ icon_mappings = \
     'INSTAGRAM': {
         'INSTAGRAM THREADS': 'message-square',
         'INSTAGRAM THREADS CALLS': 'phone',
+    },
+    'INSTAGRAM ARCHIVE': {
+        'INSTAGRAM ARCHIVE - ACCOUNT INFO': 'user',
+        'INSTAGRAM ARCHIVE - PERSONAL INFO': 'user',
+        'default': 'instagram'
     },
     'INSTALLED APPS': 'package',
     'INTENTS': 'command',
@@ -225,20 +317,24 @@ icon_mappings = \
         'KIK USERS': 'user',
         'KIK USERS IN GROUPS': 'user',
     },
+    'KIK RETURNS': {
+        'KIK - PROFILE PIC': 'image',
+        'default': 'file-text'
+    },
     'KNOWLEDGEC': {
-        'DEFAULT': 'activity',
         'KNOWLEDGEC BATTERY LEVEL': 'battery',
         'KNOWLEDGEC DEVICE LOCKED': 'lock',
         'KNOWLEDGEC PLUGGED IN': 'battery-charging',
+        'default': 'activity',
     },
     'LEAPP_REPORT': {
-        'DEFAULT': 'git-commit',
+        'default': 'git-commit',
         '_mode': 'search',
     },
     'LOCATION SERVICES CONFIGURATIONS': 'settings',
     'LOCATIONS': {
         'APPLE MAPS SEARCH HISTORY': 'search',
-        'DEFAULT': 'map-pin',
+        'default': 'map-pin',
     },
     'MEDIA LIBRARY': 'play-circle',
     'MEDIA METADATA': 'file-plus',
@@ -248,6 +344,7 @@ icon_mappings = \
         'CONTACTS': 'users',
         '_mode': 'search',
     },
+    'MICROSOFT RETURNS': 'target',
     'MICROSOFT TEAMS': {
         'TEAMS CALL LOGS': 'phone',
         'TEAMS CONTACT': 'users',
@@ -267,6 +364,15 @@ icon_mappings = \
     'MOBILE CONTAINER MANAGER': 'save',
     'MOBILE INSTALLATION LOGS': 'clipboard',
     'MOBILE SOFTWARE UPDATE': 'refresh-cw',
+    'NETFLIX ARCHIVE': {
+        'NETFLIX - BILLING HISTORY': 'credit-card',
+        'NETFLIX - PROFILES': 'users',
+        'NETFLIX - IP ADDRESS LOGIN': 'log-in',
+        'NETFLIX - ACCOUNT DETAILS': 'users',
+        'NETFLIX - MESSAGES SENT BY NETFLIX': 'mail',
+        'NETFLIX - SEARCH HISTORY': 'search',
+        'default': 'tv'
+    },
     'NETWORK USAGE': {
         'APP_DATA': 'activity',
         'CONNECTIONS': 'bar-chart',
@@ -277,14 +383,23 @@ icon_mappings = \
     'NOTIFICATIONS': 'bell',
     'OFFLINE PAGES': 'cloud-off',
     'PHOTOS': {
-        'DEFAULT': 'image',
         'MIGRATIONS': 'chevrons-up',
+        'default': 'image',
+    },
+    'PINGER': {
+        'PINGER - CDR': 'phone',
+        'PINGER - DML': 'phone',
+        'PINGER - IP': 'monitor',
+        'PINGER - MESSAGES': 'message-square',
+        'PINGER - ACCOUNT': 'user',
+        'default': 'phone'
     },
     'POWERLOG': 'power',
     'POWERLOG BACKUPS': 'power',
     'PREFERENCES PLIST': 'file',
     'PROTON MAIL': 'mail',
     'RECENT ACTIVITY': 'activity',
+    'REDDIT RETURNS': 'chevrons-up',
     'REMINDERS': 'list',
     'ROUTINED': 'map',
     'SAFARI BROWSER': 'compass',
@@ -301,6 +416,8 @@ icon_mappings = \
         'SLACK WORKSPACE DATA': 'slack',
     },
     'SMS & IMESSAGE': 'message-square',
+    'SNAPCHAT ARCHIVE': 'camera',
+    'SNAPCHAT RETURNS': 'camera',
     'SQLITE JOURNALING': 'book-open',
     'TELEGRAM': 'message-square',
     'TEXT INPUT MESSAGES': 'message-square',
@@ -309,6 +426,9 @@ icon_mappings = \
         'TIKTOK MESSAGES': 'message-square',
         'TIKTOK SEARCH': 'search',
     },
+    'TIKTOK RETURNS': 'film',
+    'TORRENT DATA': 'download',
+    'TWITTER RETURNS': 'twitter',
     'USER DICTIONARY': 'book',
     'VENMO': 'dollar-sign',
     'VIBER': {
@@ -318,8 +438,8 @@ icon_mappings = \
         'VIBER - SETTINGS': 'settings',
     },
     'VIPPS': {
-        'DEFAULT': 'dollar-sign',
         'VIPPS CONTACTS': 'users',
+        'default': 'dollar-sign',
     },
     'VOICE-RECORDINGS': 'mic',
     'VOICE-TRIGGERS': 'mic',
@@ -327,6 +447,7 @@ icon_mappings = \
         'WHATSAPP - CONTACTS': 'users',
         'WHATSAPP - MESSAGES': 'message-square',
     },
+    'WHATSAPP EXPORTED CHAT': 'message-circle',
     'WIFI CONNECTIONS': 'wifi',
     'WIFI KNOWN NETWORKS': 'wifi',
 }
@@ -415,22 +536,6 @@ def get_search_mode_categories():
     return search_mode_categories
 # get them populated
 search_set = get_search_mode_categories()
-
-
-def get_metamask_icon(artifact):
-    if 'BROWSER' in artifact:
-        return 'globe'
-    elif 'CONTACTS' in artifact:
-        return 'users'
-    else:
-        return 'dollar-sign'
-
-
-def get_network_usage_icon(artifact):
-    if 'APP DATA' in artifact:
-        return 'activity'
-    elif 'CONNECTIONS' in artifact:
-        return 'bar-chart'
 
 
 def generate_report(reportfolderbase, time_in_secs, time_HMS, extraction_type, image_input_path, casedata):
