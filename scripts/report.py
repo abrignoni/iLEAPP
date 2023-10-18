@@ -35,6 +35,7 @@ from scripts.version_info import aleapp_version, aleapp_contributors
 
 icon_mappings = \
 {
+    'ACCESSORY DATA HYUNDAI': 'settings',
     'ACCOUNT': {
         'AUTH': 'key',
         'default': 'user',
@@ -56,6 +57,9 @@ icon_mappings = \
     'AIRTAG DETECTION': 'alert-circle',
     'AIRTAGS': 'map-pin',
     'ALARMS': 'clock',
+    'ALFA ROMEO CONTACTS': 'users',  # TODO: adjust artifact to share a category
+    'ALFA ROMEO BLUETOOTH': 'bluetooth',
+    'ALFA ROMEO SIRIUS DATA': 'settings',
     'ALLTRAILS': {
         'ALLTRAILS - TRAIL DETAILS': 'map',
         'ALLTRAILS - USER INFO': 'user',
@@ -79,6 +83,7 @@ icon_mappings = \
         'default': 'credit-card',
     },
     'APPLICATIONS': 'grid',
+    'AUDIO UUIDS': 'smartphone',
     'BADOO': {
         'CHAT': 'message-circle',
         'CONNECTIONS': 'heart',
@@ -107,9 +112,15 @@ icon_mappings = \
     'BITTORRENT': 'share',
     'BLUETOOTH': 'bluetooth',
     'BLUETOOTH CONNECTIONS': 'bluetooth',
+    'BLUETOOTH_DEVICES': 'bluetooth',  # TODO: can this be combined?
     'BROWSER CACHE': {
         'CHROME BROWSER CACHE': 'chrome',
         'default': 'globe'
+    },
+    'BT REPORT': {
+        'GPS DETAIL': 'map-pin',
+        'BT CALL REPORT': 'bluetooth',
+        'default': 'bluetooth',
     },
     'BUMBLE': {
         'BUMBLE - ACCOUNT DETAILS': 'user',
@@ -130,6 +141,7 @@ icon_mappings = \
         'CALL HISTORY': 'phone-call',
         'DELETED VOICEMAIL': 'mic-off',
         'VOICEMAIL': 'mic',
+        'default': 'phone',
     },
     'CALL LOGS': 'phone',
     'CAST': 'cast',
@@ -166,8 +178,10 @@ icon_mappings = \
         'TRANS': 'archive',
         'default': 'monitor',
     },
+    'CONNECTED DEVICES': 'smartphone',
     'CONNECTED TO': 'zap',
     'CONTACTS': 'user',
+    'CONTACT_LIST': 'users',  # TODO: can this use another category?
     'CONTROL CENTER': {
         'CONTROL CENTER - ACTIVE CONTROLS': 'sliders',
         'CONTROL CENTER - DISABLED CONTROLS': 'x-square',
@@ -209,6 +223,7 @@ icon_mappings = \
         '_mode': 'search',
     },
     'DHCP': 'settings',
+    'DIAGNOSTIC_DATA': 'thermometer',
     'DIGITAL WELLBEING': {
         'ACCOUNT DATA': 'user',
         'default': 'layers',
@@ -428,6 +443,7 @@ icon_mappings = \
     },
     'GOOGLE TAKEOUT SEMANTIC LOCATIONS BY MONTH': 'map-pin',
     'GOOGLE TASKS': 'list',
+    'GPS_DATA': 'map-pin',
     'GROUPME': {
         'GROUP INFORMATION': 'users',
         'CHAT INFORMATION': 'message-circle',
@@ -599,7 +615,20 @@ icon_mappings = \
     'NOW PLAYING': 'music',
     'OFFLINE PAGES': 'cloud-off',
     'PACKAGE PREDICTIONS': 'package',
+    'PAS_DEBUG': {
+        'SEND GPS CAN DATA': 'map-pin',
+        'DEV LOC RESULTS': 'map-pin',
+        'ROAD SPEED LIMITS': 'target',
+        'ACCESS POINT LIST': 'wifi',
+        'VEHICLE SPEED': 'trending-up',
+        'TRANSMISSION STATUS': 'corner-up-right',
+        'OUTSIDE TEMPERATURE': 'thermometer',
+        'ODOMETER': 'plus-circle',
+        'default': 'archive',
+    },
     'PERMISSIONS': 'check',
+    'PHONE BOOK DB': 'smartphone',
+    'PHONE CONFIG': 'smartphone',
     'PHOTOS': {
         'MIGRATIONS': 'chevrons-up',
         'default': 'image',
@@ -700,6 +729,11 @@ icon_mappings = \
     },
     'TANGO': 'message-square',
     'TELEGRAM': 'message-square',
+    'TELEMATICS': {
+        'GPS DETAIL': 'map-pin',
+        'WDWSTATUS REPORT': 'map-pin',
+        '_mode': 'search',
+    },
     'TEXT INPUT MESSAGES': 'message-square',
     'TEXT NOW': {
         'TEXT NOW - CALL LOGS': 'phone',
@@ -731,6 +765,7 @@ icon_mappings = \
     'TWITTER RETURNS': 'twitter',
     'USAGE STATS': 'bar-chart-2',
     'USER DICTIONARY': 'book',
+    'VEHICLE INFO': 'truck',
     'VENMO': 'dollar-sign',
     'VERIZON RDD ANALYTICS': {
         'VERIZON RDD - BATTERY HISTORY': 'power',
