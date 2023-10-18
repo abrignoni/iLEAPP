@@ -370,7 +370,6 @@ def get_icon_name(category, artifact):
     """
     category = category.upper()
     artifact = artifact.upper()
-    icon = 'alert-triangle'  # default (if not defined!)
 
     category_match = icon_mappings.get(category)
 
@@ -404,15 +403,6 @@ def get_icon_name(category, artifact):
                     art_default = category_mapping.get('default')
                     if art_default:
                         return art_default
-
-            # category_match = category.find(r[0])
-            # if category_match:
-            #     if len(category_match) == 1:
-            #         return category_match[1]
-            #     else:
-            #         for key, value in category_match.items():
-            #             if artifact.find(category_match):
-            #                 return value
 
     return 'alert-triangle'
 
