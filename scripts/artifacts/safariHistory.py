@@ -9,7 +9,7 @@ import sqlite3
 import textwrap
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, convert_ts_human_to_utc, convert_utc_human_to_timezone
 
 def get_safariHistory(files_found, report_folder, seeker, wrap_text, timezone_offset):
     for file_found in files_found:
@@ -60,6 +60,9 @@ def get_safariHistory(files_found, report_folder, seeker, wrap_text, timezone_of
     
     if usageentries > 0:
         for row in all_rows:
+            timestamp = convert_ts_human_to_utc(row[0])
+            timestamp = convert_utc_human_to_timezone(timestamp, timezone_offset)
+            
             redirect_source = ''
             redirect_destination = ''
             if str(row[4]) is None:
@@ -75,7 +78,7 @@ def get_safariHistory(files_found, report_folder, seeker, wrap_text, timezone_of
                     if str(row[5]) == key:
                         redirect_destination = value
         
-            data_list.append((row[0], row[1], textwrap.fill(row[2], width=100), row[3], textwrap.fill(redirect_source, width=100), textwrap.fill(redirect_destination, width=100), row[6], row[7]))
+            data_list.append((timestamp, row[1], textwrap.fill(row[2], width=100), row[3], textwrap.fill(redirect_source, width=100), textwrap.fill(redirect_destination, width=100), row[6], row[7]))
     
         description = ''
         report = ArtifactHtmlReport('Safari Browser - History')
