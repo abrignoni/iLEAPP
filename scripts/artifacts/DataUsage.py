@@ -16,7 +16,7 @@ __artifacts_v2__ = {
 import sqlite3
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, convert_ts_human_to_utc, convert_utc_human_to_timezone
 
 def get_DataUsage(files_found, report_folder, seeker, wrap_text, timezone_offset):
     for file_found in files_found:
@@ -43,6 +43,7 @@ def get_DataUsage(files_found, report_folder, seeker, wrap_text, timezone_offset
             all_rows = cursor.fetchall()
             usageentries = len(all_rows)
             if usageentries > 0:
+                
                 report = ArtifactHtmlReport('Data Usage')
                 report.start_artifact_report(report_folder, 'Data Usage')
                 report.add_script()
@@ -50,8 +51,17 @@ def get_DataUsage(files_found, report_folder, seeker, wrap_text, timezone_offset
                 
                 data_list = []
                 for row in all_rows:
+                    firstused = convert_ts_human_to_utc(row[0])
+                    firstused = convert_utc_human_to_timezone(firstused,timezone_offset)
+                    
+                    lastused = convert_ts_human_to_utc(row[1])
+                    lastused = convert_utc_human_to_timezone(lastused,timezone_offset)
+                    
+                    lastconnected = convert_ts_human_to_utc(row[2])
+                    lastconnected = convert_utc_human_to_timezone(lastconnected,timezone_offset)
+                    
                     process_split = row[4].split('/')
-                    data_list.append((row[0],row[1],row[2],row[3],process_split[0],row[5],row[6],row[7],row[8]))
+                    data_list.append((firstused,lastused,lastconnected,row[3],process_split[0],row[5],row[6],row[7],row[8]))
                     
                 report.write_artifact_data_table(data_headers, data_list, file_found)
                 report.end_artifact_report()

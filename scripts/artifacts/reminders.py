@@ -2,7 +2,7 @@ from os.path import dirname
 from os.path import basename
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, does_column_exist_in_db
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, does_column_exist_in_db, convert_ts_human_to_utc, convert_utc_human_to_timezone
 
 
 def get_reminders(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -36,7 +36,12 @@ def get_reminders(files_found, report_folder, seeker, wrap_text, timezone_offset
                 if len(all_rows) > 0:
                     location_file_found = sqlite_file.split('Stores'+slash, 1)[1]
                     for row in all_rows:
-                        data_list.append((row[0], row[3], row[2], row[1], location_file_found))
+                        createdate = convert_ts_human_to_utc(row[0])
+                        createdate = convert_utc_human_to_timezone(createdate,timezone_offset)
+                        
+                        moddate = convert_ts_human_to_utc(row[1])
+                        moddate = convert_utc_human_to_timezone(moddate,timezone)
+                        data_list.append((createdate, row[3], row[2], moddate, location_file_found))
                         
                     dir_file_found = dirname(sqlite_file).split('Stores', 1)[0] + 'Stores'
                     

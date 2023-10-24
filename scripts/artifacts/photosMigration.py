@@ -10,8 +10,7 @@
 
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, kmlgen, timeline, is_platform_windows, generate_thumbnail, \
-    open_sqlite_db_readonly
+from scripts.ilapfuncs import logfunc, tsv, kmlgen, timeline, is_platform_windows, generate_thumbnail, convert_ts_human_to_utc, convert_utc_human_to_timezone, open_sqlite_db_readonly
 from scripts.builds_ids import OS_build
 
 
@@ -57,9 +56,10 @@ def get_photosMigration(files_found, report_folder, seeker, wrap_text, timezone_
     if usageentries > 0:
         for row in all_rows:
             ios_version = row[9] + ' - ' + OS_build[row[9]]
+            timestamp = convert_ts_human_to_utc(row[3])
+            timestamp = convert_utc_human_to_timezone(timestamp,timezone_offset)
 
-
-            data_list.append((row[3], row[4], row[5], row[6], row[7], row[8], ios_version, row[10], row[11]))
+            data_list.append((timestamp, row[4], row[5], row[6], row[7], row[8], ios_version, row[10], row[11]))
 
             counter += 1
 
