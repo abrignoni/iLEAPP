@@ -7,7 +7,7 @@ import scripts.artifacts.artGlobals #use to get iOS version -> iOSversion = scri
 from packaging import version #use to search per version number
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, convert_ts_human_to_utc, convert_utc_human_to_timezone
 
 def get_interactionCcontacts(files_found, report_folder, seeker, wrap_text, timezone_offset):
     for file_found in files_found:
@@ -47,12 +47,30 @@ def get_interactionCcontacts(files_found, report_folder, seeker, wrap_text, time
         data_list = []
         
         if version.parse(iOSversion) >= version.parse("10"):
-            for row in all_rows:    data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10]))
-
+            for row in all_rows:
+                starttime = convert_ts_human_to_utc(row[0])
+                starttime = convert_utc_human_to_timezone(starttime,timezone_offset)
+                
+                endtime = convert_ts_human_to_utc(row[1])
+                endtime = convert_utc_human_to_timezone(endtime,timezone_offset)
+                
+                zinteractcreated = convert_ts_human_to_utc(row[8])
+                zinteractcreated = convert_utc_human_to_timezone(zinteractcreated,timezone_offset)
+                
+                zcontactscreated = row[9]
+                if zcontactscreated is None:
+                    zcontactscreated = ''
+                    
+                else:
+                    zcontactscreated = convert_ts_human_to_utc(zcontactscreated)
+                    zcontactscreated = convert_utc_human_to_timezone(zcontactscreated,timezone_offset)
+                
+                data_list.append((starttime,endtime,row[2],row[3],row[4],row[5],row[6],row[7],zinteractcreated,zcontactscreated,row[10]))
+            
             report = ArtifactHtmlReport('InteractionC')
             report.start_artifact_report(report_folder, 'Contacts')
             report.add_script()
-            data_headers = ('Start Date','End Date','Bundle ID','Display Name','Identifier','Direction','Is Response','Recipient Count','Zinteractions Creation Date','Zcontacs Creation Date','Content URL')
+            data_headers = ('Start Date','End Date','Bundle ID','Display Name','Identifier','Direction','Is Response','Recipient Count','Zinteractions Creation Date','Zcontacts Creation Date','Content URL')
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
             
@@ -87,8 +105,12 @@ def get_interactionCcontacts(files_found, report_folder, seeker, wrap_text, time
         data_list = []
         
         if version.parse(iOSversion) >= version.parse("10"):
-            for row in all_rows:    data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6]))
-            
+            for row in all_rows:
+                creationdate = convert_ts_human_to_utc(row[0])
+                creationdate = convert_utc_human_to_timezone(creationdate,timezone_offset)
+                
+                data_list.append((creationdate,row[1],row[2],row[3],row[4],row[5],row[6]))
+                
             report = ArtifactHtmlReport('InteractionC')
             report.start_artifact_report(report_folder, 'Attachments')
             report.add_script()
