@@ -130,7 +130,7 @@ def get_iTunesBackupInfo(files_found, report_folder, seeker, wrap_text, timezone
                         'Release Date', 'Source App', 'Auto Download', 
                         'Purchased Redownload', 'Factory Install', 'Side Loaded', 
                         'Game Center Enabled', 'Game Center Ever Enabled', 
-                        'Messages Extension', )
+                        'Messages Extension')
         report.write_artifact_data_table(data_headers, apps_iTunesMetadata, file_found)
         report.end_artifact_report()
 
