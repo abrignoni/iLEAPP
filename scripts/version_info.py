@@ -36,5 +36,6 @@ aleapp_contributors = [
     ['Joshua James', 'https://dfir.science', '@dfirscience', 'https://github.com/dfirscience'],
     ['Evangelos Dragonas', 'https://atropos4n6.com/','@theAtropos4n6','https://github.com/theAtropos4n6'],
     ['Viktor Oreshkin', 'https://stek29.rocks/','@stek29','https://gist.github.com/stek29'],
-    ['James Habben', 'https://4n6ir.com/','@JamesHabben','https://github.com/JamesHabben']
+    ['James Habben', 'https://4n6ir.com/','@JamesHabben','https://github.com/JamesHabben'],
+    ['John Hyla', 'https://bluecrewforensics.com', '@jfhyla', 'https://github.com/snoop168']
 ]
