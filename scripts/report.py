@@ -522,6 +522,7 @@ icon_mappings = \
     'KNOWLEDGEC': {
         'KNOWLEDGEC BATTERY LEVEL': 'battery',
         'KNOWLEDGEC DEVICE LOCKED': 'lock',
+        'KNOWLEDGEC - MEDIA PLAYING': 'play-circle',
         'KNOWLEDGEC PLUGGED IN': 'battery-charging',
         'default': 'activity',
     },
