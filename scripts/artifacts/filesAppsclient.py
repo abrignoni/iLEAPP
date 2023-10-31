@@ -31,8 +31,8 @@ def get_filesAppsclient(files_found, report_folder, seeker, wrap_text, timezone_
     data_list = []
     if usageentries > 0:
         for row in all_rows:
-            birthtime = datetime.datetime.fromtimestamp(row[0])
-            versionmtime = datetime.datetime.fromtimestamp(row[2])
+            birthtime = datetime.datetime.utcfromtimestamp(row[0])
+            versionmtime = datetime.datetime.utcfromtimestamp(row[2])
             data_list.append((birthtime, row[1], versionmtime))
             
         description = '	Items stored in iCloud Drive with metadata about files. '
