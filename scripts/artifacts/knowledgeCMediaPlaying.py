@@ -39,12 +39,12 @@ def get_knowledgeC(files_found, report_folder, seeker, wrap_text, timezone_offse
                 END AS 'Is AirPlay Video',                
             	ZSTRUCTUREDMETADATA.Z_DKNOWPLAYINGMETADATAKEY__OUTPUTDEVICEIDS AS 'Output Device',
                 '''
-                data_headers = ('Start Time', 'End Date', 'Playing State', 'Playing Time', 'App Bundle ID', 'Artist', 'Album', 'Title', 
-                                'Genre', 'Media Duration', 'AirPLay Video', 'Output Device', 'Time Added')   
+                data_headers = ('Start Time', 'End Time', 'Playing State', 'Playing Duration', 'App Bundle ID', 'Artist', 'Album', 
+                                'Title', 'Genre', 'Media Duration', 'AirPLay Video', 'Output Device', 'Time Added')   
             else:
                 is_airplay_video = ''
-                data_headers = ('Start Time', 'End Date', 'Playing State', 'Playing Time', 'App Bundle ID', 'Artist', 'Album', 'Title', 
-                                'Genre', 'Media Duration', 'Time Added')   
+                data_headers = ('Start Time', 'End Time', 'Playing State', 'Playing Duration', 'App Bundle ID', 'Artist', 'Album', 
+                                'Title', 'Genre', 'Media Duration', 'Time Added')   
 
             cursor.execute(f'''
             SELECT datetime('2001-01-01', ZOBJECT.ZSTARTDATE || ' seconds') AS 'Start Time',
