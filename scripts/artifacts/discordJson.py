@@ -1,7 +1,20 @@
+# Discord JSON
+# Original Author: Unknown
+#
+# Version: 1.1.0
+# Author:  John Hyla
+# Adds connection of chat thread to cached attachment files
+#
+#
+
+
 import gzip
 import re
 import os
 import json
+import math
+import hashlib
+import biplist
 import shutil
 import errno
 from pathlib import Path
@@ -9,18 +22,69 @@ import scripts.artifacts.artGlobals
 
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, timeline, tsv, is_platform_windows 
+from scripts.ilapfuncs import logfunc, logdevinfo, timeline, tsv, is_platform_windows, media_to_html, get_resolution_for_model_id
+
 
 
 def get_discordJson(files_found, report_folder, seeker, wrap_text, timezone_offset):
-	data_list = []
+
+
+	def reduceSize(width: int, height: int, max_width: int, max_height: int) -> (int, int):
+		if width > height:
+			if width > max_width:
+				new_width = max_width
+				ratio = width / new_width
+				new_height = math.ceil(height / ratio)
+			else:
+				new_width = width
+				new_height = height
+		else:
+			if height > max_height:
+				new_height = max_height
+				ratio = height / new_height
+				new_width = math.ceil(width / ratio)
+			else:
+				new_width = width
+				new_height = height
+		return (new_width, new_height)
+
+	#First find modelID and screen resolution
+	resolution = None
+	activation_record_found = False
 	for file_found in files_found:
 		file_found = str(file_found)
-		#logfunc(file_found)
+		if file_found.endswith('activation_record.plist'):
+			activation_record_found = True
+			plist = biplist.readPlist(file_found)
+			account_token = plist['AccountToken'].decode("utf-8")
+
+			pattern = r'"(.*?)" = "(.*?)";'
+			matches = re.findall(pattern, account_token, re.DOTALL)
+
+			# Create a dictionary from the extracted key-value pairs
+			parsed_data = {key: value for key, value in matches}
+
+			model_id = parsed_data.get('ProductType')
+
+			if not model_id:
+				logfunc(f"Cannot detect model ID. Cannot link attachments")
+				break
+			resolution = get_resolution_for_model_id(model_id)
+
+			break
+	if not activation_record_found:
+		logfunc(f'activation_record.plist not found. Unable to determine model/resolution for attachment linking')
+	if not resolution:
+		logfunc(f"Cannot link attachments due to missing resolution")
+
+	data_list = []
+
+	for file_found in files_found:
+		file_found = str(file_found)
 		pathed = file_found
 		
 		try:
-			if os.path.isfile(file_found):
+			if not file_found.endswith('activation_record.plist') and os.path.isfile(file_found):
 				with open(file_found) as f_in:
 					for jsondata in f_in:
 						#jsondata = jsondata[1:-1]
@@ -63,11 +127,52 @@ def get_discordJson(files_found, report_folder, seeker, wrap_text, timezone_offs
 									
 								
 								if 'attachments' in jsonfinal[x]:
-									attachments = jsonfinal[x]['attachments']
-									
-									if len(attachments) > 0:
-										string = (attachments[0]['url'])
-										attachments = string
+									attachmentsData = jsonfinal[x]['attachments']
+									attachmentsArray = []
+									if len(attachmentsData) > 0:
+										for a in attachmentsData:
+											if resolution:
+												#Get the width and height from the attachment record
+												width = a.get('width')
+												height = a.get('height')
+
+												#Make sure there is a width or its probably not an image we can do anything with
+												if not width:
+													#Just show the URL (Could be a voice message or other type)
+													attachmentsArray.append(a.get('proxy_url'))
+												else:
+													#Found an image (maybe video?)
+													new_width, new_height = reduceSize(width, height, resolution['Width'], int(resolution['Height']/2))
+													if new_height == height and new_width == width:
+														proxy_url = a.get('proxy_url') + '='
+													else:
+														proxy_url = a.get(
+															'proxy_url') + f'=&width={new_width}&height={new_height}'
+													#Find the extension in the url
+													pattern = r'(\..{1,4})\?ex='
+													match = re.search(pattern, proxy_url)
+
+													if match:
+														ext = match.group(1)
+													else:
+														ext = ''
+
+													#Generate MD5 with extension appended
+													proxy_url_md5 = hashlib.md5(proxy_url.encode('utf-8')).hexdigest() + ext
+
+													#Check if a file by this name was found
+													if any(proxy_url_md5 in string for string in files_found):
+														#If Yes, generate thumbnail
+														attachmentsArray.append(media_to_html(proxy_url_md5, files_found, report_folder))
+													else:
+														#If no, show the URL, but also show the filename we think should exist in case it can be located elsewhere
+														attachmentsArray.append(a.get('proxy_url') + f' ({proxy_url_md5})')
+											else:
+												#Resolution was not found, just show the URL
+												attachmentsArray.append(a.get('proxy_url'))
+
+										#Combine all attachments
+										attachments = "<br>".join(attachmentsArray)
 									else:
 										attachments = ''
 							
@@ -126,7 +231,7 @@ def get_discordJson(files_found, report_folder, seeker, wrap_text, timezone_offs
 		report.start_artifact_report(report_folder, 'Discord Messages')
 		report.add_script()
 		data_headers = ('Timestamp','Edited Timestamp','Username','Bot?','Content','Attachments','User ID','Channel ID','Embedded Author','Author URL','Author Icon URL','Embedded URL','Embedded Script','Footer Text', 'Footer Icon URL', 'Source File')   
-		report.write_artifact_data_table(data_headers, data_list, pathedhead)
+		report.write_artifact_data_table(data_headers, data_list, pathedhead, html_no_escape=['Attachments'])
 		report.end_artifact_report()
 		
 		tsvname = 'Discord Messages'
@@ -138,6 +243,6 @@ def get_discordJson(files_found, report_folder, seeker, wrap_text, timezone_offs
 __artifacts__ = {
     "discordjson": (
         "Discord",
-        ('*/com.hammerandchisel.discord/fsCachedData/*'),
+        ('*/activation_record.plist', '*/com.hammerandchisel.discord/fsCachedData/*', '*/Library/Caches/com.hackemist.SDImageCache/default/*'),
         get_discordJson)
 }
