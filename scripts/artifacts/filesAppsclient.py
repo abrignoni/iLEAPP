@@ -1,11 +1,21 @@
-import glob
-import os
-import nska_deserialize as nd
-import sqlite3
-import datetime
+__artifacts_v2__ = {
+    "filesappsclient": {
+        "name": "Files App Client",
+        "description": "Items stored in iCloud Drive.",
+        "author": "@AlexisBrignoni",
+        "version": "0.1",
+        "date": "2023-01-01",
+        "requirements": "none",
+        "category": "Files App",
+        "notes": "",
+        "paths": ('*/mobile/Library/Application Support/CloudDocs/session/db/client.db*',),
+        "function": "get_filesAppsclient"
+    }
+}
+
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
+from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly, convert_ts_human_to_utc, convert_utc_human_to_timezone
 
 
 def get_filesAppsclient(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -19,9 +29,9 @@ def get_filesAppsclient(files_found, report_folder, seeker, wrap_text, timezone_
     cursor = db.cursor()
     cursor.execute('''
     SELECT
-    item_birthtime,
+    datetime(item_birthtime, 'unixepoch'),
     item_filename,
-    version_mtime
+    datetime(version_mtime, 'unixepoch')
     FROM
     client_items
     ''')
@@ -31,8 +41,12 @@ def get_filesAppsclient(files_found, report_folder, seeker, wrap_text, timezone_
     data_list = []
     if usageentries > 0:
         for row in all_rows:
-            birthtime = datetime.datetime.utcfromtimestamp(row[0])
-            versionmtime = datetime.datetime.utcfromtimestamp(row[2])
+            birthtime = convert_ts_human_to_utc(row[0])
+            birthtime = convert_utc_human_to_timezone(birthtime, timezone_offset)
+            
+            versionmtime = convert_ts_human_to_utc(row[2])
+            versionmtime = convert_utc_human_to_timezone(versionmtime, timezone_offset)
+            
             data_list.append((birthtime, row[1], versionmtime))
             
         description = '	Items stored in iCloud Drive with metadata about files. '
@@ -50,10 +64,4 @@ def get_filesAppsclient(files_found, report_folder, seeker, wrap_text, timezone_
         timeline(report_folder, tlactivity, data_list, data_headers)
     else:
         logfunc('No Files App - iCloud Client Items data available')
-    
-__artifacts__ = {
-    "filesappsclient": (
-        "Files App",
-        ('*/mobile/Library/Application Support/CloudDocs/session/db/client.db*'),
-        get_filesAppsclient)
-}
+

@@ -1,11 +1,25 @@
-import glob
+__artifacts_v2__ = {
+    "filesAppsm": {
+        "name": "Files App Smart Folders",
+        "description": "Items stored in iCloud Drive.",
+        "author": "@AlexisBrignoni",
+        "version": "0.1",
+        "date": "2023-01-01",
+        "requirements": "none",
+        "category": "Files App",
+        "notes": "",
+        "paths": ('*/mobile/Containers/Shared/AppGroup/*/smartfolders.db*',),
+        "function": "get_filesAppsm"
+    }
+}
+
+
 import os
 import nska_deserialize as nd
-import sqlite3
 import datetime
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
+from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly, convert_ts_human_to_utc, convert_utc_human_to_timezone
 
 
 def get_filesAppsm(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -40,17 +54,26 @@ def get_filesAppsm(files_found, report_folder, seeker, wrap_text, timezone_offse
                 deserialized_plist = nd.deserialize_plist(f)
             for x, y in deserialized_plist.items():
                 if x == '_creationDate':
-                    creationdate = y
+                    creationdate = y.strftime('%Y-%m-%d %H:%M:%S')
                 if x == '_contentModificationDate':
-                    contentmodificationdate = y
+                    contentmodificationdate = y.strftime('%Y-%m-%d %H:%M:%S')
                 if x == '_flags':
                     flags = y
                 if x == '_userInfo':
                     userinfo = y
                 if x == '_childItemCount':
                     childitemcount = y
-            lasthitdate = datetime.datetime.fromtimestamp(row[3])
             
+            lasthitdate = datetime.datetime.utcfromtimestamp(row[3]).strftime('%Y-%m-%d %H:%M:%S')
+            lasthitdate = convert_ts_human_to_utc(lasthitdate)
+            lasthitdate = convert_utc_human_to_timezone(lasthitdate,timezone_offset)
+
+            creationdate = convert_ts_human_to_utc(creationdate)
+            creationdate = convert_utc_human_to_timezone(creationdate,timezone_offset)
+
+            contentmodificationdate = convert_ts_human_to_utc(contentmodificationdate)
+            contentmodificationdate = convert_utc_human_to_timezone(contentmodificationdate,timezone_offset)
+
             data_list.append((lasthitdate, row[0], row[2],row[4], creationdate, contentmodificationdate, userinfo, childitemcount, flags))
             
             description = 'Files App - Files stored in the "On my iPad" area.'
@@ -71,9 +94,3 @@ def get_filesAppsm(files_found, report_folder, seeker, wrap_text, timezone_offse
 
     db.close()
     
-__artifacts__ = {
-    "filesAppsm": (
-        "Files App",
-        ('*/mobile/Containers/Shared/AppGroup/*/smartfolders.db*'),
-        get_filesAppsm)
-}
