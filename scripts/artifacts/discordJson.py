@@ -148,10 +148,13 @@ def get_discordJson(files_found, report_folder, seeker, wrap_text, timezone_offs
 													if new_height == height and new_width == width:
 														proxy_url = a.get('proxy_url') + '='
 													else:
-														proxy_url = a.get(
-															'proxy_url') + f'=&width={new_width}&height={new_height}'
+														proxy_url = a.get('proxy_url')
+														if proxy_url[-1] == "&":
+															proxy_url += f'=&width={new_width}&height={new_height}'
+														else:
+															proxy_url += f'?width={new_width}&height={new_height}'
 													#Find the extension in the url
-													pattern = r'(\..{1,4})\?ex='
+													pattern = r'attachments.+(\.[^?=]{1,4})\??'
 													match = re.search(pattern, proxy_url)
 
 													if match:
