@@ -632,3 +632,11 @@ def get_resolution_for_model_id(model_id: str):
         f"Warning! - Resolution not found for '{model_id}', contact developers to add resolution into the get_resolution_for_model_id function")
     return None
 
+
+def convert_bytes_to_unit(size):
+    for unit in ['bytes', 'KB', 'MB', 'GB']:
+        if size < 1024.0:
+            return f"{size:3.1f} {unit}"
+        size /= 1024.0
+    return size
+
