@@ -14,7 +14,7 @@ __artifacts_v2__ = {
 }
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly, does_column_exist_in_db, convert_ts_human_to_utc, convert_utc_human_to_timezone
+from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly, convert_ts_human_to_utc, convert_utc_human_to_timezone
 
 
 def get_knowledgeC_BatteryPercentage(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -26,7 +26,7 @@ def get_knowledgeC_BatteryPercentage(files_found, report_folder, seeker, wrap_te
             db = open_sqlite_db_readonly(file_found)
             cursor = db.cursor()
 
-            cursor.execute(f'''
+            cursor.execute('''
             SELECT datetime('2001-01-01', ZOBJECT.ZSTARTDATE || ' seconds') AS 'Start Time',
             datetime('2001-01-01', ZOBJECT.ZENDDATE || ' seconds') AS 'End Time',
             ZOBJECT.ZVALUEINTEGER AS 'Battery Percentage',

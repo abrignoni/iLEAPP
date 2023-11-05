@@ -520,10 +520,10 @@ icon_mappings = \
         'default': 'file-text'
     },
     'KNOWLEDGEC': {
-        'KNOWLEDGEC - BATTERY PERCENTAGE': 'battery-charging',
+        'KNOWLEDGEC - BATTERY PERCENTAGE': 'battery',
         'KNOWLEDGEC DEVICE LOCKED': 'lock',
         'KNOWLEDGEC - MEDIA PLAYING': 'play-circle',
-        'KNOWLEDGEC PLUGGED IN': 'battery-charging',
+        'KNOWLEDGEC - DEVICE PLUGIN STATUS': 'battery-charging',
         'default': 'activity',
     },
     'LEAPP_REPORT': {
