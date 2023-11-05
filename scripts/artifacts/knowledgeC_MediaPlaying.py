@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "Media Playing": {
         "name": "knowledgeC Media Playing",
-        "description": "Parses and extract media played from knowledgeC database",
+        "description": "Media played from knowledgeC database",
         "author": "@JohannPLW",
         "version": "0.1",
         "date": "2023-10-31",
@@ -11,7 +11,7 @@ __artifacts_v2__ = {
             - Sarah Edwards as part of her APOLLO project https://github.com/mac4n6/APOLLO \
             - Ian Wiffin blog post https://www.doubleblak.com/blogPosts.php?id=29",
         "paths": ('**/CoreDuet/Knowledge/knowledgeC.db',),
-        "function": "get_knowledgeC"
+        "function": "get_knowledgeC_MediaPlaying"
     }
 }
 
@@ -20,7 +20,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly, does_column_exist_in_db, convert_ts_human_to_utc, convert_utc_human_to_timezone
 
 
-def get_knowledgeC(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def get_knowledgeC_MediaPlaying(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
     for file_found in files_found:
         file_found = str(file_found)
@@ -104,7 +104,7 @@ def get_knowledgeC(files_found, report_folder, seeker, wrap_text, timezone_offse
                         data_list.append((start_time, end_time, row[2], row[3], row[4], row[5], 
                                         row[6], row[7], row[8], row[9], added_time))
 
-                description = "Parses events related to media playing in knowledgeC database"
+                description = "Media playing events extracted from knowledgeC database"
                 report = ArtifactHtmlReport('knowledgeC - Media Playing')
                 report.start_artifact_report(report_folder, 'knowledgeC - Media Playing', description)
                 report.add_script()

@@ -520,7 +520,7 @@ icon_mappings = \
         'default': 'file-text'
     },
     'KNOWLEDGEC': {
-        'KNOWLEDGEC BATTERY LEVEL': 'battery',
+        'KNOWLEDGEC - BATTERY PERCENTAGE': 'battery-charging',
         'KNOWLEDGEC DEVICE LOCKED': 'lock',
         'KNOWLEDGEC - MEDIA PLAYING': 'play-circle',
         'KNOWLEDGEC PLUGGED IN': 'battery-charging',
