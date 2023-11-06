@@ -137,30 +137,36 @@ def get_discordJson(files_found, report_folder, seeker, wrap_text, timezone_offs
 												#Get the width and height from the attachment record
 												width = a.get('width')
 												height = a.get('height')
-
+												original_proxy_url = a.get('proxy_url')
 												#Make sure there is a width or its probably not an image we can do anything with
 												if not width:
 													#Just show the URL (Could be a voice message or other type)
-													attachmentsArray.append(a.get('proxy_url'))
+													attachmentsArray.append(original_proxy_url)
 												else:
-													#Found an image (maybe video?)
-													new_width, new_height = reduceSize(width, height, resolution['Width'], int(resolution['Height']/2))
-													if new_height == height and new_width == width:
-														proxy_url = a.get('proxy_url') + '='
-													else:
-														proxy_url = a.get('proxy_url')
-														if proxy_url[-1] == "&":
-															proxy_url += f'=&width={new_width}&height={new_height}'
-														else:
-															proxy_url += f'?width={new_width}&height={new_height}'
-													#Find the extension in the url
+													# Find the extension in the url
 													pattern = r'attachments.+(\.[^?=]{1,4})\??'
-													match = re.search(pattern, proxy_url)
+													match = re.search(pattern, original_proxy_url)
 
 													if match:
 														ext = match.group(1)
 													else:
 														ext = ''
+
+													#Found an image (maybe video?)
+													new_width, new_height = reduceSize(width, height, resolution['Width'], int(resolution['Height']/2))
+													if new_height == height and new_width == width:
+														if ext == '.gif':
+															#Not sure what other extensions might need to omit the = at end?
+															proxy_url = original_proxy_url
+														else:
+															proxy_url = original_proxy_url + '='
+													else:
+														proxy_url = original_proxy_url
+														if proxy_url[-1] == "&":
+															proxy_url += f'=&width={new_width}&height={new_height}'
+														else:
+															proxy_url += f'?width={new_width}&height={new_height}'
+
 
 													#Generate MD5 with extension appended
 													proxy_url_md5 = hashlib.md5(proxy_url.encode('utf-8')).hexdigest() + ext
