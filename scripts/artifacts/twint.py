@@ -3,7 +3,7 @@
 from scripts.ilapfuncs import logfunc, logdevinfo, timeline, kmlgen, tsv, is_platform_windows, open_sqlite_db_readonly
 from scripts.artifact_report import ArtifactHtmlReport
 
-__artifacts__ = {
+__artifacts_v2__ = {
     "Twint": {
         "name": "Twint Transaction Artifacts",
         "description": "Extract all the data available related to transactions made with the instant payment app Twint prepaid",
