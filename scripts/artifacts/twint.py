@@ -3,14 +3,16 @@
 from scripts.ilapfuncs import logfunc, logdevinfo, timeline, kmlgen, tsv, is_platform_windows, open_sqlite_db_readonly
 from scripts.artifact_report import ArtifactHtmlReport
 
-
 __artifacts__ = {
     "Twint": {
         "name": "Twint Transaction Artifacts",
-        "description": "Collect all the data available related to transactions made with the instant payment app Twint prepaid",
-        "author": "Frank Ressat @KefreR",
-        "version": "0.0.1",
+        "description": "Extract all the data available related to transactions made with the instant payment app Twint prepaid",
+        "author": "@KefreR",
+        "version": "0.1",
         "date": "2023-11-09",
+        "requirements": "none",
+        "category": "Twint Prepaid",
+        "notes": "",
         "paths": ('*/var/mobile/Containers/Data/Application/*/Library/Application Support/Twint.sqlite'),
         "function": "get_twint"
     }
