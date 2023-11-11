@@ -13,9 +13,10 @@ __artifacts_v2__ = {
     }
 }
 
+from datetime import datetime
 from scripts.artifact_report import ArtifactHtmlReport
 from urllib.parse import unquote
-from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly, convert_ts_human_to_utc, convert_utc_human_to_timezone
+from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly, does_table_exist, does_column_exist_in_db,convert_ts_human_to_utc, convert_utc_human_to_timezone
 
 
 def get_sharees(cursor):
@@ -78,13 +79,13 @@ def get_invitees(cursor):
             participant = f'{row[1]} - {row[2]}' if row[1] else row[2]
             status = row[3]
             if status == 'No response':
-                html_status = '<span style="color: gray;" title="No response">&#10687;</span>'
+                html_status = '<span style="color: gray;" title="No response">&#11044;</span>'
             elif status == 'Accepted':
-                html_status = '<span style="color: green;" title="Accepted">&#10687;</span>'
+                html_status = '<span style="color: green;" title="Accepted">&#11044;</span>'
             elif status == 'Declined':
-                html_status = '<span style="color: red;" title="Declined">&#10687;</span>'
+                html_status = '<span style="color: red;" title="Declined">&#11044;</span>'
             elif status == 'Maybe':
-                html_status = '<span style="color: orange;" title="Maybe">&#10687;</span>'
+                html_status = '<span style="color: orange;" title="Maybe">&#11044;</span>'
             else:
                 html_status = ''
             sharing_participant = f'{html_status} {participant}'
@@ -105,6 +106,12 @@ def get_calendar_name(name, color):
     else:
         calendar_name = f'&#9711; {name}'
     return calendar_name
+
+
+def get_birthdate(date):
+    ns_date = int(date) + 978307200
+    utc_date = datetime.utcfromtimestamp(ns_date)
+    return utc_date.strftime('%d %B %Y') if utc_date.year != 1604 else utc_date.strftime('%d %B')
 
 
 def get_calendarList(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -158,8 +165,8 @@ def get_calendarList(files_found, report_folder, seeker, wrap_text, timezone_off
                         data_list.append((calendar_name, row[3], row[4], row[5], owner_email, row[7], row[8]))
     
                 description = "List of Calendars"
-                report = ArtifactHtmlReport('Calendar - List')
-                report.start_artifact_report(report_folder, 'Calendar - List', description)
+                report = ArtifactHtmlReport('Calendar List')
+                report.start_artifact_report(report_folder, 'Calendar List', description)
                 report.add_script()
 
                 if sharees:
@@ -172,7 +179,7 @@ def get_calendarList(files_found, report_folder, seeker, wrap_text, timezone_off
                 report.write_artifact_data_table(data_headers, data_list, file_found, html_no_escape=['Calendar Name', 'Sharing Participants'])
                 report.end_artifact_report()
 
-                tsvname = 'Calendar - List'
+                tsvname = 'Calendar List'
                 tsv(report_folder, data_headers, data_list, tsvname)
 
             else:
@@ -181,16 +188,38 @@ def get_calendarList(files_found, report_folder, seeker, wrap_text, timezone_off
 
             # Calendar Events
 
+            attachment_file_exists = does_table_exist(db, 'AttachmentFile')
+
+            if attachment_file_exists:
+                attachments = '''
+                (SELECT group_concat(AttachmentFile.filename || ' (' || AttachmentFile.file_size || ' bytes)')
+                FROM Attachment
+                LEFT JOIN AttachmentFile ON Attachment.file_id = AttachmentFile.ROWID
+                WHERE CalendarItem.ROWID = Attachment.owner_id
+                GROUP BY Attachment.owner_id) AS 'Attachments',
+                '''
+            else:
+                attachments = '''
+                (SELECT group_concat(Attachment.filename || ' (' || Attachment.file_size || ' bytes)')
+                FROM Attachment
+                WHERE CalendarItem.ROWID = Attachment.owner_id
+                GROUP BY Attachment.owner_id) AS 'Attachments',
+                '''
+            
+            conference_url_detected_exists = does_column_exist_in_db(db, 'CalendarItem', 'conference_url_detected')
+            conference_url = f"CalendarItem.conference_url{'_detected' if conference_url_detected_exists else ''} AS 'Conference URL',"
+
+
             cursor.execute(
-            """
+            f'''
             SELECT CalendarItem.ROWID, 
             datetime('2001-01-01', CalendarItem.start_date || ' seconds') AS 'Start Time',
             datetime('2001-01-01', CalendarItem.end_date || ' seconds') AS 'End Time',
             CalendarItem.start_tz AS 'Timezone',
-            CalendarItem.summary AS 'Event Title',
             Calendar.title AS 'Calendar Name',
-			Calendar.color AS 'Calendar Color',
+            Calendar.color AS 'Calendar Color',
             Store.name AS 'Account Name',
+            CalendarItem.summary AS 'Event Title',
             Location.title AS 'Location Name',
             Location.address AS 'Location Address',
             Location.latitude AS 'Location Latitude',
@@ -198,6 +227,8 @@ def get_calendarList(files_found, report_folder, seeker, wrap_text, timezone_off
             Identity.display_name AS 'Organizer Name',
             Participant.email AS 'Organizer email',
             CalendarItem.has_attendees AS 'Has Attendees',
+            {conference_url}
+            {attachments}
             CalendarItem.description AS 'Notes',
             datetime('2001-01-01', CalendarItem.creation_date || ' seconds') AS 'Creation Time',
             datetime('2001-01-01', CalendarItem.last_modified || ' seconds') AS 'Last Modification Time'
@@ -206,9 +237,9 @@ def get_calendarList(files_found, report_folder, seeker, wrap_text, timezone_off
             LEFT JOIN Calendar ON CalendarItem.calendar_id = Calendar.ROWID
             LEFT JOIN Store ON Calendar.store_id = Store.ROWID
             LEFT JOIN Participant  ON CalendarItem.organizer_id = Participant.ROWID
-			LEFT JOIN Identity ON Participant.identity_id = Identity.ROWID
-			WHERE CalendarItem.contact_name IS NULL
-            """)
+            LEFT JOIN Identity ON Participant.identity_id = Identity.ROWID
+            WHERE CalendarItem.calendar_scale IS NOT 'gregorian'
+            ''')
 
             all_rows = cursor.fetchall()
             usageentries = len(all_rows)
@@ -237,33 +268,76 @@ def get_calendarList(files_found, report_folder, seeker, wrap_text, timezone_off
                     
                     timezone = row[3] if row[3] != '_float' else ''
                     
-                    calendar_name = get_calendar_name(row[5], row[6])
+                    calendar_name = get_calendar_name(row[4], row[5])
 
                     invitation_from = f'{row[12]} - {row[13]}' if row[12] else row[13]
 
                     attendees = invitees.get(row[0], '')
 
-                    data_list.append((start_time, end_time, timezone, row[4], calendar_name, row[7], row[8], 
-                                      row[9], row[10], row[11], invitation_from, attendees, row[15], 
-                                      creation_time, modification_time))
+                    data_list.append((start_time, end_time, timezone, calendar_name, row[6], row[7], row[8], 
+                                      row[9], row[10], row[11], invitation_from, attendees, row[15], row[16],
+                                      row[17], creation_time, modification_time))
             
                 description = ''
-                report = ArtifactHtmlReport('Calendar Items')
-                report.start_artifact_report(report_folder, 'Items', description)
+                report = ArtifactHtmlReport('Calendar Events')
+                report.start_artifact_report(report_folder, 'Calendar Events', description)
                 report.add_script()
-                data_headers = ('Start Time', 'End Time', 'Timezone', 'Event Title', 'Calendar Name', 'Account Name', 
+                data_headers = ('Start Time', 'End Time', 'Timezone', 'Calendar Name', 'Account Name', 'Event Title', 
                                 'Location Name', 'Location Address', 'Location Latitude', 'Location Longitude', 
-                                'Invitation From', 'Invitees', 'Notes',
+                                'Invitation From', 'Invitees', 'Conference URL', 'Attachments', 'Notes', 
                                 'Creation Time', 'Last Modification Time')
 
                 report.write_artifact_data_table(data_headers, data_list, file_found, html_no_escape=['Calendar Name', 'Invitees'])
                 report.end_artifact_report()
                 
-                tsvname = 'Calendar Items'
+                tsvname = 'Calendar Events'
                 tsv(report_folder, data_headers, data_list, tsvname)
                 
-                tlactivity = 'Calendar Items'
+                tlactivity = 'Calendar Events'
                 timeline(report_folder, tlactivity, data_list, data_headers)
             else:
-                logfunc('No data available for Calendar Items')
+                logfunc('No event found in Calendars database')
+            
+
+            # Birthdays
+
+            cursor.execute(
+            f'''
+            SELECT 
+            CalendarItem.summary AS 'Person Name',
+            CalendarItem.start_date AS 'Date of Birth',
+            Calendar.title AS 'Calendar Name',
+            Calendar.color AS 'Calendar Color',
+            Store.name AS 'Account Name'
+            FROM CalendarItem
+            LEFT JOIN Calendar ON CalendarItem.calendar_id = Calendar.ROWID
+            LEFT JOIN Store ON Calendar.store_id = Store.ROWID
+            WHERE CalendarItem.calendar_scale IS 'gregorian'
+            ''')
+
+            all_rows = cursor.fetchall()
+            usageentries = len(all_rows)
+
+            if usageentries > 0:
+                data_list = []    
+                for row in all_rows:
+                    birthdate = get_birthdate(row[1])
+                    calendar_name = get_calendar_name(row[2], row[3])
+
+                    data_list.append((row[0], birthdate, calendar_name, row[4]))
+            
+                description = ''
+                report = ArtifactHtmlReport('Calendar Birthdays')
+                report.start_artifact_report(report_folder, 'Calendar Birthdays', description)
+                report.add_script()
+                data_headers = ('Person Name', 'Date of Birth', 'Calendar Name', 'Account Name')
+
+                report.write_artifact_data_table(data_headers, data_list, file_found, html_no_escape=['Calendar Name'])
+                report.end_artifact_report()
+                
+                tsvname = 'Calendar Birthdays'
+                tsv(report_folder, data_headers, data_list, tsvname)
+                
+            else:
+                logfunc('No birthday found in Calendars database')
             
