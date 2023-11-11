@@ -19,7 +19,7 @@ __artifacts_v2__ = {
 }
 
 
-def get_twint(files_found, report_folder, seeker, wrap_text, time_offset='LOCALTIME'):
+def get_twint(files_found, report_folder, seeker, wrap_text, time_offset):
     for file_found in files_found:
         file_found = str(file_found)
 
@@ -28,10 +28,10 @@ def get_twint(files_found, report_folder, seeker, wrap_text, time_offset='LOCALT
     cursor.execute(f'''
         SELECT
         ZTRANSACTION.Z_PK,
-        datetime(ZTRANSACTION.ZCREATIONDATE+978307200,'UNIXEPOCH', {time_offset}), 
-        datetime(ZTRANSACTION.ZMODIFIEDTIMESTAMP+978307200,'UNIXEPOCH', {time_offset}), 
-        datetime(ZTRANSACTION.ZSECONDPHASETIMESTAMP+978307200,'UNIXEPOCH', {time_offset}), 
-        datetime(ZTRANSACTION.ZSTATUSPENDINGUNTILDATE+978307200,'UNIXEPOCH', {time_offset}),
+        datetime(ZTRANSACTION.ZCREATIONDATE+978307200,'UNIXEPOCH'), 
+        datetime(ZTRANSACTION.ZMODIFIEDTIMESTAMP+978307200,'UNIXEPOCH'), 
+        datetime(ZTRANSACTION.ZSECONDPHASETIMESTAMP+978307200,'UNIXEPOCH'), 
+        datetime(ZTRANSACTION.ZSTATUSPENDINGUNTILDATE+978307200,'UNIXEPOCH'),
         ZTRANSACTION.ZMERCHANTBRANCHNAME,
         ZTRANSACTION.ZMERCHANTNAME,
         ZTRANSACTION.ZP2PSENDERMOBILENR,
