@@ -76,17 +76,6 @@ body {
     /* Space for fixed navbar */
 }
 
-/*
- * Calendars
- */
- 
-.colored_dot {
-    height: 16px;
-    width: 16px;
-    border-radius: 50%;
-    display: inline-block;
-  }
-
 
 /*
  * Navbar
