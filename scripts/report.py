@@ -136,7 +136,10 @@ icon_mappings = \
     },
     'CACHE DATA': 'box',
     'CALCULATOR LOCKER': 'lock',
-    'CALENDAR': 'calendar',
+    'CALENDAR': {
+        'CALENDAR BIRTHDAYS': 'gift',
+        'default': 'calendar',
+    },
     'CALL HISTORY': {
         'CALL HISTORY': 'phone-call',
         'DELETED VOICEMAIL': 'mic-off',
