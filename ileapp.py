@@ -169,6 +169,8 @@ def crunch_artifacts(
 
     # Search for the files per the arguments
     for plugin in plugins:
+        if plugin.name == 'iTunesBackupInfo':
+            continue
         artifact_pretty_name = plugin.name
         if isinstance(plugin.search, list) or isinstance(plugin.search, tuple):
             search_regexes = plugin.search

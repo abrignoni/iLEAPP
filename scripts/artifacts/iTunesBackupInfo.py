@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "version": "0.1",
         "date": "2023-10-11",
         "requirements": "none",
-        "category": "Device Info",
+        "category": "iTunes Backup Info",
         "notes": "",
         "paths": ('*Info.plist',),
         "function": "get_iTunesBackupInfo"
@@ -15,10 +15,11 @@ __artifacts_v2__ = {
 
 import datetime
 import plistlib
-import scripts.artifacts.artGlobals 
+import scripts.artifacts.artGlobals
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, tsv, is_platform_windows 
+from scripts.ilapfuncs import logfunc, logdevinfo, tsv
+from base64 import b64encode
 
 def get_iTunesMetadata(applications):
     app_list=[]
@@ -26,6 +27,13 @@ def get_iTunesMetadata(applications):
     for bundle_id, app_data in applications.items():
         apple_id = ''
         purchase_date = ''
+        binary_app_icon = app_data.get('PlaceholderIcon', '')
+        if binary_app_icon:
+            base64_icon = b64encode(binary_app_icon).decode('utf-8')
+            icon_tag = f'<img src="data:image/jpeg;base64,{base64_icon}" alt="{bundle_id} App Icon" width="60">'
+        else:
+            icon_tag = ''
+
         if 'iTunesMetadata' in app_data.keys():
             itunes_metadata = plistlib.loads(app_data['iTunesMetadata'])
             item_name = itunes_metadata.get('itemName', '')
@@ -54,14 +62,14 @@ def get_iTunesMetadata(applications):
             game_center_enabled = itunes_metadata.get('gameCenterEnabled', '')
             game_center_ever_enabled = itunes_metadata.get('gameCenterEverEnabled', '')
             messages_extension = itunes_metadata.get('hasMessagesExtension', '')
-            app_list.append((bundle_id, item_name, artist_name, version, genre, 
+            app_list.append((bundle_id, icon_tag, item_name, artist_name, version, genre, 
                             install_date, apple_id, purchase_date, release_date, 
                             source_app, auto_download, purchased_redownload, 
                             factory_install, side_loaded, game_center_enabled, 
                             game_center_ever_enabled, messages_extension))
         elif 'info_plist_bundle_id' in app_data.keys():
             app_info = (bundle_id, )
-            app_info += ('',) * 16
+            app_info += ('',) * 17
             app_list.append(app_info)
     
     return app_list
@@ -125,12 +133,12 @@ def get_iTunesBackupInfo(files_found, report_folder, seeker, wrap_text, timezone
         report = ArtifactHtmlReport('iTunes Backup - Installed Applications')
         report.start_artifact_report(report_folder, 'iTunes Backup Installed Applications')
         report.add_script()
-        data_headers = ('Bundle ID', 'Item Name', 'Artist Name', 'Version', 
+        data_headers = ('Bundle ID', 'App Icon', 'Item Name', 'Artist Name', 'Version', 
                         'Genre', 'Install Date', 'Downloaded by', 'Purchase Date', 
                         'Release Date', 'Source App', 'Auto Download', 
                         'Purchased Redownload', 'Factory Install', 'Side Loaded', 
                         'Game Center Enabled', 'Game Center Ever Enabled', 
                         'Messages Extension')
-        report.write_artifact_data_table(data_headers, apps_iTunesMetadata, file_found)
+        report.write_artifact_data_table(data_headers, apps_iTunesMetadata, file_found, html_no_escape=['App Icon'])
         report.end_artifact_report()
 
