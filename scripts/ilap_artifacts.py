@@ -27,7 +27,7 @@ from scripts.artifacts.airtags import get_airtags
 from scripts.artifacts.bluetooth import get_bluetooth
 from scripts.artifacts.bumble import get_bumble
 from scripts.artifacts.cacheRoutesGmap import get_cacheRoutesGmap
-from scripts.artifacts.calendar import get_calendar
+from scripts.artifacts.calendarAll import get_calendar
 from scripts.artifacts.callHistory import get_callHistory
 from scripts.artifacts.cashApp import get_cashApp
 from scripts.artifacts.celWireless import get_celWireless
