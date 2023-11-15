@@ -10,6 +10,8 @@ from zipfile import ZipFile
 
 from fnmatch import _compile_pattern
 from functools import lru_cache
+
+from scripts.builds_ids import get_root_path_from_domain
 normcase = lru_cache(maxsize=None)(os.path.normcase)
 
 class FileSeekerBase:
@@ -65,7 +67,7 @@ class FileSeekerItunes(FileSeekerBase):
         logfunc('Building files listing...')
         self.build_files_list(directory)
         logfunc(f'File listing complete - {len(self._all_files)} files')
-
+    
     def build_files_list(self, directory):
         '''Populates paths from Manifest.db files into _all_files'''
         try: 
@@ -75,6 +77,7 @@ class FileSeekerItunes(FileSeekerBase):
                 """
                 SELECT
                 fileID,
+                domain,
                 relativePath
                 FROM
                 Files
@@ -85,8 +88,11 @@ class FileSeekerItunes(FileSeekerBase):
             all_rows = cursor.fetchall()
             for row in all_rows:
                 hash_filename = row[0]
-                relative_path = row[1]
-                self._all_files[relative_path] = hash_filename
+                domain = row[1]
+                root_path = get_root_path_from_domain(domain)
+                relative_path = row[2]
+                full_path = os.path.join(root_path, relative_path)
+                self._all_files[full_path] = hash_filename
             db.close()
         except Exception as ex:
             logfunc(f'Error opening Manifest.db from {directory}, ' + str(ex))

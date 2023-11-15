@@ -8,6 +8,8 @@
 #   https://www.gkgigs.com/list-of-all-macos-version-history/
 #   https://betawiki.net/wiki/Category:MacOS_versions
 
+from os.path import join
+
 OS_build = {
     "1A543a": "iPhone OS 1.0",
     "1C25": "iPhone OS 1.0.1",
@@ -744,6 +746,7 @@ OS_build = {
     "21B91": "iOS 17.1.1",
     "21C5029g": "iOS 17.2 beta 1",
     "21C5040g": "iOS 17.2 beta 2",
+    "21C5046c": "iOS 17.2 beta 3",
     "4K78": "Mac OS X 10.0",
     "4L8": "Mac OS X 10.0.1",
     "4L13": "Mac OS X 10.0.1",
@@ -1829,6 +1832,8 @@ OS_build = {
     "21G918": "macOS 12.7.1 RC 2",
     "21G920": "macOS 12.7.1",
     "21G1925": "macOS 12.7.2 RC",
+    "21G1965": "macOS 12.7.2 RC 2",
+    "21G1967": "macOS 12.7.2 RC 3",
     "22A5266r": "macOS 13.0 beta 1",
     "22A5286j": "macOS 13.0 beta 2",
     "22A5295h": "macOS 13.0 beta 3",
@@ -1894,6 +1899,7 @@ OS_build = {
     "22G2321": "macOS 13.6.2",
     "22G417": "macOS 13.6.3 RC",
     "22G423": "macOS 13.6.3 RC 2",
+    "22G430": "macOS 13.6.3 RC 3",
     "23A5257q": "macOS 14.0 beta 1",
     "23A5276g": "macOS 14.0 beta 2",
     "23A5286g": "macOS 14.0 beta 3",
@@ -1916,6 +1922,7 @@ OS_build = {
     "23B2082": "macOS 14.1.1",
     "23C5030f": "macOS 14.2 beta 1",
     "23C5041e": "macOS 14.2 beta 2",
+    "23C5047e": "macOS 14.2 beta 3",
     "12S507": "watchOS 1.0",
     "12S632": "watchOS 1.0.1",
     "13S5254w": "watchOS 2.0 beta 1",
@@ -2284,6 +2291,32 @@ OS_build = {
     "21S71": "watchOS 10.1.1",
     "21S5331f": "watchOS 10.2 beta 1",
     "21S5342e": "watchOS 10.2 beta 2",
+    "21S5349e": "watchOS 10.2 beta 3",
+}
+
+domains = {
+    "AppDomain-": "private/var/mobile/Containers/Data/Application",
+    "AppDomainGroup-" : "private/var/mobile/Containers/Shared/AppGroup",
+    "AppDomainPlugin-" : "private/var/mobile/Containers/Data/PluginKitPlugin",
+    "CameraRollDomain" : "private/var/mobile/Media",
+    "DatabaseDomain": "private/var/db",
+    "HealthDomain": "private/var/mobile",
+    "HomeDomain": "private/var/mobile",
+    "HomeKitDomain": "private/var/mobile", 
+    "InstallDomain": "private/var/installd",
+    "KeyboardDomain": "private/var/mobile",
+    "KeychainDomain" : "private/var/protected/trustd/private",
+    "ManagedPreferencesDomain": "private/var/Managed Preferences",
+    "MediaDomain": "private/var/mobile",
+    "MobileDeviceDomain": "private/var/MobileDevice",
+    "NetworkDomain": "private/var/networkd",
+    "ProtectedDomain": "private/var/protected",
+    "RootDomain": "private/var/root",
+    "SysContainerDomain-": "private/var/containers/Data/System",
+    "SysSharedContainerDomain-": "private/var/containers/Shared/SystemGroup",
+    "SystemPreferencesDomain": "private/var/preferences",
+    "TonesDomain": "private/var/mobile",
+    "WirelessDomain": "private/var/wireless"
 }
 
 device_id = {
@@ -2385,3 +2418,15 @@ device_id = {
     "iPhone16,1": "iPhone 15 Pro",
     "iPhone16,2": "iPhone 15 Pro Max",
 }
+
+
+def get_root_path_from_domain(domain):
+    if domain in domains:
+        return domains[domain]
+    elif ('-') in domain:
+        dash_position = domain.find("-") + 1
+        path = domains[domain[:dash_position]]
+        bundle_identifier = domain[dash_position:]
+        return join(path, bundle_identifier)
+    return ''
+
