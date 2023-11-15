@@ -149,7 +149,7 @@ def crunch_artifacts(
     log = open(os.path.join(out_params.report_folder_base, 'Script Logs', 'ProcessedFilesLog.html'), 'w+', encoding='utf8')
     nl = '\n' #literal in order to have new lines in fstrings that create text files
     log.write(f'Extraction/Path selected: {input_path}<br><br>')
-    log.write(f'Timezone selected: {time_offset}<br><br>')
+    log.write(f'Timezone selected: {time_offset}<br>')
     
     categories_searched = 0
     # Special processing for iTunesBackup Info.plist as it is a seperate entity, not part of the Manifest.db. Seeker won't find it
@@ -178,14 +178,15 @@ def crunch_artifacts(
             search_regexes = [plugin.search]
         files_found = []
         for artifact_search_regex in search_regexes:
+            log.write(f'<br><b>For {plugin.name} parser</b><br>')
             found = seeker.search(artifact_search_regex)
             if not found:
-                log.write(f'No files found for {plugin.name} -> {artifact_search_regex}<br><br>')
+                log.write(f'No files found for regex {artifact_search_regex}<br>')
             else:
                 for pathh in found:
                     if pathh.startswith('\\\\?\\'):
                         pathh = pathh[4:]
-                    log.write(f'Files for {artifact_search_regex} located at {pathh}<br><br>')
+                    log.write(f'Files for {artifact_search_regex} located at {pathh}<br>')
                 files_found.extend(found)
         if files_found:
             logfunc('{} [{}] artifact started'.format(plugin.name, plugin.module_name))
