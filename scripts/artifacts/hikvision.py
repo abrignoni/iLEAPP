@@ -170,7 +170,7 @@ def get_hikvision(files_found, report_folder, seeker, wrap_text, timezone_offset
             if mfile[2] is not None:
                 media = media_to_html(mfile[2], files_found, report_folder)
             data_list.append((mfile[0],mfile[1],media))
-        media_files_dir = "/private/var/mobile/Containers/Data/Application/[Application-GUID]/Documents/YYYY/MM/DD" #Generic path of the media files. Each file is stored within seperate dirs based on its creation date
+        media_files_dir = "*/mobile/Containers/Data/Application/[Application-GUID]/Documents/YYYY/MM/DD" #Generic path of the media files. Each file is stored within seperate dirs based on its creation date
         report.write_artifact_data_table(data_headers, data_list, media_files_dir, html_escape = False)
         report.end_artifact_report()
 
