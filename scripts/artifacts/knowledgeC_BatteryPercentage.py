@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "KnowledgeC",
         "notes": "",
-        "paths": ('**/CoreDuet/Knowledge/knowledgeC.db',),
+        "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
         "function": "get_knowledgeC_BatteryPercentage"
     }
 }

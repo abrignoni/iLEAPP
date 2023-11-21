@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Calendar",
         "notes": "",
-        "paths": ('**/Calendar.sqlitedb',),
+        "paths": ('*/mobile/Library/Calendar/Calendar.sqlitedb*',),
         "function": "get_calendar"
     }
 }

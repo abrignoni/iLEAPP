@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Twint Prepaid",
         "notes": "",
-        "paths": ('*/var/mobile/Containers/Data/Application/*/Library/Application Support/Twint.sqlite'),
+        "paths": ('*/var/mobile/Containers/Data/Application/*/Library/Application Support/Twint.sqlite*'),
         "function": "get_twint"
     }
 }

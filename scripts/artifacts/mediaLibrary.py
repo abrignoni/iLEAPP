@@ -113,6 +113,6 @@ def get_mediaLibrary(files_found, report_folder, seeker, wrap_text, timezone_off
 __artifacts__ = {
     "mediaLibrary": (
         "Media Library",
-        ('**/Medialibrary.sqlitedb'),
+        ('**/Medialibrary.sqlitedb*'),
         get_mediaLibrary)
 }

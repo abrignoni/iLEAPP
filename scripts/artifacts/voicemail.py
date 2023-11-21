@@ -164,6 +164,6 @@ def get_voicemail(files_found, report_folder, seeker, wrap_text, timezone_offset
 __artifacts__ = {
     "voicemail": (
         "Call History",
-        ('**/Voicemail/voicemail.db','**/Voicemail/*.amr'),
+        ('**/Voicemail/voicemail.db*','**/Voicemail/*.amr'),
         get_voicemail)
 }
