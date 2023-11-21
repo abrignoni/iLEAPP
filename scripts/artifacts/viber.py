@@ -20,8 +20,8 @@ __artifacts_v2__ = {
 				 "columns with each chat's grouped participants and phone numbers. More information is stored within "
 				 "the above databases, and this artifact assists in parsing the most out of it. ",
         "paths": (
-            '**/com.viber/settings/Settings.data',
-            '**/com.viber/database/Contacts.data',
+            '**/com.viber/settings/Settings.data*',
+            '**/com.viber/database/Contacts.data*',
             '**/Containers/Data/Application/*/Documents/Attachments/*.*',
             '**/com.viber/ViberIcons/*.*'
         ),
