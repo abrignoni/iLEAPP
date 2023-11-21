@@ -344,6 +344,6 @@ def get_dmss(files_found, report_folder, seeker, wrap_text, timezone_offset):
 __artifacts__ = {
         "Dahua Technology (DMSS)": (
                 "Dahua Technology (DMSS)",
-                ('*/Library/Support/Devices.sqlite3*','*/Library/Support/configFile1','*/Library/Support/*/DMSSCloud.sqlite*','*/Documents/Captures/*','*/Documents/Videos/*'),
+                ('*/Library/Support/Devices.sqlite3','*/Library/Support/configFile1','*/Library/Support/*/DMSSCloud.sqlite','*/Documents/Captures/*','*/Documents/Videos/*'),
                 get_dmss)
 }

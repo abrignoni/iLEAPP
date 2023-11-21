@@ -96,7 +96,7 @@ def get_tcc(files_found, report_folder, seeker, wrap_text, timezone_offset):
 __artifacts__ = {
     "tcc": (
         "App Permissions",
-        ('*/mobile/Library/TCC/TCC.db*'),
+        ('*TCC.db*'),
         get_tcc)
 }
     

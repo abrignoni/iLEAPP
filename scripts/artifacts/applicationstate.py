@@ -75,6 +75,6 @@ def get_applicationstate(files_found, report_folder, seeker, wrap_text, timezone
 __artifacts__ = {
     "applicationstate": (
         "Installed Apps",
-        ('*/mobile/Library/FrontBoard/applicationState.db*'),
+        ('**/applicationState.db'),
         get_applicationstate)
 }
