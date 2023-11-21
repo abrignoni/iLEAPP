@@ -7,7 +7,7 @@ __artifacts_v2__ = {
 					   "contacts, calls, messages and more.",
         "author": "Evangelos Dragonas (@theAtropos4n6)",
         "version": "0.0.2",
-        "date": "2022-03-15",
+        "date": "2023-11-21",
         "requirements": "",
         "category": "Viber",
         "notes": "The code is divided into 4 queries-artifacts blocks. The 1st parses settings db, extracts and "
@@ -20,8 +20,8 @@ __artifacts_v2__ = {
 				 "columns with each chat's grouped participants and phone numbers. More information is stored within "
 				 "the above databases, and this artifact assists in parsing the most out of it. ",
         "paths": (
-            '**/com.viber/settings/Settings.data',
-            '**/com.viber/database/Contacts.data',
+            '**/com.viber/settings/Settings.data*',
+            '**/com.viber/database/Contacts.data*',
             '**/Containers/Data/Application/*/Documents/Attachments/*.*',
             '**/com.viber/ViberIcons/*.*'
         ),
@@ -30,17 +30,12 @@ __artifacts_v2__ = {
 }
 
 
-import glob
-import os
-import pathlib
-import sqlite3
 import json
 
 import scripts.artifacts.artGlobals
 from packaging import version
-from html import escape
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, timeline, kmlgen, tsv, is_platform_windows, open_sqlite_db_readonly, media_to_html
+from scripts.ilapfuncs import logfunc, timeline, kmlgen, tsv, open_sqlite_db_readonly, media_to_html
 
 
 def get_viber(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -53,7 +48,7 @@ def get_viber(files_found, report_folder, seeker, wrap_text, timezone_offset):
 			logfunc("Viber parsing has not be tested on this iOS " + iOSversion + " version. Please contact @theAtropos4n6 for resolving this issue.")
 
 		if version.parse(iOSversion) >= version.parse("14"):
-			if file_found.endswith('Settings.data'):
+			if file_found.endswith('/Settings.data'):
 				db = open_sqlite_db_readonly(file_found)
 				cursor = db.cursor()
 				cursor.execute('''
@@ -186,7 +181,7 @@ def get_viber(files_found, report_folder, seeker, wrap_text, timezone_offset):
 		
 				db.close()
 
-			elif file_found.endswith('Contacts.data'):
+			elif file_found.endswith('/Contacts.data'):
 
 				db = open_sqlite_db_readonly(file_found)
 				cursor = db.cursor()
