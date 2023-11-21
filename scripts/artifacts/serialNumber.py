@@ -2,8 +2,7 @@ import sqlite3
 import io
 import json
 import os
-import shutil
-
+import shutil
 import scripts.artifacts.artGlobals
 
 from packaging import version
@@ -52,6 +51,6 @@ def get_serialNumber(files_found, report_folder, seeker, wrap_text, timezone_off
 __artifacts__ = {
     "serialNumber": (
         "Identifiers",
-        ('*/Library/Caches/locationd/consolidated.db*'),
+        ('*/Library/Caches/locationd/consolidated.db'),
         get_serialNumber)
 }

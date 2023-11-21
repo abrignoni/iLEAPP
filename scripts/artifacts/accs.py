@@ -55,7 +55,7 @@ def get_accs(files_found, report_folder, seeker, wrap_text, timezone_offset):
 __artifacts__ = {
     "accs": (
         "Accounts",
-        ('*/mobile/Library/Accounts/Accounts3.sqlite*'),
+        ('**/Accounts3.sqlite'),
         get_accs)
 }
         

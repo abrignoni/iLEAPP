@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "notes": "Query is a derivative of research provided by \
             - Sarah Edwards as part of her APOLLO project https://github.com/mac4n6/APOLLO \
             - Ian Wiffin blog post https://www.doubleblak.com/blogPosts.php?id=29",
-        "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
+        "paths": ('**/CoreDuet/Knowledge/knowledgeC.db',),
         "function": "get_knowledgeC_MediaPlaying"
     }
 }
