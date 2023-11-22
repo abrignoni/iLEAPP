@@ -9,11 +9,11 @@ __artifacts_v2__ = {
         "description": "Extract all the data available related to transactions made with the instant payment app Twint prepaid",
         "author": "@KefreR",
         "version": "0.1",
-        "date": "2023-11-09",
+        "date": "2023-11-21",
         "requirements": "none",
         "category": "Twint Prepaid",
         "notes": "",
-        "paths": ('*/var/mobile/Containers/Data/Application/*/Library/Application Support/Twint.sqlite'),
+        "paths": ('*/var/mobile/Containers/Data/Application/*/Library/Application Support/Twint.sqlite*'),
         "function": "get_twint"
     }
 }
@@ -22,9 +22,13 @@ __artifacts_v2__ = {
 def get_twint(files_found, report_folder, seeker, wrap_text, time_offset):
     for file_found in files_found:
         file_found = str(file_found)
+    
+        if file_found.endswith('/Twint.sqlite'):
+            break
 
     db = open_sqlite_db_readonly(file_found)
     cursor = db.cursor()
+    
     cursor.execute(f'''
         SELECT
         ZTRANSACTION.Z_PK,
@@ -74,3 +78,5 @@ def get_twint(files_found, report_folder, seeker, wrap_text, time_offset):
         tsv(report_folder, data_headers, data_list, tsvname)
     else:
         logfunc('Twint - No data available')
+
+    db.close()

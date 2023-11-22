@@ -1,13 +1,21 @@
-import sqlite3
-import io
-import json
-import os
-import shutil
-import scripts.artifacts.artGlobals
+__artifacts_v2__ = {
+    "serialNumber": {
+        "name": "Serial Number",
+        "description": "Serial Number",
+        "author": "@AlexisBrignoni",
+        "version": "0.2",
+        "date": "2023-11-21",
+        "requirements": "none",
+        "category": "Identifiers",
+        "notes": "",
+        "paths": ('*/Library/Caches/locationd/consolidated.db*'),
+        "function": "get_serialNumber"
+    }
+}
 
-from packaging import version
+
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, timeline, kmlgen, tsv, is_platform_windows, open_sqlite_db_readonly
+from scripts.ilapfuncs import logfunc, logdevinfo, tsv, open_sqlite_db_readonly
 
 
 def get_serialNumber(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -15,20 +23,23 @@ def get_serialNumber(files_found, report_folder, seeker, wrap_text, timezone_off
     for file_found in files_found:
         file_found = str(file_found)
         
-        if file_found.endswith('.sqlite'):
+        if file_found.endswith('/consolidated.db'):
             break
-    data_list =[]
+    
     db = open_sqlite_db_readonly(file_found)
     cursor = db.cursor()
+    
     cursor.execute('''
     SELECT
     SerialNumber
     FROM TableInfo
     ''')
+    
     all_rows = cursor.fetchall()
     usageentries = len(all_rows)
     
     if usageentries > 0:
+        data_list =[]
         for row in all_rows:
             data_list.append((row[0],))
             logdevinfo(f"Serial Number: {row[0]}")
@@ -36,7 +47,7 @@ def get_serialNumber(files_found, report_folder, seeker, wrap_text, timezone_off
             
         description = 'Serial Number'
         report = ArtifactHtmlReport('Serial Number')
-        report.start_artifact_report(report_folder, 'Serial Number')
+        report.start_artifact_report(report_folder, 'Serial Number', description)
         report.add_script()
         data_headers = ('Serial Number',)
         report.write_artifact_data_table(data_headers, data_list, file_found, html_escape=False)
@@ -48,9 +59,4 @@ def get_serialNumber(files_found, report_folder, seeker, wrap_text, timezone_off
     else:
         logfunc('No Serial Number available in consolidated.db')
         
-__artifacts__ = {
-    "serialNumber": (
-        "Identifiers",
-        ('*/Library/Caches/locationd/consolidated.db'),
-        get_serialNumber)
-}
+    db.close()

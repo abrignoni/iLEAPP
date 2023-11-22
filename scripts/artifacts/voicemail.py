@@ -3,12 +3,12 @@ __artifacts_v2__ = {
         "name": "Voicemail",
         "description": "Parses and extract Voicemail",
         "author": "@JohannPLW - @AlexisBrignoni",
-        "version": "0.0.4",
-        "date": "2023-10-29",
+        "version": "0.1.1",
+        "date": "2023-11-21",
         "requirements": "none",
         "category": "Call History",
         "notes": "",
-        "paths": ('**/Voicemail/voicemail.db','**/Voicemail/*.amr'),
+        "paths": ('**/Voicemail/voicemail.db*','**/Voicemail/*.amr'),
         "function": "get_voicemail"
     }
 }
@@ -24,7 +24,7 @@ def get_voicemail(files_found, report_folder, seeker, wrap_text, timezone_offset
                    if basename(dirname(file)) == "Voicemail"]
 
     for file_found in files_found:
-        if file_found.endswith('voicemail.db'):
+        if file_found.endswith('/voicemail.db'):
             voicemail_db = str(file_found)
 
             db = open_sqlite_db_readonly(voicemail_db)
@@ -158,12 +158,5 @@ def get_voicemail(files_found, report_folder, seeker, wrap_text, timezone_offset
 
             else:
                 logfunc('No deleted voicemail found')
-
-    return
-
-__artifacts__ = {
-    "voicemail": (
-        "Call History",
-        ('**/Voicemail/voicemail.db','**/Voicemail/*.amr'),
-        get_voicemail)
-}
+            
+            db.close()
