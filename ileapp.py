@@ -36,7 +36,7 @@ def validate_args(args):
         
 
 def main():
-    parser = argparse.ArgumentParser(description='iLEAPP: iOS Logs, Events, and Plists Parser.')
+    parser = argparse.ArgumentParser(description='iLEAPP: iOS Logs, Events, And Plists Parser.')
     parser.add_argument('-t', choices=['fs', 'tar', 'zip', 'gz', 'itunes'], required=False, action="store",
                         help=("Specify the input type. "
                               "'fs' for a folder containing extracted files with normal paths and names, "
@@ -110,8 +110,8 @@ def crunch_artifacts(
     logfunc('Processing started. Please wait. This may take a few minutes...')
 
     logfunc('\n--------------------------------------------------------------------------------------')
-    logfunc(f'iLEAPP v{aleapp_version}: iLEAPP Logs, Events, and Properties Parser')
-    logfunc('Objective: Triage iOS Full System Extractions.')
+    logfunc(f'iLEAPP v{aleapp_version}: iOS Logs, Events, And Plists Parser')
+    logfunc('Objective: Triage iOS Full File System and iTunes Backup Extractions.')
     logfunc('By: Alexis Brignoni | @AlexisBrignoni | abrignoni.com')
     logfunc('By: Yogesh Khatri   | @SwiftForensics | swiftforensics.com')
     logdevinfo()
