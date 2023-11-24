@@ -1,3 +1,4 @@
+import json
 import argparse
 import io
 import pytz
@@ -6,6 +7,7 @@ import typing
 import plugin_loader
 import scripts.report as report
 import traceback
+
 from scripts.search_files import *
 from scripts.ilapfuncs import *
 from scripts.version_info import aleapp_version
@@ -29,6 +31,9 @@ def validate_args(args):
     if not os.path.exists(args.output_path):
         raise argparse.ArgumentError(None, 'OUTPUT folder does not exist! Run the program again.')
 
+    if args.load_profile and not os.path.exists(args.load_profile):
+        raise argparse.ArgumentError(None, 'iLEAPP Profile file not found! Run the program again.')
+
     try:
         timezone = pytz.timezone(args.timezone)
     except pytz.UnknownTimeZoneError:
@@ -46,13 +51,20 @@ def main():
                         help='Path to base output folder (this must exist)')
     parser.add_argument('-i', '--input_path', required=False, action="store", help='Path to input file/folder')
     parser.add_argument('-tz', '--timezone', required=False, action="store", default='UTC', type=str, help="Timezone name (e.g., 'America/New_York')")
+    parser.add_argument('-lp', '--load_profile', required=False, action="store", help="Path to the iLEAPP Profile file (.alprofile).")
     parser.add_argument('-w', '--wrap_text', required=False, action="store_false", default=True,
                         help='Do not wrap text for output of data files')
-    parser.add_argument('-p', '--artifact_paths', required=False, action="store_true",
+    parser.add_argument('-a', '--artifact_paths', required=False, action="store_true",
                         help=("Generate a text file list of artifact paths. "
                               "This argument is meant to be used alone, without any other arguments."))
 
     loader = plugin_loader.PluginLoader()
+    selected_plugins = list(loader.plugins)
+    # Move lastbuild plugin to first position
+    lastbuild_index = next((i for i, selected_plugin in enumerate(selected_plugins) 
+                  if selected_plugin.name == 'lastbuild'), -1)
+    if lastbuild_index != -1:
+        selected_plugins.insert(0, selected_plugins.pop(lastbuild_index))
 
     print(f"Info: {len(loader)} plugins loaded.")
 
@@ -79,6 +91,27 @@ def main():
         print('Artifact path list generation completed')
         return
 
+    if args.load_profile:
+        profile_load_error = None
+        with open(args.load_profile, "rt", encoding="utf-8") as profile_file:
+            try:
+                profile = json.load(profile_file)
+            except json.JSONDecodeError as json_ex:
+                profile_load_error = f"File was not a valid profile file: {json_ex}"
+
+        if not profile_load_error:
+            if isinstance(profile, dict):
+                if profile.get("leapp") != "aleapp" or profile.get("format_version") != 1:
+                    profile_load_error = "File was not a valid profile file: incorrect LEAPP or version"
+                else:
+                    print(f'Profile loaded: {args.load_profile}')
+                    profile_plugins = set(profile.get("plugins", []))
+                    selected_plugins = [selected_plugin for selected_plugin in selected_plugins 
+                                        if selected_plugin.name in profile_plugins or selected_plugin.name == 'lastbuild']
+            else:
+                profile_load_error = "File was not a valid profile file: invalid format"
+                return
+    
     input_path = args.input_path
     extracttype = args.t
     wrap_text = args.wrap_text
@@ -98,7 +131,7 @@ def main():
     except NameError:
         casedata = {}
 
-    crunch_artifacts(list(loader.plugins), extracttype, input_path, out_params, 1, wrap_text, loader, casedata, time_offset)
+    crunch_artifacts(selected_plugins, extracttype, input_path, out_params, 1, wrap_text, loader, casedata, time_offset)
 
 
 def crunch_artifacts(
@@ -142,7 +175,7 @@ def crunch_artifacts(
         return False
 
     # Now ready to run
-    logfunc(f'Artifact categories to parse: {str(len(plugins))}')
+    logfunc(f'Artifact categories to parse: {len(plugins)}')
     logfunc(f'File/Directory selected: {input_path}')
     logfunc('\n--------------------------------------------------------------------------------------')
 
