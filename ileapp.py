@@ -50,11 +50,11 @@ def main():
     parser.add_argument('-o', '--output_path', required=False, action="store",
                         help='Path to base output folder (this must exist)')
     parser.add_argument('-i', '--input_path', required=False, action="store", help='Path to input file/folder')
+    parser.add_argument('-l', '--load_profile', required=False, action="store", help="Path to the iLEAPP Profile file (.alprofile).")
     parser.add_argument('-tz', '--timezone', required=False, action="store", default='UTC', type=str, help="Timezone name (e.g., 'America/New_York')")
-    parser.add_argument('-lp', '--load_profile', required=False, action="store", help="Path to the iLEAPP Profile file (.alprofile).")
     parser.add_argument('-w', '--wrap_text', required=False, action="store_false", default=True,
                         help='Do not wrap text for output of data files')
-    parser.add_argument('-a', '--artifact_paths', required=False, action="store_true",
+    parser.add_argument('-p', '--artifact_paths', required=False, action="store_true",
                         help=("Generate a text file list of artifact paths. "
                               "This argument is meant to be used alone, without any other arguments."))
 
