@@ -59,6 +59,7 @@ def main():
                               "This argument is meant to be used alone, without any other arguments."))
 
     loader = plugin_loader.PluginLoader()
+    profile_filename = None
     selected_plugins = list(loader.plugins)
     # Move lastbuild plugin to first position
     lastbuild_index = next((i for i, selected_plugin in enumerate(selected_plugins) 
@@ -92,24 +93,30 @@ def main():
         return
 
     if args.load_profile:
+        profile_filename = args.load_profile
         profile_load_error = None
-        with open(args.load_profile, "rt", encoding="utf-8") as profile_file:
+        with open(profile_filename, "rt", encoding="utf-8") as profile_file:
             try:
                 profile = json.load(profile_file)
             except json.JSONDecodeError as json_ex:
                 profile_load_error = f"File was not a valid profile file: {json_ex}"
+                print(profile_load_error)
+                return
 
         if not profile_load_error:
             if isinstance(profile, dict):
-                if profile.get("leapp") != "aleapp" or profile.get("format_version") != 1:
+                if profile.get("leapp") != "ileapp" or profile.get("format_version") != 1:
                     profile_load_error = "File was not a valid profile file: incorrect LEAPP or version"
+                    print(profile_load_error)
+                    return
                 else:
-                    print(f'Profile loaded: {args.load_profile}')
+                    print(f'Profile loaded: {profile_filename}')
                     profile_plugins = set(profile.get("plugins", []))
                     selected_plugins = [selected_plugin for selected_plugin in selected_plugins 
                                         if selected_plugin.name in profile_plugins or selected_plugin.name == 'lastbuild']
             else:
                 profile_load_error = "File was not a valid profile file: invalid format"
+                print(profile_load_error)
                 return
     
     input_path = args.input_path
@@ -131,12 +138,12 @@ def main():
     except NameError:
         casedata = {}
 
-    crunch_artifacts(selected_plugins, extracttype, input_path, out_params, 1, wrap_text, loader, casedata, time_offset)
+    crunch_artifacts(selected_plugins, extracttype, input_path, out_params, 1, wrap_text, loader, casedata, time_offset, profile_filename)
 
 
 def crunch_artifacts(
         plugins: typing.Sequence[plugin_loader.PluginSpec], extracttype, input_path, out_params, ratio, wrap_text,
-        loader: plugin_loader.PluginLoader, casedata, time_offset):
+        loader: plugin_loader.PluginLoader, casedata, time_offset, profile_filename):
     start = process_time()
     start_wall = perf_counter()
  
@@ -146,7 +153,7 @@ def crunch_artifacts(
     logfunc(f'iLEAPP v{aleapp_version}: iOS Logs, Events, And Plists Parser')
     logfunc('Objective: Triage iOS Full File System and iTunes Backup Extractions.')
     logfunc('By: Alexis Brignoni | @AlexisBrignoni | abrignoni.com')
-    logfunc('By: Yogesh Khatri   | @SwiftForensics | swiftforensics.com')
+    logfunc('By: Yogesh Khatri   | @SwiftForensics | swiftforensics.com\n')
     logdevinfo()
     
     seeker = None
@@ -175,6 +182,8 @@ def crunch_artifacts(
         return False
 
     # Now ready to run
+    if profile_filename:
+        logfunc(f'Loaded profile: {profile_filename}')
     logfunc(f'Artifact categories to parse: {len(plugins)}')
     logfunc(f'File/Directory selected: {input_path}')
     logfunc('\n--------------------------------------------------------------------------------------')
