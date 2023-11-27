@@ -49,11 +49,10 @@ def get_twint(files_found, report_folder, seeker, wrap_text, time_offset):
         ZTRANSACTION.ZDISCOUNT, 
         ZTRANSACTION.ZCURRENCY,
         ZTRANSACTION.ZCONTENTREFERENCE, 
-        ZTRANSACTION.ZORDERLINK, 
-        ZTRANSACTION.ZCONTENTREFERENCESOURCEVALUE, 
+        ZTRANSACTION.ZORDERLINK,
+        ZTRANSACTION.ZP2PHASPICTURE,
         ZTRANSACTION.ZORDERSTATEVALUE,
         ZTRANSACTION.ZORDERTYPEVALUE,
-        ZTRANSACTION.ZP2PHASPICTURE,
         ZTRANSACTION.ZTRANSACTIONSIDEVALUE,
         ZTRANSACTION.ZMERCHANTCONFIRMATION FROM ZTRANSACTION''')
 
@@ -70,7 +69,7 @@ def get_twint(files_found, report_folder, seeker, wrap_text, time_offset):
             'Merchant branch name','Merchant name', 'Sender mobile number', 'Sender message', 'Receiver mobile number', 
             'Receiver contact name', 'Response message', 'Amount authorized for the transaction', 'Paid amount', 
             'Requested amount', 'Discount', 'Currency', 'Content reference', 'Order link', 'Presence of multimedia content',
-            'Transaction status', 'Type of transaction', 'Direction of the transaction', 'Merchant confirmation' )
+            'Transaction status', 'Type of transaction', 'Direction of the transaction', 'Merchant confirmation')
         report.write_artifact_data_table(data_headers, data_list, file_found, html_escape=False)
         report.end_artifact_report()
 
