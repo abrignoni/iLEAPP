@@ -76,7 +76,7 @@ def create_profile(available_plugins, path):
                 print('No parser added to the profile file\n')
             user_choice = ''
         elif user_choice == 'a':
-            parser_numbers = input('Enter the numbers of parsers, seperated by a comma, to add or removre in the profile file: ')
+            parser_numbers = input('Enter the numbers of parsers, seperated by a comma, to add or remove in the profile file: ')
             parser_numbers = parser_numbers.split(',')
             parser_numbers = [parser_number.strip() for parser_number in parser_numbers]
             for parser_number in parser_numbers:
