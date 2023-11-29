@@ -126,6 +126,7 @@ layout = [  [sg.Text('iOS Logs, Events, And Plists Parser', font=("Helvetica", 2
 # Create the Window
 window = sg.Window(f'iLEAPP version {aleapp_version}', layout)
 GuiWindow.progress_bar_handle = window['PROGRESSBAR']
+profile_filename = None
 
 # Event Loop to process "events" and get the "values" of the inputs
 while True:
@@ -144,8 +145,8 @@ while True:
     if event == "SAVE PROFILE":
         destination_path = sg.popup_get_file(
             "Save a profile", save_as=True,
-            file_types=(('ALEAPP Profile (*.alprofile)', '*.alprofile'),),
-            default_extension='.alprofile', no_window=True)
+            file_types=(('iLEAPP Profile (*.ilprofile)', '*.ilprofile'),),
+            default_extension='.ilprofile', no_window=True)
 
         if destination_path:
             ticked = []
@@ -154,14 +155,14 @@ while True:
                     key = window[x].metadata
                     ticked.append(key)
             with open(destination_path, "wt", encoding="utf-8") as profile_out:
-                json.dump({"leapp": "aleapp", "format_version": 1, "plugins": ticked}, profile_out)
+                json.dump({"leapp": "ileapp", "format_version": 1, "plugins": ticked}, profile_out)
             sg.Popup(f"Profile saved: {destination_path}")
 
     if event == "LOAD PROFILE":
         destination_path = sg.popup_get_file(
             "Load a profile", save_as=False,
-            file_types=(('ALEAPP Profile (*.alprofile)', '*.alprofile'), ('All Files', '*')),
-            default_extension='.alprofile', no_window=True)
+            file_types=(('iLEAPP Profile (*.ilprofile)', '*.ilprofile'), ('All Files', '*')),
+            default_extension='.ilprofile', no_window=True)
 
         if destination_path and os.path.exists(destination_path):
             profile_load_error = None
@@ -173,7 +174,7 @@ while True:
 
             if not profile_load_error:
                 if isinstance(profile, dict):
-                    if profile.get("leapp") != "aleapp" or profile.get("format_version") != 1:
+                    if profile.get("leapp") != "ileapp" or profile.get("format_version") != 1:
                         profile_load_error = "File was not a valid profile file: incorrect LEAPP or version"
                     else:
                         ticked = set(profile.get("plugins", []))
@@ -190,6 +191,7 @@ while True:
                 sg.popup(profile_load_error)
             else:
                 sg.popup(f"Loaded profile: {destination_path}")
+                profile_filename = destination_path
     
     if event == 'LOAD CASE DATA':
         destination_path = sg.popup_get_file(
@@ -261,7 +263,7 @@ while True:
                 casedata = {}
             
             crunch_successful = ileapp.crunch_artifacts(
-                search_list, extracttype, input_path, out_params, len(loader)/s_items, wrap_text, loader, casedata, time_offset)
+                search_list, extracttype, input_path, out_params, len(loader)/s_items, wrap_text, loader, casedata, time_offset, profile_filename)
             if crunch_successful:
                 report_path = os.path.join(out_params.report_folder_base, 'index.html')
                 
