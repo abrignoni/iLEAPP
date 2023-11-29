@@ -14,7 +14,7 @@ from scripts.version_info import aleapp_version
 from time import process_time, gmtime, strftime, perf_counter
 
 def validate_args(args):
-    if args.artifact_paths:
+    if args.artifact_paths or args.create_profile:
         return  # Skip further validation if --artifact_paths is used
 
     # Ensure other arguments are provided
@@ -40,6 +40,74 @@ def validate_args(args):
       raise argparse.ArgumentError(None, 'Unknown timezone! Run the program again.')
         
 
+def create_profile(available_plugins, path):
+    available_parsers = []
+    for parser_data in available_plugins:
+        if parser_data.name != 'lastbuild' and parser_data.name != 'iTunesBackupInfo':
+            available_parsers.append((parser_data.category, parser_data.name))
+    
+    available_parsers.sort()
+    parsers_in_profile = {}
+    
+    user_choice = ''
+    print('-' * 50)
+    print('Welcome to the iLEAPP Profile file creation\n')
+    instructions = 'You can type:\n'
+    instructions += '   - the number of a parser to add to the profile file or remove from it\n'
+    instructions += '   - \'l\' to display the list of all available parsers with their number\n'
+    instructions += '   - \'p\' to display the parsers added into the profile file\n'
+    instructions += '   - \'q\' to quit and save\n'
+    while not user_choice:
+        print(instructions)
+        user_choice = input('Please enter your choice: ').lower()
+        print()
+        if user_choice == "l":
+            print('Available parsers:')
+            for number, available_plugin in enumerate(available_parsers):
+                print(number + 1, available_plugin)
+            print()
+            user_choice = ''
+        elif user_choice == "p":
+            if parsers_in_profile:
+                for number, parser in parsers_in_profile.items():
+                    print(number, parser)
+                print()
+            else:
+                print('No parser added to the profile file\n')
+            user_choice = ''
+        elif user_choice.isdigit():
+            parser_number = int(user_choice)
+            if parser_number > 0 and parser_number <= len(available_parsers):
+                if parser_number not in parsers_in_profile:
+                    parser_to_add = available_parsers[parser_number - 1]
+                    parsers_in_profile[parser_number] = parser_to_add
+                    print(f'parser number {parser_number} {parser_to_add} was added\n')
+                else:
+                    parser_to_remove = parsers_in_profile[parser_number]
+                    print(f'parser number {parser_number} {parser_to_remove} was removed\n')
+                    del parsers_in_profile[parser_number]
+            else:
+                print('Please enter the number of a parser!!!\n')
+            user_choice = ''
+        elif user_choice == "q":
+            if parsers_in_profile:
+                parsers = [parser_info[1] for parser_info in parsers_in_profile.values()]
+                profile_filename = ''
+                while not profile_filename:
+                    profile_filename = input('Enter the name of the profile: ')
+                    profile_filename += '.ilprofile'
+                    filename = os.path.join(path, profile_filename)
+                with open(filename, "wt", encoding="utf-8") as profile_file:
+                    json.dump({"leapp": "ileapp", "format_version": 1, "plugins": parsers}, profile_file)
+                print('\nProfile saved:', filename)
+            else:
+                print('No parser added. The profile file was not created.\n')
+            return
+        else:
+            print('Please enter a valid choice!!!\n')
+  
+
+
 def main():
     parser = argparse.ArgumentParser(description='iLEAPP: iOS Logs, Events, And Plists Parser.')
     parser.add_argument('-t', choices=['fs', 'tar', 'zip', 'gz', 'itunes'], required=False, action="store",
@@ -50,24 +118,28 @@ def main():
     parser.add_argument('-o', '--output_path', required=False, action="store",
                         help='Path to base output folder (this must exist)')
     parser.add_argument('-i', '--input_path', required=False, action="store", help='Path to input file/folder')
-    parser.add_argument('-l', '--load_profile', required=False, action="store", help="Path to the iLEAPP Profile file (.alprofile).")
     parser.add_argument('-tz', '--timezone', required=False, action="store", default='UTC', type=str, help="Timezone name (e.g., 'America/New_York')")
     parser.add_argument('-w', '--wrap_text', required=False, action="store_false", default=True,
                         help='Do not wrap text for output of data files')
+    parser.add_argument('-l', '--load_profile', required=False, action="store", help="Path to iLEAPP Profile file (.ilprofile).")
+    parser.add_argument('-c', '--create_profile', required=False, action="store",
+                        help=("Generate an iLEAPP Profile file (.ilprofile) into the specified path. "
+                              "This argument is meant to be used alone, without any other arguments."))
     parser.add_argument('-p', '--artifact_paths', required=False, action="store_true",
                         help=("Generate a text file list of artifact paths. "
                               "This argument is meant to be used alone, without any other arguments."))
 
     loader = plugin_loader.PluginLoader()
+    available_plugins = list(loader.plugins)
     profile_filename = None
-    selected_plugins = list(loader.plugins)
+    selected_plugins = available_plugins.copy()
     # Move lastbuild plugin to first position
-    lastbuild_index = next((i for i, selected_plugin in enumerate(selected_plugins) 
+    lastbuild_index = next((i for i, selected_plugin in enumerate(available_plugins) 
                   if selected_plugin.name == 'lastbuild'), -1)
     if lastbuild_index != -1:
-        selected_plugins.insert(0, selected_plugins.pop(lastbuild_index))
+        available_plugins.insert(0, available_plugins.pop(lastbuild_index))
 
-    print(f"Info: {len(loader)} plugins loaded.")
+    print(f"Info: {len(available_plugins)} plugins loaded.")
 
     args = parser.parse_args()
 
@@ -92,6 +164,14 @@ def main():
         print('Artifact path list generation completed')
         return
 
+    if args.create_profile:
+        if os.path.isdir(args.create_profile):
+            create_profile(selected_plugins, args.create_profile)
+            return
+        else:
+            print('OUTPUT folder for storing iLEAPP Profile file does not exist!\nRun the program again.')
+            return
+
     if args.load_profile:
         profile_filename = args.load_profile
         profile_load_error = None
@@ -112,7 +192,7 @@ def main():
                 else:
                     print(f'Profile loaded: {profile_filename}')
                     profile_plugins = set(profile.get("plugins", []))
-                    selected_plugins = [selected_plugin for selected_plugin in selected_plugins 
+                    selected_plugins = [selected_plugin for selected_plugin in available_plugins 
                                         if selected_plugin.name in profile_plugins or selected_plugin.name == 'lastbuild']
             else:
                 profile_load_error = "File was not a valid profile file: invalid format"
