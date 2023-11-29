@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "notes": "Github: https://gist.github.com/stek29; "
                  "Code: https://gist.github.com/stek29/8a7ac0e673818917525ec4031d77a713",
         "paths": (
-            '*/telegram-data/account-*/postbox/db/db_sqlite',
+            '*/telegram-data/account-*/postbox/db/db_sqlite*',
             '*/telegram-data/account-*/postbox/media/**'
         ),
         "function": "get_telegramMessages"
@@ -23,13 +23,10 @@ import io
 import struct
 import enum
 import mmh3
-import pprint
 import datetime
-import scripts.artifacts.artGlobals
 
-from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, timeline, kmlgen, tsv, is_platform_windows, open_sqlite_db_readonly, media_to_html
+from scripts.ilapfuncs import logfunc, timeline, tsv, open_sqlite_db_readonly, media_to_html
 
 # Code courtesy of Stek29 / Victor Oreshkin
 # Github: https://gist.github.com/stek29
@@ -40,7 +37,7 @@ def get_telegramMessages(files_found, report_folder, seeker, wrap_text, timezone
     for file_found in files_found:
         file_found = str(file_found)
         
-        if (file_found.endswith('db_sqlite')) and ('media' not in file_found):
+        if (file_found.endswith('/db_sqlite')) and ('media' not in file_found):
             data_list= []
             
             class byteutil:
@@ -852,9 +849,3 @@ def get_telegramMessages(files_found, report_folder, seeker, wrap_text, timezone
     else:
         logfunc('No Telegram - Messages data available')
         
-__artifacts__ = {
-    "TelegramMessages": (
-        "Telegram",
-        ('*/telegram-data/account-*/postbox/db/db_sqlite','*/telegram-data/account-*/postbox/media/**'),
-        get_telegramMessages)
-}
