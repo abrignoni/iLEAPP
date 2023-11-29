@@ -53,7 +53,7 @@ def create_profile(available_plugins, path):
     print('-' * 50)
     print('Welcome to the iLEAPP Profile file creation\n')
     instructions = 'You can type:\n'
-    instructions += '   - the number of a parser to add to the profile file or remove from it\n'
+    instructions += '   - \'a\' to add or remove parsers in the profile file\n'
     instructions += '   - \'l\' to display the list of all available parsers with their number\n'
     instructions += '   - \'p\' to display the parsers added into the profile file\n'
     instructions += '   - \'q\' to quit and save\n'
@@ -75,19 +75,25 @@ def create_profile(available_plugins, path):
             else:
                 print('No parser added to the profile file\n')
             user_choice = ''
-        elif user_choice.isdigit():
-            parser_number = int(user_choice)
-            if parser_number > 0 and parser_number <= len(available_parsers):
-                if parser_number not in parsers_in_profile:
-                    parser_to_add = available_parsers[parser_number - 1]
-                    parsers_in_profile[parser_number] = parser_to_add
-                    print(f'parser number {parser_number} {parser_to_add} was added\n')
-                else:
-                    parser_to_remove = parsers_in_profile[parser_number]
-                    print(f'parser number {parser_number} {parser_to_remove} was removed\n')
-                    del parsers_in_profile[parser_number]
-            else:
-                print('Please enter the number of a parser!!!\n')
+        elif user_choice == 'a':
+            parser_numbers = input('Enter the numbers of parsers, seperated by a comma, to add or removre in the profile file: ')
+            parser_numbers = parser_numbers.split(',')
+            parser_numbers = [parser_number.strip() for parser_number in parser_numbers]
+            for parser_number in parser_numbers:
+                if parser_number.isdigit():
+                    parser_number = int(parser_number)
+                    if parser_number > 0 and parser_number <= len(available_parsers):
+                        if parser_number not in parsers_in_profile:
+                            parser_to_add = available_parsers[parser_number - 1]
+                            parsers_in_profile[parser_number] = parser_to_add
+                            print(f'parser number {parser_number} {parser_to_add} was added')
+                        else:
+                            parser_to_remove = parsers_in_profile[parser_number]
+                            print(f'parser number {parser_number} {parser_to_remove} was removed')
+                            del parsers_in_profile[parser_number]
+                    else:
+                        print('Please enter the number of a parser!!!\n')
+            print()
             user_choice = ''
         elif user_choice == "q":
             if parsers_in_profile:
@@ -95,8 +101,8 @@ def create_profile(available_plugins, path):
                 profile_filename = ''
                 while not profile_filename:
                     profile_filename = input('Enter the name of the profile: ')
-                    profile_filename += '.ilprofile'
-                    filename = os.path.join(path, profile_filename)
+                profile_filename += '.ilprofile'
+                filename = os.path.join(path, profile_filename)
                 with open(filename, "wt", encoding="utf-8") as profile_file:
                     json.dump({"leapp": "ileapp", "format_version": 1, "plugins": parsers}, profile_file)
                 print('\nProfile saved:', filename)
