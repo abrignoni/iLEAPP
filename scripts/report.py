@@ -8,7 +8,7 @@ import sys
 from collections import OrderedDict
 from scripts.html_parts import *
 from scripts.ilapfuncs import logfunc
-from scripts.version_info import aleapp_version, aleapp_contributors
+from scripts.version_info import ileapp_version, ileapp_contributors
 
 # Icon Mappings Dictionary
 # The icon_mappings dictionary is organized by category and is used to map categories and artifacts to icons.
@@ -1059,7 +1059,7 @@ def create_index_html(reportfolderbase, time_in_secs, time_HMS, extraction_type,
 
     content += '</div>'  # CARD end
 
-    authors_data = generate_authors_table_code(aleapp_contributors)
+    authors_data = generate_authors_table_code(ileapp_contributors)
     credits_code = credits_block.format(authors_data)
 
     # WRITE INDEX.HTML LAST
@@ -1071,7 +1071,7 @@ def create_index_html(reportfolderbase, time_in_secs, time_HMS, extraction_type,
 
     f = open(os.path.join(reportfolderbase, filename), 'w', encoding='utf8')
     f.write(page_header.format(page_title))
-    f.write(body_start.format(f"iLEAPP {aleapp_version}"))
+    f.write(body_start.format(f"iLEAPP {ileapp_version}"))
     f.write(body_sidebar_setup + active_nav_list_data + body_sidebar_trailer)
     f.write(body_main_header + body_main_data_title.format(body_heading, body_description))
     f.write(content)
@@ -1080,9 +1080,9 @@ def create_index_html(reportfolderbase, time_in_secs, time_HMS, extraction_type,
     f.write(body_main_trailer + body_end + nav_bar_script_footer + page_footer)
     f.close()
 
-def generate_authors_table_code(aleapp_contributors):
+def generate_authors_table_code(ileapp_contributors):
     authors_data = ''
-    for author_name, blog, tweet_handle, git in aleapp_contributors:
+    for author_name, blog, tweet_handle, git in ileapp_contributors:
         author_data = ''
         if blog:
             author_data += f'<a href="{blog}" target="_blank">{blog_icon}</a> &nbsp;\n'

@@ -1,14 +1,11 @@
 import json
-#import time
-import pathlib
 import typing
 import ileapp
 import PySimpleGUI as sg
 import webbrowser
 import plugin_loader
 from scripts.ilapfuncs import *
-from scripts.version_info import aleapp_version
-from time import process_time, gmtime, strftime
+from scripts.version_info import ileapp_version
 from scripts.search_files import *
 
 MODULE_START_INDEX = 1000
@@ -73,7 +70,7 @@ def pickModules():
     for plugin in sorted(loader.plugins, key=lambda p: p.category.upper()):
         if plugin.module_name == 'iTunesBackupInfo':
             continue
-        disabled = plugin.module_name == 'usagestatsVersion'
+        disabled = plugin.module_name == 'lastbuild'
         mlist.append(CheckList(f'{plugin.category} [{plugin.name} - {plugin.module_name}.py]', module_end_index, plugin.name, disabled))
         module_end_index = module_end_index + 1
         
@@ -108,10 +105,10 @@ layout = [  [sg.Text('iOS Logs, Events, And Plists Parser', font=("Helvetica", 2
              sg.Button('Load Profile', key='LOAD PROFILE'), sg.Button('Save Profile', key='SAVE PROFILE'),
              # sg.FileBrowse(
              #     button_text='Load Profile', key='LOADPROFILE', enable_events=True, target='LOADPROFILE',
-             #     file_types=(('ALEAPP Profile (*.alprofile)', '*.alprofile'), ('All Files', '*'))),
+             #     file_types=(('iLEAPP Profile (*.ilprofile)', '*.ilprofile'), ('All Files', '*'))),
              # sg.FileSaveAs(
              #     button_text='Save Profile', key='SAVEPROFILE', enable_events=True, target='SAVEPROFILE',
-             #     file_types=(('ALEAPP Profile (*.alprofile)', '*.alprofile'), ('All Files', '*')),
+             #     file_types=(('iLEAPP Profile (*.ilprofile)', '*.ilprofile'), ('All Files', '*')),
              #     default_extension='.alprofile')
             sg.Text('  |', font=("Helvetica", 14)),
             sg.Button('Load Case Data', key='LOAD CASE DATA'),
@@ -124,7 +121,7 @@ layout = [  [sg.Text('iOS Logs, Events, And Plists Parser', font=("Helvetica", 2
             [sg.Submit('Process', font=normal_font), sg.Button('Close', font=normal_font)] ]
             
 # Create the Window
-window = sg.Window(f'iLEAPP version {aleapp_version}', layout)
+window = sg.Window(f'iLEAPP version {ileapp_version}', layout)
 GuiWindow.progress_bar_handle = window['PROGRESSBAR']
 profile_filename = None
 
@@ -196,8 +193,8 @@ while True:
     if event == 'LOAD CASE DATA':
         destination_path = sg.popup_get_file(
             "Load a case data", save_as=False,
-            file_types=(('ALEAPP Profile (*.alprofile)', '*.alprofile'), ('All Files', '*')),
-            default_extension='.alprofile', no_window=True)
+            file_types=(('iLEAPP Profile (*.ilprofile)', '*.ilprofile'), ('All Files', '*')),
+            default_extension='.ilprofile', no_window=True)
         
         if destination_path and os.path.exists(destination_path):
             profile_load_error = None
