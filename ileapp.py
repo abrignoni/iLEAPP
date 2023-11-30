@@ -111,6 +111,7 @@ def create_profile(available_plugins, path):
             return
         else:
             print('Please enter a valid choice!!!\n')
+            user_choice = ''
   
 
 
