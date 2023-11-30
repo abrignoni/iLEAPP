@@ -10,7 +10,7 @@ import traceback
 
 from scripts.search_files import *
 from scripts.ilapfuncs import *
-from scripts.version_info import aleapp_version
+from scripts.version_info import ileapp_version
 from time import process_time, gmtime, strftime, perf_counter
 
 def validate_args(args):
@@ -111,6 +111,7 @@ def create_profile(available_plugins, path):
             return
         else:
             print('Please enter a valid choice!!!\n')
+            user_choice = ''
   
 
 
@@ -138,7 +139,6 @@ def main():
     loader = plugin_loader.PluginLoader()
     available_plugins = list(loader.plugins)
     profile_filename = None
-    selected_plugins = available_plugins.copy()
     # Move lastbuild plugin to first position
     lastbuild_index = next((i for i, selected_plugin in enumerate(available_plugins) 
                   if selected_plugin.name == 'lastbuild'), -1)
@@ -146,6 +146,7 @@ def main():
         available_plugins.insert(0, available_plugins.pop(lastbuild_index))
 
     print(f"Info: {len(available_plugins)} plugins loaded.")
+    selected_plugins = available_plugins.copy()
 
     args = parser.parse_args()
 
@@ -236,7 +237,7 @@ def crunch_artifacts(
     logfunc('Processing started. Please wait. This may take a few minutes...')
 
     logfunc('\n--------------------------------------------------------------------------------------')
-    logfunc(f'iLEAPP v{aleapp_version}: iOS Logs, Events, And Plists Parser')
+    logfunc(f'iLEAPP v{ileapp_version}: iOS Logs, Events, And Plists Parser')
     logfunc('Objective: Triage iOS Full File System and iTunes Backup Extractions.')
     logfunc('By: Alexis Brignoni | @AlexisBrignoni | abrignoni.com')
     logfunc('By: Yogesh Khatri   | @SwiftForensics | swiftforensics.com\n')
@@ -275,7 +276,6 @@ def crunch_artifacts(
     logfunc('\n--------------------------------------------------------------------------------------')
 
     log = open(os.path.join(out_params.report_folder_base, 'Script Logs', 'ProcessedFilesLog.html'), 'w+', encoding='utf8')
-    nl = '\n' #literal in order to have new lines in fstrings that create text files
     log.write(f'Extraction/Path selected: {input_path}<br><br>')
     log.write(f'Timezone selected: {time_offset}<br><br>')
     
