@@ -81,6 +81,11 @@ def convert_ts_int_to_utc(ts): #This int timestamp to human format & utc
     timestamp = datetime.fromtimestamp(ts, tz=timezone.utc)
     return timestamp
 
+def get_birthdate(date):
+    ns_date = date + 978307200
+    utc_date = datetime.utcfromtimestamp(ns_date)
+    return utc_date.strftime('%d %B %Y') if utc_date.year != 1604 else utc_date.strftime('%d %B')
+
 def is_platform_windows():
     '''Returns True if running on Windows'''
     return os.name == 'nt'

@@ -13,10 +13,9 @@ __artifacts_v2__ = {
     }
 }
 
-from datetime import datetime
 from scripts.artifact_report import ArtifactHtmlReport
 from urllib.parse import unquote
-from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly, does_table_exist, does_column_exist_in_db,convert_ts_human_to_utc, convert_utc_human_to_timezone
+from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly, does_table_exist, does_column_exist_in_db,convert_ts_human_to_utc, convert_utc_human_to_timezone, get_birthdate
 
 
 def get_sharees(cursor):
@@ -114,12 +113,6 @@ def get_calendar_name(name, color):
     else:
         calendar_name = f'&#9711; {name}'
     return calendar_name
-
-
-def get_birthdate(date):
-    ns_date = int(date) + 978307200
-    utc_date = datetime.utcfromtimestamp(ns_date)
-    return utc_date.strftime('%d %B %Y') if utc_date.year != 1604 else utc_date.strftime('%d %B')
 
 
 def get_calendar(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -336,7 +329,7 @@ def get_calendar(files_found, report_folder, seeker, wrap_text, timezone_offset)
             f'''
             SELECT 
             CalendarItem.summary AS 'Person Name',
-            CalendarItem.start_date AS 'Date of Birth',
+            CAST(CalendarItem.start_date AS INT) AS 'Date of Birth',
             Calendar.title AS 'Calendar Name',
             Calendar.color AS 'Calendar Color',
             Store.name AS 'Account Name'

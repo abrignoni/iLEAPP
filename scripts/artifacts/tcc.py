@@ -1,17 +1,18 @@
 __artifacts_v2__ = {
     "tcc": {
-        "name": "TCC",
-        "description": "Parses application permissions",
+        "name": "Application Permissions",
+        "description": "Extract application permissions from TCC.db database",
         "author": "@AlexisBrignoni - @KevinPagano3 - @johannplw",
-        "version": "0.6",
-        "date": "2023-10-24",
+        "version": "0.6.1",
+        "date": "2023-11-21",
         "requirements": "none",
         "category": "App Permissions",
         "notes": "",
-        "paths": ('*TCC.db*',),
+        "paths": ('*/mobile/Library/TCC/TCC.db*',),
         "function": "get_tcc"
     }
 }
+
 
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, does_column_exist_in_db, convert_ts_human_to_utc, convert_utc_human_to_timezone
@@ -20,7 +21,7 @@ def get_tcc(files_found, report_folder, seeker, wrap_text, timezone_offset):
     for file_found in files_found:
         file_found = str(file_found)
         
-        if file_found.endswith('TCC.db'):
+        if file_found.endswith('/TCC.db'):
             break
         
     db = open_sqlite_db_readonly(file_found)
@@ -93,10 +94,4 @@ def get_tcc(files_found, report_folder, seeker, wrap_text, timezone_offset):
     else:
         logfunc('No data available in TCC database.')
     
-__artifacts__ = {
-    "tcc": (
-        "App Permissions",
-        ('*TCC.db*'),
-        get_tcc)
-}
-    
+    db.close()

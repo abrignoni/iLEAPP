@@ -1,3 +1,19 @@
+__artifacts_v2__ = {
+    "Dahua Technology (DMSS)": {
+        "name": "Dahua Technology (DMSS)",
+        "description": "Extract data from Dahua Technology (DMSS) Application",
+        "author": "@theAtropos4n6",
+        "version": "0.2",
+        "date": "2023-11-21",
+        "requirements": "none",
+        "category": "Dahua Technology (DMSS)",
+        "notes": "",
+        "paths": ('*/Library/Support/Devices.sqlite3*','*/Library/Support/configFile1','*/Library/Support/*/DMSSCloud.sqlite*','*/Documents/Captures/*','*/Documents/Videos/*'),
+        "function": "get_dmss"
+    }
+}
+
+
 """"
 Developed by Evangelos Dragonas (@theAtropos4n6)
 
@@ -23,16 +39,13 @@ Dahua Technology (DMSS) is a well-known app that is used to both remotely access
 -Dahua IoT - Notifications (-x- DMSS account): Cached notifications of the IoT smart home ('x-account.db' gets populated when the application is used with the -x- DMSS account).
 
 """
+
 import sqlite3
 import base64
 import plistlib
 import os
-import textwrap
-import scripts.artifacts.artGlobals
-
-
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly,media_to_html
+from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly,media_to_html
 
 def get_dmss(files_found, report_folder, seeker, wrap_text, timezone_offset):
     separator_1 = '/'
@@ -331,7 +344,7 @@ def get_dmss(files_found, report_folder, seeker, wrap_text, timezone_offset):
             if mfile[2] is not None:
                 media = media_to_html(mfile[2], files_found, report_folder)
             data_list.append((mfile[0],mfile[1],media))
-        media_files_dir = "/private/var/mobile/Containers/Data/Application/[Application-GUID]/Documents/Captures/* and /private/var/mobile/Containers/Data/Application/[Application-GUID]/Documents/Videos/*" #Generic path of the media files.
+        media_files_dir = "*/mobile/Containers/Data/Application/[Application-GUID]/Documents/Captures/* and */mobile/Containers/Data/Application/[Application-GUID]/Documents/Videos/*" #Generic path of the media files.
         report.write_artifact_data_table(data_headers, data_list, media_files_dir, html_escape = False)
         report.end_artifact_report()
 
@@ -340,10 +353,3 @@ def get_dmss(files_found, report_folder, seeker, wrap_text, timezone_offset):
             
     else:
         logfunc(f'No Dahua CCTV - User Created Media data available')
-
-__artifacts__ = {
-        "Dahua Technology (DMSS)": (
-                "Dahua Technology (DMSS)",
-                ('*/Library/Support/Devices.sqlite3','*/Library/Support/configFile1','*/Library/Support/*/DMSSCloud.sqlite','*/Documents/Captures/*','*/Documents/Videos/*'),
-                get_dmss)
-}
