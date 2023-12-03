@@ -79,12 +79,12 @@ def get_addressBook(files_found, report_folder, seeker, wrap_text, timezone_offs
     ABPerson.Organization,
     ABPerson.Department,
     ABPerson.JobTitle,
-    (SELECT group_concat(ABMultiValueLabel.value || ': ' || ABMultiValue.value, CHAR(13))
+    (SELECT group_concat(ifnull(ABMultiValueLabel.value, '_') || ': ' || ABMultiValue.value, CHAR(13))
     FROM ABMultiValue
     LEFT JOIN ABMultiValueLabel ON ABMultiValue.label = ABMultiValueLabel.ROWID
     WHERE ABMultiValue.property = 3 AND ABMultiValue.record_id = ABPerson.ROWID
     GROUP BY ABMultiValue.record_id) AS 'Phone Numbers',
-    (SELECT group_concat(ABMultiValueLabel.value || ': ' || ABMultiValue.value, CHAR(13))
+    (SELECT group_concat(ifnull(ABMultiValueLabel.value, '_') || ': ' || ABMultiValue.value, CHAR(13))
     FROM ABMultiValue
     LEFT JOIN ABMultiValueLabel ON ABMultiValue.label = ABMultiValueLabel.ROWID
     WHERE ABMultiValue.property = 4 AND ABMultiValue.record_id = ABPerson.ROWID
@@ -101,7 +101,7 @@ def get_addressBook(files_found, report_folder, seeker, wrap_text, timezone_offs
             FROM ABMultiValue
             LEFT JOIN ABMultiValueLabel ON ABMultiValue.label = ABMultiValueLabel.ROWID
             WHERE ABMultiValue.property = 5 AND ABMultiValue.record_id = ABPerson.ROWID)
-        SELECT group_concat(label || ': ' || address, CHAR(13))
+        SELECT group_concat(ifnull(label, '_') || ': ' || address, CHAR(13))
         FROM MV
         LEFT JOIN addresses ON uid = id
         GROUP BY rid) as 'Addresses',
@@ -121,17 +121,17 @@ def get_addressBook(files_found, report_folder, seeker, wrap_text, timezone_offs
         FROM ABMultiValue
         LEFT JOIN ABMultiValueLabel ON ABMultiValue.label = ABMultiValueLabel.ROWID
         WHERE ABMultiValue.property = 13 AND ABMultiValue.record_id = ABPerson.ROWID)
-    SELECT group_concat(label || ': ' || uv || ' (' || sv || ')', CHAR(13))
+    SELECT group_concat(ifnull(label, '_') || ': ' || uv || ' (' || sv || ')', CHAR(13))
     FROM MV
     LEFT JOIN MVE_U ON uid = up
     LEFT JOIN MVE_S ON up = sp
     GROUP BY rid) AS 'Instant Message',
-    (SELECT group_concat(ABMultiValueLabel.value || ': ' || ABMultiValue.value, CHAR(13))
+    (SELECT group_concat(ifnull(ABMultiValueLabel.value, '_') || ': ' || ABMultiValue.value, CHAR(13))
     FROM ABMultiValue
     LEFT JOIN ABMultiValueLabel ON ABMultiValue.label = ABMultiValueLabel.ROWID
     WHERE ABMultiValue.property = 22 AND ABMultiValue.record_id = ABPerson.ROWID
     GROUP BY ABMultiValue.record_id) AS 'URL',
-    (SELECT group_concat(ABMultiValueLabel.value || ': ' || ABMultiValue.value, CHAR(13))
+    (SELECT group_concat(ifnull(ABMultiValueLabel.value, '_') || ': ' || ABMultiValue.value, CHAR(13))
     FROM ABMultiValue
     LEFT JOIN ABMultiValueLabel ON ABMultiValue.label = ABMultiValueLabel.ROWID
     WHERE ABMultiValue.property = 23 AND ABMultiValue.record_id = ABPerson.ROWID
@@ -300,7 +300,7 @@ def get_addressBook(files_found, report_folder, seeker, wrap_text, timezone_offs
         report = ArtifactHtmlReport('Address Book Contacts')
         report.start_artifact_report(report_folder, 'Address Book Contacts')
         report.add_script()
-        report.write_artifact_data_table(data_headers, html_data_list, file_found, html_no_escape=['Thumbnail', 'Phone Numbers', 'Email addresses', 'Addresses', 'Instant Messages', 'URL', 'Related Names', 'Profiles'])
+        report.write_artifact_data_table(data_headers, html_data_list, address_book_db, html_no_escape=['Thumbnail', 'Phone Numbers', 'Email addresses', 'Addresses', 'Instant Messages', 'URL', 'Related Names', 'Profiles'])
         report.end_artifact_report()
 
         tsvname = 'Address Book'
