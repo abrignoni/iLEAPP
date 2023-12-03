@@ -152,13 +152,13 @@ def get_addressBook(files_found, report_folder, seeker, wrap_text, timezone_offs
     GROUP BY rid) AS 'Profile',
     ABPerson.Nickname,
     ABPerson.Note,
+    CAST(ABPerson.Birthday AS INT) AS 'Birthday',
     (SELECT group_concat(ABGroup.Name, ', ')
     FROM ABGroupMembers
     LEFT JOIN ABGroup ON ABGroupMembers.group_id = ABGroup.ROWID
     WHERE ABGroupMembers.member_id = ABPerson.ROWID
     GROUP BY ABGroupMembers.member_id) AS 'Group',
     ABStore.Name,
-    CAST(ABPerson.Birthday AS INT) AS 'Birthday',
     datetime(ABPerson.ModificationDate + 978307200, 'unixepoch') AS 'Modification Time'
     FROM ABPerson
     LEFT JOIN ABStore ON ABPerson.StoreID = ABStore.ROWID
@@ -232,7 +232,7 @@ def get_addressBook(files_found, report_folder, seeker, wrap_text, timezone_offs
                 profile = clean_label(profile)
             profile_html = html_tag(profile) if profile else profile
             
-            birthday = row[-2]
+            birthday = row[-4]
             birthday = get_birthdate(birthday) if birthday else ''
 
             modified_date = row[-1]
@@ -243,12 +243,12 @@ def get_addressBook(files_found, report_folder, seeker, wrap_text, timezone_offs
             data_list.append([creation_date, row[2], row[4], row[5], row[6], row[7], row[8], row[9], 
                               row[10], row[11], row[12], row[13], row[14], row[15], 
                               row[16], row[17], row[18], row[19], row[20], row[21], 
-                              row[22], row[23], row[24], row[25], row[26], birthday, modified_date])
+                              row[22], row[23], row[24], birthday, row[26], row[27], modified_date])
 
             html_data_list.append([creation_date, thumbnail_tag, row[4], row[5], row[6], row[7], row[8], row[9], 
                               row[10], row[11], row[12], row[13], row[14], row[15], 
                               phone_numbers_html, email_addresses_html, addresses_html, instant_message_html, url_html, related_name_html, 
-                              profile_html, row[23], row[24], row[25], row[26],birthday, modified_date])
+                              profile_html, row[23], row[24], birthday, row[26], row[27],modified_date])
 
         # Removing unused columns
 
@@ -263,7 +263,7 @@ def get_addressBook(files_found, report_folder, seeker, wrap_text, timezone_offs
         count((SELECT ABMultiValue.property FROM ABMultiValue WHERE ABMultiValue.property = 22 AND ABMultiValue.record_id = ABPerson.ROWID)), 
         count((SELECT ABMultiValue.property FROM ABMultiValue WHERE ABMultiValue.property = 23 AND ABMultiValue.record_id = ABPerson.ROWID)), 
         count((SELECT ABMultiValue.property FROM ABMultiValue WHERE ABMultiValue.property = 46 AND ABMultiValue.record_id = ABPerson.ROWID)), 
-        count(ABPerson.Nickname), count(ABPerson.Note), count(ABGroupMembers.member_id), 'Store', count(ABPerson.Birthday), 'Modif'
+        count(ABPerson.Nickname), count(ABPerson.Note), count(ABPerson.Birthday), count(ABGroupMembers.member_id), 'Store', 'Modif'
         FROM ABPerson
         LEFT JOIN ABGroupMembers ON ABPerson.ROWID = ABGroupMembers.member_id
         LEFT JOIN ABI.ABThumbnailImage ON ABPerson.ROWID = ABI.ABThumbnailImage.record_id
@@ -274,7 +274,7 @@ def get_addressBook(files_found, report_folder, seeker, wrap_text, timezone_offs
         data_headers = ['Creation Date', 'Thumbnail', 'Prefix', 'First Name', 'Middle Name', 'Last Name', 'Suffix', 'Display Name', 
                         'First Name Phonetic', 'Middle Name Phonetic', 'Last Name Phonetic', 'Company', 'Department', 'Job Title', 
                         'Phone Numbers', 'Email addresses', 'Addresses', 'Instant Messages', 'URL', 'Related Names',
-                        'Profiles', 'Nickname', 'Notes', 'Group', 'Storage Place', 'Birthday', 'Modification Date']
+                        'Profiles', 'Nickname', 'Notes', 'Birthday', 'Group', 'Storage Place', 'Modification Date']
 
         data_headers = remove_unused_rows(data_headers, count_rows)
         html_data_list = [remove_unused_rows(data, count_rows) for data in html_data_list]
