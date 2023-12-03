@@ -40,7 +40,7 @@ class OutputParameters:
         now = datetime.now()
         currenttime = str(now.strftime('%Y-%m-%d_%A_%H%M%S'))
         self.report_folder_base = os.path.join(output_folder,
-                                               'iLEAPP_Reports_' + currenttime)  # ileapp , ileappGUI, ileap_artifacts, report.py
+                                               'iLEAPP_Reports_' + currenttime)  # aleapp , aleappGUI, ileap_artifacts, report.py
         self.temp_folder = os.path.join(self.report_folder_base, 'temp')
         OutputParameters.screen_output_file_path = os.path.join(self.report_folder_base, 'Script Logs',
                                                                 'Screen Output.html')
@@ -80,6 +80,11 @@ def convert_ts_human_to_utc(ts): #This is for timestamp in human form
 def convert_ts_int_to_utc(ts): #This int timestamp to human format & utc
     timestamp = datetime.fromtimestamp(ts, tz=timezone.utc)
     return timestamp
+
+def get_birthdate(date):
+    ns_date = date + 978307200
+    utc_date = datetime.utcfromtimestamp(ns_date)
+    return utc_date.strftime('%d %B %Y') if utc_date.year != 1604 else utc_date.strftime('%d %B')
 
 def is_platform_windows():
     '''Returns True if running on Windows'''
