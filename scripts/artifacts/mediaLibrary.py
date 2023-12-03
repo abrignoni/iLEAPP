@@ -1,17 +1,33 @@
-import os
-import sys
-import sqlite3
-import time
-import datetime
-import re
+__artifacts_v2__ = {
+    "mediaLibrary": {
+        "name": "Media Library",
+        "description": "",
+        "author": "",
+        "version": "0.2",
+        "date": "2023-11-21",
+        "requirements": "none",
+        "category": "Media Library",
+        "notes": "",
+        "paths": ('**/Medialibrary.sqlitedb*'),
+        "function": "get_mediaLibrary"
+    }
+}
+
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, is_platform_windows, open_sqlite_db_readonly
+from scripts.ilapfuncs import logfunc, tsv, open_sqlite_db_readonly, convert_ts_human_to_utc, convert_utc_human_to_timezone 
+
 
 def get_mediaLibrary(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    file_found = str(files_found[0])
+    for file_found in files_found:
+        file_found = str(file_found)
+    
+        if file_found.endswith('/Medialibrary.sqlitedb'):
+            break
+
     db = open_sqlite_db_readonly(file_found)
     cursor = db.cursor()
+    
     # Execute query for retrieving media information
     try:
         cursor.execute(
@@ -110,9 +126,4 @@ def get_mediaLibrary(files_found, report_folder, seeker, wrap_text, timezone_off
     tsv(report_folder, data_headers_info, data_list_info, tsvname)
     tsv(report_folder, data_headers, data_list, tsvname)
     
-__artifacts__ = {
-    "mediaLibrary": (
-        "Media Library",
-        ('**/Medialibrary.sqlitedb'),
-        get_mediaLibrary)
-}
+    db.close()
