@@ -14,8 +14,8 @@ def ValidateInput(values, window):
     '''Returns tuple (success, extraction_type)'''
     global module_end_index
 
-    i_path = values[0] # input file/folder
-    o_path = values[1] # output folder
+    i_path = values['INPUTPATH'] # input file/folder
+    o_path = values['OUTPUTPATH'] # output folder
     ext_type = ''
 
     if len(i_path) == 0:
@@ -90,14 +90,16 @@ tzvalues = ['Africa/Abidjan', 'Africa/Accra', 'Africa/Addis_Ababa', 'Africa/Algi
 layout = [  [sg.Text('iOS Logs, Events, And Plists Parser', font=("Helvetica", 22))],
             [sg.Text('https://github.com/abrignoni/iLEAPP', font=("Helvetica", 14))],
             [sg.Frame(layout=[
-                    [sg.Input(size=(97,1)), 
+                    [sg.Input(size=(97,1), key='INPUTPATH'), 
                      sg.FileBrowse(font=normal_font, button_text='Browse File', key='INPUTFILEBROWSE'),
                      sg.FolderBrowse(font=normal_font, button_text='Browse Folder', target=(sg.ThisRow, -2), key='INPUTFOLDERBROWSE')
                     ]
                 ],
                 title='Select the file (tar/zip/gz) or directory of the target iOS full file system extraction for parsing:')],
             [sg.Frame(layout=[
-                    [sg.Input(size=(112,1)), sg.FolderBrowse(font=normal_font, button_text='Browse Folder')]
+                    [sg.Input(size=(112,1), key='OUTPUTPATH'), 
+                     sg.FolderBrowse(font=normal_font, button_text='Browse Folder')
+                    ]
                 ], 
                     title='Select Output Folder:')],
             [sg.Text('Available Modules')],
@@ -112,6 +114,7 @@ layout = [  [sg.Text('iOS Logs, Events, And Plists Parser', font=("Helvetica", 2
              #     default_extension='.alprofile')
             sg.Text('  |', font=("Helvetica", 14)),
             sg.Button('Load Case Data', key='LOAD CASE DATA'),
+            sg.Button('Save Case Data', key='SAVE CASE DATA'),
             sg.Text('  |', font=("Helvetica", 14)),
                     sg.Text('Timezone Offset:', font=("Helvetica", 14)),
                     sg.Combo(list(tzvalues), size=(20,15), key='timezone',readonly=True)
@@ -135,10 +138,12 @@ while True:
         # mark all modules
         for x in range(MODULE_START_INDEX, module_end_index):
             window[x].Update(True)
+
     if event == "DESELECT ALL":  
          # none modules
         for x in range(MODULE_START_INDEX, module_end_index):
             window[x].Update(False if window[x].metadata != 'lastBuild' else True)  # lastBuild.py is REQUIRED
+
     if event == "SAVE PROFILE":
         destination_path = sg.popup_get_file(
             "Save a profile", save_as=True,
@@ -190,38 +195,75 @@ while True:
                 sg.popup(f"Loaded profile: {destination_path}")
                 profile_filename = destination_path
     
+    if event == "SAVE CASE DATA":
+        destination_path = sg.popup_get_file(
+            "Save case data", save_as=True,
+            file_types=(('iLEAPP Case Data (*.ilcasedata)', '*.ilcasedata'),),
+            default_extension='.ilcasedata', no_window=True)
+
+        if destination_path:
+            ticked = []
+            for x in range(MODULE_START_INDEX, module_end_index):
+                if window.FindElement(x).Get():
+                    key = window[x].metadata
+                    ticked.append(key)
+            required_values_keys = ['INPUTPATH', 'INPUTFILEBROWSE', 'INPUTFOLDERBROWSE', 'OUTPUTPATH', 'Browse Folder', 'timezone']
+            case_data_values = {key:value for key, value in values.items() if key in required_values_keys}
+            with open(destination_path, "wt", encoding="utf-8") as casedata_out:
+                json.dump({"leapp": "ileapp", "format_version": 1, "plugins": ticked, "values": case_data_values}, casedata_out)
+            sg.Popup(f"Case Data saved: {destination_path}", title="Save Case Data")
+
     if event == 'LOAD CASE DATA':
         destination_path = sg.popup_get_file(
-            "Load a case data", save_as=False,
-            file_types=(('iLEAPP Profile (*.ilprofile)', '*.ilprofile'), ('All Files', '*')),
-            default_extension='.ilprofile', no_window=True)
+            "Load case data", save_as=False,
+            file_types=(('iLEAPP Case Data (*.ilcasedata)', '*.ilcasedata'), ('All Files', '*')),
+            default_extension='.ilcasedata', no_window=True)
         
         if destination_path and os.path.exists(destination_path):
-            profile_load_error = None
-            with open(destination_path, "rt", encoding="utf-8") as profile_in:
+            case_data_load_error = None
+            with open(destination_path, "rt", encoding="utf-8") as case_data_in:
                 try:
-                    profile = json.load(profile_in)
+                    case_data = json.load(case_data_in)
                 except json.JSONDecodeError as json_ex:
-                    profile_load_error = f"File was not a valid profile file: {json_ex}"
+                    case_data_load_error = f"File was not a valid case data file: {json_ex}"
                     
-            if not profile_load_error:
-                if isinstance(profile, dict):
-                    casedata = profile
+            if not case_data_load_error:
+                if isinstance(case_data, dict):
+                    if case_data.get("leapp") != "ileapp" or case_data.get("format_version") != 1 or 'values' not in case_data:
+                        case_data_load_error = "File was not a valid case data file: incorrect LEAPP, version or file type"
+                    else:
+                        case_data_values = case_data['values']
+                        window_keys = ['INPUTPATH', 'OUTPUTPATH']
+                        for window_key in window_keys:
+                            window[window_key].update(case_data_values[window_key])
+                        window['timezone'].update(readonly=False)
+                        window['timezone'].update(case_data_values['timezone'])
+                        window['timezone'].update(readonly=True)
+                        values_keys = ['INPUTFILEBROWSE', 'INPUTFOLDERBROWSE', 'Browse Folder']
+                        for values_key in values_keys:
+                            values[values_key] = case_data_values[values_key]
+                        ticked = set(case_data.get("plugins", []))
+                        ticked.add("lastbuild")  # always
+                        for x in range(MODULE_START_INDEX, module_end_index):
+                            if window[x].metadata in ticked:
+                                window[x].update(True)
+                            else:
+                                window[x].update(False)
                 else:
-                    profile_load_error = "File was not a valid profile file: invalid format"
+                    case_data_load_error = "File was not a valid case data file: invalid format"
             
-            if profile_load_error:
-                sg.popup(profile_load_error)
+            if case_data_load_error:
+                sg.popup(case_data_load_error)
             else:
-                sg.popup(f"Loaded Case Data: {destination_path}")
+                sg.popup(f"Loaded Case Data: {destination_path}", title="Load Case Data")
     
     if event == 'Process':
         #check is selections made properly; if not we will return to input form without exiting app altogether
         is_valid, extracttype = ValidateInput(values, window)
         if is_valid:
             GuiWindow.window_handle = window
-            input_path = values[0]
-            output_folder = values[1]
+            input_path = values['INPUTPATH']
+            output_folder = values['OUTPUTPATH']
 
             # ios file system extractions contain paths > 260 char, which causes problems
             # This fixes the problem by prefixing \\?\ on each windows path.
