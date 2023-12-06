@@ -10,6 +10,93 @@ from scripts.search_files import *
 
 MODULE_START_INDEX = 1000
 
+def add_case_data(casedata):
+    casedata_font = ("Helvetica", 12)
+    casedata_layout = [
+        [sg.Text('Add Case Data', font=("Helvetica", 18))],
+        [sg.Frame(layout=[
+            [sg.Input(size=(80,1), key='Case Number', default_text=casedata.get('Case Number', ''))]], title='Case Number')],
+        [sg.Frame(layout=[
+            [sg.Input(size=(80,1), key='Agency', default_text=casedata.get('Agency', ''))]], title='Agency')],
+        [sg.Frame(layout=[
+            [sg.Input(size=(80,1), key='Examiner', default_text=casedata.get('Examiner', ''))]], title='Examiner')],
+        [sg.Text('')],
+        [sg.Button('Load Case Data File', font=normal_font, key='LOADCASEDATA'), 
+         sg.Button('Save Case Data File', font=normal_font, key='SAVECASEDATA'), 
+         sg.Button('Close', font=normal_font)]
+        ]
+    
+    case_data_window = sg.Window('Add Case Data', casedata_layout, font=casedata_font, keep_on_top=True)
+
+    while True:
+        casedata_event, casedata_values = case_data_window.read()
+
+        if casedata_event in (None, 'Close'):
+            case_data_window.close()
+            return casedata_values
+
+        if casedata_event == 'SAVECASEDATA':
+            case_data_window.KeepOnTop=False
+            case_data_window.Hide()
+            destination_path = sg.popup_get_file(
+                "Save case data file", save_as=True,
+                file_types=(('iLEAPP Case Data (*.ilcasedata)', '*.ilcasedata'),),
+                default_extension='.ilcasedata', no_window=True, keep_on_top=True)
+
+            if destination_path:
+                with open(destination_path, "wt", encoding="utf-8") as casedata_out:
+                    json.dump({"leapp": "case_data", "case_data_values": casedata_values}, casedata_out)
+                sg.Popup(f"Case Data saved: {destination_path}", title="Save Case Data")
+                case_data_window.close()    
+            else:
+                case_data_window.UnHide()
+                continue
+            
+            return casedata_values
+
+        if casedata_event == 'LOADCASEDATA':
+            case_data_window.KeepOnTop=False
+            case_data_window.Hide()
+            destination_path = sg.popup_get_file(
+                "Load case data", save_as=False,
+                file_types=(('iLEAPP Case Data (*.ilcasedata)', '*.ilcasedata'), ('All Files', '*')),
+                default_extension='.ilcasedata', no_window=True)
+            
+            if destination_path and os.path.exists(destination_path):
+                case_data_load_error = None
+                with open(destination_path, "rt", encoding="utf-8") as case_data_in:
+                    try:
+                        case_data = json.load(case_data_in)
+                    except json.JSONDecodeError as json_ex:
+                        case_data_load_error = f"File was not a valid case data file: {json_ex}"
+                        
+                if not case_data_load_error:
+                    if isinstance(case_data, dict):
+                        if case_data.get("leapp") != "case_data":
+                            case_data_load_error = "File was not a valid case data file"
+                        else:
+                            casedata = case_data.get('case_data_values', {})
+                            for key, value in casedata.items():
+                                case_data_window[key].update(value)
+                    else:
+                        case_data_load_error = "File was not a valid case data file: invalid format"                
+                
+                if case_data_load_error:
+                    sg.popup(case_data_load_error)
+                    case_data_window.UnHide()
+                    continue
+                else:
+                    sg.popup(f"Loaded Case Data: {destination_path}", title="Load Case Data")
+                    case_data_window.UnHide()
+                    continue
+            
+            else:
+                case_data_window.UnHide()
+                continue
+
+
+        
+
 def ValidateInput(values, window):
     '''Returns tuple (success, extraction_type)'''
     global module_end_index
@@ -86,7 +173,6 @@ GuiWindow.progress_bar_total = len(loader)
 
 tzvalues = ['Africa/Abidjan', 'Africa/Accra', 'Africa/Addis_Ababa', 'Africa/Algiers', 'Africa/Asmara', 'Africa/Asmera', 'Africa/Bamako', 'Africa/Bangui', 'Africa/Banjul', 'Africa/Bissau', 'Africa/Blantyre', 'Africa/Brazzaville', 'Africa/Bujumbura', 'Africa/Cairo', 'Africa/Casablanca', 'Africa/Ceuta', 'Africa/Conakry', 'Africa/Dakar', 'Africa/Dar_es_Salaam', 'Africa/Djibouti', 'Africa/Douala', 'Africa/El_Aaiun', 'Africa/Freetown', 'Africa/Gaborone', 'Africa/Harare', 'Africa/Johannesburg', 'Africa/Juba', 'Africa/Kampala', 'Africa/Khartoum', 'Africa/Kigali', 'Africa/Kinshasa', 'Africa/Lagos', 'Africa/Libreville', 'Africa/Lome', 'Africa/Luanda', 'Africa/Lubumbashi', 'Africa/Lusaka', 'Africa/Malabo', 'Africa/Maputo', 'Africa/Maseru', 'Africa/Mbabane', 'Africa/Mogadishu', 'Africa/Monrovia', 'Africa/Nairobi', 'Africa/Ndjamena', 'Africa/Niamey', 'Africa/Nouakchott', 'Africa/Ouagadougou', 'Africa/Porto-Novo', 'Africa/Sao_Tome', 'Africa/Timbuktu', 'Africa/Tripoli', 'Africa/Tunis', 'Africa/Windhoek', 'America/Adak', 'America/Anchorage', 'America/Anguilla', 'America/Antigua', 'America/Araguaina', 'America/Argentina/Buenos_Aires', 'America/Argentina/Catamarca', 'America/Argentina/ComodRivadavia', 'America/Argentina/Cordoba', 'America/Argentina/Jujuy', 'America/Argentina/La_Rioja', 'America/Argentina/Mendoza', 'America/Argentina/Rio_Gallegos', 'America/Argentina/Salta', 'America/Argentina/San_Juan', 'America/Argentina/San_Luis', 'America/Argentina/Tucuman', 'America/Argentina/Ushuaia', 'America/Aruba', 'America/Asuncion', 'America/Atikokan', 'America/Atka', 'America/Bahia', 'America/Bahia_Banderas', 'America/Barbados', 'America/Belem', 'America/Belize', 'America/Blanc-Sablon', 'America/Boa_Vista', 'America/Bogota', 'America/Boise', 'America/Buenos_Aires', 'America/Cambridge_Bay', 'America/Campo_Grande', 'America/Cancun', 'America/Caracas', 'America/Catamarca', 'America/Cayenne', 'America/Cayman', 'America/Chicago', 'America/Chihuahua', 'America/Ciudad_Juarez', 'America/Coral_Harbour', 'America/Cordoba', 'America/Costa_Rica', 'America/Creston', 'America/Cuiaba', 'America/Curacao', 'America/Danmarkshavn', 'America/Dawson', 'America/Dawson_Creek', 'America/Denver', 'America/Detroit', 'America/Dominica', 'America/Edmonton', 'America/Eirunepe', 'America/El_Salvador', 'America/Ensenada', 'America/Fort_Nelson', 'America/Fort_Wayne', 'America/Fortaleza', 'America/Glace_Bay', 'America/Godthab', 'America/Goose_Bay', 'America/Grand_Turk', 'America/Grenada', 'America/Guadeloupe', 'America/Guatemala', 'America/Guayaquil', 'America/Guyana', 'America/Halifax', 'America/Havana', 'America/Hermosillo', 'America/Indiana/Indianapolis', 'America/Indiana/Knox', 'America/Indiana/Marengo', 'America/Indiana/Petersburg', 'America/Indiana/Tell_City', 'America/Indiana/Vevay', 'America/Indiana/Vincennes', 'America/Indiana/Winamac', 'America/Indianapolis', 'America/Inuvik', 'America/Iqaluit', 'America/Jamaica', 'America/Jujuy', 'America/Juneau', 'America/Kentucky/Louisville', 'America/Kentucky/Monticello', 'America/Knox_IN', 'America/Kralendijk', 'America/La_Paz', 'America/Lima', 'America/Los_Angeles', 'America/Louisville', 'America/Lower_Princes', 'America/Maceio', 'America/Managua', 'America/Manaus', 'America/Marigot', 'America/Martinique', 'America/Matamoros', 'America/Mazatlan', 'America/Mendoza', 'America/Menominee', 'America/Merida', 'America/Metlakatla', 'America/Mexico_City', 'America/Miquelon', 'America/Moncton', 'America/Monterrey', 'America/Montevideo', 'America/Montreal', 'America/Montserrat', 'America/Nassau', 'America/New_York', 'America/Nipigon', 'America/Nome', 'America/Noronha', 'America/North_Dakota/Beulah', 'America/North_Dakota/Center', 'America/North_Dakota/New_Salem', 'America/Nuuk', 'America/Ojinaga', 'America/Panama', 'America/Pangnirtung', 'America/Paramaribo', 'America/Phoenix', 'America/Port-au-Prince', 'America/Port_of_Spain', 'America/Porto_Acre', 'America/Porto_Velho', 'America/Puerto_Rico', 'America/Punta_Arenas', 'America/Rainy_River', 'America/Rankin_Inlet', 'America/Recife', 'America/Regina', 'America/Resolute', 'America/Rio_Branco', 'America/Rosario', 'America/Santa_Isabel', 'America/Santarem', 'America/Santiago', 'America/Santo_Domingo', 'America/Sao_Paulo', 'America/Scoresbysund', 'America/Shiprock', 'America/Sitka', 'America/St_Barthelemy', 'America/St_Johns', 'America/St_Kitts', 'America/St_Lucia', 'America/St_Thomas', 'America/St_Vincent', 'America/Swift_Current', 'America/Tegucigalpa', 'America/Thule', 'America/Thunder_Bay', 'America/Tijuana', 'America/Toronto', 'America/Tortola', 'America/Vancouver', 'America/Virgin', 'America/Whitehorse', 'America/Winnipeg', 'America/Yakutat', 'America/Yellowknife', 'Antarctica/Casey', 'Antarctica/Davis', 'Antarctica/DumontDUrville', 'Antarctica/Macquarie', 'Antarctica/Mawson', 'Antarctica/McMurdo', 'Antarctica/Palmer', 'Antarctica/Rothera', 'Antarctica/South_Pole', 'Antarctica/Syowa', 'Antarctica/Troll', 'Antarctica/Vostok', 'Arctic/Longyearbyen', 'Asia/Aden', 'Asia/Almaty', 'Asia/Amman', 'Asia/Anadyr', 'Asia/Aqtau', 'Asia/Aqtobe', 'Asia/Ashgabat', 'Asia/Ashkhabad', 'Asia/Atyrau', 'Asia/Baghdad', 'Asia/Bahrain', 'Asia/Baku', 'Asia/Bangkok', 'Asia/Barnaul', 'Asia/Beirut', 'Asia/Bishkek', 'Asia/Brunei', 'Asia/Calcutta', 'Asia/Chita', 'Asia/Choibalsan', 'Asia/Chongqing', 'Asia/Chungking', 'Asia/Colombo', 'Asia/Dacca', 'Asia/Damascus', 'Asia/Dhaka', 'Asia/Dili', 'Asia/Dubai', 'Asia/Dushanbe', 'Asia/Famagusta', 'Asia/Gaza', 'Asia/Harbin', 'Asia/Hebron', 'Asia/Ho_Chi_Minh', 'Asia/Hong_Kong', 'Asia/Hovd', 'Asia/Irkutsk', 'Asia/Istanbul', 'Asia/Jakarta', 'Asia/Jayapura', 'Asia/Jerusalem', 'Asia/Kabul', 'Asia/Kamchatka', 'Asia/Karachi', 'Asia/Kashgar', 'Asia/Kathmandu', 'Asia/Katmandu', 'Asia/Khandyga', 'Asia/Kolkata', 'Asia/Krasnoyarsk', 'Asia/Kuala_Lumpur', 'Asia/Kuching', 'Asia/Kuwait', 'Asia/Macao', 'Asia/Macau', 'Asia/Magadan', 'Asia/Makassar', 'Asia/Manila', 'Asia/Muscat', 'Asia/Nicosia', 'Asia/Novokuznetsk', 'Asia/Novosibirsk', 'Asia/Omsk', 'Asia/Oral', 'Asia/Phnom_Penh', 'Asia/Pontianak', 'Asia/Pyongyang', 'Asia/Qatar', 'Asia/Qostanay', 'Asia/Qyzylorda', 'Asia/Rangoon', 'Asia/Riyadh', 'Asia/Saigon', 'Asia/Sakhalin', 'Asia/Samarkand', 'Asia/Seoul', 'Asia/Shanghai', 'Asia/Singapore', 'Asia/Srednekolymsk', 'Asia/Taipei', 'Asia/Tashkent', 'Asia/Tbilisi', 'Asia/Tehran', 'Asia/Tel_Aviv', 'Asia/Thimbu', 'Asia/Thimphu', 'Asia/Tokyo', 'Asia/Tomsk', 'Asia/Ujung_Pandang', 'Asia/Ulaanbaatar', 'Asia/Ulan_Bator', 'Asia/Urumqi', 'Asia/Ust-Nera', 'Asia/Vientiane', 'Asia/Vladivostok', 'Asia/Yakutsk', 'Asia/Yangon', 'Asia/Yekaterinburg', 'Asia/Yerevan', 'Atlantic/Azores', 'Atlantic/Bermuda', 'Atlantic/Canary', 'Atlantic/Cape_Verde', 'Atlantic/Faeroe', 'Atlantic/Faroe', 'Atlantic/Jan_Mayen', 'Atlantic/Madeira', 'Atlantic/Reykjavik', 'Atlantic/South_Georgia', 'Atlantic/St_Helena', 'Atlantic/Stanley', 'Australia/ACT', 'Australia/Adelaide', 'Australia/Brisbane', 'Australia/Broken_Hill', 'Australia/Canberra', 'Australia/Currie', 'Australia/Darwin', 'Australia/Eucla', 'Australia/Hobart', 'Australia/LHI', 'Australia/Lindeman', 'Australia/Lord_Howe', 'Australia/Melbourne', 'Australia/NSW', 'Australia/North', 'Australia/Perth', 'Australia/Queensland', 'Australia/South', 'Australia/Sydney', 'Australia/Tasmania', 'Australia/Victoria', 'Australia/West', 'Australia/Yancowinna', 'Brazil/Acre', 'Brazil/DeNoronha', 'Brazil/East', 'Brazil/West', 'CET', 'CST6CDT', 'Canada/Atlantic', 'Canada/Central', 'Canada/Eastern', 'Canada/Mountain', 'Canada/Newfoundland', 'Canada/Pacific', 'Canada/Saskatchewan', 'Canada/Yukon', 'Chile/Continental', 'Chile/EasterIsland', 'Cuba', 'EET', 'EST', 'EST5EDT', 'Egypt', 'Eire', 'Etc/GMT', 'Etc/GMT+0', 'Etc/GMT+1', 'Etc/GMT+10', 'Etc/GMT+11', 'Etc/GMT+12', 'Etc/GMT+2', 'Etc/GMT+3', 'Etc/GMT+4', 'Etc/GMT+5', 'Etc/GMT+6', 'Etc/GMT+7', 'Etc/GMT+8', 'Etc/GMT+9', 'Etc/GMT-0', 'Etc/GMT-1', 'Etc/GMT-10', 'Etc/GMT-11', 'Etc/GMT-12', 'Etc/GMT-13', 'Etc/GMT-14', 'Etc/GMT-2', 'Etc/GMT-3', 'Etc/GMT-4', 'Etc/GMT-5', 'Etc/GMT-6', 'Etc/GMT-7', 'Etc/GMT-8', 'Etc/GMT-9', 'Etc/GMT0', 'Etc/Greenwich', 'Etc/UCT', 'Etc/UTC', 'Etc/Universal', 'Etc/Zulu', 'Europe/Amsterdam', 'Europe/Andorra', 'Europe/Astrakhan', 'Europe/Athens', 'Europe/Belfast', 'Europe/Belgrade', 'Europe/Berlin', 'Europe/Bratislava', 'Europe/Brussels', 'Europe/Bucharest', 'Europe/Budapest', 'Europe/Busingen', 'Europe/Chisinau', 'Europe/Copenhagen', 'Europe/Dublin', 'Europe/Gibraltar', 'Europe/Guernsey', 'Europe/Helsinki', 'Europe/Isle_of_Man', 'Europe/Istanbul', 'Europe/Jersey', 'Europe/Kaliningrad', 'Europe/Kiev', 'Europe/Kirov', 'Europe/Kyiv', 'Europe/Lisbon', 'Europe/Ljubljana', 'Europe/London', 'Europe/Luxembourg', 'Europe/Madrid', 'Europe/Malta', 'Europe/Mariehamn', 'Europe/Minsk', 'Europe/Monaco', 'Europe/Moscow', 'Europe/Nicosia', 'Europe/Oslo', 'Europe/Paris', 'Europe/Podgorica', 'Europe/Prague', 'Europe/Riga', 'Europe/Rome', 'Europe/Samara', 'Europe/San_Marino', 'Europe/Sarajevo', 'Europe/Saratov', 'Europe/Simferopol', 'Europe/Skopje', 'Europe/Sofia', 'Europe/Stockholm', 'Europe/Tallinn', 'Europe/Tirane', 'Europe/Tiraspol', 'Europe/Ulyanovsk', 'Europe/Uzhgorod', 'Europe/Vaduz', 'Europe/Vatican', 'Europe/Vienna', 'Europe/Vilnius', 'Europe/Volgograd', 'Europe/Warsaw', 'Europe/Zagreb', 'Europe/Zaporozhye', 'Europe/Zurich', 'GB', 'GB-Eire', 'GMT', 'GMT+0', 'GMT-0', 'GMT0', 'Greenwich', 'HST', 'Hongkong', 'Iceland', 'Indian/Antananarivo', 'Indian/Chagos', 'Indian/Christmas', 'Indian/Cocos', 'Indian/Comoro', 'Indian/Kerguelen', 'Indian/Mahe', 'Indian/Maldives', 'Indian/Mauritius', 'Indian/Mayotte', 'Indian/Reunion', 'Iran', 'Israel', 'Jamaica', 'Japan', 'Kwajalein', 'Libya', 'MET', 'MST', 'MST7MDT', 'Mexico/BajaNorte', 'Mexico/BajaSur', 'Mexico/General', 'NZ', 'NZ-CHAT', 'Navajo', 'PRC', 'PST8PDT', 'Pacific/Apia', 'Pacific/Auckland', 'Pacific/Bougainville', 'Pacific/Chatham', 'Pacific/Chuuk', 'Pacific/Easter', 'Pacific/Efate', 'Pacific/Enderbury', 'Pacific/Fakaofo', 'Pacific/Fiji', 'Pacific/Funafuti', 'Pacific/Galapagos', 'Pacific/Gambier', 'Pacific/Guadalcanal', 'Pacific/Guam', 'Pacific/Honolulu', 'Pacific/Johnston', 'Pacific/Kanton', 'Pacific/Kiritimati', 'Pacific/Kosrae', 'Pacific/Kwajalein', 'Pacific/Majuro', 'Pacific/Marquesas', 'Pacific/Midway', 'Pacific/Nauru', 'Pacific/Niue', 'Pacific/Norfolk', 'Pacific/Noumea', 'Pacific/Pago_Pago', 'Pacific/Palau', 'Pacific/Pitcairn', 'Pacific/Pohnpei', 'Pacific/Ponape', 'Pacific/Port_Moresby', 'Pacific/Rarotonga', 'Pacific/Saipan', 'Pacific/Samoa', 'Pacific/Tahiti', 'Pacific/Tarawa', 'Pacific/Tongatapu', 'Pacific/Truk', 'Pacific/Wake', 'Pacific/Wallis', 'Pacific/Yap', 'Poland', 'Portugal', 'ROC', 'ROK', 'Singapore', 'Turkey', 'UCT', 'US/Alaska', 'US/Aleutian', 'US/Arizona', 'US/Central', 'US/East-Indiana', 'US/Eastern', 'US/Hawaii', 'US/Indiana-Starke', 'US/Michigan', 'US/Mountain', 'US/Pacific', 'US/Samoa', 'UTC', 'Universal', 'W-SU', 'WET', 'Zulu']
 
-
 layout = [  [sg.Text('iOS Logs, Events, And Plists Parser', font=("Helvetica", 22))],
             [sg.Text('https://github.com/abrignoni/iLEAPP', font=("Helvetica", 14))],
             [sg.Frame(layout=[
@@ -113,13 +199,12 @@ layout = [  [sg.Text('iOS Logs, Events, And Plists Parser', font=("Helvetica", 2
              #     file_types=(('iLEAPP Profile (*.ilprofile)', '*.ilprofile'), ('All Files', '*')),
              #     default_extension='.alprofile')
             sg.Text('  |', font=("Helvetica", 14)),
-            sg.Button('Load Case Data', key='LOAD CASE DATA'),
-            sg.Button('Save Case Data', key='SAVE CASE DATA'),
+            sg.Button('Add Case Data', key='ADD CASE DATA'),
             sg.Text('  |', font=("Helvetica", 14)),
                     sg.Text('Timezone Offset:', font=("Helvetica", 14)),
                     sg.Combo(list(tzvalues), size=(20,15), key='timezone',readonly=True)
             ],
-            [sg.Column(mlist, size=(300,310), scrollable=True),  sg.Output(size=(85,20))] ,
+            [sg.Column(mlist, size=(300,310), scrollable=True), sg.Output(size=(85,20))],
             [sg.ProgressBar(max_value=GuiWindow.progress_bar_total, orientation='h', size=(86, 7), key='PROGRESSBAR', bar_color=('DarkGreen', 'White'))],
             [sg.Submit('Process', font=normal_font), sg.Button('Close', font=normal_font)] ]
             
@@ -127,6 +212,7 @@ layout = [  [sg.Text('iOS Logs, Events, And Plists Parser', font=("Helvetica", 2
 window = sg.Window(f'iLEAPP version {ileapp_version}', layout)
 GuiWindow.progress_bar_handle = window['PROGRESSBAR']
 profile_filename = None
+casedata = {}
 
 # Event Loop to process "events" and get the "values" of the inputs
 while True:
@@ -158,7 +244,7 @@ while True:
                     ticked.append(key)
             with open(destination_path, "wt", encoding="utf-8") as profile_out:
                 json.dump({"leapp": "ileapp", "format_version": 1, "plugins": ticked}, profile_out)
-            sg.Popup(f"Profile saved: {destination_path}")
+            sg.Popup(f"Profile saved: {destination_path}", title="Save a profile")
 
     if event == "LOAD PROFILE":
         destination_path = sg.popup_get_file(
@@ -192,71 +278,12 @@ while True:
             if profile_load_error:
                 sg.popup(profile_load_error)
             else:
-                sg.popup(f"Loaded profile: {destination_path}")
+                sg.popup(f"Loaded profile: {destination_path}", title="Load a profile")
                 profile_filename = destination_path
     
-    if event == "SAVE CASE DATA":
-        destination_path = sg.popup_get_file(
-            "Save case data", save_as=True,
-            file_types=(('iLEAPP Case Data (*.ilcasedata)', '*.ilcasedata'),),
-            default_extension='.ilcasedata', no_window=True)
+    if event == "ADD CASE DATA":
+        casedata = add_case_data(casedata)
 
-        if destination_path:
-            ticked = []
-            for x in range(MODULE_START_INDEX, module_end_index):
-                if window.FindElement(x).Get():
-                    key = window[x].metadata
-                    ticked.append(key)
-            required_values_keys = ['INPUTPATH', 'INPUTFILEBROWSE', 'INPUTFOLDERBROWSE', 'OUTPUTPATH', 'Browse Folder', 'timezone']
-            case_data_values = {key:value for key, value in values.items() if key in required_values_keys}
-            with open(destination_path, "wt", encoding="utf-8") as casedata_out:
-                json.dump({"leapp": "ileapp", "format_version": 1, "plugins": ticked, "values": case_data_values}, casedata_out)
-            sg.Popup(f"Case Data saved: {destination_path}", title="Save Case Data")
-
-    if event == 'LOAD CASE DATA':
-        destination_path = sg.popup_get_file(
-            "Load case data", save_as=False,
-            file_types=(('iLEAPP Case Data (*.ilcasedata)', '*.ilcasedata'), ('All Files', '*')),
-            default_extension='.ilcasedata', no_window=True)
-        
-        if destination_path and os.path.exists(destination_path):
-            case_data_load_error = None
-            with open(destination_path, "rt", encoding="utf-8") as case_data_in:
-                try:
-                    case_data = json.load(case_data_in)
-                except json.JSONDecodeError as json_ex:
-                    case_data_load_error = f"File was not a valid case data file: {json_ex}"
-                    
-            if not case_data_load_error:
-                if isinstance(case_data, dict):
-                    if case_data.get("leapp") != "ileapp" or case_data.get("format_version") != 1 or 'values' not in case_data:
-                        case_data_load_error = "File was not a valid case data file: incorrect LEAPP, version or file type"
-                    else:
-                        case_data_values = case_data['values']
-                        window_keys = ['INPUTPATH', 'OUTPUTPATH']
-                        for window_key in window_keys:
-                            window[window_key].update(case_data_values[window_key])
-                        window['timezone'].update(readonly=False)
-                        window['timezone'].update(case_data_values['timezone'])
-                        window['timezone'].update(readonly=True)
-                        values_keys = ['INPUTFILEBROWSE', 'INPUTFOLDERBROWSE', 'Browse Folder']
-                        for values_key in values_keys:
-                            values[values_key] = case_data_values[values_key]
-                        ticked = set(case_data.get("plugins", []))
-                        ticked.add("lastbuild")  # always
-                        for x in range(MODULE_START_INDEX, module_end_index):
-                            if window[x].metadata in ticked:
-                                window[x].update(True)
-                            else:
-                                window[x].update(False)
-                else:
-                    case_data_load_error = "File was not a valid case data file: invalid format"
-            
-            if case_data_load_error:
-                sg.popup(case_data_load_error)
-            else:
-                sg.popup(f"Loaded Case Data: {destination_path}", title="Load Case Data")
-    
     if event == 'Process':
         #check is selections made properly; if not we will return to input form without exiting app altogether
         is_valid, extracttype = ValidateInput(values, window)
@@ -296,10 +323,10 @@ while True:
             if time_offset == '':
                 time_offset = 'UTC'
             
-            try:
-                casedata
-            except NameError:
-                casedata = {}
+            # try:
+            #     casedata
+            # except NameError:
+            #     casedata = {}
             
             crunch_successful = ileapp.crunch_artifacts(
                 search_list, extracttype, input_path, out_params, len(loader)/s_items, wrap_text, loader, casedata, time_offset, profile_filename)
