@@ -1,12 +1,12 @@
 __artifacts_v2__ = {
     "addressbook": {
-        "name": "Address Book Contacts",
+        "name": "Address Book",
         "description": "Extract information from the native contacts application",
         "author": "@AlexisBrignoni - @JohannPLW",
         "version": "0.4",
         "date": "2022-11-18",
         "requirements": "none",
-        "category": "Address Book",
+        "category": "Contacts",
         "notes": "",
         "paths": ('*/mobile/Library/AddressBook/AddressBook*.sqlitedb*',),
         "function": "get_addressBook"
@@ -297,8 +297,8 @@ def get_addressBook(files_found, report_folder, seeker, wrap_text, timezone_offs
             csv_data_list = data_list
 
 
-        report = ArtifactHtmlReport('Address Book Contacts')
-        report.start_artifact_report(report_folder, 'Address Book Contacts')
+        report = ArtifactHtmlReport('Address Book')
+        report.start_artifact_report(report_folder, 'Address Book')
         report.add_script()
         report.write_artifact_data_table(data_headers, html_data_list, address_book_db, html_no_escape=['Thumbnail', 'Phone Numbers', 'Email addresses', 'Addresses', 'Instant Messages', 'URL', 'Related Names', 'Profiles'])
         report.end_artifact_report()
