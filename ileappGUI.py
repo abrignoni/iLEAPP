@@ -102,10 +102,10 @@ def ValidateInput(values, window):
     ext_type = ''
 
     if len(i_path) == 0:
-        sg.PopupError('No INPUT file or folder selected!')
+        sg.PopupError('No INPUT file or folder selected!', title="Save Case Data")
         return False, ext_type
     elif not os.path.exists(i_path):
-        sg.PopupError('INPUT file/folder does not exist!')
+        sg.PopupError('INPUT file/folder does not exist!', title="Error")
         return False, ext_type
     elif os.path.isdir(i_path) and os.path.exists(os.path.join(i_path, "Manifest.db")):
         ext_type = 'itunes'
@@ -113,14 +113,14 @@ def ValidateInput(values, window):
         ext_type = 'fs'
     else: # must be an existing file then
         if not i_path.lower().endswith('.tar') and not i_path.lower().endswith('.zip') and not i_path.lower().endswith('.gz'):
-            sg.PopupError('Input file is not a supported archive! ', i_path)
+            sg.PopupError('Input file is not a supported archive! ', i_path, title="Error")
             return False, ext_type
         else:
             ext_type = Path(i_path).suffix[1:].lower() 
     
     # check output now
     if len(o_path) == 0 : # output folder
-        sg.PopupError('No OUTPUT folder selected!')
+        sg.PopupError('No OUTPUT folder selected!', title="Error")
         return False, ext_type
 
     one_element_is_selected = False
@@ -129,7 +129,7 @@ def ValidateInput(values, window):
             one_element_is_selected = True
             break
     if not one_element_is_selected:
-        sg.PopupError('No module selected for processing!')
+        sg.PopupError('No module selected for processing!', title="Error")
         return False, ext_type
 
     return True, ext_type
@@ -335,6 +335,6 @@ while True:
                 log_path = out_params.screen_output_file_path
                 if log_path.startswith('\\\\?\\'): # windows
                     log_path = log_path[4:]
-                sg.Popup('Processing failed    :( ', f'See log for error details..\nLog file located at {log_path}')
+                sg.Popup('Processing failed    :( ', f'See log for error details..\nLog file located at {log_path}', title="Error")
             break
 window.close()
