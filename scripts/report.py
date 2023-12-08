@@ -1019,22 +1019,23 @@ def get_file_content(path):
 
 def create_index_html(reportfolderbase, time_in_secs, time_HMS, extraction_type, image_input_path, nav_list_data, casedata):
     '''Write out the index.html page to the report folder'''
+    case_list = []
     content = '<br />'
     content += """
                    <div class="card bg-white" style="padding: 20px;">
                    <h2 class="card-title">Case Information</h2>
                """  # CARD start
 
-    case_list = [
+    if len(casedata) > 0:
+        for key, value in casedata.items():
+            case_list.append([key, value])
+    
+    case_list += [
         ['Extraction location', image_input_path],
         ['Extraction type', extraction_type],
         ['Report directory', reportfolderbase],
         ['Processing time', f'{time_HMS} (Total {time_in_secs} seconds)']
     ]
-    
-    if len(casedata) > 0:
-        for key, value in casedata.items():
-            case_list.append([key, value])
     
     tab1_content = generate_key_val_table_without_headings('', case_list) + \
         """

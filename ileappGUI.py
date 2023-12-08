@@ -46,8 +46,8 @@ def add_case_data(casedata):
         if case_data_event == 'SAVECASEDATA':
             destination_path = sg.popup_get_file(
                 "Save case data file", save_as=True,
-                file_types=(('iLEAPP Case Data (*.ilcasedata)', '*.ilcasedata'),),
-                default_extension='.ilcasedata', no_window=True, keep_on_top=True)
+                file_types=(('LEAPP Case Data (*.lcasedata)', '*.lcasedata'),),
+                default_extension='.icasedata', no_window=True, keep_on_top=True)
 
             if destination_path:
                 with open(destination_path, "wt", encoding="utf-8") as case_data_out:
@@ -62,8 +62,8 @@ def add_case_data(casedata):
         if case_data_event == 'LOADCASEDATA':
             destination_path = sg.popup_get_file(
                 "Load case data", save_as=False,
-                file_types=(('iLEAPP Case Data (*.ilcasedata)', '*.ilcasedata'), ('All Files', '*')),
-                default_extension='.ilcasedata', no_window=True)
+                file_types=(('LEAPP Case Data (*.lcasedata)', '*.lcasedata'), ('All Files', '*')),
+                default_extension='.lcasedata', no_window=True)
             
             if destination_path and os.path.exists(destination_path):
                 case_data_load_error = None
