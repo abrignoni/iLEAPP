@@ -183,7 +183,10 @@ icon_mappings = \
     },
     'CONNECTED DEVICES': 'smartphone',
     'CONNECTED TO': 'zap',
-    'CONTACTS': 'user',
+    'CONTACTS': {
+        'BLOCKED CONTACTS': 'user-x',
+        'default': 'user',
+    },
     'CONTACT_LIST': 'users',  # TODO: can this use another category?
     'CONTROL CENTER': {
         'CONTROL CENTER - ACTIVE CONTROLS': 'sliders',
