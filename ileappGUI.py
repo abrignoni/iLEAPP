@@ -11,8 +11,8 @@ from scripts.search_files import *
 MODULE_START_INDEX = 1000
 
 def add_case_data(casedata):
-    casedata_font = ("Helvetica", 12)
-    casedata_layout = [
+    case_data_font = ("Helvetica", 12)
+    case_data_layout = [
         [sg.Text('Add Case Data', font=("Helvetica", 18))],
         [sg.Frame(layout=[
             [sg.Input(size=(80,1), key='Case Number', default_text=casedata.get('Case Number', ''))]], title='Case Number')],
@@ -21,42 +21,45 @@ def add_case_data(casedata):
         [sg.Frame(layout=[
             [sg.Input(size=(80,1), key='Examiner', default_text=casedata.get('Examiner', ''))]], title='Examiner')],
         [sg.Text('')],
-        [sg.Button('Load Case Data File', font=normal_font, key='LOADCASEDATA'), 
-         sg.Button('Save Case Data File', font=normal_font, key='SAVECASEDATA'), 
+        [sg.Button('Load Case Data File', font=normal_font, key='LOADCASEDATA'),
+         sg.Button('Save Case Data File', font=normal_font, key='SAVECASEDATA'),
+         sg.Text(' | ', font=("Helvetica", 14)),
+         sg.Button('Clear', font=normal_font, key='CLEAR'),
          sg.Button('Close', font=normal_font)]
         ]
     
-    case_data_window = sg.Window('Add Case Data', casedata_layout, font=casedata_font, keep_on_top=True)
+    case_data_window = sg.Window('Add Case Data', case_data_layout, font=case_data_font)
 
     while True:
-        casedata_event, casedata_values = case_data_window.read()
+        case_data_event, case_data_values = case_data_window.read()
 
-        if casedata_event in (None, 'Close'):
+        if case_data_event in (None, 'Close'):
             case_data_window.close()
-            return casedata_values
+            return case_data_values
 
-        if casedata_event == 'SAVECASEDATA':
-            case_data_window.KeepOnTop=False
-            case_data_window.Hide()
+        if case_data_event == 'CLEAR':
+            case_data_window['Case Number'].update('')
+            case_data_window['Agency'].update('')
+            case_data_window['Examiner'].update('')
+            continue
+
+        if case_data_event == 'SAVECASEDATA':
             destination_path = sg.popup_get_file(
                 "Save case data file", save_as=True,
                 file_types=(('iLEAPP Case Data (*.ilcasedata)', '*.ilcasedata'),),
                 default_extension='.ilcasedata', no_window=True, keep_on_top=True)
 
             if destination_path:
-                with open(destination_path, "wt", encoding="utf-8") as casedata_out:
-                    json.dump({"leapp": "case_data", "case_data_values": casedata_values}, casedata_out)
+                with open(destination_path, "wt", encoding="utf-8") as case_data_out:
+                    json.dump({"leapp": "case_data", "case_data_values": case_data_values}, case_data_out)
                 sg.Popup(f"Case Data saved: {destination_path}", title="Save Case Data")
                 case_data_window.close()    
             else:
-                case_data_window.UnHide()
                 continue
             
-            return casedata_values
+            return case_data_values
 
-        if casedata_event == 'LOADCASEDATA':
-            case_data_window.KeepOnTop=False
-            case_data_window.Hide()
+        if case_data_event == 'LOADCASEDATA':
             destination_path = sg.popup_get_file(
                 "Load case data", save_as=False,
                 file_types=(('iLEAPP Case Data (*.ilcasedata)', '*.ilcasedata'), ('All Files', '*')),
@@ -83,19 +86,12 @@ def add_case_data(casedata):
                 
                 if case_data_load_error:
                     sg.popup(case_data_load_error)
-                    case_data_window.UnHide()
                     continue
                 else:
                     sg.popup(f"Loaded Case Data: {destination_path}", title="Load Case Data")
-                    case_data_window.UnHide()
-                    continue
-            
+                    continue            
             else:
-                case_data_window.UnHide()
                 continue
-
-
-        
 
 def ValidateInput(values, window):
     '''Returns tuple (success, extraction_type)'''
@@ -322,11 +318,6 @@ while True:
             time_offset = values['timezone']
             if time_offset == '':
                 time_offset = 'UTC'
-            
-            # try:
-            #     casedata
-            # except NameError:
-            #     casedata = {}
             
             crunch_successful = ileapp.crunch_artifacts(
                 search_list, extracttype, input_path, out_params, len(loader)/s_items, wrap_text, loader, casedata, time_offset, profile_filename)
