@@ -14,7 +14,7 @@ from scripts.version_info import ileapp_version
 from time import process_time, gmtime, strftime, perf_counter
 
 def validate_args(args):
-    if args.artifact_paths or args.create_profile or args.create_case_data:
+    if args.artifact_paths or args.create_profile_casedata:
         return  # Skip further validation if --artifact_paths is used
 
     # Ensure other arguments are provided
@@ -53,8 +53,7 @@ def create_profile(available_plugins, path):
     parsers_in_profile = {}
     
     user_choice = ''
-    print('-' * 50)
-    print('Welcome to the iLEAPP Profile file creation\n')
+    print('--- iLEAPP Profile file creation ---\n')
     instructions = 'You can type:\n'
     instructions += '   - \'a\' to add or remove parsers in the profile file\n'
     instructions += '   - \'l\' to display the list of all available parsers with their number\n'
@@ -109,8 +108,10 @@ def create_profile(available_plugins, path):
                 with open(filename, "wt", encoding="utf-8") as profile_file:
                     json.dump({"leapp": "ileapp", "format_version": 1, "plugins": parsers}, profile_file)
                 print('\nProfile saved:', filename)
+                print()
             else:
                 print('No parser added. The profile file was not created.\n')
+                print()
             return
         else:
             print('Please enter a valid choice!!!\n')
@@ -118,8 +119,7 @@ def create_profile(available_plugins, path):
   
 def create_casedata(path):
     case_data_values = {}
-    print('-' * 50)
-    print('Welcome to the LEAPP Case Data file creation\n')
+    print('--- LEAPP Case Data file creation ---\n')
     print('Enter the following information:')
     case_data_values['Case Number'] = input("Case Number: ")
     case_data_values['Agency'] = input("Agency: ")
@@ -133,8 +133,9 @@ def create_casedata(path):
     with open(filename, "wt", encoding="utf-8") as case_data_file:
         json.dump({"leapp": "case_data", "case_data_values": case_data_values}, case_data_file)
     print('\nCase Data file saved:', filename)
+    print()
     return
-  
+
 def main():
     parser = argparse.ArgumentParser(description='iLEAPP: iOS Logs, Events, And Plists Parser.')
     parser.add_argument('-t', choices=['fs', 'tar', 'zip', 'gz', 'itunes'], required=False, action="store",
@@ -148,15 +149,12 @@ def main():
     parser.add_argument('-tz', '--timezone', required=False, action="store", default='UTC', type=str, help="Timezone name (e.g., 'America/New_York')")
     parser.add_argument('-w', '--wrap_text', required=False, action="store_false", default=True,
                         help='Do not wrap text for output of data files')
+    parser.add_argument('-m', '--load_profile', required=False, action="store", help="Path to iLEAPP Profile file (.ilprofile).")
     parser.add_argument('-d', '--load_case_data', required=False, action="store", help="Path to LEAPP Case Data file (.lcasedata).")
-    parser.add_argument('-p', '--load_profile', required=False, action="store", help="Path to iLEAPP Profile file (.ilprofile).")
-    parser.add_argument('-cp', '--create_profile', required=False, action="store",
-                        help=("Generate an iLEAPP Profile file (.ilprofile) into the specified path. "
+    parser.add_argument('-c', '--create_profile_casedata', required=False, action="store",
+                        help=("Generate an iLEAPP Profile file (.ilprofile) or LEAPP Case Data file (.lcasedata) into the specified path. "
                               "This argument is meant to be used alone, without any other arguments."))
-    parser.add_argument('-cd', '--create_case_data', required=False, action="store",
-                        help=("Generate a LEAPP Case Data file (.lcasedata) into the specified path. "
-                              "This argument is meant to be used alone, without any other arguments."))
-    parser.add_argument('-a', '--artifact_paths', required=False, action="store_true",
+    parser.add_argument('-p', '--artifact_paths', required=False, action="store_true",
                         help=("Generate a text file list of artifact paths. "
                               "This argument is meant to be used alone, without any other arguments."))
 
@@ -171,7 +169,6 @@ def main():
     if lastbuild_index != -1:
         available_plugins.insert(0, available_plugins.pop(lastbuild_index))
 
-    print(f"Info: {len(available_plugins)} plugins loaded.")
     selected_plugins = available_plugins.copy()
 
     args = parser.parse_args()
@@ -197,20 +194,32 @@ def main():
         print('Artifact path list generation completed')
         return
 
-    if args.create_profile:
-        if os.path.isdir(args.create_profile):
-            create_profile(selected_plugins, args.create_profile)
-            return
+    if args.create_profile_casedata:
+        if os.path.isdir(args.create_profile_casedata):
+            create_choice = ''
+            print('-' * 55)
+            print('Welcome to iLEAP Profile or Case Data file creation\n')
+            instructions = 'You can type:\n'
+            instructions += '   - \'1\' to create an iLEAPP Profile file (.ilprofile)\n'
+            instructions += '   - \'2\' to create a LEAPP Case Data file (.lcasedata)\n'
+            instructions += '   - \'q\' to quit\n'
+            while not create_choice:
+                print(instructions)
+                create_choice = input('Please enter your choice: ').lower()
+                print()
+                if create_choice == '1':
+                    create_profile(selected_plugins, args.create_profile_casedata)
+                    create_choice = ''
+                elif create_choice == '2':
+                    create_casedata(args.create_profile_casedata)
+                    create_choice = ''
+                elif create_choice == 'q':
+                    return
+                else:
+                    print('Please enter a valid choice!!!\n')
+                    create_choice = ''
         else:
             print('OUTPUT folder for storing iLEAPP Profile file does not exist!\nRun the program again.')
-            return
-
-    if args.create_case_data:
-        if os.path.isdir(args.create_case_data):
-            create_casedata(args.create_case_data)
-            return
-        else:
-            print('OUTPUT folder for storing LEAPP Case Data file does not exist!\nRun the program again.')
             return
 
     if args.load_case_data:
@@ -278,6 +287,7 @@ def main():
         if output_path[1] == ':': output_path = '\\\\?\\' + output_path.replace('/', '\\')
 
     out_params = OutputParameters(output_path)
+    print(f"Info: {len(available_plugins)} plugins loaded.")
 
     crunch_artifacts(selected_plugins, extracttype, input_path, out_params, 1, wrap_text, loader, casedata, time_offset, profile_filename)
 
