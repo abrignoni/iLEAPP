@@ -102,7 +102,7 @@ def ValidateInput(values, window):
     ext_type = ''
 
     if len(i_path) == 0:
-        sg.PopupError('No INPUT file or folder selected!', title="Save Case Data")
+        sg.PopupError('No INPUT file or folder selected!', title="Error")
         return False, ext_type
     elif not os.path.exists(i_path):
         sg.PopupError('INPUT file/folder does not exist!', title="Error")
