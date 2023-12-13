@@ -26,7 +26,7 @@ def get_applicationstate(files_found, report_folder, seeker, wrap_text, timezone
     for file_found in files_found:
         file_found = str(file_found)
     
-        if file_found.endswith('/applicationState.db'):
+        if file_found.endswith('applicationState.db'):
             break
 
     db = open_sqlite_db_readonly(file_found)

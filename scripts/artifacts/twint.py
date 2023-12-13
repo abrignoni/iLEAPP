@@ -23,7 +23,7 @@ def get_twint(files_found, report_folder, seeker, wrap_text, time_offset):
     for file_found in files_found:
         file_found = str(file_found)
     
-        if file_found.endswith('/Twint.sqlite'):
+        if file_found.endswith('Twint.sqlite'):
             break
 
     db = open_sqlite_db_readonly(file_found)

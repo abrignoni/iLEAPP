@@ -23,7 +23,7 @@ def get_serialNumber(files_found, report_folder, seeker, wrap_text, timezone_off
     for file_found in files_found:
         file_found = str(file_found)
         
-        if file_found.endswith('/consolidated.db'):
+        if file_found.endswith('consolidated.db'):
             break
     
     db = open_sqlite_db_readonly(file_found)
