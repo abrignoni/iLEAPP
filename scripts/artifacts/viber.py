@@ -48,7 +48,7 @@ def get_viber(files_found, report_folder, seeker, wrap_text, timezone_offset):
 			logfunc("Viber parsing has not be tested on this iOS " + iOSversion + " version. Please contact @theAtropos4n6 for resolving this issue.")
 
 		if version.parse(iOSversion) >= version.parse("14"):
-			if file_found.endswith('/Settings.data'):
+			if file_found.endswith('Settings.data'):
 				db = open_sqlite_db_readonly(file_found)
 				cursor = db.cursor()
 				cursor.execute('''
@@ -181,7 +181,7 @@ def get_viber(files_found, report_folder, seeker, wrap_text, timezone_offset):
 		
 				db.close()
 
-			elif file_found.endswith('/Contacts.data'):
+			elif file_found.endswith('Contacts.data'):
 
 				db = open_sqlite_db_readonly(file_found)
 				cursor = db.cursor()

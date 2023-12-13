@@ -24,7 +24,7 @@ def get_voicemail(files_found, report_folder, seeker, wrap_text, timezone_offset
                    if basename(dirname(file)) == "Voicemail"]
 
     for file_found in files_found:
-        if file_found.endswith('/voicemail.db'):
+        if file_found.endswith('voicemail.db'):
             voicemail_db = str(file_found)
 
             db = open_sqlite_db_readonly(voicemail_db)

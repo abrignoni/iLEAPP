@@ -22,7 +22,7 @@ def get_knowledgeC_data(files_found, report_folder, seeker, wrap_text, timezone_
     for file_found in files_found:
         file_found = str(file_found)
 
-        if file_found.endswith('/knowledgeC.db'):
+        if file_found.endswith('knowledgeC.db'):
             break
 
     db = open_sqlite_db_readonly(file_found)
