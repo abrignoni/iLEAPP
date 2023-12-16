@@ -1,9 +1,9 @@
 import os
-import magic
 import datetime
 import scripts.artifacts.artGlobals
 
 from packaging import version
+from scripts.filetype import guess_mime
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, logdevinfo, timeline, tsv, is_platform_windows, open_sqlite_db_readonly, media_to_html
 
@@ -22,7 +22,7 @@ def get_fsCachedData(files_found, report_folder, seeker, wrap_text, timezone_off
         #ext = (mime.split('/')[1])
             
         if os.path.isfile(file_found):
-            mime = magic.from_file(file_found, mime=True)
+            mime = guess_mime(file_found)
             media = media_to_html(file_found, files_found, report_folder)
             data_list.append((utc_modified_date, media, mime, filename, file_found))
         
