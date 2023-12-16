@@ -2,7 +2,6 @@ import os
 from datetime import datetime
 import pytz
 import json
-import magic
 import shutil
 import base64
 from PIL import Image

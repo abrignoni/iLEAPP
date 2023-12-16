@@ -17,10 +17,6 @@ pycryptodome
 pyinstaller
 PySimpleGUI==4.16.0
 pyliblzfse
-python-magic==0.4.24; platform_system == "Linux"
-python-magic-bin==0.4.14; platform_system == "Windows"
-python-magic-bin==0.4.14; platform_system == "Darwin"
-python-magic; platform_system == "Darwin" and platform_machine == "arm64"
 pytz
 simplekml
 
