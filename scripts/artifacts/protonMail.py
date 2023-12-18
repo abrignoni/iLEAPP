@@ -7,7 +7,7 @@ import ccl_bplist
 import sqlite3
 import hashlib
 import random
-import magic
+from scripts.filetype import guess_mime
 from base64 import b64encode, b64decode
 from datetime import datetime
 from io import BytesIO
@@ -225,7 +225,7 @@ def get_protonMail(files_found, report_folder, seeker, wrap_text, timezone_offse
           
           attpath = decrypt_attachment(proton_path, out_path, key, pwdKey, row[14], encfilename, ZFILENAME)
           
-          mimetype = magic.from_file(attpath, mime = True)
+          mimetype = guess_mime(attpath)
           
           if 'video' in mimetype:
             attpath = f'<video width="320" height="240" controls="controls"><source src="{attpath}" type="video/mp4">Your browser does not support the video tag.</video>'

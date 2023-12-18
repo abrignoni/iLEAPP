@@ -37,7 +37,7 @@ def get_telegramMessages(files_found, report_folder, seeker, wrap_text, timezone
     for file_found in files_found:
         file_found = str(file_found)
         
-        if (file_found.endswith('/db_sqlite')) and ('media' not in file_found):
+        if (file_found.endswith('db_sqlite')) and ('media' not in file_found):
             data_list= []
             
             class byteutil:

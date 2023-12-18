@@ -12,10 +12,10 @@ from functools import lru_cache
 from pathlib import Path
 
 # common third party imports
-import magic
 import pytz
 import simplekml
 from bs4 import BeautifulSoup
+from scripts.filetype import guess_mime
 
 # LEAPP version unique imports
 import binascii
@@ -482,7 +482,7 @@ def media_to_html(media_path, files_found, report_folder):
             source = Path(locationfiles, filename)
             source = relative_paths(str(source), splitter)
 
-        mimetype = magic.from_file(match, mime=True)
+        mimetype = guess_mime(match)
 
         if 'video' in mimetype:
             thumb = f'<video width="320" height="240" controls="controls"><source src="{source}" type="video/mp4" preload="none">Your browser does not support the video tag.</video>'

@@ -22,7 +22,7 @@ def get_accs(files_found, report_folder, seeker, wrap_text, timezone_offset):
     for file_found in files_found:
         file_found = str(file_found)
     
-        if file_found.endswith('/Accounts3.sqlite'):
+        if file_found.endswith('Accounts3.sqlite'):
             break
 
     db = open_sqlite_db_readonly(file_found)
