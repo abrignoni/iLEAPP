@@ -726,6 +726,7 @@ icon_mappings = \
     'SNAPCHAT RETURNS': 'camera',
     'SQLITE JOURNALING': 'book-open',
     'STRAVA': 'map',
+    'SYNCED DEVICES': 'refresh-cw',
     'TEAMS': {  # TODO: align I & A artifacts since theres a 'microsoft teams' also
         'TEAMS MESSAGES': 'message-circle',
         'TEAMS USERS': 'users',

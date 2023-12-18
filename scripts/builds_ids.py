@@ -1934,6 +1934,7 @@ OS_build = {
     "23C5047e": "macOS 14.2 beta 3",
     "23C5055b": "macOS 14.2 beta 4",
     "23C63": "macOS 14.2 RC",
+    "23C64": "macOS 14.2",
     "12S507": "watchOS 1.0",
     "12S632": "watchOS 1.0.1",
     "13S5254w": "watchOS 2.0 beta 1",
@@ -2432,6 +2433,13 @@ device_id = {
     "iPhone16,2": "iPhone 15 Pro Max",
 }
 
+platforms = {
+    1:"iPad",
+    2:"iPhone",
+    3:"macOS",
+    4:"macOS",
+    6:"watchOS"
+}
 
 def get_root_path_from_domain(domain):
     if domain in domains:
