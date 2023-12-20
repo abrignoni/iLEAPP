@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 
+from . import application
 from . import archive
 from . import audio
-from . import application
 from . import document
 from . import font
 from . import image
+from . import text
 from . import video
 from .base import Type  # noqa
 
@@ -112,6 +113,12 @@ DOCUMENT = (
     document.Odp(),
 )
 
+# Supported text types
+TEXT = (
+    text.Json(),
+    text.Plist(),
+)
+
 
 # Expose supported type matchers
-TYPES = list(IMAGE + AUDIO + VIDEO + FONT + DOCUMENT + ARCHIVE + APPLICATION)
+TYPES = list(IMAGE + AUDIO + VIDEO + FONT + DOCUMENT + ARCHIVE + APPLICATION + TEXT)
