@@ -10,6 +10,7 @@ def get_syncDev(files_found, report_folder, seeker, wrap_text, timezone_offset):
         
         if file_found.endswith('sync.db'):
             db = open_sqlite_db_readonly(file_found)
+            db.row_factory = sqlite3.Row 
             cursor = db.cursor()
             cursor.execute('''
             Select * from DevicePeer
@@ -22,24 +23,23 @@ def get_syncDev(files_found, report_folder, seeker, wrap_text, timezone_offset):
         data_list = []
         
         for row in all_rows:
-            guid = row[0]
-            ids_device_id = row[1]
-            me = row[2]
-            name = row[3]
-            model = row[4]
-            platform = row[5]
-            lastsyncdate = row[6]
+            guid = row['device_identifier']
+            me = row['me']
+            name = row['name']
+            model = row['model']
+            platform = row['platform']
+            lastsyncdate = row['last_sync_date']
             
             platformtext = scripts.builds_ids.platforms.get(platform)
             modeltext = scripts.builds_ids.OS_build.get(model)
-            data_list.append((lastsyncdate,guid,model,modeltext,platform,platformtext,ids_device_id,me,name))
+            data_list.append((lastsyncdate,guid,model,modeltext,platform,platformtext,me,name))
             
         
         description = 'Under the Me column a 1 means remote and a 0 means local.'
         report = ArtifactHtmlReport('Sync.db - Devices')
         report.start_artifact_report(report_folder, 'Sync.db - Devices', description)
         report.add_script()
-        data_headers = ('Last Sync Date','GUID','Model','Model Text','Platform','Platform Text','IDs device ID','Me','Name' )     
+        data_headers = ('Last Sync Date','GUID','Model','Model Text','Platform','Platform Text','Me','Name' )     
         report.write_artifact_data_table(data_headers, data_list, file_found, html_no_escape=['Media'])
         report.end_artifact_report()
         
