@@ -125,7 +125,7 @@ def ValidateInput(values, window):
 
     one_element_is_selected = False
     for x in range(1000, module_end_index):
-        if window.FindElement(x).Get():
+        if window[x].Get():
             one_element_is_selected = True
             break
     if not one_element_is_selected:
@@ -200,7 +200,7 @@ layout = [  [sg.Text('iOS Logs, Events, And Plists Parser', font=("Helvetica", 2
                     sg.Text('Timezone Offset:', font=("Helvetica", 14)),
                     sg.Combo(list(tzvalues), size=(20,15), key='timezone',readonly=True)
             ],
-            [sg.Column(mlist, size=(300,310), scrollable=True), sg.Output(size=(85,20))],
+            [sg.Column(mlist, size=(300,310), scrollable=True), sg.Output(size=(85,29))],
             [sg.ProgressBar(max_value=GuiWindow.progress_bar_total, orientation='h', size=(86, 7), key='PROGRESSBAR', bar_color=('DarkGreen', 'White'))],
             [sg.Submit('Process', font=normal_font), sg.Button('Close', font=normal_font)] ]
             
@@ -235,7 +235,7 @@ while True:
         if destination_path:
             ticked = []
             for x in range(MODULE_START_INDEX, module_end_index):
-                if window.FindElement(x).Get():
+                if window[x].Get():
                     key = window[x].metadata
                     ticked.append(key)
             with open(destination_path, "wt", encoding="utf-8") as profile_out:
@@ -300,7 +300,7 @@ while True:
 
             s_items = 0
             for x in range(MODULE_START_INDEX, module_end_index):
-                if window.FindElement(x).Get():
+                if window[x].Get():
                     key = window[x].metadata
                     if key in loader and key != 'lastbuild':
                         search_list.append(loader[key])
