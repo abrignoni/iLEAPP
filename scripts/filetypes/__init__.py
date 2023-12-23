@@ -117,6 +117,7 @@ DOCUMENT = (
 TEXT = (
     text.Json(),
     text.Plist(),
+    text.Html(),
 )
 
 
