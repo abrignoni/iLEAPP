@@ -1032,7 +1032,8 @@ def create_index_html(reportfolderbase, time_in_secs, time_HMS, extraction_type,
 
     if len(casedata) > 0:
         for key, value in casedata.items():
-            case_list.append([key, value])
+            if value:
+                case_list.append([key, value])
     
     case_list += [
         ['Extraction location', image_input_path],
