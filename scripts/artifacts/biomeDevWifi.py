@@ -5,9 +5,9 @@ from datetime import *
 from time import mktime
 from io import StringIO
 from io import BytesIO
+from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ccl import ccl_segb1
 from scripts.ccl import ccl_segb2
-from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, convert_utc_human_to_timezone, timestampsconv, convert_ts_int_to_utc
 
 def utf8_in_extended_ascii(input_string, *, raise_on_unexpected=False):
@@ -77,10 +77,10 @@ def checksegbv(in_path):
         return (False)
     else:
         return (True)
+    
+def get_biomeDevWifi(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
-def get_biomeWifi(files_found, report_folder, seeker, wrap_text, timezone_offset):
-
-    typess = {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'bytes', 'name': ''}, '2': {'type': 'message', 'message_typedef': {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''}}, 'name': ''}}, 'name': ''}, '2': {'type': 'double', 'name': ''}, '3': {'type': 'double', 'name': ''}, '4': {'type': 'message', 'message_typedef': {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''}}, 'name': ''}, '3': {'type': 'bytes', 'message_typedef': {'8': {'type': 'fixed64', 'name': ''}}, 'name': ''}}, 'name': ''}, '5': {'type': 'bytes', 'name': ''}, '8': {'type': 'fixed64', 'name': ''}, '10': {'type': 'int', 'name': ''}}
+    typess = {'1': {'type': 'bytes', 'message_typedef': {'8': {'type': 'fixed64', 'name': ''}}, 'name': ''}, '2': {'type': 'int', 'name': ''}}
     
 
     for file_found in files_found:
@@ -97,6 +97,7 @@ def get_biomeWifi(files_found, report_folder, seeker, wrap_text, timezone_offset
             continue
         
         data_list = []
+        
         if (checksegbv(file_found)): #SEGB v2
             for record in ccl_segb2.read_segb2_file(file_found):
                 offset = record.data_start_offset
@@ -108,20 +109,15 @@ def get_biomeWifi(files_found, report_folder, seeker, wrap_text, timezone_offset
                 
                 if state == 'Written':
                     
-                    protostuff, types = blackboxprotobuf.decode_message(data[8:],typess)
-                    timestart = (timestampsconv(protostuff['2']))
-                    #timeend = (timestampsconv(protostuff['3']))
-                    #timeend = convert_ts_int_to_utc(timeend)
-                    event = protostuff['1']['1']
-                    guid = protostuff['5'].decode()
-                    device = protostuff['4'].get('3','')
-                    if device != '':
-                        device = device.decode()
-                        
-                    data_list.append((ts, timestart, offset, metadata_offset, event, device, guid))
+                    protostuff, types = blackboxprotobuf.decode_message(data[8:], typess)
+                    wifi = protostuff['1'].decode()
+                    data_list.append((ts, offset, metadata_wifi, wifi))
                     
-                else:
+                else: #Deleted
+                    #print(ts, offset, metadata_offset, state)
                     pass
+                
+                
         else: #SEGB v1
             for record in ccl_segb1.read_segb1_file(file_found):
                 offset = record.data_start_offset
@@ -139,40 +135,34 @@ def get_biomeWifi(files_found, report_folder, seeker, wrap_text, timezone_offset
                 if state == 'Written':
                     
                     protostuff, types = blackboxprotobuf.decode_message(data,typess)
-                    timestart = (timestampsconv(protostuff['2']))
-                    #timeend = (timestampsconv(protostuff['3']))
-                    #timeend = convert_ts_int_to_utc(timeend)
-                    event = protostuff['1']['1']
-                    guid = protostuff['5'].decode()
-                    device = protostuff['4'].get('3','')
-                    if device != '':
-                        device = device.decode()
-                        
-                    data_list.append((ts1, timestart, offset, '', event, device, guid))
-        
+                    wifi = protostuff['1'].decode()
+                    data_list.append((ts1, offset,'',wifi))
+                else:
+                    pass
+                    
         if len(data_list) > 0:
         
             description = ''
-            report = ArtifactHtmlReport(f'Biome WIFI')
-            report.start_artifact_report(report_folder, f'Biome WIFI - {filename}', description)
+            report = ArtifactHtmlReport(f'Biome Device WIFI')
+            report.start_artifact_report(report_folder, f'Biome Device WIFI - {filename}', description)
             report.add_script()
-            data_headers = ('Timestamp Written','Timestamp', 'Offset', 'Metadata Offset','Event', 'Device', 'GUID')
+            data_headers = ('Timestamp','Offset','Metadata Offset','WiFi')
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
             
-            tsvname = f'Biome WIFI - {filename}'
+            tsvname = f'Biome Device WIFI - {filename}'
             tsv(report_folder, data_headers, data_list, tsvname) # TODO: _csv.Error: need to escape, but no escapechar set
             
-            tlactivity = f'Biome WIFI - {filename}'
+            tlactivity = f'Biome Device WIFI - {filename}'
             timeline(report_folder, tlactivity, data_list, data_headers)
             
         else:
-            logfunc(f'No data available for Biome WIFI')
+            logfunc(f'No data available for Biome Device WIFI')
     
 
 __artifacts__ = {
-    "biomeWifi": (
-        "Biome WIFI",
-        ('*/Biome/streams/restricted/_DKEvent.Wifi.Connection/local/*'),
-        get_biomeWifi)
+    "biomeDevWifi": (
+        "Biome Device WIFI",
+        ('*/Biome/streams/restricted/Device.Wireless.WiFi/local/*'),
+        get_biomeDevWifi)
 }
