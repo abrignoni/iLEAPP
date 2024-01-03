@@ -78,7 +78,7 @@ def checksegbv(in_path):
     else:
         return (True)
 
-def get_biomeWifi(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def get_biomeAirpMode(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
     typess = {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'bytes', 'name': ''}, '2': {'type': 'message', 'message_typedef': {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''}}, 'name': ''}}, 'name': ''}, '2': {'type': 'double', 'name': ''}, '3': {'type': 'double', 'name': ''}, '4': {'type': 'message', 'message_typedef': {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''}}, 'name': ''}, '3': {'type': 'bytes', 'message_typedef': {'8': {'type': 'fixed64', 'name': ''}}, 'name': ''}}, 'name': ''}, '5': {'type': 'bytes', 'name': ''}, '8': {'type': 'fixed64', 'name': ''}, '10': {'type': 'int', 'name': ''}}
     
@@ -114,11 +114,8 @@ def get_biomeWifi(files_found, report_folder, seeker, wrap_text, timezone_offset
                     #timeend = convert_ts_int_to_utc(timeend)
                     event = protostuff['1']['1']
                     guid = protostuff['5'].decode()
-                    device = protostuff['4'].get('3','')
-                    if device != '':
-                        device = device.decode()
-                        
-                    data_list.append((ts, timestart, offset, metadata_offset, event, device, guid))
+                    
+                    data_list.append((ts, timestart, offset, metadata_offset, event, guid))
                     
                 else:
                     pass
@@ -142,37 +139,34 @@ def get_biomeWifi(files_found, report_folder, seeker, wrap_text, timezone_offset
                     timestart = (timestampsconv(protostuff['2']))
                     #timeend = (timestampsconv(protostuff['3']))
                     #timeend = convert_ts_int_to_utc(timeend)
-                    event = protostuff['1']['1']
+                    event = protostuff['1']['1'].decode()
                     guid = protostuff['5'].decode()
-                    device = protostuff['4'].get('3','')
-                    if device != '':
-                        device = device.decode()
                         
-                    data_list.append((ts1, timestart, offset, '', event, device, guid))
+                    data_list.append((ts1, timestart, offset, '', event, guid))
         
         if len(data_list) > 0:
         
             description = ''
-            report = ArtifactHtmlReport(f'Biome WIFI')
-            report.start_artifact_report(report_folder, f'Biome WIFI - {filename}', description)
+            report = ArtifactHtmlReport(f'Biome Airplane Mode')
+            report.start_artifact_report(report_folder, f'Biome Airplane Mode - {filename}', description)
             report.add_script()
-            data_headers = ('Timestamp Written','Timestamp', 'Offset', 'Metadata Offset','Event', 'Device', 'GUID')
+            data_headers = ('Timestamp Written','Timestamp', 'Offset', 'Metadata Offset','Event', 'GUID')
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
             
-            tsvname = f'Biome WIFI - {filename}'
+            tsvname = f'Biome Airplane Mode - {filename}'
             tsv(report_folder, data_headers, data_list, tsvname) # TODO: _csv.Error: need to escape, but no escapechar set
             
-            tlactivity = f'Biome WIFI - {filename}'
+            tlactivity = f'Biome Airplane Mode - {filename}'
             timeline(report_folder, tlactivity, data_list, data_headers)
             
         else:
-            logfunc(f'No data available for Biome WIFI')
+            logfunc(f'No data available for Biome Airplane Mode')
     
 
 __artifacts__ = {
-    "biomeWifi": (
-        "Biome WIFI",
-        ('*/Biome/streams/restricted/_DKEvent.Wifi.Connection/local/*'),
-        get_biomeWifi)
+    "biomeAirpMode": (
+        "Biome Airplane Mode",
+        ('*/Biome/streams/restricted/_DKEvent.System.AirplaneMode/local/*'),
+        get_biomeAirpMode)
 }
