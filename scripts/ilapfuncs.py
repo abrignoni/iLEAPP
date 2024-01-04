@@ -483,6 +483,8 @@ def media_to_html(media_path, files_found, report_folder):
             source = relative_paths(str(source), splitter)
 
         mimetype = guess_mime(match)
+        if mimetype == None:
+            mimetype = ''
 
         if 'video' in mimetype:
             thumb = f'<video width="320" height="240" controls="controls"><source src="{source}" type="video/mp4" preload="none">Your browser does not support the video tag.</video>'
