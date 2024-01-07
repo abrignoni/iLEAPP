@@ -228,8 +228,8 @@ def main():
         with open(case_data_filename, "rt", encoding="utf-8") as case_data_file:
             try:
                 case_data = json.load(case_data_file)
-            except json.JSONDecodeError as json_ex:
-                case_data_load_error = f"File was not a valid case data file: {json_ex}"
+            except:
+                case_data_load_error = "File was not a valid case data file: invalid format"
                 print(case_data_load_error)
                 return
 
@@ -253,8 +253,8 @@ def main():
         with open(profile_filename, "rt", encoding="utf-8") as profile_file:
             try:
                 profile = json.load(profile_file)
-            except json.JSONDecodeError as json_ex:
-                profile_load_error = f"File was not a valid profile file: {json_ex}"
+            except:
+                profile_load_error = "File was not a valid case data file: invalid format"
                 print(profile_load_error)
                 return
 

@@ -86,9 +86,17 @@ def get_birthdate(date):
     utc_date = datetime.utcfromtimestamp(ns_date)
     return utc_date.strftime('%d %B %Y') if utc_date.year != 1604 else utc_date.strftime('%d %B')
 
+def is_platform_linux():
+    '''Returns True if running on Linux'''
+    return sys.platform == 'linux'
+
+def is_platform_macos():
+    '''Returns True if running on macOS'''
+    return sys.platform == 'darwin'
+
 def is_platform_windows():
     '''Returns True if running on Windows'''
-    return os.name == 'nt'
+    return sys.platform == 'win32'
 
 def utf8_in_extended_ascii(input_string, *, raise_on_unexpected=False):
     """Returns a tuple of bool (whether mis-encoded utf-8 is present) and str (the converted string)"""

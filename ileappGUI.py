@@ -161,6 +161,14 @@ sg.theme('DarkAmber')   # Add a touch of color
 # All the stuff inside your window.
 
 normal_font = ("Helvetica", 12)
+
+if is_platform_macos():
+    log_window_height = 29
+elif is_platform_linux():
+    log_window_height = 23
+else:
+    log_window_height = 20
+
 loader: typing.Optional[plugin_loader.PluginLoader] = None
 mlist = []
 # go through list of available modules and confirm they exist on the disk
@@ -200,7 +208,7 @@ layout = [  [sg.Text('iOS Logs, Events, And Plists Parser', font=("Helvetica", 2
                     sg.Text('Timezone Offset:', font=("Helvetica", 14)),
                     sg.Combo(list(tzvalues), size=(20,15), key='timezone',readonly=True)
             ],
-            [sg.Column(mlist, size=(300,310), scrollable=True), sg.Output(size=(85,29))],
+            [sg.Column(mlist, size=(300,310), scrollable=True), sg.Output(size=(85,log_window_height))],
             [sg.ProgressBar(max_value=GuiWindow.progress_bar_total, orientation='h', size=(86, 7), key='PROGRESSBAR', bar_color=('DarkGreen', 'White'))],
             [sg.Submit('Process', font=normal_font), sg.Button('Close', font=normal_font)] ]
             
