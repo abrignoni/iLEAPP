@@ -739,7 +739,12 @@ icon_mappings = \
     },
     'TANGO': 'message-square',
     'TELEGRAM': 'message-square',
-    'TELEGUARD': 'message-square',
+    'TELEGUARD': {
+        'TELEGUARD CONTACTS': 'users',
+        'TELEGUARD MESSAGES': 'message-square',
+        'TELEGUARD POSTS': 'at-sign',
+        'TELEGUARD CHANNELS': 'home',
+    },
     'TELEMATICS': {
         'GPS DETAIL': 'map-pin',
         'WDWSTATUS REPORT': 'map-pin',
@@ -1159,4 +1164,5 @@ def mark_item_active(data, itemname):
     else:
         ret = data[0: pos] + " active" + data[pos:]
         return ret
+    
     
