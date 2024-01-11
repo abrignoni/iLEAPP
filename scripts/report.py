@@ -739,6 +739,7 @@ icon_mappings = \
     },
     'TANGO': 'message-square',
     'TELEGRAM': 'message-square',
+    'TELEGUARD': 'message-square',
     'TELEMATICS': {
         'GPS DETAIL': 'map-pin',
         'WDWSTATUS REPORT': 'map-pin',
