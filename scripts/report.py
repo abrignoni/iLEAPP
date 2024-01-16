@@ -544,6 +544,10 @@ icon_mappings = \
         'LINE - MESSAGES': 'message-square',
         'LINE - CALL LOGS': 'phone',
     },
+    'LIFE360': {
+        'LIFE360 - DEVICE BATTERY': 'battery',
+        'LIFE360 - LOCATIONS': 'map-pin',
+    },
     'LOCATION SERVICES CONFIGURATIONS': 'settings',
     'LOCATIONS': {
         'APPLE MAPS SEARCH HISTORY': 'search',
