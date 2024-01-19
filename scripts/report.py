@@ -545,8 +545,10 @@ icon_mappings = \
         'LINE - CALL LOGS': 'phone',
     },
     'LIFE360': {
+        'LIFE360 - CHAT MESSAGES': 'message-circle',
         'LIFE360 - DEVICE BATTERY': 'battery',
         'LIFE360 - LOCATIONS': 'map-pin',
+        'LIFE360 - MEMBERS': 'users',
     },
     'LOCATION SERVICES CONFIGURATIONS': 'settings',
     'LOCATIONS': {
