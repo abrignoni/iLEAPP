@@ -10,7 +10,7 @@ def get_slack(files_found, report_folder, seeker, wrap_text, timezone_offset):
     for file_found in files_found:
         file_found = str(file_found)
         
-        if file_found.endswith('main_db'):
+        if file_found.endswith('main_db') or file_found.endswith('db.sqlite'):
             break
         
         else:
@@ -482,7 +482,7 @@ def get_slack(files_found, report_folder, seeker, wrap_text, timezone_offset):
 __artifacts__ = {
     "slack": (
         "Slack",
-        ('*/mobile/Containers/Data/Application/*/Library/Application Support/Slack/*/*/main_db*'),
+        ('*/mobile/Containers/Data/Application/*/Library/Application Support/Slack/*/*/main_db*','*/mobile/Containers/Shared/AppGroup/*/*/ModelDatabase/db.sqlite*'),
         get_slack)
 }
     
