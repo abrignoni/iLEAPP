@@ -98,47 +98,49 @@ def get_notificationsDuet(files_found, report_folder, seeker, wrap_text, timezon
             continue
         data_list = []
         if (checksegbv(file_found)): #SEGB v2
-            
-            for record in ccl_segb2.read_segb2_file(file_found):
-                offset = record.data_start_offset
-                metadata_offset = record.metadata.metadata_offset
-                state = record.metadata.state.name
-                ts = record.metadata.creation
-                ts = ts.replace(tzinfo=timezone.utc)
-                data = record.data
-                
-                if state == 'Written':
+            try:
+                for record in ccl_segb2.read_segb2_file(file_found):
+                    offset = record.data_start_offset
+                    metadata_offset = record.metadata.metadata_offset
+                    state = record.metadata.state.name
+                    ts = record.metadata.creation
+                    ts = ts.replace(tzinfo=timezone.utc)
+                    data = record.data
                     
-                    protostuff, types = blackboxprotobuf.decode_message(data[8:])
-                
-                    key2 = (protostuff['1']['2']).decode('latin-1')
-                    key3 = (protostuff['1'].get('3'))
-                    try:
-                        if key3 is not None:
-                            key3 = key3.decode('latin-1')
-                            key3 = utf8_in_extended_ascii(key3)[1]
-                    except:
-                        pass
-                    key5 = (protostuff['1'].get('5'))
-                    try:
-                        if key5 is not None:
-                            key5 = key5.decode('latin-1')
-                            key5 = utf8_in_extended_ascii(key5)[1]
-                    except:
-                        pass
+                    if state == 'Written':
                         
-                    key8 = (protostuff['1'].get('8')).decode('latin-1')
-                    key10 = (protostuff['1'].get('10'))
-                    try:
-                        if key10 is not None:
-                            key10 = key10.decode('latin-1')
-                            key10 = utf8_in_extended_ascii(key10)[1]
-                    except:
-                        pass
-                    key12 = (protostuff['1'].get('12')).decode('latin-1')
-                    allproto = protostuff
+                        protostuff, types = blackboxprotobuf.decode_message(data[8:])
                     
-                    data_list.append((ts,offset,metadata_offset,key2,key3,key5,key8,key10,key12,protostuff))
+                        key2 = (protostuff['1']['2']).decode('latin-1')
+                        key3 = (protostuff['1'].get('3'))
+                        try:
+                            if key3 is not None:
+                                key3 = key3.decode('latin-1')
+                                key3 = utf8_in_extended_ascii(key3)[1]
+                        except:
+                            pass
+                        key5 = (protostuff['1'].get('5'))
+                        try:
+                            if key5 is not None:
+                                key5 = key5.decode('latin-1')
+                                key5 = utf8_in_extended_ascii(key5)[1]
+                        except:
+                            pass
+                            
+                        key8 = (protostuff['1'].get('8')).decode('latin-1')
+                        key10 = (protostuff['1'].get('10'))
+                        try:
+                            if key10 is not None:
+                                key10 = key10.decode('latin-1')
+                                key10 = utf8_in_extended_ascii(key10)[1]
+                        except:
+                            pass
+                        key12 = (protostuff['1'].get('12')).decode('latin-1')
+                        allproto = protostuff
+                        
+                        data_list.append((ts,offset,metadata_offset,key2,key3,key5,key8,key10,key12,protostuff))
+            except ValueError as ve:
+                logfunc(f'Error on file {filename}: {ve}')
             
             if len(data_list) > 0:
                 
@@ -153,7 +155,7 @@ def get_notificationsDuet(files_found, report_folder, seeker, wrap_text, timezon
                 tsvname = f'Notifications Duet SEGB v2 - {filename}'
                 tsv(report_folder, data_headers, data_list, tsvname) # TODO: _csv.Error: need to escape, but no escapechar set
             else:
-                logfunc(f'No data available for Notifications Duet SEGB v2')
+                logfunc(f'No data available for Notifications Duet SEGB v2 on {filename}')
                 
         else: #SEGB v1
         
