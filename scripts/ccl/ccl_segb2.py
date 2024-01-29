@@ -33,7 +33,7 @@ import dataclasses
 import typing
 import datetime
 
-__version__ = "0.2"
+__version__ = "0.3"
 __description__ = "A python module to read SEGB v2 files found on iOS, macOS etc."
 __contact__ = "Alex Caithness"
 
@@ -46,6 +46,7 @@ COCOA_EPOCH = datetime.datetime(2001, 1, 1, 0, 0, 0)
 class EntryState(enum.IntEnum):
     Written = 1
     Deleted = 3
+    Unknown = 4
 
 
 @dataclasses.dataclass(frozen=True)
