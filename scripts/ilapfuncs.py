@@ -64,6 +64,19 @@ def convert_utc_human_to_timezone(utc_time, time_offset):
     #return the converted value
     return timezone_time
 
+def convert_ts_int_to_timezone(time, time_offset):
+    #convert ts_int_to_utc_human
+    utc_time = convert_ts_int_to_utc(time)
+
+    #fetch the timezone information
+    timezone = pytz.timezone(time_offset)
+    
+    #convert utc to timezone
+    timezone_time = utc_time.astimezone(timezone)
+    
+    #return the converted value
+    return timezone_time
+
 def timestampsconv(webkittime):
     unix_timestamp = webkittime + 978307200
     finaltime = datetime.fromtimestamp(unix_timestamp, tz=timezone.utc)
