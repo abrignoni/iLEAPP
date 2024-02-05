@@ -15,6 +15,7 @@ __artifacts_v2__ = {
 
 
 from datetime import datetime
+from scripts.builds_ids import OS_build
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly, convert_ts_int_to_timezone, convert_ts_human_to_utc, convert_utc_human_to_timezone, convert_bytes_to_unit
 
@@ -44,7 +45,7 @@ def get_tree_structure(cursor):
             while len(ts_p_id) == 16:
                 ts_p_id, ts_name = ts_data_list[ts_p_id]
                 ts_path = ts_name + "/" + ts_path
-            ts_paths[ts_key] = ts_path
+            ts_paths[ts_key] = f"{ts_path}/"
     
     return ts_paths
 
@@ -80,7 +81,7 @@ def get_filesApp_client(file_found, timezone_offset, report_folder):
         report = ArtifactHtmlReport('Files App - iCloud Application List')
         report.start_artifact_report(report_folder, 'Files App - iCloud Application List', description)
         report.add_script()
-        data_headers = ('Application Bundle ID', 'Number of folders', 'Number of files', 'Total sci_lodate in bytes', 'Total size' )     
+        data_headers = ('Application Bundle ID', 'Number of folders', 'Number of files', 'Total size in bytes', 'Total size' )     
         report.write_artifact_data_table(data_headers, app_data_list, file_found)
         report.end_artifact_report()
         
@@ -88,7 +89,7 @@ def get_filesApp_client(file_found, timezone_offset, report_folder):
         tsv(report_folder, data_headers, app_data_list, tsvname)
     
     else:
-        logfunc('No Application in Files App data available')
+        logfunc('No Application found in Files App')
 
 
     # Client Items
@@ -106,34 +107,43 @@ def get_filesApp_client(file_found, timezone_offset, report_folder):
     client_items.version_mtime AS 'Modified',
     client_items.item_lastusedtime AS 'Last opened',
     client_items.version_device AS 'From Device',
-    CASE client_items.item_sharing_options
-    WHEN 0 THEN 'No'
+    CASE
+    WHEN client_items.item_sharing_options<=4 THEN 'No'
     ELSE 'Yes'
     END AS 'Is Shared?',
+    item_recursive_properties.shared_by_me_count AS 'Shared by me',
+    item_recursive_properties.shared_to_me_count AS 'Shared with me',
     CASE client_items.item_user_visible
     WHEN 0 THEN 'No'
     WHEN 1 THEN 'Yes'
     END AS 'Is Visible?'
     FROM client_items
     LEFT JOIN app_libraries ON client_items.app_library_rowid = app_libraries.rowid
-    WHERE client_items.version_size IS NOT NULL
+    LEFT JOIN item_recursive_properties ON client_items.rowid = item_recursive_properties.item_rowid
     ''')
     
     ci_all_rows = cursor.fetchall()
     ci_usageentries = len(ci_all_rows)
     ci_data_list = []
+    shared_data_list = []
+    
     
     if ci_usageentries > 0:
         ci_parents = get_tree_structure(cursor)
 
         for ci_row in ci_all_rows:
             ci_app_id, ci_parent_id, ci_filename, ci_ext, ci_size_in_bytes, ci_cdate, \
-                ci_mdate, ci_lodate, ci_device, ci_shared, ci_visible = ci_row
+                ci_mdate, ci_lodate, ci_device, ci_shared, ci_shared_by_me, ci_shared_to_me, \
+                ci_visible = ci_row
             
             ci_path = ''
             if len(ci_parent_id) == 16:
                 ci_path = ci_parents.get(ci_parent_id, '')
             
+            if not isinstance(ci_size_in_bytes, int):
+                ci_path += f"{ci_filename}/"
+                ci_filename = ""
+
             ci_size = ci_size_in_bytes
             if ci_size:
                 ci_size = convert_bytes_to_unit(ci_size_in_bytes)
@@ -145,24 +155,66 @@ def get_filesApp_client(file_found, timezone_offset, report_folder):
             ci_lodate = convert_ts_int_to_timezone(ci_lodate, timezone_offset) if ci_lodate else ''
             
             ci_data_list.append((ci_app_id, ci_path, ci_filename, ci_ext, ci_size_in_bytes, ci_size, 
-                                ci_cdate, ci_mdate, ci_lodate, ci_device, ci_shared, ci_visible))
+                                 ci_cdate, ci_mdate, ci_lodate, ci_device, ci_shared, ci_visible))
             
-        description = '	Files stored in iCloud Drive with metadata about files. '
-        report = ArtifactHtmlReport('Files App - iCloud File List')
-        report.start_artifact_report(report_folder, 'Files App - iCloud File List', description)
+        description = '	Files stored in iCloud Drive with their metadata. '
+        report = ArtifactHtmlReport('Files App - Files stored in iCloud')
+        report.start_artifact_report(report_folder, 'Files App - Files stored in iCloud', description)
         report.add_script()
-        data_headers = ('Application Bundle ID', 'Path', 'Filename', 'Hidden extension', 'size in bytes', 
-                        'size', 'Created', 'Modified', 'Last opened', 'Device', 'Shared?', 'Visible')     
+        data_headers = ('Application Bundle ID', 'Path', 'Filename', 'Hidden extension', 'Size in bytes', 
+                        'Size', 'Created', 'Modified', 'Last opened', 'Device', 'Shared?', 'Visible?')     
         report.write_artifact_data_table(data_headers, ci_data_list, file_found)
         report.end_artifact_report()
         
-        tsvname = 'Files App - iCloud File List'
+        tsvname = 'Files App - Files stored in iCloud'
         tsv(report_folder, data_headers, ci_data_list, tsvname)
     
-        tlactivity = 'Files App - iCloud File List'
+        tlactivity = 'Files App - Files stored in iCloud'
         timeline(report_folder, tlactivity, ci_data_list, data_headers)
+    
     else:
-        logfunc('No Files App - iCloud Client Items data available')
+        logfunc('No file found in Files App')
+
+
+    # iOS Updated
+    cursor.execute('''
+    SELECT
+    boot_history.date,
+    boot_history.os
+    FROM boot_history
+    ''')
+    
+    os_all_rows = cursor.fetchall()
+    os_usageentries = len(os_all_rows)
+    os_data_list = []
+
+    if os_usageentries > 0:
+        for os_row in os_all_rows:
+            os_date, os_os  = os_row
+
+            os_date = convert_ts_int_to_timezone(os_date, timezone_offset) if os_date else ''
+
+            os_version = OS_build.get(os_os, '')
+
+            os_data_list.append((os_date, os_os, os_version))
+            
+        description = '	Operating System Updates '
+        report = ArtifactHtmlReport('Files App - Operating System Updates')
+        report.start_artifact_report(report_folder, 'Files App - Operating System Updates', description)
+        report.add_script()
+        data_headers = ('Date and Time', 'OS Build', 'OS Version')     
+        report.write_artifact_data_table(data_headers, os_data_list, file_found)
+        report.end_artifact_report()
+        
+        tsvname = 'Files App - Operating System Updates'
+        tsv(report_folder, data_headers, os_data_list, tsvname)
+
+        tlactivity = 'Files App - Operating System Updates'
+        timeline(report_folder, tlactivity, ci_data_list, data_headers)
+
+    
+    else:
+        logfunc('No Operating System Update found in Files App')
 
 
 def get_filesApp(files_found, report_folder, seeker, wrap_text, timezone_offset):
