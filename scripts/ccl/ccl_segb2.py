@@ -24,7 +24,7 @@ SOFTWARE.
 # found at: https://cellebrite.com/en/understanding-and-decoding-the-newest-ios-segb-format/
 # Thank you for posting the research!
 
-
+from __future__ import annotations
 import os
 import pathlib
 import struct

@@ -546,7 +546,7 @@ def get_mobileInstall(files_found, report_folder, seeker, wrap_text, timezone_of
                 totalapps = totalapps + 1
 
     location = f'{filename}'
-    description = 'List of Uninstalled apps.'
+    description = 'List of Uninstalled apps. All timestamps are in Local Time'
     report = ArtifactHtmlReport('Apps - Uninstalled')
     report.start_artifact_report(report_folder, 'Apps - Uninstalled', description)
     report.add_script()
