@@ -19,11 +19,9 @@ __artifacts_v2__ = {
 
 import nska_deserialize as nd
 
-from datetime import datetime
 from scripts.builds_ids import OS_build
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly, convert_ts_int_to_timezone, \
-    convert_ts_human_to_utc, convert_utc_human_to_timezone, convert_bytes_to_unit
+from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly, convert_bytes_to_unit, convert_ts_int_to_timezone
 
 
 def get_tree_structure(cursor):
@@ -82,13 +80,13 @@ def get_filesApps_server(file_found, report_folder):
             
         description = 'Device names that are able to sync to iCloud Drive.'
         report = ArtifactHtmlReport('iCloud Sync Device Names')
-        report.start_artifact_report(report_folder, 'iCloud Sync Device Names', description)
+        report.start_artifact_report(report_folder, 'Files App - iCloud Sync Device Names', description)
         report.add_script()
         devices_data_headers = ('#', 'Device Name')     
         report.write_artifact_data_table(devices_data_headers, devices_data_list, file_found)
         report.end_artifact_report()
         
-        tsvname = 'iCloud Sync Device Names'
+        tsvname = 'Files App - iCloud Sync Device Names'
         tsv(report_folder, devices_data_headers, devices_data_list, tsvname)
     
     else:
@@ -122,6 +120,7 @@ def get_filesApps_server(file_found, report_folder):
 
             users_data_dict[user_key] = user_fullName
 
+    db.close()
     return devices_dict, users_data_dict
     
     
@@ -155,13 +154,13 @@ def get_filesApp_client(file_found, ci_device_names, ci_users, timezone_offset, 
             
         description = '	List of applications that sync data in iCloud '
         report = ArtifactHtmlReport('iCloud Application List')
-        report.start_artifact_report(report_folder, 'iCloud Application List', description)
+        report.start_artifact_report(report_folder, 'Files App - iCloud Application List', description)
         report.add_script()
         app_data_headers = ('Application Bundle ID', 'Number of folders', 'Number of files', 'Total size in bytes', 'Total size' )     
         report.write_artifact_data_table(app_data_headers, app_data_list, file_found)
         report.end_artifact_report()
         
-        tsvname = 'iCloud Application List'
+        tsvname = 'Files App - iCloud Application List'
         tsv(report_folder, app_data_headers, app_data_list, tsvname)
     
     else:
@@ -199,6 +198,8 @@ def get_filesApp_client(file_found, ci_device_names, ci_users, timezone_offset, 
     ci_all_rows = cursor.fetchall()
     ci_usageentries = len(ci_all_rows)
     ci_data_list = []
+    ci_tlactivity_list = []
+    ci_tlactivity_deleted_list = []
     ci_sharing_list = []
     ci_tagged_list = []
     ci_favourite_list = []
@@ -237,9 +238,16 @@ def get_filesApp_client(file_found, ci_device_names, ci_users, timezone_offset, 
             if ci_deleted:
                 ci_deleted_list.append((ci_app_id, ci_path, ci_deleted, ci_ext, ci_size_in_bytes, ci_size, 
                                  ci_cdate, ci_mdate, ci_lodate, ci_device, ci_shared, ci_visible))
+                if ci_cdate:
+                    ci_tlactivity_deleted_list.append((ci_cdate, ci_app_id, ci_path, ci_filename, ci_ext, 
+                                                       ci_size_in_bytes, ci_size, ci_mdate, ci_lodate, ci_device, 
+                                                       ci_shared, ci_visible))
             else:
                 ci_data_list.append((ci_app_id, ci_path, ci_filename, ci_ext, ci_size_in_bytes, ci_size, 
                                  ci_cdate, ci_mdate, ci_lodate, ci_device, ci_shared, ci_visible))
+                if ci_cdate:
+                    ci_tlactivity_list.append((ci_cdate, ci_app_id, ci_path, ci_filename, ci_ext, ci_size_in_bytes, 
+                                                ci_size, ci_mdate, ci_lodate, ci_device, ci_shared, ci_visible))
             
             if ci_sharing_options == 8 or ci_sharing_options == 12:
                 ci_sharing_permissions = "Anyone with the link can make changes"
@@ -267,96 +275,100 @@ def get_filesApp_client(file_found, ci_device_names, ci_users, timezone_offset, 
             
         description = '	Files stored in iCloud Drive with their metadata. '
         report = ArtifactHtmlReport('Files stored in iCloud Drive')
-        report.start_artifact_report(report_folder, 'Files stored in iCloud Drive', description)
+        report.start_artifact_report(report_folder, 'Files App - Files stored in iCloud Drive', description)
         report.add_script()
         ci_data_headers = ('Application Bundle ID', 'Path', 'Filename', 'Hidden extension', 'Size in bytes', 
                         'Size', 'Created', 'Modified', 'Last opened', 'From Device Name', 'Shared?', 'Visible?')     
         report.write_artifact_data_table(ci_data_headers, ci_data_list, file_found)
         report.end_artifact_report()
         
-        tsvname = 'Files stored in iCloud Drive'
+        tsvname = 'Files App - Files stored in iCloud Drive'
         tsv(report_folder, ci_data_headers, ci_data_list, tsvname)
     
-        # tlactivity = 'Files stored in iCloud Drive'
-        # timeline(report_folder, tlactivity, ci_data_list, ci_data_headers)
+
+        ci_tlactivity_headers = ('Created', 'Application Bundle ID', 'Path', 'Filename', 'Hidden extension', 
+                                 'Size in bytes', 'Size', 'Modified', 'Last opened', 'From Device Name', 
+                                 'Shared?', 'Visible?')     
+        tlactivity = 'Files App - Files stored in iCloud Drive'
+        timeline(report_folder, tlactivity, ci_tlactivity_list, ci_tlactivity_headers)
     
+        # Recently Deleted Items
+
+        if ci_deleted_list:
+            description = '	Recently deleted files stored in iCloud Drive with their metadata. '
+            report = ArtifactHtmlReport('Recently deleted files stored in iCloud Drive')
+            report.start_artifact_report(report_folder, 'Files App - Recently deleted files', description)
+            report.add_script()
+            ci_data_headers = ('Application Bundle ID', 'Path', 'Filename', 'Hidden extension', 'Size in bytes', 
+                            'Size', 'Created', 'Modified', 'Last opened', 'From Device Name', 'Shared?', 'Visible?')     
+            report.write_artifact_data_table(ci_data_headers, ci_deleted_list, file_found)
+            report.end_artifact_report()
+            
+            tsvname = 'Files App - Recently deleted files'
+            tsv(report_folder, ci_data_headers, ci_deleted_list, tsvname)
+        
+            tlactivity = 'Files App - Recently deleted files'
+            timeline(report_folder, tlactivity, ci_deleted_list, ci_data_headers)
+        
+        else:
+            logfunc('No recently deleted file data found in Files App')
+    
+        # Shared Items
+            
+        if ci_sharing_list:
+            description = '	Shared files stored in iCloud Drive with their metadata. '
+            report = ArtifactHtmlReport('Shared files stored in iCloud Drive')
+            report.start_artifact_report(report_folder, 'Files App - Shared files', description)
+            report.add_script()
+            ci_sharing_data_headers = ('Application Bundle ID', 'Path', 'Filename', 'Sharing type', 'Permissions', 
+                                    'Hidden extension', 'Size in bytes', 'Size', 'Created', 'Modified', 'Last opened',)     
+            report.write_artifact_data_table(ci_sharing_data_headers, ci_sharing_list, file_found)
+            report.end_artifact_report()
+            
+            tsvname = 'Files App - Shared files'
+            tsv(report_folder, ci_sharing_data_headers, ci_sharing_list, tsvname)
+        
+        else:
+            logfunc('No shared file data found in Files App')
+
+        # Tagged Items
+            
+        if ci_tagged_list:
+            description = '	Tagged files in iCloud Drive with their metadata. '
+            report = ArtifactHtmlReport('Tagged files in iCloud Drive')
+            report.start_artifact_report(report_folder, 'Files App - Tagged files', description)
+            report.add_script()
+            ci_tagged_data_headers = ('Application Bundle ID', 'Path', 'Filename', 'Hidden extension', 'Tags', \
+                                    'Size in bytes', 'Size', 'Created', 'Modified', 'Last opened',)     
+            report.write_artifact_data_table(ci_tagged_data_headers, ci_tagged_list, file_found)
+            report.end_artifact_report()
+            
+            tsvname = 'Files App - Tagged files'
+            tsv(report_folder, ci_tagged_data_headers, ci_tagged_list, tsvname)
+        
+        else:
+            logfunc('No tagged file data found in Files App')
+
+        # Favourite Items
+            
+        if ci_favourite_list:
+            description = '	Favourite files in iCloud Drive with their metadata. '
+            report = ArtifactHtmlReport('Favourite files in iCloud Drive')
+            report.start_artifact_report(report_folder, 'Files App - Favourite files', description)
+            report.add_script()
+            ci_favourite_data_headers = ('Application Bundle ID', 'Path', 'Filename', 'Hidden extension', \
+                                    'Size in bytes', 'Size', 'Created', 'Modified', 'Last opened',)     
+            report.write_artifact_data_table(ci_favourite_data_headers, ci_favourite_list, file_found)
+            report.end_artifact_report()
+            
+            tsvname = 'Files App - Favourite files'
+            tsv(report_folder, ci_favourite_data_headers, ci_favourite_list, tsvname)
+        
+        else:
+            logfunc('No tagged file data found in Files App')
+
     else:
         logfunc('No file data found in Files App')
-    
-    # Recently Deleted Items
-
-    if ci_deleted_list:
-        description = '	Recently deleted files stored in iCloud Drive with their metadata. '
-        report = ArtifactHtmlReport('Recently deleted files stored in iCloud Drive')
-        report.start_artifact_report(report_folder, 'Recently deleted files stored in iCloud Drive', description)
-        report.add_script()
-        ci_data_headers = ('Application Bundle ID', 'Path', 'Filename', 'Hidden extension', 'Size in bytes', 
-                        'Size', 'Created', 'Modified', 'Last opened', 'From Device Name', 'Shared?', 'Visible?')     
-        report.write_artifact_data_table(ci_data_headers, ci_deleted_list, file_found)
-        report.end_artifact_report()
-        
-        tsvname = 'Recently deleted files stored in iCloud Drive'
-        tsv(report_folder, ci_data_headers, ci_deleted_list, tsvname)
-    
-        # tlactivity = 'Recently deleted files stored in iCloud Drive'
-        # timeline(report_folder, tlactivity, ci_deleted_list, ci_data_headers)
-    
-    else:
-        logfunc('No recently deleted file data found in Files App')
-    
-    # Shared Items
-        
-    if ci_sharing_list:
-        description = '	Shared files stored in iCloud Drive with their metadata. '
-        report = ArtifactHtmlReport('Shared files stored in iCloud Drive')
-        report.start_artifact_report(report_folder, 'Shared files stored in iCloud Drive', description)
-        report.add_script()
-        ci_sharing_data_headers = ('Application Bundle ID', 'Path', 'Filename', 'Sharing type', 'Permissions', 
-                                   'Hidden extension', 'Size in bytes', 'Size', 'Created', 'Modified', 'Last opened',)     
-        report.write_artifact_data_table(ci_sharing_data_headers, ci_sharing_list, file_found)
-        report.end_artifact_report()
-        
-        tsvname = 'Shared files stored in iCloud Drive'
-        tsv(report_folder, ci_sharing_data_headers, ci_sharing_list, tsvname)
-    
-    else:
-        logfunc('No shared file data found in Files App')
-
-    # Tagged Items
-        
-    if ci_tagged_list:
-        description = '	Tagged files in iCloud Drive with their metadata. '
-        report = ArtifactHtmlReport('Tagged files in iCloud Drive')
-        report.start_artifact_report(report_folder, 'Tagged files in iCloud Drive', description)
-        report.add_script()
-        ci_tagged_data_headers = ('Application Bundle ID', 'Path', 'Filename', 'Hidden extension', 'Tags', \
-                                  'Size in bytes', 'Size', 'Created', 'Modified', 'Last opened',)     
-        report.write_artifact_data_table(ci_tagged_data_headers, ci_tagged_list, file_found)
-        report.end_artifact_report()
-        
-        tsvname = 'Tagged files in iCloud Drive'
-        tsv(report_folder, ci_tagged_data_headers, ci_tagged_list, tsvname)
-    
-    else:
-        logfunc('No tagged file data found in Files App')
-
-    # Favourite Items
-        
-    if ci_favourite_list:
-        description = '	Favourite files in iCloud Drive with their metadata. '
-        report = ArtifactHtmlReport('Favourite files in iCloud Drive')
-        report.start_artifact_report(report_folder, 'Favourite files in iCloud Drive', description)
-        report.add_script()
-        ci_favourite_data_headers = ('Application Bundle ID', 'Path', 'Filename', 'Hidden extension', \
-                                  'Size in bytes', 'Size', 'Created', 'Modified', 'Last opened',)     
-        report.write_artifact_data_table(ci_favourite_data_headers, ci_favourite_list, file_found)
-        report.end_artifact_report()
-        
-        tsvname = 'Favourite files in iCloud Drive'
-        tsv(report_folder, ci_favourite_data_headers, ci_favourite_list, tsvname)
-    
-    else:
-        logfunc('No tagged file data found in Files App')
 
 
     # iOS Updated
@@ -382,22 +394,23 @@ def get_filesApp_client(file_found, ci_device_names, ci_users, timezone_offset, 
             os_data_list.append((os_date, os_os, os_version))
             
         description = '	Operating System Updates '
-        report = ArtifactHtmlReport('Operating System Updates')
-        report.start_artifact_report(report_folder, 'Operating System Updates', description)
+        report = ArtifactHtmlReport('Files App - Operating System Updates')
+        report.start_artifact_report(report_folder, 'Files App - OS Updates', description)
         report.add_script()
         os_data_headers = ('Date and Time', 'OS Build', 'OS Version')     
         report.write_artifact_data_table(os_data_headers, os_data_list, file_found)
         report.end_artifact_report()
         
-        tsvname = 'Operating System Updates'
+        tsvname = 'Files App - OS Updates'
         tsv(report_folder, os_data_headers, os_data_list, tsvname)
 
-        tlactivity = 'Operating System Updates'
+        tlactivity = 'Files App - OS Updates'
         timeline(report_folder, tlactivity, os_data_list, os_data_headers)
 
-    
     else:
         logfunc('No OS update data found in Files App')
+
+    db.close()
 
 
 def get_filesApp(files_found, report_folder, seeker, wrap_text, timezone_offset):
