@@ -482,6 +482,7 @@ icon_mappings = \
     },
     'ICLOUD SHARED ALBUMS': 'cloud',
     'IDENTIFIERS': 'file',
+    'IMAGE CACHEV0': 'image',
     'IMAGE MANAGER CACHE': 'image',
     'IMO': {
         'IMO - ACCOUNT ID': 'user',
