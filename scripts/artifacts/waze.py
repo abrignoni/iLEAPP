@@ -4,17 +4,13 @@ __artifacts_v2__ = {
         "description": "Get account, session, searched locations, recent locations, favorite locations, "
 					   "share locations, text-to-speech navigation and track GPS quality.",
         "author": "Django Faiola (djangofaiola.blogspot.com @DjangoFaiola)",
-        "version": "0.1",
+        "version": "0.1.2",
         "date": "2024-02-02",
         "requirements": "none",
         "category": "Waze",
         "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/user.db*',
                   '*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist'),
-#                 '*/mobile/Containers/Data/Application/*/Documents/user',
-#                 '*/mobile/Containers/Data/Application/*/Documents/session',
-#                 '*/mobile/Containers/Data/Application/*/Documents/spdlog.*logdata',
-#                 '*/mobile/Containers/Data/Application/*/Library/Caches/tts/tts.db*'),
         "function": "get_waze"
     }
 }
@@ -566,17 +562,15 @@ def get_gps_quality(files_found, report_folder, timezone_offset):
 
 # waze
 def get_waze(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    for file_found in files_found:
-        #file_found = str(file_found)
-
-        # .com.apple.mobile_container_manager.metadata.plist
-        if file_found.endswith('.com.apple.mobile_container_manager.metadata.plist'):
-            with open(file_found, 'rb') as f:
+    #datos =  seeker.search('**/*com.apple.mobile_container_manager.metadata.plist')
+    for file_foundm in files_found:
+        if file_foundm.endswith('.com.apple.mobile_container_manager.metadata.plist'):
+            with open(file_foundm, 'rb') as f:
                 pl = plistlib.load(f)
                 if pl['MCMMetadataIdentifier'] == 'com.waze.iphone':
-                    fulldir = (os.path.dirname(file_found))
+                    fulldir = (os.path.dirname(file_foundm))
                     identifier = (os.path.basename(fulldir))
-
+                    
                     # user
                     path_list = seeker.search(f'*/{identifier}/Documents/user', True)
                     if len(path_list) > 0:
@@ -599,8 +593,9 @@ def get_waze(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
                     break
 
+    for file_found in files_found:
         # user.db
-        elif file_found.endswith('user.db'):
+        if file_found.endswith('user.db'):
             db = open_sqlite_db_readonly(file_found)
             try:
                 # searched locations
