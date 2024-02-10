@@ -759,6 +759,7 @@ OS_build = {
     "21D5036c": "iOS 17.3 beta 2",
     "21D5044a": "iOS 17.3 beta 3",
     "21D50": "iOS 17.3",
+    "21D61": "iOS 17.3.1",
     "21E5184i": "iOS 17.4 beta 1",
     "21E5184k": "iOS 17.4 beta 1",
     "21E5195e": "iOS 17.4 beta 2",
@@ -1964,6 +1965,7 @@ OS_build = {
     "23D5043d": "macOS 14.3 beta 2",
     "23D5051b": "macOS 14.3 beta 3",
     "23D56": "macOS 14.3",
+    "23D60": "macOS 14.3.1",
     "23E5180j": "macOS 14.4 beta 1",
     "23E5191e": "macOS 14.4 beta 2",
     "12S507": "watchOS 1.0",
@@ -2341,6 +2343,7 @@ OS_build = {
     "21S5635d": "watchOS 10.3 beta 2",
     "21S5642a": "watchOS 10.3 beta 3",
     "21S644": "watchOS 10.3",
+    "21S651": "watchOS 10.3.1",
     "21T5185g": "watchOS 10.4 beta 1",
     "21T5196d": "watchOS 10.4 beta 2",
 }
