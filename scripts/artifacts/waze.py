@@ -10,16 +10,18 @@ __artifacts_v2__ = {
         "category": "Waze",
         "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/user.db*',
-                  '*/mobile/Containers/Data/Application/*/Documents/user',
-                  '*/mobile/Containers/Data/Application/*/Documents/session',
-                  '*/mobile/Containers/Data/Application/*/Documents/spdlog.*logdata',
-                  '*/mobile/Containers/Data/Application/*/Library/Caches/tts/tts.db*'),
+                  '*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist'),
+#                 '*/mobile/Containers/Data/Application/*/Documents/user',
+#                 '*/mobile/Containers/Data/Application/*/Documents/session',
+#                 '*/mobile/Containers/Data/Application/*/Documents/spdlog.*logdata',
+#                 '*/mobile/Containers/Data/Application/*/Library/Caches/tts/tts.db*'),
         "function": "get_waze"
     }
 }
 
 import os
 import re
+import plistlib
 import pathlib
 import shutil
 import sqlite3
@@ -564,12 +566,41 @@ def get_gps_quality(files_found, report_folder, timezone_offset):
 
 # waze
 def get_waze(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    logs = []
     for file_found in files_found:
-        file_found = str(file_found)
+        #file_found = str(file_found)
+
+        # .com.apple.mobile_container_manager.metadata.plist
+        if file_found.endswith('.com.apple.mobile_container_manager.metadata.plist'):
+            with open(file_found, 'rb') as f:
+                pl = plistlib.load(f)
+                if pl['MCMMetadataIdentifier'] == 'com.waze.iphone':
+                    fulldir = (os.path.dirname(file_found))
+                    identifier = (os.path.basename(fulldir))
+
+                    # user
+                    path_list = seeker.search(f'*/{identifier}/Documents/user', True)
+                    if len(path_list) > 0:
+                        get_account(path_list[0], report_folder, timezone_offset)
+
+                    # session
+                    path_list = seeker.search(f'*/{identifier}/Documents/session', True)
+                    if len(path_list) > 0:
+                        get_session(path_list[0], report_folder, timezone_offset)
+
+                    # tts.db
+                    path_list = seeker.search(f'*/{identifier}/Library/Caches/tts/tts.db', True)
+                    if len(path_list) > 0:
+                        get_tts(path_list[0], report_folder, timezone_offset)
+
+                    # spdlog.*logdata
+                    path_list = seeker.search(f'*/{identifier}/Documents/spdlog.*logdata')
+                    if len(path_list) > 0:
+                        get_gps_quality(path_list, report_folder, timezone_offset)
+
+                    break
 
         # user.db
-        if file_found.endswith('user.db'):
+        elif file_found.endswith('user.db'):
             db = open_sqlite_db_readonly(file_found)
             try:
                 # searched locations
@@ -585,23 +616,3 @@ def get_waze(files_found, report_folder, seeker, wrap_text, timezone_offset):
                 get_shared_locations(file_found, report_folder, db, timezone_offset)
             finally:
                 db.close()
-
-        # user
-        elif file_found.endswith('user'):
-            get_account(file_found, report_folder, timezone_offset)
-
-        # session
-        elif file_found.endswith('session'):
-            get_session(file_found, report_folder, timezone_offset)
-
-        # tts.db
-        elif file_found.endswith('tts.db'):
-            get_tts(file_found, report_folder, timezone_offset)
-
-        # spdlog.*logdata
-        elif (file_found.endswith('.logdata')):
-            logs.append(file_found)
-
-    # spdlog.*logdata
-    if len(logs) > 0:
-        get_gps_quality(logs, report_folder, timezone_offset)
