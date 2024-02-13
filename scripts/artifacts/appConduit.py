@@ -12,7 +12,7 @@ import textwrap
 from html import escape
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, is_platform_windows, convert_time_obj_to_utc, convert_time_obj_to_utc 
+from scripts.ilapfuncs import logfunc, tsv, is_platform_windows, convert_time_obj_to_utc, convert_time_obj_to_utc, convert_utc_human_to_timezone
 
 def get_appConduit(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
