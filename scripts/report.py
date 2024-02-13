@@ -736,6 +736,10 @@ icon_mappings = \
     'SQLITE JOURNALING': 'book-open',
     'STRAVA': 'map',
     'SYNCED DEVICES': 'refresh-cw',
+    'SYSDIAGNOSE': {
+        'SYSDIAGNOSE - SHUTDOWN LOG PROCESSES': 'loader',
+        'SYSDIAGNOSE - SHUTDOWN LOG REBOOTS': 'refresh-cw',
+    },
     'TEAMS': {  # TODO: align I & A artifacts since theres a 'microsoft teams' also
         'TEAMS MESSAGES': 'message-circle',
         'TEAMS USERS': 'users',
