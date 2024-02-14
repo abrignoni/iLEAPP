@@ -763,6 +763,7 @@ OS_build = {
     "21E5184i": "iOS 17.4 beta 1",
     "21E5184k": "iOS 17.4 beta 1",
     "21E5195e": "iOS 17.4 beta 2",
+    "21E5200d": "iOS 17.4 beta 3",
     "4K78": "Mac OS X 10.0",
     "4L8": "Mac OS X 10.0.1",
     "4L13": "Mac OS X 10.0.1",
@@ -1968,6 +1969,7 @@ OS_build = {
     "23D60": "macOS 14.3.1",
     "23E5180j": "macOS 14.4 beta 1",
     "23E5191e": "macOS 14.4 beta 2",
+    "23E5196e": "macOS 14.4 beta 3",
     "12S507": "watchOS 1.0",
     "12S632": "watchOS 1.0.1",
     "13S5254w": "watchOS 2.0 beta 1",
@@ -2346,6 +2348,7 @@ OS_build = {
     "21S651": "watchOS 10.3.1",
     "21T5185g": "watchOS 10.4 beta 1",
     "21T5196d": "watchOS 10.4 beta 2",
+    "21T5202e": "watchOS 10.4 beta 3",
 }
 
 domains = {
