@@ -15,7 +15,7 @@ pillow
 pillow_heif
 pycryptodome
 pyinstaller
-PySimpleGUI
+PySimpleGUI==4.60.5
 pyliblzfse
 pytz
 simplekml
