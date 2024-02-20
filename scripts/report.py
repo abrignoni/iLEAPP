@@ -533,6 +533,7 @@ icon_mappings = \
         'KNOWLEDGEC DEVICE LOCKED': 'lock',
         'KNOWLEDGEC - MEDIA PLAYING': 'play-circle',
         'KNOWLEDGEC - DEVICE PLUGIN STATUS': 'battery-charging',
+        'KNOWLEDGEC - DO NOT DISTURB': 'moon',
         'default': 'activity',
     },
     'LEAPP_REPORT': {
