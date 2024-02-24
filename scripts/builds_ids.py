@@ -1860,6 +1860,7 @@ OS_build = {
     "21H1015": "macOS 12.7.3",
     "21H1105": "macOS 12.7.4 RC",
     "21H1111": "macOS 12.7.4 RC 2",
+    "21H1121": "macOS 12.7.4 RC 3",
     "22A5266r": "macOS 13.0 beta 1",
     "22A5286j": "macOS 13.0 beta 2",
     "22A5295h": "macOS 13.0 beta 3",
