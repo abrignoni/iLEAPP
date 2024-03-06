@@ -335,14 +335,14 @@ def get_cache_numbers(file_found, cache_files, report_folder, timezone_offset, u
         entitlements = number.get('entitlements')
         if bool(entitlements):
             # remaining minutes/total minutes
-            rt_minutes = f'{entitlements.get('remainingMinutes', 0)}/{entitlements.get('totalMinutes', 0)}'
+            rt_minutes = f"{entitlements.get('remainingMinutes', 0)}/{entitlements.get('totalMinutes', 0)}"
             # remaining messages/total messages
-            rt_texts = f'{entitlements.get('remainingTexts', 0)}/{entitlements.get('totalTexts', 0)}'
+            rt_texts = f"{entitlements.get('remainingTexts', 0)}/{entitlements.get('totalTexts', 0)}"
         else:
             # remaining minutes/total minutes
-            rt_minutes = f'{number.get('remainingMinutes', 0)}/{number.get('totalMinutes', 0)}'
+            rt_minutes = f"{number.get('remainingMinutes', 0)}/{number.get('totalMinutes', 0)}"
             # remaining messages/total messages
-            rt_texts = f'{number.get('remainingTexts', 0)}/{number.get('totalTexts', 0)}'
+            rt_texts = f"{number.get('remainingTexts', 0)}/{number.get('totalTexts', 0)}"
 
         # settings
         settings = number.get('settings')
