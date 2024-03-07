@@ -38,5 +38,6 @@ ileapp_contributors = [
     ['Evangelos Dragonas', 'https://atropos4n6.com/','@theAtropos4n6','https://github.com/theAtropos4n6'],
     ['Viktor Oreshkin', 'https://stek29.rocks/','@stek29','https://gist.github.com/stek29'],
     ['James Habben', 'https://4n6ir.com/','@JamesHabben','https://github.com/JamesHabben'],
-    ['John Hyla', 'https://bluecrewforensics.com', '@jfhyla', 'https://github.com/snoop168']
+    ['John Hyla', 'https://bluecrewforensics.com', '@jfhyla', 'https://github.com/snoop168'],
+    ['Panos Nakoutis', '@4n6equals10']
 ]
