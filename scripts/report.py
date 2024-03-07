@@ -155,6 +155,15 @@ icon_mappings = \
     'CELLULAR WIRELESS': 'bar-chart',
     'CHASE RETURNS': 'paperclip',
     'CHATS': 'message-circle',
+    'CHATGPT': {
+        'CONVERSATIONS METADATA': 'info',
+        'CONVERSATIONS': 'message-circle',
+        'ACCOUNT': 'user',
+        'PREFERENCES' : 'sliders',
+        'MEDIA UPLOADS' : 'image',
+        'VOICE PROMPTS':'mic',
+        '_mode': 'search',
+    },
     'CHROMIUM': {
         'AUTOFILL': 'edit-3',
         'BOOKMARKS': 'bookmark',
