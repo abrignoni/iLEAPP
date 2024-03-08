@@ -15,7 +15,6 @@ def get_deviceDatam(files_found, report_folder, seeker, wrap_text, timezone_offs
             
             if key == 'imeis':
                 imeis = val
-                #print(imeis[0])
                 data_list.append(('IMEIs', imeis ))
                 logdevinfo(f"IMEIs: {imeis}")
             
@@ -37,8 +36,6 @@ def get_deviceDatam(files_found, report_folder, seeker, wrap_text, timezone_offs
     tsvname = 'Device Data'
     tsv(report_folder, data_headers, data_list, tsvname)
             
-
-
 
 __artifacts__ = {
     "devicedata": (

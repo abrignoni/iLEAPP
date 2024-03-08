@@ -523,6 +523,7 @@ icon_mappings = \
     'KEYBOARD': {
         'KEYBOARD APPLICATION USAGE': 'type',
         'KEYBOARD DYNAMIC LEXICON': 'type',
+        'default': 'type',
     },
     'KIK': {
         'KIK GROUP ADMINISTRATORS': 'user-plus',

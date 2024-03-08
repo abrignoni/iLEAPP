@@ -32,8 +32,6 @@ def get_celWireless(files_found, report_folder, seeker, wrap_text, timezone_offs
                 if key == "meid":
                     logdevinfo(f"MEID: {val}")
     
-    
-    
     location = 'see source field'
     report = ArtifactHtmlReport('Cellular Wireless')
     report.start_artifact_report(report_folder, 'Cellular Wireless')
