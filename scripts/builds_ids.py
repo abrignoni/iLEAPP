@@ -1866,7 +1866,7 @@ OS_build = {
     "21H1111": "macOS 12.7.4 RC 2",
     "21H1121": "macOS 12.7.4 RC 3",
     "21H1122": "macOS 12.7.4 RC 4",
-    "21H1123": "macOS 12.7.4 RC 5",
+    "21H1123": "macOS 12.7.4",
     "22A5266r": "macOS 13.0 beta 1",
     "22A5286j": "macOS 13.0 beta 2",
     "22A5295h": "macOS 13.0 beta 3",
@@ -1943,7 +1943,7 @@ OS_build = {
     "22G610": "macOS 13.6.5 RC 2",
     "22G619": "macOS 13.6.5 RC 3",
     "22G620": "macOS 13.6.5 RC 4",
-    "22G621": "macOS 13.6.5 RC 5",
+    "22G621": "macOS 13.6.5",
     "23A5257q": "macOS 14.0 beta 1",
     "23A5276g": "macOS 14.0 beta 2",
     "23A5286g": "macOS 14.0 beta 3",
@@ -1983,7 +1983,7 @@ OS_build = {
     "23E5196e": "macOS 14.4 beta 3",
     "23E5205c": "macOS 14.4 beta 4",
     "23E5211a": "macOS 14.4 beta 5",
-    "23E214": "macOS 14.4 RC",
+    "23E214": "macOS 14.4",
     "12S507": "watchOS 1.0",
     "12S632": "watchOS 1.0.1",
     "13S5254w": "watchOS 2.0 beta 1",
@@ -2364,7 +2364,7 @@ OS_build = {
     "21T5196d": "watchOS 10.4 beta 2",
     "21T5202e": "watchOS 10.4 beta 3",
     "21T5213a": "watchOS 10.4 beta 4",
-    "21T216": "watchOS 10.4 RC",
+    "21T216": "watchOS 10.4",
 }
 
 domains = {
