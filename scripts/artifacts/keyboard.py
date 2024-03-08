@@ -118,7 +118,7 @@ def get_keyboard(files_found, report_folder, seeker, wrap_text, timezone_offset)
         report.start_artifact_report(report_folder, 'Keyboard Usage Stats')
         report.add_script()
         data_headers = ('Creation Date', 'Last Update Date', 'Key', 'Value', 'Source File')
-        report.write_artifact_data_table(data_headers, 'See source paths below', file_found)
+        report.write_artifact_data_table(data_headers, data_list_stats, 'See source paths below')
         report.end_artifact_report()
 
         tsvname = 'Keyboard Usage Stats'
