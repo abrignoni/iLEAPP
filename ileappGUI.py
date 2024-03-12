@@ -350,21 +350,21 @@ if is_platform_macos():
     mlist_window_width = 50
     mlist_window_height = 23
     mlist_padding = 2
-    log_window_height = 27
+    log_window_height = 28
 elif is_platform_linux():
     font_size = 8
     casedata_entry_width = 100
     mlist_window_width = 44
     mlist_window_height = 18
     mlist_padding = 4
-    log_window_height = 27
+    log_window_height = 29
 else:
     font_size = 8
     casedata_entry_width = 100
     mlist_window_width = 44
     mlist_window_height = 18
     mlist_padding = 2
-    log_window_height = 20
+    log_window_height = 21
 
 theme_font = ('Helvetica', font_size)
 
@@ -484,16 +484,13 @@ main_window.bind_class('Checkbutton', '<Button-5>', scroll)
 #### Logs
 logtext_frame = ttk.Frame(modules_frame, name='logs_frame')
 logtext_frame.pack(anchor='w', side='left', padx=1, pady=5)
-xlog = ttk.Scrollbar(logtext_frame, orient='horizontal')
-xlog.pack(side='bottom', fill='x')
 vlog = ttk.Scrollbar(logtext_frame, orient='vertical')
 vlog.pack(side='right', fill='y')
 log_text = tk.Text(logtext_frame, name='log_text', height=log_window_height, 
                    bg=theme_inputcolor, font=theme_font, fg=theme_fgcolor, highlightthickness=1, 
-                   xscrollcommand=xlog.set, yscrollcommand=vlog.set)
+                   yscrollcommand=vlog.set)
 log_text.pack(anchor='w', side='left')
 vlog.config(command=log_text.yview)
-xlog.config(command=log_text.xview)
 
 ### Progress bar
 progress_bar = ttk.Progressbar(main_window, orient='horizontal', length = 860)
