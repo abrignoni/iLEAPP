@@ -173,7 +173,7 @@ def process(casedata):
         button_frame.grid_remove()
         logtext_frame.grid(row=0, column=0, pady=4, sticky='nswe')
         mlist_frame.grid_remove()
-        progress_bar.grid(row=1, column=0, pady=10, sticky='we')
+        progress_bar.grid(row=1, column=0, pady=1, sticky='we')
 
         crunch_successful = ileapp.crunch_artifacts(
             selected_modules, extracttype, input_path, out_params, wrap_text, loader, casedata, time_offset, profile_filename)
@@ -323,8 +323,6 @@ def case_data():
 
 ## Main window creation
 main_window = tk.Tk()
-window_width = 890
-window_height = 620
 
 ## Variables
 loader: typing.Optional[plugin_loader.PluginLoader] = None
@@ -338,16 +336,35 @@ casedata = {'Case Number': tk.StringVar(),
 timezone_set = tk.StringVar()
 pickModules()
 
+## Theme properties
+theme_bgcolor = '#2c2825'
+theme_inputcolor = '#705e52'
+theme_fgcolor = '#fdcb52'
+
+if is_platform_macos():
+    window_width = 890
+    window_height = 620
+    log_window_width = 118
+    mlist_window_height = 24
+    log_text_height = 26
+elif is_platform_linux():
+    window_width = 890
+    window_height = 620
+    log_window_width = 24
+    mlist_window_height = 19
+    log_text_height = 29
+else:
+    window_width = 800
+    window_height = 620
+    log_window_width = 92
+    mlist_window_height = 19
+    log_text_height = 20
+
 ## Places main window in the center
 screen_width = main_window.winfo_screenwidth()
 screen_height = main_window.winfo_screenheight()
 margin_width = (screen_width - window_width) // 2
 margin_height = (screen_height - window_height) // 2
-
-## Theme properties
-theme_bgcolor = '#2c2825'
-theme_inputcolor = '#705e52'
-theme_fgcolor = '#fdcb52'
 
 ## Main window properties
 main_window.geometry(f'{window_width}x{window_height}+{margin_width}+{margin_height}')
@@ -450,7 +467,7 @@ mlist_frame.grid_columnconfigure(0, weight=2)
 v = ttk.Scrollbar(mlist_frame, orient='vertical')
 v.grid(row=0, column=1, sticky='ns')
 mlist_text = tk.Text(mlist_frame, name='tbox', bg=theme_bgcolor, highlightthickness=0, 
-                     yscrollcommand=v.set)
+                     yscrollcommand=v.set, width=log_window_width, height=mlist_window_height)
 # mlist_text.pack(anchor='w')
 mlist_text.grid(row=0, column=0, sticky='we')
 v.config(command=mlist_text.yview)
@@ -473,7 +490,7 @@ vlog = ttk.Scrollbar(logtext_frame, orient='vertical')
 vlog.grid(row=0, column=1, pady=10, sticky='ns')
 log_text = tk.Text(
     logtext_frame, name='log_text', bg=theme_inputcolor, fg=theme_fgcolor, 
-    highlightthickness=1, yscrollcommand=vlog.set, width=118)
+    highlightthickness=1, yscrollcommand=vlog.set, width=log_window_width, height=log_text_height)
 log_text.grid(row=0, column=0, padx=4, pady=10, sticky='we')
 vlog.config(command=log_text.yview)
 
