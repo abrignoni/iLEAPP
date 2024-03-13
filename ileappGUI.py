@@ -171,7 +171,8 @@ def process(casedata):
             time_offset = 'UTC'
         
         crunch_successful = ileapp.crunch_artifacts(
-            selected_modules, extracttype, input_path, out_params, wrap_text, loader, casedata, time_offset, profile_filename)
+            selected_modules, extracttype, input_path, out_params, wrap_text, 
+            loader, casedata, time_offset, profile_filename)
 
         if crunch_successful:
             report_path = os.path.join(out_params.report_folder_base, 'index.html')
@@ -187,7 +188,10 @@ def process(casedata):
             log_path = out_params.screen_output_file_path
             if log_path.startswith('\\\\?\\'): # windows
                 log_path = log_path[4:]
-            tk_msgbox.showerror(title='Error', message=f'Processing failed  :( \nSee log for error details..\nLog file located at {log_path}', parent=main_window)
+            tk_msgbox.showerror(
+                title='Error', 
+                message=f'Processing failed  :( \nSee log for error details..\nLog file located at {log_path}', 
+                parent=main_window)
 
 
 def select_input(button_type):
@@ -265,7 +269,8 @@ def case_data():
             if case_data_load_error:
                 tk_msgbox.showerror(title='Error', message=case_data_load_error, parent=case_window)
             else:
-                tk_msgbox.showinfo(title='Load Case Data', message=f'Loaded Case Data: {destination_path}', parent=case_window)
+                tk_msgbox.showinfo(
+                    title='Load Case Data', message=f'Loaded Case Data: {destination_path}', parent=case_window)
 
 
     ### Case Data Window creation
@@ -295,7 +300,7 @@ def case_data():
     case_number_entry.focus()
     case_agency_frame = ttk.LabelFrame(case_window, text=' Agency ')
     case_agency_frame.pack(padx=14, pady=5, anchor='w')
-    case_agency_entry = ttk.Entry(case_agency_frame, textvariable=casedata['Agency'], width=casedata_entry_width)
+    case_agency_entry = ttk.Entry(case_agency_frame, textvariable=casedata['Agency'])
     case_agency_entry.pack(side='left', padx=5, pady=4)
     case_examiner_frame = ttk.LabelFrame(case_window, text=' Examiner ')
     case_examiner_frame.pack(padx=14, pady=5, anchor='w')
@@ -389,9 +394,6 @@ style.configure('TButton')
 style.map('TButton', 
           background=[('active', 'black'), ('!disabled', theme_fgcolor)], 
           foreground=[('active', theme_fgcolor), ('!disabled', 'black')])
-style.map('Error.TButton', 
-          background=[('active', 'white'), ('!disabled', 'red')], 
-          foreground=[('active', 'red'), ('!disabled', 'white')])
 style.configure('TEntry', fieldbackground=theme_inputcolor, highlightthickness=0)
 style.configure('TCombobox', selectforeground=theme_fgcolor, selectbackground=theme_inputcolor, arrowcolor=theme_fgcolor)
 style.map('TCombobox', 
@@ -404,15 +406,18 @@ style.configure('TProgressbar', thickness=4, background='DarkGreen')
 ### Top part of the window
 title_frame = ttk.Frame(main_window)
 title_frame.pack(padx=14, pady=6, anchor='w')
-title_label = ttk.Label(title_frame, text='iOS Logs, Events, And Plists Parser', font=('Helvetica', f'{int(2.2 * font_size)}'))
+title_label = ttk.Label(
+    title_frame, text='iOS Logs, Events, And Plists Parser', font=('Helvetica', f'{int(2.2 * font_size)}'))
 title_label.pack(pady=4)
 github_label = ttk.Label(title_frame, text='https://github.com/abrignoni/iLEAPP', style='Medium.TLabel')
 github_label.pack(anchor='w')
 
 ### Input output selection
-input_frame = ttk.LabelFrame(main_window, text=' Select the file (tar/zip/gz) or directory of the target iOS full file system extraction for parsing: ')
+input_frame = ttk.LabelFrame(
+    main_window, 
+    text=' Select the file (tar/zip/gz) or directory of the target iOS full file system extraction for parsing: ')
 input_frame.pack(anchor='w', padx=14, pady=2)
-input_entry = ttk.Entry(input_frame ,width=112, font=theme_font)
+input_entry = ttk.Entry(input_frame, width=112, font=theme_font)
 input_entry.pack(side='left', padx=5, pady=4)
 input_file_button = ttk.Button(input_frame, text='Browse File', command=lambda: select_input('file'))
 input_file_button.pack(side='left', padx=5, pady=4)
@@ -448,7 +453,9 @@ case_data_button = ttk.Button(modules_btn_frame, text='Case Data', command=case_
 case_data_button.pack(side='left', padx=5)
 ttk.Label(modules_btn_frame, text=' | ', style='Medium.TLabel').pack(side='left', padx=5)
 ttk.Label(modules_btn_frame, text='Timezone Offset: ', style='Small.TLabel').pack(side='left', padx=5)
-timezone_offset = ttk.Combobox(modules_btn_frame, textvariable=timezone_set, values=tzvalues, width=20, height=20, font=theme_font, state='readonly')
+timezone_offset = ttk.Combobox(
+    modules_btn_frame, textvariable=timezone_set, values=tzvalues, 
+    width=20, height=20, font=theme_font, state='readonly')
 timezone_offset.master.option_add( '*TCombobox*Listbox.background', theme_inputcolor)
 timezone_offset.master.option_add( '*TCombobox*Listbox.foreground', theme_fgcolor)
 timezone_offset.master.option_add( '*TCombobox*Listbox.selectBackground', theme_fgcolor)
@@ -503,7 +510,8 @@ process_button = ttk.Button(bottom_frame, text='Process', command=lambda: proces
 process_button.pack(side='left', padx=5)
 close_button = ttk.Button(bottom_frame, text='Close', command=main_window.quit)
 close_button.pack(side='left', padx=5)
-selected_modules_label = ttk.Label(bottom_frame, text='Number of selected modules: ', style='Small.TLabel', padding= (30,4))
+selected_modules_label = ttk.Label(
+    bottom_frame, text='Number of selected modules: ', style='Small.TLabel', padding= (30,4))
 selected_modules_label.pack()
 get_selected_modules()
 
