@@ -261,10 +261,7 @@ class GuiWindow:
     @staticmethod
     def SetProgressBar(n, total):
         if GuiWindow.window_handle:
-            try:
-                progress_bar = GuiWindow.window_handle.nametowidget('!progressbar')
-            except:
-                progress_bar = GuiWindow.window_handle.nametowidget('f_modules.!progressbar')
+            progress_bar = GuiWindow.window_handle.nametowidget('f_modules.!progressbar')
             progress_bar.config(value=n)
 
 
