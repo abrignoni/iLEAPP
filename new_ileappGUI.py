@@ -88,7 +88,8 @@ def load_profile():
             tk_msgbox.showerror(title='Error', message=profile_load_error, parent=main_window)
         else:
             profile_filename = destination_path
-            tk_msgbox.showinfo(title='Profile loaded', message=f'Loaded profile: {destination_path}', parent=main_window)
+            tk_msgbox.showinfo(
+                title='Profile loaded', message=f'Loaded profile: {destination_path}', parent=main_window)
 
 
 def save_profile():
@@ -101,7 +102,8 @@ def save_profile():
         selected_modules = get_selected_modules()
         with open(destination_path, 'wt', encoding='utf-8') as profile_out:
             json.dump({'leapp': 'ileapp', 'format_version': 1, 'plugins': selected_modules}, profile_out)
-        tk_msgbox.showinfo(title='Save a profile', message=f'Profile saved: {destination_path}', parent=main_window)
+        tk_msgbox.showinfo(
+            title='Save a profile', message=f'Profile saved: {destination_path}', parent=main_window)
 
 
 def scroll(event):
@@ -176,7 +178,8 @@ def process(casedata):
         progress_bar.grid(row=1, column=0, pady=1, sticky='we')
 
         crunch_successful = ileapp.crunch_artifacts(
-            selected_modules, extracttype, input_path, out_params, wrap_text, loader, casedata, time_offset, profile_filename)
+            selected_modules, extracttype, input_path, out_params, wrap_text, loader, 
+            casedata, time_offset, profile_filename)
 
         if crunch_successful:
             report_path = os.path.join(out_params.report_folder_base, 'index.html')
@@ -192,7 +195,10 @@ def process(casedata):
             log_path = out_params.screen_output_file_path
             if log_path.startswith('\\\\?\\'): # windows
                 log_path = log_path[4:]
-            tk_msgbox.showerror(title='Error', message=f'Processing failed  :( \nSee log for error details..\nLog file located at {log_path}', parent=main_window)
+            tk_msgbox.showerror(
+                title='Error', 
+                message=f'Processing failed  :( \nSee log for error details..\nLog file located at {log_path}', 
+                parent=main_window)
 
 
 def select_input(button_type):
@@ -237,7 +243,8 @@ def case_data():
             json_casedata = {key:value.get() for key, value in casedata.items()}
             with open(destination_path, 'wt', encoding='utf-8') as case_data_out:
                 json.dump({'leapp': 'case_data', 'case_data_values': json_casedata}, case_data_out)
-            tk_msgbox.showinfo(title='Save Case Data', message=f'Case Data saved: {destination_path}', parent=case_window)
+            tk_msgbox.showinfo(
+                title='Save Case Data', message=f'Case Data saved: {destination_path}', parent=case_window)
 
 
     def load_case():
@@ -270,13 +277,21 @@ def case_data():
             if case_data_load_error:
                 tk_msgbox.showerror(title='Error', message=case_data_load_error, parent=case_window)
             else:
-                tk_msgbox.showinfo(title='Load Case Data', message=f'Loaded Case Data: {destination_path}', parent=case_window)
+                tk_msgbox.showinfo(
+                    title='Load Case Data', message=f'Loaded Case Data: {destination_path}', parent=case_window)
 
 
     ### Case Data Window creation
     case_window = tk.Toplevel(main_window)
-    case_window_width = 560
-    case_window_height = 270
+    if is_platform_macos():
+        case_window_width = 560
+        case_window_height = 270
+    elif is_platform_linux():
+        case_window_width = 530
+        case_window_height = 290
+    else:
+        case_window_width = 460
+        case_window_height = 270
 
     #### Places Case Data window in the center of the screen
     screen_width = main_window.winfo_screenwidth()
@@ -323,6 +338,8 @@ def case_data():
 
 ## Main window creation
 main_window = tk.Tk()
+window_width = 890
+window_height = 620
 
 ## Variables
 loader: typing.Optional[plugin_loader.PluginLoader] = None
@@ -342,21 +359,15 @@ theme_inputcolor = '#705e52'
 theme_fgcolor = '#fdcb52'
 
 if is_platform_macos():
-    window_width = 890
-    window_height = 620
     log_window_width = 118
     mlist_window_height = 24
     log_text_height = 26
 elif is_platform_linux():
-    window_width = 890
-    window_height = 620
-    log_window_width = 24
-    mlist_window_height = 19
-    log_text_height = 29
+    log_window_width = 104
+    mlist_window_height = 16
+    log_text_height = 18
 else:
-    window_width = 800
-    window_height = 620
-    log_window_width = 92
+    log_window_width = 104
     mlist_window_height = 19
     log_text_height = 20
 
@@ -479,6 +490,7 @@ for plugin, enabled in mlist.items():
               highlightthickness=0, activebackground=theme_bgcolor, activeforeground=theme_fgcolor)
     mlist_text.window_create('insert', window=cb)
     mlist_text.insert('end', '\n')
+mlist_text.config(state='disabled')
 main_window.bind_class('Checkbutton', '<MouseWheel>', scroll)
 main_window.bind_class('Checkbutton', '<Button-4>', scroll)
 main_window.bind_class('Checkbutton', '<Button-5>', scroll)
