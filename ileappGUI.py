@@ -163,6 +163,7 @@ def process(casedata):
         selected_modules.insert(0, 'lastbuild') # Force lastBuild as first item to be parsed
         selected_modules = [loader[module] for module in selected_modules]
         progress_bar.config(maximum=len(selected_modules))
+        log_text.config(state='normal')
         casedata = {key:value.get() for key, value in casedata.items()}
         out_params = OutputParameters(output_folder)
         wrap_text = True
@@ -484,6 +485,7 @@ for plugin, enabled in mlist.items():
               pady=mlist_padding)
     mlist_text.window_create('insert', window=cb)
     mlist_text.insert('end', '\n')
+mlist_text.config(state='disabled')
 main_window.bind_class('Checkbutton', '<MouseWheel>', scroll)
 main_window.bind_class('Checkbutton', '<Button-4>', scroll)
 main_window.bind_class('Checkbutton', '<Button-5>', scroll)
@@ -498,6 +500,7 @@ log_text = tk.Text(logtext_frame, name='log_text', height=log_window_height,
                    yscrollcommand=vlog.set)
 log_text.pack(anchor='w', side='left')
 vlog.config(command=log_text.yview)
+log_text.config(state='disabled')
 
 ### Progress bar
 progress_bar = ttk.Progressbar(main_window, orient='horizontal', length = 860)
