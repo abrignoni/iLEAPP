@@ -88,7 +88,8 @@ def load_profile():
             tk_msgbox.showerror(title='Error', message=profile_load_error, parent=main_window)
         else:
             profile_filename = destination_path
-            tk_msgbox.showinfo(title='Profile loaded', message=f'Loaded profile: {destination_path}', parent=main_window)
+            tk_msgbox.showinfo(
+                title='Profile loaded', message=f'Loaded profile: {destination_path}', parent=main_window)
 
 
 def save_profile():
@@ -101,7 +102,8 @@ def save_profile():
         selected_modules = get_selected_modules()
         with open(destination_path, 'wt', encoding='utf-8') as profile_out:
             json.dump({'leapp': 'ileapp', 'format_version': 1, 'plugins': selected_modules}, profile_out)
-        tk_msgbox.showinfo(title='Save a profile', message=f'Profile saved: {destination_path}', parent=main_window)
+        tk_msgbox.showinfo(
+            title='Save a profile', message=f'Profile saved: {destination_path}', parent=main_window)
 
 
 def scroll(event):
@@ -163,7 +165,6 @@ def process(casedata):
         selected_modules.insert(0, 'lastbuild') # Force lastBuild as first item to be parsed
         selected_modules = [loader[module] for module in selected_modules]
         progress_bar.config(maximum=len(selected_modules))
-        log_text.config(state='normal')
         casedata = {key:value.get() for key, value in casedata.items()}
         out_params = OutputParameters(output_folder)
         wrap_text = True
@@ -171,9 +172,14 @@ def process(casedata):
         if time_offset == '':
             time_offset = 'UTC'
         
+        button_frame.grid_remove()
+        logtext_frame.grid(row=0, column=0, pady=4, sticky='nswe')
+        mlist_frame.grid_remove()
+        progress_bar.grid(row=1, column=0, pady=1, sticky='we')
+
         crunch_successful = ileapp.crunch_artifacts(
-            selected_modules, extracttype, input_path, out_params, wrap_text, 
-            loader, casedata, time_offset, profile_filename)
+            selected_modules, extracttype, input_path, out_params, wrap_text, loader, 
+            casedata, time_offset, profile_filename)
 
         if crunch_successful:
             report_path = os.path.join(out_params.report_folder_base, 'index.html')
@@ -237,7 +243,8 @@ def case_data():
             json_casedata = {key:value.get() for key, value in casedata.items()}
             with open(destination_path, 'wt', encoding='utf-8') as case_data_out:
                 json.dump({'leapp': 'case_data', 'case_data_values': json_casedata}, case_data_out)
-            tk_msgbox.showinfo(title='Save Case Data', message=f'Case Data saved: {destination_path}', parent=case_window)
+            tk_msgbox.showinfo(
+                title='Save Case Data', message=f'Case Data saved: {destination_path}', parent=case_window)
 
 
     def load_case():
@@ -276,8 +283,11 @@ def case_data():
 
     ### Case Data Window creation
     case_window = tk.Toplevel(main_window)
-    case_window_width = 610
-    case_window_height = 250
+    case_window_width = 560
+    if is_platform_linux():
+        case_window_height = 290
+    else:
+        case_window_height = 270
 
     #### Places Case Data window in the center of the screen
     screen_width = main_window.winfo_screenwidth()
@@ -290,42 +300,44 @@ def case_data():
     case_window.resizable(False, False)
     case_window.configure(bg=theme_bgcolor)
     case_window.title('Add Case Data')
+    case_window.grid_columnconfigure(0, weight=1)
 
     #### Layout
-    case_title_label = ttk.Label(case_window, text='Add Case Data', font=('Helvetica', f'{int(1.8 * font_size)}'))
-    case_title_label.pack(padx=14, pady=7, anchor='w')
+    case_title_label = ttk.Label(case_window, text='Add Case Data', font=('Helvetica 18'))
+    case_title_label.grid(row=0, column=0, padx=14, pady=7, sticky='w')
     case_number_frame = ttk.LabelFrame(case_window, text=' Case Number ')
-    case_number_frame.pack(padx=14, pady=5, anchor='w')
-    case_number_entry = ttk.Entry(case_number_frame, textvariable=casedata['Case Number'], width=casedata_entry_width)
-    case_number_entry.pack(side='left', padx=5, pady=4)
+    case_number_frame.grid(row=1, column=0, padx=14, pady=5, sticky='we')
+    case_number_entry = ttk.Entry(case_number_frame, textvariable=casedata['Case Number'])
+    case_number_entry.pack(padx=5, pady=4, fill='x')
     case_number_entry.focus()
     case_agency_frame = ttk.LabelFrame(case_window, text=' Agency ')
-    case_agency_frame.pack(padx=14, pady=5, anchor='w')
-    case_agency_entry = ttk.Entry(case_agency_frame, textvariable=casedata['Agency'], width=casedata_entry_width)
-    case_agency_entry.pack(side='left', padx=5, pady=4)
+    case_agency_frame.grid(row=2, column=0, padx=14, pady=5, sticky='we')
+    case_agency_entry = ttk.Entry(case_agency_frame, textvariable=casedata['Agency'])
+    case_agency_entry.pack(padx=5, pady=4, fill='x')
     case_examiner_frame = ttk.LabelFrame(case_window, text=' Examiner ')
-    case_examiner_frame.pack(padx=14, pady=5, anchor='w')
-    case_examiner_entry = ttk.Entry(case_examiner_frame, textvariable=casedata['Examiner'], width=casedata_entry_width)
-    case_examiner_entry.pack(side='left', padx=5, pady=4)
+    case_examiner_frame.grid(row=3, column=0, padx=14, pady=5, sticky='we')
+    case_examiner_entry = ttk.Entry(case_examiner_frame, textvariable=casedata['Examiner'])
+    case_examiner_entry.pack(padx=5, pady=4, fill='x')
     modules_btn_frame = ttk.Frame(case_window)
-    modules_btn_frame.pack(anchor='w', padx=14, pady=8)
+    modules_btn_frame.grid(row=4, column=0, padx=14, pady=16, sticky='we')
+    modules_btn_frame.grid_columnconfigure(2, weight=1)
     load_case_button = ttk.Button(modules_btn_frame, text='Load Case Data File', command=load_case)
-    load_case_button.pack(side='left', padx=5)
+    load_case_button.grid(row=0, column=0, padx=5)
     save_case_button = ttk.Button(modules_btn_frame, text='Save Case Data File', command=save_case)
-    save_case_button.pack(side='left', padx=5)
-    ttk.Separator(modules_btn_frame,orient='vertical').pack(side='left', fill='y', padx=20)
+    save_case_button.grid(row=0, column=1, padx=5)
+    ttk.Separator(modules_btn_frame,orient='vertical').grid(row=0, column=2, padx=20, sticky='ns')
     clear_case_button = ttk.Button(modules_btn_frame, text='Clear', command=clear)
-    clear_case_button.pack(side='left', padx=5)
+    clear_case_button.grid(row=0, column=3, padx=5)
     close_case_button = ttk.Button(modules_btn_frame, text='Close', command=case_window.destroy)
-    close_case_button.pack(side='left', padx=5)
+    close_case_button.grid(row=0, column=4, padx=5)
 
     case_window.grab_set()
 
 
 ## Main window creation
 main_window = tk.Tk()
-window_width = 900
-window_height = 600
+window_width = 890
+window_height = 620
 
 ## Variables
 loader: typing.Optional[plugin_loader.PluginLoader] = None
@@ -339,40 +351,26 @@ casedata = {'Case Number': tk.StringVar(),
 timezone_set = tk.StringVar()
 pickModules()
 
-## Places main window in the center
-screen_width = main_window.winfo_screenwidth()
-screen_height = main_window.winfo_screenheight()
-margin_width = (screen_width - window_width) // 2
-margin_height = (screen_height - window_height) // 2
-
 ## Theme properties
 theme_bgcolor = '#2c2825'
 theme_inputcolor = '#705e52'
 theme_fgcolor = '#fdcb52'
 
 if is_platform_macos():
-    font_size = 10
-    casedata_entry_width = 80
-    mlist_window_width = 50
-    mlist_window_height = 23
-    mlist_padding = 2
-    log_window_height = 28
+    mlist_window_height = 24
+    log_text_height = 26
 elif is_platform_linux():
-    font_size = 8
-    casedata_entry_width = 100
-    mlist_window_width = 44
-    mlist_window_height = 18
-    mlist_padding = 4
-    log_window_height = 29
+    mlist_window_height = 16
+    log_text_height = 18
 else:
-    font_size = 8
-    casedata_entry_width = 100
-    mlist_window_width = 44
-    mlist_window_height = 18
-    mlist_padding = 2
-    log_window_height = 21
+    mlist_window_height = 19
+    log_text_height = 20
 
-theme_font = ('Helvetica', font_size)
+## Places main window in the center
+screen_width = main_window.winfo_screenwidth()
+screen_height = main_window.winfo_screenheight()
+margin_width = (screen_width - window_width) // 2
+margin_height = (screen_height - window_height) // 2
 
 ## Main window properties
 main_window.geometry(f'{window_width}x{window_height}+{margin_width}+{margin_height}')
@@ -381,22 +379,22 @@ main_window.resizable(False, False)
 main_window.configure(bg=theme_bgcolor)
 logo_icon = tk.PhotoImage(data=leapp_logo.logo)
 main_window.iconphoto(True, logo_icon)
+main_window.grid_columnconfigure(0, weight=1)
 
 ## Widgets default style
 style = ttk.Style()
 style.theme_use('default')
 style.configure('.', 
                 background=theme_bgcolor, 
-                foreground=theme_fgcolor, 
-                font=theme_font)
-style.configure('Small.TLabel', font=('Helvetica', f'{int(1.2 * font_size)}'))
-style.configure('Medium.TLabel', font=('Helvetica', f'{int(1.4 * font_size)}'))
+                foreground=theme_fgcolor)
 style.configure('TButton')
 style.map('TButton', 
           background=[('active', 'black'), ('!disabled', theme_fgcolor)], 
           foreground=[('active', theme_fgcolor), ('!disabled', 'black')])
 style.configure('TEntry', fieldbackground=theme_inputcolor, highlightthickness=0)
-style.configure('TCombobox', selectforeground=theme_fgcolor, selectbackground=theme_inputcolor, arrowcolor=theme_fgcolor)
+style.configure(
+    'TCombobox', selectforeground=theme_fgcolor, 
+    selectbackground=theme_inputcolor, arrowcolor=theme_fgcolor)
 style.map('TCombobox', 
           fieldbackground=[('active', theme_inputcolor), ('readonly', theme_inputcolor)], 
           )
@@ -406,83 +404,87 @@ style.configure('TProgressbar', thickness=4, background='DarkGreen')
 ## Main Window Layout
 ### Top part of the window
 title_frame = ttk.Frame(main_window)
-title_frame.pack(padx=14, pady=6, anchor='w')
+title_frame.grid(padx=14, pady=6, sticky='w')
 title_label = ttk.Label(
-    title_frame, text='iOS Logs, Events, And Plists Parser', font=('Helvetica', f'{int(2.2 * font_size)}'))
+    title_frame, 
+    text='iOS Logs, Events, And Plists Parser', 
+    font=('Helvetica 22'))
 title_label.pack(pady=4)
-github_label = ttk.Label(title_frame, text='https://github.com/abrignoni/iLEAPP', style='Medium.TLabel')
+github_label = ttk.Label(
+    title_frame, 
+    text='https://github.com/abrignoni/iLEAPP', 
+    font=('Helvetica 14'))
 github_label.pack(anchor='w')
 
 ### Input output selection
 input_frame = ttk.LabelFrame(
     main_window, 
     text=' Select the file (tar/zip/gz) or directory of the target iOS full file system extraction for parsing: ')
-input_frame.pack(anchor='w', padx=14, pady=2)
-input_entry = ttk.Entry(input_frame, width=112, font=theme_font)
-input_entry.pack(side='left', padx=5, pady=4)
+input_frame.grid(padx=14, pady=2, sticky='we')
+input_frame.grid_columnconfigure(0, weight=1)
+input_entry = ttk.Entry(input_frame)
+input_entry.grid(row=0, column=0, padx=5, pady=4, sticky='we')
 input_file_button = ttk.Button(input_frame, text='Browse File', command=lambda: select_input('file'))
-input_file_button.pack(side='left', padx=5, pady=4)
+input_file_button.grid(row=0, column=1, padx=5, pady=4)
 input_folder_button = ttk.Button(input_frame, text='Browse Folder', command=lambda: select_input('folder'))
-input_folder_button.pack(side='left', padx=5, pady=4)
+input_folder_button.grid(row=0, column=2, padx=5, pady=4)
 
 output_frame = ttk.LabelFrame(main_window, text=' Select Output Folder: ')
-output_frame.pack(anchor='w', padx=14, pady=5)
-output_entry = ttk.Entry(output_frame, width=126, font=theme_font)
-output_entry.grid(row=0, column=0, padx=5, pady=4)
+output_frame.grid(padx=14, pady=5, sticky='we')
+output_frame.grid_columnconfigure(0, weight=1)
+output_entry = ttk.Entry(output_frame)
+output_entry.grid(row=0, column=0, padx=5, pady=4, sticky='we')
 output_folder_button = ttk.Button(output_frame, text='Browse Folder', command=select_output)
 output_folder_button.grid(row=0, column=1, padx=5, pady=4)
 
-### Modules and logs
+### Modules
 modules_frame = ttk.Frame(main_window, name='f_modules')
-modules_frame.pack(padx=14, pady=1, anchor='w')
+modules_frame.grid(padx=14, pady=4, sticky='we')
+modules_frame.grid_columnconfigure(0, weight=1)
 
-modules_btn_frame = ttk.Frame(modules_frame, name='')
-modules_btn_frame.pack(anchor='w')
-ttk.Label(modules_btn_frame, text='Available Modules: ').pack(anchor='w', pady=4)
+#### Buttons & Timezone
+button_frame = ttk.Frame(modules_frame)
+button_frame.grid(row=0, column=0, pady=4, sticky='we')
 
-####Buttons
-all_button = ttk.Button(modules_btn_frame, text='Select All', command=select_all)
-all_button.pack(side='left', padx=8, pady=4)
-none_button = ttk.Button(modules_btn_frame, text='Deselect All', command=deselect_all)
-none_button.pack(side='left', padx=8)
-load_button = ttk.Button(modules_btn_frame, text='Load Profile', command=load_profile)
-load_button.pack(side='left', padx=8)
-save_button = ttk.Button(modules_btn_frame, text='Save Profile', command=save_profile)
-save_button.pack(side='left', padx=8)
-ttk.Label(modules_btn_frame, text='          ', style='Medium.TLabel').pack(side='left', padx=5)
-case_data_button = ttk.Button(modules_btn_frame, text='Case Data', command=case_data)
-case_data_button.pack(side='left', padx=5)
-ttk.Label(modules_btn_frame, text=' | ', style='Medium.TLabel').pack(side='left', padx=5)
-ttk.Label(modules_btn_frame, text='Timezone Offset: ', style='Small.TLabel').pack(side='left', padx=5)
+all_button = ttk.Button(button_frame, text='Select All', command=select_all)
+all_button.grid(row=0, column=0, padx=5)
+none_button = ttk.Button(button_frame, text='Deselect All', command=deselect_all)
+none_button.grid(row=0, column=1, padx=5)
+load_button = ttk.Button(button_frame, text='Load Profile', command=load_profile)
+load_button.grid(row=0, column=2, padx=5)
+save_button = ttk.Button(button_frame, text='Save Profile', command=save_profile)
+save_button.grid(row=0, column=3, padx=5)
+ttk.Separator(button_frame, orient='vertical').grid(row=0, column=4, padx=10, sticky='ns')
+case_data_button = ttk.Button(button_frame, text='Case Data', command=case_data)
+case_data_button.grid(row=0, column=5, padx=5)
+ttk.Separator(button_frame, orient='vertical').grid(row=0, column=6, padx=10, sticky='ns')
+ttk.Label(
+    button_frame, text='Timezone Offset: '
+    ).grid(row=0, column=7)
 timezone_offset = ttk.Combobox(
-    modules_btn_frame, textvariable=timezone_set, values=tzvalues, 
-    width=20, height=20, font=theme_font, state='readonly')
+    button_frame, textvariable=timezone_set, values=tzvalues, height=20, state='readonly')
 timezone_offset.master.option_add( '*TCombobox*Listbox.background', theme_inputcolor)
 timezone_offset.master.option_add( '*TCombobox*Listbox.foreground', theme_fgcolor)
 timezone_offset.master.option_add( '*TCombobox*Listbox.selectBackground', theme_fgcolor)
-timezone_offset.master.option_add( '*TCombobox*Listbox.font', theme_font)
-timezone_offset.pack(side='left')
+timezone_offset.grid(row=0, column=8)
 
-#### Modules list
-mlist_frame = ttk.Frame(modules_frame, name='f_list')
-mlist_frame.pack(anchor='w', side='left', padx=7)
-x = ttk.Scrollbar(mlist_frame, orient='horizontal')
-x.pack(side='bottom', fill='x')
+#### List of modules
+mlist_frame = ttk.LabelFrame(modules_frame, text=' Available Modules: ', name='f_list')
+mlist_frame.grid(row=1, column=0, padx=4, pady=4, sticky='we')
+mlist_frame.grid_columnconfigure(0, weight=1)
 v = ttk.Scrollbar(mlist_frame, orient='vertical')
-v.pack(side='right', fill='y')
-mlist_text = tk.Text(mlist_frame, name='tbox', width=mlist_window_width, height=mlist_window_height, 
-                     bg=theme_bgcolor, highlightthickness=0, 
-                     xscrollcommand=x.set, yscrollcommand=v.set)
-mlist_text.pack(anchor='w')
+v.grid(row=0, column=1, sticky='ns')
+mlist_text = tk.Text(mlist_frame, name='tbox', bg=theme_bgcolor, highlightthickness=0, 
+                     yscrollcommand=v.set, height=mlist_window_height)
+# mlist_text.pack(anchor='w')
+mlist_text.grid(row=0, column=0, sticky='we')
 v.config(command=mlist_text.yview)
-x.config(command=mlist_text.xview)
 for plugin, enabled in mlist.items():
     cb = tk.Checkbutton(mlist_text, name=f'mcb_{plugin.module_name}', 
                         text=f'{plugin.category} [{plugin.name} - {plugin.module_name}.py]', 
                         variable=enabled, onvalue=True, offvalue=False, command=get_selected_modules)
-    cb.config(background=theme_bgcolor, fg=theme_fgcolor, font=theme_font, selectcolor=theme_inputcolor, 
-              highlightthickness=0, activebackground=theme_bgcolor, activeforeground=theme_fgcolor, 
-              pady=mlist_padding)
+    cb.config(background=theme_bgcolor, fg=theme_fgcolor, selectcolor=theme_inputcolor, 
+              highlightthickness=0, activebackground=theme_bgcolor, activeforeground=theme_fgcolor)
     mlist_text.window_create('insert', window=cb)
     mlist_text.insert('end', '\n')
 mlist_text.config(state='disabled')
@@ -492,30 +494,28 @@ main_window.bind_class('Checkbutton', '<Button-5>', scroll)
 
 #### Logs
 logtext_frame = ttk.Frame(modules_frame, name='logs_frame')
-logtext_frame.pack(anchor='w', side='left', padx=1, pady=5)
+logtext_frame.grid_columnconfigure(0, weight=1)
 vlog = ttk.Scrollbar(logtext_frame, orient='vertical')
-vlog.pack(side='right', fill='y')
-log_text = tk.Text(logtext_frame, name='log_text', height=log_window_height, 
-                   bg=theme_inputcolor, font=theme_font, fg=theme_fgcolor, highlightthickness=1, 
-                   yscrollcommand=vlog.set)
-log_text.pack(anchor='w', side='left')
+vlog.grid(row=0, column=1, pady=10, sticky='ns')
+log_text = tk.Text(
+    logtext_frame, name='log_text', bg=theme_inputcolor, fg=theme_fgcolor, 
+    highlightthickness=1, yscrollcommand=vlog.set, height=log_text_height)
+log_text.grid(row=0, column=0, padx=4, pady=10, sticky='we')
 vlog.config(command=log_text.yview)
-log_text.config(state='disabled')
 
 ### Progress bar
-progress_bar = ttk.Progressbar(main_window, orient='horizontal', length = 860)
-progress_bar.pack(pady=2)
+progress_bar = ttk.Progressbar(modules_frame, orient='horizontal')
 
 ### Process / Close
 bottom_frame = ttk.Frame(main_window)
-bottom_frame.pack(padx=16, pady=5, anchor='w')
+bottom_frame.grid(padx=16, pady=6, sticky='we')
+bottom_frame.grid_columnconfigure(2, weight=1)
 process_button = ttk.Button(bottom_frame, text='Process', command=lambda: process(casedata))
-process_button.pack(side='left', padx=5)
+process_button.grid(row=0, column=0, padx=5)
 close_button = ttk.Button(bottom_frame, text='Close', command=main_window.quit)
-close_button.pack(side='left', padx=5)
-selected_modules_label = ttk.Label(
-    bottom_frame, text='Number of selected modules: ', style='Small.TLabel', padding= (30,4))
-selected_modules_label.pack()
+close_button.grid(row=0, column=1, padx=5)
+selected_modules_label = ttk.Label(bottom_frame, text='Number of selected modules: ')
+selected_modules_label.grid(row=0, column=2, padx=5, sticky='e')
 get_selected_modules()
 
 main_window.mainloop()
