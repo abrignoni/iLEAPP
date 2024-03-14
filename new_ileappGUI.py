@@ -283,14 +283,10 @@ def case_data():
 
     ### Case Data Window creation
     case_window = tk.Toplevel(main_window)
-    if is_platform_macos():
-        case_window_width = 560
-        case_window_height = 270
-    elif is_platform_linux():
-        case_window_width = 530
+    case_window_width = 560
+    if is_platform_linux():
         case_window_height = 290
     else:
-        case_window_width = 460
         case_window_height = 270
 
     #### Places Case Data window in the center of the screen
@@ -304,6 +300,7 @@ def case_data():
     case_window.resizable(False, False)
     case_window.configure(bg=theme_bgcolor)
     case_window.title('Add Case Data')
+    case_window.grid_columnconfigure(0, weight=1)
 
     #### Layout
     case_title_label = ttk.Label(case_window, text='Add Case Data', font=('Helvetica 18'))
@@ -322,16 +319,17 @@ def case_data():
     case_examiner_entry = ttk.Entry(case_examiner_frame, textvariable=casedata['Examiner'])
     case_examiner_entry.pack(padx=5, pady=4, fill='x')
     modules_btn_frame = ttk.Frame(case_window)
-    modules_btn_frame.grid(row=4, column=0, padx=14, pady=16)
+    modules_btn_frame.grid(row=4, column=0, padx=14, pady=16, sticky='we')
+    modules_btn_frame.grid_columnconfigure(2, weight=1)
     load_case_button = ttk.Button(modules_btn_frame, text='Load Case Data File', command=load_case)
-    load_case_button.pack(side='left', padx=5)
+    load_case_button.grid(row=0, column=0, padx=5)
     save_case_button = ttk.Button(modules_btn_frame, text='Save Case Data File', command=save_case)
-    save_case_button.pack(side='left', padx=5)
-    ttk.Separator(modules_btn_frame,orient='vertical').pack(side='left', fill='y', padx=20)
+    save_case_button.grid(row=0, column=1, padx=5)
+    ttk.Separator(modules_btn_frame,orient='vertical').grid(row=0, column=2, padx=20, sticky='ns')
     clear_case_button = ttk.Button(modules_btn_frame, text='Clear', command=clear)
-    clear_case_button.pack(side='left', padx=5)
+    clear_case_button.grid(row=0, column=3, padx=5)
     close_case_button = ttk.Button(modules_btn_frame, text='Close', command=case_window.destroy)
-    close_case_button.pack(side='left', padx=5)
+    close_case_button.grid(row=0, column=4, padx=5)
 
     case_window.grab_set()
 
@@ -359,15 +357,12 @@ theme_inputcolor = '#705e52'
 theme_fgcolor = '#fdcb52'
 
 if is_platform_macos():
-    log_window_width = 118
     mlist_window_height = 24
     log_text_height = 26
 elif is_platform_linux():
-    log_window_width = 104
     mlist_window_height = 16
     log_text_height = 18
 else:
-    log_window_width = 104
     mlist_window_height = 19
     log_text_height = 20
 
@@ -384,6 +379,7 @@ main_window.resizable(False, False)
 main_window.configure(bg=theme_bgcolor)
 logo_icon = tk.PhotoImage(data=leapp_logo.logo)
 main_window.iconphoto(True, logo_icon)
+main_window.grid_columnconfigure(0, weight=1)
 
 ## Widgets default style
 style = ttk.Style()
@@ -408,7 +404,7 @@ style.configure('TProgressbar', thickness=4, background='DarkGreen')
 ## Main Window Layout
 ### Top part of the window
 title_frame = ttk.Frame(main_window)
-title_frame.grid(row=0, column=0, padx=14, pady=6, sticky='w')
+title_frame.grid(padx=14, pady=6, sticky='w')
 title_label = ttk.Label(
     title_frame, 
     text='iOS Logs, Events, And Plists Parser', 
@@ -424,8 +420,8 @@ github_label.pack(anchor='w')
 input_frame = ttk.LabelFrame(
     main_window, 
     text=' Select the file (tar/zip/gz) or directory of the target iOS full file system extraction for parsing: ')
-input_frame.grid(row=1, column=0, padx=14, pady=2, sticky='we')
-input_frame.grid_columnconfigure(0, weight=2)
+input_frame.grid(padx=14, pady=2, sticky='we')
+input_frame.grid_columnconfigure(0, weight=1)
 input_entry = ttk.Entry(input_frame)
 input_entry.grid(row=0, column=0, padx=5, pady=4, sticky='we')
 input_file_button = ttk.Button(input_frame, text='Browse File', command=lambda: select_input('file'))
@@ -434,8 +430,8 @@ input_folder_button = ttk.Button(input_frame, text='Browse Folder', command=lamb
 input_folder_button.grid(row=0, column=2, padx=5, pady=4)
 
 output_frame = ttk.LabelFrame(main_window, text=' Select Output Folder: ')
-output_frame.grid(row=2, column=0, padx=14, pady=5, sticky='we')
-output_frame.grid_columnconfigure(0, weight=2)
+output_frame.grid(padx=14, pady=5, sticky='we')
+output_frame.grid_columnconfigure(0, weight=1)
 output_entry = ttk.Entry(output_frame)
 output_entry.grid(row=0, column=0, padx=5, pady=4, sticky='we')
 output_folder_button = ttk.Button(output_frame, text='Browse Folder', command=select_output)
@@ -443,7 +439,8 @@ output_folder_button.grid(row=0, column=1, padx=5, pady=4)
 
 ### Modules
 modules_frame = ttk.Frame(main_window, name='f_modules')
-modules_frame.grid(row=3, column=0, padx=14, pady=4)
+modules_frame.grid(padx=14, pady=4, sticky='we')
+modules_frame.grid_columnconfigure(0, weight=1)
 
 #### Buttons & Timezone
 button_frame = ttk.Frame(modules_frame)
@@ -474,11 +471,11 @@ timezone_offset.grid(row=0, column=8)
 #### List of modules
 mlist_frame = ttk.LabelFrame(modules_frame, text=' Available Modules: ', name='f_list')
 mlist_frame.grid(row=1, column=0, padx=4, pady=4, sticky='we')
-mlist_frame.grid_columnconfigure(0, weight=2)
+mlist_frame.grid_columnconfigure(0, weight=1)
 v = ttk.Scrollbar(mlist_frame, orient='vertical')
 v.grid(row=0, column=1, sticky='ns')
 mlist_text = tk.Text(mlist_frame, name='tbox', bg=theme_bgcolor, highlightthickness=0, 
-                     yscrollcommand=v.set, width=log_window_width, height=mlist_window_height)
+                     yscrollcommand=v.set, height=mlist_window_height)
 # mlist_text.pack(anchor='w')
 mlist_text.grid(row=0, column=0, sticky='we')
 v.config(command=mlist_text.yview)
@@ -497,12 +494,12 @@ main_window.bind_class('Checkbutton', '<Button-5>', scroll)
 
 #### Logs
 logtext_frame = ttk.Frame(modules_frame, name='logs_frame')
-logtext_frame.grid_columnconfigure(0, weight=2)
+logtext_frame.grid_columnconfigure(0, weight=1)
 vlog = ttk.Scrollbar(logtext_frame, orient='vertical')
 vlog.grid(row=0, column=1, pady=10, sticky='ns')
 log_text = tk.Text(
     logtext_frame, name='log_text', bg=theme_inputcolor, fg=theme_fgcolor, 
-    highlightthickness=1, yscrollcommand=vlog.set, width=log_window_width, height=log_text_height)
+    highlightthickness=1, yscrollcommand=vlog.set, height=log_text_height)
 log_text.grid(row=0, column=0, padx=4, pady=10, sticky='we')
 vlog.config(command=log_text.yview)
 
@@ -511,8 +508,8 @@ progress_bar = ttk.Progressbar(modules_frame, orient='horizontal')
 
 ### Process / Close
 bottom_frame = ttk.Frame(main_window)
-bottom_frame.grid(row=4, column=0, padx=16, pady=6, sticky='we')
-bottom_frame.grid_columnconfigure(2, weight=2)
+bottom_frame.grid(padx=16, pady=6, sticky='we')
+bottom_frame.grid_columnconfigure(2, weight=1)
 process_button = ttk.Button(bottom_frame, text='Process', command=lambda: process(casedata))
 process_button.grid(row=0, column=0, padx=5)
 close_button = ttk.Button(bottom_frame, text='Close', command=main_window.quit)
