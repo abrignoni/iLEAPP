@@ -4,7 +4,6 @@ import typing
 import json
 import ileapp
 import webbrowser
-import scripts.logo_b64 as leapp_logo
 
 from tkinter import ttk, filedialog as tk_filedialog, messagebox as tk_msgbox
 from scripts.version_info import ileapp_version
@@ -145,6 +144,12 @@ def ValidateInput():
     return True, ext_type
 
 
+def open_report(report_path):
+    '''Open report and Quit after processing completed'''
+    webbrowser.open_new_tab('file://' + report_path)
+    main_window.quit()
+
+
 def process(casedata):
     '''Execute selected modules and create reports'''
     #check if selections made properly; if not we will return to input form without exiting app altogether
@@ -172,10 +177,9 @@ def process(casedata):
         if time_offset == '':
             time_offset = 'UTC'
         
-        button_frame.grid_remove()
-        logtext_frame.grid(row=0, column=0, pady=4, sticky='nswe')
-        mlist_frame.grid_remove()
-        progress_bar.grid(row=1, column=0, pady=1, sticky='we')
+        logtext_frame.grid(row=1, column=0, rowspan=3, padx=14, pady=4, sticky='nswe')
+        bottom_frame.grid_remove()
+        progress_bar.grid(padx=16, pady=6, sticky='we')
 
         crunch_successful = ileapp.crunch_artifacts(
             selected_modules, extracttype, input_path, out_params, wrap_text, loader, 
@@ -188,9 +192,10 @@ def process(casedata):
             if report_path.startswith('\\\\'): # UNC path
                 report_path = report_path[2:]
             locationmessage = 'Report name: ' + report_path
-            tk_msgbox.showinfo(title='Processing completed', message=locationmessage, parent=main_window)
-            webbrowser.open_new_tab('file://' + report_path)
-            main_window.quit()
+            # tk_msgbox.showinfo(title='Processing completed', message=locationmessage, parent=main_window)
+            progress_bar.grid_remove()
+            open_report_button = ttk.Button(main_window, text='Open Report & Close', command=lambda: open_report(report_path))
+            open_report_button.grid(ipadx=8)
         else:
             log_path = out_params.screen_output_file_path
             if log_path.startswith('\\\\?\\'): # windows
@@ -340,6 +345,7 @@ window_width = 890
 window_height = 620
 
 ## Variables
+icon = os.path.join(os.path.dirname(__file__), 'scripts', 'icon.png')
 loader: typing.Optional[plugin_loader.PluginLoader] = None
 mlist = {}
 profile_filename = None
@@ -358,13 +364,13 @@ theme_fgcolor = '#fdcb52'
 
 if is_platform_macos():
     mlist_window_height = 24
-    log_text_height = 26
+    log_text_height = 36
 elif is_platform_linux():
     mlist_window_height = 16
-    log_text_height = 18
+    log_text_height = 27
 else:
     mlist_window_height = 19
-    log_text_height = 20
+    log_text_height = 29
 
 ## Places main window in the center
 screen_width = main_window.winfo_screenwidth()
@@ -377,7 +383,7 @@ main_window.geometry(f'{window_width}x{window_height}+{margin_width}+{margin_hei
 main_window.title(f'iLEAPP version {ileapp_version}')
 main_window.resizable(False, False)
 main_window.configure(bg=theme_bgcolor)
-logo_icon = tk.PhotoImage(data=leapp_logo.logo)
+logo_icon = tk.PhotoImage(file=icon)
 main_window.iconphoto(True, logo_icon)
 main_window.grid_columnconfigure(0, weight=1)
 
@@ -492,20 +498,6 @@ main_window.bind_class('Checkbutton', '<MouseWheel>', scroll)
 main_window.bind_class('Checkbutton', '<Button-4>', scroll)
 main_window.bind_class('Checkbutton', '<Button-5>', scroll)
 
-#### Logs
-logtext_frame = ttk.Frame(modules_frame, name='logs_frame')
-logtext_frame.grid_columnconfigure(0, weight=1)
-vlog = ttk.Scrollbar(logtext_frame, orient='vertical')
-vlog.grid(row=0, column=1, pady=10, sticky='ns')
-log_text = tk.Text(
-    logtext_frame, name='log_text', bg=theme_inputcolor, fg=theme_fgcolor, 
-    highlightthickness=1, yscrollcommand=vlog.set, height=log_text_height)
-log_text.grid(row=0, column=0, padx=4, pady=10, sticky='we')
-vlog.config(command=log_text.yview)
-
-### Progress bar
-progress_bar = ttk.Progressbar(modules_frame, orient='horizontal')
-
 ### Process / Close
 bottom_frame = ttk.Frame(main_window)
 bottom_frame.grid(padx=16, pady=6, sticky='we')
@@ -517,5 +509,19 @@ close_button.grid(row=0, column=1, padx=5)
 selected_modules_label = ttk.Label(bottom_frame, text='Number of selected modules: ')
 selected_modules_label.grid(row=0, column=2, padx=5, sticky='e')
 get_selected_modules()
+
+#### Logs
+logtext_frame = ttk.Frame(main_window, name='logs_frame')
+logtext_frame.grid_columnconfigure(0, weight=1)
+vlog = ttk.Scrollbar(logtext_frame, orient='vertical')
+vlog.grid(row=0, column=1, pady=10, sticky='ns')
+log_text = tk.Text(
+    logtext_frame, name='log_text', bg=theme_inputcolor, fg=theme_fgcolor, 
+    highlightthickness=1, yscrollcommand=vlog.set, height=log_text_height)
+log_text.grid(row=0, column=0, padx=4, pady=10, sticky='we')
+vlog.config(command=log_text.yview)
+
+### Progress bar
+progress_bar = ttk.Progressbar(main_window, orient='horizontal')
 
 main_window.mainloop()

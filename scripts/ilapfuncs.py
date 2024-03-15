@@ -261,7 +261,7 @@ class GuiWindow:
     @staticmethod
     def SetProgressBar(n, total):
         if GuiWindow.window_handle:
-            progress_bar = GuiWindow.window_handle.nametowidget('f_modules.!progressbar')
+            progress_bar = GuiWindow.window_handle.nametowidget('!progressbar')
             progress_bar.config(value=n)
 
 
@@ -272,7 +272,7 @@ def logfunc(message=""):
         log_text.update()
 
     if GuiWindow.window_handle:
-        log_text = GuiWindow.window_handle.nametowidget('f_modules.logs_frame.log_text')
+        log_text = GuiWindow.window_handle.nametowidget('logs_frame.log_text')
         sys.stdout.write = redirect_logs
 
     with open(OutputParameters.screen_output_file_path, 'a', encoding='utf8') as a:
