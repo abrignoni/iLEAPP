@@ -42,7 +42,7 @@ def get_selected_modules():
 def select_all():
     '''Select all modules in the list of available modules and execute get_selected_modules'''
     for plugin in mlist:
-        main_window.nametowidget(f'f_modules.f_list.tbox.mcb_{plugin.module_name}').select()
+        main_window.nametowidget(f'f_modules.f_list.tbox.mcb_{plugin.name}').select()
 
     get_selected_modules()
 
@@ -50,7 +50,7 @@ def select_all():
 def deselect_all():
     '''Unselect all modules in the list of available modules and execute get_selected_modules'''
     for plugin in mlist:
-        main_window.nametowidget(f'f_modules.f_list.tbox.mcb_{plugin.module_name}').deselect()
+        main_window.nametowidget(f'f_modules.f_list.tbox.mcb_{plugin.name}').deselect()
 
     get_selected_modules()
 
@@ -79,7 +79,7 @@ def load_profile():
                     ticked = set(profile.get('plugins', []))
                     for plugin in mlist:
                         if plugin.name in ticked:
-                            main_window.nametowidget(f'f_modules.f_list.tbox.mcb_{plugin.module_name}').select()
+                            main_window.nametowidget(f'f_modules.f_list.tbox.mcb_{plugin.name}').select()
                     get_selected_modules()
             else:
                 profile_load_error = 'File was not a valid profile file: invalid format'
@@ -166,6 +166,7 @@ def process(casedata):
             if input_path[1] == ':' and extracttype =='fs': input_path = '\\\\?\\' + input_path.replace('/', '\\')
             if output_folder[1] == ':': output_folder = '\\\\?\\' + output_folder.replace('/', '\\')
 
+        # re-create modules list based on user selection
         selected_modules = get_selected_modules()
         selected_modules.insert(0, 'lastbuild') # Force lastBuild as first item to be parsed
         selected_modules = [loader[module] for module in selected_modules]
@@ -191,8 +192,6 @@ def process(casedata):
                 report_path = report_path[4:]
             if report_path.startswith('\\\\'): # UNC path
                 report_path = report_path[2:]
-            locationmessage = 'Report name: ' + report_path
-            # tk_msgbox.showinfo(title='Processing completed', message=locationmessage, parent=main_window)
             progress_bar.grid_remove()
             open_report_button = ttk.Button(main_window, text='Open Report & Close', command=lambda: open_report(report_path))
             open_report_button.grid(ipadx=8)
@@ -242,7 +241,7 @@ def case_data():
         '''Save case data in a Case Data file'''
         destination_path = tk_filedialog.asksaveasfilename(parent=case_window, 
                                                         title='Save a case data file', 
-                                                        filetypes=(('iLEAPP Case Data', '*.lcasedata'),))
+                                                        filetypes=(('LEAPP Case Data', '*.lcasedata'),))
 
         if destination_path:
             json_casedata = {key:value.get() for key, value in casedata.items()}
@@ -486,7 +485,7 @@ mlist_text = tk.Text(mlist_frame, name='tbox', bg=theme_bgcolor, highlightthickn
 mlist_text.grid(row=0, column=0, sticky='we')
 v.config(command=mlist_text.yview)
 for plugin, enabled in mlist.items():
-    cb = tk.Checkbutton(mlist_text, name=f'mcb_{plugin.module_name}', 
+    cb = tk.Checkbutton(mlist_text, name=f'mcb_{plugin.name}', 
                         text=f'{plugin.category} [{plugin.name} - {plugin.module_name}.py]', 
                         variable=enabled, onvalue=True, offvalue=False, command=get_selected_modules)
     cb.config(background=theme_bgcolor, fg=theme_fgcolor, selectcolor=theme_inputcolor, 
