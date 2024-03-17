@@ -14,7 +14,7 @@ ileapp_contributors = [
     ['Mattia Epifani', 'https://blog.digital-forensics.it', '@mattiaep', ''],
     ['Mike Williamson', 'https://forensicmike1.com', '@forensicmike1', 'https://github.com/forensicmike'],
     ['Geraldine Blay', 'https://gforce4n6.blogspot.com', '@i_am_the_gia', ''],
-    ['Johann Polewczyk', '', '@johannplw', 'https://github.com/Johann-PLW'],
+    ['Johann Polewczyk', 'https://www.linkedin.com/in/johann-polewczyk-6a905425/', '@johannplw', 'https://github.com/Johann-PLW'],
     ['Christopher Vance', 'https://blog.d204n6.com/', '@cScottVance', 'https://github.com/cScottVance'],
     ['Brooke Gottlieb', '', '@xbrookego', ''],
     ['Jack Farley', 'http://farleyforensics.com', '@JackFarley248', ''],

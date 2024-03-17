@@ -3,7 +3,6 @@ import codecs
 import csv
 from datetime import *
 import os
-import pathlib
 import re
 import shutil
 import sqlite3
@@ -20,7 +19,6 @@ from scripts.filetype import guess_mime
 # LEAPP version unique imports
 import binascii
 import math
-import string
 from PIL import Image
 
 
