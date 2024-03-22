@@ -481,7 +481,6 @@ v = ttk.Scrollbar(mlist_frame, orient='vertical')
 v.grid(row=0, column=1, sticky='ns')
 mlist_text = tk.Text(mlist_frame, name='tbox', bg=theme_bgcolor, highlightthickness=0, 
                      yscrollcommand=v.set, height=mlist_window_height)
-# mlist_text.pack(anchor='w')
 mlist_text.grid(row=0, column=0, sticky='we')
 v.config(command=mlist_text.yview)
 for plugin, enabled in mlist.items():
