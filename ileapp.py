@@ -47,7 +47,7 @@ def create_profile(plugins, path):
     available_modules = [(module_data.category, module_data.name) for module_data in plugins]
     available_modules.sort()
     modules_in_profile = {}
-    
+
     user_choice = ''
     print('--- iLEAPP Profile file creation ---\n')
     instructions = 'You can type:\n'
@@ -86,8 +86,8 @@ def create_profile(plugins, path):
                             modules_in_profile[module_number] = module_to_add
                             print(f'module number {module_number} {module_to_add} was added')
                         else:
-                            parser_to_remove = modules_in_profile[module_number]
-                            print(f'module number {module_number} {parser_to_remove} was removed')
+                            module_to_remove = modules_in_profile[module_number]
+                            print(f'module number {module_number} {module_to_remove} was removed')
                             del modules_in_profile[module_number]
                     else:
                         print('Please enter the number of a module!!!\n')
@@ -106,7 +106,7 @@ def create_profile(plugins, path):
                 print('\nProfile saved:', filename)
                 print()
             else:
-                print('No parser added. The profile file was not created.\n')
+                print('No module added. The profile file was not created.\n')
                 print()
             return
         else:
@@ -359,8 +359,6 @@ def crunch_artifacts(
 
     # Search for the files per the arguments
     for plugin in plugins:
-        if plugin.name == 'iTunesBackupInfo':
-            continue
         if isinstance(plugin.search, list) or isinstance(plugin.search, tuple):
             search_regexes = plugin.search
         else:
@@ -368,7 +366,7 @@ def crunch_artifacts(
         parsed_modules += 1
         GuiWindow.SetProgressBar(parsed_modules, len(plugins))
         files_found = []
-        log.write(f'<b>For {plugin.name} parser</b>')
+        log.write(f'<b>For {plugin.name} module</b>')
         for artifact_search_regex in search_regexes:
             found = seeker.search(artifact_search_regex)
             if not found:

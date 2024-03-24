@@ -47,6 +47,8 @@ https://www.youtube.com/watch?v=7qvVFfBM2NU
 To compile to an executable so you can run this on a system without python installed.
 If using Python 3.10 and above delete the arguments from the following terminal commands.
 
+*Windows OS*
+
 To create ileapp.exe, run:
 
 ```
@@ -57,6 +59,20 @@ To create ileappGUI.exe, run:
 
 ```
 pyinstaller --onefile --noconsole ileappGUI.spec
+```
+
+*macOS*
+
+To create ileapp, run:
+
+```
+pyinstaller --onefile ileapp_macOS.spec
+```
+
+To create ileappGUI.app, run:
+
+```
+pyinstaller --onefile --windowed ileappGUI_macOS.spec
 ```
 
 ## Usage
