@@ -32,7 +32,7 @@ def get_netusage(files_found, report_folder, seeker, wrap_text, timezone_offset)
             ZLIVEUSAGE.ZWIREDIN,
             ZLIVEUSAGE.ZWIREDOUT
             from ZLIVEUSAGE
-            left join ZPROCESS on ZPROCESS.Z_PK = ZLIVEUSAGE.Z_PK
+            left join ZPROCESS on ZPROCESS.Z_PK = ZLIVEUSAGE.ZHASPROCESS
             ''')
 
             all_rows = cursor.fetchall()
