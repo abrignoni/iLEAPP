@@ -1,5 +1,5 @@
 
-ileapp_version = '1.19.1'
+ileapp_version = '1.19.2'
 
 # Contributors List
 # Format = [ Name, Blog-url, Twitter-handle, Github-url]
@@ -39,5 +39,6 @@ ileapp_contributors = [
     ['Viktor Oreshkin', 'https://stek29.rocks/','@stek29','https://gist.github.com/stek29'],
     ['James Habben', 'https://4n6ir.com/','@JamesHabben','https://github.com/JamesHabben'],
     ['John Hyla', 'https://bluecrewforensics.com', '@jfhyla', 'https://github.com/snoop168'],
-    ['Panos Nakoutis', '', '@4n6equals10', '']
+    ['Panos Nakoutis', '', '@4n6equals10', ''],
+    ['Ruud Schramp', '', '', 'https://github.com/Schramp']
 ]
