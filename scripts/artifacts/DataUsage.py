@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "version": "0.0.1",
         "date": "2023-10-10",
         "requirements": "none",
-        "category": "Data Usage",
+        "category": "Network Usage",
         "notes": "",
         "paths": ('*/wireless/Library/Databases/DataUsage.sqlite*',),
         "function": "get_DataUsage"
@@ -27,51 +27,52 @@ def get_DataUsage(files_found, report_folder, seeker, wrap_text, timezone_offset
             cursor = db.cursor()
             cursor.execute('''
             select
-            datetime(zprocess.zfirsttimestamp + 978307200, 'unixepoch') as "First Used",
-            datetime(zprocess.ztimestamp + 978307200, 'unixepoch') as "Last Used",
-            datetime(zliveusage.ztimestamp + 978307200, 'unixepoch') as "Last Connected",
-            zprocess.zbundlename as "Bundle Name",
-            zprocess.zprocname as "Process Name",
-            zliveusage.zwifiin as "Wifi Data In (Bytes)",
-            zliveusage.zwifiout as "Wifi Data Out (Bytes)",
-            zliveusage.zwwanin as "Cellular Data In (Bytes)",
-            zliveusage.zwwanout as "Cellular Data Out (Bytes)"
-            from zliveusage, zprocess
-            where zprocess.z_pk = zliveusage.zhasprocess
+            datetime(ZLIVEUSAGE.ZTIMESTAMP + 978307200,'unixepoch'),
+            datetime(ZPROCESS.ZFIRSTTIMESTAMP + 978307200,'unixepoch'),
+            datetime(ZPROCESS.ZTIMESTAMP + 978307200,'unixepoch'),
+            ZPROCESS.ZBUNDLENAME,
+            ZPROCESS.ZPROCNAME,
+            case ZLIVEUSAGE.ZKIND
+                when 0 then 'Process'
+                when 1 then 'App'
+                else ZLIVEUSAGE.ZKIND
+            end,
+            ZLIVEUSAGE.ZWIFIIN,
+            ZLIVEUSAGE.ZWIFIOUT,
+            ZLIVEUSAGE.ZWWANIN,
+            ZLIVEUSAGE.ZWWANOUT
+            from ZLIVEUSAGE
+            left join ZPROCESS on ZPROCESS.Z_PK = ZLIVEUSAGE.ZHASPROCESS
             ''')
 
             all_rows = cursor.fetchall()
             usageentries = len(all_rows)
             if usageentries > 0:
                 
-                report = ArtifactHtmlReport('Data Usage')
-                report.start_artifact_report(report_folder, 'Data Usage')
+                report = ArtifactHtmlReport('Network Usage (DataUsage) - App Data')
+                report.start_artifact_report(report_folder, 'Network Usage (DataUsage) - App Data')
                 report.add_script()
-                data_headers = ('Process First Used','Process Last Used','Process Last Connected','Bundle Name','Process Name','Wifi Data In (Bytes)','Wifi Data Out (Bytes)','Cellular Data In (Bytes)','Cellular Data Out (Bytes)')   
+                data_headers = ('Last Connect Timestamp','First Usage Timestamp','Last Usage Timestamp','Bundle Name','Process Name','Type','Wifi In (Bytes)','Wifi Out (Bytes)','Mobile/WWAN In (Bytes)','Mobile/WWAN Out (Bytes)') # Don't remove the comma, that is required to make this a tuple as there is only 1 element
                 
                 data_list = []
                 for row in all_rows:
-                    firstused = convert_ts_human_to_utc(row[0])
-                    firstused = convert_utc_human_to_timezone(firstused,timezone_offset)
-                    
-                    lastused = convert_ts_human_to_utc(row[1])
-                    lastused = convert_utc_human_to_timezone(lastused,timezone_offset)
-                    
-                    lastconnected = convert_ts_human_to_utc(row[2])
-                    lastconnected = convert_utc_human_to_timezone(lastconnected,timezone_offset)
+                    firstused = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]),timezone_offset)
+                    lastused = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[1]),timezone_offset)
+                    lastconnected = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[2]),timezone_offset)
                     
                     process_split = row[4].split('/')
-                    data_list.append((firstused,lastused,lastconnected,row[3],process_split[0],row[5],row[6],row[7],row[8]))
+                    data_list.append((lastconnected,firstused,lastused,row[3],process_split[0],row[5],row[6],row[7],row[8],row[9]))
                     
                 report.write_artifact_data_table(data_headers, data_list, file_found)
                 report.end_artifact_report()
                 
-                tsvname = 'Data Usage'
+                tsvname = 'Network Usage (DataUsage) - App Data'
                 tsv(report_folder, data_headers, data_list, tsvname)
                 
-                tlactivity = 'Data Usage'
+                tlactivity = 'Network Usage (DataUsage) - App Data'
                 timeline(report_folder, tlactivity, data_list, data_headers)
             else:
-                logfunc('No Data Usage available')
-
+                logfunc('No Network Usage (DataUsage) - App Data available')
             db.close()
+        else:
+            continue
