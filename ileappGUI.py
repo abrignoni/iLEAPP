@@ -210,7 +210,7 @@ def select_input(button_type):
     if button_type == 'file':
         input_filename = tk_filedialog.askopenfilename(parent=main_window, 
                                                        title='Select a file', 
-                                                       filetypes=(('tar file', '*.tar'), ('zip file', '*.zip'), ('gz file', '*.gz')))
+                                                       filetypes=(('All supported files', '*.tar *.zip *.gz'), ('tar file', '*.tar'), ('zip file', '*.zip'), ('gz file', '*.gz')))
     else:
         input_filename = tk_filedialog.askdirectory(parent=main_window, title='Select a folder')
     input_entry.delete(0, 'end')
