@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "category": "Uber",
         "notes": "Thanks to Alex Caithness for the ccc_leveldb libraries",
         "paths": (
-            '*/Data/Application/FD61AB99-0D5D-47AA-8C0A-F9BF4A6BA5B0/Library/Application Support/com.ubercab.UberClient/storagev2/*'
+            '*/Data/Application/*/Library/Application Support/com.ubercab.UberClient/storagev2/*'
         ),
         "function": "get_uberloc"
     }
