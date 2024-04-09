@@ -799,6 +799,10 @@ icon_mappings = \
         'VERIZON RDD - BATTERY HISTORY': 'power',
         'VERIZON RDD - WIFI DATA': 'wifi',
     },
+    'UBER': {
+            'UBER APP LOCATION DATA': 'map-pin',
+            'default': 'move',
+    },
     'VIBER': {
         'VIBER - CALL REMNANTS': 'phone-call',
         'VIBER - CHATS': 'message-square',
@@ -1176,5 +1180,6 @@ def mark_item_active(data, itemname):
     else:
         ret = data[0: pos] + " active" + data[pos:]
         return ret
+    
     
     
