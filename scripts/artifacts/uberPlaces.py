@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Uber",
         "notes": "",
-        "paths": ('*/private/var/mobile/Containers/Data/Application/FD61AB99-0D5D-47AA-8C0A-F9BF4A6BA5B0/Documents/database.db*'),
+        "paths": ('*/private/var/mobile/Containers/Data/Application/*/Documents/database.db*'),
         "function": "get_uberPlaces"
     }
 }
@@ -36,8 +36,8 @@ def get_uberPlaces(files_found, report_folder, seeker, wrap_text, time_offset):
             json_extract(place.place_result, '$.payload.personalPayload.id') as Uber_ID,
             json_extract(place.place_result, '$.payload.locationPayload.distanceMeters') as Distance_Meters,
             json_extract(place.place_result, '$.location.accessPoints[0].attachments.distance_to_target') as Distance_To_Target,
-            json_extract(place.place_result, '$.location.accessPoints[0].coordinate.latitude') as Latitude,
-            json_extract(place.place_result, '$.location.accessPoints[0].coordinate.longitude') as Longitude,
+            json_extract(place.place_result, '$.location.coordinate.latitude') as Latitude,
+            json_extract(place.place_result, '$.location.coordinate.longitude') as Longitude,
             json_extract(place.place_result, '$.location.fullAddress') as Related_Location,
             json_extract(place.place_result, '$.location.accessPoints[0].usage') as Usage,
             json_extract(place.place_result, '$.location.accessPoints[0].attachments.tripCount') as Trip_Count,
