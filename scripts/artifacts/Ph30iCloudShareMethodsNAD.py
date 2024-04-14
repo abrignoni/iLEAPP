@@ -148,11 +148,11 @@ def get_ph30icldsharemethphdapsql(files_found, report_folder, seeker, wrap_text,
                 counter += 1
 
             description = 'Parses records for different methods which media files have been shared via iCloud Share' \
-                          ' found in the PhotoData/Photos.sqlite ZSHARE Table and supports iOS 14-17.' \
+                          ' found in the PhotoData/Photos.sqlite ZSHARE Table and supports iOS 14-15.' \
                           ' Parses iCloud Share Methods and Participant records only no asset data being parsed.' \
                           ' The iCloud Share methods being stored in these records include' \
                           ' Shred iCloud Links Cloud Master Moments-CMM and Shared iCloud Photo Library SPL.'
-            report = ArtifactHtmlReport('Photos.sqlite-iCloud_Shared_Methods-NAD')
+            report = ArtifactHtmlReport('Photos.sqlite-iCloud_Shared_Methods')
             report.start_artifact_report(report_folder, 'Ph30-iCloud Share Methods NAD-PhDaPsql', description)
             report.add_script()
             data_headers = ('zShare-Creation Date',
@@ -360,11 +360,11 @@ def get_ph30icldsharemethphdapsql(files_found, report_folder, seeker, wrap_text,
                 counter += 1
 
             description = 'Parses records for different methods which media files have been shared via iCloud Share' \
-                          ' found in the PhotoData/Photos.sqlite ZSHARE Table and supports iOS 14-17.' \
+                          ' found in the PhotoData/Photos.sqlite ZSHARE Table and supports iOS 16-17.' \
                           ' Parses iCloud Share Methods and Participant records only no asset data being parsed.' \
                           ' The iCloud Share methods being stored in these records include' \
                           ' Shred iCloud Links Cloud Master Moments-CMM and Shared iCloud Photo Library SPL.'
-            report = ArtifactHtmlReport('Photos.sqlite-iCloud_Shared_Methods-NAD')
+            report = ArtifactHtmlReport('Photos.sqlite-iCloud_Shared_Methods')
             report.start_artifact_report(report_folder, 'Ph30-iCloud Share Methods NAD-PhDaPsql', description)
             report.add_script()
             data_headers = ('zShare-Creation Date',
@@ -435,7 +435,7 @@ def get_ph30icldsharemethphdapsql(files_found, report_folder, seeker, wrap_text,
 
 
 __artifacts_v2__ = {
-    'iCloud Shared Methods w NoAssetData-PhDaPsql': {
+    'Ph30-iCloud Shared Methods with NAD-PhDaPsql': {
         'name': 'PhDaPL Photos.sqlite 30 iCld Share Methods with No Asset Data',
         'description': 'Parses records for different methods which media files have been shared via iCloud Share'
                        ' found in the PhotoData/Photos.sqlite ZSHARE Table and supports iOS 14-17.'
@@ -446,7 +446,7 @@ __artifacts_v2__ = {
         'version': '1.2',
         'date': '2024-04-12',
         'requirements': 'Acquisition that contains PhotoData/Photos.sqlite',
-        'category': 'Photos.sqlite-iCloud_Shared_Methods-NAD',
+        'category': 'Photos.sqlite-iCloud_Shared_Methods',
         'notes': '',
         'paths': ('*/mobile/Media/PhotoData/Photos.sqlite'),
         'function': 'get_ph30icldsharemethphdapsql'

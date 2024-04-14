@@ -41,7 +41,7 @@ def get_ph8hasadjustmentphdapsql(files_found, report_folder, seeker, wrap_text, 
         report_folder = report_folder[:-1]
     iosversion = scripts.artifacts.artGlobals.versionf
     if version.parse(iosversion) < version.parse("11"):
-        logfunc("Unsupported version for PhotoData/Photos.sqlite adjusted assets iOS " + iosversion)
+        logfunc("Unsupported version for PhotoData/Photos.sqlite adjusted assets from iOS " + iosversion)
     if (version.parse(iosversion) >= version.parse("11")) & (version.parse(iosversion) < version.parse("14")):
         file_found = str(files_found[0])
         db = open_sqlite_db_readonly(file_found)
@@ -109,7 +109,7 @@ def get_ph8hasadjustmentphdapsql(files_found, report_folder, seeker, wrap_text, 
                 counter += 1
 
             description = 'Parses basic asset record data from PhotoData/Photos.sqlite for adjusted assets' \
-                          ' and supports iOS 11-17. The results for this script will contain' \
+                          ' and supports iOS 11-13. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
             report = ArtifactHtmlReport('Photos.sqlite-Interaction_Artifacts')
             report.start_artifact_report(report_folder, 'Ph8-Has Adjustment-PhDaPsql', description)
@@ -212,7 +212,7 @@ def get_ph8hasadjustmentphdapsql(files_found, report_folder, seeker, wrap_text, 
                 counter += 1
 
             description = 'Parses basic asset record data from PhotoData/Photos.sqlite for adjusted assets' \
-                          ' and supports iOS 11-17. The results for this script will contain' \
+                          ' and supports iOS 14-17. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
             report = ArtifactHtmlReport('Photos.sqlite-Interaction_Artifacts')
             report.start_artifact_report(report_folder, 'Ph8-Has Adjustment-PhDaPsql', description)
@@ -250,7 +250,7 @@ def get_ph8hasadjustmentphdapsql(files_found, report_folder, seeker, wrap_text, 
 
 
 __artifacts_v2__ = {
-    'Has Adjustment-PhDaPsql': {
+    'Ph8-Has Adjustment-PhDaPsql': {
         'name': 'PhDaPL Photos.sqlite 8 Adjusted Assets',
         'description': 'Parses basic asset record data from PhotoData/Photos.sqlite for adjusted assets'
                        ' and supports iOS 11-17. The results for this script will contain'

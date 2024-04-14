@@ -1,10 +1,10 @@
 # Photos.sqlite
 # Author:  Scott Koenig, assisted by past contributors
-# Version: 1.2
+# Version: 1.3
 #
 #   Description:
-#   Parses iCloud Shared Photo Library records and invites from the PhotoData/Photos.sqlite ZSHARE Table
-#   and supports iOS 14-17. Parses iCloud SPL and Participant information records only no asset data being parsed.
+#   Parses iCloud Shared Link records from the PhotoData/Photos.sqlite ZSHARE Table
+#   and supports iOS 14-17. Parses iCloud Shared Link records only no asset data being parsed.
 #   This parser is based on research and SQLite Queries written by Scott Koenig
 #   https://theforensicscooter.com/ and queries found at https://github.com/ScottKjr3347
 #
@@ -29,7 +29,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, kmlgen, is_platform_windows, media_to_html, open_sqlite_db_readonly
 
 
-def get_ph31icldsharephotolibphdapsql(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def get_ph34icldsharedLinksphdapsql(files_found, report_folder, seeker, wrap_text, timezone_offset):
     for file_found in files_found:
         file_found = str(file_found)
         
@@ -40,7 +40,7 @@ def get_ph31icldsharephotolibphdapsql(files_found, report_folder, seeker, wrap_t
         report_folder = report_folder[:-1]
     iosversion = scripts.artifacts.artGlobals.versionf
     if version.parse(iosversion) < version.parse("14"):
-        logfunc("Unsupported version for PhotoData/Photos.sqlite zSHARE iCloud Shared Photo Library records"
+        logfunc("Unsupported version for PhotoData/Photos.sqlite zSHARE iCloud Shared Link records"
                 " with no asset data from iOS " + iosversion)
     if (version.parse(iosversion) >= version.parse("14")) & (version.parse(iosversion) < version.parse("16")):
         file_found = str(files_found[0])
@@ -64,6 +64,12 @@ def get_ph31icldsharephotolibphdapsql(files_found, report_folder, seeker, wrap_t
             WHEN 4 THEN '4-iCld-Shared-Photo-Library-SPL-4'
             ELSE 'Unknown-New-Value!: ' || zShare.ZSCOPETYPE || ''
         END AS 'zShare-Scope Type',
+        zShare.ZASSETCOUNT AS 'zShare-Asset Count-CMM',
+        zShare.ZFORCESYNCATTEMPTED AS 'zShare-Force Sync Attempted-CMM',  
+        zShare.ZPHOTOSCOUNT AS 'zShare-Photos Count-CMM',
+        zShare.ZUPLOADEDPHOTOSCOUNT AS 'zShare-Uploaded Photos Count-CMM',
+        zShare.ZVIDEOSCOUNT AS 'zShare-Videos Count-CMM',
+        zShare.ZUPLOADEDVIDEOSCOUNT AS 'zShare-Uploaded Videos Count-CMM',
         zShare.ZSCOPEIDENTIFIER AS 'zShare-Scope ID',
         zShare.ZTITLE AS 'zShare-Title-SPL',
         zShare.ZSHAREURL AS 'zShare-Share URL',
@@ -123,7 +129,7 @@ def get_ph31icldsharephotolibphdapsql(files_found, report_folder, seeker, wrap_t
         END AS 'zShare-zENT'
         FROM ZSHARE zShare
             LEFT JOIN ZSHAREPARTICIPANT zSharePartic ON zSharePartic.ZSHARE = zShare.Z_PK
-        WHERE zShare.ZSCOPETYPE = 4
+        WHERE zShare.ZSCOPETYPE = 2
         ORDER BY zShare.ZCREATIONDATE
         """)
 
@@ -135,15 +141,15 @@ def get_ph31icldsharephotolibphdapsql(files_found, report_folder, seeker, wrap_t
             for row in all_rows:
                 data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
                                   row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
-                                  row[19], row[20], row[21], row[22], row[23], row[24], row[25]))
+                                  row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
+                                  row[28], row[29], row[30], row[31]))
 
                 counter += 1
 
-            description = 'Parses iCloud Shared Photo Library records and invites from the PhotoData/Photos.sqlite' \
-                          ' ZSHARE Table and supports iOS 14-15. Parses iCloud SPL and Participant information' \
-                          ' records only no asset data being parsed.'
+            description = 'Parses iCloud Shared Link records from the PhotoData/Photos.sqlite ZSHARE Table' \
+                          ' and supports iOS 14-15. Parses iCloud Shared Link records only no asset data being parsed.'
             report = ArtifactHtmlReport('Photos.sqlite-iCloud_Shared_Methods')
-            report.start_artifact_report(report_folder, 'Ph31-iCld Shared Photo Lib Records NAD-PhDaPsql', description)
+            report.start_artifact_report(report_folder, 'Ph34-iCld Shared Link Records NAD-PhDaPsql', description)
             report.add_script()
             data_headers = ('zShare-Creation Date',
                             'zShare-Start Date',
@@ -153,6 +159,12 @@ def get_ph31icldsharephotolibphdapsql(files_found, report_folder, seeker, wrap_t
                             'zShare-Originating Scope ID',
                             'zShare-Status',
                             'zShare-Scope Type',
+                            'zShare-Asset Count-CMM',
+                            'zShare-Force Sync Attempted-CMM',
+                            'zShare-Photos Count-CMM',
+                            'zShare-Uploaded Photos Count-CMM',
+                            'zShare-Videos Count-CMM',
+                            'zShare-Uploaded Videos Count-CMM',
                             'zShare-Scope ID',
                             'zShare-Title-SPL',
                             'zShare-Share URL',
@@ -174,14 +186,14 @@ def get_ph31icldsharephotolibphdapsql(files_found, report_folder, seeker, wrap_t
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
-            tsvname = 'Ph31-iCld Shared Photo Lib Records NAD-PhDaPsql'
+            tsvname = 'Ph34-iCld Shared Link Records NAD-PhDaPsql'
             tsv(report_folder, data_headers, data_list, tsvname)
 
-            tlactivity = 'Ph31-iCld Shared Photo Lib Records NAD-PhDaPsql'
+            tlactivity = 'Ph34-iCld Shared Link Records NAD-PhDaPsql'
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available for PhotoData/Photos.sqlite ZSHARE iCloud Shared Photo Library Records'
+            logfunc('No data available for PhotoData/Photos.sqlite ZSHARE iCloud Shared Link Records'
                     ' with No Asset Data')
 
         db.close()
@@ -197,14 +209,14 @@ def get_ph31icldsharephotolibphdapsql(files_found, report_folder, seeker, wrap_t
         DateTime(zShare.ZCREATIONDATE + 978307200, 'UNIXEPOCH') AS 'zShare-Creation Date',
         DateTime(zShare.ZSTARTDATE + 978307200, 'UNIXEPOCH') AS 'zShare-Start Date',
         DateTime(zShare.ZENDDATE + 978307200, 'UNIXEPOCH') AS 'zShare-End Date',
-        DateTime(zShare.ZEXPIRYDATE + 978307200, 'UNIXEPOCH') AS 'zShare-Expiry Date',
+        DateTime(zShare.ZEXPIRYDATE + 978307200, 'UNIXEPOCH') AS 'zShare-Expiry Date',  
         zShare.ZUUID AS 'zShare-UUID',
         zShare.ZORIGINATINGSCOPEIDENTIFIER AS 'zShare-Originating Scope ID',
         CASE zSharePartic.Z54_SHARE
             WHEN 55 THEN '55-SPL-Entity-55'
             WHEN 56 THEN '56-CMM-iCloud-Link-Entity-56'
             ELSE 'Unknown-New-Value!: ' || zSharePartic.Z54_SHARE || ''
-        END AS 'zSharePartic-z54SHARE',
+        END AS 'zSharePartic-z54SHARE',       
         CASE zShare.ZSTATUS
             WHEN 1 THEN '1-Active_Share-CMM_or_SPL-1'
             ELSE 'Unknown-New-Value!: ' || zShare.ZSTATUS || ''
@@ -214,9 +226,12 @@ def get_ph31icldsharephotolibphdapsql(files_found, report_folder, seeker, wrap_t
             WHEN 4 THEN '4-iCld-Shared-Photo-Library-SPL-4'
             ELSE 'Unknown-New-Value!: ' || zShare.ZSCOPETYPE || ''
         END AS 'zShare-Scope Type',
-        zShare.ZCLOUDPHOTOCOUNT AS 'zShare-Cloud Photo Count',
-        zShare.ZCOUNTOFASSETSADDEDBYCAMERASMARTSHARING AS 'zShare-CountOfAssets AddedByCamera Smart Sharing-HomeShare',
-        zShare.ZCLOUDVIDEOCOUNT AS 'zShare-Cloud Video Count',
+        zShare.ZASSETCOUNT AS 'zShare-Asset Count-CMM',
+        zShare.ZFORCESYNCATTEMPTED AS 'zShare-Force Sync Attempted-CMM',  
+        zShare.ZPHOTOSCOUNT AS 'zShare-Photos Count-CMM',
+        zShare.ZUPLOADEDPHOTOSCOUNT AS 'zShare-Uploaded Photos Count-CMM',
+        zShare.ZVIDEOSCOUNT AS 'zShare-Videos Count-CMM',
+        zShare.ZUPLOADEDVIDEOSCOUNT AS 'zShare-Uploaded Videos Count-CMM',  
         zShare.ZSCOPEIDENTIFIER AS 'zShare-Scope ID',
         zShare.ZTITLE AS 'zShare-Title-SPL',
         zShare.ZSHAREURL AS 'zShare-Share URL',
@@ -249,7 +264,7 @@ def get_ph31icldsharephotolibphdapsql(files_found, report_folder, seeker, wrap_t
         zSharePartic.ZUSERIDENTIFIER AS 'zSharePartic-User ID',
         zSharePartic.Z_PK AS 'zSharePartic-zPK',
         zSharePartic.ZEMAILADDRESS AS 'zSharePartic-Email Address',
-        zSharePartic.ZPHONENUMBER AS 'zSharePartic-Phone Number',  
+        zSharePartic.ZPHONENUMBER AS 'zSharePartic-Phone Number',
         zSharePartic.ZPARTICIPANTID AS 'zSharePartic-Participant ID',
         zSharePartic.ZUUID AS 'zSharePartic-UUID',  
         CASE zSharePartic.ZISCURRENTUSER
@@ -309,9 +324,9 @@ def get_ph31icldsharephotolibphdapsql(files_found, report_folder, seeker, wrap_t
         END AS 'zShare-Cloud Delete State',
         DateTime(zShare.ZTRASHEDDATE + 978307200, 'UNIXEPOCH') AS 'zShare-Trashed Date',
         DateTime(zShare.ZLASTPARTICIPANTASSETTRASHNOTIFICATIONDATE + 978307200, 'UNIXEPOCH') AS
-        'zShare-LastParticipant Asset Trash Notification Date',
+         'zShare-LastParticipant Asset Trash Notification Date',
         DateTime(zShare.ZLASTPARTICIPANTASSETTRASHNOTIFICATIONVIEWEDDATE + 978307200, 'UNIXEPOCH') AS
-        'zShare-Last Participant Asset Trash Notification View Date',
+         'zShare-Last Participant Asset Trash Notification View Date',
         CASE zShare.Z_ENT
             WHEN 55 THEN '55-SPL-Entity-55'
             WHEN 56 THEN '56-CMM-iCloud-Link-Entity-56'
@@ -319,7 +334,7 @@ def get_ph31icldsharephotolibphdapsql(files_found, report_folder, seeker, wrap_t
         END AS 'zShare-zENT'
         FROM ZSHARE zShare
             LEFT JOIN ZSHAREPARTICIPANT zSharePartic ON zSharePartic.ZSHARE = zShare.Z_PK
-        WHERE zShare.ZSCOPETYPE = 4
+        WHERE zShare.ZSCOPETYPE = 2
         ORDER BY zShare.ZCREATIONDATE
         """)
 
@@ -329,19 +344,19 @@ def get_ph31icldsharephotolibphdapsql(files_found, report_folder, seeker, wrap_t
         counter = 0
         if usageentries > 0:
             for row in all_rows:
-                data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                                  row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
-                                  row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
-                                  row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35], row[36],
-                                  row[37], row[38], row[39], row[40], row[41], row[42], row[43]))
+                data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7],
+                                  row[8], row[9], row[10], row[11], row[12], row[13], row[14], row[15], row[16],
+                                  row[17], row[18], row[19], row[20], row[21], row[22], row[23], row[24], row[25],
+                                  row[26], row[27], row[28], row[29], row[30], row[31], row[32], row[33], row[34],
+                                  row[35], row[36], row[37], row[38], row[39], row[40], row[41], row[42], row[43],
+                                  row[44], row[45], row[46]))
 
                 counter += 1
 
-            description = 'Parses iCloud Shared Photo Library records and invites from the PhotoData/Photos.sqlite' \
-                          ' ZSHARE Table and supports iOS 16-17. Parses iCloud SPL and Participant information' \
-                          ' records only no asset data being parsed.'
+            description = 'Parses iCloud Shared Link records from the PhotoData/Photos.sqlite ZSHARE Table' \
+                          ' and supports iOS 16-17. Parses iCloud Shared Link records only no asset data being parsed.'
             report = ArtifactHtmlReport('Photos.sqlite-iCloud_Shared_Methods')
-            report.start_artifact_report(report_folder, 'Ph31-iCld Shared Photo Lib Records NAD-PhDaPsql', description)
+            report.start_artifact_report(report_folder, 'Ph34-iCld Shared Link Records NAD-PhDaPsql', description)
             report.add_script()
             data_headers = ('zShare-Creation Date',
                             'zShare-Start Date',
@@ -352,9 +367,12 @@ def get_ph31icldsharephotolibphdapsql(files_found, report_folder, seeker, wrap_t
                             'zSharePartic-z54SHARE',
                             'zShare-Status',
                             'zShare-Scope Type',
-                            'zShare-Cloud Photo Count',
-                            'zShare-CountOfAssets AddedByCamera Smart Sharing-HomeShare',
-                            'zShare-Cloud Video Count',
+                            'zShare-Asset Count-CMM',
+                            'zShare-Force Sync Attempted-CMM',
+                            'zShare-Photos Count-CMM',
+                            'zShare-Uploaded Photos Count-CMM',
+                            'zShare-Videos Count-CMM',
+                            'zShare-Uploaded Videos Count-CMM',
                             'zShare-Scope ID',
                             'zShare-Title-SPL',
                             'zShare-Share URL',
@@ -390,14 +408,14 @@ def get_ph31icldsharephotolibphdapsql(files_found, report_folder, seeker, wrap_t
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
-            tsvname = 'Ph31-iCld Shared Photo Lib Records NAD-PhDaPsql'
+            tsvname = 'Ph34-iCld Shared Link Records NAD-PhDaPsql'
             tsv(report_folder, data_headers, data_list, tsvname)
 
-            tlactivity = 'Ph31-iCld Shared Photo Lib Records NAD-PhDaPsql'
+            tlactivity = 'Ph34-iCld Shared Link Records NAD-PhDaPsql'
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available for PhotoData/Photos.sqlite ZSHARE iCloud Shared Photo Library Records'
+            logfunc('No data available for PhotoData/Photos.sqlite ZSHARE iCloud Shared Link Records'
                     ' with No Asset Data')
 
         db.close()
@@ -405,18 +423,17 @@ def get_ph31icldsharephotolibphdapsql(files_found, report_folder, seeker, wrap_t
 
 
 __artifacts_v2__ = {
-    'Ph31-iCloud SPL with Participants with NAD-PhDaPsql': {
-        'name': 'PhDaPL Photos.sqlite 31 iCld Shared Photo Library with Partic with No Asset Data',
-        'description': 'Parses iCloud Shared Photo Library records and invites from the PhotoData/Photos.sqlite'
-                       ' ZSHARE Table and supports iOS 14-17. Parses iCloud SPL and Participant information'
-                       ' records only no asset data being parsed.',
+    'Ph34-iCloud Shared Link Records with NAD-PhDaPsql': {
+        'name': 'PhDaPL Photos.sqlite 34 iCld Shared Link Records with No Asset Data',
+        'description': 'Parses iCloud Shared Link records from the PhotoData/Photos.sqlite ZSHARE Table'
+                       ' and supports iOS 14-17. Parses iCloud Shared Link records only no asset data being parsed.',
         'author': 'Scott Koenig https://theforensicscooter.com/',
-        'version': '1.2',
-        'date': '2024-04-12',
+        'version': '1.3',
+        'date': '2024-04-13',
         'requirements': 'Acquisition that contains PhotoData/Photos.sqlite',
         'category': 'Photos.sqlite-iCloud_Shared_Methods',
         'notes': '',
         'paths': ('*/mobile/Media/PhotoData/Photos.sqlite'),
-        'function': 'get_ph31icldsharephotolibphdapsql'
+        'function': 'get_ph34icldsharedLinksphdapsql'
     }
 }

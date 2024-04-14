@@ -1,6 +1,6 @@
 # Photos.sqlite
 # Author:  Scott Koenig, assisted by past contributors
-# Version: 1.2
+# Version: 1.3
 #
 #   Description:
 #   Parses basic asset record data from Photos.sqlite. The results will contain one record per ZASSET table Z_PK value
@@ -28,7 +28,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, kmlgen, is_platform_windows, media_to_html, open_sqlite_db_readonly
 
 
-def get_ph1basicdataphdapsql(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def get_ph1assetbasicdataphdapsql(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
     for file_found in files_found:
         file_found = str(file_found)
@@ -41,7 +41,7 @@ def get_ph1basicdataphdapsql(files_found, report_folder, seeker, wrap_text, time
     iosversion = scripts.artifacts.artGlobals.versionf
     if version.parse(iosversion) < version.parse("11"):
         logfunc("Unsupported version for PhotoData/Photos.sqlite basic asset data"
-                " one record per zAsset-zPK iOS " + iosversion)
+                " one record per zAsset-zPK from iOS " + iosversion)
     if (version.parse(iosversion) >= version.parse("11")) & (version.parse(iosversion) < version.parse("14")):
         file_found = str(files_found[0])
         db = open_sqlite_db_readonly(file_found)
@@ -104,9 +104,9 @@ def get_ph1basicdataphdapsql(files_found, report_folder, seeker, wrap_text, time
                 counter += 1
 
             description = 'Parses basic asset record data from PhotoData/Photos.sqlite.' \
-                          ' The results will contain one record per ZASSET table Z_PK value and supports iOS 11-17.'
-            report = ArtifactHtmlReport('Photos.sqlite-Basic_Asset_Data')
-            report.start_artifact_report(report_folder, 'Ph1.1-Basic Asset Data-PhDaPsql', description)
+                          ' The results will contain one record per ZASSET table Z_PK value and supports iOS 11-13.'
+            report = ArtifactHtmlReport('Photos.sqlite-Asset_Basic_Data')
+            report.start_artifact_report(report_folder, 'Ph1.1-Asset Basic Data-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created',
                             'zAsset-zPK',
@@ -131,10 +131,10 @@ def get_ph1basicdataphdapsql(files_found, report_folder, seeker, wrap_text, time
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
-            tsvname = 'Ph1.1-Basic Asset Data-PhDaPsql'
+            tsvname = 'Ph1.1-Asset Basic Data-PhDaPsql'
             tsv(report_folder, data_headers, data_list, tsvname)
 
-            tlactivity = 'Ph1.1-Basic Asset Data-PhDaPsql'
+            tlactivity = 'Ph1.1-Asset Basic Data-PhDaPsql'
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
@@ -211,9 +211,9 @@ def get_ph1basicdataphdapsql(files_found, report_folder, seeker, wrap_text, time
                 counter += 1
 
             description = 'Parses basic asset record data from PhotoData/Photos.sqlite.' \
-                          ' The results will contain one record per ZASSET table Z_PK value and supports iOS 11-17.'
-            report = ArtifactHtmlReport('Photos.sqlite-Basic_Asset_Data')
-            report.start_artifact_report(report_folder, 'Ph1.1-Basic Asset Data-PhDaPsql', description)
+                          ' The results will contain one record per ZASSET table Z_PK value and supports iOS 14.'
+            report = ArtifactHtmlReport('Photos.sqlite-Asset_Basic_Data')
+            report.start_artifact_report(report_folder, 'Ph1.1-Asset Basic Data-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created',
                             'zAsset-zPK',
@@ -240,10 +240,10 @@ def get_ph1basicdataphdapsql(files_found, report_folder, seeker, wrap_text, time
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
-            tsvname = 'Ph1.1-Basic Asset Data-PhDaPsql'
+            tsvname = 'Ph1.1-Asset Basic Data-PhDaPsql'
             tsv(report_folder, data_headers, data_list, tsvname)
 
-            tlactivity = 'Ph1.1-Basic Asset Data-PhDaPsql'
+            tlactivity = 'Ph1.1-Asset Basic Data-PhDaPsql'
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
@@ -276,6 +276,13 @@ def get_ph1basicdataphdapsql(files_found, report_folder, seeker, wrap_text, time
             WHEN 10 THEN '10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZSYNDICATIONSTATE || ''
         END AS 'zAsset-Syndication State',
+        CASE zAsset.ZBUNDLESCOPE
+            WHEN 0 THEN '0-iCldPhtos-ON-AssetNotInSharedAlbum_or_iCldPhtos-OFF-AssetOnLocalDevice-0'
+            WHEN 1 THEN '1-SharediCldLink_CldMastMomentAsset-1'
+            WHEN 2 THEN '2-iCldPhtos-ON-AssetInCloudSharedAlbum-2'
+            WHEN 3 THEN '3-iCldPhtos-ON-AssetIsInSWYConversation-3'
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZBUNDLESCOPE || ''
+        END AS 'zAsset-Bundle Scope',
         zAddAssetAttr.ZIMPORTEDBYBUNDLEIDENTIFIER AS 'zAddAssetAttr- Imported by Bundle Identifier',
         zAddAssetAttr.ZIMPORTEDBYDISPLAYNAME AS 'zAddAssetAttr- Imported By Display Name',
         CASE zAsset.ZVISIBILITYSTATE
@@ -326,14 +333,14 @@ def get_ph1basicdataphdapsql(files_found, report_folder, seeker, wrap_text, time
             for row in all_rows:
                 data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
                                   row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
-                                  row[19], row[20], row[21], row[22], row[23]))
+                                  row[19], row[20], row[21], row[22], row[23], row[24]))
 
                 counter += 1
 
             description = 'Parses basic asset record data from PhotoData/Photos.sqlite.' \
-                          ' The results will contain one record per ZASSET table Z_PK value and supports iOS 11-17.'
-            report = ArtifactHtmlReport('Photos.sqlite-Basic_Asset_Data')
-            report.start_artifact_report(report_folder, 'Ph1.1-Basic Asset Data-PhDaPsql', description)
+                          ' The results will contain one record per ZASSET table Z_PK value and supports iOS 15.'
+            report = ArtifactHtmlReport('Photos.sqlite-Asset_Basic_Data')
+            report.start_artifact_report(report_folder, 'Ph1.1-Asset Basic Data-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created',
                             'zAsset-zPK',
@@ -343,6 +350,7 @@ def get_ph1basicdataphdapsql(files_found, report_folder, seeker, wrap_text, time
                             'zCldMast- Original Filename',
                             'zAddAssetAttr- Syndication Identifier-SWY-Files',
                             'zAsset-Syndication State',
+                            'zAsset-Bundle Scope',
                             'zAddAssetAttr- Imported by Bundle Identifier',
                             'zAddAssetAttr-Imported By Display Name',
                             'zAsset-Visibility State',
@@ -362,10 +370,10 @@ def get_ph1basicdataphdapsql(files_found, report_folder, seeker, wrap_text, time
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
-            tsvname = 'Ph1.1-Basic Asset Data-PhDaPsql'
+            tsvname = 'Ph1.1-Asset Basic Data-PhDaPsql'
             tsv(report_folder, data_headers, data_list, tsvname)
 
-            tlactivity = 'Ph1.1-Basic Asset Data-PhDaPsql'
+            tlactivity = 'Ph1.1-Asset Basic Data-PhDaPsql'
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
@@ -398,6 +406,13 @@ def get_ph1basicdataphdapsql(files_found, report_folder, seeker, wrap_text, time
             WHEN 10 THEN '10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZSYNDICATIONSTATE || ''
         END AS 'zAsset-Syndication State',
+        CASE zAsset.ZBUNDLESCOPE
+            WHEN 0 THEN '0-iCldPhtos-ON-AssetNotInSharedAlbum_or_iCldPhtos-OFF-AssetOnLocalDevice-0'
+            WHEN 1 THEN '1-SharediCldLink_CldMastMomentAsset-1'
+            WHEN 2 THEN '2-iCldPhtos-ON-AssetInCloudSharedAlbum-2'
+            WHEN 3 THEN '3-iCldPhtos-ON-AssetIsInSWYConversation-3'
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZBUNDLESCOPE || ''
+        END AS 'zAsset-Bundle Scope',
         zAddAssetAttr.ZIMPORTEDBYBUNDLEIDENTIFIER AS 'zAddAssetAttr- Imported by Bundle Identifier',
         zAddAssetAttr.ZIMPORTEDBYDISPLAYNAME AS 'zAddAssetAttr- Imported By Display Name',
         CASE zAsset.ZVISIBILITYSTATE
@@ -455,14 +470,14 @@ def get_ph1basicdataphdapsql(files_found, report_folder, seeker, wrap_text, time
             for row in all_rows:
                 data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
                                   row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
-                                  row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26]))
+                                  row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27]))
 
                 counter += 1
 
             description = 'Parses basic asset record data from PhotoData/Photos.sqlite.' \
-                          ' The results will contain one record per ZASSET table Z_PK value and supports iOS 11-17.'
-            report = ArtifactHtmlReport('Photos.sqlite-Basic_Asset_Data')
-            report.start_artifact_report(report_folder, 'Ph1.1-Basic Asset Data-PhDaPsql', description)
+                          ' The results will contain one record per ZASSET table Z_PK value and supports iOS 16-17.'
+            report = ArtifactHtmlReport('Photos.sqlite-Asset_Basic_Data')
+            report.start_artifact_report(report_folder, 'Ph1.1-Asset Basic Data-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created',
                             'zAsset-zPK',
@@ -472,6 +487,7 @@ def get_ph1basicdataphdapsql(files_found, report_folder, seeker, wrap_text, time
                             'zCldMast- Original Filename',
                             'zAddAssetAttr- Syndication Identifier-SWY-Files',
                             'zAsset-Syndication State',
+                            'zAsset-Bundle Scope',
                             'zAddAssetAttr.Imported by Bundle Identifier',
                             'zAddAssetAttr-Imported By Display Name',
                             'zAsset-Visibility State',
@@ -494,10 +510,10 @@ def get_ph1basicdataphdapsql(files_found, report_folder, seeker, wrap_text, time
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
-            tsvname = 'Ph1.1-Basic Asset Data-PhDaPsql'
+            tsvname = 'Ph1.1-Asset Basic Data-PhDaPsql'
             tsv(report_folder, data_headers, data_list, tsvname)
 
-            tlactivity = 'Ph1.1-Basic Asset Data-PhDaPsql'
+            tlactivity = 'Ph1.1-Asset Basic Data-PhDaPsql'
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
@@ -507,7 +523,7 @@ def get_ph1basicdataphdapsql(files_found, report_folder, seeker, wrap_text, time
         return
 
 
-def get_ph1basicdatasyndpl(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def get_ph1assetbasicdatasyndpl(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
     for file_found in files_found:
         file_found = str(file_found)
@@ -583,9 +599,9 @@ def get_ph1basicdatasyndpl(files_found, report_folder, seeker, wrap_text, timezo
                 counter += 1
 
             description = 'Parses basic asset record data from Syndication.photoslibrary/database/Photos.sqlite.' \
-                          ' The results will contain one record per ZASSET table Z_PK value and supports iOS 11-17.'
-            report = ArtifactHtmlReport('Photos.sqlite-Basic_Asset_Data')
-            report.start_artifact_report(report_folder, 'Ph2.1-Basic Asset Data-SyndPL', description)
+                          ' The results will contain one record per ZASSET table Z_PK value and supports iOS 11-13.'
+            report = ArtifactHtmlReport('Photos.sqlite-Syndication_PL_Artifacts')
+            report.start_artifact_report(report_folder, 'Ph1.2-Asset Basic Data-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created',
                             'zAsset-zPK',
@@ -610,10 +626,10 @@ def get_ph1basicdatasyndpl(files_found, report_folder, seeker, wrap_text, timezo
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
-            tsvname = 'Ph2.1-Basic Asset Data-SyndPL'
+            tsvname = 'Ph1.2-Asset Basic Data-SyndPL'
             tsv(report_folder, data_headers, data_list, tsvname)
 
-            tlactivity = 'Ph2.1-Basic Asset Data-SyndPL'
+            tlactivity = 'Ph1.2-Asset Basic Data-SyndPL'
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
@@ -690,9 +706,9 @@ def get_ph1basicdatasyndpl(files_found, report_folder, seeker, wrap_text, timezo
                 counter += 1
 
             description = 'Parses basic asset record data from Syndication.photoslibrary/database/Photos.sqlite.' \
-                          ' The results will contain one record per ZASSET table Z_PK value and supports iOS 11-17.'
-            report = ArtifactHtmlReport('Photos.sqlite-Basic_Asset_Data')
-            report.start_artifact_report(report_folder, 'Ph2.1-Basic Asset Data-SyndPL', description)
+                          ' The results will contain one record per ZASSET table Z_PK value and supports iOS 14.'
+            report = ArtifactHtmlReport('Photos.sqlite-Syndication_PL_Artifacts')
+            report.start_artifact_report(report_folder, 'Ph1.2-Asset Basic Data-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created',
                             'zAsset-zPK',
@@ -719,10 +735,10 @@ def get_ph1basicdatasyndpl(files_found, report_folder, seeker, wrap_text, timezo
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
-            tsvname = 'Ph2.1-Basic Asset Data-SyndPL'
+            tsvname = 'Ph1.2-Asset Basic Data-SyndPL'
             tsv(report_folder, data_headers, data_list, tsvname)
 
-            tlactivity = 'Ph2.1-Basic Asset Data-SyndPL'
+            tlactivity = 'Ph1.2-Asset Basic Data-SyndPL'
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
@@ -755,6 +771,13 @@ def get_ph1basicdatasyndpl(files_found, report_folder, seeker, wrap_text, timezo
             WHEN 10 THEN '10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZSYNDICATIONSTATE || ''
         END AS 'zAsset-Syndication State',
+        CASE zAsset.ZBUNDLESCOPE
+            WHEN 0 THEN '0-iCldPhtos-ON-AssetNotInSharedAlbum_or_iCldPhtos-OFF-AssetOnLocalDevice-0'
+            WHEN 1 THEN '1-SharediCldLink_CldMastMomentAsset-1'
+            WHEN 2 THEN '2-iCldPhtos-ON-AssetInCloudSharedAlbum-2'
+            WHEN 3 THEN '3-iCldPhtos-ON-AssetIsInSWYConversation-3'
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZBUNDLESCOPE || ''
+        END AS 'zAsset-Bundle Scope',
         zAddAssetAttr.ZIMPORTEDBYBUNDLEIDENTIFIER AS 'zAddAssetAttr- Imported by Bundle Identifier',
         zAddAssetAttr.ZIMPORTEDBYDISPLAYNAME AS 'zAddAssetAttr- Imported By Display Name',
         CASE zAsset.ZVISIBILITYSTATE
@@ -805,14 +828,14 @@ def get_ph1basicdatasyndpl(files_found, report_folder, seeker, wrap_text, timezo
             for row in all_rows:
                 data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
                                   row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
-                                  row[19], row[20], row[21], row[22], row[23]))
+                                  row[19], row[20], row[21], row[22], row[23], row[24]))
 
                 counter += 1
 
             description = 'Parses basic asset record data from Syndication.photoslibrary/database/Photos.sqlite.' \
-                          ' The results will contain one record per ZASSET table Z_PK value and supports iOS 11-17.'
-            report = ArtifactHtmlReport('Photos.sqlite-Basic_Asset_Data')
-            report.start_artifact_report(report_folder, 'Ph2.1-Basic Asset Data-SyndPL', description)
+                          ' The results will contain one record per ZASSET table Z_PK value and supports iOS 15.'
+            report = ArtifactHtmlReport('Photos.sqlite-Syndication_PL_Artifacts')
+            report.start_artifact_report(report_folder, 'Ph1.2-Asset Basic Data-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created',
                             'zAsset-zPK',
@@ -822,6 +845,7 @@ def get_ph1basicdatasyndpl(files_found, report_folder, seeker, wrap_text, timezo
                             'zCldMast- Original Filename',
                             'zAddAssetAttr- Syndication Identifier-SWY-Files',
                             'zAsset-Syndication State',
+                            'zAsset-Bundle Scope',
                             'zAddAssetAttr- Imported by Bundle Identifier',
                             'zAddAssetAttr-Imported By Display Name',
                             'zAsset-Visibility State',
@@ -841,10 +865,10 @@ def get_ph1basicdatasyndpl(files_found, report_folder, seeker, wrap_text, timezo
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
-            tsvname = 'Ph2.1-Basic Asset Data-SyndPL'
+            tsvname = 'Ph1.2-Asset Basic Data-SyndPL'
             tsv(report_folder, data_headers, data_list, tsvname)
 
-            tlactivity = 'Ph2.1-Basic Asset Data-SyndPL'
+            tlactivity = 'Ph1.2-Asset Basic Data-SyndPL'
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
@@ -877,6 +901,13 @@ def get_ph1basicdatasyndpl(files_found, report_folder, seeker, wrap_text, timezo
             WHEN 10 THEN '10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZSYNDICATIONSTATE || ''
         END AS 'zAsset-Syndication State',
+        CASE zAsset.ZBUNDLESCOPE
+            WHEN 0 THEN '0-iCldPhtos-ON-AssetNotInSharedAlbum_or_iCldPhtos-OFF-AssetOnLocalDevice-0'
+            WHEN 1 THEN '1-SharediCldLink_CldMastMomentAsset-1'
+            WHEN 2 THEN '2-iCldPhtos-ON-AssetInCloudSharedAlbum-2'
+            WHEN 3 THEN '3-iCldPhtos-ON-AssetIsInSWYConversation-3'
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZBUNDLESCOPE || ''
+        END AS 'zAsset-Bundle Scope',
         zAddAssetAttr.ZIMPORTEDBYBUNDLEIDENTIFIER AS 'zAddAssetAttr- Imported by Bundle Identifier',
         zAddAssetAttr.ZIMPORTEDBYDISPLAYNAME AS 'zAddAssetAttr- Imported By Display Name',
         CASE zAsset.ZVISIBILITYSTATE
@@ -934,14 +965,14 @@ def get_ph1basicdatasyndpl(files_found, report_folder, seeker, wrap_text, timezo
             for row in all_rows:
                 data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
                                   row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
-                                  row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26]))
+                                  row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27]))
 
                 counter += 1
 
             description = 'Parses basic asset record data from Syndication.photoslibrary/database/Photos.sqlite.' \
-                          ' The results will contain one record per ZASSET table Z_PK value and supports iOS 11-17.'
-            report = ArtifactHtmlReport('Photos.sqlite-Basic_Asset_Data')
-            report.start_artifact_report(report_folder, 'Ph2.1-Basic Asset Data-SyndPL', description)
+                          ' The results will contain one record per ZASSET table Z_PK value and supports iOS 16-17.'
+            report = ArtifactHtmlReport('Photos.sqlite-Syndication_PL_Artifacts')
+            report.start_artifact_report(report_folder, 'Ph1.2-Asset Basic Data-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created',
                             'zAsset-zPK',
@@ -951,6 +982,7 @@ def get_ph1basicdatasyndpl(files_found, report_folder, seeker, wrap_text, timezo
                             'zCldMast- Original Filename',
                             'zAddAssetAttr- Syndication Identifier-SWY-Files',
                             'zAsset-Syndication State',
+                            'zAsset-Bundle Scope',
                             'zAddAssetAttr.Imported by Bundle Identifier',
                             'zAddAssetAttr-Imported By Display Name',
                             'zAsset-Visibility State',
@@ -973,10 +1005,10 @@ def get_ph1basicdatasyndpl(files_found, report_folder, seeker, wrap_text, timezo
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
-            tsvname = 'Ph2.1-Basic Asset Data-SyndPL'
+            tsvname = 'Ph1.2-Asset Basic Data-SyndPL'
             tsv(report_folder, data_headers, data_list, tsvname)
 
-            tlactivity = 'Ph2.1-Basic Asset Data-SyndPL'
+            tlactivity = 'Ph1.2-Asset Basic Data-SyndPL'
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
@@ -986,30 +1018,30 @@ def get_ph1basicdatasyndpl(files_found, report_folder, seeker, wrap_text, timezo
         return
 
 __artifacts_v2__ = {
-    'Basic Asset Data-PhDaPsql': {
-        'name': 'PhDaPL Photos.sqlite 1.1 Basic Data',
+    'Ph1-1-Asset Basic Data-PhDaPsql': {
+        'name': 'PhDaPL Photos.sqlite 1.1 Asset Basic Data',
         'description': 'Parses basic asset record data from PhotoData/Photos.sqlite.'
                        'The results will contain one record per ZASSET table Z_PK value and supports iOS 11-17.',
         'author': 'Scott Koenig https://theforensicscooter.com/',
-        'version': '1.2',
-        'date': '2024-04-05',
+        'version': '1.3',
+        'date': '2024-04-13',
         'requirements': 'Acquisition that contains PhotoData/Photos.sqlite',
-        'category': 'Photos.sqlite-Basic_Asset_Data',
+        'category': 'Photos.sqlite-Asset_Basic_Data',
         'notes': '',
         'paths': ('*/mobile/Media/PhotoData/Photos.sqlite'),
-        'function': 'get_ph1basicdataphdapsql'
+        'function': 'get_ph1assetbasicdataphdapsql'
     },
-    'Basic Asset Data-SyndPL': {
-        'name': 'SyndPL Photos.sqlite 2.1 Basic Data',
+    'Ph1-2-Asset Basic Data-SyndPL': {
+        'name': 'SyndPL Photos.sqlite 1.2 Asset Basic Data',
         'description': 'Parses basic asset record data from Syndication.photoslibrary/database/Photos.sqlite.'
                        ' The results will contain one record per ZASSET table Z_PK value and supports iOS 11-17.',
         'author': 'Scott Koenig https://theforensicscooter.com/',
-        'version': '1.2',
-        'date': '2024-04-05',
+        'version': '1.3',
+        'date': '2024-04-13',
         'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
-        'category': 'Photos.sqlite-Basic_Asset_Data',
+        'category': 'Photos.sqlite-Syndication_PL_Artifacts',
         'notes': '',
         'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite'),
-        'function': 'get_ph1basicdatasyndpl'
+        'function': 'get_ph1assetbasicdatasyndpl'
     }
 }

@@ -1,11 +1,10 @@
 # Photos.sqlite
 # Author:  Scott Koenig, assisted by past contributors
-# Version: 1.2
+# Version: 1.1
 #
 #   Description:
-#   Parses Non-Shared Album records found in the PhotoData/Photos.sqlite ZGENERICALBUM Table and supports iOS 11-17.
-#   Parses Non-Shared Album records only no asset data being parsed. This parser will contain parent albums and
-#   folders, and associated album data.
+#   Parses Assets associated with Non-Shared Albums found in the PhotoData/Photos.sqlite and supports iOS 11-17.
+#   Parses limited assets data with full non-shared album data.
 #   This parser is based on research and SQLite Queries written by Scott Koenig
 #   https://theforensicscooter.com/ and queries found at https://github.com/ScottKjr3347
 #
@@ -30,7 +29,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, kmlgen, is_platform_windows, media_to_html, open_sqlite_db_readonly
 
 
-def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def get_ph22assetsinnonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_text, timezone_offset):
     for file_found in files_found:
         file_found = str(file_found)
         
@@ -41,8 +40,7 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
         report_folder = report_folder[:-1]
     iosversion = scripts.artifacts.artGlobals.versionf
     if version.parse(iosversion) < version.parse("11"):
-        logfunc("Unsupported version for PhotoData/Photos.sqlite Non-Shared Album records with"
-                " no asset data from iOS " + iosversion)
+        logfunc("Unsupported version for PhotoData/Photos.sqlite assets in Non-Shared Albums from iOS " + iosversion)
     if (version.parse(iosversion) >= version.parse("11")) & (version.parse(iosversion) < version.parse("12")):
         file_found = str(files_found[0])
         db = open_sqlite_db_readonly(file_found)
@@ -50,6 +48,42 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
 
         cursor.execute("""
         SELECT
+        DateTime(zAsset.ZDATECREATED + 978307200, 'UNIXEPOCH') AS 'zAsset-Date Created',
+        zAsset.Z_PK AS 'zAsset-zPK',
+        zAsset.ZDIRECTORY AS 'zAsset-Directory/Path',
+        zAsset.ZFILENAME AS 'zAsset-Filename',
+        zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
+        zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
+        zAddAssetAttr.ZCREATORBUNDLEID AS 'zAddAssetAttr- Creator Bundle ID',       
+        CASE zAsset.ZVISIBILITYSTATE
+            WHEN 0 THEN '0-Visible-PL-CameraRoll-0'
+            WHEN 2 THEN '2-Not-Visible-PL-CameraRoll-2'
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZVISIBILITYSTATE || ''
+        END AS 'zAsset-Visibility State',
+        CASE zAsset.ZSAVEDASSETTYPE
+            WHEN 0 THEN '0-Saved-via-other-source-0'
+            WHEN 1 THEN '1-StillTesting-1'
+            WHEN 2 THEN '2-StillTesting-2'
+            WHEN 3 THEN '3-PhDaPs-Asset_or_SyndPs-Asset_NoAuto-Display-3'
+            WHEN 4 THEN '4-Photo-Cloud-Sharing-Data-Asset-4'
+            WHEN 5 THEN '5-PhotoBooth_Photo-Library-Asset-5'
+            WHEN 6 THEN '6-Cloud-Photo-Library-Asset-6'
+            WHEN 7 THEN '7-StillTesting-7'
+            WHEN 8 THEN '8-iCloudLink_CloudMasterMomentAsset-8'
+            WHEN 12 THEN '12-SyndPs-SWY-Asset_Auto-Display_In_CameraRoll-12'
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZSAVEDASSETTYPE || ''
+        END AS 'zAsset-Saved Asset Type',
+        DateTime(zAsset.ZSORTTOKEN + 978307200, 'UNIXEPOCH') AS 'zAsset- SortToken -CameraRoll',
+        DateTime(zAsset.ZADDEDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Added Date',        
+        DateTime(zCldMast.ZCREATIONDATE + 978307200, 'UNIXEPOCH') AS 'zCldMast-Creation Date',
+        zAddAssetAttr.ZTIMEZONENAME AS 'zAddAssetAttr-Time Zone Name',
+        zAddAssetAttr.ZEXIFTIMESTAMPSTRING AS 'zAddAssetAttr-EXIF-String',
+        DateTime(zAsset.ZMODIFICATIONDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Modification Date',
+        DateTime(zAsset.ZLASTSHAREDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Last Shared Date',
+        DateTime(zAsset.ZTRASHEDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Trashed Date',       
+        zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
+        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint',
         DateTime(zGenAlbum.ZSTARTDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-Start Date',
         DateTime(zGenAlbum.ZENDDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-End Date',
         ParentzGenAlbum.ZUUID AS 'ParentzGenAlbum-UUID',
@@ -181,14 +215,16 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
             ELSE 'Unknown-New-Value!: ' || zGenAlbum.ZTRASHEDSTATE || ''
         END AS 'zGenAlbum-Trashed State',
         DateTime(zGenAlbum.ZTRASHEDDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-Trash Date'
-        FROM ZGENERICALBUM zGenAlbum
-            LEFT JOIN ZGENERICALBUM ParentzGenAlbum ON ParentzGenAlbum.Z_PK = zGenAlbum.ZPARENTFOLDER
+        FROM ZGENERICASSET zAsset
+            LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
+            LEFT JOIN Z_20ASSETS z20Assets ON z20Assets.Z_27ASSETS = zAsset.Z_PK
+            LEFT JOIN ZGENERICALBUM zGenAlbum ON zGenAlbum.Z_PK = z20Assets.Z_20ALBUMS
             LEFT JOIN Z_19ALBUMLISTS z19AlbumLists ON z19AlbumLists.Z_19ALBUMS = zGenAlbum.Z_PK
             LEFT JOIN ZALBUMLIST zAlbumList ON zAlbumList.Z_PK = z19AlbumLists.Z_3ALBUMLISTS
-            LEFT JOIN ZCLOUDSHAREDALBUMINVITATIONRECORD zCldShareAlbumInvRec ON zGenAlbum.Z_PK
-             = zCldShareAlbumInvRec.ZALBUM
+            LEFT JOIN ZGENERICALBUM ParentzGenAlbum ON ParentzGenAlbum.Z_PK = zGenAlbum.ZPARENTFOLDER
+            LEFT JOIN ZCLOUDMASTER zCldMast ON zAsset.ZMASTER = zCldMast.Z_PK
         WHERE zGenAlbum.ZKIND = 2
-        ORDER BY zGenAlbum.ZSTARTDATE
+        ORDER BY zAsset.ZDATECREATED
         """)
 
         all_rows = cursor.fetchall()
@@ -200,18 +236,39 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
                 data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
                                   row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
                                   row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
-                                  row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35]))
+                                  row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35], row[36],
+                                  row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45],
+                                  row[46], row[47], row[48], row[49], row[50], row[51], row[52], row[53], row[54],
+                                  row[55]))
 
                 counter += 1
 
-            description = 'Parses Non-Shared Album records found in the PhotoData/Photos.sqlite from' \
-                          ' ZGENERICALBUM Table and supports iOS 11. Parses Non-Shared Album records only' \
-                          ' no asset data is being parsed in this parser. This parser will contain parent albums,' \
-                          ' folders, and associated album data. '
-            report = ArtifactHtmlReport('Photos.sqlite-GenAlbum_Records-NAD')
-            report.start_artifact_report(report_folder, 'Ph21-Non-Shared Album Records NAD-PhDaPsql', description)
+            description = 'Parses Assets associated with Non-Shared Albums found in the PhotoData/Photos.sqlite' \
+                          ' from iOS 11. Parses limited asset data with full non-shared album data.'
+            report = ArtifactHtmlReport('Photos.sqlite-Asset_In_Albums')
+            report.start_artifact_report(report_folder, 'Ph22-Assets in Non-Shared Albums-PhDaPsql', description)
             report.add_script()
-            data_headers = ('zGenAlbum-Start Date',
+            data_headers = ('zAsset-Date Created',
+                            'zAsset-zPK',
+                            'zAsset-Directory/Path',
+                            'zAsset-Filename',
+                            'zAddAssetAttr- Original Filename',
+                            'zCldMast- Original Filename',
+                            'zAddAssetAttr- Creator Bundle ID',
+                            'zAsset-Visibility State',
+                            'zAsset-Saved Asset Type',
+                            'zAsset- SortToken -CameraRoll',
+                            'zAsset-Added Date',
+                            'zCldMast-Creation Date',
+                            'zAddAssetAttr-Time Zone Name',
+                            'zAddAssetAttr-EXIF-String',
+                            'zAsset-Modification Date',
+                            'zAsset-Last Shared Date',
+                            'zAsset-Trashed Date',
+                            'zAddAssetAttr-zPK',
+                            'zAsset-UUID = store.cloudphotodb',
+                            'zAddAssetAttr-Master Fingerprint',
+                            'zGenAlbum-Start Date',
                             'zGenAlbum-End Date',
                             'ParentzGenAlbum-UUID',
                             'ParentzGenAlbum-Cloud GUID',
@@ -250,14 +307,14 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
-            tsvname = 'Ph21-Non-Shared Album Records NAD-PhDaPsql'
+            tsvname = 'Ph22-Assets in Non-Shared Albums-PhDaPsql'
             tsv(report_folder, data_headers, data_list, tsvname)
 
-            tlactivity = 'Ph21-Non-Shared Album Records NAD-PhDaPsql'
+            tlactivity = 'Ph22-Assets in Non-Shared Albums-PhDaPsql'
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available for PhotoData/Photos.sqlite Non-Shared Album Records with No Asset Data')
+            logfunc('No data available from PhotoData/Photos.sqlite for Assets in Non-Shared Albums')
 
             db.close()
         return
@@ -269,6 +326,42 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
 
         cursor.execute("""
         SELECT
+        DateTime(zAsset.ZDATECREATED + 978307200, 'UNIXEPOCH') AS 'zAsset-Date Created',
+        zAsset.Z_PK AS 'zAsset-zPK',
+        zAsset.ZDIRECTORY AS 'zAsset-Directory/Path',
+        zAsset.ZFILENAME AS 'zAsset-Filename',
+        zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
+        zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
+        zAddAssetAttr.ZCREATORBUNDLEID AS 'zAddAssetAttr- Creator Bundle ID',       
+        CASE zAsset.ZVISIBILITYSTATE
+            WHEN 0 THEN '0-Visible-PL-CameraRoll-0'
+            WHEN 2 THEN '2-Not-Visible-PL-CameraRoll-2'
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZVISIBILITYSTATE || ''
+        END AS 'zAsset-Visibility State',
+        CASE zAsset.ZSAVEDASSETTYPE
+            WHEN 0 THEN '0-Saved-via-other-source-0'
+            WHEN 1 THEN '1-StillTesting-1'
+            WHEN 2 THEN '2-StillTesting-2'
+            WHEN 3 THEN '3-PhDaPs-Asset_or_SyndPs-Asset_NoAuto-Display-3'
+            WHEN 4 THEN '4-Photo-Cloud-Sharing-Data-Asset-4'
+            WHEN 5 THEN '5-PhotoBooth_Photo-Library-Asset-5'
+            WHEN 6 THEN '6-Cloud-Photo-Library-Asset-6'
+            WHEN 7 THEN '7-StillTesting-7'
+            WHEN 8 THEN '8-iCloudLink_CloudMasterMomentAsset-8'
+            WHEN 12 THEN '12-SyndPs-SWY-Asset_Auto-Display_In_CameraRoll-12'
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZSAVEDASSETTYPE || ''
+        END AS 'zAsset-Saved Asset Type',
+        DateTime(zAsset.ZSORTTOKEN + 978307200, 'UNIXEPOCH') AS 'zAsset- SortToken -CameraRoll',
+        DateTime(zAsset.ZADDEDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Added Date',        
+        DateTime(zCldMast.ZCREATIONDATE + 978307200, 'UNIXEPOCH') AS 'zCldMast-Creation Date',
+        zAddAssetAttr.ZTIMEZONENAME AS 'zAddAssetAttr-Time Zone Name',
+        zAddAssetAttr.ZEXIFTIMESTAMPSTRING AS 'zAddAssetAttr-EXIF-String',
+        DateTime(zAsset.ZMODIFICATIONDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Modification Date',
+        DateTime(zAsset.ZLASTSHAREDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Last Shared Date',
+        DateTime(zAsset.ZTRASHEDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Trashed Date',       
+        zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
+        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint',
         DateTime(zGenAlbum.ZSTARTDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-Start Date',
         DateTime(zGenAlbum.ZENDDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-End Date',		
         ParentzGenAlbum.ZUUID AS 'ParentzGenAlbum-UUID',
@@ -410,14 +503,16 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
             WHEN 1 THEN 'zGenAlbum Cloud Album Deleted-1'
             ELSE 'Unknown-New-Value!: ' || zGenAlbum.ZCLOUDDELETESTATE || ''
         END AS 'zGenAlbum-Cloud Delete State'
-        FROM ZGENERICALBUM zGenAlbum
-            LEFT JOIN ZGENERICALBUM ParentzGenAlbum ON ParentzGenAlbum.Z_PK = zGenAlbum.ZPARENTFOLDER
+        FROM ZGENERICASSET zAsset
+            LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
+            LEFT JOIN Z_23ASSETS z23Assets ON z23Assets.Z_30ASSETS = zAsset.Z_PK
+            LEFT JOIN ZGENERICALBUM zGenAlbum ON zGenAlbum.Z_PK = z23Assets.Z_23ALBUMS
             LEFT JOIN Z_22ALBUMLISTS z22AlbumLists ON z22AlbumLists.Z_22ALBUMS = zGenAlbum.Z_PK
             LEFT JOIN ZALBUMLIST zAlbumList ON zAlbumList.Z_PK = z22AlbumLists.Z_3ALBUMLISTS
-            LEFT JOIN ZCLOUDSHAREDALBUMINVITATIONRECORD zCldShareAlbumInvRec ON zGenAlbum.Z_PK
-             = zCldShareAlbumInvRec.ZALBUM
+            LEFT JOIN ZGENERICALBUM ParentzGenAlbum ON ParentzGenAlbum.Z_PK = zGenAlbum.ZPARENTFOLDER
+            LEFT JOIN ZCLOUDMASTER zCldMast ON zAsset.ZMASTER = zCldMast.Z_PK
         WHERE zGenAlbum.ZKIND = 2
-        ORDER BY zGenAlbum.ZSTARTDATE
+        ORDER BY zAsset.ZDATECREATED
         """)
 
         all_rows = cursor.fetchall()
@@ -430,18 +525,38 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
                                   row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
                                   row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
                                   row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35], row[36],
-                                  row[37]))
+                                  row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45],
+                                  row[46], row[47], row[48], row[49], row[50], row[51], row[52], row[53], row[54],
+                                  row[55], row[56], row[57]))
 
                 counter += 1
 
-            description = 'Parses Non-Shared Album records found in the PhotoData/Photos.sqlite from' \
-                          ' ZGENERICALBUM Table and supports iOS 12. Parses Non-Shared Album records only' \
-                          ' no asset data is being parsed in this parser. This parser will contain parent albums,' \
-                          ' folders, and associated album data. '
-            report = ArtifactHtmlReport('Photos.sqlite-GenAlbum_Records-NAD')
-            report.start_artifact_report(report_folder, 'Ph21-Non-Shared Album Records NAD-PhDaPsql', description)
+            description = 'Parses Assets associated with Non-Shared Albums found in the PhotoData/Photos.sqlite' \
+                          ' from iOS 12. Parses limited asset data with full non-shared album data.'
+            report = ArtifactHtmlReport('Photos.sqlite-Asset_In_Albums')
+            report.start_artifact_report(report_folder, 'Ph22-Assets in Non-Shared Albums-PhDaPsql', description)
             report.add_script()
-            data_headers = ('zGenAlbum-Start Date',
+            data_headers = ('zAsset-Date Created',
+                            'zAsset-zPK',
+                            'zAsset-Directory/Path',
+                            'zAsset-Filename',
+                            'zAddAssetAttr- Original Filename',
+                            'zCldMast- Original Filename',
+                            'zAddAssetAttr- Creator Bundle ID',
+                            'zAsset-Visibility State',
+                            'zAsset-Saved Asset Type',
+                            'zAsset- SortToken -CameraRoll',
+                            'zAsset-Added Date',
+                            'zCldMast-Creation Date',
+                            'zAddAssetAttr-Time Zone Name',
+                            'zAddAssetAttr-EXIF-String',
+                            'zAsset-Modification Date',
+                            'zAsset-Last Shared Date',
+                            'zAsset-Trashed Date',
+                            'zAddAssetAttr-zPK',
+                            'zAsset-UUID = store.cloudphotodb',
+                            'zAddAssetAttr-Master Fingerprint',
+                            'zGenAlbum-Start Date',
                             'zGenAlbum-End Date',
                             'ParentzGenAlbum-UUID',
                             'ParentzGenAlbum-Cloud GUID',
@@ -482,14 +597,14 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
-            tsvname = 'Ph21-Non-Shared Album Records NAD-PhDaPsql'
+            tsvname = 'Ph22-Assets in Non-Shared Albums-PhDaPsql'
             tsv(report_folder, data_headers, data_list, tsvname)
 
-            tlactivity = 'Ph21-Non-Shared Album Records NAD-PhDaPsql'
+            tlactivity = 'Ph22-Assets in Non-Shared Albums-PhDaPsql'
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available for PhotoData/Photos.sqlite Non-Shared Album Records with No Asset Data')
+            logfunc('No data available from PhotoData/Photos.sqlite for Assets in Non-Shared Albums')
 
             db.close()
         return
@@ -501,6 +616,42 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
 
         cursor.execute("""
         SELECT
+        DateTime(zAsset.ZDATECREATED + 978307200, 'UNIXEPOCH') AS 'zAsset-Date Created',
+        zAsset.Z_PK AS 'zAsset-zPK',
+        zAsset.ZDIRECTORY AS 'zAsset-Directory/Path',
+        zAsset.ZFILENAME AS 'zAsset-Filename',
+        zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
+        zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
+        zAddAssetAttr.ZCREATORBUNDLEID AS 'zAddAssetAttr- Creator Bundle ID',       
+        CASE zAsset.ZVISIBILITYSTATE
+            WHEN 0 THEN '0-Visible-PL-CameraRoll-0'
+            WHEN 2 THEN '2-Not-Visible-PL-CameraRoll-2'
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZVISIBILITYSTATE || ''
+        END AS 'zAsset-Visibility State',
+        CASE zAsset.ZSAVEDASSETTYPE
+            WHEN 0 THEN '0-Saved-via-other-source-0'
+            WHEN 1 THEN '1-StillTesting-1'
+            WHEN 2 THEN '2-StillTesting-2'
+            WHEN 3 THEN '3-PhDaPs-Asset_or_SyndPs-Asset_NoAuto-Display-3'
+            WHEN 4 THEN '4-Photo-Cloud-Sharing-Data-Asset-4'
+            WHEN 5 THEN '5-PhotoBooth_Photo-Library-Asset-5'
+            WHEN 6 THEN '6-Cloud-Photo-Library-Asset-6'
+            WHEN 7 THEN '7-StillTesting-7'
+            WHEN 8 THEN '8-iCloudLink_CloudMasterMomentAsset-8'
+            WHEN 12 THEN '12-SyndPs-SWY-Asset_Auto-Display_In_CameraRoll-12'
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZSAVEDASSETTYPE || ''
+        END AS 'zAsset-Saved Asset Type',
+        DateTime(zAsset.ZSORTTOKEN + 978307200, 'UNIXEPOCH') AS 'zAsset- SortToken -CameraRoll',
+        DateTime(zAsset.ZADDEDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Added Date',        
+        DateTime(zCldMast.ZCREATIONDATE + 978307200, 'UNIXEPOCH') AS 'zCldMast-Creation Date',
+        zAddAssetAttr.ZTIMEZONENAME AS 'zAddAssetAttr-Time Zone Name',
+        zAddAssetAttr.ZEXIFTIMESTAMPSTRING AS 'zAddAssetAttr-EXIF-String',
+        DateTime(zAsset.ZMODIFICATIONDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Modification Date',
+        DateTime(zAsset.ZLASTSHAREDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Last Shared Date',
+        DateTime(zAsset.ZTRASHEDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Trashed Date',       
+        zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
+        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint',
         DateTime(zGenAlbum.ZCREATIONDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-Creation Date',
         DateTime(zGenAlbum.ZSTARTDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-Start Date',
         DateTime(zGenAlbum.ZENDDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-End Date',		
@@ -652,14 +803,16 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
             WHEN 1 THEN 'zGenAlbum Cloud Album Deleted-1'
             ELSE 'Unknown-New-Value!: ' || zGenAlbum.ZCLOUDDELETESTATE || ''
         END AS 'zGenAlbum-Cloud Delete State'
-        FROM ZGENERICALBUM zGenAlbum
-            LEFT JOIN ZGENERICALBUM ParentzGenAlbum ON ParentzGenAlbum.Z_PK = zGenAlbum.ZPARENTFOLDER
+        FROM ZGENERICASSET zAsset
+            LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
+            LEFT JOIN Z_26ASSETS z26Assets ON z26Assets.Z_34ASSETS = zAsset.Z_PK
+            LEFT JOIN ZGENERICALBUM zGenAlbum ON zGenAlbum.Z_PK = z26Assets.Z_26ALBUMS
             LEFT JOIN Z_25ALBUMLISTS z25AlbumLists ON z25AlbumLists.Z_25ALBUMS = zGenAlbum.Z_PK
             LEFT JOIN ZALBUMLIST zAlbumList ON zAlbumList.Z_PK = z25AlbumLists.Z_3ALBUMLISTS
-            LEFT JOIN ZCLOUDSHAREDALBUMINVITATIONRECORD zCldShareAlbumInvRec ON zGenAlbum.Z_PK
-             = zCldShareAlbumInvRec.ZALBUM
+            LEFT JOIN ZGENERICALBUM ParentzGenAlbum ON ParentzGenAlbum.Z_PK = zGenAlbum.ZPARENTFOLDER
+            LEFT JOIN ZCLOUDMASTER zCldMast ON zAsset.ZMASTER = zCldMast.Z_PK
         WHERE zGenAlbum.ZKIND = 2
-        ORDER BY zGenAlbum.ZCREATIONDATE
+        ORDER BY zAsset.ZDATECREATED
         """)
 
         all_rows = cursor.fetchall()
@@ -672,18 +825,38 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
                                   row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
                                   row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
                                   row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35], row[36],
-                                  row[37], row[38], row[39], row[40]))
+                                  row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45],
+                                  row[46], row[47], row[48], row[49], row[50], row[51], row[52], row[53], row[54],
+                                  row[55], row[56], row[57], row[58], row[59], row[60]))
 
                 counter += 1
 
-            description = 'Parses Non-Shared Album records found in the PhotoData/Photos.sqlite from' \
-                          ' ZGENERICALBUM Table and supports iOS 13. Parses Non-Shared Album records only' \
-                          ' no asset data is being parsed in this parser. This parser will contain parent albums,' \
-                          ' folders, and associated album data. '
-            report = ArtifactHtmlReport('Photos.sqlite-GenAlbum_Records-NAD')
-            report.start_artifact_report(report_folder, 'Ph21-Non-Shared Album Records NAD-PhDaPsql', description)
+            description = 'Parses Assets associated with Non-Shared Albums found in the PhotoData/Photos.sqlite' \
+                          ' from iOS 13. Parses limited asset data with full non-shared album data.'
+            report = ArtifactHtmlReport('Photos.sqlite-Asset_In_Albums')
+            report.start_artifact_report(report_folder, 'Ph22-Assets in Non-Shared Albums-PhDaPsql', description)
             report.add_script()
-            data_headers = ('zGenAlbum-Creation Date',
+            data_headers = ('zAsset-Date Created',
+                            'zAsset-zPK',
+                            'zAsset-Directory/Path',
+                            'zAsset-Filename',
+                            'zAddAssetAttr- Original Filename',
+                            'zCldMast- Original Filename',
+                            'zAddAssetAttr- Creator Bundle ID',
+                            'zAsset-Visibility State',
+                            'zAsset-Saved Asset Type',
+                            'zAsset- SortToken -CameraRoll',
+                            'zAsset-Added Date',
+                            'zCldMast-Creation Date',
+                            'zAddAssetAttr-Time Zone Name',
+                            'zAddAssetAttr-EXIF-String',
+                            'zAsset-Modification Date',
+                            'zAsset-Last Shared Date',
+                            'zAsset-Trashed Date',
+                            'zAddAssetAttr-zPK',
+                            'zAsset-UUID = store.cloudphotodb',
+                            'zAddAssetAttr-Master Fingerprint',
+                            'zGenAlbum-Creation Date',
                             'zGenAlbum-Start Date',
                             'zGenAlbum-End Date',
                             'ParentzGenAlbum-UUID',
@@ -727,14 +900,14 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
-            tsvname = 'Ph21-Non-Shared Album Records NAD-PhDaPsql'
+            tsvname = 'Ph22-Assets in Non-Shared Albums-PhDaPsql'
             tsv(report_folder, data_headers, data_list, tsvname)
 
-            tlactivity = 'Ph21-Non-Shared Album Records NAD-PhDaPsql'
+            tlactivity = 'Ph22-Assets in Non-Shared Albums-PhDaPsql'
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available for PhotoData/Photos.sqlite Non-Shared Album Records with No Asset Data')
+            logfunc('No data available from PhotoData/Photos.sqlite for Assets in Non-Shared Albums')
 
             db.close()
         return
@@ -746,6 +919,48 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
 
         cursor.execute("""
         SELECT
+        DateTime(zAsset.ZDATECREATED + 978307200, 'UNIXEPOCH') AS 'zAsset-Date Created',
+        zAsset.Z_PK AS 'zAsset-zPK',
+        zAsset.ZDIRECTORY AS 'zAsset-Directory/Path',
+        zAsset.ZFILENAME AS 'zAsset-Filename',
+        zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
+        zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
+        zAddAssetAttr.ZCREATORBUNDLEID AS 'zAddAssetAttr- Creator Bundle ID',
+        zAddAssetAttr.ZIMPORTEDBYDISPLAYNAME AS 'zAddAssetAttr- Imported By Display Name',
+        CASE zAsset.ZVISIBILITYSTATE
+            WHEN 0 THEN '0-Visible-PL-CameraRoll-0'
+            WHEN 2 THEN '2-Not-Visible-PL-CameraRoll-2'
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZVISIBILITYSTATE || ''
+        END AS 'zAsset-Visibility State',
+        CASE zAsset.ZSAVEDASSETTYPE
+            WHEN 0 THEN '0-Saved-via-other-source-0'
+            WHEN 1 THEN '1-StillTesting-1'
+            WHEN 2 THEN '2-StillTesting-2'
+            WHEN 3 THEN '3-PhDaPs-Asset_or_SyndPs-Asset_NoAuto-Display-3'
+            WHEN 4 THEN '4-Photo-Cloud-Sharing-Data-Asset-4'
+            WHEN 5 THEN '5-PhotoBooth_Photo-Library-Asset-5'
+            WHEN 6 THEN '6-Cloud-Photo-Library-Asset-6'
+            WHEN 7 THEN '7-StillTesting-7'
+            WHEN 8 THEN '8-iCloudLink_CloudMasterMomentAsset-8'
+            WHEN 12 THEN '12-SyndPs-SWY-Asset_Auto-Display_In_CameraRoll-12'
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZSAVEDASSETTYPE || ''
+        END AS 'zAsset-Saved Asset Type',
+        CASE zAddAssetAttr.ZSHARETYPE
+            WHEN 0 THEN '0-Not_Shared-or-Shared_via_Phy_Device_StillTesting-0'
+            WHEN 1 THEN '1-Shared_via_iCldPhotos_Web-or-Other_Device_StillTesting-1'
+            ELSE 'Unknown-New-Value!: ' || zAddAssetAttr.ZSHARETYPE || ''
+        END AS 'zAddAssetAttr-Share Type',
+        DateTime(zAsset.ZSORTTOKEN + 978307200, 'UNIXEPOCH') AS 'zAsset- SortToken -CameraRoll',
+        DateTime(zAsset.ZADDEDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Added Date',
+        DateTime(zCldMast.ZCREATIONDATE + 978307200, 'UNIXEPOCH') AS 'zCldMast-Creation Date',
+        zAddAssetAttr.ZTIMEZONENAME AS 'zAddAssetAttr-Time Zone Name',
+        zAddAssetAttr.ZEXIFTIMESTAMPSTRING AS 'zAddAssetAttr-EXIF-String',
+        DateTime(zAsset.ZMODIFICATIONDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Modification Date',
+        DateTime(zAsset.ZLASTSHAREDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Last Shared Date',
+        DateTime(zAsset.ZTRASHEDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Trashed Date',
+        zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
+        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint',
         DateTime(zGenAlbum.ZCREATIONDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-Creation Date',
         DateTime(zGenAlbum.ZSTARTDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-Start Date',
         DateTime(zGenAlbum.ZENDDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-End Date',		
@@ -908,14 +1123,16 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
             WHEN 1 THEN 'zGenAlbum Cloud Album Deleted-1'
             ELSE 'Unknown-New-Value!: ' || zGenAlbum.ZCLOUDDELETESTATE || ''
         END AS 'zGenAlbum-Cloud Delete State'
-        FROM ZGENERICALBUM zGenAlbum
-            LEFT JOIN ZGENERICALBUM ParentzGenAlbum ON ParentzGenAlbum.Z_PK = zGenAlbum.ZPARENTFOLDER
+        FROM ZASSET zAsset
+            LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
+            LEFT JOIN Z_26ASSETS z26Assets ON z26Assets.Z_3ASSETS = zAsset.Z_PK
+            LEFT JOIN ZGENERICALBUM zGenAlbum ON zGenAlbum.Z_PK = z26Assets.Z_26ALBUMS
             LEFT JOIN Z_25ALBUMLISTS z25AlbumLists ON z25AlbumLists.Z_25ALBUMS = zGenAlbum.Z_PK
             LEFT JOIN ZALBUMLIST zAlbumList ON zAlbumList.Z_PK = z25AlbumLists.Z_2ALBUMLISTS
-            LEFT JOIN ZCLOUDSHAREDALBUMINVITATIONRECORD zCldShareAlbumInvRec ON zGenAlbum.Z_PK
-             = zCldShareAlbumInvRec.ZALBUM
+            LEFT JOIN ZGENERICALBUM ParentzGenAlbum ON ParentzGenAlbum.Z_PK = zGenAlbum.ZPARENTFOLDER
+            LEFT JOIN ZCLOUDMASTER zCldMast ON zAsset.ZMASTER = zCldMast.Z_PK
         WHERE zGenAlbum.ZKIND = 2
-        ORDER BY zGenAlbum.ZCREATIONDATE
+        ORDER BY zAsset.ZDATECREATED
         """)
 
         all_rows = cursor.fetchall()
@@ -928,18 +1145,41 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
                                   row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
                                   row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
                                   row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35], row[36],
-                                  row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44]))
+                                  row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45],
+                                  row[46], row[47], row[48], row[49], row[50], row[51], row[52], row[53], row[54],
+                                  row[55], row[56], row[57], row[58], row[59], row[60], row[61], row[62], row[63],
+                                  row[64], row[65], row[66]))
 
                 counter += 1
 
-            description = 'Parses Non-Shared Album records found in the PhotoData/Photos.sqlite from' \
-                          ' ZGENERICALBUM Table and supports iOS 14. Parses Non-Shared Album records only' \
-                          ' no asset data is being parsed in this parser. This parser will contain parent albums,' \
-                          ' folders, and associated album data. '
-            report = ArtifactHtmlReport('Photos.sqlite-GenAlbum_Records-NAD')
-            report.start_artifact_report(report_folder, 'Ph21-Non-Shared Album Records NAD-PhDaPsql', description)
+            description = 'Parses Assets associated with Non-Shared Albums found in the PhotoData/Photos.sqlite' \
+                          ' from iOS 14. Parses limited asset data with full non-shared album data.'
+            report = ArtifactHtmlReport('Photos.sqlite-Asset_In_Albums')
+            report.start_artifact_report(report_folder, 'Ph22-Assets in Non-Shared Albums-PhDaPsql', description)
             report.add_script()
-            data_headers = ('zGenAlbum-Creation Date',
+            data_headers = ('zAsset-Date Created',
+                            'zAsset-zPK',
+                            'zAsset-Directory/Path',
+                            'zAsset-Filename',
+                            'zAddAssetAttr- Original Filename',
+                            'zCldMast- Original Filename',
+                            'zAddAssetAttr- Creator Bundle ID',
+                            'zAddAssetAttr-Imported By Display Name',
+                            'zAsset-Visibility State',
+                            'zAsset-Saved Asset Type',
+                            'zAddAssetAttr-Share Type',
+                            'zAsset- SortToken -CameraRoll',
+                            'zAsset-Added Date',
+                            'zCldMast-Creation Date',
+                            'zAddAssetAttr-Time Zone Name',
+                            'zAddAssetAttr-EXIF-String',
+                            'zAsset-Modification Date',
+                            'zAsset-Last Shared Date',
+                            'zAsset-Trashed Date',
+                            'zAddAssetAttr-zPK',
+                            'zAsset-UUID = store.cloudphotodb',
+                            'zAddAssetAttr-Master Fingerprint',
+                            'zGenAlbum-Creation Date',
                             'zGenAlbum-Start Date',
                             'zGenAlbum-End Date',
                             'ParentzGenAlbum-UUID',
@@ -987,14 +1227,14 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
-            tsvname = 'Ph21-Non-Shared Album Records NAD-PhDaPsql'
+            tsvname = 'Ph22-Assets in Non-Shared Albums-PhDaPsql'
             tsv(report_folder, data_headers, data_list, tsvname)
 
-            tlactivity = 'Ph21-Non-Shared Album Records NAD-PhDaPsql'
+            tlactivity = 'Ph22-Assets in Non-Shared Albums-PhDaPsql'
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available for PhotoData/Photos.sqlite Non-Shared Album Records with No Asset Data')
+            logfunc('No data available from PhotoData/Photos.sqlite for Assets in Non-Shared Albums')
 
             db.close()
         return
@@ -1006,6 +1246,66 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
 
         cursor.execute("""
         SELECT
+        DateTime(zAsset.ZDATECREATED + 978307200, 'UNIXEPOCH') AS 'zAsset-Date Created',
+        zAsset.Z_PK AS 'zAsset-zPK',
+        zAsset.ZDIRECTORY AS 'zAsset-Directory/Path',
+        zAsset.ZFILENAME AS 'zAsset-Filename',
+        zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
+        zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
+        zAddAssetAttr.ZSYNDICATIONIDENTIFIER AS 'zAddAssetAttr- Syndication Identifier-SWY-Files',
+        CASE zAsset.ZSYNDICATIONSTATE
+            WHEN 0 THEN '0-PhDaPs-NA_or_SyndPs-Received-SWY_Synd_Asset-0'
+            WHEN 1 THEN '1-SyndPs-Sent-SWY_Synd_Asset-1'
+            WHEN 2 THEN '2-SyndPs-Manually-Saved_SWY_Synd_Asset-2'
+            WHEN 3 THEN '3-SyndPs-STILLTESTING_Sent-SWY-3'
+            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_User_Deleted_Link-8'
+            WHEN 9 THEN '9-SyndPs-STILLTESTING_Sent_SWY-9'
+            WHEN 10 THEN '10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10'
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZSYNDICATIONSTATE || ''
+        END AS 'zAsset-Syndication State',
+        CASE zAsset.ZBUNDLESCOPE
+            WHEN 0 THEN '0-iCldPhtos-ON-AssetNotInSharedAlbum_or_iCldPhtos-OFF-AssetOnLocalDevice-0'
+            WHEN 1 THEN '1-SharediCldLink_CldMastMomentAsset-1'
+            WHEN 2 THEN '2-iCldPhtos-ON-AssetInCloudSharedAlbum-2'
+            WHEN 3 THEN '3-iCldPhtos-ON-AssetIsInSWYConversation-3'
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZBUNDLESCOPE || ''
+        END AS 'zAsset-Bundle Scope',
+        zAddAssetAttr.ZIMPORTEDBYBUNDLEIDENTIFIER AS 'zAddAssetAttr- Imported by Bundle Identifier',
+        zAddAssetAttr.ZIMPORTEDBYDISPLAYNAME AS 'zAddAssetAttr- Imported By Display Name',
+        CASE zAsset.ZVISIBILITYSTATE
+            WHEN 0 THEN '0-Visible-PL-CameraRoll-0'
+            WHEN 2 THEN '2-Not-Visible-PL-CameraRoll-2'
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZVISIBILITYSTATE || ''
+        END AS 'zAsset-Visibility State',
+        CASE zAsset.ZSAVEDASSETTYPE
+            WHEN 0 THEN '0-Saved-via-other-source-0'
+            WHEN 1 THEN '1-StillTesting-1'
+            WHEN 2 THEN '2-StillTesting-2'
+            WHEN 3 THEN '3-PhDaPs-Asset_or_SyndPs-Asset_NoAuto-Display-3'
+            WHEN 4 THEN '4-Photo-Cloud-Sharing-Data-Asset-4'
+            WHEN 5 THEN '5-PhotoBooth_Photo-Library-Asset-5'
+            WHEN 6 THEN '6-Cloud-Photo-Library-Asset-6'
+            WHEN 7 THEN '7-StillTesting-7'
+            WHEN 8 THEN '8-iCloudLink_CloudMasterMomentAsset-8'
+            WHEN 12 THEN '12-SyndPs-SWY-Asset_Auto-Display_In_CameraRoll-12'
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZSAVEDASSETTYPE || ''
+        END AS 'zAsset-Saved Asset Type',
+        CASE zAddAssetAttr.ZSHARETYPE
+            WHEN 0 THEN '0-Not_Shared-or-Shared_via_Phy_Device_StillTesting-0'
+            WHEN 1 THEN '1-Shared_via_iCldPhotos_Web-or-Other_Device_StillTesting-1'
+            ELSE 'Unknown-New-Value!: ' || zAddAssetAttr.ZSHARETYPE || ''
+        END AS 'zAddAssetAttr-Share Type',
+        DateTime(zAsset.ZSORTTOKEN + 978307200, 'UNIXEPOCH') AS 'zAsset- SortToken -CameraRoll',
+        DateTime(zAsset.ZADDEDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Added Date',
+        DateTime(zCldMast.ZCREATIONDATE + 978307200, 'UNIXEPOCH') AS 'zCldMast-Creation Date',
+        zAddAssetAttr.ZTIMEZONENAME AS 'zAddAssetAttr-Time Zone Name',
+        zAddAssetAttr.ZEXIFTIMESTAMPSTRING AS 'zAddAssetAttr-EXIF-String',
+        DateTime(zAsset.ZMODIFICATIONDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Modification Date',
+        DateTime(zAsset.ZLASTSHAREDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Last Shared Date',
+        DateTime(zAsset.ZTRASHEDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Trashed Date',       
+        zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
+        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint',
         DateTime(zGenAlbum.ZCREATIONDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-Creation Date',
         DateTime(zGenAlbum.ZSTARTDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-Start Date',
         DateTime(zGenAlbum.ZENDDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-End Date',		
@@ -1168,14 +1468,17 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
             WHEN 1 THEN 'zGenAlbum Cloud Album Deleted-1'
             ELSE 'Unknown-New-Value!: ' || zGenAlbum.ZCLOUDDELETESTATE || ''
         END AS 'zGenAlbum-Cloud Delete State'
-        FROM ZGENERICALBUM zGenAlbum
-            LEFT JOIN ZGENERICALBUM ParentzGenAlbum ON ParentzGenAlbum.Z_PK = zGenAlbum.ZPARENTFOLDER
+        FROM ZASSET zAsset
+            LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
+            LEFT JOIN ZEXTENDEDATTRIBUTES zExtAttr ON zExtAttr.Z_PK = zAsset.ZEXTENDEDATTRIBUTES
+            LEFT JOIN Z_27ASSETS z27Assets ON z27Assets.Z_3ASSETS = zAsset.Z_PK
+            LEFT JOIN ZGENERICALBUM zGenAlbum ON zGenAlbum.Z_PK = z27Assets.Z_27ALBUMS
             LEFT JOIN Z_26ALBUMLISTS z26AlbumLists ON z26AlbumLists.Z_26ALBUMS = zGenAlbum.Z_PK
             LEFT JOIN ZALBUMLIST zAlbumList ON zAlbumList.Z_PK = z26AlbumLists.Z_2ALBUMLISTS
-            LEFT JOIN ZCLOUDSHAREDALBUMINVITATIONRECORD zCldShareAlbumInvRec ON zGenAlbum.Z_PK
-             = zCldShareAlbumInvRec.ZALBUM
+            LEFT JOIN ZGENERICALBUM ParentzGenAlbum ON ParentzGenAlbum.Z_PK = zGenAlbum.ZPARENTFOLDER
+            LEFT JOIN ZCLOUDMASTER zCldMast ON zAsset.ZMASTER = zCldMast.Z_PK
         WHERE zGenAlbum.ZKIND = 2
-        ORDER BY zGenAlbum.ZCREATIONDATE
+        ORDER BY zAsset.ZDATECREATED
         """)
 
         all_rows = cursor.fetchall()
@@ -1188,18 +1491,44 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
                                   row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
                                   row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
                                   row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35], row[36],
-                                  row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44]))
+                                  row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45],
+                                  row[46], row[47], row[48], row[49], row[50], row[51], row[52], row[53], row[54],
+                                  row[55], row[56], row[57], row[58], row[59], row[60], row[61], row[62], row[63],
+                                  row[64], row[65], row[66], row[67], row[68], row[69]))
 
                 counter += 1
 
-            description = 'Parses Non-Shared Album records found in the PhotoData/Photos.sqlite from' \
-                          ' ZGENERICALBUM Table and supports iOS 15. Parses Non-Shared Album records only' \
-                          ' no asset data is being parsed in this parser. This parser will contain parent albums,' \
-                          ' folders, and associated album data. '
-            report = ArtifactHtmlReport('Photos.sqlite-GenAlbum_Records-NAD')
-            report.start_artifact_report(report_folder, 'Ph21-Non-Shared Album Records NAD-PhDaPsql', description)
+            description = 'Parses Assets associated with Non-Shared Albums found in the PhotoData/Photos.sqlite' \
+                          ' from iOS 15. Parses limited asset data with full non-shared album data.'
+            report = ArtifactHtmlReport('Photos.sqlite-Asset_In_Albums')
+            report.start_artifact_report(report_folder, 'Ph22-Assets in Non-Shared Albums-PhDaPsql', description)
             report.add_script()
-            data_headers = ('zGenAlbum-Creation Date',
+            data_headers = ('zAsset-Date Created',
+                            'zAsset-zPK',
+                            'zAsset-Directory/Path',
+                            'zAsset-Filename',
+                            'zAddAssetAttr- Original Filename',
+                            'zCldMast- Original Filename',
+                            'zAddAssetAttr- Syndication Identifier-SWY-Files',
+                            'zAsset-Syndication State',
+                            'zAsset-Bundle Scope',
+                            'zAddAssetAttr- Imported by Bundle Identifier',
+                            'zAddAssetAttr-Imported By Display Name',
+                            'zAsset-Visibility State',
+                            'zAsset-Saved Asset Type',
+                            'zAddAssetAttr-Share Type',
+                            'zAsset- SortToken -CameraRoll',
+                            'zAsset-Added Date',
+                            'zCldMast-Creation Date',
+                            'zAddAssetAttr-Time Zone Name',
+                            'zAddAssetAttr-EXIF-String',
+                            'zAsset-Modification Date',
+                            'zAsset-Last Shared Date',
+                            'zAsset-Trashed Date',
+                            'zAddAssetAttr-zPK',
+                            'zAsset-UUID = store.cloudphotodb',
+                            'zAddAssetAttr-Master Fingerprint',
+                            'zGenAlbum-Creation Date',
                             'zGenAlbum-Start Date',
                             'zGenAlbum-End Date',
                             'ParentzGenAlbum-UUID',
@@ -1247,14 +1576,14 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
-            tsvname = 'Ph21-Non-Shared Album Records NAD-PhDaPsql'
+            tsvname = 'Ph22-Assets in Non-Shared Albums-PhDaPsql'
             tsv(report_folder, data_headers, data_list, tsvname)
 
-            tlactivity = 'Ph21-Non-Shared Album Records NAD-PhDaPsql'
+            tlactivity = 'Ph22-Assets in Non-Shared Albums-PhDaPsql'
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available for PhotoData/Photos.sqlite Non-Shared Album Records with No Asset Data')
+            logfunc('No data available from PhotoData/Photos.sqlite for Assets in Non-Shared Albums')
 
             db.close()
         return
@@ -1266,6 +1595,73 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
 
         cursor.execute("""
         SELECT
+        DateTime(zAsset.ZDATECREATED + 978307200, 'UNIXEPOCH') AS 'zAsset-Date Created',
+        zAsset.Z_PK AS 'zAsset-zPK',
+        zAsset.ZDIRECTORY AS 'zAsset-Directory/Path',
+        zAsset.ZFILENAME AS 'zAsset-Filename',
+        zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
+        zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
+        zAddAssetAttr.ZSYNDICATIONIDENTIFIER AS 'zAddAssetAttr- Syndication Identifier-SWY-Files',
+        CASE zAsset.ZSYNDICATIONSTATE
+            WHEN 0 THEN '0-PhDaPs-NA_or_SyndPs-Received-SWY_Synd_Asset-0'
+            WHEN 1 THEN '1-SyndPs-Sent-SWY_Synd_Asset-1'
+            WHEN 2 THEN '2-SyndPs-Manually-Saved_SWY_Synd_Asset-2'
+            WHEN 3 THEN '3-SyndPs-STILLTESTING_Sent-SWY-3'
+            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_User_Deleted_Link-8'
+            WHEN 9 THEN '9-SyndPs-STILLTESTING_Sent_SWY-9'
+            WHEN 10 THEN '10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10'
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZSYNDICATIONSTATE || ''
+        END AS 'zAsset-Syndication State',
+        CASE zAsset.ZBUNDLESCOPE
+            WHEN 0 THEN '0-iCldPhtos-ON-AssetNotInSharedAlbum_or_iCldPhtos-OFF-AssetOnLocalDevice-0'
+            WHEN 1 THEN '1-SharediCldLink_CldMastMomentAsset-1'
+            WHEN 2 THEN '2-iCldPhtos-ON-AssetInCloudSharedAlbum-2'
+            WHEN 3 THEN '3-iCldPhtos-ON-AssetIsInSWYConversation-3'
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZBUNDLESCOPE || ''
+        END AS 'zAsset-Bundle Scope',
+        zAddAssetAttr.ZIMPORTEDBYBUNDLEIDENTIFIER AS 'zAddAssetAttr- Imported by Bundle Identifier',
+        zAddAssetAttr.ZIMPORTEDBYDISPLAYNAME AS 'zAddAssetAttr- Imported By Display Name',
+        CASE zAsset.ZVISIBILITYSTATE
+            WHEN 0 THEN '0-Visible-PL-CameraRoll-0'
+            WHEN 2 THEN '2-Not-Visible-PL-CameraRoll-2'
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZVISIBILITYSTATE || ''
+        END AS 'zAsset-Visibility State',
+        CASE zAsset.ZSAVEDASSETTYPE
+            WHEN 0 THEN '0-Saved-via-other-source-0'
+            WHEN 1 THEN '1-StillTesting-1'
+            WHEN 2 THEN '2-StillTesting-2'
+            WHEN 3 THEN '3-PhDaPs-Asset_or_SyndPs-Asset_NoAuto-Display-3'
+            WHEN 4 THEN '4-Photo-Cloud-Sharing-Data-Asset-4'
+            WHEN 5 THEN '5-PhotoBooth_Photo-Library-Asset-5'
+            WHEN 6 THEN '6-Cloud-Photo-Library-Asset-6'
+            WHEN 7 THEN '7-StillTesting-7'
+            WHEN 8 THEN '8-iCloudLink_CloudMasterMomentAsset-8'
+            WHEN 12 THEN '12-SyndPs-SWY-Asset_Auto-Display_In_CameraRoll-12'
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZSAVEDASSETTYPE || ''
+        END AS 'zAsset-Saved Asset Type',
+        CASE zAddAssetAttr.ZSHARETYPE
+            WHEN 0 THEN '0-Not_Shared-or-Shared_via_Phy_Device_StillTesting-0'
+            WHEN 1 THEN '1-Shared_via_iCldPhotos_Web-or-Other_Device_StillTesting-1'
+            ELSE 'Unknown-New-Value!: ' || zAddAssetAttr.ZSHARETYPE || ''
+        END AS 'zAddAssetAttr-Share Type',
+        CASE zAsset.ZACTIVELIBRARYSCOPEPARTICIPATIONSTATE
+            WHEN 0 THEN '0-Asset-Not-In-Active-SPL-0'
+            WHEN 1 THEN '1-Asset-In-Active-SPL-1'
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZACTIVELIBRARYSCOPEPARTICIPATIONSTATE || ''
+        END AS 'zAsset-Active Library Scope Participation State',
+        DateTime(zAsset.ZSORTTOKEN + 978307200, 'UNIXEPOCH') AS 'zAsset- SortToken -CameraRoll',
+        DateTime(zAsset.ZADDEDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Added Date',        
+        DateTime(zCldMast.ZCREATIONDATE + 978307200, 'UNIXEPOCH') AS 'zCldMast-Creation Date',
+        zAddAssetAttr.ZTIMEZONENAME AS 'zAddAssetAttr-Time Zone Name',
+        zAddAssetAttr.ZEXIFTIMESTAMPSTRING AS 'zAddAssetAttr-EXIF-String',
+        DateTime(zAsset.ZMODIFICATIONDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Modification Date',
+        DateTime(zAddAssetAttr.ZLASTVIEWEDDATE + 978307200, 'UNIXEPOCH') AS 'zAddAssetAttr-Last Viewed Date',
+        DateTime(zAsset.ZLASTSHAREDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Last Shared Date',
+        DateTime(zAsset.ZTRASHEDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Trashed Date',
+        zAsset.ZTRASHEDBYPARTICIPANT AS 'zAsset-Trashed by Participant= zShareParticipant_zPK',
+        zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
+        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint',
         DateTime(zGenAlbum.ZCREATIONDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-Creation Date',
         DateTime(zGenAlbum.ZSTARTDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-Start Date',
         DateTime(zGenAlbum.ZENDDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-End Date',		
@@ -1446,14 +1842,16 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
             WHEN 2 THEN '2-StillTesting GenAlbm-Privacy State-2'
             ELSE 'Unknown-New-Value!: ' || zGenAlbum.ZPRIVACYSTATE || ''
         END AS 'zGenAlbum-Privacy State'
-        FROM ZGENERICALBUM zGenAlbum
-            LEFT JOIN ZGENERICALBUM ParentzGenAlbum ON ParentzGenAlbum.Z_PK = zGenAlbum.ZPARENTFOLDER
+        FROM ZASSET zAsset
+            LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
+            LEFT JOIN Z_28ASSETS z28Assets ON z28Assets.Z_3ASSETS = zAsset.Z_PK
+            LEFT JOIN ZGENERICALBUM zGenAlbum ON zGenAlbum.Z_PK = z28Assets.Z_28ALBUMS
             LEFT JOIN Z_27ALBUMLISTS z27AlbumLists ON z27AlbumLists.Z_27ALBUMS = zGenAlbum.Z_PK
             LEFT JOIN ZALBUMLIST zAlbumList ON zAlbumList.Z_PK = z27AlbumLists.Z_2ALBUMLISTS
-            LEFT JOIN ZCLOUDSHAREDALBUMINVITATIONRECORD zCldShareAlbumInvRec ON zGenAlbum.Z_PK
-             = zCldShareAlbumInvRec.ZALBUM
+            LEFT JOIN ZGENERICALBUM ParentzGenAlbum ON ParentzGenAlbum.Z_PK = zGenAlbum.ZPARENTFOLDER
+            LEFT JOIN ZCLOUDMASTER zCldMast ON zAsset.ZMASTER = zCldMast.Z_PK
         WHERE zGenAlbum.ZKIND = 2
-        ORDER BY zGenAlbum.ZCREATIONDATE
+        ORDER BY zAsset.ZDATECREATED
         """)
 
         all_rows = cursor.fetchall()
@@ -1467,18 +1865,47 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
                                   row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
                                   row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35], row[36],
                                   row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45],
-                                  row[46], row[47]))
+                                  row[46], row[47], row[48], row[49], row[50], row[51], row[52], row[53], row[54],
+                                  row[55], row[56], row[57], row[58], row[59], row[60], row[61], row[62], row[63],
+                                  row[64], row[65], row[66], row[67], row[68], row[69], row[70], row[71], row[72],
+                                  row[73], row[74], row[75]))
 
                 counter += 1
 
-            description = 'Parses Non-Shared Album records found in the PhotoData/Photos.sqlite from' \
-                          ' ZGENERICALBUM Table and supports iOS 16-17. Parses Non-Shared Album records only' \
-                          ' no asset data is being parsed in this parser. This parser will contain parent albums,' \
-                          ' folders, and associated album data. '
-            report = ArtifactHtmlReport('Photos.sqlite-GenAlbum_Records-NAD')
-            report.start_artifact_report(report_folder, 'Ph21-Non-Shared Album Records NAD-PhDaPsql', description)
+            description = 'Parses Assets associated with Non-Shared Albums found in the PhotoData/Photos.sqlite' \
+                          ' from iOS 16-17. Parses limited asset data with full non-shared album data.'
+            report = ArtifactHtmlReport('Photos.sqlite-Asset_In_Albums')
+            report.start_artifact_report(report_folder, 'Ph22-Assets in Non-Shared Albums-PhDaPsql', description)
             report.add_script()
-            data_headers = ('zGenAlbum-Creation Date',
+            data_headers = ('zAsset-Date Created',
+                            'zAsset-zPK',
+                            'zAsset-Directory/Path',
+                            'zAsset-Filename',
+                            'zAddAssetAttr- Original Filename',
+                            'zCldMast- Original Filename',
+                            'zAddAssetAttr- Syndication Identifier-SWY-Files',
+                            'zAsset-Syndication State',
+                            'zAsset-Bundle Scope',
+                            'zAddAssetAttr.Imported by Bundle Identifier',
+                            'zAddAssetAttr-Imported By Display Name',
+                            'zAsset-Visibility State',
+                            'zAsset-Saved Asset Type',
+                            'zAddAssetAttr-Share Type',
+                            'zAsset-Active Library Scope Participation State',
+                            'zAsset- SortToken -CameraRoll',
+                            'zAsset-Added Date',
+                            'zCldMast-Creation Date',
+                            'zAddAssetAttr-Time Zone Name',
+                            'zAddAssetAttr-EXIF-String',
+                            'zAsset-Modification Date',
+                            'zAddAssetAttr-Last Viewed Date',
+                            'zAsset-Last Shared Date',
+                            'zAsset-Trashed Date',
+                            'zAsset-Trashed by Participant= zShareParticipant_zPK',
+                            'zAddAssetAttr-zPK',
+                            'zAsset-UUID = store.cloudphotodb',
+                            'zAddAssetAttr-Master Fingerprint',
+                            'zGenAlbum-Creation Date',
                             'zGenAlbum-Start Date',
                             'zGenAlbum-End Date',
                             'ParentzGenAlbum-UUID',
@@ -1529,32 +1956,31 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
-            tsvname = 'Ph21-Non-Shared Album Records NAD-PhDaPsql'
+            tsvname = 'Ph22-Assets in Non-Shared Albums-PhDaPsql'
             tsv(report_folder, data_headers, data_list, tsvname)
 
-            tlactivity = 'Ph21-Non-Shared Album Records NAD-PhDaPsql'
+            tlactivity = 'Ph22-Assets in Non-Shared Albums-PhDaPsql'
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available for PhotoData/Photos.sqlite Non-Shared Album Records with No Asset Data')
+            logfunc('No data available from PhotoData/Photos.sqlite for Assets in Non-Shared Albums')
 
         db.close()
         return
 
 
 __artifacts_v2__ = {
-    'Ph21-Non-Shared Album Records with NAD-PhDaPsql': {
-        'name': 'PhDaPL Photos.sqlite 21 Non-Shared Album Records with No Asset Data',
-        'description': 'Parses Non-Shared Album records found in the PhotoData/Photos.sqlite ZGENERICALBUM Table'
-                       ' and supports iOS 11-17. Parses Non-Shared Album records only, no asset data being parsed.'
-                       ' This parser will contain parent albums and folders, and associated album data.',
+    'Ph22-Assets in Non-Shared Albums-PhDaPsql': {
+        'name': 'PhDaPL Photos.sqlite 22 Assets in Non-Shared Albums',
+        'description': 'Parses Assets associated with Non-Shared Albums found in PhotoData/Photos.sqlite and'
+                       ' supports iOS 11-17. Parses limited assets data with full non-shared album data.',
         'author': 'Scott Koenig https://theforensicscooter.com/',
-        'version': '1.2',
-        'date': '2024-04-09',
+        'version': '1.1',
+        'date': '2024-04-13',
         'requirements': 'Acquisition that contains PhotoData/Photos.sqlite',
-        'category': 'Photos.sqlite-GenAlbum_Records-NAD',
+        'category': 'Photos.sqlite-Asset_In_Albums',
         'notes': '',
         'paths': ('*/mobile/Media/PhotoData/Photos.sqlite'),
-        'function': 'get_ph21nonsharedalbumsphdapsql'
+        'function': 'get_ph22assetsinnonsharedalbumsphdapsql'
     }
 }

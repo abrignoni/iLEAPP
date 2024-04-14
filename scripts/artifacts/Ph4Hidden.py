@@ -40,7 +40,7 @@ def get_ph4hiddenphdapsql(files_found, report_folder, seeker, wrap_text, timezon
         report_folder = report_folder[:-1]
     iosversion = scripts.artifacts.artGlobals.versionf
     if version.parse(iosversion) < version.parse("11"):
-        logfunc("Unsupported version for PhotoData/Photos.sqlite hidden assets iOS " + iosversion)
+        logfunc("Unsupported version for PhotoData/Photos.sqlite hidden assets from iOS " + iosversion)
     if (version.parse(iosversion) >= version.parse("11")) & (version.parse(iosversion) < version.parse("14")):
         file_found = str(files_found[0])
         db = open_sqlite_db_readonly(file_found)
@@ -76,12 +76,13 @@ def get_ph4hiddenphdapsql(files_found, report_folder, seeker, wrap_text, timezon
         counter = 0
         if usageentries > 0:
             for row in all_rows:
-                data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9]))
+                data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
+                                  row[10]))
 
                 counter += 1
 
             description = 'Parses basic asset record data from PhotoData/Photos.sqlite for hidden assets' \
-                          ' and supports iOS 11-17. The results for this script will contain' \
+                          ' and supports iOS 11-13. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
             report = ArtifactHtmlReport('Photos.sqlite-Interaction_Artifacts')
             report.start_artifact_report(report_folder, 'Ph4-Hidden-PhDaPsql', description)
@@ -153,7 +154,7 @@ def get_ph4hiddenphdapsql(files_found, report_folder, seeker, wrap_text, timezon
                 counter += 1
 
             description = 'Parses basic asset record data from PhotoData/Photos.sqlite for hidden assets' \
-                          ' and supports iOS 11-17. The results for this script will contain' \
+                          ' and supports iOS 14. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
             report = ArtifactHtmlReport('Photos.sqlite-Interaction_Artifacts')
             report.start_artifact_report(report_folder, 'Ph4-Hidden-PhDaPsql', description)
@@ -226,7 +227,7 @@ def get_ph4hiddenphdapsql(files_found, report_folder, seeker, wrap_text, timezon
                 counter += 1
 
             description = 'Parses basic asset record data from PhotoData/Photos.sqlite for hidden assets' \
-                          ' and supports iOS 11-17. The results for this script will contain' \
+                          ' and supports iOS 15-17. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
             report = ArtifactHtmlReport('Photos.sqlite-Interaction_Artifacts')
             report.start_artifact_report(report_folder, 'Ph4-Hidden-PhDaPsql', description)
@@ -260,7 +261,7 @@ def get_ph4hiddenphdapsql(files_found, report_folder, seeker, wrap_text, timezon
 
 
 __artifacts_v2__ = {
-    'Hidden-PhDaPsql': {
+    'Ph4-Hidden-PhDaPsql': {
         'name': 'PhDaPL Photos.sqlite 4 Hidden Assets',
         'description': 'Parses basic asset record data from PhotoData/Photos.sqlite for hidden assets'
                        ' and supports iOS 11-17. The results for this script will contain'

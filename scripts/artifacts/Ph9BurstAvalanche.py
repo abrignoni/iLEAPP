@@ -40,7 +40,7 @@ def get_ph9burstavalanchephdapsql(files_found, report_folder, seeker, wrap_text,
         report_folder = report_folder[:-1]
     iosversion = scripts.artifacts.artGlobals.versionf
     if version.parse(iosversion) < version.parse("11"):
-        logfunc("Unsupported version for PhotoData/Photos.sqlite burst avalanche assets iOS " + iosversion)
+        logfunc("Unsupported version for PhotoData/Photos.sqlite burst avalanche assets from iOS " + iosversion)
     if (version.parse(iosversion) >= version.parse("11")) & (version.parse(iosversion) < version.parse("14")):
         file_found = str(files_found[0])
         db = open_sqlite_db_readonly(file_found)
@@ -102,7 +102,7 @@ def get_ph9burstavalanchephdapsql(files_found, report_folder, seeker, wrap_text,
                 counter += 1
 
             description = 'Parses basic asset record data from PhotoData/Photos.sqlite for burst avalanche assets' \
-                          ' and supports iOS 11-17. The results for this script will contain' \
+                          ' and supports iOS 11-13. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
             report = ArtifactHtmlReport('Photos.sqlite-Other_Artifacts')
             report.start_artifact_report(report_folder, 'Ph9-Burst Avalanche-PhDaPsql', description)
@@ -196,7 +196,7 @@ def get_ph9burstavalanchephdapsql(files_found, report_folder, seeker, wrap_text,
                 counter += 1
 
             description = 'Parses basic asset record data from PhotoData/Photos.sqlite for burst avalanche assets' \
-                          ' and supports iOS 11-17. The results for this script will contain' \
+                          ' and supports iOS 14-17. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
             report = ArtifactHtmlReport('Photos.sqlite-Other_Artifacts')
             report.start_artifact_report(report_folder, 'Ph9-Burst Avalanche-PhDaPsql', description)
@@ -231,7 +231,7 @@ def get_ph9burstavalanchephdapsql(files_found, report_folder, seeker, wrap_text,
 
 
 __artifacts_v2__ = {
-    'Burst Avalanche-PhDaPsql': {
+    'Ph9-Burst Avalanche-PhDaPsql': {
         'name': 'PhDaPL Photos.sqlite 9 Burst Avalanche Assets',
         'description': 'Parses basic asset record data from PhotoData/Photos.sqlite for burst avalanche assets'
                        ' and supports iOS 11-17. The results for this script will contain'

@@ -660,36 +660,47 @@ icon_mappings = \
         'MIGRATIONS': 'chevrons-up',
         'default': 'image',
     },
-    'PHOTOS.SQLITE-BASIC_ASSET_DATA': {
-        'PH1.1-BASIC ASSET DATA-PHDAPSQL': 'image',
-        'PH1.2-BASIC ASSET DATA & GENALBUM DATA-PHDAPSQL': 'image',
-        'PH2.1-BASIC ASSET DATA-SYNDPL': 'message-square',
-        'PH2.2-BASIC ASSET DATA & CONVERS DATA-SYNDPL': 'message-square',
+    'PHOTOS.SQLITE-ASSET_BASIC_DATA': {
+        'PH1.1-ASSET BASIC DATA-PHDAPSQL': 'image',
+        'PH2.1-ASSET BASIC DATA & GENALBUM DATA-PHDAPSQL': 'image',
     },
     'PHOTOS.SQLITE-GENALBUM_RECORDS-NAD': {
-        'PH20-ALBUM RECORDS NAD-PHDAPSQL': 'book-open',
-        'PH20-ALBUM RECORDS NAD-SYNDPL': 'message-square',
-        'PH21-NON-SHARED ALBUM RECORDS NAD-PHDAPSQL': 'book-open',
-        'PH22-SHARED ALBUM RECORDS NAD-PHDAPSQL': 'upload-cloud',
-        'PH23-SWY CONVERSATION ALBUM RECORDS NAD-PHDAPSQL': 'message-square',
-        'PH23-SWY CONVERSATION ALBUM RECORDS NAD-SYNDPL': 'message-square',
+        'PH20.1-ALBUM RECORDS NAD-PHDAPSQL': 'book',
+        'PH21-NON-SHARED ALBUM RECORDS NAD-PHDAPSQL': 'book',
+        'PH23-SHARED ALBUM RECORDS NAD-PHDAPSQL': 'upload-cloud',
+        'PH25.1-SWY CONVERSATION RECORDS NAD-PHDAPSQL': 'message-square',
+    },
+    'PHOTOS.SQLITE-ASSET_IN_ALBUMS': {
+        'PH22-ASSETS IN NON-SHARED ALBUMS-PHDAPSQL': 'book-open',
+        'PH24-ASSETS IN SHARED ALBUMS-PHDAPSQL': 'upload-cloud',
     },
     'PHOTOS.SQLITE-OTHER_ARTIFACTS': {
-        'PH5-HAS LOCATIONS-PHDAPSQL': 'map-pin',
-        'PH5-HAS LOCATIONS-SYNDPL': 'message-square',
+        'PH5.1-HAS LOCATIONS-PHDAPSQL': 'map-pin',
         'PH9-BURST AVALANCHE-PHDAPSQL': 'layers',
+        'PH26.1-SYNDICATION ID ASSETS-PHDAPSQL': 'refresh-ccw',
     },
-    'PHOTOS.SQLITE-ICLOUD_SHARED_METHODS-NAD': {
+    'PHOTOS.SQLITE-ICLOUD_SHARED_METHODS': {
         'PH30-ICLOUD SHARE METHODS NAD-PHDAPSQL': 'upload-cloud',
         'PH31-ICLD SHARED PHOTO LIB RECORDS NAD-PHDAPSQL': 'upload-cloud',
+        'PH32-ICLD SHARED PHOTO LIB ASSETS-PHDAPSQL': 'upload-cloud',
+        'PH34-ICLD SHARED LINK RECORDS NAD-PHDAPSQL': 'link',
+        'PH35-ICLD SHARED LINK ASSETS-PHDAPSQL': 'link',
     },
     'PHOTOS.SQLITE-INTERACTION_ARTIFACTS': {
-        'PH3-TRASHED RECENTLY DELETED-PHDAPSQL': 'trash-2',
-        'PH3-REMOVED FROM CAMERA ROLL-SYNDPL': 'delete',
+        'PH3.1-TRASHED RECENTLY DELETED-PHDAPSQL': 'trash-2',
         'PH4-HIDDEN-PHDAPSQL': 'eye-off',
         'PH6-VIEWED AND PLAYED DATA-PHDAPSQL': 'eye',
         'PH7-FAVORITE-PHDAPSQL': 'heart',
         'PH8-HAS ADJUSTMENT-PHDAPSQL': 'edit',
+    },
+    'PHOTOS.SQLITE-SYNDICATION_PL_ARTIFACTS': {
+        'PH1.2-ASSET BASIC DATA-SYNDPL': 'image',
+        'PH2.2-ASSET BASIC DATA & CONVERS DATA-SYNDPL': 'image',
+        'PH3.2-REMOVED FROM CAMERA ROLL-SYNDPL': 'delete',
+        'PH5.2-HAS LOCATIONS-SYNDPL': 'map-pin',
+        'PH20.2-ALBUM RECORDS NAD-SYNDPL': 'book',
+        'PH25.2-SWY CONVERSATION RECORDS NAD-SYNDPL': 'message-square',
+        'PH26.2-SYNDICATION PL ASSETS-SYNDPL': 'message-square',
     },
     'PIKPAK': 'cloud',
     'PINGER': {
@@ -775,6 +786,14 @@ icon_mappings = \
     'SNAPCHAT': 'bell',
     'SNAPCHAT ARCHIVE': 'camera',
     'SNAPCHAT RETURNS': 'camera',
+    'SPLITWISE': {
+        'SPLITWISE - EXPENSES': 'dollar-sign',
+        'SPLITWISE - EXPENSE BALANCES': 'dollar-sign',
+        'SPLITWISE - GROUPS': 'users',
+        'SPLITWISE - NOTIFICATIONS': 'bell',
+        'SPLITWISE - TOTAL BALANCES': 'dollar-sign',
+        'SPLITWISE - USERS': 'user',
+    },
     'SQLITE JOURNALING': 'book-open',
     'STRAVA': 'map',
     'SYNCED DEVICES': 'refresh-cw',
@@ -839,6 +858,10 @@ icon_mappings = \
     'VERIZON RDD ANALYTICS': {
         'VERIZON RDD - BATTERY HISTORY': 'power',
         'VERIZON RDD - WIFI DATA': 'wifi',
+    },
+    'UBER': {
+            'UBER APP LOCATION DATA': 'map-pin',
+            'default': 'move',
     },
     'VIBER': {
         'VIBER - CALL REMNANTS': 'phone-call',
@@ -1217,5 +1240,6 @@ def mark_item_active(data, itemname):
     else:
         ret = data[0: pos] + " active" + data[pos:]
         return ret
+    
     
     

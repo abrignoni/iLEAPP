@@ -42,7 +42,8 @@ def get_ph6viewplaydataphdapsql(files_found, report_folder, seeker, wrap_text, t
         report_folder = report_folder[:-1]
     iosversion = scripts.artifacts.artGlobals.versionf
     if version.parse(iosversion) < version.parse("11"):
-        logfunc("Unsupported version for PhotosData/Photos.sqlite assets with view and play data iOS " + iosversion)
+        logfunc("Unsupported version for PhotosData/Photos.sqlite assets with view and"
+                " play data from iOS " + iosversion)
     if (version.parse(iosversion) >= version.parse("11")) & (version.parse(iosversion) < version.parse("13")):
         file_found = str(files_found[0])
         db = open_sqlite_db_readonly(file_found)
@@ -84,9 +85,10 @@ def get_ph6viewplaydataphdapsql(files_found, report_folder, seeker, wrap_text, t
                 counter += 1
 
             description = 'Parses basic asset record data from PhotoData/Photos.sqlite for assets with' \
-                          ' view and played data. If the iOS version is greater than iOS 16 last viewed date' \
-                          ' from ZADDITTIONALASSETATTRIBUTES table ZLASTVIEWEDDATE field will be included.' \
-                          ' The results for this script will contain one record per ZASSET table Z_PK value.'
+                          ' view and played data in versions 11-12. If the iOS version is greater than iOS 16' \
+                          ' last viewed date from ZADDITTIONALASSETATTRIBUTES table ZLASTVIEWEDDATE field' \
+                          ' will be included. The results for this script will contain' \
+                          ' one record per ZASSET table Z_PK value.'
             report = ArtifactHtmlReport('Photos.sqlite-Interaction_Artifacts')
             report.start_artifact_report(report_folder, 'Ph6-Viewed and Played Data-PhDaPsql', description)
             report.add_script()
@@ -162,9 +164,10 @@ def get_ph6viewplaydataphdapsql(files_found, report_folder, seeker, wrap_text, t
                 counter += 1
 
             description = 'Parses basic asset record data from PhotoData/Photos.sqlite for assets with' \
-                          ' view and played data. If the iOS version is greater than iOS 16 last viewed date' \
-                          ' from ZADDITTIONALASSETATTRIBUTES table ZLASTVIEWEDDATE field will be included.' \
-                          ' The results for this script will contain one record per ZASSET table Z_PK value.'
+                          ' view and played data in versions 13. If the iOS version is greater than iOS 16' \
+                          ' last viewed date from ZADDITTIONALASSETATTRIBUTES table ZLASTVIEWEDDATE field' \
+                          ' will be included. The results for this script will contain' \
+                          ' one record per ZASSET table Z_PK value.'
             report = ArtifactHtmlReport('Photos.sqlite-Interaction_Artifacts')
             report.start_artifact_report(report_folder, 'Ph6-Viewed and Played Data-PhDaPsql', description)
             report.add_script()
@@ -241,9 +244,10 @@ def get_ph6viewplaydataphdapsql(files_found, report_folder, seeker, wrap_text, t
                 counter += 1
 
             description = 'Parses basic asset record data from PhotoData/Photos.sqlite for assets with' \
-                          ' view and played data. If the iOS version is greater than iOS 16 last viewed date' \
-                          ' from ZADDITTIONALASSETATTRIBUTES table ZLASTVIEWEDDATE field will be included.' \
-                          ' The results for this script will contain one record per ZASSET table Z_PK value.'
+                          ' view and played data in versions 14. If the iOS version is greater than iOS 16' \
+                          ' last viewed date from ZADDITTIONALASSETATTRIBUTES table ZLASTVIEWEDDATE field' \
+                          ' will be included. The results for this script will contain' \
+                          ' one record per ZASSET table Z_PK value.'
             report = ArtifactHtmlReport('Photos.sqlite-Interaction_Artifacts')
             report.start_artifact_report(report_folder, 'Ph6-Viewed and Played Data-PhDaPsql', description)
             report.add_script()
@@ -321,9 +325,10 @@ def get_ph6viewplaydataphdapsql(files_found, report_folder, seeker, wrap_text, t
                 counter += 1
 
             description = 'Parses basic asset record data from PhotoData/Photos.sqlite for assets with' \
-                          ' view and played data. If the iOS version is greater than iOS 16 last viewed date' \
-                          ' from ZADDITTIONALASSETATTRIBUTES table ZLASTVIEWEDDATE field will be included.' \
-                          ' The results for this script will contain one record per ZASSET table Z_PK value.'
+                          ' view and played data in versions 15. If the iOS version is greater than iOS 16' \
+                          ' last viewed date from ZADDITTIONALASSETATTRIBUTES table ZLASTVIEWEDDATE field' \
+                          ' will be included. The results for this script will contain' \
+                          ' one record per ZASSET table Z_PK value.'
             report = ArtifactHtmlReport('Photos.sqlite-Interaction_Artifacts')
             report.start_artifact_report(report_folder, 'Ph6-Viewed and Played Data-PhDaPsql', description)
             report.add_script()
@@ -403,9 +408,10 @@ def get_ph6viewplaydataphdapsql(files_found, report_folder, seeker, wrap_text, t
                 counter += 1
 
             description = 'Parses basic asset record data from PhotoData/Photos.sqlite for assets with' \
-                          ' view and played data. If the iOS version is greater than iOS 16 last viewed date' \
-                          ' from ZADDITTIONALASSETATTRIBUTES table ZLASTVIEWEDDATE field will be included.' \
-                          ' The results for this script will contain one record per ZASSET table Z_PK value.'
+                          ' view and played data in versions 16-17. If the iOS version is greater than iOS 16' \
+                          ' last viewed date from ZADDITTIONALASSETATTRIBUTES table ZLASTVIEWEDDATE field' \
+                          ' will be included. The results for this script will contain' \
+                          ' one record per ZASSET table Z_PK value.'
             report = ArtifactHtmlReport('Photos.sqlite-Interaction_Artifacts')
             report.start_artifact_report(report_folder, 'Ph6-Viewed and Played Data-PhDaPsql', description)
             report.add_script()
@@ -443,12 +449,13 @@ def get_ph6viewplaydataphdapsql(files_found, report_folder, seeker, wrap_text, t
 
 
 __artifacts_v2__ = {
-    'View and Play Data-PhDaPsql': {
+    'Ph6-View and Play Data-PhDaPsql': {
         'name': 'PhDaPL Photos.sqlite 6 assets with viewed and played data',
         'description': 'Parses basic asset record data from PhotoData/Photos.sqlite for assets with'
-                       ' view and played data. If the iOS version is greater than iOS 16 last viewed date'
-                       ' from ZADDITTIONALASSETATTRIBUTES table ZLASTVIEWEDDATE field will be included.'
-                       ' The results for this script will contain one record per ZASSET table Z_PK value.',
+                       ' view and played data in versions 11-17. If the iOS version is greater than iOS 16'
+                       ' last viewed date from ZADDITTIONALASSETATTRIBUTES table ZLASTVIEWEDDATE field'
+                       ' will be included. The results for this script will contain'
+                       ' one record per ZASSET table Z_PK value.',
         'author': 'Scott Koenig https://theforensicscooter.com/',
         'version': '1.2',
         'date': '2024-04-06',

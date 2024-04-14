@@ -1,6 +1,6 @@
 # Photos.sqlite
 # Author:  Scott Koenig, assisted by past contributors
-# Version: 1.2
+# Version: 1.3
 #
 #   Description:
 #   Parses Basic Album records found in the PhotoData/Photos.sqlite ZGENERICALBUM Table and supports iOS 11-17.
@@ -44,7 +44,8 @@ def get_ph20albumrecordsnadphdapsql(files_found, report_folder, seeker, wrap_tex
         report_folder = report_folder[:-1]
     iosversion = scripts.artifacts.artGlobals.versionf
     if version.parse(iosversion) < version.parse("11"):
-        logfunc("Unsupported version for PhotoData/Photos.sqlite album records with no asset data on iOS " + iosversion)
+        logfunc("Unsupported version for PhotoData/Photos.sqlite album records with no asset data"
+                " from on iOS " + iosversion)
     if (version.parse(iosversion) >= version.parse("11")) & (version.parse(iosversion) < version.parse("14")):
         file_found = str(files_found[0])
         db = open_sqlite_db_readonly(file_found)
@@ -98,14 +99,14 @@ def get_ph20albumrecordsnadphdapsql(files_found, report_folder, seeker, wrap_tex
                 counter += 1
 
             description = 'Parses Basic Album records found in the PhotoData/Photos.sqlite ZGENERICALBUM Table' \
-                          ' and supports iOS 11-17. Parses Album records only no asset data being parsed.' \
+                          ' and supports iOS 11-13. Parses Album records only no asset data being parsed.' \
                           ' Use 2-Non-Shared-Album-2 in the search to view Non-Shared Albums.' \
                           ' Use 1505-Shared-Album-1505 in the search to view Shared Albums.' \
                           ' Use 1509-SWY_Synced_Conversation_Media-1509 to view Shared with You' \
                           ' Conversation Identifiers. Please see the album type specific scripts to view more data' \
                           ' for each album type.'
             report = ArtifactHtmlReport('Photos.sqlite-GenAlbum_Records-NAD')
-            report.start_artifact_report(report_folder, 'Ph20-Album Records NAD-PhDaPsql', description)
+            report.start_artifact_report(report_folder, 'Ph20.1-Album Records NAD-PhDaPsql', description)
             report.add_script()
             data_headers = ('zGenAlbum-Start Date',
                             'zGenAlbum-End Date',
@@ -122,10 +123,10 @@ def get_ph20albumrecordsnadphdapsql(files_found, report_folder, seeker, wrap_tex
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
-            tsvname = 'Ph20-Album Records NAD-PhDaPsql'
+            tsvname = 'Ph20.1-Album Records NAD-PhDaPsql'
             tsv(report_folder, data_headers, data_list, tsvname)
 
-            tlactivity = 'Ph20-Album Records NAD-PhDaPsql'
+            tlactivity = 'Ph20.1-Album Records NAD-PhDaPsql'
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
@@ -189,14 +190,14 @@ def get_ph20albumrecordsnadphdapsql(files_found, report_folder, seeker, wrap_tex
                 counter += 1
 
             description = 'Parses Basic Album records found in the PhotoData/Photos.sqlite ZGENERICALBUM Table' \
-                          ' and supports iOS 11-17. Parses Album records only no asset data being parsed.' \
+                          ' and supports iOS 14. Parses Album records only no asset data being parsed.' \
                           ' Use 2-Non-Shared-Album-2 in the search to view Non-Shared Albums.' \
                           ' Use 1505-Shared-Album-1505 in the search to view Shared Albums.' \
                           ' Use 1509-SWY_Synced_Conversation_Media-1509 to view Shared with You' \
                           ' Conversation Identifiers. Please see the album type specific scripts to view more data' \
                           ' for each album type.'
             report = ArtifactHtmlReport('Photos.sqlite-GenAlbum_Records-NAD')
-            report.start_artifact_report(report_folder, 'Ph20-Album Records NAD-PhDaPsql', description)
+            report.start_artifact_report(report_folder, 'Ph20.1-Album Records NAD-PhDaPsql', description)
             report.add_script()
             data_headers = ('zGenAlbum-Creation Date',
                             'zGenAlbum-Start Date',
@@ -215,10 +216,10 @@ def get_ph20albumrecordsnadphdapsql(files_found, report_folder, seeker, wrap_tex
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
-            tsvname = 'Ph20-Album Records NAD-PhDaPsql'
+            tsvname = 'Ph20.1-Album Records NAD-PhDaPsql'
             tsv(report_folder, data_headers, data_list, tsvname)
 
-            tlactivity = 'Ph20-Album Records NAD-PhDaPsql'
+            tlactivity = 'Ph20.1-Album Records NAD-PhDaPsql'
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
@@ -281,14 +282,14 @@ def get_ph20albumrecordsnadphdapsql(files_found, report_folder, seeker, wrap_tex
                 counter += 1
 
             description = 'Parses Basic Album records found in the PhotoData/Photos.sqlite ZGENERICALBUM Table' \
-                          ' and supports iOS 11-17. Parses Album records only no asset data being parsed.' \
+                          ' and supports iOS 15-17. Parses Album records only no asset data being parsed.' \
                           ' Use 2-Non-Shared-Album-2 in the search to view Non-Shared Albums.' \
                           ' Use 1505-Shared-Album-1505 in the search to view Shared Albums.' \
                           ' Use 1509-SWY_Synced_Conversation_Media-1509 to view Shared with You' \
                           ' Conversation Identifiers. Please see the album type specific scripts to view more data' \
                           ' for each album type.'
             report = ArtifactHtmlReport('Photos.sqlite-GenAlbum_Records-NAD')
-            report.start_artifact_report(report_folder, 'Ph20-Album Records NAD-PhDaPsql', description)
+            report.start_artifact_report(report_folder, 'Ph20.1-Album Records NAD-PhDaPsql', description)
             report.add_script()
             data_headers = ('zGenAlbum-Creation Date',
                             'zGenAlbum-Start Date',
@@ -307,10 +308,10 @@ def get_ph20albumrecordsnadphdapsql(files_found, report_folder, seeker, wrap_tex
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
-            tsvname = 'Ph20-Album Records NAD-PhDaPsql'
+            tsvname = 'Ph20.1-Album Records NAD-PhDaPsql'
             tsv(report_folder, data_headers, data_list, tsvname)
 
-            tlactivity = 'Ph20-Album Records NAD-PhDaPsql'
+            tlactivity = 'Ph20.1-Album Records NAD-PhDaPsql'
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
@@ -386,15 +387,15 @@ def get_ph20albumrecrodsnadsyndpl(files_found, report_folder, seeker, wrap_text,
                 counter += 1
 
             description = 'Parses Basic Album records found in the Syndication.photoslibrary/database/Photos.sqlite' \
-                          ' ZGENERICALBUM Table and supports iOS 11-17.' \
+                          ' ZGENERICALBUM Table and supports iOS 11-13.' \
                           ' Parses Album records only no asset data being parsed.' \
                           ' Use 2-Non-Shared-Album-2 in the search to view Non-Shared Albums.' \
                           ' Use 1505-Shared-Album-1505 in the search to view Shared Albums.' \
                           ' Use 1509-SWY_Synced_Conversation_Media-1509 to view Shared with You' \
                           ' Conversation Identifiers. Please see the album type specific scripts to view more data' \
                           ' for each album type.'
-            report = ArtifactHtmlReport('Photos.sqlite-GenAlbum_Records-NAD')
-            report.start_artifact_report(report_folder, 'Ph20-Album Records NAD-SyndPL', description)
+            report = ArtifactHtmlReport('Photos.sqlite-Syndication_PL_Artifacts')
+            report.start_artifact_report(report_folder, 'Ph20.2-Album Records NAD-SyndPL', description)
             report.add_script()
             data_headers = ('zGenAlbum-Start Date',
                             'zGenAlbum-End Date',
@@ -411,10 +412,10 @@ def get_ph20albumrecrodsnadsyndpl(files_found, report_folder, seeker, wrap_text,
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
-            tsvname = 'Ph20-Album Records NAD-SyndPL'
+            tsvname = 'Ph20.2-Album Records NAD-SyndPL'
             tsv(report_folder, data_headers, data_list, tsvname)
 
-            tlactivity = 'Ph20-Album Records NAD-SyndPL'
+            tlactivity = 'Ph20.2-Album Records NAD-SyndPL'
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
@@ -479,15 +480,15 @@ def get_ph20albumrecrodsnadsyndpl(files_found, report_folder, seeker, wrap_text,
                 counter += 1
 
             description = 'Parses Basic Album records found in the Syndication.photoslibrary/database/Photos.sqlite' \
-                          ' ZGENERICALBUM Table and supports iOS 11-17.' \
+                          ' ZGENERICALBUM Table and supports iOS 14.' \
                           ' Parses Album records only no asset data being parsed.' \
                           ' Use 2-Non-Shared-Album-2 in the search to view Non-Shared Albums.' \
                           ' Use 1505-Shared-Album-1505 in the search to view Shared Albums.' \
                           ' Use 1509-SWY_Synced_Conversation_Media-1509 to view Shared with You' \
                           ' Conversation Identifiers. Please see the album type specific scripts to view more data' \
                           ' for each album type.'
-            report = ArtifactHtmlReport('Photos.sqlite-GenAlbum_Records-NAD')
-            report.start_artifact_report(report_folder, 'Ph20-Album Records NAD-SyndPL', description)
+            report = ArtifactHtmlReport('Photos.sqlite-Syndication_PL_Artifacts')
+            report.start_artifact_report(report_folder, 'Ph20.2-Album Records NAD-SyndPL', description)
             report.add_script()
             data_headers = ('zGenAlbum-Creation Date',
                             'zGenAlbum-Start Date',
@@ -506,10 +507,10 @@ def get_ph20albumrecrodsnadsyndpl(files_found, report_folder, seeker, wrap_text,
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
-            tsvname = 'Ph20-Album Records NAD-SyndPL'
+            tsvname = 'Ph20.2-Album Records NAD-SyndPL'
             tsv(report_folder, data_headers, data_list, tsvname)
 
-            tlactivity = 'Ph20-Album Records NAD-SyndPL'
+            tlactivity = 'Ph20.2-Album Records NAD-SyndPL'
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
@@ -572,15 +573,15 @@ def get_ph20albumrecrodsnadsyndpl(files_found, report_folder, seeker, wrap_text,
                 counter += 1
 
             description = 'Parses Basic Album records found in the Syndication.photoslibrary/database/Photos.sqlite' \
-                          ' ZGENERICALBUM Table and supports iOS 11-17.' \
+                          ' ZGENERICALBUM Table and supports iOS 15-17.' \
                           ' Parses Album records only no asset data being parsed.' \
                           ' Use 2-Non-Shared-Album-2 in the search to view Non-Shared Albums.' \
                           ' Use 1505-Shared-Album-1505 in the search to view Shared Albums.' \
                           ' Use 1509-SWY_Synced_Conversation_Media-1509 to view Shared with You' \
                           ' Conversation Identifiers. Please see the album type specific scripts to view more data' \
                           ' for each album type.'
-            report = ArtifactHtmlReport('Photos.sqlite-GenAlbum_Records-NAD')
-            report.start_artifact_report(report_folder, 'Ph20-Album Records NAD-SyndPL', description)
+            report = ArtifactHtmlReport('Photos.sqlite-Syndication_PL_Artifacts')
+            report.start_artifact_report(report_folder, 'Ph20.2-Album Records NAD-SyndPL', description)
             report.add_script()
             data_headers = ('zGenAlbum-Creation Date',
                             'zGenAlbum-Start Date',
@@ -599,10 +600,10 @@ def get_ph20albumrecrodsnadsyndpl(files_found, report_folder, seeker, wrap_text,
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
-            tsvname = 'Ph20-Album Records NAD-SyndPL'
+            tsvname = 'Ph20.2-Album Records NAD-SyndPL'
             tsv(report_folder, data_headers, data_list, tsvname)
 
-            tlactivity = 'Ph20-Album Records NAD-SyndPL'
+            tlactivity = 'Ph20.2-Album Records NAD-SyndPL'
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
@@ -614,8 +615,8 @@ def get_ph20albumrecrodsnadsyndpl(files_found, report_folder, seeker, wrap_text,
 
 
 __artifacts_v2__ = {
-    'Album Records with No Asset Data-PhDaPsql': {
-        'name': 'PhDaPL Photos.sqlite 20 Album Records with No Asset Data',
+    'Ph20-1-Album Records with NAD-PhDaPsql': {
+        'name': 'PhDaPL Photos.sqlite 20.1 Album Records with No Asset Data',
         'description': 'Parses Basic Album records found in the PhotoData/Photos.sqlite ZGENERICALBUM Table'
                        ' and supports iOS 11-17. Parses Album records only no asset data being parsed.'
                        ' Use 2-Non-Shared-Album-2 in the search to view Non-Shared Albums.'
@@ -623,16 +624,16 @@ __artifacts_v2__ = {
                        ' Use 1509-SWY_Synced_Conversation_Media-1509 to view Shared with You Conversation Identifiers.'
                        ' Please see the album type specific scripts to view more data for each album type.',
         'author': 'Scott Koenig https://theforensicscooter.com/',
-        'version': '1.2',
-        'date': '2024-04-07',
+        'version': '1.3',
+        'date': '2024-04-13',
         'requirements': 'Acquisition that contains PhotoData/Photos.sqlite',
         'category': 'Photos.sqlite-GenAlbum_Records-NAD',
         'notes': '',
         'paths': ('*/mobile/Media/PhotoData/Photos.sqlite'),
         'function': 'get_ph20albumrecordsnadphdapsql'
     },
-    'Album Records with No Asset Data-SyndPL': {
-        'name': 'SyndPL Photos.sqlite 20 Album Records with No Asset Data',
+    'Ph20-2-Album Records with NAD-SyndPL': {
+        'name': 'SyndPL Photos.sqlite 20.2 Album Records with No Asset Data',
         'description': 'Parses Basic Album records found in the Syndication.photoslibrary/database/Photos.sqlite'
                        ' ZGENERICALBUM Table and supports iOS 11-17. Parses Album records only no asset data'
                        ' being parsed. Use 2-Non-Shared-Album-2 in the search to view Non-Shared Albums.'
@@ -640,10 +641,10 @@ __artifacts_v2__ = {
                        ' Use 1509-SWY_Synced_Conversation_Media-1509 to view Shared with You Conversation Identifiers.'
                        ' Please see the album type specific scripts to view more data for each album type.',
         'author': 'Scott Koenig https://theforensicscooter.com/',
-        'version': '1.2',
-        'date': '2024-04-07',
+        'version': '1.3',
+        'date': '2024-04-13',
         'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
-        'category': 'Photos.sqlite-GenAlbum_Records-NAD',
+        'category': 'Photos.sqlite-Syndication_PL_Artifacts',
         'notes': '',
         'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite'),
         'function': 'get_ph20albumrecrodsnadsyndpl'

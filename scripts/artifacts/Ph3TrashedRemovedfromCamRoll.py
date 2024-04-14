@@ -1,6 +1,6 @@
 # Photos.sqlite
 # Author:  Scott Koenig, assisted by past contributors
-# Version: 1.2
+# Version: 1.3
 #
 #   Description:
 #   Parses basic asset record data from PhotoData/Photos.sqlite for recently deleted-trashed assets
@@ -42,7 +42,8 @@ def get_ph3trashedphdapsql(files_found, report_folder, seeker, wrap_text, timezo
         report_folder = report_folder[:-1]
     iosversion = scripts.artifacts.artGlobals.versionf
     if version.parse(iosversion) < version.parse("11"):
-        logfunc("Unsupported version for PhotoData/Photos.sqlite recently deleted or trashed assets iOS " + iosversion)
+        logfunc("Unsupported version for PhotoData/Photos.sqlite recently deleted or"
+                " trashed assets from iOS " + iosversion)
     if (version.parse(iosversion) >= version.parse("11")) & (version.parse(iosversion) < version.parse("14")):
         file_found = str(files_found[0])
         db = open_sqlite_db_readonly(file_found)
@@ -84,10 +85,10 @@ def get_ph3trashedphdapsql(files_found, report_folder, seeker, wrap_text, timezo
                 counter += 1
 
             description = 'Parses basic asset record data from PhotoData/Photos.sqlite for' \
-                          ' trashed/recently deleted assets and supports iOS 11-17.' \
+                          ' trashed/recently deleted assets and supports iOS 11-13.' \
                           ' The results for this script will contain one record per ZASSET table Z_PK value.'
             report = ArtifactHtmlReport('Photos.sqlite-Interaction_Artifacts')
-            report.start_artifact_report(report_folder, 'Ph3-Trashed Recently Deleted-PhDaPsql', description)
+            report.start_artifact_report(report_folder, 'Ph3.1-Trashed Recently Deleted-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Trashed Date',
                             'zAsset-Trashed State/LocalAssetRecentlyDeleted',
@@ -103,10 +104,10 @@ def get_ph3trashedphdapsql(files_found, report_folder, seeker, wrap_text, timezo
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
-            tsvname = 'Ph3-Trashed Recently Deleted-PhDaPsql'
+            tsvname = 'Ph3.1-Trashed Recently Deleted-PhDaPsql'
             tsv(report_folder, data_headers, data_list, tsvname)
 
-            tlactivity = 'Ph3-Trashed Recently Deleted-PhDaPsql'
+            tlactivity = 'Ph3.1-Trashed Recently Deleted-PhDaPsql'
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
@@ -156,10 +157,10 @@ def get_ph3trashedphdapsql(files_found, report_folder, seeker, wrap_text, timezo
                 counter += 1
 
             description = 'Parses basic asset record data from PhotoData/Photos.sqlite for' \
-                          ' trashed/recently deleted assets and supports iOS 11-17.' \
+                          ' trashed/recently deleted assets and supports iOS 14.' \
                           ' The results for this script will contain one record per ZASSET table Z_PK value.'
             report = ArtifactHtmlReport('Photos.sqlite-Interaction_Artifacts')
-            report.start_artifact_report(report_folder, 'Ph3-Trashed Recently Deleted-PhDaPsql', description)
+            report.start_artifact_report(report_folder, 'Ph3.1-Trashed Recently Deleted-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Trashed Date',
                             'zAsset-Trashed State/LocalAssetRecentlyDeleted',
@@ -175,10 +176,10 @@ def get_ph3trashedphdapsql(files_found, report_folder, seeker, wrap_text, timezo
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
-            tsvname = 'Ph3-Trashed Recently Deleted-PhDaPsql'
+            tsvname = 'Ph3.1-Trashed Recently Deleted-PhDaPsql'
             tsv(report_folder, data_headers, data_list, tsvname)
 
-            tlactivity = 'Ph3-Trashed Recently Deleted-PhDaPsql'
+            tlactivity = 'Ph3.1-Trashed Recently Deleted-PhDaPsql'
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
@@ -239,10 +240,10 @@ def get_ph3trashedphdapsql(files_found, report_folder, seeker, wrap_text, timezo
                 counter += 1
 
             description = 'Parses basic asset record data from PhotoData/Photos.sqlite for' \
-                          ' trashed/recently deleted assets and supports iOS 11-17.' \
+                          ' trashed/recently deleted assets and supports iOS 15.' \
                           ' The results for this script will contain one record per ZASSET table Z_PK value.'
             report = ArtifactHtmlReport('Photos.sqlite-Interaction_Artifacts')
-            report.start_artifact_report(report_folder, 'Ph3-Trashed Recently Deleted-PhDaPsql', description)
+            report.start_artifact_report(report_folder, 'Ph3.1-Trashed Recently Deleted-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Trashed Date',
                             'zAsset-Trashed State/LocalAssetRecentlyDeleted',
@@ -260,10 +261,10 @@ def get_ph3trashedphdapsql(files_found, report_folder, seeker, wrap_text, timezo
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
-            tsvname = 'Ph3-Trashed Recently Deleted-PhDaPsql'
+            tsvname = 'Ph3.1-Trashed Recently Deleted-PhDaPsql'
             tsv(report_folder, data_headers, data_list, tsvname)
 
-            tlactivity = 'Ph3-Trashed Recently Deleted-PhDaPsql'
+            tlactivity = 'Ph3.1-Trashed Recently Deleted-PhDaPsql'
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
@@ -331,10 +332,10 @@ def get_ph3trashedphdapsql(files_found, report_folder, seeker, wrap_text, timezo
                 counter += 1
 
             description = 'Parses basic asset record data from PhotoData/Photos.sqlite for' \
-                          ' trashed/recently deleted assets and supports iOS 11-17.' \
+                          ' trashed/recently deleted assets and supports iOS 16-17.' \
                           ' The results for this script will contain one record per ZASSET table Z_PK value.'
             report = ArtifactHtmlReport('Photos.sqlite-Interaction_Artifacts')
-            report.start_artifact_report(report_folder, 'Ph3-Trashed Recently Deleted-PhDaPsql', description)
+            report.start_artifact_report(report_folder, 'Ph3.1-Trashed Recently Deleted-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Trashed Date',
                             'zAsset-Trashed State/LocalAssetRecentlyDeleted',
@@ -356,10 +357,10 @@ def get_ph3trashedphdapsql(files_found, report_folder, seeker, wrap_text, timezo
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
-            tsvname = 'Ph3-Trashed Recently Deleted-PhDaPsql'
+            tsvname = 'Ph3.1-Trashed Recently Deleted-PhDaPsql'
             tsv(report_folder, data_headers, data_list, tsvname)
 
-            tlactivity = 'Ph3-Trashed Recently Deleted-PhDaPsql'
+            tlactivity = 'Ph3.1-Trashed Recently Deleted-PhDaPsql'
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
@@ -436,11 +437,11 @@ def get_ph3removedfromcamerarollsyndpl(files_found, report_folder, seeker, wrap_
                     counter += 1
 
                 description = 'Parses basic asset record data from Syndication.photoslibrary/database/Photos.sqlite' \
-                              ' for syndication PL asserts remvoed from camera roll and supports iOS 15-17.' \
+                              ' for syndication PL asserts remvoed from camera roll and supports iOS 15.' \
                               ' These assets may have been displayed in the camera roll, then deleted from' \
                               ' the camera roll view. The results for this script will contain one record per asset.'
-                report = ArtifactHtmlReport('Photos.sqlite-Interaction_Artifacts')
-                report.start_artifact_report(report_folder, 'Ph3-Removed from camera roll-SyndPL', description)
+                report = ArtifactHtmlReport('Photos.sqlite-Syndication_PL_Artifacts')
+                report.start_artifact_report(report_folder, 'Ph3.2-Removed from camera roll-SyndPL', description)
                 report.add_script()
                 data_headers = ('zAddAssetAttr-Last Upload Attempt Date-SWY_Files',
                                 'zAsset-Syndication State',
@@ -459,10 +460,10 @@ def get_ph3removedfromcamerarollsyndpl(files_found, report_folder, seeker, wrap_
                 report.write_artifact_data_table(data_headers, data_list, file_found)
                 report.end_artifact_report()
 
-                tsvname = 'Ph3-Removed from camera roll-SyndPL'
+                tsvname = 'Ph3.2-Removed from camera roll-SyndPL'
                 tsv(report_folder, data_headers, data_list, tsvname)
 
-                tlactivity = 'Ph3-Removed from camera roll-SyndPL'
+                tlactivity = 'Ph3.2-Removed from camera roll-SyndPL'
                 timeline(report_folder, tlactivity, data_list, data_headers)
 
             else:
@@ -533,11 +534,11 @@ def get_ph3removedfromcamerarollsyndpl(files_found, report_folder, seeker, wrap_
                     counter += 1
 
                 description = 'Parses basic asset record data from Syndication.photoslibrary/database/Photos.sqlite' \
-                              ' for syndication PL asserts remvoed from camera roll and supports iOS 15-17.' \
+                              ' for syndication PL asserts remvoed from camera roll and supports iOS 16-17.' \
                               ' These assets may have been displayed in the camera roll, then deleted from' \
                               ' the camera roll view. The results for this script will contain one record per asset.'
                 report = ArtifactHtmlReport('Photos.slqite-Interaction_Artifacts')
-                report.start_artifact_report(report_folder, 'Ph3-Removed from camera roll-SyndPL', description)
+                report.start_artifact_report(report_folder, 'Ph3.2-Removed from camera roll-SyndPL', description)
                 report.add_script()
                 data_headers = ('zAddAssetAttr-Last Upload Attempt Date-SWY_Files',
                                 'zAsset-Syndication State',
@@ -560,10 +561,10 @@ def get_ph3removedfromcamerarollsyndpl(files_found, report_folder, seeker, wrap_
                 report.write_artifact_data_table(data_headers, data_list, file_found)
                 report.end_artifact_report()
 
-                tsvname = 'Ph3-Removed from camera roll-SyndPL'
+                tsvname = 'Ph3.2-Removed from camera roll-SyndPL'
                 tsv(report_folder, data_headers, data_list, tsvname)
 
-                tlactivity = 'Ph3-Removed from camera roll-SyndPL'
+                tlactivity = 'Ph3.2-Removed from camera roll-SyndPL'
                 timeline(report_folder, tlactivity, data_list, data_headers)
 
             else:
@@ -574,31 +575,31 @@ def get_ph3removedfromcamerarollsyndpl(files_found, report_folder, seeker, wrap_
             return
 
 __artifacts_v2__ = {
-    'Recently Deleted Trashed-PhDaPsql': {
-        'name': 'PhDaPL Photos.sqlite 3 Trashed Recently Deleted',
+    'Ph3-1-Recently Deleted Trashed-PhDaPsql': {
+        'name': 'PhDaPL Photos.sqlite 3.1 Trashed Recently Deleted',
         'description': 'Parses basic asset record data from PhotoData/Photos.sqlite for trashed/recently deleted'
                        ' assets and supports iOS 11-17. The results for this script will contain one record'
                        ' per ZASSET table Z_PK value.',
         'author': 'Scott Koenig https://theforensicscooter.com/',
-        'version': '1.2',
-        'date': '2024-04-04',
+        'version': '1.3',
+        'date': '2024-04-13',
         'requirements': 'Acquisition that contains PhotoData/Photos.sqlite',
         'category': 'Photos.sqlite-Interaction_Artifacts',
         'notes': '',
         'paths': ('*/mobile/Media/PhotoData/Photos.sqlite'),
         'function': 'get_ph3trashedphdapsql'
     },
-    'Removed from Camera Roll-SyndPL': {
-        'name': 'SyndPL Photos.sqlite 3 Removed from camera roll',
+    'Ph3-2-Removed from Camera Roll-SyndPL': {
+        'name': 'SyndPL Photos.sqlite 3.2 Removed from camera roll',
         'description': 'Parses basic asset record data from Syndication.photoslibrary/database/Photos.sqlite'
                        ' for syndication PL asserts remvoed from camera roll and supports iOS 15-17.'
                        ' These assets may have been displayed in the camera roll, then deleted from'
                        ' the camera roll view. The results for this script will contain one record per asset.',
         'author': 'Scott Koenig https://theforensicscooter.com/',
-        'version': '1.2',
-        'date': '2024-04-04',
+        'version': '1.3',
+        'date': '2024-04-13',
         'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
-        'category': 'Photos.sqlite-Interaction_Artifacts',
+        'category': 'Photos.sqlite-Syndication_PL_Artifacts',
         'notes': '',
         'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite'),
         'function': 'get_ph3removedfromcamerarollsyndpl'

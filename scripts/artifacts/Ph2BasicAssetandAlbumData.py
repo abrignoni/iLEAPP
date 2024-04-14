@@ -1,6 +1,6 @@
 # Photos.sqlite
 # Author:  Scott Koenig, assisted by past contributors
-# Version: 1.2
+# Version: 1.3
 #
 #   Description:
 #   Parses basic asset record data from Photos.sqlite to include associated album data and supports iOS 11-17.
@@ -32,7 +32,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, kmlgen, is_platform_windows, media_to_html, open_sqlite_db_readonly
 
 
-def get_ph2basicandalbumdataphdapsql(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def get_ph2assetbasicandalbumdataphdapsql(files_found, report_folder, seeker, wrap_text, timezone_offset):
     for file_found in files_found:
         file_found = str(file_found)
 
@@ -43,7 +43,7 @@ def get_ph2basicandalbumdataphdapsql(files_found, report_folder, seeker, wrap_te
         report_folder = report_folder[:-1]
     iosversion = scripts.artifacts.artGlobals.versionf
     if version.parse(iosversion) < version.parse("11"):
-        logfunc("Unsupported version for PhotoData/Photos.sqlite basic asset and album data iOS " + iosversion)
+        logfunc("Unsupported version for PhotoData/Photos.sqlite basic asset and album data from iOS " + iosversion)
     if (version.parse(iosversion) >= version.parse("11")) & (version.parse(iosversion) < version.parse("12")):
         file_found = str(files_found[0])
         db = open_sqlite_db_readonly(file_found)
@@ -164,13 +164,13 @@ def get_ph2basicandalbumdataphdapsql(files_found, report_folder, seeker, wrap_te
 
             description = 'Parses basic asset record data from PhotoData/Photos.sqlite for' \
                           ' basic asset and album data. The results may contain multiple records' \
-                          ' per ZASSET table Z_PK value and supports iOS 11-17.' \
+                          ' per ZASSET table Z_PK value and supports iOS 11.' \
                           ' Use "2-Non-Shared-Album-2" in the search box to view Non-Shared Albums Assets.' \
                           ' Use "1505-Shared-Album-1505" in the search box to view Shared Albums Assets.' \
                           ' Use "1509-SWY_Synced_Conversation_Media-1509" in the search box to view' \
                           ' Shared with You Conversation Identifiers Assets.'
-            report = ArtifactHtmlReport('Photos.sqlite-Basic_Asset_Data')
-            report.start_artifact_report(report_folder, 'Ph1.2-Basic Asset Data & GenAlbum Data-PhDaPsql', description)
+            report = ArtifactHtmlReport('Photos.sqlite-Asset_Basic_Data')
+            report.start_artifact_report(report_folder, 'Ph2.1-Asset Basic Data & GenAlbum Data-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created',
                             'zAsset-zPK',
@@ -211,10 +211,10 @@ def get_ph2basicandalbumdataphdapsql(files_found, report_folder, seeker, wrap_te
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
-            tsvname = 'Ph1.2-Basic Asset Data & GenAlbum Data-PhDaPsql'
+            tsvname = 'Ph2.1-Asset Basic Data & GenAlbum Data-PhDaPsql'
             tsv(report_folder, data_headers, data_list, tsvname)
 
-            tlactivity = 'Ph1.2-Basic Asset Data & GenAlbum Data-PhDaPsql'
+            tlactivity = 'Ph2.1-Asset Basic Data & GenAlbum Data-PhDaPsql'
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
@@ -348,13 +348,13 @@ def get_ph2basicandalbumdataphdapsql(files_found, report_folder, seeker, wrap_te
 
             description = 'Parses basic asset record data from PhotoData/Photos.sqlite for' \
                           ' basic asset and album data. The results may contain multiple records' \
-                          ' per ZASSET table Z_PK value and supports iOS 11-17.' \
+                          ' per ZASSET table Z_PK value and supports iOS 12.' \
                           ' Use "2-Non-Shared-Album-2" in the search box to view Non-Shared Albums Assets.' \
                           ' Use "1505-Shared-Album-1505" in the search box to view Shared Albums Assets.' \
                           ' Use "1509-SWY_Synced_Conversation_Media-1509" in the search box to view' \
                           ' Shared with You Conversation Identifiers Assets.'
-            report = ArtifactHtmlReport('Photos.sqlite-Basic_Asset_Data')
-            report.start_artifact_report(report_folder, 'Ph1.2-Basic Asset Data & GenAlbum Data-PhDaPsql', description)
+            report = ArtifactHtmlReport('Photos.sqlite-Asset_Basic_Data')
+            report.start_artifact_report(report_folder, 'Ph2.1-Asset Basic Data & GenAlbum Data-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created',
                             'zAsset-zPK',
@@ -396,10 +396,10 @@ def get_ph2basicandalbumdataphdapsql(files_found, report_folder, seeker, wrap_te
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
-            tsvname = 'Ph1.2-Basic Asset Data & GenAlbum Data-PhDaPsql'
+            tsvname = 'Ph2.1-Asset Basic Data & GenAlbum Data-PhDaPsql'
             tsv(report_folder, data_headers, data_list, tsvname)
 
-            tlactivity = 'Ph1.2-Basic Asset Data & GenAlbum Data-PhDaPsql'
+            tlactivity = 'Ph2.1-Asset Basic Data & GenAlbum Data-PhDaPsql'
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
@@ -537,13 +537,13 @@ def get_ph2basicandalbumdataphdapsql(files_found, report_folder, seeker, wrap_te
 
             description = 'Parses basic asset record data from PhotoData/Photos.sqlite for' \
                           ' basic asset and album data. The results may contain multiple records' \
-                          ' per ZASSET table Z_PK value and supports iOS 11-17.' \
+                          ' per ZASSET table Z_PK value and supports iOS 13.' \
                           ' Use "2-Non-Shared-Album-2" in the search box to view Non-Shared Albums Assets.' \
                           ' Use "1505-Shared-Album-1505" in the search box to view Shared Albums Assets.' \
                           ' Use "1509-SWY_Synced_Conversation_Media-1509" in the search box to view' \
                           ' Shared with You Conversation Identifiers Assets.'
-            report = ArtifactHtmlReport('Photos.sqlite-Basic_Asset_Data')
-            report.start_artifact_report(report_folder, 'Ph1.2-Basic Asset Data & GenAlbum Data-PhDaPsql', description)
+            report = ArtifactHtmlReport('Photos.sqlite-Asset_Basic_Data')
+            report.start_artifact_report(report_folder, 'Ph2.1-Asset Basic Data & GenAlbum Data-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created',
                             'zAsset-zPK',
@@ -587,10 +587,10 @@ def get_ph2basicandalbumdataphdapsql(files_found, report_folder, seeker, wrap_te
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
-            tsvname = 'Ph1.2-Basic Asset Data & GenAlbum Data-PhDaPsql'
+            tsvname = 'Ph2.1-Asset Basic Data & GenAlbum Data-PhDaPsql'
             tsv(report_folder, data_headers, data_list, tsvname)
 
-            tlactivity = 'Ph1.2-Basic Asset Data & GenAlbum Data-PhDaPsql'
+            tlactivity = 'Ph2.1-Asset Basic Data & GenAlbum Data-PhDaPsql'
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
@@ -731,13 +731,13 @@ def get_ph2basicandalbumdataphdapsql(files_found, report_folder, seeker, wrap_te
 
             description = 'Parses basic asset record data from PhotoData/Photos.sqlite for' \
                           ' basic asset and album data. The results may contain multiple records' \
-                          ' per ZASSET table Z_PK value and supports iOS 11-17.' \
+                          ' per ZASSET table Z_PK value and supports iOS 14.' \
                           ' Use "2-Non-Shared-Album-2" in the search box to view Non-Shared Albums Assets.' \
                           ' Use "1505-Shared-Album-1505" in the search box to view Shared Albums Assets.' \
                           ' Use "1509-SWY_Synced_Conversation_Media-1509" in the search box to view' \
                           ' Shared with You Conversation Identifiers Assets.'
-            report = ArtifactHtmlReport('Photos.sqlite-Basic_Asset_Data')
-            report.start_artifact_report(report_folder, 'Ph1.2-Basic Asset Data & GenAlbum Data-PhDaPsql', description)
+            report = ArtifactHtmlReport('Photos.sqlite-Asset_Basic_Data')
+            report.start_artifact_report(report_folder, 'Ph2.1-Asset Basic Data & GenAlbum Data-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created',
                             'zAsset-zPK',
@@ -784,10 +784,10 @@ def get_ph2basicandalbumdataphdapsql(files_found, report_folder, seeker, wrap_te
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
-            tsvname = 'Ph1.2-Basic Asset Data & GenAlbum Data-PhDaPsql'
+            tsvname = 'Ph2.1-Asset Basic Data & GenAlbum Data-PhDaPsql'
             tsv(report_folder, data_headers, data_list, tsvname)
 
-            tlactivity = 'Ph1.2-Basic Asset Data & GenAlbum Data-PhDaPsql'
+            tlactivity = 'Ph2.1-Asset Basic Data & GenAlbum Data-PhDaPsql'
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
@@ -825,6 +825,13 @@ def get_ph2basicandalbumdataphdapsql(files_found, report_folder, seeker, wrap_te
         END AS 'zAsset-Syndication State',      
         zExtAttr.ZCAMERAMAKE AS 'zExtAttr-Camera Make',
         zExtAttr.ZCAMERAMODEL AS 'zExtAttr-Camera Model',
+        CASE zAsset.ZBUNDLESCOPE
+            WHEN 0 THEN '0-iCldPhtos-ON-AssetNotInSharedAlbum_or_iCldPhtos-OFF-AssetOnLocalDevice-0'
+            WHEN 1 THEN '1-SharediCldLink_CldMastMomentAsset-1'
+            WHEN 2 THEN '2-iCldPhtos-ON-AssetInCloudSharedAlbum-2'
+            WHEN 3 THEN '3-iCldPhtos-ON-AssetIsInSWYConversation-3'
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZBUNDLESCOPE || ''
+        END AS 'zAsset-Bundle Scope',
         zAddAssetAttr.ZIMPORTEDBYBUNDLEIDENTIFIER AS 'zAddAssetAttr.Imported by Bundle Identifier',
         zAddAssetAttr.ZIMPORTEDBYDISPLAYNAME AS 'zAddAssetAttr-Imported By Display Name',
         CASE zAsset.ZVISIBILITYSTATE
@@ -936,19 +943,20 @@ def get_ph2basicandalbumdataphdapsql(files_found, report_folder, seeker, wrap_te
                                   row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
                                   row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
                                   row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35], row[36],
-                                  row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45]))
+                                  row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45],
+                                  row[46]))
 
                 counter += 1
 
             description = 'Parses basic asset record data from PhotoData/Photos.sqlite for' \
                           ' basic asset and album data. The results may contain multiple records' \
-                          ' per ZASSET table Z_PK value and supports iOS 11-17.' \
+                          ' per ZASSET table Z_PK value and supports iOS 15.' \
                           ' Use "2-Non-Shared-Album-2" in the search box to view Non-Shared Albums Assets.' \
                           ' Use "1505-Shared-Album-1505" in the search box to view Shared Albums Assets.' \
                           ' Use "1509-SWY_Synced_Conversation_Media-1509" in the search box to view' \
                           ' Shared with You Conversation Identifiers Assets.'
-            report = ArtifactHtmlReport('Photos.sqlite-Basic_Asset_Data')
-            report.start_artifact_report(report_folder, 'Ph1.2-Basic Asset Data & GenAlbum Data-PhDaPsql', description)
+            report = ArtifactHtmlReport('Photos.sqlite-Asset_Basic_Data')
+            report.start_artifact_report(report_folder, 'Ph2.1-Asset Basic Data & GenAlbum Data-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created',
                             'zAsset-zPK',
@@ -963,6 +971,7 @@ def get_ph2basicandalbumdataphdapsql(files_found, report_folder, seeker, wrap_te
                             'zAsset-Syndication State',
                             'zExtAttr-Camera Make',
                             'zExtAttr-Camera Model',
+                            'zAsset-Bundle Scope',
                             'zAddAssetAttr.Imported by Bundle Identifier',
                             'zAddAssetAttr-Imported By Display Name',
                             'zAsset-Visibility State',
@@ -999,10 +1008,10 @@ def get_ph2basicandalbumdataphdapsql(files_found, report_folder, seeker, wrap_te
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
-            tsvname = 'Ph1.2-Basic Asset Data & GenAlbum Data-PhDaPsql'
+            tsvname = 'Ph2.1-Asset Basic Data & GenAlbum Data-PhDaPsql'
             tsv(report_folder, data_headers, data_list, tsvname)
 
-            tlactivity = 'Ph1.2-Basic Asset Data & GenAlbum Data-PhDaPsql'
+            tlactivity = 'Ph2.1-Asset Basic Data & GenAlbum Data-PhDaPsql'
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
@@ -1040,6 +1049,13 @@ def get_ph2basicandalbumdataphdapsql(files_found, report_folder, seeker, wrap_te
         END AS 'zAsset-Syndication State',      
         zExtAttr.ZCAMERAMAKE AS 'zExtAttr-Camera Make',
         zExtAttr.ZCAMERAMODEL AS 'zExtAttr-Camera Model',
+        CASE zAsset.ZBUNDLESCOPE
+            WHEN 0 THEN '0-iCldPhtos-ON-AssetNotInSharedAlbum_or_iCldPhtos-OFF-AssetOnLocalDevice-0'
+            WHEN 1 THEN '1-SharediCldLink_CldMastMomentAsset-1'
+            WHEN 2 THEN '2-iCldPhtos-ON-AssetInCloudSharedAlbum-2'
+            WHEN 3 THEN '3-iCldPhtos-ON-AssetIsInSWYConversation-3'
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZBUNDLESCOPE || ''
+        END AS 'zAsset-Bundle Scope',
         zAddAssetAttr.ZIMPORTEDBYBUNDLEIDENTIFIER AS 'zAddAssetAttr.Imported by Bundle Identifier',
         zAddAssetAttr.ZIMPORTEDBYDISPLAYNAME AS 'zAddAssetAttr-Imported By Display Name',
         CASE zAsset.ZVISIBILITYSTATE
@@ -1159,19 +1175,19 @@ def get_ph2basicandalbumdataphdapsql(files_found, report_folder, seeker, wrap_te
                                   row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
                                   row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35], row[36],
                                   row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45],
-                                  row[46], row[47], row[48]))
+                                  row[46], row[47], row[48], row[49]))
 
                 counter += 1
 
             description = 'Parses basic asset record data from PhotoData/Photos.sqlite for' \
                           ' basic asset and album data. The results may contain multiple records' \
-                          ' per ZASSET table Z_PK value and supports iOS 11-17.' \
+                          ' per ZASSET table Z_PK value and supports iOS 16.' \
                           ' Use "2-Non-Shared-Album-2" in the search box to view Non-Shared Albums Assets.' \
                           ' Use "1505-Shared-Album-1505" in the search box to view Shared Albums Assets.' \
                           ' Use "1509-SWY_Synced_Conversation_Media-1509" in the search box to view' \
                           ' Shared with You Conversation Identifiers Assets.'
-            report = ArtifactHtmlReport('Photos.sqlite-Basic_Asset_Data')
-            report.start_artifact_report(report_folder, 'Ph1.2-Basic Asset Data & GenAlbum Data-PhDaPsql', description)
+            report = ArtifactHtmlReport('Photos.sqlite-Asset_Basic_Data')
+            report.start_artifact_report(report_folder, 'Ph2.1-Asset Basic Data & GenAlbum Data-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created',
                             'zAsset-zPK',
@@ -1186,6 +1202,7 @@ def get_ph2basicandalbumdataphdapsql(files_found, report_folder, seeker, wrap_te
                             'zAsset-Syndication State',
                             'zExtAttr-Camera Make',
                             'zExtAttr-Camera Model',
+                            'zAsset-Bundle Scope',
                             'zAddAssetAttr.Imported by Bundle Identifier',
                             'zAddAssetAttr-Imported By Display Name',
                             'zAsset-Visibility State',
@@ -1225,10 +1242,10 @@ def get_ph2basicandalbumdataphdapsql(files_found, report_folder, seeker, wrap_te
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
-            tsvname = 'Ph1.2-Basic Asset Data & GenAlbum Data-PhDaPsql'
+            tsvname = 'Ph2.1-Asset Basic Data & GenAlbum Data-PhDaPsql'
             tsv(report_folder, data_headers, data_list, tsvname)
 
-            tlactivity = 'Ph1.2-Basic Asset Data & GenAlbum Data-PhDaPsql'
+            tlactivity = 'Ph2.1-Asset Basic Data & GenAlbum Data-PhDaPsql'
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
@@ -1266,6 +1283,13 @@ def get_ph2basicandalbumdataphdapsql(files_found, report_folder, seeker, wrap_te
         END AS 'zAsset-Syndication State',      
         zExtAttr.ZCAMERAMAKE AS 'zExtAttr-Camera Make',
         zExtAttr.ZCAMERAMODEL AS 'zExtAttr-Camera Model',
+        CASE zAsset.ZBUNDLESCOPE
+            WHEN 0 THEN '0-iCldPhtos-ON-AssetNotInSharedAlbum_or_iCldPhtos-OFF-AssetOnLocalDevice-0'
+            WHEN 1 THEN '1-SharediCldLink_CldMastMomentAsset-1'
+            WHEN 2 THEN '2-iCldPhtos-ON-AssetInCloudSharedAlbum-2'
+            WHEN 3 THEN '3-iCldPhtos-ON-AssetIsInSWYConversation-3'
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZBUNDLESCOPE || ''
+        END AS 'zAsset-Bundle Scope',
         zAddAssetAttr.ZIMPORTEDBYBUNDLEIDENTIFIER AS 'zAddAssetAttr.Imported by Bundle Identifier',
         zAddAssetAttr.ZIMPORTEDBYDISPLAYNAME AS 'zAddAssetAttr-Imported By Display Name',
         CASE zAsset.ZVISIBILITYSTATE
@@ -1385,19 +1409,19 @@ def get_ph2basicandalbumdataphdapsql(files_found, report_folder, seeker, wrap_te
                                   row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
                                   row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35], row[36],
                                   row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45],
-                                  row[46], row[47], row[48]))
+                                  row[46], row[47], row[48], row[49]))
 
                 counter += 1
 
             description = 'Parses basic asset record data from PhotoData/Photos.sqlite for' \
                           ' basic asset and album data. The results may contain multiple records' \
-                          ' per ZASSET table Z_PK value and supports iOS 11-17.' \
+                          ' per ZASSET table Z_PK value and supports iOS 17.' \
                           ' Use "2-Non-Shared-Album-2" in the search box to view Non-Shared Albums Assets.' \
                           ' Use "1505-Shared-Album-1505" in the search box to view Shared Albums Assets.' \
                           ' Use "1509-SWY_Synced_Conversation_Media-1509" in the search box to view' \
                           ' Shared with You Conversation Identifiers Assets.'
-            report = ArtifactHtmlReport('Photos.sqlite-Basic_Asset_Data')
-            report.start_artifact_report(report_folder, 'Ph1.2-Basic Asset Data & GenAlbum Data-PhDaPsql', description)
+            report = ArtifactHtmlReport('Photos.sqlite-Asset_Basic_Data')
+            report.start_artifact_report(report_folder, 'Ph2.1-Asset Basic Data & GenAlbum Data-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created',
                             'zAsset-zPK',
@@ -1412,6 +1436,7 @@ def get_ph2basicandalbumdataphdapsql(files_found, report_folder, seeker, wrap_te
                             'zAsset-Syndication State',
                             'zExtAttr-Camera Make',
                             'zExtAttr-Camera Model',
+                            'zAsset-Bundle Scope',
                             'zAddAssetAttr.Imported by Bundle Identifier',
                             'zAddAssetAttr-Imported By Display Name',
                             'zAsset-Visibility State',
@@ -1451,10 +1476,10 @@ def get_ph2basicandalbumdataphdapsql(files_found, report_folder, seeker, wrap_te
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
-            tsvname = 'Ph1.2-Basic Asset Data & GenAlbum Data-PhDaPsql'
+            tsvname = 'Ph2.1-Asset Basic Data & GenAlbum Data-PhDaPsql'
             tsv(report_folder, data_headers, data_list, tsvname)
 
-            tlactivity = 'Ph1.2-Basic Asset Data & GenAlbum Data-PhDaPsql'
+            tlactivity = 'Ph2.1-Asset Basic Data & GenAlbum Data-PhDaPsql'
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
@@ -1464,7 +1489,7 @@ def get_ph2basicandalbumdataphdapsql(files_found, report_folder, seeker, wrap_te
         return
 
 
-def get_ph2basicandconversdatasyndpl(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def get_ph2asserbasicandconversdatasyndpl(files_found, report_folder, seeker, wrap_text, timezone_offset):
         for file_found in files_found:
             file_found = str(file_found)
 
@@ -1597,13 +1622,13 @@ def get_ph2basicandconversdatasyndpl(files_found, report_folder, seeker, wrap_te
 
                 description = 'Parses basic asset record data from Syndication.photoslibrary/database/Photos.sqlite' \
                               ' for basic asset and album data. The results may contain multiple records' \
-                              ' per ZASSET table Z_PK value and supports iOS 11-17.' \
+                              ' per ZASSET table Z_PK value and supports iOS 11.' \
                               ' Use "2-Non-Shared-Album-2" in the search box to view Non-Shared Albums Assets.' \
                               ' Use "1505-Shared-Album-1505" in the search box to view Shared Albums Assets.' \
                               ' Use "1509-SWY_Synced_Conversation_Media-1509" in the search box to view' \
                               ' Shared with You Conversation Identifiers Assets.'
-                report = ArtifactHtmlReport('Photos.sqlite-Basic_Asset_Data')
-                report.start_artifact_report(report_folder, 'Ph2.2-Basic Asset Data & Convers Data-SyndPL', description)
+                report = ArtifactHtmlReport('Photos.sqlite-Syndication_PL_Artifacts')
+                report.start_artifact_report(report_folder, 'Ph2.2-Asset Basic Data & Convers Data-SyndPL', description)
                 report.add_script()
                 data_headers = ('zAsset-Date Created',
                                 'zAsset-zPK',
@@ -1644,10 +1669,10 @@ def get_ph2basicandconversdatasyndpl(files_found, report_folder, seeker, wrap_te
                 report.write_artifact_data_table(data_headers, data_list, file_found)
                 report.end_artifact_report()
 
-                tsvname = 'Ph2.2-Basic Asset Data & Convers Data-SyndPL'
+                tsvname = 'Ph2.2-Asset Basic Data & Convers Data-SyndPL'
                 tsv(report_folder, data_headers, data_list, tsvname)
 
-                tlactivity = 'Ph2.2-Basic Asset Data & Convers Data-SyndPL'
+                tlactivity = 'Ph2.2-Asset Basic Data & Convers Data-SyndPL'
                 timeline(report_folder, tlactivity, data_list, data_headers)
 
             else:
@@ -1782,13 +1807,13 @@ def get_ph2basicandconversdatasyndpl(files_found, report_folder, seeker, wrap_te
 
                 description = 'Parses basic asset record data from Syndication.photoslibrary/database/Photos.sqlite' \
                               ' for basic asset and album data. The results may contain multiple records' \
-                              ' per ZASSET table Z_PK value and supports iOS 11-17.' \
+                              ' per ZASSET table Z_PK value and supports iOS 12.' \
                               ' Use "2-Non-Shared-Album-2" in the search box to view Non-Shared Albums Assets.' \
                               ' Use "1505-Shared-Album-1505" in the search box to view Shared Albums Assets.' \
                               ' Use "1509-SWY_Synced_Conversation_Media-1509" in the search box to view' \
                               ' Shared with You Conversation Identifiers Assets.'
-                report = ArtifactHtmlReport('Photos.sqlite-Basic_Asset_Data')
-                report.start_artifact_report(report_folder, 'Ph2.2-Basic Asset Data & Convers Data-SyndPL', description)
+                report = ArtifactHtmlReport('Photos.sqlite-Syndication_PL_Artifacts')
+                report.start_artifact_report(report_folder, 'Ph2.2-Asset Basic Data & Convers Data-SyndPL', description)
                 report.add_script()
                 data_headers = ('zAsset-Date Created',
                                 'zAsset-zPK',
@@ -1830,10 +1855,10 @@ def get_ph2basicandconversdatasyndpl(files_found, report_folder, seeker, wrap_te
                 report.write_artifact_data_table(data_headers, data_list, file_found)
                 report.end_artifact_report()
 
-                tsvname = 'Ph2.2-Basic Asset Data & Convers Data-SyndPL'
+                tsvname = 'Ph2.2-Asset Basic Data & Convers Data-SyndPL'
                 tsv(report_folder, data_headers, data_list, tsvname)
 
-                tlactivity = 'Ph2.2-Basic Asset Data & Convers Data-SyndPL'
+                tlactivity = 'Ph2.2-Asset Basic Data & Convers Data-SyndPL'
                 timeline(report_folder, tlactivity, data_list, data_headers)
 
             else:
@@ -1972,13 +1997,13 @@ def get_ph2basicandconversdatasyndpl(files_found, report_folder, seeker, wrap_te
 
                 description = 'Parses basic asset record data from Syndication.photoslibrary/database/Photos.sqlite' \
                               ' for basic asset and album data. The results may contain multiple records' \
-                              ' per ZASSET table Z_PK value and supports iOS 11-17.' \
+                              ' per ZASSET table Z_PK value and supports iOS 13.' \
                               ' Use "2-Non-Shared-Album-2" in the search box to view Non-Shared Albums Assets.' \
                               ' Use "1505-Shared-Album-1505" in the search box to view Shared Albums Assets.' \
                               ' Use "1509-SWY_Synced_Conversation_Media-1509" in the search box to view' \
                               ' Shared with You Conversation Identifiers Assets.'
-                report = ArtifactHtmlReport('Photos.sqlite-Basic_Asset_Data')
-                report.start_artifact_report(report_folder, 'Ph2.2-Basic Asset Data & Convers Data-SyndPL', description)
+                report = ArtifactHtmlReport('Photos.sqlite-Syndication_PL_Artifacts')
+                report.start_artifact_report(report_folder, 'Ph2.2-Asset Basic Data & Convers Data-SyndPL', description)
                 report.add_script()
                 data_headers = ('zAsset-Date Created',
                                 'zAsset-zPK',
@@ -2022,10 +2047,10 @@ def get_ph2basicandconversdatasyndpl(files_found, report_folder, seeker, wrap_te
                 report.write_artifact_data_table(data_headers, data_list, file_found)
                 report.end_artifact_report()
 
-                tsvname = 'Ph2.2-Basic Asset Data & Convers Data-SyndPL'
+                tsvname = 'Ph2.2-Asset Basic Data & Convers Data-SyndPL'
                 tsv(report_folder, data_headers, data_list, tsvname)
 
-                tlactivity = 'Ph2.2-Basic Asset Data & Convers Data-SyndPL'
+                tlactivity = 'Ph2.2-Asset Basic Data & Convers Data-SyndPL'
                 timeline(report_folder, tlactivity, data_list, data_headers)
 
             else:
@@ -2167,13 +2192,13 @@ def get_ph2basicandconversdatasyndpl(files_found, report_folder, seeker, wrap_te
 
                 description = 'Parses basic asset record data from Syndication.photoslibrary/database/Photos.sqlite' \
                               ' for basic asset and album data. The results may contain multiple records' \
-                              ' per ZASSET table Z_PK value and supports iOS 11-17.' \
+                              ' per ZASSET table Z_PK value and supports iOS 14.' \
                               ' Use "2-Non-Shared-Album-2" in the search box to view Non-Shared Albums Assets.' \
                               ' Use "1505-Shared-Album-1505" in the search box to view Shared Albums Assets.' \
                               ' Use "1509-SWY_Synced_Conversation_Media-1509" in the search box to view' \
                               ' Shared with You Conversation Identifiers Assets.'
-                report = ArtifactHtmlReport('Photos.sqlite-Basic_Asset_Data')
-                report.start_artifact_report(report_folder, 'Ph2.2-Basic Asset Data & Convers Data-SyndPL', description)
+                report = ArtifactHtmlReport('Photos.sqlite-Syndication_PL_Artifacts')
+                report.start_artifact_report(report_folder, 'Ph2.2-Asset Basic Data & Convers Data-SyndPL', description)
                 report.add_script()
                 data_headers = ('zAsset-Date Created',
                                 'zAsset-zPK',
@@ -2220,10 +2245,10 @@ def get_ph2basicandconversdatasyndpl(files_found, report_folder, seeker, wrap_te
                 report.write_artifact_data_table(data_headers, data_list, file_found)
                 report.end_artifact_report()
 
-                tsvname = 'Ph2.2-Basic Asset Data & Convers Data-SyndPL'
+                tsvname = 'Ph2.2-Asset Basic Data & Convers Data-SyndPL'
                 tsv(report_folder, data_headers, data_list, tsvname)
 
-                tlactivity = 'Ph2.2-Basic Asset Data & Convers Data-SyndPL'
+                tlactivity = 'Ph2.2-Asset Basic Data & Convers Data-SyndPL'
                 timeline(report_folder, tlactivity, data_list, data_headers)
 
             else:
@@ -2262,6 +2287,13 @@ def get_ph2basicandconversdatasyndpl(files_found, report_folder, seeker, wrap_te
             END AS 'zAsset-Syndication State',      
             zExtAttr.ZCAMERAMAKE AS 'zExtAttr-Camera Make',
             zExtAttr.ZCAMERAMODEL AS 'zExtAttr-Camera Model',
+            CASE zAsset.ZBUNDLESCOPE
+                WHEN 0 THEN '0-iCldPhtos-ON-AssetNotInSharedAlbum_or_iCldPhtos-OFF-AssetOnLocalDevice-0'
+                WHEN 1 THEN '1-SharediCldLink_CldMastMomentAsset-1'
+                WHEN 2 THEN '2-iCldPhtos-ON-AssetInCloudSharedAlbum-2'
+                WHEN 3 THEN '3-iCldPhtos-ON-AssetIsInSWYConversation-3'
+                ELSE 'Unknown-New-Value!: ' || zAsset.ZBUNDLESCOPE || ''
+            END AS 'zAsset-Bundle Scope',
             zAddAssetAttr.ZIMPORTEDBYBUNDLEIDENTIFIER AS 'zAddAssetAttr.Imported by Bundle Identifier',
             zAddAssetAttr.ZIMPORTEDBYDISPLAYNAME AS 'zAddAssetAttr-Imported By Display Name',
             CASE zAsset.ZVISIBILITYSTATE
@@ -2373,19 +2405,20 @@ def get_ph2basicandconversdatasyndpl(files_found, report_folder, seeker, wrap_te
                                       row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
                                       row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
                                       row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35], row[36],
-                                      row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45]))
+                                      row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45],
+                                      row[46]))
 
                     counter += 1
 
                 description = 'Parses basic asset record data from Syndication.photoslibrary/database/Photos.sqlite' \
                               ' for basic asset and album data. The results may contain multiple records' \
-                              ' per ZASSET table Z_PK value and supports iOS 11-17.' \
+                              ' per ZASSET table Z_PK value and supports iOS 15.' \
                               ' Use "2-Non-Shared-Album-2" in the search box to view Non-Shared Albums Assets.' \
                               ' Use "1505-Shared-Album-1505" in the search box to view Shared Albums Assets.' \
                               ' Use "1509-SWY_Synced_Conversation_Media-1509" in the search box to view' \
                               ' Shared with You Conversation Identifiers Assets.'
-                report = ArtifactHtmlReport('Photos.sqlite-Basic_Asset_Data')
-                report.start_artifact_report(report_folder, 'Ph2.2-Basic Asset Data & Convers Data-SyndPL', description)
+                report = ArtifactHtmlReport('Photos.sqlite-Syndication_PL_Artifacts')
+                report.start_artifact_report(report_folder, 'Ph2.2-Asset Basic Data & Convers Data-SyndPL', description)
                 report.add_script()
                 data_headers = ('zAsset-Date Created',
                                 'zAsset-zPK',
@@ -2400,6 +2433,7 @@ def get_ph2basicandconversdatasyndpl(files_found, report_folder, seeker, wrap_te
                                 'zAsset-Syndication State',
                                 'zExtAttr-Camera Make',
                                 'zExtAttr-Camera Model',
+                                'zAsset-Bundle Scope',
                                 'zAddAssetAttr.Imported by Bundle Identifier',
                                 'zAddAssetAttr-Imported By Display Name',
                                 'zAsset-Visibility State',
@@ -2436,10 +2470,10 @@ def get_ph2basicandconversdatasyndpl(files_found, report_folder, seeker, wrap_te
                 report.write_artifact_data_table(data_headers, data_list, file_found)
                 report.end_artifact_report()
 
-                tsvname = 'Ph2.2-Basic Asset Data & Convers Data-SyndPL'
+                tsvname = 'Ph2.2-Asset Basic Data & Convers Data-SyndPL'
                 tsv(report_folder, data_headers, data_list, tsvname)
 
-                tlactivity = 'Ph2.2-Basic Asset Data & Convers Data-SyndPL'
+                tlactivity = 'Ph2.2-Asset Basic Data & Convers Data-SyndPL'
                 timeline(report_folder, tlactivity, data_list, data_headers)
 
             else:
@@ -2478,6 +2512,13 @@ def get_ph2basicandconversdatasyndpl(files_found, report_folder, seeker, wrap_te
             END AS 'zAsset-Syndication State',      
             zExtAttr.ZCAMERAMAKE AS 'zExtAttr-Camera Make',
             zExtAttr.ZCAMERAMODEL AS 'zExtAttr-Camera Model',
+            CASE zAsset.ZBUNDLESCOPE
+                WHEN 0 THEN '0-iCldPhtos-ON-AssetNotInSharedAlbum_or_iCldPhtos-OFF-AssetOnLocalDevice-0'
+                WHEN 1 THEN '1-SharediCldLink_CldMastMomentAsset-1'
+                WHEN 2 THEN '2-iCldPhtos-ON-AssetInCloudSharedAlbum-2'
+                WHEN 3 THEN '3-iCldPhtos-ON-AssetIsInSWYConversation-3'
+                ELSE 'Unknown-New-Value!: ' || zAsset.ZBUNDLESCOPE || ''
+            END AS 'zAsset-Bundle Scope',            
             zAddAssetAttr.ZIMPORTEDBYBUNDLEIDENTIFIER AS 'zAddAssetAttr.Imported by Bundle Identifier',
             zAddAssetAttr.ZIMPORTEDBYDISPLAYNAME AS 'zAddAssetAttr-Imported By Display Name',
             CASE zAsset.ZVISIBILITYSTATE
@@ -2597,19 +2638,19 @@ def get_ph2basicandconversdatasyndpl(files_found, report_folder, seeker, wrap_te
                                       row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
                                       row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35], row[36],
                                       row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45],
-                                      row[46], row[47], row[48]))
+                                      row[46], row[47], row[48], row[49]))
 
                     counter += 1
 
                 description = 'Parses basic asset record data from Syndication.photoslibrary/database/Photos.sqlite' \
                               ' for basic asset and album data. The results may contain multiple records' \
-                              ' per ZASSET table Z_PK value and supports iOS 11-17.' \
+                              ' per ZASSET table Z_PK value and supports iOS 16.' \
                               ' Use "2-Non-Shared-Album-2" in the search box to view Non-Shared Albums Assets.' \
                               ' Use "1505-Shared-Album-1505" in the search box to view Shared Albums Assets.' \
                               ' Use "1509-SWY_Synced_Conversation_Media-1509" in the search box to view' \
                               ' Shared with You Conversation Identifiers Assets.'
-                report = ArtifactHtmlReport('Photos.sqlite-Basic_Asset_Data')
-                report.start_artifact_report(report_folder, 'Ph2.2-Basic Asset Data & Convers Data-SyndPL', description)
+                report = ArtifactHtmlReport('Photos.sqlite-Syndication_PL_Artifacts')
+                report.start_artifact_report(report_folder, 'Ph2.2-Asset Basic Data & Convers Data-SyndPL', description)
                 report.add_script()
                 data_headers = ('zAsset-Date Created',
                                 'zAsset-zPK',
@@ -2624,6 +2665,7 @@ def get_ph2basicandconversdatasyndpl(files_found, report_folder, seeker, wrap_te
                                 'zAsset-Syndication State',
                                 'zExtAttr-Camera Make',
                                 'zExtAttr-Camera Model',
+                                'zAsset-Bundle Scope',
                                 'zAddAssetAttr.Imported by Bundle Identifier',
                                 'zAddAssetAttr-Imported By Display Name',
                                 'zAsset-Visibility State',
@@ -2663,10 +2705,10 @@ def get_ph2basicandconversdatasyndpl(files_found, report_folder, seeker, wrap_te
                 report.write_artifact_data_table(data_headers, data_list, file_found)
                 report.end_artifact_report()
 
-                tsvname = 'Ph2.2-Basic Asset Data & Convers Data-SyndPL'
+                tsvname = 'Ph2.2-Asset Basic Data & Convers Data-SyndPL'
                 tsv(report_folder, data_headers, data_list, tsvname)
 
-                tlactivity = 'Ph2.2-Basic Asset Data & Convers Data-SyndPL'
+                tlactivity = 'Ph2.2-Asset Basic Data & Convers Data-SyndPL'
                 timeline(report_folder, tlactivity, data_list, data_headers)
 
             else:
@@ -2705,6 +2747,13 @@ def get_ph2basicandconversdatasyndpl(files_found, report_folder, seeker, wrap_te
             END AS 'zAsset-Syndication State',      
             zExtAttr.ZCAMERAMAKE AS 'zExtAttr-Camera Make',
             zExtAttr.ZCAMERAMODEL AS 'zExtAttr-Camera Model',
+            CASE zAsset.ZBUNDLESCOPE
+                WHEN 0 THEN '0-iCldPhtos-ON-AssetNotInSharedAlbum_or_iCldPhtos-OFF-AssetOnLocalDevice-0'
+                WHEN 1 THEN '1-SharediCldLink_CldMastMomentAsset-1'
+                WHEN 2 THEN '2-iCldPhtos-ON-AssetInCloudSharedAlbum-2'
+                WHEN 3 THEN '3-iCldPhtos-ON-AssetIsInSWYConversation-3'
+                ELSE 'Unknown-New-Value!: ' || zAsset.ZBUNDLESCOPE || ''
+            END AS 'zAsset-Bundle Scope',
             zAddAssetAttr.ZIMPORTEDBYBUNDLEIDENTIFIER AS 'zAddAssetAttr.Imported by Bundle Identifier',
             zAddAssetAttr.ZIMPORTEDBYDISPLAYNAME AS 'zAddAssetAttr-Imported By Display Name',
             CASE zAsset.ZVISIBILITYSTATE
@@ -2824,19 +2873,19 @@ def get_ph2basicandconversdatasyndpl(files_found, report_folder, seeker, wrap_te
                                       row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
                                       row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35], row[36],
                                       row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45],
-                                      row[46], row[47], row[48]))
+                                      row[46], row[47], row[48], row[49]))
 
                     counter += 1
 
                 description = 'Parses basic asset record data from Syndication.photoslibrary/database/Photos.sqlite' \
                               ' for basic asset and album data. The results may contain multiple records' \
-                              ' per ZASSET table Z_PK value and supports iOS 11-17.' \
+                              ' per ZASSET table Z_PK value and supports iOS 17.' \
                               ' Use "2-Non-Shared-Album-2" in the search box to view Non-Shared Albums Assets.' \
                               ' Use "1505-Shared-Album-1505" in the search box to view Shared Albums Assets.' \
                               ' Use "1509-SWY_Synced_Conversation_Media-1509" in the search box to view' \
                               ' Shared with You Conversation Identifiers Assets.'
-                report = ArtifactHtmlReport('Photos.sqlite-Basic_Asset_Data')
-                report.start_artifact_report(report_folder, 'Ph2.2-Basic Asset Data & Convers Data-SyndPL', description)
+                report = ArtifactHtmlReport('Photos.sqlite-Syndication_PL_Artifacts')
+                report.start_artifact_report(report_folder, 'Ph2.2-Asset Basic Data & Convers Data-SyndPL', description)
                 report.add_script()
                 data_headers = ('zAsset-Date Created',
                                 'zAsset-zPK',
@@ -2851,6 +2900,7 @@ def get_ph2basicandconversdatasyndpl(files_found, report_folder, seeker, wrap_te
                                 'zAsset-Syndication State',
                                 'zExtAttr-Camera Make',
                                 'zExtAttr-Camera Model',
+                                'zAsset-Bundle Scope',
                                 'zAddAssetAttr.Imported by Bundle Identifier',
                                 'zAddAssetAttr-Imported By Display Name',
                                 'zAsset-Visibility State',
@@ -2890,10 +2940,10 @@ def get_ph2basicandconversdatasyndpl(files_found, report_folder, seeker, wrap_te
                 report.write_artifact_data_table(data_headers, data_list, file_found)
                 report.end_artifact_report()
 
-                tsvname = 'Ph2.2-Basic Asset Data & Convers Data-SyndPL'
+                tsvname = 'Ph2.2-Asset Basic Data & Convers Data-SyndPL'
                 tsv(report_folder, data_headers, data_list, tsvname)
 
-                tlactivity = 'Ph2.2-Basic Asset Data & Convers Data-SyndPL'
+                tlactivity = 'Ph2.2-Asset Basic Data & Convers Data-SyndPL'
                 timeline(report_folder, tlactivity, data_list, data_headers)
 
             else:
@@ -2904,8 +2954,8 @@ def get_ph2basicandconversdatasyndpl(files_found, report_folder, seeker, wrap_te
             return
 
 __artifacts_v2__ = {
-    'Basic Asset&GenAlbum Data-PhDaPsql': {
-        'name': 'PhDaPL Photos.sqlite 1.2 Basic Asset & Generic Album Data',
+    'Ph2-1-Asset Basic & GenAlbum Data-PhDaPsql': {
+        'name': 'PhDaPL Photos.sqlite 2.1 Asset Basic & Generic Album Data',
         'description': 'Parses basic asset record data from PhotoData/Photos.sqlite for basic asset and album data.'
                        ' The results may contain multiple records per ZASSET table Z_PK value and supports iOS 11-17.'
                        ' Use 2-Non-Shared-Album-2 in the search box to view Non-Shared Albums Assets.'
@@ -2913,16 +2963,16 @@ __artifacts_v2__ = {
                        ' Use 1509-SWY_Synced_Conversation_Media-1509 in the search box to view'
                        ' Shared with You Conversation Identifiers Assets.',
         'author': 'Scott Koenig https://theforensicscooter.com/',
-        'version': '1.2',
-        'date': '2024-04-07',
+        'version': '1.3',
+        'date': '2024-04-13',
         'requirements': 'Acquisition that contains PhotoData/Photos.sqlite',
-        'category': 'Photos.sqlite-Basic_Asset_Data',
+        'category': 'Photos.sqlite-Asset_Basic_Data',
         'notes': '',
         'paths': ('*/mobile/Media/PhotoData/Photos.sqlite'),
-        'function': 'get_ph2basicandalbumdataphdapsql'
+        'function': 'get_ph2assetbasicandalbumdataphdapsql'
     },
-    'Basic Asset&Conversation Data-SyndPL': {
-        'name': 'SyndPL Photos.sqlite 2.2 Basic Asset and Conversation Data',
+    'Ph2-2-Asset Basic & Conversation Data-SyndPL': {
+        'name': 'SyndPL Photos.sqlite 2.2 Asset Basic and Conversation Data',
         'description': 'Parses basic asset record data from /Syndication.photoslibrary/database/Photos.sqlite'
                        ' for basic asset and album data. The results may contain multiple records'
                        ' per ZASSET table Z_PK value and supports iOS 11-17.'
@@ -2931,12 +2981,12 @@ __artifacts_v2__ = {
                        ' Use 1509-SWY_Synced_Conversation_Media-1509 in the search box to view'
                        ' Shared with You Conversation Identifiers Assets.',
         'author': 'Scott Koenig https://theforensicscooter.com/',
-        'version': '1.2',
-        'date': '2024-04-07',
+        'version': '1.3',
+        'date': '2024-04-13',
         'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
-        'category': 'Photos.sqlite-Basic_Asset_Data',
+        'category': 'Photos.sqlite-Syndication_PL_Artifacts',
         'notes': '',
         'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite'),
-        'function': 'get_ph2basicandconversdatasyndpl'
+        'function': 'get_ph2asserbasicandconversdatasyndpl'
     }
 }
