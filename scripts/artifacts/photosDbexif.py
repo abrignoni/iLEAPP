@@ -252,7 +252,9 @@ def get_photosDbexif(files_found, report_folder, seeker, wrap_text, timezone_off
                 
             else:
                 logfunc(f'No Photos.sqlite Analysis data available')
-                
+        else:
+            continue
+        
 __artifacts__ = {
         "photosDbexif": (
             "Photos",
