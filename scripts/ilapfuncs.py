@@ -47,6 +47,16 @@ class OutputParameters:
 
         os.makedirs(os.path.join(self.report_folder_base, 'Script Logs'))
         os.makedirs(self.temp_folder)
+        
+def convert_local_to_utc(local_timestamp_str):
+    # Parse the timestamp string with timezone offset, ex. 2023-10-27 18:18:29-0400
+    local_timestamp = datetime.strptime(local_timestamp_str, "%Y-%m-%d %H:%M:%S%z")
+    
+    # Convert to UTC timestamp
+    utc_timestamp = local_timestamp.astimezone(timezone.utc)
+    
+    # Return the UTC timestamp
+    return utc_timestamp
 
 def convert_time_obj_to_utc(ts):
     timestamp = ts.replace(tzinfo=timezone.utc)

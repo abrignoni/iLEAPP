@@ -73,21 +73,24 @@ def get_secretCalculator(files_found, report_folder, seeker, wrap_text, timezone
                             thumb = media_to_html(attachmentFile, (attachmentFile,), report_folder)
                         data_list.append((row[0], thumb, row[4], row[1], fileNameToSearch.replace('\\', '/'), row[3]))
 
-                description = 'Secret Calculator'
-                report = ArtifactHtmlReport('Secret Calculator')
-                report.start_artifact_report(report_folder, 'Secret Calculator', description)
-                report.add_script()
-                data_headers = ('Date', 'File', 'Album', 'Album Date', 'Filename', 'Is Video')
-                report.write_artifact_data_table(data_headers, data_list, file_found, html_no_escape=['File'])
-                report.end_artifact_report()
+                    description = 'Secret Calculator'
+                    report = ArtifactHtmlReport('Secret Calculator')
+                    report.start_artifact_report(report_folder, 'Secret Calculator', description)
+                    report.add_script()
+                    data_headers = ('Date', 'File', 'Album', 'Album Date', 'Filename', 'Is Video')
+                    report.write_artifact_data_table(data_headers, data_list, file_found, html_no_escape=['File'])
+                    report.end_artifact_report()
 
-                tsvname = 'Secret Calculator'
-                tsv(report_folder, data_headers, data_list, tsvname)
+                    tsvname = 'Secret Calculator'
+                    tsv(report_folder, data_headers, data_list, tsvname)
 
-                tlactivity = 'Secret Calculator'
-                timeline(report_folder, tlactivity, data_list, data_headers)
+                    tlactivity = 'Secret Calculator'
+                    timeline(report_folder, tlactivity, data_list, data_headers)
+                    
+                else:
+                    logfunc('No Secret Calculator data available')
 
-    db.close()
+        db.close()
     return
     
 __artifacts__ = {
