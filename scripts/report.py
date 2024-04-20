@@ -674,6 +674,10 @@ icon_mappings = \
         'PH22-ASSETS IN NON-SHARED ALBUMS-PHDAPSQL': 'book-open',
         'PH24-ASSETS IN SHARED ALBUMS-PHDAPSQL': 'upload-cloud',
     },
+    'PHOTOS.SQLITE-ASSET_INTRESOU-OPTIMIZATION': {
+        'PH50.1-ASSET_INTRESOU-PHDAPSQL': 'database',
+        'PH51-POSSIBLE_OPTIMIZED_ASSETS_INTRESOU-PHDAPSQL': 'upload-cloud',
+    },
     'PHOTOS.SQLITE-OTHER_ARTIFACTS': {
         'PH5.1-HAS LOCATIONS-PHDAPSQL': 'map-pin',
         'PH9-BURST AVALANCHE-PHDAPSQL': 'layers',
@@ -683,6 +687,7 @@ icon_mappings = \
         'PH30-ICLOUD SHARE METHODS NAD-PHDAPSQL': 'upload-cloud',
         'PH31-ICLD SHARED PHOTO LIB RECORDS NAD-PHDAPSQL': 'upload-cloud',
         'PH32-ICLD SHARED PHOTO LIB ASSETS-PHDAPSQL': 'upload-cloud',
+        'PH33-ICLD SPL ASSETS FROM OTHER CONTRIB-PHDAPSQL': 'download-cloud',
         'PH34-ICLD SHARED LINK RECORDS NAD-PHDAPSQL': 'link',
         'PH35-ICLD SHARED LINK ASSETS-PHDAPSQL': 'link',
     },
@@ -693,6 +698,12 @@ icon_mappings = \
         'PH7-FAVORITE-PHDAPSQL': 'heart',
         'PH8-HAS ADJUSTMENT-PHDAPSQL': 'edit',
     },
+    'PHOTOS.SQLITE-REFERENCE_FOR_ASSET_ANALYSIS': {
+        'PH94.1-IOS14_REF_FOR_ASSET_ANALYSIS-PHDAPSQL': 'database',
+        'PH95.1-IOS15_REF_FOR_ASSET_ANALYSIS-PHDAPSQL': 'database',
+        'PH96.1-IOS16_REF_FOR_ASSET_ANALYSIS-PHDAPSQL': 'database',
+        'PH97.1-IOS17_REF_FOR_ASSET_ANALYSIS-PHDAPSQL': 'database',
+    },
     'PHOTOS.SQLITE-SYNDICATION_PL_ARTIFACTS': {
         'PH1.2-ASSET BASIC DATA-SYNDPL': 'image',
         'PH2.2-ASSET BASIC DATA & CONVERS DATA-SYNDPL': 'image',
@@ -701,6 +712,11 @@ icon_mappings = \
         'PH20.2-ALBUM RECORDS NAD-SYNDPL': 'book',
         'PH25.2-SWY CONVERSATION RECORDS NAD-SYNDPL': 'message-square',
         'PH26.2-SYNDICATION PL ASSETS-SYNDPL': 'message-square',
+        'PH50.2-ASSET_INTRESOU-SYNDPL': 'database',
+        'PH94.2-IOS14_REF_FOR_ASSET_ANALYSIS-SYNDPL': 'database',
+        'PH95.2-IOS15_REF_FOR_ASSET_ANALYSIS-SYNDPL': 'database',
+        'PH96.2-IOS16_REF_FOR_ASSET_ANALYSIS-SYNDPL': 'database',
+        'PH97.2-IOS17_REF_FOR_ASSET_ANALYSIS-SYNDPL': 'database',
     },
     'PIKPAK': 'cloud',
     'PINGER': {

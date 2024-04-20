@@ -6,6 +6,8 @@
 #   Parses Shared with You Conversation Album records found in the PhotoData/Photos.sqlite ZGENERICALBUM Table
 #   and supports iOS 15-17. Parses Conversation Album records only no asset data being parsed.
 #   This parser is based on research and SQLite Queries written by Scott Koenig
+#   This is very large query and script, I recommend opening the TSV generated report with Zimmerman's Tools
+#   https://ericzimmerman.github.io/#!index.md TimelineExplorer to view, search and filter the results.
 #   https://theforensicscooter.com/ and queries found at https://github.com/ScottKjr3347
 #
 
@@ -28,7 +30,7 @@ def get_ph25swyconvalbumnadphdapsql(files_found, report_folder, seeker, wrap_tex
     for file_found in files_found:
         file_found = str(file_found)
         
-        if file_found.endswith('Photos.sqlite'):
+        if file_found.endswith('.sqlite'):
             break
       
     if report_folder.endswith('/') or report_folder.endswith('\\'):
@@ -654,7 +656,7 @@ __artifacts_v2__ = {
         'requirements': 'Acquisition that contains PhotoData/Photos.sqlite',
         'category': 'Photos.sqlite-GenAlbum_Records-NAD',
         'notes': '',
-        'paths': ('*/mobile/Media/PhotoData/Photos.sqlite'),
+        'paths': ('*/mobile/Media/PhotoData/Photos.sqlite*'),
         'function': 'get_ph25swyconvalbumnadphdapsql'
     },
     'Ph25-2-SWY Conversation Records with NAD-SyndPL': {
@@ -668,7 +670,7 @@ __artifacts_v2__ = {
         'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
         'category': 'Photos.sqlite-Syndication_PL_Artifacts',
         'notes': '',
-        'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite'),
+        'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*'),
         'function': 'get_ph25swyconvalbumnadsyndpl'
     }
 }

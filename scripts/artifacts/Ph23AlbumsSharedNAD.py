@@ -34,7 +34,7 @@ def get_ph23sharedalbumsphdapsql(files_found, report_folder, seeker, wrap_text, 
     for file_found in files_found:
         file_found = str(file_found)
         
-        if file_found.endswith('Photos.sqlite'):
+        if file_found.endswith('.sqlite'):
             break
 
     if report_folder.endswith('/') or report_folder.endswith('\\'):
@@ -1890,7 +1890,7 @@ __artifacts_v2__ = {
         'requirements': 'Acquisition that contains PhotoData/Photos.sqlite',
         'category': 'Photos.sqlite-GenAlbum_Records-NAD',
         'notes': '',
-        'paths': ('*/mobile/Media/PhotoData/Photos.sqlite'),
+        'paths': ('*/mobile/Media/PhotoData/Photos.sqlite*'),
         'function': 'get_ph23sharedalbumsphdapsql'
     }
 }
