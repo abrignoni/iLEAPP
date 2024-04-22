@@ -5,6 +5,8 @@
 #   Description:
 #   Parses basic asset record data from Photos.sqlite. The results will contain one record per ZASSET table Z_PK value
 #   and supports iOS 11-17. This parser is based on research and SQLite Queries written by Scott Koenig
+#   This is very large query and script, I recommend opening the TSV generated report with Zimmerman's Tools
+#   https://ericzimmerman.github.io/#!index.md TimelineExplorer to view, search and filter the results.
 #   https://theforensicscooter.com/ and queries found at https://github.com/ScottKjr3347
 #
 
@@ -33,7 +35,7 @@ def get_ph1assetbasicdataphdapsql(files_found, report_folder, seeker, wrap_text,
     for file_found in files_found:
         file_found = str(file_found)
 
-        if file_found.endswith('Photos.sqlite'):
+        if file_found.endswith('.sqlite'):
             break
 
     if report_folder.endswith('/') or report_folder.endswith('\\'):
@@ -1028,7 +1030,7 @@ __artifacts_v2__ = {
         'requirements': 'Acquisition that contains PhotoData/Photos.sqlite',
         'category': 'Photos.sqlite-Asset_Basic_Data',
         'notes': '',
-        'paths': ('*/mobile/Media/PhotoData/Photos.sqlite'),
+        'paths': ('*/mobile/Media/PhotoData/Photos.sqlite*'),
         'function': 'get_ph1assetbasicdataphdapsql'
     },
     'Ph1-2-Asset Basic Data-SyndPL': {
@@ -1041,7 +1043,7 @@ __artifacts_v2__ = {
         'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
         'category': 'Photos.sqlite-Syndication_PL_Artifacts',
         'notes': '',
-        'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite'),
+        'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*'),
         'function': 'get_ph1assetbasicdatasyndpl'
     }
 }

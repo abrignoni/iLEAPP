@@ -35,7 +35,7 @@ def get_ph30icldsharemethphdapsql(files_found, report_folder, seeker, wrap_text,
     for file_found in files_found:
         file_found = str(file_found)
         
-        if file_found.endswith('Photos.sqlite'):
+        if file_found.endswith('.sqlite'):
             break
       
     if report_folder.endswith('/') or report_folder.endswith('\\'):
@@ -94,8 +94,8 @@ def get_ph30icldsharemethphdapsql(files_found, report_folder, seeker, wrap_text,
         zSharePartic.ZEMAILADDRESS AS 'zSharePartic-Email Address',
         zSharePartic.ZPHONENUMBER AS 'zSharePartic-Phone Number',
         CASE zSharePartic.ZISCURRENTUSER
-            WHEN 0 THEN '0-Participant-Not_CloudStorageOwner-0'
-            WHEN 1 THEN '1-Participant-Is_CloudStorageOwner-1'
+            WHEN 0 THEN '0-Participant-Not_CurrentUser-0'
+            WHEN 1 THEN '1-Participant-Is_CurrentUser-1'
             ELSE 'Unknown-New-Value!: ' || zSharePartic.ZISCURRENTUSER || ''
         END AS 'zSharePartic-Is Current User',
         CASE zSharePartic.ZROLE
@@ -275,8 +275,8 @@ def get_ph30icldsharemethphdapsql(files_found, report_folder, seeker, wrap_text,
         zSharePartic.ZPARTICIPANTID AS 'zSharePartic-Participant ID',
         zSharePartic.ZUUID AS 'zSharePartic-UUID',  
         CASE zSharePartic.ZISCURRENTUSER
-            WHEN 0 THEN '0-Participant-Not_CloudStorageOwner-0'
-            WHEN 1 THEN '1-Participant-Is_CloudStorageOwner-1'
+            WHEN 0 THEN '0-Participant-Not_CurrentUser-0'
+            WHEN 1 THEN '1-Participant-Is_CurrentUser-1'
             ELSE 'Unknown-New-Value!: ' || zSharePartic.ZISCURRENTUSER || ''
         END AS 'zSharePartic-Is Current User',
         CASE zSharePartic.ZROLE
@@ -448,7 +448,7 @@ __artifacts_v2__ = {
         'requirements': 'Acquisition that contains PhotoData/Photos.sqlite',
         'category': 'Photos.sqlite-iCloud_Shared_Methods',
         'notes': '',
-        'paths': ('*/mobile/Media/PhotoData/Photos.sqlite'),
+        'paths': ('*/mobile/Media/PhotoData/Photos.sqlite*'),
         'function': 'get_ph30icldsharemethphdapsql'
     }
 }

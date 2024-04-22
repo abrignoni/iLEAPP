@@ -33,7 +33,7 @@ def get_ph5haslocationsphdapsql(files_found, report_folder, seeker, wrap_text, t
     for file_found in files_found:
         file_found = str(file_found)
         
-        if file_found.endswith('Photos.sqlite'):
+        if file_found.endswith('.sqlite'):
             break
       
     if report_folder.endswith('/') or report_folder.endswith('\\'):
@@ -580,7 +580,7 @@ __artifacts_v2__ = {
         'requirements': 'Acquisition that contains PhotoData/Photos.sqlite',
         'category': 'Photos.sqlite-Other_Artifacts',
         'notes': '',
-        'paths': ('*/mobile/Media/PhotoData/Photos.sqlite'),
+        'paths': ('*/mobile/Media/PhotoData/Photos.sqlite*'),
         'function': 'get_ph5haslocationsphdapsql'
     },
     'Ph5-2-Assets have valid locations-SyndPL': {
@@ -595,7 +595,7 @@ __artifacts_v2__ = {
         'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
         'category': 'Photos.sqlite-Syndication_PL_Artifacts',
         'notes': '',
-        'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite'),
+        'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*'),
         'function': 'get_ph5haslocationssyndpl'
     }
 }

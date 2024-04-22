@@ -3,8 +3,8 @@
 # Version: 1.0
 #
 #   Description:
-#   Parses Assets in iCloud Shared Photo Library with contributor information from PhotoData/Photos.sqlite ZSHARE Table
-#   and supports iOS 16-17. Parses basic asset data and iCloud SPL and contributor information.
+#   Parses Assets in iCloud Shared Photo Library from other contributors from PhotoData/Photos.sqlite ZSHARE Table
+#   and supports iOS 16-17. Parses basic asset and iCloud SPL data for assets that were shared by other contributors.
 #   If you are attempting to match SPL count with results please check hidden, trashed, and burst assets.
 #   This parser is based on research and SQLite Queries written by Scott Koenig
 #   This is very large query and script, I recommend opening the TSV generated report with Zimmerman's Tools
@@ -32,7 +32,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, kmlgen, is_platform_windows, media_to_html, open_sqlite_db_readonly
 
 
-def get_ph32icldsplassetsphdapsql(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def get_ph33splassetsfromothercontribphdapsql(files_found, report_folder, seeker, wrap_text, timezone_offset):
     for file_found in files_found:
         file_found = str(file_found)
         
@@ -200,7 +200,7 @@ def get_ph32icldsplassetsphdapsql(files_found, report_folder, seeker, wrap_text,
           LEFT JOIN ZSHARE SPLzShare ON SPLzShare.Z_PK = zAsset.ZLIBRARYSCOPE
           LEFT JOIN ZASSETCONTRIBUTOR zAssetContrib ON zAssetContrib.Z3LIBRARYSCOPEASSETCONTRIBUTORS = zAsset.Z_PK
           LEFT JOIN ZSHAREPARTICIPANT SPLzSharePartic ON SPLzSharePartic.Z_PK = zAssetContrib.ZPARTICIPANT
-        WHERE zAsset.ZACTIVELIBRARYSCOPEPARTICIPATIONSTATE = 1
+        WHERE SPLzSharePartic.ZISCURRENTUSER = 0
         ORDER BY zAsset.ZDATECREATED     
         """)
 
@@ -219,13 +219,13 @@ def get_ph32icldsplassetsphdapsql(files_found, report_folder, seeker, wrap_text,
 
                 counter += 1
 
-            description = 'Parses Assets in iCloud Shared Photo Library with contributor information from' \
-                          ' PhotoData/Photos.sqlite ZSHARE Table and supports iOS 16-17.' \
-                          ' Parses basic asset data and iCloud SPL and contributor information.' \
+            description = 'Parses Assets in iCloud Shared Photo Library from other contributors' \
+                          ' from PhotoData/Photos.sqlite ZSHARE Table and supports iOS 16-17.' \
+                          ' Parses basic asset and iCloud SPL data for assets that were shared by other contributors.' \
                           ' If you are attempting to match SPL count with results please check' \
                           ' hidden, trashed, and burst assets.'
             report = ArtifactHtmlReport('Photos.sqlite-iCloud_Shared_Methods')
-            report.start_artifact_report(report_folder, 'Ph32-iCld Shared Photo Lib Assets-PhDaPsql', description)
+            report.start_artifact_report(report_folder, 'Ph33-iCld SPL Assets from other contrib-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created',
                             'zAsset-Active Library Scope Participation State',
@@ -279,34 +279,34 @@ def get_ph32icldsplassetsphdapsql(files_found, report_folder, seeker, wrap_text,
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
-            tsvname = 'Ph32-iCld Shared Photo Lib Assets-PhDaPsql'
+            tsvname = 'Ph33-iCld SPL Assets from other contrib-PhDaPsql'
             tsv(report_folder, data_headers, data_list, tsvname)
 
-            tlactivity = 'Ph32-iCld Shared Photo Lib Assets-PhDaPsql'
+            tlactivity = 'Ph33-iCld SPL Assets from other contrib-PhDaPsql'
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No assets in iCloud Shared Photo Library found in PhotoData/Photos.sqlite ZSHARE table')
+            logfunc('No iCloud SPL assets from other contributors found in PhotoData/Photos.sqlite ZSHARE table')
 
         db.close()
         return
 
 
 __artifacts_v2__ = {
-    'Ph32-iCloud SPL Assets with Contributor-PhDaPsql': {
-        'name': 'PhDaPL Photos.sqlite 32 iCld Shared Photo Library Assets with Contributor',
-        'description': 'Parses Assets in iCloud Shared Photo Library with contributor information from'
-                       ' PhotoData/Photos.sqlite ZSHARE Table and supports iOS 16-17.'
-                       ' Parses basic asset data and iCloud SPL and contributor information.'
+    'Ph33-iCld SPL Assets from other contrib-PhDaPsql': {
+        'name': 'PhDaPL Photos.sqlite 33 iCld Shared Photo Library Assets from other Contributors',
+        'description': 'Parses Assets in iCloud Shared Photo Library from other contributors'
+                       ' from PhotoData/Photos.sqlite ZSHARE Table and supports iOS 16-17.'
+                       ' Parses basic asset and iCloud SPL data for assets that were shared by other contributors.'
                        ' If you are attempting to match SPL count with results please check'
                        ' hidden, trashed, and burst assets.',
         'author': 'Scott Koenig https://theforensicscooter.com/',
         'version': '1.0',
-        'date': '2024-04-14',
+        'date': '2024-04-15',
         'requirements': 'Acquisition that contains PhotoData/Photos.sqlite',
         'category': 'Photos.sqlite-iCloud_Shared_Methods',
         'notes': '',
         'paths': ('*/mobile/Media/PhotoData/Photos.sqlite*'),
-        'function': 'get_ph32icldsplassetsphdapsql'
+        'function': 'get_ph33splassetsfromothercontribphdapsql'
     }
 }

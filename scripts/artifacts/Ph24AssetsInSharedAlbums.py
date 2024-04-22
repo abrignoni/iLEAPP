@@ -6,6 +6,8 @@
 #   Parses Assets in Shared Albums found in PhotoData/Photos.sqlite and supports iOS 11-17.
 #   Parses limited asset data with full non-shared album data.
 #   This parser is based on research and SQLite Queries written by Scott Koenig
+#   This is very large query and script, I recommend opening the TSV generated report with Zimmerman's Tools
+#   https://ericzimmerman.github.io/#!index.md TimelineExplorer to view, search and filter the results.
 #   https://theforensicscooter.com/ and queries found at https://github.com/ScottKjr3347
 #
 
@@ -33,7 +35,7 @@ def get_ph24assetsinsharedalbumsphdapsql(files_found, report_folder, seeker, wra
     for file_found in files_found:
         file_found = str(file_found)
         
-        if file_found.endswith('Photos.sqlite'):
+        if file_found.endswith('.sqlite'):
             break
 
     if report_folder.endswith('/') or report_folder.endswith('\\'):
@@ -2325,7 +2327,7 @@ __artifacts_v2__ = {
         'requirements': 'Acquisition that contains PhotoData/Photos.sqlite',
         'category': 'Photos.sqlite-Asset_In_Albums',
         'notes': '',
-        'paths': ('*/mobile/Media/PhotoData/Photos.sqlite'),
+        'paths': ('*/mobile/Media/PhotoData/Photos.sqlite*'),
         'function': 'get_ph24assetsinsharedalbumsphdapsql'
     }
 }
