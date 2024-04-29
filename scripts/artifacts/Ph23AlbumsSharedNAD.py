@@ -3,7 +3,7 @@
 # Version: 1.3
 #
 #   Description:
-#   Parses Shared Album records found in the PhotoData/Photos.sqlite ZGENERICALBUM Table and supports iOS 11-17.
+#   Parses Shared Album records found in the PhotoData-Photos.sqlite ZGENERICALBUM Table and supports iOS 11-17.
 #   Parses Shared Album records only no asset data being parsed. This parser will contain albums and
 #   shared album invites and invite status data.
 #   This parser is based on research and SQLite Queries written by Scott Koenig
@@ -40,9 +40,8 @@ def get_ph23sharedalbumsphdapsql(files_found, report_folder, seeker, wrap_text, 
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = scripts.artifacts.artGlobals.versionf
-    if version.parse(iosversion) < version.parse("11"):
-        logfunc("Unsupported version for PhotoData/Photos.sqlite Shared Album records with"
-                " no asset data from iOS " + iosversion)
+    if version.parse(iosversion) <= version.parse("10.3.4"):
+        logfunc("Unsupported version for PhotoData-Photos.sqlite Shared Album records with no asset data from iOS " + iosversion)
     if (version.parse(iosversion) >= version.parse("11")) & (version.parse(iosversion) < version.parse("12")):
         file_found = str(files_found[0])
         db = open_sqlite_db_readonly(file_found)
@@ -54,10 +53,10 @@ def get_ph23sharedalbumsphdapsql(files_found, report_folder, seeker, wrap_text, 
         DateTime(zGenAlbum.ZSTARTDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-Start Date',
         DateTime(zGenAlbum.ZENDDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-End Date',             
         DateTime(zGenAlbum.ZCLOUDSUBSCRIPTIONDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-Cloud Subscription Date',
-        zGenAlbum.ZTITLE AS 'zGenAlbum- Title/User&System Applied',
+        zGenAlbum.ZTITLE AS 'zGenAlbum- Title-User&System Applied',
         zGenAlbum.ZUUID AS 'zGenAlbum-UUID',        
         zGenAlbum.ZCLOUDGUID AS 'zGenAlbum-Cloud GUID',    
-        zGenAlbum.ZCLOUDMETADATA AS 'zGenAlbum-Cloud Metadata/HEX NSKeyed Plist',        
+        zGenAlbum.ZCLOUDMETADATA AS 'zGenAlbum-Cloud Metadata-HEX NSKeyed Plist',        
         zGenAlbum.ZPENDINGITEMSCOUNT AS 'zGenAlbum-Pending Items Count',        
         CASE zGenAlbum.ZPENDINGITEMSTYPE
             WHEN 1 THEN 'No-1'
@@ -153,7 +152,7 @@ def get_ph23sharedalbumsphdapsql(files_found, report_folder, seeker, wrap_text, 
         END AS 'zGenAlbum-Pinned',       
         CASE zGenAlbum.ZCUSTOMSORTKEY
             WHEN 0 THEN '0-zGenAlbum-Sorted_Manually-0_RT'
-            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First/CusSrtAsc1=Sorted_Oldest_First-1-RT'
+            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First-CusSrtAsc1=Sorted_Oldest_First-1-RT'
             WHEN 5 THEN '5-zGenAlbum-Sorted_by_Title-5_RT'
             ELSE 'Unknown-New-Value!: ' || zGenAlbum.ZCUSTOMSORTKEY || ''
         END AS 'zGenAlbum-Custom Sort Key',        
@@ -207,7 +206,7 @@ def get_ph23sharedalbumsphdapsql(files_found, report_folder, seeker, wrap_text, 
             WHEN 4 THEN '4-StillTesting'
             WHEN 5 THEN '5-StillTesting'
             ELSE 'Unknown-New-Value!: ' || zCldShareAlbumInvRec.ZINVITATIONSTATE || ''
-        END AS 'zCldShareAlbumInvRec-Invitation State/Shared Album Invite Status',
+        END AS 'zCldShareAlbumInvRec-Invitation State-Shared Album Invite Status',
         DateTime(zCldShareAlbumInvRec.ZINVITEESUBSCRIPTIONDATE + 978307200, 'UNIXEPOCH') AS
          'zCldShareAlbumInvRec-Subscription Date',
         zCldShareAlbumInvRec.ZINVITEEFIRSTNAME AS 'zCldShareAlbumInvRec-Invitee First Name',
@@ -247,71 +246,71 @@ def get_ph23sharedalbumsphdapsql(files_found, report_folder, seeker, wrap_text, 
 
                 counter += 1
 
-            description = 'Parses Shared Album records found in the PhotoData/Photos.sqlite from' \
+            description = 'Parses Shared Album records found in the PhotoData-Photos.sqlite from' \
                           ' ZGENERICALBUM Table and supports iOS 11. Parses Shared Album records only' \
                           ' no asset data is being parsed in this parser. This parser will contain shared albums,' \
                           ' shared album invites and the invite status data.'
             report = ArtifactHtmlReport('Photos.sqlite-GenAlbum_Records-NAD')
             report.start_artifact_report(report_folder, 'Ph23-Shared Album Records NAD-PhDaPsql', description)
             report.add_script()
-            data_headers = ('zGenAlbum-Cloud Creation Date',
-                            'zGenAlbum-Start Date',
-                            'zGenAlbum-End Date',
-                            'zGenAlbum-Cloud Subscription Date',
-                            'zGenAlbum- Title/User&System Applied',
-                            'zGenAlbum-UUID',
-                            'zGenAlbum-Cloud GUID',
-                            'zGenAlbum-Cloud Metadata/HEX NSKeyed Plist',
-                            'zGenAlbum-Pending Items Count',
-                            'zGenAlbum-Pending Items Type',
-                            'zGenAlbum- Cached Photos Count',
-                            'zGenAlbum- Cached Videos Count',
-                            'zGenAlbum- Cached Count',
-                            'zGenAlbum-Has Unseen Content',
-                            'zGenAlbum-Unseen Asset Count',
-                            'zGenAlbum-zENT- Entity',
-                            'zGenAlbum-Album Kind',
-                            'zGenAlbum-Cloud_Local_State',
-                            'zGenAlbum-Sync Event Order Key',
-                            'zGenAlbum-is Owned',
-                            'zGenAlbum-Cloud Relationship State',
-                            'zGenAlbum-Cloud Relationship State Local',
-                            'zGenAlbum-Cloud Owner Mail Key',
-                            'zGenAlbum-Cloud Owner Frist Name',
-                            'zGenAlbum-Cloud Owner Last Name',
-                            'zGenAlbum-Cloud Owner Full Name',
-                            'zGenAlbum-Cloud Person ID',
-                            'zGenAlbum-Cloud Owner Hashed Person ID',
-                            'zGenAlbum-Local Cloud Multi-Contributors Enabled',
-                            'zGenAlbum-Cloud Multi-Contributors Enabled',
-                            'zGenAlbum-Cloud Album Sub Type',
-                            'zGenAlbum-Cloud Contribution Date',
-                            'zGenAlbum-Cloud Last Interesting Change Date',
-                            'zGenAlbum-Cloud Notification Enabled',
-                            'zGenAlbum-Pinned',
-                            'zGenAlbum-Custom Sort Key',
-                            'zGenAlbum-Custom Sort Ascending',
-                            'zGenAlbum-Custom Query Type',
-                            'zGenAlbum-Trashed State',
-                            'zGenAlbum-Trash Date',
-                            'zGenAlbum-Cloud Owner Whitelisted',
-                            'zGenAlbum-Cloud Local Public URL Enabled',
-                            'zGenAlbum-Cloud Public URL Enabled',
-                            'zGenAlbum-Public URL',
-                            'zGenAlbum-Key Asset Face Thumb Index',
-                            'zGenAlbum-Custom Query Parameters',
-                            'zCldShareAlbumInvRec-Is My Invitation to Shared Album',
-                            'zCldShareAlbumInvRec-Invitation State Local',
-                            'zCldShareAlbumInvRec-Invitation State/Shared Album Invite Status',
-                            'zCldShareAlbumInvRec-Subscription Date',
-                            'zCldShareAlbumInvRec-Invitee First Name',
-                            'zCldShareAlbumInvRec-Invitee Last Name',
-                            'zCldShareAlbumInvRec-Invitee Full Name',
-                            'zCldShareAlbumInvRec-Invitee Hashed Person ID',
-                            'zCldShareAlbumInvRec-Invitee Email Key',
-                            'zCldShareAlbumInvRec-Album GUID',
-                            'zCldShareAlbumInvRec-Cloud GUID',
-                            'zAlbumList-Needs Reordering Number')
+            data_headers = ('zGenAlbum-Cloud Creation Date-0',
+                            'zGenAlbum-Start Date-1',
+                            'zGenAlbum-End Date-2',
+                            'zGenAlbum-Cloud Subscription Date-3',
+                            'zGenAlbum- Title-User&System Applied-4',
+                            'zGenAlbum-UUID-5',
+                            'zGenAlbum-Cloud GUID-6',
+                            'zGenAlbum-Cloud Metadata-HEX NSKeyed Plist-7',
+                            'zGenAlbum-Pending Items Count-8',
+                            'zGenAlbum-Pending Items Type-9',
+                            'zGenAlbum- Cached Photos Count-10',
+                            'zGenAlbum- Cached Videos Count-11',
+                            'zGenAlbum- Cached Count-12',
+                            'zGenAlbum-Has Unseen Content-13',
+                            'zGenAlbum-Unseen Asset Count-14',
+                            'zGenAlbum-zENT- Entity-15',
+                            'zGenAlbum-Album Kind-16',
+                            'zGenAlbum-Cloud_Local_State-17',
+                            'zGenAlbum-Sync Event Order Key-18',
+                            'zGenAlbum-is Owned-19',
+                            'zGenAlbum-Cloud Relationship State-20',
+                            'zGenAlbum-Cloud Relationship State Local-21',
+                            'zGenAlbum-Cloud Owner Mail Key-22',
+                            'zGenAlbum-Cloud Owner Frist Name-23',
+                            'zGenAlbum-Cloud Owner Last Name-24',
+                            'zGenAlbum-Cloud Owner Full Name-25',
+                            'zGenAlbum-Cloud Person ID-26',
+                            'zGenAlbum-Cloud Owner Hashed Person ID-27',
+                            'zGenAlbum-Local Cloud Multi-Contributors Enabled-28',
+                            'zGenAlbum-Cloud Multi-Contributors Enabled-29',
+                            'zGenAlbum-Cloud Album Sub Type-30',
+                            'zGenAlbum-Cloud Contribution Date-31',
+                            'zGenAlbum-Cloud Last Interesting Change Date-32',
+                            'zGenAlbum-Cloud Notification Enabled-33',
+                            'zGenAlbum-Pinned-34',
+                            'zGenAlbum-Custom Sort Key-35',
+                            'zGenAlbum-Custom Sort Ascending-36',
+                            'zGenAlbum-Custom Query Type-37',
+                            'zGenAlbum-Trashed State-38',
+                            'zGenAlbum-Trash Date-39',
+                            'zGenAlbum-Cloud Owner Whitelisted-40',
+                            'zGenAlbum-Cloud Local Public URL Enabled-41',
+                            'zGenAlbum-Cloud Public URL Enabled-42',
+                            'zGenAlbum-Public URL-43',
+                            'zGenAlbum-Key Asset Face Thumb Index-44',
+                            'zGenAlbum-Custom Query Parameters-45',
+                            'zCldShareAlbumInvRec-Is My Invitation to Shared Album-46',
+                            'zCldShareAlbumInvRec-Invitation State Local-47',
+                            'zCldShareAlbumInvRec-Invitation State-Shared Album Invite Status-48',
+                            'zCldShareAlbumInvRec-Subscription Date-49',
+                            'zCldShareAlbumInvRec-Invitee First Name-50',
+                            'zCldShareAlbumInvRec-Invitee Last Name-51',
+                            'zCldShareAlbumInvRec-Invitee Full Name-52',
+                            'zCldShareAlbumInvRec-Invitee Hashed Person ID-53',
+                            'zCldShareAlbumInvRec-Invitee Email Key-54',
+                            'zCldShareAlbumInvRec-Album GUID-55',
+                            'zCldShareAlbumInvRec-Cloud GUID-56',
+                            'zAlbumList-Needs Reordering Number-57')
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
@@ -322,7 +321,7 @@ def get_ph23sharedalbumsphdapsql(files_found, report_folder, seeker, wrap_text, 
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available for PhotoData/Photos.sqlite Shared Album Records with No Asset Data')
+            logfunc('No data available for PhotoData-Photos.sqlite Shared Album Records with No Asset Data')
 
             db.close()
         return
@@ -338,7 +337,7 @@ def get_ph23sharedalbumsphdapsql(files_found, report_folder, seeker, wrap_text, 
         DateTime(zGenAlbum.ZSTARTDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-Start Date',
         DateTime(zGenAlbum.ZENDDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-End Date',              
         DateTime(zGenAlbum.ZCLOUDSUBSCRIPTIONDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-Cloud Subscription Date',
-        zGenAlbum.ZTITLE AS 'zGenAlbum- Title/User&System Applied',
+        zGenAlbum.ZTITLE AS 'zGenAlbum- Title-User&System Applied',
         zGenAlbum.ZUUID AS 'zGenAlbum-UUID',        
         zGenAlbum.ZCLOUDGUID AS 'zGenAlbum-Cloud GUID',      
         zGenAlbum.ZPENDINGITEMSCOUNT AS 'zGenAlbum-Pending Items Count',        
@@ -436,7 +435,7 @@ def get_ph23sharedalbumsphdapsql(files_found, report_folder, seeker, wrap_text, 
         END AS 'zGenAlbum-Pinned',       
         CASE zGenAlbum.ZCUSTOMSORTKEY
             WHEN 0 THEN '0-zGenAlbum-Sorted_Manually-0_RT'
-            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First/CusSrtAsc1=Sorted_Oldest_First-1-RT'
+            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First-CusSrtAsc1=Sorted_Oldest_First-1-RT'
             WHEN 5 THEN '5-zGenAlbum-Sorted_by_Title-5_RT'
             ELSE 'Unknown-New-Value!: ' || zGenAlbum.ZCUSTOMSORTKEY || ''
         END AS 'zGenAlbum-Custom Sort Key',        
@@ -495,7 +494,7 @@ def get_ph23sharedalbumsphdapsql(files_found, report_folder, seeker, wrap_text, 
             WHEN 4 THEN '4-StillTesting'
             WHEN 5 THEN '5-StillTesting'
             ELSE 'Unknown-New-Value!: ' || zCldShareAlbumInvRec.ZINVITATIONSTATE || ''
-        END AS 'zCldShareAlbumInvRec-Invitation State/Shared Album Invite Status',
+        END AS 'zCldShareAlbumInvRec-Invitation State-Shared Album Invite Status',
         DateTime(zCldShareAlbumInvRec.ZINVITEESUBSCRIPTIONDATE + 978307200, 'UNIXEPOCH') AS
          'zCldShareAlbumInvRec-Subscription Date',
         zCldShareAlbumInvRec.ZINVITEEFIRSTNAME AS 'zCldShareAlbumInvRec-Invitee First Name',
@@ -535,71 +534,71 @@ def get_ph23sharedalbumsphdapsql(files_found, report_folder, seeker, wrap_text, 
 
                 counter += 1
 
-            description = 'Parses Shared Album records found in the PhotoData/Photos.sqlite from' \
+            description = 'Parses Shared Album records found in the PhotoData-Photos.sqlite from' \
                           ' ZGENERICALBUM Table and supports iOS 12. Parses Shared Album records only' \
                           ' no asset data is being parsed in this parser. This parser will contain shared albums,' \
                           ' shared album invites and invite status data.'
             report = ArtifactHtmlReport('Photos.sqlite-GenAlbum_Records-NAD')
             report.start_artifact_report(report_folder, 'Ph23-Shared Album Records NAD-PhDaPsql', description)
             report.add_script()
-            data_headers = ('zGenAlbum-Cloud Creation Date',
-                            'zGenAlbum-Start Date',
-                            'zGenAlbum-End Date',
-                            'zGenAlbum-Cloud Subscription Date',
-                            'zGenAlbum- Title/User&System Applied',
-                            'zGenAlbum-UUID',
-                            'zGenAlbum-Cloud GUID',
-                            'zGenAlbum-Pending Items Count',
-                            'zGenAlbum-Pending Items Type',
-                            'zGenAlbum- Cached Photos Count',
-                            'zGenAlbum- Cached Videos Count',
-                            'zGenAlbum- Cached Count',
-                            'zGenAlbum-Has Unseen Content',
-                            'zGenAlbum-Unseen Asset Count',
-                            'zGenAlbum-zENT- Entity',
-                            'zGenAlbum-Album Kind',
-                            'zGenAlbum-Cloud_Local_State',
-                            'zGenAlbum-Sync Event Order Key',
-                            'zGenAlbum-is Owned',
-                            'zGenAlbum-Cloud Relationship State',
-                            'zGenAlbum-Cloud Relationship State Local',
-                            'zGenAlbum-Cloud Owner Mail Key',
-                            'zGenAlbum-Cloud Owner First Name',
-                            'zGenAlbum-Cloud Owner Last Name',
-                            'zGenAlbum-Cloud Owner Full Name',
-                            'zGenAlbum-Cloud Person ID',
-                            'zGenAlbum-Cloud Owner Hashed Person ID',
-                            'zGenAlbum-Local Cloud Multi-Contributors Enabled',
-                            'zGenAlbum-Cloud Multi-Contributors Enabled',
-                            'zGenAlbum-Cloud Album Sub Type',
-                            'zGenAlbum-Cloud Contribution Date',
-                            'zGenAlbum-Cloud Last Interesting Change Date',
-                            'zGenAlbum-Cloud Notification Enabled',
-                            'zGenAlbum-Pinned',
-                            'zGenAlbum-Custom Sort Key',
-                            'zGenAlbum-Custom Sort Ascending',
-                            'zGenAlbum-Custom Query Type',
-                            'zGenAlbum-Trashed State',
-                            'zGenAlbum-Trash Date',
-                            'zGenAlbum-Cloud Delete State',
-                            'zGenAlbum-Cloud Owner Whitelisted',
-                            'zGenAlbum-Cloud Local Public URL Enabled',
-                            'zGenAlbum-Cloud Public URL Enabled',
-                            'zGenAlbum-Public URL',
-                            'zGenAlbum-Key Asset Face Thumb Index',
-                            'zGenAlbum-Custom Query Parameters',
-                            'zCldShareAlbumInvRec-Is My Invitation to Shared Album',
-                            'zCldShareAlbumInvRec-Invitation State Local',
-                            'zCldShareAlbumInvRec-Invitation State/Shared Album Invite Status',
-                            'zCldShareAlbumInvRec-Subscription Date',
-                            'zCldShareAlbumInvRec-Invitee First Name',
-                            'zCldShareAlbumInvRec-Invitee Last Name',
-                            'zCldShareAlbumInvRec-Invitee Full Name',
-                            'zCldShareAlbumInvRec-Invitee Hashed Person ID',
-                            'zCldShareAlbumInvRec-Invitee Email Key',
-                            'zCldShareAlbumInvRec-Album GUID',
-                            'zCldShareAlbumInvRec-Cloud GUID',
-                            'zAlbumList-Needs Reordering Number')
+            data_headers = ('zGenAlbum-Cloud Creation Date-0',
+                            'zGenAlbum-Start Date-1',
+                            'zGenAlbum-End Date-2',
+                            'zGenAlbum-Cloud Subscription Date-3',
+                            'zGenAlbum- Title-User&System Applied-4',
+                            'zGenAlbum-UUID-5',
+                            'zGenAlbum-Cloud GUID-6',
+                            'zGenAlbum-Pending Items Count-7',
+                            'zGenAlbum-Pending Items Type-8',
+                            'zGenAlbum- Cached Photos Count-9',
+                            'zGenAlbum- Cached Videos Count-10',
+                            'zGenAlbum- Cached Count-11',
+                            'zGenAlbum-Has Unseen Content-12',
+                            'zGenAlbum-Unseen Asset Count-13',
+                            'zGenAlbum-zENT- Entity-14',
+                            'zGenAlbum-Album Kind-15',
+                            'zGenAlbum-Cloud_Local_State-16',
+                            'zGenAlbum-Sync Event Order Key-17',
+                            'zGenAlbum-is Owned-18',
+                            'zGenAlbum-Cloud Relationship State-19',
+                            'zGenAlbum-Cloud Relationship State Local-20',
+                            'zGenAlbum-Cloud Owner Mail Key-21',
+                            'zGenAlbum-Cloud Owner First Name-22',
+                            'zGenAlbum-Cloud Owner Last Name-23',
+                            'zGenAlbum-Cloud Owner Full Name-24',
+                            'zGenAlbum-Cloud Person ID-25',
+                            'zGenAlbum-Cloud Owner Hashed Person ID-26',
+                            'zGenAlbum-Local Cloud Multi-Contributors Enabled-27',
+                            'zGenAlbum-Cloud Multi-Contributors Enabled-28',
+                            'zGenAlbum-Cloud Album Sub Type-29',
+                            'zGenAlbum-Cloud Contribution Date-30',
+                            'zGenAlbum-Cloud Last Interesting Change Date-31',
+                            'zGenAlbum-Cloud Notification Enabled-32',
+                            'zGenAlbum-Pinned-33',
+                            'zGenAlbum-Custom Sort Key-34',
+                            'zGenAlbum-Custom Sort Ascending-35',
+                            'zGenAlbum-Custom Query Type-36',
+                            'zGenAlbum-Trashed State-37',
+                            'zGenAlbum-Trash Date-38',
+                            'zGenAlbum-Cloud Delete State-39',
+                            'zGenAlbum-Cloud Owner Whitelisted-40',
+                            'zGenAlbum-Cloud Local Public URL Enabled-41',
+                            'zGenAlbum-Cloud Public URL Enabled-42',
+                            'zGenAlbum-Public URL-43',
+                            'zGenAlbum-Key Asset Face Thumb Index-44',
+                            'zGenAlbum-Custom Query Parameters-45',
+                            'zCldShareAlbumInvRec-Is My Invitation to Shared Album-46',
+                            'zCldShareAlbumInvRec-Invitation State Local-47',
+                            'zCldShareAlbumInvRec-Invitation State-Shared Album Invite Status-48',
+                            'zCldShareAlbumInvRec-Subscription Date-49',
+                            'zCldShareAlbumInvRec-Invitee First Name-50',
+                            'zCldShareAlbumInvRec-Invitee Last Name-51',
+                            'zCldShareAlbumInvRec-Invitee Full Name-52',
+                            'zCldShareAlbumInvRec-Invitee Hashed Person ID-53',
+                            'zCldShareAlbumInvRec-Invitee Email Key-54',
+                            'zCldShareAlbumInvRec-Album GUID-55',
+                            'zCldShareAlbumInvRec-Cloud GUID-56',
+                            'zAlbumList-Needs Reordering Number-57')
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
@@ -610,7 +609,7 @@ def get_ph23sharedalbumsphdapsql(files_found, report_folder, seeker, wrap_text, 
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available for PhotoData/Photos.sqlite Shared Album Records with No Asset Data')
+            logfunc('No data available for PhotoData-Photos.sqlite Shared Album Records with No Asset Data')
 
             db.close()
         return
@@ -627,7 +626,7 @@ def get_ph23sharedalbumsphdapsql(files_found, report_folder, seeker, wrap_text, 
         DateTime(zGenAlbum.ZSTARTDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-Start Date',
         DateTime(zGenAlbum.ZENDDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-End Date',             
         DateTime(zGenAlbum.ZCLOUDSUBSCRIPTIONDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-Cloud Subscription Date',
-        zGenAlbum.ZTITLE AS 'zGenAlbum- Title/User&System Applied',
+        zGenAlbum.ZTITLE AS 'zGenAlbum- Title-User&System Applied',
         zGenAlbum.ZUUID AS 'zGenAlbum-UUID',        
         zGenAlbum.ZCLOUDGUID AS 'zGenAlbum-Cloud GUID',        
         zGenAlbum.ZPENDINGITEMSCOUNT AS 'zGenAlbum-Pending Items Count',        
@@ -725,7 +724,7 @@ def get_ph23sharedalbumsphdapsql(files_found, report_folder, seeker, wrap_text, 
         END AS 'zGenAlbum-Pinned',       
         CASE zGenAlbum.ZCUSTOMSORTKEY
             WHEN 0 THEN '0-zGenAlbum-Sorted_Manually-0_RT'
-            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First/CusSrtAsc1=Sorted_Oldest_First-1-RT'
+            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First-CusSrtAsc1=Sorted_Oldest_First-1-RT'
             WHEN 5 THEN '5-zGenAlbum-Sorted_by_Title-5_RT'
             ELSE 'Unknown-New-Value!: ' || zGenAlbum.ZCUSTOMSORTKEY || ''
         END AS 'zGenAlbum-Custom Sort Key',        
@@ -791,7 +790,7 @@ def get_ph23sharedalbumsphdapsql(files_found, report_folder, seeker, wrap_text, 
             WHEN 4 THEN '4-StillTesting'
             WHEN 5 THEN '5-StillTesting'
             ELSE 'Unknown-New-Value!: ' || zCldShareAlbumInvRec.ZINVITATIONSTATE || ''
-        END AS 'zCldShareAlbumInvRec-Invitation State/Shared Album Invite Status',
+        END AS 'zCldShareAlbumInvRec-Invitation State-Shared Album Invite Status',
         DateTime(zCldShareAlbumInvRec.ZINVITEESUBSCRIPTIONDATE + 978307200, 'UNIXEPOCH') AS
          'zCldShareAlbumInvRec-Subscription Date',
         zCldShareAlbumInvRec.ZINVITEEFIRSTNAME AS 'zCldShareAlbumInvRec-Invitee First Name',
@@ -832,77 +831,77 @@ def get_ph23sharedalbumsphdapsql(files_found, report_folder, seeker, wrap_text, 
 
                 counter += 1
 
-            description = 'Parses Shared Album records found in the PhotoData/Photos.sqlite from' \
+            description = 'Parses Shared Album records found in the PhotoData-Photos.sqlite from' \
                           ' ZGENERICALBUM Table and supports iOS 13. Parses Shared Album records only' \
                           ' no asset data is being parsed in this parser. This parser will contain shared albums,' \
                           ' shared album invites and the invite status data.'
             report = ArtifactHtmlReport('Photos.sqlite-GenAlbum_Records-NAD')
             report.start_artifact_report(report_folder, 'Ph23-Shared Album Records NAD-PhDaPsql', description)
             report.add_script()
-            data_headers = ('zGenAlbum-Cloud Creation Date',
-                            'zGenAlbum-Creation Date',
-                            'zGenAlbum-Start Date',
-                            'zGenAlbum-End Date',
-                            'zGenAlbum-Cloud Subscription Date',
-                            'zGenAlbum- Title/User&System Applied',
-                            'zGenAlbum-UUID',
-                            'zGenAlbum-Cloud GUID',
-                            'zGenAlbum-Pending Items Count',
-                            'zGenAlbum-Pending Items Type',
-                            'zGenAlbum- Cached Photos Count',
-                            'zGenAlbum- Cached Videos Count',
-                            'zGenAlbum- Cached Count',
-                            'zGenAlbum-Has Unseen Content',
-                            'zGenAlbum-Unseen Asset Count',
-                            'zGenAlbum-zENT- Entity',
-                            'zGenAlbum-Album Kind',
-                            'zGenAlbum-Cloud_Local_State',
-                            'zGenAlbum-Sync Event Order Key',
-                            'zGenAlbum-is Owned',
-                            'zGenAlbum-Cloud Relationship State',
-                            'zGenAlbum-Cloud Relationship State Local',
-                            'zGenAlbum-Cloud Owner Mail Key',
-                            'zGenAlbum-Cloud Owner Frist Name',
-                            'zGenAlbum-Cloud Owner Last Name',
-                            'zGenAlbum-Cloud Owner Full Name',
-                            'zGenAlbum-Cloud Person ID',
-                            'zGenAlbum-Cloud Owner Hashed Person ID',
-                            'zGenAlbum-Local Cloud Multi-Contributors Enabled',
-                            'zGenAlbum-Cloud Multi-Contributors Enabled',
-                            'zGenAlbum-Cloud Album Sub Type',
-                            'zGenAlbum-Cloud Contribution Date',
-                            'zGenAlbum-Cloud Last Interesting Change Date',
-                            'zGenAlbum-Cloud Notification Enabled',
-                            'zGenAlbum-Pinned',
-                            'zGenAlbum-Custom Sort Key',
-                            'zGenAlbum-Custom Sort Ascending',
-                            'zGenAlbum-Project Document Type',
-                            'zGenAlbum-Custom Query Type',
-                            'zGenAlbum-Trashed State',
-                            'zGenAlbum-Trash Date',
-                            'zGenAlbum-Cloud Delete State',
-                            'zGenAlbum-Cloud Owner Whitelisted',
-                            'zGenAlbum-Cloud Local Public URL Enabled',
-                            'zGenAlbum-Cloud Public URL Enabled',
-                            'zGenAlbum-Public URL',
-                            'zGenAlbum-Key Asset Face Thumb Index',
-                            'zGenAlbum-Project Text Extension ID',
-                            'zGenAlbum-User Query Data',
-                            'zGenAlbum-Custom Query Parameters',
-                            'zGenAlbum-Project Data',
-                            'zCldShareAlbumInvRec-Is My Invitation to Shared Album',
-                            'zCldShareAlbumInvRec-Invitation State Local',
-                            'zCldShareAlbumInvRec-Invitation State/Shared Album Invite Status',
-                            'zCldShareAlbumInvRec-Subscription Date',
-                            'zCldShareAlbumInvRec-Invitee First Name',
-                            'zCldShareAlbumInvRec-Invitee Last Name',
-                            'zCldShareAlbumInvRec-Invitee Full Name',
-                            'zCldShareAlbumInvRec-Invitee Hashed Person ID',
-                            'zCldShareAlbumInvRec-Invitee Email Key',
-                            'zCldShareAlbumInvRec-Album GUID',
-                            'zCldShareAlbumInvRec-Cloud GUID',
-                            'zGenAlbum-Project Render UUID',
-                            'zAlbumList-Needs Reordering Number')
+            data_headers = ('zGenAlbum-Cloud Creation Date-0',
+                            'zGenAlbum-Creation Date-1',
+                            'zGenAlbum-Start Date-2',
+                            'zGenAlbum-End Date-3',
+                            'zGenAlbum-Cloud Subscription Date-4',
+                            'zGenAlbum- Title-User&System Applied-5',
+                            'zGenAlbum-UUID-6',
+                            'zGenAlbum-Cloud GUID-7',
+                            'zGenAlbum-Pending Items Count-8',
+                            'zGenAlbum-Pending Items Type-9',
+                            'zGenAlbum- Cached Photos Count-10',
+                            'zGenAlbum- Cached Videos Count-11',
+                            'zGenAlbum- Cached Count-12',
+                            'zGenAlbum-Has Unseen Content-13',
+                            'zGenAlbum-Unseen Asset Count-14',
+                            'zGenAlbum-zENT- Entity-15',
+                            'zGenAlbum-Album Kind-16',
+                            'zGenAlbum-Cloud_Local_State-17',
+                            'zGenAlbum-Sync Event Order Key-18',
+                            'zGenAlbum-is Owned-19',
+                            'zGenAlbum-Cloud Relationship State-20',
+                            'zGenAlbum-Cloud Relationship State Local-21',
+                            'zGenAlbum-Cloud Owner Mail Key-22',
+                            'zGenAlbum-Cloud Owner Frist Name-23',
+                            'zGenAlbum-Cloud Owner Last Name-24',
+                            'zGenAlbum-Cloud Owner Full Name-25',
+                            'zGenAlbum-Cloud Person ID-26',
+                            'zGenAlbum-Cloud Owner Hashed Person ID-27',
+                            'zGenAlbum-Local Cloud Multi-Contributors Enabled-28',
+                            'zGenAlbum-Cloud Multi-Contributors Enabled-29',
+                            'zGenAlbum-Cloud Album Sub Type-30',
+                            'zGenAlbum-Cloud Contribution Date-31',
+                            'zGenAlbum-Cloud Last Interesting Change Date-32',
+                            'zGenAlbum-Cloud Notification Enabled-33',
+                            'zGenAlbum-Pinned-34',
+                            'zGenAlbum-Custom Sort Key-35',
+                            'zGenAlbum-Custom Sort Ascending-36',
+                            'zGenAlbum-Project Document Type-37',
+                            'zGenAlbum-Custom Query Type-38',
+                            'zGenAlbum-Trashed State-39',
+                            'zGenAlbum-Trash Date-40',
+                            'zGenAlbum-Cloud Delete State-41',
+                            'zGenAlbum-Cloud Owner Whitelisted-42',
+                            'zGenAlbum-Cloud Local Public URL Enabled-43',
+                            'zGenAlbum-Cloud Public URL Enabled-44',
+                            'zGenAlbum-Public URL-45',
+                            'zGenAlbum-Key Asset Face Thumb Index-46',
+                            'zGenAlbum-Project Text Extension ID-47',
+                            'zGenAlbum-User Query Data-48',
+                            'zGenAlbum-Custom Query Parameters-49',
+                            'zGenAlbum-Project Data-50',
+                            'zCldShareAlbumInvRec-Is My Invitation to Shared Album-51',
+                            'zCldShareAlbumInvRec-Invitation State Local-52',
+                            'zCldShareAlbumInvRec-Invitation State-Shared Album Invite Status-53',
+                            'zCldShareAlbumInvRec-Subscription Date-54',
+                            'zCldShareAlbumInvRec-Invitee First Name-55',
+                            'zCldShareAlbumInvRec-Invitee Last Name-56',
+                            'zCldShareAlbumInvRec-Invitee Full Name-57',
+                            'zCldShareAlbumInvRec-Invitee Hashed Person ID-58',
+                            'zCldShareAlbumInvRec-Invitee Email Key-59',
+                            'zCldShareAlbumInvRec-Album GUID-60',
+                            'zCldShareAlbumInvRec-Cloud GUID-61',
+                            'zGenAlbum-Project Render UUID-62',
+                            'zAlbumList-Needs Reordering Number-63')
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
@@ -913,7 +912,7 @@ def get_ph23sharedalbumsphdapsql(files_found, report_folder, seeker, wrap_text, 
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available for PhotoData/Photos.sqlite Shared Album Records with No Asset Data')
+            logfunc('No data available for PhotoData-Photos.sqlite Shared Album Records with No Asset Data')
 
             db.close()
         return
@@ -930,7 +929,7 @@ def get_ph23sharedalbumsphdapsql(files_found, report_folder, seeker, wrap_text, 
         DateTime(zGenAlbum.ZSTARTDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-Start Date',
         DateTime(zGenAlbum.ZENDDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-End Date',              
         DateTime(zGenAlbum.ZCLOUDSUBSCRIPTIONDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-Cloud Subscription Date',
-        zGenAlbum.ZTITLE AS 'zGenAlbum- Title/User&System Applied',
+        zGenAlbum.ZTITLE AS 'zGenAlbum- Title-User&System Applied',
         zGenAlbum.ZUUID AS 'zGenAlbum-UUID',        
         zGenAlbum.ZCLOUDGUID AS 'zGenAlbum-Cloud GUID',    
         zGenAlbum.ZCREATORBUNDLEID AS 'zGenAlbum-Creator Bundle ID',     
@@ -1029,7 +1028,7 @@ def get_ph23sharedalbumsphdapsql(files_found, report_folder, seeker, wrap_text, 
         END AS 'zGenAlbum-Pinned',       
         CASE zGenAlbum.ZCUSTOMSORTKEY
             WHEN 0 THEN '0-zGenAlbum-Sorted_Manually-0_RT'
-            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First/CusSrtAsc1=Sorted_Oldest_First-1-RT'
+            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First-CusSrtAsc1=Sorted_Oldest_First-1-RT'
             WHEN 5 THEN '5-zGenAlbum-Sorted_by_Title-5_RT'
             ELSE 'Unknown-New-Value!: ' || zGenAlbum.ZCUSTOMSORTKEY || ''
         END AS 'zGenAlbum-Custom Sort Key',        
@@ -1100,7 +1099,7 @@ def get_ph23sharedalbumsphdapsql(files_found, report_folder, seeker, wrap_text, 
             WHEN 4 THEN '4-StillTesting'
             WHEN 5 THEN '5-StillTesting'
             ELSE 'Unknown-New-Value!: ' || zCldShareAlbumInvRec.ZINVITATIONSTATE || ''
-        END AS 'zCldShareAlbumInvRec-Invitation State/Shared Album Invite Status',
+        END AS 'zCldShareAlbumInvRec-Invitation State-Shared Album Invite Status',
         DateTime(zCldShareAlbumInvRec.ZINVITEESUBSCRIPTIONDATE + 978307200, 'UNIXEPOCH') AS
          'zCldShareAlbumInvRec-Subscription Date',
         zCldShareAlbumInvRec.ZINVITEEFIRSTNAME AS 'zCldShareAlbumInvRec-Invitee First Name',
@@ -1142,79 +1141,79 @@ def get_ph23sharedalbumsphdapsql(files_found, report_folder, seeker, wrap_text, 
 
                 counter += 1
 
-            description = 'Parses Shared Album records found in the PhotoData/Photos.sqlite from' \
+            description = 'Parses Shared Album records found in the PhotoData-Photos.sqlite from' \
                           ' ZGENERICALBUM Table and supports iOS 14. Parses Shared Album records only' \
                           ' no asset data is being parsed in this parser. This parser will contain shared albums,' \
                           ' shared album invites and the invite status data.'
             report = ArtifactHtmlReport('Photos.sqlite-GenAlbum_Records-NAD')
             report.start_artifact_report(report_folder, 'Ph23-Shared Album Records NAD-PhDaPsql', description)
             report.add_script()
-            data_headers = ('zGenAlbum-Cloud Creation Date',
-                            'zGenAlbum-Creation Date',
-                            'zGenAlbum-Start Date',
-                            'zGenAlbum-End Date',
-                            'zGenAlbum-Cloud Subscription Date',
-                            'zGenAlbum- Title/User&System Applied',
-                            'zGenAlbum-UUID',
-                            'zGenAlbum-Cloud GUID',
-                            'zGenAlbum-Creator Bundle ID',
-                            'zGenAlbum-Pending Items Count',
-                            'zGenAlbum-Pending Items Type',
-                            'zGenAlbum- Cached Photos Count',
-                            'zGenAlbum- Cached Videos Count',
-                            'zGenAlbum- Cached Count',
-                            'zGenAlbum-Has Unseen Content',
-                            'zGenAlbum-Unseen Asset Count',
-                            'zGenAlbum-zENT- Entity',
-                            'zGenAlbum-Album Kind',
-                            'zGenAlbum-Cloud_Local_State',
-                            'zGenAlbum-Sync Event Order Key',
-                            'zGenAlbum-is Owned',
-                            'zGenAlbum-Cloud Relationship State',
-                            'zGenAlbum-Cloud Relationship State Local',
-                            'zGenAlbum-Cloud Owner Mail Key',
-                            'zGenAlbum-Cloud Owner Frist Name',
-                            'zGenAlbum-Cloud Owner Last Name',
-                            'zGenAlbum-Cloud Owner Full Name',
-                            'zGenAlbum-Cloud Person ID',
-                            'zGenAlbum-Cloud Owner Hashed Person ID',
-                            'zGenAlbum-Local Cloud Multi-Contributors Enabled',
-                            'zGenAlbum-Cloud Multi-Contributors Enabled',
-                            'zGenAlbum-Cloud Album Sub Type',
-                            'zGenAlbum-Cloud Contribution Date',
-                            'zGenAlbum-Cloud Last Interesting Change Date',
-                            'zGenAlbum-Cloud Notification Enabled',
-                            'zGenAlbum-Pinned',
-                            'zGenAlbum-Custom Sort Key',
-                            'zGenAlbum-Custom Sort Ascending',
-                            'zGenAlbum-Is Prototype',
-                            'zGenAlbum-Project Document Type',
-                            'zGenAlbum-Custom Query Type',
-                            'zGenAlbum-Trashed State',
-                            'zGenAlbum-Trash Date',
-                            'zGenAlbum-Cloud Delete State',
-                            'zGenAlbum-Cloud Owner Whitelisted',
-                            'zGenAlbum-Cloud Local Public URL Enabled',
-                            'zGenAlbum-Cloud Public URL Enabled',
-                            'zGenAlbum-Public URL',
-                            'zGenAlbum-Key Asset Face Thumb Index',
-                            'zGenAlbum-Project Text Extension ID',
-                            'zGenAlbum-User Query Data',
-                            'zGenAlbum-Custom Query Parameters',
-                            'zGenAlbum-Project Data',
-                            'zCldShareAlbumInvRec-Is My Invitation to Shared Album',
-                            'zCldShareAlbumInvRec-Invitation State Local',
-                            'zCldShareAlbumInvRec-Invitation State/Shared Album Invite Status',
-                            'zCldShareAlbumInvRec-Subscription Date',
-                            'zCldShareAlbumInvRec-Invitee First Name',
-                            'zCldShareAlbumInvRec-Invitee Last Name',
-                            'zCldShareAlbumInvRec-Invitee Full Name',
-                            'zCldShareAlbumInvRec-Invitee Hashed Person ID',
-                            'zCldShareAlbumInvRec-Invitee Email Key',
-                            'zCldShareAlbumInvRec-Album GUID',
-                            'zCldShareAlbumInvRec-Cloud GUID',
-                            'zGenAlbum-Project Render UUID',
-                            'zAlbumList-Needs Reordering Number')
+            data_headers = ('zGenAlbum-Cloud Creation Date-0',
+                            'zGenAlbum-Creation Date-1',
+                            'zGenAlbum-Start Date-2',
+                            'zGenAlbum-End Date-3',
+                            'zGenAlbum-Cloud Subscription Date-4',
+                            'zGenAlbum- Title-User&System Applied-5',
+                            'zGenAlbum-UUID-6',
+                            'zGenAlbum-Cloud GUID-7',
+                            'zGenAlbum-Creator Bundle ID-8',
+                            'zGenAlbum-Pending Items Count-9',
+                            'zGenAlbum-Pending Items Type-10',
+                            'zGenAlbum- Cached Photos Count-11',
+                            'zGenAlbum- Cached Videos Count-12',
+                            'zGenAlbum- Cached Count-13',
+                            'zGenAlbum-Has Unseen Content-14',
+                            'zGenAlbum-Unseen Asset Count-15',
+                            'zGenAlbum-zENT- Entity-16',
+                            'zGenAlbum-Album Kind-17',
+                            'zGenAlbum-Cloud_Local_State-18',
+                            'zGenAlbum-Sync Event Order Key-19',
+                            'zGenAlbum-is Owned-20',
+                            'zGenAlbum-Cloud Relationship State-21',
+                            'zGenAlbum-Cloud Relationship State Local-22',
+                            'zGenAlbum-Cloud Owner Mail Key-23',
+                            'zGenAlbum-Cloud Owner Frist Name-24',
+                            'zGenAlbum-Cloud Owner Last Name-25',
+                            'zGenAlbum-Cloud Owner Full Name-26',
+                            'zGenAlbum-Cloud Person ID-27',
+                            'zGenAlbum-Cloud Owner Hashed Person ID-28',
+                            'zGenAlbum-Local Cloud Multi-Contributors Enabled-29',
+                            'zGenAlbum-Cloud Multi-Contributors Enabled-30',
+                            'zGenAlbum-Cloud Album Sub Type-31',
+                            'zGenAlbum-Cloud Contribution Date-32',
+                            'zGenAlbum-Cloud Last Interesting Change Date-33',
+                            'zGenAlbum-Cloud Notification Enabled-34',
+                            'zGenAlbum-Pinned-35',
+                            'zGenAlbum-Custom Sort Key-36',
+                            'zGenAlbum-Custom Sort Ascending-37',
+                            'zGenAlbum-Is Prototype-38',
+                            'zGenAlbum-Project Document Type-39',
+                            'zGenAlbum-Custom Query Type-40',
+                            'zGenAlbum-Trashed State-41',
+                            'zGenAlbum-Trash Date-42',
+                            'zGenAlbum-Cloud Delete State-43',
+                            'zGenAlbum-Cloud Owner Whitelisted-44',
+                            'zGenAlbum-Cloud Local Public URL Enabled-45',
+                            'zGenAlbum-Cloud Public URL Enabled-46',
+                            'zGenAlbum-Public URL-47',
+                            'zGenAlbum-Key Asset Face Thumb Index-48',
+                            'zGenAlbum-Project Text Extension ID-49',
+                            'zGenAlbum-User Query Data-50',
+                            'zGenAlbum-Custom Query Parameters-51',
+                            'zGenAlbum-Project Data-52',
+                            'zCldShareAlbumInvRec-Is My Invitation to Shared Album-53',
+                            'zCldShareAlbumInvRec-Invitation State Local-54',
+                            'zCldShareAlbumInvRec-Invitation State-Shared Album Invite Status-55',
+                            'zCldShareAlbumInvRec-Subscription Date-56',
+                            'zCldShareAlbumInvRec-Invitee First Name-57',
+                            'zCldShareAlbumInvRec-Invitee Last Name-58',
+                            'zCldShareAlbumInvRec-Invitee Full Name-59',
+                            'zCldShareAlbumInvRec-Invitee Hashed Person ID-60',
+                            'zCldShareAlbumInvRec-Invitee Email Key-61',
+                            'zCldShareAlbumInvRec-Album GUID-62',
+                            'zCldShareAlbumInvRec-Cloud GUID-63',
+                            'zGenAlbum-Project Render UUID-64',
+                            'zAlbumList-Needs Reordering Number-65')
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
@@ -1225,7 +1224,7 @@ def get_ph23sharedalbumsphdapsql(files_found, report_folder, seeker, wrap_text, 
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available for PhotoData/Photos.sqlite Shared Album Records with No Asset Data')
+            logfunc('No data available for PhotoData-Photos.sqlite Shared Album Records with No Asset Data')
 
             db.close()
         return
@@ -1242,7 +1241,7 @@ def get_ph23sharedalbumsphdapsql(files_found, report_folder, seeker, wrap_text, 
         DateTime(zGenAlbum.ZSTARTDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-Start Date',
         DateTime(zGenAlbum.ZENDDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-End Date',            
         DateTime(zGenAlbum.ZCLOUDSUBSCRIPTIONDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-Cloud Subscription Date',
-        zGenAlbum.ZTITLE AS 'zGenAlbum- Title/User&System Applied',
+        zGenAlbum.ZTITLE AS 'zGenAlbum- Title-User&System Applied',
         zGenAlbum.ZUUID AS 'zGenAlbum-UUID',        
         zGenAlbum.ZCLOUDGUID AS 'zGenAlbum-Cloud GUID',    
         zGenAlbum.ZIMPORTEDBYBUNDLEIDENTIFIER AS 'zGenAlbum-Imported by Bundle Identifier',               
@@ -1341,7 +1340,7 @@ def get_ph23sharedalbumsphdapsql(files_found, report_folder, seeker, wrap_text, 
         END AS 'zGenAlbum-Pinned',       
         CASE zGenAlbum.ZCUSTOMSORTKEY
             WHEN 0 THEN '0-zGenAlbum-Sorted_Manually-0_RT'
-            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First/CusSrtAsc1=Sorted_Oldest_First-1-RT'
+            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First-CusSrtAsc1=Sorted_Oldest_First-1-RT'
             WHEN 5 THEN '5-zGenAlbum-Sorted_by_Title-5_RT'
             ELSE 'Unknown-New-Value!: ' || zGenAlbum.ZCUSTOMSORTKEY || ''
         END AS 'zGenAlbum-Custom Sort Key',        
@@ -1412,7 +1411,7 @@ def get_ph23sharedalbumsphdapsql(files_found, report_folder, seeker, wrap_text, 
             WHEN 4 THEN '4-StillTesting'
             WHEN 5 THEN '5-StillTesting'
             ELSE 'Unknown-New-Value!: ' || zCldShareAlbumInvRec.ZINVITATIONSTATE || ''
-        END AS 'zCldShareAlbumInvRec-Invitation State/Shared Album Invite Status',
+        END AS 'zCldShareAlbumInvRec-Invitation State-Shared Album Invite Status',
         DateTime(zCldShareAlbumInvRec.ZINVITEESUBSCRIPTIONDATE + 978307200, 'UNIXEPOCH') AS
          'zCldShareAlbumInvRec-Subscription Date',
         zCldShareAlbumInvRec.ZINVITEEFIRSTNAME AS 'zCldShareAlbumInvRec-Invitee First Name',
@@ -1454,79 +1453,79 @@ def get_ph23sharedalbumsphdapsql(files_found, report_folder, seeker, wrap_text, 
 
                 counter += 1
 
-            description = 'Parses Shared Album records found in the PhotoData/Photos.sqlite from' \
+            description = 'Parses Shared Album records found in the PhotoData-Photos.sqlite from' \
                           ' ZGENERICALBUM Table and supports iOS 15. Parses Shared Album records only' \
                           ' no asset data is being parsed in this parser. This parser will contain shared albums,' \
                           ' shared album invites and the invite status data.'
             report = ArtifactHtmlReport('Photos.sqlite-GenAlbum_Records-NAD')
             report.start_artifact_report(report_folder, 'Ph23-Shared Album Records NAD-PhDaPsql', description)
             report.add_script()
-            data_headers = ('zGenAlbum-Cloud Creation Date',
-                            'zGenAlbum-Creation Date',
-                            'zGenAlbum-Start Date',
-                            'zGenAlbum-End Date',
-                            'zGenAlbum-Cloud Subscription Date',
-                            'zGenAlbum- Title/User&System Applied',
-                            'zGenAlbum-UUID',
-                            'zGenAlbum-Cloud GUID',
-                            'zGenAlbum-Imported by Bundle Identifier',
-                            'zGenAlbum-Pending Items Count',
-                            'zGenAlbum-Pending Items Type',
-                            'zGenAlbum- Cached Photos Count',
-                            'zGenAlbum- Cached Videos Count',
-                            'zGenAlbum- Cached Count',
-                            'zGenAlbum-Has Unseen Content',
-                            'zGenAlbum-Unseen Asset Count',
-                            'zGenAlbum-zENT- Entity',
-                            'zGenAlbum-Album Kind',
-                            'zGenAlbum-Cloud_Local_State',
-                            'zGenAlbum-Sync Event Order Key',
-                            'zGenAlbum-is Owned',
-                            'zGenAlbum-Cloud Relationship State',
-                            'zGenAlbum-Cloud Relationship State Local',
-                            'zGenAlbum-Cloud Owner Mail Key',
-                            'zGenAlbum-Cloud Owner Frist Name',
-                            'zGenAlbum-Cloud Owner Last Name',
-                            'zGenAlbum-Cloud Owner Full Name',
-                            'zGenAlbum-Cloud Person ID',
-                            'zGenAlbum-Cloud Owner Hashed Person ID',
-                            'zGenAlbum-Local Cloud Multi-Contributors Enabled',
-                            'zGenAlbum-Cloud Multi-Contributors Enabled',
-                            'zGenAlbum-Cloud Album Sub Type',
-                            'zGenAlbum-Cloud Contribution Date',
-                            'zGenAlbum-Cloud Last Interesting Change Date',
-                            'zGenAlbum-Cloud Notification Enabled',
-                            'zGenAlbum-Pinned',
-                            'zGenAlbum-Custom Sort Key',
-                            'zGenAlbum-Custom Sort Ascending',
-                            'zGenAlbum-Is Prototype',
-                            'zGenAlbum-Project Document Type',
-                            'zGenAlbum-Custom Query Type',
-                            'zGenAlbum-Trashed State',
-                            'zGenAlbum-Trash Date',
-                            'zGenAlbum-Cloud Delete State',
-                            'zGenAlbum-Cloud Owner Whitelisted',
-                            'zGenAlbum-Cloud Local Public URL Enabled',
-                            'zGenAlbum-Cloud Public URL Enabled',
-                            'zGenAlbum-Public URL',
-                            'zGenAlbum-Key Asset Face Thumb Index',
-                            'zGenAlbum-Project Text Extension ID',
-                            'zGenAlbum-User Query Data',
-                            'zGenAlbum-Custom Query Parameters',
-                            'zGenAlbum-Project Data',
-                            'zCldShareAlbumInvRec-Is My Invitation to Shared Album',
-                            'zCldShareAlbumInvRec-Invitation State Local',
-                            'zCldShareAlbumInvRec-Invitation State/Shared Album Invite Status',
-                            'zCldShareAlbumInvRec-Subscription Date',
-                            'zCldShareAlbumInvRec-Invitee First Name',
-                            'zCldShareAlbumInvRec-Invitee Last Name',
-                            'zCldShareAlbumInvRec-Invitee Full Name',
-                            'zCldShareAlbumInvRec-Invitee Hashed Person ID',
-                            'zCldShareAlbumInvRec-Invitee Email Key',
-                            'zCldShareAlbumInvRec-Album GUID',
-                            'zCldShareAlbumInvRec-Cloud GUID',
-                            'zGenAlbum-Project Render UUID',
-                            'zAlbumList-Needs Reordering Number')
+            data_headers = ('zGenAlbum-Cloud Creation Date-0',
+                            'zGenAlbum-Creation Date-1',
+                            'zGenAlbum-Start Date-2',
+                            'zGenAlbum-End Date-3',
+                            'zGenAlbum-Cloud Subscription Date-4',
+                            'zGenAlbum- Title-User&System Applied-5',
+                            'zGenAlbum-UUID-6',
+                            'zGenAlbum-Cloud GUID-7',
+                            'zGenAlbum-Imported by Bundle Identifier-8',
+                            'zGenAlbum-Pending Items Count-9',
+                            'zGenAlbum-Pending Items Type-10',
+                            'zGenAlbum- Cached Photos Count-11',
+                            'zGenAlbum- Cached Videos Count-12',
+                            'zGenAlbum- Cached Count-13',
+                            'zGenAlbum-Has Unseen Content-14',
+                            'zGenAlbum-Unseen Asset Count-15',
+                            'zGenAlbum-zENT- Entity-16',
+                            'zGenAlbum-Album Kind-17',
+                            'zGenAlbum-Cloud_Local_State-18',
+                            'zGenAlbum-Sync Event Order Key-19',
+                            'zGenAlbum-is Owned-20',
+                            'zGenAlbum-Cloud Relationship State-21',
+                            'zGenAlbum-Cloud Relationship State Local-22',
+                            'zGenAlbum-Cloud Owner Mail Key-23',
+                            'zGenAlbum-Cloud Owner Frist Name-24',
+                            'zGenAlbum-Cloud Owner Last Name-25',
+                            'zGenAlbum-Cloud Owner Full Name-26',
+                            'zGenAlbum-Cloud Person ID-27',
+                            'zGenAlbum-Cloud Owner Hashed Person ID-28',
+                            'zGenAlbum-Local Cloud Multi-Contributors Enabled-29',
+                            'zGenAlbum-Cloud Multi-Contributors Enabled-30',
+                            'zGenAlbum-Cloud Album Sub Type-31',
+                            'zGenAlbum-Cloud Contribution Date-32',
+                            'zGenAlbum-Cloud Last Interesting Change Date-33',
+                            'zGenAlbum-Cloud Notification Enabled-34',
+                            'zGenAlbum-Pinned-35',
+                            'zGenAlbum-Custom Sort Key-36',
+                            'zGenAlbum-Custom Sort Ascending-37',
+                            'zGenAlbum-Is Prototype-38',
+                            'zGenAlbum-Project Document Type-39',
+                            'zGenAlbum-Custom Query Type-40',
+                            'zGenAlbum-Trashed State-41',
+                            'zGenAlbum-Trash Date-42',
+                            'zGenAlbum-Cloud Delete State-43',
+                            'zGenAlbum-Cloud Owner Whitelisted-44',
+                            'zGenAlbum-Cloud Local Public URL Enabled-45',
+                            'zGenAlbum-Cloud Public URL Enabled-46',
+                            'zGenAlbum-Public URL-47',
+                            'zGenAlbum-Key Asset Face Thumb Index-48',
+                            'zGenAlbum-Project Text Extension ID-49',
+                            'zGenAlbum-User Query Data-50',
+                            'zGenAlbum-Custom Query Parameters-51',
+                            'zGenAlbum-Project Data-52',
+                            'zCldShareAlbumInvRec-Is My Invitation to Shared Album-53',
+                            'zCldShareAlbumInvRec-Invitation State Local-54',
+                            'zCldShareAlbumInvRec-Invitation State-Shared Album Invite Status-55',
+                            'zCldShareAlbumInvRec-Subscription Date-56',
+                            'zCldShareAlbumInvRec-Invitee First Name-57',
+                            'zCldShareAlbumInvRec-Invitee Last Name-58',
+                            'zCldShareAlbumInvRec-Invitee Full Name-59',
+                            'zCldShareAlbumInvRec-Invitee Hashed Person ID-60',
+                            'zCldShareAlbumInvRec-Invitee Email Key-61',
+                            'zCldShareAlbumInvRec-Album GUID-62',
+                            'zCldShareAlbumInvRec-Cloud GUID-63',
+                            'zGenAlbum-Project Render UUID-64',
+                            'zAlbumList-Needs Reordering Number-65')
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
@@ -1537,7 +1536,7 @@ def get_ph23sharedalbumsphdapsql(files_found, report_folder, seeker, wrap_text, 
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available for PhotoData/Photos.sqlite Shared Album Records with No Asset Data')
+            logfunc('No data available for PhotoData-Photos.sqlite Shared Album Records with No Asset Data')
 
             db.close()
         return
@@ -1554,7 +1553,7 @@ def get_ph23sharedalbumsphdapsql(files_found, report_folder, seeker, wrap_text, 
         DateTime(zGenAlbum.ZSTARTDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-Start Date',
         DateTime(zGenAlbum.ZENDDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-End Date',             
         DateTime(zGenAlbum.ZCLOUDSUBSCRIPTIONDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-Cloud Subscription Date',
-        zGenAlbum.ZTITLE AS 'zGenAlbum- Title/User&System Applied',
+        zGenAlbum.ZTITLE AS 'zGenAlbum- Title-User&System Applied',
         zGenAlbum.ZUUID AS 'zGenAlbum-UUID',        
         zGenAlbum.ZCLOUDGUID AS 'zGenAlbum-Cloud GUID',    
         zGenAlbum.ZIMPORTEDBYBUNDLEIDENTIFIER AS 'zGenAlbum-Imported by Bundle Identifier',             
@@ -1653,7 +1652,7 @@ def get_ph23sharedalbumsphdapsql(files_found, report_folder, seeker, wrap_text, 
         END AS 'zGenAlbum-Pinned',       
         CASE zGenAlbum.ZCUSTOMSORTKEY
             WHEN 0 THEN '0-zGenAlbum-Sorted_Manually-0_RT'
-            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First/CusSrtAsc1=Sorted_Oldest_First-1-RT'
+            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First-CusSrtAsc1=Sorted_Oldest_First-1-RT'
             WHEN 5 THEN '5-zGenAlbum-Sorted_by_Title-5_RT'
             ELSE 'Unknown-New-Value!: ' || zGenAlbum.ZCUSTOMSORTKEY || ''
         END AS 'zGenAlbum-Custom Sort Key',        
@@ -1743,7 +1742,7 @@ def get_ph23sharedalbumsphdapsql(files_found, report_folder, seeker, wrap_text, 
             WHEN 4 THEN '4-StillTesting'
             WHEN 5 THEN '5-StillTesting'
             ELSE 'Unknown-New-Value!: ' || zCldShareAlbumInvRec.ZINVITATIONSTATE || ''
-        END AS 'zCldShareAlbumInvRec-Invitation State/Shared Album Invite Status',
+        END AS 'zCldShareAlbumInvRec-Invitation State-Shared Album Invite Status',
         DateTime(zCldShareAlbumInvRec.ZINVITEESUBSCRIPTIONDATE + 978307200, 'UNIXEPOCH') AS
          'zCldShareAlbumInvRec-Subscription Date',
         zCldShareAlbumInvRec.ZINVITEEFIRSTNAME AS 'zCldShareAlbumInvRec-Invitee First Name',
@@ -1785,83 +1784,83 @@ def get_ph23sharedalbumsphdapsql(files_found, report_folder, seeker, wrap_text, 
 
                 counter += 1
 
-            description = 'Parses Shared Album records found in the PhotoData/Photos.sqlite from' \
+            description = 'Parses Shared Album records found in the PhotoData-Photos.sqlite from' \
                           ' ZGENERICALBUM Table and supports iOS 11. Parses Shared Album records only' \
                           ' no asset data is being parsed in this parser. This parser will contain shared albums,' \
                           ' shared album invites and the invite status data.'
             report = ArtifactHtmlReport('Photos.sqlite-GenAlbum_Records-NAD')
             report.start_artifact_report(report_folder, 'Ph23-Shared Album Records NAD-PhDaPsql', description)
             report.add_script()
-            data_headers = ('zGenAlbum-Cloud Creation Date',
-                            'zGenAlbum-Creation Date',
-                            'zGenAlbum-Start Date',
-                            'zGenAlbum-End Date',
-                            'zGenAlbum-Cloud Subscription Date',
-                            'zGenAlbum- Title/User&System Applied',
-                            'zGenAlbum-UUID',
-                            'zGenAlbum-Cloud GUID',
-                            'zGenAlbum-Imported by Bundle Identifier',
-                            'zGenAlbum-Pending Items Count',
-                            'zGenAlbum-Pending Items Type',
-                            'zGenAlbum- Cached Photos Count',
-                            'zGenAlbum- Cached Videos Count',
-                            'zGenAlbum- Cached Count',
-                            'zGenAlbum-Has Unseen Content',
-                            'zGenAlbum-Unseen Asset Count',
-                            'zGenAlbum-zENT- Entity',
-                            'zGenAlbum-Album Kind',
-                            'zGenAlbum-Cloud_Local_State',
-                            'zGenAlbum-Sync Event Order Key',
-                            'zGenAlbum-is Owned',
-                            'zGenAlbum-Cloud Relationship State',
-                            'zGenAlbum-Cloud Relationship State Local',
-                            'zGenAlbum-Cloud Owner Mail Key',
-                            'zGenAlbum-Cloud Owner Frist Name',
-                            'zGenAlbum-Cloud Owner Last Name',
-                            'zGenAlbum-Cloud Owner Full Name',
-                            'zGenAlbum-Cloud Person ID',
-                            'zGenAlbum-Cloud Owner Hashed Person ID',
-                            'zGenAlbum-Local Cloud Multi-Contributors Enabled',
-                            'zGenAlbum-Cloud Multi-Contributors Enabled',
-                            'zGenAlbum-Cloud Album Sub Type',
-                            'zGenAlbum-Cloud Contribution Date',
-                            'zGenAlbum-Cloud Last Interesting Change Date',
-                            'zGenAlbum-Cloud Notification Enabled',
-                            'zGenAlbum-Pinned',
-                            'zGenAlbum-Custom Sort Key',
-                            'zGenAlbum-Custom Sort Ascending',
-                            'zGenAlbum-Is Prototype',
-                            'zGenAlbum-Project Document Type',
-                            'zGenAlbum-Custom Query Type',
-                            'zGenAlbum-Trashed State',
-                            'zGenAlbum-Trash Date',
-                            'zGenAlbum-Cloud Delete State',
-                            'zGenAlbum-Cloud Owner Whitelisted',
-                            'zGenAlbum-Cloud Local Public URL Enabled',
-                            'zGenAlbum-Cloud Public URL Enabled',
-                            'zGenAlbum-Public URL',
-                            'zGenAlbum-Key Asset Face Thumb Index',
-                            'zGenAlbum-Project Text Extension ID',
-                            'zGenAlbum-User Query Data',
-                            'zGenAlbum-Custom Query Parameters',
-                            'zGenAlbum-Project Data',
-                            'zGenAlbum-Search Index Rebuild State',
-                            'zGenAlbum-Duplicate Type',
-                            'zGenAlbum-Privacy State',
-                            'zCldShareAlbumInvRec-zUUID',
-                            'zCldShareAlbumInvRec-Is My Invitation to Shared Album',
-                            'zCldShareAlbumInvRec-Invitation State Local',
-                            'zCldShareAlbumInvRec-Invitation State/Shared Album Invite Status',
-                            'zCldShareAlbumInvRec-Subscription Date',
-                            'zCldShareAlbumInvRec-Invitee First Name',
-                            'zCldShareAlbumInvRec-Invitee Last Name',
-                            'zCldShareAlbumInvRec-Invitee Full Name',
-                            'zCldShareAlbumInvRec-Invitee Hashed Person ID',
-                            'zCldShareAlbumInvRec-Invitee Email Key',
-                            'zCldShareAlbumInvRec-Album GUID',
-                            'zCldShareAlbumInvRec-Cloud GUID',
-                            'zGenAlbum-Project Render UUID',
-                            'zAlbumList-Needs Reordering Number')
+            data_headers = ('zGenAlbum-Cloud Creation Date-0',
+                            'zGenAlbum-Creation Date-1',
+                            'zGenAlbum-Start Date-2',
+                            'zGenAlbum-End Date-3',
+                            'zGenAlbum-Cloud Subscription Date-4',
+                            'zGenAlbum- Title-User&System Applied-5',
+                            'zGenAlbum-UUID-6',
+                            'zGenAlbum-Cloud GUID-7',
+                            'zGenAlbum-Imported by Bundle Identifier-8',
+                            'zGenAlbum-Pending Items Count-9',
+                            'zGenAlbum-Pending Items Type-10',
+                            'zGenAlbum- Cached Photos Count-11',
+                            'zGenAlbum- Cached Videos Count-12',
+                            'zGenAlbum- Cached Count-13',
+                            'zGenAlbum-Has Unseen Content-14',
+                            'zGenAlbum-Unseen Asset Count-15',
+                            'zGenAlbum-zENT- Entity-16',
+                            'zGenAlbum-Album Kind-17',
+                            'zGenAlbum-Cloud_Local_State-18',
+                            'zGenAlbum-Sync Event Order Key-19',
+                            'zGenAlbum-is Owned-20',
+                            'zGenAlbum-Cloud Relationship State-21',
+                            'zGenAlbum-Cloud Relationship State Local-22',
+                            'zGenAlbum-Cloud Owner Mail Key-23',
+                            'zGenAlbum-Cloud Owner Frist Name-24',
+                            'zGenAlbum-Cloud Owner Last Name-25',
+                            'zGenAlbum-Cloud Owner Full Name-26',
+                            'zGenAlbum-Cloud Person ID-27',
+                            'zGenAlbum-Cloud Owner Hashed Person ID-28',
+                            'zGenAlbum-Local Cloud Multi-Contributors Enabled-29',
+                            'zGenAlbum-Cloud Multi-Contributors Enabled-30',
+                            'zGenAlbum-Cloud Album Sub Type-31',
+                            'zGenAlbum-Cloud Contribution Date-32',
+                            'zGenAlbum-Cloud Last Interesting Change Date-33',
+                            'zGenAlbum-Cloud Notification Enabled-34',
+                            'zGenAlbum-Pinned-35',
+                            'zGenAlbum-Custom Sort Key-36',
+                            'zGenAlbum-Custom Sort Ascending-37',
+                            'zGenAlbum-Is Prototype-38',
+                            'zGenAlbum-Project Document Type-39',
+                            'zGenAlbum-Custom Query Type-40',
+                            'zGenAlbum-Trashed State-41',
+                            'zGenAlbum-Trash Date-42',
+                            'zGenAlbum-Cloud Delete State-43',
+                            'zGenAlbum-Cloud Owner Whitelisted-44',
+                            'zGenAlbum-Cloud Local Public URL Enabled-45',
+                            'zGenAlbum-Cloud Public URL Enabled-46',
+                            'zGenAlbum-Public URL-47',
+                            'zGenAlbum-Key Asset Face Thumb Index-48',
+                            'zGenAlbum-Project Text Extension ID-49',
+                            'zGenAlbum-User Query Data-50',
+                            'zGenAlbum-Custom Query Parameters-51',
+                            'zGenAlbum-Project Data-52',
+                            'zGenAlbum-Search Index Rebuild State-53',
+                            'zGenAlbum-Duplicate Type-54',
+                            'zGenAlbum-Privacy State-55',
+                            'zCldShareAlbumInvRec-zUUID-56',
+                            'zCldShareAlbumInvRec-Is My Invitation to Shared Album-57',
+                            'zCldShareAlbumInvRec-Invitation State Local-58',
+                            'zCldShareAlbumInvRec-Invitation State-Shared Album Invite Status-59',
+                            'zCldShareAlbumInvRec-Subscription Date-60',
+                            'zCldShareAlbumInvRec-Invitee First Name-61',
+                            'zCldShareAlbumInvRec-Invitee Last Name-62',
+                            'zCldShareAlbumInvRec-Invitee Full Name-63',
+                            'zCldShareAlbumInvRec-Invitee Hashed Person ID-64',
+                            'zCldShareAlbumInvRec-Invitee Email Key-65',
+                            'zCldShareAlbumInvRec-Album GUID-66',
+                            'zCldShareAlbumInvRec-Cloud GUID-67',
+                            'zGenAlbum-Project Render UUID-68',
+                            'zAlbumList-Needs Reordering Number-69')
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
@@ -1872,7 +1871,7 @@ def get_ph23sharedalbumsphdapsql(files_found, report_folder, seeker, wrap_text, 
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available for PhotoData/Photos.sqlite Shared Album Records with No Asset Data')
+            logfunc('No data available for PhotoData-Photos.sqlite Shared Album Records with No Asset Data')
 
         db.close()
         return
@@ -1881,16 +1880,16 @@ def get_ph23sharedalbumsphdapsql(files_found, report_folder, seeker, wrap_text, 
 __artifacts_v2__ = {
     'Ph23-Shared Album Records & Invites with NAD-PhDaPsql': {
         'name': 'PhDaPL Photos.sqlite 23 Shared Album Records with No Asset Data',
-        'description': 'Parses Shared Album records found in the PhotoData/Photos.sqlite ZGENERICALBUM Table'
+        'description': 'Parses Shared Album records found in the PhotoData-Photos.sqlite ZGENERICALBUM Table'
                        ' and supports iOS 11-17. Parses Shared Album records only, no asset data being parsed.'
                        ' This parser will contain shared albums, share album invites, and invite status data.',
         'author': 'Scott Koenig https://theforensicscooter.com/',
         'version': '1.3',
         'date': '2024-04-13',
-        'requirements': 'Acquisition that contains PhotoData/Photos.sqlite',
+        'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
         'category': 'Photos.sqlite-GenAlbum_Records-NAD',
         'notes': '',
-        'paths': ('*/mobile/Media/PhotoData/Photos.sqlite*'),
+        'paths': '*/mobile/Media/PhotoData/Photos.sqlite*',
         'function': 'get_ph23sharedalbumsphdapsql'
     }
 }

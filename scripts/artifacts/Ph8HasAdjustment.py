@@ -40,8 +40,8 @@ def get_ph8hasadjustmentphdapsql(files_found, report_folder, seeker, wrap_text, 
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = scripts.artifacts.artGlobals.versionf
-    if version.parse(iosversion) < version.parse("11"):
-        logfunc("Unsupported version for PhotoData/Photos.sqlite adjusted assets from iOS " + iosversion)
+    if version.parse(iosversion) <= version.parse("10.3.4"):
+        logfunc("Unsupported version for PhotoData-Photos.sqlite adjusted assets from iOS " + iosversion)
     if (version.parse(iosversion) >= version.parse("11")) & (version.parse(iosversion) < version.parse("14")):
         file_found = str(files_found[0])
         db = open_sqlite_db_readonly(file_found)
@@ -54,7 +54,7 @@ def get_ph8hasadjustmentphdapsql(files_found, report_folder, seeker, wrap_text, 
             WHEN 0 THEN '0-No-Adjustments-0'
             WHEN 1 THEN '1-Yes-Adjustments-1'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZHASADJUSTMENTS || ''
-        END AS 'zAsset-Has Adjustments/Camera-Effects-Filters',       
+        END AS 'zAsset-Has Adjustments-Camera-Effects-Filters',       
         zAddAssetAttr.ZEDITORBUNDLEID AS 'zAddAssetAttr-Editor Bundle ID',
         zUnmAdj.ZEDITORLOCALIZEDNAME AS 'zUnmAdj-Editor Localized Name',
         zUnmAdj.ZADJUSTMENTFORMATIDENTIFIER AS 'zUnmAdj-Adjustment Format ID',
@@ -80,7 +80,7 @@ def get_ph8hasadjustmentphdapsql(files_found, report_folder, seeker, wrap_text, 
             WHEN 2.0 THEN '2.0-ScreenshotServices-2.0'
             ELSE 'Unknown-New-Value!: ' || zUnmAdj.ZADJUSTMENTFORMATVERSION || ''
         END AS 'zUnmAdj-Adjustment Format Version',
-        zAsset.ZDIRECTORY AS 'zAsset-Directory/Path',
+        zAsset.ZDIRECTORY AS 'zAsset-Directory-Path',
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
@@ -108,20 +108,20 @@ def get_ph8hasadjustmentphdapsql(files_found, report_folder, seeker, wrap_text, 
 
                 counter += 1
 
-            description = 'Parses basic asset record data from PhotoData/Photos.sqlite for adjusted assets' \
+            description = 'Parses basic asset record data from PhotoData-Photos.sqlite for adjusted assets' \
                           ' and supports iOS 11-13. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
             report = ArtifactHtmlReport('Photos.sqlite-Interaction_Artifacts')
             report.start_artifact_report(report_folder, 'Ph8-Has Adjustment-PhDaPsql', description)
             report.add_script()
             data_headers = ('zUnmAdj-Adjustment Timestamp',
-                            'zAsset-Has Adjustments/Camera-Effects-Filters',
+                            'zAsset-Has Adjustments-Camera-Effects-Filters',
                             'zAddAssetAttr-Editor Bundle ID',
                             'zUnmAdj-Editor Localized Name',
                             'zUnmAdj-Adjustment Format ID',
                             'zUnmAdj-Adjustment Render Types',
                             'zUnmAdj-Adjustment Format Version',
-                            'zAsset-Directory/Path',
+                            'zAsset-Directory-Path',
                             'zAsset-Filename',
                             'zAddAssetAttr- Original Filename',
                             'zCldMast- Original Filename',
@@ -140,7 +140,7 @@ def get_ph8hasadjustmentphdapsql(files_found, report_folder, seeker, wrap_text, 
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available for PhotoData/Photos.sqlite Adjusted Assets')
+            logfunc('No data available for PhotoData-Photos.sqlite Adjusted Assets')
 
         db.close()
         return
@@ -157,7 +157,7 @@ def get_ph8hasadjustmentphdapsql(files_found, report_folder, seeker, wrap_text, 
             WHEN 0 THEN '0-No-Adjustments-0'
             WHEN 1 THEN '1-Yes-Adjustments-1'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZHASADJUSTMENTS || ''
-        END AS 'zAsset-Has Adjustments/Camera-Effects-Filters',       
+        END AS 'zAsset-Has Adjustments-Camera-Effects-Filters',       
         zAddAssetAttr.ZEDITORBUNDLEID AS 'zAddAssetAttr-Editor Bundle ID',
         zUnmAdj.ZEDITORLOCALIZEDNAME AS 'zUnmAdj-Editor Localized Name',
         zUnmAdj.ZADJUSTMENTFORMATIDENTIFIER AS 'zUnmAdj-Adjustment Format ID',
@@ -183,7 +183,7 @@ def get_ph8hasadjustmentphdapsql(files_found, report_folder, seeker, wrap_text, 
             WHEN 2.0 THEN '2.0-ScreenshotServices-2.0'
             ELSE 'Unknown-New-Value!: ' || zUnmAdj.ZADJUSTMENTFORMATVERSION || ''
         END AS 'zUnmAdj-Adjustment Format Version',
-        zAsset.ZDIRECTORY AS 'zAsset-Directory/Path',
+        zAsset.ZDIRECTORY AS 'zAsset-Directory-Path',
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
@@ -211,20 +211,20 @@ def get_ph8hasadjustmentphdapsql(files_found, report_folder, seeker, wrap_text, 
 
                 counter += 1
 
-            description = 'Parses basic asset record data from PhotoData/Photos.sqlite for adjusted assets' \
+            description = 'Parses basic asset record data from PhotoData-Photos.sqlite for adjusted assets' \
                           ' and supports iOS 14-17. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
             report = ArtifactHtmlReport('Photos.sqlite-Interaction_Artifacts')
             report.start_artifact_report(report_folder, 'Ph8-Has Adjustment-PhDaPsql', description)
             report.add_script()
             data_headers = ('zUnmAdj-Adjustment Timestamp',
-                            'zAsset-Has Adjustments/Camera-Effects-Filters',
+                            'zAsset-Has Adjustments-Camera-Effects-Filters',
                             'zAddAssetAttr-Editor Bundle ID',
                             'zUnmAdj-Editor Localized Name',
                             'zUnmAdj-Adjustment Format ID',
                             'zUnmAdj-Adjustment Render Types',
                             'zUnmAdj-Adjustment Format Version',
-                            'zAsset-Directory/Path',
+                            'zAsset-Directory-Path',
                             'zAsset-Filename',
                             'zAddAssetAttr- Original Filename',
                             'zCldMast- Original Filename',
@@ -243,7 +243,7 @@ def get_ph8hasadjustmentphdapsql(files_found, report_folder, seeker, wrap_text, 
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available for PhotoData/Photos.sqlite Adjusted Assets')
+            logfunc('No data available for PhotoData-Photos.sqlite Adjusted Assets')
 
         db.close()
         return
@@ -252,16 +252,16 @@ def get_ph8hasadjustmentphdapsql(files_found, report_folder, seeker, wrap_text, 
 __artifacts_v2__ = {
     'Ph8-Has Adjustment-PhDaPsql': {
         'name': 'PhDaPL Photos.sqlite 8 Adjusted Assets',
-        'description': 'Parses basic asset record data from PhotoData/Photos.sqlite for adjusted assets'
+        'description': 'Parses basic asset record data from PhotoData-Photos.sqlite for adjusted assets'
                        ' and supports iOS 11-17. The results for this script will contain'
                        ' one record per ZASSET table Z_PK value.',
         'author': 'Scott Koenig https://theforensicscooter.com/',
         'version': '1.2',
         'date': '2024-04-07',
-        'requirements': 'Acquisition that contains PhotoData/Photos.sqlite',
+        'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
         'category': 'Photos.sqlite-Interaction_Artifacts',
         'notes': '',
-        'paths': ('*/mobile/Media/PhotoData/Photos.sqlite*'),
+        'paths': '*/mobile/Media/PhotoData/Photos.sqlite*',
         'function': 'get_ph8hasadjustmentphdapsql'
     }
 }

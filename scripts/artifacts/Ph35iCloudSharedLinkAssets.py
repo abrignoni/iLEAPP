@@ -3,7 +3,7 @@
 # Version: 1.0
 #
 #   Description:
-#   Parses iCloud Shared Link records and related assets from the PhotoData/Photos.sqlite ZSHARE Table
+#   Parses iCloud Shared Link records and related assets from the PhotoData-Photos.sqlite ZSHARE Table
 #   and supports iOS 14-17.
 #   This parser is based on research and SQLite Queries written by Scott Koenig
 #   This is very large query and script, I recommend opening the TSV generated report with Zimmerman's Tools
@@ -41,8 +41,8 @@ def get_ph35icldsharedLinkassetsphdapsql(files_found, report_folder, seeker, wra
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = scripts.artifacts.artGlobals.versionf
-    if version.parse(iosversion) < version.parse("14"):
-        logfunc("Unsupported version for iCloud Shared Link Assets from PhotoData/Photos.sqlite from iOS " + iosversion)
+    if version.parse(iosversion) <= version.parse("13.7"):
+        logfunc("Unsupported version for iCloud Shared Link Assets from PhotoData-Photos.sqlite from iOS " + iosversion)
     if (version.parse(iosversion) >= version.parse("14")) & (version.parse(iosversion) < version.parse("15")):
         file_found = str(files_found[0])
         db = open_sqlite_db_readonly(file_found)
@@ -56,7 +56,7 @@ def get_ph35icldsharedLinkassetsphdapsql(files_found, report_folder, seeker, wra
         DateTime(zShare.ZEXPIRYDATE + 978307200, 'UNIXEPOCH') AS 'zShare-Expiry Date',
         DateTime(zAsset.ZDATECREATED + 978307200, 'UNIXEPOCH') AS 'zAsset-Date Created',
         zAsset.Z_PK AS 'zAsset-zPK',
-        zAsset.ZDIRECTORY AS 'zAsset-Directory/Path',
+        zAsset.ZDIRECTORY AS 'zAsset-Directory-Path',
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
@@ -196,64 +196,64 @@ def get_ph35icldsharedLinkassetsphdapsql(files_found, report_folder, seeker, wra
                 counter += 1
 
             description = 'Parses iCloud Shared Link records and related assets from the' \
-                          ' PhotoData/Photos.sqlite ZSHARE Table and supports iOS 14-15.'
+                          ' PhotoData-Photos.sqlite ZSHARE Table and supports iOS 14-15.'
             report = ArtifactHtmlReport('Photos.sqlite-iCloud_Shared_Methods')
             report.start_artifact_report(report_folder, 'Ph35-iCld Shared Link Assets-PhDaPsql', description)
             report.add_script()
-            data_headers = ('zShare-Creation Date',
-                            'zShare-Start Date',
-                            'zShare-End Date',
-                            'zShare-Expiry Date',
-                            'zAsset-Date Created',
-                            'zAsset-zPK',
-                            'zAsset-Directory/Path',
-                            'zAsset-Filename',
-                            'zAddAssetAttr- Original Filename',
-                            'zCldMast- Original Filename',
-                            'zAddAssetAttr- Creator Bundle ID',
-                            'zAddAssetAttr-Imported By Display Name',
-                            'zAsset-Visibility State',
-                            'zAsset-Saved Asset Type',
-                            'zAddAssetAttr-Share Type',
-                            'zAsset- SortToken -CameraRoll',
-                            'zAsset-Added Date',
-                            'zCldMast-Creation Date',
-                            'zAddAssetAttr-Time Zone Name',
-                            'zAddAssetAttr-EXIF-String',
-                            'zAsset-Modification Date',
-                            'zAsset-Last Shared Date',
-                            'zAsset-Trashed Date',
-                            'zAddAssetAttr-zPK',
-                            'zAsset-UUID = store.cloudphotodb',
-                            'zAddAssetAttr-Master Fingerprint',
-                            'zShare-UUID',
-                            'zShare-Originating Scope ID',
-                            'zShare-Status',
-                            'zShare-Scope Type',
-                            'zShare-Asset Count-CMM',
-                            'zShare-Force Sync Attempted-CMM',
-                            'zShare-Photos Count-CMM',
-                            'zShare-Uploaded Photos Count-CMM',
-                            'zShare-Videos Count-CMM',
-                            'zShare-Uploaded Videos Count-CMM',
-                            'zShare-Scope ID',
-                            'zShare-Title-SPL',
-                            'zShare-Share URL',
-                            'zShare-Local Publish State',
-                            'zShare-Public Permission',
-                            'zSharePartic-Acceptance Status',
-                            'zSharePartic-User ID',
-                            'zSharePartic-zPK',
-                            'zSharePartic-Email Address',
-                            'zSharePartic-Phone Number',
-                            'zSharePartic-Is Current User',
-                            'zSharePartic-Role',
-                            'zSharePartic-Premission',
-                            'zShare-Should Notify On Upload Completion',
-                            'zShare-Should Ignor Budgets',
-                            'zShare-Trashed State',
-                            'zShare-Cloud Delete State',
-                            'zShare-zENT')
+            data_headers = ('zShare-Creation Date-0',
+                            'zShare-Start Date-1',
+                            'zShare-End Date-2',
+                            'zShare-Expiry Date-3',
+                            'zAsset-Date Created-4',
+                            'zAsset-zPK-5',
+                            'zAsset-Directory-Path-6',
+                            'zAsset-Filename-7',
+                            'zAddAssetAttr- Original Filename-8',
+                            'zCldMast- Original Filename-9',
+                            'zAddAssetAttr- Creator Bundle ID-10',
+                            'zAddAssetAttr-Imported By Display Name-11',
+                            'zAsset-Visibility State-12',
+                            'zAsset-Saved Asset Type-13',
+                            'zAddAssetAttr-Share Type-14',
+                            'zAsset- SortToken -CameraRoll-15',
+                            'zAsset-Added Date-16',
+                            'zCldMast-Creation Date-17',
+                            'zAddAssetAttr-Time Zone Name-18',
+                            'zAddAssetAttr-EXIF-String-19',
+                            'zAsset-Modification Date-20',
+                            'zAsset-Last Shared Date-21',
+                            'zAsset-Trashed Date-22',
+                            'zAddAssetAttr-zPK-23',
+                            'zAsset-UUID = store.cloudphotodb-24',
+                            'zAddAssetAttr-Master Fingerprint-25',
+                            'zShare-UUID-26',
+                            'zShare-Originating Scope ID-27',
+                            'zShare-Status-28',
+                            'zShare-Scope Type-29',
+                            'zShare-Asset Count-CMM-30',
+                            'zShare-Force Sync Attempted-CMM-31',
+                            'zShare-Photos Count-CMM-32',
+                            'zShare-Uploaded Photos Count-CMM-33',
+                            'zShare-Videos Count-CMM-34',
+                            'zShare-Uploaded Videos Count-CMM-35',
+                            'zShare-Scope ID-36',
+                            'zShare-Title-SPL-37',
+                            'zShare-Share URL-38',
+                            'zShare-Local Publish State-39',
+                            'zShare-Public Permission-40',
+                            'zSharePartic-Acceptance Status-41',
+                            'zSharePartic-User ID-42',
+                            'zSharePartic-zPK-43',
+                            'zSharePartic-Email Address-44',
+                            'zSharePartic-Phone Number-45',
+                            'zSharePartic-Is Current User-46',
+                            'zSharePartic-Role-47',
+                            'zSharePartic-Premission-48',
+                            'zShare-Should Notify On Upload Completion-49',
+                            'zShare-Should Ignor Budgets-50',
+                            'zShare-Trashed State-51',
+                            'zShare-Cloud Delete State-52',
+                            'zShare-zENT-53')
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
@@ -264,7 +264,7 @@ def get_ph35icldsharedLinkassetsphdapsql(files_found, report_folder, seeker, wra
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No iCloud Shared Link Assets found in PhotoData/Photos.sqlite ZSHARE table')
+            logfunc('No iCloud Shared Link Assets found in PhotoData-Photos.sqlite ZSHARE table')
 
         db.close()
         return
@@ -282,7 +282,7 @@ def get_ph35icldsharedLinkassetsphdapsql(files_found, report_folder, seeker, wra
         DateTime(zShare.ZEXPIRYDATE + 978307200, 'UNIXEPOCH') AS 'zShare-Expiry Date',
         DateTime(zAsset.ZDATECREATED + 978307200, 'UNIXEPOCH') AS 'zAsset-Date Created',
         zAsset.Z_PK AS 'zAsset-zPK',
-        zAsset.ZDIRECTORY AS 'zAsset-Directory/Path',
+        zAsset.ZDIRECTORY AS 'zAsset-Directory-Path',
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
@@ -441,67 +441,67 @@ def get_ph35icldsharedLinkassetsphdapsql(files_found, report_folder, seeker, wra
                 counter += 1
 
             description = 'Parses iCloud Shared Link records and related assets from the' \
-                          ' PhotoData/Photos.sqlite ZSHARE Table and supports iOS 14-15.'
+                          ' PhotoData-Photos.sqlite ZSHARE Table and supports iOS 14-15.'
             report = ArtifactHtmlReport('Photos.sqlite-iCloud_Shared_Methods')
             report.start_artifact_report(report_folder, 'Ph35-iCld Shared Link Assets-PhDaPsql', description)
             report.add_script()
-            data_headers = ('zShare-Creation Date',
-                            'zShare-Start Date',
-                            'zShare-End Date',
-                            'zShare-Expiry Date',
-                            'zAsset-Date Created',
-                            'zAsset-zPK',
-                            'zAsset-Directory/Path',
-                            'zAsset-Filename',
-                            'zAddAssetAttr- Original Filename',
-                            'zCldMast- Original Filename',
-                            'zAddAssetAttr- Syndication Identifier-SWY-Files',
-                            'zAsset-Syndication State',
-                            'zAsset-Bundle Scope',
-                            'zAddAssetAttr- Imported by Bundle Identifier',
-                            'zAddAssetAttr-Imported By Display Name',
-                            'zAsset-Visibility State',
-                            'zAsset-Saved Asset Type',
-                            'zAddAssetAttr-Share Type',
-                            'zAsset- SortToken -CameraRoll',
-                            'zAsset-Added Date',
-                            'zCldMast-Creation Date',
-                            'zAddAssetAttr-Time Zone Name',
-                            'zAddAssetAttr-EXIF-String',
-                            'zAsset-Modification Date',
-                            'zAsset-Last Shared Date',
-                            'zAsset-Trashed Date',
-                            'zAddAssetAttr-zPK',
-                            'zAsset-UUID = store.cloudphotodb',
-                            'zAddAssetAttr-Master Fingerprint',
-                            'zShare-UUID',
-                            'zShare-Originating Scope ID',
-                            'zShare-Status',
-                            'zShare-Scope Type',
-                            'zShare-Asset Count-CMM',
-                            'zShare-Force Sync Attempted-CMM',
-                            'zShare-Photos Count-CMM',
-                            'zShare-Uploaded Photos Count-CMM',
-                            'zShare-Videos Count-CMM',
-                            'zShare-Uploaded Videos Count-CMM',
-                            'zShare-Scope ID',
-                            'zShare-Title-SPL',
-                            'zShare-Share URL',
-                            'zShare-Local Publish State',
-                            'zShare-Public Permission',
-                            'zSharePartic-Acceptance Status',
-                            'zSharePartic-User ID',
-                            'zSharePartic-zPK',
-                            'zSharePartic-Email Address',
-                            'zSharePartic-Phone Number',
-                            'zSharePartic-Is Current User',
-                            'zSharePartic-Role',
-                            'zSharePartic-Premission',
-                            'zShare-Should Notify On Upload Completion',
-                            'zShare-Should Ignor Budgets',
-                            'zShare-Trashed State',
-                            'zShare-Cloud Delete State',
-                            'zShare-zENT')
+            data_headers = ('zShare-Creation Date-0',
+                            'zShare-Start Date-1',
+                            'zShare-End Date-2',
+                            'zShare-Expiry Date-3',
+                            'zAsset-Date Created-4',
+                            'zAsset-zPK-5',
+                            'zAsset-Directory-Path-6',
+                            'zAsset-Filename-7',
+                            'zAddAssetAttr- Original Filename-8',
+                            'zCldMast- Original Filename-9',
+                            'zAddAssetAttr- Syndication Identifier-SWY-Files-10',
+                            'zAsset-Syndication State-11',
+                            'zAsset-Bundle Scope-12',
+                            'zAddAssetAttr- Imported by Bundle Identifier-13',
+                            'zAddAssetAttr-Imported By Display Name-14',
+                            'zAsset-Visibility State-15',
+                            'zAsset-Saved Asset Type-16',
+                            'zAddAssetAttr-Share Type-17',
+                            'zAsset- SortToken -CameraRoll-18',
+                            'zAsset-Added Date-19',
+                            'zCldMast-Creation Date-20',
+                            'zAddAssetAttr-Time Zone Name-21',
+                            'zAddAssetAttr-EXIF-String-22',
+                            'zAsset-Modification Date-23',
+                            'zAsset-Last Shared Date-24',
+                            'zAsset-Trashed Date-25',
+                            'zAddAssetAttr-zPK-26',
+                            'zAsset-UUID = store.cloudphotodb-27',
+                            'zAddAssetAttr-Master Fingerprint-28',
+                            'zShare-UUID-29',
+                            'zShare-Originating Scope ID-30',
+                            'zShare-Status-31',
+                            'zShare-Scope Type-32',
+                            'zShare-Asset Count-CMM-33',
+                            'zShare-Force Sync Attempted-CMM-34',
+                            'zShare-Photos Count-CMM-35',
+                            'zShare-Uploaded Photos Count-CMM-36',
+                            'zShare-Videos Count-CMM-37',
+                            'zShare-Uploaded Videos Count-CMM-38',
+                            'zShare-Scope ID-39',
+                            'zShare-Title-SPL-40',
+                            'zShare-Share URL-41',
+                            'zShare-Local Publish State-42',
+                            'zShare-Public Permission-43',
+                            'zSharePartic-Acceptance Status-44',
+                            'zSharePartic-User ID-45',
+                            'zSharePartic-zPK-46',
+                            'zSharePartic-Email Address-47',
+                            'zSharePartic-Phone Number-48',
+                            'zSharePartic-Is Current User-49',
+                            'zSharePartic-Role-50',
+                            'zSharePartic-Premission-51',
+                            'zShare-Should Notify On Upload Completion-52',
+                            'zShare-Should Ignor Budgets-53',
+                            'zShare-Trashed State-54',
+                            'zShare-Cloud Delete State-55',
+                            'zShare-zENT-56')
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
@@ -512,7 +512,7 @@ def get_ph35icldsharedLinkassetsphdapsql(files_found, report_folder, seeker, wra
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No iCloud Shared Link Assets found in PhotoData/Photos.sqlite ZSHARE table')
+            logfunc('No iCloud Shared Link Assets found in PhotoData-Photos.sqlite ZSHARE table')
 
         db.close()
         return
@@ -530,7 +530,7 @@ def get_ph35icldsharedLinkassetsphdapsql(files_found, report_folder, seeker, wra
         DateTime(zShare.ZEXPIRYDATE + 978307200, 'UNIXEPOCH') AS 'zShare-Expiry Date',
         DateTime(zAsset.ZDATECREATED + 978307200, 'UNIXEPOCH') AS 'zAsset-Date Created',
         zAsset.Z_PK AS 'zAsset-zPK',
-        zAsset.ZDIRECTORY AS 'zAsset-Directory/Path',
+        zAsset.ZDIRECTORY AS 'zAsset-Directory-Path',
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
@@ -588,7 +588,6 @@ def get_ph35icldsharedLinkassetsphdapsql(files_found, report_folder, seeker, wra
         zAddAssetAttr.ZTIMEZONENAME AS 'zAddAssetAttr-Time Zone Name',
         zAddAssetAttr.ZEXIFTIMESTAMPSTRING AS 'zAddAssetAttr-EXIF-String',
         DateTime(zAsset.ZMODIFICATIONDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Modification Date',
-        DateTime(zAddAssetAttr.ZLASTVIEWEDDATE + 978307200, 'UNIXEPOCH') AS 'zAddAssetAttr-Last Viewed Date',
         DateTime(zAsset.ZLASTSHAREDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Last Shared Date',
         DateTime(zAsset.ZTRASHEDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Trashed Date',
         zAsset.ZTRASHEDBYPARTICIPANT AS 'zAsset-Trashed by Participant= zShareParticipant_zPK',
@@ -741,90 +740,89 @@ def get_ph35icldsharedLinkassetsphdapsql(files_found, report_folder, seeker, wra
                                   row[46], row[47], row[48], row[49], row[50], row[51], row[52], row[53], row[54],
                                   row[55], row[56], row[57], row[58], row[59], row[60], row[61], row[62], row[63],
                                   row[64], row[65], row[66], row[67], row[68], row[69], row[70], row[71], row[72],
-                                  row[73], row[74]))
+                                  row[73]))
 
                 counter += 1
 
             description = 'Parses iCloud Shared Link records and related assets from the' \
-                          ' PhotoData/Photos.sqlite ZSHARE Table and supports iOS 16-17.'
+                          ' PhotoData-Photos.sqlite ZSHARE Table and supports iOS 16-17.'
             report = ArtifactHtmlReport('Photos.sqlite-iCloud_Shared_Methods')
             report.start_artifact_report(report_folder, 'Ph35-iCld Shared Link Assets-PhDaPsql', description)
             report.add_script()
-            data_headers = ('zShare-Creation Date',
-                            'zShare-Start Date',
-                            'zShare-End Date',
-                            'zShare-Expiry Date',
-                            'zAsset-Date Created',
-                            'zAsset-zPK',
-                            'zAsset-Directory/Path',
-                            'zAsset-Filename',
-                            'zAddAssetAttr- Original Filename',
-                            'zCldMast- Original Filename',
-                            'zAddAssetAttr- Syndication Identifier-SWY-Files',
-                            'zAsset-Syndication State',
-                            'zAsset-Bundle Scope',
-                            'zAddAssetAttr.Imported by Bundle Identifier',
-                            'zAddAssetAttr-Imported By Display Name',
-                            'zAsset-Visibility State',
-                            'zAsset-Saved Asset Type',
-                            'zAddAssetAttr-Share Type',
-                            'zAsset-Active Library Scope Participation State',
-                            'zAsset- SortToken -CameraRoll',
-                            'zAsset-Added Date',
-                            'zCldMast-Creation Date',
-                            'zAddAssetAttr-Time Zone Name',
-                            'zAddAssetAttr-EXIF-String',
-                            'zAsset-Modification Date',
-                            'zAddAssetAttr-Last Viewed Date',
-                            'zAsset-Last Shared Date',
-                            'zAsset-Trashed Date',
-                            'zAsset-Trashed by Participant= zShareParticipant_zPK',
-                            'zAddAssetAttr-zPK',
-                            'zAsset-UUID = store.cloudphotodb',
-                            'zAddAssetAttr-Master Fingerprint',
-                            'zShare-UUID',
-                            'zShare-Originating Scope ID',
-                            'zSharePartic-z54SHARE',
-                            'zShare-Status',
-                            'zShare-Scope Type',
-                            'zShare-Asset Count-CMM',
-                            'zShare-Force Sync Attempted-CMM',
-                            'zShare-Photos Count-CMM',
-                            'zShare-Uploaded Photos Count-CMM',
-                            'zShare-Videos Count-CMM',
-                            'zShare-Uploaded Videos Count-CMM',
-                            'zShare-Scope ID',
-                            'zShare-Title-SPL',
-                            'zShare-Share URL',
-                            'zShare-Local Publish State',
-                            'zShare-Public Permission',
-                            'zShare-Cloud Local State',
-                            'zShare-Scope Syncing State',
-                            'zShare-Auto Share Policy',
-                            'zSharePartic-Acceptance Status',
-                            'zSharePartic-User ID',
-                            'zSharePartic-zPK',
-                            'zSharePartic-Email Address',
-                            'zSharePartic-Phone Number',
-                            'zSharePartic-Participant ID',
-                            'zSharePartic-UUID',
-                            'zSharePartic-Is Current User',
-                            'zSharePartic-Role',
-                            'zSharePartic-Premission',
-                            'zShare-Participant Cloud Update State',
-                            'zSharePartic-Exit State',
-                            'zShare-Preview State',
-                            'zShare-Should Notify On Upload Completion',
-                            'zShare-Should Ignor Budgets',
-                            'zShare-Exit Source',
-                            'zShare-Exit State',
-                            'zShare-Exit Type',
-                            'zShare-Trashed State',
-                            'zShare-Cloud Delete State',
-                            'zShare-Trashed Date',
-                            'zShare-LastParticipant Asset Trash Notification Date',
-                            'zShare-Last Participant Asset Trash Notification View Date',
-                            'zShare-zENT')
+            data_headers = ('zShare-Creation Date-0',
+                            'zShare-Start Date-1',
+                            'zShare-End Date-2',
+                            'zShare-Expiry Date-3',
+                            'zAsset-Date Created-4',
+                            'zAsset-zPK-5',
+                            'zAsset-Directory-Path-6',
+                            'zAsset-Filename-7',
+                            'zAddAssetAttr- Original Filename-8',
+                            'zCldMast- Original Filename-9',
+                            'zAddAssetAttr- Syndication Identifier-SWY-Files-10',
+                            'zAsset-Syndication State-11',
+                            'zAsset-Bundle Scope-12',
+                            'zAddAssetAttr.Imported by Bundle Identifier-13',
+                            'zAddAssetAttr-Imported By Display Name-14',
+                            'zAsset-Visibility State-15',
+                            'zAsset-Saved Asset Type-16',
+                            'zAddAssetAttr-Share Type-17',
+                            'zAsset-Active Library Scope Participation State-18',
+                            'zAsset- SortToken -CameraRoll-19',
+                            'zAsset-Added Date-20',
+                            'zCldMast-Creation Date-21',
+                            'zAddAssetAttr-Time Zone Name-22',
+                            'zAddAssetAttr-EXIF-String-23',
+                            'zAsset-Modification Date-24',
+                            'zAsset-Last Shared Date-25',
+                            'zAsset-Trashed Date-26',
+                            'zAsset-Trashed by Participant= zShareParticipant_zPK-27',
+                            'zAddAssetAttr-zPK-28',
+                            'zAsset-UUID = store.cloudphotodb-29',
+                            'zAddAssetAttr-Master Fingerprint-30',
+                            'zShare-UUID-31',
+                            'zShare-Originating Scope ID-32',
+                            'zSharePartic-z54SHARE-33',
+                            'zShare-Status-34',
+                            'zShare-Scope Type-35',
+                            'zShare-Asset Count-CMM-36',
+                            'zShare-Force Sync Attempted-CMM-37',
+                            'zShare-Photos Count-CMM-38',
+                            'zShare-Uploaded Photos Count-CMM-39',
+                            'zShare-Videos Count-CMM-40',
+                            'zShare-Uploaded Videos Count-CMM-41',
+                            'zShare-Scope ID-42',
+                            'zShare-Title-SPL-43',
+                            'zShare-Share URL-44',
+                            'zShare-Local Publish State-45',
+                            'zShare-Public Permission-46',
+                            'zShare-Cloud Local State-47',
+                            'zShare-Scope Syncing State-48',
+                            'zShare-Auto Share Policy-49',
+                            'zSharePartic-Acceptance Status-50',
+                            'zSharePartic-User ID-51',
+                            'zSharePartic-zPK-52',
+                            'zSharePartic-Email Address-53',
+                            'zSharePartic-Phone Number-54',
+                            'zSharePartic-Participant ID-55',
+                            'zSharePartic-UUID-56',
+                            'zSharePartic-Is Current User-57',
+                            'zSharePartic-Role-58',
+                            'zSharePartic-Premission-59',
+                            'zShare-Participant Cloud Update State-60',
+                            'zSharePartic-Exit State-61',
+                            'zShare-Preview State-62',
+                            'zShare-Should Notify On Upload Completion-63',
+                            'zShare-Should Ignor Budgets-64',
+                            'zShare-Exit Source-65',
+                            'zShare-Exit State-66',
+                            'zShare-Exit Type-67',
+                            'zShare-Trashed State-68',
+                            'zShare-Cloud Delete State-69',
+                            'zShare-Trashed Date-70',
+                            'zShare-LastParticipant Asset Trash Notification Date-71',
+                            'zShare-Last Participant Asset Trash Notification View Date-72',
+                            'zShare-zENT-73')
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
@@ -835,7 +833,7 @@ def get_ph35icldsharedLinkassetsphdapsql(files_found, report_folder, seeker, wra
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No iCloud Shared Link Assets found in PhotoData/Photos.sqlite ZSHARE table')
+            logfunc('No iCloud Shared Link Assets found in PhotoData-Photos.sqlite ZSHARE table')
 
         db.close()
         return
@@ -845,14 +843,14 @@ __artifacts_v2__ = {
     'Ph35-iCloud Shared Link Assets-PhDaPsql': {
         'name': 'PhDaPL Photos.sqlite 35 iCld Shared Link Assets',
         'description': 'Parses iCloud Shared Link records and related assets from the'
-                       ' PhotoData/Photos.sqlite ZSHARE Table and supports iOS 14-17.',
+                       ' PhotoData-Photos.sqlite ZSHARE Table and supports iOS 14-17.',
         'author': 'Scott Koenig https://theforensicscooter.com/',
         'version': '1.0',
         'date': '2024-04-13',
-        'requirements': 'Acquisition that contains PhotoData/Photos.sqlite',
+        'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
         'category': 'Photos.sqlite-iCloud_Shared_Methods',
         'notes': '',
-        'paths': ('*/mobile/Media/PhotoData/Photos.sqlite*'),
+        'paths': '*/mobile/Media/PhotoData/Photos.sqlite*',
         'function': 'get_ph35icldsharedLinkassetsphdapsql'
     }
 }

@@ -39,8 +39,8 @@ def get_ph4hiddenphdapsql(files_found, report_folder, seeker, wrap_text, timezon
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = scripts.artifacts.artGlobals.versionf
-    if version.parse(iosversion) < version.parse("11"):
-        logfunc("Unsupported version for PhotoData/Photos.sqlite hidden assets from iOS " + iosversion)
+    if version.parse(iosversion) <= version.parse("10.3.4"):
+        logfunc("Unsupported version for PhotoData-Photos.sqlite hidden assets from iOS " + iosversion)
     if (version.parse(iosversion) >= version.parse("11")) & (version.parse(iosversion) < version.parse("14")):
         file_found = str(files_found[0])
         db = open_sqlite_db_readonly(file_found)
@@ -54,7 +54,7 @@ def get_ph4hiddenphdapsql(files_found, report_folder, seeker, wrap_text, timezon
             WHEN 1 THEN '1-Asset Hidden-1'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZHIDDEN || ''
         END AS 'zAsset-Hidden',
-        zAsset.ZDIRECTORY AS 'zAsset-Directory/Path',
+        zAsset.ZDIRECTORY AS 'zAsset-Directory-Path',
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
@@ -81,7 +81,7 @@ def get_ph4hiddenphdapsql(files_found, report_folder, seeker, wrap_text, timezon
 
                 counter += 1
 
-            description = 'Parses basic asset record data from PhotoData/Photos.sqlite for hidden assets' \
+            description = 'Parses basic asset record data from PhotoData-Photos.sqlite for hidden assets' \
                           ' and supports iOS 11-13. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
             report = ArtifactHtmlReport('Photos.sqlite-Interaction_Artifacts')
@@ -89,7 +89,7 @@ def get_ph4hiddenphdapsql(files_found, report_folder, seeker, wrap_text, timezon
             report.add_script()
             data_headers = ('zAsset-Modification Date',
                             'zAsset-Hidden',
-                            'zAsset-Directory/Path',
+                            'zAsset-Directory-Path',
                             'zAsset-Filename',
                             'zAddAssetAttr- Original Filename',
                             'zCldMast- Original Filename',
@@ -108,7 +108,7 @@ def get_ph4hiddenphdapsql(files_found, report_folder, seeker, wrap_text, timezon
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available for PhotoData/Photos.sqlite Hidden Assets')
+            logfunc('No data available for PhotoData-Photos.sqlite Hidden Assets')
 
         db.close()
         return
@@ -126,7 +126,7 @@ def get_ph4hiddenphdapsql(files_found, report_folder, seeker, wrap_text, timezon
             WHEN 1 THEN '1-Asset Hidden-1'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZHIDDEN || ''
         END AS 'zAsset-Hidden',
-        zAsset.ZDIRECTORY AS 'zAsset-Directory/Path',
+        zAsset.ZDIRECTORY AS 'zAsset-Directory-Path',
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
@@ -153,7 +153,7 @@ def get_ph4hiddenphdapsql(files_found, report_folder, seeker, wrap_text, timezon
 
                 counter += 1
 
-            description = 'Parses basic asset record data from PhotoData/Photos.sqlite for hidden assets' \
+            description = 'Parses basic asset record data from PhotoData-Photos.sqlite for hidden assets' \
                           ' and supports iOS 14. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
             report = ArtifactHtmlReport('Photos.sqlite-Interaction_Artifacts')
@@ -161,7 +161,7 @@ def get_ph4hiddenphdapsql(files_found, report_folder, seeker, wrap_text, timezon
             report.add_script()
             data_headers = ('zAsset-Modification Date',
                             'zAsset-Hidden',
-                            'zAsset-Directory/Path',
+                            'zAsset-Directory-Path',
                             'zAsset-Filename',
                             'zAddAssetAttr- Original Filename',
                             'zCldMast- Original Filename',
@@ -180,7 +180,7 @@ def get_ph4hiddenphdapsql(files_found, report_folder, seeker, wrap_text, timezon
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available for PhotoData/Photos.sqlite Hidden Assets')
+            logfunc('No data available for PhotoData-Photos.sqlite Hidden Assets')
 
         db.close()
         return
@@ -198,7 +198,7 @@ def get_ph4hiddenphdapsql(files_found, report_folder, seeker, wrap_text, timezon
             WHEN 1 THEN '1-Asset Hidden-1'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZHIDDEN || ''
         END AS 'zAsset-Hidden',
-        zAsset.ZDIRECTORY AS 'zAsset-Directory/Path',
+        zAsset.ZDIRECTORY AS 'zAsset-Directory-Path',
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
@@ -226,7 +226,7 @@ def get_ph4hiddenphdapsql(files_found, report_folder, seeker, wrap_text, timezon
 
                 counter += 1
 
-            description = 'Parses basic asset record data from PhotoData/Photos.sqlite for hidden assets' \
+            description = 'Parses basic asset record data from PhotoData-Photos.sqlite for hidden assets' \
                           ' and supports iOS 15-17. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
             report = ArtifactHtmlReport('Photos.sqlite-Interaction_Artifacts')
@@ -234,7 +234,7 @@ def get_ph4hiddenphdapsql(files_found, report_folder, seeker, wrap_text, timezon
             report.add_script()
             data_headers = ('zAsset-Modification Date',
                             'zAsset-Hidden',
-                            'zAsset-Directory/Path',
+                            'zAsset-Directory-Path',
                             'zAsset-Filename',
                             'zAddAssetAttr- Original Filename',
                             'zCldMast- Original Filename',
@@ -254,7 +254,7 @@ def get_ph4hiddenphdapsql(files_found, report_folder, seeker, wrap_text, timezon
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available for PhotoData/Photos.sqlite Hidden Assets')
+            logfunc('No data available for PhotoData-Photos.sqlite Hidden Assets')
 
         db.close()
         return
@@ -263,16 +263,16 @@ def get_ph4hiddenphdapsql(files_found, report_folder, seeker, wrap_text, timezon
 __artifacts_v2__ = {
     'Ph4-Hidden-PhDaPsql': {
         'name': 'PhDaPL Photos.sqlite 4 Hidden Assets',
-        'description': 'Parses basic asset record data from PhotoData/Photos.sqlite for hidden assets'
+        'description': 'Parses basic asset record data from PhotoData-Photos.sqlite for hidden assets'
                        ' and supports iOS 11-17. The results for this script will contain'
                        ' one record per ZASSET table Z_PK value.',
         'author': 'Scott Koenig https://theforensicscooter.com/',
         'version': '1.2',
         'date': '2024-04-05',
-        'requirements': 'Acquisition that contains PhotoData/Photos.sqlite',
+        'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
         'category': 'Photos.sqlite-Interaction_Artifacts',
         'notes': '',
-        'paths': ('*/mobile/Media/PhotoData/Photos.sqlite*'),
+        'paths': '*/mobile/Media/PhotoData/Photos.sqlite*',
         'function': 'get_ph4hiddenphdapsql'
     }
 }

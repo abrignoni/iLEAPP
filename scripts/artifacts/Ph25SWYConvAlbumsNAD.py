@@ -3,7 +3,7 @@
 # Version: 1.3
 #
 #   Description:
-#   Parses Shared with You Conversation Album records found in the PhotoData/Photos.sqlite ZGENERICALBUM Table
+#   Parses Shared with You Conversation Album records found in the PhotoData-Photos.sqlite ZGENERICALBUM Table
 #   and supports iOS 15-17. Parses Conversation Album records only no asset data being parsed.
 #   This parser is based on research and SQLite Queries written by Scott Koenig
 #   This is very large query and script, I recommend opening the TSV generated report with Zimmerman's Tools
@@ -36,8 +36,8 @@ def get_ph25swyconvalbumnadphdapsql(files_found, report_folder, seeker, wrap_tex
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = scripts.artifacts.artGlobals.versionf
-    if version.parse(iosversion) < version.parse("15"):
-        logfunc("Unsupported version for PhotoData/Photos.sqlite Shared with You Conversation album records"
+    if version.parse(iosversion) <= version.parse("14.8.1"):
+        logfunc("Unsupported version for PhotoData-Photos.sqlite Shared with You Conversation album records"
                 " with no asset data from iOS " + iosversion)
     if (version.parse(iosversion) >= version.parse("15")) & (version.parse(iosversion) < version.parse("16")):
         file_found = str(files_found[0])
@@ -84,7 +84,7 @@ def get_ph25swyconvalbumnadphdapsql(files_found, report_folder, seeker, wrap_tex
         END AS 'SWYConverszGenAlbum-Pinned',
         CASE SWYConverszGenAlbum.ZCUSTOMSORTKEY
             WHEN 0 THEN '0-SWYConverszGenAlbum-Sorted_Manually-0_RT'
-            WHEN 1 THEN '1-SWYConverszGenAlbum-CusSrtAsc0=Sorted_Newest_First/CusSrtAsc1=Sorted_Oldest_First-1-RT'
+            WHEN 1 THEN '1-SWYConverszGenAlbum-CusSrtAsc0=Sorted_Newest_First-CusSrtAsc1=Sorted_Oldest_First-1-RT'
             WHEN 5 THEN '5-SWYConverszGenAlbum-Sorted_by_Title-5_RT'
             ELSE 'Unknown-New-Value!: ' || SWYConverszGenAlbum.ZCUSTOMSORTKEY || ''
         END AS 'SWYConverszGenAlbum-Custom Sort Key',
@@ -141,7 +141,7 @@ def get_ph25swyconvalbumnadphdapsql(files_found, report_folder, seeker, wrap_tex
 
                 counter += 1
 
-            description = 'Parses Shared with You Conversation Album records found in the PhotoData/Photos.sqlite' \
+            description = 'Parses Shared with You Conversation Album records found in the PhotoData-Photos.sqlite' \
                           ' ZGENERICALBUM Table and supports iOS 15. Parses Share with You Conversation Album' \
                           ' records only, no asset data being parsed.'
             report = ArtifactHtmlReport('Photos.sqlite-GenAlbum_Records-NAD')
@@ -176,7 +176,7 @@ def get_ph25swyconvalbumnadphdapsql(files_found, report_folder, seeker, wrap_tex
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available for PhotoData/Photos.sqlite Shared with You Conversation Album Records'
+            logfunc('No data available for PhotoData-Photos.sqlite Shared with You Conversation Album Records'
                     ' with No Asset Data')
 
         db.close()
@@ -227,7 +227,7 @@ def get_ph25swyconvalbumnadphdapsql(files_found, report_folder, seeker, wrap_tex
         END AS 'SWYConverszGenAlbum-Pinned',
         CASE SWYConverszGenAlbum.ZCUSTOMSORTKEY
             WHEN 0 THEN '0-SWYConverszGenAlbum-Sorted_Manually-0_RT'
-            WHEN 1 THEN '1-SWYConverszGenAlbum-CusSrtAsc0=Sorted_Newest_First/CusSrtAsc1=Sorted_Oldest_First-1-RT'
+            WHEN 1 THEN '1-SWYConverszGenAlbum-CusSrtAsc0=Sorted_Newest_First-CusSrtAsc1=Sorted_Oldest_First-1-RT'
             WHEN 5 THEN '5-SWYConverszGenAlbum-Sorted_by_Title-5_RT'
             ELSE 'Unknown-New-Value!: ' || SWYConverszGenAlbum.ZCUSTOMSORTKEY || ''
         END AS 'SWYConverszGenAlbum-Custom Sort Key',
@@ -291,7 +291,7 @@ def get_ph25swyconvalbumnadphdapsql(files_found, report_folder, seeker, wrap_tex
 
                 counter += 1
 
-            description = 'Parses Shared with You Conversation Album records found in the PhotoData/Photos.sqlite' \
+            description = 'Parses Shared with You Conversation Album records found in the PhotoData-Photos.sqlite' \
                           ' ZGENERICALBUM Table and supports iOS 16-17. Parses Share with You Conversation Album' \
                           ' records only, no asset data being parsed.'
             report = ArtifactHtmlReport('Photos.sqlite-GenAlbum_Records-NAD')
@@ -327,7 +327,7 @@ def get_ph25swyconvalbumnadphdapsql(files_found, report_folder, seeker, wrap_tex
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available for PhotoData/Photos.sqlite Shared with You Conversation Album Records'
+            logfunc('No data available for PhotoData-Photos.sqlite Shared with You Conversation Album Records'
                     ' with No Asset Data')
 
         db.close()
@@ -344,8 +344,8 @@ def get_ph25swyconvalbumnadsyndpl(files_found, report_folder, seeker, wrap_text,
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = scripts.artifacts.artGlobals.versionf
-    if version.parse(iosversion) < version.parse("15"):
-        logfunc("Unsupported version for Syndication.photoslibrary/database/Photos.sqlite Shared with You Conversation"
+    if version.parse(iosversion) <= version.parse("14.8.1"):
+        logfunc("Unsupported version for Syndication.photoslibrary-database-Photos.sqlite Shared with You Conversation"
                 " album records with no asset data on iOS " + iosversion)
     if (version.parse(iosversion) >= version.parse("15")) & (version.parse(iosversion) < version.parse("16")):
         file_found = str(files_found[0])
@@ -392,7 +392,7 @@ def get_ph25swyconvalbumnadsyndpl(files_found, report_folder, seeker, wrap_text,
         END AS 'SWYConverszGenAlbum-Pinned',
         CASE SWYConverszGenAlbum.ZCUSTOMSORTKEY
             WHEN 0 THEN '0-SWYConverszGenAlbum-Sorted_Manually-0_RT'
-            WHEN 1 THEN '1-SWYConverszGenAlbum-CusSrtAsc0=Sorted_Newest_First/CusSrtAsc1=Sorted_Oldest_First-1-RT'
+            WHEN 1 THEN '1-SWYConverszGenAlbum-CusSrtAsc0=Sorted_Newest_First-CusSrtAsc1=Sorted_Oldest_First-1-RT'
             WHEN 5 THEN '5-SWYConverszGenAlbum-Sorted_by_Title-5_RT'
             ELSE 'Unknown-New-Value!: ' || SWYConverszGenAlbum.ZCUSTOMSORTKEY || ''
         END AS 'SWYConverszGenAlbum-Custom Sort Key',
@@ -450,7 +450,7 @@ def get_ph25swyconvalbumnadsyndpl(files_found, report_folder, seeker, wrap_text,
                 counter += 1
 
             description = 'Parses Shared with You Conversation Album records found in the' \
-                          ' Syndication.photoslibrary/database/Photos.sqlite ZGENERICALBUM Table and' \
+                          ' Syndication.photoslibrary-database-Photos.sqlite ZGENERICALBUM Table and' \
                           ' supports iOS 15. Parses Share with You Conversation Album' \
                           ' records only, no asset data being parsed.'
             report = ArtifactHtmlReport('Photos.sqlite-Syndication_PL_Artifacts')
@@ -485,7 +485,7 @@ def get_ph25swyconvalbumnadsyndpl(files_found, report_folder, seeker, wrap_text,
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available for Syndication.photoslibrary/database/Photos.sqlite'
+            logfunc('No data available for Syndication.photoslibrary-database-Photos.sqlite'
                     ' Shared with You Conversation Album Records with No Asset Data')
 
         db.close()
@@ -536,7 +536,7 @@ def get_ph25swyconvalbumnadsyndpl(files_found, report_folder, seeker, wrap_text,
         END AS 'SWYConverszGenAlbum-Pinned',
         CASE SWYConverszGenAlbum.ZCUSTOMSORTKEY
             WHEN 0 THEN '0-SWYConverszGenAlbum-Sorted_Manually-0_RT'
-            WHEN 1 THEN '1-SWYConverszGenAlbum-CusSrtAsc0=Sorted_Newest_First/CusSrtAsc1=Sorted_Oldest_First-1-RT'
+            WHEN 1 THEN '1-SWYConverszGenAlbum-CusSrtAsc0=Sorted_Newest_First-CusSrtAsc1=Sorted_Oldest_First-1-RT'
             WHEN 5 THEN '5-SWYConverszGenAlbum-Sorted_by_Title-5_RT'
             ELSE 'Unknown-New-Value!: ' || SWYConverszGenAlbum.ZCUSTOMSORTKEY || ''
         END AS 'SWYConverszGenAlbum-Custom Sort Key',
@@ -601,7 +601,7 @@ def get_ph25swyconvalbumnadsyndpl(files_found, report_folder, seeker, wrap_text,
                 counter += 1
 
             description = 'Parses Shared with You Conversation Album records found in the' \
-                          ' Syndication.photoslibrary/database/Photos.sqlite ZGENERICALBUM Table and' \
+                          ' Syndication.photoslibrary-database-Photos.sqlite ZGENERICALBUM Table and' \
                           ' supports iOS 16-17. Parses Share with You Conversation Album' \
                           ' records only, no asset data being parsed.'
             report = ArtifactHtmlReport('Photos.sqlite-Syndication_PL_Artifacts')
@@ -637,7 +637,7 @@ def get_ph25swyconvalbumnadsyndpl(files_found, report_folder, seeker, wrap_text,
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available for Syndication.photoslibrary/database/Photos.sqlite'
+            logfunc('No data available for Syndication.photoslibrary-database-Photos.sqlite'
                     ' Shared with You Conversation Album Records with No Asset Data')
 
         db.close()
@@ -647,22 +647,22 @@ def get_ph25swyconvalbumnadsyndpl(files_found, report_folder, seeker, wrap_text,
 __artifacts_v2__ = {
     'Ph25-1-SWY Conversation Records with NAD-PhDaPsql': {
         'name': 'PhDaPL Photos.sqlite 25.1 SWY Conversation Album Records with No Asset Data',
-        'description': 'Parses Shared with You Conversation Album records found in the PhotoData/Photos.sqlite'
+        'description': 'Parses Shared with You Conversation Album records found in the PhotoData-Photos.sqlite'
                        ' ZGENERICALBUM Table and supports iOS 15-17. Parses Share with You Conversation Album'
                        ' records only, no asset data being parsed.',
         'author': 'Scott Koenig https://theforensicscooter.com/',
         'version': '1.3',
         'date': '2024-04-13',
-        'requirements': 'Acquisition that contains PhotoData/Photos.sqlite',
+        'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
         'category': 'Photos.sqlite-GenAlbum_Records-NAD',
         'notes': '',
-        'paths': ('*/mobile/Media/PhotoData/Photos.sqlite*'),
+        'paths': '*/mobile/Media/PhotoData/Photos.sqlite*',
         'function': 'get_ph25swyconvalbumnadphdapsql'
     },
     'Ph25-2-SWY Conversation Records with NAD-SyndPL': {
         'name': 'SyndPL Photos.sqlite 25.2 SWY Conversation Records with No Asset Data',
         'description': 'Parses SWY Conversation Album Records found in the'
-                       ' Syndication.photoslibrary/database/Photos.sqlite ZGENERICALBUM Table and supports iOS 15-17.'
+                       ' Syndication.photoslibrary-database-Photos.sqlite ZGENERICALBUM Table and supports iOS 15-17.'
                        ' Parses Share with You Conversation Album records only, no asset data being parsed.',
         'author': 'Scott Koenig https://theforensicscooter.com/',
         'version': '1.3',
@@ -670,7 +670,7 @@ __artifacts_v2__ = {
         'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
         'category': 'Photos.sqlite-Syndication_PL_Artifacts',
         'notes': '',
-        'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*'),
+        'paths': '*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',
         'function': 'get_ph25swyconvalbumnadsyndpl'
     }
 }

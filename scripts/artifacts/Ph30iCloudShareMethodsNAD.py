@@ -4,7 +4,7 @@
 #
 #   Description:
 #   Parses records for different methods which media files have been shared via iCloud Share
-#   found in the PhotoData/Photos.sqlite ZSHARE Table and supports iOS 14-17. Parses iCloud Share Methods and
+#   found in the PhotoData-Photos.sqlite ZSHARE Table and supports iOS 14-17. Parses iCloud Share Methods and
 #   Participant records only no asset data being parsed. The iCloud Share methods being stored in these records include
 #   Shred iCloud Links Cloud Master Moments-CMM and Shared iCloud Photo Library (SPL).
 #   This parser is based on research and SQLite Queries written by Scott Koenig
@@ -41,8 +41,8 @@ def get_ph30icldsharemethphdapsql(files_found, report_folder, seeker, wrap_text,
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = scripts.artifacts.artGlobals.versionf
-    if version.parse(iosversion) < version.parse("14"):
-        logfunc("Unsupported version for PhotoData/Photos.sqlite zSHARE iCloud Shared Method records"
+    if version.parse(iosversion) <= version.parse("13.7"):
+        logfunc("Unsupported version for PhotoData-Photos.sqlite zSHARE iCloud Shared Method records"
                 " with no asset data on iOS " + iosversion)
     if (version.parse(iosversion) >= version.parse("14")) & (version.parse(iosversion) < version.parse("16")):
         file_found = str(files_found[0])
@@ -148,45 +148,45 @@ def get_ph30icldsharemethphdapsql(files_found, report_folder, seeker, wrap_text,
                 counter += 1
 
             description = 'Parses records for different methods which media files have been shared via iCloud Share' \
-                          ' found in the PhotoData/Photos.sqlite ZSHARE Table and supports iOS 14-15.' \
+                          ' found in the PhotoData-Photos.sqlite ZSHARE Table and supports iOS 14-15.' \
                           ' Parses iCloud Share Methods and Participant records only no asset data being parsed.' \
                           ' The iCloud Share methods being stored in these records include' \
                           ' Shred iCloud Links Cloud Master Moments-CMM and Shared iCloud Photo Library SPL.'
             report = ArtifactHtmlReport('Photos.sqlite-iCloud_Shared_Methods')
             report.start_artifact_report(report_folder, 'Ph30-iCloud Share Methods NAD-PhDaPsql', description)
             report.add_script()
-            data_headers = ('zShare-Creation Date',
-                            'zShare-Start Date',
-                            'zShare-End Date',
-                            'zShare-Expiry Date',
-                            'zShare-UUID',
-                            'zShare-Originating Scope ID',
-                            'zShare-Status',
-                            'zShare-Scope Type',
-                            'zShare-Asset Count',
-                            'zShare-Force Sync Attempted',
-                            'zShare-Photos Count',
-                            'zShare-Uploaded Photos Count',
-                            'zShare-Videos Count',
-                            'zShare-Uploaded Videos Count',
-                            'zShare-Scope ID',
-                            'zShare-Title-SPL',
-                            'zShare-Share URL',
-                            'zShare-Local Publish State',
-                            'zShare-Public Permission',
-                            'zSharePartic-Acceptance Status',
-                            'zSharePartic-User ID',
-                            'zSharePartic-zPK',
-                            'zSharePartic-Email Address',
-                            'zSharePartic-Phone Number',
-                            'zSharePartic-Is Current User',
-                            'zSharePartic-Role',
-                            'zSharePartic-Premission',
-                            'zShare-Should Notify On Upload Completion',
-                            'zShare-Should Ignor Budgets',
-                            'zShare-Trashed State',
-                            'zShare-Cloud Delete State',
-                            'zShare-zENT')
+            data_headers = ('zShare-Creation Date-0',
+                            'zShare-Start Date-1',
+                            'zShare-End Date-2',
+                            'zShare-Expiry Date-3',
+                            'zShare-UUID-4',
+                            'zShare-Originating Scope ID-5',
+                            'zShare-Status-6',
+                            'zShare-Scope Type-7',
+                            'zShare-Asset Count-8',
+                            'zShare-Force Sync Attempted-9',
+                            'zShare-Photos Count-10',
+                            'zShare-Uploaded Photos Count-11',
+                            'zShare-Videos Count-12',
+                            'zShare-Uploaded Videos Count-13',
+                            'zShare-Scope ID-14',
+                            'zShare-Title-SPL-15',
+                            'zShare-Share URL-16',
+                            'zShare-Local Publish State-17',
+                            'zShare-Public Permission-18',
+                            'zSharePartic-Acceptance Status-19',
+                            'zSharePartic-User ID-20',
+                            'zSharePartic-zPK-21',
+                            'zSharePartic-Email Address-22',
+                            'zSharePartic-Phone Number-23',
+                            'zSharePartic-Is Current User-24',
+                            'zSharePartic-Role-25',
+                            'zSharePartic-Premission-26',
+                            'zShare-Should Notify On Upload Completion-27',
+                            'zShare-Should Ignor Budgets-28',
+                            'zShare-Trashed State-29',
+                            'zShare-Cloud Delete State-30',
+                            'zShare-zENT-31')
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
@@ -197,7 +197,7 @@ def get_ph30icldsharemethphdapsql(files_found, report_folder, seeker, wrap_text,
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available for PhotoData/Photos.sqlite ZSHARE iCloud Share Method icld links and SPL'
+            logfunc('No data available for PhotoData-Photos.sqlite ZSHARE iCloud Share Method icld links and SPL'
                     ' Records with No Asset Data')
 
         db.close()
@@ -360,63 +360,63 @@ def get_ph30icldsharemethphdapsql(files_found, report_folder, seeker, wrap_text,
                 counter += 1
 
             description = 'Parses records for different methods which media files have been shared via iCloud Share' \
-                          ' found in the PhotoData/Photos.sqlite ZSHARE Table and supports iOS 16-17.' \
+                          ' found in the PhotoData-Photos.sqlite ZSHARE Table and supports iOS 16-17.' \
                           ' Parses iCloud Share Methods and Participant records only no asset data being parsed.' \
                           ' The iCloud Share methods being stored in these records include' \
                           ' Shred iCloud Links Cloud Master Moments-CMM and Shared iCloud Photo Library SPL.'
             report = ArtifactHtmlReport('Photos.sqlite-iCloud_Shared_Methods')
             report.start_artifact_report(report_folder, 'Ph30-iCloud Share Methods NAD-PhDaPsql', description)
             report.add_script()
-            data_headers = ('zShare-Creation Date',
-                            'zShare-Start Date',
-                            'zShare-End Date',
-                            'zShare-Expiry Date',
-                            'zShare-UUID',
-                            'zShare-Originating Scope ID',
-                            'zSharePartic-z54SHARE',
-                            'zShare-Status',
-                            'zShare-Scope Type',
-                            'zShare-Cloud Photo Count',
-                            'zShare-CountOfAssets AddedByCamera Smart Sharing-HomeShare',
-                            'zShare-Cloud Video Count',
-                            'zShare-Asset Count',
-                            'zShare-Force Sync Attempted',
-                            'zShare-Photos Count',
-                            'zShare-Uploaded Photos Count',
-                            'zShare-Videos Count',
-                            'zShare-Uploaded Videos Count',
-                            'zShare-Scope ID',
-                            'zShare-Title-SPL',
-                            'zShare-Share URL',
-                            'zShare-Local Publish State',
-                            'zShare-Public Permission',
-                            'zShare-Cloud Local State',
-                            'zShare-Scope Syncing State',
-                            'zShare-Auto Share Policy',
-                            'zSharePartic-Acceptance Status',
-                            'zSharePartic-User ID',
-                            'zSharePartic-zPK',
-                            'zSharePartic-Email Address',
-                            'zSharePartic-Phone Number',
-                            'zSharePartic-Participant ID',
-                            'zSharePartic-UUID',
-                            'zSharePartic-Is Current User',
-                            'zSharePartic-Role',
-                            'zSharePartic-Premission',
-                            'zShare-Participant Cloud Update State',
-                            'zSharePartic-Exit State',
-                            'zShare-Preview State',
-                            'zShare-Should Notify On Upload Completion',
-                            'zShare-Should Ignor Budgets',
-                            'zShare-Exit Source',
-                            'zShare-Exit State',
-                            'zShare-Exit Type',
-                            'zShare-Trashed State',
-                            'zShare-Cloud Delete State',
-                            'zShare-Trashed Date',
-                            'zShare-LastParticipant Asset Trash Notification Date',
-                            'zShare-Last Participant Asset Trash Notification View Date',
-                            'zShare-zENT')
+            data_headers = ('zShare-Creation Date-0',
+                            'zShare-Start Date-1',
+                            'zShare-End Date-2',
+                            'zShare-Expiry Date-3',
+                            'zShare-UUID-4',
+                            'zShare-Originating Scope ID-5',
+                            'zSharePartic-z54SHARE-6',
+                            'zShare-Status-7',
+                            'zShare-Scope Type-8',
+                            'zShare-Cloud Photo Count-9',
+                            'zShare-CountOfAssets AddedByCamera Smart Sharing-HomeShare-10',
+                            'zShare-Cloud Video Count-11',
+                            'zShare-Asset Count-12',
+                            'zShare-Force Sync Attempted-13',
+                            'zShare-Photos Count-14',
+                            'zShare-Uploaded Photos Count-15',
+                            'zShare-Videos Count-16',
+                            'zShare-Uploaded Videos Count-17',
+                            'zShare-Scope ID-18',
+                            'zShare-Title-SPL-19',
+                            'zShare-Share URL-20',
+                            'zShare-Local Publish State-21',
+                            'zShare-Public Permission-22',
+                            'zShare-Cloud Local State-23',
+                            'zShare-Scope Syncing State-24',
+                            'zShare-Auto Share Policy-25',
+                            'zSharePartic-Acceptance Status-26',
+                            'zSharePartic-User ID-27',
+                            'zSharePartic-zPK-28',
+                            'zSharePartic-Email Address-29',
+                            'zSharePartic-Phone Number-30',
+                            'zSharePartic-Participant ID-31',
+                            'zSharePartic-UUID-32',
+                            'zSharePartic-Is Current User-33',
+                            'zSharePartic-Role-34',
+                            'zSharePartic-Premission-35',
+                            'zShare-Participant Cloud Update State-36',
+                            'zSharePartic-Exit State-37',
+                            'zShare-Preview State-38',
+                            'zShare-Should Notify On Upload Completion-39',
+                            'zShare-Should Ignor Budgets-40',
+                            'zShare-Exit Source-41',
+                            'zShare-Exit State-42',
+                            'zShare-Exit Type-43',
+                            'zShare-Trashed State-44',
+                            'zShare-Cloud Delete State-45',
+                            'zShare-Trashed Date-46',
+                            'zShare-LastParticipant Asset Trash Notification Date-47',
+                            'zShare-Last Participant Asset Trash Notification View Date-48',
+                            'zShare-zENT-49')
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
@@ -427,7 +427,7 @@ def get_ph30icldsharemethphdapsql(files_found, report_folder, seeker, wrap_text,
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available for PhotoData/Photos.sqlite ZSHARE iCloud Share Method icld links and SPL'
+            logfunc('No data available for PhotoData-Photos.sqlite ZSHARE iCloud Share Method icld links and SPL'
                     ' Records with No Asset Data')
 
         db.close()
@@ -438,17 +438,17 @@ __artifacts_v2__ = {
     'Ph30-iCloud Shared Methods with NAD-PhDaPsql': {
         'name': 'PhDaPL Photos.sqlite 30 iCld Share Methods with No Asset Data',
         'description': 'Parses records for different methods which media files have been shared via iCloud Share'
-                       ' found in the PhotoData/Photos.sqlite ZSHARE Table and supports iOS 14-17.'
+                       ' found in the PhotoData-Photos.sqlite ZSHARE Table and supports iOS 14-17.'
                        ' Parses iCloud Share Methods and Participant records only no asset data being parsed.'
                        ' The iCloud Share methods being stored in these records include'
                        ' Shred iCloud Links Cloud Master Moments-CMM and Shared iCloud Photo Library SPL.',
         'author': 'Scott Koenig https://theforensicscooter.com/',
         'version': '1.2',
         'date': '2024-04-12',
-        'requirements': 'Acquisition that contains PhotoData/Photos.sqlite',
+        'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
         'category': 'Photos.sqlite-iCloud_Shared_Methods',
         'notes': '',
-        'paths': ('*/mobile/Media/PhotoData/Photos.sqlite*'),
+        'paths': '*/mobile/Media/PhotoData/Photos.sqlite*',
         'function': 'get_ph30icldsharemethphdapsql'
     }
 }
