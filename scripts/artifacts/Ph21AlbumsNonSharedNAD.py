@@ -3,7 +3,7 @@
 # Version: 1.2
 #
 #   Description:
-#   Parses Non-Shared Album records found in the PhotoData/Photos.sqlite ZGENERICALBUM Table and supports iOS 11-17.
+#   Parses Non-Shared Album records found in the PhotoData-Photos.sqlite ZGENERICALBUM Table and supports iOS 11-17.
 #   Parses Non-Shared Album records only no asset data being parsed. This parser will contain parent albums and
 #   folders, and associated album data.
 #   This parser is based on research and SQLite Queries written by Scott Koenig
@@ -40,8 +40,8 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = scripts.artifacts.artGlobals.versionf
-    if version.parse(iosversion) < version.parse("11"):
-        logfunc("Unsupported version for PhotoData/Photos.sqlite Non-Shared Album records with"
+    if version.parse(iosversion) <= version.parse("10.3.4"):
+        logfunc("Unsupported version for PhotoData-Photos.sqlite Non-Shared Album records with"
                 " no asset data from iOS " + iosversion)
     if (version.parse(iosversion) >= version.parse("11")) & (version.parse(iosversion) < version.parse("12")):
         file_found = str(files_found[0])
@@ -55,7 +55,7 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
         ParentzGenAlbum.ZUUID AS 'ParentzGenAlbum-UUID',
         ParentzGenAlbum.ZCLOUDGUID AS 'ParentzGenAlbum-Cloud GUID',
         ParentzGenAlbum.ZTITLE AS 'ParentzGenAlbum- Title',
-        zGenAlbum.ZTITLE AS 'zGenAlbum- Title/User&System Applied',
+        zGenAlbum.ZTITLE AS 'zGenAlbum- Title-User&System Applied',
         zGenAlbum.ZUUID AS 'zGenAlbum-UUID',
         zGenAlbum.ZCLOUDGUID AS 'zGenAlbum-Cloud GUID',
         ParentzGenAlbum.ZPENDINGITEMSCOUNT AS 'ParentzGenAlbum-Pending Items Count',
@@ -92,7 +92,7 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
         END AS 'ParentzGenAlbum-Pinned',
         CASE ParentzGenAlbum.ZCUSTOMSORTKEY
             WHEN 0 THEN '0-zGenAlbum-Sorted_Manually-0_RT'
-            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First/CusSrtAsc1=Sorted_Oldest_First-1-RT'
+            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First-CusSrtAsc1=Sorted_Oldest_First-1-RT'
             WHEN 5 THEN '5-zGenAlbum-Sorted_by_Title-5_RT'
             ELSE 'Unknown-New-Value!: ' || ParentzGenAlbum.ZCUSTOMSORTKEY || ''
         END AS 'ParentzGenAlbum-Custom Sort Key',
@@ -162,7 +162,7 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
         END AS 'zGenAlbum-Pinned',       
         CASE zGenAlbum.ZCUSTOMSORTKEY
             WHEN 0 THEN '0-zGenAlbum-Sorted_Manually-0_RT'
-            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First/CusSrtAsc1=Sorted_Oldest_First-1-RT'
+            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First-CusSrtAsc1=Sorted_Oldest_First-1-RT'
             WHEN 5 THEN '5-zGenAlbum-Sorted_by_Title-5_RT'
             ELSE 'Unknown-New-Value!: ' || zGenAlbum.ZCUSTOMSORTKEY || ''
         END AS 'zGenAlbum-Custom Sort Key',        
@@ -204,7 +204,7 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
 
                 counter += 1
 
-            description = 'Parses Non-Shared Album records found in the PhotoData/Photos.sqlite from' \
+            description = 'Parses Non-Shared Album records found in the PhotoData-Photos.sqlite from' \
                           ' ZGENERICALBUM Table and supports iOS 11. Parses Non-Shared Album records only' \
                           ' no asset data is being parsed in this parser. This parser will contain parent albums,' \
                           ' folders, and associated album data. '
@@ -216,7 +216,7 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
                             'ParentzGenAlbum-UUID',
                             'ParentzGenAlbum-Cloud GUID',
                             'ParentzGenAlbum- Title',
-                            'zGenAlbum- Title/User&System Applied',
+                            'zGenAlbum- Title-User&System Applied',
                             'zGenAlbum-UUID',
                             'zGenAlbum-Cloud GUID',
                             'ParentzGenAlbum-Pending Items Count',
@@ -257,7 +257,7 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available for PhotoData/Photos.sqlite Non-Shared Album Records with No Asset Data')
+            logfunc('No data available for PhotoData-Photos.sqlite Non-Shared Album Records with No Asset Data')
 
             db.close()
         return
@@ -274,7 +274,7 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
         ParentzGenAlbum.ZUUID AS 'ParentzGenAlbum-UUID',
         ParentzGenAlbum.ZCLOUDGUID AS 'ParentzGenAlbum-Cloud GUID',
         ParentzGenAlbum.ZTITLE AS 'ParentzGenAlbum- Title',
-        zGenAlbum.ZTITLE AS 'zGenAlbum- Title/User&System Applied',
+        zGenAlbum.ZTITLE AS 'zGenAlbum- Title-User&System Applied',
         zGenAlbum.ZUUID AS 'zGenAlbum-UUID',        
         zGenAlbum.ZCLOUDGUID AS 'zGenAlbum-Cloud GUID',
         ParentzGenAlbum.ZPENDINGITEMSCOUNT AS 'ParentzGenAlbum-Pending Items Count',
@@ -311,7 +311,7 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
         END AS 'ParentzGenAlbum-Pinned',
         CASE ParentzGenAlbum.ZCUSTOMSORTKEY
             WHEN 0 THEN '0-zGenAlbum-Sorted_Manually-0_RT'
-            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First/CusSrtAsc1=Sorted_Oldest_First-1-RT'
+            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First-CusSrtAsc1=Sorted_Oldest_First-1-RT'
             WHEN 5 THEN '5-zGenAlbum-Sorted_by_Title-5_RT'
             ELSE 'Unknown-New-Value!: ' || ParentzGenAlbum.ZCUSTOMSORTKEY || ''
         END AS 'ParentzGenAlbum-Custom Sort Key',
@@ -386,7 +386,7 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
         END AS 'zGenAlbum-Pinned',       
         CASE zGenAlbum.ZCUSTOMSORTKEY
             WHEN 0 THEN '0-zGenAlbum-Sorted_Manually-0_RT'
-            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First/CusSrtAsc1=Sorted_Oldest_First-1-RT'
+            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First-CusSrtAsc1=Sorted_Oldest_First-1-RT'
             WHEN 5 THEN '5-zGenAlbum-Sorted_by_Title-5_RT'
             ELSE 'Unknown-New-Value!: ' || zGenAlbum.ZCUSTOMSORTKEY || ''
         END AS 'zGenAlbum-Custom Sort Key',        
@@ -434,7 +434,7 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
 
                 counter += 1
 
-            description = 'Parses Non-Shared Album records found in the PhotoData/Photos.sqlite from' \
+            description = 'Parses Non-Shared Album records found in the PhotoData-Photos.sqlite from' \
                           ' ZGENERICALBUM Table and supports iOS 12. Parses Non-Shared Album records only' \
                           ' no asset data is being parsed in this parser. This parser will contain parent albums,' \
                           ' folders, and associated album data. '
@@ -446,7 +446,7 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
                             'ParentzGenAlbum-UUID',
                             'ParentzGenAlbum-Cloud GUID',
                             'ParentzGenAlbum- Title',
-                            'zGenAlbum- Title/User&System Applied',
+                            'zGenAlbum- Title-User&System Applied',
                             'zGenAlbum-UUID',
                             'zGenAlbum-Cloud GUID',
                             'ParentzGenAlbum-Pending Items Count',
@@ -489,7 +489,7 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available for PhotoData/Photos.sqlite Non-Shared Album Records with No Asset Data')
+            logfunc('No data available for PhotoData-Photos.sqlite Non-Shared Album Records with No Asset Data')
 
             db.close()
         return
@@ -507,7 +507,7 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
         ParentzGenAlbum.ZUUID AS 'ParentzGenAlbum-UUID',
         ParentzGenAlbum.ZCLOUDGUID AS 'ParentzGenAlbum-Cloud GUID',
         ParentzGenAlbum.ZTITLE AS 'ParentzGenAlbum- Title',
-        zGenAlbum.ZTITLE AS 'zGenAlbum- Title/User&System Applied',
+        zGenAlbum.ZTITLE AS 'zGenAlbum- Title-User&System Applied',
         zGenAlbum.ZUUID AS 'zGenAlbum-UUID',        
         zGenAlbum.ZCLOUDGUID AS 'zGenAlbum-Cloud GUID',       
         DateTime(ParentzGenAlbum.ZCREATIONDATE + 978307200, 'UNIXEPOCH') AS 'ParentzGenAlbum-Creation Date',
@@ -545,7 +545,7 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
         END AS 'ParentzGenAlbum-Pinned',
         CASE ParentzGenAlbum.ZCUSTOMSORTKEY
             WHEN 0 THEN '0-zGenAlbum-Sorted_Manually-0_RT'
-            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First/CusSrtAsc1=Sorted_Oldest_First-1-RT'
+            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First-CusSrtAsc1=Sorted_Oldest_First-1-RT'
             WHEN 5 THEN '5-zGenAlbum-Sorted_by_Title-5_RT'
             ELSE 'Unknown-New-Value!: ' || ParentzGenAlbum.ZCUSTOMSORTKEY || ''
         END AS 'ParentzGenAlbum-Custom Sort Key',
@@ -624,7 +624,7 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
         END AS 'zGenAlbum-Pinned',       
         CASE zGenAlbum.ZCUSTOMSORTKEY
             WHEN 0 THEN '0-zGenAlbum-Sorted_Manually-0_RT'
-            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First/CusSrtAsc1=Sorted_Oldest_First-1-RT'
+            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First-CusSrtAsc1=Sorted_Oldest_First-1-RT'
             WHEN 5 THEN '5-zGenAlbum-Sorted_by_Title-5_RT'
             ELSE 'Unknown-New-Value!: ' || zGenAlbum.ZCUSTOMSORTKEY || ''
         END AS 'zGenAlbum-Custom Sort Key',        
@@ -676,7 +676,7 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
 
                 counter += 1
 
-            description = 'Parses Non-Shared Album records found in the PhotoData/Photos.sqlite from' \
+            description = 'Parses Non-Shared Album records found in the PhotoData-Photos.sqlite from' \
                           ' ZGENERICALBUM Table and supports iOS 13. Parses Non-Shared Album records only' \
                           ' no asset data is being parsed in this parser. This parser will contain parent albums,' \
                           ' folders, and associated album data. '
@@ -689,7 +689,7 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
                             'ParentzGenAlbum-UUID',
                             'ParentzGenAlbum-Cloud GUID',
                             'ParentzGenAlbum- Title',
-                            'zGenAlbum- Title/User&System Applied',
+                            'zGenAlbum- Title-User&System Applied',
                             'zGenAlbum-UUID',
                             'zGenAlbum-Cloud GUID',
                             'ParentzGenAlbum-Pending Items Count',
@@ -734,7 +734,7 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available for PhotoData/Photos.sqlite Non-Shared Album Records with No Asset Data')
+            logfunc('No data available for PhotoData-Photos.sqlite Non-Shared Album Records with No Asset Data')
 
             db.close()
         return
@@ -752,7 +752,7 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
         ParentzGenAlbum.ZUUID AS 'ParentzGenAlbum-UUID',
         ParentzGenAlbum.ZCLOUDGUID AS 'ParentzGenAlbum-Cloud GUID',
         ParentzGenAlbum.ZTITLE AS 'ParentzGenAlbum- Title',
-        zGenAlbum.ZTITLE AS 'zGenAlbum- Title/User&System Applied',
+        zGenAlbum.ZTITLE AS 'zGenAlbum- Title-User&System Applied',
         zGenAlbum.ZUUID AS 'zGenAlbum-UUID',        
         zGenAlbum.ZCLOUDGUID AS 'zGenAlbum-Cloud GUID',    
         zGenAlbum.ZCREATORBUNDLEID AS 'zGenAlbum-Creator Bundle Id',       
@@ -791,7 +791,7 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
         END AS 'ParentzGenAlbum-Pinned',
         CASE ParentzGenAlbum.ZCUSTOMSORTKEY
             WHEN 0 THEN '0-zGenAlbum-Sorted_Manually-0_RT'
-            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First/CusSrtAsc1=Sorted_Oldest_First-1-RT'
+            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First-CusSrtAsc1=Sorted_Oldest_First-1-RT'
             WHEN 5 THEN '5-zGenAlbum-Sorted_by_Title-5_RT'
             ELSE 'Unknown-New-Value!: ' || ParentzGenAlbum.ZCUSTOMSORTKEY || ''
         END AS 'ParentzGenAlbum-Custom Sort Key',
@@ -875,7 +875,7 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
         END AS 'zGenAlbum-Pinned',       
         CASE zGenAlbum.ZCUSTOMSORTKEY
             WHEN 0 THEN '0-zGenAlbum-Sorted_Manually-0_RT'
-            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First/CusSrtAsc1=Sorted_Oldest_First-1-RT'
+            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First-CusSrtAsc1=Sorted_Oldest_First-1-RT'
             WHEN 5 THEN '5-zGenAlbum-Sorted_by_Title-5_RT'
             ELSE 'Unknown-New-Value!: ' || zGenAlbum.ZCUSTOMSORTKEY || ''
         END AS 'zGenAlbum-Custom Sort Key',        
@@ -932,7 +932,7 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
 
                 counter += 1
 
-            description = 'Parses Non-Shared Album records found in the PhotoData/Photos.sqlite from' \
+            description = 'Parses Non-Shared Album records found in the PhotoData-Photos.sqlite from' \
                           ' ZGENERICALBUM Table and supports iOS 14. Parses Non-Shared Album records only' \
                           ' no asset data is being parsed in this parser. This parser will contain parent albums,' \
                           ' folders, and associated album data. '
@@ -945,7 +945,7 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
                             'ParentzGenAlbum-UUID',
                             'ParentzGenAlbum-Cloud GUID',
                             'ParentzGenAlbum- Title',
-                            'zGenAlbum- Title/User&System Applied',
+                            'zGenAlbum- Title-User&System Applied',
                             'zGenAlbum-UUID',
                             'zGenAlbum-Cloud GUID',
                             'zGenAlbum-Creator Bundle Id',
@@ -994,7 +994,7 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available for PhotoData/Photos.sqlite Non-Shared Album Records with No Asset Data')
+            logfunc('No data available for PhotoData-Photos.sqlite Non-Shared Album Records with No Asset Data')
 
             db.close()
         return
@@ -1012,7 +1012,7 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
         ParentzGenAlbum.ZUUID AS 'ParentzGenAlbum-UUID',
         ParentzGenAlbum.ZCLOUDGUID AS 'ParentzGenAlbum-Cloud GUID',
         ParentzGenAlbum.ZTITLE AS 'ParentzGenAlbum- Title',
-        zGenAlbum.ZTITLE AS 'zGenAlbum- Title/User&System Applied',
+        zGenAlbum.ZTITLE AS 'zGenAlbum- Title-User&System Applied',
         zGenAlbum.ZUUID AS 'zGenAlbum-UUID',        
         zGenAlbum.ZCLOUDGUID AS 'zGenAlbum-Cloud GUID',    
         zGenAlbum.ZIMPORTEDBYBUNDLEIDENTIFIER AS 'zGenAlbum-Imported by Bundle Identifier',       
@@ -1051,7 +1051,7 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
         END AS 'ParentzGenAlbum-Pinned',
         CASE ParentzGenAlbum.ZCUSTOMSORTKEY
             WHEN 0 THEN '0-zGenAlbum-Sorted_Manually-0_RT'
-            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First/CusSrtAsc1=Sorted_Oldest_First-1-RT'
+            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First-CusSrtAsc1=Sorted_Oldest_First-1-RT'
             WHEN 5 THEN '5-zGenAlbum-Sorted_by_Title-5_RT'
             ELSE 'Unknown-New-Value!: ' || ParentzGenAlbum.ZCUSTOMSORTKEY || ''
         END AS 'ParentzGenAlbum-Custom Sort Key',
@@ -1135,7 +1135,7 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
         END AS 'zGenAlbum-Pinned',       
         CASE zGenAlbum.ZCUSTOMSORTKEY
             WHEN 0 THEN '0-zGenAlbum-Sorted_Manually-0_RT'
-            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First/CusSrtAsc1=Sorted_Oldest_First-1-RT'
+            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First-CusSrtAsc1=Sorted_Oldest_First-1-RT'
             WHEN 5 THEN '5-zGenAlbum-Sorted_by_Title-5_RT'
             ELSE 'Unknown-New-Value!: ' || zGenAlbum.ZCUSTOMSORTKEY || ''
         END AS 'zGenAlbum-Custom Sort Key',        
@@ -1192,7 +1192,7 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
 
                 counter += 1
 
-            description = 'Parses Non-Shared Album records found in the PhotoData/Photos.sqlite from' \
+            description = 'Parses Non-Shared Album records found in the PhotoData-Photos.sqlite from' \
                           ' ZGENERICALBUM Table and supports iOS 15. Parses Non-Shared Album records only' \
                           ' no asset data is being parsed in this parser. This parser will contain parent albums,' \
                           ' folders, and associated album data. '
@@ -1205,7 +1205,7 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
                             'ParentzGenAlbum-UUID',
                             'ParentzGenAlbum-Cloud GUID',
                             'ParentzGenAlbum- Title',
-                            'zGenAlbum- Title/User&System Applied',
+                            'zGenAlbum- Title-User&System Applied',
                             'zGenAlbum-UUID',
                             'zGenAlbum-Cloud GUID',
                             'zGenAlbum-Imported by Bundle Identifier',
@@ -1254,7 +1254,7 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available for PhotoData/Photos.sqlite Non-Shared Album Records with No Asset Data')
+            logfunc('No data available for PhotoData-Photos.sqlite Non-Shared Album Records with No Asset Data')
 
             db.close()
         return
@@ -1272,7 +1272,7 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
         ParentzGenAlbum.ZUUID AS 'ParentzGenAlbum-UUID',
         ParentzGenAlbum.ZCLOUDGUID AS 'ParentzGenAlbum-Cloud GUID',
         ParentzGenAlbum.ZTITLE AS 'ParentzGenAlbum- Title',
-        zGenAlbum.ZTITLE AS 'zGenAlbum- Title/User&System Applied',
+        zGenAlbum.ZTITLE AS 'zGenAlbum- Title-User&System Applied',
         zGenAlbum.ZUUID AS 'zGenAlbum-UUID',        
         zGenAlbum.ZCLOUDGUID AS 'zGenAlbum-Cloud GUID',    
         zGenAlbum.ZIMPORTEDBYBUNDLEIDENTIFIER AS 'zGenAlbum-Imported by Bundle Identifier',       
@@ -1311,7 +1311,7 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
         END AS 'ParentzGenAlbum-Pinned',
         CASE ParentzGenAlbum.ZCUSTOMSORTKEY
             WHEN 0 THEN '0-zGenAlbum-Sorted_Manually-0_RT'
-            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First/CusSrtAsc1=Sorted_Oldest_First-1-RT'
+            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First-CusSrtAsc1=Sorted_Oldest_First-1-RT'
             WHEN 5 THEN '5-zGenAlbum-Sorted_by_Title-5_RT'
             ELSE 'Unknown-New-Value!: ' || ParentzGenAlbum.ZCUSTOMSORTKEY || ''
         END AS 'ParentzGenAlbum-Custom Sort Key',
@@ -1395,7 +1395,7 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
         END AS 'zGenAlbum-Pinned',       
         CASE zGenAlbum.ZCUSTOMSORTKEY
             WHEN 0 THEN '0-zGenAlbum-Sorted_Manually-0_RT'
-            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First/CusSrtAsc1=Sorted_Oldest_First-1-RT'
+            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First-CusSrtAsc1=Sorted_Oldest_First-1-RT'
             WHEN 5 THEN '5-zGenAlbum-Sorted_by_Title-5_RT'
             ELSE 'Unknown-New-Value!: ' || zGenAlbum.ZCUSTOMSORTKEY || ''
         END AS 'zGenAlbum-Custom Sort Key',        
@@ -1471,7 +1471,7 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
 
                 counter += 1
 
-            description = 'Parses Non-Shared Album records found in the PhotoData/Photos.sqlite from' \
+            description = 'Parses Non-Shared Album records found in the PhotoData-Photos.sqlite from' \
                           ' ZGENERICALBUM Table and supports iOS 16-17. Parses Non-Shared Album records only' \
                           ' no asset data is being parsed in this parser. This parser will contain parent albums,' \
                           ' folders, and associated album data. '
@@ -1484,7 +1484,7 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
                             'ParentzGenAlbum-UUID',
                             'ParentzGenAlbum-Cloud GUID',
                             'ParentzGenAlbum- Title',
-                            'zGenAlbum- Title/User&System Applied',
+                            'zGenAlbum- Title-User&System Applied',
                             'zGenAlbum-UUID',
                             'zGenAlbum-Cloud GUID',
                             'zGenAlbum-Imported by Bundle Identifier',
@@ -1536,7 +1536,7 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available for PhotoData/Photos.sqlite Non-Shared Album Records with No Asset Data')
+            logfunc('No data available for PhotoData-Photos.sqlite Non-Shared Album Records with No Asset Data')
 
         db.close()
         return
@@ -1545,16 +1545,16 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
 __artifacts_v2__ = {
     'Ph21-Non-Shared Album Records with NAD-PhDaPsql': {
         'name': 'PhDaPL Photos.sqlite 21 Non-Shared Album Records with No Asset Data',
-        'description': 'Parses Non-Shared Album records found in the PhotoData/Photos.sqlite ZGENERICALBUM Table'
+        'description': 'Parses Non-Shared Album records found in the PhotoData-Photos.sqlite ZGENERICALBUM Table'
                        ' and supports iOS 11-17. Parses Non-Shared Album records only, no asset data being parsed.'
                        ' This parser will contain parent albums and folders, and associated album data.',
         'author': 'Scott Koenig https://theforensicscooter.com/',
         'version': '1.2',
         'date': '2024-04-09',
-        'requirements': 'Acquisition that contains PhotoData/Photos.sqlite',
+        'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
         'category': 'Photos.sqlite-GenAlbum_Records-NAD',
         'notes': '',
-        'paths': ('*/mobile/Media/PhotoData/Photos.sqlite*'),
+        'paths': '*/mobile/Media/PhotoData/Photos.sqlite*',
         'function': 'get_ph21nonsharedalbumsphdapsql'
     }
 }

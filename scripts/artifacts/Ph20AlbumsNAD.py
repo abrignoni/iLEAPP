@@ -3,7 +3,7 @@
 # Version: 1.3
 #
 #   Description:
-#   Parses Basic Album records found in the PhotoData/Photos.sqlite ZGENERICALBUM Table and supports iOS 11-17.
+#   Parses Basic Album records found in the PhotoData-Photos.sqlite ZGENERICALBUM Table and supports iOS 11-17.
 #   Parses Album records only no asset data being parsed.
 #   Use 2-Non-Shared-Album-2 in the search to view Non-Shared Albums.
 #   Use 1505-Shared-Album-1505 in the search to view Shared Albums.
@@ -40,11 +40,11 @@ def get_ph20albumrecordsnadphdapsql(files_found, report_folder, seeker, wrap_tex
         if file_found.endswith('.sqlite'):
             break
       
-    if report_folder.endswith('/') or report_folder.endswith('\\'):
+    if report_folder.endswith('-') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = scripts.artifacts.artGlobals.versionf
-    if version.parse(iosversion) < version.parse("11"):
-        logfunc("Unsupported version for PhotoData/Photos.sqlite album records with no asset data"
+    if version.parse(iosversion) <= version.parse("10.3.4"):
+        logfunc("Unsupported version for PhotoData-Photos.sqlite album records with no asset data"
                 " from on iOS " + iosversion)
     if (version.parse(iosversion) >= version.parse("11")) & (version.parse(iosversion) < version.parse("14")):
         file_found = str(files_found[0])
@@ -70,7 +70,7 @@ def get_ph20albumrecordsnadphdapsql(files_found, report_folder, seeker, wrap_tex
             WHEN 4000 THEN '4000-Parent_is_Folder_on_Local_Device-4000'
             ELSE 'Unknown-New-Value!: ' || zGenAlbum.ZKIND || ''
         END AS 'zGenAlbum-Album Kind',
-        zGenAlbum.ZTITLE AS 'zGenAlbum-Title/User&System Applied',
+        zGenAlbum.ZTITLE AS 'zGenAlbum-Title-User&System Applied',
         zGenAlbum.ZIMPORTSESSIONID AS 'zGenAlbum- Import Session ID',        
         zGenAlbum.ZCACHEDPHOTOSCOUNT AS 'zGenAlbum-Cached Photos Count',
         zGenAlbum.ZCACHEDVIDEOSCOUNT AS 'zGenAlbum-Cached Videos Count',
@@ -98,7 +98,7 @@ def get_ph20albumrecordsnadphdapsql(files_found, report_folder, seeker, wrap_tex
 
                 counter += 1
 
-            description = 'Parses Basic Album records found in the PhotoData/Photos.sqlite ZGENERICALBUM Table' \
+            description = 'Parses Basic Album records found in the PhotoData-Photos.sqlite ZGENERICALBUM Table' \
                           ' and supports iOS 11-13. Parses Album records only no asset data being parsed.' \
                           ' Use 2-Non-Shared-Album-2 in the search to view Non-Shared Albums.' \
                           ' Use 1505-Shared-Album-1505 in the search to view Shared Albums.' \
@@ -130,7 +130,7 @@ def get_ph20albumrecordsnadphdapsql(files_found, report_folder, seeker, wrap_tex
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available for PhotoData/Photos.sqlite Album Records with No Asset Data')
+            logfunc('No data available for PhotoData-Photos.sqlite Album Records with No Asset Data')
 
         db.close()
         return
@@ -160,7 +160,7 @@ def get_ph20albumrecordsnadphdapsql(files_found, report_folder, seeker, wrap_tex
             WHEN 4000 THEN '4000-Parent_is_Folder_on_Local_Device-4000'
             ELSE 'Unknown-New-Value!: ' || zGenAlbum.ZKIND || ''
         END AS 'zGenAlbum-Album Kind',
-        zGenAlbum.ZTITLE AS 'zGenAlbum-Title/User&System Applied',
+        zGenAlbum.ZTITLE AS 'zGenAlbum-Title-User&System Applied',
         zGenAlbum.ZIMPORTSESSIONID AS 'zGenAlbum- Import Session ID',
         zGenAlbum.ZCREATORBUNDLEID AS 'zGenAlbum-Creator Bundle Identifier',        
         zGenAlbum.ZCACHEDPHOTOSCOUNT AS 'zGenAlbum-Cached Photos Count',
@@ -189,7 +189,7 @@ def get_ph20albumrecordsnadphdapsql(files_found, report_folder, seeker, wrap_tex
 
                 counter += 1
 
-            description = 'Parses Basic Album records found in the PhotoData/Photos.sqlite ZGENERICALBUM Table' \
+            description = 'Parses Basic Album records found in the PhotoData-Photos.sqlite ZGENERICALBUM Table' \
                           ' and supports iOS 14. Parses Album records only no asset data being parsed.' \
                           ' Use 2-Non-Shared-Album-2 in the search to view Non-Shared Albums.' \
                           ' Use 1505-Shared-Album-1505 in the search to view Shared Albums.' \
@@ -223,7 +223,7 @@ def get_ph20albumrecordsnadphdapsql(files_found, report_folder, seeker, wrap_tex
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available for PhotoData/Photos.sqlite Album Records No Asset Data')
+            logfunc('No data available for PhotoData-Photos.sqlite Album Records No Asset Data')
 
         db.close()
         return
@@ -253,7 +253,7 @@ def get_ph20albumrecordsnadphdapsql(files_found, report_folder, seeker, wrap_tex
             WHEN 4000 THEN '4000-Parent_is_Folder_on_Local_Device-4000'
             ELSE 'Unknown-New-Value!: ' || zGenAlbum.ZKIND || ''
         END AS 'zGenAlbum-Album Kind',
-        zGenAlbum.ZTITLE AS 'zGenAlbum-Title/User&System Applied',
+        zGenAlbum.ZTITLE AS 'zGenAlbum-Title-User&System Applied',
         zGenAlbum.ZIMPORTSESSIONID AS 'zGenAlbum- Import Session ID',
         zGenAlbum.ZIMPORTEDBYBUNDLEIDENTIFIER AS 'zGenAlbum-Imported by Bundle Identifier',       
         zGenAlbum.ZCACHEDPHOTOSCOUNT AS 'zGenAlbum-Cached Photos Count',
@@ -281,7 +281,7 @@ def get_ph20albumrecordsnadphdapsql(files_found, report_folder, seeker, wrap_tex
 
                 counter += 1
 
-            description = 'Parses Basic Album records found in the PhotoData/Photos.sqlite ZGENERICALBUM Table' \
+            description = 'Parses Basic Album records found in the PhotoData-Photos.sqlite ZGENERICALBUM Table' \
                           ' and supports iOS 15-17. Parses Album records only no asset data being parsed.' \
                           ' Use 2-Non-Shared-Album-2 in the search to view Non-Shared Albums.' \
                           ' Use 1505-Shared-Album-1505 in the search to view Shared Albums.' \
@@ -315,7 +315,7 @@ def get_ph20albumrecordsnadphdapsql(files_found, report_folder, seeker, wrap_tex
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available for PhotoData/Photos.sqlite Album Records with No Asset Data')
+            logfunc('No data available for PhotoData-Photos.sqlite Album Records with No Asset Data')
 
         db.close()
         return
@@ -331,8 +331,8 @@ def get_ph20albumrecrodsnadsyndpl(files_found, report_folder, seeker, wrap_text,
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = scripts.artifacts.artGlobals.versionf
-    if version.parse(iosversion) < version.parse("11"):
-        logfunc("Unsupported version for Syndication.photoslibrary/database/Photos.sqlite"
+    if version.parse(iosversion) <= version.parse("10.3.4"):
+        logfunc("Unsupported version for Syndication.photoslibrary-database-Photos.sqlite"
                 " album records with no asset data on iOS " + iosversion)
     if (version.parse(iosversion) >= version.parse("11")) & (version.parse(iosversion) < version.parse("14")):
         file_found = str(files_found[0])
@@ -358,7 +358,7 @@ def get_ph20albumrecrodsnadsyndpl(files_found, report_folder, seeker, wrap_text,
             WHEN 4000 THEN '4000-Parent_is_Folder_on_Local_Device-4000'
             ELSE 'Unknown-New-Value!: ' || zGenAlbum.ZKIND || ''
         END AS 'zGenAlbum-Album Kind',
-        zGenAlbum.ZTITLE AS 'zGenAlbum-Title/User&System Applied',
+        zGenAlbum.ZTITLE AS 'zGenAlbum-Title-User&System Applied',
         zGenAlbum.ZIMPORTSESSIONID AS 'zGenAlbum- Import Session ID',        
         zGenAlbum.ZCACHEDPHOTOSCOUNT AS 'zGenAlbum-Cached Photos Count',
         zGenAlbum.ZCACHEDVIDEOSCOUNT AS 'zGenAlbum-Cached Videos Count',
@@ -386,7 +386,7 @@ def get_ph20albumrecrodsnadsyndpl(files_found, report_folder, seeker, wrap_text,
 
                 counter += 1
 
-            description = 'Parses Basic Album records found in the Syndication.photoslibrary/database/Photos.sqlite' \
+            description = 'Parses Basic Album records found in the Syndication.photoslibrary-database-Photos.sqlite' \
                           ' ZGENERICALBUM Table and supports iOS 11-13.' \
                           ' Parses Album records only no asset data being parsed.' \
                           ' Use 2-Non-Shared-Album-2 in the search to view Non-Shared Albums.' \
@@ -419,7 +419,7 @@ def get_ph20albumrecrodsnadsyndpl(files_found, report_folder, seeker, wrap_text,
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available for Syndication.photoslibrary/database/Photos.sqlite'
+            logfunc('No data available for Syndication.photoslibrary-database-Photos.sqlite'
                     ' Album Records with No Asset Data')
 
         db.close()
@@ -450,7 +450,7 @@ def get_ph20albumrecrodsnadsyndpl(files_found, report_folder, seeker, wrap_text,
             WHEN 4000 THEN '4000-Parent_is_Folder_on_Local_Device-4000'
             ELSE 'Unknown-New-Value!: ' || zGenAlbum.ZKIND || ''
         END AS 'zGenAlbum-Album Kind',
-        zGenAlbum.ZTITLE AS 'zGenAlbum-Title/User&System Applied',
+        zGenAlbum.ZTITLE AS 'zGenAlbum-Title-User&System Applied',
         zGenAlbum.ZIMPORTSESSIONID AS 'zGenAlbum- Import Session ID',
         zGenAlbum.ZCREATORBUNDLEID AS 'zGenAlbum-Creator Bundle Identifier',        
         zGenAlbum.ZCACHEDPHOTOSCOUNT AS 'zGenAlbum-Cached Photos Count',
@@ -479,7 +479,7 @@ def get_ph20albumrecrodsnadsyndpl(files_found, report_folder, seeker, wrap_text,
 
                 counter += 1
 
-            description = 'Parses Basic Album records found in the Syndication.photoslibrary/database/Photos.sqlite' \
+            description = 'Parses Basic Album records found in the Syndication.photoslibrary-database-Photos.sqlite' \
                           ' ZGENERICALBUM Table and supports iOS 14.' \
                           ' Parses Album records only no asset data being parsed.' \
                           ' Use 2-Non-Shared-Album-2 in the search to view Non-Shared Albums.' \
@@ -514,7 +514,7 @@ def get_ph20albumrecrodsnadsyndpl(files_found, report_folder, seeker, wrap_text,
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available for Syndication.photoslibrary/database/Photos.sqlite'
+            logfunc('No data available for Syndication.photoslibrary-database-Photos.sqlite'
                     ' Album Records No Asset Data')
 
         db.close()
@@ -544,7 +544,7 @@ def get_ph20albumrecrodsnadsyndpl(files_found, report_folder, seeker, wrap_text,
             WHEN 4000 THEN '4000-Parent_is_Folder_on_Local_Device-4000'
             ELSE 'Unknown-New-Value!: ' || zGenAlbum.ZKIND || ''
         END AS 'zGenAlbum-Album Kind',
-        zGenAlbum.ZTITLE AS 'zGenAlbum-Title/User&System Applied',
+        zGenAlbum.ZTITLE AS 'zGenAlbum-Title-User&System Applied',
         zGenAlbum.ZIMPORTSESSIONID AS 'zGenAlbum- Import Session ID',
         zGenAlbum.ZIMPORTEDBYBUNDLEIDENTIFIER AS 'zGenAlbum-Imported by Bundle Identifier',       
         zGenAlbum.ZCACHEDPHOTOSCOUNT AS 'zGenAlbum-Cached Photos Count',
@@ -572,7 +572,7 @@ def get_ph20albumrecrodsnadsyndpl(files_found, report_folder, seeker, wrap_text,
 
                 counter += 1
 
-            description = 'Parses Basic Album records found in the Syndication.photoslibrary/database/Photos.sqlite' \
+            description = 'Parses Basic Album records found in the Syndication.photoslibrary-database-Photos.sqlite' \
                           ' ZGENERICALBUM Table and supports iOS 15-17.' \
                           ' Parses Album records only no asset data being parsed.' \
                           ' Use 2-Non-Shared-Album-2 in the search to view Non-Shared Albums.' \
@@ -607,7 +607,7 @@ def get_ph20albumrecrodsnadsyndpl(files_found, report_folder, seeker, wrap_text,
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available for Syndication.photoslibrary/database/Photos.sqlite'
+            logfunc('No data available for Syndication.photoslibrary-database-Photos.sqlite'
                     ' Album Records with No Asset Data')
 
         db.close()
@@ -617,7 +617,7 @@ def get_ph20albumrecrodsnadsyndpl(files_found, report_folder, seeker, wrap_text,
 __artifacts_v2__ = {
     'Ph20-1-Album Records with NAD-PhDaPsql': {
         'name': 'PhDaPL Photos.sqlite 20.1 Album Records with No Asset Data',
-        'description': 'Parses Basic Album records found in the PhotoData/Photos.sqlite ZGENERICALBUM Table'
+        'description': 'Parses Basic Album records found in the PhotoData-Photos.sqlite ZGENERICALBUM Table'
                        ' and supports iOS 11-17. Parses Album records only no asset data being parsed.'
                        ' Use 2-Non-Shared-Album-2 in the search to view Non-Shared Albums.'
                        ' Use 1505-Shared-Album-1505 in the search to view Shared Albums.'
@@ -626,15 +626,15 @@ __artifacts_v2__ = {
         'author': 'Scott Koenig https://theforensicscooter.com/',
         'version': '1.3',
         'date': '2024-04-13',
-        'requirements': 'Acquisition that contains PhotoData/Photos.sqlite',
+        'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
         'category': 'Photos.sqlite-GenAlbum_Records-NAD',
         'notes': '',
-        'paths': ('*/mobile/Media/PhotoData/Photos.sqlite*'),
+        'paths': '*/mobile/Media/PhotoData/Photos.sqlite*',
         'function': 'get_ph20albumrecordsnadphdapsql'
     },
     'Ph20-2-Album Records with NAD-SyndPL': {
         'name': 'SyndPL Photos.sqlite 20.2 Album Records with No Asset Data',
-        'description': 'Parses Basic Album records found in the Syndication.photoslibrary/database/Photos.sqlite'
+        'description': 'Parses Basic Album records found in the Syndication.photoslibrary-database-Photos.sqlite'
                        ' ZGENERICALBUM Table and supports iOS 11-17. Parses Album records only no asset data'
                        ' being parsed. Use 2-Non-Shared-Album-2 in the search to view Non-Shared Albums.'
                        ' Use 1505-Shared-Album-1505 in the search to view Shared Albums.'
@@ -646,7 +646,7 @@ __artifacts_v2__ = {
         'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
         'category': 'Photos.sqlite-Syndication_PL_Artifacts',
         'notes': '',
-        'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*'),
+        'paths': '*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',
         'function': 'get_ph20albumrecrodsnadsyndpl'
     }
 }

@@ -3,7 +3,7 @@
 # Version: 1.3
 #
 #   Description:
-#   Parses iCloud Shared Link records from the PhotoData/Photos.sqlite ZSHARE Table
+#   Parses iCloud Shared Link records from the PhotoData-Photos.sqlite ZSHARE Table
 #   and supports iOS 14-17. Parses iCloud Shared Link records only no asset data being parsed.
 #   This parser is based on research and SQLite Queries written by Scott Koenig
 #   https://theforensicscooter.com/ and queries found at https://github.com/ScottKjr3347
@@ -32,15 +32,15 @@ from scripts.ilapfuncs import logfunc, tsv, timeline, kmlgen, is_platform_window
 def get_ph34icldsharedLinksphdapsql(files_found, report_folder, seeker, wrap_text, timezone_offset):
     for file_found in files_found:
         file_found = str(file_found)
-        
+
         if file_found.endswith('.sqlite'):
             break
       
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = scripts.artifacts.artGlobals.versionf
-    if version.parse(iosversion) < version.parse("14"):
-        logfunc("Unsupported version for PhotoData/Photos.sqlite zSHARE iCloud Shared Link records"
+    if version.parse(iosversion) <= version.parse("13.7"):
+        logfunc("Unsupported version for PhotoData-Photos.sqlite zSHARE iCloud Shared Link records"
                 " with no asset data from iOS " + iosversion)
     if (version.parse(iosversion) >= version.parse("14")) & (version.parse(iosversion) < version.parse("16")):
         file_found = str(files_found[0])
@@ -146,43 +146,43 @@ def get_ph34icldsharedLinksphdapsql(files_found, report_folder, seeker, wrap_tex
 
                 counter += 1
 
-            description = 'Parses iCloud Shared Link records from the PhotoData/Photos.sqlite ZSHARE Table' \
+            description = 'Parses iCloud Shared Link records from the PhotoData-Photos.sqlite ZSHARE Table' \
                           ' and supports iOS 14-15. Parses iCloud Shared Link records only no asset data being parsed.'
             report = ArtifactHtmlReport('Photos.sqlite-iCloud_Shared_Methods')
             report.start_artifact_report(report_folder, 'Ph34-iCld Shared Link Records NAD-PhDaPsql', description)
             report.add_script()
-            data_headers = ('zShare-Creation Date',
-                            'zShare-Start Date',
-                            'zShare-End Date',
-                            'zShare-Expiry Date',
-                            'zShare-UUID',
-                            'zShare-Originating Scope ID',
-                            'zShare-Status',
-                            'zShare-Scope Type',
-                            'zShare-Asset Count-CMM',
-                            'zShare-Force Sync Attempted-CMM',
-                            'zShare-Photos Count-CMM',
-                            'zShare-Uploaded Photos Count-CMM',
-                            'zShare-Videos Count-CMM',
-                            'zShare-Uploaded Videos Count-CMM',
-                            'zShare-Scope ID',
-                            'zShare-Title-SPL',
-                            'zShare-Share URL',
-                            'zShare-Local Publish State',
-                            'zShare-Public Permission',
-                            'zSharePartic-Acceptance Status',
-                            'zSharePartic-User ID',
-                            'zSharePartic-zPK',
-                            'zSharePartic-Email Address',
-                            'zSharePartic-Phone Number',
-                            'zSharePartic-Is Current User',
-                            'zSharePartic-Role',
-                            'zSharePartic-Premission',
-                            'zShare-Should Notify On Upload Completion',
-                            'zShare-Should Ignor Budgets',
-                            'zShare-Trashed State',
-                            'zShare-Cloud Delete State',
-                            'zShare-zENT')
+            data_headers = ('zShare-Creation Date-0',
+                            'zShare-Start Date-1',
+                            'zShare-End Date-2',
+                            'zShare-Expiry Date-3',
+                            'zShare-UUID-4',
+                            'zShare-Originating Scope ID-5',
+                            'zShare-Status-6',
+                            'zShare-Scope Type-7',
+                            'zShare-Asset Count-CMM-8',
+                            'zShare-Force Sync Attempted-CMM-9',
+                            'zShare-Photos Count-CMM-10',
+                            'zShare-Uploaded Photos Count-CMM-11',
+                            'zShare-Videos Count-CMM-12',
+                            'zShare-Uploaded Videos Count-CMM-13',
+                            'zShare-Scope ID-14',
+                            'zShare-Title-SPL-15',
+                            'zShare-Share URL-16',
+                            'zShare-Local Publish State-17',
+                            'zShare-Public Permission-18',
+                            'zSharePartic-Acceptance Status-19',
+                            'zSharePartic-User ID-20',
+                            'zSharePartic-zPK-21',
+                            'zSharePartic-Email Address-22',
+                            'zSharePartic-Phone Number-23',
+                            'zSharePartic-Is Current User-24',
+                            'zSharePartic-Role-25',
+                            'zSharePartic-Premission-26',
+                            'zShare-Should Notify On Upload Completion-27',
+                            'zShare-Should Ignor Budgets-28',
+                            'zShare-Trashed State-29',
+                            'zShare-Cloud Delete State-30',
+                            'zShare-zENT-31')
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
@@ -193,7 +193,7 @@ def get_ph34icldsharedLinksphdapsql(files_found, report_folder, seeker, wrap_tex
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available for PhotoData/Photos.sqlite ZSHARE iCloud Shared Link Records'
+            logfunc('No data available for PhotoData-Photos.sqlite ZSHARE iCloud Shared Link Records'
                     ' with No Asset Data')
 
         db.close()
@@ -353,58 +353,58 @@ def get_ph34icldsharedLinksphdapsql(files_found, report_folder, seeker, wrap_tex
 
                 counter += 1
 
-            description = 'Parses iCloud Shared Link records from the PhotoData/Photos.sqlite ZSHARE Table' \
+            description = 'Parses iCloud Shared Link records from the PhotoData-Photos.sqlite ZSHARE Table' \
                           ' and supports iOS 16-17. Parses iCloud Shared Link records only no asset data being parsed.'
             report = ArtifactHtmlReport('Photos.sqlite-iCloud_Shared_Methods')
             report.start_artifact_report(report_folder, 'Ph34-iCld Shared Link Records NAD-PhDaPsql', description)
             report.add_script()
-            data_headers = ('zShare-Creation Date',
-                            'zShare-Start Date',
-                            'zShare-End Date',
-                            'zShare-Expiry Date',
-                            'zShare-UUID',
-                            'zShare-Originating Scope ID',
-                            'zSharePartic-z54SHARE',
-                            'zShare-Status',
-                            'zShare-Scope Type',
-                            'zShare-Asset Count-CMM',
-                            'zShare-Force Sync Attempted-CMM',
-                            'zShare-Photos Count-CMM',
-                            'zShare-Uploaded Photos Count-CMM',
-                            'zShare-Videos Count-CMM',
-                            'zShare-Uploaded Videos Count-CMM',
-                            'zShare-Scope ID',
-                            'zShare-Title-SPL',
-                            'zShare-Share URL',
-                            'zShare-Local Publish State',
-                            'zShare-Public Permission',
-                            'zShare-Cloud Local State',
-                            'zShare-Scope Syncing State',
-                            'zShare-Auto Share Policy',
-                            'zSharePartic-Acceptance Status',
-                            'zSharePartic-User ID',
-                            'zSharePartic-zPK',
-                            'zSharePartic-Email Address',
-                            'zSharePartic-Phone Number',
-                            'zSharePartic-Participant ID',
-                            'zSharePartic-UUID',
-                            'zSharePartic-Is Current User',
-                            'zSharePartic-Role',
-                            'zSharePartic-Premission',
-                            'zShare-Participant Cloud Update State',
-                            'zSharePartic-Exit State',
-                            'zShare-Preview State',
-                            'zShare-Should Notify On Upload Completion',
-                            'zShare-Should Ignor Budgets',
-                            'zShare-Exit Source',
-                            'zShare-Exit State',
-                            'zShare-Exit Type',
-                            'zShare-Trashed State',
-                            'zShare-Cloud Delete State',
-                            'zShare-Trashed Date',
-                            'zShare-LastParticipant Asset Trash Notification Date',
-                            'zShare-Last Participant Asset Trash Notification View Date',
-                            'zShare-zENT')
+            data_headers = ('zShare-Creation Date-0',
+                            'zShare-Start Date-1',
+                            'zShare-End Date-2',
+                            'zShare-Expiry Date-3',
+                            'zShare-UUID-4',
+                            'zShare-Originating Scope ID-5',
+                            'zSharePartic-z54SHARE-6',
+                            'zShare-Status-7',
+                            'zShare-Scope Type-8',
+                            'zShare-Asset Count-CMM-9',
+                            'zShare-Force Sync Attempted-CMM-10',
+                            'zShare-Photos Count-CMM-11',
+                            'zShare-Uploaded Photos Count-CMM-12',
+                            'zShare-Videos Count-CMM-13',
+                            'zShare-Uploaded Videos Count-CMM-14',
+                            'zShare-Scope ID-15',
+                            'zShare-Title-SPL-16',
+                            'zShare-Share URL-17',
+                            'zShare-Local Publish State-18',
+                            'zShare-Public Permission-19',
+                            'zShare-Cloud Local State-20',
+                            'zShare-Scope Syncing State-21',
+                            'zShare-Auto Share Policy-22',
+                            'zSharePartic-Acceptance Status-23',
+                            'zSharePartic-User ID-24',
+                            'zSharePartic-zPK-25',
+                            'zSharePartic-Email Address-26',
+                            'zSharePartic-Phone Number-27',
+                            'zSharePartic-Participant ID-28',
+                            'zSharePartic-UUID-29',
+                            'zSharePartic-Is Current User-30',
+                            'zSharePartic-Role-31',
+                            'zSharePartic-Premission-32',
+                            'zShare-Participant Cloud Update State-33',
+                            'zSharePartic-Exit State-34',
+                            'zShare-Preview State-35',
+                            'zShare-Should Notify On Upload Completion-36',
+                            'zShare-Should Ignor Budgets-37',
+                            'zShare-Exit Source-38',
+                            'zShare-Exit State-39',
+                            'zShare-Exit Type-40',
+                            'zShare-Trashed State-41',
+                            'zShare-Cloud Delete State-42',
+                            'zShare-Trashed Date-43',
+                            'zShare-LastParticipant Asset Trash Notification Date-44',
+                            'zShare-Last Participant Asset Trash Notification View Date-45',
+                            'zShare-zENT-46')
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
@@ -415,7 +415,7 @@ def get_ph34icldsharedLinksphdapsql(files_found, report_folder, seeker, wrap_tex
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available for PhotoData/Photos.sqlite ZSHARE iCloud Shared Link Records'
+            logfunc('No data available for PhotoData-Photos.sqlite ZSHARE iCloud Shared Link Records'
                     ' with No Asset Data')
 
         db.close()
@@ -425,15 +425,15 @@ def get_ph34icldsharedLinksphdapsql(files_found, report_folder, seeker, wrap_tex
 __artifacts_v2__ = {
     'Ph34-iCloud Shared Link Records with NAD-PhDaPsql': {
         'name': 'PhDaPL Photos.sqlite 34 iCld Shared Link Records with No Asset Data',
-        'description': 'Parses iCloud Shared Link records from the PhotoData/Photos.sqlite ZSHARE Table'
+        'description': 'Parses iCloud Shared Link records from the PhotoData-Photos.sqlite ZSHARE Table'
                        ' and supports iOS 14-17. Parses iCloud Shared Link records only no asset data being parsed.',
         'author': 'Scott Koenig https://theforensicscooter.com/',
         'version': '1.3',
         'date': '2024-04-13',
-        'requirements': 'Acquisition that contains PhotoData/Photos.sqlite',
+        'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
         'category': 'Photos.sqlite-iCloud_Shared_Methods',
         'notes': '',
-        'paths': ('*/mobile/Media/PhotoData/Photos.sqlite*'),
+        'paths': '*/mobile/Media/PhotoData/Photos.sqlite*',
         'function': 'get_ph34icldsharedLinksphdapsql'
     }
 }

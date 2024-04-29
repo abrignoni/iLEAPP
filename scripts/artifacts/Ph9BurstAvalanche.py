@@ -39,8 +39,8 @@ def get_ph9burstavalanchephdapsql(files_found, report_folder, seeker, wrap_text,
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = scripts.artifacts.artGlobals.versionf
-    if version.parse(iosversion) < version.parse("11"):
-        logfunc("Unsupported version for PhotoData/Photos.sqlite burst avalanche assets from iOS " + iosversion)
+    if version.parse(iosversion) <= version.parse("10.3.4"):
+        logfunc("Unsupported version for PhotoData-Photos.sqlite burst avalanche assets from iOS " + iosversion)
     if (version.parse(iosversion) >= version.parse("11")) & (version.parse(iosversion) < version.parse("14")):
         file_found = str(files_found[0])
         db = open_sqlite_db_readonly(file_found)
@@ -50,7 +50,7 @@ def get_ph9burstavalanchephdapsql(files_found, report_folder, seeker, wrap_text,
         SELECT
         DateTime(zAsset.ZDATECREATED + 978307200, 'UNIXEPOCH') AS 'zAsset-Date Created',      
         CASE zAsset.ZAVALANCHEPICKTYPE
-            WHEN 0 THEN '0-NA/Single_Asset_Burst_UUID-0_RT'
+            WHEN 0 THEN '0-NA-Single_Asset_Burst_UUID-0_RT'
             WHEN 2 THEN '2-Burst_Asset_Not_Selected-2_RT'
             WHEN 4 THEN '4-Burst_Asset_PhotosApp_Picked_KeyImage-4_RT'
             WHEN 8 THEN '8-Burst_Asset_Selected_for_LPL-8_RT'
@@ -58,9 +58,9 @@ def get_ph9burstavalanchephdapsql(files_found, report_folder, seeker, wrap_text,
             WHEN 32 THEN '32-StillTesting-32_RT'
             WHEN 52 THEN '52-Burst_Asset_Visible_LPL-52'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZAVALANCHEPICKTYPE || ''
-        END AS 'zAsset-Avalanche_Pick_Type/BurstAsset',
+        END AS 'zAsset-Avalanche_Pick_Type-BurstAsset',
         CASE zAddAssetAttr.ZCLOUDAVALANCHEPICKTYPE
-            WHEN 0 THEN '0-NA/Single_Asset_Burst_UUID-0_RT'
+            WHEN 0 THEN '0-NA-Single_Asset_Burst_UUID-0_RT'
             WHEN 2 THEN '2-Burst_Asset_Not_Selected-2_RT'
             WHEN 4 THEN '4-Burst_Asset_PhotosApp_Picked_KeyImage-4_RT'
             WHEN 8 THEN '8-Burst_Asset_Selected_for_LPL-8_RT'
@@ -68,13 +68,13 @@ def get_ph9burstavalanchephdapsql(files_found, report_folder, seeker, wrap_text,
             WHEN 32 THEN '32-StillTesting-32_RT'
             WHEN 52 THEN '52-Burst_Asset_Visible_LPL-52'
             ELSE 'Unknown-New-Value!: ' || zAddAssetAttr.ZCLOUDAVALANCHEPICKTYPE || ''
-        END AS 'zAddAssetAttr-Cloud_Avalanche_Pick_Type/BurstAsset',
+        END AS 'zAddAssetAttr-Cloud_Avalanche_Pick_Type-BurstAsset',
         CASE zAsset.ZVISIBILITYSTATE
             WHEN 0 THEN '0-Visible-PL-CameraRoll-0'
             WHEN 2 THEN '2-Not-Visible-PL-CameraRoll-2'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZVISIBILITYSTATE || ''
         END AS 'zAsset-Visibility State',
-        zAsset.ZDIRECTORY AS 'zAsset-Directory/Path',
+        zAsset.ZDIRECTORY AS 'zAsset-Directory-Path',
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
@@ -101,17 +101,17 @@ def get_ph9burstavalanchephdapsql(files_found, report_folder, seeker, wrap_text,
 
                 counter += 1
 
-            description = 'Parses basic asset record data from PhotoData/Photos.sqlite for burst avalanche assets' \
+            description = 'Parses basic asset record data from PhotoData-Photos.sqlite for burst avalanche assets' \
                           ' and supports iOS 11-13. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
             report = ArtifactHtmlReport('Photos.sqlite-Other_Artifacts')
             report.start_artifact_report(report_folder, 'Ph9-Burst Avalanche-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created',
-                            'zAsset-Avalanche_Pick_Type/BurstAsset',
-                            'zAddAssetAttr-Cloud_Avalanche_Pick_Type/BurstAsset',
+                            'zAsset-Avalanche_Pick_Type-BurstAsset',
+                            'zAddAssetAttr-Cloud_Avalanche_Pick_Type-BurstAsset',
                             'zAsset-Visibility State',
-                            'zAsset-Directory/Path',
+                            'zAsset-Directory-Path',
                             'zAsset-Filename',
                             'zAddAssetAttr- Original Filename',
                             'zCldMast- Original Filename',
@@ -130,7 +130,7 @@ def get_ph9burstavalanchephdapsql(files_found, report_folder, seeker, wrap_text,
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available for PhotoData/Photos.sqlite Burst Avalanche Assets')
+            logfunc('No data available for PhotoData-Photos.sqlite Burst Avalanche Assets')
 
         db.close()
         return
@@ -144,7 +144,7 @@ def get_ph9burstavalanchephdapsql(files_found, report_folder, seeker, wrap_text,
         SELECT
         DateTime(zAsset.ZDATECREATED + 978307200, 'UNIXEPOCH') AS 'zAsset-Date Created',      
         CASE zAsset.ZAVALANCHEPICKTYPE
-            WHEN 0 THEN '0-NA/Single_Asset_Burst_UUID-0_RT'
+            WHEN 0 THEN '0-NA-Single_Asset_Burst_UUID-0_RT'
             WHEN 2 THEN '2-Burst_Asset_Not_Selected-2_RT'
             WHEN 4 THEN '4-Burst_Asset_PhotosApp_Picked_KeyImage-4_RT'
             WHEN 8 THEN '8-Burst_Asset_Selected_for_LPL-8_RT'
@@ -152,9 +152,9 @@ def get_ph9burstavalanchephdapsql(files_found, report_folder, seeker, wrap_text,
             WHEN 32 THEN '32-StillTesting-32_RT'
             WHEN 52 THEN '52-Burst_Asset_Visible_LPL-52'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZAVALANCHEPICKTYPE || ''
-        END AS 'zAsset-Avalanche_Pick_Type/BurstAsset',
+        END AS 'zAsset-Avalanche_Pick_Type-BurstAsset',
         CASE zAddAssetAttr.ZCLOUDAVALANCHEPICKTYPE
-            WHEN 0 THEN '0-NA/Single_Asset_Burst_UUID-0_RT'
+            WHEN 0 THEN '0-NA-Single_Asset_Burst_UUID-0_RT'
             WHEN 2 THEN '2-Burst_Asset_Not_Selected-2_RT'
             WHEN 4 THEN '4-Burst_Asset_PhotosApp_Picked_KeyImage-4_RT'
             WHEN 8 THEN '8-Burst_Asset_Selected_for_LPL-8_RT'
@@ -162,13 +162,13 @@ def get_ph9burstavalanchephdapsql(files_found, report_folder, seeker, wrap_text,
             WHEN 32 THEN '32-StillTesting-32_RT'
             WHEN 52 THEN '52-Burst_Asset_Visible_LPL-52'
             ELSE 'Unknown-New-Value!: ' || zAddAssetAttr.ZCLOUDAVALANCHEPICKTYPE || ''
-        END AS 'zAddAssetAttr-Cloud_Avalanche_Pick_Type/BurstAsset',
+        END AS 'zAddAssetAttr-Cloud_Avalanche_Pick_Type-BurstAsset',
         CASE zAsset.ZVISIBILITYSTATE
             WHEN 0 THEN '0-Visible-PL-CameraRoll-0'
             WHEN 2 THEN '2-Not-Visible-PL-CameraRoll-2'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZVISIBILITYSTATE || ''
         END AS 'zAsset-Visibility State',
-        zAsset.ZDIRECTORY AS 'zAsset-Directory/Path',
+        zAsset.ZDIRECTORY AS 'zAsset-Directory-Path',
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
@@ -195,17 +195,17 @@ def get_ph9burstavalanchephdapsql(files_found, report_folder, seeker, wrap_text,
 
                 counter += 1
 
-            description = 'Parses basic asset record data from PhotoData/Photos.sqlite for burst avalanche assets' \
+            description = 'Parses basic asset record data from PhotoData-Photos.sqlite for burst avalanche assets' \
                           ' and supports iOS 14-17. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
             report = ArtifactHtmlReport('Photos.sqlite-Other_Artifacts')
             report.start_artifact_report(report_folder, 'Ph9-Burst Avalanche-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created',
-                            'zAsset-Avalanche_Pick_Type/BurstAsset',
-                            'zAddAssetAttr-Cloud_Avalanche_Pick_Type/BurstAsset',
+                            'zAsset-Avalanche_Pick_Type-BurstAsset',
+                            'zAddAssetAttr-Cloud_Avalanche_Pick_Type-BurstAsset',
                             'zAsset-Visibility State',
-                            'zAsset-Directory/Path',
+                            'zAsset-Directory-Path',
                             'zAsset-Filename',
                             'zAddAssetAttr- Original Filename',
                             'zCldMast- Original Filename',
@@ -224,7 +224,7 @@ def get_ph9burstavalanchephdapsql(files_found, report_folder, seeker, wrap_text,
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available for PhotoData/Photos.sqlite Burst Avalanche Assets')
+            logfunc('No data available for PhotoData-Photos.sqlite Burst Avalanche Assets')
 
         db.close()
         return
@@ -233,16 +233,16 @@ def get_ph9burstavalanchephdapsql(files_found, report_folder, seeker, wrap_text,
 __artifacts_v2__ = {
     'Ph9-Burst Avalanche-PhDaPsql': {
         'name': 'PhDaPL Photos.sqlite 9 Burst Avalanche Assets',
-        'description': 'Parses basic asset record data from PhotoData/Photos.sqlite for burst avalanche assets'
+        'description': 'Parses basic asset record data from PhotoData-Photos.sqlite for burst avalanche assets'
                        ' and supports iOS 11-17. The results for this script will contain'
                        ' one record per ZASSET table Z_PK value.',
         'author': 'Scott Koenig https://theforensicscooter.com/',
         'version': '1.2',
         'date': '2024-04-07',
-        'requirements': 'Acquisition that contains PhotoData/Photos.sqlite',
+        'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
         'category': 'Photos.sqlite-Other_Artifacts',
         'notes': '',
-        'paths': ('*/mobile/Media/PhotoData/Photos.sqlite*'),
+        'paths': '*/mobile/Media/PhotoData/Photos.sqlite*',
         'function': 'get_ph9burstavalanchephdapsql'
     }
 }

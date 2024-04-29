@@ -3,7 +3,7 @@
 # Version: 1.2
 #
 #   Description:
-#   Parses iCloud Shared Photo Library records and invites from the PhotoData/Photos.sqlite ZSHARE Table
+#   Parses iCloud Shared Photo Library records and invites from the PhotoData-Photos.sqlite ZSHARE Table
 #   and supports iOS 14-17. Parses iCloud SPL and Participant information records only no asset data being parsed.
 #   This parser is based on research and SQLite Queries written by Scott Koenig
 #   https://theforensicscooter.com/ and queries found at https://github.com/ScottKjr3347
@@ -39,8 +39,8 @@ def get_ph31icldsharephotolibphdapsql(files_found, report_folder, seeker, wrap_t
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = scripts.artifacts.artGlobals.versionf
-    if version.parse(iosversion) < version.parse("14"):
-        logfunc("Unsupported version for PhotoData/Photos.sqlite zSHARE iCloud Shared Photo Library records"
+    if version.parse(iosversion) <= version.parse("13.7"):
+        logfunc("Unsupported version for PhotoData-Photos.sqlite zSHARE iCloud Shared Photo Library records"
                 " with no asset data from iOS " + iosversion)
     if (version.parse(iosversion) >= version.parse("14")) & (version.parse(iosversion) < version.parse("16")):
         file_found = str(files_found[0])
@@ -139,7 +139,7 @@ def get_ph31icldsharephotolibphdapsql(files_found, report_folder, seeker, wrap_t
 
                 counter += 1
 
-            description = 'Parses iCloud Shared Photo Library records and invites from the PhotoData/Photos.sqlite' \
+            description = 'Parses iCloud Shared Photo Library records and invites from the PhotoData-Photos.sqlite' \
                           ' ZSHARE Table and supports iOS 14-15. Parses iCloud SPL and Participant information' \
                           ' records only no asset data being parsed.'
             report = ArtifactHtmlReport('Photos.sqlite-iCloud_Shared_Methods')
@@ -181,7 +181,7 @@ def get_ph31icldsharephotolibphdapsql(files_found, report_folder, seeker, wrap_t
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available for PhotoData/Photos.sqlite ZSHARE iCloud Shared Photo Library Records'
+            logfunc('No data available for PhotoData-Photos.sqlite ZSHARE iCloud Shared Photo Library Records'
                     ' with No Asset Data')
 
         db.close()
@@ -337,7 +337,7 @@ def get_ph31icldsharephotolibphdapsql(files_found, report_folder, seeker, wrap_t
 
                 counter += 1
 
-            description = 'Parses iCloud Shared Photo Library records and invites from the PhotoData/Photos.sqlite' \
+            description = 'Parses iCloud Shared Photo Library records and invites from the PhotoData-Photos.sqlite' \
                           ' ZSHARE Table and supports iOS 16-17. Parses iCloud SPL and Participant information' \
                           ' records only no asset data being parsed.'
             report = ArtifactHtmlReport('Photos.sqlite-iCloud_Shared_Methods')
@@ -397,7 +397,7 @@ def get_ph31icldsharephotolibphdapsql(files_found, report_folder, seeker, wrap_t
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available for PhotoData/Photos.sqlite ZSHARE iCloud Shared Photo Library Records'
+            logfunc('No data available for PhotoData-Photos.sqlite ZSHARE iCloud Shared Photo Library Records'
                     ' with No Asset Data')
 
         db.close()
@@ -407,16 +407,16 @@ def get_ph31icldsharephotolibphdapsql(files_found, report_folder, seeker, wrap_t
 __artifacts_v2__ = {
     'Ph31-iCloud SPL with Participants with NAD-PhDaPsql': {
         'name': 'PhDaPL Photos.sqlite 31 iCld Shared Photo Library with Partic with No Asset Data',
-        'description': 'Parses iCloud Shared Photo Library records and invites from the PhotoData/Photos.sqlite'
+        'description': 'Parses iCloud Shared Photo Library records and invites from the PhotoData-Photos.sqlite'
                        ' ZSHARE Table and supports iOS 14-17. Parses iCloud SPL and Participant information'
                        ' records only no asset data being parsed.',
         'author': 'Scott Koenig https://theforensicscooter.com/',
         'version': '1.2',
         'date': '2024-04-12',
-        'requirements': 'Acquisition that contains PhotoData/Photos.sqlite',
+        'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
         'category': 'Photos.sqlite-iCloud_Shared_Methods',
         'notes': '',
-        'paths': ('*/mobile/Media/PhotoData/Photos.sqlite*'),
+        'paths': '*/mobile/Media/PhotoData/Photos.sqlite*',
         'function': 'get_ph31icldsharephotolibphdapsql'
     }
 }

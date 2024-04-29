@@ -4,7 +4,7 @@
 #
 #   Description:
 #   Parses Syndication Photos Library assets which includes Shared with You Conversation assets from
-#   PhotoData/Photos.sqlite and Syndication.photoslibrary/database/Photos.sqlite and supports iOS 15-17.
+#   PhotoData-Photos.sqlite and Syndication.photoslibrary-database-Photos.sqlite and supports iOS 15-17.
 #   Parses assets that have a ZADDITIONALASSETATTRIBUTES ZSYNDICATIONIDENTIFIER value. ZASSET ZSAVEDASSETTYPE and
 #   ZASSET ZSYNDICATIONSTATE fields can be used to filter those results:
 #   ZADDITIONALASSETATTRIBUTES ZSYNDICATIONIDENTIFIER: 0-PhDaPs-NA_or_SyndPs-Received-SWY_Synd_Asset-0
@@ -43,9 +43,9 @@ def get_ph26syndicationidassetsphdapsql(files_found, report_folder, seeker, wrap
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = scripts.artifacts.artGlobals.versionf
-    if version.parse(iosversion) < version.parse("15"):
+    if version.parse(iosversion) <= version.parse("14.8.1"):
         logfunc("Unsupported version for Syndication ID or Syndication Photos Library assets from"
-                " PhotoData/Photos.sqlite for iOS " + iosversion)
+                " PhotoData-Photos.sqlite for iOS " + iosversion)
     if (version.parse(iosversion) >= version.parse("15")) & (version.parse(iosversion) < version.parse("16")):
         file_found = str(files_found[0])
         db = open_sqlite_db_readonly(file_found)
@@ -61,7 +61,7 @@ def get_ph26syndicationidassetsphdapsql(files_found, report_folder, seeker, wrap
         SWYConverszGenAlbum.ZIMPORTSESSIONID AS 'SWYConverszGenAlbum- Import Session ID-SWY',
         SWYConverszGenAlbum.ZIMPORTEDBYBUNDLEIDENTIFIER AS 'SWYzGenAlbum-Imported by Bundle Identifier',		
         zAsset.Z_PK AS 'zAsset-zPK',
-        zAsset.ZDIRECTORY AS 'zAsset-Directory/Path',
+        zAsset.ZDIRECTORY AS 'zAsset-Directory-Path',
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
@@ -151,7 +151,7 @@ def get_ph26syndicationidassetsphdapsql(files_found, report_folder, seeker, wrap
         END AS 'SWYConverszGenAlbum-Pinned',
         CASE SWYConverszGenAlbum.ZCUSTOMSORTKEY
             WHEN 0 THEN '0-SWYConverszGenAlbum-Sorted_Manually-0_RT'
-            WHEN 1 THEN '1-SWYConverszGenAlbum-CusSrtAsc0=Sorted_Newest_First/CusSrtAsc1=Sorted_Oldest_First-1-RT'
+            WHEN 1 THEN '1-SWYConverszGenAlbum-CusSrtAsc0=Sorted_Newest_First-CusSrtAsc1=Sorted_Oldest_First-1-RT'
             WHEN 5 THEN '5-SWYConverszGenAlbum-Sorted_by_Title-5_RT'
             ELSE 'Unknown-New-Value!: ' || SWYConverszGenAlbum.ZCUSTOMSORTKEY || ''
         END AS 'SWYConverszGenAlbum-Custom Sort Key',
@@ -210,8 +210,8 @@ def get_ph26syndicationidassetsphdapsql(files_found, report_folder, seeker, wrap
                 counter += 1
 
             description = 'Parses Syndication ID and Syndication Photos Library assets which includes' \
-                          ' Shared with You Conversation assets from PhotoData/Photos.sqlite and' \
-                          ' Syndication.photoslibrary/database/Photos.sqlite' \
+                          ' Shared with You Conversation assets from PhotoData-Photos.sqlite and' \
+                          ' Syndication.photoslibrary-database-Photos.sqlite' \
                           ' and supports iOS 15. Parses assets that have a ZADDITIONALASSETATTRIBUTES' \
                           ' ZSYNDICATIONIDENTIFIER value. ZASSET ZSAVEDASSETTYPE and ZASSET ZSYNDICATIONSTATE fields' \
                           ' can be used to filter those results: ZADDITIONALASSETATTRIBUTES ZSYNDICATIONIDENTIFIER:' \
@@ -224,50 +224,50 @@ def get_ph26syndicationidassetsphdapsql(files_found, report_folder, seeker, wrap
             report = ArtifactHtmlReport('Photos.sqlite-Other_Artifacts')
             report.start_artifact_report(report_folder, 'Ph26.1-Syndication ID Assets-PhDaPsql', description)
             report.add_script()
-            data_headers = ('zAsset-Date Created',
-                            'SWYConverszGenAlbum-Creation Date',
-                            'SWYConverszGenAlbum-Start Date',
-                            'SWYConverszGenAlbum-End Date',
-                            'zAsset- Conversation= zGenAlbum_zPK',
-                            'SWYConverszGenAlbum- Import Session ID-SWY',
-                            'SWYzGenAlbum-Imported by Bundle Identifier',
-                            'zAsset-zPK',
-                            'zAsset-Directory/Path',
-                            'zAsset-Filename',
-                            'zAddAssetAttr- Original Filename',
-                            'zCldMast- Original Filename',
-                            'zAddAssetAttr- Syndication Identifier-SWY-Files',
-                            'zAsset-Syndication State',
-                            'zAsset-Bundle Scope',
-                            'zAddAssetAttr- Imported by Bundle Identifier',
-                            'zAddAssetAttr-Imported By Display Name',
-                            'zAsset-Visibility State',
-                            'zAsset-Saved Asset Type',
-                            'zAddAssetAttr-Share Type',
-                            'zAsset- SortToken -CameraRoll',
-                            'zAsset-Added Date',
-                            'zCldMast-Creation Date',
-                            'zAddAssetAttr-Time Zone Name',
-                            'zAddAssetAttr-EXIF-String',
-                            'zAsset-Modification Date',
-                            'zAsset-Last Shared Date',
-                            'zAsset-Trashed Date',
-                            'zAddAssetAttr-zPK',
-                            'zAsset-UUID = store.cloudphotodb',
-                            'zAddAssetAttr-Master Fingerprint',
-                            'SWYConverszGenAlbum-Album Kind',
-                            'SWYConverszGenAlbum-Cloud_Local_State',
-                            'SWYConverszGenAlbum- Syndicate',
-                            'SWYConverszGenAlbum-Sync Event Order Key',
-                            'SWYConverszGenAlbum-Pinned',
-                            'SWYConverszGenAlbum-Custom Sort Key',
-                            'SWYConverszGenAlbum-Custom Sort Ascending',
-                            'SWYConverszGenAlbum-Is Prototype',
-                            'SWYConverszGenAlbum-Project Document Type',
-                            'SWYConverszGenAlbum-Custom Query Type',
-                            'SWYConverszGenAlbum-Trashed State',
-                            'SWYConverszGenAlbum-Trash Date',
-                            'SWYConverszGenAlbum-Cloud Delete State')
+            data_headers = ('zAsset-Date Created-0',
+                            'SWYConverszGenAlbum-Creation Date-1',
+                            'SWYConverszGenAlbum-Start Date-2',
+                            'SWYConverszGenAlbum-End Date-3',
+                            'zAsset- Conversation= zGenAlbum_zPK-4',
+                            'SWYConverszGenAlbum- Import Session ID-SWY-5',
+                            'SWYzGenAlbum-Imported by Bundle Identifier-6',
+                            'zAsset-zPK-7',
+                            'zAsset-Directory-Path-8',
+                            'zAsset-Filename-9',
+                            'zAddAssetAttr- Original Filename-10',
+                            'zCldMast- Original Filename-11',
+                            'zAddAssetAttr- Syndication Identifier-SWY-Files-12',
+                            'zAsset-Syndication State-13',
+                            'zAsset-Bundle Scope-14',
+                            'zAddAssetAttr- Imported by Bundle Identifier-15',
+                            'zAddAssetAttr-Imported By Display Name-16',
+                            'zAsset-Visibility State-17',
+                            'zAsset-Saved Asset Type-18',
+                            'zAddAssetAttr-Share Type-19',
+                            'zAsset- SortToken -CameraRoll-20',
+                            'zAsset-Added Date-21',
+                            'zCldMast-Creation Date-22',
+                            'zAddAssetAttr-Time Zone Name-23',
+                            'zAddAssetAttr-EXIF-String-24',
+                            'zAsset-Modification Date-25',
+                            'zAsset-Last Shared Date-26',
+                            'zAsset-Trashed Date-27',
+                            'zAddAssetAttr-zPK-28',
+                            'zAsset-UUID = store.cloudphotodb-29',
+                            'zAddAssetAttr-Master Fingerprint-30',
+                            'SWYConverszGenAlbum-Album Kind-31',
+                            'SWYConverszGenAlbum-Cloud_Local_State-32',
+                            'SWYConverszGenAlbum- Syndicate-33',
+                            'SWYConverszGenAlbum-Sync Event Order Key-34',
+                            'SWYConverszGenAlbum-Pinned-35',
+                            'SWYConverszGenAlbum-Custom Sort Key-36',
+                            'SWYConverszGenAlbum-Custom Sort Ascending-37',
+                            'SWYConverszGenAlbum-Is Prototype-38',
+                            'SWYConverszGenAlbum-Project Document Type-39',
+                            'SWYConverszGenAlbum-Custom Query Type-40',
+                            'SWYConverszGenAlbum-Trashed State-41',
+                            'SWYConverszGenAlbum-Trash Date-42',
+                            'SWYConverszGenAlbum-Cloud Delete State-43')
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
@@ -279,7 +279,7 @@ def get_ph26syndicationidassetsphdapsql(files_found, report_folder, seeker, wrap
 
         else:
             logfunc('No assets with a ZADDITIONALASSETATTRIBUTES ZSYNDICATIONIDENTIFIER value from'
-                    ' PhotoData/Photos.sqlite')
+                    ' PhotoData-Photos.sqlite')
 
         db.close()
         return
@@ -299,7 +299,7 @@ def get_ph26syndicationidassetsphdapsql(files_found, report_folder, seeker, wrap
         SWYConverszGenAlbum.ZIMPORTSESSIONID AS 'SWYConverszGenAlbum- Import Session ID-SWY',
         SWYConverszGenAlbum.ZIMPORTEDBYBUNDLEIDENTIFIER AS 'SWYzGenAlbum-Imported by Bundle Identifier',
         zAsset.Z_PK AS 'zAsset-zPK',
-        zAsset.ZDIRECTORY AS 'zAsset-Directory/Path',
+        zAsset.ZDIRECTORY AS 'zAsset-Directory-Path',
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
@@ -357,7 +357,6 @@ def get_ph26syndicationidassetsphdapsql(files_found, report_folder, seeker, wrap
         zAddAssetAttr.ZTIMEZONENAME AS 'zAddAssetAttr-Time Zone Name',
         zAddAssetAttr.ZEXIFTIMESTAMPSTRING AS 'zAddAssetAttr-EXIF-String',
         DateTime(zAsset.ZMODIFICATIONDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Modification Date',
-        DateTime(zAddAssetAttr.ZLASTVIEWEDDATE + 978307200, 'UNIXEPOCH') AS 'zAddAssetAttr-Last Viewed Date',
         DateTime(zAsset.ZLASTSHAREDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Last Shared Date',
         DateTime(zAsset.ZTRASHEDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Trashed Date',
         zAsset.ZTRASHEDBYPARTICIPANT AS 'zAsset-Trashed by Participant= zShareParticipant_zPK',
@@ -396,7 +395,7 @@ def get_ph26syndicationidassetsphdapsql(files_found, report_folder, seeker, wrap
         END AS 'SWYConverszGenAlbum-Pinned',
         CASE SWYConverszGenAlbum.ZCUSTOMSORTKEY
             WHEN 0 THEN '0-SWYConverszGenAlbum-Sorted_Manually-0_RT'
-            WHEN 1 THEN '1-SWYConverszGenAlbum-CusSrtAsc0=Sorted_Newest_First/CusSrtAsc1=Sorted_Oldest_First-1-RT'
+            WHEN 1 THEN '1-SWYConverszGenAlbum-CusSrtAsc0=Sorted_Newest_First-CusSrtAsc1=Sorted_Oldest_First-1-RT'
             WHEN 5 THEN '5-SWYConverszGenAlbum-Sorted_by_Title-5_RT'
             ELSE 'Unknown-New-Value!: ' || SWYConverszGenAlbum.ZCUSTOMSORTKEY || ''
         END AS 'SWYConverszGenAlbum-Custom Sort Key',
@@ -457,13 +456,13 @@ def get_ph26syndicationidassetsphdapsql(files_found, report_folder, seeker, wrap
                                   row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
                                   row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35], row[36],
                                   row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45],
-                                  row[46], row[47]))
+                                  row[46]))
 
                 counter += 1
 
             description = 'Parses Syndication ID and Syndication Photos Library assets which includes' \
-                          ' Shared with You Conversation assets from PhotoData/Photos.sqlite and' \
-                          ' Syndication.photoslibrary/database/Photos.sqlite' \
+                          ' Shared with You Conversation assets from PhotoData-Photos.sqlite and' \
+                          ' Syndication.photoslibrary-database-Photos.sqlite' \
                           ' and supports iOS 16-17. Parses assets that have a ZADDITIONALASSETATTRIBUTES' \
                           ' ZSYNDICATIONIDENTIFIER value. ZASSET ZSAVEDASSETTYPE and ZASSET ZSYNDICATIONSTATE fields' \
                           ' can be used to filter those results: ZADDITIONALASSETATTRIBUTES ZSYNDICATIONIDENTIFIER:' \
@@ -476,54 +475,53 @@ def get_ph26syndicationidassetsphdapsql(files_found, report_folder, seeker, wrap
             report = ArtifactHtmlReport('Photos.sqlite-Other_Artifacts')
             report.start_artifact_report(report_folder, 'Ph26.1-Syndication ID Assets-PhDaPsql', description)
             report.add_script()
-            data_headers = ('zAsset-Date Created',
-                            'SWYConverszGenAlbum-Creation Date',
-                            'SWYConverszGenAlbum-Start Date',
-                            'SWYConverszGenAlbum-End Date',
-                            'zAsset- Conversation= zGenAlbum_zPK',
-                            'SWYConverszGenAlbum- Import Session ID-SWY',
-                            'SWYzGenAlbum-Imported by Bundle Identifier',
-                            'zAsset-zPK',
-                            'zAsset-Directory/Path',
-                            'zAsset-Filename',
-                            'zAddAssetAttr- Original Filename',
-                            'zCldMast- Original Filename',
-                            'zAddAssetAttr- Syndication Identifier-SWY-Files',
-                            'zAsset-Syndication State',
-                            'zAsset-Bundle Scope',
-                            'zAddAssetAttr.Imported by Bundle Identifier',
-                            'zAddAssetAttr-Imported By Display Name',
-                            'zAsset-Visibility State',
-                            'zAsset-Saved Asset Type',
-                            'zAddAssetAttr-Share Type',
-                            'zAsset-Active Library Scope Participation State',
-                            'zAsset- SortToken -CameraRoll',
-                            'zAsset-Added Date',
-                            'zCldMast-Creation Date',
-                            'zAddAssetAttr-Time Zone Name',
-                            'zAddAssetAttr-EXIF-String',
-                            'zAsset-Modification Date',
-                            'zAddAssetAttr-Last Viewed Date',
-                            'zAsset-Last Shared Date',
-                            'zAsset-Trashed Date',
-                            'zAsset-Trashed by Participant= zShareParticipant_zPK',
-                            'zAddAssetAttr-zPK',
-                            'zAsset-UUID = store.cloudphotodb',
-                            'zAddAssetAttr-Master Fingerprint',
-                            'SWYConverszGenAlbum-Album Kind',
-                            'SWYConverszGenAlbum-Cloud_Local_State',
-                            'SWYConverszGenAlbum- Syndicate',
-                            'SWYConverszGenAlbum-Sync Event Order Key',
-                            'SWYConverszGenAlbum-Pinned',
-                            'SWYConverszGenAlbum-Custom Sort Key',
-                            'SWYConverszGenAlbum-Custom Sort Ascending',
-                            'SWYConverszGenAlbum-Is Prototype',
-                            'SWYConverszGenAlbum-Project Document Type',
-                            'SWYConverszGenAlbum-Custom Query Type',
-                            'SWYConverszGenAlbum-Trashed State',
-                            'SWYConverszGenAlbum-Trash Date',
-                            'SWYConverszGenAlbum-Cloud Delete State',
-                            'SWYConverszGenAlbum-Privacy State')
+            data_headers = ('zAsset-Date Created-0',
+                            'SWYConverszGenAlbum-Creation Date-1',
+                            'SWYConverszGenAlbum-Start Date-2',
+                            'SWYConverszGenAlbum-End Date-3',
+                            'zAsset- Conversation= zGenAlbum_zPK-4',
+                            'SWYConverszGenAlbum- Import Session ID-SWY-5',
+                            'SWYzGenAlbum-Imported by Bundle Identifier-6',
+                            'zAsset-zPK-7',
+                            'zAsset-Directory-Path-8',
+                            'zAsset-Filename-9',
+                            'zAddAssetAttr- Original Filename-10',
+                            'zCldMast- Original Filename-11',
+                            'zAddAssetAttr- Syndication Identifier-SWY-Files-12',
+                            'zAsset-Syndication State-13',
+                            'zAsset-Bundle Scope-14',
+                            'zAddAssetAttr.Imported by Bundle Identifier-15',
+                            'zAddAssetAttr-Imported By Display Name-16',
+                            'zAsset-Visibility State-17',
+                            'zAsset-Saved Asset Type-18',
+                            'zAddAssetAttr-Share Type-19',
+                            'zAsset-Active Library Scope Participation State-20',
+                            'zAsset- SortToken -CameraRoll-21',
+                            'zAsset-Added Date-22',
+                            'zCldMast-Creation Date-23',
+                            'zAddAssetAttr-Time Zone Name-24',
+                            'zAddAssetAttr-EXIF-String-25',
+                            'zAsset-Modification Date-26',
+                            'zAsset-Last Shared Date-27',
+                            'zAsset-Trashed Date-28',
+                            'zAsset-Trashed by Participant= zShareParticipant_zPK-29',
+                            'zAddAssetAttr-zPK-30',
+                            'zAsset-UUID = store.cloudphotodb-31',
+                            'zAddAssetAttr-Master Fingerprint-32',
+                            'SWYConverszGenAlbum-Album Kind-33',
+                            'SWYConverszGenAlbum-Cloud_Local_State-34',
+                            'SWYConverszGenAlbum- Syndicate-35',
+                            'SWYConverszGenAlbum-Sync Event Order Key-36',
+                            'SWYConverszGenAlbum-Pinned-37',
+                            'SWYConverszGenAlbum-Custom Sort Key-38',
+                            'SWYConverszGenAlbum-Custom Sort Ascending-39',
+                            'SWYConverszGenAlbum-Is Prototype-40',
+                            'SWYConverszGenAlbum-Project Document Type-41',
+                            'SWYConverszGenAlbum-Custom Query Type-42',
+                            'SWYConverszGenAlbum-Trashed State-43',
+                            'SWYConverszGenAlbum-Trash Date-44',
+                            'SWYConverszGenAlbum-Cloud Delete State-45',
+                            'SWYConverszGenAlbum-Privacy State-46')
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
@@ -535,7 +533,7 @@ def get_ph26syndicationidassetsphdapsql(files_found, report_folder, seeker, wrap
 
         else:
             logfunc('No assets with a ZADDITIONALASSETATTRIBUTES ZSYNDICATIONIDENTIFIER value from'
-                    ' PhotoData/Photos.sqlite')
+                    ' PhotoData-Photos.sqlite')
 
         db.close()
         return
@@ -551,9 +549,9 @@ def get_ph26syndicationplassetssyndpl(files_found, report_folder, seeker, wrap_t
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = scripts.artifacts.artGlobals.versionf
-    if version.parse(iosversion) < version.parse("15"):
+    if version.parse(iosversion) <= version.parse("14.8.1"):
         logfunc("Unsupported version for Syndication Photos Library assets from"
-                " Syndication.photoslibrary/database/Photos.sqlite for iOS " + iosversion)
+                " Syndication.photoslibrary-database-Photos.sqlite for iOS " + iosversion)
     if (version.parse(iosversion) >= version.parse("15")) & (version.parse(iosversion) < version.parse("16")):
         file_found = str(files_found[0])
         db = open_sqlite_db_readonly(file_found)
@@ -569,7 +567,7 @@ def get_ph26syndicationplassetssyndpl(files_found, report_folder, seeker, wrap_t
         SWYConverszGenAlbum.ZIMPORTSESSIONID AS 'SWYConverszGenAlbum- Import Session ID-SWY',
         SWYConverszGenAlbum.ZIMPORTEDBYBUNDLEIDENTIFIER AS 'SWYzGenAlbum-Imported by Bundle Identifier',		
         zAsset.Z_PK AS 'zAsset-zPK',
-        zAsset.ZDIRECTORY AS 'zAsset-Directory/Path',
+        zAsset.ZDIRECTORY AS 'zAsset-Directory-Path',
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
@@ -659,7 +657,7 @@ def get_ph26syndicationplassetssyndpl(files_found, report_folder, seeker, wrap_t
         END AS 'SWYConverszGenAlbum-Pinned',
         CASE SWYConverszGenAlbum.ZCUSTOMSORTKEY
             WHEN 0 THEN '0-SWYConverszGenAlbum-Sorted_Manually-0_RT'
-            WHEN 1 THEN '1-SWYConverszGenAlbum-CusSrtAsc0=Sorted_Newest_First/CusSrtAsc1=Sorted_Oldest_First-1-RT'
+            WHEN 1 THEN '1-SWYConverszGenAlbum-CusSrtAsc0=Sorted_Newest_First-CusSrtAsc1=Sorted_Oldest_First-1-RT'
             WHEN 5 THEN '5-SWYConverszGenAlbum-Sorted_by_Title-5_RT'
             ELSE 'Unknown-New-Value!: ' || SWYConverszGenAlbum.ZCUSTOMSORTKEY || ''
         END AS 'SWYConverszGenAlbum-Custom Sort Key',
@@ -718,8 +716,8 @@ def get_ph26syndicationplassetssyndpl(files_found, report_folder, seeker, wrap_t
                 counter += 1
 
             description = 'Parses Syndication ID and Syndication Photos Library assets which includes' \
-                          ' Shared with You Conversation assets from PhotoData/Photos.sqlite and' \
-                          ' Syndication.photoslibrary/database/Photos.sqlite' \
+                          ' Shared with You Conversation assets from PhotoData-Photos.sqlite and' \
+                          ' Syndication.photoslibrary-database-Photos.sqlite' \
                           ' and supports iOS 16-17. Parses assets that have a ZADDITIONALASSETATTRIBUTES' \
                           ' ZSYNDICATIONIDENTIFIER value. ZASSET ZSAVEDASSETTYPE and ZASSET ZSYNDICATIONSTATE fields' \
                           ' can be used to filter those results: ZADDITIONALASSETATTRIBUTES ZSYNDICATIONIDENTIFIER:' \
@@ -732,50 +730,50 @@ def get_ph26syndicationplassetssyndpl(files_found, report_folder, seeker, wrap_t
             report = ArtifactHtmlReport('Photos.sqlite-Syndication_PL_Artifacts')
             report.start_artifact_report(report_folder, 'Ph26.2-Syndication PL Assets-SyndPL', description)
             report.add_script()
-            data_headers = ('zAsset-Date Created',
-                            'SWYConverszGenAlbum-Creation Date',
-                            'SWYConverszGenAlbum-Start Date',
-                            'SWYConverszGenAlbum-End Date',
-                            'zAsset- Conversation= zGenAlbum_zPK',
-                            'SWYConverszGenAlbum- Import Session ID-SWY',
-                            'SWYzGenAlbum-Imported by Bundle Identifier',
-                            'zAsset-zPK',
-                            'zAsset-Directory/Path',
-                            'zAsset-Filename',
-                            'zAddAssetAttr- Original Filename',
-                            'zCldMast- Original Filename',
-                            'zAddAssetAttr- Syndication Identifier-SWY-Files',
-                            'zAsset-Syndication State',
-                            'zAsset-Bundle Scope',
-                            'zAddAssetAttr- Imported by Bundle Identifier',
-                            'zAddAssetAttr-Imported By Display Name',
-                            'zAsset-Visibility State',
-                            'zAsset-Saved Asset Type',
-                            'zAddAssetAttr-Share Type',
-                            'zAsset- SortToken -CameraRoll',
-                            'zAsset-Added Date',
-                            'zCldMast-Creation Date',
-                            'zAddAssetAttr-Time Zone Name',
-                            'zAddAssetAttr-EXIF-String',
-                            'zAsset-Modification Date',
-                            'zAsset-Last Shared Date',
-                            'zAsset-Trashed Date',
-                            'zAddAssetAttr-zPK',
-                            'zAsset-UUID = store.cloudphotodb',
-                            'zAddAssetAttr-Master Fingerprint',
-                            'SWYConverszGenAlbum-Album Kind',
-                            'SWYConverszGenAlbum-Cloud_Local_State',
-                            'SWYConverszGenAlbum- Syndicate',
-                            'SWYConverszGenAlbum-Sync Event Order Key',
-                            'SWYConverszGenAlbum-Pinned',
-                            'SWYConverszGenAlbum-Custom Sort Key',
-                            'SWYConverszGenAlbum-Custom Sort Ascending',
-                            'SWYConverszGenAlbum-Is Prototype',
-                            'SWYConverszGenAlbum-Project Document Type',
-                            'SWYConverszGenAlbum-Custom Query Type',
-                            'SWYConverszGenAlbum-Trashed State',
-                            'SWYConverszGenAlbum-Trash Date',
-                            'SWYConverszGenAlbum-Cloud Delete State')
+            data_headers = ('zAsset-Date Created-0',
+                            'SWYConverszGenAlbum-Creation Date-1',
+                            'SWYConverszGenAlbum-Start Date-2',
+                            'SWYConverszGenAlbum-End Date-3',
+                            'zAsset- Conversation= zGenAlbum_zPK-4',
+                            'SWYConverszGenAlbum- Import Session ID-SWY-5',
+                            'SWYzGenAlbum-Imported by Bundle Identifier-6',
+                            'zAsset-zPK-7',
+                            'zAsset-Directory-Path-8',
+                            'zAsset-Filename-9',
+                            'zAddAssetAttr- Original Filename-10',
+                            'zCldMast- Original Filename-11',
+                            'zAddAssetAttr- Syndication Identifier-SWY-Files-12',
+                            'zAsset-Syndication State-13',
+                            'zAsset-Bundle Scope-14',
+                            'zAddAssetAttr- Imported by Bundle Identifier-15',
+                            'zAddAssetAttr-Imported By Display Name-16',
+                            'zAsset-Visibility State-17',
+                            'zAsset-Saved Asset Type-18',
+                            'zAddAssetAttr-Share Type-19',
+                            'zAsset- SortToken -CameraRoll-20',
+                            'zAsset-Added Date-21',
+                            'zCldMast-Creation Date-22',
+                            'zAddAssetAttr-Time Zone Name-23',
+                            'zAddAssetAttr-EXIF-String-24',
+                            'zAsset-Modification Date-25',
+                            'zAsset-Last Shared Date-26',
+                            'zAsset-Trashed Date-27',
+                            'zAddAssetAttr-zPK-28',
+                            'zAsset-UUID = store.cloudphotodb-29',
+                            'zAddAssetAttr-Master Fingerprint-30',
+                            'SWYConverszGenAlbum-Album Kind-31',
+                            'SWYConverszGenAlbum-Cloud_Local_State-32',
+                            'SWYConverszGenAlbum- Syndicate-33',
+                            'SWYConverszGenAlbum-Sync Event Order Key-34',
+                            'SWYConverszGenAlbum-Pinned-35',
+                            'SWYConverszGenAlbum-Custom Sort Key-36',
+                            'SWYConverszGenAlbum-Custom Sort Ascending-37',
+                            'SWYConverszGenAlbum-Is Prototype-38',
+                            'SWYConverszGenAlbum-Project Document Type-39',
+                            'SWYConverszGenAlbum-Custom Query Type-40',
+                            'SWYConverszGenAlbum-Trashed State-41',
+                            'SWYConverszGenAlbum-Trash Date-42',
+                            'SWYConverszGenAlbum-Cloud Delete State-43')
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
@@ -787,7 +785,7 @@ def get_ph26syndicationplassetssyndpl(files_found, report_folder, seeker, wrap_t
 
         else:
             logfunc('No assets with a ZADDITIONALASSETATTRIBUTES ZSYNDICATIONIDENTIFIER value from'
-                    ' Syndication.photoslibrary/database/Photos.sqlite')
+                    ' Syndication.photoslibrary-database-Photos.sqlite')
 
         db.close()
         return
@@ -807,7 +805,7 @@ def get_ph26syndicationplassetssyndpl(files_found, report_folder, seeker, wrap_t
         SWYConverszGenAlbum.ZIMPORTSESSIONID AS 'SWYConverszGenAlbum- Import Session ID-SWY',
         SWYConverszGenAlbum.ZIMPORTEDBYBUNDLEIDENTIFIER AS 'SWYzGenAlbum-Imported by Bundle Identifier',
         zAsset.Z_PK AS 'zAsset-zPK',
-        zAsset.ZDIRECTORY AS 'zAsset-Directory/Path',
+        zAsset.ZDIRECTORY AS 'zAsset-Directory-Path',
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
@@ -865,7 +863,6 @@ def get_ph26syndicationplassetssyndpl(files_found, report_folder, seeker, wrap_t
         zAddAssetAttr.ZTIMEZONENAME AS 'zAddAssetAttr-Time Zone Name',
         zAddAssetAttr.ZEXIFTIMESTAMPSTRING AS 'zAddAssetAttr-EXIF-String',
         DateTime(zAsset.ZMODIFICATIONDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Modification Date',
-        DateTime(zAddAssetAttr.ZLASTVIEWEDDATE + 978307200, 'UNIXEPOCH') AS 'zAddAssetAttr-Last Viewed Date',
         DateTime(zAsset.ZLASTSHAREDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Last Shared Date',
         DateTime(zAsset.ZTRASHEDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Trashed Date',
         zAsset.ZTRASHEDBYPARTICIPANT AS 'zAsset-Trashed by Participant= zShareParticipant_zPK',
@@ -904,7 +901,7 @@ def get_ph26syndicationplassetssyndpl(files_found, report_folder, seeker, wrap_t
         END AS 'SWYConverszGenAlbum-Pinned',
         CASE SWYConverszGenAlbum.ZCUSTOMSORTKEY
             WHEN 0 THEN '0-SWYConverszGenAlbum-Sorted_Manually-0_RT'
-            WHEN 1 THEN '1-SWYConverszGenAlbum-CusSrtAsc0=Sorted_Newest_First/CusSrtAsc1=Sorted_Oldest_First-1-RT'
+            WHEN 1 THEN '1-SWYConverszGenAlbum-CusSrtAsc0=Sorted_Newest_First-CusSrtAsc1=Sorted_Oldest_First-1-RT'
             WHEN 5 THEN '5-SWYConverszGenAlbum-Sorted_by_Title-5_RT'
             ELSE 'Unknown-New-Value!: ' || SWYConverszGenAlbum.ZCUSTOMSORTKEY || ''
         END AS 'SWYConverszGenAlbum-Custom Sort Key',
@@ -965,13 +962,13 @@ def get_ph26syndicationplassetssyndpl(files_found, report_folder, seeker, wrap_t
                                   row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
                                   row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35], row[36],
                                   row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45],
-                                  row[46], row[47]))
+                                  row[46]))
 
                 counter += 1
 
             description = 'Parses Syndication ID and Syndication Photos Library assets which includes' \
-                          ' Shared with You Conversation assets from PhotoData/Photos.sqlite and' \
-                          ' Syndication.photoslibrary/database/Photos.sqlite' \
+                          ' Shared with You Conversation assets from PhotoData-Photos.sqlite and' \
+                          ' Syndication.photoslibrary-database-Photos.sqlite' \
                           ' and supports iOS 16-17. Parses assets that have a ZADDITIONALASSETATTRIBUTES' \
                           ' ZSYNDICATIONIDENTIFIER value. ZASSET ZSAVEDASSETTYPE and ZASSET ZSYNDICATIONSTATE fields' \
                           ' can be used to filter those results: ZADDITIONALASSETATTRIBUTES ZSYNDICATIONIDENTIFIER:' \
@@ -984,54 +981,53 @@ def get_ph26syndicationplassetssyndpl(files_found, report_folder, seeker, wrap_t
             report = ArtifactHtmlReport('Photos.sqlite-Syndication_PL_Artifacts')
             report.start_artifact_report(report_folder, 'Ph26.2-Syndication PL Assets-SyndPL', description)
             report.add_script()
-            data_headers = ('zAsset-Date Created',
-                            'SWYConverszGenAlbum-Creation Date',
-                            'SWYConverszGenAlbum-Start Date',
-                            'SWYConverszGenAlbum-End Date',
-                            'zAsset- Conversation= zGenAlbum_zPK',
-                            'SWYConverszGenAlbum- Import Session ID-SWY',
-                            'SWYzGenAlbum-Imported by Bundle Identifier',
-                            'zAsset-zPK',
-                            'zAsset-Directory/Path',
-                            'zAsset-Filename',
-                            'zAddAssetAttr- Original Filename',
-                            'zCldMast- Original Filename',
-                            'zAddAssetAttr- Syndication Identifier-SWY-Files',
-                            'zAsset-Syndication State',
-                            'zAsset-Bundle Scope',
-                            'zAddAssetAttr.Imported by Bundle Identifier',
-                            'zAddAssetAttr-Imported By Display Name',
-                            'zAsset-Visibility State',
-                            'zAsset-Saved Asset Type',
-                            'zAddAssetAttr-Share Type',
-                            'zAsset-Active Library Scope Participation State',
-                            'zAsset- SortToken -CameraRoll',
-                            'zAsset-Added Date',
-                            'zCldMast-Creation Date',
-                            'zAddAssetAttr-Time Zone Name',
-                            'zAddAssetAttr-EXIF-String',
-                            'zAsset-Modification Date',
-                            'zAddAssetAttr-Last Viewed Date',
-                            'zAsset-Last Shared Date',
-                            'zAsset-Trashed Date',
-                            'zAsset-Trashed by Participant= zShareParticipant_zPK',
-                            'zAddAssetAttr-zPK',
-                            'zAsset-UUID = store.cloudphotodb',
-                            'zAddAssetAttr-Master Fingerprint',
-                            'SWYConverszGenAlbum-Album Kind',
-                            'SWYConverszGenAlbum-Cloud_Local_State',
-                            'SWYConverszGenAlbum- Syndicate',
-                            'SWYConverszGenAlbum-Sync Event Order Key',
-                            'SWYConverszGenAlbum-Pinned',
-                            'SWYConverszGenAlbum-Custom Sort Key',
-                            'SWYConverszGenAlbum-Custom Sort Ascending',
-                            'SWYConverszGenAlbum-Is Prototype',
-                            'SWYConverszGenAlbum-Project Document Type',
-                            'SWYConverszGenAlbum-Custom Query Type',
-                            'SWYConverszGenAlbum-Trashed State',
-                            'SWYConverszGenAlbum-Trash Date',
-                            'SWYConverszGenAlbum-Cloud Delete State',
-                            'SWYConverszGenAlbum-Privacy State')
+            data_headers = ('zAsset-Date Created-0',
+                            'SWYConverszGenAlbum-Creation Date-1',
+                            'SWYConverszGenAlbum-Start Date-2',
+                            'SWYConverszGenAlbum-End Date-3',
+                            'zAsset- Conversation= zGenAlbum_zPK-4',
+                            'SWYConverszGenAlbum- Import Session ID-SWY-5',
+                            'SWYzGenAlbum-Imported by Bundle Identifier-6',
+                            'zAsset-zPK-7',
+                            'zAsset-Directory-Path-8',
+                            'zAsset-Filename-9',
+                            'zAddAssetAttr- Original Filename-10',
+                            'zCldMast- Original Filename-11',
+                            'zAddAssetAttr- Syndication Identifier-SWY-Files-12',
+                            'zAsset-Syndication State-13',
+                            'zAsset-Bundle Scope-14',
+                            'zAddAssetAttr.Imported by Bundle Identifier-15',
+                            'zAddAssetAttr-Imported By Display Name-16',
+                            'zAsset-Visibility State-17',
+                            'zAsset-Saved Asset Type-18',
+                            'zAddAssetAttr-Share Type-19',
+                            'zAsset-Active Library Scope Participation State-20',
+                            'zAsset- SortToken -CameraRoll-21',
+                            'zAsset-Added Date-22',
+                            'zCldMast-Creation Date-23',
+                            'zAddAssetAttr-Time Zone Name-24',
+                            'zAddAssetAttr-EXIF-String-25',
+                            'zAsset-Modification Date-26',
+                            'zAsset-Last Shared Date-27',
+                            'zAsset-Trashed Date-28',
+                            'zAsset-Trashed by Participant= zShareParticipant_zPK-29',
+                            'zAddAssetAttr-zPK-30',
+                            'zAsset-UUID = store.cloudphotodb-31',
+                            'zAddAssetAttr-Master Fingerprint-32',
+                            'SWYConverszGenAlbum-Album Kind-33',
+                            'SWYConverszGenAlbum-Cloud_Local_State-34',
+                            'SWYConverszGenAlbum- Syndicate-35',
+                            'SWYConverszGenAlbum-Sync Event Order Key-36',
+                            'SWYConverszGenAlbum-Pinned-37',
+                            'SWYConverszGenAlbum-Custom Sort Key-38',
+                            'SWYConverszGenAlbum-Custom Sort Ascending-39',
+                            'SWYConverszGenAlbum-Is Prototype-40',
+                            'SWYConverszGenAlbum-Project Document Type-41',
+                            'SWYConverszGenAlbum-Custom Query Type-42',
+                            'SWYConverszGenAlbum-Trashed State-43',
+                            'SWYConverszGenAlbum-Trash Date-44',
+                            'SWYConverszGenAlbum-Cloud Delete State-45',
+                            'SWYConverszGenAlbum-Privacy State-46')
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
@@ -1043,7 +1039,7 @@ def get_ph26syndicationplassetssyndpl(files_found, report_folder, seeker, wrap_t
 
         else:
             logfunc('No assets with a ZADDITIONALASSETATTRIBUTES ZSYNDICATIONIDENTIFIER value from'
-                    ' Syndication.photoslibrary/database/Photos.sqlite')
+                    ' Syndication.photoslibrary-database-Photos.sqlite')
 
         db.close()
         return
@@ -1053,8 +1049,8 @@ __artifacts_v2__ = {
     'Ph26-1-Syndication ID Assets-PhDaPsql': {
         'name': 'PhDaPL Photos.sqlite 26.1 Syndication ID Assets',
         'description': 'Parses Syndication ID and Syndication Photos Library assets which includes'
-                       ' Shared with You Conversation assets from PhotoData/Photos.sqlite and'
-                       ' Syndication.photoslibrary/database/Photos.sqlite'
+                       ' Shared with You Conversation assets from PhotoData-Photos.sqlite and'
+                       ' Syndication.photoslibrary-database-Photos.sqlite'
                        ' and supports iOS 15-17. Parses assets that have a ZADDITIONALASSETATTRIBUTES'
                        ' ZSYNDICATIONIDENTIFIER value. ZASSET ZSAVEDASSETTYPE and ZASSET ZSYNDICATIONSTATE fields'
                        ' can be used to filter those results: ZADDITIONALASSETATTRIBUTES ZSYNDICATIONIDENTIFIER:'
@@ -1067,17 +1063,17 @@ __artifacts_v2__ = {
         'author': 'Scott Koenig https://theforensicscooter.com/',
         'version': '1.0',
         'date': '2024-04-13',
-        'requirements': 'Acquisition that contains PhotoData/Photos.sqlite',
+        'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
         'category': 'Photos.sqlite-Other_Artifacts',
         'notes': '',
-        'paths': ('*/mobile/Media/PhotoData/Photos.sqlite*'),
+        'paths': '*/mobile/Media/PhotoData/Photos.sqlite*',
         'function': 'get_ph26syndicationidassetsphdapsql'
     },
     'Ph26-2-Syndication PL Assets-SyndPL': {
         'name': 'SyndPL Photos.sqlite 26.2 Syndication PL Assets',
         'description': 'Parses Syndication ID and Syndication Photos Library assets which includes'
-                       ' Shared with You Conversation assets from PhotoData/Photos.sqlite and'
-                       ' Syndication.photoslibrary/database/Photos.sqlite'
+                       ' Shared with You Conversation assets from PhotoData-Photos.sqlite and'
+                       ' Syndication.photoslibrary-database-Photos.sqlite'
                        ' and supports iOS 15-17. Parses assets that have a ZADDITIONALASSETATTRIBUTES'
                        ' ZSYNDICATIONIDENTIFIER value. ZASSET ZSAVEDASSETTYPE and ZASSET ZSYNDICATIONSTATE fields'
                        ' can be used to filter those results: ZADDITIONALASSETATTRIBUTES ZSYNDICATIONIDENTIFIER:'
@@ -1093,7 +1089,7 @@ __artifacts_v2__ = {
         'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
         'category': 'Photos.sqlite-Syndication_PL_Artifacts',
         'notes': '',
-        'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*'),
+        'paths': '*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',
         'function': 'get_ph26syndicationplassetssyndpl'
     }
 }

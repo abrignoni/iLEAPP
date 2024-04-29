@@ -3,7 +3,7 @@
 # Version: 1.1
 #
 #   Description:
-#   Parses Assets associated with Non-Shared Albums found in the PhotoData/Photos.sqlite and supports iOS 11-17.
+#   Parses Assets associated with Non-Shared Albums found in the PhotoData-Photos.sqlite and supports iOS 11-17.
 #   Parses limited assets data with full non-shared album data.
 #   This parser is based on research and SQLite Queries written by Scott Koenig
 #   This is very large query and script, I recommend opening the TSV generated report with Zimmerman's Tools
@@ -41,8 +41,8 @@ def get_ph22assetsinnonsharedalbumsphdapsql(files_found, report_folder, seeker, 
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = scripts.artifacts.artGlobals.versionf
-    if version.parse(iosversion) < version.parse("11"):
-        logfunc("Unsupported version for PhotoData/Photos.sqlite assets in Non-Shared Albums from iOS " + iosversion)
+    if version.parse(iosversion) <= version.parse("10.3.4"):
+        logfunc("Unsupported version for PhotoData-Photos.sqlite assets in Non-Shared Albums from iOS " + iosversion)
     if (version.parse(iosversion) >= version.parse("11")) & (version.parse(iosversion) < version.parse("12")):
         file_found = str(files_found[0])
         db = open_sqlite_db_readonly(file_found)
@@ -52,7 +52,7 @@ def get_ph22assetsinnonsharedalbumsphdapsql(files_found, report_folder, seeker, 
         SELECT
         DateTime(zAsset.ZDATECREATED + 978307200, 'UNIXEPOCH') AS 'zAsset-Date Created',
         zAsset.Z_PK AS 'zAsset-zPK',
-        zAsset.ZDIRECTORY AS 'zAsset-Directory/Path',
+        zAsset.ZDIRECTORY AS 'zAsset-Directory-Path',
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
@@ -91,7 +91,7 @@ def get_ph22assetsinnonsharedalbumsphdapsql(files_found, report_folder, seeker, 
         ParentzGenAlbum.ZUUID AS 'ParentzGenAlbum-UUID',
         ParentzGenAlbum.ZCLOUDGUID AS 'ParentzGenAlbum-Cloud GUID',
         ParentzGenAlbum.ZTITLE AS 'ParentzGenAlbum- Title',
-        zGenAlbum.ZTITLE AS 'zGenAlbum- Title/User&System Applied',
+        zGenAlbum.ZTITLE AS 'zGenAlbum- Title-User&System Applied',
         zGenAlbum.ZUUID AS 'zGenAlbum-UUID',
         zGenAlbum.ZCLOUDGUID AS 'zGenAlbum-Cloud GUID',
         ParentzGenAlbum.ZPENDINGITEMSCOUNT AS 'ParentzGenAlbum-Pending Items Count',
@@ -128,7 +128,7 @@ def get_ph22assetsinnonsharedalbumsphdapsql(files_found, report_folder, seeker, 
         END AS 'ParentzGenAlbum-Pinned',
         CASE ParentzGenAlbum.ZCUSTOMSORTKEY
             WHEN 0 THEN '0-zGenAlbum-Sorted_Manually-0_RT'
-            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First/CusSrtAsc1=Sorted_Oldest_First-1-RT'
+            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First-CusSrtAsc1=Sorted_Oldest_First-1-RT'
             WHEN 5 THEN '5-zGenAlbum-Sorted_by_Title-5_RT'
             ELSE 'Unknown-New-Value!: ' || ParentzGenAlbum.ZCUSTOMSORTKEY || ''
         END AS 'ParentzGenAlbum-Custom Sort Key',
@@ -198,7 +198,7 @@ def get_ph22assetsinnonsharedalbumsphdapsql(files_found, report_folder, seeker, 
         END AS 'zGenAlbum-Pinned',       
         CASE zGenAlbum.ZCUSTOMSORTKEY
             WHEN 0 THEN '0-zGenAlbum-Sorted_Manually-0_RT'
-            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First/CusSrtAsc1=Sorted_Oldest_First-1-RT'
+            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First-CusSrtAsc1=Sorted_Oldest_First-1-RT'
             WHEN 5 THEN '5-zGenAlbum-Sorted_by_Title-5_RT'
             ELSE 'Unknown-New-Value!: ' || zGenAlbum.ZCUSTOMSORTKEY || ''
         END AS 'zGenAlbum-Custom Sort Key',        
@@ -245,67 +245,67 @@ def get_ph22assetsinnonsharedalbumsphdapsql(files_found, report_folder, seeker, 
 
                 counter += 1
 
-            description = 'Parses Assets associated with Non-Shared Albums found in the PhotoData/Photos.sqlite' \
+            description = 'Parses Assets associated with Non-Shared Albums found in the PhotoData-Photos.sqlite' \
                           ' from iOS 11. Parses limited asset data with full non-shared album data.'
             report = ArtifactHtmlReport('Photos.sqlite-Asset_In_Albums')
             report.start_artifact_report(report_folder, 'Ph22-Assets in Non-Shared Albums-PhDaPsql', description)
             report.add_script()
-            data_headers = ('zAsset-Date Created',
-                            'zAsset-zPK',
-                            'zAsset-Directory/Path',
-                            'zAsset-Filename',
-                            'zAddAssetAttr- Original Filename',
-                            'zCldMast- Original Filename',
-                            'zAddAssetAttr- Creator Bundle ID',
-                            'zAsset-Visibility State',
-                            'zAsset-Saved Asset Type',
-                            'zAsset- SortToken -CameraRoll',
-                            'zAsset-Added Date',
-                            'zCldMast-Creation Date',
-                            'zAddAssetAttr-Time Zone Name',
-                            'zAddAssetAttr-EXIF-String',
-                            'zAsset-Modification Date',
-                            'zAsset-Last Shared Date',
-                            'zAsset-Trashed Date',
-                            'zAddAssetAttr-zPK',
-                            'zAsset-UUID = store.cloudphotodb',
-                            'zAddAssetAttr-Master Fingerprint',
-                            'zGenAlbum-Start Date',
-                            'zGenAlbum-End Date',
-                            'ParentzGenAlbum-UUID',
-                            'ParentzGenAlbum-Cloud GUID',
-                            'ParentzGenAlbum- Title',
-                            'zGenAlbum- Title/User&System Applied',
-                            'zGenAlbum-UUID',
-                            'zGenAlbum-Cloud GUID',
-                            'ParentzGenAlbum-Pending Items Count',
-                            'ParentzGenAlbum-Pending Items Type',
-                            'ParentzGenAlbum-Kind',
-                            'ParentzGenAlbum-Cloud-Local-State',
-                            'ParentzGenAlbum-Sync Event Order Key',
-                            'ParentzGenAlbum-Pinned',
-                            'ParentzGenAlbum-Custom Sort Key',
-                            'ParentzGenAlbum-Custom Sort Ascending',
-                            'ParentzGenAlbum-Custom Query Type',
-                            'ParentzGenAlbum-Trashed State',
-                            'ParentzGenAlbum-Trash Date',
-                            'zGenAlbum-Pending Items Count',
-                            'zGenAlbum-Pending Items Type',
-                            'zGenAlbum- Cached Photos Count',
-                            'zGenAlbum- Cached Videos Count',
-                            'zGenAlbum- Cached Count',
-                            'zGenAlbum-Has Unseen Content',
-                            'zGenAlbum-Unseen Asset Count',
-                            'zGenAlbum-zENT- Entity',
-                            'zGenAlbum-Album Kind',
-                            'zGenAlbum-Cloud_Local_State',
-                            'zGenAlbum-Sync Event Order Key',
-                            'zGenAlbum-Pinned',
-                            'zGenAlbum-Custom Sort Key',
-                            'zGenAlbum-Custom Sort Ascending',
-                            'zGenAlbum-Custom Query Type',
-                            'zGenAlbum-Trashed State',
-                            'zGenAlbum-Trash Date')
+            data_headers = ('zAsset-Date Created-0',
+                            'zAsset-zPK-1',
+                            'zAsset-Directory-Path-2',
+                            'zAsset-Filename-3',
+                            'zAddAssetAttr- Original Filename-4',
+                            'zCldMast- Original Filename-5',
+                            'zAddAssetAttr- Creator Bundle ID-6',
+                            'zAsset-Visibility State-7',
+                            'zAsset-Saved Asset Type-8',
+                            'zAsset- SortToken -CameraRoll-9',
+                            'zAsset-Added Date-10',
+                            'zCldMast-Creation Date-11',
+                            'zAddAssetAttr-Time Zone Name-12',
+                            'zAddAssetAttr-EXIF-String-13',
+                            'zAsset-Modification Date-14',
+                            'zAsset-Last Shared Date-15',
+                            'zAsset-Trashed Date-16',
+                            'zAddAssetAttr-zPK-17',
+                            'zAsset-UUID = store.cloudphotodb-18',
+                            'zAddAssetAttr-Master Fingerprint-19',
+                            'zGenAlbum-Start Date-20',
+                            'zGenAlbum-End Date-21',
+                            'ParentzGenAlbum-UUID-22',
+                            'ParentzGenAlbum-Cloud GUID-23',
+                            'ParentzGenAlbum- Title-24',
+                            'zGenAlbum- Title-User&System Applied-25',
+                            'zGenAlbum-UUID-26',
+                            'zGenAlbum-Cloud GUID-27',
+                            'ParentzGenAlbum-Pending Items Count-28',
+                            'ParentzGenAlbum-Pending Items Type-29',
+                            'ParentzGenAlbum-Kind-30',
+                            'ParentzGenAlbum-Cloud-Local-State-31',
+                            'ParentzGenAlbum-Sync Event Order Key-32',
+                            'ParentzGenAlbum-Pinned-33',
+                            'ParentzGenAlbum-Custom Sort Key-34',
+                            'ParentzGenAlbum-Custom Sort Ascending-35',
+                            'ParentzGenAlbum-Custom Query Type-36',
+                            'ParentzGenAlbum-Trashed State-37',
+                            'ParentzGenAlbum-Trash Date-38',
+                            'zGenAlbum-Pending Items Count-39',
+                            'zGenAlbum-Pending Items Type-40',
+                            'zGenAlbum- Cached Photos Count-41',
+                            'zGenAlbum- Cached Videos Count-42',
+                            'zGenAlbum- Cached Count-43',
+                            'zGenAlbum-Has Unseen Content-44',
+                            'zGenAlbum-Unseen Asset Count-45',
+                            'zGenAlbum-zENT- Entity-46',
+                            'zGenAlbum-Album Kind-47',
+                            'zGenAlbum-Cloud_Local_State-48',
+                            'zGenAlbum-Sync Event Order Key-49',
+                            'zGenAlbum-Pinned-50',
+                            'zGenAlbum-Custom Sort Key-51',
+                            'zGenAlbum-Custom Sort Ascending-52',
+                            'zGenAlbum-Custom Query Type-53',
+                            'zGenAlbum-Trashed State-54',
+                            'zGenAlbum-Trash Date-55')
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
@@ -316,7 +316,7 @@ def get_ph22assetsinnonsharedalbumsphdapsql(files_found, report_folder, seeker, 
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available from PhotoData/Photos.sqlite for Assets in Non-Shared Albums')
+            logfunc('No data available from PhotoData-Photos.sqlite for Assets in Non-Shared Albums')
 
             db.close()
         return
@@ -330,7 +330,7 @@ def get_ph22assetsinnonsharedalbumsphdapsql(files_found, report_folder, seeker, 
         SELECT
         DateTime(zAsset.ZDATECREATED + 978307200, 'UNIXEPOCH') AS 'zAsset-Date Created',
         zAsset.Z_PK AS 'zAsset-zPK',
-        zAsset.ZDIRECTORY AS 'zAsset-Directory/Path',
+        zAsset.ZDIRECTORY AS 'zAsset-Directory-Path',
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
@@ -369,7 +369,7 @@ def get_ph22assetsinnonsharedalbumsphdapsql(files_found, report_folder, seeker, 
         ParentzGenAlbum.ZUUID AS 'ParentzGenAlbum-UUID',
         ParentzGenAlbum.ZCLOUDGUID AS 'ParentzGenAlbum-Cloud GUID',
         ParentzGenAlbum.ZTITLE AS 'ParentzGenAlbum- Title',
-        zGenAlbum.ZTITLE AS 'zGenAlbum- Title/User&System Applied',
+        zGenAlbum.ZTITLE AS 'zGenAlbum- Title-User&System Applied',
         zGenAlbum.ZUUID AS 'zGenAlbum-UUID',        
         zGenAlbum.ZCLOUDGUID AS 'zGenAlbum-Cloud GUID',
         ParentzGenAlbum.ZPENDINGITEMSCOUNT AS 'ParentzGenAlbum-Pending Items Count',
@@ -406,7 +406,7 @@ def get_ph22assetsinnonsharedalbumsphdapsql(files_found, report_folder, seeker, 
         END AS 'ParentzGenAlbum-Pinned',
         CASE ParentzGenAlbum.ZCUSTOMSORTKEY
             WHEN 0 THEN '0-zGenAlbum-Sorted_Manually-0_RT'
-            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First/CusSrtAsc1=Sorted_Oldest_First-1-RT'
+            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First-CusSrtAsc1=Sorted_Oldest_First-1-RT'
             WHEN 5 THEN '5-zGenAlbum-Sorted_by_Title-5_RT'
             ELSE 'Unknown-New-Value!: ' || ParentzGenAlbum.ZCUSTOMSORTKEY || ''
         END AS 'ParentzGenAlbum-Custom Sort Key',
@@ -481,7 +481,7 @@ def get_ph22assetsinnonsharedalbumsphdapsql(files_found, report_folder, seeker, 
         END AS 'zGenAlbum-Pinned',       
         CASE zGenAlbum.ZCUSTOMSORTKEY
             WHEN 0 THEN '0-zGenAlbum-Sorted_Manually-0_RT'
-            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First/CusSrtAsc1=Sorted_Oldest_First-1-RT'
+            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First-CusSrtAsc1=Sorted_Oldest_First-1-RT'
             WHEN 5 THEN '5-zGenAlbum-Sorted_by_Title-5_RT'
             ELSE 'Unknown-New-Value!: ' || zGenAlbum.ZCUSTOMSORTKEY || ''
         END AS 'zGenAlbum-Custom Sort Key',        
@@ -533,69 +533,69 @@ def get_ph22assetsinnonsharedalbumsphdapsql(files_found, report_folder, seeker, 
 
                 counter += 1
 
-            description = 'Parses Assets associated with Non-Shared Albums found in the PhotoData/Photos.sqlite' \
+            description = 'Parses Assets associated with Non-Shared Albums found in the PhotoData-Photos.sqlite' \
                           ' from iOS 12. Parses limited asset data with full non-shared album data.'
             report = ArtifactHtmlReport('Photos.sqlite-Asset_In_Albums')
             report.start_artifact_report(report_folder, 'Ph22-Assets in Non-Shared Albums-PhDaPsql', description)
             report.add_script()
-            data_headers = ('zAsset-Date Created',
-                            'zAsset-zPK',
-                            'zAsset-Directory/Path',
-                            'zAsset-Filename',
-                            'zAddAssetAttr- Original Filename',
-                            'zCldMast- Original Filename',
-                            'zAddAssetAttr- Creator Bundle ID',
-                            'zAsset-Visibility State',
-                            'zAsset-Saved Asset Type',
-                            'zAsset- SortToken -CameraRoll',
-                            'zAsset-Added Date',
-                            'zCldMast-Creation Date',
-                            'zAddAssetAttr-Time Zone Name',
-                            'zAddAssetAttr-EXIF-String',
-                            'zAsset-Modification Date',
-                            'zAsset-Last Shared Date',
-                            'zAsset-Trashed Date',
-                            'zAddAssetAttr-zPK',
-                            'zAsset-UUID = store.cloudphotodb',
-                            'zAddAssetAttr-Master Fingerprint',
-                            'zGenAlbum-Start Date',
-                            'zGenAlbum-End Date',
-                            'ParentzGenAlbum-UUID',
-                            'ParentzGenAlbum-Cloud GUID',
-                            'ParentzGenAlbum- Title',
-                            'zGenAlbum- Title/User&System Applied',
-                            'zGenAlbum-UUID',
-                            'zGenAlbum-Cloud GUID',
-                            'ParentzGenAlbum-Pending Items Count',
-                            'ParentzGenAlbum-Pending Items Type',
-                            'ParentzGenAlbum-Kind',
-                            'ParentzGenAlbum-Cloud-Local-State',
-                            'ParentzGenAlbum-Sync Event Order Key',
-                            'ParentzGenAlbum-Pinned',
-                            'ParentzGenAlbum-Custom Sort Key',
-                            'ParentzGenAlbum-Custom Sort Ascending',
-                            'ParentzGenAlbum-Custom Query Type',
-                            'ParentzGenAlbum-Trashed State',
-                            'ParentzGenAlbum-Trash Date',
-                            'ParentzGenAlbum-Cloud Delete State',
-                            'zGenAlbum-Pending Items Count',
-                            'zGenAlbum-Pending Items Type',
-                            'zGenAlbum- Cached Photos Count',
-                            'zGenAlbum- Cached Videos Count',
-                            'zGenAlbum- Cached Count',
-                            'zGenAlbum-Has Unseen Content',
-                            'zGenAlbum-Unseen Asset Count',
-                            'zGenAlbum-zENT- Entity',
-                            'zGenAlbum-Album Kind',
-                            'zGenAlbum-Cloud_Local_State',
-                            'zGenAlbum-Sync Event Order Key',
-                            'zGenAlbum-Pinned',
-                            'zGenAlbum-Custom Sort Key',
-                            'zGenAlbum-Custom Sort Ascending',
-                            'zGenAlbum-Custom Query Type',
-                            'zGenAlbum-Trashed State',
-                            'zGenAlbum-Trash Date',
-                            'zGenAlbum-Cloud Delete State')
+            data_headers = ('zAsset-Date Created-0',
+                            'zAsset-zPK-1',
+                            'zAsset-Directory-Path-2',
+                            'zAsset-Filename-3',
+                            'zAddAssetAttr- Original Filename-4',
+                            'zCldMast- Original Filename-5',
+                            'zAddAssetAttr- Creator Bundle ID-6',
+                            'zAsset-Visibility State-7',
+                            'zAsset-Saved Asset Type-8',
+                            'zAsset- SortToken -CameraRoll-9',
+                            'zAsset-Added Date-10',
+                            'zCldMast-Creation Date-11',
+                            'zAddAssetAttr-Time Zone Name-12',
+                            'zAddAssetAttr-EXIF-String-13',
+                            'zAsset-Modification Date-14',
+                            'zAsset-Last Shared Date-15',
+                            'zAsset-Trashed Date-16',
+                            'zAddAssetAttr-zPK-17',
+                            'zAsset-UUID = store.cloudphotodb-18',
+                            'zAddAssetAttr-Master Fingerprint-19',
+                            'zGenAlbum-Start Date-20',
+                            'zGenAlbum-End Date-21',
+                            'ParentzGenAlbum-UUID-22',
+                            'ParentzGenAlbum-Cloud GUID-23',
+                            'ParentzGenAlbum- Title-24',
+                            'zGenAlbum- Title-User&System Applied-25',
+                            'zGenAlbum-UUID-26',
+                            'zGenAlbum-Cloud GUID-27',
+                            'ParentzGenAlbum-Pending Items Count-28',
+                            'ParentzGenAlbum-Pending Items Type-29',
+                            'ParentzGenAlbum-Kind-30',
+                            'ParentzGenAlbum-Cloud-Local-State-31',
+                            'ParentzGenAlbum-Sync Event Order Key-32',
+                            'ParentzGenAlbum-Pinned-33',
+                            'ParentzGenAlbum-Custom Sort Key-34',
+                            'ParentzGenAlbum-Custom Sort Ascending-35',
+                            'ParentzGenAlbum-Custom Query Type-36',
+                            'ParentzGenAlbum-Trashed State-37',
+                            'ParentzGenAlbum-Trash Date-38',
+                            'ParentzGenAlbum-Cloud Delete State-39',
+                            'zGenAlbum-Pending Items Count-40',
+                            'zGenAlbum-Pending Items Type-41',
+                            'zGenAlbum- Cached Photos Count-42',
+                            'zGenAlbum- Cached Videos Count-43',
+                            'zGenAlbum- Cached Count-44',
+                            'zGenAlbum-Has Unseen Content-45',
+                            'zGenAlbum-Unseen Asset Count-46',
+                            'zGenAlbum-zENT- Entity-47',
+                            'zGenAlbum-Album Kind-48',
+                            'zGenAlbum-Cloud_Local_State-49',
+                            'zGenAlbum-Sync Event Order Key-50',
+                            'zGenAlbum-Pinned-51',
+                            'zGenAlbum-Custom Sort Key-52',
+                            'zGenAlbum-Custom Sort Ascending-53',
+                            'zGenAlbum-Custom Query Type-54',
+                            'zGenAlbum-Trashed State-55',
+                            'zGenAlbum-Trash Date-56',
+                            'zGenAlbum-Cloud Delete State-57')
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
@@ -606,7 +606,7 @@ def get_ph22assetsinnonsharedalbumsphdapsql(files_found, report_folder, seeker, 
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available from PhotoData/Photos.sqlite for Assets in Non-Shared Albums')
+            logfunc('No data available from PhotoData-Photos.sqlite for Assets in Non-Shared Albums')
 
             db.close()
         return
@@ -620,7 +620,7 @@ def get_ph22assetsinnonsharedalbumsphdapsql(files_found, report_folder, seeker, 
         SELECT
         DateTime(zAsset.ZDATECREATED + 978307200, 'UNIXEPOCH') AS 'zAsset-Date Created',
         zAsset.Z_PK AS 'zAsset-zPK',
-        zAsset.ZDIRECTORY AS 'zAsset-Directory/Path',
+        zAsset.ZDIRECTORY AS 'zAsset-Directory-Path',
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
@@ -660,7 +660,7 @@ def get_ph22assetsinnonsharedalbumsphdapsql(files_found, report_folder, seeker, 
         ParentzGenAlbum.ZUUID AS 'ParentzGenAlbum-UUID',
         ParentzGenAlbum.ZCLOUDGUID AS 'ParentzGenAlbum-Cloud GUID',
         ParentzGenAlbum.ZTITLE AS 'ParentzGenAlbum- Title',
-        zGenAlbum.ZTITLE AS 'zGenAlbum- Title/User&System Applied',
+        zGenAlbum.ZTITLE AS 'zGenAlbum- Title-User&System Applied',
         zGenAlbum.ZUUID AS 'zGenAlbum-UUID',        
         zGenAlbum.ZCLOUDGUID AS 'zGenAlbum-Cloud GUID',       
         DateTime(ParentzGenAlbum.ZCREATIONDATE + 978307200, 'UNIXEPOCH') AS 'ParentzGenAlbum-Creation Date',
@@ -698,7 +698,7 @@ def get_ph22assetsinnonsharedalbumsphdapsql(files_found, report_folder, seeker, 
         END AS 'ParentzGenAlbum-Pinned',
         CASE ParentzGenAlbum.ZCUSTOMSORTKEY
             WHEN 0 THEN '0-zGenAlbum-Sorted_Manually-0_RT'
-            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First/CusSrtAsc1=Sorted_Oldest_First-1-RT'
+            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First-CusSrtAsc1=Sorted_Oldest_First-1-RT'
             WHEN 5 THEN '5-zGenAlbum-Sorted_by_Title-5_RT'
             ELSE 'Unknown-New-Value!: ' || ParentzGenAlbum.ZCUSTOMSORTKEY || ''
         END AS 'ParentzGenAlbum-Custom Sort Key',
@@ -777,7 +777,7 @@ def get_ph22assetsinnonsharedalbumsphdapsql(files_found, report_folder, seeker, 
         END AS 'zGenAlbum-Pinned',       
         CASE zGenAlbum.ZCUSTOMSORTKEY
             WHEN 0 THEN '0-zGenAlbum-Sorted_Manually-0_RT'
-            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First/CusSrtAsc1=Sorted_Oldest_First-1-RT'
+            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First-CusSrtAsc1=Sorted_Oldest_First-1-RT'
             WHEN 5 THEN '5-zGenAlbum-Sorted_by_Title-5_RT'
             ELSE 'Unknown-New-Value!: ' || zGenAlbum.ZCUSTOMSORTKEY || ''
         END AS 'zGenAlbum-Custom Sort Key',        
@@ -833,72 +833,72 @@ def get_ph22assetsinnonsharedalbumsphdapsql(files_found, report_folder, seeker, 
 
                 counter += 1
 
-            description = 'Parses Assets associated with Non-Shared Albums found in the PhotoData/Photos.sqlite' \
+            description = 'Parses Assets associated with Non-Shared Albums found in the PhotoData-Photos.sqlite' \
                           ' from iOS 13. Parses limited asset data with full non-shared album data.'
             report = ArtifactHtmlReport('Photos.sqlite-Asset_In_Albums')
             report.start_artifact_report(report_folder, 'Ph22-Assets in Non-Shared Albums-PhDaPsql', description)
             report.add_script()
-            data_headers = ('zAsset-Date Created',
-                            'zAsset-zPK',
-                            'zAsset-Directory/Path',
-                            'zAsset-Filename',
-                            'zAddAssetAttr- Original Filename',
-                            'zCldMast- Original Filename',
-                            'zAddAssetAttr- Creator Bundle ID',
-                            'zAsset-Visibility State',
-                            'zAsset-Saved Asset Type',
-                            'zAsset- SortToken -CameraRoll',
-                            'zAsset-Added Date',
-                            'zCldMast-Creation Date',
-                            'zAddAssetAttr-Time Zone Name',
-                            'zAddAssetAttr-EXIF-String',
-                            'zAsset-Modification Date',
-                            'zAsset-Last Shared Date',
-                            'zAsset-Trashed Date',
-                            'zAddAssetAttr-zPK',
-                            'zAsset-UUID = store.cloudphotodb',
-                            'zAddAssetAttr-Master Fingerprint',
-                            'zGenAlbum-Creation Date',
-                            'zGenAlbum-Start Date',
-                            'zGenAlbum-End Date',
-                            'ParentzGenAlbum-UUID',
-                            'ParentzGenAlbum-Cloud GUID',
-                            'ParentzGenAlbum- Title',
-                            'zGenAlbum- Title/User&System Applied',
-                            'zGenAlbum-UUID',
-                            'zGenAlbum-Cloud GUID',
-                            'ParentzGenAlbum-Pending Items Count',
-                            'ParentzGenAlbum-Pending Items Type',
-                            'ParentzGenAlbum-Kind',
-                            'ParentzGenAlbum-Cloud-Local-State',
-                            'ParentzGenAlbum-Sync Event Order Key',
-                            'ParentzGenAlbum-Pinned',
-                            'ParentzGenAlbum-Custom Sort Key',
-                            'ParentzGenAlbum-Custom Sort Ascending',
-                            'ParentzGenAlbum-Project Document Type',
-                            'ParentzGenAlbum-Custom Query Type',
-                            'ParentzGenAlbum-Trashed State',
-                            'ParentzGenAlbum-Trash Date',
-                            'ParentzGenAlbum-Cloud Delete State',
-                            'zGenAlbum-Pending Items Count',
-                            'zGenAlbum-Pending Items Type',
-                            'zGenAlbum- Cached Photos Count',
-                            'zGenAlbum- Cached Videos Count',
-                            'zGenAlbum- Cached Count',
-                            'zGenAlbum-Has Unseen Content',
-                            'zGenAlbum-Unseen Asset Count',
-                            'zGenAlbum-zENT- Entity',
-                            'zGenAlbum-Album Kind',
-                            'zGenAlbum-Cloud_Local_State',
-                            'zGenAlbum-Sync Event Order Key',
-                            'zGenAlbum-Pinned',
-                            'zGenAlbum-Custom Sort Key',
-                            'zGenAlbum-Custom Sort Ascending',
-                            'zGenAlbum-Project Document Type',
-                            'zGenAlbum-Custom Query Type',
-                            'zGenAlbum-Trashed State',
-                            'zGenAlbum-Trash Date',
-                            'zGenAlbum-Cloud Delete State')
+            data_headers = ('zAsset-Date Created-0',
+                            'zAsset-zPK-1',
+                            'zAsset-Directory-Path-2',
+                            'zAsset-Filename-3',
+                            'zAddAssetAttr- Original Filename-4',
+                            'zCldMast- Original Filename-5',
+                            'zAddAssetAttr- Creator Bundle ID-6',
+                            'zAsset-Visibility State-7',
+                            'zAsset-Saved Asset Type-8',
+                            'zAsset- SortToken -CameraRoll-9',
+                            'zAsset-Added Date-10',
+                            'zCldMast-Creation Date-11',
+                            'zAddAssetAttr-Time Zone Name-12',
+                            'zAddAssetAttr-EXIF-String-13',
+                            'zAsset-Modification Date-14',
+                            'zAsset-Last Shared Date-15',
+                            'zAsset-Trashed Date-16',
+                            'zAddAssetAttr-zPK-17',
+                            'zAsset-UUID = store.cloudphotodb-18',
+                            'zAddAssetAttr-Master Fingerprint-19',
+                            'zGenAlbum-Creation Date-20',
+                            'zGenAlbum-Start Date-21',
+                            'zGenAlbum-End Date-22',
+                            'ParentzGenAlbum-UUID-23',
+                            'ParentzGenAlbum-Cloud GUID-24',
+                            'ParentzGenAlbum- Title-25',
+                            'zGenAlbum- Title-User&System Applied-26',
+                            'zGenAlbum-UUID-27',
+                            'zGenAlbum-Cloud GUID-28',
+                            'ParentzGenAlbum-Pending Items Count-29',
+                            'ParentzGenAlbum-Pending Items Type-30',
+                            'ParentzGenAlbum-Kind-31',
+                            'ParentzGenAlbum-Cloud-Local-State-32',
+                            'ParentzGenAlbum-Sync Event Order Key-33',
+                            'ParentzGenAlbum-Pinned-34',
+                            'ParentzGenAlbum-Custom Sort Key-35',
+                            'ParentzGenAlbum-Custom Sort Ascending-36',
+                            'ParentzGenAlbum-Project Document Type-37',
+                            'ParentzGenAlbum-Custom Query Type-38',
+                            'ParentzGenAlbum-Trashed State-39',
+                            'ParentzGenAlbum-Trash Date-40',
+                            'ParentzGenAlbum-Cloud Delete State-41',
+                            'zGenAlbum-Pending Items Count-42',
+                            'zGenAlbum-Pending Items Type-43',
+                            'zGenAlbum- Cached Photos Count-44',
+                            'zGenAlbum- Cached Videos Count-45',
+                            'zGenAlbum- Cached Count-46',
+                            'zGenAlbum-Has Unseen Content-47',
+                            'zGenAlbum-Unseen Asset Count-48',
+                            'zGenAlbum-zENT- Entity-49',
+                            'zGenAlbum-Album Kind-50',
+                            'zGenAlbum-Cloud_Local_State-51',
+                            'zGenAlbum-Sync Event Order Key-52',
+                            'zGenAlbum-Pinned-53',
+                            'zGenAlbum-Custom Sort Key-54',
+                            'zGenAlbum-Custom Sort Ascending-55',
+                            'zGenAlbum-Project Document Type-56',
+                            'zGenAlbum-Custom Query Type-57',
+                            'zGenAlbum-Trashed State-58',
+                            'zGenAlbum-Trash Date-59',
+                            'zGenAlbum-Cloud Delete State-60')
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
@@ -909,7 +909,7 @@ def get_ph22assetsinnonsharedalbumsphdapsql(files_found, report_folder, seeker, 
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available from PhotoData/Photos.sqlite for Assets in Non-Shared Albums')
+            logfunc('No data available from PhotoData-Photos.sqlite for Assets in Non-Shared Albums')
 
             db.close()
         return
@@ -923,7 +923,7 @@ def get_ph22assetsinnonsharedalbumsphdapsql(files_found, report_folder, seeker, 
         SELECT
         DateTime(zAsset.ZDATECREATED + 978307200, 'UNIXEPOCH') AS 'zAsset-Date Created',
         zAsset.Z_PK AS 'zAsset-zPK',
-        zAsset.ZDIRECTORY AS 'zAsset-Directory/Path',
+        zAsset.ZDIRECTORY AS 'zAsset-Directory-Path',
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
@@ -969,7 +969,7 @@ def get_ph22assetsinnonsharedalbumsphdapsql(files_found, report_folder, seeker, 
         ParentzGenAlbum.ZUUID AS 'ParentzGenAlbum-UUID',
         ParentzGenAlbum.ZCLOUDGUID AS 'ParentzGenAlbum-Cloud GUID',
         ParentzGenAlbum.ZTITLE AS 'ParentzGenAlbum- Title',
-        zGenAlbum.ZTITLE AS 'zGenAlbum- Title/User&System Applied',
+        zGenAlbum.ZTITLE AS 'zGenAlbum- Title-User&System Applied',
         zGenAlbum.ZUUID AS 'zGenAlbum-UUID',        
         zGenAlbum.ZCLOUDGUID AS 'zGenAlbum-Cloud GUID',    
         zGenAlbum.ZCREATORBUNDLEID AS 'zGenAlbum-Creator Bundle Id',       
@@ -1008,7 +1008,7 @@ def get_ph22assetsinnonsharedalbumsphdapsql(files_found, report_folder, seeker, 
         END AS 'ParentzGenAlbum-Pinned',
         CASE ParentzGenAlbum.ZCUSTOMSORTKEY
             WHEN 0 THEN '0-zGenAlbum-Sorted_Manually-0_RT'
-            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First/CusSrtAsc1=Sorted_Oldest_First-1-RT'
+            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First-CusSrtAsc1=Sorted_Oldest_First-1-RT'
             WHEN 5 THEN '5-zGenAlbum-Sorted_by_Title-5_RT'
             ELSE 'Unknown-New-Value!: ' || ParentzGenAlbum.ZCUSTOMSORTKEY || ''
         END AS 'ParentzGenAlbum-Custom Sort Key',
@@ -1092,7 +1092,7 @@ def get_ph22assetsinnonsharedalbumsphdapsql(files_found, report_folder, seeker, 
         END AS 'zGenAlbum-Pinned',       
         CASE zGenAlbum.ZCUSTOMSORTKEY
             WHEN 0 THEN '0-zGenAlbum-Sorted_Manually-0_RT'
-            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First/CusSrtAsc1=Sorted_Oldest_First-1-RT'
+            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First-CusSrtAsc1=Sorted_Oldest_First-1-RT'
             WHEN 5 THEN '5-zGenAlbum-Sorted_by_Title-5_RT'
             ELSE 'Unknown-New-Value!: ' || zGenAlbum.ZCUSTOMSORTKEY || ''
         END AS 'zGenAlbum-Custom Sort Key',        
@@ -1154,78 +1154,78 @@ def get_ph22assetsinnonsharedalbumsphdapsql(files_found, report_folder, seeker, 
 
                 counter += 1
 
-            description = 'Parses Assets associated with Non-Shared Albums found in the PhotoData/Photos.sqlite' \
+            description = 'Parses Assets associated with Non-Shared Albums found in the PhotoData-Photos.sqlite' \
                           ' from iOS 14. Parses limited asset data with full non-shared album data.'
             report = ArtifactHtmlReport('Photos.sqlite-Asset_In_Albums')
             report.start_artifact_report(report_folder, 'Ph22-Assets in Non-Shared Albums-PhDaPsql', description)
             report.add_script()
-            data_headers = ('zAsset-Date Created',
-                            'zAsset-zPK',
-                            'zAsset-Directory/Path',
-                            'zAsset-Filename',
-                            'zAddAssetAttr- Original Filename',
-                            'zCldMast- Original Filename',
-                            'zAddAssetAttr- Creator Bundle ID',
-                            'zAddAssetAttr-Imported By Display Name',
-                            'zAsset-Visibility State',
-                            'zAsset-Saved Asset Type',
-                            'zAddAssetAttr-Share Type',
-                            'zAsset- SortToken -CameraRoll',
-                            'zAsset-Added Date',
-                            'zCldMast-Creation Date',
-                            'zAddAssetAttr-Time Zone Name',
-                            'zAddAssetAttr-EXIF-String',
-                            'zAsset-Modification Date',
-                            'zAsset-Last Shared Date',
-                            'zAsset-Trashed Date',
-                            'zAddAssetAttr-zPK',
-                            'zAsset-UUID = store.cloudphotodb',
-                            'zAddAssetAttr-Master Fingerprint',
-                            'zGenAlbum-Creation Date',
-                            'zGenAlbum-Start Date',
-                            'zGenAlbum-End Date',
-                            'ParentzGenAlbum-UUID',
-                            'ParentzGenAlbum-Cloud GUID',
-                            'ParentzGenAlbum- Title',
-                            'zGenAlbum- Title/User&System Applied',
-                            'zGenAlbum-UUID',
-                            'zGenAlbum-Cloud GUID',
-                            'zGenAlbum-Creator Bundle Id',
-                            'ParentzGenAlbum-Creation Date',
-                            'ParentzGenAlbum-Pending Items Count',
-                            'ParentzGenAlbum-Pending Items Type',
-                            'ParentzGenAlbum-Kind',
-                            'ParentzGenAlbum-Cloud-Local-State',
-                            'ParentzGenAlbum-Sync Event Order Key',
-                            'ParentzGenAlbum-Pinned',
-                            'ParentzGenAlbum-Custom Sort Key',
-                            'ParentzGenAlbum-Custom Sort Ascending',
-                            'ParentzGenAlbum-Is Prototype',
-                            'ParentzGenAlbum-Project Document Type',
-                            'ParentzGenAlbum-Custom Query Type',
-                            'ParentzGenAlbum-Trashed State',
-                            'ParentzGenAlbum-Trash Date',
-                            'ParentzGenAlbum-Cloud Delete State',
-                            'zGenAlbum-Pending Items Count',
-                            'zGenAlbum-Pending Items Type',
-                            'zGenAlbum- Cached Photos Count',
-                            'zGenAlbum- Cached Videos Count',
-                            'zGenAlbum- Cached Count',
-                            'zGenAlbum-Has Unseen Content',
-                            'zGenAlbum-Unseen Asset Count',
-                            'zGenAlbum-zENT- Entity',
-                            'zGenAlbum-Album Kind',
-                            'zGenAlbum-Cloud_Local_State',
-                            'zGenAlbum-Sync Event Order Key',
-                            'zGenAlbum-Pinned',
-                            'zGenAlbum-Custom Sort Key',
-                            'zGenAlbum-Custom Sort Ascending',
-                            'zGenAlbum-Is Prototype',
-                            'zGenAlbum-Project Document Type',
-                            'zGenAlbum-Custom Query Type',
-                            'zGenAlbum-Trashed State',
-                            'zGenAlbum-Trash Date',
-                            'zGenAlbum-Cloud Delete State')
+            data_headers = ('zAsset-Date Created-0',
+                            'zAsset-zPK-1',
+                            'zAsset-Directory-Path-2',
+                            'zAsset-Filename-3',
+                            'zAddAssetAttr- Original Filename-4',
+                            'zCldMast- Original Filename-5',
+                            'zAddAssetAttr- Creator Bundle ID-6',
+                            'zAddAssetAttr-Imported By Display Name-7',
+                            'zAsset-Visibility State-8',
+                            'zAsset-Saved Asset Type-9',
+                            'zAddAssetAttr-Share Type-10',
+                            'zAsset- SortToken -CameraRoll-11',
+                            'zAsset-Added Date-12',
+                            'zCldMast-Creation Date-13',
+                            'zAddAssetAttr-Time Zone Name-14',
+                            'zAddAssetAttr-EXIF-String-15',
+                            'zAsset-Modification Date-16',
+                            'zAsset-Last Shared Date-17',
+                            'zAsset-Trashed Date-18',
+                            'zAddAssetAttr-zPK-19',
+                            'zAsset-UUID = store.cloudphotodb-20',
+                            'zAddAssetAttr-Master Fingerprint-21',
+                            'zGenAlbum-Creation Date-22',
+                            'zGenAlbum-Start Date-23',
+                            'zGenAlbum-End Date-24',
+                            'ParentzGenAlbum-UUID-25',
+                            'ParentzGenAlbum-Cloud GUID-26',
+                            'ParentzGenAlbum- Title-27',
+                            'zGenAlbum- Title-User&System Applied-28',
+                            'zGenAlbum-UUID-29',
+                            'zGenAlbum-Cloud GUID-30',
+                            'zGenAlbum-Creator Bundle Id-31',
+                            'ParentzGenAlbum-Creation Date-32',
+                            'ParentzGenAlbum-Pending Items Count-33',
+                            'ParentzGenAlbum-Pending Items Type-34',
+                            'ParentzGenAlbum-Kind-35',
+                            'ParentzGenAlbum-Cloud-Local-State-36',
+                            'ParentzGenAlbum-Sync Event Order Key-37',
+                            'ParentzGenAlbum-Pinned-38',
+                            'ParentzGenAlbum-Custom Sort Key-39',
+                            'ParentzGenAlbum-Custom Sort Ascending-40',
+                            'ParentzGenAlbum-Is Prototype-41',
+                            'ParentzGenAlbum-Project Document Type-42',
+                            'ParentzGenAlbum-Custom Query Type-43',
+                            'ParentzGenAlbum-Trashed State-44',
+                            'ParentzGenAlbum-Trash Date-45',
+                            'ParentzGenAlbum-Cloud Delete State-46',
+                            'zGenAlbum-Pending Items Count-47',
+                            'zGenAlbum-Pending Items Type-48',
+                            'zGenAlbum- Cached Photos Count-49',
+                            'zGenAlbum- Cached Videos Count-50',
+                            'zGenAlbum- Cached Count-51',
+                            'zGenAlbum-Has Unseen Content-52',
+                            'zGenAlbum-Unseen Asset Count-53',
+                            'zGenAlbum-zENT- Entity-54',
+                            'zGenAlbum-Album Kind-55',
+                            'zGenAlbum-Cloud_Local_State-56',
+                            'zGenAlbum-Sync Event Order Key-57',
+                            'zGenAlbum-Pinned-58',
+                            'zGenAlbum-Custom Sort Key-59',
+                            'zGenAlbum-Custom Sort Ascending-60',
+                            'zGenAlbum-Is Prototype-61',
+                            'zGenAlbum-Project Document Type-62',
+                            'zGenAlbum-Custom Query Type-63',
+                            'zGenAlbum-Trashed State-64',
+                            'zGenAlbum-Trash Date-65',
+                            'zGenAlbum-Cloud Delete State-66')
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
@@ -1236,7 +1236,7 @@ def get_ph22assetsinnonsharedalbumsphdapsql(files_found, report_folder, seeker, 
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available from PhotoData/Photos.sqlite for Assets in Non-Shared Albums')
+            logfunc('No data available from PhotoData-Photos.sqlite for Assets in Non-Shared Albums')
 
             db.close()
         return
@@ -1250,7 +1250,7 @@ def get_ph22assetsinnonsharedalbumsphdapsql(files_found, report_folder, seeker, 
         SELECT
         DateTime(zAsset.ZDATECREATED + 978307200, 'UNIXEPOCH') AS 'zAsset-Date Created',
         zAsset.Z_PK AS 'zAsset-zPK',
-        zAsset.ZDIRECTORY AS 'zAsset-Directory/Path',
+        zAsset.ZDIRECTORY AS 'zAsset-Directory-Path',
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
@@ -1314,7 +1314,7 @@ def get_ph22assetsinnonsharedalbumsphdapsql(files_found, report_folder, seeker, 
         ParentzGenAlbum.ZUUID AS 'ParentzGenAlbum-UUID',
         ParentzGenAlbum.ZCLOUDGUID AS 'ParentzGenAlbum-Cloud GUID',
         ParentzGenAlbum.ZTITLE AS 'ParentzGenAlbum- Title',
-        zGenAlbum.ZTITLE AS 'zGenAlbum- Title/User&System Applied',
+        zGenAlbum.ZTITLE AS 'zGenAlbum- Title-User&System Applied',
         zGenAlbum.ZUUID AS 'zGenAlbum-UUID',        
         zGenAlbum.ZCLOUDGUID AS 'zGenAlbum-Cloud GUID',    
         zGenAlbum.ZIMPORTEDBYBUNDLEIDENTIFIER AS 'zGenAlbum-Imported by Bundle Identifier',       
@@ -1353,7 +1353,7 @@ def get_ph22assetsinnonsharedalbumsphdapsql(files_found, report_folder, seeker, 
         END AS 'ParentzGenAlbum-Pinned',
         CASE ParentzGenAlbum.ZCUSTOMSORTKEY
             WHEN 0 THEN '0-zGenAlbum-Sorted_Manually-0_RT'
-            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First/CusSrtAsc1=Sorted_Oldest_First-1-RT'
+            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First-CusSrtAsc1=Sorted_Oldest_First-1-RT'
             WHEN 5 THEN '5-zGenAlbum-Sorted_by_Title-5_RT'
             ELSE 'Unknown-New-Value!: ' || ParentzGenAlbum.ZCUSTOMSORTKEY || ''
         END AS 'ParentzGenAlbum-Custom Sort Key',
@@ -1437,7 +1437,7 @@ def get_ph22assetsinnonsharedalbumsphdapsql(files_found, report_folder, seeker, 
         END AS 'zGenAlbum-Pinned',       
         CASE zGenAlbum.ZCUSTOMSORTKEY
             WHEN 0 THEN '0-zGenAlbum-Sorted_Manually-0_RT'
-            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First/CusSrtAsc1=Sorted_Oldest_First-1-RT'
+            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First-CusSrtAsc1=Sorted_Oldest_First-1-RT'
             WHEN 5 THEN '5-zGenAlbum-Sorted_by_Title-5_RT'
             ELSE 'Unknown-New-Value!: ' || zGenAlbum.ZCUSTOMSORTKEY || ''
         END AS 'zGenAlbum-Custom Sort Key',        
@@ -1500,81 +1500,81 @@ def get_ph22assetsinnonsharedalbumsphdapsql(files_found, report_folder, seeker, 
 
                 counter += 1
 
-            description = 'Parses Assets associated with Non-Shared Albums found in the PhotoData/Photos.sqlite' \
+            description = 'Parses Assets associated with Non-Shared Albums found in the PhotoData-Photos.sqlite' \
                           ' from iOS 15. Parses limited asset data with full non-shared album data.'
             report = ArtifactHtmlReport('Photos.sqlite-Asset_In_Albums')
             report.start_artifact_report(report_folder, 'Ph22-Assets in Non-Shared Albums-PhDaPsql', description)
             report.add_script()
-            data_headers = ('zAsset-Date Created',
-                            'zAsset-zPK',
-                            'zAsset-Directory/Path',
-                            'zAsset-Filename',
-                            'zAddAssetAttr- Original Filename',
-                            'zCldMast- Original Filename',
-                            'zAddAssetAttr- Syndication Identifier-SWY-Files',
-                            'zAsset-Syndication State',
-                            'zAsset-Bundle Scope',
-                            'zAddAssetAttr- Imported by Bundle Identifier',
-                            'zAddAssetAttr-Imported By Display Name',
-                            'zAsset-Visibility State',
-                            'zAsset-Saved Asset Type',
-                            'zAddAssetAttr-Share Type',
-                            'zAsset- SortToken -CameraRoll',
-                            'zAsset-Added Date',
-                            'zCldMast-Creation Date',
-                            'zAddAssetAttr-Time Zone Name',
-                            'zAddAssetAttr-EXIF-String',
-                            'zAsset-Modification Date',
-                            'zAsset-Last Shared Date',
-                            'zAsset-Trashed Date',
-                            'zAddAssetAttr-zPK',
-                            'zAsset-UUID = store.cloudphotodb',
-                            'zAddAssetAttr-Master Fingerprint',
-                            'zGenAlbum-Creation Date',
-                            'zGenAlbum-Start Date',
-                            'zGenAlbum-End Date',
-                            'ParentzGenAlbum-UUID',
-                            'ParentzGenAlbum-Cloud GUID',
-                            'ParentzGenAlbum- Title',
-                            'zGenAlbum- Title/User&System Applied',
-                            'zGenAlbum-UUID',
-                            'zGenAlbum-Cloud GUID',
-                            'zGenAlbum-Imported by Bundle Identifier',
-                            'ParentzGenAlbum-Creation Date',
-                            'ParentzGenAlbum-Pending Items Count',
-                            'ParentzGenAlbum-Pending Items Type',
-                            'ParentzGenAlbum-Kind',
-                            'ParentzGenAlbum-Cloud-Local-State',
-                            'ParentzGenAlbum-Sync Event Order Key',
-                            'ParentzGenAlbum-Pinned',
-                            'ParentzGenAlbum-Custom Sort Key',
-                            'ParentzGenAlbum-Custom Sort Ascending',
-                            'ParentzGenAlbum-Is Prototype',
-                            'ParentzGenAlbum-Project Document Type',
-                            'ParentzGenAlbum-Custom Query Type',
-                            'ParentzGenAlbum-Trashed State',
-                            'ParentzGenAlbum-Trash Date',
-                            'ParentzGenAlbum-Cloud Delete State',
-                            'zGenAlbum-Pending Items Count',
-                            'zGenAlbum-Pending Items Type',
-                            'zGenAlbum- Cached Photos Count',
-                            'zGenAlbum- Cached Videos Count',
-                            'zGenAlbum- Cached Count',
-                            'zGenAlbum-Has Unseen Content',
-                            'zGenAlbum-Unseen Asset Count',
-                            'zGenAlbum-zENT- Entity',
-                            'zGenAlbum-Album Kind',
-                            'zGenAlbum-Cloud_Local_State',
-                            'zGenAlbum-Sync Event Order Key',
-                            'zGenAlbum-Pinned',
-                            'zGenAlbum-Custom Sort Key',
-                            'zGenAlbum-Custom Sort Ascending',
-                            'zGenAlbum-Is Prototype',
-                            'zGenAlbum-Project Document Type',
-                            'zGenAlbum-Custom Query Type',
-                            'zGenAlbum-Trashed State',
-                            'zGenAlbum-Trash Date',
-                            'zGenAlbum-Cloud Delete State')
+            data_headers = ('zAsset-Date Created-0',
+                            'zAsset-zPK-1',
+                            'zAsset-Directory-Path-2',
+                            'zAsset-Filename-3',
+                            'zAddAssetAttr- Original Filename-4',
+                            'zCldMast- Original Filename-5',
+                            'zAddAssetAttr- Syndication Identifier-SWY-Files-6',
+                            'zAsset-Syndication State-7',
+                            'zAsset-Bundle Scope-8',
+                            'zAddAssetAttr- Imported by Bundle Identifier-9',
+                            'zAddAssetAttr-Imported By Display Name-10',
+                            'zAsset-Visibility State-11',
+                            'zAsset-Saved Asset Type-12',
+                            'zAddAssetAttr-Share Type-13',
+                            'zAsset- SortToken -CameraRoll-14',
+                            'zAsset-Added Date-15',
+                            'zCldMast-Creation Date-16',
+                            'zAddAssetAttr-Time Zone Name-17',
+                            'zAddAssetAttr-EXIF-String-18',
+                            'zAsset-Modification Date-19',
+                            'zAsset-Last Shared Date-20',
+                            'zAsset-Trashed Date-21',
+                            'zAddAssetAttr-zPK-22',
+                            'zAsset-UUID = store.cloudphotodb-23',
+                            'zAddAssetAttr-Master Fingerprint-24',
+                            'zGenAlbum-Creation Date-25',
+                            'zGenAlbum-Start Date-26',
+                            'zGenAlbum-End Date-27',
+                            'ParentzGenAlbum-UUID-28',
+                            'ParentzGenAlbum-Cloud GUID-29',
+                            'ParentzGenAlbum- Title-30',
+                            'zGenAlbum- Title-User&System Applied-31',
+                            'zGenAlbum-UUID-32',
+                            'zGenAlbum-Cloud GUID-33',
+                            'zGenAlbum-Imported by Bundle Identifier-34',
+                            'ParentzGenAlbum-Creation Date-35',
+                            'ParentzGenAlbum-Pending Items Count-36',
+                            'ParentzGenAlbum-Pending Items Type-37',
+                            'ParentzGenAlbum-Kind-38',
+                            'ParentzGenAlbum-Cloud-Local-State-39',
+                            'ParentzGenAlbum-Sync Event Order Key-40',
+                            'ParentzGenAlbum-Pinned-41',
+                            'ParentzGenAlbum-Custom Sort Key-42',
+                            'ParentzGenAlbum-Custom Sort Ascending-43',
+                            'ParentzGenAlbum-Is Prototype-44',
+                            'ParentzGenAlbum-Project Document Type-45',
+                            'ParentzGenAlbum-Custom Query Type-46',
+                            'ParentzGenAlbum-Trashed State-47',
+                            'ParentzGenAlbum-Trash Date-48',
+                            'ParentzGenAlbum-Cloud Delete State-49',
+                            'zGenAlbum-Pending Items Count-50',
+                            'zGenAlbum-Pending Items Type-51',
+                            'zGenAlbum- Cached Photos Count-52',
+                            'zGenAlbum- Cached Videos Count-53',
+                            'zGenAlbum- Cached Count-54',
+                            'zGenAlbum-Has Unseen Content-55',
+                            'zGenAlbum-Unseen Asset Count-56',
+                            'zGenAlbum-zENT- Entity-57',
+                            'zGenAlbum-Album Kind-58',
+                            'zGenAlbum-Cloud_Local_State-59',
+                            'zGenAlbum-Sync Event Order Key-60',
+                            'zGenAlbum-Pinned-61',
+                            'zGenAlbum-Custom Sort Key-62',
+                            'zGenAlbum-Custom Sort Ascending-63',
+                            'zGenAlbum-Is Prototype-64',
+                            'zGenAlbum-Project Document Type-65',
+                            'zGenAlbum-Custom Query Type-66',
+                            'zGenAlbum-Trashed State-67',
+                            'zGenAlbum-Trash Date-68',
+                            'zGenAlbum-Cloud Delete State-69')
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
@@ -1585,7 +1585,7 @@ def get_ph22assetsinnonsharedalbumsphdapsql(files_found, report_folder, seeker, 
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available from PhotoData/Photos.sqlite for Assets in Non-Shared Albums')
+            logfunc('No data available from PhotoData-Photos.sqlite for Assets in Non-Shared Albums')
 
             db.close()
         return
@@ -1599,7 +1599,7 @@ def get_ph22assetsinnonsharedalbumsphdapsql(files_found, report_folder, seeker, 
         SELECT
         DateTime(zAsset.ZDATECREATED + 978307200, 'UNIXEPOCH') AS 'zAsset-Date Created',
         zAsset.Z_PK AS 'zAsset-zPK',
-        zAsset.ZDIRECTORY AS 'zAsset-Directory/Path',
+        zAsset.ZDIRECTORY AS 'zAsset-Directory-Path',
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
@@ -1657,7 +1657,6 @@ def get_ph22assetsinnonsharedalbumsphdapsql(files_found, report_folder, seeker, 
         zAddAssetAttr.ZTIMEZONENAME AS 'zAddAssetAttr-Time Zone Name',
         zAddAssetAttr.ZEXIFTIMESTAMPSTRING AS 'zAddAssetAttr-EXIF-String',
         DateTime(zAsset.ZMODIFICATIONDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Modification Date',
-        DateTime(zAddAssetAttr.ZLASTVIEWEDDATE + 978307200, 'UNIXEPOCH') AS 'zAddAssetAttr-Last Viewed Date',
         DateTime(zAsset.ZLASTSHAREDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Last Shared Date',
         DateTime(zAsset.ZTRASHEDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Trashed Date',
         zAsset.ZTRASHEDBYPARTICIPANT AS 'zAsset-Trashed by Participant= zShareParticipant_zPK',
@@ -1670,7 +1669,7 @@ def get_ph22assetsinnonsharedalbumsphdapsql(files_found, report_folder, seeker, 
         ParentzGenAlbum.ZUUID AS 'ParentzGenAlbum-UUID',
         ParentzGenAlbum.ZCLOUDGUID AS 'ParentzGenAlbum-Cloud GUID',
         ParentzGenAlbum.ZTITLE AS 'ParentzGenAlbum- Title',
-        zGenAlbum.ZTITLE AS 'zGenAlbum- Title/User&System Applied',
+        zGenAlbum.ZTITLE AS 'zGenAlbum- Title-User&System Applied',
         zGenAlbum.ZUUID AS 'zGenAlbum-UUID',        
         zGenAlbum.ZCLOUDGUID AS 'zGenAlbum-Cloud GUID',    
         zGenAlbum.ZIMPORTEDBYBUNDLEIDENTIFIER AS 'zGenAlbum-Imported by Bundle Identifier',       
@@ -1709,7 +1708,7 @@ def get_ph22assetsinnonsharedalbumsphdapsql(files_found, report_folder, seeker, 
         END AS 'ParentzGenAlbum-Pinned',
         CASE ParentzGenAlbum.ZCUSTOMSORTKEY
             WHEN 0 THEN '0-zGenAlbum-Sorted_Manually-0_RT'
-            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First/CusSrtAsc1=Sorted_Oldest_First-1-RT'
+            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First-CusSrtAsc1=Sorted_Oldest_First-1-RT'
             WHEN 5 THEN '5-zGenAlbum-Sorted_by_Title-5_RT'
             ELSE 'Unknown-New-Value!: ' || ParentzGenAlbum.ZCUSTOMSORTKEY || ''
         END AS 'ParentzGenAlbum-Custom Sort Key',
@@ -1793,7 +1792,7 @@ def get_ph22assetsinnonsharedalbumsphdapsql(files_found, report_folder, seeker, 
         END AS 'zGenAlbum-Pinned',       
         CASE zGenAlbum.ZCUSTOMSORTKEY
             WHEN 0 THEN '0-zGenAlbum-Sorted_Manually-0_RT'
-            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First/CusSrtAsc1=Sorted_Oldest_First-1-RT'
+            WHEN 1 THEN '1-zGenAlbum-CusSrtAsc0=Sorted_Newest_First-CusSrtAsc1=Sorted_Oldest_First-1-RT'
             WHEN 5 THEN '5-zGenAlbum-Sorted_by_Title-5_RT'
             ELSE 'Unknown-New-Value!: ' || zGenAlbum.ZCUSTOMSORTKEY || ''
         END AS 'zGenAlbum-Custom Sort Key',        
@@ -1870,91 +1869,90 @@ def get_ph22assetsinnonsharedalbumsphdapsql(files_found, report_folder, seeker, 
                                   row[46], row[47], row[48], row[49], row[50], row[51], row[52], row[53], row[54],
                                   row[55], row[56], row[57], row[58], row[59], row[60], row[61], row[62], row[63],
                                   row[64], row[65], row[66], row[67], row[68], row[69], row[70], row[71], row[72],
-                                  row[73], row[74], row[75]))
+                                  row[73], row[74]))
 
                 counter += 1
 
-            description = 'Parses Assets associated with Non-Shared Albums found in the PhotoData/Photos.sqlite' \
+            description = 'Parses Assets associated with Non-Shared Albums found in the PhotoData-Photos.sqlite' \
                           ' from iOS 16-17. Parses limited asset data with full non-shared album data.'
             report = ArtifactHtmlReport('Photos.sqlite-Asset_In_Albums')
             report.start_artifact_report(report_folder, 'Ph22-Assets in Non-Shared Albums-PhDaPsql', description)
             report.add_script()
-            data_headers = ('zAsset-Date Created',
-                            'zAsset-zPK',
-                            'zAsset-Directory/Path',
-                            'zAsset-Filename',
-                            'zAddAssetAttr- Original Filename',
-                            'zCldMast- Original Filename',
-                            'zAddAssetAttr- Syndication Identifier-SWY-Files',
-                            'zAsset-Syndication State',
-                            'zAsset-Bundle Scope',
-                            'zAddAssetAttr.Imported by Bundle Identifier',
-                            'zAddAssetAttr-Imported By Display Name',
-                            'zAsset-Visibility State',
-                            'zAsset-Saved Asset Type',
-                            'zAddAssetAttr-Share Type',
-                            'zAsset-Active Library Scope Participation State',
-                            'zAsset- SortToken -CameraRoll',
-                            'zAsset-Added Date',
-                            'zCldMast-Creation Date',
-                            'zAddAssetAttr-Time Zone Name',
-                            'zAddAssetAttr-EXIF-String',
-                            'zAsset-Modification Date',
-                            'zAddAssetAttr-Last Viewed Date',
-                            'zAsset-Last Shared Date',
-                            'zAsset-Trashed Date',
-                            'zAsset-Trashed by Participant= zShareParticipant_zPK',
-                            'zAddAssetAttr-zPK',
-                            'zAsset-UUID = store.cloudphotodb',
-                            'zAddAssetAttr-Master Fingerprint',
-                            'zGenAlbum-Creation Date',
-                            'zGenAlbum-Start Date',
-                            'zGenAlbum-End Date',
-                            'ParentzGenAlbum-UUID',
-                            'ParentzGenAlbum-Cloud GUID',
-                            'ParentzGenAlbum- Title',
-                            'zGenAlbum- Title/User&System Applied',
-                            'zGenAlbum-UUID',
-                            'zGenAlbum-Cloud GUID',
-                            'zGenAlbum-Imported by Bundle Identifier',
-                            'ParentzGenAlbum-Creation Date',
-                            'ParentzGenAlbum-Pending Items Count',
-                            'ParentzGenAlbum-Pending Items Type',
-                            'ParentzGenAlbum-Kind',
-                            'ParentzGenAlbum-Cloud-Local-State',
-                            'ParentzGenAlbum-Sync Event Order Key',
-                            'ParentzGenAlbum-Pinned',
-                            'ParentzGenAlbum-Custom Sort Key',
-                            'ParentzGenAlbum-Custom Sort Ascending',
-                            'ParentzGenAlbum-Is Prototype',
-                            'ParentzGenAlbum-Project Document Type',
-                            'ParentzGenAlbum-Custom Query Type',
-                            'ParentzGenAlbum-Trashed State',
-                            'ParentzGenAlbum-Trash Date',
-                            'ParentzGenAlbum-Cloud Delete State',
-                            'zGenAlbum-Pending Items Count',
-                            'zGenAlbum-Pending Items Type',
-                            'zGenAlbum- Cached Photos Count',
-                            'zGenAlbum- Cached Videos Count',
-                            'zGenAlbum- Cached Count',
-                            'zGenAlbum-Has Unseen Content',
-                            'zGenAlbum-Unseen Asset Count',
-                            'zGenAlbum-zENT- Entity',
-                            'zGenAlbum-Album Kind',
-                            'zGenAlbum-Cloud_Local_State',
-                            'zGenAlbum-Sync Event Order Key',
-                            'zGenAlbum-Pinned',
-                            'zGenAlbum-Custom Sort Key',
-                            'zGenAlbum-Custom Sort Ascending',
-                            'zGenAlbum-Is Prototype',
-                            'zGenAlbum-Project Document Type',
-                            'zGenAlbum-Custom Query Type',
-                            'zGenAlbum-Trashed State',
-                            'zGenAlbum-Trash Date',
-                            'zGenAlbum-Cloud Delete State',
-                            'zGenAlbum-Search Index Rebuild State',
-                            'zGenAlbum-Duplicate Type',
-                            'zGenAlbum-Privacy State')
+            data_headers = ('zAsset-Date Created-0',
+                            'zAsset-zPK-1',
+                            'zAsset-Directory-Path-2',
+                            'zAsset-Filename-3',
+                            'zAddAssetAttr- Original Filename-4',
+                            'zCldMast- Original Filename-5',
+                            'zAddAssetAttr- Syndication Identifier-SWY-Files-6',
+                            'zAsset-Syndication State-7',
+                            'zAsset-Bundle Scope-8',
+                            'zAddAssetAttr.Imported by Bundle Identifier-9',
+                            'zAddAssetAttr-Imported By Display Name-10',
+                            'zAsset-Visibility State-11',
+                            'zAsset-Saved Asset Type-12',
+                            'zAddAssetAttr-Share Type-13',
+                            'zAsset-Active Library Scope Participation State-14',
+                            'zAsset- SortToken -CameraRoll-15',
+                            'zAsset-Added Date-16',
+                            'zCldMast-Creation Date-17',
+                            'zAddAssetAttr-Time Zone Name-18',
+                            'zAddAssetAttr-EXIF-String-19',
+                            'zAsset-Modification Date-20',
+                            'zAsset-Last Shared Date-21',
+                            'zAsset-Trashed Date-22',
+                            'zAsset-Trashed by Participant= zShareParticipant_zPK-23',
+                            'zAddAssetAttr-zPK-24',
+                            'zAsset-UUID = store.cloudphotodb-25',
+                            'zAddAssetAttr-Master Fingerprint-26',
+                            'zGenAlbum-Creation Date-27',
+                            'zGenAlbum-Start Date-28',
+                            'zGenAlbum-End Date-29',
+                            'ParentzGenAlbum-UUID-30',
+                            'ParentzGenAlbum-Cloud GUID-31',
+                            'ParentzGenAlbum- Title-32',
+                            'zGenAlbum- Title-User&System Applied-33',
+                            'zGenAlbum-UUID-34',
+                            'zGenAlbum-Cloud GUID-35',
+                            'zGenAlbum-Imported by Bundle Identifier-36',
+                            'ParentzGenAlbum-Creation Date-37',
+                            'ParentzGenAlbum-Pending Items Count-38',
+                            'ParentzGenAlbum-Pending Items Type-39',
+                            'ParentzGenAlbum-Kind-40',
+                            'ParentzGenAlbum-Cloud-Local-State-41',
+                            'ParentzGenAlbum-Sync Event Order Key-42',
+                            'ParentzGenAlbum-Pinned-43',
+                            'ParentzGenAlbum-Custom Sort Key-44',
+                            'ParentzGenAlbum-Custom Sort Ascending-45',
+                            'ParentzGenAlbum-Is Prototype-46',
+                            'ParentzGenAlbum-Project Document Type-47',
+                            'ParentzGenAlbum-Custom Query Type-48',
+                            'ParentzGenAlbum-Trashed State-49',
+                            'ParentzGenAlbum-Trash Date-50',
+                            'ParentzGenAlbum-Cloud Delete State-51',
+                            'zGenAlbum-Pending Items Count-52',
+                            'zGenAlbum-Pending Items Type-53',
+                            'zGenAlbum- Cached Photos Count-54',
+                            'zGenAlbum- Cached Videos Count-55',
+                            'zGenAlbum- Cached Count-56',
+                            'zGenAlbum-Has Unseen Content-57',
+                            'zGenAlbum-Unseen Asset Count-58',
+                            'zGenAlbum-zENT- Entity-59',
+                            'zGenAlbum-Album Kind-60',
+                            'zGenAlbum-Cloud_Local_State-61',
+                            'zGenAlbum-Sync Event Order Key-62',
+                            'zGenAlbum-Pinned-63',
+                            'zGenAlbum-Custom Sort Key-64',
+                            'zGenAlbum-Custom Sort Ascending-65',
+                            'zGenAlbum-Is Prototype-66',
+                            'zGenAlbum-Project Document Type-67',
+                            'zGenAlbum-Custom Query Type-68',
+                            'zGenAlbum-Trashed State-69',
+                            'zGenAlbum-Trash Date-70',
+                            'zGenAlbum-Cloud Delete State-71',
+                            'zGenAlbum-Search Index Rebuild State-72',
+                            'zGenAlbum-Duplicate Type-73',
+                            'zGenAlbum-Privacy State-74')
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
@@ -1965,7 +1963,7 @@ def get_ph22assetsinnonsharedalbumsphdapsql(files_found, report_folder, seeker, 
             timeline(report_folder, tlactivity, data_list, data_headers)
 
         else:
-            logfunc('No data available from PhotoData/Photos.sqlite for Assets in Non-Shared Albums')
+            logfunc('No data available from PhotoData-Photos.sqlite for Assets in Non-Shared Albums')
 
         db.close()
         return
@@ -1974,15 +1972,15 @@ def get_ph22assetsinnonsharedalbumsphdapsql(files_found, report_folder, seeker, 
 __artifacts_v2__ = {
     'Ph22-Assets in Non-Shared Albums-PhDaPsql': {
         'name': 'PhDaPL Photos.sqlite 22 Assets in Non-Shared Albums',
-        'description': 'Parses Assets associated with Non-Shared Albums found in PhotoData/Photos.sqlite and'
+        'description': 'Parses Assets associated with Non-Shared Albums found in PhotoData-Photos.sqlite and'
                        ' supports iOS 11-17. Parses limited assets data with full non-shared album data.',
         'author': 'Scott Koenig https://theforensicscooter.com/',
         'version': '1.1',
         'date': '2024-04-13',
-        'requirements': 'Acquisition that contains PhotoData/Photos.sqlite',
+        'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
         'category': 'Photos.sqlite-Asset_In_Albums',
         'notes': '',
-        'paths': ('*/mobile/Media/PhotoData/Photos.sqlite*'),
+        'paths': '*/mobile/Media/PhotoData/Photos.sqlite*',
         'function': 'get_ph22assetsinnonsharedalbumsphdapsql'
     }
 }
