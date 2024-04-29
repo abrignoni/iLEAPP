@@ -40,5 +40,6 @@ ileapp_contributors = [
     ['James Habben', 'https://4n6ir.com/','@JamesHabben','https://github.com/JamesHabben'],
     ['John Hyla', 'https://bluecrewforensics.com', '@jfhyla', 'https://github.com/snoop168'],
     ['Panos Nakoutis', '', '@4n6equals10', ''],
-    ['Ruud Schramp', '', '', 'https://github.com/Schramp']    
+    ['Ruud Schramp', '', '', 'https://github.com/Schramp'],
+    ['Matt Beers', 'https://www.linkedin.com/in/mattbeersii','','https://github.com/dabeersboys']
 ]
