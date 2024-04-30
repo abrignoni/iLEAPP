@@ -16,6 +16,22 @@ def relative_paths(source, splitter):
     splitted_b = source.split(report_folder)
     return '.'+ splitted_b[1]
 
+def does_column_exist_in_db(db, table_name, col_name):
+    '''Checks if a specific column exists in a table'''
+    col_name = col_name.lower()
+    try:
+        db.row_factory = sqlite3.Row # For fetching columns by name
+        query = f"pragma table_info('{table_name}');"
+        cursor = db.cursor()
+        cursor.execute(query)
+        all_rows = cursor.fetchall()
+        for row in all_rows:
+            if row['name'].lower() == col_name:
+                return True
+    except sqlite3.Error as ex:
+        logfunc(f"Query error, query={query} Error={str(ex)}")
+        pass
+    return False
 
 def get_vippsContacts(files_found, report_folder, seeker, wrap_text, timezone_offset):
     for file_found in files_found:
@@ -29,14 +45,23 @@ def get_vippsContacts(files_found, report_folder, seeker, wrap_text, timezone_of
     db = open_sqlite_db_readonly(file_found)
     cursor = db.cursor()
     
-    cursor.execute('''
+    # Check if ZRAWPHONENUMBERS exists, if not, check ZPHONENUMBERS
+    if does_column_exist_in_db(db, 'ZCONTACTMODEL', 'ZRAWPHONENUMBERS'):
+        phone_column = 'ZRAWPHONENUMBERS'
+    elif does_column_exist_in_db(db, 'ZCONTACTMODEL', 'ZPHONENUMBERS'):
+        phone_column = 'ZPHONENUMBERS'
+    else:
+        logfunc('Neither ZRAWPHONENUMBERS nor ZPHONENUMBERS exist in ZCONTACTMODEL table.')
+        db.close()
+        return
+    
+    cursor.execute(f'''
     SELECT 
     ZNAME,
-    ZRAWPHONENUMBERS,
+    {phone_column},
     ZPROFILEIMAGEDATA,
     ZCONTACTSTOREIDENTIFIER
     FROM ZCONTACTMODEL
-
     ''')
     
     all_rows = cursor.fetchall()
@@ -71,18 +96,18 @@ def get_vippsContacts(files_found, report_folder, seeker, wrap_text, timezone_of
         report = ArtifactHtmlReport('Vipps - Contacts')
         report.start_artifact_report(report_folder, 'Vipps - Contacts')
         report.add_script()
-        data_headers = ('Profile Image', 'Name', 'Telephones')
+        data_headers = ('Profile Image', 'Name', 'Telephone')
         report.write_artifact_data_table(data_headers, data_list, file_found, html_no_escape=['Profile Image'])
         report.end_artifact_report()
         
         tsvname = 'Vipps Contacts'
         tsv(report_folder, data_headers, data_list, tsvname)
         
-        
-        db.close()
     else:
         logfunc('No data available for Vipps Contacts')
         
+    db.close()
+    
 __artifacts__ = {
     "vippsContacts": (
         "Vipps",
