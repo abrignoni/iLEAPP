@@ -2694,6 +2694,22 @@ device_id = {
     "iProd8,6": "AirPods Max",
     "AirPodsMax1,1": "AirPods Max",
     "Device1,8202": "AirPods Max",
+    "PowerMac10,1": "Mac Mini (Early/Mid 2005)",
+    "PowerMac10,2": "Mac Mini (Late 2005)",
+    "Macmini1,1": "Mac Mini (2006)",
+    "Macmini2,1": "Mac Mini (2007)",
+    "Macmini3,1": "Mac Mini (2009)",
+    "Macmini4,1": "Mac Mini (Mid 2010)",
+    "Macmini5,1": "Mac Mini (Mid 2011)",
+    "Macmini5,2": "Mac Mini (Mid 2011)",
+    "Macmini5,3": "Mac Mini (Mid 2011)",
+    "Macmini6,1": "Mac Mini (Late 2012)",
+    "Macmini6,2": "Mac Mini (Late 2012)",
+    "Macmini7,1": "Mac Mini (Late 2014)",
+    "Macmini8,1": "Mac Mini (2018)",
+    "Macmini9,1": "Mac Mini M1 (2020)",
+    "Macmini14,3": "Mac Mini M2 (2023)",
+    "Macmini14,12": "Mac Mini M2 (2023)",                                                                         
 }
 
 code_name = {
@@ -2830,4 +2846,3 @@ def get_root_path_from_domain(domain):
         bundle_identifier = domain[dash_position:]
         return join(path, bundle_identifier)
     return ''
-
