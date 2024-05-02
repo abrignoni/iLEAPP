@@ -58,5 +58,6 @@ app = BUNDLE(
     coll,
     name='ileappGUI.app',
     icon=None,
-    bundle_identifier=None,
+    bundle_identifier='4n6.brigs.iLEAPP',
+    version='1.19.3'
 )
