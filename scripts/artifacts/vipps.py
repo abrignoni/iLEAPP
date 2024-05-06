@@ -2,11 +2,29 @@ import io
 import nska_deserialize as nd
 import sqlite3
 import json
+import sys
 
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
 
-def get_vipps(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def does_column_exist_in_db(db, table_name, col_name):
+    '''Checks if a specific column exists in a table'''
+    col_name = col_name.lower()
+    try:
+        db.row_factory = sqlite3.Row # For fetching columns by name
+        query = f"pragma table_info('{table_name}');"
+        cursor = db.cursor()
+        cursor.execute(query)
+        all_rows = cursor.fetchall()
+        for row in all_rows:
+            if row['name'].lower() == col_name:
+                return True
+    except sqlite3.Error as ex:
+        logfunc(f"Query error, query={query} Error={str(ex)}")
+        pass
+    return False
+
+def get_vipps(files_found, report_folder, seeker, wrap_text, time_offset):
     for file_found in files_found:
         file_found = str(file_found)
         
@@ -47,6 +65,10 @@ def get_vipps(files_found, report_folder, seeker, wrap_text, timezone_offset):
                     logfunc(f'Failed to read plist for {row[0]}, error was:' + str(ex))
                 
             for i, y in plist.items():
+                msg_keys = ["message", "messageTimeStamp","type","direction"]
+                pay_keys = ["amount", "statusCategory", "message", "statusText", "transactionID", "type", "direction", "messageTimeStamp"]
+                req_keys = ["amount", "status", "message", "statusText", "orderID", "direction", "p2pPayment", "ts"]
+                
                 jsonitems = json.loads(y)
                 telephone = row[0].split('-')[1]
 
@@ -54,11 +76,11 @@ def get_vipps(files_found, report_folder, seeker, wrap_text, timezone_offset):
                 cursor1.execute(f'''
                 SELECT 
                 ZNAME,
-                ZPHONENUMBERS,
+                ZRAWPHONENUMBERS,
                 ZPROFILEIMAGEDATA,
                 ZCONTACTSTOREIDENTIFIER
                 FROM ZCONTACTMODEL
-                WHERE ZPHONENUMBERS LIKE "%{telephone}%"
+                WHERE ZRAWPHONENUMBERS LIKE "%{telephone}%"
                 ''')
                 all_rows1 = cursor1.fetchall()
                 usageentries1 = len(all_rows1)
@@ -66,18 +88,31 @@ def get_vipps(files_found, report_folder, seeker, wrap_text, timezone_offset):
                 if usageentries1 > 0:
                     for row1 in all_rows1:
                         name = row1[0]
+                else:
+                    # Check if ZPHONENUMBERS exists, if so, use it instead
+                    if does_column_exist_in_db(db, 'ZCONTACTMODEL', 'ZPHONENUMBERS'):
+                        cursor1.execute(f'''
+                        SELECT 
+                        ZNAME,
+                        ZPHONENUMBERS,
+                        ZPROFILEIMAGEDATA,
+                        ZCONTACTSTOREIDENTIFIER
+                        FROM ZCONTACTMODEL
+                        WHERE ZPHONENUMBERS LIKE "%{telephone}%"
+                        ''')
+                        all_rows1 = cursor1.fetchall()
+                        usageentries1 = len(all_rows1)
+                        
+                        if usageentries1 > 0:
+                            for row1 in all_rows1:
+                                name = row1[0]
+                                break
+                data    = (telephone, name)
+                if jsonitems['model'] == "CHAT":
+                  for key in jsonitems['data'].keys():
+                    data += (jsonitems['data'][key],)
+                data_list.append(data)
                 
-                timestamp = (jsonitems['data']['messageTimeStamp'].replace('T', ' '). replace('Z', '').strip())
-                message = (jsonitems['data']['message'])
-                amount = (jsonitems['data'].get('amount', ''))
-                statustext = (jsonitems['data'].get('statusText', ''))
-                statuscat = (jsonitems['data'].get('statusCategory', ''))
-                direction = (jsonitems['data']['direction'])
-                transcaid = (jsonitems['data'].get('transactionId', ''))
-                dtype = (jsonitems['data']['type'])
-            
-            data_list.append((timestamp, telephone, name, message, amount, statustext, statuscat, direction, transcaid, dtype))
-
         report = ArtifactHtmlReport('Vipps - Transactions')
         report.start_artifact_report(report_folder, 'Vipps - Transactions')
         report.add_script()
