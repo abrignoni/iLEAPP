@@ -8,6 +8,7 @@ import webbrowser
 from tkinter import ttk, filedialog as tk_filedialog, messagebox as tk_msgbox
 from scripts.version_info import ileapp_version
 from scripts.search_files import *
+from modules_to_exclude import modules_to_exclude
 
 
 def pickModules():
@@ -22,9 +23,9 @@ def pickModules():
     for plugin in sorted(loader.plugins, key=lambda p: p.category.upper()):
         if plugin.module_name == 'iTunesBackupInfo' or plugin.module_name == 'lastBuild':
             continue
-        #items that take a long time to run are deselected by default.
-        enabled = not (plugin.module_name == 'photosMetadata' or plugin.module_name == 'walStrings')
-        mlist[plugin] = tk.BooleanVar(value=enabled)
+        #Items that take a long time to execute are deselected by default
+        # and referenced in the modules_to_exclude list in an external file (modules_to_exclude.py).
+        mlist[plugin] = tk.BooleanVar(value=False) if plugin.module_name in modules_to_exclude else tk.BooleanVar(value=True)
 
 
 def get_selected_modules():
