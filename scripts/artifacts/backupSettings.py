@@ -20,20 +20,20 @@ def get_backupSettings(files_found, report_folder, seeker, wrap_text, timezone_o
             if key == 'LastiTunesBackupDate':
                 lastime = timestampsconv(val)
                 data_list.append(('Last iTunes Backup Date', lastime))
-                logdevinfo(f"Last iTunes Backup Date: {lastime}")
+                logdevinfo(f"<b>Last iTunes Backup Date: </b>{lastime}")
             elif key == 'LastiTunesBackupTZ':
                 data_list.append((key, val))
-                logdevinfo(f"Last iTunes Backup TZ: {val}")
+                logdevinfo(f"<b>Last iTunes Backup TZ: </b>{val}")
             elif key == 'LastCloudBackupDate':
                 lastcloudtime = timestampsconv(val)
                 data_list.append(('Last Cloud iTunes Backup Date', lastcloudtime))
-                logdevinfo(f"Last Cloud iTunes Backup Date: {lastcloudtime}")
+                logdevinfo(f"<b>Last Cloud iTunes Backup Date: </b>{lastcloudtime}")
             elif key == 'LastCloudBackupTZ':
                 data_list.append((key, val))
-                logdevinfo(f"Last Cloud iTunes Backup TZ: {val}")
+                logdevinfo(f"<b>Last Cloud iTunes Backup TZ: </b>{val}")
             elif key == 'CloudBackupEnabled':
                 data_list.append((key,val))
-                logdevinfo(f"Cloud Backup Enabled: {val}")
+                logdevinfo(f"<b>Cloud Backup Enabled: </b>{val}")
             else:
                 data_list.append((key, val ))
                 
@@ -50,7 +50,6 @@ def get_backupSettings(files_found, report_folder, seeker, wrap_text, timezone_o
     else:
         logfunc('No Find iPhone Backup Settings')
             
-
 __artifacts__ = {
     "backupSettings": (
         "Identifiers",

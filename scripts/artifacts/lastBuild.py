@@ -33,16 +33,15 @@ def get_lastBuild(files_found, report_folder, seeker, wrap_text, time_offset):
                 #ilapfuncs.globalvars()
                 scripts.artifacts.artGlobals.versionf = val
                 logfunc(f"iOS version: {val}")
-                logdevinfo(f"iOS version: {val}")
+                logdevinfo(f"<b>iOS version: </b>{val}")
             
             if key == "ProductBuildVersion":
-                logdevinfo(f"ProductBuildVersion: {val}")
+                logdevinfo(f"<b>ProductBuildVersion: </b>{val}")
             
             if key == ("ProductName"):
                 logfunc(f"Product: {val}")
-                logdevinfo(f"Product: {val}")
+                logdevinfo(f"<b>Product: </b>{val}")
 
-  
     report = ArtifactHtmlReport('iOS Build')
     report.start_artifact_report(report_folder, 'Build Information')
     report.add_script()
@@ -53,7 +52,6 @@ def get_lastBuild(files_found, report_folder, seeker, wrap_text, time_offset):
     tsvname = 'Last Build'
     tsv(report_folder, data_headers, data_list, tsvname)
             
-
 # __artifacts__ = {
 #     "lastbuild": (
 #         "IOS Build",

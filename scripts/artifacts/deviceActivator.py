@@ -40,13 +40,13 @@ def get_deviceActivator(files_found, report_folder, seeker, wrap_text, timezone_
     
     for x in results:
         if x[0] == 'EthernetMacAddress':
-            logdevinfo(f"Ethernet Mac Address: {x[1]}")
+            logdevinfo(f"<b>Ethernet Mac Address: </b>{x[1]}")
         if x[0] == 'BluetoothAddress':
-            logdevinfo(f"Bluetooth Address: {x[1]}")
+            logdevinfo(f"<b>Bluetooth Address: </b>{x[1]}")
         if x[0] == 'WifiAddress':
-            logdevinfo(f"Wifi Address: {x[1]}") 
+            logdevinfo(f"<b>Wifi Address: </b>{x[1]}") 
         if x[0] == 'ModelNumber':
-            logdevinfo(f"Model Number: {x[1]}")
+            logdevinfo(f"<b>Model Number: </b>{x[1]}")
             
     if len(results) > 0:
         report = ArtifactHtmlReport('iOS Device Activator Data')

@@ -33,7 +33,7 @@ def get_appleWifiPlist(files_found, report_folder, seeker, wrap_text, timezone_o
             deserialized = plistlib.load(f)
             if 'KeepWiFiPoweredAirplaneMode' in deserialized:
                 val = (deserialized['KeepWiFiPoweredAirplaneMode'])
-                logdevinfo(f"Keep Wifi Powered Airplane Mode: {val}")
+                logdevinfo(f"<b>Keep Wifi Powered Airplane Mode: </b>{val}")
 
             if 'List of known networks' in deserialized:
                 known_files.append(file_found)

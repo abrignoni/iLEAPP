@@ -14,11 +14,11 @@ def get_applelocationd(files_found, report_folder, seeker, wrap_text, timezone_o
             
             if key == 'LocationServicesEnabledIn8.0':
                 data_list.append(('Location Services Enabled', val))
-                logdevinfo(f"Location Services Enabled: {val}")
+                logdevinfo(f"<b>Location Services Enabled: </b>{val}")
             
             elif key == 'LastSystemVersion':
                 data_list.append(('Last System Version', val))
-                logdevinfo(f"Last System Version: {val}")
+                logdevinfo(f"<b>Last System Version: </b>{val}")
                 
             else:
                 data_list.append((key, val ))
@@ -36,9 +36,6 @@ def get_applelocationd(files_found, report_folder, seeker, wrap_text, timezone_o
     else:
         logfunc('No Settings - com.apple.locationd.plist')
             
-
-
-
 __artifacts__ = {
     "applelocationd": (
         "Identifiers",

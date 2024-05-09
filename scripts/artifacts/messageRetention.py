@@ -14,11 +14,11 @@ def get_messageRetention(files_found, report_folder, seeker, wrap_text, timezone
             
             if key == 'KeepMessageForDays':
                 data_list.append(('Keep Message for Days', val))
-                logdevinfo(f"Keep Message for Days: {val}")
+                logdevinfo(f"<b>Keep Message for Days: </b>{val}")
             
         if len(data_list) == 0:
             data_list.append(('Keep Message for Days', 'Forever'))
-            logdevinfo(f"Keep Message for Days: Forever")
+            logdevinfo(f"<b>Keep Message for Days: </b>Forever")
             
     if len(data_list) > 0:
         report = ArtifactHtmlReport('iOS Message Retention')
@@ -33,7 +33,6 @@ def get_messageRetention(files_found, report_folder, seeker, wrap_text, timezone
     else:
         logfunc('No iOS Message Retention data')
             
-
 __artifacts__ = {
     "messageRetention": (
         "Identifiers",
