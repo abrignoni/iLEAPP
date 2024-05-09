@@ -14,7 +14,7 @@ def get_adId(files_found, report_folder, seeker, wrap_text, timezone_offset):
             
             if key == 'LSAdvertiserIdentifier':
                 airdropId = val
-                logdevinfo(f"Airdrop ID: {airdropId}")
+                logdevinfo(f"<b>Airdrop ID: </b>{airdropId}")
                 
 __artifacts__ = {
     "airdropId": (

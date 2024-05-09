@@ -15,22 +15,21 @@ def get_preferencesPlist(files_found, report_folder, seeker, wrap_text, timezone
             if key == ("Model"):
                 data_list.append((key, val))
                 logfunc(f"Model: {val}")
-                logdevinfo(f"Model: {val}")
+                logdevinfo(f"<b>Model: </b>{val}")
             
             if key == "System":
                 localhostname = val['Network']['HostNames']['LocalHostName']
                 data_list.append(('Local Host Name', localhostname ))
-                logdevinfo(f"Model: {localhostname }")
+                logdevinfo(f"<b>Model: </b>{localhostname }")
                 
                 computername = val['System']['ComputerName']
                 data_list.append(('Device/Computer Name', computername))
-                logdevinfo(f"Device/Computer Name: {computername}")
+                logdevinfo(f"<b>Device/Computer Name: </b>{computername}")
                 
                 hostname = val['System']['HostName']
                 data_list.append(('Host Name', hostname ))
-                logdevinfo(f"Host Name: {hostname }")
+                logdevinfo(f"<b>Host Name: </b>{hostname }")
 
-  
     report = ArtifactHtmlReport('Device Preferences Plist')
     report.start_artifact_report(report_folder, 'Device Preferences Plist')
     report.add_script()
@@ -40,9 +39,6 @@ def get_preferencesPlist(files_found, report_folder, seeker, wrap_text, timezone
     
     tsvname = 'Device Preferences Plist'
     tsv(report_folder, data_headers, data_list, tsvname)
-            
-
-
 
 __artifacts__ = {
     "preferencesPlist": (

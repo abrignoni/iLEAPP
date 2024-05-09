@@ -16,25 +16,25 @@ def get_imeiImsi(files_found, report_folder, seeker, wrap_text, timezone_offset)
                 val = (list(val.values())[0])
                 lastgoodimsi = val['CarrierEntitlements']['lastGoodImsi']
                 data_list.append(('Last Good IMSI', lastgoodimsi))
-                logdevinfo(f"Last Good IMSI: {lastgoodimsi}")
+                logdevinfo(f"<b>Last Good IMSI: </b>{lastgoodimsi}")
                 
                 selfregitrationupdateimsi = val['CarrierEntitlements']['kEntitlementsSelfRegistrationUpdateImsi']
                 data_list.append(('Self Registration Update IMSI', selfregitrationupdateimsi))
-                logdevinfo(f"Self Registration Update IMSI: {selfregitrationupdateimsi}")
+                logdevinfo(f"<b>Self Registration Update IMSI: </b>{selfregitrationupdateimsi}")
                 
                 selfregistrationupdateimei = val['CarrierEntitlements']['kEntitlementsSelfRegistrationUpdateImei']
                 data_list.append(('Self Registration Update IMEI', selfregistrationupdateimei))
-                logdevinfo(f"Self Registration Update IMEI: {selfregistrationupdateimei}")
+                logdevinfo(f"<b>Self Registration Update IMEI: </b>{selfregistrationupdateimei}")
                 
             elif key == 'LastKnownICCI':
                 lastknownicci = val
                 data_list.append(('Last Known ICCI', lastknownicci))
-                logdevinfo(f"Last Known ICCI: {lastknownicci}")
+                logdevinfo(f"<b>Last Known ICCI: </b>{lastknownicci}")
                 
             elif key == 'PhoneNumber':
                 phonenumber = val
                 data_list.append(('Phone Number', val))
-                logdevinfo(f"Phone Number: {val}")
+                logdevinfo(f"<b>Phone Number: </b>{val}")
                 
             else:
                 data_list.append((key, val ))
@@ -51,9 +51,6 @@ def get_imeiImsi(files_found, report_folder, seeker, wrap_text, timezone_offset)
         tsv(report_folder, data_headers, data_list, tsvname)
     else:
         logfunc('No IMEI - IMSI data in com.apple.commcenter.plist')
-            
-
-
 
 __artifacts__ = {
     "imeiImsi": (

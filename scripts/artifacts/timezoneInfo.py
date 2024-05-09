@@ -19,12 +19,12 @@ def get_timezoneInfo(files_found, report_folder, seeker, wrap_text, timezone_off
             
             if key == 'lastBootstrapTimeZone':
                 data_list.append(('lastBootstrapTimeZone', val))
-                logdevinfo(f"Last Bootstrap Timezone: {val}")
+                logdevinfo(f"<b>Last Bootstrap Timezone: </b>{val}")
                 
             elif key == 'lastBootstrapDate':
                 times = timestampsconv(val)
                 data_list.append(('lastBootstrapDate', times))
-                logdevinfo(f"Last Bootstrap Date: {times}")
+                logdevinfo(f"<b>Last Bootstrap Date: </b>{times}")
                 
             else:
                 data_list.append((key, val ))
@@ -41,9 +41,6 @@ def get_timezoneInfo(files_found, report_folder, seeker, wrap_text, timezone_off
         tsv(report_folder, data_headers, data_list, tsvname)
     else:
         logfunc('No Timezone Information in com.apple.AppStore.plist')
-            
-
-
 
 __artifacts__ = {
     "timezoneInfo": (

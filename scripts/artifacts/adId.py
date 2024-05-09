@@ -22,7 +22,7 @@ def get_adId(files_found, report_folder, seeker, wrap_text, timezone_offset):
             
             if key == 'LSAdvertiserIdentifier':
                 adId = val
-                logdevinfo(f"Advertiser Identifier: {adId}")
+                logdevinfo(f"<b>Advertiser Identifier: </b>{adId}")
                 
 # __artifacts__ = {
 #     "adId": (

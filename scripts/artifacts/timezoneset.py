@@ -13,7 +13,7 @@ def get_timezoneset(files_found, report_folder, seeker, wrap_text, timezone_offs
         for key, val in pl.items():
             
             if key == 'timezoneset':
-                logdevinfo(f"Timezone Set: {val}")
+                logdevinfo(f"<b>Timezone Set: </b>{val}")
             else:
                 logdevinfo(f"{key}: {val}")
                 

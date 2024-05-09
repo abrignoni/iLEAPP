@@ -31,12 +31,12 @@ def get_carCD(files_found, report_folder, seeker, wrap_text, timezone_offset):
                     contype = lastconn[2]
                     connected = timestampsconv(lastconn[0])
                     disconnected = timestampsconv(lastconn[1])
-                    logdevinfo(f'Vehicle - Last Connected: {connected} - Last Disconnected: {disconnected} - Type: {contype}')
+                    logdevinfo(f'<b>Vehicle - Last Connected: </b>{connected} - <b>Last Disconnected: </b>{disconnected} - <b>Type: </b>{contype}')
                     data_list.append((key, f'Last Connected: {connected} <br> Last Disconnected: {disconnected} <br> Type: {contype}'))
                     
                 elif key == 'CalibrationUDID':
                     uid = value
-                    logdevinfo(f'UDID: {uid}')
+                    logdevinfo(f'<b>UDID: </b>{uid}')
                     data_list.append((key, uid))
                 else:
                     pass

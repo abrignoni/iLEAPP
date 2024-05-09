@@ -13,10 +13,8 @@ __artifacts_v2__ = {
     }
 }
 
-
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, logdevinfo, tsv, open_sqlite_db_readonly
-
 
 def get_serialNumber(files_found, report_folder, seeker, wrap_text, timezone_offset):
     
@@ -42,7 +40,7 @@ def get_serialNumber(files_found, report_folder, seeker, wrap_text, timezone_off
         data_list =[]
         for row in all_rows:
             data_list.append((row[0],))
-            logdevinfo(f"Serial Number: {row[0]}")
+            logdevinfo(f"<b>Serial Number: </b>{row[0]}")
             break
             
         description = 'Serial Number'
