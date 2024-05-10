@@ -681,7 +681,7 @@ icon_mappings = \
     'PHOTOS.SQLITE-OTHER_ARTIFACTS': {
         'PH5.1-HAS LOCATIONS-PHDAPSQL': 'map-pin',
         'PH9-BURST AVALANCHE-PHDAPSQL': 'layers',
-        'PH10.1-ASSETS HAVE EMBEDDED PLISTS-PHDAPSQL': 'file-plus',
+        'PH10.1-ASSETS HAVE EMBEDDED FILES-PHDAPSQL': 'file-plus',
         'PH26.1-SYNDICATION ID ASSETS-PHDAPSQL': 'refresh-ccw',
     },
     'PHOTOS.SQLITE-ICLOUD_SHARED_METHODS': {
@@ -710,7 +710,7 @@ icon_mappings = \
         'PH2.2-ASSET BASIC DATA & CONVERS DATA-SYNDPL': 'image',
         'PH3.2-REMOVED FROM CAMERA ROLL-SYNDPL': 'delete',
         'PH5.2-HAS LOCATIONS-SYNDPL': 'map-pin',
-        'PH10.2-ASSETS HAVE EMBEDDED PLISTS-SYNDPL': 'file-plus',
+        'PH10.2-ASSETS HAVE EMBEDDED FILES-SYNDPL': 'file-plus',
         'PH20.2-ALBUM RECORDS NAD-SYNDPL': 'book',
         'PH25.2-SWY CONVERSATION RECORDS NAD-SYNDPL': 'message-square',
         'PH26.2-SYNDICATION PL ASSETS-SYNDPL': 'message-square',

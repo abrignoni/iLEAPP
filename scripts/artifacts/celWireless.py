@@ -18,19 +18,19 @@ def get_celWireless(files_found, report_folder, seeker, wrap_text, timezone_offs
             for key, val in plist.items():
                 data_list.append((key, val, filepath))
                 if key == "ReportedPhoneNumber":
-                    logdevinfo(f"Reported Phone Number: {val}")
+                    logdevinfo(f"<b>Reported Phone Number: </b>{val}")
                 
                 if key == "CDMANetworkPhoneNumberICCID":
-                    logdevinfo(f"CDMA Network Phone Number ICCID: {val}")
+                    logdevinfo(f"<b>CDMA Network Phone Number ICCID: </b>{val}")
                 
                 if key == "imei":
-                    logdevinfo(f"IMEI: {val}")
+                    logdevinfo(f"<b>IMEI: </b>{val}")
                     
                 if key == "LastKnownICCID":
-                    logdevinfo(f"Last Known ICCID: {val}")
+                    logdevinfo(f"<b>Last Known ICCID: </b>{val}")
                 
                 if key == "meid":
-                    logdevinfo(f"MEID: {val}")
+                    logdevinfo(f"<b>MEID: </b>{val}")
     
     location = 'see source field'
     report = ArtifactHtmlReport('Cellular Wireless')

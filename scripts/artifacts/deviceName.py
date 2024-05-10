@@ -14,7 +14,7 @@ def get_deviceName(files_found, report_folder, seeker, wrap_text, timezone_offse
             
             if key == '-DeviceName':
                 devicenamed = val
-                logdevinfo(f"Device Name: {val}")
+                logdevinfo(f"<b>Device Name: </b>{val}")
                 
 __artifacts__ = {
     "deviceName": (

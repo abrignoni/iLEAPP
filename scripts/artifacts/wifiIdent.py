@@ -33,7 +33,7 @@ def get_wifiIdent(files_found, report_folder, seeker, wrap_text, timezone_offset
                         bsdname = y['BSD Name']
                         
                         data_list.append((hexstring, userdefinedname, bsdname))
-                        logdevinfo(f'MAC Address: {hexstring} - User Defined Name: {userdefinedname} - BSD Name: {bsdname}')
+                        logdevinfo(f'<b>MAC Address: </b>{hexstring} - <b>User Defined Name: </b>{userdefinedname} - <b>BSD Name: </b>{bsdname}')
                     
     if len(data_list) > 0:
         description = 'WIFI Identifiers'

@@ -12,7 +12,7 @@ def get_obliterated(files_found, report_folder, seeker, wrap_text, timezone_offs
     modified_time = os.path.getmtime(file_found)
     utc_modified_date = datetime.datetime.utcfromtimestamp(modified_time)
     
-    logdevinfo(f'Obliterated Timestamp: {utc_modified_date}')
+    logdevinfo(f'<b>Obliterated Timestamp: </b>{utc_modified_date}')
     
     data_list = []
     data_list.append((utc_modified_date,))
@@ -30,9 +30,6 @@ def get_obliterated(files_found, report_folder, seeker, wrap_text, timezone_offs
     else:
         logfunc('No Obliterated Time')
             
-
-
-
 __artifacts__ = {
     "obliterated": (
         "Identifiers",
