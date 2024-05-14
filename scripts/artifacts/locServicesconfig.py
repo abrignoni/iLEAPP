@@ -84,9 +84,6 @@ def get_locServicesconfig(files_found, report_folder, seeker, wrap_text, timezon
       tsvname = 'LSC - com.apple.locationd.plist'
       tsv(report_folder, data_headers, data_list_locationdplist, tsvname)
       
-      tlactivity = 'LSC - com.apple.locationd.plist'
-      timeline(report_folder, tlactivity, data_list_locationdplist, data_headers)
-      
     else:
       logfunc('No LSC - com.apple.locationd.plist')
     
@@ -100,9 +97,6 @@ def get_locServicesconfig(files_found, report_folder, seeker, wrap_text, timezon
       
       tsvname = 'LSC - clients.plist'
       tsv(report_folder, data_headers, data_list_clientsplist, tsvname)
-      
-      tlactivity = 'LSC - clients.plist'
-      timeline(report_folder, tlactivity, data_list_clientsplist, data_headers)
       
     else:
       logfunc('No LSC - clients.plist')
