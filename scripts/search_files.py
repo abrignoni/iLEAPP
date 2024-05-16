@@ -2,6 +2,7 @@ import time as timex
 import fnmatch
 import os
 import tarfile
+import hashlib
 
 from pathlib import Path
 from scripts.ilapfuncs import *
@@ -114,6 +115,98 @@ class FileSeekerItunes(FileSeekerBase):
             except Exception as ex:
                 logfunc(f'Could not copy {original_location} to {temp_location} ' + str(ex))
         return pathlist
+
+class FileSeekerItunesMbdb(FileSeekerBase):
+    def __init__(self, directory, temp_folder):
+        FileSeekerBase.__init__(self)
+        self.directory = directory
+        self._all_files = {}
+        self.temp_folder = temp_folder
+        logfunc('Building files listing...')
+        self.build_files_list(directory)
+        logfunc(f'File listing complete - {len(self._all_files)} files')
+    
+    def build_files_list(self, directory):
+        '''Populates paths from Manifest.mbdb files into _all_files'''
+        def getint(data, offset, intsize):
+            """Retrieve an integer (big-endian) and new offset from the current offset"""
+            value = 0
+            while intsize > 0:
+                value = (value<<8) + data[offset]
+                offset = offset + 1
+                intsize = intsize - 1
+            return value, offset
+        
+        def getstring(data, offset, bin=False):
+            """Retrieve a string and new offset from the current offset into the data"""
+            if chr(data[offset]) == chr(0xFF) and chr(data[offset+1]) == chr(0xFF):
+                return '', offset+2 # Blank string
+            length, offset = getint(data, offset, 2) # 2-byte length
+            value = "" if bin else data[offset:offset+length].decode()
+            return value, (offset + length)
+
+        def process_mbdb_file(directory):
+            files = list()
+            with open(os.path.join(directory, "Manifest.mbdb"), 'rb') as f:
+                data = f.read()
+            if data[0:4].decode() != "mbdb": raise Exception("This does not look like an MBDB file")
+            offset = 4
+            offset = offset + 2 # value x05 x00, not sure what this is
+            while offset < len(data):
+                domain, offset = getstring(data, offset)
+                filename, offset = getstring(data, offset)
+                _, offset = getstring(data, offset)
+                _, offset = getstring(data, offset, True)
+                _, offset = getstring(data, offset)
+                _, offset = getint(data, offset, 2)
+                _, offset = getint(data, offset, 4)
+                _, offset = getint(data, offset, 4)
+                _, offset = getint(data, offset, 4)
+                _, offset = getint(data, offset, 4)
+                _, offset = getint(data, offset, 4)
+                _, offset = getint(data, offset, 4)
+                _, offset = getint(data, offset, 4)
+                _, offset = getint(data, offset, 8)
+                _, offset = getint(data, offset, 1)
+                numprops, offset = getint(data, offset, 1)
+                for ii in range(numprops):
+                    _, offset = getstring(data, offset)
+                    _, offset = getstring(data, offset)
+                hash_filename = hashlib.sha1(f"{domain}-{filename}".encode()).hexdigest()
+                files.append((hash_filename,domain,filename))
+            return files
+
+        try: 
+            all_rows = process_mbdb_file(directory)
+            for row in all_rows:
+                hash_filename = row[0]
+                domain = row[1]
+                root_path = get_root_path_from_domain(domain)
+                relative_path = row[2]
+                full_path = os.path.join(root_path, relative_path)
+                self._all_files[full_path] = hash_filename
+        except Exception as ex:
+            logfunc(f'Error opening Manifest.mbdb from {directory}, ' + str(ex))
+            raise ex
+
+    def search(self, filepattern, return_on_first_hit=False):
+        pathlist = []
+        matching_keys = fnmatch.filter(self._all_files, filepattern)
+        for relative_path in matching_keys:
+            hash_filename = self._all_files[relative_path]
+            original_location = os.path.join(self.directory, hash_filename)
+            temp_location = os.path.join(self.temp_folder, sanitize_file_path(relative_path))
+            if is_platform_windows():
+                temp_location = temp_location.replace('/', '\\')
+            try:
+                os.makedirs(os.path.dirname(temp_location), exist_ok=True)
+                copyfile(original_location, temp_location)
+                pathlist.append(temp_location)
+            except Exception as ex:
+                logfunc(f'Could not copy {original_location} to {temp_location} ' + str(ex))
+        return pathlist
+
+
 
 class FileSeekerTar(FileSeekerBase):
     def __init__(self, tar_file_path, temp_folder):
