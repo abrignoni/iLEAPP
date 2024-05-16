@@ -139,7 +139,7 @@ def main():
                               "'fs' for a folder containing extracted files with normal paths and names, "
                               "'tar', 'zip', or 'gz' for compressed packages containing files with normal names, "
                               "or 'itunes' for a folder containing a raw iTunes backup with hashed paths and names."
-                             "If you have an older iTunes backup using the Manifest.mbdb format instead, us 'itunes-mbdb'.))
+                             "If you have an older iTunes backup using the Manifest.mbdb format instead, us 'itunes-mbdb'."))
     parser.add_argument('-o', '--output_path', required=False, action="store",
                         help='Path to base output folder (this must exist)')
     parser.add_argument('-i', '--input_path', required=False, action="store", help='Path to input file/folder')
