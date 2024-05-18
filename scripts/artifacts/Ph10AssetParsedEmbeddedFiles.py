@@ -32,7 +32,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, kmlgen, is_platform_windows, media_to_html, open_sqlite_db_readonly
 
 
-def get_ph10assetparsedfilesphdapsql(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker, wrap_text, timezone_offset):
     for file_found in files_found:
         file_found = str(file_found)
         
@@ -64,7 +64,7 @@ def get_ph10assetparsedfilesphdapsql(files_found, report_folder, seeker, wrap_te
         END AS 'zAddAssetAttr-Shifted Location Valid',
         CASE
             WHEN zAddAssetAttr.ZSHIFTEDLOCATIONDATA > 0 THEN 'zAddAssetAttr-Shifted_Location_Data_has_Plist'
-            ELSE 'zAddAssetArrt-Shifted_Location_Data_Empty-NULL'
+            ELSE 'zAddAssetAttr-Shifted_Location_Data_Empty-NULL'
         END AS 'zAddAssetAttr-Shifted Location Data-HasDataIndicator',
         zAddAssetAttr.ZSHIFTEDLOCATIONDATA AS 'zAddAssetAttr-Shifted Location Data',
         CASE zAddAssetAttr.ZREVERSELOCATIONDATAISVALID
@@ -255,12 +255,8 @@ def get_ph10assetparsedfilesphdapsql(files_found, report_folder, seeker, wrap_te
             for row in all_rows:
                 # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
                 aaashiftedlocation_postal_address = ''
-                aaashiftedlocation_postal_address_subadminarea = ''
-                aaashiftedlocation_postal_address_sublocality = ''
                 # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
                 aaareverselocation_postal_address = ''
-                aaareverselocation_postal_address_subadminarea = ''
-                aaareverselocation_postal_address_sublocality = ''
                 # AAAzCldMastMedData.ZDATA-PLIST
                 aaazcldmastmeddata_plist_tiff = ''
                 aaazcldmastmeddata_plist_exif = ''
@@ -281,9 +277,7 @@ def get_ph10assetparsedfilesphdapsql(files_found, report_folder, seeker, wrap_te
                     with open(pathto, 'rb') as f:
                         try:
                             deserialized_plist = nd.deserialize_plist(f)
-                            aaashiftedlocation_postal_address = deserialized_plist['postalAddress']['_formattedAddress']
-                            aaashiftedlocation_postal_address_subadminarea = deserialized_plist['postalAddress']['_subAdministrativeArea']
-                            aaashiftedlocation_postal_address_sublocality = deserialized_plist['postalAddress']['_subLocality']
+                            aaashiftedlocation_postal_address = deserialized_plist
 
                         except (KeyError, ValueError, TypeError) as ex:
                             if str(ex).find("does not contain an '$archiver' key") >= 0:
@@ -300,9 +294,7 @@ def get_ph10assetparsedfilesphdapsql(files_found, report_folder, seeker, wrap_te
                     with open(pathto, 'rb') as f:
                         try:
                             deserialized_plist = nd.deserialize_plist(f)
-                            aaareverselocation_postal_address = deserialized_plist['postalAddress']['_formattedAddress']
-                            aaareverselocation_postal_address_subadminarea = deserialized_plist['postalAddress']['_subAdministrativeArea']
-                            aaareverselocation_postal_address_sublocality = deserialized_plist['postalAddress']['_subLocality']
+                            aaareverselocation_postal_address = deserialized_plist
 
                         except (KeyError, ValueError, TypeError) as ex:
                             if str(ex).find("does not contain an '$archiver' key") >= 0:
@@ -350,12 +342,8 @@ def get_ph10assetparsedfilesphdapsql(files_found, report_folder, seeker, wrap_te
 
                 data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7],
                                 aaashiftedlocation_postal_address,
-                                aaashiftedlocation_postal_address_subadminarea,
-                                aaashiftedlocation_postal_address_sublocality,
                                 row[9], row[10],
                                 aaareverselocation_postal_address,
-                                aaareverselocation_postal_address_subadminarea,
-                                aaareverselocation_postal_address_sublocality,
                                 row[12], row[13], row[14], row[15], row[16],
                                 aaazcldmastmeddata_plist_tiff,
                                 aaazcldmastmeddata_plist_exif,
@@ -386,13 +374,9 @@ def get_ph10assetparsedfilesphdapsql(files_found, report_folder, seeker, wrap_te
                             'zAddAssetAttr-Shifted Location Valid-6',
                             'zAddAssetAttr-Shifted Location Data-HasDataIndicator7-',
                             'zAddAssetAttr-Shifted Location Data-bplist_postal_address-8',
-                            'zAddAssetAttr-Shifted Location Data-bplist_postal_address_subadminarea-8',
-                            'zAddAssetAttr-Shifted Location Data-bplist_postal_address_sublocality-8',
                             'zAddAssetAttr-Reverse Location Is Valid-9',
                             'zAddAssetAttr-Reverse Location Data-HasDataIndicator-10',
                             'zAddAssetAttr-Reverse Location Data-bplist_postal_address-11',
-                            'zAddAssetAttr-Reverse Location Data-bplist_postal_address_subadminarea-11',
-                            'zAddAssetAttr-Reverse Location Data-bplist_postal_address_sublocality-11',
                             'AAAzCldMastMedData-zOPT-12',
                             'zAddAssetAttr-Media Metadata Type-13',
                             'zAddAssetAttr-MediaMetadata= AAAzCldMastMedData-zPK-14',
@@ -549,12 +533,8 @@ def get_ph10assetparsedfilesphdapsql(files_found, report_folder, seeker, wrap_te
             for row in all_rows:
                 # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
                 aaashiftedlocation_postal_address = ''
-                aaashiftedlocation_postal_address_subadminarea = ''
-                aaashiftedlocation_postal_address_sublocality = ''
                 # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
                 aaareverselocation_postal_address = ''
-                aaareverselocation_postal_address_subadminarea = ''
-                aaareverselocation_postal_address_sublocality = ''
                 # AAAzCldMastMedData.ZDATA-PLIST
                 aaazcldmastmeddata_plist_tiff = ''
                 aaazcldmastmeddata_plist_exif = ''
@@ -566,13 +546,7 @@ def get_ph10assetparsedfilesphdapsql(files_found, report_folder, seeker, wrap_te
                 cmzcldmastmeddata_plist_gps = ''
                 cmzcldmastmeddata_plist_iptc = ''
                 # zSharePartic_ZNAMECOMPONENTS_PLIST
-                zsharepartic_namecomponents_nameprefix = ''
-                zsharepartic_namecomponents_givenname = ''
-                zsharepartic_namecomponents_middlename = ''
-                zsharepartic_namecomponents_familyname = ''
-                zsharepartic_namecomponents_namesuffix = ''
-                zsharepartic_namecomponents_nickname = ''
-                zsharepartic_namecomponents_phoneticrepresentation = ''
+                zsharepartic_namecomponents = ''
                 # zShare.ZPREVIEWDATA-BLOB_JPG
                 zshare_previewdata_blob = ''
 
@@ -585,9 +559,7 @@ def get_ph10assetparsedfilesphdapsql(files_found, report_folder, seeker, wrap_te
                     with open(pathto, 'rb') as f:
                         try:
                             deserialized_plist = nd.deserialize_plist(f)
-                            aaashiftedlocation_postal_address = deserialized_plist['postalAddress']['_formattedAddress']
-                            aaashiftedlocation_postal_address_subadminarea = deserialized_plist['postalAddress']['_subAdministrativeArea']
-                            aaashiftedlocation_postal_address_sublocality = deserialized_plist['postalAddress']['_subLocality']
+                            aaashiftedlocation_postal_address = deserialized_plist
 
                         except (KeyError, ValueError, TypeError) as ex:
                             if str(ex).find("does not contain an '$archiver' key") >= 0:
@@ -604,9 +576,7 @@ def get_ph10assetparsedfilesphdapsql(files_found, report_folder, seeker, wrap_te
                     with open(pathto, 'rb') as f:
                         try:
                             deserialized_plist = nd.deserialize_plist(f)
-                            aaareverselocation_postal_address = deserialized_plist['postalAddress']['_formattedAddress']
-                            aaareverselocation_postal_address_subadminarea = deserialized_plist['postalAddress']['_subAdministrativeArea']
-                            aaareverselocation_postal_address_sublocality = deserialized_plist['postalAddress']['_subLocality']
+                            aaareverselocation_postal_address = deserialized_plist
 
                         except (KeyError, ValueError, TypeError) as ex:
                             if str(ex).find("does not contain an '$archiver' key") >= 0:
@@ -660,13 +630,7 @@ def get_ph10assetparsedfilesphdapsql(files_found, report_folder, seeker, wrap_te
                     with open(pathto, 'rb') as f:
                         try:
                             deserialized_plist = nd.deserialize_plist(f)
-                            zsharepartic_namecomponents_nameprefix = deserialized_plist['NS.nameComponentsPrivate']['NS.namePrefix']
-                            zsharepartic_namecomponents_givenname = deserialized_plist['NS.nameComponentsPrivate']['NS.givenName']
-                            zsharepartic_namecomponents_middlename = deserialized_plist['NS.nameComponentsPrivate']['NS.middleName']
-                            zsharepartic_namecomponents_familyname = deserialized_plist['NS.nameComponentsPrivate']['NS.familyName']
-                            zsharepartic_namecomponents_namesuffix = deserialized_plist['NS.nameComponentsPrivate']['NS.nameSuffix']
-                            zsharepartic_namecomponents_nickname = deserialized_plist['NS.nameComponentsPrivate']['NS.nickname']
-                            zsharepartic_namecomponents_phoneticrepresentation = deserialized_plist['NS.nameComponentsPrivate']['NS.phoneticRepresentation']
+                            zsharepartic_namecomponents = deserialized_plist
 
                         except (KeyError, ValueError, TypeError) as ex:
                             if str(ex).find("does not contain an '$archiver' key") >= 0:
@@ -683,12 +647,8 @@ def get_ph10assetparsedfilesphdapsql(files_found, report_folder, seeker, wrap_te
 
                 data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7],
                                 aaashiftedlocation_postal_address,
-                                aaashiftedlocation_postal_address_subadminarea,
-                                aaashiftedlocation_postal_address_sublocality,
                                 row[9], row[10],
                                 aaareverselocation_postal_address,
-                                aaareverselocation_postal_address_subadminarea,
-                                aaareverselocation_postal_address_sublocality,
                                 row[12], row[13], row[14], row[15], row[16],
                                 aaazcldmastmeddata_plist_tiff,
                                 aaazcldmastmeddata_plist_exif,
@@ -700,13 +660,7 @@ def get_ph10assetparsedfilesphdapsql(files_found, report_folder, seeker, wrap_te
                                 cmzcldmastmeddata_plist_gps,
                                 cmzcldmastmeddata_plist_iptc,
                                 row[24], row[25], row[26], row[27], row[28], row[29],
-                                zsharepartic_namecomponents_nameprefix,
-                                zsharepartic_namecomponents_givenname,
-                                zsharepartic_namecomponents_middlename,
-                                zsharepartic_namecomponents_familyname,
-                                zsharepartic_namecomponents_namesuffix,
-                                zsharepartic_namecomponents_nickname,
-                                zsharepartic_namecomponents_phoneticrepresentation,
+                                zsharepartic_namecomponents,
                                 row[31], row[32], row[33],
                                 zshare_previewdata_blob,
                                 row[35], row[36], row[37], row[38]))
@@ -729,13 +683,9 @@ def get_ph10assetparsedfilesphdapsql(files_found, report_folder, seeker, wrap_te
                             'zAddAssetAttr-Shifted Location Valid-6',
                             'zAddAssetAttr-Shifted Location Data-HasDataIndicator-7',
                             'zAddAssetAttr-Shifted Location Data-bplist_postal_address-8',
-                            'zAddAssetAttr-Shifted Location Data-bplist_postal_address_subadminarea-8',
-                            'zAddAssetAttr-Shifted Location Data-bplist_postal_address_sublocality-8',
                             'zAddAssetAttr-Reverse Location Is Valid-9',
                             'zAddAssetAttr-Reverse Location Data-HasDataIndicator-10',
                             'zAddAssetAttr-Reverse Location Data-bplist_postal_address-11',
-                            'zAddAssetAttr-Reverse Location Data-bplist_postal_address_subadminarea-11',
-                            'zAddAssetAttr-Reverse Location Data-bplist_postal_address_sublocality-11',
                             'AAAzCldMastMedData-zOPT-12',
                             'zAddAssetAttr-Media Metadata Type-13',
                             'zAddAssetAttr-MediaMetadata= AAAzCldMastMedData-zPK-14',
@@ -760,13 +710,7 @@ def get_ph10assetparsedfilesphdapsql(files_found, report_folder, seeker, wrap_te
                             'zSharePartic-Email Address-27',
                             'zSharePartic-Phone Number-28',
                             'zSharePartic-Name_Components-HasDataIndicator-29',
-                            'zSharePartic-Name_Components_Plist_nameprefix-30',
-                            'zSharePartic-Name_Components_Plist_givenname-30',
-                            'zSharePartic-Name_Components_Plist_middlename-30',
-                            'zSharePartic-Name_Components_Plist_familyname-30',
-                            'zSharePartic-Name_Components_Plist_namesuffix-30',
-                            'zSharePartic-Name_Components_Plist_nickname-30',
-                            'zSharePartic-Name_Components_Plist_phoneticrepresentation-30',
+                            'zSharePartic-Name_Components_Plist-30',
                             'zSharePartic-Is Current User-31',
                             'zSharePartic-Role-32',
                             'zShare-Preview_Data-DataIndicator-33',
@@ -910,12 +854,8 @@ def get_ph10assetparsedfilesphdapsql(files_found, report_folder, seeker, wrap_te
             for row in all_rows:
                 # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
                 aaashiftedlocation_postal_address = ''
-                aaashiftedlocation_postal_address_subadminarea = ''
-                aaashiftedlocation_postal_address_sublocality = ''
                 # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
                 aaareverselocation_postal_address = ''
-                aaareverselocation_postal_address_subadminarea = ''
-                aaareverselocation_postal_address_sublocality = ''
                 # AAAzCldMastMedData.ZDATA-PLIST
                 aaazcldmastmeddata_plist_tiff = ''
                 aaazcldmastmeddata_plist_exif = ''
@@ -927,13 +867,7 @@ def get_ph10assetparsedfilesphdapsql(files_found, report_folder, seeker, wrap_te
                 cmzcldmastmeddata_plist_gps = ''
                 cmzcldmastmeddata_plist_iptc = ''
                 # zSharePartic_ZNAMECOMPONENTS_PLIST
-                zsharepartic_namecomponents_nameprefix = ''
-                zsharepartic_namecomponents_givenname = ''
-                zsharepartic_namecomponents_middlename = ''
-                zsharepartic_namecomponents_familyname = ''
-                zsharepartic_namecomponents_namesuffix = ''
-                zsharepartic_namecomponents_nickname = ''
-                zsharepartic_namecomponents_phoneticrepresentation = ''
+                zsharepartic_namecomponents = ''
                 # zShare.ZPREVIEWDATA-BLOB_JPG
                 zshare_previewdata_blob = ''
 
@@ -946,9 +880,7 @@ def get_ph10assetparsedfilesphdapsql(files_found, report_folder, seeker, wrap_te
                     with open(pathto, 'rb') as f:
                         try:
                             deserialized_plist = nd.deserialize_plist(f)
-                            aaashiftedlocation_postal_address = deserialized_plist['postalAddress']['_formattedAddress']
-                            aaashiftedlocation_postal_address_subadminarea = deserialized_plist['postalAddress']['_subAdministrativeArea']
-                            aaashiftedlocation_postal_address_sublocality = deserialized_plist['postalAddress']['_subLocality']
+                            aaashiftedlocation_postal_address = deserialized_plist
 
                         except (KeyError, ValueError, TypeError) as ex:
                             if str(ex).find("does not contain an '$archiver' key") >= 0:
@@ -965,9 +897,7 @@ def get_ph10assetparsedfilesphdapsql(files_found, report_folder, seeker, wrap_te
                     with open(pathto, 'rb') as f:
                         try:
                             deserialized_plist = nd.deserialize_plist(f)
-                            aaareverselocation_postal_address = deserialized_plist['postalAddress']['_formattedAddress']
-                            aaareverselocation_postal_address_subadminarea = deserialized_plist['postalAddress']['_subAdministrativeArea']
-                            aaareverselocation_postal_address_sublocality = deserialized_plist['postalAddress']['_subLocality']
+                            aaareverselocation_postal_address = deserialized_plist
 
                         except (KeyError, ValueError, TypeError) as ex:
                             if str(ex).find("does not contain an '$archiver' key") >= 0:
@@ -1022,13 +952,7 @@ def get_ph10assetparsedfilesphdapsql(files_found, report_folder, seeker, wrap_te
                     with open(pathto, 'rb') as f:
                         try:
                             deserialized_plist = nd.deserialize_plist(f)
-                            zsharepartic_namecomponents_nameprefix = deserialized_plist['NS.nameComponentsPrivate']['NS.namePrefix']
-                            zsharepartic_namecomponents_givenname = deserialized_plist['NS.nameComponentsPrivate']['NS.givenName']
-                            zsharepartic_namecomponents_middlename = deserialized_plist['NS.nameComponentsPrivate']['NS.middleName']
-                            zsharepartic_namecomponents_familyname = deserialized_plist['NS.nameComponentsPrivate']['NS.familyName']
-                            zsharepartic_namecomponents_namesuffix = deserialized_plist['NS.nameComponentsPrivate']['NS.nameSuffix']
-                            zsharepartic_namecomponents_nickname = deserialized_plist['NS.nameComponentsPrivate']['NS.nickname']
-                            zsharepartic_namecomponents_phoneticrepresentation = deserialized_plist['NS.nameComponentsPrivate']['NS.phoneticRepresentation']
+                            zsharepartic_namecomponents = deserialized_plist
 
                         except (KeyError, ValueError, TypeError) as ex:
                             if str(ex).find("does not contain an '$archiver' key") >= 0:
@@ -1045,12 +969,8 @@ def get_ph10assetparsedfilesphdapsql(files_found, report_folder, seeker, wrap_te
 
                 data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8],
                                   aaashiftedlocation_postal_address,
-                                  aaashiftedlocation_postal_address_subadminarea,
-                                  aaashiftedlocation_postal_address_sublocality,
                                   row[10], row[11],
                                   aaareverselocation_postal_address,
-                                  aaareverselocation_postal_address_subadminarea,
-                                  aaareverselocation_postal_address_sublocality,
                                   row[13], row[14], row[15], row[16], row[17],
                                   aaazcldmastmeddata_plist_tiff,
                                   aaazcldmastmeddata_plist_exif,
@@ -1062,13 +982,7 @@ def get_ph10assetparsedfilesphdapsql(files_found, report_folder, seeker, wrap_te
                                   cmzcldmastmeddata_plist_gps,
                                   cmzcldmastmeddata_plist_iptc,
                                   row[25], row[26], row[27], row[28], row[29], row[30],
-                                  zsharepartic_namecomponents_nameprefix,
-                                  zsharepartic_namecomponents_givenname,
-                                  zsharepartic_namecomponents_middlename,
-                                  zsharepartic_namecomponents_familyname,
-                                  zsharepartic_namecomponents_namesuffix,
-                                  zsharepartic_namecomponents_nickname,
-                                  zsharepartic_namecomponents_phoneticrepresentation,
+                                  zsharepartic_namecomponents,
                                   row[32], row[33], row[34],
                                   zshare_previewdata_blob,
                                   row[36], row[37], row[38], row[39]))
@@ -1092,13 +1006,9 @@ def get_ph10assetparsedfilesphdapsql(files_found, report_folder, seeker, wrap_te
                             'zAddAssetAttr-Shifted Location Valid-7',
                             'zAddAssetAttr-Shifted Location Data-HasDataIndicator-8',
                             'zAddAssetAttr-Shifted Location Data-bplist_postal_address-9',
-                            'zAddAssetAttr-Shifted Location Data-bplist_postal_address_subadminarea-9',
-                            'zAddAssetAttr-Shifted Location Data-bplist_postal_address_sublocality-9',
                             'zAddAssetAttr-Reverse Location Is Valid-10',
                             'zAddAssetAttr-Reverse Location Data-HasDataIndicator-11',
                             'zAddAssetAttr-Reverse Location Data-bplist_postal_address-12',
-                            'zAddAssetAttr-Reverse Location Data-bplist_postal_address_subadminarea-12',
-                            'zAddAssetAttr-Reverse Location Data-bplist_postal_address_sublocality-12',
                             'AAAzCldMastMedData-zOPT-13',
                             'zAddAssetAttr-Media Metadata Type-14',
                             'zAddAssetAttr-MediaMetadata= AAAzCldMastMedData-zPK-15',
@@ -1123,13 +1033,7 @@ def get_ph10assetparsedfilesphdapsql(files_found, report_folder, seeker, wrap_te
                             'zSharePartic-Email Address-28',
                             'zSharePartic-Phone Number-29',
                             'zSharePartic-Name_Components-HasDataIndicator-30',
-                            'zSharePartic-Name_Components_Plist_nameprefix-31',
-                            'zSharePartic-Name_Components_Plist_givenname-31',
-                            'zSharePartic-Name_Components_Plist_middlename-31',
-                            'zSharePartic-Name_Components_Plist_familyname-31',
-                            'zSharePartic-Name_Components_Plist_namesuffix-31',
-                            'zSharePartic-Name_Components_Plist_nickname-31',
-                            'zSharePartic-Name_Components_Plist_phoneticrepresentation-31',
+                            'zSharePartic-Name_Components_Plist-31',
                             'zSharePartic-Is Current User-32',
                             'zSharePartic-Role-33',
                             'zShare-Preview_Data-DataIndicator-34',
@@ -1299,12 +1203,8 @@ def get_ph10assetparsedfilesphdapsql(files_found, report_folder, seeker, wrap_te
             for row in all_rows:
                 # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
                 aaashiftedlocation_postal_address = ''
-                aaashiftedlocation_postal_address_subadminarea = ''
-                aaashiftedlocation_postal_address_sublocality = ''
                 # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
                 aaareverselocation_postal_address = ''
-                aaareverselocation_postal_address_subadminarea = ''
-                aaareverselocation_postal_address_sublocality = ''
                 # AAAzCldMastMedData.ZDATA-PLIST
                 aaazcldmastmeddata_plist_tiff = ''
                 aaazcldmastmeddata_plist_exif = ''
@@ -1316,21 +1216,9 @@ def get_ph10assetparsedfilesphdapsql(files_found, report_folder, seeker, wrap_te
                 cmzcldmastmeddata_plist_gps = ''
                 cmzcldmastmeddata_plist_iptc = ''
                 # zSharePartic_ZNAMECOMPONENTS_PLIST
-                zsharepartic_namecomponents_nameprefix = ''
-                zsharepartic_namecomponents_givenname = ''
-                zsharepartic_namecomponents_middlename = ''
-                zsharepartic_namecomponents_familyname = ''
-                zsharepartic_namecomponents_namesuffix = ''
-                zsharepartic_namecomponents_nickname = ''
-                zsharepartic_namecomponents_phoneticrepresentation = ''
+                zsharepartic_namecomponents = ''
                 # SPLzSharePartic_ZNAMECOMPONENTS_PLIST
-                splzsharepartic_namecomponents_nameprefix = ''
-                splzsharepartic_namecomponents_givenname = ''
-                splzsharepartic_namecomponents_middlename = ''
-                splzsharepartic_namecomponents_familyname = ''
-                splzsharepartic_namecomponents_namesuffix = ''
-                splzsharepartic_namecomponents_nickname = ''
-                splzsharepartic_namecomponents_phoneticrepresentation = ''
+                splzsharepartic_namecomponents = ''
                 # zShare.ZPREVIEWDATA-BLOB_JPG
                 zshare_previewdata_blob = ''
                 # SPLzShare.ZPREVIEWDATA-BLOB_JPG
@@ -1345,9 +1233,7 @@ def get_ph10assetparsedfilesphdapsql(files_found, report_folder, seeker, wrap_te
                     with open(pathto, 'rb') as f:
                         try:
                             deserialized_plist = nd.deserialize_plist(f)
-                            aaashiftedlocation_postal_address = deserialized_plist['postalAddress']['_formattedAddress']
-                            aaashiftedlocation_postal_address_subadminarea = deserialized_plist['postalAddress']['_subAdministrativeArea']
-                            aaashiftedlocation_postal_address_sublocality = deserialized_plist['postalAddress']['_subLocality']
+                            aaashiftedlocation_postal_address = deserialized_plist
 
                         except (KeyError, ValueError, TypeError) as ex:
                             if str(ex).find("does not contain an '$archiver' key") >= 0:
@@ -1364,9 +1250,7 @@ def get_ph10assetparsedfilesphdapsql(files_found, report_folder, seeker, wrap_te
                     with open(pathto, 'rb') as f:
                         try:
                             deserialized_plist = nd.deserialize_plist(f)
-                            aaareverselocation_postal_address = deserialized_plist['postalAddress']['_formattedAddress']
-                            aaareverselocation_postal_address_subadminarea = deserialized_plist['postalAddress']['_subAdministrativeArea']
-                            aaareverselocation_postal_address_sublocality = deserialized_plist['postalAddress']['_subLocality']
+                            aaareverselocation_postal_address = deserialized_plist
 
                         except (KeyError, ValueError, TypeError) as ex:
                             if str(ex).find("does not contain an '$archiver' key") >= 0:
@@ -1421,13 +1305,7 @@ def get_ph10assetparsedfilesphdapsql(files_found, report_folder, seeker, wrap_te
                     with open(pathto, 'rb') as f:
                         try:
                             deserialized_plist = nd.deserialize_plist(f)
-                            zsharepartic_namecomponents_nameprefix = deserialized_plist['NS.nameComponentsPrivate']['NS.namePrefix']
-                            zsharepartic_namecomponents_givenname = deserialized_plist['NS.nameComponentsPrivate']['NS.givenName']
-                            zsharepartic_namecomponents_middlename = deserialized_plist['NS.nameComponentsPrivate']['NS.middleName']
-                            zsharepartic_namecomponents_familyname = deserialized_plist['NS.nameComponentsPrivate']['NS.familyName']
-                            zsharepartic_namecomponents_namesuffix = deserialized_plist['NS.nameComponentsPrivate']['NS.nameSuffix']
-                            zsharepartic_namecomponents_nickname = deserialized_plist['NS.nameComponentsPrivate']['NS.nickname']
-                            zsharepartic_namecomponents_phoneticrepresentation = deserialized_plist['NS.nameComponentsPrivate']['NS.phoneticRepresentation']
+                            zsharepartic_namecomponents = deserialized_plist
 
                         except (KeyError, ValueError, TypeError) as ex:
                             if str(ex).find("does not contain an '$archiver' key") >= 0:
@@ -1444,13 +1322,7 @@ def get_ph10assetparsedfilesphdapsql(files_found, report_folder, seeker, wrap_te
                     with open(pathto, 'rb') as f:
                         try:
                             deserialized_plist = nd.deserialize_plist(f)
-                            splzsharepartic_namecomponents_nameprefix = deserialized_plist['NS.nameComponentsPrivate']['NS.namePrefix']
-                            splzsharepartic_namecomponents_givenname = deserialized_plist['NS.nameComponentsPrivate']['NS.givenName']
-                            splzsharepartic_namecomponents_middlename = deserialized_plist['NS.nameComponentsPrivate']['NS.middleName']
-                            splzsharepartic_namecomponents_familyname = deserialized_plist['NS.nameComponentsPrivate']['NS.familyName']
-                            splzsharepartic_namecomponents_namesuffix = deserialized_plist['NS.nameComponentsPrivate']['NS.nameSuffix']
-                            splzsharepartic_namecomponents_nickname = deserialized_plist['NS.nameComponentsPrivate']['NS.nickname']
-                            splzsharepartic_namecomponents_phoneticrepresentation = deserialized_plist['NS.nameComponentsPrivate']['NS.phoneticRepresentation']
+                            splzsharepartic_namecomponents = deserialized_plist
 
                         except (KeyError, ValueError, TypeError) as ex:
                             if str(ex).find("does not contain an '$archiver' key") >= 0:
@@ -1474,12 +1346,8 @@ def get_ph10assetparsedfilesphdapsql(files_found, report_folder, seeker, wrap_te
 
                 data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8],
                                   aaashiftedlocation_postal_address,
-                                  aaashiftedlocation_postal_address_subadminarea,
-                                  aaashiftedlocation_postal_address_sublocality,
                                   row[10], row[11],
                                   aaareverselocation_postal_address,
-                                  aaareverselocation_postal_address_subadminarea,
-                                  aaareverselocation_postal_address_sublocality,
                                   row[13], row[14], row[15], row[16], row[17],
                                   aaazcldmastmeddata_plist_tiff,
                                   aaazcldmastmeddata_plist_exif,
@@ -1491,24 +1359,12 @@ def get_ph10assetparsedfilesphdapsql(files_found, report_folder, seeker, wrap_te
                                   cmzcldmastmeddata_plist_gps,
                                   cmzcldmastmeddata_plist_iptc,
                                   row[25], row[26], row[27], row[28], row[29], row[30],
-                                  zsharepartic_namecomponents_nameprefix,
-                                  zsharepartic_namecomponents_givenname,
-                                  zsharepartic_namecomponents_middlename,
-                                  zsharepartic_namecomponents_familyname,
-                                  zsharepartic_namecomponents_namesuffix,
-                                  zsharepartic_namecomponents_nickname,
-                                  zsharepartic_namecomponents_phoneticrepresentation,
+                                  zsharepartic_namecomponents,
                                   row[32], row[33], row[34],
                                   zshare_previewdata_blob,
                                   row[36], row[37],
                                   row[38], row[39], row[40], row[41],
-                                  splzsharepartic_namecomponents_nameprefix,
-                                  splzsharepartic_namecomponents_givenname,
-                                  splzsharepartic_namecomponents_middlename,
-                                  splzsharepartic_namecomponents_familyname,
-                                  splzsharepartic_namecomponents_namesuffix,
-                                  splzsharepartic_namecomponents_nickname,
-                                  splzsharepartic_namecomponents_phoneticrepresentation,
+                                  splzsharepartic_namecomponents,
                                   row[43],
                                   splzshare_previewdata_blob,
                                   row[45], row[46], row[47], row[48]))
@@ -1532,13 +1388,9 @@ def get_ph10assetparsedfilesphdapsql(files_found, report_folder, seeker, wrap_te
                             'zAddAssetAttr-Shifted Location Valid-7',
                             'zAddAssetAttr-Shifted Location Data-HasDataIndicator-8',
                             'zAddAssetAttr-Shifted Location Data-bplist_postal_address-9',
-                            'zAddAssetAttr-Shifted Location Data-bplist_postal_address_subadminarea-9',
-                            'zAddAssetAttr-Shifted Location Data-bplist_postal_address_sublocality-9',
                             'zAddAssetAttr-Reverse Location Is Valid-10',
                             'zAddAssetAttr-Reverse Location Data-HasDataIndicator-11',
                             'zAddAssetAttr-Reverse Location Data-bplist_postal_address-12',
-                            'zAddAssetAttr-Reverse Location Data-bplist_postal_address_subadminarea-12',
-                            'zAddAssetAttr-Reverse Location Data-bplist_postal_address_sublocality-12',
                             'AAAzCldMastMedData-zOPT-13',
                             'zAddAssetAttr-Media Metadata Type-14',
                             'zAddAssetAttr-MediaMetadata= AAAzCldMastMedData-zPK-15',
@@ -1563,13 +1415,7 @@ def get_ph10assetparsedfilesphdapsql(files_found, report_folder, seeker, wrap_te
                             'zSharePartic-Email Address-28',
                             'zSharePartic-Phone Number-29',
                             'zSharePartic-Name_Components-HasDataIndicator-30',
-                            'zSharePartic-Name_Components_Plist_nameprefix-31',
-                            'zSharePartic-Name_Components_Plist_givenname-31',
-                            'zSharePartic-Name_Components_Plist_middlename-31',
-                            'zSharePartic-Name_Components_Plist_familyname-31',
-                            'zSharePartic-Name_Components_Plist_namesuffix-31',
-                            'zSharePartic-Name_Components_Plist_nickname-31',
-                            'zSharePartic-Name_Components_Plist_phoneticrepresentation-31',
+                            'zSharePartic-Name_Components_Plist-31',
                             'zSharePartic-Is Current User-32',
                             'zSharePartic-Role-33',
                             'zShare-Preview_Data-DataIndicator-34',
@@ -1580,13 +1426,7 @@ def get_ph10assetparsedfilesphdapsql(files_found, report_folder, seeker, wrap_te
                             'SPLzSharePartic-Email Address-39',
                             'SPLzSharePartic-Phone Number-40',
                             'SPLzSharePartic-Name_Components-HasDataIndicator-41',
-                            'SPLzSharePartic-Name_Components_Plist_nameprefix-42',
-                            'SPLzSharePartic-Name_Components_Plist_givenname-42',
-                            'SPLzSharePartic-Name_Components_Plist_middlename-42',
-                            'SPLzSharePartic-Name_Components_Plist_familyname-42',
-                            'SPLzSharePartic-Name_Components_Plist_namesuffix-42',
-                            'SPLzSharePartic-Name_Components_Plist_nickname-42',
-                            'SPLzSharePartic-Name_Components_Plist_phoneticrepresentation-42',
+                            'SPLzSharePartic-Name_Components_Plist-42',
                             'zShare-Preview_Data-DataIndicator-43',
                             'zShare-Preview_Data-BLOB_JPG-44',
                             'zAsset-zPK-45',
@@ -1609,7 +1449,7 @@ def get_ph10assetparsedfilesphdapsql(files_found, report_folder, seeker, wrap_te
         return
 
 
-def get_ph10assetparsedfilessyndpl(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, wrap_text, timezone_offset):
     for file_found in files_found:
         file_found = str(file_found)
 
@@ -1832,12 +1672,8 @@ def get_ph10assetparsedfilessyndpl(files_found, report_folder, seeker, wrap_text
             for row in all_rows:
                 # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
                 aaashiftedlocation_postal_address = ''
-                aaashiftedlocation_postal_address_subadminarea = ''
-                aaashiftedlocation_postal_address_sublocality = ''
                 # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
                 aaareverselocation_postal_address = ''
-                aaareverselocation_postal_address_subadminarea = ''
-                aaareverselocation_postal_address_sublocality = ''
                 # AAAzCldMastMedData.ZDATA-PLIST
                 aaazcldmastmeddata_plist_tiff = ''
                 aaazcldmastmeddata_plist_exif = ''
@@ -1858,9 +1694,7 @@ def get_ph10assetparsedfilessyndpl(files_found, report_folder, seeker, wrap_text
                     with open(pathto, 'rb') as f:
                         try:
                             deserialized_plist = nd.deserialize_plist(f)
-                            aaashiftedlocation_postal_address = deserialized_plist['postalAddress']['_formattedAddress']
-                            aaashiftedlocation_postal_address_subadminarea = deserialized_plist['postalAddress']['_subAdministrativeArea']
-                            aaashiftedlocation_postal_address_sublocality = deserialized_plist['postalAddress']['_subLocality']
+                            aaashiftedlocation_postal_address = deserialized_plist
 
                         except (KeyError, ValueError, TypeError) as ex:
                             if str(ex).find("does not contain an '$archiver' key") >= 0:
@@ -1877,9 +1711,7 @@ def get_ph10assetparsedfilessyndpl(files_found, report_folder, seeker, wrap_text
                     with open(pathto, 'rb') as f:
                         try:
                             deserialized_plist = nd.deserialize_plist(f)
-                            aaareverselocation_postal_address = deserialized_plist['postalAddress']['_formattedAddress']
-                            aaareverselocation_postal_address_subadminarea = deserialized_plist['postalAddress']['_subAdministrativeArea']
-                            aaareverselocation_postal_address_sublocality = deserialized_plist['postalAddress']['_subLocality']
+                            aaareverselocation_postal_address = deserialized_plist
 
                         except (KeyError, ValueError, TypeError) as ex:
                             if str(ex).find("does not contain an '$archiver' key") >= 0:
@@ -1927,12 +1759,8 @@ def get_ph10assetparsedfilessyndpl(files_found, report_folder, seeker, wrap_text
 
                 data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7],
                                 aaashiftedlocation_postal_address,
-                                aaashiftedlocation_postal_address_subadminarea,
-                                aaashiftedlocation_postal_address_sublocality,
                                 row[9], row[10],
                                 aaareverselocation_postal_address,
-                                aaareverselocation_postal_address_subadminarea,
-                                aaareverselocation_postal_address_sublocality,
                                 row[12], row[13], row[14], row[15], row[16],
                                 aaazcldmastmeddata_plist_tiff,
                                 aaazcldmastmeddata_plist_exif,
@@ -1961,15 +1789,11 @@ def get_ph10assetparsedfilessyndpl(files_found, report_folder, seeker, wrap_text
                             'zCldMast- Original Filename-4',
                             'zCldMast-Import Session ID- AirDrop-StillTesting-5',
                             'zAddAssetAttr-Shifted Location Valid-6',
-                            'zAddAssetAttr-Shifted Location Data-HasDataIndicator7-',
+                            'zAddAssetAttr-Shifted Location Data-HasDataIndicator-7',
                             'zAddAssetAttr-Shifted Location Data-bplist_postal_address-8',
-                            'zAddAssetAttr-Shifted Location Data-bplist_postal_address_subadminarea-8',
-                            'zAddAssetAttr-Shifted Location Data-bplist_postal_address_sublocality-8',
                             'zAddAssetAttr-Reverse Location Is Valid-9',
                             'zAddAssetAttr-Reverse Location Data-HasDataIndicator-10',
                             'zAddAssetAttr-Reverse Location Data-bplist_postal_address-11',
-                            'zAddAssetAttr-Reverse Location Data-bplist_postal_address_subadminarea-11',
-                            'zAddAssetAttr-Reverse Location Data-bplist_postal_address_sublocality-11',
                             'AAAzCldMastMedData-zOPT-12',
                             'zAddAssetAttr-Media Metadata Type-13',
                             'zAddAssetAttr-MediaMetadata= AAAzCldMastMedData-zPK-14',
@@ -2126,12 +1950,8 @@ def get_ph10assetparsedfilessyndpl(files_found, report_folder, seeker, wrap_text
             for row in all_rows:
                 # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
                 aaashiftedlocation_postal_address = ''
-                aaashiftedlocation_postal_address_subadminarea = ''
-                aaashiftedlocation_postal_address_sublocality = ''
                 # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
                 aaareverselocation_postal_address = ''
-                aaareverselocation_postal_address_subadminarea = ''
-                aaareverselocation_postal_address_sublocality = ''
                 # AAAzCldMastMedData.ZDATA-PLIST
                 aaazcldmastmeddata_plist_tiff = ''
                 aaazcldmastmeddata_plist_exif = ''
@@ -2143,13 +1963,7 @@ def get_ph10assetparsedfilessyndpl(files_found, report_folder, seeker, wrap_text
                 cmzcldmastmeddata_plist_gps = ''
                 cmzcldmastmeddata_plist_iptc = ''
                 # zSharePartic_ZNAMECOMPONENTS_PLIST
-                zsharepartic_namecomponents_nameprefix = ''
-                zsharepartic_namecomponents_givenname = ''
-                zsharepartic_namecomponents_middlename = ''
-                zsharepartic_namecomponents_familyname = ''
-                zsharepartic_namecomponents_namesuffix = ''
-                zsharepartic_namecomponents_nickname = ''
-                zsharepartic_namecomponents_phoneticrepresentation = ''
+                zsharepartic_namecomponents = ''
                 # zShare.ZPREVIEWDATA-BLOB_JPG
                 zshare_previewdata_blob = ''
 
@@ -2162,9 +1976,7 @@ def get_ph10assetparsedfilessyndpl(files_found, report_folder, seeker, wrap_text
                     with open(pathto, 'rb') as f:
                         try:
                             deserialized_plist = nd.deserialize_plist(f)
-                            aaashiftedlocation_postal_address = deserialized_plist['postalAddress']['_formattedAddress']
-                            aaashiftedlocation_postal_address_subadminarea = deserialized_plist['postalAddress']['_subAdministrativeArea']
-                            aaashiftedlocation_postal_address_sublocality = deserialized_plist['postalAddress']['_subLocality']
+                            aaashiftedlocation_postal_address = deserialized_plist
 
                         except (KeyError, ValueError, TypeError) as ex:
                             if str(ex).find("does not contain an '$archiver' key") >= 0:
@@ -2181,9 +1993,7 @@ def get_ph10assetparsedfilessyndpl(files_found, report_folder, seeker, wrap_text
                     with open(pathto, 'rb') as f:
                         try:
                             deserialized_plist = nd.deserialize_plist(f)
-                            aaareverselocation_postal_address = deserialized_plist['postalAddress']['_formattedAddress']
-                            aaareverselocation_postal_address_subadminarea = deserialized_plist['postalAddress']['_subAdministrativeArea']
-                            aaareverselocation_postal_address_sublocality = deserialized_plist['postalAddress']['_subLocality']
+                            aaareverselocation_postal_address = deserialized_plist
 
                         except (KeyError, ValueError, TypeError) as ex:
                             if str(ex).find("does not contain an '$archiver' key") >= 0:
@@ -2237,13 +2047,7 @@ def get_ph10assetparsedfilessyndpl(files_found, report_folder, seeker, wrap_text
                     with open(pathto, 'rb') as f:
                         try:
                             deserialized_plist = nd.deserialize_plist(f)
-                            zsharepartic_namecomponents_nameprefix = deserialized_plist['NS.nameComponentsPrivate']['NS.namePrefix']
-                            zsharepartic_namecomponents_givenname = deserialized_plist['NS.nameComponentsPrivate']['NS.givenName']
-                            zsharepartic_namecomponents_middlename = deserialized_plist['NS.nameComponentsPrivate']['NS.middleName']
-                            zsharepartic_namecomponents_familyname = deserialized_plist['NS.nameComponentsPrivate']['NS.familyName']
-                            zsharepartic_namecomponents_namesuffix = deserialized_plist['NS.nameComponentsPrivate']['NS.nameSuffix']
-                            zsharepartic_namecomponents_nickname = deserialized_plist['NS.nameComponentsPrivate']['NS.nickname']
-                            zsharepartic_namecomponents_phoneticrepresentation = deserialized_plist['NS.nameComponentsPrivate']['NS.phoneticRepresentation']
+                            zsharepartic_namecomponents = deserialized_plist
 
                         except (KeyError, ValueError, TypeError) as ex:
                             if str(ex).find("does not contain an '$archiver' key") >= 0:
@@ -2260,12 +2064,8 @@ def get_ph10assetparsedfilessyndpl(files_found, report_folder, seeker, wrap_text
 
                 data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7],
                                   aaashiftedlocation_postal_address,
-                                  aaashiftedlocation_postal_address_subadminarea,
-                                  aaashiftedlocation_postal_address_sublocality,
                                   row[9], row[10],
                                   aaareverselocation_postal_address,
-                                  aaareverselocation_postal_address_subadminarea,
-                                  aaareverselocation_postal_address_sublocality,
                                   row[12], row[13], row[14], row[15], row[16],
                                   aaazcldmastmeddata_plist_tiff,
                                   aaazcldmastmeddata_plist_exif,
@@ -2277,13 +2077,7 @@ def get_ph10assetparsedfilessyndpl(files_found, report_folder, seeker, wrap_text
                                   cmzcldmastmeddata_plist_gps,
                                   cmzcldmastmeddata_plist_iptc,
                                   row[24], row[25], row[26], row[27], row[28], row[29],
-                                  zsharepartic_namecomponents_nameprefix,
-                                  zsharepartic_namecomponents_givenname,
-                                  zsharepartic_namecomponents_middlename,
-                                  zsharepartic_namecomponents_familyname,
-                                  zsharepartic_namecomponents_namesuffix,
-                                  zsharepartic_namecomponents_nickname,
-                                  zsharepartic_namecomponents_phoneticrepresentation,
+                                  zsharepartic_namecomponents,
                                   row[31], row[32], row[33],
                                   zshare_previewdata_blob,
                                   row[35], row[36], row[37], row[38]))
@@ -2306,13 +2100,9 @@ def get_ph10assetparsedfilessyndpl(files_found, report_folder, seeker, wrap_text
                             'zAddAssetAttr-Shifted Location Valid-6',
                             'zAddAssetAttr-Shifted Location Data-HasDataIndicator-7',
                             'zAddAssetAttr-Shifted Location Data-bplist_postal_address-8',
-                            'zAddAssetAttr-Shifted Location Data-bplist_postal_address_subadminarea-8',
-                            'zAddAssetAttr-Shifted Location Data-bplist_postal_address_sublocality-8',
                             'zAddAssetAttr-Reverse Location Is Valid-9',
                             'zAddAssetAttr-Reverse Location Data-HasDataIndicator-10',
                             'zAddAssetAttr-Reverse Location Data-bplist_postal_address-11',
-                            'zAddAssetAttr-Reverse Location Data-bplist_postal_address_subadminarea-11',
-                            'zAddAssetAttr-Reverse Location Data-bplist_postal_address_sublocality-11',
                             'AAAzCldMastMedData-zOPT-12',
                             'zAddAssetAttr-Media Metadata Type-13',
                             'zAddAssetAttr-MediaMetadata= AAAzCldMastMedData-zPK-14',
@@ -2337,13 +2127,7 @@ def get_ph10assetparsedfilessyndpl(files_found, report_folder, seeker, wrap_text
                             'zSharePartic-Email Address-27',
                             'zSharePartic-Phone Number-28',
                             'zSharePartic-Name_Components-HasDataIndicator-29',
-                            'zSharePartic-Name_Components_Plist_nameprefix-30',
-                            'zSharePartic-Name_Components_Plist_givenname-30',
-                            'zSharePartic-Name_Components_Plist_middlename-30',
-                            'zSharePartic-Name_Components_Plist_familyname-30',
-                            'zSharePartic-Name_Components_Plist_namesuffix-30',
-                            'zSharePartic-Name_Components_Plist_nickname-30',
-                            'zSharePartic-Name_Components_Plist_phoneticrepresentation-30',
+                            'zSharePartic-Name_Components_Plist-30',
                             'zSharePartic-Is Current User-31',
                             'zSharePartic-Role-32',
                             'zShare-Preview_Data-DataIndicator-33',
@@ -2487,12 +2271,8 @@ def get_ph10assetparsedfilessyndpl(files_found, report_folder, seeker, wrap_text
             for row in all_rows:
                 # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
                 aaashiftedlocation_postal_address = ''
-                aaashiftedlocation_postal_address_subadminarea = ''
-                aaashiftedlocation_postal_address_sublocality = ''
                 # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
                 aaareverselocation_postal_address = ''
-                aaareverselocation_postal_address_subadminarea = ''
-                aaareverselocation_postal_address_sublocality = ''
                 # AAAzCldMastMedData.ZDATA-PLIST
                 aaazcldmastmeddata_plist_tiff = ''
                 aaazcldmastmeddata_plist_exif = ''
@@ -2504,13 +2284,7 @@ def get_ph10assetparsedfilessyndpl(files_found, report_folder, seeker, wrap_text
                 cmzcldmastmeddata_plist_gps = ''
                 cmzcldmastmeddata_plist_iptc = ''
                 # zSharePartic_ZNAMECOMPONENTS_PLIST
-                zsharepartic_namecomponents_nameprefix = ''
-                zsharepartic_namecomponents_givenname = ''
-                zsharepartic_namecomponents_middlename = ''
-                zsharepartic_namecomponents_familyname = ''
-                zsharepartic_namecomponents_namesuffix = ''
-                zsharepartic_namecomponents_nickname = ''
-                zsharepartic_namecomponents_phoneticrepresentation = ''
+                zsharepartic_namecomponents = ''
                 # zShare.ZPREVIEWDATA-BLOB_JPG
                 zshare_previewdata_blob = ''
 
@@ -2523,9 +2297,7 @@ def get_ph10assetparsedfilessyndpl(files_found, report_folder, seeker, wrap_text
                     with open(pathto, 'rb') as f:
                         try:
                             deserialized_plist = nd.deserialize_plist(f)
-                            aaashiftedlocation_postal_address = deserialized_plist['postalAddress']['_formattedAddress']
-                            aaashiftedlocation_postal_address_subadminarea = deserialized_plist['postalAddress']['_subAdministrativeArea']
-                            aaashiftedlocation_postal_address_sublocality = deserialized_plist['postalAddress']['_subLocality']
+                            aaashiftedlocation_postal_address = deserialized_plist
 
                         except (KeyError, ValueError, TypeError) as ex:
                             if str(ex).find("does not contain an '$archiver' key") >= 0:
@@ -2542,9 +2314,7 @@ def get_ph10assetparsedfilessyndpl(files_found, report_folder, seeker, wrap_text
                     with open(pathto, 'rb') as f:
                         try:
                             deserialized_plist = nd.deserialize_plist(f)
-                            aaareverselocation_postal_address = deserialized_plist['postalAddress']['_formattedAddress']
-                            aaareverselocation_postal_address_subadminarea = deserialized_plist['postalAddress']['_subAdministrativeArea']
-                            aaareverselocation_postal_address_sublocality = deserialized_plist['postalAddress']['_subLocality']
+                            aaareverselocation_postal_address = deserialized_plist
 
                         except (KeyError, ValueError, TypeError) as ex:
                             if str(ex).find("does not contain an '$archiver' key") >= 0:
@@ -2599,13 +2369,7 @@ def get_ph10assetparsedfilessyndpl(files_found, report_folder, seeker, wrap_text
                     with open(pathto, 'rb') as f:
                         try:
                             deserialized_plist = nd.deserialize_plist(f)
-                            zsharepartic_namecomponents_nameprefix = deserialized_plist['NS.nameComponentsPrivate']['NS.namePrefix']
-                            zsharepartic_namecomponents_givenname = deserialized_plist['NS.nameComponentsPrivate']['NS.givenName']
-                            zsharepartic_namecomponents_middlename = deserialized_plist['NS.nameComponentsPrivate']['NS.middleName']
-                            zsharepartic_namecomponents_familyname = deserialized_plist['NS.nameComponentsPrivate']['NS.familyName']
-                            zsharepartic_namecomponents_namesuffix = deserialized_plist['NS.nameComponentsPrivate']['NS.nameSuffix']
-                            zsharepartic_namecomponents_nickname = deserialized_plist['NS.nameComponentsPrivate']['NS.nickname']
-                            zsharepartic_namecomponents_phoneticrepresentation = deserialized_plist['NS.nameComponentsPrivate']['NS.phoneticRepresentation']
+                            zsharepartic_namecomponents = deserialized_plist
 
                         except (KeyError, ValueError, TypeError) as ex:
                             if str(ex).find("does not contain an '$archiver' key") >= 0:
@@ -2622,12 +2386,8 @@ def get_ph10assetparsedfilessyndpl(files_found, report_folder, seeker, wrap_text
 
                 data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8],
                                   aaashiftedlocation_postal_address,
-                                  aaashiftedlocation_postal_address_subadminarea,
-                                  aaashiftedlocation_postal_address_sublocality,
                                   row[10], row[11],
                                   aaareverselocation_postal_address,
-                                  aaareverselocation_postal_address_subadminarea,
-                                  aaareverselocation_postal_address_sublocality,
                                   row[13], row[14], row[15], row[16], row[17],
                                   aaazcldmastmeddata_plist_tiff,
                                   aaazcldmastmeddata_plist_exif,
@@ -2639,13 +2399,7 @@ def get_ph10assetparsedfilessyndpl(files_found, report_folder, seeker, wrap_text
                                   cmzcldmastmeddata_plist_gps,
                                   cmzcldmastmeddata_plist_iptc,
                                   row[25], row[26], row[27], row[28], row[29], row[30],
-                                  zsharepartic_namecomponents_nameprefix,
-                                  zsharepartic_namecomponents_givenname,
-                                  zsharepartic_namecomponents_middlename,
-                                  zsharepartic_namecomponents_familyname,
-                                  zsharepartic_namecomponents_namesuffix,
-                                  zsharepartic_namecomponents_nickname,
-                                  zsharepartic_namecomponents_phoneticrepresentation,
+                                  zsharepartic_namecomponents,
                                   row[32], row[33], row[34],
                                   zshare_previewdata_blob,
                                   row[36], row[37], row[38], row[39]))
@@ -2669,13 +2423,9 @@ def get_ph10assetparsedfilessyndpl(files_found, report_folder, seeker, wrap_text
                             'zAddAssetAttr-Shifted Location Valid-7',
                             'zAddAssetAttr-Shifted Location Data-HasDataIndicator-8',
                             'zAddAssetAttr-Shifted Location Data-bplist_postal_address-9',
-                            'zAddAssetAttr-Shifted Location Data-bplist_postal_address_subadminarea-9',
-                            'zAddAssetAttr-Shifted Location Data-bplist_postal_address_sublocality-9',
                             'zAddAssetAttr-Reverse Location Is Valid-10',
                             'zAddAssetAttr-Reverse Location Data-HasDataIndicator-11',
                             'zAddAssetAttr-Reverse Location Data-bplist_postal_address-12',
-                            'zAddAssetAttr-Reverse Location Data-bplist_postal_address_subadminarea-12',
-                            'zAddAssetAttr-Reverse Location Data-bplist_postal_address_sublocality-12',
                             'AAAzCldMastMedData-zOPT-13',
                             'zAddAssetAttr-Media Metadata Type-14',
                             'zAddAssetAttr-MediaMetadata= AAAzCldMastMedData-zPK-15',
@@ -2700,13 +2450,7 @@ def get_ph10assetparsedfilessyndpl(files_found, report_folder, seeker, wrap_text
                             'zSharePartic-Email Address-28',
                             'zSharePartic-Phone Number-29',
                             'zSharePartic-Name_Components-HasDataIndicator-30',
-                            'zSharePartic-Name_Components_Plist_nameprefix-31',
-                            'zSharePartic-Name_Components_Plist_givenname-31',
-                            'zSharePartic-Name_Components_Plist_middlename-31',
-                            'zSharePartic-Name_Components_Plist_familyname-31',
-                            'zSharePartic-Name_Components_Plist_namesuffix-31',
-                            'zSharePartic-Name_Components_Plist_nickname-31',
-                            'zSharePartic-Name_Components_Plist_phoneticrepresentation-31',
+                            'zSharePartic-Name_Components_Plist-31',
                             'zSharePartic-Is Current User-32',
                             'zSharePartic-Role-33',
                             'zShare-Preview_Data-DataIndicator-34',
@@ -2876,12 +2620,8 @@ def get_ph10assetparsedfilessyndpl(files_found, report_folder, seeker, wrap_text
             for row in all_rows:
                 # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
                 aaashiftedlocation_postal_address = ''
-                aaashiftedlocation_postal_address_subadminarea = ''
-                aaashiftedlocation_postal_address_sublocality = ''
                 # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
                 aaareverselocation_postal_address = ''
-                aaareverselocation_postal_address_subadminarea = ''
-                aaareverselocation_postal_address_sublocality = ''
                 # AAAzCldMastMedData.ZDATA-PLIST
                 aaazcldmastmeddata_plist_tiff = ''
                 aaazcldmastmeddata_plist_exif = ''
@@ -2893,21 +2633,9 @@ def get_ph10assetparsedfilessyndpl(files_found, report_folder, seeker, wrap_text
                 cmzcldmastmeddata_plist_gps = ''
                 cmzcldmastmeddata_plist_iptc = ''
                 # zSharePartic_ZNAMECOMPONENTS_PLIST
-                zsharepartic_namecomponents_nameprefix = ''
-                zsharepartic_namecomponents_givenname = ''
-                zsharepartic_namecomponents_middlename = ''
-                zsharepartic_namecomponents_familyname = ''
-                zsharepartic_namecomponents_namesuffix = ''
-                zsharepartic_namecomponents_nickname = ''
-                zsharepartic_namecomponents_phoneticrepresentation = ''
+                zsharepartic_namecomponents = ''
                 # SPLzSharePartic_ZNAMECOMPONENTS_PLIST
-                splzsharepartic_namecomponents_nameprefix = ''
-                splzsharepartic_namecomponents_givenname = ''
-                splzsharepartic_namecomponents_middlename = ''
-                splzsharepartic_namecomponents_familyname = ''
-                splzsharepartic_namecomponents_namesuffix = ''
-                splzsharepartic_namecomponents_nickname = ''
-                splzsharepartic_namecomponents_phoneticrepresentation = ''
+                splzsharepartic_namecomponents = ''
                 # zShare.ZPREVIEWDATA-BLOB_JPG
                 zshare_previewdata_blob = ''
                 # SPLzShare.ZPREVIEWDATA-BLOB_JPG
@@ -2922,9 +2650,7 @@ def get_ph10assetparsedfilessyndpl(files_found, report_folder, seeker, wrap_text
                     with open(pathto, 'rb') as f:
                         try:
                             deserialized_plist = nd.deserialize_plist(f)
-                            aaashiftedlocation_postal_address = deserialized_plist['postalAddress']['_formattedAddress']
-                            aaashiftedlocation_postal_address_subadminarea = deserialized_plist['postalAddress']['_subAdministrativeArea']
-                            aaashiftedlocation_postal_address_sublocality = deserialized_plist['postalAddress']['_subLocality']
+                            aaashiftedlocation_postal_address = deserialized_plist
 
                         except (KeyError, ValueError, TypeError) as ex:
                             if str(ex).find("does not contain an '$archiver' key") >= 0:
@@ -2941,9 +2667,7 @@ def get_ph10assetparsedfilessyndpl(files_found, report_folder, seeker, wrap_text
                     with open(pathto, 'rb') as f:
                         try:
                             deserialized_plist = nd.deserialize_plist(f)
-                            aaareverselocation_postal_address = deserialized_plist['postalAddress']['_formattedAddress']
-                            aaareverselocation_postal_address_subadminarea = deserialized_plist['postalAddress']['_subAdministrativeArea']
-                            aaareverselocation_postal_address_sublocality = deserialized_plist['postalAddress']['_subLocality']
+                            aaareverselocation_postal_address = deserialized_plist
 
                         except (KeyError, ValueError, TypeError) as ex:
                             if str(ex).find("does not contain an '$archiver' key") >= 0:
@@ -2998,13 +2722,7 @@ def get_ph10assetparsedfilessyndpl(files_found, report_folder, seeker, wrap_text
                     with open(pathto, 'rb') as f:
                         try:
                             deserialized_plist = nd.deserialize_plist(f)
-                            zsharepartic_namecomponents_nameprefix = deserialized_plist['NS.nameComponentsPrivate']['NS.namePrefix']
-                            zsharepartic_namecomponents_givenname = deserialized_plist['NS.nameComponentsPrivate']['NS.givenName']
-                            zsharepartic_namecomponents_middlename = deserialized_plist['NS.nameComponentsPrivate']['NS.middleName']
-                            zsharepartic_namecomponents_familyname = deserialized_plist['NS.nameComponentsPrivate']['NS.familyName']
-                            zsharepartic_namecomponents_namesuffix = deserialized_plist['NS.nameComponentsPrivate']['NS.nameSuffix']
-                            zsharepartic_namecomponents_nickname = deserialized_plist['NS.nameComponentsPrivate']['NS.nickname']
-                            zsharepartic_namecomponents_phoneticrepresentation = deserialized_plist['NS.nameComponentsPrivate']['NS.phoneticRepresentation']
+                            zsharepartic_namecomponents = deserialized_plist
 
                         except (KeyError, ValueError, TypeError) as ex:
                             if str(ex).find("does not contain an '$archiver' key") >= 0:
@@ -3021,13 +2739,7 @@ def get_ph10assetparsedfilessyndpl(files_found, report_folder, seeker, wrap_text
                     with open(pathto, 'rb') as f:
                         try:
                             deserialized_plist = nd.deserialize_plist(f)
-                            splzsharepartic_namecomponents_nameprefix = deserialized_plist['NS.nameComponentsPrivate']['NS.namePrefix']
-                            splzsharepartic_namecomponents_givenname = deserialized_plist['NS.nameComponentsPrivate']['NS.givenName']
-                            splzsharepartic_namecomponents_middlename = deserialized_plist['NS.nameComponentsPrivate']['NS.middleName']
-                            splzsharepartic_namecomponents_familyname = deserialized_plist['NS.nameComponentsPrivate']['NS.familyName']
-                            splzsharepartic_namecomponents_namesuffix = deserialized_plist['NS.nameComponentsPrivate']['NS.nameSuffix']
-                            splzsharepartic_namecomponents_nickname = deserialized_plist['NS.nameComponentsPrivate']['NS.nickname']
-                            splzsharepartic_namecomponents_phoneticrepresentation = deserialized_plist['NS.nameComponentsPrivate']['NS.phoneticRepresentation']
+                            splzsharepartic_namecomponents = deserialized_plist
 
                         except (KeyError, ValueError, TypeError) as ex:
                             if str(ex).find("does not contain an '$archiver' key") >= 0:
@@ -3051,12 +2763,8 @@ def get_ph10assetparsedfilessyndpl(files_found, report_folder, seeker, wrap_text
 
                 data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8],
                                   aaashiftedlocation_postal_address,
-                                  aaashiftedlocation_postal_address_subadminarea,
-                                  aaashiftedlocation_postal_address_sublocality,
                                   row[10], row[11],
                                   aaareverselocation_postal_address,
-                                  aaareverselocation_postal_address_subadminarea,
-                                  aaareverselocation_postal_address_sublocality,
                                   row[13], row[14], row[15], row[16], row[17],
                                   aaazcldmastmeddata_plist_tiff,
                                   aaazcldmastmeddata_plist_exif,
@@ -3068,24 +2776,12 @@ def get_ph10assetparsedfilessyndpl(files_found, report_folder, seeker, wrap_text
                                   cmzcldmastmeddata_plist_gps,
                                   cmzcldmastmeddata_plist_iptc,
                                   row[25], row[26], row[27], row[28], row[29], row[30],
-                                  zsharepartic_namecomponents_nameprefix,
-                                  zsharepartic_namecomponents_givenname,
-                                  zsharepartic_namecomponents_middlename,
-                                  zsharepartic_namecomponents_familyname,
-                                  zsharepartic_namecomponents_namesuffix,
-                                  zsharepartic_namecomponents_nickname,
-                                  zsharepartic_namecomponents_phoneticrepresentation,
+                                  zsharepartic_namecomponents,
                                   row[32], row[33], row[34],
                                   zshare_previewdata_blob,
                                   row[36], row[37],
                                   row[38], row[39], row[40], row[41],
-                                  splzsharepartic_namecomponents_nameprefix,
-                                  splzsharepartic_namecomponents_givenname,
-                                  splzsharepartic_namecomponents_middlename,
-                                  splzsharepartic_namecomponents_familyname,
-                                  splzsharepartic_namecomponents_namesuffix,
-                                  splzsharepartic_namecomponents_nickname,
-                                  splzsharepartic_namecomponents_phoneticrepresentation,
+                                  splzsharepartic_namecomponents,
                                   row[43],
                                   splzshare_previewdata_blob,
                                   row[45], row[46], row[47], row[48]))
@@ -3109,13 +2805,9 @@ def get_ph10assetparsedfilessyndpl(files_found, report_folder, seeker, wrap_text
                             'zAddAssetAttr-Shifted Location Valid-7',
                             'zAddAssetAttr-Shifted Location Data-HasDataIndicator-8',
                             'zAddAssetAttr-Shifted Location Data-bplist_postal_address-9',
-                            'zAddAssetAttr-Shifted Location Data-bplist_postal_address_subadminarea-9',
-                            'zAddAssetAttr-Shifted Location Data-bplist_postal_address_sublocality-9',
                             'zAddAssetAttr-Reverse Location Is Valid-10',
                             'zAddAssetAttr-Reverse Location Data-HasDataIndicator-11',
                             'zAddAssetAttr-Reverse Location Data-bplist_postal_address-12',
-                            'zAddAssetAttr-Reverse Location Data-bplist_postal_address_subadminarea-12',
-                            'zAddAssetAttr-Reverse Location Data-bplist_postal_address_sublocality-12',
                             'AAAzCldMastMedData-zOPT-13',
                             'zAddAssetAttr-Media Metadata Type-14',
                             'zAddAssetAttr-MediaMetadata= AAAzCldMastMedData-zPK-15',
@@ -3140,13 +2832,7 @@ def get_ph10assetparsedfilessyndpl(files_found, report_folder, seeker, wrap_text
                             'zSharePartic-Email Address-28',
                             'zSharePartic-Phone Number-29',
                             'zSharePartic-Name_Components-HasDataIndicator-30',
-                            'zSharePartic-Name_Components_Plist_nameprefix-31',
-                            'zSharePartic-Name_Components_Plist_givenname-31',
-                            'zSharePartic-Name_Components_Plist_middlename-31',
-                            'zSharePartic-Name_Components_Plist_familyname-31',
-                            'zSharePartic-Name_Components_Plist_namesuffix-31',
-                            'zSharePartic-Name_Components_Plist_nickname-31',
-                            'zSharePartic-Name_Components_Plist_phoneticrepresentation-31',
+                            'zSharePartic-Name_Components_Plist-31',
                             'zSharePartic-Is Current User-32',
                             'zSharePartic-Role-33',
                             'zShare-Preview_Data-DataIndicator-34',
@@ -3157,13 +2843,7 @@ def get_ph10assetparsedfilessyndpl(files_found, report_folder, seeker, wrap_text
                             'SPLzSharePartic-Email Address-39',
                             'SPLzSharePartic-Phone Number-40',
                             'SPLzSharePartic-Name_Components-HasDataIndicator-41',
-                            'SPLzSharePartic-Name_Components_Plist_nameprefix-42',
-                            'SPLzSharePartic-Name_Components_Plist_givenname-42',
-                            'SPLzSharePartic-Name_Components_Plist_middlename-42',
-                            'SPLzSharePartic-Name_Components_Plist_familyname-42',
-                            'SPLzSharePartic-Name_Components_Plist_namesuffix-42',
-                            'SPLzSharePartic-Name_Components_Plist_nickname-42',
-                            'SPLzSharePartic-Name_Components_Plist_phoneticrepresentation-42',
+                            'SPLzSharePartic-Name_Components_Plist-42',
                             'zShare-Preview_Data-DataIndicator-43',
                             'zShare-Preview_Data-BLOB_JPG-44',
                             'zAsset-zPK-45',
@@ -3200,7 +2880,7 @@ __artifacts_v2__ = {
         'category': 'Photos.sqlite-Other_Artifacts',
         'notes': '',
         'paths': '*/mobile/Media/PhotoData/Photos.sqlite*',
-        'function': 'get_ph10assetparsedfilesphdapsql'
+        'function': 'get_ph10assetparsedembeddedfilesphdapsql'
     },
     'Ph10-2-Assets have embedded files-SyndPL': {
         'name': 'SyndPL Photos.sqlite 10.2 assets have embedded files',
@@ -3215,6 +2895,6 @@ __artifacts_v2__ = {
         'category': 'Photos.sqlite-Syndication_PL_Artifacts',
         'notes': '',
         'paths': '*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',
-        'function': 'get_ph10assetparsedfilessyndpl'
+        'function': 'get_ph10assetparsedembeddedfilessyndpl'
     }
 }
