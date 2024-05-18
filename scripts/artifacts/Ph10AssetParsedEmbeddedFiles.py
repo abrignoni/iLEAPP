@@ -100,7 +100,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
 
                 # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
                 if row[8] is not None:
-                    pathto = os.path.join(report_folder, 'zAddAssetAttr-Shifted Location Data' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'Ph10-1_AAA_ShiftedLocationData_' + str(counter) + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[8])
 
@@ -112,7 +112,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
 
                 # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
                 if row[11] is not None:
-                    pathto = os.path.join(report_folder, 'zAddAssetAttr-Reverse Location Data' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'Ph10-1_AAA_ReversedLocationData_' + str(counter) + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[11])
 
@@ -270,7 +270,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
 
                 # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
                 if row[8] is not None:
-                    pathto = os.path.join(report_folder, 'zAddAssetAttr-Shifted Location Data' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'Ph10-1_AAA_ShiftedLocationData_' + str(counter) + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[8])
 
@@ -283,11 +283,11 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
                             if str(ex).find("does not contain an '$archiver' key") >= 0:
                                 logfunc('plist was Not an NSKeyedArchive ' + row[2])
                             else:
-                                logfunc('Error reading exported plist from zAsset-Filename ' + row[2])
+                                logfunc('Error reading exported plist from zAsset-Filename' + row[2])
 
                 # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
                 if row[11] is not None:
-                    pathto = os.path.join(report_folder, 'zAddAssetAttr-Reverse Location Data' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'Ph10-1_AAA_ReversedLocationData_' + str(counter) + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[11])
 
@@ -300,11 +300,11 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
                             if str(ex).find("does not contain an '$archiver' key") >= 0:
                                 logfunc('plist was Not an NSKeyedArchive ' + row[2])
                             else:
-                                logfunc('Error reading exported plist from zAsset-Filename ' + row[2])
+                                logfunc('Error reading exported plist from zAsset-Filename' + row[2])
 
                 # AAAzCldMastMedData.ZDATA-PLIST
                 if row[17] is not None:
-                    pathto = os.path.join(report_folder, 'AAAzCldMastMedData-Data' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'Ph10-1_AAAzCldMastMedData-Data_' + str(counter) + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[17])
 
@@ -323,7 +323,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
 
                 # CMzCldMastMedData.ZDATA-PLIST
                 if row[23] is not None:
-                    pathto = os.path.join(report_folder, 'CMzCldMastMedData-Data' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'Ph10-1_CMzCldMastMedData-Data_' + str(counter) + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[23])
 
@@ -552,7 +552,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
 
                 # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
                 if row[8] is not None:
-                    pathto = os.path.join(report_folder, 'zAddAssetAttr-Shifted Location Data' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'Ph10-1_AAA_ShiftedLocationData_' + str(counter) + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[8])
 
@@ -565,11 +565,11 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
                             if str(ex).find("does not contain an '$archiver' key") >= 0:
                                 logfunc('plist was Not an NSKeyedArchive ' + row[2])
                             else:
-                                logfunc('Error reading exported plist from zAsset-Filename ' + row[2])
+                                logfunc('Error reading exported plist from zAsset-Filename' + row[2])
 
                 # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
                 if row[11] is not None:
-                    pathto = os.path.join(report_folder, 'zAddAssetAttr-Reverse Location Data' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'Ph10-1_AAA_ReversedLocationData_' + str(counter) + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[11])
 
@@ -582,11 +582,11 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
                             if str(ex).find("does not contain an '$archiver' key") >= 0:
                                 logfunc('plist was Not an NSKeyedArchive ' + row[2])
                             else:
-                                logfunc('Error reading exported plist from zAsset-Filename ' + row[2])
+                                logfunc('Error reading exported plist from zAsset-Filename' + row[2])
 
                 # AAAzCldMastMedData.ZDATA-PLIST
                 if row[17] is not None:
-                    pathto = os.path.join(report_folder, 'AAAzCldMastMedData-Data' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'Ph10-1_AAAzCldMastMedData-Data_' + str(counter) + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[17])
 
@@ -605,7 +605,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
 
                 # CMzCldMastMedData.ZDATA-PLIST
                 if row[23] is not None:
-                    pathto = os.path.join(report_folder, 'CMzCldMastMedData-Data' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'Ph10-1_CMzCldMastMedData-Data_' + str(counter) + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[23])
 
@@ -623,7 +623,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
                                 cmzcldmastmeddata_plist_iptc = val
 
                 if row[30] is not None:
-                    pathto = os.path.join(report_folder, 'zSharePartic-Name Components' + str(counter) + '.bplist')
+                    pathto = os.path.join(report_folder, 'Ph10-1_zSP_Name_Components_' + str(counter) + '.bplist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[30])
 
@@ -640,7 +640,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
 
                 # zShare.ZPREVIEWDATA-BLOB_JPG
                 if row[34] is not None:
-                    pathto = os.path.join(report_folder, row[2] + '.jpg')
+                    pathto = os.path.join(report_folder, 'Ph10-1_zShare_PreviewData_' + row[2] + '.jpg')
                     with open(pathto, 'wb') as file:
                         file.write(row[34])
                     zshare_previewdata_blob = media_to_html(pathto, files_found, report_folder)
@@ -873,7 +873,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
 
                 # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
                 if row[9] is not None:
-                    pathto = os.path.join(report_folder, 'zAddAssetAttr-Shifted Location Data' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'Ph10-1_AAA_ShiftedLocationData_' + str(counter) + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[9])
 
@@ -886,11 +886,11 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
                             if str(ex).find("does not contain an '$archiver' key") >= 0:
                                 logfunc('plist was Not an NSKeyedArchive ' + row[2])
                             else:
-                                logfunc('Error reading exported plist from zAsset-Filename ' + row[2])
+                                logfunc('Error reading exported plist from zAsset-Filename' + row[2])
 
                 # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
                 if row[12] is not None:
-                    pathto = os.path.join(report_folder, 'zAddAssetAttr-Reverse Location Data' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'Ph10-1_AAA_ReversedLocationData_' + str(counter) + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[12])
 
@@ -903,11 +903,11 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
                             if str(ex).find("does not contain an '$archiver' key") >= 0:
                                 logfunc('plist was Not an NSKeyedArchive ' + row[2])
                             else:
-                                logfunc('Error reading exported plist from zAsset-Filename ' + row[2])
+                                logfunc('Error reading exported plist from zAsset-Filename' + row[2])
 
                 # AAAzCldMastMedData.ZDATA-PLIST
                 if row[18] is not None:
-                    pathto = os.path.join(report_folder, 'AAAzCldMastMedData-Data' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'Ph10-1_AAAzCldMastMedData-Data_' + str(counter) + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[18])
 
@@ -926,7 +926,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
 
                 # CMzCldMastMedData.ZDATA-PLIST
                 if row[24] is not None:
-                    pathto = os.path.join(report_folder, 'CMzCldMastMedData-Data' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'Ph10-1_CMzCldMastMedData-Data_' + str(counter) + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[24])
 
@@ -945,7 +945,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
 
                 # zSharePartic_ZNAMECOMPONENTS_PLIST
                 if row[31] is not None:
-                    pathto = os.path.join(report_folder, 'zSharePartic-Name Components' + str(counter) + '.bplist')
+                    pathto = os.path.join(report_folder, 'Ph10-1_zSP_Name_Components_' + str(counter) + '.bplist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[31])
 
@@ -958,11 +958,11 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
                             if str(ex).find("does not contain an '$archiver' key") >= 0:
                                 logfunc('plist was Not an NSKeyedArchive ' + row[2])
                             else:
-                                logfunc('Error reading exported bplist from zAsset-Filename ' + row[2])
+                                logfunc('Error reading exported bplist from zAsset-Filename' + row[2])
 
                 # zShare.ZPREVIEWDATA-BLOB_JPG
                 if row[35] is not None:
-                    pathto = os.path.join(report_folder, row[2] + '.jpg')
+                    pathto = os.path.join(report_folder, 'Ph10-1_zShare_PreviewData_' + row[2] + '.jpg')
                     with open(pathto, 'wb') as file:
                         file.write(row[35])
                     zshare_previewdata_blob = media_to_html(pathto, files_found, report_folder)
@@ -1226,7 +1226,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
 
                 # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
                 if row[9] is not None:
-                    pathto = os.path.join(report_folder, 'zAddAssetAttr-Shifted Location Data' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'Ph10-1_AAA_ShiftedLocationData_' + str(counter) + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[9])
 
@@ -1239,11 +1239,11 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
                             if str(ex).find("does not contain an '$archiver' key") >= 0:
                                 logfunc('plist was Not an NSKeyedArchive ' + row[2])
                             else:
-                                logfunc('Error reading exported plist from zAsset-Filename ' + row[2])
+                                logfunc('Error reading exported plist from zAsset-Filename' + row[2])
 
                 # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
                 if row[12] is not None:
-                    pathto = os.path.join(report_folder, 'zAddAssetAttr-Reverse Location Data' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'Ph10-1_AAA_ReversedLocationData_' + str(counter) + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[12])
 
@@ -1260,7 +1260,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
 
                 # AAAzCldMastMedData.ZDATA-PLIST
                 if row[18] is not None:
-                    pathto = os.path.join(report_folder, 'AAAzCldMastMedData-Data' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'Ph10-1_AAAzCldMastMedData-Data_' + str(counter) + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[18])
 
@@ -1279,7 +1279,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
 
                 # CMzCldMastMedData.ZDATA-PLIST
                 if row[24] is not None:
-                    pathto = os.path.join(report_folder, 'CMzCldMastMedData-Data' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'Ph10-1_CMzCldMastMedData-Data_' + str(counter) + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[24])
 
@@ -1298,7 +1298,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
 
                 # zSharePartic_ZNAMECOMPONENTS_PLIST
                 if row[31] is not None:
-                    pathto = os.path.join(report_folder, 'zSharePartic-Name Components' + str(counter) + '.bplist')
+                    pathto = os.path.join(report_folder, 'Ph10-1_zSP_Name_Components_' + str(counter) + '.bplist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[31])
 
@@ -1311,11 +1311,11 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
                             if str(ex).find("does not contain an '$archiver' key") >= 0:
                                 logfunc('plist was Not an NSKeyedArchive ' + row[2])
                             else:
-                                logfunc('Error reading exported bplist from zAsset-Filename ' + row[2])
+                                logfunc('Error reading exported bplist from zAsset-Filename' + row[2])
 
                 # SPLzSharePartic_ZNAMECOMPONENTS_PLIST
                 if row[42] is not None:
-                    pathto = os.path.join(report_folder, 'SPLzSharePartic-Name_Components' + str(counter) + '.bplist')
+                    pathto = os.path.join(report_folder, 'Ph10-1_SPLzSharePartic-Name_Components_' + str(counter) + '.bplist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[42])
 
@@ -1328,18 +1328,18 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
                             if str(ex).find("does not contain an '$archiver' key") >= 0:
                                 logfunc('plist was Not an NSKeyedArchive ' + row[2])
                             else:
-                                logfunc('Error reading exported bplist from zAsset-Filename ' + row[2])
+                                logfunc('Error reading exported bplist from zAsset-Filename' + row[2])
 
                 # zShare.ZPREVIEWDATA-BLOB_JPG
                 if row[35] is not None:
-                    pathto = os.path.join(report_folder, row[2] + '.jpg')
+                    pathto = os.path.join(report_folder, 'Ph10-1_zShare_PreviewData_' + row[2] + '.jpg')
                     with open(pathto, 'wb') as file:
                         file.write(row[35])
                     zshare_previewdata_blob = media_to_html(pathto, files_found, report_folder)
 
                 # SPLzShare.ZPREVIEWDATA-BLOB_JPG
                 if row[44] is not None:
-                    pathto = os.path.join(report_folder, row[2] + '.jpg')
+                    pathto = os.path.join(report_folder, 'Ph10-1_SPLzShare_PreviewData_' + row[2] + '.jpg')
                     with open(pathto, 'wb') as file:
                         file.write(row[44])
                     splzshare_previewdata_blob = media_to_html(pathto, files_found, report_folder)
@@ -1517,7 +1517,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
 
                 # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
                 if row[8] is not None:
-                    pathto = os.path.join(report_folder, 'zAddAssetAttr-Shifted Location Data' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'Ph10-2_AAA_ShiftedLocationData_' + str(counter) + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[8])
 
@@ -1529,7 +1529,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
 
                 # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
                 if row[11] is not None:
-                    pathto = os.path.join(report_folder, 'zAddAssetAttr-Reverse Location Data' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'Ph10-2_AAA_ReversedLocationData_' + str(counter) + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[11])
 
@@ -1687,7 +1687,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
 
                 # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
                 if row[8] is not None:
-                    pathto = os.path.join(report_folder, 'zAddAssetAttr-Shifted Location Data' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'Ph10-2_AAA_ShiftedLocationData_' + str(counter) + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[8])
 
@@ -1700,11 +1700,11 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
                             if str(ex).find("does not contain an '$archiver' key") >= 0:
                                 logfunc('plist was Not an NSKeyedArchive ' + row[2])
                             else:
-                                logfunc('Error reading exported plist from zAsset-Filename ' + row[2])
+                                logfunc('Error reading exported plist from zAsset-Filename' + row[2])
 
                 # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
                 if row[11] is not None:
-                    pathto = os.path.join(report_folder, 'zAddAssetAttr-Reverse Location Data' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'Ph10-2_AAA_ReversedLocationData_' + str(counter) + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[11])
 
@@ -1717,11 +1717,11 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
                             if str(ex).find("does not contain an '$archiver' key") >= 0:
                                 logfunc('plist was Not an NSKeyedArchive ' + row[2])
                             else:
-                                logfunc('Error reading exported plist from zAsset-Filename ' + row[2])
+                                logfunc('Error reading exported plist from zAsset-Filename' + row[2])
 
                 # AAAzCldMastMedData.ZDATA-PLIST
                 if row[17] is not None:
-                    pathto = os.path.join(report_folder, 'AAAzCldMastMedData-Data' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'Ph10-2_AAAzCldMastMedData-Data_' + str(counter) + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[17])
 
@@ -1740,7 +1740,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
 
                 # CMzCldMastMedData.ZDATA-PLIST
                 if row[23] is not None:
-                    pathto = os.path.join(report_folder, 'CMzCldMastMedData-Data' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'Ph10-2_CMzCldMastMedData-Data_' + str(counter) + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[23])
 
@@ -1969,7 +1969,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
 
                 # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
                 if row[8] is not None:
-                    pathto = os.path.join(report_folder, 'zAddAssetAttr-Shifted Location Data' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'Ph10-2_AAA_ShiftedLocationData_' + str(counter) + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[8])
 
@@ -1982,11 +1982,11 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
                             if str(ex).find("does not contain an '$archiver' key") >= 0:
                                 logfunc('plist was Not an NSKeyedArchive ' + row[2])
                             else:
-                                logfunc('Error reading exported plist from zAsset-Filename ' + row[2])
+                                logfunc('Error reading exported plist from zAsset-Filename' + row[2])
 
                 # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
                 if row[11] is not None:
-                    pathto = os.path.join(report_folder, 'zAddAssetAttr-Reverse Location Data' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'Ph10-2_AAA_ReversedLocationData_' + str(counter) + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[11])
 
@@ -2003,7 +2003,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
 
                 # AAAzCldMastMedData.ZDATA-PLIST
                 if row[17] is not None:
-                    pathto = os.path.join(report_folder, 'AAAzCldMastMedData-Data' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'Ph10-2_AAAzCldMastMedData-Data_' + str(counter) + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[17])
 
@@ -2022,7 +2022,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
 
                 # CMzCldMastMedData.ZDATA-PLIST
                 if row[23] is not None:
-                    pathto = os.path.join(report_folder, 'CMzCldMastMedData-Data' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'Ph10-2_CMzCldMastMedData-Data_' + str(counter) + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[23])
 
@@ -2040,7 +2040,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
                                 cmzcldmastmeddata_plist_iptc = val
 
                 if row[30] is not None:
-                    pathto = os.path.join(report_folder, 'zSharePartic-Name Components' + str(counter) + '.bplist')
+                    pathto = os.path.join(report_folder, 'Ph10-2_zSP_Name_Components_' + str(counter) + '.bplist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[30])
 
@@ -2057,7 +2057,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
 
                 # zShare.ZPREVIEWDATA-BLOB_JPG
                 if row[34] is not None:
-                    pathto = os.path.join(report_folder, row[2] + '.jpg')
+                    pathto = os.path.join(report_folder, 'Ph10-2_zShare_PreviewData_' + row[2] + '.jpg')
                     with open(pathto, 'wb') as file:
                         file.write(row[34])
                     zshare_previewdata_blob = media_to_html(pathto, files_found, report_folder)
@@ -2290,7 +2290,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
 
                 # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
                 if row[9] is not None:
-                    pathto = os.path.join(report_folder, 'zAddAssetAttr-Shifted Location Data' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'Ph10-2_AAA_ShiftedLocationData_' + str(counter) + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[9])
 
@@ -2303,11 +2303,11 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
                             if str(ex).find("does not contain an '$archiver' key") >= 0:
                                 logfunc('plist was Not an NSKeyedArchive ' + row[2])
                             else:
-                                logfunc('Error reading exported plist from zAsset-Filename ' + row[2])
+                                logfunc('Error reading exported plist from zAsset-Filename' + row[2])
 
                 # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
                 if row[12] is not None:
-                    pathto = os.path.join(report_folder, 'zAddAssetAttr-Reverse Location Data' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'Ph10-2_AAA_ReversedLocationData_' + str(counter) + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[12])
 
@@ -2320,11 +2320,11 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
                             if str(ex).find("does not contain an '$archiver' key") >= 0:
                                 logfunc('plist was Not an NSKeyedArchive ' + row[2])
                             else:
-                                logfunc('Error reading exported plist from zAsset-Filename ' + row[2])
+                                logfunc('Error reading exported plist from zAsset-Filename' + row[2])
 
                 # AAAzCldMastMedData.ZDATA-PLIST
                 if row[18] is not None:
-                    pathto = os.path.join(report_folder, 'AAAzCldMastMedData-Data' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'Ph10-2_AAAzCldMastMedData-Data_' + str(counter) + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[18])
 
@@ -2343,7 +2343,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
 
                 # CMzCldMastMedData.ZDATA-PLIST
                 if row[24] is not None:
-                    pathto = os.path.join(report_folder, 'CMzCldMastMedData-Data' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'Ph10-2_CMzCldMastMedData-Data_' + str(counter) + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[24])
 
@@ -2362,7 +2362,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
 
                 # zSharePartic_ZNAMECOMPONENTS_PLIST
                 if row[31] is not None:
-                    pathto = os.path.join(report_folder, 'zSharePartic-Name Components' + str(counter) + '.bplist')
+                    pathto = os.path.join(report_folder, 'Ph10-2_zSP_Name_Components_' + str(counter) + '.bplist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[31])
 
@@ -2379,7 +2379,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
 
                 # zShare.ZPREVIEWDATA-BLOB_JPG
                 if row[35] is not None:
-                    pathto = os.path.join(report_folder, row[2] + '.jpg')
+                    pathto = os.path.join(report_folder, 'Ph10-2_zShare_PreviewData_' + row[2] + '.jpg')
                     with open(pathto, 'wb') as file:
                         file.write(row[35])
                     zshare_previewdata_blob = media_to_html(pathto, files_found, report_folder)
@@ -2643,7 +2643,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
 
                 # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
                 if row[9] is not None:
-                    pathto = os.path.join(report_folder, 'zAddAssetAttr-Shifted Location Data' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'Ph10-2_AAA_ShiftedLocationData_' + str(counter) + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[9])
 
@@ -2660,7 +2660,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
 
                 # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
                 if row[12] is not None:
-                    pathto = os.path.join(report_folder, 'zAddAssetAttr-Reverse Location Data' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'Ph10-2_AAA_ReversedLocationData_' + str(counter) + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[12])
 
@@ -2677,7 +2677,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
 
                 # AAAzCldMastMedData.ZDATA-PLIST
                 if row[18] is not None:
-                    pathto = os.path.join(report_folder, 'AAAzCldMastMedData-Data' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'Ph10-2_AAAzCldMastMedData-Data_' + str(counter) + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[18])
 
@@ -2696,7 +2696,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
 
                 # CMzCldMastMedData.ZDATA-PLIST
                 if row[24] is not None:
-                    pathto = os.path.join(report_folder, 'CMzCldMastMedData-Data' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'Ph10-2_CMzCldMastMedData-Data_' + str(counter) + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[24])
 
@@ -2715,7 +2715,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
 
                 # zSharePartic_ZNAMECOMPONENTS_PLIST
                 if row[31] is not None:
-                    pathto = os.path.join(report_folder, 'zSharePartic-Name Components' + str(counter) + '.bplist')
+                    pathto = os.path.join(report_folder, 'Ph10-2_zSP_Name_Components_' + str(counter) + '.bplist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[31])
 
@@ -2728,11 +2728,11 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
                             if str(ex).find("does not contain an '$archiver' key") >= 0:
                                 logfunc('plist was Not an NSKeyedArchive ' + row[2])
                             else:
-                                logfunc('Error reading exported bplist from zAsset-Filename ' + row[2])
+                                logfunc('Error reading exported bplist from zAsset-Filename' + row[2])
 
                 # SPLzSharePartic_ZNAMECOMPONENTS_PLIST
                 if row[42] is not None:
-                    pathto = os.path.join(report_folder, 'SPLzSharePartic-Name_Components' + str(counter) + '.bplist')
+                    pathto = os.path.join(report_folder, 'Ph10-2_SPLzSP_Name_Components_' + str(counter) + '.bplist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[42])
 
@@ -2749,14 +2749,14 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
 
                 # zShare.ZPREVIEWDATA-BLOB_JPG
                 if row[35] is not None:
-                    pathto = os.path.join(report_folder, row[2] + '.jpg')
+                    pathto = os.path.join(report_folder, 'Ph10-2_zShare_PreviewData_' + row[2] + '.jpg')
                     with open(pathto, 'wb') as file:
                         file.write(row[35])
                     zshare_previewdata_blob = media_to_html(pathto, files_found, report_folder)
 
                 # SPLzShare.ZPREVIEWDATA-BLOB_JPG
                 if row[44] is not None:
-                    pathto = os.path.join(report_folder, row[2] + '.jpg')
+                    pathto = os.path.join(report_folder, 'Ph10-2_SPLzShare_PreviewData_' + row[2] + '.jpg')
                     with open(pathto, 'wb') as file:
                         file.write(row[44])
                     splzshare_previewdata_blob = media_to_html(pathto, files_found, report_folder)
