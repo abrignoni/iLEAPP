@@ -699,6 +699,9 @@ icon_mappings = \
         'PH7-FAVORITE-PHDAPSQL': 'heart',
         'PH8-HAS ADJUSTMENT-PHDAPSQL': 'edit',
     },
+    'PHOTOS.SQLITE-PEOPLE_FACES_DATA': {
+        'PH15.1-PEOPLE & FACES ASSET DATA-PHDAPSQL': 'smile',
+    },
     'PHOTOS.SQLITE-REFERENCE_FOR_ASSET_ANALYSIS': {
         'PH94.1-IOS14_REF_FOR_ASSET_ANALYSIS-PHDAPSQL': 'database',
         'PH95.1-IOS15_REF_FOR_ASSET_ANALYSIS-PHDAPSQL': 'database',
@@ -711,6 +714,7 @@ icon_mappings = \
         'PH3.2-REMOVED FROM CAMERA ROLL-SYNDPL': 'delete',
         'PH5.2-HAS LOCATIONS-SYNDPL': 'map-pin',
         'PH10.2-ASSETS HAVE EMBEDDED FILES-SYNDPL': 'file-plus',
+        'PH15.2-PEOPLE & FACES ASSET DATA-SYNDPL': 'smile',
         'PH20.2-ALBUM RECORDS NAD-SYNDPL': 'book',
         'PH25.2-SWY CONVERSATION RECORDS NAD-SYNDPL': 'message-square',
         'PH26.2-SYNDICATION PL ASSETS-SYNDPL': 'message-square',

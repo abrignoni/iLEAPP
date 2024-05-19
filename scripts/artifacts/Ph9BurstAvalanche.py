@@ -86,7 +86,8 @@ def get_ph9burstavalanchephdapsql(files_found, report_folder, seeker, wrap_text,
         FROM ZGENERICASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
             LEFT JOIN ZCLOUDMASTER zCldMast ON zAsset.ZMASTER = zCldMast.Z_PK
-        WHERE zAsset.ZAVALANCHEPICKTYPE > 0
+       WHERE (zAsset.ZAVALANCHEPICKTYPE > 0) OR
+          (zAddAssetAttr.ZCLOUDAVALANCHEPICKTYPE > 0)
         ORDER BY zAsset.ZDATECREATED    
         """)
 
@@ -180,7 +181,8 @@ def get_ph9burstavalanchephdapsql(files_found, report_folder, seeker, wrap_text,
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
             LEFT JOIN ZCLOUDMASTER zCldMast ON zAsset.ZMASTER = zCldMast.Z_PK
-        WHERE zAsset.ZAVALANCHEPICKTYPE > 0
+        WHERE (zAsset.ZAVALANCHEPICKTYPE > 0) OR
+          (zAddAssetAttr.ZCLOUDAVALANCHEPICKTYPE > 0)
         ORDER BY zAsset.ZDATECREATED    
         """)
 
