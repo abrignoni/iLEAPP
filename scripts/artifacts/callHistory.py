@@ -24,7 +24,7 @@ from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly, c
 def get_callHistory(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
     #call_history.db schema taken from here https://avi.alkalay.net/2011/12/iphone-call-history.html 
-    query1 = '''
+    query = '''
     select
     datetime(ZDATE+978307200,'unixepoch'),
     CASE
