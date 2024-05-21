@@ -1,18 +1,25 @@
-# Module Description: Parses Apple Watch Worn Data from the healthdb_secure.sqlite database
-# Author: @SQLMcGee for Metadata Forensics, LLC
-# Date: 2024-05-20
-# Artifact version: 0.0.1
-# Requirements: none
-# This artifact provides an "at a glance" review of time periods in which the Apple Watch is worn. This data can lend to pattern of life analysis as well as providing structure to periods in which data such as heart rate data will be generated and recorded.
-# Additional details published within "Apple Watch Worn Data Analysis" at https://metadataperspective.com/2024/05/20/apple-watch-worn-data-analysis/.
+__artifacts_v2__ = {
+    "WatchWornData": {
+        "name": "Apple Watch Worn Data",
+        "description": "Parses Apple Watch Worn Data from the healthdb_secure.sqlite database",
+        "author": "@SQLMcGee for Metadata Forensics, LLC",
+        "version": "0.0.1",
+        "date": "2024-05-20",
+        "requirements": "none",
+        "category": "Health - Device",
+        "notes": "This artifact provides an 'at a glance' review of time periods in which the Apple Watch is worn. \
+                    This data can lend to pattern of life analysis as well as providing structure to periods in which data \
+                    such as heart rate data will be generated and recorded.\
+                    Additional details published within 'Apple Watch Worn Data Analysis' at https://metadataperspective.com/2024/05/20/apple-watch-worn-data-analysis/",
+        "paths": ('*Health/healthdb_secure.sqlite*',),
+        "function": "get_Health"
+    }
+}
 
-import sqlite3
-import textwrap
-import scripts.artifacts.artGlobals
 
-from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
+from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly
+
 
 def get_Health(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
@@ -105,10 +112,3 @@ def get_Health(files_found, report_folder, seeker, wrap_text, timezone_offset):
         timeline(report_folder, tlactivity, data_list, data_headers)
     else:
         logfunc('No data available in Health - Device - Watch Worn Data')
-
-__artifacts__ = {
-    "Health - Device": (
-        "Health - Device",
-        ('*Health/healthdb_secure.sqlite*'),
-        get_Health)
-}
