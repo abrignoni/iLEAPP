@@ -11,21 +11,8 @@
 #
 
 import os
-from datetime import datetime
-import pytz
-import json
-import shutil
-import base64
-from PIL import Image
-from pillow_heif import register_heif_opener
-import glob
-import sys
-import stat
-from pathlib import Path
-import sqlite3
 import plistlib
 import nska_deserialize as nd
-import uuid
 import scripts.artifacts.artGlobals
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
