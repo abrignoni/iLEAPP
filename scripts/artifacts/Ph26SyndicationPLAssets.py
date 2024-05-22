@@ -20,14 +20,7 @@
 
 import glob
 import os
-import sys
-import stat
-import pathlib
-import sqlite3
-import nska_deserialize as nd
 import scripts.artifacts.artGlobals
-import shutil
-
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, kmlgen, timeline, is_platform_windows, media_to_html, open_sqlite_db_readonly
