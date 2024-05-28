@@ -95,7 +95,7 @@ def get_ph5haslocationsphdapsql(files_found, report_folder, seeker, wrap_text, t
 
                 # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
                 if row[10] is not None:
-                    pathto = os.path.join(report_folder, 'Ph5_AAA_ShiftedLocationData' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + row[4] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[10])
 
@@ -107,7 +107,7 @@ def get_ph5haslocationsphdapsql(files_found, report_folder, seeker, wrap_text, t
 
                 # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
                 if row[13] is not None:
-                    pathto = os.path.join(report_folder, 'Ph5_AAA_ReverseLocationData' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + row[4] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[13])
 
@@ -129,7 +129,7 @@ def get_ph5haslocationsphdapsql(files_found, report_folder, seeker, wrap_text, t
                           ' locations from the ZASSET and ZEXTENDEDATTRIBUTES table ZLATITUDE fields' \
                           ' and supports iOS 11-13. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Photos.sqlite-Other_Artifacts')
+            report = ArtifactHtmlReport('Photos.sqlite-C-Other_Artifacts')
             report.start_artifact_report(report_folder, 'Ph5.1-Has Locations-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -260,7 +260,7 @@ def get_ph5haslocationsphdapsql(files_found, report_folder, seeker, wrap_text, t
 
                 # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
                 if row[10] is not None:
-                    pathto = os.path.join(report_folder, 'Ph5_AAA_ShiftedLocationData' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + row[4] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[10])
 
@@ -277,7 +277,7 @@ def get_ph5haslocationsphdapsql(files_found, report_folder, seeker, wrap_text, t
 
                 # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
                 if row[13] is not None:
-                    pathto = os.path.join(report_folder, 'Ph5_AAA_ReverseLocationData' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + row[4] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[13])
 
@@ -305,7 +305,7 @@ def get_ph5haslocationsphdapsql(files_found, report_folder, seeker, wrap_text, t
                           ' locations from the ZASSET and ZEXTENDEDATTRIBUTES table ZLATITUDE fields' \
                           ' and supports iOS 11-13. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Photos.sqlite-Other_Artifacts')
+            report = ArtifactHtmlReport('Photos.sqlite-C-Other_Artifacts')
             report.start_artifact_report(report_folder, 'Ph5.1-Has Locations-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -450,7 +450,7 @@ def get_ph5haslocationsphdapsql(files_found, report_folder, seeker, wrap_text, t
 
                 # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
                 if row[13] is not None:
-                    pathto = os.path.join(report_folder, 'Ph5_AAA_ShiftedLocationData' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + row[7] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[13])
 
@@ -467,7 +467,7 @@ def get_ph5haslocationsphdapsql(files_found, report_folder, seeker, wrap_text, t
 
                 # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
                 if row[16] is not None:
-                    pathto = os.path.join(report_folder, 'Ph5_AAA_ReverseLocationData' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + row[7] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[16])
 
@@ -496,7 +496,7 @@ def get_ph5haslocationsphdapsql(files_found, report_folder, seeker, wrap_text, t
                           ' locations from the ZASSET and ZEXTENDEDATTRIBUTES table ZLATITUDE fields' \
                           ' and supports iOS 14. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Photos.sqlite-Other_Artifacts')
+            report = ArtifactHtmlReport('Photos.sqlite-C-Other_Artifacts')
             report.start_artifact_report(report_folder, 'Ph5.1-Has Locations-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -645,7 +645,7 @@ def get_ph5haslocationsphdapsql(files_found, report_folder, seeker, wrap_text, t
 
                 # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
                 if row[14] is not None:
-                    pathto = os.path.join(report_folder, 'Ph5_AAA_ShiftedLocationData' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + row[7] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[14])
 
@@ -662,7 +662,7 @@ def get_ph5haslocationsphdapsql(files_found, report_folder, seeker, wrap_text, t
 
                 # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
                 if row[17] is not None:
-                    pathto = os.path.join(report_folder, 'Ph5_AAA_ReverseLocationData' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + row[7] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[17])
 
@@ -691,7 +691,7 @@ def get_ph5haslocationsphdapsql(files_found, report_folder, seeker, wrap_text, t
                           ' locations from the ZASSET and ZEXTENDEDATTRIBUTES table ZLATITUDE fields' \
                           ' and supports iOS 15-17. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Photos.sqlite-Other_Artifacts')
+            report = ArtifactHtmlReport('Photos.sqlite-C-Other_Artifacts')
             report.start_artifact_report(report_folder, 'Ph5.1-Has Locations-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -815,7 +815,7 @@ def get_ph5haslocationssyndpl(files_found, report_folder, seeker, wrap_text, tim
 
                 # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
                 if row[10] is not None:
-                    pathto = os.path.join(report_folder, 'Ph5_AAA_ShiftedLocationData' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + row[4] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[10])
 
@@ -827,7 +827,7 @@ def get_ph5haslocationssyndpl(files_found, report_folder, seeker, wrap_text, tim
 
                 # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
                 if row[13] is not None:
-                    pathto = os.path.join(report_folder, 'Ph5_AAA_ReverseLocationData' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + row[4] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[13])
 
@@ -850,7 +850,7 @@ def get_ph5haslocationssyndpl(files_found, report_folder, seeker, wrap_text, tim
                           ' locations from the ZASSET and ZEXTENDEDATTRIBUTES table ZLATITUDE fields' \
                           ' and supports iOS 11-13. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Photos.sqlite-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
             report.start_artifact_report(report_folder, 'Ph5.2-Has Locations-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -981,7 +981,7 @@ def get_ph5haslocationssyndpl(files_found, report_folder, seeker, wrap_text, tim
 
                 # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
                 if row[10] is not None:
-                    pathto = os.path.join(report_folder, 'Ph5_AAA_ShiftedLocationData' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + row[4] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[10])
 
@@ -998,7 +998,7 @@ def get_ph5haslocationssyndpl(files_found, report_folder, seeker, wrap_text, tim
 
                 # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
                 if row[13] is not None:
-                    pathto = os.path.join(report_folder, 'Ph5_AAA_ReverseLocationData' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + row[4] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[13])
 
@@ -1027,7 +1027,7 @@ def get_ph5haslocationssyndpl(files_found, report_folder, seeker, wrap_text, tim
                           ' locations from the ZASSET and ZEXTENDEDATTRIBUTES table ZLATITUDE fields' \
                           ' and supports iOS 11-13. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Photos.sqlite-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
             report.start_artifact_report(report_folder, 'Ph5.2-Has Locations-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -1173,7 +1173,7 @@ def get_ph5haslocationssyndpl(files_found, report_folder, seeker, wrap_text, tim
 
                 # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
                 if row[13] is not None:
-                    pathto = os.path.join(report_folder, 'Ph5_AAA_ShiftedLocationData' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + row[7] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[13])
 
@@ -1190,7 +1190,7 @@ def get_ph5haslocationssyndpl(files_found, report_folder, seeker, wrap_text, tim
 
                 # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
                 if row[16] is not None:
-                    pathto = os.path.join(report_folder, 'Ph5_AAA_ReverseLocationData' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + row[7] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[16])
 
@@ -1220,7 +1220,7 @@ def get_ph5haslocationssyndpl(files_found, report_folder, seeker, wrap_text, tim
                           ' locations from the ZASSET and ZEXTENDEDATTRIBUTES table ZLATITUDE fields' \
                           ' and supports iOS 14. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Photos.sqlite-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
             report.start_artifact_report(report_folder, 'Ph5.2-Has Locations-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -1369,7 +1369,7 @@ def get_ph5haslocationssyndpl(files_found, report_folder, seeker, wrap_text, tim
 
                 # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
                 if row[14] is not None:
-                    pathto = os.path.join(report_folder, 'Ph5_AAA_ShiftedLocationData' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData' + row[7] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[14])
 
@@ -1386,7 +1386,7 @@ def get_ph5haslocationssyndpl(files_found, report_folder, seeker, wrap_text, tim
 
                 # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
                 if row[17] is not None:
-                    pathto = os.path.join(report_folder, 'Ph5_AAA_ReverseLocationData' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'AAA_ReverseLocationData' + row[7] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[17])
 
@@ -1416,7 +1416,7 @@ def get_ph5haslocationssyndpl(files_found, report_folder, seeker, wrap_text, tim
                           ' locations from the ZASSET and ZEXTENDEDATTRIBUTES table ZLATITUDE fields' \
                           ' and supports iOS 15-17. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Photos.sqlite-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
             report.start_artifact_report(report_folder, 'Ph5.2-Has Locations-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -1474,7 +1474,7 @@ __artifacts_v2__ = {
         'version': '1.3',
         'date': '2024-04-13',
         'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
-        'category': 'Photos.sqlite-Other_Artifacts',
+        'category': 'Photos.sqlite-C-Other_Artifacts',
         'notes': '',
         'paths': '*/mobile/Media/PhotoData/Photos.sqlite*',
         'function': 'get_ph5haslocationsphdapsql'
@@ -1489,7 +1489,7 @@ __artifacts_v2__ = {
         'version': '1.3',
         'date': '2024-04-13',
         'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
-        'category': 'Photos.sqlite-Syndication_PL_Artifacts',
+        'category': 'Photos.sqlite-S-Syndication_PL_Artifacts',
         'notes': '',
         'paths': '*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',
         'function': 'get_ph5haslocationssyndpl'

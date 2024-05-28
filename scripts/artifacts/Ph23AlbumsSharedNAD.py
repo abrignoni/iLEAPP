@@ -237,7 +237,7 @@ def get_ph23sharedalbumsphdapsql(files_found, report_folder, seeker, wrap_text, 
                           ' ZGENERICALBUM Table and supports iOS 11. Parses Shared Album records only' \
                           ' no asset data is being parsed in this parser. This parser will contain shared albums,' \
                           ' shared album invites and the invite status data.'
-            report = ArtifactHtmlReport('Photos.sqlite-GenAlbum_Records-NAD')
+            report = ArtifactHtmlReport('Photos.sqlite-D-Generic_Album_Records-NAD')
             report.start_artifact_report(report_folder, 'Ph23-Shared Album Records NAD-PhDaPsql', description)
             report.add_script()
             data_headers = ('zGenAlbum-Cloud Creation Date-0',
@@ -525,7 +525,7 @@ def get_ph23sharedalbumsphdapsql(files_found, report_folder, seeker, wrap_text, 
                           ' ZGENERICALBUM Table and supports iOS 12. Parses Shared Album records only' \
                           ' no asset data is being parsed in this parser. This parser will contain shared albums,' \
                           ' shared album invites and invite status data.'
-            report = ArtifactHtmlReport('Photos.sqlite-GenAlbum_Records-NAD')
+            report = ArtifactHtmlReport('Photos.sqlite-D-Generic_Album_Records-NAD')
             report.start_artifact_report(report_folder, 'Ph23-Shared Album Records NAD-PhDaPsql', description)
             report.add_script()
             data_headers = ('zGenAlbum-Cloud Creation Date-0',
@@ -822,7 +822,7 @@ def get_ph23sharedalbumsphdapsql(files_found, report_folder, seeker, wrap_text, 
                           ' ZGENERICALBUM Table and supports iOS 13. Parses Shared Album records only' \
                           ' no asset data is being parsed in this parser. This parser will contain shared albums,' \
                           ' shared album invites and the invite status data.'
-            report = ArtifactHtmlReport('Photos.sqlite-GenAlbum_Records-NAD')
+            report = ArtifactHtmlReport('Photos.sqlite-D-Generic_Album_Records-NAD')
             report.start_artifact_report(report_folder, 'Ph23-Shared Album Records NAD-PhDaPsql', description)
             report.add_script()
             data_headers = ('zGenAlbum-Cloud Creation Date-0',
@@ -1132,7 +1132,7 @@ def get_ph23sharedalbumsphdapsql(files_found, report_folder, seeker, wrap_text, 
                           ' ZGENERICALBUM Table and supports iOS 14. Parses Shared Album records only' \
                           ' no asset data is being parsed in this parser. This parser will contain shared albums,' \
                           ' shared album invites and the invite status data.'
-            report = ArtifactHtmlReport('Photos.sqlite-GenAlbum_Records-NAD')
+            report = ArtifactHtmlReport('Photos.sqlite-D-Generic_Album_Records-NAD')
             report.start_artifact_report(report_folder, 'Ph23-Shared Album Records NAD-PhDaPsql', description)
             report.add_script()
             data_headers = ('zGenAlbum-Cloud Creation Date-0',
@@ -1444,7 +1444,7 @@ def get_ph23sharedalbumsphdapsql(files_found, report_folder, seeker, wrap_text, 
                           ' ZGENERICALBUM Table and supports iOS 15. Parses Shared Album records only' \
                           ' no asset data is being parsed in this parser. This parser will contain shared albums,' \
                           ' shared album invites and the invite status data.'
-            report = ArtifactHtmlReport('Photos.sqlite-GenAlbum_Records-NAD')
+            report = ArtifactHtmlReport('Photos.sqlite-D-Generic_Album_Records-NAD')
             report.start_artifact_report(report_folder, 'Ph23-Shared Album Records NAD-PhDaPsql', description)
             report.add_script()
             data_headers = ('zGenAlbum-Cloud Creation Date-0',
@@ -1775,7 +1775,7 @@ def get_ph23sharedalbumsphdapsql(files_found, report_folder, seeker, wrap_text, 
                           ' ZGENERICALBUM Table and supports iOS 11. Parses Shared Album records only' \
                           ' no asset data is being parsed in this parser. This parser will contain shared albums,' \
                           ' shared album invites and the invite status data.'
-            report = ArtifactHtmlReport('Photos.sqlite-GenAlbum_Records-NAD')
+            report = ArtifactHtmlReport('Photos.sqlite-D-Generic_Album_Records-NAD')
             report.start_artifact_report(report_folder, 'Ph23-Shared Album Records NAD-PhDaPsql', description)
             report.add_script()
             data_headers = ('zGenAlbum-Cloud Creation Date-0',
@@ -1874,7 +1874,7 @@ __artifacts_v2__ = {
         'version': '1.3',
         'date': '2024-04-13',
         'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
-        'category': 'Photos.sqlite-GenAlbum_Records-NAD',
+        'category': 'Photos.sqlite-D-Generic_Album_Records-NAD',
         'notes': '',
         'paths': '*/mobile/Media/PhotoData/Photos.sqlite*',
         'function': 'get_ph23sharedalbumsphdapsql'

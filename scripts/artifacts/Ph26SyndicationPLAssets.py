@@ -214,7 +214,7 @@ def get_ph26syndicationidassetsphdapsql(files_found, report_folder, seeker, wrap
                           ' 9-SyndPs-STILLTESTING_Sent_SWY-9' \
                           ' 10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10 ZASSET ZSAVEDASSETTYPE:' \
                           ' 12-SyndPs-SWY-Asset_Auto-Display_In_CameraRoll-12'
-            report = ArtifactHtmlReport('Photos.sqlite-Other_Artifacts')
+            report = ArtifactHtmlReport('Photos.sqlite-C-Other_Artifacts')
             report.start_artifact_report(report_folder, 'Ph26.1-Syndication ID Assets-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -465,7 +465,7 @@ def get_ph26syndicationidassetsphdapsql(files_found, report_folder, seeker, wrap
                           ' 9-SyndPs-STILLTESTING_Sent_SWY-9' \
                           ' 10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10 ZASSET ZSAVEDASSETTYPE:' \
                           ' 12-SyndPs-SWY-Asset_Auto-Display_In_CameraRoll-12'
-            report = ArtifactHtmlReport('Photos.sqlite-Other_Artifacts')
+            report = ArtifactHtmlReport('Photos.sqlite-C-Other_Artifacts')
             report.start_artifact_report(report_folder, 'Ph26.1-Syndication ID Assets-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -720,7 +720,7 @@ def get_ph26syndicationplassetssyndpl(files_found, report_folder, seeker, wrap_t
                           ' 9-SyndPs-STILLTESTING_Sent_SWY-9' \
                           ' 10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10 ZASSET ZSAVEDASSETTYPE:' \
                           ' 12-SyndPs-SWY-Asset_Auto-Display_In_CameraRoll-12'
-            report = ArtifactHtmlReport('Photos.sqlite-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
             report.start_artifact_report(report_folder, 'Ph26.2-Syndication PL Assets-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -971,7 +971,7 @@ def get_ph26syndicationplassetssyndpl(files_found, report_folder, seeker, wrap_t
                           ' 9-SyndPs-STILLTESTING_Sent_SWY-9' \
                           ' 10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10 ZASSET ZSAVEDASSETTYPE:' \
                           ' 12-SyndPs-SWY-Asset_Auto-Display_In_CameraRoll-12'
-            report = ArtifactHtmlReport('Photos.sqlite-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
             report.start_artifact_report(report_folder, 'Ph26.2-Syndication PL Assets-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -1057,7 +1057,7 @@ __artifacts_v2__ = {
         'version': '1.0',
         'date': '2024-04-13',
         'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
-        'category': 'Photos.sqlite-Other_Artifacts',
+        'category': 'Photos.sqlite-C-Other_Artifacts',
         'notes': '',
         'paths': '*/mobile/Media/PhotoData/Photos.sqlite*',
         'function': 'get_ph26syndicationidassetsphdapsql'
@@ -1080,7 +1080,7 @@ __artifacts_v2__ = {
         'version': '1.0',
         'date': '2024-04-13',
         'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
-        'category': 'Photos.sqlite-Syndication_PL_Artifacts',
+        'category': 'Photos.sqlite-S-Syndication_PL_Artifacts',
         'notes': '',
         'paths': '*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',
         'function': 'get_ph26syndicationplassetssyndpl'

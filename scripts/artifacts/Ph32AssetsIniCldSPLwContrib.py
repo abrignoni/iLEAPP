@@ -210,7 +210,7 @@ def get_ph32icldsplassetsphdapsql(files_found, report_folder, seeker, wrap_text,
                           ' Parses basic asset data and iCloud SPL and contributor information.' \
                           ' If you are attempting to match SPL count with results please check' \
                           ' hidden, trashed, and burst assets.'
-            report = ArtifactHtmlReport('Photos.sqlite-iCloud_Shared_Methods')
+            report = ArtifactHtmlReport('Photos.sqlite-F-Cloud_Shared_Methods')
             report.start_artifact_report(report_folder, 'Ph32-iCld Shared Photo Lib Assets-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -289,7 +289,7 @@ __artifacts_v2__ = {
         'version': '1.0',
         'date': '2024-04-14',
         'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
-        'category': 'Photos.sqlite-iCloud_Shared_Methods',
+        'category': 'Photos.sqlite-F-Cloud_Shared_Methods',
         'notes': '',
         'paths': '*/mobile/Media/PhotoData/Photos.sqlite*',
         'function': 'get_ph32icldsplassetsphdapsql'

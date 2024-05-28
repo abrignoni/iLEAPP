@@ -87,7 +87,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
 
                 # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
                 if row[8] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-1_AAA_ShiftedLocationData_' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData_' + row[2] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[8])
 
@@ -99,7 +99,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
 
                 # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
                 if row[11] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-1_AAA_ReversedLocationData_' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'AAA_ReversedLocationData_' + row[2] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[11])
 
@@ -121,7 +121,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
                           ' records for a variety of data. This parser should be used in conjunction with other' \
                           ' parsers to review a complete record for analysis. The results of this parser could' \
                           ' produce multiple records for a single asset.'
-            report = ArtifactHtmlReport('Photos.sqlite-Other_Artifacts')
+            report = ArtifactHtmlReport('Photos.sqlite-C-Other_Artifacts')
             report.start_artifact_report(report_folder, 'Ph10.1-Assets have embedded files-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -257,7 +257,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
 
                 # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
                 if row[8] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-1_AAA_ShiftedLocationData_' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData_' + row[2] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[8])
 
@@ -274,7 +274,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
 
                 # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
                 if row[11] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-1_AAA_ReversedLocationData_' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'AAA_ReversedLocationData_' + row[2] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[11])
 
@@ -291,7 +291,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
 
                 # AAAzCldMastMedData.ZDATA-PLIST
                 if row[17] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-1_AAAzCldMastMedData-Data_' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'AAAzCldMastMedData-Data_' + row[2] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[17])
 
@@ -310,7 +310,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
 
                 # CMzCldMastMedData.ZDATA-PLIST
                 if row[23] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-1_CMzCldMastMedData-Data_' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'CMzCldMastMedData-Data_' + row[2] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[23])
 
@@ -349,7 +349,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
                           ' records for a variety of data. This parser should be used in conjunction with other' \
                           ' parsers to review a complete record for analysis. The results of this parser could' \
                           ' produce multiple records for a single asset.'
-            report = ArtifactHtmlReport('Photos.sqlite-Other_Artifacts')
+            report = ArtifactHtmlReport('Photos.sqlite-C-Other_Artifacts')
             report.start_artifact_report(report_folder, 'Ph10.1-Assets have embedded files-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -539,7 +539,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
 
                 # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
                 if row[8] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-1_AAA_ShiftedLocationData_' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData_' + row[2] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[8])
 
@@ -556,7 +556,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
 
                 # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
                 if row[11] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-1_AAA_ReversedLocationData_' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'AAA_ReversedLocationData_' + row[2] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[11])
 
@@ -573,7 +573,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
 
                 # AAAzCldMastMedData.ZDATA-PLIST
                 if row[17] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-1_AAAzCldMastMedData-Data_' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'AAAzCldMastMedData-Data_' + row[2] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[17])
 
@@ -592,7 +592,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
 
                 # CMzCldMastMedData.ZDATA-PLIST
                 if row[23] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-1_CMzCldMastMedData-Data_' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'CMzCldMastMedData-Data_' + row[2] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[23])
 
@@ -610,7 +610,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
                                 cmzcldmastmeddata_plist_iptc = val
 
                 if row[30] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-1_zSP_Name_Components_' + str(counter) + '.bplist')
+                    pathto = os.path.join(report_folder, 'zSP_Name_Components_' + row[2] + '.bplist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[30])
 
@@ -627,7 +627,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
 
                 # zShare.ZPREVIEWDATA-BLOB_JPG
                 if row[34] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-1_zShare_PreviewData_' + row[2] + '.jpg')
+                    pathto = os.path.join(report_folder, 'zShare_PreviewData_' + row[2] + '.jpg')
                     with open(pathto, 'wb') as file:
                         file.write(row[34])
                     zshare_previewdata_blob = media_to_html(pathto, files_found, report_folder)
@@ -658,7 +658,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
                           ' records for a variety of data. This parser should be used in conjunction with other' \
                           ' parsers to review a complete record for analysis. The results of this parser could' \
                           ' produce multiple records for a single asset.'
-            report = ArtifactHtmlReport('Photos.sqlite-Other_Artifacts')
+            report = ArtifactHtmlReport('Photos.sqlite-C-Other_Artifacts')
             report.start_artifact_report(report_folder, 'Ph10.1-Assets have embedded files-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -860,7 +860,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
 
                 # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
                 if row[9] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-1_AAA_ShiftedLocationData_' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData_' + row[2] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[9])
 
@@ -877,7 +877,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
 
                 # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
                 if row[12] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-1_AAA_ReversedLocationData_' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'AAA_ReversedLocationData_' + row[2] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[12])
 
@@ -894,7 +894,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
 
                 # AAAzCldMastMedData.ZDATA-PLIST
                 if row[18] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-1_AAAzCldMastMedData-Data_' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'AAAzCldMastMedData-Data_' + row[2] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[18])
 
@@ -913,7 +913,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
 
                 # CMzCldMastMedData.ZDATA-PLIST
                 if row[24] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-1_CMzCldMastMedData-Data_' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'CMzCldMastMedData-Data_' + row[2] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[24])
 
@@ -932,7 +932,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
 
                 # zSharePartic_ZNAMECOMPONENTS_PLIST
                 if row[31] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-1_zSP_Name_Components_' + str(counter) + '.bplist')
+                    pathto = os.path.join(report_folder, 'zSP_Name_Components_' + row[2] + '.bplist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[31])
 
@@ -949,7 +949,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
 
                 # zShare.ZPREVIEWDATA-BLOB_JPG
                 if row[35] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-1_zShare_PreviewData_' + row[2] + '.jpg')
+                    pathto = os.path.join(report_folder, 'zShare_PreviewData_' + row[2] + '.jpg')
                     with open(pathto, 'wb') as file:
                         file.write(row[35])
                     zshare_previewdata_blob = media_to_html(pathto, files_found, report_folder)
@@ -980,7 +980,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
                           ' records for a variety of data. This parser should be used in conjunction with other' \
                           ' parsers to review a complete record for analysis. The results of this parser could' \
                           ' produce multiple records for a single asset.'
-            report = ArtifactHtmlReport('Photos.sqlite-Other_Artifacts')
+            report = ArtifactHtmlReport('Photos.sqlite-C-Other_Artifacts')
             report.start_artifact_report(report_folder, 'Ph10.1-Assets have embedded files-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -1044,7 +1044,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
         db.close()
         return
 
-    elif version.parse(iosversion) >= version.parse("16"):
+    elif (version.parse(iosversion) >= version.parse("16")) & (version.parse(iosversion) < version.parse("17")):
         file_found = str(files_found[0])
         db = open_sqlite_db_readonly(file_found)
         cursor = db.cursor()
@@ -1213,7 +1213,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
 
                 # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
                 if row[9] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-1_AAA_ShiftedLocationData_' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData_' + row[2] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[9])
 
@@ -1230,7 +1230,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
 
                 # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
                 if row[12] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-1_AAA_ReversedLocationData_' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'AAA_ReversedLocationData_' + row[2] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[12])
 
@@ -1247,7 +1247,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
 
                 # AAAzCldMastMedData.ZDATA-PLIST
                 if row[18] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-1_AAAzCldMastMedData-Data_' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'AAAzCldMastMedData-Data_' + row[2] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[18])
 
@@ -1266,7 +1266,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
 
                 # CMzCldMastMedData.ZDATA-PLIST
                 if row[24] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-1_CMzCldMastMedData-Data_' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'CMzCldMastMedData-Data_' + row[2] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[24])
 
@@ -1285,7 +1285,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
 
                 # zSharePartic_ZNAMECOMPONENTS_PLIST
                 if row[31] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-1_zSP_Name_Components_' + str(counter) + '.bplist')
+                    pathto = os.path.join(report_folder, 'zSP_Name_Components_' + row[2] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[31])
 
@@ -1302,7 +1302,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
 
                 # SPLzSharePartic_ZNAMECOMPONENTS_PLIST
                 if row[42] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-1_SPLzSharePartic-Name_Components_' + str(counter) + '.bplist')
+                    pathto = os.path.join(report_folder, 'SPLzSharePartic-Name_Components_' + row[2] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[42])
 
@@ -1319,14 +1319,14 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
 
                 # zShare.ZPREVIEWDATA-BLOB_JPG
                 if row[35] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-1_zShare_PreviewData_' + row[2] + '.jpg')
+                    pathto = os.path.join(report_folder, 'zShare_PreviewData_' + row[2] + '.jpg')
                     with open(pathto, 'wb') as file:
                         file.write(row[35])
                     zshare_previewdata_blob = media_to_html(pathto, files_found, report_folder)
 
                 # SPLzShare.ZPREVIEWDATA-BLOB_JPG
                 if row[44] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-1_SPLzShare_PreviewData_' + row[2] + '.jpg')
+                    pathto = os.path.join(report_folder, 'SPLzShare_PreviewData_' + row[2] + '.jpg')
                     with open(pathto, 'wb') as file:
                         file.write(row[44])
                     splzshare_previewdata_blob = media_to_html(pathto, files_found, report_folder)
@@ -1362,7 +1362,398 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
                           ' records for a variety of data. This parser should be used in conjunction with other' \
                           ' parsers to review a complete record for analysis. The results of this parser could' \
                           ' produce multiple records for a single asset.'
-            report = ArtifactHtmlReport('Photos.sqlite-Other_Artifacts')
+            report = ArtifactHtmlReport('Photos.sqlite-C-Other_Artifacts')
+            report.start_artifact_report(report_folder, 'Ph10.1-Assets have embedded files-PhDaPsql', description)
+            report.add_script()
+            data_headers = ('zAsset-Date Created-0',
+                            'zAsset-Directory-Path-1',
+                            'zAsset-Filename-2',
+                            'zAddAssetAttr- Original Filename-3',
+                            'zCldMast- Original Filename-4',
+                            'zCldMast-Import Session ID- AirDrop-StillTesting-5',
+                            'zAddAssetAttr- Syndication Identifier-SWY-Files-6',
+                            'zAddAssetAttr-Shifted Location Valid-7',
+                            'zAddAssetAttr-Shifted Location Data-HasDataIndicator-8',
+                            'zAddAssetAttr-Shifted Location Data-bplist_postal_address-9',
+                            'zAddAssetAttr-Reverse Location Is Valid-10',
+                            'zAddAssetAttr-Reverse Location Data-HasDataIndicator-11',
+                            'zAddAssetAttr-Reverse Location Data-bplist_postal_address-12',
+                            'AAAzCldMastMedData-zOPT-13',
+                            'zAddAssetAttr-Media Metadata Type-14',
+                            'zAddAssetAttr-MediaMetadata= AAAzCldMastMedData-zPK-15',
+                            'AAAzCldMastMedData-zPK= zAddAssetAttr&zCldMast-MediaMetaData-16',
+                            'AAAzCldMastMedData-Data-HasDataIndicator-17',
+                            'AAAzCldMastMedData-Data_plist_TIFF-18',
+                            'AAAzCldMastMedData-Data_plist_Exif-18',
+                            'AAAzCldMastMedData-Data_plist_GPS-18',
+                            'AAAzCldMastMedData-Data_plist_IPTC-18',
+                            'CldMasterzCldMastMedData-zOPT-19',
+                            'zCldMast-Media Metadata Type-20',
+                            'zCldMast-Media Metadata Key= zCldMastMedData.zPK-21',
+                            'CMzCldMastMedData-zPK= zAddAssetAttr&zCldMast-MediaMetaData Key-22',
+                            'CMzCldMastMedData-Data-HasDataIndicator-23',
+                            'CMzCldMastMedData-Data_plist_TIFF-24',
+                            'CMzCldMastMedData-Data_plist_Exif-24',
+                            'CMzCldMastMedData-Data_plist_GPS-24',
+                            'CMzCldMastMedData-Data_plist_IPTC-24',
+                            'zSharePartic-Acceptance Status-25',
+                            'zSharePartic-User ID-26',
+                            'zSharePartic-zPK-27',
+                            'zSharePartic-Email Address-28',
+                            'zSharePartic-Phone Number-29',
+                            'zSharePartic-Name_Components-HasDataIndicator-30',
+                            'zSharePartic-Name_Components_Plist-31',
+                            'zSharePartic-Is Current User-32',
+                            'zSharePartic-Role-33',
+                            'zShare-Preview_Data-DataIndicator-34',
+                            'zShare-Preview_Data-BLOB_JPG-35',
+                            'SPLzSharePartic-Is Current User-36',
+                            'SPLzSharePartic-Role-37',
+                            'zAsstContrib-Participant= zSharePartic-zPK-38',
+                            'SPLzSharePartic-Email Address-39',
+                            'SPLzSharePartic-Phone Number-40',
+                            'SPLzSharePartic-Name_Components-HasDataIndicator-41',
+                            'SPLzSharePartic-Name_Components_Plist-42',
+                            'zShare-Preview_Data-DataIndicator-43',
+                            'zShare-Preview_Data-BLOB_JPG-44',
+                            'zAsset-zPK-45',
+                            'zAddAssetAttr-zPK-46',
+                            'zAsset-UUID = store.cloudphotodb-47',
+                            'zAddAssetAttr-Master Fingerprint-48')
+            report.write_artifact_data_table(data_headers, data_list, file_found)
+            report.end_artifact_report()
+
+            tsvname = 'Ph10.1-Assets have embedded files-PhDaPsql'
+            tsv(report_folder, data_headers, data_list, tsvname)
+
+            tlactivity = 'Ph10.1-Assets have embedded files-PhDaPsql'
+            timeline(report_folder, tlactivity, data_list, data_headers)
+
+        else:
+            logfunc('No data available for PhotoData-Photos.sqlite assets having embedded files')
+
+        db.close()
+        return
+
+    elif version.parse(iosversion) >= version.parse("17"):
+        file_found = str(files_found[0])
+        db = open_sqlite_db_readonly(file_found)
+        cursor = db.cursor()
+
+        cursor.execute("""
+        SELECT
+        DateTime(zAsset.ZDATECREATED + 978307200, 'UNIXEPOCH') AS 'zAsset-Date Created',
+        zAsset.ZDIRECTORY AS 'zAsset-Directory-Path',
+        zAsset.ZFILENAME AS 'zAsset-Filename',
+        zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
+        zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zAddAssetAttr.ZSYNDICATIONIDENTIFIER AS 'zAddAssetAttr- Syndication Identifier-SWY-Files',
+        CASE zAddAssetAttr.ZSHIFTEDLOCATIONISVALID
+            WHEN 0 THEN '0-Shifted Location Not Valid-0'
+            WHEN 1 THEN '1-Shifted Location Valid-1'
+            ELSE 'Unknown-New-Value!: ' || zAddAssetAttr.ZSHIFTEDLOCATIONISVALID || ''
+        END AS 'zAddAssetAttr-Shifted Location Valid',
+        CASE
+            WHEN zAddAssetAttr.ZSHIFTEDLOCATIONDATA > 0 THEN 'zAddAssetAttr-Shifted_Location_Data_has_Plist'
+            ELSE 'zAddAssetArrt-Shifted_Location_Data_Empty-NULL'
+        END AS 'zAddAssetAttr-Shifted Location Data-HasDataIndicator',
+        zAddAssetAttr.ZSHIFTEDLOCATIONDATA AS 'zAddAssetAttr-Shifted Location Data',
+        CASE zAddAssetAttr.ZREVERSELOCATIONDATAISVALID
+            WHEN 0 THEN '0-Reverse Location Not Valid-0'
+            WHEN 1 THEN '1-Reverse Location Valid-1'
+            ELSE 'Unknown-New-Value!: ' || zAddAssetAttr.ZREVERSELOCATIONDATAISVALID || ''
+        END AS 'zAddAssetAttr-Reverse Location Is Valid',
+        CASE
+            WHEN zAddAssetAttr.ZREVERSELOCATIONDATA > 0 THEN 'zAddAssetAttr-Reverse_Location_Data_has_Plist'
+            ELSE 'zAddAssetAttr-Reverse_Location_Data_Empty-NULL'
+        END AS 'zAddAssetAttr-Reverse Location Data-HasDataIndicator',
+        zAddAssetAttr.ZREVERSELOCATIONDATA AS 'zAddAssetAttr-Reverse Location Data',
+        CASE AAAzCldMastMedData.Z_OPT
+            WHEN 1 THEN '1-StillTesting-Cloud-1'
+            WHEN 2 THEN '2-StillTesting-This Device-2'
+            WHEN 3 THEN '3-StillTesting-Muted-3'
+            WHEN 4 THEN '4-StillTesting-Unknown-4'
+            WHEN 5 THEN '5-StillTesting-Unknown-5'
+            ELSE 'Unknown-New-Value!: ' || AAAzCldMastMedData.Z_OPT || ''
+        END AS 'AAAzCldMastMedData-zOPT',
+        zAddAssetAttr.ZMEDIAMETADATATYPE AS 'zAddAssetAttr-Media Metadata Type',		
+        zAddAssetAttr.ZMEDIAMETADATA AS 'zAddAssetAttr-MediaMetadata= AAAzCldMastMedData-zPK',
+        AAAzCldMastMedData.Z_PK AS 'AAAzCldMastMedData-zPK= zAddAssetAttr&zCldMast-MediaMetaData',
+        CASE
+            WHEN AAAzCldMastMedData.ZDATA > 0 THEN 'AAAzCldMastMedData-Data_has_Plist'
+            ELSE 'AAAzCldMastMedData-Data_Empty-NULL'
+        END AS 'AAAzCldMastMedData-Data-HasDataIndicator',
+        AAAzCldMastMedData.ZDATA AS 'AAAzCldMastMedData-Data',
+        CASE CMzCldMastMedData.Z_OPT
+            WHEN 1 THEN '1-StillTesting-Has_CldMastAsset-1'
+            WHEN 2 THEN '2-StillTesting-Local_Asset-2'
+            WHEN 3 THEN '3-StillTesting-Muted-3'
+            WHEN 4 THEN '4-StillTesting-Unknown-4'
+            WHEN 5 THEN '5-StillTesting-Unknown-5'
+            ELSE 'Unknown-New-Value!: ' || CMzCldMastMedData.Z_OPT || ''
+        END AS 'CldMasterzCldMastMedData-zOPT',
+        zCldMast.ZMEDIAMETADATATYPE AS 'zCldMast-Media Metadata Type',
+        zCldMast.ZMEDIAMETADATA AS 'zCldMast-Media Metadata Key= zCldMastMedData.zPK',
+        CMzCldMastMedData.Z_PK AS 'CMzCldMastMedData-zPK= zAddAssetAttr&zCldMast-MediaMetaData Key',
+        CASE
+            WHEN CMzCldMastMedData.ZDATA > 0 THEN 'CMzCldMastMedData-Data_has_Plist'
+            ELSE 'CMzCldMastMedData-Data_Empty-NULL'
+        END AS 'CMzCldMastMedData-Data-HasDataIndicator',
+        CMzCldMastMedData.ZDATA AS 'CMzCldMastMedData-Data',
+        CASE zSharePartic.ZACCEPTANCESTATUS
+            WHEN 1 THEN '1-Invite-Pending_or_Declined-1'
+            WHEN 2 THEN '2-Invite-Accepted-2'
+            ELSE 'Unknown-New-Value!: ' || zSharePartic.ZACCEPTANCESTATUS || ''
+        END AS 'zSharePartic-Acceptance Status',
+        zSharePartic.ZUSERIDENTIFIER AS 'zSharePartic-User ID',
+        zSharePartic.Z_PK AS 'zSharePartic-zPK',
+        zSharePartic.ZEMAILADDRESS AS 'zSharePartic-Email Address',
+        zSharePartic.ZPHONENUMBER AS 'zSharePartic-Phone Number',
+        CASE
+            WHEN zSharePartic.ZNAMECOMPONENTS > 0 THEN 'zSharePartic-Name_Components_has_Plist'
+            ELSE 'zSharePartic-Name_Components_Empty-NULL'
+        END AS 'zSharePartic-Name_Components-HasDataIndicator',
+        zSharePartic.ZNAMECOMPONENTS AS 'zSharePartic-Name_Components',        
+        CASE zSharePartic.ZISCURRENTUSER
+            WHEN 0 THEN '0-Participant-Not_CurrentUser-0'
+            WHEN 1 THEN '1-Participant-Is_CurrentUser-1'
+            ELSE 'Unknown-New-Value!: ' || zSharePartic.ZISCURRENTUSER || ''
+        END AS 'zSharePartic-Is Current User',
+        CASE zSharePartic.ZROLE
+            WHEN 1 THEN '1-Participant-is-Owner-Role-1'
+            WHEN 2 THEN '2-Participant-is-Invitee-Role-2'
+            ELSE 'Unknown-New-Value!: ' || zSharePartic.ZROLE || ''
+        END AS 'zSharePartic-Role',
+        CASE
+            WHEN zShare.ZPREVIEWDATA > 0 THEN 'zShare-Preview_Data_has_BLOB'
+            ELSE 'zShare-Preview_Data_Empty-NULL'
+        END AS 'zShare-Preview_Data-DataIndicator',
+        zShare.ZPREVIEWDATA AS 'zShare-Preview_Data',
+        CASE SPLzSharePartic.ZISCURRENTUSER
+            WHEN 0 THEN '0-Participant-Not_CurrentUser-0'
+            WHEN 1 THEN '1-Participant-Is_CurrentUser-1'
+            ELSE 'Unknown-New-Value!: ' || SPLzSharePartic.ZISCURRENTUSER || ''
+        END AS 'SPLzSharePartic-Is Current User',
+        CASE SPLzSharePartic.ZROLE
+            WHEN 1 THEN '1-Participant-is-Owner-Role-1'
+            WHEN 2 THEN '2-Participant-is-Invitee-Role-2'
+            ELSE 'Unknown-New-Value!: ' || SPLzSharePartic.ZROLE || ''
+        END AS 'SPLzSharePartic-Role',
+        zAssetContrib.ZPARTICIPANT AS 'zAsstContrib-Participant= zSharePartic-zPK',
+        SPLzSharePartic.ZEMAILADDRESS AS 'SPLzSharePartic-Email Address',
+        SPLzSharePartic.ZPHONENUMBER AS 'SPLzSharePartic-Phone Number',
+        CASE
+            WHEN SPLzSharePartic.ZNAMECOMPONENTS > 0 THEN 'SPLzSharePartic-Name_Components_has_Plist'
+            ELSE 'SPLzSharePartic-Name_Components_Empty-NULL'
+        END AS 'SPLzSharePartic-Name_Components-HasDataIndicator',
+        SPLzSharePartic.ZNAMECOMPONENTS AS 'SPLzSharePartic-Name_Components',
+        CASE
+            WHEN SPLzShare.ZPREVIEWDATA > 0 THEN 'SPLzShare-Preview_Data_has_BLOB'
+            ELSE 'SPLzShare-Preview_Data_Empty-NULL'
+        END AS 'SPLzShare-Preview_Data-DataIndicator',
+        SPLzShare.ZPREVIEWDATA AS 'SPLzShare-Preview_Data',
+        zAsset.Z_PK AS 'zAsset-zPK',
+        zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
+        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
+        FROM ZASSET zAsset
+            LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
+            LEFT JOIN ZEXTENDEDATTRIBUTES zExtAttr ON zExtAttr.Z_PK = zAsset.ZEXTENDEDATTRIBUTES
+            LEFT JOIN ZCLOUDMASTER zCldMast ON zAsset.ZMASTER = zCldMast.Z_PK
+            LEFT JOIN ZCLOUDMASTERMEDIAMETADATA AAAzCldMastMedData ON
+             AAAzCldMastMedData.Z_PK = zAddAssetAttr.ZMEDIAMETADATA
+            LEFT JOIN ZCLOUDMASTERMEDIAMETADATA CMzCldMastMedData ON
+             CMzCldMastMedData.Z_PK = zCldMast.ZMEDIAMETADATA
+            LEFT JOIN ZSHARE SPLzShare ON SPLzShare.Z_PK = zAsset.ZLIBRARYSCOPE
+            LEFT JOIN ZSHARE zShare ON zShare.Z_PK = zAsset.ZMOMENTSHARE
+            LEFT JOIN ZASSETCONTRIBUTOR zAssetContrib ON zAssetContrib.Z3LIBRARYSCOPEASSETCONTRIBUTORS = zAsset.Z_PK
+            LEFT JOIN ZSHAREPARTICIPANT zSharePartic ON zSharePartic.ZSHARE = zShare.Z_PK
+            LEFT JOIN ZSHAREPARTICIPANT SPLzSharePartic ON SPLzSharePartic.Z_PK = zAssetContrib.ZPARTICIPANT
+        ORDER BY zAsset.ZDATECREATED
+        """)
+
+        all_rows = cursor.fetchall()
+        usageentries = len(all_rows)
+        data_list = []
+        counter = 0
+        if usageentries > 0:
+            for row in all_rows:
+                # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
+                aaashiftedlocation_postal_address = ''
+                # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
+                aaareverselocation_postal_address = ''
+                # AAAzCldMastMedData.ZDATA-PLIST
+                aaazcldmastmeddata_plist_tiff = ''
+                aaazcldmastmeddata_plist_exif = ''
+                aaazcldmastmeddata_plist_gps = ''
+                aaazcldmastmeddata_plist_iptc = ''
+                # CMzCldMastMedData.ZDATA-PLIST
+                cmzcldmastmeddata_plist_tiff = ''
+                cmzcldmastmeddata_plist_exif = ''
+                cmzcldmastmeddata_plist_gps = ''
+                cmzcldmastmeddata_plist_iptc = ''
+                # zSharePartic_ZNAMECOMPONENTS_PLIST
+                zsharepartic_namecomponents = ''
+                # SPLzSharePartic_ZNAMECOMPONENTS_PLIST
+                splzsharepartic_namecomponents = ''
+                # zShare.ZPREVIEWDATA-BLOB_JPG
+                zshare_previewdata_blob = ''
+                # SPLzShare.ZPREVIEWDATA-BLOB_JPG
+                splzshare_previewdata_blob = ''
+
+                # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
+                if row[9] is not None:
+                    pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData_' + row[2] + '.plist')
+                    with open(pathto, 'ab') as wf:
+                        wf.write(row[9])
+
+                    with open(pathto, 'rb') as f:
+                        try:
+                            deserialized_plist = nd.deserialize_plist(f)
+                            aaashiftedlocation_postal_address = deserialized_plist
+
+                        except (KeyError, ValueError, TypeError) as ex:
+                            if str(ex).find("does not contain an '$archiver' key") >= 0:
+                                logfunc('plist was Not an NSKeyedArchive ' + row[2])
+                            else:
+                                logfunc('Error reading exported plist from zAsset-Filename' + row[2])
+
+                # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
+                if row[12] is not None:
+                    pathto = os.path.join(report_folder, 'AAA_ReversedLocationData_' + row[2] + '.plist')
+                    with open(pathto, 'ab') as wf:
+                        wf.write(row[12])
+
+                    with open(pathto, 'rb') as f:
+                        try:
+                            deserialized_plist = nd.deserialize_plist(f)
+                            aaareverselocation_postal_address = deserialized_plist
+
+                        except (KeyError, ValueError, TypeError) as ex:
+                            if str(ex).find("does not contain an '$archiver' key") >= 0:
+                                logfunc('plist was Not an NSKeyedArchive ' + row[2])
+                            else:
+                                logfunc('Error reading exported plist from zAsset-Filename ' + row[2])
+
+                # AAAzCldMastMedData.ZDATA-PLIST
+                if row[18] is not None:
+                    pathto = os.path.join(report_folder, 'AAAzCldMastMedData-Data_' + row[2] + '.plist')
+                    with open(pathto, 'ab') as wf:
+                        wf.write(row[18])
+
+                    with open(pathto, "rb") as fp:
+                        plist = plistlib.load(fp)
+
+                        for key, val in plist.items():
+                            if key == '{TIFF}':
+                                aaazcldmastmeddata_plist_tiff = val
+                            elif key == '{Exif}':
+                                aaazcldmastmeddata_plist_exif = val
+                            elif key == '{GPS}':
+                                aaazcldmastmeddata_plist_gps = val
+                            elif key == '{IPTC}':
+                                aaazcldmastmeddata_plist_iptc = val
+
+                # CMzCldMastMedData.ZDATA-PLIST
+                if row[24] is not None:
+                    pathto = os.path.join(report_folder, 'CMzCldMastMedData-Data_' + row[2] + '.plist')
+                    with open(pathto, 'ab') as wf:
+                        wf.write(row[24])
+
+                    with open(pathto, "rb") as fp:
+                        plist = plistlib.load(fp)
+
+                        for key, val in plist.items():
+                            if key == '{TIFF}':
+                                cmzcldmastmeddata_plist_tiff = val
+                            elif key == '{Exif}':
+                                cmzcldmastmeddata_plist_exif = val
+                            elif key == '{GPS}':
+                                cmzcldmastmeddata_plist_gps = val
+                            elif key == '{IPTC}':
+                                cmzcldmastmeddata_plist_iptc = val
+
+                # zSharePartic_ZNAMECOMPONENTS_PLIST
+                if row[31] is not None:
+                    pathto = os.path.join(report_folder, 'zSP_Name_Components_' + row[2] + '.bplist')
+                    with open(pathto, 'ab') as wf:
+                        wf.write(row[31])
+
+                    with open(pathto, 'rb') as f:
+                        try:
+                            deserialized_plist = nd.deserialize_plist(f)
+                            zsharepartic_namecomponents = deserialized_plist
+
+                        except (KeyError, ValueError, TypeError) as ex:
+                            if str(ex).find("does not contain an '$archiver' key") >= 0:
+                                logfunc('plist was Not an NSKeyedArchive ' + row[2])
+                            else:
+                                logfunc('Error reading exported bplist from zAsset-Filename' + row[2])
+
+                # SPLzSharePartic_ZNAMECOMPONENTS_PLIST
+                if row[42] is not None:
+                    pathto = os.path.join(report_folder, 'SPLzSharePartic-Name_Components_' + row[2] + '.bplist')
+                    with open(pathto, 'ab') as wf:
+                        wf.write(row[42])
+
+                    with open(pathto, 'rb') as f:
+                        try:
+                            deserialized_plist = nd.deserialize_plist(f)
+                            splzsharepartic_namecomponents = deserialized_plist
+
+                        except (KeyError, ValueError, TypeError) as ex:
+                            if str(ex).find("does not contain an '$archiver' key") >= 0:
+                                logfunc('plist was Not an NSKeyedArchive ' + row[2])
+                            else:
+                                logfunc('Error reading exported bplist from zAsset-Filename' + row[2])
+
+                # zShare.ZPREVIEWDATA-BLOB_JPG
+                if row[35] is not None:
+                    pathto = os.path.join(report_folder, 'zShare_PreviewData_' + row[2] + '.jpg')
+                    with open(pathto, 'wb') as file:
+                        file.write(row[35])
+                    zshare_previewdata_blob = media_to_html(pathto, files_found, report_folder)
+
+                # SPLzShare.ZPREVIEWDATA-BLOB_JPG
+                if row[44] is not None:
+                    pathto = os.path.join(report_folder, 'SPLzShare_PreviewData_' + row[2] + '.jpg')
+                    with open(pathto, 'wb') as file:
+                        file.write(row[44])
+                    splzshare_previewdata_blob = media_to_html(pathto, files_found, report_folder)
+
+                data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8],
+                                  aaashiftedlocation_postal_address,
+                                  row[10], row[11],
+                                  aaareverselocation_postal_address,
+                                  row[13], row[14], row[15], row[16], row[17],
+                                  aaazcldmastmeddata_plist_tiff,
+                                  aaazcldmastmeddata_plist_exif,
+                                  aaazcldmastmeddata_plist_gps,
+                                  aaazcldmastmeddata_plist_iptc,
+                                  row[19], row[20], row[21], row[22], row[23],
+                                  cmzcldmastmeddata_plist_tiff,
+                                  cmzcldmastmeddata_plist_exif,
+                                  cmzcldmastmeddata_plist_gps,
+                                  cmzcldmastmeddata_plist_iptc,
+                                  row[25], row[26], row[27], row[28], row[29], row[30],
+                                  zsharepartic_namecomponents,
+                                  row[32], row[33], row[34],
+                                  zshare_previewdata_blob,
+                                  row[36], row[37],
+                                  row[38], row[39], row[40], row[41],
+                                  splzsharepartic_namecomponents,
+                                  row[43],
+                                  splzshare_previewdata_blob,
+                                  row[45], row[46], row[47], row[48]))
+
+                counter += 1
+
+            description = 'Parses basic asset record data from Photos.sqlite for assets that have embedded files' \
+                          ' records for a variety of data. This parser should be used in conjunction with other' \
+                          ' parsers to review a complete record for analysis. The results of this parser could' \
+                          ' produce multiple records for a single asset.'
+            report = ArtifactHtmlReport('Photos.sqlite-C-Other_Artifacts')
             report.start_artifact_report(report_folder, 'Ph10.1-Assets have embedded files-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -1504,7 +1895,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
 
                 # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
                 if row[8] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-2_AAA_ShiftedLocationData_' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData_' + row[2] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[8])
 
@@ -1516,7 +1907,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
 
                 # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
                 if row[11] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-2_AAA_ReversedLocationData_' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'AAA_ReversedLocationData_' + row[2] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[11])
 
@@ -1538,7 +1929,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
                           ' for assets that have embedded files records for a variety of data. This parser' \
                           ' should be used in conjunction with other parsers to review a complete record' \
                           ' for analysis. The results of this parser could produce multiple records for a single asset.'
-            report = ArtifactHtmlReport('Photos.sqlite-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
             report.start_artifact_report(report_folder, 'Ph10.2-Assets have embedded files-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -1674,7 +2065,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
 
                 # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
                 if row[8] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-2_AAA_ShiftedLocationData_' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData_' + row[2] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[8])
 
@@ -1691,7 +2082,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
 
                 # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
                 if row[11] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-2_AAA_ReversedLocationData_' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'AAA_ReversedLocationData_' + row[2] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[11])
 
@@ -1708,7 +2099,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
 
                 # AAAzCldMastMedData.ZDATA-PLIST
                 if row[17] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-2_AAAzCldMastMedData-Data_' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'AAAzCldMastMedData-Data_' + row[2] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[17])
 
@@ -1727,7 +2118,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
 
                 # CMzCldMastMedData.ZDATA-PLIST
                 if row[23] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-2_CMzCldMastMedData-Data_' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'CMzCldMastMedData-Data_' + row[2] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[23])
 
@@ -1766,7 +2157,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
                           ' for assets that have embedded files records for a variety of data. This parser' \
                           ' should be used in conjunction with other parsers to review a complete record' \
                           ' for analysis. The results of this parser could produce multiple records for a single asset.'
-            report = ArtifactHtmlReport('Photos.sqlite-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
             report.start_artifact_report(report_folder, 'Ph10.2-Assets have embedded files-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -1956,7 +2347,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
 
                 # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
                 if row[8] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-2_AAA_ShiftedLocationData_' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData_' + row[2] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[8])
 
@@ -1973,7 +2364,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
 
                 # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
                 if row[11] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-2_AAA_ReversedLocationData_' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'AAA_ReversedLocationData_' + row[2] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[11])
 
@@ -1990,7 +2381,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
 
                 # AAAzCldMastMedData.ZDATA-PLIST
                 if row[17] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-2_AAAzCldMastMedData-Data_' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'AAAzCldMastMedData-Data_' + row[2] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[17])
 
@@ -2009,7 +2400,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
 
                 # CMzCldMastMedData.ZDATA-PLIST
                 if row[23] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-2_CMzCldMastMedData-Data_' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'CMzCldMastMedData-Data_' + row[2] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[23])
 
@@ -2026,8 +2417,9 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
                             elif key == '{IPTC}':
                                 cmzcldmastmeddata_plist_iptc = val
 
+                # zSharePartic_ZNAMECOMPONENTS_PLIST
                 if row[30] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-2_zSP_Name_Components_' + str(counter) + '.bplist')
+                    pathto = os.path.join(report_folder, 'zSP_Name_Components_' + row[2] + '.bplist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[30])
 
@@ -2044,7 +2436,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
 
                 # zShare.ZPREVIEWDATA-BLOB_JPG
                 if row[34] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-2_zShare_PreviewData_' + row[2] + '.jpg')
+                    pathto = os.path.join(report_folder, 'zShare_PreviewData_' + row[2] + '.jpg')
                     with open(pathto, 'wb') as file:
                         file.write(row[34])
                     zshare_previewdata_blob = media_to_html(pathto, files_found, report_folder)
@@ -2075,7 +2467,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
                           ' for assets that have embedded files records for a variety of data. This parser' \
                           ' should be used in conjunction with other parsers to review a complete record' \
                           ' for analysis. The results of this parser could produce multiple records for a single asset.'
-            report = ArtifactHtmlReport('Photos.sqlite-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
             report.start_artifact_report(report_folder, 'Ph10.2-Assets have embedded files-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -2277,7 +2669,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
 
                 # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
                 if row[9] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-2_AAA_ShiftedLocationData_' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData_' + row[2] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[9])
 
@@ -2294,7 +2686,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
 
                 # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
                 if row[12] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-2_AAA_ReversedLocationData_' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'AAA_ReversedLocationData_' + row[2] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[12])
 
@@ -2311,7 +2703,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
 
                 # AAAzCldMastMedData.ZDATA-PLIST
                 if row[18] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-2_AAAzCldMastMedData-Data_' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'AAAzCldMastMedData-Data_' + row[2] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[18])
 
@@ -2330,7 +2722,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
 
                 # CMzCldMastMedData.ZDATA-PLIST
                 if row[24] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-2_CMzCldMastMedData-Data_' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'CMzCldMastMedData-Data_' + row[2] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[24])
 
@@ -2349,7 +2741,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
 
                 # zSharePartic_ZNAMECOMPONENTS_PLIST
                 if row[31] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-2_zSP_Name_Components_' + str(counter) + '.bplist')
+                    pathto = os.path.join(report_folder, 'zSP_Name_Components_' + row[2] + '.bplist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[31])
 
@@ -2366,7 +2758,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
 
                 # zShare.ZPREVIEWDATA-BLOB_JPG
                 if row[35] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-2_zShare_PreviewData_' + row[2] + '.jpg')
+                    pathto = os.path.join(report_folder, 'zShare_PreviewData_' + row[2] + '.jpg')
                     with open(pathto, 'wb') as file:
                         file.write(row[35])
                     zshare_previewdata_blob = media_to_html(pathto, files_found, report_folder)
@@ -2397,7 +2789,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
                           ' for assets that have embedded files records for a variety of data. This parser' \
                           ' should be used in conjunction with other parsers to review a complete record' \
                           ' for analysis. The results of this parser could produce multiple records for a single asset.'
-            report = ArtifactHtmlReport('Photos.sqlite-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
             report.start_artifact_report(report_folder, 'Ph10.2-Assets have embedded files-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -2461,7 +2853,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
         db.close()
         return
 
-    elif version.parse(iosversion) >= version.parse("16"):
+    elif (version.parse(iosversion) >= version.parse("16")) & (version.parse(iosversion) < version.parse("17")):
         file_found = str(files_found[0])
         db = open_sqlite_db_readonly(file_found)
         cursor = db.cursor()
@@ -2630,7 +3022,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
 
                 # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
                 if row[9] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-2_AAA_ShiftedLocationData_' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData_' + row[2] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[9])
 
@@ -2647,7 +3039,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
 
                 # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
                 if row[12] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-2_AAA_ReversedLocationData_' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'AAA_ReversedLocationData_' + row[2] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[12])
 
@@ -2664,7 +3056,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
 
                 # AAAzCldMastMedData.ZDATA-PLIST
                 if row[18] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-2_AAAzCldMastMedData-Data_' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'AAAzCldMastMedData-Data_' + row[2] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[18])
 
@@ -2683,7 +3075,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
 
                 # CMzCldMastMedData.ZDATA-PLIST
                 if row[24] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-2_CMzCldMastMedData-Data_' + str(counter) + '.plist')
+                    pathto = os.path.join(report_folder, 'CMzCldMastMedData-Data_' + row[2] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[24])
 
@@ -2702,7 +3094,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
 
                 # zSharePartic_ZNAMECOMPONENTS_PLIST
                 if row[31] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-2_zSP_Name_Components_' + str(counter) + '.bplist')
+                    pathto = os.path.join(report_folder, 'zSP_Name_Components_' + row[2] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[31])
 
@@ -2719,7 +3111,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
 
                 # SPLzSharePartic_ZNAMECOMPONENTS_PLIST
                 if row[42] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-2_SPLzSP_Name_Components_' + str(counter) + '.bplist')
+                    pathto = os.path.join(report_folder, 'SPLzSharePartic-Name_Components_' + row[2] + '.plist')
                     with open(pathto, 'ab') as wf:
                         wf.write(row[42])
 
@@ -2736,14 +3128,14 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
 
                 # zShare.ZPREVIEWDATA-BLOB_JPG
                 if row[35] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-2_zShare_PreviewData_' + row[2] + '.jpg')
+                    pathto = os.path.join(report_folder, 'zShare_PreviewData_' + row[2] + '.jpg')
                     with open(pathto, 'wb') as file:
                         file.write(row[35])
                     zshare_previewdata_blob = media_to_html(pathto, files_found, report_folder)
 
                 # SPLzShare.ZPREVIEWDATA-BLOB_JPG
                 if row[44] is not None:
-                    pathto = os.path.join(report_folder, 'Ph10-2_SPLzShare_PreviewData_' + row[2] + '.jpg')
+                    pathto = os.path.join(report_folder, 'SPLzShare_PreviewData_' + row[2] + '.jpg')
                     with open(pathto, 'wb') as file:
                         file.write(row[44])
                     splzshare_previewdata_blob = media_to_html(pathto, files_found, report_folder)
@@ -2779,7 +3171,398 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
                           ' for assets that have embedded files records for a variety of data. This parser' \
                           ' should be used in conjunction with other parsers to review a complete record' \
                           ' for analysis. The results of this parser could produce multiple records for a single asset.'
-            report = ArtifactHtmlReport('Photos.sqlite-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report.start_artifact_report(report_folder, 'Ph10.2-Assets have embedded files-SyndPL', description)
+            report.add_script()
+            data_headers = ('zAsset-Date Created-0',
+                            'zAsset-Directory-Path-1',
+                            'zAsset-Filename-2',
+                            'zAddAssetAttr- Original Filename-3',
+                            'zCldMast- Original Filename-4',
+                            'zCldMast-Import Session ID- AirDrop-StillTesting-5',
+                            'zAddAssetAttr- Syndication Identifier-SWY-Files-6',
+                            'zAddAssetAttr-Shifted Location Valid-7',
+                            'zAddAssetAttr-Shifted Location Data-HasDataIndicator-8',
+                            'zAddAssetAttr-Shifted Location Data-bplist_postal_address-9',
+                            'zAddAssetAttr-Reverse Location Is Valid-10',
+                            'zAddAssetAttr-Reverse Location Data-HasDataIndicator-11',
+                            'zAddAssetAttr-Reverse Location Data-bplist_postal_address-12',
+                            'AAAzCldMastMedData-zOPT-13',
+                            'zAddAssetAttr-Media Metadata Type-14',
+                            'zAddAssetAttr-MediaMetadata= AAAzCldMastMedData-zPK-15',
+                            'AAAzCldMastMedData-zPK= zAddAssetAttr&zCldMast-MediaMetaData-16',
+                            'AAAzCldMastMedData-Data-HasDataIndicator-17',
+                            'AAAzCldMastMedData-Data_plist_TIFF-18',
+                            'AAAzCldMastMedData-Data_plist_Exif-18',
+                            'AAAzCldMastMedData-Data_plist_GPS-18',
+                            'AAAzCldMastMedData-Data_plist_IPTC-18',
+                            'CldMasterzCldMastMedData-zOPT-19',
+                            'zCldMast-Media Metadata Type-20',
+                            'zCldMast-Media Metadata Key= zCldMastMedData.zPK-21',
+                            'CMzCldMastMedData-zPK= zAddAssetAttr&zCldMast-MediaMetaData Key-22',
+                            'CMzCldMastMedData-Data-HasDataIndicator-23',
+                            'CMzCldMastMedData-Data_plist_TIFF-24',
+                            'CMzCldMastMedData-Data_plist_Exif-24',
+                            'CMzCldMastMedData-Data_plist_GPS-24',
+                            'CMzCldMastMedData-Data_plist_IPTC-24',
+                            'zSharePartic-Acceptance Status-25',
+                            'zSharePartic-User ID-26',
+                            'zSharePartic-zPK-27',
+                            'zSharePartic-Email Address-28',
+                            'zSharePartic-Phone Number-29',
+                            'zSharePartic-Name_Components-HasDataIndicator-30',
+                            'zSharePartic-Name_Components_Plist-31',
+                            'zSharePartic-Is Current User-32',
+                            'zSharePartic-Role-33',
+                            'zShare-Preview_Data-DataIndicator-34',
+                            'zShare-Preview_Data-BLOB_JPG-35',
+                            'SPLzSharePartic-Is Current User-36',
+                            'SPLzSharePartic-Role-37',
+                            'zAsstContrib-Participant= zSharePartic-zPK-38',
+                            'SPLzSharePartic-Email Address-39',
+                            'SPLzSharePartic-Phone Number-40',
+                            'SPLzSharePartic-Name_Components-HasDataIndicator-41',
+                            'SPLzSharePartic-Name_Components_Plist-42',
+                            'zShare-Preview_Data-DataIndicator-43',
+                            'zShare-Preview_Data-BLOB_JPG-44',
+                            'zAsset-zPK-45',
+                            'zAddAssetAttr-zPK-46',
+                            'zAsset-UUID = store.cloudphotodb-47',
+                            'zAddAssetAttr-Master Fingerprint-48')
+            report.write_artifact_data_table(data_headers, data_list, file_found)
+            report.end_artifact_report()
+
+            tsvname = 'Ph10.2-Assets have embedded files-SyndPL'
+            tsv(report_folder, data_headers, data_list, tsvname)
+
+            tlactivity = 'Ph10.2-Assets have embedded files-SyndPL'
+            timeline(report_folder, tlactivity, data_list, data_headers)
+
+        else:
+            logfunc('No data available for PhotoData-Photos.sqlite assets having embedded files')
+
+        db.close()
+        return
+
+    elif version.parse(iosversion) >= version.parse("17"):
+        file_found = str(files_found[0])
+        db = open_sqlite_db_readonly(file_found)
+        cursor = db.cursor()
+
+        cursor.execute("""
+        SELECT
+        DateTime(zAsset.ZDATECREATED + 978307200, 'UNIXEPOCH') AS 'zAsset-Date Created',
+        zAsset.ZDIRECTORY AS 'zAsset-Directory-Path',
+        zAsset.ZFILENAME AS 'zAsset-Filename',
+        zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
+        zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zAddAssetAttr.ZSYNDICATIONIDENTIFIER AS 'zAddAssetAttr- Syndication Identifier-SWY-Files',
+        CASE zAddAssetAttr.ZSHIFTEDLOCATIONISVALID
+            WHEN 0 THEN '0-Shifted Location Not Valid-0'
+            WHEN 1 THEN '1-Shifted Location Valid-1'
+            ELSE 'Unknown-New-Value!: ' || zAddAssetAttr.ZSHIFTEDLOCATIONISVALID || ''
+        END AS 'zAddAssetAttr-Shifted Location Valid',
+        CASE
+            WHEN zAddAssetAttr.ZSHIFTEDLOCATIONDATA > 0 THEN 'zAddAssetAttr-Shifted_Location_Data_has_Plist'
+            ELSE 'zAddAssetArrt-Shifted_Location_Data_Empty-NULL'
+        END AS 'zAddAssetAttr-Shifted Location Data-HasDataIndicator',
+        zAddAssetAttr.ZSHIFTEDLOCATIONDATA AS 'zAddAssetAttr-Shifted Location Data',
+        CASE zAddAssetAttr.ZREVERSELOCATIONDATAISVALID
+            WHEN 0 THEN '0-Reverse Location Not Valid-0'
+            WHEN 1 THEN '1-Reverse Location Valid-1'
+            ELSE 'Unknown-New-Value!: ' || zAddAssetAttr.ZREVERSELOCATIONDATAISVALID || ''
+        END AS 'zAddAssetAttr-Reverse Location Is Valid',
+        CASE
+            WHEN zAddAssetAttr.ZREVERSELOCATIONDATA > 0 THEN 'zAddAssetAttr-Reverse_Location_Data_has_Plist'
+            ELSE 'zAddAssetAttr-Reverse_Location_Data_Empty-NULL'
+        END AS 'zAddAssetAttr-Reverse Location Data-HasDataIndicator',
+        zAddAssetAttr.ZREVERSELOCATIONDATA AS 'zAddAssetAttr-Reverse Location Data',
+        CASE AAAzCldMastMedData.Z_OPT
+            WHEN 1 THEN '1-StillTesting-Cloud-1'
+            WHEN 2 THEN '2-StillTesting-This Device-2'
+            WHEN 3 THEN '3-StillTesting-Muted-3'
+            WHEN 4 THEN '4-StillTesting-Unknown-4'
+            WHEN 5 THEN '5-StillTesting-Unknown-5'
+            ELSE 'Unknown-New-Value!: ' || AAAzCldMastMedData.Z_OPT || ''
+        END AS 'AAAzCldMastMedData-zOPT',
+        zAddAssetAttr.ZMEDIAMETADATATYPE AS 'zAddAssetAttr-Media Metadata Type',		
+        zAddAssetAttr.ZMEDIAMETADATA AS 'zAddAssetAttr-MediaMetadata= AAAzCldMastMedData-zPK',
+        AAAzCldMastMedData.Z_PK AS 'AAAzCldMastMedData-zPK= zAddAssetAttr&zCldMast-MediaMetaData',
+        CASE
+            WHEN AAAzCldMastMedData.ZDATA > 0 THEN 'AAAzCldMastMedData-Data_has_Plist'
+            ELSE 'AAAzCldMastMedData-Data_Empty-NULL'
+        END AS 'AAAzCldMastMedData-Data-HasDataIndicator',
+        AAAzCldMastMedData.ZDATA AS 'AAAzCldMastMedData-Data',
+        CASE CMzCldMastMedData.Z_OPT
+            WHEN 1 THEN '1-StillTesting-Has_CldMastAsset-1'
+            WHEN 2 THEN '2-StillTesting-Local_Asset-2'
+            WHEN 3 THEN '3-StillTesting-Muted-3'
+            WHEN 4 THEN '4-StillTesting-Unknown-4'
+            WHEN 5 THEN '5-StillTesting-Unknown-5'
+            ELSE 'Unknown-New-Value!: ' || CMzCldMastMedData.Z_OPT || ''
+        END AS 'CldMasterzCldMastMedData-zOPT',
+        zCldMast.ZMEDIAMETADATATYPE AS 'zCldMast-Media Metadata Type',
+        zCldMast.ZMEDIAMETADATA AS 'zCldMast-Media Metadata Key= zCldMastMedData.zPK',
+        CMzCldMastMedData.Z_PK AS 'CMzCldMastMedData-zPK= zAddAssetAttr&zCldMast-MediaMetaData Key',
+        CASE
+            WHEN CMzCldMastMedData.ZDATA > 0 THEN 'CMzCldMastMedData-Data_has_Plist'
+            ELSE 'CMzCldMastMedData-Data_Empty-NULL'
+        END AS 'CMzCldMastMedData-Data-HasDataIndicator',
+        CMzCldMastMedData.ZDATA AS 'CMzCldMastMedData-Data',
+        CASE zSharePartic.ZACCEPTANCESTATUS
+            WHEN 1 THEN '1-Invite-Pending_or_Declined-1'
+            WHEN 2 THEN '2-Invite-Accepted-2'
+            ELSE 'Unknown-New-Value!: ' || zSharePartic.ZACCEPTANCESTATUS || ''
+        END AS 'zSharePartic-Acceptance Status',
+        zSharePartic.ZUSERIDENTIFIER AS 'zSharePartic-User ID',
+        zSharePartic.Z_PK AS 'zSharePartic-zPK',
+        zSharePartic.ZEMAILADDRESS AS 'zSharePartic-Email Address',
+        zSharePartic.ZPHONENUMBER AS 'zSharePartic-Phone Number',
+        CASE
+            WHEN zSharePartic.ZNAMECOMPONENTS > 0 THEN 'zSharePartic-Name_Components_has_Plist'
+            ELSE 'zSharePartic-Name_Components_Empty-NULL'
+        END AS 'zSharePartic-Name_Components-HasDataIndicator',
+        zSharePartic.ZNAMECOMPONENTS AS 'zSharePartic-Name_Components',        
+        CASE zSharePartic.ZISCURRENTUSER
+            WHEN 0 THEN '0-Participant-Not_CurrentUser-0'
+            WHEN 1 THEN '1-Participant-Is_CurrentUser-1'
+            ELSE 'Unknown-New-Value!: ' || zSharePartic.ZISCURRENTUSER || ''
+        END AS 'zSharePartic-Is Current User',
+        CASE zSharePartic.ZROLE
+            WHEN 1 THEN '1-Participant-is-Owner-Role-1'
+            WHEN 2 THEN '2-Participant-is-Invitee-Role-2'
+            ELSE 'Unknown-New-Value!: ' || zSharePartic.ZROLE || ''
+        END AS 'zSharePartic-Role',
+        CASE
+            WHEN zShare.ZPREVIEWDATA > 0 THEN 'zShare-Preview_Data_has_BLOB'
+            ELSE 'zShare-Preview_Data_Empty-NULL'
+        END AS 'zShare-Preview_Data-DataIndicator',
+        zShare.ZPREVIEWDATA AS 'zShare-Preview_Data',
+        CASE SPLzSharePartic.ZISCURRENTUSER
+            WHEN 0 THEN '0-Participant-Not_CurrentUser-0'
+            WHEN 1 THEN '1-Participant-Is_CurrentUser-1'
+            ELSE 'Unknown-New-Value!: ' || SPLzSharePartic.ZISCURRENTUSER || ''
+        END AS 'SPLzSharePartic-Is Current User',
+        CASE SPLzSharePartic.ZROLE
+            WHEN 1 THEN '1-Participant-is-Owner-Role-1'
+            WHEN 2 THEN '2-Participant-is-Invitee-Role-2'
+            ELSE 'Unknown-New-Value!: ' || SPLzSharePartic.ZROLE || ''
+        END AS 'SPLzSharePartic-Role',
+        zAssetContrib.ZPARTICIPANT AS 'zAsstContrib-Participant= zSharePartic-zPK',
+        SPLzSharePartic.ZEMAILADDRESS AS 'SPLzSharePartic-Email Address',
+        SPLzSharePartic.ZPHONENUMBER AS 'SPLzSharePartic-Phone Number',
+        CASE
+            WHEN SPLzSharePartic.ZNAMECOMPONENTS > 0 THEN 'SPLzSharePartic-Name_Components_has_Plist'
+            ELSE 'SPLzSharePartic-Name_Components_Empty-NULL'
+        END AS 'SPLzSharePartic-Name_Components-HasDataIndicator',
+        SPLzSharePartic.ZNAMECOMPONENTS AS 'SPLzSharePartic-Name_Components',
+        CASE
+            WHEN SPLzShare.ZPREVIEWDATA > 0 THEN 'SPLzShare-Preview_Data_has_BLOB'
+            ELSE 'SPLzShare-Preview_Data_Empty-NULL'
+        END AS 'SPLzShare-Preview_Data-DataIndicator',
+        SPLzShare.ZPREVIEWDATA AS 'SPLzShare-Preview_Data',
+        zAsset.Z_PK AS 'zAsset-zPK',
+        zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
+        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
+        FROM ZASSET zAsset
+            LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
+            LEFT JOIN ZEXTENDEDATTRIBUTES zExtAttr ON zExtAttr.Z_PK = zAsset.ZEXTENDEDATTRIBUTES
+            LEFT JOIN ZCLOUDMASTER zCldMast ON zAsset.ZMASTER = zCldMast.Z_PK
+            LEFT JOIN ZCLOUDMASTERMEDIAMETADATA AAAzCldMastMedData ON
+             AAAzCldMastMedData.Z_PK = zAddAssetAttr.ZMEDIAMETADATA
+            LEFT JOIN ZCLOUDMASTERMEDIAMETADATA CMzCldMastMedData ON
+             CMzCldMastMedData.Z_PK = zCldMast.ZMEDIAMETADATA
+            LEFT JOIN ZSHARE SPLzShare ON SPLzShare.Z_PK = zAsset.ZLIBRARYSCOPE
+            LEFT JOIN ZSHARE zShare ON zShare.Z_PK = zAsset.ZMOMENTSHARE
+            LEFT JOIN ZASSETCONTRIBUTOR zAssetContrib ON zAssetContrib.Z3LIBRARYSCOPEASSETCONTRIBUTORS = zAsset.Z_PK
+            LEFT JOIN ZSHAREPARTICIPANT zSharePartic ON zSharePartic.ZSHARE = zShare.Z_PK
+            LEFT JOIN ZSHAREPARTICIPANT SPLzSharePartic ON SPLzSharePartic.Z_PK = zAssetContrib.ZPARTICIPANT
+        ORDER BY zAsset.ZDATECREATED
+        """)
+
+        all_rows = cursor.fetchall()
+        usageentries = len(all_rows)
+        data_list = []
+        counter = 0
+        if usageentries > 0:
+            for row in all_rows:
+                # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
+                aaashiftedlocation_postal_address = ''
+                # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
+                aaareverselocation_postal_address = ''
+                # AAAzCldMastMedData.ZDATA-PLIST
+                aaazcldmastmeddata_plist_tiff = ''
+                aaazcldmastmeddata_plist_exif = ''
+                aaazcldmastmeddata_plist_gps = ''
+                aaazcldmastmeddata_plist_iptc = ''
+                # CMzCldMastMedData.ZDATA-PLIST
+                cmzcldmastmeddata_plist_tiff = ''
+                cmzcldmastmeddata_plist_exif = ''
+                cmzcldmastmeddata_plist_gps = ''
+                cmzcldmastmeddata_plist_iptc = ''
+                # zSharePartic_ZNAMECOMPONENTS_PLIST
+                zsharepartic_namecomponents = ''
+                # SPLzSharePartic_ZNAMECOMPONENTS_PLIST
+                splzsharepartic_namecomponents = ''
+                # zShare.ZPREVIEWDATA-BLOB_JPG
+                zshare_previewdata_blob = ''
+                # SPLzShare.ZPREVIEWDATA-BLOB_JPG
+                splzshare_previewdata_blob = ''
+
+                # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
+                if row[9] is not None:
+                    pathto = os.path.join(report_folder, 'AAA_ShiftedLocationData_' + row[2] + '.plist')
+                    with open(pathto, 'ab') as wf:
+                        wf.write(row[9])
+
+                    with open(pathto, 'rb') as f:
+                        try:
+                            deserialized_plist = nd.deserialize_plist(f)
+                            aaashiftedlocation_postal_address = deserialized_plist
+
+                        except (KeyError, ValueError, TypeError) as ex:
+                            if str(ex).find("does not contain an '$archiver' key") >= 0:
+                                logfunc('plist was Not an NSKeyedArchive ' + row[2])
+                            else:
+                                logfunc('Error reading exported plist from zAsset-Filename ' + row[2])
+
+                # zAddAssetAttr.ZREVERSELOCATIONDATA-PLIST
+                if row[12] is not None:
+                    pathto = os.path.join(report_folder, 'AAA_ReversedLocationData_' + row[2] + '.plist')
+                    with open(pathto, 'ab') as wf:
+                        wf.write(row[12])
+
+                    with open(pathto, 'rb') as f:
+                        try:
+                            deserialized_plist = nd.deserialize_plist(f)
+                            aaareverselocation_postal_address = deserialized_plist
+
+                        except (KeyError, ValueError, TypeError) as ex:
+                            if str(ex).find("does not contain an '$archiver' key") >= 0:
+                                logfunc('plist was Not an NSKeyedArchive ' + row[2])
+                            else:
+                                logfunc('Error reading exported plist from zAsset-Filename ' + row[2])
+
+                # AAAzCldMastMedData.ZDATA-PLIST
+                if row[18] is not None:
+                    pathto = os.path.join(report_folder, 'AAAzCldMastMedData-Data_' + row[2] + '.plist')
+                    with open(pathto, 'ab') as wf:
+                        wf.write(row[18])
+
+                    with open(pathto, "rb") as fp:
+                        plist = plistlib.load(fp)
+
+                        for key, val in plist.items():
+                            if key == '{TIFF}':
+                                aaazcldmastmeddata_plist_tiff = val
+                            elif key == '{Exif}':
+                                aaazcldmastmeddata_plist_exif = val
+                            elif key == '{GPS}':
+                                aaazcldmastmeddata_plist_gps = val
+                            elif key == '{IPTC}':
+                                aaazcldmastmeddata_plist_iptc = val
+
+                # CMzCldMastMedData.ZDATA-PLIST
+                if row[24] is not None:
+                    pathto = os.path.join(report_folder, 'CMzCldMastMedData-Data_' + row[2] + '.plist')
+                    with open(pathto, 'ab') as wf:
+                        wf.write(row[24])
+
+                    with open(pathto, "rb") as fp:
+                        plist = plistlib.load(fp)
+
+                        for key, val in plist.items():
+                            if key == '{TIFF}':
+                                cmzcldmastmeddata_plist_tiff = val
+                            elif key == '{Exif}':
+                                cmzcldmastmeddata_plist_exif = val
+                            elif key == '{GPS}':
+                                cmzcldmastmeddata_plist_gps = val
+                            elif key == '{IPTC}':
+                                cmzcldmastmeddata_plist_iptc = val
+
+                # zSharePartic_ZNAMECOMPONENTS_PLIST
+                if row[31] is not None:
+                    pathto = os.path.join(report_folder, 'zSP_Name_Components_' + row[2] + '.bplist')
+                    with open(pathto, 'ab') as wf:
+                        wf.write(row[31])
+
+                    with open(pathto, 'rb') as f:
+                        try:
+                            deserialized_plist = nd.deserialize_plist(f)
+                            zsharepartic_namecomponents = deserialized_plist
+
+                        except (KeyError, ValueError, TypeError) as ex:
+                            if str(ex).find("does not contain an '$archiver' key") >= 0:
+                                logfunc('plist was Not an NSKeyedArchive ' + row[2])
+                            else:
+                                logfunc('Error reading exported bplist from zAsset-Filename' + row[2])
+
+                # SPLzSharePartic_ZNAMECOMPONENTS_PLIST
+                if row[42] is not None:
+                    pathto = os.path.join(report_folder, 'SPLzSharePartic-Name_Components_' + row[2] + '.bplist')
+                    with open(pathto, 'ab') as wf:
+                        wf.write(row[42])
+
+                    with open(pathto, 'rb') as f:
+                        try:
+                            deserialized_plist = nd.deserialize_plist(f)
+                            splzsharepartic_namecomponents = deserialized_plist
+
+                        except (KeyError, ValueError, TypeError) as ex:
+                            if str(ex).find("does not contain an '$archiver' key") >= 0:
+                                logfunc('plist was Not an NSKeyedArchive ' + row[2])
+                            else:
+                                logfunc('Error reading exported bplist from zAsset-Filename ' + row[2])
+
+                # zShare.ZPREVIEWDATA-BLOB_JPG
+                if row[35] is not None:
+                    pathto = os.path.join(report_folder, 'zShare_PreviewData_' + row[2] + '.jpg')
+                    with open(pathto, 'wb') as file:
+                        file.write(row[35])
+                    zshare_previewdata_blob = media_to_html(pathto, files_found, report_folder)
+
+                # SPLzShare.ZPREVIEWDATA-BLOB_JPG
+                if row[44] is not None:
+                    pathto = os.path.join(report_folder, 'SPLzShare_PreviewData_' + row[2] + '.jpg')
+                    with open(pathto, 'wb') as file:
+                        file.write(row[44])
+                    splzshare_previewdata_blob = media_to_html(pathto, files_found, report_folder)
+
+                data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8],
+                                  aaashiftedlocation_postal_address,
+                                  row[10], row[11],
+                                  aaareverselocation_postal_address,
+                                  row[13], row[14], row[15], row[16], row[17],
+                                  aaazcldmastmeddata_plist_tiff,
+                                  aaazcldmastmeddata_plist_exif,
+                                  aaazcldmastmeddata_plist_gps,
+                                  aaazcldmastmeddata_plist_iptc,
+                                  row[19], row[20], row[21], row[22], row[23],
+                                  cmzcldmastmeddata_plist_tiff,
+                                  cmzcldmastmeddata_plist_exif,
+                                  cmzcldmastmeddata_plist_gps,
+                                  cmzcldmastmeddata_plist_iptc,
+                                  row[25], row[26], row[27], row[28], row[29], row[30],
+                                  zsharepartic_namecomponents,
+                                  row[32], row[33], row[34],
+                                  zshare_previewdata_blob,
+                                  row[36], row[37],
+                                  row[38], row[39], row[40], row[41],
+                                  splzsharepartic_namecomponents,
+                                  row[43],
+                                  splzshare_previewdata_blob,
+                                  row[45], row[46], row[47], row[48]))
+
+                counter += 1
+
+            description = 'Parses basic asset record data from Syndication.photoslibrary-Photos.sqlite' \
+                          ' for assets that have embedded files records for a variety of data. This parser' \
+                          ' should be used in conjunction with other parsers to review a complete record' \
+                          ' for analysis. The results of this parser could produce multiple records for a single asset.'
+            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
             report.start_artifact_report(report_folder, 'Ph10.2-Assets have embedded files-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -2864,7 +3647,7 @@ __artifacts_v2__ = {
         'version': '1.0',
         'date': '2024-05-05',
         'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
-        'category': 'Photos.sqlite-Other_Artifacts',
+        'category': 'Photos.sqlite-C-Other_Artifacts',
         'notes': '',
         'paths': '*/mobile/Media/PhotoData/Photos.sqlite*',
         'function': 'get_ph10assetparsedembeddedfilesphdapsql'
@@ -2879,7 +3662,7 @@ __artifacts_v2__ = {
         'version': '1.0',
         'date': '2024-05-05',
         'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
-        'category': 'Photos.sqlite-Syndication_PL_Artifacts',
+        'category': 'Photos.sqlite-S-Syndication_PL_Artifacts',
         'notes': '',
         'paths': '*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',
         'function': 'get_ph10assetparsedembeddedfilessyndpl'
