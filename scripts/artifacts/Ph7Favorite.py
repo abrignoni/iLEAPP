@@ -71,7 +71,7 @@ def get_ph7favoritephdapsql(files_found, report_folder, seeker, wrap_text, timez
             description = 'Parses basic asset record data from PhotoData-Photos.sqlite for favorite assets' \
                           ' and supports iOS 11-13. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Photos.sqlite-Interaction_Artifacts')
+            report = ArtifactHtmlReport('Photos.sqlite-B-Interaction_Artifacts')
             report.start_artifact_report(report_folder, 'Ph7-Favorite-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Modification Date',
@@ -142,7 +142,7 @@ def get_ph7favoritephdapsql(files_found, report_folder, seeker, wrap_text, timez
             description = 'Parses basic asset record data from PhotoData-Photos.sqlite for favorite assets' \
                           ' and supports iOS 14. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Photos.sqlite-Interaction_Artifacts')
+            report = ArtifactHtmlReport('Photos.sqlite-B-Interaction_Artifacts')
             report.start_artifact_report(report_folder, 'Ph7-Favorite-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Modification Date',
@@ -214,7 +214,7 @@ def get_ph7favoritephdapsql(files_found, report_folder, seeker, wrap_text, timez
             description = 'Parses basic asset record data from PhotoData-Photos.sqlite for favorite assets' \
                           ' and supports iOS 15-17. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Photos.sqlite-Interaction_Artifacts')
+            report = ArtifactHtmlReport('Photos.sqlite-B-Interaction_Artifacts')
             report.start_artifact_report(report_folder, 'Ph7-Favorite-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Modification Date',
@@ -255,7 +255,7 @@ __artifacts_v2__ = {
         'version': '1.2',
         'date': '2024-04-07',
         'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
-        'category': 'Photos.sqlite-Interaction_Artifacts',
+        'category': 'Photos.sqlite-B-Interaction_Artifacts',
         'notes': '',
         'paths': '*/mobile/Media/PhotoData/Photos.sqlite*',
         'function': 'get_ph7favoritephdapsql'

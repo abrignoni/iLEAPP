@@ -92,7 +92,7 @@ def get_ph9burstavalanchephdapsql(files_found, report_folder, seeker, wrap_text,
             description = 'Parses basic asset record data from PhotoData-Photos.sqlite for burst avalanche assets' \
                           ' and supports iOS 11-13. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Photos.sqlite-Other_Artifacts')
+            report = ArtifactHtmlReport('Photos.sqlite-C-Other_Artifacts')
             report.start_artifact_report(report_folder, 'Ph9-Burst Avalanche-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created',
@@ -187,7 +187,7 @@ def get_ph9burstavalanchephdapsql(files_found, report_folder, seeker, wrap_text,
             description = 'Parses basic asset record data from PhotoData-Photos.sqlite for burst avalanche assets' \
                           ' and supports iOS 14-17. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Photos.sqlite-Other_Artifacts')
+            report = ArtifactHtmlReport('Photos.sqlite-C-Other_Artifacts')
             report.start_artifact_report(report_folder, 'Ph9-Burst Avalanche-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created',
@@ -229,7 +229,7 @@ __artifacts_v2__ = {
         'version': '1.2',
         'date': '2024-04-07',
         'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
-        'category': 'Photos.sqlite-Other_Artifacts',
+        'category': 'Photos.sqlite-C-Other_Artifacts',
         'notes': '',
         'paths': '*/mobile/Media/PhotoData/Photos.sqlite*',
         'function': 'get_ph9burstavalanchephdapsql'

@@ -39,6 +39,11 @@ def get_ph51possibleoptimizedassetsphdapsql(files_found, report_folder, seeker, 
 		cursor.execute("""
 		SELECT
 		DateTime(zAsset.ZDATECREATED + 978307200, 'UNIXEPOCH') AS 'zAsset-Date Created-4QueryStart',
+		zAsset.Z_PK AS 'zAsset-zPK',
+		zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
+		zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+		zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint',
+		zIntResou.ZFINGERPRINT AS 'zIntResou-Fingerprint',
 		CASE zIntResou.ZLOCALAVAILABILITY
 			WHEN -1 THEN '(-1)-IR_Asset_Not_Avail_Locally(-1)'
 			WHEN 1 THEN '1-IR_Asset_Avail_Locally-1'
@@ -116,11 +121,6 @@ def get_ph51possibleoptimizedassetsphdapsql(files_found, report_folder, seeker, 
 		CASE zAsset.ZCOMPLETE
 			WHEN 1 THEN '1-Yes-1'
 		END AS 'zAsset Complete',
-		zAsset.Z_PK AS 'zAsset-zPK',
-		zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-		zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
-		zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint',
-		zIntResou.ZFINGERPRINT AS 'zIntResou-Fingerprint',
 		CASE zAsset.ZCLOUDISMYASSET
 			WHEN 0 THEN '0-Not_My_Asset_in_Shared_Album-0'
 			WHEN 1 THEN '1-My_Asset_in_Shared_Album-1'
@@ -779,27 +779,27 @@ def get_ph51possibleoptimizedassetsphdapsql(files_found, report_folder, seeker, 
 				counter += 1
 
 			description = 'Parses iOS 14 possible optimized asset records from PhotoData-Photos.sqlite' \
-' ZINTERNALRESOURCE and other tables. This and other related parsers should provide data' \
-' for investigative analysis of assets being stored locally on the device verses' \
-' assets being stored in iCloud Photos as the result of optimization.' \
-' This is very large query and script, I recommend opening the TSV generated report' \
-' with Zimmermans Tools https://ericzimmerman.github.io/#!index.md TimelineExplorer' \
-' to view, search, and filter the results.'
-			report = ArtifactHtmlReport('Photos.sqlite-Asset_IntResou-Optimization')
+				' ZINTERNALRESOURCE and other tables. This and other related parsers should provide data' \
+				' for investigative analysis of assets being stored locally on the device verses' \
+				' assets being stored in iCloud Photos as the result of optimization.' \
+				' This is very large query and script, I recommend opening the TSV generated report' \
+				' with Zimmermans Tools https://ericzimmerman.github.io/#!index.md TimelineExplorer' \
+				' to view, search, and filter the results.'
+			report = ArtifactHtmlReport('Photos.sqlite-I-Asset_IntResou-Optimization')
 			report.start_artifact_report(report_folder, 'Ph51-Possible_Optimized_Assets_IntResou-PhDaPsql', description)
 			report.add_script()
 			data_headers = ('zAsset-Date Created-4QueryStart-0',
+							'zAsset-zPK-7',
+							'zAddAssetAttr-zPK-8',
+							'zAsset-UUID = store.cloudphotodb-9',
+							'zAddAssetAttr-Master Fingerprint-10',
+							'zIntResou-Fingerprint-11',
 							'zIntResou-Local Availability-4QueryStart-1',
 							'zIntResou-Remote Availability-4QueryStart-2',
 							'zIntResou-Resource Type-4QueryStart-3',
 							'zIntResou-Datastore Sub-Type-4QueryStart-4',
 							'zIntResou-Recipe ID-4QueryStart-5',
 							'zAsset Complete-6',
-							'zAsset-zPK-7',
-							'zAddAssetAttr-zPK-8',
-							'zAsset-UUID = store.cloudphotodb-9',
-							'zAddAssetAttr-Master Fingerprint-10',
-							'zIntResou-Fingerprint-11',
 							'zAsset-Cloud is My Asset-12',
 							'zAsset-Cloud is deletable-Asset-13',
 							'zAsset-Cloud_Local_State-14',
@@ -1045,6 +1045,11 @@ def get_ph51possibleoptimizedassetsphdapsql(files_found, report_folder, seeker, 
 		cursor.execute("""
 		SELECT
 		DateTime(zAsset.ZDATECREATED + 978307200, 'UNIXEPOCH') AS 'zAsset-Date Created-4QueryStart',
+		zAsset.Z_PK AS 'zAsset-zPK',
+		zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
+		zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+		zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint',
+		zIntResou.ZFINGERPRINT AS 'zIntResou-Fingerprint',
 		CASE zIntResou.ZLOCALAVAILABILITY
 			WHEN -1 THEN '(-1)-IR_Asset_Not_Avail_Locally(-1)'
 			WHEN 1 THEN '1-IR_Asset_Avail_Locally-1'
@@ -1122,11 +1127,6 @@ def get_ph51possibleoptimizedassetsphdapsql(files_found, report_folder, seeker, 
 		CASE zAsset.ZCOMPLETE
 			WHEN 1 THEN '1-Yes-1'
 		END AS 'zAsset Complete',
-		zAsset.Z_PK AS 'zAsset-zPK',
-		zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-		zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
-		zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint',
-		zIntResou.ZFINGERPRINT AS 'zIntResou-Fingerprint',
 		CASE zAsset.ZBUNDLESCOPE
 			WHEN 0 THEN '0-iCldPhtos-ON-AssetNotInSharedAlbum_or_iCldPhtos-OFF-AssetOnLocalDevice-0'
 			WHEN 1 THEN '1-SharediCldLink_CldMastMomentAsset-1'
@@ -1870,27 +1870,27 @@ def get_ph51possibleoptimizedassetsphdapsql(files_found, report_folder, seeker, 
 				counter += 1
 
 			description = 'Parses iOS 15 possible optimized asset records from PhotoData-Photos.sqlite' \
-' ZINTERNALRESOURCE and other tables. This and other related parsers should provide data' \
-' for investigative analysis of assets being stored locally on the device verses' \
-' assets being stored in iCloud Photos as the result of optimization.' \
-' This is very large query and script, I recommend opening the TSV generated report' \
-' with Zimmermans Tools https://ericzimmerman.github.io/#!index.md TimelineExplorer' \
-' to view, search, and filter the results.'
-			report = ArtifactHtmlReport('Photos.sqlite-Asset_IntResou-Optimization')
+				' ZINTERNALRESOURCE and other tables. This and other related parsers should provide data' \
+				' for investigative analysis of assets being stored locally on the device verses' \
+				' assets being stored in iCloud Photos as the result of optimization.' \
+				' This is very large query and script, I recommend opening the TSV generated report' \
+				' with Zimmermans Tools https://ericzimmerman.github.io/#!index.md TimelineExplorer' \
+				' to view, search, and filter the results.'
+			report = ArtifactHtmlReport('Photos.sqlite-I-Asset_IntResou-Optimization')
 			report.start_artifact_report(report_folder, 'Ph51-Possible_Optimized_Assets_IntResou-PhDaPsql', description)
 			report.add_script()
 			data_headers = ('zAsset-Date Created-4QueryStart-0',
+							'zAsset-zPK-7',
+							'zAddAssetAttr-zPK-8',
+							'zAsset-UUID = store.cloudphotodb-9',
+							'zAddAssetAttr-Master Fingerprint-10',
+							'zIntResou-Fingerprint-11',
 							'zIntResou-Local Availability-4QueryStart-1',
 							'zIntResou-Remote Availability-4QueryStart-2',
 							'zIntResou-Resource Type-4QueryStart-3',
 							'zIntResou-Datastore Sub-Type-4QueryStart-4',
 							'zIntResou-Recipe ID-4QueryStart-5',
 							'zAsset Complete-6',
-							'zAsset-zPK-7',
-							'zAddAssetAttr-zPK-8',
-							'zAsset-UUID = store.cloudphotodb-9',
-							'zAddAssetAttr-Master Fingerprint-10',
-							'zIntResou-Fingerprint-11',
 							'zAsset-Bundle Scope-12',
 							'zAsset-Syndication State-13',
 							'zAsset-Cloud is My Asset-14',
@@ -2160,6 +2160,11 @@ def get_ph51possibleoptimizedassetsphdapsql(files_found, report_folder, seeker, 
 		cursor.execute("""
 		SELECT
 		DateTime(zAsset.ZDATECREATED + 978307200, 'UNIXEPOCH') AS 'zAsset-Date Created-4QueryStart',
+		zAsset.Z_PK AS 'zAsset-zPK',
+		zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
+		zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+		zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint',
+		zIntResou.ZFINGERPRINT AS 'zIntResou-Fingerprint',
 		CASE zIntResou.ZLOCALAVAILABILITY
 			WHEN -1 THEN '(-1)-IR_Asset_Not_Avail_Locally(-1)'
 			WHEN 1 THEN '1-IR_Asset_Avail_Locally-1'
@@ -2237,11 +2242,6 @@ def get_ph51possibleoptimizedassetsphdapsql(files_found, report_folder, seeker, 
 		CASE zAsset.ZCOMPLETE
 			WHEN 1 THEN '1-Yes-1'
 		END AS 'zAsset Complete',
-		zAsset.Z_PK AS 'zAsset-zPK',
-		zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-		zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
-		zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint',
-		zIntResou.ZFINGERPRINT AS 'zIntResou-Fingerprint',
 		CASE zAsset.ZBUNDLESCOPE
 			WHEN 0 THEN '0-iCldPhtos-ON-AssetNotInSharedAlbum_or_iCldPhtos-OFF-AssetOnLocalDevice-0'
 			WHEN 1 THEN '1-SharediCldLink_CldMastMomentAsset-1'
@@ -3020,27 +3020,27 @@ def get_ph51possibleoptimizedassetsphdapsql(files_found, report_folder, seeker, 
 				counter += 1
 
 			description = 'Parses iOS 16 possible optimized asset records from PhotoData-Photos.sqlite' \
-' ZINTERNALRESOURCE and other tables. This and other related parsers should provide data' \
-' for investigative analysis of assets being stored locally on the device verses' \
-' assets being stored in iCloud Photos as the result of optimization.' \
-' This is very large query and script, I recommend opening the TSV generated report' \
-' with Zimmermans Tools https://ericzimmerman.github.io/#!index.md TimelineExplorer' \
-' to view, search, and filter the results.'
-			report = ArtifactHtmlReport('Photos.sqlite-Asset_IntResou-Optimization')
+				' ZINTERNALRESOURCE and other tables. This and other related parsers should provide data' \
+				' for investigative analysis of assets being stored locally on the device verses' \
+				' assets being stored in iCloud Photos as the result of optimization.' \
+				' This is very large query and script, I recommend opening the TSV generated report' \
+				' with Zimmermans Tools https://ericzimmerman.github.io/#!index.md TimelineExplorer' \
+				' to view, search, and filter the results.'
+			report = ArtifactHtmlReport('Photos.sqlite-I-Asset_IntResou-Optimization')
 			report.start_artifact_report(report_folder, 'Ph51-Possible_Optimized_Assets_IntResou-PhDaPsql', description)
 			report.add_script()
 			data_headers = ('zAsset-Date Created-4QueryStart-0',
+							'zAsset-zPK-7',
+							'zAddAssetAttr-zPK-8',
+							'zAsset-UUID = store.cloudphotodb-9',
+							'zAddAssetAttr-Master Fingerprint-10',
+							'zIntResou-Fingerprint-11',
 							'zIntResou-Local Availability-4QueryStart-1',
 							'zIntResou-Remote Availability-4QueryStart-2',
 							'zIntResou-Resource Type-4QueryStart-3',
 							'zIntResou-Datastore Sub-Type-4QueryStart-4',
 							'zIntResou-Recipe ID-4QueryStart-5',
 							'zAsset Complete-6',
-							'zAsset-zPK-7',
-							'zAddAssetAttr-zPK-8',
-							'zAsset-UUID = store.cloudphotodb-9',
-							'zAddAssetAttr-Master Fingerprint-10',
-							'zIntResou-Fingerprint-11',
 							'zAsset-Bundle Scope-12',
 							'zAsset-Syndication State-13',
 							'zAsset-Cloud is My Asset-14',
@@ -3320,6 +3320,11 @@ def get_ph51possibleoptimizedassetsphdapsql(files_found, report_folder, seeker, 
 		cursor.execute("""
 		SELECT
 		DateTime(zAsset.ZDATECREATED + 978307200, 'UNIXEPOCH') AS 'zAsset-Date Created-4QueryStart',
+		zAsset.Z_PK AS 'zAsset-zPK',
+		zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
+		zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+		zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint',
+		zIntResou.ZFINGERPRINT AS 'zIntResou-Fingerprint',
 		CASE zIntResou.ZLOCALAVAILABILITY
 			WHEN -1 THEN '(-1)-IR_Asset_Not_Avail_Locally(-1)'
 			WHEN 1 THEN '1-IR_Asset_Avail_Locally-1'
@@ -3397,11 +3402,6 @@ def get_ph51possibleoptimizedassetsphdapsql(files_found, report_folder, seeker, 
 		CASE zAsset.ZCOMPLETE
 			WHEN 1 THEN '1-Yes-1'
 		END AS 'zAsset Complete',
-		zAsset.Z_PK AS 'zAsset-zPK',
-		zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-		zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
-		zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint',
-		zIntResou.ZFINGERPRINT AS 'zIntResou-Fingerprint',
 		CASE zAsset.ZBUNDLESCOPE
 			WHEN 0 THEN '0-iCldPhtos-ON-AssetNotInSharedAlbum_or_iCldPhtos-OFF-AssetOnLocalDevice-0'
 			WHEN 1 THEN '1-SharediCldLink_CldMastMomentAsset-1'
@@ -4186,27 +4186,27 @@ def get_ph51possibleoptimizedassetsphdapsql(files_found, report_folder, seeker, 
 				counter += 1
 
 			description = 'Parses iOS 17 possible optimized asset records from PhotoData-Photos.sqlite' \
-' ZINTERNALRESOURCE and other tables. This and other related parsers should provide data' \
-' for investigative analysis of assets being stored locally on the device verses' \
-' assets being stored in iCloud Photos as the result of optimization.' \
-' This is very large query and script, I recommend opening the TSV generated report' \
-' with Zimmermans Tools https://ericzimmerman.github.io/#!index.md TimelineExplorer' \
-' to view, search, and filter the results.'
-			report = ArtifactHtmlReport('Photos.sqlite-Asset_IntResou-Optimization')
+				' ZINTERNALRESOURCE and other tables. This and other related parsers should provide data' \
+				' for investigative analysis of assets being stored locally on the device verses' \
+				' assets being stored in iCloud Photos as the result of optimization.' \
+				' This is very large query and script, I recommend opening the TSV generated report' \
+				' with Zimmermans Tools https://ericzimmerman.github.io/#!index.md TimelineExplorer' \
+				' to view, search, and filter the results.'
+			report = ArtifactHtmlReport('Photos.sqlite-I-Asset_IntResou-Optimization')
 			report.start_artifact_report(report_folder, 'Ph51-Possible_Optimized_Assets_IntResou-PhDaPsql', description)
 			report.add_script()
 			data_headers = ('zAsset-Date Created-4QueryStart-0',
+							'zAsset-zPK-7',
+							'zAddAssetAttr-zPK-8',
+							'zAsset-UUID = store.cloudphotodb-9',
+							'zAddAssetAttr-Master Fingerprint-10',
+							'zIntResou-Fingerprint-11',
 							'zIntResou-Local Availability-4QueryStart-1',
 							'zIntResou-Remote Availability-4QueryStart-2',
 							'zIntResou-Resource Type-4QueryStart-3',
 							'zIntResou-Datastore Sub-Type-4QueryStart-4',
 							'zIntResou-Recipe ID-4QueryStart-5',
 							'zAsset Complete-6',
-							'zAsset-zPK-7',
-							'zAddAssetAttr-zPK-8',
-							'zAsset-UUID = store.cloudphotodb-9',
-							'zAddAssetAttr-Master Fingerprint-10',
-							'zIntResou-Fingerprint-11',
 							'zAsset-Bundle Scope-12',
 							'zAsset-Syndication State-13',
 							'zAsset-Cloud is My Asset-14',
@@ -4495,7 +4495,7 @@ __artifacts_v2__ = {
 		'version': '1.0',
 		'date': '2024-04-19',
 		'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
-		'category': 'Photos.sqlite-Asset_IntResou-Optimization',
+		'category': 'Photos.sqlite-I-Asset_IntResou-Optimization',
 		'notes': '',
 		'paths': '*/mobile/Media/PhotoData/Photos.sqlite*',
 		'function': 'get_ph51possibleoptimizedassetsphdapsql'
