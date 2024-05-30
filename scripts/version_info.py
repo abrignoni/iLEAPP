@@ -41,5 +41,6 @@ ileapp_contributors = [
     ['John Hyla', 'https://bluecrewforensics.com', '@jfhyla', 'https://github.com/snoop168'],
     ['Panos Nakoutis', '', '@4n6equals10', ''],
     ['Ruud Schramp', '', '', 'https://github.com/Schramp'],
-    ['Matt Beers', 'https://www.linkedin.com/in/mattbeersii','','https://github.com/dabeersboys']
+    ['Matt Beers', 'https://www.linkedin.com/in/mattbeersii','','https://github.com/dabeersboys'],
+    ['Django Faiola', 'https://djangofaiola.blogspot.com', '@DjangoFaiola', 'https://github.com/djangofaiola']
 ]
