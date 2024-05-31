@@ -57,11 +57,15 @@ def get_callHistory(files_found, report_folder, seeker, wrap_text, timezone_offs
     END,
     strftime('%H:%M:%S',ZDURATION, 'unixepoch'),
     ZFACE_TIME_DATA,
-    CASE ZDISCONNECTED_CAUSE
-        WHEN 0 then 'Ended'
-        WHEN 6 then 'Rejected'
+    CASE
+		WHEN ZDISCONNECTED_CAUSE = 6 AND  ZSERVICE_PROVIDER LIKE '%whatsapp' AND ZDURATION <> '0.0' then 'Ended'
+		WHEN ZDISCONNECTED_CAUSE = 6 AND  ZSERVICE_PROVIDER LIKE '%whatsapp' AND ZORIGINATED = 1 then 'Missed or Rejected'
+		WHEN ZDISCONNECTED_CAUSE = 2 AND  ZSERVICE_PROVIDER LIKE '%whatsapp' then 'Rejected'
+		WHEN ZDISCONNECTED_CAUSE = 6 AND  ZSERVICE_PROVIDER LIKE '%whatsapp' then 'Missed'
+		WHEN ZDISCONNECTED_CAUSE = 0 then 'Ended'
+        WHEN ZDISCONNECTED_CAUSE = 6 then 'Rejected'
         ELSE ZDISCONNECTED_CAUSE
-    END,
+    END ZDISCONNECTED_CAUSE,
     upper(ZISO_COUNTRY_CODE),
     ZLOCATION
     from ZCALLRECORD
@@ -102,7 +106,7 @@ def get_callHistory(files_found, report_folder, seeker, wrap_text, timezone_offs
                         'ISO Country Code', 'Location')
         report.write_artifact_data_table(data_headers, data_list, file_found)
         report.end_artifact_report()
-        
+
         tsvname = 'Call History'
         tsv(report_folder, data_headers, data_list, tsvname)
         
