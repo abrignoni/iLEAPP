@@ -502,11 +502,19 @@ bottom_frame = ttk.Frame(main_window)
 bottom_frame.grid(padx=16, pady=6, sticky='we')
 bottom_frame.grid_columnconfigure(2, weight=1)
 process_button = ttk.Button(bottom_frame, text='Process', command=lambda: process(casedata))
-process_button.grid(row=0, column=0, padx=5)
+process_button.grid(row=0, column=0, rowspan=2, padx=5)
 close_button = ttk.Button(bottom_frame, text='Close', command=main_window.quit)
-close_button.grid(row=0, column=1, padx=5)
+close_button.grid(row=0, column=1, rowspan=2, padx=5)
 selected_modules_label = ttk.Label(bottom_frame, text='Number of selected modules: ')
 selected_modules_label.grid(row=0, column=2, padx=5, sticky='e')
+if is_platform_macos():
+    auto_unselected_modules_label = ttk.Label(
+        bottom_frame, 
+        text='(Modules making some time to run were automatically unselected)', 
+        font=('Helvetica 10'))
+else:
+    auto_unselected_modules_label = ttk.Label(bottom_frame, text='(Modules making some time to run were automatically unselected)')
+auto_unselected_modules_label.grid(row=1, column=2, padx=5, sticky='e')
 get_selected_modules()
 
 #### Logs
