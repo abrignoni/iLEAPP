@@ -507,13 +507,14 @@ close_button = ttk.Button(bottom_frame, text='Close', command=main_window.quit)
 close_button.grid(row=0, column=1, rowspan=2, padx=5)
 selected_modules_label = ttk.Label(bottom_frame, text='Number of selected modules: ')
 selected_modules_label.grid(row=0, column=2, padx=5, sticky='e')
+auto_unselected_modules_text='(Modules making some time to run were automatically unselected)'
 if is_platform_macos():
     auto_unselected_modules_label = ttk.Label(
         bottom_frame, 
-        text='(Modules making some time to run were automatically unselected)', 
+        auto_unselected_modules_text, 
         font=('Helvetica 10'))
 else:
-    auto_unselected_modules_label = ttk.Label(bottom_frame, text='(Modules making some time to run were automatically unselected)')
+    auto_unselected_modules_label = ttk.Label(bottom_frame, auto_unselected_modules_text)
 auto_unselected_modules_label.grid(row=1, column=2, padx=5, sticky='e')
 get_selected_modules()
 
