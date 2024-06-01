@@ -83,6 +83,7 @@ icon_mappings = \
         'default': 'credit-card',
     },
     'APPLICATIONS': 'grid',
+    'AUDI TRIP': 'truck',
     'AUDIO UUIDS': 'smartphone',
     'BADOO': {
         'CHAT': 'message-circle',
