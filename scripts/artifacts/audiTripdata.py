@@ -4,7 +4,7 @@ import scripts.artifacts.artGlobals
 
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, timeline, tsv, is_platform_windows 
+from scripts.ilapfuncs import logfunc, logdevinfo, timeline, tsv, is_platform_windows, convert_utc_human_to_timezone, convert_ts_human_to_utc
 
 def get_audiTripdata(files_found, report_folder, seeker, wrap_text, timezone_offset):
 	data_list = []
@@ -27,6 +27,13 @@ def get_audiTripdata(files_found, report_folder, seeker, wrap_text, timezone_off
 					else:
 						for trip in audidata:
 							timestamp = trip['timestamp']
+							
+							date, time = timestamp.split('T')
+							time = time.split('Z')[0]
+							timestamp = f'{date} {time}'
+							timestamp = convert_ts_human_to_utc(timestamp)
+							timestamp = convert_utc_human_to_timezone(timestamp, timezone_offset)
+							
 							avgspeed = trip['averageSpeed']
 							tripid = trip['tripID']
 							mileage = trip['mileage']
