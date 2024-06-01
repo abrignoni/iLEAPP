@@ -511,10 +511,10 @@ auto_unselected_modules_text='(Modules making some time to run were automaticall
 if is_platform_macos():
     auto_unselected_modules_label = ttk.Label(
         bottom_frame, 
-        auto_unselected_modules_text, 
+        text=auto_unselected_modules_text, 
         font=('Helvetica 10'))
 else:
-    auto_unselected_modules_label = ttk.Label(bottom_frame, auto_unselected_modules_text)
+    auto_unselected_modules_label = ttk.Label(bottom_frame, text=auto_unselected_modules_text)
 auto_unselected_modules_label.grid(row=1, column=2, padx=5, sticky='e')
 get_selected_modules()
 
