@@ -461,6 +461,12 @@ icon_mappings = \
     },
     'GOOGLE TAKEOUT SEMANTIC LOCATIONS BY MONTH': 'map-pin',
     'GOOGLE TASKS': 'list',
+    'GOOGLE TRANSLATE': {
+        'HISTORY': 'type',
+        'FAVORITE TRANSLATIONS': 'star',
+        'TEXT-TO-SPEECH': 'volume-2',
+        '_mode': 'search',
+    },  
     'GPS_DATA': 'map-pin',
     'GROUPME': {
         'GROUP INFORMATION': 'users',
