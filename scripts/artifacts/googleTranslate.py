@@ -20,7 +20,7 @@ import sqlite3
 import textwrap
 from pathlib import Path
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly, convert_utc_human_to_timezone, convert_ts_human_to_utc
+from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly, does_table_exist, convert_utc_human_to_timezone, convert_ts_human_to_utc
 from scripts.filetype import audio_match
 
 
@@ -125,6 +125,9 @@ def get_starred(file_found, report_folder, database, timezone_offset):
 # tts
 def get_tts(file_found, report_folder, database, timezone_offset):
     try:
+        if not does_table_exist(database, 'tts'):
+            return
+
         cursor = database.cursor()
         cursor.execute('''
         SELECT
