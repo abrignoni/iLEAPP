@@ -174,7 +174,8 @@ def get_appleWifiPlist(files_found, report_folder, seeker, wrap_text, timezone_o
                         if 'CARPLAY_NETWORK' in known_network['__OSSpecific__']:
                             carplay = str(known_network['__OSSpecific__']['CARPLAY_NETWORK'])
 
-                    known_data_list.append([ssid,
+                    known_data_list.append([last_updated, 
+                                            ssid,
                                             bssid, 
                                             net_usage, 
                                             country_code, 
@@ -186,7 +187,6 @@ def get_appleWifiPlist(files_found, report_folder, seeker, wrap_text, timezone_o
                                             last_auto_joined, 
                                             system_joined,
                                             user_joined,
-                                            last_updated, 
                                             enabled, 
                                             wnpmd, 
                                             carplay, 
@@ -233,14 +233,14 @@ def get_appleWifiPlist(files_found, report_folder, seeker, wrap_text, timezone_o
                         if 'PRIVATE_MAC_ADDRESS_VALID' in scanned_network['PRIVATE_MAC_ADDRESS']:
                             private_mac_valid = str(scanned_network['PRIVATE_MAC_ADDRESS']['PRIVATE_MAC_ADDRESS_VALID'])
                     
-                    scanned_data_list.append([ssid, bssid, added_at, last_joined, last_updated, private_mac_in_use, private_mac_value, private_mac_valid, in_known_networks, file_found]) 
+                    scanned_data_list.append([last_updated, ssid, bssid, added_at, last_joined, private_mac_in_use, private_mac_value, private_mac_valid, in_known_networks, file_found]) 
             
     if len(known_data_list) > 0:
         description = 'WiFi known networks data. Dates are taken straight from the source plist.'
         report = ArtifactHtmlReport('Locations')
         report.start_artifact_report(report_folder, 'WiFi Known Networks', description)
         report.add_script()
-        data_headers = ['SSID','BSSID','Network Usage','Country Code','Device Name','Manufacturer','Serial Number','Model Name','Last Joined','Last Auto Joined','System Joined','User Joined','Last Updated','Enabled','WiFi Network Password Modification Date','Carplay Network','Add Reason','Bundle ID','File']
+        data_headers = ['Last Updated','SSID','BSSID','Network Usage','Country Code','Device Name','Manufacturer','Serial Number','Model Name','Last Joined','Last Auto Joined','System Joined','User Joined','Enabled','WiFi Network Password Modification Date','Carplay Network','Add Reason','Bundle ID','File']
         report.write_artifact_data_table(data_headers, known_data_list, ', '.join(known_files))
         report.end_artifact_report()
         
@@ -255,7 +255,7 @@ def get_appleWifiPlist(files_found, report_folder, seeker, wrap_text, timezone_o
         report = ArtifactHtmlReport('Locations')
         report.start_artifact_report(report_folder, 'WiFi Networks Scanned (private)', description)
         report.add_script()
-        data_headers = ['SSID','BSSID','Added At','Last Joined','Last Updated','MAC Used For Network','Private MAC Computed For Network','MAC Valid','In Known Networks','File']
+        data_headers = ['Last Updated','SSID','BSSID','Added At','Last Joined','MAC Used For Network','Private MAC Computed For Network','MAC Valid','In Known Networks','File']
         report.write_artifact_data_table(data_headers, scanned_data_list, ', '.join(scanned_files))
         report.end_artifact_report()
         

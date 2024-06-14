@@ -13,19 +13,6 @@
 #
 
 import os
-from datetime import datetime
-import pytz
-import json
-import shutil
-import base64
-from PIL import Image
-from pillow_heif import register_heif_opener
-import glob
-import sys
-import stat
-from pathlib import Path
-import sqlite3
-import nska_deserialize as nd
 import scripts.artifacts.artGlobals
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
@@ -223,7 +210,7 @@ def get_ph33splassetsfromothercontribphdapsql(files_found, report_folder, seeker
                           ' Parses basic asset and iCloud SPL data for assets that were shared by other contributors.' \
                           ' If you are attempting to match SPL count with results please check' \
                           ' hidden, trashed, and burst assets.'
-            report = ArtifactHtmlReport('Photos.sqlite-iCloud_Shared_Methods')
+            report = ArtifactHtmlReport('Photos.sqlite-F-Cloud_Shared_Methods')
             report.start_artifact_report(report_folder, 'Ph33-iCld SPL Assets from other contrib-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -302,7 +289,7 @@ __artifacts_v2__ = {
         'version': '1.0',
         'date': '2024-04-15',
         'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
-        'category': 'Photos.sqlite-iCloud_Shared_Methods',
+        'category': 'Photos.sqlite-F-Cloud_Shared_Methods',
         'notes': '',
         'paths': '*/mobile/Media/PhotoData/Photos.sqlite*',
         'function': 'get_ph33splassetsfromothercontribphdapsql'

@@ -4,7 +4,10 @@
 modules_to_exclude = [
     'photosMetadata',
     'walStrings',
-    'Ph94Ios14REFforAssetAnalysis',
+    'Ph10AssetParsedEmbeddedFiles',
+    'Ph15PeopleandDetFacesNAD',
+    'Ph16AssetPeopleandDetFaces',
+    'Ph94iOS14REFforAssetAnalysis',
     'Ph95iOS15REFforAssetAnalysis',
     'Ph96iOS16REFforAssetAnalysis',
     'Ph97iOS17REFforAssetAnalysis'

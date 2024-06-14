@@ -13,14 +13,7 @@
 
 import glob
 import os
-import sys
-import stat
-import pathlib
-import sqlite3
-import nska_deserialize as nd
 import scripts.artifacts.artGlobals
-import shutil
-
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, kmlgen, timeline, is_platform_windows, media_to_html, open_sqlite_db_readonly
@@ -144,7 +137,7 @@ def get_ph25swyconvalbumnadphdapsql(files_found, report_folder, seeker, wrap_tex
             description = 'Parses Shared with You Conversation Album records found in the PhotoData-Photos.sqlite' \
                           ' ZGENERICALBUM Table and supports iOS 15. Parses Share with You Conversation Album' \
                           ' records only, no asset data being parsed.'
-            report = ArtifactHtmlReport('Photos.sqlite-GenAlbum_Records-NAD')
+            report = ArtifactHtmlReport('Photos.sqlite-D-Generic_Album_Records-NAD')
             report.start_artifact_report(report_folder, 'Ph25.1-SWY Conversation Records NAD-PhDaPsql', description)
             report.add_script()
             data_headers = ('SWYConverszGenAlbum-Creation Date',
@@ -294,7 +287,7 @@ def get_ph25swyconvalbumnadphdapsql(files_found, report_folder, seeker, wrap_tex
             description = 'Parses Shared with You Conversation Album records found in the PhotoData-Photos.sqlite' \
                           ' ZGENERICALBUM Table and supports iOS 16-17. Parses Share with You Conversation Album' \
                           ' records only, no asset data being parsed.'
-            report = ArtifactHtmlReport('Photos.sqlite-GenAlbum_Records-NAD')
+            report = ArtifactHtmlReport('Photos.sqlite-D-Generic_Album_Records-NAD')
             report.start_artifact_report(report_folder, 'Ph25.1-SWY Conversation Records NAD-PhDaPsql', description)
             report.add_script()
             data_headers = ('SWYConverszGenAlbum-Creation Date',
@@ -453,7 +446,7 @@ def get_ph25swyconvalbumnadsyndpl(files_found, report_folder, seeker, wrap_text,
                           ' Syndication.photoslibrary-database-Photos.sqlite ZGENERICALBUM Table and' \
                           ' supports iOS 15. Parses Share with You Conversation Album' \
                           ' records only, no asset data being parsed.'
-            report = ArtifactHtmlReport('Photos.sqlite-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
             report.start_artifact_report(report_folder, 'Ph25.2-SWY Conversation Records NAD-SyndPL', description)
             report.add_script()
             data_headers = ('SWYConverszGenAlbum-Creation Date',
@@ -604,7 +597,7 @@ def get_ph25swyconvalbumnadsyndpl(files_found, report_folder, seeker, wrap_text,
                           ' Syndication.photoslibrary-database-Photos.sqlite ZGENERICALBUM Table and' \
                           ' supports iOS 16-17. Parses Share with You Conversation Album' \
                           ' records only, no asset data being parsed.'
-            report = ArtifactHtmlReport('Photos.sqlite-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
             report.start_artifact_report(report_folder, 'Ph25.2-SWY Conversation Records NAD-SyndPL', description)
             report.add_script()
             data_headers = ('SWYConverszGenAlbum-Creation Date',
@@ -654,7 +647,7 @@ __artifacts_v2__ = {
         'version': '1.3',
         'date': '2024-04-13',
         'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
-        'category': 'Photos.sqlite-GenAlbum_Records-NAD',
+        'category': 'Photos.sqlite-D-Generic_Album_Records-NAD',
         'notes': '',
         'paths': '*/mobile/Media/PhotoData/Photos.sqlite*',
         'function': 'get_ph25swyconvalbumnadphdapsql'
@@ -668,7 +661,7 @@ __artifacts_v2__ = {
         'version': '1.3',
         'date': '2024-04-13',
         'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
-        'category': 'Photos.sqlite-Syndication_PL_Artifacts',
+        'category': 'Photos.sqlite-S-Syndication_PL_Artifacts',
         'notes': '',
         'paths': '*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',
         'function': 'get_ph25swyconvalbumnadsyndpl'
