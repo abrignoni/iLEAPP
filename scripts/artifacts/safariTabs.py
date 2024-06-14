@@ -41,7 +41,7 @@ def get_safariTabs(files_found, report_folder, seeker, wrap_text, timezone_offse
                 report = ArtifactHtmlReport('Safari Browser - Tabs (BrowserState)')
                 report.start_artifact_report(report_folder, 'Safari Browser - Tabs (BrowserState)', description)
                 report.add_script()
-                data_headers = ('Last Viewed Time','Title','URL','User Visible URL','Opened from Link', 'Private Browsing')     
+                data_headers = ('Associated Timestamp','Title','URL','User Visible URL','Opened from Link', 'Private Browsing')     
                 report.write_artifact_data_table(data_headers, data_list, file_found)
                 report.end_artifact_report()
                 
