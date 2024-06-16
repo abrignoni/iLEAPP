@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "iTunes Backup Info",
         "notes": "",
-        "paths": ('*Info.plist',),
+        "paths": ('*Info.plist', '*info.plist'),
         "function": "get_iTunesBackupInfo"
     }
 }

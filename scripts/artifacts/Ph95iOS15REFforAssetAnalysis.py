@@ -28,8 +28,8 @@ def get_ph95ios15refforassetanalysisphdapsql(files_found, report_folder, seeker,
 	if report_folder.endswith('/') or report_folder.endswith('\\'):
 		report_folder = report_folder[:-1]
 	iosversion = scripts.artifacts.artGlobals.versionf
-	if version.parse(iosversion) <= version.parse("14.8.1"):
-		logfunc("Unsupported version for PhotoData-Photos.sqlite reference for asset analysis from iOS " + iosversion)
+	if (version.parse(iosversion) <= version.parse("14.8.1")) or (version.parse(iosversion) >= version.parse("16")):
+		logfunc(f"Unsupported version for PhotoData-Photos.sqlite reference for asset analysis from iOS " + iosversion)
 	if (version.parse(iosversion) >= version.parse("15")) & (version.parse(iosversion) < version.parse("16")):
 		file_found = str(files_found[0])
 		db = open_sqlite_db_readonly(file_found)
@@ -896,11 +896,15 @@ def get_ph95ios15refforassetanalysisphdapsql(files_found, report_folder, seeker,
 		CASE zShare.Z_ENT
 			WHEN 55 THEN '55-SPL-Entity-55'
 			WHEN 56 THEN '56-CMM-iCloud-Link-Entity-56'
+			WHEN 63 THEN '63-SPL-Active-Participant-iOS18-63'
+			WHEN 64 THEN '64-CMM-iCloud-Link-iOS18-64'
 			ELSE 'Unknown-New-Value!: ' || zShare.Z_ENT || ''
 		END AS 'zShare-zENT-CMM',
 		CASE SPLzShare.Z_ENT
 			WHEN 55 THEN '55-SPL-Entity-55'
 			WHEN 56 THEN '56-CMM-iCloud-Link-Entity-56'
+			WHEN 63 THEN '63-SPL-Active-Participant-iOS18-63'
+			WHEN 64 THEN '64-CMM-iCloud-Link-iOS18-64'
 			ELSE 'Unknown-New-Value!: ' || SPLzShare.Z_ENT || ''
 		END AS 'SPLzShare-zENT-SPL',
 		CASE zShare.ZSTATUS
@@ -3113,7 +3117,7 @@ def get_ph95ios15refforassetanalysissyndpl(files_found, report_folder, seeker, w
 	if report_folder.endswith('/') or report_folder.endswith('\\'):
 		report_folder = report_folder[:-1]
 	iosversion = scripts.artifacts.artGlobals.versionf
-	if version.parse(iosversion) <= version.parse("14.8.1"):
+	if (version.parse(iosversion) <= version.parse("14.8.1")) or (version.parse(iosversion) >= version.parse("16")):
 		logfunc("Unsupported version for Syndication.photoslibrary-database-Photos.sqlite reference for asset analysis from iOS " + iosversion)
 	if (version.parse(iosversion) >= version.parse("15")) & (version.parse(iosversion) < version.parse("16")):
 		file_found = str(files_found[0])
@@ -3981,11 +3985,15 @@ def get_ph95ios15refforassetanalysissyndpl(files_found, report_folder, seeker, w
 		CASE zShare.Z_ENT
 			WHEN 55 THEN '55-SPL-Entity-55'
 			WHEN 56 THEN '56-CMM-iCloud-Link-Entity-56'
+			WHEN 63 THEN '63-SPL-Active-Participant-iOS18-63'
+			WHEN 64 THEN '64-CMM-iCloud-Link-iOS18-64'
 			ELSE 'Unknown-New-Value!: ' || zShare.Z_ENT || ''
 		END AS 'zShare-zENT-CMM',
 		CASE SPLzShare.Z_ENT
 			WHEN 55 THEN '55-SPL-Entity-55'
 			WHEN 56 THEN '56-CMM-iCloud-Link-Entity-56'
+			WHEN 63 THEN '63-SPL-Active-Participant-iOS18-63'
+			WHEN 64 THEN '64-CMM-iCloud-Link-iOS18-64'
 			ELSE 'Unknown-New-Value!: ' || SPLzShare.Z_ENT || ''
 		END AS 'SPLzShare-zENT-SPL',
 		CASE zShare.ZSTATUS
@@ -6201,7 +6209,7 @@ __artifacts_v2__ = {
 		'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
 		'category': 'Photos.sqlite-R-Reference_for_Asset_Analysis',
 		'notes': '',
-		'paths': '*/mobile/Media/PhotoData/Photos.sqlite*',
+		'paths': '*/PhotoData/Photos.sqlite*',
 		'function': 'get_ph95ios15refforassetanalysisphdapsql'
 	},
 	'Ph95-2-iOS15_Ref_for_Asset_Analysis-SyndPL': {
