@@ -155,9 +155,9 @@ class FileSeekerItunesMbdb(FileSeekerBase):
             while offset < len(data):
                 domain, offset = getstring(data, offset)
                 filename, offset = getstring(data, offset)
-                _, offset = getstring(data, offset)
                 _, offset = getstring(data, offset, True)
-                _, offset = getstring(data, offset)
+                _, offset = getstring(data, offset, True)
+                _, offset = getstring(data, offset, True)
                 _, offset = getint(data, offset, 2)
                 _, offset = getint(data, offset, 4)
                 _, offset = getint(data, offset, 4)
@@ -170,7 +170,7 @@ class FileSeekerItunesMbdb(FileSeekerBase):
                 _, offset = getint(data, offset, 1)
                 numprops, offset = getint(data, offset, 1)
                 for ii in range(numprops):
-                    _, offset = getstring(data, offset)
+                    _, offset = getstring(data, offset, True)
                     _, offset = getstring(data, offset, True)
                 hash_filename = hashlib.sha1(f"{domain}-{filename}".encode()).hexdigest()
                 files.append((hash_filename,domain,filename))
