@@ -750,6 +750,7 @@ icon_mappings = \
         'PH82-COM-APPLE-MEDIAANALYSISD-PLIST': 'book',
         'PH83-COM-APPLE-PURPLEBUDDY-PLIST': 'settings',
         'PH84-CAMERA-SMART-SHARING-METADATA-PLIST': 'camera',
+        'PH99-SYSTEM-VERSION-PLIST': 'settings',
         'PH100-UFED-DEVICE-VALUES-PLIST': 'settings',
     },
     'PIKPAK': 'cloud',

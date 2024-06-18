@@ -13,7 +13,7 @@ from modules_to_exclude import modules_to_exclude
 
 def pickModules():
     '''Create a list of available modules:
-        - iTunesBackupInfo, lastBuild, and Ph100-UFED-device-values-Plist that need to be executed first are excluded
+        - iTunesBackupInfo, lastBuild, Ph99-System-Version-Plist, Ph100-UFED-device-values-Plist that need to be executed first are excluded
         - ones that take a long time to run are deselected by default'''
     global mlist
     global loader
@@ -21,8 +21,10 @@ def pickModules():
     loader = plugin_loader.PluginLoader()
 
     for plugin in sorted(loader.plugins, key=lambda p: p.category.upper()):
-        if (plugin.module_name == 'iTunesBackupInfo' or plugin.module_name == 'lastBuild' or
-                plugin.module_name == 'Ph100-UFED-device-values-Plist'):
+        if (plugin.module_name == 'iTunesBackupInfo'
+                or plugin.module_name == 'lastBuild'
+                or plugin.module_name == 'Ph99-System-Version-Plist'
+                or plugin.module_name == 'Ph100-UFED-device-values-Plist'):
             continue
         # Items that take a long time to execute are deselected by default
         # and referenced in the modules_to_exclude list in an external file (modules_to_exclude.py).
