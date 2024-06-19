@@ -1,9 +1,9 @@
 # Photos.sqlite
 # Author:  Scott Koenig, assisted by past contributors
-# Version: 1.1
+# Version: 2.0
 #
 #   Description:
-#   Parses basic asset record data from Photos.sqlite to include people and detected face data supports iOS 14-17.
+#   Parses basic asset record data from Photos.sqlite to include people and detected face data supports iOS 14-18.
 #   The results could produce multiple records for a single asset.
 #   This parser is based on research and SQLite queries written by Scott Koenig
 #   This is very large query and script, I recommend opening the TSV generated report with Zimmerman's Tools
@@ -1814,7 +1814,7 @@ def get_ph16assetpeopledetfacephdapsql(files_found, report_folder, seeker, wrap_
         db.close()
         return
 
-    elif version.parse(iosversion) >= version.parse("17"):
+    elif (version.parse(iosversion) >= version.parse("17")) & (version.parse(iosversion) < version.parse("18")):
         file_found = str(files_found[0])
         db = open_sqlite_db_readonly(file_found)
         cursor = db.cursor()
@@ -2443,6 +2443,659 @@ def get_ph16assetpeopledetfacephdapsql(files_found, report_folder, seeker, wrap_
                             'zAddAssetAttr-zPK-140',
                             'zAsset-UUID = store.cloudphotodb-141',
                             'zAddAssetAttr-Master Fingerprint-142')
+            report.write_artifact_data_table(data_headers, data_list, file_found)
+            report.end_artifact_report()
+
+            tsvname = 'Ph16.1-People & Faces Asset Data-PhDaPsql'
+            tsv(report_folder, data_headers, data_list, tsvname)
+
+            tlactivity = 'Ph16.1-People & Faces Asset Data-PhDaPsql'
+            timeline(report_folder, tlactivity, data_list, data_headers)
+
+        else:
+            logfunc('No data available for PhotoData-Photos.sqlite people faces and basic asset data data')
+
+        db.close()
+        return
+
+    elif version.parse(iosversion) >= version.parse("18"):
+        file_found = str(files_found[0])
+        db = open_sqlite_db_readonly(file_found)
+        cursor = db.cursor()
+
+        cursor.execute("""
+        SELECT
+        DateTime(zAsset.ZDATECREATED + 978307200, 'UNIXEPOCH') AS 'zAsset-Date Created',  
+        DateTime(zAsset.ZSORTTOKEN + 978307200, 'UNIXEPOCH') AS 'zAsset- SortToken -CameraRoll',
+        DateTime(zAsset.ZADDEDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Added Date',
+        DateTime(zCldMast.ZCREATIONDATE + 978307200, 'UNIXEPOCH') AS 'zCldMast-Creation Date',
+        zAddAssetAttr.ZTIMEZONENAME AS 'zAddAssetAttr-Time Zone Name',
+        zAddAssetAttr.ZTIMEZONEOFFSET AS 'zAddAssetAttr-Time Zone Offset',
+        zAddAssetAttr.ZEXIFTIMESTAMPSTRING AS 'zAddAssetAttr-EXIF-String',
+        zAsset.ZDIRECTORY AS 'zAsset-Directory-Path',
+        zAsset.ZFILENAME AS 'zAsset-Filename',
+        zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
+        zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
+        zAddAssetAttr.ZSYNDICATIONIDENTIFIER AS 'zAddAssetAttr- Syndication Identifier-SWY-Files',
+        zAsset.ZCONVERSATION AS 'zAsset- Conversation= zGenAlbum_zPK ',
+        DateTime(zAsset.ZTRASHEDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Trashed Date',
+        CASE zAsset.ZTRASHEDSTATE
+            WHEN 0 THEN '0-Asset Not In Trash-Recently Deleted-0'
+            WHEN 1 THEN '1-Asset In Trash-Recently Deleted-1'
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZTRASHEDSTATE || ''
+        END AS 'zAsset-Trashed State-LocalAssetRecentlyDeleted',
+        zAsset.ZTRASHEDBYPARTICIPANT AS 'zAsset-Trashed by Participant= zShareParticipant_zPK',
+        zAddAssetAttr.ZIMPORTEDBYBUNDLEIDENTIFIER AS 'zAddAssetAttr-Imported by Bundle ID',
+        zAddAssetAttr.ZIMPORTEDBYDISPLAYNAME AS 'zAddAssetAttr-Imported By Display Name',   
+        zCldMast.ZIMPORTEDBYBUNDLEIDENTIFIER AS 'zCldMast-Imported by Bundle ID',
+        zCldMast.ZIMPORTEDBYDISPLAYNAME AS 'zCldMast-Imported by Display Name',
+        CASE zAsset.ZVISIBILITYSTATE
+            WHEN 0 THEN '0-Visible-PL-CameraRoll-0'
+            WHEN 2 THEN '2-Not-Visible-PL-CameraRoll-2'
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZVISIBILITYSTATE || ''
+        END AS 'zAsset-Visibility State',
+        CASE
+            WHEN zAsset.ZFACEAREAPOINTS > 0 THEN 'Face Area Points Detected in zAsset'
+            ELSE 'Face Area Points Not Detected in zAsset'
+        END AS 'zFaceCrop-Face Area Points',
+        zAsset.ZFACEADJUSTMENTVERSION AS 'zAsset-Face Adjustment Version',
+        CASE
+            WHEN zAddAssetAttr.ZFACEREGIONS > 0 THEN 'zAddAssetAttr-Face_Regions_has_Data'
+            ELSE 'zAddAssetAttr-Face_Regions_has_NO-Data'
+        END AS 'zAddAssetAttr-Face_Regions-SeeRawDBData',
+        CASE zAddAssetAttr.ZHASPEOPLESCENEMIDORGREATERCONFIDENCE
+            WHEN 0 THEN '0-Obs in iOS 18 still testing-0'
+            WHEN 1 THEN '1-Obs in iOS 18 still testing-1'	
+            ELSE 'Unknown-New-Value!: ' || zAddAssetAttr.ZHASPEOPLESCENEMIDORGREATERCONFIDENCE || ''
+        END AS 'zAddAssetAttr-Has_People_Scene Mid_Or_Greater_Confidence-iOS18',
+        zAddAssetAttr.ZFACEANALYSISVERSION AS 'zAddAssetAttr-Face Analysis Version',
+        zDetFace.ZASSETFORTEMPORALDETECTEDFACES AS 'zDetFace-Asset For Temporal Detected Faces= zAsset-zPK',
+        CASE
+            WHEN zDetFacePrint.ZDATA > 0 THEN 'zDetFacePrint-Data_has_Data'
+            ELSE 'zDetFacePrint-Data_NO-Data'
+        END AS 'zDetFacePrint-Data-SeeRawDBData',
+        zPerson.ZCONTACTMATCHINGDICTIONARY AS 'zPerson-Contact Matching Dictionary',
+        CASE zPerson.ZVERIFIEDTYPE
+            WHEN 0 THEN '0-Not-Verified'
+            WHEN 1 THEN '1-Has_Contact Matching_Dictionary'
+            ELSE 'Unknown-New-Value!: ' || zPerson.ZVERIFIEDTYPE || ''
+        END AS 'zPerson-Verified Type',
+        zPerson.ZISMECONFIDENCE AS 'zPerson-Is_Me_Confidence-iOS18',
+        zPerson.ZDISPLAYNAME AS 'zPerson-Display Name',
+        zPerson.ZFULLNAME AS 'zPerson-Full Name',
+        CASE zPerson.ZCLOUDVERIFIEDTYPE
+            WHEN 0 THEN '0-StillTesting'
+            WHEN 1 THEN '1-StillTesting'
+            WHEN 2 THEN '2-StillTesting'
+            ELSE 'Unknown-New-Value!: ' || zPerson.ZCLOUDVERIFIEDTYPE || ''
+        END AS 'zPerson-Cloud Verified Type',
+        CASE zFaceCrop.ZSTATE
+            WHEN 5 THEN 'Validated-5'
+            ELSE 'Unknown-New-Value!: ' || zFaceCrop.ZSTATE || ''
+        END AS 'zFaceCrop-State',
+        CASE zFaceCrop.ZTYPE
+            WHEN 0 THEN '0-StillTesting'
+            WHEN 1 THEN '1-Active'
+            ELSE 'Unknown-New-Value!: ' || zFaceCrop.ZTYPE || ''
+        END AS 'zFaceCrop-Type',
+        zFaceCrop.ZRESOURCEDATA AS 'zFaceCrop-Resource Data',	
+        CASE zDetFace.ZCONFIRMEDFACECROPGENERATIONSTATE
+            WHEN 0 THEN '0-StillTesting'
+            WHEN 1 THEN '1-StillTesting'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZCONFIRMEDFACECROPGENERATIONSTATE || ''
+        END AS 'zDetFace-Confirmed Face Crop Generation State',
+        CASE zDetFace.ZMANUAL
+            WHEN 0 THEN 'zDetFace-Auto Detected-0'
+            WHEN 1 THEN 'zDetFace-Manually Detected-1'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZMANUAL || ''
+        END AS 'zDetFace-Manual',
+        CASE zDetFace.ZDETECTIONTYPE
+            WHEN 1 THEN '1-StillTesting'
+            WHEN 3 THEN '3-StillTesting'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZDETECTIONTYPE || ''
+        END AS 'zDetFace-Detection Type',
+        CASE zPerson.ZDETECTIONTYPE
+            WHEN 1 THEN '1-StillTesting'
+            WHEN 3 THEN '3-StillTesting'
+            ELSE 'Unknown-New-Value!: ' || zPerson.ZDETECTIONTYPE || ''
+        END AS 'zPerson-Detection Type',
+        CASE zDetFace.ZVIPMODELTYPE
+            WHEN 0 THEN 'Not VIP-0'
+            WHEN 1 THEN 'VIP-1'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZVIPMODELTYPE || ''
+        END AS 'zDetFace-VIP Model Type',
+        CASE zDetFace.ZNAMESOURCE
+            WHEN 0 THEN 'No Name Listed-0'
+            WHEN 1 THEN '1-Face Crop-1'
+            WHEN 2 THEN '2-Verified/Has-Person-URI'
+            WHEN 3 THEN '3-StillTesting'
+            WHEN 4 THEN '4-StillTesting'
+            WHEN 5 THEN '5-StillTesting'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZNAMESOURCE || ''
+        END AS 'zDetFace-Name Source',
+        CASE zDetFace.ZCLOUDNAMESOURCE
+            WHEN 0 THEN 'NA-0'
+            WHEN 1 THEN '1-User Added Via Face Crop-1'
+            WHEN 5 THEN '5-Asset Shared has Name'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZCLOUDNAMESOURCE || ''
+        END AS 'zDetFace-Cloud Name Source',
+        zPerson.ZMERGECANDIDATECONFIDENCE AS 'zPerson-Merge Candidate Confidence',
+        CASE zPerson.ZTYPE
+            WHEN 0 THEN '0-StillTesting'
+            WHEN 1 THEN '1-StillTesting'
+            ELSE 'Unknown-New-Value!: ' || zPerson.ZTYPE || ''
+        END AS 'zPerson-Type',
+        CASE zPerson.ZGENDERTYPE
+            WHEN 0 THEN '0-StillTesting'
+            WHEN 1 THEN 'Male-1'
+            WHEN 2 THEN 'Female-2'
+            ELSE 'Unknown-New-Value!: ' || zPerson.ZGENDERTYPE || ''
+        END AS 'zPerson-Gender Type',
+        CASE zDetFace.ZGENDERTYPE
+            WHEN 0 THEN '0-StillTesting'
+            WHEN 1 THEN 'Male-1'
+            WHEN 2 THEN 'Female-2'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZGENDERTYPE || ''
+        END AS 'zDetFace-Gender Type',
+        zDetFace.ZCENTERX AS 'zDetFace-Center X',
+        zDetFace.ZCENTERY AS 'zDetFace-Center Y',
+        CASE zPerson.ZAGETYPE
+            WHEN 0 THEN '0-StillTesting'
+            WHEN 1 THEN 'Infant/Toddler Age Type-1'
+            WHEN 2 THEN 'Toddler/Child Age Type-2'
+            WHEN 3 THEN 'Child/Young Adult Age Type-3'
+            WHEN 4 THEN 'Young Adult/Adult Age Type-4'
+            WHEN 5 THEN 'Adult-5'
+            ELSE 'Unknown-New-Value!: ' || zPerson.ZAGETYPE || ''
+        END AS 'zPerson-Age Type Estimate',
+        CASE zDetFace.ZAGETYPE
+            WHEN 0 THEN '0-StillTesting'
+            WHEN 1 THEN 'Infant/Toddler Age Type-1'
+            WHEN 2 THEN 'Toddler/Child Age Type-2'
+            WHEN 3 THEN 'Child/Young Adult Age Type-3'
+            WHEN 4 THEN 'Young Adult/Adult Age Type-4'
+            WHEN 5 THEN 'Adult-5'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZAGETYPE || ''
+        END AS 'zDetFace-Age Type Estimate',
+        CASE zDetFace.ZETHNICITYTYPE
+            WHEN 0 THEN '0-StillTesting'
+            WHEN 1 THEN 'Black/African American-1'
+            WHEN 2 THEN 'White-2'
+            WHEN 3 THEN 'Hispanic/Latino-3'
+            WHEN 4 THEN 'Asian-4'
+            WHEN 5 THEN 'Native Hawaiian/Other Pacific Islander-5'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZETHNICITYTYPE || ''
+        END AS 'zDetFace-Ethnicity Type',
+        CASE zDetFace.ZSKINTONETYPE
+            WHEN 0 THEN '0-StillTesting'
+            WHEN 1 THEN 'Light-Pale White Skin Tone-1'
+            WHEN 2 THEN 'White-Fair Skin Tone-2'
+            WHEN 3 THEN 'Medium-White to Olive Skin Tone-3'
+            WHEN 4 THEN 'Olive-Moderate Brown Skin Tone-4'
+            WHEN 5 THEN 'Brown-Dark Brown Skin Tone-5'
+            WHEN 6 THEN 'Black-Very Dark Brown to Black Skin Tone-6'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZSKINTONETYPE || ''
+        END AS 'zDetFace-Skin Tone Type',
+        CASE zDetFace.ZHAIRTYPE
+            WHEN 0 THEN '0-StillTesting'
+            WHEN 1 THEN '1-StillTesting'
+            WHEN 2 THEN '2-StillTesting'
+            WHEN 3 THEN '3-StillTesting'
+            WHEN 4 THEN '4-StillTesting'
+            WHEN 5 THEN '5-StillTesting'
+            WHEN 6 THEN '6-StillTesting'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZHAIRTYPE || ''
+        END AS 'zDetFace-Hair Type',
+        CASE zDetFace.ZHAIRCOLORTYPE
+            WHEN 0 THEN '0-StillTesting'
+            WHEN 1 THEN 'Black/Brown Hair Color-1'
+            WHEN 2 THEN 'Brown/Blonde Hair Color-2'
+            WHEN 3 THEN 'Brown/Red Hair Color-3'
+            WHEN 4 THEN 'Red/White Hair Color-4'
+            WHEN 5 THEN 'StillTesting/Artifical-5'
+            WHEN 6 THEN 'White/Bald Hair Color-6'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZHAIRCOLORTYPE || ''
+        END AS 'zDetFace-Hair Color Type',
+        CASE zDetFace.ZHEADGEARTYPE
+            WHEN 0 THEN '0-StillTesting'
+            WHEN 1 THEN '1-StillTesting'
+            WHEN 2 THEN '2-StillTesting'
+            WHEN 3 THEN '3-StillTesting'
+            WHEN 4 THEN '4-StillTesting'
+            WHEN 5 THEN '5-No Headgear'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZHEADGEARTYPE || ''
+        END AS 'zDetFace-Head Gear Type',
+        CASE zDetFace.ZFACIALHAIRTYPE
+            WHEN 0 THEN '0-StillTesting'
+            WHEN 1 THEN 'Clean Shaven Facial Hair Type-1'
+            WHEN 2 THEN 'Beard Facial Hair Type-2'
+            WHEN 3 THEN 'Goatee Facial Hair Type-3'
+            WHEN 4 THEN 'Mustache Facial Hair Type-4'
+            WHEN 5 THEN 'Stubble Facial Hair Type-5'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZFACIALHAIRTYPE || ''
+        END AS 'zDetFace-Facial Hair Type',
+        CASE zDetFace.ZHASFACEMASK
+            WHEN 0 THEN 'No Mask-0'
+            WHEN 1 THEN 'Has Mask-1'
+            WHEN 2 THEN '2-StillTesting'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZHASFACEMASK || ''
+        END AS 'zDetFace-Has Face Mask',
+        CASE zDetFace.ZPOSETYPE
+            WHEN 0 THEN '0-StillTesting'
+            WHEN 1 THEN 'Face Frontal Pose-1'
+            WHEN 2 THEN '2-StillTesting'
+            WHEN 3 THEN 'Face Profile Pose-3'
+            WHEN 4 THEN '4-StillTesting'
+            WHEN 5 THEN '5-StillTesting'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZPOSETYPE || ''
+        END AS 'zDetFace-Pose Type',
+        CASE zDetFace.ZFACEEXPRESSIONTYPE
+            WHEN 0 THEN 'NA-0'
+            WHEN 1 THEN 'Disgusted/Angry-1'
+            WHEN 2 THEN 'Suprised/Fearful-2'
+            WHEN 3 THEN 'Neutral-3'
+            WHEN 4 THEN 'Confident/Smirk-4'
+            WHEN 5 THEN 'Happiness-5'
+            WHEN 6 THEN 'Sadness-6'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZFACEEXPRESSIONTYPE || ''
+        END AS 'zDetFace-Face Expression Type',
+        CASE zDetFace.ZHASSMILE
+            WHEN 0 THEN 'zDetFace No Smile-0'
+            WHEN 1 THEN 'zDetFace Smile-1'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZHASSMILE || ''
+        END AS 'zDetFace-Has Smile',
+        CASE zDetFace.ZSMILETYPE
+            WHEN 0 THEN '0-StillTesting'
+            WHEN 1 THEN 'zDetFace Smile No Teeth-1'
+            WHEN 2 THEN 'zDetFace Smile has Teeth-2'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZSMILETYPE || ''
+        END AS 'zDetFace-Smile Type',
+        CASE zDetFace.ZLIPMAKEUPTYPE
+            WHEN 0 THEN 'zDetFace No Lip Makeup-0'
+            WHEN 1 THEN 'zDetFace Lip Makeup Detected-1'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZLIPMAKEUPTYPE || ''
+        END AS 'zDetFace-Lip Makeup Type',
+        CASE zDetFace.ZEYESSTATE
+            WHEN 0 THEN '0-StillTesting'
+            WHEN 1 THEN 'Eyes Closed-1'
+            WHEN 2 THEN 'Eyes Open-2'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZEYESSTATE || ''
+        END AS 'zDetFace-Eyes State',
+        CASE zDetFace.ZISLEFTEYECLOSED
+            WHEN 0 THEN 'Left Eye Open-0'
+            WHEN 1 THEN 'Left Eye Closed-1'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZISLEFTEYECLOSED || ''
+        END AS 'zDetFace-Is Left Eye Closed',
+        CASE zDetFace.ZISRIGHTEYECLOSED
+            WHEN 0 THEN 'Right Eye Open-0'
+            WHEN 1 THEN 'Right Eye Closed-1'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZISRIGHTEYECLOSED || ''
+        END AS 'zDetFace-Is Right Eye Closed',
+        zDetFace.ZGAZECENTERX AS 'zDetFace-Gaze Center X',
+        zDetFace.ZGAZECENTERY AS 'zDetFace-Gaze Center Y',
+        CASE zDetFace.ZGAZETYPE
+            WHEN 0 THEN '0-StillTesting'
+            WHEN 1 THEN '1-StillTesting'
+            WHEN 2 THEN '2-StillTesting'
+            WHEN 3 THEN '3-StillTesting'
+            WHEN 4 THEN '4-StillTesting'
+            WHEN 5 THEN '5-StillTesting'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZGAZETYPE || ''
+        END AS 'zDetFace-Face Gaze Type',
+        CASE zDetFace.ZGLASSESTYPE
+            WHEN 0 THEN '0-StillTesting'
+            WHEN 1 THEN 'Eye Glasses-1'
+            WHEN 2 THEN 'Sun Glasses-2'
+            WHEN 3 THEN 'No Glasses-3'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZGLASSESTYPE || ''
+        END AS 'zDetFace-Eye Glasses Type',
+        CASE zDetFace.ZEYEMAKEUPTYPE
+            WHEN 0 THEN 'No Eye Makeup-0'
+            WHEN 1 THEN 'Eye Makeup Detected-1'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZEYEMAKEUPTYPE || ''
+        END AS 'zDetFace-Eye Makeup Type',
+        zDetFace.ZCLUSTERSEQUENCENUMBER AS 'zDetFace-Cluster Squence Number Key',
+        zDetFace.ZGROUPINGIDENTIFIER AS 'zDetFace-Grouping ID',
+        zDetFace.ZMASTERIDENTIFIER AS 'zDetFace-Master ID',
+        zDetFace.ZQUALITY AS 'zDetFace-Quality',
+        zDetFace.ZQUALITYMEASURE AS 'zDetFace-Quality Measure',
+        zDetFace.ZSOURCEHEIGHT AS 'zDetFace-Source Height',
+        zDetFace.ZSOURCEWIDTH AS 'zDetFace-Source Width',
+        CASE zDetFace.ZASSETVISIBLE
+            WHEN 0 THEN '0-Unknown-StillTesitng-0'
+            WHEN 1 THEN '1-Unknown-StillTesting-1'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZASSETVISIBLE || ''
+        END AS 'zDetFace-Asset Visible',
+        CASE zDetFace.ZHIDDEN
+            WHEN 0 THEN 'Not Hidden-0'
+            WHEN 1 THEN 'Hidden-1'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZHIDDEN || ''
+        END AS 'zDetFace-Hidden/Asset Hidden',
+        CASE zDetFace.ZISINTRASH
+            WHEN 0 THEN 'Not In Trash-0'
+            WHEN 1 THEN 'In Trash-1'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZISINTRASH || ''
+        END AS 'zDetFace-In Trash/Recently Deleted',
+        CASE zDetFace.ZCLOUDLOCALSTATE
+            WHEN 0 THEN 'Not Synced with Cloud-0'
+            WHEN 1 THEN 'Synced with Cloud-1'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZCLOUDLOCALSTATE || ''
+        END AS 'zDetFace-Cloud Local State',
+        CASE zDetFace.ZTRAININGTYPE
+            WHEN 0 THEN '0-StillTesting'
+            WHEN 5 THEN '5-StillTesting'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZTRAININGTYPE
+        END AS 'zDetFace-Training Type',
+        zDetFace.ZPOSEYAW AS 'zDetFace.Pose Yaw',
+        zDetFace.ZBODYCENTERX AS 'zDetFace-Body Center X',
+        zDetFace.ZBODYCENTERY AS 'zDetFace-Body Center Y',
+        zDetFace.ZBODYHEIGHT AS 'zDetFace-Body Height',
+        zDetFace.ZBODYWIDTH AS 'zDetFace-Body Width',
+        zDetFace.ZROLL AS 'zDetFace-Roll',
+        zDetFace.ZSIZE AS 'zDetFace-Size',
+        zDetFace.ZCLUSTERSEQUENCENUMBER AS 'zDetFace-Cluster Sequence Number',
+        zDetFace.ZBLURSCORE AS 'zDetFace-Blur Score',
+        zDetFacePrint.ZFACEPRINTVERSION AS 'zDetFacePrint-Face Print Version',
+        zDetFaceGroup.ZUUID AS 'zDetFaceGroup-UUID',
+        zDetFaceGroup.ZPERSONBUILDERSTATE AS 'zDetFaceGroup-Person Builder State',
+        zDetFaceGroup.ZUNNAMEDFACECOUNT AS 'zDetFaceGroup-UnNamed Face Count',
+        zPerson.ZFACECOUNT AS 'zPerson-Face Count',       
+        zDetFace.ZFACEALGORITHMVERSION AS 'zDetFace-Face Algorithm Version',
+        zDetFace.ZADJUSTMENTVERSION AS 'zDetFace-Adjustment Version',       
+        zPerson.ZINPERSONNAMINGMODEL AS 'zPerson-In Person Naming Model',
+        zPerson.ZKEYFACEPICKSOURCE AS 'zPerson-Key Face Pick Source Key',
+        zPerson.ZMANUALORDER AS 'zPerson-Manual Order Key',
+        zPerson.ZQUESTIONTYPE AS 'zPerson-Question Type',
+        zPerson.ZSUGGESTEDFORCLIENTTYPE AS 'zPerson-Suggested For Client Type',
+        zPerson.ZMERGETARGETPERSON AS 'zPerson-Merge Target Person',
+        CASE zPerson.ZCLOUDLOCALSTATE
+            WHEN 0 THEN 'Person Not Synced with Cloud-0'
+            WHEN 1 THEN 'Person Synced with Cloud-1'
+            ELSE 'Unknown-New-Value!: ' || zPerson.ZCLOUDLOCALSTATE
+        END AS 'zPerson-Cloud Local State',
+        CASE zFaceCrop.ZCLOUDLOCALSTATE
+            WHEN 0 THEN 'Not Synced with Cloud-0'
+            WHEN 1 THEN 'Synced with Cloud-1'
+            ELSE 'Unknown-New-Value!: ' || zFaceCrop.ZCLOUDLOCALSTATE || ''
+        END AS 'zFaceCrop-Cloud Local State',
+        CASE zFaceCrop.ZCLOUDTYPE
+            WHEN 0 THEN 'Has Name-0'
+            WHEN 5 THEN 'Has Face Key-5'
+            WHEN 12 THEN '12-StillTesting'
+            ELSE 'Unknown-New-Value!: ' || zFaceCrop.ZCLOUDTYPE || ''
+        END AS 'zFaceCrop-Cloud Type',
+        CASE zPerson.ZCLOUDDELETESTATE
+            WHEN 0 THEN 'Cloud Not Deleted-0'
+            WHEN 1 THEN 'Cloud Deleted-1'
+            ELSE 'Unknown-New-Value!: ' || zPerson.ZCLOUDDELETESTATE || ''
+        END AS 'zPerson-Cloud Delete State',
+        CASE zFaceCrop.ZCLOUDDELETESTATE
+            WHEN 0 THEN 'Cloud Not Deleted-0'
+            WHEN 1 THEN 'Cloud Deleted-1'
+            ELSE 'Unknown-New-Value!: ' || zFaceCrop.ZCLOUDDELETESTATE || ''
+        END AS 'zFaceCrop-Cloud Delete State',
+        zDetFace.Z_PK AS 'zDetFace-zPK',
+        zDetFacePrint.ZFACE AS 'zDetFacePrint-Face Key',
+        zPerson.ZKEYFACE AS 'zPerson-KeyFace=zDetFace-zPK',
+        zFaceCrop.ZFACE AS 'zFaceCrop-Face Key',
+        zPerson.Z_PK AS 'zPerson-zPK=zDetFace-Person',
+        zDetFace.ZPERSONFORFACE AS 'zDetFace-PersonForFace= zPerson-zPK',
+        zDetFace.ZPERSONFORTEMPORALDETECTEDFACES AS 'zDetFace-Person for Temporal Detected Faces= zPerson-zPK',
+        zDetFace.ZPERSONFORTORSO AS 'zDetFace-PersonForTorso= zPerson-zPK',
+        zDetFace.ZPERSONBEINGKEYFACE AS 'zDetFace-Person Being Key Face',         
+        zFaceCrop.ZPERSON AS 'zFaceCrop-Person=zPerson-zPK&zDetFace-Person-Key',	
+        zDetFace.ZFACEPRINT AS 'zDetFace-Face Print',	
+        zDetFacePrint.Z_PK AS 'zDetFacePrint-zPK',		
+        zDetFace.ZFACECROP AS 'zDetFace-Face Crop',
+        zFaceCrop.Z_PK AS 'zFaceCrop-zPK',           
+        zDetFaceGroup.ZKEYFACE AS 'zDetFaceGroup-KeyFace= zDetFace-zPK',
+        zDetFaceGroup.ZASSOCIATEDPERSON AS 'zDetFaceGroup-AssocPerson= zPerson-zPK',
+        zPerson.ZASSOCIATEDFACEGROUP AS 'zPerson-Assoc Face Group Key',
+        zDetFace.ZFACEGROUPBEINGKEYFACE AS 'zDetFace-FaceGroupBeingKeyFace= zDetFaceGroup-zPK',
+        zDetFace.ZFACEGROUP AS 'zDetFace-FaceGroup= zDetFaceGroup-zPK',		
+        zDetFaceGroup.Z_PK AS 'zDetFaceGroup-zPK',
+        zPerson.ZSHAREPARTICIPANT AS 'zPerson-Share Participant= zSharePartic-zPK',		
+        zDetFace.ZUUID AS 'zDetFace-UUID',
+        zFaceCrop.ZUUID AS 'zFaceCrop-UUID',	
+        zFaceCrop.ZINVALIDMERGECANDIDATEPERSONUUID AS 'zFaceCrop-Invalid Merge Candidate Person UUID',		
+        zPerson.ZPERSONUUID AS 'zPerson-Person UUID',
+        zPerson.ZPERSONURI AS 'zPerson-Person URI',		
+        zDetFaceGroup.ZUUID AS 'zDetFaceGroup-UUID',
+        zDetFace.ZASSETFORFACE AS 'zDetFace-AssetForFace= zAsset-zPK',
+        zDetFace.ZASSETFORTORSO AS 'zDetFace-AssetForTorso= zAsset-zPK',
+        zFaceCrop.ZASSET AS 'zFaceCrop-Asset Key',
+        zAsset.Z_PK AS 'zAsset-zPK',
+        zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
+        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAddAssetAttr.ZORIGINALSTABLEHASH AS 'zAddAssetAttr-Original Stable Hash-iOS18',
+        zAddAssetAttr.ZADJUSTEDSTABLEHASH AS 'zAddAssetAttr.Adjusted Stable Hash-iOS18'
+        FROM ZASSET zAsset
+            LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
+            LEFT JOIN ZEXTENDEDATTRIBUTES zExtAttr ON zExtAttr.Z_PK = zAsset.ZEXTENDEDATTRIBUTES
+            LEFT JOIN ZCLOUDMASTER zCldMast ON zAsset.ZMASTER = zCldMast.Z_PK
+            LEFT JOIN ZCLOUDMASTERMEDIAMETADATA AAAzCldMastMedData ON
+             AAAzCldMastMedData.Z_PK = zAddAssetAttr.ZMEDIAMETADATA
+            LEFT JOIN ZCLOUDMASTERMEDIAMETADATA CMzCldMastMedData ON
+             CMzCldMastMedData.Z_PK = zCldMast.ZMEDIAMETADATA
+            LEFT JOIN ZMEDIAANALYSISASSETATTRIBUTES zMedAnlyAstAttr ON zAsset.ZMEDIAANALYSISATTRIBUTES = zMedAnlyAstAttr.Z_PK
+            LEFT JOIN ZDETECTEDFACE zDetFace ON zAsset.Z_PK = zDetFace.ZASSETFORFACE
+            LEFT JOIN ZPERSON zPerson ON zPerson.Z_PK = zDetFace.ZPERSONFORFACE
+            LEFT JOIN ZDETECTEDFACEPRINT zDetFacePrint ON zDetFacePrint.ZFACE = zDetFace.Z_PK
+            LEFT JOIN ZFACECROP zFaceCrop ON zPerson.Z_PK = zFaceCrop.ZPERSON
+            LEFT JOIN ZDETECTEDFACEGROUP zDetFaceGroup ON zDetFaceGroup.Z_PK = zDetFace.ZFACEGROUP
+        WHERE zDetFace.Z_PK > 0  
+        ORDER BY zAsset.ZDATECREATED
+        """)
+
+        all_rows = cursor.fetchall()
+        usageentries = len(all_rows)
+        data_list = []
+        counter = 0
+        if usageentries > 0:
+            for row in all_rows:
+                # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
+                personcontactmatchingdictionary = ''
+                # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
+                facecropresourcedata_blob = ''
+
+                # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
+                if row[28] is not None:
+                    pathto = os.path.join(report_folder, 'zPerson-ContactMatchingDict_' + row[135] + '.plist')
+                    with open(pathto, 'ab') as wf:
+                        wf.write(row[28])
+
+                    with open(pathto, 'rb') as f:
+                        try:
+                            deserialized_plist = nd.deserialize_plist(f)
+                            personcontactmatchingdictionary = deserialized_plist
+
+                        except (KeyError, ValueError, TypeError) as ex:
+                            if str(ex).find("does not contain an '$archiver' key") >= 0:
+                                logfunc('plist was Not an NSKeyedArchive ' + row[135])
+                            else:
+                                logfunc('Error reading exported plist from zPerson-Contact Matching Dictionary' + row[135])
+
+                # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
+                if row[36] is not None:
+                    pathto = os.path.join(report_folder, 'FaceCropFor_' + row[133] + '.jpg')
+                    with open(pathto, 'wb') as file:
+                        file.write(row[36])
+                    facecropresourcedata_blob = media_to_html(pathto, files_found, report_folder)
+
+                data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
+                                row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
+                                row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
+                                personcontactmatchingdictionary,
+                                row[29], row[30], row[31], row[32], row[33], row[34], row[35],
+                                facecropresourcedata_blob,
+                                row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45],
+                                row[46], row[47], row[48], row[49], row[50], row[51], row[52], row[53], row[54],
+                                row[55], row[56], row[57], row[58], row[59], row[60], row[61], row[62], row[63],
+                                row[64], row[65], row[66], row[67], row[68], row[69], row[70], row[71], row[72],
+                                row[73], row[74], row[75], row[76], row[77], row[78], row[79], row[80], row[81],
+                                row[82], row[83], row[84], row[85], row[86], row[87], row[88], row[89], row[90],
+                                row[91], row[92], row[93], row[94], row[95], row[96], row[97], row[98], row[99],
+                                row[100], row[101], row[102], row[103], row[104], row[105], row[106], row[107],
+                                row[108], row[109], row[110], row[111], row[112], row[113], row[114], row[115],
+                                row[116], row[117], row[118], row[119], row[120], row[121], row[122], row[123],
+                                row[124], row[125], row[126], row[127], row[128], row[129], row[130], row[131],
+                                row[132], row[133], row[134], row[135], row[136], row[137], row[138], row[139],
+                                row[140], row[141], row[142], row[143], row[144], row[145]))
+
+                counter += 1
+
+            description = 'Parses basic asset record data from PhotoData-Photos.sqlite for' \
+                          ' basic asset, people and detected faces data. The results may contain multiple records' \
+                          ' per ZASSET table Z_PK value and supports iOS 18.'
+            report = ArtifactHtmlReport('Photos.sqlite-G-People_Faces_Data')
+            report.start_artifact_report(report_folder, 'Ph16.1-People & Faces Asset Data-PhDaPsql', description)
+            report.add_script()
+            data_headers = ('zAsset-Date Created-0',
+                            'zAsset- SortToken -CameraRoll-1',
+                            'zAsset-Added Date-2',
+                            'zCldMast-Creation Date-3',
+                            'zAddAssetAttr-Time Zone Name-4',
+                            'zAddAssetAttr-Time Zone Offset-5',
+                            'zAddAssetAttr-EXIF-String-6',
+                            'zAsset-Directory-Path-7',
+                            'zAsset-Filename-8',
+                            'zAddAssetAttr- Original Filename-9',
+                            'zCldMast- Original Filename-10',
+                            'zAddAssetAttr- Syndication Identifier-SWY-Files-11',
+                            'zAsset- Conversation= zGenAlbum_zPK-12',
+                            'zAsset-Trashed Date-13',
+                            'zAsset-Trashed State-LocalAssetRecentlyDeleted-14',
+                            'zAsset-Trashed by Participant= zShareParticipant_zPK-15',
+                            'zAddAssetAttr-Imported by Bundle ID-16',
+                            'zAddAssetAttr-Imported By Display Name-17',
+                            'zCldMast-Imported by Bundle ID-18',
+                            'zCldMast-Imported by Display Name-19',
+                            'zAsset-Visibility State-20',
+                            'zFaceCrop-Face Area Points-21',
+                            'zAddAssetAttr-Has_People_Scene Mid_Or_Greater_Confidence-iOS18-22',
+                            'zAsset-Face Adjustment Version-23',
+                            'zAddAssetAttr-Face_Regions-SeeRawDBData-24',
+                            'zAddAssetAttr-Face Analysis Version-25',
+                            'zDetFace-Asset For Temporal Detected Faces= zAsset-zPK-26',
+                            'zDetFacePrint-Data-SeeRawDBData-27',
+                            'zPerson-Contact Matching Dictionary-28',
+                            'zPerson-Verified Type-29',
+                            'zPerson-Is_Me_Confidence-iOS18-30',
+                            'zPerson-Display Name-31',
+                            'zPerson-Full Name-32',
+                            'zPerson-Cloud Verified Type-33',
+                            'zFaceCrop-State-34',
+                            'zFaceCrop-Type-35',
+                            'zFaceCrop-Resource Data-36',
+                            'zDetFace-Confirmed Face Crop Generation State-37',
+                            'zDetFace-Manual-38',
+                            'zDetFace-Detection Type-39',
+                            'zPerson-Detection Type-40',
+                            'zDetFace-VIP Model Type-41',
+                            'zDetFace-Name Source-42',
+                            'zDetFace-Cloud Name Source-43',
+                            'zPerson-Merge Candidate Confidence-44',
+                            'zPerson-Type-45',
+                            'zPerson-Gender Type-46',
+                            'zDetFace-Gender Type-47',
+                            'zDetFace-Center X-48',
+                            'zDetFace-Center Y-49',
+                            'zPerson-Age Type Estimate-50',
+                            'zDetFace-Age Type Estimate-51',
+                            'zDetFace-Ethnicity Type-52',
+                            'zDetFace-Skin Tone Type-53',
+                            'zDetFace-Hair Type-54',
+                            'zDetFace-Hair Color Type-55',
+                            'zDetFace-Head Gear Type-56',
+                            'zDetFace-Facial Hair Type-57',
+                            'zDetFace-Has Face Mask-58',
+                            'zDetFace-Pose Type-59',
+                            'zDetFace-Face Expression Type-60',
+                            'zDetFace-Has Smile-61',
+                            'zDetFace-Smile Type-62',
+                            'zDetFace-Lip Makeup Type-63',
+                            'zDetFace-Eyes State-64',
+                            'zDetFace-Is Left Eye Closed-65',
+                            'zDetFace-Is Right Eye Closed-66',
+                            'zDetFace-Gaze Center X-67',
+                            'zDetFace-Gaze Center Y-68',
+                            'zDetFace-Face Gaze Type-69',
+                            'zDetFace-Eye Glasses Type-70',
+                            'zDetFace-Eye Makeup Type-71',
+                            'zDetFace-Cluster Squence Number Key-72',
+                            'zDetFace-Grouping ID-73',
+                            'zDetFace-Master ID-74',
+                            'zDetFace-Quality-75',
+                            'zDetFace-Quality Measure-76',
+                            'zDetFace-Source Height-77',
+                            'zDetFace-Source Width-78',
+                            'zDetFace-Asset Visible-79',
+                            'zDetFace-Hidden/Asset Hidden-80',
+                            'zDetFace-In Trash/Recently Deleted-81',
+                            'zDetFace-Cloud Local State-82',
+                            'zDetFace-Training Type-83',
+                            'zDetFace.Pose Yaw-84',
+                            'zDetFace-Body Center X-85',
+                            'zDetFace-Body Center Y-86',
+                            'zDetFace-Body Height-87',
+                            'zDetFace-Body Width-88',
+                            'zDetFace-Roll-89',
+                            'zDetFace-Size-90',
+                            'zDetFace-Cluster Sequence Number-91',
+                            'zDetFace-Blur Score-92',
+                            'zDetFacePrint-Face Print Version-93',
+                            'zDetFaceGroup-UUID-94',
+                            'zDetFaceGroup-Person Builder State-95',
+                            'zDetFaceGroup-UnNamed Face Count-96',
+                            'zPerson-Face Count-97',
+                            'zDetFace-Face Algorithm Version-98',
+                            'zDetFace-Adjustment Version-99',
+                            'zPerson-In Person Naming Model-100',
+                            'zPerson-Key Face Pick Source Key-101',
+                            'zPerson-Manual Order Key-102',
+                            'zPerson-Question Type-103',
+                            'zPerson-Suggested For Client Type-104',
+                            'zPerson-Merge Target Person-105',
+                            'zPerson-Cloud Local State-106',
+                            'zFaceCrop-Cloud Local State-107',
+                            'zFaceCrop-Cloud Type-108',
+                            'zPerson-Cloud Delete State-109',
+                            'zFaceCrop-Cloud Delete State-110',
+                            'zDetFace-zPK-111',
+                            'zDetFacePrint-Face Key-112',
+                            'zPerson-KeyFace=zDetFace-zPK-113',
+                            'zFaceCrop-Face Key-114',
+                            'zPerson-zPK=zDetFace-Person-115',
+                            'zDetFace-PersonForFace= zPerson-zPK-116',
+                            'zDetFace-Person for Temporal Detected Faces= zPerson-zPK-117',
+                            'zDetFace-PersonForTorso= zPerson-zPK-118',
+                            'zDetFace-Person Being Key Face-119',
+                            'zFaceCrop-Person=zPerson-zPK&zDetFace-Person-Key-120',
+                            'zDetFace-Face Print-121',
+                            'zDetFacePrint-zPK-122',
+                            'zDetFace-Face Crop-123',
+                            'zFaceCrop-zPK-124',
+                            'zDetFaceGroup-KeyFace= zDetFace-zPK-125',
+                            'zDetFaceGroup-AssocPerson= zPerson-zPK-126',
+                            'zPerson-Assoc Face Group Key-127',
+                            'zDetFace-FaceGroupBeingKeyFace= zDetFaceGroup-zPK-128',
+                            'zDetFace-FaceGroup= zDetFaceGroup-zPK-129',
+                            'zDetFaceGroup-zPK-130',
+                            'zPerson-Share Participant= zSharePartic-zPK-131',
+                            'zDetFace-UUID-132',
+                            'zFaceCrop-UUID-133',
+                            'zFaceCrop-Invalid Merge Candidate Person UUID-134',
+                            'zPerson-Person UUID-135',
+                            'zPerson-Person URI-136',
+                            'zDetFaceGroup-UUID-137',
+                            'zDetFace-AssetForFace= zAsset-zPK-138',
+                            'zDetFace-AssetForTorso= zAsset-zPK-139',
+                            'zFaceCrop-Asset Key-140',
+                            'zAsset-zPK-141',
+                            'zAddAssetAttr-zPK-142',
+                            'zAsset-UUID = store.cloudphotodb-143',
+                            'zAddAssetAttr-Original Stable Hash-iOS18-144',
+                            'zAddAssetAttr.Adjusted Stable Hash-iOS18-145')
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
@@ -4254,7 +4907,7 @@ def get_ph16assetpeopledetfacesyndpl(files_found, report_folder, seeker, wrap_te
         db.close()
         return
 
-    elif version.parse(iosversion) >= version.parse("17"):
+    elif (version.parse(iosversion) >= version.parse("17")) & (version.parse(iosversion) < version.parse("18")):
         file_found = str(files_found[0])
         db = open_sqlite_db_readonly(file_found)
         cursor = db.cursor()
@@ -4898,29 +5551,683 @@ def get_ph16assetpeopledetfacesyndpl(files_found, report_folder, seeker, wrap_te
         db.close()
         return
 
+    elif version.parse(iosversion) >= version.parse("18"):
+        file_found = str(files_found[0])
+        db = open_sqlite_db_readonly(file_found)
+        cursor = db.cursor()
+
+        cursor.execute("""
+        SELECT
+        DateTime(zAsset.ZDATECREATED + 978307200, 'UNIXEPOCH') AS 'zAsset-Date Created',  
+        DateTime(zAsset.ZSORTTOKEN + 978307200, 'UNIXEPOCH') AS 'zAsset- SortToken -CameraRoll',
+        DateTime(zAsset.ZADDEDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Added Date',
+        DateTime(zCldMast.ZCREATIONDATE + 978307200, 'UNIXEPOCH') AS 'zCldMast-Creation Date',
+        zAddAssetAttr.ZTIMEZONENAME AS 'zAddAssetAttr-Time Zone Name',
+        zAddAssetAttr.ZTIMEZONEOFFSET AS 'zAddAssetAttr-Time Zone Offset',
+        zAddAssetAttr.ZEXIFTIMESTAMPSTRING AS 'zAddAssetAttr-EXIF-String',
+        zAsset.ZDIRECTORY AS 'zAsset-Directory-Path',
+        zAsset.ZFILENAME AS 'zAsset-Filename',
+        zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
+        zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
+        zAddAssetAttr.ZSYNDICATIONIDENTIFIER AS 'zAddAssetAttr- Syndication Identifier-SWY-Files',
+        zAsset.ZCONVERSATION AS 'zAsset- Conversation= zGenAlbum_zPK ',
+        DateTime(zAsset.ZTRASHEDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Trashed Date',
+        CASE zAsset.ZTRASHEDSTATE
+            WHEN 0 THEN '0-Asset Not In Trash-Recently Deleted-0'
+            WHEN 1 THEN '1-Asset In Trash-Recently Deleted-1'
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZTRASHEDSTATE || ''
+        END AS 'zAsset-Trashed State-LocalAssetRecentlyDeleted',
+        zAsset.ZTRASHEDBYPARTICIPANT AS 'zAsset-Trashed by Participant= zShareParticipant_zPK',
+        zAddAssetAttr.ZIMPORTEDBYBUNDLEIDENTIFIER AS 'zAddAssetAttr-Imported by Bundle ID',
+        zAddAssetAttr.ZIMPORTEDBYDISPLAYNAME AS 'zAddAssetAttr-Imported By Display Name',   
+        zCldMast.ZIMPORTEDBYBUNDLEIDENTIFIER AS 'zCldMast-Imported by Bundle ID',
+        zCldMast.ZIMPORTEDBYDISPLAYNAME AS 'zCldMast-Imported by Display Name',
+        CASE zAsset.ZVISIBILITYSTATE
+            WHEN 0 THEN '0-Visible-PL-CameraRoll-0'
+            WHEN 2 THEN '2-Not-Visible-PL-CameraRoll-2'
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZVISIBILITYSTATE || ''
+        END AS 'zAsset-Visibility State',
+        CASE
+            WHEN zAsset.ZFACEAREAPOINTS > 0 THEN 'Face Area Points Detected in zAsset'
+            ELSE 'Face Area Points Not Detected in zAsset'
+        END AS 'zFaceCrop-Face Area Points',
+        zAsset.ZFACEADJUSTMENTVERSION AS 'zAsset-Face Adjustment Version',
+        CASE
+            WHEN zAddAssetAttr.ZFACEREGIONS > 0 THEN 'zAddAssetAttr-Face_Regions_has_Data'
+            ELSE 'zAddAssetAttr-Face_Regions_has_NO-Data'
+        END AS 'zAddAssetAttr-Face_Regions-SeeRawDBData',
+        CASE zAddAssetAttr.ZHASPEOPLESCENEMIDORGREATERCONFIDENCE
+            WHEN 0 THEN '0-Obs in iOS 18 still testing-0'
+            WHEN 1 THEN '1-Obs in iOS 18 still testing-1'	
+            ELSE 'Unknown-New-Value!: ' || zAddAssetAttr.ZHASPEOPLESCENEMIDORGREATERCONFIDENCE || ''
+        END AS 'zAddAssetAttr-Has_People_Scene Mid_Or_Greater_Confidence-iOS18',
+        zAddAssetAttr.ZFACEANALYSISVERSION AS 'zAddAssetAttr-Face Analysis Version',
+        zDetFace.ZASSETFORTEMPORALDETECTEDFACES AS 'zDetFace-Asset For Temporal Detected Faces= zAsset-zPK',
+        CASE
+            WHEN zDetFacePrint.ZDATA > 0 THEN 'zDetFacePrint-Data_has_Data'
+            ELSE 'zDetFacePrint-Data_NO-Data'
+        END AS 'zDetFacePrint-Data-SeeRawDBData',
+        zPerson.ZCONTACTMATCHINGDICTIONARY AS 'zPerson-Contact Matching Dictionary',
+        CASE zPerson.ZVERIFIEDTYPE
+            WHEN 0 THEN '0-Not-Verified'
+            WHEN 1 THEN '1-Has_Contact Matching_Dictionary'
+            ELSE 'Unknown-New-Value!: ' || zPerson.ZVERIFIEDTYPE || ''
+        END AS 'zPerson-Verified Type',
+        zPerson.ZISMECONFIDENCE AS 'zPerson-Is_Me_Confidence-iOS18',
+        zPerson.ZDISPLAYNAME AS 'zPerson-Display Name',
+        zPerson.ZFULLNAME AS 'zPerson-Full Name',
+        CASE zPerson.ZCLOUDVERIFIEDTYPE
+            WHEN 0 THEN '0-StillTesting'
+            WHEN 1 THEN '1-StillTesting'
+            WHEN 2 THEN '2-StillTesting'
+            ELSE 'Unknown-New-Value!: ' || zPerson.ZCLOUDVERIFIEDTYPE || ''
+        END AS 'zPerson-Cloud Verified Type',
+        CASE zFaceCrop.ZSTATE
+            WHEN 5 THEN 'Validated-5'
+            ELSE 'Unknown-New-Value!: ' || zFaceCrop.ZSTATE || ''
+        END AS 'zFaceCrop-State',
+        CASE zFaceCrop.ZTYPE
+            WHEN 0 THEN '0-StillTesting'
+            WHEN 1 THEN '1-Active'
+            ELSE 'Unknown-New-Value!: ' || zFaceCrop.ZTYPE || ''
+        END AS 'zFaceCrop-Type',
+        zFaceCrop.ZRESOURCEDATA AS 'zFaceCrop-Resource Data',	
+        CASE zDetFace.ZCONFIRMEDFACECROPGENERATIONSTATE
+            WHEN 0 THEN '0-StillTesting'
+            WHEN 1 THEN '1-StillTesting'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZCONFIRMEDFACECROPGENERATIONSTATE || ''
+        END AS 'zDetFace-Confirmed Face Crop Generation State',
+        CASE zDetFace.ZMANUAL
+            WHEN 0 THEN 'zDetFace-Auto Detected-0'
+            WHEN 1 THEN 'zDetFace-Manually Detected-1'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZMANUAL || ''
+        END AS 'zDetFace-Manual',
+        CASE zDetFace.ZDETECTIONTYPE
+            WHEN 1 THEN '1-StillTesting'
+            WHEN 3 THEN '3-StillTesting'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZDETECTIONTYPE || ''
+        END AS 'zDetFace-Detection Type',
+        CASE zPerson.ZDETECTIONTYPE
+            WHEN 1 THEN '1-StillTesting'
+            WHEN 3 THEN '3-StillTesting'
+            ELSE 'Unknown-New-Value!: ' || zPerson.ZDETECTIONTYPE || ''
+        END AS 'zPerson-Detection Type',
+        CASE zDetFace.ZVIPMODELTYPE
+            WHEN 0 THEN 'Not VIP-0'
+            WHEN 1 THEN 'VIP-1'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZVIPMODELTYPE || ''
+        END AS 'zDetFace-VIP Model Type',
+        CASE zDetFace.ZNAMESOURCE
+            WHEN 0 THEN 'No Name Listed-0'
+            WHEN 1 THEN '1-Face Crop-1'
+            WHEN 2 THEN '2-Verified/Has-Person-URI'
+            WHEN 3 THEN '3-StillTesting'
+            WHEN 4 THEN '4-StillTesting'
+            WHEN 5 THEN '5-StillTesting'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZNAMESOURCE || ''
+        END AS 'zDetFace-Name Source',
+        CASE zDetFace.ZCLOUDNAMESOURCE
+            WHEN 0 THEN 'NA-0'
+            WHEN 1 THEN '1-User Added Via Face Crop-1'
+            WHEN 5 THEN '5-Asset Shared has Name'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZCLOUDNAMESOURCE || ''
+        END AS 'zDetFace-Cloud Name Source',
+        zPerson.ZMERGECANDIDATECONFIDENCE AS 'zPerson-Merge Candidate Confidence',
+        CASE zPerson.ZTYPE
+            WHEN 0 THEN '0-StillTesting'
+            WHEN 1 THEN '1-StillTesting'
+            ELSE 'Unknown-New-Value!: ' || zPerson.ZTYPE || ''
+        END AS 'zPerson-Type',
+        CASE zPerson.ZGENDERTYPE
+            WHEN 0 THEN '0-StillTesting'
+            WHEN 1 THEN 'Male-1'
+            WHEN 2 THEN 'Female-2'
+            ELSE 'Unknown-New-Value!: ' || zPerson.ZGENDERTYPE || ''
+        END AS 'zPerson-Gender Type',
+        CASE zDetFace.ZGENDERTYPE
+            WHEN 0 THEN '0-StillTesting'
+            WHEN 1 THEN 'Male-1'
+            WHEN 2 THEN 'Female-2'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZGENDERTYPE || ''
+        END AS 'zDetFace-Gender Type',
+        zDetFace.ZCENTERX AS 'zDetFace-Center X',
+        zDetFace.ZCENTERY AS 'zDetFace-Center Y',
+        CASE zPerson.ZAGETYPE
+            WHEN 0 THEN '0-StillTesting'
+            WHEN 1 THEN 'Infant/Toddler Age Type-1'
+            WHEN 2 THEN 'Toddler/Child Age Type-2'
+            WHEN 3 THEN 'Child/Young Adult Age Type-3'
+            WHEN 4 THEN 'Young Adult/Adult Age Type-4'
+            WHEN 5 THEN 'Adult-5'
+            ELSE 'Unknown-New-Value!: ' || zPerson.ZAGETYPE || ''
+        END AS 'zPerson-Age Type Estimate',
+        CASE zDetFace.ZAGETYPE
+            WHEN 0 THEN '0-StillTesting'
+            WHEN 1 THEN 'Infant/Toddler Age Type-1'
+            WHEN 2 THEN 'Toddler/Child Age Type-2'
+            WHEN 3 THEN 'Child/Young Adult Age Type-3'
+            WHEN 4 THEN 'Young Adult/Adult Age Type-4'
+            WHEN 5 THEN 'Adult-5'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZAGETYPE || ''
+        END AS 'zDetFace-Age Type Estimate',
+        CASE zDetFace.ZETHNICITYTYPE
+            WHEN 0 THEN '0-StillTesting'
+            WHEN 1 THEN 'Black/African American-1'
+            WHEN 2 THEN 'White-2'
+            WHEN 3 THEN 'Hispanic/Latino-3'
+            WHEN 4 THEN 'Asian-4'
+            WHEN 5 THEN 'Native Hawaiian/Other Pacific Islander-5'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZETHNICITYTYPE || ''
+        END AS 'zDetFace-Ethnicity Type',
+        CASE zDetFace.ZSKINTONETYPE
+            WHEN 0 THEN '0-StillTesting'
+            WHEN 1 THEN 'Light-Pale White Skin Tone-1'
+            WHEN 2 THEN 'White-Fair Skin Tone-2'
+            WHEN 3 THEN 'Medium-White to Olive Skin Tone-3'
+            WHEN 4 THEN 'Olive-Moderate Brown Skin Tone-4'
+            WHEN 5 THEN 'Brown-Dark Brown Skin Tone-5'
+            WHEN 6 THEN 'Black-Very Dark Brown to Black Skin Tone-6'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZSKINTONETYPE || ''
+        END AS 'zDetFace-Skin Tone Type',
+        CASE zDetFace.ZHAIRTYPE
+            WHEN 0 THEN '0-StillTesting'
+            WHEN 1 THEN '1-StillTesting'
+            WHEN 2 THEN '2-StillTesting'
+            WHEN 3 THEN '3-StillTesting'
+            WHEN 4 THEN '4-StillTesting'
+            WHEN 5 THEN '5-StillTesting'
+            WHEN 6 THEN '6-StillTesting'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZHAIRTYPE || ''
+        END AS 'zDetFace-Hair Type',
+        CASE zDetFace.ZHAIRCOLORTYPE
+            WHEN 0 THEN '0-StillTesting'
+            WHEN 1 THEN 'Black/Brown Hair Color-1'
+            WHEN 2 THEN 'Brown/Blonde Hair Color-2'
+            WHEN 3 THEN 'Brown/Red Hair Color-3'
+            WHEN 4 THEN 'Red/White Hair Color-4'
+            WHEN 5 THEN 'StillTesting/Artifical-5'
+            WHEN 6 THEN 'White/Bald Hair Color-6'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZHAIRCOLORTYPE || ''
+        END AS 'zDetFace-Hair Color Type',
+        CASE zDetFace.ZHEADGEARTYPE
+            WHEN 0 THEN '0-StillTesting'
+            WHEN 1 THEN '1-StillTesting'
+            WHEN 2 THEN '2-StillTesting'
+            WHEN 3 THEN '3-StillTesting'
+            WHEN 4 THEN '4-StillTesting'
+            WHEN 5 THEN '5-No Headgear'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZHEADGEARTYPE || ''
+        END AS 'zDetFace-Head Gear Type',
+        CASE zDetFace.ZFACIALHAIRTYPE
+            WHEN 0 THEN '0-StillTesting'
+            WHEN 1 THEN 'Clean Shaven Facial Hair Type-1'
+            WHEN 2 THEN 'Beard Facial Hair Type-2'
+            WHEN 3 THEN 'Goatee Facial Hair Type-3'
+            WHEN 4 THEN 'Mustache Facial Hair Type-4'
+            WHEN 5 THEN 'Stubble Facial Hair Type-5'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZFACIALHAIRTYPE || ''
+        END AS 'zDetFace-Facial Hair Type',
+        CASE zDetFace.ZHASFACEMASK
+            WHEN 0 THEN 'No Mask-0'
+            WHEN 1 THEN 'Has Mask-1'
+            WHEN 2 THEN '2-StillTesting'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZHASFACEMASK || ''
+        END AS 'zDetFace-Has Face Mask',
+        CASE zDetFace.ZPOSETYPE
+            WHEN 0 THEN '0-StillTesting'
+            WHEN 1 THEN 'Face Frontal Pose-1'
+            WHEN 2 THEN '2-StillTesting'
+            WHEN 3 THEN 'Face Profile Pose-3'
+            WHEN 4 THEN '4-StillTesting'
+            WHEN 5 THEN '5-StillTesting'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZPOSETYPE || ''
+        END AS 'zDetFace-Pose Type',
+        CASE zDetFace.ZFACEEXPRESSIONTYPE
+            WHEN 0 THEN 'NA-0'
+            WHEN 1 THEN 'Disgusted/Angry-1'
+            WHEN 2 THEN 'Suprised/Fearful-2'
+            WHEN 3 THEN 'Neutral-3'
+            WHEN 4 THEN 'Confident/Smirk-4'
+            WHEN 5 THEN 'Happiness-5'
+            WHEN 6 THEN 'Sadness-6'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZFACEEXPRESSIONTYPE || ''
+        END AS 'zDetFace-Face Expression Type',
+        CASE zDetFace.ZHASSMILE
+            WHEN 0 THEN 'zDetFace No Smile-0'
+            WHEN 1 THEN 'zDetFace Smile-1'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZHASSMILE || ''
+        END AS 'zDetFace-Has Smile',
+        CASE zDetFace.ZSMILETYPE
+            WHEN 0 THEN '0-StillTesting'
+            WHEN 1 THEN 'zDetFace Smile No Teeth-1'
+            WHEN 2 THEN 'zDetFace Smile has Teeth-2'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZSMILETYPE || ''
+        END AS 'zDetFace-Smile Type',
+        CASE zDetFace.ZLIPMAKEUPTYPE
+            WHEN 0 THEN 'zDetFace No Lip Makeup-0'
+            WHEN 1 THEN 'zDetFace Lip Makeup Detected-1'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZLIPMAKEUPTYPE || ''
+        END AS 'zDetFace-Lip Makeup Type',
+        CASE zDetFace.ZEYESSTATE
+            WHEN 0 THEN '0-StillTesting'
+            WHEN 1 THEN 'Eyes Closed-1'
+            WHEN 2 THEN 'Eyes Open-2'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZEYESSTATE || ''
+        END AS 'zDetFace-Eyes State',
+        CASE zDetFace.ZISLEFTEYECLOSED
+            WHEN 0 THEN 'Left Eye Open-0'
+            WHEN 1 THEN 'Left Eye Closed-1'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZISLEFTEYECLOSED || ''
+        END AS 'zDetFace-Is Left Eye Closed',
+        CASE zDetFace.ZISRIGHTEYECLOSED
+            WHEN 0 THEN 'Right Eye Open-0'
+            WHEN 1 THEN 'Right Eye Closed-1'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZISRIGHTEYECLOSED || ''
+        END AS 'zDetFace-Is Right Eye Closed',
+        zDetFace.ZGAZECENTERX AS 'zDetFace-Gaze Center X',
+        zDetFace.ZGAZECENTERY AS 'zDetFace-Gaze Center Y',
+        CASE zDetFace.ZGAZETYPE
+            WHEN 0 THEN '0-StillTesting'
+            WHEN 1 THEN '1-StillTesting'
+            WHEN 2 THEN '2-StillTesting'
+            WHEN 3 THEN '3-StillTesting'
+            WHEN 4 THEN '4-StillTesting'
+            WHEN 5 THEN '5-StillTesting'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZGAZETYPE || ''
+        END AS 'zDetFace-Face Gaze Type',
+        CASE zDetFace.ZGLASSESTYPE
+            WHEN 0 THEN '0-StillTesting'
+            WHEN 1 THEN 'Eye Glasses-1'
+            WHEN 2 THEN 'Sun Glasses-2'
+            WHEN 3 THEN 'No Glasses-3'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZGLASSESTYPE || ''
+        END AS 'zDetFace-Eye Glasses Type',
+        CASE zDetFace.ZEYEMAKEUPTYPE
+            WHEN 0 THEN 'No Eye Makeup-0'
+            WHEN 1 THEN 'Eye Makeup Detected-1'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZEYEMAKEUPTYPE || ''
+        END AS 'zDetFace-Eye Makeup Type',
+        zDetFace.ZCLUSTERSEQUENCENUMBER AS 'zDetFace-Cluster Squence Number Key',
+        zDetFace.ZGROUPINGIDENTIFIER AS 'zDetFace-Grouping ID',
+        zDetFace.ZMASTERIDENTIFIER AS 'zDetFace-Master ID',
+        zDetFace.ZQUALITY AS 'zDetFace-Quality',
+        zDetFace.ZQUALITYMEASURE AS 'zDetFace-Quality Measure',
+        zDetFace.ZSOURCEHEIGHT AS 'zDetFace-Source Height',
+        zDetFace.ZSOURCEWIDTH AS 'zDetFace-Source Width',
+        CASE zDetFace.ZASSETVISIBLE
+            WHEN 0 THEN '0-Unknown-StillTesitng-0'
+            WHEN 1 THEN '1-Unknown-StillTesting-1'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZASSETVISIBLE || ''
+        END AS 'zDetFace-Asset Visible',
+        CASE zDetFace.ZHIDDEN
+            WHEN 0 THEN 'Not Hidden-0'
+            WHEN 1 THEN 'Hidden-1'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZHIDDEN || ''
+        END AS 'zDetFace-Hidden/Asset Hidden',
+        CASE zDetFace.ZISINTRASH
+            WHEN 0 THEN 'Not In Trash-0'
+            WHEN 1 THEN 'In Trash-1'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZISINTRASH || ''
+        END AS 'zDetFace-In Trash/Recently Deleted',
+        CASE zDetFace.ZCLOUDLOCALSTATE
+            WHEN 0 THEN 'Not Synced with Cloud-0'
+            WHEN 1 THEN 'Synced with Cloud-1'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZCLOUDLOCALSTATE || ''
+        END AS 'zDetFace-Cloud Local State',
+        CASE zDetFace.ZTRAININGTYPE
+            WHEN 0 THEN '0-StillTesting'
+            WHEN 5 THEN '5-StillTesting'
+            ELSE 'Unknown-New-Value!: ' || zDetFace.ZTRAININGTYPE
+        END AS 'zDetFace-Training Type',
+        zDetFace.ZPOSEYAW AS 'zDetFace.Pose Yaw',
+        zDetFace.ZBODYCENTERX AS 'zDetFace-Body Center X',
+        zDetFace.ZBODYCENTERY AS 'zDetFace-Body Center Y',
+        zDetFace.ZBODYHEIGHT AS 'zDetFace-Body Height',
+        zDetFace.ZBODYWIDTH AS 'zDetFace-Body Width',
+        zDetFace.ZROLL AS 'zDetFace-Roll',
+        zDetFace.ZSIZE AS 'zDetFace-Size',
+        zDetFace.ZCLUSTERSEQUENCENUMBER AS 'zDetFace-Cluster Sequence Number',
+        zDetFace.ZBLURSCORE AS 'zDetFace-Blur Score',
+        zDetFacePrint.ZFACEPRINTVERSION AS 'zDetFacePrint-Face Print Version',
+        zDetFaceGroup.ZUUID AS 'zDetFaceGroup-UUID',
+        zDetFaceGroup.ZPERSONBUILDERSTATE AS 'zDetFaceGroup-Person Builder State',
+        zDetFaceGroup.ZUNNAMEDFACECOUNT AS 'zDetFaceGroup-UnNamed Face Count',
+        zPerson.ZFACECOUNT AS 'zPerson-Face Count',       
+        zDetFace.ZFACEALGORITHMVERSION AS 'zDetFace-Face Algorithm Version',
+        zDetFace.ZADJUSTMENTVERSION AS 'zDetFace-Adjustment Version',       
+        zPerson.ZINPERSONNAMINGMODEL AS 'zPerson-In Person Naming Model',
+        zPerson.ZKEYFACEPICKSOURCE AS 'zPerson-Key Face Pick Source Key',
+        zPerson.ZMANUALORDER AS 'zPerson-Manual Order Key',
+        zPerson.ZQUESTIONTYPE AS 'zPerson-Question Type',
+        zPerson.ZSUGGESTEDFORCLIENTTYPE AS 'zPerson-Suggested For Client Type',
+        zPerson.ZMERGETARGETPERSON AS 'zPerson-Merge Target Person',
+        CASE zPerson.ZCLOUDLOCALSTATE
+            WHEN 0 THEN 'Person Not Synced with Cloud-0'
+            WHEN 1 THEN 'Person Synced with Cloud-1'
+            ELSE 'Unknown-New-Value!: ' || zPerson.ZCLOUDLOCALSTATE
+        END AS 'zPerson-Cloud Local State',
+        CASE zFaceCrop.ZCLOUDLOCALSTATE
+            WHEN 0 THEN 'Not Synced with Cloud-0'
+            WHEN 1 THEN 'Synced with Cloud-1'
+            ELSE 'Unknown-New-Value!: ' || zFaceCrop.ZCLOUDLOCALSTATE || ''
+        END AS 'zFaceCrop-Cloud Local State',
+        CASE zFaceCrop.ZCLOUDTYPE
+            WHEN 0 THEN 'Has Name-0'
+            WHEN 5 THEN 'Has Face Key-5'
+            WHEN 12 THEN '12-StillTesting'
+            ELSE 'Unknown-New-Value!: ' || zFaceCrop.ZCLOUDTYPE || ''
+        END AS 'zFaceCrop-Cloud Type',
+        CASE zPerson.ZCLOUDDELETESTATE
+            WHEN 0 THEN 'Cloud Not Deleted-0'
+            WHEN 1 THEN 'Cloud Deleted-1'
+            ELSE 'Unknown-New-Value!: ' || zPerson.ZCLOUDDELETESTATE || ''
+        END AS 'zPerson-Cloud Delete State',
+        CASE zFaceCrop.ZCLOUDDELETESTATE
+            WHEN 0 THEN 'Cloud Not Deleted-0'
+            WHEN 1 THEN 'Cloud Deleted-1'
+            ELSE 'Unknown-New-Value!: ' || zFaceCrop.ZCLOUDDELETESTATE || ''
+        END AS 'zFaceCrop-Cloud Delete State',
+        zDetFace.Z_PK AS 'zDetFace-zPK',
+        zDetFacePrint.ZFACE AS 'zDetFacePrint-Face Key',
+        zPerson.ZKEYFACE AS 'zPerson-KeyFace=zDetFace-zPK',
+        zFaceCrop.ZFACE AS 'zFaceCrop-Face Key',
+        zPerson.Z_PK AS 'zPerson-zPK=zDetFace-Person',
+        zDetFace.ZPERSONFORFACE AS 'zDetFace-PersonForFace= zPerson-zPK',
+        zDetFace.ZPERSONFORTEMPORALDETECTEDFACES AS 'zDetFace-Person for Temporal Detected Faces= zPerson-zPK',
+        zDetFace.ZPERSONFORTORSO AS 'zDetFace-PersonForTorso= zPerson-zPK',
+        zDetFace.ZPERSONBEINGKEYFACE AS 'zDetFace-Person Being Key Face',         
+        zFaceCrop.ZPERSON AS 'zFaceCrop-Person=zPerson-zPK&zDetFace-Person-Key',	
+        zDetFace.ZFACEPRINT AS 'zDetFace-Face Print',	
+        zDetFacePrint.Z_PK AS 'zDetFacePrint-zPK',		
+        zDetFace.ZFACECROP AS 'zDetFace-Face Crop',
+        zFaceCrop.Z_PK AS 'zFaceCrop-zPK',           
+        zDetFaceGroup.ZKEYFACE AS 'zDetFaceGroup-KeyFace= zDetFace-zPK',
+        zDetFaceGroup.ZASSOCIATEDPERSON AS 'zDetFaceGroup-AssocPerson= zPerson-zPK',
+        zPerson.ZASSOCIATEDFACEGROUP AS 'zPerson-Assoc Face Group Key',
+        zDetFace.ZFACEGROUPBEINGKEYFACE AS 'zDetFace-FaceGroupBeingKeyFace= zDetFaceGroup-zPK',
+        zDetFace.ZFACEGROUP AS 'zDetFace-FaceGroup= zDetFaceGroup-zPK',		
+        zDetFaceGroup.Z_PK AS 'zDetFaceGroup-zPK',
+        zPerson.ZSHAREPARTICIPANT AS 'zPerson-Share Participant= zSharePartic-zPK',		
+        zDetFace.ZUUID AS 'zDetFace-UUID',
+        zFaceCrop.ZUUID AS 'zFaceCrop-UUID',	
+        zFaceCrop.ZINVALIDMERGECANDIDATEPERSONUUID AS 'zFaceCrop-Invalid Merge Candidate Person UUID',		
+        zPerson.ZPERSONUUID AS 'zPerson-Person UUID',
+        zPerson.ZPERSONURI AS 'zPerson-Person URI',		
+        zDetFaceGroup.ZUUID AS 'zDetFaceGroup-UUID',
+        zDetFace.ZASSETFORFACE AS 'zDetFace-AssetForFace= zAsset-zPK',
+        zDetFace.ZASSETFORTORSO AS 'zDetFace-AssetForTorso= zAsset-zPK',
+        zFaceCrop.ZASSET AS 'zFaceCrop-Asset Key',
+        zAsset.Z_PK AS 'zAsset-zPK',
+        zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
+        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAddAssetAttr.ZORIGINALSTABLEHASH AS 'zAddAssetAttr-Original Stable Hash-iOS18',
+        zAddAssetAttr.ZADJUSTEDSTABLEHASH AS 'zAddAssetAttr.Adjusted Stable Hash-iOS18'
+        FROM ZASSET zAsset
+            LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
+            LEFT JOIN ZEXTENDEDATTRIBUTES zExtAttr ON zExtAttr.Z_PK = zAsset.ZEXTENDEDATTRIBUTES
+            LEFT JOIN ZCLOUDMASTER zCldMast ON zAsset.ZMASTER = zCldMast.Z_PK
+            LEFT JOIN ZCLOUDMASTERMEDIAMETADATA AAAzCldMastMedData ON
+             AAAzCldMastMedData.Z_PK = zAddAssetAttr.ZMEDIAMETADATA
+            LEFT JOIN ZCLOUDMASTERMEDIAMETADATA CMzCldMastMedData ON
+             CMzCldMastMedData.Z_PK = zCldMast.ZMEDIAMETADATA
+            LEFT JOIN ZMEDIAANALYSISASSETATTRIBUTES zMedAnlyAstAttr ON zAsset.ZMEDIAANALYSISATTRIBUTES = zMedAnlyAstAttr.Z_PK
+            LEFT JOIN ZDETECTEDFACE zDetFace ON zAsset.Z_PK = zDetFace.ZASSETFORFACE
+            LEFT JOIN ZPERSON zPerson ON zPerson.Z_PK = zDetFace.ZPERSONFORFACE
+            LEFT JOIN ZDETECTEDFACEPRINT zDetFacePrint ON zDetFacePrint.ZFACE = zDetFace.Z_PK
+            LEFT JOIN ZFACECROP zFaceCrop ON zPerson.Z_PK = zFaceCrop.ZPERSON
+            LEFT JOIN ZDETECTEDFACEGROUP zDetFaceGroup ON zDetFaceGroup.Z_PK = zDetFace.ZFACEGROUP
+        WHERE zDetFace.Z_PK > 0  
+        ORDER BY zAsset.ZDATECREATED
+        """)
+
+        all_rows = cursor.fetchall()
+        usageentries = len(all_rows)
+        data_list = []
+        counter = 0
+        if usageentries > 0:
+            for row in all_rows:
+                # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
+                personcontactmatchingdictionary = ''
+                # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
+                facecropresourcedata_blob = ''
+
+                # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
+                if row[28] is not None:
+                    pathto = os.path.join(report_folder, 'zPerson-ContactMatchingDict_' + row[135] + '.plist')
+                    with open(pathto, 'ab') as wf:
+                        wf.write(row[28])
+
+                    with open(pathto, 'rb') as f:
+                        try:
+                            deserialized_plist = nd.deserialize_plist(f)
+                            personcontactmatchingdictionary = deserialized_plist
+
+                        except (KeyError, ValueError, TypeError) as ex:
+                            if str(ex).find("does not contain an '$archiver' key") >= 0:
+                                logfunc('plist was Not an NSKeyedArchive ' + row[135])
+                            else:
+                                logfunc('Error reading exported plist from zPerson-Contact Matching Dictionary' + row[135])
+
+                # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
+                if row[36] is not None:
+                    pathto = os.path.join(report_folder, 'FaceCropFor_' + row[133] + '.jpg')
+                    with open(pathto, 'wb') as file:
+                        file.write(row[36])
+                    facecropresourcedata_blob = media_to_html(pathto, files_found, report_folder)
+
+                data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
+                                row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
+                                row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
+                                personcontactmatchingdictionary,
+                                row[29], row[30], row[31], row[32], row[33], row[34], row[35],
+                                facecropresourcedata_blob,
+                                row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45],
+                                row[46], row[47], row[48], row[49], row[50], row[51], row[52], row[53], row[54],
+                                row[55], row[56], row[57], row[58], row[59], row[60], row[61], row[62], row[63],
+                                row[64], row[65], row[66], row[67], row[68], row[69], row[70], row[71], row[72],
+                                row[73], row[74], row[75], row[76], row[77], row[78], row[79], row[80], row[81],
+                                row[82], row[83], row[84], row[85], row[86], row[87], row[88], row[89], row[90],
+                                row[91], row[92], row[93], row[94], row[95], row[96], row[97], row[98], row[99],
+                                row[100], row[101], row[102], row[103], row[104], row[105], row[106], row[107],
+                                row[108], row[109], row[110], row[111], row[112], row[113], row[114], row[115],
+                                row[116], row[117], row[118], row[119], row[120], row[121], row[122], row[123],
+                                row[124], row[125], row[126], row[127], row[128], row[129], row[130], row[131],
+                                row[132], row[133], row[134], row[135], row[136], row[137], row[138], row[139],
+                                row[140], row[141], row[142], row[143], row[144], row[145]))
+
+                counter += 1
+
+            description = 'Parses basic asset record data from Syndication.photoslibrary-database-Photos.sqlite for' \
+                          ' basic asset, people and detected faces data. The results may contain multiple records' \
+                          ' per ZASSET table Z_PK value and supports iOS 18.'
+            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report.start_artifact_report(report_folder, 'Ph16.2-People & Faces Asset Data-SyndPL', description)
+            report.add_script()
+            data_headers = ('zAsset-Date Created-0',
+                            'zAsset- SortToken -CameraRoll-1',
+                            'zAsset-Added Date-2',
+                            'zCldMast-Creation Date-3',
+                            'zAddAssetAttr-Time Zone Name-4',
+                            'zAddAssetAttr-Time Zone Offset-5',
+                            'zAddAssetAttr-EXIF-String-6',
+                            'zAsset-Directory-Path-7',
+                            'zAsset-Filename-8',
+                            'zAddAssetAttr- Original Filename-9',
+                            'zCldMast- Original Filename-10',
+                            'zAddAssetAttr- Syndication Identifier-SWY-Files-11',
+                            'zAsset- Conversation= zGenAlbum_zPK-12',
+                            'zAsset-Trashed Date-13',
+                            'zAsset-Trashed State-LocalAssetRecentlyDeleted-14',
+                            'zAsset-Trashed by Participant= zShareParticipant_zPK-15',
+                            'zAddAssetAttr-Imported by Bundle ID-16',
+                            'zAddAssetAttr-Imported By Display Name-17',
+                            'zCldMast-Imported by Bundle ID-18',
+                            'zCldMast-Imported by Display Name-19',
+                            'zAsset-Visibility State-20',
+                            'zFaceCrop-Face Area Points-21',
+                            'zAddAssetAttr-Has_People_Scene Mid_Or_Greater_Confidence-iOS18-22',
+                            'zAsset-Face Adjustment Version-23',
+                            'zAddAssetAttr-Face_Regions-SeeRawDBData-24',
+                            'zAddAssetAttr-Face Analysis Version-25',
+                            'zDetFace-Asset For Temporal Detected Faces= zAsset-zPK-26',
+                            'zDetFacePrint-Data-SeeRawDBData-27',
+                            'zPerson-Contact Matching Dictionary-28',
+                            'zPerson-Verified Type-29',
+                            'zPerson-Is_Me_Confidence-iOS18-30',
+                            'zPerson-Display Name-31',
+                            'zPerson-Full Name-32',
+                            'zPerson-Cloud Verified Type-33',
+                            'zFaceCrop-State-34',
+                            'zFaceCrop-Type-35',
+                            'zFaceCrop-Resource Data-36',
+                            'zDetFace-Confirmed Face Crop Generation State-37',
+                            'zDetFace-Manual-38',
+                            'zDetFace-Detection Type-39',
+                            'zPerson-Detection Type-40',
+                            'zDetFace-VIP Model Type-41',
+                            'zDetFace-Name Source-42',
+                            'zDetFace-Cloud Name Source-43',
+                            'zPerson-Merge Candidate Confidence-44',
+                            'zPerson-Type-45',
+                            'zPerson-Gender Type-46',
+                            'zDetFace-Gender Type-47',
+                            'zDetFace-Center X-48',
+                            'zDetFace-Center Y-49',
+                            'zPerson-Age Type Estimate-50',
+                            'zDetFace-Age Type Estimate-51',
+                            'zDetFace-Ethnicity Type-52',
+                            'zDetFace-Skin Tone Type-53',
+                            'zDetFace-Hair Type-54',
+                            'zDetFace-Hair Color Type-55',
+                            'zDetFace-Head Gear Type-56',
+                            'zDetFace-Facial Hair Type-57',
+                            'zDetFace-Has Face Mask-58',
+                            'zDetFace-Pose Type-59',
+                            'zDetFace-Face Expression Type-60',
+                            'zDetFace-Has Smile-61',
+                            'zDetFace-Smile Type-62',
+                            'zDetFace-Lip Makeup Type-63',
+                            'zDetFace-Eyes State-64',
+                            'zDetFace-Is Left Eye Closed-65',
+                            'zDetFace-Is Right Eye Closed-66',
+                            'zDetFace-Gaze Center X-67',
+                            'zDetFace-Gaze Center Y-68',
+                            'zDetFace-Face Gaze Type-69',
+                            'zDetFace-Eye Glasses Type-70',
+                            'zDetFace-Eye Makeup Type-71',
+                            'zDetFace-Cluster Squence Number Key-72',
+                            'zDetFace-Grouping ID-73',
+                            'zDetFace-Master ID-74',
+                            'zDetFace-Quality-75',
+                            'zDetFace-Quality Measure-76',
+                            'zDetFace-Source Height-77',
+                            'zDetFace-Source Width-78',
+                            'zDetFace-Asset Visible-79',
+                            'zDetFace-Hidden/Asset Hidden-80',
+                            'zDetFace-In Trash/Recently Deleted-81',
+                            'zDetFace-Cloud Local State-82',
+                            'zDetFace-Training Type-83',
+                            'zDetFace.Pose Yaw-84',
+                            'zDetFace-Body Center X-85',
+                            'zDetFace-Body Center Y-86',
+                            'zDetFace-Body Height-87',
+                            'zDetFace-Body Width-88',
+                            'zDetFace-Roll-89',
+                            'zDetFace-Size-90',
+                            'zDetFace-Cluster Sequence Number-91',
+                            'zDetFace-Blur Score-92',
+                            'zDetFacePrint-Face Print Version-93',
+                            'zDetFaceGroup-UUID-94',
+                            'zDetFaceGroup-Person Builder State-95',
+                            'zDetFaceGroup-UnNamed Face Count-96',
+                            'zPerson-Face Count-97',
+                            'zDetFace-Face Algorithm Version-98',
+                            'zDetFace-Adjustment Version-99',
+                            'zPerson-In Person Naming Model-100',
+                            'zPerson-Key Face Pick Source Key-101',
+                            'zPerson-Manual Order Key-102',
+                            'zPerson-Question Type-103',
+                            'zPerson-Suggested For Client Type-104',
+                            'zPerson-Merge Target Person-105',
+                            'zPerson-Cloud Local State-106',
+                            'zFaceCrop-Cloud Local State-107',
+                            'zFaceCrop-Cloud Type-108',
+                            'zPerson-Cloud Delete State-109',
+                            'zFaceCrop-Cloud Delete State-110',
+                            'zDetFace-zPK-111',
+                            'zDetFacePrint-Face Key-112',
+                            'zPerson-KeyFace=zDetFace-zPK-113',
+                            'zFaceCrop-Face Key-114',
+                            'zPerson-zPK=zDetFace-Person-115',
+                            'zDetFace-PersonForFace= zPerson-zPK-116',
+                            'zDetFace-Person for Temporal Detected Faces= zPerson-zPK-117',
+                            'zDetFace-PersonForTorso= zPerson-zPK-118',
+                            'zDetFace-Person Being Key Face-119',
+                            'zFaceCrop-Person=zPerson-zPK&zDetFace-Person-Key-120',
+                            'zDetFace-Face Print-121',
+                            'zDetFacePrint-zPK-122',
+                            'zDetFace-Face Crop-123',
+                            'zFaceCrop-zPK-124',
+                            'zDetFaceGroup-KeyFace= zDetFace-zPK-125',
+                            'zDetFaceGroup-AssocPerson= zPerson-zPK-126',
+                            'zPerson-Assoc Face Group Key-127',
+                            'zDetFace-FaceGroupBeingKeyFace= zDetFaceGroup-zPK-128',
+                            'zDetFace-FaceGroup= zDetFaceGroup-zPK-129',
+                            'zDetFaceGroup-zPK-130',
+                            'zPerson-Share Participant= zSharePartic-zPK-131',
+                            'zDetFace-UUID-132',
+                            'zFaceCrop-UUID-133',
+                            'zFaceCrop-Invalid Merge Candidate Person UUID-134',
+                            'zPerson-Person UUID-135',
+                            'zPerson-Person URI-136',
+                            'zDetFaceGroup-UUID-137',
+                            'zDetFace-AssetForFace= zAsset-zPK-138',
+                            'zDetFace-AssetForTorso= zAsset-zPK-139',
+                            'zFaceCrop-Asset Key-140',
+                            'zAsset-zPK-141',
+                            'zAddAssetAttr-zPK-142',
+                            'zAsset-UUID = store.cloudphotodb-143',
+                            'zAddAssetAttr-Original Stable Hash-iOS18-144',
+                            'zAddAssetAttr.Adjusted Stable Hash-iOS18-145')
+            report.write_artifact_data_table(data_headers, data_list, file_found)
+            report.end_artifact_report()
+
+            tsvname = 'Ph16.2-People & Faces Asset Data-SyndPL'
+            tsv(report_folder, data_headers, data_list, tsvname)
+
+            tlactivity = 'Ph16.2-People & Faces Asset Data-SyndPL'
+            timeline(report_folder, tlactivity, data_list, data_headers)
+
+        else:
+            logfunc('No data available for Syndication.photoslibrary-database-Photos.sqlite people faces and basic asset data data')
+
+        db.close()
+        return
+
 
 __artifacts_v2__ = {
     'Ph16-1-People & Faces Asset Data-PhDaPsql': {
         'name': 'PhDaPL Photos.sqlite 16.1 Asset Basic People and Faces Data',
-        'description': 'Parses basic asset record data from PhotoData-Photos.sqlite for basic asset people and faces data.'
-                       ' The results may contain multiple records per ZASSET table Z_PK value and supports iOS 14-17.',
+        'description': 'Parses basic asset record data from PhotoData-Photos.sqlite for basic asset'
+                       ' people and faces data. The results may contain multiple records per ZASSET table Z_PK value'
+                       ' and supports iOS 14-18.',
         'author': 'Scott Koenig https://theforensicscooter.com/',
-        'version': '1.1',
-        'date': '2024-05-25',
+        'version': '2.0',
+        'date': '2024-06-12',
         'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
         'category': 'Photos.sqlite-G-People_Faces_Data',
         'notes': '',
-        'paths': '*/mobile/Media/PhotoData/Photos.sqlite*',
+        'paths': '*/PhotoData/Photos.sqlite*',
         'function': 'get_ph16assetpeopledetfacephdapsql'
     },
     'Ph16-2-People & Faces Asset Data-SyndPL': {
         'name': 'SyndPL Photos.sqlite 16.2 Asset Basic People and Faces Data',
         'description': 'Parses basic asset record data from Syndication.photoslibrary-database-Photos.sqlite'
                        ' for basic asset people and faces data. The results may contain multiple records'
-                       ' per ZASSET table Z_PK value and supports iOS 14-17.',
+                       ' per ZASSET table Z_PK value and supports iOS 14-18.',
         'author': 'Scott Koenig https://theforensicscooter.com/',
-        'version': '1.1',
-        'date': '2024-05-25',
+        'version': '2.0',
+        'date': '2024-06-12',
         'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
         'category': 'Photos.sqlite-S-Syndication_PL_Artifacts',
         'notes': '',

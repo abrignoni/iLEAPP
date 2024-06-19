@@ -466,7 +466,7 @@ icon_mappings = \
         'FAVORITE TRANSLATIONS': 'star',
         'TEXT-TO-SPEECH': 'volume-2',
         '_mode': 'search',
-    },  
+    },
     'GPS_DATA': 'map-pin',
     'GROUPME': {
         'GROUP INFORMATION': 'users',
@@ -614,7 +614,7 @@ icon_mappings = \
         'TEAMS TIMEZONE': 'clock',
     },
     'MOBILE ACTIVATION LOGS': 'clipboard',
-    'MOBILE BACKUP': 'save',
+    'MOBILE BACKUP PLIST': 'settings',
     'MOBILE CONTAINER MANAGER': 'save',
     'MOBILE INSTALLATION LOGS': 'clipboard',
     'MOBILE SOFTWARE UPDATE': 'refresh-cw',
@@ -728,6 +728,8 @@ icon_mappings = \
         'PH96.2-IOS16_REF_FOR_ASSET_ANALYSIS-SYNDPL': 'database',
         'PH97.1-IOS17_REF_FOR_ASSET_ANALYSIS-PHDAPSQL': 'database',
         'PH97.2-IOS17_REF_FOR_ASSET_ANALYSIS-SYNDPL': 'database',
+        'PH98.1-IOS18_REF_FOR_ASSET_ANALYSIS-PHDAPSQL': 'database',
+        'PH98.2-IOS18_REF_FOR_ASSET_ANALYSIS-SYNDPL': 'database',
     },
     'PHOTOS.SQLITE-S-SYNDICATION_PL_ARTIFACTS': {
         'PH1.2-ASSET BASIC DATA-SYNDPL': 'image',
@@ -741,6 +743,15 @@ icon_mappings = \
         'PH25.2-SWY CONVERSATION RECORDS NAD-SYNDPL': 'message-square',
         'PH26.2-SYNDICATION PL ASSETS-SYNDPL': 'message-square',
         'PH50.2-ASSET_INTRESOU-SYNDPL': 'database',
+    },
+    'PHOTOS-Z-SETTINGS': {
+        'PH80-COM-APPLE-MOBILESLIDESHOW-PLIST': 'settings',
+        'PH81-COM-APPLE-CAMERA-PLIST': 'settings',
+        'PH82-COM-APPLE-MEDIAANALYSISD-PLIST': 'book',
+        'PH83-COM-APPLE-PURPLEBUDDY-PLIST': 'settings',
+        'PH84-CAMERA-SMART-SHARING-METADATA-PLIST': 'camera',
+        'PH99-SYSTEM-VERSION-PLIST': 'settings',
+        'PH100-UFED-DEVICE-VALUES-PLIST': 'settings',
     },
     'PIKPAK': 'cloud',
     'PINGER': {

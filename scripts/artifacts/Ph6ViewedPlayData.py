@@ -1,11 +1,11 @@
 #   Photos.sqlite
 #   Author:  Scott Koenig, assisted by past contributors
-#   Version: 1.2
+#   Version: 2.0
 #
 #   Description:
 #   Parses basic asset record data from Photos.sqlite for assets with last viewed timestamp and other view and play data
 #   from ZADDITTIONALASSETATTRIBUTES table ZLASTVIEWEDDATE and ZPLAYCOUNT fields and iOS version support varies
-#   but last viewed date is supported in iOS 16-17.
+#   but last viewed date is supported in iOS 16-18.
 #   The results for this script will contain one record per ZASSET table Z_PK value.
 #   This parser is based on research and SQLite queries written by Scott Koenig
 #   https://theforensicscooter.com/ and queries found at https://github.com/ScottKjr3347
@@ -432,7 +432,7 @@ def get_ph6viewplaydataphdapsql(files_found, report_folder, seeker, wrap_text, t
         db.close()
         return
 
-    elif version.parse(iosversion) >= version.parse("16.6"):
+    elif (version.parse(iosversion) >= version.parse("16.6")) & (version.parse(iosversion) < version.parse("18")):
         file_found = str(files_found[0])
         db = open_sqlite_db_readonly(file_found)
         cursor = db.cursor()
@@ -477,30 +477,122 @@ def get_ph6viewplaydataphdapsql(files_found, report_folder, seeker, wrap_text, t
                 counter += 1
 
             description = 'Parses basic asset record data from PhotoData-Photos.sqlite for assets with' \
-                          ' view and played data in versions 16-17. If the iOS version is greater than iOS 16' \
+                          ' view and played data in versions 16-17. If the iOS version is greater than iOS 16.5.1' \
                           ' last viewed date from ZADDITTIONALASSETATTRIBUTES table ZLASTVIEWEDDATE field' \
                           ' will be included. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
             report = ArtifactHtmlReport('Photos.sqlite-B-Interaction_Artifacts')
             report.start_artifact_report(report_folder, 'Ph6-Viewed and Played Data-PhDaPsql', description)
             report.add_script()
-            data_headers = ('zAddAssetAttr-Last Viewed Date',
-                            'zAsset-Modification Date',
-                            'zAsset-Analysis State Modification Date',
-                            'zAddAssetAttr- Pending View Count',
-                            'zAddAssetAttr- View Count',
-                            'zAddAssetAttr- Pending Play Count',
-                            'zAddAssetAttr- Play Count',
-                            'zAsset-Directory-Path',
-                            'zAsset-Filename',
-                            'zAddAssetAttr- Original Filename',
-                            'zCldMast- Original Filename',
-                            'zCldMast-Import Session ID- AirDrop-StillTesting',
-                            'zAddAssetAttr- Syndication Identifier-SWY-Files',
-                            'zAsset-zPK',
-                            'zAddAssetAttr-zPK',
-                            'zAsset-UUID = store.cloudphotodb',
-                            'zAddAssetAttr-Master Fingerprint')
+            data_headers = ('zAddAssetAttr-Last Viewed Date-0',
+                            'zAsset-Modification Date-1',
+                            'zAsset-Analysis State Modification Date-2',
+                            'zAddAssetAttr- Pending View Count-3',
+                            'zAddAssetAttr- View Count-4',
+                            'zAddAssetAttr- Pending Play Count-5',
+                            'zAddAssetAttr- Play Count-6',
+                            'zAsset-Directory-Path-7',
+                            'zAsset-Filename-8',
+                            'zAddAssetAttr- Original Filename-9',
+                            'zCldMast- Original Filename-10',
+                            'zCldMast-Import Session ID- AirDrop-StillTesting-11',
+                            'zAddAssetAttr- Syndication Identifier-SWY-Files-12',
+                            'zAsset-zPK-13',
+                            'zAddAssetAttr-zPK-14',
+                            'zAsset-UUID = store.cloudphotodb-15',
+                            'zAddAssetAttr-Master Fingerprint-16')
+            report.write_artifact_data_table(data_headers, data_list, file_found)
+            report.end_artifact_report()
+
+            tsvname = 'Ph6-Viewed and Played Data-PhDaPsql'
+            tsv(report_folder, data_headers, data_list, tsvname)
+
+            tlactivity = 'Ph6-Viewed and Played Data-PhDaPsql'
+            timeline(report_folder, tlactivity, data_list, data_headers)
+
+        else:
+            logfunc('No data available for PhotoData-Photos.sqlite asset viewed and played data')
+
+        db.close()
+        return
+
+    elif version.parse(iosversion) >= version.parse("18"):
+        file_found = str(files_found[0])
+        db = open_sqlite_db_readonly(file_found)
+        cursor = db.cursor()
+
+        cursor.execute("""
+        SELECT
+        DateTime(zAddAssetAttr.ZLASTVIEWEDDATE + 978307200, 'UNIXEPOCH') AS 'zAddAssetAttr-Last Viewed Date',
+        DateTime(zAsset.ZMODIFICATIONDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Modification Date',        
+        DateTime(zAsset.ZANALYSISSTATEMODIFICATIONDATE + 978307200, 'UNIXEPOCH') AS
+         'zAsset-Analysis State Modification Date',
+        zAddAssetAttr.ZPENDINGVIEWCOUNT AS 'zAddAssetAttr- Pending View Count',
+        zAddAssetAttr.ZVIEWCOUNT AS 'zAddAssetAttr- View Count',
+        zAddAssetAttr.ZPENDINGPLAYCOUNT AS 'zAddAssetAttr- Pending Play Count',
+        zAddAssetAttr.ZPLAYCOUNT AS 'zAddAssetAttr- Play Count',
+        CASE zAddAssetAttr.ZVIEWPRESENTATION
+            WHEN 0 THEN '0-Obs in iOS 18 still testing-0'
+            WHEN 1 THEN '1-Obs in iOS 18 still testing-1'	
+            ELSE 'Unknown-New-Value!: ' || zAddAssetAttr.ZVIEWPRESENTATION || ''
+        END AS 'zAddAssetAttr.View_Presentation-iOS18',
+        zAsset.ZDIRECTORY AS 'zAsset-Directory-Path',
+        zAsset.ZFILENAME AS 'zAsset-Filename',
+        zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
+        zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zAddAssetAttr.ZSYNDICATIONIDENTIFIER AS 'zAddAssetAttr- Syndication Identifier-SWY-Files',
+        zAsset.Z_PK AS 'zAsset-zPK',
+        zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
+        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAddAssetAttr.ZORIGINALSTABLEHASH AS 'zAddAssetAttr-Original Stable Hash-iOS18',
+        zAddAssetAttr.ZADJUSTEDSTABLEHASH AS 'zAddAssetAttr.Adjusted Stable Hash-iOS18'
+        FROM ZASSET zAsset
+            LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
+            LEFT JOIN ZCLOUDMASTER zCldMast ON zAsset.ZMASTER = zCldMast.Z_PK
+        WHERE (zAddAssetAttr.ZLASTVIEWEDDATE > 0) OR (zAddAssetAttr.ZPENDINGVIEWCOUNT > 0)
+         OR (zAddAssetAttr.ZVIEWCOUNT > 0) OR (zAddAssetAttr.ZPENDINGPLAYCOUNT > 0) OR (zAddAssetAttr.ZPLAYCOUNT > 0)
+        ORDER BY zAsset.ZMODIFICATIONDATE
+        """)
+
+        all_rows = cursor.fetchall()
+        usageentries = len(all_rows)
+        data_list = []
+        counter = 0
+        if usageentries > 0:
+            for row in all_rows:
+                data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
+                                  row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18]))
+
+                counter += 1
+
+            description = 'Parses basic asset record data from PhotoData-Photos.sqlite for assets with' \
+                          ' view and played data in versions 18. If the iOS version is greater than iOS 16.5.1' \
+                          ' last viewed date from ZADDITTIONALASSETATTRIBUTES table ZLASTVIEWEDDATE field' \
+                          ' will be included. The results for this script will contain' \
+                          ' one record per ZASSET table Z_PK value.'
+            report = ArtifactHtmlReport('Photos.sqlite-B-Interaction_Artifacts')
+            report.start_artifact_report(report_folder, 'Ph6-Viewed and Played Data-PhDaPsql', description)
+            report.add_script()
+            data_headers = ('zAddAssetAttr-Last Viewed Date-0',
+                            'zAsset-Modification Date-1',
+                            'zAsset-Analysis State Modification Date-2',
+                            'zAddAssetAttr- Pending View Count-3',
+                            'zAddAssetAttr- View Count-4',
+                            'zAddAssetAttr- Pending Play Count-5',
+                            'zAddAssetAttr- Play Count-6',
+                            'zAddAssetAttr.View_Presentation-iOS18-7',
+                            'zAsset-Directory-Path-8',
+                            'zAsset-Filename-9',
+                            'zAddAssetAttr- Original Filename-10',
+                            'zCldMast- Original Filename-11',
+                            'zCldMast-Import Session ID- AirDrop-StillTesting-12',
+                            'zAddAssetAttr- Syndication Identifier-SWY-Files-13',
+                            'zAsset-zPK-14',
+                            'zAddAssetAttr-zPK-15',
+                            'zAsset-UUID = store.cloudphotodb-16',
+                            'zAddAssetAttr-Original Stable Hash-iOS18-17',
+                            'zAddAssetAttr.Adjusted Stable Hash-iOS18-18')
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
@@ -519,19 +611,19 @@ def get_ph6viewplaydataphdapsql(files_found, report_folder, seeker, wrap_text, t
 
 __artifacts_v2__ = {
     'Ph6-View and Play Data-PhDaPsql': {
-        'name': 'PhDaPL Photos.sqlite 6 assets with viewed and played data',
+        'name': 'PhDaPL Photos.sqlite Ph6 assets with viewed and played data',
         'description': 'Parses basic asset record data from PhotoData-Photos.sqlite for assets with'
-                       ' view and played data in versions 11-17. If the iOS version is greater than iOS 16'
+                       ' view and played data in versions 11-18. If the iOS version is greater than iOS 16.5'
                        ' last viewed date from ZADDITTIONALASSETATTRIBUTES table ZLASTVIEWEDDATE field'
                        ' will be included. The results for this script will contain'
                        ' one record per ZASSET table Z_PK value.',
         'author': 'Scott Koenig https://theforensicscooter.com/',
-        'version': '1.2',
-        'date': '2024-04-06',
+        'version': '2.0',
+        'date': '2024-06-12',
         'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
         'category': 'Photos.sqlite-B-Interaction_Artifacts',
         'notes': '',
-        'paths': '*/mobile/Media/PhotoData/Photos.sqlite*',
+        'paths': '*/PhotoData/Photos.sqlite*',
         'function': 'get_ph6viewplaydataphdapsql'
     }
 }

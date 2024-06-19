@@ -3,7 +3,7 @@
 # Version: 2.0
 #
 #   Description:
-#   Parses basic asset record data from Photos.sqlite to include associated album data and supports iOS 11-17.
+#   Parses basic asset record data from Photos.sqlite to include associated album data and supports iOS 11-18.
 #   The results could produce multiple records for a single asset.
 #   Use '2-Non-Shared-Album-2' in the search box to view Assets in Non-Shared Albums.
 #   Use '1505-Shared-Album-1505' in the search box to view Assets in Shared Albums.
@@ -1900,7 +1900,7 @@ def get_ph2assetbasicandalbumdataphdapsql(files_found, report_folder, seeker, wr
         db.close()
         return
 
-    elif version.parse(iosversion) >= version.parse("17"):
+    elif (version.parse(iosversion) >= version.parse("17")) & (version.parse(iosversion) < version.parse("18")):
         file_found = str(files_found[0])
         db = open_sqlite_db_readonly(file_found)
         cursor = db.cursor()
@@ -2261,6 +2261,393 @@ def get_ph2assetbasicandalbumdataphdapsql(files_found, report_folder, seeker, wr
                             'zAddAssetAttr-zPK-78',
                             'zAsset-UUID = store.cloudphotodb-79',
                             'zAddAssetAttr-Master Fingerprint-80')
+            report.write_artifact_data_table(data_headers, data_list, file_found)
+            report.end_artifact_report()
+
+            tsvname = 'Ph2.1-Asset Basic Data & GenAlbum Data-PhDaPsql'
+            tsv(report_folder, data_headers, data_list, tsvname)
+
+            tlactivity = 'Ph2.1-Asset Basic Data & GenAlbum Data-PhDaPsql'
+            timeline(report_folder, tlactivity, data_list, data_headers)
+
+        else:
+            logfunc('No data available for PhotoData-Photos.sqlite basic asset and album data')
+
+        db.close()
+        return
+
+    elif version.parse(iosversion) >= version.parse("18"):
+        file_found = str(files_found[0])
+        db = open_sqlite_db_readonly(file_found)
+        cursor = db.cursor()
+
+        cursor.execute("""
+        SELECT
+        DateTime(zAsset.ZDATECREATED + 978307200, 'UNIXEPOCH') AS 'zAsset-Date Created',  
+        DateTime(zAsset.ZSORTTOKEN + 978307200, 'UNIXEPOCH') AS 'zAsset- SortToken -CameraRoll',
+        DateTime(zAsset.ZADDEDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Added Date',
+        DateTime(zCldMast.ZCREATIONDATE + 978307200, 'UNIXEPOCH') AS 'zCldMast-Creation Date',
+        zAddAssetAttr.ZTIMEZONENAME AS 'zAddAssetAttr-Time Zone Name',
+        zAddAssetAttr.ZTIMEZONEOFFSET AS 'zAddAssetAttr-Time Zone Offset',
+        zAddAssetAttr.ZEXIFTIMESTAMPSTRING AS 'zAddAssetAttr-EXIF-String',
+        DateTime(zAsset.ZMODIFICATIONDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Modification Date',
+        DateTime(zAsset.ZLASTSHAREDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Last Shared Date',
+        DateTime(zAddAssetAttr.ZLASTVIEWEDDATE + 978307200, 'UNIXEPOCH') AS 'zAddAssetAttr-Last Viewed Date',        
+        zAsset.ZDIRECTORY AS 'zAsset-Directory-Path',
+        zAsset.ZFILENAME AS 'zAsset-Filename',
+        zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
+        zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
+        zAddAssetAttr.ZSYNDICATIONIDENTIFIER AS 'zAddAssetAttr- Syndication Identifier-SWY-Files',
+        zAsset.ZCONVERSATION AS 'zAsset- Conversation= zGenAlbum_zPK ',
+        SWYConverszGenAlbum.ZIMPORTSESSIONID AS 'SWYConverszGenAlbum- Import Session ID',
+        CASE zAsset.ZSYNDICATIONSTATE
+            WHEN 0 THEN '0-PhDaPs-NA_or_SyndPs-Received-SWY_Synd_Asset-0'
+            WHEN 1 THEN '1-SyndPs-Sent-SWY_Synd_Asset-1'
+            WHEN 2 THEN '2-SyndPs-Manually-Saved_SWY_Synd_Asset-2'
+            WHEN 3 THEN '3-SyndPs-STILLTESTING_Sent-SWY-3'
+            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_User_Deleted_Link-8'
+            WHEN 9 THEN '9-SyndPs-STILLTESTING_Sent_SWY-9'
+            WHEN 10 THEN '10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10'
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZSYNDICATIONSTATE || ''
+        END AS 'zAsset-Syndication State',
+        DateTime(zAsset.ZTRASHEDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Trashed Date',
+        CASE zAsset.ZTRASHEDSTATE
+            WHEN 0 THEN '0-Asset Not In Trash-Recently Deleted-0'
+            WHEN 1 THEN '1-Asset In Trash-Recently Deleted-1'
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZTRASHEDSTATE || ''
+        END AS 'zAsset-Trashed State-LocalAssetRecentlyDeleted',
+        zAsset.ZTRASHEDBYPARTICIPANT AS 'zAsset-Trashed by Participant= zShareParticipant_zPK',
+        CASE zAsset.ZISRECENTLYSAVED
+            WHEN 0 THEN '0-Not_Recenlty_Saved iOS18_Still_Testing-0'
+            WHEN 1 THEN '1-Recently_Saved iOS18_Still_Testing-1'	
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZISRECENTLYSAVED || ''
+        END AS 'zAsset-Is_Recently_Saved-iOS18',
+        CASE zAsset.ZSAVEDASSETTYPE
+            WHEN 0 THEN '0-Saved-via-other-source-0'
+            WHEN 1 THEN '1-StillTesting-1'
+            WHEN 2 THEN '2-StillTesting-2'
+            WHEN 3 THEN '3-PhDaPs-Asset_or_SyndPs-Asset_NoAuto-Display-3'
+            WHEN 4 THEN '4-Photo-Cloud-Sharing-Data-Asset-4'
+            WHEN 5 THEN '5-PhotoBooth_Photo-Library-Asset-5'
+            WHEN 6 THEN '6-Cloud-Photo-Library-Asset-6'
+            WHEN 7 THEN '7-StillTesting-7'
+            WHEN 8 THEN '8-iCloudLink_CloudMasterMomentAsset-8'
+            WHEN 12 THEN '12-SyndPs-SWY-Asset_Auto-Display_In_CameraRoll-12'
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZSAVEDASSETTYPE || ''
+        END AS 'zAsset-Saved Asset Type',
+        zAddAssetAttr.ZIMPORTEDBYBUNDLEIDENTIFIER AS 'zAddAssetAttr-Imported by Bundle ID',
+        zAddAssetAttr.ZIMPORTEDBYDISPLAYNAME AS 'zAddAssetAttr-Imported By Display Name',   
+        CASE zAddAssetAttr.ZIMPORTEDBY
+            WHEN 0 THEN '0-Cloud-Other-0'
+            WHEN 1 THEN '1-Native-Back-Camera-1'
+            WHEN 2 THEN '2-Native-Front-Camera-2'
+            WHEN 3 THEN '3-Third-Party-App-3'
+            WHEN 4 THEN '4-StillTesting-4'
+            WHEN 5 THEN '5-PhotoBooth_PL-Asset-5'
+            WHEN 6 THEN '6-Third-Party-App-6'
+            WHEN 7 THEN '7-iCloud_Share_Link-CMMAsset-7'
+            WHEN 8 THEN '8-System-Package-App-8'
+            WHEN 9 THEN '9-Native-App-9'
+            WHEN 10 THEN '10-StillTesting-10'
+            WHEN 11 THEN '11-StillTesting-11'
+            WHEN 12 THEN '12-SWY_Syndication_PL-12'
+            ELSE 'Unknown-New-Value!: ' || zAddAssetAttr.ZIMPORTEDBY || ''
+        END AS 'zAddAssetAttr-Imported by',
+        zCldMast.ZIMPORTEDBYBUNDLEIDENTIFIER AS 'zCldMast-Imported by Bundle ID',
+        zCldMast.ZIMPORTEDBYDISPLAYNAME AS 'zCldMast-Imported by Display Name',
+        CASE zCldMast.ZIMPORTEDBY
+            WHEN 0 THEN '0-Cloud-Other-0'
+            WHEN 1 THEN '1-Native-Back-Camera-1'
+            WHEN 2 THEN '2-Native-Front-Camera-2'
+            WHEN 3 THEN '3-Third-Party-App-3'
+            WHEN 4 THEN '4-StillTesting-4'
+            WHEN 5 THEN '5-PhotoBooth_PL-Asset-5'
+            WHEN 6 THEN '6-Third-Party-App-6'
+            WHEN 7 THEN '7-iCloud_Share_Link-CMMAsset-7'
+            WHEN 8 THEN '8-System-Package-App-8'
+            WHEN 9 THEN '9-Native-App-9'
+            WHEN 10 THEN '10-StillTesting-10'
+            WHEN 11 THEN '11-StillTesting-11'
+            WHEN 12 THEN '12-SWY_Syndication_PL-12'
+            ELSE 'Unknown-New-Value!: ' || zCldMast.ZIMPORTEDBY || ''
+        END AS 'zCldMast-Imported By',                      
+        CASE zAsset.ZVISIBILITYSTATE
+            WHEN 0 THEN '0-Visible-PL-CameraRoll-0'
+            WHEN 2 THEN '2-Not-Visible-PL-CameraRoll-2'
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZVISIBILITYSTATE || ''
+        END AS 'zAsset-Visibility State',
+        zExtAttr.ZCAMERAMAKE AS 'zExtAttr-Camera Make',
+        zExtAttr.ZCAMERAMODEL AS 'zExtAttr-Camera Model',
+        zExtAttr.ZLENSMODEL AS 'zExtAttr-Lens Model',
+        CASE zAsset.ZDERIVEDCAMERACAPTUREDEVICE
+            WHEN 0 THEN '0-Back-Camera-Other-0'
+            WHEN 1 THEN '1-Front-Camera-1'
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZDERIVEDCAMERACAPTUREDEVICE || ''
+        END AS 'zAsset-Derived Camera Capture Device',
+        CASE zAddAssetAttr.ZCAMERACAPTUREDEVICE
+            WHEN 0 THEN '0-Back-Camera-Other-0'
+            WHEN 1 THEN '1-Front-Camera-1'
+            ELSE 'Unknown-New-Value!: ' || zAddAssetAttr.ZCAMERACAPTUREDEVICE || ''
+        END AS 'zAddAssetAttr-Camera Captured Device',
+        zAsset.ZCAPTURESESSIONIDENTIFIER AS 'zAsset-Capture_Session_Identifier-iOS18',
+        CASE zAddAssetAttr.ZSHARETYPE
+            WHEN 0 THEN '0-Not_Shared-or-Shared_via_Phy_Device_StillTesting-0'
+            WHEN 1 THEN '1-Shared_via_iCldPhotos_Web-or-Other_Device_StillTesting-1'
+            ELSE 'Unknown-New-Value!: ' || zAddAssetAttr.ZSHARETYPE || ''
+        END AS 'zAddAssetAttr-Share Type',
+        CASE zCldMast.ZCLOUDLOCALSTATE
+            WHEN 0 THEN '0-Not Synced with Cloud-0'
+            WHEN 1 THEN '1-Pending Upload-1'
+            WHEN 2 THEN '2-StillTesting'
+            WHEN 3 THEN '3-Synced with Cloud-3'
+            ELSE 'Unknown-New-Value!: ' || zCldMast.ZCLOUDLOCALSTATE || ''
+        END AS 'zCldMast-Cloud Local State',
+        DateTime(zCldMast.ZIMPORTDATE + 978307200, 'UNIXEPOCH') AS 'zCldMast-Import Date',
+        DateTime(zAddAssetAttr.ZLASTUPLOADATTEMPTDATE + 978307200, 'UNIXEPOCH')
+         AS 'zAddAssetAttr-Last Upload Attempt Date-SWY_Files',
+        zAddAssetAttr.ZIMPORTSESSIONID AS 'zAddAssetAttr-Import Session ID',
+        DateTime(zAddAssetAttr.ZALTERNATEIMPORTIMAGEDATE + 978307200, 'UNIXEPOCH')
+         AS 'zAddAssetAttr-Alt Import Image Date',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        DateTime(zAsset.ZCLOUDBATCHPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Batch Publish Date',
+        DateTime(zAsset.ZCLOUDSERVERPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Server Publish Date',
+        zAsset.ZCLOUDDOWNLOADREQUESTS AS 'zAsset-Cloud Download Requests',
+        zAsset.ZCLOUDBATCHID AS 'zAsset-Cloud Batch ID',
+        CASE zAsset.ZLATITUDE
+            WHEN -180.0 THEN '-180.0'
+            ELSE zAsset.ZLATITUDE
+        END AS 'zAsset-Latitude',
+        zExtAttr.ZLATITUDE AS 'zExtAttr-Latitude',
+        CASE zAsset.ZLONGITUDE
+            WHEN -180.0 THEN '-180.0'
+            ELSE zAsset.ZLONGITUDE
+        END AS 'zAsset-Longitude',
+        zExtAttr.ZLONGITUDE AS 'zExtAttr-Longitude',
+        CASE zAddAssetAttr.ZGPSHORIZONTALACCURACY
+            WHEN -1.0 THEN '-1.0'
+            ELSE zAddAssetAttr.ZGPSHORIZONTALACCURACY
+        END AS 'zAddAssetAttr-GPS Horizontal Accuracy',
+        zAddAssetAttr.ZLOCATIONHASH AS 'zAddAssetAttr-Location Hash',
+        CASE zAddAssetAttr.ZSHIFTEDLOCATIONISVALID
+            WHEN 0 THEN '0-Shifted Location Not Valid-0'
+            WHEN 1 THEN '1-Shifted Location Valid-1'
+            ELSE 'Unknown-New-Value!: ' || zAddAssetAttr.ZSHIFTEDLOCATIONISVALID || ''
+        END AS 'zAddAssetAttr-Shifted Location Valid',
+        CASE
+            WHEN zAddAssetAttr.ZSHIFTEDLOCATIONDATA > 0 THEN 'zAddAssetAttr-Shifted_Location_Data_has_Plist'
+            ELSE 'zAddAssetArrt-Shifted_Location_Data_Empty-NULL'
+        END AS 'zAddAssetAttr-Shifted Location Data',
+        CASE zAddAssetAttr.ZREVERSELOCATIONDATAISVALID
+            WHEN 0 THEN '0-Reverse Location Not Valid-0'
+            WHEN 1 THEN '1-Reverse Location Valid-1'
+            ELSE 'Unknown-New-Value!: ' || zAddAssetAttr.ZREVERSELOCATIONDATAISVALID || ''
+        END AS 'zAddAssetAttr-Reverse Location Is Valid',		
+        CASE
+            WHEN zAddAssetAttr.ZREVERSELOCATIONDATA > 0 THEN 'zAddAssetAttr-Reverse_Location_Data_has_Plist'
+            ELSE 'zAddAssetAttr-Reverse_Location_Data_Empty-NULL'
+        END AS 'zAddAssetAttr-Reverse Location Data',
+        CASE AAAzCldMastMedData.Z_OPT
+            WHEN 1 THEN '1-StillTesting-Cloud-1'
+            WHEN 2 THEN '2-StillTesting-This Device-2'
+            WHEN 3 THEN '3-StillTesting-Muted-3'
+            WHEN 4 THEN '4-StillTesting-Unknown-4'
+            WHEN 5 THEN '5-StillTesting-Unknown-5'
+            ELSE 'Unknown-New-Value!: ' || AAAzCldMastMedData.Z_OPT || ''
+        END AS 'AAAzCldMastMedData-zOPT',
+        zAddAssetAttr.ZMEDIAMETADATATYPE AS 'zAddAssetAttr-Media Metadata Type',
+        CASE
+            WHEN AAAzCldMastMedData.ZDATA > 0 THEN 'AAAzCldMastMedData-Data_has_Plist'
+            ELSE 'AAAzCldMastMedData-Data_Empty-NULL'
+        END AS 'AAAzCldMastMedData-Data',
+        CASE CMzCldMastMedData.Z_OPT
+            WHEN 1 THEN '1-StillTesting-Has_CldMastAsset-1'
+            WHEN 2 THEN '2-StillTesting-Local_Asset-2'
+            WHEN 3 THEN '3-StillTesting-Muted-3'
+            WHEN 4 THEN '4-StillTesting-Unknown-4'
+            WHEN 5 THEN '5-StillTesting-Unknown-5'
+            ELSE 'Unknown-New-Value!: ' || CMzCldMastMedData.Z_OPT || ''
+        END AS 'CldMasterzCldMastMedData-zOPT',
+        zCldMast.ZMEDIAMETADATATYPE AS 'zCldMast-Media Metadata Type',		
+        CASE
+            WHEN CMzCldMastMedData.ZDATA > 0 THEN 'CMzCldMastMedData-Data_has_Plist'
+            ELSE 'CMzCldMastMedData-Data_Empty-NULL'
+        END AS 'CMzCldMastMedData-Data',
+        CASE zAsset.ZBUNDLESCOPE
+            WHEN 0 THEN '0-iCldPhtos-ON-AssetNotInSharedAlbum_or_iCldPhtos-OFF-AssetOnLocalDevice-0'
+            WHEN 1 THEN '1-SharediCldLink_CldMastMomentAsset-1'
+            WHEN 2 THEN '2-iCldPhtos-ON-AssetInCloudSharedAlbum-2'
+            WHEN 3 THEN '3-iCldPhtos-ON-AssetIsInSWYConversation-3'
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZBUNDLESCOPE || ''
+        END AS 'zAsset-Bundle Scope',
+        DateTime(zGenAlbum.ZCREATIONDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-Creation Date',
+        DateTime(zGenAlbum.ZSTARTDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-Start Date',
+        DateTime(zGenAlbum.ZENDDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-End Date',
+        CASE zGenAlbum.ZKIND
+            WHEN 2 THEN '2-Non-Shared-Album-2'
+            WHEN 1505 THEN '1505-Shared-Album-1505'
+            WHEN 1506 THEN '1506-Import_Session_AssetsImportedatSameTime-1506_RT'
+            WHEN 1508 THEN '1508-My_Projects_Album_CalendarCardEct_RT'
+            WHEN 1509 THEN '1509-SWY_Synced_Conversation_Media-1509'
+            WHEN 1510 THEN '1510-Duplicate_Album-Pending_Merge-1510'
+            WHEN 3571 THEN '3571-Progress-Sync-3571'
+            WHEN 3572 THEN '3572-Progress-OTA-Restore-3572'
+            WHEN 3573 THEN '3573-Progress-FS-Import-3573'
+            WHEN 3998 THEN '3998-Project Root Folder-3998'
+            WHEN 3999 THEN '3999-Parent_Root_for_Generic_Album-3999'
+            WHEN 4000 THEN '4000-Parent_is_Folder_on_Local_Device-4000'
+            ELSE 'Unknown-New-Value!: ' || zGenAlbum.ZKIND || ''
+        END AS 'zGenAlbum-Album Kind',
+        zGenAlbum.ZTITLE AS 'zGenAlbum-Title-User&System Applied',
+        zGenAlbum.ZIMPORTSESSIONID AS 'zGenAlbum- Import Session ID',
+        zGenAlbum.ZIMPORTEDBYBUNDLEIDENTIFIER AS 'zGenAlbum-Imported by Bundle Identifier',
+        zGenAlbum.ZCACHEDPHOTOSCOUNT AS 'zGenAlbum-Cached Photos Count',
+        zGenAlbum.ZCACHEDVIDEOSCOUNT AS 'zGenAlbum-Cached Videos Count',
+        zGenAlbum.ZCACHEDCOUNT AS 'zGenAlbum-Cached Count',
+        CASE zGenAlbum.ZTRASHEDSTATE
+            WHEN 0 THEN 'zGenAlbum Not In Trash-0'
+            WHEN 1 THEN 'zGenAlbum Album In Trash-1'
+            ELSE 'Unknown-New-Value!: ' || zGenAlbum.ZTRASHEDSTATE || ''
+        END AS 'zGenAlbum-Trashed State',
+        DateTime(zGenAlbum.ZTRASHEDDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-Trash Date',
+        zGenAlbum.ZUUID AS 'zGenAlbum-UUID',
+        zGenAlbum.ZCLOUDGUID AS 'zGenAlbum-Cloud GUID',
+        CASE zAsset.ZACTIVELIBRARYSCOPEPARTICIPATIONSTATE
+            WHEN 0 THEN '0-Asset-Not-In-Active-SPL-0'
+            WHEN 1 THEN '1-Asset-In-Active-SPL-1'
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZACTIVELIBRARYSCOPEPARTICIPATIONSTATE || ''
+        END AS 'zAsset-Active Library Scope Participation State',
+        zAsset.Z_PK AS 'zAsset-zPK',
+        zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
+        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAddAssetAttr.ZORIGINALSTABLEHASH AS 'zAddAssetAttr-Original Stable Hash-iOS18',
+        zAddAssetAttr.ZADJUSTEDSTABLEHASH AS 'zAddAssetAttr.Adjusted Stable Hash-iOS18'
+        FROM ZASSET zAsset
+            LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
+            LEFT JOIN ZEXTENDEDATTRIBUTES zExtAttr ON zExtAttr.Z_PK = zAsset.ZEXTENDEDATTRIBUTES
+            LEFT JOIN Z_31ASSETS z31Assets ON z31Assets.Z_3ASSETS = zAsset.Z_PK
+            LEFT JOIN ZGENERICALBUM zGenAlbum ON zGenAlbum.Z_PK = z31Assets.Z_31ALBUMS
+            LEFT JOIN ZCLOUDMASTER zCldMast ON zAsset.ZMASTER = zCldMast.Z_PK
+            LEFT JOIN ZCLOUDMASTERMEDIAMETADATA AAAzCldMastMedData ON
+             AAAzCldMastMedData.Z_PK = zAddAssetAttr.ZMEDIAMETADATA
+            LEFT JOIN ZCLOUDMASTERMEDIAMETADATA CMzCldMastMedData ON
+             CMzCldMastMedData.Z_PK = zCldMast.ZMEDIAMETADATA
+            LEFT JOIN ZGENERICALBUM SWYConverszGenAlbum ON SWYConverszGenAlbum.Z_PK = zAsset.ZCONVERSATION
+        ORDER BY zAsset.ZDATECREATED
+        """)
+
+        all_rows = cursor.fetchall()
+        usageentries = len(all_rows)
+        data_list = []
+        counter = 0
+        if usageentries > 0:
+            for row in all_rows:
+                data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
+                                row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
+                                row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
+                                row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35], row[36],
+                                row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45],
+                                row[46], row[47], row[48], row[49], row[50], row[51], row[52], row[53], row[54],
+                                row[55], row[56], row[57], row[58], row[59], row[60], row[61], row[62], row[63],
+                                row[64], row[65], row[66], row[67], row[68], row[69], row[70], row[71], row[72],
+                                row[73], row[74], row[75], row[76], row[77], row[78], row[79], row[80], row[81],
+                                row[82], row[83]))
+
+                counter += 1
+
+            description = 'Parses basic asset record data from PhotoData-Photos.sqlite for' \
+                          ' basic asset and album data. The results may contain multiple records' \
+                          ' per ZASSET table Z_PK value and supports iOS 18.' \
+                          ' Use "2-Non-Shared-Album-2" in the search box to view Non-Shared Albums Assets.' \
+                          ' Use "1505-Shared-Album-1505" in the search box to view Shared Albums Assets.' \
+                          ' Use "1509-SWY_Synced_Conversation_Media-1509" in the search box to view' \
+                          ' Shared with You Conversation Identifiers Assets.'
+            report = ArtifactHtmlReport('Photos.sqlite-A-Asset_Basic_Data')
+            report.start_artifact_report(report_folder, 'Ph2.1-Asset Basic Data & GenAlbum Data-PhDaPsql', description)
+            report.add_script()
+            data_headers = ('zAsset-Date Created-0',
+                            'zAsset- SortToken -CameraRoll-1',
+                            'zAsset-Added Date-2',
+                            'zCldMast-Creation Date-3',
+                            'zAddAssetAttr-Time Zone Name-4',
+                            'zAddAssetAttr-Time Zone Offset-5',
+                            'zAddAssetAttr-EXIF-String-6',
+                            'zAsset-Modification Date-7',
+                            'zAsset-Last Shared Date-8',
+                            'zAddAssetAttr-Last Viewed Date-9',
+                            'zAsset-Directory-Path-10',
+                            'zAsset-Filename-11',
+                            'zAddAssetAttr- Original Filename-12',
+                            'zCldMast- Original Filename-13',
+                            'zAddAssetAttr- Syndication Identifier-SWY-Files-14',
+                            'zAsset- Conversation= zGenAlbum_zPK-15',
+                            'SWYConverszGenAlbum- Import Session ID-16',
+                            'zAsset-Syndication State-17',
+                            'zAsset-Trashed Date-18',
+                            'zAsset-Trashed State-LocalAssetRecentlyDeleted-19',
+                            'zAsset-Trashed by Participant= zShareParticipant_zPK-20',
+                            'zAsset-Is_Recently_Saved-iOS18-21',
+                            'zAsset-Saved Asset Type-22',
+                            'zAddAssetAttr-Imported by Bundle ID-23',
+                            'zAddAssetAttr-Imported By Display Name-24',
+                            'zAddAssetAttr-Imported by-25',
+                            'zCldMast-Imported by Bundle ID-26',
+                            'zCldMast-Imported by Display Name-27',
+                            'zCldMast-Imported By-28',
+                            'zAsset-Visibility State-29',
+                            'zExtAttr-Camera Make-30',
+                            'zExtAttr-Camera Model-31',
+                            'zExtAttr-Lens Model-32',
+                            'zAsset-Derived Camera Capture Device-33',
+                            'zAddAssetAttr-Camera Captured Device-34',
+                            'zAsset-Capture_Session_Identifier-iOS18-35',
+                            'zAddAssetAttr-Share Type-36',
+                            'zCldMast-Cloud Local State-37',
+                            'zCldMast-Import Date-38',
+                            'zAddAssetAttr-Last Upload Attempt Date-SWY_Files-39',
+                            'zAddAssetAttr-Import Session ID-40',
+                            'zAddAssetAttr-Alt Import Image Date-41',
+                            'zCldMast-Import Session ID- AirDrop-StillTesting-42',
+                            'zAsset-Cloud Batch Publish Date-43',
+                            'zAsset-Cloud Server Publish Date-44',
+                            'zAsset-Cloud Download Requests-45',
+                            'zAsset-Cloud Batch ID-46',
+                            'zAsset-Latitude-47',
+                            'zExtAttr-Latitude-48',
+                            'zAsset-Longitude-49',
+                            'zExtAttr-Longitude-50',
+                            'zAddAssetAttr-GPS Horizontal Accuracy-51',
+                            'zAddAssetAttr-Location Hash-52',
+                            'zAddAssetAttr-Shifted Location Valid-53',
+                            'zAddAssetAttr-Shifted Location Data-54',
+                            'zAddAssetAttr-Reverse Location Is Valid-55',
+                            'zAddAssetAttr-Reverse Location Data-56',
+                            'AAAzCldMastMedData-zOPT-57',
+                            'zAddAssetAttr-Media Metadata Type-58',
+                            'AAAzCldMastMedData-Data-59',
+                            'CldMasterzCldMastMedData-zOPT-60',
+                            'zCldMast-Media Metadata Type-61',
+                            'CMzCldMastMedData-Data-62',
+                            'zAsset-Bundle Scope-63',
+                            'zGenAlbum-Creation Date-64',
+                            'zGenAlbum-Start Date-65',
+                            'zGenAlbum-End Date-66',
+                            'zGenAlbum-Album Kind-67',
+                            'zGenAlbum-Title-User&System Applied-68',
+                            'zGenAlbum- Import Session ID-69',
+                            'zGenAlbum-Imported by Bundle Identifier-70',
+                            'zGenAlbum-Cached Photos Count-71',
+                            'zGenAlbum-Cached Videos Count-72',
+                            'zGenAlbum-Cached Count-73',
+                            'zGenAlbum-Trashed State-74',
+                            'zGenAlbum-Trash Date-75',
+                            'zGenAlbum-UUID-76',
+                            'zGenAlbum-Cloud GUID-77',
+                            'zAsset-Active Library Scope Participation State-78',
+                            'zAsset-zPK-79',
+                            'zAddAssetAttr-zPK-80',
+                            'zAsset-UUID = store.cloudphotodb-81',
+                            'zAddAssetAttr-Original Stable Hash-iOS18-82',
+                            'zAddAssetAttr.Adjusted Stable Hash-iOS18-83')
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
@@ -2692,7 +3079,7 @@ def get_ph2asserbasicandconversdatasyndpl(files_found, report_folder, seeker, wr
             description = 'Parses basic asset record data from' \
                           ' Syndication.photoslibrary-database-Photos.sqlite' \
                           ' for basic asset and album data. The results may contain multiple records' \
-                          ' per ZASSET table Z_PK value and supports iOS 11.' \
+                          ' per ZASSET table Z_PK value and supports iOS 12.' \
                           ' Use "2-Non-Shared-Album-2" in the search box to view Non-Shared Albums Assets.' \
                           ' Use "1505-Shared-Album-1505" in the search box to view Shared Albums Assets.' \
                           ' Use "1509-SWY_Synced_Conversation_Media-1509" in the search box to view' \
@@ -2995,7 +3382,7 @@ def get_ph2asserbasicandconversdatasyndpl(files_found, report_folder, seeker, wr
             description = 'Parses basic asset record data from' \
                           ' Syndication.photoslibrary-database-Photos.sqlite' \
                           ' for basic asset and album data. The results may contain multiple records' \
-                          ' per ZASSET table Z_PK value and supports iOS 11.' \
+                          ' per ZASSET table Z_PK value and supports iOS 13.' \
                           ' Use "2-Non-Shared-Album-2" in the search box to view Non-Shared Albums Assets.' \
                           ' Use "1505-Shared-Album-1505" in the search box to view Shared Albums Assets.' \
                           ' Use "1509-SWY_Synced_Conversation_Media-1509" in the search box to view' \
@@ -3330,7 +3717,7 @@ def get_ph2asserbasicandconversdatasyndpl(files_found, report_folder, seeker, wr
             description = 'Parses basic asset record data from' \
                           ' Syndication.photoslibrary-database-Photos.sqlite' \
                           ' for basic asset and album data. The results may contain multiple records' \
-                          ' per ZASSET table Z_PK value and supports iOS 11.' \
+                          ' per ZASSET table Z_PK value and supports iOS 14.' \
                           ' Use "2-Non-Shared-Album-2" in the search box to view Non-Shared Albums Assets.' \
                           ' Use "1505-Shared-Album-1505" in the search box to view Shared Albums Assets.' \
                           ' Use "1509-SWY_Synced_Conversation_Media-1509" in the search box to view' \
@@ -3694,7 +4081,7 @@ def get_ph2asserbasicandconversdatasyndpl(files_found, report_folder, seeker, wr
             description = 'Parses basic asset record data from' \
                           ' Syndication.photoslibrary-database-Photos.sqlite' \
                           ' for basic asset and album data. The results may contain multiple records' \
-                          ' per ZASSET table Z_PK value and supports iOS 11.' \
+                          ' per ZASSET table Z_PK value and supports iOS 15.' \
                           ' Use "2-Non-Shared-Album-2" in the search box to view Non-Shared Albums Assets.' \
                           ' Use "1505-Shared-Album-1505" in the search box to view Shared Albums Assets.' \
                           ' Use "1509-SWY_Synced_Conversation_Media-1509" in the search box to view' \
@@ -4069,7 +4456,7 @@ def get_ph2asserbasicandconversdatasyndpl(files_found, report_folder, seeker, wr
             description = 'Parses basic asset record data from' \
                           ' Syndication.photoslibrary-database-Photos.sqlite' \
                           ' for basic asset and album data. The results may contain multiple records' \
-                          ' per ZASSET table Z_PK value and supports iOS 11.' \
+                          ' per ZASSET table Z_PK value and supports iOS 16.' \
                           ' Use "2-Non-Shared-Album-2" in the search box to view Non-Shared Albums Assets.' \
                           ' Use "1505-Shared-Album-1505" in the search box to view Shared Albums Assets.' \
                           ' Use "1509-SWY_Synced_Conversation_Media-1509" in the search box to view' \
@@ -4173,7 +4560,7 @@ def get_ph2asserbasicandconversdatasyndpl(files_found, report_folder, seeker, wr
         db.close()
         return
 
-    elif version.parse(iosversion) >= version.parse("17"):
+    elif (version.parse(iosversion) >= version.parse("17")) & (version.parse(iosversion) < version.parse("18")):
         file_found = str(files_found[0])
         db = open_sqlite_db_readonly(file_found)
         cursor = db.cursor()
@@ -4446,7 +4833,7 @@ def get_ph2asserbasicandconversdatasyndpl(files_found, report_folder, seeker, wr
             description = 'Parses basic asset record data from' \
                           ' Syndication.photoslibrary-database-Photos.sqlite' \
                           ' for basic asset and album data. The results may contain multiple records' \
-                          ' per ZASSET table Z_PK value and supports iOS 11.' \
+                          ' per ZASSET table Z_PK value and supports iOS 17.' \
                           ' Use "2-Non-Shared-Album-2" in the search box to view Non-Shared Albums Assets.' \
                           ' Use "1505-Shared-Album-1505" in the search box to view Shared Albums Assets.' \
                           ' Use "1509-SWY_Synced_Conversation_Media-1509" in the search box to view' \
@@ -4551,37 +4938,426 @@ def get_ph2asserbasicandconversdatasyndpl(files_found, report_folder, seeker, wr
         db.close()
         return
 
+    elif version.parse(iosversion) >= version.parse("18"):
+        file_found = str(files_found[0])
+        db = open_sqlite_db_readonly(file_found)
+        cursor = db.cursor()
+
+        cursor.execute("""
+        SELECT
+        DateTime(zAsset.ZDATECREATED + 978307200, 'UNIXEPOCH') AS 'zAsset-Date Created',  
+        DateTime(zAsset.ZSORTTOKEN + 978307200, 'UNIXEPOCH') AS 'zAsset- SortToken -CameraRoll',
+        DateTime(zAsset.ZADDEDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Added Date',
+        DateTime(zCldMast.ZCREATIONDATE + 978307200, 'UNIXEPOCH') AS 'zCldMast-Creation Date',
+        zAddAssetAttr.ZTIMEZONENAME AS 'zAddAssetAttr-Time Zone Name',
+        zAddAssetAttr.ZTIMEZONEOFFSET AS 'zAddAssetAttr-Time Zone Offset',
+        zAddAssetAttr.ZEXIFTIMESTAMPSTRING AS 'zAddAssetAttr-EXIF-String',
+        DateTime(zAsset.ZMODIFICATIONDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Modification Date',
+        DateTime(zAsset.ZLASTSHAREDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Last Shared Date',
+        DateTime(zAddAssetAttr.ZLASTVIEWEDDATE + 978307200, 'UNIXEPOCH') AS 'zAddAssetAttr-Last Viewed Date',        
+        zAsset.ZDIRECTORY AS 'zAsset-Directory-Path',
+        zAsset.ZFILENAME AS 'zAsset-Filename',
+        zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
+        zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
+        zAddAssetAttr.ZSYNDICATIONIDENTIFIER AS 'zAddAssetAttr- Syndication Identifier-SWY-Files',
+        zAsset.ZCONVERSATION AS 'zAsset- Conversation= zGenAlbum_zPK ',
+        SWYConverszGenAlbum.ZIMPORTSESSIONID AS 'SWYConverszGenAlbum- Import Session ID',
+        CASE zAsset.ZSYNDICATIONSTATE
+            WHEN 0 THEN '0-PhDaPs-NA_or_SyndPs-Received-SWY_Synd_Asset-0'
+            WHEN 1 THEN '1-SyndPs-Sent-SWY_Synd_Asset-1'
+            WHEN 2 THEN '2-SyndPs-Manually-Saved_SWY_Synd_Asset-2'
+            WHEN 3 THEN '3-SyndPs-STILLTESTING_Sent-SWY-3'
+            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_User_Deleted_Link-8'
+            WHEN 9 THEN '9-SyndPs-STILLTESTING_Sent_SWY-9'
+            WHEN 10 THEN '10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10'
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZSYNDICATIONSTATE || ''
+        END AS 'zAsset-Syndication State',
+        DateTime(zAsset.ZTRASHEDDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Trashed Date',
+        CASE zAsset.ZTRASHEDSTATE
+            WHEN 0 THEN '0-Asset Not In Trash-Recently Deleted-0'
+            WHEN 1 THEN '1-Asset In Trash-Recently Deleted-1'
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZTRASHEDSTATE || ''
+        END AS 'zAsset-Trashed State-LocalAssetRecentlyDeleted',
+        zAsset.ZTRASHEDBYPARTICIPANT AS 'zAsset-Trashed by Participant= zShareParticipant_zPK',
+        CASE zAsset.ZISRECENTLYSAVED
+            WHEN 0 THEN '0-Not_Recenlty_Saved iOS18_Still_Testing-0'
+            WHEN 1 THEN '1-Recently_Saved iOS18_Still_Testing-1'	
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZISRECENTLYSAVED || ''
+        END AS 'zAsset-Is_Recently_Saved-iOS18',
+        CASE zAsset.ZSAVEDASSETTYPE
+            WHEN 0 THEN '0-Saved-via-other-source-0'
+            WHEN 1 THEN '1-StillTesting-1'
+            WHEN 2 THEN '2-StillTesting-2'
+            WHEN 3 THEN '3-PhDaPs-Asset_or_SyndPs-Asset_NoAuto-Display-3'
+            WHEN 4 THEN '4-Photo-Cloud-Sharing-Data-Asset-4'
+            WHEN 5 THEN '5-PhotoBooth_Photo-Library-Asset-5'
+            WHEN 6 THEN '6-Cloud-Photo-Library-Asset-6'
+            WHEN 7 THEN '7-StillTesting-7'
+            WHEN 8 THEN '8-iCloudLink_CloudMasterMomentAsset-8'
+            WHEN 12 THEN '12-SyndPs-SWY-Asset_Auto-Display_In_CameraRoll-12'
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZSAVEDASSETTYPE || ''
+        END AS 'zAsset-Saved Asset Type',
+        zAddAssetAttr.ZIMPORTEDBYBUNDLEIDENTIFIER AS 'zAddAssetAttr-Imported by Bundle ID',
+        zAddAssetAttr.ZIMPORTEDBYDISPLAYNAME AS 'zAddAssetAttr-Imported By Display Name',   
+        CASE zAddAssetAttr.ZIMPORTEDBY
+            WHEN 0 THEN '0-Cloud-Other-0'
+            WHEN 1 THEN '1-Native-Back-Camera-1'
+            WHEN 2 THEN '2-Native-Front-Camera-2'
+            WHEN 3 THEN '3-Third-Party-App-3'
+            WHEN 4 THEN '4-StillTesting-4'
+            WHEN 5 THEN '5-PhotoBooth_PL-Asset-5'
+            WHEN 6 THEN '6-Third-Party-App-6'
+            WHEN 7 THEN '7-iCloud_Share_Link-CMMAsset-7'
+            WHEN 8 THEN '8-System-Package-App-8'
+            WHEN 9 THEN '9-Native-App-9'
+            WHEN 10 THEN '10-StillTesting-10'
+            WHEN 11 THEN '11-StillTesting-11'
+            WHEN 12 THEN '12-SWY_Syndication_PL-12'
+            ELSE 'Unknown-New-Value!: ' || zAddAssetAttr.ZIMPORTEDBY || ''
+        END AS 'zAddAssetAttr-Imported by',
+        zCldMast.ZIMPORTEDBYBUNDLEIDENTIFIER AS 'zCldMast-Imported by Bundle ID',
+        zCldMast.ZIMPORTEDBYDISPLAYNAME AS 'zCldMast-Imported by Display Name',
+        CASE zCldMast.ZIMPORTEDBY
+            WHEN 0 THEN '0-Cloud-Other-0'
+            WHEN 1 THEN '1-Native-Back-Camera-1'
+            WHEN 2 THEN '2-Native-Front-Camera-2'
+            WHEN 3 THEN '3-Third-Party-App-3'
+            WHEN 4 THEN '4-StillTesting-4'
+            WHEN 5 THEN '5-PhotoBooth_PL-Asset-5'
+            WHEN 6 THEN '6-Third-Party-App-6'
+            WHEN 7 THEN '7-iCloud_Share_Link-CMMAsset-7'
+            WHEN 8 THEN '8-System-Package-App-8'
+            WHEN 9 THEN '9-Native-App-9'
+            WHEN 10 THEN '10-StillTesting-10'
+            WHEN 11 THEN '11-StillTesting-11'
+            WHEN 12 THEN '12-SWY_Syndication_PL-12'
+            ELSE 'Unknown-New-Value!: ' || zCldMast.ZIMPORTEDBY || ''
+        END AS 'zCldMast-Imported By',                      
+        CASE zAsset.ZVISIBILITYSTATE
+            WHEN 0 THEN '0-Visible-PL-CameraRoll-0'
+            WHEN 2 THEN '2-Not-Visible-PL-CameraRoll-2'
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZVISIBILITYSTATE || ''
+        END AS 'zAsset-Visibility State',
+        zExtAttr.ZCAMERAMAKE AS 'zExtAttr-Camera Make',
+        zExtAttr.ZCAMERAMODEL AS 'zExtAttr-Camera Model',
+        zExtAttr.ZLENSMODEL AS 'zExtAttr-Lens Model',
+        CASE zAsset.ZDERIVEDCAMERACAPTUREDEVICE
+            WHEN 0 THEN '0-Back-Camera-Other-0'
+            WHEN 1 THEN '1-Front-Camera-1'
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZDERIVEDCAMERACAPTUREDEVICE || ''
+        END AS 'zAsset-Derived Camera Capture Device',
+        CASE zAddAssetAttr.ZCAMERACAPTUREDEVICE
+            WHEN 0 THEN '0-Back-Camera-Other-0'
+            WHEN 1 THEN '1-Front-Camera-1'
+            ELSE 'Unknown-New-Value!: ' || zAddAssetAttr.ZCAMERACAPTUREDEVICE || ''
+        END AS 'zAddAssetAttr-Camera Captured Device',
+        zAsset.ZCAPTURESESSIONIDENTIFIER AS 'zAsset-Capture_Session_Identifier-iOS18',
+        CASE zAddAssetAttr.ZSHARETYPE
+            WHEN 0 THEN '0-Not_Shared-or-Shared_via_Phy_Device_StillTesting-0'
+            WHEN 1 THEN '1-Shared_via_iCldPhotos_Web-or-Other_Device_StillTesting-1'
+            ELSE 'Unknown-New-Value!: ' || zAddAssetAttr.ZSHARETYPE || ''
+        END AS 'zAddAssetAttr-Share Type',
+        CASE zCldMast.ZCLOUDLOCALSTATE
+            WHEN 0 THEN '0-Not Synced with Cloud-0'
+            WHEN 1 THEN '1-Pending Upload-1'
+            WHEN 2 THEN '2-StillTesting'
+            WHEN 3 THEN '3-Synced with Cloud-3'
+            ELSE 'Unknown-New-Value!: ' || zCldMast.ZCLOUDLOCALSTATE || ''
+        END AS 'zCldMast-Cloud Local State',
+        DateTime(zCldMast.ZIMPORTDATE + 978307200, 'UNIXEPOCH') AS 'zCldMast-Import Date',
+        DateTime(zAddAssetAttr.ZLASTUPLOADATTEMPTDATE + 978307200, 'UNIXEPOCH')
+         AS 'zAddAssetAttr-Last Upload Attempt Date-SWY_Files',
+        zAddAssetAttr.ZIMPORTSESSIONID AS 'zAddAssetAttr-Import Session ID',
+        DateTime(zAddAssetAttr.ZALTERNATEIMPORTIMAGEDATE + 978307200, 'UNIXEPOCH')
+         AS 'zAddAssetAttr-Alt Import Image Date',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        DateTime(zAsset.ZCLOUDBATCHPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Batch Publish Date',
+        DateTime(zAsset.ZCLOUDSERVERPUBLISHDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Cloud Server Publish Date',
+        zAsset.ZCLOUDDOWNLOADREQUESTS AS 'zAsset-Cloud Download Requests',
+        zAsset.ZCLOUDBATCHID AS 'zAsset-Cloud Batch ID',
+        CASE zAsset.ZLATITUDE
+            WHEN -180.0 THEN '-180.0'
+            ELSE zAsset.ZLATITUDE
+        END AS 'zAsset-Latitude',
+        zExtAttr.ZLATITUDE AS 'zExtAttr-Latitude',
+        CASE zAsset.ZLONGITUDE
+            WHEN -180.0 THEN '-180.0'
+            ELSE zAsset.ZLONGITUDE
+        END AS 'zAsset-Longitude',
+        zExtAttr.ZLONGITUDE AS 'zExtAttr-Longitude',
+        CASE zAddAssetAttr.ZGPSHORIZONTALACCURACY
+            WHEN -1.0 THEN '-1.0'
+            ELSE zAddAssetAttr.ZGPSHORIZONTALACCURACY
+        END AS 'zAddAssetAttr-GPS Horizontal Accuracy',
+        zAddAssetAttr.ZLOCATIONHASH AS 'zAddAssetAttr-Location Hash',
+        CASE zAddAssetAttr.ZSHIFTEDLOCATIONISVALID
+            WHEN 0 THEN '0-Shifted Location Not Valid-0'
+            WHEN 1 THEN '1-Shifted Location Valid-1'
+            ELSE 'Unknown-New-Value!: ' || zAddAssetAttr.ZSHIFTEDLOCATIONISVALID || ''
+        END AS 'zAddAssetAttr-Shifted Location Valid',
+        CASE
+            WHEN zAddAssetAttr.ZSHIFTEDLOCATIONDATA > 0 THEN 'zAddAssetAttr-Shifted_Location_Data_has_Plist'
+            ELSE 'zAddAssetArrt-Shifted_Location_Data_Empty-NULL'
+        END AS 'zAddAssetAttr-Shifted Location Data',
+        CASE zAddAssetAttr.ZREVERSELOCATIONDATAISVALID
+            WHEN 0 THEN '0-Reverse Location Not Valid-0'
+            WHEN 1 THEN '1-Reverse Location Valid-1'
+            ELSE 'Unknown-New-Value!: ' || zAddAssetAttr.ZREVERSELOCATIONDATAISVALID || ''
+        END AS 'zAddAssetAttr-Reverse Location Is Valid',		
+        CASE
+            WHEN zAddAssetAttr.ZREVERSELOCATIONDATA > 0 THEN 'zAddAssetAttr-Reverse_Location_Data_has_Plist'
+            ELSE 'zAddAssetAttr-Reverse_Location_Data_Empty-NULL'
+        END AS 'zAddAssetAttr-Reverse Location Data',
+        CASE AAAzCldMastMedData.Z_OPT
+            WHEN 1 THEN '1-StillTesting-Cloud-1'
+            WHEN 2 THEN '2-StillTesting-This Device-2'
+            WHEN 3 THEN '3-StillTesting-Muted-3'
+            WHEN 4 THEN '4-StillTesting-Unknown-4'
+            WHEN 5 THEN '5-StillTesting-Unknown-5'
+            ELSE 'Unknown-New-Value!: ' || AAAzCldMastMedData.Z_OPT || ''
+        END AS 'AAAzCldMastMedData-zOPT',
+        zAddAssetAttr.ZMEDIAMETADATATYPE AS 'zAddAssetAttr-Media Metadata Type',
+        CASE
+            WHEN AAAzCldMastMedData.ZDATA > 0 THEN 'AAAzCldMastMedData-Data_has_Plist'
+            ELSE 'AAAzCldMastMedData-Data_Empty-NULL'
+        END AS 'AAAzCldMastMedData-Data',
+        CASE CMzCldMastMedData.Z_OPT
+            WHEN 1 THEN '1-StillTesting-Has_CldMastAsset-1'
+            WHEN 2 THEN '2-StillTesting-Local_Asset-2'
+            WHEN 3 THEN '3-StillTesting-Muted-3'
+            WHEN 4 THEN '4-StillTesting-Unknown-4'
+            WHEN 5 THEN '5-StillTesting-Unknown-5'
+            ELSE 'Unknown-New-Value!: ' || CMzCldMastMedData.Z_OPT || ''
+        END AS 'CldMasterzCldMastMedData-zOPT',
+        zCldMast.ZMEDIAMETADATATYPE AS 'zCldMast-Media Metadata Type',		
+        CASE
+            WHEN CMzCldMastMedData.ZDATA > 0 THEN 'CMzCldMastMedData-Data_has_Plist'
+            ELSE 'CMzCldMastMedData-Data_Empty-NULL'
+        END AS 'CMzCldMastMedData-Data',
+        CASE zAsset.ZBUNDLESCOPE
+            WHEN 0 THEN '0-iCldPhtos-ON-AssetNotInSharedAlbum_or_iCldPhtos-OFF-AssetOnLocalDevice-0'
+            WHEN 1 THEN '1-SharediCldLink_CldMastMomentAsset-1'
+            WHEN 2 THEN '2-iCldPhtos-ON-AssetInCloudSharedAlbum-2'
+            WHEN 3 THEN '3-iCldPhtos-ON-AssetIsInSWYConversation-3'
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZBUNDLESCOPE || ''
+        END AS 'zAsset-Bundle Scope',
+        DateTime(zGenAlbum.ZCREATIONDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-Creation Date',
+        DateTime(zGenAlbum.ZSTARTDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-Start Date',
+        DateTime(zGenAlbum.ZENDDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-End Date',
+        CASE zGenAlbum.ZKIND
+            WHEN 2 THEN '2-Non-Shared-Album-2'
+            WHEN 1505 THEN '1505-Shared-Album-1505'
+            WHEN 1506 THEN '1506-Import_Session_AssetsImportedatSameTime-1506_RT'
+            WHEN 1508 THEN '1508-My_Projects_Album_CalendarCardEct_RT'
+            WHEN 1509 THEN '1509-SWY_Synced_Conversation_Media-1509'
+            WHEN 1510 THEN '1510-Duplicate_Album-Pending_Merge-1510'
+            WHEN 3571 THEN '3571-Progress-Sync-3571'
+            WHEN 3572 THEN '3572-Progress-OTA-Restore-3572'
+            WHEN 3573 THEN '3573-Progress-FS-Import-3573'
+            WHEN 3998 THEN '3998-Project Root Folder-3998'
+            WHEN 3999 THEN '3999-Parent_Root_for_Generic_Album-3999'
+            WHEN 4000 THEN '4000-Parent_is_Folder_on_Local_Device-4000'
+            ELSE 'Unknown-New-Value!: ' || zGenAlbum.ZKIND || ''
+        END AS 'zGenAlbum-Album Kind',
+        zGenAlbum.ZTITLE AS 'zGenAlbum-Title-User&System Applied',
+        zGenAlbum.ZIMPORTSESSIONID AS 'zGenAlbum- Import Session ID',
+        zGenAlbum.ZIMPORTEDBYBUNDLEIDENTIFIER AS 'zGenAlbum-Imported by Bundle Identifier',
+        zGenAlbum.ZCACHEDPHOTOSCOUNT AS 'zGenAlbum-Cached Photos Count',
+        zGenAlbum.ZCACHEDVIDEOSCOUNT AS 'zGenAlbum-Cached Videos Count',
+        zGenAlbum.ZCACHEDCOUNT AS 'zGenAlbum-Cached Count',
+        CASE zGenAlbum.ZTRASHEDSTATE
+            WHEN 0 THEN 'zGenAlbum Not In Trash-0'
+            WHEN 1 THEN 'zGenAlbum Album In Trash-1'
+            ELSE 'Unknown-New-Value!: ' || zGenAlbum.ZTRASHEDSTATE || ''
+        END AS 'zGenAlbum-Trashed State',
+        DateTime(zGenAlbum.ZTRASHEDDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-Trash Date',
+        zGenAlbum.ZUUID AS 'zGenAlbum-UUID',
+        zGenAlbum.ZCLOUDGUID AS 'zGenAlbum-Cloud GUID',
+        CASE zAsset.ZACTIVELIBRARYSCOPEPARTICIPATIONSTATE
+            WHEN 0 THEN '0-Asset-Not-In-Active-SPL-0'
+            WHEN 1 THEN '1-Asset-In-Active-SPL-1'
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZACTIVELIBRARYSCOPEPARTICIPATIONSTATE || ''
+        END AS 'zAsset-Active Library Scope Participation State',
+        zAsset.Z_PK AS 'zAsset-zPK',
+        zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
+        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAddAssetAttr.ZORIGINALSTABLEHASH AS 'zAddAssetAttr-Original Stable Hash-iOS18',
+        zAddAssetAttr.ZADJUSTEDSTABLEHASH AS 'zAddAssetAttr.Adjusted Stable Hash-iOS18'    
+        FROM ZASSET zAsset
+            LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
+            LEFT JOIN ZEXTENDEDATTRIBUTES zExtAttr ON zExtAttr.Z_PK = zAsset.ZEXTENDEDATTRIBUTES
+            LEFT JOIN Z_31ASSETS z31Assets ON z31Assets.Z_3ASSETS = zAsset.Z_PK
+            LEFT JOIN ZGENERICALBUM zGenAlbum ON zGenAlbum.Z_PK = z31Assets.Z_31ALBUMS
+            LEFT JOIN ZCLOUDMASTER zCldMast ON zAsset.ZMASTER = zCldMast.Z_PK
+            LEFT JOIN ZCLOUDMASTERMEDIAMETADATA AAAzCldMastMedData ON
+             AAAzCldMastMedData.Z_PK = zAddAssetAttr.ZMEDIAMETADATA
+            LEFT JOIN ZCLOUDMASTERMEDIAMETADATA CMzCldMastMedData ON
+             CMzCldMastMedData.Z_PK = zCldMast.ZMEDIAMETADATA
+            LEFT JOIN ZGENERICALBUM SWYConverszGenAlbum ON SWYConverszGenAlbum.Z_PK = zAsset.ZCONVERSATION
+        ORDER BY zAsset.ZDATECREATED
+        """)
+
+        all_rows = cursor.fetchall()
+        usageentries = len(all_rows)
+        data_list = []
+        counter = 0
+        if usageentries > 0:
+            for row in all_rows:
+                data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
+                                  row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
+                                  row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
+                                  row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35], row[36],
+                                  row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45],
+                                  row[46], row[47], row[48], row[49], row[50], row[51], row[52], row[53], row[54],
+                                  row[55], row[56], row[57], row[58], row[59], row[60], row[61], row[62], row[63],
+                                  row[64], row[65], row[66], row[67], row[68], row[69], row[70], row[71], row[72],
+                                  row[73], row[74], row[75], row[76], row[77], row[78], row[79], row[80], row[81],
+                                  row[82], row[83]))
+
+                counter += 1
+
+            description = 'Parses basic asset record data from' \
+                          ' Syndication.photoslibrary-database-Photos.sqlite' \
+                          ' for basic asset and album data. The results may contain multiple records' \
+                          ' per ZASSET table Z_PK value and supports iOS 18.' \
+                          ' Use "2-Non-Shared-Album-2" in the search box to view Non-Shared Albums Assets.' \
+                          ' Use "1505-Shared-Album-1505" in the search box to view Shared Albums Assets.' \
+                          ' Use "1509-SWY_Synced_Conversation_Media-1509" in the search box to view' \
+                          ' Shared with You Conversation Identifiers Assets.'
+            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report.start_artifact_report(report_folder, 'Ph2.2-Asset Basic Data & Convers Data-SyndPL', description)
+            report.add_script()
+            data_headers = ('zAsset-Date Created-0',
+                            'zAsset- SortToken -CameraRoll-1',
+                            'zAsset-Added Date-2',
+                            'zCldMast-Creation Date-3',
+                            'zAddAssetAttr-Time Zone Name-4',
+                            'zAddAssetAttr-Time Zone Offset-5',
+                            'zAddAssetAttr-EXIF-String-6',
+                            'zAsset-Modification Date-7',
+                            'zAsset-Last Shared Date-8',
+                            'zAddAssetAttr-Last Viewed Date-9',
+                            'zAsset-Directory-Path-10',
+                            'zAsset-Filename-11',
+                            'zAddAssetAttr- Original Filename-12',
+                            'zCldMast- Original Filename-13',
+                            'zAddAssetAttr- Syndication Identifier-SWY-Files-14',
+                            'zAsset- Conversation= zGenAlbum_zPK-15',
+                            'SWYConverszGenAlbum- Import Session ID-16',
+                            'zAsset-Syndication State-17',
+                            'zAsset-Trashed Date-18',
+                            'zAsset-Trashed State-LocalAssetRecentlyDeleted-19',
+                            'zAsset-Trashed by Participant= zShareParticipant_zPK-20',
+                            'zAsset-Is_Recently_Saved-iOS18-21',
+                            'zAsset-Saved Asset Type-22',
+                            'zAddAssetAttr-Imported by Bundle ID-23',
+                            'zAddAssetAttr-Imported By Display Name-24',
+                            'zAddAssetAttr-Imported by-25',
+                            'zCldMast-Imported by Bundle ID-26',
+                            'zCldMast-Imported by Display Name-27',
+                            'zCldMast-Imported By-28',
+                            'zAsset-Visibility State-29',
+                            'zExtAttr-Camera Make-30',
+                            'zExtAttr-Camera Model-31',
+                            'zExtAttr-Lens Model-32',
+                            'zAsset-Derived Camera Capture Device-33',
+                            'zAddAssetAttr-Camera Captured Device-34',
+                            'zAsset-Capture_Session_Identifier-iOS18-35',
+                            'zAddAssetAttr-Share Type-36',
+                            'zCldMast-Cloud Local State-37',
+                            'zCldMast-Import Date-38',
+                            'zAddAssetAttr-Last Upload Attempt Date-SWY_Files-39',
+                            'zAddAssetAttr-Import Session ID-40',
+                            'zAddAssetAttr-Alt Import Image Date-41',
+                            'zCldMast-Import Session ID- AirDrop-StillTesting-42',
+                            'zAsset-Cloud Batch Publish Date-43',
+                            'zAsset-Cloud Server Publish Date-44',
+                            'zAsset-Cloud Download Requests-45',
+                            'zAsset-Cloud Batch ID-46',
+                            'zAsset-Latitude-47',
+                            'zExtAttr-Latitude-48',
+                            'zAsset-Longitude-49',
+                            'zExtAttr-Longitude-50',
+                            'zAddAssetAttr-GPS Horizontal Accuracy-51',
+                            'zAddAssetAttr-Location Hash-52',
+                            'zAddAssetAttr-Shifted Location Valid-53',
+                            'zAddAssetAttr-Shifted Location Data-54',
+                            'zAddAssetAttr-Reverse Location Is Valid-55',
+                            'zAddAssetAttr-Reverse Location Data-56',
+                            'AAAzCldMastMedData-zOPT-57',
+                            'zAddAssetAttr-Media Metadata Type-58',
+                            'AAAzCldMastMedData-Data-59',
+                            'CldMasterzCldMastMedData-zOPT-60',
+                            'zCldMast-Media Metadata Type-61',
+                            'CMzCldMastMedData-Data-62',
+                            'zAsset-Bundle Scope-63',
+                            'zGenAlbum-Creation Date-64',
+                            'zGenAlbum-Start Date-65',
+                            'zGenAlbum-End Date-66',
+                            'zGenAlbum-Album Kind-67',
+                            'zGenAlbum-Title-User&System Applied-68',
+                            'zGenAlbum- Import Session ID-69',
+                            'zGenAlbum-Imported by Bundle Identifier-70',
+                            'zGenAlbum-Cached Photos Count-71',
+                            'zGenAlbum-Cached Videos Count-72',
+                            'zGenAlbum-Cached Count-73',
+                            'zGenAlbum-Trashed State-74',
+                            'zGenAlbum-Trash Date-75',
+                            'zGenAlbum-UUID-76',
+                            'zGenAlbum-Cloud GUID-77',
+                            'zAsset-Active Library Scope Participation State-78',
+                            'zAsset-zPK-79',
+                            'zAddAssetAttr-zPK-80',
+                            'zAsset-UUID = store.cloudphotodb-81',
+                            'zAddAssetAttr-Original Stable Hash-iOS18-82',
+                            'zAddAssetAttr.Adjusted Stable Hash-iOS18-83')
+            report.write_artifact_data_table(data_headers, data_list, file_found)
+            report.end_artifact_report()
+
+            tsvname = 'Ph2.2-Asset Basic Data & Convers Data-SyndPL'
+            tsv(report_folder, data_headers, data_list, tsvname)
+
+            tlactivity = 'Ph2.2-Asset Basic Data & Convers Data-SyndPL'
+            timeline(report_folder, tlactivity, data_list, data_headers)
+
+        else:
+            logfunc('No data available for Syndication.photoslibrary-database-Photos.sqlite'
+                    ' basic asset and album data')
+
+        db.close()
+        return
+
 
 __artifacts_v2__ = {
     'Ph2-1-Asset Basic & GenAlbum Data-PhDaPsql': {
         'name': 'PhDaPL Photos.sqlite 2.1 Asset Basic & Generic Album Data',
         'description': 'Parses basic asset record data from PhotoData-Photos.sqlite for basic asset and album data.'
-                       ' The results may contain multiple records per ZASSET table Z_PK value and supports iOS 11-17.'
+                       ' The results may contain multiple records per ZASSET table Z_PK value and supports iOS 11-18.'
                        ' Use 2-Non-Shared-Album-2 in the search box to view Non-Shared Albums Assets.'
                        ' Use 1505-Shared-Album-1505 in the search box to view Shared Albums Assets.'
                        ' Use 1509-SWY_Synced_Conversation_Media-1509 in the search box to view'
                        ' Shared with You Conversation Identifiers Assets.',
         'author': 'Scott Koenig https://theforensicscooter.com/',
         'version': '2.0',
-        'date': '2024-04-23',
+        'date': '2024-06-12',
         'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
         'category': 'Photos.sqlite-A-Asset_Basic_Data',
         'notes': '',
-        'paths': '*/mobile/Media/PhotoData/Photos.sqlite*',
+        'paths': '*/PhotoData/Photos.sqlite*',
         'function': 'get_ph2assetbasicandalbumdataphdapsql'
     },
     'Ph2-2-Asset Basic & Conversation Data-SyndPL': {
         'name': 'SyndPL Photos.sqlite 2.2 Asset Basic and Conversation Data',
         'description': 'Parses basic asset record data from -Syndication.photoslibrary-database-Photos.sqlite'
                        ' for basic asset and album data. The results may contain multiple records'
-                       ' per ZASSET table Z_PK value and supports iOS 11-17.'
+                       ' per ZASSET table Z_PK value and supports iOS 11-18.'
                        ' Use -Non-Shared-Album-2 in the search box to view Non-Shared Albums Assets.'
                        ' Use 1505-Shared-Album-1505 in the search box to view Shared Albums Assets.'
                        ' Use 1509-SWY_Synced_Conversation_Media-1509 in the search box to view'
                        ' Shared with You Conversation Identifiers Assets.',
         'author': 'Scott Koenig https://theforensicscooter.com/',
         'version': '2.0',
-        'date': '2024-04-23',
+        'date': '2024-06-12',
         'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
         'category': 'Photos.sqlite-S-Syndication_PL_Artifacts',
         'notes': '',
