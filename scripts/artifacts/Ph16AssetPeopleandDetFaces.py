@@ -414,7 +414,7 @@ def get_ph16assetpeopledetfacephdapsql(files_found, report_folder, seeker, wrap_
             description = 'Parses basic asset record data from PhotoData-Photos.sqlite for' \
                           ' basic asset, people and detected faces data. The results may contain multiple records' \
                           ' per ZASSET table Z_PK value and supports iOS 14.'
-            report = ArtifactHtmlReport('Photos.sqlite-G-People_Faces_Data')
+            report = ArtifactHtmlReport('Ph16.1-People & Faces Asset Data-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph16.1-People & Faces Asset Data-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -1025,7 +1025,7 @@ def get_ph16assetpeopledetfacephdapsql(files_found, report_folder, seeker, wrap_
             description = 'Parses basic asset record data from PhotoData-Photos.sqlite for' \
                           ' basic asset, people and detected faces data. The results may contain multiple records' \
                           ' per ZASSET table Z_PK value and supports iOS 15.'
-            report = ArtifactHtmlReport('Photos.sqlite-G-People_Faces_Data')
+            report = ArtifactHtmlReport('Ph16.1-People & Faces Asset Data-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph16.1-People & Faces Asset Data-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -1657,7 +1657,7 @@ def get_ph16assetpeopledetfacephdapsql(files_found, report_folder, seeker, wrap_
             description = 'Parses basic asset record data from PhotoData-Photos.sqlite for' \
                           ' basic asset, people and detected faces data. The results may contain multiple records' \
                           ' per ZASSET table Z_PK value and supports iOS 16.'
-            report = ArtifactHtmlReport('Photos.sqlite-G-People_Faces_Data')
+            report = ArtifactHtmlReport('Ph16.1-People & Faces Asset Data-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph16.1-People & Faces Asset Data-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -2297,7 +2297,7 @@ def get_ph16assetpeopledetfacephdapsql(files_found, report_folder, seeker, wrap_
             description = 'Parses basic asset record data from PhotoData-Photos.sqlite for' \
                           ' basic asset, people and detected faces data. The results may contain multiple records' \
                           ' per ZASSET table Z_PK value and supports iOS 17.'
-            report = ArtifactHtmlReport('Photos.sqlite-G-People_Faces_Data')
+            report = ArtifactHtmlReport('Ph16.1-People & Faces Asset Data-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph16.1-People & Faces Asset Data-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -2947,7 +2947,7 @@ def get_ph16assetpeopledetfacephdapsql(files_found, report_folder, seeker, wrap_
             description = 'Parses basic asset record data from PhotoData-Photos.sqlite for' \
                           ' basic asset, people and detected faces data. The results may contain multiple records' \
                           ' per ZASSET table Z_PK value and supports iOS 18.'
-            report = ArtifactHtmlReport('Photos.sqlite-G-People_Faces_Data')
+            report = ArtifactHtmlReport('Ph16.1-People & Faces Asset Data-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph16.1-People & Faces Asset Data-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -3507,7 +3507,7 @@ def get_ph16assetpeopledetfacesyndpl(files_found, report_folder, seeker, wrap_te
             description = 'Parses basic asset record data from Syndication.photoslibrary-database-Photos.sqlite for' \
                           ' basic asset, people and detected faces data. The results may contain multiple records' \
                           ' per ZASSET table Z_PK value and supports iOS 14.'
-            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Ph16.2-People & Faces Asset Data-SyndPL')
             report.start_artifact_report(report_folder, 'Ph16.2-People & Faces Asset Data-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -4118,7 +4118,7 @@ def get_ph16assetpeopledetfacesyndpl(files_found, report_folder, seeker, wrap_te
             description = 'Parses basic asset record data from Syndication.photoslibrary-database-Photos.sqlite for' \
                           ' basic asset, people and detected faces data. The results may contain multiple records' \
                           ' per ZASSET table Z_PK value and supports iOS 15.'
-            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Ph16.2-People & Faces Asset Data-SyndPL')
             report.start_artifact_report(report_folder, 'Ph16.2-People & Faces Asset Data-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -4750,7 +4750,7 @@ def get_ph16assetpeopledetfacesyndpl(files_found, report_folder, seeker, wrap_te
             description = 'Parses basic asset record data from Syndication.photoslibrary-database-Photos.sqlite for' \
                           ' basic asset, people and detected faces data. The results may contain multiple records' \
                           ' per ZASSET table Z_PK value and supports iOS 16.'
-            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Ph16.2-People & Faces Asset Data-SyndPL')
             report.start_artifact_report(report_folder, 'Ph16.2-People & Faces Asset Data-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -5390,7 +5390,7 @@ def get_ph16assetpeopledetfacesyndpl(files_found, report_folder, seeker, wrap_te
             description = 'Parses basic asset record data from Syndication.photoslibrary-database-Photos.sqlite for' \
                           ' basic asset, people and detected faces data. The results may contain multiple records' \
                           ' per ZASSET table Z_PK value and supports iOS 17.'
-            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Ph16.2-People & Faces Asset Data-SyndPL')
             report.start_artifact_report(report_folder, 'Ph16.2-People & Faces Asset Data-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -6040,7 +6040,7 @@ def get_ph16assetpeopledetfacesyndpl(files_found, report_folder, seeker, wrap_te
             description = 'Parses basic asset record data from Syndication.photoslibrary-database-Photos.sqlite for' \
                           ' basic asset, people and detected faces data. The results may contain multiple records' \
                           ' per ZASSET table Z_PK value and supports iOS 18.'
-            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Ph16.2-People & Faces Asset Data-SyndPL')
             report.start_artifact_report(report_folder, 'Ph16.2-People & Faces Asset Data-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',

@@ -76,7 +76,7 @@ def get_ph6viewplaydataphdapsql(files_found, report_folder, seeker, wrap_text, t
                           ' last viewed date from ZADDITTIONALASSETATTRIBUTES table ZLASTVIEWEDDATE field' \
                           ' will be included. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Photos.sqlite-B-Interaction_Artifacts')
+            report = ArtifactHtmlReport('Ph6-Viewed and Played Data-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph6-Viewed and Played Data-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Modification Date',
@@ -155,7 +155,7 @@ def get_ph6viewplaydataphdapsql(files_found, report_folder, seeker, wrap_text, t
                           ' last viewed date from ZADDITTIONALASSETATTRIBUTES table ZLASTVIEWEDDATE field' \
                           ' will be included. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Photos.sqlite-B-Interaction_Artifacts')
+            report = ArtifactHtmlReport('Ph6-Viewed and Played Data-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph6-Viewed and Played Data-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Modification Date',
@@ -235,7 +235,7 @@ def get_ph6viewplaydataphdapsql(files_found, report_folder, seeker, wrap_text, t
                           ' last viewed date from ZADDITTIONALASSETATTRIBUTES table ZLASTVIEWEDDATE field' \
                           ' will be included. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Photos.sqlite-B-Interaction_Artifacts')
+            report = ArtifactHtmlReport('Ph6-Viewed and Played Data-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph6-Viewed and Played Data-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Modification Date',
@@ -316,7 +316,7 @@ def get_ph6viewplaydataphdapsql(files_found, report_folder, seeker, wrap_text, t
                           ' last viewed date from ZADDITTIONALASSETATTRIBUTES table ZLASTVIEWEDDATE field' \
                           ' will be included. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Photos.sqlite-B-Interaction_Artifacts')
+            report = ArtifactHtmlReport('Ph6-Viewed and Played Data-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph6-Viewed and Played Data-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Modification Date',
@@ -398,7 +398,7 @@ def get_ph6viewplaydataphdapsql(files_found, report_folder, seeker, wrap_text, t
                           ' last viewed date from ZADDITTIONALASSETATTRIBUTES table ZLASTVIEWEDDATE field' \
                           ' will be included. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Photos.sqlite-B-Interaction_Artifacts')
+            report = ArtifactHtmlReport('Ph6-Viewed and Played Data-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph6-Viewed and Played Data-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Modification Date',
@@ -481,7 +481,7 @@ def get_ph6viewplaydataphdapsql(files_found, report_folder, seeker, wrap_text, t
                           ' last viewed date from ZADDITTIONALASSETATTRIBUTES table ZLASTVIEWEDDATE field' \
                           ' will be included. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Photos.sqlite-B-Interaction_Artifacts')
+            report = ArtifactHtmlReport('Ph6-Viewed and Played Data-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph6-Viewed and Played Data-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAddAssetAttr-Last Viewed Date-0',
@@ -571,7 +571,7 @@ def get_ph6viewplaydataphdapsql(files_found, report_folder, seeker, wrap_text, t
                           ' last viewed date from ZADDITTIONALASSETATTRIBUTES table ZLASTVIEWEDDATE field' \
                           ' will be included. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Photos.sqlite-B-Interaction_Artifacts')
+            report = ArtifactHtmlReport('Ph6-Viewed and Played Data-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph6-Viewed and Played Data-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAddAssetAttr-Last Viewed Date-0',

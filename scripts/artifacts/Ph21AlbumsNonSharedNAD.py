@@ -195,7 +195,7 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
                           ' ZGENERICALBUM Table and supports iOS 11. Parses Non-Shared Album records only' \
                           ' no asset data is being parsed in this parser. This parser will contain parent albums,' \
                           ' folders, and associated album data. '
-            report = ArtifactHtmlReport('Photos.sqlite-D-Generic_Album_Records-NAD')
+            report = ArtifactHtmlReport('Ph21-Non-Shared Album Records NAD-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph21-Non-Shared Album Records NAD-PhDaPsql', description)
             report.add_script()
             data_headers = ('zGenAlbum-Start Date',
@@ -425,7 +425,7 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
                           ' ZGENERICALBUM Table and supports iOS 12. Parses Non-Shared Album records only' \
                           ' no asset data is being parsed in this parser. This parser will contain parent albums,' \
                           ' folders, and associated album data. '
-            report = ArtifactHtmlReport('Photos.sqlite-D-Generic_Album_Records-NAD')
+            report = ArtifactHtmlReport('Ph21-Non-Shared Album Records NAD-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph21-Non-Shared Album Records NAD-PhDaPsql', description)
             report.add_script()
             data_headers = ('zGenAlbum-Start Date',
@@ -667,7 +667,7 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
                           ' ZGENERICALBUM Table and supports iOS 13. Parses Non-Shared Album records only' \
                           ' no asset data is being parsed in this parser. This parser will contain parent albums,' \
                           ' folders, and associated album data. '
-            report = ArtifactHtmlReport('Photos.sqlite-D-Generic_Album_Records-NAD')
+            report = ArtifactHtmlReport('Ph21-Non-Shared Album Records NAD-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph21-Non-Shared Album Records NAD-PhDaPsql', description)
             report.add_script()
             data_headers = ('zGenAlbum-Creation Date',
@@ -923,7 +923,7 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
                           ' ZGENERICALBUM Table and supports iOS 14. Parses Non-Shared Album records only' \
                           ' no asset data is being parsed in this parser. This parser will contain parent albums,' \
                           ' folders, and associated album data. '
-            report = ArtifactHtmlReport('Photos.sqlite-D-Generic_Album_Records-NAD')
+            report = ArtifactHtmlReport('Ph21-Non-Shared Album Records NAD-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph21-Non-Shared Album Records NAD-PhDaPsql', description)
             report.add_script()
             data_headers = ('zGenAlbum-Creation Date',
@@ -1183,7 +1183,7 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
                           ' ZGENERICALBUM Table and supports iOS 15. Parses Non-Shared Album records only' \
                           ' no asset data is being parsed in this parser. This parser will contain parent albums,' \
                           ' folders, and associated album data. '
-            report = ArtifactHtmlReport('Photos.sqlite-D-Generic_Album_Records-NAD')
+            report = ArtifactHtmlReport('Ph21-Non-Shared Album Records NAD-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph21-Non-Shared Album Records NAD-PhDaPsql', description)
             report.add_script()
             data_headers = ('zGenAlbum-Creation Date',
@@ -1462,7 +1462,7 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
                           ' ZGENERICALBUM Table and supports iOS 16-17. Parses Non-Shared Album records only' \
                           ' no asset data is being parsed in this parser. This parser will contain parent albums,' \
                           ' folders, and associated album data. '
-            report = ArtifactHtmlReport('Photos.sqlite-D-Generic_Album_Records-NAD')
+            report = ArtifactHtmlReport('Ph21-Non-Shared Album Records NAD-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph21-Non-Shared Album Records NAD-PhDaPsql', description)
             report.add_script()
             data_headers = ('zGenAlbum-Creation Date-0',
@@ -1744,7 +1744,7 @@ def get_ph21nonsharedalbumsphdapsql(files_found, report_folder, seeker, wrap_tex
                           ' ZGENERICALBUM Table and supports iOS 18. Parses Non-Shared Album records only' \
                           ' no asset data is being parsed in this parser. This parser will contain parent albums,' \
                           ' folders, and associated album data. '
-            report = ArtifactHtmlReport('Photos.sqlite-D-Generic_Album_Records-NAD')
+            report = ArtifactHtmlReport('Ph21-Non-Shared Album Records NAD-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph21-Non-Shared Album Records NAD-PhDaPsql', description)
             report.add_script()
             data_headers = ('zGenAlbum-Creation Date-0',

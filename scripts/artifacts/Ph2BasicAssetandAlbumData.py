@@ -202,7 +202,7 @@ def get_ph2assetbasicandalbumdataphdapsql(files_found, report_folder, seeker, wr
                           ' Use "1505-Shared-Album-1505" in the search box to view Shared Albums Assets.' \
                           ' Use "1509-SWY_Synced_Conversation_Media-1509" in the search box to view' \
                           ' Shared with You Conversation Identifiers Assets.'
-            report = ArtifactHtmlReport('Photos.sqlite-A-Asset_Basic_Data')
+            report = ArtifactHtmlReport('Ph2.1-Asset Basic Data & GenAlbum Data-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph2.1-Asset Basic Data & GenAlbum Data-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -436,7 +436,7 @@ def get_ph2assetbasicandalbumdataphdapsql(files_found, report_folder, seeker, wr
                           ' Use "1505-Shared-Album-1505" in the search box to view Shared Albums Assets.' \
                           ' Use "1509-SWY_Synced_Conversation_Media-1509" in the search box to view' \
                           ' Shared with You Conversation Identifiers Assets.'
-            report = ArtifactHtmlReport('Photos.sqlite-A-Asset_Basic_Data')
+            report = ArtifactHtmlReport('Ph2.1-Asset Basic Data & GenAlbum Data-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph2.1-Asset Basic Data & GenAlbum Data-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -736,7 +736,7 @@ def get_ph2assetbasicandalbumdataphdapsql(files_found, report_folder, seeker, wr
                           ' Use "1505-Shared-Album-1505" in the search box to view Shared Albums Assets.' \
                           ' Use "1509-SWY_Synced_Conversation_Media-1509" in the search box to view' \
                           ' Shared with You Conversation Identifiers Assets.'
-            report = ArtifactHtmlReport('Photos.sqlite-A-Asset_Basic_Data')
+            report = ArtifactHtmlReport('Ph2.1-Asset Basic Data & GenAlbum Data-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph2.1-Asset Basic Data & GenAlbum Data-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -1069,7 +1069,7 @@ def get_ph2assetbasicandalbumdataphdapsql(files_found, report_folder, seeker, wr
                           ' Use "1505-Shared-Album-1505" in the search box to view Shared Albums Assets.' \
                           ' Use "1509-SWY_Synced_Conversation_Media-1509" in the search box to view' \
                           ' Shared with You Conversation Identifiers Assets.'
-            report = ArtifactHtmlReport('Photos.sqlite-A-Asset_Basic_Data')
+            report = ArtifactHtmlReport('Ph2.1-Asset Basic Data & GenAlbum Data-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph2.1-Asset Basic Data & GenAlbum Data-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -1430,7 +1430,7 @@ def get_ph2assetbasicandalbumdataphdapsql(files_found, report_folder, seeker, wr
                           ' Use "1505-Shared-Album-1505" in the search box to view Shared Albums Assets.' \
                           ' Use "1509-SWY_Synced_Conversation_Media-1509" in the search box to view' \
                           ' Shared with You Conversation Identifiers Assets.'
-            report = ArtifactHtmlReport('Photos.sqlite-A-Asset_Basic_Data')
+            report = ArtifactHtmlReport('Ph2.1-Asset Basic Data & GenAlbum Data-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph2.1-Asset Basic Data & GenAlbum Data-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -1802,7 +1802,7 @@ def get_ph2assetbasicandalbumdataphdapsql(files_found, report_folder, seeker, wr
                           ' Use "1505-Shared-Album-1505" in the search box to view Shared Albums Assets.' \
                           ' Use "1509-SWY_Synced_Conversation_Media-1509" in the search box to view' \
                           ' Shared with You Conversation Identifiers Assets.'
-            report = ArtifactHtmlReport('Photos.sqlite-A-Asset_Basic_Data')
+            report = ArtifactHtmlReport('Ph2.1-Asset Basic Data & GenAlbum Data-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph2.1-Asset Basic Data & GenAlbum Data-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -2177,7 +2177,7 @@ def get_ph2assetbasicandalbumdataphdapsql(files_found, report_folder, seeker, wr
                           ' Use "1505-Shared-Album-1505" in the search box to view Shared Albums Assets.' \
                           ' Use "1509-SWY_Synced_Conversation_Media-1509" in the search box to view' \
                           ' Shared with You Conversation Identifiers Assets.'
-            report = ArtifactHtmlReport('Photos.sqlite-A-Asset_Basic_Data')
+            report = ArtifactHtmlReport('Ph2.1-Asset Basic Data & GenAlbum Data-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph2.1-Asset Basic Data & GenAlbum Data-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -2561,7 +2561,7 @@ def get_ph2assetbasicandalbumdataphdapsql(files_found, report_folder, seeker, wr
                           ' Use "1505-Shared-Album-1505" in the search box to view Shared Albums Assets.' \
                           ' Use "1509-SWY_Synced_Conversation_Media-1509" in the search box to view' \
                           ' Shared with You Conversation Identifiers Assets.'
-            report = ArtifactHtmlReport('Photos.sqlite-A-Asset_Basic_Data')
+            report = ArtifactHtmlReport('Ph2.1-Asset Basic Data & GenAlbum Data-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph2.1-Asset Basic Data & GenAlbum Data-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -2847,7 +2847,7 @@ def get_ph2asserbasicandconversdatasyndpl(files_found, report_folder, seeker, wr
                           ' Use "1505-Shared-Album-1505" in the search box to view Shared Albums Assets.' \
                           ' Use "1509-SWY_Synced_Conversation_Media-1509" in the search box to view' \
                           ' Shared with You Conversation Identifiers Assets.'
-            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Ph2.2-Asset Basic Data & Convers Data-SyndPL')
             report.start_artifact_report(report_folder, 'Ph2.2-Asset Basic Data & Convers Data-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -3084,7 +3084,7 @@ def get_ph2asserbasicandconversdatasyndpl(files_found, report_folder, seeker, wr
                           ' Use "1505-Shared-Album-1505" in the search box to view Shared Albums Assets.' \
                           ' Use "1509-SWY_Synced_Conversation_Media-1509" in the search box to view' \
                           ' Shared with You Conversation Identifiers Assets.'
-            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Ph2.2-Asset Basic Data & Convers Data-SyndPL')
             report.start_artifact_report(report_folder, 'Ph2.2-Asset Basic Data & Convers Data-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -3387,7 +3387,7 @@ def get_ph2asserbasicandconversdatasyndpl(files_found, report_folder, seeker, wr
                           ' Use "1505-Shared-Album-1505" in the search box to view Shared Albums Assets.' \
                           ' Use "1509-SWY_Synced_Conversation_Media-1509" in the search box to view' \
                           ' Shared with You Conversation Identifiers Assets.'
-            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Ph2.2-Asset Basic Data & Convers Data-SyndPL')
             report.start_artifact_report(report_folder, 'Ph2.2-Asset Basic Data & Convers Data-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -3722,7 +3722,7 @@ def get_ph2asserbasicandconversdatasyndpl(files_found, report_folder, seeker, wr
                           ' Use "1505-Shared-Album-1505" in the search box to view Shared Albums Assets.' \
                           ' Use "1509-SWY_Synced_Conversation_Media-1509" in the search box to view' \
                           ' Shared with You Conversation Identifiers Assets.'
-            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Ph2.2-Asset Basic Data & Convers Data-SyndPL')
             report.start_artifact_report(report_folder, 'Ph2.2-Asset Basic Data & Convers Data-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -4086,7 +4086,7 @@ def get_ph2asserbasicandconversdatasyndpl(files_found, report_folder, seeker, wr
                           ' Use "1505-Shared-Album-1505" in the search box to view Shared Albums Assets.' \
                           ' Use "1509-SWY_Synced_Conversation_Media-1509" in the search box to view' \
                           ' Shared with You Conversation Identifiers Assets.'
-            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Ph2.2-Asset Basic Data & Convers Data-SyndPL')
             report.start_artifact_report(report_folder, 'Ph2.2-Asset Basic Data & Convers Data-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -4461,7 +4461,7 @@ def get_ph2asserbasicandconversdatasyndpl(files_found, report_folder, seeker, wr
                           ' Use "1505-Shared-Album-1505" in the search box to view Shared Albums Assets.' \
                           ' Use "1509-SWY_Synced_Conversation_Media-1509" in the search box to view' \
                           ' Shared with You Conversation Identifiers Assets.'
-            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Ph2.2-Asset Basic Data & Convers Data-SyndPL')
             report.start_artifact_report(report_folder, 'Ph2.2-Asset Basic Data & Convers Data-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -4838,7 +4838,7 @@ def get_ph2asserbasicandconversdatasyndpl(files_found, report_folder, seeker, wr
                           ' Use "1505-Shared-Album-1505" in the search box to view Shared Albums Assets.' \
                           ' Use "1509-SWY_Synced_Conversation_Media-1509" in the search box to view' \
                           ' Shared with You Conversation Identifiers Assets.'
-            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Ph2.2-Asset Basic Data & Convers Data-SyndPL')
             report.start_artifact_report(report_folder, 'Ph2.2-Asset Basic Data & Convers Data-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -5224,7 +5224,7 @@ def get_ph2asserbasicandconversdatasyndpl(files_found, report_folder, seeker, wr
                           ' Use "1505-Shared-Album-1505" in the search box to view Shared Albums Assets.' \
                           ' Use "1509-SWY_Synced_Conversation_Media-1509" in the search box to view' \
                           ' Shared with You Conversation Identifiers Assets.'
-            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Ph2.2-Asset Basic Data & Convers Data-SyndPL')
             report.start_artifact_report(report_folder, 'Ph2.2-Asset Basic Data & Convers Data-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',

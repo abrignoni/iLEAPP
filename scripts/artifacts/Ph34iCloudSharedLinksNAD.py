@@ -137,7 +137,7 @@ def get_ph34icldsharedlinksphdapsql(files_found, report_folder, seeker, wrap_tex
 
             description = 'Parses iCloud Shared Link records from the PhotoData-Photos.sqlite ZSHARE Table' \
                           ' and supports iOS 14-15. Parses iCloud Shared Link records only no asset data being parsed.'
-            report = ArtifactHtmlReport('Photos.sqlite-F-Cloud_Shared_Methods')
+            report = ArtifactHtmlReport('Ph34-iCld Shared Link Records NAD-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph34-iCld Shared Link Records NAD-PhDaPsql', description)
             report.add_script()
             data_headers = ('zShare-Creation Date-0',
@@ -350,7 +350,7 @@ def get_ph34icldsharedlinksphdapsql(files_found, report_folder, seeker, wrap_tex
 
             description = 'Parses iCloud Shared Link records from the PhotoData-Photos.sqlite ZSHARE Table' \
                           ' and supports iOS 16-17. Parses iCloud Shared Link records only no asset data being parsed.'
-            report = ArtifactHtmlReport('Photos.sqlite-F-Cloud_Shared_Methods')
+            report = ArtifactHtmlReport('Ph34-iCld Shared Link Records NAD-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph34-iCld Shared Link Records NAD-PhDaPsql', description)
             report.add_script()
             data_headers = ('zShare-Creation Date-0',
@@ -578,7 +578,7 @@ def get_ph34icldsharedlinksphdapsql(files_found, report_folder, seeker, wrap_tex
 
             description = 'Parses iCloud Shared Link records from the PhotoData-Photos.sqlite ZSHARE Table' \
                           ' and supports iOS 16-17. Parses iCloud Shared Link records only no asset data being parsed.'
-            report = ArtifactHtmlReport('Photos.sqlite-F-Cloud_Shared_Methods')
+            report = ArtifactHtmlReport('Ph34-iCld Shared Link Records NAD-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph34-iCld Shared Link Records NAD-PhDaPsql', description)
             report.add_script()
             data_headers = ('zShare-Creation Date-0',

@@ -42,7 +42,7 @@ def get_systemversionplist(files_found, report_folder, seeker, wrap_text, timezo
 
     description = ('Parses basic data from device acquisition */System/Library/CoreServices/SystemVersion.plist'
                    ' which contains some important data related to a device being analyzed to include the iOS version.')
-    report = ArtifactHtmlReport('Photos-Z-Settings')
+    report = ArtifactHtmlReport('Ph99-System-Version-Plist')
     report.start_artifact_report(report_folder, 'Ph99-System-Version-Plist', description)
     report.add_script()
     data_headers = ('Key', 'Values')

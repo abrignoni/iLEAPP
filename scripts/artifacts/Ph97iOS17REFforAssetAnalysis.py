@@ -2806,11 +2806,11 @@ def get_ph97ios17refforassetanalysisphdapsql(files_found, report_folder, seeker,
 				counter += 1
 
 			description = 'Parses asset records from PhotoData-Photos.sqlite. This parser includes the largest' \
-' set of decoded data based on testing and research conducted by Scott Koenig' \
-' https://theforensicscooter.com/. I recommend opening the TSV generated reports' \
-' with Zimmermans EZTools https://ericzimmerman.github.io/#!index.md TimelineExplorer' \
-' to view, search and filter the results.'
-			report = ArtifactHtmlReport('Photos.sqlite-Reference_for_Asset_Analysis')
+							' set of decoded data based on testing and research conducted by Scott Koenig' \
+							' https://theforensicscooter.com/. I recommend opening the TSV generated reports' \
+							' with Zimmermans EZTools https://ericzimmerman.github.io/#!index.md TimelineExplorer' \
+							' to view, search and filter the results.'
+			report = ArtifactHtmlReport('Ph97.1-iOS17_Ref_for_Asset_Analysis-PhDaPsql')
 			report.start_artifact_report(report_folder, 'Ph97.1-iOS17_Ref_for_Asset_Analysis-PhDaPsql', description)
 			report.add_script()
 			data_headers = ('zAsset-Added Date-0',
@@ -6710,11 +6710,11 @@ def get_ph97ios17refforassetanalysissyndpl(files_found, report_folder, seeker, w
 				counter += 1
 
 			description = 'Parses asset records from Syndication.photoslibrary-database-Photos.sqlite.' \
-' This parser includes the largest set of decoded data based on testing and research' \
-' conducted by Scott Koenig https://theforensicscooter.com/. I recommend opening the' \
-' TSV generated reports with Zimmermans EZTools https://ericzimmerman.github.io/#!index.md' \
-' TimelineExplorer to view, search and filter the results.'
-			report = ArtifactHtmlReport('Photos.sqlite-R-Reference_for_Asset_Analysis')
+							' This parser includes the largest set of decoded data based on testing and research' \
+							' conducted by Scott Koenig https://theforensicscooter.com/. I recommend opening the' \
+							' TSV generated reports with Zimmermans EZTools https://ericzimmerman.github.io/#!index.md' \
+							' TimelineExplorer to view, search and filter the results.'
+			report = ArtifactHtmlReport('Ph97.2-iOS17_Ref_for_Asset_Analysis-SyndPL')
 			report.start_artifact_report(report_folder, 'Ph97.2-iOS17_Ref_for_Asset_Analysis-SyndPL', description)
 			report.add_script()
 			data_headers = ('zAsset-Added Date-0',

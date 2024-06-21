@@ -92,7 +92,7 @@ def get_ph20albumrecordsnadphdapsql(files_found, report_folder, seeker, wrap_tex
                           ' Use 1509-SWY_Synced_Conversation_Media-1509 to view Shared with You' \
                           ' Conversation Identifiers. Please see the album type specific scripts to view more data' \
                           ' for each album type.'
-            report = ArtifactHtmlReport('Photos.sqlite-D-Generic_Album_Records-NAD')
+            report = ArtifactHtmlReport('Ph20.1-Album Records NAD-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph20.1-Album Records NAD-PhDaPsql', description)
             report.add_script()
             data_headers = ('zGenAlbum-Start Date',
@@ -183,7 +183,7 @@ def get_ph20albumrecordsnadphdapsql(files_found, report_folder, seeker, wrap_tex
                           ' Use 1509-SWY_Synced_Conversation_Media-1509 to view Shared with You' \
                           ' Conversation Identifiers. Please see the album type specific scripts to view more data' \
                           ' for each album type.'
-            report = ArtifactHtmlReport('Photos.sqlite-D-Generic_Album_Records-NAD')
+            report = ArtifactHtmlReport('Ph20.1-Album Records NAD-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph20.1-Album Records NAD-PhDaPsql', description)
             report.add_script()
             data_headers = ('zGenAlbum-Creation Date',
@@ -275,7 +275,7 @@ def get_ph20albumrecordsnadphdapsql(files_found, report_folder, seeker, wrap_tex
                           ' Use 1509-SWY_Synced_Conversation_Media-1509 to view Shared with You' \
                           ' Conversation Identifiers. Please see the album type specific scripts to view more data' \
                           ' for each album type.'
-            report = ArtifactHtmlReport('Photos.sqlite-D-Generic_Album_Records-NAD')
+            report = ArtifactHtmlReport('Ph20.1-Album Records NAD-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph20.1-Album Records NAD-PhDaPsql', description)
             report.add_script()
             data_headers = ('zGenAlbum-Creation Date',
@@ -367,7 +367,7 @@ def get_ph20albumrecordsnadphdapsql(files_found, report_folder, seeker, wrap_tex
                           ' Use 1509-SWY_Synced_Conversation_Media-1509 to view Shared with You' \
                           ' Conversation Identifiers. Please see the album type specific scripts to view more data' \
                           ' for each album type.'
-            report = ArtifactHtmlReport('Photos.sqlite-D-Generic_Album_Records-NAD')
+            report = ArtifactHtmlReport('Ph20.1-Album Records NAD-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph20.1-Album Records NAD-PhDaPsql', description)
             report.add_script()
             data_headers = ('zGenAlbum-Creation Date-0',
@@ -473,7 +473,7 @@ def get_ph20albumrecrodsnadsyndpl(files_found, report_folder, seeker, wrap_text,
                           ' Use 1509-SWY_Synced_Conversation_Media-1509 to view Shared with You' \
                           ' Conversation Identifiers. Please see the album type specific scripts to view more data' \
                           ' for each album type.'
-            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Ph20.2-Album Records NAD-SyndPL')
             report.start_artifact_report(report_folder, 'Ph20.2-Album Records NAD-SyndPL', description)
             report.add_script()
             data_headers = ('zGenAlbum-Start Date',
@@ -566,7 +566,7 @@ def get_ph20albumrecrodsnadsyndpl(files_found, report_folder, seeker, wrap_text,
                           ' Use 1509-SWY_Synced_Conversation_Media-1509 to view Shared with You' \
                           ' Conversation Identifiers. Please see the album type specific scripts to view more data' \
                           ' for each album type.'
-            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Ph20.2-Album Records NAD-SyndPL')
             report.start_artifact_report(report_folder, 'Ph20.2-Album Records NAD-SyndPL', description)
             report.add_script()
             data_headers = ('zGenAlbum-Creation Date',
@@ -660,7 +660,7 @@ def get_ph20albumrecrodsnadsyndpl(files_found, report_folder, seeker, wrap_text,
                           ' Use 1509-SWY_Synced_Conversation_Media-1509 to view Shared with You' \
                           ' Conversation Identifiers. Please see the album type specific scripts to view more data' \
                           ' for each album type.'
-            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Ph20.2-Album Records NAD-SyndPL')
             report.start_artifact_report(report_folder, 'Ph20.2-Album Records NAD-SyndPL', description)
             report.add_script()
             data_headers = ('zGenAlbum-Creation Date',
@@ -754,7 +754,7 @@ def get_ph20albumrecrodsnadsyndpl(files_found, report_folder, seeker, wrap_text,
                           ' Use 1509-SWY_Synced_Conversation_Media-1509 to view Shared with You' \
                           ' Conversation Identifiers. Please see the album type specific scripts to view more data' \
                           ' for each album type.'
-            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Ph20.2-Album Records NAD-SyndPL')
             report.start_artifact_report(report_folder, 'Ph20.2-Album Records NAD-SyndPL', description)
             report.add_script()
             data_headers = ('zGenAlbum-Creation Date-0',

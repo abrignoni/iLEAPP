@@ -58,7 +58,7 @@ def get_ph100ufeddevicevaluesplist(files_found, report_folder, seeker, wrap_text
                    ' acquisitions with non-encrypted backups. The parsing of this file will allow for iLEAPP'
                    ' to parse some basic information such as */PhotoData/Photos.sqlite.'
                    ' Based on research and published blogs written by Scott Koenig https://theforensicscooter.com/')
-    report = ArtifactHtmlReport('Photos-Z-Settings')
+    report = ArtifactHtmlReport('Ph100-UFED-device-values-Plist')
     report.start_artifact_report(report_folder, 'Ph100-UFED-device-values-Plist', description)
     report.add_script()
     data_headers = ('Key', 'Values')

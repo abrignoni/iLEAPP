@@ -677,6 +677,7 @@ icon_mappings = \
         'PH6-VIEWED AND PLAYED DATA-PHDAPSQL': 'eye',
         'PH7-FAVORITE-PHDAPSQL': 'heart',
         'PH8-HAS ADJUSTMENT-PHDAPSQL': 'edit',
+        'PH11-KWRDSCAPSTITLESDESCRIPSLIKESBASICASSTDATA-PHDAPSQL': 'info',
     },
     'PHOTOS.SQLITE-C-OTHER_ARTIFACTS': {
         'PH5.1-HAS LOCATIONS-PHDAPSQL': 'map-pin',
@@ -750,6 +751,8 @@ icon_mappings = \
         'PH82-COM-APPLE-MEDIAANALYSISD-PLIST': 'book',
         'PH83-COM-APPLE-PURPLEBUDDY-PLIST': 'settings',
         'PH84-CAMERA-SMART-SHARING-METADATA-PLIST': 'camera',
+        'PH85-ACCOUNTSD-CLOUD-SERVICE-ENABLE-LOG-PLIST': 'settings',
+        'PH86-ASSETSD-CLOUD-SERVICE-ENABLE-LOG-PLIST': 'settings',
         'PH99-SYSTEM-VERSION-PLIST': 'settings',
         'PH100-UFED-DEVICE-VALUES-PLIST': 'settings',
     },

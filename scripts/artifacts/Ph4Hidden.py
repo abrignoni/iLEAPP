@@ -71,7 +71,7 @@ def get_ph4hiddenphdapsql(files_found, report_folder, seeker, wrap_text, timezon
             description = 'Parses basic asset record data from PhotoData-Photos.sqlite for hidden assets' \
                           ' and supports iOS 11-13. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Photos.sqlite-B-Interaction_Artifacts')
+            report = ArtifactHtmlReport('Ph4-Hidden-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph4-Hidden-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Modification Date',
@@ -143,7 +143,7 @@ def get_ph4hiddenphdapsql(files_found, report_folder, seeker, wrap_text, timezon
             description = 'Parses basic asset record data from PhotoData-Photos.sqlite for hidden assets' \
                           ' and supports iOS 14. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Photos.sqlite-B-Interaction_Artifacts')
+            report = ArtifactHtmlReport('Ph4-Hidden-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph4-Hidden-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Modification Date',
@@ -216,7 +216,7 @@ def get_ph4hiddenphdapsql(files_found, report_folder, seeker, wrap_text, timezon
             description = 'Parses basic asset record data from PhotoData-Photos.sqlite for hidden assets' \
                           ' and supports iOS 15-17. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Photos.sqlite-B-Interaction_Artifacts')
+            report = ArtifactHtmlReport('Ph4-Hidden-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph4-Hidden-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Modification Date-0',
@@ -291,7 +291,7 @@ def get_ph4hiddenphdapsql(files_found, report_folder, seeker, wrap_text, timezon
             description = 'Parses basic asset record data from PhotoData-Photos.sqlite for hidden assets' \
                           ' and supports iOS 18. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Photos.sqlite-B-Interaction_Artifacts')
+            report = ArtifactHtmlReport('Ph4-Hidden-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph4-Hidden-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Modification Date-0',

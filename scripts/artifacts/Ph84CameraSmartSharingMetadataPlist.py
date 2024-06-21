@@ -55,7 +55,7 @@ def get_ph84camerasmartsharingmetadataplist(files_found, report_folder, seeker, 
         description = ('Parses basic data from */PhotoData/Caches/SmartSharing/camera_smart_sharing_metadata.plist'
                        ' which contains some important data related to iCloud Shared Photos Library Smart'
                        ' Camera Settings and auto sharing.')
-        report = ArtifactHtmlReport('Photos-Z-Settings')
+        report = ArtifactHtmlReport('Ph84-Camera-Smart-Sharing-Metadata-Plist')
         report.start_artifact_report(report_folder, 'Ph84-Camera-Smart-Sharing-Metadata-Plist', description)
         report.add_script()
         data_headers = ('homeLocations', 'creationDate', 'frequentLocations', 'identities', 'locationShiftingRequired',

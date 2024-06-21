@@ -29,7 +29,7 @@ def get_ph83comapplepurplebuddyplist(files_found, report_folder, seeker, wrap_te
     if len(data_list) > 0:
         description = ('Parses basic data from com.apple.purplebuddy.plist which contains some important data'
                        ' related to device restore.')
-        report = ArtifactHtmlReport('Photos-Z-Settings')
+        report = ArtifactHtmlReport('Ph83-Com-Apple-PurpleBuddy-Plist')
         report.start_artifact_report(report_folder, 'Ph83-Com-Apple-PurpleBuddy-Plist', description)
         report.add_script()
         data_headers = ('Key', 'Values')

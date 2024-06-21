@@ -30,7 +30,7 @@ def get_82comapplemediaanalysisdplist(files_found, report_folder, seeker, wrap_t
                        ' Media Analysis Completion. Additional information and explanation of some keys-fields'
                        ' might be found with research and published blogs written by'
                        ' Scott Koenig https://theforensicscooter.com/')
-        report = ArtifactHtmlReport('Photos-Z-Settings')
+        report = ArtifactHtmlReport('Ph82-Com-Apple-MediaAnalysisD-Plist')
         report.start_artifact_report(report_folder, 'Ph82-Com-Apple-MediaAnalysisD-Plist', description)
         report.add_script()
         data_headers = ('Key', 'Values')

@@ -362,7 +362,7 @@ def get_ph15peopledetfacephdapsql(files_found, report_folder, seeker, wrap_text,
             description = 'Parses record data from PhotoData-Photos.sqlite for' \
                           ' people - detected faces - face crop data. The results may contain multiple records' \
                           ' per ZASSET table Z_PK value and supports iOS 14.'
-            report = ArtifactHtmlReport('Photos.sqlite-G-People_Faces_Data')
+            report = ArtifactHtmlReport('Ph15.1-People & Faces NAD-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph15.1-People & Faces NAD-PhDaPsql', description)
             report.add_script()
             data_headers = ('zDetFace-AssetForFace= zAsset-zPK-0',
@@ -891,7 +891,7 @@ def get_ph15peopledetfacephdapsql(files_found, report_folder, seeker, wrap_text,
             description = 'Parses data from PhotoData-Photos.sqlite for' \
                           ' people - detected faces - face crop data. The results may contain multiple records' \
                           ' per ZASSET table Z_PK value and supports iOS 15.'
-            report = ArtifactHtmlReport('Photos.sqlite-G-People_Faces_Data')
+            report = ArtifactHtmlReport('Ph15.1-People & Faces NAD-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph15.1-People & Faces NAD-PhDaPsql', description)
             report.add_script()
             data_headers = ('zDetFace-AssetForFace= zAsset-zPK-0',
@@ -1439,7 +1439,7 @@ def get_ph15peopledetfacephdapsql(files_found, report_folder, seeker, wrap_text,
             description = 'Parses data from PhotoData-Photos.sqlite for' \
                           ' people - detected faces - face crop data. The results may contain multiple records' \
                           ' per ZASSET table Z_PK value and supports iOS 16.'
-            report = ArtifactHtmlReport('Photos.sqlite-G-People_Faces_Data')
+            report = ArtifactHtmlReport('Ph15.1-People & Faces NAD-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph15.1-People & Faces NAD-PhDaPsql', description)
             report.add_script()
             data_headers = ('zDetFace-AssetForFace= zAsset-zPK-0',
@@ -1993,7 +1993,7 @@ def get_ph15peopledetfacephdapsql(files_found, report_folder, seeker, wrap_text,
             description = 'Parses data from PhotoData-Photos.sqlite for' \
                           ' people - detected faces - face crop data. The results may contain multiple records' \
                           ' per ZASSET table Z_PK value and supports iOS 17.'
-            report = ArtifactHtmlReport('Photos.sqlite-G-People_Faces_Data')
+            report = ArtifactHtmlReport('Ph15.1-People & Faces NAD-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph15.1-People & Faces NAD-PhDaPsql', description)
             report.add_script()
             data_headers = ('zDetFace-AssetForFace= zAsset-zPK-0',
@@ -2552,7 +2552,7 @@ def get_ph15peopledetfacephdapsql(files_found, report_folder, seeker, wrap_text,
             description = 'Parses data from PhotoData-Photos.sqlite for' \
                           ' people - detected faces - face crop data. The results may contain multiple records' \
                           ' per ZASSET table Z_PK value and supports iOS 18.'
-            report = ArtifactHtmlReport('Photos.sqlite-G-People_Faces_Data')
+            report = ArtifactHtmlReport('Ph15.1-People & Faces NAD-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph15.1-People & Faces NAD-PhDaPsql', description)
             report.add_script()
             data_headers = ('zDetFace-AssetForFace= zAsset-zPK-0',
@@ -3029,7 +3029,7 @@ def get_ph15peopledetfacesyndpl(files_found, report_folder, seeker, wrap_text, t
             description = 'Parses data from Syndication.photoslibrary-database-Photos.sqlite for' \
                           ' people - detected faces - face crop data. The results may contain multiple records' \
                           ' per ZASSET table Z_PK value and supports iOS 14.'
-            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Ph15.2-People & Faces NAD-SyndPL')
             report.start_artifact_report(report_folder, 'Ph15.2-People & Faces NAD-SyndPL', description)
             report.add_script()
             data_headers = ('zDetFace-AssetForFace= zAsset-zPK-0',
@@ -3558,7 +3558,7 @@ def get_ph15peopledetfacesyndpl(files_found, report_folder, seeker, wrap_text, t
             description = 'Parses data from Syndication.photoslibrary-database-Photos.sqlite for' \
                           ' people - detected faces - face crop data. The results may contain multiple records' \
                           ' per ZASSET table Z_PK value and supports iOS 15.'
-            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Ph15.2-People & Faces NAD-SyndPL')
             report.start_artifact_report(report_folder, 'Ph15.2-People & Faces NAD-SyndPL', description)
             report.add_script()
             data_headers = ('zDetFace-AssetForFace= zAsset-zPK-0',
@@ -4106,7 +4106,7 @@ def get_ph15peopledetfacesyndpl(files_found, report_folder, seeker, wrap_text, t
             description = 'Parses data from Syndication.photoslibrary-database-Photos.sqlite for' \
                           ' people - detected faces - face crop data. The results may contain multiple records' \
                           ' per ZASSET table Z_PK value and supports iOS 16.'
-            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Ph15.2-People & Faces NAD-SyndPL')
             report.start_artifact_report(report_folder, 'Ph15.2-People & Faces NAD-SyndPL', description)
             report.add_script()
             data_headers = ('zDetFace-AssetForFace= zAsset-zPK-0',
@@ -4660,7 +4660,7 @@ def get_ph15peopledetfacesyndpl(files_found, report_folder, seeker, wrap_text, t
             description = 'Parses data from Syndication.photoslibrary-database-Photos.sqlite for' \
                           ' people - detected faces - face crop data. The results may contain multiple records' \
                           ' per ZASSET table Z_PK value and supports iOS 17.'
-            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Ph15.2-People & Faces NAD-SyndPL')
             report.start_artifact_report(report_folder, 'Ph15.2-People & Faces NAD-SyndPL', description)
             report.add_script()
             data_headers = ('zDetFace-AssetForFace= zAsset-zPK-0',
@@ -5219,7 +5219,7 @@ def get_ph15peopledetfacesyndpl(files_found, report_folder, seeker, wrap_text, t
             description = 'Parses data from Syndication.photoslibrary-database-Photos.sqlite for' \
                           ' people - detected faces - face crop data. The results may contain multiple records' \
                           ' per ZASSET table Z_PK value and supports iOS 18.'
-            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Ph15.2-People & Faces NAD-SyndPL')
             report.start_artifact_report(report_folder, 'Ph15.2-People & Faces NAD-SyndPL', description)
             report.add_script()
             data_headers = ('zDetFace-AssetForFace= zAsset-zPK-0',
