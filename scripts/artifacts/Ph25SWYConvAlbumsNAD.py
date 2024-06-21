@@ -137,7 +137,7 @@ def get_ph25swyconvalbumnadphdapsql(files_found, report_folder, seeker, wrap_tex
             description = 'Parses Shared with You Conversation Album records found in the PhotoData-Photos.sqlite' \
                           ' ZGENERICALBUM Table and supports iOS 15. Parses Share with You Conversation Album' \
                           ' records only, no asset data being parsed.'
-            report = ArtifactHtmlReport('Photos.sqlite-D-Generic_Album_Records-NAD')
+            report = ArtifactHtmlReport('Ph25.1-SWY Conversation Records NAD-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph25.1-SWY Conversation Records NAD-PhDaPsql', description)
             report.add_script()
             data_headers = ('SWYConverszGenAlbum-Creation Date',
@@ -287,7 +287,7 @@ def get_ph25swyconvalbumnadphdapsql(files_found, report_folder, seeker, wrap_tex
             description = 'Parses Shared with You Conversation Album records found in the PhotoData-Photos.sqlite' \
                           ' ZGENERICALBUM Table and supports iOS 16-17. Parses Share with You Conversation Album' \
                           ' records only, no asset data being parsed.'
-            report = ArtifactHtmlReport('Photos.sqlite-D-Generic_Album_Records-NAD')
+            report = ArtifactHtmlReport('Ph25.1-SWY Conversation Records NAD-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph25.1-SWY Conversation Records NAD-PhDaPsql', description)
             report.add_script()
             data_headers = ('SWYConverszGenAlbum-Creation Date-0',
@@ -438,7 +438,7 @@ def get_ph25swyconvalbumnadphdapsql(files_found, report_folder, seeker, wrap_tex
             description = 'Parses Shared with You Conversation Album records found in the PhotoData-Photos.sqlite' \
                           ' ZGENERICALBUM Table and supports iOS 18. Parses Share with You Conversation Album' \
                           ' records only, no asset data being parsed.'
-            report = ArtifactHtmlReport('Photos.sqlite-D-Generic_Album_Records-NAD')
+            report = ArtifactHtmlReport('Ph25.1-SWY Conversation Records NAD-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph25.1-SWY Conversation Records NAD-PhDaPsql', description)
             report.add_script()
             data_headers = ('SWYConverszGenAlbum-Creation Date-0',
@@ -597,7 +597,7 @@ def get_ph25swyconvalbumnadsyndpl(files_found, report_folder, seeker, wrap_text,
                           ' Syndication.photoslibrary-database-Photos.sqlite ZGENERICALBUM Table and' \
                           ' supports iOS 15. Parses Share with You Conversation Album' \
                           ' records only, no asset data being parsed.'
-            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Ph25.2-SWY Conversation Records NAD-SyndPL')
             report.start_artifact_report(report_folder, 'Ph25.2-SWY Conversation Records NAD-SyndPL', description)
             report.add_script()
             data_headers = ('SWYConverszGenAlbum-Creation Date',
@@ -748,7 +748,7 @@ def get_ph25swyconvalbumnadsyndpl(files_found, report_folder, seeker, wrap_text,
                           ' Syndication.photoslibrary-database-Photos.sqlite ZGENERICALBUM Table and' \
                           ' supports iOS 16-17. Parses Share with You Conversation Album' \
                           ' records only, no asset data being parsed.'
-            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Ph25.2-SWY Conversation Records NAD-SyndPL')
             report.start_artifact_report(report_folder, 'Ph25.2-SWY Conversation Records NAD-SyndPL', description)
             report.add_script()
             data_headers = ('SWYConverszGenAlbum-Creation Date-0',
@@ -900,7 +900,7 @@ def get_ph25swyconvalbumnadsyndpl(files_found, report_folder, seeker, wrap_text,
                           ' Syndication.photoslibrary-database-Photos.sqlite ZGENERICALBUM Table and' \
                           ' supports iOS 198 Parses Share with You Conversation Album' \
                           ' records only, no asset data being parsed.'
-            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Ph25.2-SWY Conversation Records NAD-SyndPL')
             report.start_artifact_report(report_folder, 'Ph25.2-SWY Conversation Records NAD-SyndPL', description)
             report.add_script()
             data_headers = ('SWYConverszGenAlbum-Creation Date-0',

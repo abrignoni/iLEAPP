@@ -40,7 +40,7 @@ def get_ph86assetsdcldservenalogplist(files_found, report_folder, seeker, wrap_t
     description = ('Parses basic data from */PhotoData/private/com.apple.assetsd/cloudServiceEnableLog.plist'
                    ' which is a plist that tracks when Cloud Photos Library (CPL) has been enabled.'
                    ' Based on research and published blogs written by Scott Koenig https://theforensicscooter.com/')
-    report = ArtifactHtmlReport('Photos-Z-Settings')
+    report = ArtifactHtmlReport('Ph86-assetsd-cloud-Service-Enable-Log-Plist')
     report.start_artifact_report(report_folder, 'Ph86-assetsd-cloud-Service-Enable-Log-Plist', description)
     report.add_script()
     data_headers = ('TimestampUTC', 'Service-Type', 'Enabled-State')

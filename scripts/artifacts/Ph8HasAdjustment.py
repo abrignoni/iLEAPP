@@ -98,7 +98,7 @@ def get_ph8hasadjustmentphdapsql(files_found, report_folder, seeker, wrap_text, 
             description = 'Parses basic asset record data from PhotoData-Photos.sqlite for adjusted assets' \
                           ' and supports iOS 11-13. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Photos.sqlite-B-Interaction_Artifacts')
+            report = ArtifactHtmlReport('Ph8-Has Adjustment-PhDaPsq')
             report.start_artifact_report(report_folder, 'Ph8-Has Adjustment-PhDaPsql', description)
             report.add_script()
             data_headers = ('zUnmAdj-Adjustment Timestamp',
@@ -202,7 +202,7 @@ def get_ph8hasadjustmentphdapsql(files_found, report_folder, seeker, wrap_text, 
             description = 'Parses basic asset record data from PhotoData-Photos.sqlite for adjusted assets' \
                           ' and supports iOS 14-17. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Photos.sqlite-B-Interaction_Artifacts')
+            report = ArtifactHtmlReport('Ph8-Has Adjustment-PhDaPsq')
             report.start_artifact_report(report_folder, 'Ph8-Has Adjustment-PhDaPsql', description)
             report.add_script()
             data_headers = ('zUnmAdj-Adjustment Timestamp-0',
@@ -341,7 +341,7 @@ def get_ph8hasadjustmentphdapsql(files_found, report_folder, seeker, wrap_text, 
             description = 'Parses basic asset record data from PhotoData-Photos.sqlite for adjusted assets' \
                           ' and supports iOS 18. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Photos.sqlite-B-Interaction_Artifacts')
+            report = ArtifactHtmlReport('Ph8-Has Adjustment-PhDaPsq')
             report.start_artifact_report(report_folder, 'Ph8-Has Adjustment-PhDaPsql', description)
             report.add_script()
             data_headers = ('zUnmAdj-Adjustment Timestamp-0',

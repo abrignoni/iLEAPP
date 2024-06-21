@@ -186,7 +186,7 @@ def get_ph35icldsharedlinkassetsphdapsql(files_found, report_folder, seeker, wra
 
             description = 'Parses iCloud Shared Link records and related assets from the' \
                           ' PhotoData-Photos.sqlite ZSHARE Table and supports iOS 14.'
-            report = ArtifactHtmlReport('Photos.sqlite-F-Cloud_Shared_Methods')
+            report = ArtifactHtmlReport('Ph35-iCld Shared Link Assets-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph35-iCld Shared Link Assets-PhDaPsql', description)
             report.add_script()
             data_headers = ('zShare-Creation Date-0',
@@ -433,7 +433,7 @@ def get_ph35icldsharedlinkassetsphdapsql(files_found, report_folder, seeker, wra
 
             description = 'Parses iCloud Shared Link records and related assets from the' \
                           ' PhotoData-Photos.sqlite ZSHARE Table and supports iOS 15.'
-            report = ArtifactHtmlReport('Photos.sqlite-F-Cloud_Shared_Methods')
+            report = ArtifactHtmlReport('Ph35-iCld Shared Link Assets-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph35-iCld Shared Link Assets-PhDaPsql', description)
             report.add_script()
             data_headers = ('zShare-Creation Date-0',
@@ -771,7 +771,7 @@ def get_ph35icldsharedlinkassetsphdapsql(files_found, report_folder, seeker, wra
 
             description = 'Parses iCloud Shared Link records and related assets from the' \
                           ' PhotoData-Photos.sqlite ZSHARE Table and supports iOS 16.'
-            report = ArtifactHtmlReport('Photos.sqlite-F-Cloud_Shared_Methods')
+            report = ArtifactHtmlReport('Ph35-iCld Shared Link Assets-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph35-iCld Shared Link Assets-PhDaPsql', description)
             report.add_script()
             data_headers = ('zShare-Creation Date-0',
@@ -1150,7 +1150,7 @@ def get_ph35icldsharedlinkassetsphdapsql(files_found, report_folder, seeker, wra
 
             description = 'Parses iCloud Shared Link records and related assets from the' \
                           ' PhotoData-Photos.sqlite ZSHARE Table and supports iOS 16-17.'
-            report = ArtifactHtmlReport('Photos.sqlite-F-Cloud_Shared_Methods')
+            report = ArtifactHtmlReport('Ph35-iCld Shared Link Assets-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph35-iCld Shared Link Assets-PhDaPsql', description)
             report.add_script()
             data_headers = ('zShare-Creation Date-0',
@@ -1534,7 +1534,7 @@ def get_ph35icldsharedlinkassetsphdapsql(files_found, report_folder, seeker, wra
 
             description = 'Parses iCloud Shared Link records and related assets from the' \
                           ' PhotoData-Photos.sqlite ZSHARE Table and supports iOS 18.'
-            report = ArtifactHtmlReport('Photos.sqlite-F-Cloud_Shared_Methods')
+            report = ArtifactHtmlReport('Ph35-iCld Shared Link Assets-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph35-iCld Shared Link Assets-PhDaPsql', description)
             report.add_script()
             data_headers = ('zShare-Creation Date-0',

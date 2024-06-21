@@ -109,7 +109,7 @@ def get_81comapplecameraplist(files_found, report_folder, seeker, wrap_text, tim
                        ' important data related to the Apple Camera Application. Additional information and'
                        ' explanation of some keys-fields might be found with research and published blogs written by'
                        ' Scott Koenig https://theforensicscooter.com/')
-        report = ArtifactHtmlReport('Photos-Z-Settings')
+        report = ArtifactHtmlReport('Ph81-Com-Apple-Camera-Plist')
         report.start_artifact_report(report_folder, 'Ph81-Com-Apple-Camera-Plist', description)
         report.add_script()
         data_headers = ('Key', 'Values')

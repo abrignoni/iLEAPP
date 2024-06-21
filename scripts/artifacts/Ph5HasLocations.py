@@ -129,7 +129,7 @@ def get_ph5haslocationsphdapsql(files_found, report_folder, seeker, wrap_text, t
                           ' locations from the ZASSET and ZEXTENDEDATTRIBUTES table ZLATITUDE fields' \
                           ' and supports iOS 11-13. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Photos.sqlite-C-Other_Artifacts')
+            report = ArtifactHtmlReport('Ph5.1-Has Locations-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph5.1-Has Locations-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -305,7 +305,7 @@ def get_ph5haslocationsphdapsql(files_found, report_folder, seeker, wrap_text, t
                           ' locations from the ZASSET and ZEXTENDEDATTRIBUTES table ZLATITUDE fields' \
                           ' and supports iOS 11-13. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Photos.sqlite-C-Other_Artifacts')
+            report = ArtifactHtmlReport('Ph5.1-Has Locations-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph5.1-Has Locations-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -496,7 +496,7 @@ def get_ph5haslocationsphdapsql(files_found, report_folder, seeker, wrap_text, t
                           ' locations from the ZASSET and ZEXTENDEDATTRIBUTES table ZLATITUDE fields' \
                           ' and supports iOS 14. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Photos.sqlite-C-Other_Artifacts')
+            report = ArtifactHtmlReport('Ph5.1-Has Locations-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph5.1-Has Locations-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -691,7 +691,7 @@ def get_ph5haslocationsphdapsql(files_found, report_folder, seeker, wrap_text, t
                           ' locations from the ZASSET and ZEXTENDEDATTRIBUTES table ZLATITUDE fields' \
                           ' and supports iOS 15-17. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Photos.sqlite-C-Other_Artifacts')
+            report = ArtifactHtmlReport('Ph5.1-Has Locations-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph5.1-Has Locations-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -888,7 +888,7 @@ def get_ph5haslocationsphdapsql(files_found, report_folder, seeker, wrap_text, t
                           ' locations from the ZASSET and ZEXTENDEDATTRIBUTES table ZLATITUDE fields' \
                           ' and supports iOS 18. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Photos.sqlite-C-Other_Artifacts')
+            report = ArtifactHtmlReport('Ph5.1-Has Locations-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph5.1-Has Locations-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -1048,7 +1048,7 @@ def get_ph5haslocationssyndpl(files_found, report_folder, seeker, wrap_text, tim
                           ' locations from the ZASSET and ZEXTENDEDATTRIBUTES table ZLATITUDE fields' \
                           ' and supports iOS 11-13. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Ph5.2-Has Locations-SyndPL')
             report.start_artifact_report(report_folder, 'Ph5.2-Has Locations-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -1225,7 +1225,7 @@ def get_ph5haslocationssyndpl(files_found, report_folder, seeker, wrap_text, tim
                           ' locations from the ZASSET and ZEXTENDEDATTRIBUTES table ZLATITUDE fields' \
                           ' and supports iOS 11-13. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Ph5.2-Has Locations-SyndPL')
             report.start_artifact_report(report_folder, 'Ph5.2-Has Locations-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -1418,7 +1418,7 @@ def get_ph5haslocationssyndpl(files_found, report_folder, seeker, wrap_text, tim
                           ' locations from the ZASSET and ZEXTENDEDATTRIBUTES table ZLATITUDE fields' \
                           ' and supports iOS 14. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Ph5.2-Has Locations-SyndPL')
             report.start_artifact_report(report_folder, 'Ph5.2-Has Locations-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -1614,7 +1614,7 @@ def get_ph5haslocationssyndpl(files_found, report_folder, seeker, wrap_text, tim
                           ' locations from the ZASSET and ZEXTENDEDATTRIBUTES table ZLATITUDE fields' \
                           ' and supports iOS 15-17. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Ph5.2-Has Locations-SyndPL')
             report.start_artifact_report(report_folder, 'Ph5.2-Has Locations-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -1812,7 +1812,7 @@ def get_ph5haslocationssyndpl(files_found, report_folder, seeker, wrap_text, tim
                           ' locations from the ZASSET and ZEXTENDEDATTRIBUTES table ZLATITUDE fields' \
                           ' and supports iOS 15-17. The results for this script will contain' \
                           ' one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Ph5.2-Has Locations-SyndPL')
             report.start_artifact_report(report_folder, 'Ph5.2-Has Locations-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',

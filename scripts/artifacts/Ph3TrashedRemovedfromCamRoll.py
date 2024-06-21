@@ -74,7 +74,7 @@ def get_ph3trashedphdapsql(files_found, report_folder, seeker, wrap_text, timezo
             description = 'Parses basic asset record data from PhotoData-Photos.sqlite for' \
                           ' trashed-recently deleted assets and supports iOS 11-13.' \
                           ' The results for this script will contain one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Photos.sqlite-B-Interaction_Artifacts')
+            report = ArtifactHtmlReport('Ph3.1-Trashed Recently Deleted-PhDaPsq')
             report.start_artifact_report(report_folder, 'Ph3.1-Trashed Recently Deleted-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Trashed Date',
@@ -146,7 +146,7 @@ def get_ph3trashedphdapsql(files_found, report_folder, seeker, wrap_text, timezo
             description = 'Parses basic asset record data from PhotoData-Photos.sqlite for' \
                           ' trashed-recently deleted assets and supports iOS 14.' \
                           ' The results for this script will contain one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Photos.sqlite-B-Interaction_Artifacts')
+            report = ArtifactHtmlReport('Ph3.1-Trashed Recently Deleted-PhDaPsq')
             report.start_artifact_report(report_folder, 'Ph3.1-Trashed Recently Deleted-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Trashed Date',
@@ -229,7 +229,7 @@ def get_ph3trashedphdapsql(files_found, report_folder, seeker, wrap_text, timezo
             description = 'Parses basic asset record data from PhotoData-Photos.sqlite for' \
                           ' trashed-recently deleted assets and supports iOS 15.' \
                           ' The results for this script will contain one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Photos.sqlite-B-Interaction_Artifacts')
+            report = ArtifactHtmlReport('Ph3.1-Trashed Recently Deleted-PhDaPsq')
             report.start_artifact_report(report_folder, 'Ph3.1-Trashed Recently Deleted-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Trashed Date',
@@ -321,7 +321,7 @@ def get_ph3trashedphdapsql(files_found, report_folder, seeker, wrap_text, timezo
             description = 'Parses basic asset record data from PhotoData-Photos.sqlite for' \
                           ' trashed-recently deleted assets and supports iOS 16-17.' \
                           ' The results for this script will contain one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Photos.sqlite-B-Interaction_Artifacts')
+            report = ArtifactHtmlReport('Ph3.1-Trashed Recently Deleted-PhDaPsq')
             report.start_artifact_report(report_folder, 'Ph3.1-Trashed Recently Deleted-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Trashed Date-0',
@@ -418,7 +418,7 @@ def get_ph3trashedphdapsql(files_found, report_folder, seeker, wrap_text, timezo
             description = 'Parses basic asset record data from PhotoData-Photos.sqlite for' \
                           ' trashed-recently deleted assets and supports iOS 18.' \
                           ' The results for this script will contain one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Photos.sqlite-B-Interaction_Artifacts')
+            report = ArtifactHtmlReport('Ph3.1-Trashed Recently Deleted-PhDaPsq')
             report.start_artifact_report(report_folder, 'Ph3.1-Trashed Recently Deleted-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Trashed Date-0',
@@ -525,7 +525,7 @@ def get_ph3removedfromcamerarollsyndpl(files_found, report_folder, seeker, wrap_
                               ' for syndication PL asserts remvoed from camera roll and supports iOS 15.' \
                               ' These assets may have been displayed in the camera roll, then deleted from' \
                               ' the camera roll view. The results for this script will contain one record per asset.'
-                report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+                report = ArtifactHtmlReport('Ph3.2-Removed from camera roll-SyndPL')
                 report.start_artifact_report(report_folder, 'Ph3.2-Removed from camera roll-SyndPL', description)
                 report.add_script()
                 data_headers = ('zAddAssetAttr-Last Upload Attempt Date-SWY_Files',
@@ -622,7 +622,7 @@ def get_ph3removedfromcamerarollsyndpl(files_found, report_folder, seeker, wrap_
                               ' for syndication PL asserts removed from camera roll and supports iOS 16-17.' \
                               ' These assets may have been displayed in the camera roll, then deleted from' \
                               ' the camera roll view. The results for this script will contain one record per asset.'
-                report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+                report = ArtifactHtmlReport('Ph3.2-Removed from camera roll-SyndPL')
                 report.start_artifact_report(report_folder, 'Ph3.2-Removed from camera roll-SyndPL', description)
                 report.add_script()
                 data_headers = ('zAddAssetAttr-Last Upload Attempt Date-SWY_Files',
@@ -722,7 +722,7 @@ def get_ph3removedfromcamerarollsyndpl(files_found, report_folder, seeker, wrap_
                               ' for syndication PL asserts removed from camera roll and supports iOS 18.' \
                               ' These assets may have been displayed in the camera roll, then deleted from' \
                               ' the camera roll view. The results for this script will contain one record per asset.'
-                report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+                report = ArtifactHtmlReport('Ph3.2-Removed from camera roll-SyndPL')
                 report.start_artifact_report(report_folder, 'Ph3.2-Removed from camera roll-SyndPL', description)
                 report.add_script()
                 data_headers = ('zAsset-Trashed Date-0',

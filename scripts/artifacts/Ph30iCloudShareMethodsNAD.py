@@ -143,7 +143,7 @@ def get_ph30icldsharemethphdapsql(files_found, report_folder, seeker, wrap_text,
                           ' Parses iCloud Share Methods and Participant records only no asset data being parsed.' \
                           ' The iCloud Share methods being stored in these records include' \
                           ' Shred iCloud Links Cloud Master Moments-CMM and Shared iCloud Photo Library SPL.'
-            report = ArtifactHtmlReport('Photos.sqlite-F-Cloud_Shared_Methods')
+            report = ArtifactHtmlReport('Ph30-iCld Share Methods NAD-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph30-iCld Share Methods NAD-PhDaPsql', description)
             report.add_script()
             data_headers = ('zShare-Creation Date-0',
@@ -361,7 +361,7 @@ def get_ph30icldsharemethphdapsql(files_found, report_folder, seeker, wrap_text,
                           ' Parses iCloud Share Methods and Participant records only no asset data being parsed.' \
                           ' The iCloud Share methods being stored in these records include' \
                           ' Shred iCloud Links Cloud Master Moments-CMM and Shared iCloud Photo Library SPL.'
-            report = ArtifactHtmlReport('Photos.sqlite-F-Cloud_Shared_Methods')
+            report = ArtifactHtmlReport('Ph30-iCld Share Methods NAD-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph30-iCld Share Methods NAD-PhDaPsql', description)
             report.add_script()
             data_headers = ('zShare-Creation Date-0',
@@ -597,7 +597,7 @@ def get_ph30icldsharemethphdapsql(files_found, report_folder, seeker, wrap_text,
                           ' Parses iCloud Share Methods and Participant records only no asset data being parsed.' \
                           ' The iCloud Share methods being stored in these records include' \
                           ' Shred iCloud Links Cloud Master Moments-CMM and Shared iCloud Photo Library SPL.'
-            report = ArtifactHtmlReport('Photos.sqlite-F-Cloud_Shared_Methods')
+            report = ArtifactHtmlReport('Ph30-iCld Share Methods NAD-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph30-iCld Share Methods NAD-PhDaPsql', description)
             report.add_script()
             data_headers = ('zShare-Creation Date-0',

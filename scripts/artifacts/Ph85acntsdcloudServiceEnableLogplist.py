@@ -41,7 +41,7 @@ def get_ph85accountsdcldservenalogplist(files_found, report_folder, seeker, wrap
                    ' which is a plist that tracks when Cloud Photos Library (CPL) and Shared Albums have been'
                    ' enabled. Based on research and published blogs written by Scott Koenig'
                    ' https://theforensicscooter.com/')
-    report = ArtifactHtmlReport('Photos-Z-Settings')
+    report = ArtifactHtmlReport('Ph85-accountsd-cloud-Service-Enable-Log-Plist')
     report.start_artifact_report(report_folder, 'Ph85-accountsd-cloud-Service-Enable-Log-Plist', description)
     report.add_script()
     data_headers = ('TimestampUTC', 'Service-Type', 'Enabled-State')

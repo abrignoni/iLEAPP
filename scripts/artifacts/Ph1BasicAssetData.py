@@ -93,7 +93,7 @@ def get_ph1assetbasicdataphdapsql(files_found, report_folder, seeker, wrap_text,
 
             description = 'Parses basic asset record data from PhotoData-Photos.sqlite.' \
                           ' The results will contain one record per ZASSET table Z_PK value and supports iOS 11-13.'
-            report = ArtifactHtmlReport('Photos.sqlite-A-Asset_Basic_Data')
+            report = ArtifactHtmlReport('Ph1.1-Asset Basic Data-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph1.1-Asset Basic Data-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -200,7 +200,7 @@ def get_ph1assetbasicdataphdapsql(files_found, report_folder, seeker, wrap_text,
 
             description = 'Parses basic asset record data from PhotoData-Photos.sqlite.' \
                           ' The results will contain one record per ZASSET table Z_PK value and supports iOS 14.'
-            report = ArtifactHtmlReport('Photos.sqlite-A-Asset_Basic_Data')
+            report = ArtifactHtmlReport('Ph1.1-Asset Basic Data-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph1.1-Asset Basic Data-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -327,7 +327,7 @@ def get_ph1assetbasicdataphdapsql(files_found, report_folder, seeker, wrap_text,
 
             description = 'Parses basic asset record data from PhotoData-Photos.sqlite.' \
                           ' The results will contain one record per ZASSET table Z_PK value and supports iOS 15.'
-            report = ArtifactHtmlReport('Photos.sqlite-A-Asset_Basic_Data')
+            report = ArtifactHtmlReport('Ph1.1-Asset Basic Data-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph1.1-Asset Basic Data-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -463,7 +463,7 @@ def get_ph1assetbasicdataphdapsql(files_found, report_folder, seeker, wrap_text,
 
             description = 'Parses basic asset record data from PhotoData-Photos.sqlite.' \
                           ' The results will contain one record per ZASSET table Z_PK value and supports iOS 16-17.'
-            report = ArtifactHtmlReport('Photos.sqlite-A-Asset_Basic_Data')
+            report = ArtifactHtmlReport('Ph1.1-Asset Basic Data-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph1.1-Asset Basic Data-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -608,7 +608,7 @@ def get_ph1assetbasicdataphdapsql(files_found, report_folder, seeker, wrap_text,
 
             description = 'Parses basic asset record data from PhotoData-Photos.sqlite.' \
                           ' The results will contain one record per ZASSET table Z_PK value and supports iOS 18.'
-            report = ArtifactHtmlReport('Photos.sqlite-A-Asset_Basic_Data')
+            report = ArtifactHtmlReport('Ph1.1-Asset Basic Data-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph1.1-Asset Basic Data-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -732,7 +732,7 @@ def get_ph1assetbasicdatasyndpl(files_found, report_folder, seeker, wrap_text, t
 
             description = 'Parses basic asset record data from Syndication.photoslibrary/database/Photos.sqlite.' \
                           ' The results will contain one record per ZASSET table Z_PK value and supports iOS 11-13.'
-            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Ph1.2-Asset Basic Data-SyndPL')
             report.start_artifact_report(report_folder, 'Ph1.2-Asset Basic Data-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -839,7 +839,7 @@ def get_ph1assetbasicdatasyndpl(files_found, report_folder, seeker, wrap_text, t
 
             description = 'Parses basic asset record data from Syndication.photoslibrary-database-Photos.sqlite.' \
                           ' The results will contain one record per ZASSET table Z_PK value and supports iOS 14.'
-            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Ph1.2-Asset Basic Data-SyndPL')
             report.start_artifact_report(report_folder, 'Ph1.2-Asset Basic Data-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -966,7 +966,7 @@ def get_ph1assetbasicdatasyndpl(files_found, report_folder, seeker, wrap_text, t
 
             description = 'Parses basic asset record data from Syndication.photoslibrary-database-Photos.sqlite.' \
                           ' The results will contain one record per ZASSET table Z_PK value and supports iOS 15.'
-            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Ph1.2-Asset Basic Data-SyndPL')
             report.start_artifact_report(report_folder, 'Ph1.2-Asset Basic Data-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -1102,7 +1102,7 @@ def get_ph1assetbasicdatasyndpl(files_found, report_folder, seeker, wrap_text, t
 
             description = 'Parses basic asset record data from Syndication.photoslibrary-database-Photos.sqlite.' \
                           ' The results will contain one record per ZASSET table Z_PK value and supports iOS 16-17.'
-            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Ph1.2-Asset Basic Data-SyndPL')
             report.start_artifact_report(report_folder, 'Ph1.2-Asset Basic Data-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -1247,7 +1247,7 @@ def get_ph1assetbasicdatasyndpl(files_found, report_folder, seeker, wrap_text, t
 
             description = 'Parses basic asset record data from Syndication.photoslibrary-database-Photos.sqlite.' \
                           ' The results will contain one record per ZASSET table Z_PK value and supports iOS 18.'
-            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Ph1.2-Asset Basic Data-SyndPL')
             report.start_artifact_report(report_folder, 'Ph1.2-Asset Basic Data-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',

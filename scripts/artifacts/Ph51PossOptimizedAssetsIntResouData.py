@@ -785,7 +785,7 @@ def get_ph51possibleoptimizedassetsphdapsql(files_found, report_folder, seeker, 
 				' This is very large query and script, I recommend opening the TSV generated report' \
 				' with Zimmermans Tools https://ericzimmerman.github.io/#!index.md TimelineExplorer' \
 				' to view, search, and filter the results.'
-			report = ArtifactHtmlReport('Photos.sqlite-I-Asset_IntResou-Optimization')
+			report = ArtifactHtmlReport('Ph51-Possible_Optimized_Assets_IntResou-PhDaPsql')
 			report.start_artifact_report(report_folder, 'Ph51-Possible_Optimized_Assets_IntResou-PhDaPsql', description)
 			report.add_script()
 			data_headers = ('zAsset-Date Created-4QueryStart-0',
@@ -1876,7 +1876,7 @@ def get_ph51possibleoptimizedassetsphdapsql(files_found, report_folder, seeker, 
 				' This is very large query and script, I recommend opening the TSV generated report' \
 				' with Zimmermans Tools https://ericzimmerman.github.io/#!index.md TimelineExplorer' \
 				' to view, search, and filter the results.'
-			report = ArtifactHtmlReport('Photos.sqlite-I-Asset_IntResou-Optimization')
+			report = ArtifactHtmlReport('Ph51-Possible_Optimized_Assets_IntResou-PhDaPsql')
 			report.start_artifact_report(report_folder, 'Ph51-Possible_Optimized_Assets_IntResou-PhDaPsql', description)
 			report.add_script()
 			data_headers = ('zAsset-Date Created-4QueryStart-0',
@@ -3026,7 +3026,7 @@ def get_ph51possibleoptimizedassetsphdapsql(files_found, report_folder, seeker, 
 				' This is very large query and script, I recommend opening the TSV generated report' \
 				' with Zimmermans Tools https://ericzimmerman.github.io/#!index.md TimelineExplorer' \
 				' to view, search, and filter the results.'
-			report = ArtifactHtmlReport('Photos.sqlite-I-Asset_IntResou-Optimization')
+			report = ArtifactHtmlReport('Ph51-Possible_Optimized_Assets_IntResou-PhDaPsql')
 			report.start_artifact_report(report_folder, 'Ph51-Possible_Optimized_Assets_IntResou-PhDaPsql', description)
 			report.add_script()
 			data_headers = ('zAsset-Date Created-4QueryStart-0',
@@ -4209,7 +4209,7 @@ def get_ph51possibleoptimizedassetsphdapsql(files_found, report_folder, seeker, 
 							' This is very large query and script, I recommend opening the TSV generated report' \
 							' with Zimmermans Tools https://ericzimmerman.github.io/#!index.md TimelineExplorer' \
 							' to view, search, and filter the results.'
-			report = ArtifactHtmlReport('Photos.sqlite-I-Asset_IntResou-Optimization')
+			report = ArtifactHtmlReport('Ph51-Possible_Optimized_Assets_IntResou-PhDaPsql')
 			report.start_artifact_report(report_folder, 'Ph51-Possible_Optimized_Assets_IntResou-PhDaPsql', description)
 			report.add_script()
 			data_headers = ('zAsset-Date Created-4QueryStart-0',
@@ -5485,7 +5485,7 @@ def get_ph51possibleoptimizedassetsphdapsql(files_found, report_folder, seeker, 
 							' This is very large query and script, I recommend opening the TSV generated report' \
 							' with Zimmermans Tools https://ericzimmerman.github.io/#!index.md TimelineExplorer' \
 							' to view, search, and filter the results.'
-			report = ArtifactHtmlReport('Photos.sqlite-I-Asset_IntResou-Optimization')
+			report = ArtifactHtmlReport('Ph51-Possible_Optimized_Assets_IntResou-PhDaPsql')
 			report.start_artifact_report(report_folder, 'Ph51-Possible_Optimized_Assets_IntResou-PhDaPsql', description)
 			report.add_script()
 			data_headers = ('zAsset-Date Created-4QueryStart-0',

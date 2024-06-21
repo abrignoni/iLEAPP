@@ -278,7 +278,7 @@ def get_ph24assetsinsharedalbumsphdapsql(files_found, report_folder, seeker, wra
 
             description = 'Parses Assets in Shared Albums found in PhotoData-Photos.sqlite and supports iOS 11.' \
                           ' Parses limited asset data with full non-shared album data.'
-            report = ArtifactHtmlReport('Photos.sqlite-E-Asset_In_Albums')
+            report = ArtifactHtmlReport('Ph24-Assets in Shared Albums-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph24-Assets in Shared Albums-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -626,7 +626,7 @@ def get_ph24assetsinsharedalbumsphdapsql(files_found, report_folder, seeker, wra
 
             description = 'Parses Assets in Shared Albums found in PhotoData-Photos.sqlite and supports iOS 12.' \
                           ' Parses limited asset data with full non-shared album data.'
-            report = ArtifactHtmlReport('Photos.sqlite-E-Asset_In_Albums')
+            report = ArtifactHtmlReport('Ph24-Assets in Shared Albums-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph24-Assets in Shared Albums-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -984,7 +984,7 @@ def get_ph24assetsinsharedalbumsphdapsql(files_found, report_folder, seeker, wra
 
             description = 'Parses Assets in Shared Albums found in PhotoData-Photos.sqlite and supports iOS 13.' \
                           ' Parses limited asset data with full non-shared album data.'
-            report = ArtifactHtmlReport('Photos.sqlite-E-Asset_In_Albums')
+            report = ArtifactHtmlReport('Ph24-Assets in Shared Albums-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph24-Assets in Shared Albums-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -1360,7 +1360,7 @@ def get_ph24assetsinsharedalbumsphdapsql(files_found, report_folder, seeker, wra
 
             description = 'Parses Assets in Shared Albums found in PhotoData-Photos.sqlite and supports iOS 14.' \
                           ' Parses limited asset data with full non-shared album data.'
-            report = ArtifactHtmlReport('Photos.sqlite-E-Asset_In_Albums')
+            report = ArtifactHtmlReport('Ph24-Assets in Shared Albums-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph24-Assets in Shared Albums-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -1758,7 +1758,7 @@ def get_ph24assetsinsharedalbumsphdapsql(files_found, report_folder, seeker, wra
 
             description = 'Parses Assets in Shared Albums found in PhotoData-Photos.sqlite and supports iOS 15.' \
                           ' Parses limited asset data with full non-shared album data.'
-            report = ArtifactHtmlReport('Photos.sqlite-E-Asset_In_Albums')
+            report = ArtifactHtmlReport('Ph24-Assets in Shared Albums-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph24-Assets in Shared Albums-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -2185,7 +2185,7 @@ def get_ph24assetsinsharedalbumsphdapsql(files_found, report_folder, seeker, wra
 
             description = 'Parses Assets in Shared Albums found in PhotoData-Photos.sqlite and supports iOS 16-17.' \
                           ' Parses limited asset data with full non-shared album data.'
-            report = ArtifactHtmlReport('Photos.sqlite-E-Asset_In_Albums')
+            report = ArtifactHtmlReport('Ph24-Assets in Shared Albums-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph24-Assets in Shared Albums-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -2619,7 +2619,7 @@ def get_ph24assetsinsharedalbumsphdapsql(files_found, report_folder, seeker, wra
 
             description = 'Parses Assets in Shared Albums found in PhotoData-Photos.sqlite and supports iOS 18.' \
                           ' Parses limited asset data with full non-shared album data.'
-            report = ArtifactHtmlReport('Photos.sqlite-E-Asset_In_Albums')
+            report = ArtifactHtmlReport('Ph24-Assets in Shared Albums-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph24-Assets in Shared Albums-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',

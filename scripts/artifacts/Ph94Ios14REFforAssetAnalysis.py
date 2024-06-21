@@ -3270,7 +3270,7 @@ def get_ph94ios14refforassetanalysisphdapsql(files_found, report_folder, seeker,
 ' https://theforensicscooter.com/. I recommend opening the TSV generated reports' \
 ' with Zimmermans EZTools https://ericzimmerman.github.io/#!index.md TimelineExplorer' \
 ' to view, search and filter the results.'
-			report = ArtifactHtmlReport('Photos.sqlite-R-Reference_for_Asset_Analysis')
+			report = ArtifactHtmlReport('Ph94.1-iOS14_Ref_for_Asset_Analysis-PhDaPsql')
 			report.start_artifact_report(report_folder, 'Ph94.1-iOS14_Ref_for_Asset_Analysis-PhDaPsql', description)
 			report.add_script()
 			data_headers = ('zAsset-Added Date-0',
@@ -7807,11 +7807,11 @@ def get_ph94ios14refforassetanalysissyndpl(files_found, report_folder, seeker, w
 				counter += 1
 
 			description = 'Parses asset records from Syndication.photoslibrary-database-Photos.sqlite.' \
-' This parser includes the largest set of decoded data based on testing and research' \
-' conducted by Scott Koenig https://theforensicscooter.com/. I recommend opening the' \
-' TSV generated reports with Zimmermans EZTools https://ericzimmerman.github.io/#!index.md' \
-' TimelineExplorer to view, search and filter the results.'
-			report = ArtifactHtmlReport('Photos.sqlite-R-Reference_for_Asset_Analysis')
+							' This parser includes the largest set of decoded data based on testing and research' \
+							' conducted by Scott Koenig https://theforensicscooter.com/. I recommend opening the' \
+							' TSV generated reports with Zimmermans EZTools https://ericzimmerman.github.io/#!index.md' \
+							' TimelineExplorer to view, search and filter the results.'
+			report = ArtifactHtmlReport('Ph94.2-iOS14_Ref_for_Asset_Analysis-SyndPL')
 			report.start_artifact_report(report_folder, 'Ph94.2-iOS14_Ref_for_Asset_Analysis-SyndPL', description)
 			report.add_script()
 			data_headers = ('zAsset-Added Date-0',

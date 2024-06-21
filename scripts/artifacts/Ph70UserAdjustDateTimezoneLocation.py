@@ -348,7 +348,7 @@ def get_ph70adjusteddatetimezonelocphdapsql(files_found, report_folder, seeker, 
 				' WHERE (zAddAssetAttr.ZEXIFTIMESTAMPSTRING <> zAsset.ZDATECREATED LocalTime)' \
 				' & (zAddAssetAttr.ZTIMEZONEOFFSET <> zAddAssetAttr.ZINFERREDTIMEZONEOFFSET)' \
 				' & (zAsset.ZLATITUDE <> zExtAttr.ZLATITUDE)'
-			report = ArtifactHtmlReport('Photos.sqlite-H-Possible_User_Adjusted_Data')
+			report = ArtifactHtmlReport('Ph70.1-Possible_Adjust_Date-Timezone-Location-PhDaPsql')
 			report.start_artifact_report(report_folder, 'Ph70.1-Possible_Adjust_Date-Timezone-Location-PhDaPsql', description)
 			report.add_script()
 			data_headers = ('zAsset-Date Created-UTC-0',
@@ -773,7 +773,7 @@ def get_ph70adjusteddatetimezonelocphdapsql(files_found, report_folder, seeker, 
 				' WHERE (zAddAssetAttr.ZEXIFTIMESTAMPSTRING <> zAsset.ZDATECREATED LocalTime)' \
 				' & (zAddAssetAttr.ZTIMEZONEOFFSET <> zAddAssetAttr.ZINFERREDTIMEZONEOFFSET)' \
 				' & (zAsset.ZLATITUDE <> zExtAttr.ZLATITUDE)',
-			report = ArtifactHtmlReport('Photos.sqlite-H-Possible_User_Adjusted_Data')
+			report = ArtifactHtmlReport('Ph70.1-Possible_Adjust_Date-Timezone-Location-PhDaPsql')
 			report.start_artifact_report(report_folder, 'Ph70.1-Possible_Adjust_Date-Timezone-Location-PhDaPsql', description)
 			report.add_script()
 			data_headers = ('zAsset-Date Created-UTC-0',
@@ -1197,7 +1197,7 @@ def get_ph71adjusteddatetimezonephdapsql(files_found, report_folder, seeker, wra
 				' and filter the results.' \
 				' WHERE (zAddAssetAttr.ZEXIFTIMESTAMPSTRING <> zAsset.ZDATECREATED LocalTime)' \
 				' & (zAddAssetAttr.ZTIMEZONEOFFSET <> zAddAssetAttr.ZINFERREDTIMEZONEOFFSET)',
-			report = ArtifactHtmlReport('Photos.sqlite-H-Possible_User_Adjusted_Data')
+			report = ArtifactHtmlReport('Ph71.1-Possible_Adjust_Date-Timezone-PhDaPsql')
 			report.start_artifact_report(report_folder, 'Ph71.1-Possible_Adjust_Date-Timezone-PhDaPsql', description)
 			report.add_script()
 			data_headers = ('zAsset-Date Created-UTC-0',
@@ -1620,7 +1620,7 @@ def get_ph71adjusteddatetimezonephdapsql(files_found, report_folder, seeker, wra
 				' and filter the results.' \
 				' WHERE (zAddAssetAttr.ZEXIFTIMESTAMPSTRING <> zAsset.ZDATECREATED LocalTime)' \
 				' & (zAddAssetAttr.ZTIMEZONEOFFSET <> zAddAssetAttr.ZINFERREDTIMEZONEOFFSET)',
-			report = ArtifactHtmlReport('Photos.sqlite-H-Possible_User_Adjusted_Data')
+			report = ArtifactHtmlReport('Ph71.1-Possible_Adjust_Date-Timezone-PhDaPsql')
 			report.start_artifact_report(report_folder, 'Ph71.1-Possible_Adjust_Date-Timezone-PhDaPsql', description)
 			report.add_script()
 			data_headers = ('zAsset-Date Created-UTC-0',
@@ -2044,7 +2044,7 @@ def get_ph72adjusteddatelocphdapsql(files_found, report_folder, seeker, wrap_tex
 				' and filter the results.' \
 				' WHERE (zAddAssetAttr.ZEXIFTIMESTAMPSTRING <> zAsset.ZDATECREATED LocalTime)' \
 				' & (zAsset.ZLATITUDE <> zExtAttr.ZLATITUDE)',
-			report = ArtifactHtmlReport('Photos.sqlite-H-Possible_User_Adjusted_Data')
+			report = ArtifactHtmlReport('Ph72.1-Possible_Adjust_Date-Location-PhDaPsql')
 			report.start_artifact_report(report_folder, 'Ph72.1-Possible_Adjust_Date-Location-PhDaPsql', description)
 			report.add_script()
 			data_headers = ('zAsset-Date Created-UTC-0',
@@ -2467,7 +2467,7 @@ def get_ph72adjusteddatelocphdapsql(files_found, report_folder, seeker, wrap_tex
 				' and filter the results.' \
 				' WHERE (zAddAssetAttr.ZEXIFTIMESTAMPSTRING <> zAsset.ZDATECREATED LocalTime)' \
 				' & (zAsset.ZLATITUDE <> zExtAttr.ZLATITUDE)',
-			report = ArtifactHtmlReport('Photos.sqlite-H-Possible_User_Adjusted_Data')
+			report = ArtifactHtmlReport('Ph72.1-Possible_Adjust_Date-Location-PhDaPsql')
 			report.start_artifact_report(report_folder, 'Ph72.1-Possible_Adjust_Date-Location-PhDaPsql', description)
 			report.add_script()
 			data_headers = ('zAsset-Date Created-UTC-0',
@@ -2890,7 +2890,7 @@ def get_ph73adjusteddatephdapsql(files_found, report_folder, seeker, wrap_text, 
 				' https://ericzimmerman.github.io/#!index.md TimelineExplorer to view, search,' \
 				' and filter the results.' \
 				' WHERE (zAddAssetAttr.ZEXIFTIMESTAMPSTRING <> zAsset.ZDATECREATED LocalTime)',
-			report = ArtifactHtmlReport('Photos.sqlite-H-Possible_User_Adjusted_Data')
+			report = ArtifactHtmlReport('Ph73.1-Possible_Adjust_Date-PhDaPsql')
 			report.start_artifact_report(report_folder, 'Ph73.1-Possible_Adjust_Date-PhDaPsql', description)
 			report.add_script()
 			data_headers = ('zAsset-Date Created-UTC-0',
@@ -3312,7 +3312,7 @@ def get_ph73adjusteddatephdapsql(files_found, report_folder, seeker, wrap_text, 
 				' https://ericzimmerman.github.io/#!index.md TimelineExplorer to view, search,' \
 				' and filter the results.' \
 				' WHERE (zAddAssetAttr.ZEXIFTIMESTAMPSTRING <> zAsset.ZDATECREATED LocalTime)',
-			report = ArtifactHtmlReport('Photos.sqlite-H-Possible_User_Adjusted_Data')
+			report = ArtifactHtmlReport('Ph73.1-Possible_Adjust_Date-PhDaPsql')
 			report.start_artifact_report(report_folder, 'Ph73.1-Possible_Adjust_Date-PhDaPsql', description)
 			report.add_script()
 			data_headers = ('zAsset-Date Created-UTC-0',
@@ -3736,7 +3736,7 @@ def get_ph74adjustedtimezonelocphdapsql(files_found, report_folder, seeker, wrap
 				' and filter the results.' \
 				' WHERE (zAddAssetAttr.ZTIMEZONEOFFSET <> zAddAssetAttr.ZINFERREDTIMEZONEOFFSET)' \
 				' & (zAsset.ZLATITUDE <> zExtAttr.ZLATITUDE)',
-			report = ArtifactHtmlReport('Photos.sqlite-H-Possible_User_Adjusted_Data')
+			report = ArtifactHtmlReport('Ph74.1-Possible_Adjust_Timezone-Location-PhDaPsql')
 			report.start_artifact_report(report_folder, 'Ph74.1-Possible_Adjust_Timezone-Location-PhDaPsql', description)
 			report.add_script()
 			data_headers = ('zAsset-Date Created-UTC-0',
@@ -4159,7 +4159,7 @@ def get_ph74adjustedtimezonelocphdapsql(files_found, report_folder, seeker, wrap
 				' and filter the results.' \
 				' WHERE (zAddAssetAttr.ZTIMEZONEOFFSET <> zAddAssetAttr.ZINFERREDTIMEZONEOFFSET)' \
 				' & (zAsset.ZLATITUDE <> zExtAttr.ZLATITUDE)',
-			report = ArtifactHtmlReport('Photos.sqlite-H-Possible_User_Adjusted_Data')
+			report = ArtifactHtmlReport('Ph74.1-Possible_Adjust_Timezone-Location-PhDaPsql')
 			report.start_artifact_report(report_folder, 'Ph74.1-Possible_Adjust_Timezone-Location-PhDaPsql', description)
 			report.add_script()
 			data_headers = ('zAsset-Date Created-UTC-0',
@@ -4582,7 +4582,7 @@ def get_ph75adjustedtimezonephdapsql(files_found, report_folder, seeker, wrap_te
 				' https://ericzimmerman.github.io/#!index.md TimelineExplorer to view, search,' \
 				' and filter the results.' \
 				' WHERE (zAddAssetAttr.ZTIMEZONEOFFSET <> zAddAssetAttr.ZINFERREDTIMEZONEOFFSET)',
-			report = ArtifactHtmlReport('Photos.sqlite-H-Possible_User_Adjusted_Data')
+			report = ArtifactHtmlReport('Ph75.1-Possible_Adjust_Timezone-PhDaPsql')
 			report.start_artifact_report(report_folder, 'Ph75.1-Possible_Adjust_Timezone-PhDaPsql', description)
 			report.add_script()
 			data_headers = ('zAsset-Date Created-UTC-0',
@@ -5004,7 +5004,7 @@ def get_ph75adjustedtimezonephdapsql(files_found, report_folder, seeker, wrap_te
 				' https://ericzimmerman.github.io/#!index.md TimelineExplorer to view, search,' \
 				' and filter the results.' \
 				' WHERE (zAddAssetAttr.ZTIMEZONEOFFSET <> zAddAssetAttr.ZINFERREDTIMEZONEOFFSET)',
-			report = ArtifactHtmlReport('Photos.sqlite-H-Possible_User_Adjusted_Data')
+			report = ArtifactHtmlReport('Ph75.1-Possible_Adjust_Timezone-PhDaPsql')
 			report.start_artifact_report(report_folder, 'Ph75.1-Possible_Adjust_Timezone-PhDaPsql', description)
 			report.add_script()
 			data_headers = ('zAsset-Date Created-UTC-0',
@@ -5427,7 +5427,7 @@ def get_ph76adjustedlocphdapsql(files_found, report_folder, seeker, wrap_text, t
 				' https://ericzimmerman.github.io/#!index.md TimelineExplorer to view, search,' \
 				' and filter the results.' \
 				' WHERE (zAsset.ZLATITUDE <> zExtAttr.ZLATITUDE)',
-			report = ArtifactHtmlReport('Photos.sqlite-H-Possible_User_Adjusted_Data')
+			report = ArtifactHtmlReport('Ph76.1-Possible_Adjust_Location-PhDaPsql')
 			report.start_artifact_report(report_folder, 'Ph76.1-Possible_Adjust_Location-PhDaPsql', description)
 			report.add_script()
 			data_headers = ('zAsset-Date Created-UTC-0',
@@ -5849,7 +5849,7 @@ def get_ph76adjustedlocphdapsql(files_found, report_folder, seeker, wrap_text, t
 				' https://ericzimmerman.github.io/#!index.md TimelineExplorer to view, search,' \
 				' and filter the results.' \
 				' WHERE (zAsset.ZLATITUDE <> zExtAttr.ZLATITUDE)',
-			report = ArtifactHtmlReport('Photos.sqlite-H-Possible_User_Adjusted_Data')
+			report = ArtifactHtmlReport('Ph76.1-Possible_Adjust_Location-PhDaPsql')
 			report.start_artifact_report(report_folder, 'Ph76.1-Possible_Adjust_Location-PhDaPsql', description)
 			report.add_script()
 			data_headers = ('zAsset-Date Created-UTC-0',

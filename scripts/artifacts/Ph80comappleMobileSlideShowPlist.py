@@ -57,7 +57,7 @@ def get_ph80comapplemobileslideshowplist(files_found, report_folder, seeker, wra
                        ' related to the Apple Photos Application. Additional information and explanation of some'
                        ' keys-fields might be found with research and published blogs written by'
                        ' Scott Koenig https://theforensicscooter.com/')
-        report = ArtifactHtmlReport('Photos-Z-Settings')
+        report = ArtifactHtmlReport('Ph80-Com-Apple-MobileSlideshow-Plist')
         report.start_artifact_report(report_folder, 'Ph80-Com-Apple-MobileSlideshow-Plist', description)
         report.add_script()
         data_headers = ('Key', 'Values')

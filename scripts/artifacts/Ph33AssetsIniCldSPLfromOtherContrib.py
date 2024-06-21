@@ -211,7 +211,7 @@ def get_ph33splassetsfromothercontribphdapsql(files_found, report_folder, seeker
                           ' Parses basic asset and iCloud SPL data for assets that were shared by other contributors.' \
                           ' If you are attempting to match SPL count with results please check' \
                           ' hidden, trashed, and burst assets.'
-            report = ArtifactHtmlReport('Photos.sqlite-F-Cloud_Shared_Methods')
+            report = ArtifactHtmlReport('Ph33-iCld SPL Assets from other contrib-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph33-iCld SPL Assets from other contrib-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -483,7 +483,7 @@ def get_ph33splassetsfromothercontribphdapsql(files_found, report_folder, seeker
                           ' Parses basic asset and iCloud SPL data for assets that were shared by other contributors.' \
                           ' If you are attempting to match SPL count with results please check' \
                           ' hidden, trashed, and burst assets.'
-            report = ArtifactHtmlReport('Photos.sqlite-F-Cloud_Shared_Methods')
+            report = ArtifactHtmlReport('Ph33-iCld SPL Assets from other contrib-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph33-iCld SPL Assets from other contrib-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',

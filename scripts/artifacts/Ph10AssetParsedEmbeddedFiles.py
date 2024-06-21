@@ -121,7 +121,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
                           ' records for a variety of data. This parser should be used in conjunction with other' \
                           ' parsers to review a complete record for analysis. The results of this parser could' \
                           ' produce multiple records for a single asset.'
-            report = ArtifactHtmlReport('Photos.sqlite-C-Other_Artifacts')
+            report = ArtifactHtmlReport('Ph10.1-Assets have embedded files-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph10.1-Assets have embedded files-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -349,7 +349,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
                           ' records for a variety of data. This parser should be used in conjunction with other' \
                           ' parsers to review a complete record for analysis. The results of this parser could' \
                           ' produce multiple records for a single asset.'
-            report = ArtifactHtmlReport('Photos.sqlite-C-Other_Artifacts')
+            report = ArtifactHtmlReport('Ph10.1-Assets have embedded files-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph10.1-Assets have embedded files-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -659,7 +659,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
                           ' records for a variety of data. This parser should be used in conjunction with other' \
                           ' parsers to review a complete record for analysis. The results of this parser could' \
                           ' produce multiple records for a single asset.'
-            report = ArtifactHtmlReport('Photos.sqlite-C-Other_Artifacts')
+            report = ArtifactHtmlReport('Ph10.1-Assets have embedded files-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph10.1-Assets have embedded files-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -981,7 +981,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
                           ' records for a variety of data. This parser should be used in conjunction with other' \
                           ' parsers to review a complete record for analysis. The results of this parser could' \
                           ' produce multiple records for a single asset.'
-            report = ArtifactHtmlReport('Photos.sqlite-C-Other_Artifacts')
+            report = ArtifactHtmlReport('Ph10.1-Assets have embedded files-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph10.1-Assets have embedded files-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -1363,7 +1363,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
                           ' records for a variety of data. This parser should be used in conjunction with other' \
                           ' parsers to review a complete record for analysis. The results of this parser could' \
                           ' produce multiple records for a single asset.'
-            report = ArtifactHtmlReport('Photos.sqlite-C-Other_Artifacts')
+            report = ArtifactHtmlReport('Ph10.1-Assets have embedded files-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph10.1-Assets have embedded files-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -1457,7 +1457,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
         END AS 'zAddAssetAttr-Shifted Location Valid',
         CASE
             WHEN zAddAssetAttr.ZSHIFTEDLOCATIONDATA > 0 THEN 'zAddAssetAttr-Shifted_Location_Data_has_Plist'
-            ELSE 'zAddAssetArrt-Shifted_Location_Data_Empty-NULL'
+            ELSE 'zAddAssetAttr-Shifted_Location_Data_Empty-NULL'
         END AS 'zAddAssetAttr-Shifted Location Data-HasDataIndicator',
         zAddAssetAttr.ZSHIFTEDLOCATIONDATA AS 'zAddAssetAttr-Shifted Location Data',
         CASE zAddAssetAttr.ZREVERSELOCATIONDATAISVALID
@@ -1755,7 +1755,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
                           ' records for a variety of data. This parser should be used in conjunction with other' \
                           ' parsers to review a complete record for analysis. The results of this parser could' \
                           ' produce multiple records for a single asset.'
-            report = ArtifactHtmlReport('Photos.sqlite-C-Other_Artifacts')
+            report = ArtifactHtmlReport('Ph10.1-Assets have embedded files-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph10.1-Assets have embedded files-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -2148,7 +2148,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
                           ' records for a variety of data. This parser should be used in conjunction with other' \
                           ' parsers to review a complete record for analysis. The results of this parser could' \
                           ' produce multiple records for a single asset.'
-            report = ArtifactHtmlReport('Photos.sqlite-C-Other_Artifacts')
+            report = ArtifactHtmlReport('Ph10.1-Assets have embedded files-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph10.1-Assets have embedded files-PhDaPsql', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -2325,7 +2325,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
                           ' for assets that have embedded files records for a variety of data. This parser' \
                           ' should be used in conjunction with other parsers to review a complete record' \
                           ' for analysis. The results of this parser could produce multiple records for a single asset.'
-            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Ph10.2-Assets have embedded files-SyndPL')
             report.start_artifact_report(report_folder, 'Ph10.2-Assets have embedded files-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -2553,7 +2553,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
                           ' for assets that have embedded files records for a variety of data. This parser' \
                           ' should be used in conjunction with other parsers to review a complete record' \
                           ' for analysis. The results of this parser could produce multiple records for a single asset.'
-            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Ph10.2-Assets have embedded files-SyndPL')
             report.start_artifact_report(report_folder, 'Ph10.2-Assets have embedded files-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -2863,7 +2863,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
                           ' for assets that have embedded files records for a variety of data. This parser' \
                           ' should be used in conjunction with other parsers to review a complete record' \
                           ' for analysis. The results of this parser could produce multiple records for a single asset.'
-            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Ph10.2-Assets have embedded files-SyndPL')
             report.start_artifact_report(report_folder, 'Ph10.2-Assets have embedded files-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -3185,7 +3185,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
                           ' for assets that have embedded files records for a variety of data. This parser' \
                           ' should be used in conjunction with other parsers to review a complete record' \
                           ' for analysis. The results of this parser could produce multiple records for a single asset.'
-            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Ph10.2-Assets have embedded files-SyndPL')
             report.start_artifact_report(report_folder, 'Ph10.2-Assets have embedded files-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -3567,7 +3567,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
                           ' for assets that have embedded files records for a variety of data. This parser' \
                           ' should be used in conjunction with other parsers to review a complete record' \
                           ' for analysis. The results of this parser could produce multiple records for a single asset.'
-            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Ph10.2-Assets have embedded files-SyndPL')
             report.start_artifact_report(report_folder, 'Ph10.2-Assets have embedded files-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -3959,7 +3959,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
                           ' for assets that have embedded files records for a variety of data. This parser' \
                           ' should be used in conjunction with other parsers to review a complete record' \
                           ' for analysis. The results of this parser could produce multiple records for a single asset.'
-            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Ph10.2-Assets have embedded files-SyndPL')
             report.start_artifact_report(report_folder, 'Ph10.2-Assets have embedded files-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',
@@ -4352,7 +4352,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
                           ' for assets that have embedded files records for a variety of data. This parser' \
                           ' should be used in conjunction with other parsers to review a complete record' \
                           ' for analysis. The results of this parser could produce multiple records for a single asset.'
-            report = ArtifactHtmlReport('Photos.sqlite-S-Syndication_PL_Artifacts')
+            report = ArtifactHtmlReport('Ph10.2-Assets have embedded files-SyndPL')
             report.start_artifact_report(report_folder, 'Ph10.2-Assets have embedded files-SyndPL', description)
             report.add_script()
             data_headers = ('zAsset-Date Created-0',

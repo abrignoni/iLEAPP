@@ -133,7 +133,7 @@ def get_ph31icldsharephotolibphdapsql(files_found, report_folder, seeker, wrap_t
             description = 'Parses iCloud Shared Photo Library records and invites from the PhotoData-Photos.sqlite' \
                           ' ZSHARE Table and supports iOS 14-15. Parses iCloud SPL and Participant information' \
                           ' records only no asset data being parsed.'
-            report = ArtifactHtmlReport('Photos.sqlite-F-Cloud_Shared_Methods')
+            report = ArtifactHtmlReport('Ph31-iCld Shared Photo Lib Records NAD-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph31-iCld Shared Photo Lib Records NAD-PhDaPsql', description)
             report.add_script()
             data_headers = ('zShare-Creation Date-0',
@@ -337,7 +337,7 @@ def get_ph31icldsharephotolibphdapsql(files_found, report_folder, seeker, wrap_t
             description = 'Parses iCloud Shared Photo Library records and invites from the PhotoData-Photos.sqlite' \
                           ' ZSHARE Table and supports iOS 16-17. Parses iCloud SPL and Participant information' \
                           ' records only no asset data being parsed.'
-            report = ArtifactHtmlReport('Photos.sqlite-F-Cloud_Shared_Methods')
+            report = ArtifactHtmlReport('Ph31-iCld Shared Photo Lib Records NAD-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph31-iCld Shared Photo Lib Records NAD-PhDaPsql', description)
             report.add_script()
             data_headers = ('zShare-Creation Date-0',
@@ -559,7 +559,7 @@ def get_ph31icldsharephotolibphdapsql(files_found, report_folder, seeker, wrap_t
             description = 'Parses iCloud Shared Photo Library records and invites from the PhotoData-Photos.sqlite' \
                           ' ZSHARE Table and supports iOS 18. Parses iCloud SPL and Participant information' \
                           ' records only no asset data being parsed.'
-            report = ArtifactHtmlReport('Photos.sqlite-F-Cloud_Shared_Methods')
+            report = ArtifactHtmlReport('Ph31-iCld Shared Photo Lib Records NAD-PhDaPsql')
             report.start_artifact_report(report_folder, 'Ph31-iCld Shared Photo Lib Records NAD-PhDaPsql', description)
             report.add_script()
             data_headers = ('zShare-Creation Date-0',
