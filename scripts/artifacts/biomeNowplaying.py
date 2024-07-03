@@ -152,7 +152,7 @@ def get_biomeNowplaying(files_found, report_folder, seeker, wrap_text, timezone_
             report = ArtifactHtmlReport(f'Biome Now Playing Public')
             report.start_artifact_report(report_folder, f'Biome Now Playing Public - {filename}', description)
             report.add_script()
-            data_headers = ('Timestamp','Bundle ID','Output','Info','Info','Info')
+            data_headers = ('Timestamp','Bundle ID','Output','Media Type','Title','Artist')
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
             

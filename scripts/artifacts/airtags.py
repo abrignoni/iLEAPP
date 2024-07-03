@@ -127,7 +127,7 @@ def get_airtags(files_found, report_folder, seeker, wrap_text, timezone_offset):
         report = ArtifactHtmlReport('Safe Locations')
         report.start_artifact_report(report_folder, 'Safe Locations')
         report.add_script()
-        data_list_safeloc_headers = ('Timestamp', 'Name', 'Serial', 'ID', 'Role Name', 'Emoji', 'Role ID', 'Name', 'Type', 'Identifier', 'Vertical Accuracy', 'Horizontal Accuracy', 'Longitude', 'Latitude', 'Floor Level', 'Is Inaccurate', 'Is Old', 'Altitude', 'Sub-Administrative Area', 'Label', 'Street Address', 'Country Code', 'State Code', 'Administrative Area', 'Street Name', 'Formatted Address Line', 'Map Item Full Address', 'Throroughfare', 'Area of Interest', 'Locality', 'Country' )
+        data_list_safeloc_headers = ('Timestamp', 'Item Name', 'Serial', 'ID', 'Role Name', 'Emoji', 'Role ID', 'Location Name', 'Type', 'Identifier', 'Vertical Accuracy', 'Horizontal Accuracy', 'Longitude', 'Latitude', 'Floor Level', 'Is Inaccurate', 'Is Old', 'Altitude', 'Sub-Administrative Area', 'Label', 'Street Address', 'Country Code', 'State Code', 'Administrative Area', 'Street Name', 'Formatted Address Line', 'Map Item Full Address', 'Throroughfare', 'Area of Interest', 'Locality', 'Country' )
         report.write_artifact_data_table(data_list_safeloc_headers, data_list_safeloc, file_found)
         report.end_artifact_report()
         
