@@ -898,13 +898,13 @@ def get_booked(file_found, documents, report_folder, timezone_offset):
                         # check-in
                         tmp = value.get('checkin')
                         if bool(tmp):
-                            tmp = f'Check-in: {tmp.strftime('%Y-%m-%d')}'
+                            tmp = f"Check-in: {tmp.strftime('%Y-%m-%d')}"
                             tmp = tmp + ' ' + format_check_in_out(value.get('checkin_from_epoch'), value.get('checkin_until_epoch'), tz=hotel_time_zone)
                             check_io.append(tmp)
                         # check-out
                         tmp = value.get('checkout')
                         if bool(tmp):
-                            tmp = f'Check-out: {tmp.strftime('%Y-%m-%d')}'
+                            tmp = f"Check-out: {tmp.strftime('%Y-%m-%d')}"
                             tmp = tmp + ' ' + format_check_in_out(value.get('checkout_from_epoch'), value.get('checkout_until_epoch'), tz=hotel_time_zone)
                             check_io.append(tmp)
                         row[5] = '<br />'.join(check_io)
@@ -925,7 +925,7 @@ def get_booked(file_found, documents, report_folder, timezone_offset):
                         row[7] = '<br />'.join(confirm_info)
 
                         # currency code + total price
-                        row[8] = f'{value.get('user_selected_currency_code')} {value.get('totalprice', '0'):.4f}'
+                        row[8] = f"{value.get('user_selected_currency_code')} {value.get('totalprice', '0'):.4f}"
 
                         # rooms
                         room_meta = []
@@ -936,7 +936,7 @@ def get_booked(file_found, documents, report_folder, timezone_offset):
 
                             for r in range(len(rooms)):
                                 room = rooms[r]
-                                room_meta.append(f'Room {r} - {room.get('name', '')}')
+                                room_meta.append(f"Room {r} - {room.get('name', '')}")
                                 # guest name
                                 append_tag_value(room_meta, 'Guest name', room.get('guest_name'))
                                 # number of guests
@@ -1218,7 +1218,7 @@ def get_flights_searched(file_found, report_folder, timezone_offset):
         airport_meta = []
         for a in range(len(airports)):
             airport = airports[a]
-            airport_meta.append(f'{section_name} {a} - {airport.get('name', '')}')
+            airport_meta.append(f"{section_name} {a} - {airport.get('name', '')}")
             # city name
             append_tag_value(airport_meta, 'City', airport.get('cityName'))
             # region name
