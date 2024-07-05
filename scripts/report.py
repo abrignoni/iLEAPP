@@ -116,6 +116,21 @@ icon_mappings = \
     'BLUETOOTH': 'bluetooth',
     'BLUETOOTH CONNECTIONS': 'bluetooth',
     'BLUETOOTH_DEVICES': 'bluetooth',  # TODO: can this be combined?
+    'BOOKING.COM': {
+            'ACCOUNT': 'user',
+            'ACCOUNT SETTINGS': 'user',
+            'PAYMENT METHODS': 'credit-card',
+            'PAYMENT METHODS SETTINGS': 'credit-card',
+            'VIEWED': 'eye',
+            'RECENTLY SEARCHED': 'search',
+            'WISH LISTS': 'star',
+            'RECENTLY BOOKED': 'shopping-bag',
+            'BOOKED': 'shopping-bag',
+            'STORED DESTINATIONS': 'map',
+            'NOTIFICATIONS': 'bell',
+            'FLIGHTS SEARCHED': 'search',
+            '_mode': 'search',
+    },
     'BROWSER CACHE': {
         'CHROME BROWSER CACHE': 'chrome',
         'default': 'globe'
