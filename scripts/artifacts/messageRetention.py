@@ -39,6 +39,6 @@ def get_messageRetention(files_found, report_folder, seeker, wrap_text, timezone
 __artifacts__ = {
     "messageRetention": (
         "Identifiers",
-        ('*/com.apple.MobileSMS.plist','*/com.apple.mobileSMS.plist'),
+        ('*/mobile/Library/Preferences/com.apple.MobileSMS.plist','*//mobile/Library/Preferences/com.apple.mobileSMS.plist'),
         get_messageRetention)
 }
