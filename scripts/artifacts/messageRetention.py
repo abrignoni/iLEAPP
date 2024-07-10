@@ -11,7 +11,7 @@ def get_messageRetention(files_found, report_folder, seeker, wrap_text, timezone
     for file_found in files_found:
         if len(files_found) > 1:
             filetoprocessOne = seeker.search(f'*/mobile/Library/Preferences/com.apple.MobileSMS.plist')
-            with open(file_found, "rb") as fp:
+            with open(filetoprocessOne[0], "rb") as fp:
                 pl = plistlib.load(fp)
                 indicator = 0
                 
@@ -27,7 +27,7 @@ def get_messageRetention(files_found, report_folder, seeker, wrap_text, timezone
                     logdevinfo(f"<b>Keep Message for Days: </b>No Value")
             
             filetoprocessTwo = seeker.search(f'*/mobile/Library/Preferences/com.apple.mobileSMS.plist')
-            with open(file_found, "rb") as fp:
+            with open(filetoprocessTwo[0], "rb") as fp:
                 pl = plistlib.load(fp)
                 indicator = 0
                 
