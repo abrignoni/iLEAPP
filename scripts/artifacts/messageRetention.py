@@ -9,19 +9,55 @@ def get_messageRetention(files_found, report_folder, seeker, wrap_text, timezone
     data_list = []
     
     for file_found in files_found:
-        with open(file_found, "rb") as fp:
-            pl = plistlib.load(fp)
-            indicator = 0
-            for key, val in pl.items():
+        if len(file_found) > 1:
+            filetoprocessOne = seeker.search(f'*/mobile/Library/Preferences/com.apple.MobileSMS.plist')
+            with open(file_found, "rb") as fp:
+                pl = plistlib.load(fp)
+                indicator = 0
                 
-                if key == 'KeepMessageForDays':
-                    data_list.append(('Keep Message for Days',val,file_found))
-                    logdevinfo(f"<b>Keep Message for Days: </b>{val}")
-                    indicator = 1
+                for key, val in pl.items():
+                    
+                    if key == 'KeepMessageForDays':
+                        data_list.append(('Keep Message for Days',val,filetoprocessOne[0]))
+                        logdevinfo(f"<b>Keep Message for Days: </b>{val}")
+                        indicator = 1
+                        
+                if indicator == 0:
+                    data_list.append(('Keep Message for Days','No value',filetoprocessOne[0]))
+                    logdevinfo(f"<b>Keep Message for Days: </b>No Value")
+            
+            filetoprocessTwo = seeker.search(f'*/mobile/Library/Preferences/com.apple.mobileSMS.plist')
+            with open(file_found, "rb") as fp:
+                pl = plistlib.load(fp)
+                indicator = 0
                 
-            if indicator == 0:
-                data_list.append(('Keep Message for Days','No value',file_found))
-                logdevinfo(f"<b>Keep Message for Days: </b>No Value")
+                for key, val in pl.items():
+                    
+                    if key == 'KeepMessageForDays':
+                        data_list.append(('Keep Message for Days',val,filetoprocessTwo[0]))
+                        logdevinfo(f"<b>Keep Message for Days: </b>{val}")
+                        indicator = 1
+                        
+                if indicator == 0:
+                    data_list.append(('Keep Message for Days','No value',filetoprocessTwo[0]))
+                    logdevinfo(f"<b>Keep Message for Days: </b>No Value")
+            break
+        
+        else:
+            with open(file_found, "rb") as fp:
+                pl = plistlib.load(fp)
+                indicator = 0
+            
+                for key, val in pl.items():
+                    
+                    if key == 'KeepMessageForDays':
+                        data_list.append(('Keep Message for Days',val,file_found))
+                        logdevinfo(f"<b>Keep Message for Days: </b>{val}")
+                        indicator = 1
+                    
+                if indicator == 0:
+                    data_list.append(('Keep Message for Days','No value',file_found))
+                    logdevinfo(f"<b>Keep Message for Days: </b>No Value")
             
     if len(data_list) > 0:
         report = ArtifactHtmlReport('iOS Message Retention')
@@ -39,6 +75,6 @@ def get_messageRetention(files_found, report_folder, seeker, wrap_text, timezone
 __artifacts__ = {
     "messageRetention": (
         "Identifiers",
-        ('*/mobile/Library/Preferences/com.apple.MobileSMS.plist','*//mobile/Library/Preferences/com.apple.mobileSMS.plist'),
+        ('*/mobile/Library/Preferences/com.apple.MobileSMS.plist','*/mobile/Library/Preferences/com.apple.mobileSMS.plist'),
         get_messageRetention)
 }
