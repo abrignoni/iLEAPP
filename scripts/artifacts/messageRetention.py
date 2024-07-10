@@ -9,7 +9,7 @@ def get_messageRetention(files_found, report_folder, seeker, wrap_text, timezone
     data_list = []
     
     for file_found in files_found:
-        if len(file_found) > 1:
+        if len(files_found) > 1:
             filetoprocessOne = seeker.search(f'*/mobile/Library/Preferences/com.apple.MobileSMS.plist')
             with open(file_found, "rb") as fp:
                 pl = plistlib.load(fp)
