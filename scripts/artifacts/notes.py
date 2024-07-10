@@ -21,7 +21,7 @@ def get_notes(files_found, report_folder, seeker, wrap_text, timezone_offset):
             db = open_sqlite_db_readonly(file_found)
             cursor = db.cursor()
             
-            if does_column_exist_in_db(db, 'ZICCLOUDSYNCINGOBJECT','ZACCOUNT4') == True:
+            if does_column_exist_in_db(db, 'ZICCLOUDSYNCINGOBJECT','ZACCOUNT4') == True and does_column_exist_in_db(db, 'ZICCLOUDSYNCINGOBJECT','ZCREATIONDATE3') == True:
                         
                 cursor.execute('''
                     SELECT 
@@ -58,7 +58,44 @@ def get_notes(files_found, report_folder, seeker, wrap_text, timezone_offset):
                     LEFT JOIN ZICCLOUDSYNCINGOBJECT TabE on TabD.Z_PK = TabE.ZATTACHMENT1
                     LEFT JOIN ZICNOTEDATA TabF on TabF.ZNOTE = TabA.Z_PK
                     ''')
-                
+
+            elif does_column_exist_in_db(db, 'ZICCLOUDSYNCINGOBJECT','ZACCOUNT4') == True and does_column_exist_in_db(db, 'ZICCLOUDSYNCINGOBJECT','ZCREATIONDATE3') == False:
+                cursor.execute('''
+                    SELECT 
+                    DATETIME(TabA.ZCREATIONDATE1+978307200,'UNIXEPOCH'), 
+                    TabA.ZTITLE1,
+                    TabA.ZSNIPPET,
+                    TabB.ZTITLE2,
+                    TabC.ZNAME,
+                    DATETIME(TabA.ZMODIFICATIONDATE1+978307200,'UNIXEPOCH'),
+                    case TabA.ZISPASSWORDPROTECTED
+                    when 0 then "No"
+                    when 1 then "Yes"
+                    end,
+                    TabA.ZPASSWORDHINT,
+                    case TabA.ZMARKEDFORDELETION
+                    when 0 then "No"
+                    when 1 then "Yes"
+                    end,
+                    case TabA.ZISPINNED
+                    when 0 then "No"
+                    when 1 then "Yes"
+                    end,
+                    TabE.ZFILENAME,
+                    TabE.ZIDENTIFIER,
+                    TabD.ZFILESIZE,
+                    TabD.ZTYPEUTI,
+                    DATETIME(TabD.ZCREATIONDATE+978307200,'UNIXEPOCH') as "Attachment Created",
+                    DATETIME(TabD.ZMODIFICATIONDATE+978307200,'UNIXEPOCH') as "Attachment Modified",
+                    TabF.ZDATA
+                    FROM ZICCLOUDSYNCINGOBJECT TabA
+                    INNER JOIN ZICCLOUDSYNCINGOBJECT TabB on TabA.ZFOLDER = TabB.Z_PK
+                    INNER JOIN ZICCLOUDSYNCINGOBJECT TabC on TabA.ZACCOUNT3 = TabC.Z_PK
+                    LEFT JOIN ZICCLOUDSYNCINGOBJECT TabD on TabA.Z_PK = TabD.ZNOTE
+                    LEFT JOIN ZICCLOUDSYNCINGOBJECT TabE on TabD.Z_PK = TabE.ZATTACHMENT1
+                    LEFT JOIN ZICNOTEDATA TabF on TabF.ZNOTE = TabA.Z_PK
+                    ''')
+
             else:
                 cursor.execute('''
                     SELECT 
