@@ -2028,6 +2028,7 @@ OS_build = {
     "23G5066c": "macOS 14.6 beta 3",
     "24A5264n": "macOS 15.0 beta 1",
     "24A5279h": "macOS 15.0 beta 2",
+    "24A5289g": "macOS 15.0 beta 3",
     "21N5165g": "visionOS 1.0 beta 1",
     "21N5207f": "visionOS 1.0 beta 2 Simulator",
     "21N5207g": "visionOS 1.0 beta 2",
