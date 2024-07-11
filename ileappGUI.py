@@ -234,9 +234,9 @@ def select_output():
     output_entry.insert(0, output_filename)
 
 
-# GUI layout
-## Case Data
 def case_data():
+    # GUI layout
+    ## Case Data
     '''Add Case Data window'''
     global casedata
 

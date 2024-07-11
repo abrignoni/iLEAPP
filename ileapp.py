@@ -164,9 +164,9 @@ def main():
     plugins_parsed_first = []
 
     for plugin in available_plugins:
-        if plugin.name == 'lastbuild':
+        if plugin.module_name == 'lastBuild':
             plugins_parsed_first.append(plugin)
-        elif plugin.name != 'iTunesBackupInfo':
+        elif plugin.module_name != 'iTunesBackupInfo':
             plugins.append(plugin)
 
     selected_plugins = plugins.copy()
