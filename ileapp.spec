@@ -29,4 +29,5 @@ exe = EXE(pyz,
           upx=True,
           upx_exclude=[],
           runtime_tmpdir=None,
+          version='ileapp-file_version_info.txt',
           console=True )
