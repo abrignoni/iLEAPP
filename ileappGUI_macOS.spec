@@ -57,7 +57,7 @@ coll = COLLECT(
 app = BUNDLE(
     coll,
     name='ileappGUI.app',
-    icon=None,
+    icon='scripts/icon.icns',
     bundle_identifier='4n6.brigs.iLEAPP',
-    version='1.19.3'
+    version='1.19.5'
 )

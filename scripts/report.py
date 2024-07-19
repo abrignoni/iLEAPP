@@ -1068,7 +1068,7 @@ def get_search_mode_categories():
 search_set = get_search_mode_categories()
 
 
-def generate_report(reportfolderbase, time_in_secs, time_HMS, extraction_type, image_input_path, casedata):
+def generate_report(reportfolderbase, time_in_secs, time_HMS, extraction_type, image_input_path, casedata, profile_filename):
     control = None
     side_heading = \
         """
@@ -1140,7 +1140,7 @@ def generate_report(reportfolderbase, time_in_secs, time_HMS, extraction_type, i
                 pass # Perhaps it was not empty!
 
     # Create index.html's page content
-    create_index_html(reportfolderbase, time_in_secs, time_HMS, extraction_type, image_input_path, nav_list_data, casedata)
+    create_index_html(reportfolderbase, time_in_secs, time_HMS, extraction_type, image_input_path, nav_list_data, casedata, profile_filename)
     elements_folder = os.path.join(reportfolderbase, '_elements')
     os.mkdir(elements_folder)
     __location__ = os.path.dirname(os.path.abspath(__file__))
@@ -1174,7 +1174,7 @@ def get_file_content(path):
     f.close()
     return data
 
-def create_index_html(reportfolderbase, time_in_secs, time_HMS, extraction_type, image_input_path, nav_list_data, casedata):
+def create_index_html(reportfolderbase, time_in_secs, time_HMS, extraction_type, image_input_path, nav_list_data, casedata, profile_filename):
     '''Write out the index.html page to the report folder'''
     case_list = []
     content = '<br />'
@@ -1187,6 +1187,9 @@ def create_index_html(reportfolderbase, time_in_secs, time_HMS, extraction_type,
         for key, value in casedata.items():
             if value:
                 case_list.append([key, value])
+    
+    if profile_filename:
+        case_list.append(['Profile loaded', profile_filename])
     
     case_list += [
         ['Extraction location', image_input_path],
