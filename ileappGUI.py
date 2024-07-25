@@ -187,7 +187,7 @@ def process(casedata):
 
         logtext_frame.grid(row=1, column=0, rowspan=3, padx=14, pady=4, sticky='nswe')
         bottom_frame.grid_remove()
-        progress_bar.grid(padx=16, pady=6, sticky='we')
+        progress_bar.grid(padx=16, sticky='we')
 
         crunch_successful = ileapp.crunch_artifacts(
             selected_modules, extracttype, input_path, out_params, wrap_text, loader,
@@ -200,9 +200,14 @@ def process(casedata):
             if report_path.startswith('\\\\'):  # UNC path
                 report_path = report_path[2:]
             progress_bar.grid_remove()
-            open_report_button = ttk.Button(main_window, text='Open Report & Close',
+            close_frame.grid(padx=16, sticky='')
+            open_report_button = ttk.Button(close_frame, text='Open Report & Quit',
                                             command=lambda: open_report(report_path))
-            open_report_button.grid(ipadx=8)
+            close_button = ttk.Button(close_frame, text='Close logs',
+                                            command=refresh_main_window)
+            open_report_button.grid(row=0, column=0, ipadx=8)
+            ttk.Separator(close_frame, orient='vertical').grid(row=0, column=1, padx=20, sticky='ns')
+            close_button.grid(row=0, column=2, ipadx=8)
         else:
             log_path = out_params.screen_output_file_path
             if log_path.startswith('\\\\?\\'):  # windows
@@ -344,6 +349,32 @@ def case_data():
 
     case_window.grab_set()
 
+
+def refresh_main_window():
+    global profile_filename
+    global casedata
+    global timezone_set
+    input_entry.delete(0, 'end')
+    output_entry.delete(0, 'end')
+    profile_filename = None
+    casedata = {'Case Number': tk.StringVar(),
+                'Agency': tk.StringVar(),
+                'Examiner': tk.StringVar(),
+                }
+    timezone_set = tk.StringVar()
+    mlist.clear()
+    pickModules()
+    for plugin,enabled in mlist.items():
+        main_window.nametowidget(f'f_modules.f_list.tbox.mcb_{plugin.name}').config(
+            variable=enabled, onvalue=True, offvalue=False
+        )
+    get_selected_modules()
+    ()
+    logtext_frame.grid_remove()
+    log_text.delete('1.0', 'end')
+    close_frame.grid_remove()
+    bottom_frame.grid(padx=16, pady=6, sticky='we')
+    bottom_frame.update_idletasks()
 
 ## Main window creation
 main_window = tk.Tk()
@@ -502,7 +533,7 @@ main_window.bind_class('Checkbutton', '<MouseWheel>', scroll)
 main_window.bind_class('Checkbutton', '<Button-4>', scroll)
 main_window.bind_class('Checkbutton', '<Button-5>', scroll)
 
-### Process / Close
+### Process
 bottom_frame = ttk.Frame(main_window)
 bottom_frame.grid(padx=16, pady=6, sticky='we')
 bottom_frame.grid_columnconfigure(2, weight=1)
@@ -533,6 +564,8 @@ log_text = tk.Text(
     highlightthickness=1, yscrollcommand=vlog.set, height=log_text_height)
 log_text.grid(row=0, column=0, padx=4, pady=10, sticky='we')
 vlog.config(command=log_text.yview)
+
+close_frame = ttk.Frame(main_window)
 
 ### Progress bar
 progress_bar = ttk.Progressbar(main_window, orient='horizontal')
