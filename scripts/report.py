@@ -903,6 +903,9 @@ icon_mappings = \
         'TIKTOK SEARCH': 'search',
         'TIKTOK - MESSAGES': 'message-square',
         'TIKTOK - CONTACTS': 'user',
+        'TIKTOK REFERENCED REPLIED': 'message-square',
+        '_mode': 'search'
+
     },
     'TIKTOK RETURNS': 'film',
     'TODOIST': {
