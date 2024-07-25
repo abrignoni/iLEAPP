@@ -79,7 +79,7 @@ def get_mobileInstallb(files_found, report_folder, seeker, wrap_text, timezone_o
             values = line_splitting(line)
             data_list.append((values[0],desc,values[1],filename))
           elif 'Reboot detected' in line: #anadir un data_list_reboot para esta data
-            desc = 'Reebot'
+            desc = 'Reboot'
             values = line_splitting(line)
             data_list_reboot.append((values[0],desc,values[1],filename))
             data_list.append((values[0],desc,values[1],filename))
