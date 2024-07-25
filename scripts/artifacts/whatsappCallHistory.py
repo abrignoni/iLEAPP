@@ -30,6 +30,9 @@ from scripts.ilapfuncs import logfunc, logdevinfo, timeline, kmlgen, tsv, is_pla
 
 def get_whatsappCallHistory(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
+    CallHistory_db = ""
+    ContactsV2_db = ""
+
     for file_found in files_found:
         file_found = str(file_found)
         if file_found.endswith('CallHistory.sqlite'):
