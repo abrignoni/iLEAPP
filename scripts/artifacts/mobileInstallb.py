@@ -128,7 +128,7 @@ def get_mobileInstallb(files_found, report_folder, seeker, wrap_text, timezone_o
       if len(data_list_reboot) > 0:
         description = 'Reboots - Mobile Installation Logs. All timestamps are in Local Time'
         report = ArtifactHtmlReport(f'Reboots - Mobile Installation Logs')
-        report.start_artifact_report(report_folder, f'Reebots Mobile Installation Logs', description)
+        report.start_artifact_report(report_folder, f'Reboots - Mobile Installation Logs', description)
         report.add_script()
         data_headers = ('Timestamp','Type','Notice','Source File')
         report.write_artifact_data_table(data_headers, data_list_reboot, file_found, html_no_escape=[''])
