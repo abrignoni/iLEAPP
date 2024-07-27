@@ -47,11 +47,11 @@ def blob_image_to_html(data, max_width=96):
         return ''
                   
 
-REGEXP_MEDIA = r'WHERE cr.request_key like "https://s3.amazonaws.com/burner-%"'
-REGEXP_ACCOUNTS = r'WHERE cr.request_key REGEXP "https://phoenix\.burnerapp\.com(/v\d)?(/register(/phone)?$|/user/[a-zA-Z0-9\-]{36}/token)"'
-REGEXP_CONTACTS = r'WHERE cr.request_key REGEXP "https://phoenix\.burnerapp\.com(/v\d)?/user/[a-zA-Z0-9\-]{36}/contacts\?.+"'
-REGEXP_MESSAGES = r'WHERE cr.request_key REGEXP "https://phoenix\.burnerapp\.com(/v\d)?/user/[a-zA-Z0-9\-]{36}/messages($|\?.*contactPhoneNumber=.+)"'
-REGEXP_NUMBERS = r'WHERE cr.request_key REGEXP "https://phoenix\.burnerapp\.com(/v\d)?/user/[a-zA-Z0-9\-]{36}/burners(/[a-zA-Z0-9\-]{36})?$"'
+LIKEXP_MEDIA = r'WHERE cr.request_key like "https://s3.amazonaws.com/burner-%"'
+REGEXP_ACCOUNTS = r'WHERE cr.request_key REGEXP "https:\/\/phoenix\.burnerapp\.com(\/v\d)?(\/register(\/phone)?$|\/user\/[a-fA-F\d-]{36}\/token)"'
+REGEXP_CONTACTS = r'WHERE cr.request_key REGEXP "https:\/\/phoenix\.burnerapp\.com(\/v\d)?\/user\/[a-fA-F\d-]{36}\/contacts\?.+"'
+REGEXP_MESSAGES = r'WHERE cr.request_key REGEXP "https:\/\/phoenix\.burnerapp\.com(\/v\d)?\/user\/[a-fA-F\d-]{36}\/messages($|\?.*contactPhoneNumber=.+)"'
+REGEXP_NUMBERS = r'WHERE cr.request_key REGEXP "https:\/\/phoenix\.burnerapp\.com(\/v\d)?\/user\/[a-fA-F\d-]{36}\/burners(\/[a-fA-F\d-]{36})?$"'
 
 # cache query
 def cache_query(db, where=''):
@@ -75,38 +75,24 @@ def cache_query(db, where=''):
 def get_cache_accounts(file_found, cache_files, report_folder, timezone_offset):
     # get account
     def get_account(account):
-        # user
-        user = account.get('user')
-        if bool(user):
-            # date created
-            created = FormatTimestamp(user.get('dateCreated'), timezone_offset, divisor=1000)
-            # phone number
-            phone_number = user.get('phoneNumber', '')
-            # country code
-            country_code = user.get('countryCode')
-            # carrier name
-            carrier_name = user.get('carrierName')
-            # total number burners
-            total_number_burners = user.get('totalNumberBurners')
-            # last updated date
-            last_updated = FormatTimestamp(user.get('lastUpdatedDate'), timezone_offset, divisor=1000)
-            # user id
-            user_id = user.get('id')
-        else:
-            # date created
-            created = FormatTimestamp(account.get('dateCreated'), timezone_offset, divisor=1000)
-            # phone number
-            phone_number = account.get('phoneNumber', '')
-            # country code
-            country_code = account.get('countryCode')
-            # carrier name
-            carrier_name = account.get('carrierName')
-            # total number burners
-            total_number_burners = account.get('totalNumberBurners')
-            # last updated date
-            last_updated = FormatTimestamp(account.get('lastUpdatedDate'), timezone_offset, divisor=1000)
-            # user id
-            user_id = account.get('id')
+        acc_ref = account.get('user')
+        if not bool(acc_ref):
+            acc_ref = account
+
+        # date created
+        created = FormatTimestamp(acc_ref.get('dateCreated'), timezone_offset, divisor=1000)
+        # phone number
+        phone_number = acc_ref.get('phoneNumber', '')
+        # country code
+        country_code = acc_ref.get('countryCode')
+        # carrier name
+        carrier_name = acc_ref.get('carrierName')
+        # total number burners
+        total_number_burners = acc_ref.get('totalNumberBurners')
+        # last updated date
+        last_updated = FormatTimestamp(acc_ref.get('lastUpdatedDate'), timezone_offset, divisor=1000)
+        # user id
+        user_id = acc_ref.get('id')
 
         if bool(user_id):
             out_map[user_id] = phone_number
@@ -567,7 +553,7 @@ def get_cache_messages(file_found, cache_files, report_folder, timezone_offset, 
         db.create_function('regexp', 2, lambda x, y: 1 if re.search(x,y) else 0)
 
         # media
-        all_media = cache_query(db, where=REGEXP_MEDIA)
+        all_media = cache_query(db, where=LIKEXP_MEDIA)
 
         all_rows = cache_query(db, where=REGEXP_MESSAGES)
         usageentries = len(all_rows)
