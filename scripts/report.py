@@ -513,6 +513,7 @@ icon_mappings = \
     },
     'ICLOUD SHARED ALBUMS': 'cloud',
     'IDENTIFIERS': 'file',
+    'IDENTITY LOOKUP SERVICE': 'user-check',
     'IMAGE CACHEV0': 'image',
     'IMAGE MANAGER CACHE': 'image',
     'IMO': {
