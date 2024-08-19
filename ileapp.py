@@ -7,11 +7,14 @@ import typing
 import plugin_loader
 import scripts.report as report
 import traceback
+import sqlite3
+import sys
 
 from scripts.search_files import *
 from scripts.ilapfuncs import *
 from scripts.version_info import ileapp_version
 from time import process_time, gmtime, strftime, perf_counter
+from scripts.lavafuncs import *
 
 def validate_args(args):
     if args.artifact_paths or args.create_profile_casedata:
@@ -154,6 +157,7 @@ def main():
     parser.add_argument('-p', '--artifact_paths', required=False, action="store_true",
                         help=("Generate a text file list of artifact paths. "
                               "This argument is meant to be used alone, without any other arguments."))
+    parser.add_argument('-lava', action='store_true', help='Generate LAVA-specific output')
 
     loader = plugin_loader.PluginLoader()
     available_plugins = list(loader.plugins)
@@ -170,6 +174,11 @@ def main():
             plugins.append(plugin)
 
     selected_plugins = plugins.copy()
+
+    # Check if no arguments were provided
+    if len(sys.argv) == 1:
+        parser.print_help(sys.stderr)
+        sys.exit()
 
     args = parser.parse_args()
 
@@ -289,8 +298,13 @@ def main():
 
     selected_plugins = plugins_parsed_first + selected_plugins
     
+    if args.lava:
+        initialize_lava(input_path, out_params.report_folder_base, extracttype)
+
     crunch_artifacts(selected_plugins, extracttype, input_path, out_params, wrap_text, loader, casedata, time_offset, profile_filename)
 
+    if args.lava:
+        lava_finalize_output(out_params.report_folder_base)
 
 def crunch_artifacts(
         plugins: typing.Sequence[plugin_loader.PluginSpec], extracttype, input_path, out_params, wrap_text,
@@ -394,7 +408,7 @@ def crunch_artifacts(
                     logfunc('Error was {}'.format(str(ex)))
                     continue  # cannot do work
             try:
-                plugin.method(files_found, category_folder, seeker, wrap_text, time_offset)
+                artifact_data = plugin.method(files_found, category_folder, seeker, wrap_text, time_offset)
             except Exception as ex:
                 logfunc('Reading {} artifact had errors!'.format(plugin.name))
                 logfunc('Error was {}'.format(str(ex)))
@@ -402,7 +416,6 @@ def crunch_artifacts(
                 continue  # nope
 
             logfunc('{} [{}] artifact completed'.format(plugin.name, plugin.module_name))
-
     log.close()
 
     logfunc('')
@@ -430,6 +443,7 @@ def crunch_artifacts(
     logfunc('Report generation Completed.')
     logfunc('')
     logfunc(f'Report location: {out_params.report_folder_base}')
+
     return True
 
 if __name__ == '__main__':

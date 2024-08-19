@@ -1,7 +1,8 @@
 import html
 import os
+import sys
 from scripts.html_parts import *
-from scripts.ilapfuncs import is_platform_windows
+#from scripts.ilapfuncs import is_platform_windows
 from scripts.version_info import ileapp_version
 
 class ArtifactHtmlReport:
@@ -83,7 +84,7 @@ class ArtifactHtmlReport:
         if write_total:
             self.write_minor_header(f'Total number of entries: {num_entries}', 'h6')
         if write_location:
-            if is_platform_windows():
+            if sys.platform == 'win32':
                 source_path = source_path.replace('/', '\\')
             if source_path.startswith('\\\\?\\'):
                 source_path = source_path[4:]
