@@ -9,7 +9,8 @@ __artifacts_v2__ = {
         "category": "Accounts",
         "notes": "",
         "paths": ('*/mobile/Library/Accounts/Accounts3.sqlite*'),
-        "function": "get_accs"
+        "function": "get_accs",
+        "output_types": 'all'
     }
 }
 
@@ -19,8 +20,12 @@ from scripts.ilapfuncs import artifact_processor, logfunc, open_sqlite_db_readon
 
 @artifact_processor(__artifacts_v2__["accs"])
 def get_accs(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    data_list = []
+    data_headers = ()
+    source_path = ''
+
     for file_found in files_found:
-        file_found = str(file_found)
+        source_path = str(file_found)
     
         if file_found.endswith('Accounts3.sqlite'):
             break
@@ -42,7 +47,6 @@ def get_accs(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
     all_rows = cursor.fetchall()
 
-    data_list = []
     if len(all_rows) > 0:
         for row in all_rows:
             timestamp = row[0]
@@ -57,4 +61,4 @@ def get_accs(files_found, report_folder, seeker, wrap_text, timezone_offset):
     db.close()
 
     data_headers = (('Timestamp', 'datetime'),'Account Desc.','Username','Description','Identifier','Bundle ID' )
-    return data_headers, data_list, file_found
+    return data_headers, data_list, source_path

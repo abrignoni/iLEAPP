@@ -48,21 +48,21 @@ def artifact_processor(artifact_info):
                 
                 output_types = artifact_info.get('output_types', ['html', 'tsv', 'timeline', 'lava'])
 
-                if 'html' in output_types:
+                if 'html' in output_types or 'all' == output_types:
                     report = artifact_report.ArtifactHtmlReport(artifact_name)
                     report.start_artifact_report(report_folder, artifact_name, description)
                     report.add_script()
                     report.write_artifact_data_table(data_headers, data_list, source_path)
                     report.end_artifact_report()
 
-                if 'lava' in output_types:
+                if 'lava' in output_types or 'all' == output_types:
                     table_name, object_columns, column_map = lava_process_artifact(category, module_name, artifact_name, data_headers, len(data_list))
                     lava_insert_sqlite_data(table_name, data_list, object_columns, data_headers, column_map)
 
-                if 'tsv' in output_types:
+                if 'tsv' in output_types or 'all' == output_types:
                     tsv(report_folder, data_headers, data_list, artifact_name)
                 
-                if 'timeline' in output_types:
+                if 'timeline' in output_types or 'all' == output_types:
                     timeline(report_folder, artifact_name, data_list, data_headers)
                 
             else:
