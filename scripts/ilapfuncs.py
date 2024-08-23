@@ -1,7 +1,6 @@
 # common standard imports
 import codecs
 import csv
-import datetime
 from datetime import *
 import json
 import os
@@ -106,10 +105,7 @@ def convert_ts_int_to_utc(ts): #This int timestamp to human format & utc
 
 def get_birthdate(date):
     ns_date = date + 978307200
-    if ns_date < 0:
-        utc_date = datetime.fromtimestamp(0, timezone.utc) - timedelta(seconds=abs(ns_date))
-    else:
-        utc_date = datetime.fromtimestamp(ns_date, timezone.utc)
+    utc_date = datetime.utcfromtimestamp(ns_date)
     return utc_date.strftime('%d %B %Y') if utc_date.year != 1604 else utc_date.strftime('%d %B')
 
 def is_platform_linux():
