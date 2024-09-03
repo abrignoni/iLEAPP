@@ -1,10 +1,10 @@
 __artifacts_v2__ = {
     "chatgpt": {
         "name": "ChatGPT",
-        "description": "Get user's ChatGPT conversations, settings and media files. This parser is based on a research project",
+        "description": "Get user's ChatGPT conversations, settings and media files. This parser is based on a research project.  Parser is validated up to the app's 1.2024.178 version",
         "author": "Evangelos Dragonas (@theAtropos4n6)",
-        "version": "1.0.1",
-        "date": "2024-02-10",
+        "version": "1.0.2",
+        "date": "2024-07-14",
         "requirements": "",
         "category": "ChatGPT",
         "paths": (
@@ -24,8 +24,6 @@ __artifacts_v2__ = {
 
 import biplist
 import json
-import base64
-import blackboxprotobuf
 import os
 from pathlib import Path
 from datetime import datetime
@@ -50,6 +48,12 @@ def get_chatgpt(files_found, report_folder, seeker, wrap_text, time_offset):
         #counter += 1 
         file_name = os.path.basename(file_found)
         if file_name.endswith('.json') and "conversations-" in file_found:
+            #filtering for the bundle id of the app which is needed for the artifacts within tmp folder
+            app_path_parts = file_found.split(os.sep)
+            for i in range(len(app_path_parts) - 1):
+                if app_path_parts[i] == "Application":
+                    app_bundle_id = app_path_parts[i + 1]
+                    break
             with open(file_found, 'r', encoding="utf-8") as file:
                 data = json.load(file)
                 try:
@@ -89,7 +93,7 @@ def get_chatgpt(files_found, report_folder, seeker, wrap_text, time_offset):
                 if len(conversations_metadata) > 0:
                     description = f'Metadata from ChatGPT conversations'
                     report = ArtifactHtmlReport(f'ChatGPT - Conversations Metadata')
-                    report.start_artifact_report(report_folder, f'ChatGPT - Conversations Metadata', description)
+                    report.start_artifact_report(report_folder, f'Conversations Metadata', description)
                     report.add_script()
                     data_headers = ('Creation Time','Modification Date','Title','Conversation ID','Model','Custom Instructions (Model)','Custom Instructions (User)','Custom Instructions (Enabled)','Is Temporary','File Path') 
                     report.write_artifact_data_table(data_headers, conversations_metadata, file_found, html_escape=False)
@@ -107,7 +111,7 @@ def get_chatgpt(files_found, report_folder, seeker, wrap_text, time_offset):
                 if len(conversations_messages) > 0:
                     description = f'User conversations with ChatGPT'
                     report = ArtifactHtmlReport(f'ChatGPT - Conversations')
-                    report.start_artifact_report(report_folder, f'ChatGPT - Conversations', description)
+                    report.start_artifact_report(report_folder, f'Conversations', description)
                     report.add_script()
                     data_headers = ('Creation Time','Message ID','Conversation Title','Conversation ID','Author','Parts','Content Type','Finish Details', 'Voice Mode Message','Metadata','File Path')
                     report.write_artifact_data_table(data_headers, conversations_messages, file_found, html_escape=False)
@@ -136,7 +140,7 @@ def get_chatgpt(files_found, report_folder, seeker, wrap_text, time_offset):
                 if len(draft_messages) > 0:
                     description = f'User draft conversations with ChatGPT'
                     report = ArtifactHtmlReport(f'ChatGPT - Draft Conversations')
-                    report.start_artifact_report(report_folder, f'ChatGPT - Draft Conversations', description)
+                    report.start_artifact_report(report_folder, f'Draft Conversations', description)
                     report.add_script()
                     data_headers = ('Conversation ID','Content','File Path')
                     report.write_artifact_data_table(data_headers, draft_messages, file_found, html_escape=False)
@@ -200,39 +204,43 @@ def get_chatgpt(files_found, report_folder, seeker, wrap_text, time_offset):
             pass
 
         if file_name.endswith('.png') and "tmp" in file_found:
-            filename = (Path(file_found).name)
-            filepath = str(Path(file_found).parents[1])
+            if app_bundle_id in file_found:
+                filename = (Path(file_found).name)
+                filepath = str(Path(file_found).parents[1])
+                    
+                thumb = media_to_html(filename, files_found, report_folder)
                 
-            thumb = media_to_html(filename, files_found, report_folder)
-            
-            platform = is_platform_windows()
-            if platform:
-                thumb = thumb.replace('?', '')
-                
-            photo_list.append((thumb, filename, file_found))
-
+                platform = is_platform_windows()
+                if platform:
+                    thumb = thumb.replace('?', '')
+                    
+                photo_list.append((thumb, filename, file_found))
+            else:
+                pass
 
         if file_name.endswith('.m4a') and "tmp" in file_found:
-            
-            filename = (Path(file_found).name)
-            filepath = str(Path(file_found).parents[1])
+            if app_bundle_id in file_found:
+                filename = (Path(file_found).name)
+                filepath = str(Path(file_found).parents[1])
+                    
+                audio = media_to_html(filename, files_found, report_folder)
                 
-            audio = media_to_html(filename, files_found, report_folder)
-            
-            platform = is_platform_windows()
-            if platform:
-                audio = audio.replace('?', '')
-                
-            if (audio, filename, file_found) in voice_list:
-                pass
+                platform = is_platform_windows()
+                if platform:
+                    audio = audio.replace('?', '')
+                    
+                if (audio, filename, file_found) in voice_list:
+                    pass
+                else:
+                    voice_list.append((audio, filename, file_found))
             else:
-                voice_list.append((audio, filename, file_found))
+                pass
     
     #reporting preferences
     if len(account_list) > 0:
         description = f'ChatGPT preferences (account information)'
         report = ArtifactHtmlReport(f'ChatGPT - Preferences')
-        report.start_artifact_report(report_folder, f'ChatGPT - Preferences', description)
+        report.start_artifact_report(report_folder, f'Preferences', description)
         report.add_script()
         prefs_files_found = ',\n'.join(account_list_files_found) 
         data_headers = ('Account ID','User ID','Email', 'Plan Type','Paid Plan','Workspace ID', 'Device ID','Segments Events')
@@ -246,7 +254,7 @@ def get_chatgpt(files_found, report_folder, seeker, wrap_text, time_offset):
     if len(photo_list) > 0:
         description = 'Images uploaded to ChatGPT'
         report = ArtifactHtmlReport('ChatGPT - Media Uploads')
-        report.start_artifact_report(report_folder, 'ChatGPT - Media Uploads', description)
+        report.start_artifact_report(report_folder, 'Media Uploads', description)
         report.add_script()
         data_headers = ('Thumbnail','File Name','File Path')
         report.write_artifact_data_table(data_headers, photo_list, filepath, html_escape=False)
@@ -261,7 +269,7 @@ def get_chatgpt(files_found, report_folder, seeker, wrap_text, time_offset):
     if len(voice_list) > 0:
         description = 'Voice prompts that were transcribed and uploaded to ChatGPT'
         report = ArtifactHtmlReport('ChatGPT - Voice Prompts')
-        report.start_artifact_report(report_folder, 'ChatGPT - Voice Prompts', description)
+        report.start_artifact_report(report_folder, 'Voice Prompts', description)
         report.add_script()
         data_headers = ('Voice Prompt','File Name','File Path' )
         report.write_artifact_data_table(data_headers, voice_list, filepath, html_escape=False)

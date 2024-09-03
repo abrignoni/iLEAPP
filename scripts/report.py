@@ -83,6 +83,7 @@ icon_mappings = \
         'default': 'credit-card',
     },
     'APPLICATIONS': 'grid',
+    'AUDI TRIP': 'truck',
     'AUDIO UUIDS': 'smartphone',
     'BADOO': {
         'CHAT': 'message-circle',
@@ -115,6 +116,21 @@ icon_mappings = \
     'BLUETOOTH': 'bluetooth',
     'BLUETOOTH CONNECTIONS': 'bluetooth',
     'BLUETOOTH_DEVICES': 'bluetooth',  # TODO: can this be combined?
+    'BOOKING.COM': {
+            'ACCOUNT': 'user',
+            'ACCOUNT SETTINGS': 'user',
+            'PAYMENT METHODS': 'credit-card',
+            'PAYMENT METHODS SETTINGS': 'credit-card',
+            'VIEWED': 'eye',
+            'RECENTLY SEARCHED': 'search',
+            'WISH LISTS': 'star',
+            'RECENTLY BOOKED': 'shopping-bag',
+            'BOOKED': 'shopping-bag',
+            'STORED DESTINATIONS': 'map',
+            'NOTIFICATIONS': 'bell',
+            'FLIGHTS SEARCHED': 'search',
+            '_mode': 'search',
+    },
     'BROWSER CACHE': {
         'CHROME BROWSER CACHE': 'chrome',
         'default': 'globe'
@@ -460,6 +476,12 @@ icon_mappings = \
     },
     'GOOGLE TAKEOUT SEMANTIC LOCATIONS BY MONTH': 'map-pin',
     'GOOGLE TASKS': 'list',
+    'GOOGLE TRANSLATE': {
+        'HISTORY': 'type',
+        'FAVORITE TRANSLATIONS': 'star',
+        'TEXT-TO-SPEECH': 'volume-2',
+        '_mode': 'search',
+    },
     'GPS_DATA': 'map-pin',
     'GROUPME': {
         'GROUP INFORMATION': 'users',
@@ -491,6 +513,7 @@ icon_mappings = \
     },
     'ICLOUD SHARED ALBUMS': 'cloud',
     'IDENTIFIERS': 'file',
+    'IDENTITY LOOKUP SERVICE': 'user-check',
     'IMAGE CACHEV0': 'image',
     'IMAGE MANAGER CACHE': 'image',
     'IMO': {
@@ -607,7 +630,7 @@ icon_mappings = \
         'TEAMS TIMEZONE': 'clock',
     },
     'MOBILE ACTIVATION LOGS': 'clipboard',
-    'MOBILE BACKUP': 'save',
+    'MOBILE BACKUP PLIST': 'settings',
     'MOBILE CONTAINER MANAGER': 'save',
     'MOBILE INSTALLATION LOGS': 'clipboard',
     'MOBILE SOFTWARE UPDATE': 'refresh-cw',
@@ -659,6 +682,95 @@ icon_mappings = \
     'PHOTOS': {
         'MIGRATIONS': 'chevrons-up',
         'default': 'image',
+    },
+    'PHOTOS.SQLITE-A-ASSET_BASIC_DATA': {
+        'PH1.1-ASSET BASIC DATA-PHDAPSQL': 'image',
+        'PH2.1-ASSET BASIC DATA & GENALBUM DATA-PHDAPSQL': 'image',
+    },
+    'PHOTOS.SQLITE-B-INTERACTION_ARTIFACTS': {
+        'PH3.1-TRASHED RECENTLY DELETED-PHDAPSQL': 'trash-2',
+        'PH4-HIDDEN-PHDAPSQL': 'eye-off',
+        'PH6-VIEWED AND PLAYED DATA-PHDAPSQL': 'eye',
+        'PH7-FAVORITE-PHDAPSQL': 'heart',
+        'PH8-HAS ADJUSTMENT-PHDAPSQL': 'edit',
+        'PH11-KWRDSCAPSTITLESDESCRIPSLIKESBASICASSTDATA-PHDAPSQL': 'info',
+    },
+    'PHOTOS.SQLITE-C-OTHER_ARTIFACTS': {
+        'PH5.1-HAS LOCATIONS-PHDAPSQL': 'map-pin',
+        'PH9-BURST AVALANCHE-PHDAPSQL': 'layers',
+        'PH10.1-ASSETS HAVE EMBEDDED FILES-PHDAPSQL': 'file-plus',
+        'PH26.1-SYNDICATION ID ASSETS-PHDAPSQL': 'refresh-ccw',
+    },
+    'PHOTOS.SQLITE-D-GENERIC_ALBUM_RECORDS-NAD': {
+        'PH20.1-ALBUM RECORDS NAD-PHDAPSQL': 'book',
+        'PH21-NON-SHARED ALBUM RECORDS NAD-PHDAPSQL': 'book',
+        'PH23-SHARED ALBUM RECORDS NAD-PHDAPSQL': 'upload-cloud',
+        'PH25.1-SWY CONVERSATION RECORDS NAD-PHDAPSQL': 'message-square',
+    },
+    'PHOTOS.SQLITE-E-ASSET_IN_ALBUMS': {
+        'PH22-ASSETS IN NON-SHARED ALBUMS-PHDAPSQL': 'book-open',
+        'PH24-ASSETS IN SHARED ALBUMS-PHDAPSQL': 'upload-cloud',
+    },
+    'PHOTOS.SQLITE-F-CLOUD_SHARED_METHODS': {
+        'PH30-ICLD SHARE METHODS NAD-PHDAPSQL': 'upload-cloud',
+        'PH31-ICLD SHARED PHOTO LIB RECORDS NAD-PHDAPSQL': 'upload-cloud',
+        'PH32-ICLD SHARED PHOTO LIB ASSETS-PHDAPSQL': 'upload-cloud',
+        'PH33-ICLD SPL ASSETS FROM OTHER CONTRIB-PHDAPSQL': 'download-cloud',
+        'PH34-ICLD SHARED LINK RECORDS NAD-PHDAPSQL': 'link',
+        'PH35-ICLD SHARED LINK ASSETS-PHDAPSQL': 'link',
+    },
+    'PHOTOS.SQLITE-G-PEOPLE_FACES_DATA': {
+        'PH15.1-PEOPLE & FACES NAD-PHDAPSQL': 'smile',
+        'PH16.1-PEOPLE & FACES ASSET DATA-PHDAPSQL': 'smile',
+    },
+    'PHOTOS.SQLITE-H-POSSIBLE_USER_ADJUSTED_DATA': {
+        'PH70.1-POSSIBLE_ADJUST_DATE-TIMEZONE-LOCATION-PHDAPSQL': 'edit',
+        'PH71.1-POSSIBLE_ADJUST_DATE-TIMEZONE-PHDAPSQL': 'edit',
+        'PH72.1-POSSIBLE_ADJUST_DATE-LOCATION-PHDAPSQL': 'edit',
+        'PH73.1-POSSIBLE_ADJUST_DATE-PHDAPSQL': 'edit',
+        'PH74.1-POSSIBLE_ADJUST_TIMEZONE-LOCATION-PHDAPSQL': 'edit',
+        'PH75.1-POSSIBLE_ADJUST_TIMEZONE-PHDAPSQL': 'edit',
+        'PH76.1-POSSIBLE_ADJUST_LOCATION-PHDAPSQL': 'edit',
+    },
+    'PHOTOS.SQLITE-I-ASSET_INTRESOU-OPTIMIZATION': {
+        'PH50.1-ASSET_INTRESOU-PHDAPSQL': 'database',
+        'PH51-POSSIBLE_OPTIMIZED_ASSETS_INTRESOU-PHDAPSQL': 'upload-cloud',
+    },
+    'PHOTOS.SQLITE-R-REFERENCE_FOR_ASSET_ANALYSIS': {
+        'PH94.1-IOS14_REF_FOR_ASSET_ANALYSIS-PHDAPSQL': 'database',
+        'PH94.2-IOS14_REF_FOR_ASSET_ANALYSIS-SYNDPL': 'database',
+        'PH95.1-IOS15_REF_FOR_ASSET_ANALYSIS-PHDAPSQL': 'database',
+        'PH95.2-IOS15_REF_FOR_ASSET_ANALYSIS-SYNDPL': 'database',
+        'PH96.1-IOS16_REF_FOR_ASSET_ANALYSIS-PHDAPSQL': 'database',
+        'PH96.2-IOS16_REF_FOR_ASSET_ANALYSIS-SYNDPL': 'database',
+        'PH97.1-IOS17_REF_FOR_ASSET_ANALYSIS-PHDAPSQL': 'database',
+        'PH97.2-IOS17_REF_FOR_ASSET_ANALYSIS-SYNDPL': 'database',
+        'PH98.1-IOS18_REF_FOR_ASSET_ANALYSIS-PHDAPSQL': 'database',
+        'PH98.2-IOS18_REF_FOR_ASSET_ANALYSIS-SYNDPL': 'database',
+    },
+    'PHOTOS.SQLITE-S-SYNDICATION_PL_ARTIFACTS': {
+        'PH1.2-ASSET BASIC DATA-SYNDPL': 'image',
+        'PH2.2-ASSET BASIC DATA & CONVERS DATA-SYNDPL': 'image',
+        'PH3.2-REMOVED FROM CAMERA ROLL-SYNDPL': 'delete',
+        'PH5.2-HAS LOCATIONS-SYNDPL': 'map-pin',
+        'PH10.2-ASSETS HAVE EMBEDDED FILES-SYNDPL': 'file-plus',
+        'PH15.2-PEOPLE & FACES NAD-SYNDPL': 'smile',
+        'PH16.2-PEOPLE & FACES ASSET DATA-SYNDPL': 'smile',
+        'PH20.2-ALBUM RECORDS NAD-SYNDPL': 'book',
+        'PH25.2-SWY CONVERSATION RECORDS NAD-SYNDPL': 'message-square',
+        'PH26.2-SYNDICATION PL ASSETS-SYNDPL': 'message-square',
+        'PH50.2-ASSET_INTRESOU-SYNDPL': 'database',
+    },
+    'PHOTOS-Z-SETTINGS': {
+        'PH80-COM-APPLE-MOBILESLIDESHOW-PLIST': 'settings',
+        'PH81-COM-APPLE-CAMERA-PLIST': 'settings',
+        'PH82-COM-APPLE-MEDIAANALYSISD-PLIST': 'book',
+        'PH83-COM-APPLE-PURPLEBUDDY-PLIST': 'settings',
+        'PH84-CAMERA-SMART-SHARING-METADATA-PLIST': 'camera',
+        'PH85-ACCOUNTSD-CLOUD-SERVICE-ENABLE-LOG-PLIST': 'settings',
+        'PH86-ASSETSD-CLOUD-SERVICE-ENABLE-LOG-PLIST': 'settings',
+        'PH99-SYSTEM-VERSION-PLIST': 'settings',
+        'PH100-UFED-DEVICE-VALUES-PLIST': 'settings',
     },
     'PIKPAK': 'cloud',
     'PINGER': {
@@ -792,6 +904,9 @@ icon_mappings = \
         'TIKTOK SEARCH': 'search',
         'TIKTOK - MESSAGES': 'message-square',
         'TIKTOK - CONTACTS': 'user',
+        'TIKTOK REFERENCED REPLIED': 'message-square',
+        '_mode': 'search'
+
     },
     'TIKTOK RETURNS': 'film',
     'TODOIST': {
@@ -957,7 +1072,7 @@ def get_search_mode_categories():
 search_set = get_search_mode_categories()
 
 
-def generate_report(reportfolderbase, time_in_secs, time_HMS, extraction_type, image_input_path, casedata):
+def generate_report(reportfolderbase, time_in_secs, time_HMS, extraction_type, image_input_path, casedata, profile_filename):
     control = None
     side_heading = \
         """
@@ -1029,7 +1144,7 @@ def generate_report(reportfolderbase, time_in_secs, time_HMS, extraction_type, i
                 pass # Perhaps it was not empty!
 
     # Create index.html's page content
-    create_index_html(reportfolderbase, time_in_secs, time_HMS, extraction_type, image_input_path, nav_list_data, casedata)
+    create_index_html(reportfolderbase, time_in_secs, time_HMS, extraction_type, image_input_path, nav_list_data, casedata, profile_filename)
     elements_folder = os.path.join(reportfolderbase, '_elements')
     os.mkdir(elements_folder)
     __location__ = os.path.dirname(os.path.abspath(__file__))
@@ -1063,7 +1178,7 @@ def get_file_content(path):
     f.close()
     return data
 
-def create_index_html(reportfolderbase, time_in_secs, time_HMS, extraction_type, image_input_path, nav_list_data, casedata):
+def create_index_html(reportfolderbase, time_in_secs, time_HMS, extraction_type, image_input_path, nav_list_data, casedata, profile_filename):
     '''Write out the index.html page to the report folder'''
     case_list = []
     content = '<br />'
@@ -1076,6 +1191,9 @@ def create_index_html(reportfolderbase, time_in_secs, time_HMS, extraction_type,
         for key, value in casedata.items():
             if value:
                 case_list.append([key, value])
+    
+    if profile_filename:
+        case_list.append(['Profile loaded', profile_filename])
     
     case_list += [
         ['Extraction location', image_input_path],

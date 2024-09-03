@@ -67,14 +67,16 @@ def get_photosDbexif(files_found, report_folder, seeker, wrap_text, timezone_off
             db = open_sqlite_db_readonly(file_found)
             cursor = db.cursor()
             cursor.execute('''
-            SELECT
-            DATETIME(ZDATECREATED+978307200,'UNIXEPOCH') AS DATECREATED,
-            DATETIME(ZMODIFICATIONDATE+978307200,'UNIXEPOCH') AS MODIFICATIONDATE,
-            ZDIRECTORY,
-            ZFILENAME,
-            ZLATITUDE,
-            ZLONGITUDE
-            FROM ZASSET
+                SELECT
+                DATETIME(ZASSET.ZDATECREATED+978307200,'UNIXEPOCH') AS DATECREATED,
+                DATETIME(ZASSET.ZMODIFICATIONDATE+978307200,'UNIXEPOCH') AS MODIFICATIONDATE,
+                ZASSET.ZDIRECTORY,
+                ZASSET.ZFILENAME,
+                ZASSET.ZLATITUDE,
+                ZASSET.ZLONGITUDE,
+                ZADDITIONALASSETATTRIBUTES.ZCREATORBUNDLEID
+                FROM ZASSET
+                INNER JOIN ZADDITIONALASSETATTRIBUTES ON ZASSET.Z_PK = ZADDITIONALASSETATTRIBUTES.Z_PK
             ''')
             
             all_rows = cursor.fetchall()
@@ -84,7 +86,7 @@ def get_photosDbexif(files_found, report_folder, seeker, wrap_text, timezone_off
             if usageentries > 0:
                 for row in all_rows:
                     
-                    thumb = suspecttime = suspectcoordinates = zdatecreated = zmodificationdate = zdirectory = zfilename = zlatitude = zlongitude = creationchanged = latitude = longitude = exifdata = offset = ''
+                    thumb = suspecttime = suspectcoordinates = zdatecreated = zmodificationdate = zdirectory = zfilename = zlatitude = zlongitude = creationchanged = latitude = longitude = exifdata = offset = zbundlecreator = ''
                     
                     zdatecreated = row[0]
                     zmodificationdate = row[1]
@@ -92,6 +94,7 @@ def get_photosDbexif(files_found, report_folder, seeker, wrap_text, timezone_off
                     zfilename = row[3]
                     zlatitude = row[4]
                     zlongitude = row[5]
+                    zbundlecreator = row[6]
                     
                 
                     for search in files_found:
@@ -217,7 +220,7 @@ def get_photosDbexif(files_found, report_folder, seeker, wrap_text, timezone_off
                                     results = None
                                     logfunc(f'Error getting exif on: {search}')
                                 
-                                data_list.append((thumb,suspecttime,offset, suspectcoordinates,zdatecreated,zmodificationdate,zdirectory,zfilename,zlatitude,zlongitude,creationchanged,latitude,longitude,exifdata))
+                                data_list.append((thumb,suspecttime,offset, suspectcoordinates,zdatecreated,zmodificationdate,zdirectory,zfilename,zlatitude,zlongitude,creationchanged,latitude,longitude,exifdata,zbundlecreator))
                         
                             else:
                                 """ videos. Nees to figure this out
@@ -237,7 +240,7 @@ def get_photosDbexif(files_found, report_folder, seeker, wrap_text, timezone_off
                 report = ArtifactHtmlReport(f'Photos.sqlite Analysis')
                 report.start_artifact_report(report_folder, f'Photos.sqlite Analysis', description)
                 report.add_script()
-                data_headers = ('Media','Same Timestamps?','Possible Exif Offset','Same Coordinates?','Timestamp','Timestamp Modification','Directory','Filename','Latitude DB','Longitude DB','Exif Creation/Changed','Latitude','Longitude','Exif')
+                data_headers = ('Media','Same Timestamps?','Possible Exif Offset','Same Coordinates?','Timestamp','Timestamp Modification','Directory','Filename','Latitude DB','Longitude DB','Exif Creation/Changed','Latitude','Longitude','Exif','Bundle Creator')
                 report.write_artifact_data_table(data_headers, data_list, file_found, html_no_escape=['Media','Exif'])
                 report.end_artifact_report()
                 
@@ -252,7 +255,9 @@ def get_photosDbexif(files_found, report_folder, seeker, wrap_text, timezone_off
                 
             else:
                 logfunc(f'No Photos.sqlite Analysis data available')
-                
+        else:
+            continue
+        
 __artifacts__ = {
         "photosDbexif": (
             "Photos",

@@ -1,5 +1,5 @@
 
-ileapp_version = '1.19.3'
+ileapp_version = '1.19.5'
 
 # Contributors List
 # Format = [ Name, Blog-url, Twitter-handle, Github-url]
@@ -27,7 +27,7 @@ ileapp_contributors = [
     ['Francesca Maestri', '', '@franc3sca_m', 'https://github.com/francyM'],
     ['Jesse Spangenberger', 'https://cyberfenixtech.blogspot.com/', '@AzuleOnyx', 'https://github.com/flamusdiu'],
     ['Jon Baumann', 'https://ciofecaforensics.com/', '@CiofecaForensic', 'https://github.com/threeplanetssoftware'],
-    ['Scott Koenig', '', '@Scott_Kjr', ''],
+    ['Scott Koenig', 'https://theforensicscooter.com/', '@Scott_Kjr', 'https://github.com/ScottKjr3347'],
     ['Kevin Pagano', 'https://startme.stark4n6.com/', '@KevinPagano3', 'https://github.com/stark4n6'],
     ['Ed Michael', '', '@EdXlg123', 'https://github.com/edmichael'],
     ['Anna-Mariya Mateyna', '', '@any333_snickers', 'https://github.com/any333'],
@@ -40,5 +40,7 @@ ileapp_contributors = [
     ['James Habben', 'https://4n6ir.com/','@JamesHabben','https://github.com/JamesHabben'],
     ['John Hyla', 'https://bluecrewforensics.com', '@jfhyla', 'https://github.com/snoop168'],
     ['Panos Nakoutis', '', '@4n6equals10', ''],
-    ['Ruud Schramp', '', '', 'https://github.com/Schramp']
+    ['Ruud Schramp', '', '', 'https://github.com/Schramp'],
+    ['Matt Beers', 'https://www.linkedin.com/in/mattbeersii','','https://github.com/dabeersboys'],
+    ['Django Faiola', 'https://djangofaiola.blogspot.com', '@DjangoFaiola', 'https://github.com/djangofaiola']
 ]

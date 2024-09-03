@@ -2,6 +2,7 @@
 import codecs
 import csv
 from datetime import *
+import json
 import os
 import re
 import shutil
@@ -47,6 +48,16 @@ class OutputParameters:
 
         os.makedirs(os.path.join(self.report_folder_base, 'Script Logs'))
         os.makedirs(self.temp_folder)
+        
+def convert_local_to_utc(local_timestamp_str):
+    # Parse the timestamp string with timezone offset, ex. 2023-10-27 18:18:29-0400
+    local_timestamp = datetime.strptime(local_timestamp_str, "%Y-%m-%d %H:%M:%S%z")
+    
+    # Convert to UTC timestamp
+    utc_timestamp = local_timestamp.astimezone(timezone.utc)
+    
+    # Return the UTC timestamp
+    return utc_timestamp
 
 def convert_time_obj_to_utc(ts):
     timestamp = ts.replace(tzinfo=timezone.utc)
@@ -237,7 +248,7 @@ def does_table_exist(db, table_name):
         cursor = db.execute(query)
         for row in cursor:
             return True
-    except sqlite3Error as ex:
+    except sqlite3.Error as ex:
         logfunc(f"Query error, query={query} Error={str(ex)}")
     return False
 
@@ -248,7 +259,7 @@ def does_view_exist(db, table_name):
         cursor = db.execute(query)
         for row in cursor:
             return True
-    except sqlite3Error as ex:
+    except sqlite3.Error as ex:
         logfunc(f"Query error, query={query} Error={str(ex)}")
     return False
 
@@ -326,12 +337,15 @@ def timeline(report_folder, tlactivity, data_list, data_headers):
         )
         db.commit()
     
-    a = 0
-    length = (len(data_list))
-    while a < length: 
-        modifiedList = list(map(lambda x, y: x.upper() + ': ' +  str(y), data_headers, data_list[a]))
-        cursor.executemany("INSERT INTO data VALUES(?,?,?)", [(str(data_list[a][0]), tlactivity.upper(), str(modifiedList))])
-        a += 1
+    for entry in data_list:
+        entry = [str(field) for field in entry]
+        
+        data_dict = dict(zip(data_headers, entry))
+
+        data_str = json.dumps(data_dict)
+        cursor.executemany(
+            "INSERT INTO data VALUES(?,?,?)", [(str(entry[0]), tlactivity, data_str)])
+
     db.commit()
     db.close()
 

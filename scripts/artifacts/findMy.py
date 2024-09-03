@@ -15,8 +15,8 @@ def get_findMy(files_found, report_folder, seeker, wrap_text, timezone_offset):
             if key == 'addTime':
                 addtime = datetime.utcfromtimestamp(val)
                 data_list.append(('Find My iPhone Add Time', addtime))
-                logdevinfo(f"Find My iPhone: Enabled")
-                logdevinfo(f"Find My iPhone Add Time: {addtime}")
+                logdevinfo(f"<b>Find My iPhone: </b>Enabled")
+                logdevinfo(f"<b>Find My iPhone Add Time: </b>{addtime}")
                 
             else:
                 data_list.append((key, val ))

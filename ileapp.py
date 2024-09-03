@@ -134,11 +134,12 @@ def create_casedata(path):
 
 def main():
     parser = argparse.ArgumentParser(description='iLEAPP: iOS Logs, Events, And Plists Parser.')
-    parser.add_argument('-t', choices=['fs', 'tar', 'zip', 'gz', 'itunes'], required=False, action="store",
+    parser.add_argument('-t', choices=['fs', 'tar', 'zip', 'gz', 'itunes', 'itunes-mbdb'], required=False, action="store",
                         help=("Specify the input type. "
                               "'fs' for a folder containing extracted files with normal paths and names, "
                               "'tar', 'zip', or 'gz' for compressed packages containing files with normal names, "
-                              "or 'itunes' for a folder containing a raw iTunes backup with hashed paths and names."))
+                              "'itunes' for a folder containing a raw iTunes backup with hashed paths and names, "
+                              "or 'itunes-mbdb' if you have an older iTunes backup using the Manifest.mbdb format instead."))
     parser.add_argument('-o', '--output_path', required=False, action="store",
                         help='Path to base output folder (this must exist)')
     parser.add_argument('-i', '--input_path', required=False, action="store", help='Path to input file/folder')
@@ -163,9 +164,9 @@ def main():
     plugins_parsed_first = []
 
     for plugin in available_plugins:
-        if plugin.name == 'lastbuild':
+        if plugin.module_name == 'lastBuild':
             plugins_parsed_first.append(plugin)
-        elif plugin.name != 'iTunesBackupInfo':
+        elif plugin.module_name != 'iTunesBackupInfo':
             plugins.append(plugin)
 
     selected_plugins = plugins.copy()
@@ -319,6 +320,8 @@ def crunch_artifacts(
 
         elif extracttype == 'itunes':
             seeker = FileSeekerItunes(input_path, out_params.temp_folder)
+        elif extracttype == 'itunes-mbdb':
+            seeker = FileSeekerItunesMbdb(input_path, out_params.temp_folder)
 
         else:
             logfunc('Error on argument -o (input type)')
@@ -423,7 +426,7 @@ def crunch_artifacts(
             input_path = input_path[4:]
     
         
-    report.generate_report(out_params.report_folder_base, run_time_secs, run_time_HMS, extracttype, input_path, casedata)
+    report.generate_report(out_params.report_folder_base, run_time_secs, run_time_HMS, extracttype, input_path, casedata, profile_filename)
     logfunc('Report generation Completed.')
     logfunc('')
     logfunc(f'Report location: {out_params.report_folder_base}')

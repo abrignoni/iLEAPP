@@ -1,0 +1,28 @@
+VSVersionInfo(
+  ffi=FixedFileInfo(
+    filevers=(1, 19, 5, 0),
+    prodvers=(1, 19, 5, 0),
+    mask=0x3f,
+    flags=0x0,
+    OS=0x40004,
+    fileType=0x1,
+    subtype=0x0,
+    date=(0, 0)
+    ),
+  kids=[
+    StringFileInfo(
+      [
+      StringTable(
+        '040904b0',
+        [StringStruct('CompanyName', 'Alexis Brignoni'),
+        StringStruct('FileDescription', 'iLEAPP CLI'),
+        StringStruct('FileVersion', '1.19.5'),
+        StringStruct('InternalName', 'iLEAPP'),
+        StringStruct('LegalCopyright', 'Result of a collaborative effort in the DFIR community.'),
+        StringStruct('OriginalFilename', 'ileapp.exe'),
+        StringStruct('ProductName', 'iLEAPP'),
+        StringStruct('ProductVersion', '1.19.5')])
+      ]), 
+    VarFileInfo([VarStruct('Translation', [1033, 1200])])
+  ]
+)

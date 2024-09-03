@@ -204,7 +204,7 @@ def get_biomeUseractmeta(files_found, report_folder, seeker, wrap_text, timezone
             report = ArtifactHtmlReport(f'Biome User Activity Metadata')
             report.start_artifact_report(report_folder, f'Biome User Activity Metadata - {filename}', description)
             report.add_script()
-            data_headers = ('Timestamp','Activity type','Description','Description','Title', 'Bplist Data','Payload Data','Container Data')
+            data_headers = ('Timestamp','Activity type','Description','Bundle ID','Title', 'Bplist Data','Payload Data','Container Data')
             report.write_artifact_data_table(data_headers, data_list, file_found, html_no_escape=['Bplist Data'])
             report.end_artifact_report()
             

@@ -16,12 +16,12 @@ def get_deviceDatam(files_found, report_folder, seeker, wrap_text, timezone_offs
             if key == 'imeis':
                 imeis = val
                 data_list.append(('IMEIs', imeis ))
-                logdevinfo(f"IMEIs: {imeis}")
+                logdevinfo(f"<b>IMEIs: </b>{imeis}")
             
             elif key == 'ReportedPhoneNumber':
                 reportedphonenum = val
                 data_list.append(('Reported Phone Number', val ))
-                logdevinfo(f"Reported Phone Number: {val}")
+                logdevinfo(f"<b>Reported Phone Number: </b>{val}")
                 
             else:
                 data_list.append((key, val ))
@@ -36,7 +36,6 @@ def get_deviceDatam(files_found, report_folder, seeker, wrap_text, timezone_offs
     tsvname = 'Device Data'
     tsv(report_folder, data_headers, data_list, tsvname)
             
-
 __artifacts__ = {
     "devicedata": (
         "Identifiers",

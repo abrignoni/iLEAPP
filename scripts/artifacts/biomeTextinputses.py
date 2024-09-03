@@ -140,15 +140,17 @@ def get_biomeTextinputses(files_found, report_folder, seeker, wrap_text, timezon
                 #pp = pprint.PrettyPrinter(indent=4)
                 #pp.pprint(protostuff)
                 #print(types)
-                
-                timestart = (timestampsconv(protostuff['2']))
+
+                duration = protostuff['1']
+                #Seems like the time is stored with an extra cocoa core offset added? we have to subtract it
+                timestart = (timestampsconv(protostuff['2']-978307200))
                 timestart = convert_utc_human_to_timezone(timestart, timezone_offset)
                 bundleid = (protostuff.get('3',''))
                 
-                data_list.append((timestart, bundleid))
+                data_list.append((timestart, bundleid, duration))
         
             modresult = (sizeofnotificaton % 8)
-            resultante =  8 - modresult
+            resultante = 8 - modresult
             
             if modresult == 0:
                 pass
@@ -161,7 +163,7 @@ def get_biomeTextinputses(files_found, report_folder, seeker, wrap_text, timezon
             report = ArtifactHtmlReport(f'Biome Text Input Sessions')
             report.start_artifact_report(report_folder, f'Biome Text Input Sessions - {filename}', description)
             report.add_script()
-            data_headers = ('Time Start','Bundle ID')
+            data_headers = ('Time Start','Bundle ID', 'Duration')
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
             
@@ -178,6 +180,7 @@ def get_biomeTextinputses(files_found, report_folder, seeker, wrap_text, timezon
 __artifacts__ = {
     "biomeTextinputses": (
         "Biome Text Input",
-        ('*/Biome/streams/public/TextInputSession/local/*'),
+        ('*/Biome/streams/public/TextInputSession/local/*',
+         '*/Biome/streams/restricted/Text.InputSession/local/*'),
         get_biomeTextinputses)
 }

@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "iTunes Backup Info",
         "notes": "",
-        "paths": ('*Info.plist',),
+        "paths": ('*Info.plist', '*info.plist'),
         "function": "get_iTunesBackupInfo"
     }
 }
@@ -74,7 +74,6 @@ def get_iTunesMetadata(applications):
     
     return app_list
 
-
 def get_iTunesBackupInfo(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
     apps_iTunesMetadata = []
@@ -117,7 +116,7 @@ def get_iTunesBackupInfo(files_found, report_folder, seeker, wrap_text, timezone
             index = keys.index(info)
             info_key = data_list[index][0]
             value_key = data_list[index][1]
-            logdevinfo(f"{info_key}: {value_key}")
+            logdevinfo(f"<b>{info_key}: </b>{value_key}")
 
     report = ArtifactHtmlReport('iTunes Backup')
     report.start_artifact_report(report_folder, 'iTunes Backup Information')

@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Call History",
         "notes": "",
-        "paths": ('**/CallHistory.storedata*',),
+        "paths": ('**/CallHistory.storedata*','**/call_history.db',),
         "function": "get_callHistory"
     }
 }
@@ -22,16 +22,9 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly, convert_ts_human_to_utc, convert_utc_human_to_timezone, convert_bytes_to_unit
 
 def get_callHistory(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    
-    for file_found in files_found:
-        file_found = str(file_found)
-    
-        if file_found.endswith('.storedata'):
-            break
-    
-    db = open_sqlite_db_readonly(file_found)
-    cursor = db.cursor()
-    cursor.execute('''
+
+    #call_history.db schema taken from here https://avi.alkalay.net/2011/12/iphone-call-history.html 
+    query = '''
     select
     datetime(ZDATE+978307200,'unixepoch'),
     CASE
@@ -57,15 +50,61 @@ def get_callHistory(files_found, report_folder, seeker, wrap_text, timezone_offs
     END,
     strftime('%H:%M:%S',ZDURATION, 'unixepoch'),
     ZFACE_TIME_DATA,
-    CASE ZDISCONNECTED_CAUSE
-        WHEN 0 then 'Ended'
-        WHEN 6 then 'Rejected'
+    CASE
+		WHEN ZDISCONNECTED_CAUSE = 6 AND  ZSERVICE_PROVIDER LIKE '%whatsapp' AND ZDURATION <> '0.0' then 'Ended'
+		WHEN ZDISCONNECTED_CAUSE = 6 AND  ZSERVICE_PROVIDER LIKE '%whatsapp' AND ZORIGINATED = 1 then 'Missed or Rejected'
+		WHEN ZDISCONNECTED_CAUSE = 2 AND  ZSERVICE_PROVIDER LIKE '%whatsapp' then 'Rejected'
+		WHEN ZDISCONNECTED_CAUSE = 6 AND  ZSERVICE_PROVIDER LIKE '%whatsapp' then 'Missed'
+		WHEN ZDISCONNECTED_CAUSE = 0 then 'Ended'
+        WHEN ZDISCONNECTED_CAUSE = 6 then 'Rejected'
         ELSE ZDISCONNECTED_CAUSE
-    END,
+    END ZDISCONNECTED_CAUSE,
     upper(ZISO_COUNTRY_CODE),
     ZLOCATION
     from ZCALLRECORD
-    ''')
+    '''
+
+    query_old = '''
+    select
+    datetime(date, 'unixepoch'),
+    CASE
+        WHEN datetime(date,'unixepoch') = datetime((date + duration),'unixepoch') then 'No Call Duration'
+        ELSE datetime((date + duration), 'unixepoch')
+    END,
+    'N/A' as ZSERVICE_PROVIDER,
+    CASE
+        WHEN flags&4=4 then 'Phone Call'
+        When flags&16=16 then 'FaceTime Call'
+    END,
+    CASE 
+        WHEN flags=0 then 'Incoming'
+        WHEN flags&1=1 then 'Outgoing'
+    END,
+    address,
+    CASE read
+        WHEN 0 then 'No'
+        WHEN 1 then 'Yes'
+    END,
+    strftime('%H:%M:%S', duration, 'unixepoch'),
+    face_time_data,
+    'N/A' as ZDISCONNECTED_CAUSE,
+    country_code,
+    'N/A' as ZLOCATION
+    from call
+    '''
+
+    for file_found in files_found:
+        file_found = str(file_found)
+    
+        if file_found.endswith('.storedata'):
+            break
+        elif file_found.endswith('.db'):
+            query = query_old
+            break
+    
+    db = open_sqlite_db_readonly(file_found)
+    cursor = db.cursor()
+    cursor.execute(query)
 
     all_rows = cursor.fetchall()
     usageentries = len(all_rows)
@@ -102,7 +141,7 @@ def get_callHistory(files_found, report_folder, seeker, wrap_text, timezone_offs
                         'ISO Country Code', 'Location')
         report.write_artifact_data_table(data_headers, data_list, file_found)
         report.end_artifact_report()
-        
+
         tsvname = 'Call History'
         tsv(report_folder, data_headers, data_list, tsvname)
         
