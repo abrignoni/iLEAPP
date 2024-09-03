@@ -664,7 +664,7 @@ icon_mappings = \
     'NOTIFICATIONS': 'bell',
     'NOW PLAYING': 'music',
     'OFFLINE PAGES': 'cloud-off',
-    'OOPS: 'message-square',
+    'OOPS': 'message-square',
     'PACKAGE PREDICTIONS': 'package',
     'PAS_DEBUG': {
         'SEND GPS CAN DATA': 'map-pin',
