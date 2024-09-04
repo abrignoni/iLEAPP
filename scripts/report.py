@@ -512,7 +512,10 @@ icon_mappings = \
         'default': 'cloud'
     },
     'ICLOUD SHARED ALBUMS': 'cloud',
-    'IDENTIFIERS': 'file',
+    'IDENTIFIERS': {
+        'IOS MESSAGE RETENTION': 'message-circle',
+        'default': 'file',
+    },
     'IDENTITY LOOKUP SERVICE': 'user-check',
     'IMAGE CACHEV0': 'image',
     'IMAGE MANAGER CACHE': 'image',
