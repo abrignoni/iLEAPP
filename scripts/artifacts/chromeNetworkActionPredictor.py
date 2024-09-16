@@ -66,6 +66,6 @@ def get_chromeNetworkActionPredictor(files_found, report_folder, seeker, wrap_te
 __artifacts__ = {
         "ChromeNetworkActionPredictor": (
                 "Chromium",
-                ('*/Chrome/Default/Network Action Predictor*','*/app_sbrowser/Default/Network Action Predictor*', '*/app_opera/Network Action Predicator*'),
+                ('*/Chrome/Default/Network Action Predictor*','*/app_sbrowser/Default/Network Action Predictor*', '*/app_opera/Network Action Predicator*', '*/Chromium/Default/Network Action Predictor*'),
                 get_chromeNetworkActionPredictor)
 }

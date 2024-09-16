@@ -73,6 +73,6 @@ def get_chromeBookmarks(files_found, report_folder, seeker, wrap_text, timezone_
 __artifacts__ = {
         "ChromeBookmarks": (
                 "Chromium",
-                ('*/Chrome/Default/Bookmarks*', '*/app_sbrowser/Default/Bookmarks*', '*/app_opera/Bookmarks*'),
+                ('*/Chrome/Default/Bookmarks*', '*/app_sbrowser/Default/Bookmarks*', '*/app_opera/Bookmarks*', '*/Chromium/Default/Bookmarks*'),
                 get_chromeBookmarks)
 }
