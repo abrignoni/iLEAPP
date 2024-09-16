@@ -150,6 +150,6 @@ def get_chromeMediaHistory(files_found, report_folder, seeker, wrap_text, timezo
 __artifacts__ = {
         "ChromeMediaHistory": (
                 "Chromium",
-                ('*/Chrome/Default/Media History*','*/app_sbrowser/Default/Media History*', '*/app_opera/Media History*'),
+                ('*/Chrome/Default/Media History*','*/app_sbrowser/Default/Media History*', '*/app_opera/Media History*', '*/Chromium/Default/Media History*'),
                 get_chromeMediaHistory)
 }
