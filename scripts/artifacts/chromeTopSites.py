@@ -70,6 +70,6 @@ def get_chromeTopSites(files_found, report_folder, seeker, wrap_text, timezone_o
 __artifacts__ = {
         "ChromeTopSites": (
                 "Chromium",
-                ('*/Chrome/Default/Top Sites*', '*/app_sbrowser/Default/Top Sites*', '*/app_opera/Top Sites*'),
+                ('*/Chrome/Default/Top Sites*', '*/app_sbrowser/Default/Top Sites*', '*/app_opera/Top Sites*', '*/Chromium/Default/Top Sites*'),
                 get_chromeTopSites)
 }

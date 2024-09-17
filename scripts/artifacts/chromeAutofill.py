@@ -156,6 +156,6 @@ def get_chromeAutofill(files_found, report_folder, seeker, wrap_text, timezone_o
 __artifacts__ = {
         "ChromeAutofill": (
                 "Chromium",
-                ('*/Chrome/Default/Web Data*', '*/app_sbrowser/Default/Web Data*', '*/app_opera/Web Data*'),
+                ('*/Chrome/Default/Web Data*', '*/app_sbrowser/Default/Web Data*', '*/app_opera/Web Data*', '*/Chromium/Default/Web Data*'),
                 get_chromeAutofill)
 }
