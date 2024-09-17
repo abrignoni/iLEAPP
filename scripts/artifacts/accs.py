@@ -9,7 +9,6 @@ __artifacts_v2__ = {
         "category": "Accounts",
         "notes": "",
         "paths": ('*/mobile/Library/Accounts/Accounts3.sqlite*'),
-        "function": "get_accs",
         "output_types": 'all'
     }
 }
