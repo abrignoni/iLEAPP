@@ -1,6 +1,7 @@
 # iOS:
 #   https://www.gkgigs.com/list-apple-ios-version-history/
 #   https://betawiki.net/wiki/Category:IOS
+#   https://theapplewiki.com/wiki/Models
 # watchOS:
 #   https://www.gkgigs.com/latest-watchos-version/
 #   https://www.theiphonewiki.com/wiki/beta_Firmware
@@ -2600,6 +2601,10 @@ device_id = {
     "Watch7,3": "Apple Watch Series 9 Cellular - 41mm",
     "Watch7,4": "Apple Watch Series 9 Cellular - 45mm",
     "Watch7,5": "Apple Watch Ultra 2",
+    "Watch7,8": "Apple Watch Series 10 - 42mm",
+    "Watch7,9": "Apple Watch Series 10 - 46",
+    "Watch7,10": "Apple Watch Series 10 Cellular - 46mm ",
+    "Watch7,11": "Apple Watch Series 10 Cellular - 46mm",
     "iPhone1,1": "iPhone",
     "iPhone1,2": "iPhone 3G",
     "iPhone2,1": "iPhone 3GS",
@@ -2653,6 +2658,10 @@ device_id = {
     "iPhone15,5": "iPhone 15 Plus",
     "iPhone16,1": "iPhone 15 Pro",
     "iPhone16,2": "iPhone 15 Pro Max",
+    "iPhone17,1": "iPhone 16 Pro",
+    "iPhone17,2": "iPhone 16 Pro Max",
+    "iPhone17,3": "iPhone 16",
+    "iPhone17,4": "iPhone 16 Plus",
     "iPad1,1": "iPad",
     "iPad2,1": "iPad 2 Wi-Fi",
     "iPad2,2": "iPad 2 Wi-Fi + Cellular (GSM)",
@@ -2813,6 +2822,7 @@ device_id = {
     "Audio2,1": "AirPods (3rd generation)",
     "AirPods1,3": "AirPods (3rd generation)",
     "Device1,8211": "AirPods (3rd generation)",
+    "AirPods1,4": "AirPods (4th generation)",
     "AirPods2,2": "AirPods Pro (1st generation)",
     "AirPodsPro1,1": "AirPods Pro (1st generation)",
     "iProd8,1": "AirPods Pro (1st generation)",
@@ -2906,6 +2916,10 @@ code_name = {
     "D84": "iPhone 15 Pro Max",
     "D49": "iPhone SE (3rd Gen)",
     "D59": "iPhone SE (4th Gen)",
+    "D47": "iPhone 16",
+    "D48": "iPhone 16 Plus",
+    "D93": "iPhone 16 Pro",
+    "D94": "iPhone 16 Pro Max",
 }
 
 region_code = {
