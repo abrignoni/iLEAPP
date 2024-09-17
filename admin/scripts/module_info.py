@@ -39,6 +39,12 @@ def extract_v2_info(module_content):
 
     results = []
     for artifact_name, details in artifacts_dict.items():
+        # paths = details.get("paths", "")
+        # if isinstance(paths, (list, tuple)):
+        #     paths = [f'`{path}`' for path in paths]
+        # else:
+        #     paths = f'`{paths}`'
+        
         results.append({
             "artifact": artifact_name,
             "name": clean_string(details.get("name", "")),
@@ -83,8 +89,11 @@ def generate_v2_markdown_table(artifact_data):
             description = clean_string(artifact.get('description', ''))
             paths = artifact.get('paths', '')
             if isinstance(paths, (list, tuple)):
-                paths = ', '.join(paths)
-            paths = clean_string(paths)
+                paths = ', '.join(f'`{path}`' for path in paths)
+                #paths = ', '.join(paths)
+            else:
+                paths = f'`{paths}`'
+            #paths = clean_string(paths)
             table += f"| {module} | {artifact['artifact']} | {name} | {description} | {paths} |\n"
     return table
 
