@@ -5,14 +5,15 @@
 ## Summary
 
 Total number of modules: 260  
-Number of v1 artifacts: 166  
-Number of v2 artifacts: 71  
+Number of v1 artifacts: 165  
+Number of v2 artifacts: 72  
 Number of modules with errors or no recognized artifacts: 3  
 
 ## V2 Artifacts Table
 
 | Module | Artifact | Name | Output Types | Description | Paths |
 |--------|----------|------|--------------|-------------|-------|
+| [ATXDatastore.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/ATXDatastore.py) | ATXDatastore | iOS ATXDatastore | all | Parses ATXDataStore and matches actions with Frequent locations, when available. | ``**DuetExpertCenter/_ATXDataStore.db*``, ``**routined/Local.sqlite*`` |
 | [ControlCenter.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/ControlCenter.py) | controlcenter | Control Center Configuration |  | Parses controls/apps added to the Control Center | ``*/mobile/Library/ControlCenter/ModuleConfiguration.plist`` |
 | [DataUsage.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/DataUsage.py) | datausage | Data Usage |  | Parses application network data usage | ``*/wireless/Library/Databases/DataUsage.sqlite*`` |
 | [Ph100UFEDdevcievaluesplist.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/Ph100UFEDdevcievaluesplist.py) | Ph100-UFED-device-values-Plist | UFED Adv Log Acquisition Ph100 UFED Device Values Plist |  | Parses basic data from */device_values.plist which is a part of a UFED Advance Logical acquisitions with non-encrypted backups. The parsing of this fi | ``*/device_values.plist`` |
@@ -89,7 +90,6 @@ Number of modules with errors or no recognized artifacts: 3
 
 | Module | Artifacts |
 |--------|----------|
-| [ATXDatastore.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/ATXDatastore.py) | ATXDatastore |
 | [AWESearch.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/AWESearch.py) | AWESearch |
 | [AllTrails.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/AllTrails.py) | alltrails |
 | [AshHistory.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/AshHistory.py) |  |
