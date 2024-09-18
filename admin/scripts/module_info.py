@@ -13,7 +13,7 @@ END_MARKER = "<!-- MODULE_INFO_END -->"
 
 def clean_string(s):
     """Remove line breaks and limit string length."""
-    return ' '.join(s.split())[:100]  # Limit to 100 characters
+    return ' '.join(s.split())[:150]
 
 def extract_v2_info(module_content):
     """Extract artifact information from a v2 block."""
@@ -34,22 +34,33 @@ def extract_v2_info(module_content):
             "artifact": "ERROR",
             "name": "Error parsing v2 artifact",
             "description": clean_string(str(e)),
-            "paths": ""
+            "paths": "",
+            "output_types": ""
         }]
 
     results = []
     for artifact_name, details in artifacts_dict.items():
-        # paths = details.get("paths", "")
-        # if isinstance(paths, (list, tuple)):
-        #     paths = [f'`{path}`' for path in paths]
-        # else:
-        #     paths = f'`{paths}`'
+        paths = details.get("paths", "")
+        if isinstance(paths, (list, tuple)):
+            paths = [f'`{path}`' for path in paths]
+        else:
+            paths = f'`{paths}`'
+        
+        output_types = details.get("output_types", "")
+        if output_types:
+            if isinstance(output_types, (list, tuple)):
+                output_types = ', '.join(output_types)
+            else:
+                output_types = str(output_types)
+        else:
+            output_types = ""
         
         results.append({
             "artifact": artifact_name,
             "name": clean_string(details.get("name", "")),
             "description": clean_string(details.get("description", "")),
-            "paths": details.get("paths", "")
+            "paths": paths,
+            "output_types": output_types
         })
     return results
 
@@ -81,20 +92,21 @@ def parse_module_file(module_path):
 
 def generate_v2_markdown_table(artifact_data):
     """Generate a markdown table for v2 artifacts."""
-    table = "| Module | Artifact | Name | Description | Paths |\n"
-    table += "|--------|----------|------|-------------|-------|\n"
+    table = "| Module | Artifact | Name | Output Types | Description | Paths |\n"
+    table += "|--------|----------|------|--------------|-------------|-------|\n"
     for module, artifacts in artifact_data.items():
+        module_link = f"[{module}](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/{module})"
         for artifact in artifacts:
             name = clean_string(artifact.get('name', ''))
             description = clean_string(artifact.get('description', ''))
             paths = artifact.get('paths', '')
             if isinstance(paths, (list, tuple)):
                 paths = ', '.join(f'`{path}`' for path in paths)
-                #paths = ', '.join(paths)
             else:
                 paths = f'`{paths}`'
-            #paths = clean_string(paths)
-            table += f"| {module} | {artifact['artifact']} | {name} | {description} | {paths} |\n"
+            output_types = artifact.get('output_types', '-')
+            table += f"| {module_link} | {artifact['artifact']} | {name} | {output_types} | {description} | {paths} |\n"
+
     return table
 
 def generate_v1_markdown_table(artifact_data):
@@ -102,8 +114,9 @@ def generate_v1_markdown_table(artifact_data):
     table = "| Module | Artifacts |\n"
     table += "|--------|----------|\n"
     for module, artifacts in artifact_data.items():
+        module_link = f"[{module}](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/{module})"
         artifacts_str = ', '.join(artifacts)
-        table += f"| {module} | {artifacts_str} |\n"
+        table += f"| {module_link} | {artifacts_str} |\n"
     return table
 
 def generate_error_markdown_table(error_data):
