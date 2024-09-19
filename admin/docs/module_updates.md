@@ -14,7 +14,7 @@ This guide outlines the process of updating existing xLEAPP modules to use the n
 
 ### 1. Update the `__artifacts_v2__` block
 
-Ensure the `__artifacts_v2__` dictionary includes all required fields, especially the `output_types` field:
+Ensure the `__artifacts_v2__` dictionary includes all required fields, especially the `output_types` field. This dictionary should be the very first thing in the script, before any imports or other code. Do not keep the older `__artifacts__` dictionary. If the script has a comment block with information about the module, use the information to populate the `__artifacts_v2__` dictionary and then remove the comment block.
 
 ```python
 __artifacts_v2__ = {
