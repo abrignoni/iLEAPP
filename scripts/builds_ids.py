@@ -2614,7 +2614,7 @@ device_id = {
     "Watch7,5": "Apple Watch Ultra 2",
     "Watch7,8": "Apple Watch Series 10 - 42mm",
     "Watch7,9": "Apple Watch Series 10 - 46",
-    "Watch7,10": "Apple Watch Series 10 Cellular - 46mm ",
+    "Watch7,10": "Apple Watch Series 10 Cellular - 42mm ",
     "Watch7,11": "Apple Watch Series 10 Cellular - 46mm",
     "iPhone1,1": "iPhone",
     "iPhone1,2": "iPhone 3G",
