@@ -17,7 +17,7 @@ def clean_string(s):
 
 def extract_v2_info(module_content):
     """Extract artifact information from a v2 block."""
-    pattern = re.compile(r"^__artifacts_v2__.*\}\n}\n", re.DOTALL)
+    pattern = re.compile(r"__artifacts_v2__.*\}\n}\n", re.DOTALL)
     match = pattern.search(module_content)
     if not match:
         return []
