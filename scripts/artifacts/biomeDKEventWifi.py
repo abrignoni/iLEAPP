@@ -38,8 +38,6 @@ def get_biomeDKEventWifi(files_found, report_folder, seeker, wrap_text, timezone
         for record in ccl_segb.read_segb_file(file_found):
             offset = record.data_start_offset
             state = record.state.name
-            ts = record.timestamp1
-            ts = ts.replace(tzinfo=timezone.utc)
 
             if state == 'Written':
                 protostuff, _ = blackboxprotobuf.decode_message(record.data, typedef)
@@ -50,7 +48,7 @@ def get_biomeDKEventWifi(files_found, report_folder, seeker, wrap_text, timezone
 
                 filename_offset = f'{filename} - {offset}'
 
-                data_list.append((ts, startMinute, endTime, endMinute, ssid, protostuff['GUID'], filename_offset))
+                data_list.append((endTime, startMinute, endMinute, ssid, protostuff['GUID'], filename_offset))
 
     if len(data_list) > 0:
         description = ('Records with an SSID are periods when WiFi is connected. Records without an SSID are periods '
@@ -62,7 +60,7 @@ def get_biomeDKEventWifi(files_found, report_folder, seeker, wrap_text, timezone
         report = ArtifactHtmlReport(f'Biome WIFI (DKEvent)')
         report.start_artifact_report(report_folder, f'Biome WIFI (DKEvent)', description)
         report.add_script()
-        data_headers = ('SEGB Write Time', 'Start Minute', 'End Time', 'End Minute', 'SSID', 'GUID', 'Filename & Offset')
+        data_headers = ('End Time', 'Start Minute', 'End Minute', 'SSID', 'GUID', 'Filename & Offset')
         report.write_artifact_data_table(data_headers, data_list, directory_path)
         report.end_artifact_report()
 
