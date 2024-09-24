@@ -123,7 +123,7 @@ def get_healthmate_accounts(files_found, report_folder, seeker, wrap_text, time_
         report = ArtifactHtmlReport('Withings Health Mate - Accounts')
         report.start_artifact_report(report_folder, 'Withings Health Mate - Accounts', description)
         report.add_script()
-        data_headers = ('User ID', 'Last Name', 'First Name', 'Short Name', 'Birthdate', 'E-mail', 'Creation Timestamp', 'Last Modified Timestamp')
+        data_headers = ( 'Creation Timestamp', 'Last Modified Timestamp', 'User ID', 'Last Name', 'First Name', 'Short Name', 'Birthdate', 'E-mail')
         data_list = []
         for user in json_data['account']['sources'][0]['users']:
             id = user['userId']
@@ -135,7 +135,7 @@ def get_healthmate_accounts(files_found, report_folder, seeker, wrap_text, time_
             creationdate = datetime.datetime.fromtimestamp(user['created']).strftime('%Y-%m-%d %H:%M:%S')
             modifieddate = datetime.datetime.fromtimestamp(user['modified']).strftime('%Y-%m-%d %H:%M:%S')
 
-            data_list.append((id, lastname, firstname, shortname, birthdate, email, creationdate, modifieddate))
+            data_list.append((creationdate, modifieddate, id, lastname, firstname, shortname, birthdate, email))
 
         tableID = 'healthmate_accounts'
 
@@ -187,7 +187,7 @@ def get_healthmate_sleep_tracking(files_found, report_folder, seeker, wrap_text,
         report = ArtifactHtmlReport('Withings Health Mate - Sleep Tracking')
         report.start_artifact_report(report_folder, 'Withings Health Mate - Sleep Tracking', description)
         report.add_script()
-        data_headers = ('Device ID', 'Start Date', 'End Date', 'Reference Date','Modified Date', 'Manual Start Date','Manual End Date','Duration Light Sleep','Duration REM Sleep', 'Duration Deep Sleep', 'Duration To Sleep', 'Time To Get Up', 'Wake up count', 'Duration Awake', 'Timezone')
+        data_headers = ('Start Date', 'End Date', 'Reference Date','Modified Date', 'Manual Start Date','Manual End Date','Device ID', 'Duration Light Sleep','Duration REM Sleep', 'Duration Deep Sleep', 'Duration To Sleep', 'Time To Get Up', 'Wake up count', 'Duration Awake', 'Timezone')
         data_list = []
         for row in all_rows:
             id = row[0]
@@ -206,7 +206,7 @@ def get_healthmate_sleep_tracking(files_found, report_folder, seeker, wrap_text,
             dur_awake = row[13]
             timezone = row[14]
 
-            data_list.append((id, startdate, enddate, refrencedate, moddate, man_start, man_end, dur_light, dur_rem, dur_deep, dur_to_sleep, getup, num_wakeup, dur_awake, timezone))
+            data_list.append((startdate, enddate, refrencedate, moddate, man_start, man_end, id, dur_light, dur_rem, dur_deep, dur_to_sleep, getup, num_wakeup, dur_awake, timezone))
 
         tableID = 'healthmate_sleep_racking'
  
@@ -343,7 +343,7 @@ def get_healthmate_tracked_activities(files_found, report_folder, seeker, wrap_t
         report = ArtifactHtmlReport('Withings Health Mate - Tracked Activities')
         report.start_artifact_report(report_folder, 'Withings Health Mate - Tracked Activities', description)
         report.add_script()
-        data_headers = ('Device ID', 'Track ID', 'Type', 'Is Removed', 'Pause Duration', 'Start Date', 'End Date', 'Reference Date','Modified Date', 'Manual Start Date','Manual End Date', 'Duration Intense', 'Duration Moderate', 'Duration Light', 'Heart Rate MIN', 'Heart Rate AVG', 'Heart Rate MAX', 'Steps', 'Distance (no GPS)', 'Speed MIN', 'Speed AVG', 'Speed MAX', 'Distance (GPS)', 'Start Latitude', 'Start Longitude', 'Region Center Latitude', 'Region Center Longitude', 'End Latitude', 'End Longitude', 'Temperature MIN', 'Temperature AVG', 'Temperature MAX', 'Timezone')
+        data_headers = ('Start Date', 'End Date', 'Reference Date','Modified Date', 'Manual Start Date','Manual End Date', 'Device ID', 'Track ID', 'Type', 'Is Removed', 'Pause Duration', 'Duration Intense', 'Duration Moderate', 'Duration Light', 'Heart Rate MIN', 'Heart Rate AVG', 'Heart Rate MAX', 'Steps', 'Distance (no GPS)', 'Speed MIN', 'Speed AVG', 'Speed MAX', 'Distance (GPS)', 'Start Latitude', 'Start Longitude', 'Region Center Latitude', 'Region Center Longitude', 'End Latitude', 'End Longitude', 'Temperature MIN', 'Temperature AVG', 'Temperature MAX', 'Timezone')
         data_list = []
         for row in all_rows:
             id = row[0]
@@ -381,7 +381,7 @@ def get_healthmate_tracked_activities(files_found, report_folder, seeker, wrap_t
             track = row[32]
 
 
-            data_list.append((id, track, act_type, is_removed, dur_pause, startdate, enddate, refrencedate, moddate, man_start, man_end, dur_intense, dur_moderate, dur_light, heart_min, heart_avg, heart_max, steps, distance, speed_min, speed_avg, speed_max, distance_gps, start_lat, start_lon, end_lat, end_lon, center_lat, center_lon, temp_min, temp_avg, temp_max, timezone))
+            data_list.append((startdate, enddate, refrencedate, moddate, man_start, man_end, id, track, act_type, is_removed, dur_pause, dur_intense, dur_moderate, dur_light, heart_min, heart_avg, heart_max, steps, distance, speed_min, speed_avg, speed_max, distance_gps, start_lat, start_lon, end_lat, end_lon, center_lat, center_lon, temp_min, temp_avg, temp_max, timezone))
 
         tableID = 'healthmate_tracked_activities'
  
@@ -409,7 +409,17 @@ def get_healthmate_messages(files_found, report_folder, seeker, wrap_text, time_
     db = open_sqlite_db_readonly(file_found)
     cursor = db.cursor()
     cursor.execute('''
-        SELECT ZUSERID, ZSENDERID, ZRECEIVERID, ZSENDERLASTNAME, ZSENDERFIRSTNAME, datetime('2001-01-01', "ZDATE" || ' seconds'), datetime('2001-01-01', "ZWSMODIFIEDDATE" || ' seconds'), datetime('2001-01-01', "ZEXPIRATIONDATE" || ' seconds'), ZTYPEMESSAGE, ZMESSAGE2
+        SELECT
+        ZUSERID,
+        ZSENDERID,
+        ZRECEIVERID,
+        ZSENDERLASTNAME,
+        ZSENDERFIRSTNAME,
+        datetime('2001-01-01', "ZDATE" || ' seconds'),
+        datetime('2001-01-01', "ZWSMODIFIEDDATE" || ' seconds'),
+        datetime('2001-01-01', "ZEXPIRATIONDATE" || ' seconds'),
+        ZTYPEMESSAGE,
+        ZMESSAGE2
         FROM ZHMTIMELINEEVENT
         WHERE ZTYPE = 'HMTimelineMessageEvent'
     ''')
@@ -422,7 +432,7 @@ def get_healthmate_messages(files_found, report_folder, seeker, wrap_text, time_
         report = ArtifactHtmlReport('Withings Health Mate - Messages')
         report.start_artifact_report(report_folder, 'Withings Health Mate - Messages', description)
         report.add_script()
-        data_headers = ('Account ID', 'Sender ID', 'Receiver ID', 'Sender Last Name', 'Sender First Name', 'Timestamp [Local Time]', 'Timestamp Modified', 'Timestamp Expiration', 'Type', 'Message')
+        data_headers = ('Timestamp [Local Time]', 'Timestamp Modified', 'Timestamp Expiration', 'Account ID', 'Sender ID', 'Receiver ID', 'Sender Last Name', 'Sender First Name', 'Type', 'Message')
         data_list = []
         #message_list = []
         for row in all_rows:
@@ -437,7 +447,7 @@ def get_healthmate_messages(files_found, report_folder, seeker, wrap_text, time_
             message_type = row[8]
             message = row[9]   
 
-            data_list.append((id, senderid, receiverid, sender_name, sender_first_name, date, date_mod, date_exp, message_type, message))
+            data_list.append((date, date_mod, date_exp, id, senderid, receiverid, sender_name, sender_first_name, message_type, message))
 
         tableID = 'healthmate_messages'
 
@@ -503,7 +513,7 @@ def get_healthmate_measurements(files_found, report_folder, seeker, wrap_text, t
         report = ArtifactHtmlReport('Withings Healthmate - Measurements')
         report.start_artifact_report(report_folder, 'Withings Health Mate - Measurements', description)
         report.add_script()
-        data_headers = ('Category ID', 'Category', 'Device ID', 'Duration', 'Timestamp', 'Steps', 'Distance', 'Calories', 'Heart Rate', 'Latitude', 'Longitude', 'Altitude', 'Direction', 'Radius', 'Speed', 'SPO2', 'Ascent', 'Temperature')
+        data_headers = ('Timestamp', 'Category ID', 'Category', 'Device ID', 'Duration', 'Steps', 'Distance', 'Calories', 'Heart Rate', 'Latitude', 'Longitude', 'Altitude', 'Direction', 'Radius', 'Speed', 'SPO2', 'Ascent', 'Temperature')
         data_list = []
         for row in all_rows:
             category_id = row[0]
@@ -526,7 +536,7 @@ def get_healthmate_measurements(files_found, report_folder, seeker, wrap_text, t
             temperature = row[16]
 
 
-            data_list.append((category_id, category, device_id, duration, timestamp, steps, distance, calories, heartrate, lat, lon, alt, direction, radius, speed, spo2, ascent, temperature))
+            data_list.append((timestamp, category_id, category, device_id, duration, steps, distance, calories, heartrate, lat, lon, alt, direction, radius, speed, spo2, ascent, temperature))
 
         tableID = 'healthmate_measurements'
 
@@ -575,7 +585,7 @@ def get_healthmate_devices(files_found, report_folder, seeker, wrap_text, time_o
         report = ArtifactHtmlReport('Withings Health Mate - Devices')
         report.start_artifact_report(report_folder, 'Withings Health Mate - Devices', description)
         report.add_script()
-        data_headers = ('ID', 'User ID', 'Association Timestamp', 'Last Used Timestamp', 'Last Weighin Timestamp', 'MAC', 'Firmware', 'Latitude', 'Longitude', 'Device Timezone', 'Sync Disabled')
+        data_headers = ('Association Timestamp', 'Last Used Timestamp', 'Last Weighin Timestamp', 'ID', 'User ID', 'MAC', 'Firmware', 'Latitude', 'Longitude', 'Device Timezone', 'Sync Disabled')
         data_list = []
         for row in all_rows:
             id = row[0]
@@ -590,7 +600,7 @@ def get_healthmate_devices(files_found, report_folder, seeker, wrap_text, time_o
             dev_timezone = row[9]  
             sync_disabled = row[10]      
 
-            data_list.append((id, userid, assdate, lastdate, lastweighin, mac, firmware, lat, lon, dev_timezone, sync_disabled))
+            data_list.append((assdate, lastdate, lastweighin, id, userid, mac, firmware, lat, lon, dev_timezone, sync_disabled))
 
         tableID = 'healthmate_devices'
 
