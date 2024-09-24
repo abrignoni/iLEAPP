@@ -22,7 +22,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Withings Health Mate",
         "notes": "Based on https://bebinary4n6.blogspot.com/2024/09/app-healthmate-on-ios.html",
-        "paths": ('*/Library/Application Support/account'),
+        "paths": ('/private/var/mobile/Containers/Data/Application/*/Library/Application Support/account'),
         "function": "get_healthmate_accounts"
     },
     "HealthMateSleepTracking": {
@@ -123,7 +123,7 @@ def get_healthmate_accounts(files_found, report_folder, seeker, wrap_text, time_
         report = ArtifactHtmlReport('Withings Health Mate - Accounts')
         report.start_artifact_report(report_folder, 'Withings Health Mate - Accounts', description)
         report.add_script()
-        data_headers = ('User ID', 'Last Name', 'First Name', 'Short Name', 'Birthdate' 'E-mail', 'Creation Timestamp', 'Last Modified Timestamp')
+        data_headers = ('User ID', 'Last Name', 'First Name', 'Short Name', 'Birthdate', 'E-mail', 'Creation Timestamp', 'Last Modified Timestamp')
         data_list = []
         for user in json_data['account']['sources'][0]['users']:
             id = user['userId']
