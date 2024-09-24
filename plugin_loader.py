@@ -15,6 +15,7 @@ class PluginSpec:
     category: str
     search: str
     method: typing.Callable  # todo define callable signature
+    artifact_info: dict  # Add this line to include artifact_info
 
 
 class PluginLoader:
@@ -42,12 +43,44 @@ class PluginLoader:
             version = 2 if '__artifacts_v2__' in dir(mod) else 1  # determine the version
 
             for name, artifact in mod_artifacts.items():
-                category, search, func_name = (
-                artifact.get('category'), artifact.get('paths'), artifact.get('function')) if version == 2 else artifact
-                func = getattr(mod, func_name) if version == 2 and isinstance(func_name, str) else func_name
+                if version == 2:
+                    category = artifact.get('category')
+                    search = artifact.get('paths')
+                    
+                    func = None
+                    # 1. Look for a wrapped function with the name of the dictionary
+                    for item_name in dir(mod):
+                        item = getattr(mod, item_name)
+                        if callable(item) and item_name == name and hasattr(item, '__wrapped__'):
+                            func = item
+                            break
+                    
+                    # 2. If no wrapped function, look for declared function
+                    if func is None:
+                        func_name = artifact.get('function')
+                        if func_name:
+                            func = getattr(mod, func_name, None)
+                    
+                    # 3. If neither above work, log the failure
+                    if func is None:
+                        print(f"Warning: No matching function found for artifact '{name}' in module '{py_file.stem}'")
+                        continue
+
+                    # Store the entire artifact dictionary as artifact_info
+                    artifact_info = artifact
+                    if func:
+                        func.artifact_info = artifact_info  # Attach artifact_info to the function
+
+                else:
+                    # 4. If no v2, then use v1
+                    category, search, func = artifact
+                    artifact_info = {'category': category, 'paths': search}
+
                 if name in self._plugins:
-                    raise KeyError("Duplicate plugin")
-                self._plugins[name] = PluginSpec(name, py_file.stem, category, search, func)
+                    raise KeyError(f"Duplicate plugin: '{name}' in module '{py_file.stem}'")
+                
+                # Add artifact_info to PluginSpec
+                self._plugins[name] = PluginSpec(name, py_file.stem, category, search, func, artifact_info)
 
 
     @property

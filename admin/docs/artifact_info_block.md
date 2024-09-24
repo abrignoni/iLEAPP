@@ -4,7 +4,7 @@ The artifact info block is defined as a dictionary named `__artifacts_v2__` at t
 
 ```python
 __artifacts_v2__ = {
-    "artifact_id": {
+    "function_name": {
         "name": "Human-readable name of the artifact",
         "description": "Brief description of what the artifact does",
         "author": "@AuthorUsername",
@@ -19,11 +19,10 @@ __artifacts_v2__ = {
 }
 ```
 
-
-- `artifact_id`: A unique identifier for the artifact. A module can have multiple artifacts.
+- `function_name`: The name of the function that processes this artifact. This should match exactly with the function name in the script.
 - `name`: A human-readable name for the artifact as it will be displayed in the output files
 - `description`: A brief explanation of what the artifact extracts or analyzes
-- `author`: The name and/or username of the modules's author
+- `author`: The name and/or username of the module's author
 - `version`: The current version of the module script
 - `date`: The date of the latest update in YYYY-MM-DD format
 - `requirements`: Any specific requirements for the artifact, or "none" if there are no special requirements
@@ -39,4 +38,6 @@ __artifacts_v2__ = {
         - `"timeline"`: Generates timeline output
         - `"lava"`: Generates output for LAVA (a specific data processing format)
 
-This info block provides essential metadata about the artifact and is used by the artifact processor to handle the artifact correctly.
+This info block provides essential metadata about the artifact and is used by the artifact processor to handle the artifact correctly. The plugin loader will attach this information to the corresponding function, making it accessible via the function's globals.
+
+Note: The key in the `__artifacts_v2__` dictionary must exactly match the name of the function that processes the artifact. This ensures that the artifact processor can correctly associate the artifact information with the processing function.

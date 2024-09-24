@@ -1,5 +1,5 @@
 __artifacts_v2__ = {
-    "gmail_offline_search": {
+    "get_Gmail_offline_search": {
         "name": "Gmail - Offline Search",
         "description": "Parses Gmail offline search content",
         "author": "@KevinPagano3",
@@ -11,7 +11,7 @@ __artifacts_v2__ = {
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/data/*/searchsqlitedb*',),
         "output_types": "all"
     },
-    "gmail_label_details": {
+    "get_Gmail_label_details": {
         "name": "Gmail - Label Details",
         "description": "Parses Gmail label details",
         "author": "@KevinPagano3",
@@ -28,7 +28,7 @@ __artifacts_v2__ = {
 # from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, open_sqlite_db_readonly, artifact_processor
 
-@artifact_processor(__artifacts_v2__["gmail_offline_search"])
+@artifact_processor
 def get_Gmail_offline_search(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
     data_headers = ()
@@ -78,7 +78,7 @@ def get_Gmail_offline_search(files_found, report_folder, seeker, wrap_text, time
     
     return data_headers, data_list, source_path
 
-@artifact_processor(__artifacts_v2__["gmail_label_details"])
+@artifact_processor
 def get_Gmail_label_details(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
     data_headers = ()

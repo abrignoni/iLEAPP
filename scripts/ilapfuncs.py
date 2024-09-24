@@ -36,47 +36,48 @@ thumb_size = 256, 256
 def strip_tuple_from_headers(data_headers):
     return [header[0] if isinstance(header, tuple) else header for header in data_headers]
 
-def artifact_processor(artifact_info):
-    def decorator(func):
-        @wraps(func)
-        def wrapper(files_found, report_folder, seeker, wrap_text, timezone_offset):
-            artifact_name = artifact_info['name']
-            category = artifact_info['category']
-            module_name = func.__module__.split('.')[-1]  # Get the module name
+def artifact_processor(func):
+    @wraps(func)
+    def wrapper(files_found, report_folder, seeker, wrap_text, timezone_offset):
+        module_name = func.__module__.split('.')[-1]
+        func_name = func.__name__
 
-            data_headers, data_list, source_path = func(files_found, report_folder, seeker, wrap_text, timezone_offset)
+        func_object = func.__globals__.get(func_name, {})
+        artifact_info = func_object.artifact_info #get('artifact_info', {})
+
+        artifact_name = artifact_info.get('name', func_name)
+        category = artifact_info.get('category', '')
+        description = artifact_info.get('description', '')
+
+        data_headers, data_list, source_path = func(files_found, report_folder, seeker, wrap_text, timezone_offset)
+        
+        if data_list:
+            output_types = artifact_info.get('output_types', ['html', 'tsv', 'timeline', 'lava'])
+
+            # Strip tuples from headers for HTML, TSV, and timeline
+            stripped_headers = strip_tuple_from_headers(data_headers)
+
+            if 'html' in output_types or 'all' == output_types:
+                report = artifact_report.ArtifactHtmlReport(artifact_name)
+                report.start_artifact_report(report_folder, artifact_name, description)
+                report.add_script()
+                report.write_artifact_data_table(stripped_headers, data_list, source_path)
+                report.end_artifact_report()
+
+            if 'tsv' in output_types or 'all' == output_types:
+                tsv(report_folder, stripped_headers, data_list, artifact_name)
             
-            if data_list:
-                description = artifact_info['description']
-                
-                output_types = artifact_info.get('output_types', ['html', 'tsv', 'timeline', 'lava'])
+            if 'timeline' in output_types or 'all' == output_types:
+                timeline(report_folder, artifact_name, data_list, stripped_headers)
 
-                # Strip tuples from headers for HTML, TSV, and timeline
-                stripped_headers = strip_tuple_from_headers(data_headers)
-
-                if 'html' in output_types or 'all' == output_types:
-                    report = artifact_report.ArtifactHtmlReport(artifact_name)
-                    report.start_artifact_report(report_folder, artifact_name, description)
-                    report.add_script()
-                    report.write_artifact_data_table(stripped_headers, data_list, source_path)
-                    report.end_artifact_report()
-
-                if 'tsv' in output_types or 'all' == output_types:
-                    tsv(report_folder, stripped_headers, data_list, artifact_name)
-                
-                if 'timeline' in output_types or 'all' == output_types:
-                    timeline(report_folder, artifact_name, data_list, stripped_headers)
-
-                if 'lava' in output_types or 'all' == output_types:
-                    table_name, object_columns, column_map = lava_process_artifact(category, module_name, artifact_name, data_headers, len(data_list))
-                    lava_insert_sqlite_data(table_name, data_list, object_columns, data_headers, column_map)
-                
-            else:
-                logfunc(f"No {artifact_name} data available")
-            
-            return data_headers, data_list, source_path
-        return wrapper
-    return decorator
+            if 'lava' in output_types or 'all' == output_types:
+                table_name, object_columns, column_map = lava_process_artifact(category, module_name, artifact_name, data_headers, len(data_list))
+                lava_insert_sqlite_data(table_name, data_list, object_columns, data_headers, column_map)
+        else:
+            logfunc(f"No {artifact_name} data available")
+        
+        return data_headers, data_list, source_path
+    return wrapper
 
 class OutputParameters:
     '''Defines the parameters that are common for '''

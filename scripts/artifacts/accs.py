@@ -1,5 +1,5 @@
 __artifacts_v2__ = {
-    "accs": {
+    "get_accs": {
         "name": "Account Data",
         "description": "Extract information about configured user accounts",
         "author": "@AlexisBrignoni",
@@ -17,7 +17,7 @@ __artifacts_v2__ = {
 #from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import artifact_processor, logfunc, open_sqlite_db_readonly, convert_ts_human_to_utc, convert_utc_human_to_timezone 
 
-@artifact_processor(__artifacts_v2__["accs"])
+@artifact_processor
 def get_accs(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
     data_headers = ()

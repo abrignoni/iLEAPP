@@ -14,13 +14,21 @@ This guide outlines the process of updating existing xLEAPP modules to use the n
 
 ### 1. Update the `__artifacts_v2__` block
 
-Ensure the `__artifacts_v2__` dictionary includes all required fields, especially the `output_types` field. This dictionary should be the very first thing in the script, before any imports or other code. Do not keep the older `__artifacts__` dictionary. If the script has a comment block with information about the module, use the information to populate the `__artifacts_v2__` dictionary and then remove the comment block.
+Ensure the `__artifacts_v2__` dictionary includes all required fields, especially the `output_types` field. This dictionary should be the very first thing in the script, before any imports or other code. The key in this dictionary must exactly match the name of the function that processes the artifact.
 
 ```python
 __artifacts_v2__ = {
-    "artifact_id": {
-        # ... existing fields ...
-        "output_types": "all"  # or ["html", "csv", "timeline", "lava"]
+    "get_artifactname": {  # This should match the function name exactly
+        "name": "Human-readable Artifact Name",
+        "description": "Brief description of what the artifact does",
+        "author": "@AuthorUsername",
+        "version": "1.0",
+        "date": "2023-05-24",
+        "requirements": "none",
+        "category": "Artifact Category",
+        "notes": "",
+        "paths": ('Path/to/artifact/files',),
+        "output_types": "all"  # or ["html", "tsv", "timeline", "lava"]
     }   
 }
 ```
@@ -28,43 +36,46 @@ __artifacts_v2__ = {
 ### 2. Modify imports
 
 Remove imports related to manual report generation and add the artifact processor:
+
 #### Remove these imports
 ```python
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import tsv, timeline, kmlgen, logfunc, is_platform_windows
 ```
+
 #### Add this import
 ```python
 from scripts.ilapfuncs import artifact_processor
 ```
+
 ### 3. Add the `@artifact_processor` decorator
 
 Add the decorator to the main function:
+
 ```python
-@artifact_processor(__artifacts_v2__["artifact_id"])
+@artifact_processor
 def get_artifactname(files_found, report_folder, seeker, wrap_text, timezone_offset):
-# ... function body ...
+    # ... function body ...
 ```
+
 ### 4. Adjust the main function
 
 Modify the function to return data instead of generating reports:
+
 ```python
 def get_artifactname(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    # Prepare return variables
     data_list = []
     data_headers = ()
     source_path = ''
 
-    # Process files and data
     for file_found in files_found:
         source_path = file_found
         # ... process data ...
         data_list.append((col1, col2, col3))
         
-    data_headers = (('Timestamp', 'datetime'), 'Column2', 'Column3')
+    data_headers = (('Column1', 'datetime'), 'Column2', 'Column3')
     return data_headers, data_list, source_path
 ```
-
 
 ### 5. Remove manual report generation code
 
@@ -85,3 +96,11 @@ This update simplifies module maintenance by:
 4. Making it easier to add new output types in the future
 
 By focusing modules on data extraction and processing, we improve code readability and maintainability while allowing for more flexible and extensible output generation.
+
+## Important Notes
+
+- The key in the `__artifacts_v2__` dictionary must exactly match the name of the function that processes the artifact.
+- The `artifact_processor` decorator now automatically retrieves the artifact information from the function's globals or the module's `__artifacts_v2__` dictionary.
+- The main function should focus solely on data extraction and processing, returning the data for the artifact processor to handle output generation.
+
+These changes ensure that the artifact information is correctly associated with the processing function and that the output generation is handled consistently across all artifacts.
