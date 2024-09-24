@@ -68,7 +68,7 @@ $RECYCLE.BIN/
 ?LEAPP_Reports_*
 path_list.txt
 coordinates.db
-admin/data/*.csv
+admin/data/**/*.csv
 
 # Documentation
 docs/_build/
