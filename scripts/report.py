@@ -148,9 +148,12 @@ icon_mappings = \
         'MATCHES': 'smile',
     },
     'BURNER': {
-        'NUMBER INFORMATION': 'user',
-        'COMMUNICATION INFORMATION': 'message-circle',
-        'default': 'user'
+        'ACCOUNTS': 'user',
+        'CONTACTS': 'users',
+        'NUMBERS': 'phone',
+        'MESSAGES': 'message-circle',
+        'default': 'user',
+        '_mode': 'search',
     },
     'CACHE DATA': 'box',
     'CALCULATOR LOCKER': 'lock',
