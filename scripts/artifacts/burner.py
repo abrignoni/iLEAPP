@@ -2,12 +2,12 @@ __artifacts_v2__ = {
     "burnerPhoenix": {
         "name": "Burner",
         "description": "Parses and extract accounts, contacts, burner numbers and messages",
-        "author": "Django Faiola (djangofaiola.blogspot.com @DjangoFaiola)",
-        "version": "0.1.0",
+        "author": "Django Faiola (https://djangofaiola.blogspot.com https://www.linkedin.com/in/djangofaiola/)",
+        "version": "0.2.0",
         "date": "2024-03-05",
         "requirements": "none",
         "category": "Burner",
-        "notes": "App version tested: 4.0.18, 4.3.3, 5.3.8",
+        "notes": "App version tested: 4.0.18, 4.3.3, 5.3.8, 5.4.11",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/Phoenix.sqlite*',
                   '*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist'),
         "function": "get_burner_phoenix"
@@ -71,34 +71,49 @@ def get_accounts(file_found, report_folder, database, timezone_offset):
     try:
         #db = open_sqlite_db_readonly(file_found)
         cursor = database.cursor()
-        cursor.execute('''
-        SELECT 
-            U.Z_PK,
-            B.B_PK,
-            (U.ZDATECREATED + 978307200) AS "created",
-            U.ZPHONENUMBER AS "phoneNumber",
-            U.ZCOUNTRYCODE AS "countryCode",
-            (coalesce(B.nBurners, "0") || "/" || U.ZTOTALNUMBERBURNERS) AS "nBurners",
-            B.burnerNames,
-            B.burnerIds,
-            CASE U.ZDNDENABLED
-                WHEN 1 THEN "On"
-                ELSE "Off"
-            END AS "dndEnabled",
-            U.ZVOICEMAILURL AS "voicemailUrl",
-            U.ZUSERID AS "userId"
-        FROM ZUSER AS "U"
-        LEFT JOIN (
+        #cursor.execute()
+        if does_column_exist_in_db(database, 'ZBURNER', 'ZUSER'):
+            cursor.execute('''
             SELECT 
-                BU.ZUSER,
-                group_concat(BU.Z_PK, char(29)) AS "B_PK",
-                count(BU.ZUSER) AS "nBurners",
-                group_concat(IIF(BU.ZNAME NOT NULL, BU.ZPHONENUMBER || " (" || BU.ZNAME || ")", BU.ZPHONENUMBER), char(10)) AS "burnerNames",
-                group_concat(BU.ZBURNERID, char(10)) AS "burnerIds"
-            FROM ZBURNER AS "BU" 
-            GROUP BY BU.ZUSER  
-        ) AS "B" ON (U.Z_PK = B.ZUSER)
-        ''')
+                U.Z_PK,
+                B.B_PK,
+                (U.ZDATECREATED + 978307200) AS "created",
+                U.ZPHONENUMBER AS "phoneNumber",
+                U.ZCOUNTRYCODE AS "countryCode",
+                (coalesce(B.nBurners, "0") || "/" || U.ZTOTALNUMBERBURNERS) AS "nBurners",
+                B.burnerNames,
+                B.burnerIds,
+                CASE U.ZDNDENABLED WHEN 1 THEN "On" ELSE "Off" END AS "dndEnabled",
+                U.ZVOICEMAILURL AS "voicemailUrl",
+                U.ZUSERID AS "userId"
+            FROM ZUSER AS "U"
+            LEFT JOIN (
+                SELECT 
+                    BU.ZUSER,
+                    group_concat(BU.Z_PK, char(29)) AS "B_PK",
+                    count(BU.ZUSER) AS "nBurners",
+                    group_concat(IIF(BU.ZNAME NOT NULL, BU.ZPHONENUMBER || " (" || BU.ZNAME || ")", BU.ZPHONENUMBER), char(10)) AS "burnerNames",
+                    group_concat(BU.ZBURNERID, char(10)) AS "burnerIds"
+                FROM ZBURNER AS "BU" 
+                GROUP BY BU.ZUSER 
+            ) AS "B" ON (U.Z_PK = B.ZUSER)
+            ''')
+        else:
+            cursor.execute('''
+            SELECT 
+                U.Z_PK,
+                NULL AS B_PK,
+                (U.ZDATECREATED + 978307200) AS "created",
+                U.ZPHONENUMBER AS "phoneNumber",
+                U.ZCOUNTRYCODE AS "countryCode",
+                ("0" || "/" || U.ZTOTALNUMBERBURNERS) AS "nBurners",
+                NULL AS burnerNames,
+                NULL burnerIds,
+                CASE U.ZDNDENABLED WHEN 1 THEN "On" ELSE "Off" END AS "dndEnabled",
+                U.ZVOICEMAILURL AS "voicemailUrl",
+                U.ZUSERID AS "userId"
+            FROM ZUSER AS "U"
+            ''')
 
         all_rows = cursor.fetchall()
         usageentries = len(all_rows)
@@ -147,18 +162,9 @@ def get_contacts(file_found, report_folder, database):
             C.ZNAME AS "name",
             CPN.otherPhones,
             CN.notes,
-            CASE C.ZVERIFIED 
-                WHEN 1 then 'Yes'
-                ELSE 'No'
-            END AS "verified",
-            CASE C.ZBLOCKED
-                WHEN 1 then 'Yes'
-                ELSE 'No'
-            END AS "blocked",
-            CASE C.ZMUTED
-                WHEN 1 then 'Yes'
-                ELSE 'No'
-            END AS "muted",
+            CASE C.ZVERIFIED WHEN 1 then 'Yes' ELSE 'No' END AS "verified",
+            CASE C.ZBLOCKED WHEN 1 then 'Yes' ELSE 'No' END AS "blocked",
+            CASE C.ZMUTED WHEN 1 then 'Yes' ELSE 'No' END AS "muted",
             substr(C.ZIMAGE, 2, length(C.ZIMAGE) - 2) AS "image",
             substr(C.ZTHUMBNAIL, 2, length(C.ZTHUMBNAIL) - 2) AS "thumbnail",
             C.ZIMAGEURL AS "imageUrl",
@@ -228,40 +234,52 @@ def get_contacts(file_found, report_folder, database):
 def get_numbers(file_found, report_folder, database, timezone_offset):
     try:
         cursor = database.cursor()
-        cursor.execute('''
-        SELECT
-            B.Z_PK,
-            U.Z_PK,
-            substr(B.ZIMAGE, 2, length(B.ZIMAGE) - 2) AS "image",
-            B.ZPHONENUMBER AS "burnerNumber",
-            B.ZNAME AS "displayName",
-            (B.ZDATECREATED + 978307200) AS "created",
-            (B.ZEXPIRATIONDATE + 978307200) AS "expires",
-            CASE B.ZNOTIFICATIONS
-                WHEN 0 THEN "Off"
-                ELSE "On"
-            END AS "notifications",
-            CASE B.ZCALLERIDENABLED
-                WHEN 0 THEN "Burner Number"
-                ELSE "Caller Number"
-            END AS "inboundCallerID",
-            CASE B.ZUSESIP
-                WHEN 0 THEN "Standard Voice"
-                ELSE "VoIP"
-            END AS "VoIPinAppCalling",
-            CASE B.ZAUTOREPLYACTIVE
-                WHEN 0 THEN "No"
-                ELSE "Yes"
-            END AS "autoReplyActive",
-            B.ZAUTOREPLYTEXT AS "autoReplyText",
-            coalesce(B.ZREMAININGMINUTES, "0") || "/" || coalesce(B.ZTOTALMINUTES, "0") AS "minutes",
-            coalesce(B.ZREMAININGTEXTS, "0") || "/" || coalesce(B.ZTOTALTEXTS, "0") AS "texts",
-            U.ZPHONENUMBER AS "mobilePhone",
-            U.ZUSERID AS "userId",
-            B.ZBURNERID AS "burnerId"
-        FROM ZBURNER AS "B"
-        LEFT JOIN ZUSER AS "U" ON (B.ZUSER = U.Z_PK)
-        ''')
+        #cursor.execute()
+        if does_column_exist_in_db(database, 'ZBURNER', 'ZUSER'):
+            cursor.execute('''
+            SELECT
+                B.Z_PK,
+                U.Z_PK,
+                substr(B.ZIMAGE, 2, length(B.ZIMAGE) - 2) AS "image",
+                B.ZPHONENUMBER AS "burnerNumber",
+                B.ZNAME AS "displayName",
+                (B.ZDATECREATED + 978307200) AS "created",
+                (B.ZEXPIRATIONDATE + 978307200) AS "expires",
+                CASE B.ZNOTIFICATIONS WHEN 0 THEN "Off" ELSE "On" END AS "notifications",
+                CASE B.ZCALLERIDENABLED WHEN 0 THEN "Burner Number" ELSE "Caller Number" END AS "inboundCallerID",
+                CASE B.ZUSESIP WHEN 0 THEN "Standard Voice" ELSE "VoIP" END AS "VoIPinAppCalling",
+                CASE B.ZAUTOREPLYACTIVE WHEN 0 THEN "No" ELSE "Yes" END AS "autoReplyActive",
+                B.ZAUTOREPLYTEXT AS "autoReplyText",
+                coalesce(B.ZREMAININGMINUTES, "0") || "/" || coalesce(B.ZTOTALMINUTES, "0") AS "minutes",
+                coalesce(B.ZREMAININGTEXTS, "0") || "/" || coalesce(B.ZTOTALTEXTS, "0") AS "texts",
+                U.ZPHONENUMBER AS "mobilePhone",
+                U.ZUSERID AS "userId",
+                B.ZBURNERID AS "burnerId"
+            FROM ZBURNER AS "B"
+            LEFT JOIN ZUSER AS "U" ON (B.ZUSER = U.Z_PK)
+            ''')
+        else:
+            cursor.execute('''
+            SELECT
+                B.Z_PK,
+                NULL AS U_PK,
+                substr(B.ZIMAGE, 2, length(B.ZIMAGE) - 2) AS "image",
+                B.ZPHONENUMBER AS "burnerNumber",
+                B.ZNAME AS "displayName",
+                (B.ZDATECREATED + 978307200) AS "created",
+                (B.ZEXPIRATIONDATE + 978307200) AS "expires",
+                CASE B.ZNOTIFICATIONS WHEN 0 THEN "Off" ELSE "On" END AS "notifications",
+                CASE B.ZCALLERIDENABLED WHEN 0 THEN "Burner Number" ELSE "Caller Number" END AS "inboundCallerID",
+                CASE B.ZUSESIP WHEN 0 THEN "Standard Voice" ELSE "VoIP" END AS "VoIPinAppCalling",
+                CASE B.ZAUTOREPLYACTIVE WHEN 0 THEN "No" ELSE "Yes" END AS "autoReplyActive",
+                B.ZAUTOREPLYTEXT AS "autoReplyText",
+                coalesce(B.ZREMAININGMINUTES, "0") || "/" || coalesce(B.ZTOTALMINUTES, "0") AS "minutes",
+                coalesce(B.ZREMAININGTEXTS, "0") || "/" || coalesce(B.ZTOTALTEXTS, "0") AS "texts",
+                NULL AS "mobilePhone",
+                NULL AS "userId",
+                B.ZBURNERID AS "burnerId"
+            FROM ZBURNER AS "B"
+            ''')
 
         all_rows = cursor.fetchall()
         usageentries = len(all_rows)
@@ -309,6 +327,23 @@ def get_numbers(file_found, report_folder, database, timezone_offset):
 # messages
 def get_messages(file_found, mediafilepaths, report_folder, database, timezone_offset):
     try:
+        # 5.4.11
+        if does_column_exist_in_db(database, 'ZMESSAGE', 'ZCONVERSATIONID'):
+            extra_join_thread = ' OR (M.ZMESSAGETHREAD IS NULL AND M.ZBURNERID = MT.ZBURNERID AND M.ZCONVERSATIONID = MT.ZCONVERSATIONID)'
+        # 5.3.8
+        elif does_column_exist_in_db(database, 'ZMESSAGE', 'M.ZCONTACTID'):
+            extra_join_thread = ' OR (M.ZMESSAGETHREAD IS NULL AND M.ZBURNERID = MT.ZBURNERID AND coalesce(M.ZCONTACTID, M.ZCONTACTPHONENUMBER) = MT.ZCONTACTPHONENUMBER)'
+        # 4.0.18, 4.3.3
+        else:
+            extra_join_thread = '' # OR (M.ZMESSAGETHREAD IS NULL AND M.ZBURNERID = MT.ZBURNERID AND M.ZCONTACTPHONENUMBER = MT.ZCONTACTPHONENUMBER)'
+
+        # 5.3.8, 5.4.11
+        if does_column_exist_in_db(database, 'ZMESSAGE', 'ZCONTACTID'):
+            extra_join_contact = ' OR (MT.ZCONTACT IS NULL AND coalesce(M.ZCONTACTID, M.ZCONTACTPHONENUMBER) = C.ZPHONENUMBER)'
+        # 4.0.18 e 4.3.3
+        else:
+            extra_join_contact = '' #' OR (MT.ZCONTACT IS NULL AND M.ZCONTACTPHONENUMBER = C.ZPHONENUMBER)'
+ 
         cursor = database.cursor()
         cursor.execute('''
         SELECT
@@ -340,7 +375,7 @@ def get_messages(file_found, mediafilepaths, report_folder, database, timezone_o
             CASE 
                 WHEN (M.ZTYPE = 1) AND (M.ZSTATE in (3, 4)) THEN "Call"
                 WHEN (M.ZTYPE = 1) AND (M.ZSTATE = 5) THEN "Voicemail"
-                WHEN (M.ZTYPE = 2) AND (coalesce(M.ZLOCALASSETURL, M.ZLOCALTHUMBNAILURL) IS NULL) THEN "Text"
+                WHEN (M.ZTYPE = 2) AND (M.ZASSETURL IS NULL) THEN "Text"
                 WHEN (M.ZTYPE = 2) THEN "Picture"
                 ELSE M.ZTYPE
             END AS "mType",
@@ -354,10 +389,8 @@ def get_messages(file_found, mediafilepaths, report_folder, database, timezone_o
         FROM ZMESSAGE AS "M"
         LEFT JOIN ZBURNER AS "B" ON (M.ZBURNERID = B.ZBURNERID)
         LEFT JOIN ZMESSAGETHREAD AS "MT" ON (M.ZMESSAGETHREAD = MT.Z_PK){0}
-        LEFT JOIN ZCONTACT AS "C" ON (MT.ZCONTACT = C.Z_PK) OR (MT.ZCONTACT IS NULL AND M.ZCONTACTPHONENUMBER = C.ZPHONENUMBER)
-        '''.format(
-                (' OR (M.ZMESSAGETHREAD IS NULL AND M.ZBURNERID = MT.ZBURNERID AND M.ZCONTACTPHONENUMBER = MT.ZCONTACTPHONENUMBER)' if does_column_exist_in_db(database, 'ZMESSAGETHREAD', 'ZBURNERID') else '')
-            )
+        LEFT JOIN ZCONTACT AS "C" ON (MT.ZCONTACT = C.Z_PK){1}
+        '''.format(extra_join_thread, extra_join_contact)
         )
 
         all_rows = cursor.fetchall()
