@@ -17,28 +17,26 @@ def pickModules():
         - iTunesBackupInfo, lastBuild, Ph99-System-Version-Plist, Ph100-UFED-device-values-Plist that need to be executed first are excluded
         - ones that take a long time to run are deselected by default'''
     global mlist
-    global loader
-
-    loader = plugin_loader.PluginLoader()
-
     for plugin in sorted(loader.plugins, key=lambda p: p.category.upper()):
-        if (plugin.module_name == 'iTunesBackupInfo'
-                or plugin.module_name == 'lastBuild'
-                or plugin.module_name == 'Ph99-System-Version-Plist'
-                or plugin.module_name == 'Ph100-UFED-device-values-Plist'):
+        if (plugin.name == 'iTunesBackupInfo'
+                or plugin.name == 'lastbuild'
+                or plugin.name == 'Ph99-System-Version-Plist'
+                or plugin.name == 'Ph100-UFED-device-values-Plist'):
             continue
         # Items that take a long time to execute are deselected by default
         # and referenced in the modules_to_exclude list in an external file (modules_to_exclude.py).
-        mlist[plugin] = tk.BooleanVar(value=False) if plugin.module_name in modules_to_exclude else tk.BooleanVar(value=True)
+        plugin_enabled = tk.BooleanVar(value=False) if plugin.module_name in modules_to_exclude else tk.BooleanVar(value=True)
+        plugin_module_name = plugin.artifact_info.get('name', plugin.name) if hasattr(plugin, 'artifact_info') else plugin.name
+        mlist[plugin.name] = [plugin.category, plugin_module_name, plugin.module_name, plugin_enabled]
 
 
 def get_selected_modules():
     '''Update the number and return the list of selected modules'''
     selected_modules = []
 
-    for plugin, state in mlist.items():
-        if state.get():
-            selected_modules.append(plugin.name)
+    for artifact_name, module_infos in mlist.items():
+        if module_infos[-1].get():
+            selected_modules.append(artifact_name)
 
     selected_modules_label.config(text=f'Number of selected modules: {len(selected_modules)} / {len(mlist)}')
     return selected_modules
@@ -46,16 +44,16 @@ def get_selected_modules():
 
 def select_all():
     '''Select all modules in the list of available modules and execute get_selected_modules'''
-    for plugin in mlist:
-        main_window.nametowidget(f'f_modules.f_list.tbox.mcb_{plugin.name}').select()
+    for artifact_name in mlist:
+        main_window.nametowidget(f'f_modules.f_list.tbox.mcb_{artifact_name}').select()
 
     get_selected_modules()
 
 
 def deselect_all():
     '''Unselect all modules in the list of available modules and execute get_selected_modules'''
-    for plugin in mlist:
-        main_window.nametowidget(f'f_modules.f_list.tbox.mcb_{plugin.name}').deselect()
+    for artifact_name in mlist:
+        main_window.nametowidget(f'f_modules.f_list.tbox.mcb_{artifact_name}').deselect()
 
     get_selected_modules()
 
@@ -82,9 +80,9 @@ def load_profile():
                 else:
                     deselect_all()
                     ticked = set(profile.get('plugins', []))
-                    for plugin in mlist:
-                        if plugin.name in ticked:
-                            main_window.nametowidget(f'f_modules.f_list.tbox.mcb_{plugin.name}').select()
+                    for artifact_name in mlist:
+                        if artifact_name in ticked:
+                            main_window.nametowidget(f'f_modules.f_list.tbox.mcb_{artifact_name}').select()
                     get_selected_modules()
             else:
                 profile_load_error = 'File was not a valid profile file: invalid format'
@@ -364,9 +362,9 @@ def refresh_main_window():
     timezone_set = tk.StringVar()
     mlist.clear()
     pickModules()
-    for plugin,enabled in mlist.items():
-        main_window.nametowidget(f'f_modules.f_list.tbox.mcb_{plugin.name}').config(
-            variable=enabled, onvalue=True, offvalue=False
+    for artifact_name,module_infos in mlist.items():
+        main_window.nametowidget(f'f_modules.f_list.tbox.mcb_{artifact_name}').config(
+            variable=module_infos[-1], onvalue=True, offvalue=False
         )
     get_selected_modules()
     ()
@@ -384,6 +382,7 @@ window_height = 620
 ## Variables
 icon = os.path.join(os.path.dirname(__file__), 'scripts', 'icon.png')
 loader: typing.Optional[plugin_loader.PluginLoader] = None
+loader = plugin_loader.PluginLoader()
 mlist = {}
 profile_filename = None
 casedata = {'Case Number': tk.StringVar(),
@@ -520,10 +519,10 @@ mlist_text = tk.Text(mlist_frame, name='tbox', bg=theme_bgcolor, highlightthickn
                      yscrollcommand=v.set, height=mlist_window_height)
 mlist_text.grid(row=0, column=0, sticky='we')
 v.config(command=mlist_text.yview)
-for plugin, enabled in mlist.items():
-    cb = tk.Checkbutton(mlist_text, name=f'mcb_{plugin.name}',
-                        text=f'{plugin.category} [{plugin.name} - {plugin.module_name}.py]',
-                        variable=enabled, onvalue=True, offvalue=False, command=get_selected_modules)
+for artifact_name, module_infos in mlist.items():
+    cb = tk.Checkbutton(mlist_text, name=f'mcb_{artifact_name}',
+                        text=f'{module_infos[0]} [{module_infos[1]} | {module_infos[2]}.py]',
+                        variable=module_infos[-1], onvalue=True, offvalue=False, command=get_selected_modules)
     cb.config(background=theme_bgcolor, fg=theme_fgcolor, selectcolor=theme_inputcolor,
               highlightthickness=0, activebackground=theme_bgcolor, activeforeground=theme_fgcolor)
     mlist_text.window_create('insert', window=cb)
