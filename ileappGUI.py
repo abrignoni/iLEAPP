@@ -10,6 +10,7 @@ from scripts.version_info import ileapp_version
 from scripts.search_files import *
 from scripts.tz_offset import tzvalues
 from modules_to_exclude import modules_to_exclude
+from scripts.lavafuncs import *
 
 
 def pickModules():
@@ -187,9 +188,13 @@ def process(casedata):
         bottom_frame.grid_remove()
         progress_bar.grid(padx=16, sticky='we')
 
+        initialize_lava(input_path, out_params.report_folder_base, extracttype)
+
         crunch_successful = ileapp.crunch_artifacts(
             selected_modules, extracttype, input_path, out_params, wrap_text, loader,
             casedata, time_offset, profile_filename)
+        
+        lava_finalize_output(out_params.report_folder_base)
 
         if crunch_successful:
             report_path = os.path.join(out_params.report_folder_base, 'index.html')
