@@ -26,7 +26,7 @@ def get_adId(files_found, report_folder, seeker, wrap_text, timezone_offset):
         if len(pl) > 0:
             for key, val in pl.items():
                 if key == 'LSAdvertiserIdentifier':
-                    adId = val
+                    data_list.append(('Advertiser Identifier', val))
                     logdevinfo(f"<b>Advertiser Identifier: </b>{adId}")
         else:
             logfunc("No Advertiser Identifier available")
