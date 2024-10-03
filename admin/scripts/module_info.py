@@ -135,6 +135,13 @@ def update_markdown_file(v1_data, v2_data, error_data):
     v2_count = sum(len(artifacts) for artifacts in v2_data.values())
     error_count = len(error_data)
 
+    # Count modules with 'lava output'
+    lava_output_count = sum(
+        1 for artifacts in v2_data.values()
+        for artifact in artifacts
+        if artifact.get('output_types')
+    )
+
     with open(MD_FILE_PATH, 'r') as md_file:
         content = md_file.read()
 
@@ -147,6 +154,7 @@ def update_markdown_file(v1_data, v2_data, error_data):
     new_module_info += f"Total number of modules: {total_modules}  \n"
     new_module_info += f"Number of v1 artifacts: {v1_count}  \n"
     new_module_info += f"Number of v2 artifacts: {v2_count}  \n"
+    new_module_info += f"Number of modules with 'lava output': {lava_output_count}  \n"
     new_module_info += f"Number of modules with errors or no recognized artifacts: {error_count}  \n\n"
     
     if v2_data:

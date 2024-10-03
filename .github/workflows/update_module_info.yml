@@ -2,6 +2,8 @@ name: Update Module Info
 
 on:
   pull_request:
+    branches:
+      - lava-output
     paths:
       - 'scripts/artifacts/**'
   workflow_dispatch:
@@ -9,13 +11,14 @@ on:
 jobs:
   update-module-info:
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/lava-output'
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.x'
 
@@ -40,4 +43,4 @@ jobs:
       uses: ad-m/github-push-action@master
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        branch: ${{ github.head_ref }}
+        branch: ${{ github.head_ref || github.ref_name }}
