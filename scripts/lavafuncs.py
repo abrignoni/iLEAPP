@@ -59,7 +59,7 @@ def lava_process_artifact(category, module_name, artifact_name, data, record_cou
     if record_count is not None:
         artifact["record_count"] = record_count
     if object_columns:
-        artifact["object_columns"] = object_columns
+        artifact["object_columns"] = [{"name": name, "type": type_} for name, type_ in object_columns.items()]
     
     lava_data["artifacts"][category].append(artifact)
     
@@ -95,13 +95,13 @@ def lava_create_sqlite_table(table_name, data):
             sanitized_name = sanitize_sql_name(original_name)
             sql_type = get_sql_type(data_type)
             columns.append(f"{sanitized_name} {sql_type}")
-            object_columns[original_name] = data_type
+            object_columns[sanitized_name] = data_type
         else:
             original_name = item
             sanitized_name = sanitize_sql_name(original_name)
             columns.append(f"{sanitized_name} TEXT")
 
-        column_map[original_name] = sanitized_name
+        column_map[sanitized_name] = original_name
 
     columns_sql = ', '.join(columns)
     cursor.execute(f"CREATE TABLE IF NOT EXISTS {sanitized_table_name} ({columns_sql})")
@@ -117,8 +117,8 @@ def lava_insert_sqlite_data(table_name, data, object_columns, headers, column_ma
     
     cursor = lava_db.cursor()
     
-    # Use the sanitized column names from column_map
-    sanitized_columns = [column_map[h[0] if isinstance(h, tuple) else h] for h in headers]
+    # Use the sanitized column names directly
+    sanitized_columns = [sanitize_sql_name(h[0] if isinstance(h, tuple) else h) for h in headers]
     
     # Prepare the SQL query
     placeholders = ', '.join(['?' for _ in sanitized_columns])
@@ -130,8 +130,9 @@ def lava_insert_sqlite_data(table_name, data, object_columns, headers, column_ma
         processed_row = []
         for i, column in enumerate(headers):
             original_column = column[0] if isinstance(column, tuple) else column
+            sanitized_column = sanitize_sql_name(original_column)
             value = row[i]
-            if original_column in object_columns and object_columns[original_column] == 'datetime':
+            if sanitized_column in object_columns and object_columns[sanitized_column] == 'datetime':
                 # Convert datetime to integer (Unix timestamp)
                 if isinstance(value, str):
                     try:

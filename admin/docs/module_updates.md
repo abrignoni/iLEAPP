@@ -77,6 +77,12 @@ def get_artifactname(files_found, report_folder, seeker, wrap_text, timezone_off
     return data_headers, data_list, source_path
 ```
 
+Be sure to mark columns with their data type if they are one of the special handler types. It's ok if all data in a marked column doesn't conform to the marked type, as it will be tested and displayed as provided if it doesn't match.
+
+Currently the special handler types are:
+- datetime
+- date
+- phonenumber
 ### 5. Remove manual report generation code
 
 Delete any code related to manual report generation, including:
@@ -85,6 +91,7 @@ Delete any code related to manual report generation, including:
 - Calling `report.start_artifact_report`
 - Writing data to TSV files
 - Generating timeline or KML files
+- Any print or logging statements about no data being available
 
 ## Reasoning
 
