@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'scripts/artifacts/**'
+  workflow_dispatch:
 
 jobs:
   update-module-info:
