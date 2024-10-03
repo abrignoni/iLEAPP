@@ -1,15 +1,28 @@
-from datetime import datetime
-import os
-import plistlib
+__artifacts_v2__ = {
+    "get_backupSettings": {
+        "name": "Backup Settings",
+        "description": "Extracts Backup settings from the device",
+        "author": "@AlexisBrignoni",
+        "version": "0.2",
+        "date": "2024-05-09",
+        "requirements": "none",
+        "category": "Identifiers",
+        "notes": "",
+        "paths": ('*/mobile/Library/Preferences/com.apple.mobile.ldbackup.plist',),
+        "output_types": "all"
+    }
+}
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, tsv, is_platform_windows 
+import plistlib
+from datetime import datetime
+from scripts.ilapfuncs import artifact_processor, logfunc, logdevinfo
 
 def timestampsconv(webkittime):
     unix_timestamp = webkittime + 978307200
     finaltime = datetime.utcfromtimestamp(unix_timestamp)
     return(finaltime)
 
+@artifact_processor
 def get_backupSettings(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
     file_found = str(files_found[0])
@@ -38,21 +51,8 @@ def get_backupSettings(files_found, report_folder, seeker, wrap_text, timezone_o
                 data_list.append((key, val ))
                 
     if len(data_list) > 0:
-        report = ArtifactHtmlReport('iPhone Backup Settings')
-        report.start_artifact_report(report_folder, 'iPhone Backup Settings')
-        report.add_script()
-        data_headers = ('Key','Values' )     
-        report.write_artifact_data_table(data_headers, data_list, file_found)
-        report.end_artifact_report()
-        
-        tsvname = 'iPhone Backup Settings'
-        tsv(report_folder, data_headers, data_list, tsvname)
+        data_headers = ('Key', 'Value')
+        return data_headers, data_list, file_found
     else:
         logfunc('No Find iPhone Backup Settings')
             
-__artifacts__ = {
-    "backupSettings": (
-        "Identifiers",
-        ('*/mobile/Library/Preferences/com.apple.mobile.ldbackup.plist'),
-        get_backupSettings)
-}
