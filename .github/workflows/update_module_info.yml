@@ -1,0 +1,42 @@
+name: Update Module Info
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/artifacts/**'
+
+jobs:
+  update-module-info:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+
+    - name: Run module_info script
+      run: python admin/scripts/module_info.py
+
+    - name: Check for changes
+      id: git-check
+      run: |
+        git diff --exit-code || echo "changes=true" >> $GITHUB_OUTPUT
+
+    - name: Commit changes
+      if: steps.git-check.outputs.changes == 'true'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add admin/docs/module_info.md
+        git commit -m "Update module_info.md"
+
+    - name: Push changes
+      if: steps.git-check.outputs.changes == 'true'
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: ${{ github.head_ref }}
