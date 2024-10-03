@@ -8,22 +8,26 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Accounts",
         "notes": "",
-        "paths": ('**/com.apple.accounts.exists.plist',),
+        "paths": ('*/com.apple.accounts.exists.plist',),
         "output_types": "all"
     }
 }
 
 import plistlib
-from scripts.ilapfuncs import artifact_processor
+from scripts.ilapfuncs import artifact_processor, logfunc
 
 @artifact_processor
 def get_confaccts(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
-    file_found = str(files_found[0])
-    with open(file_found, "rb") as fp:
-        pl = plistlib.load(fp)
-        for key, val in pl.items():
-            data_list.append((key, val))
+    source_path = str(files_found[0])
     
-    data_headers = ('Key', 'Values')
-    return data_headers, data_list, file_found
+    with open(source_path, "rb") as fp:
+        pl = plistlib.load(fp)
+        if len(pl) > 0:
+            for key, val in pl.items():
+                data_list.append((key, val))
+        else:
+            logfunc("No Account Configuration available")
+    
+    data_headers = ('Key', 'Data')
+    return data_headers, data_list, source_path
