@@ -8,7 +8,7 @@ from io import BytesIO
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ccl import ccl_segb1
 from scripts.ccl import ccl_segb2
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, convert_utc_human_to_timezone, timestampsconv, convert_ts_int_to_utc
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, convert_utc_human_to_timezone, convert_ts_int_to_utc
 
 def utf8_in_extended_ascii(input_string, *, raise_on_unexpected=False):
     """Returns a tuple of bool (whether mis-encoded utf-8 is present) and str (the converted string)"""

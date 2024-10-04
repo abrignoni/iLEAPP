@@ -66,11 +66,6 @@ def utf8_in_extended_ascii(input_string, *, raise_on_unexpected=False):
     
     return mis_encoded_utf8_present, "".join(output)
 
-def timestampsconv(webkittime):
-    unix_timestamp = webkittime + 978307200
-    finaltime = datetime.fromtimestamp(unix_timestamp, tz=timezone.utc)
-    return(finaltime)
-
 def get_biomeIntents(files_found, report_folder, seeker, wrap_text, timezone_offset):
     
     files_found = sorted(files_found)

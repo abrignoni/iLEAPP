@@ -8,7 +8,7 @@ import blackboxprotobuf
 from datetime import datetime, timezone
 from time import mktime
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, webkit_timestampsconv
 
 def checksegbv(in_path):
     MAGIC = b"SEGB"
@@ -77,11 +77,6 @@ def utf8_in_extended_ascii(input_string, *, raise_on_unexpected=False):
         handle_bad_data(len(input_string), "")
     
     return mis_encoded_utf8_present, "".join(output)
-
-def timestampsconv(webkittime):
-    unix_timestamp = webkittime + 978307200
-    finaltime = datetime.utcfromtimestamp(unix_timestamp)
-    return(finaltime)
 
 def get_notificationsDuet(files_found, report_folder, seeker, wrap_text, timezone_offset):
     for file_found in files_found:
@@ -197,7 +192,7 @@ def get_notificationsDuet(files_found, report_folder, seeker, wrap_text, timezon
                 date1 = mensaje.read(8) #Date in hex
                 #print(f'Date1: {date1}')
                 date1 = (struct.unpack_from("<d",date1)[0])
-                convertedtime1 = timestampsconv(date1)
+                convertedtime1 = webkit_timestampsconv(date1)
                 #print(convertedtime1)
                 
                 mensaje.read(27)
@@ -207,7 +202,7 @@ def get_notificationsDuet(files_found, report_folder, seeker, wrap_text, timezon
                 for x in date2:
                     #print(hex(x))
                 date2 = (struct.unpack_from("<d",date2)[0])
-                convertedtime2 = timestampsconv(date2)
+                convertedtime2 = webkit_timestampsconv(date2)
                 #print(convertedtime2)
                 """
                 test = mensaje.read(1)
@@ -392,7 +387,7 @@ def get_notificationsDuet(files_found, report_folder, seeker, wrap_text, timezon
                 lastdate = mensaje.read(8)
                 #print(lastdate)
                 date2 = (struct.unpack_from("<d",lastdate)[0])
-                convertedtime2 = timestampsconv(date2)
+                convertedtime2 = webkit_timestampsconv(date2)
                 #print(f'Date2: {convertedtime2}')
                 data_list.append((convertedtime1,guid,title,subtitle,bundledata,bodyread,bundleidread,optionaltextread,bundleid2read,optionalgmarkeread,appleidread,convertedtime2, filename))
                 

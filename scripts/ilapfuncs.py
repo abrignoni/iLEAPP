@@ -136,7 +136,7 @@ def convert_ts_int_to_timezone(time, time_offset):
     #return the converted value
     return timezone_time
 
-def timestampsconv(webkittime):
+def webkit_timestampsconv(webkittime):
     unix_timestamp = webkittime + 978307200
     finaltime = datetime.fromtimestamp(unix_timestamp, tz=timezone.utc)
     return(finaltime)

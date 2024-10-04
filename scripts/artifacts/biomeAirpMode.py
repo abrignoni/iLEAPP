@@ -8,7 +8,7 @@ from io import BytesIO
 from scripts.ccl import ccl_segb1
 from scripts.ccl import ccl_segb2
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, convert_utc_human_to_timezone, timestampsconv, convert_ts_int_to_utc
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, convert_utc_human_to_timezone, webkit_timestampsconv, convert_ts_int_to_utc
 
 def utf8_in_extended_ascii(input_string, *, raise_on_unexpected=False):
     """Returns a tuple of bool (whether mis-encoded utf-8 is present) and str (the converted string)"""
@@ -109,8 +109,8 @@ def get_biomeAirpMode(files_found, report_folder, seeker, wrap_text, timezone_of
                 if state == 'Written':
                     
                     protostuff, types = blackboxprotobuf.decode_message(data[8:],typess)
-                    timestart = (timestampsconv(protostuff['2']))
-                    #timeend = (timestampsconv(protostuff['3']))
+                    timestart = (webkit_timestampsconv(protostuff['2']))
+                    #timeend = (webkit_timestampsconv(protostuff['3']))
                     #timeend = convert_ts_int_to_utc(timeend)
                     event = protostuff['1']['1']
                     guid = protostuff['5'].decode()
@@ -136,8 +136,8 @@ def get_biomeAirpMode(files_found, report_folder, seeker, wrap_text, timezone_of
                 if state == 'Written':
                     
                     protostuff, types = blackboxprotobuf.decode_message(data,typess)
-                    timestart = (timestampsconv(protostuff['2']))
-                    #timeend = (timestampsconv(protostuff['3']))
+                    timestart = (webkit_timestampsconv(protostuff['2']))
+                    #timeend = (webkit_timestampsconv(protostuff['3']))
                     #timeend = convert_ts_int_to_utc(timeend)
                     event = protostuff['1']['1'].decode()
                     guid = protostuff['5'].decode()
