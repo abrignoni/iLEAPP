@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "get_adId": {
-        "name": "Advertiser Identifier",
-        "description": "Extracts Advertisier Identifier from the device",
+        "name": "Apple Advertising Identifier",
+        "description": "Extracts Apple Advertising Identifier from the device",
         "author": "@AlexisBrignoni",
         "version": "0.2",
         "date": "2024-05-09",
@@ -26,10 +26,10 @@ def get_adId(files_found, report_folder, seeker, wrap_text, timezone_offset):
         if len(pl) > 0:
             for key, val in pl.items():
                 if key == 'LSAdvertiserIdentifier':
-                    data_list.append(('Advertiser Identifier', val))
-                    logdevinfo(f"<b>Advertiser Identifier: </b>{adId}")
+                    data_list.append(('Apple Advertising Identifier', val))
+                    logdevinfo(f"<b>Apple Advertising Identifier: </b>{val}")
         else:
-            logfunc("No Advertiser Identifier available")
+            logfunc("No Apple Advertising Identifier available")
 
     data_headers = ('Key', 'Data')
     return data_headers, data_list, source_path
