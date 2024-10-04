@@ -5,6 +5,8 @@ import ast
 import time
 import traceback
 import argparse
+import zipfile
+from io import StringIO, BytesIO
 from fnmatch import fnmatch
 from unittest.mock import MagicMock
 from collections import defaultdict
@@ -66,6 +68,8 @@ def generate_summary_table(results):
 
     for row in results:
         module_name, artifact_name, _, csv_file, count, _ = row
+        csv_file = csv_file.split('/')[0]  # Get only the zip file name
+        csv_file = csv_file.replace('.zip', '').replace('.csv', '')  # Remove .zip and .csv
         summary[module_name][artifact_name][csv_file] += int(count)
         csv_files.add(csv_file)
 
@@ -123,6 +127,16 @@ def csv_to_md():
     update_markdown_file(summary_table)
     print(f"Summary table updated in admin/docs/filepath_search_summary.md")
 
+def read_csv_with_encoding(content):
+    encodings = ['utf-8', 'latin-1', 'ascii', 'utf-16']
+    for encoding in encodings:
+        try:
+            decoded_content = content.decode(encoding)
+            return list(csv.reader(StringIO(decoded_content)))
+        except UnicodeDecodeError:
+            continue
+    raise ValueError("Unable to determine the correct encoding")
+
 def main():
     parser = argparse.ArgumentParser(description='Process artifact files and generate summary.')
     parser.add_argument('--csv-to-md', action='store_true', help='Only convert CSV to Markdown summary')
@@ -136,12 +150,12 @@ def main():
     filepath_lists_dir = 'admin/data/filepath-lists'
     output_file = 'admin/docs/filepath_results.csv'
 
-    # Debug output: Show recognized filepath CSV files
-    filepath_csv_files = glob.glob(os.path.join(filepath_lists_dir, '*.csv'))
-    print("Recognized filepath CSV files:")
-    for csv_file in filepath_csv_files:
-        print(f"- {os.path.basename(csv_file)}")
-    print(f"Total filepath CSV files: {len(filepath_csv_files)}\n")
+    # Debug output: Show recognized filepath zip files
+    filepath_zip_files = glob.glob(os.path.join(filepath_lists_dir, '*.zip'))
+    print("Recognized filepath zip files:")
+    for zip_file in filepath_zip_files:
+        print(f"- {os.path.basename(zip_file)}")
+    print(f"Total filepath zip files: {len(filepath_zip_files)}\n")
 
     results = []
 
@@ -151,6 +165,7 @@ def main():
 
         if artifacts:
             print(f"Processing {module_name}")
+            module_hits = 0
             for artifact_name, artifact_data in artifacts.items():
                 search_patterns = artifact_data['paths']
                 
@@ -164,28 +179,42 @@ def main():
                     continue
 
                 # Process filepath list files
-                for list_file in filepath_csv_files:
-                    list_file_name = os.path.basename(list_file)
+                for zip_file in filepath_zip_files:
+                    zip_file_name = os.path.basename(zip_file)
+                    zip_file_name = zip_file_name.replace('.zip', '').replace('.csv', '')  # Remove .zip and .csv
                     
-                    with open(list_file, 'r') as f:
-                        reader = csv.reader(f)
-                        next(reader)
-                        filepaths = [row[0] for row in reader]
+                    with zipfile.ZipFile(zip_file, 'r') as zf:
+                        csv_files = [f for f in zf.namelist() if f.endswith('.csv') and not os.path.basename(f).startswith('.')]
+                        for csv_file in csv_files:
+                            try:
+                                with zf.open(csv_file) as file:
+                                    content = file.read()
+                                rows = read_csv_with_encoding(content)
+                                filepaths = [row[0] for row in rows[1:] if row]  # Skip header
+                            except ValueError as e:
+                                print(f"Error reading {csv_file} in {zip_file_name}: {str(e)}")
+                                continue
+                            except Exception as e:
+                                print(f"Unexpected error reading {csv_file} in {zip_file_name}: {str(e)}")
+                                continue
 
-                    for pattern in search_patterns:
-                        start_time = time.time()
-                        count = count_matches(pattern, filepaths)
-                        end_time = time.time()
-                        search_time = end_time - start_time
-                        
-                        results.append([
-                            module_name,
-                            artifact_name,
-                            pattern,
-                            list_file_name,
-                            count,
-                            f"{search_time:.4f}"
-                        ])
+                            for pattern in search_patterns:
+                                start_time = time.time()
+                                count = count_matches(pattern, filepaths)
+                                end_time = time.time()
+                                search_time = end_time - start_time
+                                
+                                results.append([
+                                    module_name,
+                                    artifact_name,
+                                    pattern,
+                                    zip_file_name,  # Use only the modified zip file name
+                                    count,
+                                    f"{search_time:.4f}"
+                                ])
+                                module_hits += count
+
+            print(f"  Total hits for {module_name}: {module_hits}")
         else:
             print(f"Skipping {module_name} due to parsing errors")
 
