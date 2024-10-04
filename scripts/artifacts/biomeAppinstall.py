@@ -6,7 +6,7 @@ from time import mktime
 from io import StringIO
 from io import BytesIO
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, convert_ts_human_to_utc, convert_utc_human_to_timezone, convert_time_obj_to_utc 
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, convert_ts_human_to_utc, convert_utc_human_to_timezone, convert_time_obj_to_utc, webkit_timestampsconv
 
 def utf8_in_extended_ascii(input_string, *, raise_on_unexpected=False):
     """Returns a tuple of bool (whether mis-encoded utf-8 is present) and str (the converted string)"""
@@ -66,11 +66,6 @@ def utf8_in_extended_ascii(input_string, *, raise_on_unexpected=False):
     
     return mis_encoded_utf8_present, "".join(output)
 
-def timestampsconv(webkittime):
-    unix_timestamp = webkittime + 978307200
-    finaltime = datetime.fromtimestamp(unix_timestamp, tz=timezone.utc)
-    return(finaltime)
-
 def get_biomeAppinstall(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
     typess = {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'str', 'name': ''}, '2': {'type': 'message', 'message_typedef': {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''}}, 'name': ''}}, 'name': ''}, '2': {'type': 'double', 'name': ''}, '3': {'type': 'double', 'name': ''}, '4': {'type': 'message', 'message_typedef': {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''}}, 'name': ''}, '3': {'type': 'str', 'name': ''}}, 'name': ''}, '5': {'type': 'str', 'name': ''}, '7': {'type': 'message', 'message_typedef': {'1': {'type': 'message', 'message_typedef': {}, 'name': ''}, '2': {'type': 'message', 'message_typedef': {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''}}, 'name': ''}, '4': {'type': 'int', 'name': ''}, '3': {'type': 'str', 'name': ''}}, 'name': ''}, '3': {'type': 'int', 'name': ''}}, 'name': ''}, '8': {'type': 'double', 'name': ''}, '10': {'type': 'int', 'name': ''}}
@@ -123,11 +118,11 @@ def get_biomeAppinstall(files_found, report_folder, seeker, wrap_text, timezone_
                 protostuff, types = blackboxprotobuf.decode_message(protostuff, typess)
             
                 activity = (protostuff['1']['1'])
-                timestart = (timestampsconv(protostuff['2']))
+                timestart = (webkit_timestampsconv(protostuff['2']))
                 timestart = convert_utc_human_to_timezone(timestart, timezone_offset)
                 
                 
-                timeend = (timestampsconv(protostuff['3']))
+                timeend = (webkit_timestampsconv(protostuff['3']))
                 timeend = convert_utc_human_to_timezone(timeend, timezone_offset)
                 
                 bundleid = (protostuff['4']['3'])
@@ -146,7 +141,7 @@ def get_biomeAppinstall(files_found, report_folder, seeker, wrap_text, timezone_
                 else:
                     bundleinfo = ''
                 
-                timewrite = (timestampsconv(protostuff['8']))
+                timewrite = (webkit_timestampsconv(protostuff['8']))
                 timewrite = convert_utc_human_to_timezone(timewrite, timezone_offset)
                 
                 data_list.append((timestart, timeend, timewrite, activity, bundleid, bundleinfo, appinfo1, appinfo2, actionguid ))

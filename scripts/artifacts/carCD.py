@@ -5,12 +5,7 @@ import scripts.artifacts.artGlobals
 
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, timeline, kmlgen, tsv, is_platform_windows, open_sqlite_db_readonly
-
-def timestampsconv(webkittime):
-    unix_timestamp = webkittime + 978307200
-    finaltime = datetime.utcfromtimestamp(unix_timestamp)
-    return(finaltime)
+from scripts.ilapfuncs import logfunc, logdevinfo, timeline, kmlgen, tsv, is_platform_windows, open_sqlite_db_readonly, webkit_timestampsconv
 
 def get_carCD(files_found, report_folder, seeker, wrap_text, timezone_offset):
     
@@ -29,8 +24,8 @@ def get_carCD(files_found, report_folder, seeker, wrap_text, timezone_offset):
                 if key == 'LastVehicleConnection':
                     lastconn = value
                     contype = lastconn[2]
-                    connected = timestampsconv(lastconn[0])
-                    disconnected = timestampsconv(lastconn[1])
+                    connected = webkit_timestampsconv(lastconn[0])
+                    disconnected = webkit_timestampsconv(lastconn[1])
                     logdevinfo(f'<b>Vehicle - Last Connected: </b>{connected} - <b>Last Disconnected: </b>{disconnected} - <b>Type: </b>{contype}')
                     data_list.append((key, f'Last Connected: {connected} <br> Last Disconnected: {disconnected} <br> Type: {contype}'))
                     

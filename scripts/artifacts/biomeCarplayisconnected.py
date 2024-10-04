@@ -6,7 +6,7 @@ from time import mktime
 from io import StringIO
 from io import BytesIO
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, convert_utc_human_to_timezone, timestampsconv
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, convert_utc_human_to_timezone, webkit_timestampsconv
 
 def utf8_in_extended_ascii(input_string, *, raise_on_unexpected=False):
     """Returns a tuple of bool (whether mis-encoded utf-8 is present) and str (the converted string)"""
@@ -109,12 +109,12 @@ def get_biomeCarplayisconnected(files_found, report_folder, seeker, wrap_text, t
             
             date1 = ab.read(8) 
             date1 = (struct.unpack_from("<d",date1)[0])
-            convertedtime1 = timestampsconv(date1)
+            convertedtime1 = webkit_timestampsconv(date1)
             #print(convertedtime1)
             
             date2 = ab.read(8)
             date2 = (struct.unpack_from("<d",date2)[0])
-            convertedtime1 = timestampsconv(date2)
+            convertedtime1 = webkit_timestampsconv(date2)
             #print(convertedtime1)
             
             
@@ -131,13 +131,13 @@ def get_biomeCarplayisconnected(files_found, report_folder, seeker, wrap_text, t
                 protostuff, types = blackboxprotobuf.decode_message(protostuff, typess)
                 activity = (protostuff['1']['1'])
                 
-                timestart = (timestampsconv(protostuff['2']))
+                timestart = (webkit_timestampsconv(protostuff['2']))
                 timestart = convert_utc_human_to_timezone(timestart, timezone_offset)
                 
-                timeend = (timestampsconv(protostuff['3']))
+                timeend = (webkit_timestampsconv(protostuff['3']))
                 timeend = convert_utc_human_to_timezone(timeend, timezone_offset)
                 
-                timewrite = (timestampsconv(protostuff['8']))
+                timewrite = (webkit_timestampsconv(protostuff['8']))
                 timewrite = convert_utc_human_to_timezone(timewrite, timezone_offset)
                 
                 actionguid = (protostuff['5'])

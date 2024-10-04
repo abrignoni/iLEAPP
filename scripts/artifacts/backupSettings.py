@@ -14,27 +14,26 @@ __artifacts_v2__ = {
 }
 
 import plistlib
-from datetime import datetime
-from scripts.ilapfuncs import artifact_processor, logfunc, logdevinfo, timestampsconv
+from scripts.ilapfuncs import artifact_processor, logfunc, logdevinfo, webkit_timestampsconv
 
 @artifact_processor
 def get_backupSettings(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
     source_path = str(files_found[0])
     
-    with open(file_found, "rb") as fp:
+    with open(source_path, "rb") as fp:
         pl = plistlib.load(fp)
         if len(pl) > 0:
             for key, val in pl.items():
                 if key == 'LastiTunesBackupDate':
-                    lastime = timestampsconv(val)
+                    lastime = webkit_timestampsconv(val)
                     data_list.append(('Last iTunes Backup Date', lastime))
                     logdevinfo(f"<b>Last iTunes Backup Date: </b>{lastime}")
                 elif key == 'LastiTunesBackupTZ':
                     data_list.append((key, val))
                     logdevinfo(f"<b>Last iTunes Backup TZ: </b>{val}")
                 elif key == 'LastCloudBackupDate':
-                    lastcloudtime = timestampsconv(val)
+                    lastcloudtime = webkit_timestampsconv(val)
                     data_list.append(('Last Cloud iTunes Backup Date', lastcloudtime))
                     logdevinfo(f"<b>Last Cloud iTunes Backup Date: </b>{lastcloudtime}")
                 elif key == 'LastCloudBackupTZ':

@@ -8,7 +8,7 @@ from time import mktime
 from io import StringIO
 from io import BytesIO
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, convert_ts_human_to_utc, convert_utc_human_to_timezone, convert_time_obj_to_utc 
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, convert_ts_human_to_utc, convert_utc_human_to_timezone, convert_time_obj_to_utc, webkit_timestampsconv
 
 def utf8_in_extended_ascii(input_string, *, raise_on_unexpected=False):
     """Returns a tuple of bool (whether mis-encoded utf-8 is present) and str (the converted string)"""
@@ -68,11 +68,6 @@ def utf8_in_extended_ascii(input_string, *, raise_on_unexpected=False):
     
     return mis_encoded_utf8_present, "".join(output)
 
-def timestampsconv(webkittime):
-    unix_timestamp = webkittime + 978307200
-    finaltime = datetime.fromtimestamp(unix_timestamp, tz=timezone.utc)
-    return(finaltime)
-
 def get_biomeUseractmeta(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
     #typess = {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'str', 'name': ''}, '2': {'type': 'message', 'message_typedef': {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''}}, 'name': ''}}, 'name': ''}, '2': {'type': 'double', 'name': ''}, '3': {'type': 'double', 'name': ''}, '4': {'type': 'message', 'message_typedef': {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''}}, 'name': ''}, '5': {'type': 'double', 'name': ''}}, 'name': ''}, '5': {'type': 'str', 'name': ''}, '8': {'type': 'double', 'name': ''}, '10': {'type': 'int', 'name': ''}}
@@ -118,12 +113,12 @@ def get_biomeUseractmeta(files_found, report_folder, seeker, wrap_text, timezone
             
             date1 = ab.read(8) 
             date1 = (struct.unpack_from("<d",date1)[0])
-            convertedtime1 = timestampsconv(date1)
+            convertedtime1 = webkit_timestampsconv(date1)
             #print(convertedtime1)
             
             date2 = ab.read(8)
             date2 = (struct.unpack_from("<d",date2)[0])
-            convertedtime2 = timestampsconv(date2)
+            convertedtime2 = webkit_timestampsconv(date2)
             #print(convertedtime2)
             
             

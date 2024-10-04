@@ -8,7 +8,7 @@ from io import BytesIO
 from scripts.ccl import ccl_segb1
 from scripts.ccl import ccl_segb2
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, convert_utc_human_to_timezone, timestampsconv, convert_ts_int_to_utc
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, convert_utc_human_to_timezone, webkit_timestampsconv, convert_ts_int_to_utc
 
 def checksegbv(in_path):
     MAGIC = b"SEGB"
@@ -112,7 +112,7 @@ def get_biomeSafari(files_found, report_folder, seeker, wrap_text, timezone_offs
                     #print(protostuff)
                     #print(offset, metadata_offset, ts, state)
                     activity = (protostuff['1']['1'])
-                    timestart = (timestampsconv(protostuff['2']))
+                    timestart = (webkit_timestampsconv(protostuff['2']))
                     url = (protostuff['4']['3'])
                     guid = (protostuff['5'])
                     detail1 = (protostuff['6']['1'])
@@ -146,7 +146,7 @@ def get_biomeSafari(files_found, report_folder, seeker, wrap_text, timezone_offs
                     #print(protostuff)
                     #print(offset, metadata_offset, ts, state)
                     activity = (protostuff['1']['1'])
-                    timestart = (timestampsconv(protostuff['2']))
+                    timestart = (webkit_timestampsconv(protostuff['2']))
                     print(timestart)
                     url = (protostuff['4']['3'])
                     guid = (protostuff['5'])
