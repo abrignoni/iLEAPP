@@ -8,6 +8,9 @@ on:
       - 'scripts/artifacts/**'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   update-module-info:
     runs-on: ubuntu-latest
