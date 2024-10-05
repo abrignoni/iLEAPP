@@ -804,6 +804,7 @@ OS_build = {
     "22A5350a": "iOS 18.0 beta 8",
     "22A3351": "iOS 18.0",
     "22A3354": "iOS 18.0",
+    "22A3370": "iOS 18.0.1",
     "22B5007p": "iOS 18.1 beta 1",
     "22B5023e": "iOS 18.1 beta 2",
     "22B5034e": "iOS 18.1 beta 3",
@@ -2077,6 +2078,7 @@ OS_build = {
     "24A5327a": "macOS 15.0 beta 7",
     "24A5331b": "macOS 15.0 beta 8",
     "24A335": "macOS 15.0",
+    "24A348": "macOS 15.0.1",
     "24B5009l": "macOS 15.1 beta 1",
     "24B5024e": "macOS 15.1 beta 2",
     "24B5035e": "macOS 15.1 beta 3",
@@ -2524,6 +2526,7 @@ OS_build = {
     "22R5340a": "watchOS 11.0 beta 6",
     "22R5348a": "watchOS 11.0 beta 7",
     "22R349": "watchOS 11.0",
+    "22R361": "watchOS 11.0.1",
     "22R5545g": "watchOS 11.1 beta 1",
     "22R5554e": "watchOS 11.1 beta 2",
     "22R5559b": "watchOS 11.1 beta 3",
@@ -2548,6 +2551,7 @@ OS_build = {
     "22000": "Windows 11 version 21H2",
     "22621": "Windows 11 version 22H2",
     "22631": "Windows 11 version 23H2",
+    "26100": "Windows 11 version 24H2",
 }
 
 domains = {
