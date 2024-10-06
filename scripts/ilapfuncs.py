@@ -153,6 +153,25 @@ def convert_ts_int_to_utc(ts): #This int timestamp to human format & utc
     timestamp = datetime.fromtimestamp(ts, tz=timezone.utc)
     return timestamp
 
+def convert_ts_human_to_timezone_offset(ts, timezone_offset):
+    return convert_utc_human_to_timezone(convert_ts_human_to_utc(ts), timezone_offset) if ts else ts
+    # if ts:
+    #     timestamp = convert_ts_human_to_utc(ts)
+    #     return convert_utc_human_to_timezone(timestamp, timezone_offset)
+    # else:
+    #     return ts
+
+def convert_plist_date_to_timezone_offset(plist_date, timezone_offset):
+    if plist_date:
+        str_date = '%04d-%02d-%02dT%02d:%02d:%02dZ' % (
+            plist_date.year, plist_date.month, plist_date.day, 
+            plist_date.hour, plist_date.minute, plist_date.second
+            )
+        iso_date = datetime.fromisoformat(str_date).strftime("%Y-%m-%d %H:%M:%S")
+        return convert_ts_human_to_timezone_offset(iso_date, timezone_offset)
+    else:
+        return plist_date
+
 def get_birthdate(date):
     ns_date = date + 978307200
     utc_date = datetime.utcfromtimestamp(ns_date)
@@ -731,9 +750,11 @@ def get_resolution_for_model_id(model_id: str):
 
 
 def convert_bytes_to_unit(size):
-    for unit in ['bytes', 'KB', 'MB', 'GB']:
-        if size < 1024.0:
-            return f"{size:3.1f} {unit}"
-        size /= 1024.0
-    return size
-
+    if size:
+        for unit in ['bytes', 'KB', 'MB', 'GB']:
+            if size < 1024.0:
+                return f"{size:3.1f} {unit}"
+            size /= 1024.0
+        return size
+    else:
+        return size
