@@ -16,6 +16,8 @@ This guide outlines the process of updating existing xLEAPP modules to use the n
 
 Ensure the `__artifacts_v2__` dictionary includes all required fields, especially the `output_types` field. This dictionary should be the very first thing in the script, before any imports or other code. The key in this dictionary must exactly match the name of the function that processes the artifact.
 
+If there are double asterisk marks at the start of the search pattern in the paths key, replace them with only one asterisk mark.
+
 ```python
 __artifacts_v2__ = {
     "get_artifactname": {  # This should match the function name exactly
@@ -35,17 +37,24 @@ __artifacts_v2__ = {
 
 ### 2. Modify imports
 
-Remove imports related to manual report generation and add the artifact processor:
+Remove imports related to manual report generation (ArtifactHtmlReport, tsv, kml, timeline) and unused ones, then add the artifact processor:
 
-#### Remove these imports
+#### Remove this import
 ```python
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import tsv, timeline, kmlgen, logfunc, is_platform_windows
 ```
 
-#### Add this import
+#### Modify this import
 ```python
-from scripts.ilapfuncs import artifact_processor
+from scripts.ilapfuncs import artifact_processor, kmlgen, logfunc, is_platform_windows
+```
+Remove imports related to manual report generation (tsv, kml and timeline) and unused ones
+```python
+from scripts.ilapfuncs import logfunc, is_platform_windows
+```
+Add the artifact processor
+```python
+from scripts.ilapfuncs import artifact_processor, logfunc, is_platform_windows
 ```
 
 ### 3. Add the `@artifact_processor` decorator
@@ -69,9 +78,14 @@ def get_artifactname(files_found, report_folder, seeker, wrap_text, timezone_off
     source_path = ''
 
     for file_found in files_found:
-        source_path = file_found
-        # ... process data ...
-        data_list.append((col1, col2, col3))
+        source_path = str(file_found)
+
+    if not source_path:
+        logfunc('<filename> not found')
+        return data_headers, data_list, source_path
+
+    # ... process data ...
+    data_list.append((col1, col2, col3))
         
     data_headers = (('Column1', 'datetime'), 'Column2', 'Column3')
     return data_headers, data_list, source_path
@@ -83,6 +97,25 @@ Currently the special handler types are:
 - datetime
 - date
 - phonenumber
+
+#### Timestamps
+If the artifact is added to the timeline, be sure that the first column is a datetime or date type.
+
+For timestamps in SQLite databases, this code is actually used to support timezone offset parameter chosen by the user. 
+```python
+start_time = convert_ts_human_to_utc(row[1])
+start_time = convert_utc_human_to_timezone(start_time,timezone_offset)
+```
+If there is no value, script execution is interrupted and artifact is not added to any report. A new function has been added to ilapfuncs.py and must be preferably be used.
+```python
+start_time = convert_ts_human_to_timezone_offset(row[1], timezone_offset)
+```
+
+For plist files, convert_plist_date_to_timezone_offset function has been added to ilapfuncs.py to process the datetime objects (e.g. '2023-05-08T18:22:10Z') and support lava-ouput and timezone offset in other reports.
+```python
+last_modified_date = convert_plist_date_to_timezone_offset(last_modified_date, timezone_offset)
+```
+
 ### 5. Remove manual report generation code
 
 Delete any code related to manual report generation, including:
