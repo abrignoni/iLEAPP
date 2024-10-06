@@ -21,12 +21,11 @@ __artifacts_v2__ = {
         "category": "Gmail",
         "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/data/*/sqlitedb*',),
-        "output_types": "all"
+        "output_types": ["html", "tsv", "lava"]
     }
 }
 
-# from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, open_sqlite_db_readonly, artifact_processor
+from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, logfunc, convert_ts_human_to_timezone_offset
 
 @artifact_processor
 def get_Gmail_offline_search(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -35,45 +34,64 @@ def get_Gmail_offline_search(files_found, report_folder, seeker, wrap_text, time
     source_path = ''
     
     for file_found in files_found:
-        file_found = str(file_found)
-        source_path = file_found
-        
+        source_path = str(file_found)
         if file_found.endswith('searchsqlitedb'):
-            db = open_sqlite_db_readonly(file_found)
-            cursor = db.cursor()
-            cursor.execute('''
-            select
-            datetime(c0/1000,'unixepoch'),
-            c3 as 'Sender',
-            c4 as 'Receiver',
-            c5 as 'CC',
-            c6 as 'BCC',
-            c7 as 'Subject',
-            c8 as 'Body',
-            c1 as 'Thread ID',
-            c2 as 'Message ID'
-            from offline_search_content
-            ''')
-            
-            all_rows = cursor.fetchall()
-            
-            for row in all_rows:
-                sender = row[1]
-                sender_split = [sender_split.strip() for sender_split in sender.split(',')]
-                
-                if len(sender_split) < 2:
-                    sender_title = sender_split[0]
-                    sender_email = ''
-                else:
-                    sender_title = sender_split[0]
-                    sender_email = sender_split[1]
+            break
 
-                data_list.append((row[0], sender_title, sender_email, row[2], row[3], row[4], row[5], row[6], row[7], row[8]))
+    if not source_path:
+        logfunc('searchsqlitedb not found')
+        return data_headers, data_list, source_path
+
+    db = open_sqlite_db_readonly(file_found)
+    cursor = db.cursor()
+
+    cursor.execute('''
+    SELECT
+        datetime(c0/1000,'unixepoch'),
+        c3 AS 'Sender',
+        c4 AS 'Receiver',
+        c5 AS 'CC',
+        c6 AS 'BCC',
+        c7 AS 'Subject',
+        c8 AS 'Body',
+        c1 AS 'Thread ID',
+        c2 AS 'Message ID'
+    FROM offline_search_content
+    ''')
+    
+    all_rows = cursor.fetchall()
+        
+    if len(all_rows) > 0:
+        for row in all_rows:
+            timestamp = convert_ts_human_to_timezone_offset(row[0])
+
+            sender = row[1]
+            sender_split = [sender_split.strip() for sender_split in sender.split(',')]
             
-            db.close()
+            if len(sender_split) < 2:
+                sender_title = sender_split[0]
+                sender_email = ''
+            else:
+                sender_title = sender_split[0]
+                sender_email = sender_split[1]
+
+            data_list.append((timestamp, sender_title, sender_email, row[2], row[3], row[4], row[5], row[6], row[7], row[8]))
+    else:
+        logfunc("No Gmail offline search found")
+        
+        db.close()
     
     data_headers = (
-        ('Timestamp', 'datetime'), 'Sender Name', 'Sender Email', 'Receiver', 'CC', 'BCC', 'Subject', 'Body', 'Thread ID', 'Message ID'
+        ('Timestamp', 'datetime'), 
+        'Sender Name', 
+        'Sender Email', 
+        'Receiver', 
+        'CC', 
+        'BCC', 
+        'Subject', 
+        'Body', 
+        'Thread ID', 
+        'Message ID'
     )
     
     return data_headers, data_list, source_path
@@ -85,28 +103,36 @@ def get_Gmail_label_details(files_found, report_folder, seeker, wrap_text, timez
     source_path = ''
     
     for file_found in files_found:
-        file_found = str(file_found)
-        source_path = file_found
-        
+        source_path = str(file_found)
         if file_found.endswith('sqlitedb'):
-            db = open_sqlite_db_readonly(file_found)
-            cursor = db.cursor()
-            cursor.execute('''
-            select
-            label_server_perm_id,
-            unread_count,
-            total_count,
-            unseen_count
-            from label_counts
-            order by label_server_perm_id
-            ''')
-            
-            all_rows = cursor.fetchall()
-            
-            for row in all_rows:
-                data_list.append((row[0], row[1], row[2], row[3]))
-            
-            db.close()
+            break
+
+    if not source_path:
+        logfunc('sqlitedb not found')
+        return data_headers, data_list, source_path
+
+    db = open_sqlite_db_readonly(file_found)
+    cursor = db.cursor()
+    
+    cursor.execute('''
+    SELECT
+        label_server_perm_id,
+        unread_count,
+        total_count,
+        unseen_count
+    FROM label_counts
+    ORDER BY label_server_perm_id
+    ''')
+    
+    all_rows = cursor.fetchall()
+    
+    if len(all_rows) > 0:
+        for row in all_rows:
+            data_list.append((row[0], row[1], row[2], row[3]))
+    else:
+        logfunc("No label details found")
+    
+    db.close()
     
     data_headers = ('Label', 'Unread Count', 'Total Count', 'Unseen Count')
     

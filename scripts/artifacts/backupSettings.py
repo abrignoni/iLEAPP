@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "category": "Identifiers",
         "notes": "",
         "paths": ('*/mobile/Library/Preferences/com.apple.mobile.ldbackup.plist',),
-        "output_types": "all"
+        "output_types": ["html", "tsv", "lava"]
     }
 }
 
@@ -19,8 +19,13 @@ from scripts.ilapfuncs import artifact_processor, logfunc, logdevinfo, webkit_ti
 @artifact_processor
 def get_backupSettings(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
+    data_headers = ()
     source_path = str(files_found[0])
     
+    if not source_path:
+        logfunc('com.apple.mobile.ldbackup.plist not found')
+        return data_headers, data_list, source_path
+
     with open(source_path, "rb") as fp:
         pl = plistlib.load(fp)
         if len(pl) > 0:
@@ -45,7 +50,7 @@ def get_backupSettings(files_found, report_folder, seeker, wrap_text, timezone_o
                 else:
                     data_list.append((key, val ))
         else:
-            logfunc('No iPhone Backup Settings available')
+            logfunc('No iPhone backup settings found')
                 
         data_headers = ('Key', 'Data')
         return data_headers, data_list, source_path

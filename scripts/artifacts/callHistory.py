@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Call History",
         "notes": "",
-        "paths": ('**/CallHistory.storedata*','**/call_history.db',),
+        "paths": ('*/CallHistory.storedata*','*/call_history.db',),
         "output_types": "all"
     }
 }
@@ -18,7 +18,7 @@ __artifacts_v2__ = {
 # The Call Ending Timestamp provides an "at-a-glance" review of call lengths during analysis and review
 # Additional details published within "Maximizing iOS Call Log Timestamps and Call Duration Effectiveness: Will You Answer the Call?" at https://sqlmcgee.wordpress.com/2022/11/30/maximizing-ios-call-log-timestamps-and-call-duration-effectiveness-will-you-answer-the-call/
 
-from scripts.ilapfuncs import artifact_processor ,logfunc, open_sqlite_db_readonly, convert_ts_human_to_utc, convert_utc_human_to_timezone, convert_bytes_to_unit
+from scripts.ilapfuncs import artifact_processor ,logfunc, open_sqlite_db_readonly, convert_bytes_to_unit, convert_ts_human_to_timezone_offset
 
 @artifact_processor
 def get_callHistory(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -94,17 +94,21 @@ def get_callHistory(files_found, report_folder, seeker, wrap_text, timezone_offs
     '''
 
     data_list = []
+    data_headers = ()
     source_path = ''
 
     for file_found in files_found:
         source_path = str(file_found)
-    
         if file_found.endswith('.storedata'):
             break
         elif file_found.endswith('.db'):
             query = query_old
             break
     
+    if not source_path:
+        logfunc('CallHistory.storedata or call_history.db not found')
+        return data_headers, data_list, source_path
+
     db = open_sqlite_db_readonly(file_found)
     cursor = db.cursor()
     cursor.execute(query)
@@ -113,22 +117,15 @@ def get_callHistory(files_found, report_folder, seeker, wrap_text, timezone_offs
     
     if len(all_rows) > 0:
         for row in all_rows:
-            starting_time = convert_ts_human_to_utc(row[0])
-            starting_time = convert_utc_human_to_timezone(starting_time,timezone_offset)
+            starting_time = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
 
-            ending_time = row[1]
-            if ending_time:
-                ending_time = convert_ts_human_to_utc(row[1])
-                ending_time = convert_utc_human_to_timezone(ending_time,timezone_offset)
+            ending_time = convert_ts_human_to_timezone_offset(row[1], timezone_offset)
 
             an = str(row[5])
             an = an.replace("b'", "")
             an = an.replace("'", "")
 
-            facetime_data = row[8]
-            if facetime_data:
-                facetime_data = convert_bytes_to_unit(facetime_data)
-
+            facetime_data = convert_bytes_to_unit(row[8])
 
             data_list.append((starting_time, ending_time, row[2], row[3], row[4], an, row[6], 
                               row[7], facetime_data, row[9], row[10], row[11]))
@@ -138,8 +135,19 @@ def get_callHistory(files_found, report_folder, seeker, wrap_text, timezone_offs
     
     db.close()
 
-    data_headers = (('Starting Timestamp', 'datetime'), ('Ending Timestamp', 'datetime'), 'Service Provider', 
-                    'Call Type', 'Call Direction', ('Phone Number', 'phonenumber'), 'Answered', 'Call Duration', 
-                    'FaceTime Data', 'Disconnected Cause', 'ISO Country Code', 'Location')
+    data_headers = (
+        ('Starting Timestamp', 'datetime'), 
+        ('Ending Timestamp', 'datetime'), 
+        'Service Provider', 
+        'Call Type', 
+        'Call Direction', 
+        ('Phone Number', 'phonenumber'), 
+        'Answered', 
+        'Call Duration', 
+        'FaceTime Data', 
+        'Disconnected Cause', 
+        'ISO Country Code', 
+        'Location'
+        )
     
     return data_headers, data_list, source_path

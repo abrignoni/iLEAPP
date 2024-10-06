@@ -8,12 +8,12 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Location",
         "notes": "",
-        "paths": ('**DuetExpertCenter/_ATXDataStore.db*', '**routined/Local.sqlite*'),
+        "paths": ('*DuetExpertCenter/_ATXDataStore.db*', '*routined/Local.sqlite*'),
         "output_types": "all"
     }
 }
 
-from scripts.ilapfuncs import logfunc, open_sqlite_db_readonly, convert_ts_human_to_utc, convert_utc_human_to_timezone, artifact_processor
+from scripts.ilapfuncs import artifact_processor, logfunc, open_sqlite_db_readonly, convert_ts_human_to_timezone_offset 
 
 @artifact_processor
 def get_atxDatastore(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -39,7 +39,7 @@ def get_atxDatastore(files_found, report_folder, seeker, wrap_text, timezone_off
     db = open_sqlite_db_readonly(atxdb)
     cursor = db.cursor()
 
-    cursor.execute(f'''attach database "{localdb}" as Local ''')
+    cursor.execute(f'''ATTACH DATABASE "{localdb}" AS Local ''')
     cursor.execute('''
     SELECT 
         alog.id AS Id,
@@ -65,21 +65,29 @@ def get_atxDatastore(files_found, report_folder, seeker, wrap_text, timezone_off
 
     if len(all_rows) > 0:
         for row in all_rows:
-            timestamp = convert_ts_human_to_utc(row[5])
-            timestamp = convert_utc_human_to_timezone(timestamp, timezone_offset)
+            timestamp = convert_ts_human_to_timezone_offset(row[5], timezone_offset)
             
-            startdate = convert_ts_human_to_utc(row[6])
-            startdate = convert_utc_human_to_timezone(startdate, timezone_offset)
+            startdate = convert_ts_human_to_timezone_offset(row[6], timezone_offset)
             
-            enddate = convert_ts_human_to_utc(row[7])
-            enddate = convert_utc_human_to_timezone(enddate, timezone_offset)
+            enddate = convert_ts_human_to_timezone_offset(row[7], timezone_offset)
             
-            data_list.append((timestamp, row[2], row[3], row[4], startdate, enddate, row[8], row[9], row[0]))
+            data_list.append(
+                (timestamp, row[2], row[3], row[4], startdate, enddate, row[8], row[9], row[0])
+                )
     else:
         logfunc('No items in ATXDataStore')
 
     db.close()
 
-    data_headers = (('Timestamp', 'datetime'), 'Type', 'Latitude', 'Longitude', 'AppSessionStartDate', 'AppSessionEndDate', 'Location', 'Previous Location', 'ID')
+    data_headers = (
+        ('Timestamp', 'datetime'), 
+        'Type', 
+        'Latitude', 
+        'Longitude', 
+        'AppSessionStartDate', 
+        'AppSessionEndDate', 
+        'Location', 
+        'Previous Location', 
+        'ID'
+        )
     return data_headers, data_list, source_path
-
