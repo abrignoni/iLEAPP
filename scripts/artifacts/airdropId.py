@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "category": "Identifiers",
         "notes": "",
         "paths": ('*/mobile/Library/Preferences/com.apple.sharingd.plist'),
-        "output_types": "all"
+        "output_types": ["html", "tsv", "lava"]
     }
 }
 
@@ -19,7 +19,12 @@ from scripts.ilapfuncs import artifact_processor, logfunc, logdevinfo
 @artifact_processor
 def get_airdropId(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
+    data_headers = ()
     source_path = str(files_found[0])
+
+    if not source_path:
+        logfunc('com.apple.sharingd.plist not found')
+        return data_headers, data_list, source_path
 
     with open(source_path, "rb") as fp:
         pl = plistlib.load(fp)
@@ -29,7 +34,7 @@ def get_airdropId(files_found, report_folder, seeker, wrap_text, timezone_offset
                     data_list.append('Airdrop ID', val)
                     logdevinfo(f"<b>Airdrop ID: </b>{val}")
         else:
-            logfunc("No Airdrop ID available")
+            logfunc("No Airdrop ID found")
 
     data_headers = ('Key', 'Data')
     return data_headers, data_list, source_path
