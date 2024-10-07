@@ -7,6 +7,7 @@ This guide outlines the process of updating existing complex xLEAPP modules to i
 1. Update the `__artifacts_v2__` block
 2. Add LAVA-related imports
 3. Add LAVA output generation to the main function
+4. Use special data type handlers for LAVA output
 
 ## Detailed Process
 
@@ -47,8 +48,8 @@ Add LAVA output generation for each artifact in your complex module. Here's an e
 def get_complex_artifact(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list1 = []
     data_list2 = []
-    data_headers1 = ('Column1', 'Column2', 'Column3')
-    data_headers2 = ('ColumnA', 'ColumnB', 'ColumnC')
+    data_headers1 = ['Column1', 'Column2', 'Column3']
+    data_headers2 = ['ColumnA', 'ColumnB', 'ColumnC']
 
     for file_found in files_found:
         # Process data and populate data_list1 and data_list2
@@ -78,6 +79,10 @@ def get_complex_artifact(files_found, report_folder, seeker, wrap_text, timezone
     category = "Complex Artifact Category"
     module_name = "get_complex_artifact"
 
+    # Add special data type handlers for LAVA output
+    data_headers1[0] = (data_headers1[0], 'datetime')
+    data_headers2[2] = (data_headers2[2], 'date')
+
     # Process first artifact for LAVA
     table_name1, object_columns1, column_map1 = lava_process_artifact(category, module_name, 'Complex Artifact - Part 1', data_headers1, len(data_list1))
     lava_insert_sqlite_data(table_name1, data_list1, object_columns1, data_headers1, column_map1)
@@ -92,6 +97,8 @@ def get_complex_artifact(files_found, report_folder, seeker, wrap_text, timezone
 - The `output_types` in `__artifacts_v2__` is set to "none" because we're manually handling the output generation.
 - LAVA functions should be called for each separate artifact within the complex module.
 - Ensure that the category and module_name used in LAVA function calls match the values in your `__artifacts_v2__` dictionary.
+- Special data type handlers (e.g., 'datetime', 'date') are added just before calling the LAVA output functions. These are only used for LAVA output and don't affect HTML or TSV outputs.
+- The special data type handlers are added by replacing the header string with a tuple containing the original header name and the data type.
 - The LAVA output will be automatically included in the final LAVA report without any additional steps.
 
-These changes will add LAVA output capability to your complex module while maintaining its existing HTML and TSV outputs.
+These changes will add LAVA output capability to your complex module while maintaining its existing HTML and TSV outputs and utilizing special data type handlers for LAVA.
