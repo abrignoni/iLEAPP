@@ -72,8 +72,8 @@ def get_artifactname(files_found, report_folder, seeker, wrap_text, timezone_off
     for file_found in files_found:
         source_path = str(file_found)
 
-    # ... process data ...
-    data_list.append((col1, col2, col3))
+        # ... process data ...
+        data_list.append((col1, col2, col3))
         
     data_headers = (('Column1', 'datetime'), 'Column2', 'Column3')
     return data_headers, data_list, source_path
