@@ -52,7 +52,7 @@ def artifact_processor(func):
         data_headers, data_list, source_path = func(files_found, report_folder, seeker, wrap_text, timezone_offset)
         
         if data_list:
-            output_types = artifact_info.get('output_types', ['html', 'tsv', 'timeline', 'lava'])
+            output_types = artifact_info.get('output_types', ['html', 'tsv', 'timeline', 'lava', 'kml'])
 
             # Strip tuples from headers for HTML, TSV, and timeline
             stripped_headers = strip_tuple_from_headers(data_headers)
@@ -73,6 +73,10 @@ def artifact_processor(func):
             if 'lava' in output_types or 'all' == output_types:
                 table_name, object_columns, column_map = lava_process_artifact(category, module_name, artifact_name, data_headers, len(data_list))
                 lava_insert_sqlite_data(table_name, data_list, object_columns, data_headers, column_map)
+
+            if 'kml' in output_types:
+                kmlgen(report_folder, artifact_name, data_list, stripped_headers)
+
         else:
             logfunc(f"No {artifact_name} data available")
         
