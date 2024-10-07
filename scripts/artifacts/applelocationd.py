@@ -35,7 +35,7 @@ def get_applelocationd(files_found, report_folder, seeker, wrap_text, timezone_o
                 id_values.append(f"<b>Last System Version: </b>{val}")
                 
             elif key == 'steadinessClassificationNextClassificationTime' or key == 'VO2MaxCloudKitLastForcedFetch' \
-            or key == 'kP6MWDNextEstimateTime' or key == 'VO2MaxCloudKitManagerNextActivityTime':
+                or key == 'kP6MWDNextEstimateTime' or key == 'VO2MaxCloudKitManagerNextActivityTime':
                 val = webkit_timestampsconv(val)
                 data_list.append((key, val))
             else:
