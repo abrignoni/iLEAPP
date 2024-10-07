@@ -38,10 +38,6 @@ def get_Gmail_offline_search(files_found, report_folder, seeker, wrap_text, time
         if file_found.endswith('searchsqlitedb'):
             break
 
-    if not source_path:
-        logfunc('searchsqlitedb not found')
-        return data_headers, data_list, source_path
-
     db = open_sqlite_db_readonly(file_found)
     cursor = db.cursor()
 
@@ -61,25 +57,22 @@ def get_Gmail_offline_search(files_found, report_folder, seeker, wrap_text, time
     
     all_rows = cursor.fetchall()
         
-    if len(all_rows) > 0:
-        for row in all_rows:
-            timestamp = convert_ts_human_to_timezone_offset(row[0])
+    for row in all_rows:
+        timestamp = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
 
-            sender = row[1]
-            sender_split = [sender_split.strip() for sender_split in sender.split(',')]
-            
-            if len(sender_split) < 2:
-                sender_title = sender_split[0]
-                sender_email = ''
-            else:
-                sender_title = sender_split[0]
-                sender_email = sender_split[1]
-
-            data_list.append((timestamp, sender_title, sender_email, row[2], row[3], row[4], row[5], row[6], row[7], row[8]))
-    else:
-        logfunc("No Gmail offline search found")
+        sender = row[1]
+        sender_split = [sender_split.strip() for sender_split in sender.split(',')]
         
-        db.close()
+        if len(sender_split) < 2:
+            sender_title = sender_split[0]
+            sender_email = ''
+        else:
+            sender_title = sender_split[0]
+            sender_email = sender_split[1]
+
+        data_list.append((timestamp, sender_title, sender_email, row[2], row[3], row[4], row[5], row[6], row[7], row[8]))
+        
+    db.close()
     
     data_headers = (
         ('Timestamp', 'datetime'), 
@@ -107,10 +100,6 @@ def get_Gmail_label_details(files_found, report_folder, seeker, wrap_text, timez
         if file_found.endswith('sqlitedb'):
             break
 
-    if not source_path:
-        logfunc('sqlitedb not found')
-        return data_headers, data_list, source_path
-
     db = open_sqlite_db_readonly(file_found)
     cursor = db.cursor()
     
@@ -126,11 +115,8 @@ def get_Gmail_label_details(files_found, report_folder, seeker, wrap_text, timez
     
     all_rows = cursor.fetchall()
     
-    if len(all_rows) > 0:
-        for row in all_rows:
-            data_list.append((row[0], row[1], row[2], row[3]))
-    else:
-        logfunc("No label details found")
+    for row in all_rows:
+        data_list.append((row[0], row[1], row[2], row[3]))
     
     db.close()
     

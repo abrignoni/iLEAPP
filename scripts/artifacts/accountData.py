@@ -14,7 +14,7 @@ __artifacts_v2__ = {
 }
 
 
-from scripts.ilapfuncs import artifact_processor, logfunc, open_sqlite_db_readonly, convert_ts_human_to_timezone_offset
+from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, convert_ts_human_to_timezone_offset
 
 @artifact_processor
 def get_accs(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -27,10 +27,6 @@ def get_accs(files_found, report_folder, seeker, wrap_text, timezone_offset):
         if file_found.endswith('Accounts3.sqlite'):
             break
     
-    if not source_path:
-        logfunc('Accounts3.sqlite not found')
-        return data_headers, data_list, source_path
-
     db = open_sqlite_db_readonly(file_found)
     cursor = db.cursor()
 
@@ -48,12 +44,9 @@ def get_accs(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
     all_rows = cursor.fetchall()
 
-    if len(all_rows) > 0:
-        for row in all_rows:
-            timestamp = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
-            data_list.append((timestamp,row[1],row[2],row[3],row[4],row[5]))                
-    else:
-        logfunc("No account data found")
+    for row in all_rows:
+        timestamp = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
+        data_list.append((timestamp,row[1],row[2],row[3],row[4],row[5]))                
 
     db.close()
 

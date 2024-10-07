@@ -418,6 +418,7 @@ def crunch_artifacts(
             logfunc('{} [{}] artifact completed'.format(plugin.name, plugin.module_name))
     log.close()
 
+    write_device_info()
     logfunc('')
     logfunc('Processes completed.')
     end = process_time()

@@ -19,11 +19,12 @@ import plistlib
 import scripts.artifacts.artGlobals 
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, tsv, is_platform_windows 
+from scripts.ilapfuncs import logfunc, logdevinfo, tsv, device_info
 
 def get_lastBuild(files_found, report_folder, seeker, wrap_text, time_offset):
     versionnum = 0
     data_list = []
+    id_values = []
     file_found = str(files_found[0])
     with open(file_found, "rb") as fp:
         pl = plistlib.load(fp)
@@ -33,14 +34,14 @@ def get_lastBuild(files_found, report_folder, seeker, wrap_text, time_offset):
                 #ilapfuncs.globalvars()
                 scripts.artifacts.artGlobals.versionf = val
                 logfunc(f"iOS version: {val}")
-                logdevinfo(f"<b>iOS version: </b>{val}")
+                id_values.append(f"<b>iOS version: </b>{val}")
             
             if key == "ProductBuildVersion":
-                logdevinfo(f"<b>ProductBuildVersion: </b>{val}")
+                id_values.append(f"<b>ProductBuildVersion: </b>{val}")
             
             if key == ("ProductName"):
                 logfunc(f"Product: {val}")
-                logdevinfo(f"<b>Product: </b>{val}")
+                id_values.append(f"<b>Product: </b>{val}")
 
     report = ArtifactHtmlReport('iOS Build')
     report.start_artifact_report(report_folder, 'Build Information')
@@ -51,6 +52,9 @@ def get_lastBuild(files_found, report_folder, seeker, wrap_text, time_offset):
     
     tsvname = 'Last Build'
     tsv(report_folder, data_headers, data_list, tsvname)
+
+    device_info("Device Information", id_values)
+
             
 # __artifacts__ = {
 #     "lastbuild": (
