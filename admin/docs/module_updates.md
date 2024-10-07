@@ -46,15 +46,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 
 #### Modify this import
 ```python
-from scripts.ilapfuncs import artifact_processor, kmlgen, logfunc, is_platform_windows
-```
-Remove imports related to manual report generation (tsv, kml and timeline) and unused ones
-```python
-from scripts.ilapfuncs import logfunc, is_platform_windows
-```
-Add the artifact processor
-```python
-from scripts.ilapfuncs import artifact_processor, logfunc, is_platform_windows
+from scripts.ilapfuncs import artifact_processor
 ```
 
 ### 3. Add the `@artifact_processor` decorator
@@ -79,10 +71,6 @@ def get_artifactname(files_found, report_folder, seeker, wrap_text, timezone_off
 
     for file_found in files_found:
         source_path = str(file_found)
-
-    if not source_path:
-        logfunc('<filename> not found')
-        return data_headers, data_list, source_path
 
     # ... process data ...
     data_list.append((col1, col2, col3))
