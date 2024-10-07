@@ -33,6 +33,8 @@ thumbnail_root = '**/Media/PhotoData/Thumbnails/**/'
 media_root = '**/Media/'
 thumb_size = 256, 256
 
+identifiers = {}
+
 def strip_tuple_from_headers(data_headers):
     return [header[0] if isinstance(header, tuple) else header for header in data_headers]
 
@@ -52,7 +54,7 @@ def artifact_processor(func):
         data_headers, data_list, source_path = func(files_found, report_folder, seeker, wrap_text, timezone_offset)
         
         if data_list:
-            output_types = artifact_info.get('output_types', ['html', 'tsv', 'timeline', 'lava'])
+            output_types = artifact_info.get('output_types', ['html', 'tsv', 'timeline', 'lava', 'kml'])
 
             # Strip tuples from headers for HTML, TSV, and timeline
             stripped_headers = strip_tuple_from_headers(data_headers)
@@ -73,6 +75,10 @@ def artifact_processor(func):
             if 'lava' in output_types or 'all' == output_types:
                 table_name, object_columns, column_map = lava_process_artifact(category, module_name, artifact_name, data_headers, len(data_list))
                 lava_insert_sqlite_data(table_name, data_list, object_columns, data_headers, column_map)
+
+            if 'kml' in output_types:
+                kmlgen(report_folder, artifact_name, data_list, stripped_headers)
+
         else:
             logfunc(f"No {artifact_name} data available")
         
@@ -361,6 +367,21 @@ def logfunc(message=""):
 def logdevinfo(message=""):
     with open(OutputParameters.screen_output_file_path_devinfo, 'a', encoding='utf8') as b:
         b.write(message + '<br>' + OutputParameters.nl)
+
+def write_device_info():
+    with open(OutputParameters.screen_output_file_path_devinfo, 'a', encoding='utf8') as b:
+        for category, values in identifiers.items():
+            b.write('<b>--- <u>' + category + ' </u>---</b><br>' + OutputParameters.nl)
+            b.write('<ul>' + OutputParameters.nl)
+            for value in values:
+                b.write('<li>' + value + '</li>' + OutputParameters.nl)
+            b.write('</ul>' + OutputParameters.nl)
+            
+def device_info(category, message):
+    values = identifiers.get(category, [])
+    values.extend(message)
+    if values:
+        identifiers[category] = values
 
 def tsv(report_folder, data_headers, data_list, tsvname):
     report_folder = report_folder.rstrip('/')

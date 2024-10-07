@@ -9,11 +9,11 @@ __artifacts_v2__ = {
         "category": "Location",
         "notes": "",
         "paths": ('*DuetExpertCenter/_ATXDataStore.db*', '*routined/Local.sqlite*'),
-        "output_types": "all"
+        "output_types": ['html', 'tsv', 'timeline', 'lava', 'kml']
     }
 }
 
-from scripts.ilapfuncs import artifact_processor, logfunc, open_sqlite_db_readonly, convert_ts_human_to_timezone_offset 
+from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, convert_ts_human_to_timezone_offset 
 
 @artifact_processor
 def get_atxDatastore(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -32,10 +32,6 @@ def get_atxDatastore(files_found, report_folder, seeker, wrap_text, timezone_off
         elif file_name.endswith('Local.sqlite'):
            localdb = str(file_found)
     
-    if not atxdb or not localdb:
-        logfunc('ATXDataStore or Local.sqlite not found')
-        return data_headers, data_list, source_path
-
     db = open_sqlite_db_readonly(atxdb)
     cursor = db.cursor()
 
@@ -63,19 +59,16 @@ def get_atxDatastore(files_found, report_folder, seeker, wrap_text, timezone_off
 
     all_rows = cursor.fetchall()
 
-    if len(all_rows) > 0:
-        for row in all_rows:
-            timestamp = convert_ts_human_to_timezone_offset(row[5], timezone_offset)
-            
-            startdate = convert_ts_human_to_timezone_offset(row[6], timezone_offset)
-            
-            enddate = convert_ts_human_to_timezone_offset(row[7], timezone_offset)
-            
-            data_list.append(
-                (timestamp, row[2], row[3], row[4], startdate, enddate, row[8], row[9], row[0])
-                )
-    else:
-        logfunc('No items in ATXDataStore')
+    for row in all_rows:
+        timestamp = convert_ts_human_to_timezone_offset(row[5], timezone_offset)
+        
+        startdate = convert_ts_human_to_timezone_offset(row[6], timezone_offset)
+        
+        enddate = convert_ts_human_to_timezone_offset(row[7], timezone_offset)
+        
+        data_list.append(
+            (timestamp, row[2], row[3], row[4], startdate, enddate, row[8], row[9], row[0])
+            )
 
     db.close()
 
