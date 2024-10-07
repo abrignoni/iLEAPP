@@ -79,6 +79,8 @@ def get_artifactname(files_found, report_folder, seeker, wrap_text, timezone_off
     return data_headers, data_list, source_path
 ```
 
+**Be sure to not use 'Values' as a column name in the data_headers tuple.**
+
 Be sure to mark columns with their data type if they are one of the special handler types. It's ok if all data in a marked column doesn't conform to the marked type, as it will be tested and displayed as provided if it doesn't match.
 
 Currently the special handler types are:
