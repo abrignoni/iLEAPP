@@ -1,0 +1,97 @@
+# Updating Complex Modules to Include LAVA Output
+
+This guide outlines the process of updating existing complex xLEAPP modules to include LAVA output. These modules typically process a single group of file pattern searches but generate multiple HTML and TSV outputs.
+
+## Key Changes
+
+1. Update the `__artifacts_v2__` block
+2. Add LAVA-related imports
+3. Add LAVA output generation to the main function
+
+## Detailed Process
+
+### 1. Update the `__artifacts_v2__` block
+
+Modify the `__artifacts_v2__` dictionary to set `output_types` to "none" since we're not using the artifact processor for automated output generation.
+
+```python
+__artifacts_v2__ = {
+    "get_complex_artifact": {
+        "name": "Complex Artifact Name",
+        "description": "Description of the complex artifact",
+        "author": "@AuthorUsername",
+        "version": "1.0",
+        "date": "2023-05-24",
+        "requirements": "none",
+        "category": "Complex Artifact Category",
+        "notes": "",
+        "paths": ('Path/to/complex/artifact/files',),
+        "output_types": "none"  # Changed from ["HTML", "TSV"] to "none"
+    }
+}
+```
+
+### 2. Add LAVA-related imports
+
+Add the following import at the top of your module file:
+
+```python
+from scripts.lavafuncs import lava_process_artifact, lava_insert_sqlite_data
+```
+
+### 3. Add LAVA output generation to the main function
+
+Add LAVA output generation for each artifact in your complex module. Here's an example of how to modify your existing function:
+
+```python
+def get_complex_artifact(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    data_list1 = []
+    data_list2 = []
+    data_headers1 = ('Column1', 'Column2', 'Column3')
+    data_headers2 = ('ColumnA', 'ColumnB', 'ColumnC')
+
+    for file_found in files_found:
+        # Process data and populate data_list1 and data_list2
+        # ...
+
+    # Generate HTML report for the first artifact
+    report1 = ArtifactHtmlReport('Complex Artifact - Part 1')
+    report1.start_artifact_report(report_folder, 'Complex Artifact - Part 1')
+    report1.add_script()
+    report1.write_artifact_data_table(data_headers1, data_list1, file_found)
+    report1.end_artifact_report()
+
+    # Generate TSV for the first artifact
+    tsv(report_folder, data_headers1, data_list1, 'Complex Artifact - Part 1')
+
+    # Generate HTML report for the second artifact
+    report2 = ArtifactHtmlReport('Complex Artifact - Part 2')
+    report2.start_artifact_report(report_folder, 'Complex Artifact - Part 2')
+    report2.add_script()
+    report2.write_artifact_data_table(data_headers2, data_list2, file_found)
+    report2.end_artifact_report()
+
+    # Generate TSV for the second artifact
+    tsv(report_folder, data_headers2, data_list2, 'Complex Artifact - Part 2')
+
+    # Generate LAVA output
+    category = "Complex Artifact Category"
+    module_name = "get_complex_artifact"
+
+    # Process first artifact for LAVA
+    table_name1, object_columns1, column_map1 = lava_process_artifact(category, module_name, 'Complex Artifact - Part 1', data_headers1, len(data_list1))
+    lava_insert_sqlite_data(table_name1, data_list1, object_columns1, data_headers1, column_map1)
+
+    # Process second artifact for LAVA
+    table_name2, object_columns2, column_map2 = lava_process_artifact(category, module_name, 'Complex Artifact - Part 2', data_headers2, len(data_list2))
+    lava_insert_sqlite_data(table_name2, data_list2, object_columns2, data_headers2, column_map2)
+```
+
+## Important Notes
+
+- The `output_types` in `__artifacts_v2__` is set to "none" because we're manually handling the output generation.
+- LAVA functions should be called for each separate artifact within the complex module.
+- Ensure that the category and module_name used in LAVA function calls match the values in your `__artifacts_v2__` dictionary.
+- The LAVA output will be automatically included in the final LAVA report without any additional steps.
+
+These changes will add LAVA output capability to your complex module while maintaining its existing HTML and TSV outputs.
