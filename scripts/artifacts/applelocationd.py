@@ -1,44 +1,46 @@
-import datetime
-import os
+__artifacts_v2__ = {
+    "get_applelocationd": {
+        "name": "Location Services",
+        "description": "Extracts Location Services settings from the device",
+        "author": "@AlexisBrignoni",
+        "version": "0.1",
+        "date": "2024-05-09",
+        "requirements": "none",
+        "category": "Identifiers",
+        "notes": "",
+        "paths": ('*/mobile/Library/Preferences/com.apple.locationd.plist'),
+        "output_types": ["html", "tsv", "lava"]
+    }
+}
+
 import plistlib
+from scripts.ilapfuncs import artifact_processor, device_info, webkit_timestampsconv
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, tsv, is_platform_windows 
-
+@artifact_processor
 def get_applelocationd(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
-    file_found = str(files_found[0])
-    with open(file_found, "rb") as fp:
+    id_values = []
+    data_headers = ()
+    source_path = str(files_found[0])
+
+    with open(source_path, "rb") as fp:
         pl = plistlib.load(fp)
         for key, val in pl.items():
-            
             if key == 'LocationServicesEnabledIn8.0':
                 data_list.append(('Location Services Enabled', val))
-                logdevinfo(f"<b>Location Services Enabled: </b>{val}")
+                id_values.append(f"<b>Location Services Enabled: </b>{val}")
             
             elif key == 'LastSystemVersion':
                 data_list.append(('Last System Version', val))
-                logdevinfo(f"<b>Last System Version: </b>{val}")
+                id_values.append(f"<b>Last System Version: </b>{val}")
                 
+            elif key == 'steadinessClassificationNextClassificationTime' or key == 'VO2MaxCloudKitLastForcedFetch' \
+            or key == 'kP6MWDNextEstimateTime' or key == 'VO2MaxCloudKitManagerNextActivityTime':
+                val = webkit_timestampsconv(val)
+                data_list.append((key, val))
             else:
-                data_list.append((key, val ))
+                data_list.append((key, val))
                 
-    if len(data_list) > 0:
-        report = ArtifactHtmlReport('Settings - com.apple.locationd.plist')
-        report.start_artifact_report(report_folder, 'Settings - com.apple.locationd.plist')
-        report.add_script()
-        data_headers = ('Key','Values' )     
-        report.write_artifact_data_table(data_headers, data_list, file_found)
-        report.end_artifact_report()
-        
-        tsvname = 'Settings - com.apple.locationd.plist'
-        tsv(report_folder, data_headers, data_list, tsvname)
-    else:
-        logfunc('No Settings - com.apple.locationd.plist')
-            
-__artifacts__ = {
-    "applelocationd": (
-        "Identifiers",
-        ('*/mobile/Library/Preferences/com.apple.locationd.plist'),
-        get_applelocationd)
-}
+    device_info("Settings", id_values)            
+    data_headers = ('Key','Data' )     
+    return data_headers, data_list, source_path
