@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "get_applelocationd": {
         "name": "Location Services",
-        "description": "Extracts Location Services settings from the device",
+        "description": "Extracts location services settings",
         "author": "@AlexisBrignoni",
         "version": "0.1",
         "date": "2024-05-09",
