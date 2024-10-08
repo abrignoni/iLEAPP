@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "get_alarms": {
         "name": "Alarms",
-        "description": "Extraction of alarms set in the device",
+        "description": "Extraction of alarms set",
         "author": "Anna-Mariya Mateyna",
         "version": "0.5",
         "date": "2023-10-11",

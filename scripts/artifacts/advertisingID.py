@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "get_adId": {
         "name": "Advertising Identifier",
-        "description": "Extracts Apple Advertising Identifier from the device",
+        "description": "Extract Apple advertising identifier",
         "author": "@AlexisBrignoni",
         "version": "0.2",
         "date": "2024-05-09",

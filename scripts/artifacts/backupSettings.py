@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "get_backupSettings": {
         "name": "Backup Settings",
-        "description": "Extracts Backup settings from the device",
+        "description": "Extracts Backup settings",
         "author": "@AlexisBrignoni",
         "version": "0.2",
         "date": "2024-05-09",

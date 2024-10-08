@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "get_confaccts": {
         "name": "Account Configuration",
-        "description": "Extracts account configuration information from the device",
+        "description": "Extracts account configuration information",
         "author": "@AlexisBrignoni",
         "version": "0.2",
         "date": "2022-08-09",
