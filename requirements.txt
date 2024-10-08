@@ -3,6 +3,7 @@ bencoding
 biplist
 blackboxprotobuf
 bs4
+ccl-segb @ git+https://github.com/cclgroupltd/ccl-segb.git@main
 mmh3
 nska-deserialize>=1.3.1
 nska_deserialize
