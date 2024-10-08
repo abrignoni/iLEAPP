@@ -186,18 +186,26 @@ def get_applePodcasts(files_found, report_folder, seeker, wrap_text, timezone_of
         else:
             logfunc('No Apple Podcasts - Episodes data available')
     
-    if data_list1 and data_list2:
-        category = "Apple Podcasts"
-        module_name = "get_applePodcasts"
-        
+    category = "Apple Podcasts"
+    module_name = "get_applePodcasts"
+    
+    if data_list1:
+
         data_headers1[0] = (data_headers1[0], 'datetime')
-        data_headers2[0] = (data_headers2[0], 'datetime')
+        data_headers1[1] = (data_headers1[1], 'datetime')
+        data_headers1[2] = (data_headers1[2], 'datetime')
+        data_headers1[3] = (data_headers1[3], 'datetime')
         
-        # Process first artifact for LAVA
         table_name1, object_columns1, column_map1 = lava_process_artifact(category, module_name, 'Apple Podcasts - Shows', data_headers1, len(data_list1))
         lava_insert_sqlite_data(table_name1, data_list1, object_columns1, data_headers1, column_map1)
+    
+    if data_list2:
+        data_headers2[0] = (data_headers2[0], 'datetime')
+        data_headers2[1] = (data_headers2[1], 'datetime')
+        data_headers2[2] = (data_headers2[2], 'datetime')
+        data_headers2[3] = (data_headers2[3], 'datetime')
+        data_headers2[4] = (data_headers2[4], 'datetime')
         
-        # Process second artifact for LAVA
         table_name2, object_columns2, column_map2 = lava_process_artifact(category, module_name, 'Apple Podcasts - Episodes', data_headers2, len(data_list2))
         lava_insert_sqlite_data(table_name2, data_list2, object_columns2, data_headers2, column_map2)    
         
