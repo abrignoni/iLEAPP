@@ -13,7 +13,7 @@ This guide outlines the process of updating existing complex xLEAPP modules to i
 
 ### 1. Update the `__artifacts_v2__` block
 
-Modify the `__artifacts_v2__` dictionary to set `output_types` to "none" since we're not using the artifact processor for automated output generation.
+Modify the `__artifacts_v2__` dictionary to include all required fields for the complex artifact. This dictionary should be the first thing in the script, before any imports or other code. Make sure to set `output_types` to "none" since we're not using the artifact processor for automated output generation. Additionally, include a "function" key with the name of the main processing function as its value.
 
 ```python
 __artifacts_v2__ = {
@@ -27,7 +27,8 @@ __artifacts_v2__ = {
         "category": "Complex Artifact Category",
         "notes": "",
         "paths": ('Path/to/complex/artifact/files',),
-        "output_types": "none"  # Changed from ["HTML", "TSV"] to "none"
+        "output_types": "none",  # Changed from ["HTML", "TSV"] to "none"
+        "function": "get_complex_artifact"  # This should match the name of your main processing function
     }
 }
 ```
