@@ -399,10 +399,10 @@ def crunch_artifacts(
         if files_found:
             logfunc()
             logfunc('{} [{}] artifact started'.format(plugin.name, plugin.module_name))
-            category_folder = os.path.join(out_params.report_folder_base, plugin.category)
+            category_folder = os.path.join(out_params.report_folder_base, '_HTML', plugin.category)
             if not os.path.exists(category_folder):
                 try:
-                    os.mkdir(category_folder)
+                    os.makedirs(category_folder)
                 except (FileExistsError, FileNotFoundError) as ex:
                     logfunc('Error creating {} report directory at path {}'.format(plugin.name, category_folder))
                     logfunc('Error was {}'.format(str(ex)))

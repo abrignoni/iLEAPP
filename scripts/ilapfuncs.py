@@ -161,11 +161,6 @@ def convert_ts_int_to_utc(ts): #This int timestamp to human format & utc
 
 def convert_ts_human_to_timezone_offset(ts, timezone_offset):
     return convert_utc_human_to_timezone(convert_ts_human_to_utc(ts), timezone_offset) if ts else ts
-    # if ts:
-    #     timestamp = convert_ts_human_to_utc(ts)
-    #     return convert_utc_human_to_timezone(timestamp, timezone_offset)
-    # else:
-    #     return ts
 
 def convert_plist_date_to_timezone_offset(plist_date, timezone_offset):
     if plist_date:
@@ -386,7 +381,7 @@ def device_info(category, message):
 def tsv(report_folder, data_headers, data_list, tsvname):
     report_folder = report_folder.rstrip('/')
     report_folder = report_folder.rstrip('\\')
-    report_folder_base, tail = os.path.split(report_folder)
+    report_folder_base = os.path.dirname(os.path.dirname(report_folder))
     tsv_report_folder = os.path.join(report_folder_base, '_TSV Exports')
 
     if os.path.isdir(tsv_report_folder):
@@ -404,7 +399,7 @@ def tsv(report_folder, data_headers, data_list, tsvname):
 def timeline(report_folder, tlactivity, data_list, data_headers):
     report_folder = report_folder.rstrip('/')
     report_folder = report_folder.rstrip('\\')
-    report_folder_base, tail = os.path.split(report_folder)
+    report_folder_base = os.path.dirname(os.path.dirname(report_folder))
     tl_report_folder = os.path.join(report_folder_base, '_Timeline')
 
     if os.path.isdir(tl_report_folder):
@@ -442,7 +437,7 @@ def timeline(report_folder, tlactivity, data_list, data_headers):
 def kmlgen(report_folder, kmlactivity, data_list, data_headers):
     report_folder = report_folder.rstrip('/')
     report_folder = report_folder.rstrip('\\')
-    report_folder_base, tail = os.path.split(report_folder)
+    report_folder_base = os.path.dirname(os.path.dirname(report_folder))
     kml_report_folder = os.path.join(report_folder_base, '_KML Exports')
     if os.path.isdir(kml_report_folder):
         latlongdb = os.path.join(kml_report_folder, '_latlong.db')
