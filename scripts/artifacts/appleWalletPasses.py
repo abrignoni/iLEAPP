@@ -51,14 +51,14 @@ def get_appleWalletPasses(files_found, report_folder, seeker, wrap_text, timezon
                 report = ArtifactHtmlReport('PK Passes')
                 report.start_artifact_report(report_folder, f'PK Pass - {desc}')
                 report.add_script()
-                data_headers = ('Key','Value')
+                data_headers = ('Key','Items')
                 report.write_artifact_data_table(data_headers, data_list_json, file_found)
                 report.end_artifact_report()
                 
                 tsvname = 'PK Passes'
                 tsv(report_folder, data_headers, data_list_json, tsvname)
                 
-                data_headers = ['Key','Value']
+                data_headers = ['Key','Items']
                 category = "Apple Wallet"
                 module_name = "get_appleWalletpasses"
             
@@ -145,5 +145,16 @@ def get_appleWalletPasses(files_found, report_folder, seeker, wrap_text, timezon
         
                 tlactivity = 'Nano Passes'
                 timeline(report_folder, tlactivity, data_list, data_headers)
+                
+                data_headers = ['Pass Added','Unique ID', 'Organization Name', 'Type', 'Localized Description',
+                    'Pending Delete', 'Front Fields Content', 'Back Fields Content', 'Encoded Pass']
+                category = "Apple Nano Passes"
+                module_name = "get_appleWalletpasses"
+                
+                # Process artifact for LAVA
+                table_name1, object_columns1, column_map1 = lava_process_artifact(category, module_name, 'Apple Nano Passes', data_headers, len(data_list_json))
+                lava_insert_sqlite_data(table_name1, data_list_json, object_columns1, data_headers, column_map1)
+                
             else:
                 logfunc('No Nano Passes available')
+                
