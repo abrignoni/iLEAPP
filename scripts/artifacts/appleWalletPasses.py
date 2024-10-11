@@ -1,12 +1,28 @@
+__artifacts_v2__ = {
+    "get_appleWalletPasses": {  # This should match the function name exactly
+        "function": "get_appleWalletPasses",
+        "name": "PK Passes",
+        "description": "Apple wallet passes PK",
+        "author": "@any333",
+        "version": "1.0",
+        "date": "2021-02-17",
+        "requirements": "none",
+        "category": "Apple Wallet",
+        "notes": "",
+        "paths": ('*/nanopasses.sqlite3*', '*/Cards/*.pkpass/pass.json'),
+        "output_types": "none"  # or ["html", "tsv", "timeline", "lava"]
+    }
+}
+
 import json
 import nska_deserialize as nd
 from os import listdir
 from re import search, DOTALL
 from os.path import isfile, join, basename, dirname
 
+from scripts.lavafuncs import lava_process_artifact, lava_insert_sqlite_data
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly, convert_ts_human_to_utc, convert_utc_human_to_timezone
-
 
 def get_appleWalletPasses(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
@@ -21,7 +37,7 @@ def get_appleWalletPasses(files_found, report_folder, seeker, wrap_text, timezon
                 data = json.load(f)
                 desc = ''
                 for x, y in data.items():
-                    data_list_json.append((x,y))
+                    data_list_json.append((x,str(y)))
                     if x == 'description':
                         desc = y
             
@@ -42,6 +58,13 @@ def get_appleWalletPasses(files_found, report_folder, seeker, wrap_text, timezon
                 tsvname = 'PK Passes'
                 tsv(report_folder, data_headers, data_list_json, tsvname)
                 
+                data_headers = ['Key','Value']
+                category = "Apple Wallet"
+                module_name = "get_appleWalletpasses"
+            
+                # Process artifact for LAVA
+                table_name1, object_columns1, column_map1 = lava_process_artifact(category, module_name, 'PK Passes', data_headers, len(data_list_json))
+                lava_insert_sqlite_data(table_name1, data_list_json, object_columns1, data_headers, column_map1)
 
             else:
                 logfunc('No PK passes available')
@@ -124,10 +147,3 @@ def get_appleWalletPasses(files_found, report_folder, seeker, wrap_text, timezon
                 timeline(report_folder, tlactivity, data_list, data_headers)
             else:
                 logfunc('No Nano Passes available')
-
-__artifacts__ = {
-    "applewalletpasses": (
-        "Apple Wallet",
-        ('**/nanopasses.sqlite3*', '**/Cards/*.pkpass/pass.json'),
-        get_appleWalletPasses)
-}
