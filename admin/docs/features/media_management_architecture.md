@@ -6,6 +6,8 @@ Proposed
 ## Context
 We need a centralized system to manage media files (images, videos, audio) across different modules and across xLEAPP and LAVA projects. This system should handle metadata extraction, indexing, and provide a unified interface for modules to interact with media files, while avoiding duplication and maintaining references.
 
+For ongoing discussion and updates related to this ADR, please refer to [Issue #851: Media Manager](https://github.com/abrignoni/iLEAPP/issues/851).
+
 ## Decision
 We will implement a Media Management Function that acts as a central point for "checking in" media files. This function will:
 1. Check if the file has already been added to the database

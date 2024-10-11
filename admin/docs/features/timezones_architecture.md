@@ -6,7 +6,7 @@ Proposed
 ## Context
 Our project deals with timestamp data from various sources, including SQL databases and plist files. We need a consistent approach to handle timezones across different components of our system, including LAVA, TSV, and KML outputs. The current implementation varies across modules, leading to inconsistencies and potential errors in timestamp processing.
 
-For ongoing discussion and updates related to this ADR, please refer to [Issue #XXX: Timezone Handling Implementation](https://github.com/your-repo/issues/XXX).
+For ongoing discussion and updates related to this ADR, please refer to [Issue #850: Timezone Handling](https://github.com/abrignoni/iLEAPP/issues/850).
 
 Key issues:
 1. Some modules produce timestamps without timezone information.
