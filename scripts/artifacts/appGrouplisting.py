@@ -1,12 +1,29 @@
+__artifacts_v2__ = {
+    "get_appGrouplisting": {
+        "name": "Bundle ID by AppGroup & PluginKit IDs",
+        "description": "List can included once installed but not present apps. Each file is named .com.apple.mobile_container_manager.metadata.plist",
+        "author": "@AlexisBrignoni",
+        "version": "0.1",
+        "date": "2022-09-20",
+        "requirements": "none",
+        "category": "Installed Apps",
+        "notes": "",
+        "paths": ('*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist', '**/PluginKitPlugin/*.metadata.plist',),
+        "function": "get_appGrouplisting",
+        "output_types": "all"
+    }
+}
+
 import biplist
 import pathlib
 import plistlib
 import sys
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, is_platform_windows
+#from scripts.artifact_report import ArtifactHtmlReport
+#from scripts.ilapfuncs import logfunc, tsv, is_platform_windows
+from scripts.ilapfuncs import artifact_processor
 
-
+@artifact_processor
 def get_appGrouplisting(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []       
     for file_found in files_found:
@@ -26,7 +43,9 @@ def get_appGrouplisting(files_found, report_folder, seeker, wrap_text, timezone_
             data_list.append((bundleid, typedir, appgroupid, fileloc))
         
     if len(data_list) > 0:
+        
         filelocdesc = 'Path column in the report'
+        """
         description = 'List can included once installed but not present apps. Each file is named .com.apple.mobile_container_manager.metadata.plist'
         report = ArtifactHtmlReport('Bundle ID by AppGroup & PluginKit IDs')
         report.start_artifact_report(report_folder, 'Bundle ID by AppGroup & PluginKit IDs', description)
@@ -39,10 +58,7 @@ def get_appGrouplisting(files_found, report_folder, seeker, wrap_text, timezone_
         tsv(report_folder, data_headers, data_list, tsvname)
     else:
         logfunc('No data on Bundle ID - AppGroup ID - PluginKit ID')
-
-__artifacts__ = {
-    "appgrouplisting": (
-        "Installed Apps",
-        ('*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist', '**/PluginKitPlugin/*.metadata.plist'),
-        get_appGrouplisting)
-}
+        """
+        data_headers = ('Bundle ID','Type','Directory GUID','Path')
+        return data_headers, data_list, filelocdesc
+    
