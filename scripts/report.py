@@ -585,6 +585,11 @@ icon_mappings = \
         'LINE - MESSAGES': 'message-square',
         'LINE - CALL LOGS': 'phone',
     },
+    'LINKEDIN' : {
+        'LINKEDIN - ACCOUNT': 'user',
+        'LINKEDIN - MESSAGES': 'message-square',
+        'LINKEDIN - CONVERSATIONS': 'message-circle'
+    },
     'LIFE360': {
         'LIFE360 - CHAT MESSAGES': 'message-circle',
         'LIFE360 - DEVICE BATTERY': 'battery',

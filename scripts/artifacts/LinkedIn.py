@@ -70,7 +70,7 @@ def get_linkedin_account(files_found, report_folder, seeker, wrap_text, time_off
     
     if bplist_data :
         logfunc(f"Found LinkedIn - Account")
-        description = f"Existing account in LinkedIn App."
+        description = f"Existing account in LinkedIn App. The Public Identifier can be used to visit the public profile on the LinkedIn Website (https://www.linkedin.com/in/[Public Identifier])"
         report = ArtifactHtmlReport('LinkedIn - Account')
         report.start_artifact_report(report_folder, 'LinkedIn - Account', description)
         report.add_script()
