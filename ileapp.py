@@ -137,12 +137,11 @@ def create_casedata(path):
 
 def main():
     parser = argparse.ArgumentParser(description='iLEAPP: iOS Logs, Events, And Plists Parser.')
-    parser.add_argument('-t', choices=['fs', 'tar', 'zip', 'gz', 'itunes', 'itunes-mbdb'], required=False, action="store",
+    parser.add_argument('-t', choices=['fs', 'tar', 'zip', 'gz', 'itunes'], required=False, action="store",
                         help=("Specify the input type. "
                               "'fs' for a folder containing extracted files with normal paths and names, "
                               "'tar', 'zip', or 'gz' for compressed packages containing files with normal names, "
-                              "'itunes' for a folder containing a raw iTunes backup with hashed paths and names, "
-                              "or 'itunes-mbdb' if you have an older iTunes backup using the Manifest.mbdb format instead."))
+                              "'itunes' for a folder containing a raw iTunes backup with hashed paths and names."))
     parser.add_argument('-o', '--output_path', required=False, action="store",
                         help='Path to base output folder (this must exist)')
     parser.add_argument('-i', '--input_path', required=False, action="store", help='Path to input file/folder')
@@ -334,8 +333,6 @@ def crunch_artifacts(
 
         elif extracttype == 'itunes':
             seeker = FileSeekerItunes(input_path, out_params.temp_folder)
-        elif extracttype == 'itunes-mbdb':
-            seeker = FileSeekerItunesMbdb(input_path, out_params.temp_folder)
 
         else:
             logfunc('Error on argument -o (input type)')
@@ -385,7 +382,10 @@ def crunch_artifacts(
         files_found = []
         log.write(f'<b>For {plugin.name} module</b>')
         for artifact_search_regex in search_regexes:
-            found = seeker.search(artifact_search_regex)
+            if artifact_search_regex in seeker.searched:
+                found = seeker.searched[artifact_search_regex]
+            else:
+                found = seeker.search(artifact_search_regex)
             if not found:
                 log.write(f'<ul><li>No file found for regex <i>{artifact_search_regex}</i></li></ul>')
             else:

@@ -128,10 +128,8 @@ def ValidateInput():
     elif not os.path.exists(i_path):
         tk_msgbox.showerror(title='Error', message='INPUT file/folder does not exist!', parent=main_window)
         return False, ext_type
-    elif os.path.isdir(i_path) and os.path.exists(os.path.join(i_path, 'Manifest.db')):
+    elif os.path.isdir(i_path) and (os.path.exists(os.path.join(i_path, 'Manifest.db')) or os.path.exists(os.path.join(i_path, 'Manifest.mbdb'))):
         ext_type = 'itunes'
-    elif os.path.isdir(i_path) and os.path.exists(os.path.join(i_path, 'Manifest.mbdb')):
-        ext_type = 'itunes-mbdb'
     elif os.path.isdir(i_path):
         ext_type = 'fs'
     else:

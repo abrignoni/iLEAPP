@@ -27,7 +27,7 @@ def get_tiktok_replied(files_found, report_folder, seeker, wrap_text, timezone_o
             data_list = []
             db = open_sqlite_db_readonly(file_found)
             cursor = db.cursor()
-            cursor.execute(f"ATTACH DATABASE '{attachdb}' as AwemeIM;")
+            cursor.execute(f'ATTACH DATABASE "file:{attachdb}?mode=ro" as AwemeIM;')
             cursor.execute("SELECT name FROM AwemeIM.sqlite_master WHERE type='table' and name like 'AwemeContactsV%';")
             table_results = cursor.fetchall()
 
