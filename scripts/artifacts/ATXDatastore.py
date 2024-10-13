@@ -35,7 +35,7 @@ def get_atxDatastore(files_found, report_folder, seeker, wrap_text, timezone_off
     db = open_sqlite_db_readonly(atxdb)
     cursor = db.cursor()
 
-    cursor.execute(f'''ATTACH DATABASE "{localdb}" AS Local ''')
+    cursor.execute(f'''ATTACH DATABASE "file:{localdb}?mode=ro" AS Local ''')
     cursor.execute('''
     SELECT 
         alog.id AS Id,
