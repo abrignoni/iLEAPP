@@ -38,6 +38,12 @@ identifiers = {}
 def strip_tuple_from_headers(data_headers):
     return [header[0] if isinstance(header, tuple) else header for header in data_headers]
 
+def check_output_types(type, output_types):
+    if type in output_types or type == output_types or 'all' in output_types or 'all' == output_types:
+        return True
+    else:
+        return False
+
 def artifact_processor(func):
     @wraps(func)
     def wrapper(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -53,30 +59,31 @@ def artifact_processor(func):
 
         data_headers, data_list, source_path = func(files_found, report_folder, seeker, wrap_text, timezone_offset)
         
-        if data_list:
+        if len(data_list):
+            logfunc(f"Found {len(data_list)} records for {artifact_name}")
             output_types = artifact_info.get('output_types', ['html', 'tsv', 'timeline', 'lava', 'kml'])
 
             # Strip tuples from headers for HTML, TSV, and timeline
             stripped_headers = strip_tuple_from_headers(data_headers)
 
-            if 'html' in output_types or 'all' == output_types:
+            if check_output_types('html', output_types):
                 report = artifact_report.ArtifactHtmlReport(artifact_name)
                 report.start_artifact_report(report_folder, artifact_name, description)
                 report.add_script()
                 report.write_artifact_data_table(stripped_headers, data_list, source_path)
                 report.end_artifact_report()
 
-            if 'tsv' in output_types or 'all' == output_types:
+            if check_output_types('tsv', output_types):
                 tsv(report_folder, stripped_headers, data_list, artifact_name)
             
-            if 'timeline' in output_types or 'all' == output_types:
+            if check_output_types('timeline', output_types):
                 timeline(report_folder, artifact_name, data_list, stripped_headers)
 
-            if 'lava' in output_types or 'all' == output_types:
+            if check_output_types('lava', output_types):
                 table_name, object_columns, column_map = lava_process_artifact(category, module_name, artifact_name, data_headers, len(data_list))
                 lava_insert_sqlite_data(table_name, data_list, object_columns, data_headers, column_map)
 
-            if 'kml' in output_types:
+            if check_output_types('kml', output_types):
                 kmlgen(report_folder, artifact_name, data_list, stripped_headers)
 
         else:

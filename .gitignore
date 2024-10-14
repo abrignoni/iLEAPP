@@ -47,6 +47,8 @@ nosetests.xml
 coverage.xml
 .hypothesis/
 .pytest_cache/
+admin/test/output/*
+admin/test/temp/*
 
 # IDEs
 .vscode/

@@ -4,12 +4,13 @@ This documentation provides an overview of the testing processes used in the LEA
 
 ## Module Testing
 
-Module testing is a crucial part of ensuring the reliability and accuracy of LEAPP's artifact extraction and analysis capabilities. Our module testing process involves two main steps:
+Module testing is a crucial part of ensuring the reliability and accuracy of LEAPP's artifact extraction and analysis capabilities. Our module testing process involves three main steps:
 
 1. [Creating Module Test Cases](create_module_test_cases.md)
 2. [Testing Modules](testing_modules.md)
+3. [Testing Module Outputs](testing_module_outputs.md)
 
-This two-step process allows for efficient testing, provides a foundation for CI/CD, and enables (semi-)automated tests going forward.
+This three-step process allows for efficient testing, provides a foundation for future CI/CD integration, and enables comprehensive validation of module functionality.
 
 ### Creating Module Test Cases
 
@@ -32,18 +33,29 @@ Once test cases are created, we use another script to run tests on the modules. 
 - Collecting and formatting the results
 - Generating test result files
 
-This step can be run manually during development or potentially automated as part of a CI/CD pipeline to validate parsing consistency across module updates.
+This step focuses purely on the datasets and can be run quickly and efficiently, making it suitable for frequent use during development.
 
 For more information, refer to the [Testing Modules](testing_modules.md) documentation.
 
+### Testing Module Outputs
+
+The final step in our module testing process involves verifying the various output formats supported by each module. This is done using the `test_module_output.py` script, which:
+
+- Mocks parts of the plugin loader to control which plugins are run
+- Uses the test data cases directly
+- Generates all supported output formats (HTML, TSV, LAVA, etc.) for the selected module
+- Allows for manual verification of the output
+
+This step is intended for later-stage testing and manual verification. While it's more time-consuming than the initial module test, it provides a comprehensive check of the module's output capabilities.
+
+For details on how to use this script and interpret its results, see the [Testing Module Outputs](testing_module_outputs.md) documentation.
+
 ## Future Expansions
 
-As the LEAPP project grows, we plan to expand our testing documentation and capabilities to cover:
+As the LEAPP project grows, we plan to expand our testing capabilities to potentially include:
 
 - Automated comparison of test results against known good data
-- Unit testing
-- Integration testing
-- Performance testing
-- Continuous Integration (CI) processes
+- Integration of output verification into CI/CD workflows
+- Performance benchmarking
 
-
+These expansions will be considered and implemented as the project's needs evolve.
