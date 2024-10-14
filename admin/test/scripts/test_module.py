@@ -5,11 +5,12 @@ import importlib
 import json
 from unittest.mock import MagicMock
 from pathlib import Path
-from datetime import datetime, timezone
+from datetime import datetime, timezone, date
 import time
 from functools import wraps
 import shutil
 import subprocess
+import argparse
 
 # Adjust import paths as necessary
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..')))
@@ -101,9 +102,10 @@ def select_case(test_cases):
         case_data = test_cases[case_num]
         print(f"{i}. {case_num}: {case_data.get('description', 'No description')}")
     
-    while True:
-        case_choice = input("Enter case number, name, or 'all' for all cases: ").strip().lower()
-        if case_choice == 'all':
+    print("\nEnter case number, name, or press Enter for all cases (Ctrl+C to exit):")
+    try:
+        case_choice = input().strip().lower()
+        if case_choice == '' or case_choice == 'all':
             return 'all'
         try:
             index = int(case_choice) - 1
@@ -113,6 +115,10 @@ def select_case(test_cases):
             if case_choice in test_cases:
                 return case_choice
         print("Invalid choice. Please try again.")
+        return select_case(test_cases)
+    except KeyboardInterrupt:
+        print("\nExiting...")
+        sys.exit(0)
 
 def select_artifact(artifact_names):
     print("Available artifacts:")
@@ -120,9 +126,10 @@ def select_artifact(artifact_names):
     for i, name in enumerate(sorted_artifacts, 1):
         print(f"{i}. {name}")
     
-    while True:
-        artifact_choice = input("Enter artifact number, name, or 'all' for all artifacts: ").strip().lower()
-        if artifact_choice == 'all':
+    print("\nEnter artifact number, name, or press Enter for all artifacts (Ctrl+C to exit):")
+    try:
+        artifact_choice = input().strip().lower()
+        if artifact_choice == '' or artifact_choice == 'all':
             return 'all'
         try:
             index = int(artifact_choice) - 1
@@ -132,62 +139,108 @@ def select_artifact(artifact_names):
             if artifact_choice in sorted_artifacts:
                 return artifact_choice
         print("Invalid choice. Please try again.")
+        return select_artifact(artifact_names)
+    except KeyboardInterrupt:
+        print("\nExiting...")
+        sys.exit(0)
+
+def convert_to_unix_time(value):
+    if isinstance(value, (datetime, date)):
+        return int(value.timestamp())
+    return value
+
+def process_data(headers, data):
+    datetime_indices = [i for i, header in enumerate(headers) if isinstance(header, tuple) and header[1].lower() in ['datetime', 'date']]
+    
+    processed_headers = [header[0] if isinstance(header, tuple) else header for header in headers]
+    processed_data = []
+    
+    for row in data:
+        processed_row = []
+        for i, value in enumerate(row):
+            if i in datetime_indices:
+                processed_row.append(convert_to_unix_time(value))
+            elif isinstance(value, (datetime, date)):
+                processed_row.append(convert_to_unix_time(value))
+            else:
+                processed_row.append(value)
+        processed_data.append(processed_row)
+    
+    return processed_headers, processed_data
 
 def main(module_name, artifact_name=None, case_number=None):
-    test_cases = load_test_cases(module_name)
-    artifact_names = get_artifact_names(module_name, test_cases)
-    
-    if not artifact_name:
-        artifact_name = select_artifact(artifact_names)
-    
-    if not case_number:
-        case_number = select_case(test_cases)
-    
-    cases_to_process = [case_number] if case_number != 'all' else test_cases.keys()
-    artifacts_to_process = [artifact_name] if artifact_name != 'all' else artifact_names
-    
-    module = importlib.import_module(f'scripts.artifacts.{module_name}')
-    artifacts_info = getattr(module, '__artifacts_v2__', {})
-    
-    for case in cases_to_process:
-        case_data = test_cases[case]
-        zip_path = Path('admin/test/cases/data') / f"testdata.{module_name}.{artifact_name}.{case}.zip"
+    try:
+        test_cases = load_test_cases(module_name)
+        artifact_names = get_artifact_names(module_name, test_cases)
         
-        for artifact in artifacts_to_process:
-            if artifact in case_data['artifacts']:
-                artifact_data = case_data['artifacts'][artifact]
-                artifact_info = artifacts_info.get(artifact, {})
-                start_datetime = datetime.now(timezone.utc)
-                headers, data, run_time, last_commit_info = process_artifact(zip_path, module_name, artifact, artifact_data)
-                end_datetime = datetime.now(timezone.utc)
-                
-                result = {
-                    "metadata": {
-                        "module_name": module_name,
-                        "artifact_name": artifact_info.get('name', artifact),
-                        "function_name": artifact,
-                        "case_number": case,
-                        "number_of_columns": len(headers),
-                        "number_of_rows": len(data),
-                        "total_data_size_bytes": calculate_data_size(data),
-                        "input_zip_path": str(zip_path),
-                        "start_time": start_datetime.isoformat(),
-                        "end_time": end_datetime.isoformat(),
-                        "run_time_seconds": run_time,
-                        "last_commit": last_commit_info
-                    },
-                    "headers": headers,
-                    "data": data
-                }
-                
-                output_dir = Path('admin/test/results')
-                output_dir.mkdir(parents=True, exist_ok=True)
-                output_file = output_dir / f"{module_name}_{artifact}_{case}_{start_datetime.strftime('%Y%m%d%H%M%S')}.json"
-                
-                with open(output_file, 'w') as f:
-                    json.dump(result, f, indent=2)
-                
-                print(f"Test results for {module_name} - {artifact} - Case {case} saved to {output_file}")
+        if artifact_name is None:
+            artifact_name = select_artifact(artifact_names)
+        elif artifact_name.lower() == 'all':
+            artifact_name = 'all'
+        
+        if case_number is None:
+            case_number = select_case(test_cases)
+        elif case_number.lower() == 'all':
+            case_number = 'all'
+        
+        cases_to_process = [case_number] if case_number != 'all' else test_cases.keys()
+        artifacts_to_process = [artifact_name] if artifact_name != 'all' else artifact_names
+        
+        module = importlib.import_module(f'scripts.artifacts.{module_name}')
+        artifacts_info = getattr(module, '__artifacts_v2__', {})
+        
+        for case in cases_to_process:
+            case_data = test_cases[case]
+            for artifact in artifacts_to_process:
+                if artifact in case_data['artifacts']:
+                    print(f"\nTesting artifact: {artifact} for case: {case}")
+                    zip_path = Path('admin/test/cases/data') / f"testdata.{module_name}.{artifact}.{case}.zip"
+                    artifact_data = case_data['artifacts'][artifact]
+                    artifact_info = artifacts_info.get(artifact, {})
+                    start_datetime = datetime.now(timezone.utc)
+                    headers, data, run_time, last_commit_info = process_artifact(zip_path, module_name, artifact, artifact_data)
+                    
+                    # Process headers and data to handle datetime objects
+                    processed_headers, processed_data = process_data(headers, data)
+                    
+                    end_datetime = datetime.now(timezone.utc)
+                    
+                    result = {
+                        "metadata": {
+                            "module_name": module_name,
+                            "artifact_name": artifact_info.get('name', artifact),
+                            "function_name": artifact,
+                            "case_number": case,
+                            "number_of_columns": len(processed_headers),
+                            "number_of_rows": len(processed_data),
+                            "total_data_size_bytes": calculate_data_size(processed_data),
+                            "input_zip_path": str(zip_path),
+                            "start_time": start_datetime.isoformat(),
+                            "end_time": end_datetime.isoformat(),
+                            "run_time_seconds": run_time,
+                            "last_commit": last_commit_info
+                        },
+                        "headers": processed_headers,
+                        "data": processed_data
+                    }
+                    
+                    output_dir = Path('admin/test/results')
+                    output_dir.mkdir(parents=True, exist_ok=True)
+                    output_file = output_dir / f"{module_name}_{artifact}_{case}_{start_datetime.strftime('%Y%m%d%H%M%S')}.json"
+                    
+                    with open(output_file, 'w') as f:
+                        json.dump(result, f, indent=2, default=str)
+                    
+                    print(f"Test results for {module_name} - {artifact} - Case {case} saved to {output_file}")
+                    print(f"Processed {len(processed_data)} rows in {run_time:.2f} seconds")
+                else:
+                    print(f"\nSkipping artifact: {artifact} for case: {case} (not found in test data)")
+
+        print("\nTesting completed.")
+
+    except KeyboardInterrupt:
+        print("\nExiting...")
+        sys.exit(0)
 
 def get_last_commit_info(file_path):
     try:
@@ -209,12 +262,11 @@ def get_last_commit_info(file_path):
         return None
 
 if __name__ == '__main__':
-    if len(sys.argv) < 2:
-        print("Usage: python test_module.py <module_name> [artifact_name] [case_number]")
-        sys.exit(1)
+    parser = argparse.ArgumentParser(description="Test module artifacts")
+    parser.add_argument("module_name", help="Name of the module to test")
+    parser.add_argument("-a", "--artifact", help="Name of the artifact to test (or 'all' for all artifacts)", default=None)
+    parser.add_argument("-c", "--case", help="Case number to test (or 'all' for all cases)", default=None)
     
-    module_name = sys.argv[1]
-    artifact_name = sys.argv[2] if len(sys.argv) > 2 else None
-    case_number = sys.argv[3] if len(sys.argv) > 3 else None
+    args = parser.parse_args()
     
-    main(module_name, artifact_name, case_number)
+    main(args.module_name, args.artifact, args.case)
