@@ -96,11 +96,17 @@ def get_artifact_names(module_name, test_cases):
     return list(artifact_names)
 
 def select_case(test_cases):
-    print("Available cases:")
+    print("Available test cases:")
     sorted_cases = sorted(test_cases.keys())
     for i, case_num in enumerate(sorted_cases, 1):
         case_data = test_cases[case_num]
-        print(f"{i}. {case_num}: {case_data.get('description', 'No description')}")
+        input_path = case_data.get('make_data', {}).get('input_data_path', 'N/A')
+        input_filename = os.path.basename(input_path)
+        description = case_data.get('description', 'No description')
+        print(f"{i}. {case_num}")
+        print(f"   Input: {input_filename}")
+        print(f"   Description: {description}")
+        print()
     
     print("\nEnter case number, name, or press Enter for all cases (Ctrl+C to exit):")
     try:

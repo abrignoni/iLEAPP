@@ -8,9 +8,16 @@
     "number_of_rows": 1,
     "total_data_size_bytes": 2961,
     "input_zip_path": "admin/test/cases/data/testdata.keyboard.get_keyboard_lexicon.case001.zip",
-    "start_time": "2024-10-14T18:25:16.578197+00:00",
-    "end_time": "2024-10-14T18:25:16.583042+00:00",
-    "run_time_seconds": 0.0008459091186523438
+    "start_time": "2024-10-14T20:56:29.158517+00:00",
+    "end_time": "2024-10-14T20:56:29.202793+00:00",
+    "run_time_seconds": 0.0009312629699707031,
+    "last_commit": {
+      "hash": "c8bd6391e4d7ac7fd2ea12ff48e87c08c8fa3483",
+      "author_name": "James Habben",
+      "author_email": "james@wmif.net",
+      "date": "2024-10-14T12:24:18-07:00",
+      "message": "create module test harness"
+    }
   },
   "headers": [
     "Found Strings",

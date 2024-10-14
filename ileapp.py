@@ -297,13 +297,11 @@ def main():
 
     selected_plugins = plugins_parsed_first + selected_plugins
     
-    if args.lava:
-        initialize_lava(input_path, out_params.report_folder_base, extracttype)
+    initialize_lava(input_path, out_params.report_folder_base, extracttype)
 
     crunch_artifacts(selected_plugins, extracttype, input_path, out_params, wrap_text, loader, casedata, time_offset, profile_filename)
 
-    if args.lava:
-        lava_finalize_output(out_params.report_folder_base)
+    lava_finalize_output(out_params.report_folder_base)
 
 def crunch_artifacts(
         plugins: typing.Sequence[plugin_loader.PluginSpec], extracttype, input_path, out_params, wrap_text,

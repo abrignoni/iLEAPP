@@ -8,9 +8,9 @@
     "number_of_rows": 158,
     "total_data_size_bytes": 8904,
     "input_zip_path": "admin/test/cases/data/testdata.keyboard.get_keyboard_app_usage.case001.zip",
-    "start_time": "2024-10-14T20:31:49.494612+00:00",
-    "end_time": "2024-10-14T20:31:49.554581+00:00",
-    "run_time_seconds": 0.008872032165527344,
+    "start_time": "2024-10-14T20:56:29.203497+00:00",
+    "end_time": "2024-10-14T20:56:29.256551+00:00",
+    "run_time_seconds": 0.01067209243774414,
     "last_commit": {
       "hash": "c8bd6391e4d7ac7fd2ea12ff48e87c08c8fa3483",
       "author_name": "James Habben",

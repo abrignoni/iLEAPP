@@ -1,7 +1,7 @@
 {
   "case001": {
-    "description": "",
-    "maker": "",
+    "description": "Josh Hickman's iOS 15 Public Image",
+    "maker": "JamesHabben",
     "make_data": {
       "input_data_path": "/Users/jameshabben/Documents/ios backup play/Josh/iOS_15_Public_Image.tar.gz",
       "os": "macOS-15.0-x86_64-i386-64bit",
