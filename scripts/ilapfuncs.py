@@ -164,8 +164,11 @@ def convert_ts_human_to_timezone_offset(ts, timezone_offset):
 
 def convert_plist_date_to_timezone_offset(plist_date, timezone_offset):
     if plist_date:
-        plist_date = datetime.strptime(plist_date, '%Y-%m-%dT%H:%M:%SZ')
-        iso_date = plist_date.strftime("%Y-%m-%d %H:%M:%S")
+        str_date = '%04d-%02d-%02dT%02d:%02d:%02dZ' % (
+            plist_date.year, plist_date.month, plist_date.day, 
+            plist_date.hour, plist_date.minute, plist_date.second
+            )
+        iso_date = datetime.fromisoformat(str_date).strftime("%Y-%m-%d %H:%M:%S")
         return convert_ts_human_to_timezone_offset(iso_date, timezone_offset)
     else:
         return plist_date
