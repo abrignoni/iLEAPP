@@ -96,6 +96,38 @@ The script generates a JSON file (e.g., `testdata.<module_name>.json`) that cont
 
 Multiple test cases (e.g., "case001", "case002") can be included in a single JSON file.
 
+## Known Issues and Limitations
+
+### Dynamic File Searching in Modules
+
+Some modules, such as `sms.py`, use a two-step process for file searching that can limit the effectiveness of automated test case creation:
+
+1. The module provides an initial search pattern to locate a primary database file.
+2. After processing the database, the module performs additional file searches based on data extracted from the database.
+
+For example, the `sms.py` module:
+1. First searches for the SMS database file.
+2. Then searches for attachment files based on paths stored in the database.
+
+This approach presents challenges for automated test case creation:
+
+- The `make_test_data.py` script only uses the initial search patterns defined in the module.
+- It cannot anticipate or include files that would be found by secondary searches within the module.
+
+#### Impact on Test Coverage
+
+This limitation may result in incomplete test data for modules that employ this dynamic searching technique. The created test cases might not include all the files that the module would process in a real-world scenario.
+
+#### Future Improvements
+
+To address this issue and improve test coverage, we need to consider the following approaches:
+
+1. Enhance the `make_test_data.py` script to simulate the module's dynamic file searching behavior.
+2. Modify the module structure to separate file searching from data processing, allowing for more comprehensive initial search patterns.
+3. Implement a two-pass system in the test case creation process to capture files found by secondary searches.
+
+Until these improvements are implemented, be aware that modules using dynamic file searching may require manual intervention to ensure comprehensive test data.
+
 ## Updating the JSON File
 
 After creating test cases, it's important to manually update the JSON file with the following information:
@@ -105,3 +137,11 @@ After creating test cases, it's important to manually update the JSON file with 
 3. Fill in the expected output headers and data for each artifact.
 
 This information is crucial for validating test results and ensuring the accuracy of the artifact extraction process.
+
+## Requirements
+
+### __artifacts_v2__ Block
+
+The test case creation process requires modules to use the `__artifacts_v2__` block for defining artifacts. This is because the v1 artifact definition has some limitations that can cause issues with the test harness.
+
+If you want to apply this testing process to a v1 script before converting the entire code, you can update the artifact block to v2 format first to capture the results.
