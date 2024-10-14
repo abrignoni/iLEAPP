@@ -1,10 +1,34 @@
-import sqlite3
+__artifacts_v2__ = {
+    "get_googleChat": {  # This should match the function name exactly
+        "name": "Google Chat",
+        "description": "Parses google chats",
+        "author": "@AlexisBrignoni",
+        "version": "0.1",
+        "date": "2023-09-03",
+        "requirements": "none",
+        "category": "Google Chats",
+        "notes": "",
+        "paths": ('*/Documents/user_accounts/*/dynamite.db*',),
+        "output_types": "all",  # or ["html", "tsv", "timeline", "lava"]
+        "chatParams": {
+            "directionSentValue": 1,
+            "threadDiscriminatorColumn": "Conversation Name",
+            "textColumn": "Message",
+            "directionColumn": "Is Sent",
+            "timeColumn": "Timestamp",
+            "senderColumn": "Message Author",
+            "mediaColumn": "Media"
+        }
+    }
+}
+
+import os
 import blackboxprotobuf
 import re
 from io import BytesIO
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, utf8_in_extended_ascii, media_to_html
+from scripts.ilapfuncs import artifact_processor
+from scripts.ilapfuncs import open_sqlite_db_readonly, utf8_in_extended_ascii, media_to_html, logfunc, convert_ts_human_to_timezone_offset
 
 class Tuppsub(tuple):
     pass
@@ -165,7 +189,8 @@ def fla_tu(
         
         yield from aa_flatten_dict_tu(
             item.copy().to_dict(),
-            # pandas needs to be converted to dict first, if not, we only get the columns back. Copying might not be necessary
+            # pandas needs to be converted to dict first, if not, we only get the columns back. Copying might not be
+            # necessary
             listitem=walkthrough,
             forbidden=forbidden,
             allowed=allowed,
@@ -181,7 +206,8 @@ def fla_tu(
                     
                         yield xaa, Tuppsub(
                             (walkthrough + (ini2,))
-                        )  # yields (value, (key1,key2,...)) -> always same format -> first value, then all keys in another tuple
+                        )  # yields (value, (key1,key2,...)) -> always same format -> first value, then all keys in
+                        # another tuple
                     else:  # if it is not in the allowed data types, we check recursively for other iterables
                         yield from fla_tu(
                             xaa,
@@ -202,7 +228,8 @@ def fla_tu(
             yield item, Tuppsub(
                 (walkthrough + Tuppsub(item, ))
             )  # in case of an exception, we yield  (value, (key1,key2,...))
-            
+
+@artifact_processor
 def get_googleChat(files_found, report_folder, seeker, wrap_text, timezone_offset):
     for file_found in files_found:
         file_found = str(file_found)
@@ -210,111 +237,101 @@ def get_googleChat(files_found, report_folder, seeker, wrap_text, timezone_offse
         if file_found.endswith('dynamite.db'):
             result = re.findall(r"([0-9A-F]{8}-[0-9A-F]{4}-[4][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}+)", file_found)
             guid = result[0]
-            break
+            account_id = os.path.basename(os.path.dirname(file_found))
             
-    db = open_sqlite_db_readonly(file_found)
-    cursor = db.cursor()
-    cursor.execute('''
-    SELECT
-    datetime(topic_messages.create_time/1000000,'unixepoch') AS "Message Time",
-    CASE
-    WHEN group_type=1 THEN "Group Message"
-    WHEN group_type=2 THEN "1-to-1 Message"
-    ELSE group_type
-    END AS "Group Type",
-    Groups.name AS "Conversation Name",
-    users.name AS "Message Author",
-    topic_messages.text_body AS "Message",
-    topic_messages.reactions AS "Message Reactions",
-    topic_messages.annotation AS "Message Annotation (Possible Attachment Information)"
-    FROM 
-    topic_messages
-    JOIN users ON users.user_id=topic_messages.creator_id
-    JOIN Groups ON Groups.group_id=topic_messages.group_id
-    ORDER BY "Message Time" ASC
-    ''')
-    
-    all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
-    if usageentries > 0:
-        data_list = []
-        
-        for row in all_rows:
-            thumb = ''
-            protobufreactions = row[5]
-            checkforempty = BytesIO(protobufreactions)
-            check = checkforempty.read(3)
-            
-            if check == b'\xfe\xff\x00':
-                reaction = ''
-                reactionuser = ''
-            else:
-                protostuff, types = blackboxprotobuf.decode_message(protobufreactions)
-                reaction = (protostuff['1']['1']['1']['1']).decode()
-                reaction = (utf8_in_extended_ascii(reaction))[1]
-                
-                timestampofreaction = protostuff['1']['1']['4']
-                reactionuser = protostuff['1'].get('2')
-                if reactionuser is not None:
-                    reactionuser = protostuff['1']['2']['1']
-                    reactionuser = (reactionuser.decode())
-                else:
-                    reactionuser = ''
-                    
-            protobufmedia = row[6]
-            checkforempty = BytesIO(protobufmedia)
-            check = checkforempty.read(3)
-            
-            if check == b'\xfe\xff\x00':
-                media = ''
-                mediafilename = ''
-            else:
-                protostuff, types = blackboxprotobuf.decode_message(protobufmedia)
-                aggregator = []
-                if isinstance(protostuff['1'], list):
-                    nested_whatever=list(fla_tu(protostuff['1']))
-                    for x in nested_whatever:
-                        if isinstance(x[0], bytes):
-                            aggregator.append(x[0].decode())
-                    mediafilename = 'Group List'
-                    thumb = aggregator
-                else:
-                    checkkeyten = (protostuff['1'].get('10'))
-                    if checkkeyten is not None:
-                        mediafilename = (protostuff['1']['10']['3'])
-                        mediafilename = (mediafilename.decode())
-                        attachment = seeker.search('*/'+guid+'/tmp/'+mediafilename, return_on_first_hit=True)
-                        
-                        if len(attachment) < 1:
-                            thumb = ''
-                        else:
-                            thumb = media_to_html(attachment[0], (attachment[0],), report_folder)
+            db = open_sqlite_db_readonly(file_found)
+            cursor = db.cursor()
+            cursor.execute(f'''
+            SELECT
+            datetime(topic_messages.create_time/1000000,'unixepoch') AS "Message Time",
+            CASE
+            WHEN group_type=1 THEN "Group Message"
+            WHEN group_type=2 THEN "1-to-1 Message"
+            ELSE group_type
+            END AS "Group Type",
+            Groups.name AS "Conversation Name",
+            users.name AS "Message Author",
+            topic_messages.text_body AS "Message",
+            topic_messages.reactions AS "Message Reactions",
+            topic_messages.annotation AS "Message Annotation (Possible Attachment Information)",
+            CASE
+                WHEN topic_messages.creator_id = '{account_id}' THEN 1
+                ELSE 0
+            END is_sent
+            FROM 
+            topic_messages
+            JOIN users ON users.user_id=topic_messages.creator_id
+            JOIN Groups ON Groups.group_id=topic_messages.group_id
+            ORDER BY "Message Time" ASC
+            ''')
+
+            all_rows = cursor.fetchall()
+            usageentries = len(all_rows)
+            if usageentries > 0:
+                data_list = []
+
+                for row in all_rows:
+                    thumb = ''
+                    protobufreactions = row[5]
+                    checkforempty = BytesIO(protobufreactions)
+                    check = checkforempty.read(3)
+
+                    if check == b'\xfe\xff\x00':
+                        reaction = ''
+                        reactionuser = ''
                     else:
-                        mediafilename = ''
+                        protostuff, types = blackboxprotobuf.decode_message(protobufreactions)
+                        reaction = (protostuff['1']['1']['1']['1']).decode()
+                        reaction = (utf8_in_extended_ascii(reaction))[1]
+
+                        timestampofreaction = protostuff['1']['1']['4']
+                        reactionuser = protostuff['1'].get('2')
+                        if reactionuser is not None:
+                            reactionuser = protostuff['1']['2']['1']
+                            reactionuser = (reactionuser.decode())
+                        else:
+                            reactionuser = ''
+
+                    protobufmedia = row[6]
+                    checkforempty = BytesIO(protobufmedia)
+                    check = checkforempty.read(3)
+
+                    if check == b'\xfe\xff\x00':
                         media = ''
-            
-            data_list.append((row[0],row[1],row[2],row[3],row[4],mediafilename,thumb,reaction,reactionuser))
-            mediafilename = thumb = reaction = reactionuser = ''
-            
-        
-        description = ''
-        report = ArtifactHtmlReport('Google Chat')
-        report.start_artifact_report(report_folder, 'Google Chat', description)
-        report.add_script()
-        data_headers = ('Timestamp','Group Type','Conversation Name','Message Author','Message','Filename','Media','Reaction','Reaction User' )     
-        report.write_artifact_data_table(data_headers, data_list, file_found, html_no_escape=['Media'])
-        report.end_artifact_report()
-        
-        tsvname = 'Google Chat'
-        tsv(report_folder, data_headers, data_list, tsvname)
+                        mediafilename = ''
+                    else:
+                        protostuff, types = blackboxprotobuf.decode_message(protobufmedia)
+                        aggregator = []
+                        if isinstance(protostuff['1'], list):
+                            nested_whatever=list(fla_tu(protostuff['1']))
+                            for x in nested_whatever:
+                                if isinstance(x[0], bytes):
+                                    aggregator.append(x[0].decode())
+                            mediafilename = 'Group List'
+                            thumb = ", ".join(aggregator)
+                        else:
+                            checkkeyten = (protostuff['1'].get('10'))
+                            if checkkeyten is not None:
+                                mediafilename = (protostuff['1']['10']['3'])
+                                mediafilename = (mediafilename.decode())
+                                attachment = seeker.search('*/'+guid+'/tmp/'+mediafilename, return_on_first_hit=True)
+
+                                if len(attachment) < 1:
+                                    thumb = ''
+                                else:
+                                    thumb = media_to_html(attachment[0], (attachment[0],), report_folder)
+                            else:
+                                mediafilename = ''
+                                media = ''
+                    timestamp = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
+
+                    data_list.append((timestamp, row[1], row[2], row[3], row[4], row[7], mediafilename, thumb, reaction, reactionuser, account_id))
+                    mediafilename = thumb = reaction = reactionuser = ''
+
+        data_headers = (('Timestamp', 'datetime'), 'Group Type', 'Conversation Name', 'Message Author', 'Message',
+                        'Is Sent', 'Filename', 'Media', 'Reaction', 'Reaction User', 'Account ID')
+
+        return data_headers, data_list, file_found
         
     else:
         logfunc('No Google Chat data available')
-    
-    
-__artifacts__ = {
-    "googleChat": (
-        "Google Chat",
-        ('*/Documents/user_accounts/*/dynamite.db*'),
-        get_googleChat)
-}

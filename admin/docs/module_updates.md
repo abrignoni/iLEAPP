@@ -9,6 +9,7 @@ This guide outlines the process of updating existing xLEAPP modules to use the n
 3. Add the `@artifact_processor` decorator
 4. Adjust the main function
 5. Remove manual report generation code
+6. Add chat parameters if the artifact should support a threaded type view
 
 ## Detailed Process
 
@@ -115,6 +116,47 @@ Delete any code related to manual report generation, including:
 - Writing data to TSV files
 - Generating timeline or KML files
 - Any print or logging statements about no data being available
+
+
+### 6. Add chat parameters if the artifact should support a threaded type view
+
+Instructions:
+
+The `chatParams` key will contain a dictionary of items to assist LAVA in determining which columns should be used to group messages into threads and which columns should be used to render the elements of the chat message bubble. Whenever a column name is specified it should match the column header as defined in the `data_headers` of the artifact.
+
+    __artifacts_v2__ = {
+        "get_artifactname": {
+            # Other parameters as shown above,
+            "chatParams": {
+                "threadDiscriminatorColumn": Column that determines which thread messages belong to. This must be unique for each thread
+                "threadLabelColumn": Optional column name providing a friendly name for the thread
+                "textColumn": Column name containing the text message
+                "directionColumn": Column name to determine if the message was sent/received
+                "directionSentValue": Any Value that if present in the directionColumn specified above indicates the message was sent (ie: 1, True, "SENT"), any other value treated as received.
+                "timeColumn": Column name containing the DateTime for the message (presumably the sent time),
+                "senderColumn": Column name containing the senders name/identifier,
+                "mediaColumn": Optional column containing an attachment (Further development required on this),
+                "sentMessageLabelColumn": Optional column name containing the local users name/identifier (used for a case where the data only contains the remote users information and the senders information is located in a different column (ie an Account ID),
+                "sentMessageStaticLabel": Optional string that will provide a static sender name/identifier for artifacts where this is unknown (ie "Local User")
+            }
+
+Example (From googleChat.py artifact):
+
+    __artifacts_v2__ = {
+        "get_googleChat": {  # This should match the function name exactly
+            "name": "Google Chat",
+            # Other parameters as shown above,
+            "chatParams": {
+                "threadDiscriminatorColumn": "Conversation Name",
+                "textColumn": "Message",
+                "directionColumn": "Is Sent",
+                "directionSentValue": 1,
+                "timeColumn": "Timestamp",
+                "senderColumn": "Message Author",
+                "mediaColumn": "Media"
+            }
+        }
+    }
 
 ## Reasoning
 

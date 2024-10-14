@@ -42,7 +42,7 @@ def initialize_lava(input_path, output_path, input_type):
     
     #return lava_data, lava_db
 
-def lava_process_artifact(category, module_name, artifact_name, data, record_count=None):
+def lava_process_artifact(category, module_name, artifact_name, data, record_count=None, chat_params=None):
     global lava_data
     
     if category not in lava_data["artifacts"]:
@@ -60,6 +60,32 @@ def lava_process_artifact(category, module_name, artifact_name, data, record_cou
         artifact["record_count"] = record_count
     if object_columns:
         artifact["object_columns"] = [{"name": name, "type": type_} for name, type_ in object_columns.items()]
+
+    if chat_params:
+        sanitized_params = {}
+
+        #Boolean value is whether or not to sanitize the column name. Should do this for parameters that map to columns
+        keys = {
+            "directionSentValue": False,
+            "threadDiscriminatorColumn": True,
+            "threadLabelColumn": True,
+            "textColumn": True,
+            "directionColumn": True,
+            "timeColumn": True,
+            "senderColumn": True,
+            "mediaColumn": True,
+            "sentMessageLabelColumn": True,
+            "sentMessageStaticLabel": False
+        }
+
+        for (key, value) in chat_params.items():
+            if key in keys:
+                if keys[key]:
+                    sanitized_params[key] = sanitize_sql_name(value)
+                else:
+                    sanitized_params[key] = value
+
+        artifact["chat"] = sanitized_params
     
     lava_data["artifacts"][category].append(artifact)
     
