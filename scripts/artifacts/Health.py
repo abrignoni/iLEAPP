@@ -54,7 +54,7 @@ def get_Health(files_found, report_folder, seeker, wrap_text, timezone_offset):
     db = open_sqlite_db_readonly(healthdb_secure)
     cursor = db.cursor()
 
-    cursor.execute('''attach database "''' + healthdb + '''" as healthdb ''')
+    cursor.execute('''ATTACH DATABASE "file:''' + healthdb + '''?mode=ro" AS healthdb ''')
 
     iOS_version = scripts.artifacts.artGlobals.versionf
 
