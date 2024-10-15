@@ -199,12 +199,6 @@ def create_test_data(module_name, image_name=None, case_number=None, input_file=
                 sys.exit(1)
             json_data = {}
     else:
-        if os.path.exists(json_file):
-            create_new = input(f"JSON file {json_file} is empty. Create new JSON data? (y/n): ")
-        
-        if create_new.lower() != 'y':
-            print("Aborting operation.")
-            sys.exit(1)
         json_data = {}
         print(f"Creating new JSON file: {json_file}")
     
