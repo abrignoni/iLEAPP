@@ -268,6 +268,8 @@ class FileSeekerZip(FileSeekerBase):
                     except Exception as ex:
                         member = member.lstrip("/")
                         logfunc(f'Could not write file to filesystem, path was {member} ' + str(ex))
+                if member.startswith("/"):
+                    member = member[1:]
                 filepath = os.path.join(self.temp_folder, member)
                 if is_platform_windows():
                     filepath = filepath.replace('/', '\\')
