@@ -59,5 +59,5 @@ app = BUNDLE(
     name='ileappGUI.app',
     icon='scripts/icon.icns',
     bundle_identifier='4n6.brigs.iLEAPP',
-    version='1.19.5'
+    version='1.19.6'
 )
