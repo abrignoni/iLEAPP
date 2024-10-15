@@ -145,7 +145,7 @@ body_infinite_loading_bar = \
 """
 # body_main_data is a placeholder, replace content with real data
 body_main_data = \
-"""
+r"""
                 <h5>All dates and times are in UTC unless stated otherwise.</h5>
                 <div class="alert alert-warning" role="alert">
                     All dates and times are in UTC unless noted otherwise!
