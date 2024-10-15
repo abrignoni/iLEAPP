@@ -40,7 +40,7 @@ class OutputParameters:
         currenttime = str(now.strftime('%Y-%m-%d_%A_%H%M%S'))
         self.report_folder_base = os.path.join(output_folder,
                                                'iLEAPP_Reports_' + currenttime)  # aleapp , aleappGUI, ileap_artifacts, report.py
-        self.temp_folder = os.path.join(self.report_folder_base, 'temp')
+        self.temp_folder = os.path.join(self.report_folder_base, 'data')
         OutputParameters.screen_output_file_path = os.path.join(self.report_folder_base, 'Script Logs',
                                                                 'Screen Output.html')
         OutputParameters.screen_output_file_path_devinfo = os.path.join(self.report_folder_base, 'Script Logs',
@@ -304,17 +304,17 @@ def tsv(report_folder, data_headers, data_list, tsvname):
     else:
         os.makedirs(tsv_report_folder)
     
-    
-    with codecs.open(os.path.join(tsv_report_folder, tsvname +'.tsv'), 'a', 'utf-8-sig') as tsvfile:
+    with codecs.open(os.path.join(tsv_report_folder, tsvname + '.tsv'), 'a', 'utf-8-sig') as tsvfile:
         tsv_writer = csv.writer(tsvfile, delimiter='\t')
         tsv_writer.writerow(data_headers)
+        
         for i in data_list:
             tsv_writer.writerow(i)
             
 def timeline(report_folder, tlactivity, data_list, data_headers):
     report_folder = report_folder.rstrip('/')
     report_folder = report_folder.rstrip('\\')
-    report_folder_base, tail = os.path.split(report_folder)
+    report_folder_base = os.path.dirname(os.path.dirname(report_folder))
     tl_report_folder = os.path.join(report_folder_base, '_Timeline')
 
     if os.path.isdir(tl_report_folder):
@@ -352,7 +352,7 @@ def timeline(report_folder, tlactivity, data_list, data_headers):
 def kmlgen(report_folder, kmlactivity, data_list, data_headers):
     report_folder = report_folder.rstrip('/')
     report_folder = report_folder.rstrip('\\')
-    report_folder_base, tail = os.path.split(report_folder)
+    report_folder_base = os.path.dirname(os.path.dirname(report_folder))
     kml_report_folder = os.path.join(report_folder_base, '_KML Exports')
     if os.path.isdir(kml_report_folder):
         latlongdb = os.path.join(kml_report_folder, '_latlong.db')
@@ -395,7 +395,7 @@ def kmlgen(report_folder, kmlactivity, data_list, data_headers):
     
 ''' Returns string of printable characters. Replacing non-printable characters
 with '.', or CHR(46)
-``'''
+'''
 def strings_raw(data):
     return "".join([chr(byte) if byte >= 0x20 and byte < 0x7F else chr(46) for byte in data])
 
@@ -641,8 +641,8 @@ def get_resolution_for_model_id(model_id: str):
         {'Model ID': 'iPad7,4', 'Model Name': 'iPad Pro (2nd gen 10.5")', 'Width': 1668, 'Height': 2224},
         {'Model ID': 'iPad6,11', 'Model Name': 'iPad 5th gen', 'Width': 1536, 'Height': 2048},
         {'Model ID': 'iPad6,12', 'Model Name': 'iPad 5th gen', 'Width': 1536, 'Height': 2048},
-        {'Model ID': 'iPad6,3', 'Model Name': 'iPad Pro (1st gen 9.7”)', 'Width': 1536, 'Height': 2048},
-        {'Model ID': 'iPad6,4', 'Model Name': 'iPad Pro (1st gen 9.7”)', 'Width': 1536, 'Height': 2048},
+        {'Model ID': 'iPad6,3', 'Model Name': 'iPad Pro (1st gen 9.7")', 'Width': 1536, 'Height': 2048},
+        {'Model ID': 'iPad6,4', 'Model Name': 'iPad Pro (1st gen 9.7")', 'Width': 1536, 'Height': 2048},
         {'Model ID': 'iPad6,7', 'Model Name': 'iPad Pro (1st gen 12.9")', 'Width': 2048, 'Height': 2732},
         {'Model ID': 'iPad6,8', 'Model Name': 'iPad Pro (1st gen 12.9")', 'Width': 2048, 'Height': 2732},
         {'Model ID': 'iPad5,1', 'Model Name': 'iPad mini 4', 'Width': 1536, 'Height': 2048},
@@ -681,9 +681,11 @@ def get_resolution_for_model_id(model_id: str):
 
 
 def convert_bytes_to_unit(size):
-    for unit in ['bytes', 'KB', 'MB', 'GB']:
-        if size < 1024.0:
-            return f"{size:3.1f} {unit}"
-        size /= 1024.0
-    return size
-
+    if size:
+        for unit in ['bytes', 'KB', 'MB', 'GB']:
+            if size < 1024.0:
+                return f"{size:3.1f} {unit}"
+            size /= 1024.0
+        return size
+    else:
+        return size
