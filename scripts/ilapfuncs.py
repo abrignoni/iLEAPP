@@ -98,11 +98,14 @@ class OutputParameters:
     nl = '\n'
     screen_output_file_path = ''
 
-    def __init__(self, output_folder):
+    def __init__(self, output_folder, custom_folder_name=None):
         now = datetime.now()
         currenttime = str(now.strftime('%Y-%m-%d_%A_%H%M%S'))
-        self.report_folder_base = os.path.join(output_folder,
-                                               'iLEAPP_Reports_' + currenttime)  # aleapp , aleappGUI, ileap_artifacts, report.py
+        if custom_folder_name:
+            folder_name = custom_folder_name
+        else:
+            folder_name = 'iLEAPP_Reports_' + currenttime
+        self.report_folder_base = os.path.join(output_folder, folder_name)
         self.temp_folder = os.path.join(self.report_folder_base, 'data')
         OutputParameters.screen_output_file_path = os.path.join(self.report_folder_base, 'Script Logs',
                                                                 'Screen Output.html')

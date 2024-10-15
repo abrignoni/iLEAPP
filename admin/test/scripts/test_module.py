@@ -98,16 +98,29 @@ def get_artifact_names(module_name, test_cases):
 def select_case(test_cases):
     print("Available test cases:")
     sorted_cases = sorted(test_cases.keys())
+    valid_cases = []
     for i, case_num in enumerate(sorted_cases, 1):
         case_data = test_cases[case_num]
         input_path = case_data.get('make_data', {}).get('input_data_path', 'N/A')
         input_filename = os.path.basename(input_path)
         description = case_data.get('description', 'No description')
-        print(f"{i}. {case_num}")
-        print(f"   Input: {input_filename}")
-        print(f"   Description: {description}")
-        print()
+        
+        # Check if any artifact has files
+        has_files = any(artifact.get('file_count', 0) > 0 for artifact in case_data['artifacts'].values())
+        
+        if has_files:
+            valid_cases.append(case_num)
+            print(f"{len(valid_cases)}. {case_num}")
+            print(f"   Input: {input_filename}")
+            print(f"   Description: {description}")
+            print()
+        else:
+            print(f"Skipping case {case_num} (no files found for any artifact)")
     
+    if not valid_cases:
+        print("No valid test cases found with files.")
+        return None
+
     print("\nEnter case number, name, or press Enter for all cases (Ctrl+C to exit):")
     try:
         case_choice = input().strip().lower()
@@ -115,10 +128,10 @@ def select_case(test_cases):
             return 'all'
         try:
             index = int(case_choice) - 1
-            if 0 <= index < len(sorted_cases):
-                return sorted_cases[index]
+            if 0 <= index < len(valid_cases):
+                return valid_cases[index]
         except ValueError:
-            if case_choice in test_cases:
+            if case_choice in valid_cases:
                 return case_choice
         print("Invalid choice. Please try again.")
         return select_case(test_cases)
@@ -189,7 +202,11 @@ def main(module_name, artifact_name=None, case_number=None):
         elif case_number.lower() == 'all':
             case_number = 'all'
         
-        cases_to_process = [case_number] if case_number != 'all' else test_cases.keys()
+        if case_number is None:
+            print("No valid test cases available. Exiting.")
+            return
+
+        cases_to_process = [case_number] if case_number != 'all' else [case for case in test_cases.keys() if any(artifact.get('file_count', 0) > 0 for artifact in test_cases[case]['artifacts'].values())]
         artifacts_to_process = [artifact_name] if artifact_name != 'all' else artifact_names
         
         module = importlib.import_module(f'scripts.artifacts.{module_name}')
@@ -232,7 +249,7 @@ def main(module_name, artifact_name=None, case_number=None):
                     
                     output_dir = Path('admin/test/results')
                     output_dir.mkdir(parents=True, exist_ok=True)
-                    output_file = output_dir / f"{module_name}_{artifact}_{case}_{start_datetime.strftime('%Y%m%d%H%M%S')}.json"
+                    output_file = output_dir / f"{module_name}.{artifact}.{case}.{start_datetime.strftime('%Y%m%d%H%M%S')}.json"
                     
                     with open(output_file, 'w') as f:
                         json.dump(result, f, indent=2, default=str)

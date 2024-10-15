@@ -1,0 +1,80 @@
+{
+    "images": [
+      {
+        "image_name": "josh_ios15_ffs",
+        "description": "iPhone 8 extraction with sample data for testing",
+        "local_image_paths": [
+            "~/Documents/phone-images/Josh/iOS_15_Public_Image.tar.gz",
+            "/home/user/images/iphone_001.zip"
+        ],
+        "file_path_list": "admin/data/filepath-lists/josh-hickman-ios15.csv.zip",
+        "download_url": "https://example.com/downloads/iphone_11_pro_001.zip",
+        "author": {
+          "name": "Josh Hickman"
+        },
+        "image_info": {
+          "creation_date": "2023-05-20",
+          "os_version": "iOS 15.3.1",
+          "device_model": "iPhone 8",
+          "extraction_method": "Full Filesystem",
+          "extraction_tool": "Cellebrite"
+        },
+        "file_info": {
+          "file_count": 474300,
+          "md5_hash": "b1ec40d5cd835621326b821d6fa12ff5"
+        },
+        "notes": ""
+      },
+      {
+        "image_name": "mvs_ios_2023",
+        "description": "Magnet Virtual Summit 2023 iOS image for forensic testing and training",
+        "local_image_paths": [
+            "~/Documents/phone-images/magnet/00008101-0010541A1130001E_files_full-001.zip",
+            "/home/user/images/magnet_mvs_2023_ios.zip"
+        ],
+        "file_path_list": "admin/data/filepath-lists/magnet-mvs-2023-ios.csv.zip",
+        "download_url": "https://cfreds.nist.gov/all/MagnetForensics/MagnetVirtualSummit2023",
+        "author": {
+          "name": "Magnet Forensics",
+          "organization": "Magnet Forensics"
+        },
+        "image_info": {
+          "creation_date": "2023-01-01T00:00:00Z",
+          "os_version": "iOS 14.7.1",
+          "device_model": "Unknown",
+          "extraction_method": "Full Filesystem",
+          "extraction_tool": "Magnet"
+        },
+        "file_info": {
+          "file_count": 338104,
+          "md5_hash": "067606649297d7adcf6082e5ed0acbb9"
+        },
+        "notes": "Image from Magnet Virtual Summit 2023. Contains full file system data."
+      },
+      {
+        "image_name": "belkasoft_ctf6_ios_device1",
+        "description": "BelkaSoft CTF 6 iOS Device 1 image for forensic analysis and competition",
+        "local_image_paths": [
+          "~/Documents/phone-images/belkasoft/BelkaCTF_6_CASE240405_D201AP.tar"
+        ],
+        "file_path_list": "admin/data/filepath-lists/belkasoft-ctf6-ios-device1.csv.zip",
+        "download_url": "https://cfreds.nist.gov/all/Belkasoft/BelkaCTF6BogusBill",
+        "author": {
+          "name": "BelkaSoft",
+          "organization": "BelkaSoft"
+        },
+        "image_info": {
+          "creation_date": "2023-01-01T00:00:00Z",
+          "os_version": "iOS",  
+          "device_model": "Unknown",
+          "extraction_method": "Unknown",
+          "extraction_tool": "Unknown"
+        },
+        "file_info": {
+          "file_count": 65000,
+          "md5_hash": "0da3a6df28802cd19d41ef1fde884e7c"
+        },
+        "notes": "Image extracted from zip for BelkaSoft CTF 6, iOS Device 1. "
+      }
+    ]
+  }
