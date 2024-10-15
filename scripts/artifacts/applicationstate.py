@@ -9,7 +9,8 @@ __artifacts_v2__ = {
         "category": "Installed Apps",
         "notes": "",
         "paths": ('*/mobile/Library/FrontBoard/applicationState.db*'),
-        "function": "get_applicationstate"
+        "function": "get_applicationstate",
+        "output_types": "all"
     }
 }
 
@@ -19,9 +20,11 @@ import io
 import nska_deserialize as nd
 import plistlib
 import sys
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, open_sqlite_db_readonly
+#from scripts.artifact_report import ArtifactHtmlReport
+from scripts.ilapfuncs import open_sqlite_db_readonly
+from scripts.ilapfuncs import artifact_processor
 
+@artifact_processor
 def get_applicationstate(files_found, report_folder, seeker, wrap_text, timezone_offset):
     for file_found in files_found:
         file_found = str(file_found)
@@ -78,7 +81,7 @@ def get_applicationstate(files_found, report_folder, seeker, wrap_text, timezone
                     logfunc(f'For {row[0]} Unexpected type "' + str(type(plist)) + '" found as plist root, can\'t process')
             else:
                 logfunc(f'For {row[0]}, plist could not be read!')
-        
+        '''
         description = "Bundle container path and sandbox data path for installed applications"
         report = ArtifactHtmlReport('Application State')
         report.start_artifact_report(report_folder, 'Application State DB', description)
@@ -89,8 +92,12 @@ def get_applicationstate(files_found, report_folder, seeker, wrap_text, timezone
         
         tsvname = 'Application State'
         tsv(report_folder, data_headers, data_list, tsvname)
+    '''
+        data_headers = ('Bundle ID','Bundle Path','Sandbox Path')
+        return data_headers, data_list, file_found
     
     else:
         logfunc('No Application State data available')
 
     db.close()      
+    
