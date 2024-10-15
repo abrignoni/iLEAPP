@@ -5,6 +5,7 @@ import argparse
 import zipfile
 import shutil
 import importlib
+import datetime
 from pathlib import Path
 
 # Add the root directory to sys.path to import ileapp
@@ -94,7 +95,8 @@ def run_module_test(module_name, temp_folder):
         '-i', str(temp_folder),
         '-o', str(output_folder),
         '-t', 'fs',
-        '-w'
+        '-w',
+        '--custom_output_folder', f'test.{module_name}.{datetime.datetime.now().strftime("%Y%m%d-%H%M%S")}'
     ]
 
     # Import the module to ensure __artifacts_v2__ is loaded

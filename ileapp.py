@@ -156,7 +156,7 @@ def main():
     parser.add_argument('-p', '--artifact_paths', required=False, action="store_true",
                         help=("Generate a text file list of artifact paths. "
                               "This argument is meant to be used alone, without any other arguments."))
-    parser.add_argument('-lava', action='store_true', help='Generate LAVA-specific output')
+    parser.add_argument('--custom_output_folder', required=False, action="store", help="Custom name for the output folder")
 
     loader = plugin_loader.PluginLoader()
     available_plugins = list(loader.plugins)
@@ -286,6 +286,7 @@ def main():
     wrap_text = args.wrap_text
     output_path = os.path.abspath(args.output_path)
     time_offset = args.timezone
+    custom_output_folder = args.custom_output_folder
 
     # ios file system extractions contain paths > 260 char, which causes problems
     # This fixes the problem by prefixing \\?\ on each windows path.
@@ -293,7 +294,7 @@ def main():
         if input_path[1] == ':' and extracttype =='fs': input_path = '\\\\?\\' + input_path.replace('/', '\\')
         if output_path[1] == ':': output_path = '\\\\?\\' + output_path.replace('/', '\\')
 
-    out_params = OutputParameters(output_path)
+    out_params = OutputParameters(output_path, custom_output_folder)
 
     selected_plugins = plugins_parsed_first + selected_plugins
     
