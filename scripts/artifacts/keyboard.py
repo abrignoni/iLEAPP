@@ -1,5 +1,5 @@
 __artifacts_v2__ = {
-    "get_keyboard_lexicon": {
+    "keyboardLexicon": {
         "name": "Keyboard Dynamic Lexicon",
         "description": "Extracts dynamic lexicon data from the keyboard",
         "author": "@your_username",
@@ -11,7 +11,7 @@ __artifacts_v2__ = {
         "paths": ('*/mobile/Library/Keyboard/*-dynamic.lm/dynamic-lexicon.dat',),
         "output_types": ["html", "tsv", "lava", "timeline"]
     },
-    "get_keyboard_app_usage": {
+    "keyboardAppUsage": {
         "name": "Keyboard Application Usage",
         "description": "Extracts keyboard application usage data",
         "author": "@your_username",
@@ -23,7 +23,7 @@ __artifacts_v2__ = {
         "paths": ('*/mobile/Library/Keyboard/app_usage_database.plist',),
         "output_types": ["html", "tsv", "lava", "timeline"]
     },
-    "get_keyboard_usage_stats": {
+    "keyboardUsageStats": {
         "name": "Keyboard Usage Stats",
         "description": "Extracts keyboard usage statistics",
         "author": "@your_username",
@@ -45,7 +45,7 @@ from os.path import dirname
 from scripts.ilapfuncs import logfunc, open_sqlite_db_readonly, convert_ts_human_to_utc, convert_utc_human_to_timezone, artifact_processor, convert_plist_date_to_timezone_offset
 
 @artifact_processor
-def get_keyboard_lexicon(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def keyboardLexicon(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
     
     for file_found in files_found:
@@ -70,7 +70,7 @@ def get_keyboard_lexicon(files_found, report_folder, seeker, wrap_text, timezone
     return data_headers, data_list, dirname(files_found[0]).split('Keyboard', 1)[0] + 'Keyboard'
 
 @artifact_processor
-def get_keyboard_app_usage(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def keyboardAppUsage(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
     
     for file_found in files_found:
@@ -86,7 +86,7 @@ def get_keyboard_app_usage(files_found, report_folder, seeker, wrap_text, timezo
     return data_headers, data_list, files_found[0]
 
 @artifact_processor
-def get_keyboard_usage_stats(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def keyboardUsageStats(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
     
     for file_found in files_found:

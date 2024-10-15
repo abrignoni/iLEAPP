@@ -216,9 +216,15 @@ def main(module_name, artifact_name=None, case_number=None):
             case_data = test_cases[case]
             for artifact in artifacts_to_process:
                 if artifact in case_data['artifacts']:
+                    artifact_data = case_data['artifacts'][artifact]
+                    
+                    # Check if the artifact has any files
+                    if artifact_data.get('file_count', 0) == 0:
+                        print(f"\nSkipping artifact: {artifact} for case: {case} (no files found)")
+                        continue
+
                     print(f"\nTesting artifact: {artifact} for case: {case}")
                     zip_path = Path('admin/test/cases/data') / f"testdata.{module_name}.{artifact}.{case}.zip"
-                    artifact_data = case_data['artifacts'][artifact]
                     artifact_info = artifacts_info.get(artifact, {})
                     start_datetime = datetime.now(timezone.utc)
                     headers, data, run_time, last_commit_info = process_artifact(zip_path, module_name, artifact, artifact_data)

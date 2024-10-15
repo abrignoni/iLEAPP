@@ -1,21 +1,21 @@
 {
-  "case001": {
-    "description": "Josh Hickman's iOS 15 Public Image",
-    "maker": "JamesHabben",
+  "josh_ios15_ffs": {
+    "description": "",
+    "maker": "",
     "make_data": {
-      "input_data_path": "/Users/jameshabben/Documents/ios backup play/Josh/iOS_15_Public_Image.tar.gz",
+      "input_data_path": "/Users/jameshabben/Documents/phone-images/Josh/iOS_15_Public_Image.tar.gz",
       "os": "macOS-15.0-x86_64-i386-64bit",
-      "timestamp": "2024-10-14T11:54:02.029434",
+      "timestamp": "2024-10-15T16:24:52.443745",
       "last_commit": {
-        "hash": "25ee1e18a1ff21d062595753ba9b33bfc73df248",
-        "author_name": "stark4n6",
-        "author_email": "48143894+stark4n6@users.noreply.github.com",
-        "date": "2024-03-08T10:29:04-05:00",
-        "message": "Update keyboard.py"
+        "hash": "b0b3e080d8c8b934f641745223fc512c40c9a639",
+        "author_name": "James Habben",
+        "author_email": "james@wmif.net",
+        "date": "2024-10-14T16:16:36-07:00",
+        "message": "updates for testing and module"
       }
     },
     "artifacts": {
-      "get_keyboard_lexicon": {
+      "keyboardLexicon": {
         "search_patterns": [
           "*/mobile/Library/Keyboard/*-dynamic.lm/dynamic-lexicon.dat"
         ],
@@ -25,7 +25,7 @@
           "data": []
         }
       },
-      "get_keyboard_app_usage": {
+      "keyboardAppUsage": {
         "search_patterns": [
           "*/mobile/Library/Keyboard/app_usage_database.plist"
         ],
@@ -35,7 +35,7 @@
           "data": []
         }
       },
-      "get_keyboard_usage_stats": {
+      "keyboardUsageStats": {
         "search_patterns": [
           "*/mobile/Library/Keyboard/user_model_database.sqlite*"
         ],
@@ -45,6 +45,99 @@
           "data": []
         }
       }
-    }
+    },
+    "image_name": "josh_ios15_ffs"
+  },
+  "mvs_ios_2023": {
+    "description": "",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "/Users/jameshabben/Documents/phone-images/magnet/00008101-0010541A1130001E_files_full-001.zip",
+      "os": "macOS-15.0-x86_64-i386-64bit",
+      "timestamp": "2024-10-15T16:29:07.852456",
+      "last_commit": {
+        "hash": "b0b3e080d8c8b934f641745223fc512c40c9a639",
+        "author_name": "James Habben",
+        "author_email": "james@wmif.net",
+        "date": "2024-10-14T16:16:36-07:00",
+        "message": "updates for testing and module"
+      }
+    },
+    "artifacts": {
+      "keyboardLexicon": {
+        "search_patterns": [
+          "*/mobile/Library/Keyboard/*-dynamic.lm/dynamic-lexicon.dat"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "keyboardAppUsage": {
+        "search_patterns": [
+          "*/mobile/Library/Keyboard/app_usage_database.plist"
+        ],
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "keyboardUsageStats": {
+        "search_patterns": [
+          "*/mobile/Library/Keyboard/user_model_database.sqlite*"
+        ],
+        "file_count": 3,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "image_name": "mvs_ios_2023"
+  },
+  "belkasoft_ctf6_ios_device1": {
+    "description": "",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "/Users/jameshabben/Documents/phone-images/belkasoft/BelkaCTF_6_CASE240405_D201AP.tar",
+      "os": "macOS-15.0-x86_64-i386-64bit",
+      "timestamp": "2024-10-15T16:29:22.979022",
+      "last_commit": {
+        "hash": "b0b3e080d8c8b934f641745223fc512c40c9a639",
+        "author_name": "James Habben",
+        "author_email": "james@wmif.net",
+        "date": "2024-10-14T16:16:36-07:00",
+        "message": "updates for testing and module"
+      }
+    },
+    "artifacts": {
+      "keyboardLexicon": {
+        "search_patterns": [
+          "*/mobile/Library/Keyboard/*-dynamic.lm/dynamic-lexicon.dat"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "keyboardAppUsage": {
+        "search_patterns": [
+          "*/mobile/Library/Keyboard/app_usage_database.plist"
+        ],
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "keyboardUsageStats": {
+        "search_patterns": [
+          "*/mobile/Library/Keyboard/user_model_database.sqlite*"
+        ],
+        "file_count": 3,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "image_name": "belkasoft_ctf6_ios_device1"
   }
 }
