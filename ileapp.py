@@ -8,6 +8,8 @@ import plugin_loader
 import scripts.report as report
 import traceback
 
+import sys
+
 from scripts.search_files import *
 from scripts.ilapfuncs import *
 from scripts.version_info import ileapp_version
@@ -134,12 +136,11 @@ def create_casedata(path):
 
 def main():
     parser = argparse.ArgumentParser(description='iLEAPP: iOS Logs, Events, And Plists Parser.')
-    parser.add_argument('-t', choices=['fs', 'tar', 'zip', 'gz', 'itunes', 'itunes-mbdb'], required=False, action="store",
+    parser.add_argument('-t', choices=['fs', 'tar', 'zip', 'gz', 'itunes'], required=False, action="store",
                         help=("Specify the input type. "
                               "'fs' for a folder containing extracted files with normal paths and names, "
                               "'tar', 'zip', or 'gz' for compressed packages containing files with normal names, "
-                              "'itunes' for a folder containing a raw iTunes backup with hashed paths and names, "
-                              "or 'itunes-mbdb' if you have an older iTunes backup using the Manifest.mbdb format instead."))
+                              "'itunes' for a folder containing a raw iTunes backup with hashed paths and names."))
     parser.add_argument('-o', '--output_path', required=False, action="store",
                         help='Path to base output folder (this must exist)')
     parser.add_argument('-i', '--input_path', required=False, action="store", help='Path to input file/folder')
@@ -170,6 +171,11 @@ def main():
             plugins.append(plugin)
 
     selected_plugins = plugins.copy()
+
+    # Check if no arguments were provided
+    if len(sys.argv) == 1:
+        parser.print_help(sys.stderr)
+        sys.exit()
 
     args = parser.parse_args()
 
@@ -320,8 +326,6 @@ def crunch_artifacts(
 
         elif extracttype == 'itunes':
             seeker = FileSeekerItunes(input_path, out_params.temp_folder)
-        elif extracttype == 'itunes-mbdb':
-            seeker = FileSeekerItunesMbdb(input_path, out_params.temp_folder)
 
         else:
             logfunc('Error on argument -o (input type)')
@@ -371,7 +375,10 @@ def crunch_artifacts(
         files_found = []
         log.write(f'<b>For {plugin.name} module</b>')
         for artifact_search_regex in search_regexes:
-            found = seeker.search(artifact_search_regex)
+            if artifact_search_regex in seeker.searched:
+                found = seeker.searched[artifact_search_regex]
+            else:
+                found = seeker.search(artifact_search_regex)
             if not found:
                 log.write(f'<ul><li>No file found for regex <i>{artifact_search_regex}</i></li></ul>')
             else:
@@ -385,16 +392,16 @@ def crunch_artifacts(
         if files_found:
             logfunc()
             logfunc('{} [{}] artifact started'.format(plugin.name, plugin.module_name))
-            category_folder = os.path.join(out_params.report_folder_base, plugin.category)
+            category_folder = os.path.join(out_params.report_folder_base, '_HTML', plugin.category)
             if not os.path.exists(category_folder):
                 try:
-                    os.mkdir(category_folder)
+                    os.makedirs(category_folder)
                 except (FileExistsError, FileNotFoundError) as ex:
                     logfunc('Error creating {} report directory at path {}'.format(plugin.name, category_folder))
                     logfunc('Error was {}'.format(str(ex)))
                     continue  # cannot do work
             try:
-                plugin.method(files_found, category_folder, seeker, wrap_text, time_offset)
+                artifact_data = plugin.method(files_found, category_folder, seeker, wrap_text, time_offset)
             except Exception as ex:
                 logfunc('Reading {} artifact had errors!'.format(plugin.name))
                 logfunc('Error was {}'.format(str(ex)))
@@ -402,7 +409,6 @@ def crunch_artifacts(
                 continue  # nope
 
             logfunc('{} [{}] artifact completed'.format(plugin.name, plugin.module_name))
-
     log.close()
 
     logfunc('')
@@ -430,6 +436,7 @@ def crunch_artifacts(
     logfunc('Report generation Completed.')
     logfunc('')
     logfunc(f'Report location: {out_params.report_folder_base}')
+
     return True
 
 if __name__ == '__main__':

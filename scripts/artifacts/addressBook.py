@@ -56,7 +56,7 @@ def get_addressBook(files_found, report_folder, seeker, wrap_text, timezone_offs
     db = open_sqlite_db_readonly(address_book_db)
     cursor = db.cursor()
 
-    cursor.execute('''ATTACH DATABASE "''' + address_book_images_db + '''" AS ABI ''')
+    cursor.execute('''ATTACH DATABASE "file:''' + address_book_images_db + '''?mode=ro" AS ABI ''')
 
     cursor.execute('''SELECT    
     ABPerson.ROWID,

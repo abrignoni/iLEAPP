@@ -29,7 +29,7 @@ def get_atxDatastore(files_found, report_folder, seeker, wrap_text, timezone_off
     db = open_sqlite_db_readonly(atxdb)
     cursor = db.cursor()
 
-    cursor.execute('''attach database "''' + localdb + '''" as Local ''')
+    cursor.execute(f'''ATTACH DATABASE "file:{localdb}?mode=ro" AS Local ''')
     cursor.execute('''select 
 alog.id AS Id,
 alog.bundleId AS bundleId,
