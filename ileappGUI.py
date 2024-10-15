@@ -201,14 +201,8 @@ def process(casedata):
             if report_path.startswith('\\\\'):  # UNC path
                 report_path = report_path[2:]
             progress_bar.grid_remove()
-            close_frame.grid(padx=16, sticky='')
-            open_report_button = ttk.Button(close_frame, text='Open Report & Quit',
-                                            command=lambda: open_report(report_path))
-            close_button = ttk.Button(close_frame, text='Close logs',
-                                            command=refresh_main_window)
-            open_report_button.grid(row=0, column=0, ipadx=8)
-            ttk.Separator(close_frame, orient='vertical').grid(row=0, column=1, padx=20, sticky='ns')
-            close_button.grid(row=0, column=2, ipadx=8)
+            open_report_button = ttk.Button(main_window, text='Open Report & Close', command=lambda: open_report(report_path))
+            open_report_button.grid(ipadx=8)
         else:
             log_path = out_params.screen_output_file_path
             if log_path.startswith('\\\\?\\'):  # windows
@@ -350,32 +344,6 @@ def case_data():
 
     case_window.grab_set()
 
-
-def refresh_main_window():
-    global profile_filename
-    global casedata
-    global timezone_set
-    input_entry.delete(0, 'end')
-    output_entry.delete(0, 'end')
-    profile_filename = None
-    casedata = {'Case Number': tk.StringVar(),
-                'Agency': tk.StringVar(),
-                'Examiner': tk.StringVar(),
-                }
-    timezone_set = tk.StringVar()
-    mlist.clear()
-    pickModules()
-    for artifact_name,module_infos in mlist.items():
-        main_window.nametowidget(f'f_modules.f_list.tbox.mcb_{artifact_name}').config(
-            variable=module_infos[-1], onvalue=True, offvalue=False
-        )
-    get_selected_modules()
-    ()
-    logtext_frame.grid_remove()
-    log_text.delete('1.0', 'end')
-    close_frame.grid_remove()
-    bottom_frame.grid(padx=16, pady=6, sticky='we')
-    bottom_frame.update_idletasks()
 
 ## Main window creation
 main_window = tk.Tk()
