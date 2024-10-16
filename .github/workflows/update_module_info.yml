@@ -1,7 +1,7 @@
 name: Update Module Info
 
 on:
-  pull_request:
+  push:
     branches:
       - lava-output
     paths:
@@ -10,15 +10,12 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write
 
 jobs:
   update-module-info:
-    permissions:
-      contents: write
-      pull-requests: write
+    # Only run on the main repository, not on forks
+    if: github.repository == 'abrignoni/iLEAPP'
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/lava-output'
     steps:
     - uses: actions/checkout@v4
       with:
@@ -47,7 +44,5 @@ jobs:
 
     - name: Push changes
       if: steps.git-check.outputs.changes == 'true'
-      uses: ad-m/github-push-action@master
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        branch: ${{ github.head_ref || github.ref_name }}
+      run: |
+        git push

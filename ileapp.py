@@ -137,12 +137,11 @@ def create_casedata(path):
 
 def main():
     parser = argparse.ArgumentParser(description='iLEAPP: iOS Logs, Events, And Plists Parser.')
-    parser.add_argument('-t', choices=['fs', 'tar', 'zip', 'gz', 'itunes', 'itunes-mbdb'], required=False, action="store",
+    parser.add_argument('-t', choices=['fs', 'tar', 'zip', 'gz', 'itunes'], required=False, action="store",
                         help=("Specify the input type. "
                               "'fs' for a folder containing extracted files with normal paths and names, "
                               "'tar', 'zip', or 'gz' for compressed packages containing files with normal names, "
-                              "'itunes' for a folder containing a raw iTunes backup with hashed paths and names, "
-                              "or 'itunes-mbdb' if you have an older iTunes backup using the Manifest.mbdb format instead."))
+                              "'itunes' for a folder containing a raw iTunes backup with hashed paths and names."))
     parser.add_argument('-o', '--output_path', required=False, action="store",
                         help='Path to base output folder (this must exist)')
     parser.add_argument('-i', '--input_path', required=False, action="store", help='Path to input file/folder')
@@ -157,7 +156,7 @@ def main():
     parser.add_argument('-p', '--artifact_paths', required=False, action="store_true",
                         help=("Generate a text file list of artifact paths. "
                               "This argument is meant to be used alone, without any other arguments."))
-    parser.add_argument('-lava', action='store_true', help='Generate LAVA-specific output')
+    parser.add_argument('--custom_output_folder', required=False, action="store", help="Custom name for the output folder")
 
     loader = plugin_loader.PluginLoader()
     available_plugins = list(loader.plugins)
@@ -287,6 +286,7 @@ def main():
     wrap_text = args.wrap_text
     output_path = os.path.abspath(args.output_path)
     time_offset = args.timezone
+    custom_output_folder = args.custom_output_folder
 
     # ios file system extractions contain paths > 260 char, which causes problems
     # This fixes the problem by prefixing \\?\ on each windows path.
@@ -294,17 +294,15 @@ def main():
         if input_path[1] == ':' and extracttype =='fs': input_path = '\\\\?\\' + input_path.replace('/', '\\')
         if output_path[1] == ':': output_path = '\\\\?\\' + output_path.replace('/', '\\')
 
-    out_params = OutputParameters(output_path)
+    out_params = OutputParameters(output_path, custom_output_folder)
 
     selected_plugins = plugins_parsed_first + selected_plugins
     
-    if args.lava:
-        initialize_lava(input_path, out_params.report_folder_base, extracttype)
+    initialize_lava(input_path, out_params.report_folder_base, extracttype)
 
     crunch_artifacts(selected_plugins, extracttype, input_path, out_params, wrap_text, loader, casedata, time_offset, profile_filename)
 
-    if args.lava:
-        lava_finalize_output(out_params.report_folder_base)
+    lava_finalize_output(out_params.report_folder_base)
 
 def crunch_artifacts(
         plugins: typing.Sequence[plugin_loader.PluginSpec], extracttype, input_path, out_params, wrap_text,
@@ -334,8 +332,6 @@ def crunch_artifacts(
 
         elif extracttype == 'itunes':
             seeker = FileSeekerItunes(input_path, out_params.temp_folder)
-        elif extracttype == 'itunes-mbdb':
-            seeker = FileSeekerItunesMbdb(input_path, out_params.temp_folder)
 
         else:
             logfunc('Error on argument -o (input type)')
@@ -385,7 +381,10 @@ def crunch_artifacts(
         files_found = []
         log.write(f'<b>For {plugin.name} module</b>')
         for artifact_search_regex in search_regexes:
-            found = seeker.search(artifact_search_regex)
+            if artifact_search_regex in seeker.searched:
+                found = seeker.searched[artifact_search_regex]
+            else:
+                found = seeker.search(artifact_search_regex)
             if not found:
                 log.write(f'<ul><li>No file found for regex <i>{artifact_search_regex}</i></li></ul>')
             else:
@@ -399,10 +398,10 @@ def crunch_artifacts(
         if files_found:
             logfunc()
             logfunc('{} [{}] artifact started'.format(plugin.name, plugin.module_name))
-            category_folder = os.path.join(out_params.report_folder_base, plugin.category)
+            category_folder = os.path.join(out_params.report_folder_base, '_HTML', plugin.category)
             if not os.path.exists(category_folder):
                 try:
-                    os.mkdir(category_folder)
+                    os.makedirs(category_folder)
                 except (FileExistsError, FileNotFoundError) as ex:
                     logfunc('Error creating {} report directory at path {}'.format(plugin.name, category_folder))
                     logfunc('Error was {}'.format(str(ex)))

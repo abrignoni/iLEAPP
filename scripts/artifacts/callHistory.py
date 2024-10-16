@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "get_callHistory": {
         "name": "Call History",
-        "description": "Parses and extract Call History",
+        "description": "Extract Call History",
         "author": "",
         "version": "0.5",
         "date": "2023-01-01",

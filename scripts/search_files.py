@@ -33,6 +33,7 @@ class FileSeekerDir(FileSeekerBase):
         logfunc('Building files listing...')
         self.build_files_list(directory)
         logfunc(f'File listing complete - {len(self._all_files)} files')
+        self.searched = {}
 
     def build_files_list(self, directory):
         '''Populates all paths in directory into _all_files'''
@@ -51,12 +52,15 @@ class FileSeekerDir(FileSeekerBase):
         if return_on_first_hit:
             for item in self._all_files:
                 if pat( root + normcase(item) ) is not None:
+                    self.searched[filepattern] = [item]
                     return [item]
+            self.searched[filepattern] = []
             return []
         pathlist = []
         for item in self._all_files:
             if pat( root + normcase(item) ) is not None:
                 pathlist.append(item)
+        self.searched[filepattern] = pathlist
         return pathlist
 
 class FileSeekerItunes(FileSeekerBase):
@@ -66,10 +70,17 @@ class FileSeekerItunes(FileSeekerBase):
         self._all_files = {}
         self.temp_folder = temp_folder
         logfunc('Building files listing...')
-        self.build_files_list(directory)
+        if os.path.exists(os.path.join(directory, "Manifest.db")):
+            self.build_files_list_from_manifest_db(directory)
+            self.backup_type = "Manifest.db"
+        elif os.path.exists(os.path.join(directory, "Manifest.mbdb")):
+            self.build_files_list_from_manifest_mbdb(directory)
+            self.backup_type = "Manifest.mbdb"
         logfunc(f'File listing complete - {len(self._all_files)} files')
+        self.searched = {}
+        self.copied = set()
     
-    def build_files_list(self, directory):
+    def build_files_list_from_manifest_db(self, directory):
         '''Populates paths from Manifest.db files into _all_files'''
         try: 
             db = open_sqlite_db_readonly(os.path.join(directory, "Manifest.db"))
@@ -99,34 +110,7 @@ class FileSeekerItunes(FileSeekerBase):
             logfunc(f'Error opening Manifest.db from {directory}, ' + str(ex))
             raise ex
 
-    def search(self, filepattern, return_on_first_hit=False):
-        pathlist = []
-        matching_keys = fnmatch.filter(self._all_files, filepattern)
-        for relative_path in matching_keys:
-            hash_filename = self._all_files[relative_path]
-            original_location = os.path.join(self.directory, hash_filename[:2], hash_filename)
-            temp_location = os.path.join(self.temp_folder, sanitize_file_path(relative_path))
-            if is_platform_windows():
-                temp_location = temp_location.replace('/', '\\')
-            try:
-                os.makedirs(os.path.dirname(temp_location), exist_ok=True)
-                copyfile(original_location, temp_location)
-                pathlist.append(temp_location)
-            except Exception as ex:
-                logfunc(f'Could not copy {original_location} to {temp_location} ' + str(ex))
-        return pathlist
-
-class FileSeekerItunesMbdb(FileSeekerBase):
-    def __init__(self, directory, temp_folder):
-        FileSeekerBase.__init__(self)
-        self.directory = directory
-        self._all_files = {}
-        self.temp_folder = temp_folder
-        logfunc('Building files listing...')
-        self.build_files_list(directory)
-        logfunc(f'File listing complete - {len(self._all_files)} files')
-    
-    def build_files_list(self, directory):
+    def build_files_list_from_manifest_mbdb(self, directory):
         '''Populates paths from Manifest.mbdb files into _all_files'''
         def getint(data, offset, intsize):
             """Retrieve an integer (big-endian) and new offset from the current offset"""
@@ -194,18 +178,23 @@ class FileSeekerItunesMbdb(FileSeekerBase):
         matching_keys = fnmatch.filter(self._all_files, filepattern)
         for relative_path in matching_keys:
             hash_filename = self._all_files[relative_path]
-            original_location = os.path.join(self.directory, hash_filename)
+            if self.backup_type == "Manifest.db":
+                original_location = os.path.join(self.directory, hash_filename[:2], hash_filename)
+            else:
+                original_location = os.path.join(self.directory, hash_filename)
             temp_location = os.path.join(self.temp_folder, sanitize_file_path(relative_path))
             if is_platform_windows():
                 temp_location = temp_location.replace('/', '\\')
-            try:
-                os.makedirs(os.path.dirname(temp_location), exist_ok=True)
-                copyfile(original_location, temp_location)
-                pathlist.append(temp_location)
-            except Exception as ex:
-                logfunc(f'Could not copy {original_location} to {temp_location} ' + str(ex))
+            if original_location not in self.copied:
+                try:
+                    os.makedirs(os.path.dirname(temp_location), exist_ok=True)
+                    copyfile(original_location, temp_location)
+                    self.copied.add(original_location)
+                except Exception as ex:
+                    logfunc(f'Could not copy {original_location} to {temp_location} ' + str(ex))
+            pathlist.append(temp_location)
+        self.searched[filepattern] = pathlist
         return pathlist
-
 
 
 class FileSeekerTar(FileSeekerBase):
@@ -216,6 +205,8 @@ class FileSeekerTar(FileSeekerBase):
         self.tar_file = tarfile.open(tar_file_path, mode)
         self.temp_folder = temp_folder
         self.directory = temp_folder
+        self.searched = {}
+        self.copied = set()
 
     def search(self, filepattern, return_on_first_hit=False):
         pathlist = []
@@ -223,22 +214,26 @@ class FileSeekerTar(FileSeekerBase):
         root = normcase("root/")
         for member in self.tar_file.getmembers():
             if pat( root + normcase(member.name) ) is not None:
-                try:
-                    clean_name = sanitize_file_path(member.name)
-                    full_path = os.path.join(self.temp_folder, Path(clean_name))
-                    if member.isdir():
-                        os.makedirs(full_path, exist_ok=True)
-                    else:
-                        parent_dir = os.path.dirname(full_path)
-                        if not os.path.exists(parent_dir):
-                            os.makedirs(parent_dir)
-                        with open(full_path, "wb") as fout:
-                            fout.write(tarfile.ExFileObject(self.tar_file, member).read())
-                            fout.close()
-                        os.utime(full_path, (member.mtime, member.mtime))
-                    pathlist.append(full_path)
-                except Exception as ex:
-                    logfunc(f'Could not write file to filesystem, path was {member.name} ' + str(ex))
+                clean_name = sanitize_file_path(member.name)
+                full_path = os.path.join(self.temp_folder, Path(clean_name))
+                if member.name not in self.copied:
+                    try:
+                        if full_path not in self.copied:
+                            if member.isdir():
+                                os.makedirs(full_path, exist_ok=True)
+                            else:
+                                parent_dir = os.path.dirname(full_path)
+                                if not os.path.exists(parent_dir):
+                                    os.makedirs(parent_dir)
+                                with open(full_path, "wb") as fout:
+                                    fout.write(tarfile.ExFileObject(self.tar_file, member).read())
+                                    fout.close()
+                                    self.copied.add(member.name)
+                                os.utime(full_path, (member.mtime, member.mtime))
+                    except Exception as ex:
+                        logfunc(f'Could not write file to filesystem, path was {member.name} ' + str(ex))
+                pathlist.append(full_path)
+        self.searched[filepattern] = pathlist
         return pathlist
 
     def cleanup(self):
@@ -251,23 +246,35 @@ class FileSeekerZip(FileSeekerBase):
         self.name_list = self.zip_file.namelist()
         self.temp_folder = temp_folder
         self.directory = temp_folder
+        self.searched = {}
+        self.copied = set()
 
     def search(self, filepattern, return_on_first_hit=False):
         pathlist = []
         pat = _compile_pattern( normcase(filepattern) )
         root = normcase("root/")
         for member in self.name_list:
+            if member.startswith("__MACOSX"):
+                continue
             if pat( root + normcase(member) ) is not None:
-                try:
-                    extracted_path = self.zip_file.extract(member, path=self.temp_folder) # already replaces illegal chars with _ when exporting
-                    f = self.zip_file.getinfo(member)
-                    date_time = f.date_time
-                    date_time = timex.mktime(date_time + (0, 0, -1))
-                    os.utime(extracted_path, (date_time, date_time))
-                    pathlist.append(extracted_path)
-                except Exception as ex:
-                    member = member.lstrip("/")
-                    logfunc(f'Could not write file to filesystem, path was {member} ' + str(ex))
+                if member not in self.copied:
+                    try:
+                        extracted_path = self.zip_file.extract(member, path=self.temp_folder) # already replaces illegal chars with _ when exporting
+                        self.copied.add(member)
+                        f = self.zip_file.getinfo(member)
+                        date_time = f.date_time
+                        date_time = timex.mktime(date_time + (0, 0, -1))
+                        os.utime(extracted_path, (date_time, date_time))
+                    except Exception as ex:
+                        member = member.lstrip("/")
+                        logfunc(f'Could not write file to filesystem, path was {member} ' + str(ex))
+                if member.startswith("/"):
+                    member = member[1:]
+                filepath = os.path.join(self.temp_folder, member)
+                if is_platform_windows():
+                    filepath = filepath.replace('/', '\\')
+                pathlist.append(filepath)
+        self.searched[filepattern] = pathlist
         return pathlist
 
     def cleanup(self):

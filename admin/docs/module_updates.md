@@ -175,4 +175,60 @@ By focusing modules on data extraction and processing, we improve code readabili
 - The `artifact_processor` decorator now automatically retrieves the artifact information from the function's globals or the module's `__artifacts_v2__` dictionary.
 - The main function should focus solely on data extraction and processing, returning the data for the artifact processor to handle output generation.
 
-These changes ensure that the artifact information is correctly associated with the processing function and that the output generation is handled consistently across all artifacts.
+### Avoiding SQL Reserved Words in Column Names
+
+When updating modules, it's crucial to avoid using SQL reserved words as column names. This is particularly important now that we're using SQLite for data storage. Common problematic column names include:
+
+- 'value'
+- 'values'
+- 'key'
+- 'order'
+- 'group'
+
+To address this:
+
+1. Review your data_headers and ensure no column names use SQL reserved words.
+2. If you find a reserved word, modify the column name to something more descriptive or append a relevant qualifier.
+
+Examples of how to modify column names:
+
+- 'value' could become 'data_value', 'setting_value', or 'recorded_value'
+- 'key' could become 'encryption_key', 'lookup_key', or 'identifier'
+- 'order' could become 'sort_order', 'sequence', or 'priority'
+
+```python
+# Before
+data_headers = ('timestamp', 'key', 'value')
+
+# After
+data_headers = ('timestamp', 'identifier', 'setting_value')
+```
+
+By avoiding SQL reserved words in column names, we prevent potential issues with SQLite queries and ensure smoother data handling across all output types.
+
+### Timestamp Handling and Timezone Offsets
+
+A new function `convert_plist_date_to_timezone_offset` is being added to `ilapfuncs.py` to address issues with timestamp handling, particularly for plist files. This function:
+
+1. Manages date objects in the format 'YYYY-MM-DDTHH:MM:SSZ' found in plist files.
+2. Converts timestamps to support the timezone offset chosen by the user.
+3. Ensures correct timestamp storage in the lava SQLite database.
+
+When working with timestamps, especially from plist files:
+
+- Use the `convert_plist_date_to_timezone_offset` function to process datetime objects.
+- Ensure that timestamps are treated as UTC when converting for SQLite storage.
+- Be aware that this change improves consistency between HTML and SQLite outputs.
+
+Example usage:
+
+```python
+from scripts.ilapfuncs import convert_plist_date_to_timezone_offset
+
+# ... in your processing function ...
+timestamp = convert_plist_date_to_timezone_offset(plist_date, timezone_offset)
+```
+
+This update resolves previous inconsistencies where timestamps in HTML didn't support timezone offsets and SQLite entries were incorrectly treated as local time instead of UTC.
+
+These changes ensure that timestamp handling is consistent across all output types and correctly respects the user's chosen timezone offset.

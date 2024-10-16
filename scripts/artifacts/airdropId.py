@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "get_airdropId": {
         "name": "Airdrop ID",
-        "description": "Extracts Airdrop ID from the device",
+        "description": "Extract Airdrop ID",
         "author": "@AlexisBrignoni",
         "version": "0.2",
         "date": "2024-05-09",

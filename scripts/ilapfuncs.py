@@ -38,6 +38,12 @@ identifiers = {}
 def strip_tuple_from_headers(data_headers):
     return [header[0] if isinstance(header, tuple) else header for header in data_headers]
 
+def check_output_types(type, output_types):
+    if type in output_types or type == output_types or 'all' in output_types or 'all' == output_types:
+        return True
+    else:
+        return False
+
 def artifact_processor(func):
     @wraps(func)
     def wrapper(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -53,30 +59,31 @@ def artifact_processor(func):
 
         data_headers, data_list, source_path = func(files_found, report_folder, seeker, wrap_text, timezone_offset)
         
-        if data_list:
+        if len(data_list):
+            logfunc(f"Found {len(data_list)} records for {artifact_name}")
             output_types = artifact_info.get('output_types', ['html', 'tsv', 'timeline', 'lava', 'kml'])
 
             # Strip tuples from headers for HTML, TSV, and timeline
             stripped_headers = strip_tuple_from_headers(data_headers)
 
-            if 'html' in output_types or 'all' == output_types:
+            if check_output_types('html', output_types):
                 report = artifact_report.ArtifactHtmlReport(artifact_name)
                 report.start_artifact_report(report_folder, artifact_name, description)
                 report.add_script()
                 report.write_artifact_data_table(stripped_headers, data_list, source_path)
                 report.end_artifact_report()
 
-            if 'tsv' in output_types or 'all' == output_types:
+            if check_output_types('tsv', output_types):
                 tsv(report_folder, stripped_headers, data_list, artifact_name)
             
-            if 'timeline' in output_types or 'all' == output_types:
+            if check_output_types('timeline', output_types):
                 timeline(report_folder, artifact_name, data_list, stripped_headers)
 
-            if 'lava' in output_types or 'all' == output_types:
+            if check_output_types('lava', output_types):
                 table_name, object_columns, column_map = lava_process_artifact(category, module_name, artifact_name, data_headers, len(data_list), data_views=artifact_info.get("data_views"))
                 lava_insert_sqlite_data(table_name, data_list, object_columns, data_headers, column_map)
 
-            if 'kml' in output_types:
+            if check_output_types('kml', output_types):
                 kmlgen(report_folder, artifact_name, data_list, stripped_headers)
 
         else:
@@ -91,12 +98,15 @@ class OutputParameters:
     nl = '\n'
     screen_output_file_path = ''
 
-    def __init__(self, output_folder):
+    def __init__(self, output_folder, custom_folder_name=None):
         now = datetime.now()
         currenttime = str(now.strftime('%Y-%m-%d_%A_%H%M%S'))
-        self.report_folder_base = os.path.join(output_folder,
-                                               'iLEAPP_Reports_' + currenttime)  # aleapp , aleappGUI, ileap_artifacts, report.py
-        self.temp_folder = os.path.join(self.report_folder_base, 'temp')
+        if custom_folder_name:
+            folder_name = custom_folder_name
+        else:
+            folder_name = 'iLEAPP_Reports_' + currenttime
+        self.report_folder_base = os.path.join(output_folder, folder_name)
+        self.temp_folder = os.path.join(self.report_folder_base, 'data')
         OutputParameters.screen_output_file_path = os.path.join(self.report_folder_base, 'Script Logs',
                                                                 'Screen Output.html')
         OutputParameters.screen_output_file_path_devinfo = os.path.join(self.report_folder_base, 'Script Logs',
@@ -161,11 +171,6 @@ def convert_ts_int_to_utc(ts): #This int timestamp to human format & utc
 
 def convert_ts_human_to_timezone_offset(ts, timezone_offset):
     return convert_utc_human_to_timezone(convert_ts_human_to_utc(ts), timezone_offset) if ts else ts
-    # if ts:
-    #     timestamp = convert_ts_human_to_utc(ts)
-    #     return convert_utc_human_to_timezone(timestamp, timezone_offset)
-    # else:
-    #     return ts
 
 def convert_plist_date_to_timezone_offset(plist_date, timezone_offset):
     if plist_date:
@@ -254,7 +259,7 @@ def utf8_in_extended_ascii(input_string, *, raise_on_unexpected=False):
     return mis_encoded_utf8_present, "".join(output)
 
 def sanitize_file_path(filename, replacement_char='_'):
-    '''
+    r'''
     Removes illegal characters (for windows) from the string passed. Does not replace \ or /
     '''
     return re.sub(r'[*?:"<>|\'\r\n]', replacement_char, filename)
@@ -386,7 +391,7 @@ def device_info(category, message):
 def tsv(report_folder, data_headers, data_list, tsvname):
     report_folder = report_folder.rstrip('/')
     report_folder = report_folder.rstrip('\\')
-    report_folder_base, tail = os.path.split(report_folder)
+    report_folder_base = os.path.dirname(os.path.dirname(report_folder))
     tsv_report_folder = os.path.join(report_folder_base, '_TSV Exports')
 
     if os.path.isdir(tsv_report_folder):
@@ -404,7 +409,7 @@ def tsv(report_folder, data_headers, data_list, tsvname):
 def timeline(report_folder, tlactivity, data_list, data_headers):
     report_folder = report_folder.rstrip('/')
     report_folder = report_folder.rstrip('\\')
-    report_folder_base, tail = os.path.split(report_folder)
+    report_folder_base = os.path.dirname(os.path.dirname(report_folder))
     tl_report_folder = os.path.join(report_folder_base, '_Timeline')
 
     if os.path.isdir(tl_report_folder):
@@ -442,7 +447,7 @@ def timeline(report_folder, tlactivity, data_list, data_headers):
 def kmlgen(report_folder, kmlactivity, data_list, data_headers):
     report_folder = report_folder.rstrip('/')
     report_folder = report_folder.rstrip('\\')
-    report_folder_base, tail = os.path.split(report_folder)
+    report_folder_base = os.path.dirname(os.path.dirname(report_folder))
     kml_report_folder = os.path.join(report_folder_base, '_KML Exports')
     if os.path.isdir(kml_report_folder):
         latlongdb = os.path.join(kml_report_folder, '_latlong.db')
