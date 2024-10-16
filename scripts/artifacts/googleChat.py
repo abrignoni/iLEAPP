@@ -10,14 +10,16 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Documents/user_accounts/*/dynamite.db*',),
         "output_types": "all",  # or ["html", "tsv", "timeline", "lava"]
-        "chatParams": {
-            "directionSentValue": 1,
-            "threadDiscriminatorColumn": "Conversation Name",
-            "textColumn": "Message",
-            "directionColumn": "Is Sent",
-            "timeColumn": "Timestamp",
-            "senderColumn": "Message Author",
-            "mediaColumn": "Media"
+        "data_views": {
+            "chat": {
+                "directionSentValue": 1,
+                "threadDiscriminatorColumn": "Conversation Name",
+                "textColumn": "Message",
+                "directionColumn": "Is Sent",
+                "timeColumn": "Timestamp",
+                "senderColumn": "Message Author",
+                "mediaColumn": "Media"
+            }
         }
     }
 }
