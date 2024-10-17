@@ -8,21 +8,27 @@ The `make_test_data.py` script is designed to generate test data for LEAPP modul
 
 ## Usage
 
-To create test cases for a module, use the following command:
+To create test cases for a module, use one of the following commands:
 
-```python 
-make_test_data.py <module_name> <case_number> <input_file>
-- `<module_name>`: Name of the module (e.g., keyboard or keyboard.py)
-- `<case_number>`: Case number for the test data
-- `<input_file>`: Path to the input file (zip, tar, or tar.gz)
+```bash
+python make_test_data.py <module_name> --image <image_name>
+python make_test_data.py <module_name> --case <case_number> --input <input_file>
+python make_test_data.py <module_name> --image-prompt
 ```
+
+Arguments:
+- `<module_name>`: Name of the module (e.g., keyboard or keyboard.py)
+- `--image <image_name>`: Name of the image from the manifest
+- `--case <case_number>`: Case number for the test data
+- `--input <input_file>`: Path to the input file (zip, tar, or tar.gz)
+- `--image-prompt`: Prompt for image selection from the manifest
+
 ## Process
 
 1. The script imports the specified module and retrieves artifact information.
 2. It creates or updates a JSON file with test case metadata.
 3. The script processes the input archive file, searching for files matching the artifact patterns.
 4. For each artifact, it creates a zip file containing the matching files.
-
 5. The JSON file is updated with information about the created test data.
 
 ## Output
@@ -32,15 +38,15 @@ The script generates the following outputs:
 1. A JSON file containing test case metadata.
     - `admin/test/cases/testdata.<module_name>.json`
 2. Zip files for each artifact, containing the relevant test data files.
-    - `admin/test/cases/data/testdata.<module_name>.<artifact_name>.<case_number>.zip`
+    - `admin/test/cases/data/testdata.<module_name>.<artifact_name>.<case_key>.zip`
 
 ## Example
 
-```python 
-make_test_data.py keyboard 001 /path/to/input/data.zip
+```bash
+python make_test_data.py keyboard --image ios_15_image
 ```
 
-This command will create test data for the keyboard module, using case number 001 and the specified input file.
+This command will create test data for the keyboard module, using the specified image from the manifest.
 
 ## Notes
 
@@ -96,6 +102,10 @@ The script generates a JSON file (e.g., `testdata.<module_name>.json`) that cont
 
 Multiple test cases (e.g., "case001", "case002") can be included in a single JSON file.
 
+## Image Manifest
+
+The script uses an `image_manifest.json` file located in the `admin` directory. This manifest contains information about available test images, including their names, descriptions, and local paths.
+
 ## Known Issues and Limitations
 
 ### Dynamic File Searching in Modules
@@ -145,3 +155,11 @@ This information is crucial for validating test results and ensuring the accurac
 The test case creation process requires modules to use the `__artifacts_v2__` block for defining artifacts. This is because the v1 artifact definition has some limitations that can cause issues with the test harness.
 
 If you want to apply this testing process to a v1 script before converting the entire code, you can update the artifact block to v2 format first to capture the results.
+
+## Git Integration
+
+The script now includes git integration to capture information about the last commit that modified the module file. This information is stored in the JSON metadata file for each test case.
+
+## Performance Considerations
+
+The script includes performance optimizations and progress indicators for processing large archive files. It also provides timing information for various stages of the test data creation process.
