@@ -30,7 +30,7 @@ __artifacts_v2__ = {
         "category": "Artifact Category",
         "notes": "",
         "paths": ('Path/to/artifact/files',),
-        "output_types": "all"  # or ["html", "tsv", "timeline", "lava"]
+        "output_types": "all"  # or "standard" or ["html", "tsv", "timeline", "kml", "lava"]
     }   
 }
 ```
@@ -130,6 +130,11 @@ By focusing modules on data extraction and processing, we improve code readabili
 ## Important Notes
 
 - The key in the `__artifacts_v2__` dictionary must exactly match the name of the function that processes the artifact.
+- For the `output_types` key in the `__artifacts_v2__` dictionary:
+  - Use **only** "all" if you want to export data in all supported output types: html, tsv, kml, lava and timeline;
+  - Use "standard" to export data in html, csv, lava and timeline;
+  - Specify the desired types in a list ["html", "tsv", "timeline", "kml", "lava"];
+  - For a single output, indicates the types (e.g: "lava")
 - The `artifact_processor` decorator now automatically retrieves the artifact information from the function's globals or the module's `__artifacts_v2__` dictionary.
 - The main function should focus solely on data extraction and processing, returning the data for the artifact processor to handle output generation.
 
