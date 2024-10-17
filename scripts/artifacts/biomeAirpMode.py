@@ -56,8 +56,8 @@ def get_biomeAirpMode(files_found, report_folder, seeker, wrap_text, timezone_of
 
                 data_list.append((ts, timestart, filename, offset, event, guid))
 
-        data_headers = (('Timestamp Written', 'datetime'), ('Timestamp', 'datetime'), 'Filename', 'Offset', 'Event', 'GUID')
+    data_headers = (('Timestamp Written', 'datetime'), ('Timestamp', 'datetime'), 'Filename', 'Offset', 'Event', 'GUID')
 
-        return data_headers, data_list, file_found
+    return data_headers, data_list, file_found
 
 
