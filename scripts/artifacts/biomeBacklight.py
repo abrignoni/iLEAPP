@@ -52,6 +52,6 @@ def get_biomeBacklight(files_found, report_folder, seeker, wrap_text, timezone_o
 
                 data_list.append((timestart, state, filename, record.data_start_offset))
 
-        data_headers = (('Timestamp', 'datetime'), 'State', 'Filename', 'Offset')
+    data_headers = (('Timestamp', 'datetime'), 'State', 'Filename', 'Offset')
 
-        return data_headers, data_list, file_found
+    return data_headers, data_list, file_found
