@@ -14,6 +14,7 @@ from io import BytesIO
 import csv
 from io import StringIO
 import textwrap
+import glob
 
 # Add the correct path to the system path
 repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
@@ -81,6 +82,9 @@ def read_filepath_list(file_path_list):
 
 def match_files_from_list(filepath_list, patterns):
     matching_files = []
+    # Ensure patterns is always a tuple or list
+    if isinstance(patterns, str):
+        patterns = (patterns,)
     for filepath in filepath_list:
         if any(fnmatch.fnmatch(filepath, pattern) for pattern in patterns):
             matching_files.append(filepath)
@@ -336,11 +340,15 @@ def create_test_data(module_name, image_name=None, case_number=None, input_file=
     print(f"\nTotal processing time: {overall_end_time - overall_start_time:.2f} seconds")
     print(f"Script completed at: {local_overall_end_time}")
 
-def prompt_for_image():
+def prompt_for_image(module_name):
     manifest = load_image_manifest()
     print("\nAvailable images:")
     for i, image in enumerate(manifest, 1):
-        print(f"{i}. {image['image_name']}")
+        image_name = image['image_name']
+        has_case_data = check_existing_case_data(module_name, image_name)
+        case_data_status = "✓ Has case data" if has_case_data else "✗ No case data"
+        
+        print(f"{i}. {image_name} [{case_data_status}]")
         if 'description' in image:
             wrapped_description = textwrap.wrap(image['description'], width=70, initial_indent='   ', subsequent_indent='   ')
             print('\n'.join(wrapped_description))
@@ -355,6 +363,12 @@ def prompt_for_image():
                 print("Invalid choice. Please enter a number from the list.")
         except ValueError:
             print("Invalid input. Please enter a number.")
+
+def check_existing_case_data(module_name, image_name):
+    cases_dir = os.path.join(repo_root, 'admin', 'test', 'cases', 'data')
+    pattern = f"testdata.{module_name}.*.{image_name}.zip"
+    existing_files = glob.glob(os.path.join(cases_dir, pattern))
+    return len(existing_files) > 0
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Create test data for artifacts")
@@ -375,7 +389,7 @@ if __name__ == "__main__":
     print(f"Script started at: {script_start_time}")
     
     if args.image_prompt:
-        selected_image = prompt_for_image()
+        selected_image = prompt_for_image(module_name)
         args.image = selected_image
     
     if args.image:
@@ -383,6 +397,15 @@ if __name__ == "__main__":
             image_info = get_image_info(args.image)
             print(f"Using image: {args.image}")
             print(f"Image path: {image_info['input_file']}")
+            
+            # Check if case data already exists
+            if check_existing_case_data(module_name, args.image):
+                print(f"Note: Case data already exists for module '{module_name}' using image '{args.image}'.")
+                proceed = input("Do you want to proceed and potentially overwrite existing data? (y/n): ")
+                if proceed.lower() != 'y':
+                    print("Operation aborted.")
+                    sys.exit(0)
+            
             create_test_data(module_name, image_name=args.image, input_file=image_info['input_file'])
         except (ValueError, FileNotFoundError) as e:
             print(f"Error: {e}")

@@ -1,5 +1,5 @@
 __artifacts_v2__ = {
-    "get_atxDatastore": {
+    "atxDatastore": {
         "name": "iOS ATXDatastore",
         "description": "Parses ATXDataStore and matches actions with Frequent locations, when available.",
         "author": "@magpol",
@@ -16,7 +16,7 @@ __artifacts_v2__ = {
 from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, convert_ts_human_to_timezone_offset 
 
 @artifact_processor
-def get_atxDatastore(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def atxDatastore(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
     data_headers = ()
     source_path = ''
