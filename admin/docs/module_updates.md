@@ -130,7 +130,7 @@ By focusing modules on data extraction and processing, we improve code readabili
 ## Important Notes
 
 - The key in the `__artifacts_v2__` dictionary must exactly match the name of the function that processes the artifact.
-- For the `output_types` key in the `__artifacts_v2__` dictionary:
+- For the `output_types`:
   - Use **only** "all" if you want to export data in all supported output types: html, tsv, kml, lava and timeline;
   - Use "standard" to export data in html, csv, lava and timeline;
   - Specify the desired types in a list ["html", "tsv", "timeline", "kml", "lava"];
