@@ -72,10 +72,11 @@ def get_biomeAppinstall(files_found, report_folder, seeker, wrap_text, timezone_
                 timewrite = (webkit_timestampsconv(protostuff['8']))
                 timewrite = convert_utc_human_to_timezone(timewrite, timezone_offset)
                 
-                data_list.append((timestart, timeend, timewrite, activity, bundleid, bundleinfo, appinfo1, appinfo2, actionguid ))
+                data_list.append((timestart, timeend, timewrite, activity, bundleid, bundleinfo, appinfo1, appinfo2, actionguid, filename, record.data_start_offset ))
         
 
-        data_headers = (('Timestamp', 'datetime'), ('Time End', 'datetime'), ('Time Write', 'datetime'), 'Activity', 'Bundle ID', 'Bundle Info', 'App Info', 'App Info2', 'Action GUID')
-        return data_headers, data_list, file_found
+    data_headers = (('Timestamp', 'datetime'), ('Time End', 'datetime'), ('Time Write', 'datetime'), 'Activity', 'Bundle ID', 'Bundle Info', 'App Info', 'App Info2', 'Action GUID', 'Filename', 'Offset')
+
+    return data_headers, data_list, file_found
 
 
