@@ -41,6 +41,8 @@ def strip_tuple_from_headers(data_headers):
 def check_output_types(type, output_types):
     if type in output_types or type == output_types or 'all' in output_types or 'all' == output_types:
         return True
+    elif type != 'kml' and ('standard' in output_types or 'standard' == output_types):
+        return True
     else:
         return False
 
@@ -445,6 +447,8 @@ def timeline(report_folder, tlactivity, data_list, data_headers):
     db.close()
 
 def kmlgen(report_folder, kmlactivity, data_list, data_headers):
+    if 'Longitude' not in data_list or 'Latitude' not in data_list:
+        return
     report_folder = report_folder.rstrip('/')
     report_folder = report_folder.rstrip('\\')
     report_folder_base = os.path.dirname(os.path.dirname(report_folder))

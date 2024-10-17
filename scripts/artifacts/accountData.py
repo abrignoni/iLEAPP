@@ -3,13 +3,13 @@ __artifacts_v2__ = {
         "name": "Account Data",
         "description": "Extract information about configured user accounts",
         "author": "@AlexisBrignoni",
-        "version": "0.2",
-        "date": "2023-11-21",
+        "version": "0.4.3",
+        "date": "2020-04-30",
         "requirements": "none",
         "category": "Accounts",
         "notes": "",
         "paths": ('*/mobile/Library/Accounts/Accounts3.sqlite*'),
-        "output_types": "all"
+        "output_types": "standard"
     }
 }
 

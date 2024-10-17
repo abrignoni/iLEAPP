@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Data/Application/*/Library/Preferences/com.apple.Maps.plist'),
         "function": "get_appleMapsApplication",
-        "output_types": "all"
+        "output_types": ["html", "tsv", "lava"]
     }
 }
 
@@ -20,8 +20,7 @@ import blackboxprotobuf
 import scripts.artifacts.artGlobals
 
 #from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, tsv, is_platform_windows
-from scripts.lavafuncs import lava_process_artifact, lava_insert_sqlite_data
+from scripts.ilapfuncs import logfunc, tsv, lava_process_artifact, lava_insert_sqlite_data
 
 def get_appleMapsApplication(files_found, report_folder, seeker, wrap_text, timezone_offset):
     versionnum = 0
@@ -61,7 +60,8 @@ def get_appleMapsApplication(files_found, report_folder, seeker, wrap_text, time
             data_headers = ['Latitude','Longitude']
             
         
-            table_name1, object_columns1, column_map1 = lava_process_artifact(category, module_name, 'Apple Maps Last Activity Camera', data_headers, len(data_list))
+            table_name1, object_columns1, column_map1 = lava_process_artifact(
+                category, module_name, 'Apple Maps Last Activity Camera', data_headers, len(data_list))
             lava_insert_sqlite_data(table_name1, data_list, object_columns1, data_headers, column_map1)
         
         else:

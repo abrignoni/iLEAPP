@@ -3,13 +3,13 @@ __artifacts_v2__ = {
         "name": "Application Permissions",
         "description": "Extract application permissions from TCC.db database",
         "author": "@AlexisBrignoni - @KevinPagano3 - @johannplw",
-        "version": "0.6.1",
-        "date": "2023-11-21",
+        "version": "0.7.2",
+        "date": "2020-12-15",
         "requirements": "none",
         "category": "App Permissions",
         "notes": "",
         "paths": ('*/mobile/Library/TCC/TCC.db*',),
-        "output_types": "all",
+        "output_types": "standard",
         "function": "get_tcc"
     }
 }
@@ -96,14 +96,15 @@ def get_tcc(files_found, report_folder, seeker, wrap_text, timezone_offset):
         timeline(report_folder, tlactivity, data_list, data_headers)
         """
         if last_modified_timestamp:
-            data_headers = (('Last Modified Timestamp', 'datetime'), 'Bundle ID', 'Service','Access')
+            data_headers = (
+                ('Last Modified Timestamp', 'datetime'), 
+                'Bundle ID', 
+                'Service', 
+                'Access')
         else:
-            data_headers = ('Bundle ID', 'Service','Access','Prompt Count')    
+            data_headers = ('Bundle ID', 'Service', 'Access', 'Prompt Count')    
         
         return data_headers, data_list, file_found
         
-    else:
-        logfunc('No data available in TCC database.')
-    
     db.close()
     

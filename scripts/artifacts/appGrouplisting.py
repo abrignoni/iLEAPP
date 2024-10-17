@@ -3,14 +3,14 @@ __artifacts_v2__ = {
         "name": "Bundle ID by AppGroup & PluginKit IDs",
         "description": "List can included once installed but not present apps. Each file is named .com.apple.mobile_container_manager.metadata.plist",
         "author": "@AlexisBrignoni",
-        "version": "0.1",
-        "date": "2022-09-20",
+        "version": "0.3",
+        "date": "2020-09-22",
         "requirements": "none",
         "category": "Installed Apps",
         "notes": "",
         "paths": ('*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist', '**/PluginKitPlugin/*.metadata.plist',),
         "function": "get_appGrouplisting",
-        "output_types": "all"
+        "output_types": ["html", "tsv", "lava"]
     }
 }
 
@@ -59,6 +59,6 @@ def get_appGrouplisting(files_found, report_folder, seeker, wrap_text, timezone_
     else:
         logfunc('No data on Bundle ID - AppGroup ID - PluginKit ID')
         """
-        data_headers = ('Bundle ID','Type','Directory GUID','Path')
+        data_headers = ('Bundle ID', 'Type', 'Directory GUID', 'Path')
         return data_headers, data_list, filelocdesc
     

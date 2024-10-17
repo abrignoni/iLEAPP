@@ -3,8 +3,8 @@ __artifacts_v2__ = {
         "name": "Advertising Identifier",
         "description": "Extract Apple advertising identifier",
         "author": "@AlexisBrignoni",
-        "version": "0.2",
-        "date": "2024-05-09",
+        "version": "0.2.1",
+        "date": "2023-10-03",
         "requirements": "none",
         "category": "Identifiers",
         "notes": "",
@@ -31,5 +31,5 @@ def get_adId(files_found, report_folder, seeker, wrap_text, timezone_offset):
                 id_values.append(f"<b>Apple Advertising Identifier: </b>{val}")
 
     device_info("Advertising Identifier", id_values)
-    data_headers = ('Key', 'Data')
+    data_headers = ('Identifier', 'Data Value')
     return data_headers, data_list, source_path
