@@ -1,5 +1,5 @@
 __artifacts_v2__ = {
-    "get_accs": {
+    "accountData": {
         "name": "Account Data",
         "description": "Extract information about configured user accounts",
         "author": "@AlexisBrignoni",
@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Accounts",
         "notes": "",
-        "paths": ('*/mobile/Library/Accounts/Accounts3.sqlite*'),
+        "paths": ('*/mobile/Library/Accounts/Accounts3.sqlite*',),
         "output_types": "standard"
     }
 }
@@ -17,7 +17,7 @@ __artifacts_v2__ = {
 from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, convert_ts_human_to_timezone_offset
 
 @artifact_processor
-def get_accs(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def accountData(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
     data_headers = ()
     source_path = ''
