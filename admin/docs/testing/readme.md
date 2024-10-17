@@ -1,61 +1,40 @@
 # LEAPP Testing Documentation
 
-This documentation provides an overview of the testing processes used in the LEAPP project, with a current focus on module testing.
+This documentation provides an overview of the testing processes and components used in the LEAPP project. It covers module testing, test data creation, and image management.
 
-## Module Testing
+## Table of Contents
 
-Module testing is a crucial part of ensuring the reliability and accuracy of LEAPP's artifact extraction and analysis capabilities. Our module testing process involves three main steps:
+1. [Testing Architecture Overview](testing_architecture_overview.md)
+   - Overview of the LEAPP testing components and workflow
+   - Description of key features and future considerations
 
-1. [Creating Module Test Cases](create_module_test_cases.md)
-2. [Testing Modules](testing_modules.md)
-3. [Testing Module Outputs](testing_module_outputs.md)
+2. [Creating Module Test Cases](create_module_test_cases.md)
+   - Detailed guide on using the `make_test_data.py` script
+   - Process of generating test data for LEAPP modules
 
-This three-step process allows for efficient testing, provides a foundation for future CI/CD integration, and enables comprehensive validation of module functionality.
+3. [Testing Modules](testing_modules.md)
+   - Instructions for running tests on LEAPP modules using the `test_module.py` script
+   - Explanation of test execution and result collection
 
-### Creating Module Test Cases
+4. [Testing Module Outputs](testing_module_outputs.md)
+   - Guide for verifying various output formats supported by modules using the `test_module_output.py` script
+   - Process of manual output verification
 
-We use a custom script to generate test cases for each module. This process involves:
+5. [Adding New Images to the Manifest](guide_adding_images.md)
+   - Step-by-step guide for adding new test images to the project
+   - Best practices for maintaining the [image manifest](../image_manifest.json)
 
-- Extracting relevant files from input data (zip, tar, or tar.gz files)
-- Creating JSON files with test case metadata
-- Generating zip files containing test data for each artifact
+6. [File Path Analysis](filepath_analysis.md)
+   - Overview of the file path search process
+   - Explanation of [filepath_results.csv](../filepath_results.csv) and [filepath_search_summary.md](../filepath_search_summary.md)
 
-This step is performed periodically to create small, focused test datasets. It allows for the creation of multiple test cases from various images, including synthetic test cases for edge scenarios.
+## Getting Started
 
-For more details, see the [Creating Module Test Cases](create_module_test_cases.md) documentation.
+To begin working with LEAPP testing:
 
-### Testing Modules
+1. Review the [Testing Architecture Overview](testing_architecture_overview.md) to understand the overall structure.
+2. Follow the [Creating Module Test Cases](create_module_test_cases.md) guide to generate test data for modules using the `make_test_data.py` script.
+3. Use the [Testing Modules](testing_modules.md) document to run tests with the `test_module.py` script and [Testing Module Outputs](testing_module_outputs.md) to verify outputs with the `test_module_output.py` script.
+4. If you need to add a new test image, refer to [Adding New Images to the Manifest](guide_adding_images.md).
 
-Once test cases are created, we use another script to run tests on the modules. This process includes:
 
-- Selecting specific modules, artifacts, and test cases to run
-- Executing the module's artifact extraction function
-- Collecting and formatting the results
-- Generating test result files
-
-This step focuses purely on the datasets and can be run quickly and efficiently, making it suitable for frequent use during development.
-
-For more information, refer to the [Testing Modules](testing_modules.md) documentation.
-
-### Testing Module Outputs
-
-The final step in our module testing process involves verifying the various output formats supported by each module. This is done using the `test_module_output.py` script, which:
-
-- Mocks parts of the plugin loader to control which plugins are run
-- Uses the test data cases directly
-- Generates all supported output formats (HTML, TSV, LAVA, etc.) for the selected module
-- Allows for manual verification of the output
-
-This step is intended for later-stage testing and manual verification. While it's more time-consuming than the initial module test, it provides a comprehensive check of the module's output capabilities.
-
-For details on how to use this script and interpret its results, see the [Testing Module Outputs](testing_module_outputs.md) documentation.
-
-## Future Expansions
-
-As the LEAPP project grows, we plan to expand our testing capabilities to potentially include:
-
-- Automated comparison of test results against known good data
-- Integration of output verification into CI/CD workflows
-- Performance benchmarking
-
-These expansions will be considered and implemented as the project's needs evolve.
