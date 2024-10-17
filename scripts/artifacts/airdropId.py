@@ -3,8 +3,8 @@ __artifacts_v2__ = {
         "name": "Airdrop ID",
         "description": "Extract Airdrop ID",
         "author": "@AlexisBrignoni",
-        "version": "0.2",
-        "date": "2024-05-09",
+        "version": "0.2.1",
+        "date": "2023-10-03",
         "requirements": "none",
         "category": "Identifiers",
         "notes": "",
@@ -30,6 +30,6 @@ def get_airdropId(files_found, report_folder, seeker, wrap_text, timezone_offset
                 data_list.append('Airdrop ID', val)
                 id_values.append(f"<b>Airdrop ID: </b>{val}")
 
-    data_headers = ('Key', 'Data')
+    data_headers = ('Identifer', 'Data Value')
     device_info("Airdrop", id_values)
     return data_headers, data_list, source_path

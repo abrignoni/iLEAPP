@@ -3,13 +3,13 @@ __artifacts_v2__ = {
         "name": "iOS ATXDatastore",
         "description": "Parses ATXDataStore and matches actions with Frequent locations, when available.",
         "author": "@magpol",
-        "version": "0.0.3",
-        "date": "2023-11-21",
+        "version": "0.1.4",
+        "date": "2023-10-11",
         "requirements": "none",
         "category": "Location",
         "notes": "",
         "paths": ('*DuetExpertCenter/_ATXDataStore.db*', '*routined/Local.sqlite*'),
-        "output_types": ['html', 'tsv', 'timeline', 'lava', 'kml']
+        "output_types": "all"
     }
 }
 

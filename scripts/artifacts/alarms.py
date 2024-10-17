@@ -3,13 +3,13 @@ __artifacts_v2__ = {
         "name": "Alarms",
         "description": "Extraction of alarms set",
         "author": "Anna-Mariya Mateyna",
-        "version": "0.5",
-        "date": "2023-10-11",
+        "version": "0.3",
+        "date": "2021-01-17",
         "requirements": "none",
         "category": "Alarms",
         "notes": "",
         "paths": ('*/mobile/Library/Preferences/com.apple.mobiletimerd.plist',),
-        "output_types": "all"
+        "output_types": "standard"
     }
 }
 

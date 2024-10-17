@@ -3,14 +3,14 @@ __artifacts_v2__ = {
         "name": "Application State",
         "description": "Extract information about bundle container path and data path for Applications",
         "author": "@AlexisBrignoni",
-        "version": "0.2",
-        "date": "2023-11-21",
+        "version": "0.2.2",
+        "date": "2020-04-30",
         "requirements": "none",
         "category": "Installed Apps",
         "notes": "",
         "paths": ('*/mobile/Library/FrontBoard/applicationState.db*'),
         "function": "get_applicationstate",
-        "output_types": "all"
+        "output_types": ["html", "tsv", "lava"]
     }
 }
 
@@ -93,7 +93,7 @@ def get_applicationstate(files_found, report_folder, seeker, wrap_text, timezone
         tsvname = 'Application State'
         tsv(report_folder, data_headers, data_list, tsvname)
     '''
-        data_headers = ('Bundle ID','Bundle Path','Sandbox Path')
+        data_headers = ('Bundle ID', 'Bundle Path', 'Sandbox Path')
         return data_headers, data_list, file_found
     
     else:

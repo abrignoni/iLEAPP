@@ -3,8 +3,8 @@ __artifacts_v2__ = {
         "name": "Account Configuration",
         "description": "Extracts account configuration information",
         "author": "@AlexisBrignoni",
-        "version": "0.2",
-        "date": "2022-08-09",
+        "version": "0.1.3",
+        "date": "2020-04-30",
         "requirements": "none",
         "category": "Accounts",
         "notes": "",
@@ -27,5 +27,5 @@ def get_confaccts(files_found, report_folder, seeker, wrap_text, timezone_offset
         for key, val in pl.items():
             data_list.append((key, val))
     
-    data_headers = ('Key', 'Data')
+    data_headers = ('Account ID', 'Data Value')
     return data_headers, data_list, source_path

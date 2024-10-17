@@ -2,14 +2,14 @@ __artifacts_v2__ = {
     "get_callHistory": {
         "name": "Call History",
         "description": "Extract Call History",
-        "author": "",
-        "version": "0.5",
-        "date": "2023-01-01",
+        "author": "@AlexisBrignoni",
+        "version": "0.7",
+        "date": "2020-04-30",
         "requirements": "none",
         "category": "Call History",
         "notes": "",
         "paths": ('*/CallHistory.storedata*','*/call_history.db',),
-        "output_types": "all"
+        "output_types": "standard"
     }
 }
 
