@@ -1,12 +1,28 @@
-import sqlite3
-import textwrap
-from datetime import datetime, timezone
-from scripts.builds_ids import OS_build
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, convert_ts_human_to_utc, convert_utc_human_to_timezone, convert_time_obj_to_utc 
+__artifacts_v2__ = {
+    "get_biomeSync": {
+        "name": "Biome Sync - Devices",
+        "description": "Parses Biome Device Sync records",
+        "author": "@JohnHyla",
+        "version": "0.0.2",
+        "date": "2024-10-17",
+        "requirements": "none",
+        "category": "Biome Sync",
+        "notes": "",
+        "paths": ('**/Biome/sync/sync.db*'),
+        "output_types": "standard"
+    }
+}
 
+
+from scripts.builds_ids import OS_build
+from scripts.ilapfuncs import open_sqlite_db_readonly, convert_ts_human_to_utc
+from scripts.ilapfuncs import artifact_processor, convert_utc_human_to_timezone
+
+@artifact_processor
 def get_biomeSync(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    
+
+    data_list = []
+
     for file_found in files_found:
         file_found = str(file_found)
         if not file_found.endswith('.db'):
@@ -36,49 +52,27 @@ def get_biomeSync(files_found, report_folder, seeker, wrap_text, timezone_offset
         ''')
 
         all_rows = cursor.fetchall()
-        usageentries = len(all_rows)
-        if usageentries > 0:
 
-            report = ArtifactHtmlReport('Biome Sync - Devices')
-            report.start_artifact_report(report_folder, 'Biome Sync - Devices')
-            report.add_script()
-            data_headers = ('Last Sync Timestamp','Device ID','Name','Device Type','OS Build','OS Version','Local Device') # Don't remove the comma, that is required to make this a tuple as there is only 1 element
-            data_list = []
-            for row in all_rows:
-                
-                if row[0] == ' ':
-                    timestamp = ''
-                elif row[0] is None:
-                    timestamp = row[0]
-                else:
-                    timestamp = row[0]
-                    timestamp = convert_ts_human_to_utc(timestamp)
-                    timestamp = convert_utc_human_to_timezone(timestamp, timezone_offset)
-                
-                for key, value in OS_build.items():
-                    if str(row[4]) == key:
-                        os_build = value
-                        break
-                    else: os_build = 'Unknown'
-            
-                data_list.append((timestamp,row[1],row[2],row[3],row[4],os_build,row[5]))
+        for row in all_rows:
+            if row[0] == ' ':
+                timestamp = ''
+            elif row[0] is None:
+                timestamp = row[0]
+            else:
+                timestamp = row[0]
+                timestamp = convert_ts_human_to_utc(timestamp)
+                timestamp = convert_utc_human_to_timezone(timestamp, timezone_offset)
 
-            report.write_artifact_data_table(data_headers, data_list, file_found)
-            report.end_artifact_report()
-            
-            tsvname = f'Biome Sync - Devices'
-            tsv(report_folder, data_headers, data_list, tsvname)
-            
-            tlactivity = f'Biome Sync - Devices'
-            timeline(report_folder, tlactivity, data_list, data_headers)
-        else:
-            logfunc('No Biome Sync - Devices data available')
-        
-            db.close()
+            os_build = 'Unknown'
+            for key, value in OS_build.items():
+                if str(row[4]) == key:
+                    os_build = value
+                    break
 
-__artifacts__ = {
-    "biomeSync": (
-        "Biome Sync",
-        ('**/Biome/sync/sync.db*'),
-        get_biomeSync)
-}
+            data_list.append((timestamp, row[1], row[2], row[3], row[4], os_build, row[5]))
+
+        db.close()
+
+    data_headers = (('Last Sync Timestamp', 'datetime'), 'Device ID', 'Name', 'Device Type', 'OS Build', 'OS Version', 'Local Device')
+
+    return data_headers, data_list, file_found
