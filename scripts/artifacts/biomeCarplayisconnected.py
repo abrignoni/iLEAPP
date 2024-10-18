@@ -57,8 +57,10 @@ def get_biomeCarplayisconnected(files_found, report_folder, seeker, wrap_text, t
                 actionguid = (protostuff['5'])
                 status = (protostuff['4']['4'])
                 
-                data_list.append((timestart, timeend, timewrite, activity, status, actionguid, filename, record.data_start_offset))
+                data_list.append((timestart, timeend, timewrite, activity, status, actionguid, filename,
+                                  record.data_start_offset))
 
-    data_headers = ('Time Start','Time End','Time Write','Activity','Status','Action GUID', 'Filename', 'Offset')
+    data_headers = (('Time Start', 'datetime'), ('Time End', 'datetime'), ('Time Write', 'datetime'), 'Activity',
+                    'Status','Action GUID', 'Filename', 'Offset')
 
     return data_headers, data_list, file_found
