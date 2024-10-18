@@ -8,6 +8,7 @@ import re
 import shutil
 import sqlite3
 import sys
+import math
 from functools import lru_cache
 from pathlib import Path
 
@@ -170,6 +171,16 @@ def convert_ts_human_to_utc(ts): #This is for timestamp in human form
 def convert_ts_int_to_utc(ts): #This int timestamp to human format & utc
     timestamp = datetime.fromtimestamp(ts, tz=timezone.utc)
     return timestamp
+
+def convert_unix_ts_to_timezone(ts, timezone_offset):
+    if ts:
+        digits = int(math.log10(ts))+1
+        if digits > 10:
+            extra_digits = digits - 10
+            ts = ts // 10**extra_digits
+        return convert_ts_int_to_timezone(ts, timezone_offset)
+    else:
+        return ts
 
 def convert_ts_human_to_timezone_offset(ts, timezone_offset):
     return convert_utc_human_to_timezone(convert_ts_human_to_utc(ts), timezone_offset) if ts else ts
