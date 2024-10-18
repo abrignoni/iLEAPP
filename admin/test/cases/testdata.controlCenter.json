@@ -1,0 +1,89 @@
+{
+  "josh_ios15_ffs": {
+    "description": "",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "/Users/jameshabben/Documents/phone-images/Josh/iOS_15_Public_Image.tar.gz",
+      "os": "macOS-15.0-x86_64-i386-64bit",
+      "timestamp": "2024-10-18T11:28:52.436132",
+      "last_commit": {
+        "hash": "de6fdbe64b57ef6f08cdcc5947c2bd89a6eb677c",
+        "author_name": "abrignoni",
+        "author_email": "abrignoni@gmail.com",
+        "date": "2023-10-10T21:56:23-04:00",
+        "message": "Timezone offset main code"
+      }
+    },
+    "artifacts": {
+      "controlCenter": {
+        "search_patterns": [
+          "*/mobile/Library/ControlCenter/ModuleConfiguration.plist"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "image_name": "josh_ios15_ffs"
+  },
+  "mvs_ios_2023": {
+    "description": "",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "/Users/jameshabben/Documents/phone-images/magnet/00008101-0010541A1130001E_files_full-001.zip",
+      "os": "macOS-15.0-x86_64-i386-64bit",
+      "timestamp": "2024-10-18T11:32:11.780817",
+      "last_commit": {
+        "hash": "de6fdbe64b57ef6f08cdcc5947c2bd89a6eb677c",
+        "author_name": "abrignoni",
+        "author_email": "abrignoni@gmail.com",
+        "date": "2023-10-10T21:56:23-04:00",
+        "message": "Timezone offset main code"
+      }
+    },
+    "artifacts": {
+      "controlCenter": {
+        "search_patterns": [
+          "*/mobile/Library/ControlCenter/ModuleConfiguration.plist"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "image_name": "mvs_ios_2023"
+  },
+  "belkasoft_ctf6_ios_device1": {
+    "description": "",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "/Users/jameshabben/Documents/phone-images/belkasoft/BelkaCTF_6_CASE240405_D201AP.tar",
+      "os": "macOS-15.0-x86_64-i386-64bit",
+      "timestamp": "2024-10-18T11:32:29.308993",
+      "last_commit": {
+        "hash": "de6fdbe64b57ef6f08cdcc5947c2bd89a6eb677c",
+        "author_name": "abrignoni",
+        "author_email": "abrignoni@gmail.com",
+        "date": "2023-10-10T21:56:23-04:00",
+        "message": "Timezone offset main code"
+      }
+    },
+    "artifacts": {
+      "controlCenter": {
+        "search_patterns": [
+          "*/mobile/Library/ControlCenter/ModuleConfiguration.plist"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "image_name": "belkasoft_ctf6_ios_device1"
+  }
+}
