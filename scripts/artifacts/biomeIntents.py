@@ -21,7 +21,7 @@ import nska_deserialize as nd
 from ccl_segb import read_segb_file
 from ccl_segb.ccl_segb_common import EntryState
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import artifact_processor, tsv, timeline, convert_utc_human_to_timezone, convert_time_obj_to_utc
+from scripts.ilapfuncs import tsv, timeline, convert_utc_human_to_timezone, convert_time_obj_to_utc
 from scripts.lavafuncs import lava_process_artifact, lava_insert_sqlite_data
 
 
@@ -253,10 +253,10 @@ def get_biomeIntents(files_found, report_folder, seeker, wrap_text, timezone_off
             tlactivity = f'Biome Intents - {filename}'
             timeline(report_folder, tlactivity, file_data_list_tsv, data_headers)
 
-        # Single table for LAVA output
-        table_name, object_columns, column_map = lava_process_artifact(category, module_name,
-                                                                       'Biome Intents',
-                                                                       lava_data_headers,
-                                                                       len(data_list))
+    # Single table for LAVA output
+    table_name, object_columns, column_map = lava_process_artifact(category, module_name,
+                                                                   'Biome Intents',
+                                                                   lava_data_headers,
+                                                                   len(data_list))
 
-        lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
+    lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
