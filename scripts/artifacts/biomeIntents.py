@@ -27,7 +27,7 @@ from scripts.lavafuncs import lava_process_artifact, lava_insert_sqlite_data
 
 def get_biomeIntents(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
-    category = "Biome Inents"
+    category = "Biome Intents"
     module_name = "get_biomeIntents"
     data_headers = ('Timestamp', 'End Date', 'Duration Interval', 'Donated by Siri', 'App ID', 'Classname', 'Action',
                     'Direction', 'Group ID', 'Data', 'Filename', 'Protobuf data Offset')
