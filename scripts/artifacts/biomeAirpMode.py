@@ -38,7 +38,6 @@ def get_biomeAirpMode(files_found, report_folder, seeker, wrap_text, timezone_of
                 pass
         else:
             continue
-        
 
         for record in read_segb_file(file_found):
             offset = record.data_start_offset
@@ -46,17 +45,20 @@ def get_biomeAirpMode(files_found, report_folder, seeker, wrap_text, timezone_of
             ts = ts.replace(tzinfo=timezone.utc)
 
             if record.state == EntryState.Written:
-
                 protostuff, types = blackboxprotobuf.decode_message(record.data, typess)
                 timestart = (webkit_timestampsconv(protostuff['2']))
-                #timeend = (webkit_timestampsconv(protostuff['3']))
+                timeend = (webkit_timestampsconv(protostuff['3']))
                 #timeend = convert_ts_int_to_utc(timeend)
                 event = protostuff['1']['1']
                 guid = protostuff['5'].decode()
 
-                data_list.append((ts, timestart, filename, offset, event, guid))
+                data_list.append((ts, timestart, timeend, record.state.name, event, guid, filename, offset))
 
-    data_headers = (('Timestamp Written', 'datetime'), ('Timestamp', 'datetime'), 'Filename', 'Offset', 'Event', 'GUID')
+            elif record.state == EntryState.Deleted:
+                data_list.append((ts, None, None, record.state.name, None, None, filename, record.data_start_offset))
+
+    data_headers = (('SEGB Timestamp', 'datetime'), ('Timestamp', 'datetime'), ('Timestamp2', 'datetime'), 'SEGB State'
+                    , 'Event', 'GUID', 'Filename', 'Offset')
 
     return data_headers, data_list, file_found
 
