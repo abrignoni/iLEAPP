@@ -15,7 +15,7 @@ __artifacts_v2__ = {
 
 
 import os
-import struct
+from datetime import timezone
 import blackboxprotobuf
 from datetime import *
 from ccl_segb import read_segb_file
@@ -42,16 +42,19 @@ def get_biomeDevWifi(files_found, report_folder, seeker, wrap_text, timezone_off
             continue
 
         for record in read_segb_file(file_found):
+            ts = record.timestamp1
+            ts = ts.replace(tzinfo=timezone.utc)
+
             if record.state == EntryState.Written:
-                ts = record.timestamp1
-                ts = ts.replace(tzinfo=timezone.utc)
                 protostuff, types = blackboxprotobuf.decode_message(record.data, typess)
                 ssid = protostuff['SSID']
                 status = 'Connected' if protostuff['Connect'] == 1 else 'Disconnected'
-                data_list.append((ts, ssid, status, filename, record.data_start_offset))
+                data_list.append((ts, record.state.name, ssid, status, filename, record.data_start_offset))
 
+            elif record.state == EntryState.Deleted:
+                data_list.append((ts, record.state.name, None, None, filename, record.data_start_offset))
 
-    data_headers = (('Timestamp', 'datetime'), 'SSID', 'Status', 'Filename', 'Offset')
+    data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'SSID', 'Status', 'Filename', 'Offset')
 
     return data_headers, data_list, file_found
 

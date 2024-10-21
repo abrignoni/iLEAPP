@@ -16,6 +16,7 @@ __artifacts_v2__ = {
 
 import os
 import nska_deserialize as nd
+from datetime import timezone
 import blackboxprotobuf
 from ccl_segb import read_segb_file
 from ccl_segb.ccl_segb_common import EntryState
@@ -42,6 +43,9 @@ def get_biomeLocationactivity(files_found, report_folder, seeker, wrap_text, tim
             continue
 
         for record in read_segb_file(file_found):
+            ts = record.timestamp1
+            ts = ts.replace(tzinfo=timezone.utc)
+
             if record.state == EntryState.Written:
                 protostuff, types = blackboxprotobuf.decode_message(record.data, typess)
                 
@@ -88,11 +92,16 @@ def get_biomeLocationactivity(files_found, report_folder, seeker, wrap_text, tim
                 timewrite = (webkit_timestampsconv(protostuff['8']))
                 timewrite = convert_utc_human_to_timezone(timewrite, timezone_offset)
                 
-                data_list.append((timestart, timeend, timewrite, activity, bundle, bundle2, data0, data1, data2, data3,
-                                  data4, data5, data6, actionguid, filename, record.data_start_offset))
+                data_list.append((ts, timestart, timeend, timewrite, record.state.name, activity, bundle, bundle2,
+                                  data0, data1, data2, data3, data4, data5, data6, actionguid, filename,
+                                  record.data_start_offset))
 
-    data_headers = (('Time Start', 'datetime'), ('Time End', 'datetime'), ('Time Write', 'datetime'), 'Activity',
-                    'Bundle ID','Bundle ID 2', 'Data 0', 'Data 1', 'Data 2', 'Data 3', 'Data 4', 'Data 5', 'Data 6',
-                    'Action GUID', 'Filename', 'Offset')
+            elif record.state == EntryState.Deleted:
+                data_list.append((ts, None, None, None, record.state.name, None, None, None, None, None, None, None,
+                                  None, None, None, None, filename, record.data_start_offset))
+
+    data_headers = (('SEGB Timestamp', 'datetime'), ('Time Start', 'datetime'), ('Time End', 'datetime'),
+                    ('Time Write', 'datetime'), 'SEGB State', 'Activity', 'Bundle ID','Bundle ID 2', 'Data 0', 'Data 1',
+                    'Data 2', 'Data 3', 'Data 4', 'Data 5', 'Data 6', 'Action GUID', 'Filename', 'Offset')
 
     return data_headers, data_list, file_found

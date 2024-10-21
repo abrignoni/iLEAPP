@@ -15,9 +15,8 @@ __artifacts_v2__ = {
 
 
 import os
-import struct
+from datetime import timezone
 import blackboxprotobuf
-from io import BytesIO
 from ccl_segb import read_segb_file
 from ccl_segb.ccl_segb_common import EntryState
 from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv, convert_utc_human_to_timezone
@@ -44,6 +43,9 @@ def get_biomeInfocus(files_found, report_folder, seeker, wrap_text, timezone_off
             continue
 
         for record in read_segb_file(file_found):
+            ts = record.timestamp1
+            ts = ts.replace(tzinfo=timezone.utc)
+
             if record.state == EntryState.Written:
                 protostuff, types = blackboxprotobuf.decode_message(record.data, typess)
 
@@ -52,9 +54,12 @@ def get_biomeInfocus(files_found, report_folder, seeker, wrap_text, timezone_off
                 timestart = convert_utc_human_to_timezone(timestart, timezone_offset)
                 foreground = ('Foreground' if protostuff['3'] == 1 else 'Background')
 
-                data_list.append((timestart, bundleid, foreground, filename))
+                data_list.append((ts, timestart, record.state.name, bundleid, foreground, filename, record.data_start_offset))
 
-    data_headers = (('Timestamp', 'datetime'), 'Bundle ID', 'Action', 'Filename')
+            elif record.state == EntryState.Deleted:
+                data_list.append((ts, None, record.state.name, None, None, filename, record.data_start_offset))
+
+    data_headers = (('Timestamp', 'datetime'), 'Bundle ID', 'Action', 'Filename', 'Offset')
 
     return data_headers, data_list, file_found
 

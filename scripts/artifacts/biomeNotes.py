@@ -16,6 +16,7 @@ __artifacts_v2__ = {
 
 
 import os
+from datetime import timezone
 import blackboxprotobuf
 from pathlib import Path
 from ccl_segb import read_segb_file
@@ -29,8 +30,8 @@ def get_biomeNotes(files_found, report_folder, seeker, wrap_text, timezone_offse
 
     category = "Biome Notes"
     module_name = "get_biomeNotes"
-    data_headers = ('Timestamp', 'Record Num', 'Identifier 1', 'Identifier 2', 'Note')
-    lava_data_headers = (('Timestamp', 'datetime'), 'Record Num', 'Identifier 1', 'Identifier 2', 'Note')
+    data_headers = ('SEGB Timestamp', 'Timestamp', 'SEGB State', 'Record Num', 'Identifier 1', 'Identifier 2', 'Note')
+    lava_data_headers = (('SEGB Timestamp', 'datetime'), ('Timestamp', 'datetime'), 'SEGB State', 'Record Num', 'Identifier 1', 'Identifier 2', 'Note')
 
     typess = {'1': {'type': 'str', 'name': ''}, '2': {'type': 'str', 'name': ''}, '3': {'type': 'double', 'name': ''}, '5': {'type': 'str', 'name': ''}}
 
@@ -52,6 +53,9 @@ def get_biomeNotes(files_found, report_folder, seeker, wrap_text, timezone_offse
         file_data_list_html = []
         file_data_list = []
         for record in read_segb_file(file_found):
+            ts = record.timestamp1
+            ts = ts.replace(tzinfo=timezone.utc)
+
             if record.state == EntryState.Written:
                 protostuff, types = blackboxprotobuf.decode_message(record.data)
                 record_counter += 1
@@ -61,13 +65,19 @@ def get_biomeNotes(files_found, report_folder, seeker, wrap_text, timezone_offse
                 identifier2 = protostuff['2']
                 message = protostuff['5']
                 messagehtml = (message.replace('\n', '<br>'))
-                file_data_list.append((time,record_counter, identifier1,identifier2,message))
-                file_data_list_html.append((time,record_counter, identifier1,identifier2,messagehtml))
+                file_data_list.append((ts, time, record.state.name, record_counter, identifier1, identifier2, message, filename, record.data_start_offset))
+                file_data_list_html.append((ts, time, record.state.name, record_counter, identifier1, identifier2, messagehtml, filename, record.data_start_offset))
                 
                 #write notes to report_folder
                 
                 output_file = Path(report_folder).joinpath(f'{record_counter}.txt')
                 output_file.write_text(message)
+
+            elif record.state == EntryState.Deleted:
+                file_data_list.append((ts, None, record.state.name, None, None, None, None, filename,
+                                       record.data_start_offset))
+                file_data_list_html.append((ts, None, record.state.name, None, None, None, None, filename,
+                                            record.data_start_offset))
 
         data_list.extend(file_data_list)
         

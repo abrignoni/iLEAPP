@@ -42,11 +42,12 @@ def get_biomeWifi(files_found, report_folder, seeker, wrap_text, timezone_offset
             continue
 
         for record in read_segb_file(file_found):
+            ts = record.timestamp1
+            ts = ts.replace(tzinfo=timezone.utc)
+
             if record.state == EntryState.Written:
                 protostuff, types = blackboxprotobuf.decode_message(record.data, typess)
 
-                ts = record.timestamp1
-                ts = ts.replace(tzinfo=timezone.utc)
                 timestart = (webkit_timestampsconv(protostuff['2']))
 
                 event = protostuff['1']['1']
@@ -55,9 +56,12 @@ def get_biomeWifi(files_found, report_folder, seeker, wrap_text, timezone_offset
                 if device != '':
                     device = device.decode()
 
-                data_list.append((ts, timestart, event, device, guid, filename, record.data_start_offset))
+                data_list.append((ts, timestart, record.state.name, event, device, guid, filename, record.data_start_offset))
 
-    data_headers = (('Timestamp Written', 'datetime'), ('Timestamp', 'datetime'), 'Event', 'Device', 'GUID', 'Filename',
-                    'Offset')
+            elif record.state == EntryState.Deleted:
+                data_list.append((ts, None, record.state.name, None, None, None, filename, record.data_start_offset))
+
+    data_headers = (('SEGB Timestamp', 'datetime'), ('Timestamp', 'datetime'), 'SEGB State', 'Event', 'Device', 'GUID',
+                    'Filename', 'Offset')
 
     return data_headers, data_list, file_found

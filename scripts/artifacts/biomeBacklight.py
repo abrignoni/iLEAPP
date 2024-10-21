@@ -15,9 +15,8 @@ __artifacts_v2__ = {
 
 
 import os
-import struct
+from datetime import timezone
 import blackboxprotobuf
-from io import BytesIO
 from ccl_segb import read_segb_file
 from ccl_segb.ccl_segb_common import EntryState
 from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv, convert_utc_human_to_timezone
@@ -43,6 +42,9 @@ def get_biomeBacklight(files_found, report_folder, seeker, wrap_text, timezone_o
             continue
 
         for record in read_segb_file(file_found):
+            ts = record.timestamp1
+            ts = ts.replace(tzinfo=timezone.utc)
+
             if record.state == EntryState.Written:
                 protostuff, types = blackboxprotobuf.decode_message(record.data, typess)
 
@@ -50,8 +52,11 @@ def get_biomeBacklight(files_found, report_folder, seeker, wrap_text, timezone_o
                 timestart = convert_utc_human_to_timezone(timestart, timezone_offset)
                 state = (protostuff['2'])
 
-                data_list.append((timestart, state, filename, record.data_start_offset))
+                data_list.append((ts, timestart, record.state.name, state, filename, record.data_start_offset))
+            elif record.state == EntryState.Deleted:
+                data_list.append((ts, None, record.state.name, None, filename, record.data_start_offset))
 
-    data_headers = (('Timestamp', 'datetime'), 'State', 'Filename', 'Offset')
+    data_headers = (('SEGB Timestamp', 'datetime'), ('Timestamp', 'datetime'), 'SEGB State', 'State', 'Filename',
+                    'Offset')
 
     return data_headers, data_list, file_found

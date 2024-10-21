@@ -15,6 +15,7 @@ __artifacts_v2__ = {
 
 
 import os
+from datetime import timezone
 import blackboxprotobuf
 import nska_deserialize as nd
 from ccl_segb import read_segb_file
@@ -41,6 +42,9 @@ def get_biomeUseractmeta(files_found, report_folder, seeker, wrap_text, timezone
             continue
 
         for record in read_segb_file(file_found):
+            ts = record.timestamp1
+            ts = ts.replace(tzinfo=timezone.utc)
+
             if record.state == EntryState.Written:
                 protostuff, types = blackboxprotobuf.decode_message(record.data)
 
@@ -88,10 +92,15 @@ def get_biomeUseractmeta(files_found, report_folder, seeker, wrap_text, timezone
                             b = 'NULL'
                         agg = agg + f'{a} = {b}<br>'
                 
-                data_list.append((when, actype, desc1, desc2, title, agg.strip(), payload, container))
-        
+                data_list.append((ts, when, record.state.name, actype, desc1, desc2, title, agg.strip(), payload,
+                                  container, filename, record.data_start_offset))
 
-    data_headers = (('Timestamp', 'datetime'), 'Activity type', 'Description', 'Bundle ID', 'Title', 'Bplist Data',
-                    'Payload Data','Container Data')
+            elif record.state == EntryState.Deleted:
+                data_list.append((ts, None, record.state.name, None, None, None, None, None, None, None, filename,
+                                  record.data_start_offset))
 
-    return data_headers, data_list, file_found # , html_no_escape=['Bplist Data']
+    data_headers = (('SEGB Timestamp', 'datetime'), ('Timestamp', 'datetime'), 'SEGB State', 'Activity type',
+                    'Description', 'Bundle ID', 'Title', 'Bplist Data', 'Payload Data','Container Data', 'Filename',
+                    'Offset')
+
+    return data_headers, data_list, file_found

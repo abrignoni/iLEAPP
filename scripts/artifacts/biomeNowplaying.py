@@ -15,9 +15,8 @@ __artifacts_v2__ = {
 
 
 import os
-import struct
+from datetime import timezone
 import blackboxprotobuf
-from io import BytesIO
 from ccl_segb import read_segb_file
 from ccl_segb.ccl_segb_common import EntryState
 from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv, convert_utc_human_to_timezone
@@ -43,6 +42,9 @@ def get_biomeNowplaying(files_found, report_folder, seeker, wrap_text, timezone_
             continue
 
         for record in read_segb_file(file_found):
+            ts = record.timestamp1
+            ts = ts.replace(tzinfo=timezone.utc)
+
             if record.state == EntryState.Written:
                 protostuff, types = blackboxprotobuf.decode_message(record.data, typess)
                 
@@ -59,8 +61,14 @@ def get_biomeNowplaying(files_found, report_folder, seeker, wrap_text, timezone_
                         output = (f"{protostuff['14'][0]['3']} <-> {protostuff['14'][1]['3']}")
                 else:
                     output = ''
-                data_list.append((timestart, bundleid, output, info, info2, info3))
+                data_list.append((ts, timestart, record.state.name, bundleid, output, info, info2, info3, filename,
+                                  record.data_start_offset))
 
-    data_headers = (('Timestamp', 'datetime'),'Bundle ID','Output','Media Type','Title','Artist')
+            elif record.state == EntryState.Deleted:
+                data_list.append((ts, None, record.state.name, None, None, None, None, None, filename,
+                                  record.data_start_offset))
+
+    data_headers = (('SEGB Timestamp', 'datetime'), ('Timestamp', 'datetime'), 'SEGB State', 'Bundle ID', 'Output',
+                    'Media Type', 'Title', 'Artist', 'Filename', 'Offset')
 
     return data_headers, data_list, file_found

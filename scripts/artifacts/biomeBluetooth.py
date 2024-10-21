@@ -40,19 +40,22 @@ def get_biomeBluetooth(files_found, report_folder, seeker, wrap_text, timezone_o
             continue
 
         for record in read_segb_file(file_found):
+            ts = record.timestamp1
+            ts = ts.replace(tzinfo=timezone.utc)
+
             if record.state == EntryState.Written:
                 protostuff, _ = blackboxprotobuf.decode_message(record.data)
-
-                ts = record.timestamp1
-                ts = ts.replace(tzinfo=timezone.utc)
                 
                 mac = protostuff['1'].decode()
                 if isinstance(protostuff['2'], dict):
                     desc = protostuff['2']
                 else:
                     desc = protostuff['2'].decode()
-                data_list.append((ts, mac, desc, filename, record.data_start_offset))
+                data_list.append((ts, record.state.name, mac, desc, filename, record.data_start_offset))
 
-    data_headers = (('Timestamp', 'datetime'), 'MAC', 'Name', 'Filename', 'Offset')
+            elif record.state == EntryState.Deleted:
+                data_list.append((ts, record.state.name, None, None, filename, record.data_start_offset))
+
+    data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'MAC', 'Name', 'Filename', 'Offset')
 
     return data_headers, data_list, file_found

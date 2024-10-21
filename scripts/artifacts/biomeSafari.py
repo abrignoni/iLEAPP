@@ -42,10 +42,10 @@ def get_biomeSafari(files_found, report_folder, seeker, wrap_text, timezone_offs
             continue
 
         for record in read_segb_file(file_found):
-            if record.state == EntryState.Written:
-                ts1 = record.timestamp1
-                ts1 = ts1.replace(tzinfo=timezone.utc)
+            ts = record.timestamp1
+            ts = ts.replace(tzinfo=timezone.utc)
 
+            if record.state == EntryState.Written:
                 protostuff, types = blackboxprotobuf.decode_message(record.data, typess)
                 activity = (protostuff['1']['1'])
                 timestart = (webkit_timestampsconv(protostuff['2']))
@@ -56,10 +56,14 @@ def get_biomeSafari(files_found, report_folder, seeker, wrap_text, timezone_offs
                 detail3 = (protostuff['6']['4'])
                 title = (protostuff['7']['2']['3'])
 
-                data_list.append((ts1, timestart, activity, title, url, detail1, detail2, detail3, guid, filename,
+                data_list.append((ts, timestart, record.state.name, activity, title, url, detail1, detail2, detail3, guid, filename,
                                   record.data_start_offset))
 
-        data_headers = (('Timestamp SEGB', 'datetime'), ('Timestamp', 'datetime'), 'Activity', 'Title', 'URL', 'Detail',
-                        'Detail 2', 'Detail 3', 'GUID', "Filename", "Offset")
+            elif record.state == EntryState.Deleted:
+                data_list.append((ts, None, record.state.name, None, None, None, None, None, None, None, filename,
+                                  record.data_start_offset))
+
+        data_headers = (('SEGB Timestamp', 'datetime'), ('Timestamp', 'datetime'), 'SEGB State', 'Activity', 'Title',
+                        'URL', 'Detail', 'Detail 2', 'Detail 3', 'GUID', "Filename", "Offset")
 
         return data_headers, data_list, file_found

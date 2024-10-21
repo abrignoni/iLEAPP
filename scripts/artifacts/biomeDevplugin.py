@@ -15,9 +15,8 @@ __artifacts_v2__ = {
 
 
 import os
-import struct
+from datetime import timezone
 import blackboxprotobuf
-from io import BytesIO
 from ccl_segb import read_segb_file
 from ccl_segb.ccl_segb_common import EntryState
 from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv, convert_utc_human_to_timezone
@@ -43,6 +42,9 @@ def get_biomeDevplugin(files_found, report_folder, seeker, wrap_text, timezone_o
             continue
 
         for record in read_segb_file(file_found):
+            ts = record.timestamp1
+            ts = ts.replace(tzinfo=timezone.utc)
+
             if record.state == EntryState.Written:
                 protostuff, types = blackboxprotobuf.decode_message(record.data, typess)
 
@@ -59,10 +61,14 @@ def get_biomeDevplugin(files_found, report_folder, seeker, wrap_text, timezone_o
                 con = (protostuff['4']['4'])
                 actionguid = (protostuff['5'])
                 
-                data_list.append((timestart, timeend, timewrite, activity, con, actionguid, filename,
+                data_list.append((ts, timestart, timeend, timewrite, record.state.name, activity, con, actionguid,
+                                  filename, record.data_start_offset))
+
+            elif record.state == EntryState.Deleted:
+                data_list.append((ts, None, None, None, record.state.name, None, None, None, filename,
                                   record.data_start_offset))
 
-    data_headers = (('Time Start', 'datetime'), ('Time End', 'datetime'), ('Time Write', 'datetime'), 'Activity',
-                    'Status', 'Action GUID', 'Filename', 'Offset')
+    data_headers = (('SEGB Timestamp', 'datetime'), ('Time Start', 'datetime'), ('Time End', 'datetime'),
+                    ('Time Write', 'datetime'), 'SEGB State', 'Activity', 'Status', 'Action GUID', 'Filename', 'Offset')
 
     return data_headers, data_list, file_found

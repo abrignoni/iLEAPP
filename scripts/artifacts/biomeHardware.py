@@ -43,9 +43,10 @@ def get_biomeHardware(files_found, report_folder, seeker, wrap_text, timezone_of
             continue
 
         for record in read_segb_file(file_found):
+            ts = record.timestamp1
+            ts = ts.replace(tzinfo=timezone.utc)
+
             if record.state == EntryState.Written:
-                ts = record.timestamp1
-                ts = ts.replace(tzinfo=timezone.utc)
                 protostuff, types = blackboxprotobuf.decode_message(record.data, typess)
                 
                 #pp = pprint.PrettyPrinter(indent=4)
@@ -54,8 +55,11 @@ def get_biomeHardware(files_found, report_folder, seeker, wrap_text, timezone_of
                 
                 hardware = (protostuff['1'])
                 
-                data_list.append((ts, hardware, filename, record.data_start_offset))
+                data_list.append((ts, record.state.name, hardware, filename, record.data_start_offset))
 
-    data_headers = (('SEGB Record Time', 'datetime'),'Hardware', 'Filename', 'Offset')
+            elif record.state == EntryState.Deleted:
+                data_list.append((ts, record.state.name, None, filename, record.data_start_offset))
+
+    data_headers = (('SEGB Record Time', 'datetime'), 'SEGB State', 'Hardware', 'Filename', 'Offset')
 
     return data_headers, data_list, file_found
