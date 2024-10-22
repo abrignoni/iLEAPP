@@ -1,11 +1,23 @@
-import sqlite3
-import plistlib
-from datetime import datetime
-import scripts.artifacts.artGlobals
+__artifacts_v2__ = {
+    "get_carCD": {
+        "name": "Last Car Connection and UDID",
+        "description": "",
+        "author": "@JohnHyla",
+        "version": "0.0.2",
+        "date": "2024-10-22",
+        "requirements": "none",
+        "category": "Identifiers",
+        "notes": "",
+        "paths": ('*/Library/Caches/locationd/cache.plist'),
+        "output_types": "none",
+        "function": "get_carCD"
+    }
+}
 
-from packaging import version
+import plistlib
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, timeline, kmlgen, tsv, is_platform_windows, open_sqlite_db_readonly, webkit_timestampsconv
+from scripts.ilapfuncs import logfunc, logdevinfo, tsv, webkit_timestampsconv, lava_process_artifact, lava_insert_sqlite_data
+
 
 def get_carCD(files_found, report_folder, seeker, wrap_text, timezone_offset):
     
@@ -18,9 +30,7 @@ def get_carCD(files_found, report_folder, seeker, wrap_text, timezone_offset):
         
         with open(file_found, "rb") as fp:
             pl = plistlib.load(fp)
-            #print(type(pl))
             for key, value in pl.items():
-                #print(key, value)
                 if key == 'LastVehicleConnection':
                     lastconn = value
                     contype = lastconn[2]
@@ -37,23 +47,30 @@ def get_carCD(files_found, report_folder, seeker, wrap_text, timezone_offset):
                     pass
                     
     if len(data_list) > 0:
-        description = 'Last Car Connection and UDID'
+
         report = ArtifactHtmlReport('Last Car Connection and UDID')
         report.start_artifact_report(report_folder, 'Last Car Connection and UDID')
         report.add_script()
-        data_headers = ('Key','Value')
+        data_headers = ('Data Key','Data Value')
         report.write_artifact_data_table(data_headers, data_list, file_found, html_escape=False)
         report.end_artifact_report()
-        
+
         tsvname = f'Last Car Connection and UDID'
         tsv(report_folder, data_headers, data_list, tsvname)
-        
+
+        # Single table for LAVA output
+        category = "Identifiers"
+        module_name = "getcarCD"
+        name = 'Last Car Connection and UDID'
+
+        logfunc(f'Found {len(data_list)} records for Last Car Connection and UDID')
+
+        table_name, object_columns, column_map = lava_process_artifact(category, module_name,
+                                                                       name,
+                                                                       data_headers,
+                                                                       len(data_list))
+
+        lava_insert_sqlite_data(table_name, data_list, object_columns, data_headers, column_map)
+
     else:
-        logfunc('Last Car Connection and UDID')
-        
-__artifacts__ = {
-    "carCD": (
-        "Identifiers",
-        ('*/Library/Caches/locationd/cache.plist'),
-        get_carCD)
-}
+        logfunc(f'No records found for Last Car Connection and UDID')
