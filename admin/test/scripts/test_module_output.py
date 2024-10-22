@@ -58,7 +58,7 @@ def select_test_case(test_cases):
             print("Invalid input. Please enter a number.")
 
 def extract_test_data(module_name, case_name, test_case, temp_folder):
-    data_folder = Path('admin/test/cases/data')
+    data_folder = Path('admin/test/cases/data') / module_name  # Updated path
     for artifact_name in test_case['artifacts'].keys():
         zip_path = data_folder / f"testdata.{module_name}.{artifact_name}.{case_name}.zip"
         if zip_path.exists():

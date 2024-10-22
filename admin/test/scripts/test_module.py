@@ -224,7 +224,8 @@ def main(module_name, artifact_name=None, case_number=None):
                         continue
 
                     print(f"\nTesting artifact: {artifact} for case: {case}")
-                    zip_path = Path('admin/test/cases/data') / f"testdata.{module_name}.{artifact}.{case}.zip"
+                    # Update zip_path to use the new folder structure
+                    zip_path = Path('admin/test/cases/data') / module_name / f"testdata.{module_name}.{artifact}.{case}.zip"
                     artifact_info = artifacts_info.get(artifact, {})
                     start_datetime = datetime.now(timezone.utc)
                     headers, data, run_time, last_commit_info = process_artifact(zip_path, module_name, artifact, artifact_data)
@@ -253,7 +254,8 @@ def main(module_name, artifact_name=None, case_number=None):
                         "data": processed_data
                     }
                     
-                    output_dir = Path('admin/test/results')
+                    # Update output directory to use module-specific subfolder
+                    output_dir = Path('admin/test/results') / module_name
                     output_dir.mkdir(parents=True, exist_ok=True)
                     output_file = output_dir / f"{module_name}.{artifact}.{case}.{start_datetime.strftime('%Y%m%d%H%M%S')}.json"
                     

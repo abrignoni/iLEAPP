@@ -184,7 +184,7 @@ def create_test_data(module_name, image_name=None, case_number=None, input_file=
     
     # Update paths for new folder structure
     cases_dir = os.path.join(repo_root, 'admin', 'test', 'cases')
-    data_dir = os.path.join(cases_dir, 'data')
+    data_dir = os.path.join(cases_dir, 'data', module_name)  # Add module_name to the path
     os.makedirs(data_dir, exist_ok=True)
     
     json_file = os.path.join(cases_dir, f"testdata.{module_name}.json")
@@ -365,8 +365,8 @@ def prompt_for_image(module_name):
             print("Invalid input. Please enter a number.")
 
 def check_existing_case_data(module_name, image_name):
-    cases_dir = os.path.join(repo_root, 'admin', 'test', 'cases', 'data')
-    pattern = f"testdata.{module_name}.*.{image_name}.zip"
+    cases_dir = os.path.join(repo_root, 'admin', 'test', 'cases', 'data', module_name)
+    pattern = f"testdata.*.{image_name}.zip"
     existing_files = glob.glob(os.path.join(cases_dir, pattern))
     return len(existing_files) > 0
 
