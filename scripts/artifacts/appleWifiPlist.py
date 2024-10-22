@@ -144,8 +144,9 @@ def appleWifiKnownNetworksTimes(files_found, report_folder, seeker, wrap_text, t
                     last_auto_joined = convert_plist_date_to_timezone_offset(known_network.get('lastAutoJoined', ''), timezone_offset)
                     last_joined = convert_plist_date_to_timezone_offset(known_network.get('lastJoined', ''), timezone_offset)
                     wnpmd = convert_plist_date_to_timezone_offset(known_network.get('WiFiNetworkPasswordModificationDate', ''), timezone_offset)
+                    prev_joined = convert_plist_date_to_timezone_offset(known_network.get('prevJoined', ''), timezone_offset)
 
-                    data_list.append([ssid, bssid, last_updated, last_auto_joined, last_joined, '', '', wnpmd, '', '', '', '', '', file_found])
+                    data_list.append([ssid, bssid, last_updated, last_auto_joined, last_joined, '', '', wnpmd, '', '', '', '', prev_joined, file_found])
 
             if 'com.apple.wifi.known-networks.plist' in file_found:
                 for network_key, known_network in deserialized.items():
@@ -192,17 +193,25 @@ def appleWifiScannedPrivate(files_found, report_folder, seeker, wrap_text, timez
                     last_joined = convert_plist_date_to_timezone_offset(scanned_network.get('lastJoined', ''), timezone_offset)
                     added_at = convert_plist_date_to_timezone_offset(scanned_network.get('addedAt', ''), timezone_offset)
                     in_known_networks = scanned_network.get('PresentInKnownNetworks', '')
+                    link_down_timestamp = convert_plist_date_to_timezone_offset(scanned_network.get('LinkDownTimestamp', ''), timezone_offset)
+                    mac_generation_timestamp = convert_plist_date_to_timezone_offset(scanned_network.get('MacGenerationTimeStamp', ''), timezone_offset)
+                    first_join_with_new_mac_timestamp = convert_plist_date_to_timezone_offset(scanned_network.get('FirstJoinWithNewMacTimestamp', ''), timezone_offset)
 
                     private_mac = scanned_network.get('PRIVATE_MAC_ADDRESS', {})
                     private_mac_in_use = _bytes_to_mac_address(private_mac.get('PRIVATE_MAC_ADDRESS_IN_USE', b''))
                     private_mac_value = _bytes_to_mac_address(private_mac.get('PRIVATE_MAC_ADDRESS_VALUE', b''))
                     private_mac_valid = private_mac.get('PRIVATE_MAC_ADDRESS_VALID', '')
 
-                    data_list.append([last_updated, ssid, bssid, added_at, last_joined, private_mac_in_use, 
-                                      private_mac_value, private_mac_valid, in_known_networks, file_found])
+                    data_list.append([last_updated, ssid, bssid, added_at, last_joined, link_down_timestamp,
+                                      mac_generation_timestamp, first_join_with_new_mac_timestamp,
+                                      private_mac_in_use, private_mac_value, private_mac_valid, 
+                                      in_known_networks, file_found])
 
-    data_headers = (('Last Updated', 'datetime'), 'SSID', 'BSSID', ('Added At', 'datetime'), ('Last Joined', 'datetime'), 'MAC Used For Network', 
-                    'Private MAC Computed For Network', 'MAC Valid', 'In Known Networks', 'Source File')
+    data_headers = (('Last Updated', 'datetime'), 'SSID', 'BSSID', ('Added At', 'datetime'), 
+                    ('Last Joined', 'datetime'), ('Link Down Timestamp', 'datetime'),
+                    ('MAC Generation Timestamp', 'datetime'), ('First Join With New MAC Timestamp', 'datetime'),
+                    'MAC Used For Network', 'Private MAC Computed For Network', 'MAC Valid', 
+                    'In Known Networks', 'Source File')
 
     return data_headers, data_list, ','.join(files_found)
 
@@ -233,8 +242,24 @@ def appleWifiBSSList(files_found, report_folder, seeker, wrap_text, timezone_off
                             file_found
                         ])
 
+            if 'List of known networks' in deserialized:
+                for known_network in deserialized['List of known networks']:
+                    ssid = known_network.get('SSID_STR', '')
+                    bss_list = known_network.get('networkKnownBSSListKey', [])
+                    for bss in bss_list:
+                        channel = bss.get('CHANNEL', '')
+                        last_roamed = convert_plist_date_to_timezone_offset(bss.get('lastRoamed', ''), timezone_offset)
+                        bssid = bss.get('BSSID', '')
+                        channel_flags = bss.get('CHANNEL_FLAGS', '')
+
+                        data_list.append([
+                            ssid, bssid, channel_flags, channel, last_roamed,
+                            '', '', '', '',
+                            file_found
+                        ])
+
     data_headers = (
-        'SSID', 'BSSID', 'Channel Flags', 'Channel', ('Last Associated At', 'datetime'),
+        'SSID', 'BSSID', 'Channel Flags', 'Channel', ('Last Associated/Roamed At', 'datetime'),
         'Location Accuracy', ('Location Timestamp', 'datetime'), 'Location Latitude', 'Location Longitude',
         'Source File'
     )
