@@ -48,6 +48,6 @@ def get_bluetoothOtherLE(files_found, report_folder, seeker, wrap_text, timezone
 
     data_headers = ('Name','Address','UUID')
 
-    return data_headers, data_list, file_found
+    return data_headers, data_list, report_file
 
 
