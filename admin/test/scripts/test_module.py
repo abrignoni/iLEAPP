@@ -3,7 +3,7 @@ import os
 import zipfile
 import importlib
 import json
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 from pathlib import Path
 from datetime import datetime, timezone, date
 import time
@@ -20,10 +20,9 @@ def mock_environment():
     # Create mock objects for things we want to fake
     mock_seeker = MagicMock()
     mock_wrap_text = MagicMock()
+    mock_logdevinfo = MagicMock()
     
-    # You might need to add more mocked objects or functions here
-    
-    return mock_seeker, mock_wrap_text
+    return mock_seeker, mock_wrap_text, mock_logdevinfo
 
 def process_artifact(zip_path, module_name, artifact_name, artifact_data):
     # Import the module
@@ -39,8 +38,7 @@ def process_artifact(zip_path, module_name, artifact_name, artifact_data):
 
     # Prepare mock objects
     mock_report_folder = 'mock_report_folder'
-    mock_seeker = MagicMock()
-    mock_wrap_text = MagicMock()
+    mock_seeker, mock_wrap_text, mock_logdevinfo = mock_environment()
     timezone_offset = 'UTC'
     
     # Prepare a list to hold all files
@@ -69,10 +67,12 @@ def process_artifact(zip_path, module_name, artifact_name, artifact_data):
                 for file in files:
                     all_files.append(os.path.join(root, file))
         
-        # Call the original function directly
-        start_time = time.time()
-        data_headers, data_list, _ = original_func(all_files, mock_report_folder, mock_seeker, mock_wrap_text, timezone_offset)
-        end_time = time.time()
+        # Call the original function directly, with mocked logdevinfo
+        with patch('scripts.ilapfuncs.logdevinfo', mock_logdevinfo), \
+             patch('scripts.artifacts.{}.logdevinfo'.format(module_name), mock_logdevinfo):
+            start_time = time.time()
+            data_headers, data_list, _ = original_func(all_files, mock_report_folder, mock_seeker, mock_wrap_text, timezone_offset)
+            end_time = time.time()
         
         return data_headers, data_list, end_time - start_time, last_commit_info
     
