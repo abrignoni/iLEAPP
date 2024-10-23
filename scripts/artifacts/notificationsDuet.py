@@ -62,8 +62,8 @@ def get_notificationsDuet(files_found, report_folder, seeker, wrap_text, timezon
               '4': {'type': 'str', 'name': ''},
               '5': {'type': 'int', 'name': ''}}
 
-
     data_list = []
+    report_file = 'Unknown'
     for file_found in files_found:
         file_found = str(file_found)
         filename = os.path.basename(file_found)
@@ -73,7 +73,7 @@ def get_notificationsDuet(files_found, report_folder, seeker, wrap_text, timezon
             if 'tombstone' in file_found:
                 continue
             else:
-                pass
+                report_file = os.path.dirname(file_found)
         else:
             continue
 

@@ -28,6 +28,7 @@ def get_biomeBacklight(files_found, report_folder, seeker, wrap_text, timezone_o
     typess = {'1': {'type': 'double', 'name': ''}, '2': {'type': 'int', 'name': ''}}
 
     data_list = []
+    report_file = 'Unknown'
     for file_found in files_found:
         file_found = str(file_found)
         filename = os.path.basename(file_found)
@@ -37,7 +38,7 @@ def get_biomeBacklight(files_found, report_folder, seeker, wrap_text, timezone_o
             if 'tombstone' in file_found:
                 continue
             else:
-                pass
+                report_file = os.path.dirname(file_found)
         else:
             continue
 
@@ -59,4 +60,4 @@ def get_biomeBacklight(files_found, report_folder, seeker, wrap_text, timezone_o
     data_headers = (('SEGB Timestamp', 'datetime'), ('Timestamp', 'datetime'), 'SEGB State', 'State', 'Filename',
                     'Offset')
 
-    return data_headers, data_list, file_found
+    return data_headers, data_list, report_file

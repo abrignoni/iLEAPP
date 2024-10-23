@@ -29,6 +29,7 @@ def get_biomeInfocus(files_found, report_folder, seeker, wrap_text, timezone_off
               '4': {'name': '', 'type': 'double'}, '6': {'name': '', 'type': 'str'}, '9': {'name': '', 'type': 'str'}}
 
     data_list = []
+    report_file = 'Unknown'
     for file_found in files_found:
         file_found = str(file_found)
         filename = os.path.basename(file_found)
@@ -38,7 +39,7 @@ def get_biomeInfocus(files_found, report_folder, seeker, wrap_text, timezone_off
             if 'tombstone' in file_found:
                 continue
             else:
-                pass
+                report_file = os.path.dirname(file_found)
         else:
             continue
 
@@ -61,5 +62,5 @@ def get_biomeInfocus(files_found, report_folder, seeker, wrap_text, timezone_off
 
     data_headers = (('Timestamp', 'datetime'), 'Bundle ID', 'Action', 'Filename', 'Offset')
 
-    return data_headers, data_list, file_found
+    return data_headers, data_list, report_file
 

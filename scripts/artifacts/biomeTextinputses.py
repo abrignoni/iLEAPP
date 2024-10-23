@@ -30,6 +30,7 @@ def get_biomeTextinputses(files_found, report_folder, seeker, wrap_text, timezon
     typess = {'1': {'type': 'double', 'name': ''}, '2': {'type': 'double', 'name': ''}, '3': {'type': 'str', 'name': ''}, '4': {'type': 'int', 'name': ''}}
 
     data_list = []
+    report_file = 'Unknown'
     for file_found in files_found:
         file_found = str(file_found)
         filename = os.path.basename(file_found)
@@ -39,7 +40,7 @@ def get_biomeTextinputses(files_found, report_folder, seeker, wrap_text, timezon
             if 'tombstone' in file_found:
                 continue
             else:
-                pass
+                report_file = os.path.dirname(file_found)
         else:
             continue
 
@@ -65,4 +66,4 @@ def get_biomeTextinputses(files_found, report_folder, seeker, wrap_text, timezon
     data_headers = (('SEGB Timestamp', 'datetime'), ('Time Start', 'datetime'), 'SEGB State', 'Bundle ID', 'Duration',
                     'Filename', 'Offset')
 
-    return data_headers, data_list, file_found
+    return data_headers, data_list, report_file

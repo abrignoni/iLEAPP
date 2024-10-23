@@ -29,6 +29,7 @@ def get_biomeHardware(files_found, report_folder, seeker, wrap_text, timezone_of
     typess = {'1': {'type': 'str', 'name': ''}}
 
     data_list = []
+    report_file = 'Unknown'
     for file_found in files_found:
         file_found = str(file_found)
         filename = os.path.basename(file_found)
@@ -38,7 +39,7 @@ def get_biomeHardware(files_found, report_folder, seeker, wrap_text, timezone_of
             if 'tombstone' in file_found:
                 continue
             else:
-                pass
+                report_file = os.path.dirname(file_found)
         else:
             continue
 
@@ -62,4 +63,4 @@ def get_biomeHardware(files_found, report_folder, seeker, wrap_text, timezone_of
 
     data_headers = (('SEGB Record Time', 'datetime'), 'SEGB State', 'Hardware', 'Filename', 'Offset')
 
-    return data_headers, data_list, file_found
+    return data_headers, data_list, report_file

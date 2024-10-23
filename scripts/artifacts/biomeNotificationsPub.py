@@ -28,6 +28,7 @@ def get_biomeNotificationsPub(files_found, report_folder, seeker, wrap_text, tim
     typess = {'1': {'type': 'str', 'name': ''}, '2': {'type': 'double', 'name': ''}, '3': {'type': 'int', 'name': ''}, '4': {'type': 'str', 'name': ''}, '5': {'type': 'str', 'name': ''}, '8': {'type': 'str', 'name': ''}, '9': {'type': 'str', 'name': ''}, '11': {'type': 'int', 'name': ''}, '12': {'type': 'str', 'name': ''}, '14': {'type': 'str', 'name': ''}, '16': {'type': 'int', 'name': ''}}
 
     data_list = []
+    report_file = 'Unknown'
     for file_found in files_found:
         file_found = str(file_found)
         filename = os.path.basename(file_found)
@@ -37,7 +38,7 @@ def get_biomeNotificationsPub(files_found, report_folder, seeker, wrap_text, tim
             if 'tombstone' in file_found:
                 continue
             else:
-                pass
+                report_file = os.path.dirname(file_found)
         else:
             continue
 
@@ -70,5 +71,5 @@ def get_biomeNotificationsPub(files_found, report_folder, seeker, wrap_text, tim
     data_headers = (('SEGB Timestamp', 'datetime'), ('Timestamp', 'datetime'), 'SEGB State', 'Bundle ID', 'Field 1',
                     'Field 2','Field 3','Field 4','Field 5','Field 6', 'Filename', 'Offset')
 
-    return data_headers, data_list, file_found
+    return data_headers, data_list, report_file
 

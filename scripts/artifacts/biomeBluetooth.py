@@ -26,6 +26,7 @@ from scripts.ilapfuncs import artifact_processor
 def get_biomeBluetooth(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
     data_list = []
+    report_file = 'Unknown'
     for file_found in files_found:
         file_found = str(file_found)
         filename = os.path.basename(file_found)
@@ -35,7 +36,7 @@ def get_biomeBluetooth(files_found, report_folder, seeker, wrap_text, timezone_o
             if 'tombstone' in file_found:
                 continue
             else:
-                pass
+                report_file = os.path.dirname(file_found)
         else:
             continue
 
@@ -58,4 +59,4 @@ def get_biomeBluetooth(files_found, report_folder, seeker, wrap_text, timezone_o
 
     data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'MAC', 'Name', 'Filename', 'Offset')
 
-    return data_headers, data_list, file_found
+    return data_headers, data_list, report_file

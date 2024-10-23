@@ -97,7 +97,7 @@ def get_biomeNotes(files_found, report_folder, seeker, wrap_text, timezone_offse
 
     # Single table for LAVA output
     table_name, object_columns, column_map = lava_process_artifact(category, module_name,
-                                                                   'Biome Noters',
+                                                                   'Biome Notes',
                                                                    lava_data_headers,
                                                                    len(data_list))
 
