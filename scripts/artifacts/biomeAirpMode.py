@@ -26,6 +26,7 @@ def get_biomeAirpMode(files_found, report_folder, seeker, wrap_text, timezone_of
     typess = {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'str', 'name': ''}, '2': {'type': 'message', 'message_typedef': {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''}}, 'name': ''}}, 'name': ''}, '2': {'type': 'double', 'name': ''}, '3': {'type': 'double', 'name': ''}, '4': {'type': 'message', 'message_typedef': {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''}}, 'name': ''}, '3': {'type': 'bytes', 'message_typedef': {'8': {'type': 'fixed64', 'name': ''}}, 'name': ''}}, 'name': ''}, '5': {'type': 'bytes', 'name': ''}, '8': {'type': 'fixed64', 'name': ''}, '10': {'type': 'int', 'name': ''}}
 
     data_list = []
+    report_file = 'Unknown'
     for file_found in files_found:
         file_found = str(file_found)
         filename = os.path.basename(file_found)
@@ -35,7 +36,7 @@ def get_biomeAirpMode(files_found, report_folder, seeker, wrap_text, timezone_of
             if 'tombstone' in file_found:
                 continue
             else:
-                pass
+                report_file = os.path.dirname(file_found)
         else:
             continue
 
@@ -60,6 +61,6 @@ def get_biomeAirpMode(files_found, report_folder, seeker, wrap_text, timezone_of
     data_headers = (('SEGB Timestamp', 'datetime'), ('Timestamp', 'datetime'), ('Timestamp2', 'datetime'), 'SEGB State'
                     , 'Event', 'GUID', 'Filename', 'Offset')
 
-    return data_headers, data_list, file_found
+    return data_headers, data_list, report_file
 
 

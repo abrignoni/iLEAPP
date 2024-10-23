@@ -52,6 +52,7 @@ def get_biomeDKInfocus(files_found, report_folder, seeker, wrap_text, timezone_o
         '10': {'type': 'int', 'name': ''}}
 
     data_list = []
+    report_file = 'Unknown'
     for file_found in files_found:
         file_found = str(file_found)
         filename = os.path.basename(file_found)
@@ -61,7 +62,7 @@ def get_biomeDKInfocus(files_found, report_folder, seeker, wrap_text, timezone_o
             if 'tombstone' in file_found:
                 continue
             else:
-                pass
+                report_file = os.path.dirname(file_found)
         else:
             continue
 
@@ -103,4 +104,4 @@ def get_biomeDKInfocus(files_found, report_folder, seeker, wrap_text, timezone_o
                     ('Time Write', 'datetime'), 'SEGB State', 'Activity', 'Bundle ID', 'Transition', 'Action GUID',
                     'Filename', 'Offset')
 
-    return data_headers, data_list, file_found
+    return data_headers, data_list, report_file
