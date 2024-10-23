@@ -4,6 +4,7 @@ import zipfile
 import importlib
 import json
 from unittest.mock import MagicMock, patch
+from contextlib import ExitStack
 from pathlib import Path
 from datetime import datetime, timezone, date
 import time
@@ -16,16 +17,13 @@ import argparse
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..')))
 import scripts.ilapfuncs as ilapfuncs
 
-def mock_environment():
-    # Create mock objects for things we want to fake
-    mock_seeker = MagicMock()
-    mock_wrap_text = MagicMock()
-    mock_logdevinfo = MagicMock()
-    
-    return mock_seeker, mock_wrap_text, mock_logdevinfo
+def mock_logdevinfo(message):
+    print(f"[LOGDEVINFO] {message}")
+
+def mock_logfunc(message):
+    print(f"[LOGFUNC] {message}")
 
 def process_artifact(zip_path, module_name, artifact_name, artifact_data):
-    # Import the module
     module = importlib.import_module(f'scripts.artifacts.{module_name}')
     
     # Get the function to test
@@ -38,10 +36,10 @@ def process_artifact(zip_path, module_name, artifact_name, artifact_data):
 
     # Prepare mock objects
     mock_report_folder = 'mock_report_folder'
-    mock_seeker, mock_wrap_text, mock_logdevinfo = mock_environment()
+    mock_seeker = MagicMock()
+    mock_wrap_text = MagicMock()
     timezone_offset = 'UTC'
     
-    # Prepare a list to hold all files
     all_files = []
     
     # Create the base temp directory if it doesn't exist
@@ -54,7 +52,6 @@ def process_artifact(zip_path, module_name, artifact_name, artifact_data):
     # Get the module file path
     module_file_path = module.__file__
 
-    # Get the last commit information
     last_commit_info = get_last_commit_info(module_file_path)
     
     try:
@@ -67,9 +64,16 @@ def process_artifact(zip_path, module_name, artifact_name, artifact_data):
                 for file in files:
                     all_files.append(os.path.join(root, file))
         
-        # Call the original function directly, with mocked logdevinfo
-        with patch('scripts.ilapfuncs.logdevinfo', mock_logdevinfo), \
-             patch('scripts.artifacts.{}.logdevinfo'.format(module_name), mock_logdevinfo):
+        patches = [
+            patch('scripts.ilapfuncs.logdevinfo', mock_logdevinfo),
+            patch(f'scripts.artifacts.{module_name}.logdevinfo', mock_logdevinfo, create=True),
+            patch(f'scripts.artifacts.{module_name}.logfunc', mock_logfunc, create=True)
+        ]
+        
+        with ExitStack() as stack:
+            for p in patches:
+                stack.enter_context(p)
+            
             start_time = time.time()
             data_headers, data_list, _ = original_func(all_files, mock_report_folder, mock_seeker, mock_wrap_text, timezone_offset)
             end_time = time.time()
@@ -77,7 +81,6 @@ def process_artifact(zip_path, module_name, artifact_name, artifact_data):
         return data_headers, data_list, end_time - start_time, last_commit_info
     
     finally:
-        # Clean up temp directory
         if temp_dir.exists():
             shutil.rmtree(temp_dir, ignore_errors=True)
 
