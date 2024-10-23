@@ -22,12 +22,12 @@ from scripts.ilapfuncs import artifact_processor, convert_utc_human_to_timezone
 def get_biomeSync(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
     data_list = []
-
+    report_file = 'Unknown'
     for file_found in files_found:
         file_found = str(file_found)
         if not file_found.endswith('.db'):
             continue # Skip all other files
-    
+        report_file = file_found
         db = open_sqlite_db_readonly(file_found)
 
         cursor = db.cursor()
@@ -75,4 +75,4 @@ def get_biomeSync(files_found, report_folder, seeker, wrap_text, timezone_offset
 
     data_headers = (('Last Sync Timestamp', 'datetime'), 'Device ID', 'Name', 'Device Type', 'OS Build', 'OS Version', 'Local Device')
 
-    return data_headers, data_list, file_found
+    return data_headers, data_list, report_file

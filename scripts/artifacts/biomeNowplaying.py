@@ -28,6 +28,7 @@ def get_biomeNowplaying(files_found, report_folder, seeker, wrap_text, timezone_
     typess = {'2': {'type': 'double', 'name': ''}, '3': {'type': 'int', 'name': ''}, '5': {'type': 'str', 'name': ''}, '6': {'type': 'int', 'name': ''}, '8': {'type': 'str', 'name': ''}, '9': {'type': 'int', 'name': ''}, '10': {'type': 'str', 'name': ''}, '13': {'type': 'int', 'name': ''}, '14': {'type': 'message', 'message_typedef': {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''}, '3': {'type': 'str', 'name': ''}}, 'name': ''}, '15': {'type': 'str', 'name': ''}}
 
     data_list = []
+    report_file = 'Unknown'
     for file_found in files_found:
         file_found = str(file_found)
         filename = os.path.basename(file_found)
@@ -37,7 +38,7 @@ def get_biomeNowplaying(files_found, report_folder, seeker, wrap_text, timezone_
             if 'tombstone' in file_found:
                 continue
             else:
-                pass
+                report_file = os.path.dirname(file_found)
         else:
             continue
 
@@ -71,4 +72,4 @@ def get_biomeNowplaying(files_found, report_folder, seeker, wrap_text, timezone_
     data_headers = (('SEGB Timestamp', 'datetime'), ('Timestamp', 'datetime'), 'SEGB State', 'Bundle ID', 'Output',
                     'Media Type', 'Title', 'Artist', 'Filename', 'Offset')
 
-    return data_headers, data_list, file_found
+    return data_headers, data_list, report_file

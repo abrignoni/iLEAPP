@@ -37,6 +37,7 @@ def get_biomeIntents(files_found, report_folder, seeker, wrap_text, timezone_off
     files_found = sorted(files_found)
 
     data_list = []
+    report_file = 'Unknown'
     for file_found in files_found:
         file_found = str(file_found)
         filename = os.path.basename(file_found)
@@ -46,7 +47,7 @@ def get_biomeIntents(files_found, report_folder, seeker, wrap_text, timezone_off
             if 'tombstone' in file_found:
                 continue
             else:
-                pass
+                report_file = os.path.dirname(file_found)
         else:
             continue
 

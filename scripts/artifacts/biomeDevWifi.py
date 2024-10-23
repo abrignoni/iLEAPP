@@ -28,6 +28,7 @@ def get_biomeDevWifi(files_found, report_folder, seeker, wrap_text, timezone_off
     typess = {'1': {'type': 'str', 'name': 'SSID'}, '2': {'type': 'int', 'name': 'Connect'}}
 
     data_list = []
+    report_file = 'Unknown'
     for file_found in files_found:
         file_found = str(file_found)
         filename = os.path.basename(file_found)
@@ -37,7 +38,7 @@ def get_biomeDevWifi(files_found, report_folder, seeker, wrap_text, timezone_off
             if 'tombstone' in file_found:
                 continue
             else:
-                pass
+                report_file = os.path.dirname(file_found)
         else:
             continue
 
@@ -56,5 +57,5 @@ def get_biomeDevWifi(files_found, report_folder, seeker, wrap_text, timezone_off
 
     data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'SSID', 'Status', 'Filename', 'Offset')
 
-    return data_headers, data_list, file_found
+    return data_headers, data_list, report_file
 
