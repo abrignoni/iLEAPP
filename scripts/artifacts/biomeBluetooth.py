@@ -17,8 +17,8 @@ __artifacts_v2__ = {
 import os
 import blackboxprotobuf
 from datetime import *
-from ccl_segb import read_segb_file
-from ccl_segb.ccl_segb_common import EntryState
+from scripts.ccl_segb.ccl_segb import read_segb_file
+from scripts.ccl_segb.ccl_segb_common import EntryState
 from scripts.ilapfuncs import artifact_processor
 
 

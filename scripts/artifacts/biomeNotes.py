@@ -19,8 +19,8 @@ import os
 from datetime import timezone
 import blackboxprotobuf
 from pathlib import Path
-from ccl_segb import read_segb_file
-from ccl_segb.ccl_segb_common import EntryState
+from scripts.ccl_segb.ccl_segb import read_segb_file
+from scripts.ccl_segb.ccl_segb_common import EntryState
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import webkit_timestampsconv, tsv, timeline, convert_utc_human_to_timezone, convert_time_obj_to_utc
 from scripts.lavafuncs import lava_process_artifact, lava_insert_sqlite_data
