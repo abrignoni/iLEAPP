@@ -18,8 +18,8 @@ import os
 from datetime import timezone
 import blackboxprotobuf
 import nska_deserialize as nd
-from ccl_segb import read_segb_file
-from ccl_segb.ccl_segb_common import EntryState
+from scripts.ccl_segb.ccl_segb import read_segb_file
+from scripts.ccl_segb.ccl_segb_common import EntryState
 from scripts.ilapfuncs import artifact_processor, convert_time_obj_to_utc, convert_utc_human_to_timezone
 
 
