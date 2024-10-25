@@ -9,8 +9,7 @@ __artifacts_v2__ = {
         "category": "Network Usage",
         "notes": "",
         "paths": ('*/wireless/Library/Databases/DataUsage.sqlite*',),
-        "output_types": ["html", "tsv", "timeline", "lava"],
-        "function": "get_DataUsage"
+        "output_types": ["html", "tsv", "timeline", "lava"]
     }
 }
 
