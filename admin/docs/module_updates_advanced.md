@@ -2,6 +2,7 @@
 
 This guide outlines the process of updating existing complex xLEAPP modules to include LAVA output. These modules typically process a single group of file pattern searches but generate multiple HTML and TSV outputs.
 
+*Note that if you are just attempting to split output into multiple HTML pages or just handle HTML manually for some other reason but the LAVA and TSV is a single table/output you can probably still use the instructions found in module_updates.md. (Refer to carCD.py for an example)
 ## Key Changes
 
 1. Update the `__artifacts_v2__` block
