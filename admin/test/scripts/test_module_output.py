@@ -68,22 +68,52 @@ def extract_test_data(module_name, case_name, test_case, temp_folder):
             print(f"Warning: Test data file '{zip_path}' not found.")
 
 class SingleModuleLoaderWrapper:
-    def __init__(self, original_loader, module_name):
-        self.original_loader = original_loader
+    def __init__(self, plugin_path, module_name):
+        self.plugin_path = plugin_path
         self.module_name = module_name
-        self.plugins = [plugin for plugin in original_loader.plugins if plugin.module_name == module_name]
+        self._plugins = self._load_plugins()
 
-    def load(self):
-        return iter(self.plugins)
+    def _load_plugins(self):
+        plugins = []
+        essential_modules = ['lastBuild', 'iTunesBackupInfo']  # Add other essential modules if needed
+        modules_to_load = essential_modules + [self.module_name]
+
+        for module in modules_to_load:
+            py_file = self.plugin_path / f"{module}.py"
+            if py_file.exists():
+                mod = ileapp.plugin_loader.PluginLoader.load_module_lazy(py_file)
+                mod_artifacts = getattr(mod, '__artifacts_v2__', None) or getattr(mod, '__artifacts__', None)
+                if mod_artifacts:
+                    for name, artifact in mod_artifacts.items():
+                        if isinstance(artifact, dict):  # v2 format
+                            category = artifact.get('category')
+                            search = artifact.get('paths')
+                            func = getattr(mod, name, None)
+                            if func:
+                                func.artifact_info = artifact  # Attach artifact_info to the function
+                        else:  # v1 format
+                            category, search, func = artifact
+                            func.artifact_info = {'category': category, 'paths': search}  # Create artifact_info for v1
+                        if func:
+                            plugin_spec = ileapp.plugin_loader.PluginSpec(name, module, category, search, func, func.artifact_info)
+                            plugins.append(plugin_spec)
+        return plugins
+
+    @property
+    def plugins(self):
+        return self._plugins
 
     def __len__(self):
-        return len(self.plugins)
+        return len(self._plugins)
 
     def __getitem__(self, item):
-        return self.original_loader[item]
+        for plugin in self._plugins:
+            if plugin.name == item:
+                return plugin
+        raise KeyError(item)
 
     def __contains__(self, item):
-        return item in self.original_loader
+        return any(plugin.name == item for plugin in self._plugins)
 
 def run_module_test(module_name, temp_folder):
     output_folder = Path('admin/test/output')
@@ -99,21 +129,19 @@ def run_module_test(module_name, temp_folder):
         '--custom_output_folder', f'test.{module_name}.{datetime.datetime.now().strftime("%Y%m%d-%H%M%S")}'
     ]
 
-    # Import the module to ensure __artifacts_v2__ is loaded
-    importlib.import_module(f'scripts.artifacts.{module_name}')
-    
-    # Create a wrapper for the original PluginLoader
-    original_loader = ileapp.plugin_loader.PluginLoader()
-    wrapper_loader = SingleModuleLoaderWrapper(original_loader, module_name)
+    # Create a wrapper for the single module
+    plugin_path = ileapp.plugin_loader.PLUGINPATH
+    wrapper_loader = SingleModuleLoaderWrapper(plugin_path, module_name)
 
     # Monkey-patch ileapp to use our wrapper loader
+    original_PluginLoader = ileapp.plugin_loader.PluginLoader
     ileapp.plugin_loader.PluginLoader = lambda: wrapper_loader
 
     try:
         ileapp.main()
     finally:
         # Restore the original loader
-        ileapp.plugin_loader.PluginLoader = lambda: original_loader
+        ileapp.plugin_loader.PluginLoader = original_PluginLoader
 
 def main():
     parser = argparse.ArgumentParser(description="Run a single module test for iLEAPP")
