@@ -1,17 +1,29 @@
+__artifacts_v2__ = {
+    "deviceActivator": {
+        "name": "iOS Device Activator Data",
+        "description": "Extracts device information from activation data",
+        "author": "",
+        "version": "1.0",
+        "date": "2024-10-29",
+        "requirements": "none",
+        "category": "Device Information",
+        "paths": ('*/mobile/Library/Logs/mobileactivationd/ucrt_oob_request.txt',),
+        "output_types": "standard"
+    }
+}
+
 import re
 import base64
 import os
 from itertools import compress 
 import xml.etree.ElementTree as ET
+from scripts.ilapfuncs import logfunc, device_info, artifact_processor
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, logdevinfo, is_platform_windows
-
-def get_deviceActivator(files_found, report_folder, seeker, wrap_text, timezone_offset):
+@artifact_processor
+def deviceActivator(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
-    alllines = ''    
     file_found = str(files_found[0])
-
+    
     with open(file_found, 'r') as f_in:
         for line in f_in:
             line = line.strip()
@@ -40,30 +52,17 @@ def get_deviceActivator(files_found, report_folder, seeker, wrap_text, timezone_
     
     for x in results:
         if x[0] == 'EthernetMacAddress':
-            logdevinfo(f"<b>Ethernet Mac Address: </b>{x[1]}")
+            device_info("Network", "Ethernet MAC Address", x[1])
         if x[0] == 'BluetoothAddress':
-            logdevinfo(f"<b>Bluetooth Address: </b>{x[1]}")
+            device_info("Network", "Bluetooth Address", x[1])
         if x[0] == 'WifiAddress':
-            logdevinfo(f"<b>Wifi Address: </b>{x[1]}") 
+            device_info("Network", "WiFi Address", x[1])
         if x[0] == 'ModelNumber':
-            logdevinfo(f"<b>Model Number: </b>{x[1]}")
-            
+            device_info("Device Information", "Model Number", x[1])
+    
     if len(results) > 0:
-        report = ArtifactHtmlReport('iOS Device Activator Data')
-        report.start_artifact_report(report_folder, 'iOS Device Activator Data')
-        report.add_script()
-        data_headers = ('Key','Values')     
-        report.write_artifact_data_table(data_headers, results, file_found)
-        report.end_artifact_report()
-        
-        tsvname = 'iOS Device Activator Data'
-        tsv(report_folder, data_headers, results, tsvname)
+        data_headers = ('Property', 'Property Value')
+        return data_headers, results, file_found
     else:
         logfunc('No iOS Device Activator Data')
-
-__artifacts__ = {
-    "deviceactivator": (
-        "IOS Build",
-        ('*/mobile/Library/Logs/mobileactivationd/ucrt_oob_request.txt'),
-        get_deviceActivator)
-}
+        return None
