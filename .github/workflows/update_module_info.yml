@@ -26,8 +26,10 @@ jobs:
       with:
         python-version: '3.x'
 
-    - name: Run module_info script
-      run: python admin/scripts/module_info.py
+    - name: Run documentation scripts
+      run: |
+        python admin/scripts/device_info_values.py
+        python admin/scripts/module_info.py
 
     - name: Check for changes
       id: git-check
@@ -39,8 +41,9 @@ jobs:
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
+        git add admin/docs/device_info_values.md
         git add admin/docs/module_info.md
-        git commit -m "Update module_info.md"
+        git commit -m "Update documentation files"
 
     - name: Push changes
       if: steps.git-check.outputs.changes == 'true'
