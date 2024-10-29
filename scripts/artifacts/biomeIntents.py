@@ -18,8 +18,8 @@ __artifacts_v2__ = {
 import os
 import blackboxprotobuf
 import nska_deserialize as nd
-from ccl_segb import read_segb_file
-from ccl_segb.ccl_segb_common import EntryState
+from scripts.ccl_segb.ccl_segb import read_segb_file
+from scripts.ccl_segb.ccl_segb_common import EntryState
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import tsv, timeline, convert_utc_human_to_timezone, convert_time_obj_to_utc
 from scripts.lavafuncs import lava_process_artifact, lava_insert_sqlite_data

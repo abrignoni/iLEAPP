@@ -177,6 +177,7 @@ By focusing modules on data extraction and processing, we improve code readabili
   - Use "standard" to export data in html, csv, lava and timeline;
   - Specify the desired types in a list ["html", "tsv", "timeline", "kml", "lava"];
   - For a single output, indicates the types (e.g: "lava")
+  - You may choose to generate the HTML output manually while still using the other output types. This may be useful for artifacts that need to be split to avoid browser crashes.
 - The `artifact_processor` decorator now automatically retrieves the artifact information from the function's globals or the module's `__artifacts_v2__` dictionary.
 - The main function should focus solely on data extraction and processing, returning the data for the artifact processor to handle output generation.
 
