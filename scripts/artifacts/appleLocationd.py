@@ -28,11 +28,11 @@ def get_applelocationd(files_found, report_folder, seeker, wrap_text, timezone_o
         for key, val in pl.items():
             if key == 'LocationServicesEnabledIn8.0':
                 data_list.append(('Location Services Enabled', val))
-                id_values.append(f"<b>Location Services Enabled: </b>{val}")
+                device_info("Settings", "Location Services Enabled", val)
             
             elif key == 'LastSystemVersion':
                 data_list.append(('Last System Version', val))
-                id_values.append(f"<b>Last System Version: </b>{val}")
+                device_info("Settings", "Last System Version", val)
                 
             elif key == 'steadinessClassificationNextClassificationTime' or key == 'VO2MaxCloudKitLastForcedFetch' \
                 or key == 'kP6MWDNextEstimateTime' or key == 'VO2MaxCloudKitManagerNextActivityTime':
@@ -41,6 +41,5 @@ def get_applelocationd(files_found, report_folder, seeker, wrap_text, timezone_o
             else:
                 data_list.append((key, val))
                 
-    device_info("Settings", id_values)            
     data_headers = ('Key','Data' )     
     return data_headers, data_list, source_path
