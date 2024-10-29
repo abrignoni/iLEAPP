@@ -29,23 +29,22 @@ def get_backupSettings(files_found, report_folder, seeker, wrap_text, timezone_o
             if key == 'LastiTunesBackupDate':
                 lastime = webkit_timestampsconv(val)
                 data_list.append(('Last iTunes Backup Date', lastime))
-                id_values.append(f"<b>Last iTunes Backup Date: </b>{lastime}")
+                device_info("Backup Settings", "Last iTunes Backup Date", lastime)
             elif key == 'LastiTunesBackupTZ':
                 data_list.append((key, val))
-                id_values.append(f"<b>Last iTunes Backup TZ: </b>{val}")
+                device_info("Backup Settings", "Last iTunes Backup TZ", val)
             elif key == 'LastCloudBackupDate':
                 lastcloudtime = webkit_timestampsconv(val)
                 data_list.append(('Last Cloud iTunes Backup Date', lastcloudtime))
-                id_values.append(f"<b>Last Cloud iTunes Backup Date: </b>{lastcloudtime}")
+                device_info("Backup Settings", "Last Cloud iTunes Backup Date", lastcloudtime)
             elif key == 'LastCloudBackupTZ':
                 data_list.append((key, val))
-                id_values.append(f"<b>Last Cloud iTunes Backup TZ: </b>{val}")
+                device_info("Backup Settings", "Last Cloud iTunes Backup TZ", val)
             elif key == 'CloudBackupEnabled':
                 data_list.append((key,val))
-                id_values.append(f"<b>Cloud Backup Enabled: </b>{val}")
+                device_info("Backup Settings", "Cloud Backup Enabled", val)
             else:
                 data_list.append((key, val ))
                 
-    device_info("Backup Settings", id_values)
     data_headers = ('Key', 'Data')
     return data_headers, data_list, source_path            

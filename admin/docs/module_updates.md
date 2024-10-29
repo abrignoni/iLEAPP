@@ -10,6 +10,7 @@ This guide outlines the process of updating existing xLEAPP modules to use the n
 4. Adjust the main function
 5. Remove manual report generation code
 6. Add chat parameters if the artifact should support a threaded type view
+7. Update Device Information Collection
 
 ## Detailed Process
 
@@ -157,6 +158,38 @@ Example (From googleChat.py artifact):
             }
         }
     }
+
+### 7. Update Device Information Collection
+
+The `logdevinfo()` function is being deprecated in favor of the new `device_info()` function. This new function provides better organization and structure for device-related information. Not every module uses these functions, so this section is only applicable to modules that do.
+
+#### Old Method (logdevinfo):
+```python
+logdevinfo(f'<b>IMEI: </b>{imei}')
+logdevinfo(f'<b>Serial Number: </b>{serial}')
+```
+
+#### New Method (device_info):
+```python
+device_info("Device Information", "IMEI", imei)
+device_info("Device Information", "Serial Number", serial)
+```
+
+Key differences:
+1. No HTML formatting needed - display formatting is handled by the output generator
+2. Information is categorized for better organization
+3. Values are stored in a structured format that's easier to query and display
+4. Source tracking is automatic - the module name is recorded with each value
+5. Duplicate handling is built-in - multiple modules can report the same information
+
+The new structure allows for:
+- Better organization of device information by category
+- Automatic tracking of which modules provided what information
+- Easier querying and filtering of device information
+- Consistent formatting across all outputs
+- De-duplication and conflict resolution
+
+You can view the current categories and labels being used across all modules in the [Device Info Values](device_info_values.md) documentation.
 
 ## Reasoning
 

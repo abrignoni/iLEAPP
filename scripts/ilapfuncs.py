@@ -9,6 +9,7 @@ import shutil
 import sqlite3
 import sys
 import math
+import inspect
 from functools import lru_cache
 from pathlib import Path
 
@@ -391,15 +392,58 @@ def write_device_info():
         for category, values in identifiers.items():
             b.write('<b>--- <u>' + category + ' </u>---</b><br>' + OutputParameters.nl)
             b.write('<ul>' + OutputParameters.nl)
-            for value in values:
-                b.write('<li>' + value + '</li>' + OutputParameters.nl)
+            for label, data in values.items():
+                if isinstance(data, list):
+                    # Handle multiple values
+                    b.write('<li><b>' + label + ':</b><ul>' + OutputParameters.nl)
+                    for item in data:
+                        b.write(f'<li>{item["value"]} (Source: {item["module"]})</li>' + OutputParameters.nl)
+                    b.write('</ul></li>' + OutputParameters.nl)
+                else:
+                    # Handle single value
+                    b.write(f'<li><b>{label}:</b> {data["value"]} (Source: {data["module"]})</li>' + OutputParameters.nl)
             b.write('</ul>' + OutputParameters.nl)
-            
-def device_info(category, message):
-    values = identifiers.get(category, [])
-    values.extend(message)
-    if values:
-        identifiers[category] = values
+
+def device_info(category, label, value):
+    """
+    Stores device information in the identifiers dictionary
+    Args:
+        category (str): The category of the information (e.g., "Device Info", "User Info")
+        label (str): The label/description to use as the key
+        value (str): The actual value to store
+    """
+    # Get the calling module's name more robustly
+    try:
+        frame = inspect.stack()[1]
+        module = inspect.getmodule(frame[0])
+        if module:
+            module_name = module.__name__.split('.')[-1]
+        else:
+            # Fallback: try to get module name from frame info
+            module_name = frame.filename.split('/')[-1].replace('.py', '')
+    except:
+        module_name = 'unknown'
+    
+    values = identifiers.get(category, {})
+    
+    # Create value object with both the value and source module
+    value_obj = {
+        'value': value,
+        'module': module_name
+    }
+    
+    if label in values:
+        # If the label exists, check if it's already a list
+        if isinstance(values[label], list):
+            values[label].append(value_obj)
+        else:
+            # Convert existing single value to list with both values
+            values[label] = [values[label], value_obj]
+    else:
+        # New label, store single value
+        values[label] = value_obj
+        
+    identifiers[category] = values
 
 def tsv(report_folder, data_headers, data_list, tsvname):
     report_folder = report_folder.rstrip('/')

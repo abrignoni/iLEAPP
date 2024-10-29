@@ -28,8 +28,8 @@ def get_airdropId(files_found, report_folder, seeker, wrap_text, timezone_offset
         for key, val in pl.items():
             if key == 'LSAdvertiserIdentifier':
                 data_list.append('Airdrop ID', val)
-                id_values.append(f"<b>Airdrop ID: </b>{val}")
+                device_info("Airdrop", "Airdrop ID", val)
 
     data_headers = ('Identifer', 'Data Value')
-    device_info("Airdrop", id_values)
+    
     return data_headers, data_list, source_path

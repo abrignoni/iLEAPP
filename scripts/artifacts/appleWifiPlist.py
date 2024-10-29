@@ -55,7 +55,7 @@ __artifacts_v2__ = {
 
 import glob
 import plistlib
-from scripts.ilapfuncs import logfunc, logdevinfo, artifact_processor, convert_plist_date_to_timezone_offset
+from scripts.ilapfuncs import device_info, artifact_processor, convert_plist_date_to_timezone_offset
 
 def _bytes_to_mac_address(encoded_bytes):
     return ':'.join(f"{byte:02x}" for byte in encoded_bytes[:6])
@@ -77,7 +77,7 @@ def appleWifiKnownNetworks(files_found, report_folder, seeker, wrap_text, timezo
             deserialized = plistlib.load(f)
             if 'KeepWiFiPoweredAirplaneMode' in deserialized:
                 val = (deserialized['KeepWiFiPoweredAirplaneMode'])
-                logdevinfo(f"<b>Keep Wifi Powered Airplane Mode: </b>{val}")
+                device_info('WiFi', 'Keep Wifi Powered Airplane Mode', val)
 
             if 'List of known networks' in deserialized:
                 for known_network in deserialized['List of known networks']:
