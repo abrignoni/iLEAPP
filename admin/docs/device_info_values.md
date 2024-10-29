@@ -17,9 +17,21 @@ This document outlines the various device information collected by iLEAPP module
 | Backup Settings | Last Cloud iTunes Backup TZ | backupSettings |
 | Backup Settings | Last iTunes Backup Date | backupSettings |
 | Backup Settings | Last iTunes Backup TZ | backupSettings |
+| Cellular | CDMA Network Phone Number ICCID | celWireless |
+| Cellular | IMEI | celWireless |
+| Cellular | Last Known ICCID | celWireless |
+| Cellular | MEID | celWireless |
+| Cellular | Reported Phone Number | celWireless |
+| Device Information | Device Name | deviceName |
+| Device Information | IMEIs | deviceDatam |
+| Device Information | Model Number | deviceActivator |
 | Device Information | Product | lastBuild |
 | Device Information | ProductBuildVersion | lastBuild |
+| Device Information | Reported Phone Number | deviceDatam |
 | Device Information | iOS version | lastBuild |
+| Network | Bluetooth Address | deviceActivator |
+| Network | Ethernet MAC Address | deviceActivator |
+| Network | WiFi Address | deviceActivator |
 | Settings | Last System Version | appleLocationd |
 | Settings | Location Services Enabled | appleLocationd |
 | WiFi | Keep Wifi Powered Airplane Mode | appleWifiPlist |
@@ -29,29 +41,20 @@ This document outlines the various device information collected by iLEAPP module
 <!-- LOGDEVINFO_START -->
 | Key | Source Modules |
 |-----|----------------|
-| Bluetooth Address: {x[1]} | deviceActivator |
 | BuildID: {val} | Ph99SystemVersionPlist |
 | BuildVersion: {val} | Ph100UFEDdevcievaluesplist, Ph99SystemVersionPlist |
-| CDMA Network Phone Number ICCID: {val} | celWireless |
-| Device Name: {val} | deviceName |
 | Device/Computer Name: {computername} | preferencesPlist |
 | DeviceName: {val} | Ph100UFEDdevcievaluesplist |
-| Ethernet Mac Address: {x[1]} | deviceActivator |
 | Find My iPhone Add Time: {addtime} | findMy |
 | Find My iPhone: Enabled | findMy |
 | HardwareModel: {val} | Ph100UFEDdevcievaluesplist |
 | Host Name: {hostname} | preferencesPlist |
-| IMEI: {val} | celWireless |
-| IMEIs: {imeis} | deviceDatam |
 | InternationalMobileEquipmentIdentity: {val} | Ph100UFEDdevcievaluesplist |
 | Last Bootstrap Date: {times} | timezoneInfo |
 | Last Bootstrap Timezone: {val} | timezoneInfo |
 | Last Good IMSI: {lastgoodimsi} | imeiImsi |
 | Last Known ICCI: {lastknownicci} | imeiImsi |
-| Last Known ICCID: {val} | celWireless |
 | MAC Address: {hexstring} - User Defined Name: {userdefinedname} - BSD Name: {bsdname} | wifiIdent |
-| MEID: {val} | celWireless |
-| Model Number: {x[1]} | deviceActivator |
 | Model: {localhostname} | preferencesPlist |
 | Model: {val} | preferencesPlist |
 | Obliterated Timestamp: {utc_modified_date} | obliterated |
@@ -60,7 +63,6 @@ This document outlines the various device information collected by iLEAPP module
 | ProductName: {val} | Ph99SystemVersionPlist |
 | ProductType: {val} | Ph100UFEDdevcievaluesplist |
 | ReleaseType: {val} | Ph99SystemVersionPlist |
-| Reported Phone Number: {val} | celWireless, deviceDatam |
 | Self Registration Update IMEI: {selfregistrationupdateimei} | imeiImsi |
 | Self Registration Update IMSI: {selfregitrationupdateimsi} | imeiImsi |
 | Serial Number: {row[0]} | serialNumber |
@@ -70,7 +72,6 @@ This document outlines the various device information collected by iLEAPP module
 | Timezone Set: {val} | timezoneset |
 | UDID: {uid} | carCD |
 | Vehicle - Last Connected: {connected} - Last Disconnected: {disconnected} - Type: {contype} | carCD |
-| Wifi Address: {x[1]} | deviceActivator |
 | com.apple.MobileSMS.plist - Keep Messages for Days (iOS 17+): {val} | messageRetention |
 | com.apple.MobileSMS.plist - Keep Messages for Days (iOS {val} | messageRetention |
 | com.apple.MobileSMS.plist - Keep Messages for Days: No Value | messageRetention |
