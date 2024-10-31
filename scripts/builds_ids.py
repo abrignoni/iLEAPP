@@ -8,6 +8,8 @@
 # macOS:
 #   https://www.gkgigs.com/list-of-all-macos-version-history/
 #   https://betawiki.net/wiki/Category:MacOS_versions
+# All:
+# https://x.com/iSWUpdates
 
 from os.path import join
 
@@ -792,6 +794,7 @@ OS_build = {
     "21G93": "iOS 17.6.1",
     "21G101": "iOS 17.6.1 Update",
     "21H16": "iOS 17.7",
+    "21H216": "iOS 17.7.1",
     "22A5282m": "iOS 18.0 beta 1",
     "22A5297f": "iOS 18.0 beta 2",
     "22A5307f": "iOS 18.0 beta 3",
@@ -811,6 +814,8 @@ OS_build = {
     "22B5045g": "iOS 18.1 beta 4",
     "22B5045h": "iOS 18.1 beta 4",
     "22B5054e": "iOS 18.1 beta 5",
+    "22B83": "iOS 18.1",
+    "22C5109p": "iOS 18.2 beta 1",
     "4K78": "Mac OS X 10.0",
     "4L8": "Mac OS X 10.0.1",
     "4L13": "Mac OS X 10.0.1",
@@ -2011,6 +2016,7 @@ OS_build = {
     "22H121": "macOS 13.7 RC",
     "22H123": "macOS 13.7",
     "22H210": "macOS 13.7.1 RC",
+    "22H221": "macOS 13.7.1",
     "23A5257q": "macOS 14.0 beta 1",
     "23A5276g": "macOS 14.0 beta 2",
     "23A5286g": "macOS 14.0 beta 3",
@@ -2067,6 +2073,7 @@ OS_build = {
     "23H122": "macOS 14.7 RC",
     "23H124": "macOS 14.7",
     "23H209": "macOS 14.7.1 RC",
+    "23H222": "macOS 14.7.1",
     "24A5264n": "macOS 15.0 beta 1",
     "24A5279h": "macOS 15.0 beta 2",
     "24A5289g": "macOS 15.0 beta 3",
@@ -2077,11 +2084,14 @@ OS_build = {
     "24A5327a": "macOS 15.0 beta 7",
     "24A5331b": "macOS 15.0 beta 8",
     "24A335": "macOS 15.0",
+    "24A348": "macOS 15.0.1",
     "24B5009l": "macOS 15.1 beta 1",
     "24B5024e": "macOS 15.1 beta 2",
     "24B5035e": "macOS 15.1 beta 3",
     "24B5046f": "macOS 15.1 beta 4",
     "24B5055e": "macOS 15.1 beta 5",
+    "24B83": "macOS 15.1",
+    "24C5057p": "macOS 15.2 beta 1",
     "21N5165g": "visionOS 1.0 beta 1",
     "21N5207g": "visionOS 1.0 beta 2",
     "21N5233f": "visionOS 1.0 beta 3",
@@ -2122,6 +2132,7 @@ OS_build = {
     "22N320": "visionOS 2.0",
     "22N5548d": "visionOS 2.1 beta 1",
     "22N5553d": "visionOS 2.1 beta 2",
+    "22N581": "visionOS 2.1",
     "12S507": "watchOS 1.0",
     "12S632": "watchOS 1.0.1",
     "13S5254w": "watchOS 2.0 beta 1",
@@ -2525,6 +2536,7 @@ OS_build = {
     "22R349": "watchOS 11.0",
     "22R5545g": "watchOS 11.1 beta 1",
     "22R5554e": "watchOS 11.1 beta 2",
+    "22R585": "watchOS 11.1",
     "6002": "Windows Vista",
     "7601": "Windows 7",
     "9200": "Windows 8",
