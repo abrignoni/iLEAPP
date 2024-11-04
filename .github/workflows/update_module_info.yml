@@ -3,7 +3,7 @@ name: Update Module Info
 on:
   push:
     branches:
-      - lava-output
+      - main
     paths:
       - 'scripts/artifacts/**'
   workflow_dispatch:
