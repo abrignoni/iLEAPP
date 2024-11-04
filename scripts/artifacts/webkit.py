@@ -84,7 +84,8 @@ def webkitCacheRecords(files_found, report_folder, seeker, wrap_text, timezone_o
     for file_found in files_found:
         if file_found.endswith('-blob'):
             continue
-        logfunc(f"Processing {file_found}")
+        if research_mode:
+            logfunc(f"Processing {file_found}")
         app_guid, records_guid = extract_path_info(file_found)
         file_data = {
             'Application GUID': app_guid,
@@ -185,7 +186,8 @@ def webkitCacheRecords(files_found, report_folder, seeker, wrap_text, timezone_o
  
                 
         except Exception as e:
-            logfunc(f"Error processing {file_found}: {str(e)}")
+            if research_mode:
+                logfunc(f"Error processing {file_found}: {str(e)}")
         finally:
             # Append whatever data we have, even if it's incomplete
             data_list.append(tuple(file_data.get(header, '') for header in data_headers))
