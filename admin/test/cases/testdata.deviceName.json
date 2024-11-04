@@ -1,0 +1,60 @@
+{
+  "mvs_ios_2023": {
+    "description": "",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "/Users/jameshabben/Documents/phone-images/magnet/00008101-0010541A1130001E_files_full-001.zip",
+      "os": "macOS-15.0-x86_64-i386-64bit",
+      "timestamp": "2024-10-29T13:23:14.245646",
+      "last_commit": {
+        "hash": "739956ca6d7a1d5b930a0ed0aef4e2f4bba5b649",
+        "author_name": "stark4n6",
+        "author_email": "48143894+stark4n6@users.noreply.github.com",
+        "date": "2024-05-09T09:37:27-04:00",
+        "message": "Bolding Device Detail Keys"
+      }
+    },
+    "artifacts": {
+      "deviceName": {
+        "search_patterns": [
+          "*/root/Library/Lockdown/data_ark.plist"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "image_name": "mvs_ios_2023"
+  },
+  "belkasoft_ctf6_ios_device1": {
+    "description": "",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "/Users/jameshabben/Documents/phone-images/belkasoft/BelkaCTF_6_CASE240405_D201AP.tar",
+      "os": "macOS-15.0-x86_64-i386-64bit",
+      "timestamp": "2024-10-29T13:23:33.880220",
+      "last_commit": {
+        "hash": "739956ca6d7a1d5b930a0ed0aef4e2f4bba5b649",
+        "author_name": "stark4n6",
+        "author_email": "48143894+stark4n6@users.noreply.github.com",
+        "date": "2024-05-09T09:37:27-04:00",
+        "message": "Bolding Device Detail Keys"
+      }
+    },
+    "artifacts": {
+      "deviceName": {
+        "search_patterns": [
+          "*/root/Library/Lockdown/data_ark.plist"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "image_name": "belkasoft_ctf6_ios_device1"
+  }
+}

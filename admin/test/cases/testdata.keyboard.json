@@ -1,0 +1,143 @@
+{
+  "josh_ios15_ffs": {
+    "description": "",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "/Users/jameshabben/Documents/phone-images/Josh/iOS_15_Public_Image.tar.gz",
+      "os": "macOS-15.0-x86_64-i386-64bit",
+      "timestamp": "2024-10-15T16:24:52.443745",
+      "last_commit": {
+        "hash": "b0b3e080d8c8b934f641745223fc512c40c9a639",
+        "author_name": "James Habben",
+        "author_email": "james@wmif.net",
+        "date": "2024-10-14T16:16:36-07:00",
+        "message": "updates for testing and module"
+      }
+    },
+    "artifacts": {
+      "keyboardLexicon": {
+        "search_patterns": [
+          "*/mobile/Library/Keyboard/*-dynamic.lm/dynamic-lexicon.dat"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "keyboardAppUsage": {
+        "search_patterns": [
+          "*/mobile/Library/Keyboard/app_usage_database.plist"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "keyboardUsageStats": {
+        "search_patterns": [
+          "*/mobile/Library/Keyboard/user_model_database.sqlite*"
+        ],
+        "file_count": 3,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "image_name": "josh_ios15_ffs"
+  },
+  "mvs_ios_2023": {
+    "description": "",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "/Users/jameshabben/Documents/phone-images/magnet/00008101-0010541A1130001E_files_full-001.zip",
+      "os": "macOS-15.0-x86_64-i386-64bit",
+      "timestamp": "2024-10-15T16:29:07.852456",
+      "last_commit": {
+        "hash": "b0b3e080d8c8b934f641745223fc512c40c9a639",
+        "author_name": "James Habben",
+        "author_email": "james@wmif.net",
+        "date": "2024-10-14T16:16:36-07:00",
+        "message": "updates for testing and module"
+      }
+    },
+    "artifacts": {
+      "keyboardLexicon": {
+        "search_patterns": [
+          "*/mobile/Library/Keyboard/*-dynamic.lm/dynamic-lexicon.dat"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "keyboardAppUsage": {
+        "search_patterns": [
+          "*/mobile/Library/Keyboard/app_usage_database.plist"
+        ],
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "keyboardUsageStats": {
+        "search_patterns": [
+          "*/mobile/Library/Keyboard/user_model_database.sqlite*"
+        ],
+        "file_count": 3,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "image_name": "mvs_ios_2023"
+  },
+  "belkasoft_ctf6_ios_device1": {
+    "description": "",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "/Users/jameshabben/Documents/phone-images/belkasoft/BelkaCTF_6_CASE240405_D201AP.tar",
+      "os": "macOS-15.0-x86_64-i386-64bit",
+      "timestamp": "2024-10-15T16:29:22.979022",
+      "last_commit": {
+        "hash": "b0b3e080d8c8b934f641745223fc512c40c9a639",
+        "author_name": "James Habben",
+        "author_email": "james@wmif.net",
+        "date": "2024-10-14T16:16:36-07:00",
+        "message": "updates for testing and module"
+      }
+    },
+    "artifacts": {
+      "keyboardLexicon": {
+        "search_patterns": [
+          "*/mobile/Library/Keyboard/*-dynamic.lm/dynamic-lexicon.dat"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "keyboardAppUsage": {
+        "search_patterns": [
+          "*/mobile/Library/Keyboard/app_usage_database.plist"
+        ],
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "keyboardUsageStats": {
+        "search_patterns": [
+          "*/mobile/Library/Keyboard/user_model_database.sqlite*"
+        ],
+        "file_count": 3,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "image_name": "belkasoft_ctf6_ios_device1"
+  }
+}

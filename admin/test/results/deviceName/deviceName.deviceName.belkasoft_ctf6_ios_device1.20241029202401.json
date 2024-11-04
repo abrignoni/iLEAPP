@@ -1,0 +1,24 @@
+{
+  "metadata": {
+    "module_name": "deviceName",
+    "artifact_name": "Device Name",
+    "function_name": "deviceName",
+    "case_number": "belkasoft_ctf6_ios_device1",
+    "number_of_columns": 0,
+    "number_of_rows": 0,
+    "total_data_size_bytes": 0,
+    "input_zip_path": "admin/test/cases/data/deviceName/testdata.deviceName.deviceName.belkasoft_ctf6_ios_device1.zip",
+    "start_time": "2024-10-29T20:24:01.879711+00:00",
+    "end_time": "2024-10-29T20:24:01.980993+00:00",
+    "run_time_seconds": 0.02902388572692871,
+    "last_commit": {
+      "hash": "739956ca6d7a1d5b930a0ed0aef4e2f4bba5b649",
+      "author_name": "stark4n6",
+      "author_email": "48143894+stark4n6@users.noreply.github.com",
+      "date": "2024-05-09T09:37:27-04:00",
+      "message": "Bolding Device Detail Keys"
+    }
+  },
+  "headers": [],
+  "data": []
+}

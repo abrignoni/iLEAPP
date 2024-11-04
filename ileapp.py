@@ -7,6 +7,8 @@ import typing
 import plugin_loader
 import scripts.report as report
 import traceback
+import sqlite3
+import sys
 
 import sys
 
@@ -14,6 +16,7 @@ from scripts.search_files import *
 from scripts.ilapfuncs import *
 from scripts.version_info import ileapp_version
 from time import process_time, gmtime, strftime, perf_counter
+from scripts.lavafuncs import *
 
 def validate_args(args):
     if args.artifact_paths or args.create_profile_casedata:
@@ -155,6 +158,7 @@ def main():
     parser.add_argument('-p', '--artifact_paths', required=False, action="store_true",
                         help=("Generate a text file list of artifact paths. "
                               "This argument is meant to be used alone, without any other arguments."))
+    parser.add_argument('--custom_output_folder', required=False, action="store", help="Custom name for the output folder")
 
     loader = plugin_loader.PluginLoader()
     available_plugins = list(loader.plugins)
@@ -284,6 +288,7 @@ def main():
     wrap_text = args.wrap_text
     output_path = os.path.abspath(args.output_path)
     time_offset = args.timezone
+    custom_output_folder = args.custom_output_folder
 
     # ios file system extractions contain paths > 260 char, which causes problems
     # This fixes the problem by prefixing \\?\ on each windows path.
@@ -291,12 +296,15 @@ def main():
         if input_path[1] == ':' and extracttype =='fs': input_path = '\\\\?\\' + input_path.replace('/', '\\')
         if output_path[1] == ':': output_path = '\\\\?\\' + output_path.replace('/', '\\')
 
-    out_params = OutputParameters(output_path)
+    out_params = OutputParameters(output_path, custom_output_folder)
 
     selected_plugins = plugins_parsed_first + selected_plugins
     
+    initialize_lava(input_path, out_params.report_folder_base, extracttype)
+
     crunch_artifacts(selected_plugins, extracttype, input_path, out_params, wrap_text, loader, casedata, time_offset, profile_filename)
 
+    lava_finalize_output(out_params.report_folder_base)
 
 def crunch_artifacts(
         plugins: typing.Sequence[plugin_loader.PluginSpec], extracttype, input_path, out_params, wrap_text,
@@ -411,6 +419,7 @@ def crunch_artifacts(
             logfunc('{} [{}] artifact completed'.format(plugin.name, plugin.module_name))
     log.close()
 
+    write_device_info()
     logfunc('')
     logfunc('Processes completed.')
     end = process_time()

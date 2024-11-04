@@ -1,7 +1,24 @@
+__artifacts_v2__ = {
+    "get_applePodcasts": {
+        "function": "get_applePodcasts",
+        "name": "Apple Podcasts",
+        "description": "Extract Apple podcasts shows and episodes.",
+        "author": "@stark4n6",
+        "version": "0.1",
+        "date": "2021-07-21",
+        "requirements": "none",
+        "category": "Apple Podcasts",
+        "notes": "",
+        "paths": ('*/MTLibrary.sqlite*'),
+        "output_types": "none"
+    }
+}
+
 import sqlite3
 import textwrap
 
 from scripts.artifact_report import ArtifactHtmlReport
+from scripts.lavafuncs import lava_process_artifact, lava_insert_sqlite_data
 from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, get_next_unused_name, open_sqlite_db_readonly, convert_ts_human_to_utc, convert_utc_human_to_timezone
 
 def get_applePodcasts(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -30,11 +47,9 @@ def get_applePodcasts(files_found, report_folder, seeker, wrap_text, timezone_of
         all_rows = cursor.fetchall()
         usageentries = len(all_rows)
         if usageentries > 0:
-            report = ArtifactHtmlReport('Apple Podcasts - Shows')
-            report.start_artifact_report(report_folder, 'Apple Podcasts - Shows')
-            report.add_script()
-            data_headers = ('Date Added','Date Last Played','Date Last Updated','Date Downloaded','Author','Title','Feed URL','Description','Web Page URL') # Don't remove the comma, that is required to make this a tuple as there is only 1 element
-            data_list = []
+            
+            
+            data_list1 = []
             for row in all_rows:
                 
                 if (row[0] == '') or (row[0]== None):
@@ -61,16 +76,26 @@ def get_applePodcasts(files_found, report_folder, seeker, wrap_text, timezone_of
                     timestampdowndate = convert_ts_human_to_utc(row[3])
                     timestampdowndate  = convert_utc_human_to_timezone(timestampdowndate,timezone_offset)
                 
-                data_list.append((timestampadded,timestampdateplayed,timestampdupdate,timestampdupdate,row[4],row[5],row[6],row[7],row[8]))
-
-            report.write_artifact_data_table(data_headers, data_list, file_found)
-            report.end_artifact_report()
+                data_list1.append((timestampadded,timestampdateplayed,timestampdupdate,timestampdupdate,row[4],row[5],row[6],row[7],row[8]))
             
-            tsvname = f'Apple Podcasts - Shows'
-            tsv(report_folder, data_headers, data_list, tsvname)
+            data_headers1 = [
+                'Date Added',
+                'Date Last Played',
+                'Date Last Updated',
+                'Date Downloaded',
+                'Author','Title',
+                'Feed URL',
+                'Description',
+                'Web Page URL']
             
-            tlactivity = f'Apple Podcasts - Shows'
-            timeline(report_folder, tlactivity, data_list, data_headers)
+            report1 = ArtifactHtmlReport('Apple Podcasts - Shows')
+            report1.start_artifact_report(report_folder, 'Apple Podcasts - Shows')
+            report1.add_script()
+            report1.write_artifact_data_table(data_headers1, data_list1, file_found)
+            report1.end_artifact_report()
+            
+            tsv(report_folder, data_headers1, data_list1, 'Apple Podcasts - Shows')
+                
         else:
             logfunc('No Apple Podcasts - Shows data available')
         
@@ -99,12 +124,9 @@ def get_applePodcasts(files_found, report_folder, seeker, wrap_text, timezone_of
 
         all_rows = cursor.fetchall()
         usageentries = len(all_rows)
+        
         if usageentries > 0:
-            report = ArtifactHtmlReport('Apple Podcasts - Episodes')
-            report.start_artifact_report(report_folder, 'Apple Podcasts - Episodes')
-            report.add_script()
-            data_headers = ('Import Date','Metadata Timestamp','Date Last Played','Play State Last Modified','Download Date','Play Count','Author','Title','Subtitle','Asset URL','Web Page URL','Duration','Size','Play State') # Don't remove the comma, that is required to make this a tuple as there is only 1 element
-            data_list = []
+            data_list2 = []
             for row in all_rows:
                 
                 timestampimport = convert_ts_human_to_utc(row[0])
@@ -133,26 +155,59 @@ def get_applePodcasts(files_found, report_folder, seeker, wrap_text, timezone_of
                 else:
                     timestampdowndate = convert_ts_human_to_utc(row[4])
                     timestampdowndate = convert_utc_human_to_timezone(timestampdupdate,timezone_offset)
-                
-                data_list.append((timestampimport,timestampmeta,timestamplastplay,timestamplastmod,timestampdowndate,row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12],row[13]))
 
-            report.write_artifact_data_table(data_headers, data_list, file_found)
-            report.end_artifact_report()
+            data_list2.append((timestampimport,timestampmeta,timestamplastplay,timestamplastmod,timestampdowndate,row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12],row[13]))
             
-            tsvname = f'Apple Podcasts - Episodes'
-            tsv(report_folder, data_headers, data_list, tsvname)
+            data_headers2 = [
+                'Import Date',
+                'Metadata Timestamp',
+                'Date Last Played',
+                'Play State Last Modified',
+                'Download Date',
+                'Play Count',
+                'Author',
+                'Title',
+                'Subtitle',
+                'Asset URL',
+                'Web Page URL',
+                'Duration',
+                'Size',
+                'Play State'] 
             
-            tlactivity = f'Apple Podcasts - Episodes'
-            timeline(report_folder, tlactivity, data_list, data_headers)
+            report2 = ArtifactHtmlReport('Apple Podcasts - Episodes')
+            report2.start_artifact_report(report_folder, 'Apple Podcasts - Episodes')
+            report2.add_script()
+            report2.write_artifact_data_table(data_headers2, data_list2, file_found)
+            report2.end_artifact_report()
+            
+            tsv(report_folder, data_headers2, data_list2, 'Apple Podcasts - Episodes')
+            
+
         else:
             logfunc('No Apple Podcasts - Episodes data available')
-        
-        db.close()
-        return
+    
+    category = "Apple Podcasts"
+    module_name = "get_applePodcasts"
+    
+    if data_list1:
 
-__artifacts__ = {
-    "applepodcasts": (
-        "Apple Podcasts",
-        ('**/MTLibrary.sqlite*'),
-        get_applePodcasts)
-}
+        data_headers1[0] = (data_headers1[0], 'datetime')
+        data_headers1[1] = (data_headers1[1], 'datetime')
+        data_headers1[2] = (data_headers1[2], 'datetime')
+        data_headers1[3] = (data_headers1[3], 'datetime')
+        
+        table_name1, object_columns1, column_map1 = lava_process_artifact(category, module_name, 'Apple Podcasts - Shows', data_headers1, len(data_list1))
+        lava_insert_sqlite_data(table_name1, data_list1, object_columns1, data_headers1, column_map1)
+    
+    if data_list2:
+        data_headers2[0] = (data_headers2[0], 'datetime')
+        data_headers2[1] = (data_headers2[1], 'datetime')
+        data_headers2[2] = (data_headers2[2], 'datetime')
+        data_headers2[3] = (data_headers2[3], 'datetime')
+        data_headers2[4] = (data_headers2[4], 'datetime')
+        
+        table_name2, object_columns2, column_map2 = lava_process_artifact(category, module_name, 'Apple Podcasts - Episodes', data_headers2, len(data_list2))
+        lava_insert_sqlite_data(table_name2, data_list2, object_columns2, data_headers2, column_map2)    
+        
+
+        

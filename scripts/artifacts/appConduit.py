@@ -1,3 +1,19 @@
+__artifacts_v2__ = {
+    "get_appConduit": {  # This should match the function name exactly
+        "name": "App Conduit",
+        "description": "The AppConduit log file stores information about interactions between iPhone and other iOS devices, i.e. Apple Watch",
+        "author": "@ydkhatri",
+        "version": "1.0",
+        "date": "2020-08-05",
+        "requirements": "none",
+        "category": "App Conduit",
+        "notes": "",
+        "paths": ('*/AppConduit.log.*',),
+        "function": "get_appConduit",
+        "output_types": "all"  # or ["html", "tsv", "timeline", "lava"]
+    }   
+}
+
 import datetime
 import glob
 import os
@@ -13,6 +29,7 @@ from html import escape
 
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, is_platform_windows, convert_time_obj_to_utc, convert_time_obj_to_utc, convert_utc_human_to_timezone
+from scripts.lavafuncs import lava_process_artifact, lava_insert_sqlite_data
 
 def get_appConduit(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
@@ -71,7 +88,7 @@ def get_appConduit(files_found, report_folder, seeker, wrap_text, timezone_offse
 
     data_headers_device_info = ('Device ID', 'Device type and version', 'Device extra information')
     data_headers = ('Time', 'Device interaction', 'Device ID', 'Log File Name')   
-
+    
     report = ArtifactHtmlReport('App Conduit')
     report.start_artifact_report(report_folder, 'App Conduit', 'The AppConduit log file stores information about interactions between iPhone and other iOS devices, i.e. Apple Watch')
     
@@ -83,11 +100,21 @@ def get_appConduit(files_found, report_folder, seeker, wrap_text, timezone_offse
     report.end_artifact_report()
 
     tsvname = 'App Conduit'
-    tsv(report_folder, data_headers, data_list, tsvname)        
+    tsv(report_folder, data_headers, data_list, tsvname)
     
-__artifacts__ = {
-    "appconduit": (
-        "App Conduit",
-        ('**/AppConduit.log.*'),
-        get_appConduit)
-}
+    #LAVA section 
+    data_headers_device_info_l = ['Device ID', 'Device type and version', 'Device extra information']
+    data_headers_l = ['Time', 'Device interaction', 'Device ID', 'Log File Name']
+    
+    category = "App Conduit"
+    module_name = "get_appConduit"
+    
+    data_headers_l[0] = (data_headers_l[0], 'datetime')
+    
+    table_name1, object_columns1, column_map1 = lava_process_artifact(category, module_name, 'App Conduit Device Info', data_headers_device_info_l, len(device_type_and_info))
+    lava_insert_sqlite_data(table_name1, device_type_and_info, object_columns1, data_headers_device_info_l, column_map1)
+
+    # Process second artifact for LAVA
+    table_name2, object_columns2, column_map2 = lava_process_artifact(category, module_name, 'App Conduit Device Interaction', data_headers_l, len(data_list))
+    lava_insert_sqlite_data(table_name2, data_list, object_columns2, data_headers_l, column_map2)
+    

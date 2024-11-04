@@ -3,12 +3,7 @@ import os
 import plistlib
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, tsv, is_platform_windows 
-
-def timestampsconv(webkittime):
-    unix_timestamp = webkittime + 978307200
-    finaltime = datetime.utcfromtimestamp(unix_timestamp)
-    return(finaltime)
+from scripts.ilapfuncs import logfunc, logdevinfo, tsv, is_platform_windows, webkit_timestampsconv
 
 def get_timezoneInfo(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
@@ -22,7 +17,7 @@ def get_timezoneInfo(files_found, report_folder, seeker, wrap_text, timezone_off
                 logdevinfo(f"<b>Last Bootstrap Timezone: </b>{val}")
                 
             elif key == 'lastBootstrapDate':
-                times = timestampsconv(val)
+                times = webkit_timestampsconv(val)
                 data_list.append(('lastBootstrapDate', times))
                 logdevinfo(f"<b>Last Bootstrap Date: </b>{times}")
                 

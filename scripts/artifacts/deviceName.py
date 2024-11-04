@@ -1,24 +1,29 @@
-import datetime
-import os
+__artifacts_v2__ = {
+    "deviceName": {
+        "name": "Device Name",
+        "description": "Extracts the device name from data_ark.plist",
+        "author": "@AlexisBrignoni",
+        "version": "1.0",
+        "date": "2024-10-29",
+        "requirements": "none",
+        "category": "Device Information",
+        "paths": ('*/root/Library/Lockdown/data_ark.plist',),
+        "output_types": "none"
+    }
+}
+
 import plistlib
+from scripts.ilapfuncs import device_info, artifact_processor
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, tsv, is_platform_windows 
-
-def get_deviceName(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    
+@artifact_processor
+def deviceName(files_found, report_folder, seeker, wrap_text, timezone_offset):
     file_found = str(files_found[0])
     with open(file_found, "rb") as fp:
         pl = plistlib.load(fp)
         for key, val in pl.items():
-            
             if key == '-DeviceName':
-                devicenamed = val
-                logdevinfo(f"<b>Device Name: </b>{val}")
-                
-__artifacts__ = {
-    "deviceName": (
-        "Identifiers",
-        ('*/root/Library/Lockdown/data_ark.plist'),
-        get_deviceName)
-}
+                device_info("Device Information", "Device Name", val)
+                break
+    
+    # Return empty data since this artifact only collects device info
+    return (), [], ''

@@ -8,20 +8,26 @@ import re
 import shutil
 import sqlite3
 import sys
+import math
+import inspect
 from functools import lru_cache
 from pathlib import Path
+
+import scripts.artifact_report as artifact_report
 
 # common third party imports
 import pytz
 import simplekml
 from bs4 import BeautifulSoup
 from scripts.filetype import guess_mime
+from functools import wraps
 
 # LEAPP version unique imports
 import binascii
 import math
 from PIL import Image
 
+from scripts.lavafuncs import lava_process_artifact, lava_insert_sqlite_data
 
 os.path.basename = lru_cache(maxsize=None)(os.path.basename)
 
@@ -29,17 +35,81 @@ thumbnail_root = '**/Media/PhotoData/Thumbnails/**/'
 media_root = '**/Media/'
 thumb_size = 256, 256
 
+identifiers = {}
+
+def strip_tuple_from_headers(data_headers):
+    return [header[0] if isinstance(header, tuple) else header for header in data_headers]
+
+def check_output_types(type, output_types):
+    if type in output_types or type == output_types or 'all' in output_types or 'all' == output_types:
+        return True
+    elif type != 'kml' and ('standard' in output_types or 'standard' == output_types):
+        return True
+    else:
+        return False
+
+def artifact_processor(func):
+    @wraps(func)
+    def wrapper(files_found, report_folder, seeker, wrap_text, timezone_offset):
+        module_name = func.__module__.split('.')[-1]
+        func_name = func.__name__
+
+        func_object = func.__globals__.get(func_name, {})
+        artifact_info = func_object.artifact_info #get('artifact_info', {})
+
+        artifact_name = artifact_info.get('name', func_name)
+        category = artifact_info.get('category', '')
+        description = artifact_info.get('description', '')
+
+        data_headers, data_list, source_path = func(files_found, report_folder, seeker, wrap_text, timezone_offset)
+        
+        if len(data_list):
+            logfunc(f"Found {len(data_list)} records for {artifact_name}")
+            output_types = artifact_info.get('output_types', ['html', 'tsv', 'timeline', 'lava', 'kml'])
+
+            # Strip tuples from headers for HTML, TSV, and timeline
+            stripped_headers = strip_tuple_from_headers(data_headers)
+
+            if check_output_types('html', output_types):
+                report = artifact_report.ArtifactHtmlReport(artifact_name)
+                report.start_artifact_report(report_folder, artifact_name, description)
+                report.add_script()
+                report.write_artifact_data_table(stripped_headers, data_list, source_path)
+                report.end_artifact_report()
+
+            if check_output_types('tsv', output_types):
+                tsv(report_folder, stripped_headers, data_list, artifact_name)
+            
+            if check_output_types('timeline', output_types):
+                timeline(report_folder, artifact_name, data_list, stripped_headers)
+
+            if check_output_types('lava', output_types):
+                table_name, object_columns, column_map = lava_process_artifact(category, module_name, artifact_name, data_headers, len(data_list), data_views=artifact_info.get("data_views"))
+                lava_insert_sqlite_data(table_name, data_list, object_columns, data_headers, column_map)
+
+            if check_output_types('kml', output_types):
+                kmlgen(report_folder, artifact_name, data_list, stripped_headers)
+
+        else:
+            logfunc(f"No {artifact_name} data available")
+        
+        return data_headers, data_list, source_path
+    return wrapper
+
 class OutputParameters:
     '''Defines the parameters that are common for '''
     # static parameters
     nl = '\n'
     screen_output_file_path = ''
 
-    def __init__(self, output_folder):
+    def __init__(self, output_folder, custom_folder_name=None):
         now = datetime.now()
         currenttime = str(now.strftime('%Y-%m-%d_%A_%H%M%S'))
-        self.report_folder_base = os.path.join(output_folder,
-                                               'iLEAPP_Reports_' + currenttime)  # aleapp , aleappGUI, ileap_artifacts, report.py
+        if custom_folder_name:
+            folder_name = custom_folder_name
+        else:
+            folder_name = 'iLEAPP_Reports_' + currenttime
+        self.report_folder_base = os.path.join(output_folder, folder_name)
         self.temp_folder = os.path.join(self.report_folder_base, 'data')
         OutputParameters.screen_output_file_path = os.path.join(self.report_folder_base, 'Script Logs',
                                                                 'Screen Output.html')
@@ -86,7 +156,7 @@ def convert_ts_int_to_timezone(time, time_offset):
     #return the converted value
     return timezone_time
 
-def timestampsconv(webkittime):
+def webkit_timestampsconv(webkittime):
     unix_timestamp = webkittime + 978307200
     finaltime = datetime.fromtimestamp(unix_timestamp, tz=timezone.utc)
     return(finaltime)
@@ -102,6 +172,30 @@ def convert_ts_human_to_utc(ts): #This is for timestamp in human form
 def convert_ts_int_to_utc(ts): #This int timestamp to human format & utc
     timestamp = datetime.fromtimestamp(ts, tz=timezone.utc)
     return timestamp
+
+def convert_unix_ts_to_timezone(ts, timezone_offset):
+    if ts:
+        digits = int(math.log10(ts))+1
+        if digits > 10:
+            extra_digits = digits - 10
+            ts = ts // 10**extra_digits
+        return convert_ts_int_to_timezone(ts, timezone_offset)
+    else:
+        return ts
+
+def convert_ts_human_to_timezone_offset(ts, timezone_offset):
+    return convert_utc_human_to_timezone(convert_ts_human_to_utc(ts), timezone_offset) if ts else ts
+
+def convert_plist_date_to_timezone_offset(plist_date, timezone_offset):
+    if plist_date:
+        str_date = '%04d-%02d-%02dT%02d:%02d:%02dZ' % (
+            plist_date.year, plist_date.month, plist_date.day, 
+            plist_date.hour, plist_date.minute, plist_date.second
+            )
+        iso_date = datetime.fromisoformat(str_date).strftime("%Y-%m-%d %H:%M:%S")
+        return convert_ts_human_to_timezone_offset(iso_date, timezone_offset)
+    else:
+        return plist_date
 
 def get_birthdate(date):
     ns_date = date + 978307200
@@ -293,6 +387,64 @@ def logdevinfo(message=""):
     with open(OutputParameters.screen_output_file_path_devinfo, 'a', encoding='utf8') as b:
         b.write(message + '<br>' + OutputParameters.nl)
 
+def write_device_info():
+    with open(OutputParameters.screen_output_file_path_devinfo, 'a', encoding='utf8') as b:
+        for category, values in identifiers.items():
+            b.write('<b>--- <u>' + category + ' </u>---</b><br>' + OutputParameters.nl)
+            b.write('<ul>' + OutputParameters.nl)
+            for label, data in values.items():
+                if isinstance(data, list):
+                    # Handle multiple values
+                    b.write('<li><b>' + label + ':</b><ul>' + OutputParameters.nl)
+                    for item in data:
+                        b.write(f'<li>{item["value"]} (Source: {item["module"]})</li>' + OutputParameters.nl)
+                    b.write('</ul></li>' + OutputParameters.nl)
+                else:
+                    # Handle single value
+                    b.write(f'<li><b>{label}:</b> {data["value"]} (Source: {data["module"]})</li>' + OutputParameters.nl)
+            b.write('</ul>' + OutputParameters.nl)
+
+def device_info(category, label, value):
+    """
+    Stores device information in the identifiers dictionary
+    Args:
+        category (str): The category of the information (e.g., "Device Info", "User Info")
+        label (str): The label/description to use as the key
+        value (str): The actual value to store
+    """
+    # Get the calling module's name more robustly
+    try:
+        frame = inspect.stack()[1]
+        module = inspect.getmodule(frame[0])
+        if module:
+            module_name = module.__name__.split('.')[-1]
+        else:
+            # Fallback: try to get module name from frame info
+            module_name = frame.filename.split('/')[-1].replace('.py', '')
+    except:
+        module_name = 'unknown'
+    
+    values = identifiers.get(category, {})
+    
+    # Create value object with both the value and source module
+    value_obj = {
+        'value': value,
+        'module': module_name
+    }
+    
+    if label in values:
+        # If the label exists, check if it's already a list
+        if isinstance(values[label], list):
+            values[label].append(value_obj)
+        else:
+            # Convert existing single value to list with both values
+            values[label] = [values[label], value_obj]
+    else:
+        # New label, store single value
+        values[label] = value_obj
+        
+    identifiers[category] = values
+
 def tsv(report_folder, data_headers, data_list, tsvname):
     report_folder = report_folder.rstrip('/')
     report_folder = report_folder.rstrip('\\')
@@ -350,6 +502,8 @@ def timeline(report_folder, tlactivity, data_list, data_headers):
     db.close()
 
 def kmlgen(report_folder, kmlactivity, data_list, data_headers):
+    if 'Longitude' not in data_list or 'Latitude' not in data_list:
+        return
     report_folder = report_folder.rstrip('/')
     report_folder = report_folder.rstrip('\\')
     report_folder_base = os.path.dirname(os.path.dirname(report_folder))

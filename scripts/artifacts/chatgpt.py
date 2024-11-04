@@ -31,7 +31,7 @@ from packaging import version
 from scripts.ccl import ccl_segb1
 from scripts.ccl import ccl_segb2
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, media_to_html,timestampsconv, convert_utc_human_to_timezone,convert_ts_int_to_utc,is_platform_windows
+from scripts.ilapfuncs import logfunc, tsv, timeline, media_to_html,webkit_timestampsconv, convert_utc_human_to_timezone,convert_ts_int_to_utc,is_platform_windows
 import scripts.artifacts.artGlobals
 
 
@@ -59,8 +59,8 @@ def get_chatgpt(files_found, report_folder, seeker, wrap_text, time_offset):
                 try:
                     conversation_id = data.get("id", "")
                     conversation_title = data.get("title", "")
-                    creation_time = convert_utc_human_to_timezone(timestampsconv(int(data.get("creation_date", 0))),time_offset)
-                    modification_time = convert_utc_human_to_timezone(timestampsconv(int(data.get("modification_date", 0))),time_offset)
+                    creation_time = convert_utc_human_to_timezone(webkit_timestampsconv(int(data.get("creation_date", 0))),time_offset)
+                    modification_time = convert_utc_human_to_timezone(webkit_timestampsconv(int(data.get("modification_date", 0))),time_offset)
                     model = data.get("configuration", {}).get("model", "")
                     custom_instructions_model = data.get("configuration", {}).get("custom_instructions", {}).get("about_model_message", "")
                     custom_instructions_user = data.get("configuration", {}).get("custom_instructions", {}).get("about_user_message", "")

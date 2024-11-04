@@ -1,38 +1,34 @@
+__artifacts_v2__ = {
+    "get_obliterated": {
+        "name": "Obliterated Time",
+        "description": "Parses obliterated timestamp",
+        "author": "@JohnHyla",
+        "version": "0.0.2",
+        "date": "2024-10-17",
+        "requirements": "none",
+        "category": "Identifiers",
+        "notes": "",
+        "paths": ('*/root/.obliterated'),
+        "output_types": "standard",
+    }
+}
+
 import datetime
+from datetime import timezone
 import os
-import plistlib
+from scripts.ilapfuncs import logdevinfo, artifact_processor
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, tsv, is_platform_windows 
-
+@artifact_processor
 def get_obliterated(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    data_list = []
     file_found = str(files_found[0])
     
     modified_time = os.path.getmtime(file_found)
-    utc_modified_date = datetime.datetime.utcfromtimestamp(modified_time)
+    utc_modified_date = datetime.datetime.fromtimestamp(modified_time, tz=timezone.utc)
     
     logdevinfo(f'<b>Obliterated Timestamp: </b>{utc_modified_date}')
     
-    data_list = []
-    data_list.append((utc_modified_date,))
-    
-    if len(data_list) > 0:
-        report = ArtifactHtmlReport('Obliterated Time')
-        report.start_artifact_report(report_folder, 'Obliterated Time')
-        report.add_script()
-        data_headers = ('Timestamp', )     
-        report.write_artifact_data_table(data_headers, data_list, file_found)
-        report.end_artifact_report()
-        
-        tsvname = 'Obliterated Time'
-        tsv(report_folder, data_headers, data_list, tsvname)
-    else:
-        logfunc('No Obliterated Time')
-            
-__artifacts__ = {
-    "obliterated": (
-        "Identifiers",
-        ('*/root/.obliterated'),
-        get_obliterated)
-}
+    data_list = [(utc_modified_date,)]
+
+    data_headers = (('Timestamp', 'datetime'), )
+
+    return data_headers, data_list, file_found

@@ -1,0 +1,42 @@
+{
+  "metadata": {
+    "module_name": "connectedDevices",
+    "artifact_name": "Connected Devices",
+    "function_name": "conDev",
+    "case_number": "belkasoft_ctf6_ios_device1",
+    "number_of_columns": 4,
+    "number_of_rows": 2,
+    "total_data_size_bytes": 66,
+    "input_zip_path": "admin/test/cases/data/connectedDevices/testdata.connectedDevices.conDev.belkasoft_ctf6_ios_device1.zip",
+    "start_time": "2024-10-23T17:45:02.496483+00:00",
+    "end_time": "2024-10-23T17:45:02.541042+00:00",
+    "run_time_seconds": 0.00015616416931152344,
+    "last_commit": {
+      "hash": "69ac7b29473ce1c743e18b67d635970f1d54742a",
+      "author_name": "James Habben",
+      "author_email": "james@wmif.net",
+      "date": "2024-10-23T09:34:15-07:00",
+      "message": "Update connectedDevices.py"
+    }
+  },
+  "headers": [
+    "User Name",
+    "Computer Name",
+    "File Offset",
+    "Source File"
+  ],
+  "data": [
+    [
+      "user",
+      "DESKTOP-0CBP2ID",
+      "384",
+      "iTunesPrefs"
+    ],
+    [
+      "user",
+      "DESKTOP-0CBP2ID",
+      "661",
+      "iTunesPrefs"
+    ]
+  ]
+}
