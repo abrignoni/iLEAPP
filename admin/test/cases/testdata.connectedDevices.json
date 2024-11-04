@@ -1,0 +1,31 @@
+{
+  "belkasoft_ctf6_ios_device1": {
+    "description": "",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "/Users/jameshabben/Documents/phone-images/belkasoft/BelkaCTF_6_CASE240405_D201AP.tar",
+      "os": "macOS-15.0-x86_64-i386-64bit",
+      "timestamp": "2024-10-23T09:45:39.397150",
+      "last_commit": {
+        "hash": "69ac7b29473ce1c743e18b67d635970f1d54742a",
+        "author_name": "James Habben",
+        "author_email": "james@wmif.net",
+        "date": "2024-10-23T09:34:15-07:00",
+        "message": "Update connectedDevices.py"
+      }
+    },
+    "artifacts": {
+      "conDev": {
+        "search_patterns": [
+          "*/iTunes_Control/iTunes/iTunesPrefs"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "image_name": "belkasoft_ctf6_ios_device1"
+  }
+}

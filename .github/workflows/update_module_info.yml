@@ -1,7 +1,7 @@
 name: Update Module Info
 
 on:
-  pull_request:
+  push:
     branches:
       - lava-output
     paths:
@@ -13,10 +13,9 @@ permissions:
 
 jobs:
   update-module-info:
-    permissions:
-      contents: write
+    # Only run on the main repository, not on forks
+    if: github.repository == 'abrignoni/iLEAPP'
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/lava-output'
     steps:
     - uses: actions/checkout@v4
       with:
@@ -27,8 +26,10 @@ jobs:
       with:
         python-version: '3.x'
 
-    - name: Run module_info script
-      run: python admin/scripts/module_info.py
+    - name: Run documentation scripts
+      run: |
+        python admin/scripts/device_info_values.py
+        python admin/scripts/module_info.py
 
     - name: Check for changes
       id: git-check
@@ -40,12 +41,11 @@ jobs:
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
+        git add admin/docs/device_info_values.md
         git add admin/docs/module_info.md
-        git commit -m "Update module_info.md"
+        git commit -m "Update documentation files"
 
     - name: Push changes
       if: steps.git-check.outputs.changes == 'true'
-      uses: ad-m/github-push-action@master
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        branch: ${{ github.head_ref || github.ref_name }}
+      run: |
+        git push
