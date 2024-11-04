@@ -1,0 +1,598 @@
+{
+  "metadata": {
+    "module_name": "teams",
+    "artifact_name": "Teams Messages",
+    "function_name": "teamsMessages",
+    "case_number": "josh_ios15_ffs",
+    "number_of_columns": 5,
+    "number_of_rows": 81,
+    "total_data_size_bytes": 11309,
+    "input_zip_path": "admin/test/cases/data/teams/testdata.teams.teamsMessages.josh_ios15_ffs.zip",
+    "start_time": "2024-11-04T22:03:14.263204+00:00",
+    "end_time": "2024-11-04T22:03:14.356771+00:00",
+    "run_time_seconds": 0.004088640213012695,
+    "last_commit": {
+      "hash": "de6fdbe64b57ef6f08cdcc5947c2bd89a6eb677c",
+      "author_name": "abrignoni",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2023-10-10T21:56:23-04:00",
+      "message": "Timezone offset main code"
+    }
+  },
+  "headers": [
+    "Timestamp",
+    "Display Name",
+    "From",
+    "Message",
+    "Shared Media"
+  ],
+  "data": [
+    [
+      1637783068,
+      "ThisIs DFIR",
+      "8:live:.cid.832804f1252ed9b2",
+      "<div>\n <div>\n  <img alt=\"Selected photo\" itemscope=\"\" itemtype=\"http://schema.skype.com/AMSImage\" src=\"https://us-api.asm.skype.com/v1/objects/0-eus-d3-57ce420192f2c16feda74acc08c9acc3/views/imgo\" width=\"1331\" height=\"1642\"> \n  <br>\r\n\n </div>\n</div>",
+      ""
+    ],
+    [
+      1637783107,
+      "ThisIs DfirTwo",
+      "8:live:.cid.5638f9306b7b8594",
+      "Poor Pete. ",
+      ""
+    ],
+    [
+      1637783162,
+      "ThisIs DfirTwo",
+      "8:live:.cid.5638f9306b7b8594",
+      "<div>I'll send a picture. </div>",
+      ""
+    ],
+    [
+      1637783225,
+      "ThisIs DfirTwo",
+      "8:live:.cid.5638f9306b7b8594",
+      "<div>\n <div>\n  <img alt=\"Selected photo\" itemscope=\"\" itemtype=\"http://schema.skype.com/AMSImage\" src=\"https://us-api.asm.skype.com/v1/objects/0-eus-d17-a2ac1b716b7149ff0f3158d18a9081af/views/imgo\" width=\"2209\" height=\"826\"> \n  <br>\r\n\n </div>\n</div>",
+      ""
+    ],
+    [
+      1637783354,
+      "ThisIs DFIR",
+      "8:live:.cid.832804f1252ed9b2",
+      "The logic is...interesting. ",
+      ""
+    ],
+    [
+      1637783420,
+      "ThisIs DfirTwo",
+      "8:live:.cid.5638f9306b7b8594",
+      "<div>I'll audio call you. </div>",
+      ""
+    ],
+    [
+      1637783673,
+      "ThisIs DfirTwo",
+      "8:live:.cid.5638f9306b7b8594",
+      "<div>Looks like the call failed. I'll try it again. </div>",
+      ""
+    ],
+    [
+      1637783830,
+      "ThisIs DFIR",
+      "8:live:.cid.832804f1252ed9b2",
+      "That one failed too, maybe...?",
+      ""
+    ],
+    [
+      1637783914,
+      "ThisIs DfirTwo",
+      "8:live:.cid.5638f9306b7b8594",
+      "<div>\n <div>\n  <span title=\"Man shrug\" type=\"manshrug\" class=\"animated-emoticon-50\"><img alt=\"\ud83e\udd37\" itemid=\"manshrug\" itemtype=\"http://schema.skype.com/Emoji\" itemscope=\"\" src=\"https://statics.teams.cdn.live.net/evergreen-assets/personal-expressions/v1/assets/emoticons/manshrug/default/100_f.png?etag=v56\" style=\"width:50px; height:50px\"></span>\n </div>\n</div>",
+      ""
+    ],
+    [
+      1637783974,
+      "ThisIs DFIR",
+      "8:live:.cid.832804f1252ed9b2",
+      "I will try to audio call you. ",
+      ""
+    ],
+    [
+      1637785340,
+      "ThisIs DfirTwo",
+      "8:live:.cid.5638f9306b7b8594",
+      "Try your audio call again. ",
+      ""
+    ],
+    [
+      1637786909,
+      "ThisIs DfirTwo",
+      "8:live:.cid.5638f9306b7b8594",
+      "Oh well. Nothing works. ",
+      ""
+    ],
+    [
+      1637786946,
+      "ThisIs DFIR",
+      "8:live:.cid.832804f1252ed9b2",
+      "Send a bad message and I will delete it. ",
+      ""
+    ],
+    [
+      1637787008,
+      "ThisIs DfirTwo",
+      "8:live:.cid.5638f9306b7b8594",
+      "<div>Here's your bad message. </div>",
+      ""
+    ],
+    [
+      1637787099,
+      "ThisIs DFIR",
+      "8:live:.cid.832804f1252ed9b2",
+      "Looks like only the sender can delete. ",
+      ""
+    ],
+    [
+      1637787129,
+      "ThisIs DFIR",
+      "8:live:.cid.832804f1252ed9b2",
+      "",
+      ""
+    ],
+    [
+      1637787239,
+      "ThisIs DFIR",
+      "8:live:.cid.832804f1252ed9b2",
+      "Deleted. ",
+      ""
+    ],
+    [
+      1638647000,
+      "ThisIs DFIR",
+      "8:live:.cid.832804f1252ed9b2",
+      "<div> <span itemid=\"bfb101ece45946be988be560a74322f2\" itemscope=\"\" itemtype=\"http://schema.skype.com/InputExtension\"></span> </div>",
+      ""
+    ],
+    [
+      1638647113,
+      "ThisIs DfirTwo",
+      "8:live:.cid.5638f9306b7b8594",
+      "<div> <span itemid=\"bfb101ece45946be988be560a74322f2\" itemscope=\"\" itemtype=\"http://schema.skype.com/InputExtension\"></span> </div>",
+      ""
+    ],
+    [
+      1638647177,
+      "ThisIs DfirTwo",
+      "8:live:.cid.5638f9306b7b8594",
+      "<div> <span itemid=\"bfb101ece45946be988be560a74322f2\" itemscope=\"\" itemtype=\"http://schema.skype.com/InputExtension\"></span> </div>",
+      ""
+    ],
+    [
+      1638647466,
+      "",
+      "8:live:.cid.5638f9306b7b8594",
+      "<livesharingstopped eventtime=\"1638647465837\" initiator=\"live:.cid.5638f9306b7b8594\" sessionid=\"73146a34-f574-447f-9da2-3a841c07d5ad\" reason=\"ConsentRevocation\">Location sharing ended</livesharingstopped>",
+      ""
+    ],
+    [
+      1638647537,
+      "ThisIs DFIR",
+      "8:live:.cid.832804f1252ed9b2",
+      "<div> <span itemid=\"bfb101ece45946be988be560a74322f2\" itemscope=\"\" itemtype=\"http://schema.skype.com/InputExtension\"></span> </div>",
+      ""
+    ],
+    [
+      1638647821,
+      "",
+      "8:live:.cid.832804f1252ed9b2",
+      "<livesharingstopped eventtime=\"1638647821743\" initiator=\"live:.cid.832804f1252ed9b2\" sessionid=\"943df139-907e-4d26-b033-c0bf3e704455\" reason=\"ConsentRevocation\">Location sharing ended</livesharingstopped>",
+      ""
+    ],
+    [
+      1660692600,
+      "",
+      "19:204b46fc734948a796f40213b2e59e21@thread.v2",
+      "<addmember><eventtime>1660692600614</eventtime><initiator>8:live:.cid.832804f1252ed9b2</initiator><rosterVersion>1660692600230</rosterVersion><target>8:live:.cid.832804f1252ed9b2</target><detailedtargetinfo><id>8:live:.cid.832804f1252ed9b2</id></detailedtargetinfo></addmember>",
+      ""
+    ],
+    [
+      1660692600,
+      "",
+      "19:204b46fc734948a796f40213b2e59e21@thread.v2",
+      "<joiningenabledupdate><eventtime>1660692600946</eventtime><initiator>8:live:.cid.832804f1252ed9b2</initiator><value>True</value></joiningenabledupdate>",
+      ""
+    ],
+    [
+      1660692600,
+      "",
+      "19:204b46fc734948a796f40213b2e59e21@thread.v2",
+      "<topicupdate><eventtime>1660692600711</eventtime><initiator>8:live:.cid.832804f1252ed9b2</initiator><value>DFIR family</value></topicupdate>",
+      ""
+    ],
+    [
+      1660692602,
+      "",
+      "19:204b46fc734948a796f40213b2e59e21@thread.v2",
+      "<pictureupdate><eventtime>1660692602156</eventtime><initiator>8:live:.cid.832804f1252ed9b2</initiator><value>URL@https://us-api.asm.skype.com/v1/objects/0-wus-d3-4caefafab6664c06dfa331c304479adf/views/avatar_fullsize</value></pictureupdate>",
+      ""
+    ],
+    [
+      1668540913,
+      "ThisIs DfirTwo",
+      "8:live:.cid.5638f9306b7b8594",
+      "You there?",
+      ""
+    ],
+    [
+      1668540965,
+      "ThisIs DFIR",
+      "8:live:.cid.832804f1252ed9b2",
+      "Yes sir, I am. ",
+      ""
+    ],
+    [
+      1668541028,
+      "ThisIs DfirTwo",
+      "8:live:.cid.5638f9306b7b8594",
+      "Awesome. We can make this quick then. ",
+      ""
+    ],
+    [
+      1668541104,
+      "ThisIs DFIR",
+      "8:live:.cid.832804f1252ed9b2",
+      "Agreed. Let me find a picture. Hang on. ",
+      ""
+    ],
+    [
+      1668541174,
+      "ThisIs DFIR",
+      "8:live:.cid.832804f1252ed9b2",
+      "<div>\n <div>\n  <img alt=\"Media\" itemscope=\"\" itemtype=\"http://schema.skype.com/AMSImage\" src=\"https://us-api.asm.skype.com/v1/objects/0-eus-d16-7ff8c9f08e45898feb8d5b0036aa6be2/views/imgo\" width=\"1536\" height=\"1152\"> \n </div>\n</div>",
+      ""
+    ],
+    [
+      1668541229,
+      "ThisIs DfirTwo",
+      "8:live:.cid.5638f9306b7b8594",
+      "Is that accurate?",
+      ""
+    ],
+    [
+      1668541329,
+      "ThisIs DFIR",
+      "8:live:.cid.832804f1252ed9b2",
+      "<div>I have no idea. It's got to be generally correct though. </div>",
+      ""
+    ],
+    [
+      1668541420,
+      "ThisIs DfirTwo",
+      "8:live:.cid.5638f9306b7b8594",
+      "Certainly looks that way. Lol. ",
+      ""
+    ],
+    [
+      1668541538,
+      "ThisIs DFIR",
+      "8:live:.cid.832804f1252ed9b2",
+      "<div>\r\n<blockquote itemscope=\"\" itemtype=\"http://schema.skype.com/Reply\" itemid=\"1668541420139\">\r\n<strong itemprop=\"mri\" itemid=\"8:live:.cid.5638f9306b7b8594\">ThisIs DfirTwo</strong><span itemprop=\"time\" itemid=\"1668541420139\"></span>\r\n<p itemprop=\"preview\">Certainly looks that way. Lol.</p>\r\n</blockquote>\r\nThe numbers may not be, but the trend probably is. </div>",
+      ""
+    ],
+    [
+      1668541600,
+      "ThisIs DfirTwo",
+      "8:live:.cid.5638f9306b7b8594",
+      "<div>I'll send a picture. Standby. </div>",
+      ""
+    ],
+    [
+      1668541688,
+      "ThisIs DfirTwo",
+      "8:live:.cid.5638f9306b7b8594",
+      "<div>\n <div>\n  <img alt=\"Media\" itemscope=\"\" itemtype=\"http://schema.skype.com/AMSImage\" src=\"https://us-api.asm.skype.com/v1/objects/0-eus-d2-55fe88621a308a65a97c7c610b9a07ae/views/imgo\" width=\"1170\" height=\"1165\"> \n </div>\n</div>",
+      ""
+    ],
+    [
+      1668541862,
+      "ThisIs DFIR",
+      "8:live:.cid.832804f1252ed9b2",
+      "Still accurate in 2022. ",
+      ""
+    ],
+    [
+      1668541968,
+      "ThisIs DfirTwo",
+      "8:live:.cid.5638f9306b7b8594",
+      "<div>I'd say.  Especially the part about the Christmas music. </div>",
+      ""
+    ],
+    [
+      1668542061,
+      "ThisIs DFIR",
+      "8:live:.cid.832804f1252ed9b2",
+      "<div>Yep. I'll audio call you. Hang on. </div>",
+      ""
+    ],
+    [
+      1668542371,
+      "ThisIs DfirTwo",
+      "8:live:.cid.5638f9306b7b8594",
+      "My turn. ",
+      ""
+    ],
+    [
+      1668542608,
+      "ThisIs DFIR",
+      "8:live:.cid.832804f1252ed9b2",
+      "Video call time. ",
+      ""
+    ],
+    [
+      1668542834,
+      "ThisIs DfirTwo",
+      "8:live:.cid.5638f9306b7b8594",
+      "<div>I'll video call you. </div>",
+      ""
+    ],
+    [
+      1668543051,
+      "ThisIs DFIR",
+      "8:live:.cid.832804f1252ed9b2",
+      "",
+      ""
+    ],
+    [
+      1668543082,
+      "ThisIs DfirTwo",
+      "8:live:.cid.5638f9306b7b8594",
+      "Then delete the one you just sent. ",
+      ""
+    ],
+    [
+      1668543198,
+      "ThisIs DFIR",
+      "8:live:.cid.832804f1252ed9b2",
+      "Done. ",
+      ""
+    ],
+    [
+      1670248018,
+      "ThisIs DFIR",
+      "8:live:.cid.832804f1252ed9b2",
+      "<div> <span itemid=\"bfb101ece45946be988be560a74322f2\" itemscope=\"\" itemtype=\"http://schema.skype.com/InputExtension\"></span> </div>",
+      ""
+    ],
+    [
+      1670248078,
+      "ThisIs DFIR",
+      "8:live:.cid.832804f1252ed9b2",
+      "<div> <span itemid=\"bfb101ece45946be988be560a74322f2\" itemscope=\"\" itemtype=\"http://schema.skype.com/InputExtension\"></span> </div>",
+      ""
+    ],
+    [
+      1670248307,
+      "",
+      "8:live:.cid.832804f1252ed9b2",
+      "<livesharingstopped eventtime=\"1670248307204\" initiator=\"live:.cid.832804f1252ed9b2\" sessionid=\"e96edfb5-5c4f-4e36-a074-5976d8bf2385\" reason=\"ConsentRevocation\">Location sharing ended</livesharingstopped>",
+      ""
+    ],
+    [
+      1670248450,
+      "ThisIs DfirTwo",
+      "8:live:.cid.5638f9306b7b8594",
+      "<div> <span itemid=\"bfb101ece45946be988be560a74322f2\" itemscope=\"\" itemtype=\"http://schema.skype.com/InputExtension\"></span> </div>",
+      ""
+    ],
+    [
+      1670248567,
+      "ThisIs DfirTwo",
+      "8:live:.cid.5638f9306b7b8594",
+      "<div> <span itemid=\"bfb101ece45946be988be560a74322f2\" itemscope=\"\" itemtype=\"http://schema.skype.com/InputExtension\"></span> </div>",
+      ""
+    ],
+    [
+      1670248836,
+      "",
+      "8:live:.cid.5638f9306b7b8594",
+      "<livesharingstopped eventtime=\"1670248836278\" initiator=\"live:.cid.5638f9306b7b8594\" sessionid=\"6b1baa5b-2809-476b-b7de-c870c37a0fc2\" reason=\"ConsentRevocation\">Location sharing ended</livesharingstopped>",
+      ""
+    ],
+    [
+      1682689489,
+      "ThisIs DfirTwo",
+      "8:live:.cid.5638f9306b7b8594",
+      "You here yet?",
+      ""
+    ],
+    [
+      1682689653,
+      "ThisIs DFIR",
+      "8:live:.cid.832804f1252ed9b2",
+      "I am. Battery and all.",
+      ""
+    ],
+    [
+      1682689697,
+      "ThisIs DfirTwo",
+      "8:live:.cid.5638f9306b7b8594",
+      "Yeah, how is it doing this morning?",
+      ""
+    ],
+    [
+      1682689776,
+      "ThisIs DFIR",
+      "8:live:.cid.832804f1252ed9b2",
+      "Still horrible. It\u2019s drained like 30 percent in the last hour or so.",
+      ""
+    ],
+    [
+      1682689829,
+      "ThisIs DfirTwo",
+      "8:live:.cid.5638f9306b7b8594",
+      "Yikes! \u00a0That is bad. When we do location stuff you\u2019ll need to be plugged in.",
+      ""
+    ],
+    [
+      1682690018,
+      "ThisIs DFIR",
+      "8:live:.cid.832804f1252ed9b2",
+      "This phone is retiring after this image.",
+      ""
+    ],
+    [
+      1682690055,
+      "ThisIs DfirTwo",
+      "8:live:.cid.5638f9306b7b8594",
+      "Definitely. I\u2019ll send you a picture. Hang on.",
+      ""
+    ],
+    [
+      1682690228,
+      "ThisIs DfirTwo",
+      "8:live:.cid.5638f9306b7b8594",
+      "<div><img src=\"https://us-api.asm.skype.com/v1/objects/0-eus-d7-369b84be4a5edc73018456e247716621/views/imgo\" itemscope=\"\" itemtype=\"http://schema.skype.com/AMSImage\" style=\"width:1668px; height:1331px\"></div>",
+      ""
+    ],
+    [
+      1682691522,
+      "ThisIs DFIR",
+      "8:live:.cid.832804f1252ed9b2",
+      "That picture is truth.",
+      ""
+    ],
+    [
+      1682691569,
+      "ThisIs DfirTwo",
+      "8:live:.cid.5638f9306b7b8594",
+      "Thought you might like it.",
+      ""
+    ],
+    [
+      1682691618,
+      "ThisIs DFIR",
+      "8:live:.cid.832804f1252ed9b2",
+      "I will audio call you now.",
+      ""
+    ],
+    [
+      1682691710,
+      "",
+      "8:live:.cid.832804f1252ed9b2",
+      "Call Logs for Call 6d8fa7a2-9a2e-4cf2-8c87-cc946fbe5663",
+      ""
+    ],
+    [
+      1682691783,
+      "ThisIs DfirTwo",
+      "8:live:.cid.5638f9306b7b8594",
+      "What happened?",
+      ""
+    ],
+    [
+      1682691853,
+      "ThisIs DFIR",
+      "8:live:.cid.832804f1252ed9b2",
+      "No clue. I\u2019ll try it again.",
+      ""
+    ],
+    [
+      1682691942,
+      "",
+      "8:live:.cid.832804f1252ed9b2",
+      "Call Logs for Call 1019490c-938a-45be-a3ec-b10069e7c2fc",
+      ""
+    ],
+    [
+      1682692056,
+      "ThisIs DFIR",
+      "8:live:.cid.832804f1252ed9b2",
+      "Well, it happened again. You try audio calling and see what happens.",
+      ""
+    ],
+    [
+      1682692211,
+      "",
+      "8:live:.cid.832804f1252ed9b2",
+      "Call Logs for Call 7f99d235-02b8-4c1c-adb7-f94038019166",
+      ""
+    ],
+    [
+      1682692488,
+      "ThisIs DfirTwo",
+      "8:live:.cid.5638f9306b7b8594",
+      "Well, that worked. You can try video calling me now.",
+      ""
+    ],
+    [
+      1682692733,
+      "",
+      "8:live:.cid.832804f1252ed9b2",
+      "Call Logs for Call c808711b-e466-4eaf-86c2-2eae9b1cc39b",
+      ""
+    ],
+    [
+      1682692945,
+      "ThisIs DfirTwo",
+      "8:live:.cid.5638f9306b7b8594",
+      "I\u2019ll video call. Standby.",
+      ""
+    ],
+    [
+      1682693144,
+      "",
+      "8:live:.cid.832804f1252ed9b2",
+      "Call Logs for Call 43f78ea2-b67f-4e73-af63-eeeabab8ed68",
+      ""
+    ],
+    [
+      1682693224,
+      "ThisIs DFIR",
+      "8:live:.cid.832804f1252ed9b2",
+      "I am sending you this message. I will delete it in a minute.",
+      ""
+    ],
+    [
+      1684329012,
+      "ThisIs DFIR",
+      "8:live:.cid.832804f1252ed9b2",
+      "<div><div><span itemscope=\"\" itemid=\"bfb101ece45946be988be560a74322f2\" itemtype=\"http://schema.skype.com/InputExtension\"></span></div></div>",
+      ""
+    ],
+    [
+      1684329357,
+      "",
+      "8:live:.cid.832804f1252ed9b2",
+      "<livesharingstopped eventtime=\"1684329357462\" initiator=\"live:.cid.832804f1252ed9b2\" sessionid=\"5AD31D26-C289-4081-A4DC-2F52AFB720C7\" reason=\"ConsentRevocation\">Location sharing ended</livesharingstopped>",
+      ""
+    ],
+    [
+      1684329467,
+      "ThisIs DfirTwo",
+      "8:live:.cid.5638f9306b7b8594",
+      "<div><div><span itemscope=\"\" itemid=\"bfb101ece45946be988be560a74322f2\" itemtype=\"http://schema.skype.com/InputExtension\"></span></div></div>",
+      ""
+    ],
+    [
+      1684329757,
+      "",
+      "8:live:.cid.5638f9306b7b8594",
+      "<livesharingstopped eventtime=\"1684329757420\" initiator=\"live:.cid.5638f9306b7b8594\" sessionid=\"3A5F31BF-A283-49CE-8BDA-86F3999E210D\" reason=\"ConsentRevocation\">Location sharing ended</livesharingstopped>",
+      ""
+    ],
+    [
+      1684330048,
+      "ThisIs DfirTwo",
+      "8:live:.cid.5638f9306b7b8594",
+      "<div><div><span itemscope=\"\" itemid=\"bfb101ece45946be988be560a74322f2\" itemtype=\"http://schema.skype.com/InputExtension\"></span></div></div>",
+      ""
+    ],
+    [
+      1684330223,
+      "ThisIs DFIR",
+      "8:live:.cid.832804f1252ed9b2",
+      "<div><div><span itemscope=\"\" itemid=\"bfb101ece45946be988be560a74322f2\" itemtype=\"http://schema.skype.com/InputExtension\"></span></div></div>",
+      ""
+    ]
+  ]
+}
