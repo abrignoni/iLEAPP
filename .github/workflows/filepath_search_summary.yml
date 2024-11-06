@@ -6,7 +6,7 @@ on:
 jobs:
   run-filepath-search:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/lava-output'
+    if: github.ref == 'refs/heads/main'
 
     steps:
     - name: Check out repository
