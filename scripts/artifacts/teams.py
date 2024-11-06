@@ -8,12 +8,18 @@ __artifacts_v2__ = {
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*',
                  '*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/Downloads/*/Images/*'),
         "output_types": "standard",
-        "chatParams": {
-            "threadDiscriminatorColumn": "Display Name",
-            "textColumn": "Message",
-            "timeColumn": "Timestamp",
-            "senderColumn": "From",
-            "mediaColumn": "Shared Media"
+        "data_views": {
+            "table": {},
+            "chat": {
+                "threadDiscriminatorColumn": "Thread ID",
+                "threadLabelColumn": "Thread Name",
+                "textColumn": "Message",
+                "senderColumn": "Display Name",
+                "directionColumn": "Sent By Me",
+                "directionSentValue": 1,
+                "timeColumn": "Timestamp",
+                #"sentMessageStaticLabel": "This Device" 
+            }
         }
     },
     "teamsContacts": {
@@ -97,28 +103,35 @@ def teamsMessages(files_found, report_folder, seeker, wrap_text, timezone_offset
     
     db = open_sqlite_db_readonly(db_file)
     cursor = db.cursor()
+    cursor.row_factory = sqlite3.Row  # Enable dictionary cursor
     
     cursor.execute('''
         SELECT
             datetime('2001-01-01', "ZARRIVALTIME" || ' seconds') as timestamp,
             ZIMDISPLAYNAME,
             ZCONTENT,
-            ZFROM
-        FROM ZSMESSAGE
+            ZFROM,
+            ZTHREADID,
+            ZTHREADTYPE,
+            t.ZTHREADTOPIC,
+            t.ZTSID,
+            COALESCE(t.ZTHREADTOPIC, ZTHREADTYPE || ' ' || ZTHREADID) as thread_name,
+            ZTS_MESSAGEBASETYPE,
+            ZTS_MESSAGECONTENTTYPE,
+			ZTS_ISSENTBYME
+        FROM ZSMESSAGE m
+        LEFT JOIN ZTHREAD t ON m.ZTHREADID = t.ZTSID
         ORDER BY timestamp
     ''')
 
-    for row in cursor.fetchall():
-        timestamp = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
-        display_name = row[1] if row[1] else ''
-        content = row[2] if row[2] else ''
-        sender = row[3] if row[3] else ''
+    for row in cursor:
+        timestamp = convert_ts_human_to_timezone_offset(row['timestamp'], timezone_offset)
         thumb = ''
         
         # Process media content
-        if content and '<div><img src=' in content:
+        if row['ZCONTENT'] and '<div><img src=' in row['ZCONTENT']:
             try:
-                matches = re.search('"([^"]+)"', content)
+                matches = re.search('"([^"]+)"', row['ZCONTENT'])
                 if matches:
                     image_url = matches[0].strip('\"')
                     if image_url in nsplist:
@@ -134,16 +147,36 @@ def teamsMessages(files_found, report_folder, seeker, wrap_text, timezone_offset
             except Exception as e:
                 logfunc(f'Error processing image for message at {timestamp}: {str(e)}')
         
-        data_list.append((timestamp, display_name, sender, content, thumb))
+        data_list.append((
+            timestamp,
+            row['ZIMDISPLAYNAME'] or '',
+            row['ZCONTENT'] or '',
+            row['ZFROM'] or '',
+            row['ZTHREADID'] or '',
+            row['ZTHREADTYPE'] or '',
+            row['ZTHREADTOPIC'] or '',
+            row['ZTSID'] or '',
+            row['thread_name'] or '',
+            row['ZTS_MESSAGEBASETYPE'] or '',
+            row['ZTS_MESSAGECONTENTTYPE'] or '',
+			row['ZTS_ISSENTBYME']
+        ))
     
     db.close()
     
     data_headers = (
         ('Timestamp', 'datetime'),
         'Display Name',
-        'From',
         'Message',
-        'Shared Media'
+        'Sender',
+        'Thread ID',
+        'Thread Type',
+        'Thread Topic',
+        'Thread TSID',
+        'Thread Name',
+        'Message Base Type',
+        'Message Content Type',
+        'Sent By Me'
     )
     
     return data_headers, data_list, db_file
@@ -167,7 +200,8 @@ def teamsContacts(files_found, report_folder, seeker, wrap_text, timezone_offset
     
     db = open_sqlite_db_readonly(db_file)
     cursor = db.cursor()
-    
+    cursor.row_factory = sqlite3.Row
+
     cursor.execute('''
         SELECT
             ZDISPLAYNAME,
@@ -176,16 +210,16 @@ def teamsContacts(files_found, report_folder, seeker, wrap_text, timezone_offset
         FROM ZDEVICECONTACTHASH
     ''')
     
-    for row in cursor.fetchall():
-        display_name = row[0] if row[0] else ''
-        email = row[1] if row[1] else ''
+    for row in cursor:
+        display_name = row['ZDISPLAYNAME'] if row['ZDISPLAYNAME'] else ''
+        email = row['ZEMAIL'] if row['ZEMAIL'] else ''
         
         # Clean phone number
-        phone = row[2] if row[2] else ''
+        phone = row['ZPHONENUMBER'] if row['ZPHONENUMBER'] else ''
         if phone:
             # Remove common formatting characters
             phone = phone.replace('(', '').replace(')', '').replace('-', '')
-            phone = phone.replace(' ', '').replace('.', '').replace('+', '')
+            phone = phone.replace(' ', '').replace('.', '')
     
         data_list.append((display_name, email, phone))
     
@@ -193,7 +227,7 @@ def teamsContacts(files_found, report_folder, seeker, wrap_text, timezone_offset
     
     data_headers = (
         'Display Name',
-        ('Email', 'phonenumber'),
+        'Email',
         ('Phone Number', 'phonenumber')
     )
     
@@ -218,20 +252,22 @@ def teamsUser(files_found, report_folder, seeker, wrap_text, timezone_offset):
     
     db = open_sqlite_db_readonly(db_file)
     cursor = db.cursor()
+    cursor.row_factory = sqlite3.Row
     
     cursor.execute('''
         SELECT
-            datetime('2001-01-01', "ZTS_LASTSYNCEDAT" || ' seconds'),
+            datetime('2001-01-01', "ZTS_LASTSYNCEDAT" || ' seconds') as lastsyncedat,
             ZDISPLAYNAME,
             ZTELEPHONENUMBER
         FROM ZUSER
     ''')
     
-    for row in cursor.fetchall():
-        timestamp = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
-        display_name = row[1] if row[1] else ''
-        phone = row[2] if row[2] else ''
-        data_list.append((timestamp, display_name, phone))
+    for row in cursor:
+        data_list.append((
+            convert_ts_human_to_timezone_offset(row['lastsyncedat'], timezone_offset),
+            row['ZDISPLAYNAME'] if row['ZDISPLAYNAME'] else '',
+            row['ZTELEPHONENUMBER'] if row['ZTELEPHONENUMBER'] else ''
+        ))
     
     db.close()
     
@@ -262,6 +298,7 @@ def teamsCalls(files_found, report_folder, seeker, wrap_text, timezone_offset):
     
     db = open_sqlite_db_readonly(db_file)
     cursor = db.cursor()
+    cursor.row_factory = sqlite3.Row
     
     cursor.execute('''
         SELECT
@@ -276,10 +313,10 @@ def teamsCalls(files_found, report_folder, seeker, wrap_text, timezone_offset):
         ORDER BY ZCOMPOSETIME
     ''')
     
-    for row in cursor.fetchall():
+    for row in cursor:
         try:
-            compose_time = convert_ts_human_to_timezone_offset(row[0].replace('T', ' '), timezone_offset)
-            plist_file_object = io.BytesIO(row[4])
+            compose_time = convert_ts_human_to_timezone_offset(row['ZCOMPOSETIME'].replace('T', ' '), timezone_offset)
+            plist_file_object = io.BytesIO(row['ZPROPERTIES'])
             
             try:
                 plist = nd.deserialize_plist(plist_file_object)
@@ -310,10 +347,6 @@ def teamsCalls(files_found, report_folder, seeker, wrap_text, timezone_offset):
                     ) if datacalls.get('endTime') else ''
                     
                     data_list.append((
-                        compose_time,
-                        row[1] if row[1] else '',  # from
-                        row[2] if row[2] else '',  # display_name
-                        row[3] if row[3] else '',  # content
                         call_start,
                         call_connect,
                         call_end,
@@ -334,10 +367,6 @@ def teamsCalls(files_found, report_folder, seeker, wrap_text, timezone_offset):
     db.close()
     
     data_headers = (
-        ('Compose Timestamp', 'datetime'),
-        'From',
-        'Display Name',
-        'Content',
         ('Call Start', 'datetime'),
         ('Call Connect', 'datetime'),
         ('Call End', 'datetime'),
@@ -371,6 +400,7 @@ def teamsLocations(files_found, report_folder, seeker, wrap_text, timezone_offse
     
     db = open_sqlite_db_readonly(db_file)
     cursor = db.cursor()
+    cursor.row_factory = sqlite3.Row
     
     cursor.execute('''
         SELECT
@@ -385,10 +415,10 @@ def teamsLocations(files_found, report_folder, seeker, wrap_text, timezone_offse
         ORDER BY ZCOMPOSETIME
     ''')
     
-    for row in cursor.fetchall():
+    for row in cursor:
         try:
-            compose_time = convert_ts_human_to_timezone_offset(row[0].replace('T', ' '), timezone_offset)
-            plist_file_object = io.BytesIO(row[4])
+            compose_time = convert_ts_human_to_timezone_offset(row['ZCOMPOSETIME'].replace('T', ' '), timezone_offset)
+            plist_file_object = io.BytesIO(row['ZPROPERTIES'])
             
             try:
                 plist = nd.deserialize_plist(plist_file_object)
@@ -428,9 +458,9 @@ def teamsLocations(files_found, report_folder, seeker, wrap_text, timezone_offse
                     
                     data_list.append((
                         compose_time,
-                        row[1] if row[1] else '',  # from
-                        row[2] if row[2] else '',  # display_name
-                        row[3] if row[3] else '',  # content
+                        row['ZFROM'] if row['ZFROM'] else '',
+                        row['ZIMDISPLAYNAME'] if row['ZIMDISPLAYNAME'] else '',
+                        row['ZCONTENT'] if row['ZCONTENT'] else '',
                         card_url,
                         card_title,
                         card_text,
@@ -450,7 +480,7 @@ def teamsLocations(files_found, report_folder, seeker, wrap_text, timezone_offse
     
     data_headers = (
         ('Timestamp', 'datetime'),
-        'From',
+        'Sender',
         'Display Name',
         'Content',
         'Card URL',
