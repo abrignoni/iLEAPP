@@ -397,14 +397,14 @@ def write_device_info():
                     # Handle multiple values
                     b.write('<li><b>' + label + ':</b><ul>' + OutputParameters.nl)
                     for item in data:
-                        b.write(f'<li>{item["value"]} (Source: {item["module"]})</li>' + OutputParameters.nl)
+                        b.write(f'<li>{item["value"]} <span title="{item["source_file"]}" style="cursor:help">(Source: {item["module"]})</span></li>' + OutputParameters.nl)
                     b.write('</ul></li>' + OutputParameters.nl)
                 else:
                     # Handle single value
-                    b.write(f'<li><b>{label}:</b> {data["value"]} (Source: {data["module"]})</li>' + OutputParameters.nl)
+                    b.write(f'<li><b>{label}:</b> {data["value"]} <span title="{data["source_file"]}" style="cursor:help">(Source: {data["module"]})</span></li>' + OutputParameters.nl)
             b.write('</ul>' + OutputParameters.nl)
 
-def device_info(category, label, value):
+def device_info(category, label, value, source_file=""):
     """
     Stores device information in the identifiers dictionary
     Args:
@@ -429,6 +429,7 @@ def device_info(category, label, value):
     # Create value object with both the value and source module
     value_obj = {
         'value': value,
+        'source_file': source_file,
         'module': module_name
     }
     

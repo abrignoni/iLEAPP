@@ -1,5 +1,5 @@
 __artifacts_v2__ = {
-    "get_adId": {
+    "advertisingID": {
         "name": "Advertising Identifier",
         "description": "Extract Apple advertising identifier",
         "author": "@AlexisBrignoni",
@@ -17,9 +17,8 @@ import plistlib
 from scripts.ilapfuncs import artifact_processor, device_info
 
 @artifact_processor
-def get_adId(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def advertisingID(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
-    id_values = []
     data_headers = ()
     source_path = str(files_found[0])
 
@@ -28,8 +27,7 @@ def get_adId(files_found, report_folder, seeker, wrap_text, timezone_offset):
         for key, val in pl.items():
             if key == 'LSAdvertiserIdentifier':
                 data_list.append(('Apple Advertising Identifier', val))
-                #id_values.append(f"<b>Apple Advertising Identifier: </b>{val}")
-                device_info("Advertising Identifier", "Apple Advertising Identifier", val)
+                device_info("Advertising Identifier", "Apple Advertising Identifier", val, source_path)
 
     
     data_headers = ('Identifier', 'Data Value')
