@@ -52,13 +52,13 @@ def deviceActivator(files_found, report_folder, seeker, wrap_text, timezone_offs
     
     for x in results:
         if x[0] == 'EthernetMacAddress':
-            device_info("Network", "Ethernet MAC Address", x[1])
+            device_info("Network", "Ethernet MAC Address", x[1], file_found)
         if x[0] == 'BluetoothAddress':
-            device_info("Network", "Bluetooth Address", x[1])
+            device_info("Network", "Bluetooth Address", x[1], file_found)
         if x[0] == 'WifiAddress':
-            device_info("Network", "WiFi Address", x[1])
+            device_info("Network", "WiFi Address", x[1], file_found)
         if x[0] == 'ModelNumber':
-            device_info("Device Information", "Model Number", x[1])
+            device_info("Device Information", "Model Number", x[1], file_found)
     
     if len(results) > 0:
         data_headers = ('Property', 'Property Value')

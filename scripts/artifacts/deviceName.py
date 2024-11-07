@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "version": "1.0",
         "date": "2024-10-29",
         "requirements": "none",
-        "category": "Device Information",
+        "category": "Identifiers",
         "paths": ('*/root/Library/Lockdown/data_ark.plist',),
         "output_types": "none"
     }
@@ -22,7 +22,7 @@ def deviceName(files_found, report_folder, seeker, wrap_text, timezone_offset):
         pl = plistlib.load(fp)
         for key, val in pl.items():
             if key == '-DeviceName':
-                device_info("Device Information", "Device Name", val)
+                device_info("Device Information", "Device Name", val, file_found)
                 break
     
     # Return empty data since this artifact only collects device info

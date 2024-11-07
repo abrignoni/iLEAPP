@@ -1,5 +1,5 @@
 __artifacts_v2__ = {
-    "get_alarms": {
+    "alarms": {
         "name": "Alarms",
         "description": "Extraction of alarms set",
         "author": "Anna-Mariya Mateyna",
@@ -43,7 +43,7 @@ def decode_repeat_schedule(repeat_schedule_value):
 
 
 @artifact_processor
-def get_alarms(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def alarms(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
     data_headers = ()
     source_path = str(files_found[0])
