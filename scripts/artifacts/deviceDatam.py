@@ -35,9 +35,9 @@ def deviceDatam(files_found, report_folder, seeker, wrap_text, timezone_offset):
         pl = plistlib.load(fp)
         for key, val in pl.items():
             if key == 'imeis':
-                device_info("Device Information", "IMEIs", val)
+                device_info("Device Information", "IMEIs", val, file_found)
             elif key == 'ReportedPhoneNumber':
-                device_info("Device Information", "Reported Phone Number", val)
+                device_info("Device Information", "Reported Phone Number", val, file_found)
             
             # Convert timestamps to human readable format
             if key in timestamp_keys:

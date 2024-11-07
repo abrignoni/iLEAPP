@@ -1,6 +1,7 @@
 # Artifact Info Block Structure
 
 ## Version 2
+
 The artifact info block is defined as a dictionary named `__artifacts_v2__` at the top of the artifact script. It contains key information about the artifact. Here's the structure:
 
 ```python
@@ -32,15 +33,16 @@ __artifacts_v2__ = {
 - `notes`: Any additional information about the artifact (can be an empty string)
 - `paths`: A tuple containing one or more file paths (with wildcards if needed) where the artifact data can be found
 - `output_types`: A list of strings or the string 'all' specifying the types of output the artifact produces. Options are:
-    - `["html", "tsv", "lava", ...]`: A list containing any combination of these values
-    - `"all"`: Generates all available output types
-    - `"standard"`: Generates HTML, TSV, LAVA,and timeline output
-    - Individual options:
-        - `"html"`: Generates HTML output
-        - `"tsv"`: Generates TSV (Tab-Separated Values) output
-        - `"timeline"`: Generates timeline output
-        - `"lava"`: Generates output for LAVA (a specific data processing format)
-        - `"kml"`: Generates KML (Keyhole Markup Language) output for Google Earth
+  - `["html", "tsv", "lava", ...]`: A list containing any combination of these values
+  - `"all"`: Generates all available output types
+  - `"standard"`: Generates HTML, TSV, LAVA,and timeline output
+  - Individual options:
+    - `"html"`: Generates HTML output
+    - `"tsv"`: Generates TSV (Tab-Separated Values) output
+    - `"timeline"`: Generates timeline output
+    - `"lava"`: Generates output for LAVA (a specific data processing format)
+    - `"kml"`: Generates KML (Keyhole Markup Language) output for Google Earth
+    - `"none"`: Any output generated (For modules only collecting device info)
 
 This info block provides essential metadata about the artifact and is used by the artifact processor to handle the artifact correctly. The plugin loader will attach this information to the corresponding function, making it accessible via the function's globals.
 

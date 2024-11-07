@@ -77,7 +77,7 @@ def appleWifiKnownNetworks(files_found, report_folder, seeker, wrap_text, timezo
             deserialized = plistlib.load(f)
             if 'KeepWiFiPoweredAirplaneMode' in deserialized:
                 val = (deserialized['KeepWiFiPoweredAirplaneMode'])
-                device_info('WiFi', 'Keep Wifi Powered Airplane Mode', val)
+                device_info('WiFi', 'Keep Wifi Powered Airplane Mode', val, file_found)
 
             if 'List of known networks' in deserialized:
                 for known_network in deserialized['List of known networks']:

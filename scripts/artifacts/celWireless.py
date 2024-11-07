@@ -30,15 +30,15 @@ def celWireless(files_found, report_folder, seeker, wrap_text, timezone_offset):
                 for key, val in plist.items():
                     data_list.append((key, str(val), filepath))
                     if key == "ReportedPhoneNumber":
-                        device_info("Cellular", "Reported Phone Number", val)
+                        device_info("Cellular", "Reported Phone Number", val, filepath)
                     elif key == "CDMANetworkPhoneNumberICCID":
-                        device_info("Cellular", "CDMA Network Phone Number ICCID", val)
+                        device_info("Cellular", "CDMA Network Phone Number ICCID", val, filepath)
                     elif key == "imei":
-                        device_info("Cellular", "IMEI", val)
+                        device_info("Cellular", "IMEI", val, filepath)
                     elif key == "LastKnownICCID":
-                        device_info("Cellular", "Last Known ICCID", val)
+                        device_info("Cellular", "Last Known ICCID", val, filepath)
                     elif key == "meid":
-                        device_info("Cellular", "MEID", val)
+                        device_info("Cellular", "MEID", val, filepath)
     
     data_headers = ('Data Key', 'Data Value', 'Source File')
     return data_headers, data_list, filepath

@@ -33,7 +33,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('Path/to/artifact/files',),
         "output_types": "all"  # or "standard" or ["html", "tsv", "timeline", "kml", "lava"]
-    }   
+    }
 }
 ```
 
@@ -42,11 +42,13 @@ __artifacts_v2__ = {
 Remove imports related to manual report generation (ArtifactHtmlReport, tsv, kml, timeline) and unused ones, then add the artifact processor:
 
 #### Remove this import
+
 ```python
 from scripts.artifact_report import ArtifactHtmlReport
 ```
 
 #### Modify this import
+
 ```python
 from scripts.ilapfuncs import artifact_processor
 ```
@@ -76,7 +78,7 @@ def get_artifactname(files_found, report_folder, seeker, wrap_text, timezone_off
 
         # ... process data ...
         data_list.append((col1, col2, col3))
-        
+
     data_headers = (('Column1', 'datetime'), 'Column2', 'Column3')
     return data_headers, data_list, source_path
 ```
@@ -86,24 +88,30 @@ def get_artifactname(files_found, report_folder, seeker, wrap_text, timezone_off
 Be sure to mark columns with their data type if they are one of the special handler types. It's ok if all data in a marked column doesn't conform to the marked type, as it will be tested and displayed as provided if it doesn't match.
 
 Currently the special handler types are:
+
 - datetime
 - date
 - phonenumber
 
 #### Timestamps
+
 If the artifact is added to the timeline, be sure that the first column is a datetime or date type.
 
-For timestamps in SQLite databases, this code is actually used to support timezone offset parameter chosen by the user. 
+For timestamps in SQLite databases, this code is actually used to support timezone offset parameter chosen by the user.
+
 ```python
 start_time = convert_ts_human_to_utc(row[1])
 start_time = convert_utc_human_to_timezone(start_time,timezone_offset)
 ```
+
 If there is no value, script execution is interrupted and artifact is not added to any report. A new function has been added to ilapfuncs.py and must be preferably be used.
+
 ```python
 start_time = convert_ts_human_to_timezone_offset(row[1], timezone_offset)
 ```
 
 For plist files, convert_plist_date_to_timezone_offset function has been added to ilapfuncs.py to process the datetime objects (e.g. '2023-05-08T18:22:10Z') and support lava-ouput and timezone offset in other reports.
+
 ```python
 last_modified_date = convert_plist_date_to_timezone_offset(last_modified_date, timezone_offset)
 ```
@@ -117,7 +125,6 @@ Delete any code related to manual report generation, including:
 - Writing data to TSV files
 - Generating timeline or KML files
 - Any print or logging statements about no data being available
-
 
 ### 6. Add chat parameters if the artifact should support a threaded type view
 
@@ -164,18 +171,21 @@ Example (From googleChat.py artifact):
 The `logdevinfo()` function is being deprecated in favor of the new `device_info()` function. This new function provides better organization and structure for device-related information. Not every module uses these functions, so this section is only applicable to modules that do.
 
 #### Old Method (logdevinfo):
+
 ```python
 logdevinfo(f'<b>IMEI: </b>{imei}')
 logdevinfo(f'<b>Serial Number: </b>{serial}')
 ```
 
 #### New Method (device_info):
+
 ```python
 device_info("Device Information", "IMEI", imei)
 device_info("Device Information", "Serial Number", serial)
 ```
 
 Key differences:
+
 1. No HTML formatting needed - display formatting is handled by the output generator
 2. Information is categorized for better organization
 3. Values are stored in a structured format that's easier to query and display
@@ -183,6 +193,7 @@ Key differences:
 5. Duplicate handling is built-in - multiple modules can report the same information
 
 The new structure allows for:
+
 - Better organization of device information by category
 - Automatic tracking of which modules provided what information
 - Easier querying and filtering of device information
@@ -210,6 +221,7 @@ By focusing modules on data extraction and processing, we improve code readabili
   - Use "standard" to export data in html, csv, lava and timeline;
   - Specify the desired types in a list ["html", "tsv", "timeline", "kml", "lava"];
   - For a single output, indicates the types (e.g: "lava")
+  - For modules only collecting device info, use "none"
   - You may choose to generate the HTML output manually while still using the other output types. This may be useful for artifacts that need to be split to avoid browser crashes.
 - The `artifact_processor` decorator now automatically retrieves the artifact information from the function's globals or the module's `__artifacts_v2__` dictionary.
 - The main function should focus solely on data extraction and processing, returning the data for the artifact processor to handle output generation.
