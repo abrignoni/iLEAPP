@@ -48,10 +48,6 @@ icon_mappings = \
     'ALFA ROMEO CONTACTS': 'users',  # TODO: adjust artifact to share a category
     'ALFA ROMEO BLUETOOTH': 'bluetooth',
     'ALFA ROMEO SIRIUS DATA': 'settings',
-    'ALLTRAILS': {
-        'ALLTRAILS - TRAIL DETAILS': 'map',
-        'ALLTRAILS - USER INFO': 'user',
-    },
     'ANDROID SYSTEM INTELLIGENCE': {
         'SIMPLESTORAGE': 'loader',
         'default': 'user'
@@ -487,6 +483,10 @@ icon_mappings = \
         'HEALTH - RESTING HEART RATE': 'activity',
         'HEALTH - STEPS': 'activity',
         'HEALTH - WORKOUTS': 'activity',
+    },
+    'HEALTH & FITNESS': {
+        'ALLTRAILS - TRAIL DETAILS': 'map',
+        'ALLTRAILS - USER INFO': 'user',
     },
     'HIDEX': 'eye-off',
     'HIKVISION': {
