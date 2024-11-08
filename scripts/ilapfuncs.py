@@ -63,7 +63,10 @@ def artifact_processor(func):
 
         data_headers, data_list, source_path = func(files_found, report_folder, seeker, wrap_text, timezone_offset)
         
-        if len(data_list):
+        if not source_path:
+            logfunc(f"No file found")
+
+        elif len(data_list):
             logfunc(f"Found {len(data_list)} records for {artifact_name}")
             output_types = artifact_info.get('output_types', ['html', 'tsv', 'timeline', 'lava', 'kml'])
 

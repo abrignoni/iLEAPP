@@ -374,6 +374,8 @@ def crunch_artifacts(
 
     # Search for the files per the arguments
     for plugin in plugins:
+        logfunc()
+        logfunc('{} [{}] artifact started'.format(plugin.name, plugin.module_name))
         if isinstance(plugin.search, list) or isinstance(plugin.search, tuple):
             search_regexes = plugin.search
         else:
@@ -389,6 +391,7 @@ def crunch_artifacts(
                 found = seeker.search(artifact_search_regex)
             if not found:
                 log.write(f'<ul><li>No file found for regex <i>{artifact_search_regex}</i></li></ul>')
+                logfunc('No file found')
             else:
                 log.write(f'<ul><li>{len(found)} {"files" if len(found) > 1 else "file"} for regex <i>{artifact_search_regex}</i> located at:')
                 for pathh in found:
@@ -398,8 +401,6 @@ def crunch_artifacts(
                 log.write(f'</li></ul>')
                 files_found.extend(found)
         if files_found:
-            logfunc()
-            logfunc('{} [{}] artifact started'.format(plugin.name, plugin.module_name))
             category_folder = os.path.join(out_params.report_folder_base, '_HTML', plugin.category)
             if not os.path.exists(category_folder):
                 try:
@@ -416,7 +417,7 @@ def crunch_artifacts(
                 logfunc('Exception Traceback: {}'.format(traceback.format_exc()))
                 continue  # nope
 
-            logfunc('{} [{}] artifact completed'.format(plugin.name, plugin.module_name))
+        logfunc('{} [{}] artifact completed'.format(plugin.name, plugin.module_name))
     log.close()
 
     write_device_info()

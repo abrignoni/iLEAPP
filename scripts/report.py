@@ -103,15 +103,15 @@ def generate_report(reportfolderbase, time_in_secs, time_HMS, extraction_type, i
                         nav_list_data += side_heading.format(SectionHeader)
                     side_list[SectionHeader].append(fullpath)
                     icon = get_icon_name(SectionHeader, tail.replace(".temphtml", ""))
-                    nav_list_data += list_item.format('', tail.replace(".temphtml", ".html"), icon,
-                                                        tail.replace(".temphtml", "").replace("_", " "))
+                    nav_list_data += list_item.format('', tail.replace(".temphtml", ".html").replace(" ", "_"), 
+                                                      icon, tail.replace(".temphtml", "").replace("_", " "))
 
     # Now that we have all the file paths, start writing the files
 
     for category, path_list in side_list.items():
         for path in path_list:
             old_filename = os.path.basename(path)
-            filename = old_filename.replace(".temphtml", ".html")
+            filename = old_filename.replace(".temphtml", ".html").replace(" ", "_")
             # search for it in nav_list_data, then mark that one as 'active' tab
             active_nav_list_data = mark_item_active(nav_list_data, filename) + nav_bar_script
             artifact_data = get_file_content(path)
