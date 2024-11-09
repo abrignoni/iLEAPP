@@ -1,5 +1,5 @@
 __artifacts_v2__ = {
-    "TelegramMessages": {
+    "telegramMessages": {
         "name": "Telegram Messages",
         "description": "",
         "author": "Stek29 / Victor Oreshkin",
@@ -13,7 +13,7 @@ __artifacts_v2__ = {
             '*/telegram-data/account-*/postbox/db/db_sqlite*',
             '*/telegram-data/account-*/postbox/media/**'
         ),
-        "function": "get_telegramMessages"
+        "output_types": ["lava", "tsv", "timeline"]
     }
 }
 
@@ -26,19 +26,27 @@ import mmh3
 import datetime
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, timeline, tsv, open_sqlite_db_readonly, media_to_html
+from scripts.ilapfuncs import media_to_html, artifact_processor
 
 # Code courtesy of Stek29 / Victor Oreshkin
 # Github: https://gist.github.com/stek29
 # Code: https://gist.github.com/stek29/8a7ac0e673818917525ec4031d77a713
 
-def get_telegramMessages(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    
+@artifact_processor
+def telegramMessages(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    data_headers = ['Timestamp', 'Direction', 'Author ID', 'Text', 'Forward Timestamp', 'Forward From',
+        'Action Data', 'Thumb']
+    report_file = 'Unknown'
+
+    data_list = []
+    data_list_html = []
+
     for file_found in files_found:
         file_found = str(file_found)
         
         if (file_found.endswith('db_sqlite')) and ('media' not in file_found):
-            data_list= []
+            report_file = file_found
+
             
             class byteutil:
                 def __init__(self, buffer, endian='<'):
@@ -86,7 +94,7 @@ def get_telegramMessages(files_found, report_folder, seeker, wrap_text, timezone
                 
             def murmur(d):
                 # seed from telegram
-                return mmh3.hash(d, seed=-137723950)
+                return mmh3.hash(d, seed=4157243346)
             
             
             # In[4]:
@@ -350,14 +358,17 @@ def get_telegramMessages(files_found, report_folder, seeker, wrap_text, timezone
                 if hadWarn == False:
                     hadWarn = ''
                     thumb = ''
-                
+
+
                 if 'telegram-cloud' in hadWarn:
                     filename = hadWarn.split(' ')[-1]
                     thumb = media_to_html(filename, files_found, report_folder)
                 else:
                     thumb = ''
+                    filename = ''
                     
-                data_list.append((ts,direction,authorid,text,forwarddate,forwardfrom,hadWarn,thumb))
+                data_list_html.append((ts,direction,authorid,text,forwarddate,forwardfrom,hadWarn,thumb))
+                data_list.append((ts,direction,authorid,text,forwarddate,forwardfrom,hadWarn,filename))
             #     return hadWarn
                 
                 
@@ -800,52 +811,31 @@ def get_telegramMessages(files_found, report_folder, seeker, wrap_text, timezone
                     return f"{self.type} {self.payload}"
                 
             # In[14]:
-                
-                
             con = sqlite3.connect(file_found)
             
             
             # In[15]:
-            
-            for idx, msg in get_all_messages(f=lambda idx: idx.timestamp > 1619557200):
+            for idx, msg in get_all_messages():
                 #print(msg)
                 print_message(idx, msg)
-                if MessageFlags.Incoming in msg['flags'] and 'web versions of Telegram' in msg['text']:
-                    print_message(idx, msg)
-                    #break
-                    
-            # In[16]:
-                    
-            for idx, msg in get_all_messages(f=lambda idx: idx.peerId == 9596437714 and idx.timestamp > 1617224400):
-                print_message(idx, msg)
-                            
-            # In[17]:
-                
-            get_peer(9596437714)
-    
+
             # In[18]:
     
             con.close()
-    
+
+    # Handle HTML Manually due to media
+    # TODO: Update when media manager is available
     if len(data_list) > 0:    
         description = 'Telegram - Messages'
         report = ArtifactHtmlReport('Telegram - Messages')
         report.start_artifact_report(report_folder, 'Telegram - Messages')
         report.add_script()
-        data_headers = (
-            'Timestamp', 'Direction', 'Author ID', 'Text', 'Forward Timestamp', 'Forward From', 
-            'Action Data', 'Thumb')  # Don't remove the comma, that is required to make this a tuple as there is only 1 element
+
         
-        report.write_artifact_data_table(data_headers, data_list, file_found, html_escape=False)
+        report.write_artifact_data_table(data_headers, data_list_html, file_found, html_escape=False)
         report.end_artifact_report()    
-        
-        
-        tsvname = f'Telegram - Messages'
-        tsv(report_folder, data_headers, data_list, tsvname)
-        
-        tlactivity = f'Telegram - Messages'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-        
-    else:
-        logfunc('No Telegram - Messages data available')
+
+    data_headers[0] = (data_headers[0], 'datetime')
+
+    return data_headers, data_list, report_file
         
