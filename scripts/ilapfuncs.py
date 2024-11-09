@@ -644,11 +644,14 @@ def media_to_html(media_path, files_found, report_folder):
     def relative_paths(source, splitter):
         splitted_a = source.split(splitter)
         for x in splitted_a:
-            if 'LEAPP_Reports_' in x:
-                report_folder = x
+            if '_HTML' in x:
+                splitted_b = source.split(x)
+                return '.' + splitted_b[1]
+            elif 'data' in x:
+                index = splitted_a.index(x)
+                splitted_b = source.split(splitted_a[index - 1])
+                return '..' + splitted_b[1]
 
-        splitted_b = source.split(report_folder)
-        return '.' + splitted_b[1]
 
     platform = is_platform_windows()
     if platform:
@@ -665,7 +668,7 @@ def media_to_html(media_path, files_found, report_folder):
 
         dirs = os.path.dirname(report_folder)
         dirs = os.path.dirname(dirs)
-        env_path = os.path.join(dirs, 'temp')
+        env_path = os.path.join(dirs, 'data')
         if env_path in match:
             source = match
             source = relative_paths(source, splitter)
