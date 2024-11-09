@@ -1,18 +1,37 @@
-from os.path import dirname, join, basename
-import sqlite3
+__artifacts_v2__ = {
+    'tiktok_replied': {
+        'name': 'TikTok - Replied Messages',
+        'description': 'Extracts "Replied" message remnants left in the TikTok database which may no longer exist in '
+                       'the native message table',
+        'author': 'John Hyla http://www.bluecrewforensics.com/',
+        'version': '0.2',
+        'date': '2024-11-8',
+        'requirements': 'none',
+        'category': 'TikTok',
+        'notes': 'This artifact is extracted from the TIMMessageKVORM table which appears to contain referenced '
+                 'messages. It appears that a copy of the message being replied to is placed into this table. It also '
+                 'appears that entries in this table may not be deleted when the actual referenced message or the new '
+                 'reply is deleted. There may be unknown circumstances that cause records to be deleted from this table '
+                 'and there may be reasons other than using the simple reply feature that may cause records to be '
+                 'written here.',
+        'paths': ('*/Application/*/Library/Application Support/ChatFiles/*/db.sqlite*', '*AwemeIM.db*'),
+        "output_types": "standard"
+    }
+}
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly
+from os.path import dirname, basename
+from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly, artifact_processor
 
-
-def get_tiktok_replied(files_found, report_folder, seeker, wrap_text, timezone_offset):
-
-
+@artifact_processor
+def tiktok_replied(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    data_list = []
+    report_file = ''
     # Find the AwemeIM.db
     for file_found in files_found:
         file_found = str(file_found)
 
         if file_found.endswith('AwemeIM.db'):
+            report_file = file_found
             attachdb = file_found
             logfunc("FOUND AwemeIM.db")
 
@@ -20,11 +39,11 @@ def get_tiktok_replied(files_found, report_folder, seeker, wrap_text, timezone_o
     for file_found in files_found:
         file_found = str(file_found)
 
-
         if file_found.endswith('db.sqlite'):
+            report_file = file_found if report_file is 'Unknown' else report_file + ', ' + file_found
             dir_path = dirname(file_found)
             account_id = basename(dir_path)
-            data_list = []
+
             db = open_sqlite_db_readonly(file_found)
             cursor = db.cursor()
             cursor.execute(f'ATTACH DATABASE "file:{attachdb}?mode=ro" as AwemeIM;')
@@ -37,13 +56,30 @@ def get_tiktok_replied(files_found, report_folder, seeker, wrap_text, timezone_o
             # create the contact subquery
             contacts_subqueries = []
             for table in contacts_tables:
-                contacts_subqueries.append(f'SELECT uid, customid, nickname, url1 FROM {table}')
+                contacts_subqueries.append(f'SELECT uid, customid, nickname, url1, "{table}" as t FROM AwemeIM.{table}')
 
             contacts_subquery = '''
                         UNION ALL
                         '''.join(contacts_subqueries)
 
-            cursor.execute(f'''
+            # wrap subquery to select only a single record per contact
+            contacts_subquery = f'''
+            WITH UniqueContacts AS (
+                SELECT 
+                    uid, customid, nickname, url1, t,
+                    ROW_NUMBER() OVER (PARTITION BY uid ORDER BY t) AS rn
+                FROM (
+                    {contacts_subquery}
+                ) AS CombinedContacts
+            ),
+            DeduplicatedContacts AS (
+                SELECT uid, customid, nickname, url1, t
+                FROM UniqueContacts
+                WHERE rn = 1
+            )
+            '''
+            full_query = f'''
+            {contacts_subquery}
             select
                 TIMMessageKVORM.rowid,
                 belongingMessageID,
@@ -85,58 +121,24 @@ def get_tiktok_replied(files_found, report_folder, seeker, wrap_text, timezone_o
                 END replyServerCreatedAt
             from TIMMessageKVORM
             left join TIMMessageORM on TIMMessageKVORM.belongingMessageID = TIMMessageORM.identifier
-            left join ({contacts_subquery}) as ref_message_sender on referencedMessageSender = ref_message_sender.uid
-            left join ({contacts_subquery}) as reply_sender on replySender = reply_sender.uid
-            ''')
+            left join DeduplicatedContacts as ref_message_sender on referencedMessageSender = ref_message_sender.uid
+            left join DeduplicatedContacts as reply_sender on replySender = reply_sender.uid
+            '''
+
+            cursor.execute(full_query)
 
             all_rows = cursor.fetchall()
-            logfunc(f'all rows length {len(all_rows)}')
-            if len(all_rows) > 0:
-                i = 0
-                for row in all_rows:
-                    i += 1
-                    data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                                      row[10], row[11], row[12], row[13], row[14]))
 
-            report = ArtifactHtmlReport(f'TikTok Referenced Replied - {account_id}')
-            description = 'This artifact is extracted from the TIMMessageKVORM table which appears to contain ' \
-                          'referenced messages. It appears that a copy of the message being replied to is placed ' \
-                          'into this table. It also appears that entries in this table may not be deleted when the ' \
-                          'actual referenced message or the new reply is deleted. There may be unknown circumstances ' \
-                          'that cause records to be deleted from this table and there may be reasons other than ' \
-                          'using the simple reply feature that may cause records to be written here.'
-            report.start_artifact_report(report_folder, f'TikTok Referenced Replied - {account_id}',
-                                         artifact_description=description)
+            for row in all_rows:
+                data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
+                                  row[10], row[11], row[12], row[13], row[14]))
 
-            report.add_script()
-            data_headers = (
-                'RowID', 'BelongingMessageID', 'ref_msg_type', 'ref_msg_id', 'Referenced Text', 'Ref Msg Sender UID',
-                'Ref Msg Sender CustomID', 'Ref Msg Sender Nickname', 'Reply Text', 'Deleted',
-                'Belonging Conversation ID', 'Reply Sender UID', 'Reply Sender CustomID', 'Reply Sender Nickname',
-                'Reply Server Created Date')
-            report.write_artifact_data_table(data_headers, data_list, file_found)
-            report.end_artifact_report()
+    data_headers = (
+        'RowID', 'BelongingMessageID', 'ref_msg_type', 'ref_msg_id', 'Referenced Text', 'Ref Msg Sender UID',
+        'Ref Msg Sender CustomID', 'Ref Msg Sender Nickname', 'Reply Text', 'Deleted',
+        'Belonging Conversation ID', 'Reply Sender UID', 'Reply Sender CustomID', 'Reply Sender Nickname',
+        'Reply Server Created Date')
 
-    tsvname = 'Tiktok Messages'
-    tsv(report_folder, data_headers, data_list, tsvname)
-
-    tlactivity = 'TikTok Messages'
-    timeline(report_folder, tlactivity, data_list, data_headers)
+    return data_headers, data_list, report_file
 
 
-__artifacts_v2__ = {
-    'tiktok_replied': {
-        'name': 'TikTok - Replied Referenced Messages',
-        'description': 'Extracts "Replied" message remnants left in the TikTok database which may no longer exist in '
-                       'the native message table',
-        'author': 'John Hyla http://www.bluecrewforensics.com/',
-        'version': '0.1',
-        'date': '2024-07-10',
-        'requirements': 'none',
-        'category': 'TikTok',
-        'notes': 'There may be other reasons for these messages to exist in this table, but for now testing shows '
-                 'that a copy is placed here when the reply feature is used',
-        'paths': ('*/Application/*/Library/Application Support/ChatFiles/*/db.sqlite*', '*AwemeIM.db*'),
-        'function': 'get_tiktok_replied'
-    }
-}

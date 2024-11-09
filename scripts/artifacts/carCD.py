@@ -15,15 +15,18 @@ __artifacts_v2__ = {
 
 import plistlib
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, tsv, webkit_timestampsconv, artifact_processor
+from scripts.ilapfuncs import logdevinfo, webkit_timestampsconv, artifact_processor
+
 
 @artifact_processor
 def get_carCD(files_found, report_folder, seeker, wrap_text, timezone_offset):
     
     data_list = []
-    
+
+    report_file = 'Unknown'
     for file_found in files_found:
         file_found = str(file_found)
+        report_file = file_found
         
         lastconn = contype = connected = disconnected = uid = ''
         
@@ -50,20 +53,7 @@ def get_carCD(files_found, report_folder, seeker, wrap_text, timezone_offset):
         report = ArtifactHtmlReport('Last Car Connection and UDID')
         report.start_artifact_report(report_folder, 'Last Car Connection and UDID')
         report.add_script()
-        report.write_artifact_data_table(data_headers, data_list, file_found, html_escape=False)
+        report.write_artifact_data_table(data_headers, data_list, report_file, html_escape=False)
         report.end_artifact_report()
 
-
-        logfunc(f'Found {len(data_list)} records for Last Car Connection and UDID')
-
-    return data_headers, data_list, file_found
-
-    #     table_name, object_columns, column_map = lava_process_artifact(category, module_name,
-    #                                                                    name,
-    #                                                                    data_headers,
-    #                                                                    len(data_list))
-    #
-    #     lava_insert_sqlite_data(table_name, data_list, object_columns, data_headers, column_map)
-    #
-    # else:
-    #     logfunc(f'No records found for Last Car Connection and UDID')
+    return data_headers, data_list, report_file
