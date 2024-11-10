@@ -29,4 +29,4 @@ def advertisingID(files_found, report_folder, seeker, wrap_text, timezone_offset
 
     
     # Return empty data since this artifact only collects device info
-    return (), [], ''
+    return (), [], source_path

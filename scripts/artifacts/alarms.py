@@ -45,7 +45,6 @@ def decode_repeat_schedule(repeat_schedule_value):
 @artifact_processor
 def alarms(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
-    data_headers = ()
     source_path = str(files_found[0])
 
     with open(source_path, "rb") as plist_file:

@@ -60,6 +60,7 @@ def artifact_processor(func):
         artifact_name = artifact_info.get('name', func_name)
         category = artifact_info.get('category', '')
         description = artifact_info.get('description', '')
+        output_types = artifact_info.get('output_types', ['html', 'tsv', 'timeline', 'lava', 'kml'])
 
         data_headers, data_list, source_path = func(files_found, report_folder, seeker, wrap_text, timezone_offset)
         
@@ -68,7 +69,6 @@ def artifact_processor(func):
 
         elif len(data_list):
             logfunc(f"Found {len(data_list)} records for {artifact_name}")
-            output_types = artifact_info.get('output_types', ['html', 'tsv', 'timeline', 'lava', 'kml'])
 
             # Strip tuples from headers for HTML, TSV, and timeline
             stripped_headers = strip_tuple_from_headers(data_headers)
@@ -94,7 +94,8 @@ def artifact_processor(func):
                 kmlgen(report_folder, artifact_name, data_list, stripped_headers)
 
         else:
-            logfunc(f"No {artifact_name} data available")
+            if output_types != 'none':
+                logfunc(f"No {artifact_name} data available")
         
         return data_headers, data_list, source_path
     return wrapper
