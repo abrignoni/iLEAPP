@@ -505,6 +505,7 @@ icon_mappings = \
     'ICLOUD SHARED ALBUMS': 'cloud',
     'IDENTIFIERS': {
         'IOS MESSAGE RETENTION': 'message-circle',
+        'PREFERENCES PLIST': 'settings',
         'default': 'file',
     },
     'IDENTITY LOOKUP SERVICE': 'user-check',
@@ -791,7 +792,6 @@ icon_mappings = \
     },
     'POWERLOG': 'power',
     'POWERLOG BACKUPS': 'power',
-    'PREFERENCES PLIST': 'file',
     'PRIVACY DASHBOARD': 'eye',
     'PROTON MAIL': 'mail',
     'PROTONMAIL': {

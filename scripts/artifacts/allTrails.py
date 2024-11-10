@@ -26,7 +26,7 @@ __artifacts_v2__ = {
 }
 
 
-from scripts.ilapfuncs import artifact_processor, logfunc, open_sqlite_db_readonly, convert_ts_human_to_timezone_offset
+from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, convert_ts_human_to_timezone_offset
 
 @artifact_processor
 def allTrails_trail_details(files_found, report_folder, seeker, wrap_text, timezone_offset):

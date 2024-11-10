@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "accountConfig": {
         "name": "Account Configuration",
         "description": "Extracts account configuration information",
-        "author": "@abrignoni",
+        "author": "@AlexisBrignoni",
         "version": "0.2.3",
         "date": "2020-04-30",
         "requirements": "none",
