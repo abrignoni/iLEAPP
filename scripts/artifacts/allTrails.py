@@ -1,5 +1,5 @@
 __artifacts_v2__ = {
-    "allTrails_trail_details": {
+    "allTrailsTrailDetails": {
         "name": "AllTrails - Trail Details",
         "description": "Extract trail details from AllTrails App",
         "author": "@stark4n6",
@@ -11,7 +11,7 @@ __artifacts_v2__ = {
         "paths": ('*/Documents/AllTrails.sqlite*'),
         "output_types": ["html", "tsv", "lava"]
     },
-    "allTrails_user_info": {
+    "allTrailsUserInfo": {
         "name": "AllTrails - User Info",
         "description": "Extract user info from AllTrails App",
         "author": "@stark4n6",
@@ -29,7 +29,7 @@ __artifacts_v2__ = {
 from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, convert_ts_human_to_timezone_offset
 
 @artifact_processor
-def allTrails_trail_details(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def allTrailsTrailDetails(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
     db_file = ''
 
@@ -102,7 +102,7 @@ def allTrails_trail_details(files_found, report_folder, seeker, wrap_text, timez
 
 
 @artifact_processor
-def allTrails_user_info(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def allTrailsUserInfo(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
     db_file = None
 
