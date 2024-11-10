@@ -161,6 +161,8 @@ def lava_insert_sqlite_data(table_name, data, object_columns, headers, column_ma
             original_column = column[0] if isinstance(column, tuple) else column
             sanitized_column = sanitize_sql_name(original_column)
             value = row[i]
+            if isinstance(value, dict) or isinstance(value, list):
+                value = json.dumps(value)
             if sanitized_column in object_columns and object_columns[sanitized_column] == 'datetime':
                 # Convert datetime to integer (Unix timestamp)
                 if isinstance(value, str):
