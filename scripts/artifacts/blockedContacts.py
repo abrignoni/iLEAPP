@@ -19,7 +19,6 @@ from scripts.ilapfuncs import artifact_processor
 @artifact_processor
 def get_blocked_contacts(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
-    data_headers = ()
     source_path = str(files_found[0])
 
     with open(source_path, "rb") as fp:
