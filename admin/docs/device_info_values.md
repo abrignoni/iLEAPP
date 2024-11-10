@@ -19,14 +19,9 @@ This document outlines the various device information collected by iLEAPP module
 | Backup Settings | Last iTunes Backup TZ | backupSettings |
 | Cellular | CDMA Network Phone Number ICCID | celWireless |
 | Cellular | IMEI | celWireless |
-| Cellular | Last Good IMSI | imeiImsi |
-| Cellular | Last Known ICCI | imeiImsi |
 | Cellular | Last Known ICCID | celWireless |
 | Cellular | MEID | celWireless |
-| Cellular | Phone Number | imeiImsi |
 | Cellular | Reported Phone Number | celWireless |
-| Cellular | Self Registration Update IMEI | imeiImsi |
-| Cellular | Self Registration Update IMSI | imeiImsi |
 | Device Information | Device Name | deviceName |
 | Device Information | Device/Computer Name | preferencesPlist |
 | Device Information | Host Name | preferencesPlist |
@@ -43,6 +38,7 @@ This document outlines the various device information collected by iLEAPP module
 | Network | WiFi Address | deviceActivator |
 | Settings | Last System Version | appleLocationd |
 | Settings | Location Services Enabled | appleLocationd |
+| Settings | Timezone Set | timezoneSet |
 | WiFi | Keep Wifi Powered Airplane Mode | appleWifiPlist |
 <!-- DEVICE_INFO_END -->
 
@@ -59,17 +55,21 @@ This document outlines the various device information collected by iLEAPP module
 | InternationalMobileEquipmentIdentity: {val} | Ph100UFEDdevcievaluesplist |
 | Last Bootstrap Date: {times} | timezoneInfo |
 | Last Bootstrap Timezone: {val} | timezoneInfo |
+| Last Good IMSI: {lastgoodimsi} | imeiImsi |
+| Last Known ICCI: {lastknownicci} | imeiImsi |
 | MAC Address: {hexstring} - User Defined Name: {userdefinedname} - BSD Name: {bsdname} | wifiIdent |
 | Obliterated Timestamp: {utc_modified_date} | obliterated |
 | PasswordProtected: {val} | Ph100UFEDdevcievaluesplist |
+| Phone Number: {val} | imeiImsi |
 | ProductName: {val} | Ph99SystemVersionPlist |
 | ProductType: {val} | Ph100UFEDdevcievaluesplist |
 | ReleaseType: {val} | Ph99SystemVersionPlist |
+| Self Registration Update IMEI: {selfregistrationupdateimei} | imeiImsi |
+| Self Registration Update IMSI: {selfregitrationupdateimsi} | imeiImsi |
 | Serial Number: {row[0]} | serialNumber |
 | SerialNumber: {val} | Ph100UFEDdevcievaluesplist |
 | SystemImageID: {val} | Ph99SystemVersionPlist |
 | TimeZone: {val} | Ph100UFEDdevcievaluesplist |
-| Timezone Set: {val} | timezoneset |
 | UDID: {uid} | carCD |
 | Vehicle - Last Connected: {connected} - Last Disconnected: {disconnected} - Type: {contype} | carCD |
 | com.apple.MobileSMS.plist - Keep Messages for Days (iOS 17+): {val} | messageRetention |
@@ -86,6 +86,5 @@ This document outlines the various device information collected by iLEAPP module
 | {base_file} - Keep Messages for Days (iOS 17+): {keep_val} | messageRetention |
 | {base_file} - Keep Messages for Days (iOS {keep_val} | messageRetention |
 | {info_key}: {value_key} | iTunesBackupInfo |
-| {key}: {val} | timezoneset |
 <!-- LOGDEVINFO_END -->
 
