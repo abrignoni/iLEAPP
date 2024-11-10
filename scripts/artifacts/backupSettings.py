@@ -19,7 +19,6 @@ from scripts.ilapfuncs import artifact_processor, device_info, webkit_timestamps
 @artifact_processor
 def backupSettings(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
-    data_headers = ()
     source_path = str(files_found[0])
     
     with open(source_path, "rb") as fp:
@@ -45,5 +44,5 @@ def backupSettings(files_found, report_folder, seeker, wrap_text, timezone_offse
             else:
                 data_list.append((key, val ))
                 
-    data_headers = ('Data Key', 'Data Value')
+    data_headers = ('Property', 'Property Value')
     return data_headers, data_list, source_path            

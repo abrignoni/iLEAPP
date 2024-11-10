@@ -15,7 +15,7 @@ __artifacts_v2__ = {
 
 
 import plistlib
-from scripts.ilapfuncs import artifact_processor, logfunc, device_info
+from scripts.ilapfuncs import artifact_processor, device_info
 
 @artifact_processor
 def imeiImsi(files_found, report_folder, seeker, wrap_text, timezone_offset):

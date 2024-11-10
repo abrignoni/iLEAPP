@@ -1,5 +1,5 @@
 __artifacts_v2__ = {
-    "get_callHistory": {
+    "callHistory": {
         "name": "Call History",
         "description": "Extract Call History",
         "author": "@AlexisBrignoni",
@@ -21,7 +21,9 @@ __artifacts_v2__ = {
 from scripts.ilapfuncs import artifact_processor , open_sqlite_db_readonly, convert_bytes_to_unit, convert_ts_human_to_timezone_offset
 
 @artifact_processor
-def get_callHistory(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def callHistory(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    data_list = []
+    db_file = ''
 
     #call_history.db schema taken from here https://avi.alkalay.net/2011/12/iphone-call-history.html 
     query = '''
@@ -93,39 +95,36 @@ def get_callHistory(files_found, report_folder, seeker, wrap_text, timezone_offs
     from call
     '''
 
-    data_list = []
-    data_headers = ()
-    source_path = ''
-
     for file_found in files_found:
-        source_path = str(file_found)
         if file_found.endswith('.storedata'):
+            db_file = file_found
             break
         elif file_found.endswith('.db'):
+            db_file = file_found
             query = query_old
             break
     
-    db = open_sqlite_db_readonly(file_found)
-    cursor = db.cursor()
-    cursor.execute(query)
+    if db_file:
+        db = open_sqlite_db_readonly(file_found)
+        cursor = db.cursor()
+        cursor.execute(query)
 
-    all_rows = cursor.fetchall()
-    
-    for row in all_rows:
-        starting_time = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
+        all_rows = cursor.fetchall()
+        
+        for row in all_rows:
+            starting_time = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
+            ending_time = convert_ts_human_to_timezone_offset(row[1], timezone_offset)
 
-        ending_time = convert_ts_human_to_timezone_offset(row[1], timezone_offset)
+            an = str(row[5])
+            an = an.replace("b'", "")
+            an = an.replace("'", "")
 
-        an = str(row[5])
-        an = an.replace("b'", "")
-        an = an.replace("'", "")
+            facetime_data = convert_bytes_to_unit(row[8])
 
-        facetime_data = convert_bytes_to_unit(row[8])
+            data_list.append((starting_time, ending_time, row[2], row[3], row[4], an, row[6], 
+                                row[7], facetime_data, row[9], row[10], row[11]))
 
-        data_list.append((starting_time, ending_time, row[2], row[3], row[4], an, row[6], 
-                            row[7], facetime_data, row[9], row[10], row[11]))
-
-    db.close()
+        db.close()
 
     data_headers = (
         ('Starting Timestamp', 'datetime'), 
@@ -141,5 +140,4 @@ def get_callHistory(files_found, report_folder, seeker, wrap_text, timezone_offs
         'ISO Country Code', 
         'Location'
         )
-    
-    return data_headers, data_list, source_path
+    return data_headers, data_list, db_file
