@@ -19,13 +19,19 @@ This document outlines the various device information collected by iLEAPP module
 | Backup Settings | Last iTunes Backup TZ | backupSettings |
 | Cellular | CDMA Network Phone Number ICCID | celWireless |
 | Cellular | IMEI | celWireless |
+| Cellular | Last Good IMSI | imeiImsi |
+| Cellular | Last Known ICCI | imeiImsi |
 | Cellular | Last Known ICCID | celWireless |
 | Cellular | MEID | celWireless |
+| Cellular | Phone Number | imeiImsi |
 | Cellular | Reported Phone Number | celWireless |
+| Cellular | Self Registration Update IMEI | imeiImsi |
+| Cellular | Self Registration Update IMSI | imeiImsi |
 | Device Information | Device Name | deviceName |
 | Device Information | Device/Computer Name | preferencesPlist |
 | Device Information | Host Name | preferencesPlist |
 | Device Information | IMEIs | deviceDatam |
+| Device Information | Last Bootstrap Date | timezoneInfo |
 | Device Information | Local Host Name | preferencesPlist |
 | Device Information | Model | preferencesPlist |
 | Device Information | Model Number | deviceActivator |
@@ -36,6 +42,7 @@ This document outlines the various device information collected by iLEAPP module
 | Network | Bluetooth Address | deviceActivator |
 | Network | Ethernet MAC Address | deviceActivator |
 | Network | WiFi Address | deviceActivator |
+| Settings | Last Bootstrap Timezone | timezoneInfo |
 | Settings | Last System Version | appleLocationd |
 | Settings | Location Services Enabled | appleLocationd |
 | Settings | Timezone Set | timezoneSet |
@@ -53,19 +60,12 @@ This document outlines the various device information collected by iLEAPP module
 | Find My iPhone: Enabled | findMy |
 | HardwareModel: {val} | Ph100UFEDdevcievaluesplist |
 | InternationalMobileEquipmentIdentity: {val} | Ph100UFEDdevcievaluesplist |
-| Last Bootstrap Date: {times} | timezoneInfo |
-| Last Bootstrap Timezone: {val} | timezoneInfo |
-| Last Good IMSI: {lastgoodimsi} | imeiImsi |
-| Last Known ICCI: {lastknownicci} | imeiImsi |
 | MAC Address: {hexstring} - User Defined Name: {userdefinedname} - BSD Name: {bsdname} | wifiIdent |
 | Obliterated Timestamp: {utc_modified_date} | obliterated |
 | PasswordProtected: {val} | Ph100UFEDdevcievaluesplist |
-| Phone Number: {val} | imeiImsi |
 | ProductName: {val} | Ph99SystemVersionPlist |
 | ProductType: {val} | Ph100UFEDdevcievaluesplist |
 | ReleaseType: {val} | Ph99SystemVersionPlist |
-| Self Registration Update IMEI: {selfregistrationupdateimei} | imeiImsi |
-| Self Registration Update IMSI: {selfregitrationupdateimsi} | imeiImsi |
 | Serial Number: {row[0]} | serialNumber |
 | SerialNumber: {val} | Ph100UFEDdevcievaluesplist |
 | SystemImageID: {val} | Ph99SystemVersionPlist |
