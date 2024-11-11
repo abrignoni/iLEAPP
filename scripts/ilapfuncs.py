@@ -401,11 +401,11 @@ def write_device_info():
                     # Handle multiple values
                     b.write('<li><b>' + label + ':</b><ul>' + OutputParameters.nl)
                     for item in data:
-                        b.write(f'<li>{item["value"]} <span title="{item["source_file"]}" style="cursor:help">(Source: {item["module"]})</span></li>' + OutputParameters.nl)
+                        b.write(f'<li>{item["value"]} <span title="{item["source_file"]}" style="cursor:help"><i>(Source: {item["module"]})</i></span></li>' + OutputParameters.nl)
                     b.write('</ul></li>' + OutputParameters.nl)
                 else:
                     # Handle single value
-                    b.write(f'<li><b>{label}:</b> {data["value"]} <span title="{data["source_file"]}" style="cursor:help">(Source: {data["module"]})</span></li>' + OutputParameters.nl)
+                    b.write(f'<li><b>{label}:</b> {data["value"]} <span title="{data["source_file"]}" style="cursor:help"><i>(Source: {data["module"]})</i></span></li>' + OutputParameters.nl)
             b.write('</ul>' + OutputParameters.nl)
 
 def device_info(category, label, value, source_file=""):
