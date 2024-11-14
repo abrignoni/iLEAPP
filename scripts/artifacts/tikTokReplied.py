@@ -40,7 +40,7 @@ def tiktok_replied(files_found, report_folder, seeker, wrap_text, timezone_offse
         file_found = str(file_found)
 
         if file_found.endswith('db.sqlite'):
-            report_file = file_found if report_file is 'Unknown' else report_file + ', ' + file_found
+            report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
             dir_path = dirname(file_found)
             account_id = basename(dir_path)
 
