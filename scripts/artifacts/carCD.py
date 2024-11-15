@@ -1,59 +1,50 @@
 __artifacts_v2__ = {
-    "get_carCD": {
+    "carCD": {
         "name": "Last Car Connection and UDID",
         "description": "",
-        "author": "@JohnHyla",
+        "author": "@AlexisBrignoni",
         "version": "0.0.2",
-        "date": "2024-10-22",
+        "date": "2023-09-30",
         "requirements": "none",
         "category": "Identifiers",
         "notes": "",
         "paths": ('*/Library/Caches/locationd/cache.plist'),
-        "output_types": ["lava", "tsv"],
+        "output_types": "none",
     }
 }
 
-import plistlib
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logdevinfo, webkit_timestampsconv, artifact_processor
 
+import plistlib
+from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv, device_info
 
 @artifact_processor
-def get_carCD(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    
-    data_list = []
-
-    report_file = 'Unknown'
-    for file_found in files_found:
-        file_found = str(file_found)
-        report_file = file_found
+def carCD(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    source_path = str(files_found[0])
         
-        lastconn = contype = connected = disconnected = uid = ''
-        
-        with open(file_found, "rb") as fp:
-            pl = plistlib.load(fp)
-            for key, value in pl.items():
-                if key == 'LastVehicleConnection':
-                    lastconn = value
-                    contype = lastconn[2]
-                    connected = webkit_timestampsconv(lastconn[0])
-                    disconnected = webkit_timestampsconv(lastconn[1])
-                    logdevinfo(f'<b>Vehicle - Last Connected: </b>{connected} - <b>Last Disconnected: </b>{disconnected} - <b>Type: </b>{contype}')
-                    data_list.append((key, f'Last Connected: {connected} <br> Last Disconnected: {disconnected} <br> Type: {contype}'))
-                    
-                elif key == 'CalibrationUDID':
-                    uid = value
-                    logdevinfo(f'<b>UDID: </b>{uid}')
-                    data_list.append((key, uid))
-                else:
-                    pass
-    data_headers = ('Data Key', 'Data Value')
+    with open(source_path, "rb") as fp:
+        pl = plistlib.load(fp)
+        for key, value in pl.items():
+            if key == 'LastVehicleConnection':
+                lastconn = value
+                contype = lastconn[2]
+                device_info("Vehicle", "Type", contype, source_path)
+                connected = webkit_timestampsconv(lastconn[0])
+                device_info("Vehicle", "Last Connected", connected, source_path)
+                disconnected = webkit_timestampsconv(lastconn[1])
+                device_info("Vehicle", "Last Disconnected", disconnected, source_path)
+            elif key == 'LastVehicleConnectionV2':
+                lastconnv2 = value
+                contype = lastconnv2[2]
+                device_info("Vehicle", "Type", contype, source_path)
+                connected = webkit_timestampsconv(lastconnv2[0])
+                device_info("Vehicle", "Last Connected", connected, source_path)
+                disconnected = webkit_timestampsconv(lastconnv2[1])
+                device_info("Vehicle", "Last Disconnected", disconnected, source_path)
+            elif key == 'CalibrationUDID':
+                uid = value
+                device_info("Vehicle", "CalibrationUDID", uid, source_path)
+            else:
+                pass
 
-    if len(data_list) > 0:
-        report = ArtifactHtmlReport('Last Car Connection and UDID')
-        report.start_artifact_report(report_folder, 'Last Car Connection and UDID')
-        report.add_script()
-        report.write_artifact_data_table(data_headers, data_list, report_file, html_escape=False)
-        report.end_artifact_report()
-
-    return data_headers, data_list, report_file
+    # Return empty data since this artifact only collects device info
+    return (), [], source_path
