@@ -1,38 +1,72 @@
 __artifacts_v2__ = {
-    "knowledgeC": {
-        "name": "knowledgeC",
-        "description": "Extract Pattern of Life from knowledgeC database",
-        "author": "@JohannPLW - Geraldine Blay",
-        "version": "0.1.1",
+    "knowledgeC_BatteryPercentage": {
+        "name": "knowledgeC - Battery Percentage",
+        "description": "Battery Percentages extracted from knowledgeC database",
+        "author": "@JohannPLW",
+        "version": "0.2",
+        "date": "2023-11-05",
+        "requirements": "none",
+        "category": "KnowledgeC",
+        "notes": "",
+        "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
+        "output_types": "standard"
+    },
+    "knowledgeC_DevicePluginStatus": {
+        "name": "knowledgeC - Device Plugin Status",
+        "description": "Is Device Plugged In events extracted from knowledgeC database",
+        "author": "@JohannPLW",
+        "version": "0.2",
+        "date": "2023-11-05",
+        "requirements": "none",
+        "category": "KnowledgeC",
+        "notes": "",
+        "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
+        "output_types": "standard"
+    },
+    "knowledgeC_MediaPlaying": {
+        "name": "knowledgeC - Media Playing",
+        "description": "Media playing events extracted from knowledgeC database",
+        "author": "@JohannPLW",
+        "version": "0.2",
+        "date": "2023-10-31",
+        "requirements": "none",
+        "category": "KnowledgeC",
+        "notes": "Query is a derivative of research provided by \
+            - Sarah Edwards as part of her APOLLO project https://github.com/mac4n6/APOLLO \
+            - Ian Wiffin blog post https://www.doubleblak.com/blogPosts.php?id=29",
+        "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
+        "output_types": "standard"
+    },
+    "knowledgeC_DoNotDisturb": {
+        "name": "knowledgeC - Do Not Disturb",
+        "description": "Do Not Disturb Status from knowledgeC Database",
+        "author": "Geraldine Blay",
+        "version": "0.2",
         "date": "2024-02-24",
         "requirements": "none",
         "category": "KnowledgeC",
-        "notes": "\
-            0.1.1 - Merging of Battery Percentage, Device Plugin Status and Media Playing in a single module\
-            0.1.2 - Do not Disturb Status from knowledgeC database. Based on research by Geraldine Blay and Dan Ogden",
+        "notes": "Based on research by Geraldine Blay and Dan Ogden",
         "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
-        "function": "get_knowledgeC_data"
+        "output_types": "standard"
     }
 }
 
 import plistlib
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly, does_column_exist_in_db, convert_ts_human_to_utc, convert_utc_human_to_timezone
+from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, does_column_exist_in_db, \
+    convert_ts_human_to_timezone_offset
 
+@artifact_processor
+def knowledgeC_BatteryPercentage(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    data_list = []
+    db_file = ''
 
-def get_knowledgeC_data(files_found, report_folder, seeker, wrap_text, timezone_offset):
     for file_found in files_found:
-        file_found = str(file_found)
-
         if file_found.endswith('knowledgeC.db'):
+            db_file = file_found
             break
-
-    db = open_sqlite_db_readonly(file_found)
-    cursor = db.cursor()
-
-    # Battery Percentage
-
-    try:
+    
+    with open_sqlite_db_readonly(db_file) as db:
+        cursor = db.cursor()
         cursor.execute('''
         SELECT
         datetime(ZOBJECT.ZSTARTDATE + 978307200, 'unixepoch') AS 'Start Time',
@@ -50,47 +84,34 @@ def get_knowledgeC_data(files_found, report_folder, seeker, wrap_text, timezone_
         ''')
 
         all_rows = cursor.fetchall()
-        usageentries = len(all_rows)
-        
-        if usageentries > 0:
-            data_list = []
-            for row in all_rows:
-                start_time = convert_ts_human_to_utc(row[0])
-                start_time = convert_utc_human_to_timezone(start_time,timezone_offset)
 
-                end_time = convert_ts_human_to_utc(row[1])
-                end_time = convert_utc_human_to_timezone(end_time,timezone_offset)
-                
-                added_time = convert_ts_human_to_utc(row[-1])
-                added_time = convert_utc_human_to_timezone(added_time,timezone_offset)
+        for row in all_rows:
+            start_time = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
+            end_time = convert_ts_human_to_timezone_offset(row[1], timezone_offset)
+            added_time = convert_ts_human_to_timezone_offset(row[-1],timezone_offset)
+            data_list.append((start_time, end_time, row[2], row[3], added_time))
 
-                data_list.append((start_time, end_time, row[2], row[3], added_time))
+    data_headers = (
+         ('Start Time', 'datetime'), ('End Time', 'datetime'), 'Battery Percentage', 'Is Fully Charged?', 
+         ('Time Added', 'datetime'))
+    return data_headers, data_list, db_file
 
-            description = 'Battery Percentages extracted from knowledgeC database'
-            report = ArtifactHtmlReport('knowledgeC - Battery Percentage')
-            report.start_artifact_report(report_folder, 'knowledgeC - Battery Percentage', description)
-            report.add_script()
+@artifact_processor
+def knowledgeC_DevicePluginStatus(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    data_list = []
+    data_headers = ()
+    db_file = ''
 
-            data_headers = ('Start Time', 'End Time', 'Battery Percentage', 'Is Fully Charged?', 'Time Added')   
-            report.write_artifact_data_table(data_headers, data_list, file_found)
-            report.end_artifact_report()
-
-            tsvname = 'knowledgeC - Battery Percentage'
-            tsv(report_folder, data_headers, data_list, tsvname)
-
-            tlactivity = 'knowledgeC - Battery Percentage'
-            timeline(report_folder, tlactivity, data_list, data_headers)
-
-        else:
-            logfunc('No Battery Percentage event found in knowledgeC database')
-    except Exception as error:
-        logfunc(f'Error when trying to parse Battery Percentage events: {error}')
+    for file_found in files_found:
+        if file_found.endswith('knowledgeC.db'):
+            db_file = file_found
+            break
     
-    
-    # Device Plugin Status
+    with open_sqlite_db_readonly(db_file) as db:
+        cursor = db.cursor()
 
-    try:
-        does_adapteriswireless_exist = does_column_exist_in_db(db, 'ZSTRUCTUREDMETADATA', 'Z_DKDEVICEISPLUGGEDINMETADATAKEY__ADAPTERISWIRELESS')
+        does_adapteriswireless_exist = does_column_exist_in_db(
+            db, 'ZSTRUCTUREDMETADATA', 'Z_DKDEVICEISPLUGGEDINMETADATAKEY__ADAPTERISWIRELESS')
         if does_adapteriswireless_exist:
             adapter_is_wireless = '''
             CASE ZSTRUCTUREDMETADATA.Z_DKDEVICEISPLUGGEDINMETADATAKEY__ADAPTERISWIRELESS
@@ -99,10 +120,13 @@ def get_knowledgeC_data(files_found, report_folder, seeker, wrap_text, timezone_
                 ELSE 'Not specified'
             END AS "Adapter Is Wireless?",
             '''
-            data_headers = ('Start Time', 'End Time', 'Device Plugin Status', 'Is Adapter Wireless?', 'Time Added')   
+            data_headers = (
+                ('Start Time', 'datetime'), ('End Time', 'datetime'), 'Device Plugin Status', 
+                'Is Adapter Wireless?', ('Time Added', 'datetime'))   
         else:
             adapter_is_wireless = ''
-            data_headers = ('Start Time', 'End Time', 'Device Plugin Status', 'Time Added')   
+            data_headers = (('Start Time', 'datetime'), ('End Time', 'datetime'), 'Device Plugin Status', 
+                            ('Time Added', 'datetime'))   
 
         cursor.execute(f'''
         SELECT
@@ -122,49 +146,34 @@ def get_knowledgeC_data(files_found, report_folder, seeker, wrap_text, timezone_
         ''')
 
         all_rows = cursor.fetchall()
-        usageentries = len(all_rows)
-        
-        if usageentries > 0:
-            data_list = []
-            for row in all_rows:
-                start_time = convert_ts_human_to_utc(row[0])
-                start_time = convert_utc_human_to_timezone(start_time,timezone_offset)
 
-                end_time = convert_ts_human_to_utc(row[1])
-                end_time = convert_utc_human_to_timezone(end_time,timezone_offset)
-                
-                added_time = convert_ts_human_to_utc(row[-1])
-                added_time = convert_utc_human_to_timezone(added_time,timezone_offset)
+        for row in all_rows:
+            start_time = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
+            end_time = convert_ts_human_to_timezone_offset(row[1], timezone_offset)
+            added_time = convert_ts_human_to_timezone_offset(row[-1],timezone_offset)
+            if does_adapteriswireless_exist:
+                data_list.append((start_time, end_time, row[2], row[3], added_time))
+            else:
+                data_list.append((start_time, end_time, row[2], added_time))
 
-                if does_adapteriswireless_exist:
-                    data_list.append((start_time, end_time, row[2], row[3], added_time))
-                else:
-                    data_list.append((start_time, end_time, row[2], added_time))
+    return data_headers, data_list, db_file
 
-            description = 'Is Device Plugged In events extracted from knowledgeC database'
-            report = ArtifactHtmlReport('knowledgeC - Device Plugin Status')
-            report.start_artifact_report(report_folder, 'knowledgeC - Device Plugin Status', description)
-            report.add_script()
+@artifact_processor
+def knowledgeC_MediaPlaying(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    data_list = []
+    data_headers = ()
+    db_file = ''
 
-            report.write_artifact_data_table(data_headers, data_list, file_found)
-            report.end_artifact_report()
-
-            tsvname = 'knowledgeC - Device Plugin Status'
-            tsv(report_folder, data_headers, data_list, tsvname)
-
-            tlactivity = 'knowledgeC - Device Plugin Status'
-            timeline(report_folder, tlactivity, data_list, data_headers)
-
-        else:
-            logfunc('No isDevicePluggedIn event found in knowledgeC database')
-    except Exception as error:
-        logfunc(f'Error when trying to parse isDevicePluggedIn events: {error}')
+    for file_found in files_found:
+        if file_found.endswith('knowledgeC.db'):
+            db_file = file_found
+            break
     
+    with open_sqlite_db_readonly(db_file) as db:
+        cursor = db.cursor()
 
-    # Media Playing
-
-    try:
-        does_airplayvideo_exist = does_column_exist_in_db(db, 'ZSTRUCTUREDMETADATA', 'Z_DKNOWPLAYINGMETADATAKEY__ISAIRPLAYVIDEO')
+        does_airplayvideo_exist = does_column_exist_in_db(
+            db, 'ZSTRUCTUREDMETADATA', 'Z_DKNOWPLAYINGMETADATAKEY__ISAIRPLAYVIDEO')
         if does_airplayvideo_exist:
             is_airplay_video = '''
             CASE ZSTRUCTUREDMETADATA.Z_DKNOWPLAYINGMETADATAKEY__ISAIRPLAYVIDEO
@@ -174,12 +183,15 @@ def get_knowledgeC_data(files_found, report_folder, seeker, wrap_text, timezone_
             END AS 'Is AirPlay Video',                
             ZSTRUCTUREDMETADATA.Z_DKNOWPLAYINGMETADATAKEY__OUTPUTDEVICEIDS AS 'Output Device',
             '''
-            data_headers = ('Start Time', 'End Time', 'Playing State', 'Playing Duration', 'App Bundle ID', 'Artist', 'Album', 
-                            'Title', 'Genre', 'Media Duration', 'AirPLay Video', 'Output Device', 'Time Added')   
+            data_headers = (
+                ('Start Time', 'datetime'), ('End Time', 'datetime'), 'Playing State', 'Playing Duration', 
+                'App Bundle ID', 'Artist', 'Album', 'Title', 'Genre', 'Media Duration', 'AirPLay Video', 
+                'Output Device', ('Time Added', 'datetime'))
         else:
             is_airplay_video = ''
-            data_headers = ('Start Time', 'End Time', 'Playing State', 'Playing Duration', 'App Bundle ID', 'Artist', 'Album', 
-                            'Title', 'Genre', 'Media Duration', 'Time Added')   
+            data_headers = (
+                ('Start Time', 'datetime'), ('End Time', 'datetime'), 'Playing State', 'Playing Duration', 
+                'App Bundle ID', 'Artist', 'Album', 'Title', 'Genre', 'Media Duration', ('Time Added', 'datetime'))
 
         cursor.execute(f'''
         SELECT
@@ -209,61 +221,42 @@ def get_knowledgeC_data(files_found, report_folder, seeker, wrap_text, timezone_
         ''')
 
         all_rows = cursor.fetchall()
-        usageentries = len(all_rows)
-        
-        if usageentries > 0:
-            data_list = []
-            for row in all_rows:
-                start_time = convert_ts_human_to_utc(row[0])
-                start_time = convert_utc_human_to_timezone(start_time,timezone_offset)
 
-                end_time = convert_ts_human_to_utc(row[1])
-                end_time = convert_utc_human_to_timezone(end_time,timezone_offset)
-                
-                added_time = convert_ts_human_to_utc(row[-1])
-                added_time = convert_utc_human_to_timezone(added_time,timezone_offset)
+        for row in all_rows:
+            start_time = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
+            end_time = convert_ts_human_to_timezone_offset(row[1], timezone_offset)
+            added_time = convert_ts_human_to_timezone_offset(row[-1],timezone_offset)
 
-                if does_airplayvideo_exist:
-                    output_device = ''
+            if does_airplayvideo_exist:
+                output_device = ''
+                output_device_ids = row[-2]
+                if isinstance(output_device_ids, bytes):
+                    output_device_bplist = plistlib.loads(output_device_ids)
+                    for key, val in output_device_bplist.items():
+                        if key == '$objects':
+                            output_device = val[6]
+                data_list.append((start_time, end_time, row[2], row[3], row[4], row[5], 
+                                row[6], row[7], row[8], row[9], row[10], output_device, 
+                                added_time))
+            else:
+                data_list.append((start_time, end_time, row[2], row[3], row[4], row[5], 
+                                row[6], row[7], row[8], row[9], added_time))
 
-                    output_device_ids = row[-2]
-                    if isinstance(output_device_ids, bytes):
-                        output_device_bplist = plistlib.loads(output_device_ids)
-                        for key, val in output_device_bplist.items():
-                            if key == '$objects':
-                                output_device = val[6]
+    return data_headers, data_list, db_file
 
-                    data_list.append((start_time, end_time, row[2], row[3], row[4], row[5], 
-                                    row[6], row[7], row[8], row[9], row[10], output_device, 
-                                    added_time))
-                    
-                else:
-                    data_list.append((start_time, end_time, row[2], row[3], row[4], row[5], 
-                                    row[6], row[7], row[8], row[9], added_time))
+@artifact_processor
+def knowledgeC_DoNotDisturb(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    data_list = []
+    db_file = ''
 
-            description = "Media playing events extracted from knowledgeC database"
-            report = ArtifactHtmlReport('knowledgeC - Media Playing')
-            report.start_artifact_report(report_folder, 'knowledgeC - Media Playing', description)
-            report.add_script()
-
-            report.write_artifact_data_table(data_headers, data_list, file_found)
-            report.end_artifact_report()
-
-            tsvname = 'knowledgeC - Media Playing'
-            tsv(report_folder, data_headers, data_list, tsvname)
-
-            tlactivity = 'knowledgeC - Media Playing'
-            timeline(report_folder, tlactivity, data_list, data_headers)
-
-        else:
-            logfunc('No Media Playing event found in knowledgeC database')
-    except Exception as error:
-        logfunc(f'Error when trying to parse Media Playing events: {error}')
+    for file_found in files_found:
+        if file_found.endswith('knowledgeC.db'):
+            db_file = file_found
+            break
     
+    with open_sqlite_db_readonly(db_file) as db:
+        cursor = db.cursor()
 
-    # Do Not Disturb Status
-
-    try:
         cursor.execute('''
         SELECT
         datetime(ZOBJECT.ZSTARTDATE + 978307200, 'unixepoch') AS 'Start Time',
@@ -281,41 +274,13 @@ def get_knowledgeC_data(files_found, report_folder, seeker, wrap_text, timezone_
         ''')
 
         all_rows = cursor.fetchall()
-        usageentries = len(all_rows)
-        
-        if usageentries > 0:
-            data_list = []
-            for row in all_rows:
-                start_time = convert_ts_human_to_utc(row[0])
-                start_time = convert_utc_human_to_timezone(start_time,timezone_offset)
 
-                end_time = convert_ts_human_to_utc(row[1])
-                end_time = convert_utc_human_to_timezone(end_time,timezone_offset)
-                
-                added_time = convert_ts_human_to_utc(row[3])
-                added_time = convert_utc_human_to_timezone(added_time,timezone_offset)
+        for row in all_rows:
+            start_time = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
+            end_time = convert_ts_human_to_timezone_offset(row[1], timezone_offset)
+            added_time = convert_ts_human_to_timezone_offset(row[3],timezone_offset)
+            data_list.append((start_time, end_time, row[2], added_time))
 
-                data_list.append((start_time, end_time, row[2], added_time))
-
-            description = "Do Not Disturb Status from knowledgeC Database"
-            report = ArtifactHtmlReport('knowledgeC - Do Not Disturb')
-            report.start_artifact_report(report_folder, 'knowledgeC - Do Not Disturb', description)
-            report.add_script()
-
-            data_headers = ('Start Time', 'End Time', 'Do Not Disturb?', 'Time Added')
-            report.write_artifact_data_table(data_headers, data_list, file_found)
-            report.end_artifact_report()
-
-            tsvname = 'knowledgeC - Do Not Disturb'
-            tsv(report_folder, data_headers, data_list, tsvname)
-
-            tlactivity = 'knowledgeC - Do Not Disturb'
-            timeline(report_folder, tlactivity, data_list, data_headers)
-
-        else:
-            logfunc('No Do Not Disturb events found in knowledgeC database')
-    except Exception as error:
-        logfunc(f'Error when trying to parse Do Not Disturb events: {error}')
-
-
-    db.close()
+    data_headers = (
+        ('Start Time', 'datetime'), ('End Time', 'datetime'), 'Do Not Disturb?', ('Time Added', 'datetime'))
+    return data_headers, data_list, db_file
