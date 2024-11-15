@@ -38,10 +38,8 @@ def allTrailsTrailDetails(files_found, report_folder, seeker, wrap_text, timezon
             db_file = file_found
             break
     
-    if db_file:
-        db = open_sqlite_db_readonly(file_found)
+    with open_sqlite_db_readonly(file_found) as db:
         cursor = db.cursor()
-        
         cursor.execute('''
         SELECT 
             ZTRAIL.ZNAME,
@@ -78,8 +76,6 @@ def allTrailsTrailDetails(files_found, report_folder, seeker, wrap_text, timezon
                     row[9], row[10], row[11], row[12], row[13], row[14], row[15],)
                 )
 
-        db.close()
-
     data_headers = (
         'Trail Name', 
         'Route Type', 
@@ -111,8 +107,7 @@ def allTrailsUserInfo(files_found, report_folder, seeker, wrap_text, timezone_of
             db_file = file_found
             break
     
-    if db_file:
-        db = open_sqlite_db_readonly(file_found)
+    with open_sqlite_db_readonly(file_found) as db:
         cursor = db.cursor()
         
         cursor.execute('''
@@ -144,8 +139,6 @@ def allTrailsUserInfo(files_found, report_folder, seeker, wrap_text, timezone_of
                 (timestamp, row[1], row[2], row[3], row[4], row[5], row[6], 
                     row[7], row[8], row[9], row[10], row[11], row[12], row[13])
                 )
-
-        db.close()
 
     data_headers = (
         ('Creation Timestamp', 'datetime'), 

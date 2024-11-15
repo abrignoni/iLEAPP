@@ -104,8 +104,7 @@ def callHistory(files_found, report_folder, seeker, wrap_text, timezone_offset):
             query = query_old
             break
     
-    if db_file:
-        db = open_sqlite_db_readonly(file_found)
+    with open_sqlite_db_readonly(file_found) as db:
         cursor = db.cursor()
         cursor.execute(query)
 
@@ -123,8 +122,6 @@ def callHistory(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
             data_list.append((starting_time, ending_time, row[2], row[3], row[4], an, row[6], 
                                 row[7], facetime_data, row[9], row[10], row[11]))
-
-        db.close()
 
     data_headers = (
         ('Starting Timestamp', 'datetime'), 
