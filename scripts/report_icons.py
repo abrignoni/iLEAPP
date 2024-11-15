@@ -482,10 +482,13 @@ icon_mappings = \
     'HEALTH': {
         'DEFAULT': 'heart',
         'HEALTH - ACHIEVEMENTS': 'star',
+        'HEALTH - DEVICE - WATCH WORN DATA': 'watch',
         'HEALTH - HEADPHONE AUDIO LEVELS': 'headphones',
         'HEALTH - HEART RATE': 'activity',
         'HEALTH - PROVENANCES': 'smartphone',
         'HEALTH - RESTING HEART RATE': 'activity',
+        'HEALTH - SLEPP - ALL WATCH SLEEP DATA': 'watch',
+        'HEALTH - SLEPP - WATCH BY SLEEP PERIOD': 'watch',
         'HEALTH - STEPS': 'activity',
         'HEALTH - WORKOUTS': 'activity',
     },
