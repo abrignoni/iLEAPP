@@ -123,7 +123,7 @@ __artifacts_v2__ = {
               Once parsed weight is displayed with the timestamp the data was entered followed by weight in kilograms, stones, and pounds.",
         "paths": ('*Health/healthdb_secure.sqlite*',),
         "output_types": "standard"
-    },
+    }
 }
 
 
