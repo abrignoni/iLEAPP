@@ -26,10 +26,8 @@ def accountData(files_found, report_folder, seeker, wrap_text, timezone_offset):
             db_file = file_found
             break
     
-    if db_file:
-        db = open_sqlite_db_readonly(file_found)
+    with open_sqlite_db_readonly(file_found) as db:
         cursor = db.cursor()
-
         cursor.execute('''
         SELECT
             datetime(zdate+978307200,'unixepoch'),
@@ -47,8 +45,6 @@ def accountData(files_found, report_folder, seeker, wrap_text, timezone_offset):
         for row in all_rows:
             timestamp = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
             data_list.append((timestamp,row[1],row[2],row[3],row[4],row[5]))                
-
-        db.close()
 
     data_headers = (
         ('Timestamp', 'datetime'), 

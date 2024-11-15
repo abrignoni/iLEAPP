@@ -480,6 +480,7 @@ icon_mappings = \
         'HEALTH - ACHIEVEMENTS': 'star',
         'HEALTH - HEADPHONE AUDIO LEVELS': 'headphones',
         'HEALTH - HEART RATE': 'activity',
+        'HEALTH - PROVENANCES': 'smartphone',
         'HEALTH - RESTING HEART RATE': 'activity',
         'HEALTH - STEPS': 'activity',
         'HEALTH - WORKOUTS': 'activity',
