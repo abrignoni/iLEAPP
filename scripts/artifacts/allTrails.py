@@ -38,7 +38,7 @@ def allTrailsTrailDetails(files_found, report_folder, seeker, wrap_text, timezon
             db_file = file_found
             break
     
-    with open_sqlite_db_readonly(file_found) as db:
+    with open_sqlite_db_readonly(db_file) as db:
         cursor = db.cursor()
         cursor.execute('''
         SELECT 
@@ -100,14 +100,14 @@ def allTrailsTrailDetails(files_found, report_folder, seeker, wrap_text, timezon
 @artifact_processor
 def allTrailsUserInfo(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
-    db_file = None
+    db_file = ''
 
     for file_found in files_found:
         if file_found.endswith('AllTrails.sqlite'):
             db_file = file_found
             break
     
-    with open_sqlite_db_readonly(file_found) as db:
+    with open_sqlite_db_readonly(db_file) as db:
         cursor = db.cursor()
         
         cursor.execute('''

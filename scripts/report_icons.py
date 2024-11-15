@@ -280,6 +280,10 @@ icon_mappings = \
     'FACEBOOK - INSTAGRAM RETURNS': 'facebook',
     'FILES APP': 'file-text',
     'FILES BY GOOGLE': 'file',
+    'FIND MY': {
+        'default': 'map-pin',
+        'FIND MY ITEMS INFO': 'info',
+    },
     'FIREBASE CLOUD MESSAGING': 'database',
     'FIREFOX': {
         'BOOKMARKS': 'bookmark',
@@ -507,7 +511,7 @@ icon_mappings = \
     'IDENTIFIERS': {
         'IOS MESSAGE RETENTION': 'message-circle',
         'PREFERENCES PLIST': 'settings',
-        'default': 'file',
+        'default': 'settings',
     },
     'IDENTITY LOOKUP SERVICE': 'user-check',
     'IMAGE CACHEV0': 'image',
