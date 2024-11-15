@@ -391,7 +391,6 @@ def crunch_artifacts(
                 found = seeker.search(artifact_search_regex)
             if not found:
                 log.write(f'<ul><li>No file found for regex <i>{artifact_search_regex}</i></li></ul>')
-                logfunc('No file found')
             else:
                 log.write(f'<ul><li>{len(found)} {"files" if len(found) > 1 else "file"} for regex <i>{artifact_search_regex}</i> located at:')
                 for pathh in found:

@@ -104,7 +104,7 @@ def callHistory(files_found, report_folder, seeker, wrap_text, timezone_offset):
             query = query_old
             break
     
-    with open_sqlite_db_readonly(file_found) as db:
+    with open_sqlite_db_readonly(db_file) as db:
         cursor = db.cursor()
         cursor.execute(query)
 
