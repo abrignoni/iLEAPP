@@ -123,6 +123,49 @@ __artifacts_v2__ = {
               Once parsed weight is displayed with the timestamp the data was entered followed by weight in kilograms, stones, and pounds.",
         "paths": ('*Health/healthdb_secure.sqlite*',),
         "output_types": "standard"
+    },
+    "healthWatchWornData": {
+        "name": "Health - Device - Watch Worn Data",
+        "description": "Parses Apple Watch Worn Data from the healthdb_secure.sqlite database",
+        "author": "@SQLMcGee for Metadata Forensics, LLC",
+        "version": "0.2",
+        "date": "2024-05-20",
+        "requirements": "none",
+        "category": "Health",
+        "notes": "This artifact provides an 'at a glance' review of time periods in which the Apple Watch is worn. \
+                    This data can lend to pattern of life analysis as well as providing structure to periods in which data \
+                    such as heart rate data will be generated and recorded.\
+                    Additional details published within 'Apple Watch Worn Data Analysis' at https://metadataperspective.com/2024/05/20/apple-watch-worn-data-analysis/",
+        "paths": ('*Health/healthdb_secure.sqlite*',),
+        "output_types": "standard"
+    },
+    "healthAllWatchSleepData": {
+        "name": "Health - Sleep - All Watch Sleep Data",
+        "description": "Parses Apple Health Sleep Data from the healthdb_secure.sqlite database",
+        "author": "@SQLMcGee for Metadata Forensics, LLC",
+        "version": "0.2",
+        "date": "2024-08-01",
+        "requirements": "none",
+        "category": "Health",
+        "notes": "This artifact provides an 'at a glance' review of sleep periods when the Apple Watch is worn, given required user settings.\
+        Additional details published within 'Sleepless in Cupertino: A Forensic Dive into Apple Watch Sleep Tracking' at \
+        https://metadataperspective.com/2024/08/01/sleepless-in-cupertino-a-forensic-dive-into-apple-watch-sleep-tracking/",
+        "paths": ('*Health/healthdb_secure.sqlite*',),
+        "output_types": "standard"
+    },
+    "healthWatchBySleepPeriod": {
+        "name": "Health - Sleep - Watch By Sleep Period",
+        "description": "Parses Apple Health Sleep Data from the healthdb_secure.sqlite database",
+        "author": "@SQLMcGee for Metadata Forensics, LLC",
+        "version": "0.2",
+        "date": "2024-08-01",
+        "requirements": "none",
+        "category": "Health",
+        "notes": "This artifact provides an 'at a glance' review of sleep periods when the Apple Watch is worn, given required user settings.\
+        Additional details published within 'Sleepless in Cupertino: A Forensic Dive into Apple Watch Sleep Tracking' at \
+        https://metadataperspective.com/2024/08/01/sleepless-in-cupertino-a-forensic-dive-into-apple-watch-sleep-tracking/",
+        "paths": ('*Health/healthdb_secure.sqlite*',),
+        "output_types": "standard"
     }
 }
 
@@ -793,4 +836,212 @@ def healthWeight(files_found, report_folder, seeker, wrap_text, timezone_offset)
         
     data_headers = (
         ('Weight Value Timestamp', 'datetime'), 'Weight (in Kilograms)', 'Weight (in Stone)', 'Weight (Approximate in Pounds)')
+    return data_headers, data_list, healthdb_secure
+
+@artifact_processor
+def healthWatchWornData(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    data_list = []
+    healthdb_secure = ''
+
+    for file_found in files_found:
+        if file_found.endswith('healthdb_secure.sqlite'):
+           healthdb_secure = file_found
+           break
+
+    with open_sqlite_db_readonly(healthdb_secure) as db:
+        cursor = db.cursor()
+
+        cursor.execute('''
+        WITH TimeData AS (
+            SELECT
+                datetime(start_date + 978307200, 'UNIXEPOCH') AS "Start Time",
+                datetime(end_date + 978307200, 'UNIXEPOCH') AS "End Time",
+                LAG(datetime(start_date + 978307200, 'UNIXEPOCH')) OVER (ORDER BY start_date) AS "Prev Start Time",
+                LAG(datetime(end_date + 978307200, 'UNIXEPOCH')) OVER (ORDER BY start_date) AS "Prev End Time"
+            FROM samples
+            WHERE data_type = "70"
+        ),
+        PeriodData AS (
+            SELECT
+                *,
+                strftime('%s', "Start Time") - strftime('%s', "Prev End Time") AS "Gap in Seconds",
+                CASE 
+                    WHEN strftime('%s', "Start Time") - strftime('%s', "Prev End Time") > 3600 THEN 1 
+                    ELSE 0 
+                END AS "New Period"
+            FROM TimeData
+        ),
+        PeriodGroup AS (
+            SELECT
+                *,
+                SUM("New Period") OVER (ORDER BY "Start Time" ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS "Period ID"
+            FROM PeriodData
+        ),
+        Summary AS (
+            SELECT
+                "Period ID",
+                MIN("Start Time") AS "Watch Worn Start Time",
+                MAX("End Time") AS "Last Watch Worn Hour Time",
+                (strftime('%s', MAX("End Time")) - strftime('%s', MIN("Start Time"))) / 3600.0 AS "Hours Worn"
+            FROM PeriodGroup
+            GROUP BY "Period ID"
+        )
+        SELECT 
+            s1."Watch Worn Start Time",
+            CAST(s1."Hours Worn" AS INT),
+            s1."Last Watch Worn Hour Time",
+            CAST(
+                (strftime('%s', s2."Watch Worn Start Time") - 
+                strftime('%s', s1."Last Watch Worn Hour Time")
+                ) / 3600 AS INT
+            ) AS "Hours Off Before Next Worn"
+        FROM 
+            Summary s1
+        LEFT JOIN
+            Summary s2 ON s1."Period ID" + 1 = s2."Period ID"
+        ORDER BY s1."Period ID";
+        ''')
+    
+        all_rows = cursor.fetchall()
+
+        for row in all_rows:
+            start_timestamp = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
+            last_hour_time = convert_ts_human_to_timezone_offset(row[2], timezone_offset)
+            data_list.append((start_timestamp, row[1], last_hour_time, row[3]))
+        
+    data_headers = (
+        ('Watch Worn Start Time', 'datetime'), 'Hours Worn', ('Last Watch Worn Hour Time', 'datetime'), 'Hours Off Before Next Worn Start Time')
+    return data_headers, data_list, healthdb_secure
+
+@artifact_processor
+def healthAllWatchSleepData(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    data_list = []
+    healthdb_secure = ''
+
+    for file_found in files_found:
+        if file_found.endswith('healthdb_secure.sqlite'):
+           healthdb_secure = file_found
+           break
+
+    with open_sqlite_db_readonly(healthdb_secure) as db:
+        cursor = db.cursor()
+
+        cursor.execute('''
+        SELECT
+        DATETIME(SAMPLES.START_DATE + 978307200, 'UNIXEPOCH'),
+        CASE
+            WHEN category_samples.value IS 2 THEN "AWAKE"
+            WHEN category_samples.value IS 3 THEN "CORE"
+            WHEN category_samples.value IS 4 THEN "DEEP"
+            WHEN category_samples.value IS 5 THEN "REM"
+        END,
+        DATETIME(SAMPLES.END_DATE + 978307200, 'UNIXEPOCH'),
+        STRFTIME('%H:%M:%S', (samples.end_date - samples.start_date), 'unixepoch')
+        FROM samples
+        LEFT OUTER JOIN category_samples ON samples.data_id = category_samples.data_id
+        LEFT OUTER JOIN objects on samples.data_id = objects.data_id
+        LEFT OUTER JOIN data_provenances on objects.provenance = data_provenances.ROWID
+        WHERE samples.data_type IS 63 AND category_samples.value != 0 AND category_samples.value != 1 AND data_provenances.origin_product_type like "%Watch%"
+        ORDER BY category_samples.data_id;
+        ''')
+    
+        all_rows = cursor.fetchall()
+
+        for row in all_rows:
+            start_timestamp = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
+            end_timestamp = convert_ts_human_to_timezone_offset(row[2], timezone_offset)
+            data_list.append((start_timestamp, row[1], end_timestamp, row[3]))
+        
+    data_headers = (
+        ('Sleep Start Time', 'datetime'), 'Sleep State', ('Sleep End Time', 'datetime'), 'Sleep State (HH:MM:SS)')
+    return data_headers, data_list, healthdb_secure
+
+@artifact_processor
+def healthWatchBySleepPeriod(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    data_list = []
+    healthdb_secure = ''
+
+    for file_found in files_found:
+        if file_found.endswith('healthdb_secure.sqlite'):
+           healthdb_secure = file_found
+           break
+
+    with open_sqlite_db_readonly(healthdb_secure) as db:
+        cursor = db.cursor()
+
+        cursor.execute('''
+        WITH lagged_samples AS (
+            SELECT
+                samples.start_date,
+                samples.end_date,
+                samples.data_id,
+                DATETIME(samples.start_date + 978307200, 'UNIXEPOCH') AS start_time,
+                DATETIME(samples.end_date + 978307200, 'UNIXEPOCH') AS end_time,
+                (samples.end_date - samples.start_date) / 60 AS duration_minutes,
+                samples.data_type,
+                category_samples.value,
+                LAG(samples.data_id) OVER (ORDER BY samples.data_id) AS prev_data_id,
+                CASE
+                    WHEN category_samples.value = 2 THEN "AWAKE"
+                    WHEN category_samples.value = 3 THEN "CORE"
+                    WHEN category_samples.value = 4 THEN "DEEP"
+                    WHEN category_samples.value = 5 THEN "REM"
+                END AS sleep_value
+            FROM samples
+            LEFT OUTER JOIN category_samples ON samples.data_id = category_samples.data_id
+            LEFT OUTER JOIN objects on samples.data_id = objects.data_id
+            LEFT OUTER JOIN data_provenances on objects.provenance = data_provenances.ROWID
+            WHERE samples.data_type IS 63 AND category_samples.value != 0 AND category_samples.value != 1 AND data_provenances.origin_product_type like "%Watch%"
+            ORDER BY category_samples.data_id
+        ),
+        grouped_samples AS (
+            SELECT
+                start_time,
+                start_date,
+                sleep_value,
+                end_time,
+                end_date,
+                duration_minutes,
+                data_type,
+                value,
+                CASE
+                    WHEN data_id - prev_data_id > 1 OR prev_data_id IS NULL THEN 1
+                    ELSE 0
+                END AS is_new_group,
+                SUM(CASE
+                        WHEN data_id - prev_data_id > 1 OR prev_data_id IS NULL THEN 1
+                        ELSE 0
+                    END) OVER (ORDER BY data_id) AS group_number
+            FROM lagged_samples
+        )
+        SELECT
+            MIN(start_time),
+            MAX(end_time),
+            STRFTIME('%H:%M:%S', SUM(CASE WHEN sleep_value IN ('AWAKE', 'REM', 'CORE', 'DEEP') THEN duration_minutes * 60 ELSE 0 END), 'unixepoch'),
+            STRFTIME('%H:%M:%S', SUM(CASE WHEN sleep_value IN ('REM', 'CORE', 'DEEP') THEN duration_minutes * 60 ELSE 0 END), 'unixepoch'),
+            STRFTIME('%H:%M:%S', SUM(CASE WHEN sleep_value = 'AWAKE' THEN duration_minutes * 60 ELSE 0 END), 'unixepoch'),
+            STRFTIME('%H:%M:%S', SUM(CASE WHEN sleep_value = 'REM' THEN duration_minutes * 60 ELSE 0 END), 'unixepoch'),
+            STRFTIME('%H:%M:%S', SUM(CASE WHEN sleep_value = 'CORE' THEN duration_minutes * 60 ELSE 0 END), 'unixepoch'),
+            STRFTIME('%H:%M:%S', SUM(CASE WHEN sleep_value = 'DEEP' THEN duration_minutes * 60 ELSE 0 END), 'unixepoch'),
+            ROUND(SUM(CASE WHEN sleep_value = 'AWAKE' THEN duration_minutes ELSE 0 END) * 100.0 / SUM(duration_minutes), 2),
+            ROUND(SUM(CASE WHEN sleep_value = 'REM' THEN duration_minutes ELSE 0 END) * 100.0 / SUM(duration_minutes), 2),
+            ROUND(SUM(CASE WHEN sleep_value = 'CORE' THEN duration_minutes ELSE 0 END) * 100.0 / SUM(duration_minutes), 2),
+            ROUND(SUM(CASE WHEN sleep_value = 'DEEP' THEN duration_minutes ELSE 0 END) * 100.0 / SUM(duration_minutes), 2)
+        FROM grouped_samples
+        GROUP BY group_number;
+        ''')
+    
+        all_rows = cursor.fetchall()
+
+        for row in all_rows:
+            start_timestamp = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
+            end_timestamp = convert_ts_human_to_timezone_offset(row[1], timezone_offset)
+            data_list.append(
+                (start_timestamp, end_timestamp, row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11]))
+        
+    data_headers = (
+        ('Sleep Start Time'), ('Sleep End Time'), 'Time in Bed (HH:MM:SS)', 
+        'Time Asleep (HH:MM:SS)', 'Awake Duration (HH:MM:SS)', 
+        'REM Duration (HH:MM:SS)', 'Core Duration (HH:MM:SS)', 
+        'Deep Duration (HH:MM:SS)', 'Awake %', 'REM %', 'Core %', 'Deep %')
     return data_headers, data_list, healthdb_secure
