@@ -48,6 +48,10 @@ This document outlines the various device information collected by iLEAPP module
 | Settings | Last System Version | appleLocationd |
 | Settings | Location Services Enabled | appleLocationd |
 | Settings | Timezone Set | timezoneSet |
+| Vehicle | CalibrationUDID | carCD |
+| Vehicle | Last Connected | carCD |
+| Vehicle | Last Disconnected | carCD |
+| Vehicle | Type | carCD |
 | WiFi | Keep Wifi Powered Airplane Mode | appleWifiPlist |
 <!-- DEVICE_INFO_END -->
 
@@ -70,8 +74,6 @@ This document outlines the various device information collected by iLEAPP module
 | SerialNumber: {val} | Ph100UFEDdevcievaluesplist |
 | SystemImageID: {val} | Ph99SystemVersionPlist |
 | TimeZone: {val} | Ph100UFEDdevcievaluesplist |
-| UDID: {uid} | carCD |
-| Vehicle - Last Connected: {connected} - Last Disconnected: {disconnected} - Type: {contype} | carCD |
 | com.apple.MobileSMS.plist - Keep Messages for Days (iOS 17+): {val} | messageRetention |
 | com.apple.MobileSMS.plist - Keep Messages for Days (iOS {val} | messageRetention |
 | com.apple.MobileSMS.plist - Keep Messages for Days: No Value | messageRetention |
