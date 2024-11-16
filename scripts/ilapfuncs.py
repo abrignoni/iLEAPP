@@ -401,11 +401,11 @@ def write_device_info():
                     # Handle multiple values
                     b.write('<li><b>' + label + ':</b><ul>' + OutputParameters.nl)
                     for item in data:
-                        b.write(f'<li>{item["value"]} <span title="{item["source_file"]}" style="cursor:help"><i>(Source: {item["module"]})</i></span></li>' + OutputParameters.nl)
+                        b.write(f'<li>{item["value"]} <span title="{item["source_file"]}" style="cursor:help"><i>(Source: {item["artifact"]})</i></span></li>' + OutputParameters.nl)
                     b.write('</ul></li>' + OutputParameters.nl)
                 else:
                     # Handle single value
-                    b.write(f'<li><b>{label}:</b> {data["value"]} <span title="{data["source_file"]}" style="cursor:help"><i>(Source: {data["module"]})</i></span></li>' + OutputParameters.nl)
+                    b.write(f'<li><b>{label}:</b> {data["value"]} <span title="{data["source_file"]}" style="cursor:help"><i>(Source: {data["artifact"]})</i></span></li>' + OutputParameters.nl)
             b.write('</ul>' + OutputParameters.nl)
 
 def device_info(category, label, value, source_file=""):
@@ -419,14 +419,9 @@ def device_info(category, label, value, source_file=""):
     # Get the calling module's name more robustly
     try:
         frame = inspect.stack()[1]
-        module = inspect.getmodule(frame[0])
-        if module:
-            module_name = module.__name__.split('.')[-1]
-        else:
-            # Fallback: try to get module name from frame info
-            module_name = frame.filename.split('/')[-1].replace('.py', '')
+        func_name = frame.function
     except:
-        module_name = 'unknown'
+        func_name = 'unknown'
     
     values = identifiers.get(category, {})
     
@@ -434,7 +429,7 @@ def device_info(category, label, value, source_file=""):
     value_obj = {
         'value': value,
         'source_file': source_file,
-        'module': module_name
+        'artifact': func_name
     }
     
     if label in values:
