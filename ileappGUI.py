@@ -1,9 +1,10 @@
 import tkinter as tk
-import plugin_loader
 import typing
 import json
 import ileapp
 import webbrowser
+
+import scripts.plugin_loader as plugin_loader
 
 from tkinter import ttk, filedialog as tk_filedialog, messagebox as tk_msgbox
 from scripts.version_info import ileapp_version
