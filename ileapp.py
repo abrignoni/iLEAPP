@@ -4,13 +4,12 @@ import io
 import pytz
 import os.path
 import typing
-import plugin_loader
 import scripts.report as report
 import traceback
 import sqlite3
 import sys
 
-import sys
+import scripts.plugin_loader as plugin_loader
 
 from scripts.search_files import *
 from scripts.ilapfuncs import *
