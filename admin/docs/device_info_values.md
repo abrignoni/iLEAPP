@@ -35,7 +35,7 @@ This document outlines the various device information collected by iLEAPP module
 | Device Information | Local Host Name | preferencesPlist |
 | Device Information | Model | preferencesPlist |
 | Device Information | Model Number | deviceActivator |
-| Device Information | Product | lastBuild |
+| Device Information | Product Name | lastBuild |
 | Device Information | ProductBuildVersion | lastBuild |
 | Device Information | Reported Phone Number | deviceDatam |
 | Device Information | Serial Number | serialNumber |
@@ -59,8 +59,7 @@ This document outlines the various device information collected by iLEAPP module
 <!-- LOGDEVINFO_START -->
 | Key | Source Modules |
 |-----|----------------|
-| BuildID: {val} | Ph99SystemVersionPlist |
-| BuildVersion: {val} | Ph100UFEDdevcievaluesplist, Ph99SystemVersionPlist |
+| BuildVersion: {val} | Ph100UFEDdevcievaluesplist |
 | DeviceName: {val} | Ph100UFEDdevcievaluesplist |
 | Find My iPhone Add Time: {addtime} | findMy |
 | Find My iPhone: Enabled | findMy |
@@ -68,11 +67,8 @@ This document outlines the various device information collected by iLEAPP module
 | InternationalMobileEquipmentIdentity: {val} | Ph100UFEDdevcievaluesplist |
 | Obliterated Timestamp: {utc_modified_date} | obliterated |
 | PasswordProtected: {val} | Ph100UFEDdevcievaluesplist |
-| ProductName: {val} | Ph99SystemVersionPlist |
 | ProductType: {val} | Ph100UFEDdevcievaluesplist |
-| ReleaseType: {val} | Ph99SystemVersionPlist |
 | SerialNumber: {val} | Ph100UFEDdevcievaluesplist |
-| SystemImageID: {val} | Ph99SystemVersionPlist |
 | TimeZone: {val} | Ph100UFEDdevcievaluesplist |
 | com.apple.MobileSMS.plist - Keep Messages for Days (iOS 17+): {val} | messageRetention |
 | com.apple.MobileSMS.plist - Keep Messages for Days (iOS {val} | messageRetention |
@@ -83,7 +79,7 @@ This document outlines the various device information collected by iLEAPP module
 | comapplemobileslideshowplist-PhotosSharedLibrarySyncingIsActive: {val} | Ph80comappleMobileSlideShowPlist |
 | comapplemobileslideshowplist-downloadAndKeepOriginals: {val} | Ph80comappleMobileSlideShowPlist |
 | comapplepurplebuddyplist-SetupState: {val} | Ph83comapplePurpleBuddyPlist |
-| iOS version: {val} | Ph100UFEDdevcievaluesplist, Ph99SystemVersionPlist |
+| iOS version: {val} | Ph100UFEDdevcievaluesplist |
 | {base_file} - Keep Message for Days: No Value | messageRetention |
 | {base_file} - Keep Messages for Days (iOS 17+): {keep_val} | messageRetention |
 | {base_file} - Keep Messages for Days (iOS {keep_val} | messageRetention |
