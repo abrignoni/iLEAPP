@@ -35,11 +35,11 @@ This document outlines the various device information collected by iLEAPP module
 | Device Information | Local Host Name | preferencesPlist |
 | Device Information | Model | preferencesPlist |
 | Device Information | Model Number | deviceActivator |
-| Device Information | Product Name | lastBuild |
-| Device Information | ProductBuildVersion | lastBuild |
+| Device Information | Product Name | lastBuild, systemVersionPlist |
+| Device Information | ProductBuildVersion | lastBuild, systemVersionPlist |
 | Device Information | Reported Phone Number | deviceDatam |
 | Device Information | Serial Number | serialNumber |
-| Device Information | iOS version | lastBuild |
+| Device Information | iOS version | lastBuild, systemVersionPlist |
 | Network | Bluetooth Address | deviceActivator |
 | Network | Ethernet MAC Address | deviceActivator |
 | Network | MAC Addresses | wifiIdentifiers |
