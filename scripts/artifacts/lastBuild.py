@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*LastBuildInfo.plist',),
         "output_types": ["html", "tsv", "lava"]
-    },
+    }
 }
 
 import plistlib
