@@ -9,7 +9,8 @@ __artifacts_v2__ = {
         "category": "IOS Build",
         "notes": "",
         "paths": ('*LastBuildInfo.plist',),
-        "output_types": ["html", "tsv", "lava"]
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "git-commit"
     }
 }
 
