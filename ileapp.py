@@ -164,23 +164,28 @@ def main():
     profile_filename = None
     casedata = {}
 
-    plugins = []
-    plugins_parsed_first = []
-
-    for plugin in available_plugins:
-        if plugin.module_name == 'lastBuild':
-            plugins_parsed_first.append(plugin)
-        elif plugin.module_name != 'iTunesBackupInfo':
-            plugins.append(plugin)
-
-    selected_plugins = plugins.copy()
-
     # Check if no arguments were provided
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
         sys.exit()
 
     args = parser.parse_args()
+
+    extracttype = args.t
+
+    plugins = []
+    plugins_parsed_first = []
+
+    for plugin in available_plugins:
+        if plugin.module_name == 'lastBuild':
+            if extracttype == 'itunes':
+                continue
+            else:
+                plugins_parsed_first.append(plugin)
+        elif plugin.module_name != 'iTunesBackupInfo':
+            plugins.append(plugin)
+
+    selected_plugins = plugins.copy()
 
     try:
         validate_args(args)
@@ -283,7 +288,6 @@ def main():
                 return
     
     input_path = args.input_path
-    extracttype = args.t
     wrap_text = args.wrap_text
     output_path = os.path.abspath(args.output_path)
     time_offset = args.timezone
