@@ -172,7 +172,8 @@ def process(casedata):
 
         # re-create modules list based on user selection
         selected_modules = get_selected_modules()
-        selected_modules.insert(0, 'lastBuild')  # Force lastBuild as first item to be parsed
+        if extracttype != 'itunes':
+            selected_modules.insert(0, 'lastBuild')  # Force lastBuild as first item to be parsed
         selected_modules = [loader[module] for module in selected_modules]
         progress_bar.config(maximum=len(selected_modules))
         casedata = {key: value.get() for key, value in casedata.items()}
