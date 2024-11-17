@@ -36,6 +36,7 @@ media_root = '**/Media/'
 thumb_size = 256, 256
 
 identifiers = {}
+icons = {}
 
 def strip_tuple_from_headers(data_headers):
     return [header[0] if isinstance(header, tuple) else header for header in data_headers]
@@ -60,6 +61,7 @@ def artifact_processor(func):
         artifact_name = artifact_info.get('name', func_name)
         category = artifact_info.get('category', '')
         description = artifact_info.get('description', '')
+        icon = artifact_info.get('artifact_icon', '')
         output_types = artifact_info.get('output_types', ['html', 'tsv', 'timeline', 'lava', 'kml'])
 
         data_headers, data_list, source_path = func(files_found, report_folder, seeker, wrap_text, timezone_offset)
@@ -79,6 +81,7 @@ def artifact_processor(func):
                 report.add_script()
                 report.write_artifact_data_table(stripped_headers, data_list, source_path)
                 report.end_artifact_report()
+                icons[category] = {artifact_name: icon}
 
             if check_output_types('tsv', output_types):
                 tsv(report_folder, stripped_headers, data_list, artifact_name)

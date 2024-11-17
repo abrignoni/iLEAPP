@@ -7,7 +7,7 @@ from collections import OrderedDict
 from scripts.html_parts import *
 from scripts.ilapfuncs import logfunc
 from scripts.version_info import ileapp_version, ileapp_contributors
-from scripts.report_icons import icon_mappings
+from scripts.report_icons import icon_mappings, feather_icon_names
 
 def get_icon_name(category, artifact):
     """
@@ -64,7 +64,7 @@ def get_search_mode_categories():
 search_set = get_search_mode_categories()
 
 
-def generate_report(reportfolderbase, time_in_secs, time_HMS, extraction_type, image_input_path, casedata, profile_filename):
+def generate_report(reportfolderbase, time_in_secs, time_HMS, extraction_type, image_input_path, casedata, profile_filename, icons):
     control = None
     side_heading = \
         """
@@ -92,6 +92,7 @@ def generate_report(reportfolderbase, time_in_secs, time_HMS, extraction_type, i
             if file.endswith(".temphtml"):
                 fullpath = (os.path.join(root, file))
                 head, tail = os.path.split(fullpath)
+                filename = tail.replace(".temphtml", "")
                 p = pathlib.Path(fullpath)
                 SectionHeader = (p.parts[-2])
                 if SectionHeader == '_elements':
@@ -102,9 +103,11 @@ def generate_report(reportfolderbase, time_in_secs, time_HMS, extraction_type, i
                         side_list[SectionHeader] = []
                         nav_list_data += side_heading.format(SectionHeader)
                     side_list[SectionHeader].append(fullpath)
-                    icon = get_icon_name(SectionHeader, tail.replace(".temphtml", ""))
+                    icon_name = icons.get(SectionHeader, {}).get(filename, "")
+                    icon = icon_name if icon_name else get_icon_name(SectionHeader, filename)
+                    icon = icon if icon in feather_icon_names else 'alert-triangle'
                     nav_list_data += list_item.format('', tail.replace(".temphtml", ".html").replace(" ", "_"), 
-                                                      icon, tail.replace(".temphtml", "").replace("_", " "))
+                                                      icon, filename.replace("_", " "))
 
     # Now that we have all the file paths, start writing the files
 
