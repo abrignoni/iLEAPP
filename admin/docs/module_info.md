@@ -11,7 +11,7 @@ Total number of modules: 265
 Number of v1 artifacts: 104  
 Number of v2 artifacts: 217  
 Number of modules with 'lava output': 114  
-Number of modules using 'artifact_icon': 1  
+Number of modules using 'artifact_icon': 5  
 Number of modules with errors or no recognized artifacts: 3  
 
 ## V2 Artifacts Table
@@ -96,12 +96,12 @@ Number of modules with errors or no recognized artifacts: 3
 | [WithingsHealthMate.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/WithingsHealthMate.py) | HealthMateMeasurements | Health Mate - Measurements |  |  | Health Mate Measurements | ``*/Library/Application Support/coredata/*_vasistas*`` |
 | [WithingsHealthMate.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/WithingsHealthMate.py) | HealthMateDevices | Health Mate - Devices |  |  | Health Mate Devices | ``*/Library/Application Support/coredata/associated_device.sqlite`` |
 | [ZangiChats.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/ZangiChats.py) | Zangi_Chats | Zangi Chats |  |  | Parses Zangi Chat database | ``*/private/var/mobile/Containers/Shared/AppGroup/*/zangidb.sqlite*`` |
-| [accountConfig.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/accountConfig.py) | accountConfig | Account Configuration | html, tsv, lava |  | Extracts account configuration information | ``*/preferences/SystemConfiguration/com.apple.accounts.exists.plist`` |
+| [accountConfig.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/accountConfig.py) | accountConfig | Account Configuration | html, tsv, lava | user | Extracts account configuration information | ``*/preferences/SystemConfiguration/com.apple.accounts.exists.plist`` |
 | [accountData.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/accountData.py) | accountData | Account Data | standard |  | Configured user accounts | ``*/mobile/Library/Accounts/Accounts3.sqlite*`` |
 | [addressBook.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/addressBook.py) | addressbook | Address Book |  |  | Extract information from the native contacts application | ``*/mobile/Library/AddressBook/AddressBook*.sqlitedb*`` |
-| [advertisingID.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/advertisingID.py) | advertisingID | Advertising Identifier | none |  | Extract Apple advertising identifier | ``*/containers/Shared/SystemGroup/*/Library/Caches/com.apple.lsdidentifiers.plist`` |
-| [airdropId.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/airdropId.py) | airdropId | Airdrop ID | none |  | Extract Airdrop ID | ``*/mobile/Library/Preferences/com.apple.sharingd.plist`` |
-| [alarms.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/alarms.py) | alarms | Alarms | standard |  | Extraction of alarms set | ``*/mobile/Library/Preferences/com.apple.mobiletimerd.plist`` |
+| [advertisingID.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/advertisingID.py) | advertisingID | Advertising Identifier | none | settings | Extract Apple advertising identifier | ``*/containers/Shared/SystemGroup/*/Library/Caches/com.apple.lsdidentifiers.plist`` |
+| [airdropId.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/airdropId.py) | airdropId | Airdrop ID | none | settings | Extract Airdrop ID | ``*/mobile/Library/Preferences/com.apple.sharingd.plist`` |
+| [alarms.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/alarms.py) | alarms | Alarms | standard | clock | Extraction of alarms set | ``*/mobile/Library/Preferences/com.apple.mobiletimerd.plist`` |
 | [allTrails.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/allTrails.py) | allTrailsTrailDetails | AllTrails - Trail Details | html, tsv, lava |  | Extract trail details from AllTrails App | ``*/Documents/AllTrails.sqlite*`` |
 | [allTrails.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/allTrails.py) | allTrailsUserInfo | AllTrails - User Info | all |  | Extract user info from AllTrails App | ``*/Documents/AllTrails.sqlite*`` |
 | [appGrouplisting.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/appGrouplisting.py) | get_appGrouplisting | Bundle ID by AppGroup & PluginKit IDs | html, tsv, lava |  | List can included once installed but not present apps. Each file is named .com.apple.mobile_container_manager.metadata.plist | ``*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist``, ``**/PluginKitPlugin/*.metadata.plist`` |
