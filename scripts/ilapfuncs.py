@@ -1,15 +1,20 @@
 # common standard imports
 import codecs
-import csv
 from datetime import *
-import json
 import os
 import re
 import shutil
-import sqlite3
 import sys
 import math
 import inspect
+
+import csv
+import xml
+import plistlib
+import nska_deserialize
+import json
+import sqlite3
+
 from functools import lru_cache
 from pathlib import Path
 
@@ -310,6 +315,34 @@ def get_next_unused_name(path):
             new_name += f"{ext}"
         num += 1
     return os.path.join(folder, new_name)
+
+def get_plist_content(file_path):
+    try:
+        with open(file_path, 'rb') as file:
+            plist_content = plistlib.load(file)
+            if plist_content.get('$archiver', '') == 'NSKeyedArchiver':
+                return nska_deserialize.deserialize_plist(file_path)
+            else:
+                return plist_content
+    except FileNotFoundError:
+        print(f"Error: Plist file not found at {file_path}")
+    except PermissionError:
+        print(f"Error: Permission denied when trying to read {file_path}")
+    except plistlib.InvalidFileException:
+        print(f"Error: Invalid plist file format in {file_path}")
+    except xml.parsers.expat.ExpatError:
+        print(f"Error: Malformed XML in plist file {file_path}")
+    except TypeError as e:
+        print(f"Error: Type error when parsing plist {file_path}: {str(e)}")
+    except ValueError as e:
+        print(f"Error: Value error when parsing plist {file_path}: {str(e)}")
+    except OverflowError as e:
+        print(f"Error: Overflow error when parsing plist {file_path}: {str(e)}")
+    except nska_deserialize.DeserializeError:
+        print(f"Error: {file_path} is not an NSKeyedArchiveInvalid plist file")
+    except Exception as e:
+        print(f"Unexpected error reading plist file {file_path}: {str(e)}")
+    return {}
 
 def open_sqlite_db_readonly(path):
     '''Opens an sqlite db in read-only mode, so original db (and -wal/journal are intact)'''
