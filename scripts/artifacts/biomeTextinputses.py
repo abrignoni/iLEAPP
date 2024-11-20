@@ -21,7 +21,7 @@ from datetime import timezone
 import blackboxprotobuf
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
-from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv, convert_utc_human_to_timezone
+from scripts.ilapfuncs import artifact_processor, convert_utc_human_to_timezone, convert_ts_int_to_timezone, webkit_timestampsconv
 
 
 @artifact_processor
@@ -52,9 +52,13 @@ def get_biomeTextinputses(files_found, report_folder, seeker, wrap_text, timezon
                 protostuff, types = blackboxprotobuf.decode_message(record.data, typess)
 
                 duration = protostuff['1']
-                #Seems like the time is stored with an extra cocoa core offset added? we have to subtract it
-                timestart = (webkit_timestampsconv(protostuff['2']-978307200))
-                timestart = convert_utc_human_to_timezone(timestart, timezone_offset)
+                # Records in "restricted" folder seem to have time in Unix time, whereas public was cocoa time
+                if 'restricted' in file_found:
+                    timestart = (convert_ts_int_to_timezone(protostuff['2'], timezone_offset))
+                else:
+                    timestart = (webkit_timestampsconv(protostuff['2']))
+                    timestart = convert_utc_human_to_timezone(timestart, timezone_offset)
+
                 bundleid = (protostuff.get('3',''))
                 
                 data_list.append((ts, timestart, record.state.name, bundleid, duration, filename,
