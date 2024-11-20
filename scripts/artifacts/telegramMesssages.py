@@ -799,6 +799,27 @@ def telegramMessages(files_found, report_folder, seeker, wrap_text, timezone_off
                     geoProximityReached = 21
                     groupPhoneCall = 22
                     inviteToGroupPhoneCall = 23
+                    setChatTheme = 24
+                    joinedByRequest = 25
+                    webViewData = 26
+                    giftPremium = 27
+                    topicCreated = 28
+                    topicEdited = 29
+                    suggestedProfilePhoto = 30
+                    attachMenuBotAllowed = 31
+                    requestedPeer = 32
+                    setChatWallpaper = 33
+                    setSameChatWallpaper = 34
+                    botAppAccessGranted = 35
+                    giftCode = 36
+                    giveawayLaunched = 37
+                    joinedChannel = 38
+                    giveawayResults = 39
+                    boostsApplied = 40
+                    paymentRefunded = 41
+                    giftStars = 42
+                    prizeStars = 43
+                    starGift = 44
                     
                 def __init__(self, dec):
                     raw = {k: v for k, t, v in dec._iter_kv()}
