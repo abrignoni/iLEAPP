@@ -25,6 +25,7 @@ This document outlines the various device information collected by iLEAPP module
 | Cellular | MEID | celWireless |
 | Cellular | Phone Number | imeiImsi |
 | Cellular | Reported Phone Number | celWireless |
+| Cellular | SIM Cards | subscriberInfo |
 | Cellular | Self Registration Update IMEI | imeiImsi |
 | Cellular | Self Registration Update IMSI | imeiImsi |
 | Device Information | Device Name | deviceName |
