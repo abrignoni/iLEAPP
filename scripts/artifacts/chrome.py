@@ -148,8 +148,62 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Chromium",
         "notes": "",
-        "paths": ('*/Chrome/Default/Offline Pages/metadata/OfflinePages.db*', '*/app_sbrowser/Default/Offline Pages/metadata/OfflinePages.db*', '*/Chromium/Default/Offline Pages/metadata/OfflinePages.db*'),
+        "paths": ('*/Chrome/Default/Offline Pages/metadata/OfflinePages.db*',
+                  '*/app_sbrowser/Default/Offline Pages/metadata/OfflinePages.db*',
+                  '*/Chromium/Default/Offline Pages/metadata/OfflinePages.db*'),
         "output_types": "standard",
+    },
+    "chromeMediaHistorySessions": {
+        "name": "Media History Sessions",
+        "description": "Parses Media History Sessions from Chromium Based Browsers",
+        "author": "@stark4n6",
+        "version": "0.0.3",
+        "date": "2024-11-10",
+        "requirements": "none",
+        "category": "Chromium",
+        "notes": "",
+        "paths": ('*/Chrome/Default/Media History*', '*/app_sbrowser/Default/Media History*',
+                  '*/app_opera/Media History*', '*/Chromium/Default/Media History*'),
+        "output_types": "standard",
+    },
+    "chromeMediaHistoryPlaybacks": {
+        "name": "Media History Playbacks",
+        "description": "Parses Media History Playbacks from Chromium Based Browsers",
+        "author": "@stark4n6",
+        "version": "0.0.3",
+        "date": "2024-11-10",
+        "requirements": "none",
+        "category": "Chromium",
+        "notes": "",
+        "paths": ('*/Chrome/Default/Media History*', '*/app_sbrowser/Default/Media History*',
+                  '*/app_opera/Media History*', '*/Chromium/Default/Media History*'),
+        "output_types": "standard",
+    },
+    "chromeMediaHistoryOrigins": {
+        "name": "Media History Origins",
+        "description": "Parses Media History Origins from Chromium Based Browsers",
+        "author": "@stark4n6",
+        "version": "0.0.3",
+        "date": "2024-11-10",
+        "requirements": "none",
+        "category": "Chromium",
+        "notes": "",
+        "paths": ('*/Chrome/Default/Media History*', '*/app_sbrowser/Default/Media History*',
+                  '*/app_opera/Media History*', '*/Chromium/Default/Media History*'),
+        "output_types": "standard",
+    },
+    "chromeNetworkActionPredictor": {
+        "name": "Network Action Predictor",
+        "description": "Parses Network Action Predictor records from Chromium Based Browsers",
+        "author": "@stark4n6",
+        "version": "0.0.3",
+        "date": "2024-11-10",
+        "requirements": "none",
+        "category": "Chromium",
+        "notes": "",
+        "paths": ('*/Chrome/Default/Network Action Predictor*','*/app_sbrowser/Default/Network Action Predictor*',
+                  '*/app_opera/Network Action Predictor*', '*/Chromium/Default/Network Action Predictor*'),
+        "output_types": ['lava', 'tsv', 'html'],
     },
 }
 
@@ -1333,6 +1387,8 @@ def chromeOfflinePages(files_found, report_folder, seeker, wrap_text, timezone_o
                     'File Size']
 
     lava_data_headers = data_headers.copy()
+    lava_data_headers[0] = (lava_data_headers[0], 'datetime')
+    lava_data_headers[1] = (lava_data_headers[1], 'datetime')
 
     all_data_headers = lava_data_headers + ['Browser Name']
 
@@ -1404,4 +1460,325 @@ def chromeOfflinePages(files_found, report_folder, seeker, wrap_text, timezone_o
 
         db.close()
         
+    return all_data_headers, all_data, report_file
+
+
+def chromeMediaHistorySessions(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
+    all_data = []
+
+    data_headers = ['Last Updated', 'Origin ID', 'URL', 'Position', 'Duration', 'Title', 'Artist', 'Album',
+                    'Source Title']
+
+    lava_data_headers = data_headers.copy()
+    lava_data_headers[0] = (lava_data_headers[0], 'datetime')
+
+    all_data_headers = lava_data_headers + ['Browser Name']
+
+    report_file = 'Unknown'
+
+    for file_found in files_found:
+        file_found = str(file_found)
+        if not file_found.endswith('Media History'):
+            continue  # Skip all other files
+
+        browser_name = get_browser_name(file_found)
+        if file_found.find('app_sbrowser') >= 0:
+            browser_name = 'Browser'
+
+        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
+
+        db = open_sqlite_db_readonly(file_found)
+        cursor = db.cursor()
+        cursor.execute('''
+        select
+        datetime(last_updated_time_s-11644473600, 'unixepoch') as last_updated_time_s,
+            origin_id,
+            url,
+            strftime('%H:%M:%S',position_ms/1000, 'unixepoch') as position_ms,
+            strftime('%H:%M:%S',duration_ms/1000, 'unixepoch') as duration_ms,
+            title,
+            artist,
+            album,
+            source_title
+        from playbackSession
+        ''')
+
+        all_rows = cursor.fetchall()
+        if len(all_rows) > 0:
+            report_name = f'{browser_name} - Media History - Sessions'
+            report = ArtifactHtmlReport(report_name)
+            # check for existing and get next name for report file, so report from another file does not get overwritten
+            report_path = os.path.join(report_folder, f'{report_name}.temphtml')
+            report_path = get_next_unused_name(report_path)[:-9]  # remove .temphtml
+            report.start_artifact_report(report_folder, os.path.basename(report_path))
+            report.add_script()
+            data_list = []
+            for row in all_rows:
+                last_update_dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]), timezone_offset)
+                data_list.append((last_update_dt, row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8]))
+
+            report.write_artifact_data_table(data_headers, data_list, file_found)
+            report.end_artifact_report()
+
+            # Generate LAVA output
+
+            category = "Chromium"
+            module_name = "chromeMediaHistorySessions"
+
+            table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
+                                                                           lava_data_headers, len(data_list))
+
+            lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
+
+            # Add browser name column to the data
+            data_list = [row + (browser_name,) for row in data_list]
+
+            # Add current list to the combined list
+            all_data.extend(data_list)
+
+        else:
+            logfunc(f'No {browser_name} - Media History - Sessions data available')
+        db.close()
+
+    return all_data_headers, all_data, report_file
+
+@artifact_processor
+def chromeMediaHistoryPlaybacks(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
+    all_data = []
+
+    data_headers = ['Last Updated', 'ID', 'Origin ID', 'URL', 'Watch Time', 'Has Audio', 'Has Video']
+
+    lava_data_headers = data_headers.copy()
+    lava_data_headers[0] = (lava_data_headers[0], 'datetime')
+    lava_data_headers[4] = (lava_data_headers[4], 'datetime')
+
+    all_data_headers = lava_data_headers + ['Browser Name']
+
+    report_file = 'Unknown'
+
+    for file_found in files_found:
+        file_found = str(file_found)
+        if not file_found.endswith('Media History'):
+            continue  # Skip all other files
+
+        browser_name = get_browser_name(file_found)
+        if file_found.find('app_sbrowser') >= 0:
+            browser_name = 'Browser'
+
+        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
+
+        db = open_sqlite_db_readonly(file_found)
+        cursor = db.cursor()
+        cursor.execute('''
+        select
+            datetime(last_updated_time_s-11644473600, 'unixepoch') as last_updated_time_s,
+            id,
+            origin_id,
+            url,
+            strftime('%H:%M:%S',watch_time_s, 'unixepoch') as watch_time_s,
+            case has_audio
+                when 0 then ''
+                when 1 then 'Yes'
+            end as has_audio,
+            case has_video
+                when 0 then ''
+                when 1 then 'Yes'
+            end as has_video  
+        from playback
+        ''')
+
+        all_rows = cursor.fetchall()
+        if len(all_rows) > 0:
+            report_name = f'{browser_name} - Media History - Playbacks'
+            report = ArtifactHtmlReport(report_name)
+            # check for existing and get next name for report file, so report from another file does not get overwritten
+            report_path = os.path.join(report_folder, f'{report_name}.temphtml')
+            report_path = get_next_unused_name(report_path)[:-9]  # remove .temphtml
+            report.start_artifact_report(report_folder, os.path.basename(report_path))
+            report.add_script()
+            data_list = []
+            for row in all_rows:
+                last_update_dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]), timezone_offset)
+                watch_dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[4]), timezone_offset)
+                data_list.append((last_update_dt, row[1], row[2], row[3], watch_dt, row[5], row[6]))
+
+            report.write_artifact_data_table(data_headers, data_list, file_found)
+            report.end_artifact_report()
+
+            # Generate LAVA output
+
+            category = "Chromium"
+            module_name = "chromeMediaHistoryPlaybacks"
+
+            table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
+                                                                           lava_data_headers, len(data_list))
+
+            lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
+
+            # Add browser name column to the data
+            data_list = [row + (browser_name,) for row in data_list]
+
+            # Add current list to the combined list
+            all_data.extend(data_list)
+
+        else:
+            logfunc(f'No {browser_name} - Media History - Playbacks data available')
+        db.close()
+
+    return all_data_headers, all_data, report_file
+
+@artifact_processor
+def chromeMediaHistoryOrigins(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
+    all_data = []
+
+    data_headers = ['Last Updated', 'ID', 'Origin',  'Aggregate Watchtime']
+
+    lava_data_headers = data_headers.copy()
+    lava_data_headers[0] = (lava_data_headers[0], 'datetime')
+
+    all_data_headers = lava_data_headers + ['Browser Name']
+
+    report_file = 'Unknown'
+
+    for file_found in files_found:
+        file_found = str(file_found)
+        if not file_found.endswith('Media History'):
+            continue  # Skip all other files
+
+        browser_name = get_browser_name(file_found)
+        if file_found.find('app_sbrowser') >= 0:
+            browser_name = 'Browser'
+
+        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
+
+        db = open_sqlite_db_readonly(file_found)
+        cursor = db.cursor()
+
+        cursor.execute('''
+        select
+            datetime(last_updated_time_s-11644473600, 'unixepoch') as last_updated_time_s,
+            id,
+            origin,
+            cast(aggregate_watchtime_audio_video_s/86400 as integer) || ':' || strftime('%H:%M:%S', aggregate_watchtime_audio_video_s ,'unixepoch') as aggregate_watchtime_audio_video_s
+        from origin
+        ''')
+
+        all_rows = cursor.fetchall()
+        if len(all_rows) > 0:
+            report_name = f'{browser_name} - Media History - Origins'
+            report = ArtifactHtmlReport(report_name)
+            # check for existing and get next name for report file, so report from another file does not get overwritten
+            report_path = os.path.join(report_folder, f'{report_name}.temphtml')
+            report_path = get_next_unused_name(report_path)[:-9]  # remove .temphtml
+            report.start_artifact_report(report_folder, os.path.basename(report_path))
+            report.add_script()
+            data_list = []
+            for row in all_rows:
+                last_update_dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]), timezone_offset)
+                data_list.append((last_update_dt, row[1], row[2], row[3]))
+
+            report.write_artifact_data_table(data_headers, data_list, file_found)
+            report.end_artifact_report()
+
+            # Generate LAVA output
+
+            category = "Chromium"
+            module_name = "chromeMediaHistoryOrigins"
+
+            table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
+                                                                           lava_data_headers, len(data_list))
+
+            lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
+
+            # Add browser name column to the data
+            data_list = [row + (browser_name,) for row in data_list]
+
+            # Add current list to the combined list
+            all_data.extend(data_list)
+
+        else:
+            logfunc(f'No {browser_name} - Media History - Origins data available')
+
+        db.close()
+
+    return all_data_headers, all_data, report_file
+
+
+@artifact_processor
+def chromeNetworkActionPredictor(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
+    all_data = []
+
+    data_headers = ['User Text', 'URL', 'Number of Hits', 'Number of Misses']
+
+    lava_data_headers = data_headers.copy()
+    lava_data_headers[0] = (lava_data_headers[0], 'datetime')
+
+    all_data_headers = lava_data_headers + ['Browser Name']
+
+    report_file = 'Unknown'
+
+    for file_found in files_found:
+        file_found = str(file_found)
+        if not file_found.endswith('Network Action Predictor'):
+            continue  # Skip all other files
+
+        browser_name = get_browser_name(file_found)
+        if file_found.find('app_sbrowser') >= 0:
+            browser_name = 'Browser'
+
+        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
+
+        db = open_sqlite_db_readonly(file_found)
+        cursor = db.cursor()
+        cursor.execute('''
+        select
+        user_text,
+        url,
+        number_of_hits,
+        number_of_misses
+        from network_action_predictor
+        ''')
+
+        all_rows = cursor.fetchall()
+        if len(all_rows) > 0:
+            report_name = f'{browser_name} - Network Action Predictor'
+            report = ArtifactHtmlReport(report_name)
+            # check for existing and get next name for report file, so report from another file does not get overwritten
+            report_path = os.path.join(report_folder, f'{report_name}.temphtml')
+            report_path = get_next_unused_name(report_path)[:-9]  # remove .temphtml
+            report.start_artifact_report(report_folder, os.path.basename(report_path))
+            report.add_script()
+
+            data_list = []
+            for row in all_rows:
+                data_list.append((row[0], row[1], row[2], row[3]))
+
+            report.write_artifact_data_table(data_headers, data_list, file_found)
+            report.end_artifact_report()
+
+            # Generate LAVA output
+
+            category = "Chromium"
+            module_name = "chromeNetworkActionPredictor"
+
+            table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
+                                                                           lava_data_headers, len(data_list))
+
+            lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
+
+            # Add browser name column to the data
+            data_list = [row + (browser_name,) for row in data_list]
+
+            # Add current list to the combined list
+            all_data.extend(data_list)
+
+        else:
+            logfunc(f'No {browser_name} - Network Action Predictor data available')
+
+        db.close()
+
     return all_data_headers, all_data, report_file
