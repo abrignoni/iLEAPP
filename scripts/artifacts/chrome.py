@@ -1463,6 +1463,7 @@ def chromeOfflinePages(files_found, report_folder, seeker, wrap_text, timezone_o
     return all_data_headers, all_data, report_file
 
 
+@artifact_processor
 def chromeMediaHistorySessions(files_found, report_folder, seeker, wrap_text, timezone_offset):
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
