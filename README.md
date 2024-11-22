@@ -20,7 +20,7 @@ etc...
 
 ## Requirements
 
-Python 3.10 to Python3.12
+Python 3.10 to Python3.12.<br>
 If on macOS (Intel) make sure Xcode is installed and have command line tools updated to be able to use Python 3.11. 
 
 ### Dependencies
