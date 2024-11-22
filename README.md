@@ -3,7 +3,7 @@
 iOS Logs, Events, And Plists Parser  
 Details in blog post here: https://abrignoni.blogspot.com/2019/12/ileapp-ios-logs-events-and-properties.html
 
-Supports iOS/iPadOS 11, 12, 13 and 14, 15, 16.
+Supports iOS/iPadOS 11, 12, 13, 14, 15, 16, and 17.
 Select parsing directly from a compressed .tar/.zip file, or a decompressed directory, or an iTunes/Finder backup folder.
 
 ## Features
@@ -20,7 +20,7 @@ etc...
 
 ## Requirements
 
-Python 3.9 to latest version (older versions of 3.x will also work with the exception of one or two modules)
+Python 3.10 to Python3.12
 If on macOS (Intel) make sure Xcode is installed and have command line tools updated to be able to use Python 3.11. 
 
 ### Dependencies
@@ -52,13 +52,13 @@ If using Python 3.10 and above delete the arguments from the following terminal 
 To create ileapp.exe, run:
 
 ```
-pyinstaller --onefile ileapp.spec
+pyinstaller \scripts\pyinstaller\ileapp.spec
 ```
 
 To create ileappGUI.exe, run:
 
 ```
-pyinstaller --onefile --noconsole ileappGUI.spec
+pyinstaller \scripts\pyinstaller\ileappGUI.spec
 ```
 
 *macOS*
@@ -66,13 +66,13 @@ pyinstaller --onefile --noconsole ileappGUI.spec
 To create ileapp, run:
 
 ```
-pyinstaller --onefile ileapp_macOS.spec
+pyinstaller /scripts/pyinstaller/ileapp_macos.spec
 ```
 
 To create ileappGUI.app, run:
 
 ```
-pyinstaller --onefile --windowed ileappGUI_macOS.spec
+pyinstaller /scripts/pyinstaller/ileappGUI_macos.spec
 ```
 
 ## Usage
@@ -101,49 +101,52 @@ Each plugin is a Python source file which should be added to the `scripts/artifa
 
 The plugin source file must contain a dictionary named `__artifacts_v2__` at the very beginning of the module, which defines the artifacts that the plugin processes. The keys in the `__artifacts_v2__` dictionary should be IDs for the artifact(s) which must be unique within ILEAPP. The values should be dictionaries containing the following keys:
 
-- `name`: The name of the artifact as a string.
-- `description`: A description of the artifact as a string.
-- `author`: The author of the plugin as a string.
-- `version`: The version of the artifact as a string.
-- `date`: The date of the last update to the artifact as a string.
-- `requirements`: Any requirements for processing the artifact as a string.
-- `category`: The category of the artifact as a string.
-- `notes`: Any additional notes as a string.
-- `paths`: A tuple of strings containing glob search patterns to match the path of the data that the plugin expects for the artifact.
-- `function`: The name of the function which is the entry point for the artifact's processing as a string.
-
-For example:
-
 ```python
 __artifacts_v2__ = {
-    "cool_artifact_1": {
-        "name": "Cool Artifact 1",
-        "description": "Extracts cool data from database files",
-        "author": "@username",
-        "version": "0.1",
-        "date": "2022-10-25",
-        "requirements": "none",
-        "category": "Really cool artifacts",
-        "notes": "",
-        "paths": ('*/com.android.cooldata/databases/database*.db',),
-        "function": "get_cool_data1"
-    },
-    "cool_artifact_2": {
-        "name": "Cool Artifact 2",
-        "description": "Extracts cool data from XML files",
-        "author": "@username",
-        "version": "0.1",
-        "date": "2022-10-25",
-        "requirements": "none",
-        "category": "Really cool artifacts",
-        "notes": "",
-        "paths": ('*/com.android.cooldata/files/cool.xml',),
-        "function": "get_cool_data2"
+    "function_name": {
+        "name": "Human-readable name of the artifact",
+        "description": "Brief description of what the artifact does",
+        "author": "@AuthorUsername",
+        "version": "X.Y",
+        "date": "YYYY-MM-DD",
+        "requirements": "Any specific requirements, or 'none'",
+        "category": "Category of the artifact",
+        "notes": "Additional notes, if any",
+        "paths": ('Path/to/artifact/files',),
+        "output_types": "Output types, often 'all'",
+        "artifact_icon": "feather-icon-name"
     }
 }
 ```
 
-The functions referenced as entry points in the `__artifacts__` dictionary must take the following arguments:
+- `function_name`: The name of the function that processes this artifact. This should match exactly with the function name in the script.
+- `name`: A human-readable name for the artifact as it will be displayed in the output files
+- `description`: A brief explanation of what the artifact extracts or analyzes
+- `author`: The name and/or username of the module's author
+- `version`: The current version of the module script
+- `date`: The date of the latest update in YYYY-MM-DD format
+- `requirements`: Any specific requirements for the artifact, or "none" if there are no special requirements
+- `category`: The category the artifact belongs to
+- `notes`: Any additional information about the artifact (can be an empty string)
+- `paths`: A tuple containing one or more file paths (with wildcards if needed) where the artifact data can be found
+- `output_types`: A list of strings or the string 'all' specifying the types of output the artifact produces. Options are:
+  - `["html", "tsv", "lava", ...]`: A list containing any combination of these values
+  - `"all"`: Generates all available output types
+  - `"standard"`: Generates HTML, TSV, LAVA,and timeline output
+  - Individual options:
+    - `"html"`: Generates HTML output
+    - `"tsv"`: Generates TSV (Tab-Separated Values) output
+    - `"timeline"`: Generates timeline output
+    - `"lava"`: Generates output for LAVA (a specific data processing format)
+    - `"kml"`: Generates KML (Keyhole Markup Language) output for Google Earth
+    - `"none"`: Any output generated (For modules only collecting device info)
+- `artifact_icon`: The name of a feathericon to display in the left sidebar ot the HTML report
+
+This info block provides essential metadata about the artifact and is used by the artifact processor to handle the artifact correctly. The plugin loader will attach this information to the corresponding function, making it accessible via the function's globals.
+
+Note: The key in the `__artifacts_v2__` dictionary must exactly match the name of the function that processes the artifact. This ensures that the artifact processor can correctly associate the artifact information with the processing function.
+
+The functions referenced as entry points in the `__artifacts__` dictionary must be preceded by @artifact_processor and take the following arguments:
 
 * An iterable of the files found which are to be processed (as strings)
 * The path of ILEAPP's output folder(as a string)
@@ -157,8 +160,8 @@ def get_cool_data1(files_found, report_folder, seeker, wrap_text):
     pass  # do processing here
 ```
 
-Plugins are generally expected to provide output in ILEAPP's HTML output format, TSV, and optionally submit records to 
-the timeline. Functions for generating this output can be found in the `artifact_report` and `ilapfuncs` modules. 
+Plugins are generally expected to provide output in ILEAPP's LAVA output format, HTML, TSV, and optionally submit records to 
+the timeline and/or kml files. Functions for generating this output can be found in the `artifact_report` and `ilapfuncs` modules. 
 At a high level, an example might resemble:
 
 ```python
@@ -173,38 +176,31 @@ __artifacts_v2__ = {
         "category": "Really cool artifacts",
         "notes": "",
         "paths": ('*/com.android.cooldata/databases/database*.db',),
-        "function": "get_cool_data1"
+        "output_types": "Output types, often 'all'",
+        "artifact_icon": "feather-icon-name"
     }
 }
 
-import datetime
-from scripts.artifact_report import ArtifactHtmlReport
-import scripts.ilapfuncs
+from scripts.ilapfuncs import artifact_processor
 
-def get_cool_data1(files_found, report_folder, seeker, wrap_text):
-    # let's pretend we actually got this data from somewhere:
-    rows = [
-     (datetime.datetime.now(), "Cool data col 1, value 1", "Cool data col 1, value 2", "Cool data col 1, value 3"),
-     (datetime.datetime.now(), "Cool data col 2, value 1", "Cool data col 2, value 2", "Cool data col 2, value 3"),
-    ]
-    
-    headers = ["Timestamp", "Data 1", "Data 2", "Data 3"]
-    
-    # HTML output:
-    report = ArtifactHtmlReport("Cool stuff")
-    report_name = "Cool DFIR Data"
-    report.start_artifact_report(report_folder, report_name)
-    report.add_script()
-    report.write_artifact_data_table(headers, rows, files_found[0])  # assuming only the first file was processed
-    report.end_artifact_report()
-    
-    # TSV output:
-    scripts.ilapfuncs.tsv(report_folder, headers, rows, report_name, files_found[0])  # assuming first file only
-    
-    # Timeline:
-    scripts.ilapfuncs.timeline(report_folder, report_name, rows, headers)
+@artifact_processor
+def get_artifactname(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    data_list = []
+    source_path = ''
 
+    for file_found in files_found:
+        source_path = str(file_found)
+
+        # ... process data ...
+        data_list.append((col1, col2, col3))
+
+    data_headers = (('Column1', 'datetime'), 'Column2', 'Column3')
+    return data_headers, data_list, source_path
 ```
+
+For more information, read:
+- [Updating Modules for Automatic Output Generation](admin/docs/module_updates.md)
+- [Updating Complex Modules to Include LAVA Output](admin/docs/module_updates_advanced.md)
 
 ## Acknowledgements
 
