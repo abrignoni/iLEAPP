@@ -48,4 +48,4 @@ jobs:
     - name: Push changes
       if: steps.git-check.outputs.changes == 'true'
       run: |
-        git push -f
+        git push
