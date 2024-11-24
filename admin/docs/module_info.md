@@ -11,7 +11,7 @@ Total number of modules: 259
 Number of v1 artifacts: 96  
 Number of v2 artifacts: 219  
 Number of modules with 'lava output': 116  
-Number of modules using 'artifact_icon': 7  
+Number of modules using 'artifact_icon': 8  
 Number of modules with errors or no recognized artifacts: 3  
 
 ## V2 Artifacts Table
@@ -153,7 +153,7 @@ Number of modules with errors or no recognized artifacts: 3
 | [calendarAll.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/calendarAll.py) | calendarEvents | Calendar Events | lava, tsv, timeline |  | List of calendar events | ``**/Calendar.sqlitedb`` |
 | [calendarAll.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/calendarAll.py) | calendarBirthdays | Calendar Birthdays | lava, tsv |  | List of calendar birthdays | ``**/Calendar.sqlitedb`` |
 | [calendarAll.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/calendarAll.py) | calendarList | Calendar List | lava, tsv |  | List of calendars | ``**/Calendar.sqlitedb`` |
-| [callHistory.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/callHistory.py) | callHistory | Call History | standard |  | Extract Call History | ``*/CallHistory.storedata*``, ``*/call_history.db`` |
+| [callHistory.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/callHistory.py) | callHistory | Call History | standard | phone-call | Extract Call History | ``*/CallHistory.storedata*``, ``*/call_history.db`` |
 | [carCD.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/carCD.py) | carCD | Last Car Connection and UDID | none |  |  | ``*/Library/Caches/locationd/cache.plist`` |
 | [celWireless.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/celWireless.py) | celWireless | Cellular Wireless | standard |  | Extracts cellular wireless information from device preferences | ``*wireless/Library/Preferences/com.apple.commcenter.plist``, ``*wireless/Library/Preferences/com.apple.commcenter.device_specific_nobackup.plist`` |
 | [chatgpt.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/chatgpt.py) | chatgpt | ChatGPT |  |  | Get user's ChatGPT conversations, settings and media files. This parser is based on a research project. Parser is validated up to the app's 1.2024.178 | ``**/Containers/Data/Application/*/Library/Application Support/conversations-*/*.*``, ``**/Containers/Data/Application/*/Library/Application Support/drafts-*/*.*``, ``**/Containers/Data/Application/*/Library/Preferences/com.openai.chat.StatsigService.plist``, ``**/Containers/Data/Application/*/Library/Preferences/com.segment.storage.oai.plist``, ``**/Containers/Data/Application/*/Library/Preferences/com.openai.chat.plist``, ``**/Containers/Data/Application/*/tmp/recordings/*.*``, ``**/Containers/Data/Application/*/tmp/photo-*.*``, ``**/Containers/Data/Application/*/tmp/*/*.*`` |

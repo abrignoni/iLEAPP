@@ -9,6 +9,7 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | Source Modules |
 |----------------|
 | accountData |
+| callHistory |
 | subscriberInfo |
 <!-- GET_RECORDS_END -->
 
@@ -77,7 +78,6 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | burnerCache |
 | cachev0 |
 | calendarAll |
-| callHistory |
 | cashApp |
 | chrome |
 | cloudkitCache |
