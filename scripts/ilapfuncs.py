@@ -169,9 +169,12 @@ def convert_ts_int_to_timezone(time, time_offset):
     return timezone_time
 
 def convert_cocoa_core_data_ts_to_utc(cocoa_core_data_ts):
-    unix_timestamp = cocoa_core_data_ts + 978307200
-    finaltime = datetime.fromtimestamp(unix_timestamp, tz=timezone.utc)
-    return(finaltime)
+    if cocoa_core_data_ts:
+        unix_timestamp = cocoa_core_data_ts + 978307200
+        finaltime = datetime.fromtimestamp(unix_timestamp, tz=timezone.utc)
+        return(finaltime)
+    else:
+        return cocoa_core_data_ts
 
 def webkit_timestampsconv(webkittime):
     unix_timestamp = webkittime + 978307200
