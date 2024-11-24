@@ -168,6 +168,11 @@ def convert_ts_int_to_timezone(time, time_offset):
     #return the converted value
     return timezone_time
 
+def convert_cocoa_core_data_ts_to_utc(cocoa_core_data_ts):
+    unix_timestamp = cocoa_core_data_ts + 978307200
+    finaltime = datetime.fromtimestamp(unix_timestamp, tz=timezone.utc)
+    return(finaltime)
+
 def webkit_timestampsconv(webkittime):
     unix_timestamp = webkittime + 978307200
     finaltime = datetime.fromtimestamp(unix_timestamp, tz=timezone.utc)
@@ -357,6 +362,27 @@ def open_sqlite_db_readonly(path):
             path = "%5C%5C%3F%5C" + path
     return sqlite3.connect(f"file:{path}?mode=ro", uri=True)
 
+def get_sqlite_db_records(path, query):
+    '''Opens an sqlite db in read-only mode, so original db (and -wal/journal are intact)'''
+    if is_platform_windows():
+        if path.startswith('\\\\?\\UNC\\'): # UNC long path
+            path = "%5C%5C%3F%5C" + path[4:]
+        elif path.startswith('\\\\?\\'):    # normal long path
+            path = "%5C%5C%3F%5C" + path[4:]
+        elif path.startswith('\\\\'):       # UNC path
+            path = "%5C%5C%3F%5C\\UNC" + path[1:]
+        else:                               # normal path
+            path = "%5C%5C%3F%5C" + path
+    try:
+        with sqlite3.connect(f"file:{path}?mode=ro", uri=True) as db:
+            cursor = db.cursor()
+            cursor.execute(query)
+            records = cursor.fetchall()
+            return records
+    except sqlite3.OperationalError as e:
+        logfunc(f"Error with {path}:")
+        logfunc(f" - {str(e)}")
+    return []
 
 def does_column_exist_in_db(db, table_name, col_name):
     '''Checks if a specific col exists'''
