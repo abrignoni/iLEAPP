@@ -9,8 +9,10 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | Source Modules |
 |----------------|
 | accountData |
+| allTrails |
 | callHistory |
 | subscriberInfo |
+| twint |
 <!-- GET_RECORDS_END -->
 
 ### open_sqlite_db_readonly() Usage
@@ -62,7 +64,6 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | WithingsHealthMate |
 | ZangiChats |
 | addressBook |
-| allTrails |
 | applePodcasts |
 | appleWalletCards |
 | appleWalletPasses |
@@ -138,7 +139,6 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | tileAppDb |
 | tileAppDisc |
 | tileAppNetDb |
-| twint |
 | uberClient |
 | uberPlaces |
 | viber |
