@@ -1,81 +1,78 @@
-# Created by @KefreR (Frank Ressat)
-
-from scripts.ilapfuncs import logfunc, logdevinfo, timeline, kmlgen, tsv, is_platform_windows, open_sqlite_db_readonly
-from scripts.artifact_report import ArtifactHtmlReport
-
 __artifacts_v2__ = {
-    "Twint": {
-        "name": "Twint Transaction Artifacts",
-        "description": "Extract all the data available related to transactions made with the instant payment app Twint prepaid",
-        "author": "@KefreR",
+    "twintTransactions": {
+        "name": "Twint - Transactions",
+        "description": "Extract data related to transactions made with the instant payment app Twint prepaid",
+        "author": "@KefreR (Frank Ressat)",
         "version": "0.1",
         "date": "2023-11-21",
         "requirements": "none",
-        "category": "Twint Prepaid",
+        "category": "Finance",
         "notes": "",
         "paths": ('*/var/mobile/Containers/Data/Application/*/Library/Application Support/Twint.sqlite*'),
-        "function": "get_twint"
+        "output_types": ["standard"],
+        "artifact_icon": "dollar-sign"
     }
 }
 
 
-def get_twint(files_found, report_folder, seeker, wrap_text, time_offset):
+from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, convert_cocoa_core_data_ts_to_utc
+
+@artifact_processor
+def twintTransactions(files_found, report_folder, seeker, wrap_text, time_offset):
+    data_list = []
+    db_file = ''
+    db_records = []
+
+    query = '''
+        SELECT
+            ZTRANSACTION.ZCREATIONDATE, 
+            ZTRANSACTION.ZMODIFIEDTIMESTAMP, 
+            ZTRANSACTION.ZSECONDPHASETIMESTAMP, 
+            ZTRANSACTION.ZSTATUSPENDINGUNTILDATE, 
+            ZTRANSACTION.ZMERCHANTBRANCHNAME, 
+            ZTRANSACTION.ZMERCHANTNAME, 
+            ZTRANSACTION.ZP2PSENDERMOBILENR, 
+            ZTRANSACTION.ZP2PINITIATEMESSAGE, 
+            ZTRANSACTION.ZP2PRECIPIENTMOBILENR, 
+            ZTRANSACTION.ZP2PRECIPIENTNAME, 
+            ZTRANSACTION.ZP2PREPLYMESSAGE, 
+            ZTRANSACTION.ZAUTHORIZEDAMOUNT, 
+            ZTRANSACTION.ZPAIDAMOUNT, 
+            ZTRANSACTION.ZREQUESTEDAMOUNT, 
+            ZTRANSACTION.ZDISCOUNT, 
+            ZTRANSACTION.ZCURRENCY, 
+            ZTRANSACTION.ZCONTENTREFERENCE, 
+            ZTRANSACTION.ZORDERLINK, 
+            ZTRANSACTION.ZP2PHASPICTURE, 
+            ZTRANSACTION.ZORDERSTATEVALUE, 
+            ZTRANSACTION.ZORDERTYPEVALUE, 
+            ZTRANSACTION.ZTRANSACTIONSIDEVALUE, 
+            ZTRANSACTION.ZMERCHANTCONFIRMATION
+        FROM ZTRANSACTION'''
+
     for file_found in files_found:
-        file_found = str(file_found)
-    
         if file_found.endswith('Twint.sqlite'):
+            db_file = file_found
+            db_records = get_sqlite_db_records(db_file, query)
             break
 
-    db = open_sqlite_db_readonly(file_found)
-    cursor = db.cursor()
-    
-    cursor.execute(f'''
-        SELECT
-        ZTRANSACTION.Z_PK,
-        datetime(ZTRANSACTION.ZCREATIONDATE+978307200,'UNIXEPOCH'), 
-        datetime(ZTRANSACTION.ZMODIFIEDTIMESTAMP+978307200,'UNIXEPOCH'), 
-        datetime(ZTRANSACTION.ZSECONDPHASETIMESTAMP+978307200,'UNIXEPOCH'), 
-        datetime(ZTRANSACTION.ZSTATUSPENDINGUNTILDATE+978307200,'UNIXEPOCH'),
-        ZTRANSACTION.ZMERCHANTBRANCHNAME,
-        ZTRANSACTION.ZMERCHANTNAME,
-        ZTRANSACTION.ZP2PSENDERMOBILENR,
-        ZTRANSACTION.ZP2PINITIATEMESSAGE,
-        ZTRANSACTION.ZP2PRECIPIENTMOBILENR, 
-        ZTRANSACTION.ZP2PRECIPIENTNAME ,
-        ZTRANSACTION.ZP2PREPLYMESSAGE,
-        ZTRANSACTION.ZAUTHORIZEDAMOUNT, 
-        ZTRANSACTION.ZPAIDAMOUNT, 
-        ZTRANSACTION.ZREQUESTEDAMOUNT, 
-        ZTRANSACTION.ZDISCOUNT, 
-        ZTRANSACTION.ZCURRENCY,
-        ZTRANSACTION.ZCONTENTREFERENCE, 
-        ZTRANSACTION.ZORDERLINK,
-        ZTRANSACTION.ZP2PHASPICTURE,
-        ZTRANSACTION.ZORDERSTATEVALUE,
-        ZTRANSACTION.ZORDERTYPEVALUE,
-        ZTRANSACTION.ZTRANSACTIONSIDEVALUE,
-        ZTRANSACTION.ZMERCHANTCONFIRMATION FROM ZTRANSACTION''')
+    for record in db_records:
+        creation_date = convert_cocoa_core_data_ts_to_utc(record[0])
+        modified_ts = convert_cocoa_core_data_ts_to_utc(record[1])
+        second_phase_ts = convert_cocoa_core_data_ts_to_utc(record[2])
+        status_pending_until_date = convert_cocoa_core_data_ts_to_utc(record[3])
+        data_list.append(
+            (creation_date, modified_ts, second_phase_ts, status_pending_until_date, record[4], record[5], 
+             record[6], record[7], record[8], record[9], record[10], record[11], record[12], 
+             record[13], record[14], record[15], record[16], record[17], record[18], record[19], 
+             record[20], record[21], record[22]))
 
-    data_list = cursor.fetchall()
-    usagentries = len(data_list)
+    data_headers = (
+        ('Creation date', 'datetime'), ('Sender confirmation date', 'datetime'), ('Receiver validation date', 'datetime'), 
+        ('Transaction expiry date', 'datetime'), 'Merchant branch name', 'Merchant name', 'Sender mobile number', 
+        'Sender message', 'Receiver mobile number', 'Receiver contact name', 'Response message', 
+        'Amount authorized for the transaction', 'Paid amount', 'Requested amount', 'Discount', 'Currency', 
+        'Content reference', 'Order link', 'Presence of multimedia content', 'Transaction status', 'Type of transaction', 
+        'Direction of the transaction', 'Merchant confirmation')
 
-    if usagentries > 0:
-        descritpion ="Twint - Transaction"
-        report = ArtifactHtmlReport(f'{descritpion}')
-        report.start_artifact_report(report_folder, f'{descritpion}')
-        report.add_script()
-        data_headers = (
-            'Index', 'Creation date', 'Sender confirmation date', 'Receiver validation date', 'Transaction expiry date',
-            'Merchant branch name','Merchant name', 'Sender mobile number', 'Sender message', 'Receiver mobile number', 
-            'Receiver contact name', 'Response message', 'Amount authorized for the transaction', 'Paid amount', 
-            'Requested amount', 'Discount', 'Currency', 'Content reference', 'Order link', 'Presence of multimedia content',
-            'Transaction status', 'Type of transaction', 'Direction of the transaction', 'Merchant confirmation')
-        report.write_artifact_data_table(data_headers, data_list, file_found, html_escape=False)
-        report.end_artifact_report()
-
-        tsvname = f'{descritpion}'
-        tsv(report_folder, data_headers, data_list, tsvname)
-    else:
-        logfunc('Twint - No data available')
-
-    db.close()
+    return data_headers, data_list, db_file
