@@ -30,6 +30,7 @@ jobs:
       run: |
         python admin/scripts/device_info_values.py
         python admin/scripts/module_info.py
+        python admin/scripts/modules_parsing_sqlite_db.py
 
     - name: Check for changes
       id: git-check
@@ -43,6 +44,7 @@ jobs:
         git config --local user.name "GitHub Action"
         git add admin/docs/device_info_values.md
         git add admin/docs/module_info.md
+        git add admin/docs/modules_parsing_sqlite_db.md
         git commit -m "Update documentation files"
 
     - name: Push changes

@@ -799,10 +799,39 @@ def telegramMessages(files_found, report_folder, seeker, wrap_text, timezone_off
                     geoProximityReached = 21
                     groupPhoneCall = 22
                     inviteToGroupPhoneCall = 23
+                    setChatTheme = 24
+                    joinedByRequest = 25
+                    webViewData = 26
+                    giftPremium = 27
+                    topicCreated = 28
+                    topicEdited = 29
+                    suggestedProfilePhoto = 30
+                    attachMenuBotAllowed = 31
+                    requestedPeer = 32
+                    setChatWallpaper = 33
+                    setSameChatWallpaper = 34
+                    botAppAccessGranted = 35
+                    giftCode = 36
+                    giveawayLaunched = 37
+                    joinedChannel = 38
+                    giveawayResults = 39
+                    boostsApplied = 40
+                    paymentRefunded = 41
+                    giftStars = 42
+                    prizeStars = 43
+                    starGift = 44
                     
                 def __init__(self, dec):
                     raw = {k: v for k, t, v in dec._iter_kv()}
-                    self.type = self.Type(raw.get('_rawValue', 0))
+                    raw_value = raw.get('_rawValue', 0)
+                    try:
+                        self.type = self.Type(raw_value)
+                    except ValueError:
+                        print(f"ValueError: Unknown type value '{raw_value}', defaulting to 'unknown'.")
+                        self.type = self.Type.unknown
+                    except Exception as e:
+                        print(f"Unexpected error: {e}, defaulting to 'unknown'.")
+                        self.type = self.Type.unknown
                     if '_rawValue' in raw:
                         del raw['_rawValue']
                     self.payload = raw

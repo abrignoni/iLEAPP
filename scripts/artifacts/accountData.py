@@ -9,46 +9,41 @@ __artifacts_v2__ = {
         "category": "Accounts",
         "notes": "",
         "paths": ('*/mobile/Library/Accounts/Accounts3.sqlite*',),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": "user"
     }
 }
 
 
-from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, convert_ts_human_to_timezone_offset
+from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, convert_cocoa_core_data_ts_to_utc
 
 @artifact_processor
 def accountData(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
     db_file = ''
+    db_records = []
+
+    query = '''
+    SELECT
+        zdate,
+        zaccounttypedescription,
+        zusername,
+        zaccountdescription,
+        zaccount.zidentifier,
+        zaccount.zowningbundleid
+    FROM zaccount, zaccounttype 
+    WHERE zaccounttype.z_pk=zaccount.zaccounttype
+    '''
 
     for file_found in files_found:
         if file_found.endswith('Accounts3.sqlite'):
             db_file = file_found
+            db_records = get_sqlite_db_records(db_file, query)
             break
     
-    if db_file:
-        db = open_sqlite_db_readonly(file_found)
-        cursor = db.cursor()
-
-        cursor.execute('''
-        SELECT
-            datetime(zdate+978307200,'unixepoch'),
-            zaccounttypedescription,
-            zusername,
-            zaccountdescription,
-            zaccount.zidentifier,
-            zaccount.zowningbundleid
-        FROM zaccount, zaccounttype 
-        WHERE zaccounttype.z_pk=zaccount.zaccounttype
-        ''')
-
-        all_rows = cursor.fetchall()
-
-        for row in all_rows:
-            timestamp = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
-            data_list.append((timestamp,row[1],row[2],row[3],row[4],row[5]))                
-
-        db.close()
+    for record in db_records:
+        timestamp = convert_cocoa_core_data_ts_to_utc(record[0])
+        data_list.append((timestamp, record[1], record[2], record[3], record[4], record[5]))                
 
     data_headers = (
         ('Timestamp', 'datetime'), 

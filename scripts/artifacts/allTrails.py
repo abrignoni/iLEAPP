@@ -9,7 +9,8 @@ __artifacts_v2__ = {
         "category": "Health & Fitness",
         "notes": "",
         "paths": ('*/Documents/AllTrails.sqlite*'),
-        "output_types": ["html", "tsv", "lava"]
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "map"
     },
     "allTrailsUserInfo": {
         "name": "AllTrails - User Info",
@@ -21,65 +22,54 @@ __artifacts_v2__ = {
         "category": "Health & Fitness",
         "notes": "",
         "paths": ('*/Documents/AllTrails.sqlite*'),
-        "output_types": "all"
+        "output_types": "all",
+        "artifact_icon": "user"
     }
 }
 
 
-from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, convert_ts_human_to_timezone_offset
+from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, convert_cocoa_core_data_ts_to_utc
 
 @artifact_processor
 def allTrailsTrailDetails(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
     db_file = ''
+    db_records = []
+
+    query = '''
+    SELECT 
+        ZTRAIL.ZNAME,
+        ZTRAIL.ZROUTETYPENAME,
+        CASE ZACTIVITYSTATS.ZDIFFICULTY
+            WHEN 1 THEN 'Easy'
+            WHEN 3 THEN 'Moderate'
+            WHEN 5 THEN 'Hard'
+        END,
+        ZTRAIL.ZRATING,
+        ZTRAIL.ZREVIEWCOUNT,
+        ZTRAIL.ZLENGTH AS "Length (Meters)",
+        ZTRAIL.ZELEVATIONGAIN AS "Elevation Gain (Meters)",
+        ZLOCATION.ZLATITUDE,
+        ZLOCATION.ZLONGITUDE,
+        ZLOCATION.ZCITY,
+        ZLOCATION.ZREGION,
+        ZLOCATION.ZREGIONNAME,
+        ZLOCATION.ZPOSTALCODE,
+        ZLOCATION.ZCOUNTRY,
+        ZLOCATION.ZCOUNTRYNAME,
+        ZPARKAREA.ZNAME AS "Park Area Name"
+    FROM ZLOCATION
+    JOIN ZTRAIL ON ZLOCATION.Z_PK = ZTRAIL.ZLOCATION
+    JOIN ZPARKAREA ON ZTRAIL.Z_PK = ZPARKAREA.ZTRAIL
+    JOIN ZACTIVITYSTATS ON ZTRAIL.Z_PK = ZACTIVITYSTATS.ZTRAIL
+    '''
 
     for file_found in files_found:
         if file_found.endswith('AllTrails.sqlite'):
             db_file = file_found
+            db_records = get_sqlite_db_records(db_file, query)
             break
     
-    if db_file:
-        db = open_sqlite_db_readonly(file_found)
-        cursor = db.cursor()
-        
-        cursor.execute('''
-        SELECT 
-            ZTRAIL.ZNAME,
-            ZTRAIL.ZROUTETYPENAME,
-            CASE ZACTIVITYSTATS.ZDIFFICULTY
-                WHEN 1 THEN 'Easy'
-                WHEN 3 THEN 'Moderate'
-                WHEN 5 THEN 'Hard'
-            END,
-            ZTRAIL.ZRATING,
-            ZTRAIL.ZREVIEWCOUNT,
-            ZTRAIL.ZLENGTH AS "Length (Meters)",
-            ZTRAIL.ZELEVATIONGAIN AS "Elevation Gain (Meters)",
-            ZLOCATION.ZLATITUDE,
-            ZLOCATION.ZLONGITUDE,
-            ZLOCATION.ZCITY,
-            ZLOCATION.ZREGION,
-            ZLOCATION.ZREGIONNAME,
-            ZLOCATION.ZPOSTALCODE,
-            ZLOCATION.ZCOUNTRY,
-            ZLOCATION.ZCOUNTRYNAME,
-            ZPARKAREA.ZNAME AS "Park Area Name"
-        FROM ZLOCATION
-        JOIN ZTRAIL ON ZLOCATION.Z_PK = ZTRAIL.ZLOCATION
-        JOIN ZPARKAREA ON ZTRAIL.Z_PK = ZPARKAREA.ZTRAIL
-        JOIN ZACTIVITYSTATS ON ZTRAIL.Z_PK = ZACTIVITYSTATS.ZTRAIL
-        ''')
-
-        all_rows = cursor.fetchall()
-
-        for row in all_rows:
-            data_list.append(
-                (row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], 
-                    row[9], row[10], row[11], row[12], row[13], row[14], row[15],)
-                )
-
-        db.close()
-
     data_headers = (
         'Trail Name', 
         'Route Type', 
@@ -98,54 +88,48 @@ def allTrailsTrailDetails(files_found, report_folder, seeker, wrap_text, timezon
         'Country Name', 
         'Parking Area Name'
         )
-    return data_headers, data_list, db_file
+    return data_headers, db_records, db_file
 
 
 @artifact_processor
 def allTrailsUserInfo(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
-    db_file = None
+    db_file = ''
+    db_records = []
+
+    query = '''
+    SELECT 
+        ZUSER.ZCREATIONTIME,
+        ZUSER.ZFIRSTNAME,
+        ZUSER.ZLASTNAME,
+        ZUSER.ZUSERNAME,
+        ZPROFILE.ZEMAIL,
+        ZUSER.ZREFERRALLINK,
+        ZLOCATION.ZLATITUDE,
+        ZLOCATION.ZLONGITUDE,
+        ZLOCATION.ZCITY,
+        ZLOCATION.ZREGION,
+        ZLOCATION.ZREGIONNAME,
+        ZLOCATION.ZCOUNTRY,
+        ZLOCATION.ZCOUNTRYNAME,
+        ZLOCATION.ZPOSTALCODE
+    FROM ZUSER
+    INNER JOIN ZPROFILE ON ZUSER.Z_PK = ZPROFILE.ZUSER
+    INNER JOIN ZLOCATION ON ZUSER.ZLOCATION = ZLOCATION.Z_PK
+    '''
 
     for file_found in files_found:
         if file_found.endswith('AllTrails.sqlite'):
             db_file = file_found
+            db_records = get_sqlite_db_records(db_file, query)
             break
     
-    if db_file:
-        db = open_sqlite_db_readonly(file_found)
-        cursor = db.cursor()
-        
-        cursor.execute('''
-        SELECT 
-            datetime(ZUSER.ZCREATIONTIME + 978307200,'unixepoch') AS "Creation Timestamp",
-            ZUSER.ZFIRSTNAME,
-            ZUSER.ZLASTNAME,
-            ZUSER.ZUSERNAME,
-            ZPROFILE.ZEMAIL,
-            ZUSER.ZREFERRALLINK,
-            ZLOCATION.ZLATITUDE,
-            ZLOCATION.ZLONGITUDE,
-            ZLOCATION.ZCITY,
-            ZLOCATION.ZREGION,
-            ZLOCATION.ZREGIONNAME,
-            ZLOCATION.ZCOUNTRY,
-            ZLOCATION.ZCOUNTRYNAME,
-            ZLOCATION.ZPOSTALCODE
-        FROM ZUSER
-        INNER JOIN ZPROFILE ON ZUSER.Z_PK = ZPROFILE.ZUSER
-        INNER JOIN ZLOCATION ON ZUSER.ZLOCATION = ZLOCATION.Z_PK
-        ''')
 
-        all_rows = cursor.fetchall()
-
-        for row in all_rows:
-            timestamp = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
-            data_list.append(
-                (timestamp, row[1], row[2], row[3], row[4], row[5], row[6], 
-                    row[7], row[8], row[9], row[10], row[11], row[12], row[13])
-                )
-
-        db.close()
+    for record in db_records:
+        creation_timestamp = convert_cocoa_core_data_ts_to_utc(record[0])
+        data_list.append(
+            (creation_timestamp, record[1], record[2], record[3], record[4], record[5], record[6], 
+             record[7], record[8], record[9], record[10], record[11], record[12], record[13]))
 
     data_headers = (
         ('Creation Timestamp', 'datetime'), 

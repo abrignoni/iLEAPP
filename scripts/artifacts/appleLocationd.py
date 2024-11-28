@@ -1,5 +1,5 @@
 __artifacts_v2__ = {
-    "get_applelocationd": {
+    "applelocationd": {
         "name": "Location Services",
         "description": "Extracts location services settings",
         "author": "@AlexisBrignoni",
@@ -17,7 +17,7 @@ import plistlib
 from scripts.ilapfuncs import artifact_processor, device_info, webkit_timestampsconv
 
 @artifact_processor
-def get_applelocationd(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def applelocationd(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
     source_path = str(files_found[0])
 

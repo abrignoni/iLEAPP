@@ -2,10 +2,10 @@
 
 
 a = Analysis(
-    ['ileappGUI.py'],
-    pathex=['scripts/artifacts'],
+    ['../../ileapp.py'],
+    pathex=['../scripts/artifacts'],
     binaries=[],
-    datas=[('scripts/', 'scripts')],
+    datas=[('../', 'scripts')],
     hiddenimports=[
         'astc_decomp_faster',
         'bencoding',
@@ -31,33 +31,20 @@ pyz = PYZ(a.pure)
 exe = EXE(
     pyz,
     a.scripts,
+    a.binaries,
+    a.datas,
     [],
-    exclude_binaries=True,
-    name='ileappGUI',
+    name='ileapp',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    console=False,
+    upx_exclude=[],
+    runtime_tmpdir=None,
+    console=True,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-)
-coll = COLLECT(
-    exe,
-    a.binaries,
-    a.datas,
-    strip=False,
-    upx=True,
-    upx_exclude=[],
-    name='ileappGUI',
-)
-app = BUNDLE(
-    coll,
-    name='ileappGUI.app',
-    icon='scripts/icon.icns',
-    bundle_identifier='4n6.brigs.iLEAPP',
-    version='2.0.0'
 )
