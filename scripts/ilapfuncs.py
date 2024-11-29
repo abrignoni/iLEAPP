@@ -43,6 +43,16 @@ thumb_size = 256, 256
 identifiers = {}
 icons = {}
 
+def get_file_path(files_found, filename):
+    """Returns the path of the searched filename id exists or returns None"""
+    try:
+        for file_found in files_found:
+            if file_found.endswith(filename):
+                return file_found
+    except Exception as e:
+        logfunc(f"Error: {str(e)}")
+    return None        
+
 def strip_tuple_from_headers(data_headers):
     return [header[0] if isinstance(header, tuple) else header for header in data_headers]
 
@@ -363,28 +373,27 @@ def open_sqlite_db_readonly(path):
             path = "%5C%5C%3F%5C\\UNC" + path[1:]
         else:                               # normal path
             path = "%5C%5C%3F%5C" + path
-    return sqlite3.connect(f"file:{path}?mode=ro", uri=True)
+    try:
+        if path:
+            with sqlite3.connect(f"file:{path}?mode=ro", uri=True) as db:
+                return db
+    except sqlite3.OperationalError as e:
+        logfunc(f"Error with {path}:")
+        logfunc(f" - {str(e)}")
+    return None
+    # return sqlite3.connect(f"file:{path}?mode=ro", uri=True)
 
 def get_sqlite_db_records(path, query):
-    '''Opens an sqlite db in read-only mode, so original db (and -wal/journal are intact)'''
-    if is_platform_windows():
-        if path.startswith('\\\\?\\UNC\\'): # UNC long path
-            path = "%5C%5C%3F%5C" + path[4:]
-        elif path.startswith('\\\\?\\'):    # normal long path
-            path = "%5C%5C%3F%5C" + path[4:]
-        elif path.startswith('\\\\'):       # UNC path
-            path = "%5C%5C%3F%5C\\UNC" + path[1:]
-        else:                               # normal path
-            path = "%5C%5C%3F%5C" + path
-    try:
-        with sqlite3.connect(f"file:{path}?mode=ro", uri=True) as db:
+    db = open_sqlite_db_readonly(path)
+    if db:
+        try:
             cursor = db.cursor()
             cursor.execute(query)
             records = cursor.fetchall()
             return records
-    except sqlite3.OperationalError as e:
-        logfunc(f"Error with {path}:")
-        logfunc(f" - {str(e)}")
+        except sqlite3.OperationalError as e:
+            logfunc(f"Error with {path}:")
+            logfunc(f" - {str(e)}")
     return []
 
 def does_column_exist_in_db(db, table_name, col_name):
@@ -404,15 +413,17 @@ def does_column_exist_in_db(db, table_name, col_name):
         pass
     return False
 
-def does_table_exist(db, table_name):
+def does_table_exist(path, table_name):
     '''Checks if a table with specified name exists in an sqlite db'''
-    try:
-        query = f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}'"
-        cursor = db.execute(query)
-        for row in cursor:
-            return True
-    except sqlite3.Error as ex:
-        logfunc(f"Query error, query={query} Error={str(ex)}")
+    db = open_sqlite_db_readonly(path)
+    if db:    
+        try:
+            query = f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}'"
+            cursor = db.execute(query)
+            for row in cursor:
+                return True
+        except sqlite3.Error as ex:
+            logfunc(f"Query error, query={query} Error={str(ex)}")
     return False
 
 def does_view_exist(db, table_name):
