@@ -14,12 +14,12 @@ __artifacts_v2__ = {
     }
 }
 
-from scripts.ilapfuncs import artifact_processor, get_plist_file_content
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content
 
 @artifact_processor
 def accountConfig(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    source_path = get_file_path(files_found, "com.apple.accounts.exists.plist")
     data_list = []
-    source_path = str(files_found[0])
 
     pl = get_plist_file_content(source_path)
     for key, val in pl.items():
