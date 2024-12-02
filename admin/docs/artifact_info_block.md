@@ -1,6 +1,6 @@
 # Artifact Info Block Structure
 
-## Version 2
+## Version 2 (current version)
 
 The artifact info block is defined as a dictionary named `__artifacts_v2__` at the top of the artifact script. It contains key information about the artifact. Here's the structure:
 
@@ -27,7 +27,7 @@ __artifacts_v2__ = {
 - `description`: A brief explanation of what the artifact extracts or analyzes
 - `author`: The name and/or username of the module's author
 - `version`: The current version of the module script
-- `date`: The date of the latest update in YYYY-MM-DD format
+- `date`: The creation date of the module in YYYY-MM-DD format
 - `requirements`: Any specific requirements for the artifact, or "none" if there are no special requirements
 - `category`: The category the artifact belongs to
 - `notes`: Any additional information about the artifact (can be an empty string)
@@ -43,12 +43,13 @@ __artifacts_v2__ = {
     - `"lava"`: Generates output for LAVA (a specific data processing format)
     - `"kml"`: Generates KML (Keyhole Markup Language) output for Google Earth
     - `"none"`: Any output generated (For modules only collecting device info)
+- `artifact_icon`: The name of the feathericon to display in the left sidebar ot the HTML report. List of available icons on  [feathericons.com](https://feathericons.com) website
 
 This info block provides essential metadata about the artifact and is used by the artifact processor to handle the artifact correctly. The plugin loader will attach this information to the corresponding function, making it accessible via the function's globals.
 
 Note: The key in the `__artifacts_v2__` dictionary must exactly match the name of the function that processes the artifact. This ensures that the artifact processor can correctly associate the artifact information with the processing function.
 
-## Version 3
+## Version 3 (Not implemented yet)
 
 The artifact info block is defined as a dictionary named `__artifacts_v3__` at the top of the artifact script. It contains key information about the artifact. Here's the updated structure:
 

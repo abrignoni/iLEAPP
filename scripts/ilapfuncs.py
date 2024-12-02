@@ -186,6 +186,13 @@ def convert_cocoa_core_data_ts_to_utc(cocoa_core_data_ts):
     else:
         return cocoa_core_data_ts
 
+def convert_unix_ts_to_utc(ts): #This int timestamp to human format & utc
+    if ts:
+        timestamp = datetime.fromtimestamp(ts, tz=timezone.utc)
+        return timestamp
+    else:
+        return ts
+
 def webkit_timestampsconv(webkittime):
     unix_timestamp = webkittime + 978307200
     finaltime = datetime.fromtimestamp(unix_timestamp, tz=timezone.utc)
@@ -224,6 +231,16 @@ def convert_plist_date_to_timezone_offset(plist_date, timezone_offset):
             )
         iso_date = datetime.fromisoformat(str_date).strftime("%Y-%m-%d %H:%M:%S")
         return convert_ts_human_to_timezone_offset(iso_date, timezone_offset)
+    else:
+        return plist_date
+
+def convert_plist_date_to_utc(plist_date):
+    if plist_date:
+        str_date = '%04d-%02d-%02dT%02d:%02d:%02dZ' % (
+            plist_date.year, plist_date.month, plist_date.day, 
+            plist_date.hour, plist_date.minute, plist_date.second
+            )
+        return datetime.fromisoformat(str_date).strftime("%Y-%m-%d %H:%M:%S")
     else:
         return plist_date
 

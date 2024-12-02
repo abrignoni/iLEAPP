@@ -22,7 +22,7 @@ If there are double asterisk marks at the start of the search pattern in the pat
 
 ```python
 __artifacts_v2__ = {
-    "get_artifactname": {  # This should match the function name exactly
+    "function_name": {  # This should match exactly the function name in the script
         "name": "Human-readable Artifact Name",
         "description": "Brief description of what the artifact does",
         "author": "@AuthorUsername",
@@ -32,10 +32,12 @@ __artifacts_v2__ = {
         "category": "Artifact Category",
         "notes": "",
         "paths": ('Path/to/artifact/files',),
-        "output_types": "all"  # or "standard" or ["html", "tsv", "timeline", "kml", "lava"]
+        "output_types": "all"  # or "standard" or ["html", "tsv", "timeline", "kml", "lava"],
+        "artifact_icon": "feather-icon-name"
     }
 }
 ```
+Read [Artifact Info Block Structure](./artifact_info_block.md) for more info about `__artifacts_v2__` block
 
 ### 2. Modify imports
 
@@ -50,7 +52,7 @@ from scripts.artifact_report import ArtifactHtmlReport
 #### Modify this import
 
 ```python
-from scripts.ilapfuncs import artifact_processor
+from scripts.ilapfuncs import artifact_processor, get_file_path
 ```
 
 ### 3. Add the `@artifact_processor` decorator
@@ -59,7 +61,7 @@ Add the decorator to the main function:
 
 ```python
 @artifact_processor
-def get_artifactname(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def artifactname(files_found, report_folder, seeker, wrap_text, timezone_offset):
     # ... function body ...
 ```
 
@@ -68,22 +70,28 @@ def get_artifactname(files_found, report_folder, seeker, wrap_text, timezone_off
 Modify the function to return data instead of generating reports:
 
 ```python
-def get_artifactname(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def artifactname(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    source_path = get_file_path(files_found, "filename")
     data_list = []
-    data_headers = ()
-    source_path = ''
 
-    for file_found in files_found:
-        source_path = str(file_found)
+    # ... Get file contents and process data ...
+    # PList file
+    pl = get_plist_file_content(source_path)
+    for key, val in pl.items():
+        data_list.append((key, val))
 
-        # ... process data ...
-        data_list.append((col1, col2, col3))
-
+    # SQLite database
+    query = '''SQL query'''
+    db_records = get_sqlite_db_records(db_file, query)
+    for record in db_records:
+        timestamp = convert_cocoa_core_data_ts_to_utc(record[0])
+        data_list.append((record[0], record[1], record[2],))
+    
     data_headers = (('Column1', 'datetime'), 'Column2', 'Column3')
     return data_headers, data_list, source_path
 ```
 
-**Be sure to not use 'Values' as a column name in the data_headers tuple.**
+[Avoid using SQL Reserved Words in Column Names](#avoiding-sql-reserved-words-in-column-names).
 
 Be sure to mark columns with their data type if they are one of the special handler types. It's ok if all data in a marked column doesn't conform to the marked type, as it will be tested and displayed as provided if it doesn't match.
 
@@ -97,23 +105,17 @@ Currently the special handler types are:
 
 If the artifact is added to the timeline, be sure that the first column is a datetime or date type.
 
-For timestamps in SQLite databases, this code is actually used to support timezone offset parameter chosen by the user.
+For timestamps in SQLite databases, these functions are actually used to convert timestamps in UTC in human readable format.
 
 ```python
-start_time = convert_ts_human_to_utc(row[1])
-start_time = convert_utc_human_to_timezone(start_time,timezone_offset)
+start_time = convert_unix_ts_to_utc(record[0]) # Unix timestamp: e.g. 1733161051
+start_time = convert_cocoa_core_data_ts_to_utc(record[0]) # Cocoa Core Data timestamp: e.g. 754853889
 ```
 
-If there is no value, script execution is interrupted and artifact is not added to any report. A new function has been added to ilapfuncs.py and must be preferably be used.
+For plist files, convert_plist_date_to_utc function has been added to ilapfuncs.py to process the datetime objects (e.g. '2023-05-08T18:22:10Z').
 
 ```python
-start_time = convert_ts_human_to_timezone_offset(row[1], timezone_offset)
-```
-
-For plist files, convert_plist_date_to_timezone_offset function has been added to ilapfuncs.py to process the datetime objects (e.g. '2023-05-08T18:22:10Z') and support lava-ouput and timezone offset in other reports.
-
-```python
-last_modified_date = convert_plist_date_to_timezone_offset(last_modified_date, timezone_offset)
+last_modified_date = convert_plist_date_to_utc(last_modified_date)
 ```
 
 ### 5. Remove manual report generation code
@@ -124,7 +126,7 @@ Delete any code related to manual report generation, including:
 - Calling `report.start_artifact_report`
 - Writing data to TSV files
 - Generating timeline or KML files
-- Any print or logging statements about no data being available
+- Any print or logging statements about no data being available: `print()` or `logdev()`
 
 ### 6. Add chat parameters if the artifact should support a threaded type view
 
@@ -180,9 +182,19 @@ logdevinfo(f'<b>Serial Number: </b>{serial}')
 #### New Method (device_info):
 
 ```python
-device_info("Device Information", "IMEI", imei)
-device_info("Device Information", "Serial Number", serial)
+device_info("Advertising Identifier", "Apple Advertising Identifier", val, source_path)
+device_info("Device Information", "IMEI", imei, source_path)
 ```
+
+It the module doesn't generate any output, specifiy `"output_types": "none"` in the `__artifacts_v2__` block and replace the return statement
+```python
+return data_headers, data_list, source_path
+``` 
+with
+```python
+return (), [], source_path
+``` 
+
 
 Key differences:
 
@@ -235,6 +247,7 @@ When updating modules, it's crucial to avoid using SQL reserved words as column 
 - 'key'
 - 'order'
 - 'group'
+- 'index'
 
 To address this:
 
@@ -246,6 +259,7 @@ Examples of how to modify column names:
 - 'value' could become 'data_value', 'setting_value', or 'recorded_value'
 - 'key' could become 'encryption_key', 'lookup_key', or 'identifier'
 - 'order' could become 'sort_order', 'sequence', or 'priority'
+- 'index' could become 'idx', '#', 'Number', or 'N°'
 
 ```python
 # Before
@@ -259,27 +273,23 @@ By avoiding SQL reserved words in column names, we prevent potential issues with
 
 ### Timestamp Handling and Timezone Offsets
 
-A new function `convert_plist_date_to_timezone_offset` is being added to `ilapfuncs.py` to address issues with timestamp handling, particularly for plist files. This function:
+A new function `convert_plist_date_to_utc` is being added to `ilapfuncs.py` to address issues with timestamp handling, particularly for plist files. This function:
 
 1. Manages date objects in the format 'YYYY-MM-DDTHH:MM:SSZ' found in plist files.
-2. Converts timestamps to support the timezone offset chosen by the user.
-3. Ensures correct timestamp storage in the lava SQLite database.
+2. Ensures correct timestamp storage in the lava SQLite database.
 
 When working with timestamps, especially from plist files:
 
-- Use the `convert_plist_date_to_timezone_offset` function to process datetime objects.
-- Ensure that timestamps are treated as UTC when converting for SQLite storage.
+- Use the `convert_plist_date_to_utc` function to process datetime objects.
 - Be aware that this change improves consistency between HTML and SQLite outputs.
 
 Example usage:
 
 ```python
-from scripts.ilapfuncs import convert_plist_date_to_timezone_offset
+from scripts.ilapfuncs import convert_plist_date_to_utc
 
 # ... in your processing function ...
-timestamp = convert_plist_date_to_timezone_offset(plist_date, timezone_offset)
+timestamp = convert_plist_date_to_utc(plist_date)
 ```
 
-This update resolves previous inconsistencies where timestamps in HTML didn't support timezone offsets and SQLite entries were incorrectly treated as local time instead of UTC.
-
-These changes ensure that timestamp handling is consistent across all output types and correctly respects the user's chosen timezone offset.
+These changes ensure that timestamp handling is consistent across all output types.
