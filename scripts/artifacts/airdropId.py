@@ -14,13 +14,13 @@ __artifacts_v2__ = {
     }
 }
 
-from scripts.ilapfuncs import artifact_processor, get_plist_content, device_info
+from scripts.ilapfuncs import artifact_processor, get_plist_file_content, device_info
 
 @artifact_processor
 def airdropId(files_found, report_folder, seeker, wrap_text, timezone_offset):
     source_path = str(files_found[0])
 
-    pl = get_plist_content(source_path)
+    pl = get_plist_file_content(source_path)
     for key, val in pl.items():
         if key == 'AirDropID':
             device_info("Airdrop", "Airdrop ID", val, source_path)
