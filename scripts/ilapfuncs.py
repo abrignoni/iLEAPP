@@ -334,7 +334,30 @@ def get_next_unused_name(path):
         num += 1
     return os.path.join(folder, new_name)
 
-def get_plist_content(file_path):
+def get_plist_content(data):
+    try:
+        plist_content = plistlib.loads(data)
+        if plist_content.get('$archiver', '') == 'NSKeyedArchiver':
+            return nska_deserialize.deserialize_plist_from_string(data)
+        else:
+            return plist_content
+    except plistlib.InvalidFileException:
+        logfunc(f"Error: Invalid plist data")
+    except xml.parsers.expat.ExpatError:
+        logfunc(f"Error: Malformed XML")
+    except TypeError as e:
+        logfunc(f"Error: Type error when parsing plist data: {str(e)}")
+    except ValueError as e:
+        logfunc(f"Error: Value error when parsing plist data: {str(e)}")
+    except OverflowError as e:
+        logfunc(f"Error: Overflow error when parsing plist data: {str(e)}")
+    except nska_deserialize.DeserializeError:
+        logfunc(f"Error: Invalid NSKeyedArchive plist data")
+    except Exception as e:
+        logfunc(f"Unexpected error reading plist data: {str(e)}")
+    return {}
+
+def get_plist_file_content(file_path):
     try:
         with open(file_path, 'rb') as file:
             plist_content = plistlib.load(file)
@@ -357,7 +380,7 @@ def get_plist_content(file_path):
     except OverflowError as e:
         logfunc(f"Error: Overflow error when parsing plist {file_path}: {str(e)}")
     except nska_deserialize.DeserializeError:
-        logfunc(f"Error: {file_path} is not an NSKeyedArchiveInvalid plist file")
+        logfunc(f"Error: {file_path} is not a valid NSKeyedArchive plist file")
     except Exception as e:
         logfunc(f"Unexpected error reading plist file {file_path}: {str(e)}")
     return {}

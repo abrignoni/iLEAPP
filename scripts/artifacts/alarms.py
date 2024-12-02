@@ -14,7 +14,7 @@ __artifacts_v2__ = {
     }
 }
 
-from scripts.ilapfuncs import artifact_processor, get_plist_content, convert_plist_date_to_timezone_offset
+from scripts.ilapfuncs import artifact_processor, get_plist_file_content, convert_plist_date_to_timezone_offset
 
 def decode_repeat_schedule(repeat_schedule_value):
     days_list = {
@@ -47,7 +47,7 @@ def alarms(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
     source_path = str(files_found[0])
 
-    pl = get_plist_content(source_path)
+    pl = get_plist_file_content(source_path)
     if 'MTAlarms' in pl:
         if 'MTAlarms' in pl['MTAlarms']:
             for alarms in pl['MTAlarms']['MTAlarms']:
