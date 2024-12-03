@@ -240,7 +240,7 @@ def convert_plist_date_to_utc(plist_date):
             plist_date.year, plist_date.month, plist_date.day, 
             plist_date.hour, plist_date.minute, plist_date.second
             )
-        return datetime.fromisoformat(str_date).strftime("%Y-%m-%d %H:%M:%S")
+        return datetime.fromisoformat(str_date)
     else:
         return plist_date
 
@@ -423,15 +423,20 @@ def open_sqlite_db_readonly(path):
     return None
     # return sqlite3.connect(f"file:{path}?mode=ro", uri=True)
 
-def get_sqlite_db_records(path, query):
+def get_sqlite_db_records(path, query, attach_query=None):
     db = open_sqlite_db_readonly(path)
     if db:
         try:
             cursor = db.cursor()
+            if attach_query:
+                cursor.execute(attach_query)
             cursor.execute(query)
             records = cursor.fetchall()
             return records
         except sqlite3.OperationalError as e:
+            logfunc(f"Error with {path}:")
+            logfunc(f" - {str(e)}")
+        except sqlite3.ProgrammingError as e:
             logfunc(f"Error with {path}:")
             logfunc(f" - {str(e)}")
     return []
