@@ -27,14 +27,12 @@ __artifacts_v2__ = {
     }
 }
 
-
-from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, convert_cocoa_core_data_ts_to_utc
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, convert_cocoa_core_data_ts_to_utc
 
 @artifact_processor
 def allTrailsTrailDetails(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    source_path = get_file_path(files_found, "AllTrails.sqlite")
     data_list = []
-    db_file = ''
-    db_records = []
 
     query = '''
     SELECT 
@@ -64,12 +62,6 @@ def allTrailsTrailDetails(files_found, report_folder, seeker, wrap_text, timezon
     JOIN ZACTIVITYSTATS ON ZTRAIL.Z_PK = ZACTIVITYSTATS.ZTRAIL
     '''
 
-    for file_found in files_found:
-        if file_found.endswith('AllTrails.sqlite'):
-            db_file = file_found
-            db_records = get_sqlite_db_records(db_file, query)
-            break
-    
     data_headers = (
         'Trail Name', 
         'Route Type', 
@@ -88,14 +80,16 @@ def allTrailsTrailDetails(files_found, report_folder, seeker, wrap_text, timezon
         'Country Name', 
         'Parking Area Name'
         )
-    return data_headers, db_records, db_file
+    
+    data_list = get_sqlite_db_records(source_path, query)
+
+    return data_headers, data_list, source_path
 
 
 @artifact_processor
 def allTrailsUserInfo(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    source_path = get_file_path(files_found, "AllTrails.sqlite")
     data_list = []
-    db_file = ''
-    db_records = []
 
     query = '''
     SELECT 
@@ -118,19 +112,6 @@ def allTrailsUserInfo(files_found, report_folder, seeker, wrap_text, timezone_of
     INNER JOIN ZLOCATION ON ZUSER.ZLOCATION = ZLOCATION.Z_PK
     '''
 
-    for file_found in files_found:
-        if file_found.endswith('AllTrails.sqlite'):
-            db_file = file_found
-            db_records = get_sqlite_db_records(db_file, query)
-            break
-    
-
-    for record in db_records:
-        creation_timestamp = convert_cocoa_core_data_ts_to_utc(record[0])
-        data_list.append(
-            (creation_timestamp, record[1], record[2], record[3], record[4], record[5], record[6], 
-             record[7], record[8], record[9], record[10], record[11], record[12], record[13]))
-
     data_headers = (
         ('Creation Timestamp', 'datetime'), 
         'First Name', 
@@ -147,4 +128,13 @@ def allTrailsUserInfo(files_found, report_folder, seeker, wrap_text, timezone_of
         'Country Name', 
         'Zip Code'
         )
-    return data_headers, data_list, db_file
+
+    db_records = get_sqlite_db_records(source_path, query)    
+
+    for record in db_records:
+        creation_timestamp = convert_cocoa_core_data_ts_to_utc(record[0])
+        data_list.append(
+            (creation_timestamp, record[1], record[2], record[3], record[4], record[5], record[6], 
+             record[7], record[8], record[9], record[10], record[11], record[12], record[13]))
+
+    return data_headers, data_list, source_path
