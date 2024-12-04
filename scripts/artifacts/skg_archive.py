@@ -45,6 +45,7 @@ def skg_archive(files_found, report_folder, seeker, wrap_text, timezone_offset):
                 d[2].get('kMDItemAuthors'),
                 d[2].get('kMDItemContentType'),
                 d[2].get('kMDItemRecipientEmailAddresses'),
+                d
             )
 
             if record not in data_list:
@@ -52,6 +53,6 @@ def skg_archive(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
     data_headers = (
          ('_kMDItemInterestingDate', 'datetime'), ('kMDItemContentCreationDate', 'datetime'), '_kMDItemBundleID', '_kMDItemOID', '_kMDItemExternalID', '_kMDItemDomainIdentifier',
-         '_kMDItemSnippet', 'kMDItemAuthorEmailAddresses', 'kMDItemAuthors', 'kMDItemContentType', 'kMDItemRecipientEmailAddresses')
+         '_kMDItemSnippet', 'kMDItemAuthorEmailAddresses', 'kMDItemAuthors', 'kMDItemContentType', 'kMDItemRecipientEmailAddresses', 'Raw Data')
     return data_headers, data_list, 'skg_archive'
 
