@@ -541,4 +541,14 @@ close_frame = ttk.Frame(main_window)
 ### Progress bar
 progress_bar = ttk.Progressbar(main_window, orient='horizontal')
 
+### Push main window on top
+def OnFocusIn(event):
+    if type(event.widget).__name__ == 'Tk':
+        event.widget.attributes('-topmost', False)
+
+main_window.attributes('-topmost', True)
+main_window.focus_force()
+main_window.bind('<FocusIn>', OnFocusIn)
+
+
 main_window.mainloop()
