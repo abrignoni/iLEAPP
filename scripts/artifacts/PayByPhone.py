@@ -7,7 +7,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.
 __artifacts_v2__ = {
     "userPayByPhone": {  
         "name": "PayByPhone - Users and Vehicules Info",
-        "description": "Collect data from PayByPhone",
+        "description": "Extract users and vehicules infos",
         "author": "@flashesc, @thibgav, @borelmo",
         "version": "1.2",
         "date": "2024-11-20",
@@ -123,7 +123,7 @@ def userPayByPhone(files_found, report_folder, seeker, wrap_text, time_offset):
                     )
 
     report = ArtifactHtmlReport('PayByPhone - Users and Vehicules Info')
-    report.start_artifact_report(report_folder, 'PayByPhone - Users and Vehicules Info', artifact_description= "Collect data from PayByPhone")
+    report.start_artifact_report(report_folder, 'PayByPhone - Users and Vehicules Info', artifact_description= "Extract users and vehicules infos")
     report.add_script()
     report.write_artifact_data_table(data_headers, html_data_list, db_file, html_no_escape=['Vehicule Picture'])
     report.end_artifact_report()
