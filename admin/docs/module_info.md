@@ -11,7 +11,7 @@ Total number of modules: 260
 Number of v1 artifacts: 96  
 Number of v2 artifacts: 220  
 Number of modules with 'lava output': 118  
-Number of modules using 'artifact_icon': 12  
+Number of modules using 'artifact_icon': 13  
 Number of modules with errors or no recognized artifacts: 3  
 
 ## V2 Artifacts Table
@@ -117,7 +117,7 @@ Number of modules with errors or no recognized artifacts: 3
 | [applicationstate.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/applicationstate.py) | applicationstate | Application State | html, tsv, lava |  | Extract information about bundle container path and data path for Applications | ``*/mobile/Library/FrontBoard/applicationState.db*`` |
 | [ashHistory.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/ashHistory.py) | AshHistory | Alpine Linux Bash History | all |  | Extracts command history from Alpine Linux bash | ``*/.ash_history`` |
 | [atxDatastore.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/atxDatastore.py) | atxDatastore | iOS ATXDatastore | all |  | Parses ATXDataStore and matches actions with Frequent locations, when available. | ``*DuetExpertCenter/_ATXDataStore.db*``, ``*routined/Local.sqlite*`` |
-| [backupSettings.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/backupSettings.py) | backupSettings | Backup Settings | html, tsv, lava |  | Extracts Backup settings | ``*/mobile/Library/Preferences/com.apple.mobile.ldbackup.plist`` |
+| [backupSettings.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/backupSettings.py) | backupSettings | Backup Settings | html, tsv, lava | save | Extracts Backup settings | ``*/mobile/Library/Preferences/com.apple.mobile.ldbackup.plist`` |
 | [biomeAirpMode.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/biomeAirpMode.py) | get_biomeAirpMode | Biome DKEvent Airplane Mode | standard |  | Parses airplane mode entries from biomes | ``*/Biome/streams/restricted/_DKEvent.System.AirplaneMode/local/*`` |
 | [biomeAppinstall.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/biomeAppinstall.py) | get_biomeAppinstall | Biome App Install | standard |  | Parses airplane mode entries from biomes | ``*/Biome/streams/restricted/_DKEvent.App.Install/local/*``, ``*/Biome/streams/restricted/App.Install/local/*`` |
 | [biomeBacklight.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/biomeBacklight.py) | get_biomeBacklight | Biome Backlight | standard |  | Parses backlight entries from biomes | ``*/Biome/streams/public/Backlight/local/*`` |
