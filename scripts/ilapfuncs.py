@@ -86,6 +86,7 @@ def artifact_processor(func):
 
         elif len(data_list):
             logfunc(f"Found {len(data_list)} records for {artifact_name}")
+            icons.setdefault(category, {artifact_name: icon}).update({artifact_name: icon})
 
             # Strip tuples from headers for HTML, TSV, and timeline
             stripped_headers = strip_tuple_from_headers(data_headers)
@@ -96,7 +97,6 @@ def artifact_processor(func):
                 report.add_script()
                 report.write_artifact_data_table(stripped_headers, data_list, source_path)
                 report.end_artifact_report()
-                icons[category] = {artifact_name: icon}
 
             if check_output_types('tsv', output_types):
                 tsv(report_folder, stripped_headers, data_list, artifact_name)
