@@ -828,7 +828,7 @@ OS_build = {
     "22C5125e": "iOS 18.2 beta 2",
     "22C5131e": "iOS 18.2 beta 3",
     "22C5142a": "iOS 18.2 beta 4",
-    "22C150": "iOS 18.2 RC 2",
+    "22C150": "iOS 18.2 RC",
     "22C151": "iOS 18.2 RC 2",
     "4K78": "Mac OS X 10.0",
     "4L8": "Mac OS X 10.0.1",
