@@ -11,7 +11,7 @@ Total number of modules: 260
 Number of v1 artifacts: 96  
 Number of v2 artifacts: 220  
 Number of modules with 'lava output': 118  
-Number of modules using 'artifact_icon': 11  
+Number of modules using 'artifact_icon': 12  
 Number of modules with errors or no recognized artifacts: 3  
 
 ## V2 Artifacts Table
@@ -106,7 +106,7 @@ Number of modules with errors or no recognized artifacts: 3
 | [allTrails.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/allTrails.py) | allTrailsUserInfo | AllTrails - User Info | all | user | Extract user info from AllTrails App | ``*/Documents/AllTrails.sqlite*`` |
 | [appGrouplisting.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/appGrouplisting.py) | get_appGrouplisting | Bundle ID by AppGroup & PluginKit IDs | html, tsv, lava |  | List can included once installed but not present apps. Each file is named .com.apple.mobile_container_manager.metadata.plist | ``*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist``, ``**/PluginKitPlugin/*.metadata.plist`` |
 | [appItunesmeta.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/appItunesmeta.py) | get_appItunesmeta | Apps - Itunes Metadata | standard |  | iTunes & Bundle ID Metadata contents for apps | ``*/iTunesMetadata.plist``, ``**/BundleMetadata.plist`` |
-| [appleLocationd.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/appleLocationd.py) | applelocationd | Location Services | html, tsv, lava |  | Extracts location services settings | ``*/mobile/Library/Preferences/com.apple.locationd.plist`` |
+| [appleLocationd.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/appleLocationd.py) | appleLocationd | Location Services | html, tsv, lava | navigation | Extracts location services settings | ``*/mobile/Library/Preferences/com.apple.locationd.plist`` |
 | [appleMapsApplication.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/appleMapsApplication.py) | appleMapsApplication | Apple Maps Last Activity Camera | html, tsv, lava |  |  | ``*/Data/Application/*/Library/Preferences/com.apple.Maps.plist`` |
 | [applePodcasts.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/applePodcasts.py) | get_applePodcasts | Apple Podcasts | none |  | Extract Apple podcasts shows and episodes. | ``*/MTLibrary.sqlite*`` |
 | [appleWalletPasses.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/appleWalletPasses.py) | get_appleWalletPasses | PK Passes | none |  | Apple wallet passes PK | ``*/nanopasses.sqlite3*``, ``*/Cards/*.pkpass/pass.json`` |
@@ -198,7 +198,7 @@ Number of modules with errors or no recognized artifacts: 3
 | [knowledgeC.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/knowledgeC.py) | knowledgeC_DevicePluginStatus | knowledgeC - Device Plugin Status | standard |  | Is Device Plugged In events extracted from knowledgeC database | ``*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*`` |
 | [knowledgeC.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/knowledgeC.py) | knowledgeC_MediaPlaying | knowledgeC - Media Playing | standard |  | Media playing events extracted from knowledgeC database | ``*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*`` |
 | [knowledgeC.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/knowledgeC.py) | knowledgeC_DoNotDisturb | knowledgeC - Do Not Disturb | standard |  | Do Not Disturb Status from knowledgeC Database | ``*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*`` |
-| [lastBuild.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/lastBuild.py) | lastBuild | iOS Information | html, tsv, lava | git-commit | Extract iOS information from the LastBuildInfo.plist file | ``*LastBuildInfo.plist`` |
+| [lastBuild.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/lastBuild.py) | lastBuild | iOS Information | html, tsv, lava | git-commit | Extract iOS information from the LastBuildInfo.plist file | ``*/installd/Library/MobileInstallation/LastBuildInfo.plist`` |
 | [life360.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/life360.py) | Life360 | Life360 |  |  | Parses Life360 app logs, chat messages, and more | ``*/com.life360.safetymap *.log``, ``*/Library/Application Support/Messaging.sqlite*`` |
 | [line.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/line.py) | line | Line Artifacts |  |  | Get Line | ``**/Line.sqlite*`` |
 | [mailprotect.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/mailprotect.py) | get_mailprotect | Apple Email | none |  | Apple Email. | ``*/mobile/Library/Mail/* Index*`` |
