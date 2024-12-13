@@ -15,7 +15,7 @@ __artifacts_v2__ = {
 }
 
 import plistlib
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content, device_info, webkit_timestampsconv
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content, device_info, convert_cocoa_core_data_ts_to_utc
 
 @artifact_processor
 def appleLocationd(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -34,7 +34,7 @@ def appleLocationd(files_found, report_folder, seeker, wrap_text, timezone_offse
             
         elif key == 'steadinessClassificationNextClassificationTime' or key == 'VO2MaxCloudKitLastForcedFetch' \
             or key == 'kP6MWDNextEstimateTime' or key == 'VO2MaxCloudKitManagerNextActivityTime':
-            val = webkit_timestampsconv(val)
+            val = convert_cocoa_core_data_ts_to_utc(val)
             data_list.append((key, val))
         else:
             data_list.append((key, val))
