@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Call History",
         "notes": "",
-        "paths": ('*/CallHistory.storedata*','*/call_history.db',),
+        "paths": ('*/mobile/Library/CallHistoryDB/CallHistory.storedata*','*/mobile/Library/CallHistoryDB/call_history.db*',),
         "output_types": "standard",
         "artifact_icon": "phone-call"
     }
@@ -19,13 +19,14 @@ __artifacts_v2__ = {
 # The Call Ending Timestamp provides an "at-a-glance" review of call lengths during analysis and review
 # Additional details published within "Maximizing iOS Call Log Timestamps and Call Duration Effectiveness: Will You Answer the Call?" at https://sqlmcgee.wordpress.com/2022/11/30/maximizing-ios-call-log-timestamps-and-call-duration-effectiveness-will-you-answer-the-call/
 
-from scripts.ilapfuncs import artifact_processor , get_sqlite_db_records, convert_bytes_to_unit, convert_cocoa_core_data_ts_to_utc
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, convert_bytes_to_unit, convert_cocoa_core_data_ts_to_utc
 
 @artifact_processor
 def callHistory(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    source_path = ""
+    storedata_path = get_file_path(files_found, "CallHistory.storedata")
+    db_path = get_file_path(files_found, "call_history.db")
     data_list = []
-    db_file = ''
-    db_records = []
 
     #call_history.db schema taken from here https://avi.alkalay.net/2011/12/iphone-call-history.html 
     query = '''
@@ -97,16 +98,14 @@ def callHistory(files_found, report_folder, seeker, wrap_text, timezone_offset):
     from call
     '''
 
-    for file_found in files_found:
-        if file_found.endswith('.storedata'):
-            db_file = file_found
-            db_records = get_sqlite_db_records(db_file, query)
-            break
-        elif file_found.endswith('.db'):
-            db_file = file_found
-            db_records = get_sqlite_db_records(db_file, query_old)
-            break
-    
+    if storedata_path:
+        source_path = storedata_path
+    else:
+        source_path = db_path
+        query = query_old
+        
+    db_records = get_sqlite_db_records(source_path, query)
+
     for record in db_records:
         starting_time = convert_cocoa_core_data_ts_to_utc(record[0])
         ending_time = convert_cocoa_core_data_ts_to_utc(record[1])
@@ -134,4 +133,4 @@ def callHistory(files_found, report_folder, seeker, wrap_text, timezone_offset):
         'ISO Country Code', 
         'Location'
         )
-    return data_headers, data_list, db_file
+    return data_headers, data_list, source_path
