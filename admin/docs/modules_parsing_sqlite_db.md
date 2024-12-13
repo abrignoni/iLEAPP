@@ -88,7 +88,7 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | coreAccessoriesAcc |
 | coreAccessoriesUserEvent |
 | dmss |
-| filesApps |
+| filesApp |
 | geodApplications |
 | geodMapTiles |
 | geodPDPlaceCache |
