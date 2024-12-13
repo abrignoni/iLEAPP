@@ -1,0 +1,36 @@
+name: Run Filepath Search List
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run-filepath-search:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+
+    - name: Run filepath_search_list.py
+      run: |
+        python admin/scripts/filepath_search_list.py
+
+    - name: Check for changes
+      id: git-check
+      run: |
+        git diff --exit-code || echo "changes=true" >> $GITHUB_OUTPUT
+
+    - name: Commit changes
+      if: steps.git-check.outputs.changes == 'true'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add admin/docs/filepath_search_summary.md
+        git commit -m "Update filepath search summary"
+        git push

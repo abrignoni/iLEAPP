@@ -2,12 +2,12 @@ __artifacts_v2__ = {
     "burnerCache": {
         "name": "Burner Cache",
         "description": "Parses and extract accounts, contacts, burner numbers and messages",
-        "author": "Django Faiola (djangofaiola.blogspot.com @DjangoFaiola)",
-        "version": "0.1.0",
+        "author": "Django Faiola (https://djangofaiola.blogspot.com https://www.linkedin.com/in/djangofaiola/)",
+        "version": "0.2.0",
         "date": "2024-03-05",
         "requirements": "none",
         "category": "Burner",
-        "notes": "App version tested: 4.0.18, 4.3.3, 5.3.8",
+        "notes": "App version tested: 4.0.18, 4.3.3, 5.3.8, 5.4.11",
         "paths": ('*/Library/Caches/com.adhoclabs.burner/Cache.db*',
                   '*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist'),
         "function": "get_burner_cache"
@@ -50,7 +50,7 @@ def blob_image_to_html(data, max_width=96):
 LIKEXP_MEDIA = r'WHERE cr.request_key like "https://s3.amazonaws.com/burner-%"'
 REGEXP_ACCOUNTS = r'WHERE cr.request_key REGEXP "https:\/\/phoenix\.burnerapp\.com(\/v\d)?(\/register(\/phone)?$|\/user\/[a-fA-F\d-]{36}\/token)"'
 REGEXP_CONTACTS = r'WHERE cr.request_key REGEXP "https:\/\/phoenix\.burnerapp\.com(\/v\d)?\/user\/[a-fA-F\d-]{36}\/contacts\?.+"'
-REGEXP_MESSAGES = r'WHERE cr.request_key REGEXP "https:\/\/phoenix\.burnerapp\.com(\/v\d)?\/user\/[a-fA-F\d-]{36}\/messages($|\?.*contactPhoneNumber=.+)"'
+REGEXP_MESSAGES = r'WHERE cr.request_key REGEXP "https:\/\/phoenix\.burnerapp\.com(\/v\d)?\/user\/[a-fA-F\d-]{36}(\/messages($|\?.*contactPhoneNumber=.+)|(\/burners\/[a-fA-F\d-]{36}\/conversations\/.+\/messages($|\?.*pageSize=.+)))"'
 REGEXP_NUMBERS = r'WHERE cr.request_key REGEXP "https:\/\/phoenix\.burnerapp\.com(\/v\d)?\/user\/[a-fA-F\d-]{36}\/burners(\/[a-fA-F\d-]{36})?$"'
 
 # cache query
@@ -72,7 +72,7 @@ def cache_query(db, where=''):
 
                        
 # cache accounts
-def get_cache_accounts(file_found, cache_files, report_folder, timezone_offset):
+def get_cache_accounts(file_found, cache_files, report_folder, timezone_offset, uids):
     # get account
     def get_account(account):
         acc_ref = account.get('user')
@@ -93,16 +93,12 @@ def get_cache_accounts(file_found, cache_files, report_folder, timezone_offset):
         last_updated = FormatTimestamp(acc_ref.get('lastUpdatedDate'), timezone_offset, divisor=1000)
         # user id
         user_id = acc_ref.get('id')
-
         if bool(user_id):
-            out_map[user_id] = phone_number
+            uids[user_id] = phone_number
 
         # out values
         return last_updated, created, phone_number, country_code, carrier_name, total_number_burners, user_id
     
-    # {user_id: phone_number}
-    out_map = {}
-
     # accounts
     db = open_sqlite_db_readonly(file_found)
     try:
@@ -177,11 +173,10 @@ def get_cache_accounts(file_found, cache_files, report_folder, timezone_offset):
 
     finally:
         db.close()
-        return out_map
 
 
 # cache contacts
-def get_cache_contacts(file_found, cache_files, report_folder, timezone_offset):
+def get_cache_contacts(file_found, cache_files, report_folder, timezone_offset, uids):
     # get contact
     def get_contact(contact):
         # date created
@@ -190,6 +185,8 @@ def get_cache_contacts(file_found, cache_files, report_folder, timezone_offset):
         display_name = contact.get('name', '')
         # phone number
         phone_number = contact.get('phoneNumber', '')
+        if bool(phone_number):
+            uids[phone_number] = f'{phone_number} ({display_name})'
         # other phones ???
         # notes
         notes = contact.get('text', '')
@@ -217,6 +214,8 @@ def get_cache_contacts(file_found, cache_files, report_folder, timezone_offset):
         burner_ids = ', '.join(contact.get('burnerIds', []))       
         # contact id
         contact_id = contact.get('id')
+        if bool(contact_id):
+            uids[contact_id] = f'{phone_number} ({display_name})' if bool(display_name) else phone_number
 
         # out values
         return created, phone_number, display_name, notes, verified, blocked, muted, burner_ids, contact_id
@@ -297,26 +296,28 @@ def get_cache_contacts(file_found, cache_files, report_folder, timezone_offset):
 
 
 # cache numbers
-def get_cache_numbers(file_found, cache_files, report_folder, timezone_offset, users):
+def get_cache_numbers(file_found, cache_files, report_folder, timezone_offset, uids):
     # get number
     def get_number(number):
         # burner number
         burner_number = number.get('phoneNumber')
         if not bool(burner_number):
             burner_number = number.get('phoneNumberId')
+
         # user id
         user_id = number.get('userId', '')
         if not bool(user_id):
             # https://phoenix.burnerapp.com/v3/user/<user_id>/burners
             user_id = str(row[2]).split('/')[-2]
-        # user phone number
-        user_phone_number = users.get(user_id, '')
+        user_phone_number = uids.get(user_id, '')
+
         # version
         version = number.get('version')
         # date created
         created = FormatTimestamp(number.get('dateCreated'), timezone_offset, divisor=1000)
         # subscription expires
         expires = FormatTimestamp(number.get('expirationDate'), timezone_offset, divisor=1000)
+
         # entitlements
         entitlements = number.get('entitlements')
         if bool(entitlements):
@@ -364,6 +365,8 @@ def get_cache_numbers(file_found, cache_files, report_folder, timezone_offset, u
 
         # burned id
         burner_id = number.get('id')
+        if bool(burner_id):
+            uids[burner_id] = f'{burner_number} ({display_name})' if bool(display_name) else burner_number
 
         # out values
         return burner_number, display_name, created, expires, version, notifications, inbound_caller_id,  \
@@ -457,7 +460,7 @@ def get_cache_numbers(file_found, cache_files, report_folder, timezone_offset, u
 
 
 # cache messages
-def get_cache_messages(file_found, cache_files, report_folder, timezone_offset, users):
+def get_cache_messages(file_found, cache_files, report_folder, timezone_offset, uids):
     # get message
     def get_message(message):
         # date created
@@ -477,20 +480,25 @@ def get_cache_messages(file_found, cache_files, report_folder, timezone_offset, 
             direction = 'Outgoing'
         else:
             direction = dir_val
-        # user id
-        user_id = message.get('userId', '')
-        if not bool(user_id):
-            # https://phoenix.burnerapp.com/user/<user_id>/messages
-            user_id = str(row[2]).split('/')[-2]
-        # user phone number
-        user_phone_number = users.get(user_id, '')
+        # burner id
+        burner_id = message.get('burnerId', '')
+        # burner number
+        burner_number = uids.get(burner_id, '')
+        # contact id
+        contact_id = message.get('contactId')
+        contact_temp = uids.get(contact_id, '')
+        if bool(contact_temp):
+            contact_phone_number = contact_temp
+        # contact phone number
+        else:
+            contact_phone_number = message.get('contactPhoneNumber')       
         # sender, recipient
         if dir_val == 1:
-            sender = message.get('contactPhoneNumber')
-            recipient = user_phone_number
+            sender = contact_phone_number
+            recipient = burner_number
         else:
-            sender = user_phone_number
-            recipient = message.get('contactPhoneNumber')
+            sender = burner_number
+            recipient = contact_phone_number
         # body
         if (dir_val == 1) and (state == 3):
             body = 'Completed incoming call'
@@ -543,8 +551,105 @@ def get_cache_messages(file_found, cache_files, report_folder, timezone_offset, 
         message_id = message.get('id')
 
         # out values
-        return created, direction, read, sender, recipient, body, message_type, media, asset_url, voice_url, message_id
+        return contact_phone_number, created, direction, read, sender, recipient, body, message_type, media, asset_url, voice_url, message_id
 
+
+    # get conversation
+    def get_conversation(conversation):
+        # date created
+        created = FormatTimestamp(conversation.get('dateCreated'), timezone_offset, divisor=1000)
+        # read
+        if bool(conversation.get('read')):
+            read = 'Read'
+        else:
+            read = 'Not read'
+        # state
+        state = conversation.get('state')
+        # direction
+        dir_val = conversation.get('direction')
+        if dir_val == 'Inbound':
+            direction = 'Incoming'
+        elif dir_val == 'Outbound':
+            direction = 'Outgoing'
+        else:
+            direction = dir_val
+        # burner id
+        burner_id = conversation.get('burnerId', '')
+        # burner number
+        burner_number = uids.get(burner_id, '')
+        # contact phone number
+        try: 
+            contact_phone_number = conversation['conversation']['conversationId']
+            contact_temp = uids.get(contact_phone_number, '')
+            if bool(contact_temp):
+                contact_phone_number = contact_temp
+        except:
+            contact_phone_number = '' 
+            pass
+        # sender, recipient
+        if dir_val == 'Inbound':
+            sender = contact_phone_number
+            recipient = burner_number
+        else:
+            sender = burner_number
+            recipient = contact_phone_number
+        # body
+        if (dir_val == 'Inbound') and (state == 'CallCompleted'):
+            body = 'Completed incoming call'
+        elif (dir_val == 'Outbound') and (state == 'CallCompleted'):
+            body = 'Completed outgoing call'
+        elif (dir_val == 'Inbound') and (state == 'CallMissed'):
+            body = 'Missed incoming call'
+        elif (dir_val == 'Outbound') and (state == 'CallMissed'):
+            body = 'Missed outgoing call'
+        elif (dir_val == 'Inbound') and (state == 'Voicemail'):
+            body = 'Missed incoming call with voicemail'
+        elif (dir_val == 'Outbound') and (state == 'Voicemail'):
+            body = 'Missed outgoing call with voicemail'
+        else:
+            body = conversation.get('text')       
+        media = ''
+        # media url
+        media_url = conversation.get('mediaUrl')
+        if bool(media_url):
+            for row_media in all_media:
+                if row_media[2] == media_url:
+                    # isDataOnFS
+                    if row_media[3] == 1:
+                        media = media_to_html(row_media[4], cache_files, report_folder)
+                    else:
+                        media = blob_image_to_html(row_media[4])
+                    break
+        # message type
+        message_type = conversation.get('messageType')
+        if  message_type == 'Voice':
+            message_type = 'Voicemail' if state == 'Voicemail' else 'Call'
+        elif  (message_type == 'Text') and not bool(media_url):
+            message_type = 'Text'
+        elif  (message_type == 'Text'):
+            message_type = 'Picture'
+        # voice url
+        voice_url = ''
+        if state == 'Voicemail':
+            try: 
+                voice_url = conversation['voicemail']['audioUrl'] 
+                if bool(voice_url):
+                    for row_media in all_media:
+                        if row_media[2] == voice_url:
+                            # isDataOnFS
+                            if row_media[3] == 1:
+                                media += media_to_html(row_media[4], cache_files, report_folder)
+                            else:
+                                media += blob_image_to_html(row_media[4])
+                            break
+            except: 
+                pass
+        # message id
+        message_id = conversation.get('id')
+
+        # out values
+        return contact_phone_number, created, direction, read, sender, recipient, body, message_type, media, media_url, voice_url, message_id
+    
 
     # messages
     db = open_sqlite_db_readonly(file_found)
@@ -561,7 +666,7 @@ def get_cache_messages(file_found, cache_files, report_folder, timezone_offset, 
             report = ArtifactHtmlReport('Burner Cache messages')
             report.start_artifact_report(report_folder, 'Burner Cache messages')
             report.add_script()
-            data_headers = ('Sent', 'Direction', 'Read', 'Sender', 'Recipient', 'Message', 'Message type',
+            data_headers = ('Thread', 'Sent', 'Direction', 'Read', 'Sender', 'Recipient', 'Message', 'Message type',
                             'Media', 'Media URL', 'Voicemail URL', 'Message ID', 'Item') 
                         
             data_list = []
@@ -593,9 +698,17 @@ def get_cache_messages(file_found, cache_files, report_folder, timezone_offset, 
                         else:
                             location = f'receiver_data[{m_count}]'
 
-                        created, direction, read, sender, recipient, body, message_type, \
-                        media, asset_url, voice_url, message_id = get_message(message)
-                        data_list.append((created, direction, read, sender, recipient, body, message_type,
+                        # message
+                        if not bool(message.get('conversation')):
+                            thread, created, direction, read, sender, recipient, body, message_type, \
+                            media, asset_url, voice_url, message_id = get_message(message)
+                        # conversation
+                        else:
+                            thread, created, direction, read, sender, recipient, body, message_type, \
+                            media, asset_url, voice_url, message_id = get_conversation(message)
+
+
+                        data_list.append((thread, created, direction, read, sender, recipient, body, message_type,
                                           media, asset_url, voice_url, message_id, location))
                         m_count += 1
                 # message
@@ -607,9 +720,16 @@ def get_cache_messages(file_found, cache_files, report_folder, timezone_offset, 
                     else:
                         location = 'receiver_data[0]'
 
-                    created, direction, read, sender, recipient, body, message_type, \
-                    media, asset_url, voice_url, message_id = get_message(json_data)
-                    data_list.append((created, direction, read, sender, recipient, body, message_type,
+                    # message
+                    if not bool(json_data.get('conversation')):
+                        thread, created, direction, read, sender, recipient, body, message_type, \
+                        media, asset_url, voice_url, message_id = get_message(json_data)
+                    # conversation
+                    else:
+                        thread, created, direction, read, sender, recipient, body, message_type, \
+                        media, asset_url, voice_url, message_id = get_conversation(json_data)
+
+                    data_list.append((thread, created, direction, read, sender, recipient, body, message_type,
                                       media, asset_url, voice_url, message_id, location))
         
             report.write_artifact_data_table(data_headers, data_list, file_found, html_no_escape=[ 'Media' ])
@@ -650,16 +770,19 @@ def get_burner_cache(files_found, report_folder, seeker, wrap_text, timezone_off
 
         # Cache.db
         if file_found.endswith('Cache.db'):
+            # map {<type>_id: phone_number (display name)}
+            uids = {}
+
             db = open_sqlite_db_readonly(file_found)
             try:
                 # accounts
-                users = get_cache_accounts(file_found, cache_files, report_folder, timezone_offset)
+                get_cache_accounts(file_found, cache_files, report_folder, timezone_offset, uids)
                 # contacts
-                get_cache_contacts(file_found, cache_files, report_folder, timezone_offset)
+                get_cache_contacts(file_found, cache_files, report_folder, timezone_offset, uids)
                 # numbers
-                get_cache_numbers(file_found, cache_files, report_folder, timezone_offset, users)
+                get_cache_numbers(file_found, cache_files, report_folder, timezone_offset, uids)
                 # messages
-                get_cache_messages(file_found, cache_files, report_folder, timezone_offset, users)
+                get_cache_messages(file_found, cache_files, report_folder, timezone_offset, uids)
 
             finally:
                 db.close()

@@ -87,7 +87,7 @@ def get_mobileInstall(files_found, report_folder, seeker, wrap_text, timezone_of
                 elif matchObj4:
                     bundleid = matchObj4.group(1)
 
-                matchObj = re.search(r"(?<=^)(.*)(?= \[)", line)  # Regex for timestamp
+                matchObj = re.search(r"(?<=^)(.*?)(?= \[)", line)  # Regex for timestamp
                 if matchObj:
                     timestamp = matchObj.group(1)
                     weekday, month, day, time, year = str.split(timestamp)

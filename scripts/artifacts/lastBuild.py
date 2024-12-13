@@ -1,60 +1,42 @@
 __artifacts_v2__ = {
-    "lastbuild": {
+    "lastBuild": {
         "name": "iOS Information",
         "description": "Extract iOS information from the LastBuildInfo.plist file",
         "author": "@AlexisBrignoni - @ydkhatri",
-        "version": "0.2",
-        "date": "2020-09-22",
+        "version": "0.5.4",
+        "date": "2020-04-30",
         "requirements": "none",
         "category": "IOS Build",
         "notes": "",
-        "paths": ('*LastBuildInfo.plist',),
-        "function": "get_lastBuild"
+        "paths": ('*/installd/Library/MobileInstallation/LastBuildInfo.plist',),
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "git-commit"
     }
 }
 
-import datetime
-import os
-import plistlib
 import scripts.artifacts.artGlobals 
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, tsv, is_platform_windows 
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content, logfunc, device_info
 
-def get_lastBuild(files_found, report_folder, seeker, wrap_text, time_offset):
-    versionnum = 0
+@artifact_processor
+def lastBuild(files_found, report_folder, seeker, wrap_text, time_offset):
+    source_path = get_file_path(files_found, "LastBuildInfo.plist")
     data_list = []
-    file_found = str(files_found[0])
-    with open(file_found, "rb") as fp:
-        pl = plistlib.load(fp)
-        for key, val in pl.items():
-            data_list.append((key, val))
-            if key == ("ProductVersion"):
-                #ilapfuncs.globalvars()
-                scripts.artifacts.artGlobals.versionf = val
-                logfunc(f"iOS version: {val}")
-                logdevinfo(f"<b>iOS version: </b>{val}")
-            
-            if key == "ProductBuildVersion":
-                logdevinfo(f"<b>ProductBuildVersion: </b>{val}")
-            
-            if key == ("ProductName"):
-                logfunc(f"Product: {val}")
-                logdevinfo(f"<b>Product: </b>{val}")
-
-    report = ArtifactHtmlReport('iOS Build')
-    report.start_artifact_report(report_folder, 'Build Information')
-    report.add_script()
-    data_headers = ('Key','Values' )     
-    report.write_artifact_data_table(data_headers, data_list, file_found)
-    report.end_artifact_report()
     
-    tsvname = 'Last Build'
-    tsv(report_folder, data_headers, data_list, tsvname)
-            
-# __artifacts__ = {
-#     "lastbuild": (
-#         "IOS Build",
-#         ('*LastBuildInfo.plist'),
-#         get_lastBuild)
-# }
+    pl = get_plist_file_content(source_path)
+    for key, val in pl.items():
+        data_list.append((key, val))
+        if key == ("ProductVersion"):
+            scripts.artifacts.artGlobals.versionf = val
+            logfunc(f"iOS version: {val}")
+            device_info("Device Information", "iOS version", val, source_path)
+        
+        if key == "ProductBuildVersion":
+            device_info("Device Information", "ProductBuildVersion", val, source_path)
+        
+        if key == ("ProductName"):
+            logfunc(f"Product: {val}")
+            device_info("Device Information", "Product Name", val, source_path)
+
+    data_headers = ('Property','Property Value' )     
+    return data_headers, data_list, source_path

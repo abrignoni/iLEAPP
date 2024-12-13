@@ -1,50 +1,43 @@
-from datetime import datetime
-import os
+__artifacts_v2__ = {
+    "timezoneInfo": {
+        "name": "Timezone Information",
+        "description": "Timezone Information",
+        "author": "@AlexisBrignoni",
+        "version": "0.2",
+        "date": "2023-10-03",
+        "requirements": "none",
+        "category": "Identifiers",
+        "notes": "",
+        "paths": ('*/mobile/Library/Preferences/com.apple.AppStore.plist',),
+        "output_types": ["html", "tsv", "lava"]
+    }
+}
+
+
 import plistlib
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, tsv, is_platform_windows 
+from scripts.ilapfuncs import artifact_processor, device_info, webkit_timestampsconv
 
-def timestampsconv(webkittime):
-    unix_timestamp = webkittime + 978307200
-    finaltime = datetime.utcfromtimestamp(unix_timestamp)
-    return(finaltime)
-
-def get_timezoneInfo(files_found, report_folder, seeker, wrap_text, timezone_offset):
+@artifact_processor
+def timezoneInfo(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
-    file_found = str(files_found[0])
-    with open(file_found, "rb") as fp:
+    source_path = str(files_found[0])
+    
+    with open(source_path, "rb") as fp:
         pl = plistlib.load(fp)
         for key, val in pl.items():
-            
             if key == 'lastBootstrapTimeZone':
                 data_list.append(('lastBootstrapTimeZone', val))
-                logdevinfo(f"<b>Last Bootstrap Timezone: </b>{val}")
+                device_info("Settings", "Last Bootstrap Timezone", val, source_path)
                 
             elif key == 'lastBootstrapDate':
-                times = timestampsconv(val)
+                times = webkit_timestampsconv(val)
                 data_list.append(('lastBootstrapDate', times))
-                logdevinfo(f"<b>Last Bootstrap Date: </b>{times}")
+                device_info("Device Information", "Last Bootstrap Date", times, source_path)
                 
             else:
                 data_list.append((key, val ))
                 
-    if len(data_list) > 0:
-        report = ArtifactHtmlReport('Timezone Information')
-        report.start_artifact_report(report_folder, 'Timezone Information')
-        report.add_script()
-        data_headers = ('Key','Values' )     
-        report.write_artifact_data_table(data_headers, data_list, file_found)
-        report.end_artifact_report()
-        
-        tsvname = 'Timezone Information'
-        tsv(report_folder, data_headers, data_list, tsvname)
-    else:
-        logfunc('No Timezone Information in com.apple.AppStore.plist')
-
-__artifacts__ = {
-    "timezoneInfo": (
-        "Identifiers",
-        ('*/mobile/Library/Preferences/com.apple.AppStore.plist'),
-        get_timezoneInfo)
-}
+    data_headers = ('Property','Property Value' )     
+    return data_headers, data_list, source_path

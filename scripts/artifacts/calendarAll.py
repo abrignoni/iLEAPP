@@ -1,21 +1,45 @@
 __artifacts_v2__ = {
-    "calendar": {
-        "name": "Calendar",
-        "description": "List of calendars, calendar events and bithdays",
-        "author": "@JohannPLW",
-        "version": "0.1",
+    "calendarEvents": {
+        "name": "Calendar Events",
+        "description": "List of calendar events",
+        "author": "@JohannPLW, @JohnHyla",
+        "version": "0.2",
         "date": "2023-11-11",
         "requirements": "none",
         "category": "Calendar",
         "notes": "",
         "paths": ('**/Calendar.sqlitedb',),
-        "function": "get_calendar"
+        "output_types": ["lava", "tsv", "timeline"]
+    },
+    "calendarBirthdays": {
+        "name": "Calendar Birthdays",
+        "description": "List of calendar birthdays",
+        "author": "@JohannPLW, @JohnHyla",
+        "version": "0.2",
+        "date": "2024-10-30",
+        "requirements": "none",
+        "category": "Calendar",
+        "notes": "",
+        "paths": ('**/Calendar.sqlitedb',),
+        "output_types": ["lava", "tsv"]
+    },
+    "calendarList": {
+        "name": "Calendar List",
+        "description": "List of calendars",
+        "author": "@JohannPLW, @JohnHyla",
+        "version": "0.2",
+        "date": "2023-11-11",
+        "requirements": "none",
+        "category": "Calendar",
+        "notes": "",
+        "paths": ('**/Calendar.sqlitedb',),
+        "output_types": ["lava", "tsv"]
     }
 }
 
 from scripts.artifact_report import ArtifactHtmlReport
 from urllib.parse import unquote
-from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly, does_table_exist, does_column_exist_in_db,convert_ts_human_to_utc, convert_utc_human_to_timezone, get_birthdate
+from scripts.ilapfuncs import open_sqlite_db_readonly, does_table_exist, does_column_exist_in_db,convert_ts_human_to_utc, convert_utc_human_to_timezone, artifact_processor, get_birthdate
 
 
 def get_sharees(cursor):
@@ -114,8 +138,13 @@ def get_calendar_name(name, color):
         calendar_name = f'&#9711; {name}'
     return calendar_name
 
-
-def get_calendar(files_found, report_folder, seeker, wrap_text, timezone_offset):
+@artifact_processor
+def calendarEvents(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    data_list = []
+    data_list_csv = []
+    data_headers = ['Start Time', 'End Time', 'Timezone', 'Calendar Name', 'Account Name', 'Event Title',
+                    'Location Name', 'Location Address', 'Location Coordinates', 'Invitation From', 'Invitees',
+                    'Conference URL', 'Attachments', 'Notes', 'Creation Time', 'Last Modification Time']
 
     for file_found in files_found:
         file_found = str(file_found)
@@ -123,74 +152,6 @@ def get_calendar(files_found, report_folder, seeker, wrap_text, timezone_offset)
         if file_found.endswith('.sqlitedb'):
             db = open_sqlite_db_readonly(file_found)
             cursor = db.cursor()
-
-            # Calendar List
-
-            cursor.execute('''
-            SELECT Calendar.ROWID,
-            Calendar.title AS 'Calendar Name',
-            Calendar.color AS 'Calendar Color',
-            Store.name AS 'Account Name',
-            CASE
-                WHEN Calendar.self_identity_email IS NULL THEN Calendar.owner_identity_email
-                ELSE Calendar.self_identity_email
-            END AS 'Account Email',
-			Identity.display_name AS 'Owner Name',
-			Identity.address AS 'Owner Email',
-            CASE Calendar.sharing_status
-                WHEN 0 THEN 'Not shared'
-                WHEN 1 THEN 'Shared by me'
-                WHEN 2 THEN 'Shared with me'
-                ELSE Calendar.sharing_status
-            END AS 'Sharing Status',
-            Calendar.notes AS 'Notes'
-            FROM Calendar
-            LEFT JOIN Store ON Calendar.store_id = Store.ROWID
-			LEFT JOIN Identity ON Calendar.owner_identity_id = Identity.ROWID
-            ''')
-
-            all_rows = cursor.fetchall()
-            usageentries = len(all_rows)
-            if usageentries > 0:
-                data_list = []
-                data_list_csv = []
-                sharees = get_sharees(cursor)
-                for row in all_rows:
-                    calendar_name = row[1]
-                    calendar_name_tag = get_calendar_name(row[1], row[2])
-                    owner_email = row[6].replace('mailto:', '') if row[6] else ''
-                    owner_email = unquote(owner_email)
-                    if sharees:
-                        sharing_participants_html = sharees.get(row[0], '')
-                        sharing_participants = sharees.get(row[0], '').replace('<br>', ' ')
-                        data_list.append((calendar_name_tag, row[3], row[4], row[5], owner_email, row[7], 
-                                            sharing_participants_html, row[8]))
-                        data_list_csv.append((calendar_name, row[3], row[4], row[5], owner_email, row[7], 
-                                            sharing_participants, row[8]))
-                    else:
-                        data_list.append((calendar_name_tag, row[3], row[4], row[5], owner_email, row[7], row[8]))
-                        data_list_csv.append((calendar_name, row[3], row[4], row[5], owner_email, row[7], row[8]))
-    
-                report = ArtifactHtmlReport('Calendar List')
-                report.start_artifact_report(report_folder, 'Calendar List')
-                report.add_script()
-
-                if sharees:
-                    data_headers = ('Calendar Name', 'Account Name', 'Account Email', 'Owner Name', 
-                                    'Owner Email', 'Sharing Status', 'Sharing Participants', 'Notes')
-                else:
-                    data_headers = ('Calendar Name', 'Account Name', 'Account Email', 'Owner Name', 
-                                    'Owner Email', 'Sharing Status', 'Notes')
-
-                report.write_artifact_data_table(data_headers, data_list, file_found, html_no_escape=['Calendar Name', 'Sharing Participants'])
-                report.end_artifact_report()
-
-                tsvname = 'Calendar List'
-                tsv(report_folder, data_headers, data_list_csv, tsvname)
-
-            else:
-                logfunc('No calendar found')
-
 
             # Calendar Events
 
@@ -251,8 +212,7 @@ def get_calendar(files_found, report_folder, seeker, wrap_text, timezone_offset)
             usageentries = len(all_rows)
 
             if usageentries > 0:
-                data_list = []    
-                data_list_csv = []
+
                 invitees = get_invitees(cursor)
                 for row in all_rows:
                     start_time = convert_ts_human_to_utc(row[1])
@@ -307,21 +267,31 @@ def get_calendar(files_found, report_folder, seeker, wrap_text, timezone_offset)
                 report = ArtifactHtmlReport('Calendar Events')
                 report.start_artifact_report(report_folder, 'Calendar Events')
                 report.add_script()
-                data_headers = ('Start Time', 'End Time', 'Timezone', 'Calendar Name', 'Account Name', 'Event Title', 
-                                'Location Name', 'Location Address', 'Location Coordinates', 'Invitation From', 'Invitees', 
-                                'Conference URL', 'Attachments', 'Notes', 'Creation Time', 'Last Modification Time')
 
                 report.write_artifact_data_table(data_headers, data_list, file_found, html_no_escape=['Calendar Name', 'Location Coordinates', 'Invitees'])
                 report.end_artifact_report()
-                
-                tsvname = 'Calendar Events'
-                tsv(report_folder, data_headers, data_list_csv, tsvname)
-                
-                tlactivity = 'Calendar Events'
-                timeline(report_folder, tlactivity, data_list_csv, data_headers)
-            else:
-                logfunc('No event found in Calendars database')
-            
+
+    data_headers[0] = (data_headers[0], 'datetime')
+    data_headers[1] = (data_headers[1], 'datetime')
+
+    return data_headers, data_list_csv, file_found
+
+
+@artifact_processor
+def calendarBirthdays(files_found, report_folder, seeker, wrap_text, timezone_offset):
+
+    data_list = []
+    data_list_csv = []
+    data_headers = ['Person Name', 'Date of Birth', 'Calendar Name', 'Account Name']
+    report_file = 'Unknown'
+
+    for file_found in files_found:
+        file_found = str(file_found)
+
+        if file_found.endswith('.sqlitedb'):
+            db = open_sqlite_db_readonly(file_found)
+            cursor = db.cursor()
+            report_file = file_found
 
             # Birthdays
 
@@ -340,30 +310,100 @@ def get_calendar(files_found, report_folder, seeker, wrap_text, timezone_offset)
             ''')
 
             all_rows = cursor.fetchall()
-            usageentries = len(all_rows)
 
-            if usageentries > 0:
-                data_list = []    
-                data_list_csv = []
-                for row in all_rows:
-                    birthdate = get_birthdate(row[1])
-                    calendar_name = row[2]
-                    calendar_name_tag = get_calendar_name(row[2], row[3])
 
-                    data_list.append((row[0], birthdate, calendar_name_tag, row[4]))
-                    data_list_csv.append((row[0], birthdate, calendar_name, row[4]))
-            
+            for row in all_rows:
+                birthdate = get_birthdate(row[1])
+                calendar_name = row[2]
+                calendar_name_tag = get_calendar_name(row[2], row[3])
+
+                data_list.append((row[0], birthdate, calendar_name_tag, row[4]))
+                data_list_csv.append((row[0], birthdate, calendar_name, row[4]))
+
+            # Handle HTML Manually due to html_no_escape
+            if data_list:
                 report = ArtifactHtmlReport('Calendar Birthdays')
                 report.start_artifact_report(report_folder, 'Calendar Birthdays')
                 report.add_script()
-                data_headers = ('Person Name', 'Date of Birth', 'Calendar Name', 'Account Name')
-
                 report.write_artifact_data_table(data_headers, data_list, file_found, html_no_escape=['Calendar Name'])
                 report.end_artifact_report()
-                
-                tsvname = 'Calendar Birthdays'
-                tsv(report_folder, data_headers, data_list_csv, tsvname)
-                
-            else:
-                logfunc('No birthday found in Calendars database')
-            
+
+    data_headers[1] = (data_headers[1], 'datetime')
+
+    return data_headers, data_list_csv, report_file
+
+
+@artifact_processor
+def calendarList(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    data_list = []
+    data_list_csv = []
+
+    for file_found in files_found:
+        file_found = str(file_found)
+
+        if file_found.endswith('.sqlitedb'):
+            db = open_sqlite_db_readonly(file_found)
+            cursor = db.cursor()
+
+            # Calendar List
+
+            cursor.execute('''
+            SELECT Calendar.ROWID,
+            Calendar.title AS 'Calendar Name',
+            Calendar.color AS 'Calendar Color',
+            Store.name AS 'Account Name',
+            CASE
+                WHEN Calendar.self_identity_email IS NULL THEN Calendar.owner_identity_email
+                ELSE Calendar.self_identity_email
+            END AS 'Account Email',
+			Identity.display_name AS 'Owner Name',
+			Identity.address AS 'Owner Email',
+            CASE Calendar.sharing_status
+                WHEN 0 THEN 'Not shared'
+                WHEN 1 THEN 'Shared by me'
+                WHEN 2 THEN 'Shared with me'
+                ELSE Calendar.sharing_status
+            END AS 'Sharing Status',
+            Calendar.notes AS 'Notes'
+            FROM Calendar
+            LEFT JOIN Store ON Calendar.store_id = Store.ROWID
+			LEFT JOIN Identity ON Calendar.owner_identity_id = Identity.ROWID
+            ''')
+
+            all_rows = cursor.fetchall()
+            usageentries = len(all_rows)
+            if usageentries > 0:
+
+                sharees = get_sharees(cursor)
+                for row in all_rows:
+                    calendar_name = row[1]
+                    calendar_name_tag = get_calendar_name(row[1], row[2])
+                    owner_email = row[6].replace('mailto:', '') if row[6] else ''
+                    owner_email = unquote(owner_email)
+                    if sharees:
+                        sharing_participants_html = sharees.get(row[0], '')
+                        sharing_participants = sharees.get(row[0], '').replace('<br>', ' ')
+                        data_list.append((calendar_name_tag, row[3], row[4], row[5], owner_email, row[7],
+                                          sharing_participants_html, row[8]))
+                        data_list_csv.append((calendar_name, row[3], row[4], row[5], owner_email, row[7],
+                                              sharing_participants, row[8]))
+                    else:
+                        data_list.append((calendar_name_tag, row[3], row[4], row[5], owner_email, row[7], row[8]))
+                        data_list_csv.append((calendar_name, row[3], row[4], row[5], owner_email, row[7], row[8]))
+
+                report = ArtifactHtmlReport('Calendar List')
+                report.start_artifact_report(report_folder, 'Calendar List')
+                report.add_script()
+
+                if sharees:
+                    data_headers = ('Calendar Name', 'Account Name', 'Account Email', 'Owner Name',
+                                    'Owner Email', 'Sharing Status', 'Sharing Participants', 'Notes')
+                else:
+                    data_headers = ('Calendar Name', 'Account Name', 'Account Email', 'Owner Name',
+                                    'Owner Email', 'Sharing Status', 'Notes')
+
+                report.write_artifact_data_table(data_headers, data_list, file_found,
+                                                 html_no_escape=['Calendar Name', 'Sharing Participants'])
+                report.end_artifact_report()
+
+    return data_headers, data_list_csv, file_found

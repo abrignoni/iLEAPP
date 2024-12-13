@@ -1,0 +1,39 @@
+{
+  "metadata": {
+    "module_name": "teams",
+    "artifact_name": "Teams User Information",
+    "function_name": "teamsUser",
+    "case_number": "josh_ios15_ffs",
+    "number_of_columns": 3,
+    "number_of_rows": 2,
+    "total_data_size_bytes": 56,
+    "input_zip_path": "admin/test/cases/data/teams/testdata.teams.teamsUser.josh_ios15_ffs.zip",
+    "start_time": "2024-11-06T01:20:46.918059+00:00",
+    "end_time": "2024-11-06T01:20:46.981550+00:00",
+    "run_time_seconds": 0.009108781814575195,
+    "last_commit": {
+      "hash": "5202a7098bf2a89e883f17e1091e1ac191ad9097",
+      "author_name": "James Habben",
+      "author_email": "james@wmif.net",
+      "date": "2024-11-04T14:09:41-08:00",
+      "message": "update teams module"
+    }
+  },
+  "headers": [
+    "Timestamp Last Sync",
+    "Display Name",
+    "Phone Number"
+  ],
+  "data": [
+    [
+      1684415520,
+      "ThisIs DFIR",
+      "19195794674"
+    ],
+    [
+      1684328990,
+      "ThisIs DfirTwo",
+      ""
+    ]
+  ]
+}

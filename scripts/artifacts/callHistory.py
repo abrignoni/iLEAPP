@@ -1,15 +1,18 @@
 __artifacts_v2__ = {
-    "callhistory": {
+    "callHistory": {
         "name": "Call History",
-        "description": "Parses and extract Call History",
-        "author": "",
-        "version": "0.5",
-        "date": "2023-01-01",
+        "description": "Extract Call History",
+        "author": "@AlexisBrignoni - @JohnHyla",
+        "version": "0.8",
+        "date": "2020-04-30",
         "requirements": "none",
         "category": "Call History",
         "notes": "",
-        "paths": ('**/CallHistory.storedata*','**/call_history.db',),
-        "function": "get_callHistory"
+        "paths": (
+            '*/mobile/Library/CallHistoryDB/CallHistory*', 
+            '*/mobile/Library/CallHistoryDB/call_history.db*'),
+        "output_types": "standard",
+        "artifact_icon": "phone-call"
     }
 }
 
@@ -18,18 +21,26 @@ __artifacts_v2__ = {
 # The Call Ending Timestamp provides an "at-a-glance" review of call lengths during analysis and review
 # Additional details published within "Maximizing iOS Call Log Timestamps and Call Duration Effectiveness: Will You Answer the Call?" at https://sqlmcgee.wordpress.com/2022/11/30/maximizing-ios-call-log-timestamps-and-call-duration-effectiveness-will-you-answer-the-call/
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly, convert_ts_human_to_utc, convert_utc_human_to_timezone, convert_bytes_to_unit
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, convert_bytes_to_unit, convert_cocoa_core_data_ts_to_utc
 
-def get_callHistory(files_found, report_folder, seeker, wrap_text, timezone_offset):
+@artifact_processor
+def callHistory(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    source_path = ''
+    data_list = []
+
+    db_path = get_file_path(files_found, "CallHistory.storedata")
+    temp_db_path = get_file_path(files_found, "CallHistoryTemp.storedata")
+    old_db_path = get_file_path(files_found, "call_history.db")
+    records = []
+    records_in_both_db = False
 
     #call_history.db schema taken from here https://avi.alkalay.net/2011/12/iphone-call-history.html 
     query = '''
     select
-    datetime(ZDATE+978307200,'unixepoch'),
+    ZDATE,
     CASE
-        WHEN ((datetime(ZDATE+978307200,'unixepoch')) = (datetime(((ZDATE) + (ZDURATION))+978307200,'unixepoch'))) then 'No Call Duration'
-        ELSE (datetime(((ZDATE) + (ZDURATION))+978307200,'unixepoch'))
+        WHEN ZDATE = (ZDATE + ZDURATION) then NULL
+        ELSE (ZDATE + ZDURATION)
     END, 
     ZSERVICE_PROVIDER,
     CASE ZCALLTYPE
@@ -64,11 +75,11 @@ def get_callHistory(files_found, report_folder, seeker, wrap_text, timezone_offs
     from ZCALLRECORD
     '''
 
-    query_old = '''
+    old_query = '''
     select
     datetime(date, 'unixepoch'),
     CASE
-        WHEN datetime(date,'unixepoch') = datetime((date + duration),'unixepoch') then 'No Call Duration'
+        WHEN datetime(date,'unixepoch') = datetime((date + duration),'unixepoch') then NULL
         ELSE datetime((date + duration), 'unixepoch')
     END,
     'N/A' as ZSERVICE_PROVIDER,
@@ -93,60 +104,52 @@ def get_callHistory(files_found, report_folder, seeker, wrap_text, timezone_offs
     from call
     '''
 
-    for file_found in files_found:
-        file_found = str(file_found)
+    db_records = get_sqlite_db_records(db_path, query)
+    temp_db_records = get_sqlite_db_records(temp_db_path, query)
+    if db_path or temp_db_path:
+        if db_records and temp_db_records:
+            source_path = "Source file path in the report below"
+            records_in_both_db = True
+            records = [tuple(list(record) + [db_path]) for record in db_records] + [tuple(list(record) + [temp_db_path]) for record in temp_db_records]
+        else:
+            records = db_records if db_records else temp_db_records
+            source_path = db_path if db_path else temp_db_path
+    elif old_db_path:
+        records = get_sqlite_db_records(old_db_path, old_query)
+        source_path = old_db_path if records else ''
     
-        if file_found.endswith('.storedata'):
-            break
-        elif file_found.endswith('.db'):
-            query = query_old
-            break
+    for record in records:
+        starting_time = convert_cocoa_core_data_ts_to_utc(record[0])
+        ending_time = convert_cocoa_core_data_ts_to_utc(record[1])
+
+        an = str(record[5])
+        an = an.replace("b'", "")
+        an = an.replace("'", "")
+
+        facetime_data = convert_bytes_to_unit(record[8])
+
+        record_data = [starting_time, ending_time, record[2], record[3], record[4], an, record[6], 
+                            record[7], facetime_data, record[9], record[10], record[11]]
+        if records_in_both_db:
+            record_data.append(record[12])
+        data_list.append(tuple(record_data))
+
+    headers = [
+        ('Starting Timestamp', 'datetime'), 
+        ('Ending Timestamp', 'datetime'), 
+        'Service Provider', 
+        'Call Type', 
+        'Call Direction', 
+        ('Phone Number', 'phonenumber'), 
+        'Answered', 
+        'Call Duration', 
+        'FaceTime Data', 
+        'Disconnected Cause', 
+        'ISO Country Code', 
+        'Location'
+        ]
+    if records_in_both_db:
+        headers.append('Source File path')
     
-    db = open_sqlite_db_readonly(file_found)
-    cursor = db.cursor()
-    cursor.execute(query)
-
-    all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
-    data_list = []
-    
-    if usageentries > 0:
-        
-        for row in all_rows:
-            starting_time = convert_ts_human_to_utc(row[0])
-            starting_time = convert_utc_human_to_timezone(starting_time,timezone_offset)
-
-            ending_time = row[1]
-            if ending_time != 'No Call Duration':
-                ending_time = convert_ts_human_to_utc(row[1])
-                ending_time = convert_utc_human_to_timezone(ending_time,timezone_offset)
-
-            an = str(row[5])
-            an = an.replace("b'", "")
-            an = an.replace("'", "")
-
-            facetime_data = row[8]
-            if facetime_data:
-                facetime_data = convert_bytes_to_unit(facetime_data)
-
-
-            data_list.append((starting_time, ending_time, row[2], row[3], row[4], an, row[6], 
-                              row[7], facetime_data, row[9], row[10], row[11]))
-
-        report = ArtifactHtmlReport('Call History')
-        report.start_artifact_report(report_folder, 'Call History')
-        report.add_script()
-        data_headers = ('Starting Timestamp', 'Ending Timestamp', 'Service Provider', 'Call Type', 'Call Direction', 
-                        'Phone Number', 'Answered', 'Call Duration', 'FaceTime Data', 'Disconnected Cause', 
-                        'ISO Country Code', 'Location')
-        report.write_artifact_data_table(data_headers, data_list, file_found)
-        report.end_artifact_report()
-
-        tsvname = 'Call History'
-        tsv(report_folder, data_headers, data_list, tsvname)
-        
-        tlactivity = 'Call History'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-    else:
-        logfunc('No Call History data available')
-
+    data_headers = tuple(headers)
+    return data_headers, data_list, source_path

@@ -1,49 +1,37 @@
 __artifacts_v2__ = {
     "blockedContacts": {
-        "name": "Blocked Contacts",
-        "description": "",
+        "name": "Blocked contacts",
+        "description": "Extract blocked contacts",
         "author": "@JohannPLW",
         "version": "0.1",
         "date": "2023-12-08",
         "requirements": "none",
         "category": "Contacts",
         "notes": "",
-        "paths": ('*/mobile/Library/Preferences/com.apple.cmfsyncagent.plist',),
-        "function": "get_blocked_contacts"
+        "paths": ('*/mobile/Library/Preferences/com.apple.cmfsyncagent.plist'),
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "user-x"
     }
 }
 
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content
 
-import datetime
-import os
-import plistlib
-
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, tsv, is_platform_windows 
-
-def get_blocked_contacts(files_found, report_folder, seeker, wrap_text, timezone_offset):
+@artifact_processor
+def blockedContacts(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    source_path = get_file_path(files_found, "com.apple.cmfsyncagent.plist")
     data_list = []
-    file_found = str(files_found[0])
-    with open(file_found, "rb") as fp:
-        pl = plistlib.load(fp)
-        StoreArrayKey = pl.get('__kCMFBlockListStoreTopLevelKey', {}).get('__kCMFBlockListStoreArrayKey')
-        if len(StoreArrayKey) > 0:
-            for item in StoreArrayKey:
-                type_key = item.get('__kCMFItemTypeKey', '')
-                country_code = phone_number = email = ''
-                if type_key == 0:
-                    country_code = item.get('__kCMFItemPhoneNumberCountryCodeKey', '')
-                    phone_number = item.get('__kCMFItemPhoneNumberUnformattedKey', '')
-                elif type_key == 1:
-                    email = item.get('__kCMFItemEmailUnformattedKey', '')
-                data_list.append((country_code, phone_number, email))
 
-            report = ArtifactHtmlReport('Blocked Contacts')
-            report.start_artifact_report(report_folder, 'Blocked Contacts')
-            report.add_script()
-            data_headers = ('Country Code', 'Phone Number', 'Email')
-            report.write_artifact_data_table(data_headers, data_list, file_found)
-            report.end_artifact_report()
-        else:
-            logfunc('No Blocked contact found')
+    pl = get_plist_file_content(source_path)
+    StoreArrayKey = pl.get('__kCMFBlockListStoreTopLevelKey', {}).get('__kCMFBlockListStoreArrayKey', {})
+    for item in StoreArrayKey:
+        type_key = item.get('__kCMFItemTypeKey', '')
+        phone_number = email = country_code = ''
+        if type_key == 0:
+            phone_number = item.get('__kCMFItemPhoneNumberUnformattedKey', '')
+            country_code = item.get('__kCMFItemPhoneNumberCountryCodeKey', '')
+        elif type_key == 1:
+            email = item.get('__kCMFItemEmailUnformattedKey', '')
+        data_list.append((phone_number, country_code, email))
 
+    data_headers = (('Phone Number', 'phonenumber'), 'Country Code', 'Email')     
+    return data_headers, data_list, source_path

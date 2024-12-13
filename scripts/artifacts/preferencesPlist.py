@@ -1,48 +1,45 @@
-import datetime
-import os
+__artifacts_v2__ = {
+    "preferencesPlist": {
+        "name": "Preferences PList",
+        "description": "Extract Device information",
+        "author": "@AlexisBrignoni",
+        "version": "0.2",
+        "date": "2023-09-30",
+        "requirements": "none",
+        "category": "Identifiers",
+        "notes": "",
+        "paths": ('*preferences/SystemConfiguration/preferences.plist', ),
+        "output_types": ["html", "tsv", "lava"]
+    }
+}
+
+
 import plistlib
+from scripts.ilapfuncs import artifact_processor, device_info
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, tsv, is_platform_windows 
-
-def get_preferencesPlist(files_found, report_folder, seeker, wrap_text, timezone_offset):
+@artifact_processor
+def preferencesPlist(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
-    file_found = str(files_found[0])
-    with open(file_found, "rb") as fp:
+    source_path = str(files_found[0])
+    with open(source_path, "rb") as fp:
         pl = plistlib.load(fp)
         for key, val in pl.items():
-            
             if key == ("Model"):
                 data_list.append((key, val))
-                logfunc(f"Model: {val}")
-                logdevinfo(f"<b>Model: </b>{val}")
+                device_info("Device Information", "Model", val, source_path)
             
             if key == "System":
                 localhostname = val['Network']['HostNames']['LocalHostName']
                 data_list.append(('Local Host Name', localhostname ))
-                logdevinfo(f"<b>Model: </b>{localhostname }")
+                device_info("Device Information", "Local Host Name", localhostname, source_path)
                 
                 computername = val['System']['ComputerName']
                 data_list.append(('Device/Computer Name', computername))
-                logdevinfo(f"<b>Device/Computer Name: </b>{computername}")
+                device_info("Device Information", "Device/Computer Name", computername, source_path)
                 
                 hostname = val['System']['HostName']
                 data_list.append(('Host Name', hostname ))
-                logdevinfo(f"<b>Host Name: </b>{hostname }")
+                device_info("Device Information", "Host Name", hostname, source_path)
 
-    report = ArtifactHtmlReport('Device Preferences Plist')
-    report.start_artifact_report(report_folder, 'Device Preferences Plist')
-    report.add_script()
-    data_headers = ('Key','Values' )     
-    report.write_artifact_data_table(data_headers, data_list, file_found)
-    report.end_artifact_report()
-    
-    tsvname = 'Device Preferences Plist'
-    tsv(report_folder, data_headers, data_list, tsvname)
-
-__artifacts__ = {
-    "preferencesPlist": (
-        "Identifiers",
-        ('*preferences/SystemConfiguration/preferences.plist'),
-        get_preferencesPlist)
-}
+    data_headers = ('Property','Property Value' )
+    return data_headers, data_list, source_path

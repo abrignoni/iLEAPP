@@ -1,3 +1,19 @@
+__artifacts_v2__ = {
+	"get_mailprotect": {
+		"function": "get_mailprotect",
+		"name": "Apple Email",
+		"description": "Apple Email.",
+		"author": "@abrignoni",
+		"version": "0.1",
+		"date": "2020-05-07",
+		"requirements": "none",
+		"category": "Apple Mail",
+		"notes": "",
+		"paths": ('*/mobile/Library/Mail/* Index*'),
+		"output_types": "none"
+	}
+}
+
 import glob
 import os
 import pathlib
@@ -10,6 +26,7 @@ import scripts.artifacts.artGlobals
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, convert_ts_human_to_utc, convert_utc_human_to_timezone
+from scripts.lavafuncs import lava_process_artifact, lava_insert_sqlite_data
 from scripts.parse3 import ParseProto
 
 def get_mailprotect(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -150,7 +167,7 @@ def get_mailprotect(files_found, report_folder, seeker, wrap_text, timezone_offs
 			
 			file_found = head
 			description = ''
-			report = ArtifactHtmlReport('iOS Mail')
+			report = ArtifactHtmlReport('Apple Email')
 			report.start_artifact_report(report_folder, 'Emails', description)
 			report.add_script()
 			data_headers = ('Date Sent','Date Received','Sender','Message ID', 'Subject', 'Recipient', 'Message', 'CC', 'BCC','Row ID')     
@@ -161,7 +178,23 @@ def get_mailprotect(files_found, report_folder, seeker, wrap_text, timezone_offs
 			tsv(report_folder, data_headers, data_list, tsvname)
 			
 			tlactivity = 'iOS Mail'
-			timeline(report_folder, tlactivity, data_list, data_headers)		
+			timeline(report_folder, tlactivity, data_list, data_headers)
+			
+			#LAVA Section
+			data_headers = ['Date Sent','Date Received','Sender','Message ID', 'Subject', 'Recipient', 'Message', 'CC', 'BCC','Row ID']
+			
+			data_headers[0] = (data_headers[0], 'datetime')
+			data_headers[1] = (data_headers[1], 'datetime')
+			
+			category = "Apple Email"
+			module_name = "get_mailprotect"
+			
+			table_name1, object_columns1, column_map1 = lava_process_artifact(category, module_name, 'Apple Email', data_headers, len(data_list))
+			
+			lava_insert_sqlite_data(table_name1, data_list, object_columns1, data_headers, column_map1)
+			
+			
+			
 		else:
 			logfunc("No iOS emails available")
 		db.close()
@@ -208,7 +241,7 @@ def get_mailprotect(files_found, report_folder, seeker, wrap_text, timezone_offs
 			
 			file_found = head
 			description = ''
-			report = ArtifactHtmlReport('Apple Mail')
+			report = ArtifactHtmlReport('Apple Email')
 			report.start_artifact_report(report_folder, 'Emails', description)
 			report.add_script()
 			data_headers = ('Date Sent','Date Received','Address','Comment','Subject', 'Summary', 'Read?', 'Flagged?', 'Deleted', 'Mailbox')     
@@ -220,13 +253,21 @@ def get_mailprotect(files_found, report_folder, seeker, wrap_text, timezone_offs
 			
 			tlactivity = 'Apple Mail'
 			timeline(report_folder, tlactivity, data_list, data_headers)
+			
+			#LAVA Section
+			data_headers = ['Date Sent','Date Received','Sender','Message ID', 'Subject', 'Recipient', 'Message', 'CC', 'BCC','Row ID']
+			
+			data_headers[0] = (data_headers[0], 'datetime')
+			data_headers[1] = (data_headers[1], 'datetime')
+			
+			category = "Apple Email"
+			module_name = "get_mailprotect"
+			
+			table_name1, object_columns1, column_map1 = lava_process_artifact(category, module_name, 'Apple Email', data_headers, len(data_list))
+			
+			lava_insert_sqlite_data(table_name1, data_list, object_columns1, data_headers, column_map1)
 				
 		else:
 			logfunc("No Apple Mail emails available")
 
-__artifacts__ = {
-    "mailprotect": (
-        "Apple Mail",
-        ('*/mobile/Library/Mail/* Index*'),
-        get_mailprotect)
-}
+			

@@ -1,0 +1,96 @@
+{
+  "metadata": {
+    "module_name": "teams",
+    "artifact_name": "Teams Call Logs",
+    "function_name": "teamsCalls",
+    "case_number": "josh_ios15_ffs",
+    "number_of_columns": 10,
+    "number_of_rows": 5,
+    "total_data_size_bytes": 611,
+    "input_zip_path": "admin/test/cases/data/teams/testdata.teams.teamsCalls.josh_ios15_ffs.zip",
+    "start_time": "2024-11-06T01:20:47.155309+00:00",
+    "end_time": "2024-11-06T01:20:47.217429+00:00",
+    "run_time_seconds": 0.01639389991760254,
+    "last_commit": {
+      "hash": "5202a7098bf2a89e883f17e1091e1ac191ad9097",
+      "author_name": "James Habben",
+      "author_email": "james@wmif.net",
+      "date": "2024-11-04T14:09:41-08:00",
+      "message": "update teams module"
+    }
+  },
+  "headers": [
+    "Call Start",
+    "Call Connect",
+    "Call End",
+    "Call Direction",
+    "Call Type",
+    "Call State",
+    "Call Originator",
+    "Call Target",
+    "Call Originator Name",
+    "Call Participant Name"
+  ],
+  "data": [
+    [
+      1682691683,
+      1682691687,
+      1682691710,
+      "outgoing",
+      "twoParty",
+      "accepted",
+      "8:live:.cid.832804f1252ed9b2",
+      "8:live:.cid.5638f9306b7b8594",
+      "ThisIs DFIR",
+      ""
+    ],
+    [
+      1682691917,
+      1682691921,
+      1682691942,
+      "outgoing",
+      "twoParty",
+      "accepted",
+      "8:live:.cid.832804f1252ed9b2",
+      "8:live:.cid.5638f9306b7b8594",
+      "ThisIs DFIR",
+      ""
+    ],
+    [
+      1682692116,
+      1682692120,
+      1682692211,
+      "incoming",
+      "twoParty",
+      "accepted",
+      "8:live:.cid.5638f9306b7b8594",
+      "8:live:.cid.832804f1252ed9b2",
+      "ThisIs DfirTwo",
+      ""
+    ],
+    [
+      1682692633,
+      1682692636,
+      1682692732,
+      "outgoing",
+      "twoParty",
+      "accepted",
+      "8:live:.cid.832804f1252ed9b2",
+      "8:live:.cid.5638f9306b7b8594",
+      "ThisIs DFIR",
+      ""
+    ],
+    [
+      1682693035,
+      1682693039,
+      1682693144,
+      "incoming",
+      "twoParty",
+      "accepted",
+      "8:live:.cid.5638f9306b7b8594",
+      "8:live:.cid.832804f1252ed9b2",
+      "ThisIs DfirTwo",
+      ""
+    ]
+  ]
+}

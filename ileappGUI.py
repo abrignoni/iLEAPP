@@ -1,44 +1,43 @@
 import tkinter as tk
-import plugin_loader
 import typing
 import json
 import ileapp
 import webbrowser
 
+import scripts.plugin_loader as plugin_loader
+
 from tkinter import ttk, filedialog as tk_filedialog, messagebox as tk_msgbox
 from scripts.version_info import ileapp_version
 from scripts.search_files import *
 from scripts.tz_offset import tzvalues
-from modules_to_exclude import modules_to_exclude
+from scripts.modules_to_exclude import modules_to_exclude
+from scripts.lavafuncs import *
 
 
 def pickModules():
     '''Create a list of available modules:
-        - iTunesBackupInfo, lastBuild, Ph99-System-Version-Plist, Ph100-UFED-device-values-Plist that need to be executed first are excluded
+        - iTunesBackupInfo, lastBuild, Ph100-UFED-device-values-Plist that need to be executed first are excluded
         - ones that take a long time to run are deselected by default'''
     global mlist
-    global loader
-
-    loader = plugin_loader.PluginLoader()
-
     for plugin in sorted(loader.plugins, key=lambda p: p.category.upper()):
-        if (plugin.module_name == 'iTunesBackupInfo'
-                or plugin.module_name == 'lastBuild'
-                or plugin.module_name == 'Ph99-System-Version-Plist'
-                or plugin.module_name == 'Ph100-UFED-device-values-Plist'):
+        if (plugin.name == 'iTunesBackupInfo'
+                or plugin.name == 'lastBuild'
+                or plugin.name == 'Ph100-UFED-device-values-Plist'):
             continue
         # Items that take a long time to execute are deselected by default
         # and referenced in the modules_to_exclude list in an external file (modules_to_exclude.py).
-        mlist[plugin] = tk.BooleanVar(value=False) if plugin.module_name in modules_to_exclude else tk.BooleanVar(value=True)
+        plugin_enabled = tk.BooleanVar(value=False) if plugin.module_name in modules_to_exclude else tk.BooleanVar(value=True)
+        plugin_module_name = plugin.artifact_info.get('name', plugin.name) if hasattr(plugin, 'artifact_info') else plugin.name
+        mlist[plugin.name] = [plugin.category, plugin_module_name, plugin.module_name, plugin_enabled]
 
 
 def get_selected_modules():
     '''Update the number and return the list of selected modules'''
     selected_modules = []
 
-    for plugin, state in mlist.items():
-        if state.get():
-            selected_modules.append(plugin.name)
+    for artifact_name, module_infos in mlist.items():
+        if module_infos[-1].get():
+            selected_modules.append(artifact_name)
 
     selected_modules_label.config(text=f'Number of selected modules: {len(selected_modules)} / {len(mlist)}')
     return selected_modules
@@ -46,16 +45,16 @@ def get_selected_modules():
 
 def select_all():
     '''Select all modules in the list of available modules and execute get_selected_modules'''
-    for plugin in mlist:
-        main_window.nametowidget(f'f_modules.f_list.tbox.mcb_{plugin.name}').select()
+    for artifact_name in mlist:
+        main_window.nametowidget(f'f_modules.f_list.tbox.mcb_{artifact_name}').select()
 
     get_selected_modules()
 
 
 def deselect_all():
     '''Unselect all modules in the list of available modules and execute get_selected_modules'''
-    for plugin in mlist:
-        main_window.nametowidget(f'f_modules.f_list.tbox.mcb_{plugin.name}').deselect()
+    for artifact_name in mlist:
+        main_window.nametowidget(f'f_modules.f_list.tbox.mcb_{artifact_name}').deselect()
 
     get_selected_modules()
 
@@ -82,9 +81,9 @@ def load_profile():
                 else:
                     deselect_all()
                     ticked = set(profile.get('plugins', []))
-                    for plugin in mlist:
-                        if plugin.name in ticked:
-                            main_window.nametowidget(f'f_modules.f_list.tbox.mcb_{plugin.name}').select()
+                    for artifact_name in mlist:
+                        if artifact_name in ticked:
+                            main_window.nametowidget(f'f_modules.f_list.tbox.mcb_{artifact_name}').select()
                     get_selected_modules()
             else:
                 profile_load_error = 'File was not a valid profile file: invalid format'
@@ -129,10 +128,8 @@ def ValidateInput():
     elif not os.path.exists(i_path):
         tk_msgbox.showerror(title='Error', message='INPUT file/folder does not exist!', parent=main_window)
         return False, ext_type
-    elif os.path.isdir(i_path) and os.path.exists(os.path.join(i_path, 'Manifest.db')):
+    elif os.path.isdir(i_path) and (os.path.exists(os.path.join(i_path, 'Manifest.db')) or os.path.exists(os.path.join(i_path, 'Manifest.mbdb'))):
         ext_type = 'itunes'
-    elif os.path.isdir(i_path) and os.path.exists(os.path.join(i_path, 'Manifest.mbdb')):
-        ext_type = 'itunes-mbdb'
     elif os.path.isdir(i_path):
         ext_type = 'fs'
     else:
@@ -175,7 +172,8 @@ def process(casedata):
 
         # re-create modules list based on user selection
         selected_modules = get_selected_modules()
-        selected_modules.insert(0, 'lastbuild')  # Force lastBuild as first item to be parsed
+        if extracttype != 'itunes':
+            selected_modules.insert(0, 'lastBuild')  # Force lastBuild as first item to be parsed
         selected_modules = [loader[module] for module in selected_modules]
         progress_bar.config(maximum=len(selected_modules))
         casedata = {key: value.get() for key, value in casedata.items()}
@@ -189,9 +187,13 @@ def process(casedata):
         bottom_frame.grid_remove()
         progress_bar.grid(padx=16, sticky='we')
 
+        initialize_lava(input_path, out_params.report_folder_base, extracttype)
+
         crunch_successful = ileapp.crunch_artifacts(
             selected_modules, extracttype, input_path, out_params, wrap_text, loader,
             casedata, time_offset, profile_filename)
+        
+        lava_finalize_output(out_params.report_folder_base)
 
         if crunch_successful:
             report_path = os.path.join(out_params.report_folder_base, 'index.html')
@@ -200,14 +202,8 @@ def process(casedata):
             if report_path.startswith('\\\\'):  # UNC path
                 report_path = report_path[2:]
             progress_bar.grid_remove()
-            close_frame.grid(padx=16, sticky='')
-            open_report_button = ttk.Button(close_frame, text='Open Report & Quit',
-                                            command=lambda: open_report(report_path))
-            close_button = ttk.Button(close_frame, text='Close logs',
-                                            command=refresh_main_window)
-            open_report_button.grid(row=0, column=0, ipadx=8)
-            ttk.Separator(close_frame, orient='vertical').grid(row=0, column=1, padx=20, sticky='ns')
-            close_button.grid(row=0, column=2, ipadx=8)
+            open_report_button = ttk.Button(main_window, text='Open Report & Close', command=lambda: open_report(report_path))
+            open_report_button.grid(ipadx=8)
         else:
             log_path = out_params.screen_output_file_path
             if log_path.startswith('\\\\?\\'):  # windows
@@ -350,32 +346,6 @@ def case_data():
     case_window.grab_set()
 
 
-def refresh_main_window():
-    global profile_filename
-    global casedata
-    global timezone_set
-    input_entry.delete(0, 'end')
-    output_entry.delete(0, 'end')
-    profile_filename = None
-    casedata = {'Case Number': tk.StringVar(),
-                'Agency': tk.StringVar(),
-                'Examiner': tk.StringVar(),
-                }
-    timezone_set = tk.StringVar()
-    mlist.clear()
-    pickModules()
-    for plugin,enabled in mlist.items():
-        main_window.nametowidget(f'f_modules.f_list.tbox.mcb_{plugin.name}').config(
-            variable=enabled, onvalue=True, offvalue=False
-        )
-    get_selected_modules()
-    ()
-    logtext_frame.grid_remove()
-    log_text.delete('1.0', 'end')
-    close_frame.grid_remove()
-    bottom_frame.grid(padx=16, pady=6, sticky='we')
-    bottom_frame.update_idletasks()
-
 ## Main window creation
 main_window = tk.Tk()
 window_width = 890
@@ -384,6 +354,7 @@ window_height = 620
 ## Variables
 icon = os.path.join(os.path.dirname(__file__), 'scripts', 'icon.png')
 loader: typing.Optional[plugin_loader.PluginLoader] = None
+loader = plugin_loader.PluginLoader()
 mlist = {}
 profile_filename = None
 casedata = {'Case Number': tk.StringVar(),
@@ -520,10 +491,10 @@ mlist_text = tk.Text(mlist_frame, name='tbox', bg=theme_bgcolor, highlightthickn
                      yscrollcommand=v.set, height=mlist_window_height)
 mlist_text.grid(row=0, column=0, sticky='we')
 v.config(command=mlist_text.yview)
-for plugin, enabled in mlist.items():
-    cb = tk.Checkbutton(mlist_text, name=f'mcb_{plugin.name}',
-                        text=f'{plugin.category} [{plugin.name} - {plugin.module_name}.py]',
-                        variable=enabled, onvalue=True, offvalue=False, command=get_selected_modules)
+for artifact_name, module_infos in mlist.items():
+    cb = tk.Checkbutton(mlist_text, name=f'mcb_{artifact_name}',
+                        text=f'{module_infos[0]} [{module_infos[1]} | {module_infos[2]}.py]',
+                        variable=module_infos[-1], onvalue=True, offvalue=False, command=get_selected_modules)
     cb.config(background=theme_bgcolor, fg=theme_fgcolor, selectcolor=theme_inputcolor,
               highlightthickness=0, activebackground=theme_bgcolor, activeforeground=theme_fgcolor)
     mlist_text.window_create('insert', window=cb)
@@ -569,5 +540,15 @@ close_frame = ttk.Frame(main_window)
 
 ### Progress bar
 progress_bar = ttk.Progressbar(main_window, orient='horizontal')
+
+### Push main window on top
+def OnFocusIn(event):
+    if type(event.widget).__name__ == 'Tk':
+        event.widget.attributes('-topmost', False)
+
+main_window.attributes('-topmost', True)
+main_window.focus_force()
+main_window.bind('<FocusIn>', OnFocusIn)
+
 
 main_window.mainloop()

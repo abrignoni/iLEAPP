@@ -1,7 +1,8 @@
 import html
 import os
+import sys
 from scripts.html_parts import *
-from scripts.ilapfuncs import is_platform_windows
+#from scripts.ilapfuncs import is_platform_windows
 from scripts.version_info import ileapp_version
 
 class ArtifactHtmlReport:
@@ -19,6 +20,7 @@ class ArtifactHtmlReport:
 
     def start_artifact_report(self, report_folder, artifact_file_name, artifact_description=''):
         '''Creates the report HTML file and writes the artifact name as a heading'''
+        # artifact_file_name =  artifact_file_name.replace(" ", "_") # Replace " " with "_" in HTML filenames
         self.report_file = open(os.path.join(report_folder, f'{artifact_file_name}.temphtml'), 'w', encoding='utf8')
         self.report_file.write(page_header.format(f'iLEAPP - {self.artifact_name} report'))
         self.report_file.write(body_start.format(f'iLEAPP {ileapp_version}'))
@@ -83,7 +85,7 @@ class ArtifactHtmlReport:
         if write_total:
             self.write_minor_header(f'Total number of entries: {num_entries}', 'h6')
         if write_location:
-            if is_platform_windows():
+            if sys.platform == 'win32':
                 source_path = source_path.replace('/', '\\')
             if source_path.startswith('\\\\?\\'):
                 source_path = source_path[4:]
