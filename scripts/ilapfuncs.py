@@ -938,6 +938,31 @@ def check_in_media(seeker, file_path, artifact_info):
         logfunc(f'No matching file found for "{file_path}"')
         return None
 
+def check_in_extracted_media(file_found, file_info, artifact_info):
+    media_item = MediaItem()
+    extraction_path = Path(file_found)
+    media_id = hashlib.sha1(f"{extraction_path}".encode()).hexdigest()
+    get_media_item = lava_get_media_item(media_id)
+    if get_media_item:
+        media_item.set_values(get_media_item)
+    else:
+        if extraction_path.is_file():
+            media_item.set_values((
+                media_id,
+                file_info.source_path,
+                extraction_path,
+                guess_mime(extraction_path),
+                "not implemented yet",
+                file_info.creation_date,
+                file_info.modification_date
+            ))
+            lava_insert_sqlite_media_item(media_item)
+            set_media_references(media_item, artifact_info)
+        else:
+            logfunc(f"{extraction_path} was nout found")
+            return None            
+    return media_item
+
 def check_in_embedded_media(seeker, source_file, data, artifact_info, report_folder=None):
     file_info = seeker.file_infos.get(source_file) if seeker else "Info.plist"
     if data and file_info:
