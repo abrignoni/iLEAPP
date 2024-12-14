@@ -80,7 +80,6 @@ def voicemail(files_found, report_folder, seeker, wrap_text, timezone_offset):
         audio_filename = f'{record[-1]}.amr'
         audio_file_path = f'*/mobile/Library/Voicemail/{audio_filename}'
         media_item = check_in_media(seeker, audio_file_path, artifact_info)
-        # audio_tag = media_to_html(audio_filename, files_found, report_folder)
         if table_map_exists:
             data_list.append(
                 (timestamp, record[1], record[2], record[3], record[4], media_item.id))
@@ -146,8 +145,6 @@ def deletedVoicemail(files_found, report_folder, seeker, wrap_text, timezone_off
         audio_filename = f'{record[-1]}.amr'
         audio_file_path = f'*/mobile/Library/Voicemail/{audio_filename}'
         media_item = check_in_media(seeker, audio_file_path, artifact_info)
-        # audio_tag = media_to_html(audio_filename, files_found, report_folder)
-        # report.write_artifact_data_table(data_headers, data_list, dirname(file_found), html_no_escape=['Audio File'])
         if table_map_exists:
             data_list.append(
                 (timestamp, record[1], record[2], record[3], record[4], trashed_date, media_item.id))
