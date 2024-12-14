@@ -55,8 +55,8 @@ class FileSeekerDir(FileSeekerBase):
         except Exception as ex:
             logfunc(f'Error reading {directory} ' + str(ex))
 
-    def search(self, filepattern, return_on_first_hit=False):
-        if filepattern in self.searched:
+    def search(self, filepattern, return_on_first_hit=False, force=False):
+        if filepattern in self.searched and not force:
             pathlist = self.searched[filepattern]
             return self.searched[filepattern][0] if return_on_first_hit and pathlist else pathlist
         pathlist = []
@@ -68,7 +68,7 @@ class FileSeekerDir(FileSeekerBase):
                 data_path = os.path.join(self.data_folder, item_rel_path[1:])
                 if is_platform_windows():
                     data_path = data_path.replace('/', '\\')
-                if self.directory not in self.copied:
+                if self.directory not in self.copied or force:
                     try:
                         os.makedirs(os.path.dirname(data_path), exist_ok=True)
                         copyfile(item, data_path)
@@ -195,8 +195,8 @@ class FileSeekerItunes(FileSeekerBase):
             logfunc(f'Error opening Manifest.mbdb from {directory}, ' + str(ex))
             raise ex
 
-    def search(self, filepattern, return_on_first_hit=False):
-        if filepattern in self.searched:
+    def search(self, filepattern, return_on_first_hit=False, force=False):
+        if filepattern in self.searched and not force:
             pathlist = self.searched[filepattern]
             return self.searched[filepattern][0] if return_on_first_hit and pathlist else pathlist
         pathlist = []
@@ -216,7 +216,7 @@ class FileSeekerItunes(FileSeekerBase):
             data_path = os.path.join(self.data_folder, sanitize_file_path(relative_path))
             if is_platform_windows():
                 data_path = data_path.replace('/', '\\')
-            if original_location not in self.copied:
+            if original_location not in self.copied or force:
                 try:
                     os.makedirs(os.path.dirname(data_path), exist_ok=True)
                     copyfile(original_location, data_path)
@@ -245,8 +245,8 @@ class FileSeekerTar(FileSeekerBase):
         self.copied = set()
         self.file_infos = {}
 
-    def search(self, filepattern, return_on_first_hit=False):
-        if filepattern in self.searched:
+    def search(self, filepattern, return_on_first_hit=False, force=False):
+        if filepattern in self.searched and not force:
             pathlist = self.searched[filepattern]
             return self.searched[filepattern][0] if return_on_first_hit and pathlist else pathlist
         pathlist = []
@@ -256,7 +256,7 @@ class FileSeekerTar(FileSeekerBase):
             if pat( root + normcase(member.name) ) is not None:
                 clean_name = sanitize_file_path(member.name)
                 full_path = os.path.join(self.data_folder, Path(clean_name))
-                if member.name not in self.copied:
+                if member.name not in self.copied or force:
                     try:
                         if member.isdir():
                             os.makedirs(full_path, exist_ok=True)
@@ -294,8 +294,8 @@ class FileSeekerZip(FileSeekerBase):
         self.copied = set()
         self.file_infos = {}
 
-    def search(self, filepattern, return_on_first_hit=False):
-        if filepattern in self.searched:
+    def search(self, filepattern, return_on_first_hit=False, force=False):
+        if filepattern in self.searched and not force:
             pathlist = self.searched[filepattern]
             return self.searched[filepattern][0] if return_on_first_hit and pathlist else pathlist
         pathlist = []
@@ -307,7 +307,7 @@ class FileSeekerZip(FileSeekerBase):
             if pat( root + normcase(member) ) is not None:
                 # TO DO : Implement Alexis' script to extract additional metadata from Cellebrite extractions
                 date_time = 0
-                if member not in self.copied:
+                if member not in self.copied or force:
                     try:
                         extracted_path = self.zip_file.extract(member, path=self.data_folder) # already replaces illegal chars with _ when exporting
                         self.copied.add(member)
