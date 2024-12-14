@@ -17,7 +17,7 @@ __artifacts_v2__ = {
 import plistlib
 import datetime
 
-from scripts.ilapfuncs import artifact_processor
+from scripts.ilapfuncs import artifact_processor, convert_unix_ts_to_utc
 
 
 @artifact_processor
@@ -31,8 +31,7 @@ def get_bluetoothPairedReg(files_found, report_folder, seeker, wrap_text, timezo
             for x in plist.items():
                 macaddress = x[0]
                 if 'LastSeenTime' in x[1]:
-                    lastseen = x[1]['LastSeenTime']
-                    lastseen = (datetime.datetime.fromtimestamp(int(lastseen)).strftime('%Y-%m-%d %H:%M:%S'))
+                    lastseen = convert_unix_ts_to_utc(x[1]['LastSeenTime'])
                 else:
                     lastseen = ''
                 if 'UserNameKey' in x[1]:
