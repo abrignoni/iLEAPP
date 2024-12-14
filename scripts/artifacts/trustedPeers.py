@@ -35,7 +35,7 @@ def get_trustedPeers(files_found, report_folder, seeker, wrap_text, timezone_off
     cursor = db.cursor()
     cursor.execute('''
     SELECT 
-    datetime(client.ZSECUREBACKUPMETADATATIMESTAMP + 978307200, 'unixepoch') AS "Timestamp",
+    DISTINCT datetime(client.ZSECUREBACKUPMETADATATIMESTAMP + 978307200, 'unixepoch') AS "Timestamp",
 	client.ZDEVICEMODEL AS "Model",
     client.ZDEVICEMODELVERSION AS "Model Version", 
     client.ZDEVICENAME AS "Device Name",
