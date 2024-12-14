@@ -78,6 +78,9 @@ def get_file_path(files_found, filename):
 def strip_tuple_from_headers(data_headers):
     return [header[0] if isinstance(header, tuple) else header for header in data_headers]
 
+def get_media_header_position(data_headers):
+    return [i for i, header in enumerate(data_headers) if isinstance(header, tuple) and header[1] == 'media']
+
 def check_output_types(type, output_types):
     if type in output_types or type == output_types or 'all' in output_types or 'all' == output_types:
         return True
@@ -85,6 +88,34 @@ def check_output_types(type, output_types):
         return True
     else:
         return False
+
+def get_modified_data_list(media_header_idx, data_list, media_style):
+    ''' 
+    For columns with media item:
+      - Generate a new data list with HTML code
+      - Remove them in a new data list for TSV, KML and Timeline exports  
+    '''
+    html_data_list = []
+    txt_data_list = []
+    media_item = MediaItem()
+    for data in data_list:
+        html_data = list(data)
+        media_style_idx = 0
+        for idx in media_header_idx:
+            media_id = data[idx]
+            media_item.set_values(lava_get_media_item(media_id))
+            if html_data[idx]:
+                try:
+                    style = media_style[media_style_idx] if isinstance(media_style, tuple) else media_style
+                except:
+                    style = media_style
+                html_data[idx] = html_media_tag(media_item.extraction_path, media_item.mimetype, style)
+            media_style_idx += 1
+        html_data_list.append(tuple(html_data))
+        txt_data = [i for media_idx, i in enumerate(data) if media_idx not in media_header_idx]
+        txt_data_list.append(tuple(txt_data))
+    return html_data_list, txt_data_list
+
 
 def artifact_processor(func):
     @wraps(func)
@@ -99,6 +130,9 @@ def artifact_processor(func):
         category = artifact_info.get('category', '')
         description = artifact_info.get('description', '')
         icon = artifact_info.get('artifact_icon', '')
+        html_columns = artifact_info.get('html_columns', [])
+        media_style = artifact_info.get('media_style', '')
+
         output_types = artifact_info.get('output_types', ['html', 'tsv', 'timeline', 'lava', 'kml'])
 
         data_headers, data_list, source_path = func(files_found, report_folder, seeker, wrap_text, timezone_offset)
@@ -113,25 +147,33 @@ def artifact_processor(func):
             # Strip tuples from headers for HTML, TSV, and timeline
             stripped_headers = strip_tuple_from_headers(data_headers)
 
+            # Check if headers contains a 'media' type
+            media_header_idx = get_media_header_position(data_headers)
+            if media_header_idx:
+                html_columns.extend([data_headers[idx][0] for idx in media_header_idx])
+                html_data_list, txt_data_list = get_modified_data_list(media_header_idx, data_list, media_style)
+
+            txt_headers = [i for media_idx, i in enumerate(stripped_headers) if media_idx not in media_header_idx] if media_header_idx else stripped_headers
+
             if check_output_types('html', output_types):
                 report = artifact_report.ArtifactHtmlReport(artifact_name)
                 report.start_artifact_report(report_folder, artifact_name, description)
                 report.add_script()
-                report.write_artifact_data_table(stripped_headers, data_list, source_path)
+                report.write_artifact_data_table(stripped_headers, html_data_list if media_header_idx else data_list, source_path, html_no_escape=html_columns)
                 report.end_artifact_report()
 
             if check_output_types('tsv', output_types):
-                tsv(report_folder, stripped_headers, data_list, artifact_name)
+                tsv(report_folder, txt_headers, txt_data_list if media_header_idx else data_list, artifact_name)
             
             if check_output_types('timeline', output_types):
-                timeline(report_folder, artifact_name, data_list, stripped_headers)
+                timeline(report_folder, artifact_name, txt_data_list if media_header_idx else data_list, txt_headers)
 
             if check_output_types('lava', output_types):
                 table_name, object_columns, column_map = lava_process_artifact(category, module_name, artifact_name, data_headers, len(data_list), data_views=artifact_info.get("data_views"))
                 lava_insert_sqlite_data(table_name, data_list, object_columns, data_headers, column_map)
 
             if check_output_types('kml', output_types):
-                kmlgen(report_folder, artifact_name, data_list, stripped_headers)
+                kmlgen(report_folder, artifact_name, txt_data_list if media_header_idx else data_list, txt_headers)
 
         else:
             if output_types != 'none':
@@ -841,6 +883,21 @@ def media_to_html(media_path, files_found, report_folder):
             thumb = f'<audio controls><source src="{source}" type="audio/ogg"><source src="{source}" type="audio/mpeg">Your browser does not support the audio element.</audio>'
         else:
             thumb = f'<a href="{source}" target="_blank"> Link to {filename} file</>'
+    return thumb
+
+def html_media_tag(media_path, mimetype, style):
+    filename = Path(media_path).name
+    if mimetype == None:
+        mimetype = ''
+    if 'video' in mimetype:
+        thumb = f'<video width="320" height="240" controls="controls"><source src="{media_path}" type="video/mp4" preload="none">Your browser does not support the video tag.</video>'
+    elif 'image' in mimetype:
+        image_style = style if style else "max-height:300px; max-width:400px;"
+        thumb = f'<a href="{media_path}" target="_blank"><img src="{media_path}" style="{image_style}"></img></a>'
+    elif 'audio' in mimetype:
+        thumb = f'<audio controls><source src="{media_path}" type="audio/ogg"><source src="{media_path}" type="audio/mpeg">Your browser does not support the audio element.</audio>'
+    else:
+        thumb = f'<a href="{media_path}" target="_blank"> Link to {filename} file</>'
     return thumb
 
 def set_media_references(media_item, artifact_info):
