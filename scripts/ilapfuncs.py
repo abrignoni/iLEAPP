@@ -24,7 +24,7 @@ import scripts.artifact_report as artifact_report
 import pytz
 import simplekml
 from bs4 import BeautifulSoup
-from scripts.filetype import guess_mime
+from scripts.filetype import guess_mime, guess_extension
 from functools import wraps
 
 # LEAPP version unique imports
@@ -938,7 +938,45 @@ def check_in_media(seeker, file_path, artifact_info):
         logfunc(f'No matching file found for "{file_path}"')
         return None
 
-
+def check_in_embedded_media(seeker, source_file, data, artifact_info, report_folder=None):
+    file_info = seeker.file_infos.get(source_file) if seeker else "Info.plist"
+    if data and file_info:
+        media_item = MediaItem()
+        module_name = Path(artifact_info.filename).stem
+        artifact_name = artifact_info.function
+        media_id = hashlib.sha1(data).hexdigest()
+        media_ref = hashlib.sha1(f"{media_id}-{module_name}-{artifact_name}".encode()).hexdigest()
+        media_references = lava_get_media_references(media_ref)
+        media = lava_get_media_item(media_id)
+        if media_references:
+            media_item.set_values((media))
+            return media_item
+        media_type = guess_mime(data)
+        metadata = "not implemented yet"
+        created_at = updated_at = 0
+        if file_info == "Info.plist":
+            source_path = file_info
+            target_path = Path(report_folder).parent.parent.joinpath("data", "App_Icons")
+        else:
+            source_path = file_info.source_path
+            target_folder_name = f"{Path(source_file).stem}_embedded_media"
+            target_path = Path(source_file).parent.joinpath(target_folder_name)
+        media_extension = guess_extension(data)
+        extraction_path = Path(target_path).joinpath(f"{media_id}.{media_extension}")
+        media_item.set_values((
+            media_id, source_path, extraction_path, media_type, metadata, created_at, updated_at
+        ))
+        try:
+            target_path.mkdir(parents=True, exist_ok=True)
+            with open(extraction_path, "wb") as file:
+                file.write(data)
+        except Exception as ex:
+            logfunc(f'Could not copy embedded media into {target_path} ' + str(ex))
+        lava_insert_sqlite_media_item(media_item)
+        set_media_references(media_item, artifact_info)
+        return media_item
+    else:
+        return None
 
 def get_resolution_for_model_id(model_id: str):
     data = [
