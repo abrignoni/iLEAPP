@@ -205,7 +205,7 @@ class FileSeekerItunes(FileSeekerBase):
             hash_filename = self._all_files[relative_path]
             if self.backup_type == "Manifest.db":
                 original_location = os.path.join(self.directory, hash_filename[:2], hash_filename)
-                metadata = get_plist_content(self._files_metadata[hash_filename])
+                metadata = get_plist_content(self.files_metadata[hash_filename])
                 creation_date = metadata.get('Birth', 0)
                 modification_date = metadata.get('LastModified', 0)
             else:

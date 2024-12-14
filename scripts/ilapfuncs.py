@@ -7,7 +7,7 @@ import shutil
 import sys
 import math
 import inspect
-
+import hashlib
 import csv
 import xml
 import plistlib
@@ -32,7 +32,7 @@ import binascii
 import math
 from PIL import Image
 
-from scripts.lavafuncs import lava_process_artifact, lava_insert_sqlite_data
+from scripts.lavafuncs import lava_process_artifact, lava_insert_sqlite_data, lava_get_media_item, lava_insert_sqlite_media_item, lava_insert_sqlite_media_references, lava_get_media_references
 
 os.path.basename = lru_cache(maxsize=None)(os.path.basename)
 
@@ -43,8 +43,30 @@ thumb_size = 256, 256
 identifiers = {}
 icons = {}
 
+class MediaItem():
+    def __init__(self):
+        self.id = ""
+        self.source_path = ""
+        self.extraction_path = ""
+        self.mimetype = ""
+        self.metadata = ""
+        self.created_at = 0
+        self.updated_at = 0
+    
+    def set_values(self, media_info):
+        if isinstance(media_info, tuple):
+            self.id = media_info[0]
+            self.source_path = media_info[1]
+            self.extraction_path = media_info[2]
+            self.mimetype = media_info[3]
+            self.metadata = media_info[4]
+            self.created_at = media_info[5]
+            self.updated_at = media_info[6]
+        else:
+            self.__init__()
+
 def get_file_path(files_found, filename):
-    """Returns the path of the searched filename id exists or returns None"""
+    """Returns the path of the searched filename if exists or returns None"""
     try:
         for file_found in files_found:
             if file_found.endswith(filename):
@@ -820,6 +842,45 @@ def media_to_html(media_path, files_found, report_folder):
         else:
             thumb = f'<a href="{source}" target="_blank"> Link to {filename} file</>'
     return thumb
+
+def set_media_references(media_item, artifact_info):
+    module_name = Path(artifact_info.filename).stem
+    artifact_name = artifact_info.function
+    media_id = media_item.id
+    media_ref = hashlib.sha1(f"{media_id}-{module_name}-{artifact_name}".encode()).hexdigest()
+    lava_insert_sqlite_media_references(media_ref, media_id, module_name, artifact_name, media_item.created_at)
+
+def check_in_media(seeker, file_path, artifact_info):
+    file_info_key = seeker.search(file_path, return_on_first_hit=True)
+    file_info = seeker.file_infos.get(file_info_key) if file_info_key else None
+    if file_info:
+        media_item = MediaItem()
+        extraction_path = Path(file_info_key)
+        media_id = hashlib.sha1(f"{extraction_path}".encode()).hexdigest()
+        get_media_item = lava_get_media_item(media_id)
+        if get_media_item:
+            media_item.set_values(get_media_item)
+        else:
+            if extraction_path.is_file():
+                media_item.set_values((
+                    media_id,
+                    file_info.source_path,
+                    extraction_path,
+                    guess_mime(extraction_path),
+                    "not implemented yet",
+                    file_info.creation_date,
+                    file_info.modification_date
+                ))
+                lava_insert_sqlite_media_item(media_item)
+                set_media_references(media_item, artifact_info)
+            else:
+                logfunc(f"{extraction_path} was nout found")
+                return None            
+        return media_item
+    else:
+        logfunc(f'No matching file found for "{file_path}"')
+        return None
+
 
 
 def get_resolution_for_model_id(model_id: str):
