@@ -327,7 +327,7 @@ def crunch_artifacts(
     seeker = None
     try:
         if extracttype == 'fs':
-            seeker = FileSeekerDir(input_path)
+            seeker = FileSeekerDir(input_path, out_params.temp_folder)
 
         elif extracttype in ('tar', 'gz'):
             seeker = FileSeekerTar(input_path, out_params.temp_folder)
@@ -425,7 +425,8 @@ def crunch_artifacts(
                 logfunc('Error was {}'.format(str(ex)))
                 logfunc('Exception Traceback: {}'.format(traceback.format_exc()))
                 continue  # nope
-
+        else:
+            logfunc(f"No file found")
         logfunc('{} [{}] artifact completed'.format(plugin.name, plugin.module_name))
     log.close()
 
