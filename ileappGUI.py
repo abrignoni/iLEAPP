@@ -135,7 +135,7 @@ def ValidateInput():
     else:
         ext_type = Path(i_path).suffix[1:].lower()
 
-        # check output now
+    # check output now
     if len(o_path) == 0:  # output folder
         tk_msgbox.showerror(title='Error', message='No OUTPUT folder selected!', parent=main_window)
         return False, ext_type
@@ -535,8 +535,6 @@ log_text = tk.Text(
     highlightthickness=1, yscrollcommand=vlog.set, height=log_text_height)
 log_text.grid(row=0, column=0, padx=4, pady=10, sticky='we')
 vlog.config(command=log_text.yview)
-
-close_frame = ttk.Frame(main_window)
 
 ### Progress bar
 progress_bar = ttk.Progressbar(main_window, orient='horizontal')
