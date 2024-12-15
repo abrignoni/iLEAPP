@@ -202,7 +202,7 @@ def convert_unix_ts_to_str(ts):
 def convert_cocoa_core_data_ts_to_utc(cocoa_core_data_ts):
     if cocoa_core_data_ts:
         unix_timestamp = cocoa_core_data_ts + 978307200
-        convert_unix_ts_to_utc(unix_timestamp)
+        return convert_unix_ts_to_utc(unix_timestamp)
     else:
         return cocoa_core_data_ts
 
