@@ -178,20 +178,33 @@ def convert_ts_int_to_timezone(time, time_offset):
     #return the converted value
     return timezone_time
 
+def convert_unix_ts_in_seconds(ts):
+    digits = int(math.log10(ts))+1
+    if digits > 10:
+        extra_digits = digits - 10
+        ts = ts // 10**extra_digits
+    return ts
+
+def convert_unix_ts_to_utc(ts):
+    if ts:
+        ts = convert_unix_ts_in_seconds(ts)
+        return datetime.fromtimestamp(ts, tz=timezone.utc)
+    else:
+        return ts
+
+def convert_unix_ts_to_str(ts):
+    if ts:
+        ts = convert_unix_ts_in_seconds(ts)
+        return datetime.fromtimestamp(ts, UTC).strftime('%Y-%m-%d %H:%M:%S')
+    else:
+        return ts
+
 def convert_cocoa_core_data_ts_to_utc(cocoa_core_data_ts):
     if cocoa_core_data_ts:
         unix_timestamp = cocoa_core_data_ts + 978307200
-        finaltime = datetime.fromtimestamp(unix_timestamp, tz=timezone.utc)
-        return(finaltime)
+        convert_unix_ts_to_utc(unix_timestamp)
     else:
         return cocoa_core_data_ts
-
-def convert_unix_ts_to_utc(ts): #This int timestamp to human format & utc
-    if ts:
-        timestamp = datetime.fromtimestamp(ts, tz=timezone.utc)
-        return timestamp
-    else:
-        return ts
 
 def webkit_timestampsconv(webkittime):
     unix_timestamp = webkittime + 978307200
