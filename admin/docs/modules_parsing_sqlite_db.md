@@ -11,6 +11,7 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | accountData |
 | allTrails |
 | callHistory |
+| foursquareSwarm |
 | payByPhone |
 | subscriberInfo |
 | twint |
