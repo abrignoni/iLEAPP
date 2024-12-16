@@ -300,6 +300,17 @@ icon_mappings = \
         '_mode': 'search',
     },
     'FITBIT': 'watch',
+    'FOURSQUARE SWARM': {
+        'ACCOUNT': 'user',
+        'CHECK-INS': 'user-check',
+        'CHECK-INS COMMENTS': 'message-square',
+        'CONTACTS': 'users',
+        'STICKERS': 'award',
+        'TIPS': 'info',
+        'VENUES HISTORY': 'map-pin',
+        'VENUES PHOTOS': 'camera',
+        '_mode': 'search',
+    },
     'GALLERY TRASH': 'image',
     'GARMIN': {
         'DEVICES': 'watch',
