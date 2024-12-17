@@ -327,16 +327,16 @@ def crunch_artifacts(
     seeker = None
     try:
         if extracttype == 'fs':
-            seeker = FileSeekerDir(input_path, out_params.temp_folder)
+            seeker = FileSeekerDir(input_path, out_params.data_folder)
 
         elif extracttype in ('tar', 'gz'):
-            seeker = FileSeekerTar(input_path, out_params.temp_folder)
+            seeker = FileSeekerTar(input_path, out_params.data_folder)
 
         elif extracttype == 'zip':
-            seeker = FileSeekerZip(input_path, out_params.temp_folder)
+            seeker = FileSeekerZip(input_path, out_params.data_folder)
 
         elif extracttype == 'itunes':
-            seeker = FileSeekerItunes(input_path, out_params.temp_folder)
+            seeker = FileSeekerItunes(input_path, out_params.data_folder)
 
         else:
             logfunc('Error on argument -o (input type)')

@@ -240,7 +240,6 @@ class FileSeekerTar(FileSeekerBase):
         mode ='r:gz' if self.is_gzip else 'r'
         self.tar_file = tarfile.open(tar_file_path, mode)
         self.data_folder = data_folder
-        self.directory = data_folder
         self.searched = {}
         self.copied = set()
         self.file_infos = {}
@@ -289,7 +288,6 @@ class FileSeekerZip(FileSeekerBase):
         self.zip_file = ZipFile(zip_file_path)
         self.name_list = self.zip_file.namelist()
         self.data_folder = data_folder
-        self.directory = data_folder
         self.searched = {}
         self.copied = set()
         self.file_infos = {}

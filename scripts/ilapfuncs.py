@@ -196,14 +196,14 @@ class OutputParameters:
         else:
             folder_name = 'iLEAPP_Reports_' + currenttime
         self.report_folder_base = os.path.join(output_folder, folder_name)
-        self.temp_folder = os.path.join(self.report_folder_base, 'data')
+        self.data_folder = os.path.join(self.report_folder_base, 'data')
         OutputParameters.screen_output_file_path = os.path.join(self.report_folder_base, 'Script Logs',
                                                                 'Screen Output.html')
         OutputParameters.screen_output_file_path_devinfo = os.path.join(self.report_folder_base, 'Script Logs',
                                                                         'DeviceInfo.html')
 
         os.makedirs(os.path.join(self.report_folder_base, 'Script Logs'))
-        os.makedirs(self.temp_folder)
+        os.makedirs(self.data_folder)
         
 def convert_local_to_utc(local_timestamp_str):
     # Parse the timestamp string with timezone offset, ex. 2023-10-27 18:18:29-0400
