@@ -36,6 +36,8 @@ def extract_v2_info(module_content):
             "description": clean_string(str(e)),
             "paths": "",
             "output_types": "",
+            "version": "",
+            "last_update_date": "",
             "artifact_icon": ""
         }]
 
@@ -56,6 +58,8 @@ def extract_v2_info(module_content):
         else:
             output_types = ""
         
+        version = details.get("version", "")
+        last_update_date = details.get("last_update_date", "")
         artifact_icon = details.get("artifact_icon", "")
         results.append({
             "artifact": artifact_name,
@@ -63,6 +67,8 @@ def extract_v2_info(module_content):
             "description": clean_string(details.get("description", "")),
             "paths": paths,
             "output_types": output_types,
+            "version": version,
+            "last_update_date": last_update_date,
             "artifact_icon": artifact_icon
         })
     return results
@@ -95,8 +101,8 @@ def parse_module_file(module_path):
 
 def generate_v2_markdown_table(artifact_data):
     """Generate a markdown table for v2 artifacts."""
-    table = "| Module | Artifact | Name | Output Types | Icon | Description | Paths |\n"
-    table += "|--------|----------|------|--------------|------|-------------|-------|\n"
+    table = "| Module | Artifact | Name | Output Types | Icon | Version | Last Update Date | Description | Paths |\n"
+    table += "|--------|----------|------|--------------|------|---------|------------------|-------------|-------|\n"
     for module, artifacts in artifact_data.items():
         module_link = f"[{module}](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/{module})"
         for artifact in artifacts:
@@ -109,7 +115,9 @@ def generate_v2_markdown_table(artifact_data):
                 paths = f'`{paths}`'
             output_types = artifact.get('output_types', '-')
             artifact_icon = artifact.get('artifact_icon', '')
-            table += f"| {module_link} | {artifact['artifact']} | {name} | {output_types} | {artifact_icon} | {description} | {paths} |\n"
+            version = artifact.get('version', '')
+            last_update_date = artifact.get('last_update_date', '')
+            table += f"| {module_link} | {artifact['artifact']} | {name} | {output_types} | {artifact_icon} | {version} | {last_update_date} | {description} | {paths} |\n"
 
     return table
 
@@ -153,6 +161,20 @@ def update_markdown_file(v1_data, v2_data, error_data):
         if artifact.get('artifact_icon')
     )
 
+    # Count modules using 'version'
+    version_count = sum(
+        1 for artifacts in v2_data.values()
+        for artifact in artifacts
+        if artifact.get('version')
+    )
+
+    # Count modules using 'artifact_icon'
+    last_update_date_count = sum(
+        1 for artifacts in v2_data.values()
+        for artifact in artifacts
+        if artifact.get('last_update_date')
+    )
+
     with open(MD_FILE_PATH, 'r') as md_file:
         content = md_file.read()
 
@@ -167,6 +189,8 @@ def update_markdown_file(v1_data, v2_data, error_data):
     new_module_info += f"Number of v2 artifacts: {v2_count}  \n"
     new_module_info += f"Number of modules with 'lava output': {lava_output_count}  \n"
     new_module_info += f"Number of modules using 'artifact_icon': {artifact_icon_count}  \n"
+    new_module_info += f"Number of modules using 'version': {version_count}  \n"
+    new_module_info += f"Number of modules using 'last_update_date': {last_update_date_count}  \n"
     new_module_info += f"Number of modules with errors or no recognized artifacts: {error_count}  \n\n"
     
     if v2_data:
