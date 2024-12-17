@@ -10,8 +10,8 @@ __artifacts_v2__ = {
         "name": "Human-readable name of the artifact",
         "description": "Brief description of what the artifact does",
         "author": "@AuthorUsername",
-        "version": "X.Y",
-        "date": "YYYY-MM-DD",
+        "creation_date": "YYYY-MM-DD",
+        "last_update_date": "YYYY-MM-DD",
         "requirements": "Any specific requirements, or 'none'",
         "category": "Category of the artifact",
         "notes": "Additional notes, if any",
@@ -26,8 +26,8 @@ __artifacts_v2__ = {
 - `name`: A human-readable name for the artifact as it will be displayed in the output files
 - `description`: A brief explanation of what the artifact extracts or analyzes
 - `author`: The name and/or username of the module's author
-- `version`: The current version of the module script
-- `date`: The creation date of the module in YYYY-MM-DD format
+- `creation_date`: The creation date of the module in YYYY-MM-DD format
+- `last_update_date`: The last update of the module in YYYY-MM-DD format
 - `requirements`: Any specific requirements for the artifact, or "none" if there are no special requirements
 - `category`: The category the artifact belongs to
 - `notes`: Any additional information about the artifact (can be an empty string)
@@ -58,8 +58,8 @@ __artifacts_v3__ = {
     "name": "Human-readable name of the module",
     "description": "Brief description of what the module does",
     "author": "@AuthorUsername",
-    "version": "X.Y",
-    "date": "YYYY-MM-DD",
+    "creation_date": "YYYY-MM-DD",
+    "last_update_date": "YYYY-MM-DD",
     "requirements": "Any specific requirements, or 'none'",
     "app_name": "Name of the app this module parses data from",
     "category": "Category of the artifact",
