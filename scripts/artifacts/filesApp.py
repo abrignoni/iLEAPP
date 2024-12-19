@@ -1,438 +1,534 @@
 __artifacts_v2__ = {
-    "filesapp": {
-        "name": "Files App",
-        "description": "Items stored in iCloud Drive.",
-        "author": "@AlexisBrignoni - @JohannPLW",
-        "version": "0.2",
-        "date": "2024-01-27",
+    "iCloudSyncDeviceNames": {
+        "name": "Files App - iCloud Sync Device Names",
+        "description": "Device names that are able to sync to iCloud Drive",
+        "author": "@JohannPLW",
+        "creation_date": "2024-02-05",
+        "last_update_date": "2024-12-13",
+        "requirements": "none",
+        "category": "Files App",
+        "notes": "",
+        "paths": ('*/mobile/Library/Application Support/CloudDocs/session/db/server.db*',),
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "smartphone"
+    },
+    "iCloudApplicationList": {
+        "name": "Files App - iCloud Application List",
+        "description": "List of applications that sync data in iCloud",
+        "author": "@JohannPLW",
+        "creation_date": "2024-02-02",
+        "last_update_date": "2024-12-13",
+        "requirements": "none",
+        "category": "Files App",
+        "notes": "",
+        "paths": ('*/mobile/Library/Application Support/CloudDocs/session/db/client.db*',),
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "package"
+    },
+    "iCloudDriveStoredFiles": {
+        "name": "Files App - Files stored in iCloud Drive",
+        "description": "Files stored in iCloud Drive with their metadata",
+        "author": "@JohannPLW",
+        "creation_date": "2024-02-02",
+        "last_update_date": "2024-12-17",
         "requirements": "none",
         "category": "Files App",
         "notes": "",
         "paths": (
             '*/mobile/Library/Application Support/CloudDocs/session/db/client.db*',
-            '*/mobile/Library/Application Support/CloudDocs/session/db/server.db*',
-            ),
-        "function": "get_filesApp"
+            '*/mobile/Library/Application Support/CloudDocs/session/db/server.db*'),
+        "output_types": "standard",
+        "artifact_icon": "cloud"
+    },
+    "iCloudDriveSharedFiles": {
+        "name": "Files App - Shared files stored in iCloud Drive",
+        "description": "Shared files stored in iCloud Drive with their metadata",
+        "author": "@JohannPLW",
+        "creation_date": "2024-02-02",
+        "last_update_date": "2024-12-18",
+        "requirements": "none",
+        "category": "Files App",
+        "notes": "",
+        "paths": (
+            '*/mobile/Library/Application Support/CloudDocs/session/db/client.db*',
+            '*/mobile/Library/Application Support/CloudDocs/session/db/server.db*'),
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "share"
+    },
+    "iCloudDriveTaggedFiles": {
+        "name": "Files App - Tagged files",
+        "description": "Tagged files in iCloud Drive with their metadata",
+        "author": "@JohannPLW",
+        "creation_date": "2024-02-02",
+        "last_update_date": "2024-12-18",
+        "requirements": "none",
+        "category": "Files App",
+        "notes": "",
+        "paths": (
+            '*/mobile/Library/Application Support/CloudDocs/session/db/client.db*',
+            '*/mobile/Library/Application Support/CloudDocs/session/db/server.db*'),
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "tag"
+    },
+    "iCloudDriveFavouriteFiles": {
+        "name": "Files App - Favourite files",
+        "description": "Favourite files in iCloud Drive with their metadata",
+        "author": "@JohannPLW",
+        "creation_date": "2024-02-02",
+        "last_update_date": "2024-12-18",
+        "requirements": "none",
+        "category": "Files App",
+        "notes": "",
+        "paths": (
+            '*/mobile/Library/Application Support/CloudDocs/session/db/client.db*',
+            '*/mobile/Library/Application Support/CloudDocs/session/db/server.db*'),
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "star"
+    },
+    "FilesIosUpdates": {
+        "name": "'Files App - Operating System Updates'",
+        "description": "iOS Updates",
+        "author": "@JohannPLW",
+        "creation_date": "2024-02-02",
+        "last_update_date": "2024-12-18",
+        "requirements": "none",
+        "category": "Files App",
+        "notes": "",
+        "paths": ('*/mobile/Library/Application Support/CloudDocs/session/db/client.db*',),
+        "output_types": "standard",
+        "artifact_icon": "refresh-cw"
     }
 }
 
 
-import nska_deserialize as nd
-
+import scripts.artifacts.artGlobals
+from packaging import version
 from scripts.builds_ids import OS_build
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly, convert_bytes_to_unit, convert_ts_int_to_timezone
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, get_plist_content, convert_bytes_to_unit, convert_unix_ts_to_utc
 
+def get_tree_structure(source_path):
 
-def get_tree_structure(cursor):
-    cursor.execute('''
+    query = '''
     SELECT
-    client_items.item_id,
-    client_items.item_parent_id,
-    client_items.item_filename
+        client_items.item_id,
+        client_items.item_parent_id,
+        client_items.item_filename
     FROM client_items
     WHERE client_items.item_type != 1
-    ''')
+    '''
 
-    ts_all_rows = cursor.fetchall()
-    ts_usageentries = len(ts_all_rows)
-    ts_data_dict = {}
-    ts_paths = {}
+    db_records = get_sqlite_db_records(source_path, query)
 
-    if ts_usageentries > 0:
-        for ts_row in ts_all_rows:
-            ts_id, ts_parent_id, ts_filename = ts_row
-            ts_data_dict[ts_id] = (ts_parent_id, ts_filename)
+    tree_structure_dict = {}
+    tree_structure_paths = {}
 
-        for ts_key, ts_value in ts_data_dict.items():
-            ts_p_id, ts_path = ts_value
-            while len(ts_p_id) == 16:
-                ts_p_id, ts_name = ts_data_dict[ts_p_id]
-                ts_path = ts_name + "/" + ts_path
-            ts_paths[ts_key] = f"{ts_path}/"
+    for record in db_records:
+        ts_id, ts_parent_id, ts_filename = record
+        tree_structure_dict[ts_id] = (ts_parent_id, ts_filename)
+
+    for ts_key, ts_value in tree_structure_dict.items():
+        ts_p_id, ts_path = ts_value
+        while len(ts_p_id) == 16:
+            ts_p_id, ts_name = tree_structure_dict[ts_p_id]
+            ts_path = ts_name + "/" + ts_path
+        tree_structure_paths[ts_key] = f"{ts_path}/"
     
-    return ts_paths
+    return tree_structure_paths
 
+@artifact_processor
+def iCloudSyncDeviceNames(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    source_path = get_file_path(files_found, "server.db")
+    data_list = []
 
-def get_filesApps_server(file_found, report_folder):
-    db = open_sqlite_db_readonly(file_found)
-    cursor = db.cursor()
-
-    # Devices able to sync
-    cursor.execute('''
+    query = '''
     SELECT
-    devices.key,
-    devices.name
+        devices.key,
+        devices.name
     FROM devices
-    ''')
+    '''
 
-    devices_all_rows = cursor.fetchall()
-    devices_usageentries = len(devices_all_rows)
-    devices_data_list = []
-    devices_dict = {}
+    data_headers = ('Device Number', 'Device Name')
 
-    if devices_usageentries > 0:
-        for devices_row in devices_all_rows:
-            device_key, device_name = devices_row
-
-            devices_data_list.append((device_key, device_name))
-            devices_dict[device_key] = device_name
-            
-        description = 'Device names that are able to sync to iCloud Drive.'
-        report = ArtifactHtmlReport('iCloud Sync Device Names')
-        report.start_artifact_report(report_folder, 'Files App - iCloud Sync Device Names', description)
-        report.add_script()
-        devices_data_headers = ('#', 'Device Name')     
-        report.write_artifact_data_table(devices_data_headers, devices_data_list, file_found)
-        report.end_artifact_report()
-        
-        tsvname = 'Files App - iCloud Sync Device Names'
-        tsv(report_folder, devices_data_headers, devices_data_list, tsvname)
+    data_list = get_sqlite_db_records(source_path, query)
     
+    return data_headers, data_list, source_path
+
+@artifact_processor
+def iCloudApplicationList(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    source_path = get_file_path(files_found, "client.db")
+    data_list = []
+
+    iOSversion = scripts.artifacts.artGlobals.versionf
+    if version.parse(iOSversion) < version.parse('18'):
+        query = '''
+        SELECT 
+            app_libraries.app_library_name,
+            app_libraries.auto_client_item_count - app_libraries.auto_document_count,
+            app_libraries.auto_document_count,
+            app_libraries.auto_aggregate_size
+        FROM app_libraries
+        '''
+        data_headers = ('Application Bundle ID', 'Number of folders', 'Number of files', ('Total size in bytes', 'bytes'))
     else:
-        logfunc('No iCloud sync device names data available in Files App')
+        query = '''
+        SELECT 
+            app_libraries.app_library_name
+        FROM app_libraries
+        '''
+        data_headers = ('Application Bundle ID', )
+
+    data_list = get_sqlite_db_records(source_path, query)
     
-    # Users
-    cursor.execute('''
+    return data_headers, data_list, source_path
+
+@artifact_processor
+def iCloudDriveStoredFiles(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    source_path = get_file_path(files_found, "client.db")
+    server_db_path = get_file_path(files_found, "server.db")
+    data_list = []
+
+    attach_query = '''ATTACH DATABASE "file:''' + server_db_path + '''?mode=ro" AS server '''
+    query = '''
     SELECT
-    users.user_key,
-    users.user_plist
-    FROM users
-    ''')
-
-    users_all_rows = cursor.fetchall()
-    users_usageentries = len(users_all_rows)
-    users_data_dict = {}
-
-    if users_usageentries > 0:
-        for users_row in users_all_rows:
-            user_key, user_plist = users_row
-
-            user_fullName = ''
-            if user_plist:
-                deserialized_users_plist = nd.deserialize_plist_from_string(user_plist[3:])
-                user_plist_dict = deserialized_users_plist
-                user = user_plist_dict.get('NS.nameComponentsPrivate')
-                if user:
-                    user_givenName = user.get('NS.givenName', '')
-                    user_familyName = user.get('NS.familyName', '')
-                    user_fullName = f"{user_givenName + ' ' if user_givenName else ''}{user_familyName}"
-
-            users_data_dict[user_key] = user_fullName
-
-    db.close()
-    return devices_dict, users_data_dict
-    
-    
-def get_filesApp_client(file_found, ci_device_names, ci_users, timezone_offset, report_folder):
-    db = open_sqlite_db_readonly(file_found)
-    cursor = db.cursor()
-
-    # Applications
-    cursor.execute('''
-    SELECT 
-    app_libraries.app_library_name AS 'App Bundle ID',
-    app_libraries.auto_client_item_count - app_libraries.auto_document_count AS 'Number of folders',
-    app_libraries.auto_document_count AS 'Number of files',
-    app_libraries.auto_aggregate_size AS 'Total size'
-    FROM app_libraries
-    ''')
-    
-    app_all_rows = cursor.fetchall()
-    app_usageentries = len(app_all_rows)
-    app_data_list = []
-
-    if app_usageentries > 0:
-        for app_row in app_all_rows:
-            app_id, app_folders, app_files, app_size_in_bytes = app_row
-
-            app_size = app_size_in_bytes
-            if app_size:
-                app_size = convert_bytes_to_unit(app_size_in_bytes)
-
-            app_data_list.append((app_id, app_folders, app_files, app_size_in_bytes, app_size))
-            
-        description = '	List of applications that sync data in iCloud '
-        report = ArtifactHtmlReport('iCloud Application List')
-        report.start_artifact_report(report_folder, 'Files App - iCloud Application List', description)
-        report.add_script()
-        app_data_headers = ('Application Bundle ID', 'Number of folders', 'Number of files', 'Total size in bytes', 'Total size' )     
-        report.write_artifact_data_table(app_data_headers, app_data_list, file_found)
-        report.end_artifact_report()
-        
-        tsvname = 'Files App - iCloud Application List'
-        tsv(report_folder, app_data_headers, app_data_list, tsvname)
-    
-    else:
-        logfunc('No App name data found in Files App')
-
-
-    # Client Items
-    cursor.execute('''
-    SELECT
-    app_libraries.app_library_name AS 'App Bundle ID',
-    client_items.item_parent_id AS 'Parent ID',
-    client_items.item_filename AS 'Filename',
-    CASE client_items.item_hidden_ext
-    WHEN 0 THEN 'No'
-    WHEN 1 THEN 'Yes'
-    END AS 'Hidden Extension',
-    client_items.version_size AS 'Size',
-    client_items.item_birthtime AS 'Created',
-    client_items.version_mtime AS 'Modified',
-    client_items.item_lastusedtime AS 'Last opened',
-    client_items.version_device AS 'From Device',
-    client_items.item_sharing_options AS 'Is Shared?',
-    client_items.item_creator_id AS 'Creator ID?',
-    CASE client_items.item_user_visible
-    WHEN 0 THEN 'No'
-    WHEN 1 THEN 'Yes'
-    END AS 'Is Visible?',
-    client_items.item_finder_tags AS 'Tags',
-    client_items.item_favoriterank AS 'Favourite',
-    client_items.item_trash_put_back_path AS 'Recently Deleted'
+        client_items.item_birthtime AS 'Created',
+        client_items.version_mtime AS 'Modified',
+        client_items.item_lastusedtime AS 'Last opened',
+        app_libraries.app_library_name AS 'App Bundle ID',
+        client_items.item_parent_id AS 'Parent ID',
+        client_items.item_filename AS 'Filename',
+        CASE client_items.item_hidden_ext
+            WHEN 0 THEN 'No'
+            WHEN 1 THEN 'Yes'
+        END AS 'Hidden Extension',
+        client_items.version_size AS 'Size',
+        server.devices.name AS 'Device',
+        client_items.item_sharing_options AS 'Is Shared?',
+        CASE client_items.item_user_visible
+            WHEN 0 THEN 'No'
+            WHEN 1 THEN 'Yes'
+        END AS 'Is Visible?',
+        client_items.item_trash_put_back_path AS 'Recently Deleted'
     FROM client_items
     LEFT JOIN app_libraries ON client_items.app_library_rowid = app_libraries.rowid
-    ''')
+	LEFT JOIN server.devices ON client_items.version_device = server.devices.key
+    '''
+
+    data_headers = (
+        ('Created', 'datetime'), 
+        ('Modified', 'datetime'), 
+        ('Last opened', 'datetime'), 
+        'Application Bundle ID', 
+        'Path', 
+        'Filename', 
+        'Hidden extension', 
+        'Size in bytes', 
+        'Size', 
+        'From Device Name', 
+        'Shared?', 
+        'Visible?',
+        'Recently Deleted')     
+
+    db_records = get_sqlite_db_records(source_path, query, attach_query)
+    if db_records:
+        parents = get_tree_structure(source_path)
     
-    ci_all_rows = cursor.fetchall()
-    ci_usageentries = len(ci_all_rows)
-    ci_data_list = []
-    ci_tlactivity_list = []
-    ci_tlactivity_deleted_list = []
-    ci_sharing_list = []
-    ci_tagged_list = []
-    ci_favourite_list = []
-    ci_deleted_list = []
+    for record in db_records:
+        cdate, mdate, lodate, app_id, parent_id, filename, ext, size_in_bytes, device, \
+            sharing_options, visible, trash_back_path = record
+
+        path = ''
+        if len(parent_id) == 16:
+            path = parents.get(parent_id, '')
         
-    if ci_usageentries > 0:
-        ci_parents = get_tree_structure(cursor)
+        if not isinstance(size_in_bytes, int):
+            path += f"{filename}/"
+            filename = ""
 
-        for ci_row in ci_all_rows:
-            ci_app_id, ci_parent_id, ci_filename, ci_ext, ci_size_in_bytes, ci_cdate, \
-                ci_mdate, ci_lodate, ci_device, ci_sharing_options, ci_creator_id, \
-                ci_visible, ci_tags, ci_favourite, ci_deleted = ci_row
-            
-            ci_path = ''
-            if len(ci_parent_id) == 16:
-                ci_path = ci_parents.get(ci_parent_id, '')
-            
-            if not isinstance(ci_size_in_bytes, int):
-                ci_path += f"{ci_filename}/"
-                ci_filename = ""
-
-            ci_size = ci_size_in_bytes
-            if ci_size:
-                ci_size = convert_bytes_to_unit(ci_size_in_bytes)
-            
-            ci_cdate = convert_ts_int_to_timezone(ci_cdate, timezone_offset) if ci_cdate and ci_cdate > 0 else ''
-
-            ci_mdate = convert_ts_int_to_timezone(ci_mdate, timezone_offset) if ci_mdate and ci_mdate > 0 else ''
-
-            ci_lodate = convert_ts_int_to_timezone(ci_lodate, timezone_offset) if ci_lodate and ci_lodate > 0 else ''
-
-            ci_device = ci_device_names.get(ci_device, '')
-
-            ci_shared = 'No' if ci_sharing_options <= 4 else 'Yes'
-            
-            if ci_deleted:
-                ci_deleted_list.append((ci_app_id, ci_path, ci_deleted, ci_ext, ci_size_in_bytes, ci_size, 
-                                 ci_cdate, ci_mdate, ci_lodate, ci_device, ci_shared, ci_visible))
-                if ci_cdate:
-                    ci_tlactivity_deleted_list.append((ci_cdate, ci_app_id, ci_path, ci_filename, ci_ext, 
-                                                       ci_size_in_bytes, ci_size, ci_mdate, ci_lodate, ci_device, 
-                                                       ci_shared, ci_visible))
-            else:
-                ci_data_list.append((ci_app_id, ci_path, ci_filename, ci_ext, ci_size_in_bytes, ci_size, 
-                                 ci_cdate, ci_mdate, ci_lodate, ci_device, ci_shared, ci_visible))
-                if ci_cdate:
-                    ci_tlactivity_list.append((ci_cdate, ci_app_id, ci_path, ci_filename, ci_ext, ci_size_in_bytes, 
-                                                ci_size, ci_mdate, ci_lodate, ci_device, ci_shared, ci_visible))
-            
-            if ci_sharing_options == 8 or ci_sharing_options == 12:
-                ci_sharing_permissions = "Anyone with the link can make changes"
-            elif ci_sharing_options == 24 or ci_sharing_options == 28:
-                ci_sharing_permissions = "Anyone with the link can view only"
-            elif ci_sharing_options == 64 or ci_sharing_options == 68:
-                ci_sharing_permissions = "Only people invited"
-            else:
-                ci_sharing_permissions = ''
-            
-            if ci_sharing_permissions:
-                ci_creator_name = ci_users.get(ci_creator_id, 'an unknown user')
-                ci_sharing_type = f"Shared by {ci_creator_name if ci_creator_id else 'me'}"
-                ci_sharing_list.append((ci_app_id, ci_path, ci_filename, ci_sharing_type, ci_sharing_permissions, \
-                                        ci_ext, ci_size_in_bytes, ci_size, ci_cdate, ci_mdate, ci_lodate))
-            
-            if ci_tags:
-                ci_tags = ', '.join(ci_tags.decode('utf-8').split())
-                ci_tagged_list.append((ci_app_id, ci_path, ci_filename, ci_ext, ci_tags ,ci_size_in_bytes, ci_size, \
-                                       ci_cdate, ci_mdate, ci_lodate))
-            
-            if ci_favourite:
-                ci_favourite_list.append((ci_app_id, ci_path, ci_filename, ci_ext, ci_size_in_bytes, ci_size, \
-                                       ci_cdate, ci_mdate, ci_lodate))
-            
-        description = '	Files stored in iCloud Drive with their metadata. '
-        report = ArtifactHtmlReport('Files stored in iCloud Drive')
-        report.start_artifact_report(report_folder, 'Files App - Files stored in iCloud Drive', description)
-        report.add_script()
-        ci_data_headers = ('Application Bundle ID', 'Path', 'Filename', 'Hidden extension', 'Size in bytes', 
-                        'Size', 'Created', 'Modified', 'Last opened', 'From Device Name', 'Shared?', 'Visible?')     
-        report.write_artifact_data_table(ci_data_headers, ci_data_list, file_found)
-        report.end_artifact_report()
+        size = size_in_bytes
+        if size:
+            size = convert_bytes_to_unit(size_in_bytes)
         
-        tsvname = 'Files App - Files stored in iCloud Drive'
-        tsv(report_folder, ci_data_headers, ci_data_list, tsvname)
-    
+        cdate = convert_unix_ts_to_utc(cdate) if cdate and cdate > 0 else ''
+        mdate = convert_unix_ts_to_utc(mdate) if mdate and mdate > 0 else ''
+        lodate = convert_unix_ts_to_utc(lodate) if lodate and lodate > 0 else ''
 
-        ci_tlactivity_headers = ('Created', 'Application Bundle ID', 'Path', 'Filename', 'Hidden extension', 
-                                 'Size in bytes', 'Size', 'Modified', 'Last opened', 'From Device Name', 
-                                 'Shared?', 'Visible?')     
-        tlactivity = 'Files App - Files stored in iCloud Drive'
-        timeline(report_folder, tlactivity, ci_tlactivity_list, ci_tlactivity_headers)
-    
-        # Recently Deleted Items
-
-        if ci_deleted_list:
-            description = '	Recently deleted files stored in iCloud Drive with their metadata. '
-            report = ArtifactHtmlReport('Recently deleted files stored in iCloud Drive')
-            report.start_artifact_report(report_folder, 'Files App - Recently deleted files', description)
-            report.add_script()
-            ci_data_headers = ('Application Bundle ID', 'Path', 'Filename', 'Hidden extension', 'Size in bytes', 
-                            'Size', 'Created', 'Modified', 'Last opened', 'From Device Name', 'Shared?', 'Visible?')     
-            report.write_artifact_data_table(ci_data_headers, ci_deleted_list, file_found)
-            report.end_artifact_report()
-            
-            tsvname = 'Files App - Recently deleted files'
-            tsv(report_folder, ci_data_headers, ci_deleted_list, tsvname)
+        shared = 'No' if sharing_options <= 4 else 'Yes'
+        recently_deleted = 'Yes' if trash_back_path else 'No'
         
-            tlactivity = 'Files App - Recently deleted files'
-            timeline(report_folder, tlactivity, ci_deleted_list, ci_data_headers)
-        
-        else:
-            logfunc('No recently deleted file data found in Files App')
-    
-        # Shared Items
+        data_list.append((cdate, mdate, lodate, app_id, path, filename, ext, size_in_bytes, 
+                          size, device, shared, visible, recently_deleted))
             
-        if ci_sharing_list:
-            description = '	Shared files stored in iCloud Drive with their metadata. '
-            report = ArtifactHtmlReport('Shared files stored in iCloud Drive')
-            report.start_artifact_report(report_folder, 'Files App - Shared files', description)
-            report.add_script()
-            ci_sharing_data_headers = ('Application Bundle ID', 'Path', 'Filename', 'Sharing type', 'Permissions', 
-                                    'Hidden extension', 'Size in bytes', 'Size', 'Created', 'Modified', 'Last opened',)     
-            report.write_artifact_data_table(ci_sharing_data_headers, ci_sharing_list, file_found)
-            report.end_artifact_report()
-            
-            tsvname = 'Files App - Shared files'
-            tsv(report_folder, ci_sharing_data_headers, ci_sharing_list, tsvname)
-        
-        else:
-            logfunc('No shared file data found in Files App')
+    return data_headers, data_list, source_path
 
-        # Tagged Items
-            
-        if ci_tagged_list:
-            description = '	Tagged files in iCloud Drive with their metadata. '
-            report = ArtifactHtmlReport('Tagged files in iCloud Drive')
-            report.start_artifact_report(report_folder, 'Files App - Tagged files', description)
-            report.add_script()
-            ci_tagged_data_headers = ('Application Bundle ID', 'Path', 'Filename', 'Hidden extension', 'Tags', \
-                                    'Size in bytes', 'Size', 'Created', 'Modified', 'Last opened',)     
-            report.write_artifact_data_table(ci_tagged_data_headers, ci_tagged_list, file_found)
-            report.end_artifact_report()
-            
-            tsvname = 'Files App - Tagged files'
-            tsv(report_folder, ci_tagged_data_headers, ci_tagged_list, tsvname)
-        
-        else:
-            logfunc('No tagged file data found in Files App')
+@artifact_processor
+def iCloudDriveSharedFiles(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    source_path = get_file_path(files_found, "client.db")
+    server_db_path = get_file_path(files_found, "server.db")
+    data_list = []
 
-        # Favourite Items
-            
-        if ci_favourite_list:
-            description = '	Favourite files in iCloud Drive with their metadata. '
-            report = ArtifactHtmlReport('Favourite files in iCloud Drive')
-            report.start_artifact_report(report_folder, 'Files App - Favourite files', description)
-            report.add_script()
-            ci_favourite_data_headers = ('Application Bundle ID', 'Path', 'Filename', 'Hidden extension', \
-                                    'Size in bytes', 'Size', 'Created', 'Modified', 'Last opened',)     
-            report.write_artifact_data_table(ci_favourite_data_headers, ci_favourite_list, file_found)
-            report.end_artifact_report()
-            
-            tsvname = 'Files App - Favourite files'
-            tsv(report_folder, ci_favourite_data_headers, ci_favourite_list, tsvname)
-        
-        else:
-            logfunc('No tagged file data found in Files App')
-
-    else:
-        logfunc('No file data found in Files App')
-
-
-    # iOS Updated
-    cursor.execute('''
+    attach_query = '''ATTACH DATABASE "file:''' + server_db_path + '''?mode=ro" AS server '''
+    query = '''
     SELECT
-    boot_history.date,
-    boot_history.os
-    FROM boot_history
-    ''')
+        client_items.item_birthtime AS 'Created',
+        client_items.version_mtime AS 'Modified',
+        client_items.item_lastusedtime AS 'Last opened',
+        app_libraries.app_library_name AS 'App Bundle ID',
+        client_items.item_parent_id AS 'Parent ID',
+        client_items.item_filename AS 'Filename',
+        CASE client_items.item_hidden_ext
+            WHEN 0 THEN 'No'
+            WHEN 1 THEN 'Yes'
+        END AS 'Hidden Extension',
+        client_items.version_size AS 'Size',
+        server.devices.name AS 'Device',
+        client_items.item_sharing_options AS 'Is Shared?',
+        client_items.item_creator_id AS 'Creator ID?',
+		server.users.user_plist,
+        client_items.item_trash_put_back_path AS 'Recently Deleted'
+    FROM client_items
+    LEFT JOIN app_libraries ON client_items.app_library_rowid = app_libraries.rowid
+	LEFT JOIN server.devices ON client_items.version_device = server.devices.key
+	LEFT JOiN server.users ON client_items.item_creator_id = server.users.user_key
+	WHERE client_items.item_sharing_options > 4
+    '''
+
+    data_headers = (
+        ('Created', 'datetime'), 
+        ('Modified', 'datetime'), 
+        ('Last opened', 'datetime'), 
+        'Application Bundle ID', 
+        'Path', 
+        'Filename', 
+        'Hidden extension', 
+        'Size in bytes', 
+        'Size', 
+        'From Device Name', 
+        'Shared by', 
+        'Permissions',
+        'Recently Deleted')     
+
+    db_records = get_sqlite_db_records(source_path, query, attach_query)
+    if db_records:
+        parents = get_tree_structure(source_path)
     
-    os_all_rows = cursor.fetchall()
-    os_usageentries = len(os_all_rows)
-    os_data_list = []
+    for record in db_records:
+        cdate, mdate, lodate, app_id, parent_id, filename, ext, size_in_bytes, device, \
+            sharing_options, creator_id, user_plist, trash_back_path = record
 
-    if os_usageentries > 0:
-        for os_row in os_all_rows:
-            os_date, os_os  = os_row
+        path = ''
+        if len(parent_id) == 16:
+            path = parents.get(parent_id, '')
+        
+        if not isinstance(size_in_bytes, int):
+            path += f"{filename}/"
+            filename = ""
 
-            os_date = convert_ts_int_to_timezone(os_date, timezone_offset) if os_date else ''
+        size = size_in_bytes
+        if size:
+            size = convert_bytes_to_unit(size_in_bytes)
+        
+        cdate = convert_unix_ts_to_utc(cdate) if cdate and cdate > 0 else ''
+        mdate = convert_unix_ts_to_utc(mdate) if mdate and mdate > 0 else ''
+        lodate = convert_unix_ts_to_utc(lodate) if lodate and lodate > 0 else ''
 
-            os_version = OS_build.get(os_os, '')
+        if sharing_options == 8 or sharing_options == 12:
+            sharing_permissions = "Anyone with the link can make changes"
+        elif sharing_options == 24 or sharing_options == 28:
+            sharing_permissions = "Anyone with the link can view only"
+        elif sharing_options == 64 or sharing_options == 68:
+            sharing_permissions = "Only invited people"
+        else:
+            sharing_permissions = ''
 
-            os_data_list.append((os_date, os_os, os_version))
+        user_fullName = ''
+        if user_plist:
+            deserialized_user_plist = get_plist_content(user_plist[3:])
+            user = deserialized_user_plist.get('NS.nameComponentsPrivate')
+            if user:
+                user_givenName = user.get('NS.givenName', '')
+                user_familyName = user.get('NS.familyName', '')
+                user_fullName = f"{user_givenName + ' ' if user_givenName else ''}{user_familyName}"
+        creator_name = user_fullName if user_fullName else 'an unknown user'
+        shared_by = creator_name if creator_id else 'me'
+
+        recently_deleted = 'Yes' if trash_back_path else 'No'
+        
+        data_list.append((cdate, mdate, lodate, app_id, path, filename, ext, size_in_bytes, 
+                          size, device, shared_by, sharing_permissions, recently_deleted))
             
-        description = '	Operating System Updates '
-        report = ArtifactHtmlReport('Files App - Operating System Updates')
-        report.start_artifact_report(report_folder, 'Files App - OS Updates', description)
-        report.add_script()
-        os_data_headers = ('Date and Time', 'OS Build', 'OS Version')     
-        report.write_artifact_data_table(os_data_headers, os_data_list, file_found)
-        report.end_artifact_report()
-        
-        tsvname = 'Files App - OS Updates'
-        tsv(report_folder, os_data_headers, os_data_list, tsvname)
+    return data_headers, data_list, source_path
 
-        tlactivity = 'Files App - OS Updates'
-        timeline(report_folder, tlactivity, os_data_list, os_data_headers)
+@artifact_processor
+def iCloudDriveTaggedFiles(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    source_path = get_file_path(files_found, "client.db")
+    server_db_path = get_file_path(files_found, "server.db")
+    data_list = []
 
-    else:
-        logfunc('No OS update data found in Files App')
+    attach_query = '''ATTACH DATABASE "file:''' + server_db_path + '''?mode=ro" AS server '''
+    query = '''
+    SELECT
+        client_items.item_birthtime AS 'Created',
+        client_items.version_mtime AS 'Modified',
+        client_items.item_lastusedtime AS 'Last opened',
+        app_libraries.app_library_name AS 'App Bundle ID',
+        client_items.item_parent_id AS 'Parent ID',
+        client_items.item_filename AS 'Filename',
+        CASE client_items.item_hidden_ext
+            WHEN 0 THEN 'No'
+            WHEN 1 THEN 'Yes'
+        END AS 'Hidden Extension',
+        client_items.item_finder_tags AS 'Tags',
+        client_items.version_size AS 'Size',
+        server.devices.name AS 'Device',
+        client_items.item_trash_put_back_path AS 'Recently Deleted'
+    FROM client_items
+    LEFT JOIN app_libraries ON client_items.app_library_rowid = app_libraries.rowid
+	LEFT JOIN server.devices ON client_items.version_device = server.devices.key
+	WHERE client_items.item_finder_tags IS NOT NULL
+    '''
 
-    db.close()
+    data_headers = (
+        ('Created', 'datetime'), 
+        ('Modified', 'datetime'), 
+        ('Last opened', 'datetime'), 
+        'Application Bundle ID', 
+        'Path', 
+        'Filename', 
+        'Hidden extension', 
+        'Tags', 
+        'Size in bytes', 
+        'Size', 
+        'From Device Name', 
+        'Recently Deleted')     
 
-
-def get_filesApp(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    client_db = ''
-    server_db = ''
-    device_names = {}
-    users = {}
-
-    for file_found in files_found:
-        file_found = str(file_found)
-        
-        if file_found.endswith('client.db'):
-            client_db = file_found
-        if file_found.endswith('server.db'):
-            server_db = file_found
+    db_records = get_sqlite_db_records(source_path, query, attach_query)
+    if db_records:
+        parents = get_tree_structure(source_path)
     
-    if server_db:
-        device_names, users = get_filesApps_server(server_db, report_folder)
-    else:
-        logfunc('No server database found in Files App')
+    for record in db_records:
+        cdate, mdate, lodate, app_id, parent_id, filename, ext, tags, size_in_bytes, device, \
+            trash_back_path = record
+
+        path = ''
+        if len(parent_id) == 16:
+            path = parents.get(parent_id, '')
+        
+        if not isinstance(size_in_bytes, int):
+            path += f"{filename}/"
+            filename = ""
+
+        size = size_in_bytes
+        if size:
+            size = convert_bytes_to_unit(size_in_bytes)
+        
+        cdate = convert_unix_ts_to_utc(cdate) if cdate and cdate > 0 else ''
+        mdate = convert_unix_ts_to_utc(mdate) if mdate and mdate > 0 else ''
+        lodate = convert_unix_ts_to_utc(lodate) if lodate and lodate > 0 else ''
+
+        if tags:
+            tags = ', '.join(tags.decode('utf-8').split())
+
+        recently_deleted = 'Yes' if trash_back_path else 'No'
+        
+        data_list.append((cdate, mdate, lodate, app_id, path, filename, ext, tags, size_in_bytes, 
+                          size, device, recently_deleted))
+            
+    return data_headers, data_list, source_path
+
+@artifact_processor
+def iCloudDriveFavouriteFiles(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    source_path = get_file_path(files_found, "client.db")
+    server_db_path = get_file_path(files_found, "server.db")
+    data_list = []
+
+    attach_query = '''ATTACH DATABASE "file:''' + server_db_path + '''?mode=ro" AS server '''
+    query = '''
+    SELECT
+        client_items.item_birthtime AS 'Created',
+        client_items.version_mtime AS 'Modified',
+        client_items.item_lastusedtime AS 'Last opened',
+        app_libraries.app_library_name AS 'App Bundle ID',
+        client_items.item_parent_id AS 'Parent ID',
+        client_items.item_filename AS 'Filename',
+        CASE client_items.item_hidden_ext
+            WHEN 0 THEN 'No'
+            WHEN 1 THEN 'Yes'
+        END AS 'Hidden Extension',
+        client_items.version_size AS 'Size',
+        server.devices.name AS 'Device',
+        client_items.item_trash_put_back_path AS 'Recently Deleted',
+        client_items.item_favoriterank AS 'Favourite'
+    FROM client_items
+    LEFT JOIN app_libraries ON client_items.app_library_rowid = app_libraries.rowid
+	LEFT JOIN server.devices ON client_items.version_device = server.devices.key
+	WHERE client_items.item_favoriterank != 0
+    '''
+
+    data_headers = (
+        ('Created', 'datetime'), 
+        ('Modified', 'datetime'), 
+        ('Last opened', 'datetime'), 
+        'Application Bundle ID', 
+        'Path', 
+        'Filename', 
+        'Hidden extension', 
+        'Size in bytes', 
+        'Size', 
+        'From Device Name', 
+        'Recently Deleted')     
+
+    db_records = get_sqlite_db_records(source_path, query, attach_query)
+    if db_records:
+        parents = get_tree_structure(source_path)
     
-    if client_db:
-        get_filesApp_client(client_db, device_names, users, timezone_offset, report_folder)
-    else:
-        logfunc('No client database found in Files App')
+    for record in db_records:
+        cdate, mdate, lodate, app_id, parent_id, filename, ext, size_in_bytes, \
+            device, trash_back_path, favourite = record
+
+        path = ''
+        if len(parent_id) == 16:
+            path = parents.get(parent_id, '')
+        
+        if not isinstance(size_in_bytes, int):
+            path += f"{filename}/"
+            filename = ""
+
+        size = size_in_bytes
+        if size:
+            size = convert_bytes_to_unit(size_in_bytes)
+        
+        cdate = convert_unix_ts_to_utc(cdate) if cdate and cdate > 0 else ''
+        mdate = convert_unix_ts_to_utc(mdate) if mdate and mdate > 0 else ''
+        lodate = convert_unix_ts_to_utc(lodate) if lodate and lodate > 0 else ''
+
+        recently_deleted = 'Yes' if trash_back_path else 'No'
+        
+        data_list.append((cdate, mdate, lodate, app_id, path, filename, ext, size_in_bytes, 
+                          size, device, recently_deleted))
+            
+    return data_headers, data_list, source_path
+
+@artifact_processor
+def FilesIosUpdates(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    source_path = get_file_path(files_found, "client.db")
+    data_list = []
+
+    query = '''
+    SELECT
+        boot_history.date,
+        boot_history.os
+    FROM boot_history
+    '''
+    data_headers = (('Date and Time', 'datetime'), 'OS Build', 'OS Version')     
+
+    db_records = get_sqlite_db_records(source_path, query)
+
+    for record in db_records:
+        os_date, os_os  = record
+        os_date = convert_unix_ts_to_utc(os_date)
+        os_version = OS_build.get(os_os, '')
+
+        data_list.append((os_date, os_os, os_version))
+
+    
+    return data_headers, data_list, source_path
