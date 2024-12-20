@@ -4,8 +4,8 @@ __artifacts_v2__ = {
         "description": "Snapshots saved by iOS for individual apps appear here. Blank screenshots are excluded here. \
             Dates and times shown are from file modified timestamps",
         "author": "@ydkhatri",
-        "version": "0.4",
-        "date": "2020-07-23",
+        "creation_date": "2020-07-23",
+        "last_update_date": "2024-12-20",
         "requirements": "none",
         "category": "Installed Apps",
         "notes": "",
