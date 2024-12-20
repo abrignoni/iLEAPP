@@ -8,7 +8,9 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Installed Apps",
         "notes": "",
-        "paths": ('*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist', '**/PluginKitPlugin/*.metadata.plist',),
+        "paths": (
+            '*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist', 
+            '*/Containers/Data/PluginKitPlugin/*/.com.apple.mobile_container_manager.metadata.plist'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "package"
     }
