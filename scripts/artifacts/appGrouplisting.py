@@ -1,64 +1,38 @@
 __artifacts_v2__ = {
-    "get_appGrouplisting": {
+    "appGrouplisting": {
         "name": "Bundle ID by AppGroup & PluginKit IDs",
         "description": "List can included once installed but not present apps. Each file is named .com.apple.mobile_container_manager.metadata.plist",
         "author": "@AlexisBrignoni",
-        "version": "0.3",
-        "date": "2020-09-22",
+        "creation_date": "2020-09-22",
+        "last_update_date": "2024-12-20",
         "requirements": "none",
         "category": "Installed Apps",
         "notes": "",
         "paths": ('*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist', '**/PluginKitPlugin/*.metadata.plist',),
-        "function": "get_appGrouplisting",
-        "output_types": ["html", "tsv", "lava"]
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "package"
     }
 }
 
-import biplist
 import pathlib
-import plistlib
-import sys
-
-#from scripts.artifact_report import ArtifactHtmlReport
-#from scripts.ilapfuncs import logfunc, tsv, is_platform_windows
-from scripts.ilapfuncs import artifact_processor
+from scripts.ilapfuncs import artifact_processor, get_plist_file_content
 
 @artifact_processor
-def get_appGrouplisting(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def appGrouplisting(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    source_path = 'Path column in the report'
     data_list = []       
+    
     for file_found in files_found:
-        file_found = str(file_found)
-        with open(file_found, "rb") as fp:
-            if sys.version_info >= (3, 9):
-                plist = plistlib.load(fp)
-            else:
-                plist = biplist.readPlist(fp)
-            bundleid = plist['MCMMetadataIdentifier']
-            
-            p = pathlib.Path(file_found)
-            appgroupid = p.parent.name
-            fileloc = str(p.parents[1])
-            typedir = str(p.parents[1].name)
-            
-            data_list.append((bundleid, typedir, appgroupid, fileloc))
+        plist = get_plist_file_content(file_found)
+        bundleid = plist['MCMMetadataIdentifier']
         
-    if len(data_list) > 0:
+        p = pathlib.Path(file_found)
+        appgroupid = p.parent.name
+        fileloc = str(p.parents[1])
+        typedir = str(p.parents[1].name)
         
-        filelocdesc = 'Path column in the report'
-        """
-        description = 'List can included once installed but not present apps. Each file is named .com.apple.mobile_container_manager.metadata.plist'
-        report = ArtifactHtmlReport('Bundle ID by AppGroup & PluginKit IDs')
-        report.start_artifact_report(report_folder, 'Bundle ID by AppGroup & PluginKit IDs', description)
-        report.add_script()
-        data_headers = ('Bundle ID','Type','Directory GUID','Path')     
-        report.write_artifact_data_table(data_headers, data_list, filelocdesc)
-        report.end_artifact_report()
-        
-        tsvname = 'Bundle ID - AppGroup ID - PluginKit ID'
-        tsv(report_folder, data_headers, data_list, tsvname)
-    else:
-        logfunc('No data on Bundle ID - AppGroup ID - PluginKit ID')
-        """
-        data_headers = ('Bundle ID', 'Type', 'Directory GUID', 'Path')
-        return data_headers, data_list, filelocdesc
+        data_list.append((bundleid, typedir, appgroupid, fileloc))
+                
+    data_headers = ('Bundle ID', 'Type', 'Directory GUID', 'Path')
+    return data_headers, data_list, source_path
     
