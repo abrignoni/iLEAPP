@@ -2103,6 +2103,7 @@ OS_build = {
     "23H304": "macOS 14.7.2 RC 2",
     "23H309": "macOS 14.7.2 RC 3",
     "23H311": "macOS 14.7.2",
+    "23H407": "macOS 14.7.3 RC",
     "24A5264n": "macOS 15.0 beta 1",
     "24A5279h": "macOS 15.0 beta 2",
     "24A5289g": "macOS 15.0 beta 3",
