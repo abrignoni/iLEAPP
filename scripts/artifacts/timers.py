@@ -32,13 +32,19 @@ def timer(files_found, report_folder, seeker, wrap_text, timezone_offset):
                 timer_time = timers_dict.get('MTTimerDuration', '')
                 timer_state = timers_dict.get('MTTimerState', '')
                 timer_duration = timers_dict.get('MTTimerDuration', '')
+                timer_lastModified = timers_dict.get('MTTimerLastModifiedDate', '')
+                timer_fireTime = timers_dict['MTTimerFireTime'].get('$MTTimerDate', '')
+                timer_firstDate = ''
+                
+                if not timer_fireTime == '':
+                    timer_firstDate = timer_fireTime.get('MTTimerTimeDate', '')
 
                 data_list.append((
                     timer_title, 
                     timer_state, 
                     str(datetime.timedelta(seconds = timer_duration)), 
-                    timers_dict.get('MTTimerTimeDate',''), 
-                    timers_dict.get('MTTimerLastTriggerDate',''), 
+                    timer_firstDate, 
+                    timer_lastModified, 
                     timers_dict['MTTimerSound']['$MTSound']['MTSoundToneID'] 
                     ))
 
@@ -46,8 +52,8 @@ def timer(files_found, report_folder, seeker, wrap_text, timezone_offset):
             'Timer Title', 
             'Timer State', 
             'Timer Time', 
-            'First Date', 
-            'Last Triggered', 
+            ('First Date', 'datetime'), 
+            ('Last Modified', 'datetime'), 
             'Timer Sound'
             )
 
