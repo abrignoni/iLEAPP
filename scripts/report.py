@@ -89,6 +89,8 @@ def generate_report(reportfolderbase, time_in_secs, time_HMS, extraction_type, i
     for root, dirs, files in sorted(os.walk(reportfolderbase)):
         files = sorted(files)
         for file in files:
+            if file.startswith('._'):
+                continue
             if file.endswith(".temphtml"):
                 fullpath = (os.path.join(root, file))
                 head, tail = os.path.split(fullpath)
