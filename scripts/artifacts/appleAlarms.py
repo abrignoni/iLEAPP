@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2021-01-17",
         "last_update_date": "2024-12-22",
         "requirements": "none",
-        "category": "Alarms",
+        "category": "Clock",
         "notes": "",
         "paths": ('*/mobile/Library/Preferences/com.apple.mobiletimerd.plist',),
         "output_types": "standard",
