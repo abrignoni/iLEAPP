@@ -16,6 +16,7 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | payByPhone |
 | subscriberInfo |
 | twint |
+| wire |
 <!-- GET_RECORDS_END -->
 
 ### open_sqlite_db_readonly() Usage
@@ -153,5 +154,4 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | whatsappContacts |
 | whatsappMessages |
 | wifiNetworkStoreModel |
-| wire |
 <!-- READONLY_END -->
