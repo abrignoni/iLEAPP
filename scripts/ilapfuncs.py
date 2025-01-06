@@ -663,8 +663,6 @@ def kmlgen(report_folder, kmlactivity, data_list, data_headers):
             data.append((times, lat, lon, kmlactivity))
         a += 1
 
-    print(data)
-    input()
     if len(data) > 0:
         report_folder = report_folder.rstrip('/')
         report_folder = report_folder.rstrip('\\')
