@@ -643,22 +643,28 @@ def kmlgen(report_folder, kmlactivity, data_list, data_headers):
     kml = simplekml.Kml(open=1)    
     a = 0
     length = len(data_list)
-
     while a < length:
         modifiedDict = dict(zip(data_headers, data_list[a]))
-        times = modifiedDict.get('Timestamp','N/A')
-        if times == 'N/A':
-            times = data_list[a][0] if isinstance(data_list[a][0], datetime) else 'N/A'
         lon = modifiedDict['Longitude']
         lat = modifiedDict['Latitude']
+        times_header = "Timestamp"
         if lat and lon:
             pnt = kml.newpoint()
+            times = modifiedDict.get('Timestamp','N/A')
+            if times == 'N/A':
+                for key, value in modifiedDict.items():
+                    if isinstance(value, datetime):
+                        times_header = key
+                        times = value
+                        break
             pnt.name = times
-            pnt.description = f"Timestamp: {times} - {kmlactivity}"
+            pnt.description = f"{times_header}: {times} - {kmlactivity}"
             pnt.coords = [(lon, lat)]
             data.append((times, lat, lon, kmlactivity))
         a += 1
 
+    print(data)
+    input()
     if len(data) > 0:
         report_folder = report_folder.rstrip('/')
         report_folder = report_folder.rstrip('\\')
@@ -678,7 +684,7 @@ def kmlgen(report_folder, kmlactivity, data_list, data_headers):
             cursor = db.cursor()
             cursor.execute(
             """
-            CREATE TABLE data(key TEXT, latitude TEXT, longitude TEXT, activity TEXT)
+            CREATE TABLE data(timestamp TEXT, latitude TEXT, longitude TEXT, activity TEXT)
             """
                 )
             db.commit()
