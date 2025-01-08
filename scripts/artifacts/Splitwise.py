@@ -1,314 +1,344 @@
 __artifacts_v2__ = {
-    "splitwise": {
-        "name": "Splitwise",
-        "description": "Parses users, accounts, and transaction information from Splitwise app",
+    "splitwiseUsers": {
+        "name": "Splitwise - Users",
+        "description": "Parses users information from Splitwise app",
         "author": "@KevinPagano3",
-        "version": "0.0.1",
-        "date": "2024-04-09",
+        "creation_date": "2024-04-09",
+        "last_update_date": "2025-01-07",
         "requirements": "none",
-        "category": "Splitwise",
+        "category": "Finance",
         "notes": "",
         "paths": ('*/Library/Application Support/database.sqlite*',),
-        "function": "get_Splitwise"
+        "output_types": "standard",
+        "artifact_icon": "user"
+    },
+    "splitwiseExpenses": {
+        "name": "Splitwise - Expenses",
+        "description": "Parses expenses information from Splitwise app",
+        "author": "@KevinPagano3",
+        "creation_date": "2024-04-09",
+        "last_update_date": "2025-01-07",
+        "requirements": "none",
+        "category": "Finance",
+        "notes": "",
+        "paths": ('*/Library/Application Support/database.sqlite*',),
+        "output_types": "standard",
+        "artifact_icon": "dollar-sign"
+    },
+    "splitwiseExpenseBalances": {
+        "name": "Splitwise - Expense Balances",
+        "description": "Parses expense balances information from Splitwise app",
+        "author": "@KevinPagano3",
+        "creation_date": "2024-04-09",
+        "last_update_date": "2025-01-07",
+        "requirements": "none",
+        "category": "Finance",
+        "notes": "",
+        "paths": ('*/Library/Application Support/database.sqlite*',),
+        "output_types": "standard",
+        "artifact_icon": "dollar-sign"
+    },
+    "splitwiseTotalBalances": {
+        "name": "Splitwise - Total Balances",
+        "description": "Parses total balances information from Splitwise app",
+        "author": "@KevinPagano3",
+        "creation_date": "2024-04-09",
+        "last_update_date": "2025-01-07",
+        "requirements": "none",
+        "category": "Finance",
+        "notes": "",
+        "paths": ('*/Library/Application Support/database.sqlite*',),
+        "output_types": "standard",
+        "artifact_icon": "dollar-sign"
+    },
+    "splitwiseGroups": {
+        "name": "Splitwise - Groups",
+        "description": "Parses groups information in Splitwise app",
+        "author": "@KevinPagano3",
+        "creation_date": "2024-04-09",
+        "last_update_date": "2025-01-07",
+        "requirements": "none",
+        "category": "Finance",
+        "notes": "",
+        "paths": ('*/Library/Application Support/database.sqlite*',),
+        "output_types": "standard",
+        "artifact_icon": "users",
+        "html_columns": ['Members']
+    },
+    "splitwiseNotifications": {
+        "name": "Splitwise - Notifications",
+        "description": "Parses notifications from Splitwise app",
+        "author": "@KevinPagano3",
+        "creation_date": "2024-04-09",
+        "last_update_date": "2025-01-07",
+        "requirements": "none",
+        "category": "Finance",
+        "notes": "",
+        "paths": ('*/Library/Application Support/database.sqlite*',),
+        "output_types": "standard",
+        "artifact_icon": "bell",
+        "html_columns": ['Notification']
     }
 }
 
-import re
-import sqlite3
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, convert_unix_ts_to_utc
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, convert_ts_human_to_utc, convert_utc_human_to_timezone, does_table_exist
+@artifact_processor
+def splitwiseUsers(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    source_path = get_file_path(files_found, "database.sqlite")
+    data_list = []
 
-def get_Splitwise(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    
-    data_list_users = []
-    data_list_expenses = []
-    data_list_expense_balance = []
-    data_list_groups = []
-    data_list_groups_tsv = []
-    data_list_notification = []
-    data_list_notification_tsv = []
-    data_list_total_balance = []
-    
-    for file_found in files_found:
-        file_found = str(file_found)
-        
-        if file_found.endswith('database.sqlite'):
-            db = open_sqlite_db_readonly(file_found)
-            
-            if does_table_exist(db, 'SWPerson'):
-                cursor = db.cursor()
-                
-                # Users
-                cursor.execute('''
-                select
-                datetime(createdAt,'unixepoch'),
-                datetime(updatedAt,'unixepoch'),
-                firstName,
-                lastName,
-                email,
-                phone,
-                personId,
-                largeImagePath,
-                currencyCode,
-                countryCode,
-                registrationStatus
-                from SWPerson
-                ''')
+    query = '''
+    SELECT
+        createdAt,
+        updatedAt,
+        firstName,
+        lastName,
+        email,
+        phone,
+        personId,
+        largeImagePath,
+        currencyCode,
+        countryCode,
+        registrationStatus
+    FROM SWPerson
+    '''
 
-                all_rows = cursor.fetchall()
-                
-                for row in all_rows:
-                    created_ts = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]),timezone_offset)
-                    updated_ts = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[1]),timezone_offset)
-                    
-                    data_list_users.append((created_ts,updated_ts,row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],file_found))
-                 
-                # Expenses
-                cursor.execute('''
-                select
-                datetime(SWExpense.createdAtDate,'unixepoch'),
-                datetime(SWExpense.updatedAt,'unixepoch'),
-                coalesce(SWPerson.firstName,'') || coalesce(SWPerson.lastName,'') || ' ('|| coalesce(SWPerson.email,'') || ')',
-                SWExpense.description,
-                SWExpense.cost,
-                SWExpense.currencyCode,
-                SWExpense.category,            
-                SWGroup.groupName,
-                SWExpense.expenseId,
-                SWExpense.guid
-                from SWExpense
-                left join SWPerson on SWExpense.createdById = SWPerson.personId
-                left join SWGroup on SWExpense.groupId = SWGroup.groupId
-                ''')
-                
-                all_rows = cursor.fetchall()
-                
-                for row in all_rows:
-                    created_ts = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]),timezone_offset)
-                    updated_ts = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[1]),timezone_offset)
-                    
-                    data_list_expenses.append((created_ts,updated_ts,row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],file_found))
-                    
-                # Expense Balances
-                cursor.execute('''
-                select
-                datetime(SWExpenseMember.createdAt,'unixepoch'),
-                coalesce(SWPerson.firstName,'') || coalesce(SWPerson.lastName,''),
-                SWPerson.email,
-                SWExpense.description,
-                SWExpenseMember.owedShare,
-                SWExpenseMember.paidShare
-                from SWExpenseMember
-                left join SWExpense on SWExpense.id = SWExpenseMember.sWExpenseId
-                left join SWPerson on SWPerson.id = SWExpenseMember.sWPersonId
-                ''')
-                
-                all_rows = cursor.fetchall()
-                
-                for row in all_rows:
-                    created_ts = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]),timezone_offset)
-                    
-                    data_list_expense_balance.append((created_ts,row[1],row[2],row[3],row[4],row[5],file_found))
-                
-                # Groups
-                cursor.execute('''
-                select
-                datetime(SWGroup.createdAtDate,'unixepoch'),
-                datetime(SWGroup.updatedAtDate,'unixepoch'),
-                SWGroup.groupName,
-                group_concat(
-                (select coalesce(SWPerson.firstName,'') || ' ' || coalesce(SWPerson.lastName,'') || '(' || coalesce(SWPerson.email,'') || ')'
-                 from SWPerson
-                 where SWPerson.personId = SWGroupMember.personId
-                ), '; '
-                ) as "Members",
-                SWGroup.groupId,
-                SWGroup.groupType,
-                SWGroup.inviteLink,
-                SWGroup.whiteboard,
-                SWGroup.imagePath,
-                SWGroup.coverPhotoURLString
-                from SWGroup
-                left join SWGroupMember on SWGroup.id = SWGroupMember.sWGroupId
-                group by SWGroup.groupId
-                ''')
-                
-                all_rows = cursor.fetchall()
-                
-                for row in all_rows:
-                    created_ts = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]),timezone_offset)
-                    updated_ts = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[1]),timezone_offset)
-                    
-                    member_split = row[3].split('; ')
-                    members = ''
-                    for section in member_split:
-                        members += section + ';<br>'
-                    members = members[:-5]
-                    
-                    if row[5] is None:
-                        data_list_groups_tsv.append((created_ts,row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],file_found))
-                        data_list_groups.append((created_ts,updated_ts,row[2],members,row[4],row[5],row[6],row[7],row[8],row[9],file_found))
-                    else:
-                        data_list_groups_tsv.append((created_ts,row[2],row[3],row[4],row[5].title(),row[6],row[7],row[8],row[9],file_found))
-                        data_list_groups.append((created_ts,updated_ts,row[2],members,row[4],row[5].title(),row[6],row[7],row[8],row[9],file_found))
-                    
-                # Activity / Notifications
-                cursor.execute('''
-                select
-                datetime(createdAtDate,'unixepoch'),
-                content,
-                sourceType,
-                notificationId
-                from SWNotification
-                ''')
-                
-                all_rows = cursor.fetchall()
-                usageentries = len(all_rows)
-                
-                for row in all_rows:
-                    created_ts = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]),timezone_offset)
-                    
-                    data_list_notification.append((created_ts,row[1],row[2],row[3],file_found))
-                    
-                    if '<strong>' and '</strong>' in row[1]:
-                        remove_html = row[1].replace('<strong>','').replace('</strong>','')
-                        
-                    data_list_notification_tsv.append((created_ts,remove_html,row[2],row[3],file_found))
-                    
-                # Total Balances
-                cursor.execute('''
-                select
-                datetime(SWBalance.createdAt,'unixepoch'),
-                datetime(SWBalance.updatedAt,'unixepoch'),
-                coalesce(SWPerson.firstName,'') || coalesce(SWPerson.lastName,''),
-                SWPerson.email,
-                SWBalance.amount,
-                SWBalance.currencyCode
-                from SWBalance
-                left join SWFriendship on SWFriendship.id = SWBalance.sWFriendshipId
-                left join SWPerson on SWPerson.personId = SWFriendship.personId
-                ''')
-                
-                all_rows = cursor.fetchall()
-                
-                for row in all_rows:
-                    created_ts = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]),timezone_offset)
-                    updated_ts = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[1]),timezone_offset)
-                    
-                    data_list_total_balance.append((created_ts,updated_ts,row[2],row[3],row[4],row[5],file_found))
+    data_headers = (
+        ('Created Timestamp', 'datetime'), 
+        ('Updated Timestamp', 'datetime'), 
+        'First Name', 
+        'Last Name', 
+        'Email', 
+        ('Phone', 'phonenumber'), 
+        'Person ID', 
+        'Avatar Path', 
+        'Currency', 
+        'Country', 
+        'Registration Status')
 
-                db.close()
-            else:
-                continue
-        else:
-            continue
+    db_records = get_sqlite_db_records(source_path, query)
     
-    # Users
-    if data_list_users:
-        report = ArtifactHtmlReport('Splitwise - Users')
-        report.start_artifact_report(report_folder, 'Splitwise - Users')
-        report.add_script()
-        data_headers = ('Created Timestamp','Updated Timestamp','First Name','Last Name','Email','Phone','Person ID','Avatar Path','Currency','Country','Registration Status','Source File') # Don't remove the comma, that is required to make this a tuple as there is only 1 element
-          
-        report.write_artifact_data_table(data_headers, data_list_users, file_found)
-        report.end_artifact_report()
+    for record in db_records:
+        created_ts = convert_unix_ts_to_utc(record[0])
+        updated_ts = convert_unix_ts_to_utc(record[1])
         
-        tsvname = 'Splitwise - Users'
-        tsv(report_folder, data_headers, data_list_users, tsvname)
-        
-        tlactivity = 'Splitwise - Users'
-        timeline(report_folder, tlactivity, data_list_users, data_headers)
-    else:
-        logfunc('No Splitwise - Users available')
-        
-    # Expenses
-    if data_list_expenses:
-        report = ArtifactHtmlReport('Splitwise - Expenses')
-        report.start_artifact_report(report_folder, 'Splitwise - Expenses')
-        report.add_script()
-        data_headers = ('Created Timestamp','Updated Timestamp','Payer','Expense Description','Cost','Currency','Category','Group Name','Expense ID','Expense GUID','Source File') # Don't remove the comma, that is required to make this a tuple as there is only 1 element
-          
-        report.write_artifact_data_table(data_headers, data_list_expenses, file_found)
-        report.end_artifact_report()
-        
-        tsvname = 'Splitwise - Expenses'
-        tsv(report_folder, data_headers, data_list_expenses, tsvname)
-        
-        tlactivity = 'Splitwise - Expenses'
-        timeline(report_folder, tlactivity, data_list_expenses, data_headers)
-    else:
-        logfunc('No Splitwise - Expenses available')
-        
-    # Expense Balances
-    if data_list_expense_balance:
-        report = ArtifactHtmlReport('Splitwise - Expense Balances')
-        report.start_artifact_report(report_folder, 'Splitwise - Expense Balances')
-        report.add_script()
-        data_headers = ('Created Timestamp','Member Name','Email','Expense','Owed Share','Paid Share','Source File') # Don't remove the comma, that is required to make this a tuple as there is only 1 element
-          
-        report.write_artifact_data_table(data_headers, data_list_expense_balance, file_found)
-        report.end_artifact_report()
-        
-        tsvname = 'Splitwise - Expense Balances'
-        tsv(report_folder, data_headers, data_list_expense_balance, tsvname)
-        
-        tlactivity = 'Splitwise - Expense Balances'
-        timeline(report_folder, tlactivity, data_list_expense_balance, data_headers)
-    else:
-        logfunc('No Splitwise - Expense Balances available')
-        
-    # Groups    
-    if data_list_groups:
-        report = ArtifactHtmlReport('Splitwise - Groups')
-        report.start_artifact_report(report_folder, 'Splitwise - Groups')
-        report.add_script()
-        data_headers = ('Created Timestamp','Updated Timestamp','Group Name','Members','Group ID','Group Type','Invite Link','Whiteboard','Avatar URL','Cover Photo URL','Source File') # Don't remove the comma, that is required to make this a tuple as there is only 1 element
-          
-        report.write_artifact_data_table(data_headers, data_list_groups, file_found, html_no_escape=['Members'])
-        report.end_artifact_report()
-        
-        tsvname = 'Splitwise - Groups'
-        tsv(report_folder, data_headers, data_list_groups_tsv, tsvname)
-        
-        tlactivity = 'Splitwise - Groups'
-        timeline(report_folder, tlactivity, data_list_groups, data_headers)
-    else:
-        logfunc('No Splitwise - Groups available')
-        
-    # Notifications    
-    if data_list_notification:
-        report = ArtifactHtmlReport('Splitwise - Notifications')
-        report.start_artifact_report(report_folder, 'Splitwise - Notifications')
-        report.add_script()
-        data_headers = ('Created Timestamp','Notification','Source Type','Notification ID','Source File') # Don't remove the comma, that is required to make this a tuple as there is only 1 element
-          
-        report.write_artifact_data_table(data_headers, data_list_notification, file_found, html_no_escape=['Notification'])
-        report.end_artifact_report()
-        
-        tsvname = 'Splitwise - Notifications'
-        tsv(report_folder, data_headers, data_list_notification_tsv, tsvname)
-        
-        tlactivity = 'Splitwise - Notifications'
-        timeline(report_folder, tlactivity, data_list_notification, data_headers)
-    else:
-        logfunc('No Splitwise - Notifications available')
-        
-    # Total Balances    
-    if data_list_total_balance:
-        report = ArtifactHtmlReport('Splitwise - Total Balances')
-        report.start_artifact_report(report_folder, 'Splitwise - Total Balances')
-        report.add_script()
-        data_headers = ('Created Timestamp','Updated Timestamp','Friend Name','Email','Balance','Currency','Source File') # Don't remove the comma, that is required to make this a tuple as there is only 1 element
-          
-        report.write_artifact_data_table(data_headers, data_list_total_balance, file_found)
-        report.end_artifact_report()
-        
-        tsvname = 'Splitwise - Total Balances'
-        tsv(report_folder, data_headers, data_list_total_balance, tsvname)
-        
-        tlactivity = 'Splitwise - Total Balances'
-        timeline(report_folder, tlactivity, data_list_total_balance, data_headers)
-    else:
-        logfunc('No Splitwise - Total Balances available')
+        data_list.append(
+            (created_ts, updated_ts, record[2], record[3], record[4], record[5], record[6], 
+             record[7], record[8], record[9], record[10]))
+
+    return data_headers, data_list, source_path        
+
+
+@artifact_processor
+def splitwiseExpenses(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    source_path = get_file_path(files_found, "database.sqlite")
+    data_list = []
+
+    query = '''
+    SELECT
+        SWExpense.createdAtDate,
+        SWExpense.updatedAt,
+        coalesce(SWPerson.firstName,'') || coalesce(SWPerson.lastName,'') || ' ('|| coalesce(SWPerson.email,'') || ')',
+        SWExpense.description,
+        SWExpense.cost,
+        SWExpense.currencyCode,
+        SWExpense.category,            
+        SWGroup.groupName,
+        SWExpense.expenseId,
+        SWExpense.guid
+    FROM SWExpense
+    LEFT JOIN SWPerson ON SWExpense.createdById = SWPerson.personId
+    LEFT JOIN SWGroup ON SWExpense.groupId = SWGroup.groupId
+    '''
     
+    data_headers = (
+        ('Created Timestamp', 'datetime'), 
+        ('Updated Timestamp', 'datetime'), 
+        'Payer', 
+        'Expense Description', 
+        'Cost', 
+        'Currency', 
+        'Category', 
+        'Group Name', 
+        'Expense ID', 
+        'Expense GUID')
+
+    db_records = get_sqlite_db_records(source_path, query)
+    
+    for record in db_records:
+        created_ts = convert_unix_ts_to_utc(record[0])
+        updated_ts = convert_unix_ts_to_utc(record[1])
+        
+        data_list.append(
+            (created_ts, updated_ts, record[2], record[3], record[4], record[5], record[6], 
+             record[7], record[8], record[9]))
+        
+    return data_headers, data_list, source_path        
+
+
+@artifact_processor
+def splitwiseExpenseBalances(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    source_path = get_file_path(files_found, "database.sqlite")
+    data_list = []
+
+    query = '''
+    SELECT
+        SWExpenseMember.createdAt,
+        coalesce(SWPerson.firstName,'') || coalesce(SWPerson.lastName,''),
+        SWPerson.email,
+        SWExpense.description,
+        SWExpenseMember.owedShare,
+        SWExpenseMember.paidShare
+    FROM SWExpenseMember
+    LEFT JOIN SWExpense ON SWExpense.id = SWExpenseMember.sWExpenseId
+    LEFT JOIN SWPerson ON SWPerson.id = SWExpenseMember.sWPersonId
+    '''
+    
+    data_headers = (
+        ('Created Timestamp', 'datetime'), 
+        'Member Name', 
+        'Email', 
+        'Expense', 
+        'Owed Share', 
+        'Paid Share')
+    
+    db_records = get_sqlite_db_records(source_path, query)
+    
+    for record in db_records:
+        created_ts = convert_unix_ts_to_utc(record[0])
+        data_list.append((created_ts, record[1], record[2], record[3], record[4], record[5]))
+        
+    return data_headers, data_list, source_path        
+
+
+@artifact_processor
+def splitwiseTotalBalances(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    source_path = get_file_path(files_found, "database.sqlite")
+    data_list = []
+
+    query = '''
+    SELECT
+        SWBalance.createdAt,
+        SWBalance.updatedAt,
+        coalesce(SWPerson.firstName,'') || coalesce(SWPerson.lastName,''),
+        SWPerson.email,
+        SWBalance.amount,
+        SWBalance.currencyCode
+    FROM SWBalance
+    LEFT JOIN SWFriendship ON SWFriendship.id = SWBalance.sWFriendshipId
+    LEFT JOIN SWPerson ON SWPerson.personId = SWFriendship.personId
+    '''
+    
+    data_headers = (
+        ('Created Timestamp', 'datetime'), 
+        ('Updated Timestamp', 'datetime'), 
+        'Friend Name', 
+        'Email', 
+        'Balance', 
+        'Currency')
+    
+    db_records = get_sqlite_db_records(source_path, query)
+    
+    for record in db_records:
+        created_ts = convert_unix_ts_to_utc(record[0])
+        updated_ts = convert_unix_ts_to_utc(record[1])
+        data_list.append((created_ts, updated_ts, record[2], record[3], record[4], record[5]))
+
+    return data_headers, data_list, source_path        
+
+
+
+@artifact_processor
+def splitwiseGroups(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    source_path = get_file_path(files_found, "database.sqlite")
+    data_list = []
+    data_list_html = []
+
+    query = '''
+    SELECT
+        SWGroup.createdAtDate,
+        SWGroup.updatedAtDate,
+        SWGroup.groupName,
+        group_concat(
+        (select coalesce(SWPerson.firstName,'') || ' ' || coalesce(SWPerson.lastName,'') || '(' || coalesce(SWPerson.email,'') || ')'
+            from SWPerson
+            where SWPerson.personId = SWGroupMember.personId
+        ), '; '
+        ) as "Members",
+        SWGroup.groupId,
+        SWGroup.groupType,
+        SWGroup.inviteLink,
+        SWGroup.whiteboard,
+        SWGroup.imagePath,
+        SWGroup.coverPhotoURLString
+    FROM SWGroup
+    LEFT JOIN SWGroupMember ON SWGroup.id = SWGroupMember.sWGroupId
+    GROUP BY SWGroup.groupId
+    '''
+    
+    data_headers = (
+        ('Created Timestamp', 'datetime'), 
+        ('Updated Timestamp', 'datetime'), 
+        'Group Name', 
+        'Members', 
+        'Group ID', 
+        'Group Type', 
+        'Invite Link', 
+        'Whiteboard', 
+        'Avatar URL', 
+        'Cover Photo URL')
+    
+    db_records = get_sqlite_db_records(source_path, query)
+
+    for record in db_records:
+        created_ts = convert_unix_ts_to_utc(record[0])
+        updated_ts = convert_unix_ts_to_utc(record[1])
+        
+        member_split = record[3].split('; ')
+        members = ''
+        for section in member_split:
+            members += section + ';' + chr(13)
+        
+        group_title = record[5].title() if record[5] else record[5]
+        data_list.append(
+            (created_ts, updated_ts, record[2], members, record[4], group_title, record[6], 
+             record[7], record[8], record[9]))
+        data_list_html.append(
+            (created_ts, updated_ts, record[2], members.replace(chr(13), '<br>')[:-2], record[4], 
+             group_title, record[6], record[7], record[8], record[9]))
+
+    return data_headers, (data_list, data_list_html), source_path        
+
+
+@artifact_processor
+def splitwiseNotifications(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    source_path = get_file_path(files_found, "database.sqlite")
+    data_list = []
+    data_list_html = []
+
+    query = '''
+    SELECT
+        createdAtDate,
+        content,
+        sourceType,
+        notificationId
+    FROM SWNotification
+    '''
+    
+    data_headers = (
+        ('Created Timestamp', 'datetime'), 
+        'Notification', 
+        'Source Type', 
+        'Notification ID')
+    
+    db_records = get_sqlite_db_records(source_path, query)
+
+    for record in db_records:
+        created_ts = convert_unix_ts_to_utc(record[0])
+        data_list_html.append((created_ts, record[1], record[2], record[3]))
+        if '<strong>' and '</strong>' in record[1]:
+            remove_html = record[1].replace('<strong>', '').replace('</strong>', '')
+        data_list.append((created_ts, remove_html, record[2], record[3]))
+
+    return data_headers, (data_list, data_list_html), source_path        

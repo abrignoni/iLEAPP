@@ -44,6 +44,7 @@ __artifacts_v2__ = {
     - `"kml"`: Generates KML (Keyhole Markup Language) output for Google Earth
     - `"none"`: Any output generated (For modules only collecting device info)
 - `artifact_icon`: The name of the feathericon to display in the left sidebar ot the HTML report. List of available icons on  [feathericons.com](https://feathericons.com) website
+- `html_columns`: The name of the columns that contain HTML code to render it properly in the HTML report. This key is used to populate the optional argument `html_no_escape` in the report.write_artifact_data_table() function.
 
 This info block provides essential metadata about the artifact and is used by the artifact processor to handle the artifact correctly. The plugin loader will attach this information to the corresponding function, making it accessible via the function's globals.
 
