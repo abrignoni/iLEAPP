@@ -77,6 +77,8 @@ def artifact_processor(func):
         category = artifact_info.get('category', '')
         description = artifact_info.get('description', '')
         icon = artifact_info.get('artifact_icon', '')
+        html_columns = artifact_info.get('html_columns', [])
+        
         output_types = artifact_info.get('output_types', ['html', 'tsv', 'timeline', 'lava', 'kml'])
 
         data_headers, data_list, source_path = func(files_found, report_folder, seeker, wrap_text, timezone_offset)
@@ -85,6 +87,10 @@ def artifact_processor(func):
             logfunc(f"No file found")
 
         elif len(data_list):
+            if isinstance(data_list, tuple):
+                data_list, data_list_html = data_list
+            else:
+                data_list_html = data_list
             logfunc(f"Found {len(data_list)} {'records' if len(data_list)>1 else 'record'} for {artifact_name}")
             icons.setdefault(category, {artifact_name: icon}).update({artifact_name: icon})
 
@@ -95,7 +101,7 @@ def artifact_processor(func):
                 report = artifact_report.ArtifactHtmlReport(artifact_name)
                 report.start_artifact_report(report_folder, artifact_name, description)
                 report.add_script()
-                report.write_artifact_data_table(stripped_headers, data_list, source_path)
+                report.write_artifact_data_table(stripped_headers, data_list_html, source_path, html_no_escape=html_columns)
                 report.end_artifact_report()
 
             if check_output_types('tsv', output_types):
@@ -183,7 +189,7 @@ def convert_unix_ts_in_seconds(ts):
     if digits > 10:
         extra_digits = digits - 10
         ts = ts // 10**extra_digits
-    return ts
+    return int(ts)
 
 def convert_unix_ts_to_utc(ts):
     if ts:
