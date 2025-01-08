@@ -1,26 +1,11 @@
 # -*- mode: python ; coding: utf-8 -*-
 
-block_cipher = None
 
-a = Analysis(['..\\..\\ileapp.py'],
-             pathex=['..\\scripts\\artifacts'],
+a = Analysis(['ileapp.py'],
+             pathex=['.\\scripts\\artifacts'],
              binaries=[],
-             datas=[('..\\', '.\\scripts')],
-             hiddenimports=[
-                'astc_decomp_faster',
-                'bencoding',
-                'blackboxprotobuf',
-                'Crypto.Cipher.AES',
-                'lib2to3.refactor',
-                'liblzfse',
-                'mdplist',
-                'mmh3',
-                'nska_deserialize',
-                'pandas',
-                'pgpy',
-                'pillow_heif',
-                'xml.etree.ElementTree',
-                ],
+             datas=[('.\\scripts', '.\\scripts')],
+             hiddenimports=['simplekml'],
              hookspath=['./'],
              runtime_hooks=[],
              excludes=[],
