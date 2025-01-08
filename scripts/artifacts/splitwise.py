@@ -127,7 +127,7 @@ def splitwiseUsers(files_found, report_folder, seeker, wrap_text, timezone_offse
             (created_ts, updated_ts, record[2], record[3], record[4], record[5], record[6], 
              record[7], record[8], record[9], record[10]))
 
-    return data_headers, data_list, source_path        
+    return data_headers, data_list, source_path
 
 
 @artifact_processor
@@ -174,7 +174,7 @@ def splitwiseExpenses(files_found, report_folder, seeker, wrap_text, timezone_of
             (created_ts, updated_ts, record[2], record[3], record[4], record[5], record[6], 
              record[7], record[8], record[9]))
         
-    return data_headers, data_list, source_path        
+    return data_headers, data_list, source_path
 
 
 @artifact_processor
@@ -209,7 +209,7 @@ def splitwiseExpenseBalances(files_found, report_folder, seeker, wrap_text, time
         created_ts = convert_unix_ts_to_utc(record[0])
         data_list.append((created_ts, record[1], record[2], record[3], record[4], record[5]))
         
-    return data_headers, data_list, source_path        
+    return data_headers, data_list, source_path
 
 
 @artifact_processor
@@ -245,7 +245,7 @@ def splitwiseTotalBalances(files_found, report_folder, seeker, wrap_text, timezo
         updated_ts = convert_unix_ts_to_utc(record[1])
         data_list.append((created_ts, updated_ts, record[2], record[3], record[4], record[5]))
 
-    return data_headers, data_list, source_path        
+    return data_headers, data_list, source_path
 
 
 
@@ -308,7 +308,7 @@ def splitwiseGroups(files_found, report_folder, seeker, wrap_text, timezone_offs
             (created_ts, updated_ts, record[2], members.replace(chr(13), '<br>')[:-2], record[4], 
              group_title, record[6], record[7], record[8], record[9]))
 
-    return data_headers, (data_list, data_list_html), source_path        
+    return data_headers, (data_list, data_list_html), source_path
 
 
 @artifact_processor
@@ -341,4 +341,4 @@ def splitwiseNotifications(files_found, report_folder, seeker, wrap_text, timezo
             remove_html = record[1].replace('<strong>', '').replace('</strong>', '')
         data_list.append((created_ts, remove_html, record[2], record[3]))
 
-    return data_headers, (data_list, data_list_html), source_path        
+    return data_headers, (data_list, data_list_html), source_path
