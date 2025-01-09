@@ -478,7 +478,7 @@ def does_column_exist_in_db(path, table_name, col_name):
         pass
     return False
 
-def does_table_exist(path, table_name):
+def does_table_exist_in_db(path, table_name):
     '''Checks if a table with specified name exists in an sqlite db'''
     db = open_sqlite_db_readonly(path)
     if db:    
