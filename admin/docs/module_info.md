@@ -264,8 +264,8 @@ Number of modules with errors or no recognized artifacts: 3
 | [whatsappContacts.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/whatsappContacts.py) | whatsappContacts | Whatsapp Contacts |  |  |  |  |  | ``*/var/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*`` |
 | [whatsappMessages.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/whatsappMessages.py) | whatsappMessages | Whatsapp Messages |  |  |  |  |  | ``*/var/mobile/Containers/Shared/AppGroup/*/ChatStorage.sqlite*``, ``*/var/mobile/Containers/Shared/AppGroup/*/Message/Media/*/*/*/*.*`` |
 | [wifiIdentifiers.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/wifiIdentifiers.py) | wifiIdentifiers | WIFI Identifiers | html, tsv, lava |  | 0.2 |  | Extracts Wi-Fi MAC addresses | ``*/preferences/SystemConfiguration/NetworkInterfaces.plist`` |
-| [wire.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/wire.py) | wireAccount | Wire Account | all | user |  | 2025-01-03 | Wire account details | ``*/mobile/Containers/Shared/AppGroup/*/AccountData/*/store/store.wiredatabase*`` |
-| [wire.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/wire.py) | wireMessages | Wire Messages | standard | message-circle |  | 2025-01-03 | Wire messages, including message sender, associated user identifiers and message type | ``*/mobile/Containers/Shared/AppGroup/*/AccountData/*/store/store.wiredatabase*`` |
+| [wire.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/wire.py) | wireAccount | Wire Secure Messenger Account | all | user |  | 2025-01-03 | Wire account details | ``*/mobile/Containers/Shared/AppGroup/*/AccountData/*/store/store.wiredatabase*`` |
+| [wire.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/wire.py) | wireMessages | Wire Secure Messenger Messages | standard | message-circle |  | 2025-01-03 | Wire messages, including message sender, associated user identifiers and message type | ``*/mobile/Containers/Shared/AppGroup/*/AccountData/*/store/store.wiredatabase*`` |
 
 ## V1 Artifacts Table
 
