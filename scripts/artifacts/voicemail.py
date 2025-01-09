@@ -15,7 +15,7 @@ __artifacts_v2__ = {
 
 from os.path import basename, dirname
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly, media_to_html, does_table_exist, convert_ts_human_to_utc, convert_utc_human_to_timezone
+from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly, media_to_html, does_table_exist_in_db, convert_ts_human_to_utc, convert_utc_human_to_timezone
 
 
 def get_voicemail(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -30,7 +30,7 @@ def get_voicemail(files_found, report_folder, seeker, wrap_text, timezone_offset
             db = open_sqlite_db_readonly(voicemail_db)
             cursor = db.cursor()
 
-            table_map_exists = does_table_exist(voicemail_db, 'map')
+            table_map_exists = does_table_exist_in_db(voicemail_db, 'map')
 
             if table_map_exists:
                 db_query = '''

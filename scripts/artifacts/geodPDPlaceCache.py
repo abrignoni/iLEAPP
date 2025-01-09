@@ -5,7 +5,7 @@ import os
 import scripts.artifacts.artGlobals
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, strings, open_sqlite_db_readonly, does_table_exist
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, strings, open_sqlite_db_readonly, does_table_exist_in_db
 
 
 def get_geodPDPlaceCache(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -16,7 +16,7 @@ def get_geodPDPlaceCache(files_found, report_folder, seeker, wrap_text, timezone
 			break
 		
 	db = open_sqlite_db_readonly(file_found)
-	if does_table_exist(file_found, 'pdplacelookup'):
+	if does_table_exist_in_db(file_found, 'pdplacelookup'):
 		query = ("""
 	SELECT requestkey, pdplacelookup.pdplacehash, datetime('2001-01-01', "lastaccesstime" || ' seconds') as lastaccesstime, datetime('2001-01-01', "expiretime" || ' seconds') as expiretime, pdplace
 	FROM pdplacelookup

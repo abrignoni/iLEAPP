@@ -44,7 +44,7 @@ __artifacts_v2__ = {
 import os
 from pathlib import Path
 from scripts.filetype import audio_match
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, does_table_exist, convert_unix_ts_to_utc
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, does_table_exist_in_db, convert_unix_ts_to_utc
 
 @artifact_processor
 def googleTranslateHistory(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -117,7 +117,7 @@ def googleTranslateTts(files_found, report_folder, seeker, wrap_text, timezone_o
     data_list = []
     data_list_html = []
 
-    if not does_table_exist(source_path, 'tts'):
+    if not does_table_exist_in_db(source_path, 'tts'):
         return (), data_list, source_path
 
     query = '''

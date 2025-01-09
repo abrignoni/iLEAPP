@@ -4,7 +4,7 @@ import textwrap
 from os.path import basename
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, get_next_unused_name, open_sqlite_db_readonly, does_table_exist, does_view_exist
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, get_next_unused_name, open_sqlite_db_readonly, does_table_exist_in_db, does_view_exist
 
 def get_FacebookMessenger(files_found, report_folder, seeker, wrap_text, timezone_offset):
     
@@ -104,7 +104,7 @@ def get_FacebookMessenger(files_found, report_folder, seeker, wrap_text, timezon
                     logfunc(f'No Facebook Messenger - Calls data available for {basename(file_found)}')
             
             db = open_sqlite_db_readonly(file_found)
-            check = does_table_exist(file_found, 'contacts')
+            check = does_table_exist_in_db(file_found, 'contacts')
             if check:
                 cursor = db.cursor()
                 cursor.execute('''
@@ -143,7 +143,7 @@ def get_FacebookMessenger(files_found, report_folder, seeker, wrap_text, timezon
                     logfunc(f'No Facebook Messenger - Contacts data available for {basename(file_found)}')
             
             db = open_sqlite_db_readonly(file_found)
-            check = does_table_exist(file_found, 'contacts')
+            check = does_table_exist_in_db(file_found, 'contacts')
             if check:
                 cursor = db.cursor()
                 cursor.execute('''
@@ -181,7 +181,7 @@ def get_FacebookMessenger(files_found, report_folder, seeker, wrap_text, timezon
                     logfunc(f'No Facebook Messenger - Secret Conversation data available for {basename(file_found)}')
             
             db = open_sqlite_db_readonly(file_found)
-            check = does_table_exist(file_found, 'thread_participant_detail')
+            check = does_table_exist_in_db(file_found, 'thread_participant_detail')
             if check:
                 cursor = db.cursor()
                 cursor.execute('''
