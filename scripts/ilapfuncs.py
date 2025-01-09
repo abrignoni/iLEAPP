@@ -491,7 +491,7 @@ def does_table_exist_in_db(path, table_name):
             logfunc(f"Query error, query={query} Error={str(ex)}")
     return False
 
-def does_view_exist(db, table_name):
+def does_view_exist_in_db(db, table_name):
     '''Checks if a table with specified name exists in an sqlite db'''
     try:
         query = f"SELECT name FROM sqlite_master WHERE type='view' AND name='{table_name}'"

@@ -4,7 +4,7 @@ import textwrap
 from os.path import basename
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, get_next_unused_name, open_sqlite_db_readonly, does_table_exist_in_db, does_view_exist
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, get_next_unused_name, open_sqlite_db_readonly, does_table_exist_in_db, does_view_exist_in_db
 
 def get_FacebookMessenger(files_found, report_folder, seeker, wrap_text, timezone_offset):
     
@@ -13,7 +13,7 @@ def get_FacebookMessenger(files_found, report_folder, seeker, wrap_text, timezon
         if file_found.endswith('.db'):
             
             db = open_sqlite_db_readonly(file_found)
-            check = does_view_exist(db, 'thread_messages')
+            check = does_view_exist_in_db(db, 'thread_messages')
         
             db = open_sqlite_db_readonly(file_found)
             
