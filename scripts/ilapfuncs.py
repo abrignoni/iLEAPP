@@ -460,8 +460,9 @@ def get_sqlite_db_records(path, query, attach_query=None):
             logfunc(f" - {str(e)}")
     return []
 
-def does_column_exist_in_db(db, table_name, col_name):
+def does_column_exist_in_db(path, table_name, col_name):
     '''Checks if a specific col exists'''
+    db = open_sqlite_db_readonly(path)
     col_name = col_name.lower()
     try:
         db.row_factory = sqlite3.Row # For fetching columns by name
