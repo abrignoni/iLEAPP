@@ -13,6 +13,7 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | callHistory |
 | filesApp |
 | foursquareSwarm |
+| googleTranslate |
 | payByPhone |
 | splitwise |
 | subscriberInfo |
@@ -97,7 +98,6 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | gmail |
 | googleChat |
 | googleDuo |
-| googleTranslate |
 | health |
 | hikvision |
 | imoHD_Chat |
