@@ -30,7 +30,7 @@ def get_voicemail(files_found, report_folder, seeker, wrap_text, timezone_offset
             db = open_sqlite_db_readonly(voicemail_db)
             cursor = db.cursor()
 
-            table_map_exists = does_table_exist(db, 'map')
+            table_map_exists = does_table_exist(voicemail_db, 'map')
 
             if table_map_exists:
                 db_query = '''
