@@ -173,7 +173,7 @@ def calendarEvents(files_found, report_folder, seeker, wrap_text, timezone_offse
                 GROUP BY Attachment.owner_id) AS 'Attachments',
                 '''
             
-            conference_url_detected_exists = does_column_exist_in_db(db, 'CalendarItem', 'conference_url_detected')
+            conference_url_detected_exists = does_column_exist_in_db(file_found, 'CalendarItem', 'conference_url_detected')
             conference_url = f"CalendarItem.conference_url{'_detected' if conference_url_detected_exists else ''} AS 'Conference URL',"
 
 

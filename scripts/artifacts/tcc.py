@@ -30,12 +30,12 @@ def get_tcc(files_found, report_folder, seeker, wrap_text, timezone_offset):
     db = open_sqlite_db_readonly(file_found)
     cursor = db.cursor()
 
-    if does_column_exist_in_db(db, 'access', 'last_modified'):
+    if does_column_exist_in_db(file_found, 'access', 'last_modified'):
         last_modified_timestamp = "datetime(last_modified,'unixepoch') as 'Last Modified Timestamp'"
     else:
         last_modified_timestamp = ""
     
-    if does_column_exist_in_db(db, 'access', 'auth_value'):
+    if does_column_exist_in_db(file_found, 'access', 'auth_value'):
         access = '''
         case auth_value
             when 0 then 'Not allowed'
@@ -53,7 +53,7 @@ def get_tcc(files_found, report_folder, seeker, wrap_text, timezone_offset):
         end as "Access"
         '''
 
-    prompt_count = does_column_exist_in_db(db, 'access', 'prompt_count')
+    prompt_count = does_column_exist_in_db(file_found, 'access', 'prompt_count')
 
     cursor.execute(f'''
     select {last_modified_timestamp if last_modified_timestamp else "''"},
