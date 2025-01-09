@@ -106,7 +106,7 @@ def geodMapTiles(files_found, report_folder, seeker, wrap_text, timezone_offset)
     cursor = db.cursor()
     usesDataTable = True
     
-    if does_table_exist(db, 'tiles') and does_table_exist(db, 'data'):
+    if does_table_exist(file_found, 'tiles') and does_table_exist(file_found, 'data'):
         logfunc('Parsing Geolocation from data table with tiles table.')
         query = '''
             SELECT datetime(access_times.timestamp, 'unixepoch') as timestamp, key_a, key_b, key_c, key_d, tileset, data, size, etag
@@ -114,7 +114,7 @@ def geodMapTiles(files_found, report_folder, seeker, wrap_text, timezone_offset)
             INNER JOIN tiles on data.ROWID = tiles.data_pk
             INNER JOIN access_times on data.rowid = access_times.data_pk
             '''
-    elif does_table_exist(db, 'data'):
+    elif does_table_exist(file_found, 'data'):
         logfunc('Parsing Geolocation from data table.')        
         query = '''
             SELECT datetime(access_times.timestamp, 'unixepoch') as timestamp, key_a, key_b, key_c, key_d, tileset, data, size, etag

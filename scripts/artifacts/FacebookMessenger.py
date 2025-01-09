@@ -104,7 +104,7 @@ def get_FacebookMessenger(files_found, report_folder, seeker, wrap_text, timezon
                     logfunc(f'No Facebook Messenger - Calls data available for {basename(file_found)}')
             
             db = open_sqlite_db_readonly(file_found)
-            check = does_table_exist(db, 'contacts')
+            check = does_table_exist(file_found, 'contacts')
             if check:
                 cursor = db.cursor()
                 cursor.execute('''
@@ -143,7 +143,7 @@ def get_FacebookMessenger(files_found, report_folder, seeker, wrap_text, timezon
                     logfunc(f'No Facebook Messenger - Contacts data available for {basename(file_found)}')
             
             db = open_sqlite_db_readonly(file_found)
-            check = does_table_exist(db, 'contacts')
+            check = does_table_exist(file_found, 'contacts')
             if check:
                 cursor = db.cursor()
                 cursor.execute('''
@@ -181,7 +181,7 @@ def get_FacebookMessenger(files_found, report_folder, seeker, wrap_text, timezon
                     logfunc(f'No Facebook Messenger - Secret Conversation data available for {basename(file_found)}')
             
             db = open_sqlite_db_readonly(file_found)
-            check = does_table_exist(db, 'thread_participant_detail')
+            check = does_table_exist(file_found, 'thread_participant_detail')
             if check:
                 cursor = db.cursor()
                 cursor.execute('''

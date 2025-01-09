@@ -155,7 +155,7 @@ def calendarEvents(files_found, report_folder, seeker, wrap_text, timezone_offse
 
             # Calendar Events
 
-            attachment_file_exists = does_table_exist(db, 'AttachmentFile')
+            attachment_file_exists = does_table_exist(file_found, 'AttachmentFile')
 
             if attachment_file_exists:
                 attachments = '''

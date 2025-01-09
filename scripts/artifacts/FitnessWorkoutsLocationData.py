@@ -29,7 +29,7 @@ def get_Health(files_found, report_folder, seeker, wrap_text, timezone_offset):
     
     cursor = db.cursor()
 
-    if  does_table_exist(db, 'location_series_data') == True:
+    if  does_table_exist(healthdb_secure, 'location_series_data') == True:
     
     # Fitness Workouts Location Data Analysis
 

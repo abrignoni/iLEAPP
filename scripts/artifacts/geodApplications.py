@@ -18,9 +18,9 @@ def get_geodApplications(files_found, report_folder, seeker, wrap_text, timezone
 	db = open_sqlite_db_readonly(file_found)
 	cursor = db.cursor()
 	
-	if does_table_exist(db, 'mkcount'):
+	if does_table_exist(file_found, 'mkcount'):
 		query = "SELECT count_type, app_id, createtime FROM mkcount"
-	elif does_table_exist(db, 'dailycounts'):
+	elif does_table_exist(file_found, 'dailycounts'):
 		query = "SELECT count_type, app_id, createtime FROM dailycounts"
 
 	cursor.execute(query)

@@ -16,7 +16,7 @@ def get_geodPDPlaceCache(files_found, report_folder, seeker, wrap_text, timezone
 			break
 		
 	db = open_sqlite_db_readonly(file_found)
-	if does_table_exist(db, 'pdplacelookup'):
+	if does_table_exist(file_found, 'pdplacelookup'):
 		query = ("""
 	SELECT requestkey, pdplacelookup.pdplacehash, datetime('2001-01-01', "lastaccesstime" || ' seconds') as lastaccesstime, datetime('2001-01-01', "expiretime" || ' seconds') as expiretime, pdplace
 	FROM pdplacelookup
