@@ -1,33 +1,45 @@
-# Author:  Scott Koenig, assisted by past contributors
-# Version: 1.0
-#
-#   Description:
-#   Parses basic data from com.apple.mobileslideshow.plist which contains some important data related to the Apple
-#   Photos Application. Additional information and explanation of some keys-fields might be found with
-#   research and published blogs written by Scott Koenig https://theforensicscooter.com/
+__artifacts_v2__ = {
+    'Ph80ComAppleMobileSlideshowPlist': {
+        'name': 'Ph80-Com-Apple-MobileSlideshow-Plist',
+        'description': 'Parses basic data from com.apple.mobileslideshow.plist which contains some important'
+                       ' data related to the Apple Photos Application. Additional information and explanation of some'
+                       ' keys-fields might be found with research and published blogs written by'
+                       ' Scott Koenig https://theforensicscooter.com/',
+        'author': 'Scott Koenig',
+        'version': '5.0',
+        'date': '2025-01-05',
+        'requirements': 'Acquisition that contains com.apple.mobileslideshow.plist',
+        'category': 'Photos-Z-Settings',
+        'notes': '',
+        'paths': ('*/Library/Preferences/com.apple.mobileslideshow.plist',),
+        "output_types": ["standard", "tsv", "none"]
+    }
+}
 
 import datetime
 import os
 import plistlib
 import nska_deserialize as nd
 import scripts.artifacts.artGlobals
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, tsv, is_platform_windows
+from scripts.builds_ids import OS_build
+from scripts.ilapfuncs import artifact_processor, logfunc, device_info, get_file_path
 
-
-def get_ph80comapplemobileslideshowplist(files_found, report_folder, seeker, wrap_text, time_offset):
+@artifact_processor
+def Ph80ComAppleMobileSlideshowPlist(files_found, report_folder, seeker, wrap_text, time_offset):
     data_list = []
-    file_found = str(files_found[0])
-    with open(file_found, "rb") as fp:
+    source_path = str(files_found[0])
+
+    with open(source_path, "rb") as fp:
         pl = plistlib.load(fp)
         for key, val in pl.items():
+
             if key == 'downloadAndKeepOriginals':
-                data_list.append(('downloadAndKeepOriginals', val))
-                logdevinfo(f"<b>comapplemobileslideshowplist-downloadAndKeepOriginals: </b>{val}")
+                logfunc(f"downloadAndKeepOriginals: {val}")
+                device_info("com.apple.mobileslideshow.plist", "downloadAndKeepOriginals", str(val), source_path)
 
             elif key == 'PhotosSharedLibrarySyncingIsActive':
-                data_list.append(('PhotosSharedLibrarySyncingIsActive', val))
-                logdevinfo(f"<b>comapplemobileslideshowplist-PhotosSharedLibrarySyncingIsActive: </b>{val}")
+                logfunc(f"PhotosSharedLibrarySyncingIsActive: {val}")
+                device_info("com.apple.mobileslideshow.plist", "PhotosSharedLibrarySyncingIsActive", str(val), source_path)
 
             elif key == 'TipKitEligibleContents-com.apple.mobileslideshow.one-up-photo':
                 pathto = os.path.join(report_folder, 'TipKitEligibleContents-com.apple.mobileslideshow.one-up-photo' + '.bplist')
@@ -47,41 +59,10 @@ def get_ph80comapplemobileslideshowplist(files_found, report_folder, seeker, wra
                             ValueError,
                             TypeError, OSError, OverflowError) as ex:
                         logfunc('Had exception: ' + str(ex))
-                data_list.append(('TipKitEligibleContents-com.apple.mobileslideshow.one-up-photo', val))
+                data_list.append(('TipKitEligibleContents-com.apple.mobileslideshow.one-up-photo', str(val)))
 
             else:
-                data_list.append((key, val))
+                data_list.append((key, str(val)))
 
-    if len(data_list) > 0:
-        description = ('Parses data from com.apple.mobileslideshow.plist which contains some important data'
-                       ' related to the Apple Photos Application. Additional information and explanation of some'
-                       ' keys-fields might be found with research and published blogs written by'
-                       ' Scott Koenig https://theforensicscooter.com/')
-        report = ArtifactHtmlReport('Ph80-Com-Apple-MobileSlideshow-Plist')
-        report.start_artifact_report(report_folder, 'Ph80-Com-Apple-MobileSlideshow-Plist', description)
-        report.add_script()
-        data_headers = ('Key', 'Values')
-        report.write_artifact_data_table(data_headers, data_list, file_found)
-        report.end_artifact_report()
-
-        tsvname = 'Ph80-Com-Apple-MobileSlideshow-Plist'
-        tsv(report_folder, data_headers, data_list, tsvname)
-
-
-__artifacts_v2__ = {
-    'Ph80-Com-Apple-MobileSlideshow-Plist': {
-        'name': 'Photos App Settings Ph80 com.apple.mobileslideshow-plist',
-        'description': 'Parses basic data from com.apple.mobileslideshow.plist which contains some important'
-                       ' data related to the Apple Photos Application. Additional information and explanation of some'
-                       ' keys-fields might be found with research and published blogs written by'
-                       ' Scott Koenig https://theforensicscooter.com/',
-        'author': 'Scott Koenig https://theforensicscooter.com/',
-        'version': '1.0',
-        'date': '2024-06-8',
-        'requirements': 'Acquisition that contains com.apple.mobileslideshow.plist',
-        'category': 'Photos-Z-Settings',
-        'notes': '',
-        'paths': '*/Library/Preferences/com.apple.mobileslideshow.plist',
-        'function': 'get_ph80comapplemobileslideshowplist'
-    }
-}
+    data_headers = ('Property','Property Value')
+    return data_headers, data_list, source_path

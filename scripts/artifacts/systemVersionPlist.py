@@ -1,23 +1,22 @@
 __artifacts_v2__ = {
     'systemVersionPlist': {
         'name': 'System Version plist',
-        'description': 'Parses basic data from device acquisition */System/Library/CoreServices/SystemVersion.plist'
-                       ' which contains some important data related to a device being analyzed to include'
-                       ' the iOS version. Previously named Ph99SystemVersionPlist.py',
+        'description': 'Parses basic data from */System/Library/CoreServices/SystemVersion.plist'
+                       ' which is a plist in GK Logical Plus extractions that will contain the iOS version.'
+                       ' Previously named Ph99SystemVersionPlist.py',
         'author': 'Scott Koenig',
-        'version': '1.1',
-        'date': '2024-06-17',
+        'version': '5.0',
+        'date': '2025-01-03',
         'requirements': 'Acquisition that contains SystemVersion.plist',
         'category': 'IOS Build',
         'notes': '',
         'paths': ('*/System/Library/CoreServices/SystemVersion.plist',),
-        "output_types": ["html", "tsv", "lava"]
+        "output_types": ["standard", "tsv", "none"]
     }
 }
 
 import plistlib
-import scripts.artifacts.artGlobals 
-
+import scripts.artifacts.artGlobals
 from scripts.ilapfuncs import artifact_processor, logfunc, device_info
 
 @artifact_processor
@@ -40,5 +39,5 @@ def systemVersionPlist(files_found, report_folder, seeker, wrap_text, time_offse
             if key == "ProductName":
                 device_info("Device Information", "Product Name", val, source_path)
 
-    data_headers = ('Property','Property Value' )     
+    data_headers = ('Property','Property Value')
     return data_headers, data_list, source_path

@@ -1,26 +1,38 @@
-# Author:  Scott Koenig, assisted by past contributors
-# Version: 1.0
-#
-#   Description:
-#   Parses basic data from */mobile/Library/Preferences/com.apple.camera.plist which contains some important data
-#   related to the Apple Camera Application. Additional information and explanation of some keys-fields
-#   might be found with research and published blogs written by Scott Koenig https://theforensicscooter.com/
+__artifacts_v2__ = {
+    'Ph81ComAppleCameraPlist': {
+        'name': 'Ph81-Com-Apple-Camera-Plist',
+        'description': 'Parses data from */mobile/Library/Preferences/com.apple.camera.plist which contains some'
+                       ' important data related to the Apple Camera Application. Additional information and'
+                       ' explanation of some keys-fields might be found with research and published blogs written by'
+                       ' Scott Koenig https://theforensicscooter.com/',
+        'author': 'Scott Koenig',
+        'version': '5.0',
+        'date': '2025-01-05',
+        'requirements': 'Acquisition that contains com.apple.camera.plist',
+        'category': 'Photos-Z-Settings',
+        'notes': '',
+        'paths': ('*/mobile/Library/Preferences/com.apple.camera.plist',),
+        "output_types": ["standard", "tsv", "none"]
+    }
+}
 
 import datetime
 import os
 import plistlib
 import nska_deserialize as nd
 import scripts.artifacts.artGlobals
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, tsv, is_platform_windows
+from scripts.builds_ids import OS_build
+from scripts.ilapfuncs import artifact_processor, logfunc, device_info, get_file_path
 
-
-def get_81comapplecameraplist(files_found, report_folder, seeker, wrap_text, time_offset):
+@artifact_processor
+def Ph81ComAppleCameraPlist(files_found, report_folder, seeker, wrap_text, time_offset):
     data_list = []
-    file_found = str(files_found[0])
-    with open(file_found, "rb") as fp:
+    source_path = str(files_found[0])
+
+    with open(source_path, "rb") as fp:
         pl = plistlib.load(fp)
         for key, val in pl.items():
+
             if key == 'CAMUserPreferenceSharedLibraryLastDiscoveryLocation':
                 pathto = os.path.join(report_folder, 'CAMUserPreferenceSharedLibraryLastDiscoveryLocation' + '.bplist')
                 with open(pathto, "ab") as wf:
@@ -39,7 +51,7 @@ def get_81comapplecameraplist(files_found, report_folder, seeker, wrap_text, tim
                             ValueError,
                             TypeError, OSError, OverflowError) as ex:
                         logfunc('Had exception: ' + str(ex))
-                data_list.append(('CAMUserPreferenceSharedLibraryLastDiscoveryLocation', val))
+                data_list.append(('CAMUserPreferenceSharedLibraryLastDiscoveryLocation', str(val)))
 
             elif key == 'CAMUserPreferenceSharedLibraryLastLocation':
                 pathto = os.path.join(report_folder, 'CAMUserPreferenceSharedLibraryLastLocation' + '.bplist')
@@ -59,7 +71,7 @@ def get_81comapplecameraplist(files_found, report_folder, seeker, wrap_text, tim
                             ValueError,
                             TypeError, OSError, OverflowError) as ex:
                         logfunc('Had exception: ' + str(ex))
-                data_list.append(('CAMUserPreferenceSharedLibraryLastLocation', val))
+                data_list.append(('CAMUserPreferenceSharedLibraryLastLocation', str(val)))
 
             elif key == 'CAMUserPreferenceSharedLibraryLastUserActionLocation':
                 pathto = os.path.join(report_folder, 'CAMUserPreferenceSharedLibraryLastUserActionLocation' + '.bplist')
@@ -79,7 +91,7 @@ def get_81comapplecameraplist(files_found, report_folder, seeker, wrap_text, tim
                             ValueError,
                             TypeError, OSError, OverflowError) as ex:
                         logfunc('Had exception: ' + str(ex))
-                data_list.append(('CAMUserPreferenceSharedLibraryLastUserActionLocation', val))
+                data_list.append(('CAMUserPreferenceSharedLibraryLastUserActionLocation', str(val)))
 
             elif key == 'CAMUserPreferenceExposureBiasByMode':
                 pathto = os.path.join(report_folder, 'CAMUserPreferenceExposureBiasByMode' + '.bplist')
@@ -99,41 +111,10 @@ def get_81comapplecameraplist(files_found, report_folder, seeker, wrap_text, tim
                             ValueError,
                             TypeError, OSError, OverflowError) as ex:
                         logfunc('Had exception: ' + str(ex))
-                data_list.append(('CAMUserPreferenceExposureBiasByMode', val))
+                data_list.append(('CAMUserPreferenceExposureBiasByMode', str(val)))
 
             else:
-                data_list.append((key, val))
+                data_list.append((key, str(val)))
 
-    if len(data_list) > 0:
-        description = ('Parses data from */mobile/Library/Preferences/com.apple.camera.plist which contains some'
-                       ' important data related to the Apple Camera Application. Additional information and'
-                       ' explanation of some keys-fields might be found with research and published blogs written by'
-                       ' Scott Koenig https://theforensicscooter.com/')
-        report = ArtifactHtmlReport('Ph81-Com-Apple-Camera-Plist')
-        report.start_artifact_report(report_folder, 'Ph81-Com-Apple-Camera-Plist', description)
-        report.add_script()
-        data_headers = ('Key', 'Values')
-        report.write_artifact_data_table(data_headers, data_list, file_found)
-        report.end_artifact_report()
-
-        tsvname = 'Ph81-Com-Apple-Camera-Plist'
-        tsv(report_folder, data_headers, data_list, tsvname)
-
-
-__artifacts_v2__ = {
-    'Ph81-Com-Apple-Camera-Plist': {
-        'name': 'Camera App Settings Ph81 Com-Apple-Camera-Plist',
-        'description': 'Parses data from */mobile/Library/Preferences/com.apple.camera.plist which contains some'
-                       ' important data related to the Apple Camera Application. Additional information and'
-                       ' explanation of some keys-fields might be found with research and published blogs written by'
-                       ' Scott Koenig https://theforensicscooter.com/',
-        'author': 'Scott Koenig https://theforensicscooter.com/',
-        'version': '1.0',
-        'date': '2024-06-1',
-        'requirements': 'Acquisition that contains com.apple.camera.plist',
-        'category': 'Photos-Z-Settings',
-        'notes': '',
-        'paths': '*/mobile/Library/Preferences/com.apple.camera.plist',
-        'function': 'get_81comapplecameraplist'
-    }
-}
+    data_headers = ('Property','Property Value')
+    return data_headers, data_list, source_path
