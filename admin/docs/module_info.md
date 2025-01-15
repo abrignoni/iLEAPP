@@ -295,7 +295,7 @@ Number of modules with errors or no recognized artifacts: 3
 | [draftmessage.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/draftmessage.py) | draftmessage |
 | [duetLocations.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/duetLocations.py) | duetlocations |
 | [findMy.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/findMy.py) | findMy |
-| [fsCachedData.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/fsCachedData.py) | fsChachedData |
+| [fsCachedData.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/fsCachedData.py) | fsCachedData |
 | [geodApplications.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/geodApplications.py) | geodapplications |
 | [geodPDPlaceCache.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/geodPDPlaceCache.py) | geodpdplacecache |
 | [googleDuo.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/googleDuo.py) | googleduo |
