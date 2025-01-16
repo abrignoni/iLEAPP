@@ -54,33 +54,33 @@ This document outlines the various device information collected by iLEAPP module
 | Vehicle | Last Disconnected | carCD |
 | Vehicle | Type | carCD |
 | WiFi | Keep Wifi Powered Airplane Mode | appleWifiPlist |
+| com.apple.mobileslideshow.plist | PhotosSharedLibrarySyncingIsActive | Ph80comappleMobileSlideShowPlist |
+| com.apple.mobileslideshow.plist | downloadAndKeepOriginals | Ph80comappleMobileSlideShowPlist |
+| com.apple.purplebuddy.plist | SetupState | Ph83comapplePurpleBuddyPlist |
+| devicevaluesplist-ufedadvlog | Build Version | Ph100UFEDdevcievaluesplist |
+| devicevaluesplist-ufedadvlog | Device Name | Ph100UFEDdevcievaluesplist |
+| devicevaluesplist-ufedadvlog | Hardware Model | Ph100UFEDdevcievaluesplist |
+| devicevaluesplist-ufedadvlog | IMEI | Ph100UFEDdevcievaluesplist |
+| devicevaluesplist-ufedadvlog | Password Protected | Ph100UFEDdevcievaluesplist |
+| devicevaluesplist-ufedadvlog | Product Type | Ph100UFEDdevcievaluesplist |
+| devicevaluesplist-ufedadvlog | Product Version | Ph100UFEDdevcievaluesplist |
+| devicevaluesplist-ufedadvlog | Serial Number | Ph100UFEDdevcievaluesplist |
+| devicevaluesplist-ufedadvlog | TimeZone | Ph100UFEDdevcievaluesplist |
 <!-- DEVICE_INFO_END -->
 
 ### logdevinfo() Usage
 <!-- LOGDEVINFO_START -->
 | Key | Source Modules |
 |-----|----------------|
-| BuildVersion: {val} | Ph100UFEDdevcievaluesplist |
-| DeviceName: {val} | Ph100UFEDdevcievaluesplist |
 | Find My iPhone Add Time: {addtime} | findMy |
 | Find My iPhone: Enabled | findMy |
-| HardwareModel: {val} | Ph100UFEDdevcievaluesplist |
-| InternationalMobileEquipmentIdentity: {val} | Ph100UFEDdevcievaluesplist |
 | Obliterated Timestamp: {utc_modified_date} | obliterated |
-| PasswordProtected: {val} | Ph100UFEDdevcievaluesplist |
-| ProductType: {val} | Ph100UFEDdevcievaluesplist |
-| SerialNumber: {val} | Ph100UFEDdevcievaluesplist |
-| TimeZone: {val} | Ph100UFEDdevcievaluesplist |
 | com.apple.MobileSMS.plist - Keep Messages for Days (iOS 17+): {val} | messageRetention |
 | com.apple.MobileSMS.plist - Keep Messages for Days (iOS {val} | messageRetention |
 | com.apple.MobileSMS.plist - Keep Messages for Days: No Value | messageRetention |
 | com.apple.mobileSMS.plist - Keep Messages for Days (iOS 17+): {keep_val} | messageRetention |
 | com.apple.mobileSMS.plist - Keep Messages for Days (iOS {keep_val} | messageRetention |
 | com.apple.mobileSMS.plist - Keep Messages for Days: No Value | messageRetention |
-| comapplemobileslideshowplist-PhotosSharedLibrarySyncingIsActive: {val} | Ph80comappleMobileSlideShowPlist |
-| comapplemobileslideshowplist-downloadAndKeepOriginals: {val} | Ph80comappleMobileSlideShowPlist |
-| comapplepurplebuddyplist-SetupState: {val} | Ph83comapplePurpleBuddyPlist |
-| iOS version: {val} | Ph100UFEDdevcievaluesplist |
 | {base_file} - Keep Message for Days: No Value | messageRetention |
 | {base_file} - Keep Messages for Days (iOS 17+): {keep_val} | messageRetention |
 | {base_file} - Keep Messages for Days (iOS {keep_val} | messageRetention |

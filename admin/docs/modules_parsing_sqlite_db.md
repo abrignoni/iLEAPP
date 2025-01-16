@@ -8,29 +8,6 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 <!-- GET_RECORDS_START -->
 | Source Modules |
 |----------------|
-| accountData |
-| allTrails |
-| callHistory |
-| filesApp |
-| foursquareSwarm |
-| googleTranslate |
-| payByPhone |
-| splitwise |
-| subscriberInfo |
-| twint |
-| wire |
-<!-- GET_RECORDS_END -->
-
-### open_sqlite_db_readonly() Usage
-<!-- READONLY_START -->
-| Source Modules |
-|----------------|
-| DataUsage |
-| FacebookMessenger |
-| FitnessWorkoutsLocationData |
-| LinkedIn |
-| Oops |
-| Ph10AssetParsedEmbeddedFiles |
 | Ph11KwrdsCapsTitlesDescripsBasicAssetData |
 | Ph15PeopleandDetFacesNAD |
 | Ph16AssetPeopleandDetFaces |
@@ -55,7 +32,6 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | Ph51PossOptimizedAssetsIntResouData |
 | Ph5HasLocations |
 | Ph6ViewedPlayData |
-| Ph70UserAdjustDateTimezoneLocation |
 | Ph7Favorite |
 | Ph8HasAdjustment |
 | Ph94Ios14REFforAssetAnalysis |
@@ -64,6 +40,30 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | Ph97iOS17REFforAssetAnalysis |
 | Ph98iOS18REFforAssetAnalysis |
 | Ph9BurstAvalanche |
+| accountData |
+| allTrails |
+| callHistory |
+| filesApp |
+| foursquareSwarm |
+| googleTranslate |
+| payByPhone |
+| splitwise |
+| subscriberInfo |
+| twint |
+| wire |
+<!-- GET_RECORDS_END -->
+
+### open_sqlite_db_readonly() Usage
+<!-- READONLY_START -->
+| Source Modules |
+|----------------|
+| DataUsage |
+| FacebookMessenger |
+| FitnessWorkoutsLocationData |
+| LinkedIn |
+| Oops |
+| Ph10AssetParsedEmbeddedFiles |
+| Ph70UserAdjustDateTimezoneLocation |
 | SMSmissingROWIDs |
 | SiriRemembers |
 | WithingsHealthMate |
