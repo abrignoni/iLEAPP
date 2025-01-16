@@ -43,7 +43,7 @@ exe = EXE(
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
-    codesign_identity=None,
+    codesign_identity='None',
     entitlements_file=None,
 )
 coll = COLLECT(
@@ -60,5 +60,5 @@ app = BUNDLE(
     name='ileappGUI.app',
     icon='icon.icns',
     bundle_identifier='4n6.brigs.iLEAPP',
-    version='2.0.2'
+    version='2.0.3'
 )
