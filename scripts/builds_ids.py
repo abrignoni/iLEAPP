@@ -2615,6 +2615,7 @@ OS_build = {
     "22S101": "watchOS 11.2",
     "22S5534d": "watchOS 11.3 beta 1",
     "22S5540e": "watchOS 11.3 beta 2",
+    "22S5550a": "watchOS 11.3 beta 3",
     "6002": "Windows Vista",
     "7601": "Windows 7",
     "9200": "Windows 8",
