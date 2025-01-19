@@ -589,7 +589,7 @@ def device_info(category, label, value, source_file=""):
 def tsv(report_folder, data_headers, data_list, tsvname):
     report_folder = report_folder.rstrip('/')
     report_folder = report_folder.rstrip('\\')
-    report_folder_base = os.path.dirname(os.path.dirname(report_folder))
+    report_folder_base = report_folder
     tsv_report_folder = os.path.join(report_folder_base, '_TSV Exports')
 
     if os.path.isdir(tsv_report_folder):
