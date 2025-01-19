@@ -1,6 +1,7 @@
 import json
 import argparse
 import io
+import plistlib
 import pytz
 import os.path
 import typing
@@ -15,6 +16,7 @@ from scripts.search_files import *
 from scripts.ilapfuncs import *
 from scripts.version_info import ileapp_version
 from time import process_time, gmtime, strftime, perf_counter
+from getpass import getpass
 from scripts.lavafuncs import *
 
 def validate_args(args):
@@ -158,6 +160,8 @@ def main():
                         help=("Generate a text file list of artifact paths. "
                               "This argument is meant to be used alone, without any other arguments."))
     parser.add_argument('--custom_output_folder', required=False, action="store", help="Custom name for the output folder")
+    parser.add_argument('--itunes_passcode', required=False, action="store", help="Passcode used for encrypted iTunes backup")
+    parser.add_argument('--prompt_for_passcode', required=False, action="store_true", default=False, help="Passcode used for encrypted iTunes backup, but from a password prompt")
 
     loader = plugin_loader.PluginLoader()
     available_plugins = list(loader.plugins)
@@ -299,19 +303,27 @@ def main():
         if input_path[1] == ':' and extracttype =='fs': input_path = '\\\\?\\' + input_path.replace('/', '\\')
         if output_path[1] == ':': output_path = '\\\\?\\' + output_path.replace('/', '\\')
 
+    # Handle passcodes for encrypted iTunes backups
+    passcode = None
+    if args.itunes_passcode:
+        passcode = args.itunes_passcode
+    
+    if args.prompt_for_passcode:
+        passcode = getpass("iTunes Backup Passcode: ")
+
     out_params = OutputParameters(output_path, custom_output_folder)
 
     selected_plugins = plugins_parsed_first + selected_plugins
     
     initialize_lava(input_path, out_params.report_folder_base, extracttype)
 
-    crunch_artifacts(selected_plugins, extracttype, input_path, out_params, wrap_text, loader, casedata, time_offset, profile_filename)
+    crunch_artifacts(selected_plugins, extracttype, input_path, out_params, wrap_text, loader, casedata, time_offset, profile_filename, passcode)
 
     lava_finalize_output(out_params.report_folder_base)
 
 def crunch_artifacts(
         plugins: typing.Sequence[plugin_loader.PluginSpec], extracttype, input_path, out_params, wrap_text,
-        loader: plugin_loader.PluginLoader, casedata, time_offset, profile_filename):
+        loader: plugin_loader.PluginLoader, casedata, time_offset, profile_filename, passcode=None):
     start = process_time()
     start_wall = perf_counter()
  
@@ -336,7 +348,7 @@ def crunch_artifacts(
             seeker = FileSeekerZip(input_path, out_params.temp_folder)
 
         elif extracttype == 'itunes':
-            seeker = FileSeekerItunes(input_path, out_params.temp_folder)
+            seeker = FileSeekerItunes(input_path, out_params.temp_folder, passcode)
 
         else:
             logfunc('Error on argument -o (input type)')
