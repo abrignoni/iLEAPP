@@ -368,14 +368,22 @@ def crunch_artifacts(
         if os.path.exists(info_plist_path):
             # process_artifact([info_plist_path], 'iTunesBackupInfo', 'Device Info', seeker, out_params.report_folder_base)
             #plugin.method([info_plist_path], out_params.report_folder_base, seeker, wrap_text)
-            report_folder = os.path.join(out_params.report_folder_base, '_HTML')
+            report_folder = os.path.join(out_params.report_folder_base, '_HTML', 'iTunes Backup')
             if not os.path.exists(report_folder):
                 try:
                     os.makedirs(report_folder)
                 except (FileExistsError, FileNotFoundError) as ex:
                     logfunc('Error creating report directory at path {}'.format(report_folder))
                     logfunc('Error was {}'.format(str(ex)))
-            loader["iTunesBackupInfo"].method([info_plist_path], out_params.report_folder_base, seeker, wrap_text, time_offset)
+            loader["iTunesBackupInfo"].method([info_plist_path], report_folder, seeker, wrap_text, time_offset)
+            report_folder = os.path.join(out_params.report_folder_base, '_HTML', 'Installed Apps')
+            if not os.path.exists(report_folder):
+                try:
+                    os.makedirs(report_folder)
+                except (FileExistsError, FileNotFoundError) as ex:
+                    logfunc('Error creating report directory at path {}'.format(report_folder))
+                    logfunc('Error was {}'.format(str(ex)))
+            loader["iTunesBackupInstalledApplications"].method([info_plist_path], report_folder, seeker, wrap_text, time_offset)
             #del search_list['lastBuild'] # removing lastBuild as this takes its place
             print([info_plist_path])  # TODO Remove special consideration for itunes? Merge into main search
         else:
