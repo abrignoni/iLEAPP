@@ -84,6 +84,5 @@ This document outlines the various device information collected by iLEAPP module
 | {base_file} - Keep Message for Days: No Value | messageRetention |
 | {base_file} - Keep Messages for Days (iOS 17+): {keep_val} | messageRetention |
 | {base_file} - Keep Messages for Days (iOS {keep_val} | messageRetention |
-| {info_key}: {value_key} | iTunesBackupInfo |
 <!-- LOGDEVINFO_END -->
 
