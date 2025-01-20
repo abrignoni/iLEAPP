@@ -22,12 +22,12 @@ __artifacts_v2__ = {
         "category": "Installed Apps",
         "notes": "",
         "paths": ('*Info.plist',),
-        "output_types": "standard",
-        "artifact_icon": "package",
+        "output_types": ["html", "tsv", "lava"],
+        "html_columns": ['App Icon'],
+        "artifact_icon": "package"
     }
 }
 
-import inspect
 import datetime
 import plistlib
 import scripts.artifacts.artGlobals
@@ -77,7 +77,7 @@ def iTunesBackupInfo(files_found, report_folder, seeker, wrap_text, timezone_off
 def iTunesBackupInstalledApplications(files_found, report_folder, seeker, wrap_text, timezone_offset):
     source_path = get_file_path(files_found, "Info.plist")
     data_list = []
-    artifact_info = inspect.stack()[0]
+    data_list_html = []
     installed_apps = None
     apps = None
 
@@ -132,7 +132,12 @@ def iTunesBackupInstalledApplications(files_found, report_folder, seeker, wrap_t
                 game_center_enabled = itunes_metadata.get('gameCenterEnabled', '')
                 game_center_ever_enabled = itunes_metadata.get('gameCenterEverEnabled', '')
                 messages_extension = itunes_metadata.get('hasMessagesExtension', '')
-                data_list.append((bundle_id, icon_tag, item_name, artist_name, version, genre, 
+                data_list.append((bundle_id, '', item_name, artist_name, version, genre, 
+                                install_date, apple_id, purchase_date, release_date, 
+                                source_app, auto_download, purchased_redownload, 
+                                factory_install, side_loaded, game_center_enabled, 
+                                game_center_ever_enabled, messages_extension))
+                data_list_html.append((bundle_id, icon_tag, item_name, artist_name, version, genre, 
                                 install_date, apple_id, purchase_date, release_date, 
                                 source_app, auto_download, purchased_redownload, 
                                 factory_install, side_loaded, game_center_enabled, 
@@ -148,4 +153,4 @@ def iTunesBackupInstalledApplications(files_found, report_folder, seeker, wrap_t
                     'Purchased Redownload', 'Factory Install', 'Side Loaded', 
                     'Game Center Enabled', 'Game Center Ever Enabled', 
                     'Messages Extension')
-    return data_headers, data_list, source_path
+    return data_headers, (data_list, data_list_html), source_path
