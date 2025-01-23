@@ -433,6 +433,8 @@ def crunch_artifacts(
                 logfunc('Error was {}'.format(str(ex)))
                 logfunc('Exception Traceback: {}'.format(traceback.format_exc()))
                 continue  # nope
+        else:
+            logfunc(f"No file found")
 
         logfunc('{} [{}] artifact completed'.format(plugin.name, plugin.module_name))
     log.close()
