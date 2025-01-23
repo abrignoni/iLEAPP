@@ -147,6 +147,45 @@ class OutputParameters:
         os.makedirs(os.path.join(self.report_folder_base, 'Script Logs'))
         os.makedirs(self.temp_folder)
         
+### New timestamp conversion functions
+def convert_unix_ts_in_seconds(ts):
+    digits = int(math.log10(ts))+1
+    if digits > 10:
+        extra_digits = digits - 10
+        ts = ts // 10**extra_digits
+    return int(ts)
+
+def convert_unix_ts_to_utc(ts):
+    if ts:
+        ts = convert_unix_ts_in_seconds(ts)
+        return datetime.fromtimestamp(ts, tz=timezone.utc)
+    else:
+        return ts
+
+def convert_unix_ts_to_str(ts):
+    if ts:
+        ts = convert_unix_ts_in_seconds(ts)
+        return datetime.fromtimestamp(ts, UTC).strftime('%Y-%m-%d %H:%M:%S')
+    else:
+        return ts
+
+def convert_cocoa_core_data_ts_to_utc(cocoa_core_data_ts):
+    if cocoa_core_data_ts:
+        unix_timestamp = cocoa_core_data_ts + 978307200
+        return convert_unix_ts_to_utc(unix_timestamp)
+    else:
+        return cocoa_core_data_ts
+
+def convert_log_ts_tu_utc(str_dt):
+    if str_dt:
+        try:
+            return datetime.strptime(str_dt, '%b %d %Y %H:%M:%S').replace(tzinfo=timezone.utc)
+        except:
+            return str_dt
+    else:
+        return str_dt
+
+### Legacy timestamp conversion functions
 def convert_local_to_utc(local_timestamp_str):
     # Parse the timestamp string with timezone offset, ex. 2023-10-27 18:18:29-0400
     local_timestamp = datetime.strptime(local_timestamp_str, "%Y-%m-%d %H:%M:%S%z")
@@ -183,34 +222,6 @@ def convert_ts_int_to_timezone(time, time_offset):
     
     #return the converted value
     return timezone_time
-
-def convert_unix_ts_in_seconds(ts):
-    digits = int(math.log10(ts))+1
-    if digits > 10:
-        extra_digits = digits - 10
-        ts = ts // 10**extra_digits
-    return int(ts)
-
-def convert_unix_ts_to_utc(ts):
-    if ts:
-        ts = convert_unix_ts_in_seconds(ts)
-        return datetime.fromtimestamp(ts, tz=timezone.utc)
-    else:
-        return ts
-
-def convert_unix_ts_to_str(ts):
-    if ts:
-        ts = convert_unix_ts_in_seconds(ts)
-        return datetime.fromtimestamp(ts, UTC).strftime('%Y-%m-%d %H:%M:%S')
-    else:
-        return ts
-
-def convert_cocoa_core_data_ts_to_utc(cocoa_core_data_ts):
-    if cocoa_core_data_ts:
-        unix_timestamp = cocoa_core_data_ts + 978307200
-        return convert_unix_ts_to_utc(unix_timestamp)
-    else:
-        return cocoa_core_data_ts
 
 def webkit_timestampsconv(webkittime):
     unix_timestamp = webkittime + 978307200
@@ -369,6 +380,19 @@ def get_next_unused_name(path):
             new_name += f"{ext}"
         num += 1
     return os.path.join(folder, new_name)
+
+def get_txt_file_content(file_path):
+    try:
+        with open(file_path, "r", encoding="utf-8") as file:
+            file_content = file.readlines()
+            return file_content
+    except FileNotFoundError:
+        logfunc(f"Error: File not found at {file_path}")
+    except PermissionError:
+        logfunc(f"Error: Permission denied when trying to read {file_path}")
+    except Exception as e:
+        logfunc(f"Unexpected error reading file {file_path}: {str(e)}")
+    return []
 
 def get_plist_content(data):
     try:
