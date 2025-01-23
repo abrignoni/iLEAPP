@@ -176,7 +176,7 @@ def convert_cocoa_core_data_ts_to_utc(cocoa_core_data_ts):
     else:
         return cocoa_core_data_ts
 
-def convert_log_ts_tu_utc(str_dt):
+def convert_log_ts_to_utc(str_dt):
     if str_dt:
         try:
             return datetime.strptime(str_dt, '%b %d %Y %H:%M:%S').replace(tzinfo=timezone.utc)

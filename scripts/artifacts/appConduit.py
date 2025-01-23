@@ -18,7 +18,7 @@ import pathlib
 import re
 import scripts.builds_ids as builds_ids
 
-from scripts.ilapfuncs import artifact_processor, get_txt_file_content, convert_log_ts_tu_utc
+from scripts.ilapfuncs import artifact_processor, get_txt_file_content, convert_log_ts_to_utc
 
 @artifact_processor
 def appConduit(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -46,7 +46,7 @@ def appConduit(files_found, report_folder, seeker, wrap_text, timezone_offset):
             if line_match:
                 date_time = line_match.group(3, 5, 4)
                 conv_time = ' '.join(date_time)
-                dtime_obj = convert_log_ts_tu_utc(conv_time)
+                dtime_obj = convert_log_ts_to_utc(conv_time)
                 
                 values  = line_match.group(9)
                 device_id = line_match.group(11)
