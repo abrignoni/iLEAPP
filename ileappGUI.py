@@ -6,6 +6,7 @@ import webbrowser
 
 import scripts.plugin_loader as plugin_loader
 
+from PIL import Image, ImageTk
 from tkinter import ttk, filedialog as tk_filedialog, messagebox as tk_msgbox
 from scripts.version_info import ileapp_version
 from scripts.search_files import *
@@ -152,6 +153,10 @@ def open_report(report_path):
     '''Open report and Quit after processing completed'''
     webbrowser.open_new_tab('file://' + report_path)
     main_window.quit()
+
+
+def open_website(url):
+    webbrowser.open_new_tab(url)
 
 
 def process(casedata):
@@ -352,7 +357,7 @@ window_width = 890
 window_height = 620
 
 ## Variables
-icon = os.path.join(os.path.dirname(__file__), 'scripts', 'icon.png')
+icon = os.path.join(os.path.dirname(__file__), 'assets', 'icon.png')
 loader: typing.Optional[plugin_loader.PluginLoader] = None
 loader = plugin_loader.PluginLoader()
 mlist = {}
@@ -417,17 +422,15 @@ style.configure('TProgressbar', thickness=4, background='DarkGreen')
 ## Main Window Layout
 ### Top part of the window
 title_frame = ttk.Frame(main_window)
-title_frame.grid(padx=14, pady=6, sticky='w')
-title_label = ttk.Label(
-    title_frame,
-    text='iOS Logs, Events, And Plists Parser',
-    font=('Helvetica 22'))
-title_label.pack(pady=4)
-github_label = ttk.Label(
-    title_frame,
-    text='https://github.com/abrignoni/iLEAPP',
-    font=('Helvetica 14'))
-github_label.pack(anchor='w')
+title_frame.grid(padx=14, pady=4, sticky='we')
+title_frame.grid_columnconfigure(0, weight=1)
+ileapp_logo = ImageTk.PhotoImage(file="assets/iLEAPP_logo.png")
+ileapp_logo_label = ttk.Label(title_frame, image=ileapp_logo)
+ileapp_logo_label.grid(row=0, column=0, sticky='w')
+leapps_logo = ImageTk.PhotoImage(Image.open("assets/leapps_i_logo.png").resize((110, 51)))
+leapps_logo_label = ttk.Label(title_frame, image=leapps_logo, cursor="target")
+leapps_logo_label.grid(row=0, column=1, sticky='w')
+leapps_logo_label.bind("<Button-1>", lambda e: open_website("https://leapps.org"))
 
 ### Input output selection
 input_frame = ttk.LabelFrame(
