@@ -46,6 +46,7 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | filesApp |
 | foursquareSwarm |
 | googleTranslate |
+| nsVault |
 | payByPhone |
 | splitwise |
 | subscriberInfo |
@@ -115,7 +116,6 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | mediaLibrary |
 | netusage |
 | notes |
-| nsVault |
 | ooklaSpeedtestData |
 | parsecdCache |
 | photosDbexif |
