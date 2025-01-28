@@ -5,7 +5,7 @@ a = Analysis(
     ['../../ileappGUI.py'],
     pathex=['../scripts/artifacts'],
     binaries=[],
-    datas=[('../', 'scripts')],
+    datas=[('../', 'scripts'), ('../../assets', 'assets')],
     hiddenimports=[
         'astc_decomp_faster',
         'bencoding',
