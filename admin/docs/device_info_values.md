@@ -11,7 +11,8 @@ This document outlines the various device information collected by iLEAPP module
 | Category | Label | Source Modules |
 |-----------|-------|----------------|
 | Advertising Identifier | Apple Advertising Identifier | advertisingID |
-| Airdrop | Airdrop ID | airdropId |
+| AirDrop | AirDrop ID | airdropId |
+| AirDrop | Discoverable Mode | airdropId |
 | Backup Settings | Cloud Backup Enabled | backupSettings |
 | Backup Settings | Last Cloud iTunes Backup Date | backupSettings |
 | Backup Settings | Last Cloud iTunes Backup TZ | backupSettings |
