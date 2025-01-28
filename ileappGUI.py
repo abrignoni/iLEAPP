@@ -159,6 +159,14 @@ def open_website(url):
     webbrowser.open_new_tab(url)
 
 
+def resource_path(filename):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, 'assets', filename)
+
 def process(casedata):
     '''Execute selected modules and create reports'''
     # check if selections made properly; if not we will return to input form without exiting app altogether
@@ -357,7 +365,7 @@ window_width = 890
 window_height = 620
 
 ## Variables
-icon = os.path.join(os.path.dirname(__file__), 'assets', 'icon.png')
+icon = resource_path('icon.png')
 loader: typing.Optional[plugin_loader.PluginLoader] = None
 loader = plugin_loader.PluginLoader()
 mlist = {}
@@ -424,10 +432,10 @@ style.configure('TProgressbar', thickness=4, background='DarkGreen')
 title_frame = ttk.Frame(main_window)
 title_frame.grid(padx=14, pady=4, sticky='we')
 title_frame.grid_columnconfigure(0, weight=1)
-ileapp_logo = ImageTk.PhotoImage(file="assets/iLEAPP_logo.png")
+ileapp_logo = ImageTk.PhotoImage(file=resource_path("iLEAPP_logo.png"))
 ileapp_logo_label = ttk.Label(title_frame, image=ileapp_logo)
 ileapp_logo_label.grid(row=0, column=0, sticky='w')
-leapps_logo = ImageTk.PhotoImage(Image.open("assets/leapps_i_logo.png").resize((110, 51)))
+leapps_logo = ImageTk.PhotoImage(Image.open(resource_path("leapps_i_logo.png")).resize((110, 51)))
 leapps_logo_label = ttk.Label(title_frame, image=leapps_logo, cursor="target")
 leapps_logo_label.grid(row=0, column=1, sticky='w')
 leapps_logo_label.bind("<Button-1>", lambda e: open_website("https://leapps.org"))
