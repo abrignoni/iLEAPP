@@ -386,8 +386,8 @@ if is_platform_macos():
     mlist_window_height = 24
     log_text_height = 36
 elif is_platform_linux():
-    mlist_window_height = 16
-    log_text_height = 27
+    mlist_window_height = 17
+    log_text_height = 28
 else:
     mlist_window_height = 19
     log_text_height = 29
