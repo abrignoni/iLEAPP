@@ -86,7 +86,7 @@ __artifacts_v2__ = {
         "artifact_icon": "star"
     },
     "FilesIosUpdates": {
-        "name": "'Files App - Operating System Updates'",
+        "name": "Files App - Operating System Updates",
         "description": "iOS Updates",
         "author": "@JohannPLW",
         "creation_date": "2024-02-02",
@@ -99,7 +99,6 @@ __artifacts_v2__ = {
         "artifact_icon": "refresh-cw"
     }
 }
-
 
 import scripts.artifacts.artGlobals
 from packaging import version
