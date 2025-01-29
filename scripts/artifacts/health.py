@@ -174,7 +174,7 @@ import scripts.artifacts.artGlobals
 
 from packaging import version
 from scripts.builds_ids import OS_build, device_id
-from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, convert_ts_human_to_timezone_offset
+from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, convert_ts_human_to_timezone_offset, logfunc
 
 
 @artifact_processor
@@ -187,16 +187,18 @@ def healthWorkouts(files_found, report_folder, seeker, wrap_text, timezone_offse
 
     for file_found in files_found:
         if file_found.endswith('healthdb_secure.sqlite'):
-           healthdb_secure = file_found
-        if file_found.endswith('healthdb.sqlite'):
-           healthdb = file_found
+            healthdb_secure = file_found
+        elif file_found.endswith('healthdb.sqlite'):
+            healthdb = file_found
+            if str(healthdb).startswith('\\\\?\\') or str(path).startswith('\\\\?\\UNC\\'):
+                healthdb = healthdb[4:]
         else:
             continue
     
     with open_sqlite_db_readonly(healthdb_secure) as db:
         cursor = db.cursor()
 
-        cursor.execute('''ATTACH DATABASE "file:''' + healthdb + '''?mode=ro" AS healthdb ''')
+        cursor.execute(f'ATTACH DATABASE "file:/{healthdb}?mode=ro" AS healthdb;')
 
         activity_types = '''
             WHEN 1 THEN "AMERICAN FOOTBALL"
@@ -417,6 +419,8 @@ def healthWorkouts(files_found, report_folder, seeker, wrap_text, timezone_offse
                 row[10], row[11], row[12], row[13], row[14], celcius_temp, row[15], row[16], row[17], row[18], 
                 row[19], row[20], hardware, row[22], software_version, row[24], added_timestamp)
                 )
+                
+    db.close()
 
     data_headers = (
         ('Start Timestamp', 'datetime'), ('End Timestamp', 'datetime'), 'Type', 'Total Time Duration', 'Duration', 'Distance (in KM)', 
@@ -435,16 +439,18 @@ def healthProvenances(files_found, report_folder, seeker, wrap_text, timezone_of
 
     for file_found in files_found:
         if file_found.endswith('healthdb_secure.sqlite'):
-           healthdb_secure = file_found
-        if file_found.endswith('healthdb.sqlite'):
-           healthdb = file_found
+            healthdb_secure = file_found
+        elif file_found.endswith('healthdb.sqlite'):
+            healthdb = file_found
+            if str(healthdb).startswith('\\\\?\\') or str(path).startswith('\\\\?\\UNC\\'):
+                healthdb = healthdb[4:]
         else:
             continue
     
     with open_sqlite_db_readonly(healthdb_secure) as db:
         cursor = db.cursor()
 
-        cursor.execute('''ATTACH DATABASE "file:''' + healthdb + '''?mode=ro" AS healthdb ''')
+        cursor.execute(f'ATTACH DATABASE "file:/{healthdb}?mode=ro" AS healthdb;')
 
         cursor.execute('''
         SELECT data_provenances.ROWID AS 'Row ID', 
@@ -493,16 +499,18 @@ def healthHeadphoneAudioLevels(files_found, report_folder, seeker, wrap_text, ti
 
     for file_found in files_found:
         if file_found.endswith('healthdb_secure.sqlite'):
-           healthdb_secure = file_found
-        if file_found.endswith('healthdb.sqlite'):
-           healthdb = file_found
+            healthdb_secure = file_found
+        elif file_found.endswith('healthdb.sqlite'):
+            healthdb = file_found
+            if str(healthdb).startswith('\\\\?\\') or str(path).startswith('\\\\?\\UNC\\'):
+                healthdb = healthdb[4:]
         else:
             continue
     
     with open_sqlite_db_readonly(healthdb_secure) as db:
         cursor = db.cursor()
 
-        cursor.execute('''ATTACH DATABASE "file:''' + healthdb + '''?mode=ro" AS healthdb ''')
+        cursor.execute(f'ATTACH DATABASE "file:/{healthdb}?mode=ro" AS healthdb;')
 
         cursor.execute('''
         Select
@@ -548,16 +556,18 @@ def healthHeartRate(files_found, report_folder, seeker, wrap_text, timezone_offs
 
     for file_found in files_found:
         if file_found.endswith('healthdb_secure.sqlite'):
-           healthdb_secure = file_found
-        if file_found.endswith('healthdb.sqlite'):
-           healthdb = file_found
+            healthdb_secure = file_found
+        elif file_found.endswith('healthdb.sqlite'):
+            healthdb = file_found
+            if str(healthdb).startswith('\\\\?\\') or str(path).startswith('\\\\?\\UNC\\'):
+                healthdb = healthdb[4:]
         else:
             continue
     
     with open_sqlite_db_readonly(healthdb_secure) as db:
         cursor = db.cursor()
 
-        cursor.execute('''ATTACH DATABASE "file:''' + healthdb + '''?mode=ro" AS healthdb ''')
+        cursor.execute(f'ATTACH DATABASE "file:/{healthdb}?mode=ro" AS healthdb;')
 
         cursor.execute('''
         SELECT datetime(samples.start_date+978307200,'unixepoch') AS "Start Date",
@@ -650,16 +660,18 @@ def healthRestingHeartRate(files_found, report_folder, seeker, wrap_text, timezo
 
     for file_found in files_found:
         if file_found.endswith('healthdb_secure.sqlite'):
-           healthdb_secure = file_found
-        if file_found.endswith('healthdb.sqlite'):
-           healthdb = file_found
+            healthdb_secure = file_found
+        elif file_found.endswith('healthdb.sqlite'):
+            healthdb = file_found
+            if str(healthdb).startswith('\\\\?\\') or str(path).startswith('\\\\?\\UNC\\'):
+                healthdb = healthdb[4:]
         else:
             continue
     
     with open_sqlite_db_readonly(healthdb_secure) as db:
         cursor = db.cursor()
 
-        cursor.execute('''ATTACH DATABASE "file:''' + healthdb + '''?mode=ro" AS healthdb ''')
+        cursor.execute(f'ATTACH DATABASE "file:/{healthdb}?mode=ro" AS healthdb;')
 
         cursor.execute('''
         SELECT datetime(samples.start_date+978307200,'unixepoch') AS 'Start Date',
