@@ -9,7 +9,8 @@ __artifacts_v2__ = {
         "category": "Call History",
         "notes": "",
         "paths": ('*/CallHistory.storedata*','*/call_history.db',),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": "phone-call"
     }
 }
 
@@ -18,20 +19,21 @@ __artifacts_v2__ = {
 # The Call Ending Timestamp provides an "at-a-glance" review of call lengths during analysis and review
 # Additional details published within "Maximizing iOS Call Log Timestamps and Call Duration Effectiveness: Will You Answer the Call?" at https://sqlmcgee.wordpress.com/2022/11/30/maximizing-ios-call-log-timestamps-and-call-duration-effectiveness-will-you-answer-the-call/
 
-from scripts.ilapfuncs import artifact_processor , open_sqlite_db_readonly, convert_bytes_to_unit, convert_ts_human_to_timezone_offset
+from scripts.ilapfuncs import artifact_processor , get_sqlite_db_records, convert_bytes_to_unit, convert_cocoa_core_data_ts_to_utc
 
 @artifact_processor
 def callHistory(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
     db_file = ''
+    db_records = []
 
     #call_history.db schema taken from here https://avi.alkalay.net/2011/12/iphone-call-history.html 
     query = '''
     select
-    datetime(ZDATE+978307200,'unixepoch'),
+    ZDATE,
     CASE
-        WHEN ((datetime(ZDATE+978307200,'unixepoch')) = (datetime(((ZDATE) + (ZDURATION))+978307200,'unixepoch'))) then NULL
-        ELSE (datetime(((ZDATE) + (ZDURATION))+978307200,'unixepoch'))
+        WHEN ZDATE = (ZDATE + ZDURATION) then NULL
+        ELSE (ZDATE + ZDURATION)
     END, 
     ZSERVICE_PROVIDER,
     CASE ZCALLTYPE
@@ -98,33 +100,25 @@ def callHistory(files_found, report_folder, seeker, wrap_text, timezone_offset):
     for file_found in files_found:
         if file_found.endswith('.storedata'):
             db_file = file_found
+            db_records = get_sqlite_db_records(db_file, query)
             break
         elif file_found.endswith('.db'):
             db_file = file_found
-            query = query_old
+            db_records = get_sqlite_db_records(db_file, query_old)
             break
     
-    if db_file:
-        db = open_sqlite_db_readonly(file_found)
-        cursor = db.cursor()
-        cursor.execute(query)
+    for record in db_records:
+        starting_time = convert_cocoa_core_data_ts_to_utc(record[0])
+        ending_time = convert_cocoa_core_data_ts_to_utc(record[1])
 
-        all_rows = cursor.fetchall()
-        
-        for row in all_rows:
-            starting_time = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
-            ending_time = convert_ts_human_to_timezone_offset(row[1], timezone_offset)
+        an = str(record[5])
+        an = an.replace("b'", "")
+        an = an.replace("'", "")
 
-            an = str(row[5])
-            an = an.replace("b'", "")
-            an = an.replace("'", "")
+        facetime_data = convert_bytes_to_unit(record[8])
 
-            facetime_data = convert_bytes_to_unit(row[8])
-
-            data_list.append((starting_time, ending_time, row[2], row[3], row[4], an, row[6], 
-                                row[7], facetime_data, row[9], row[10], row[11]))
-
-        db.close()
+        data_list.append((starting_time, ending_time, record[2], record[3], record[4], an, record[6], 
+                            record[7], facetime_data, record[9], record[10], record[11]))
 
     data_headers = (
         ('Starting Timestamp', 'datetime'), 

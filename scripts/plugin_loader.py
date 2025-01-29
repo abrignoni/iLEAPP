@@ -5,7 +5,7 @@ import importlib.util
 
 #PLUGINPATH = pathlib.Path("./scripts/artifacts")
 # a bit long-winded to make compatible with PyInstaller
-PLUGINPATH = pathlib.Path(__file__).resolve().parent / pathlib.Path("scripts/artifacts")
+PLUGINPATH = pathlib.Path(__file__).resolve().parent / pathlib.Path("artifacts")
 
 
 @dataclasses.dataclass(frozen=True)

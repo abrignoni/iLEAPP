@@ -25,8 +25,7 @@ def serialNumber(files_found, report_folder, seeker, wrap_text, timezone_offset)
             db_file = file_found
             break
     
-    if db_file:
-        db = open_sqlite_db_readonly(file_found)
+    with open_sqlite_db_readonly(db_file) as db:
         cursor = db.cursor()
         
         cursor.execute('''
@@ -38,8 +37,6 @@ def serialNumber(files_found, report_folder, seeker, wrap_text, timezone_offset)
 
         for row in all_rows:
             device_info("Device Information", "Serial Number", row[0], db_file)
-
-        db.close()
                 
     # Return empty data since this artifact only collects device info
     return (), [], db_file

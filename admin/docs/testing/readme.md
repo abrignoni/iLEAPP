@@ -22,7 +22,7 @@ This documentation provides an overview of the testing processes and components 
 
 5. [Adding New Images to the Manifest](guide_adding_images.md)
    - Step-by-step guide for adding new test images to the project
-   - Best practices for maintaining the [image manifest](../image_manifest.json)
+   - Best practices for maintaining the [image manifest](../../image_manifest.json)
 
 6. [File Path Analysis](filepath_analysis.md)
    - Overview of the file path search process

@@ -9,12 +9,12 @@ __artifacts_v2__ = {
         "category": "Alarms",
         "notes": "",
         "paths": ('*/mobile/Library/Preferences/com.apple.mobiletimerd.plist',),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": "clock"
     }
 }
 
-import plistlib
-from scripts.ilapfuncs import artifact_processor, convert_plist_date_to_timezone_offset
+from scripts.ilapfuncs import artifact_processor, get_plist_content, convert_plist_date_to_timezone_offset
 
 def decode_repeat_schedule(repeat_schedule_value):
     days_list = {
@@ -47,60 +47,59 @@ def alarms(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
     source_path = str(files_found[0])
 
-    with open(source_path, "rb") as plist_file:
-        pl = plistlib.load(plist_file)
-        if 'MTAlarms' in pl:
-            if 'MTAlarms' in pl['MTAlarms']:
-                for alarms in pl['MTAlarms']['MTAlarms']:
-                    alarms_dict = alarms['$MTAlarm']
+    pl = get_plist_content(source_path)
+    if 'MTAlarms' in pl:
+        if 'MTAlarms' in pl['MTAlarms']:
+            for alarms in pl['MTAlarms']['MTAlarms']:
+                alarms_dict = alarms['$MTAlarm']
 
-                    alarm_title = alarms_dict.get('MTAlarmTitle', 'Alarm')
-                    fire_date = alarms_dict.get('MTAlarmFireDate', '')
-                    fire_date = convert_plist_date_to_timezone_offset(fire_date, timezone_offset)
-                    dismiss_date = alarms_dict.get('MTAlarmDismissDate', '')
-                    dismiss_date = convert_plist_date_to_timezone_offset(dismiss_date, timezone_offset)
-                    last_modified_date = alarms_dict.get('MTAlarmLastModifiedDate', '')
-                    last_modified_date = convert_plist_date_to_timezone_offset(last_modified_date, timezone_offset)
-                    repeat_schedule = decode_repeat_schedule(alarms_dict['MTAlarmRepeatSchedule'])
+                alarm_title = alarms_dict.get('MTAlarmTitle', 'Alarm')
+                fire_date = alarms_dict.get('MTAlarmFireDate', '')
+                fire_date = convert_plist_date_to_timezone_offset(fire_date, timezone_offset)
+                dismiss_date = alarms_dict.get('MTAlarmDismissDate', '')
+                dismiss_date = convert_plist_date_to_timezone_offset(dismiss_date, timezone_offset)
+                last_modified_date = alarms_dict.get('MTAlarmLastModifiedDate', '')
+                last_modified_date = convert_plist_date_to_timezone_offset(last_modified_date, timezone_offset)
+                repeat_schedule = decode_repeat_schedule(alarms_dict['MTAlarmRepeatSchedule'])
 
-                    data_list.append(
-                        (fire_date, 
-                        alarm_title, 
-                        alarms_dict['MTAlarmEnabled'], 
-                        dismiss_date,
-                        last_modified_date, 
-                        ', '.join(repeat_schedule),
-                        alarms_dict['MTAlarmSound']['$MTSound']['MTSoundToneID'],
-                        alarms_dict['MTAlarmIsSleep'], 
-                        alarms_dict['MTAlarmBedtimeDoNotDisturb'],
-                        '')
-                        )
+                data_list.append(
+                    (fire_date, 
+                    alarm_title, 
+                    alarms_dict['MTAlarmEnabled'], 
+                    dismiss_date,
+                    last_modified_date, 
+                    ', '.join(repeat_schedule),
+                    alarms_dict['MTAlarmSound']['$MTSound']['MTSoundToneID'],
+                    alarms_dict['MTAlarmIsSleep'], 
+                    alarms_dict['MTAlarmBedtimeDoNotDisturb'],
+                    '')
+                    )
 
-            if 'MTSleepAlarm' in pl['MTAlarms']:
-                for sleep_alarms in pl['MTAlarms']['MTSleepAlarm']:
-                    sleep_alarm_dict = pl['MTAlarms']['MTSleepAlarm'][sleep_alarms]
+        if 'MTSleepAlarm' in pl['MTAlarms']:
+            for sleep_alarms in pl['MTAlarms']['MTSleepAlarm']:
+                sleep_alarm_dict = pl['MTAlarms']['MTSleepAlarm'][sleep_alarms]
 
-                    alarm_title = sleep_alarm_dict.get('MTAlarmTitle', 'Bedtime')
-                    fire_date = sleep_alarm_dict.get('MTAlarmFireDate', '')
-                    fire_date = convert_plist_date_to_timezone_offset(fire_date, timezone_offset)
-                    dismiss_date = sleep_alarm_dict.get('MTAlarmDismissDate', '')
-                    dismiss_date = convert_plist_date_to_timezone_offset(dismiss_date, timezone_offset)
-                    last_modified_date = sleep_alarm_dict.get('MTAlarmLastModifiedDate', '')
-                    last_modified_date = convert_plist_date_to_timezone_offset(last_modified_date, timezone_offset)
-                    repeat_schedule = decode_repeat_schedule(sleep_alarm_dict['MTAlarmRepeatSchedule'])
+                alarm_title = sleep_alarm_dict.get('MTAlarmTitle', 'Bedtime')
+                fire_date = sleep_alarm_dict.get('MTAlarmFireDate', '')
+                fire_date = convert_plist_date_to_timezone_offset(fire_date, timezone_offset)
+                dismiss_date = sleep_alarm_dict.get('MTAlarmDismissDate', '')
+                dismiss_date = convert_plist_date_to_timezone_offset(dismiss_date, timezone_offset)
+                last_modified_date = sleep_alarm_dict.get('MTAlarmLastModifiedDate', '')
+                last_modified_date = convert_plist_date_to_timezone_offset(last_modified_date, timezone_offset)
+                repeat_schedule = decode_repeat_schedule(sleep_alarm_dict['MTAlarmRepeatSchedule'])
 
-                    data_list.append(
-                        (fire_date, 
-                        alarm_title, 
-                        sleep_alarm_dict['MTAlarmEnabled'], 
-                        dismiss_date, 
-                        last_modified_date, 
-                        ', '.join(repeat_schedule), 
-                        sleep_alarm_dict['MTAlarmSound']['$MTSound']['MTSoundToneID'], 
-                        sleep_alarm_dict['MTAlarmIsSleep'], 
-                        sleep_alarm_dict['MTAlarmBedtimeDoNotDisturb'], 
-                        sleep_alarm_dict['MTAlarmBedtimeFireDate'])
-                        )
+                data_list.append(
+                    (fire_date, 
+                    alarm_title, 
+                    sleep_alarm_dict['MTAlarmEnabled'], 
+                    dismiss_date, 
+                    last_modified_date, 
+                    ', '.join(repeat_schedule), 
+                    sleep_alarm_dict['MTAlarmSound']['$MTSound']['MTSoundToneID'], 
+                    sleep_alarm_dict['MTAlarmIsSleep'], 
+                    sleep_alarm_dict['MTAlarmBedtimeDoNotDisturb'], 
+                    sleep_alarm_dict['MTAlarmBedtimeFireDate'])
+                    )
 
     data_headers = (
         ('Fire Date', 'datetime'), 

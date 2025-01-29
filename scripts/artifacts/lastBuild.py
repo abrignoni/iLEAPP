@@ -9,7 +9,8 @@ __artifacts_v2__ = {
         "category": "IOS Build",
         "notes": "",
         "paths": ('*LastBuildInfo.plist',),
-        "output_types": ["html", "tsv", "lava"]
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "git-commit"
     }
 }
 
@@ -21,7 +22,6 @@ from scripts.ilapfuncs import artifact_processor, logfunc, device_info
 @artifact_processor
 def lastBuild(files_found, report_folder, seeker, wrap_text, time_offset):
     data_list = []
-    data_headers = ()
     source_path = str(files_found[0])
     
     with open(source_path, "rb") as fp:
@@ -29,7 +29,6 @@ def lastBuild(files_found, report_folder, seeker, wrap_text, time_offset):
         for key, val in pl.items():
             data_list.append((key, val))
             if key == ("ProductVersion"):
-                #ilapfuncs.globalvars()
                 scripts.artifacts.artGlobals.versionf = val
                 logfunc(f"iOS version: {val}")
                 device_info("Device Information", "iOS version", val, source_path)
@@ -39,7 +38,7 @@ def lastBuild(files_found, report_folder, seeker, wrap_text, time_offset):
             
             if key == ("ProductName"):
                 logfunc(f"Product: {val}")
-                device_info("Device Information", "Product", val, source_path)
+                device_info("Device Information", "Product Name", val, source_path)
 
-    data_headers = ('Identifier','Data Value' )     
+    data_headers = ('Property','Property Value' )     
     return data_headers, data_list, source_path

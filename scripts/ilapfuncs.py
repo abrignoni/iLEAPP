@@ -1,15 +1,20 @@
 # common standard imports
 import codecs
-import csv
 from datetime import *
-import json
 import os
 import re
 import shutil
-import sqlite3
 import sys
 import math
 import inspect
+
+import csv
+import xml
+import plistlib
+import nska_deserialize
+import json
+import sqlite3
+
 from functools import lru_cache
 from pathlib import Path
 
@@ -36,6 +41,7 @@ media_root = '**/Media/'
 thumb_size = 256, 256
 
 identifiers = {}
+icons = {}
 
 def strip_tuple_from_headers(data_headers):
     return [header[0] if isinstance(header, tuple) else header for header in data_headers]
@@ -60,6 +66,7 @@ def artifact_processor(func):
         artifact_name = artifact_info.get('name', func_name)
         category = artifact_info.get('category', '')
         description = artifact_info.get('description', '')
+        icon = artifact_info.get('artifact_icon', '')
         output_types = artifact_info.get('output_types', ['html', 'tsv', 'timeline', 'lava', 'kml'])
 
         data_headers, data_list, source_path = func(files_found, report_folder, seeker, wrap_text, timezone_offset)
@@ -79,6 +86,7 @@ def artifact_processor(func):
                 report.add_script()
                 report.write_artifact_data_table(stripped_headers, data_list, source_path)
                 report.end_artifact_report()
+                icons[category] = {artifact_name: icon}
 
             if check_output_types('tsv', output_types):
                 tsv(report_folder, stripped_headers, data_list, artifact_name)
@@ -159,6 +167,14 @@ def convert_ts_int_to_timezone(time, time_offset):
     
     #return the converted value
     return timezone_time
+
+def convert_cocoa_core_data_ts_to_utc(cocoa_core_data_ts):
+    if cocoa_core_data_ts:
+        unix_timestamp = cocoa_core_data_ts + 978307200
+        finaltime = datetime.fromtimestamp(unix_timestamp, tz=timezone.utc)
+        return(finaltime)
+    else:
+        return cocoa_core_data_ts
 
 def webkit_timestampsconv(webkittime):
     unix_timestamp = webkittime + 978307200
@@ -308,6 +324,34 @@ def get_next_unused_name(path):
         num += 1
     return os.path.join(folder, new_name)
 
+def get_plist_content(file_path):
+    try:
+        with open(file_path, 'rb') as file:
+            plist_content = plistlib.load(file)
+            if plist_content.get('$archiver', '') == 'NSKeyedArchiver':
+                return nska_deserialize.deserialize_plist(file_path)
+            else:
+                return plist_content
+    except FileNotFoundError:
+        logfunc(f"Error: Plist file not found at {file_path}")
+    except PermissionError:
+        logfunc(f"Error: Permission denied when trying to read {file_path}")
+    except plistlib.InvalidFileException:
+        logfunc(f"Error: Invalid plist file format in {file_path}")
+    except xml.parsers.expat.ExpatError:
+        logfunc(f"Error: Malformed XML in plist file {file_path}")
+    except TypeError as e:
+        logfunc(f"Error: Type error when parsing plist {file_path}: {str(e)}")
+    except ValueError as e:
+        logfunc(f"Error: Value error when parsing plist {file_path}: {str(e)}")
+    except OverflowError as e:
+        logfunc(f"Error: Overflow error when parsing plist {file_path}: {str(e)}")
+    except nska_deserialize.DeserializeError:
+        logfunc(f"Error: {file_path} is not an NSKeyedArchiveInvalid plist file")
+    except Exception as e:
+        logfunc(f"Unexpected error reading plist file {file_path}: {str(e)}")
+    return {}
+
 def open_sqlite_db_readonly(path):
     '''Opens an sqlite db in read-only mode, so original db (and -wal/journal are intact)'''
     if is_platform_windows():
@@ -321,6 +365,27 @@ def open_sqlite_db_readonly(path):
             path = "%5C%5C%3F%5C" + path
     return sqlite3.connect(f"file:{path}?mode=ro", uri=True)
 
+def get_sqlite_db_records(path, query):
+    '''Opens an sqlite db in read-only mode, so original db (and -wal/journal are intact)'''
+    if is_platform_windows():
+        if path.startswith('\\\\?\\UNC\\'): # UNC long path
+            path = "%5C%5C%3F%5C" + path[4:]
+        elif path.startswith('\\\\?\\'):    # normal long path
+            path = "%5C%5C%3F%5C" + path[4:]
+        elif path.startswith('\\\\'):       # UNC path
+            path = "%5C%5C%3F%5C\\UNC" + path[1:]
+        else:                               # normal path
+            path = "%5C%5C%3F%5C" + path
+    try:
+        with sqlite3.connect(f"file:{path}?mode=ro", uri=True) as db:
+            cursor = db.cursor()
+            cursor.execute(query)
+            records = cursor.fetchall()
+            return records
+    except sqlite3.OperationalError as e:
+        logfunc(f"Error with {path}:")
+        logfunc(f" - {str(e)}")
+    return []
 
 def does_column_exist_in_db(db, table_name, col_name):
     '''Checks if a specific col exists'''
@@ -401,11 +466,11 @@ def write_device_info():
                     # Handle multiple values
                     b.write('<li><b>' + label + ':</b><ul>' + OutputParameters.nl)
                     for item in data:
-                        b.write(f'<li>{item["value"]} <span title="{item["source_file"]}" style="cursor:help"><i>(Source: {item["module"]})</i></span></li>' + OutputParameters.nl)
+                        b.write(f'<li>{item["value"]} <span title="{item["source_file"]}" style="cursor:help"><i>(Source: {item["artifact"]})</i></span></li>' + OutputParameters.nl)
                     b.write('</ul></li>' + OutputParameters.nl)
                 else:
                     # Handle single value
-                    b.write(f'<li><b>{label}:</b> {data["value"]} <span title="{data["source_file"]}" style="cursor:help"><i>(Source: {data["module"]})</i></span></li>' + OutputParameters.nl)
+                    b.write(f'<li><b>{label}:</b> {data["value"]} <span title="{data["source_file"]}" style="cursor:help"><i>(Source: {data["artifact"]})</i></span></li>' + OutputParameters.nl)
             b.write('</ul>' + OutputParameters.nl)
 
 def device_info(category, label, value, source_file=""):
@@ -419,14 +484,9 @@ def device_info(category, label, value, source_file=""):
     # Get the calling module's name more robustly
     try:
         frame = inspect.stack()[1]
-        module = inspect.getmodule(frame[0])
-        if module:
-            module_name = module.__name__.split('.')[-1]
-        else:
-            # Fallback: try to get module name from frame info
-            module_name = frame.filename.split('/')[-1].replace('.py', '')
+        func_name = frame.function
     except:
-        module_name = 'unknown'
+        func_name = 'unknown'
     
     values = identifiers.get(category, {})
     
@@ -434,7 +494,7 @@ def device_info(category, label, value, source_file=""):
     value_obj = {
         'value': value,
         'source_file': source_file,
-        'module': module_name
+        'artifact': func_name
     }
     
     if label in values:
@@ -507,50 +567,55 @@ def timeline(report_folder, tlactivity, data_list, data_headers):
     db.close()
 
 def kmlgen(report_folder, kmlactivity, data_list, data_headers):
-    if 'Longitude' not in data_list or 'Latitude' not in data_list:
+    if 'Longitude' not in data_headers or 'Latitude' not in data_headers:
         return
-    report_folder = report_folder.rstrip('/')
-    report_folder = report_folder.rstrip('\\')
-    report_folder_base = os.path.dirname(os.path.dirname(report_folder))
-    kml_report_folder = os.path.join(report_folder_base, '_KML Exports')
-    if os.path.isdir(kml_report_folder):
-        latlongdb = os.path.join(kml_report_folder, '_latlong.db')
-        db = sqlite3.connect(latlongdb)
-        cursor = db.cursor()
-        cursor.execute('''PRAGMA synchronous = EXTRA''')
-        cursor.execute('''PRAGMA journal_mode = WAL''')
-        db.commit()
-    else:
-        os.makedirs(kml_report_folder)
-        latlongdb = os.path.join(kml_report_folder, '_latlong.db')
-        db = sqlite3.connect(latlongdb)
-        cursor = db.cursor()
-        cursor.execute(
-        """
-        CREATE TABLE data(key TEXT, latitude TEXT, longitude TEXT, activity TEXT)
-        """
-            )
-        db.commit()
-    
-    kml = simplekml.Kml(open=1)
-    
+
+    data = []
+    kml = simplekml.Kml(open=1)    
     a = 0
-    length = (len(data_list))
+    length = len(data_list)
+
     while a < length:
         modifiedDict = dict(zip(data_headers, data_list[a]))
         times = modifiedDict.get('Timestamp','N/A')
         lon = modifiedDict['Longitude']
         lat = modifiedDict['Latitude']
-        if lat:
+        if lat and lon:
             pnt = kml.newpoint()
             pnt.name = times
             pnt.description = f"Timestamp: {times} - {kmlactivity}"
             pnt.coords = [(lon, lat)]
-            cursor.execute("INSERT INTO data VALUES(?,?,?,?)", (times, lat, lon, kmlactivity))
+            data.append((times, lat, lon, kmlactivity))
         a += 1
-    db.commit()
-    db.close()
-    kml.save(os.path.join(kml_report_folder, f'{kmlactivity}.kml'))
+
+    if len(data) > 0:
+        report_folder = report_folder.rstrip('/')
+        report_folder = report_folder.rstrip('\\')
+        report_folder_base = os.path.dirname(os.path.dirname(report_folder))
+        kml_report_folder = os.path.join(report_folder_base, '_KML Exports')
+        if os.path.isdir(kml_report_folder):
+            latlongdb = os.path.join(kml_report_folder, '_latlong.db')
+            db = sqlite3.connect(latlongdb)
+            cursor = db.cursor()
+            cursor.execute('''PRAGMA synchronous = EXTRA''')
+            cursor.execute('''PRAGMA journal_mode = WAL''')
+            db.commit()
+        else:
+            os.makedirs(kml_report_folder)
+            latlongdb = os.path.join(kml_report_folder, '_latlong.db')
+            db = sqlite3.connect(latlongdb)
+            cursor = db.cursor()
+            cursor.execute(
+            """
+            CREATE TABLE data(key TEXT, latitude TEXT, longitude TEXT, activity TEXT)
+            """
+                )
+            db.commit()
+        
+        cursor.executemany("INSERT INTO data VALUES(?, ?, ?, ?)", data)
+        db.commit()
+        db.close()
+        kml.save(os.path.join(kml_report_folder, f'{kmlactivity}.kml'))
     
 ''' Returns string of printable characters. Replacing non-printable characters
 with '.', or CHR(46)

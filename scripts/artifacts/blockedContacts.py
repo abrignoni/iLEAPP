@@ -1,5 +1,5 @@
 __artifacts_v2__ = {
-    "get_blocked_contacts": {
+    "blockedContacts": {
         "name": "Blocked contacts",
         "description": "Extract blocked contacts",
         "author": "@JohannPLW",
@@ -17,7 +17,7 @@ import plistlib
 from scripts.ilapfuncs import artifact_processor 
 
 @artifact_processor
-def get_blocked_contacts(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def blockedContacts(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
     source_path = str(files_found[0])
 

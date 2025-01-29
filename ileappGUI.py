@@ -1,27 +1,27 @@
 import tkinter as tk
-import plugin_loader
 import typing
 import json
 import ileapp
 import webbrowser
 
+import scripts.plugin_loader as plugin_loader
+
 from tkinter import ttk, filedialog as tk_filedialog, messagebox as tk_msgbox
 from scripts.version_info import ileapp_version
 from scripts.search_files import *
 from scripts.tz_offset import tzvalues
-from modules_to_exclude import modules_to_exclude
+from scripts.modules_to_exclude import modules_to_exclude
 from scripts.lavafuncs import *
 
 
 def pickModules():
     '''Create a list of available modules:
-        - iTunesBackupInfo, lastBuild, Ph99-System-Version-Plist, Ph100-UFED-device-values-Plist that need to be executed first are excluded
+        - iTunesBackupInfo, lastBuild, Ph100-UFED-device-values-Plist that need to be executed first are excluded
         - ones that take a long time to run are deselected by default'''
     global mlist
     for plugin in sorted(loader.plugins, key=lambda p: p.category.upper()):
         if (plugin.name == 'iTunesBackupInfo'
                 or plugin.name == 'lastBuild'
-                or plugin.name == 'Ph99-System-Version-Plist'
                 or plugin.name == 'Ph100-UFED-device-values-Plist'):
             continue
         # Items that take a long time to execute are deselected by default
@@ -172,7 +172,8 @@ def process(casedata):
 
         # re-create modules list based on user selection
         selected_modules = get_selected_modules()
-        selected_modules.insert(0, 'lastBuild')  # Force lastBuild as first item to be parsed
+        if extracttype != 'itunes':
+            selected_modules.insert(0, 'lastBuild')  # Force lastBuild as first item to be parsed
         selected_modules = [loader[module] for module in selected_modules]
         progress_bar.config(maximum=len(selected_modules))
         casedata = {key: value.get() for key, value in casedata.items()}
