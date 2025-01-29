@@ -8,37 +8,35 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "IOS Build",
         "notes": "",
-        "paths": ('*LastBuildInfo.plist',),
+        "paths": ('*/installd/Library/MobileInstallation/LastBuildInfo.plist',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "git-commit"
     }
 }
 
-import plistlib
 import scripts.artifacts.artGlobals 
 
-from scripts.ilapfuncs import artifact_processor, logfunc, device_info
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content, logfunc, device_info
 
 @artifact_processor
 def lastBuild(files_found, report_folder, seeker, wrap_text, time_offset):
+    source_path = get_file_path(files_found, "LastBuildInfo.plist")
     data_list = []
-    source_path = str(files_found[0])
     
-    with open(source_path, "rb") as fp:
-        pl = plistlib.load(fp)
-        for key, val in pl.items():
-            data_list.append((key, val))
-            if key == ("ProductVersion"):
-                scripts.artifacts.artGlobals.versionf = val
-                logfunc(f"iOS version: {val}")
-                device_info("Device Information", "iOS version", val, source_path)
-            
-            if key == "ProductBuildVersion":
-                device_info("Device Information", "ProductBuildVersion", val, source_path)
-            
-            if key == ("ProductName"):
-                logfunc(f"Product: {val}")
-                device_info("Device Information", "Product Name", val, source_path)
+    pl = get_plist_file_content(source_path)
+    for key, val in pl.items():
+        data_list.append((key, val))
+        if key == ("ProductVersion"):
+            scripts.artifacts.artGlobals.versionf = val
+            logfunc(f"iOS version: {val}")
+            device_info("Device Information", "iOS version", val, source_path)
+        
+        if key == "ProductBuildVersion":
+            device_info("Device Information", "ProductBuildVersion", val, source_path)
+        
+        if key == ("ProductName"):
+            logfunc(f"Product: {val}")
+            device_info("Device Information", "Product Name", val, source_path)
 
     data_headers = ('Property','Property Value' )     
     return data_headers, data_list, source_path

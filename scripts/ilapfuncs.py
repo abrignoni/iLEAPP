@@ -43,6 +43,16 @@ thumb_size = 256, 256
 identifiers = {}
 icons = {}
 
+def get_file_path(files_found, filename):
+    """Returns the path of the searched filename id exists or returns None"""
+    try:
+        for file_found in files_found:
+            if file_found.endswith(filename):
+                return file_found
+    except Exception as e:
+        logfunc(f"Error: {str(e)}")
+    return None        
+
 def strip_tuple_from_headers(data_headers):
     return [header[0] if isinstance(header, tuple) else header for header in data_headers]
 
@@ -67,6 +77,8 @@ def artifact_processor(func):
         category = artifact_info.get('category', '')
         description = artifact_info.get('description', '')
         icon = artifact_info.get('artifact_icon', '')
+        html_columns = artifact_info.get('html_columns', [])
+        
         output_types = artifact_info.get('output_types', ['html', 'tsv', 'timeline', 'lava', 'kml'])
 
         data_headers, data_list, source_path = func(files_found, report_folder, seeker, wrap_text, timezone_offset)
@@ -75,7 +87,12 @@ def artifact_processor(func):
             logfunc(f"No file found")
 
         elif len(data_list):
-            logfunc(f"Found {len(data_list)} records for {artifact_name}")
+            if isinstance(data_list, tuple):
+                data_list, data_list_html = data_list
+            else:
+                data_list_html = data_list
+            logfunc(f"Found {len(data_list)} {'records' if len(data_list)>1 else 'record'} for {artifact_name}")
+            icons.setdefault(category, {artifact_name: icon}).update({artifact_name: icon})
 
             # Strip tuples from headers for HTML, TSV, and timeline
             stripped_headers = strip_tuple_from_headers(data_headers)
@@ -84,9 +101,8 @@ def artifact_processor(func):
                 report = artifact_report.ArtifactHtmlReport(artifact_name)
                 report.start_artifact_report(report_folder, artifact_name, description)
                 report.add_script()
-                report.write_artifact_data_table(stripped_headers, data_list, source_path)
+                report.write_artifact_data_table(stripped_headers, data_list_html, source_path, html_no_escape=html_columns)
                 report.end_artifact_report()
-                icons[category] = {artifact_name: icon}
 
             if check_output_types('tsv', output_types):
                 tsv(report_folder, stripped_headers, data_list, artifact_name)
@@ -131,6 +147,45 @@ class OutputParameters:
         os.makedirs(os.path.join(self.report_folder_base, 'Script Logs'))
         os.makedirs(self.temp_folder)
         
+### New timestamp conversion functions
+def convert_unix_ts_in_seconds(ts):
+    digits = int(math.log10(ts))+1
+    if digits > 10:
+        extra_digits = digits - 10
+        ts = ts // 10**extra_digits
+    return int(ts)
+
+def convert_unix_ts_to_utc(ts):
+    if ts:
+        ts = convert_unix_ts_in_seconds(ts)
+        return datetime.fromtimestamp(ts, tz=timezone.utc)
+    else:
+        return ts
+
+def convert_unix_ts_to_str(ts):
+    if ts:
+        ts = convert_unix_ts_in_seconds(ts)
+        return datetime.fromtimestamp(ts, UTC).strftime('%Y-%m-%d %H:%M:%S')
+    else:
+        return ts
+
+def convert_cocoa_core_data_ts_to_utc(cocoa_core_data_ts):
+    if cocoa_core_data_ts:
+        unix_timestamp = cocoa_core_data_ts + 978307200
+        return convert_unix_ts_to_utc(unix_timestamp)
+    else:
+        return cocoa_core_data_ts
+
+def convert_log_ts_to_utc(str_dt):
+    if str_dt:
+        try:
+            return datetime.strptime(str_dt, '%b %d %Y %H:%M:%S').replace(tzinfo=timezone.utc)
+        except:
+            return str_dt
+    else:
+        return str_dt
+
+### Legacy timestamp conversion functions
 def convert_local_to_utc(local_timestamp_str):
     # Parse the timestamp string with timezone offset, ex. 2023-10-27 18:18:29-0400
     local_timestamp = datetime.strptime(local_timestamp_str, "%Y-%m-%d %H:%M:%S%z")
@@ -167,14 +222,6 @@ def convert_ts_int_to_timezone(time, time_offset):
     
     #return the converted value
     return timezone_time
-
-def convert_cocoa_core_data_ts_to_utc(cocoa_core_data_ts):
-    if cocoa_core_data_ts:
-        unix_timestamp = cocoa_core_data_ts + 978307200
-        finaltime = datetime.fromtimestamp(unix_timestamp, tz=timezone.utc)
-        return(finaltime)
-    else:
-        return cocoa_core_data_ts
 
 def webkit_timestampsconv(webkittime):
     unix_timestamp = webkittime + 978307200
@@ -214,6 +261,16 @@ def convert_plist_date_to_timezone_offset(plist_date, timezone_offset):
             )
         iso_date = datetime.fromisoformat(str_date).strftime("%Y-%m-%d %H:%M:%S")
         return convert_ts_human_to_timezone_offset(iso_date, timezone_offset)
+    else:
+        return plist_date
+
+def convert_plist_date_to_utc(plist_date):
+    if plist_date:
+        str_date = '%04d-%02d-%02dT%02d:%02d:%02dZ' % (
+            plist_date.year, plist_date.month, plist_date.day, 
+            plist_date.hour, plist_date.minute, plist_date.second
+            )
+        return datetime.fromisoformat(str_date)
     else:
         return plist_date
 
@@ -324,7 +381,43 @@ def get_next_unused_name(path):
         num += 1
     return os.path.join(folder, new_name)
 
-def get_plist_content(file_path):
+def get_txt_file_content(file_path):
+    try:
+        with open(file_path, "r", encoding="utf-8") as file:
+            file_content = file.readlines()
+            return file_content
+    except FileNotFoundError:
+        logfunc(f"Error: File not found at {file_path}")
+    except PermissionError:
+        logfunc(f"Error: Permission denied when trying to read {file_path}")
+    except Exception as e:
+        logfunc(f"Unexpected error reading file {file_path}: {str(e)}")
+    return []
+
+def get_plist_content(data):
+    try:
+        plist_content = plistlib.loads(data)
+        if plist_content.get('$archiver', '') == 'NSKeyedArchiver':
+            return nska_deserialize.deserialize_plist_from_string(data)
+        else:
+            return plist_content
+    except plistlib.InvalidFileException:
+        logfunc(f"Error: Invalid plist data")
+    except xml.parsers.expat.ExpatError:
+        logfunc(f"Error: Malformed XML")
+    except TypeError as e:
+        logfunc(f"Error: Type error when parsing plist data: {str(e)}")
+    except ValueError as e:
+        logfunc(f"Error: Value error when parsing plist data: {str(e)}")
+    except OverflowError as e:
+        logfunc(f"Error: Overflow error when parsing plist data: {str(e)}")
+    except nska_deserialize.DeserializeError:
+        logfunc(f"Error: Invalid NSKeyedArchive plist data")
+    except Exception as e:
+        logfunc(f"Unexpected error reading plist data: {str(e)}")
+    return {}
+
+def get_plist_file_content(file_path):
     try:
         with open(file_path, 'rb') as file:
             plist_content = plistlib.load(file)
@@ -347,7 +440,7 @@ def get_plist_content(file_path):
     except OverflowError as e:
         logfunc(f"Error: Overflow error when parsing plist {file_path}: {str(e)}")
     except nska_deserialize.DeserializeError:
-        logfunc(f"Error: {file_path} is not an NSKeyedArchiveInvalid plist file")
+        logfunc(f"Error: {file_path} is not a valid NSKeyedArchive plist file")
     except Exception as e:
         logfunc(f"Unexpected error reading plist file {file_path}: {str(e)}")
     return {}
@@ -355,40 +448,45 @@ def get_plist_content(file_path):
 def open_sqlite_db_readonly(path):
     '''Opens an sqlite db in read-only mode, so original db (and -wal/journal are intact)'''
     if is_platform_windows():
-        if path.startswith('\\\\?\\UNC\\'): # UNC long path
+        if str(path).startswith('\\\\?\\UNC\\'): # UNC long path
             path = "%5C%5C%3F%5C" + path[4:]
-        elif path.startswith('\\\\?\\'):    # normal long path
+        elif str(path).startswith('\\\\?\\'):    # normal long path
             path = "%5C%5C%3F%5C" + path[4:]
-        elif path.startswith('\\\\'):       # UNC path
-            path = "%5C%5C%3F%5C\\UNC" + path[1:]
-        else:                               # normal path
-            path = "%5C%5C%3F%5C" + path
-    return sqlite3.connect(f"file:{path}?mode=ro", uri=True)
-
-def get_sqlite_db_records(path, query):
-    '''Opens an sqlite db in read-only mode, so original db (and -wal/journal are intact)'''
-    if is_platform_windows():
-        if path.startswith('\\\\?\\UNC\\'): # UNC long path
-            path = "%5C%5C%3F%5C" + path[4:]
-        elif path.startswith('\\\\?\\'):    # normal long path
-            path = "%5C%5C%3F%5C" + path[4:]
-        elif path.startswith('\\\\'):       # UNC path
+        elif str(path).startswith('\\\\'):       # UNC path
             path = "%5C%5C%3F%5C\\UNC" + path[1:]
         else:                               # normal path
             path = "%5C%5C%3F%5C" + path
     try:
-        with sqlite3.connect(f"file:{path}?mode=ro", uri=True) as db:
-            cursor = db.cursor()
-            cursor.execute(query)
-            records = cursor.fetchall()
-            return records
+        if path:
+            with sqlite3.connect(f"file:{path}?mode=ro", uri=True) as db:
+                return db
     except sqlite3.OperationalError as e:
         logfunc(f"Error with {path}:")
         logfunc(f" - {str(e)}")
+    return None
+    # return sqlite3.connect(f"file:{path}?mode=ro", uri=True)
+
+def get_sqlite_db_records(path, query, attach_query=None):
+    db = open_sqlite_db_readonly(path)
+    if db:
+        try:
+            cursor = db.cursor()
+            if attach_query:
+                cursor.execute(attach_query)
+            cursor.execute(query)
+            records = cursor.fetchall()
+            return records
+        except sqlite3.OperationalError as e:
+            logfunc(f"Error with {path}:")
+            logfunc(f" - {str(e)}")
+        except sqlite3.ProgrammingError as e:
+            logfunc(f"Error with {path}:")
+            logfunc(f" - {str(e)}")
     return []
 
-def does_column_exist_in_db(db, table_name, col_name):
+def does_column_exist_in_db(path, table_name, col_name):
     '''Checks if a specific col exists'''
+    db = open_sqlite_db_readonly(path)
     col_name = col_name.lower()
     try:
         db.row_factory = sqlite3.Row # For fetching columns by name
@@ -404,18 +502,20 @@ def does_column_exist_in_db(db, table_name, col_name):
         pass
     return False
 
-def does_table_exist(db, table_name):
+def does_table_exist_in_db(path, table_name):
     '''Checks if a table with specified name exists in an sqlite db'''
-    try:
-        query = f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}'"
-        cursor = db.execute(query)
-        for row in cursor:
-            return True
-    except sqlite3.Error as ex:
-        logfunc(f"Query error, query={query} Error={str(ex)}")
+    db = open_sqlite_db_readonly(path)
+    if db:    
+        try:
+            query = f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}'"
+            cursor = db.execute(query)
+            for row in cursor:
+                return True
+        except sqlite3.Error as ex:
+            logfunc(f"Query error, query={query} Error={str(ex)}")
     return False
 
-def does_view_exist(db, table_name):
+def does_view_exist_in_db(db, table_name):
     '''Checks if a table with specified name exists in an sqlite db'''
     try:
         query = f"SELECT name FROM sqlite_master WHERE type='view' AND name='{table_name}'"
@@ -574,16 +674,22 @@ def kmlgen(report_folder, kmlactivity, data_list, data_headers):
     kml = simplekml.Kml(open=1)    
     a = 0
     length = len(data_list)
-
     while a < length:
         modifiedDict = dict(zip(data_headers, data_list[a]))
-        times = modifiedDict.get('Timestamp','N/A')
         lon = modifiedDict['Longitude']
         lat = modifiedDict['Latitude']
+        times_header = "Timestamp"
         if lat and lon:
             pnt = kml.newpoint()
+            times = modifiedDict.get('Timestamp','N/A')
+            if times == 'N/A':
+                for key, value in modifiedDict.items():
+                    if isinstance(value, datetime):
+                        times_header = key
+                        times = value
+                        break
             pnt.name = times
-            pnt.description = f"Timestamp: {times} - {kmlactivity}"
+            pnt.description = f"{times_header}: {times} - {kmlactivity}"
             pnt.coords = [(lon, lat)]
             data.append((times, lat, lon, kmlactivity))
         a += 1
@@ -607,7 +713,7 @@ def kmlgen(report_folder, kmlactivity, data_list, data_headers):
             cursor = db.cursor()
             cursor.execute(
             """
-            CREATE TABLE data(key TEXT, latitude TEXT, longitude TEXT, activity TEXT)
+            CREATE TABLE data(timestamp TEXT, latitude TEXT, longitude TEXT, activity TEXT)
             """
                 )
             db.commit()

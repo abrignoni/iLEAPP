@@ -5,7 +5,7 @@ a = Analysis(
     ['../../ileappGUI.py'],
     pathex=['../scripts/artifacts'],
     binaries=[],
-    datas=[('../', 'scripts')],
+    datas=[('../', 'scripts'), ('../../assets', 'assets')],
     hiddenimports=[
         'astc_decomp_faster',
         'bencoding',
@@ -13,6 +13,7 @@ a = Analysis(
         'Crypto.Cipher.AES',
         'lib2to3.refactor',
         'liblzfse',
+        'mdplist',
         'mmh3',
         'nska_deserialize',
         'pandas',
@@ -57,7 +58,7 @@ coll = COLLECT(
 app = BUNDLE(
     coll,
     name='ileappGUI.app',
-    icon='icon.icns',
+    icon='../../assets/icon.icns',
     bundle_identifier='4n6.brigs.iLEAPP',
-    version='2.0.1'
+    version='2.0.4'
 )

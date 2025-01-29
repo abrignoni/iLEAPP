@@ -12,7 +12,7 @@ import scripts.artifacts.artGlobals
 
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, does_table_exist
+from scripts.ilapfuncs import logfunc, logdevinfo, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, does_table_exist_in_db
 
 def get_Health(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
@@ -29,7 +29,7 @@ def get_Health(files_found, report_folder, seeker, wrap_text, timezone_offset):
     
     cursor = db.cursor()
 
-    if  does_table_exist(db, 'location_series_data') == True:
+    if  does_table_exist_in_db(healthdb_secure, 'location_series_data') == True:
     
     # Fitness Workouts Location Data Analysis
 

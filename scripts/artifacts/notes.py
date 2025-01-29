@@ -21,7 +21,7 @@ def get_notes(files_found, report_folder, seeker, wrap_text, timezone_offset):
             db = open_sqlite_db_readonly(file_found)
             cursor = db.cursor()
             
-            if does_column_exist_in_db(db, 'ZICCLOUDSYNCINGOBJECT','ZACCOUNT4') == True and does_column_exist_in_db(db, 'ZICCLOUDSYNCINGOBJECT','ZCREATIONDATE3') == True:
+            if does_column_exist_in_db(file_found, 'ZICCLOUDSYNCINGOBJECT','ZACCOUNT4') == True and does_column_exist_in_db(file_found, 'ZICCLOUDSYNCINGOBJECT','ZCREATIONDATE3') == True:
                         
                 cursor.execute('''
                     SELECT 
@@ -59,7 +59,7 @@ def get_notes(files_found, report_folder, seeker, wrap_text, timezone_offset):
                     LEFT JOIN ZICNOTEDATA TabF on TabF.ZNOTE = TabA.Z_PK
                     ''')
 
-            elif does_column_exist_in_db(db, 'ZICCLOUDSYNCINGOBJECT','ZACCOUNT4') == True and does_column_exist_in_db(db, 'ZICCLOUDSYNCINGOBJECT','ZCREATIONDATE3') == False:
+            elif does_column_exist_in_db(file_found, 'ZICCLOUDSYNCINGOBJECT','ZACCOUNT4') == True and does_column_exist_in_db(file_found, 'ZICCLOUDSYNCINGOBJECT','ZCREATIONDATE3') == False:
                 cursor.execute('''
                     SELECT 
                     DATETIME(TabA.ZCREATIONDATE1+978307200,'UNIXEPOCH'), 
@@ -246,7 +246,7 @@ def ReadLengthField(blob):
             data_length = int(blob[skip])
             length = ((data_length & 0x7F) << (skip * 7)) + length
     except (IndexError, ValueError):
-        log.exception('Error trying to read length field in note data blob')
+        logfunc('Error trying to read length field in note data blob')
     skip += 1
     return length, skip
 

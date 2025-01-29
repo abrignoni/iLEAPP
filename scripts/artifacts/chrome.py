@@ -584,7 +584,7 @@ def chromeDownloads(files_found, report_folder, seeker, wrap_text, timezone_offs
 
         #Downloads
         # check for last_access_time column, an older version of chrome db (32) does not have it
-        if does_column_exist_in_db(db, 'downloads', 'last_access_time') == True:
+        if does_column_exist_in_db(file_found, 'downloads', 'last_access_time') == True:
             last_access_time_query = '''
             CASE last_access_time 
                 WHEN "0" 

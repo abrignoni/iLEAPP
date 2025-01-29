@@ -3,8 +3,8 @@ __artifacts_v2__ = {
         "name": "Alarms",
         "description": "Extraction of alarms set",
         "author": "Anna-Mariya Mateyna",
-        "version": "0.3",
-        "date": "2021-01-17",
+        "creation_date": "2021-01-17",
+        "last_update_date": "2024-12-17",
         "requirements": "none",
         "category": "Alarms",
         "notes": "",
@@ -14,7 +14,7 @@ __artifacts_v2__ = {
     }
 }
 
-from scripts.ilapfuncs import artifact_processor, get_plist_content, convert_plist_date_to_timezone_offset
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content, convert_plist_date_to_utc
 
 def decode_repeat_schedule(repeat_schedule_value):
     days_list = {
@@ -44,10 +44,10 @@ def decode_repeat_schedule(repeat_schedule_value):
 
 @artifact_processor
 def alarms(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    source_path = get_file_path(files_found, "com.apple.mobiletimerd.plist")
     data_list = []
-    source_path = str(files_found[0])
 
-    pl = get_plist_content(source_path)
+    pl = get_plist_file_content(source_path)
     if 'MTAlarms' in pl:
         if 'MTAlarms' in pl['MTAlarms']:
             for alarms in pl['MTAlarms']['MTAlarms']:
@@ -55,11 +55,11 @@ def alarms(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
                 alarm_title = alarms_dict.get('MTAlarmTitle', 'Alarm')
                 fire_date = alarms_dict.get('MTAlarmFireDate', '')
-                fire_date = convert_plist_date_to_timezone_offset(fire_date, timezone_offset)
+                fire_date = convert_plist_date_to_utc(fire_date)
                 dismiss_date = alarms_dict.get('MTAlarmDismissDate', '')
-                dismiss_date = convert_plist_date_to_timezone_offset(dismiss_date, timezone_offset)
+                dismiss_date = convert_plist_date_to_utc(dismiss_date)
                 last_modified_date = alarms_dict.get('MTAlarmLastModifiedDate', '')
-                last_modified_date = convert_plist_date_to_timezone_offset(last_modified_date, timezone_offset)
+                last_modified_date = convert_plist_date_to_utc(last_modified_date)
                 repeat_schedule = decode_repeat_schedule(alarms_dict['MTAlarmRepeatSchedule'])
 
                 data_list.append(
@@ -81,11 +81,11 @@ def alarms(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
                 alarm_title = sleep_alarm_dict.get('MTAlarmTitle', 'Bedtime')
                 fire_date = sleep_alarm_dict.get('MTAlarmFireDate', '')
-                fire_date = convert_plist_date_to_timezone_offset(fire_date, timezone_offset)
+                fire_date = convert_plist_date_to_utc(fire_date)
                 dismiss_date = sleep_alarm_dict.get('MTAlarmDismissDate', '')
-                dismiss_date = convert_plist_date_to_timezone_offset(dismiss_date, timezone_offset)
+                dismiss_date = convert_plist_date_to_utc(dismiss_date)
                 last_modified_date = sleep_alarm_dict.get('MTAlarmLastModifiedDate', '')
-                last_modified_date = convert_plist_date_to_timezone_offset(last_modified_date, timezone_offset)
+                last_modified_date = convert_plist_date_to_utc(last_modified_date)
                 repeat_schedule = decode_repeat_schedule(sleep_alarm_dict['MTAlarmRepeatSchedule'])
 
                 data_list.append(

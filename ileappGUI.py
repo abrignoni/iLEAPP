@@ -6,6 +6,7 @@ import webbrowser
 
 import scripts.plugin_loader as plugin_loader
 
+from PIL import Image, ImageTk
 from tkinter import ttk, filedialog as tk_filedialog, messagebox as tk_msgbox
 from scripts.version_info import ileapp_version
 from scripts.search_files import *
@@ -135,7 +136,7 @@ def ValidateInput():
     else:
         ext_type = Path(i_path).suffix[1:].lower()
 
-        # check output now
+    # check output now
     if len(o_path) == 0:  # output folder
         tk_msgbox.showerror(title='Error', message='No OUTPUT folder selected!', parent=main_window)
         return False, ext_type
@@ -153,6 +154,18 @@ def open_report(report_path):
     webbrowser.open_new_tab('file://' + report_path)
     main_window.quit()
 
+
+def open_website(url):
+    webbrowser.open_new_tab(url)
+
+
+def resource_path(filename):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, 'assets', filename)
 
 def process(casedata):
     '''Execute selected modules and create reports'''
@@ -352,7 +365,7 @@ window_width = 890
 window_height = 620
 
 ## Variables
-icon = os.path.join(os.path.dirname(__file__), 'scripts', 'icon.png')
+icon = resource_path('icon.png')
 loader: typing.Optional[plugin_loader.PluginLoader] = None
 loader = plugin_loader.PluginLoader()
 mlist = {}
@@ -373,8 +386,8 @@ if is_platform_macos():
     mlist_window_height = 24
     log_text_height = 36
 elif is_platform_linux():
-    mlist_window_height = 16
-    log_text_height = 27
+    mlist_window_height = 17
+    log_text_height = 28
 else:
     mlist_window_height = 19
     log_text_height = 29
@@ -417,17 +430,15 @@ style.configure('TProgressbar', thickness=4, background='DarkGreen')
 ## Main Window Layout
 ### Top part of the window
 title_frame = ttk.Frame(main_window)
-title_frame.grid(padx=14, pady=6, sticky='w')
-title_label = ttk.Label(
-    title_frame,
-    text='iOS Logs, Events, And Plists Parser',
-    font=('Helvetica 22'))
-title_label.pack(pady=4)
-github_label = ttk.Label(
-    title_frame,
-    text='https://github.com/abrignoni/iLEAPP',
-    font=('Helvetica 14'))
-github_label.pack(anchor='w')
+title_frame.grid(padx=14, pady=4, sticky='we')
+title_frame.grid_columnconfigure(0, weight=1)
+ileapp_logo = ImageTk.PhotoImage(file=resource_path("iLEAPP_logo.png"))
+ileapp_logo_label = ttk.Label(title_frame, image=ileapp_logo)
+ileapp_logo_label.grid(row=0, column=0, sticky='w')
+leapps_logo = ImageTk.PhotoImage(Image.open(resource_path("leapps_i_logo.png")).resize((110, 51)))
+leapps_logo_label = ttk.Label(title_frame, image=leapps_logo, cursor="target")
+leapps_logo_label.grid(row=0, column=1, sticky='w')
+leapps_logo_label.bind("<Button-1>", lambda e: open_website("https://leapps.org"))
 
 ### Input output selection
 input_frame = ttk.LabelFrame(
@@ -536,9 +547,17 @@ log_text = tk.Text(
 log_text.grid(row=0, column=0, padx=4, pady=10, sticky='we')
 vlog.config(command=log_text.yview)
 
-close_frame = ttk.Frame(main_window)
-
 ### Progress bar
 progress_bar = ttk.Progressbar(main_window, orient='horizontal')
+
+### Push main window on top
+def OnFocusIn(event):
+    if type(event.widget).__name__ == 'Tk':
+        event.widget.attributes('-topmost', False)
+
+main_window.attributes('-topmost', True)
+main_window.focus_force()
+main_window.bind('<FocusIn>', OnFocusIn)
+
 
 main_window.mainloop()

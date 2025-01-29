@@ -3,8 +3,8 @@ __artifacts_v2__ = {
         "name": "Account Data",
         "description": "Configured user accounts",
         "author": "@AlexisBrignoni",
-        "version": "0.4.3",
-        "date": "2020-04-30",
+        "creation_date": "2020-04-30",
+        "last_update_date": "2024-12-17",
         "requirements": "none",
         "category": "Accounts",
         "notes": "",
@@ -14,14 +14,12 @@ __artifacts_v2__ = {
     }
 }
 
-
-from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, convert_cocoa_core_data_ts_to_utc
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, convert_cocoa_core_data_ts_to_utc
 
 @artifact_processor
 def accountData(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    source_path = get_file_path(files_found, "Accounts3.sqlite")
     data_list = []
-    db_file = ''
-    db_records = []
 
     query = '''
     SELECT
@@ -35,16 +33,6 @@ def accountData(files_found, report_folder, seeker, wrap_text, timezone_offset):
     WHERE zaccounttype.z_pk=zaccount.zaccounttype
     '''
 
-    for file_found in files_found:
-        if file_found.endswith('Accounts3.sqlite'):
-            db_file = file_found
-            db_records = get_sqlite_db_records(db_file, query)
-            break
-    
-    for record in db_records:
-        timestamp = convert_cocoa_core_data_ts_to_utc(record[0])
-        data_list.append((timestamp, record[1], record[2], record[3], record[4], record[5]))                
-
     data_headers = (
         ('Timestamp', 'datetime'), 
         'Account Desc.', 
@@ -53,4 +41,11 @@ def accountData(files_found, report_folder, seeker, wrap_text, timezone_offset):
         'Identifier', 
         'Bundle ID'
         )
-    return data_headers, data_list, db_file
+
+    db_records = get_sqlite_db_records(source_path, query)
+    
+    for record in db_records:
+        timestamp = convert_cocoa_core_data_ts_to_utc(record[0])
+        data_list.append((timestamp, record[1], record[2], record[3], record[4], record[5]))                
+
+    return data_headers, data_list, source_path
