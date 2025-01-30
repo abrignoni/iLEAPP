@@ -75,7 +75,7 @@ def ConnectedDeviceInformation_DeviceHistory(files_found, report_folder, seeker,
         LEFT OUTER JOIN data_provenances ON objects.provenance = data_provenances.ROWID
         WHERE data_provenances.origin_product_type != "iPhone0,0" AND data_provenances.origin_product_type != "UnknownDevice"
         AND objects.creation_date > 0
-        GROUP BY origin_product_type, source_version
+        GROUP BY origin_product_type, origin_build
         HAVING MIN(datetime(objects.creation_date + 978307200, 'UNIXEPOCH')) != MAX(datetime(objects.creation_date + 978307200, 'UNIXEPOCH'))
         ORDER BY creation_date;
         ''')
