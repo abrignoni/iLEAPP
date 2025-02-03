@@ -174,7 +174,7 @@ import scripts.artifacts.artGlobals
 
 from packaging import version
 from scripts.builds_ids import OS_build, device_id
-from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, convert_ts_human_to_timezone_offset
+from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, attach_sqlite_db_readonly, convert_ts_human_to_timezone_offset
 
 
 @artifact_processor
@@ -196,7 +196,8 @@ def healthWorkouts(files_found, report_folder, seeker, wrap_text, timezone_offse
     with open_sqlite_db_readonly(healthdb_secure) as db:
         cursor = db.cursor()
 
-        cursor.execute('''ATTACH DATABASE "file:''' + healthdb + '''?mode=ro" AS healthdb ''')
+        attach_query = attach_sqlite_db_readonly(healthdb, 'healthdb')
+        cursor.execute(attach_query)
 
         activity_types = '''
             WHEN 1 THEN "AMERICAN FOOTBALL"
@@ -444,7 +445,8 @@ def healthProvenances(files_found, report_folder, seeker, wrap_text, timezone_of
     with open_sqlite_db_readonly(healthdb_secure) as db:
         cursor = db.cursor()
 
-        cursor.execute('''ATTACH DATABASE "file:''' + healthdb + '''?mode=ro" AS healthdb ''')
+        attach_query = attach_sqlite_db_readonly(healthdb, 'healthdb')
+        cursor.execute(attach_query)
 
         cursor.execute('''
         SELECT data_provenances.ROWID AS 'Row ID', 
@@ -502,7 +504,8 @@ def healthHeadphoneAudioLevels(files_found, report_folder, seeker, wrap_text, ti
     with open_sqlite_db_readonly(healthdb_secure) as db:
         cursor = db.cursor()
 
-        cursor.execute('''ATTACH DATABASE "file:''' + healthdb + '''?mode=ro" AS healthdb ''')
+        attach_query = attach_sqlite_db_readonly(healthdb, 'healthdb')
+        cursor.execute(attach_query)
 
         cursor.execute('''
         Select
@@ -557,7 +560,8 @@ def healthHeartRate(files_found, report_folder, seeker, wrap_text, timezone_offs
     with open_sqlite_db_readonly(healthdb_secure) as db:
         cursor = db.cursor()
 
-        cursor.execute('''ATTACH DATABASE "file:''' + healthdb + '''?mode=ro" AS healthdb ''')
+        attach_query = attach_sqlite_db_readonly(healthdb, 'healthdb')
+        cursor.execute(attach_query)
 
         cursor.execute('''
         SELECT datetime(samples.start_date+978307200,'unixepoch') AS "Start Date",
@@ -659,7 +663,8 @@ def healthRestingHeartRate(files_found, report_folder, seeker, wrap_text, timezo
     with open_sqlite_db_readonly(healthdb_secure) as db:
         cursor = db.cursor()
 
-        cursor.execute('''ATTACH DATABASE "file:''' + healthdb + '''?mode=ro" AS healthdb ''')
+        attach_query = attach_sqlite_db_readonly(healthdb, 'healthdb')
+        cursor.execute(attach_query)
 
         cursor.execute('''
         SELECT datetime(samples.start_date+978307200,'unixepoch') AS 'Start Date',

@@ -25,7 +25,7 @@ import scripts.artifacts.artGlobals
  
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, convert_ts_human_to_utc, convert_utc_human_to_timezone
+from scripts.ilapfuncs import logfunc, tsv, timeline, convert_ts_human_to_utc, convert_utc_human_to_timezone, attach_sqlite_db_readonly
 from scripts.lavafuncs import lava_process_artifact, lava_insert_sqlite_data
 from scripts.parse3 import ParseProto
 
@@ -56,8 +56,10 @@ def get_mailprotect(files_found, report_folder, seeker, wrap_text, timezone_offs
 		db.close()
 
 		db = sqlite3.connect(os.path.join(head, "Envelope Index"))
-		db.execute(f'ATTACH DATABASE "{head}/Protected Index" AS PI')
-		db.execute(f'ATTACH DATABASE "{report_folder}/emails.db" AS emails')
+		attach_query = attach_sqlite_db_readonly(f"{head}/Protected Index", 'PI')
+		cursor.execute(attach_query)
+		attach_query = attach_sqlite_db_readonly(f"{report_folder}/emails.db", 'emails')
+		cursor.execute(attach_query)
 
 		cursor = db.cursor()
 		cursor.execute(
@@ -202,7 +204,8 @@ def get_mailprotect(files_found, report_folder, seeker, wrap_text, timezone_offs
 	if version.parse(iOSversion) >= version.parse("13"):
 		head, end = os.path.split(files_found[0])
 		db = sqlite3.connect(os.path.join(head, "Envelope Index"))
-		db.execute(f'ATTACH DATABASE "{head}/Protected Index" AS PI')
+		attach_query = attach_sqlite_db_readonly(f"{head}/Protected Index", 'PI')
+		cursor.execute(attach_query)
 
 		cursor = db.cursor()
 		cursor.execute(

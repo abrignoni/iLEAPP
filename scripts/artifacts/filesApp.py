@@ -103,7 +103,7 @@ __artifacts_v2__ = {
 import scripts.artifacts.artGlobals
 from packaging import version
 from scripts.builds_ids import OS_build
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, get_plist_content, convert_bytes_to_unit, convert_unix_ts_to_utc
+from scripts.ilapfuncs import artifact_processor, get_file_path, attach_sqlite_db_readonly, get_sqlite_db_records, get_plist_content, convert_bytes_to_unit, convert_unix_ts_to_utc
 
 def get_tree_structure(source_path):
 
@@ -186,7 +186,7 @@ def iCloudDriveStoredFiles(files_found, report_folder, seeker, wrap_text, timezo
     server_db_path = get_file_path(files_found, "server.db")
     data_list = []
 
-    attach_query = '''ATTACH DATABASE "file:''' + server_db_path + '''?mode=ro" AS server '''
+    attach_query = attach_sqlite_db_readonly(server_db_path, 'server')
     query = '''
     SELECT
         client_items.item_birthtime AS 'Created',
@@ -265,7 +265,7 @@ def iCloudDriveSharedFiles(files_found, report_folder, seeker, wrap_text, timezo
     server_db_path = get_file_path(files_found, "server.db")
     data_list = []
 
-    attach_query = '''ATTACH DATABASE "file:''' + server_db_path + '''?mode=ro" AS server '''
+    attach_query = attach_sqlite_db_readonly(server_db_path, 'server')
     query = '''
     SELECT
         client_items.item_birthtime AS 'Created',
@@ -363,7 +363,7 @@ def iCloudDriveTaggedFiles(files_found, report_folder, seeker, wrap_text, timezo
     server_db_path = get_file_path(files_found, "server.db")
     data_list = []
 
-    attach_query = '''ATTACH DATABASE "file:''' + server_db_path + '''?mode=ro" AS server '''
+    attach_query = attach_sqlite_db_readonly(server_db_path, 'server')
     query = '''
     SELECT
         client_items.item_birthtime AS 'Created',
@@ -440,7 +440,7 @@ def iCloudDriveFavouriteFiles(files_found, report_folder, seeker, wrap_text, tim
     server_db_path = get_file_path(files_found, "server.db")
     data_list = []
 
-    attach_query = '''ATTACH DATABASE "file:''' + server_db_path + '''?mode=ro" AS server '''
+    attach_query = attach_sqlite_db_readonly(server_db_path, 'server')
     query = '''
     SELECT
         client_items.item_birthtime AS 'Created',

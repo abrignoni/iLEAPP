@@ -25,7 +25,7 @@ import scripts.artifacts.artGlobals
 
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, timeline, kmlgen, tsv, is_platform_windows, open_sqlite_db_readonly
+from scripts.ilapfuncs import logfunc, tsv, is_platform_windows, open_sqlite_db_readonly, attach_sqlite_db_readonly
 
 
 def get_whatsappCallHistory(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -98,7 +98,8 @@ def get_whatsappCallHistory(files_found, report_folder, seeker, wrap_text, timez
         if is_platform_windows():
             ContactsV2_db = ContactsV2_db.split('?\\')[1]
         # Attach ContactsV2 database in read only for contact information number and name
-        cursor.execute(f'ATTACH DATABASE "file:{ContactsV2_db}?mode=ro" AS ContactsV2;')
+        attach_query = attach_sqlite_db_readonly(ContactsV2_db, 'ContactsV2')
+        cursor.execute(attach_query)
         cursor.execute('''
             SELECT
             datetime(ZWACDCALLEVENT.ZDATE+978307200,'unixepoch') as Datetime_begin,

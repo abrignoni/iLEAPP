@@ -20,7 +20,7 @@ __artifacts_v2__ = {
 }
 
 from os.path import dirname, basename
-from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly, artifact_processor
+from scripts.ilapfuncs import logfunc, open_sqlite_db_readonly, attach_sqlite_db_readonly, artifact_processor
 
 @artifact_processor
 def tiktok_replied(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -46,7 +46,8 @@ def tiktok_replied(files_found, report_folder, seeker, wrap_text, timezone_offse
 
             db = open_sqlite_db_readonly(file_found)
             cursor = db.cursor()
-            cursor.execute(f'ATTACH DATABASE "file:{attachdb}?mode=ro" as AwemeIM;')
+            attach_query = attach_sqlite_db_readonly(attachdb, 'AwemeIM')
+            cursor.execute(attach_query)
             cursor.execute("SELECT name FROM AwemeIM.sqlite_master WHERE type='table' and name like 'AwemeContactsV%';")
             table_results = cursor.fetchall()
 
