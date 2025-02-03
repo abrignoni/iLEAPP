@@ -445,19 +445,25 @@ def get_plist_file_content(file_path):
         logfunc(f"Unexpected error reading plist file {file_path}: {str(e)}")
     return {}
 
-def open_sqlite_db_readonly(path):
-    '''Opens an sqlite db in read-only mode, so original db (and -wal/journal are intact)'''
+def get_sqlite_db_path(path):
     if is_platform_windows():
         if str(path).startswith('\\\\?\\UNC\\'): # UNC long path
-            path = "%5C%5C%3F%5C" + path[4:]
+            return "%5C%5C%3F%5C" + path[4:]
         elif str(path).startswith('\\\\?\\'):    # normal long path
-            path = "%5C%5C%3F%5C" + path[4:]
+            return "%5C%5C%3F%5C" + path[4:]
         elif str(path).startswith('\\\\'):       # UNC path
-            path = "%5C%5C%3F%5C\\UNC" + path[1:]
+            return "%5C%5C%3F%5C\\UNC" + path[1:]
         else:                               # normal path
-            path = "%5C%5C%3F%5C" + path
+            return "%5C%5C%3F%5C" + path
+    else:
+        return path
+
+
+def open_sqlite_db_readonly(path):
+    '''Opens a sqlite db in read-only mode, so original db (and -wal/journal are intact)'''
     try:
         if path:
+            path = get_sqlite_db_path(path)
             with sqlite3.connect(f"file:{path}?mode=ro", uri=True) as db:
                 return db
     except sqlite3.OperationalError as e:
@@ -465,6 +471,13 @@ def open_sqlite_db_readonly(path):
         logfunc(f" - {str(e)}")
     return None
     # return sqlite3.connect(f"file:{path}?mode=ro", uri=True)
+
+def attach_sqlite_db_readonly(path, db_name):
+    '''Return the query to attach a sqlite db in read-only mode.
+    path: str --> Path of the SQLite DB to attach
+    db_name: str --> Name of the SQLite DB in the query'''
+    path = get_sqlite_db_path(path)
+    return  f'''ATTACH DATABASE "file:{path}?mode=ro" AS {db_name}'''
 
 def get_sqlite_db_records(path, query, attach_query=None):
     db = open_sqlite_db_readonly(path)

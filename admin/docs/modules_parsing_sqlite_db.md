@@ -58,6 +58,7 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 <!-- READONLY_START -->
 | Source Modules |
 |----------------|
+| ConnectedDeviceInformation |
 | DataUsage |
 | FacebookMessenger |
 | FitnessWorkoutsLocationData |

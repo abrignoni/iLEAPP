@@ -17,7 +17,7 @@ __artifacts_v2__ = {
 import os
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly, convert_ts_human_to_utc, convert_utc_human_to_timezone, get_birthdate
+from scripts.ilapfuncs import attach_sqlite_db_readonly, logfunc, tsv, timeline, open_sqlite_db_readonly, convert_ts_human_to_utc, convert_utc_human_to_timezone, get_birthdate
 from base64 import b64encode
 
 
@@ -56,7 +56,8 @@ def get_addressBook(files_found, report_folder, seeker, wrap_text, timezone_offs
     db = open_sqlite_db_readonly(address_book_db)
     cursor = db.cursor()
     
-    cursor.execute('''ATTACH DATABASE "file:''' + address_book_images_db + '''?mode=ro" AS ABI ''')
+    attach_query = attach_sqlite_db_readonly(address_book_images_db, 'ABI')
+    cursor.execute(attach_query)
 
     cursor.execute('''SELECT    
     ABPerson.ROWID,
