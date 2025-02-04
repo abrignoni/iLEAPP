@@ -42,7 +42,6 @@ def get_cloudkitCache(files_found, report_folder, seeker, wrap_text, timezone_of
     files_dictionary = {}
     for file_found in files_found:
         file_found = str(file_found)
-        logfunc(file_found)
         if file_found.endswith('cloudkit_cache.db'):
             logfunc(f"Running artifact on: {file_found}")
             db = open_sqlite_db_readonly(file_found)
