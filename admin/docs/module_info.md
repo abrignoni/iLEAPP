@@ -13,7 +13,7 @@ Number of v2 artifacts: 252
 Number of modules with 'lava output': 210  
 Number of modules using 'artifact_icon': 52  
 Number of modules using 'version': 214  
-Number of modules using 'last_update_date': 34  
+Number of modules using 'last_update_date': 36  
 Number of modules with errors or no recognized artifacts: 3  
 
 ## V2 Artifacts Table
@@ -23,7 +23,7 @@ Number of modules with errors or no recognized artifacts: 3
 | [ConnectedDeviceInformation.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/ConnectedDeviceInformation.py) | ConnectedDeviceInformation_DeviceHistory | Connected Device Information - Connected Device and OS History | standard | smartphone | 0.3 |  | Connected Devices | ``*Health/healthdb_secure.sqlite*`` |
 | [ConnectedDeviceInformation.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/ConnectedDeviceInformation.py) | ConnectedDeviceInformation_ConsolidatedConnectedDeviceHistory | Connected Device Information - Consolidated Connected Device History | standard | smartphone | 0.2 |  | Connected Devices | ``*Health/healthdb_secure.sqlite*`` |
 | [ConnectedDeviceInformation.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/ConnectedDeviceInformation.py) | ConnectedDeviceInformation_CurrentDeviceInfo | Connected Device Information - Current Device Information | standard | smartphone | 0.2 |  | Connected Devices | ``*Health/healthdb.sqlite*`` |
-| [DataUsage.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/DataUsage.py) | get_DataUsage | Data Usage | html, tsv, timeline, lava |  | 0.0.1 |  | Parses application network data usage | ``*/wireless/Library/Databases/DataUsage.sqlite*`` |
+| [DataUsage.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/DataUsage.py) | get_DataUsage | Data Usage | html, tsv, timeline, lava |  | 0.0.1 | 2025-02-04 | Parses application network data usage | ``*/wireless/Library/Databases/DataUsage.sqlite*`` |
 | [LinkedIn.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/LinkedIn.py) | LinkedInAccounts | LinkedIn - Account |  |  | 0.0.1 |  | LinkedIn Account | ``*/Library/Preferences/com.linkedin.LinkedIn.plist`` |
 | [LinkedIn.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/LinkedIn.py) | LinkedInMessages | LinkedIn - Messages |  |  | 0.0.1 |  | LinkedIn Messages | ``*/Documents/msg_database.sqlite`` |
 | [LinkedIn.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/LinkedIn.py) | LinkedInConversations | LinkedIn - Conversations |  |  | 0.0.1 |  | LinkedIn Conversations | ``*/Documents/msg_database.sqlite`` |
@@ -213,7 +213,7 @@ Number of modules with errors or no recognized artifacts: 3
 | [iTunesBackupInfo.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/iTunesBackupInfo.py) | iTunesBackupInfo | iTunes Backup Information | html, tsv, lava | refresh-cw |  | 2025-01-20 | Extract information from the Info.plist file of an iTunes backup | ``*Info.plist`` |
 | [iTunesBackupInfo.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/iTunesBackupInfo.py) | iTunesBackupInstalledApplications | iTunes Backup - Installed Applications | html, tsv, lava | package |  | 2025-01-20 | Extract information about installed applications from the Info.plist file of an iTunes backup | ``*Info.plist`` |
 | [idstatuscache.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/idstatuscache.py) | idstatuscache | Identity Lookup Service |  |  | 0.1.0 |  | iCloud sync, Email, FaceTime, more | ``*/mobile/Library/Preferences/com.apple.identityservices.idstatuscache.plist``, ``*/mobile/Library/IdentityServices/idstatuscache.plist`` |
-| [imeiImsi.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/imeiImsi.py) | imeiImsi | IMEI - IMSI | html, tsv, lava |  | 0.2 |  | Extracts Cellular information | ``*/wireless/Library/Preferences/com.apple.commcenter.plist`` |
+| [imeiImsi.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/imeiImsi.py) | imeiImsi | IMEI - IMSI | html, tsv, lava |  | 0.3 | 2025-02-04 | Extracts Cellular information | ``*/wireless/Library/Preferences/com.apple.commcenter.plist`` |
 | [keyboard.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/keyboard.py) | keyboardLexicon | Keyboard Dynamic Lexicon | html, tsv, lava, timeline |  | 1.0 |  | Extracts dynamic lexicon data from the keyboard | ``*/mobile/Library/Keyboard/*-dynamic.lm/dynamic-lexicon.dat`` |
 | [keyboard.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/keyboard.py) | keyboardAppUsage | Keyboard Application Usage | html, tsv, lava, timeline |  | 1.0 |  | Extracts keyboard application usage data | ``*/mobile/Library/Keyboard/app_usage_database.plist`` |
 | [keyboard.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/keyboard.py) | keyboardUsageStats | Keyboard Usage Stats | html, tsv, lava, timeline |  | 1.0 |  | Extracts keyboard usage statistics | ``*/mobile/Library/Keyboard/user_model_database.sqlite*`` |
