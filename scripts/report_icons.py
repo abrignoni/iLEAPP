@@ -502,6 +502,10 @@ icon_mappings = \
         'HEALTH - SLEPP - WATCH BY SLEEP PERIOD': 'watch',
         'HEALTH - STEPS': 'activity',
         'HEALTH - WORKOUTS': 'activity',
+        'HEALTH - USER ENTERED DATA - HEIGHT': 'user',
+        'HEALTH - USER ENTERED DATA - WEIGHT': 'user',
+        'HEALTH - SLEEP - ALL WATCH SLEEP DATA': 'moon',
+        'HEALTH - SLEEP - WATCH BY SLEEP PERIOD': 'moon',
     },
     'HEALTH & FITNESS': {
         'ALLTRAILS - TRAIL DETAILS': 'map',
