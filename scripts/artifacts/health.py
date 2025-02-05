@@ -336,32 +336,11 @@ def healthWorkouts(files_found, report_folder, seeker, wrap_text, timezone_offse
             data_provenances.tz_name AS 'Timezone',
             datetime(objects.creation_date+978307200,'unixepoch') AS 'Timestamp added to Health'
         '''
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='workout_activities';")
+        table_exists = cursor.fetchone()
 
-        if version.parse(iOS_version) < version.parse("16"):
-            query = '''
-            SELECT datetime(samples.start_date+978307200,'unixepoch') AS 'Start timestamp',
-            datetime(samples.end_date+978307200,'unixepoch') AS 'End timestamp',
-            CASE workouts.activity_type''' + activity_types + '''
-            ELSE "Unknown" || "-" || workouts.activity_type
-            END AS 'Type',
-            strftime('%H:%M:%S', samples.end_date - samples.start_date, 'unixepoch') AS 'Total Time Duration',
-            strftime('%H:%M:%S', workouts.duration, 'unixepoch') AS 'Duration',
-            ''' + distance_and_goals + '''
-            round(workouts.total_energy_burned, 2) AS 'Total Active Energy (kcal)',
-            round(workouts.total_basal_energy_burned, 2) AS 'Total Resting Energy (kcal)',
-            ''' + metadata + source + '''
-            FROM workouts
-            LEFT OUTER JOIN samples ON samples.data_id = workouts.data_id
-            LEFT OUTER JOIN metadata_values ON metadata_values.object_id = workouts.data_id
-            LEFT OUTER JOIN metadata_keys ON metadata_keys.ROWID = metadata_values.key_id
-            LEFT OUTER JOIN objects ON objects.data_id = workouts.data_id
-            LEFT OUTER JOIN data_provenances ON data_provenances.ROWID = objects.provenance
-            LEFT OUTER JOIN healthdb.source_devices ON healthdb.source_devices.ROWID = data_provenances.device_id
-            LEFT OUTER JOIN healthdb.sources ON healthdb.sources.ROWID = data_provenances.source_id
-            GROUP BY workouts.data_id
-            ORDER BY samples.start_date
-            '''   
-        else:
+        # Decide which query to use based on table existence
+        if table_exists:
             query = '''
             SELECT datetime(workout_activities.start_date+978307200,'unixepoch') AS 'Start Timestamp',
             datetime(workout_activities.end_date+978307200,'unixepoch') AS 'End Timestamp',
@@ -391,6 +370,30 @@ def healthWorkouts(files_found, report_folder, seeker, wrap_text, timezone_offse
             GROUP BY workout_activities.ROWID
             ORDER BY workout_activities.start_date
             '''
+        else:
+            query = '''
+            SELECT datetime(samples.start_date+978307200,'unixepoch') AS 'Start timestamp',
+            datetime(samples.end_date+978307200,'unixepoch') AS 'End timestamp',
+            CASE workouts.activity_type''' + activity_types + '''
+            ELSE "Unknown" || "-" || workouts.activity_type
+            END AS 'Type',
+            strftime('%H:%M:%S', samples.end_date - samples.start_date, 'unixepoch') AS 'Total Time Duration',
+            strftime('%H:%M:%S', workouts.duration, 'unixepoch') AS 'Duration',
+            ''' + distance_and_goals + '''
+            round(workouts.total_energy_burned, 2) AS 'Total Active Energy (kcal)',
+            round(workouts.total_basal_energy_burned, 2) AS 'Total Resting Energy (kcal)',
+            ''' + metadata + source + '''
+            FROM workouts
+            LEFT OUTER JOIN samples ON samples.data_id = workouts.data_id
+            LEFT OUTER JOIN metadata_values ON metadata_values.object_id = workouts.data_id
+            LEFT OUTER JOIN metadata_keys ON metadata_keys.ROWID = metadata_values.key_id
+            LEFT OUTER JOIN objects ON objects.data_id = workouts.data_id
+            LEFT OUTER JOIN data_provenances ON data_provenances.ROWID = objects.provenance
+            LEFT OUTER JOIN healthdb.source_devices ON healthdb.source_devices.ROWID = data_provenances.device_id
+            LEFT OUTER JOIN healthdb.sources ON healthdb.sources.ROWID = data_provenances.source_id
+            GROUP BY workouts.data_id
+            ORDER BY samples.start_date
+            '''   
 
         cursor.execute(query)
 
