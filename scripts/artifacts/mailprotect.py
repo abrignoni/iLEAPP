@@ -11,7 +11,7 @@ __artifacts_v2__ = {
         "category": "Apple Mail",
         "notes": "",
         "paths": ('*/mobile/Library/Mail/* Index*'),
-        "output_types": "none"
+        "output_types": "none",
         "artifact_icon": "mail"
     }
 }
