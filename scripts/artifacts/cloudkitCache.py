@@ -31,8 +31,6 @@ def get_manifests_for_snapshot(db, snapshot_id):
         ''', (snapshot_id,))
     return cursor.fetchall()
 
-
-
 def get_cloudkitCache(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
     user_dictionary = {}
