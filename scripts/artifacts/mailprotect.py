@@ -33,13 +33,24 @@ from scripts.parse3 import ParseProto
 
 def get_mailprotect(files_found, report_folder, seeker, wrap_text, timezone_offset):
     iOSversion = scripts.artifacts.artGlobals.versionf
+    
+    envelope_db = ''
+    protected_db = ''
+    
+    for file_found in files_found:
+        if file_found.endswith('Envelope Index'):
+            envelope_db = file_found
+        if file_found.endswith('Protected Index'):
+            protected_db = file_found
+        else:
+            continue
 
     if version.parse(iOSversion) <= version.parse("11"):
         logfunc("Unsupported version for iOS emails in iOS " + iOSversion)
         return ()
 
     if version.parse(iOSversion) < version.parse("13"):
-        head, end = os.path.split(files_found[0])
+        head, end = os.path.split(envelope_db)
         db = sqlite3.connect(os.path.join(report_folder, "emails.db"))
         cursor = db.cursor()
         cursor.execute(
@@ -202,7 +213,7 @@ def get_mailprotect(files_found, report_folder, seeker, wrap_text, timezone_offs
         db.close()
 
     if version.parse(iOSversion) >= version.parse("13"):
-        head, end = os.path.split(files_found[0])        
+        head, end = os.path.split(envelope_db)
         with open_sqlite_db_readonly(os.path.join(head, "Envelope Index")) as db:
             attach_query = attach_sqlite_db_readonly(f"{head}/Protected Index", 'PI')
 
