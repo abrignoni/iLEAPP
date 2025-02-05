@@ -4,9 +4,9 @@ __artifacts_v2__ = {
         "description": "Extraction of alarms set",
         "author": "Anna-Mariya Mateyna",
         "creation_date": "2021-01-17",
-        "last_update_date": "2024-12-17",
+        "last_update_date": "2024-12-22",
         "requirements": "none",
-        "category": "Alarms",
+        "category": "Clock",
         "notes": "",
         "paths": ('*/mobile/Library/Preferences/com.apple.mobiletimerd.plist',),
         "output_types": "standard",
@@ -54,6 +54,8 @@ def alarms(files_found, report_folder, seeker, wrap_text, timezone_offset):
                 alarms_dict = alarms['$MTAlarm']
 
                 alarm_title = alarms_dict.get('MTAlarmTitle', 'Alarm')
+                alarm_hour = alarms_dict.get('MTAlarmHour', '')
+                alarm_min = alarms_dict.get('MTAlarmMinute', '')
                 fire_date = alarms_dict.get('MTAlarmFireDate', '')
                 fire_date = convert_plist_date_to_utc(fire_date)
                 dismiss_date = alarms_dict.get('MTAlarmDismissDate', '')
@@ -62,8 +64,11 @@ def alarms(files_found, report_folder, seeker, wrap_text, timezone_offset):
                 last_modified_date = convert_plist_date_to_utc(last_modified_date)
                 repeat_schedule = decode_repeat_schedule(alarms_dict['MTAlarmRepeatSchedule'])
 
+                alarm_time = str(alarm_hour).zfill(2) + ':' + str(alarm_min).zfill(2)
+
                 data_list.append(
-                    (fire_date, 
+                    (fire_date,
+                    alarm_time,
                     alarm_title, 
                     alarms_dict['MTAlarmEnabled'], 
                     dismiss_date,
@@ -103,6 +108,7 @@ def alarms(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
     data_headers = (
         ('Fire Date', 'datetime'), 
+        ('Alarm Time', 'datetime'),
         'Alarm Title', 
         'Alarm Enabled', 
         ('Dismiss Date', 'datetime'), 
