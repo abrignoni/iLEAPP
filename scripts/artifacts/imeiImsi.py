@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "imeiImsi": {
         "name": "IMEI - IMSI",
         "description": "Extracts Cellular information",
-        "author": "@AlexisBrignoni - @KevinPagano3",
+        "author": "@AlexisBrignoni - @stark4n6",
         "version": "0.3",
         "creation_date": "2023-10-03",
         "last_update_date": "2025-02-04",
@@ -13,7 +13,6 @@ __artifacts_v2__ = {
         "output_types": ["html", "tsv", "lava"]
     }
 }
-
 
 import plistlib
 from scripts.ilapfuncs import artifact_processor, device_info

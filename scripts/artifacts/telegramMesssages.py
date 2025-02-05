@@ -26,7 +26,7 @@ import mmh3
 import datetime
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import media_to_html, artifact_processor
+from scripts.ilapfuncs import media_to_html, artifact_processor, open_sqlite_db_readonly
 
 # Code courtesy of Stek29 / Victor Oreshkin
 # Github: https://gist.github.com/stek29
@@ -46,8 +46,7 @@ def telegramMessages(files_found, report_folder, seeker, wrap_text, timezone_off
         
         if (file_found.endswith('db_sqlite')) and ('media' not in file_found):
             report_file = file_found
-
-            
+    
             class byteutil:
                 def __init__(self, buffer, endian='<'):
                     self.endian = endian
@@ -87,19 +86,13 @@ def telegramMessages(files_found, report_folder, seeker, wrap_text, timezone_off
                 
                 def read_double(self):
                     return self.read_fmt('d')
-                
-                
-            # In[3]:
-                
-                
+                          
+            # In[3]:            
             def murmur(d):
                 # seed from telegram
                 return mmh3.hash(d, seed=4157243346)
-            
-            
+                    
             # In[4]:
-            
-            
             class MessageDataFlags(enum.IntFlag):
                 GloballyUniqueId = 1 << 0
                 GlobalTags = 1 << 1
@@ -137,11 +130,8 @@ def telegramMessages(files_found, report_folder, seeker, wrap_text, timezone_off
                 Photo = 1 << 8
                 Video = 1 << 9
                 Pinned = 1 << 10
-                
-                
-            # In[5]:
-                
-                
+                          
+            # In[5]:          
             class MessageIndex:
                 def __init__(self, peerId, namespace, mid, timestamp):
                     self.peerId = peerId
@@ -163,11 +153,8 @@ def telegramMessages(files_found, report_folder, seeker, wrap_text, timezone_off
                 
                 def __repr__(self):
                     return f'ns:{self.namespace} pr:{self.peerId} id:{self.id} ts:{self.timestamp}'
-                
-                
-            # In[6]:
-                
-                
+                            
+            # In[6]:              
             def get_peer(peer_id, cache={}):
                 if peer_id in cache:
                     return cache[peer_id]
@@ -216,12 +203,9 @@ def telegramMessages(files_found, report_folder, seeker, wrap_text, timezone_off
                         return None
                     return read_intermediate_message(v[0])
                 finally:
-                    cur.close()
+                    cur.close()                
                     
-                    
-            # In[7]:
-                    
-                    
+            # In[7]:                
             def get_all_messages(f=None, decode=True):
                 cur = con.cursor()
                 try:
@@ -243,11 +227,8 @@ def telegramMessages(files_found, report_folder, seeker, wrap_text, timezone_off
                         yield idx, msg
                 finally:
                     cur.close()
-                    
-                    
-            # In[8]:
-                    
-                    
+                                  
+            # In[8]:                
             class MediaEntryType(enum.Enum):
                 Direct = 0
                 MessageReference = 1
@@ -271,11 +252,8 @@ def telegramMessages(files_found, report_folder, seeker, wrap_text, timezone_off
                     raise Exception(f'refrerenced media not found in message {idx} {key}')
                 else:
                     raise Exception(f'invalid mediaentrytype {typ}')
-                    
-                    
-            # In[9]:
-                    
-                    
+                                       
+            # In[9]:   
             def peer_str(peerId):
                 peer = get_peer(peerId)
                 if peer is None:
@@ -370,11 +348,8 @@ def telegramMessages(files_found, report_folder, seeker, wrap_text, timezone_off
                 data_list_html.append((ts,direction,authorid,text,forwarddate,forwardfrom,hadWarn,thumb))
                 data_list.append((ts,direction,authorid,text,forwarddate,forwardfrom,hadWarn,filename))
             #     return hadWarn
-                
-                
-            # In[10]:
-                
-                
+                           
+            # In[10]:           
             def read_intermediate_fwd_info(buf):
                 infoFlags = FwdInfoFlags(buf.read_int8())
                 if infoFlags == 0:
@@ -418,11 +393,8 @@ def telegramMessages(files_found, report_folder, seeker, wrap_text, timezone_off
                     'psaType': psaType,
                     'flags': flags,
                 }
-            
-            
-            # In[11]:
-            
-            
+               
+            # In[11]:        
             def read_intermediate_message(v: bytes):
                 buf = byteutil(io.BytesIO(v))
                 typ = buf.read_int8()
@@ -510,11 +482,8 @@ def telegramMessages(files_found, report_folder, seeker, wrap_text, timezone_off
                     'embeddedMedia': embeddedMedia,
                     'attributes': attributes,
                 }
-            
-            
-            # In[12]:
-            
-            
+                  
+            # In[12]:            
             class PostboxDecoder:
                 registry = {}
                 
@@ -656,8 +625,7 @@ def telegramMessages(files_found, report_folder, seeker, wrap_text, timezone_off
                     return valueType, value
                 
                 
-            # In[13]:
-                
+            # In[13]:  
                 
             class Decodeable:
                 def __init__(self, dec):
@@ -840,8 +808,7 @@ def telegramMessages(files_found, report_folder, seeker, wrap_text, timezone_off
                     return f"{self.type} {self.payload}"
                 
             # In[14]:
-            con = sqlite3.connect(file_found)
-            
+            con = open_sqlite_db_readonly(file_found)
             
             # In[15]:
             for idx, msg in get_all_messages():
@@ -849,7 +816,6 @@ def telegramMessages(files_found, report_folder, seeker, wrap_text, timezone_off
                 print_message(idx, msg)
 
             # In[18]:
-    
             con.close()
 
     # Handle HTML Manually due to media
@@ -858,13 +824,10 @@ def telegramMessages(files_found, report_folder, seeker, wrap_text, timezone_off
         description = 'Telegram - Messages'
         report = ArtifactHtmlReport('Telegram - Messages')
         report.start_artifact_report(report_folder, 'Telegram - Messages')
-        report.add_script()
-
-        
+        report.add_script() 
         report.write_artifact_data_table(data_headers, data_list_html, file_found, html_escape=False)
         report.end_artifact_report()    
 
     data_headers[0] = (data_headers[0], 'datetime')
 
     return data_headers, data_list, report_file
-        
