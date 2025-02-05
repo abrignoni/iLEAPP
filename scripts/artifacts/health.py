@@ -12,7 +12,8 @@ __artifacts_v2__ = {
             investigation/examination. Additional details published within 'Enriching Investigations with Apple Watch Data Through the \
             healthdb_secure.sqlite Database' at https://dfir.pubpub.org/pub/xqvcn3hj/release/1",
         "paths": ('*Health/healthdb_secure.sqlite*', '*Health/healthdb.sqlite*'),
-        "output_types": ["html", "tsv", "lava"]
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": 'activity'
     },
     "healthProvenances": {
         "name": "Health - Provenances",
@@ -26,7 +27,8 @@ __artifacts_v2__ = {
                         as well as research provided by Sarah Edwards as part of her APOLLO project.\
                         https://for585.com/dfirsummit22 - https://github.com/mac4n6/APOLLO",
         "paths": ('*Health/healthdb_secure.sqlite*', '*Health/healthdb.sqlite*'),
-        "output_types": ["html", "tsv", "lava"]
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": 'smartphone'
     },
     "healthHeadphoneAudioLevels": {
         "name": "Health - Headphone Audio Levels",
@@ -40,7 +42,8 @@ __artifacts_v2__ = {
                         as well as research provided by Sarah Edwards as part of her APOLLO project.\
                         https://for585.com/dfirsummit22 - https://github.com/mac4n6/APOLLO",
         "paths": ('*Health/healthdb_secure.sqlite*', '*Health/healthdb.sqlite*'),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": 'headphones'
     },
     "healthHeartRate": {
         "name": "Health - Heart Rate",
@@ -55,7 +58,8 @@ __artifacts_v2__ = {
                         https://for585.com/dfirsummit22 - https://github.com/mac4n6/APOLLO\
                         Update: @Johann-PLW - Splitting Heart Rate and Resting Heart Rate and adding Heart Rate Context and Provenance",
         "paths": ('*Health/healthdb_secure.sqlite*', '*Health/healthdb.sqlite*'),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": 'activity'
     },
     "healthRestingHeartRate": {
         "name": "Health - Resting Heart Rate",
@@ -70,7 +74,8 @@ __artifacts_v2__ = {
                         https://for585.com/dfirsummit22 - https://github.com/mac4n6/APOLLO\
                         Update: @Johann-PLW - Splitting Heart Rate and Resting Heart Rate and adding Heart Rate Context and Provenance",
         "paths": ('*Health/healthdb_secure.sqlite*', '*Health/healthdb.sqlite*'),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": 'activity'
     },
     "healthAchievements": {
         "name": "Health - Achievements",
@@ -84,7 +89,8 @@ __artifacts_v2__ = {
                         as well as research provided by Sarah Edwards as part of her APOLLO project.\
                         https://for585.com/dfirsummit22 - https://github.com/mac4n6/APOLLO",
         "paths": ('*Health/healthdb_secure.sqlite*',),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": 'star'
     },
     "healthSteps": {
         "name": "Health - Steps",
@@ -96,7 +102,8 @@ __artifacts_v2__ = {
         "category": "Health",
         "notes": "",
         "paths": ('*Health/healthdb_secure.sqlite*',),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": 'activity'
     },
     "healthHeight": {
         "name": "Health - User Entered Data - Height",
@@ -109,7 +116,8 @@ __artifacts_v2__ = {
         "notes": "This change parses data entered by the user of the device through the Fitness Application (Personalize Fitness and Health) for height.\
               Once parsed height is displayed with the timestamp the data was entered followed by height in meters, centimeters, feet and inches.",
         "paths": ('*Health/healthdb_secure.sqlite*',),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": 'user'
     },
     "healthWeight": {
         "name": "Health - User Entered Data - Weight",
@@ -122,7 +130,8 @@ __artifacts_v2__ = {
         "notes": "This change parses data entered by the user of the device through the Fitness Application (Personalize Fitness and Health) for weight.\
               Once parsed weight is displayed with the timestamp the data was entered followed by weight in kilograms, stones, and pounds.",
         "paths": ('*Health/healthdb_secure.sqlite*',),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": 'user'
     },
     "healthWatchWornData": {
         "name": "Health - Device - Watch Worn Data",
@@ -137,7 +146,8 @@ __artifacts_v2__ = {
                     such as heart rate data will be generated and recorded.\
                     Additional details published within 'Apple Watch Worn Data Analysis' at https://metadataperspective.com/2024/05/20/apple-watch-worn-data-analysis/",
         "paths": ('*Health/healthdb_secure.sqlite*',),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": 'watch'
     },
     "healthAllWatchSleepData": {
         "name": "Health - Sleep - All Watch Sleep Data",
@@ -151,7 +161,8 @@ __artifacts_v2__ = {
         Additional details published within 'Sleepless in Cupertino: A Forensic Dive into Apple Watch Sleep Tracking' at \
         https://metadataperspective.com/2024/08/01/sleepless-in-cupertino-a-forensic-dive-into-apple-watch-sleep-tracking/",
         "paths": ('*Health/healthdb_secure.sqlite*',),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": 'moon'
     },
     "healthWatchBySleepPeriod": {
         "name": "Health - Sleep - Watch By Sleep Period",
@@ -165,7 +176,8 @@ __artifacts_v2__ = {
         Additional details published within 'Sleepless in Cupertino: A Forensic Dive into Apple Watch Sleep Tracking' at \
         https://metadataperspective.com/2024/08/01/sleepless-in-cupertino-a-forensic-dive-into-apple-watch-sleep-tracking/",
         "paths": ('*Health/healthdb_secure.sqlite*',),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": 'moon'
     }
 }
 
