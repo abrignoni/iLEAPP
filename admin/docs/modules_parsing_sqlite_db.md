@@ -86,6 +86,7 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | burnerCache |
 | cachev0 |
 | calendarAll |
+| callHistoryGroupCall |
 | cashApp |
 | chrome |
 | cloudkitCache |
