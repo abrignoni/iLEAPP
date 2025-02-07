@@ -10,7 +10,8 @@ __artifacts_v2__ = {
         'category': 'Photos-Z-Settings',
         'notes': '',
         'paths': ('*/Library/Preferences/com.apple.purplebuddy.plist',),
-        "output_types": ["standard", "tsv", "none"]
+        "output_types": ["standard", "tsv", "none"],
+        "artifact_icon": "settings"
     }
 }
 

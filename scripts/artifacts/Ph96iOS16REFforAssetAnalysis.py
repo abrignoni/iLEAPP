@@ -13,7 +13,8 @@ __artifacts_v2__ = {
 		'category': 'Photos.sqlite-R-Reference_for_Asset_Analysis',
 		'notes': '',
 		'paths': ('*/PhotoData/Photos.sqlite*',),
-		"output_types": ["standard", "tsv", "none"]
+		"output_types": ["standard", "tsv", "none"],
+		"artifact_icon": "database"
 	},
 	'Ph96_2iOS16RefforAssetAnalysisSyndPL': {
 		'name': 'Ph96.2-iOS16_Ref_for_Asset_Analysis-SyndPL',
@@ -29,7 +30,8 @@ __artifacts_v2__ = {
 		'category': 'Photos.sqlite-R-Reference_for_Asset_Analysis',
 		'notes': '',
 		'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
-		"output_types": ["standard", "tsv", "none"]
+		"output_types": ["standard", "tsv", "none"],
+		"artifact_icon": "database"
 	}
 }
 

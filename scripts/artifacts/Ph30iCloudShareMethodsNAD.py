@@ -13,7 +13,8 @@ __artifacts_v2__ = {
         'category': 'Photos.sqlite-F-Cloud_Shared_Methods',
         'notes': '',
         'paths': ('*/PhotoData/Photos.sqlite*',),
-        "output_types": ["standard", "tsv", "none"]
+        "output_types": ["standard", "tsv", "none"],
+        "artifact_icon": "upload-cloud"
     }
 }
 

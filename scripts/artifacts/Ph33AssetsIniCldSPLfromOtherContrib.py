@@ -13,7 +13,8 @@ __artifacts_v2__ = {
         'category': 'Photos.sqlite-F-Cloud_Shared_Methods',
         'notes': '',
         'paths': ('*/PhotoData/Photos.sqlite*',),
-        "output_types": ["standard", "tsv", "none"]
+        "output_types": ["standard", "tsv", "none"],
+        "artifact_icon": "download-cloud"
     }
 }
 
@@ -421,10 +422,11 @@ def Ph33iCldSPLAssetsfromothercontribPhDaPsql(files_found, report_folder, seeker
         SPLzShare.ZCOUNTOFASSETSADDEDBYCAMERASMARTSHARING AS 'SPLzShare-Assets AddedByCamera SmartSharing',
         SPLzShare.ZCLOUDVIDEOCOUNT AS 'SPLzShare-Cloud Video Count-SPL',        
         CASE zExtAttr.ZGENERATIVEAITYPE
-			WHEN 0 THEN '0-Gen_AI_Type_Not_Detected-0'
-			WHEN 2 THEN '2-CleanUp-SafetyFilter-2'
-			ELSE 'Unknown-New-Value!: ' || zExtAttr.ZGENERATIVEAITYPE || ''
-		END AS 'zExtAttr-Generative_AI_Type',
+            WHEN 0 THEN '0-Gen_AI_Type_Not_Detected-0'
+            WHEN 1 THEN '1-GenPlayground_or_3rdPrty_GenAI-1'
+            WHEN 2 THEN '2-CleanUp-SafetyFilter-2'
+            ELSE 'Unknown-New-Value!: ' || zExtAttr.ZGENERATIVEAITYPE || ''
+        END AS 'zExtAttr-Generative_AI_Type',
         zExtAttr.ZCREDIT AS 'zExtAttr-Credit'
         FROM ZASSET zAsset
           LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES

@@ -15,7 +15,8 @@ __artifacts_v2__ = {
 		'category': 'Photos.sqlite-I-Asset_IntResou-Optimization',
 		'notes': '',
 		'paths': ('*/PhotoData/Photos.sqlite*',),
-		"output_types": ["standard", "tsv", "none"]
+		"output_types": ["standard", "tsv", "none"],
+		"artifact_icon": "upload-cloud"
 	}
 }
 
@@ -4555,6 +4556,7 @@ def Ph51PossibleOptimizedAssetsIntResouPhDaPsql(files_found, report_folder, seek
 		zExtAttr.ZDIGITALZOOMRATIO AS 'zExtAttr-Digital Zoom Ratio',
 		CASE zExtAttr.ZGENERATIVEAITYPE
 			WHEN 0 THEN '0-Gen_AI_Type_Not_Detected-0'
+			WHEN 1 THEN '1-GenPlayground_or_3rdPrty_GenAI-1'
 			WHEN 2 THEN '2-CleanUp-SafetyFilter-2'
 			ELSE 'Unknown-New-Value!: ' || zExtAttr.ZGENERATIVEAITYPE || ''
 		END AS 'zExtAttr-Generative_AI_Type',

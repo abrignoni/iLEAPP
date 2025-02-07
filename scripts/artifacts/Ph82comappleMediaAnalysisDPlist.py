@@ -13,7 +13,8 @@ __artifacts_v2__ = {
         'category': 'Photos-Z-Settings',
         'notes': '',
         'paths': ('*/mobile/Library/Preferences/com.apple.mediaanalysisd.plist',),
-        "output_types": ["standard", "tsv", "none"]
+        "output_types": ["standard", "tsv", "none"],
+        "artifact_icon": "book"
     }
 }
 
