@@ -20,7 +20,8 @@ __artifacts_v2__ = {
         'category': 'Photos.sqlite-C-Other_Artifacts',
         'notes': '',
         'paths': ('*/PhotoData/Photos.sqlite*',),
-        "output_types": ["standard", "tsv", "none"]
+        "output_types": ["standard", "tsv", "none"],
+        "artifact_icon": "refresh-ccw"
     },
     'Ph26_2SyndicationPLAssetsSyndPL': {
         'name': 'Ph26.2-Syndication PL Assets-SyndPL',
@@ -43,7 +44,8 @@ __artifacts_v2__ = {
         'category': 'Photos.sqlite-S-Syndication_PL_Artifacts',
         'notes': '',
         'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
-        "output_types": ["standard", "tsv", "none"]
+        "output_types": ["standard", "tsv", "none"],
+        "artifact_icon": "message-square"
     }
 }
 
