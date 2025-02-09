@@ -196,14 +196,14 @@ class OutputParameters:
         else:
             folder_name = 'iLEAPP_Reports_' + currenttime
         self.report_folder_base = os.path.join(output_folder, folder_name)
-        self.temp_folder = os.path.join(self.report_folder_base, 'data')
+        self.data_folder = os.path.join(self.report_folder_base, 'data')
         OutputParameters.screen_output_file_path = os.path.join(self.report_folder_base, 'Script Logs',
                                                                 'Screen Output.html')
         OutputParameters.screen_output_file_path_devinfo = os.path.join(self.report_folder_base, 'Script Logs',
                                                                         'DeviceInfo.html')
 
         os.makedirs(os.path.join(self.report_folder_base, 'Script Logs'))
-        os.makedirs(self.temp_folder)
+        os.makedirs(self.data_folder)
         
 def convert_local_to_utc(local_timestamp_str):
     # Parse the timestamp string with timezone offset, ex. 2023-10-27 18:18:29-0400
@@ -907,12 +907,18 @@ def set_media_references(media_item, artifact_info):
     media_ref = hashlib.sha1(f"{media_id}-{module_name}-{artifact_name}".encode()).hexdigest()
     lava_insert_sqlite_media_references(media_ref, media_id, module_name, artifact_name, media_item.created_at)
 
-def check_in_media(seeker, file_path, artifact_info):
-    file_info_key = seeker.search(file_path, return_on_first_hit=True)
+def check_in_media(seeker, file_path, artifact_info, already_extracted=False, converted_file_path=False):
+    if already_extracted:
+        file_info_key = file_path
+    else:
+        file_info_key = seeker.search(file_path, return_on_first_hit=True)
     file_info = seeker.file_infos.get(file_info_key) if file_info_key else None
     if file_info:
         media_item = MediaItem()
-        extraction_path = Path(file_info_key)
+        if converted_file_path:
+            extraction_path = Path(converted_file_path)
+        else:
+            extraction_path = Path(file_info_key)
         media_id = hashlib.sha1(f"{extraction_path}".encode()).hexdigest()
         get_media_item = lava_get_media_item(media_id)
         if get_media_item:
@@ -937,31 +943,6 @@ def check_in_media(seeker, file_path, artifact_info):
     else:
         logfunc(f'No matching file found for "{file_path}"')
         return None
-
-def check_in_extracted_media(file_found, file_info, artifact_info):
-    media_item = MediaItem()
-    extraction_path = Path(file_found)
-    media_id = hashlib.sha1(f"{extraction_path}".encode()).hexdigest()
-    get_media_item = lava_get_media_item(media_id)
-    if get_media_item:
-        media_item.set_values(get_media_item)
-    else:
-        if extraction_path.is_file():
-            media_item.set_values((
-                media_id,
-                file_info.source_path,
-                extraction_path,
-                guess_mime(extraction_path),
-                "not implemented yet",
-                file_info.creation_date,
-                file_info.modification_date
-            ))
-            lava_insert_sqlite_media_item(media_item)
-            set_media_references(media_item, artifact_info)
-        else:
-            logfunc(f"{extraction_path} was nout found")
-            return None            
-    return media_item
 
 def check_in_embedded_media(seeker, source_file, data, artifact_info, report_folder=None):
     file_info = seeker.file_infos.get(source_file) if seeker else "Info.plist"

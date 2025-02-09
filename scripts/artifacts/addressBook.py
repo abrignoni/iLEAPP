@@ -3,8 +3,8 @@ __artifacts_v2__ = {
         "name": "Address Book",
         "description": "Extract information from the native contacts application",
         "author": "@AlexisBrignoni - @JohannPLW",
-        "version": "0.5",
-        "date": "2020-12-22",
+        "creation_date": "2020-04-30",
+        "last_update_date": "2024-12-20",
         "requirements": "none",
         "category": "Contacts",
         "notes": "",
@@ -16,18 +16,12 @@ __artifacts_v2__ = {
 }
 
 import inspect
-
-from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, check_in_embedded_media, \
     convert_cocoa_core_data_ts_to_utc, get_birthdate
 
 
 def clean_label(data):
     return data.replace('_$!<', '').replace('>!$_', '')
-
-
-def html_tag(data):
-    return data.replace(chr(13), '<br>')
 
 
 def remove_unused_rows(data, count_rows):
@@ -181,37 +175,30 @@ def addressBook(files_found, report_folder, seeker, wrap_text, timezone_offset):
         phone_numbers = record[16]
         if phone_numbers:
             phone_numbers = clean_label(phone_numbers)
-        phone_numbers_html = html_tag(phone_numbers) if phone_numbers else phone_numbers
         
         email_addresses = record[17]
         if email_addresses:
             email_addresses = clean_label(email_addresses)
-        email_addresses_html = html_tag(email_addresses) if email_addresses else email_addresses
         
         addresses = record[18]
         if addresses:
             addresses = clean_label(addresses)
-        addresses_html = html_tag(addresses) if addresses else addresses
         
         instant_message = record[19]
         if instant_message:
             instant_message = clean_label(instant_message)
-        instant_message_html = html_tag(instant_message) if instant_message else instant_message
         
         url = record[20]
         if url:
             url = clean_label(url)
-        url_html = html_tag(url) if url else url
         
         related_name = record[21]
         if related_name:
             related_name = clean_label(related_name)
-        related_name_html = html_tag(related_name) if related_name else related_name
         
         profile = record[22]
         if profile:
             profile = clean_label(profile)
-        profile_html = html_tag(profile) if profile else profile
         
         birthday = record[-4]
         birthday = get_birthdate(birthday) if birthday else ''
@@ -223,11 +210,7 @@ def addressBook(files_found, report_folder, seeker, wrap_text, timezone_offset):
                           phone_numbers, email_addresses, addresses, instant_message, url, related_name, profile, 
                           record[23], record[24], birthday, record[26], record[27], modified_date])
 
-        # html_data_list.append([creation_date, thumbnail_tag, record[4], record[5], record[6], record[7], record[8], record[9], 
-        #                     record[10], record[11], record[12], record[13], record[14], record[15], 
-        #                     phone_numbers_html, email_addresses_html, addresses_html, instant_message_html, url_html, related_name_html, 
-        #                     profile_html, record[23], record[24], birthday, record[26], record[27],modified_date])
-
+    # Removing unused columns
     remove_empty_cols_query = '''
     SELECT 'Create', count(ABI.ABThumbnailImage.data), count(ABI.ABFullSizeImage.data), count(ABPerson.Prefix), 'First', count(ABPerson.Middle), 'Last', 
     count(ABPerson.Suffix), count(ABPerson.DisplayName), count(ABPerson.FirstPhonetic), count(ABPerson.MiddlePhonetic), count(ABPerson.LastPhonetic), 
@@ -246,20 +229,8 @@ def addressBook(files_found, report_folder, seeker, wrap_text, timezone_offset):
     LEFT JOIN ABI.ABFullSizeImage ON ABPerson.ROWID = ABI.ABFullSizeImage.record_id
     '''
 
-    # Removing unused columns
-
     empty_cols_records = get_sqlite_db_records(source_path, remove_empty_cols_query, attach_query)
-
     data_headers = remove_unused_rows(data_headers, empty_cols_records)
     data_list = [remove_unused_rows(data, empty_cols_records) for data in data_list]
-
-    # Generate HTML report
-    
-    # report = ArtifactHtmlReport('Address Book')
-    # report.start_artifact_report(report_folder, 'Address Book')
-    # report.add_script()
-    # data_headers = strip_tuple_from_headers(data_headers)
-    # report.write_artifact_data_table(data_headers, html_data_list, source_path, html_no_escape=['Thumbnail', 'Phone Numbers', 'Email addresses', 'Addresses', 'Instant Messages', 'URL', 'Related Names', 'Profiles'])
-    # report.end_artifact_report()
     
     return data_headers, data_list, source_path

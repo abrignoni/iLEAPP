@@ -4,8 +4,8 @@ __artifacts_v2__ = {
         "description": "Snapshots saved by iOS for individual apps appear here. Blank screenshots are excluded here. \
             Dates and times shown are from file modified timestamps",
         "author": "@ydkhatri",
-        "version": "0.4",
-        "date": "2020-07-23",
+        "creation_date": "2020-07-23",
+        "last_update_date": "2024-12-20",
         "requirements": "none",
         "category": "Installed Apps",
         "notes": "",
@@ -24,7 +24,7 @@ from pathlib import Path
 
 from PIL import Image
 from scripts.ktx.ios_ktx2png import KTX_reader, liblzfse
-from scripts.ilapfuncs import artifact_processor, check_in_extracted_media, logfunc, convert_unix_ts_to_utc
+from scripts.ilapfuncs import artifact_processor, check_in_media, logfunc, convert_unix_ts_to_utc
 
 def save_ktx_to_png_if_valid(ktx_path, save_to_path):
     '''Excludes all white or all black blank images'''
@@ -56,8 +56,6 @@ def applicationSnapshots(files_found, report_folder, seeker, wrap_text, timezone
     data_list = []
 
     for file_found in files_found:
-        media_item = seeker.file_infos.get(file_found)
-        last_modified_date = convert_unix_ts_to_utc(media_item.modification_date)
         media_path = Path(file_found)
         parts = media_path.parts
         if parts[-2] != 'downscaled':
@@ -72,12 +70,13 @@ def applicationSnapshots(files_found, report_folder, seeker, wrap_text, timezone
                 continue
             png_path = media_path.with_suffix(".png")
             if save_ktx_to_png_if_valid(media_path, png_path):
-                final_media_item = check_in_extracted_media(png_path, media_item, artifact_info)
-                data_list.append([last_modified_date, app_name, media_item.source_path, final_media_item.id])
+                media_item = check_in_media(seeker, file_found, artifact_info, already_extracted=True, converted_file_path=png_path)
+            else:
+                continue
         else:
-            final_media_item = check_in_extracted_media(file_found, media_item, artifact_info)
-            data_list.append([last_modified_date, app_name, media_item.source_path, final_media_item.id])
-        # media_item = check_in_extracted_media(seeker, file_found, artifact_info)
+            media_item = check_in_media(seeker, file_found, artifact_info, already_extracted=True)
+        last_modified_date = convert_unix_ts_to_utc(media_item.updated_at)
+        data_list.append([last_modified_date, app_name, media_item.source_path, media_item.id])
     
     data_headers = (('Date Modified', 'datetime'), 'App Name', 'Source Path', ('Snapshot', 'media'))
 
