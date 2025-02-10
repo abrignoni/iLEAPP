@@ -3,6 +3,7 @@ import fnmatch
 import os
 import tarfile
 import hashlib
+import struct
 
 from pathlib import Path
 from scripts.ilapfuncs import *
@@ -292,6 +293,27 @@ class FileSeekerZip(FileSeekerBase):
         self.copied = set()
         self.file_infos = {}
 
+    def decode_extended_timestamp(self, extra_data):
+        offset = 0
+        length = len(extra_data)
+
+        while offset < length:
+            header_id, data_size = struct.unpack_from('<HH', extra_data, offset)
+            offset += 4
+            if header_id == 0x5455:
+                flags = struct.unpack_from('B', extra_data, offset)[0]
+                offset += 1
+                if flags & 1:  # Modification time
+                    modification_time, = struct.unpack_from('<I', extra_data, offset)
+                    offset += 4
+                if flags & 4:  # Creation time
+                    creation_time, = struct.unpack_from('<I', extra_data, offset)
+                    offset += 4
+                return creation_time, modification_time
+            else:
+                offset += data_size
+        return None, None
+
     def search(self, filepattern, return_on_first_hit=False, force=False):
         if filepattern in self.searched and not force:
             pathlist = self.searched[filepattern]
@@ -303,27 +325,24 @@ class FileSeekerZip(FileSeekerBase):
             if member.startswith("__MACOSX"):
                 continue
             if pat( root + normcase(member) ) is not None:
-                # TO DO : Implement Alexis' script to extract additional metadata from Cellebrite extractions
-                date_time = 0
                 if member not in self.copied or force:
                     try:
                         extracted_path = self.zip_file.extract(member, path=self.data_folder) # already replaces illegal chars with _ when exporting
                         self.copied.add(member)
                         f = self.zip_file.getinfo(member)
+                        creation_date, modification_date = self.decode_extended_timestamp(f.extra)
+                        file_info = FileInfo(member, creation_date, modification_date)
+                        self.file_infos[extracted_path] = file_info
                         date_time = f.date_time
                         date_time = timex.mktime(date_time + (0, 0, -1))
                         os.utime(extracted_path, (date_time, date_time))
                     except Exception as ex:
-                        member = member.lstrip("/")
                         logfunc(f'Could not write file to filesystem, path was {member} ' + str(ex))
-                if member.startswith("/"):
-                    member = member[1:]
+                member = member.lstrip("/")
                 filepath = os.path.join(self.data_folder, member)
                 if is_platform_windows():
                     filepath = filepath.replace('/', '\\')
-                file_info = FileInfo(member, 0, date_time)
                 pathlist.append(filepath)
-                self.file_infos[filepath] = file_info
                 if return_on_first_hit:
                     self.searched[filepattern] = pathlist
                     return filepath
