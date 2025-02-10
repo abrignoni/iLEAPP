@@ -209,12 +209,14 @@ def lava_get_media_item(media_id):
 
 def lava_insert_sqlite_media_item(media_item):
     global lava_db
+    created_at = media_item.created_at if media_item.created_at else 'NULL'
+    updated_at = media_item.updated_at if media_item.updated_at else 'NULL'
     cursor = lava_db.cursor()
     try:
         cursor.execute(f'''INSERT INTO _lava_media_items 
                     ("id", "source_path", "extraction_path", "type", "metadata", "created_at", "updated_at") 
                     VALUES ("{media_item.id}", "{media_item.source_path}", "{media_item.extraction_path}", 
-                    "{media_item.mimetype}", "{media_item.metadata}", {media_item.created_at}, {media_item.updated_at})''')
+                    "{media_item.mimetype}", "{media_item.metadata}", {created_at}, {updated_at})''')
         lava_db.commit()
     except sqlite3.IntegrityError as e:
         print(str(e))
@@ -227,6 +229,7 @@ def lava_get_media_references(media_ref):
 
 def lava_insert_sqlite_media_references(media_ref, media_id, module_name, artifact_name, created_at):
     global lava_db
+    created_at = created_at if created_at else 'NULL'
     cursor = lava_db.cursor()
     cursor.execute(f'''INSERT INTO _lava_media_references 
                 ("id", "media_item_id", "module_name", "artifact_name", "created_at") 
