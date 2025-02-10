@@ -74,13 +74,13 @@ class FileSeekerDir(FileSeekerBase):
                         os.makedirs(os.path.dirname(data_path), exist_ok=True)
                         copyfile(item, data_path)
                         self.copied.add(item)
+                        creation_date = Path(item).stat().st_ctime
+                        modification_date = Path(item).stat().st_mtime
+                        file_info = FileInfo(item, creation_date, modification_date)
+                        self.file_infos[data_path] = file_info
                     except Exception as ex:
                         logfunc(f'Could not copy {item} to {data_path} ' + str(ex))
-                creation_date = Path(item).stat().st_ctime
-                modification_date = Path(item).stat().st_mtime
-                file_info = FileInfo(item, creation_date, modification_date)
                 pathlist.append(data_path)
-                self.file_infos[data_path] = file_info
                 if return_on_first_hit:
                     self.searched[filepattern] = pathlist
                     return data_path
@@ -221,12 +221,12 @@ class FileSeekerItunes(FileSeekerBase):
                 try:
                     os.makedirs(os.path.dirname(data_path), exist_ok=True)
                     copyfile(original_location, data_path)
+                    file_info = FileInfo(original_location, creation_date, modification_date)
+                    self.file_infos[data_path] = file_info
                     self.copied.add(original_location)
                 except Exception as ex:
                     logfunc(f'Could not copy {original_location} to {data_path} ' + str(ex))
-            file_info = FileInfo(original_location, creation_date, modification_date)
             pathlist.append(data_path)
-            self.file_infos[data_path] = file_info
             if return_on_first_hit:
                 self.searched[filepattern] = pathlist
                 return data_path
@@ -267,13 +267,13 @@ class FileSeekerTar(FileSeekerBase):
                             with open(full_path, "wb") as fout:
                                 fout.write(tarfile.ExFileObject(self.tar_file, member).read())
                                 fout.close()
+                                file_info = FileInfo(member.name, 0, member.mtime)
+                                self.file_infos[full_path] = file_info
                                 self.copied.add(member.name)
                             os.utime(full_path, (member.mtime, member.mtime))
                     except Exception as ex:
                         logfunc(f'Could not write file to filesystem, path was {member.name} ' + str(ex))
-                file_info = FileInfo(member.name, 0, member.mtime)
                 pathlist.append(full_path)
-                self.file_infos[full_path] = file_info
                 if return_on_first_hit:
                     self.searched[filepattern] = pathlist
                     return full_path
@@ -328,7 +328,6 @@ class FileSeekerZip(FileSeekerBase):
                 if member not in self.copied or force:
                     try:
                         extracted_path = self.zip_file.extract(member, path=self.data_folder) # already replaces illegal chars with _ when exporting
-                        self.copied.add(member)
                         f = self.zip_file.getinfo(member)
                         creation_date, modification_date = self.decode_extended_timestamp(f.extra)
                         file_info = FileInfo(member, creation_date, modification_date)
@@ -336,6 +335,7 @@ class FileSeekerZip(FileSeekerBase):
                         date_time = f.date_time
                         date_time = timex.mktime(date_time + (0, 0, -1))
                         os.utime(extracted_path, (date_time, date_time))
+                        self.copied.add(member)
                     except Exception as ex:
                         logfunc(f'Could not write file to filesystem, path was {member} ' + str(ex))
                 member = member.lstrip("/")
