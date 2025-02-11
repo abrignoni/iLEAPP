@@ -7,7 +7,7 @@ import shutil
 import sys
 import math
 import inspect
-
+import hashlib
 import csv
 import xml
 import plistlib
@@ -24,7 +24,7 @@ import scripts.artifact_report as artifact_report
 import pytz
 import simplekml
 from bs4 import BeautifulSoup
-from scripts.filetype import guess_mime
+from scripts.filetype import guess_mime, guess_extension
 from functools import wraps
 
 # LEAPP version unique imports
@@ -32,7 +32,7 @@ import binascii
 import math
 from PIL import Image
 
-from scripts.lavafuncs import lava_process_artifact, lava_insert_sqlite_data
+from scripts.lavafuncs import lava_process_artifact, lava_insert_sqlite_data, lava_get_media_item, lava_insert_sqlite_media_item, lava_insert_sqlite_media_references, lava_get_media_references
 
 os.path.basename = lru_cache(maxsize=None)(os.path.basename)
 
@@ -43,8 +43,30 @@ thumb_size = 256, 256
 identifiers = {}
 icons = {}
 
+class MediaItem():
+    def __init__(self):
+        self.id = ""
+        self.source_path = ""
+        self.extraction_path = ""
+        self.mimetype = ""
+        self.metadata = ""
+        self.created_at = 0
+        self.updated_at = 0
+    
+    def set_values(self, media_info):
+        if isinstance(media_info, tuple):
+            self.id = media_info[0]
+            self.source_path = media_info[1]
+            self.extraction_path = media_info[2]
+            self.mimetype = media_info[3]
+            self.metadata = media_info[4]
+            self.created_at = media_info[5]
+            self.updated_at = media_info[6]
+        else:
+            self.__init__()
+
 def get_file_path(files_found, filename):
-    """Returns the path of the searched filename id exists or returns None"""
+    """Returns the path of the searched filename if exists or returns None"""
     try:
         for file_found in files_found:
             if file_found.endswith(filename):
@@ -56,6 +78,9 @@ def get_file_path(files_found, filename):
 def strip_tuple_from_headers(data_headers):
     return [header[0] if isinstance(header, tuple) else header for header in data_headers]
 
+def get_media_header_position(data_headers):
+    return [i for i, header in enumerate(data_headers) if isinstance(header, tuple) and header[1] == 'media']
+
 def check_output_types(type, output_types):
     if type in output_types or type == output_types or 'all' in output_types or 'all' == output_types:
         return True
@@ -63,6 +88,34 @@ def check_output_types(type, output_types):
         return True
     else:
         return False
+
+def get_modified_data_list(media_header_idx, data_list, media_style):
+    ''' 
+    For columns with media item:
+      - Generate a new data list with HTML code
+      - Remove them in a new data list for TSV, KML and Timeline exports  
+    '''
+    html_data_list = []
+    txt_data_list = []
+    media_item = MediaItem()
+    for data in data_list:
+        html_data = list(data)
+        media_style_idx = 0
+        for idx in media_header_idx:
+            media_id = data[idx]
+            media_item.set_values(lava_get_media_item(media_id))
+            if html_data[idx]:
+                try:
+                    style = media_style[media_style_idx] if isinstance(media_style, tuple) else media_style
+                except:
+                    style = media_style
+                html_data[idx] = html_media_tag(media_item.extraction_path, media_item.mimetype, style)
+            media_style_idx += 1
+        html_data_list.append(tuple(html_data))
+        txt_data = [i for media_idx, i in enumerate(data) if media_idx not in media_header_idx]
+        txt_data_list.append(tuple(txt_data))
+    return html_data_list, txt_data_list
+
 
 def artifact_processor(func):
     @wraps(func)
@@ -78,7 +131,8 @@ def artifact_processor(func):
         description = artifact_info.get('description', '')
         icon = artifact_info.get('artifact_icon', '')
         html_columns = artifact_info.get('html_columns', [])
-        
+        media_style = artifact_info.get('media_style', '')
+
         output_types = artifact_info.get('output_types', ['html', 'tsv', 'timeline', 'lava', 'kml'])
 
         data_headers, data_list, source_path = func(files_found, report_folder, seeker, wrap_text, timezone_offset)
@@ -88,34 +142,42 @@ def artifact_processor(func):
 
         elif len(data_list):
             if isinstance(data_list, tuple):
-                data_list, data_list_html = data_list
+                data_list, html_data_list = data_list
             else:
-                data_list_html = data_list
+                html_data_list = data_list
             logfunc(f"Found {len(data_list)} {'records' if len(data_list)>1 else 'record'} for {artifact_name}")
             icons.setdefault(category, {artifact_name: icon}).update({artifact_name: icon})
 
             # Strip tuples from headers for HTML, TSV, and timeline
             stripped_headers = strip_tuple_from_headers(data_headers)
 
+            # Check if headers contains a 'media' type
+            media_header_idx = get_media_header_position(data_headers)
+            if media_header_idx:
+                html_columns.extend([data_headers[idx][0] for idx in media_header_idx])
+                html_data_list, txt_data_list = get_modified_data_list(media_header_idx, data_list, media_style)
+
+            txt_headers = [i for media_idx, i in enumerate(stripped_headers) if media_idx not in media_header_idx] if media_header_idx else stripped_headers
+
             if check_output_types('html', output_types):
                 report = artifact_report.ArtifactHtmlReport(artifact_name)
                 report.start_artifact_report(report_folder, artifact_name, description)
                 report.add_script()
-                report.write_artifact_data_table(stripped_headers, data_list_html, source_path, html_no_escape=html_columns)
+                report.write_artifact_data_table(stripped_headers, html_data_list if media_header_idx else data_list, source_path, html_no_escape=html_columns)
                 report.end_artifact_report()
 
             if check_output_types('tsv', output_types):
-                tsv(report_folder, stripped_headers, data_list, artifact_name)
+                tsv(report_folder, txt_headers, txt_data_list if media_header_idx else data_list, artifact_name)
             
             if check_output_types('timeline', output_types):
-                timeline(report_folder, artifact_name, data_list, stripped_headers)
+                timeline(report_folder, artifact_name, txt_data_list if media_header_idx else data_list, txt_headers)
 
             if check_output_types('lava', output_types):
                 table_name, object_columns, column_map = lava_process_artifact(category, module_name, artifact_name, data_headers, len(data_list), data_views=artifact_info.get("data_views"))
                 lava_insert_sqlite_data(table_name, data_list, object_columns, data_headers, column_map)
 
             if check_output_types('kml', output_types):
-                kmlgen(report_folder, artifact_name, data_list, stripped_headers)
+                kmlgen(report_folder, artifact_name, txt_data_list if media_header_idx else data_list, txt_headers)
 
         else:
             if output_types != 'none':
@@ -138,14 +200,14 @@ class OutputParameters:
         else:
             folder_name = 'iLEAPP_Reports_' + currenttime
         self.report_folder_base = os.path.join(output_folder, folder_name)
-        self.temp_folder = os.path.join(self.report_folder_base, 'data')
+        self.data_folder = os.path.join(self.report_folder_base, 'data')
         OutputParameters.screen_output_file_path = os.path.join(self.report_folder_base, 'Script Logs',
                                                                 'Screen Output.html')
         OutputParameters.screen_output_file_path_devinfo = os.path.join(self.report_folder_base, 'Script Logs',
                                                                         'DeviceInfo.html')
 
         os.makedirs(os.path.join(self.report_folder_base, 'Script Logs'))
-        os.makedirs(self.temp_folder)
+        os.makedirs(self.data_folder)
         
 ### New timestamp conversion functions
 def convert_unix_ts_in_seconds(ts):
@@ -882,6 +944,104 @@ def media_to_html(media_path, files_found, report_folder):
             thumb = f'<a href="{source}" target="_blank"> Link to {filename} file</>'
     return thumb
 
+def html_media_tag(media_path, mimetype, style):
+    filename = Path(media_path).name
+    if mimetype == None:
+        mimetype = ''
+    if 'video' in mimetype:
+        thumb = f'<video width="320" height="240" controls="controls"><source src="{media_path}" type="video/mp4" preload="none">Your browser does not support the video tag.</video>'
+    elif 'image' in mimetype:
+        image_style = style if style else "max-height:300px; max-width:400px;"
+        thumb = f'<a href="{media_path}" target="_blank"><img src="{media_path}" style="{image_style}"></img></a>'
+    elif 'audio' in mimetype:
+        thumb = f'<audio controls><source src="{media_path}" type="audio/ogg"><source src="{media_path}" type="audio/mpeg">Your browser does not support the audio element.</audio>'
+    else:
+        thumb = f'<a href="{media_path}" target="_blank"> Link to {filename} file</>'
+    return thumb
+
+def set_media_references(media_item, artifact_info):
+    module_name = Path(artifact_info.filename).stem
+    artifact_name = artifact_info.function
+    media_id = media_item.id
+    media_ref = hashlib.sha1(f"{media_id}-{module_name}-{artifact_name}".encode()).hexdigest()
+    lava_insert_sqlite_media_references(media_ref, media_id, module_name, artifact_name, media_item.created_at)
+
+def check_in_media(seeker, file_path, artifact_info, already_extracted=False, converted_file_path=False):
+    if already_extracted:
+        file_info_key = file_path
+    else:
+        file_info_key = seeker.search(file_path, return_on_first_hit=True)
+    file_info = seeker.file_infos.get(file_info_key) if file_info_key else None
+    if file_info:
+        media_item = MediaItem()
+        if converted_file_path:
+            extraction_path = Path(converted_file_path)
+        else:
+            extraction_path = Path(file_info_key)
+        media_id = hashlib.sha1(f"{extraction_path}".encode()).hexdigest()
+        get_media_item = lava_get_media_item(media_id)
+        if get_media_item:
+            media_item.set_values(get_media_item)
+        else:
+            if extraction_path.is_file():
+                media_item.set_values((
+                    media_id,
+                    file_info.source_path,
+                    extraction_path,
+                    guess_mime(extraction_path),
+                    "not implemented yet",
+                    file_info.creation_date,
+                    file_info.modification_date
+                ))
+                lava_insert_sqlite_media_item(media_item)
+                set_media_references(media_item, artifact_info)
+            else:
+                logfunc(f"{extraction_path} was nout found")
+                return None            
+        return media_item
+    else:
+        logfunc(f'No matching file found for "{file_path}"')
+        return None
+
+def check_in_embedded_media(seeker, source_file, data, artifact_info, report_folder=None):
+    file_info = seeker.file_infos.get(source_file) if seeker else "Info.plist"
+    if data and file_info:
+        media_item = MediaItem()
+        module_name = Path(artifact_info.filename).stem
+        artifact_name = artifact_info.function
+        media_id = hashlib.sha1(data).hexdigest()
+        media_ref = hashlib.sha1(f"{media_id}-{module_name}-{artifact_name}".encode()).hexdigest()
+        media_references = lava_get_media_references(media_ref)
+        media = lava_get_media_item(media_id)
+        if media_references:
+            media_item.set_values((media))
+            return media_item
+        media_type = guess_mime(data)
+        metadata = "not implemented yet"
+        created_at = updated_at = 0
+        if file_info == "Info.plist":
+            source_path = file_info
+            target_path = Path(report_folder).parent.parent.joinpath("data", "App_Icons")
+        else:
+            source_path = file_info.source_path
+            target_folder_name = f"{Path(source_file).stem}_embedded_media"
+            target_path = Path(source_file).parent.joinpath(target_folder_name)
+        media_extension = guess_extension(data)
+        extraction_path = Path(target_path).joinpath(f"{media_id}.{media_extension}")
+        media_item.set_values((
+            media_id, source_path, extraction_path, media_type, metadata, created_at, updated_at
+        ))
+        try:
+            target_path.mkdir(parents=True, exist_ok=True)
+            with open(extraction_path, "wb") as file:
+                file.write(data)
+        except Exception as ex:
+            logfunc(f'Could not copy embedded media into {target_path} ' + str(ex))
+        lava_insert_sqlite_media_item(media_item)
+        set_media_references(media_item, artifact_info)
+        return media_item
+    else:
+        return None
 
 def get_resolution_for_model_id(model_id: str):
     data = [

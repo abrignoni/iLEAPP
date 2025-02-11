@@ -17,11 +17,13 @@ from scripts.lavafuncs import *
 
 def pickModules():
     '''Create a list of available modules:
-        - iTunesBackupInfo, lastBuild, Ph100-UFED-device-values-Plist that need to be executed first are excluded
+        - iTunesBackupInfo, iTunesBackupInstalledApplications, lastBuild and Ph100-UFED-device-values-Plist that need 
+        to be executed first are excluded
         - ones that take a long time to run are deselected by default'''
     global mlist
     for plugin in sorted(loader.plugins, key=lambda p: p.category.upper()):
         if (plugin.name == 'iTunesBackupInfo'
+                or plugin.name == 'iTunesBackupInstalledApplications'
                 or plugin.name == 'lastBuild'
                 or plugin.name == 'Ph100-UFED-device-values-Plist'):
             continue

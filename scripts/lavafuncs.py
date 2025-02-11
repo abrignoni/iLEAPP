@@ -40,6 +40,23 @@ def initialize_lava(input_path, output_path, input_type):
     db_path = os.path.join(output_path, '_lava_artifacts.db')
     lava_db = sqlite3.connect(db_path)
     
+    cursor = lava_db.cursor()
+    cursor.execute('''CREATE TABLE _lava_media_items (
+                        id TEXT PRIMARY KEY, 
+                        source_path TEXT, 
+                        extraction_path TEXT, 
+                        type TEXT, 
+                        metadata TEXT, 
+                        created_at INTEGER, 
+                        updated_at INTEGER)''')
+    cursor.execute('''CREATE TABLE _lava_media_references (
+                        id TEXT PRIMARY KEY, 
+                        media_item_id TEXT, 
+                        module_name TEXT, 
+                        artifact_name TEXT, 
+                        created_at INTEGER, 
+                        FOREIGN KEY (media_item_id) REFERENCES _lava_media_items(id))''')
+    
     #return lava_data, lava_db
 
 def lava_process_artifact(category, module_name, artifact_name, data, record_count=None, data_views=None):
@@ -49,7 +66,7 @@ def lava_process_artifact(category, module_name, artifact_name, data, record_cou
         lava_data["artifacts"][category] = []
     
     sanitized_table_name, column_map, object_columns = lava_create_sqlite_table(artifact_name, data)
-    
+
     artifact = {
         "name": artifact_name,
         "tablename": sanitized_table_name,
@@ -179,6 +196,44 @@ def lava_insert_sqlite_data(table_name, data, object_columns, headers, column_ma
     
     # Execute the insert
     cursor.executemany(query, rows_to_insert)
+    lava_db.commit()
+
+def lava_get_media_item(media_id):
+    '''Returns a MediaItem object containing info of the media_id item stored  
+    in the media_items table if exists or return None '''
+    global lava_db
+    cursor = lava_db.cursor()
+    query = f"SELECT * FROM _lava_media_items WHERE id='{media_id}'"
+    return cursor.execute(query).fetchone()
+    # return result.fetchone()
+
+def lava_insert_sqlite_media_item(media_item):
+    global lava_db
+    created_at = media_item.created_at if media_item.created_at else 'NULL'
+    updated_at = media_item.updated_at if media_item.updated_at else 'NULL'
+    cursor = lava_db.cursor()
+    try:
+        cursor.execute(f'''INSERT INTO _lava_media_items 
+                    ("id", "source_path", "extraction_path", "type", "metadata", "created_at", "updated_at") 
+                    VALUES ("{media_item.id}", "{media_item.source_path}", "{media_item.extraction_path}", 
+                    "{media_item.mimetype}", "{media_item.metadata}", {created_at}, {updated_at})''')
+        lava_db.commit()
+    except sqlite3.IntegrityError as e:
+        print(str(e))
+
+def lava_get_media_references(media_ref):
+    global lava_db
+    cursor = lava_db.cursor()
+    query = f"SELECT * FROM _lava_media_references WHERE id='{media_ref}'"
+    return cursor.execute(query).fetchone()
+
+def lava_insert_sqlite_media_references(media_ref, media_id, module_name, artifact_name, created_at):
+    global lava_db
+    created_at = created_at if created_at else 'NULL'
+    cursor = lava_db.cursor()
+    cursor.execute(f'''INSERT INTO _lava_media_references 
+                ("id", "media_item_id", "module_name", "artifact_name", "created_at") 
+                VALUES ("{media_ref}", "{media_id}", "{module_name}", "{artifact_name}", {created_at})''')
     lava_db.commit()
 
 def lava_finalize_output(output_path):
