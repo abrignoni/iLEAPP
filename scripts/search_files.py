@@ -12,6 +12,10 @@ from zipfile import ZipFile
 from fnmatch import _compile_pattern
 from functools import lru_cache
 
+# Yes, this is hazmat, but we're only using it to unwrap existing keys
+from cryptography.hazmat.primitives.keywrap import aes_key_unwrap
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+
 from scripts.builds_ids import get_root_path_from_domain
 normcase = lru_cache(maxsize=None)(os.path.normcase)
 
@@ -64,14 +68,123 @@ class FileSeekerDir(FileSeekerBase):
         return pathlist
 
 class FileSeekerItunes(FileSeekerBase):
-    def __init__(self, directory, temp_folder):
+    def __init__(self, directory, temp_folder, passcode=None):
         FileSeekerBase.__init__(self)
         self.directory = directory
         self._all_files = {}
+        self._all_file_meta = {}
         self.temp_folder = temp_folder
+        self.encrypted = False
+        self._protection_classes = {}
+        self._manifest_key = None
+        self._manifest_key_class = None
         logfunc('Building files listing...')
         if os.path.exists(os.path.join(directory, "Manifest.db")):
-            self.build_files_list_from_manifest_db(directory)
+            manifest_directory = directory
+            manifest_location = os.path.join(manifest_directory, "Manifest.db")
+
+            # Check if we are an encrypted backup
+            manifest_plist = os.path.join(directory, "Manifest.plist")
+            if os.path.exists(manifest_plist):
+                with open(manifest_plist, "rb") as manifest_fp:
+                    tmp_plist = plistlib.load(manifest_fp)
+                    if tmp_plist["IsEncrypted"]:
+                        self.encrypted = True
+                        logfunc('Detected encrypted iTunes backup... attempting decrypt')
+                        tmp_manifest_string = tmp_plist["ManifestKey"]
+                        self._manifest_key_class = int.from_bytes(tmp_manifest_string[0:4], byteorder="little")
+                        self._manifest_wrapped_key = tmp_manifest_string[4:]
+                        self._backup_keybag = tmp_plist["BackupKeyBag"]
+                        
+
+            # If so, make sure we have a passcode....
+            if self.encrypted:
+                if passcode == None:
+                    logfunc('Attempted to recover an encrypted backup without a passcode, this will never work, exiting immediately.')
+                    raise Exception
+
+                # Initialize some values
+                tmp_backup_keybag_index = 0
+                tmp_protection_class = None
+                tmp_salt = ''
+                tmp_iter = 0
+                tmp_double_protection_salt = ''
+                tmp_double_protection_iter = 0
+                keybag_uuid = None
+
+                # Iterate across the entire Keybag contents
+                while tmp_backup_keybag_index < len(self._backup_keybag):
+                    # Grab the type of value we're looking at
+                    tmp_string_type = self._backup_keybag[tmp_backup_keybag_index:tmp_backup_keybag_index + 4]
+                    tmp_backup_keybag_index += 4
+
+                    # Figure out the length we need to pull
+                    tmp_length = int.from_bytes(self._backup_keybag[tmp_backup_keybag_index:tmp_backup_keybag_index + 4])
+                    tmp_backup_keybag_index += 4
+
+                    # Store the actual value itself
+                    tmp_value = self._backup_keybag[tmp_backup_keybag_index:tmp_backup_keybag_index + tmp_length]
+                    tmp_backup_keybag_index += tmp_length
+
+                    match tmp_string_type:
+                        case b'CLAS':
+                            tmp_protection_class['CLAS'] = int.from_bytes(tmp_value)
+                        case b'DPIC':
+                            tmp_double_protection_iter = int.from_bytes(tmp_value)
+                        case b'DPSL':
+                            tmp_double_protection_salt = tmp_value
+                        case b'ITER':
+                            tmp_iter = int.from_bytes(tmp_value)
+                        case b'KTYP':
+                            tmp_protection_class['KTYP'] = int.from_bytes(tmp_value)
+                        case b'UUID':
+                            if keybag_uuid == None:
+                                keybag_uuid = tmp_value
+                            else:
+                                if tmp_protection_class != None:
+                                    self._protection_classes[tmp_protection_class['CLAS']] = tmp_protection_class
+                                tmp_protection_class = {}
+                        case b'SALT': 
+                            tmp_salt = tmp_value
+                        case b'WPKY':
+                            tmp_protection_class['WPKY'] = tmp_value
+                        case b'WRAP':
+                            if tmp_protection_class != None:
+                                tmp_protection_class['WRAP'] = tmp_value
+
+                # Clean up the open protection class
+                self._protection_classes[tmp_protection_class['CLAS']] = tmp_protection_class
+
+                # Decrypt the Manifest password
+                initial_unwrapped_key = hashlib.pbkdf2_hmac('sha256', str.encode(passcode), tmp_double_protection_salt, tmp_double_protection_iter) 
+                unwrapped_key = hashlib.pbkdf2_hmac('sha1', initial_unwrapped_key, tmp_salt, tmp_iter, dklen=32)
+
+                # Unwrap all of the protection class keys
+                for protection_class_key in self._protection_classes:
+                    protection_class = self._protection_classes[protection_class_key]
+                    protection_class['Unwrapped'] = aes_key_unwrap(unwrapped_key, protection_class['WPKY'])
+
+                # Find the right one for the Manifest.db
+                if self._manifest_key_class not in self._protection_classes:
+                    logfunc("Did not find the right protection class to decrypt Manifest.db. Exiting.")
+                    raise Exception
+
+                manifest_protection_class = self._protection_classes[self._manifest_key_class]
+                unwrapped_manifest_key = aes_key_unwrap(manifest_protection_class["Unwrapped"], self._manifest_wrapped_key)
+
+                # ... then decrypt the Manifest.db to the temp folder to work on it
+                with open(manifest_location, "rb") as manifest_contents:
+                    cipher = Cipher(algorithms.AES(unwrapped_manifest_key), modes.CBC(b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'))
+                    decryptor = cipher.decryptor()
+                    decrypted_manifest_contents = decryptor.update(manifest_contents.read()) + decryptor.finalize()
+                    with open(os.path.join(temp_folder, "Manifest.db"), "wb") as new_manifest_contents:
+                        new_manifest_contents.write(decrypted_manifest_contents)
+                    
+                # ... and make sure we remember the right place to open it
+                manifest_directory = temp_folder
+                logfunc("Decrypted Manifest.db into temp directory!")
+
+            self.build_files_list_from_manifest_db(manifest_directory)
             self.backup_type = "Manifest.db"
         elif os.path.exists(os.path.join(directory, "Manifest.mbdb")):
             self.build_files_list_from_manifest_mbdb(directory)
@@ -90,7 +203,8 @@ class FileSeekerItunes(FileSeekerBase):
                 SELECT
                 fileID,
                 domain,
-                relativePath
+                relativePath,
+                file
                 FROM
                 Files
                 WHERE
@@ -105,6 +219,18 @@ class FileSeekerItunes(FileSeekerBase):
                 relative_path = row[2]
                 full_path = os.path.join(root_path, relative_path)
                 self._all_files[full_path] = hash_filename
+                if self.encrypted:
+                    # Load the file's plist and find the encryption key
+                    tmp_file_plist = plistlib.loads(row[3])
+                    tmp_plist_root = tmp_file_plist["$top"]["root"]
+                    tmp_key_position = tmp_file_plist["$objects"][tmp_plist_root]["EncryptionKey"]
+                    tmp_wrapped_key = tmp_file_plist["$objects"][tmp_key_position]["NS.data"]
+
+                    # Store the results into a dict for future
+                    self._all_file_meta[full_path] = {}
+                    self._all_file_meta[full_path]['Class'] = int.from_bytes(tmp_wrapped_key[0:4], byteorder="little")
+                    self._all_file_meta[full_path]['Key'] = tmp_wrapped_key[4:]
+                    self._all_file_meta[full_path]['Size'] = tmp_file_plist["$objects"][tmp_plist_root]["Size"]
             db.close()
         except Exception as ex:
             logfunc(f'Error opening Manifest.db from {directory}, ' + str(ex))
@@ -188,7 +314,36 @@ class FileSeekerItunes(FileSeekerBase):
             if original_location not in self.copied:
                 try:
                     os.makedirs(os.path.dirname(temp_location), exist_ok=True)
-                    copyfile(original_location, temp_location)
+
+                    # Handle encrypted backups differently, don't just copy the encrypted files
+                    if self.encrypted:
+
+                        # Snag the right protection class
+                        tmp_file_meta = self._all_file_meta[relative_path]
+                        if tmp_file_meta['Class'] not in self._protection_classes:
+                            logfunc(f'Can\'t locate the protection class for {relative_path}: {tmp_file_meta['Class']}')
+                            raise Exception
+                        tmp_protection_class = self._protection_classes[tmp_file_meta['Class']]
+
+                        # Grab the file's key
+                        tmp_file_wrapped_key = tmp_file_meta['Key']
+                        tmp_file_unwrapped_key = aes_key_unwrap(tmp_protection_class['Unwrapped'], tmp_file_wrapped_key)
+
+                        # Open the file and snag the contents
+                        with open(original_location, "rb") as temp_original_file:
+                            # Decrypt the contents, Apple uses a 0'd out 16-byte IV
+                            cipher = Cipher(algorithms.AES(tmp_file_unwrapped_key), modes.CBC(b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'))
+                            decryptor = cipher.decryptor()
+                            decrypted_contents = decryptor.update(temp_original_file.read()) + decryptor.finalize()
+
+                            # Write the decrypt into the expected located, only write the expected size, no padding
+                            with open(temp_location, "wb") as temp_new_file:
+                                temp_new_file.write(decrypted_contents[0:tmp_file_meta['Size']])
+
+                    # If not encrypted, just copy the thing
+                    else:
+                        copyfile(original_location, temp_location)
+
                     self.copied.add(original_location)
                 except Exception as ex:
                     logfunc(f'Could not copy {original_location} to {temp_location} ' + str(ex))
