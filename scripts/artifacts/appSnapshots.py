@@ -75,23 +75,17 @@ def applicationSnapshots(files_found, report_folder, seeker, wrap_text, timezone
         if file_found.lower().endswith('.ktx'):
             if media_path.stat().st_size < 2500: # too small, they are blank
                 continue
-            if is_platform_windows():
-                png_path = Path(report_folder).joinpath(html_path(report_folder, file_found)).with_suffix((".png"))
-            else:
-                png_path = media_path.with_suffix(".png")
+            png_path = Path(report_folder).joinpath(html_path(report_folder, file_found)).with_suffix((".png"))
             if save_ktx_to_png_if_valid(media_path, png_path):
                 media_item = check_in_media(seeker, file_found, artifact_info, already_extracted=True, converted_file_path=png_path)
             else:
                 continue
         else:
-            if is_platform_windows():
-                jpg_path = Path(report_folder).joinpath(html_path(report_folder, file_found)).with_suffix((".jpeg"))
-                try:
-                    shutil.copy2(file_found, jpg_path)
-                except shutil.Error as e:
-                    logfunc(f'Could not copy media into {jpg_path}: ' + str(e))
-            else:
-                jpg_path = file_found
+            jpg_path = Path(report_folder).joinpath(html_path(report_folder, file_found)).with_suffix((".jpeg"))
+            try:
+                shutil.copy2(file_found, jpg_path)
+            except shutil.Error as e:
+                logfunc(f'Could not copy media into {jpg_path}: ' + str(e))
             media_item = check_in_media(seeker, file_found, artifact_info, already_extracted=True, converted_file_path=jpg_path)
         last_modified_date = convert_unix_ts_to_utc(media_item.updated_at)
         data_list.append([last_modified_date, app_name, media_item.source_path, media_item.id])
