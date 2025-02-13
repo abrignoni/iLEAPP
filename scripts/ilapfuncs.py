@@ -17,7 +17,7 @@ import sqlite3
 
 from functools import lru_cache
 from pathlib import Path
-
+from urllib.parse import quote
 import scripts.artifact_report as artifact_report
 
 # common third party imports
@@ -163,7 +163,7 @@ def artifact_processor(func):
                 report = artifact_report.ArtifactHtmlReport(artifact_name)
                 report.start_artifact_report(report_folder, artifact_name, description)
                 report.add_script()
-                report.write_artifact_data_table(stripped_headers, html_data_list if media_header_idx else data_list, source_path, html_no_escape=html_columns)
+                report.write_artifact_data_table(stripped_headers, html_data_list, source_path, html_no_escape=html_columns)
                 report.end_artifact_report()
 
             if check_output_types('tsv', output_types):
@@ -945,7 +945,23 @@ def media_to_html(media_path, files_found, report_folder):
     return thumb
 
 def html_media_tag(media_path, mimetype, style):
+    def relative_paths(source):
+        splitter = '\\' if is_platform_windows() else '/'
+        first_split = source.split(splitter)
+        for x in first_split:
+            if 'data' in x:
+                index = first_split.index(x)
+                last_split = source.split(first_split[index - 1])
+                return '..' + last_split[1].replace('\\', '/')
+            elif '_HTML' in x:
+                index = first_split.index(x)
+                last_split = source.split(first_split[index])
+                return '.' + last_split[1].replace('\\', '/')
+        return source
+
     filename = Path(media_path).name
+    media_path = quote(relative_paths(media_path))
+
     if mimetype == None:
         mimetype = ''
     if 'video' in mimetype:

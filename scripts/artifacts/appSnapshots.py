@@ -20,11 +20,13 @@ __artifacts_v2__ = {
 }
 
 import inspect
+import hashlib
+import shutil
 from pathlib import Path
 
 from PIL import Image
 from scripts.ktx.ios_ktx2png import KTX_reader, liblzfse
-from scripts.ilapfuncs import artifact_processor, check_in_media, logfunc, convert_unix_ts_to_utc
+from scripts.ilapfuncs import artifact_processor, check_in_media, logfunc, convert_unix_ts_to_utc, is_platform_windows
 
 def save_ktx_to_png_if_valid(ktx_path, save_to_path):
     '''Excludes all white or all black blank images'''
@@ -49,6 +51,11 @@ def save_ktx_to_png_if_valid(ktx_path, save_to_path):
             logfunc(f'Had an exception - {str(ex)}')
     return False
 
+def html_path(report_folder, file_path):
+    data_path = Path(report_folder).parents[1].joinpath('data')
+    original_path = file_path.replace(str(data_path), '')[1:]
+    return hashlib.sha1(original_path.encode()).hexdigest()
+
 @artifact_processor
 def applicationSnapshots(files_found, report_folder, seeker, wrap_text, timezone_offset):
     artifact_info = inspect.stack()[0]
@@ -68,13 +75,24 @@ def applicationSnapshots(files_found, report_folder, seeker, wrap_text, timezone
         if file_found.lower().endswith('.ktx'):
             if media_path.stat().st_size < 2500: # too small, they are blank
                 continue
-            png_path = media_path.with_suffix(".png")
+            if is_platform_windows():
+                png_path = Path(report_folder).joinpath(html_path(report_folder, file_found)).with_suffix((".png"))
+            else:
+                png_path = media_path.with_suffix(".png")
             if save_ktx_to_png_if_valid(media_path, png_path):
                 media_item = check_in_media(seeker, file_found, artifact_info, already_extracted=True, converted_file_path=png_path)
             else:
                 continue
         else:
-            media_item = check_in_media(seeker, file_found, artifact_info, already_extracted=True)
+            if is_platform_windows():
+                jpg_path = Path(report_folder).joinpath(html_path(report_folder, file_found)).with_suffix((".jpeg"))
+                try:
+                    shutil.copy2(file_found, jpg_path)
+                except shutil.Error as e:
+                    logfunc(f'Could not copy media into {jpg_path}: ' + str(e))
+            else:
+                jpg_path = file_found
+            media_item = check_in_media(seeker, file_found, artifact_info, already_extracted=True, converted_file_path=jpg_path)
         last_modified_date = convert_unix_ts_to_utc(media_item.updated_at)
         data_list.append([last_modified_date, app_name, media_item.source_path, media_item.id])
     

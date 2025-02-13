@@ -42,7 +42,7 @@ class FileSeekerDir(FileSeekerBase):
         self.build_files_list(directory)
         logfunc(f'File listing complete - {len(self._all_files)} files')
         self.searched = {}
-        self.copied = set()
+        self.copied = {}
         self.file_infos = {}        
 
     def build_files_list(self, directory):
@@ -69,17 +69,19 @@ class FileSeekerDir(FileSeekerBase):
                 data_path = os.path.join(self.data_folder, item_rel_path[1:])
                 if is_platform_windows():
                     data_path = data_path.replace('/', '\\')
-                if self.directory not in self.copied or force:
+                if item not in self.copied or force:
                     try:
                         os.makedirs(os.path.dirname(data_path), exist_ok=True)
                         copyfile(item, data_path)
-                        self.copied.add(item)
+                        self.copied[item] = data_path
                         creation_date = Path(item).stat().st_ctime
                         modification_date = Path(item).stat().st_mtime
                         file_info = FileInfo(item, creation_date, modification_date)
                         self.file_infos[data_path] = file_info
                     except Exception as ex:
                         logfunc(f'Could not copy {item} to {data_path} ' + str(ex))
+                else:
+                    data_path = self.copied[item]
                 pathlist.append(data_path)
                 if return_on_first_hit:
                     self.searched[filepattern] = pathlist
@@ -103,7 +105,7 @@ class FileSeekerItunes(FileSeekerBase):
             self.backup_type = "Manifest.mbdb"
         logfunc(f'File listing complete - {len(self._all_files)} files')
         self.searched = {}
-        self.copied = set()
+        self.copied = {}
         self.file_infos = {}
     
     def build_files_list_from_manifest_db(self, directory):
@@ -223,9 +225,11 @@ class FileSeekerItunes(FileSeekerBase):
                     copyfile(original_location, data_path)
                     file_info = FileInfo(original_location, creation_date, modification_date)
                     self.file_infos[data_path] = file_info
-                    self.copied.add(original_location)
+                    self.copied[original_location] = data_path
                 except Exception as ex:
                     logfunc(f'Could not copy {original_location} to {data_path} ' + str(ex))
+            else:
+                data_path = self.copied[original_location]
             pathlist.append(data_path)
             if return_on_first_hit:
                 self.searched[filepattern] = pathlist
@@ -242,7 +246,7 @@ class FileSeekerTar(FileSeekerBase):
         self.tar_file = tarfile.open(tar_file_path, mode)
         self.data_folder = data_folder
         self.searched = {}
-        self.copied = set()
+        self.copied = {}
         self.file_infos = {}
 
     def search(self, filepattern, return_on_first_hit=False, force=False):
@@ -269,10 +273,12 @@ class FileSeekerTar(FileSeekerBase):
                                 fout.close()
                                 file_info = FileInfo(member.name, 0, member.mtime)
                                 self.file_infos[full_path] = file_info
-                                self.copied.add(member.name)
+                                self.copied[member.name] = full_path
                             os.utime(full_path, (member.mtime, member.mtime))
                     except Exception as ex:
                         logfunc(f'Could not write file to filesystem, path was {member.name} ' + str(ex))
+                else:
+                    full_path = self.copied[member.name]
                 pathlist.append(full_path)
                 if return_on_first_hit:
                     self.searched[filepattern] = pathlist
@@ -290,7 +296,7 @@ class FileSeekerZip(FileSeekerBase):
         self.name_list = self.zip_file.namelist()
         self.data_folder = data_folder
         self.searched = {}
-        self.copied = set()
+        self.copied = {}
         self.file_infos = {}
 
     def decode_extended_timestamp(self, extra_data):
@@ -335,17 +341,15 @@ class FileSeekerZip(FileSeekerBase):
                         date_time = f.date_time
                         date_time = timex.mktime(date_time + (0, 0, -1))
                         os.utime(extracted_path, (date_time, date_time))
-                        self.copied.add(member)
+                        self.copied[member] = extracted_path
                     except Exception as ex:
                         logfunc(f'Could not write file to filesystem, path was {member} ' + str(ex))
-                member = member.lstrip("/")
-                filepath = os.path.join(self.data_folder, member)
-                if is_platform_windows():
-                    filepath = filepath.replace('/', '\\')
-                pathlist.append(filepath)
+                else:
+                    extracted_path = self.copied[member]
+                pathlist.append(extracted_path)
                 if return_on_first_hit:
                     self.searched[filepattern] = pathlist
-                    return filepath
+                    return extracted_path
         self.searched[filepattern] = pathlist
         return pathlist
 
