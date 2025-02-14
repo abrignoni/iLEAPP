@@ -48,19 +48,39 @@ def get_selected_modules():
 
 def select_all():
     '''Select all modules in the list of available modules and execute get_selected_modules'''
-    for artifact_name in mlist:
-        main_window.nametowidget(f'f_modules.f_list.tbox.mcb_{artifact_name}').select()
+    for module_infos in mlist.values():
+        module_infos[-1].set(True)
 
     get_selected_modules()
 
 
 def deselect_all():
     '''Unselect all modules in the list of available modules and execute get_selected_modules'''
-    for artifact_name in mlist:
-        main_window.nametowidget(f'f_modules.f_list.tbox.mcb_{artifact_name}').deselect()
+    for module_infos in mlist.values():
+        module_infos[-1].set(False)
 
     get_selected_modules()
 
+
+def filter_modules(*args):
+    mlist_text.config(state='normal')
+    filter_term = modules_filter_var.get().lower()
+    # for widget in mlist_text.winfo_children():
+    #     widget.destroy()  # Clear existing checkboxes
+
+    mlist_text.delete('0.0', tk.END)
+
+    for artifact_name, module_infos in mlist.items():
+        filter_modules_info = f"{module_infos[0]} {module_infos[1]}".lower()
+        if filter_term in filter_modules_info:
+            cb = tk.Checkbutton(mlist_text, name=f'mcb_{artifact_name}',
+                                text=f'{module_infos[0]} [{module_infos[1]} | {module_infos[2]}.py]',
+                                variable=module_infos[-1], onvalue=True, offvalue=False, command=get_selected_modules)
+            cb.config(background=theme_bgcolor, fg=theme_fgcolor, selectcolor=theme_inputcolor,
+                    highlightthickness=0, activebackground=theme_bgcolor, activeforeground=theme_fgcolor)
+            mlist_text.window_create('insert', window=cb)
+            mlist_text.insert('end', '\n')
+    mlist_text.config(state='disabled')
 
 def load_profile():
     '''Select modules from a profile file'''
@@ -84,9 +104,9 @@ def load_profile():
                 else:
                     deselect_all()
                     ticked = set(profile.get('plugins', []))
-                    for artifact_name in mlist:
+                    for artifact_name, module_infos in mlist.items():
                         if artifact_name in ticked:
-                            main_window.nametowidget(f'f_modules.f_list.tbox.mcb_{artifact_name}').select()
+                            module_infos[-1].set(True)
                     get_selected_modules()
             else:
                 profile_load_error = 'File was not a valid profile file: invalid format'
@@ -377,6 +397,8 @@ casedata = {'Case Number': tk.StringVar(),
             'Examiner': tk.StringVar(),
             }
 timezone_set = tk.StringVar()
+modules_filter_var = tk.StringVar()
+modules_filter_var.trace_add("write", filter_modules)  # Trigger filtering on input change
 pickModules()
 
 ## Theme properties
@@ -432,7 +454,7 @@ style.configure('TProgressbar', thickness=4, background='DarkGreen')
 ## Main Window Layout
 ### Top part of the window
 title_frame = ttk.Frame(main_window)
-title_frame.grid(padx=14, pady=4, sticky='we')
+title_frame.grid(padx=14, pady=8, sticky='we')
 title_frame.grid_columnconfigure(0, weight=1)
 ileapp_logo = ImageTk.PhotoImage(file=resource_path("iLEAPP_logo.png"))
 ileapp_logo_label = ttk.Label(title_frame, image=ileapp_logo)
@@ -464,54 +486,38 @@ output_folder_button = ttk.Button(output_frame, text='Browse Folder', command=se
 output_folder_button.grid(row=0, column=1, padx=5, pady=4)
 
 ### Modules
-modules_frame = ttk.Frame(main_window, name='f_modules')
-modules_frame.grid(padx=14, pady=4, sticky='we')
-modules_frame.grid_columnconfigure(0, weight=1)
+# modules_frame = ttk.Frame(main_window, name='f_modules')
+# modules_frame.grid(padx=14, pady=4, sticky='we')
+# modules_frame.grid_columnconfigure(0, weight=1)
 
-#### Buttons & Timezone
-button_frame = ttk.Frame(modules_frame)
-button_frame.grid(row=0, column=0, pady=4, sticky='we')
-
-all_button = ttk.Button(button_frame, text='Select All', command=select_all)
-all_button.grid(row=0, column=0, padx=5)
-none_button = ttk.Button(button_frame, text='Deselect All', command=deselect_all)
-none_button.grid(row=0, column=1, padx=5)
-load_button = ttk.Button(button_frame, text='Load Profile', command=load_profile)
-load_button.grid(row=0, column=2, padx=5)
-save_button = ttk.Button(button_frame, text='Save Profile', command=save_profile)
-save_button.grid(row=0, column=3, padx=5)
-ttk.Separator(button_frame, orient='vertical').grid(row=0, column=4, padx=10, sticky='ns')
-case_data_button = ttk.Button(button_frame, text='Case Data', command=case_data)
-case_data_button.grid(row=0, column=5, padx=5)
-ttk.Separator(button_frame, orient='vertical').grid(row=0, column=6, padx=10, sticky='ns')
-ttk.Label(
-    button_frame, text='Timezone Offset: '
-).grid(row=0, column=7)
-timezone_offset = ttk.Combobox(
-    button_frame, textvariable=timezone_set, values=tzvalues, height=20, state='readonly')
-timezone_offset.master.option_add('*TCombobox*Listbox.background', theme_inputcolor)
-timezone_offset.master.option_add('*TCombobox*Listbox.foreground', theme_fgcolor)
-timezone_offset.master.option_add('*TCombobox*Listbox.selectBackground', theme_fgcolor)
-timezone_offset.grid(row=0, column=8)
-
-#### List of modules
-mlist_frame = ttk.LabelFrame(modules_frame, text=' Available Modules: ', name='f_list')
-mlist_frame.grid(row=1, column=0, padx=4, pady=4, sticky='we')
+mlist_frame = ttk.LabelFrame(main_window, text=' Available Modules: ', name='f_list')
+mlist_frame.grid(padx=14, pady=5, sticky='we')
 mlist_frame.grid_columnconfigure(0, weight=1)
+
+button_frame = ttk.Frame(mlist_frame)
+button_frame.grid(row=0, column=0, columnspan=2,pady=4, sticky='we')
+button_frame.grid_columnconfigure(1, weight=1)
+
+modules_filter_icon = ttk.Label(button_frame, text='\U0001F50E')
+modules_filter_icon.grid(row=0, column=0, padx=4)
+modules_filter_entry = ttk.Entry(button_frame, textvariable=modules_filter_var)
+modules_filter_entry.grid(row=0, column=1, padx=5, sticky='we')
+all_button = ttk.Button(button_frame, text='Select All', command=select_all)
+all_button.grid(row=0, column=2, padx=5)
+none_button = ttk.Button(button_frame, text='Deselect All', command=deselect_all)
+none_button.grid(row=0, column=3, padx=5)
+ttk.Separator(button_frame, orient='vertical').grid(row=0, column=4, padx=10, sticky='ns')
+load_button = ttk.Button(button_frame, text='Load Profile', command=load_profile)
+load_button.grid(row=0, column=5, padx=5)
+save_button = ttk.Button(button_frame, text='Save Profile', command=save_profile)
+save_button.grid(row=0, column=6, padx=5)
 v = ttk.Scrollbar(mlist_frame, orient='vertical')
-v.grid(row=0, column=1, sticky='ns')
+v.grid(row=1, column=1, sticky='ns')
 mlist_text = tk.Text(mlist_frame, name='tbox', bg=theme_bgcolor, highlightthickness=0,
                      yscrollcommand=v.set, height=mlist_window_height)
-mlist_text.grid(row=0, column=0, sticky='we')
+mlist_text.grid(row=1, column=0, sticky='we')
 v.config(command=mlist_text.yview)
-for artifact_name, module_infos in mlist.items():
-    cb = tk.Checkbutton(mlist_text, name=f'mcb_{artifact_name}',
-                        text=f'{module_infos[0]} [{module_infos[1]} | {module_infos[2]}.py]',
-                        variable=module_infos[-1], onvalue=True, offvalue=False, command=get_selected_modules)
-    cb.config(background=theme_bgcolor, fg=theme_fgcolor, selectcolor=theme_inputcolor,
-              highlightthickness=0, activebackground=theme_bgcolor, activeforeground=theme_fgcolor)
-    mlist_text.window_create('insert', window=cb)
-    mlist_text.insert('end', '\n')
+filter_modules()
 mlist_text.config(state='disabled')
 main_window.bind_class('Checkbutton', '<MouseWheel>', scroll)
 main_window.bind_class('Checkbutton', '<Button-4>', scroll)
@@ -525,8 +531,10 @@ process_button = ttk.Button(bottom_frame, text='Process', command=lambda: proces
 process_button.grid(row=0, column=0, rowspan=2, padx=5)
 close_button = ttk.Button(bottom_frame, text='Close', command=main_window.quit)
 close_button.grid(row=0, column=1, rowspan=2, padx=5)
+case_data_button = ttk.Button(bottom_frame, text='Case Data', command=case_data)
+case_data_button.grid(row=0, column=2, rowspan=2, padx=5)
 selected_modules_label = ttk.Label(bottom_frame, text='Number of selected modules: ')
-selected_modules_label.grid(row=0, column=2, padx=5, sticky='e')
+selected_modules_label.grid(row=0, column=3, padx=5, sticky='e')
 auto_unselected_modules_text = '(Modules making some time to run were automatically unselected)'
 if is_platform_macos():
     auto_unselected_modules_label = ttk.Label(
@@ -535,7 +543,7 @@ if is_platform_macos():
         font=('Helvetica 10'))
 else:
     auto_unselected_modules_label = ttk.Label(bottom_frame, text=auto_unselected_modules_text)
-auto_unselected_modules_label.grid(row=1, column=2, padx=5, sticky='e')
+auto_unselected_modules_label.grid(row=1, column=3, padx=5, sticky='e')
 get_selected_modules()
 
 #### Logs
