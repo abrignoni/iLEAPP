@@ -65,8 +65,6 @@ def deselect_all():
 def filter_modules(*args):
     mlist_text.config(state='normal')
     filter_term = modules_filter_var.get().lower()
-    # for widget in mlist_text.winfo_children():
-    #     widget.destroy()  # Clear existing checkboxes
 
     mlist_text.delete('0.0', tk.END)
 
@@ -485,11 +483,6 @@ output_entry.grid(row=0, column=0, padx=5, pady=4, sticky='we')
 output_folder_button = ttk.Button(output_frame, text='Browse Folder', command=select_output)
 output_folder_button.grid(row=0, column=1, padx=5, pady=4)
 
-### Modules
-# modules_frame = ttk.Frame(main_window, name='f_modules')
-# modules_frame.grid(padx=14, pady=4, sticky='we')
-# modules_frame.grid_columnconfigure(0, weight=1)
-
 mlist_frame = ttk.LabelFrame(main_window, text=' Available Modules: ', name='f_list')
 mlist_frame.grid(padx=14, pady=5, sticky='we')
 mlist_frame.grid_columnconfigure(0, weight=1)
@@ -527,14 +520,17 @@ main_window.bind_class('Checkbutton', '<Button-5>', scroll)
 bottom_frame = ttk.Frame(main_window)
 bottom_frame.grid(padx=16, pady=6, sticky='we')
 bottom_frame.grid_columnconfigure(2, weight=1)
+bottom_frame.grid_columnconfigure(4, weight=1)
 process_button = ttk.Button(bottom_frame, text='Process', command=lambda: process(casedata))
 process_button.grid(row=0, column=0, rowspan=2, padx=5)
 close_button = ttk.Button(bottom_frame, text='Close', command=main_window.quit)
 close_button.grid(row=0, column=1, rowspan=2, padx=5)
+ttk.Separator(bottom_frame, orient='vertical').grid(row=0, column=2, rowspan=2, padx=10, sticky='ns')
 case_data_button = ttk.Button(bottom_frame, text='Case Data', command=case_data)
-case_data_button.grid(row=0, column=2, rowspan=2, padx=5)
+case_data_button.grid(row=0, column=3, rowspan=2, padx=5)
+ttk.Separator(bottom_frame, orient='vertical').grid(row=0, column=4, rowspan=2, padx=10, sticky='ns')
 selected_modules_label = ttk.Label(bottom_frame, text='Number of selected modules: ')
-selected_modules_label.grid(row=0, column=3, padx=5, sticky='e')
+selected_modules_label.grid(row=0, column=5, padx=5, sticky='e')
 auto_unselected_modules_text = '(Modules making some time to run were automatically unselected)'
 if is_platform_macos():
     auto_unselected_modules_label = ttk.Label(
@@ -543,7 +539,7 @@ if is_platform_macos():
         font=('Helvetica 10'))
 else:
     auto_unselected_modules_label = ttk.Label(bottom_frame, text=auto_unselected_modules_text)
-auto_unselected_modules_label.grid(row=1, column=3, padx=5, sticky='e')
+auto_unselected_modules_label.grid(row=1, column=5, padx=5, sticky='e')
 get_selected_modules()
 
 #### Logs
@@ -568,6 +564,5 @@ def OnFocusIn(event):
 main_window.attributes('-topmost', True)
 main_window.focus_force()
 main_window.bind('<FocusIn>', OnFocusIn)
-
 
 main_window.mainloop()
