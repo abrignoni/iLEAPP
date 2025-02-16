@@ -6,7 +6,6 @@ import os.path
 import typing
 import scripts.report as report
 import traceback
-import sqlite3
 import sys
 
 import scripts.plugin_loader as plugin_loader
@@ -327,16 +326,16 @@ def crunch_artifacts(
     seeker = None
     try:
         if extracttype == 'fs':
-            seeker = FileSeekerDir(input_path)
+            seeker = FileSeekerDir(input_path, out_params.data_folder)
 
         elif extracttype in ('tar', 'gz'):
-            seeker = FileSeekerTar(input_path, out_params.temp_folder)
+            seeker = FileSeekerTar(input_path, out_params.data_folder)
 
         elif extracttype == 'zip':
-            seeker = FileSeekerZip(input_path, out_params.temp_folder)
+            seeker = FileSeekerZip(input_path, out_params.data_folder)
 
         elif extracttype == 'itunes':
-            seeker = FileSeekerItunes(input_path, out_params.temp_folder)
+            seeker = FileSeekerItunes(input_path, out_params.data_folder)
 
         else:
             logfunc('Error on argument -o (input type)')
@@ -403,10 +402,7 @@ def crunch_artifacts(
         files_found = []
         log.write(f'<b>For {plugin.name} module</b>')
         for artifact_search_regex in search_regexes:
-            if artifact_search_regex in seeker.searched:
-                found = seeker.searched[artifact_search_regex]
-            else:
-                found = seeker.search(artifact_search_regex)
+            found = seeker.search(artifact_search_regex)
             if not found:
                 log.write(f'<ul><li>No file found for regex <i>{artifact_search_regex}</i></li></ul>')
             else:
@@ -435,7 +431,6 @@ def crunch_artifacts(
                 continue  # nope
         else:
             logfunc(f"No file found")
-
         logfunc('{} [{}] artifact completed'.format(plugin.name, plugin.module_name))
     log.close()
 

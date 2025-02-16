@@ -23,7 +23,7 @@ def get_Health(files_found, report_folder, seeker, wrap_text, timezone_offset):
         file_name = str(file_found)
         if file_name.endswith('healthdb_secure.sqlite'): 
            healthdb_secure = str(file_found)
-           source_file_healthdb_secure = file_found.replace(seeker.directory, '')
+           source_file_healthdb_secure = file_found.replace(seeker.data_folder, '')
 
     db = open_sqlite_db_readonly(healthdb_secure)
     
