@@ -42,6 +42,7 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | Ph98iOS18REFforAssetAnalysis |
 | Ph9BurstAvalanche |
 | accountData |
+| addressBook |
 | allTrails |
 | callHistory |
 | filesApp |
@@ -52,6 +53,7 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | splitwise |
 | subscriberInfo |
 | twint |
+| voicemail |
 | wire |
 <!-- GET_RECORDS_END -->
 
@@ -71,7 +73,6 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | SiriRemembers |
 | WithingsHealthMate |
 | ZangiChats |
-| addressBook |
 | applePodcasts |
 | appleWalletCards |
 | appleWalletPasses |
@@ -154,7 +155,6 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | viber |
 | vipps |
 | vippsContacts |
-| voicemail |
 | waze |
 | whatsappCallHistory |
 | whatsappContacts |
