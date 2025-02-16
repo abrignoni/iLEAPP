@@ -491,9 +491,13 @@ button_frame = ttk.Frame(mlist_frame)
 button_frame.grid(row=0, column=0, columnspan=2,pady=4, sticky='we')
 button_frame.grid_columnconfigure(1, weight=1)
 
-modules_filter_img = ImageTk.PhotoImage(file=resource_path("magnif_glass.png"))
-modules_filter_icon = ttk.Label(button_frame, image=modules_filter_img)
-modules_filter_icon.grid(row=0, column=0, padx=4)
+if is_platform_macos():
+    modules_filter_icon = ttk.Label(button_frame, text="\U0001F50E")
+    modules_filter_icon.grid(row=0, column=0, padx=4)
+else:
+    modules_filter_img = ImageTk.PhotoImage(file=resource_path("magnif_glass.png"))
+    modules_filter_icon = ttk.Label(button_frame, image=modules_filter_img)
+    modules_filter_icon.grid(row=0, column=0, padx=4)
 modules_filter_entry = ttk.Entry(button_frame, textvariable=modules_filter_var)
 modules_filter_entry.grid(row=0, column=1, padx=1, sticky='we')
 ttk.Separator(button_frame, orient='vertical').grid(row=0, column=2, padx=10, sticky='ns')
