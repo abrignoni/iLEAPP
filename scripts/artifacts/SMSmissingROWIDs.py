@@ -23,7 +23,7 @@ def get_SMS(files_found, report_folder, seeker, wrap_text, timezone_offset):
         file_name = str(file_found)
         if file_name.endswith('sms.db'):
             sms = str(file_found)
-            source_file_sms = file_found.replace(seeker.directory, '')
+            source_file_sms = file_found.replace(seeker.data_folder, '')
    
     db = open_sqlite_db_readonly(sms)
     

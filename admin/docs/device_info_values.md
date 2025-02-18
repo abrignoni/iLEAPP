@@ -42,6 +42,12 @@ This document outlines the various device information collected by iLEAPP module
 | Device Information | Reported Phone Number | deviceDatam |
 | Device Information | Serial Number | serialNumber |
 | Device Information | iOS version | lastBuild, systemVersionPlist |
+| Messages Settings | com.apple.MobileSMS.plist - Keep Messages for Days | messageRetention |
+| Messages Settings | com.apple.MobileSMS.plist - Keep Messages for Days (iOS 17+) | messageRetention |
+| Messages Settings | com.apple.MobileSMS.plist - Keep Messages for Days (iOS <=16) | messageRetention |
+| Messages Settings | com.apple.mobileSMS.plist - Keep Messages for Days | messageRetention |
+| Messages Settings | com.apple.mobileSMS.plist - Keep Messages for Days (iOS 17+) | messageRetention |
+| Messages Settings | com.apple.mobileSMS.plist - Keep Messages for Days (iOS <=16) | messageRetention |
 | Network | Bluetooth Address | deviceActivator |
 | Network | Ethernet MAC Address | deviceActivator |
 | Network | MAC Addresses | wifiIdentifiers |
@@ -76,14 +82,5 @@ This document outlines the various device information collected by iLEAPP module
 | Find My iPhone Add Time: {addtime} | findMy |
 | Find My iPhone: Enabled | findMy |
 | Obliterated Timestamp: {utc_modified_date} | obliterated |
-| com.apple.MobileSMS.plist - Keep Messages for Days (iOS 17+): {val} | messageRetention |
-| com.apple.MobileSMS.plist - Keep Messages for Days (iOS {val} | messageRetention |
-| com.apple.MobileSMS.plist - Keep Messages for Days: No Value | messageRetention |
-| com.apple.mobileSMS.plist - Keep Messages for Days (iOS 17+): {keep_val} | messageRetention |
-| com.apple.mobileSMS.plist - Keep Messages for Days (iOS {keep_val} | messageRetention |
-| com.apple.mobileSMS.plist - Keep Messages for Days: No Value | messageRetention |
-| {base_file} - Keep Message for Days: No Value | messageRetention |
-| {base_file} - Keep Messages for Days (iOS 17+): {keep_val} | messageRetention |
-| {base_file} - Keep Messages for Days (iOS {keep_val} | messageRetention |
 <!-- LOGDEVINFO_END -->
 

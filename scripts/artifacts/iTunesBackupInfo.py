@@ -23,18 +23,20 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*Info.plist',),
         "output_types": ["html", "tsv", "lava"],
-        "html_columns": ['App Icon'],
-        "artifact_icon": "package"
+        "artifact_icon": "package",
+        "media_style": "width: 60px;"
     }
 }
 
+import inspect
 import datetime
 import plistlib
 import scripts.artifacts.artGlobals
 
 from base64 import b64encode
 
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content, device_info, logfunc
+from scripts.ilapfuncs import artifact_processor, \
+    get_file_path, get_plist_file_content, check_in_embedded_media, device_info, logfunc
 
 @artifact_processor
 def iTunesBackupInfo(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -77,7 +79,7 @@ def iTunesBackupInfo(files_found, report_folder, seeker, wrap_text, timezone_off
 def iTunesBackupInstalledApplications(files_found, report_folder, seeker, wrap_text, timezone_offset):
     source_path = get_file_path(files_found, "Info.plist")
     data_list = []
-    data_list_html = []
+    artifact_info = inspect.stack()[0]
     installed_apps = None
     apps = None
 
@@ -99,10 +101,10 @@ def iTunesBackupInstalledApplications(files_found, report_folder, seeker, wrap_t
             purchase_date = ''
             icon = app_data.get('PlaceholderIcon', '')
             if icon:
-                base64_icon = b64encode(icon).decode('utf-8')
-                icon_tag = f'<img src="data:image/jpeg;base64,{base64_icon}" alt="{bundle_id} App Icon" width="60">'
+                icon_item = check_in_embedded_media(None, source_path, icon, artifact_info, report_folder)
+                icon_id = icon_item.id
             else:
-                icon_tag = ''
+                icon_id = ''
 
             if 'iTunesMetadata' in app_data.keys():
                 itunes_metadata = plistlib.loads(app_data['iTunesMetadata'])
@@ -132,12 +134,7 @@ def iTunesBackupInstalledApplications(files_found, report_folder, seeker, wrap_t
                 game_center_enabled = itunes_metadata.get('gameCenterEnabled', '')
                 game_center_ever_enabled = itunes_metadata.get('gameCenterEverEnabled', '')
                 messages_extension = itunes_metadata.get('hasMessagesExtension', '')
-                data_list.append((bundle_id, '', item_name, artist_name, version, genre, 
-                                install_date, apple_id, purchase_date, release_date, 
-                                source_app, auto_download, purchased_redownload, 
-                                factory_install, side_loaded, game_center_enabled, 
-                                game_center_ever_enabled, messages_extension))
-                data_list_html.append((bundle_id, icon_tag, item_name, artist_name, version, genre, 
+                data_list.append((bundle_id, icon_id, item_name, artist_name, version, genre, 
                                 install_date, apple_id, purchase_date, release_date, 
                                 source_app, auto_download, purchased_redownload, 
                                 factory_install, side_loaded, game_center_enabled, 
@@ -153,4 +150,4 @@ def iTunesBackupInstalledApplications(files_found, report_folder, seeker, wrap_t
                     'Purchased Redownload', 'Factory Install', 'Side Loaded', 
                     'Game Center Enabled', 'Game Center Ever Enabled', 
                     'Messages Extension')
-    return data_headers, (data_list, data_list_html), source_path
+    return data_headers, data_list, source_path
