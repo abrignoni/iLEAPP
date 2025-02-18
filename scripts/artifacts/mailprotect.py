@@ -270,7 +270,7 @@ def get_mailprotect(files_found, report_folder, seeker, wrap_text, timezone_offs
                 timeline(report_folder, tlactivity, data_list, data_headers)
                 
                 #LAVA Section
-                data_headers = ['Date Sent','Date Received','Sender','Message ID', 'Subject', 'Recipient', 'Message', 'CC', 'BCC','Row ID']
+                data_headers = ['Date Sent','Date Received','Address','Comment','Subject', 'Summary', 'Read?', 'Flagged?', 'Deleted', 'Mailbox']
                 
                 data_headers[0] = (data_headers[0], 'datetime')
                 data_headers[1] = (data_headers[1], 'datetime')
