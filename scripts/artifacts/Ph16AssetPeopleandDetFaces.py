@@ -11,7 +11,8 @@ __artifacts_v2__ = {
         'category': 'Photos.sqlite-G-People_Faces_Data',
         'notes': '',
         'paths': ('*/PhotoData/Photos.sqlite*',),
-        "output_types": ["standard", "tsv", "none"]
+        "output_types": ["standard", "tsv", "none"],
+        "artifact_icon": "smile"
     },
     'Ph16_2PeopleFacesAssetDataSyndPL': {
         'name': 'Ph16.2-People & Faces Asset Data-SyndPL',
@@ -25,7 +26,8 @@ __artifacts_v2__ = {
         'category': 'Photos.sqlite-S-Syndication_PL_Artifacts',
         'notes': '',
         'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
-        "output_types": ["standard", "tsv", "none"]
+        "output_types": ["standard", "tsv", "none"],
+        "artifact_icon": "smile"
     }
 }
 

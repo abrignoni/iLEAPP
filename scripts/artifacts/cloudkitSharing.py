@@ -64,16 +64,11 @@ def get_cloudkitServerSharedData(file_found, report_folder, seeker, wrap_text):
                     record_id = participant['UserIdentity']['UserRecordID']['RecordName']
                     email_address = participant['UserIdentity']['LookupInfo']['EmailAddress']
                     phone_number = participant['UserIdentity']['LookupInfo']['PhoneNumber']
-                    first_name = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate'][
-                        'NS.givenName']
-                    middle_name = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate'][
-                        'NS.middleName']
-                    last_name = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate'][
-                        'NS.familyName']
-                    name_prefix = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate'][
-                        'NS.namePrefix']
-                    name_suffix = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate'][
-                        'NS.nameSuffix']
+                    first_name = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate']['NS.givenName']
+                    middle_name = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate']['NS.middleName']
+                    last_name = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate']['NS.familyName']
+                    name_prefix = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate']['NS.namePrefix']
+                    name_suffix = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate']['NS.nameSuffix']
                     nickname = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate']['NS.nickname']
 
                     user_dictionary[record_id] = [record_id, email_address, phone_number, name_prefix, first_name,

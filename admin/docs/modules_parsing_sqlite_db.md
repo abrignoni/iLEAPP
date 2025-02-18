@@ -11,6 +11,7 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | Ph11KwrdsCapsTitlesDescripsBasicAssetData |
 | Ph15PeopleandDetFacesNAD |
 | Ph16AssetPeopleandDetFaces |
+| Ph17GenAIDetected |
 | Ph1BasicAssetData |
 | Ph20AlbumsNAD |
 | Ph21AlbumsNonSharedNAD |
@@ -58,6 +59,7 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 <!-- READONLY_START -->
 | Source Modules |
 |----------------|
+| ConnectedDeviceInformation |
 | DataUsage |
 | FacebookMessenger |
 | FitnessWorkoutsLocationData |
@@ -85,6 +87,7 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | burnerCache |
 | cachev0 |
 | calendarAll |
+| callHistoryGroupCall |
 | cashApp |
 | chrome |
 | cloudkitCache |
@@ -112,6 +115,7 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | knowledgeC |
 | life360 |
 | line |
+| mailprotect |
 | mapsSync |
 | mediaLibrary |
 | netusage |
@@ -137,6 +141,7 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | syncDev |
 | tcc |
 | teams |
+| telegramMesssages |
 | teleguard |
 | tikTok |
 | tikTokReplied |

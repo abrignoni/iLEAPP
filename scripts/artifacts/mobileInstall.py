@@ -10,7 +10,6 @@ from html import escape
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows
 
-
 def month_converter(month):
     months = [
         "Jan",
@@ -31,13 +30,11 @@ def month_converter(month):
         month = f"{month:02d}"
     return month
 
-
 def day_converter(day):
     day = int(day)
     if day < 10:
         day = f"{day:02d}"
     return day
-
 
 def get_mobileInstall(files_found, report_folder, seeker, wrap_text, timezone_offset):
     counter = 0
