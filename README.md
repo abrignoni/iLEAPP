@@ -1,6 +1,6 @@
-![iLEAPP](https://github.com/abrignoni/iLEAPP/blob/main/assets/iLEAPP_logo.png)
+![iLEAPP](scripts/_elements/iLEAPP_banner.png)
 
-# iOS Logs, Events, And Plists Parser 
+# iOS Logs, Events, And Plists Parser
 
 Details in blog post here: https://abrignoni.blogspot.com/2019/12/ileapp-ios-logs-events-and-properties.html
 
@@ -15,19 +15,19 @@ Parses:
 ⚙️ Build Info (iOS version, etc.)  
 ⚙️ Wireless cellular service info (IMEI, number, etc.)  
 ⚙️ Screen icons list by screen and in grid order.  
-⚙️ ApplicationState.db support for app bundle ID to data container GUID correlation.   
+⚙️ ApplicationState.db support for app bundle ID to data container GUID correlation.  
 ⚙️ User and computer names that the iOS device connected to. Function updated by Jack Farley (@JackFarley248, http://farleyforensics.com/).  
 etc...
 
 ## Requirements
 
 Python 3.10 to Python 3.12.<br>
-If on macOS (Intel) make sure Xcode is installed and have command line tools updated to be able to use Python 3.11. 
+If on macOS (Intel) make sure Xcode is installed and have command line tools updated to be able to use Python 3.11.
 
 ### Dependencies
 
-Dependencies for your python environment are listed in `requirements.txt`. Install them using the below command. Ensure 
-the `py` part is correct for your environment, eg `py`, `python`, or `python3`, etc. 
+Dependencies for your python environment are listed in `requirements.txt`. Install them using the below command. Ensure
+the `py` part is correct for your environment, eg `py`, `python`, or `python3`, etc.
 
 `py -m pip install -r requirements.txt`  
 or  
@@ -48,7 +48,7 @@ https://www.youtube.com/watch?v=7qvVFfBM2NU
 To compile to an executable so you can run this on a system without python installed.
 If using Python 3.10 and above delete the arguments from the following terminal commands.
 
-*Windows OS*
+_Windows OS_
 
 To create ileapp.exe, run:
 
@@ -62,7 +62,7 @@ To create ileappGUI.exe, run:
 pyinstaller \scripts\pyinstaller\ileappGUI.spec
 ```
 
-*macOS*
+_macOS_
 
 To create ileapp, run:
 
@@ -87,7 +87,7 @@ $ python ileapp.py -t <zip | tar | fs | gz> -i <path_to_extraction> -o <path_for
 ### GUI
 
 ```
-$ python ileappGUI.py 
+$ python ileappGUI.py
 ```
 
 ### Help
@@ -149,10 +149,10 @@ Note: The key in the `__artifacts_v2__` dictionary must exactly match the name o
 
 The functions referenced as entry points in the `__artifacts__` dictionary must be preceded by @artifact_processor and take the following arguments:
 
-* An iterable of the files found which are to be processed (as strings)
-* The path of ILEAPP's output folder(as a string)
-* The seeker (of type FileSeekerBase) which found the files
-* A Boolean value indicating whether or not the plugin is expected to wrap text
+- An iterable of the files found which are to be processed (as strings)
+- The path of ILEAPP's output folder(as a string)
+- The seeker (of type FileSeekerBase) which found the files
+- A Boolean value indicating whether or not the plugin is expected to wrap text
 
 For example:
 
@@ -161,8 +161,8 @@ def get_cool_data1(files_found, report_folder, seeker, wrap_text):
     pass  # do processing here
 ```
 
-Plugins are generally expected to provide output in ILEAPP's LAVA output format, HTML, TSV, and optionally submit records to 
-the timeline and/or kml files. Functions for generating this output can be found in the `artifact_report` and `ilapfuncs` modules. 
+Plugins are generally expected to provide output in ILEAPP's LAVA output format, HTML, TSV, and optionally submit records to
+the timeline and/or kml files. Functions for generating this output can be found in the `artifact_report` and `ilapfuncs` modules.
 At a high level, an example might resemble:
 
 ```python
@@ -200,6 +200,7 @@ def get_artifactname(files_found, report_folder, seeker, wrap_text, timezone_off
 ```
 
 For more information, read:
+
 - [Updating Modules for Automatic Output Generation](admin/docs/module_updates.md)
 - [Updating Complex Modules to Include LAVA Output](admin/docs/module_updates_advanced.md)
 
