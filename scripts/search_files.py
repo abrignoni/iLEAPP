@@ -307,6 +307,7 @@ class FileSeekerZip(FileSeekerBase):
             header_id, data_size = struct.unpack_from('<HH', extra_data, offset)
             offset += 4
             if header_id == 0x5455:
+                creation_time = modification_time = None
                 flags = struct.unpack_from('B', extra_data, offset)[0]
                 offset += 1
                 if flags & 1:  # Modification time
@@ -336,6 +337,9 @@ class FileSeekerZip(FileSeekerBase):
                         extracted_path = self.zip_file.extract(member, path=self.data_folder) # already replaces illegal chars with _ when exporting
                         f = self.zip_file.getinfo(member)
                         creation_date, modification_date = self.decode_extended_timestamp(f.extra)
+                        print(creation_date)
+                        print(modification_date)
+                        input()
                         file_info = FileInfo(member, creation_date, modification_date)
                         self.file_infos[extracted_path] = file_info
                         date_time = f.date_time
