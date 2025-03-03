@@ -118,7 +118,6 @@ def get_whatsappMessages(files_found, report_folder, seeker, wrap_text, timezone
             else:
                 thumb = ''
 
-
             if attfile is not None:
                 attfile = os.path.normpath(attfile)
                 for matchf in files_found:
@@ -156,8 +155,7 @@ def get_whatsappMessages(files_found, report_folder, seeker, wrap_text, timezone
         
         report.write_artifact_data_table(data_headers, data_list, file_found, html_escape=False)
         report.end_artifact_report()
-        
-        
+
         tsvname = f'Whatsapp - Messages'
         tsv(report_folder, data_headers, data_list, tsvname)
         
