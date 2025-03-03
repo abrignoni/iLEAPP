@@ -144,8 +144,7 @@ def get_whatsappMessages(files_found, report_folder, seeker, wrap_text, timezone
                 attfile = ''
 
             data_list.append((row[0], sender, row[3], receiver, row[4], row[6], attfile, thumb, localpath, row[7], number_forward, from_forward, lat, lon,))
-            
-        
+
         
         description = 'Whatsapp - Messages'
         report = ArtifactHtmlReport('Whatsapp - Messages')
