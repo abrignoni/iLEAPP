@@ -2873,6 +2873,7 @@ device_id = {
     "iPhone17,2": "iPhone 16 Pro Max",
     "iPhone17,3": "iPhone 16",
     "iPhone17,4": "iPhone 16 Plus",
+    "iPhone17,5": "iPhone 16e",
     "Mac14,3": "Mac Mini M2 (2023)",
     "Mac14,12": "Mac Mini M2 Pro (2023)",
     "Mac14,5": "MacBook Pro (14-inch, 2023)",

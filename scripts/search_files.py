@@ -337,9 +337,6 @@ class FileSeekerZip(FileSeekerBase):
                         extracted_path = self.zip_file.extract(member, path=self.data_folder) # already replaces illegal chars with _ when exporting
                         f = self.zip_file.getinfo(member)
                         creation_date, modification_date = self.decode_extended_timestamp(f.extra)
-                        print(creation_date)
-                        print(modification_date)
-                        input()
                         file_info = FileInfo(member, creation_date, modification_date)
                         self.file_infos[extracted_path] = file_info
                         date_time = f.date_time
