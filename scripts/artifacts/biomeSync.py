@@ -1,12 +1,12 @@
 __artifacts_v2__ = {
     "get_biomeSync": {
-        "name": "Biome Sync - Devices",
+        "name": "Biome - Device Syncs",
         "description": "Parses Biome Device Sync records",
         "author": "@JohnHyla",
         "version": "0.0.2",
         "date": "2024-10-17",
         "requirements": "none",
-        "category": "Biome Sync",
+        "category": "Biome",
         "notes": "",
         "paths": ('**/Biome/sync/sync.db*'),
         "output_types": "standard"

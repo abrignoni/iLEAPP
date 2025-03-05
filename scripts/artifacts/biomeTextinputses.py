@@ -1,12 +1,12 @@
 __artifacts_v2__ = {
     "get_biomeTextinputses": {
-        "name": "Biome Text Input Session",
+        "name": "Biome - Text Input Session",
         "description": "Parses Text Input Session entries from biomes",
         "author": "@JohnHyla",
         "version": "0.0.2",
         "date": "2024-10-17",
         "requirements": "none",
-        "category": "Biome Text Input Session",
+        "category": "Biome",
         "notes": "",
         "paths":
             ('*/Biome/streams/public/TextInputSession/local/*',

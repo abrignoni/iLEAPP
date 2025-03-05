@@ -1,12 +1,12 @@
 __artifacts_v2__ = {
     "get_biomeBacklight": {
-        "name": "Biome Backlight",
+        "name": "Biome - Backlight",
         "description": "Parses backlight entries from biomes",
         "author": "@JohnHyla",
         "version": "0.0.2",
         "date": "2024-10-17",
         "requirements": "none",
-        "category": "Biome Backlight",
+        "category": "Biome",
         "notes": "",
         "paths": ('*/Biome/streams/public/Backlight/local/*'),
         "output_types": "standard"

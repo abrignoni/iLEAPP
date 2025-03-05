@@ -1,12 +1,12 @@
 __artifacts_v2__ = {
     "get_biomeDevplugin": {
-        "name": "Biome Device Plugged In",
+        "name": "Biome - Device Plugged In",
         "description": "Parses device plugged in entries from biomes",
         "author": "@JohnHyla",
         "version": "0.0.2",
         "date": "2024-10-17",
         "requirements": "none",
-        "category": "Biome Device Plug",
+        "category": "Biome",
         "notes": "",
         "paths": ('*/biome/streams/restricted/_DKEvent.Device.IsPluggedIn/local/*'),
         "output_types": "standard"

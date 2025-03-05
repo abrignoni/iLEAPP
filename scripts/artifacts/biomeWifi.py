@@ -1,12 +1,12 @@
 __artifacts_v2__ = {
     "get_biomeWifi": {
-        "name": "Biome DKEvent WiFi",
+        "name": "Biome - WiFi DKEvent",
         "description": "Parses DKEvent WiFi entries from biomes",
         "author": "@JohnHyla",
         "version": "0.0.2",
         "date": "2024-10-17",
         "requirements": "none",
-        "category": "Biome WiFi",
+        "category": "Biome",
         "notes": "",
         "paths": ('*/Biome/streams/restricted/_DKEvent.Wifi.Connection/local/*'),
         "output_types": "standard"

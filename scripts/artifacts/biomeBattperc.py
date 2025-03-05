@@ -1,12 +1,12 @@
 __artifacts_v2__ = {
     "get_biomeBattperc": {
-        "name": "Biome Battery Percentage",
+        "name": "Biome - Battery Percentage",
         "description": "Parses battery percentage entries from biomes",
         "author": "@JohnHyla",
         "version": "0.0.2",
         "date": "2024-10-17",
         "requirements": "none",
-        "category": "Biome Battery",
+        "category": "Biome",
         "notes": "",
         "paths": ('*/biome/streams/restricted/_DKEvent.Device.BatteryPercentage/local/*'),
         "output_types": "standard"
