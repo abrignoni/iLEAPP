@@ -58,7 +58,7 @@ def get_mobileInstallb(files_found, report_folder, seeker, wrap_text, timezone_o
       for file_found in files_found:
         filename = os.path.basename(file_found)
         
-        with open(file_found, 'r') as f:
+        with open(file_found, 'r', encoding='utf8') as f:
           data = f.readlines()
         
         for line in data:
@@ -111,7 +111,7 @@ def get_mobileInstallb(files_found, report_folder, seeker, wrap_text, timezone_o
         report = ArtifactHtmlReport(f'Mobile Installation Logs History')
         report.start_artifact_report(report_folder, f'Mobile Installation Logs History', description)
         report.add_script()
-        data_headers = ('Timestamp','Type','Notice','Source File')
+        data_headers = ('Timestamp (Local)','Type','Notice','Source File')
         report.write_artifact_data_table(data_headers, data_list, file_found, html_no_escape=[''])
         report.end_artifact_report()
         
@@ -130,7 +130,7 @@ def get_mobileInstallb(files_found, report_folder, seeker, wrap_text, timezone_o
         report = ArtifactHtmlReport(f'Reboots - Mobile Installation Logs')
         report.start_artifact_report(report_folder, f'Reboots - Mobile Installation Logs', description)
         report.add_script()
-        data_headers = ('Timestamp','Type','Notice','Source File')
+        data_headers = ('Timestamp (Local)','Type','Notice','Source File')
         report.write_artifact_data_table(data_headers, data_list_reboot, file_found, html_no_escape=[''])
         report.end_artifact_report()
         
