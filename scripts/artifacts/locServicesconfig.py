@@ -42,12 +42,11 @@ def get_locServicesconfig(files_found, report_folder, seeker, wrap_text, timezon
         authorization = value.get('Authorization', '')
         locationtimestopped = convertcocoa(value.get('LocationTimeStopped', ''))
         
-    data_list_clientsplist.append((fencetimestarted, 'FenceTimeStarted'))
-    data_list_clientsplist.append((comsumptionperiod, 'ConsumptionPeriodBegin'))
-    data_list_clientsplist.append((receivinglocationinformationtimestopped, 'ReceivingLocationInformationTimeStopped'))
-    data_list_clientsplist.append((authorization, 'Authorization'))
-    data_list_clientsplist.append((locationtimestopped, 'LocationTimeStopped'))
-      
+        data_list_clientsplist.append((fencetimestarted, 'FenceTimeStarted'))
+        data_list_clientsplist.append((comsumptionperiod, 'ConsumptionPeriodBegin'))
+        data_list_clientsplist.append((receivinglocationinformationtimestopped, 'ReceivingLocationInformationTimeStopped'))
+        data_list_clientsplist.append((authorization, 'Authorization'))
+        data_list_clientsplist.append((locationtimestopped, 'LocationTimeStopped'))
         
     for key, value in locationdplist.items():
       data_list_locationdplist.append((key, value))
