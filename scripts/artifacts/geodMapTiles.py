@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "version": "0.0.2",
         "date": "2024-10-17",
         "requirements": "none",
-        "category": "Geolocation",
+        "category": "Location",
         "notes": "",
         "paths": ('**/MapTiles.sqlitedb*'),
         "output_types": ['lava', 'tsv', 'timeline']
