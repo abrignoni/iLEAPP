@@ -54,7 +54,7 @@ def get_geodApplications(files_found, report_folder, seeker, wrap_text, timezone
 	
 __artifacts__ = {
     "geodapplications": (
-        "Geolocation",
+        "Location",
         ('**/AP.db*'),
         get_geodApplications)
 }
