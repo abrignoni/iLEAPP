@@ -1,4 +1,5 @@
 import os
+import re
 import scripts.artifacts.artGlobals
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
@@ -31,24 +32,30 @@ def day_converter(day):
   return day
 
 def line_splitting(line):
-  splitline = line.split(' ',6)
-  notice = splitline.pop(6)
-  weekday, month, space, day, time, year = splitline
-  if space == '':
-    pass
+  datecheck = re.match(r"^[a-zA-Z]", line)
+  if datecheck:
+      splitline = line.split(' ',6)
+      notice = splitline.pop(6)
+      weekday, month, space, day, time, year = splitline
+      if space == '':
+        pass
+      else:
+        splitline = line.split(' ',5)
+        notice = splitline.pop(5)
+        weekday, month, day, time, year = splitline
+      if 'Reboot detected' in notice:
+        notice = notice.split('main: ')[1]
+      else:
+        if ':]: ' in notice:
+            notice = notice.split(':]: ')[1]
+        else:
+            notice = notice.split(': ')[1]
+      day = day_converter(day)
+      month = month_converter(month)
+      timestamp = (str(year) + "-" + str(month) + "-" + str(day) + " " + str(time))
+      return((timestamp,notice))
   else:
-    splitline = line.split(' ',5)
-    notice = splitline.pop(5)
-    weekday, month, day, time, year = splitline
-  if 'Reboot detected' in notice:
-    notice = notice.split('main: ')[1]
-  else:
-    notice = notice.split(':]: ')[1] 
-  day = day_converter(day)
-  month = month_converter(month)
-  timestamp = (str(year) + "-" + str(month) + "-" + str(day) + " " + str(time))
-  return((timestamp,notice))
-
+      pass
 
 def get_mobileInstallb(files_found, report_folder, seeker, wrap_text, timezone_offset):
     iosversion = scripts.artifacts.artGlobals.versionf
