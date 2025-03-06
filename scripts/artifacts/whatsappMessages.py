@@ -102,7 +102,7 @@ def get_whatsappMessages(files_found, report_folder, seeker, wrap_text, timezone
                 if number_forwardings is not None:
                     number_forward = f'{number_forwardings}'
                 if from_forwaded is not None:
-                    from_forward = f'{from_forwaded.decode('utf-8')}'
+                    from_forward = f"{from_forwaded.decode('utf-8')}"
             else:
                 number_forward = ''
                 from_forward = ''
