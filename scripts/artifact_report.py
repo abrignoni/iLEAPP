@@ -85,7 +85,6 @@ class ArtifactHtmlReport:
         if write_total:
             self.write_minor_header(f'Total number of entries: {num_entries}', 'h6')
         if write_location:
-
             if isinstance(source_path, list):
                 source_path_display = '<br />'.join([str(path) for path in source_path])
             else:
