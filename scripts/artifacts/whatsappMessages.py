@@ -10,6 +10,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": (
             '*/var/mobile/Containers/Shared/AppGroup/*/ChatStorage.sqlite*',
+            '*/var/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*',
             '*/var/mobile/Containers/Shared/AppGroup/*/Message/Media/*/*/*/*.*'
         ),
         "function": "get_whatsappMessages"
@@ -32,15 +33,25 @@ from scripts.ilapfuncs import logfunc, logdevinfo, timeline, kmlgen, tsv, is_pla
 
 
 def get_whatsappMessages(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    
+
+    found_source_file = []
+    whatsapp_wa_db = None
+    whatsapp_msgstore_db = None
     for file_found in files_found:
         file_found = str(file_found)
-        
-        if file_found.endswith('.sqlite'):
-            break
+
+        if file_found.endswith('ChatStorage.sqlite'):
+            whatsapp_msgstore_db = str(file_found)
+            found_source_file.append(file_found)
+        if file_found.endswith('ContactsV2.sqlite'):
+            whatsapp_wa_db = str(file_found)
+            found_source_file.append(file_found)
+
     data_list =[]
-    db = open_sqlite_db_readonly(file_found)
+    db = open_sqlite_db_readonly(whatsapp_msgstore_db)
     cursor = db.cursor()
+    if(whatsapp_wa_db):
+        cursor.execute('''attach database "''' + whatsapp_wa_db + '''" as wadb ''')
     cursor.execute('''
     select
     datetime(ZMESSAGEDATE+978307200, 'UNIXEPOCH'),
@@ -67,7 +78,7 @@ def get_whatsappMessages(files_found, report_folder, seeker, wrap_text, timezone
     all_rows = cursor.fetchall()
     usageentries = len(all_rows)
     thumb = ''
-    
+
     if usageentries > 0:
         for row in all_rows:
 
@@ -103,6 +114,20 @@ def get_whatsappMessages(files_found, report_folder, seeker, wrap_text, timezone
                     number_forward = f'{number_forwardings}'
                 if from_forwaded is not None:
                     from_forward = f'{from_forwaded.decode('utf-8')}'
+                    if(whatsapp_wa_db):
+                        subcursor = db.cursor()
+                        subcursor.execute('''
+                            SELECT ZFULLNAME || ' (' || ZPHONENUMBER || ')' 
+                            FROM wadb.ZWAADDRESSBOOKCONTACT 
+                            WHERE ZWHATSAPPID = ? 
+                            LIMIT 1
+                        ''', (from_forward,))
+
+                        suball_rows = subcursor.fetchall()
+                        if suball_rows:
+                            from_forward += f"<br/>{suball_rows[0][0]}"
+
+                        subcursor.close()
             else:
                 number_forward = ''
                 from_forward = ''
@@ -144,26 +169,26 @@ def get_whatsappMessages(files_found, report_folder, seeker, wrap_text, timezone
 
             data_list.append((row[0], sender, row[3], receiver, row[4], row[6], attfile, thumb, localpath, row[7], number_forward, from_forward, lat, lon,))
 
-        
+
         description = 'Whatsapp - Messages'
         report = ArtifactHtmlReport('Whatsapp - Messages')
         report.start_artifact_report(report_folder, 'Whatsapp - Messages')
         report.add_script()
         data_headers = (
-            'Timestamp', 'Sender Name', 'From ID', 'Receiver', 'To ID', 'Message', 
+            'Timestamp', 'Sender Name', 'From ID', 'Receiver', 'To ID', 'Message',
             'Attachment File', 'Thumb','Attachment Local Path','Starred?', 'Number of Forwardings', 'Forwarded from',  'Latitude', 'Longitude',)  # Don't remove the comma, that is required to make this a tuple as there is only 1 element
-        
-        report.write_artifact_data_table(data_headers, data_list, file_found, html_escape=False)
+
+        report.write_artifact_data_table(data_headers, data_list, found_source_file, html_escape=False)
         report.end_artifact_report()
 
         tsvname = f'Whatsapp - Messages'
         tsv(report_folder, data_headers, data_list, tsvname)
-        
+
         tlactivity = f'Whatsapp - Messages'
         timeline(report_folder, tlactivity, data_list, data_headers)
-        
+
         kmlactivity = 'Whatsapp - Messages'
         kmlgen(report_folder, kmlactivity, data_list, data_headers)
-        
+
     else:
         logfunc('Whatsapp - Messages data available')
