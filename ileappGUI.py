@@ -521,6 +521,9 @@ mlist_text.config(state='disabled')
 main_window.bind_class('Checkbutton', '<MouseWheel>', scroll)
 main_window.bind_class('Checkbutton', '<Button-4>', scroll)
 main_window.bind_class('Checkbutton', '<Button-5>', scroll)
+main_window.bind("<Control-f>", lambda event: modules_filter_entry.focus_set()) # Focus on The Filter Field
+main_window.bind("<Control-i>", lambda event: input_entry.focus_set()) # Focus on the Input Field
+main_window.bind("<Control-o>", lambda event: output_entry.focus_set()) # Focus on the Output Field
 
 ### Process
 bottom_frame = ttk.Frame(main_window)
