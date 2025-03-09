@@ -5,7 +5,7 @@ __artifacts_v2__ = {
         "author": "@djangofaiola",
         "version": "0.1",
         "creation_date": "2024-12-20",
-        "last_update_date": "2024-03-08",
+        "last_update_date": "2024-03-09",
         "requirements": "none",
         "category": "BeReal",
         "notes": "https://djangofaiola.blogspot.com",
@@ -476,19 +476,20 @@ def bereal_preferences(files_found, report_folder, seeker, wrap_text, timezone_o
             # group
             if str(file_found).endswith('group.BeReal.plist'):
                 # me <id, username>
-                user_name = None
+                user_name = 'Local User'
                 user_id = plist_data.get('bereal-user-id')
                 if not bool(user_id):
                     user_id = plist_data.get('userId')
                 if not bool(user_id):
                     user_id = plist_data.get('myUserID')
                 if bool(user_id):
-                    user_name = plist_data.get('myAccount', {}).get(user_id).get('username')
+                    user_name = plist_data.get('myAccount', {}).get(user_id, {}).get('username')
+                    if not bool(user_name): user_name = 'Local User'
                     map_id_name[user_id] = user_name
                     # bereal user id
                     bereal_user_id = user_id
                     # local profile picture (file:///private/var/mobile/Containers/Shared/AppGroup/<APP_GUID>/notification/file.jpg)
-                    bereal_profile_picture = plist_data.get('myAccount', {}).get(user_id).get('profilePictureURL')
+                    bereal_profile_picture = plist_data.get('myAccount', {}).get(user_id, {}).get('profilePictureURL')
 
                 # current friends <id, fullname>
                 current_friends = plist_data.get('currentFriends')
