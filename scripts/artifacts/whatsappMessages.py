@@ -110,7 +110,6 @@ def get_whatsappMessages(files_found, report_folder, seeker, wrap_text, timezone
 
                 number_forwardings = decoded_data.get("17")
                 from_forwarded = decoded_data.get("21")
-                print(f'{decoded_data.get("17")} - {decoded_data.get("21")}')
                 if number_forwardings is not None:
                     number_forward = f'{number_forwardings}'
                 if from_forwarded is not None:
@@ -123,13 +122,27 @@ def get_whatsappMessages(files_found, report_folder, seeker, wrap_text, timezone
                                                WHERE ZWHATSAPPID = ? 
                                                LIMIT 1
                                            ''', (from_forward,))
+                        suball_rows = subcursor.fetchall()
+                        if suball_rows:
+                            from_forward += f'<br/>{suball_rows[0][0]}'
+                        subcursor.close()
+                if from_forwarded is None and number_forwardings is not None and row[1] == 0:
+                    from_forward = f'{row[3]}'
+                    if (whatsapp_wa_db):
+                        subcursor = db.cursor()
+                        subcursor.execute('''
+                                               SELECT ZFULLNAME || ' (' || ZPHONENUMBER || ')' 
+                                               FROM wadb.ZWAADDRESSBOOKCONTACT 
+                                               WHERE ZWHATSAPPID = ? 
+                                               LIMIT 1
+                                           ''', (row[3],))
 
                         suball_rows = subcursor.fetchall()
-                        # If the Local User is the receiver, the Value 21 in Protobuf is not set. So the Sender is the Forwarder
-                        if suball_rows:
-                            from_forward += f"<br/>{suball_rows[0][0]}"
-
+                        if suball_rows and suball_rows[0][0] is not None:
+                            from_forward += f'<br/> {suball_rows[0][0]}'
                         subcursor.close()
+                    else:
+                        from_forward += f'<br/>{sender}'
             else:
                 number_forward = ''
                 from_forward = ''
