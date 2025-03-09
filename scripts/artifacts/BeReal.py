@@ -492,7 +492,7 @@ def bereal_preferences(files_found, report_folder, seeker, wrap_text, timezone_o
                     bereal_profile_picture = plist_data.get('myAccount', {}).get(user_id, {}).get('profilePictureURL')
 
                 # current friends <id, fullname>
-                current_friends = plist_data.get('currentFriends')
+                current_friends = plist_data.get('currentFriends', {})
                 for user_id, user_name in current_friends.items():
                     map_id_name[user_id] = user_name
             
@@ -559,11 +559,11 @@ def bereal_accounts(files_found, report_folder, seeker, wrap_text, timezone_offs
             biography = account.get('biography')
             # country code
             country_code = account.get('countryCode')
-            # region 2.x, 4.x
-            region = account.get('region', {}).get('value')
-            # region 1.x
-            if not bool(region):
-                region = account.get('region')
+            # region
+            region = account.get('region')
+            # 2.x, 4.x
+            if bool(region) and isinstance(region, dict):
+                region = account.get('region', {}).get('value')
             # location/address
             address = account.get('location')
             # phone number
@@ -595,14 +595,14 @@ def bereal_accounts(files_found, report_folder, seeker, wrap_text, timezone_offs
                     # timezone
                     timezone.append(device.get('timezone'))
                     timezone_html = timezone
-                dev_uid = '\n'.join(dev_uid)
-                dev_info = '\n'.join(dev_info)
-                app_ver = '\n'.join(app_ver)
-                timezone = '\n'.join(timezone)
-                dev_uid_html = '<br />'.join(dev_uid_html)
-                dev_info_html = '<br />'.join(dev_info_html)
-                app_ver_html = '<br />'.join(app_ver_html)
-                timezone_html = '<br />'.join(timezone_html)
+            dev_uid = '\n'.join(dev_uid)
+            dev_info = '\n'.join(dev_info)
+            app_ver = '\n'.join(app_ver)
+            timezone = '\n'.join(timezone)
+            dev_uid_html = '<br />'.join(dev_uid_html)
+            dev_info_html = '<br />'.join(dev_info_html)
+            app_ver_html = '<br />'.join(app_ver_html)
+            timezone_html = '<br />'.join(timezone_html)
             # is private?
             is_private = account.get('isPrivate')
             # realmojis
