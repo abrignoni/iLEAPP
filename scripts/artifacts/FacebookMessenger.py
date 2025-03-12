@@ -13,7 +13,7 @@ def get_FacebookMessenger(files_found, report_folder, seeker, wrap_text, timezon
         if file_found.endswith('.db'):
             
             db = open_sqlite_db_readonly(file_found)
-            check = does_view_exist_in_db(db, 'thread_messages')
+            check = does_view_exist_in_db(file_found, 'thread_messages')
         
             db = open_sqlite_db_readonly(file_found)
             

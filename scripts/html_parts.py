@@ -204,7 +204,7 @@ thank_you_note = \
                     <div class="card bg-white mb-3" style="max-width: 500px; margin:auto">
                         <div class="row no-gutters">
                             <center><div class="col-md-4">
-                                <img src="_elements/logo.png" class="card-img" alt="DFIR">
+                                <img src="_elements/logo.png" class="card-img" alt="iLEAPP Logo">
                             </div>
                             <div class="col-md-8">
                             <div class="card-body">

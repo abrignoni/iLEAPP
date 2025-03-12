@@ -79,13 +79,13 @@ def voicemail(files_found, report_folder, seeker, wrap_text, timezone_offset):
         timestamp = convert_unix_ts_to_utc(record[0])
         audio_filename = f'{record[-1]}.amr'
         audio_file_path = f'*/mobile/Library/Voicemail/{audio_filename}'
-        media_item = check_in_media(seeker, audio_file_path, artifact_info)
+        media_item = check_in_media(seeker, audio_file_path, artifact_info, audio_filename)
         if table_map_exists:
             data_list.append(
-                (timestamp, record[1], record[2], record[3], record[4], media_item.id))
+                (timestamp, record[1], record[2], record[3], record[4], media_item))
         else:
             data_list.append(
-                (timestamp, record[1], record[2], record[3], media_item.id))
+                (timestamp, record[1], record[2], record[3], media_item))
     return data_headers, data_list, db_file
 
 @artifact_processor
@@ -144,12 +144,12 @@ def deletedVoicemail(files_found, report_folder, seeker, wrap_text, timezone_off
         trashed_date = convert_cocoa_core_data_ts_to_utc(record[-2])
         audio_filename = f'{record[-1]}.amr'
         audio_file_path = f'*/mobile/Library/Voicemail/{audio_filename}'
-        media_item = check_in_media(seeker, audio_file_path, artifact_info)
+        media_item = check_in_media(seeker, audio_file_path, artifact_info, audio_filename)
         if table_map_exists:
             data_list.append(
-                (timestamp, record[1], record[2], record[3], record[4], trashed_date, media_item.id))
+                (timestamp, record[1], record[2], record[3], record[4], trashed_date, media_item))
         else:
             data_list.append(
-                (timestamp, record[1], record[2], record[3], trashed_date, media_item.id))
+                (timestamp, record[1], record[2], record[3], trashed_date, media_item))
 
     return data_headers, data_list, db_file
