@@ -161,16 +161,15 @@ def addressBook(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
     for record in db_records:
         creation_date = convert_cocoa_core_data_ts_to_utc(record[1])
+        media_name = f'{record[5]} {record[7]}'
         
         thumbnail = record[2]
         if thumbnail:
-            thumbnail_item = check_in_embedded_media(seeker, address_book_images_db, thumbnail, artifact_info)
-            thumbnail = thumbnail_item.id
+            thumbnail = check_in_embedded_media(seeker, address_book_images_db, thumbnail, artifact_info, media_name)
 
         full_size_image = record[3]
         if full_size_image:
-                image_item = check_in_embedded_media(seeker, address_book_images_db, full_size_image, artifact_info)
-                full_size_image = image_item.id
+                full_size_image = check_in_embedded_media(seeker, address_book_images_db, full_size_image, artifact_info, media_name)
 
         phone_numbers = record[16]
         if phone_numbers:
