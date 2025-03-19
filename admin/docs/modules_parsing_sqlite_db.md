@@ -8,26 +8,11 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 <!-- GET_RECORDS_START -->
 | Source Modules |
 |----------------|
-| accountData |
-| allTrails |
-| callHistory |
-| subscriberInfo |
-| twint |
-<!-- GET_RECORDS_END -->
-
-### open_sqlite_db_readonly() Usage
-<!-- READONLY_START -->
-| Source Modules |
-|----------------|
-| DataUsage |
-| FacebookMessenger |
-| FitnessWorkoutsLocationData |
-| LinkedIn |
-| Oops |
-| Ph10AssetParsedEmbeddedFiles |
+| BeReal |
 | Ph11KwrdsCapsTitlesDescripsBasicAssetData |
 | Ph15PeopleandDetFacesNAD |
 | Ph16AssetPeopleandDetFaces |
+| Ph17GenAIDetected |
 | Ph1BasicAssetData |
 | Ph20AlbumsNAD |
 | Ph21AlbumsNonSharedNAD |
@@ -49,7 +34,6 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | Ph51PossOptimizedAssetsIntResouData |
 | Ph5HasLocations |
 | Ph6ViewedPlayData |
-| Ph70UserAdjustDateTimezoneLocation |
 | Ph7Favorite |
 | Ph8HasAdjustment |
 | Ph94Ios14REFforAssetAnalysis |
@@ -58,12 +42,38 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | Ph97iOS17REFforAssetAnalysis |
 | Ph98iOS18REFforAssetAnalysis |
 | Ph9BurstAvalanche |
+| accountData |
+| addressBook |
+| allTrails |
+| callHistory |
+| filesApp |
+| foursquareSwarm |
+| googleTranslate |
+| nsVault |
+| payByPhone |
+| splitwise |
+| subscriberInfo |
+| twint |
+| voicemail |
+| wire |
+<!-- GET_RECORDS_END -->
+
+### open_sqlite_db_readonly() Usage
+<!-- READONLY_START -->
+| Source Modules |
+|----------------|
+| ConnectedDeviceInformation |
+| DataUsage |
+| FacebookMessenger |
+| FitnessWorkoutsLocationData |
+| LinkedIn |
+| Oops |
+| Ph10AssetParsedEmbeddedFiles |
+| Ph70UserAdjustDateTimezoneLocation |
 | SMSmissingROWIDs |
 | SiriRemembers |
-| Splitwise |
 | WithingsHealthMate |
 | ZangiChats |
-| addressBook |
 | applePodcasts |
 | appleWalletCards |
 | appleWalletPasses |
@@ -79,6 +89,7 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | burnerCache |
 | cachev0 |
 | calendarAll |
+| callHistoryGroupCall |
 | cashApp |
 | chrome |
 | cloudkitCache |
@@ -87,14 +98,12 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | coreAccessoriesAcc |
 | coreAccessoriesUserEvent |
 | dmss |
-| filesApps |
 | geodApplications |
 | geodMapTiles |
 | geodPDPlaceCache |
 | gmail |
 | googleChat |
 | googleDuo |
-| googleTranslate |
 | health |
 | hikvision |
 | imoHD_Chat |
@@ -108,6 +117,7 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | knowledgeC |
 | life360 |
 | line |
+| mailprotect |
 | mapsSync |
 | mediaLibrary |
 | netusage |
@@ -133,22 +143,22 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | syncDev |
 | tcc |
 | teams |
+| telegramMesssages |
 | teleguard |
 | tikTok |
 | tikTokReplied |
 | tileAppDb |
 | tileAppDisc |
 | tileAppNetDb |
+| trustedPeers |
 | uberClient |
 | uberPlaces |
 | viber |
 | vipps |
 | vippsContacts |
-| voicemail |
 | waze |
 | whatsappCallHistory |
 | whatsappContacts |
 | whatsappMessages |
 | wifiNetworkStoreModel |
-| wire |
 <!-- READONLY_END -->

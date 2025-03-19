@@ -1,4 +1,5 @@
 import os
+import re
 import scripts.artifacts.artGlobals
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
@@ -31,24 +32,30 @@ def day_converter(day):
   return day
 
 def line_splitting(line):
-  splitline = line.split(' ',6)
-  notice = splitline.pop(6)
-  weekday, month, space, day, time, year = splitline
-  if space == '':
-    pass
+  datecheck = re.match(r"^[a-zA-Z]", line)
+  if datecheck:
+      splitline = line.split(' ',6)
+      notice = splitline.pop(6)
+      weekday, month, space, day, time, year = splitline
+      if space == '':
+        pass
+      else:
+        splitline = line.split(' ',5)
+        notice = splitline.pop(5)
+        weekday, month, day, time, year = splitline
+      if 'Reboot detected' in notice:
+        notice = notice.split('main: ')[1]
+      else:
+        if ':]: ' in notice:
+            notice = notice.split(':]: ')[1]
+        else:
+            notice = notice.split(': ')[1]
+      day = day_converter(day)
+      month = month_converter(month)
+      timestamp = (str(year) + "-" + str(month) + "-" + str(day) + " " + str(time))
+      return((timestamp,notice))
   else:
-    splitline = line.split(' ',5)
-    notice = splitline.pop(5)
-    weekday, month, day, time, year = splitline
-  if 'Reboot detected' in notice:
-    notice = notice.split('main: ')[1]
-  else:
-    notice = notice.split(':]: ')[1] 
-  day = day_converter(day)
-  month = month_converter(month)
-  timestamp = (str(year) + "-" + str(month) + "-" + str(day) + " " + str(time))
-  return((timestamp,notice))
-
+      pass
 
 def get_mobileInstallb(files_found, report_folder, seeker, wrap_text, timezone_offset):
     iosversion = scripts.artifacts.artGlobals.versionf
@@ -58,7 +65,7 @@ def get_mobileInstallb(files_found, report_folder, seeker, wrap_text, timezone_o
       for file_found in files_found:
         filename = os.path.basename(file_found)
         
-        with open(file_found, 'r') as f:
+        with open(file_found, 'r', encoding='utf8') as f:
           data = f.readlines()
         
         for line in data:
@@ -111,7 +118,7 @@ def get_mobileInstallb(files_found, report_folder, seeker, wrap_text, timezone_o
         report = ArtifactHtmlReport(f'Mobile Installation Logs History')
         report.start_artifact_report(report_folder, f'Mobile Installation Logs History', description)
         report.add_script()
-        data_headers = ('Timestamp','Type','Notice','Source File')
+        data_headers = ('Timestamp (Local)','Type','Notice','Source File')
         report.write_artifact_data_table(data_headers, data_list, file_found, html_no_escape=[''])
         report.end_artifact_report()
         
@@ -130,7 +137,7 @@ def get_mobileInstallb(files_found, report_folder, seeker, wrap_text, timezone_o
         report = ArtifactHtmlReport(f'Reboots - Mobile Installation Logs')
         report.start_artifact_report(report_folder, f'Reboots - Mobile Installation Logs', description)
         report.add_script()
-        data_headers = ('Timestamp','Type','Notice','Source File')
+        data_headers = ('Timestamp (Local)','Type','Notice','Source File')
         report.write_artifact_data_table(data_headers, data_list_reboot, file_found, html_no_escape=[''])
         report.end_artifact_report()
         

@@ -12,7 +12,8 @@ __artifacts_v2__ = {
             investigation/examination. Additional details published within 'Enriching Investigations with Apple Watch Data Through the \
             healthdb_secure.sqlite Database' at https://dfir.pubpub.org/pub/xqvcn3hj/release/1",
         "paths": ('*Health/healthdb_secure.sqlite*', '*Health/healthdb.sqlite*'),
-        "output_types": ["html", "tsv", "lava"]
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": 'activity'
     },
     "healthProvenances": {
         "name": "Health - Provenances",
@@ -26,7 +27,8 @@ __artifacts_v2__ = {
                         as well as research provided by Sarah Edwards as part of her APOLLO project.\
                         https://for585.com/dfirsummit22 - https://github.com/mac4n6/APOLLO",
         "paths": ('*Health/healthdb_secure.sqlite*', '*Health/healthdb.sqlite*'),
-        "output_types": ["html", "tsv", "lava"]
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": 'smartphone'
     },
     "healthHeadphoneAudioLevels": {
         "name": "Health - Headphone Audio Levels",
@@ -40,7 +42,8 @@ __artifacts_v2__ = {
                         as well as research provided by Sarah Edwards as part of her APOLLO project.\
                         https://for585.com/dfirsummit22 - https://github.com/mac4n6/APOLLO",
         "paths": ('*Health/healthdb_secure.sqlite*', '*Health/healthdb.sqlite*'),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": 'headphones'
     },
     "healthHeartRate": {
         "name": "Health - Heart Rate",
@@ -55,7 +58,8 @@ __artifacts_v2__ = {
                         https://for585.com/dfirsummit22 - https://github.com/mac4n6/APOLLO\
                         Update: @Johann-PLW - Splitting Heart Rate and Resting Heart Rate and adding Heart Rate Context and Provenance",
         "paths": ('*Health/healthdb_secure.sqlite*', '*Health/healthdb.sqlite*'),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": 'activity'
     },
     "healthRestingHeartRate": {
         "name": "Health - Resting Heart Rate",
@@ -70,7 +74,8 @@ __artifacts_v2__ = {
                         https://for585.com/dfirsummit22 - https://github.com/mac4n6/APOLLO\
                         Update: @Johann-PLW - Splitting Heart Rate and Resting Heart Rate and adding Heart Rate Context and Provenance",
         "paths": ('*Health/healthdb_secure.sqlite*', '*Health/healthdb.sqlite*'),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": 'activity'
     },
     "healthAchievements": {
         "name": "Health - Achievements",
@@ -84,7 +89,8 @@ __artifacts_v2__ = {
                         as well as research provided by Sarah Edwards as part of her APOLLO project.\
                         https://for585.com/dfirsummit22 - https://github.com/mac4n6/APOLLO",
         "paths": ('*Health/healthdb_secure.sqlite*',),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": 'star'
     },
     "healthSteps": {
         "name": "Health - Steps",
@@ -96,7 +102,8 @@ __artifacts_v2__ = {
         "category": "Health",
         "notes": "",
         "paths": ('*Health/healthdb_secure.sqlite*',),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": 'activity'
     },
     "healthHeight": {
         "name": "Health - User Entered Data - Height",
@@ -109,7 +116,8 @@ __artifacts_v2__ = {
         "notes": "This change parses data entered by the user of the device through the Fitness Application (Personalize Fitness and Health) for height.\
               Once parsed height is displayed with the timestamp the data was entered followed by height in meters, centimeters, feet and inches.",
         "paths": ('*Health/healthdb_secure.sqlite*',),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": 'user'
     },
     "healthWeight": {
         "name": "Health - User Entered Data - Weight",
@@ -122,7 +130,8 @@ __artifacts_v2__ = {
         "notes": "This change parses data entered by the user of the device through the Fitness Application (Personalize Fitness and Health) for weight.\
               Once parsed weight is displayed with the timestamp the data was entered followed by weight in kilograms, stones, and pounds.",
         "paths": ('*Health/healthdb_secure.sqlite*',),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": 'user'
     },
     "healthWatchWornData": {
         "name": "Health - Device - Watch Worn Data",
@@ -137,7 +146,8 @@ __artifacts_v2__ = {
                     such as heart rate data will be generated and recorded.\
                     Additional details published within 'Apple Watch Worn Data Analysis' at https://metadataperspective.com/2024/05/20/apple-watch-worn-data-analysis/",
         "paths": ('*Health/healthdb_secure.sqlite*',),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": 'watch'
     },
     "healthAllWatchSleepData": {
         "name": "Health - Sleep - All Watch Sleep Data",
@@ -151,7 +161,8 @@ __artifacts_v2__ = {
         Additional details published within 'Sleepless in Cupertino: A Forensic Dive into Apple Watch Sleep Tracking' at \
         https://metadataperspective.com/2024/08/01/sleepless-in-cupertino-a-forensic-dive-into-apple-watch-sleep-tracking/",
         "paths": ('*Health/healthdb_secure.sqlite*',),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": 'moon'
     },
     "healthWatchBySleepPeriod": {
         "name": "Health - Sleep - Watch By Sleep Period",
@@ -165,17 +176,29 @@ __artifacts_v2__ = {
         Additional details published within 'Sleepless in Cupertino: A Forensic Dive into Apple Watch Sleep Tracking' at \
         https://metadataperspective.com/2024/08/01/sleepless-in-cupertino-a-forensic-dive-into-apple-watch-sleep-tracking/",
         "paths": ('*Health/healthdb_secure.sqlite*',),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": 'moon'
+    },
+    "healthSourceDevices": {
+        "name": "Health - Source Devices",
+        "description": "Parses Apple Health device info from the healthdb.sqlite database, including make/model/software information.",
+        "author": "@stark4n6",
+        "version": "0.1",
+        "date": "2025-03-03",
+        "requirements": "none",
+        "category": "Health",
+        "notes": "",
+        "paths": ('*Health/healthdb.sqlite*',),
+        "output_types": "standard",
+        "artifact_icon": 'smartphone'
     }
 }
-
 
 import scripts.artifacts.artGlobals
 
 from packaging import version
 from scripts.builds_ids import OS_build, device_id
-from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, convert_ts_human_to_timezone_offset
-
+from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, attach_sqlite_db_readonly, convert_ts_human_to_timezone_offset
 
 @artifact_processor
 def healthWorkouts(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -196,7 +219,8 @@ def healthWorkouts(files_found, report_folder, seeker, wrap_text, timezone_offse
     with open_sqlite_db_readonly(healthdb_secure) as db:
         cursor = db.cursor()
 
-        cursor.execute('''ATTACH DATABASE "file:''' + healthdb + '''?mode=ro" AS healthdb ''')
+        attach_query = attach_sqlite_db_readonly(healthdb, 'healthdb')
+        cursor.execute(attach_query)
 
         activity_types = '''
             WHEN 1 THEN "AMERICAN FOOTBALL"
@@ -335,38 +359,22 @@ def healthWorkouts(files_found, report_folder, seeker, wrap_text, timezone_offse
             data_provenances.tz_name AS 'Timezone',
             datetime(objects.creation_date+978307200,'unixepoch') AS 'Timestamp added to Health'
         '''
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='workout_activities';")
+        table_exists = cursor.fetchone()
 
-        if version.parse(iOS_version) < version.parse("16"):
-            query = '''
-            SELECT datetime(samples.start_date+978307200,'unixepoch') AS 'Start timestamp',
-            datetime(samples.end_date+978307200,'unixepoch') AS 'End timestamp',
-            CASE workouts.activity_type''' + activity_types + '''
-            ELSE "Unknown" || "-" || workouts.activity_type
-            END AS 'Type',
-            strftime('%H:%M:%S', samples.end_date - samples.start_date, 'unixepoch') AS 'Total Time Duration',
-            strftime('%H:%M:%S', workouts.duration, 'unixepoch') AS 'Duration',
-            ''' + distance_and_goals + '''
-            round(workouts.total_energy_burned, 2) AS 'Total Active Energy (kcal)',
-            round(workouts.total_basal_energy_burned, 2) AS 'Total Resting Energy (kcal)',
-            ''' + metadata + source + '''
-            FROM workouts
-            LEFT OUTER JOIN samples ON samples.data_id = workouts.data_id
-            LEFT OUTER JOIN metadata_values ON metadata_values.object_id = workouts.data_id
-            LEFT OUTER JOIN metadata_keys ON metadata_keys.ROWID = metadata_values.key_id
-            LEFT OUTER JOIN objects ON objects.data_id = workouts.data_id
-            LEFT OUTER JOIN data_provenances ON data_provenances.ROWID = objects.provenance
-            LEFT OUTER JOIN healthdb.source_devices ON healthdb.source_devices.ROWID = data_provenances.device_id
-            LEFT OUTER JOIN healthdb.sources ON healthdb.sources.ROWID = data_provenances.source_id
-            GROUP BY workouts.data_id
-            ORDER BY samples.start_date
-            '''   
-        else:
+        # Decide which query to use based on table existence
+        if table_exists:
             query = '''
             SELECT datetime(workout_activities.start_date+978307200,'unixepoch') AS 'Start Timestamp',
             datetime(workout_activities.end_date+978307200,'unixepoch') AS 'End Timestamp',
             CASE workout_activities.activity_type''' + activity_types + '''
             ELSE "Unknown" || "-" || workout_activities.activity_type
             END AS 'Type',
+            CASE workout_activities.location_type
+            WHEN 2 THEN 'Indoor'
+            WHEN 3 THEN 'Outdoor'
+            ELSE workout_activities.location_type
+            END AS 'Location Type',
             strftime('%H:%M:%S', samples.end_date - samples.start_date, 'unixepoch') AS 'Total Time Duration',
             strftime('%H:%M:%S', workout_activities.duration, 'unixepoch') AS 'Duration',
             ''' + distance_and_goals + '''
@@ -390,6 +398,30 @@ def healthWorkouts(files_found, report_folder, seeker, wrap_text, timezone_offse
             GROUP BY workout_activities.ROWID
             ORDER BY workout_activities.start_date
             '''
+        else:
+            query = '''
+            SELECT datetime(samples.start_date+978307200,'unixepoch') AS 'Start timestamp',
+            datetime(samples.end_date+978307200,'unixepoch') AS 'End timestamp',
+            CASE workouts.activity_type''' + activity_types + '''
+            ELSE "Unknown" || "-" || workouts.activity_type
+            END AS 'Type',
+            strftime('%H:%M:%S', samples.end_date - samples.start_date, 'unixepoch') AS 'Total Time Duration',
+            strftime('%H:%M:%S', workouts.duration, 'unixepoch') AS 'Duration',
+            ''' + distance_and_goals + '''
+            round(workouts.total_energy_burned, 2) AS 'Total Active Energy (kcal)',
+            round(workouts.total_basal_energy_burned, 2) AS 'Total Resting Energy (kcal)',
+            ''' + metadata + source + '''
+            FROM workouts
+            LEFT OUTER JOIN samples ON samples.data_id = workouts.data_id
+            LEFT OUTER JOIN metadata_values ON metadata_values.object_id = workouts.data_id
+            LEFT OUTER JOIN metadata_keys ON metadata_keys.ROWID = metadata_values.key_id
+            LEFT OUTER JOIN objects ON objects.data_id = workouts.data_id
+            LEFT OUTER JOIN data_provenances ON data_provenances.ROWID = objects.provenance
+            LEFT OUTER JOIN healthdb.source_devices ON healthdb.source_devices.ROWID = data_provenances.device_id
+            LEFT OUTER JOIN healthdb.sources ON healthdb.sources.ROWID = data_provenances.source_id
+            GROUP BY workouts.data_id
+            ORDER BY samples.start_date
+            '''   
 
         cursor.execute(query)
 
@@ -398,28 +430,28 @@ def healthWorkouts(files_found, report_folder, seeker, wrap_text, timezone_offse
         for row in all_rows:
             start_timestamp = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
             end_timestamp = convert_ts_human_to_timezone_offset(row[1], timezone_offset)
-            added_timestamp = convert_ts_human_to_timezone_offset(row[25], timezone_offset)
-            hardware = device_id.get(row[21], row[21])
+            added_timestamp = convert_ts_human_to_timezone_offset(row[26], timezone_offset)
+            hardware = device_id.get(row[22], row[22])
             os_family = ''
             
-            if 'Watch' in row[21]:
+            if 'Watch' in row[22]:
                 os_family = 'watchOS '
-            elif 'iPhone' in row[21]:
+            elif 'iPhone' in row[22]:
                 os_family = 'iOS '
             
-            software_version = f'{os_family}{row[23]}'
+            software_version = f'{os_family}{row[24]}'
             
-            if row[15]:
-                celcius_temp = round(((row[15] - 32) * (5 / 9)), 2)  
+            if row[16]:
+                celcius_temp = round(((row[16] - 32) * (5 / 9)), 2)
             
             data_list.append(
-                (start_timestamp, end_timestamp, row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], 
-                row[10], row[11], row[12], row[13], row[14], celcius_temp, row[15], row[16], row[17], row[18], 
-                row[19], row[20], hardware, row[22], software_version, row[24], added_timestamp)
+                (start_timestamp, end_timestamp, str(row[2]).title(), row[3], row[4], row[5], row[6], row[7], row[8], row[9], 
+                row[10], row[11], row[12], row[13], row[14], row[15], celcius_temp, row[16], row[17], row[18], row[19], 
+                row[20], row[21], hardware, row[23], software_version, row[25], added_timestamp)
                 )
 
     data_headers = (
-        ('Start Timestamp', 'datetime'), ('End Timestamp', 'datetime'), 'Type', 'Total Time Duration', 'Duration', 'Distance (in KM)', 
+        ('Start Timestamp', 'datetime'), ('End Timestamp', 'datetime'), 'Activity Type', 'Location Type','Total Time Duration', 'Duration', 'Distance (in KM)', 
         'Distance (in Miles)', 'Goal Type', 'Goal', 'Total Active Energy (kcal)', 'Total Resting Energy (kcal)', 'Average METs', 
         'Min. Heart Rate (BPM)', 'Max. Heart Rate (BPM)', 'Average Heart Rate (BPM)', 'Temperature (°C)', 'Temperature (°F)', 
         'Humidity (%)', 'Latitude', 'Longitude', 'Min. ground elevation (in Meters)', 'Max. ground elevation (in Meters)',
@@ -444,7 +476,8 @@ def healthProvenances(files_found, report_folder, seeker, wrap_text, timezone_of
     with open_sqlite_db_readonly(healthdb_secure) as db:
         cursor = db.cursor()
 
-        cursor.execute('''ATTACH DATABASE "file:''' + healthdb + '''?mode=ro" AS healthdb ''')
+        attach_query = attach_sqlite_db_readonly(healthdb, 'healthdb')
+        cursor.execute(attach_query)
 
         cursor.execute('''
         SELECT data_provenances.ROWID AS 'Row ID', 
@@ -502,7 +535,8 @@ def healthHeadphoneAudioLevels(files_found, report_folder, seeker, wrap_text, ti
     with open_sqlite_db_readonly(healthdb_secure) as db:
         cursor = db.cursor()
 
-        cursor.execute('''ATTACH DATABASE "file:''' + healthdb + '''?mode=ro" AS healthdb ''')
+        attach_query = attach_sqlite_db_readonly(healthdb, 'healthdb')
+        cursor.execute(attach_query)
 
         cursor.execute('''
         Select
@@ -557,7 +591,8 @@ def healthHeartRate(files_found, report_folder, seeker, wrap_text, timezone_offs
     with open_sqlite_db_readonly(healthdb_secure) as db:
         cursor = db.cursor()
 
-        cursor.execute('''ATTACH DATABASE "file:''' + healthdb + '''?mode=ro" AS healthdb ''')
+        attach_query = attach_sqlite_db_readonly(healthdb, 'healthdb')
+        cursor.execute(attach_query)
 
         cursor.execute('''
         SELECT datetime(samples.start_date+978307200,'unixepoch') AS "Start Date",
@@ -659,7 +694,8 @@ def healthRestingHeartRate(files_found, report_folder, seeker, wrap_text, timezo
     with open_sqlite_db_readonly(healthdb_secure) as db:
         cursor = db.cursor()
 
-        cursor.execute('''ATTACH DATABASE "file:''' + healthdb + '''?mode=ro" AS healthdb ''')
+        attach_query = attach_sqlite_db_readonly(healthdb, 'healthdb')
+        cursor.execute(attach_query)
 
         cursor.execute('''
         SELECT datetime(samples.start_date+978307200,'unixepoch') AS 'Start Date',
@@ -1040,8 +1076,49 @@ def healthWatchBySleepPeriod(files_found, report_folder, seeker, wrap_text, time
                 (start_timestamp, end_timestamp, row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11]))
         
     data_headers = (
-        ('Sleep Start Time'), ('Sleep End Time'), 'Time in Bed (HH:MM:SS)', 
+        ('Sleep Start Time', 'datetime'), ('Sleep End Time', 'datetime'), 'Time in Bed (HH:MM:SS)', 
         'Time Asleep (HH:MM:SS)', 'Awake Duration (HH:MM:SS)', 
         'REM Duration (HH:MM:SS)', 'Core Duration (HH:MM:SS)', 
         'Deep Duration (HH:MM:SS)', 'Awake %', 'REM %', 'Core %', 'Deep %')
     return data_headers, data_list, healthdb_secure
+
+@artifact_processor
+def healthSourceDevices(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    data_list = []
+    healthdb = ''
+
+    for file_found in files_found:
+        if file_found.endswith('healthdb.sqlite'):
+           healthdb = file_found
+           break
+
+    with open_sqlite_db_readonly(healthdb) as db:
+        cursor = db.cursor()
+        cursor.execute('''
+        select
+        DATETIME(creation_date + 978307200, 'UNIXEPOCH') AS creation_date,
+        name,
+        manufacturer,
+        model,
+        hardware,
+        firmware,
+        software,
+        localIdentifier,
+        sync_provenance,
+        sync_identity
+        from source_devices
+        where name not like '__NONE__' and localIdentifier not like '__NONE__'
+        ''')
+    
+        all_rows = cursor.fetchall()
+
+        for row in all_rows:
+            creation_date = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
+            device = device_id.get(row[4], row[4])
+            localID = ''
+            if str(row[7]).endswith('-tacl'):
+                localID = str(row[7])[:-5]
+            data_list.append((creation_date, row[1], row[2], row[3], device, row[5], row[6], localID, row[8], row[9]))
+        
+    data_headers = (('Creation Date', 'datetime'),'Device Name','Manufacturer','Model','Hardware','Firmware','Software','Local ID','Sync Provenance','Sync ID')
+    return data_headers, data_list, healthdb

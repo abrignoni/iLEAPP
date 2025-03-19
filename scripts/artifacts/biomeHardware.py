@@ -1,12 +1,12 @@
 __artifacts_v2__ = {
     "get_biomeHardware": {
-        "name": "Biome Hardware Reliability",
+        "name": "Biome - Hardware Reliability",
         "description": "Parses hardware reliability entries from biomes",
         "author": "@JohnHyla",
         "version": "0.0.2",
         "date": "2024-10-17",
         "requirements": "none",
-        "category": "Biome Hardware",
+        "category": "Biome",
         "notes": "",
         "paths": ('*/Biome/streams/restricted/OSAnalytics.Hardware.Reliability/local/*'),
         "output_types": "standard"

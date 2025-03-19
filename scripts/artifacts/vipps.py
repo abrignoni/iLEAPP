@@ -1,28 +1,11 @@
 import io
 import nska_deserialize as nd
-import sqlite3
+import plistlib
 import json
 import sys
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
-
-def does_column_exist_in_db(db, table_name, col_name):
-    '''Checks if a specific column exists in a table'''
-    col_name = col_name.lower()
-    try:
-        db.row_factory = sqlite3.Row # For fetching columns by name
-        query = f"pragma table_info('{table_name}');"
-        cursor = db.cursor()
-        cursor.execute(query)
-        all_rows = cursor.fetchall()
-        for row in all_rows:
-            if row['name'].lower() == col_name:
-                return True
-    except sqlite3.Error as ex:
-        logfunc(f"Query error, query={query} Error={str(ex)}")
-        pass
-    return False
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, does_column_exist_in_db
 
 def get_vipps(files_found, report_folder, seeker, wrap_text, time_offset):
     for file_found in files_found:
@@ -90,7 +73,7 @@ def get_vipps(files_found, report_folder, seeker, wrap_text, time_offset):
                         name = row1[0]
                 else:
                     # Check if ZPHONENUMBERS exists, if so, use it instead
-                    if does_column_exist_in_db(db, 'ZCONTACTMODEL', 'ZPHONENUMBERS'):
+                    if does_column_exist_in_db(file_found, 'ZCONTACTMODEL', 'ZPHONENUMBERS'):
                         cursor1.execute(f'''
                         SELECT 
                         ZNAME,

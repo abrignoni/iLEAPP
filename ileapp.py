@@ -6,7 +6,6 @@ import os.path
 import typing
 import scripts.report as report
 import traceback
-import sqlite3
 import sys
 
 import scripts.plugin_loader as plugin_loader
@@ -327,16 +326,16 @@ def crunch_artifacts(
     seeker = None
     try:
         if extracttype == 'fs':
-            seeker = FileSeekerDir(input_path)
+            seeker = FileSeekerDir(input_path, out_params.data_folder)
 
         elif extracttype in ('tar', 'gz'):
-            seeker = FileSeekerTar(input_path, out_params.temp_folder)
+            seeker = FileSeekerTar(input_path, out_params.data_folder)
 
         elif extracttype == 'zip':
-            seeker = FileSeekerZip(input_path, out_params.temp_folder)
+            seeker = FileSeekerZip(input_path, out_params.data_folder)
 
         elif extracttype == 'itunes':
-            seeker = FileSeekerItunes(input_path, out_params.temp_folder)
+            seeker = FileSeekerItunes(input_path, out_params.data_folder)
 
         else:
             logfunc('Error on argument -o (input type)')
@@ -368,14 +367,22 @@ def crunch_artifacts(
         if os.path.exists(info_plist_path):
             # process_artifact([info_plist_path], 'iTunesBackupInfo', 'Device Info', seeker, out_params.report_folder_base)
             #plugin.method([info_plist_path], out_params.report_folder_base, seeker, wrap_text)
-            report_folder = os.path.join(out_params.report_folder_base, '_HTML')
+            report_folder = os.path.join(out_params.report_folder_base, '_HTML', 'iTunes Backup')
             if not os.path.exists(report_folder):
                 try:
                     os.makedirs(report_folder)
                 except (FileExistsError, FileNotFoundError) as ex:
                     logfunc('Error creating report directory at path {}'.format(report_folder))
                     logfunc('Error was {}'.format(str(ex)))
-            loader["iTunesBackupInfo"].method([info_plist_path], out_params.report_folder_base, seeker, wrap_text, time_offset)
+            loader["iTunesBackupInfo"].method([info_plist_path], report_folder, seeker, wrap_text, time_offset)
+            report_folder = os.path.join(out_params.report_folder_base, '_HTML', 'Installed Apps')
+            if not os.path.exists(report_folder):
+                try:
+                    os.makedirs(report_folder)
+                except (FileExistsError, FileNotFoundError) as ex:
+                    logfunc('Error creating report directory at path {}'.format(report_folder))
+                    logfunc('Error was {}'.format(str(ex)))
+            loader["iTunesBackupInstalledApplications"].method([info_plist_path], report_folder, seeker, wrap_text, time_offset)
             #del search_list['lastBuild'] # removing lastBuild as this takes its place
             print([info_plist_path])  # TODO Remove special consideration for itunes? Merge into main search
         else:
@@ -395,10 +402,7 @@ def crunch_artifacts(
         files_found = []
         log.write(f'<b>For {plugin.name} module</b>')
         for artifact_search_regex in search_regexes:
-            if artifact_search_regex in seeker.searched:
-                found = seeker.searched[artifact_search_regex]
-            else:
-                found = seeker.search(artifact_search_regex)
+            found = seeker.search(artifact_search_regex)
             if not found:
                 log.write(f'<ul><li>No file found for regex <i>{artifact_search_regex}</i></li></ul>')
             else:
@@ -425,7 +429,8 @@ def crunch_artifacts(
                 logfunc('Error was {}'.format(str(ex)))
                 logfunc('Exception Traceback: {}'.format(traceback.format_exc()))
                 continue  # nope
-
+        else:
+            logfunc(f"No file found")
         logfunc('{} [{}] artifact completed'.format(plugin.name, plugin.module_name))
     log.close()
 

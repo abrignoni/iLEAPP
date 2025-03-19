@@ -30,24 +30,24 @@ def get_fsCachedData(files_found, report_folder, seeker, wrap_text, timezone_off
     if len(data_list) > 0:
         note = 'Source location in extraction found in the report for each item.'
         description = 'Media files'
-        report = ArtifactHtmlReport('fsChachedData')
-        report.start_artifact_report(report_folder, 'fsChachedData', description)
+        report = ArtifactHtmlReport('fsCachedData')
+        report.start_artifact_report(report_folder, 'fsCachedData', description)
         report.add_script()
         data_headers = ('Timestamp Modified', 'Media', 'Mime Type', 'Filename', 'Path')
         report.write_artifact_data_table(data_headers, data_list, note, html_no_escape=['Media'])
         report.end_artifact_report()
         
-        tsvname = 'fsChachedData'
+        tsvname = 'fsCachedData'
         tsv(report_folder, data_headers, data_list, tsvname)
         
-        tlactivity = 'fsChachedData'
+        tlactivity = 'fsCachedData'
         timeline(report_folder, tlactivity, data_list, data_headers)
     else:
-        logfunc('No fsChachedData data available')
+        logfunc('No fsCachedData data available')
         
 
 __artifacts__ = {
-    "fsChachedData": (
+    "fsCachedData": (
         "Cache Data",
         ('*/fsCachedData/**'),
         get_fsCachedData)

@@ -3,8 +3,8 @@ __artifacts_v2__ = {
         "name": "Advertising Identifier",
         "description": "Extract Apple advertising identifier",
         "author": "@AlexisBrignoni",
-        "version": "0.2.1",
-        "date": "2023-10-03",
+        "creation_date": "2023-10-03",
+        "last_update_date": "2024-12-17",
         "requirements": "none",
         "category": "Identifiers",
         "notes": "",
@@ -14,13 +14,13 @@ __artifacts_v2__ = {
     }
 }
 
-from scripts.ilapfuncs import artifact_processor, get_plist_content, device_info
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content, device_info
 
 @artifact_processor
 def advertisingID(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    source_path = str(files_found[0])
+    source_path = get_file_path(files_found, "com.apple.lsdidentifiers.plist")
 
-    pl = get_plist_content(source_path)
+    pl = get_plist_file_content(source_path)
     for key, val in pl.items():
         if key == 'LSAdvertiserIdentifier':
             device_info("Advertising Identifier", "Apple Advertising Identifier", val, source_path)

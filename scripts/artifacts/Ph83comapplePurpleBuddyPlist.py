@@ -1,57 +1,43 @@
-# Author:  Scott Koenig, assisted by past contributors
-# Version: 1.0
-#
-#   Description:
-#   Parses basic data from com.apple.purplebuddy.plist which contains some important data related to device restore.
+__artifacts_v2__ = {
+    'Ph83ComApplePurpleBuddyPlist': {
+        'name': 'Ph83-Com-Apple-PurpleBuddy-Plist',
+        'description': 'Parses basic data from com.apple.purplebuddy.plist which contains some important data'
+                       ' related to device restore.',
+        'author': 'Scott Koenig',
+        'version': '5.0',
+        'date': '2025-01-05',
+        'requirements': 'Acquisition that contains com.apple.purplebuddy.plist',
+        'category': 'Photos-Z-Settings',
+        'notes': '',
+        'paths': ('*/Library/Preferences/com.apple.purplebuddy.plist',),
+        "output_types": ["standard", "tsv", "none"],
+        "artifact_icon": "settings"
+    }
+}
 
 import datetime
 import os
 import plistlib
 import nska_deserialize as nd
 import scripts.artifacts.artGlobals
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, tsv, is_platform_windows
+from scripts.builds_ids import OS_build
+from scripts.ilapfuncs import artifact_processor, logfunc, device_info, get_file_path
 
-
-def get_ph83comapplepurplebuddyplist(files_found, report_folder, seeker, wrap_text, time_offset):
+@artifact_processor
+def Ph83ComApplePurpleBuddyPlist(files_found, report_folder, seeker, wrap_text, time_offset):
     data_list = []
-    file_found = str(files_found[0])
-    with open(file_found, "rb") as fp:
+    source_path = str(files_found[0])
+
+    with open(source_path, "rb") as fp:
         pl = plistlib.load(fp)
         for key, val in pl.items():
+
             if key == 'SetupState':
-                data_list.append(('SetupState', val))
-                logdevinfo(f"<b>comapplepurplebuddyplist-SetupState: </b>{val}")
+                logfunc(f"SetupState: {val}")
+                device_info("com.apple.purplebuddy.plist", "SetupState", str(val), source_path)
 
             else:
-                data_list.append((key, val))
+                data_list.append((key, str(val)))
 
-    if len(data_list) > 0:
-        description = ('Parses basic data from com.apple.purplebuddy.plist which contains some important data'
-                       ' related to device restore.')
-        report = ArtifactHtmlReport('Ph83-Com-Apple-PurpleBuddy-Plist')
-        report.start_artifact_report(report_folder, 'Ph83-Com-Apple-PurpleBuddy-Plist', description)
-        report.add_script()
-        data_headers = ('Key', 'Values')
-        report.write_artifact_data_table(data_headers, data_list, file_found)
-        report.end_artifact_report()
-
-        tsvname = 'Ph83-Com-Apple-PurpleBuddy-Plist'
-        tsv(report_folder, data_headers, data_list, tsvname)
-
-
-__artifacts_v2__ = {
-    'Ph83-Com-Apple-PurpleBuddy-Plist': {
-        'name': 'Photos App Settings Ph83 com.apple.purplebuddy-plist',
-        'description': 'Parses basic data from com.apple.purplebuddy.plist which contains some important data'
-                       ' related to device restore.',
-        'author': 'Scott Koenig https://theforensicscooter.com/',
-        'version': '1.0',
-        'date': '2024-06-8',
-        'requirements': 'Acquisition that contains com.apple.purplebuddy.plist',
-        'category': 'Photos-Z-Settings',
-        'notes': '',
-        'paths': '*/Library/Preferences/com.apple.purplebuddy.plist',
-        'function': 'get_ph83comapplepurplebuddyplist'
-    }
-}
+    data_headers = ('Property','Property Value')
+    return data_headers, data_list, source_path

@@ -1,6 +1,6 @@
 import html
 import os
-import pathlib
+from pathlib import Path
 import shutil
 
 from collections import OrderedDict
@@ -89,11 +89,13 @@ def generate_report(reportfolderbase, time_in_secs, time_HMS, extraction_type, i
     for root, dirs, files in sorted(os.walk(reportfolderbase)):
         files = sorted(files)
         for file in files:
+            if file.startswith('._'):
+                continue
             if file.endswith(".temphtml"):
                 fullpath = (os.path.join(root, file))
                 head, tail = os.path.split(fullpath)
                 filename = tail.replace(".temphtml", "")
-                p = pathlib.Path(fullpath)
+                p = Path(fullpath)
                 SectionHeader = (p.parts[-2])
                 if SectionHeader == '_elements':
                     pass
@@ -214,16 +216,17 @@ def create_index_html(reportfolderbase, time_in_secs, time_HMS, extraction_type,
     body_description = 'iLEAPP is an open source project that aims to parse every known iOS artifact for the purpose of forensic analysis.'
     active_nav_list_data = mark_item_active(nav_list_data, filename) + nav_bar_script
 
-    f = open(os.path.join(reportfolderbase, '_HTML', filename), 'w', encoding='utf8')
-    f.write(page_header.format(page_title))
-    f.write(body_start.format(f"iLEAPP {ileapp_version}"))
-    f.write(body_sidebar_setup + active_nav_list_data + body_sidebar_trailer)
-    f.write(body_main_header + body_main_data_title.format(body_heading, body_description))
-    f.write(content)
-    f.write(thank_you_note)
-    f.write(credits_code)
-    f.write(body_main_trailer + body_end + nav_bar_script_footer + page_footer)
-    f.close()
+    html_reportfolderbase = Path(reportfolderbase).joinpath('_HTML')
+    html_reportfolderbase.mkdir(exist_ok=True)
+    with html_reportfolderbase.joinpath(filename).open('w', encoding='utf8') as f:
+        f.write(page_header.format(page_title))
+        f.write(body_start.format(f"iLEAPP {ileapp_version}"))
+        f.write(body_sidebar_setup + active_nav_list_data + body_sidebar_trailer)
+        f.write(body_main_header + body_main_data_title.format(body_heading, body_description))
+        f.write(content)
+        f.write(thank_you_note)
+        f.write(credits_code)
+        f.write(body_main_trailer + body_end + nav_bar_script_footer + page_footer)
 
     # Create Index Redirection Page
     redirection = \
@@ -311,6 +314,3 @@ def mark_item_active(data, itemname):
     else:
         ret = data[0: pos] + " active" + data[pos:]
         return ret
-    
-    
-    
