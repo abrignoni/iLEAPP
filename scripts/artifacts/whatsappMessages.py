@@ -10,6 +10,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": (
             '*/var/mobile/Containers/Shared/AppGroup/*/ChatStorage.sqlite*',
+            '*/var/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*',
             '*/var/mobile/Containers/Shared/AppGroup/*/Message/Media/*/*/*/*.*'
         ),
         "function": "get_whatsappMessages"
@@ -32,15 +33,25 @@ from scripts.ilapfuncs import logfunc, logdevinfo, timeline, kmlgen, tsv, is_pla
 
 
 def get_whatsappMessages(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    
+
+    found_source_file = []
+    whatsapp_msgstore_db = None
+    whatsapp_wa_db = None
     for file_found in files_found:
         file_found = str(file_found)
-        
-        if file_found.endswith('.sqlite'):
-            break
+
+        if file_found.endswith('ChatStorage.sqlite'):
+            whatsapp_msgstore_db = str(file_found)
+            found_source_file.append(file_found)
+        if file_found.endswith('ContactsV2.sqlite'):
+            whatsapp_wa_db = str(file_found)
+            found_source_file.append(file_found)
+
     data_list =[]
-    db = open_sqlite_db_readonly(file_found)
+    db = open_sqlite_db_readonly(whatsapp_msgstore_db)
     cursor = db.cursor()
+    if (whatsapp_wa_db):
+        cursor.execute('''attach database "''' + whatsapp_wa_db + '''" as wadb ''')
     cursor.execute('''
     select
     datetime(ZMESSAGEDATE+978307200, 'UNIXEPOCH'),
@@ -98,11 +109,40 @@ def get_whatsappMessages(files_found, report_folder, seeker, wrap_text, timezone
                 decoded_data, _ = blackboxprotobuf.decode_message(row[13])
 
                 number_forwardings = decoded_data.get("17")
-                from_forwaded = decoded_data.get("21")
+                from_forwarded = decoded_data.get("21")
                 if number_forwardings is not None:
                     number_forward = f'{number_forwardings}'
-                if from_forwaded is not None:
-                    from_forward = f"{from_forwaded.decode('utf-8')}"
+                if from_forwarded is not None:
+                    from_forward = f"{from_forwarded.decode('utf-8')}"
+                    if (whatsapp_wa_db):
+                        subcursor = db.cursor()
+                        subcursor.execute('''
+                                               SELECT ZFULLNAME || ' (' || ZPHONENUMBER || ')' 
+                                               FROM wadb.ZWAADDRESSBOOKCONTACT 
+                                               WHERE ZWHATSAPPID = ? 
+                                               LIMIT 1
+                                           ''', (from_forward,))
+                        suball_rows = subcursor.fetchall()
+                        if suball_rows:
+                            from_forward += f'<br/>{suball_rows[0][0]}'
+                        subcursor.close()
+                if from_forwarded is None and number_forwardings is not None and row[1] == 0:
+                    from_forward = f'{row[3]}'
+                    if (whatsapp_wa_db):
+                        subcursor = db.cursor()
+                        subcursor.execute('''
+                                               SELECT ZFULLNAME || ' (' || ZPHONENUMBER || ')' 
+                                               FROM wadb.ZWAADDRESSBOOKCONTACT 
+                                               WHERE ZWHATSAPPID = ? 
+                                               LIMIT 1
+                                           ''', (row[3],))
+
+                        suball_rows = subcursor.fetchall()
+                        if suball_rows and suball_rows[0][0] is not None:
+                            from_forward += f'<br/> {suball_rows[0][0]}'
+                        subcursor.close()
+                    else:
+                        from_forward += f'<br/>{sender}'
             else:
                 number_forward = ''
                 from_forward = ''
@@ -152,8 +192,8 @@ def get_whatsappMessages(files_found, report_folder, seeker, wrap_text, timezone
         data_headers = (
             'Timestamp', 'Sender Name', 'From ID', 'Receiver', 'To ID', 'Message', 
             'Attachment File', 'Thumb','Attachment Local Path','Starred?', 'Number of Forwardings', 'Forwarded from',  'Latitude', 'Longitude',)  # Don't remove the comma, that is required to make this a tuple as there is only 1 element
-        
-        report.write_artifact_data_table(data_headers, data_list, file_found, html_escape=False)
+
+        report.write_artifact_data_table(data_headers, data_list, found_source_file, html_escape=False)
         report.end_artifact_report()
 
         tsvname = f'Whatsapp - Messages'
