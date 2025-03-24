@@ -52,5 +52,5 @@ def imeiImsi(files_found, report_folder, seeker, wrap_text, timezone_offset):
             else:
                 data_list.append((key, val ))
     
-    data_headers = ('Property', 'Property Value' )     
+    data_headers = ('Property', 'Property Value')
     return data_headers, data_list, source_path

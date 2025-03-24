@@ -1101,14 +1101,14 @@ def generate_thumbnail(imDirectory, imFilename, seeker, report_folder):
     pathToThumb = os.path.join(os.path.basename(os.path.abspath(report_folder)), thumbname)
     htmlThumbTag = '<img src="{0}"></img>'.format(pathToThumb)
     if thumblist:
-        shutil.copyfile(thumblist[0],os.path.join(report_folder, thumbname))
+        shutil.copyfile(thumblist,os.path.join(report_folder, thumbname))
     else:
         #recreate thumbnail from image
         #TODO: handle videos and HEIC
         files = seeker.search(media_root+imDirectory+'/'+imFilename, return_on_first_hit=True)
         if files:
             try:
-                im = Image.open(files[0])
+                im = Image.open(files)
                 im.thumbnail(thumb_size)
                 im.save(os.path.join(report_folder, thumbname))
             except:
