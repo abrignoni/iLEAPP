@@ -11,9 +11,9 @@ Total number of modules: 273
 Number of v1 artifacts: 93  
 Number of v2 artifacts: 286  
 Number of modules with 'lava output': 246  
-Number of modules using 'artifact_icon': 156  
-Number of modules using 'version': 240  
-Number of modules using 'last_update_date': 56  
+Number of modules using 'artifact_icon': 157  
+Number of modules using 'version': 239  
+Number of modules using 'last_update_date': 57  
 Number of modules with errors or no recognized artifacts: 3  
 
 ## V2 Artifacts Table
@@ -270,7 +270,7 @@ Number of modules with errors or no recognized artifacts: 3
 | [preferencesPlist.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/preferencesPlist.py) | preferencesPlist | Preferences PList | html, tsv, lava |  | 0.2 |  | Extract Device information | ``*preferences/SystemConfiguration/preferences.plist`` |
 | [serialNumber.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/serialNumber.py) | serialNumber | Serial Number | none |  | 0.2 |  | Serial Number of the device | ``*/Library/Caches/locationd/consolidated.db*`` |
 | [skg_archive.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/skg_archive.py) | skg_archive | SKG Archive | standard |  | 0.1 |  | Parses SKG Archive Records | ``*/CoreSpotlight/SpotlightKnowledge/index.V2/keyphrases/NSFileProtectionComplete/skg_archive.V2.*``, ``*/CoreSpotlight/SpotlightKnowledge/index.V2/archives/NSFileProtectionComplete/skg_archive.V2.*`` |
-| [sms.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/sms.py) | get_sms | SMS | all |  | 0.1 |  | Parses sms and iMessage chats | ``**/sms.db*`` |
+| [sms.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/sms.py) | sms | SMS | standard | message-square |  | 2025-03-24 | Parses SMS and iMessage chats | ``*/mobile/Library/SMS/sms.db*`` |
 | [splitwise.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/splitwise.py) | splitwiseUsers | Splitwise - Users | standard | user |  | 2025-01-07 | Parses users information from Splitwise app | ``*/Library/Application Support/database.sqlite*`` |
 | [splitwise.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/splitwise.py) | splitwiseExpenses | Splitwise - Expenses | standard | dollar-sign |  | 2025-01-07 | Parses expenses information from Splitwise app | ``*/Library/Application Support/database.sqlite*`` |
 | [splitwise.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/splitwise.py) | splitwiseExpenseBalances | Splitwise - Expense Balances | standard | dollar-sign |  | 2025-01-07 | Parses expense balances information from Splitwise app | ``*/Library/Application Support/database.sqlite*`` |

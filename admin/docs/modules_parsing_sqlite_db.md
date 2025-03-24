@@ -51,6 +51,7 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | googleTranslate |
 | nsVault |
 | payByPhone |
+| sms |
 | splitwise |
 | subscriberInfo |
 | twint |
@@ -139,7 +140,6 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | secretCalculator |
 | serialNumber |
 | slack |
-| sms |
 | syncDev |
 | tcc |
 | teams |
