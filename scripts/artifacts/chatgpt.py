@@ -43,6 +43,7 @@ def get_chatgpt(files_found, report_folder, seeker, wrap_text, time_offset):
     account_list_files_found = []
     voice_list = []
     photo_list = []
+    app_bundle_id = ''
     for file_found in files_found:
         file_found = str(file_found)
         #counter += 1 
