@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         'requirements': 'Acquisition that contains SystemVersion.plist',
         'category': 'IOS Build',
         'notes': '',
-        'paths': ('*/System/Library/CoreServices/SystemVersion.plist','*/logs/SystemVersion/SystemVersion.plist'),
+        'paths': ('*/System/Library/CoreServices/SystemVersion.plist'),
         "output_types": ["standard", "tsv", "none"]
     }
 }
