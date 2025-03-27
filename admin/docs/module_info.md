@@ -13,7 +13,7 @@ Number of v2 artifacts: 286
 Number of modules with 'lava output': 246  
 Number of modules using 'artifact_icon': 157  
 Number of modules using 'version': 239  
-Number of modules using 'last_update_date': 57  
+Number of modules using 'last_update_date': 58  
 Number of modules with errors or no recognized artifacts: 3  
 
 ## V2 Artifacts Table
@@ -253,7 +253,7 @@ Number of modules with errors or no recognized artifacts: 3
 | [knowledgeC.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/knowledgeC.py) | knowledgeC_DevicePluginStatus | knowledgeC - Device Plugin Status | standard |  | 0.2 |  | Is Device Plugged In events extracted from knowledgeC database | ``*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*`` |
 | [knowledgeC.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/knowledgeC.py) | knowledgeC_MediaPlaying | knowledgeC - Media Playing | standard |  | 0.2 |  | Media playing events extracted from knowledgeC database | ``*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*`` |
 | [knowledgeC.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/knowledgeC.py) | knowledgeC_DoNotDisturb | knowledgeC - Do Not Disturb | standard |  | 0.2 |  | Do Not Disturb Status from knowledgeC Database | ``*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*`` |
-| [lastBuild.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/lastBuild.py) | lastBuild | iOS Information | html, tsv, lava | git-commit | 0.5.4 |  | Extract iOS information from the LastBuildInfo.plist file | ``*/installd/Library/MobileInstallation/LastBuildInfo.plist`` |
+| [lastBuild.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/lastBuild.py) | lastBuild | iOS Information | html, tsv, lava | git-commit | 0.5.5 | 2025-03-27 | Extract iOS information from the LastBuildInfo.plist file | ``*/installd/Library/MobileInstallation/LastBuildInfo.plist``, ``*/logs/SystemVersion/SystemVersion.plist`` |
 | [life360.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/life360.py) | Life360 | Life360 |  |  | 0.2 |  | Parses Life360 app logs, chat messages, and more | ``*/com.life360.safetymap *.log``, ``*/Library/Application Support/Messaging.sqlite*`` |
 | [line.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/line.py) | line | Line Artifacts |  |  | 0.0.1 |  | Get Line | ``**/Line.sqlite*`` |
 | [mailprotect.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/mailprotect.py) | get_mailprotect | Apple Email | none | mail | 0.3 | 2025-02-05 | Apple Email. | ``*/mobile/Library/Mail/* Index*`` |
@@ -279,7 +279,7 @@ Number of modules with errors or no recognized artifacts: 3
 | [splitwise.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/splitwise.py) | splitwiseNotifications | Splitwise - Notifications | standard | bell |  | 2025-01-07 | Parses notifications from Splitwise app | ``*/Library/Application Support/database.sqlite*`` |
 | [subscriberInfo.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/subscriberInfo.py) | subscriberInfo | Subscriber Info | standard | settings | 0.1 |  | Information about inserted SIM Cards | ``*/wireless/Library/Databases/CellularUsage.db*`` |
 | [sysShutdown.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/sysShutdown.py) | get_sysShutdown | Sysdiagnose - Shutdown Log | none |  | 0.1 |  | Parses the shutdown.log file from Sysdiagnose logs, based off work by Kaspersky Lab https://github.com/KasperskyLab/iShutdown | ``*/shutdown.log`` |
-| [systemVersionPlist.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/systemVersionPlist.py) | systemVersionPlist | System Version plist | standard, tsv, none |  | 5.0 |  | Parses basic data from */System/Library/CoreServices/SystemVersion.plist which is a plist in GK Logical Plus extractions that will contain the iOS ver | ``*/System/Library/CoreServices/SystemVersion.plist``, ``*/logs/SystemVersion/SystemVersion.plist`` |
+| [systemVersionPlist.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/systemVersionPlist.py) | systemVersionPlist | System Version plist | standard, tsv, none |  | 5.0 |  | Parses basic data from */System/Library/CoreServices/SystemVersion.plist which is a plist in GK Logical Plus extractions that will contain the iOS ver | ``*/System/Library/CoreServices/SystemVersion.plist`` |
 | [tcc.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/tcc.py) | tcc | Application Permissions | standard |  | 0.7.2 |  | Extract application permissions from TCC.db database | ``*/mobile/Library/TCC/TCC.db*`` |
 | [teams.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/teams.py) | teamsMessages | Teams Messages | standard |  | 1.0 |  | Microsoft Teams messages and shared media | ``*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*``, ``*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/Downloads/*/Images/*`` |
 | [teams.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/teams.py) | teamsContacts | Teams Contacts | standard |  | 1.0 |  | Microsoft Teams contact list | ``*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*`` |
