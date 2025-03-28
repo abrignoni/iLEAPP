@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Extract information from the Info.plist file of an iTunes backup",
         "author": "@AlexisBrignoni - @johannplw",
         "creation_date": "2023-10-11",
-        "last_update_date": "2025-01-20",
+        "last_update_date": "2025-03-28",
         "requirements": "none",
         "category": "iTunes Backup",
         "notes": "",
@@ -33,10 +33,8 @@ import datetime
 import plistlib
 import scripts.artifacts.artGlobals
 
-from base64 import b64encode
-
 from scripts.ilapfuncs import artifact_processor, \
-    get_file_path, get_plist_file_content, check_in_embedded_media, device_info, logfunc
+    get_file_path, get_plist_file_content, check_in_embedded_media, device_info, logfunc, iOS
 
 @artifact_processor
 def iTunesBackupInfo(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -50,7 +48,7 @@ def iTunesBackupInfo(files_found, report_folder, seeker, wrap_text, timezone_off
         if isinstance(val, str) or isinstance(val, int) or isinstance(val, datetime.datetime):
             data_list.append((key, val))
             if key == ('Product Version'):
-                scripts.artifacts.artGlobals.versionf = val
+                iOS.set_version(val)
                 logfunc(f"iOS version: {val}")
         elif key == "Applications":
             apps = val

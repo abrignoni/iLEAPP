@@ -43,6 +43,21 @@ thumb_size = 256, 256
 identifiers = {}
 icons = {}
 
+class iOS:
+    _version = None
+
+    @staticmethod
+    def get_version():
+        """Return the value of the class property."""
+        return iOS._version
+
+    @staticmethod
+    def set_version(os_version):
+        """Assign a value to the class property once."""
+        if iOS._version is None:
+            iOS._version = os_version
+
+
 class OutputParameters:
     '''Defines the parameters that are common for '''
     # static parameters
