@@ -12,7 +12,7 @@ Number of v1 artifacts: 93
 Number of v2 artifacts: 286  
 Number of modules with 'lava output': 246  
 Number of modules using 'artifact_icon': 157  
-Number of modules using 'version': 239  
+Number of modules using 'version': 238  
 Number of modules using 'last_update_date': 58  
 Number of modules with errors or no recognized artifacts: 3  
 
@@ -238,7 +238,7 @@ Number of modules with errors or no recognized artifacts: 3
 | [health.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/health.py) | healthAllWatchSleepData | Health - Sleep - All Watch Sleep Data | standard | moon | 0.2 |  | Parses Apple Health Sleep Data from the healthdb_secure.sqlite database | ``*Health/healthdb_secure.sqlite*`` |
 | [health.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/health.py) | healthWatchBySleepPeriod | Health - Sleep - Watch By Sleep Period | standard | moon | 0.2 |  | Parses Apple Health Sleep Data from the healthdb_secure.sqlite database | ``*Health/healthdb_secure.sqlite*`` |
 | [health.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/health.py) | healthSourceDevices | Health - Source Devices | standard | smartphone | 0.1 |  | Parses Apple Health device info from the healthdb.sqlite database, including make/model/software information. | ``*Health/healthdb.sqlite*`` |
-| [iTunesBackupInfo.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/iTunesBackupInfo.py) | iTunesBackupInfo | iTunes Backup Information | html, tsv, lava | refresh-cw |  | 2025-01-20 | Extract information from the Info.plist file of an iTunes backup | ``*Info.plist`` |
+| [iTunesBackupInfo.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/iTunesBackupInfo.py) | iTunesBackupInfo | iTunes Backup Information | html, tsv, lava | refresh-cw |  | 2025-03-28 | Extract information from the Info.plist file of an iTunes backup | ``*Info.plist`` |
 | [iTunesBackupInfo.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/iTunesBackupInfo.py) | iTunesBackupInstalledApplications | iTunes Backup - Installed Applications | html, tsv, lava | package |  | 2025-01-20 | Extract information about installed applications from the Info.plist file of an iTunes backup | ``*Info.plist`` |
 | [idstatuscache.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/idstatuscache.py) | idstatuscache | Identity Lookup Service |  |  | 0.1.0 |  | iCloud sync, Email, FaceTime, more | ``*/mobile/Library/Preferences/com.apple.identityservices.idstatuscache.plist``, ``*/mobile/Library/IdentityServices/idstatuscache.plist`` |
 | [imeiImsi.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/imeiImsi.py) | imeiImsi | IMEI - IMSI | html, tsv, lava |  | 0.3 | 2025-02-04 | Extracts Cellular information | ``*/wireless/Library/Preferences/com.apple.commcenter.plist`` |
@@ -253,7 +253,7 @@ Number of modules with errors or no recognized artifacts: 3
 | [knowledgeC.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/knowledgeC.py) | knowledgeC_DevicePluginStatus | knowledgeC - Device Plugin Status | standard |  | 0.2 |  | Is Device Plugged In events extracted from knowledgeC database | ``*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*`` |
 | [knowledgeC.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/knowledgeC.py) | knowledgeC_MediaPlaying | knowledgeC - Media Playing | standard |  | 0.2 |  | Media playing events extracted from knowledgeC database | ``*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*`` |
 | [knowledgeC.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/knowledgeC.py) | knowledgeC_DoNotDisturb | knowledgeC - Do Not Disturb | standard |  | 0.2 |  | Do Not Disturb Status from knowledgeC Database | ``*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*`` |
-| [lastBuild.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/lastBuild.py) | lastBuild | iOS Information | html, tsv, lava | git-commit | 0.5.5 | 2025-03-27 | Extract iOS information from the LastBuildInfo.plist file | ``*/installd/Library/MobileInstallation/LastBuildInfo.plist``, ``*/logs/SystemVersion/SystemVersion.plist`` |
+| [lastBuild.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/lastBuild.py) | lastBuild | iOS Information | html, tsv, lava | git-commit |  | 2025-03-28 | Extract iOS information from the LastBuildInfo.plist file | ``*/installd/Library/MobileInstallation/LastBuildInfo.plist``, ``*/logs/SystemVersion/SystemVersion.plist`` |
 | [life360.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/life360.py) | Life360 | Life360 |  |  | 0.2 |  | Parses Life360 app logs, chat messages, and more | ``*/com.life360.safetymap *.log``, ``*/Library/Application Support/Messaging.sqlite*`` |
 | [line.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/line.py) | line | Line Artifacts |  |  | 0.0.1 |  | Get Line | ``**/Line.sqlite*`` |
 | [mailprotect.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/mailprotect.py) | get_mailprotect | Apple Email | none | mail | 0.3 | 2025-02-05 | Apple Email. | ``*/mobile/Library/Mail/* Index*`` |
