@@ -1,58 +1,24 @@
+__artifacts_v2__ = {
+    "applewalletcards": {
+        "name": "Apple Wallet Cards",
+        "description": "Apple Wallet Cards",
+        "author": "@any333",
+        "creation_date": "2021-02-05",
+        "last_update_date": "2025-04-01",
+        "requirements": "none",
+        "category": "Apple Wallet",
+        "notes": "",
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.apple.Passbook/Cache.db*'),
+        "output_types": "standard",
+        "artifact_icon": "credit_card",
+    }
+}
+
+
 import re
-
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly
-
-
-def get_appleWalletCards(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    data_list = []
-    for file_found in files_found:
-        file_found = str(file_found)
-
-        if file_found.endswith('.db'):
-            db = open_sqlite_db_readonly(file_found)
-            cursor = db.cursor()
-            cursor.execute('''SELECT 
-                            TIME_STAMP, 
-                            PROTO_PROPS
-                            FROM CFURL_CACHE_RESPONSE
-                            INNER JOIN CFURL_CACHE_BLOB_DATA ON CFURL_CACHE_BLOB_DATA.ENTRY_ID = CFURL_CACHE_RESPONSE.ENTRY_ID
-                            WHERE REQUEST_KEY LIKE '%CARDS'
-                            ''')
-
-            all_rows = cursor.fetchall()
-            db_file = file_found
-
-    if len(all_rows) > 0:
-        for row in all_rows:
-            card_info = str(row[1], 'utf-8', 'ignore')
-            card_number = get_bank_card_number(card_info)
-            if card_number is None:
-                pass
-            else:
-                expiration_date = re.findall(r'\d{2}/\d{2}', card_info)
-                card_type = get_card_type(card_number, len(card_number))
-
-                data_list.append((row[0], card_number, expiration_date[0], card_type))
-                
-    if len(data_list) > 0:
-        report = ArtifactHtmlReport('Cards')
-        report.start_artifact_report(report_folder, 'Cards')
-        report.add_script()
-        data_headers = ('Timestamp (Card Added)', 'Card Number', 'Expiration Date', 'Type')
-        report.write_artifact_data_table(data_headers, data_list, db_file)
-        report.end_artifact_report()
-
-        tsvname = 'Apple Wallet Cards'
-        tsv(report_folder, data_headers, data_list, tsvname)
-
-        tlactivity = 'Apple Wallet Cards'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-    else:
-        logfunc('No Apple Wallet Cards available')
-
-    db.close()
-    return
+from scripts.ilapfuncs import artifact_processor, \
+    get_file_path, get_sqlite_db_records, \
+    convert_human_ts_to_utc
 
 
 def get_bank_card_number(card_information):
@@ -81,9 +47,40 @@ def get_card_type(card_num, num_length):
     else:
         return 'Unknown'
 
-__artifacts__ = {
-    "applewalletcards": (
-        "Apple Wallet",
-        ('*/mobile/Containers/Data/Application/*/Library/Caches/com.apple.Passbook/Cache.db*'),
-        get_appleWalletCards)
-}
+
+
+@artifact_processor
+def applewalletcards(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    source_path = get_file_path(files_found, "Cache.db")
+    data_list = []
+
+    query = '''
+    SELECT 
+        time_stamp, 
+        proto_props
+    FROM cfurl_cache_response
+    INNER JOIN cfurl_cache_blob_data ON cfurl_cache_blob_data.entry_ID = cfurl_cache_response.entry_ID
+    WHERE request_key LIKE '%CARDS'
+    '''
+
+    data_headers = (
+        ('Timestamp (Card Added)', 'datetime'), 
+        'Card Number', 
+        'Expiration Date', 
+        'Type')
+    
+    db_records = get_sqlite_db_records(source_path, query)
+
+    for record in db_records:
+        card_added_timestamp = convert_human_ts_to_utc(record[0])
+        card_info = str(record[1], 'utf-8', 'ignore')
+        card_number = get_bank_card_number(card_info)
+        if card_number is None:
+            pass
+        else:
+            expiration_date = re.findall(r'\d{2}/\d{2}', card_info)
+            card_type = get_card_type(card_number, len(card_number))
+
+            data_list.append((card_added_timestamp, card_number, expiration_date[0], card_type))
+                
+    return data_headers, data_list, source_path
