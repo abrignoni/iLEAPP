@@ -1,4 +1,4 @@
-from lib2to3.refactor import get_fixers_from_package
+# from lib2to3.refactor import get_fixers_from_package
 import sqlite3
 import textwrap
 from os.path import basename
