@@ -150,7 +150,7 @@ def lava_create_sqlite_table(table_name, data):
 
     for item in data:
         if isinstance(item, tuple):
-            original_name, data_type = item
+            original_name, data_type = item[:2]  # Only take the first two elements as media item can have more
             sanitized_name = sanitize_sql_name(original_name)
             sql_type = get_sql_type(data_type)
             columns.append(f"{sanitized_name} {sql_type}")
