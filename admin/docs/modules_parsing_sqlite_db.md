@@ -45,6 +45,7 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | accountData |
 | addressBook |
 | allTrails |
+| appleWalletCards |
 | callHistory |
 | filesApp |
 | foursquareSwarm |
@@ -76,7 +77,6 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | WithingsHealthMate |
 | ZangiChats |
 | applePodcasts |
-| appleWalletCards |
 | appleWalletPasses |
 | appleWalletTransactions |
 | applicationstate |
