@@ -925,6 +925,15 @@ def convert_unix_ts_to_str(ts):
     else:
         return ts
 
+def convert_human_ts_to_utc(ts):  #This is for timestamp in human form
+    if ts:
+        if '.' in ts:
+            ts = ts.split('.')[0]
+        dt = datetime.strptime(ts, '%Y-%m-%d %H:%M:%S')  #Make it a datetime object
+        return dt.replace(tzinfo=timezone.utc)  #Make it UTC
+    else:
+        return ts
+
 def convert_cocoa_core_data_ts_to_utc(cocoa_core_data_ts):
     if cocoa_core_data_ts:
         unix_timestamp = cocoa_core_data_ts + 978307200
