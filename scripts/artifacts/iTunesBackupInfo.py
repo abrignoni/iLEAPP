@@ -17,24 +17,24 @@ __artifacts_v2__ = {
         "description": "Extract information about installed applications from the Info.plist file of an iTunes backup",
         "author": "@johannplw",
         "creation_date": "2023-10-11",
-        "last_update_date": "2025-01-20",
+        "last_update_date": "2025-04-02",
         "requirements": "none",
         "category": "Installed Apps",
         "notes": "",
         "paths": ('*Info.plist',),
         "output_types": ["html", "tsv", "lava"],
-        "artifact_icon": "package",
-        "media_style": "width: 60px;"
+        "artifact_icon": "package"
     }
 }
+
 
 import inspect
 import datetime
 import plistlib
-import scripts.artifacts.artGlobals
-
 from scripts.ilapfuncs import artifact_processor, \
-    get_file_path, get_plist_file_content, check_in_embedded_media, device_info, logfunc, iOS
+    get_file_path, get_plist_file_content, check_in_embedded_media, \
+    device_info, logfunc, iOS
+
 
 @artifact_processor
 def iTunesBackupInfo(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -142,7 +142,7 @@ def iTunesBackupInstalledApplications(files_found, report_folder, seeker, wrap_t
                 app_info += ('',) * 17
                 data_list.append(app_info)
         
-    data_headers = ('Bundle ID', ('App Icon', 'media'), 'Item Name', 'Artist Name', 'Version', 
+    data_headers = ('Bundle ID', ('App Icon', 'media', 'width: 60px;'), 'Item Name', 'Artist Name', 'Version', 
                     'Genre', 'Install Date', 'Downloaded by', 'Purchase Date', 
                     'Release Date', 'Source App', 'Auto Download', 
                     'Purchased Redownload', 'Factory Install', 'Side Loaded', 
