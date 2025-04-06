@@ -1,58 +1,43 @@
-import glob
-import os
-import pathlib
-import sqlite3
-
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
-
-
-def get_tileAppDisc(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    for file_found in files_found:
-        file_found = str(file_found)
-        
-        if file_found.endswith('tile-DiscoveredTileDB.sqlite'):
-            break
-            
-    db = open_sqlite_db_readonly(file_found)
-    cursor = db.cursor()
-    cursor.execute('''
-    SELECT
-    datetime(ZLAST_MODIFIED_TIMESTAMP,'unixepoch','31 years'),
-    ZTILE_UUID
-    FROM
-    ZTILENTITY_DISCOVEREDTILE
-    ''')
-
-    all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
-    data_list = []    
-    if usageentries > 0:
-        for row in all_rows:
-            data_list.append((row[0], row[1]))
-            
-            description = 'Tile IDs seen from other users'
-            report = ArtifactHtmlReport('Tile App - Discovered Tiles')
-            report.start_artifact_report(report_folder, 'Tile App Discovered Tiles', description)
-            report.add_script()
-            data_headers = ('Last Modified Timestamp','Tile UUID')     
-            report.write_artifact_data_table(data_headers, data_list, file_found)
-            report.end_artifact_report()
-            
-        tsvname = 'Tile App Discovered Tiles'
-        tsv(report_folder, data_headers, data_list, tsvname)
-        
-        tlactivity = 'Tile Discovered Tiles'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-    else:
-        logfunc('No Tile App Discovered Tiles data available')
-    
-    db.close()
-    return 
-
-__artifacts__ = {
-    "tileAppDisc": (
-        "Accounts",
-        ('*/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-DiscoveredTileDB.sqlite*'),
-        get_tileAppDisc)
+__artifacts_v2__ = {
+    'tileAppDisc': {
+        'name': 'Tile App Discovered Tiles',
+        'description': 'Tile IDs seen from other users',
+        'author': '@AlexisBrignoni',
+        'creation_date': '2020-09-03',
+        'last_update_date': '2025-04-05',
+        'requirements': 'none',
+        'category': 'Lifestyle',
+        'notes': '',
+        'paths': ('*/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-DiscoveredTileDB.sqlite*', ),
+        'output_types': 'standard',
+        'artifact_icon': 'user'
+    }
 }
+
+
+from scripts.ilapfuncs import artifact_processor, \
+    get_file_path, get_sqlite_db_records, \
+    convert_cocoa_core_data_ts_to_utc
+
+
+@artifact_processor
+def tileAppDisc(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    source_path = get_file_path(files_found, 'com.thetileapp.tile-DiscoveredTileDB.sqlite')
+    data_list = []
+
+    query = '''
+    SELECT
+        ZLAST_MODIFIED_TIMESTAMP,
+        ZTILE_UUID
+    FROM ZTILENTITY_DISCOVEREDTILE
+    '''
+
+    data_headers = (('Last Modified Timestamp', 'datetime'), 'Tile UUID')     
+
+    db_records = get_sqlite_db_records(source_path, query)
+
+    for record in db_records:
+        last_modified_timestamp = convert_cocoa_core_data_ts_to_utc(record['ZLAST_MODIFIED_TIMESTAMP'])
+        data_list.append((last_modified_timestamp, record[1]))
+        
+    return data_headers, data_list, source_path
