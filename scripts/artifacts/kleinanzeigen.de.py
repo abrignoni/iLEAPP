@@ -83,7 +83,6 @@ def get_kleinanzeigenmessagecache(files_found, report_folder, seeker, wrap_text,
             # Original timestamp is cocoa time - so 978307200 will be added
             m_rec = datetime.datetime.fromtimestamp(message['sentDate'] + 978307200).strftime('%Y-%m-%d %H:%M:%S')
             m_text = message['text']
-            m_bnd = message['clientData']['boundness']
             m_att = []
             for att in message['attachments']:
                 m_att.append(att['imageURL'])
@@ -91,7 +90,7 @@ def get_kleinanzeigenmessagecache(files_found, report_folder, seeker, wrap_text,
                 m_att = "none"
             else: 
                 m_att = ", ".join(m_att)
-            if m_bnd == "OUTBOUND":
+            if message['sender'] == 0:
                 m_from = my_name
                 id_from = my_id
                 m_to = counter_name
