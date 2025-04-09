@@ -144,8 +144,13 @@ def logfunc(message=""):
 def strip_tuple_from_headers(data_headers):
     return [header[0] if isinstance(header, tuple) else header for header in data_headers]
 
-def get_media_header_position(data_headers):
-    return [i for i, header in enumerate(data_headers) if isinstance(header, tuple) and header[1] == 'media']
+def get_media_header_info(data_headers):
+    media_header_info = {}
+    for index, header in enumerate(data_headers):
+        if isinstance(header, tuple) and header[1] == 'media':
+            style = header[2] if len(header) == 3 else ''
+            media_header_info[index] = style
+    return media_header_info
 
 def check_output_types(type, output_types):
     if type in output_types or type == output_types or 'all' in output_types or 'all' == output_types:
@@ -170,7 +175,9 @@ def set_media_references(media_ref_id, media_id, artifact_info, name):
 
 def check_in_media(seeker, file_path, artifact_info, name="", already_extracted=False, converted_file_path=False):
     if already_extracted:
-        file_info_key = file_path
+        extracted_file_path = next(
+            (path for path in already_extracted if file_path in path), None)
+        file_info_key = extracted_file_path
     else:
         file_info_key = seeker.search(file_path, return_on_first_hit=True)
     file_info = seeker.file_infos.get(file_info_key) if file_info_key else None
@@ -272,38 +279,38 @@ def html_media_tag(media_path, mimetype, style, title=''):
         thumb = f'<a href="{media_path}" target="_blank"> Link to {filename} file</>'
     return thumb
 
-def get_data_list_with_media(media_header_idx, data_list, media_style):
+def get_data_list_with_media(media_header_info, data_list):
     ''' 
-    For columns with media item:
-      - Generate a new data list with HTML code
-      - Remove them in a new data list for TSV, KML and Timeline exports  
+    For columns with media item, generate:
+      - A data list with HTML code for HTML output
+      - A data list with extraaction path of media items for TSV, KML and Timeline exports  
     '''
     html_data_list = []
     txt_data_list = []
     for data in data_list:
         html_data = list(data)
-        media_style_idx = 0
-        for idx in media_header_idx:
+        txt_data = list(data)
+        for idx, style in media_header_info.items():
             if html_data[idx]:
-                try:
-                    style = media_style[media_style_idx] if isinstance(media_style, tuple) else media_style
-                except:
-                    style = media_style
                 media_ref_id = html_data[idx]
-                html_code = ''
                 if isinstance(media_ref_id, list):
+                    html_code = ''
+                    path_list = []
                     for item in media_ref_id:
                         media_item = lava_get_full_media_info(item)
                         html_code += html_media_tag(media_item[6], media_item[7], style, media_item[4])
+                        path_list.append(media_item[6])
+                    txt_code = ' | '.join(path_list)
                 else:
                     media_item = lava_get_full_media_info(media_ref_id)
                     html_code = html_media_tag(media_item[6], media_item[7], style, media_item[4])
+                    txt_code = media_item[6]
                 html_data[idx] = html_code
+                txt_data[idx] = txt_code
             else:
                 html_data[idx] = ''
-            media_style_idx += 1
+                txt_data[idx] = ''
         html_data_list.append(tuple(html_data))
-        txt_data = [i for media_idx, i in enumerate(data) if media_idx not in media_header_idx]
         txt_data_list.append(tuple(txt_data))
     return html_data_list, txt_data_list
 
@@ -314,14 +321,13 @@ def artifact_processor(func):
         func_name = func.__name__
 
         func_object = func.__globals__.get(func_name, {})
-        artifact_info = func_object.artifact_info #get('artifact_info', {})
+        artifact_info = func_object.artifact_info  #get('artifact_info', {})
 
         artifact_name = artifact_info.get('name', func_name)
         category = artifact_info.get('category', '')
         description = artifact_info.get('description', '')
         icon = artifact_info.get('artifact_icon', '')
         html_columns = artifact_info.get('html_columns', [])
-        media_style = artifact_info.get('media_style', '')
 
         output_types = artifact_info.get('output_types', ['html', 'tsv', 'timeline', 'lava', 'kml'])
 
@@ -342,12 +348,10 @@ def artifact_processor(func):
             stripped_headers = strip_tuple_from_headers(data_headers)
 
             # Check if headers contains a 'media' type
-            media_header_idx = get_media_header_position(data_headers)
-            if media_header_idx:
-                html_columns.extend([data_headers[idx][0] for idx in media_header_idx])
-                html_data_list, txt_data_list = get_data_list_with_media(media_header_idx, data_list, media_style)
-
-            txt_headers = [i for media_idx, i in enumerate(stripped_headers) if media_idx not in media_header_idx] if media_header_idx else stripped_headers
+            media_header_info = get_media_header_info(data_headers)
+            if media_header_info:
+                html_columns.extend([data_headers[idx][0] for idx in media_header_info])
+                html_data_list, txt_data_list = get_data_list_with_media(media_header_info, data_list)
 
             if check_output_types('html', output_types):
                 report = artifact_report.ArtifactHtmlReport(artifact_name)
@@ -357,17 +361,17 @@ def artifact_processor(func):
                 report.end_artifact_report()
 
             if check_output_types('tsv', output_types):
-                tsv(report_folder, txt_headers, txt_data_list if media_header_idx else data_list, artifact_name)
+                tsv(report_folder, stripped_headers, txt_data_list if media_header_info else data_list, artifact_name)
             
             if check_output_types('timeline', output_types):
-                timeline(report_folder, artifact_name, txt_data_list if media_header_idx else data_list, txt_headers)
+                timeline(report_folder, artifact_name, txt_data_list if media_header_info else data_list, stripped_headers)
 
             if check_output_types('lava', output_types):
                 table_name, object_columns, column_map = lava_process_artifact(category, module_name, artifact_name, data_headers, len(data_list), data_views=artifact_info.get("data_views"))
                 lava_insert_sqlite_data(table_name, data_list, object_columns, data_headers, column_map)
 
             if check_output_types('kml', output_types):
-                kmlgen(report_folder, artifact_name, txt_data_list if media_header_idx else data_list, txt_headers)
+                kmlgen(report_folder, artifact_name, txt_data_list if media_header_info else data_list, stripped_headers)
 
         else:
             if output_types != 'none':
@@ -534,6 +538,7 @@ def attach_sqlite_db_readonly(path, db_name):
 def get_sqlite_db_records(path, query, attach_query=None):
     db = open_sqlite_db_readonly(path)
     if db:
+        db.row_factory = sqlite3.Row  # For fetching columns by name
         try:
             cursor = db.cursor()
             if attach_query:
@@ -922,6 +927,15 @@ def convert_unix_ts_to_str(ts):
     if ts:
         ts = convert_unix_ts_in_seconds(ts)
         return datetime.fromtimestamp(ts, UTC).strftime('%Y-%m-%d %H:%M:%S')
+    else:
+        return ts
+
+def convert_human_ts_to_utc(ts):  #This is for timestamp in human form
+    if ts:
+        if '.' in ts:
+            ts = ts.split('.')[0]
+        dt = datetime.strptime(ts, '%Y-%m-%d %H:%M:%S')  #Make it a datetime object
+        return dt.replace(tzinfo=timezone.utc)  #Make it UTC
     else:
         return ts
 
