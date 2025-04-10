@@ -46,6 +46,7 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | addressBook |
 | allTrails |
 | appleWalletCards |
+| appleWalletTransactions |
 | callHistory |
 | filesApp |
 | foursquareSwarm |
@@ -55,6 +56,8 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | sms |
 | splitwise |
 | subscriberInfo |
+| tileAppDisc |
+| tileAppNetDb |
 | twint |
 | voicemail |
 | whatsApp |
@@ -78,7 +81,6 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | ZangiChats |
 | applePodcasts |
 | appleWalletPasses |
-| appleWalletTransactions |
 | applicationstate |
 | atxDatastore |
 | biomeSync |
@@ -148,8 +150,6 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | tikTok |
 | tikTokReplied |
 | tileAppDb |
-| tileAppDisc |
-| tileAppNetDb |
 | trustedPeers |
 | uberClient |
 | uberPlaces |
