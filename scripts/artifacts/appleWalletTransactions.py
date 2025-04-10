@@ -16,8 +16,7 @@ __artifacts_v2__ = {
 
 
 from scripts.ilapfuncs import artifact_processor, \
-    get_file_path, get_sqlite_db_records, \
-    convert_cocoa_core_data_ts_to_utc
+    get_file_path, get_sqlite_db_records, convert_cocoa_core_data_ts_to_utc
 
 
 @artifact_processor
@@ -25,7 +24,7 @@ def appleWalletTransactions(files_found, report_folder, seeker, wrap_text, timez
     source_path = get_file_path(files_found, 'passes23.sqlite')
     data_list = []
 
-    query= '''
+    query = '''
     SELECT
         transaction_date,
         merchant_name,
@@ -43,33 +42,34 @@ def appleWalletTransactions(files_found, report_folder, seeker, wrap_text, timez
         transaction_type
     FROM payment_transaction
     '''
-        
+
     data_headers = (
-        ('Transaction Date', 'datetime'), 
-        'Merchant', 
-        'Locality', 
-        'Administrative Area', 
-        'Currency Amount', 
-        'Currency Type', 
-        ('Location Date', 'datetime'), 
-        'Latitude', 
-        'Longitude', 
-        'Altitude', 
-        'Peer Payment Handle', 
-        'Payment Memo', 
-        'Transaction Status', 
+        ('Transaction Date', 'datetime'),
+        'Merchant',
+        'Locality',
+        'Administrative Area',
+        'Currency Amount',
+        'Currency Type',
+        ('Location Date', 'datetime'),
+        'Latitude',
+        'Longitude',
+        'Altitude',
+        'Peer Payment Handle',
+        'Payment Memo',
+        'Transaction Status',
         'Transaction Type')
 
-    
-    db_records = get_sqlite_db_records(source_path, query)   
+    db_records = get_sqlite_db_records(source_path, query)
 
     for record in db_records:
 
-        transaction_date = convert_cocoa_core_data_ts_to_utc(record['transaction_date'])
-        location_date = convert_cocoa_core_data_ts_to_utc(record['location_date'])
+        transaction_date = convert_cocoa_core_data_ts_to_utc(
+            record['transaction_date'])
+        location_date = convert_cocoa_core_data_ts_to_utc(
+            record['location_date'])
 
         data_list.append((
-            transaction_date, record[1], record[2], record[3], record[4], record[5], location_date, 
+            transaction_date, record[1], record[2], record[3], record[4], record[5], location_date,
             record[7], record[8], record[9], record[10], record[11], record[12], record[13]))
 
     return data_headers, data_list, source_path

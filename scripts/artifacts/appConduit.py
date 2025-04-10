@@ -1,7 +1,8 @@
 __artifacts_v2__ = {
     'appConduit': {
         'name': 'App Conduit',
-        'description': 'The AppConduit log file stores information about interactions between iPhone and other iOS devices, i.e. Apple Watch',
+        'description': 'The AppConduit log file stores information about interactions \
+            between iPhone and other iOS devices, i.e. Apple Watch',
         'author': '@ydkhatri',
         'creation_date': '2020-08-05',
         'last_update_date': '2025-04-05',
@@ -11,7 +12,7 @@ __artifacts_v2__ = {
         'paths': ('*/mobile/Library/Logs/AppConduit/AppConduit.log.*',),
         'output_types': 'standard',
         'artifact_icon': 'activity'
-    }   
+    }
 }
 
 
@@ -29,9 +30,10 @@ def appConduit(files_found, report_folder, seeker, wrap_text, timezone_offset):
     device_type_and_info = {}
 
     info = ''
-    reg_filter = (r'(([A-Za-z]+[\s]+([a-zA-Z]+[\s]+[0-9]+)[\s]+([0-9]+\:[0-9]+\:[0-9]+)[\s]+([0-9]{4}))([\s]+[\[\d\]]+[\s]+[\<a-z\>]+[\s]+[\(\w\)]+)[\s\-]+(((.*)(device+\:([\w]+\-[\w]+\-[\w]+\-[\w]+\-[\w]+))(.*)$)))')        
+    reg_filter = (
+        r'(([A-Za-z]+[\s]+([a-zA-Z]+[\s]+[0-9]+)[\s]+([0-9]+\:[0-9]+\:[0-9]+)[\s]+([0-9]{4}))([\s]+[\[\d\]]+[\s]+[\<a-z\>]+[\s]+[\(\w\)]+)[\s\-]+(((.*)(device+\:([\w]+\-[\w]+\-[\w]+\-[\w]+\-[\w]+))(.*)$)))')
     date_filter = re.compile(reg_filter)
-    
+
     for file_found in files_found:
         if file_found.startswith('\\\\?\\'):
             file_name = pathlib.Path(file_found[4:]).name
@@ -49,23 +51,27 @@ def appConduit(files_found, report_folder, seeker, wrap_text, timezone_offset):
                 date_time = line_match.group(3, 5, 4)
                 conv_time = ' '.join(date_time)
                 dtime_obj = convert_log_ts_to_utc(conv_time)
-                
-                values  = line_match.group(9)
+
+                values = line_match.group(9)
                 device_id = line_match.group(11)
 
                 if 'devicesAreNowConnected' in values:
                     pairing_id = line_match.group(12).split(' ')[3][:-1]
                     device_type = line_match.group(12).split(' ')[4]
-                    device_info = builds_ids.device_id.get(device_type, device_type)
+                    device_info = builds_ids.device_id.get(
+                        device_type, device_type)
                     os_build = line_match.group(12).split(' ')[7].strip('()')
                     os_info = builds_ids.OS_build.get(os_build, os_build)
-                    device_type_and_info.setdefault(pairing_id, f'{device_info} - {os_info}')
+                    device_type_and_info.setdefault(
+                        pairing_id, f'{device_info} - {os_info}')
                     info = 'Connected'
-                    data_list.append((dtime_obj, info, device_id, device_type_and_info.get(pairing_id, ''), file_name))
+                    data_list.append((dtime_obj, info, device_id, device_type_and_info.get(
+                        pairing_id, ''), file_name))
                 if 'devicesAreNoLongerConnected' in values:
                     pairing_id = line_match.group(12).split(' ')[3][:-1]
                     info = 'Disconnected'
-                    data_list.append((dtime_obj, info, device_id, device_type_and_info.get(pairing_id, ''), file_name))
+                    data_list.append((dtime_obj, info, device_id, device_type_and_info.get(
+                        pairing_id, ''), file_name))
                 # if 'Resuming because' in values:
                 #     info = 'Resumed'
                 #     data_list.append((dtime_obj,info,device_id,device_type_tmp,file_name))
@@ -76,7 +82,8 @@ def appConduit(files_found, report_folder, seeker, wrap_text, timezone_offset):
                 #     info = 'Reachable again after reunion sync'
                 #     data_list.append((dtime_obj,info,device_id,device_type_tmp,file_name))
 
-    data_headers = (('Timestamp', 'datetime'), 'Device interaction', 'Device ID', 'Device type and OS version', 'Log File Name')
+    data_headers = (('Timestamp', 'datetime'), 'Device interaction',
+                    'Device ID', 'Device type and OS version', 'Log File Name')
     source_path = ', '.join(source_paths)
-    
+
     return data_headers, data_list, source_path

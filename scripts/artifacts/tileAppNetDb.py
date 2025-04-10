@@ -6,9 +6,10 @@ __artifacts_v2__ = {
         'creation_date': '2020-09-03',
         'last_update_date': '2025-04-05',
         'requirements': 'none',
-        'category': 'Lifestyle',
+        'category': 'Tile App',
         'notes': '',
-        'paths': ('*/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-TileNetworkDB.sqlite*'),
+        'paths': (
+            '*/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-TileNetworkDB.sqlite*', ),
         'output_types': 'standard',
         'artifact_icon': 'user'
     }
@@ -20,8 +21,10 @@ from scripts.ilapfuncs import artifact_processor, \
     convert_cocoa_core_data_ts_to_utc
 
 
+@artifact_processor
 def tileAppNetDb(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    source_path = get_file_path(files_found, 'com.thetileapp.tile-TileNetworkDB.sqlite')
+    source_path = get_file_path(
+        files_found, 'com.thetileapp.tile-TileNetworkDB.sqlite')
     data_list = []
 
     query = '''
@@ -34,15 +37,17 @@ def tileAppNetDb(files_found, report_folder, seeker, wrap_text, timezone_offset)
     '''
 
     data_headers = (
-        ('Registration Timestamp', 'datetime'), 
-        'Email', 
-        'Full Name', 
+        ('Registration Timestamp', 'datetime'),
+        'Email',
+        'Full Name',
         ('Mobile Phone Number', 'phonenumber'))
-    
+
     db_records = get_sqlite_db_records(source_path, query)
 
     for record in db_records:
-        registration_timestamp = convert_cocoa_core_data_ts_to_utc(record['ZREGISTRATION_TIMESTAMP'])
-        data_list.append((registration_timestamp, record[1], record[2], record[3]))
-        
+        registration_timestamp = convert_cocoa_core_data_ts_to_utc(
+            record['ZREGISTRATION_TIMESTAMP'])
+        data_list.append(
+            (registration_timestamp, record[1], record[2], record[3]))
+
     return data_headers, data_list, source_path
