@@ -57,6 +57,7 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | subscriberInfo |
 | twint |
 | voicemail |
+| whatsApp |
 | wire |
 <!-- GET_RECORDS_END -->
 
@@ -66,7 +67,6 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 |----------------|
 | ConnectedDeviceInformation |
 | DataUsage |
-| FacebookMessenger |
 | FitnessWorkoutsLocationData |
 | LinkedIn |
 | Oops |
@@ -157,8 +157,5 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | vipps |
 | vippsContacts |
 | waze |
-| whatsappCallHistory |
-| whatsappContacts |
-| whatsappMessages |
 | wifiNetworkStoreModel |
 <!-- READONLY_END -->
