@@ -37,18 +37,19 @@ def accountData(files_found, report_folder, seeker, wrap_text, timezone_offset):
     '''
 
     data_headers = (
-        ('Timestamp', 'datetime'), 
-        'Account Desc.', 
-        'Username', 
-        'Description', 
-        'Identifier', 
+        ('Timestamp', 'datetime'),
+        'Account Desc.',
+        'Username',
+        'Description',
+        'Identifier',
         'Bundle ID'
-        )
+    )
 
     db_records = get_sqlite_db_records(source_path, query)
-    
+
     for record in db_records:
         timestamp = convert_cocoa_core_data_ts_to_utc(record['zdate'])
-        data_list.append((timestamp, record[1], record[2], record[3], record[4], record[5]))                
+        data_list.append(
+            (timestamp, record[1], record[2], record[3], record[4], record[5]))
 
     return data_headers, data_list, source_path

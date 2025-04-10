@@ -26,6 +26,6 @@ def accountConfig(files_found, report_folder, seeker, wrap_text, timezone_offset
     pl = get_plist_file_content(source_path)
     for key, val in pl.items():
         data_list.append((key, val))
-    
+
     data_headers = ('Account ID', 'Data Value')
     return data_headers, data_list, source_path
