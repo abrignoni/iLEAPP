@@ -1,24 +1,26 @@
 __artifacts_v2__ = {
-    "appConduit": {  # This should match the function name exactly
-        "name": "App Conduit",
-        "description": "The AppConduit log file stores information about interactions between iPhone and other iOS devices, i.e. Apple Watch",
-        "author": "@ydkhatri",
-        "creation_date": "2020-08-05",
-        "last_update_date": "2025-01-22",
-        "requirements": "none",
-        "category": "App Conduit",
-        "notes": "",
-        "paths": ('*/mobile/Library/Logs/AppConduit/AppConduit.log.*',),
-        "output_types": "standard",  # or ["html", "tsv", "timeline", "lava"]
-        "artifact_icon": "activity"
+    'appConduit': {
+        'name': 'App Conduit',
+        'description': 'The AppConduit log file stores information about interactions between iPhone and other iOS devices, i.e. Apple Watch',
+        'author': '@ydkhatri',
+        'creation_date': '2020-08-05',
+        'last_update_date': '2025-04-05',
+        'requirements': 'none',
+        'category': 'App Conduit',
+        'notes': '',
+        'paths': ('*/mobile/Library/Logs/AppConduit/AppConduit.log.*',),
+        'output_types': 'standard',
+        'artifact_icon': 'activity'
     }   
 }
+
 
 import pathlib
 import re
 import scripts.builds_ids as builds_ids
 
 from scripts.ilapfuncs import artifact_processor, get_txt_file_content, convert_log_ts_to_utc
+
 
 @artifact_processor
 def appConduit(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -52,16 +54,16 @@ def appConduit(files_found, report_folder, seeker, wrap_text, timezone_offset):
                 device_id = line_match.group(11)
 
                 if 'devicesAreNowConnected' in values:
-                    pairing_id = line_match.group(12).split(" ")[3][:-1]
-                    device_type = line_match.group(12).split(" ")[4]
+                    pairing_id = line_match.group(12).split(' ')[3][:-1]
+                    device_type = line_match.group(12).split(' ')[4]
                     device_info = builds_ids.device_id.get(device_type, device_type)
-                    os_build = line_match.group(12).split(" ")[7].strip("()")
+                    os_build = line_match.group(12).split(' ')[7].strip('()')
                     os_info = builds_ids.OS_build.get(os_build, os_build)
-                    device_type_and_info.setdefault(pairing_id, f"{device_info} - {os_info}")
+                    device_type_and_info.setdefault(pairing_id, f'{device_info} - {os_info}')
                     info = 'Connected'
                     data_list.append((dtime_obj, info, device_id, device_type_and_info.get(pairing_id, ''), file_name))
                 if 'devicesAreNoLongerConnected' in values:
-                    pairing_id = line_match.group(12).split(" ")[3][:-1]
+                    pairing_id = line_match.group(12).split(' ')[3][:-1]
                     info = 'Disconnected'
                     data_list.append((dtime_obj, info, device_id, device_type_and_info.get(pairing_id, ''), file_name))
                 # if 'Resuming because' in values:
