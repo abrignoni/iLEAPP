@@ -175,7 +175,9 @@ def set_media_references(media_ref_id, media_id, artifact_info, name):
 
 def check_in_media(seeker, file_path, artifact_info, name="", already_extracted=False, converted_file_path=False):
     if already_extracted:
-        file_info_key = file_path
+        extracted_file_path = next(
+            (path for path in already_extracted if file_path in path), None)
+        file_info_key = extracted_file_path
     else:
         file_info_key = seeker.search(file_path, return_on_first_hit=True)
     file_info = seeker.file_infos.get(file_info_key) if file_info_key else None
@@ -537,6 +539,7 @@ def get_sqlite_db_records(path, query, attach_query=None):
     db = open_sqlite_db_readonly(path)
     db.row_factory = sqlite3.Row  # For fetching columns by name
     if db:
+        db.row_factory = sqlite3.Row  # For fetching columns by name
         try:
             cursor = db.cursor()
             if attach_query:
@@ -551,6 +554,27 @@ def get_sqlite_db_records(path, query, attach_query=None):
             logfunc(f"Error with {path}:")
             logfunc(f" - {str(e)}")
     return []
+
+def get_sqlite_multiple_db_records(path_list, query, data_headers):
+    multiple_source_files = len(path_list) > 1
+    source_path = ""
+    data_list = []
+    if multiple_source_files:
+        data_headers = list(data_headers)
+        data_headers.append('Source Path')
+        data_headers = tuple(data_headers)
+        source_path = 'file path in the report below'
+    elif path_list:
+        source_path = path_list[0]
+    for file in path_list:
+        db_records = get_sqlite_db_records(file, query)
+        for record in db_records:
+            if multiple_source_files:
+                modifiable_record = list(record)
+                modifiable_record.append(file)
+                record = tuple(modifiable_record)
+            data_list.append(record)
+    return data_headers, data_list, source_path
 
 def does_column_exist_in_db(path, table_name, col_name):
     '''Checks if a specific col exists'''
