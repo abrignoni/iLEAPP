@@ -149,6 +149,7 @@ icon_mappings = \
         'CALL HISTORY': 'phone-call',
         'DELETED VOICEMAIL': 'mic-off',
         'VOICEMAIL': 'mic',
+        'VOICEMAIL TRANSCRIPT': 'file-text',
         'default': 'phone',
     },
     'CALL LOGS': 'phone',
