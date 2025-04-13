@@ -1,6 +1,5 @@
 import os
 import datetime
-import scripts.artifacts.artGlobals
 
 from packaging import version
 from scripts.filetype import guess_mime

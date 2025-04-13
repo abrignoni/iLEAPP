@@ -3,11 +3,10 @@ import os
 import pathlib
 import plistlib
 import sqlite3
-import scripts.artifacts.artGlobals #use to get iOS version -> iOSversion = scripts.artifacts.artGlobals.versionf
 from packaging import version #use to search per version number
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, convert_ts_human_to_utc, convert_utc_human_to_timezone
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, convert_ts_human_to_utc, convert_utc_human_to_timezone, iOS
 
 def get_interactionCcontacts(files_found, report_folder, seeker, wrap_text, timezone_offset):
     for file_found in files_found:
@@ -18,7 +17,7 @@ def get_interactionCcontacts(files_found, report_folder, seeker, wrap_text, time
     
     db = open_sqlite_db_readonly(file_found)
     
-    iOSversion = scripts.artifacts.artGlobals.versionf
+    iOSversion = iOS.get_version()
     if version.parse(iOSversion) >= version.parse("10"):
         cursor = db.cursor()
         cursor.execute('''

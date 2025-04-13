@@ -17,7 +17,6 @@ Hikvision is a well-known app that is used to remotely access/operate CCTV syste
 import sqlite3
 import os
 import textwrap
-import scripts.artifacts.artGlobals
 
 
 from scripts.artifact_report import ArtifactHtmlReport

@@ -8,7 +8,6 @@ import datetime
 import io
 import nska_deserialize as nd
 import sqlite3
-import scripts.artifacts.artGlobals
 
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport

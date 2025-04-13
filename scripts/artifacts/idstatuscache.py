@@ -16,8 +16,7 @@ __artifacts_v2__ = {
 
 import plistlib
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, convert_ts_int_to_utc, convert_utc_human_to_timezone
-import scripts.artifacts.artGlobals
+from scripts.ilapfuncs import logfunc, tsv, timeline, convert_ts_int_to_utc, convert_utc_human_to_timezone, iOS
 from packaging import version
 
 # service type and partner
@@ -336,7 +335,7 @@ def get_idstatuscache(files_found, report_folder, seeker, wrap_text, timezone_of
     for file_found in files_found:
         # com.apple.identityservices.idstatuscache.plist (until iOS 14.6.0)
         # idstatuscache.plist (from iOS 14.7.0)
-        iosversion = scripts.artifacts.artGlobals.versionf
+        iosversion = iOS.get_version()
         if version.parse(iosversion) < version.parse("14.7.0"):
             if file_found.endswith('com.apple.identityservices.idstatuscache.plist'):
                 get_identity_services(file_found, identifiers, report_folder, timezone_offset)

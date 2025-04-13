@@ -36,10 +36,9 @@ __artifacts_v2__ = {
 }
 
 import os
-import scripts.artifacts.artGlobals
 from packaging import version
 from scripts.builds_ids import OS_build
-from scripts.ilapfuncs import artifact_processor, get_file_path, open_sqlite_db_readonly, get_sqlite_db_records, logfunc
+from scripts.ilapfuncs import artifact_processor, get_file_path, open_sqlite_db_readonly, get_sqlite_db_records, logfunc, iOS
 
 @artifact_processor
 def Ph96_1iOS16RefforAssetAnalysisPhDaPsql(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -51,7 +50,7 @@ def Ph96_1iOS16RefforAssetAnalysisPhDaPsql(files_found, report_folder, seeker, w
 
 	if report_folder.endswith('/') or report_folder.endswith('\\'):
 		report_folder = report_folder[:-1]
-	iosversion = scripts.artifacts.artGlobals.versionf
+	iosversion = iOS.get_version()
 	if (version.parse(iosversion) <= version.parse("15.8.2")) or (version.parse(iosversion) >= version.parse("17")):
 		logfunc(f"Unsupported version for PhotoData-Photos.sqlite for iOS " + iosversion)
 		return (), [], source_path
@@ -3894,7 +3893,7 @@ def Ph96_2iOS16RefforAssetAnalysisSyndPL(files_found, report_folder, seeker, wra
 
 	if report_folder.endswith('/') or report_folder.endswith('\\'):
 		report_folder = report_folder[:-1]
-	iosversion = scripts.artifacts.artGlobals.versionf
+	iosversion = iOS.get_version()
 	if (version.parse(iosversion) <= version.parse("15.8.2")) or (version.parse(iosversion) >= version.parse("17")):
 		logfunc("Unsupported version for Syndication.photoslibrary for iOS " + iosversion)
 		return (), [], source_path

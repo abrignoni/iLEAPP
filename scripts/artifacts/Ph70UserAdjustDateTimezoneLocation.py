@@ -15,10 +15,9 @@
 import os
 import plistlib
 import nska_deserialize as nd
-import scripts.artifacts.artGlobals
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, kmlgen, is_platform_windows, media_to_html, open_sqlite_db_readonly
+from scripts.ilapfuncs import logfunc, tsv, timeline, kmlgen, is_platform_windows, media_to_html, open_sqlite_db_readonly, iOS
 
 
 def get_ph70adjusteddatetimezonelocphdapsql(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -31,7 +30,7 @@ def get_ph70adjusteddatetimezonelocphdapsql(files_found, report_folder, seeker, 
 
 	if report_folder.endswith('/') or report_folder.endswith('\\'):
 		report_folder = report_folder[:-1]
-	iosversion = scripts.artifacts.artGlobals.versionf
+	iosversion = iOS.get_version()
 	if version.parse(iosversion) <= version.parse("14.8.1"):
 		logfunc("Unsupported version for PhotoData-Photos.sqlite User Adjusted Date & Timezone & Location for iOS " + iosversion)
 	if (version.parse(iosversion) >= version.parse("15")) & (version.parse(iosversion) < version.parse("18")):
@@ -882,7 +881,7 @@ def get_ph71adjusteddatetimezonephdapsql(files_found, report_folder, seeker, wra
 
 	if report_folder.endswith('/') or report_folder.endswith('\\'):
 		report_folder = report_folder[:-1]
-	iosversion = scripts.artifacts.artGlobals.versionf
+	iosversion = iOS.get_version()
 	if version.parse(iosversion) <= version.parse("14.8.1"):
 		logfunc("Unsupported version for PhotoData-Photos.sqlite User Adjusted Date & Timezone for iOS " + iosversion)
 	if (version.parse(iosversion) >= version.parse("15")) & (version.parse(iosversion) < version.parse("18")):
@@ -1729,7 +1728,7 @@ def get_ph72adjusteddatelocphdapsql(files_found, report_folder, seeker, wrap_tex
 
 	if report_folder.endswith('/') or report_folder.endswith('\\'):
 		report_folder = report_folder[:-1]
-	iosversion = scripts.artifacts.artGlobals.versionf
+	iosversion = iOS.get_version()
 	if version.parse(iosversion) <= version.parse("14.8.1"):
 		logfunc("Unsupported version for PhotoData-Photos.sqlite User Adjusted Date & Location for iOS " + iosversion)
 	if (version.parse(iosversion) >= version.parse("15")) & (version.parse(iosversion) < version.parse("18")):
@@ -2576,7 +2575,7 @@ def get_ph73adjusteddatephdapsql(files_found, report_folder, seeker, wrap_text, 
 
 	if report_folder.endswith('/') or report_folder.endswith('\\'):
 		report_folder = report_folder[:-1]
-	iosversion = scripts.artifacts.artGlobals.versionf
+	iosversion = iOS.get_version()
 	if version.parse(iosversion) <= version.parse("14.8.1"):
 		logfunc("Unsupported version for PhotoData-Photos.sqlite User Adjusted Date for iOS " + iosversion)
 	if (version.parse(iosversion) >= version.parse("15")) & (version.parse(iosversion) < version.parse("18")):
@@ -3421,7 +3420,7 @@ def get_ph74adjustedtimezonelocphdapsql(files_found, report_folder, seeker, wrap
 
 	if report_folder.endswith('/') or report_folder.endswith('\\'):
 		report_folder = report_folder[:-1]
-	iosversion = scripts.artifacts.artGlobals.versionf
+	iosversion = iOS.get_version()
 	if version.parse(iosversion) <= version.parse("14.8.1"):
 		logfunc("Unsupported version for PhotoData-Photos.sqlite User Adjusted Timezone & Location for iOS " + iosversion)
 	if (version.parse(iosversion) >= version.parse("15")) & (version.parse(iosversion) < version.parse("18")):
@@ -4268,7 +4267,7 @@ def get_ph75adjustedtimezonephdapsql(files_found, report_folder, seeker, wrap_te
 
 	if report_folder.endswith('/') or report_folder.endswith('\\'):
 		report_folder = report_folder[:-1]
-	iosversion = scripts.artifacts.artGlobals.versionf
+	iosversion = iOS.get_version()
 	if version.parse(iosversion) <= version.parse("14.8.1"):
 		logfunc("Unsupported version for PhotoData-Photos.sqlite User Adjusted Timezone for iOS " + iosversion)
 	if (version.parse(iosversion) >= version.parse("15")) & (version.parse(iosversion) < version.parse("18")):
@@ -5113,7 +5112,7 @@ def get_ph76adjustedlocphdapsql(files_found, report_folder, seeker, wrap_text, t
 
 	if report_folder.endswith('/') or report_folder.endswith('\\'):
 		report_folder = report_folder[:-1]
-	iosversion = scripts.artifacts.artGlobals.versionf
+	iosversion = iOS.get_version()
 	if version.parse(iosversion) <= version.parse("14.8.1"):
 		logfunc("Unsupported version for PhotoData-Photos.sqlite User Adjusted Location for iOS " + iosversion)
 	if (version.parse(iosversion) >= version.parse("15")) & (version.parse(iosversion) < version.parse("18")):

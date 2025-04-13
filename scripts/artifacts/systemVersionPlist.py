@@ -16,8 +16,7 @@ __artifacts_v2__ = {
 }
 
 import plistlib
-import scripts.artifacts.artGlobals
-from scripts.ilapfuncs import artifact_processor, logfunc, device_info
+from scripts.ilapfuncs import artifact_processor, logfunc, device_info, iOS
 
 @artifact_processor
 def systemVersionPlist(files_found, report_folder, seeker, wrap_text, time_offset):
@@ -32,7 +31,7 @@ def systemVersionPlist(files_found, report_folder, seeker, wrap_text, time_offse
                 device_info("Device Information", "Product Build Version", val, source_path)
 
             if key == "ProductVersion":
-                scripts.artifacts.artGlobals.versionf = val
+                iOS.set_version(val)
                 logfunc(f"iOS Version: {val}")
                 device_info("Device Information", "iOS Version", val, source_path)
 

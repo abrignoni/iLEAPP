@@ -1,7 +1,6 @@
 import os
 import shutil
 import sqlite3
-import scripts.artifacts.artGlobals
 
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport

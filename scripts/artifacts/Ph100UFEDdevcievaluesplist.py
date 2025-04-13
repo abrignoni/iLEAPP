@@ -21,8 +21,7 @@ import plistlib
 import biplist
 import nska_deserialize as nd
 from scripts.builds_ids import OS_build
-import scripts.artifacts.artGlobals
-from scripts.ilapfuncs import artifact_processor, logfunc, device_info, get_file_path
+from scripts.ilapfuncs import artifact_processor, logfunc, device_info, get_file_path, iOS
 
 @artifact_processor
 def Ph100UFEDdevicevaluesPlist(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -35,7 +34,7 @@ def Ph100UFEDdevicevaluesPlist(files_found, report_folder, seeker, wrap_text, ti
             data_list.append((key, str(val)))
 
             if key == "ProductVersion":
-                scripts.artifacts.artGlobals.versionf = str(val)
+                iOS.set_version(str(val))
                 logfunc(f"iOS version: {val}")
                 device_info("devicevaluesplist-ufedadvlog", "Product Version", str(val), source_path)
 
