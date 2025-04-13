@@ -9,7 +9,6 @@
 
 import sqlite3
 import textwrap
-import scripts.artifacts.artGlobals
 
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport

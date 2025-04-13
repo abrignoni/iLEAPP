@@ -1,7 +1,6 @@
 import gzip
 import re
 import os
-import scripts.artifacts.artGlobals
 from datetime import datetime, timezone
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport

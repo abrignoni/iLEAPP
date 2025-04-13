@@ -51,10 +51,9 @@ __artifacts_v2__ = {
 
 import glob
 import os
-import scripts.artifacts.artGlobals
 from packaging import version
 from scripts.builds_ids import OS_build
-from scripts.ilapfuncs import artifact_processor, get_file_path, open_sqlite_db_readonly, get_sqlite_db_records, logfunc
+from scripts.ilapfuncs import artifact_processor, get_file_path, open_sqlite_db_readonly, get_sqlite_db_records, logfunc, iOS
 
 @artifact_processor
 def Ph26_1SyndicationIDAssetsPhDaPsql(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -66,7 +65,7 @@ def Ph26_1SyndicationIDAssetsPhDaPsql(files_found, report_folder, seeker, wrap_t
       
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
-    iosversion = scripts.artifacts.artGlobals.versionf
+    iosversion = iOS.get_version()
     if version.parse(iosversion) <= version.parse("14.8.1"):
         logfunc("Unsupported version from PhotoData-Photos.sqlite for iOS " + iosversion)
         return (), [], source_path
@@ -958,7 +957,7 @@ def Ph26_2SyndicationPLAssetsSyndPL(files_found, report_folder, seeker, wrap_tex
 
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
-    iosversion = scripts.artifacts.artGlobals.versionf
+    iosversion = iOS.get_version()
     if version.parse(iosversion) <= version.parse("14.8.1"):
         logfunc("Unsupported version from Syndication.photoslibrary for iOS " + iosversion)
         return (), [], source_path

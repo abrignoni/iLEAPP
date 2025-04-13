@@ -15,7 +15,6 @@ __artifacts_v2__ = {
 
 
 import plistlib
-import scripts.artifacts.artGlobals
 
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport

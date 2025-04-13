@@ -1,9 +1,8 @@
 import os
 import re
-import scripts.artifacts.artGlobals
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, iOS
 
 def month_converter(month):
   months = [
@@ -58,7 +57,7 @@ def line_splitting(line):
       pass
 
 def get_mobileInstallb(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    iosversion = scripts.artifacts.artGlobals.versionf
+    iosversion = iOS.get_version()
     if (version.parse(iosversion) >= version.parse("17")):
       data_list = []
       data_list_reboot = []

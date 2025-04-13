@@ -2,7 +2,6 @@ import glob
 import plistlib
 import os
 import datetime
-import scripts.artifacts.artGlobals
 
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport

@@ -43,7 +43,6 @@ __artifacts_v2__ = {
     }
 }
 
-import scripts.artifacts.artGlobals
 
 from packaging import version
 from scripts.builds_ids import OS_build, device_id

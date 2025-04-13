@@ -194,11 +194,9 @@ __artifacts_v2__ = {
     }
 }
 
-import scripts.artifacts.artGlobals
-
 from packaging import version
 from scripts.builds_ids import OS_build, device_id
-from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, attach_sqlite_db_readonly, convert_ts_human_to_timezone_offset
+from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, attach_sqlite_db_readonly, convert_ts_human_to_timezone_offset, iOS
 
 @artifact_processor
 def healthWorkouts(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -206,7 +204,7 @@ def healthWorkouts(files_found, report_folder, seeker, wrap_text, timezone_offse
     healthdb_secure = ''
     healthdb = ''
     celcius_temp = None
-    iOS_version = scripts.artifacts.artGlobals.versionf
+    iOS_version = iOS.get_version()
 
     for file_found in files_found:
         if file_found.endswith('healthdb_secure.sqlite'):
@@ -578,7 +576,7 @@ def healthHeartRate(files_found, report_folder, seeker, wrap_text, timezone_offs
     data_list = []
     healthdb_secure = ''
     healthdb = ''
-    iOS_version = scripts.artifacts.artGlobals.versionf
+    iOS_version = iOS.get_version()
 
     for file_found in files_found:
         if file_found.endswith('healthdb_secure.sqlite'):

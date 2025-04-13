@@ -537,7 +537,6 @@ def attach_sqlite_db_readonly(path, db_name):
 
 def get_sqlite_db_records(path, query, attach_query=None):
     db = open_sqlite_db_readonly(path)
-    db.row_factory = sqlite3.Row  # For fetching columns by name
     if db:
         db.row_factory = sqlite3.Row  # For fetching columns by name
         try:

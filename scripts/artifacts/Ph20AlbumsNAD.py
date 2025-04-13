@@ -56,10 +56,9 @@ __artifacts_v2__ = {
 }
 
 import os
-import scripts.artifacts.artGlobals
 from packaging import version
 from scripts.builds_ids import OS_build
-from scripts.ilapfuncs import artifact_processor, get_file_path, open_sqlite_db_readonly, get_sqlite_db_records, logfunc
+from scripts.ilapfuncs import artifact_processor, get_file_path, open_sqlite_db_readonly, get_sqlite_db_records, logfunc, iOS
 
 @artifact_processor
 def Ph20_1AlbumRecordswithNADPhDaPsql(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -71,7 +70,7 @@ def Ph20_1AlbumRecordswithNADPhDaPsql(files_found, report_folder, seeker, wrap_t
       
     if report_folder.endswith('-') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
-    iosversion = scripts.artifacts.artGlobals.versionf
+    iosversion = iOS.get_version()
     if version.parse(iosversion) <= version.parse("10.3.4"):
         logfunc("Unsupported version for PhotoData-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
@@ -353,7 +352,7 @@ def Ph20_2AlbumRecordswithNADSyndPL(files_found, report_folder, seeker, wrap_tex
 
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
-    iosversion = scripts.artifacts.artGlobals.versionf
+    iosversion = iOS.get_version()
     if version.parse(iosversion) <= version.parse("10.3.4"):
         logfunc("Unsupported version for Syndication.photoslibrary iOS " + iosversion)
         return (), [], source_path
@@ -635,7 +634,7 @@ def Ph20_3AlbumRecordswithNADGenPlayPsql(files_found, report_folder, seeker, wra
       
     if report_folder.endswith('-') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
-    iosversion = scripts.artifacts.artGlobals.versionf
+    iosversion = iOS.get_version()
     if version.parse(iosversion) <= version.parse("10.3.4"):
         logfunc("Unsupported version for GenPlay-Photos.sqlite iOS " + iosversion)
         return (), [], source_path

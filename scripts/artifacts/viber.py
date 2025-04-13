@@ -32,10 +32,9 @@ __artifacts_v2__ = {
 
 import json
 
-import scripts.artifacts.artGlobals
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, timeline, kmlgen, tsv, open_sqlite_db_readonly, media_to_html
+from scripts.ilapfuncs import logfunc, timeline, kmlgen, tsv, open_sqlite_db_readonly, media_to_html, iOS
 
 
 def get_viber(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -43,7 +42,7 @@ def get_viber(files_found, report_folder, seeker, wrap_text, timezone_offset):
 	for file_found in files_found:
 		file_found = str(file_found)
 
-		iOSversion = scripts.artifacts.artGlobals.versionf
+		iosversion = iOS.get_version()
 		if version.parse(iOSversion) < version.parse("14"):
 			logfunc("Viber parsing has not be tested on this iOS " + iOSversion + " version. Please contact @theAtropos4n6 for resolving this issue.")
 
