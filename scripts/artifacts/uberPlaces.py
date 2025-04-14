@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Uber",
         "notes": "",
-        "paths": ('*/private/var/mobile/Containers/Data/Application/*/Documents/database.db*'),
+        "paths": ('*/mobile/Containers/Data/Application/*/Documents/database.db*'),
         "function": "get_uberPlaces"
     }
 }

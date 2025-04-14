@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Trusted Peers",
         "notes": "",
-        "paths": ('*/private/var/Keychains/com.apple.security.keychain-defaultContext.TrustedPeersHelper.db*',),
+        "paths": ('*/Keychains/com.apple.security.keychain-defaultContext.TrustedPeersHelper.db*',),
         "output_types": "standard",
         "function": "get_trustedPeers",
         "artifact_icon": "check-circle"
