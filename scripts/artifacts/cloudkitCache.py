@@ -96,6 +96,6 @@ def get_cloudkitCache(files_found, report_folder, seeker, wrap_text, timezone_of
 __artifacts__ = {
     "cloudkitcache": (
         "Cloudkit",
-        ('*/private/var/mobile/Library/Caches/Backup/cloudkit_cache.db*'),
+        ('*/mobile/Library/Caches/Backup/cloudkit_cache.db*'),
         get_cloudkitCache)
 }

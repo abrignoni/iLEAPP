@@ -22,7 +22,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Withings Health Mate",
         "notes": "Based on https://bebinary4n6.blogspot.com/2024/09/app-healthmate-on-ios.html",
-        "paths": ('/private/var/mobile/Containers/Data/Application/*/Library/Application Support/account'),
+        "paths": ('/mobile/Containers/Data/Application/*/Library/Application Support/account'),
         "function": "get_healthmate_accounts"
     },
     "HealthMateSleepTracking": {
