@@ -1,39 +1,41 @@
 __artifacts_v2__ = {
-    "get_voicemail_transcript": {
-        "name": "Voicemail Transcript",
-        "description": "Parses Voicemail Transcript Files",
-        "author": "@JohnHyla",
-        "version": "0.0.1",
-        "date": "2025-04-11",
-        "requirements": "none",
-        "category": "Call History",
-        "notes": "",
-        "paths": (
-            '*/private/var/mobile/Library/Voicemail/*.transcript',
-            '*/private/var/mobile/Library/Application Support/com.apple.FaceTime/Assets/*.transcript'
+    'voicemail_transcript': {
+        'name': 'Voicemail Transcript',
+        'description': 'Parses Voicemail Transcript Files',
+        'author': '@JohnHyla',
+        'creation_date': '2025-04-05',
+        'last_update_date': '2025-04-14',
+        'requirements': 'none',
+        'category': 'Call History',
+        'notes': '',
+        'paths': (
+            '*/mobile/Library/Voicemail/*.transcript',
+            '*/mobile/Library/Application Support/com.apple.FaceTime/Assets/*.transcript'
         ),
-        "output_types": "standard"
+        'output_types': 'standard',
+        "artifact_icon": "file-text"
     }
 }
 
-import nska_deserialize as nd
-from scripts.ilapfuncs import artifact_processor
-import datetime
+
+from scripts.ilapfuncs import artifact_processor, get_plist_file_content, convert_ts_int_to_utc
+
 
 @artifact_processor
-def get_voicemail_transcript(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def voicemail_transcript(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
     for file_found in files_found:
-        with open(file_found, 'rb') as f:
-            deserialized_plist = nd.deserialize_plist(f)
+        deserialized_plist = get_plist_file_content(file_found)
 
         data_list.append([
-            datetime.datetime.utcfromtimestamp(seeker.file_infos[file_found].creation_date),
-            datetime.datetime.utcfromtimestamp(seeker.file_infos[file_found].modification_date),
+            convert_ts_int_to_utc(seeker.file_infos[file_found].creation_date),
+            convert_ts_int_to_utc(seeker.file_infos[file_found].modification_date),
             seeker.file_infos[file_found].source_path,
-            deserialized_plist['transcriptionString'],
-            deserialized_plist['confidence']])
+            deserialized_plist.get('transcriptionString', ''),
+            deserialized_plist.get('confidence', '')])
 
-    data_headers = ('File Created', 'File Modified', 'Filename', 'Transcript', 'Confidence')
+    data_headers = (
+        ('File Created', 'datetime'), ('File Modified', 'datetime'), 
+        'Filename', 'Transcript', 'Confidence')
 
     return data_headers, data_list, 'See Filename Column'
