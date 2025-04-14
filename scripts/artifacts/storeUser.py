@@ -28,8 +28,7 @@ __artifacts_v2__ = {
 import os
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import open_sqlite_db_readonly, artifact_processor, \
-    get_file_path, get_sqlite_db_records, does_column_exist_in_db
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, does_column_exist_in_db
 
 @artifact_processor
 def storeUser_ca(files_found, report_folder, seeker, wrap_text, timezone_offset):
