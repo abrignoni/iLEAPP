@@ -109,18 +109,33 @@ def voicemail(files_found, report_folder, seeker, wrap_text, timezone_offset):
                     transcription_string, transcription_confidence))
     else:
         source_file = 'See Filename Column'
-        for file_path in extracted_audio_files:
-            print(file_path)
-            print(Path(file_path).name)
-            data_list.append([
-                convert_unix_ts_to_utc(seeker.file_infos[file_path].creation_date),
-                convert_unix_ts_to_utc(seeker.file_infos[file_path].modification_date),
-                seeker.file_infos[file_path].source_path,
-                check_in_media(seeker, file_path, artifact_info, \
-                    name=Path(file_path).name, already_extracted=extracted_audio_files)])
+        transcriptions = {}
+
+        for transcript_file_path in extracted_transcript_files:
+            transcript_key = Path(transcript_file_path).stem
+            transcript = get_plist_file_content(transcript_file_path)
+            transcriptions[transcript_key] = {
+                'path': seeker.file_infos[transcript_file_path].source_path,
+                'transcription_string': transcript.get('transcriptionString', ''),
+                'confidence': transcript.get('confidence', '')
+            }
+
+        for audio_file_path in extracted_audio_files:
+            audio_key = Path(audio_file_path).stem
+            data_list.append((
+                convert_unix_ts_to_utc(seeker.file_infos[audio_file_path].creation_date),
+                convert_unix_ts_to_utc(seeker.file_infos[audio_file_path].modification_date),
+                seeker.file_infos[audio_file_path].source_path,
+                check_in_media(seeker, audio_file_path, artifact_info, \
+                    name=Path(audio_file_path).name, already_extracted=extracted_audio_files),
+                transcriptions.get(audio_key, {}).get('path', ''),
+                transcriptions.get(audio_key, {}).get('transcription_string', ''),
+                transcriptions.get(audio_key, {}).get('confidence', '')
+                ))
+
         data_headers = (
             ('File Created', 'datetime'), ('File Modified', 'datetime'), 
-            'Filename', ('Audio File', 'media'))
-
+            'Audio Filename', ('Audio File', 'media'), 'Transcript Filename', 
+            'Transcript', 'Transcript confidence')
 
     return data_headers, data_list, source_file
