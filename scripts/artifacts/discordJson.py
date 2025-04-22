@@ -91,19 +91,10 @@ def get_discordJson(files_found, report_folder, seeker, wrap_text, timezone_offs
 						#print (jsonfinal)
 						
 						x = 0
-						emdeddedauthor = ''
-						authorurl = ''
-						authoriconurl = ''
-						embededurl = ''
-						embededurl = ''
-						embededdescript = ''
-						footertext = ''
-						footericonurl = ''
-						
 						timestamp = editedtimestamp = username =  botuser = content = attachments = userid = channelid = emdeddedauthor = authorurl = authoriconurl = embededurl = embededdescript = footertext = footericonurl = pathedtail = ''
 						
 						listlength = len(jsonfinal)
-						if isinstance(jsonfinal, list):	
+						if isinstance(jsonfinal, list):
 							while x < listlength:
 								
 								if 'author' in jsonfinal[x]:
@@ -241,17 +232,17 @@ def get_discordJson(files_found, report_folder, seeker, wrap_text, timezone_offs
 		#logfunc('')
 	if len(data_list) > 0:
 		logfunc(f'Files found:{len(files_found)}')		
-		report = ArtifactHtmlReport('Discord Messages')
-		report.start_artifact_report(report_folder, 'Discord Messages')
+		report = ArtifactHtmlReport('Discord Chats (FSCachedData)')
+		report.start_artifact_report(report_folder, 'Discord Chats (FSCachedData)')
 		report.add_script()
 		data_headers = ('Timestamp','Edited Timestamp','Username','Bot?','Content','Attachments','User ID','Channel ID','Embedded Author','Author URL','Author Icon URL','Embedded URL','Embedded Script','Footer Text', 'Footer Icon URL', 'Source File')   
 		report.write_artifact_data_table(data_headers, data_list, pathedhead, html_no_escape=['Attachments'])
 		report.end_artifact_report()
 		
-		tsvname = 'Discord Messages'
+		tsvname = 'Discord Chats (FSCachedData)'
 		tsv(report_folder, data_headers, data_list, tsvname)
 		
-		tlactivity = 'Discord Messages'
+		tlactivity = 'Discord Chats (FSCachedData)'
 		timeline(report_folder, tlactivity, data_list, data_headers)
 
 __artifacts__ = {
