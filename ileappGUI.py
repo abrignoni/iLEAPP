@@ -285,7 +285,8 @@ def case_data():
         '''Save case data in a Case Data file'''
         destination_path = tk_filedialog.asksaveasfilename(parent=case_window,
                                                            title='Save a case data file',
-                                                           filetypes=(('LEAPP Case Data', '*.lcasedata'),))
+                                                           filetypes=(('LEAPP Case Data', '*.lcasedata'),),
+                                                           defaultextension='.lcasedata')
 
         if destination_path:
             json_casedata = {key: value.get() for key, value in casedata.items()}
