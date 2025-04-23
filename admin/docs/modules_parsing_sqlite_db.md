@@ -48,6 +48,8 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | appleWalletCards |
 | appleWalletTransactions |
 | callHistory |
+| discordJson |
+| discord_a |
 | filesApp |
 | foursquareSwarm |
 | googleTranslate |
