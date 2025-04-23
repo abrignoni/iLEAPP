@@ -7,159 +7,142 @@
 
 # Requirements:  datetime, json
 
-
-
-
 __artifacts_v2__ = {
 
     
-    "HealthMateAccounts": {
+    "get_healthmate_accounts": {
         "name": "Health Mate - Accounts",
-        "description": "Health Mate Accounts",
+        "description": "Existing account in Health Mate App from Withings.\n This decoding is based on the blog post https://bebinary4n6.blogspot.com/2024/09/withings-healthmate-on-ios.html",
         "author": "Marco Neumann {kalinko@be-binary.de}",
         "version": "0.0.1",
-        "date": "2024-09-22",
-        "requirements": "none",
+        "creatin_date": "2024-09-22",
+        "last_update_date": "2025-04-23",
+        "requirements": "json",
         "category": "Withings Health Mate",
         "notes": "Based on https://bebinary4n6.blogspot.com/2024/09/app-healthmate-on-ios.html",
-        "paths": ('/mobile/Containers/Data/Application/*/Library/Application Support/account'),
-        "function": "get_healthmate_accounts"
+        "paths": ('*/Containers/Data/Application/*/Library/Application Support/account'),
+        "output_types": "html",
+        "artifact_icon": "user"
     },
-    "HealthMateSleepTracking": {
+    "get_healthmate_sleep_tracking": {
         "name": "Health Mate - Sleep Tracking",
-        "description": "Health Mate Sleep Tracking",
+        "description": "Tracked sleep by Withings devices/app.\n This decoding is based on the blog post https://bebinary4n6.blogspot.com/2024/09/withings-healthmate-on-ios.html",
         "author": "Marco Neumann {kalinko@be-binary.de}",
         "version": "0.0.1",
-        "date": "2024-09-23",
+        "creation_date": "2024-09-23",
+        "last_update_date": "2025-04-23",
         "requirements": "none",
         "category": "Withings Health Mate",
         "notes": "Based on https://bebinary4n6.blogspot.com/2024/09/app-healthmate-on-ios.html",
         "paths": ('*/Library/Application Support/coredata/*_Tracks*'),
-        "function": "get_healthmate_sleep_tracking"
+        "output_types": "standard",
+        "artifact_icon": "moon"
     },
-    "HealthMateDailySummary": {
+    "get_healthmate_daily_summary": {
         "name": "Health Mate - Daily Summary",
-        "description": "Health Mate Daily Summary",
+        "description": "Daily Summary of activities.\n This decoding is based on the blog post https://bebinary4n6.blogspot.com/2024/09/withings-healthmate-on-ios.html",
         "author": "Marco Neumann {kalinko@be-binary.de}",
         "version": "0.0.1",
-        "date": "2024-09-24",
+        "creation_date": "2024-09-24",
+        "last_update_date": "2025-04-23",
         "requirements": "none",
         "category": "Withings Health Mate",
         "notes": "Based on https://bebinary4n6.blogspot.com/2024/09/app-healthmate-on-ios.html",
         "paths": ('*/Library/Application Support/coredata/*_Tracks*'),
-        "function": "get_healthmate_daily_summary"
+        "output_types": "standard",
+        "artifact_icon": "activity"
     },
-    "HealthMateTrackedActivities": {
-    "name": "Health Mate - Tracked Activities",
-    "description": "Health Mate Tracked Activities",
-    "author": "Marco Neumann {kalinko@be-binary.de}",
-    "version": "0.0.1",
-    "date": "2024-09-24",
-    "requirements": "none",
-    "category": "Withings Health Mate",
-    "notes": "Based on https://bebinary4n6.blogspot.com/2024/09/app-healthmate-on-ios.html",
-    "paths": ('*/Library/Application Support/coredata/*_Tracks*'),
-    "function": "get_healthmate_tracked_activities"
-    },
-    "HealthMateMessages": {
-        "name": "Health Mate - Messages",
-        "description": "Health Mate Messages",
+    "get_healthmate_tracked_activities": {
+        "name": "Health Mate - Tracked Activities",
+        "description": "Tracked activities.\n This decoding is based on the blog post https://bebinary4n6.blogspot.com/2024/09/withings-healthmate-on-ios.html",
         "author": "Marco Neumann {kalinko@be-binary.de}",
         "version": "0.0.1",
-        "date": "2024-09-23",
+        "creation_date": "2024-09-24",
+        "last_update_date": "2025-04-23",
+        "requirements": "none",
+        "category": "Withings Health Mate",
+        "notes": "Based on https://bebinary4n6.blogspot.com/2024/09/app-healthmate-on-ios.html",
+        "paths": ('*/Library/Application Support/coredata/*_Tracks*'),
+        "output_types": "standard",
+        "artifact_icon": "activity"
+    },
+    "get_healthmate_messages": {
+        "name": "Health Mate - Messages",
+        "description": "Existing Message data in Health Mate App from Withings. This decoding is based on the blog post https://bebinary4n6.blogspot.com/2024/09/app-healthmate-on-ios.html",
+        "author": "Marco Neumann {kalinko@be-binary.de}",
+        "version": "0.0.1",
+        "creation_date": "2024-09-23",
+        "last_update_date": "2025-04-23",
         "requirements": "none",
         "category": "Withings Health Mate",
         "notes": "Based on https://bebinary4n6.blogspot.com/2024/09/app-healthmate-on-ios.html",
         "paths": ('*/Library/Application Support/coredata/*_HM3Timeline*'),
-        "function": "get_healthmate_messages"
+        "output_types": "standard",
+        "artifact_icon": "message-square"
     },
-    "HealthMateMeasurements": {
+    "get_healthmate_measurements": {
         "name": "Health Mate - Measurements",
-        "description": "Health Mate Measurements",
+        "description": "Existing Measurements data in Health Mate App from Withings. This decoding is based on the blog post https://bebinary4n6.blogspot.com/2024/09/app-healthmate-on-ios.html.",
         "author": "Marco Neumann {kalinko@be-binary.de}",
         "version": "0.0.1",
-        "date": "2024-09-23",
+        "creation_date": "2024-09-23",
+        "last_update_date": "2025-04-23",
         "requirements": "none",
         "category": "Withings Health Mate",
         "notes": "Based on https://bebinary4n6.blogspot.com/2024/09/app-healthmate-on-ios.html",
         "paths": ('*/Library/Application Support/coredata/*_vasistas*'),
-        "function": "get_healthmate_measurements"
+        "output_types": "standard",
+        "artifact_icon": "activity"
     },
-    "HealthMateDevices": {
+    "get_healthmate_devices": {
         "name": "Health Mate - Devices",
-        "description": "Health Mate Devices",
+        "description": "Existing Devices data in Health Mate App from Withings. This decoding is based on the blog post https://bebinary4n6.blogspot.com/2024/09/app-healthmate-on-ios.html",
         "author": "Marco Neumann {kalinko@be-binary.de}",
         "version": "0.0.1",
-        "date": "2024-09-16",
+        "creation_date": "2024-09-16",
+        "last_update_date": "2025-04-23",
         "requirements": "none",
         "category": "Withings Health Mate",
         "notes": "Based on https://bebinary4n6.blogspot.com/2024/09/app-healthmate-on-ios.html",
         "paths": ('*/Library/Application Support/coredata/associated_device.sqlite'),
-        "function": "get_healthmate_devices"
+        "output_types": "standard",
+        "artifact_icon": "watch"
     }
 }
-
-
 
 import datetime
 import json
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly
+from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records
 
-
+@artifact_processor
 def get_healthmate_accounts(files_found, report_folder, seeker, wrap_text, time_offset):
-    logfunc("Processing data for Withings Health Mate App - Accounts")
-    files_found = [x for x in files_found if not x.endswith('wal') and not x.endswith('shm')]
     
     with open (str(files_found[0])) as json_file:
         json_data = json.load(json_file)
 
-        
-    usageentries = len(json_data['account']['sources'])
-    if usageentries > 0:
-        logfunc(f"Found {usageentries}  Withings Health Mate - Accounts")
-        description = f"Existing account in Health Mate App from Withings.\n This decoding is based on the blog post https://bebinary4n6.blogspot.com/2024/09/app-healthmate-on-ios.html"
-        report = ArtifactHtmlReport('Withings Health Mate - Accounts')
-        report.start_artifact_report(report_folder, 'Withings Health Mate - Accounts', description)
-        report.add_script()
-        data_headers = ( 'Creation Timestamp', 'Last Modified Timestamp', 'User ID', 'Last Name', 'First Name', 'Short Name', 'Birthdate', 'E-mail')
-        data_list = []
-        for user in json_data['account']['sources'][0]['users']:
-            id = user['userId']
-            lastname = user['lastName']
-            firstname = user['firstName']
-            shortname = user['shortName']
-            birthdate = datetime.datetime.fromtimestamp(user['birthday'] + 978307200).strftime('%Y-%m-%d %H:%M:%S')
-            email = user['email']
-            creationdate = datetime.datetime.fromtimestamp(user['created']).strftime('%Y-%m-%d %H:%M:%S')
-            modifieddate = datetime.datetime.fromtimestamp(user['modified']).strftime('%Y-%m-%d %H:%M:%S')
+    data_list = []
+    for user in json_data['account']['sources'][0]['users']:
+        id = user['userId']
+        lastname = user['lastName']
+        firstname = user['firstName']
+        shortname = user['shortName']
+        birthdate = datetime.datetime.fromtimestamp(user['birthday'] + 978307200).strftime('%Y-%m-%d %H:%M:%S')
+        email = user['email']
+        creationdate = datetime.datetime.fromtimestamp(user['created']).strftime('%Y-%m-%d %H:%M:%S')
+        modifieddate = datetime.datetime.fromtimestamp(user['modified']).strftime('%Y-%m-%d %H:%M:%S')
 
-            data_list.append((creationdate, modifieddate, id, lastname, firstname, shortname, birthdate, email))
+        data_list.append((creationdate, modifieddate, id, lastname, firstname, shortname, birthdate, email))
 
-        tableID = 'healthmate_accounts'
+    data_headers = ( 'Creation Timestamp', 'Last Modified Timestamp', 'User ID', 'Last Name', 'First Name', 'Short Name', 'Birthdate', 'E-mail')
 
-        report.write_artifact_data_table(data_headers, data_list, ','.join(files_found))
-        report.end_artifact_report()
+    return data_headers, data_list, files_found[0]
 
-        tsvname = f'Withings Health Mate - Accounts'
-        tsv(report_folder, data_headers, data_list, tsvname)
-
-        tlactivity = f'Withings Health Mate - Accounts'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-
-    else:
-        logfunc('No Withings Health Mate Account data found!')
-
-
-
+@artifact_processor
 def get_healthmate_sleep_tracking(files_found, report_folder, seeker, wrap_text, time_offset):
-    logfunc("Processing data for Withings Health Mate App - Sleep Tracking")
     files_found = [x for x in files_found if not x.endswith('wal') and not x.endswith('shm')]
     
-    db = open_sqlite_db_readonly(str(files_found[0]))
-    cursor = db.cursor()
-    cursor.execute('''
+    query = ('''
         SELECT  
         ZDEVICEID,
         DATETIME('2001-01-01', "ZSTARTDATE" || ' seconds') [STARTDATE],
@@ -179,59 +162,38 @@ def get_healthmate_sleep_tracking(files_found, report_folder, seeker, wrap_text,
         FROM ZTRACK  
         WHERE ZSUBCATEGORY IS NULL AND ZTYPE = 36
     ''')
-    all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
-    if usageentries > 0:
-        logfunc(f"Found {usageentries}  Withings Health Mate - Sleep Tracking")
-        description = f"Tracked sleep by Withings devices/app.\n This decoding is based on the blog post https://bebinary4n6.blogspot.com/2024/09/withings-healthmate-on-ios.html"
-        report = ArtifactHtmlReport('Withings Health Mate - Sleep Tracking')
-        report.start_artifact_report(report_folder, 'Withings Health Mate - Sleep Tracking', description)
-        report.add_script()
-        data_headers = ('Start Date', 'End Date', 'Reference Date','Modified Date', 'Manual Start Date','Manual End Date','Device ID', 'Duration Light Sleep','Duration REM Sleep', 'Duration Deep Sleep', 'Duration To Sleep', 'Time To Get Up', 'Wake up count', 'Duration Awake', 'Timezone')
-        data_list = []
-        for row in all_rows:
-            id = row[0]
-            startdate = row[1]
-            enddate = row[2]
-            refrencedate = row[3]
-            moddate = row[4]
-            man_start = row[5]
-            man_end = row[6]
-            dur_light = row[7]
-            dur_rem = row[8]
-            dur_deep = row[9]
-            dur_to_sleep = row[10]
-            getup = row[11]
-            num_wakeup = row[12]
-            dur_awake = row[13]
-            timezone = row[14]
 
-            data_list.append((startdate, enddate, refrencedate, moddate, man_start, man_end, id, dur_light, dur_rem, dur_deep, dur_to_sleep, getup, num_wakeup, dur_awake, timezone))
+    db_records = get_sqlite_db_records(str(files_found[0]), query)
 
-        tableID = 'healthmate_sleep_racking'
- 
+    data_list = []
+    for row in db_records:
+        id = row[0]
+        startdate = row[1]
+        enddate = row[2]
+        refrencedate = row[3]
+        moddate = row[4]
+        man_start = row[5]
+        man_end = row[6]
+        dur_light = row[7]
+        dur_rem = row[8]
+        dur_deep = row[9]
+        dur_to_sleep = row[10]
+        getup = row[11]
+        num_wakeup = row[12]
+        dur_awake = row[13]
+        timezone = row[14]
 
-        report.write_artifact_data_table(data_headers, data_list, ','.join(files_found))
-        report.end_artifact_report()
+        data_list.append((startdate, enddate, refrencedate, moddate, man_start, man_end, id, dur_light, dur_rem, dur_deep, dur_to_sleep, getup, num_wakeup, dur_awake, timezone))
 
-        tsvname = f'Withings Health Mate - Sleep Tracking'
-        tsv(report_folder, data_headers, data_list, tsvname)
+    data_headers = ('Start Date', 'End Date', 'Reference Date','Modified Date', 'Manual Start Date','Manual End Date','Device ID', 'Duration Light Sleep','Duration REM Sleep', 'Duration Deep Sleep', 'Duration To Sleep', 'Time To Get Up', 'Wake up count', 'Duration Awake', 'Timezone')
+    
+    return data_headers, data_list, files_found[0]
 
-        tlactivity = f'Withings Health Mate - Sleep Tracking'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-
-    else:
-        logfunc('No Withings Health Mate Sleep Tracking data found!')
-
-    db.close()
-
+@artifact_processor
 def get_healthmate_daily_summary(files_found, report_folder, seeker, wrap_text, time_offset):
-    logfunc("Processing data for Withings Health Mate - Daily Summary")
     files_found = [x for x in files_found if not x.endswith('wal') and not x.endswith('shm')]
     
-    db = open_sqlite_db_readonly(str(files_found[0]))
-    cursor = db.cursor()
-    cursor.execute('''
+    query = ('''
         SELECT  
         DATETIME('2001-01-01', "ZSTARTDATE" || ' seconds') [STARTDATE],
         DATETIME('2001-01-01', "ZENDDATE" || ' seconds') [ENDDATE],
@@ -247,55 +209,33 @@ def get_healthmate_daily_summary(files_found, report_folder, seeker, wrap_text, 
         FROM ZTRACK  
         WHERE ZTRACKID IS NULL AND ZDEVICEID IS NULL
     ''')
-    all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
-    if usageentries > 0:
-        logfunc(f"Found {usageentries}  Withings Health Mate - Daily Summary")
-        description = f"Daily Summary of activities.\n This decoding is based on the blog post https://bebinary4n6.blogspot.com/2024/09/withings-healthmate-on-ios.html"
-        report = ArtifactHtmlReport('Withings Health Mate - Daily Summary')
-        report.start_artifact_report(report_folder, 'Withings Health Mate - Daily Summary', description)
-        report.add_script()
-        data_headers = ('Start Date', 'End Date', 'Reference Date','Modified Date','Duration Inactive','Duration Intense', 'Duration Moderate', 'Duration Soft', 'Steps', 'Distance', 'Timezone')
-        data_list = []
-        for row in all_rows:
-            startdate = row[0]
-            enddate = row[1]
-            refrencedate = row[2]
-            moddate = row[3]
-            dur_inactive = row[4]
-            dur_intense = row[5]
-            dur_moderate = row[6]
-            dur_soft = row[7]
-            steps = row[8]
-            distance = row[9]
-            timezone = row[10]
+    db_records = get_sqlite_db_records(str(files_found[0]), query)
 
-            data_list.append((startdate, enddate, refrencedate, moddate, dur_inactive, dur_intense, dur_moderate, dur_soft, steps, distance, timezone))
+    data_list = []
+    for row in db_records:
+        startdate = row[0]
+        enddate = row[1]
+        refrencedate = row[2]
+        moddate = row[3]
+        dur_inactive = row[4]
+        dur_intense = row[5]
+        dur_moderate = row[6]
+        dur_soft = row[7]
+        steps = row[8]
+        distance = row[9]
+        timezone = row[10]
 
-        tableID = 'healthmate_sleep_racking'
- 
+        data_list.append((startdate, enddate, refrencedate, moddate, dur_inactive, dur_intense, dur_moderate, dur_soft, steps, distance, timezone))
 
-        report.write_artifact_data_table(data_headers, data_list, ','.join(files_found))
-        report.end_artifact_report()
+    data_headers = ('Start Date', 'End Date', 'Reference Date','Modified Date','Duration Inactive','Duration Intense', 'Duration Moderate', 'Duration Soft', 'Steps', 'Distance', 'Timezone')
 
-        tsvname = f'Withings Health Mate - Daily Summary'
-        tsv(report_folder, data_headers, data_list, tsvname)
+    return data_headers, data_list, files_found[0]
 
-        tlactivity = f'Withings Health Mate - Daily Summary'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-
-    else:
-        logfunc('No Withings Health Mate - Daily Summary data found!')
-
-    db.close()
-
+@artifact_processor
 def get_healthmate_tracked_activities(files_found, report_folder, seeker, wrap_text, time_offset):
-    logfunc("Processing data for Withings Health Mate - Tracked Activities")
     files_found = [x for x in files_found if not x.endswith('wal') and not x.endswith('shm')]
     
-    db = open_sqlite_db_readonly(str(files_found[0]))
-    cursor = db.cursor()
-    cursor.execute('''
+    query = ('''
         SELECT
         t.ZDEVICEID,
         sc.ZNAME,
@@ -335,80 +275,56 @@ def get_healthmate_tracked_activities(files_found, report_folder, seeker, wrap_t
         INNER JOIN ZTRACKEXTENSION te ON t.Z_PK = te.ZTRACK
         WHERE t.ZSTEPS IS NOT NULL
     ''')
-    all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
-    if usageentries > 0:
-        logfunc(f"Found {usageentries}  Withings Health Mate - Tracked Activities")
-        description = f"Tracked activities.\n This decoding is based on the blog post https://bebinary4n6.blogspot.com/2024/09/withings-healthmate-on-ios.html"
-        report = ArtifactHtmlReport('Withings Health Mate - Tracked Activities')
-        report.start_artifact_report(report_folder, 'Withings Health Mate - Tracked Activities', description)
-        report.add_script()
-        data_headers = ('Start Date', 'End Date', 'Reference Date','Modified Date', 'Manual Start Date','Manual End Date', 'Device ID', 'Track ID', 'Type', 'Is Removed', 'Pause Duration', 'Duration Intense', 'Duration Moderate', 'Duration Light', 'Heart Rate MIN', 'Heart Rate AVG', 'Heart Rate MAX', 'Steps', 'Distance (no GPS)', 'Speed MIN', 'Speed AVG', 'Speed MAX', 'Distance (GPS)', 'Start Latitude', 'Start Longitude', 'Region Center Latitude', 'Region Center Longitude', 'End Latitude', 'End Longitude', 'Temperature MIN', 'Temperature AVG', 'Temperature MAX', 'Timezone')
-        data_list = []
-        for row in all_rows:
-            id = row[0]
-            act_type = row[1]
-            is_removed = row[2]
-            dur_pause = row[3]
-            startdate = row[4]
-            enddate = row[5]
-            refrencedate = row[6]
-            moddate = row[7]
-            man_start = row[8]
-            man_end = row[9]
-            dur_intense = row[10]
-            dur_moderate = row[11]
-            dur_light = row[12]
-            heart_min = row[13]
-            heart_avg = row[14]
-            heart_max = row[15]
-            steps = row[16]
-            distance = row[17]
-            speed_min = row[18]
-            speed_avg = row[19]
-            speed_max = row[20]
-            distance_gps = row[21]
-            start_lat = row[22]
-            start_lon = row[23]
-            end_lat = row[24]
-            end_lon = row[25]
-            center_lat = row[26]
-            center_lon = row[27]
-            temp_min = row[28]
-            temp_avg = row[29]
-            temp_max = row[30]
-            timezone = row[31]
-            track = row[32]
 
+    db_records = get_sqlite_db_records(str(files_found[0]), query)
+        
+    data_list = []
+    for row in db_records:
+        id = row[0]
+        act_type = row[1]
+        is_removed = row[2]
+        dur_pause = row[3]
+        startdate = row[4]
+        enddate = row[5]
+        refrencedate = row[6]
+        moddate = row[7]
+        man_start = row[8]
+        man_end = row[9]
+        dur_intense = row[10]
+        dur_moderate = row[11]
+        dur_light = row[12]
+        heart_min = row[13]
+        heart_avg = row[14]
+        heart_max = row[15]
+        steps = row[16]
+        distance = row[17]
+        speed_min = row[18]
+        speed_avg = row[19]
+        speed_max = row[20]
+        distance_gps = row[21]
+        start_lat = row[22]
+        start_lon = row[23]
+        end_lat = row[24]
+        end_lon = row[25]
+        center_lat = row[26]
+        center_lon = row[27]
+        temp_min = row[28]
+        temp_avg = row[29]
+        temp_max = row[30]
+        timezone = row[31]
+        track = row[32]
 
-            data_list.append((startdate, enddate, refrencedate, moddate, man_start, man_end, id, track, act_type, is_removed, dur_pause, dur_intense, dur_moderate, dur_light, heart_min, heart_avg, heart_max, steps, distance, speed_min, speed_avg, speed_max, distance_gps, start_lat, start_lon, end_lat, end_lon, center_lat, center_lon, temp_min, temp_avg, temp_max, timezone))
+        data_list.append((startdate, enddate, refrencedate, moddate, man_start, man_end, id, track, act_type, is_removed, dur_pause, dur_intense, dur_moderate, dur_light, heart_min, heart_avg, heart_max, steps, distance, speed_min, speed_avg, speed_max, distance_gps, start_lat, start_lon, end_lat, end_lon, center_lat, center_lon, temp_min, temp_avg, temp_max, timezone))
 
-        tableID = 'healthmate_tracked_activities'
- 
-
-        report.write_artifact_data_table(data_headers, data_list, ','.join(files_found))
-        report.end_artifact_report()
-
-        tsvname = f'Withings Health Mate - Tracked Activities'
-        tsv(report_folder, data_headers, data_list, tsvname)
-
-        tlactivity = f'Withings Health Mate - Tracked Activities'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-
-    else:
-        logfunc('No Withings Health Mate - Tracked Activities data found!')
-
-    db.close()
-
-
-def get_healthmate_messages(files_found, report_folder, seeker, wrap_text, time_offset):
-    logfunc("Processing data for Withings Health Mate App - Messages")
-    files_found = [x for x in files_found if not x.endswith('wal') and not x.endswith('shm')]
+    data_headers = ('Start Date', 'End Date', 'Reference Date','Modified Date', 'Manual Start Date','Manual End Date', 'Device ID', 'Track ID', 'Type', 'Is Removed', 'Pause Duration', 'Duration Intense', 'Duration Moderate', 'Duration Light', 'Heart Rate MIN', 'Heart Rate AVG', 'Heart Rate MAX', 'Steps', 'Distance (no GPS)', 'Speed MIN', 'Speed AVG', 'Speed MAX', 'Distance (GPS)', 'Start Latitude', 'Start Longitude', 'Region Center Latitude', 'Region Center Longitude', 'End Latitude', 'End Longitude', 'Temperature MIN', 'Temperature AVG', 'Temperature MAX', 'Timezone')
     
-    file_found = str(files_found[0])
-    db = open_sqlite_db_readonly(file_found)
-    cursor = db.cursor()
-    cursor.execute('''
+    return data_headers, data_list, files_found[0]
+     
+@artifact_processor
+def get_healthmate_messages(files_found, report_folder, seeker, wrap_text, time_offset):
+    files_found = [x for x in files_found if not x.endswith('wal') and not x.endswith('shm')]
+
+    query = ('''
         SELECT
         ZUSERID,
         ZSENDERID,
@@ -424,58 +340,33 @@ def get_healthmate_messages(files_found, report_folder, seeker, wrap_text, time_
         WHERE ZTYPE = 'HMTimelineMessageEvent'
     ''')
 
-    all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
-    if usageentries > 0:
-        logfunc(f"Found {usageentries}  Withings Health Mate - Messages")
-        description = "Existing Message data in Health Mate App from Withings. This decoding is based on the blog post https://bebinary4n6.blogspot.com/2024/09/app-healthmate-on-ios.html"
-        report = ArtifactHtmlReport('Withings Health Mate - Messages')
-        report.start_artifact_report(report_folder, 'Withings Health Mate - Messages', description)
-        report.add_script()
-        data_headers = ('Timestamp [Local Time]', 'Timestamp Modified', 'Timestamp Expiration', 'Account ID', 'Sender ID', 'Receiver ID', 'Sender Last Name', 'Sender First Name', 'Type', 'Message')
-        data_list = []
-        #message_list = []
-        for row in all_rows:
-            id = row[0]
-            senderid = row[1]
-            receiverid = row[2]
-            sender_name = row[3]
-            sender_first_name = row[4]
-            date = row[5]
-            date_mod = row[6]
-            date_exp = row[7]
-            message_type = row[8]
-            message = row[9]   
+    db_records = get_sqlite_db_records(str(files_found[0]), query)
 
-            data_list.append((date, date_mod, date_exp, id, senderid, receiverid, sender_name, sender_first_name, message_type, message))
+    data_list = []
+    for row in db_records:
+        id = row[0]
+        senderid = row[1]
+        receiverid = row[2]
+        sender_name = row[3]
+        sender_first_name = row[4]
+        date = row[5]
+        date_mod = row[6]
+        date_exp = row[7]
+        message_type = row[8]
+        message = row[9]   
 
-        tableID = 'healthmate_messages'
+        data_list.append((date, date_mod, date_exp, id, senderid, receiverid, sender_name, sender_first_name, message_type, message))
 
-        
-        report.write_artifact_data_table(data_headers, data_list, ','.join(files_found))
-        #report.add_chat()
-        report.end_artifact_report()
+    data_headers = ('Timestamp [Local Time]', 'Timestamp Modified', 'Timestamp Expiration', 'Account ID', 'Sender ID', 'Receiver ID', 'Sender Last Name', 'Sender First Name', 'Type', 'Message')
 
-        tsvname = f'Withings Health Mate - Messages'
-        tsv(report_folder, data_headers, data_list, tsvname)
+    return data_headers, data_list, files_found[0]  
 
-        tlactivity = f'Withings Health Mate - Messages'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-
-    else:
-        logfunc('No Withings Health Mate Message data found!')
-
-    db.close()
-
-
+@artifact_processor
 def get_healthmate_measurements(files_found, report_folder, seeker, wrap_text, time_offset):
-    logfunc("Processing data for Withings Health Mate App - Measurements")
     files_found = [x for x in files_found if not x.endswith('wal') and not x.endswith('shm')]
     
-    file_found = str(files_found[0])
-    db = open_sqlite_db_readonly(file_found)
-    cursor = db.cursor()
-    cursor.execute('''
+
+    query = ('''
         SELECT
         ZCATEGORY [CATEGORYID],
         ZDEVICEID,
@@ -505,63 +396,40 @@ def get_healthmate_measurements(files_found, report_folder, seeker, wrap_text, t
         FROM ZVASISTAS
     ''')
 
-    all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
-    if usageentries > 0:
-        logfunc(f"Found {usageentries}  Withings Health Mate - Measurements")
-        description = "Existing Measurements data in Health Mate App from Withings. This decoding is based on the blog post https://bebinary4n6.blogspot.com/2024/09/app-healthmate-on-ios.html."
-        report = ArtifactHtmlReport('Withings Healthmate - Measurements')
-        report.start_artifact_report(report_folder, 'Withings Health Mate - Measurements', description)
-        report.add_script()
-        data_headers = ('Timestamp', 'Category ID', 'Category', 'Device ID', 'Duration', 'Steps', 'Distance', 'Calories', 'Heart Rate', 'Latitude', 'Longitude', 'Altitude', 'Direction', 'Radius', 'Speed', 'SPO2', 'Ascent', 'Temperature')
-        data_list = []
-        for row in all_rows:
-            category_id = row[0]
-            category = row[17]
-            device_id = row[1]
-            duration = row[2]
-            timestamp = row[3]
-            steps = row[4]
-            distance = row[5]
-            calories = row[6]
-            heartrate = row[7]
-            lat = row[8]
-            lon = row[9]
-            alt = row[10]
-            direction = row[11]
-            radius = row[12]
-            speed = row[13]
-            spo2 = row[14]
-            ascent = row[15]
-            temperature = row[16]
+    db_records = get_sqlite_db_records(str(files_found[0]), query)
+        
+    data_list = []
+    for row in db_records:
+        category_id = row[0]
+        category = row[17]
+        device_id = row[1]
+        duration = row[2]
+        timestamp = row[3]
+        steps = row[4]
+        distance = row[5]
+        calories = row[6]
+        heartrate = row[7]
+        lat = row[8]
+        lon = row[9]
+        alt = row[10]
+        direction = row[11]
+        radius = row[12]
+        speed = row[13]
+        spo2 = row[14]
+        ascent = row[15]
+        temperature = row[16]
 
 
-            data_list.append((timestamp, category_id, category, device_id, duration, steps, distance, calories, heartrate, lat, lon, alt, direction, radius, speed, spo2, ascent, temperature))
+        data_list.append((timestamp, category_id, category, device_id, duration, steps, distance, calories, heartrate, lat, lon, alt, direction, radius, speed, spo2, ascent, temperature))
+    data_headers = ('Timestamp', 'Category ID', 'Category', 'Device ID', 'Duration', 'Steps', 'Distance', 'Calories', 'Heart Rate', 'Latitude', 'Longitude', 'Altitude', 'Direction', 'Radius', 'Speed', 'SPO2', 'Ascent', 'Temperature')
 
-        tableID = 'healthmate_measurements'
+    return data_headers, data_list, files_found[0]
 
-        report.write_artifact_data_table(data_headers, data_list, ','.join(files_found))
-        report.end_artifact_report()
-
-        tsvname = f'Withings Health Mate - Measurements'
-        tsv(report_folder, data_headers, data_list, tsvname)
-
-        tlactivity = f'Withings Health Mate - Measurements'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-
-    else:
-        logfunc('No Withings Health Mate Measurements data found!')
-
-    db.close()
-
+@artifact_processor
 def get_healthmate_devices(files_found, report_folder, seeker, wrap_text, time_offset):
-    logfunc("Processing data for Withings Health Mate App - Devices")
     files_found = [x for x in files_found if not x.endswith('wal') and not x.endswith('shm')]
-    
-    file_found = str(files_found[0])
-    db = open_sqlite_db_readonly(file_found)
-    cursor = db.cursor()
-    cursor.execute('''
+   
+    query = ('''
         SELECT  
         ZDEVICE_ID,   
         ZUSERID,   
@@ -577,43 +445,24 @@ def get_healthmate_devices(files_found, report_folder, seeker, wrap_text, time_o
         FROM ZWTDEVICE;
     ''')
 
-    all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
-    if usageentries > 0:
-        logfunc(f"Found {usageentries}  Withings Health Mate - Devices")
-        description = "Existing Devices data in Health Mate App from Withings. This decoding is based on the blog post https://bebinary4n6.blogspot.com/2024/09/app-healthmate-on-ios.html"
-        report = ArtifactHtmlReport('Withings Health Mate - Devices')
-        report.start_artifact_report(report_folder, 'Withings Health Mate - Devices', description)
-        report.add_script()
-        data_headers = ('Association Timestamp', 'Last Used Timestamp', 'Last Weighin Timestamp', 'ID', 'User ID', 'MAC', 'Firmware', 'Latitude', 'Longitude', 'Device Timezone', 'Sync Disabled')
-        data_list = []
-        for row in all_rows:
-            id = row[0]
-            userid = row[1]
-            assdate = row[2]
-            lastdate = row[3]
-            lastweighin = row[4]
-            mac = row[5]
-            firmware = row[6]
-            lat = row[7]
-            lon = row[8]  
-            dev_timezone = row[9]  
-            sync_disabled = row[10]      
+    db_records = get_sqlite_db_records(str(files_found[0]), query)
 
-            data_list.append((assdate, lastdate, lastweighin, id, userid, mac, firmware, lat, lon, dev_timezone, sync_disabled))
+    data_list = []
+    for row in db_records:
+        id = row[0]
+        userid = row[1]
+        assdate = row[2]
+        lastdate = row[3]
+        lastweighin = row[4]
+        mac = row[5]
+        firmware = row[6]
+        lat = row[7]
+        lon = row[8]  
+        dev_timezone = row[9]  
+        sync_disabled = row[10]      
 
-        tableID = 'healthmate_devices'
+        data_list.append((assdate, lastdate, lastweighin, id, userid, mac, firmware, lat, lon, dev_timezone, sync_disabled))
 
-        report.write_artifact_data_table(data_headers, data_list, ','.join(files_found))
-        report.end_artifact_report()
-
-        tsvname = f'Withings Health Mate - Devices'
-        tsv(report_folder, data_headers, data_list, tsvname)
-
-        tlactivity = f'Withings Health Mate - Devices'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-
-    else:
-        logfunc('No Withings Health Mate Devices data found!')
-
-    db.close()
+    data_headers = ('Association Timestamp', 'Last Used Timestamp', 'Last Weighin Timestamp', 'ID', 'User ID', 'MAC', 'Firmware', 'Latitude', 'Longitude', 'Device Timezone', 'Sync Disabled')
+    
+    return data_headers, data_list, files_found[0]
