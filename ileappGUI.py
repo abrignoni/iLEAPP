@@ -120,7 +120,8 @@ def save_profile():
     '''Save selected modules in a profile file'''
     destination_path = tk_filedialog.asksaveasfilename(parent=main_window,
                                                        title='Save a profile',
-                                                       filetypes=(('iLEAPP Profile', '*.ilprofile'),))
+                                                       filetypes=(('iLEAPP Profile', '*.ilprofile'),),
+                                                       defaultextension='.ilprofile')
 
     if destination_path:
         selected_modules = get_selected_modules()
