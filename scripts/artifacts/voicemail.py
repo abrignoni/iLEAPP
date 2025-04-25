@@ -1,155 +1,141 @@
 __artifacts_v2__ = {
-    "voicemail": {
-        "name": "Voicemail",
-        "description": "Extract voicemail",
-        "author": "@JohannPLW - @AlexisBrignoni",
-        "version": "0.1.1",
-        "date": "2023-09-30",
-        "requirements": "none",
-        "category": "Call History",
-        "notes": "",
-        "paths": ('*/mobile/Library/Voicemail/voicemail.db*',),
-        "output_types": "standard",
-        "artifact_icon": "mic"
-    },
-    "deletedVoicemail": {
-        "name": "Deleted Voicemail",
-        "description": "Extract deleted voicemail",
-        "author": "@JohannPLW - @AlexisBrignoni",
-        "version": "0.1.1",
-        "date": "2023-09-30",
-        "requirements": "none",
-        "category": "Call History",
-        "notes": "",
-        "paths": ('*/mobile/Library/Voicemail/voicemail.db*',),
-        "output_types": "standard",
-        "artifact_icon": "mic-off"
+    'voicemail': {
+        'name': 'Voicemail',
+        'description': 'Extract voicemail',
+        'author': '@JohannPLW - @AlexisBrignoni',
+        'creation_date': '2023-09-30',
+        'last_update_date': '2025-04-15',
+        'category': 'Call History',
+        'notes': '',
+        'paths': (
+            '*/mobile/Library/Voicemail/voicemail.db*',
+            '*/mobile/Library/Voicemail/*.amr',
+            '*/mobile/Library/Voicemail/*.transcript'),
+        'output_types': 'standard',
+        'artifact_icon': 'mic'
     }
 }
 
+
 import inspect
+from pathlib import Path
 from scripts.ilapfuncs import artifact_processor, \
-    get_file_path, does_table_exist_in_db, get_sqlite_db_records, check_in_media, \
-    convert_unix_ts_to_utc, convert_cocoa_core_data_ts_to_utc
+    get_file_path, does_table_exist_in_db, get_sqlite_db_records, get_plist_file_content, \
+    check_in_media, convert_unix_ts_to_utc, convert_cocoa_core_data_ts_to_utc
+
 
 @artifact_processor
 def voicemail(files_found, report_folder, seeker, wrap_text, timezone_offset):
     artifact_info = inspect.stack()[0]
-    db_file = get_file_path(files_found, "voicemail.db")
+    db_file = get_file_path(files_found, 'voicemail.db')
     data_list = []
 
     query = '''
     SELECT 
         voicemail.date,
         voicemail.sender,
-        voicemail.receiver,
-        map.account,
-        strftime('%H:%M:%S', voicemail.duration, 'unixepoch'),
+        voicemail.callback_num,
+        time(voicemail.duration, 'unixepoch'),
+		CASE
+			WHEN voicemail.trashed_date = 0 AND voicemail.flags = 75 THEN 'Yes'
+			WHEN voicemail.trashed_date = 0 THEN 'No'
+			ELSE voicemail.trashed_date
+		END,
         voicemail.ROWID
     FROM voicemail
-    LEFT OUTER JOIN map ON voicemail.label = map.label
-    WHERE voicemail.trashed_date = 0 AND voicemail.flags != 75
     '''
-    
+
     data_headers = (
-        ('Date and time', 'datetime'), ('Sender', 'phonenumber'), ('Receiver', 'phonenumber'), 
-        'ICCID receiver', 'Duration', ('Audio File', 'media'))
-    
+        ('Date and time', 'datetime'), ('Sender', 'phonenumber'), 
+        ('Callback Number', 'phonenumber'), 'Duration', 'Deleted', ('Audio File', 'media'), 
+        'Transcript', 'Transcript confidence',)
+
     table_map_exists = does_table_exist_in_db(db_file, 'map')
 
-    if not table_map_exists:
+    if table_map_exists:
         query = '''
         SELECT 
             voicemail.date,
             voicemail.sender,
-            voicemail.callback_num,
-            strftime('%H:%M:%S', voicemail.duration, 'unixepoch'),
+            voicemail.receiver,
+            map.account,
+            time(voicemail.duration, 'unixepoch'),
+            CASE
+                WHEN voicemail.trashed_date = 0 AND voicemail.flags = 75 THEN 'Yes'
+                WHEN voicemail.trashed_date = 0 THEN 'No'
+                ELSE voicemail.trashed_date
+            END,
             voicemail.ROWID
         FROM voicemail
-        WHERE voicemail.trashed_date = 0 AND voicemail.flags != 75
+        LEFT OUTER JOIN map ON voicemail.label = map.label
         '''
-
+        
         data_headers = (
-            ('Date and time', 'datetime'), ('Sender', 'phonenumber'), ('Callback Number', 'phonenumber'), 
-            'Duration', ('Audio File', 'media'))
+            ('Date and time', 'datetime'), ('Sender', 'phonenumber'), ('Receiver', 'phonenumber'), 
+            'ICCID receiver', 'Duration', 'Deleted', ('Audio File', 'media'), 'Transcript', 
+            'Transcript confidence')
 
     db_records = get_sqlite_db_records(db_file, query)
     
-    for record in db_records:
-        timestamp = convert_unix_ts_to_utc(record[0])
-        audio_filename = f'{record[-1]}.amr'
-        audio_file_path = f'*/mobile/Library/Voicemail/{audio_filename}'
-        media_item = check_in_media(seeker, audio_file_path, artifact_info, audio_filename)
-        if table_map_exists:
-            data_list.append(
-                (timestamp, record[1], record[2], record[3], record[4], media_item))
-        else:
-            data_list.append(
-                (timestamp, record[1], record[2], record[3], media_item))
-    return data_headers, data_list, db_file
+    # Filter out voicemail files which are stored in a sub-folder
+    extracted_audio_files = [
+        file_path for file_path in files_found \
+            if Path(file_path).parent.name == 'Voicemail' and Path(file_path).suffix == '.amr']
+    extracted_transcript_files = [
+        file_path for file_path in files_found \
+            if Path(file_path).parent.name == 'Voicemail' and Path(file_path).suffix == '.transcript']
 
-@artifact_processor
-def deletedVoicemail(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    db_file = get_file_path(files_found, "voicemail.db")
-    data_list = []
-    artifact_info = inspect.stack()[0]
+    if db_file:
+        source_file = db_file
 
-    query = '''
-    SELECT 
-        voicemail.date,
-        voicemail.sender,
-        voicemail.receiver,
-        map.account,
-        strftime('%H:%M:%S', voicemail.duration, 'unixepoch'),
-        CASE voicemail.trashed_date
-        WHEN 0 THEN ""
-        ELSE voicemail.trashed_date
-        END,
-        voicemail.ROWID
-    FROM voicemail
-    LEFT OUTER JOIN map ON voicemail.label = map.label
-    WHERE voicemail.trashed_date != 0 OR voicemail.flags = 75
-    '''
+        for record in db_records:
+            timestamp = convert_unix_ts_to_utc(record[0])
+            deleted = convert_cocoa_core_data_ts_to_utc(record[-2]) \
+                if isinstance(record[-2], int) else record[-2]
+            audio_filename = f'{record[-1]}.amr'
+            media_item = check_in_media(seeker, audio_filename, artifact_info, \
+                                        name=audio_filename, already_extracted=extracted_audio_files)
+            transcript_file_path = get_file_path(extracted_transcript_files, f'{record[-1]}.transcript')
+            transcript = get_plist_file_content(transcript_file_path) if transcript_file_path else {}
+            transcription_string = transcript.get('transcriptionString', '')
+            transcription_confidence = transcript.get('confidence', '')
+            if table_map_exists:
+                data_list.append(
+                    (timestamp, record[1], record[2], record[3], record[4], deleted, media_item, 
+                    transcription_string, transcription_confidence))
+            else:
+                data_list.append(
+                    (timestamp, record[1], record[2], record[3], deleted, media_item, 
+                    transcription_string, transcription_confidence))
+    else:
+        source_file = 'See Filename Column'
+        transcriptions = {}
 
-    data_headers = (
-        ('Date and time', 'datetime'), ('Sender', 'phonenumber'), ('Receiver', 'phonenumber'), 
-        'ICCID receiver', 'Duration', ('Trashed date', 'datetime'), ('Audio File', 'media'))
+        for transcript_file_path in extracted_transcript_files:
+            transcript_key = Path(transcript_file_path).stem
+            transcript = get_plist_file_content(transcript_file_path)
+            transcriptions[transcript_key] = {
+                'path': seeker.file_infos[transcript_file_path].source_path,
+                'transcription_string': transcript.get('transcriptionString', ''),
+                'confidence': transcript.get('confidence', '')
+            }
 
-    table_map_exists = does_table_exist_in_db(db_file, 'map')
-
-    if not table_map_exists:
-        query = '''
-        SELECT 
-            voicemail.date,
-            voicemail.sender,
-            voicemail.callback_num,
-            strftime('%H:%M:%S', voicemail.duration, 'unixepoch'),
-            CASE voicemail.trashed_date
-            WHEN 0 THEN ""
-            ELSE voicemail.trashed_date
-            END,
-        voicemail.ROWID
-        FROM voicemail
-        WHERE voicemail.trashed_date = 0 AND voicemail.flags != 75
-        '''
+        for audio_file_path in extracted_audio_files:
+            audio_key = Path(audio_file_path).stem
+            data_list.append((
+                convert_unix_ts_to_utc(seeker.file_infos[audio_file_path].creation_date),
+                convert_unix_ts_to_utc(seeker.file_infos[audio_file_path].modification_date),
+                seeker.file_infos[audio_file_path].source_path,
+                check_in_media(seeker, audio_file_path, artifact_info, \
+                    name=Path(audio_file_path).name, already_extracted=extracted_audio_files),
+                transcriptions.get(audio_key, {}).get('path', ''),
+                transcriptions.get(audio_key, {}).get('transcription_string', ''),
+                transcriptions.get(audio_key, {}).get('confidence', '')
+                ))
 
         data_headers = (
-        ('Date and time', 'datetime'), ('Sender', 'phonenumber'), ('Callback Number', 'phonenumber'), 
-        'Duration', ('Trashed date', 'datetime'), ('Audio File', 'media'))
+            ('File Created', 'datetime'), ('File Modified', 'datetime'), 
+            'Audio Filename', ('Audio File', 'media'), 'Transcript Filename', 
+            'Transcript', 'Transcript confidence')
 
-    db_records = get_sqlite_db_records(db_file, query)
-
-    for record in db_records:
-        timestamp = convert_unix_ts_to_utc(record[0])
-        trashed_date = convert_cocoa_core_data_ts_to_utc(record[-2])
-        audio_filename = f'{record[-1]}.amr'
-        audio_file_path = f'*/mobile/Library/Voicemail/{audio_filename}'
-        media_item = check_in_media(seeker, audio_file_path, artifact_info, audio_filename)
-        if table_map_exists:
-            data_list.append(
-                (timestamp, record[1], record[2], record[3], record[4], trashed_date, media_item))
-        else:
-            data_list.append(
-                (timestamp, record[1], record[2], record[3], trashed_date, media_item))
-
-    return data_headers, data_list, db_file
+    return data_headers, data_list, source_file

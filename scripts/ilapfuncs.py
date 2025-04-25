@@ -176,7 +176,7 @@ def set_media_references(media_ref_id, media_id, artifact_info, name):
 def check_in_media(seeker, file_path, artifact_info, name="", already_extracted=False, converted_file_path=False):
     if already_extracted:
         extracted_file_path = next(
-            (path for path in already_extracted if file_path in path), None)
+            (path for path in already_extracted if Path(path).match(file_path)), None)
         file_info_key = extracted_file_path
     else:
         file_info_key = seeker.search(file_path, return_on_first_hit=True)
@@ -430,10 +430,9 @@ def get_file_path(files_found, filename, skip=False):
     """Returns the path of the searched filename if exists or returns None"""
     try:
         for file_found in files_found:
-            if skip:
-                if skip in file_found:
-                    continue
-            if file_found.endswith(filename):
+            if skip and skip in file_found:
+                continue
+            if Path(file_found).match(filename):
                 return file_found
     except Exception as e:
         logfunc(f"Error: {str(e)}")
@@ -931,7 +930,7 @@ def device_info(category, label, value, source_file=""):
 
 ### New timestamp conversion functions
 def convert_unix_ts_in_seconds(ts):
-    digits = int(math.log10(ts))+1
+    digits = int(math.log10(ts if ts > 0 else -ts))+1
     if digits > 10:
         extra_digits = digits - 10
         ts = ts // 10**extra_digits
