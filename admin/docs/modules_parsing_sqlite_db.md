@@ -42,12 +42,15 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | Ph97iOS17REFforAssetAnalysis |
 | Ph98iOS18REFforAssetAnalysis |
 | Ph9BurstAvalanche |
+| WithingsHealthMate |
 | accountData |
 | addressBook |
 | allTrails |
 | appleWalletCards |
 | appleWalletTransactions |
 | callHistory |
+| discordJson |
+| discord_a |
 | filesApp |
 | foursquareSwarm |
 | googleTranslate |
@@ -79,7 +82,6 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | Ph70UserAdjustDateTimezoneLocation |
 | SMSmissingROWIDs |
 | SiriRemembers |
-| WithingsHealthMate |
 | ZangiChats |
 | applePodcasts |
 | appleWalletPasses |
