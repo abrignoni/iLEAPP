@@ -352,7 +352,8 @@ def crunch_artifacts(
     logfunc(f'Info: {len(loader) - 2} modules loaded.') # excluding lastbuild and iTunesBackupInfo
     if profile_filename:
         logfunc(f'Loaded profile: {profile_filename}')
-    logfunc(f'Artifact categories to parse: {len(plugins) - 1}') # excluding lastbuild always executed first
+    artifact_to_parse = len(plugins) - 1 if extracttype != 'itunes' else len(plugins) 
+    logfunc(f'Artifact to parse: {artifact_to_parse}')
     logfunc(f'File/Directory selected: {input_path}')
     logfunc('\n--------------------------------------------------------------------------------------')
 
