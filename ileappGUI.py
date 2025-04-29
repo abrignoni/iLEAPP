@@ -3,6 +3,7 @@ import typing
 import json
 import ileapp
 import webbrowser
+import base64
 
 import scripts.plugin_loader as plugin_loader
 
@@ -278,7 +279,10 @@ def case_data():
     def clear():
         '''Remove the contents of all fields'''
         case_number_entry.delete(0, 'end')
-        case_agency_entry.delete(0, 'end')
+        case_agency_name_entry.delete(0, 'end')
+        case_agency_logo_path_entry.delete(0, 'end')
+        case_agency_logo_mimetype.delete(0, 'end')
+        case_agency_logo_b64.delete(0, 'end')
         case_examiner_entry.delete(0, 'end')
 
     def save_case():
@@ -316,8 +320,14 @@ def case_data():
                         casedata = case_data.get('case_data_values', {})
                         case_number_entry.delete(0, 'end')
                         case_number_entry.insert(0, casedata.get('Case Number', ''))
-                        case_agency_entry.delete(0, 'end')
-                        case_agency_entry.insert(0, casedata.get('Agency', ''))
+                        case_agency_name_entry.delete(0, 'end')
+                        case_agency_name_entry.insert(0, casedata.get('Agency', ''))
+                        case_agency_logo_path_entry.delete(0, 'end')
+                        case_agency_logo_path_entry.insert(0, casedata.get('Agency Logo Path', ''))
+                        case_agency_logo_mimetype.delete(0, 'end')
+                        case_agency_logo_mimetype.insert(0, casedata.get('Agency Logo mimetype', ''))
+                        case_agency_logo_b64.delete(0, 'end')
+                        case_agency_logo_b64.insert(0, casedata.get('Agency Logo base64', ''))
                         case_examiner_entry.delete(0, 'end')
                         case_examiner_entry.insert(0, casedata.get('Examiner', ''))
                 else:
@@ -328,13 +338,42 @@ def case_data():
                 tk_msgbox.showinfo(
                     title='Load Case Data', message=f'Loaded Case Data: {destination_path}', parent=case_window)
 
+    def add_agency_logo():
+        '''Import image file and covert it into base64'''
+        logo_path = tk_filedialog.askopenfilename(parent=case_window,
+                                                         title='Add agency logo',
+                                                         filetypes=(('All supported files', '*.png *.jpg *.gz'), ))
+
+        if logo_path and os.path.exists(logo_path):
+            agency_logo_load_error = None
+            with open(logo_path, 'rb') as agency_logo_file:
+                agency_logo_mimetype = guess_mime(agency_logo_file)
+                if agency_logo_mimetype and 'image' in agency_logo_mimetype:
+                    try:
+                        agency_logo_base64_encoded = base64.b64encode(agency_logo_file.read())
+                    except:
+                        agency_logo_load_error = 'Unable to encode the selected file in base64.'
+                else:
+                    agency_logo_load_error = 'Selected file is not a valid picture file.'
+            if agency_logo_load_error:
+                tk_msgbox.showerror(title='Error', message=agency_logo_load_error, parent=case_window)
+            else:
+                case_agency_logo_path_entry.delete(0, 'end')
+                case_agency_logo_path_entry.insert(0, logo_path)
+                case_agency_logo_mimetype.delete(0, 'end')
+                case_agency_logo_mimetype.insert(0, agency_logo_mimetype)
+                case_agency_logo_b64.delete(0, 'end')
+                case_agency_logo_b64.insert(0, agency_logo_base64_encoded)
+                tk_msgbox.showinfo(
+                    title='Add agency logo', message=f'{logo_path} was added as Agency logo', parent=case_window)
+
     ### Case Data Window creation
     case_window = tk.Toplevel(main_window)
     case_window_width = 560
     if is_platform_linux():
-        case_window_height = 290
+        case_window_height = 325
     else:
-        case_window_height = 270
+        case_window_height = 305
 
     #### Places Case Data window in the center of the screen
     screen_width = main_window.winfo_screenwidth()
@@ -359,8 +398,19 @@ def case_data():
     case_number_entry.focus()
     case_agency_frame = ttk.LabelFrame(case_window, text=' Agency ')
     case_agency_frame.grid(row=2, column=0, padx=14, pady=5, sticky='we')
-    case_agency_entry = ttk.Entry(case_agency_frame, textvariable=casedata['Agency'])
-    case_agency_entry.pack(padx=5, pady=4, fill='x')
+    case_agency_frame.grid_columnconfigure(1, weight=1)
+    case_agency_name_label = ttk.Label(case_agency_frame, text="Name:")
+    case_agency_name_label.grid(row=0, column=0, padx=5, pady=4, sticky='w')
+    case_agency_name_entry = ttk.Entry(case_agency_frame, textvariable=casedata['Agency'])
+    case_agency_name_entry.grid(row=0, column=1, columnspan=2, padx=5, pady=4, sticky='we')
+    case_agency_logo_label = ttk.Label(case_agency_frame, text="Logo:")
+    case_agency_logo_label.grid(row=1, column=0, padx=5, pady=6, sticky='w')
+    case_agency_logo_path_entry = ttk.Entry(case_agency_frame, textvariable=casedata['Agency Logo Path'])
+    case_agency_logo_mimetype = ttk.Entry(case_agency_frame, textvariable=casedata['Agency Logo mimetype'])
+    case_agency_logo_b64 = ttk.Entry(case_agency_frame, textvariable=casedata['Agency Logo base64'])
+    case_agency_logo_path_entry.grid(row=1, column=1, padx=5, pady=6, sticky='we')
+    case_agency_logo_button = ttk.Button(case_agency_frame, text='Add File', command=add_agency_logo)
+    case_agency_logo_button.grid(row=1, column=2, padx=5, pady=6)
     case_examiner_frame = ttk.LabelFrame(case_window, text=' Examiner ')
     case_examiner_frame.grid(row=3, column=0, padx=14, pady=5, sticky='we')
     case_examiner_entry = ttk.Entry(case_examiner_frame, textvariable=casedata['Examiner'])
@@ -394,6 +444,9 @@ mlist = {}
 profile_filename = None
 casedata = {'Case Number': tk.StringVar(),
             'Agency': tk.StringVar(),
+            'Agency Logo Path': tk.StringVar(),
+            'Agency Logo mimetype': tk.StringVar(),
+            'Agency Logo base64': tk.StringVar(),
             'Examiner': tk.StringVar(),
             }
 timezone_set = tk.StringVar()
