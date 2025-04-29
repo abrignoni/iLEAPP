@@ -49,11 +49,19 @@ def get_biomeDKKeybag(files_found, report_folder, seeker, wrap_text, timezone_of
             if record.state == EntryState.Written:
                 protostuff, types = blackboxprotobuf.decode_message(record.data, typess)
 
-                timestart = (webkit_timestampsconv(protostuff['8']))
-                timestart = convert_utc_human_to_timezone(timestart, timezone_offset)
+                time8 = (webkit_timestampsconv(protostuff['8']))
+                time8 = convert_utc_human_to_timezone(time8, timezone_offset)
 
-                data_list.append((ts, timestart, record.state.name, protostuff['4']['4']))
+                time2 = (webkit_timestampsconv(protostuff['2']))
+                time2 = convert_utc_human_to_timezone(time2, timezone_offset)
 
-    data_headers = (('SEGB Timestamp', 'datetime'), ('Timestamp?', 'datetime'), 'SEGB State', 'isLocked')
+                time3 = (webkit_timestampsconv(protostuff['3']))
+                time3 = convert_utc_human_to_timezone(time3, timezone_offset)
+
+
+
+                data_list.append((ts, time8, time2, time3, '1 - Locked ' if protostuff['4']['4'] == 1 else '0 - Unlocked'))
+
+    data_headers = (('SEGB Timestamp', 'datetime'), ('Time8', 'datetime'), ('Time2', 'datetime'), ('Time3', 'datetime'), 'isLocked')
 
     return data_headers, data_list, report_file
