@@ -13,11 +13,13 @@ __artifacts_v2__ = {
     }
 }
         
-
 import plistlib
 import struct
 
 from scripts.ilapfuncs import artifact_processor, device_info
+
+def pad_mac_adr(adr):
+    return ':'.join([i.zfill(2) for i in adr.split(':')]).upper()
 
 @artifact_processor
 def wifiIdentifiers(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -30,10 +32,10 @@ def wifiIdentifiers(files_found, report_folder, seeker, wrap_text, timezone_offs
             if key == 'Interfaces':
                 for y in value:
                     hexstring = (y['IOMACAddress'])
-                    hexstring = "%x:%x:%x:%x:%x:%x" % struct.unpack("BBBBBB",hexstring)
+                    hexstring = pad_mac_adr("%x:%x:%x:%x:%x:%x" % struct.unpack("BBBBBB",hexstring))
                     userdefinedname = y['SCNetworkInterfaceInfo']['UserDefinedName']
                     bsdname = y['BSD Name']
-                    
+
                     data_list.append((hexstring, userdefinedname, bsdname))
                     device_info("Network", "MAC Addresses", f"- {userdefinedname}: {hexstring}", source_path)
                     

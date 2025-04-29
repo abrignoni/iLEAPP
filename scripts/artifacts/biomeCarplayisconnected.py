@@ -1,12 +1,12 @@
 __artifacts_v2__ = {
     "get_biomeCarplayisconnected": {
-        "name": "Biome Carplay Is Connected",
+        "name": "Biome - Carplay",
         "description": "Parses carplay is connected entries from biomes",
         "author": "@JohnHyla",
         "version": "0.0.2",
         "date": "2024-10-17",
         "requirements": "none",
-        "category": "Biome Carplay",
+        "category": "Biome",
         "notes": "",
         "paths": ('*/Biome/streams/restricted/_DKEvent.Carplay.IsConnected/local/*'),
         "output_types": "standard"

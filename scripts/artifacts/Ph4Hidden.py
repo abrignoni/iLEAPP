@@ -1,39 +1,63 @@
-# Photos.sqlite
-# Author:  Scott Koenig, assisted by past contributors
-# Version: 2.0
-#
-#   Description:
-#   Parses basic asset record data from Photos.sqlite for hidden assets and supports iOS 11-18.
-#   The results for this script will contain one record per ZASSET table Z_PK value.
-#   This parser is based on research and SQLite queries written by Scott Koenig
-#   https://theforensicscooter.com/ and queries found at https://github.com/ScottKjr3347
-#
+__artifacts_v2__ = {
+    'Ph4_1HiddenPhDaPsql': {
+        'name': 'Ph4.1-Hidden-PhDaPsql',
+        'description': 'Parses basic asset row data from PhotoData-Photos.sqlite for hidden assets'
+                       ' and supports iOS 11-18. The results for this script will contain'
+                       ' one row per ZASSET table Z_PK value.',
+        'author': 'Scott Koenig',
+        'version': '5.0',
+        'date': '2025-01-05',
+        'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
+        'category': 'Photos.sqlite-B-Interaction_Artifacts',
+        'notes': '',
+        'paths': ('*/PhotoData/Photos.sqlite*',),
+        "output_types": ["standard", "tsv", "none"],
+        "artifact_icon": "eye-off"
+    },
+    'Ph4_3HiddenGenPlayPsql': {
+        'name': 'Ph4.3-Hidden-GenPlayPsql',
+        'description': 'Parses basic asset row data from GenerativePlayground-Photos.sqlite for hidden assets'
+                       ' and supports iOS 18. The results for this script will contain'
+                       ' one row per ZASSET table Z_PK value.',
+        'author': 'Scott Koenig',
+        'version': '1.0',
+        'date': '2025-02-05',
+        'requirements': 'Acquisition that contains GenerativePlayground-Photos.sqlite',
+        'category': 'Photos.sqlite-P-GenerativePlayground_PL_Artifacts',
+        'notes': '',
+        'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
+        "output_types": ["standard", "tsv", "none"],
+        "artifact_icon": "eye-off"
+	}
+}
 
 import os
-import scripts.artifacts.artGlobals
 from packaging import version
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, kmlgen, is_platform_windows, media_to_html, open_sqlite_db_readonly
+from scripts.builds_ids import OS_build
+from scripts.ilapfuncs import artifact_processor, get_file_path, open_sqlite_db_readonly, get_sqlite_db_records, logfunc, iOS
 
-
-def get_ph4hiddenphdapsql(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    for file_found in files_found:
-        file_found = str(file_found)
+@artifact_processor
+def Ph4_1HiddenPhDaPsql(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    for source_path in files_found:
+        source_path = str(source_path)
         
-        if file_found.endswith('.sqlite'):
+        if source_path.endswith('.sqlite'):
             break
       
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
-    iosversion = scripts.artifacts.artGlobals.versionf
+    iosversion = iOS.get_version()
     if version.parse(iosversion) <= version.parse("10.3.4"):
-        logfunc("Unsupported version for PhotoData-Photos.sqlite hidden assets from iOS " + iosversion)
+        logfunc("Unsupported version for PhotoData-Photos.sqlite iOS " + iosversion)
+        return (), [], source_path
     if (version.parse(iosversion) >= version.parse("11")) & (version.parse(iosversion) < version.parse("14")):
-        file_found = str(files_found[0])
-        db = open_sqlite_db_readonly(file_found)
-        cursor = db.cursor()
+        source_path = get_file_path(files_found,"Photos.sqlite")
+        if source_path is None or not os.path.exists(source_path):
+            logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
+            return (), [], None
+        data_list = []
 
-        cursor.execute("""
+        query = '''
         SELECT
         DateTime(zAsset.ZMODIFICATIONDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Modification Date',
         CASE zAsset.ZHIDDEN
@@ -55,57 +79,36 @@ def get_ph4hiddenphdapsql(files_found, report_folder, seeker, wrap_text, timezon
             LEFT JOIN ZCLOUDMASTER zCldMast ON zAsset.ZMASTER = zCldMast.Z_PK
         WHERE zAsset.ZHIDDEN = 1
         ORDER BY zAsset.ZMODIFICATIONDATE
-        """)
+        '''
 
-        all_rows = cursor.fetchall()
-        usageentries = len(all_rows)
-        data_list = []
-        counter = 0
-        if usageentries > 0:
-            for row in all_rows:
-                data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
+        db_records = get_sqlite_db_records(source_path, query)
+        for row in db_records:
+            data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
                                   row[10]))
 
-                counter += 1
+        data_headers = (('zAsset-Modification Date-0', 'datetime'),
+                        'zAsset-Hidden-1',
+                        'zAsset-Directory-Path-2',
+                        'zAsset-Filename-3',
+                        'zAddAssetAttr- Original Filename-4',
+                        'zCldMast- Original Filename-5',
+                        'zCldMast-Import Session ID- AirDrop-StillTesting-6',
+                        'zAsset-zPK-7',
+                        'zAddAssetAttr-zPK-8',
+                        'zAsset-UUID = store.cloudphotodb-9',
+                        'zAddAssetAttr-Master Fingerprint-10')
+        data_list = get_sqlite_db_records(source_path, query)
 
-            description = 'Parses basic asset record data from PhotoData-Photos.sqlite for hidden assets' \
-                          ' and supports iOS 11-13. The results for this script will contain' \
-                          ' one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Ph4-Hidden-PhDaPsql')
-            report.start_artifact_report(report_folder, 'Ph4-Hidden-PhDaPsql', description)
-            report.add_script()
-            data_headers = ('zAsset-Modification Date',
-                            'zAsset-Hidden',
-                            'zAsset-Directory-Path',
-                            'zAsset-Filename',
-                            'zAddAssetAttr- Original Filename',
-                            'zCldMast- Original Filename',
-                            'zCldMast-Import Session ID- AirDrop-StillTesting',
-                            'zAsset-zPK',
-                            'zAddAssetAttr-zPK',
-                            'zAsset-UUID = store.cloudphotodb',
-                            'zAddAssetAttr-Master Fingerprint')
-            report.write_artifact_data_table(data_headers, data_list, file_found)
-            report.end_artifact_report()
-
-            tsvname = 'Ph4-Hidden-PhDaPsql'
-            tsv(report_folder, data_headers, data_list, tsvname)
-
-            tlactivity = 'Ph4-Hidden-PhDaPsql'
-            timeline(report_folder, tlactivity, data_list, data_headers)
-
-        else:
-            logfunc('No data available for PhotoData-Photos.sqlite Hidden Assets')
-
-        db.close()
-        return
+        return data_headers, data_list, source_path
 
     elif (version.parse(iosversion) >= version.parse("14")) & (version.parse(iosversion) < version.parse("15")):
-        file_found = str(files_found[0])
-        db = open_sqlite_db_readonly(file_found)
-        cursor = db.cursor()
+        source_path = get_file_path(files_found,"Photos.sqlite")
+        if source_path is None or not os.path.exists(source_path):
+            logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
+            return (), [], None
+        data_list = []
 
-        cursor.execute("""
+        query = '''
         SELECT
         DateTime(zAsset.ZMODIFICATIONDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Modification Date',
         CASE zAsset.ZHIDDEN
@@ -127,57 +130,36 @@ def get_ph4hiddenphdapsql(files_found, report_folder, seeker, wrap_text, timezon
             LEFT JOIN ZCLOUDMASTER zCldMast ON zAsset.ZMASTER = zCldMast.Z_PK
         WHERE zAsset.ZHIDDEN = 1
         ORDER BY zAsset.ZMODIFICATIONDATE
-        """)
+        '''
 
-        all_rows = cursor.fetchall()
-        usageentries = len(all_rows)
-        data_list = []
-        counter = 0
-        if usageentries > 0:
-            for row in all_rows:
-                data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
+        db_records = get_sqlite_db_records(source_path, query)
+        for row in db_records:
+            data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
                                   row[10]))
 
-                counter += 1
+        data_headers = (('zAsset-Modification Date-0', 'datetime'),
+                        'zAsset-Hidden-1',
+                        'zAsset-Directory-Path-2',
+                        'zAsset-Filename-3',
+                        'zAddAssetAttr- Original Filename-4',
+                        'zCldMast- Original Filename-5',
+                        'zCldMast-Import Session ID- AirDrop-StillTesting-6',
+                        'zAsset-zPK-7',
+                        'zAddAssetAttr-zPK-8',
+                        'zAsset-UUID = store.cloudphotodb-9',
+                        'zAddAssetAttr-Master Fingerprint-10')
+        data_list = get_sqlite_db_records(source_path, query)
 
-            description = 'Parses basic asset record data from PhotoData-Photos.sqlite for hidden assets' \
-                          ' and supports iOS 14. The results for this script will contain' \
-                          ' one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Ph4-Hidden-PhDaPsql')
-            report.start_artifact_report(report_folder, 'Ph4-Hidden-PhDaPsql', description)
-            report.add_script()
-            data_headers = ('zAsset-Modification Date',
-                            'zAsset-Hidden',
-                            'zAsset-Directory-Path',
-                            'zAsset-Filename',
-                            'zAddAssetAttr- Original Filename',
-                            'zCldMast- Original Filename',
-                            'zCldMast-Import Session ID- AirDrop-StillTesting',
-                            'zAsset-zPK',
-                            'zAddAssetAttr-zPK',
-                            'zAsset-UUID = store.cloudphotodb',
-                            'zAddAssetAttr-Master Fingerprint')
-            report.write_artifact_data_table(data_headers, data_list, file_found)
-            report.end_artifact_report()
-
-            tsvname = 'Ph4-Hidden-PhDaPsql'
-            tsv(report_folder, data_headers, data_list, tsvname)
-
-            tlactivity = 'Ph4-Hidden-PhDaPsql'
-            timeline(report_folder, tlactivity, data_list, data_headers)
-
-        else:
-            logfunc('No data available for PhotoData-Photos.sqlite Hidden Assets')
-
-        db.close()
-        return
+        return data_headers, data_list, source_path
 
     elif (version.parse(iosversion) >= version.parse("15")) & (version.parse(iosversion) < version.parse("18")):
-        file_found = str(files_found[0])
-        db = open_sqlite_db_readonly(file_found)
-        cursor = db.cursor()
+        source_path = get_file_path(files_found,"Photos.sqlite")
+        if source_path is None or not os.path.exists(source_path):
+            logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
+            return (), [], None
+        data_list = []
 
-        cursor.execute("""
+        query = '''
         SELECT
         DateTime(zAsset.ZMODIFICATIONDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Modification Date',
         CASE zAsset.ZHIDDEN
@@ -200,58 +182,37 @@ def get_ph4hiddenphdapsql(files_found, report_folder, seeker, wrap_text, timezon
             LEFT JOIN ZCLOUDMASTER zCldMast ON zAsset.ZMASTER = zCldMast.Z_PK
         WHERE zAsset.ZHIDDEN = 1
         ORDER BY zAsset.ZMODIFICATIONDATE
-        """)
+        '''
 
-        all_rows = cursor.fetchall()
-        usageentries = len(all_rows)
-        data_list = []
-        counter = 0
-        if usageentries > 0:
-            for row in all_rows:
-                data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
+        db_records = get_sqlite_db_records(source_path, query)
+        for row in db_records:
+            data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
                                   row[10], row[11]))
 
-                counter += 1
+        data_headers = (('zAsset-Modification Date-0', 'datetime'),
+                        'zAsset-Hidden-1',
+                        'zAsset-Directory-Path-2',
+                        'zAsset-Filename-3',
+                        'zAddAssetAttr- Original Filename-4',
+                        'zCldMast- Original Filename-5',
+                        'zCldMast-Import Session ID- AirDrop-StillTesting-6',
+                        'zAddAssetAttr- Syndication Identifier-SWY-Files-7',
+                        'zAsset-zPK-8',
+                        'zAddAssetAttr-zPK-9',
+                        'zAsset-UUID = store.cloudphotodb-10',
+                        'zAddAssetAttr-Master Fingerprint-11')
+        data_list = get_sqlite_db_records(source_path, query)
 
-            description = 'Parses basic asset record data from PhotoData-Photos.sqlite for hidden assets' \
-                          ' and supports iOS 15-17. The results for this script will contain' \
-                          ' one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Ph4-Hidden-PhDaPsql')
-            report.start_artifact_report(report_folder, 'Ph4-Hidden-PhDaPsql', description)
-            report.add_script()
-            data_headers = ('zAsset-Modification Date-0',
-                            'zAsset-Hidden-1',
-                            'zAsset-Directory-Path-2',
-                            'zAsset-Filename-3',
-                            'zAddAssetAttr- Original Filename-4',
-                            'zCldMast- Original Filename-5',
-                            'zCldMast-Import Session ID- AirDrop-StillTesting-6',
-                            'zAddAssetAttr- Syndication Identifier-SWY-Files-7',
-                            'zAsset-zPK-8',
-                            'zAddAssetAttr-zPK-9',
-                            'zAsset-UUID = store.cloudphotodb-10',
-                            'zAddAssetAttr-Master Fingerprint-11')
-            report.write_artifact_data_table(data_headers, data_list, file_found)
-            report.end_artifact_report()
-
-            tsvname = 'Ph4-Hidden-PhDaPsql'
-            tsv(report_folder, data_headers, data_list, tsvname)
-
-            tlactivity = 'Ph4-Hidden-PhDaPsql'
-            timeline(report_folder, tlactivity, data_list, data_headers)
-
-        else:
-            logfunc('No data available for PhotoData-Photos.sqlite Hidden Assets')
-
-        db.close()
-        return
+        return data_headers, data_list, source_path
 
     elif version.parse(iosversion) >= version.parse("18"):
-        file_found = str(files_found[0])
-        db = open_sqlite_db_readonly(file_found)
-        cursor = db.cursor()
+        source_path = get_file_path(files_found,"Photos.sqlite")
+        if source_path is None or not os.path.exists(source_path):
+            logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
+            return (), [], None
+        data_list = []
 
-        cursor.execute("""
+        query = '''
         SELECT
         DateTime(zAsset.ZMODIFICATIONDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Modification Date',
         CASE zAsset.ZHIDDEN
@@ -268,74 +229,102 @@ def get_ph4hiddenphdapsql(files_found, report_folder, seeker, wrap_text, timezon
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
         zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
-        zAddAssetAttr.ZORIGINALSTABLEHASH AS 'zAddAssetAttr-Original Stable Hash-iOS18',
-        zAddAssetAttr.ZADJUSTEDSTABLEHASH AS 'zAddAssetAttr.Adjusted Stable Hash-iOS18'
+        zAddAssetAttr.ZORIGINALSTABLEHASH AS 'zAddAssetAttr-Original Stable Hash',
+        zAddAssetAttr.ZADJUSTEDSTABLEHASH AS 'zAddAssetAttr.Adjusted Stable Hash'
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
             LEFT JOIN ZCLOUDMASTER zCldMast ON zAsset.ZMASTER = zCldMast.Z_PK
         WHERE zAsset.ZHIDDEN = 1
         ORDER BY zAsset.ZMODIFICATIONDATE
-        """)
+        '''
 
-        all_rows = cursor.fetchall()
-        usageentries = len(all_rows)
-        data_list = []
-        counter = 0
-        if usageentries > 0:
-            for row in all_rows:
-                data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
+        db_records = get_sqlite_db_records(source_path, query)
+        for row in db_records:
+            data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
                                   row[10], row[11], row[12]))
+                
+        data_headers = (('zAsset-Modification Date-0', 'datetime'),
+                        'zAsset-Hidden-1',
+                        'zAsset-Directory-Path-2',
+                        'zAsset-Filename-3',
+                        'zAddAssetAttr- Original Filename-4',
+                        'zCldMast- Original Filename-5',
+                        'zCldMast-Import Session ID- AirDrop-StillTesting-6',
+                        'zAddAssetAttr- Syndication Identifier-SWY-Files-7',
+                        'zAsset-zPK-8',
+                        'zAddAssetAttr-zPK-9',
+                        'zAsset-UUID = store.cloudphotodb-10',
+                        'zAddAssetAttr-Original Stable Hash-11',
+                        'zAddAssetAttr.Adjusted Stable Hash-12')
+        data_list = get_sqlite_db_records(source_path, query)
 
-                counter += 1
+        return data_headers, data_list, source_path
 
-            description = 'Parses basic asset record data from PhotoData-Photos.sqlite for hidden assets' \
-                          ' and supports iOS 18. The results for this script will contain' \
-                          ' one record per ZASSET table Z_PK value.'
-            report = ArtifactHtmlReport('Ph4-Hidden-PhDaPsql')
-            report.start_artifact_report(report_folder, 'Ph4-Hidden-PhDaPsql', description)
-            report.add_script()
-            data_headers = ('zAsset-Modification Date-0',
-                            'zAsset-Hidden-1',
-                            'zAsset-Directory-Path-2',
-                            'zAsset-Filename-3',
-                            'zAddAssetAttr- Original Filename-4',
-                            'zCldMast- Original Filename-5',
-                            'zCldMast-Import Session ID- AirDrop-StillTesting-6',
-                            'zAddAssetAttr- Syndication Identifier-SWY-Files-7',
-                            'zAsset-zPK-8',
-                            'zAddAssetAttr-zPK-9',
-                            'zAsset-UUID = store.cloudphotodb-10',
-                            'zAddAssetAttr-Original Stable Hash-iOS18-11',
-                            'zAddAssetAttr.Adjusted Stable Hash-iOS18-12')
-            report.write_artifact_data_table(data_headers, data_list, file_found)
-            report.end_artifact_report()
+@artifact_processor
+def Ph4_3HiddenGenPlayPsql(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    for source_path in files_found:
+        source_path = str(source_path)
+        
+        if source_path.endswith('.sqlite'):
+            break
+      
+    if report_folder.endswith('/') or report_folder.endswith('\\'):
+        report_folder = report_folder[:-1]
+    iosversion = iOS.get_version()
+    if version.parse(iosversion) <= version.parse("10.3.4"):
+        logfunc("Unsupported version for GenerativePlayground-Photos.sqlite iOS " + iosversion)
+        return (), [], source_path
+    if version.parse(iosversion) >= version.parse("18"):
+        source_path = get_file_path(files_found,"Photos.sqlite")
+        if source_path is None or not os.path.exists(source_path):
+            logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
+            return (), [], None
+        data_list = []
 
-            tsvname = 'Ph4-Hidden-PhDaPsql'
-            tsv(report_folder, data_headers, data_list, tsvname)
+        query = '''
+        SELECT
+        DateTime(zAsset.ZMODIFICATIONDATE + 978307200, 'UNIXEPOCH') AS 'zAsset-Modification Date',
+        CASE zAsset.ZHIDDEN
+            WHEN 0 THEN '0-Asset Not Hidden-0'
+            WHEN 1 THEN '1-Asset Hidden-1'
+            ELSE 'Unknown-New-Value!: ' || zAsset.ZHIDDEN || ''
+        END AS 'zAsset-Hidden',
+        zAsset.ZDIRECTORY AS 'zAsset-Directory-Path',
+        zAsset.ZFILENAME AS 'zAsset-Filename',
+        zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
+        zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zAddAssetAttr.ZSYNDICATIONIDENTIFIER AS 'zAddAssetAttr- Syndication Identifier-SWY-Files',
+        zAsset.Z_PK AS 'zAsset-zPK',
+        zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
+        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAddAssetAttr.ZORIGINALSTABLEHASH AS 'zAddAssetAttr-Original Stable Hash',
+        zAddAssetAttr.ZADJUSTEDSTABLEHASH AS 'zAddAssetAttr.Adjusted Stable Hash'
+        FROM ZASSET zAsset
+            LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
+            LEFT JOIN ZCLOUDMASTER zCldMast ON zAsset.ZMASTER = zCldMast.Z_PK
+        WHERE zAsset.ZHIDDEN = 1
+        ORDER BY zAsset.ZMODIFICATIONDATE
+        '''
 
-            tlactivity = 'Ph4-Hidden-PhDaPsql'
-            timeline(report_folder, tlactivity, data_list, data_headers)
+        db_records = get_sqlite_db_records(source_path, query)
+        for row in db_records:
+            data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
+                                  row[10], row[11], row[12]))
+                
+        data_headers = (('zAsset-Modification Date-0', 'datetime'),
+                        'zAsset-Hidden-1',
+                        'zAsset-Directory-Path-2',
+                        'zAsset-Filename-3',
+                        'zAddAssetAttr- Original Filename-4',
+                        'zCldMast- Original Filename-5',
+                        'zCldMast-Import Session ID- AirDrop-StillTesting-6',
+                        'zAddAssetAttr- Syndication Identifier-SWY-Files-7',
+                        'zAsset-zPK-8',
+                        'zAddAssetAttr-zPK-9',
+                        'zAsset-UUID = store.cloudphotodb-10',
+                        'zAddAssetAttr-Original Stable Hash-11',
+                        'zAddAssetAttr.Adjusted Stable Hash-12')
+        data_list = get_sqlite_db_records(source_path, query)
 
-        else:
-            logfunc('No data available for PhotoData-Photos.sqlite Hidden Assets')
-
-        db.close()
-        return
-
-
-__artifacts_v2__ = {
-    'Ph4-Hidden-PhDaPsql': {
-        'name': 'PhDaPL Photos.sqlite 4 Hidden Assets',
-        'description': 'Parses basic asset record data from PhotoData-Photos.sqlite for hidden assets'
-                       ' and supports iOS 11-18. The results for this script will contain'
-                       ' one record per ZASSET table Z_PK value.',
-        'author': 'Scott Koenig https://theforensicscooter.com/',
-        'version': '2.0',
-        'date': '2024-06-12',
-        'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
-        'category': 'Photos.sqlite-B-Interaction_Artifacts',
-        'notes': '',
-        'paths': '*/PhotoData/Photos.sqlite*',
-        'function': 'get_ph4hiddenphdapsql'
-    }
-}
+        return data_headers, data_list, source_path

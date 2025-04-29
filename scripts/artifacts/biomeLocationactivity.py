@@ -1,12 +1,12 @@
 __artifacts_v2__ = {
     "get_biomeLocationactivity": {
-        "name": "Biome Location Activity",
+        "name": "Biome - Location Activity",
         "description": "Parses location activity entries from biomes",
         "author": "@JohnHyla",
         "version": "0.0.2",
         "date": "2024-10-17",
         "requirements": "none",
-        "category": "Biome Location Activity",
+        "category": "Biome",
         "notes": "",
         "paths": ('*/biome/streams/restricted/_DKEvent.App.LocationActivity/local/*'),
         "output_types": "standard"

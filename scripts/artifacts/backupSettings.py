@@ -3,8 +3,8 @@ __artifacts_v2__ = {
         "name": "Backup Settings",
         "description": "Extracts Backup settings",
         "author": "@AlexisBrignoni",
-        "version": "0.2",
-        "date": "2023-10-04",
+        "creation_date": "2023-10-04",
+        "last_update_date": "2024-12-20",
         "requirements": "none",
         "category": "Identifiers",
         "notes": "",
@@ -14,7 +14,7 @@ __artifacts_v2__ = {
     }
 }
 
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content, device_info, webkit_timestampsconv
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content, device_info, convert_cocoa_core_data_ts_to_utc
 
 @artifact_processor
 def backupSettings(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -24,14 +24,14 @@ def backupSettings(files_found, report_folder, seeker, wrap_text, timezone_offse
     pl = get_plist_file_content(source_path)
     for key, val in pl.items():
         if key == 'LastiTunesBackupDate':
-            lastime = webkit_timestampsconv(val)
+            lastime = convert_cocoa_core_data_ts_to_utc(val)
             data_list.append(('Last iTunes Backup Date', lastime))
             device_info("Backup Settings", "Last iTunes Backup Date", lastime, source_path)
         elif key == 'LastiTunesBackupTZ':
             data_list.append((key, val))
             device_info("Backup Settings", "Last iTunes Backup TZ", val, source_path)
         elif key == 'LastCloudBackupDate':
-            lastcloudtime = webkit_timestampsconv(val)
+            lastcloudtime = convert_cocoa_core_data_ts_to_utc(val)
             data_list.append(('Last Cloud iTunes Backup Date', lastcloudtime))
             device_info("Backup Settings", "Last Cloud iTunes Backup Date", lastcloudtime, source_path)
         elif key == 'LastCloudBackupTZ':

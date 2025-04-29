@@ -1,12 +1,12 @@
 __artifacts_v2__ = {
     "get_biomeBluetooth": {
-        "name": "Biome Bluetooth",
+        "name": "Biome - Bluetooth",
         "description": "Parses bluetooth connection entries from biomes",
         "author": "@JohnHyla",
         "version": "0.0.2",
         "date": "2024-10-17",
         "requirements": "none",
-        "category": "Biome Bluetooth",
+        "category": "Biome",
         "notes": "",
         "paths": ('*/Biome/streams/restricted/Device.Wireless.Bluetooth/local/*'),
         "output_types": "standard"

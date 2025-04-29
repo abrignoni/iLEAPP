@@ -1,43 +1,63 @@
-# Photos.sqlite
-# Author:  Scott Koenig, assisted by past contributors
-# Version: 2.0
-#
-#   Description:
-#   Parses data from Photos.sqlite for people - detected faces - face crop data supports iOS 14-18.
-#   The results could produce multiple records for a single asset.
-#   This parser is based on research and SQLite queries written by Scott Koenig
-#   This is very large query and script, I recommend opening the TSV generated report with Zimmerman's Tools
-#   https://ericzimmerman.github.io/#!index.md TimelineExplorer to view, search and filter the results.
-#   https://theforensicscooter.com/ and queries found at https://github.com/ScottKjr3347
-#
+__artifacts_v2__ = {
+    'Ph15_1PeopleFacesNADPhDaPsql': {
+        'name': 'Ph15.1-People & Faces NAD-PhDaPsql',
+        'description': 'Parses data from PhotoData-Photos.sqlite for people - detected faces - face crop data.'
+                       ' The results may contain multiple records per ZASSET table Z_PK value and supports iOS 14-18.',
+        'author': 'Scott Koenig',
+        'version': '5.0',
+        'date': '2025-01-05',
+        'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
+        'category': 'Photos.sqlite-G-People_Faces_Data',
+        'notes': '',
+        'paths': ('*/PhotoData/Photos.sqlite*',),
+        "output_types": ["standard", "tsv", "none"],
+        "artifact_icon": "smile"
+    },
+    'Ph15_2PeopleFacesNADSyndPL': {
+        'name': 'Ph15.2-People & Faces NAD-SyndPL',
+        'description': 'Parses data from Syndication.photoslibrary-database-Photos.sqlite for'
+                       ' people - detected faces - face crop data. The results may contain multiple records'
+                       ' per ZASSET table Z_PK value and supports iOS 14-18.',
+        'author': 'Scott Koenig',
+        'version': '5.0',
+        'date': '2025-01-05',
+        'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
+        'category': 'Photos.sqlite-S-Syndication_PL_Artifacts',
+        'notes': '',
+        'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
+        "output_types": ["standard", "tsv", "none"],
+        "artifact_icon": "smile"
+    }
+}
 
 import os
 import nska_deserialize as nd
-import scripts.artifacts.artGlobals
 from packaging import version
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, kmlgen, is_platform_windows, media_to_html, open_sqlite_db_readonly
+from scripts.builds_ids import OS_build
+from scripts.ilapfuncs import media_to_html, artifact_processor, get_file_path, open_sqlite_db_readonly, get_sqlite_db_records, logfunc, iOS
 
+@artifact_processor
+def Ph15_1PeopleFacesNADPhDaPsql(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    for source_path in files_found:
+        source_path = str(source_path)
 
-def get_ph15peopledetfacephdapsql(files_found, report_folder, seeker, wrap_text, timezone_offset):
-
-    for file_found in files_found:
-        file_found = str(file_found)
-
-        if file_found.endswith('.sqlite'):
+        if source_path.endswith('.sqlite'):
             break
 
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
-    iosversion = scripts.artifacts.artGlobals.versionf
+    iosversion = iOS.get_version()
     if version.parse(iosversion) <= version.parse("13.7"):
-        logfunc("Unsupported version for PhotoData-Photos.sqlite people - detected faces - face crop data from iOS " + iosversion)
+        logfunc("Unsupported version for PhotoData-Photos.sqlite iOS " + iosversion)
+        return (), [], source_path
     if (version.parse(iosversion) >= version.parse("14")) & (version.parse(iosversion) < version.parse("15")):
-        file_found = str(files_found[0])
-        db = open_sqlite_db_readonly(file_found)
-        cursor = db.cursor()
+        source_path = get_file_path(files_found,"Photos.sqlite")
+        if source_path is None or not os.path.exists(source_path):
+            logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
+            return (), [], source_path
+        data_list = []
 
-        cursor.execute("""
+        query = '''
         SELECT        
         zDetFace.ZASSET AS 'zDetFace-AssetForFace= zAsset-zPK',
         zFaceCrop.ZASSET AS 'zFaceCrop-Asset Key',
@@ -305,179 +325,158 @@ def get_ph15peopledetfacephdapsql(files_found, report_folder, seeker, wrap_text,
             LEFT JOIN ZFACECROP zFaceCrop ON zPerson.Z_PK = zFaceCrop.ZPERSON
             LEFT JOIN ZDETECTEDFACEGROUP zDetFaceGroup ON zDetFaceGroup.Z_PK = zDetFace.ZFACEGROUP  
         ORDER BY zDetFace.Z_PK
-        """)
+        '''
 
-        all_rows = cursor.fetchall()
-        usageentries = len(all_rows)
-        data_list = []
-        counter = 0
-        if usageentries > 0:
-            for row in all_rows:
-                # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
-                personcontactmatchingdictionary = ''
-                # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
-                facecropresourcedata_blob = ''
+        db_records = get_sqlite_db_records(source_path, query)
+        for row in db_records:
+            # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
+            personcontactmatchingdictionary = ''
+            # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
+            facecropresourcedata_blob = ''
 
-                # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
-                if row[3] is not None:
-                    pathto = os.path.join(report_folder, 'zPerson-ContactMatchingDict_' + row[89] + '.plist')
-                    with open(pathto, 'ab') as wf:
-                        wf.write(row[3])
+            # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
+            if row[3] is not None:
+                pathto = os.path.join(report_folder, 'zPerson-ContactMatchingDict_' + row[89] + '.plist')
+                with open(pathto, 'ab') as wf:
+                    wf.write(row[3])
 
-                    with open(pathto, 'rb') as f:
-                        try:
-                            deserialized_plist = nd.deserialize_plist(f)
-                            personcontactmatchingdictionary = deserialized_plist
+                with open(pathto, 'rb') as f:
+                    try:
+                        deserialized_plist = nd.deserialize_plist(f)
+                        personcontactmatchingdictionary = deserialized_plist
 
-                        except (KeyError, ValueError, TypeError) as ex:
-                            if str(ex).find("does not contain an '$archiver' key") >= 0:
-                                logfunc('plist was Not an NSKeyedArchive ' + row[89])
-                            else:
-                                logfunc('Error reading exported plist from zPerson-Contact Matching Dictionary' + row[89])
+                    except (KeyError, ValueError, TypeError) as ex:
+                        if str(ex).find("does not contain an '$archiver' key") >= 0:
+                            logfunc('plist was Not an NSKeyedArchive ' + row[89])
+                        else:
+                            logfunc('Error reading exported plist from zPerson-Contact Matching Dictionary' + row[89])
 
-                # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
-                if row[10] is not None:
-                    pathto = os.path.join(report_folder, 'FaceCropFor_' + row[87] + '.jpg')
-                    with open(pathto, 'wb') as file:
-                        file.write(row[10])
-                    facecropresourcedata_blob = media_to_html(pathto, files_found, report_folder)
+            # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
+            if row[10] is not None:
+                pathto = os.path.join(report_folder, 'FaceCropFor_' + row[87] + '.jpg')
+                with open(pathto, 'wb') as file:
+                    file.write(row[10])
+                facecropresourcedata_blob = media_to_html(pathto, files_found, report_folder)
 
-                data_list.append((row[0], row[1], row[2],
-                                personcontactmatchingdictionary,
-                                row[4], row[5], row[6], row[7], row[8], row[9],
-                                facecropresourcedata_blob,
-                                row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
-                                row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
-                                row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35], row[36],
-                                row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45],
-                                row[46], row[47], row[48], row[49], row[50], row[51], row[52], row[53], row[54],
-                                row[55], row[56], row[57], row[58], row[59], row[60], row[61], row[62], row[63],
-                                row[64], row[65], row[66], row[67], row[68], row[69], row[70], row[71], row[72],
-                                row[73], row[74], row[75], row[76], row[77], row[78], row[79], row[80], row[81],
-                                row[82], row[83], row[84], row[85], row[86], row[87], row[88], row[89], row[90],
-                                row[91]))
+            data_list.append((row[0], row[1], row[2],
+                            personcontactmatchingdictionary,
+                            row[4], row[5], row[6], row[7], row[8], row[9],
+                            facecropresourcedata_blob,
+                            row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
+                            row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
+                            row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35], row[36],
+                            row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45],
+                            row[46], row[47], row[48], row[49], row[50], row[51], row[52], row[53], row[54],
+                            row[55], row[56], row[57], row[58], row[59], row[60], row[61], row[62], row[63],
+                            row[64], row[65], row[66], row[67], row[68], row[69], row[70], row[71], row[72],
+                            row[73], row[74], row[75], row[76], row[77], row[78], row[79], row[80], row[81],
+                            row[82], row[83], row[84], row[85], row[86], row[87], row[88], row[89], row[90],
+                            row[91]))
 
-                counter += 1
+        data_headers = ('zDetFace-AssetForFace= zAsset-zPK-0',
+                        'zFaceCrop-Asset Key-1',
+                        'zDetFacePrint-Data-SeeRawDBData-2',
+                        'zPerson-Contact Matching Dictionary-3',
+                        'zPerson-Verified Type-4',
+                        'zPerson-Display Name-5',
+                        'zPerson-Full Name-6',
+                        'zPerson-Cloud Verified Type-7',
+                        'zFaceCrop-State-8',
+                        'zFaceCrop-Type-9',
+                        'zFaceCrop-Resource Data-10',
+                        'zDetFace-Confirmed Face Crop Generation State-11',
+                        'zDetFace-Manual-12',
+                        'zDetFace-VIP Model Type-13',
+                        'zDetFace-Name Source-14',
+                        'zDetFace-Cloud Name Source-15',
+                        'zPerson-Type-16',
+                        'zPerson-Gender Type-17',
+                        'zDetFace-Gender Type-18',
+                        'zDetFace-Center X-19',
+                        'zDetFace-Center Y-20',
+                        'zPerson-Age Type Estimate-21',
+                        'zDetFace-Age Type Estimate-22',
+                        'zDetFace-Hair Color Type-23',
+                        'zDetFace-Facial Hair Type-24',
+                        'zDetFace-Has Smile-25',
+                        'zDetFace-Smile Type-26',
+                        'zDetFace-Lip Makeup Type-27',
+                        'zDetFace-Eyes State-28',
+                        'zDetFace-Is Left Eye Closed-29',
+                        'zDetFace-Is Right Eye Closed-30',
+                        'zDetFace-Eye Glasses Type-31',
+                        'zDetFace-Eye Makeup Type-32',
+                        'zDetFace-Cluster Sequence Number Key-33',
+                        'zDetFace-Grouping ID-34',
+                        'zDetFace-Master ID-35',
+                        'zDetFace-Quality-36',
+                        'zDetFace-Quality Measure-37',
+                        'zDetFace-Source Height-38',
+                        'zDetFace-Source Width-39',
+                        'zDetFace-Asset Visible-40',
+                        'zDetFace-Hidden/Asset Hidden-41',
+                        'zDetFace-In Trash/Recently Deleted-42',
+                        'zDetFace-Cloud Local State-43',
+                        'zDetFace-Training Type-44',
+                        'zDetFace.Pose Yaw-45',
+                        'zDetFace-Roll-46',
+                        'zDetFace-Size-47',
+                        'zDetFace-Cluster Sequence Number-48',
+                        'zDetFace-Blur Score-49',
+                        'zDetFacePrint-Face Print Version-50',
+                        'zDetFaceGroup-UUID-51',
+                        'zDetFaceGroup-Person Builder State-52',
+                        'zDetFaceGroup-UnNamed Face Count-53',
+                        'zPerson-Face Count-54',
+                        'zDetFace-Face Algorithm Version-55',
+                        'zDetFace-Adjustment Version-56',
+                        'zPerson-In Person Naming Model-57',
+                        'zPerson-Key Face Pick Source Key-58',
+                        'zPerson-Manual Order Key-59',
+                        'zPerson-Question Type-60',
+                        'zPerson-Suggested For Client Type-61',
+                        'zPerson-Merge Target Person-62',
+                        'zPerson-Cloud Local State-63',
+                        'zFaceCrop-Cloud Local State-64',
+                        'zFaceCrop-Cloud Type-65',
+                        'zPerson-Cloud Delete State-66',
+                        'zFaceCrop-Cloud Delete State-67',
+                        'zDetFace-zPK-68',
+                        'zDetFacePrint-Face Key-69',
+                        'zPerson-KeyFace=zDetFace-zPK-70',
+                        'zFaceCrop-Face Key-71',
+                        'zPerson-zPK=zDetFace-Person-72',
+                        'zDetFace-PersonForFace= zPerson-zPK-73',
+                        'zDetFace-Person Being Key Face-74',
+                        'zFaceCrop-Person=zPerson-zPK&zDetFace-Person-Key-75',
+                        'zDetFace-Face Print-76',
+                        'zDetFacePrint-zPK-77',
+                        'zDetFace-Face Crop-78',
+                        'zFaceCrop-zPK-79',
+                        'zDetFaceGroup-KeyFace= zDetFace-zPK-80',
+                        'zDetFaceGroup-AssocPerson= zPerson-zPK-81',
+                        'zPerson-Assoc Face Group Key-82',
+                        'zDetFace-FaceGroupBeingKeyFace= zDetFaceGroup-zPK-83',
+                        'zDetFace-FaceGroup= zDetFaceGroup-zPK-84',
+                        'zDetFaceGroup-zPK-85',
+                        'zDetFace-UUID-86',
+                        'zFaceCrop-UUID-87',
+                        'zFaceCrop-Invalid Merge Candidate Person UUID-88',
+                        'zPerson-Person UUID-89',
+                        'zPerson-Person URI-90',
+                        'zDetFaceGroup-UUID-91')
+        data_list = get_sqlite_db_records(source_path, query)
 
-            description = 'Parses record data from PhotoData-Photos.sqlite for' \
-                          ' people - detected faces - face crop data. The results may contain multiple records' \
-                          ' per ZASSET table Z_PK value and supports iOS 14.'
-            report = ArtifactHtmlReport('Ph15.1-People & Faces NAD-PhDaPsql')
-            report.start_artifact_report(report_folder, 'Ph15.1-People & Faces NAD-PhDaPsql', description)
-            report.add_script()
-            data_headers = ('zDetFace-AssetForFace= zAsset-zPK-0',
-                            'zFaceCrop-Asset Key-1',
-                            'zDetFacePrint-Data-SeeRawDBData-2',
-                            'zPerson-Contact Matching Dictionary-3',
-                            'zPerson-Verified Type-4',
-                            'zPerson-Display Name-5',
-                            'zPerson-Full Name-6',
-                            'zPerson-Cloud Verified Type-7',
-                            'zFaceCrop-State-8',
-                            'zFaceCrop-Type-9',
-                            'zFaceCrop-Resource Data-10',
-                            'zDetFace-Confirmed Face Crop Generation State-11',
-                            'zDetFace-Manual-12',
-                            'zDetFace-VIP Model Type-13',
-                            'zDetFace-Name Source-14',
-                            'zDetFace-Cloud Name Source-15',
-                            'zPerson-Type-16',
-                            'zPerson-Gender Type-17',
-                            'zDetFace-Gender Type-18',
-                            'zDetFace-Center X-19',
-                            'zDetFace-Center Y-20',
-                            'zPerson-Age Type Estimate-21',
-                            'zDetFace-Age Type Estimate-22',
-                            'zDetFace-Hair Color Type-23',
-                            'zDetFace-Facial Hair Type-24',
-                            'zDetFace-Has Smile-25',
-                            'zDetFace-Smile Type-26',
-                            'zDetFace-Lip Makeup Type-27',
-                            'zDetFace-Eyes State-28',
-                            'zDetFace-Is Left Eye Closed-29',
-                            'zDetFace-Is Right Eye Closed-30',
-                            'zDetFace-Eye Glasses Type-31',
-                            'zDetFace-Eye Makeup Type-32',
-                            'zDetFace-Cluster Sequence Number Key-33',
-                            'zDetFace-Grouping ID-34',
-                            'zDetFace-Master ID-35',
-                            'zDetFace-Quality-36',
-                            'zDetFace-Quality Measure-37',
-                            'zDetFace-Source Height-38',
-                            'zDetFace-Source Width-39',
-                            'zDetFace-Asset Visible-40',
-                            'zDetFace-Hidden/Asset Hidden-41',
-                            'zDetFace-In Trash/Recently Deleted-42',
-                            'zDetFace-Cloud Local State-43',
-                            'zDetFace-Training Type-44',
-                            'zDetFace.Pose Yaw-45',
-                            'zDetFace-Roll-46',
-                            'zDetFace-Size-47',
-                            'zDetFace-Cluster Sequence Number-48',
-                            'zDetFace-Blur Score-49',
-                            'zDetFacePrint-Face Print Version-50',
-                            'zDetFaceGroup-UUID-51',
-                            'zDetFaceGroup-Person Builder State-52',
-                            'zDetFaceGroup-UnNamed Face Count-53',
-                            'zPerson-Face Count-54',
-                            'zDetFace-Face Algorithm Version-55',
-                            'zDetFace-Adjustment Version-56',
-                            'zPerson-In Person Naming Model-57',
-                            'zPerson-Key Face Pick Source Key-58',
-                            'zPerson-Manual Order Key-59',
-                            'zPerson-Question Type-60',
-                            'zPerson-Suggested For Client Type-61',
-                            'zPerson-Merge Target Person-62',
-                            'zPerson-Cloud Local State-63',
-                            'zFaceCrop-Cloud Local State-64',
-                            'zFaceCrop-Cloud Type-65',
-                            'zPerson-Cloud Delete State-66',
-                            'zFaceCrop-Cloud Delete State-67',
-                            'zDetFace-zPK-68',
-                            'zDetFacePrint-Face Key-69',
-                            'zPerson-KeyFace=zDetFace-zPK-70',
-                            'zFaceCrop-Face Key-71',
-                            'zPerson-zPK=zDetFace-Person-72',
-                            'zDetFace-PersonForFace= zPerson-zPK-73',
-                            'zDetFace-Person Being Key Face-74',
-                            'zFaceCrop-Person=zPerson-zPK&zDetFace-Person-Key-75',
-                            'zDetFace-Face Print-76',
-                            'zDetFacePrint-zPK-77',
-                            'zDetFace-Face Crop-78',
-                            'zFaceCrop-zPK-79',
-                            'zDetFaceGroup-KeyFace= zDetFace-zPK-80',
-                            'zDetFaceGroup-AssocPerson= zPerson-zPK-81',
-                            'zPerson-Assoc Face Group Key-82',
-                            'zDetFace-FaceGroupBeingKeyFace= zDetFaceGroup-zPK-83',
-                            'zDetFace-FaceGroup= zDetFaceGroup-zPK-84',
-                            'zDetFaceGroup-zPK-85',
-                            'zDetFace-UUID-86',
-                            'zFaceCrop-UUID-87',
-                            'zFaceCrop-Invalid Merge Candidate Person UUID-88',
-                            'zPerson-Person UUID-89',
-                            'zPerson-Person URI-90',
-                            'zDetFaceGroup-UUID-91')
-            report.write_artifact_data_table(data_headers, data_list, file_found)
-            report.end_artifact_report()
-
-            tsvname = 'Ph15.1-People & Faces NAD-PhDaPsql'
-            tsv(report_folder, data_headers, data_list, tsvname)
-
-            tlactivity = 'Ph15.1-People & Faces NAD-PhDaPsql'
-            timeline(report_folder, tlactivity, data_list, data_headers)
-
-        else:
-            logfunc('No data available for PhotoData-Photos.sqlite people - detected faces - face crop data')
-
-        db.close()
-        return
+        return data_headers, data_list, source_path
 
     elif (version.parse(iosversion) >= version.parse("15")) & (version.parse(iosversion) < version.parse("16")):
-        file_found = str(files_found[0])
-        db = open_sqlite_db_readonly(file_found)
-        cursor = db.cursor()
+        source_path = get_file_path(files_found,"Photos.sqlite")
+        if source_path is None or not os.path.exists(source_path):
+            logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
+            return (), [], source_path
+        data_list = []
 
-        cursor.execute("""
+        query = '''
         SELECT        
         zDetFace.ZASSET AS 'zDetFace-AssetForFace= zAsset-zPK',
         zFaceCrop.ZASSET AS 'zFaceCrop-Asset Key',
@@ -833,196 +832,175 @@ def get_ph15peopledetfacephdapsql(files_found, report_folder, seeker, wrap_text,
             LEFT JOIN ZFACECROP zFaceCrop ON zPerson.Z_PK = zFaceCrop.ZPERSON
             LEFT JOIN ZDETECTEDFACEGROUP zDetFaceGroup ON zDetFaceGroup.Z_PK = zDetFace.ZFACEGROUP  
         ORDER BY zDetFace.Z_PK
-        """)
+        '''
 
-        all_rows = cursor.fetchall()
-        usageentries = len(all_rows)
-        data_list = []
-        counter = 0
-        if usageentries > 0:
-            for row in all_rows:
-                # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
-                personcontactmatchingdictionary = ''
-                # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
-                facecropresourcedata_blob = ''
+        db_records = get_sqlite_db_records(source_path, query)
+        for row in db_records:
+            # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
+            personcontactmatchingdictionary = ''
+            # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
+            facecropresourcedata_blob = ''
 
-                # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
-                if row[3] is not None:
-                    pathto = os.path.join(report_folder, 'zPerson-ContactMatchingDict_' + row[105] + '.plist')
-                    with open(pathto, 'ab') as wf:
-                        wf.write(row[3])
+            # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
+            if row[3] is not None:
+                pathto = os.path.join(report_folder, 'zPerson-ContactMatchingDict_' + row[105] + '.plist')
+                with open(pathto, 'ab') as wf:
+                    wf.write(row[3])
 
-                    with open(pathto, 'rb') as f:
-                        try:
-                            deserialized_plist = nd.deserialize_plist(f)
-                            personcontactmatchingdictionary = deserialized_plist
+                with open(pathto, 'rb') as f:
+                    try:
+                        deserialized_plist = nd.deserialize_plist(f)
+                        personcontactmatchingdictionary = deserialized_plist
 
-                        except (KeyError, ValueError, TypeError) as ex:
-                            if str(ex).find("does not contain an '$archiver' key") >= 0:
-                                logfunc('plist was Not an NSKeyedArchive ' + row[105])
-                            else:
-                                logfunc('Error reading exported plist from zPerson-Contact Matching Dictionary' + row[105])
+                    except (KeyError, ValueError, TypeError) as ex:
+                        if str(ex).find("does not contain an '$archiver' key") >= 0:
+                            logfunc('plist was Not an NSKeyedArchive ' + row[105])
+                        else:
+                            logfunc('Error reading exported plist from zPerson-Contact Matching Dictionary' + row[105])
 
-                # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
-                if row[10] is not None:
-                    pathto = os.path.join(report_folder, 'FaceCropFor_' + row[103] + '.jpg')
-                    with open(pathto, 'wb') as file:
-                        file.write(row[10])
-                    facecropresourcedata_blob = media_to_html(pathto, files_found, report_folder)
+            # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
+            if row[10] is not None:
+                pathto = os.path.join(report_folder, 'FaceCropFor_' + row[103] + '.jpg')
+                with open(pathto, 'wb') as file:
+                    file.write(row[10])
+                facecropresourcedata_blob = media_to_html(pathto, files_found, report_folder)
 
-                data_list.append((row[0], row[1], row[2],
-                                personcontactmatchingdictionary,
-                                row[4], row[5], row[6], row[7], row[8], row[9],
-                                facecropresourcedata_blob,
-                                row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
-                                row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
-                                row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35], row[36],
-                                row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45],
-                                row[46], row[47], row[48], row[49], row[50], row[51], row[52], row[53], row[54],
-                                row[55], row[56], row[57], row[58], row[59], row[60], row[61], row[62], row[63],
-                                row[64], row[65], row[66], row[67], row[68], row[69], row[70], row[71], row[72],
-                                row[73], row[74], row[75], row[76], row[77], row[78], row[79], row[80], row[81],
-                                row[82], row[83], row[84], row[85], row[86], row[87], row[88], row[89], row[90],
-                                row[91], row[92], row[93], row[94], row[95], row[96], row[97], row[98], row[99],
-                                row[100], row[101], row[102], row[103], row[104], row[105], row[106], row[107]))
+            data_list.append((row[0], row[1], row[2],
+                            personcontactmatchingdictionary,
+                            row[4], row[5], row[6], row[7], row[8], row[9],
+                            facecropresourcedata_blob,
+                            row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
+                            row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
+                            row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35], row[36],
+                            row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45],
+                            row[46], row[47], row[48], row[49], row[50], row[51], row[52], row[53], row[54],
+                            row[55], row[56], row[57], row[58], row[59], row[60], row[61], row[62], row[63],
+                            row[64], row[65], row[66], row[67], row[68], row[69], row[70], row[71], row[72],
+                            row[73], row[74], row[75], row[76], row[77], row[78], row[79], row[80], row[81],
+                            row[82], row[83], row[84], row[85], row[86], row[87], row[88], row[89], row[90],
+                            row[91], row[92], row[93], row[94], row[95], row[96], row[97], row[98], row[99],
+                            row[100], row[101], row[102], row[103], row[104], row[105], row[106], row[107]))
 
-                counter += 1
+        data_headers = ('zDetFace-AssetForFace= zAsset-zPK-0',
+                        'zFaceCrop-Asset Key-1',
+                        'zDetFacePrint-Data-SeeRawDBData-2',
+                        'zPerson-Contact Matching Dictionary-3',
+                        'zPerson-Verified Type-4',
+                        'zPerson-Display Name-5',
+                        'zPerson-Full Name-6',
+                        'zPerson-Cloud Verified Type-7',
+                        'zFaceCrop-State-8',
+                        'zFaceCrop-Type-9',
+                        'zFaceCrop-Resource Data-10',
+                        'zDetFace-Confirmed Face Crop Generation State-11',
+                        'zDetFace-Manual-12',
+                        'zDetFace-Detection Type-13',
+                        'zPerson-Detection Type-14',
+                        'zDetFace-VIP Model Type-15',
+                        'zDetFace-Name Source-16',
+                        'zDetFace-Cloud Name Source-17',
+                        'zPerson-Type-18',
+                        'zPerson-Gender Type-19',
+                        'zDetFace-Gender Type-20',
+                        'zDetFace-Center X-21',
+                        'zDetFace-Center Y-22',
+                        'zPerson-Age Type Estimate-23',
+                        'zDetFace-Age Type Estimate-24',
+                        'zDetFace-Ethnicity Type-25',
+                        'zDetFace-Skin Tone Type-26',
+                        'zDetFace-Hair Type-27',
+                        'zDetFace-Hair Color Type-28',
+                        'zDetFace-Head Gear Type-29',
+                        'zDetFace-Facial Hair Type-30',
+                        'zDetFace-Has Face Mask-31',
+                        'zDetFace-Pose Type-32',
+                        'zDetFace-Face Expression Type-33',
+                        'zDetFace-Has Smile-34',
+                        'zDetFace-Smile Type-35',
+                        'zDetFace-Lip Makeup Type-36',
+                        'zDetFace-Eyes State-37',
+                        'zDetFace-Is Left Eye Closed-38',
+                        'zDetFace-Is Right Eye Closed-39',
+                        'zDetFace-Gaze Center X-40',
+                        'zDetFace-Gaze Center Y-41',
+                        'zDetFace-Face Gaze Type-42',
+                        'zDetFace-Eye Glasses Type-43',
+                        'zDetFace-Eye Makeup Type-44',
+                        'zDetFace-Cluster Squence Number Key-45',
+                        'zDetFace-Grouping ID-46',
+                        'zDetFace-Master ID-47',
+                        'zDetFace-Quality-48',
+                        'zDetFace-Quality Measure-49',
+                        'zDetFace-Source Height-50',
+                        'zDetFace-Source Width-51',
+                        'zDetFace-Asset Visible-52',
+                        'zDetFace-Hidden/Asset Hidden-53',
+                        'zDetFace-In Trash/Recently Deleted-54',
+                        'zDetFace-Cloud Local State-55',
+                        'zDetFace-Training Type-56',
+                        'zDetFace.Pose Yaw-57',
+                        'zDetFace-Body Center X-58',
+                        'zDetFace-Body Center Y-59',
+                        'zDetFace-Body Height-60',
+                        'zDetFace-Body Width-61',
+                        'zDetFace-Roll-62',
+                        'zDetFace-Size-63',
+                        'zDetFace-Cluster Squence Number-64',
+                        'zDetFace-Blur Score-65',
+                        'zDetFacePrint-Face Print Version-66',
+                        'zDetFaceGroup-UUID-67',
+                        'zDetFaceGroup-Person Builder State-68',
+                        'zDetFaceGroup-UnNamed Face Count-69',
+                        'zPerson-Face Count-70',
+                        'zDetFace-Face Algorithm Version-71',
+                        'zDetFace-Adjustment Version-72',
+                        'zPerson-In Person Naming Model-73',
+                        'zPerson-Key Face Pick Source Key-74',
+                        'zPerson-Manual Order Key-75',
+                        'zPerson-Question Type-76',
+                        'zPerson-Suggested For Client Type-77',
+                        'zPerson-Merge Target Person-78',
+                        'zPerson-Cloud Local State-79',
+                        'zFaceCrop-Cloud Local State-80',
+                        'zFaceCrop-Cloud Type-81',
+                        'zPerson-Cloud Delete State-82',
+                        'zFaceCrop-Cloud Delete State-83',
+                        'zDetFace-zPK-84',
+                        'zDetFacePrint-Face Key-85',
+                        'zPerson-KeyFace=zDetFace-zPK-86',
+                        'zFaceCrop-Face Key-87',
+                        'zPerson-zPK=zDetFace-Person-88',
+                        'zDetFace-PersonForFace= zPerson-zPK-89',
+                        'zDetFace-Person Being Key Face-90',
+                        'zFaceCrop-Person=zPerson-zPK&zDetFace-Person-Key-91',
+                        'zDetFace-Face Print-92',
+                        'zDetFacePrint-zPK-93',
+                        'zDetFace-Face Crop-94',
+                        'zFaceCrop-zPK-95',
+                        'zDetFaceGroup-KeyFace= zDetFace-zPK-96',
+                        'zDetFaceGroup-AssocPerson= zPerson-zPK-97',
+                        'zPerson-Assoc Face Group Key-98',
+                        'zDetFace-FaceGroupBeingKeyFace= zDetFaceGroup-zPK-99',
+                        'zDetFace-FaceGroup= zDetFaceGroup-zPK-100',
+                        'zDetFaceGroup-zPK-101',
+                        'zDetFace-UUID-102',
+                        'zFaceCrop-UUID-103',
+                        'zFaceCrop-Invalid Merge Canidate Person UUID-104',
+                        'zPerson-Person UUID-105',
+                        'zPerson-Person URI-106',
+                        'zDetFaceGroup-UUID-107')
+        data_list = get_sqlite_db_records(source_path, query)
 
-            description = 'Parses data from PhotoData-Photos.sqlite for' \
-                          ' people - detected faces - face crop data. The results may contain multiple records' \
-                          ' per ZASSET table Z_PK value and supports iOS 15.'
-            report = ArtifactHtmlReport('Ph15.1-People & Faces NAD-PhDaPsql')
-            report.start_artifact_report(report_folder, 'Ph15.1-People & Faces NAD-PhDaPsql', description)
-            report.add_script()
-            data_headers = ('zDetFace-AssetForFace= zAsset-zPK-0',
-                            'zFaceCrop-Asset Key-1',
-                            'zDetFacePrint-Data-SeeRawDBData-2',
-                            'zPerson-Contact Matching Dictionary-3',
-                            'zPerson-Verified Type-4',
-                            'zPerson-Display Name-5',
-                            'zPerson-Full Name-6',
-                            'zPerson-Cloud Verified Type-7',
-                            'zFaceCrop-State-8',
-                            'zFaceCrop-Type-9',
-                            'zFaceCrop-Resource Data-10',
-                            'zDetFace-Confirmed Face Crop Generation State-11',
-                            'zDetFace-Manual-12',
-                            'zDetFace-Detection Type-13',
-                            'zPerson-Detection Type-14',
-                            'zDetFace-VIP Model Type-15',
-                            'zDetFace-Name Source-16',
-                            'zDetFace-Cloud Name Source-17',
-                            'zPerson-Type-18',
-                            'zPerson-Gender Type-19',
-                            'zDetFace-Gender Type-20',
-                            'zDetFace-Center X-21',
-                            'zDetFace-Center Y-22',
-                            'zPerson-Age Type Estimate-23',
-                            'zDetFace-Age Type Estimate-24',
-                            'zDetFace-Ethnicity Type-25',
-                            'zDetFace-Skin Tone Type-26',
-                            'zDetFace-Hair Type-27',
-                            'zDetFace-Hair Color Type-28',
-                            'zDetFace-Head Gear Type-29',
-                            'zDetFace-Facial Hair Type-30',
-                            'zDetFace-Has Face Mask-31',
-                            'zDetFace-Pose Type-32',
-                            'zDetFace-Face Expression Type-33',
-                            'zDetFace-Has Smile-34',
-                            'zDetFace-Smile Type-35',
-                            'zDetFace-Lip Makeup Type-36',
-                            'zDetFace-Eyes State-37',
-                            'zDetFace-Is Left Eye Closed-38',
-                            'zDetFace-Is Right Eye Closed-39',
-                            'zDetFace-Gaze Center X-40',
-                            'zDetFace-Gaze Center Y-41',
-                            'zDetFace-Face Gaze Type-42',
-                            'zDetFace-Eye Glasses Type-43',
-                            'zDetFace-Eye Makeup Type-44',
-                            'zDetFace-Cluster Squence Number Key-45',
-                            'zDetFace-Grouping ID-46',
-                            'zDetFace-Master ID-47',
-                            'zDetFace-Quality-48',
-                            'zDetFace-Quality Measure-49',
-                            'zDetFace-Source Height-50',
-                            'zDetFace-Source Width-51',
-                            'zDetFace-Asset Visible-52',
-                            'zDetFace-Hidden/Asset Hidden-53',
-                            'zDetFace-In Trash/Recently Deleted-54',
-                            'zDetFace-Cloud Local State-55',
-                            'zDetFace-Training Type-56',
-                            'zDetFace.Pose Yaw-57',
-                            'zDetFace-Body Center X-58',
-                            'zDetFace-Body Center Y-59',
-                            'zDetFace-Body Height-60',
-                            'zDetFace-Body Width-61',
-                            'zDetFace-Roll-62',
-                            'zDetFace-Size-63',
-                            'zDetFace-Cluster Squence Number-64',
-                            'zDetFace-Blur Score-65',
-                            'zDetFacePrint-Face Print Version-66',
-                            'zDetFaceGroup-UUID-67',
-                            'zDetFaceGroup-Person Builder State-68',
-                            'zDetFaceGroup-UnNamed Face Count-69',
-                            'zPerson-Face Count-70',
-                            'zDetFace-Face Algorithm Version-71',
-                            'zDetFace-Adjustment Version-72',
-                            'zPerson-In Person Naming Model-73',
-                            'zPerson-Key Face Pick Source Key-74',
-                            'zPerson-Manual Order Key-75',
-                            'zPerson-Question Type-76',
-                            'zPerson-Suggested For Client Type-77',
-                            'zPerson-Merge Target Person-78',
-                            'zPerson-Cloud Local State-79',
-                            'zFaceCrop-Cloud Local State-80',
-                            'zFaceCrop-Cloud Type-81',
-                            'zPerson-Cloud Delete State-82',
-                            'zFaceCrop-Cloud Delete State-83',
-                            'zDetFace-zPK-84',
-                            'zDetFacePrint-Face Key-85',
-                            'zPerson-KeyFace=zDetFace-zPK-86',
-                            'zFaceCrop-Face Key-87',
-                            'zPerson-zPK=zDetFace-Person-88',
-                            'zDetFace-PersonForFace= zPerson-zPK-89',
-                            'zDetFace-Person Being Key Face-90',
-                            'zFaceCrop-Person=zPerson-zPK&zDetFace-Person-Key-91',
-                            'zDetFace-Face Print-92',
-                            'zDetFacePrint-zPK-93',
-                            'zDetFace-Face Crop-94',
-                            'zFaceCrop-zPK-95',
-                            'zDetFaceGroup-KeyFace= zDetFace-zPK-96',
-                            'zDetFaceGroup-AssocPerson= zPerson-zPK-97',
-                            'zPerson-Assoc Face Group Key-98',
-                            'zDetFace-FaceGroupBeingKeyFace= zDetFaceGroup-zPK-99',
-                            'zDetFace-FaceGroup= zDetFaceGroup-zPK-100',
-                            'zDetFaceGroup-zPK-101',
-                            'zDetFace-UUID-102',
-                            'zFaceCrop-UUID-103',
-                            'zFaceCrop-Invalid Merge Canidate Person UUID-104',
-                            'zPerson-Person UUID-105',
-                            'zPerson-Person URI-106',
-                            'zDetFaceGroup-UUID-107')
-            report.write_artifact_data_table(data_headers, data_list, file_found)
-            report.end_artifact_report()
-
-            tsvname = 'Ph15.1-People & Faces NAD-PhDaPsql'
-            tsv(report_folder, data_headers, data_list, tsvname)
-
-            tlactivity = 'Ph15.1-People & Faces NAD-PhDaPsql'
-            timeline(report_folder, tlactivity, data_list, data_headers)
-
-        else:
-            logfunc('No data available for PhotoData-Photos.sqlite people - detected faces - face crop data')
-
-        db.close()
-        return
+        return data_headers, data_list, source_path
 
     elif (version.parse(iosversion) >= version.parse("16")) & (version.parse(iosversion) < version.parse("17")):
-        file_found = str(files_found[0])
-        db = open_sqlite_db_readonly(file_found)
-        cursor = db.cursor()
+        source_path = get_file_path(files_found,"Photos.sqlite")
+        if source_path is None or not os.path.exists(source_path):
+            logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
+            return (), [], source_path
+        data_list = []
 
-        cursor.execute("""
+        query = '''
         SELECT        
         zDetFace.ZASSET AS 'zDetFace-AssetForFace= zAsset-zPK',
         zFaceCrop.ZASSET AS 'zFaceCrop-Asset Key',
@@ -1380,199 +1358,178 @@ def get_ph15peopledetfacephdapsql(files_found, report_folder, seeker, wrap_text,
             LEFT JOIN ZFACECROP zFaceCrop ON zPerson.Z_PK = zFaceCrop.ZPERSON
             LEFT JOIN ZDETECTEDFACEGROUP zDetFaceGroup ON zDetFaceGroup.Z_PK = zDetFace.ZFACEGROUP  
         ORDER BY zDetFace.Z_PK
-        """)
+        '''
 
-        all_rows = cursor.fetchall()
-        usageentries = len(all_rows)
-        data_list = []
-        counter = 0
-        if usageentries > 0:
-            for row in all_rows:
-                # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
-                personcontactmatchingdictionary = ''
-                # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
-                facecropresourcedata_blob = ''
+        db_records = get_sqlite_db_records(source_path, query)
+        for row in db_records:
+            # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
+            personcontactmatchingdictionary = ''
+            # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
+            facecropresourcedata_blob = ''
 
-                # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
-                if row[3] is not None:
-                    pathto = os.path.join(report_folder, 'zPerson-ContactMatchingDict_' + row[107] + '.plist')
-                    with open(pathto, 'ab') as wf:
-                        wf.write(row[3])
+            # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
+            if row[3] is not None:
+                pathto = os.path.join(report_folder, 'zPerson-ContactMatchingDict_' + row[107] + '.plist')
+                with open(pathto, 'ab') as wf:
+                    wf.write(row[3])
 
-                    with open(pathto, 'rb') as f:
-                        try:
-                            deserialized_plist = nd.deserialize_plist(f)
-                            personcontactmatchingdictionary = deserialized_plist
+                with open(pathto, 'rb') as f:
+                    try:
+                        deserialized_plist = nd.deserialize_plist(f)
+                        personcontactmatchingdictionary = deserialized_plist
 
-                        except (KeyError, ValueError, TypeError) as ex:
-                            if str(ex).find("does not contain an '$archiver' key") >= 0:
-                                logfunc('plist was Not an NSKeyedArchive ' + row[107])
-                            else:
-                                logfunc('Error reading exported plist from zPerson-Contact Matching Dictionary' + row[107])
+                    except (KeyError, ValueError, TypeError) as ex:
+                        if str(ex).find("does not contain an '$archiver' key") >= 0:
+                            logfunc('plist was Not an NSKeyedArchive ' + row[107])
+                        else:
+                            logfunc('Error reading exported plist from zPerson-Contact Matching Dictionary' + row[107])
 
-                # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
-                if row[10] is not None:
-                    pathto = os.path.join(report_folder, 'FaceCropFor_' + row[105] + '.jpg')
-                    with open(pathto, 'wb') as file:
-                        file.write(row[10])
-                    facecropresourcedata_blob = media_to_html(pathto, files_found, report_folder)
+            # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
+            if row[10] is not None:
+                pathto = os.path.join(report_folder, 'FaceCropFor_' + row[105] + '.jpg')
+                with open(pathto, 'wb') as file:
+                    file.write(row[10])
+                facecropresourcedata_blob = media_to_html(pathto, files_found, report_folder)
 
-                data_list.append((row[0], row[1], row[2],
-                                personcontactmatchingdictionary,
-                                row[4], row[5], row[6], row[7], row[8], row[9],
-                                facecropresourcedata_blob,
-                                row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
-                                row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
-                                row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35], row[36],
-                                row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45],
-                                row[46], row[47], row[48], row[49], row[50], row[51], row[52], row[53], row[54],
-                                row[55], row[56], row[57], row[58], row[59], row[60], row[61], row[62], row[63],
-                                row[64], row[65], row[66], row[67], row[68], row[69], row[70], row[71], row[72],
-                                row[73], row[74], row[75], row[76], row[77], row[78], row[79], row[80], row[81],
-                                row[82], row[83], row[84], row[85], row[86], row[87], row[88], row[89], row[90],
-                                row[91], row[92], row[93], row[94], row[95], row[96], row[97], row[98], row[99],
-                                row[100], row[101], row[102], row[103], row[104], row[105], row[106], row[107],
-                                row[108], row[109]))
+            data_list.append((row[0], row[1], row[2],
+                            personcontactmatchingdictionary,
+                            row[4], row[5], row[6], row[7], row[8], row[9],
+                            facecropresourcedata_blob,
+                            row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
+                            row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
+                            row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35], row[36],
+                            row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45],
+                            row[46], row[47], row[48], row[49], row[50], row[51], row[52], row[53], row[54],
+                            row[55], row[56], row[57], row[58], row[59], row[60], row[61], row[62], row[63],
+                            row[64], row[65], row[66], row[67], row[68], row[69], row[70], row[71], row[72],
+                            row[73], row[74], row[75], row[76], row[77], row[78], row[79], row[80], row[81],
+                            row[82], row[83], row[84], row[85], row[86], row[87], row[88], row[89], row[90],
+                            row[91], row[92], row[93], row[94], row[95], row[96], row[97], row[98], row[99],
+                            row[100], row[101], row[102], row[103], row[104], row[105], row[106], row[107],
+                            row[108], row[109]))
 
-                counter += 1
+        data_headers = ('zDetFace-AssetForFace= zAsset-zPK-0',
+                        'zFaceCrop-Asset Key-1',
+                        'zDetFacePrint-Data-SeeRawDBData-2',
+                        'zPerson-Contact Matching Dictionary-3',
+                        'zPerson-Verified Type-4',
+                        'zPerson-Display Name-5',
+                        'zPerson-Full Name-6',
+                        'zPerson-Cloud Verified Type-7',
+                        'zFaceCrop-State-8',
+                        'zFaceCrop-Type-9',
+                        'zFaceCrop-Resource Data-10',
+                        'zDetFace-Confirmed Face Crop Generation State-11',
+                        'zDetFace-Manual-12',
+                        'zDetFace-Detection Type-13',
+                        'zPerson-Detection Type-14',
+                        'zDetFace-VIP Model Type-15',
+                        'zDetFace-Name Source-16',
+                        'zDetFace-Cloud Name Source-17',
+                        'zPerson-Merge Candidate Confidence-18',
+                        'zPerson-Type-19',
+                        'zPerson-Gender Type-20',
+                        'zDetFace-Gender Type-21',
+                        'zDetFace-Center X-22',
+                        'zDetFace-Center Y-23',
+                        'zPerson-Age Type Estimate-24',
+                        'zDetFace-Age Type Estimate-25',
+                        'zDetFace-Ethnicity Type-26',
+                        'zDetFace-Skin Tone Type-27',
+                        'zDetFace-Hair Type-28',
+                        'zDetFace-Hair Color Type-29',
+                        'zDetFace-Head Gear Type-30',
+                        'zDetFace-Facial Hair Type-31',
+                        'zDetFace-Has Face Mask-32',
+                        'zDetFace-Pose Type-33',
+                        'zDetFace-Face Expression Type-34',
+                        'zDetFace-Has Smile-35',
+                        'zDetFace-Smile Type-36',
+                        'zDetFace-Lip Makeup Type-37',
+                        'zDetFace-Eyes State-38',
+                        'zDetFace-Is Left Eye Closed-39',
+                        'zDetFace-Is Right Eye Closed-40',
+                        'zDetFace-Gaze Center X-41',
+                        'zDetFace-Gaze Center Y-42',
+                        'zDetFace-Face Gaze Type-43',
+                        'zDetFace-Eye Glasses Type-44',
+                        'zDetFace-Eye Makeup Type-45',
+                        'zDetFace-Cluster Squence Number Key-46',
+                        'zDetFace-Grouping ID-47',
+                        'zDetFace-Master ID-48',
+                        'zDetFace-Quality-49',
+                        'zDetFace-Quality Measure-50',
+                        'zDetFace-Source Height-51',
+                        'zDetFace-Source Width-52',
+                        'zDetFace-Asset Visible-53',
+                        'zDetFace-Hidden/Asset Hidden-54',
+                        'zDetFace-In Trash/Recently Deleted-55',
+                        'zDetFace-Cloud Local State-56',
+                        'zDetFace-Training Type-57',
+                        'zDetFace.Pose Yaw-58',
+                        'zDetFace-Body Center X-59',
+                        'zDetFace-Body Center Y-60',
+                        'zDetFace-Body Height-61',
+                        'zDetFace-Body Width-62',
+                        'zDetFace-Roll-63',
+                        'zDetFace-Size-64',
+                        'zDetFace-Cluster Sequence Number-65',
+                        'zDetFace-Blur Score-66',
+                        'zDetFacePrint-Face Print Version-67',
+                        'zDetFaceGroup-UUID-68',
+                        'zDetFaceGroup-Person Builder State-69',
+                        'zDetFaceGroup-UnNamed Face Count-70',
+                        'zPerson-Face Count-71',
+                        'zDetFace-Face Algorithm Version-72',
+                        'zDetFace-Adjustment Version-73',
+                        'zPerson-In Person Naming Model-74',
+                        'zPerson-Key Face Pick Source Key-75',
+                        'zPerson-Manual Order Key-76',
+                        'zPerson-Question Type-77',
+                        'zPerson-Suggested For Client Type-78',
+                        'zPerson-Merge Target Person-79',
+                        'zPerson-Cloud Local State-80',
+                        'zFaceCrop-Cloud Local State-81',
+                        'zFaceCrop-Cloud Type-82',
+                        'zPerson-Cloud Delete State-83',
+                        'zFaceCrop-Cloud Delete State-84',
+                        'zDetFace-zPK-85',
+                        'zDetFacePrint-Face Key-86',
+                        'zPerson-KeyFace=zDetFace-zPK-87',
+                        'zFaceCrop-Face Key-88',
+                        'zPerson-zPK=zDetFace-Person-89',
+                        'zDetFace-PersonForFace= zPerson-zPK-90',
+                        'zDetFace-Person Being Key Face-91',
+                        'zFaceCrop-Person=zPerson-zPK&zDetFace-Person-Key-92',
+                        'zDetFace-Face Print-93',
+                        'zDetFacePrint-zPK-94',
+                        'zDetFace-Face Crop-95',
+                        'zFaceCrop-zPK-96',
+                        'zDetFaceGroup-KeyFace= zDetFace-zPK-97',
+                        'zDetFaceGroup-AssocPerson= zPerson-zPK-98',
+                        'zPerson-Assoc Face Group Key-99',
+                        'zDetFace-FaceGroupBeingKeyFace= zDetFaceGroup-zPK-100',
+                        'zDetFace-FaceGroup= zDetFaceGroup-zPK-101',
+                        'zDetFaceGroup-zPK-102',
+                        'zPerson-Share Participant= zSharePartic-zPK-103',
+                        'zDetFace-UUID-104',
+                        'zFaceCrop-UUID-105',
+                        'zFaceCrop-Invalid Merge Candidate Person UUID-106',
+                        'zPerson-Person UUID-107',
+                        'zPerson-Person URI-108',
+                        'zDetFaceGroup-UUID-109')
+        data_list = get_sqlite_db_records(source_path, query)
 
-            description = 'Parses data from PhotoData-Photos.sqlite for' \
-                          ' people - detected faces - face crop data. The results may contain multiple records' \
-                          ' per ZASSET table Z_PK value and supports iOS 16.'
-            report = ArtifactHtmlReport('Ph15.1-People & Faces NAD-PhDaPsql')
-            report.start_artifact_report(report_folder, 'Ph15.1-People & Faces NAD-PhDaPsql', description)
-            report.add_script()
-            data_headers = ('zDetFace-AssetForFace= zAsset-zPK-0',
-                            'zFaceCrop-Asset Key-1',
-                            'zDetFacePrint-Data-SeeRawDBData-2',
-                            'zPerson-Contact Matching Dictionary-3',
-                            'zPerson-Verified Type-4',
-                            'zPerson-Display Name-5',
-                            'zPerson-Full Name-6',
-                            'zPerson-Cloud Verified Type-7',
-                            'zFaceCrop-State-8',
-                            'zFaceCrop-Type-9',
-                            'zFaceCrop-Resource Data-10',
-                            'zDetFace-Confirmed Face Crop Generation State-11',
-                            'zDetFace-Manual-12',
-                            'zDetFace-Detection Type-13',
-                            'zPerson-Detection Type-14',
-                            'zDetFace-VIP Model Type-15',
-                            'zDetFace-Name Source-16',
-                            'zDetFace-Cloud Name Source-17',
-                            'zPerson-Merge Candidate Confidence-18',
-                            'zPerson-Type-19',
-                            'zPerson-Gender Type-20',
-                            'zDetFace-Gender Type-21',
-                            'zDetFace-Center X-22',
-                            'zDetFace-Center Y-23',
-                            'zPerson-Age Type Estimate-24',
-                            'zDetFace-Age Type Estimate-25',
-                            'zDetFace-Ethnicity Type-26',
-                            'zDetFace-Skin Tone Type-27',
-                            'zDetFace-Hair Type-28',
-                            'zDetFace-Hair Color Type-29',
-                            'zDetFace-Head Gear Type-30',
-                            'zDetFace-Facial Hair Type-31',
-                            'zDetFace-Has Face Mask-32',
-                            'zDetFace-Pose Type-33',
-                            'zDetFace-Face Expression Type-34',
-                            'zDetFace-Has Smile-35',
-                            'zDetFace-Smile Type-36',
-                            'zDetFace-Lip Makeup Type-37',
-                            'zDetFace-Eyes State-38',
-                            'zDetFace-Is Left Eye Closed-39',
-                            'zDetFace-Is Right Eye Closed-40',
-                            'zDetFace-Gaze Center X-41',
-                            'zDetFace-Gaze Center Y-42',
-                            'zDetFace-Face Gaze Type-43',
-                            'zDetFace-Eye Glasses Type-44',
-                            'zDetFace-Eye Makeup Type-45',
-                            'zDetFace-Cluster Squence Number Key-46',
-                            'zDetFace-Grouping ID-47',
-                            'zDetFace-Master ID-48',
-                            'zDetFace-Quality-49',
-                            'zDetFace-Quality Measure-50',
-                            'zDetFace-Source Height-51',
-                            'zDetFace-Source Width-52',
-                            'zDetFace-Asset Visible-53',
-                            'zDetFace-Hidden/Asset Hidden-54',
-                            'zDetFace-In Trash/Recently Deleted-55',
-                            'zDetFace-Cloud Local State-56',
-                            'zDetFace-Training Type-57',
-                            'zDetFace.Pose Yaw-58',
-                            'zDetFace-Body Center X-59',
-                            'zDetFace-Body Center Y-60',
-                            'zDetFace-Body Height-61',
-                            'zDetFace-Body Width-62',
-                            'zDetFace-Roll-63',
-                            'zDetFace-Size-64',
-                            'zDetFace-Cluster Sequence Number-65',
-                            'zDetFace-Blur Score-66',
-                            'zDetFacePrint-Face Print Version-67',
-                            'zDetFaceGroup-UUID-68',
-                            'zDetFaceGroup-Person Builder State-69',
-                            'zDetFaceGroup-UnNamed Face Count-70',
-                            'zPerson-Face Count-71',
-                            'zDetFace-Face Algorithm Version-72',
-                            'zDetFace-Adjustment Version-73',
-                            'zPerson-In Person Naming Model-74',
-                            'zPerson-Key Face Pick Source Key-75',
-                            'zPerson-Manual Order Key-76',
-                            'zPerson-Question Type-77',
-                            'zPerson-Suggested For Client Type-78',
-                            'zPerson-Merge Target Person-79',
-                            'zPerson-Cloud Local State-80',
-                            'zFaceCrop-Cloud Local State-81',
-                            'zFaceCrop-Cloud Type-82',
-                            'zPerson-Cloud Delete State-83',
-                            'zFaceCrop-Cloud Delete State-84',
-                            'zDetFace-zPK-85',
-                            'zDetFacePrint-Face Key-86',
-                            'zPerson-KeyFace=zDetFace-zPK-87',
-                            'zFaceCrop-Face Key-88',
-                            'zPerson-zPK=zDetFace-Person-89',
-                            'zDetFace-PersonForFace= zPerson-zPK-90',
-                            'zDetFace-Person Being Key Face-91',
-                            'zFaceCrop-Person=zPerson-zPK&zDetFace-Person-Key-92',
-                            'zDetFace-Face Print-93',
-                            'zDetFacePrint-zPK-94',
-                            'zDetFace-Face Crop-95',
-                            'zFaceCrop-zPK-96',
-                            'zDetFaceGroup-KeyFace= zDetFace-zPK-97',
-                            'zDetFaceGroup-AssocPerson= zPerson-zPK-98',
-                            'zPerson-Assoc Face Group Key-99',
-                            'zDetFace-FaceGroupBeingKeyFace= zDetFaceGroup-zPK-100',
-                            'zDetFace-FaceGroup= zDetFaceGroup-zPK-101',
-                            'zDetFaceGroup-zPK-102',
-                            'zPerson-Share Participant= zSharePartic-zPK-103',
-                            'zDetFace-UUID-104',
-                            'zFaceCrop-UUID-105',
-                            'zFaceCrop-Invalid Merge Candidate Person UUID-106',
-                            'zPerson-Person UUID-107',
-                            'zPerson-Person URI-108',
-                            'zDetFaceGroup-UUID-109')
-            report.write_artifact_data_table(data_headers, data_list, file_found)
-            report.end_artifact_report()
-
-            tsvname = 'Ph15.1-People & Faces NAD-PhDaPsql'
-            tsv(report_folder, data_headers, data_list, tsvname)
-
-            tlactivity = 'Ph15.1-People & Faces NAD-PhDaPsql'
-            timeline(report_folder, tlactivity, data_list, data_headers)
-
-        else:
-            logfunc('No data available for PhotoData-Photos.sqlite people - detected faces - face crop data')
-
-        db.close()
-        return
+        return data_headers, data_list, source_path
 
     elif (version.parse(iosversion) >= version.parse("17")) & (version.parse(iosversion) < version.parse("18")):
-        file_found = str(files_found[0])
-        db = open_sqlite_db_readonly(file_found)
-        cursor = db.cursor()
+        source_path = get_file_path(files_found,"Photos.sqlite")
+        if source_path is None or not os.path.exists(source_path):
+            logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
+            return (), [], source_path
+        data_list = []
 
-        cursor.execute("""
+        query = '''
         SELECT        
         zDetFace.ZASSETFORFACE AS 'zDetFace-AssetForFace= zAsset-zPK',
         zDetFace.ZASSETFORTORSO AS 'zDetFace-AssetForTorso= zAsset-zPK',
@@ -1934,203 +1891,182 @@ def get_ph15peopledetfacephdapsql(files_found, report_folder, seeker, wrap_text,
             LEFT JOIN ZFACECROP zFaceCrop ON zPerson.Z_PK = zFaceCrop.ZPERSON
             LEFT JOIN ZDETECTEDFACEGROUP zDetFaceGroup ON zDetFaceGroup.Z_PK = zDetFace.ZFACEGROUP  
         ORDER BY zDetFace.Z_PK
-        """)
+        '''
 
-        all_rows = cursor.fetchall()
-        usageentries = len(all_rows)
-        data_list = []
-        counter = 0
-        if usageentries > 0:
-            for row in all_rows:
-                # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
-                personcontactmatchingdictionary = ''
-                # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
-                facecropresourcedata_blob = ''
+        db_records = get_sqlite_db_records(source_path, query)
+        for row in db_records:
+            # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
+            personcontactmatchingdictionary = ''
+            # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
+            facecropresourcedata_blob = ''
 
-                # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
-                if row[5] is not None:
-                    pathto = os.path.join(report_folder, 'zPerson-ContactMatchingDict_' + row[111] + '.plist')
-                    with open(pathto, 'ab') as wf:
-                        wf.write(row[5])
+            # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
+            if row[5] is not None:
+                pathto = os.path.join(report_folder, 'zPerson-ContactMatchingDict_' + row[111] + '.plist')
+                with open(pathto, 'ab') as wf:
+                    wf.write(row[5])
 
-                    with open(pathto, 'rb') as f:
-                        try:
-                            deserialized_plist = nd.deserialize_plist(f)
-                            personcontactmatchingdictionary = deserialized_plist
+                with open(pathto, 'rb') as f:
+                    try:
+                        deserialized_plist = nd.deserialize_plist(f)
+                        personcontactmatchingdictionary = deserialized_plist
 
-                        except (KeyError, ValueError, TypeError) as ex:
-                            if str(ex).find("does not contain an '$archiver' key") >= 0:
-                                logfunc('plist was Not an NSKeyedArchive ' + row[111])
-                            else:
-                                logfunc('Error reading exported plist from zPerson-Contact Matching Dictionary' + row[111])
+                    except (KeyError, ValueError, TypeError) as ex:
+                        if str(ex).find("does not contain an '$archiver' key") >= 0:
+                            logfunc('plist was Not an NSKeyedArchive ' + row[111])
+                        else:
+                            logfunc('Error reading exported plist from zPerson-Contact Matching Dictionary' + row[111])
 
-                # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
-                if row[12] is not None:
-                    pathto = os.path.join(report_folder, 'FaceCropFor_' + row[109] + '.jpg')
-                    with open(pathto, 'wb') as file:
-                        file.write(row[12])
-                    facecropresourcedata_blob = media_to_html(pathto, files_found, report_folder)
+            # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
+            if row[12] is not None:
+                pathto = os.path.join(report_folder, 'FaceCropFor_' + row[109] + '.jpg')
+                with open(pathto, 'wb') as file:
+                    file.write(row[12])
+                facecropresourcedata_blob = media_to_html(pathto, files_found, report_folder)
 
-                data_list.append((row[0], row[1], row[2], row[3], row[4],
-                                personcontactmatchingdictionary,
-                                row[6], row[7], row[8], row[9], row[10], row[11],
-                                facecropresourcedata_blob,
-                                row[13], row[14], row[15], row[16], row[17], row[18],
-                                row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
-                                row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35], row[36],
-                                row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45],
-                                row[46], row[47], row[48], row[49], row[50], row[51], row[52], row[53], row[54],
-                                row[55], row[56], row[57], row[58], row[59], row[60], row[61], row[62], row[63],
-                                row[64], row[65], row[66], row[67], row[68], row[69], row[70], row[71], row[72],
-                                row[73], row[74], row[75], row[76], row[77], row[78], row[79], row[80], row[81],
-                                row[82], row[83], row[84], row[85], row[86], row[87], row[88], row[89], row[90],
-                                row[91], row[92], row[93], row[94], row[95], row[96], row[97], row[98], row[99],
-                                row[100], row[101], row[102], row[103], row[104], row[105], row[106], row[107],
-                                row[108], row[109], row[110], row[111], row[112], row[113]))
+            data_list.append((row[0], row[1], row[2], row[3], row[4],
+                            personcontactmatchingdictionary,
+                            row[6], row[7], row[8], row[9], row[10], row[11],
+                            facecropresourcedata_blob,
+                            row[13], row[14], row[15], row[16], row[17], row[18],
+                            row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
+                            row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35], row[36],
+                            row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45],
+                            row[46], row[47], row[48], row[49], row[50], row[51], row[52], row[53], row[54],
+                            row[55], row[56], row[57], row[58], row[59], row[60], row[61], row[62], row[63],
+                            row[64], row[65], row[66], row[67], row[68], row[69], row[70], row[71], row[72],
+                            row[73], row[74], row[75], row[76], row[77], row[78], row[79], row[80], row[81],
+                            row[82], row[83], row[84], row[85], row[86], row[87], row[88], row[89], row[90],
+                            row[91], row[92], row[93], row[94], row[95], row[96], row[97], row[98], row[99],
+                            row[100], row[101], row[102], row[103], row[104], row[105], row[106], row[107],
+                            row[108], row[109], row[110], row[111], row[112], row[113]))
 
-                counter += 1
+        data_headers = ('zDetFace-AssetForFace= zAsset-zPK-0',
+                        'zDetFace-AssetForTorso= zAsset-zPK-1',
+                        'zFaceCrop-Asset Key-2',
+                        'zDetFace-Asset For Temporal Detected Faces= zAsset-zPK-3',
+                        'zDetFacePrint-Data-SeeRawDBData-4',
+                        'zPerson-Contact Matching Dictionary-5',
+                        'zPerson-Verified Type-6',
+                        'zPerson-Display Name-7',
+                        'zPerson-Full Name-8',
+                        'zPerson-Cloud Verified Type-9',
+                        'zFaceCrop-State-10',
+                        'zFaceCrop-Type-11',
+                        'zFaceCrop-Resource Data-12',
+                        'zDetFace-Confirmed Face Crop Generation State-13',
+                        'zDetFace-Manual-14',
+                        'zDetFace-Detection Type-15',
+                        'zPerson-Detection Type-16',
+                        'zDetFace-VIP Model Type-17',
+                        'zDetFace-Name Source-18',
+                        'zDetFace-Cloud Name Source-19',
+                        'zPerson-Merge Candidate Confidence-20',
+                        'zPerson-Type-21',
+                        'zPerson-Gender Type-22',
+                        'zDetFace-Gender Type-23',
+                        'zDetFace-Center X-24',
+                        'zDetFace-Center Y-25',
+                        'zPerson-Age Type Estimate-26',
+                        'zDetFace-Age Type Estimate-27',
+                        'zDetFace-Ethnicity Type-28',
+                        'zDetFace-Skin Tone Type-29',
+                        'zDetFace-Hair Type-30',
+                        'zDetFace-Hair Color Type-31',
+                        'zDetFace-Head Gear Type-32',
+                        'zDetFace-Facial Hair Type-33',
+                        'zDetFace-Has Face Mask-34',
+                        'zDetFace-Pose Type-35',
+                        'zDetFace-Face Expression Type-36',
+                        'zDetFace-Has Smile-37',
+                        'zDetFace-Smile Type-38',
+                        'zDetFace-Lip Makeup Type-39',
+                        'zDetFace-Eyes State-40',
+                        'zDetFace-Is Left Eye Closed-41',
+                        'zDetFace-Is Right Eye Closed-42',
+                        'zDetFace-Gaze Center X-43',
+                        'zDetFace-Gaze Center Y-44',
+                        'zDetFace-Face Gaze Type-45',
+                        'zDetFace-Eye Glasses Type-46',
+                        'zDetFace-Eye Makeup Type-47',
+                        'zDetFace-Cluster Sequence Number Key-48',
+                        'zDetFace-Grouping ID-49',
+                        'zDetFace-Master ID-50',
+                        'zDetFace-Quality-51',
+                        'zDetFace-Quality Measure-52',
+                        'zDetFace-Source Height-53',
+                        'zDetFace-Source Width-54',
+                        'zDetFace-Asset Visible-55',
+                        'zDetFace-Hidden/Asset Hidden-56',
+                        'zDetFace-In Trash/Recently Deleted-57',
+                        'zDetFace-Cloud Local State-58',
+                        'zDetFace-Training Type-59',
+                        'zDetFace.Pose Yaw-60',
+                        'zDetFace-Body Center X-61',
+                        'zDetFace-Body Center Y-62',
+                        'zDetFace-Body Height-63',
+                        'zDetFace-Body Width-64',
+                        'zDetFace-Roll-65',
+                        'zDetFace-Size-66',
+                        'zDetFace-Cluster Sequence Number-67',
+                        'zDetFace-Blur Score-68',
+                        'zDetFacePrint-Face Print Version-69',
+                        'zDetFaceGroup-UUID-70',
+                        'zDetFaceGroup-Person Builder State-71',
+                        'zDetFaceGroup-UnNamed Face Count-72',
+                        'zPerson-Face Count-73',
+                        'zDetFace-Face Algorithm Version-74',
+                        'zDetFace-Adjustment Version-75',
+                        'zPerson-In Person Naming Model-76',
+                        'zPerson-Key Face Pick Source Key-77',
+                        'zPerson-Manual Order Key-78',
+                        'zPerson-Question Type-79',
+                        'zPerson-Suggested For Client Type-80',
+                        'zPerson-Merge Target Person-81',
+                        'zPerson-Cloud Local State-82',
+                        'zFaceCrop-Cloud Local State-83',
+                        'zFaceCrop-Cloud Type-84',
+                        'zPerson-Cloud Delete State-85',
+                        'zFaceCrop-Cloud Delete State-86',
+                        'zDetFace-zPK-87',
+                        'zDetFacePrint-Face Key-88',
+                        'zPerson-KeyFace=zDetFace-zPK-89',
+                        'zFaceCrop-Face Key-90',
+                        'zPerson-zPK=zDetFace-Person-91',
+                        'zDetFace-PersonForFace= zPerson-zPK-92',
+                        'zDetFace-Person for Temporal Detected Faces= zPerson-zPK-93',
+                        'zDetFace-PersonForTorso= zPerson-zPK-94',
+                        'zDetFace-Person Being Key Face-95',
+                        'zFaceCrop-Person=zPerson-zPK&zDetFace-Person-Key-96',
+                        'zDetFace-Face Print-97',
+                        'zDetFacePrint-zPK-98',
+                        'zDetFace-Face Crop-99',
+                        'zFaceCrop-zPK-100',
+                        'zDetFaceGroup-KeyFace= zDetFace-zPK-101',
+                        'zDetFaceGroup-AssocPerson= zPerson-zPK-102',
+                        'zPerson-Assoc Face Group Key-103',
+                        'zDetFace-FaceGroupBeingKeyFace= zDetFaceGroup-zPK-104',
+                        'zDetFace-FaceGroup= zDetFaceGroup-zPK-105',
+                        'zDetFaceGroup-zPK-106',
+                        'zPerson-Share Participant= zSharePartic-zPK-107',
+                        'zDetFace-UUID-108',
+                        'zFaceCrop-UUID-109',
+                        'zFaceCrop-Invalid Merge Candidate Person UUID-110',
+                        'zPerson-Person UUID-111',
+                        'zPerson-Person URI-112',
+                        'zDetFaceGroup-UUID-113')
+        data_list = get_sqlite_db_records(source_path, query)
 
-            description = 'Parses data from PhotoData-Photos.sqlite for' \
-                          ' people - detected faces - face crop data. The results may contain multiple records' \
-                          ' per ZASSET table Z_PK value and supports iOS 17.'
-            report = ArtifactHtmlReport('Ph15.1-People & Faces NAD-PhDaPsql')
-            report.start_artifact_report(report_folder, 'Ph15.1-People & Faces NAD-PhDaPsql', description)
-            report.add_script()
-            data_headers = ('zDetFace-AssetForFace= zAsset-zPK-0',
-                            'zDetFace-AssetForTorso= zAsset-zPK-1',
-                            'zFaceCrop-Asset Key-2',
-                            'zDetFace-Asset For Temporal Detected Faces= zAsset-zPK-3',
-                            'zDetFacePrint-Data-SeeRawDBData-4',
-                            'zPerson-Contact Matching Dictionary-5',
-                            'zPerson-Verified Type-6',
-                            'zPerson-Display Name-7',
-                            'zPerson-Full Name-8',
-                            'zPerson-Cloud Verified Type-9',
-                            'zFaceCrop-State-10',
-                            'zFaceCrop-Type-11',
-                            'zFaceCrop-Resource Data-12',
-                            'zDetFace-Confirmed Face Crop Generation State-13',
-                            'zDetFace-Manual-14',
-                            'zDetFace-Detection Type-15',
-                            'zPerson-Detection Type-16',
-                            'zDetFace-VIP Model Type-17',
-                            'zDetFace-Name Source-18',
-                            'zDetFace-Cloud Name Source-19',
-                            'zPerson-Merge Candidate Confidence-20',
-                            'zPerson-Type-21',
-                            'zPerson-Gender Type-22',
-                            'zDetFace-Gender Type-23',
-                            'zDetFace-Center X-24',
-                            'zDetFace-Center Y-25',
-                            'zPerson-Age Type Estimate-26',
-                            'zDetFace-Age Type Estimate-27',
-                            'zDetFace-Ethnicity Type-28',
-                            'zDetFace-Skin Tone Type-29',
-                            'zDetFace-Hair Type-30',
-                            'zDetFace-Hair Color Type-31',
-                            'zDetFace-Head Gear Type-32',
-                            'zDetFace-Facial Hair Type-33',
-                            'zDetFace-Has Face Mask-34',
-                            'zDetFace-Pose Type-35',
-                            'zDetFace-Face Expression Type-36',
-                            'zDetFace-Has Smile-37',
-                            'zDetFace-Smile Type-38',
-                            'zDetFace-Lip Makeup Type-39',
-                            'zDetFace-Eyes State-40',
-                            'zDetFace-Is Left Eye Closed-41',
-                            'zDetFace-Is Right Eye Closed-42',
-                            'zDetFace-Gaze Center X-43',
-                            'zDetFace-Gaze Center Y-44',
-                            'zDetFace-Face Gaze Type-45',
-                            'zDetFace-Eye Glasses Type-46',
-                            'zDetFace-Eye Makeup Type-47',
-                            'zDetFace-Cluster Sequence Number Key-48',
-                            'zDetFace-Grouping ID-49',
-                            'zDetFace-Master ID-50',
-                            'zDetFace-Quality-51',
-                            'zDetFace-Quality Measure-52',
-                            'zDetFace-Source Height-53',
-                            'zDetFace-Source Width-54',
-                            'zDetFace-Asset Visible-55',
-                            'zDetFace-Hidden/Asset Hidden-56',
-                            'zDetFace-In Trash/Recently Deleted-57',
-                            'zDetFace-Cloud Local State-58',
-                            'zDetFace-Training Type-59',
-                            'zDetFace.Pose Yaw-60',
-                            'zDetFace-Body Center X-61',
-                            'zDetFace-Body Center Y-62',
-                            'zDetFace-Body Height-63',
-                            'zDetFace-Body Width-64',
-                            'zDetFace-Roll-65',
-                            'zDetFace-Size-66',
-                            'zDetFace-Cluster Sequence Number-67',
-                            'zDetFace-Blur Score-68',
-                            'zDetFacePrint-Face Print Version-69',
-                            'zDetFaceGroup-UUID-70',
-                            'zDetFaceGroup-Person Builder State-71',
-                            'zDetFaceGroup-UnNamed Face Count-72',
-                            'zPerson-Face Count-73',
-                            'zDetFace-Face Algorithm Version-74',
-                            'zDetFace-Adjustment Version-75',
-                            'zPerson-In Person Naming Model-76',
-                            'zPerson-Key Face Pick Source Key-77',
-                            'zPerson-Manual Order Key-78',
-                            'zPerson-Question Type-79',
-                            'zPerson-Suggested For Client Type-80',
-                            'zPerson-Merge Target Person-81',
-                            'zPerson-Cloud Local State-82',
-                            'zFaceCrop-Cloud Local State-83',
-                            'zFaceCrop-Cloud Type-84',
-                            'zPerson-Cloud Delete State-85',
-                            'zFaceCrop-Cloud Delete State-86',
-                            'zDetFace-zPK-87',
-                            'zDetFacePrint-Face Key-88',
-                            'zPerson-KeyFace=zDetFace-zPK-89',
-                            'zFaceCrop-Face Key-90',
-                            'zPerson-zPK=zDetFace-Person-91',
-                            'zDetFace-PersonForFace= zPerson-zPK-92',
-                            'zDetFace-Person for Temporal Detected Faces= zPerson-zPK-93',
-                            'zDetFace-PersonForTorso= zPerson-zPK-94',
-                            'zDetFace-Person Being Key Face-95',
-                            'zFaceCrop-Person=zPerson-zPK&zDetFace-Person-Key-96',
-                            'zDetFace-Face Print-97',
-                            'zDetFacePrint-zPK-98',
-                            'zDetFace-Face Crop-99',
-                            'zFaceCrop-zPK-100',
-                            'zDetFaceGroup-KeyFace= zDetFace-zPK-101',
-                            'zDetFaceGroup-AssocPerson= zPerson-zPK-102',
-                            'zPerson-Assoc Face Group Key-103',
-                            'zDetFace-FaceGroupBeingKeyFace= zDetFaceGroup-zPK-104',
-                            'zDetFace-FaceGroup= zDetFaceGroup-zPK-105',
-                            'zDetFaceGroup-zPK-106',
-                            'zPerson-Share Participant= zSharePartic-zPK-107',
-                            'zDetFace-UUID-108',
-                            'zFaceCrop-UUID-109',
-                            'zFaceCrop-Invalid Merge Candidate Person UUID-110',
-                            'zPerson-Person UUID-111',
-                            'zPerson-Person URI-112',
-                            'zDetFaceGroup-UUID-113')
-            report.write_artifact_data_table(data_headers, data_list, file_found)
-            report.end_artifact_report()
-
-            tsvname = 'Ph15.1-People & Faces NAD-PhDaPsql'
-            tsv(report_folder, data_headers, data_list, tsvname)
-
-            tlactivity = 'Ph15.1-People & Faces NAD-PhDaPsql'
-            timeline(report_folder, tlactivity, data_list, data_headers)
-
-        else:
-            logfunc('No data available for PhotoData-Photos.sqlite people - detected faces - face crop data')
-
-        db.close()
-        return
+        return data_headers, data_list, source_path
 
     elif version.parse(iosversion) >= version.parse("18"):
-        file_found = str(files_found[0])
-        db = open_sqlite_db_readonly(file_found)
-        cursor = db.cursor()
+        source_path = get_file_path(files_found,"Photos.sqlite")
+        if source_path is None or not os.path.exists(source_path):
+            logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
+            return (), [], source_path
+        data_list = []
 
-        cursor.execute("""
+        query = '''
         SELECT        
         zDetFace.ZASSETFORFACE AS 'zDetFace-AssetForFace= zAsset-zPK',
         zDetFace.ZASSETFORTORSO AS 'zDetFace-AssetForTorso= zAsset-zPK',
@@ -2146,7 +2082,7 @@ def get_ph15peopledetfacephdapsql(files_found, report_folder, seeker, wrap_text,
             WHEN 1 THEN '1-Has_Contact Matching_Dictionary'
             ELSE 'Unknown-New-Value!: ' || zPerson.ZVERIFIEDTYPE || ''
         END AS 'zPerson-Verified Type',
-        zPerson.ZISMECONFIDENCE AS 'zPerson-Is_Me_Confidence-iOS18',
+        zPerson.ZISMECONFIDENCE AS 'zPerson-Is_Me_Confidence',
         zPerson.ZDISPLAYNAME AS 'zPerson-Display Name',
         zPerson.ZFULLNAME AS 'zPerson-Full Name',
         CASE zPerson.ZCLOUDVERIFIEDTYPE
@@ -2493,218 +2429,197 @@ def get_ph15peopledetfacephdapsql(files_found, report_folder, seeker, wrap_text,
             LEFT JOIN ZFACECROP zFaceCrop ON zPerson.Z_PK = zFaceCrop.ZPERSON
             LEFT JOIN ZDETECTEDFACEGROUP zDetFaceGroup ON zDetFaceGroup.Z_PK = zDetFace.ZFACEGROUP  
         ORDER BY zDetFace.Z_PK
-        """)
+        '''
 
-        all_rows = cursor.fetchall()
-        usageentries = len(all_rows)
-        data_list = []
-        counter = 0
-        if usageentries > 0:
-            for row in all_rows:
-                # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
-                personcontactmatchingdictionary = ''
-                # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
-                facecropresourcedata_blob = ''
+        db_records = get_sqlite_db_records(source_path, query)
+        for row in db_records:
+            # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
+            personcontactmatchingdictionary = ''
+            # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
+            facecropresourcedata_blob = ''
 
-                # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
-                if row[5] is not None:
-                    pathto = os.path.join(report_folder, 'zPerson-ContactMatchingDict_' + row[112] + '.plist')
-                    with open(pathto, 'ab') as wf:
-                        wf.write(row[5])
+            # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
+            if row[5] is not None:
+                pathto = os.path.join(report_folder, 'zPerson-ContactMatchingDict_' + row[112] + '.plist')
+                with open(pathto, 'ab') as wf:
+                    wf.write(row[5])
 
-                    with open(pathto, 'rb') as f:
-                        try:
-                            deserialized_plist = nd.deserialize_plist(f)
-                            personcontactmatchingdictionary = deserialized_plist
+                with open(pathto, 'rb') as f:
+                    try:
+                        deserialized_plist = nd.deserialize_plist(f)
+                        personcontactmatchingdictionary = deserialized_plist
 
-                        except (KeyError, ValueError, TypeError) as ex:
-                            if str(ex).find("does not contain an '$archiver' key") >= 0:
-                                logfunc('plist was Not an NSKeyedArchive ' + row[112])
-                            else:
-                                logfunc('Error reading exported plist from zPerson-Contact Matching Dictionary' + row[112])
+                    except (KeyError, ValueError, TypeError) as ex:
+                        if str(ex).find("does not contain an '$archiver' key") >= 0:
+                            logfunc('plist was Not an NSKeyedArchive ' + row[112])
+                        else:
+                            logfunc('Error reading exported plist from zPerson-Contact Matching Dictionary' + row[112])
 
-                # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
-                if row[13] is not None:
-                    pathto = os.path.join(report_folder, 'FaceCropFor_' + row[110] + '.jpg')
-                    with open(pathto, 'wb') as file:
-                        file.write(row[13])
-                    facecropresourcedata_blob = media_to_html(pathto, files_found, report_folder)
+            # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
+            if row[13] is not None:
+                pathto = os.path.join(report_folder, 'FaceCropFor_' + row[110] + '.jpg')
+                with open(pathto, 'wb') as file:
+                    file.write(row[13])
+                facecropresourcedata_blob = media_to_html(pathto, files_found, report_folder)
 
-                data_list.append((row[0], row[1], row[2], row[3], row[4],
-                                personcontactmatchingdictionary,
-                                row[6], row[7], row[8], row[9], row[10], row[11], row[12],
-                                facecropresourcedata_blob,
-                                row[14], row[15], row[16], row[17], row[18],
-                                row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
-                                row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35], row[36],
-                                row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45],
-                                row[46], row[47], row[48], row[49], row[50], row[51], row[52], row[53], row[54],
-                                row[55], row[56], row[57], row[58], row[59], row[60], row[61], row[62], row[63],
-                                row[64], row[65], row[66], row[67], row[68], row[69], row[70], row[71], row[72],
-                                row[73], row[74], row[75], row[76], row[77], row[78], row[79], row[80], row[81],
-                                row[82], row[83], row[84], row[85], row[86], row[87], row[88], row[89], row[90],
-                                row[91], row[92], row[93], row[94], row[95], row[96], row[97], row[98], row[99],
-                                row[100], row[101], row[102], row[103], row[104], row[105], row[106], row[107],
-                                row[108], row[109], row[110], row[111], row[112], row[113], row[114]))
+            data_list.append((row[0], row[1], row[2], row[3], row[4],
+                            personcontactmatchingdictionary,
+                            row[6], row[7], row[8], row[9], row[10], row[11], row[12],
+                            facecropresourcedata_blob,
+                            row[14], row[15], row[16], row[17], row[18],
+                            row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
+                            row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35], row[36],
+                            row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45],
+                            row[46], row[47], row[48], row[49], row[50], row[51], row[52], row[53], row[54],
+                            row[55], row[56], row[57], row[58], row[59], row[60], row[61], row[62], row[63],
+                            row[64], row[65], row[66], row[67], row[68], row[69], row[70], row[71], row[72],
+                            row[73], row[74], row[75], row[76], row[77], row[78], row[79], row[80], row[81],
+                            row[82], row[83], row[84], row[85], row[86], row[87], row[88], row[89], row[90],
+                            row[91], row[92], row[93], row[94], row[95], row[96], row[97], row[98], row[99],
+                            row[100], row[101], row[102], row[103], row[104], row[105], row[106], row[107],
+                            row[108], row[109], row[110], row[111], row[112], row[113], row[114]))
 
-                counter += 1
+        data_headers = ('zDetFace-AssetForFace= zAsset-zPK-0',
+                        'zDetFace-AssetForTorso= zAsset-zPK-1',
+                        'zFaceCrop-Asset Key-2',
+                        'zDetFace-Asset For Temporal Detected Faces= zAsset-zPK-3',
+                        'zDetFacePrint-Data-SeeRawDBData-4',
+                        'zPerson-Contact Matching Dictionary-5',
+                        'zPerson-Verified Type-6',
+                        'zPerson-Is_Me_Confidence-7',
+                        'zPerson-Display Name-8',
+                        'zPerson-Full Name-9',
+                        'zPerson-Cloud Verified Type-10',
+                        'zFaceCrop-State-11',
+                        'zFaceCrop-Type-12',
+                        'zFaceCrop-Resource Data-13',
+                        'zDetFace-Confirmed Face Crop Generation State-14',
+                        'zDetFace-Manual-15',
+                        'zDetFace-Detection Type-16',
+                        'zPerson-Detection Type-17',
+                        'zDetFace-VIP Model Type-18',
+                        'zDetFace-Name Source-19',
+                        'zDetFace-Cloud Name Source-20',
+                        'zPerson-Merge Candidate Confidence-21',
+                        'zPerson-Type-22',
+                        'zPerson-Gender Type-23',
+                        'zDetFace-Gender Type-24',
+                        'zDetFace-Center X-25',
+                        'zDetFace-Center Y-26',
+                        'zPerson-Age Type Estimate-27',
+                        'zDetFace-Age Type Estimate-28',
+                        'zDetFace-Ethnicity Type-29',
+                        'zDetFace-Skin Tone Type-30',
+                        'zDetFace-Hair Type-31',
+                        'zDetFace-Hair Color Type-32',
+                        'zDetFace-Head Gear Type-33',
+                        'zDetFace-Facial Hair Type-34',
+                        'zDetFace-Has Face Mask-35',
+                        'zDetFace-Pose Type-36',
+                        'zDetFace-Face Expression Type-37',
+                        'zDetFace-Has Smile-38',
+                        'zDetFace-Smile Type-39',
+                        'zDetFace-Lip Makeup Type-40',
+                        'zDetFace-Eyes State-41',
+                        'zDetFace-Is Left Eye Closed-42',
+                        'zDetFace-Is Right Eye Closed-43',
+                        'zDetFace-Gaze Center X-44',
+                        'zDetFace-Gaze Center Y-45',
+                        'zDetFace-Face Gaze Type-46',
+                        'zDetFace-Eye Glasses Type-47',
+                        'zDetFace-Eye Makeup Type-48',
+                        'zDetFace-Cluster Sequence Number Key-49',
+                        'zDetFace-Grouping ID-50',
+                        'zDetFace-Master ID-51',
+                        'zDetFace-Quality-52',
+                        'zDetFace-Quality Measure-53',
+                        'zDetFace-Source Height-54',
+                        'zDetFace-Source Width-55',
+                        'zDetFace-Asset Visible-56',
+                        'zDetFace-Hidden/Asset Hidden-57',
+                        'zDetFace-In Trash/Recently Deleted-58',
+                        'zDetFace-Cloud Local State-59',
+                        'zDetFace-Training Type-60',
+                        'zDetFace.Pose Yaw-61',
+                        'zDetFace-Body Center X-62',
+                        'zDetFace-Body Center Y-63',
+                        'zDetFace-Body Height-64',
+                        'zDetFace-Body Width-65',
+                        'zDetFace-Roll-66',
+                        'zDetFace-Size-67',
+                        'zDetFace-Cluster Sequence Number-68',
+                        'zDetFace-Blur Score-69',
+                        'zDetFacePrint-Face Print Version-70',
+                        'zDetFaceGroup-UUID-71',
+                        'zDetFaceGroup-Person Builder State-72',
+                        'zDetFaceGroup-UnNamed Face Count-73',
+                        'zPerson-Face Count-74',
+                        'zDetFace-Face Algorithm Version-75',
+                        'zDetFace-Adjustment Version-76',
+                        'zPerson-In Person Naming Model-77',
+                        'zPerson-Key Face Pick Source Key-78',
+                        'zPerson-Manual Order Key-79',
+                        'zPerson-Question Type-80',
+                        'zPerson-Suggested For Client Type-81',
+                        'zPerson-Merge Target Person-82',
+                        'zPerson-Cloud Local State-83',
+                        'zFaceCrop-Cloud Local State-84',
+                        'zFaceCrop-Cloud Type-85',
+                        'zPerson-Cloud Delete State-86',
+                        'zFaceCrop-Cloud Delete State-87',
+                        'zDetFace-zPK-88',
+                        'zDetFacePrint-Face Key-89',
+                        'zPerson-KeyFace=zDetFace-zPK-90',
+                        'zFaceCrop-Face Key-91',
+                        'zPerson-zPK=zDetFace-Person-92',
+                        'zDetFace-PersonForFace= zPerson-zPK-93',
+                        'zDetFace-Person for Temporal Detected Faces= zPerson-zPK-94',
+                        'zDetFace-PersonForTorso= zPerson-zPK-95',
+                        'zDetFace-Person Being Key Face-96',
+                        'zFaceCrop-Person=zPerson-zPK&zDetFace-Person-Key-97',
+                        'zDetFace-Face Print-98',
+                        'zDetFacePrint-zPK-99',
+                        'zDetFace-Face Crop-100',
+                        'zFaceCrop-zPK-101',
+                        'zDetFaceGroup-KeyFace= zDetFace-zPK-102',
+                        'zDetFaceGroup-AssocPerson= zPerson-zPK-103',
+                        'zPerson-Assoc Face Group Key-104',
+                        'zDetFace-FaceGroupBeingKeyFace= zDetFaceGroup-zPK-105',
+                        'zDetFace-FaceGroup= zDetFaceGroup-zPK-106',
+                        'zDetFaceGroup-zPK-107',
+                        'zPerson-Share Participant= zSharePartic-zPK-108',
+                        'zDetFace-UUID-109',
+                        'zFaceCrop-UUID-110',
+                        'zFaceCrop-Invalid Merge Candidate Person UUID-111',
+                        'zPerson-Person UUID-112',
+                        'zPerson-Person URI-113',
+                        'zDetFaceGroup-UUID-114')
+        data_list = get_sqlite_db_records(source_path, query)
 
-            description = 'Parses data from PhotoData-Photos.sqlite for' \
-                          ' people - detected faces - face crop data. The results may contain multiple records' \
-                          ' per ZASSET table Z_PK value and supports iOS 18.'
-            report = ArtifactHtmlReport('Ph15.1-People & Faces NAD-PhDaPsql')
-            report.start_artifact_report(report_folder, 'Ph15.1-People & Faces NAD-PhDaPsql', description)
-            report.add_script()
-            data_headers = ('zDetFace-AssetForFace= zAsset-zPK-0',
-                            'zDetFace-AssetForTorso= zAsset-zPK-1',
-                            'zFaceCrop-Asset Key-2',
-                            'zDetFace-Asset For Temporal Detected Faces= zAsset-zPK-3',
-                            'zDetFacePrint-Data-SeeRawDBData-4',
-                            'zPerson-Contact Matching Dictionary-5',
-                            'zPerson-Verified Type-6',
-                            'zPerson-Is_Me_Confidence-iOS18-7',
-                            'zPerson-Display Name-8',
-                            'zPerson-Full Name-9',
-                            'zPerson-Cloud Verified Type-10',
-                            'zFaceCrop-State-11',
-                            'zFaceCrop-Type-12',
-                            'zFaceCrop-Resource Data-13',
-                            'zDetFace-Confirmed Face Crop Generation State-14',
-                            'zDetFace-Manual-15',
-                            'zDetFace-Detection Type-16',
-                            'zPerson-Detection Type-17',
-                            'zDetFace-VIP Model Type-18',
-                            'zDetFace-Name Source-19',
-                            'zDetFace-Cloud Name Source-20',
-                            'zPerson-Merge Candidate Confidence-21',
-                            'zPerson-Type-22',
-                            'zPerson-Gender Type-23',
-                            'zDetFace-Gender Type-24',
-                            'zDetFace-Center X-25',
-                            'zDetFace-Center Y-26',
-                            'zPerson-Age Type Estimate-27',
-                            'zDetFace-Age Type Estimate-28',
-                            'zDetFace-Ethnicity Type-29',
-                            'zDetFace-Skin Tone Type-30',
-                            'zDetFace-Hair Type-31',
-                            'zDetFace-Hair Color Type-32',
-                            'zDetFace-Head Gear Type-33',
-                            'zDetFace-Facial Hair Type-34',
-                            'zDetFace-Has Face Mask-35',
-                            'zDetFace-Pose Type-36',
-                            'zDetFace-Face Expression Type-37',
-                            'zDetFace-Has Smile-38',
-                            'zDetFace-Smile Type-39',
-                            'zDetFace-Lip Makeup Type-40',
-                            'zDetFace-Eyes State-41',
-                            'zDetFace-Is Left Eye Closed-42',
-                            'zDetFace-Is Right Eye Closed-43',
-                            'zDetFace-Gaze Center X-44',
-                            'zDetFace-Gaze Center Y-45',
-                            'zDetFace-Face Gaze Type-46',
-                            'zDetFace-Eye Glasses Type-47',
-                            'zDetFace-Eye Makeup Type-48',
-                            'zDetFace-Cluster Sequence Number Key-49',
-                            'zDetFace-Grouping ID-50',
-                            'zDetFace-Master ID-51',
-                            'zDetFace-Quality-52',
-                            'zDetFace-Quality Measure-53',
-                            'zDetFace-Source Height-54',
-                            'zDetFace-Source Width-55',
-                            'zDetFace-Asset Visible-56',
-                            'zDetFace-Hidden/Asset Hidden-57',
-                            'zDetFace-In Trash/Recently Deleted-58',
-                            'zDetFace-Cloud Local State-59',
-                            'zDetFace-Training Type-60',
-                            'zDetFace.Pose Yaw-61',
-                            'zDetFace-Body Center X-62',
-                            'zDetFace-Body Center Y-63',
-                            'zDetFace-Body Height-64',
-                            'zDetFace-Body Width-65',
-                            'zDetFace-Roll-66',
-                            'zDetFace-Size-67',
-                            'zDetFace-Cluster Sequence Number-68',
-                            'zDetFace-Blur Score-69',
-                            'zDetFacePrint-Face Print Version-70',
-                            'zDetFaceGroup-UUID-71',
-                            'zDetFaceGroup-Person Builder State-72',
-                            'zDetFaceGroup-UnNamed Face Count-73',
-                            'zPerson-Face Count-74',
-                            'zDetFace-Face Algorithm Version-75',
-                            'zDetFace-Adjustment Version-76',
-                            'zPerson-In Person Naming Model-77',
-                            'zPerson-Key Face Pick Source Key-78',
-                            'zPerson-Manual Order Key-79',
-                            'zPerson-Question Type-80',
-                            'zPerson-Suggested For Client Type-81',
-                            'zPerson-Merge Target Person-82',
-                            'zPerson-Cloud Local State-83',
-                            'zFaceCrop-Cloud Local State-84',
-                            'zFaceCrop-Cloud Type-85',
-                            'zPerson-Cloud Delete State-86',
-                            'zFaceCrop-Cloud Delete State-87',
-                            'zDetFace-zPK-88',
-                            'zDetFacePrint-Face Key-89',
-                            'zPerson-KeyFace=zDetFace-zPK-90',
-                            'zFaceCrop-Face Key-91',
-                            'zPerson-zPK=zDetFace-Person-92',
-                            'zDetFace-PersonForFace= zPerson-zPK-93',
-                            'zDetFace-Person for Temporal Detected Faces= zPerson-zPK-94',
-                            'zDetFace-PersonForTorso= zPerson-zPK-95',
-                            'zDetFace-Person Being Key Face-96',
-                            'zFaceCrop-Person=zPerson-zPK&zDetFace-Person-Key-97',
-                            'zDetFace-Face Print-98',
-                            'zDetFacePrint-zPK-99',
-                            'zDetFace-Face Crop-100',
-                            'zFaceCrop-zPK-101',
-                            'zDetFaceGroup-KeyFace= zDetFace-zPK-102',
-                            'zDetFaceGroup-AssocPerson= zPerson-zPK-103',
-                            'zPerson-Assoc Face Group Key-104',
-                            'zDetFace-FaceGroupBeingKeyFace= zDetFaceGroup-zPK-105',
-                            'zDetFace-FaceGroup= zDetFaceGroup-zPK-106',
-                            'zDetFaceGroup-zPK-107',
-                            'zPerson-Share Participant= zSharePartic-zPK-108',
-                            'zDetFace-UUID-109',
-                            'zFaceCrop-UUID-110',
-                            'zFaceCrop-Invalid Merge Candidate Person UUID-111',
-                            'zPerson-Person UUID-112',
-                            'zPerson-Person URI-113',
-                            'zDetFaceGroup-UUID-114')
-            report.write_artifact_data_table(data_headers, data_list, file_found)
-            report.end_artifact_report()
+        return data_headers, data_list, source_path
 
-            tsvname = 'Ph15.1-People & Faces NAD-PhDaPsql'
-            tsv(report_folder, data_headers, data_list, tsvname)
+@artifact_processor
+def Ph15_2PeopleFacesNADSyndPL(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    for source_path in files_found:
+        source_path = str(source_path)
 
-            tlactivity = 'Ph15.1-People & Faces NAD-PhDaPsql'
-            timeline(report_folder, tlactivity, data_list, data_headers)
-
-        else:
-            logfunc('No data available for PhotoData-Photos.sqlite people - detected faces - face crop data')
-
-        db.close()
-        return
-
-
-def get_ph15peopledetfacesyndpl(files_found, report_folder, seeker, wrap_text, timezone_offset):
-
-    for file_found in files_found:
-        file_found = str(file_found)
-
-        if file_found.endswith('.sqlite'):
+        if source_path.endswith('.sqlite'):
             break
 
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
-    iosversion = scripts.artifacts.artGlobals.versionf
+    iosversion = iOS.get_version()
     if version.parse(iosversion) <= version.parse("13.7"):
-        logfunc("Unsupported version for Syndication.photoslibrary-database-Photos.sqlite people - detected faces - face crop data iOS " + iosversion)
+        logfunc("Unsupported version for Syndication.photoslibrary iOS " + iosversion)
+        return (), [], source_path
     if (version.parse(iosversion) >= version.parse("14")) & (version.parse(iosversion) < version.parse("15")):
-        file_found = str(files_found[0])
-        db = open_sqlite_db_readonly(file_found)
-        cursor = db.cursor()
+        source_path = get_file_path(files_found,"Photos.sqlite")
+        if source_path is None or not os.path.exists(source_path):
+            logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
+            return (), [], source_path
+        data_list = []
 
-        cursor.execute("""
+        query = '''
         SELECT        
         zDetFace.ZASSET AS 'zDetFace-AssetForFace= zAsset-zPK',
         zFaceCrop.ZASSET AS 'zFaceCrop-Asset Key',
@@ -2972,179 +2887,158 @@ def get_ph15peopledetfacesyndpl(files_found, report_folder, seeker, wrap_text, t
             LEFT JOIN ZFACECROP zFaceCrop ON zPerson.Z_PK = zFaceCrop.ZPERSON
             LEFT JOIN ZDETECTEDFACEGROUP zDetFaceGroup ON zDetFaceGroup.Z_PK = zDetFace.ZFACEGROUP  
         ORDER BY zDetFace.Z_PK
-        """)
+        '''
 
-        all_rows = cursor.fetchall()
-        usageentries = len(all_rows)
-        data_list = []
-        counter = 0
-        if usageentries > 0:
-            for row in all_rows:
-                # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
-                personcontactmatchingdictionary = ''
-                # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
-                facecropresourcedata_blob = ''
+        db_records = get_sqlite_db_records(source_path, query)
+        for row in db_records:
+            # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
+            personcontactmatchingdictionary = ''
+            # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
+            facecropresourcedata_blob = ''
 
-                # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
-                if row[3] is not None:
-                    pathto = os.path.join(report_folder, 'zPerson-ContactMatchingDict_' + row[89] + '.plist')
-                    with open(pathto, 'ab') as wf:
-                        wf.write(row[3])
+            # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
+            if row[3] is not None:
+                pathto = os.path.join(report_folder, 'zPerson-ContactMatchingDict_' + row[89] + '.plist')
+                with open(pathto, 'ab') as wf:
+                    wf.write(row[3])
 
-                    with open(pathto, 'rb') as f:
-                        try:
-                            deserialized_plist = nd.deserialize_plist(f)
-                            personcontactmatchingdictionary = deserialized_plist
+                with open(pathto, 'rb') as f:
+                    try:
+                        deserialized_plist = nd.deserialize_plist(f)
+                        personcontactmatchingdictionary = deserialized_plist
 
-                        except (KeyError, ValueError, TypeError) as ex:
-                            if str(ex).find("does not contain an '$archiver' key") >= 0:
-                                logfunc('plist was Not an NSKeyedArchive ' + row[89])
-                            else:
-                                logfunc('Error reading exported plist from zPerson-Contact Matching Dictionary' + row[89])
+                    except (KeyError, ValueError, TypeError) as ex:
+                        if str(ex).find("does not contain an '$archiver' key") >= 0:
+                            logfunc('plist was Not an NSKeyedArchive ' + row[89])
+                        else:
+                            logfunc('Error reading exported plist from zPerson-Contact Matching Dictionary' + row[89])
 
-                # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
-                if row[10] is not None:
-                    pathto = os.path.join(report_folder, 'FaceCropFor_' + row[87] + '.jpg')
-                    with open(pathto, 'wb') as file:
-                        file.write(row[10])
-                    facecropresourcedata_blob = media_to_html(pathto, files_found, report_folder)
+            # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
+            if row[10] is not None:
+                pathto = os.path.join(report_folder, 'FaceCropFor_' + row[87] + '.jpg')
+                with open(pathto, 'wb') as file:
+                    file.write(row[10])
+                facecropresourcedata_blob = media_to_html(pathto, files_found, report_folder)
 
-                data_list.append((row[0], row[1], row[2],
-                                  personcontactmatchingdictionary,
-                                  row[4], row[5], row[6], row[7], row[8], row[9],
-                                  facecropresourcedata_blob,
-                                  row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
-                                  row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
-                                  row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35], row[36],
-                                  row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45],
-                                  row[46], row[47], row[48], row[49], row[50], row[51], row[52], row[53], row[54],
-                                  row[55], row[56], row[57], row[58], row[59], row[60], row[61], row[62], row[63],
-                                  row[64], row[65], row[66], row[67], row[68], row[69], row[70], row[71], row[72],
-                                  row[73], row[74], row[75], row[76], row[77], row[78], row[79], row[80], row[81],
-                                  row[82], row[83], row[84], row[85], row[86], row[87], row[88], row[89], row[90],
-                                  row[91]))
+            data_list.append((row[0], row[1], row[2],
+                              personcontactmatchingdictionary,
+                              row[4], row[5], row[6], row[7], row[8], row[9],
+                              facecropresourcedata_blob,
+                              row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
+                              row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
+                              row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35], row[36],
+                              row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45],
+                              row[46], row[47], row[48], row[49], row[50], row[51], row[52], row[53], row[54],
+                              row[55], row[56], row[57], row[58], row[59], row[60], row[61], row[62], row[63],
+                              row[64], row[65], row[66], row[67], row[68], row[69], row[70], row[71], row[72],
+                              row[73], row[74], row[75], row[76], row[77], row[78], row[79], row[80], row[81],
+                              row[82], row[83], row[84], row[85], row[86], row[87], row[88], row[89], row[90],
+                              row[91]))
 
-                counter += 1
+        data_headers = ('zDetFace-AssetForFace= zAsset-zPK-0',
+                        'zFaceCrop-Asset Key-1',
+                        'zDetFacePrint-Data-SeeRawDBData-2',
+                        'zPerson-Contact Matching Dictionary-3',
+                        'zPerson-Verified Type-4',
+                        'zPerson-Display Name-5',
+                        'zPerson-Full Name-6',
+                        'zPerson-Cloud Verified Type-7',
+                        'zFaceCrop-State-8',
+                        'zFaceCrop-Type-9',
+                        'zFaceCrop-Resource Data-10',
+                        'zDetFace-Confirmed Face Crop Generation State-11',
+                        'zDetFace-Manual-12',
+                        'zDetFace-VIP Model Type-13',
+                        'zDetFace-Name Source-14',
+                        'zDetFace-Cloud Name Source-15',
+                        'zPerson-Type-16',
+                        'zPerson-Gender Type-17',
+                        'zDetFace-Gender Type-18',
+                        'zDetFace-Center X-19',
+                        'zDetFace-Center Y-20',
+                        'zPerson-Age Type Estimate-21',
+                        'zDetFace-Age Type Estimate-22',
+                        'zDetFace-Hair Color Type-23',
+                        'zDetFace-Facial Hair Type-24',
+                        'zDetFace-Has Smile-25',
+                        'zDetFace-Smile Type-26',
+                        'zDetFace-Lip Makeup Type-27',
+                        'zDetFace-Eyes State-28',
+                        'zDetFace-Is Left Eye Closed-29',
+                        'zDetFace-Is Right Eye Closed-30',
+                        'zDetFace-Eye Glasses Type-31',
+                        'zDetFace-Eye Makeup Type-32',
+                        'zDetFace-Cluster Sequence Number Key-33',
+                        'zDetFace-Grouping ID-34',
+                        'zDetFace-Master ID-35',
+                        'zDetFace-Quality-36',
+                        'zDetFace-Quality Measure-37',
+                        'zDetFace-Source Height-38',
+                        'zDetFace-Source Width-39',
+                        'zDetFace-Asset Visible-40',
+                        'zDetFace-Hidden/Asset Hidden-41',
+                        'zDetFace-In Trash/Recently Deleted-42',
+                        'zDetFace-Cloud Local State-43',
+                        'zDetFace-Training Type-44',
+                        'zDetFace.Pose Yaw-45',
+                        'zDetFace-Roll-46',
+                        'zDetFace-Size-47',
+                        'zDetFace-Cluster Sequence Number-48',
+                        'zDetFace-Blur Score-49',
+                        'zDetFacePrint-Face Print Version-50',
+                        'zDetFaceGroup-UUID-51',
+                        'zDetFaceGroup-Person Builder State-52',
+                        'zDetFaceGroup-UnNamed Face Count-53',
+                        'zPerson-Face Count-54',
+                        'zDetFace-Face Algorithm Version-55',
+                        'zDetFace-Adjustment Version-56',
+                        'zPerson-In Person Naming Model-57',
+                        'zPerson-Key Face Pick Source Key-58',
+                        'zPerson-Manual Order Key-59',
+                        'zPerson-Question Type-60',
+                        'zPerson-Suggested For Client Type-61',
+                        'zPerson-Merge Target Person-62',
+                        'zPerson-Cloud Local State-63',
+                        'zFaceCrop-Cloud Local State-64',
+                        'zFaceCrop-Cloud Type-65',
+                        'zPerson-Cloud Delete State-66',
+                        'zFaceCrop-Cloud Delete State-67',
+                        'zDetFace-zPK-68',
+                        'zDetFacePrint-Face Key-69',
+                        'zPerson-KeyFace=zDetFace-zPK-70',
+                        'zFaceCrop-Face Key-71',
+                        'zPerson-zPK=zDetFace-Person-72',
+                        'zDetFace-PersonForFace= zPerson-zPK-73',
+                        'zDetFace-Person Being Key Face-74',
+                        'zFaceCrop-Person=zPerson-zPK&zDetFace-Person-Key-75',
+                        'zDetFace-Face Print-76',
+                        'zDetFacePrint-zPK-77',
+                        'zDetFace-Face Crop-78',
+                        'zFaceCrop-zPK-79',
+                        'zDetFaceGroup-KeyFace= zDetFace-zPK-80',
+                        'zDetFaceGroup-AssocPerson= zPerson-zPK-81',
+                        'zPerson-Assoc Face Group Key-82',
+                        'zDetFace-FaceGroupBeingKeyFace= zDetFaceGroup-zPK-83',
+                        'zDetFace-FaceGroup= zDetFaceGroup-zPK-84',
+                        'zDetFaceGroup-zPK-85',
+                        'zDetFace-UUID-86',
+                        'zFaceCrop-UUID-87',
+                        'zFaceCrop-Invalid Merge Candidate Person UUID-88',
+                        'zPerson-Person UUID-89',
+                        'zPerson-Person URI-90',
+                        'zDetFaceGroup-UUID-91')
+        data_list = get_sqlite_db_records(source_path, query)
 
-            description = 'Parses data from Syndication.photoslibrary-database-Photos.sqlite for' \
-                          ' people - detected faces - face crop data. The results may contain multiple records' \
-                          ' per ZASSET table Z_PK value and supports iOS 14.'
-            report = ArtifactHtmlReport('Ph15.2-People & Faces NAD-SyndPL')
-            report.start_artifact_report(report_folder, 'Ph15.2-People & Faces NAD-SyndPL', description)
-            report.add_script()
-            data_headers = ('zDetFace-AssetForFace= zAsset-zPK-0',
-                            'zFaceCrop-Asset Key-1',
-                            'zDetFacePrint-Data-SeeRawDBData-2',
-                            'zPerson-Contact Matching Dictionary-3',
-                            'zPerson-Verified Type-4',
-                            'zPerson-Display Name-5',
-                            'zPerson-Full Name-6',
-                            'zPerson-Cloud Verified Type-7',
-                            'zFaceCrop-State-8',
-                            'zFaceCrop-Type-9',
-                            'zFaceCrop-Resource Data-10',
-                            'zDetFace-Confirmed Face Crop Generation State-11',
-                            'zDetFace-Manual-12',
-                            'zDetFace-VIP Model Type-13',
-                            'zDetFace-Name Source-14',
-                            'zDetFace-Cloud Name Source-15',
-                            'zPerson-Type-16',
-                            'zPerson-Gender Type-17',
-                            'zDetFace-Gender Type-18',
-                            'zDetFace-Center X-19',
-                            'zDetFace-Center Y-20',
-                            'zPerson-Age Type Estimate-21',
-                            'zDetFace-Age Type Estimate-22',
-                            'zDetFace-Hair Color Type-23',
-                            'zDetFace-Facial Hair Type-24',
-                            'zDetFace-Has Smile-25',
-                            'zDetFace-Smile Type-26',
-                            'zDetFace-Lip Makeup Type-27',
-                            'zDetFace-Eyes State-28',
-                            'zDetFace-Is Left Eye Closed-29',
-                            'zDetFace-Is Right Eye Closed-30',
-                            'zDetFace-Eye Glasses Type-31',
-                            'zDetFace-Eye Makeup Type-32',
-                            'zDetFace-Cluster Sequence Number Key-33',
-                            'zDetFace-Grouping ID-34',
-                            'zDetFace-Master ID-35',
-                            'zDetFace-Quality-36',
-                            'zDetFace-Quality Measure-37',
-                            'zDetFace-Source Height-38',
-                            'zDetFace-Source Width-39',
-                            'zDetFace-Asset Visible-40',
-                            'zDetFace-Hidden/Asset Hidden-41',
-                            'zDetFace-In Trash/Recently Deleted-42',
-                            'zDetFace-Cloud Local State-43',
-                            'zDetFace-Training Type-44',
-                            'zDetFace.Pose Yaw-45',
-                            'zDetFace-Roll-46',
-                            'zDetFace-Size-47',
-                            'zDetFace-Cluster Sequence Number-48',
-                            'zDetFace-Blur Score-49',
-                            'zDetFacePrint-Face Print Version-50',
-                            'zDetFaceGroup-UUID-51',
-                            'zDetFaceGroup-Person Builder State-52',
-                            'zDetFaceGroup-UnNamed Face Count-53',
-                            'zPerson-Face Count-54',
-                            'zDetFace-Face Algorithm Version-55',
-                            'zDetFace-Adjustment Version-56',
-                            'zPerson-In Person Naming Model-57',
-                            'zPerson-Key Face Pick Source Key-58',
-                            'zPerson-Manual Order Key-59',
-                            'zPerson-Question Type-60',
-                            'zPerson-Suggested For Client Type-61',
-                            'zPerson-Merge Target Person-62',
-                            'zPerson-Cloud Local State-63',
-                            'zFaceCrop-Cloud Local State-64',
-                            'zFaceCrop-Cloud Type-65',
-                            'zPerson-Cloud Delete State-66',
-                            'zFaceCrop-Cloud Delete State-67',
-                            'zDetFace-zPK-68',
-                            'zDetFacePrint-Face Key-69',
-                            'zPerson-KeyFace=zDetFace-zPK-70',
-                            'zFaceCrop-Face Key-71',
-                            'zPerson-zPK=zDetFace-Person-72',
-                            'zDetFace-PersonForFace= zPerson-zPK-73',
-                            'zDetFace-Person Being Key Face-74',
-                            'zFaceCrop-Person=zPerson-zPK&zDetFace-Person-Key-75',
-                            'zDetFace-Face Print-76',
-                            'zDetFacePrint-zPK-77',
-                            'zDetFace-Face Crop-78',
-                            'zFaceCrop-zPK-79',
-                            'zDetFaceGroup-KeyFace= zDetFace-zPK-80',
-                            'zDetFaceGroup-AssocPerson= zPerson-zPK-81',
-                            'zPerson-Assoc Face Group Key-82',
-                            'zDetFace-FaceGroupBeingKeyFace= zDetFaceGroup-zPK-83',
-                            'zDetFace-FaceGroup= zDetFaceGroup-zPK-84',
-                            'zDetFaceGroup-zPK-85',
-                            'zDetFace-UUID-86',
-                            'zFaceCrop-UUID-87',
-                            'zFaceCrop-Invalid Merge Candidate Person UUID-88',
-                            'zPerson-Person UUID-89',
-                            'zPerson-Person URI-90',
-                            'zDetFaceGroup-UUID-91')
-            report.write_artifact_data_table(data_headers, data_list, file_found)
-            report.end_artifact_report()
-
-            tsvname = 'Ph15.2-People & Faces NAD-SyndPL'
-            tsv(report_folder, data_headers, data_list, tsvname)
-
-            tlactivity = 'Ph15.2-People & Faces NAD-SyndPL'
-            timeline(report_folder, tlactivity, data_list, data_headers)
-
-        else:
-            logfunc('No data available for Syndication.photoslibrary-database-Photos.sqlite people - detected faces - face crop data')
-
-        db.close()
-        return
+        return data_headers, data_list, source_path
 
     elif (version.parse(iosversion) >= version.parse("15")) & (version.parse(iosversion) < version.parse("16")):
-        file_found = str(files_found[0])
-        db = open_sqlite_db_readonly(file_found)
-        cursor = db.cursor()
+        source_path = get_file_path(files_found,"Photos.sqlite")
+        if source_path is None or not os.path.exists(source_path):
+            logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
+            return (), [], source_path
+        data_list = []
 
-        cursor.execute("""
+        query = '''
         SELECT        
         zDetFace.ZASSET AS 'zDetFace-AssetForFace= zAsset-zPK',
         zFaceCrop.ZASSET AS 'zFaceCrop-Asset Key',
@@ -3500,196 +3394,175 @@ def get_ph15peopledetfacesyndpl(files_found, report_folder, seeker, wrap_text, t
             LEFT JOIN ZFACECROP zFaceCrop ON zPerson.Z_PK = zFaceCrop.ZPERSON
             LEFT JOIN ZDETECTEDFACEGROUP zDetFaceGroup ON zDetFaceGroup.Z_PK = zDetFace.ZFACEGROUP  
         ORDER BY zDetFace.Z_PK
-        """)
+        '''
 
-        all_rows = cursor.fetchall()
-        usageentries = len(all_rows)
-        data_list = []
-        counter = 0
-        if usageentries > 0:
-            for row in all_rows:
-                # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
-                personcontactmatchingdictionary = ''
-                # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
-                facecropresourcedata_blob = ''
+        db_records = get_sqlite_db_records(source_path, query)
+        for row in db_records:
+            # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
+            personcontactmatchingdictionary = ''
+            # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
+            facecropresourcedata_blob = ''
 
-                # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
-                if row[3] is not None:
-                    pathto = os.path.join(report_folder, 'zPerson-ContactMatchingDict_' + row[105] + '.plist')
-                    with open(pathto, 'ab') as wf:
-                        wf.write(row[3])
+            # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
+            if row[3] is not None:
+                pathto = os.path.join(report_folder, 'zPerson-ContactMatchingDict_' + row[105] + '.plist')
+                with open(pathto, 'ab') as wf:
+                    wf.write(row[3])
 
-                    with open(pathto, 'rb') as f:
-                        try:
-                            deserialized_plist = nd.deserialize_plist(f)
-                            personcontactmatchingdictionary = deserialized_plist
+                with open(pathto, 'rb') as f:
+                    try:
+                        deserialized_plist = nd.deserialize_plist(f)
+                        personcontactmatchingdictionary = deserialized_plist
 
-                        except (KeyError, ValueError, TypeError) as ex:
-                            if str(ex).find("does not contain an '$archiver' key") >= 0:
-                                logfunc('plist was Not an NSKeyedArchive ' + row[105])
-                            else:
-                                logfunc('Error reading exported plist from zPerson-Contact Matching Dictionary' + row[105])
+                    except (KeyError, ValueError, TypeError) as ex:
+                        if str(ex).find("does not contain an '$archiver' key") >= 0:
+                            logfunc('plist was Not an NSKeyedArchive ' + row[105])
+                        else:
+                            logfunc('Error reading exported plist from zPerson-Contact Matching Dictionary' + row[105])
 
-                # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
-                if row[10] is not None:
-                    pathto = os.path.join(report_folder, 'FaceCropFor_' + row[103] + '.jpg')
-                    with open(pathto, 'wb') as file:
-                        file.write(row[10])
-                    facecropresourcedata_blob = media_to_html(pathto, files_found, report_folder)
+            # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
+            if row[10] is not None:
+                pathto = os.path.join(report_folder, 'FaceCropFor_' + row[103] + '.jpg')
+                with open(pathto, 'wb') as file:
+                    file.write(row[10])
+                facecropresourcedata_blob = media_to_html(pathto, files_found, report_folder)
 
-                data_list.append((row[0], row[1], row[2],
-                                  personcontactmatchingdictionary,
-                                  row[4], row[5], row[6], row[7], row[8], row[9],
-                                  facecropresourcedata_blob,
-                                  row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
-                                  row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
-                                  row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35], row[36],
-                                  row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45],
-                                  row[46], row[47], row[48], row[49], row[50], row[51], row[52], row[53], row[54],
-                                  row[55], row[56], row[57], row[58], row[59], row[60], row[61], row[62], row[63],
-                                  row[64], row[65], row[66], row[67], row[68], row[69], row[70], row[71], row[72],
-                                  row[73], row[74], row[75], row[76], row[77], row[78], row[79], row[80], row[81],
-                                  row[82], row[83], row[84], row[85], row[86], row[87], row[88], row[89], row[90],
-                                  row[91], row[92], row[93], row[94], row[95], row[96], row[97], row[98], row[99],
-                                  row[100], row[101], row[102], row[103], row[104], row[105], row[106], row[107]))
+            data_list.append((row[0], row[1], row[2],
+                              personcontactmatchingdictionary,
+                              row[4], row[5], row[6], row[7], row[8], row[9],
+                              facecropresourcedata_blob,
+                              row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
+                              row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
+                              row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35], row[36],
+                              row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45],
+                              row[46], row[47], row[48], row[49], row[50], row[51], row[52], row[53], row[54],
+                              row[55], row[56], row[57], row[58], row[59], row[60], row[61], row[62], row[63],
+                              row[64], row[65], row[66], row[67], row[68], row[69], row[70], row[71], row[72],
+                              row[73], row[74], row[75], row[76], row[77], row[78], row[79], row[80], row[81],
+                              row[82], row[83], row[84], row[85], row[86], row[87], row[88], row[89], row[90],
+                              row[91], row[92], row[93], row[94], row[95], row[96], row[97], row[98], row[99],
+                              row[100], row[101], row[102], row[103], row[104], row[105], row[106], row[107]))
 
-                counter += 1
+        data_headers = ('zDetFace-AssetForFace= zAsset-zPK-0',
+                        'zFaceCrop-Asset Key-1',
+                        'zDetFacePrint-Data-SeeRawDBData-2',
+                        'zPerson-Contact Matching Dictionary-3',
+                        'zPerson-Verified Type-4',
+                        'zPerson-Display Name-5',
+                        'zPerson-Full Name-6',
+                        'zPerson-Cloud Verified Type-7',
+                        'zFaceCrop-State-8',
+                        'zFaceCrop-Type-9',
+                        'zFaceCrop-Resource Data-10',
+                        'zDetFace-Confirmed Face Crop Generation State-11',
+                        'zDetFace-Manual-12',
+                        'zDetFace-Detection Type-13',
+                        'zPerson-Detection Type-14',
+                        'zDetFace-VIP Model Type-15',
+                        'zDetFace-Name Source-16',
+                        'zDetFace-Cloud Name Source-17',
+                        'zPerson-Type-18',
+                        'zPerson-Gender Type-19',
+                        'zDetFace-Gender Type-20',
+                        'zDetFace-Center X-21',
+                        'zDetFace-Center Y-22',
+                        'zPerson-Age Type Estimate-23',
+                        'zDetFace-Age Type Estimate-24',
+                        'zDetFace-Ethnicity Type-25',
+                        'zDetFace-Skin Tone Type-26',
+                        'zDetFace-Hair Type-27',
+                        'zDetFace-Hair Color Type-28',
+                        'zDetFace-Head Gear Type-29',
+                        'zDetFace-Facial Hair Type-30',
+                        'zDetFace-Has Face Mask-31',
+                        'zDetFace-Pose Type-32',
+                        'zDetFace-Face Expression Type-33',
+                        'zDetFace-Has Smile-34',
+                        'zDetFace-Smile Type-35',
+                        'zDetFace-Lip Makeup Type-36',
+                        'zDetFace-Eyes State-37',
+                        'zDetFace-Is Left Eye Closed-38',
+                        'zDetFace-Is Right Eye Closed-39',
+                        'zDetFace-Gaze Center X-40',
+                        'zDetFace-Gaze Center Y-41',
+                        'zDetFace-Face Gaze Type-42',
+                        'zDetFace-Eye Glasses Type-43',
+                        'zDetFace-Eye Makeup Type-44',
+                        'zDetFace-Cluster Squence Number Key-45',
+                        'zDetFace-Grouping ID-46',
+                        'zDetFace-Master ID-47',
+                        'zDetFace-Quality-48',
+                        'zDetFace-Quality Measure-49',
+                        'zDetFace-Source Height-50',
+                        'zDetFace-Source Width-51',
+                        'zDetFace-Asset Visible-52',
+                        'zDetFace-Hidden/Asset Hidden-53',
+                        'zDetFace-In Trash/Recently Deleted-54',
+                        'zDetFace-Cloud Local State-55',
+                        'zDetFace-Training Type-56',
+                        'zDetFace.Pose Yaw-57',
+                        'zDetFace-Body Center X-58',
+                        'zDetFace-Body Center Y-59',
+                        'zDetFace-Body Height-60',
+                        'zDetFace-Body Width-61',
+                        'zDetFace-Roll-62',
+                        'zDetFace-Size-63',
+                        'zDetFace-Cluster Squence Number-64',
+                        'zDetFace-Blur Score-65',
+                        'zDetFacePrint-Face Print Version-66',
+                        'zDetFaceGroup-UUID-67',
+                        'zDetFaceGroup-Person Builder State-68',
+                        'zDetFaceGroup-UnNamed Face Count-69',
+                        'zPerson-Face Count-70',
+                        'zDetFace-Face Algorithm Version-71',
+                        'zDetFace-Adjustment Version-72',
+                        'zPerson-In Person Naming Model-73',
+                        'zPerson-Key Face Pick Source Key-74',
+                        'zPerson-Manual Order Key-75',
+                        'zPerson-Question Type-76',
+                        'zPerson-Suggested For Client Type-77',
+                        'zPerson-Merge Target Person-78',
+                        'zPerson-Cloud Local State-79',
+                        'zFaceCrop-Cloud Local State-80',
+                        'zFaceCrop-Cloud Type-81',
+                        'zPerson-Cloud Delete State-82',
+                        'zFaceCrop-Cloud Delete State-83',
+                        'zDetFace-zPK-84',
+                        'zDetFacePrint-Face Key-85',
+                        'zPerson-KeyFace=zDetFace-zPK-86',
+                        'zFaceCrop-Face Key-87',
+                        'zPerson-zPK=zDetFace-Person-88',
+                        'zDetFace-PersonForFace= zPerson-zPK-89',
+                        'zDetFace-Person Being Key Face-90',
+                        'zFaceCrop-Person=zPerson-zPK&zDetFace-Person-Key-91',
+                        'zDetFace-Face Print-92',
+                        'zDetFacePrint-zPK-93',
+                        'zDetFace-Face Crop-94',
+                        'zFaceCrop-zPK-95',
+                        'zDetFaceGroup-KeyFace= zDetFace-zPK-96',
+                        'zDetFaceGroup-AssocPerson= zPerson-zPK-97',
+                        'zPerson-Assoc Face Group Key-98',
+                        'zDetFace-FaceGroupBeingKeyFace= zDetFaceGroup-zPK-99',
+                        'zDetFace-FaceGroup= zDetFaceGroup-zPK-100',
+                        'zDetFaceGroup-zPK-101',
+                        'zDetFace-UUID-102',
+                        'zFaceCrop-UUID-103',
+                        'zFaceCrop-Invalid Merge Canidate Person UUID-104',
+                        'zPerson-Person UUID-105',
+                        'zPerson-Person URI-106',
+                        'zDetFaceGroup-UUID-107')
+        data_list = get_sqlite_db_records(source_path, query)
 
-            description = 'Parses data from Syndication.photoslibrary-database-Photos.sqlite for' \
-                          ' people - detected faces - face crop data. The results may contain multiple records' \
-                          ' per ZASSET table Z_PK value and supports iOS 15.'
-            report = ArtifactHtmlReport('Ph15.2-People & Faces NAD-SyndPL')
-            report.start_artifact_report(report_folder, 'Ph15.2-People & Faces NAD-SyndPL', description)
-            report.add_script()
-            data_headers = ('zDetFace-AssetForFace= zAsset-zPK-0',
-                            'zFaceCrop-Asset Key-1',
-                            'zDetFacePrint-Data-SeeRawDBData-2',
-                            'zPerson-Contact Matching Dictionary-3',
-                            'zPerson-Verified Type-4',
-                            'zPerson-Display Name-5',
-                            'zPerson-Full Name-6',
-                            'zPerson-Cloud Verified Type-7',
-                            'zFaceCrop-State-8',
-                            'zFaceCrop-Type-9',
-                            'zFaceCrop-Resource Data-10',
-                            'zDetFace-Confirmed Face Crop Generation State-11',
-                            'zDetFace-Manual-12',
-                            'zDetFace-Detection Type-13',
-                            'zPerson-Detection Type-14',
-                            'zDetFace-VIP Model Type-15',
-                            'zDetFace-Name Source-16',
-                            'zDetFace-Cloud Name Source-17',
-                            'zPerson-Type-18',
-                            'zPerson-Gender Type-19',
-                            'zDetFace-Gender Type-20',
-                            'zDetFace-Center X-21',
-                            'zDetFace-Center Y-22',
-                            'zPerson-Age Type Estimate-23',
-                            'zDetFace-Age Type Estimate-24',
-                            'zDetFace-Ethnicity Type-25',
-                            'zDetFace-Skin Tone Type-26',
-                            'zDetFace-Hair Type-27',
-                            'zDetFace-Hair Color Type-28',
-                            'zDetFace-Head Gear Type-29',
-                            'zDetFace-Facial Hair Type-30',
-                            'zDetFace-Has Face Mask-31',
-                            'zDetFace-Pose Type-32',
-                            'zDetFace-Face Expression Type-33',
-                            'zDetFace-Has Smile-34',
-                            'zDetFace-Smile Type-35',
-                            'zDetFace-Lip Makeup Type-36',
-                            'zDetFace-Eyes State-37',
-                            'zDetFace-Is Left Eye Closed-38',
-                            'zDetFace-Is Right Eye Closed-39',
-                            'zDetFace-Gaze Center X-40',
-                            'zDetFace-Gaze Center Y-41',
-                            'zDetFace-Face Gaze Type-42',
-                            'zDetFace-Eye Glasses Type-43',
-                            'zDetFace-Eye Makeup Type-44',
-                            'zDetFace-Cluster Squence Number Key-45',
-                            'zDetFace-Grouping ID-46',
-                            'zDetFace-Master ID-47',
-                            'zDetFace-Quality-48',
-                            'zDetFace-Quality Measure-49',
-                            'zDetFace-Source Height-50',
-                            'zDetFace-Source Width-51',
-                            'zDetFace-Asset Visible-52',
-                            'zDetFace-Hidden/Asset Hidden-53',
-                            'zDetFace-In Trash/Recently Deleted-54',
-                            'zDetFace-Cloud Local State-55',
-                            'zDetFace-Training Type-56',
-                            'zDetFace.Pose Yaw-57',
-                            'zDetFace-Body Center X-58',
-                            'zDetFace-Body Center Y-59',
-                            'zDetFace-Body Height-60',
-                            'zDetFace-Body Width-61',
-                            'zDetFace-Roll-62',
-                            'zDetFace-Size-63',
-                            'zDetFace-Cluster Squence Number-64',
-                            'zDetFace-Blur Score-65',
-                            'zDetFacePrint-Face Print Version-66',
-                            'zDetFaceGroup-UUID-67',
-                            'zDetFaceGroup-Person Builder State-68',
-                            'zDetFaceGroup-UnNamed Face Count-69',
-                            'zPerson-Face Count-70',
-                            'zDetFace-Face Algorithm Version-71',
-                            'zDetFace-Adjustment Version-72',
-                            'zPerson-In Person Naming Model-73',
-                            'zPerson-Key Face Pick Source Key-74',
-                            'zPerson-Manual Order Key-75',
-                            'zPerson-Question Type-76',
-                            'zPerson-Suggested For Client Type-77',
-                            'zPerson-Merge Target Person-78',
-                            'zPerson-Cloud Local State-79',
-                            'zFaceCrop-Cloud Local State-80',
-                            'zFaceCrop-Cloud Type-81',
-                            'zPerson-Cloud Delete State-82',
-                            'zFaceCrop-Cloud Delete State-83',
-                            'zDetFace-zPK-84',
-                            'zDetFacePrint-Face Key-85',
-                            'zPerson-KeyFace=zDetFace-zPK-86',
-                            'zFaceCrop-Face Key-87',
-                            'zPerson-zPK=zDetFace-Person-88',
-                            'zDetFace-PersonForFace= zPerson-zPK-89',
-                            'zDetFace-Person Being Key Face-90',
-                            'zFaceCrop-Person=zPerson-zPK&zDetFace-Person-Key-91',
-                            'zDetFace-Face Print-92',
-                            'zDetFacePrint-zPK-93',
-                            'zDetFace-Face Crop-94',
-                            'zFaceCrop-zPK-95',
-                            'zDetFaceGroup-KeyFace= zDetFace-zPK-96',
-                            'zDetFaceGroup-AssocPerson= zPerson-zPK-97',
-                            'zPerson-Assoc Face Group Key-98',
-                            'zDetFace-FaceGroupBeingKeyFace= zDetFaceGroup-zPK-99',
-                            'zDetFace-FaceGroup= zDetFaceGroup-zPK-100',
-                            'zDetFaceGroup-zPK-101',
-                            'zDetFace-UUID-102',
-                            'zFaceCrop-UUID-103',
-                            'zFaceCrop-Invalid Merge Canidate Person UUID-104',
-                            'zPerson-Person UUID-105',
-                            'zPerson-Person URI-106',
-                            'zDetFaceGroup-UUID-107')
-            report.write_artifact_data_table(data_headers, data_list, file_found)
-            report.end_artifact_report()
-
-            tsvname = 'Ph15.2-People & Faces NAD-SyndPL'
-            tsv(report_folder, data_headers, data_list, tsvname)
-
-            tlactivity = 'Ph15.2-People & Faces NAD-SyndPL'
-            timeline(report_folder, tlactivity, data_list, data_headers)
-
-        else:
-            logfunc('No data available for Syndication.photoslibrary-database-Photos.sqlite people - detected faces - face crop data')
-
-        db.close()
-        return
+        return data_headers, data_list, source_path
 
     elif (version.parse(iosversion) >= version.parse("16")) & (version.parse(iosversion) < version.parse("17")):
-        file_found = str(files_found[0])
-        db = open_sqlite_db_readonly(file_found)
-        cursor = db.cursor()
+        source_path = get_file_path(files_found,"Photos.sqlite")
+        if source_path is None or not os.path.exists(source_path):
+            logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
+            return (), [], source_path
+        data_list = []
 
-        cursor.execute("""
+        query = '''
         SELECT        
         zDetFace.ZASSET AS 'zDetFace-AssetForFace= zAsset-zPK',
         zFaceCrop.ZASSET AS 'zFaceCrop-Asset Key',
@@ -4047,199 +3920,178 @@ def get_ph15peopledetfacesyndpl(files_found, report_folder, seeker, wrap_text, t
             LEFT JOIN ZFACECROP zFaceCrop ON zPerson.Z_PK = zFaceCrop.ZPERSON
             LEFT JOIN ZDETECTEDFACEGROUP zDetFaceGroup ON zDetFaceGroup.Z_PK = zDetFace.ZFACEGROUP  
         ORDER BY zDetFace.Z_PK
-        """)
+        '''
 
-        all_rows = cursor.fetchall()
-        usageentries = len(all_rows)
-        data_list = []
-        counter = 0
-        if usageentries > 0:
-            for row in all_rows:
-                # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
-                personcontactmatchingdictionary = ''
-                # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
-                facecropresourcedata_blob = ''
+        db_records = get_sqlite_db_records(source_path, query)
+        for row in db_records:
+            # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
+            personcontactmatchingdictionary = ''
+            # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
+            facecropresourcedata_blob = ''
 
-                # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
-                if row[3] is not None:
-                    pathto = os.path.join(report_folder, 'zPerson-ContactMatchingDict_' + row[107] + '.plist')
-                    with open(pathto, 'ab') as wf:
-                        wf.write(row[3])
+            # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
+            if row[3] is not None:
+                pathto = os.path.join(report_folder, 'zPerson-ContactMatchingDict_' + row[107] + '.plist')
+                with open(pathto, 'ab') as wf:
+                    wf.write(row[3])
 
-                    with open(pathto, 'rb') as f:
-                        try:
-                            deserialized_plist = nd.deserialize_plist(f)
-                            personcontactmatchingdictionary = deserialized_plist
+                with open(pathto, 'rb') as f:
+                    try:
+                        deserialized_plist = nd.deserialize_plist(f)
+                        personcontactmatchingdictionary = deserialized_plist
 
-                        except (KeyError, ValueError, TypeError) as ex:
-                            if str(ex).find("does not contain an '$archiver' key") >= 0:
-                                logfunc('plist was Not an NSKeyedArchive ' + row[107])
-                            else:
-                                logfunc('Error reading exported plist from zPerson-Contact Matching Dictionary' + row[107])
+                    except (KeyError, ValueError, TypeError) as ex:
+                        if str(ex).find("does not contain an '$archiver' key") >= 0:
+                            logfunc('plist was Not an NSKeyedArchive ' + row[107])
+                        else:
+                            logfunc('Error reading exported plist from zPerson-Contact Matching Dictionary' + row[107])
 
-                # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
-                if row[10] is not None:
-                    pathto = os.path.join(report_folder, 'FaceCropFor_' + row[105] + '.jpg')
-                    with open(pathto, 'wb') as file:
-                        file.write(row[10])
-                    facecropresourcedata_blob = media_to_html(pathto, files_found, report_folder)
+            # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
+            if row[10] is not None:
+                pathto = os.path.join(report_folder, 'FaceCropFor_' + row[105] + '.jpg')
+                with open(pathto, 'wb') as file:
+                    file.write(row[10])
+                facecropresourcedata_blob = media_to_html(pathto, files_found, report_folder)
 
-                data_list.append((row[0], row[1], row[2],
-                                  personcontactmatchingdictionary,
-                                  row[4], row[5], row[6], row[7], row[8], row[9],
-                                  facecropresourcedata_blob,
-                                  row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
-                                  row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
-                                  row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35], row[36],
-                                  row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45],
-                                  row[46], row[47], row[48], row[49], row[50], row[51], row[52], row[53], row[54],
-                                  row[55], row[56], row[57], row[58], row[59], row[60], row[61], row[62], row[63],
-                                  row[64], row[65], row[66], row[67], row[68], row[69], row[70], row[71], row[72],
-                                  row[73], row[74], row[75], row[76], row[77], row[78], row[79], row[80], row[81],
-                                  row[82], row[83], row[84], row[85], row[86], row[87], row[88], row[89], row[90],
-                                  row[91], row[92], row[93], row[94], row[95], row[96], row[97], row[98], row[99],
-                                  row[100], row[101], row[102], row[103], row[104], row[105], row[106], row[107],
-                                  row[108], row[109]))
+            data_list.append((row[0], row[1], row[2],
+                              personcontactmatchingdictionary,
+                              row[4], row[5], row[6], row[7], row[8], row[9],
+                              facecropresourcedata_blob,
+                              row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
+                              row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
+                              row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35], row[36],
+                              row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45],
+                              row[46], row[47], row[48], row[49], row[50], row[51], row[52], row[53], row[54],
+                              row[55], row[56], row[57], row[58], row[59], row[60], row[61], row[62], row[63],
+                              row[64], row[65], row[66], row[67], row[68], row[69], row[70], row[71], row[72],
+                              row[73], row[74], row[75], row[76], row[77], row[78], row[79], row[80], row[81],
+                              row[82], row[83], row[84], row[85], row[86], row[87], row[88], row[89], row[90],
+                              row[91], row[92], row[93], row[94], row[95], row[96], row[97], row[98], row[99],
+                              row[100], row[101], row[102], row[103], row[104], row[105], row[106], row[107],
+                              row[108], row[109]))
 
-                counter += 1
+        data_headers = ('zDetFace-AssetForFace= zAsset-zPK-0',
+                        'zFaceCrop-Asset Key-1',
+                        'zDetFacePrint-Data-SeeRawDBData-2',
+                        'zPerson-Contact Matching Dictionary-3',
+                        'zPerson-Verified Type-4',
+                        'zPerson-Display Name-5',
+                        'zPerson-Full Name-6',
+                        'zPerson-Cloud Verified Type-7',
+                        'zFaceCrop-State-8',
+                        'zFaceCrop-Type-9',
+                        'zFaceCrop-Resource Data-10',
+                        'zDetFace-Confirmed Face Crop Generation State-11',
+                        'zDetFace-Manual-12',
+                        'zDetFace-Detection Type-13',
+                        'zPerson-Detection Type-14',
+                        'zDetFace-VIP Model Type-15',
+                        'zDetFace-Name Source-16',
+                        'zDetFace-Cloud Name Source-17',
+                        'zPerson-Merge Candidate Confidence-18',
+                        'zPerson-Type-19',
+                        'zPerson-Gender Type-20',
+                        'zDetFace-Gender Type-21',
+                        'zDetFace-Center X-22',
+                        'zDetFace-Center Y-23',
+                        'zPerson-Age Type Estimate-24',
+                        'zDetFace-Age Type Estimate-25',
+                        'zDetFace-Ethnicity Type-26',
+                        'zDetFace-Skin Tone Type-27',
+                        'zDetFace-Hair Type-28',
+                        'zDetFace-Hair Color Type-29',
+                        'zDetFace-Head Gear Type-30',
+                        'zDetFace-Facial Hair Type-31',
+                        'zDetFace-Has Face Mask-32',
+                        'zDetFace-Pose Type-33',
+                        'zDetFace-Face Expression Type-34',
+                        'zDetFace-Has Smile-35',
+                        'zDetFace-Smile Type-36',
+                        'zDetFace-Lip Makeup Type-37',
+                        'zDetFace-Eyes State-38',
+                        'zDetFace-Is Left Eye Closed-39',
+                        'zDetFace-Is Right Eye Closed-40',
+                        'zDetFace-Gaze Center X-41',
+                        'zDetFace-Gaze Center Y-42',
+                        'zDetFace-Face Gaze Type-43',
+                        'zDetFace-Eye Glasses Type-44',
+                        'zDetFace-Eye Makeup Type-45',
+                        'zDetFace-Cluster Squence Number Key-46',
+                        'zDetFace-Grouping ID-47',
+                        'zDetFace-Master ID-48',
+                        'zDetFace-Quality-49',
+                        'zDetFace-Quality Measure-50',
+                        'zDetFace-Source Height-51',
+                        'zDetFace-Source Width-52',
+                        'zDetFace-Asset Visible-53',
+                        'zDetFace-Hidden/Asset Hidden-54',
+                        'zDetFace-In Trash/Recently Deleted-55',
+                        'zDetFace-Cloud Local State-56',
+                        'zDetFace-Training Type-57',
+                        'zDetFace.Pose Yaw-58',
+                        'zDetFace-Body Center X-59',
+                        'zDetFace-Body Center Y-60',
+                        'zDetFace-Body Height-61',
+                        'zDetFace-Body Width-62',
+                        'zDetFace-Roll-63',
+                        'zDetFace-Size-64',
+                        'zDetFace-Cluster Squence Number-65',
+                        'zDetFace-Blur Score-66',
+                        'zDetFacePrint-Face Print Version-67',
+                        'zDetFaceGroup-UUID-68',
+                        'zDetFaceGroup-Person Builder State-69',
+                        'zDetFaceGroup-UnNamed Face Count-70',
+                        'zPerson-Face Count-71',
+                        'zDetFace-Face Algorithm Version-72',
+                        'zDetFace-Adjustment Version-73',
+                        'zPerson-In Person Naming Model-74',
+                        'zPerson-Key Face Pick Source Key-75',
+                        'zPerson-Manual Order Key-76',
+                        'zPerson-Question Type-77',
+                        'zPerson-Suggested For Client Type-78',
+                        'zPerson-Merge Target Person-79',
+                        'zPerson-Cloud Local State-80',
+                        'zFaceCrop-Cloud Local State-81',
+                        'zFaceCrop-Cloud Type-82',
+                        'zPerson-Cloud Delete State-83',
+                        'zFaceCrop-Cloud Delete State-84',
+                        'zDetFace-zPK-85',
+                        'zDetFacePrint-Face Key-86',
+                        'zPerson-KeyFace=zDetFace-zPK-87',
+                        'zFaceCrop-Face Key-88',
+                        'zPerson-zPK=zDetFace-Person-89',
+                        'zDetFace-PersonForFace= zPerson-zPK-90',
+                        'zDetFace-Person Being Key Face-91',
+                        'zFaceCrop-Person=zPerson-zPK&zDetFace-Person-Key-92',
+                        'zDetFace-Face Print-93',
+                        'zDetFacePrint-zPK-94',
+                        'zDetFace-Face Crop-95',
+                        'zFaceCrop-zPK-96',
+                        'zDetFaceGroup-KeyFace= zDetFace-zPK-97',
+                        'zDetFaceGroup-AssocPerson= zPerson-zPK-98',
+                        'zPerson-Assoc Face Group Key-99',
+                        'zDetFace-FaceGroupBeingKeyFace= zDetFaceGroup-zPK-100',
+                        'zDetFace-FaceGroup= zDetFaceGroup-zPK-101',
+                        'zDetFaceGroup-zPK-102',
+                        'zPerson-Share Participant= zSharePartic-zPK-103',
+                        'zDetFace-UUID-104',
+                        'zFaceCrop-UUID-105',
+                        'zFaceCrop-Invalid Merge Canidate Person UUID-106',
+                        'zPerson-Person UUID-107',
+                        'zPerson-Person URI-108',
+                        'zDetFaceGroup-UUID-109')
+        data_list = get_sqlite_db_records(source_path, query)
 
-            description = 'Parses data from Syndication.photoslibrary-database-Photos.sqlite for' \
-                          ' people - detected faces - face crop data. The results may contain multiple records' \
-                          ' per ZASSET table Z_PK value and supports iOS 16.'
-            report = ArtifactHtmlReport('Ph15.2-People & Faces NAD-SyndPL')
-            report.start_artifact_report(report_folder, 'Ph15.2-People & Faces NAD-SyndPL', description)
-            report.add_script()
-            data_headers = ('zDetFace-AssetForFace= zAsset-zPK-0',
-                            'zFaceCrop-Asset Key-1',
-                            'zDetFacePrint-Data-SeeRawDBData-2',
-                            'zPerson-Contact Matching Dictionary-3',
-                            'zPerson-Verified Type-4',
-                            'zPerson-Display Name-5',
-                            'zPerson-Full Name-6',
-                            'zPerson-Cloud Verified Type-7',
-                            'zFaceCrop-State-8',
-                            'zFaceCrop-Type-9',
-                            'zFaceCrop-Resource Data-10',
-                            'zDetFace-Confirmed Face Crop Generation State-11',
-                            'zDetFace-Manual-12',
-                            'zDetFace-Detection Type-13',
-                            'zPerson-Detection Type-14',
-                            'zDetFace-VIP Model Type-15',
-                            'zDetFace-Name Source-16',
-                            'zDetFace-Cloud Name Source-17',
-                            'zPerson-Merge Candidate Confidence-18',
-                            'zPerson-Type-19',
-                            'zPerson-Gender Type-20',
-                            'zDetFace-Gender Type-21',
-                            'zDetFace-Center X-22',
-                            'zDetFace-Center Y-23',
-                            'zPerson-Age Type Estimate-24',
-                            'zDetFace-Age Type Estimate-25',
-                            'zDetFace-Ethnicity Type-26',
-                            'zDetFace-Skin Tone Type-27',
-                            'zDetFace-Hair Type-28',
-                            'zDetFace-Hair Color Type-29',
-                            'zDetFace-Head Gear Type-30',
-                            'zDetFace-Facial Hair Type-31',
-                            'zDetFace-Has Face Mask-32',
-                            'zDetFace-Pose Type-33',
-                            'zDetFace-Face Expression Type-34',
-                            'zDetFace-Has Smile-35',
-                            'zDetFace-Smile Type-36',
-                            'zDetFace-Lip Makeup Type-37',
-                            'zDetFace-Eyes State-38',
-                            'zDetFace-Is Left Eye Closed-39',
-                            'zDetFace-Is Right Eye Closed-40',
-                            'zDetFace-Gaze Center X-41',
-                            'zDetFace-Gaze Center Y-42',
-                            'zDetFace-Face Gaze Type-43',
-                            'zDetFace-Eye Glasses Type-44',
-                            'zDetFace-Eye Makeup Type-45',
-                            'zDetFace-Cluster Squence Number Key-46',
-                            'zDetFace-Grouping ID-47',
-                            'zDetFace-Master ID-48',
-                            'zDetFace-Quality-49',
-                            'zDetFace-Quality Measure-50',
-                            'zDetFace-Source Height-51',
-                            'zDetFace-Source Width-52',
-                            'zDetFace-Asset Visible-53',
-                            'zDetFace-Hidden/Asset Hidden-54',
-                            'zDetFace-In Trash/Recently Deleted-55',
-                            'zDetFace-Cloud Local State-56',
-                            'zDetFace-Training Type-57',
-                            'zDetFace.Pose Yaw-58',
-                            'zDetFace-Body Center X-59',
-                            'zDetFace-Body Center Y-60',
-                            'zDetFace-Body Height-61',
-                            'zDetFace-Body Width-62',
-                            'zDetFace-Roll-63',
-                            'zDetFace-Size-64',
-                            'zDetFace-Cluster Squence Number-65',
-                            'zDetFace-Blur Score-66',
-                            'zDetFacePrint-Face Print Version-67',
-                            'zDetFaceGroup-UUID-68',
-                            'zDetFaceGroup-Person Builder State-69',
-                            'zDetFaceGroup-UnNamed Face Count-70',
-                            'zPerson-Face Count-71',
-                            'zDetFace-Face Algorithm Version-72',
-                            'zDetFace-Adjustment Version-73',
-                            'zPerson-In Person Naming Model-74',
-                            'zPerson-Key Face Pick Source Key-75',
-                            'zPerson-Manual Order Key-76',
-                            'zPerson-Question Type-77',
-                            'zPerson-Suggested For Client Type-78',
-                            'zPerson-Merge Target Person-79',
-                            'zPerson-Cloud Local State-80',
-                            'zFaceCrop-Cloud Local State-81',
-                            'zFaceCrop-Cloud Type-82',
-                            'zPerson-Cloud Delete State-83',
-                            'zFaceCrop-Cloud Delete State-84',
-                            'zDetFace-zPK-85',
-                            'zDetFacePrint-Face Key-86',
-                            'zPerson-KeyFace=zDetFace-zPK-87',
-                            'zFaceCrop-Face Key-88',
-                            'zPerson-zPK=zDetFace-Person-89',
-                            'zDetFace-PersonForFace= zPerson-zPK-90',
-                            'zDetFace-Person Being Key Face-91',
-                            'zFaceCrop-Person=zPerson-zPK&zDetFace-Person-Key-92',
-                            'zDetFace-Face Print-93',
-                            'zDetFacePrint-zPK-94',
-                            'zDetFace-Face Crop-95',
-                            'zFaceCrop-zPK-96',
-                            'zDetFaceGroup-KeyFace= zDetFace-zPK-97',
-                            'zDetFaceGroup-AssocPerson= zPerson-zPK-98',
-                            'zPerson-Assoc Face Group Key-99',
-                            'zDetFace-FaceGroupBeingKeyFace= zDetFaceGroup-zPK-100',
-                            'zDetFace-FaceGroup= zDetFaceGroup-zPK-101',
-                            'zDetFaceGroup-zPK-102',
-                            'zPerson-Share Participant= zSharePartic-zPK-103',
-                            'zDetFace-UUID-104',
-                            'zFaceCrop-UUID-105',
-                            'zFaceCrop-Invalid Merge Canidate Person UUID-106',
-                            'zPerson-Person UUID-107',
-                            'zPerson-Person URI-108',
-                            'zDetFaceGroup-UUID-109')
-            report.write_artifact_data_table(data_headers, data_list, file_found)
-            report.end_artifact_report()
-
-            tsvname = 'Ph15.2-People & Faces NAD-SyndPL'
-            tsv(report_folder, data_headers, data_list, tsvname)
-
-            tlactivity = 'Ph15.2-People & Faces NAD-SyndPL'
-            timeline(report_folder, tlactivity, data_list, data_headers)
-
-        else:
-            logfunc('No data available for Syndication.photoslibrary-database-Photos.sqlite people - detected faces - face crop data')
-
-        db.close()
-        return
+        return data_headers, data_list, source_path
 
     elif (version.parse(iosversion) >= version.parse("17")) & (version.parse(iosversion) < version.parse("18")):
-        file_found = str(files_found[0])
-        db = open_sqlite_db_readonly(file_found)
-        cursor = db.cursor()
+        source_path = get_file_path(files_found,"Photos.sqlite")
+        if source_path is None or not os.path.exists(source_path):
+            logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
+            return (), [], source_path
+        data_list = []
 
-        cursor.execute("""
+        query = '''
         SELECT        
         zDetFace.ZASSETFORFACE AS 'zDetFace-AssetForFace= zAsset-zPK',
         zDetFace.ZASSETFORTORSO AS 'zDetFace-AssetForTorso= zAsset-zPK',
@@ -4601,203 +4453,182 @@ def get_ph15peopledetfacesyndpl(files_found, report_folder, seeker, wrap_text, t
             LEFT JOIN ZFACECROP zFaceCrop ON zPerson.Z_PK = zFaceCrop.ZPERSON
             LEFT JOIN ZDETECTEDFACEGROUP zDetFaceGroup ON zDetFaceGroup.Z_PK = zDetFace.ZFACEGROUP  
         ORDER BY zDetFace.Z_PK
-        """)
+        '''
 
-        all_rows = cursor.fetchall()
-        usageentries = len(all_rows)
-        data_list = []
-        counter = 0
-        if usageentries > 0:
-            for row in all_rows:
-                # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
-                personcontactmatchingdictionary = ''
-                # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
-                facecropresourcedata_blob = ''
+        db_records = get_sqlite_db_records(source_path, query)
+        for row in db_records:
+            # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
+            personcontactmatchingdictionary = ''
+            # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
+            facecropresourcedata_blob = ''
 
-                # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
-                if row[5] is not None:
-                    pathto = os.path.join(report_folder, 'zPerson-ContactMatchingDict_' + row[111] + '.plist')
-                    with open(pathto, 'ab') as wf:
-                        wf.write(row[5])
+            # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
+            if row[5] is not None:
+                pathto = os.path.join(report_folder, 'zPerson-ContactMatchingDict_' + row[111] + '.plist')
+                with open(pathto, 'ab') as wf:
+                    wf.write(row[5])
 
-                    with open(pathto, 'rb') as f:
-                        try:
-                            deserialized_plist = nd.deserialize_plist(f)
-                            personcontactmatchingdictionary = deserialized_plist
+                with open(pathto, 'rb') as f:
+                    try:
+                        deserialized_plist = nd.deserialize_plist(f)
+                        personcontactmatchingdictionary = deserialized_plist
 
-                        except (KeyError, ValueError, TypeError) as ex:
-                            if str(ex).find("does not contain an '$archiver' key") >= 0:
-                                logfunc('plist was Not an NSKeyedArchive ' + row[111])
-                            else:
-                                logfunc('Error reading exported plist from zPerson-Contact Matching Dictionary' + row[111])
+                    except (KeyError, ValueError, TypeError) as ex:
+                        if str(ex).find("does not contain an '$archiver' key") >= 0:
+                            logfunc('plist was Not an NSKeyedArchive ' + row[111])
+                        else:
+                            logfunc('Error reading exported plist from zPerson-Contact Matching Dictionary' + row[111])
 
-                # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
-                if row[12] is not None:
-                    pathto = os.path.join(report_folder, 'FaceCropFor_' + row[109] + '.jpg')
-                    with open(pathto, 'wb') as file:
-                        file.write(row[12])
-                    facecropresourcedata_blob = media_to_html(pathto, files_found, report_folder)
+            # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
+            if row[12] is not None:
+                pathto = os.path.join(report_folder, 'FaceCropFor_' + row[109] + '.jpg')
+                with open(pathto, 'wb') as file:
+                    file.write(row[12])
+                facecropresourcedata_blob = media_to_html(pathto, files_found, report_folder)
 
-                data_list.append((row[0], row[1], row[2], row[3], row[4],
-                                  personcontactmatchingdictionary,
-                                  row[6], row[7], row[8], row[9], row[10], row[11],
-                                  facecropresourcedata_blob,
-                                  row[13], row[14], row[15], row[16], row[17], row[18],
-                                  row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
-                                  row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35], row[36],
-                                  row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45],
-                                  row[46], row[47], row[48], row[49], row[50], row[51], row[52], row[53], row[54],
-                                  row[55], row[56], row[57], row[58], row[59], row[60], row[61], row[62], row[63],
-                                  row[64], row[65], row[66], row[67], row[68], row[69], row[70], row[71], row[72],
-                                  row[73], row[74], row[75], row[76], row[77], row[78], row[79], row[80], row[81],
-                                  row[82], row[83], row[84], row[85], row[86], row[87], row[88], row[89], row[90],
-                                  row[91], row[92], row[93], row[94], row[95], row[96], row[97], row[98], row[99],
-                                  row[100], row[101], row[102], row[103], row[104], row[105], row[106], row[107],
-                                  row[108], row[109], row[110], row[111], row[112], row[113]))
+            data_list.append((row[0], row[1], row[2], row[3], row[4],
+                              personcontactmatchingdictionary,
+                              row[6], row[7], row[8], row[9], row[10], row[11],
+                              facecropresourcedata_blob,
+                              row[13], row[14], row[15], row[16], row[17], row[18],
+                              row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
+                              row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35], row[36],
+                              row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45],
+                              row[46], row[47], row[48], row[49], row[50], row[51], row[52], row[53], row[54],
+                              row[55], row[56], row[57], row[58], row[59], row[60], row[61], row[62], row[63],
+                              row[64], row[65], row[66], row[67], row[68], row[69], row[70], row[71], row[72],
+                              row[73], row[74], row[75], row[76], row[77], row[78], row[79], row[80], row[81],
+                              row[82], row[83], row[84], row[85], row[86], row[87], row[88], row[89], row[90],
+                              row[91], row[92], row[93], row[94], row[95], row[96], row[97], row[98], row[99],
+                              row[100], row[101], row[102], row[103], row[104], row[105], row[106], row[107],
+                              row[108], row[109], row[110], row[111], row[112], row[113]))
 
-                counter += 1
+        data_headers = ('zDetFace-AssetForFace= zAsset-zPK-0',
+                        'zDetFace-AssetForTorso= zAsset-zPK-1',
+                        'zFaceCrop-Asset Key-2',
+                        'zDetFace-Asset For Temporal Detected Faces= zAsset-zPK-3',
+                        'zDetFacePrint-Data-SeeRawDBData-4',
+                        'zPerson-Contact Matching Dictionary-5',
+                        'zPerson-Verified Type-6',
+                        'zPerson-Display Name-7',
+                        'zPerson-Full Name-8',
+                        'zPerson-Cloud Verified Type-9',
+                        'zFaceCrop-State-10',
+                        'zFaceCrop-Type-11',
+                        'zFaceCrop-Resource Data-12',
+                        'zDetFace-Confirmed Face Crop Generation State-13',
+                        'zDetFace-Manual-14',
+                        'zDetFace-Detection Type-15',
+                        'zPerson-Detection Type-16',
+                        'zDetFace-VIP Model Type-17',
+                        'zDetFace-Name Source-18',
+                        'zDetFace-Cloud Name Source-19',
+                        'zPerson-Merge Candidate Confidence-20',
+                        'zPerson-Type-21',
+                        'zPerson-Gender Type-22',
+                        'zDetFace-Gender Type-23',
+                        'zDetFace-Center X-24',
+                        'zDetFace-Center Y-25',
+                        'zPerson-Age Type Estimate-26',
+                        'zDetFace-Age Type Estimate-27',
+                        'zDetFace-Ethnicity Type-28',
+                        'zDetFace-Skin Tone Type-29',
+                        'zDetFace-Hair Type-30',
+                        'zDetFace-Hair Color Type-31',
+                        'zDetFace-Head Gear Type-32',
+                        'zDetFace-Facial Hair Type-33',
+                        'zDetFace-Has Face Mask-34',
+                        'zDetFace-Pose Type-35',
+                        'zDetFace-Face Expression Type-36',
+                        'zDetFace-Has Smile-37',
+                        'zDetFace-Smile Type-38',
+                        'zDetFace-Lip Makeup Type-39',
+                        'zDetFace-Eyes State-40',
+                        'zDetFace-Is Left Eye Closed-41',
+                        'zDetFace-Is Right Eye Closed-42',
+                        'zDetFace-Gaze Center X-43',
+                        'zDetFace-Gaze Center Y-44',
+                        'zDetFace-Face Gaze Type-45',
+                        'zDetFace-Eye Glasses Type-46',
+                        'zDetFace-Eye Makeup Type-47',
+                        'zDetFace-Cluster Squence Number Key-48',
+                        'zDetFace-Grouping ID-49',
+                        'zDetFace-Master ID-50',
+                        'zDetFace-Quality-51',
+                        'zDetFace-Quality Measure-52',
+                        'zDetFace-Source Height-53',
+                        'zDetFace-Source Width-54',
+                        'zDetFace-Asset Visible-55',
+                        'zDetFace-Hidden/Asset Hidden-56',
+                        'zDetFace-In Trash/Recently Deleted-57',
+                        'zDetFace-Cloud Local State-58',
+                        'zDetFace-Training Type-59',
+                        'zDetFace.Pose Yaw-60',
+                        'zDetFace-Body Center X-61',
+                        'zDetFace-Body Center Y-62',
+                        'zDetFace-Body Height-63',
+                        'zDetFace-Body Width-64',
+                        'zDetFace-Roll-65',
+                        'zDetFace-Size-66',
+                        'zDetFace-Cluster Squence Number-67',
+                        'zDetFace-Blur Score-68',
+                        'zDetFacePrint-Face Print Version-69',
+                        'zDetFaceGroup-UUID-70',
+                        'zDetFaceGroup-Person Builder State-71',
+                        'zDetFaceGroup-UnNamed Face Count-72',
+                        'zPerson-Face Count-73',
+                        'zDetFace-Face Algorithm Version-74',
+                        'zDetFace-Adjustment Version-75',
+                        'zPerson-In Person Naming Model-76',
+                        'zPerson-Key Face Pick Source Key-77',
+                        'zPerson-Manual Order Key-78',
+                        'zPerson-Question Type-79',
+                        'zPerson-Suggested For Client Type-80',
+                        'zPerson-Merge Target Person-81',
+                        'zPerson-Cloud Local State-82',
+                        'zFaceCrop-Cloud Local State-83',
+                        'zFaceCrop-Cloud Type-84',
+                        'zPerson-Cloud Delete State-85',
+                        'zFaceCrop-Cloud Delete State-86',
+                        'zDetFace-zPK-87',
+                        'zDetFacePrint-Face Key-88',
+                        'zPerson-KeyFace=zDetFace-zPK-89',
+                        'zFaceCrop-Face Key-90',
+                        'zPerson-zPK=zDetFace-Person-91',
+                        'zDetFace-PersonForFace= zPerson-zPK-92',
+                        'zDetFace-Person for Temporal Detected Faces= zPerson-zPK-93',
+                        'zDetFace-PersonForTorso= zPerson-zPK-94',
+                        'zDetFace-Person Being Key Face-95',
+                        'zFaceCrop-Person=zPerson-zPK&zDetFace-Person-Key-96',
+                        'zDetFace-Face Print-97',
+                        'zDetFacePrint-zPK-98',
+                        'zDetFace-Face Crop-99',
+                        'zFaceCrop-zPK-100',
+                        'zDetFaceGroup-KeyFace= zDetFace-zPK-101',
+                        'zDetFaceGroup-AssocPerson= zPerson-zPK-102',
+                        'zPerson-Assoc Face Group Key-103',
+                        'zDetFace-FaceGroupBeingKeyFace= zDetFaceGroup-zPK-104',
+                        'zDetFace-FaceGroup= zDetFaceGroup-zPK-105',
+                        'zDetFaceGroup-zPK-106',
+                        'zPerson-Share Participant= zSharePartic-zPK-107',
+                        'zDetFace-UUID-108',
+                        'zFaceCrop-UUID-109',
+                        'zFaceCrop-Invalid Merge Canidate Person UUID-110',
+                        'zPerson-Person UUID-111',
+                        'zPerson-Person URI-112',
+                        'zDetFaceGroup-UUID-113')
+        data_list = get_sqlite_db_records(source_path, query)
 
-            description = 'Parses data from Syndication.photoslibrary-database-Photos.sqlite for' \
-                          ' people - detected faces - face crop data. The results may contain multiple records' \
-                          ' per ZASSET table Z_PK value and supports iOS 17.'
-            report = ArtifactHtmlReport('Ph15.2-People & Faces NAD-SyndPL')
-            report.start_artifact_report(report_folder, 'Ph15.2-People & Faces NAD-SyndPL', description)
-            report.add_script()
-            data_headers = ('zDetFace-AssetForFace= zAsset-zPK-0',
-                            'zDetFace-AssetForTorso= zAsset-zPK-1',
-                            'zFaceCrop-Asset Key-2',
-                            'zDetFace-Asset For Temporal Detected Faces= zAsset-zPK-3',
-                            'zDetFacePrint-Data-SeeRawDBData-4',
-                            'zPerson-Contact Matching Dictionary-5',
-                            'zPerson-Verified Type-6',
-                            'zPerson-Display Name-7',
-                            'zPerson-Full Name-8',
-                            'zPerson-Cloud Verified Type-9',
-                            'zFaceCrop-State-10',
-                            'zFaceCrop-Type-11',
-                            'zFaceCrop-Resource Data-12',
-                            'zDetFace-Confirmed Face Crop Generation State-13',
-                            'zDetFace-Manual-14',
-                            'zDetFace-Detection Type-15',
-                            'zPerson-Detection Type-16',
-                            'zDetFace-VIP Model Type-17',
-                            'zDetFace-Name Source-18',
-                            'zDetFace-Cloud Name Source-19',
-                            'zPerson-Merge Candidate Confidence-20',
-                            'zPerson-Type-21',
-                            'zPerson-Gender Type-22',
-                            'zDetFace-Gender Type-23',
-                            'zDetFace-Center X-24',
-                            'zDetFace-Center Y-25',
-                            'zPerson-Age Type Estimate-26',
-                            'zDetFace-Age Type Estimate-27',
-                            'zDetFace-Ethnicity Type-28',
-                            'zDetFace-Skin Tone Type-29',
-                            'zDetFace-Hair Type-30',
-                            'zDetFace-Hair Color Type-31',
-                            'zDetFace-Head Gear Type-32',
-                            'zDetFace-Facial Hair Type-33',
-                            'zDetFace-Has Face Mask-34',
-                            'zDetFace-Pose Type-35',
-                            'zDetFace-Face Expression Type-36',
-                            'zDetFace-Has Smile-37',
-                            'zDetFace-Smile Type-38',
-                            'zDetFace-Lip Makeup Type-39',
-                            'zDetFace-Eyes State-40',
-                            'zDetFace-Is Left Eye Closed-41',
-                            'zDetFace-Is Right Eye Closed-42',
-                            'zDetFace-Gaze Center X-43',
-                            'zDetFace-Gaze Center Y-44',
-                            'zDetFace-Face Gaze Type-45',
-                            'zDetFace-Eye Glasses Type-46',
-                            'zDetFace-Eye Makeup Type-47',
-                            'zDetFace-Cluster Squence Number Key-48',
-                            'zDetFace-Grouping ID-49',
-                            'zDetFace-Master ID-50',
-                            'zDetFace-Quality-51',
-                            'zDetFace-Quality Measure-52',
-                            'zDetFace-Source Height-53',
-                            'zDetFace-Source Width-54',
-                            'zDetFace-Asset Visible-55',
-                            'zDetFace-Hidden/Asset Hidden-56',
-                            'zDetFace-In Trash/Recently Deleted-57',
-                            'zDetFace-Cloud Local State-58',
-                            'zDetFace-Training Type-59',
-                            'zDetFace.Pose Yaw-60',
-                            'zDetFace-Body Center X-61',
-                            'zDetFace-Body Center Y-62',
-                            'zDetFace-Body Height-63',
-                            'zDetFace-Body Width-64',
-                            'zDetFace-Roll-65',
-                            'zDetFace-Size-66',
-                            'zDetFace-Cluster Squence Number-67',
-                            'zDetFace-Blur Score-68',
-                            'zDetFacePrint-Face Print Version-69',
-                            'zDetFaceGroup-UUID-70',
-                            'zDetFaceGroup-Person Builder State-71',
-                            'zDetFaceGroup-UnNamed Face Count-72',
-                            'zPerson-Face Count-73',
-                            'zDetFace-Face Algorithm Version-74',
-                            'zDetFace-Adjustment Version-75',
-                            'zPerson-In Person Naming Model-76',
-                            'zPerson-Key Face Pick Source Key-77',
-                            'zPerson-Manual Order Key-78',
-                            'zPerson-Question Type-79',
-                            'zPerson-Suggested For Client Type-80',
-                            'zPerson-Merge Target Person-81',
-                            'zPerson-Cloud Local State-82',
-                            'zFaceCrop-Cloud Local State-83',
-                            'zFaceCrop-Cloud Type-84',
-                            'zPerson-Cloud Delete State-85',
-                            'zFaceCrop-Cloud Delete State-86',
-                            'zDetFace-zPK-87',
-                            'zDetFacePrint-Face Key-88',
-                            'zPerson-KeyFace=zDetFace-zPK-89',
-                            'zFaceCrop-Face Key-90',
-                            'zPerson-zPK=zDetFace-Person-91',
-                            'zDetFace-PersonForFace= zPerson-zPK-92',
-                            'zDetFace-Person for Temporal Detected Faces= zPerson-zPK-93',
-                            'zDetFace-PersonForTorso= zPerson-zPK-94',
-                            'zDetFace-Person Being Key Face-95',
-                            'zFaceCrop-Person=zPerson-zPK&zDetFace-Person-Key-96',
-                            'zDetFace-Face Print-97',
-                            'zDetFacePrint-zPK-98',
-                            'zDetFace-Face Crop-99',
-                            'zFaceCrop-zPK-100',
-                            'zDetFaceGroup-KeyFace= zDetFace-zPK-101',
-                            'zDetFaceGroup-AssocPerson= zPerson-zPK-102',
-                            'zPerson-Assoc Face Group Key-103',
-                            'zDetFace-FaceGroupBeingKeyFace= zDetFaceGroup-zPK-104',
-                            'zDetFace-FaceGroup= zDetFaceGroup-zPK-105',
-                            'zDetFaceGroup-zPK-106',
-                            'zPerson-Share Participant= zSharePartic-zPK-107',
-                            'zDetFace-UUID-108',
-                            'zFaceCrop-UUID-109',
-                            'zFaceCrop-Invalid Merge Canidate Person UUID-110',
-                            'zPerson-Person UUID-111',
-                            'zPerson-Person URI-112',
-                            'zDetFaceGroup-UUID-113')
-            report.write_artifact_data_table(data_headers, data_list, file_found)
-            report.end_artifact_report()
-
-            tsvname = 'Ph15.2-People & Faces NAD-SyndPL'
-            tsv(report_folder, data_headers, data_list, tsvname)
-
-            tlactivity = 'Ph15.2-People & Faces NAD-SyndPL'
-            timeline(report_folder, tlactivity, data_list, data_headers)
-
-        else:
-            logfunc('No data available for Syndication.photoslibrary-database-Photos.sqlite people - detected faces - face crop data')
-
-        db.close()
-        return
+        return data_headers, data_list, source_path
 
     elif version.parse(iosversion) >= version.parse("18"):
-        file_found = str(files_found[0])
-        db = open_sqlite_db_readonly(file_found)
-        cursor = db.cursor()
+        source_path = get_file_path(files_found,"Photos.sqlite")
+        if source_path is None or not os.path.exists(source_path):
+            logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
+            return (), [], source_path
+        data_list = []
 
-        cursor.execute("""
+        query = '''
         SELECT        
         zDetFace.ZASSETFORFACE AS 'zDetFace-AssetForFace= zAsset-zPK',
         zDetFace.ZASSETFORTORSO AS 'zDetFace-AssetForTorso= zAsset-zPK',
@@ -4813,7 +4644,7 @@ def get_ph15peopledetfacesyndpl(files_found, report_folder, seeker, wrap_text, t
             WHEN 1 THEN '1-Has_Contact Matching_Dictionary'
             ELSE 'Unknown-New-Value!: ' || zPerson.ZVERIFIEDTYPE || ''
         END AS 'zPerson-Verified Type',
-        zPerson.ZISMECONFIDENCE AS 'zPerson-Is_Me_Confidence-iOS18',
+        zPerson.ZISMECONFIDENCE AS 'zPerson-Is_Me_Confidence',
         zPerson.ZDISPLAYNAME AS 'zPerson-Display Name',
         zPerson.ZFULLNAME AS 'zPerson-Full Name',
         CASE zPerson.ZCLOUDVERIFIEDTYPE
@@ -5160,226 +4991,175 @@ def get_ph15peopledetfacesyndpl(files_found, report_folder, seeker, wrap_text, t
             LEFT JOIN ZFACECROP zFaceCrop ON zPerson.Z_PK = zFaceCrop.ZPERSON
             LEFT JOIN ZDETECTEDFACEGROUP zDetFaceGroup ON zDetFaceGroup.Z_PK = zDetFace.ZFACEGROUP  
         ORDER BY zDetFace.Z_PK
-        """)
+        '''
 
-        all_rows = cursor.fetchall()
-        usageentries = len(all_rows)
-        data_list = []
-        counter = 0
-        if usageentries > 0:
-            for row in all_rows:
-                # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
-                personcontactmatchingdictionary = ''
-                # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
-                facecropresourcedata_blob = ''
+        db_records = get_sqlite_db_records(source_path, query)
+        for row in db_records:
+            # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
+            personcontactmatchingdictionary = ''
+            # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
+            facecropresourcedata_blob = ''
 
-                # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
-                if row[5] is not None:
-                    pathto = os.path.join(report_folder, 'zPerson-ContactMatchingDict_' + row[112] + '.plist')
-                    with open(pathto, 'ab') as wf:
-                        wf.write(row[5])
+            # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
+            if row[5] is not None:
+                pathto = os.path.join(report_folder, 'zPerson-ContactMatchingDict_' + row[112] + '.plist')
+                with open(pathto, 'ab') as wf:
+                    wf.write(row[5])
 
-                    with open(pathto, 'rb') as f:
-                        try:
-                            deserialized_plist = nd.deserialize_plist(f)
-                            personcontactmatchingdictionary = deserialized_plist
+                with open(pathto, 'rb') as f:
+                    try:
+                        deserialized_plist = nd.deserialize_plist(f)
+                        personcontactmatchingdictionary = deserialized_plist
 
-                        except (KeyError, ValueError, TypeError) as ex:
-                            if str(ex).find("does not contain an '$archiver' key") >= 0:
-                                logfunc('plist was Not an NSKeyedArchive ' + row[112])
-                            else:
-                                logfunc(
-                                    'Error reading exported plist from zPerson-Contact Matching Dictionary' + row[112])
+                    except (KeyError, ValueError, TypeError) as ex:
+                        if str(ex).find("does not contain an '$archiver' key") >= 0:
+                            logfunc('plist was Not an NSKeyedArchive ' + row[112])
+                        else:
+                            logfunc(
+                                'Error reading exported plist from zPerson-Contact Matching Dictionary' + row[112])
 
-                # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
-                if row[13] is not None:
-                    pathto = os.path.join(report_folder, 'FaceCropFor_' + row[110] + '.jpg')
-                    with open(pathto, 'wb') as file:
-                        file.write(row[13])
-                    facecropresourcedata_blob = media_to_html(pathto, files_found, report_folder)
+            # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
+            if row[13] is not None:
+                pathto = os.path.join(report_folder, 'FaceCropFor_' + row[110] + '.jpg')
+                with open(pathto, 'wb') as file:
+                    file.write(row[13])
+                facecropresourcedata_blob = media_to_html(pathto, files_found, report_folder)
 
-                data_list.append((row[0], row[1], row[2], row[3], row[4],
-                                  personcontactmatchingdictionary,
-                                  row[6], row[7], row[8], row[9], row[10], row[11], row[12],
-                                  facecropresourcedata_blob,
-                                  row[14], row[15], row[16], row[17], row[18],
-                                  row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
-                                  row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35], row[36],
-                                  row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45],
-                                  row[46], row[47], row[48], row[49], row[50], row[51], row[52], row[53], row[54],
-                                  row[55], row[56], row[57], row[58], row[59], row[60], row[61], row[62], row[63],
-                                  row[64], row[65], row[66], row[67], row[68], row[69], row[70], row[71], row[72],
-                                  row[73], row[74], row[75], row[76], row[77], row[78], row[79], row[80], row[81],
-                                  row[82], row[83], row[84], row[85], row[86], row[87], row[88], row[89], row[90],
-                                  row[91], row[92], row[93], row[94], row[95], row[96], row[97], row[98], row[99],
-                                  row[100], row[101], row[102], row[103], row[104], row[105], row[106], row[107],
-                                  row[108], row[109], row[110], row[111], row[112], row[113], row[114]))
+            data_list.append((row[0], row[1], row[2], row[3], row[4],
+                              personcontactmatchingdictionary,
+                              row[6], row[7], row[8], row[9], row[10], row[11], row[12],
+                              facecropresourcedata_blob,
+                              row[14], row[15], row[16], row[17], row[18],
+                              row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
+                              row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35], row[36],
+                              row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45],
+                              row[46], row[47], row[48], row[49], row[50], row[51], row[52], row[53], row[54],
+                              row[55], row[56], row[57], row[58], row[59], row[60], row[61], row[62], row[63],
+                              row[64], row[65], row[66], row[67], row[68], row[69], row[70], row[71], row[72],
+                              row[73], row[74], row[75], row[76], row[77], row[78], row[79], row[80], row[81],
+                              row[82], row[83], row[84], row[85], row[86], row[87], row[88], row[89], row[90],
+                              row[91], row[92], row[93], row[94], row[95], row[96], row[97], row[98], row[99],
+                              row[100], row[101], row[102], row[103], row[104], row[105], row[106], row[107],
+                              row[108], row[109], row[110], row[111], row[112], row[113], row[114]))
 
-                counter += 1
+        data_headers = ('zDetFace-AssetForFace= zAsset-zPK-0',
+                        'zDetFace-AssetForTorso= zAsset-zPK-1',
+                        'zFaceCrop-Asset Key-2',
+                        'zDetFace-Asset For Temporal Detected Faces= zAsset-zPK-3',
+                        'zDetFacePrint-Data-SeeRawDBData-4',
+                        'zPerson-Contact Matching Dictionary-5',
+                        'zPerson-Verified Type-6',
+                        'zPerson-Is_Me_Confidence-7',
+                        'zPerson-Display Name-8',
+                        'zPerson-Full Name-9',
+                        'zPerson-Cloud Verified Type-10',
+                        'zFaceCrop-State-11',
+                        'zFaceCrop-Type-12',
+                        'zFaceCrop-Resource Data-13',
+                        'zDetFace-Confirmed Face Crop Generation State-14',
+                        'zDetFace-Manual-15',
+                        'zDetFace-Detection Type-16',
+                        'zPerson-Detection Type-17',
+                        'zDetFace-VIP Model Type-18',
+                        'zDetFace-Name Source-19',
+                        'zDetFace-Cloud Name Source-20',
+                        'zPerson-Merge Candidate Confidence-21',
+                        'zPerson-Type-22',
+                        'zPerson-Gender Type-23',
+                        'zDetFace-Gender Type-24',
+                        'zDetFace-Center X-25',
+                        'zDetFace-Center Y-26',
+                        'zPerson-Age Type Estimate-27',
+                        'zDetFace-Age Type Estimate-28',
+                        'zDetFace-Ethnicity Type-29',
+                        'zDetFace-Skin Tone Type-30',
+                        'zDetFace-Hair Type-31',
+                        'zDetFace-Hair Color Type-32',
+                        'zDetFace-Head Gear Type-33',
+                        'zDetFace-Facial Hair Type-34',
+                        'zDetFace-Has Face Mask-35',
+                        'zDetFace-Pose Type-36',
+                        'zDetFace-Face Expression Type-37',
+                        'zDetFace-Has Smile-38',
+                        'zDetFace-Smile Type-39',
+                        'zDetFace-Lip Makeup Type-40',
+                        'zDetFace-Eyes State-41',
+                        'zDetFace-Is Left Eye Closed-42',
+                        'zDetFace-Is Right Eye Closed-43',
+                        'zDetFace-Gaze Center X-44',
+                        'zDetFace-Gaze Center Y-45',
+                        'zDetFace-Face Gaze Type-46',
+                        'zDetFace-Eye Glasses Type-47',
+                        'zDetFace-Eye Makeup Type-48',
+                        'zDetFace-Cluster Sequence Number Key-49',
+                        'zDetFace-Grouping ID-50',
+                        'zDetFace-Master ID-51',
+                        'zDetFace-Quality-52',
+                        'zDetFace-Quality Measure-53',
+                        'zDetFace-Source Height-54',
+                        'zDetFace-Source Width-55',
+                        'zDetFace-Asset Visible-56',
+                        'zDetFace-Hidden/Asset Hidden-57',
+                        'zDetFace-In Trash/Recently Deleted-58',
+                        'zDetFace-Cloud Local State-59',
+                        'zDetFace-Training Type-60',
+                        'zDetFace.Pose Yaw-61',
+                        'zDetFace-Body Center X-62',
+                        'zDetFace-Body Center Y-63',
+                        'zDetFace-Body Height-64',
+                        'zDetFace-Body Width-65',
+                        'zDetFace-Roll-66',
+                        'zDetFace-Size-67',
+                        'zDetFace-Cluster Sequence Number-68',
+                        'zDetFace-Blur Score-69',
+                        'zDetFacePrint-Face Print Version-70',
+                        'zDetFaceGroup-UUID-71',
+                        'zDetFaceGroup-Person Builder State-72',
+                        'zDetFaceGroup-UnNamed Face Count-73',
+                        'zPerson-Face Count-74',
+                        'zDetFace-Face Algorithm Version-75',
+                        'zDetFace-Adjustment Version-76',
+                        'zPerson-In Person Naming Model-77',
+                        'zPerson-Key Face Pick Source Key-78',
+                        'zPerson-Manual Order Key-79',
+                        'zPerson-Question Type-80',
+                        'zPerson-Suggested For Client Type-81',
+                        'zPerson-Merge Target Person-82',
+                        'zPerson-Cloud Local State-83',
+                        'zFaceCrop-Cloud Local State-84',
+                        'zFaceCrop-Cloud Type-85',
+                        'zPerson-Cloud Delete State-86',
+                        'zFaceCrop-Cloud Delete State-87',
+                        'zDetFace-zPK-88',
+                        'zDetFacePrint-Face Key-89',
+                        'zPerson-KeyFace=zDetFace-zPK-90',
+                        'zFaceCrop-Face Key-91',
+                        'zPerson-zPK=zDetFace-Person-92',
+                        'zDetFace-PersonForFace= zPerson-zPK-93',
+                        'zDetFace-Person for Temporal Detected Faces= zPerson-zPK-94',
+                        'zDetFace-PersonForTorso= zPerson-zPK-95',
+                        'zDetFace-Person Being Key Face-96',
+                        'zFaceCrop-Person=zPerson-zPK&zDetFace-Person-Key-97',
+                        'zDetFace-Face Print-98',
+                        'zDetFacePrint-zPK-99',
+                        'zDetFace-Face Crop-100',
+                        'zFaceCrop-zPK-101',
+                        'zDetFaceGroup-KeyFace= zDetFace-zPK-102',
+                        'zDetFaceGroup-AssocPerson= zPerson-zPK-103',
+                        'zPerson-Assoc Face Group Key-104',
+                        'zDetFace-FaceGroupBeingKeyFace= zDetFaceGroup-zPK-105',
+                        'zDetFace-FaceGroup= zDetFaceGroup-zPK-106',
+                        'zDetFaceGroup-zPK-107',
+                        'zPerson-Share Participant= zSharePartic-zPK-108',
+                        'zDetFace-UUID-109',
+                        'zFaceCrop-UUID-110',
+                        'zFaceCrop-Invalid Merge Candidate Person UUID-111',
+                        'zPerson-Person UUID-112',
+                        'zPerson-Person URI-113',
+                        'zDetFaceGroup-UUID-114')
+        data_list = get_sqlite_db_records(source_path, query)
 
-            description = 'Parses data from Syndication.photoslibrary-database-Photos.sqlite for' \
-                          ' people - detected faces - face crop data. The results may contain multiple records' \
-                          ' per ZASSET table Z_PK value and supports iOS 18.'
-            report = ArtifactHtmlReport('Ph15.2-People & Faces NAD-SyndPL')
-            report.start_artifact_report(report_folder, 'Ph15.2-People & Faces NAD-SyndPL', description)
-            report.add_script()
-            data_headers = ('zDetFace-AssetForFace= zAsset-zPK-0',
-                            'zDetFace-AssetForTorso= zAsset-zPK-1',
-                            'zFaceCrop-Asset Key-2',
-                            'zDetFace-Asset For Temporal Detected Faces= zAsset-zPK-3',
-                            'zDetFacePrint-Data-SeeRawDBData-4',
-                            'zPerson-Contact Matching Dictionary-5',
-                            'zPerson-Verified Type-6',
-                            'zPerson-Is_Me_Confidence-iOS18-7',
-                            'zPerson-Display Name-8',
-                            'zPerson-Full Name-9',
-                            'zPerson-Cloud Verified Type-10',
-                            'zFaceCrop-State-11',
-                            'zFaceCrop-Type-12',
-                            'zFaceCrop-Resource Data-13',
-                            'zDetFace-Confirmed Face Crop Generation State-14',
-                            'zDetFace-Manual-15',
-                            'zDetFace-Detection Type-16',
-                            'zPerson-Detection Type-17',
-                            'zDetFace-VIP Model Type-18',
-                            'zDetFace-Name Source-19',
-                            'zDetFace-Cloud Name Source-20',
-                            'zPerson-Merge Candidate Confidence-21',
-                            'zPerson-Type-22',
-                            'zPerson-Gender Type-23',
-                            'zDetFace-Gender Type-24',
-                            'zDetFace-Center X-25',
-                            'zDetFace-Center Y-26',
-                            'zPerson-Age Type Estimate-27',
-                            'zDetFace-Age Type Estimate-28',
-                            'zDetFace-Ethnicity Type-29',
-                            'zDetFace-Skin Tone Type-30',
-                            'zDetFace-Hair Type-31',
-                            'zDetFace-Hair Color Type-32',
-                            'zDetFace-Head Gear Type-33',
-                            'zDetFace-Facial Hair Type-34',
-                            'zDetFace-Has Face Mask-35',
-                            'zDetFace-Pose Type-36',
-                            'zDetFace-Face Expression Type-37',
-                            'zDetFace-Has Smile-38',
-                            'zDetFace-Smile Type-39',
-                            'zDetFace-Lip Makeup Type-40',
-                            'zDetFace-Eyes State-41',
-                            'zDetFace-Is Left Eye Closed-42',
-                            'zDetFace-Is Right Eye Closed-43',
-                            'zDetFace-Gaze Center X-44',
-                            'zDetFace-Gaze Center Y-45',
-                            'zDetFace-Face Gaze Type-46',
-                            'zDetFace-Eye Glasses Type-47',
-                            'zDetFace-Eye Makeup Type-48',
-                            'zDetFace-Cluster Sequence Number Key-49',
-                            'zDetFace-Grouping ID-50',
-                            'zDetFace-Master ID-51',
-                            'zDetFace-Quality-52',
-                            'zDetFace-Quality Measure-53',
-                            'zDetFace-Source Height-54',
-                            'zDetFace-Source Width-55',
-                            'zDetFace-Asset Visible-56',
-                            'zDetFace-Hidden/Asset Hidden-57',
-                            'zDetFace-In Trash/Recently Deleted-58',
-                            'zDetFace-Cloud Local State-59',
-                            'zDetFace-Training Type-60',
-                            'zDetFace.Pose Yaw-61',
-                            'zDetFace-Body Center X-62',
-                            'zDetFace-Body Center Y-63',
-                            'zDetFace-Body Height-64',
-                            'zDetFace-Body Width-65',
-                            'zDetFace-Roll-66',
-                            'zDetFace-Size-67',
-                            'zDetFace-Cluster Sequence Number-68',
-                            'zDetFace-Blur Score-69',
-                            'zDetFacePrint-Face Print Version-70',
-                            'zDetFaceGroup-UUID-71',
-                            'zDetFaceGroup-Person Builder State-72',
-                            'zDetFaceGroup-UnNamed Face Count-73',
-                            'zPerson-Face Count-74',
-                            'zDetFace-Face Algorithm Version-75',
-                            'zDetFace-Adjustment Version-76',
-                            'zPerson-In Person Naming Model-77',
-                            'zPerson-Key Face Pick Source Key-78',
-                            'zPerson-Manual Order Key-79',
-                            'zPerson-Question Type-80',
-                            'zPerson-Suggested For Client Type-81',
-                            'zPerson-Merge Target Person-82',
-                            'zPerson-Cloud Local State-83',
-                            'zFaceCrop-Cloud Local State-84',
-                            'zFaceCrop-Cloud Type-85',
-                            'zPerson-Cloud Delete State-86',
-                            'zFaceCrop-Cloud Delete State-87',
-                            'zDetFace-zPK-88',
-                            'zDetFacePrint-Face Key-89',
-                            'zPerson-KeyFace=zDetFace-zPK-90',
-                            'zFaceCrop-Face Key-91',
-                            'zPerson-zPK=zDetFace-Person-92',
-                            'zDetFace-PersonForFace= zPerson-zPK-93',
-                            'zDetFace-Person for Temporal Detected Faces= zPerson-zPK-94',
-                            'zDetFace-PersonForTorso= zPerson-zPK-95',
-                            'zDetFace-Person Being Key Face-96',
-                            'zFaceCrop-Person=zPerson-zPK&zDetFace-Person-Key-97',
-                            'zDetFace-Face Print-98',
-                            'zDetFacePrint-zPK-99',
-                            'zDetFace-Face Crop-100',
-                            'zFaceCrop-zPK-101',
-                            'zDetFaceGroup-KeyFace= zDetFace-zPK-102',
-                            'zDetFaceGroup-AssocPerson= zPerson-zPK-103',
-                            'zPerson-Assoc Face Group Key-104',
-                            'zDetFace-FaceGroupBeingKeyFace= zDetFaceGroup-zPK-105',
-                            'zDetFace-FaceGroup= zDetFaceGroup-zPK-106',
-                            'zDetFaceGroup-zPK-107',
-                            'zPerson-Share Participant= zSharePartic-zPK-108',
-                            'zDetFace-UUID-109',
-                            'zFaceCrop-UUID-110',
-                            'zFaceCrop-Invalid Merge Candidate Person UUID-111',
-                            'zPerson-Person UUID-112',
-                            'zPerson-Person URI-113',
-                            'zDetFaceGroup-UUID-114')
-            report.write_artifact_data_table(data_headers, data_list, file_found)
-            report.end_artifact_report()
-
-            tsvname = 'Ph15.2-People & Faces NAD-SyndPL'
-            tsv(report_folder, data_headers, data_list, tsvname)
-
-            tlactivity = 'Ph15.2-People & Faces NAD-SyndPL'
-            timeline(report_folder, tlactivity, data_list, data_headers)
-
-        else:
-            logfunc('No data available for Syndication.photoslibrary-database-Photos.sqlite people - detected faces - face crop data')
-
-        db.close()
-        return
+        return data_headers, data_list, source_path
 
 
-__artifacts_v2__ = {
-    'Ph15-1-People & Faces NAD-PhDaPsql': {
-        'name': 'PhDaPL Photos.sqlite 15.1 People and Faces Data No Asset Data',
-        'description': 'Parses data from PhotoData-Photos.sqlite for people - detected faces - face crop data.'
-                       ' The results may contain multiple records per ZASSET table Z_PK value and supports iOS 14-18.',
-        'author': 'Scott Koenig https://theforensicscooter.com/',
-        'version': '2.0',
-        'date': '2024-06-12',
-        'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
-        'category': 'Photos.sqlite-G-People_Faces_Data',
-        'notes': '',
-        'paths': '*/PhotoData/Photos.sqlite*',
-        'function': 'get_ph15peopledetfacephdapsql'
-    },
-    'Ph15-2-People & Faces NAD-SyndPL': {
-        'name': 'SyndPL Photos.sqlite 15.2 People and Faces Data No Asset Data',
-        'description': 'Parses data from Syndication.photoslibrary-database-Photos.sqlite for'
-                       ' people - detected faces - face crop data. The results may contain multiple records'
-                       ' per ZASSET table Z_PK value and supports iOS 14-18.',
-        'author': 'Scott Koenig https://theforensicscooter.com/',
-        'version': '2.0',
-        'date': '2024-06-12',
-        'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
-        'category': 'Photos.sqlite-S-Syndication_PL_Artifacts',
-        'notes': '',
-        'paths': '*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',
-        'function': 'get_ph15peopledetfacesyndpl'
-    }
-}
+

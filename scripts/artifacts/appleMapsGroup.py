@@ -1,17 +1,30 @@
-import plistlib
+__artifacts_v2__ = {
+    "appleMapsGroup": {
+        "name": "Apple Maps Group",
+        "description": "",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2020-08-03",
+        "last_update_date": "2025-01-21",
+        "requirements": "none",
+        "category": "Locations",
+        "notes": "",
+        "paths": ('*/Shared/AppGroup/*/Library/Preferences/group.com.apple.Maps.plist',),
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "map-pin"
+    }
+}
+
 import blackboxprotobuf
-import scripts.artifacts.artGlobals
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, tsv, is_platform_windows 
+@artifact_processor
+def appleMapsGroup(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    source_path = get_file_path(files_found, "group.com.apple.Maps.plist")
+    data_list = []
 
-
-def get_appleMapsGroup(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    versionnum = 0
-    file_found = str(files_found[0])
-
-    with open(file_found, 'rb') as f:
-        deserialized_plist = plistlib.load(f)
+    pl = get_plist_file_content(source_path)
+    maps_activity = pl.get('MapsActivity', None)
+    if maps_activity:
         types = {'1': {'type': 'message', 'message_typedef': 
                                 {'1': {'type': 'int', 'name': ''}, 
                                 '2': {'type': 'int', 'name': ''}, 
@@ -25,32 +38,10 @@ def get_appleMapsGroup(files_found, report_folder, seeker, wrap_text, timezone_o
                                 '7': {'type': 'int', 'name': ''}},
                         'name': ''}
                 }    
-        try:
-            internal_deserialized_plist, di = blackboxprotobuf.decode_message((deserialized_plist['MapsActivity']),types)
-            
-            latitude =(internal_deserialized_plist['1']['5']['Latitude'])
-            longitude =(internal_deserialized_plist['1']['5']['Longitude'])
-            
-            data_list = []
-            data_list.append((latitude, longitude))
-            report = ArtifactHtmlReport('Apple Maps Group')
-            report.start_artifact_report(report_folder, 'Apple Maps Group')
-            report.add_script()
-            data_headers = ('Latitude','Longitude' )     
-            report.write_artifact_data_table(data_headers, data_list, file_found)
-            report.end_artifact_report()
-            
-            tsvname = 'Apple Maps Group'
-            tsv(report_folder, data_headers, data_list, tsvname)
-        except:
-            logfunc('No data in Apple Maps Group')
+        internal_deserialized_plist, di = blackboxprotobuf.decode_message(maps_activity, types)
+        latitude = (internal_deserialized_plist['1']['5']['Latitude'])
+        longitude = (internal_deserialized_plist['1']['5']['Longitude'])
+        data_list.append((latitude, longitude))
 
-__artifacts__ = {
-    "applemapsgroup": (
-        "Locations",
-        ('**/Shared/AppGroup/*/Library/Preferences/group.com.apple.Maps.plist'),
-        get_appleMapsGroup)
-}
-
-
-    
+    data_headers = ('Latitude', 'Longitude')     
+    return data_headers, data_list, source_path

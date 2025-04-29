@@ -1,78 +1,75 @@
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, convert_ts_human_to_utc, convert_utc_human_to_timezone 
-
-
-def get_appleWalletTransactions(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    for file_found in files_found:
-        file_found = str(file_found)
-        
-        if file_found.endswith('passes23.sqlite'):
-            
-            db = open_sqlite_db_readonly(file_found)
-            cursor = db.cursor()
-            cursor.execute('''SELECT
-                            DATETIME(TRANSACTION_DATE + 978307200,'UNIXEPOCH'),
-                            MERCHANT_NAME,
-                            LOCALITY,
-                            ADMINISTRATIVE_AREA,
-                            CAST(AMOUNT AS REAL)/10000,
-                            CURRENCY_CODE,
-                            DATETIME(LOCATION_DATE + 978307200,'UNIXEPOCH'),
-                            LOCATION_LATITUDE,
-                            LOCATION_LONGITUDE,
-                            LOCATION_ALTITUDE,
-                            PEER_PAYMENT_COUNTERPART_HANDLE,
-                            PEER_PAYMENT_MEMO,
-                            TRANSACTION_STATUS,
-                            TRANSACTION_TYPE
-                            FROM PAYMENT_TRANSACTION
-                            ''')
-        
-            all_rows = cursor.fetchall()
-            usageentries = len(all_rows)
-    
-    if usageentries > 0:
-        data_list = []
-        for row in all_rows:
-            
-            timestamptrdate = row[0]
-            timestamplocdate = row[6]
-            
-            if (timestamptrdate == '') or (timestamptrdate == None):
-                timestamptrdate = ''
-            else:
-                timestamptrdate = convert_ts_human_to_utc(row[0])
-                timestamptrdate = convert_utc_human_to_timezone(timestamptrdate,timezone_offset)
-            
-            if (timestamplocdate == '') or (timestamplocdate == None):
-                timestamplocdate = ''
-            else:
-                timestamplocdate = convert_ts_human_to_utc(row[6])
-                timestamplocdate = convert_utc_human_to_timezone(timestamplocdate,timezone_offset)
-            
-            data_list.append((timestamptrdate, row[1], row[2], row[3], row[4], row[5], timestamplocdate, row[7], row[8], row[9], row[10], row[11], row[12], row[13]))
-
-        report = ArtifactHtmlReport('Transactions')
-        report.start_artifact_report(report_folder, 'Transactions')
-        report.add_script()
-        data_headers = ('Transaction Date', 'Merchant', 'Locality', 'Administrative Area', 'Currency Amount', 'Currency Type', 'Location Date', 'Latitude', 'Longitude', 'Altitude', 'Peer Payment Handle', 'Payment Memo', 'Transaction Status', 'Transaction Type')
-        report.write_artifact_data_table(data_headers, data_list, file_found)
-        report.end_artifact_report()
-
-        tsvname = 'Apple Wallet Transactions'
-        tsv(report_folder, data_headers, data_list, tsvname)
-
-        tlactivity = 'Apple Wallet Transactions'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-    else:
-        logfunc('No Apple Wallet Transactions available')
-
-    db.close()
-    return
-
-__artifacts__ = {
-    "applewallettransactions": (
-        "Apple Wallet",
-        ('*/passes23.sqlite*'),
-        get_appleWalletTransactions)
+__artifacts_v2__ = {
+    'appleWalletTransactions': {
+        'name': 'Apple Wallet Transactions',
+        'description': 'Apple Wallet Transactions',
+        'author': '@any333',
+        'creation_date': '2021-02-05',
+        'last_update_date': '2025-04-05',
+        'requirements': 'none',
+        'category': 'Apple Wallet',
+        'notes': '',
+        'paths': ('*/mobile/Library/Passes/passes23.sqlite*'),
+        'output_types': 'all',
+        'artifact_icon': 'credit_card',
+    }
 }
+
+
+from scripts.ilapfuncs import artifact_processor, \
+    get_file_path, get_sqlite_db_records, convert_cocoa_core_data_ts_to_utc
+
+
+@artifact_processor
+def appleWalletTransactions(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    source_path = get_file_path(files_found, 'passes23.sqlite')
+    data_list = []
+
+    query = '''
+    SELECT
+        transaction_date,
+        merchant_name,
+        locality,
+        administrative_area,
+        CAST(amount AS REAL)/10000,
+        currency_code,
+        location_date,
+        location_latitude,
+        location_longitude,
+        location_altitude,
+        peer_payment_counterpart_handle,
+        peer_payment_memo,
+        transaction_status,
+        transaction_type
+    FROM payment_transaction
+    '''
+
+    data_headers = (
+        ('Transaction Date', 'datetime'),
+        'Merchant',
+        'Locality',
+        'Administrative Area',
+        'Currency Amount',
+        'Currency Type',
+        ('Location Date', 'datetime'),
+        'Latitude',
+        'Longitude',
+        'Altitude',
+        'Peer Payment Handle',
+        'Payment Memo',
+        'Transaction Status',
+        'Transaction Type')
+
+    db_records = get_sqlite_db_records(source_path, query)
+
+    for record in db_records:
+
+        transaction_date = convert_cocoa_core_data_ts_to_utc(
+            record['transaction_date'])
+        location_date = convert_cocoa_core_data_ts_to_utc(
+            record['location_date'])
+
+        data_list.append((
+            transaction_date, record[1], record[2], record[3], record[4], record[5], location_date,
+            record[7], record[8], record[9], record[10], record[11], record[12], record[13]))
+
+    return data_headers, data_list, source_path

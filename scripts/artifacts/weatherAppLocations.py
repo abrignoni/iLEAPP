@@ -13,7 +13,6 @@ def get_weatherAppLocations(files_found, report_folder, seeker, wrap_text, timez
         file_found = str(file_found)
         with open(file_found, "rb") as plist_file:
             plist_content = plistlib.load(plist_file)
-            
           
             if plist_content.get('PrefsVersion') == '2.1':
               lastupdated = (plist_content['LastUpdated'])
@@ -89,7 +88,7 @@ def get_weatherAppLocations(files_found, report_folder, seeker, wrap_text, timez
 
 __artifacts__ = {
     "weatherAppLocations": (
-        "Locations",
+        "Location",
         ('*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.com.apple.weather.plist'),
         get_weatherAppLocations)
 }

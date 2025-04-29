@@ -3,14 +3,16 @@ __artifacts_v2__ = {
         "name": "SKG Archive",
         "description": "Parses SKG Archive Records",
         "author": "@JFHyla",
-        "version": "0.1",
-        "date": "2024-12-02",
+        "version": "0.2",
+        "date": "2025-04-11",
         "requirements": "mdplistlib",
         "category": "Spotlight",
         "notes": "",
         "paths": (
             '*/CoreSpotlight/SpotlightKnowledge/index.V2/keyphrases/NSFileProtectionComplete/skg_archive.V2.*',
             '*/CoreSpotlight/SpotlightKnowledge/index.V2/archives/NSFileProtectionComplete/skg_archive.V2.*',
+            #'*/CoreSpotlight/SpotlightKnowledge/index.V2/archives/NSFileProtectionComplete/skg_archive-*',
+            '*/CoreSpotlight/SpotlightKnowledge/index.V2/archives/NSFileProtectionCompleteUntilFirstUserAuthentication/skg_archive-*'
         ),
         "output_types": "standard"
     }
@@ -46,10 +48,13 @@ def skg_archive(files_found, report_folder, seeker, wrap_text, timezone_offset):
                 d[2].get('_kMDItemExternalID'),
                 d[2].get('_kMDItemDomainIdentifier'),
                 d[2].get('_kMDItemSnippet'),
+                d[2].get('kMDItemAuthorAddresses'),
                 d[2].get('kMDItemAuthorEmailAddresses'),
                 d[2].get('kMDItemAuthors'),
                 d[2].get('kMDItemContentType'),
+                d[2].get('kMDItemRecipientAddresses'),
                 d[2].get('kMDItemRecipientEmailAddresses'),
+                d[2].get('kMDItemRecipients'),
                 str(d)
             )
 
@@ -70,6 +75,6 @@ def skg_archive(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
     data_headers = (
          ('_kMDItemInterestingDate', 'datetime'), ('kMDItemContentCreationDate', 'datetime'), '_kMDItemBundleID', '_kMDItemOID', '_kMDItemExternalID', '_kMDItemDomainIdentifier',
-         '_kMDItemSnippet', 'kMDItemAuthorEmailAddresses', 'kMDItemAuthors', 'kMDItemContentType', 'kMDItemRecipientEmailAddresses', 'Raw Data')
+         '_kMDItemSnippet', 'kMDItemAuthorAddresses', 'kMDItemAuthorEmailAddresses', 'kMDItemAuthors', 'kMDItemContentType', 'kMDItemRecipientAddresses', 'kMDItemRecipientEmailAddresses', 'kMDItemRecipients', 'Raw Data')
     return data_headers, data_list, report_files
 

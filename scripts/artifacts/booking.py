@@ -1369,46 +1369,46 @@ def get_booking(files_found, report_folder, seeker, wrap_text, timezone_offset):
         source_files = seeker.search(f'*/{identifier}/Library/Application Support/KeyValueStorageAccountDomain*', return_on_first_hit=True)
         if bool(source_files):
             # account
-            get_account(source_files[0], report_folder, timezone_offset)
+            get_account(source_files, report_folder, timezone_offset)
 
             # payment methods
-            get_payment_methods(source_files[0], report_folder, timezone_offset)
+            get_payment_methods(source_files, report_folder, timezone_offset)
 
         # */Library/Application Support/AccountSettings[.plist]
         source_files = seeker.search(f'*/{identifier}/Library/Application Support/AccountSettings*', return_on_first_hit=True)
         if bool(source_files):
             # account settings
-            get_account_settings(source_files[0], report_folder, timezone_offset)
+            get_account_settings(source_files, report_folder, timezone_offset)
 
             # payment methods settings
-            get_payment_methods_settings(source_files[0], report_folder, timezone_offset)
+            get_payment_methods_settings(source_files, report_folder, timezone_offset)
 
         # */Library/Application Support/BookingClouds[.plist]
         source_files = seeker.search(f'*/{identifier}/Library/Application Support/BookingClouds*', return_on_first_hit=True)
         if bool(source_files):
             # booked
-            get_booked(source_files[0], documents, report_folder, timezone_offset)
+            get_booked(source_files, documents, report_folder, timezone_offset)
 
         # */Library/Application Support/KeyValueStorageRecentsDomain[.plist]
         source_files = seeker.search(f'*/{identifier}/Library/Application Support/KeyValueStorageRecentsDomain*', return_on_first_hit=True)
         if bool(source_files):
             # recently searched
-            get_recently_searched(source_files[0], report_folder, timezone_offset)
+            get_recently_searched(source_files, report_folder, timezone_offset)
 
             # recently booked
-            get_recently_booked(source_files[0], report_folder, timezone_offset)
+            get_recently_booked(source_files, report_folder, timezone_offset)
 
             # viewed
-            get_viewed(source_files[0], report_folder, timezone_offset)
+            get_viewed(source_files, report_folder, timezone_offset)
 
             # wish lists
-            get_wish_lists(source_files[0], report_folder, timezone_offset)
+            get_wish_lists(source_files, report_folder, timezone_offset)
 
         # */Library/Application Support/KeyValueStorageSharedDomain[.plist]
         source_files = seeker.search(f'*/{identifier}/Library/Application Support/KeyValueStorageSharedDomain*', return_on_first_hit=True)
         if bool(source_files):
             # stored destinations
-            get_stored_destinations(source_files[0], report_folder, timezone_offset)
+            get_stored_destinations(source_files, report_folder, timezone_offset)
 
         # */Library/Application Support/NotificationsModel.sqlite
         source_files = seeker.search(f'*/{identifier}/Library/Application Support/NotificationsModel.sqlite*')
@@ -1422,4 +1422,4 @@ def get_booking(files_found, report_folder, seeker, wrap_text, timezone_offset):
         source_files = seeker.search(f'*/{identifier}/Library/Application Support/flight_rs_v2', return_on_first_hit=True)
         if bool(source_files):
             # flights searched
-            get_flights_searched(source_files[0], report_folder, timezone_offset)
+            get_flights_searched(source_files, report_folder, timezone_offset)

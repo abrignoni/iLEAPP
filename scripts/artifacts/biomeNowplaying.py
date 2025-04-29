@@ -1,12 +1,12 @@
 __artifacts_v2__ = {
     "get_biomeNowplaying": {
-        "name": "Biome Now Playing",
+        "name": "Biome - Now Playing",
         "description": "Parses Now Playing entries from biomes",
         "author": "@JohnHyla",
         "version": "0.0.2",
         "date": "2024-10-17",
         "requirements": "none",
-        "category": "Biome Now Playing",
+        "category": "Biome",
         "notes": "",
         "paths": ('*/Biome/streams/public/NowPlaying/local/*'),
         "output_types": "standard"

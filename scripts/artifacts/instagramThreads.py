@@ -2,7 +2,6 @@ import sqlite3
 import io
 import json
 import nska_deserialize as nd
-import scripts.artifacts.artGlobals
 
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport

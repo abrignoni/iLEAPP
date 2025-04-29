@@ -6,7 +6,6 @@ import shutil
 import errno
 from pathlib import Path
 import string
-import scripts.artifacts.artGlobals
 
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport

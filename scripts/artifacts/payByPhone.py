@@ -25,14 +25,11 @@ __artifacts_v2__ = {
         "output_types": "all",
         "artifact_icon": "map"
     }
-
 }
 
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, media_to_html, webkit_timestampsconv
 import re
-import sys
-import os
 
 def price_format(value): # limit to two digits after the decimal point
     if value:

@@ -13,7 +13,7 @@ __artifacts_v2__ = {
     }
 }
 
-from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, convert_ts_human_to_timezone_offset 
+from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, attach_sqlite_db_readonly, convert_ts_human_to_timezone_offset 
 
 @artifact_processor
 def atxDatastore(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -35,7 +35,9 @@ def atxDatastore(files_found, report_folder, seeker, wrap_text, timezone_offset)
     db = open_sqlite_db_readonly(atxdb)
     cursor = db.cursor()
 
-    cursor.execute(f'''ATTACH DATABASE "file:{localdb}?mode=ro" AS Local ''')
+    attach_query = attach_sqlite_db_readonly(localdb, 'Local')
+    cursor.execute(attach_query)
+
     cursor.execute('''
     SELECT 
         alog.id AS Id,

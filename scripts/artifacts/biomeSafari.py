@@ -1,12 +1,12 @@
 __artifacts_v2__ = {
     "get_biomeSafari": {
-        "name": "Biome Safari",
+        "name": "Biome - Safari",
         "description": "Parses safari entries from biomes",
         "author": "@JohnHyla",
         "version": "0.0.2",
         "date": "2024-10-17",
         "requirements": "none",
-        "category": "Biome Safari",
+        "category": "Biome",
         "notes": "",
         "paths": ('*/biome/streams/restricted/_DKEvent.Safari.History/local/*'),
         "output_types": "standard"
