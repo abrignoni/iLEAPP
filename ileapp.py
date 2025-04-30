@@ -136,7 +136,7 @@ def create_casedata(path):
     return
 
 def main():
-    parser = argparse.ArgumentParser(description='iLEAPP: iOS Logs, Events, And Plists Parser.')
+    parser = argparse.ArgumentParser(description=f'iLEAPP v{ileapp_version}: iOS Logs, Events, And Plists Parser.')
     parser.add_argument('-t', choices=['fs', 'tar', 'zip', 'gz', 'itunes'], required=False, action="store",
                         help=("Specify the input type. "
                               "'fs' for a folder containing extracted files with normal paths and names, "
