@@ -342,7 +342,7 @@ def case_data():
         '''Import image file and covert it into base64'''
         logo_path = tk_filedialog.askopenfilename(parent=case_window,
                                                          title='Add agency logo',
-                                                         filetypes=(('All supported files', '*.png *.jpg *.gz'), ))
+                                                         filetypes=(('All supported files', '*.png *.jpg *.gif'), ))
 
         if logo_path and os.path.exists(logo_path):
             agency_logo_load_error = None
