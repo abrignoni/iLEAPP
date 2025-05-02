@@ -48,6 +48,7 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | allTrails |
 | appleWalletCards |
 | appleWalletTransactions |
+| booking |
 | callHistory |
 | discordJson |
 | discord_a |
@@ -90,7 +91,6 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | biomeSync |
 | bluetoothOther |
 | bluetoothPairedLE |
-| booking |
 | bumble |
 | burner |
 | burnerCache |
