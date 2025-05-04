@@ -1,364 +1,427 @@
 __artifacts_v2__ = {
-    "waze": {
-        "name": "Waze",
-        "description": "Get account, session, searched locations, recent locations, favorite locations, "
-					   "share locations, text-to-speech navigation and track GPS quality.",
-        "author": "Django Faiola (djangofaiola.blogspot.com @DjangoFaiola)",
-        "version": "0.1.2",
-        "date": "2024-02-02",
+    "waze_account": {
+        "name": "Account",
+        "description": "Parses and extract Waze Account",
+        "author": "@djangofaiola",
+        "version": "0.2",
+        "creation_date": "2024-02-02",
+        "last_update_date": "2025-05-04",
         "requirements": "none",
         "category": "Waze",
-        "notes": "",
-        "paths": ('*/mobile/Containers/Data/Application/*/Documents/user.db*',
-                  '*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist'),
-        "function": "get_waze"
+        "notes": "https://djangofaiola.blogspot.com",
+        "paths": ('*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist'),
+        "output_types": [ "lava", "html", "tsv" ],
+        "artifact_icon": "user"
+    },
+    "waze_session_info": {
+        "name": "Session Info",
+        "description": "Parses and extract Waze Session Info",
+        "author": "@djangofaiola",
+        "version": "0.2",
+        "creation_date": "2024-02-02",
+        "last_update_date": "2025-05-04",
+        "requirements": "none",
+        "category": "Waze",
+        "notes": "https://djangofaiola.blogspot.com",
+        "paths": ('*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist'),
+        "output_types": [ "lava", "html", "tsv", "timeline" ],
+        "artifact_icon": "navigation-2"
+    },
+    "waze_track_gps_quality": {
+        "name": "Track GPS Quality",
+        "description": "Parses and extract Waze Track GPS Quality",
+        "author": "@djangofaiola",
+        "version": "0.2",
+        "creation_date": "2024-02-02",
+        "last_update_date": "2025-05-04",
+        "requirements": "none",
+        "category": "Waze",
+        "notes": "https://djangofaiola.blogspot.com",
+        "paths": ('*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist'),
+        "output_types": [ "lava", "html", "tsv", "timeline" ],
+        "artifact_icon": "navigation-2"
+    },
+    "waze_searched_locations": {
+        "name": "Searched Locations",
+        "description": "Parses and extract Waze Searched Locations",
+        "author": "@djangofaiola",
+        "version": "0.2",
+        "creation_date": "2024-02-02",
+        "last_update_date": "2025-05-04",
+        "requirements": "none",
+        "category": "Waze",
+        "notes": "https://djangofaiola.blogspot.com",
+        "paths": ('*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist'),
+        "output_types": [ "lava", "html", "tsv", "timeline" ],
+        "artifact_icon": "search"
+    },
+    "waze_recent_locations": {
+        "name": "Recent Locations",
+        "description": "Parses and extract Waze Recent Locations",
+        "author": "@djangofaiola",
+        "version": "0.2",
+        "creation_date": "2024-02-02",
+        "last_update_date": "2025-05-04",
+        "requirements": "none",
+        "category": "Waze",
+        "notes": "https://djangofaiola.blogspot.com",
+        "paths": ('*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist'),
+        "output_types": [ "lava", "html", "tsv", "timeline" ],
+        "artifact_icon": "map-pin"
+    },
+    "waze_favorite_locations": {
+        "name": "Favorite Locations",
+        "description": "Parses and extract Waze Favorite Locations",
+        "author": "@djangofaiola",
+        "version": "0.2",
+        "creation_date": "2024-02-02",
+        "last_update_date": "2025-05-04",
+        "requirements": "none",
+        "category": "Waze",
+        "notes": "https://djangofaiola.blogspot.com",
+        "paths": ('*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist'),
+        "output_types": [ "lava", "html", "tsv", "timeline" ],
+        "artifact_icon": "star"
+    },
+    "waze_share_locations": {
+        "name": "Share Locations",
+        "description": "Parses and extract Waze Share Locations",
+        "author": "@djangofaiola",
+        "version": "0.2",
+        "creation_date": "2024-02-02",
+        "last_update_date": "2025-05-04",
+        "requirements": "none",
+        "category": "Waze",
+        "notes": "https://djangofaiola.blogspot.com",
+        "paths": ('*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist'),
+        "output_types": [ "lava", "html", "tsv", "timeline" ],
+        "artifact_icon": "map-pin"
+    },
+    "waze_tts": {
+        "name": "Text-To-Speech navigation",
+        "description": "Parses and extract Waze Text-To-Speech navigation",
+        "author": "@djangofaiola",
+        "version": "0.2",
+        "creation_date": "2024-02-02",
+        "last_update_date": "2025-05-04",
+        "requirements": "none",
+        "category": "Waze",
+        "notes": "https://djangofaiola.blogspot.com",
+        "paths": ('*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist'),
+        "output_types": [ "lava", "html", "tsv", "timeline" ],
+        "artifact_icon": "volume-2"
     }
 }
 
-import os
 import re
-import plistlib
-import pathlib
-import shutil
-import sqlite3
-import textwrap
-import datetime
-
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, kmlgen, open_sqlite_db_readonly, convert_ts_int_to_utc, convert_utc_human_to_timezone
-
-# format location
-def FormatLocation(location, value, tableName, key):
-    newLocation = ''
-    if value:
-        s = value.split(chr(29))
-        for elem in range(0, len(s)):
-            if bool(s[elem]) and (s[elem].lower() != 'none'):
-                if newLocation:
-                    newLocation = newLocation + ', '
-                newLocation = newLocation + '(' + key + ': ' + s[elem] + ')'
-        if newLocation:
-            newLocation = tableName + ' ' + newLocation
-            if location:
-                newLocation = ', ' + newLocation
-    return location + newLocation
+from pathlib import Path
+from scripts.ilapfuncs import get_file_path, get_sqlite_db_records, get_txt_file_content, convert_unix_ts_to_utc, artifact_processor, logfunc
 
 
-def FormatTimestamp(utc, timezone_offset):
-    if not bool(utc) or (utc == None):
-        return ''
-    else:
-        timestamp = convert_ts_int_to_utc(int(float(utc)))
-        return convert_utc_human_to_timezone(timestamp, timezone_offset)
+# constants
+LINE_BREAK = '\n'
+COMMA_SEP = ', '
+HTML_LINE_BREAK = '<br>'
+
+
+# device path/local path
+def get_device_file_path(file_path, seeker):
+    device_path = file_path
+
+    if bool(file_path):
+        file_info = seeker.file_infos.get(file_path) if file_path else None
+        # data folder: /path/to/report/data
+        if file_info:
+            source_path = file_info.source_path
+        # extraction folder: /path/to/directory
+        else:
+            source_path = file_path
+        if source_path.startswith('\\\\?\\'): source_path = source_path[4:]
+        source_path = Path(source_path).as_posix()
+
+        index_private = source_path.find('/private/')
+        if index_private > 0:
+            device_path = source_path[index_private:]
+        else:
+            device_path = source_path
+
+    return device_path
+
+
+# unordered list
+def unordered_list(values, html_format=False):
+    if not bool(values):
+        return None
+
+    return HTML_LINE_BREAK.join(values) if html_format else LINE_BREAK.join(values)
+
+
+# get application id
+def get_application_id(files_found):
+    file_found = get_file_path(files_found, "com.waze.iphone.plist")
+    return Path(file_found).parents[2].name if bool(file_found) else None
 
 
 # account
-def get_account(file_found, report_folder, timezone_offset):
+@artifact_processor
+def waze_account(files_found, report_folder, seeker, wrap_text, timezone_offset):
+
+    data_headers = (
+        'First name',
+        'Last name',
+        'User name',
+        'Nickname',
+        ('First launched', 'datetime')
+    )
     data_list = []
+    SEP = ': '
+    first_name = None
+    last_name = None
+    user_name = None
+    nickname = None
+    first_launched = None
 
-    f = open(file_found, "r", encoding="utf-8")
-    try:
-        row = [ None ] * 5
-        patternFirstName = 'Realtime.FirstName:'
-        patternLastName = 'Realtime.LastName:'
-        patternUserName = 'Realtime.Name:'
-        patternNickname = 'Realtime.Nickname:'
-        patternFirstLaunched = 'General.Last upgrade time:'
-        sep = ': '
+    waze_app_identifier = get_application_id(files_found)
+    file_found = seeker.search(f"*/{waze_app_identifier}/Documents/user", return_on_first_hit=True)
+    lines = get_txt_file_content(file_found)
+    for line in lines:
+        root = line.split('.', 1)[0]
+        if not root in ( 'Realtime', 'General' ):
+            continue
 
-        data = f.readlines()
-        for line in data:
-            root = line.split('.', 1)[0]
-            if not root in ( 'Realtime', 'General' ):
-                continue
-            
-            # first name
-            if line.startswith(patternFirstName):
-                row[0] = line.split(sep, 1)[1]
-            # last name
-            elif line.startswith(patternLastName):
-                row[1] = line.split(sep, 1)[1]
-            # user name
-            elif line.startswith(patternUserName):
-                row[2] = line.split(sep, 1)[1]
-            # nickname
-            elif line.startswith(patternNickname):
-                row[3] = line.split(sep, 1)[1]
-            # first launched
-            elif line.startswith(patternFirstLaunched):
-                timestamp = line.split(sep, 1)[1]
-                row[4] = FormatTimestamp(timestamp, timezone_offset)
+        # first name
+        if line.startswith('Realtime.FirstName:'):
+            first_name = line.split(SEP, 1)[1]
+        # last name
+        elif line.startswith('Realtime.LastName:'):
+            last_name = line.split(SEP, 1)[1]
+        # user name
+        elif line.startswith('Realtime.Name:'):
+            user_name = line.split(SEP, 1)[1]
+        # nickname
+        elif line.startswith('Realtime.Nickname:'):
+            nickname = line.split(SEP, 1)[1]
+        # first launched
+        elif line.startswith('General.First use:'):
+            timestamp = float(line.split(SEP, 1)[1])
+            first_launched = convert_unix_ts_to_utc(timestamp)
 
-        # row
-        if row.count(None) != len(row):
-            data_list.append((row[0], row[1], row[2], row[3], row[4]))
+    # lava row
+    data_list.append((first_name, last_name, user_name, nickname, first_launched))
 
-    finally:
-        f.close()
-
-    if len(data_list) > 0:
-        report = ArtifactHtmlReport('Waze Account')
-        report.start_artifact_report(report_folder, 'Waze Account')
-        report.add_script()
-        data_headers = ('First name', 'Last name', 'User name', 'Nickname', 'First launched')
-
-        report.write_artifact_data_table(data_headers, data_list, file_found)
-        report.end_artifact_report()
-            
-        tsvname = f'Waze Account'
-        tsv(report_folder, data_headers, data_list, tsvname)
-            
-        tlactivity = f'Waze Account'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-    else:
-        logfunc('No Waze Account data available')
+    return data_headers, data_list, file_found
 
 
-# session
-def get_session(file_found, report_folder, timezone_offset):
+# session info
+@artifact_processor
+def waze_session_info(files_found, report_folder, seeker, wrap_text, timezone_offset):
+
+    data_headers = (
+        ('Last synced', 'datetime'),
+        'Last position latitude',
+        'Last position longitude',
+        'Last navigation latitude',
+        'Last navigation longitude',
+        'Last navigation destination',
+        'State',
+        'City',
+        'Street',
+        'House'
+    )
     data_list = []
+    SEP = ': '
+    last_synced = None
+    latitude = None
+    longitude = None
+    last_latitude = None
+    last_longitude = None
+    last_dest_name = None
+    state = None
+    city = None
+    street = None
+    house = None
 
-    f = open(file_found, "r", encoding="utf-8")
-    try:
-        row = [ None ] * 8
-        patternLastSynced = 'Config.Last synced:'
-        patternGPSPosition = 'GPS.Position:'
-        patternLastPosition = 'Navigation.Last position:'
-        patternLastDestName = 'Navigation.Last dest name:'
-        patternLastDestState = 'Navigation.Last dest state:'
-        patternLastDestCity = 'Navigation.Last dest city:'
-        patternLastDestStreet = 'Navigation.Last dest street:'
-        patternLastDestHouse = 'Navigation.Last dest number:'
-        sep = ': '
+    waze_app_identifier = get_application_id(files_found)
+    file_found = seeker.search(f"*/{waze_app_identifier}/Documents/session", return_on_first_hit=True)
+    lines = get_txt_file_content(file_found)
+    for line in lines:
+        root = line.split('.', 1)[0]
+        if not root in ( 'Config', 'GPS', 'Navigation' ):
+            continue
 
-        data = f.readlines()
-        for line in data:
-            root = line.split('.', 1)[0]
-            if not root in ( 'Config', 'GPS', 'Navigation' ):
-                continue
-            
-            # Last synced (ms)
-            if line.startswith(patternLastSynced):
-                timestamp = int(float(line.split(sep, 1)[1]) / 1000)
-                row[0] = FormatTimestamp(timestamp, timezone_offset)
-            # last position
-            elif line.startswith(patternGPSPosition):
-                coordinates = line.split(sep, 1)[1].split(',')      # lon,lat
-                row[1] = f'{float(coordinates[1]) / 1000000},{float(coordinates[0]) / 1000000}'
-            # last navigation coordinates
-            elif line.startswith(patternLastPosition):
-                coordinates = line.split(sep, 1)[1].split(',')      # lon,lat
-                row[2] = f'{float(coordinates[1]) / 1000000},{float(coordinates[0]) / 1000000}'
-            # last navigation destination
-            elif line.startswith(patternLastDestName):
-                row[3] = line.split(sep, 1)[1]
-            # state
-            elif line.startswith(patternLastDestState):
-                row[4] = line.split(sep, 1)[1]
-            # city
-            elif line.startswith(patternLastDestCity):
-                row[5] = line.split(sep, 1)[1]
-            # street
-            elif line.startswith(patternLastDestStreet):
-                row[6] = line.split(sep, 1)[1]
-            # house
-            elif line.startswith(patternLastDestHouse):
-                row[7] = line.split(sep, 1)[1]
-        
-        # row
-        if row.count(None) != len(row):
-            data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]))
+        # Last synced (ms)
+        if line.startswith('Config.Last synced:'):
+            timestamp = float(line.split(SEP, 1)[1])
+            last_synced = convert_unix_ts_to_utc(timestamp)
+        # last position
+        elif line.startswith('GPS.Position:'):
+            coordinates = line.split(SEP, 1)[1].split(',')      # lon,lat
+            latitude = f"{float(coordinates[1]) / 1000000}"
+            longitude = f"{float(coordinates[0]) / 1000000}"
+        # last navigation coordinates
+        elif line.startswith('Navigation.Last position:'):
+            coordinates = line.split(SEP, 1)[1].split(',')      # lon,lat
+            last_latitude = f"{float(coordinates[1]) / 1000000}"
+            last_longitude = f"{float(coordinates[0]) / 1000000}"
+        # last navigation destination
+        elif line.startswith('Navigation.Last dest name:'):
+            last_dest_name = line.split(SEP, 1)[1]
+        # state
+        elif line.startswith('Navigation.Last dest state:'):
+            state = line.split(SEP, 1)[1]
+        # city
+        elif line.startswith('Navigation.Last dest city:'):
+            city = line.split(SEP, 1)[1]
+        # street
+        elif line.startswith('Navigation.Last dest street:'):
+            street = line.split(SEP, 1)[1]
+        # house
+        elif line.startswith('Navigation.Last dest number:'):
+            house = line.split(SEP, 1)[1]
 
-    finally:
-        f.close()
+    # lava row
+    data_list.append((last_synced, latitude, longitude, last_latitude, last_longitude, last_dest_name, state, city, street, house))
 
-    if len(data_list) > 0:
-        report = ArtifactHtmlReport('Waze Session info')
-        report.start_artifact_report(report_folder, 'Waze Session info')
-        report.add_script()
-        data_headers = ('Last synced', 'Last position', 'Last navigation coordinates', 'Last navigation destination', 'State', 'City', 'Street', 'House')
-
-        report.write_artifact_data_table(data_headers, data_list, file_found)
-        report.end_artifact_report()
-            
-        tsvname = f'Waze Session info'
-        tsv(report_folder, data_headers, data_list, tsvname)
-            
-        tlactivity = f'Waze Session info'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-    else:
-        logfunc('No Waze Session info data available')
+    return data_headers, data_list, file_found
 
 
-# recent locations
-def get_recent_locations(file_found, report_folder, database, timezone_offset):
-    cursor = database.cursor()
-    cursor.execute('''
-    SELECT 
-        R.id,
-        P.id,
-        R.access_time,
-        R.name AS "name",
-        CAST((CAST(P.latitude AS REAL) / 1000000) AS TEXT) || "," || CAST((CAST(P.longitude AS REAL) / 1000000) AS TEXT) AS "coordinates",
-	    R.created_time
-    FROM RECENTS AS "R"
-    LEFT JOIN PLACES AS "P" ON (R.place_id = P.id)
-    ''')
+# track gps tracker
+@artifact_processor
+def waze_track_gps_quality(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
-    all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
-    if usageentries > 0:
-        report = ArtifactHtmlReport('Waze Recent locations')
-        report.start_artifact_report(report_folder, 'Waze Recent locations')
-        report.add_script()
-        data_headers = ('Last access', 'Name', 'Coordinates', 'Created', 'Location') 
-        data_list = []
-        for row in all_rows:
-            # R.id
-            location = FormatLocation('', str(row[0]), 'RECENTS', 'id')
+    data_headers = (
+        ('Timestamp', 'datetime'),
+        'Latitude',
+        'Longitude',
+        'Sample count (bad)',
+        'Average accuracy (min-max)',
+        'Provider',
+        'Source file name',
+        'Location'
+    )
+    data_list = []
+    data_list_html = []
+    device_file_paths = []
+    artifact_info_name = __artifacts_v2__['waze_track_gps_quality']['name']
 
-            # P.id
-            location = FormatLocation(location, str(row[1]), 'PLACES', 'id')
+    waze_app_identifier = get_application_id(files_found)
+    spdlog = seeker.search(f"*/{waze_app_identifier}/Documents/spdlog.*logdata")
 
-            # last access
-            lastAccess = FormatTimestamp(row[2], timezone_offset)
+    # all files
+    for file_found in spdlog:
+        file_name = Path(file_found).name
+        device_file_path = get_device_file_path(file_found, seeker)
+ 
+        # spdlog.*logdata
+        if not (file_name.startswith('spdlog') and file_name.endswith('.logdata')):
+            continue
 
-            # created
-            created = FormatTimestamp(row[5], timezone_offset)
+        try:
+            device_file_paths = [ device_file_path ]
 
-            # row
-            data_list.append((lastAccess, row[3], row[4], created, location))
+            # regexpr pattern
+            line_pattern = re.compile(r'STAT\(buffer#[\d]{1,2}\)\sGPS_QUALITY\s')
+            values_pattern = re.compile(r'(?<=\{)(.*?)(?=\})')
 
-        report.write_artifact_data_table(data_headers, data_list, file_found)
-        report.end_artifact_report()
-            
-        tsvname = f'Waze Recent locations'
-        tsv(report_folder, data_headers, data_list, tsvname)
-            
-        tlactivity = f'Waze Recent locations'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-    else:
-        logfunc('No Waze Recent locations data available')
+            # text file
+            lines = get_txt_file_content(file_found)
 
+            line_count = 0
+            for line in lines:
+                line_count += 1
 
-# favorite locations
-def get_favorite_locations(file_found, report_folder, database, timezone_offset):
-    cursor = database.cursor()
-    cursor.execute('''
-    SELECT 
-	    F.id,
-	    P.id,
-        F.access_time,
-	    F.name AS "name",
-	    CAST((CAST(P.latitude AS REAL) / 1000000) AS TEXT) || "," || CAST((CAST(P.longitude AS REAL) / 1000000) AS TEXT) AS "coordinates",
-	    F.created_time,
-	    F.modified_time
-    FROM FAVORITES AS "F"
-    LEFT JOIN PLACES AS "P" ON (F.place_id = P.id)
-    ''')
+                device_file_paths = [ device_file_path ]
 
-    all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
-    if usageentries > 0:
-        report = ArtifactHtmlReport('Waze Favorite locations')
-        report.start_artifact_report(report_folder, 'Waze Favorite locations')
-        report.add_script()
-        data_headers = ('Last access', 'Name', 'Coordinates', 'Created', 'Modified', 'Location') 
-        data_list = []
-        for row in all_rows:
-            # F.id
-            location = FormatLocation('', str(row[0]), 'FAVORITES', 'id')
+                # gps quality
+                if not re.search(line_pattern, line):
+                    continue
 
-            # P.id
-            location = FormatLocation(location, str(row[1]), 'PLACES', 'id')
+                timestamp = None
+                latitude = None
+                longitude = None
+                sample_count = None
+                average_accuracy = None
+                provider = None
 
-            # last access
-            lastAccess = FormatTimestamp(row[2], timezone_offset)
+                values_iter = re.finditer(values_pattern, line)
+                for kv in values_iter:
+                    kv_split = kv.group().split('=', 1)
+                
+                    # timestamp
+                    if kv_split[0] == 'TIMESTAMP':
+                        timestamp = convert_unix_ts_to_utc(float(kv_split[1]))
 
-            # created
-            created = FormatTimestamp(row[5], timezone_offset)
+                    # latitude
+                    elif kv_split[0] == 'LAT':
+                        latitude = float(kv_split[1]) / 1000000
 
-            # modified
-            modified = FormatTimestamp(row[6], timezone_offset)
+                    # longitude
+                    elif kv_split[0] == 'LON':
+                        longitude = float(kv_split[1]) / 1000000
 
-            # row
-            data_list.append((lastAccess, row[3], row[4], created, modified, location))
+                    # sample count
+                    elif kv_split[0] == 'SAMPLE_COUNT':
+                        sample_count = kv_split[1]
+                        
+                    # bad sample count
+                    elif kv_split[0] == 'BAD_SAMPLE_COUNT':
+                        sample_count += f" ({kv_split[1]})"
 
-        report.write_artifact_data_table(data_headers, data_list, file_found)
-        report.end_artifact_report()
-            
-        tsvname = f'Waze Favorite locations'
-        tsv(report_folder, data_headers, data_list, tsvname)
-            
-        tlactivity = f'Waze Favorite locations'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-    else:
-        logfunc('No Waze Favorite locations data available')
+                    # accuracy "avg (min-max)"
+                    elif kv_split[0] == 'ACC_AVG':
+                        average_accuracy = kv_split[1]
 
+                    # accuracy "avg (min-max)"
+                    elif kv_split[0] == 'ACC_MIN':
+                        average_accuracy += f" ({kv_split[1]}-"
 
-# shared locations
-def get_shared_locations(file_found, report_folder, database, timezone_offset):
-    cursor = database.cursor()
-    cursor.execute('''
-    SELECT 
-	    SP.id,
-	    P.id,
-        SP.share_time,
-	    SP.name AS "name",
-	    CAST((CAST(P.latitude AS REAL) / 1000000) AS TEXT) || "," || CAST((CAST(P.longitude AS REAL) / 1000000) AS TEXT) AS "coordinates",
-	    SP.created_time,
-	    SP.modified_time,
-        SP.access_time
-    FROM SHARED_PLACES AS "SP"
-    LEFT JOIN PLACES AS "P" ON (SP.place_id = P.id)                   
-    ''')
+                    # accuracy "avg (min-max)"
+                    elif kv_split[0] == 'ACC_MAX':
+                        average_accuracy += f"{kv_split[1]})"
 
-    all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
-    if usageentries > 0:
-        report = ArtifactHtmlReport('Waze Shared locations')
-        report.start_artifact_report(report_folder, 'Waze Shared locations')
-        report.add_script()
-        data_headers = ('Shared', 'Name', 'Coordinates', 'Created', 'Modified', 'Last access', 'Location') 
-        data_list = []
-        for row in all_rows:
-            # SP.id
-            location = FormatLocation('', str(row[0]), 'SHARED_PLACES', 'id')
+                    # provider
+                    elif kv_split[0] == 'PROVIDER':
+                        provider = kv_split[1]
 
-            # P.id
-            location = FormatLocation(location, str(row[1]), 'PLACES', 'id')
+                # source file name
+                device_file_paths = dict.fromkeys(device_file_paths)
+                source_file_name = unordered_list(device_file_paths)
+                source_file_name_html = unordered_list(device_file_paths, html_format=True)
+                # location
+                location = f"{Path(file_found).name} (row: {line_count})"
 
-            # shared
-            shared = FormatTimestamp(row[2], timezone_offset)
+                # html row
+                data_list_html.append((timestamp, latitude, longitude, sample_count, average_accuracy, provider, source_file_name_html, location))
+                # lava row
+                data_list.append((timestamp, latitude, longitude, sample_count, average_accuracy, provider, source_file_name, location))
+        except Exception as ex:
+            logfunc(f"Exception while parsing {artifact_info_name} - {file_found}: " + str(ex))
+            pass
 
-            # created
-            created = FormatTimestamp(row[5], timezone_offset)
-
-            # modified
-            modified = FormatTimestamp(row[6], timezone_offset)
-
-            # last access
-            lastAccess = FormatTimestamp(row[7], timezone_offset)
-
-            # row
-            data_list.append((shared, row[3], row[4], created, modified, lastAccess, location))
-
-        report.write_artifact_data_table(data_headers, data_list, file_found)
-        report.end_artifact_report()
-            
-        tsvname = f'Waze Shared locations'
-        tsv(report_folder, data_headers, data_list, tsvname)
-            
-        tlactivity = f'Waze Shared locations'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-    else:
-        logfunc('No Waze Shared locations data available')
+    return data_headers, (data_list, data_list_html), ' '
 
 
 # searched locations
-def get_searched_locations(file_found, report_folder, database, timezone_offset):
-    cursor = database.cursor()
-    cursor.execute('''
+@artifact_processor
+def waze_searched_locations(files_found, report_folder, seeker, wrap_text, timezone_offset):
+
+    data_headers = (
+        ('Created', 'datetime'),
+        'Name',
+        'Street',
+        'House',
+        'State',
+        'City',
+        'Country',
+        'Latitude',
+        'Longitude',
+        'Location'
+    )
+    data_list = []
+    waze_app_identifier = get_application_id(files_found)
+    file_found = seeker.search(f"*/{waze_app_identifier}/Documents/user.db", return_on_first_hit=True)
+
+    query = '''
     SELECT 
         P.id,
 	    P.created_time,
@@ -368,246 +431,252 @@ def get_searched_locations(file_found, report_folder, database, timezone_offset)
         P.state,
         P.city,
         P.country,
-        CAST((CAST(P.latitude AS REAL) / 1000000) AS TEXT) || "," || CAST((CAST(P.longitude AS REAL) / 1000000) AS TEXT) AS "coordinates"
+        CAST((CAST(P.latitude AS REAL) / 1000000) AS TEXT) AS "latitude",
+        CAST((CAST(P.longitude AS REAL) / 1000000) AS TEXT) AS "longitude"
     FROM PLACES AS "P"
-    ''')
+    '''
 
-    all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
-    if usageentries > 0:
-        report = ArtifactHtmlReport('Waze Searched locations')
-        report.start_artifact_report(report_folder, 'Waze Searched locations')
-        report.add_script()
-        data_headers = ('Created', 'Name', 'Street', 'House', 'State', 'City', 'Country', 'Coordinates', 'Location') 
-        data_list = []
-        for row in all_rows:
-            # P.id
-            location = FormatLocation('', str(row[0]), 'PLACES', 'id')
+    db_records = get_sqlite_db_records(file_found, query)
+    for record in db_records:
+        # created
+        created = convert_unix_ts_to_utc(record[1])
+        # name
+        name = record[2]
+        # street
+        street = record[3]
+        # house
+        house = record[4]
+        # state
+        state = record[5]
+        # city
+        city = record[6]
+        # country
+        country = record[7]
+        # latitude
+        latitude = record[8]
+        # longitude
+        longitude = record[9]
 
-            # created
-            created = FormatTimestamp(row[1], timezone_offset)
+        # location
+        location = f"PLACES (id: {record[0]})"
 
-            # row
-            data_list.append((created, row[2], row[3], row[4], row[5], row[6], row[7], row[8], location))
+        # lava row
+        data_list.append((created, name, street, house, state, city, country, latitude, longitude, location))
 
-        report.write_artifact_data_table(data_headers, data_list, file_found)
-        report.end_artifact_report()
-            
-        tsvname = f'Waze Searched locations'
-        tsv(report_folder, data_headers, data_list, tsvname)
-            
-        tlactivity = f'Waze Searched locations'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-    else:
-        logfunc('No Waze Searched locations data available')
+    return data_headers, data_list, file_found
 
 
-# text-to-speech navigation
-def get_tts(file_found, report_folder, timezone_offset):
-    db = open_sqlite_db_readonly(file_found)
-    try:
-        # list tables
-        cursor = db.execute(f"SELECT name FROM sqlite_master WHERE type='table'")
-        all_tables = cursor.fetchall()
-        if len(all_tables) == 0:
-            logfunc('No Waze Text-To-Speech navigation data available')
-            return
-        
-        for table in all_tables:
-            table_name = table[0]
-            cursor = db.cursor()
-            cursor.execute('''
-            SELECT 
-                rowid,
-                update_time,
-                text
-            FROM {0}
-            '''.format(table_name))
+# recent locations
+@artifact_processor
+def waze_recent_locations(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
-            all_rows = cursor.fetchall()
-            usageentries = len(all_rows)
-            if usageentries > 0:
-                report = ArtifactHtmlReport('Waze Text-To-Speech navigation')
-                report.start_artifact_report(report_folder, 'Waze Text-To-Speech navigation')
-                report.add_script()
-                data_headers = ('Timestamp', 'Text', 'Location') 
-                data_list = []
-                for row in all_rows:
-                    # rowid
-                    location = FormatLocation('', str(row[0]), table_name, 'rowid')
-
-                    # timestamp
-                    timestamp = FormatTimestamp(row[1], timezone_offset)
-
-                    # row
-                    data_list.append((timestamp, row[2], location))
-
-                report.write_artifact_data_table(data_headers, data_list, file_found)
-                report.end_artifact_report()
-                
-                tsvname = f'Waze Text-To-Speech navigation'
-                tsv(report_folder, data_headers, data_list, tsvname)
-                
-                tlactivity = f'Waze Text-To-Speech navigation'
-                timeline(report_folder, tlactivity, data_list, data_headers)
-            else:
-                logfunc('No Waze Text-To-Speech navigation data available')
-    finally:
-        db.close()
-        
-
-# track gps quality
-def get_gps_quality(files_found, report_folder, timezone_offset):
+    data_headers = (
+        ('Last access', 'datetime'),
+        'Name',
+        'Latitude',
+        'Longitude',
+        ('Created', 'datetime'),
+        'Location'
+    )
     data_list = []
-    source_files = []
+    waze_app_identifier = get_application_id(files_found)
+    file_found = seeker.search(f"*/{waze_app_identifier}/Documents/user.db", return_on_first_hit=True)
 
-    for file_found in files_found:
-        file_found = str(file_found)
-        file_name = pathlib.Path(file_found).name
+    query = '''
+    SELECT 
+        R.id,
+        P.id,
+        R.access_time,
+        R.name AS "name",
+        CAST((CAST(P.latitude AS REAL) / 1000000) AS TEXT) AS "latitude",
+        CAST((CAST(P.longitude AS REAL) / 1000000) AS TEXT) AS "longitude",
+	    R.created_time
+    FROM RECENTS AS "R"
+    LEFT JOIN PLACES AS "P" ON (R.place_id = P.id)
+    '''
 
-        if not (file_name.startswith('spdlog') and file_name.endswith('.logdata')):
-            continue
+    db_records = get_sqlite_db_records(file_found, query)
+    for record in db_records:
+        # last access
+        last_access = convert_unix_ts_to_utc(record[2])
+        # name
+        name = record[3]
+        # latitude
+        latitude = record[4]
+        # longitude
+        longitude = record[5]
+        # created
+        created = convert_unix_ts_to_utc(record[6])
 
-        f = open(file_found, "r", encoding="utf-8")
-        try:
-            row = [ None ] * 6
-            hit_count = 0
-            line_count = 0
-            line_filter = re.compile(r'STAT\(buffer#[\d]{1,2}\)\sGPS_QUALITY\s')
-            values_filter = re.compile(r'(?<=\{)(.*?)(?=\})')
+        # location
+        location = [ f"RECENTS (id: {record[0]})" ]
+        if record[1] is not None: location.append(f"PLACES (id: {record[1]})")
+        location = COMMA_SEP.join(location)
 
-            data = f.readlines()
-            for line in data:
-                line_count += 1
-                
-                # gps quality
-                if not re.search(line_filter, line):
-                    continue
+        # lava row
+        data_list.append((last_access, name, latitude, longitude, created, location))
 
-                hit_count += 1
-                location = FormatLocation('', str(line_count), file_name, 'row')
-                    
-                values_iter = re.finditer(values_filter, line)
-                for kv in values_iter:
-                    kv_split = kv.group().split('=', 1)
-                    
-                    # timestamp
-                    if kv_split[0] == 'TIMESTAMP':
-                        row[0] = FormatTimestamp(kv_split[1], timezone_offset)
-
-                    # latitude
-                    elif kv_split[0] == 'LAT':
-                        row[1] = float(kv_split[1]) / 1000000
-
-                    # longitude
-                    elif kv_split[0] == 'LON':
-                        row[2] = float(kv_split[1]) / 1000000
-
-                    # sample count
-                    elif kv_split[0] == 'SAMPLE_COUNT':
-                        row[3] = kv_split[1]
-                        
-                    # bad sample count
-                    elif kv_split[0] == 'BAD_SAMPLE_COUNT':
-                        row[3] += ' (' + kv_split[1] + ')'
-
-                    # accuracy "avg (min-max)"
-                    elif kv_split[0] == 'ACC_AVG':
-                        row[4] = kv_split[1]
-
-                    # accuracy "avg (min-max)"
-                    elif kv_split[0] == 'ACC_MIN':
-                        row[4] += ' (' + kv_split[1] + '-'
-
-                    # accuracy "avg (min-max)"
-                    elif kv_split[0] == 'ACC_MAX':
-                        row[4] += kv_split[1] + ')'
-
-                    # provider
-                    elif kv_split[0] == 'PROVIDER':
-                        row[5] = kv_split[1]
-
-                # row
-                if row.count(None) != len(row):
-                    data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], location))
-
-            if hit_count > 0:
-                if file_found.startswith('\\\\?\\'):
-                    source_files.append(file_found[4:])
-                else:
-                    source_files.append(file_found)
-        finally:
-            f.close()
-
-    if len(data_list) > 0:
-        report = ArtifactHtmlReport('Waze Track GPS quality')
-        report.start_artifact_report(report_folder, 'Waze Track GPS quality')
-        report.add_script()
-        data_headers = ('Timestamp', 'Latitude', 'Longitude', 'Sample count (bad)', 'Average accuracy (min-max)', 'Provider', 'Location')
-
-        report.write_artifact_data_table(data_headers, data_list, ', '.join(source_files))
-        report.end_artifact_report()
-                
-        tsvname = f'Waze Track GPS quality'
-        tsv(report_folder, data_headers, data_list, tsvname)
-                
-        tlactivity = f'Waze Track GPS quality'
-        timeline(report_folder, tlactivity, data_list, data_headers) 
-
-        kmlactivity = 'Waze Track GPS quality'
-        kmlgen(report_folder, kmlactivity, data_list, data_headers)
-    else:
-        logfunc('No Waze Track GPS quality data available')
+    return data_headers, data_list, file_found
 
 
-# waze
-def get_waze(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    #datos =  seeker.search('**/*com.apple.mobile_container_manager.metadata.plist')
-    for file_foundm in files_found:
-        if file_foundm.endswith('.com.apple.mobile_container_manager.metadata.plist'):
-            with open(file_foundm, 'rb') as f:
-                pl = plistlib.load(f)
-                if pl['MCMMetadataIdentifier'] == 'com.waze.iphone':
-                    fulldir = (os.path.dirname(file_foundm))
-                    identifier = (os.path.basename(fulldir))
-                    
-                    # user
-                    path_list = seeker.search(f'*/{identifier}/Documents/user', True)
-                    if len(path_list) > 0:
-                        get_account(path_list, report_folder, timezone_offset)
+# favorite locations
+@artifact_processor
+def waze_favorite_locations(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
-                    # session
-                    path_list = seeker.search(f'*/{identifier}/Documents/session', True)
-                    if len(path_list) > 0:
-                        get_session(path_list, report_folder, timezone_offset)
+    data_headers = (
+        ('Last access', 'datetime'),
+        'Name',
+        'Latitude',
+        'Longitude',
+        ('Created', 'datetime'),
+        ('Modified', 'datetime'),
+        'Location'
+    )
+    data_list = []
+    waze_app_identifier = get_application_id(files_found)
+    file_found = seeker.search(f"*/{waze_app_identifier}/Documents/user.db", return_on_first_hit=True)
 
-                    # tts.db
-                    path_list = seeker.search(f'*/{identifier}/Library/Caches/tts/tts.db', True)
-                    if len(path_list) > 0:
-                        get_tts(path_list, report_folder, timezone_offset)
+    query = '''
+    SELECT 
+	    F.id,
+	    P.id,
+        F.access_time,
+	    F.name AS "name",
+        CAST((CAST(P.latitude AS REAL) / 1000000) AS TEXT) AS "latitude",
+        CAST((CAST(P.longitude AS REAL) / 1000000) AS TEXT) AS "longitude",
+	    F.created_time,
+	    F.modified_time
+    FROM FAVORITES AS "F"
+    LEFT JOIN PLACES AS "P" ON (F.place_id = P.id)
+    '''
 
-                    # spdlog.*logdata
-                    path_list = seeker.search(f'*/{identifier}/Documents/spdlog.*logdata')
-                    if len(path_list) > 0:
-                        get_gps_quality(path_list, report_folder, timezone_offset)
+    db_records = get_sqlite_db_records(file_found, query)
+    for record in db_records:
+        # last access
+        last_access = convert_unix_ts_to_utc(record[2])
+        # name
+        name = record[3]
+        # latitude
+        latitude = record[4]
+        # longitude
+        longitude = record[5]
+        # created
+        created = convert_unix_ts_to_utc(record[6])
+        # modified
+        modified = convert_unix_ts_to_utc(record[7])
 
-                    break
+        # location
+        location = [ f"FAVORITES (id: {record[0]})" ]
+        if record[1] is not None: location.append(f"PLACES (id: {record[1]})")
+        location = COMMA_SEP.join(location)
 
-    for file_found in files_found:
-        # user.db
-        if file_found.endswith('user.db'):
-            db = open_sqlite_db_readonly(file_found)
-            try:
-                # searched locations
-                get_searched_locations(file_found, report_folder, db, timezone_offset)
+        # lava row
+        data_list.append((last_access, name, latitude, longitude, created, modified, location))
 
-                # recent locations
-                get_recent_locations(file_found, report_folder, db, timezone_offset)
+    return data_headers, data_list, file_found
 
-                # favorite locations
-                get_favorite_locations(file_found, report_folder, db, timezone_offset)
 
-                # shared locations
-                get_shared_locations(file_found, report_folder, db, timezone_offset)
-            finally:
-                db.close()
+# share locations
+@artifact_processor
+def waze_share_locations(files_found, report_folder, seeker, wrap_text, timezone_offset):
+
+    data_headers = (
+        ('Shared', 'datetime'),
+        'Name',
+        'Latitude',
+        'Longitude',
+        ('Created', 'datetime'),
+        ('Modified', 'datetime'),
+        ('Last access', 'datetime'),
+        'Location'
+    )
+    data_list = []
+    waze_app_identifier = get_application_id(files_found)
+    file_found = seeker.search(f"*/{waze_app_identifier}/Documents/user.db", return_on_first_hit=True)
+
+    query = '''
+    SELECT 
+	    SP.id,
+	    P.id,
+        SP.share_time,
+	    SP.name AS "name",
+        CAST((CAST(P.latitude AS REAL) / 1000000) AS TEXT) AS "latitude",
+        CAST((CAST(P.longitude AS REAL) / 1000000) AS TEXT) AS "longitude",
+	    SP.created_time,
+	    SP.modified_time,
+        SP.access_time
+    FROM SHARED_PLACES AS "SP"
+    LEFT JOIN PLACES AS "P" ON (SP.place_id = P.id)                   
+    '''
+
+    db_records = get_sqlite_db_records(file_found, query)
+    for record in db_records:
+        # share time
+        shared = convert_unix_ts_to_utc(record[2])
+        # name
+        name = record[3]
+        # latitude
+        latitude = record[4]
+        # longitude
+        longitude = record[5]
+        # created
+        created = convert_unix_ts_to_utc(record[6])
+        # modified
+        modified = convert_unix_ts_to_utc(record[7])
+        # last access
+        last_access = convert_unix_ts_to_utc(record[8])
+
+        # location
+        location = [ f"SHARED_PLACES (id: {record[0]})" ]
+        if record[1] is not None: location.append(f"PLACES (id: {record[1]})")
+        location = COMMA_SEP.join(location)
+
+        # lava row
+        data_list.append((shared, name, latitude, longitude, created, modified, last_access, location))
+
+    return data_headers, data_list, file_found
+
+
+# Text-To-Speech navigation
+@artifact_processor
+def waze_tts(files_found, report_folder, seeker, wrap_text, timezone_offset):
+
+    data_headers = (
+        ('Timestamp', 'datetime'),
+        'Text',
+        'Location'
+    )
+    data_list = []
+    waze_app_identifier = get_application_id(files_found)
+    file_found = seeker.search(f"*/{waze_app_identifier}/Library/Caches/tts/tts.db", return_on_first_hit=True)
+
+    # list tables
+    query = f"SELECT name FROM sqlite_master WHERE type='table'"
+
+    all_tables = get_sqlite_db_records(file_found, query)
+    for table in all_tables:
+        # table name
+        table_name = table[0]
+
+        query = '''
+        SELECT 
+            rowid,
+            update_time,
+            text
+        FROM {0}
+        '''.format(table_name)
+
+        db_records = get_sqlite_db_records(file_found, query)
+        for record in db_records:
+            # share timestamp
+            timestamp = convert_unix_ts_to_utc(record[1])
+            # text
+            text = record[2]
+
+            # location
+            location = f"{table_name} (rowid: {record[0]})"
+
+            # lava row
+            data_list.append((timestamp, text, location))
+
+    return data_headers, data_list, file_found
