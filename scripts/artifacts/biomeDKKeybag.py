@@ -1,10 +1,10 @@
 __artifacts_v2__ = {
     "get_biomeDKKeybag": {
         "name": "Biome Keybag",
-        "description": "Parses backlight entries from biomes",
+        "description": "Parses DKEvent Keybag IsLocked entries from biomes",
         "author": "@JohnHyla",
-        "version": "0.0.2",
-        "date": "2024-10-17",
+        "version": "0.0.1",
+        "date": "2025-04-29",
         "requirements": "none",
         "category": "Biome Keybag",
         "notes": "",
@@ -49,9 +49,6 @@ def get_biomeDKKeybag(files_found, report_folder, seeker, wrap_text, timezone_of
             if record.state == EntryState.Written:
                 protostuff, types = blackboxprotobuf.decode_message(record.data, typess)
 
-                time8 = (webkit_timestampsconv(protostuff['8']))
-                time8 = convert_utc_human_to_timezone(time8, timezone_offset)
-
                 time2 = (webkit_timestampsconv(protostuff['2']))
                 time2 = convert_utc_human_to_timezone(time2, timezone_offset)
 
@@ -60,8 +57,8 @@ def get_biomeDKKeybag(files_found, report_folder, seeker, wrap_text, timezone_of
 
 
 
-                data_list.append((ts, time8, time2, time3, '1 - Locked ' if protostuff['4']['4'] == 1 else '0 - Unlocked'))
+                data_list.append((ts, time2, time3, '1 - Locked ' if protostuff['4']['4'] == 1 else '0 - Unlocked'))
 
-    data_headers = (('SEGB Timestamp', 'datetime'), ('Time8', 'datetime'), ('Time2', 'datetime'), ('Time3', 'datetime'), 'isLocked')
+    data_headers = (('SEGB Timestamp', 'datetime'), ('Start Time', 'datetime'), ('End Time', 'datetime'), 'isLocked')
 
     return data_headers, data_list, report_file
