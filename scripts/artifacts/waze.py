@@ -24,7 +24,7 @@ __artifacts_v2__ = {
         "category": "Waze",
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ('*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist'),
-        "output_types": [ "lava", "html", "tsv", "timeline", "kml" ],
+        "output_types": [ "lava", "html", "tsv", "timeline" ],
         "artifact_icon": "navigation-2"
     },
     "waze_track_gps_quality": {
