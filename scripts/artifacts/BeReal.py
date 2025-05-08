@@ -116,7 +116,7 @@ __artifacts_v2__ = {
                   '*/mobile/Containers/Shared/AppGroup/*/disk-bereal-Production_postFeedItems/*',
                   '*/mobile/Containers/Data/Application/*/Library/Caches/AlexisBarreyat.BeReal/Cache.db*',
                   '*/mobile/Containers/Shared/AppGroup/*/EntitiesStore.sqlite*'),
-        "output_types": [ "lava", "html", "tsv", "timeline" ],
+        "output_types": [ "all" ],
         "html_columns": [ "Primary URL", "Secondary URL", "Thumbnail URL", "Song URL", "Visibility", "Tagged friends", "Source file name", "Location" ],
         "artifact_icon": "calendar"
     },
@@ -757,12 +757,15 @@ def get_device_file_path(file_path, seeker):
         # extraction folder: /path/to/directory
         else:
             source_path = file_path
+        if source_path.startswith('\\\\?\\'): source_path = source_path[4:]
         source_path = Path(source_path).as_posix()
 
         index_private = source_path.find('/private/')
         if index_private > 0:
             device_path = source_path[index_private:]
-    
+        else:
+            device_path = source_path
+
     return device_path
 
 

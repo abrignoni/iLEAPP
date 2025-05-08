@@ -24,7 +24,7 @@ __artifacts_v2__ = {
         "category": "Waze",
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ('*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist'),
-        "output_types": [ "lava", "html", "tsv", "timeline" ],
+        "output_types": [ "lava", "html", "tsv", "timeline", "kml" ],
         "artifact_icon": "navigation-2"
     },
     "waze_track_gps_quality": {
@@ -38,7 +38,7 @@ __artifacts_v2__ = {
         "category": "Waze",
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ('*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist'),
-        "output_types": [ "lava", "html", "tsv", "timeline" ],
+        "output_types": [ "all" ],
         "artifact_icon": "navigation-2"
     },
     "waze_searched_locations": {
@@ -52,7 +52,7 @@ __artifacts_v2__ = {
         "category": "Waze",
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ('*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist'),
-        "output_types": [ "lava", "html", "tsv", "timeline" ],
+        "output_types": [ "all" ],
         "artifact_icon": "search"
     },
     "waze_recent_locations": {
@@ -66,7 +66,7 @@ __artifacts_v2__ = {
         "category": "Waze",
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ('*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist'),
-        "output_types": [ "lava", "html", "tsv", "timeline" ],
+        "output_types": [ "all" ],
         "artifact_icon": "map-pin"
     },
     "waze_favorite_locations": {
@@ -80,7 +80,7 @@ __artifacts_v2__ = {
         "category": "Waze",
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ('*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist'),
-        "output_types": [ "lava", "html", "tsv", "timeline" ],
+        "output_types": [ "all" ],
         "artifact_icon": "star"
     },
     "waze_share_locations": {
@@ -94,7 +94,7 @@ __artifacts_v2__ = {
         "category": "Waze",
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ('*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist'),
-        "output_types": [ "lava", "html", "tsv", "timeline" ],
+        "output_types": [ "all" ],
         "artifact_icon": "map-pin"
     },
     "waze_tts": {
