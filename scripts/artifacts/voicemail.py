@@ -93,8 +93,8 @@ def voicemail(files_found, report_folder, seeker, wrap_text, timezone_offset):
             deleted = convert_cocoa_core_data_ts_to_utc(record[-2]) \
                 if isinstance(record[-2], int) else record[-2]
             audio_filename = f'{record[-1]}.amr'
-            media_item = check_in_media(seeker, audio_filename, artifact_info, \
-                                        name=audio_filename, already_extracted=extracted_audio_files)
+            media_item = check_in_media(extracted_audio_files, audio_filename, report_folder, seeker, artifact_info, \
+                                        name=audio_filename)
             transcript_file_path = get_file_path(extracted_transcript_files, f'{record[-1]}.transcript')
             transcript = get_plist_file_content(transcript_file_path) if transcript_file_path else {}
             transcription_string = transcript.get('transcriptionString', '')
