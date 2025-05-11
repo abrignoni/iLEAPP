@@ -191,7 +191,10 @@ def check_in_media(files_found, file_path, report_folder, seeker, artifact_info,
             if lava_media_ref:
                 return media_ref_id
             media_path = Path(report_folder).joinpath(media_ref_id).with_suffix(extraction_path.suffix)
-            media_path.hardlink_to(extraction_path)
+            try:
+                media_path.hardlink_to(extraction_path)
+            except OSError:
+                shutil.copy2(extraction_path, media_path)
             lava_media_item = lava_get_media_item(media_id)
             if not lava_media_item:
                 media_item = MediaItem(media_id)

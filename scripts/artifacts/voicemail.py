@@ -126,8 +126,8 @@ def voicemail(files_found, report_folder, seeker, wrap_text, timezone_offset):
                 convert_unix_ts_to_utc(seeker.file_infos[audio_file_path].creation_date),
                 convert_unix_ts_to_utc(seeker.file_infos[audio_file_path].modification_date),
                 seeker.file_infos[audio_file_path].source_path,
-                check_in_media(seeker, audio_file_path, artifact_info, \
-                    name=Path(audio_file_path).name, already_extracted=extracted_audio_files),
+                check_in_media(extracted_audio_files, audio_file_path, report_folder, seeker, artifact_info, \
+                    name=Path(audio_file_path).name),
                 transcriptions.get(audio_key, {}).get('path', ''),
                 transcriptions.get(audio_key, {}).get('transcription_string', ''),
                 transcriptions.get(audio_key, {}).get('confidence', '')
