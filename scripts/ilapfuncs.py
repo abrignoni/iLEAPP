@@ -176,16 +176,16 @@ def set_media_references(media_ref_id, media_id, artifact_info, name, media_path
     lava_insert_sqlite_media_references(media_references)
 
 def check_in_media(files_found, file_path, report_folder, seeker, artifact_info, name="", converted_file_path=False):
-    extracted_file_path = next(
-        (path for path in files_found if Path(path).match(file_path)), None)
-    file_info = seeker.file_infos.get(extracted_file_path)
+    if converted_file_path:
+        extraction_path = converted_file_path
+    else:
+        extraction_path = next(
+            (path for path in files_found if Path(path).match(file_path)), None)
+    file_info = seeker.file_infos.get(extraction_path)
     if file_info:
-        if converted_file_path:
-            extraction_path = Path(converted_file_path)
-        else:
-            extraction_path = Path(extracted_file_path)
+        extraction_path = Path(extraction_path)
         if extraction_path.is_file():
-            media_id = hashlib.sha1(f"{extraction_path}".encode()).hexdigest()
+            media_id = hashlib.sha1(f"{file_info.source_path}".encode()).hexdigest()
             media_ref_id = get_media_references_id(media_id, artifact_info, name)
             lava_media_ref = lava_get_media_references(media_ref_id)
             if lava_media_ref:
