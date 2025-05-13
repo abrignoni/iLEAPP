@@ -65,7 +65,7 @@ __artifacts_v2__ = {
         "author": "@djangofaiola",
         "version": "0.3",
         "creation_date": "2024-03-05",
-        "last_update_date": "2025-05-02",
+        "last_update_date": "2025-05-13",
         "requirements": "none",
         "category": "Burner Cache",
         "notes": "https://djangofaiola.blogspot.com",

@@ -34,7 +34,7 @@ __artifacts_v2__ = {
         "author": "@djangofaiola",
         "version": "0.1",
         "creation_date": "2024-12-20",
-        "last_update_date": "2025-04-02",
+        "last_update_date": "2025-05-13",
         "requirements": "none",
         "category": "BeReal",
         "notes": "https://djangofaiola.blogspot.com",
