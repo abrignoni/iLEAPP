@@ -128,8 +128,8 @@ def iTunesBackupInstalledApplications(files_found, report_folder, seeker, wrap_t
                 messages_extension = itunes_metadata.get('hasMessagesExtension', '')
                 icon = app_data.get('PlaceholderIcon', '')
                 if icon:
-                    icon_item = check_in_embedded_media(
-                        icon, source_path, report_folder, seeker, artifact_info, item_name)
+                    icon_item = check_in_embedded_media(artifact_info, report_folder, seeker, source_path, icon, 
+                                                        item_name)
                 else:
                     icon_item = ''
 

@@ -86,13 +86,12 @@ def applicationSnapshots(files_found, report_folder, seeker, wrap_text, timezone
                 continue
             png_path = media_path.with_suffix((".png"))
             if save_ktx_to_png_if_valid(media_path, png_path):
-                media_item = check_in_media(
-                    files_found, file_found, report_folder, seeker, artifact_info, app_name, png_path)
+                media_item = check_in_media(artifact_info, report_folder, seeker, files_found, file_found, 
+                                            app_name, png_path)
             else:
                 continue
         else:
-            media_item = check_in_media(
-                files_found, file_found, report_folder, seeker, artifact_info, app_name)
+            media_item = check_in_media(artifact_info, report_folder, seeker, files_found, file_found, app_name)
         last_modified_date = convert_unix_ts_to_utc(lava_get_full_media_info(media_item)[-1])
         data_list.append([last_modified_date, app_name, file_found, media_item])
     

@@ -693,7 +693,7 @@ def bereal_contacts(files_found, report_folder, seeker, wrap_text, timezone_offs
                 photo_b64 = contact.get('photo')
                 if bool(photo_b64):
                     photo_raw = standard_b64decode(photo_b64)   # bytes
-                    photo = check_in_embedded_media(seeker, file_found, photo_raw, artifact_info)
+                    photo = check_in_embedded_media(artifact_info, report_folder, seeker, file_found, photo_raw)
                 else:
                     photo = ''
                 # organization name

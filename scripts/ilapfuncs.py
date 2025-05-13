@@ -175,7 +175,7 @@ def set_media_references(media_ref_id, media_id, artifact_info, name, media_path
     ))
     lava_insert_sqlite_media_references(media_references)
 
-def check_in_media(files_found, file_path, report_folder, seeker, artifact_info, name="", converted_file_path=False):
+def check_in_media(artifact_info, report_folder, seeker, files_found, file_path, name="", converted_file_path=False):
     extraction_path = next(
         (path for path in files_found if Path(path).match(file_path)), None)
     file_info = seeker.file_infos.get(extraction_path)
@@ -211,7 +211,7 @@ def check_in_media(files_found, file_path, report_folder, seeker, artifact_info,
         logfunc(f'No matching file found for "{file_path}"')
         return None
 
-def check_in_embedded_media(data, source_file, report_folder, seeker, artifact_info, name=""):
+def check_in_embedded_media(artifact_info, report_folder, seeker, source_file, data, name=""):
     file_info = seeker.file_infos.get(source_file)
     source_path = file_info.source_path if file_info else source_file
     if data:
