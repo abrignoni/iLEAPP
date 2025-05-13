@@ -2,13 +2,15 @@
 
 This guide outlines the process of updating existing complex xLEAPP modules to include LAVA output. These modules typically process a single group of file pattern searches but generate multiple HTML and TSV outputs.
 
-*Note that if you are just attempting to split output into multiple HTML pages or just handle HTML manually for some other reason but the LAVA and TSV is a single table/output you can probably still use the instructions found in module_updates.md. (Refer to carCD.py for an example)
+*Note that if you are just attempting to split output into multiple HTML pages or just handle HTML manually for some other reason but the LAVA and TSV is a single table/output you can probably still use the instructions found in [Updating Modules for Automatic Output Generation](module_updates.md). (Refer to `carCD.py` for an example of manual HTML with automatic LAVA/TSV processing)*
+
 ## Key Changes
 
-1. Update the `__artifacts_v2__` block
-2. Add LAVA-related imports
-3. Add LAVA output generation to the main function
-4. Use special data type handlers for LAVA output
+1.  Update the `__artifacts_v2__` block
+2.  Modify imports (add LAVA and Media Manager functions)
+3.  Handle Media Files (if applicable)
+4.  Add LAVA output generation to the main function
+5.  Use special data type handlers for LAVA output
 
 ## Detailed Process
 
@@ -18,7 +20,7 @@ Modify the `__artifacts_v2__` dictionary to include all required fields for the 
 
 ```python
 __artifacts_v2__ = {
-    "get_complex_artifact": {
+    "complex_artifact": {
         "name": "Complex Artifact Name",
         "description": "Description of the complex artifact",
         "author": "@AuthorUsername",
@@ -34,19 +36,94 @@ __artifacts_v2__ = {
 }
 ```
 
-### 2. Add LAVA-related imports
+### 2. Modify Imports
 
-Add the following import at the top of your module file:
+Add imports for LAVA functions and, if your module handles media, the Media Manager functions from `ilapfuncs`.
 
 ```python
+# Existing imports for your module...
+# import scripts.artifact_report # For manual HTML reports
+# from scripts.ilapfuncs import tsv # For manual TSV
+
+# Add these for LAVA and Media Management:
 from scripts.lavafuncs import lava_process_artifact, lava_insert_sqlite_data
+from scripts.ilapfuncs import (
+    check_in_media,
+    check_in_embedded_media,
+    get_file_path, # If you use it to find files
+    # ... other necessary ilapfuncs ...
+)
+import os # Often needed for path joining with 'data' subfolder
 ```
 
-### 3. Add LAVA output generation to the main function
+### 3. Handle Media Files (If Applicable)
 
-Add LAVA output generation for each artifact in your complex module. Here's an example of how to modify your existing function:
+If your complex artifact involves media files, use the Media Manager functions (`check_in_media` or `check_in_embedded_media`) to process them. This step should occur *before* you populate your `data_list` with media references and *before* you call `lava_process_artifact`.
+
+1.  **Get `artifact_info`**: Retrieve the artifact's metadata dictionary from `__artifacts_v2__` using the current function's name.
+    ```python
+    # Inside your main processing function (e.g., get_complex_artifact)
+    # This assumes 'complex_artifact' is the key in __artifacts_v2__
+    # and 'get_complex_artifact' is the name of the current function.
+    # This dict is passed to check_in_media or check_in_embedded_media.
+    current_artifact_info = __artifacts_v2__["complex_artifact"]
+    ```
+
+2.  **Call `check_in_media` or `check_in_embedded_media`**: These functions return a `media_ref_id` (string), which you then put into your `data_list`.
+
+    *   **For files on disk (`check_in_media`):**
+        ```python
+        image_file_pattern = "**/path/to/image.jpg" # Pattern to find the media file
+        found_image_path_in_extraction = get_file_path(files_found, image_file_pattern)
+        
+        media_ref_id = None
+        if found_image_path_in_extraction:
+            media_ref_id = check_in_media(
+                artifact_info=current_artifact_info,
+                report_folder=report_folder,
+                seeker=seeker,
+                files_found=files_found, 
+                file_path=image_file_pattern, 
+                name="Descriptive Name for Media Item" # Optional
+            )
+        # Add media_ref_id (or placeholder if None) to your data_list
+        # e.g., data_list_for_part1.append((timestamp, event_details, media_ref_id))
+        ```
+
+    *   **For embedded binary data (`check_in_embedded_media`):**
+        ```python
+        binary_media_data = record['blob_column'] # Actual bytes of the media
+        source_db_path = get_file_path(files_found, "**/source_app.db")
+        
+        media_ref_id = None
+        if binary_media_data and source_db_path:
+            media_ref_id = check_in_embedded_media(
+                artifact_info=current_artifact_info,
+                report_folder=report_folder, 
+                seeker=seeker,
+                source_file=source_db_path,
+                data=binary_media_data,
+                name="Embedded Media Item Name" # Optional
+            )
+        # Add media_ref_id to your data_list
+        ```
+
+4.  **Update `data_headers`**: For each `data_list` that will contain `media_ref_id`s, ensure the corresponding `data_headers` list marks that column with the type `'media'`.
+    ```python
+    # For data_headers_part1 if it has a media column:
+    data_headers_part1 = [('Timestamp', 'datetime'), 'Description', ('Photo', 'media')]
+    #
+    # For data_headers_part2 if it also has media:
+    data_headers_part2 = ['User', ('Attachment', 'media', 'max-width:50px;')] # Optional style for HTML
+    ```
+    This `'media'` type is essential for `lava_process_artifact` to correctly handle the `media_ref_id`. It also helps the manual HTML report generation if you have a helper function that understands this tuple format for media.
+
+### 4. Add LAVA output generation to the main function
+
+After processing data (including any media calls), generating your manual HTML and TSV reports, add the LAVA output generation for each distinct dataset.
 
 ```python
+# In your main processing function, e.g., get_complex_artifact
 def get_complex_artifact(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list1 = []
     data_list2 = []
@@ -96,11 +173,14 @@ def get_complex_artifact(files_found, report_folder, seeker, wrap_text, timezone
 
 ## Important Notes
 
-- The `output_types` in `__artifacts_v2__` is set to "none" because we're manually handling the output generation.
-- LAVA functions should be called for each separate artifact within the complex module.
-- Ensure that the category and module_name used in LAVA function calls match the values in your `__artifacts_v2__` dictionary.
-- Special data type handlers (e.g., 'datetime', 'date') are added just before calling the LAVA output functions. These are only used for LAVA output and don't affect HTML or TSV outputs.
-- The special data type handlers are added by replacing the header string with a tuple containing the original header name and the data type.
-- The LAVA output will be automatically included in the final LAVA report without any additional steps.
+-   The `output_types` in `__artifacts_v2__` is set to `"none"` because any HTML/TSV generation is manual. LAVA output is added by directly calling `lava_process_artifact` and `lava_insert_sqlite_data`.
+-   Call LAVA functions for *each distinct data table* you want to represent in LAVA.
+-   The `category` comes from your `__artifacts_v2__` entry. The `module_name` for `lava_process_artifact` is the name of your Python artifact processing function (e.g., `get_complex_artifact`). The `artifact_name_for_lava` should be a unique, descriptive name for *that specific table* being generated.
+-   Media Handling:
+    *   Use `check_in_media` / `check_in_embedded_media` from `ilapfuncs.py`.
+    *   Pass the `data` subfolder path (e.g., `os.path.join(report_folder, 'data')`) as the `report_folder` argument to these media functions.
+    *   These functions handle copying/linking media and creating LAVA database entries (`media_items`, `media_references`).
+    *   The `media_ref_id` returned is placed in your `data_list`.
+    *   `lava_process_artifact` interprets this `media_ref_id` correctly when the column header is typed as `'media'`.
 
 These changes will add LAVA output capability to your complex module while maintaining its existing HTML and TSV outputs and utilizing special data type handlers for LAVA.
