@@ -1255,9 +1255,10 @@ def booking_booked(files_found, report_folder, seeker, wrap_text, timezone_offse
                         # attachment (key=id)Booking
                         if bool(documents):
                             # url encode "#"???
-                            att_media_ref_id = check_in_media(seeker, f"Booking #{key}.pdf", artifact_info, already_extracted=documents)
+                            att_media_ref_id = check_in_media(artifact_info, report_folder, seeker, documents, 
+                                                              f"Booking #{key}.pdf")
                             att_media_item = lava_get_full_media_info(att_media_ref_id)
-                            if att_media_item: device_file_paths.append(get_device_file_path(att_media_item[5], seeker))
+                            if att_media_item: device_file_paths.append(get_device_file_path(att_media_item[6], seeker))
 
                         # source file name
                         device_file_paths = dict.fromkeys(device_file_paths)

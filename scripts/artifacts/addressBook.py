@@ -189,13 +189,13 @@ def addressBook(files_found, report_folder, seeker, wrap_text, timezone_offset):
         
         thumbnail = record[2]
         if thumbnail:
-            thumbnail = check_in_embedded_media(
-                seeker, address_book_images_db, thumbnail, artifact_info, media_name)
+            thumbnail = check_in_embedded_media(artifact_info, report_folder, seeker, address_book_images_db, 
+                                                thumbnail, media_name)
 
         full_size_image = record[3]
         if full_size_image:
-                full_size_image = check_in_embedded_media(
-                    seeker, address_book_images_db, full_size_image, artifact_info, media_name)
+                full_size_image = check_in_embedded_media(artifact_info, report_folder, seeker, address_book_images_db, 
+                                                          full_size_image, media_name)
 
         phone_numbers = record[16]
         if phone_numbers:

@@ -752,9 +752,10 @@ def burnerCache_messages(files_found, report_folder, seeker, wrap_text, timezone
                     continue
                 # isDataOnFS
                 if bool(m_record[2]):
-                    media_ref_id = check_in_media(seeker, m_record[3], artifact_info, already_extracted=media_files)
+                    media_ref_id = check_in_media(artifact_info, report_folder, seeker, files_found, m_record[3])
                 else:
-                    media_ref_id = check_in_embedded_media(seeker, file_found, m_record[3], artifact_info)
+                    media_ref_id = check_in_embedded_media(artifact_info, report_folder, seeker, file_found, 
+                                                           m_record[3])
                 media_item = lava_get_full_media_info(media_ref_id)
                 if media_item: device_file_paths.append(get_device_file_path(media_item[5], seeker))
                 break
@@ -832,9 +833,10 @@ def burnerCache_messages(files_found, report_folder, seeker, wrap_text, timezone
                     continue
                 # isDataOnFS
                 if bool(m_record[2]):
-                    media_ref_id = check_in_media(seeker, m_record[3], artifact_info, already_extracted=media_files)
+                    media_ref_id = check_in_media(artifact_info, report_folder, seeker, files_found, m_record[3])
                 else:
-                    media_ref_id = check_in_embedded_media(seeker, file_found, m_record[3], artifact_info)
+                    media_ref_id = check_in_embedded_media(artifact_info, report_folder, seeker, file_found, 
+                                                           m_record[3])
                 media_item = lava_get_full_media_info(media_ref_id)
                 if media_item: device_file_paths.append(get_device_file_path(media_item[5], seeker))
                 break

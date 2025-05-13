@@ -54,7 +54,8 @@ def initialize_lava(input_path, output_path, input_type):
                         media_item_id TEXT, 
                         module_name TEXT, 
                         artifact_name TEXT, 
-                        name TEXT, 
+                        name TEXT,
+                        media_path TEXT,
                         FOREIGN KEY (media_item_id) REFERENCES _lava_media_items(id))''')
     cursor.execute('''CREATE VIEW _lava_media_info AS 
                         SELECT 
@@ -63,6 +64,7 @@ def initialize_lava(input_path, output_path, input_type):
                             lmr.module_name, 
                             lmr.artifact_name, 
                             lmr.name, 
+                            lmr.media_path,
                             lmi.source_path, 
                             lmi.extraction_path, 
                             lmi.type, 
@@ -244,14 +246,15 @@ def lava_insert_sqlite_media_references(media_references):
     global lava_db
     cursor = lava_db.cursor()
     cursor.execute(f'''INSERT INTO _lava_media_references 
-                ("id", "media_item_id", "module_name", "artifact_name", "name")
+                ("id", "media_item_id", "module_name", "artifact_name", "name", "media_path")
                 VALUES ("{media_references.id}", "{media_references.media_item_id}", 
                 "{media_references.module_name}", "{media_references.artifact_name}", 
-                "{media_references.name}")''')
+                "{media_references.name}", "{media_references.media_path}")''')
     lava_db.commit()
 
 def lava_get_full_media_info(media_ref_id):
     global lava_db
+    lava_db.row_factory = sqlite3.Row
     cursor = lava_db.cursor()
     query = f'''
     SELECT *

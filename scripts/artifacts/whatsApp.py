@@ -25,7 +25,8 @@ __artifacts_v2__ = {
         'category': 'WhatsApp',
         'notes': '',
         'paths': (
-            '*/mobile/Containers/Shared/AppGroup/*/ChatStorage.sqlite*',),
+            '*/mobile/Containers/Shared/AppGroup/*/ChatStorage.sqlite*',
+            '*/mobile/Containers/Shared/AppGroup/*/Message/Media/*/*/*/*'),
         'output_types': 'all',
         'artifact_icon': 'message-square'
     },
@@ -200,9 +201,6 @@ def whatsAppMessages(files_found, report_folder, seeker, wrap_text, timezone_off
 
     db_records = get_sqlite_db_records(source_path, query)
 
-    extracted_media_files = seeker.search(
-        '*/mobile/Containers/Shared/AppGroup/*/Message/Media/*/*/*/*')
-
     for record in db_records:
         message_date = convert_cocoa_core_data_ts_to_utc(
             record['ZMESSAGEDATE'])
@@ -214,17 +212,14 @@ def whatsAppMessages(files_found, report_folder, seeker, wrap_text, timezone_off
         media_local_path = record['ZMEDIALOCALPATH']
         if media_local_path:
             attach_file_name = Path(media_local_path).name
-            attach_file = check_in_media(
-                seeker, media_local_path, artifact_info,
-                name=attach_file_name, already_extracted=extracted_media_files)
+            attach_file = check_in_media(artifact_info, report_folder, seeker, files_found, media_local_path, 
+                                         attach_file_name)
 
         thumb = ''
         thumb_path = record['ZXMPPTHUMBPATH']
         if thumb_path:
             thumb_name = Path(thumb_path).name
-            thumb = check_in_media(
-                seeker, thumb_path, artifact_info, name=thumb_name, 
-                already_extracted=extracted_media_files)
+            thumb = check_in_media(artifact_info, report_folder, seeker, files_found, thumb_path, thumb_name)
 
         metadata = record['ZMETADATA']
         number_forward = ''

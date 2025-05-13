@@ -54,12 +54,6 @@ def save_ktx_to_png_if_valid(ktx_path, save_to_path):
     return False
 
 
-def html_path(report_folder, file_path):
-    data_path = Path(report_folder).parents[1].joinpath('data')
-    original_path = file_path.replace(str(data_path), '')[1:]
-    return hashlib.sha1(original_path.encode()).hexdigest()
-
-
 @artifact_processor
 def applicationSnapshots(files_found, report_folder, seeker, wrap_text, timezone_offset):
     artifact_info = inspect.stack()[0]
@@ -90,18 +84,14 @@ def applicationSnapshots(files_found, report_folder, seeker, wrap_text, timezone
         if file_found.lower().endswith('.ktx'):
             if media_path.stat().st_size < 2500: # too small, they are blank
                 continue
-            png_path = Path(report_folder).joinpath(html_path(report_folder, file_found)).with_suffix((".png"))
+            png_path = media_path.with_suffix((".png"))
             if save_ktx_to_png_if_valid(media_path, png_path):
-                media_item = check_in_media(seeker, file_found, artifact_info, app_name, already_extracted=files_found, converted_file_path=png_path)
+                media_item = check_in_media(artifact_info, report_folder, seeker, files_found, file_found, 
+                                            app_name, png_path)
             else:
                 continue
         else:
-            jpg_path = Path(report_folder).joinpath(html_path(report_folder, file_found)).with_suffix((".jpeg"))
-            try:
-                shutil.copy2(file_found, jpg_path)
-            except shutil.Error as e:
-                logfunc(f'Could not copy media into {jpg_path}: ' + str(e))
-            media_item = check_in_media(seeker, file_found, artifact_info, app_name, already_extracted=files_found, converted_file_path=jpg_path)
+            media_item = check_in_media(artifact_info, report_folder, seeker, files_found, file_found, app_name)
         last_modified_date = convert_unix_ts_to_utc(lava_get_full_media_info(media_item)[-1])
         data_list.append([last_modified_date, app_name, file_found, media_item])
     
