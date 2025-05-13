@@ -20,7 +20,7 @@ __artifacts_v2__ = {
         'description': 'Extract WhatsApp messages',
         'author': '@AlexisBrignoni',
         'creation_date': '2021-03-26',
-        'last_update_date': '2025-04-07',
+        'last_update_date': '2025-05-13',
         'requirements': '',
         'category': 'WhatsApp',
         'notes': '',

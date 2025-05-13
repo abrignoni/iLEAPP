@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         'description': 'Extract information from the native contacts application',
         'author': '@AlexisBrignoni - @JohannPLW',
         'creation_date': '2020-04-30',
-        'last_update_date': '2025-04-03',
+        'last_update_date': '2025-05-13',
         'requirements': 'none',
         'category': 'Contacts',
         'notes': '',

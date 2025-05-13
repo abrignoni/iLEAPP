@@ -5,7 +5,7 @@ __artifacts_v2__ = {
             Dates and times shown are from file modified timestamps",
         "author": "@ydkhatri",
         "creation_date": "2020-07-23",
-        "last_update_date": "2024-12-20",
+        "last_update_date": "2025-05-13",
         "requirements": "none",
         "category": "Installed Apps",
         "notes": "",

@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         'description': 'Extract voicemail',
         'author': '@JohannPLW - @AlexisBrignoni',
         'creation_date': '2023-09-30',
-        'last_update_date': '2025-04-15',
+        'last_update_date': '2025-05-13',
         'category': 'Call History',
         'notes': '',
         'paths': (

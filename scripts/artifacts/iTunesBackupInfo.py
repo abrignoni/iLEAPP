@@ -17,7 +17,7 @@ __artifacts_v2__ = {
         "description": "Extract information about installed applications from the Info.plist file of an iTunes backup",
         "author": "@johannplw",
         "creation_date": "2023-10-11",
-        "last_update_date": "2025-04-02",
+        "last_update_date": "2025-05-13",
         "requirements": "none",
         "category": "Installed Apps",
         "notes": "",
