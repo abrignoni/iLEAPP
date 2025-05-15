@@ -134,6 +134,7 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | photosDbexif |
 | photosMetadata |
 | photosMigration |
+| pingertextfree |
 | protonMail |
 | queryPredictions |
 | quickLook |
