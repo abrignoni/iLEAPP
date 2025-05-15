@@ -8,6 +8,7 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 <!-- GET_RECORDS_START -->
 | Source Modules |
 |----------------|
+| BeReal |
 | Ph11KwrdsCapsTitlesDescripsBasicAssetData |
 | Ph15PeopleandDetFacesNAD |
 | Ph16AssetPeopleandDetFaces |

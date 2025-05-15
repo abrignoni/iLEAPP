@@ -57,7 +57,7 @@ def get_geodPDPlaceCache(files_found, report_folder, seeker, wrap_text, timezone
 	
 __artifacts__ = {
     "geodpdplacecache": (
-        "Geolocation",
+        "Location",
         ('**/PDPlaceCache.db*'),
         get_geodPDPlaceCache)
 }

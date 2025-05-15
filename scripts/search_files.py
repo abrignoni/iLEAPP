@@ -307,6 +307,7 @@ class FileSeekerZip(FileSeekerBase):
             header_id, data_size = struct.unpack_from('<HH', extra_data, offset)
             offset += 4
             if header_id == 0x5455:
+                creation_time = modification_time = None
                 flags = struct.unpack_from('B', extra_data, offset)[0]
                 offset += 1
                 if flags & 1:  # Modification time

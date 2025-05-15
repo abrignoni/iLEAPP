@@ -1,12 +1,12 @@
 __artifacts_v2__ = {
     "get_biomeAppinstall": {
-        "name": "Biome App Install",
+        "name": "Biome - App Install",
         "description": "Parses airplane mode entries from biomes",
         "author": "@JohnHyla",
         "version": "0.0.2",
         "date": "2024-10-17",
         "requirements": "none",
-        "category": "Biome App Install",
+        "category": "Biome",
         "notes": "",
         "paths": ('*/Biome/streams/restricted/_DKEvent.App.Install/local/*', '*/Biome/streams/restricted/App.Install/local/*'),
         "output_types": "standard"

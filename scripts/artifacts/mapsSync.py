@@ -43,8 +43,8 @@ def get_mapsSync(files_found, report_folder, seeker, wrap_text, timezone_offset)
         cursor = db.cursor()
         cursor.execute('''
         SELECT
-        datetime(ZHISTORYITEM.ZCREATETIME+978307200,'UNIXEPOCH','localtime') AS 'Time Created',
-        datetime(ZHISTORYITEM.ZMODIFICATIONTIME+978307200,'UNIXEPOCH','localtime') AS 'Time Modified',
+        datetime(ZHISTORYITEM.ZCREATETIME+978307200,'UNIXEPOCH') AS 'Time Created',
+        datetime(ZHISTORYITEM.ZMODIFICATIONTIME+978307200,'UNIXEPOCH') AS 'Time Modified',
         ZHISTORYITEM.z_pk AS 'Item Number',
         CASE
         when ZHISTORYITEM.z_ent = 14 then 'coordinates of search'
@@ -55,6 +55,8 @@ def get_mapsSync(files_found, report_folder, seeker, wrap_text, timezone_offset)
         ZHISTORYITEM.ZLOCATIONDISPLAY AS 'Location City',
         ZHISTORYITEM.ZLATITUDE AS 'Latitude',
         ZHISTORYITEM.ZLONGITUDE AS 'Longitude',
+        ZHISTORYITEM.ZLATITUDE1 AS 'Latitude1',
+        ZHISTORYITEM.ZLONGITUDE1 AS 'Longitude1',
         ZHISTORYITEM.ZROUTEREQUESTSTORAGE AS 'Journey BLOB',
         ZMIXINMAPITEM.ZMAPITEMSTORAGE as 'Map Item Storage BLOB'
         from ZHISTORYITEM
@@ -74,12 +76,12 @@ def get_mapsSync(files_found, report_folder, seeker, wrap_text, timezone_offset)
                 directb = ''
                 mapitem = ''
                 agg1 = ''
-                if row[8] is None:
+                if row[10] is None:
                     pass
                 #pp = pprint.PrettyPrinter(indent = 1)
                 #pp.pprint(message)
                 else:
-                    message, types = blackboxprotobuf.decode_message(row[8])
+                    message, types = blackboxprotobuf.decode_message(row[10])
                     
                     for x in message['1']:
                         
@@ -141,10 +143,10 @@ def get_mapsSync(files_found, report_folder, seeker, wrap_text, timezone_offset)
                             except:
                                 agg1 = ''
                             
-                if row[9] is None:
+                if row[11] is None:
                     pass
                 else: 
-                    message, types = blackboxprotobuf.decode_message(row[9])
+                    message, types = blackboxprotobuf.decode_message(row[11])
                     #pp = pprint.PrettyPrinter(indent = 1)
                     #pp.pprint(message['1']['4'])#[7]['8']['31']['1']['101']['2']['11'])
                     get101 = (get_recursively(message, '101'))
@@ -156,7 +158,7 @@ def get_mapsSync(files_found, report_folder, seeker, wrap_text, timezone_offset)
                         for address in (get101[0]['2']):
                             mapitem = mapitem + ' ' + (str(address))
                             
-                data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], agg1, mapitem))
+                data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], agg1, mapitem))
                 agg1 = ''
             
 
@@ -165,7 +167,7 @@ def get_mapsSync(files_found, report_folder, seeker, wrap_text, timezone_offset)
             report = ArtifactHtmlReport('MapsSync')
             report.start_artifact_report(report_folder, 'MapsSync', description)
             report.add_script()
-            data_headers = ('Timestamp','Modified Time','Item Number','Type','Location Search','Location City','Latitude','Longitude','Journey BLOB Item', 'Map Item Storage BLOB item')
+            data_headers = ('Timestamp','Modified Time','Item Number','Type','Location Search','Location City','Latitude','Longitude','Latitude1','Longitude','Journey Destination Address', 'Map Item Storage BLOB Address')
             
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
@@ -183,7 +185,7 @@ def get_mapsSync(files_found, report_folder, seeker, wrap_text, timezone_offset)
 
 __artifacts__ = {
     "mapsSync": (
-        "Geolocation",
+        "Location",
         ('*/MapsSync_0.0.1*'),
         get_mapsSync)
 }

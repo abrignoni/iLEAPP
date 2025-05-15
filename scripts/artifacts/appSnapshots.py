@@ -26,7 +26,7 @@ from pathlib import Path
 
 from PIL import Image
 from scripts.ktx.ios_ktx2png import KTX_reader, liblzfse
-from scripts.ilapfuncs import artifact_processor, check_in_media, logfunc, convert_unix_ts_to_utc, is_platform_windows
+from scripts.ilapfuncs import artifact_processor, check_in_media, lava_get_full_media_info, logfunc, convert_unix_ts_to_utc
 
 def save_ktx_to_png_if_valid(ktx_path, save_to_path):
     '''Excludes all white or all black blank images'''
@@ -77,7 +77,7 @@ def applicationSnapshots(files_found, report_folder, seeker, wrap_text, timezone
                 continue
             png_path = Path(report_folder).joinpath(html_path(report_folder, file_found)).with_suffix((".png"))
             if save_ktx_to_png_if_valid(media_path, png_path):
-                media_item = check_in_media(seeker, file_found, artifact_info, already_extracted=True, converted_file_path=png_path)
+                media_item = check_in_media(seeker, file_found, artifact_info, app_name, already_extracted=True, converted_file_path=png_path)
             else:
                 continue
         else:
@@ -86,9 +86,9 @@ def applicationSnapshots(files_found, report_folder, seeker, wrap_text, timezone
                 shutil.copy2(file_found, jpg_path)
             except shutil.Error as e:
                 logfunc(f'Could not copy media into {jpg_path}: ' + str(e))
-            media_item = check_in_media(seeker, file_found, artifact_info, already_extracted=True, converted_file_path=jpg_path)
-        last_modified_date = convert_unix_ts_to_utc(media_item.updated_at)
-        data_list.append([last_modified_date, app_name, media_item.source_path, media_item.id])
+            media_item = check_in_media(seeker, file_found, artifact_info, app_name, already_extracted=True, converted_file_path=jpg_path)
+        last_modified_date = convert_unix_ts_to_utc(lava_get_full_media_info(media_item)[-1])
+        data_list.append([last_modified_date, app_name, file_found, media_item])
     
     data_headers = (('Date Modified', 'datetime'), 'App Name', 'Source Path', ('Snapshot', 'media'))
 

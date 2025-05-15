@@ -97,15 +97,9 @@ def iTunesBackupInstalledApplications(files_found, report_folder, seeker, wrap_t
             for installed_app in installed_apps:
                 apps[installed_app] = {'info_plist_bundle_id': installed_app}
         for bundle_id, app_data in apps.items():
+            install_date = ''
             apple_id = ''
             purchase_date = ''
-            icon = app_data.get('PlaceholderIcon', '')
-            if icon:
-                icon_item = check_in_embedded_media(None, source_path, icon, artifact_info, report_folder)
-                icon_id = icon_item.id
-            else:
-                icon_id = ''
-
             if 'iTunesMetadata' in app_data.keys():
                 itunes_metadata = plistlib.loads(app_data['iTunesMetadata'])
                 item_name = itunes_metadata.get('itemName', '')
@@ -134,7 +128,13 @@ def iTunesBackupInstalledApplications(files_found, report_folder, seeker, wrap_t
                 game_center_enabled = itunes_metadata.get('gameCenterEnabled', '')
                 game_center_ever_enabled = itunes_metadata.get('gameCenterEverEnabled', '')
                 messages_extension = itunes_metadata.get('hasMessagesExtension', '')
-                data_list.append((bundle_id, icon_id, item_name, artist_name, version, genre, 
+                icon = app_data.get('PlaceholderIcon', '')
+                if icon:
+                    icon_item = check_in_embedded_media(None, source_path, icon, artifact_info, item_name, report_folder)
+                else:
+                    icon_item = ''
+
+                data_list.append((bundle_id, icon_item, item_name, artist_name, version, genre, 
                                 install_date, apple_id, purchase_date, release_date, 
                                 source_app, auto_download, purchased_redownload, 
                                 factory_install, side_loaded, game_center_enabled, 
