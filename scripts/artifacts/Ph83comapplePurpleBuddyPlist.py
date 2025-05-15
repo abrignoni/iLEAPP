@@ -19,7 +19,6 @@ import datetime
 import os
 import plistlib
 import nska_deserialize as nd
-import scripts.artifacts.artGlobals
 from scripts.builds_ids import OS_build
 from scripts.ilapfuncs import artifact_processor, logfunc, device_info, get_file_path
 

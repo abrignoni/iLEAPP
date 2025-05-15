@@ -41,7 +41,7 @@ def get_secretCalculator(files_found, report_folder, seeker, wrap_text, timezone
                     logfunc(' [!] Unable to extract db file: "{}"'.format(db_file))
                     return
 
-                db = open_sqlite_db_readonly(db_file[0])
+                db = open_sqlite_db_readonly(db_file)
 
                 cursor = db.cursor()
                 cursor.execute('''
@@ -69,7 +69,7 @@ def get_secretCalculator(files_found, report_folder, seeker, wrap_text, timezone
                         thumb = None
                         attachmentFile = None
                         if seekerResults:
-                            attachmentFile = seekerResults[0]
+                            attachmentFile = seekerResults
                             thumb = media_to_html(attachmentFile, (attachmentFile,), report_folder)
                         data_list.append((row[0], thumb, row[4], row[1], fileNameToSearch.replace('\\', '/'), row[3]))
 

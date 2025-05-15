@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Oops",
         "notes": "",
-        "paths": ('*private/var/mobile/Containers/Data/Application/*/Library/Application Support/RongCloud/*/storage*'),
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/RongCloud/*/storage*'),
         "function": "get_OopsMessages"
     }
 }

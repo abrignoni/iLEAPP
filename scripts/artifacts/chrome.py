@@ -217,7 +217,7 @@ from Crypto.Cipher import AES
 from Crypto.Protocol.KDF import PBKDF2
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, get_next_unused_name, open_sqlite_db_readonly, does_column_exist_in_db, lava_process_artifact, lava_insert_sqlite_data, artifact_processor, convert_utc_human_to_timezone, convert_ts_human_to_utc
+from scripts.ilapfuncs import logfunc, tsv, timeline, get_next_unused_name, open_sqlite_db_readonly, does_table_exist_in_db, does_column_exist_in_db, lava_process_artifact, lava_insert_sqlite_data, artifact_processor, convert_utc_human_to_timezone, convert_ts_human_to_utc
 
 
 def get_browser_name(file_name):
@@ -948,71 +948,74 @@ def chromeAutofillProfiles(files_found, report_folder, seeker, wrap_text, timezo
         report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
         
         db = open_sqlite_db_readonly(file_found)
-        cursor = db.cursor()
+        
+        if does_table_exist_in_db(file_found, 'autofill_profiles'):
+            cursor = db.cursor()
 
-        cursor.execute(f'''
-        select
-            datetime(date_modified, 'unixepoch'),
-            autofill_profiles.guid,
-            autofill_profile_names.first_name,
-            autofill_profile_names.middle_name,
-            autofill_profile_names.last_name,
-            autofill_profile_emails.email,
-            autofill_profile_phones.number,
-            autofill_profiles.company_name,
-            autofill_profiles.street_address,
-            autofill_profiles.city,
-            autofill_profiles.state,
-            autofill_profiles.zipcode,
-            datetime(use_date, 'unixepoch'),
-            autofill_profiles.use_count
-        from autofill_profiles
-        inner join autofill_profile_emails ON autofill_profile_emails.guid = autofill_profiles.guid
-        inner join autofill_profile_phones ON autofill_profiles.guid = autofill_profile_phones.guid
-        inner join autofill_profile_names ON autofill_profile_phones.guid = autofill_profile_names.guid
-        ''')
+            cursor.execute(f'''
+            select
+                datetime(date_modified, 'unixepoch'),
+                autofill_profiles.guid,
+                autofill_profile_names.first_name,
+                autofill_profile_names.middle_name,
+                autofill_profile_names.last_name,
+                autofill_profile_emails.email,
+                autofill_profile_phones.number,
+                autofill_profiles.company_name,
+                autofill_profiles.street_address,
+                autofill_profiles.city,
+                autofill_profiles.state,
+                autofill_profiles.zipcode,
+                datetime(use_date, 'unixepoch'),
+                autofill_profiles.use_count
+            from autofill_profiles
+            inner join autofill_profile_emails ON autofill_profile_emails.guid = autofill_profiles.guid
+            inner join autofill_profile_phones ON autofill_profiles.guid = autofill_profile_phones.guid
+            inner join autofill_profile_names ON autofill_profile_phones.guid = autofill_profile_names.guid
+            ''')
 
 
-        all_rows = cursor.fetchall()
-        if len(all_rows) > 0:
-            report_name = f'{browser_name} - Autofill - Profiles'
-            report = ArtifactHtmlReport(report_name)
-            # check for existing and get next name for report file, so report from another file does not get overwritten
-            report_path = os.path.join(report_folder, f'{report_name}.temphtml')
-            report_path = get_next_unused_name(report_path)[:-9]  # remove .temphtml
-            report.start_artifact_report(report_folder, os.path.basename(report_path))
-            report.add_script()
+            all_rows = cursor.fetchall()
+            if len(all_rows) > 0:
+                report_name = f'{browser_name} - Autofill - Profiles'
+                report = ArtifactHtmlReport(report_name)
+                # check for existing and get next name for report file, so report from another file does not get overwritten
+                report_path = os.path.join(report_folder, f'{report_name}.temphtml')
+                report_path = get_next_unused_name(report_path)[:-9]  # remove .temphtml
+                report.start_artifact_report(report_folder, os.path.basename(report_path))
+                report.add_script()
 
-            data_list = []
-            for row in all_rows:
-                modified_dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]), timezone_offset)
-                last_used_dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[12]), timezone_offset)
+                data_list = []
+                for row in all_rows:
+                    modified_dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]), timezone_offset)
+                    last_used_dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[12]), timezone_offset)
 
-                data_list.append((modified_dt, row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                                  row[10], row[11], last_used_dt, row[13]))
+                    data_list.append((modified_dt, row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
+                                      row[10], row[11], last_used_dt, row[13]))
 
-            report.write_artifact_data_table(data_headers, data_list, file_found)
-            report.end_artifact_report()
+                report.write_artifact_data_table(data_headers, data_list, file_found)
+                report.end_artifact_report()
 
-            # Generate LAVA output
+                # Generate LAVA output
 
-            category = "Chromium"
-            module_name = "chromeAutofillProfiles"
+                category = "Chromium"
+                module_name = "chromeAutofillProfiles"
 
-            table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                           lava_data_headers, len(data_list))
+                table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
+                                                                               lava_data_headers, len(data_list))
 
-            lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
+                lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
-            # Add browser name column to the data
-            data_list = [row + (browser_name,) for row in data_list]
+                # Add browser name column to the data
+                data_list = [row + (browser_name,) for row in data_list]
 
-            # Add current list to the combined list
-            all_data.extend(data_list)
+                # Add current list to the combined list
+                all_data.extend(data_list)
 
+            else:
+                logfunc(f'No {browser_name} - Autofill - Profiles data available')
         else:
             logfunc(f'No {browser_name} - Autofill - Profiles data available')
-
         db.close()
 
     return all_data_headers, all_data, report_file

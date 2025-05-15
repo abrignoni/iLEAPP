@@ -3,7 +3,6 @@
 import os
 import shutil
 import xml.etree.ElementTree as ET
-import scripts.artifacts.artGlobals
 
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, is_platform_windows

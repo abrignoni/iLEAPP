@@ -23,16 +23,15 @@ import plistlib
 import sqlite3
 import json
 import textwrap
-import scripts.artifacts.artGlobals
  
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, convert_ts_human_to_utc, convert_utc_human_to_timezone, attach_sqlite_db_readonly, is_platform_windows, open_sqlite_db_readonly
+from scripts.ilapfuncs import logfunc, tsv, timeline, convert_ts_human_to_utc, convert_utc_human_to_timezone, attach_sqlite_db_readonly, is_platform_windows, open_sqlite_db_readonly, iOS
 from scripts.lavafuncs import lava_process_artifact, lava_insert_sqlite_data
 from scripts.parse3 import ParseProto
 
 def get_mailprotect(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    iOSversion = scripts.artifacts.artGlobals.versionf
+    iOSversion = iOS.get_version()
     
     envelope_db = ''
     protected_db = ''

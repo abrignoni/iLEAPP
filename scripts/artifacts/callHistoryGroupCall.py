@@ -28,8 +28,6 @@ __artifacts_v2__ = {
     }
 }
 
-import scripts.artifacts.artGlobals
-
 from packaging import version
 from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, convert_bytes_to_unit, convert_ts_human_to_timezone_offset
 

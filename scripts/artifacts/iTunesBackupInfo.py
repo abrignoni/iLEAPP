@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Extract information from the Info.plist file of an iTunes backup",
         "author": "@AlexisBrignoni - @johannplw",
         "creation_date": "2023-10-11",
-        "last_update_date": "2025-01-20",
+        "last_update_date": "2025-03-28",
         "requirements": "none",
         "category": "iTunes Backup",
         "notes": "",
@@ -17,26 +17,24 @@ __artifacts_v2__ = {
         "description": "Extract information about installed applications from the Info.plist file of an iTunes backup",
         "author": "@johannplw",
         "creation_date": "2023-10-11",
-        "last_update_date": "2025-01-20",
+        "last_update_date": "2025-05-13",
         "requirements": "none",
         "category": "Installed Apps",
         "notes": "",
         "paths": ('*Info.plist',),
         "output_types": ["html", "tsv", "lava"],
-        "artifact_icon": "package",
-        "media_style": "width: 60px;"
+        "artifact_icon": "package"
     }
 }
+
 
 import inspect
 import datetime
 import plistlib
-import scripts.artifacts.artGlobals
-
-from base64 import b64encode
-
 from scripts.ilapfuncs import artifact_processor, \
-    get_file_path, get_plist_file_content, check_in_embedded_media, device_info, logfunc
+    get_file_path, get_plist_file_content, check_in_embedded_media, \
+    device_info, logfunc, iOS
+
 
 @artifact_processor
 def iTunesBackupInfo(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -50,7 +48,7 @@ def iTunesBackupInfo(files_found, report_folder, seeker, wrap_text, timezone_off
         if isinstance(val, str) or isinstance(val, int) or isinstance(val, datetime.datetime):
             data_list.append((key, val))
             if key == ('Product Version'):
-                scripts.artifacts.artGlobals.versionf = val
+                iOS.set_version(val)
                 logfunc(f"iOS version: {val}")
         elif key == "Applications":
             apps = val
@@ -130,7 +128,8 @@ def iTunesBackupInstalledApplications(files_found, report_folder, seeker, wrap_t
                 messages_extension = itunes_metadata.get('hasMessagesExtension', '')
                 icon = app_data.get('PlaceholderIcon', '')
                 if icon:
-                    icon_item = check_in_embedded_media(None, source_path, icon, artifact_info, item_name, report_folder)
+                    icon_item = check_in_embedded_media(artifact_info, report_folder, seeker, source_path, icon, 
+                                                        item_name)
                 else:
                     icon_item = ''
 
@@ -144,7 +143,7 @@ def iTunesBackupInstalledApplications(files_found, report_folder, seeker, wrap_t
                 app_info += ('',) * 17
                 data_list.append(app_info)
         
-    data_headers = ('Bundle ID', ('App Icon', 'media'), 'Item Name', 'Artist Name', 'Version', 
+    data_headers = ('Bundle ID', ('App Icon', 'media', 'width: 60px;'), 'Item Name', 'Artist Name', 'Version', 
                     'Genre', 'Install Date', 'Downloaded by', 'Purchase Date', 
                     'Release Date', 'Source App', 'Auto Download', 
                     'Purchased Redownload', 'Factory Install', 'Side Loaded', 

@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Chats",
         "notes": "",
-        "paths": ('*/private/var/mobile/Containers/Shared/AppGroup/*/zangidb.sqlite*'),
+        "paths": ('*/mobile/Containers/Shared/AppGroup/*/zangidb.sqlite*'),
         "function": "get_zangichats"#update line 22 to match this
     }
 }

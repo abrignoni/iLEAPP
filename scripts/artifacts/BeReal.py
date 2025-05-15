@@ -34,15 +34,14 @@ __artifacts_v2__ = {
         "author": "@djangofaiola",
         "version": "0.1",
         "creation_date": "2024-12-20",
-        "last_update_date": "2024-03-08",
+        "last_update_date": "2025-05-13",
         "requirements": "none",
         "category": "BeReal",
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-RelationshipsContactsManager-contact/*'),
         "output_types": [ "lava", "html", "tsv" ],
         "html_columns": [ "Profile picture"],
-        "artifact_icon": "users",
-        "media_style": ("height: 80px; border-radius: 50%;", "height: 80px;")
+        "artifact_icon": "users"
     },
     "bereal_persons": {
         "name": "BeReal Persons",
@@ -640,8 +639,15 @@ def bereal_accounts(files_found, report_folder, seeker, wrap_text, timezone_offs
 @artifact_processor
 def bereal_contacts(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
-    data_headers = [ 'Full name', 'Family name', 'Middle name', 'Given name', 'Nick name', 'Profile picture', 'Organization name',
-                     'Phone numbers', 'Source file name', 'Location' ]
+    data_headers = ('Full name', 
+                    'Family name', 
+                    'Middle name', 
+                    'Given name', 'Nick name', 
+                    ('Profile picture', 'media', 'height: 80px'), 
+                    'Organization name', 
+                    'Phone numbers', 
+                    'Source file name', 
+                    'Location')
     data_list = []
     data_list_html = []
     source_paths = set()
@@ -687,8 +693,7 @@ def bereal_contacts(files_found, report_folder, seeker, wrap_text, timezone_offs
                 photo_b64 = contact.get('photo')
                 if bool(photo_b64):
                     photo_raw = standard_b64decode(photo_b64)   # bytes
-                    photo_item = check_in_embedded_media(seeker, file_found, photo_raw, artifact_info)
-                    photo = photo_item.id
+                    photo = check_in_embedded_media(artifact_info, report_folder, seeker, file_found, photo_raw)
                 else:
                     photo = ''
                 # organization name
@@ -711,9 +716,6 @@ def bereal_contacts(files_found, report_folder, seeker, wrap_text, timezone_offs
         except Exception as e:
             logfunc(f"Error: {str(e)}")
             pass
-
-    # lava types
-    data_headers[5] = (data_headers[5], 'media')
 
     # paths
     source_path = ', '.join(source_paths)

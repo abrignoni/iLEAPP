@@ -136,7 +136,7 @@ def create_casedata(path):
     return
 
 def main():
-    parser = argparse.ArgumentParser(description='iLEAPP: iOS Logs, Events, And Plists Parser.')
+    parser = argparse.ArgumentParser(description=f'iLEAPP v{ileapp_version}: iOS Logs, Events, And Plists Parser.')
     parser.add_argument('-t', choices=['fs', 'tar', 'zip', 'gz', 'itunes'], required=False, action="store",
                         help=("Specify the input type. "
                               "'fs' for a folder containing extracted files with normal paths and names, "
@@ -352,7 +352,8 @@ def crunch_artifacts(
     logfunc(f'Info: {len(loader) - 2} modules loaded.') # excluding lastbuild and iTunesBackupInfo
     if profile_filename:
         logfunc(f'Loaded profile: {profile_filename}')
-    logfunc(f'Artifact categories to parse: {len(plugins) - 1}') # excluding lastbuild always executed first
+    artifact_to_parse = len(plugins) - 1 if extracttype != 'itunes' else len(plugins) 
+    logfunc(f'Artifact to parse: {artifact_to_parse}')
     logfunc(f'File/Directory selected: {input_path}')
     logfunc('\n--------------------------------------------------------------------------------------')
 

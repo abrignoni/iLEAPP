@@ -5,7 +5,7 @@ __artifacts_v2__ = {
             Dates and times shown are from file modified timestamps",
         "author": "@ydkhatri",
         "creation_date": "2020-07-23",
-        "last_update_date": "2024-12-20",
+        "last_update_date": "2025-05-13",
         "requirements": "none",
         "category": "Installed Apps",
         "notes": "",
@@ -19,6 +19,7 @@ __artifacts_v2__ = {
     },
 }
 
+
 import inspect
 import hashlib
 import shutil
@@ -27,6 +28,7 @@ from pathlib import Path
 from PIL import Image
 from scripts.ktx.ios_ktx2png import KTX_reader, liblzfse
 from scripts.ilapfuncs import artifact_processor, check_in_media, lava_get_full_media_info, logfunc, convert_unix_ts_to_utc
+
 
 def save_ktx_to_png_if_valid(ktx_path, save_to_path):
     '''Excludes all white or all black blank images'''
@@ -51,10 +53,6 @@ def save_ktx_to_png_if_valid(ktx_path, save_to_path):
             logfunc(f'Had an exception - {str(ex)}')
     return False
 
-def html_path(report_folder, file_path):
-    data_path = Path(report_folder).parents[1].joinpath('data')
-    original_path = file_path.replace(str(data_path), '')[1:]
-    return hashlib.sha1(original_path.encode()).hexdigest()
 
 @artifact_processor
 def applicationSnapshots(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -62,6 +60,17 @@ def applicationSnapshots(files_found, report_folder, seeker, wrap_text, timezone
     source_path = 'File path in the report below'
     data_list = []
 
+    files_found = []
+    paths = (
+        '*/Library/Caches/Snapshots/*.ktx', 
+        '*/Library/Caches/Snapshots/*.jpeg', 
+        '*/SplashBoard/Snapshots/*.ktx', 
+        '*/SplashBoard/Snapshots/*.jpeg')
+    
+    for path in paths:
+        paths_found = seeker.search(path)
+        files_found.extend(paths_found)
+    
     for file_found in files_found:
         media_path = Path(file_found)
         parts = media_path.parts
@@ -75,18 +84,14 @@ def applicationSnapshots(files_found, report_folder, seeker, wrap_text, timezone
         if file_found.lower().endswith('.ktx'):
             if media_path.stat().st_size < 2500: # too small, they are blank
                 continue
-            png_path = Path(report_folder).joinpath(html_path(report_folder, file_found)).with_suffix((".png"))
+            png_path = media_path.with_suffix((".png"))
             if save_ktx_to_png_if_valid(media_path, png_path):
-                media_item = check_in_media(seeker, file_found, artifact_info, app_name, already_extracted=True, converted_file_path=png_path)
+                media_item = check_in_media(artifact_info, report_folder, seeker, files_found, file_found, 
+                                            app_name, png_path)
             else:
                 continue
         else:
-            jpg_path = Path(report_folder).joinpath(html_path(report_folder, file_found)).with_suffix((".jpeg"))
-            try:
-                shutil.copy2(file_found, jpg_path)
-            except shutil.Error as e:
-                logfunc(f'Could not copy media into {jpg_path}: ' + str(e))
-            media_item = check_in_media(seeker, file_found, artifact_info, app_name, already_extracted=True, converted_file_path=jpg_path)
+            media_item = check_in_media(artifact_info, report_folder, seeker, files_found, file_found, app_name)
         last_modified_date = convert_unix_ts_to_utc(lava_get_full_media_info(media_item)[-1])
         data_list.append([last_modified_date, app_name, file_found, media_item])
     

@@ -574,17 +574,17 @@ def get_waze(files_found, report_folder, seeker, wrap_text, timezone_offset):
                     # user
                     path_list = seeker.search(f'*/{identifier}/Documents/user', True)
                     if len(path_list) > 0:
-                        get_account(path_list[0], report_folder, timezone_offset)
+                        get_account(path_list, report_folder, timezone_offset)
 
                     # session
                     path_list = seeker.search(f'*/{identifier}/Documents/session', True)
                     if len(path_list) > 0:
-                        get_session(path_list[0], report_folder, timezone_offset)
+                        get_session(path_list, report_folder, timezone_offset)
 
                     # tts.db
                     path_list = seeker.search(f'*/{identifier}/Library/Caches/tts/tts.db', True)
                     if len(path_list) > 0:
-                        get_tts(path_list[0], report_folder, timezone_offset)
+                        get_tts(path_list, report_folder, timezone_offset)
 
                     # spdlog.*logdata
                     path_list = seeker.search(f'*/{identifier}/Documents/spdlog.*logdata')
