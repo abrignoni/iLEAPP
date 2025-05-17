@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "category": "Logs",
         "notes": "",
         "paths": ('*/logarchive.json',),
-        "output_types": ["lava"],
+        "output_types": "lava_only",
         "artifact_icon": "user"
     }
 }
