@@ -77,5 +77,5 @@ def logarchive(files_found, report_folder, seeker, wrap_text, timezone_offset):
                 else:
                     logfunc(f'Not added:{record}')
     
-    data_headers = (('Timestamp', 'datetime'), 'Process ID', 'Subsystem', 'Category', 'Event Message, Trace ID')
+    data_headers = (('Timestamp', 'datetime'), 'Process ID', 'Subsystem', 'Category', 'Event Message', 'Trace ID')
     return data_headers, data_list, file_found
