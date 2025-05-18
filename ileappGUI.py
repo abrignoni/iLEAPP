@@ -245,10 +245,8 @@ def process(casedata):
             if lava_only:
                 tk_msgbox.showwarning(
                     title='Important information',
-                    message='You have selected artifacts that are likely to return too much data \
-                        to be viewed in a Web browser.\n\n\
-                        Please see the lava tab in the HTML report for a list of these artifacts \
-                        and instructions on how to view them.',
+                    message='You have selected artifacts that are likely to return too much data to be viewed in a Web browser.\n\n\
+                        Please see the lava tab in the HTML report for a list of these artifacts and instructions on how to view them.',
                     parent=main_window)
             open_report_button = ttk.Button(main_window, text='Open Report & Close', command=lambda: open_report(report_path))
             open_report_button.grid(ipadx=8)
