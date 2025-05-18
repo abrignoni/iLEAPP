@@ -38,7 +38,7 @@ def truncate_after_last_bracket(file_path):
             if char == b']':
                 # Truncate the file just after this bracket
                 f.truncate(i + 1)
-                print(f"Truncated file after position {i+1}")
+                logfunc(f"Truncated file after position {i+1}")
                 return
         print("No closing bracket `]` found.")
 
