@@ -172,7 +172,7 @@ r"""
 """
 # tabs code for Case information in index.html
 # Variables are {case_table_code}, {script_run_log}, {processed_file_list}
-tabs_code = \
+tabs_nav = \
 """
     <ul class="nav nav-tabs" id="myTab" role="tablist">
         <li class="nav-item">
@@ -187,14 +187,32 @@ tabs_code = \
         <li class="nav-item">
             <a class="nav-link" id="files-list-tab" data-toggle="tab" href="#files" role="tab" aria-controls="files" aria-selected="false">Processed files list</a>
         </li>
+"""
+tabs_nav_with_lava = tabs_nav + \
+"""
+        <li class="nav-item">
+            <a class="nav-link" id="lava-tab" data-toggle="tab" href="#lava-only" role="tab" aria-controls="lava" aria-selected="false">LAVA only artifacts</a>
+        </li>
+"""
+tabs_contents = \
+"""
     </ul>
     <div class="tab-content" id="myTabContent">
         <div class="tab-pane fade show active" id="case" role="tabpanel" aria-labelledby="case-tab"><br />{}</div>
         <div class="tab-pane fade" id="device" role="tabpanel" aria-labelledby="device-tab"><br />{}</div>
         <div class="tab-pane fade text-monospace" id="run" role="tabpanel" aria-labelledby="script-run-tab"><br />{}</div>
         <div class="tab-pane fade" id="files" role="tabpanel" aria-labelledby="profile-tab"><br />{}</div>
+"""
+tabs_code_with_lava = tabs_nav_with_lava + tabs_contents + \
+"""
+        <div class="tab-pane fade" id="lava-only" role="tabpanel" aria-labelledby="lava-tab"><br />{}</div>
     </div>
 """
+tabs_code = tabs_nav + tabs_contents + \
+"""
+    </div>
+"""
+
 # thank you note , at bottom of index.html
 thank_you_note = \
 """

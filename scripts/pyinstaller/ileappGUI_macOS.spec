@@ -11,6 +11,7 @@ a = Analysis(
         'bencoding',
         'blackboxprotobuf',
         'Crypto.Cipher.AES',
+        'ijson',
         'lib2to3.refactor',
         'liblzfse',
         'mdplist',
@@ -60,5 +61,5 @@ app = BUNDLE(
     name='ileappGUI.app',
     icon='../../assets/icon.icns',
     bundle_identifier='4n6.brigs.iLEAPP',
-    version='2.1.3'
+    version='2.2.0'
 )
