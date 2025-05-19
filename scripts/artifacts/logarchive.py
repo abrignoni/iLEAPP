@@ -9,15 +9,16 @@ __artifacts_v2__ = {
         "category": "Logs",
         "notes": "",
         "paths": ('*/logarchive.json',),
-        "output_types": ["lava"],
-        "artifact_icon": "user"
+        "output_types": "none",
+        "artifact_icon": "database",
+        "function": "logarchive"
     }
 }
 
 import ijson
 from datetime import datetime, timezone
-
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content, logfunc
+from scripts.lavafuncs import lava_process_artifact, lava_insert_sqlite_data
+from scripts.ilapfuncs import get_file_path, get_plist_file_content, logfunc
 
 def convert_to_utc(timestamp):
     dt_local = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S.%f%z")
@@ -42,21 +43,22 @@ def truncate_after_last_bracket(file_path):
                 return
         print("No closing bracket `]` found.")
 
-
-
-@artifact_processor
 def logarchive(files_found, report_folder, seeker, wrap_text, timezone_offset):
     
     data_list = []
+    data_list_artifacts = []
+    
     for file_found in files_found:
         file_found = str(file_found)
     
+    incval = 0
     if file_found.endswith('logarchive.json'):
         truncate_after_last_bracket(file_found)
         with open(file_found, 'rb') as f:
             for record in ijson.items(f, 'item', multiple_values=True ): # if the json is a list
                 if isinstance(record, dict):
                     timestamp = processid = subsystem = category = eventmessage = traceid = ''
+                    incval = incval + 1
                     
                     for key, value in record.items():
                         if key == 'timestamp':
@@ -64,6 +66,8 @@ def logarchive(files_found, report_folder, seeker, wrap_text, timezone_offset):
                             timestamp = value
                         elif key == 'processID':
                             processid = value
+                        elif key == 'processImagePath':
+                            processImagePath = value
                         elif key == 'subsystem':
                             subsystem = value
                         elif key == 'category':
@@ -71,11 +75,31 @@ def logarchive(files_found, report_folder, seeker, wrap_text, timezone_offset):
                         elif key == 'eventMessage':
                             eventmessage = str(value)
                         elif key == 'traceID':
-                            traceid = value
+                            traceid = str(value)
+
                     #print(timestamp, processid, subsystem, category, eventmessage, traceid)
-                    data_list.append((timestamp, processid, subsystem, category, eventmessage, traceid))
-                else:
-                    logfunc(f'Not added:{record}')
+                    
+                    data_list.append((timestamp, incval, processImagePath, processid, subsystem, category, eventmessage, traceid))
+
+                    #Identification and aggregation of relevant artifacts
+                    if ('Take screenshot' in eventmessage):
+                        data_list_artifacts.append((timestamp, incval, processImagePath, processid, subsystem, category, eventmessage, traceid))
+                
+            
+        
+            
     
-    data_headers = (('Timestamp', 'datetime'), 'Process ID', 'Subsystem', 'Category', 'Event Message', 'Trace ID')
-    return data_headers, data_list, file_found
+    #Create LAVA tables
+    category = "Logs"
+    module_name = "logarchive"
+        
+    data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 'Subsystem', 'Category', 'Event Message', 'Trace ID')
+    table_name1, object_columns1, column_map1 = lava_process_artifact(category, module_name, 'Log Archive', data_headers, len(data_list))
+    lava_insert_sqlite_data(table_name1, data_list, object_columns1, data_headers, column_map1)
+    
+    
+    data_headers_artifacts = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 'Subsystem', 'Category', 'Event Message', 'Trace ID')
+    table_name2, object_columns2, column_map2 = lava_process_artifact(category, module_name, 'Log Archive Artifacts', data_headers_artifacts, len(data_list_artifacts))
+    lava_insert_sqlite_data(table_name2, data_list_artifacts, object_columns2, data_headers_artifacts, column_map2)
+
+    
