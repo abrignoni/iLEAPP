@@ -162,6 +162,7 @@ def main():
     available_plugins = list(loader.plugins)
     profile_filename = None
     casedata = {}
+    lava_only_artifacts = {}
 
     # Check if no arguments were provided
     if len(sys.argv) == 1:
@@ -301,7 +302,7 @@ def main():
     out_params = OutputParameters(output_path, custom_output_folder)
 
     selected_plugins = plugins_parsed_first + selected_plugins
-    
+
     initialize_lava(input_path, out_params.report_folder_base, extracttype)
 
     crunch_artifacts(selected_plugins, extracttype, input_path, out_params, wrap_text, loader, casedata, time_offset, profile_filename)
@@ -357,11 +358,12 @@ def crunch_artifacts(
     logfunc(f'File/Directory selected: {input_path}')
     logfunc('\n--------------------------------------------------------------------------------------')
 
-    log = open(os.path.join(out_params.report_folder_base, 'Script Logs', 'ProcessedFilesLog.html'), 'w+', encoding='utf8')
+    log = open(os.path.join(out_params.report_folder_base, '_HTML', '_Script_Logs', 'ProcessedFilesLog.html'), 'w+', encoding='utf8')
     log.write(f'Extraction/Path selected: {input_path}<br><br>')
     log.write(f'Timezone selected: {time_offset}<br><br>')
     
     parsed_modules = 0
+    lava_only = False
     # Special processing for iTunesBackup Info.plist as it is a seperate entity, not part of the Manifest.db. Seeker won't find it
     if extracttype == 'itunes':
         info_plist_path = os.path.join(input_path, 'Info.plist')
@@ -394,6 +396,9 @@ def crunch_artifacts(
     for plugin in plugins:
         logfunc()
         logfunc('{} [{}] artifact started'.format(plugin.name, plugin.module_name))
+        output_types = plugin.artifact_info.get('output_types', '')
+        if not lava_only and 'lava_only' in output_types:
+            lava_only = True
         if isinstance(plugin.search, list) or isinstance(plugin.search, tuple):
             search_regexes = plugin.search
         else:
@@ -424,7 +429,7 @@ def crunch_artifacts(
                     logfunc('Error was {}'.format(str(ex)))
                     continue  # cannot do work
             try:
-                artifact_data = plugin.method(files_found, category_folder, seeker, wrap_text, time_offset)
+                plugin.method(files_found, category_folder, seeker, wrap_text, time_offset)
             except Exception as ex:
                 logfunc('Reading {} artifact had errors!'.format(plugin.name))
                 logfunc('Error was {}'.format(str(ex)))
@@ -432,10 +437,14 @@ def crunch_artifacts(
                 continue  # nope
         else:
             logfunc(f"No file found")
+            if 'lava_only' in output_types:
+                lava_only_info(plugin.category, plugin.artifact_info['name'], None, 0)
         logfunc('{} [{}] artifact completed'.format(plugin.name, plugin.module_name))
     log.close()
 
     write_device_info()
+    if lava_only:
+        write_lava_only_log()
     logfunc('')
     logfunc('Processes completed.')
     end = process_time()
@@ -456,7 +465,7 @@ def crunch_artifacts(
         if input_path.startswith('\\\\?\\'):
             input_path = input_path[4:]
     
-    report.generate_report(out_params.report_folder_base, run_time_secs, run_time_HMS, extracttype, input_path, casedata, profile_filename, icons)
+    report.generate_report(out_params.report_folder_base, run_time_secs, run_time_HMS, extracttype, input_path, casedata, profile_filename, icons, lava_only)
     logfunc('Report generation Completed.')
     logfunc('')
     logfunc(f'Report location: {out_params.report_folder_base}')
