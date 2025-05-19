@@ -42,6 +42,7 @@ thumb_size = 256, 256
 
 identifiers = {}
 icons = {}
+lava_only_artifacts = {}
 
 class iOS:
     _version = None
@@ -74,11 +75,13 @@ class OutputParameters:
         self.report_folder_base = os.path.join(output_folder, folder_name)
         self.data_folder = os.path.join(self.report_folder_base, 'data')
         OutputParameters.screen_output_file_path = os.path.join(
-            self.report_folder_base, 'Script Logs', 'Screen Output.html')
+            self.report_folder_base, '_HTML', '_Script_Logs', 'Screen_Output.html')
         OutputParameters.screen_output_file_path_devinfo = os.path.join(
-            self.report_folder_base, 'Script Logs', 'DeviceInfo.html')
+            self.report_folder_base, '_HTML', '_Script_Logs', 'DeviceInfo.html')
+        OutputParameters.screen_output_file_path_lava_only = os.path.join(
+            self.report_folder_base, '_HTML', '_Script_Logs', 'Lava_only_artifacts_log.html')
 
-        os.makedirs(os.path.join(self.report_folder_base, 'Script Logs'))
+        os.makedirs(os.path.join(self.report_folder_base, '_HTML', '_Script_Logs'))
         os.makedirs(self.data_folder)
         
 class GuiWindow:
@@ -158,6 +161,8 @@ def check_output_types(type, output_types):
     if type in output_types or type == output_types or 'all' in output_types or 'all' == output_types:
         return True
     elif type != 'kml' and ('standard' in output_types or 'standard' == output_types):
+        return True
+    elif type == 'lava' and ('lava_only' in output_types or 'lava_only' == output_types):
         return True
     else:
         return False
@@ -324,11 +329,14 @@ def artifact_processor(func):
         html_columns = artifact_info.get('html_columns', [])
 
         output_types = artifact_info.get('output_types', ['html', 'tsv', 'timeline', 'lava', 'kml'])
+        is_lava_only = 'lava_only' in output_types
 
         data_headers, data_list, source_path = func(files_found, report_folder, seeker, wrap_text, timezone_offset)
         
         if not source_path:
             logfunc(f"No file found")
+            if is_lava_only:
+                lava_only_info(category, artifact_name, None, 0)
 
         elif len(data_list):
             if isinstance(data_list, tuple):
@@ -362,6 +370,8 @@ def artifact_processor(func):
 
             if check_output_types('lava', output_types):
                 table_name, object_columns, column_map = lava_process_artifact(category, module_name, artifact_name, data_headers, len(data_list), data_views=artifact_info.get("data_views"))
+                if is_lava_only:
+                    lava_only_info(category, artifact_name, table_name, len(data_list))
                 lava_insert_sqlite_data(table_name, data_list, object_columns, data_headers, column_map)
 
             if check_output_types('kml', output_types):
@@ -369,7 +379,9 @@ def artifact_processor(func):
 
         else:
             if output_types != 'none':
-                logfunc(f"No {artifact_name} data available")
+                logfunc(f"No data found for {artifact_name}")
+                if is_lava_only:
+                    lava_only_info(category, artifact_name, artifact_name, 0)
         
         return data_headers, data_list, source_path
     return wrapper
@@ -921,6 +933,56 @@ def device_info(category, label, value, source_file=""):
         values[label] = value_obj
         
     identifiers[category] = values
+
+def write_lava_only_log():
+    """Crates the lava_only_artifacts log file"""
+    with open(OutputParameters.screen_output_file_path_lava_only, 'w', encoding='utf8') as lava_log:
+        lava_log.write(
+            """
+                <p class="note alert-info mb-4">
+                The artifacts listed below are likely to return too much data to be viewed \
+                in a Web browser, so they have been stored in the <i>'_lava_artifacts.db'</i> \
+                SQLite database.<br>
+                They are not available from the side bar of the HTML report, but they can \
+                currently be viewed with any SQLite database viewer until we release <b>LAVA</b> \
+                (LEAPP Artifact Viewer App).<br></p>
+            """
+        )
+        for category, artifacts in lava_only_artifacts.items():
+            lava_log.write('<b>--- ' + category.upper() + ' ---</b><br>' + OutputParameters.nl)
+            lava_log.write('<ul>' + OutputParameters.nl)
+            for artifact in artifacts:
+                lava_log.write('<li><b>' + artifact['artifact_name'] + '</b>' + OutputParameters.nl)
+                if artifact['table_name']:
+                    if artifact['records']:
+                        lava_log.write(f'<ul><li>- Table name: <i>{artifact["table_name"]}</i></li>' + OutputParameters.nl)
+                        lava_log.write(f'<li>- Number of records: <i>{artifact["records"]}</i></li>' + OutputParameters.nl)
+                    else:
+                        lava_log.write('<ul><li>- No data found</li>' + OutputParameters.nl)
+                else:
+                    lava_log.write('<ul><li>- No file found</li>' + OutputParameters.nl)
+                lava_log.write('</ul></li>' + OutputParameters.nl)
+            lava_log.write('</ul>' + OutputParameters.nl)
+
+def lava_only_info(category, artifact_name, table_name, records):
+    """
+    Stores artifact information in the lava_only_artifacts dictionary
+    Args:
+        category (str): The category of the artifact collected from artifact_info block
+        artifact_name (str): The name of the artifact collected from artifact_info block
+        table_name (str): The name of the table in the _lava_artifacts.db SQLite database
+        records (int): The number of records returned by the artifact
+    """
+
+    artifacts = lava_only_artifacts.get(category, [])
+
+    artifacts.append({
+        'artifact_name': artifact_name,
+        'table_name': table_name,
+        'records': records
+    })
+
+    lava_only_artifacts[category] = artifacts
 
 ### New timestamp conversion functions
 def convert_unix_ts_in_seconds(ts):
