@@ -9,8 +9,10 @@ This guide outlines the process of updating existing xLEAPP modules to use the n
 3. Add the `@artifact_processor` decorator
 4. Adjust the main function
 5. Remove manual report generation code
-6. Add chat parameters if the artifact should support a threaded type view
-7. Update Device Information Collection
+6. Use a distinct data_list for HTML report (if needed)
+7. Handling Media Files with the Media Manager (New 2025-05-10)
+8. Add chat parameters if the artifact should support a threaded type view
+9. Update Device Information Collection
 
 ## Detailed Process
 
@@ -41,7 +43,7 @@ Read [Artifact Info Block Structure](./artifact_info_block.md) for more info abo
 
 ### 2. Modify imports
 
-Remove imports related to manual report generation (ArtifactHtmlReport, tsv, kml, timeline) and unused ones, then add the artifact processor:
+Remove imports related to manual report generation (ArtifactHtmlReport, tsv, kml, timeline) and unused ones, then add the artifact processor and any necessary media manager functions:
 
 #### Remove this import
 
@@ -53,6 +55,16 @@ from scripts.artifact_report import ArtifactHtmlReport
 
 ```python
 from scripts.ilapfuncs import artifact_processor, get_file_path
+
+# After (ensure all needed functions are imported)
+from scripts.ilapfuncs import (
+    artifact_processor,
+    get_file_path,
+    check_in_media,            # For media files on disk
+    check_in_embedded_media,   # For media stored as blobs/binary data
+    # ... other necessary ilapfuncs ...
+)
+import os # Often needed for path joining
 ```
 
 ### 3. Add the `@artifact_processor` decorator
@@ -97,9 +109,10 @@ Be sure to mark columns with their data type if they are one of the special hand
 
 Currently the special handler types are:
 
-- datetime
-- date
-- phonenumber
+- `datetime`
+- `date`
+- `phonenumber`
+- `media` (See section: [Handling Media Files with the Media Manager](#7-handling-media-files-with-the-media-manager))
 
 #### Timestamps
 
@@ -157,7 +170,77 @@ __artifacts_v2__ = {
 }
 ```
 
-### 7. Add chat parameters if the artifact should support a threaded type view
+### 7. Handling Media Files with the Media Manager
+
+If your artifact processes or references media files (images, videos, audio), use the centralized Media Manager to handle them. This ensures deduplication, consistent display, and proper linking in HTML & LAVA.
+
+**Key Functions:**
+- `check_in_media()`: For media files located on the filesystem within the extraction.
+- `check_in_embedded_media()`: For media content extracted as binary data (e.g., from a database BLOB).
+
+Both functions will copy/link the media to a central data location in the report, add entries to the LAVA database for media items and their references, and return a `media_ref_id` (a string). This ID is what you'll put in your `data_list`.
+
+**Steps:**
+
+1. **Call `check_in_media` or `check_in_embedded_media`**:
+
+    * **For files on disk (`check_in_media`):**
+        ```python
+        artifact_info = inspect.stack()[0]
+        
+        current_file_path = "**/path/to/image.jpg" # dummy for example
+        media_file_on_disk = get_file_path(files_found, current_file_path) 
+
+        if media_file_on_disk: 
+            media_ref_id = check_in_media(
+                artifact_info=artifact_info,
+                report_folder=report_folder,
+                seeker=seeker,
+                files_found=files_found,
+                file_path=media_file_on_disk
+            )
+            if media_ref_id:
+                data_list.append((timestamp_column, text_column, media_ref_id))
+        ```
+
+    * **For embedded binary data (`check_in_embedded_media`):**
+        ```python
+        artifact_info = inspect.stack()[0]
+        
+        original_source_path_of_db = "*/path/to/sqlite.db" # dummy for example
+        binary_image_data = db.msg_record.imagedata # dummy for example
+
+        if binary_image_data and original_source_path_of_db:
+            media_ref_id = check_in_embedded_media(
+                artifact_info=artifact_info,
+                report_folder=report_folder, 
+                seeker=seeker,
+                source_file=original_source_path_of_db,
+                data=binary_image_data,
+                name=db.msg_record.imagename
+            )
+            if media_ref_id:
+                data_list.append((timestamp_column, description_column, media_ref_id))
+        ```
+
+2. **Update `data_headers`**: Mark the column containing `media_ref_id` with the type `'media'`.
+    ```python
+    data_headers = (
+        ('Timestamp', 'datetime'),
+        'Description',
+        ('Photo', 'media')  # Basic media column
+        # Or with custom style for the HTML display:
+        # ('Thumbnail', 'media', 'max-width:100px; max-height:100px;') 
+    )
+    ```
+
+3. **Return**: The `artifact_processor` will use the `media_ref_id` and the `'media'` type in `data_headers` to automatically:
+    * Generate correct HTML tags (`<img>`, `<video>`, `<audio>`).
+    * Provide appropriate paths for TSV, KML, and Timeline outputs.
+    * Ensure LAVA has the necessary media information.
+
+
+### 8. Add chat parameters if the artifact should support a threaded type view
 
 Instructions:
 
@@ -200,7 +283,7 @@ __artifacts_v2__ = {
 }
 ```
 
-### 8. Update Device Information Collection
+### 9. Update Device Information Collection
 
 The `logdevinfo()` function is being deprecated in favor of the new `device_info()` function. This new function provides better organization and structure for device-related information. Not every module uses these functions, so this section is only applicable to modules that do.
 

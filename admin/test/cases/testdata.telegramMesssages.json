@@ -1,0 +1,32 @@
+{
+  "josh_ios15_ffs": {
+    "description": "",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "/Users/jameshabben/Documents/phone-images/Josh/iOS_15_Public_Image.tar.gz",
+      "os": "macOS-15.0-x86_64-i386-64bit",
+      "timestamp": "2025-04-30T07:44:25.544184",
+      "last_commit": {
+        "hash": "6b9d2ec6483c4d08fb2b0d4bbbc40bb161a013b0",
+        "author_name": "Kevin - Stark 4N6",
+        "author_email": "48143894+stark4n6@users.noreply.github.com",
+        "date": "2025-02-05T11:36:45-05:00",
+        "message": "Minor Formatting and R/O fixes"
+      }
+    },
+    "artifacts": {
+      "telegramMessages": {
+        "search_patterns": [
+          "*/telegram-data/account-*/postbox/db/db_sqlite*",
+          "*/telegram-data/account-*/postbox/media/**"
+        ],
+        "file_count": 2006,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "image_name": "josh_ios15_ffs"
+  }
+}

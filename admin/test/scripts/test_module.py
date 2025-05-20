@@ -3,7 +3,7 @@ import os
 import zipfile
 import importlib
 import json
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch, PropertyMock
 from contextlib import ExitStack
 from pathlib import Path
 from datetime import datetime, timezone, date
@@ -16,6 +16,7 @@ import argparse
 # Adjust import paths as necessary
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..')))
 import scripts.ilapfuncs as ilapfuncs
+import scripts.lavafuncs # Import lavafuncs to make its globals patchable
 
 def mock_logdevinfo(message):
     print(f"[LOGDEVINFO] {message}")
@@ -40,6 +41,29 @@ def process_artifact(zip_path, module_name, artifact_name, artifact_data):
     mock_wrap_text = MagicMock()
     timezone_offset = 'UTC'
     
+    # <<< NEW COUNTERS >>>
+    check_in_media_call_count = 0
+    check_in_media_embedded_call_count = 0
+
+    # Capture original functions before patching if we need to call them
+    original_check_in_media = ilapfuncs.check_in_media
+    original_check_in_media_embedded = ilapfuncs.check_in_embedded_media
+    
+    # Configure mock_seeker.file_infos.get() to return a mock
+    # with a dynamic source_path based on the input extraction_path.
+    def mock_file_infos_get_side_effect(key_extraction_path):
+        mock_file_info = MagicMock()
+        # Use the unique extraction_path (path in temp dir for the test)
+        # as the source_path for hashing purposes. In a real run,
+        # source_path is the original path in the evidence.
+        mock_file_info.source_path = key_extraction_path
+        # Provide default datetime objects for creation and modification dates
+        mock_file_info.creation_date = datetime.now(timezone.utc)
+        mock_file_info.modification_date = datetime.now(timezone.utc)
+        return mock_file_info
+
+    mock_seeker.file_infos.get.side_effect = mock_file_infos_get_side_effect
+    
     all_files = []
     
     # Create the base temp directory if it doesn't exist
@@ -48,6 +72,10 @@ def process_artifact(zip_path, module_name, artifact_name, artifact_data):
     
     # Create a unique temporary directory within the base temp directory
     temp_dir = base_temp_dir / f'extract_{module_name}_{artifact_name}_{int(time.time())}'
+    
+    # Define mock_report_folder path within the temp_dir and create it
+    mock_report_folder_path = temp_dir / 'mock_reports'
+    mock_report_folder_path.mkdir(parents=True, exist_ok=True)
     
     # Get the module file path
     module_file_path = module.__file__
@@ -64,10 +92,78 @@ def process_artifact(zip_path, module_name, artifact_name, artifact_data):
                 for file in files:
                     all_files.append(os.path.join(root, file))
         
+        # Mock for lava_db connection and cursor
+        mock_lava_cursor_instance = MagicMock()
+        mock_lava_cursor_instance.execute.return_value = mock_lava_cursor_instance
+        mock_lava_cursor_instance.fetchone.return_value = None # Simulate media not in LAVA / no specific query result needed for GETs
+        mock_lava_cursor_instance.fetchall.return_value = []   # Simulate no results for queries expecting multiple rows
+
+        mock_lava_db_instance = MagicMock()
+        mock_lava_db_instance.cursor.return_value = mock_lava_cursor_instance
+        mock_lava_db_instance.commit.return_value = None # For any INSERT/UPDATE operations in LAVA functions
+        
+        # <<< NEW MOCKS FOR CHECK_IN_MEDIA >>>
+        def mocked_check_in_media(*args, **kwargs):
+            nonlocal check_in_media_call_count
+            check_in_media_call_count += 1
+            # Call the original function or a simplified version
+            # For counting, we might not need the full original if it has side effects
+            # that are hard to mock or slow down the test.
+            # Here, we assume we still want the original's return value for the test's integrity.
+            # The key is that artifact_info must be correctly passed or mocked.
+            # If artifact_info is an object with attributes, it might need more careful mocking.
+            # The original check_in_media expects artifact_info to have `name` and `category`
+            
+            # Simplistic artifact_info mock if the real one causes issues in test
+            # This assumes artifact_info might be passed as None or a simple dict in some tests.
+            # If it's always a specific object, this might need adjustment.
+            passed_artifact_info = kwargs.get('artifact_info')
+            if not passed_artifact_info or not (hasattr(passed_artifact_info, 'name') and hasattr(passed_artifact_info, 'category')):
+                 # Create a simple mock for artifact_info if not adequately provided
+                mock_artifact_info_obj = MagicMock()
+                mock_artifact_info_obj.name = artifact_name # Use current artifact name
+                mock_artifact_info_obj.category = "MockedCategory" # Or derive from module
+                kwargs['artifact_info'] = mock_artifact_info_obj
+            
+            # Ensure seeker is passed correctly, as it's used by original_check_in_media
+            if 'seeker' not in kwargs:
+                kwargs['seeker'] = mock_seeker
+
+
+            # To prevent issues with LAVA DB in check_in_media when media is not found:
+            # If lava_db is not properly mocked for check_in_media's internal calls,
+            # we might return a dummy hash directly.
+            # For now, let's try calling the original.
+            # return original_check_in_media(*args, **kwargs)
+
+            # Simplified return for counter, avoiding deep side effects of original if problematic
+            # This is often done in unit tests when only counting interactions.
+            # The actual return value might be important for the module's logic, though.
+            # Let's assume the test needs a plausible return value (a hash-like string)
+            file_path_arg = kwargs.get('file_path', args[3] if len(args) > 3 else "unknown_file")
+            return f"mock_hash_for_{os.path.basename(str(file_path_arg))}"
+
+
+        def mocked_check_in_embedded_media(*args, **kwargs):
+            nonlocal check_in_media_embedded_call_count
+            check_in_media_embedded_call_count += 1
+            # Similar to above, call original or return dummy
+            # original_check_in_media_embedded(*args, **kwargs)
+            return "mock_embedded_html_path"
+
         patches = [
             patch('scripts.ilapfuncs.logdevinfo', mock_logdevinfo),
             patch(f'scripts.artifacts.{module_name}.logdevinfo', mock_logdevinfo, create=True),
-            patch(f'scripts.artifacts.{module_name}.logfunc', mock_logfunc, create=True)
+            patch(f'scripts.artifacts.{module_name}.logfunc', mock_logfunc, create=True),
+            patch('scripts.lavafuncs.lava_db', mock_lava_db_instance), # Patch lava_db in the lavafuncs module
+            # <<< ADD PATCHES FOR CHECK_IN_MEDIA FUNCTIONS >>>
+            # Patch it in ilapfuncs (where it's defined)
+            patch('scripts.ilapfuncs.check_in_media', mocked_check_in_media),
+            patch('scripts.ilapfuncs.check_in_embedded_media', mocked_check_in_embedded_media),
+            # Also patch it directly in the artifact module's namespace if it's imported there like:
+            # from scripts.ilapfuncs import check_in_media
+            patch(f'scripts.artifacts.{module_name}.check_in_media', mocked_check_in_media, create=True),
+            patch(f'scripts.artifacts.{module_name}.check_in_embedded_media', mocked_check_in_embedded_media, create=True)
         ]
         
         with ExitStack() as stack:
@@ -75,10 +171,11 @@ def process_artifact(zip_path, module_name, artifact_name, artifact_data):
                 stack.enter_context(p)
             
             start_time = time.time()
-            data_headers, data_list, _ = original_func(all_files, mock_report_folder, mock_seeker, mock_wrap_text, timezone_offset)
+            # Use the created path for mock_report_folder
+            data_headers, data_list, _ = original_func(all_files, str(mock_report_folder_path), mock_seeker, mock_wrap_text, timezone_offset)
             end_time = time.time()
         
-        return data_headers, data_list, end_time - start_time, last_commit_info
+        return data_headers, data_list, end_time - start_time, last_commit_info, check_in_media_call_count, check_in_media_embedded_call_count
     
     finally:
         if temp_dir.exists():
@@ -221,19 +318,16 @@ def main(module_name, artifact_name=None, case_number=None):
                 if artifact in case_data['artifacts']:
                     artifact_data = case_data['artifacts'][artifact]
                     
-                    # Check if the artifact has any files
                     if artifact_data.get('file_count', 0) == 0:
                         print(f"\nSkipping artifact: {artifact} for case: {case} (no files found)")
                         continue
 
                     print(f"\nTesting artifact: {artifact} for case: {case}")
-                    # Update zip_path to use the new folder structure
                     zip_path = Path('admin/test/cases/data') / module_name / f"testdata.{module_name}.{artifact}.{case}.zip"
                     artifact_info = artifacts_info.get(artifact, {})
                     start_datetime = datetime.now(timezone.utc)
-                    headers, data, run_time, last_commit_info = process_artifact(zip_path, module_name, artifact, artifact_data)
+                    headers, data, run_time, last_commit_info, media_checkins_count, media_embedded_checkins_count = process_artifact(zip_path, module_name, artifact, artifact_data)
                     
-                    # Process headers and data to handle datetime objects
                     processed_headers, processed_data = process_data(headers, data)
                     
                     end_datetime = datetime.now(timezone.utc)
@@ -247,6 +341,8 @@ def main(module_name, artifact_name=None, case_number=None):
                             "number_of_columns": len(processed_headers),
                             "number_of_rows": len(processed_data),
                             "total_data_size_bytes": calculate_data_size(processed_data),
+                            "media_checkins": media_checkins_count,
+                            "media_embedded_checkins": media_embedded_checkins_count,
                             "input_zip_path": str(zip_path),
                             "start_time": start_datetime.isoformat(),
                             "end_time": end_datetime.isoformat(),
@@ -257,7 +353,6 @@ def main(module_name, artifact_name=None, case_number=None):
                         "data": processed_data
                     }
                     
-                    # Update output directory to use module-specific subfolder
                     output_dir = Path('admin/test/results') / module_name
                     output_dir.mkdir(parents=True, exist_ok=True)
                     output_file = output_dir / f"{module_name}.{artifact}.{case}.{start_datetime.strftime('%Y%m%d%H%M%S')}.json"
@@ -266,7 +361,7 @@ def main(module_name, artifact_name=None, case_number=None):
                         json.dump(result, f, indent=2, default=str)
                     
                     print(f"Test results for {module_name} - {artifact} - Case {case} saved to {output_file}")
-                    print(f"Processed {len(processed_data)} rows in {run_time:.2f} seconds")
+                    print(f"Processed {len(processed_data)} rows in {run_time:.2f} seconds. Media Checkins: {media_checkins_count}. Media Embedded Checkins: {media_embedded_checkins_count}.")
                 else:
                     print(f"\nSkipping artifact: {artifact} for case: {case} (not found in test data)")
 
