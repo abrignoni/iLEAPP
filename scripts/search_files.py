@@ -71,13 +71,18 @@ class FileSeekerDir(FileSeekerBase):
                     data_path = data_path.replace('/', '\\')
                 if item not in self.copied or force:
                     try:
-                        os.makedirs(os.path.dirname(data_path), exist_ok=True)
-                        copyfile(item, data_path)
-                        self.copied[item] = data_path
-                        creation_date = Path(item).stat().st_ctime
-                        modification_date = Path(item).stat().st_mtime
-                        file_info = FileInfo(item, creation_date, modification_date)
-                        self.file_infos[data_path] = file_info
+                        if os.path.isdir(item):
+                            pathlist.append(data_path)
+                        elif os.path.isfile(item):
+                            os.makedirs(os.path.dirname(data_path), exist_ok=True)
+                            copyfile(item, data_path)
+                            self.copied[item] = data_path
+                            creation_date = Path(item).stat().st_ctime
+                            modification_date = Path(item).stat().st_mtime
+                            file_info = FileInfo(item, creation_date, modification_date)
+                            self.file_infos[data_path] = file_info
+                        else:
+                            logfunc(f"INFO: Item '{item}' is neither a file nor a directory (e.g. symlink not followed, or broken). Skipped.")
                     except Exception as ex:
                         logfunc(f'Could not copy {item} to {data_path} ' + str(ex))
                 else:
