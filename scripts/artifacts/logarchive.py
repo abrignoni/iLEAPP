@@ -94,8 +94,34 @@ def logarchive(files_found, report_folder, seeker, wrap_text, timezone_offset):
                         'AppleAccount Authenticated:' in eventmessage or
                         '=> Transitioning to state:' in eventmessage or
                         'Received: Screen' in eventmessage or
+                        'Screen did lock' in eventmessage or
+                        'ScreenOn changed' in eventmessage or
+                        'Screen shut off' in eventmessage or
+                        'screen is locked' in eventmessage or
+                        'screen is unlocked' in eventmessage or
+                        'Device unlocked' in eventmessage or
+                        'Device lock status' in eventmessage or
+                        'Biometric match complete' in eventmessage or
                         'SBIconView touches began with event:' in eventmessage or
                         'Setting process visibility' in eventmessage or
+                        'WiFi state changed:' in eventmessage or
+                        'Toggled WiFi state' in eventmessage or
+                        'is WiFi associated?' in eventmessage or
+                        'ForgetSSID' in eventmessage or
+                        'en0: SSID' in eventmessage or
+                        'Removing Lease SSID' in eventmessage or
+                        'SysMon: WiFi state changed:' in eventmessage or
+                        'WiFiDeviceManagerSetNetworks:' in eventmessage or 
+                        'Scanning For Broadcast found:' in eventmessage or
+                        'Scanning Remaining Channels' in eventmessage or
+                        'WiFiSettlementObserver _handleScanResults' in eventmessage or
+                        'Attempting to join' in eventmessage or
+                        'Preparing background scan request for ' in eventmessage or
+                        'WiFiNetworkPrepareKnownBssList' in eventmessage or
+                        'to list of known networks' in eventmessage or
+                        '{AUTOJOIN, SCAN*} Scanning 2Ghz Channels found:' in eventmessage or
+                        '{AUTOJOIN, SCAN*} Scanning 5Ghz Channels found:' in eventmessage or
+                        'is asking to connect device' in eventmessage or
                         'ATXModeDrivingFeaturizer: Driving mode' in eventmessage or
                         'ATXModeCorrelatedAppsDataSource: user' in eventmessage):
                         data_list_artifacts.append((timestamp, incval, processImagePath, processid, subsystem, category, eventmessage, traceid))
