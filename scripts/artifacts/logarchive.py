@@ -82,13 +82,24 @@ def logarchive(files_found, report_folder, seeker, wrap_text, timezone_offset):
                     data_list.append((timestamp, incval, processImagePath, processid, subsystem, category, eventmessage, traceid))
 
                     #Identification and aggregation of relevant artifacts
-                    if ('Take screenshot' in eventmessage):
+                    if ('Take screenshot' in eventmessage or
+                        'charger connected state change' in eventmessage or
+                        'Motion State Transition:' in eventmessage or
+                        'CarPlay Connection Event:' in eventmessage or
+                        'CoreAnalytics event: com.apple.accessories.connection.added' in eventmessage or
+                        'Start #SpeechRequest id' in eventmessage or
+                        'Received Orientation' in eventmessage or
+                        'Effective device orientation' in eventmessage or
+                        'Received: Face' in eventmessage or
+                        'AppleAccount Authenticated:' in eventmessage or
+                        '=> Transitioning to state:' in eventmessage or
+                        'Received: Screen' in eventmessage or
+                        'SBIconView touches began with event:' in eventmessage or
+                        'Setting process visibility' in eventmessage or
+                        'ATXModeDrivingFeaturizer: Driving mode' in eventmessage or
+                        'ATXModeCorrelatedAppsDataSource: user' in eventmessage):
                         data_list_artifacts.append((timestamp, incval, processImagePath, processid, subsystem, category, eventmessage, traceid))
                 
-            
-        
-            
-    
     #Create LAVA tables
     category = "Logs"
     module_name = "logarchive"
