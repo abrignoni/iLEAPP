@@ -103,3 +103,4 @@ instance/
 .ipynb_checkpoints
 .python-version
 
+/.obsidian
