@@ -13,7 +13,7 @@ Number of v2 artifacts: 315
 Number of modules with 'lava output': 287  
 Number of modules using 'artifact_icon': 197  
 Number of modules using 'version': 251  
-Number of modules using 'last_update_date': 97  
+Number of modules using 'last_update_date': 98  
 Number of modules with errors or no recognized artifacts: 2  
 
 ## V2 Artifacts Table
@@ -314,7 +314,7 @@ Number of modules with errors or no recognized artifacts: 2
 | [teams.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/teams.py) | teamsUser | Teams User Information | standard |  | 1.0 |  | Microsoft Teams user profile and sync data | ``*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*`` |
 | [teams.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/teams.py) | teamsCalls | Teams Call Logs | standard |  | 1.0 |  | Microsoft Teams call history | ``*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*`` |
 | [teams.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/teams.py) | teamsLocations | Teams Shared Locations | all |  | 1.0 |  | Microsoft Teams shared location data | ``*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*`` |
-| [telegramMesssages.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/telegramMesssages.py) | telegramMessages | Telegram Messages | lava, tsv, timeline |  |  |  |  | ``*/telegram-data/account-*/postbox/db/db_sqlite*``, ``*/telegram-data/account-*/postbox/media/**`` |
+| [telegramMesssages.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/telegramMesssages.py) | telegramMessages | Telegram Messages | standard |  |  | 2024-07-15 | Parses Telegram messages, including text, media, and forwarding information from the local cache database. | ``*/telegram-data/account-*/postbox/db/db_sqlite*``, ``*/telegram-data/account-*/postbox/media/**`` |
 | [tikTokReplied.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/tikTokReplied.py) | tiktok_replied | TikTok - Replied Messages | standard |  | 0.2 |  | Extracts "Replied" message remnants left in the TikTok database which may no longer exist in the native message table | ``*/Application/*/Library/Application Support/ChatFiles/*/db.sqlite*``, ``*AwemeIM.db*`` |
 | [tileAppDisc.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/tileAppDisc.py) | tileAppDisc | Tile App Discovered Tiles | standard | user |  | 2025-04-05 | Tile IDs seen from other users | ``*/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-DiscoveredTileDB.sqlite*`` |
 | [tileAppNetDb.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/tileAppNetDb.py) | tileAppNetDb | Tile App Account Information | standard | user |  | 2025-04-05 |  | ``*/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-TileNetworkDB.sqlite*`` |
