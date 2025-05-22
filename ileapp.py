@@ -174,14 +174,13 @@ def main():
     extracttype = args.t
 
     plugins = []
-    plugins_parsed_first = []
 
     for plugin in available_plugins:
         if plugin.module_name == 'lastBuild':
             if extracttype == 'itunes':
                 continue
             else:
-                plugins_parsed_first.append(plugin)
+                plugins.insert(0, plugin)
         elif plugin.module_name != 'iTunesBackupInfo':
             plugins.append(plugin)
 
@@ -300,8 +299,6 @@ def main():
         if output_path[1] == ':': output_path = '\\\\?\\' + output_path.replace('/', '\\')
 
     out_params = OutputParameters(output_path, custom_output_folder)
-
-    selected_plugins = plugins_parsed_first + selected_plugins
 
     initialize_lava(input_path, out_params.report_folder_base, extracttype)
 
@@ -430,6 +427,9 @@ def crunch_artifacts(
                     continue  # cannot do work
             try:
                 plugin.method(files_found, category_folder, seeker, wrap_text, time_offset)
+                if plugin.name == 'logarchive':
+                    lava_db_path = os.path.join(out_params.report_folder_base, '_lava_artifacts.db')
+                    loader["logarchive_artifacts"].method([lava_db_path], category_folder, seeker, wrap_text, time_offset)
             except Exception as ex:
                 logfunc('Reading {} artifact had errors!'.format(plugin.name))
                 logfunc('Error was {}'.format(str(ex)))
