@@ -18,6 +18,7 @@ __artifacts_v2__ = {
 import json
 import tarfile
 import os
+import scripts.builds_ids as builds_ids
 
 from scripts.ilapfuncs import artifact_processor, get_file_path
 
@@ -51,11 +52,14 @@ def get_sysdiag_account_devices(files_found, report_folder, seeker, wrap_text, t
 
         for elem in f["contextDump"]["peers"]:
             model = elem["permanentInfo"]["model_id"]
-            os_ver = elem["stableInfo"]["os_version"]
+            m_name = builds_ids.device_id.get(model, model)
+            os_bnum = elem["stableInfo"]["os_version"]
+            os_build = os_bnum.split('(')[1].split(')')[0]
+            os_ver = builds_ids.OS_build.get(os_build, os_build)
             serial = elem["stableInfo"]["serial_number"]
             if not any(serial in subliste for subliste in data_list):
-                data_list.append((opush, model, os_ver, serial))
+                data_list.append((opush, model, m_name, os_bnum, os_ver, serial))
     source_list = "; ".join(s for s in sources)
     data_headers = (
-        "lastOctagonPush", "Model", "OS Version", "Serial Number")
+        "lastOctagonPush", "Model", "Product", "OS Build", "OS Version", "Serial Number")
     return data_headers, data_list, source_list
