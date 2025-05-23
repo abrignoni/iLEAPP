@@ -24,6 +24,19 @@ __artifacts_v2__ = {
         "paths": None,
         "output_types": "lava_only",
         "artifact_icon": "database",
+    },
+    "logarchive_time_change": {
+        "name": "logarchive time change",
+        "description": "Identify time changes",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2025-05-22",
+        "last_update_date": "2025-05-22",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "",
+        "paths": None,
+        "output_types": "lava_only",
+        "artifact_icon": "clock",
     }
 }
 
@@ -145,11 +158,29 @@ def logarchive_artifacts(files_found, report_folder, seeker, wrap_text, timezone
         OR event_message LIKE '%{AUTOJOIN, SCAN*} Scanning 5Ghz Channels found:%'
         OR event_message LIKE '%is asking to connect device%'
         OR event_message LIKE '%ATXModeDrivingFeaturizer: Driving mode%'
-        OR event_message LIKE '%ATXModeCorrelatedAppsDataSource: user%'
+        OR event_message LIKE '%ATXModeDrivingFeaturizer: Driving mode%'
+        OR event_message LIKE '%Time change: Clock shifted by%'
     '''
 
     data_list = get_sqlite_db_records(source_path, query)
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
 
+    return data_headers, data_list, source_path
+
+@artifact_processor
+def logarchive_time_change(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    source_path = get_file_path(files_found, '_lava_artifacts.db')
+    data_list = []
+    
+    query = '''
+    SELECT *
+    FROM logarchive
+    WHERE event_message LIKE '%Time change: Clock shifted by%'
+    '''
+    
+    data_list = get_sqlite_db_records(source_path, query)
+    data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
+                    'Subsystem', 'Category', 'Event Message', 'Trace ID')
+    
     return data_headers, data_list, source_path
