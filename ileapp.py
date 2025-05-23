@@ -399,24 +399,31 @@ def crunch_artifacts(
             lava_only = True
         if isinstance(plugin.search, list) or isinstance(plugin.search, tuple):
             search_regexes = plugin.search
+        elif plugin.search is None:
+            search_regexes = plugin.search
         else:
             search_regexes = [plugin.search]
         parsed_modules += 1
         GuiWindow.SetProgressBar(parsed_modules, len(plugins))
         files_found = []
         log.write(f'<b>For {plugin.name} module</b>')
-        for artifact_search_regex in search_regexes:
-            found = seeker.search(artifact_search_regex)
-            if not found:
-                log.write(f'<ul><li>No file found for regex <i>{artifact_search_regex}</i></li></ul>')
-            else:
-                log.write(f'<ul><li>{len(found)} {"files" if len(found) > 1 else "file"} for regex <i>{artifact_search_regex}</i> located at:')
-                for pathh in found:
-                    if pathh.startswith('\\\\?\\'):
-                        pathh = pathh[4:]
-                    log.write(f'<ul><li>{pathh}</li></ul>')
-                log.write(f'</li></ul>')
-                files_found.extend(found)
+        if search_regexes is None:
+            log.write(f'<ul><li>No search regexes provided for {plugin.name} module.')
+            log.write("<ul><li><i>'_lava_artifacts.db'</i> used as source file.</li></ul></li></ul>")
+            files_found = [os.path.join(out_params.report_folder_base, '_lava_artifacts.db')]
+        else:
+            for artifact_search_regex in search_regexes:
+                found = seeker.search(artifact_search_regex)
+                if not found:
+                    log.write(f'<ul><li>No file found for regex <i>{artifact_search_regex}</i></li></ul>')
+                else:
+                    log.write(f'<ul><li>{len(found)} {"files" if len(found) > 1 else "file"} for regex <i>{artifact_search_regex}</i> located at:')
+                    for pathh in found:
+                        if pathh.startswith('\\\\?\\'):
+                            pathh = pathh[4:]
+                        log.write(f'<ul><li>{pathh}</li></ul>')
+                    log.write(f'</li></ul>')
+                    files_found.extend(found)
         if files_found:
             category_folder = os.path.join(out_params.report_folder_base, '_HTML', plugin.category)
             if not os.path.exists(category_folder):
