@@ -415,6 +415,10 @@ def crunch_artifacts(
             for artifact_search_regex in search_regexes:
                 found = seeker.search(artifact_search_regex)
                 if not found:
+                    if plugin.name == 'logarchive' and extracttype != 'fs':
+                        logarchive_seeker = FileSeekerDir(os.path.dirname(input_path), out_params.data_folder)
+                        found = logarchive_seeker.search(artifact_search_regex)
+                        files_found.extend(found)
                     log.write(f'<ul><li>No file found for regex <i>{artifact_search_regex}</i></li></ul>')
                 else:
                     log.write(f'<ul><li>{len(found)} {"files" if len(found) > 1 else "file"} for regex <i>{artifact_search_regex}</i> located at:')
