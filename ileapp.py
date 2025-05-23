@@ -351,8 +351,7 @@ def crunch_artifacts(
     logfunc(f'Info: {len(loader) - 2} modules loaded.') # excluding lastbuild and iTunesBackupInfo
     if profile_filename:
         logfunc(f'Loaded profile: {profile_filename}')
-    artifact_to_parse = len(plugins) - 1 if extracttype != 'itunes' else len(plugins) 
-    logfunc(f'Artifact to parse: {artifact_to_parse}')
+    logfunc(f'Artifact to parse: {len(plugins)}')
     logfunc(f'File/Directory selected: {input_path}')
     logfunc('\n--------------------------------------------------------------------------------------')
 
@@ -391,9 +390,10 @@ def crunch_artifacts(
             log.write('Info.plist not found for iTunes Backup!')
 
     # Search for the files per the arguments
-    for plugin in plugins:
+    for plugin_number, plugin in enumerate(plugins, start=1):
         logfunc()
-        logfunc('{} [{}] artifact started'.format(plugin.name, plugin.module_name))
+        logfunc('[{}/{}] {} [{}] artifact started'.format(plugin_number, len(plugins),
+                                                              plugin.name, plugin.module_name))
         output_types = plugin.artifact_info.get('output_types', '')
         if not lava_only and 'lava_only' in output_types:
             lava_only = True
