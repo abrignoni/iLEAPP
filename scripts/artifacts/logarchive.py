@@ -35,7 +35,7 @@ __artifacts_v2__ = {
         "category": "Unified Logs",
         "notes": "",
         "paths": None,
-        "output_types": "lava_only",
+        "output_types": "standard",
         "artifact_icon": "clock",
     }
 }
@@ -175,7 +175,7 @@ def logarchive_time_change(files_found, report_folder, seeker, wrap_text, timezo
     
     query = '''
     SELECT *
-    FROM logarchive
+    FROM logarchive_artifacts
     WHERE event_message LIKE '%Time change: Clock shifted by%'
     '''
     

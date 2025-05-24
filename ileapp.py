@@ -158,10 +158,17 @@ def main():
                               "This argument is meant to be used alone, without any other arguments."))
     parser.add_argument('--custom_output_folder', required=False, action="store", help="Custom name for the output folder")
 
+    available_plugins = []
     loader = plugin_loader.PluginLoader()
-    available_plugins = list(loader.plugins)
+    for plugin in sorted(loader.plugins, key=lambda p: p.category):
+        if (plugin.module_name == 'iTunesBackupInfo'
+                or plugin.name == 'lastBuild'
+                or plugin.module_name == 'logarchive' and plugin.name != 'logarchive'):
+            continue
+        else:
+            available_plugins.append(plugin)
+    selected_plugins = available_plugins.copy()
     profile_filename = None
-    profile_plugins = None
     casedata = {}
 
     # Check if no arguments were provided
@@ -208,7 +215,7 @@ def main():
                 create_choice = input('Please enter your choice: ').lower()
                 print()
                 if create_choice == '1':
-                    create_profile(plugins, args.create_profile_casedata)
+                    create_profile(available_plugins, args.create_profile_casedata)
                     create_choice = ''
                 elif create_choice == '2':
                     create_casedata(args.create_profile_casedata)
@@ -266,6 +273,8 @@ def main():
                     return
                 else:
                     profile_plugins = set(profile.get("plugins", []))
+                    selected_plugins = [selected_plugin for selected_plugin in available_plugins
+                                        if selected_plugin.name in profile_plugins]
             else:
                 profile_load_error = "File was not a valid profile file: invalid format"
                 print(profile_load_error)
@@ -276,22 +285,6 @@ def main():
     output_path = os.path.abspath(args.output_path)
     time_offset = args.timezone
     custom_output_folder = args.custom_output_folder
-
-    selected_plugins = []
-    for plugin in available_plugins:
-        if plugin.module_name == 'lastBuild':
-            if extracttype == 'itunes':
-                continue
-            else:
-                selected_plugins.insert(0, plugin)
-        elif plugin.module_name == 'iTunesBackupInfo' or plugin.name == 'logarchive_artifacts':
-            continue
-        else:
-            if profile_plugins:
-                if plugin.name in profile_plugins:
-                    selected_plugins.append(plugin)
-            else:
-                selected_plugins.append(plugin)
 
     # ios file system extractions contain paths > 260 char, which causes problems
     # This fixes the problem by prefixing \\?\ on each windows path.
@@ -348,6 +341,10 @@ def crunch_artifacts(
         return False
 
     # Now ready to run
+    # add lastBuild at the start except for iTunes backups
+    if extracttype != 'itunes':
+        plugins.insert(0, loader["lastBuild"])
+
     logfunc(f'Info: {len(loader) - 2} modules loaded.') # excluding lastbuild and iTunesBackupInfo
     if profile_filename:
         logfunc(f'Loaded profile: {profile_filename}')
@@ -441,7 +438,16 @@ def crunch_artifacts(
                 plugin.method(files_found, category_folder, seeker, wrap_text, time_offset)
                 if plugin.name == 'logarchive':
                     lava_db_path = os.path.join(out_params.report_folder_base, '_lava_artifacts.db')
-                    loader["logarchive_artifacts"].method([lava_db_path], category_folder, seeker, wrap_text, time_offset)
+                    if does_table_exist_in_db(lava_db_path, 'logarchive'):
+                        loader["logarchive_artifacts"].method([lava_db_path], category_folder, seeker, wrap_text, time_offset)
+                    if does_table_exist_in_db(lava_db_path, 'logarchive_artifacts'):
+                        unifed_logs_artifacts = []
+                        unifed_logs_artifacts = [plugin.name for plugin in loader.plugins
+                                                 if plugin.module_name=='logarchive'
+                                                 and plugin.name != 'logarchive'
+                                                 and plugin.name != 'logarchive_artifacts']
+                        for unifed_log_artifact in unifed_logs_artifacts:
+                            loader[unifed_log_artifact].method([lava_db_path], category_folder, seeker, wrap_text, time_offset)
             except Exception as ex:
                 logfunc('Reading {} artifact had errors!'.format(plugin.name))
                 logfunc('Error was {}'.format(str(ex)))
