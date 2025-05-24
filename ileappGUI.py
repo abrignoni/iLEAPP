@@ -26,11 +26,9 @@ def pickModules():
         - ones that take a long time to run are deselected by default'''
     global mlist
     for plugin in sorted(loader.plugins, key=lambda p: p.category.upper()):
-        if (plugin.name == 'iTunesBackupInfo'
-                or plugin.name == 'iTunesBackupInstalledApplications'
+        if (plugin.module_name == 'iTunesBackupInfo'
                 or plugin.name == 'lastBuild'
-                or plugin.name == 'Ph100-UFED-device-values-Plist'
-                or plugin.name == 'logarchive_artifacts'):
+                or plugin.module_name == 'logarchive' and plugin.name != 'logarchive'):
             continue
         # Items that take a long time to execute are deselected by default
         # and referenced in the modules_to_exclude list in an external file (modules_to_exclude.py).
@@ -216,8 +214,6 @@ def process(casedata):
 
         # re-create modules list based on user selection
         selected_modules, lava_only = get_selected_modules()
-        if extracttype != 'itunes':
-            selected_modules.insert(0, 'lastBuild')  # Force lastBuild as first item to be parsed
         selected_modules = [loader[module] for module in selected_modules]
         progress_bar.config(maximum=len(selected_modules))
         casedata = {key: value.get() for key, value in casedata.items()}
