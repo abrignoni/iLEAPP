@@ -161,8 +161,8 @@ def main():
     loader = plugin_loader.PluginLoader()
     available_plugins = list(loader.plugins)
     profile_filename = None
+    profile_plugins = None
     casedata = {}
-    lava_only_artifacts = {}
 
     # Check if no arguments were provided
     if len(sys.argv) == 1:
@@ -172,19 +172,6 @@ def main():
     args = parser.parse_args()
 
     extracttype = args.t
-
-    plugins = []
-
-    for plugin in available_plugins:
-        if plugin.module_name == 'lastBuild':
-            if extracttype == 'itunes':
-                continue
-            else:
-                plugins.insert(0, plugin)
-        elif plugin.module_name != 'iTunesBackupInfo':
-            plugins.append(plugin)
-
-    selected_plugins = plugins.copy()
 
     try:
         validate_args(args)
@@ -279,8 +266,6 @@ def main():
                     return
                 else:
                     profile_plugins = set(profile.get("plugins", []))
-                    selected_plugins = [selected_plugin for selected_plugin in plugins 
-                                        if selected_plugin.name in profile_plugins]
             else:
                 profile_load_error = "File was not a valid profile file: invalid format"
                 print(profile_load_error)
@@ -291,6 +276,22 @@ def main():
     output_path = os.path.abspath(args.output_path)
     time_offset = args.timezone
     custom_output_folder = args.custom_output_folder
+
+    selected_plugins = []
+    for plugin in available_plugins:
+        if plugin.module_name == 'lastBuild':
+            if extracttype == 'itunes':
+                continue
+            else:
+                selected_plugins.insert(0, plugin)
+        elif plugin.module_name == 'iTunesBackupInfo' or plugin.name == 'logarchive_artifacts':
+            continue
+        else:
+            if profile_plugins:
+                if plugin.name in profile_plugins:
+                    selected_plugins.append(plugin)
+            else:
+                selected_plugins.append(plugin)
 
     # ios file system extractions contain paths > 260 char, which causes problems
     # This fixes the problem by prefixing \\?\ on each windows path.
