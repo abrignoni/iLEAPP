@@ -1121,8 +1121,8 @@ def convert_plist_date_to_utc(plist_date):
         return plist_date
 
 def get_birthdate(date):
-    ns_date = date + 978307200
-    utc_date = datetime.utcfromtimestamp(ns_date)
+    cocoa_epoch = datetime(2001, 1, 1, tzinfo=timezone.utc) # Create our own epoch to avoid gmtime() errors in fromtimestamp().
+    utc_date = cocoa_epoch + timedelta(seconds=date)
     return utc_date.strftime('%d %B %Y') if utc_date.year != 1604 else utc_date.strftime('%d %B')
 
 def convert_bytes_to_unit(size):
