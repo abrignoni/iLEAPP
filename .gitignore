@@ -72,6 +72,10 @@ path_list.txt
 coordinates.db
 admin/data/**/*.csv
 
+# Ignore extracted test case data, but keep the original zip files
+admin/test/cases/data/*/**
+!admin/test/cases/data/*/testdata*.zip
+
 # Documentation
 docs/_build/
 /site

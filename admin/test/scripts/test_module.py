@@ -24,7 +24,7 @@ def mock_logdevinfo(message):
 def mock_logfunc(message):
     print(f"[LOGFUNC] {message}")
 
-def process_artifact(zip_path, module_name, artifact_name, artifact_data):
+def process_artifact(zip_path, module_name, artifact_name, artifact_data, target_os_version=None):
     module = importlib.import_module(f'scripts.artifacts.{module_name}')
     
     # Get the function to test
@@ -166,6 +166,11 @@ def process_artifact(zip_path, module_name, artifact_name, artifact_data):
             patch(f'scripts.artifacts.{module_name}.check_in_embedded_media', mocked_check_in_embedded_media, create=True)
         ]
         
+        # If a target OS version is provided, mock iOS.get_version()
+        if target_os_version:
+            mock_ios_get_version = MagicMock(return_value=target_os_version)
+            patches.append(patch('scripts.ilapfuncs.iOS.get_version', mock_ios_get_version))
+
         with ExitStack() as stack:
             for p in patches:
                 stack.enter_context(p)
@@ -316,17 +321,25 @@ def main(module_name, artifact_name=None, case_number=None):
             case_data = test_cases[case]
             for artifact in artifacts_to_process:
                 if artifact in case_data['artifacts']:
-                    artifact_data = case_data['artifacts'][artifact]
+                    artifact_data_for_function = case_data['artifacts'][artifact] # Renamed to avoid conflict
                     
-                    if artifact_data.get('file_count', 0) == 0:
+                    if artifact_data_for_function.get('file_count', 0) == 0:
                         print(f"\nSkipping artifact: {artifact} for case: {case} (no files found)")
                         continue
 
                     print(f"\nTesting artifact: {artifact} for case: {case}")
                     zip_path = Path('admin/test/cases/data') / module_name / f"testdata.{module_name}.{artifact}.{case}.zip"
-                    artifact_info = artifacts_info.get(artifact, {})
+                    artifact_info_v2 = artifacts_info.get(artifact, {}) # Renamed to avoid conflict
                     start_datetime = datetime.now(timezone.utc)
-                    headers, data, run_time, last_commit_info, media_checkins_count, media_embedded_checkins_count = process_artifact(zip_path, module_name, artifact, artifact_data)
+                    
+                    # Extract os_version from case_data
+                    current_os_version = case_data.get("os_version")
+                    if current_os_version:
+                        print(f"Using OS version from test case data for {case}: {current_os_version}")
+                    else:
+                        print(f"Warning: 'os_version' not found in test case data for {case}. iOS.get_version() will not be specifically mocked.")
+
+                    headers, data, run_time, last_commit_info, media_checkins_count, media_embedded_checkins_count = process_artifact(zip_path, module_name, artifact, artifact_data_for_function, target_os_version=current_os_version)
                     
                     processed_headers, processed_data = process_data(headers, data)
                     
@@ -335,7 +348,7 @@ def main(module_name, artifact_name=None, case_number=None):
                     result = {
                         "metadata": {
                             "module_name": module_name,
-                            "artifact_name": artifact_info.get('name', artifact),
+                            "artifact_name": artifact_info_v2.get('name', artifact),
                             "function_name": artifact,
                             "case_number": case,
                             "number_of_columns": len(processed_headers),
