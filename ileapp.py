@@ -158,11 +158,18 @@ def main():
                               "This argument is meant to be used alone, without any other arguments."))
     parser.add_argument('--custom_output_folder', required=False, action="store", help="Custom name for the output folder")
 
+    available_plugins = []
     loader = plugin_loader.PluginLoader()
-    available_plugins = list(loader.plugins)
+    for plugin in sorted(loader.plugins, key=lambda p: p.category):
+        if (plugin.module_name == 'iTunesBackupInfo'
+                or plugin.name == 'lastBuild'
+                or plugin.module_name == 'logarchive' and plugin.name != 'logarchive'):
+            continue
+        else:
+            available_plugins.append(plugin)
+    selected_plugins = available_plugins.copy()
     profile_filename = None
     casedata = {}
-    lava_only_artifacts = {}
 
     # Check if no arguments were provided
     if len(sys.argv) == 1:
@@ -172,20 +179,6 @@ def main():
     args = parser.parse_args()
 
     extracttype = args.t
-
-    plugins = []
-    plugins_parsed_first = []
-
-    for plugin in available_plugins:
-        if plugin.module_name == 'lastBuild':
-            if extracttype == 'itunes':
-                continue
-            else:
-                plugins_parsed_first.append(plugin)
-        elif plugin.module_name != 'iTunesBackupInfo':
-            plugins.append(plugin)
-
-    selected_plugins = plugins.copy()
 
     try:
         validate_args(args)
@@ -222,7 +215,7 @@ def main():
                 create_choice = input('Please enter your choice: ').lower()
                 print()
                 if create_choice == '1':
-                    create_profile(plugins, args.create_profile_casedata)
+                    create_profile(available_plugins, args.create_profile_casedata)
                     create_choice = ''
                 elif create_choice == '2':
                     create_casedata(args.create_profile_casedata)
@@ -280,7 +273,7 @@ def main():
                     return
                 else:
                     profile_plugins = set(profile.get("plugins", []))
-                    selected_plugins = [selected_plugin for selected_plugin in plugins 
+                    selected_plugins = [selected_plugin for selected_plugin in available_plugins
                                         if selected_plugin.name in profile_plugins]
             else:
                 profile_load_error = "File was not a valid profile file: invalid format"
@@ -300,8 +293,6 @@ def main():
         if output_path[1] == ':': output_path = '\\\\?\\' + output_path.replace('/', '\\')
 
     out_params = OutputParameters(output_path, custom_output_folder)
-
-    selected_plugins = plugins_parsed_first + selected_plugins
 
     initialize_lava(input_path, out_params.report_folder_base, extracttype)
 
@@ -350,11 +341,14 @@ def crunch_artifacts(
         return False
 
     # Now ready to run
+    # add lastBuild at the start except for iTunes backups
+    if extracttype != 'itunes':
+        plugins.insert(0, loader["lastBuild"])
+
     logfunc(f'Info: {len(loader) - 2} modules loaded.') # excluding lastbuild and iTunesBackupInfo
     if profile_filename:
         logfunc(f'Loaded profile: {profile_filename}')
-    artifact_to_parse = len(plugins) - 1 if extracttype != 'itunes' else len(plugins) 
-    logfunc(f'Artifact to parse: {artifact_to_parse}')
+    logfunc(f'Artifact to parse: {len(plugins)}')
     logfunc(f'File/Directory selected: {input_path}')
     logfunc('\n--------------------------------------------------------------------------------------')
 
@@ -393,13 +387,16 @@ def crunch_artifacts(
             log.write('Info.plist not found for iTunes Backup!')
 
     # Search for the files per the arguments
-    for plugin in plugins:
+    for plugin_number, plugin in enumerate(plugins, start=1):
         logfunc()
-        logfunc('{} [{}] artifact started'.format(plugin.name, plugin.module_name))
+        logfunc('[{}/{}] {} [{}] artifact started'.format(plugin_number, len(plugins),
+                                                              plugin.name, plugin.module_name))
         output_types = plugin.artifact_info.get('output_types', '')
         if not lava_only and 'lava_only' in output_types:
             lava_only = True
         if isinstance(plugin.search, list) or isinstance(plugin.search, tuple):
+            search_regexes = plugin.search
+        elif plugin.search is None:
             search_regexes = plugin.search
         else:
             search_regexes = [plugin.search]
@@ -407,18 +404,27 @@ def crunch_artifacts(
         GuiWindow.SetProgressBar(parsed_modules, len(plugins))
         files_found = []
         log.write(f'<b>For {plugin.name} module</b>')
-        for artifact_search_regex in search_regexes:
-            found = seeker.search(artifact_search_regex)
-            if not found:
-                log.write(f'<ul><li>No file found for regex <i>{artifact_search_regex}</i></li></ul>')
-            else:
-                log.write(f'<ul><li>{len(found)} {"files" if len(found) > 1 else "file"} for regex <i>{artifact_search_regex}</i> located at:')
-                for pathh in found:
-                    if pathh.startswith('\\\\?\\'):
-                        pathh = pathh[4:]
-                    log.write(f'<ul><li>{pathh}</li></ul>')
-                log.write(f'</li></ul>')
-                files_found.extend(found)
+        if search_regexes is None:
+            log.write(f'<ul><li>No search regexes provided for {plugin.name} module.')
+            log.write("<ul><li><i>'_lava_artifacts.db'</i> used as source file.</li></ul></li></ul>")
+            files_found = [os.path.join(out_params.report_folder_base, '_lava_artifacts.db')]
+        else:
+            for artifact_search_regex in search_regexes:
+                found = seeker.search(artifact_search_regex)
+                if not found:
+                    if plugin.name == 'logarchive' and extracttype != 'fs':
+                        logarchive_seeker = FileSeekerDir(os.path.dirname(input_path), out_params.data_folder)
+                        found = logarchive_seeker.search(artifact_search_regex)
+                        files_found.extend(found)
+                    log.write(f'<ul><li>No file found for regex <i>{artifact_search_regex}</i></li></ul>')
+                else:
+                    log.write(f'<ul><li>{len(found)} {"files" if len(found) > 1 else "file"} for regex <i>{artifact_search_regex}</i> located at:')
+                    for pathh in found:
+                        if pathh.startswith('\\\\?\\'):
+                            pathh = pathh[4:]
+                        log.write(f'<ul><li>{pathh}</li></ul>')
+                    log.write(f'</li></ul>')
+                    files_found.extend(found)
         if files_found:
             category_folder = os.path.join(out_params.report_folder_base, '_HTML', plugin.category)
             if not os.path.exists(category_folder):
@@ -430,6 +436,18 @@ def crunch_artifacts(
                     continue  # cannot do work
             try:
                 plugin.method(files_found, category_folder, seeker, wrap_text, time_offset)
+                if plugin.name == 'logarchive':
+                    lava_db_path = os.path.join(out_params.report_folder_base, '_lava_artifacts.db')
+                    if does_table_exist_in_db(lava_db_path, 'logarchive'):
+                        loader["logarchive_artifacts"].method([lava_db_path], category_folder, seeker, wrap_text, time_offset)
+                    if does_table_exist_in_db(lava_db_path, 'logarchive_artifacts'):
+                        unifed_logs_artifacts = []
+                        unifed_logs_artifacts = [plugin.name for plugin in loader.plugins
+                                                 if plugin.module_name=='logarchive'
+                                                 and plugin.name != 'logarchive'
+                                                 and plugin.name != 'logarchive_artifacts']
+                        for unifed_log_artifact in unifed_logs_artifacts:
+                            loader[unifed_log_artifact].method([lava_db_path], category_folder, seeker, wrap_text, time_offset)
             except Exception as ex:
                 logfunc('Reading {} artifact had errors!'.format(plugin.name))
                 logfunc('Error was {}'.format(str(ex)))

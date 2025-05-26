@@ -55,6 +55,7 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | filesApp |
 | foursquareSwarm |
 | googleTranslate |
+| logarchive |
 | nsVault |
 | payByPhone |
 | sms |
