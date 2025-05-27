@@ -37,6 +37,19 @@ __artifacts_v2__ = {
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "clock",
+    },
+    "logarchive_executed_apps": {
+        "name": "logarchive executed apps",
+        "description": "Track apps being executed",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2025-05-26",
+        "last_update_date": "2025-05-26",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "code",
     }
 }
 
@@ -191,6 +204,10 @@ def logarchive_artifacts(files_found, report_folder, seeker, wrap_text, timezone
         OR event_message LIKE '%SBRingerControl activateRingerHUD%'
         OR event_message LIKE '%SBRingerHUDViewController setRingerSilent:%'
         OR event_message LIKE '%ringer state changed to:%'
+        OR event_message LIKE '%Allowing tap for icon view%'
+        OR event_message LIKE '%Launching application%'
+        OR event_message LIKE '%transition source:%'
+        
     '''
 
     data_list = get_sqlite_db_records(source_path, query)
@@ -215,3 +232,23 @@ def logarchive_time_change(files_found, report_folder, seeker, wrap_text, timezo
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
     return data_headers, data_list, source_path
+
+@artifact_processor
+def logarchive_executed_apps(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    source_path = get_file_path(files_found, '_lava_artifacts.db')
+    data_list = []
+    
+    query = '''
+    SELECT *
+    FROM logarchive_artifacts
+    WHERE event_message LIKE '%Allowing tap for icon view%'
+        OR event_message LIKE '%Launching application%'
+        OR event_message LIKE '%transition source:%'
+    '''
+    
+    data_list = get_sqlite_db_records(source_path, query)
+    data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
+                    'Subsystem', 'Category', 'Event Message', 'Trace ID')
+    
+    return data_headers, data_list, source_path
+
