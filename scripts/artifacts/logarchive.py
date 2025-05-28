@@ -63,6 +63,45 @@ __artifacts_v2__ = {
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "code",
+    },
+    "logarchive_tethering": {
+        "name": "logarchive personal hotspot",
+        "description": "Hotspot/Tethering state",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2025-05-27",
+        "last_update_date": "2025-05-27",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "wifi",
+    },
+    "logarchive_airplane_mode": {
+        "name": "logarchive airplane mode",
+        "description": "Airplane Mode",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2025-05-27",
+        "last_update_date": "2025-05-27",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "wifi-off",
+    },
+    "logarchive_lock_status": {
+        "name": "logarchive lock status",
+        "description": "Lock Status",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2025-05-28",
+        "last_update_date": "2025-05-28",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "lock",
     }
 }
 
@@ -220,8 +259,11 @@ def logarchive_artifacts(files_found, report_folder, seeker, wrap_text, timezone
         OR event_message LIKE '%Allowing tap for icon view%'
         OR event_message LIKE '%Launching application%'
         OR event_message LIKE '%transition source:%'
-        OR event_message LIKE '%[Flashlight Controller]%' 
+        OR event_message LIKE '%[Flashlight Controller]%'
         OR event_message LIKE '%<<<<AVFlashlight>>>>-%'
+        OR event_message LIKE '%Tethering is now enabled with%'
+        OR event_message LIKE '%Received notification that wireless modem state changed%'
+        OR event_message LIKE '%Previous tethering state was%'
     '''
 
     data_list = get_sqlite_db_records(source_path, query)
@@ -284,4 +326,75 @@ def logarchive_executed_apps(files_found, report_folder, seeker, wrap_text, time
     
     return data_headers, data_list, source_path
 
+@artifact_processor
+def logarchive_tethering(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    source_path = get_file_path(files_found, '_lava_artifacts.db')
+    data_list = []
     
+    query = '''
+    SELECT *
+    FROM logarchive_artifacts
+    WHERE event_message LIKE '%Tethering is now enabled with%'
+        OR event_message LIKE '%Received notification that wireless modem state changed%'
+        OR event_message LIKE '%Previous tethering state was%'
+    '''
+    
+    data_list = get_sqlite_db_records(source_path, query)
+    data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
+                    'Subsystem', 'Category', 'Event Message', 'Trace ID')
+    
+    return data_headers, data_list, source_path
+
+@artifact_processor
+def logarchive_airplane_mode(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    source_path = get_file_path(files_found, '_lava_artifacts.db')
+    data_list = []
+    
+    query = '''
+    SELECT *
+    FROM logarchive_artifacts
+    WHERE event_message LIKE '%Airplane Mode is now 1%'
+        OR event_message LIKE '%Airplane Mode is now On%'
+        OR event_message LIKE '%Setting airplane mode to true%'
+        OR event_message LIKE '%Airplane mode now active%'
+        OR event_message LIKE '%Airplane mode now active%'
+        OR event_message LIKE '%enabling airplanemode%'
+        OR event_message LIKE '%Airplane mode changed%'
+        OR event_message LIKE '%Airplane Mode is now 0%'
+        OR event_message LIKE '%Airplane Mode is now Off%'
+        OR event_message LIKE '%Airplane Mode is now On%'
+        OR event_message LIKE '%Setting airplane mode to false%'
+        OR event_message LIKE '%Airplane mode now inactive%'
+        OR event_message LIKE '%Airplane mode Disabled%'
+    '''
+    
+    data_list = get_sqlite_db_records(source_path, query)
+    data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
+                    'Subsystem', 'Category', 'Event Message', 'Trace ID')
+    
+    return data_headers, data_list, source_path
+
+@artifact_processor
+def logarchive_lock_status(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    source_path = get_file_path(files_found, '_lava_artifacts.db')
+    data_list = []
+    
+    query = '''
+    SELECT *
+    FROM logarchive_artifacts
+    WHERE event_message LIKE '%Screen did lock%'
+        OR event_message LIKE '%ScreenOn changed%'
+        OR event_message LIKE '%Screen shut off%'
+        OR event_message LIKE '%screen is locked%'
+        OR event_message LIKE '%screen is unlocked%'
+        OR event_message LIKE '%Device unlocked%'
+        OR event_message LIKE '%Device lock status%'
+        OR event_message LIKE '%Biometric match complete%'
+
+    '''
+    
+    data_list = get_sqlite_db_records(source_path, query)
+    data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
+                    'Subsystem', 'Category', 'Event Message', 'Trace ID')
+    
+    return data_headers, data_list, source_path
