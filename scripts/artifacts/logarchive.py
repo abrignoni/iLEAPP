@@ -102,6 +102,32 @@ __artifacts_v2__ = {
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "lock",
+    },
+    "logarchive_wifi_status": {
+        "name": "logarchive wifi status",
+        "description": "WiFi Status",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2025-05-28",
+        "last_update_date": "2025-05-28",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "wifi",
+    },
+    "logarchive_bluetooth_status": {
+        "name": "logarchive bluetooth status",
+        "description": "Bluetooth Status",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2025-05-28",
+        "last_update_date": "2025-05-28",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "bluetooth",
     }
 }
 
@@ -212,21 +238,27 @@ def logarchive_artifacts(files_found, report_folder, seeker, wrap_text, timezone
         OR event_message LIKE '%WiFi state changed:%'
         OR event_message LIKE '%Toggled WiFi state%'
         OR event_message LIKE '%is WiFi associated?%'
+        OR event_message LIKE '%link status changed%'
+        OR event_message LIKE '%reachability changed%'
+        OR event_message LIKE '%ISNetworkObserver%'
         OR event_message LIKE '%ForgetSSID%'
         OR event_message LIKE '%en0: SSID%'
         OR event_message LIKE '%Removing Lease SSID%'
         OR event_message LIKE '%SysMon: WiFi state changed:%'
+        OR event_message LIKE '%WiFiManagerClientRemoveNetworkWithReason:%'
+        OR event_message LIKE '%WiFiSecurityRemovePassword%'
+        OR event_message LIKE '%AlwaysOnWifi:%'
         OR event_message LIKE '%WiFiDeviceManagerSetNetworks:%'
         OR event_message LIKE '%Scanning For Broadcast found:%'
         OR event_message LIKE '%Scanning Remaining Channels%'
         OR event_message LIKE '%WiFiSettlementObserver _handleScanResults%'
         OR event_message LIKE '%Attempting to join%'
+        OR event_message LIKE '%WiFiLQAMgrSetCurrentNetwork: Joined SSID:%'
         OR event_message LIKE '%Preparing background scan request for %'
         OR event_message LIKE '%WiFiNetworkPrepareKnownBssList%'
         OR event_message LIKE '%to list of known networks%'
         OR event_message LIKE '%{AUTOJOIN, SCAN*} Scanning 2Ghz Channels found:%'
         OR event_message LIKE '%{AUTOJOIN, SCAN*} Scanning 5Ghz Channels found:%'
-        OR event_message LIKE '%is asking to connect device%'
         OR event_message LIKE '%ATXModeDrivingFeaturizer: Driving mode%'
         OR event_message LIKE '%ATXModeCorrelatedAppsDataSource: user%'
         OR event_message LIKE '%VEHICULAR:vehicularStartTime%'
@@ -250,6 +282,32 @@ def logarchive_artifacts(files_found, report_folder, seeker, wrap_text, timezone
         OR event_message LIKE '%Bluetooth state changed%'
         OR event_message LIKE '%Sending new bluetooth state%'
         OR event_message LIKE '%Bluetooth state changed PoweredOn%'
+        OR event_message LIKE '%ServiceManager disconnection result for%'
+        OR event_message LIKE '%Device type is%'
+        OR event_message LIKE '%is asking to connect device%'
+        OR event_message LIKE '%Received connection result for%'
+        OR event_message LIKE '%Received disconnection result for%'
+        OR event_message LIKE '%Received handsfree disconnection%'
+        OR event_message LIKE '%Sending ring notification for call%'
+        OR event_message LIKE '%Accepting incoming audio connection%'
+        OR event_message LIKE '%Received voice audio connected%'
+        OR event_message LIKE '%Stopping A2DP audio streaming%'
+        OR event_message LIKE '%Bluetooth A2DP device%'
+        OR event_message LIKE '%Bluetooth Daemon: A2DP streaming%'
+        OR event_message LIKE '%Starting Media connection to device%'
+        OR event_message LIKE '%Received voice disconnection%'
+        OR event_message LIKE '%Disconnecting audio from device%'
+        OR event_message LIKE '%Audio was already disconnected%'
+        OR event_message LIKE '%Toggled Bluetooth state from%'
+        OR event_message LIKE '%CUBluetoothDevice%'
+        OR event_message LIKE '%handsfree device disconnected%'
+        OR event_message LIKE '%handsfree device connected%'
+        OR event_message LIKE '%Bluetooth state updated%'
+        OR event_message LIKE '%Bluetooth power is now off%'
+        OR event_message LIKE '%Bluetooth state%'
+        OR event_message LIKE '%Sending call state update%'
+        OR event_message LIKE '%A2DP LinkQualityReport%'
+
         OR event_message LIKE '%SBVolumeControl%'
         OR event_message LIKE '%SBSOSClawGestureObserver - button press noted%'
         OR event_message LIKE '%brightness change:%'
@@ -390,6 +448,91 @@ def logarchive_lock_status(files_found, report_folder, seeker, wrap_text, timezo
         OR event_message LIKE '%Device unlocked%'
         OR event_message LIKE '%Device lock status%'
         OR event_message LIKE '%Biometric match complete%'
+
+    '''
+    
+    data_list = get_sqlite_db_records(source_path, query)
+    data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
+                    'Subsystem', 'Category', 'Event Message', 'Trace ID')
+    
+    return data_headers, data_list, source_path
+
+@artifact_processor
+def logarchive_wifi_status(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    source_path = get_file_path(files_found, '_lava_artifacts.db')
+    data_list = []
+    
+    query = '''
+    SELECT *
+    FROM logarchive_artifacts
+    WHERE event_message LIKE '%WiFi state changed:%'
+        OR event_message LIKE '%Toggled WiFi state%'
+        OR event_message LIKE '%is WiFi associated?%'
+        OR event_message LIKE '%link status changed%'
+        OR event_message LIKE '%reachability changed%'
+        OR event_message LIKE '%ISNetworkObserver%'
+        OR event_message LIKE '%ForgetSSID%'
+        OR event_message LIKE '%en0: SSID%'
+        OR event_message LIKE '%Removing Lease SSID%'
+        OR event_message LIKE '%SysMon: WiFi state changed:%'
+        OR event_message LIKE '%WiFiManagerClientRemoveNetworkWithReason:%'
+        OR event_message LIKE '%WiFiSecurityRemovePassword%'
+        OR event_message LIKE '%AlwaysOnWifi:%'
+        OR event_message LIKE '%WiFiDeviceManagerSetNetworks:%'
+        OR event_message LIKE '%Scanning For Broadcast found:%'
+        OR event_message LIKE '%Scanning Remaining Channels%'
+        OR event_message LIKE '%WiFiSettlementObserver _handleScanResults%'
+        OR event_message LIKE '%Attempting to join%'
+        OR event_message LIKE '%WiFiLQAMgrSetCurrentNetwork: Joined SSID:%'
+        OR event_message LIKE '%Preparing background scan request for %'
+        OR event_message LIKE '%WiFiNetworkPrepareKnownBssList%'
+        OR event_message LIKE '%to list of known networks%'
+        OR event_message LIKE '%{AUTOJOIN, SCAN*} Scanning 2Ghz Channels found:%'
+        OR event_message LIKE '%{AUTOJOIN, SCAN*} Scanning 5Ghz Channels found:%'
+    '''
+    
+    data_list = get_sqlite_db_records(source_path, query)
+    data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
+                    'Subsystem', 'Category', 'Event Message', 'Trace ID')
+    
+    return data_headers, data_list, source_path
+
+@artifact_processor
+def logarchive_bluetooth_status(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    source_path = get_file_path(files_found, '_lava_artifacts.db')
+    data_list = []
+    
+    query = '''
+    SELECT *
+    FROM logarchive_artifacts
+    WHERE event_message LIKE '%Bluetooth state changed%'
+        OR event_message LIKE '%Sending new bluetooth state%'
+        OR event_message LIKE '%Bluetooth state changed PoweredOn%'
+        OR event_message LIKE '%ServiceManager disconnection result for%'
+        OR event_message LIKE '%Device type is%'
+        OR event_message LIKE '%is asking to connect device%'
+        OR event_message LIKE '%Received connection result for%'
+        OR event_message LIKE '%Received disconnection result for%'
+        OR event_message LIKE '%Received handsfree disconnection%'
+        OR event_message LIKE '%Sending ring notification for call%'
+        OR event_message LIKE '%Accepting incoming audio connection%'
+        OR event_message LIKE '%Received voice audio connected%'
+        OR event_message LIKE '%Stopping A2DP audio streaming%'
+        OR event_message LIKE '%Bluetooth A2DP device%'
+        OR event_message LIKE '%Bluetooth Daemon: A2DP streaming%'
+        OR event_message LIKE '%Starting Media connection to device%'
+        OR event_message LIKE '%Received voice disconnection%'
+        OR event_message LIKE '%Disconnecting audio from device%'
+        OR event_message LIKE '%Audio was already disconnected%'
+        OR event_message LIKE '%Toggled Bluetooth state from%'
+        OR event_message LIKE '%CUBluetoothDevice%'
+        OR event_message LIKE '%handsfree device disconnected%'
+        OR event_message LIKE '%handsfree device connected%'
+        OR event_message LIKE '%Bluetooth state updated%'
+        OR event_message LIKE '%Bluetooth power is now off%'
+        OR event_message LIKE '%Bluetooth state%'
+        OR event_message LIKE '%Sending call state update%'
+        OR event_message LIKE '%A2DP LinkQualityReport%'
 
     '''
     
