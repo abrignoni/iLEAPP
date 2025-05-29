@@ -46,6 +46,6 @@ ileapp_contributors = [
     ['Marco Neumann', 'https://bebinary4n6.blogspot.com/', '@kalinko4n6', 'https://github.com/kalink0'],
     ['Bruno Fischer', 'https://german4n6.blogspot.com/', '', 'https://github.com/BrunoFischerGermany'],
     ['Christian Peter', 'https://www.linkedin.com/in/christian-peter-49b4ab182/', '@DasZamomin', 'https://github.com/prosch88'],
-    ['James McGee', 'https://sqlmcgee.wordpress.com/, '@SQL_McGee', 'https://github.com/sqlmcgee'],
+    ['James McGee', 'https://sqlmcgee.wordpress.com/', '@SQL_McGee', 'https://github.com/sqlmcgee'],
     ['Metadata Forensics', 'https://metadataperspective.com/', '', 'https://github.com/metadataforensics/']
 ]
