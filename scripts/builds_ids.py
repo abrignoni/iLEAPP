@@ -3201,6 +3201,7 @@ OS_build = {
     "22000": "Windows 11 version 21H2",
     "22621": "Windows 11 version 22H2",
     "22631": "Windows 11 version 23H2",
+    "26100": "Windows 11 version 24H2",
 }
 
 domains = {
