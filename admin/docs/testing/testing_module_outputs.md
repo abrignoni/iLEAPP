@@ -4,7 +4,7 @@ This document describes the process of testing the various output formats suppor
 
 ## Overview
 
-The `test_module_output.py` script is designed to test a single LEAPP module's output capabilities. It uses pre-created test cases and generates all supported output formats (HTML, TSV, LAVA, etc.) for the selected module. This process allows for comprehensive verification of the module's functionality and output accuracy.
+The `test_module_output.py` script is designed to test a single LEAPP module's ability to correctly generate various report formats (HTML, TSV, LAVA, KML, etc.). It uses the same test cases and input data ZIPs defined for module logic testing (see `testdata.<module>.json` and `make_test_data.py`). This script does *not* verify the correctness of the extracted data itself (that's the role of `test_module.py` and its golden file comparisons), but rather focuses on the integrity and presence of the final report files.
 
 ## Running the Script
 
@@ -31,10 +31,18 @@ Replace `<module_name>` with the name of the module you want to test (with or wi
 
 After the script completes, you should manually verify the generated outputs:
 
-1. Check the `admin/test/output` directory for the generated files.
+1. Check the `admin/test/output/test.<module_name>.<timestamp>` directory for the generated report files.
 2. Verify that all expected output formats (HTML, TSV, LAVA, etc.) are present.
 3. Review the content of each output file to ensure accuracy and completeness.
 4. Compare the results with expected outcomes based on the test case data.
+
+## Relationship to Logic Testing
+
+This script complements the module logic testing performed by `test_module.py`.
+- `test_module.py`: Verifies the *data* extracted by a module is correct using golden files.
+- `test_module_output.py`: Verifies the module can correctly *format and output* that data into standard iLEAPP reports.
+
+It's possible for a module's data extraction to be correct (passes `test_module.py`) but for its report generation to be broken (fails manual inspection after `test_module_output.py`), or vice-versa. Both testing steps are important.
 
 ## Advantages
 

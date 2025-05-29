@@ -57,50 +57,53 @@ This command will create test data for the keyboard module, using the specified 
 
 ## Test Case JSON File Structure
 
-The script generates a JSON file (e.g., `testdata.<module_name>.json`) that contains metadata and information about the test cases. This file is crucial for running tests and maintaining test data. Here's an explanation of its structure:
+The script generates a JSON file (e.g., `testdata.<module_name>.json`) that contains metadata and information about the test cases. This file is crucial for defining the scenarios that `test_module.py` will execute. Here's an explanation of its structure:
 
 ```json
 {
-  "case001": {
-    "description": "",
-    "maker": "",
+  "case_ios12_basic": {
+    "description": "Tests basic data extraction for iOS 12.x.",
+    "maker": "Your Name",
+    "os_name": "iOS",
+    "os_version": "12.5.5",
     "make_data": {
-      "input_data_path": "/path/to/input/data.tar.gz",
-      "os": "macOS-15.0-x86_64-i386-64bit",
-      "timestamp": "2024-10-14T10:17:49.432528"
+      "input_data_path": "/path/to/iOS12_image.tar.gz",
+      "os": "macOS-14.0-...",
+      "timestamp": "2024-10-14T10:17:49.432528",
+      "last_commit": {
+          "hash": "abcdef123...",
+      }
     },
     "artifacts": {
-      "artifact_name": {
+      "get_photosMetadata": {
         "search_patterns": [
-          "*/path/to/artifact/files"
+          "*/mobile/Media/PhotoData/Photos.sqlite*"
         ],
-        "file_count": 1,
-        "expected_output": {
-          "headers": [],
-          "data": []
-        }
+        "file_count": 1
+      },
+      "another_artifact_function_if_any": {
       }
     }
   }
 }
 ```
 
-- `case001`: A unique identifier for each test case.
-  - `description`: A brief description of the test case (to be filled in manually).
-  - `maker`: The person who created the test case (to be filled in manually).
-  - `make_data`: Information about the test case creation process.
-    - `input_data_path`: The path to the input file used to create the test case.
-    - `os`: The operating system on which the test case was created.
-    - `timestamp`: The date and time when the test case was created.
-  - `artifacts`: A dictionary of artifacts tested in this case.
-    - `artifact_name`: The name of the artifact (e.g., "get_keyboard_lexicon").
-      - `search_patterns`: The file patterns used to find relevant files.
-      - `file_count`: The number of files found matching the search patterns.
-      - `expected_output`: The expected results of the artifact extraction.
-        - `headers`: Column headers for the expected output (to be filled in manually).
-        - `data`: Expected data rows (to be filled in manually).
+- `case_ios12_basic`: A unique identifier for each test case. This key is used by `test_module.py` to find the corresponding input data ZIP and golden file.
+  - `description`: A brief description of what this test case covers (to be filled in manually).
+  - `maker`: The person who created or last verified the test case (to be filled in manually).
+  - `os_name`: Include the name of the operating system this case data originated from (iOS, Android, etc)
+  - `os_version`: The specific OS version string (e.g., "12.5.5", "14.1") that this test case represents. `test_module.py` will use this to mock `iOS.get_version()`.
+  - `make_data`: Information about the `make_test_data.py` run that generated this case's input data.
+    - `input_data_path`: The path to the original full image/archive used.
+    - `os`: The operating system on which `make_test_data.py` was run.
+    - `timestamp`: The date and time when the input data ZIP was created.
+    - `last_commit`: Information about the module's Git commit at the time of data creation.
+  - `artifacts`: A dictionary where keys are artifact function names from the module.
+    - `artifact_name` (e.g., "get_photosMetadata"):
+      - `search_patterns`: The file patterns from the module's `__artifacts_v2__` block used to find relevant files.
+      - `file_count`: The number of files found and included in the input ZIP for this artifact and case.
 
-Multiple test cases (e.g., "case001", "case002") can be included in a single JSON file.
+Multiple test cases (e.g., "case_ios12_basic", "case_ios14_advanced") can be included in a single `testdata.<module_name>.json` file. It's recommended to use descriptive case keys.
 
 ## Image Manifest
 
@@ -140,13 +143,13 @@ Until these improvements are implemented, be aware that modules using dynamic fi
 
 ## Updating the JSON File
 
-After creating test cases, it's important to manually update the JSON file with the following information:
+After creating test cases with `make_test_data.py`, it's important to manually update the `testdata.<module_name>.json` file with:
 
-1. Add a meaningful description for each test case.
-2. Include the name of the person who created the test case.
-3. Fill in the expected output headers and data for each artifact.
+1. A meaningful `description` for each test case.
+2. Your name as the `maker`.
+3. The relevant `os_name` and `os_version` string so `test_module.py` can simulate it.
 
-This information is crucial for validating test results and ensuring the accuracy of the artifact extraction process.
+This information, along with the golden files generated by `test_module.py`, is crucial for understanding test coverage and validating results.
 
 ## Requirements
 
