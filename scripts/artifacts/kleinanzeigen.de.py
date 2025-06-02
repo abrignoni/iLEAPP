@@ -70,6 +70,10 @@ def get_kleinanzeigenmessagecache(files_found, report_folder, seeker, wrap_text,
     for elem in m_cache['data']:
         ad_name = elem['ad']['displayTitle']
         ad_id = elem['ad']['identifier']
+        try:
+            ad_stat = elem['clientData']['adStatus']
+        except:
+            ad_stat = "UNKNOWN"
         counter_name = elem['counterParty']['name']
         counter_id = elem['counterParty']['identifier']
         if elem['clientData']['role'] == "Seller":
@@ -78,33 +82,52 @@ def get_kleinanzeigenmessagecache(files_found, report_folder, seeker, wrap_text,
         else:
             my_name = elem['clientData']['buyerName']
             my_id = elem['clientData']['userIdBuyer']
-        for message in elem['messages']:
-            m_id = message['messageId']
-            # Original timestamp is cocoa time - so 978307200 will be added
-            m_rec = datetime.datetime.fromtimestamp(message['sentDate'] + 978307200).strftime('%Y-%m-%d %H:%M:%S')
-            m_text = message['text']
-            m_att = []
-            for att in message['attachments']:
-                m_att.append(att['imageURL'])
-            if m_att == []:
-                m_att = "none"
-            else: 
-                m_att = ", ".join(m_att)
-            if message['sender'] == 0:
-                m_from = my_name
-                id_from = my_id
-                m_to = counter_name
-                id_to = counter_id
-            else:
-                m_from = counter_name
-                id_from = counter_id
-                m_to = my_name
-                id_to = my_id
-            data_list.append((ad_name, ad_id, m_rec, m_from, id_from, m_to, id_to, m_text, m_att, m_id))
+        if elem['messages'] == []:
+            try:
+                m_text = elem['clientData']['textShortTrimmed']
+                m_rec = datetime.datetime.fromtimestamp(elem['clientData']['receivedDate'] + 978307200).strftime('%Y-%m-%d %H:%M:%S')
+                if elem['clientData']['boundness'] == "OUTBOUND":
+                    m_from = my_name
+                    id_from = my_id
+                    m_to = counter_name
+                    id_to = counter_id
+                else:
+                    m_from = counter_name
+                    id_from = counter_id
+                    m_to = my_name
+                    id_to = my_id
+                data_list.append((ad_name, ad_id, m_rec, m_from, id_from, m_to, id_to, m_text, m_att, m_id, ad_stat))
+
+            except:
+                pass
+        else:
+            for message in elem['messages']:
+                m_id = message['messageId']
+                # Original timestamp is cocoa time - so 978307200 will be added
+                m_rec = datetime.datetime.fromtimestamp(message['sentDate'] + 978307200).strftime('%Y-%m-%d %H:%M:%S')
+                m_text = message['text']
+                m_att = []
+                for att in message['attachments']:
+                    m_att.append(att['imageURL'])
+                if m_att == []:
+                    m_att = "none"
+                else: 
+                    m_att = ", ".join(m_att)
+                if message['sender'] == 0:
+                    m_from = my_name
+                    id_from = my_id
+                    m_to = counter_name
+                    id_to = counter_id
+                else:
+                    m_from = counter_name
+                    id_from = counter_id
+                    m_to = my_name
+                    id_to = my_id
+                data_list.append((ad_name, ad_id, m_rec, m_from, id_from, m_to, id_to, m_text, m_att, m_id, ad_stat))
 
     data_headers = (
         "Advertisement", "Ad-ID", "Sent", 
-        "From_Name", "From_ID", "To_Name", "To_ID", "Message", "Attachment", "Message_ID")
+        "From_Name", "From_ID", "To_Name", "To_ID", "Message", "Attachment", "Message_ID", "AD-Status")
     return data_headers, data_list, source_path
 
 @artifact_processor
