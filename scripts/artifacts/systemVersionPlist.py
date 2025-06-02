@@ -2,29 +2,43 @@ __artifacts_v2__ = {
     'systemVersionPlist': {
         'name': 'System Version plist',
         'description': 'Parses basic data from */System/Library/CoreServices/SystemVersion.plist'
-                       ' which is a plist in GK Logical Plus extractions that will contain the iOS version.'
-                       ' Previously named Ph99SystemVersionPlist.py',
+                       ' which is a plist in GK Logical Plus extractions and sysdiagnose archives' 
+                       ' that will contain the iOS version. Previously named Ph99SystemVersionPlist.py',
         'author': 'Scott Koenig',
-        'version': '5.0',
-        'date': '2025-01-03',
+        'version': '5.1',
+        'date': '2025-06-02',
         'requirements': 'Acquisition that contains SystemVersion.plist',
         'category': 'IOS Build',
-        'notes': '',
-        'paths': ('*/System/Library/CoreServices/SystemVersion.plist'),
+        'notes': 'Added parsing of SystemVersion.plist in a sysdiagnose archive by C_Peter',
+        'paths': ('*/System/Library/CoreServices/SystemVersion.plist','**/sysdiagnose_*.tar.gz'),
         "output_types": ["standard", "tsv", "none"]
     }
 }
 
 import plistlib
+import tarfile
 from scripts.ilapfuncs import artifact_processor, logfunc, device_info, iOS
 
 @artifact_processor
 def systemVersionPlist(files_found, report_folder, seeker, wrap_text, time_offset):
     data_list = []
-    source_path = str(files_found[0])
+    for filename in files_found:
+        if "SystemVersion.plist" in filename:
+            source_path = str(filename)
+            with open(source_path, "rb") as fp:
+                pl = plistlib.load(fp)
+            break
+        elif 'sysdiagnose_' in filename and not "IN_PROGRESS_" in filename:
+            source_path = str(filename)
+            tar = tarfile.open(filename)
+            root = tar.getmembers()[0].name.split('/')[0]
+            try:
+                tarf = tar.extractfile(f"{root}/logs/SystemVersion/SystemVersion.plist")
+                pl = plistlib.load(tarf)
+            except:
+                pl = None
     
-    with open(source_path, "rb") as fp:
-        pl = plistlib.load(fp)
+    if pl != None:
         for key, val in pl.items():
             data_list.append((key, val))
             if key == "Product Build Version":
