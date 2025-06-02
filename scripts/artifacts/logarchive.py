@@ -130,7 +130,7 @@ __artifacts_v2__ = {
         "artifact_icon": "bluetooth",
     },
     "logarchive_audio_status": {
-        "name": "logarchive Audio status",
+        "name": "logarchive audio status",
         "description": "Audio Status",
         "author": "@AlexisBrignoni",
         "creation_date": "2025-06-02",
