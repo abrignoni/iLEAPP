@@ -8,9 +8,7 @@ __artifacts_v2__ = {
         'requirements': 'none',
         'category': 'App Permissions',
         'notes': '',
-
         'paths': ('*/mobile/Library/TCC/TCC.db*','*/logs/Accessibility/TCC.db*','**/sysdiagnose_*.tar.gz'),
-
         'output_types': 'standard',
         'artifact_icon': 'key'
     }

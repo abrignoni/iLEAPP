@@ -148,7 +148,7 @@ def get_sysdiag_df(files_found, report_folder, seeker, wrap_text, timezone_offse
             lines = None
             continue
     if lines != None:
-        data_headers = ['Filesystem', 'Size', 'Used', 'Avail', 'Capacity', 'iused', 'ifree', '%_iused', 'Mounted on']
+        data_headers = ['Filesystem', 'Size', 'Used', 'Avail', 'Capacity', 'iused', 'ifree', 'iused (percentage)', 'Mounted on']
         for line in lines[1:]:
             if line.strip():
                 values = line.strip().split(None, len(data_headers) - 1)
