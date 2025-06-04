@@ -128,6 +128,19 @@ __artifacts_v2__ = {
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "bluetooth",
+    },
+    "logarchive_audio_status": {
+        "name": "logarchive audio status",
+        "description": "Audio Status",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2025-06-02",
+        "last_update_date": "2025-06-02",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "headphones",
     }
 }
 
@@ -307,7 +320,13 @@ def logarchive_artifacts(files_found, report_folder, seeker, wrap_text, timezone
         OR event_message LIKE '%Bluetooth state%'
         OR event_message LIKE '%Sending call state update%'
         OR event_message LIKE '%A2DP LinkQualityReport%'
-
+        OR event_message LIKE '%AudioQueueIsPlaying%'
+        OR event_message LIKE '%VolumeIncrement%'
+        OR event_message LIKE '%rawVolumeIncreasePress%'
+        OR event_message LIKE '%rawVolumeDecreasePress%'
+        OR event_message LIKE '%Volume active%'
+        OR event_message LIKE '%PlaybackQueueInvalidation%'
+        OR event_message LIKE '%volumeValueDidChange%'
         OR event_message LIKE '%SBVolumeControl%'
         OR event_message LIKE '%SBSOSClawGestureObserver - button press noted%'
         OR event_message LIKE '%brightness change:%'
@@ -539,5 +558,30 @@ def logarchive_bluetooth_status(files_found, report_folder, seeker, wrap_text, t
     data_list = get_sqlite_db_records(source_path, query)
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
+    
+    return data_headers, data_list, source_path
+
+@artifact_processor
+def logarchive_audio_status(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    source_path = get_file_path(files_found, '_lava_artifacts.db')
+    data_list = []
+    
+    query = '''
+    SELECT *
+    FROM logarchive_artifacts
+    WHERE event_message LIKE '%AudioQueueIsPlaying%'
+        OR event_message LIKE '%VolumeIncrement%'
+        OR event_message LIKE '%rawVolumeIncreasePress%'
+        OR event_message LIKE '%rawVolumeDecreasePress%'
+        OR event_message LIKE '%Volume active%'
+        OR event_message LIKE '%PlaybackQueueInvalidation%'
+        OR event_message LIKE '%volumeValueDidChange%'
+    '''
+    
+    data_list = get_sqlite_db_records(source_path, query)
+    data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
+                    'Subsystem', 'Category', 'Event Message', 'Trace ID')
+    
+    #Info: https://thesisfriday.com/index.php/2025/05/30/thesis-friday-8-aul-physical-buttons-volume/
     
     return data_headers, data_list, source_path
