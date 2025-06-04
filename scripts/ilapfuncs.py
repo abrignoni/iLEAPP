@@ -343,7 +343,7 @@ def artifact_processor(func):
                 data_list, html_data_list = data_list
             else:
                 html_data_list = data_list
-            logfunc(f"Found {len(data_list)} {'records' if len(data_list)>1 else 'record'} for {artifact_name}")
+            logfunc(f"Found {len(data_list):,} {'records' if len(data_list)>1 else 'record'} for {artifact_name}")
             icons.setdefault(category, {artifact_name: icon}).update({artifact_name: icon})
 
             # Strip tuples from headers for HTML, TSV, and timeline
