@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Unified Logs",
         "notes": "",
-        "paths": ('*/logarchive.json',),
+        "paths": ('*/logarchive*.json',),
         "output_types": "lava_only",
         "artifact_icon": "database",
     },
@@ -174,7 +174,7 @@ def truncate_after_last_bracket(file_path):
 
 @artifact_processor
 def logarchive(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    source_path = get_file_path(files_found, 'logarchive.json')
+    source_path = get_file_path(files_found, 'logarchive*.json')
     data_list = []
 
     incval = 0

@@ -361,3 +361,96 @@ class FileSeekerZip(FileSeekerBase):
 
     def cleanup(self):
         self.zip_file.close()
+
+class FileSeekerFile(FileSeekerBase):
+    def __init__(self, file_path, data_folder):
+        FileSeekerBase.__init__(self)
+        self.single_file_abs_path = os.path.abspath(file_path)
+        self.data_folder = data_folder
+
+        if not os.path.isfile(self.single_file_abs_path):
+            logfunc(f"Error: Input path '{file_path}' provided to FileSeekerFile is not a valid file.")
+            self.single_file_basename = None
+        else:
+            self.single_file_basename = os.path.basename(self.single_file_abs_path)
+        
+        self.searched = {}
+        self.copied = {}
+        self.file_infos = {}
+
+    def search(self, filepattern, return_on_first_hit=False, force=False):
+        if not self.single_file_basename:
+            return []
+
+        if filepattern in self.searched and not force:
+            return self.searched[filepattern]
+
+        pattern_to_match_filename_against = None # The specific filename pattern to use
+
+        if '/' in filepattern or '\\' in filepattern: # Original pattern contains path separators
+            basename_of_pattern = os.path.basename(filepattern)
+            
+            # If the original pattern implied a path, we only proceed if its filename component
+            # is NOT an overly generic wildcard.
+            # Overly generic wildcards for a filename part of a path: '*', '**', '*.*'
+            # These suggest matching 'any file' within that path, which isn't specific enough
+            # for FileSeekerFile if the user provided one specific file.
+            if basename_of_pattern not in ('*', '**', '*.*'):
+                pattern_to_match_filename_against = basename_of_pattern
+            else:
+                # Log that this pattern is too generic for a single file context if it includes paths
+                logfunc(f"FileSeekerFile: Artifact pattern '{filepattern}' contains path separators, AND its filename "
+                        f"component ('{basename_of_pattern}') is too generic (e.g., '*', '**', '*.*'). "
+                        f"FileSeekerFile will not match its single file ('{self.single_file_basename}') "
+                        "against such a broad path-based pattern. No match.")
+                self.searched[filepattern] = []
+                return []
+        else: # Original pattern does not contain path separators (e.g., "*.json", "myfile.db")
+              # This is a direct filename pattern.
+            pattern_to_match_filename_against = filepattern
+        
+        # This safeguard should ideally not be hit if logic above is correct
+        if not pattern_to_match_filename_against:
+            # logfunc(f"FileSeekerFile: No effective filename pattern was derived from original '{filepattern}' to "
+            #         f"match against basename '{self.single_file_basename}'. No match.")
+            self.searched[filepattern] = []
+            return []
+            
+        pat = _compile_pattern(normcase(pattern_to_match_filename_against))
+        found_data_paths = []
+        
+        # logfunc(f"FileSeekerFile: Attempting to match effective filename pattern '{pattern_to_match_filename_against}' "
+        #        f"(derived from artifact pattern '{filepattern}') against actual file basename '{self.single_file_basename}'")
+
+        if pat(normcase(self.single_file_basename)) is not None:
+            # Match successful, proceed to copy
+            dest_data_path = os.path.join(self.data_folder, self.single_file_basename)
+            if is_platform_windows():
+                dest_data_path = dest_data_path.replace('/', '\\')
+
+            if self.single_file_abs_path not in self.copied or force:
+                try:
+                    os.makedirs(self.data_folder, exist_ok=True)
+                    copyfile(self.single_file_abs_path, dest_data_path)
+                    self.copied[self.single_file_abs_path] = dest_data_path
+                    s = Path(self.single_file_abs_path).stat()
+                    file_info_obj = FileInfo(self.single_file_abs_path, s.st_ctime, s.st_mtime)
+                    self.file_infos[dest_data_path] = file_info_obj
+                    found_data_paths.append(dest_data_path)
+                    # logfunc(f"FileSeekerFile: Matched and copied. Dest: {dest_data_path}")
+                except Exception as ex:
+                    logfunc(f'FileSeekerFile: Could not copy file {self.single_file_abs_path} to {dest_data_path}: {str(ex)}')
+            else: # Already copied
+                copied_dest_path = self.copied.get(self.single_file_abs_path)
+                if copied_dest_path:
+                    found_data_paths.append(copied_dest_path)
+                    # logfunc(f"FileSeekerFile: Matched (already copied). Dest: {copied_dest_path}")
+        else:
+            logfunc(f"FileSeekerFile: No match for effective filename pattern '{pattern_to_match_filename_against}' against "
+                    f"actual file basename '{self.single_file_basename}'")
+            
+        self.searched[filepattern] = found_data_paths
+        return found_data_paths
+
+    def cleanup(self):
+        pass
