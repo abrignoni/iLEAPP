@@ -393,8 +393,6 @@ def crunch_artifacts(
         logfunc('[{}/{}] {} [{}] artifact started'.format(plugin_number, len(plugins),
                                                               plugin.name, plugin.module_name))
         output_types = plugin.artifact_info.get('output_types', '')
-        if not lava_only and 'lava_only' in output_types:
-            lava_only = True
         if isinstance(plugin.search, list) or isinstance(plugin.search, tuple):
             search_regexes = plugin.search
         elif plugin.search is None:
@@ -429,6 +427,8 @@ def crunch_artifacts(
                     log.write(f'</li></ul>')
                     files_found.extend(found)
         if files_found:
+            if not lava_only and 'lava_only' in output_types:
+                lava_only = True
             category_folder = os.path.join(out_params.report_folder_base, '_HTML', plugin.category)
             if not os.path.exists(category_folder):
                 try:
