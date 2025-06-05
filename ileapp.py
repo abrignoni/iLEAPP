@@ -458,8 +458,6 @@ def crunch_artifacts(
                 continue  # nope
         else:
             logfunc(f"No file found")
-            if 'lava_only' in output_types:
-                lava_only_info(plugin.category, plugin.artifact_info['name'], None, 0)
         logfunc('{} [{}] artifact completed'.format(plugin.name, plugin.module_name))
     log.close()
 
