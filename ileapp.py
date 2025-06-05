@@ -10,6 +10,7 @@ import sys
 
 import scripts.plugin_loader as plugin_loader
 
+from shutil import copyfile
 from scripts.search_files import *
 from scripts.ilapfuncs import *
 from scripts.version_info import ileapp_version
@@ -413,9 +414,11 @@ def crunch_artifacts(
                 found = seeker.search(artifact_search_regex)
                 if not found:
                     if plugin.name == 'logarchive' and extracttype != 'fs':
-                        logarchive_seeker = FileSeekerDir(os.path.dirname(input_path), out_params.data_folder)
-                        found = logarchive_seeker.search(artifact_search_regex)
-                        files_found.extend(found)
+                        src = os.path.join(os.path.dirname(input_path), "logarchive.json")
+                        dst = os.path.join(out_params.data_folder, "logarchive.json")
+                        if os.path.exists(src):
+                            copyfile(src, dst)
+                            files_found.append(dst)
                     log.write(f'<ul><li>No file found for regex <i>{artifact_search_regex}</i></li></ul>')
                 else:
                     log.write(f'<ul><li>{len(found)} {"files" if len(found) > 1 else "file"} for regex <i>{artifact_search_regex}</i> located at:')
