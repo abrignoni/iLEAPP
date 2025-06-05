@@ -10,6 +10,7 @@ import sys
 
 import scripts.plugin_loader as plugin_loader
 
+from shutil import copyfile
 from scripts.search_files import *
 from scripts.ilapfuncs import *
 from scripts.version_info import ileapp_version
@@ -392,8 +393,6 @@ def crunch_artifacts(
         logfunc('[{}/{}] {} [{}] artifact started'.format(plugin_number, len(plugins),
                                                               plugin.name, plugin.module_name))
         output_types = plugin.artifact_info.get('output_types', '')
-        if not lava_only and 'lava_only' in output_types:
-            lava_only = True
         if isinstance(plugin.search, list) or isinstance(plugin.search, tuple):
             search_regexes = plugin.search
         elif plugin.search is None:
@@ -413,9 +412,11 @@ def crunch_artifacts(
                 found = seeker.search(artifact_search_regex)
                 if not found:
                     if plugin.name == 'logarchive' and extracttype != 'fs':
-                        logarchive_seeker = FileSeekerDir(os.path.dirname(input_path), out_params.data_folder)
-                        found = logarchive_seeker.search(artifact_search_regex)
-                        files_found.extend(found)
+                        src = os.path.join(os.path.dirname(input_path), "logarchive.json")
+                        dst = os.path.join(out_params.data_folder, "logarchive.json")
+                        if os.path.exists(src):
+                            copyfile(src, dst)
+                            files_found.append(dst)
                     log.write(f'<ul><li>No file found for regex <i>{artifact_search_regex}</i></li></ul>')
                 else:
                     log.write(f'<ul><li>{len(found)} {"files" if len(found) > 1 else "file"} for regex <i>{artifact_search_regex}</i> located at:')
@@ -426,6 +427,8 @@ def crunch_artifacts(
                     log.write(f'</li></ul>')
                     files_found.extend(found)
         if files_found:
+            if not lava_only and 'lava_only' in output_types:
+                lava_only = True
             category_folder = os.path.join(out_params.report_folder_base, '_HTML', plugin.category)
             if not os.path.exists(category_folder):
                 try:
@@ -455,8 +458,6 @@ def crunch_artifacts(
                 continue  # nope
         else:
             logfunc(f"No file found")
-            if 'lava_only' in output_types:
-                lava_only_info(plugin.category, plugin.artifact_info['name'], None, 0)
         logfunc('{} [{}] artifact completed'.format(plugin.name, plugin.module_name))
     log.close()
 

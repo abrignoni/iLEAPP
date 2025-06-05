@@ -335,8 +335,6 @@ def artifact_processor(func):
         
         if not source_path:
             logfunc(f"No file found")
-            if is_lava_only:
-                lava_only_info(category, artifact_name, None, 0)
 
         elif len(data_list):
             if isinstance(data_list, tuple):
