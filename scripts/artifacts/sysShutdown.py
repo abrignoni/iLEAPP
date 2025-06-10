@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Sysdiagnose",
         "notes": "",
-        "paths": ('*/shutdown.log'),
+        "paths": ('*/shutdown.log','**/sysdiagnose_*.tar.gz'),
         "output_types": "none", #["html","tsv","timeline","lava"]
         "function": "get_sysShutdown"
     }
@@ -17,6 +17,8 @@ __artifacts_v2__ = {
 from datetime import datetime
 import os
 import re
+import io
+import tarfile
 
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.lavafuncs import lava_process_artifact, lava_insert_sqlite_data
@@ -28,13 +30,28 @@ def get_sysShutdown(files_found, report_folder, seeker, wrap_text, time_offset):
     data_list_shutdown_reboot = []
     category = "Sysdiagnose"
     module_name = "get_sysShutdown"
-    
-    for file_found in files_found:
-        file_found = str(file_found)
 
-        with open(file_found, encoding = 'utf-8', mode = 'r') as f:
-            lines = f.readlines()
-            
+    for filename in files_found:
+        if "shutdown.log" in filename:
+            file_found = filename
+            file = open(filename, "r", encoding="utf8")
+            lines = file.readlines()
+        elif 'sysdiagnose_' in filename and not "IN_PROGRESS_" in filename:
+            file_found = filename
+            tar = tarfile.open(filename)
+            root = tar.getmembers()[0].name.split('/')[0]
+            try:
+                slog = tar.extractfile(f"{root}/system_logs.logarchive/Extra/shutdown.log")
+                file = io.TextIOWrapper(slog, encoding="utf-8", errors="ignore")
+                lines = file.readlines()
+            except:
+                lines = None
+                continue
+        else:
+            lines = None
+            continue
+       
+        if lines != None:
             entry_num = 1
             entries = []
             reboots = 1
