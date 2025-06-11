@@ -150,10 +150,16 @@ from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_r
 
 
 def convert_to_utc(timestamp):
-    dt_local = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S.%f%z")
-    dt_utc = dt_local.astimezone(timezone.utc)
-
-    return dt_utc
+    # dt_local = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S.%f%z")
+    # dt_utc = dt_local.astimezone(timezone.utc)
+    # return dt_utc.astimezone(timezone.utc)
+    # NOTE:
+    #   python 3.7-3.10 have datetime.fromisoformat() but it had a bug where it didn't
+    #   parse timezones correctly -- so this is now 3.11 onwards:
+    #   if you're on 3.10 and know your python-fun, uncomment the first 3 lines
+    #   but it'll run much slower than 3.11+ with this new version
+    
+    return datetime.fromisoformat(timestamp).astimezone(timezone.utc)
 
 
 def truncate_after_last_bracket(file_path):
@@ -183,30 +189,18 @@ def logarchive(files_found, report_folder, seeker, wrap_text, timezone_offset):
         with open(source_path, 'rb') as f:
             for record in ijson.items(f, 'item', multiple_values=True ): # if the json is a list
                 if isinstance(record, dict):
-                    timestamp = processid = process_image_path = subsystem = ''
-                    category = eventmessage = traceid = ''
                     incval = incval + 1
-
-                    for key, value in record.items():
-                        if key == 'timestamp':
-                            value = convert_to_utc(value)
-                            timestamp = value
-                        elif key == 'processID':
-                            processid = value
-                        elif key == 'processImagePath':
-                            process_image_path = value
-                        elif key == 'subsystem':
-                            subsystem = value
-                        elif key == 'category':
-                            category = value
-                        elif key == 'eventMessage':
-                            eventmessage = str(value)
-                        elif key == 'traceID':
-                            traceid = str(value)
-
+                    timestamp = record.get('timestamp', '')
+                    timestamp = convert_to_utc(timestamp) if timestamp else ''
+                    processid = record.get('processID', '')
+                    process_image_path = record.get('processImagePath', '')
+                    subsystem = record.get('subsystem', '')
+                    category = record.get('category', '')
+                    eventmessage = str(record.get('eventMessage', ''))
+                    traceid = str(record.get('traceID', ''))
                     
-                    data_list.append((timestamp, incval, process_image_path, processid, subsystem,
-                                      category, eventmessage, traceid))
+                    t0 = ( timestamp, incval,  process_image_path,  processid,  subsystem,  category,  eventmessage,  traceid)
+                    data_list.append(t0)
 
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID',
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')

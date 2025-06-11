@@ -335,15 +335,13 @@ def artifact_processor(func):
         
         if not source_path:
             logfunc(f"No file found")
-            if is_lava_only:
-                lava_only_info(category, artifact_name, None, 0)
 
         elif len(data_list):
             if isinstance(data_list, tuple):
                 data_list, html_data_list = data_list
             else:
                 html_data_list = data_list
-            logfunc(f"Found {len(data_list)} {'records' if len(data_list)>1 else 'record'} for {artifact_name}")
+            logfunc(f"Found {len(data_list):,} {'records' if len(data_list)>1 else 'record'} for {artifact_name}")
             icons.setdefault(category, {artifact_name: icon}).update({artifact_name: icon})
 
             # Strip tuples from headers for HTML, TSV, and timeline

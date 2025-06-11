@@ -34,23 +34,19 @@ def pickModules():
         # and referenced in the modules_to_exclude list in an external file (modules_to_exclude.py).
         plugin_enabled = tk.BooleanVar(value=False) if plugin.module_name in modules_to_exclude else tk.BooleanVar(value=True)
         plugin_module_name = plugin.artifact_info.get('name', plugin.name) if hasattr(plugin, 'artifact_info') else plugin.name
-        plugin_lava_only = plugin.artifact_info.get('output_types', '') if hasattr(plugin, 'artifact_info') else ''
-        mlist[plugin.name] = [plugin.category, plugin_module_name, plugin.module_name, plugin_lava_only, plugin_enabled]
+        mlist[plugin.name] = [plugin.category, plugin_module_name, plugin.module_name, plugin_enabled]
 
 
 def get_selected_modules():
     '''Update the number and return the list of selected modules'''
     selected_modules = []
-    lava_only = False
 
     for artifact_name, module_infos in mlist.items():
         if module_infos[-1].get():
             selected_modules.append(artifact_name)
-            if not lava_only and 'lava_only' in module_infos[-2]:
-                lava_only = True
 
     selected_modules_label.config(text=f'Number of selected modules: {len(selected_modules)} / {len(mlist)}')
-    return selected_modules, lava_only
+    return selected_modules
 
 
 def select_all():
@@ -131,7 +127,7 @@ def save_profile():
                                                        defaultextension='.ilprofile')
 
     if destination_path:
-        selected_modules, _ = get_selected_modules()
+        selected_modules = get_selected_modules()
         with open(destination_path, 'wt', encoding='utf-8') as profile_out:
             json.dump({'leapp': 'ileapp', 'format_version': 1, 'plugins': selected_modules}, profile_out)
         tk_msgbox.showinfo(
@@ -170,8 +166,7 @@ def ValidateInput():
         return False, ext_type
 
     # check if at least one module is selected
-    selected_modules, _ = get_selected_modules()
-    if len(selected_modules) == 0:
+    if len(get_selected_modules()) == 0:
         tk_msgbox.showerror(title='Error', message='No module selected for processing!', parent=main_window)
         return False, ext_type
 
@@ -213,7 +208,7 @@ def process(casedata):
             if output_folder[1] == ':': output_folder = '\\\\?\\' + output_folder.replace('/', '\\')
 
         # re-create modules list based on user selection
-        selected_modules, lava_only = get_selected_modules()
+        selected_modules = get_selected_modules()
         selected_modules = [loader[module] for module in selected_modules]
         progress_bar.config(maximum=len(selected_modules))
         casedata = {key: value.get() for key, value in casedata.items()}
@@ -242,7 +237,7 @@ def process(casedata):
             if report_path.startswith('\\\\'):  # UNC path
                 report_path = report_path[2:]
             progress_bar.grid_remove()
-            if lava_only:
+            if lava_only_artifacts:
                 message = "You have selected artifacts that are likely to return too much data "
                 message += "to be viewed in a Web browser.\n\n"
                 message += "Please see the 'LAVA only artifacts' tab in the HTML report for a list of these artifacts "

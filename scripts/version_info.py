@@ -47,5 +47,6 @@ ileapp_contributors = [
     ['Bruno Fischer', 'https://german4n6.blogspot.com/', '', 'https://github.com/BrunoFischerGermany'],
     ['Christian Peter', 'https://www.linkedin.com/in/christian-peter-49b4ab182/', '@DasZamomin', 'https://github.com/prosch88'],
     ['James McGee', 'https://sqlmcgee.wordpress.com/', '@SQL_McGee', 'https://github.com/sqlmcgee'],
-    ['Metadata Forensics', 'https://metadataperspective.com/', '', 'https://github.com/metadataforensics/']
+    ['Metadata Forensics', 'https://metadataperspective.com/', '', 'https://github.com/metadataforensics/'],
+    ['Bruno Constanzo', 'https://www.linkedin.com/in/bruno-constanzo/', '@bruno_constanzo', 'https://github.com/bconstanzo/'],
 ]
