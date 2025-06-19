@@ -96,6 +96,7 @@ __artifacts_v2__ = {
         "author": "@stark4n6",
         "version": "0.0.3",
         "date": "2024-11-10",
+        "last_update_date": "2025-06-20",
         "requirements": "none",
         "category": "Chromium",
         "notes": "",
@@ -1038,7 +1039,9 @@ def chromeBookmarks(files_found, report_folder, seeker, wrap_text, timezone_offs
 
     for file_found in files_found:
         file_found = str(file_found)
-        if not os.path.basename(file_found) == 'Bookmarks':  # skip -journal and other files
+        file_path = os.path.basename(file_found)
+
+        if not (file_path == 'Bookmarks' or file_path == 'Bookmarks.bak'):  # skip -journal and other files
             continue
 
         report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
@@ -1051,25 +1054,27 @@ def chromeBookmarks(files_found, report_folder, seeker, wrap_text, timezone_offs
             dataa = json.load(f)
         data_list = []
         for x, y in dataa.items():
-            flag = 0
+            children_items = list()
             if isinstance(y, dict):
                 for key, value in y.items():
                     if isinstance(value, dict):
                         for keyb, valueb in value.items():
                             if keyb == 'children':
                                 if len(valueb) > 0:
-                                    url = valueb[0]['url']
-                                    dateadd = valueb[0]['date_added']
-                                    dateaddconv = datetime.datetime(1601, 1, 1) + datetime.timedelta(
-                                        microseconds=int(dateadd))
-                                    added_dt = convert_utc_human_to_timezone(dateaddconv, timezone_offset)
-                                    name = valueb[0]['name']
-                                    typed = valueb[0]['type']
-                                    flag = 1
-                            if keyb == 'name' and flag == 1:
-                                flag = 0
+                                    for index in range(len(valueb)):
+                                        url = valueb[index]['url']
+                                        dateadd = valueb[index]['date_added']
+                                        dateaddconv = datetime.datetime(1601, 1, 1) + datetime.timedelta(
+                                            microseconds=int(dateadd))
+                                        added_dt = convert_utc_human_to_timezone(dateaddconv, timezone_offset)
+                                        name = valueb[0]['name']
+                                        typed = valueb[0]['type']
+                                        children_items.append((url, dateadd, dateaddconv, added_dt, name, typed))
+                            if keyb == 'name' and len(children_items) > 0:
                                 parent = valueb
-                                data_list.append((added_dt, url, name, parent, typed))
+                                for (url, _, _, added_dt, name, typed) in children_items:
+                                    data_list.append((added_dt, url, name, parent, typed))
+                                children_items = list()
         if len(data_list) > 0:
             report_name = f'{browser_name} - Bookmarks'
             report = ArtifactHtmlReport(report_name)
