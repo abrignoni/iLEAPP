@@ -12,11 +12,13 @@ from functools import wraps
 import shutil
 import subprocess
 import argparse
+import inspect
 
 # Adjust import paths as necessary
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..')))
 import scripts.ilapfuncs as ilapfuncs
 import scripts.lavafuncs # Import lavafuncs to make its globals patchable
+from scripts.context import Context
 
 def mock_logdevinfo(message):
     print(f"[LOGDEVINFO] {message}")
@@ -103,53 +105,33 @@ def process_artifact(zip_path, module_name, artifact_name, artifact_data, target
         mock_lava_db_instance.commit.return_value = None # For any INSERT/UPDATE operations in LAVA functions
         
         # <<< NEW MOCKS FOR CHECK_IN_MEDIA >>>
-        def mocked_check_in_media(*args, **kwargs):
+        def mocked_check_in_media(file_path, *args, **kwargs):
             nonlocal check_in_media_call_count
             check_in_media_call_count += 1
-            # Call the original function or a simplified version
-            # For counting, we might not need the full original if it has side effects
-            # that are hard to mock or slow down the test.
-            # Here, we assume we still want the original's return value for the test's integrity.
-            # The key is that artifact_info must be correctly passed or mocked.
-            # If artifact_info is an object with attributes, it might need more careful mocking.
-            # The original check_in_media expects artifact_info to have `name` and `category`
-            
-            # Simplistic artifact_info mock if the real one causes issues in test
-            # This assumes artifact_info might be passed as None or a simple dict in some tests.
-            # If it's always a specific object, this might need adjustment.
-            passed_artifact_info = kwargs.get('artifact_info')
-            if not passed_artifact_info or not (hasattr(passed_artifact_info, 'name') and hasattr(passed_artifact_info, 'category')):
-                 # Create a simple mock for artifact_info if not adequately provided
-                mock_artifact_info_obj = MagicMock()
-                mock_artifact_info_obj.name = artifact_name # Use current artifact name
-                mock_artifact_info_obj.category = "MockedCategory" # Or derive from module
-                kwargs['artifact_info'] = mock_artifact_info_obj
-            
-            # Ensure seeker is passed correctly, as it's used by original_check_in_media
-            if 'seeker' not in kwargs:
-                kwargs['seeker'] = mock_seeker
-
-
-            # To prevent issues with LAVA DB in check_in_media when media is not found:
-            # If lava_db is not properly mocked for check_in_media's internal calls,
-            # we might return a dummy hash directly.
-            # For now, let's try calling the original.
-            # return original_check_in_media(*args, **kwargs)
-
             # Simplified return for counter, avoiding deep side effects of original if problematic
-            # This is often done in unit tests when only counting interactions.
-            # The actual return value might be important for the module's logic, though.
-            # Let's assume the test needs a plausible return value (a hash-like string)
-            file_path_arg = kwargs.get('file_path', args[3] if len(args) > 3 else "unknown_file")
-            return f"mock_hash_for_{os.path.basename(str(file_path_arg))}"
+            return f"mock_hash_for_{os.path.basename(str(file_path))}"
 
 
         def mocked_check_in_embedded_media(*args, **kwargs):
             nonlocal check_in_media_embedded_call_count
             check_in_media_embedded_call_count += 1
             # Similar to above, call original or return dummy
-            # original_check_in_media_embedded(*args, **kwargs)
             return "mock_embedded_html_path"
+
+        def mocked_lava_get_full_media_info(media_ref_id):
+            # Return a tuple that mimics the real function's output, needed by some artifacts.
+            # The last element should be a Unix timestamp for the modification date.
+            # Using Jan 24, 1984 - the day the first Mac went on sale.
+            mac_bday_ts = 443750400
+            return (
+                'mock_media_id',
+                'mock_source_path',
+                'mock_extraction_path',
+                'image/png',
+                'mock_metadata',
+                mac_bday_ts, # created_at
+                mac_bday_ts  # updated_at (modification_date)
+            )
 
         patches = [
             patch('scripts.ilapfuncs.logdevinfo', mock_logdevinfo),
@@ -163,7 +145,8 @@ def process_artifact(zip_path, module_name, artifact_name, artifact_data, target
             # Also patch it directly in the artifact module's namespace if it's imported there like:
             # from scripts.ilapfuncs import check_in_media
             patch(f'scripts.artifacts.{module_name}.check_in_media', mocked_check_in_media, create=True),
-            patch(f'scripts.artifacts.{module_name}.check_in_embedded_media', mocked_check_in_embedded_media, create=True)
+            patch(f'scripts.artifacts.{module_name}.check_in_embedded_media', mocked_check_in_embedded_media, create=True),
+            patch(f'scripts.artifacts.{module_name}.lava_get_full_media_info', mocked_lava_get_full_media_info, create=True)
         ]
         
         # If a target OS version is provided, mock iOS.get_version()
@@ -175,9 +158,27 @@ def process_artifact(zip_path, module_name, artifact_name, artifact_data, target
             for p in patches:
                 stack.enter_context(p)
             
+            all_artifacts_info = getattr(module, '__artifacts_v2__', {})
+            artifact_info = all_artifacts_info.get(artifact_name, {})
+
+            Context.set_report_folder(str(mock_report_folder_path))
+            Context.set_seeker(mock_seeker)
+            Context.set_files_found(all_files)
+            Context.set_artifact_info(artifact_info)
+            Context.set_module_name(module_name)
+            Context.set_module_file_path(module_file_path)
+            Context.set_artifact_name(artifact_name)
+
             start_time = time.time()
-            # Use the created path for mock_report_folder
-            data_headers, data_list, _ = original_func(all_files, str(mock_report_folder_path), mock_seeker, mock_wrap_text, timezone_offset)
+            try:
+                sig = inspect.signature(original_func)
+                if len(sig.parameters) == 1:
+                    data_headers, data_list, _ = original_func(Context)
+                else:
+                    data_headers, data_list, _ = original_func(all_files, str(mock_report_folder_path), mock_seeker, mock_wrap_text, timezone_offset)
+            finally:
+                Context.clear()
+                
             end_time = time.time()
         
         return data_headers, data_list, end_time - start_time, last_commit_info, check_in_media_call_count, check_in_media_embedded_call_count
