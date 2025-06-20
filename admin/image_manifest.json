@@ -59,7 +59,7 @@
         "local_image_paths": [
           "~/Documents/phone-images/belkasoft/BelkaCTF_6_CASE240405_D201AP.tar"
         ],
-        "file_path_list": "admin/data/filepath-lists/belkasoft-ctf6-ios-device1.csv.zip",
+        "file_path_list": "admin/data/filepath-lists/belkasoft-ctf6-ios-dev1.csv.zip",
         "download_url": "https://cfreds.nist.gov/all/Belkasoft/BelkaCTF6BogusBill",
         "author": {
           "name": "BelkaSoft",
