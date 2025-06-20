@@ -30,10 +30,27 @@ def validate_args(args):
 
     # Check existence of paths
     if not os.path.exists(args.input_path):
-        raise argparse.ArgumentError(None, 'INPUT file/folder does not exist! Run the program again.')
+        raise argparse.ArgumentError(None, f'INPUT path \'{args.input_path}\' does not exist! Run the program again.')
 
     if not os.path.exists(args.output_path):
-        raise argparse.ArgumentError(None, 'OUTPUT folder does not exist! Run the program again.')
+        raise argparse.ArgumentError(None, 'OUTPUT path \'{args.output_path}\' does not exist! Run the program again.')
+    if not os.path.isdir(os.path.abspath(args.output_path)): 
+        raise argparse.ArgumentError(None, f'OUTPUT path \'{args.output_path}\' must be a directory! Run the program again.')
+
+    # Validate input_path based on type
+    abs_input_path = os.path.abspath(args.input_path)
+    if args.t == 'fs': # Filesystem input type
+        # Check if input path is a directory
+        if not os.path.isdir(abs_input_path):
+            raise argparse.ArgumentError(None, f'INPUT path \'{args.input_path}\' is not a directory. Type "fs" requires '
+                                               f'a directory input. Run the program again.')
+        # Check if directory is empty
+        if not os.listdir(abs_input_path):
+            raise argparse.ArgumentError(None, f'Input directory \'{args.input_path}\' is empty. Run the program again.')
+    elif args.t == 'file': # Single file input type
+        if not os.path.isfile(abs_input_path):
+            raise argparse.ArgumentError(None, f'INPUT path \'{args.input_path}\' is not a file. Type "file" requires a '
+                                               f'single file input. Run the program again.')
 
     if args.load_case_data and not os.path.exists(args.load_case_data):
         raise argparse.ArgumentError(None, 'LEAPP Case Data file not found! Run the program again.')
@@ -138,11 +155,12 @@ def create_casedata(path):
 
 def main():
     parser = argparse.ArgumentParser(description=f'iLEAPP v{ileapp_version}: iOS Logs, Events, And Plists Parser.')
-    parser.add_argument('-t', choices=['fs', 'tar', 'zip', 'gz', 'itunes'], required=False, action="store",
+    parser.add_argument('-t', choices=['fs', 'tar', 'zip', 'gz', 'itunes', 'file'], required=False, action="store",
                         help=("Specify the input type. "
                               "'fs' for a folder containing extracted files with normal paths and names, "
                               "'tar', 'zip', or 'gz' for compressed packages containing files with normal names, "
-                              "'itunes' for a folder containing a raw iTunes backup with hashed paths and names."))
+                              "'itunes' for a folder containing a raw iTunes backup with hashed paths and names, "
+                              "'file' for a single file input."))
     parser.add_argument('-o', '--output_path', required=False, action="store",
                         help='Path to base output folder (this must exist)')
     parser.add_argument('-i', '--input_path', required=False, action="store", help='Path to input file/folder')
@@ -321,6 +339,9 @@ def crunch_artifacts(
         if extracttype == 'fs':
             seeker = FileSeekerDir(input_path, out_params.data_folder)
 
+        elif extracttype == 'file':
+            seeker = FileSeekerFile(input_path, out_params.data_folder)
+            
         elif extracttype in ('tar', 'gz'):
             seeker = FileSeekerTar(input_path, out_params.data_folder)
 
@@ -411,7 +432,7 @@ def crunch_artifacts(
             for artifact_search_regex in search_regexes:
                 found = seeker.search(artifact_search_regex)
                 if not found:
-                    if plugin.name == 'logarchive' and extracttype != 'fs':
+                    if plugin.name == 'logarchive' and extracttype != 'fs' and extracttype != 'file':
                         src = os.path.join(os.path.dirname(input_path), "logarchive.json")
                         dst = os.path.join(out_params.data_folder, "logarchive.json")
                         if os.path.exists(src):
