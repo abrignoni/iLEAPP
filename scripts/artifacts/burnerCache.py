@@ -69,7 +69,8 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Burner Cache",
         "notes": "https://djangofaiola.blogspot.com",
-        "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.adhoclabs.burner/Cache.db*'),
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.adhoclabs.burner/Cache.db*',
+                  '*/Library/Caches/com.adhoclabs.burner/fsCachedData/*'),
         "output_types": [ "lava", "html", "tsv", "timeline" ],
         "html_columns": [ "Media URL", "Source file name", "Location" ],
         "artifact_icon": "message-circle",
@@ -752,10 +753,9 @@ def burnerCache_messages(files_found, report_folder, seeker, wrap_text, timezone
                     continue
                 # isDataOnFS
                 if bool(m_record[2]):
-                    media_ref_id = check_in_media(artifact_info, report_folder, seeker, files_found, m_record[3])
+                    media_ref_id = check_in_media(m_record[3])
                 else:
-                    media_ref_id = check_in_embedded_media(artifact_info, report_folder, seeker, file_found, 
-                                                           m_record[3])
+                    media_ref_id = check_in_embedded_media(file_found, m_record[3])
                 media_item = lava_get_full_media_info(media_ref_id)
                 if media_item: device_file_paths.append(get_device_file_path(media_item[5], seeker))
                 break
@@ -833,10 +833,9 @@ def burnerCache_messages(files_found, report_folder, seeker, wrap_text, timezone
                     continue
                 # isDataOnFS
                 if bool(m_record[2]):
-                    media_ref_id = check_in_media(artifact_info, report_folder, seeker, files_found, m_record[3])
+                    media_ref_id = check_in_media(m_record[3])
                 else:
-                    media_ref_id = check_in_embedded_media(artifact_info, report_folder, seeker, file_found, 
-                                                           m_record[3])
+                    media_ref_id = check_in_embedded_media(file_found, m_record[3])
                 media_item = lava_get_full_media_info(media_ref_id)
                 if media_item: device_file_paths.append(get_device_file_path(media_item[5], seeker))
                 break
@@ -872,7 +871,7 @@ def burnerCache_messages(files_found, report_folder, seeker, wrap_text, timezone
         isDataOnFS = bool(record[2])
         # from FS
         if isDataOnFS:
-            fs_cached_data_path = get_cache_db_fs_path(record[3], file_found, seeker)
+            fs_cached_data_path = get_file_path(files_found, f"*{record[3]}") #get_cache_db_fs_path(record[3], file_found, seeker)
             json_data = get_json_file_content(fs_cached_data_path)
             if bool(fs_cached_data_path): db_device_file_paths.append(get_device_file_path(fs_cached_data_path, seeker))
         # from BLOB

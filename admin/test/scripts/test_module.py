@@ -124,7 +124,12 @@ def process_artifact(zip_path, module_name, artifact_name, artifact_data, target
             # Using Jan 24, 1984 - the day the first Mac went on sale.
             mac_bday_ts = 443750400
             return (
-                'mock_media_id',
+                'mock_media_ref_id',
+                'mock_media_item_id',
+                'mock_module_name',
+                'mock_artifact_name',
+                'mock_name',
+                'mock_media_path',
                 'mock_source_path',
                 'mock_extraction_path',
                 'image/png',
