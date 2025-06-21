@@ -1,0 +1,328 @@
+{
+  "josh_ios15_ffs": {
+    "description": "",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "/Users/jameshabben/Documents/phone-images/Josh/iOS_15_Public_Image.tar",
+      "os": "macOS-15.0-x86_64-i386-64bit",
+      "timestamp": "2025-06-21T12:45:26.986823",
+      "last_commit": {
+        "hash": "7a03c9d90edeba84420bb53358387ffc37996bac",
+        "author_name": "Johann POLEWCZYK",
+        "author_email": "johannplw@me.com",
+        "date": "2025-05-13T09:42:25+02:00",
+        "message": "Update last_update_date of modules using media manager with hardlinks"
+      }
+    },
+    "artifacts": {
+      "bereal_preferences": {
+        "search_patterns": "*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.BeReal.plist",
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "bereal_accounts": {
+        "search_patterns": "*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-ProfileRepository/*",
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "bereal_contacts": {
+        "search_patterns": "*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-RelationshipsContactsManager-contact/*",
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "bereal_persons": {
+        "search_patterns": "*/mobile/Containers/Data/Application/*/Library/Caches/PersonRepository/*",
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "bereal_friends": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-RelationshipsFriendsListManager/*",
+          "*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-RelationshipsRequestSentListManager/*",
+          "*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-RelationshipsRequestReceivedListManager/*",
+          "*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-Production_FriendsStorage.following/*",
+          "*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-Production_FriendsStorage.followers/*"
+        ],
+        "file_count": 3,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "bereal_blocked_users": {
+        "search_patterns": "*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-BlockedUserManager/*",
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "bereal_posts": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-MemoriesRepository-subject-key/*",
+          "*/mobile/Containers/Data/Application/*/Library/Caches/PersonRepository/*",
+          "*/mobile/Containers/Shared/AppGroup/*/disk-bereal-Production_postFeedItems/*"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "bereal_pinned_memories": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-MemoriesRepository-pinnedMemories-key/*",
+          "*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-PersonRepository-pinnedMemories-key/*"
+        ],
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "bereal_realmojis": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-MemoriesRepository-subject-key/*",
+          "*/mobile/Containers/Data/Application/*/Library/Caches/PersonRepository/*",
+          "*/mobile/Containers/Shared/AppGroup/*/disk-bereal-Production_postFeedItems/*"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "bereal_comments": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-MemoriesRepository-subject-key/*",
+          "*/mobile/Containers/Data/Application/*/Library/Caches/PersonRepository/*",
+          "*/mobile/Containers/Shared/AppGroup/*/disk-bereal-Production_postFeedItems/*"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "bereal_messages": {
+        "search_patterns": "*/mobile/Containers/Shared/AppGroup/*/bereal-chat.sqlite*",
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "bereal_chat_list": {
+        "search_patterns": "*/mobile/Containers/Shared/AppGroup/*/bereal-chat.sqlite*",
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      }
+    },
+    "image_name": "josh_ios15_ffs"
+  },
+  "mvs_ios_2023": {
+    "description": "",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "/Users/jameshabben/Documents/phone-images/magnet/00008101-0010541A1130001E_files_full-001.zip",
+      "os": "macOS-15.0-x86_64-i386-64bit",
+      "timestamp": "2025-06-21T12:47:55.692232",
+      "last_commit": {
+        "hash": "7a03c9d90edeba84420bb53358387ffc37996bac",
+        "author_name": "Johann POLEWCZYK",
+        "author_email": "johannplw@me.com",
+        "date": "2025-05-13T09:42:25+02:00",
+        "message": "Update last_update_date of modules using media manager with hardlinks"
+      }
+    },
+    "artifacts": {
+      "bereal_preferences": {
+        "search_patterns": "*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.BeReal.plist",
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "bereal_accounts": {
+        "search_patterns": "*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-ProfileRepository/*",
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "bereal_contacts": {
+        "search_patterns": "*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-RelationshipsContactsManager-contact/*",
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "bereal_persons": {
+        "search_patterns": "*/mobile/Containers/Data/Application/*/Library/Caches/PersonRepository/*",
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "bereal_friends": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-RelationshipsFriendsListManager/*",
+          "*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-RelationshipsRequestSentListManager/*",
+          "*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-RelationshipsRequestReceivedListManager/*",
+          "*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-Production_FriendsStorage.following/*",
+          "*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-Production_FriendsStorage.followers/*"
+        ],
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "bereal_blocked_users": {
+        "search_patterns": "*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-BlockedUserManager/*",
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "bereal_posts": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-MemoriesRepository-subject-key/*",
+          "*/mobile/Containers/Data/Application/*/Library/Caches/PersonRepository/*",
+          "*/mobile/Containers/Shared/AppGroup/*/disk-bereal-Production_postFeedItems/*"
+        ],
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "bereal_pinned_memories": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-MemoriesRepository-pinnedMemories-key/*",
+          "*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-PersonRepository-pinnedMemories-key/*"
+        ],
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "bereal_realmojis": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-MemoriesRepository-subject-key/*",
+          "*/mobile/Containers/Data/Application/*/Library/Caches/PersonRepository/*",
+          "*/mobile/Containers/Shared/AppGroup/*/disk-bereal-Production_postFeedItems/*"
+        ],
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "bereal_comments": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-MemoriesRepository-subject-key/*",
+          "*/mobile/Containers/Data/Application/*/Library/Caches/PersonRepository/*",
+          "*/mobile/Containers/Shared/AppGroup/*/disk-bereal-Production_postFeedItems/*"
+        ],
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "bereal_messages": {
+        "search_patterns": "*/mobile/Containers/Shared/AppGroup/*/bereal-chat.sqlite*",
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "bereal_chat_list": {
+        "search_patterns": "*/mobile/Containers/Shared/AppGroup/*/bereal-chat.sqlite*",
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      }
+    },
+    "image_name": "mvs_ios_2023",
+    "note": "No responsive files found for any artifacts"
+  },
+  "belkasoft_ctf6_ios_device1": {
+    "description": "",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "/Users/jameshabben/Documents/phone-images/belkasoft/BelkaCTF_6_CASE240405_D201AP.tar",
+      "os": "macOS-15.0-x86_64-i386-64bit",
+      "timestamp": "2025-06-21T12:48:54.116457",
+      "last_commit": {
+        "hash": "7a03c9d90edeba84420bb53358387ffc37996bac",
+        "author_name": "Johann POLEWCZYK",
+        "author_email": "johannplw@me.com",
+        "date": "2025-05-13T09:42:25+02:00",
+        "message": "Update last_update_date of modules using media manager with hardlinks"
+      }
+    },
+    "artifacts": {
+      "bereal_preferences": {
+        "search_patterns": "*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.BeReal.plist",
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "bereal_accounts": {
+        "search_patterns": "*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-ProfileRepository/*",
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "bereal_contacts": {
+        "search_patterns": "*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-RelationshipsContactsManager-contact/*",
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "bereal_persons": {
+        "search_patterns": "*/mobile/Containers/Data/Application/*/Library/Caches/PersonRepository/*",
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "bereal_friends": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-RelationshipsFriendsListManager/*",
+          "*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-RelationshipsRequestSentListManager/*",
+          "*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-RelationshipsRequestReceivedListManager/*",
+          "*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-Production_FriendsStorage.following/*",
+          "*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-Production_FriendsStorage.followers/*"
+        ],
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "bereal_blocked_users": {
+        "search_patterns": "*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-BlockedUserManager/*",
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "bereal_posts": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-MemoriesRepository-subject-key/*",
+          "*/mobile/Containers/Data/Application/*/Library/Caches/PersonRepository/*",
+          "*/mobile/Containers/Shared/AppGroup/*/disk-bereal-Production_postFeedItems/*"
+        ],
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "bereal_pinned_memories": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-MemoriesRepository-pinnedMemories-key/*",
+          "*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-PersonRepository-pinnedMemories-key/*"
+        ],
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "bereal_realmojis": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-MemoriesRepository-subject-key/*",
+          "*/mobile/Containers/Data/Application/*/Library/Caches/PersonRepository/*",
+          "*/mobile/Containers/Shared/AppGroup/*/disk-bereal-Production_postFeedItems/*"
+        ],
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "bereal_comments": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-MemoriesRepository-subject-key/*",
+          "*/mobile/Containers/Data/Application/*/Library/Caches/PersonRepository/*",
+          "*/mobile/Containers/Shared/AppGroup/*/disk-bereal-Production_postFeedItems/*"
+        ],
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "bereal_messages": {
+        "search_patterns": "*/mobile/Containers/Shared/AppGroup/*/bereal-chat.sqlite*",
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "bereal_chat_list": {
+        "search_patterns": "*/mobile/Containers/Shared/AppGroup/*/bereal-chat.sqlite*",
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      }
+    },
+    "image_name": "belkasoft_ctf6_ios_device1",
+    "note": "No responsive files found for any artifacts"
+  }
+}

@@ -41,7 +41,6 @@ def addressBook(files_found, report_folder, seeker, wrap_text, timezone_offset):
     address_book_images_db = get_file_path(files_found, 'AddressBookImages.sqlitedb')
 
     data_list = []
-    artifact_info = inspect.stack()[0]
     
     attach_query = attach_sqlite_db_readonly(address_book_images_db, 'ABI')
     query = '''
