@@ -55,23 +55,12 @@ def save_ktx_to_png_if_valid(ktx_path, save_to_path):
 
 
 @artifact_processor
-def applicationSnapshots(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    artifact_info = inspect.stack()[0]
+def applicationSnapshots(context): #files_found, report_folder, seeker, wrap_text, timezone_offset):
+    # artifact_info = inspect.stack()[0]
     source_path = 'File path in the report below'
     data_list = []
-
-    files_found = []
-    paths = (
-        '*/Library/Caches/Snapshots/*.ktx', 
-        '*/Library/Caches/Snapshots/*.jpeg', 
-        '*/SplashBoard/Snapshots/*.ktx', 
-        '*/SplashBoard/Snapshots/*.jpeg')
     
-    for path in paths:
-        paths_found = seeker.search(path)
-        files_found.extend(paths_found)
-    
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         media_path = Path(file_found)
         parts = media_path.parts
         if parts[-2] != 'downscaled':
@@ -86,12 +75,15 @@ def applicationSnapshots(files_found, report_folder, seeker, wrap_text, timezone
                 continue
             png_path = media_path.with_suffix((".png"))
             if save_ktx_to_png_if_valid(media_path, png_path):
-                media_item = check_in_media(artifact_info, report_folder, seeker, files_found, file_found, 
-                                            app_name, png_path)
+                media_item = check_in_media(file_found, app_name, png_path)
             else:
                 continue
         else:
-            media_item = check_in_media(artifact_info, report_folder, seeker, files_found, file_found, app_name)
+            media_item = check_in_media(file_found, app_name)
+        
+        if not media_item:
+            continue
+            
         last_modified_date = convert_unix_ts_to_utc(lava_get_full_media_info(media_item)[-1])
         data_list.append([last_modified_date, app_name, file_found, media_item])
     
