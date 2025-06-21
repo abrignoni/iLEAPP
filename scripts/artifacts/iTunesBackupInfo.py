@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "iTunes Backup",
         "notes": "",
-        "paths": ('*Info.plist',),
+        "paths": ('info.plist',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "refresh-cw"
     },
@@ -21,7 +21,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Installed Apps",
         "notes": "",
-        "paths": ('*Info.plist',),
+        "paths": ('info.plist',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "package"
     }
@@ -128,8 +128,7 @@ def iTunesBackupInstalledApplications(files_found, report_folder, seeker, wrap_t
                 messages_extension = itunes_metadata.get('hasMessagesExtension', '')
                 icon = app_data.get('PlaceholderIcon', '')
                 if icon:
-                    icon_item = check_in_embedded_media(artifact_info, report_folder, seeker, source_path, icon, 
-                                                        item_name)
+                    icon_item = check_in_embedded_media(source_path, icon, item_name)
                 else:
                     icon_item = ''
 
@@ -144,8 +143,8 @@ def iTunesBackupInstalledApplications(files_found, report_folder, seeker, wrap_t
                 data_list.append(app_info)
         
     data_headers = ('Bundle ID', ('App Icon', 'media', 'width: 60px;'), 'Item Name', 'Artist Name', 'Version', 
-                    'Genre', 'Install Date', 'Downloaded by', 'Purchase Date', 
-                    'Release Date', 'Source App', 'Auto Download', 
+                    'Genre', ('Install Date', 'date'), 'Downloaded by', ('Purchase Date', 'datetime'), 
+                    ('Release Date', 'datetime'), 'Source App', 'Auto Download', 
                     'Purchased Redownload', 'Factory Install', 'Side Loaded', 
                     'Game Center Enabled', 'Game Center Ever Enabled', 
                     'Messages Extension')
