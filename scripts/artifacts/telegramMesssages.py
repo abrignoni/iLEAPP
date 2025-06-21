@@ -422,13 +422,7 @@ def telegramMessages(files_found, report_folder, seeker, wrap_text, timezone_off
                         break 
             
             if found_media_file_path:
-                media_item_ref_id = check_in_media(
-                    artifact_info=artifact_info_param,
-                    report_folder=report_folder_param,
-                    seeker=seeker_param,
-                    files_found=files_found_param_main, 
-                    file_path=found_media_file_path
-                )
+                media_item_ref_id = check_in_media(file_path=found_media_file_path)
             else:
                 logfunc(f"INFO: No valid media file found for primary_media_search_id = '{primary_media_search_id}' after checking all files_found.")
                     
