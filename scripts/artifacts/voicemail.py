@@ -93,8 +93,7 @@ def voicemail(files_found, report_folder, seeker, wrap_text, timezone_offset):
             deleted = convert_cocoa_core_data_ts_to_utc(record[-2]) \
                 if isinstance(record[-2], int) else record[-2]
             audio_filename = f'{record[-1]}.amr'
-            media_item = check_in_media(artifact_info, report_folder, seeker, extracted_audio_files, 
-                                        audio_filename, audio_filename)
+            media_item = check_in_media(audio_filename, audio_filename)
             transcript_file_path = get_file_path(extracted_transcript_files, f'{record[-1]}.transcript')
             transcript = get_plist_file_content(transcript_file_path) if transcript_file_path else {}
             transcription_string = transcript.get('transcriptionString', '')
@@ -126,8 +125,7 @@ def voicemail(files_found, report_folder, seeker, wrap_text, timezone_offset):
                 convert_unix_ts_to_utc(seeker.file_infos[audio_file_path].creation_date),
                 convert_unix_ts_to_utc(seeker.file_infos[audio_file_path].modification_date),
                 seeker.file_infos[audio_file_path].source_path,
-                check_in_media(artifact_info, report_folder, seeker, extracted_audio_files, audio_filename, 
-                               Path(audio_file_path).name),
+                check_in_media(audio_filename, Path(audio_file_path).name),
                 transcriptions.get(audio_key, {}).get('path', ''),
                 transcriptions.get(audio_key, {}).get('transcription_string', ''),
                 transcriptions.get(audio_key, {}).get('confidence', '')
