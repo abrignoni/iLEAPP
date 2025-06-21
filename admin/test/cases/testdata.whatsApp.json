@@ -1,0 +1,141 @@
+{
+  "belkasoft_ctf6_ios_device1": {
+    "description": "",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "/Users/jameshabben/Documents/phone-images/belkasoft/BelkaCTF_6_CASE240405_D201AP.tar",
+      "os": "macOS-15.0-x86_64-i386-64bit",
+      "timestamp": "2025-04-30T08:19:49.129671",
+      "last_commit": {
+        "hash": "8cc38136d56dc22fd8f40ca7fae32e774638fef7",
+        "author_name": "Johann POLEWCZYK",
+        "author_email": "johannplw@me.com",
+        "date": "2025-04-09T17:34:36+02:00",
+        "message": "Update whatsApp.py for lava output"
+      }
+    },
+    "artifacts": {
+      "whatsAppCallHistory": {
+        "search_patterns": [
+          "*/mobile/Containers/Shared/AppGroup/*/CallHistory.sqlite*",
+          "*/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*"
+        ],
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "whatsAppMessages": {
+        "search_patterns": [
+          "*/mobile/Containers/Shared/AppGroup/*/ChatStorage.sqlite*"
+        ],
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "whatsAppContacts": {
+        "search_patterns": [
+          "*/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*"
+        ],
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      }
+    },
+    "image_name": "belkasoft_ctf6_ios_device1",
+    "note": "No responsive files found for any artifacts"
+  },
+  "mvs_ios_2023": {
+    "description": "",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "/Users/jameshabben/Documents/phone-images/magnet/00008101-0010541A1130001E_files_full-001.zip",
+      "os": "macOS-15.0-x86_64-i386-64bit",
+      "timestamp": "2025-04-30T08:20:23.769522",
+      "last_commit": {
+        "hash": "8cc38136d56dc22fd8f40ca7fae32e774638fef7",
+        "author_name": "Johann POLEWCZYK",
+        "author_email": "johannplw@me.com",
+        "date": "2025-04-09T17:34:36+02:00",
+        "message": "Update whatsApp.py for lava output"
+      }
+    },
+    "artifacts": {
+      "whatsAppCallHistory": {
+        "search_patterns": [
+          "*/mobile/Containers/Shared/AppGroup/*/CallHistory.sqlite*",
+          "*/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*"
+        ],
+        "file_count": 3,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "whatsAppMessages": {
+        "search_patterns": [
+          "*/mobile/Containers/Shared/AppGroup/*/ChatStorage.sqlite*"
+        ],
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "whatsAppContacts": {
+        "search_patterns": [
+          "*/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*"
+        ],
+        "file_count": 3,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "image_name": "mvs_ios_2023"
+  },
+  "josh_ios15_ffs": {
+    "description": "",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "/Users/jameshabben/Documents/phone-images/Josh/iOS_15_Public_Image.tar.gz",
+      "os": "macOS-15.0-x86_64-i386-64bit",
+      "timestamp": "2025-04-30T08:20:56.781153",
+      "last_commit": {
+        "hash": "8cc38136d56dc22fd8f40ca7fae32e774638fef7",
+        "author_name": "Johann POLEWCZYK",
+        "author_email": "johannplw@me.com",
+        "date": "2025-04-09T17:34:36+02:00",
+        "message": "Update whatsApp.py for lava output"
+      }
+    },
+    "artifacts": {
+      "whatsAppCallHistory": {
+        "search_patterns": [
+          "*/mobile/Containers/Shared/AppGroup/*/CallHistory.sqlite*",
+          "*/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*"
+        ],
+        "file_count": 6,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "whatsAppMessages": {
+        "search_patterns": [
+          "*/mobile/Containers/Shared/AppGroup/*/ChatStorage.sqlite*"
+        ],
+        "file_count": 3,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "whatsAppContacts": {
+        "search_patterns": [
+          "*/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*"
+        ],
+        "file_count": 3,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "image_name": "josh_ios15_ffs"
+  }
+}
