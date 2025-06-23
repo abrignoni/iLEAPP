@@ -1,29 +1,30 @@
-# Discord JSON
-# Original Author: Unknown
-#
-# Version: 1.1.0
-# Author:  John Hyla
-# Adds connection of chat thread to cached attachment files
-#
-#
+__artifacts_v2__ = {
+    "discordChats": {  # This should match the function name exactly
+        "name": "Discord - Chats",
+        "description": "Parses Discord chat messages from FSCacheData and \'a\' database",
+        "author": "Original Unknown, John Hyla & @stark4n6",
+        "creation_date": "",
+        "last_updated": "2025-06-23",
+        "requirements": "none",
+        "category": "Discord",
+        "notes": "",
+        "paths": ('*/activation_record.plist', '*/com.hammerandchisel.discord/fsCachedData/*', '*/Library/Caches/com.hackemist.SDImageCache/default/*', '*/Library/Caches/kv-storage/@account*/a*'),
+        "output_types": "standard",  # or ["html", "tsv", "timeline", "lava"]
+        "artifact_icon": "message-circle"
+    }
+}
 
-
-import gzip
-import re
-import os
+import biplist
+import hashlib
 import json
 import math
-import hashlib
-import biplist
-import shutil
-import errno
-from pathlib import Path
+import os
+import re
 
-from packaging import version
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, timeline, tsv, is_platform_windows, media_to_html, get_resolution_for_model_id, get_file_path, get_sqlite_db_records
+from scripts.ilapfuncs import artifact_processor, logfunc, logdevinfo, media_to_html, get_resolution_for_model_id, get_file_path, get_sqlite_db_records
 
-def get_discordJson(files_found, report_folder, seeker, wrap_text, timezone_offset):
+@artifact_processor
+def discordChats(files_found, report_folder, seeker, wrap_text, timezone_offset):
     
     pathedhead = pathedtail = ''
     
@@ -47,8 +48,6 @@ def get_discordJson(files_found, report_folder, seeker, wrap_text, timezone_offs
         return (new_width, new_height)
     
     def process_json(jsonfinal):
-        #jsonfinal = json.loads(jsondata)
-        
         timestamp = editedtimestamp = username =  botuser = content = attachments = userid = channelid = emdeddedauthor = authorurl = authoriconurl = embededurl = embededdescript = footertext = footericonurl = pathedtail = ''
         
         if 'author' in jsonfinal:
@@ -60,10 +59,10 @@ def get_discordJson(files_found, report_folder, seeker, wrap_text, timezone_offs
                 botuser = ''
             
         if 'timestamp' in jsonfinal:
-            timestamp = (jsonfinal['timestamp'])
+            timestamp = str(jsonfinal['timestamp']).replace('T',' ')
             
         if 'edited_timestamp' in jsonfinal:
-            editedtimestamp = (jsonfinal['edited_timestamp'])
+            editedtimestamp = str(jsonfinal['edited_timestamp']).replace('T',' ')
         
         if 'content' in jsonfinal:
             content = jsonfinal['content']
@@ -135,7 +134,6 @@ def get_discordJson(files_found, report_folder, seeker, wrap_text, timezone_offs
                 y = 0
                 lenembeds = (len(jsonfinal['embeds']))        
                 while y < lenembeds:
-                    #print(jsonfinal[x]['embeds'])
                     if 'url' in jsonfinal['embeds'][y]:
                         embededurl = (jsonfinal['embeds'][y]['url'])
                     else:
@@ -216,7 +214,6 @@ def get_discordJson(files_found, report_folder, seeker, wrap_text, timezone_offs
                 with open(file_found, "r") as f_in:
                     for jsondata in f_in:
                         jsonfinal = json.loads(jsondata)
-                        logfunc(str(file_found))
                         if isinstance(jsonfinal, list):
                             jsonfinal = jsonfinal[0]
                             process_json(jsonfinal)
@@ -240,25 +237,6 @@ def get_discordJson(files_found, report_folder, seeker, wrap_text, timezone_offs
         except ValueError as e:
             pass
             #logfunc('JSON error: %s' % e)
-        #logfunc('')
-    if len(data_list) > 0:
-        logfunc(f'Files found:{len(files_found)}')        
-        report = ArtifactHtmlReport('Discord - Chats')
-        report.start_artifact_report(report_folder, 'Discord - Chats')
-        report.add_script()
-        data_headers = ('Timestamp','Edited Timestamp','Username','Bot?','Content','Attachments','User ID','Channel ID','Embedded Author','Author URL','Author Icon URL','Embedded URL','Embedded Script','Footer Text', 'Footer Icon URL', 'Source File')   
-        report.write_artifact_data_table(data_headers, data_list, pathedhead, html_no_escape=['Attachments'])
-        report.end_artifact_report()
-        
-        tsvname = 'Discord - Chats'
-        tsv(report_folder, data_headers, data_list, tsvname)
-        
-        tlactivity = 'Discord - Chats'
-        timeline(report_folder, tlactivity, data_list, data_headers)
 
-__artifacts__ = {
-    "discordjson": (
-        "Discord",
-        ('*/activation_record.plist', '*/com.hammerandchisel.discord/fsCachedData/*', '*/Library/Caches/com.hackemist.SDImageCache/default/*', '*/Library/Caches/kv-storage/@account*/a*'),
-        get_discordJson)
-}
+    data_headers = ('Timestamp','Edited Timestamp','Username','Bot?','Content','Attachments','User ID','Channel ID','Embedded Author','Author URL','Author Icon URL','Embedded URL','Embedded Script','Footer Text', 'Footer Icon URL', 'Source File')   
+    return data_headers, data_list, 'See source file(s) below:'
