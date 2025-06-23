@@ -410,13 +410,13 @@ def append_tag_value(target, tag, value):
 
 # preferences
 @artifact_processor
-def booking_preferences(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def booking_preferences(context):
 
     source_path = None
     global booking_app_identifier
 
     # all files
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         # prefs
         plist_data = get_plist_file_content(file_found)
@@ -440,7 +440,7 @@ def booking_preferences(files_found, report_folder, seeker, wrap_text, timezone_
 
 # account
 @artifact_processor
-def booking_account(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def booking_account(context):
 
     data_headers = (
         'First name',
@@ -465,12 +465,11 @@ def booking_account(files_found, report_folder, seeker, wrap_text, timezone_offs
     data_list = []
     data_list_html = []
     device_file_paths = []
-    artifact_info_name = __artifacts_v2__['booking_account']['name']
 
     # all files
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_rel_path = Path(Path(file_found).parent.name, Path(file_found).name).as_posix()
-        device_file_path = get_device_file_path(file_found, seeker)
+        device_file_path = get_device_file_path(file_found, context.get_seeker())
 
         # KeyValueStorageAccountDomain[.plist]
         if file_rel_path.endswith('KeyValueStorageAccountDomain') or file_rel_path.endswith('KeyValueStorageAccountDomain.plist'):
@@ -542,7 +541,7 @@ def booking_account(files_found, report_folder, seeker, wrap_text, timezone_offs
                 data_list.append((first_name, last_name, nickname, pp_url, gender, birth_date, street, city, zip_code,country, phone_number,
                                   emails, is_genius, facilities, uid, auth_token, source_file_name_html, source_file_name, location))
             except Exception as ex:
-                logfunc(f"Exception while parsing {artifact_info_name} - {file_found}: " + str(ex))
+                logfunc(f"Exception while parsing {context.get_artifact_name()} - {file_found}: " + str(ex))
                 pass
 
         # AccountSettings[.plist]
@@ -613,7 +612,7 @@ def booking_account(files_found, report_folder, seeker, wrap_text, timezone_offs
                 data_list.append((first_name, last_name, nickname, pp_url, gender, birth_date, street, city, zip_code,country, phone_number,
                                   emails, is_genius, facilities, uid, auth_token, source_file_name_html, source_file_name, location))
             except Exception as ex:
-                logfunc(f"Exception while parsing {artifact_info_name} - {file_found}: " + str(ex))
+                logfunc(f"Exception while parsing {context.get_artifact_name()} - {file_found}: " + str(ex))
                 pass
 
     return data_headers, (data_list, data_list_html), ' '
@@ -621,7 +620,7 @@ def booking_account(files_found, report_folder, seeker, wrap_text, timezone_offs
 
 # payment methods
 @artifact_processor
-def booking_payment_methods(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def booking_payment_methods(context):
 
     data_headers = (
         'Unique ID',
@@ -637,12 +636,11 @@ def booking_payment_methods(files_found, report_folder, seeker, wrap_text, timez
     data_list = []
     data_list_html = []
     device_file_paths = []
-    artifact_info_name = __artifacts_v2__['booking_payment_methods']['name']
 
     # all files
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_rel_path = Path(Path(file_found).parent.name, Path(file_found).name).as_posix()
-        device_file_path = get_device_file_path(file_found, seeker)
+        device_file_path = get_device_file_path(file_found, context.get_seeker())
 
         # KeyValueStorageAccountDomain[.plist]
         if file_rel_path.endswith('KeyValueStorageAccountDomain') or file_rel_path.endswith('KeyValueStorageAccountDomain.plist'):
@@ -687,7 +685,7 @@ def booking_payment_methods(files_found, report_folder, seeker, wrap_text, timez
                     # lava row
                     data_list.append((id, type_, status, valid_thru, cardholder_name, last_digits, is_business, source_file_name, location))
             except Exception as ex:
-                logfunc(f"Exception while parsing {artifact_info_name} - {file_found}: " + str(ex))
+                logfunc(f"Exception while parsing {context.get_artifact_name()} - {file_found}: " + str(ex))
                 pass
 
         # AccountSettings[.plist]
@@ -733,7 +731,7 @@ def booking_payment_methods(files_found, report_folder, seeker, wrap_text, timez
                     # lava row
                     data_list.append((id, type_, status, valid_thru, cardholder_name, last_digits, is_business, source_file_name, location))
             except Exception as ex:
-                logfunc(f"Exception while parsing {artifact_info_name} - {file_found}: " + str(ex))
+                logfunc(f"Exception while parsing {context.get_artifact_name()} - {file_found}: " + str(ex))
                 pass
 
     return data_headers, (data_list, data_list_html), ' '
@@ -741,7 +739,7 @@ def booking_payment_methods(files_found, report_folder, seeker, wrap_text, timez
 
 # stored destinations
 @artifact_processor
-def booking_stored_destinations(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def booking_stored_destinations(context):
 
     data_headers = (
         ('Created', 'datetime'),
@@ -762,12 +760,11 @@ def booking_stored_destinations(files_found, report_folder, seeker, wrap_text, t
     data_list = []
     data_list_html = []
     device_file_paths = []
-    artifact_info_name = __artifacts_v2__['booking_stored_destinations']['name']
 
     # all files
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_rel_path = Path(Path(file_found).parent.name, Path(file_found).name).as_posix()
-        device_file_path = get_device_file_path(file_found, seeker)
+        device_file_path = get_device_file_path(file_found, context.get_seeker())
 
         # KeyValueStorageSharedDomain[.plist]
         if file_rel_path.endswith('KeyValueStorageSharedDomain') or file_rel_path.endswith('KeyValueStorageSharedDomain.plist'):
@@ -847,7 +844,7 @@ def booking_stored_destinations(files_found, report_folder, seeker, wrap_text, t
                                       timezone, image_url, source_file_name, location))
 
             except Exception as ex:
-                logfunc(f"Exception while parsing {artifact_info_name} - {file_found}: " + str(ex))
+                logfunc(f"Exception while parsing {context.get_artifact_name()} - {file_found}: " + str(ex))
                 pass
 
     return data_headers, (data_list, data_list_html), ' '
@@ -855,7 +852,7 @@ def booking_stored_destinations(files_found, report_folder, seeker, wrap_text, t
 
 # recently searched
 @artifact_processor
-def booking_recently_searched(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def booking_recently_searched(context):
 
     data_headers = (
         ('Searched', 'datetime'),
@@ -881,12 +878,11 @@ def booking_recently_searched(files_found, report_folder, seeker, wrap_text, tim
     data_list = []
     data_list_html = []
     device_file_paths = []
-    artifact_info_name = __artifacts_v2__['booking_recently_searched']['name']
 
     # all files
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_rel_path = Path(Path(file_found).parent.name, Path(file_found).name).as_posix()
-        device_file_path = get_device_file_path(file_found, seeker)
+        device_file_path = get_device_file_path(file_found, context.get_seeker())
 
         # KeyValueStorageRecentsDomain[.plist]
         if file_rel_path.endswith('KeyValueStorageRecentsDomain') or file_rel_path.endswith('KeyValueStorageRecentsDomain.plist'):
@@ -974,7 +970,7 @@ def booking_recently_searched(files_found, report_folder, seeker, wrap_text, tim
                     data_list.append((searched, type_, id, dest_name, description, city_name, region_name, country_name, latitude, longitude,
                                       timezone, check_in, check_out, number_of_rooms, guests_per_room, number_of_nights, source, source_file_name, location))
             except Exception as ex:
-                logfunc(f"Exception while parsing {artifact_info_name} - {file_found}: " + str(ex))
+                logfunc(f"Exception while parsing {context.get_artifact_name()} - {file_found}: " + str(ex))
                 pass
 
     return data_headers, (data_list, data_list_html), ' '
@@ -982,7 +978,7 @@ def booking_recently_searched(files_found, report_folder, seeker, wrap_text, tim
 
 # recently booked
 @artifact_processor
-def booking_recently_booked(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def booking_recently_booked(context):
 
     data_headers = (
         'Hotel type',
@@ -1004,12 +1000,11 @@ def booking_recently_booked(files_found, report_folder, seeker, wrap_text, timez
     data_list = []
     data_list_html = []
     device_file_paths = []
-    artifact_info_name = __artifacts_v2__['booking_recently_booked']['name']
 
     # all files
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_rel_path = Path(Path(file_found).parent.name, Path(file_found).name).as_posix()
-        device_file_path = get_device_file_path(file_found, seeker)
+        device_file_path = get_device_file_path(file_found, context.get_seeker())
 
         # KeyValueStorageRecentsDomain[.plist]
         if file_rel_path.endswith('KeyValueStorageRecentsDomain') or file_rel_path.endswith('KeyValueStorageRecentsDomain.plist'):
@@ -1079,7 +1074,7 @@ def booking_recently_booked(files_found, report_folder, seeker, wrap_text, timez
                         data_list.append((type_, id, hotel_name, address, city_name, region_name, zip_code, latitude, longitude,
                                                check_in, check_out, p_url, website, source_file_name, location))
             except Exception as ex:
-                logfunc(f"Exception while parsing {artifact_info_name} - {file_found}: " + str(ex))
+                logfunc(f"Exception while parsing {context.get_artifact_name()} - {file_found}: " + str(ex))
                 pass
 
     return data_headers, (data_list, data_list_html), ' '
@@ -1087,7 +1082,7 @@ def booking_recently_booked(files_found, report_folder, seeker, wrap_text, timez
 
 # booked
 @artifact_processor
-def booking_booked(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def booking_booked(context):
 
     data_headers = (
         ('Created', 'datetime'),
@@ -1110,7 +1105,6 @@ def booking_booked(files_found, report_folder, seeker, wrap_text, timezone_offse
     data_list = []
     data_list_html = []
     device_file_paths = []
-    artifact_info_name = __artifacts_v2__['booking_booked']['name']
 
     # rooms
     def get_rooms(rooms, html_format=False):
@@ -1155,12 +1149,12 @@ def booking_booked(files_found, report_folder, seeker, wrap_text, timezone_offse
 
 
     # Documents
-    documents = seeker.search(f"*/{booking_app_identifier}/Documents/Booking #*", return_on_first_hit=False)
+    documents = context.get_seeker().search(f"*/{booking_app_identifier}/Documents/Booking #*", return_on_first_hit=False)
 
     # all files
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_rel_path = Path(Path(file_found).parent.name, Path(file_found).name).as_posix()
-        device_file_path = get_device_file_path(file_found, seeker)
+        device_file_path = get_device_file_path(file_found, context.get_seeker())
 
         # BookingClouds[.plist]
         if file_rel_path.endswith('BookingClouds') or file_rel_path.endswith('BookingClouds.plist'):
@@ -1256,7 +1250,7 @@ def booking_booked(files_found, report_folder, seeker, wrap_text, timezone_offse
                             # url encode "#"???
                             att_media_ref_id = check_in_media(f"Booking #{key}.pdf")
                             att_media_item = lava_get_full_media_info(att_media_ref_id)
-                            if att_media_item: device_file_paths.append(get_device_file_path(att_media_item[6], seeker))
+                            if att_media_item: device_file_paths.append(get_device_file_path(att_media_item[6], context.get_seeker()))
 
                         # source file name
                         device_file_paths = dict.fromkeys(device_file_paths)
@@ -1273,7 +1267,7 @@ def booking_booked(files_found, report_folder, seeker, wrap_text, timezone_offse
                                           confirm_info, total_price, number_of_rooms, rooms, booker_details, source, att_media_ref_id,
                                           source_file_name, location))
             except Exception as ex:
-                logfunc(f"Exception while parsing {artifact_info_name} - {file_found}: " + str(ex))
+                logfunc(f"Exception while parsing {context.get_artifact_name()} - {file_found}: " + str(ex))
                 pass
 
     return data_headers, (data_list, data_list_html), ' '
@@ -1281,7 +1275,7 @@ def booking_booked(files_found, report_folder, seeker, wrap_text, timezone_offse
 
 # wish lists
 @artifact_processor
-def booking_wish_lists(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def booking_wish_lists(context):
 
     data_headers = (
         ('Added', 'datetime'),
@@ -1293,12 +1287,11 @@ def booking_wish_lists(files_found, report_folder, seeker, wrap_text, timezone_o
     data_list = []
     data_list_html = []
     device_file_paths = []
-    artifact_info_name = __artifacts_v2__['booking_wish_lists']['name']
 
     # all files
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_rel_path = Path(Path(file_found).parent.name, Path(file_found).name).as_posix()
-        device_file_path = get_device_file_path(file_found, seeker)
+        device_file_path = get_device_file_path(file_found, context.get_seeker())
 
         # KeyValueStorageRecentsDomain[.plist]
         if file_rel_path.endswith('KeyValueStorageRecentsDomain') or file_rel_path.endswith('KeyValueStorageRecentsDomain.plist'):
@@ -1341,7 +1334,7 @@ def booking_wish_lists(files_found, report_folder, seeker, wrap_text, timezone_o
                         # lava row
                         data_list.append((added, list_name, id, source_file_name, location))
             except Exception as ex:
-                logfunc(f"Exception while parsing {artifact_info_name} - {file_found}: " + str(ex))
+                logfunc(f"Exception while parsing {context.get_artifact_name()} - {file_found}: " + str(ex))
                 pass
 
     return data_headers, (data_list, data_list_html), ' '
@@ -1349,7 +1342,7 @@ def booking_wish_lists(files_found, report_folder, seeker, wrap_text, timezone_o
 
 # viewed
 @artifact_processor
-def booking_viewed(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def booking_viewed(context):
 
     data_headers = (
         ('Last viewed', 'datetime'),
@@ -1370,12 +1363,11 @@ def booking_viewed(files_found, report_folder, seeker, wrap_text, timezone_offse
     data_list = []
     data_list_html = []
     device_file_paths = []
-    artifact_info_name = __artifacts_v2__['booking_viewed']['name']
 
     # all files
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_rel_path = Path(Path(file_found).parent.name, Path(file_found).name).as_posix()
-        device_file_path = get_device_file_path(file_found, seeker)
+        device_file_path = get_device_file_path(file_found, context.get_seeker())
 
         # KeyValueStorageRecentsDomain[.plist]
         if file_rel_path.endswith('KeyValueStorageRecentsDomain') or file_rel_path.endswith('KeyValueStorageRecentsDomain.plist'):
@@ -1443,7 +1435,7 @@ def booking_viewed(files_found, report_folder, seeker, wrap_text, timezone_offse
                     data_list.append((last_viewed, type_, id, hotel_name, address, city_name, region_name, zip_code, latitude, longitude,
                                       p_url, website, source_file_name, location))
             except Exception as ex:
-                logfunc(f"Exception while parsing {artifact_info_name} - {file_found}: " + str(ex))
+                logfunc(f"Exception while parsing {context.get_artifact_name()} - {file_found}: " + str(ex))
                 pass
 
     return data_headers, (data_list, data_list_html), ' '
@@ -1451,7 +1443,7 @@ def booking_viewed(files_found, report_folder, seeker, wrap_text, timezone_offse
 
 # notifications
 @artifact_processor
-def booking_notifications(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def booking_notifications(context):
 
     data_headers = (
         ('Timestamp', 'datetime'),
@@ -1468,8 +1460,8 @@ def booking_notifications(files_found, report_folder, seeker, wrap_text, timezon
     data_list = []
     data_list_html = []
     device_file_paths = []
-    file_found = get_file_path(files_found, "NotificationsModel.sqlite")
-    device_file_path = get_device_file_path(file_found, seeker)
+    file_found = get_file_path(context.get_files_found(), "NotificationsModel.sqlite")
+    device_file_path = get_device_file_path(file_found, context.get_seeker())
 
     query = '''
     SELECT
@@ -1526,7 +1518,7 @@ def booking_notifications(files_found, report_folder, seeker, wrap_text, timezon
 
 # flights searched
 @artifact_processor
-def booking_flights_searched(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def booking_flights_searched(context):
 
     data_headers = (
         ('Last updated', 'datetime'),
@@ -1545,7 +1537,6 @@ def booking_flights_searched(files_found, report_folder, seeker, wrap_text, time
     data_list = []
     data_list_html = []
     device_file_paths = []
-    artifact_info_name = __artifacts_v2__['booking_flights_searched']['name']
 
 
     # traveller details
@@ -1638,9 +1629,9 @@ def booking_flights_searched(files_found, report_folder, seeker, wrap_text, time
 
 
     # all files
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_rel_path = Path(Path(file_found).parent.name, Path(file_found).name).as_posix()
-        device_file_path = get_device_file_path(file_found, seeker)
+        device_file_path = get_device_file_path(file_found, context.get_seeker())
 
         # flight_rs_v2
         if file_rel_path.endswith('flight_rs_v2'):
@@ -1705,7 +1696,7 @@ def booking_flights_searched(files_found, report_folder, seeker, wrap_text, time
                     data_list.append((last_updated, start_date, return_date, direct_flight, search_type, cabin_class, source_airports,
                                       destination_airports, routes, travellers_details, source_file_name_html, source_file_name, location))
             except Exception as ex:
-                logfunc(f"Exception while parsing {artifact_info_name} - {file_found}: " + str(ex))
+                logfunc(f"Exception while parsing {context.get_artifact_name()} - {file_found}: " + str(ex))
                 pass
 
     return data_headers, (data_list, data_list_html), ' '
