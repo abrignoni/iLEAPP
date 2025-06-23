@@ -36,9 +36,9 @@ def remove_unused_rows(data, count_rows):
 
 
 @artifact_processor
-def addressBook(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    source_path = get_file_path(files_found, 'AddressBook.sqlitedb')
-    address_book_images_db = get_file_path(files_found, 'AddressBookImages.sqlitedb')
+def addressBook(context):
+    source_path = get_file_path(context.get_files_found(), 'AddressBook.sqlitedb')
+    address_book_images_db = get_file_path(context.get_files_found(), 'AddressBookImages.sqlitedb')
 
     data_list = []
     
