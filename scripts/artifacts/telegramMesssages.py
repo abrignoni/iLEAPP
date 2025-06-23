@@ -35,7 +35,7 @@ from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, check
 # Code: https://gist.github.com/stek29/8a7ac0e673818917525ec4031d77a713
 
 @artifact_processor
-def telegramMessages(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def telegramMessages(context):
     data_headers = [
         ('Timestamp', 'datetime'),
         'Direction',
@@ -54,11 +54,6 @@ def telegramMessages(files_found, report_folder, seeker, wrap_text, timezone_off
     # These caches will be passed to helper functions
     peer_cache_global = {}
     media_cache_global = {}
-
-    # Get artifact_info for check_in_media
-    # Per guide, artifact_info = inspect.stack()[0] gives info about current frame (telegramMessages)
-    # This can be passed to check_in_media.
-    artifact_info_obj = inspect.stack()[0]
 
     # Inner classes and enums (byteutil, MessageDataFlags, FwdInfoFlags, etc.)
     # These are self-contained and should not need modification for this refactor.
@@ -374,7 +369,7 @@ def telegramMessages(files_found, report_folder, seeker, wrap_text, timezone_off
         return {'text_for_report': text_for_report, 'identifier_for_file_search': searchable_filename}
     
     def process_message_for_report(idx, msg_data, con_param, peer_cache_param, media_cache_param,
-                                   artifact_info_param, report_folder_param, seeker_param, files_found_param_main):
+                                   files_found_param_main):
         direction = 'Incoming' if MessageFlags.Incoming in msg_data['flags'] else 'Outgoing'
         ts = datetime.datetime.fromtimestamp(idx.timestamp, tz=datetime.timezone.utc)
         author_id_str = peer_str(msg_data['authorId'], con_param, peer_cache_param) if msg_data.get('authorId') else "N/A"
@@ -854,7 +849,7 @@ def telegramMessages(files_found, report_folder, seeker, wrap_text, timezone_off
 
 
     # Main processing loop for database files
-    for file_found_single_path in files_found:
+    for file_found_single_path in context.get_files_found():
         file_found_single_path = str(file_found_single_path)
         
         if (file_found_single_path.endswith('db_sqlite')) and ('media' not in file_found_single_path):
@@ -870,7 +865,7 @@ def telegramMessages(files_found, report_folder, seeker, wrap_text, timezone_off
                         processed_row = process_message_for_report(
                             idx, msg_content, db_connection, 
                             peer_cache_global, media_cache_global,
-                            artifact_info_obj, report_folder, seeker, files_found # Pass main files_found
+                            context.get_files_found() # Pass main files_found
                         )
                         data_list.append(processed_row)
             
