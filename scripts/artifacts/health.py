@@ -191,6 +191,19 @@ __artifacts_v2__ = {
         "paths": ('*Health/healthdb.sqlite*',),
         "output_types": "standard",
         "artifact_icon": 'smartphone'
+    },
+    "healthWristTemperature": {
+        "name": "Health - Wrist Temperature",
+        "description": "Parses Apple Health Wrist Temperature, as outlined within Health Application > Summary > Show All Health Data > Wrist Temperature > Show All Data > All Recorded Data",
+        "author": "@SQLMcGee for Metadata Forensics, LLC",
+        "version": "0.1",
+        "date": "2025-06-20",
+        "requirements": "none",
+        "category": "Health",
+        "notes": "",
+        "paths": ('*Health/healthdb_secure.sqlite*', '*Health/healthdb.sqlite*'),
+        "output_types": "standard",
+        "artifact_icon": 'thermometer'
     }
 }
 
@@ -1121,3 +1134,84 @@ def healthSourceDevices(files_found, report_folder, seeker, wrap_text, timezone_
         
     data_headers = (('Creation Date', 'datetime'),'Device Name','Manufacturer','Model','Hardware','Firmware','Software','Local ID','Sync Provenance','Sync ID')
     return data_headers, data_list, healthdb
+
+@artifact_processor
+def healthWristTemperature(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    data_list = []
+    healthdb_secure = ''
+    healthdb = ''
+
+    for file_found in files_found:
+        if file_found.endswith('healthdb_secure.sqlite'):
+           healthdb_secure = file_found
+        if file_found.endswith('healthdb.sqlite'):
+           healthdb = file_found
+        else:
+            continue
+    
+    with open_sqlite_db_readonly(healthdb_secure) as db:
+        cursor = db.cursor()
+
+        attach_query = attach_sqlite_db_readonly(healthdb, 'healthdb')
+        cursor.execute(attach_query)
+
+        cursor.execute('''
+        WITH surface_temp AS (
+          SELECT 
+            metadata_values.object_id,
+            metadata_values.numerical_value
+          FROM metadata_values
+          JOIN metadata_keys ON metadata_values.key_id = metadata_keys.ROWID
+          WHERE metadata_keys.key = '_HKPrivateMetadataKeySkinSurfaceTemperature'
+        ),
+
+        algorithm_version AS (
+          SELECT 
+            metadata_values.object_id,
+            metadata_values.numerical_value
+          FROM metadata_values
+          JOIN metadata_keys ON metadata_values.key_id = metadata_keys.ROWID
+          WHERE metadata_keys.key = 'HKAlgorithmVersion'
+        )
+
+        SELECT
+          DATETIME(samples.start_date + 978307200, 'UNIXEPOCH') AS "Start Time",
+          DATETIME(samples.end_date + 978307200, 'UNIXEPOCH') AS "End Time", 
+          DATETIME(objects.creation_date + 978307200, 'UNIXEPOCH') AS "Date Added to Health",
+          quantity_samples.quantity AS "Wrist Temperature (°C)",
+          ((quantity_samples.quantity * 1.8) + 32) AS "Wrist Temperature (°F)",
+          healthdb.sources.name AS "Source",
+          algorithm_version.numerical_value AS "Algorithm Version",
+          surface_temp.numerical_value AS "Surface Temperature (°C)",
+          ((surface_temp.numerical_value * 1.8) + 32) AS "Surface Temperature (°F)",
+          healthdb.source_devices.name AS "Name",
+          healthdb.source_devices.manufacturer AS "Manufacturer",
+          healthdb.source_devices.model AS "Model",
+          healthdb.source_devices.hardware AS "Hardware Version",
+          healthdb.source_devices.software AS "Software Version"
+        FROM samples
+        LEFT OUTER JOIN quantity_samples ON quantity_samples.data_id = samples.data_id
+        LEFT OUTER JOIN objects ON samples.data_id = objects.data_id
+        LEFT OUTER JOIN data_provenances ON objects.provenance = data_provenances.ROWID
+        LEFT OUTER JOIN surface_temp ON surface_temp.object_id = samples.data_id
+        LEFT OUTER JOIN algorithm_version ON algorithm_version.object_id = samples.data_id
+        LEFT OUTER JOIN healthdb.sources ON healthdb.sources.ROWID = data_provenances.source_id
+        LEFT OUTER JOIN healthdb.source_devices ON healthdb.source_devices.ROWID = data_provenances.device_id
+        WHERE samples.data_type = 256
+        ''')
+
+        all_rows = cursor.fetchall()
+
+        for row in all_rows:
+            start_timestamp = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
+            end_timestamp = convert_ts_human_to_timezone_offset(row[1], timezone_offset)
+            added_timestamp = convert_ts_human_to_timezone_offset(row[2], timezone_offset)
+            data_list.append(
+                (start_timestamp, end_timestamp, added_timestamp, row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11], row[12], row[13]))
+        
+    data_headers = (
+        ('Start Time', 'datetime'), ('End Time', 'datetime'), ('Date Added to Health', 'datetime'),'Wrist Temperature (°C)', 
+        'Wrist Temperature (°F)', 'Source', 'Algorithm Version', 'Surface Temperature (°C)', 
+        'Surface Temperature (°F)', 'Name', 'Manufacturer', 'Model', 'Hardware Version', 'Software Version')
+        
+    return data_headers, data_list, healthdb_secure
