@@ -20,9 +20,9 @@ OS_build = {
     "1A543a": "iPhone OS 1.0",
     "1C25": "iPhone OS 1.0.1",
     "1C28": "iPhone OS 1.0.2",
-    "3A100a": "iPhone OS 1.1",
-    "3A101a": "iPhone OS 1.1",
-    "3A109a": "iPhone OS 1.1.1",
+    "3A100a": "iPhone OS 1.1"
+    "3A101a": "iPhone OS 1.1"
+    "3A109a": "iPhone OS 1.1.1"
     "3A110a": "iPhone OS 1.1.1",
     "3B48b": "iPhone OS 1.1.2",
     "4A93": "iPhone OS 1.1.3",
