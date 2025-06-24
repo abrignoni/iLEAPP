@@ -3579,6 +3579,22 @@ device_id = {
     "Watch7,11": "Apple Watch Series 10 Cellular - 46mm",
 }
 
+# https://theapplewiki.com/wiki/Bluetooth_PIDs
+bluetooth_pid = {
+    "0x0034": "Apple Watch Series 5"
+    "0x003b": "Apple Watch Series 9"
+    "0x0040": "iPhone10,4"
+    "0x0267": "Magic Keyboard (1st generation)"
+    "0x2002": "AirPods (1st generation)"
+    "0x200A": "AirPods Max"
+    "0x200E": "AirPods Pro (1st generation)"
+    "0x2013": "AirPods (3rd generation)"
+    "0x2014": "AirPods Pro (2nd generation) (Lightning)"
+    "0x2016": "Beats Studio Buds +"
+    "0x201b": "AirPods 4 (ANC)"
+    "0x2024": "AirPods Pro (2nd generation) (USB-C)"
+}
+
 code_name = {
     "J1": "iPad (3rd Gen) (Wifi)",
     "J2": "iPad (3rd Gen) (Wifi & Cellular)",

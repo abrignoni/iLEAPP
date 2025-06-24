@@ -195,7 +195,7 @@ __artifacts_v2__ = {
 }
 
 from packaging import version
-from scripts.builds_ids import OS_build, device_id
+from scripts.builds_ids import OS_build, device_id, bluetooth_pid
 from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, attach_sqlite_db_readonly, convert_ts_human_to_timezone_offset, iOS
 
 @artifact_processor
@@ -1112,11 +1112,12 @@ def healthSourceDevices(files_found, report_folder, seeker, wrap_text, timezone_
 
         for row in all_rows:
             creation_date = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
+            model = bluetooth_pid.get(row[3], row[3])
             device = device_id.get(row[4], row[4])
             localID = ''
             if str(row[7]).endswith('-tacl'):
                 localID = str(row[7])[:-5]
-            data_list.append((creation_date, row[1], row[2], row[3], device, row[5], row[6], localID, row[8], row[9]))
+            data_list.append((creation_date, row[1], row[2], model, device, row[5], row[6], localID, row[8], row[9]))
         
     data_headers = (('Creation Date', 'datetime'),'Device Name','Manufacturer','Model','Hardware','Firmware','Software','Local ID','Sync Provenance','Sync ID')
     return data_headers, data_list, healthdb
