@@ -16,7 +16,7 @@ jobs:
 
       - name: Get changed Python files
         id: changed-files-py
-        uses: tj-actions/changed-files@v44 # This action finds changed files
+        uses: tj-actions/changed-files@v46 # This action finds changed files
         with:
           files: |
             **.py
