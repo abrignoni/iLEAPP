@@ -17,7 +17,6 @@ __artifacts_v2__ = {
 }
 
 
-import inspect
 from pathlib import Path
 from scripts.ilapfuncs import artifact_processor, \
     get_file_path, does_table_exist_in_db, get_sqlite_db_records, get_plist_file_content, \
@@ -25,8 +24,9 @@ from scripts.ilapfuncs import artifact_processor, \
 
 
 @artifact_processor
-def voicemail(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    artifact_info = inspect.stack()[0]
+def voicemail(context):
+    files_found = context.get_files_found()
+    seeker = context.get_seeker()
     db_file = get_file_path(files_found, 'voicemail.db')
     data_list = []
 
@@ -46,8 +46,8 @@ def voicemail(files_found, report_folder, seeker, wrap_text, timezone_offset):
     '''
 
     data_headers = (
-        ('Date and time', 'datetime'), ('Sender', 'phonenumber'), 
-        ('Callback Number', 'phonenumber'), 'Duration', 'Deleted', ('Audio File', 'media'), 
+        ('Date and time', 'datetime'), ('Sender', 'phonenumber'),
+        ('Callback Number', 'phonenumber'), 'Duration', 'Deleted', ('Audio File', 'media'),
         'Transcript', 'Transcript confidence',)
 
     table_map_exists = does_table_exist_in_db(db_file, 'map')
@@ -69,21 +69,22 @@ def voicemail(files_found, report_folder, seeker, wrap_text, timezone_offset):
         FROM voicemail
         LEFT OUTER JOIN map ON voicemail.label = map.label
         '''
-        
+
         data_headers = (
-            ('Date and time', 'datetime'), ('Sender', 'phonenumber'), ('Receiver', 'phonenumber'), 
+            ('Date and time', 'datetime'), ('Sender', 'phonenumber'), ('Receiver', 'phonenumber'),
             'ICCID receiver', 'Duration', 'Deleted', ('Audio File', 'media'), 'Transcript', 
             'Transcript confidence')
 
     db_records = get_sqlite_db_records(db_file, query)
-    
+
     # Filter out voicemail files which are stored in a sub-folder
     extracted_audio_files = [
         file_path for file_path in files_found \
             if Path(file_path).parent.name == 'Voicemail' and Path(file_path).suffix == '.amr']
     extracted_transcript_files = [
         file_path for file_path in files_found \
-            if Path(file_path).parent.name == 'Voicemail' and Path(file_path).suffix == '.transcript']
+            if Path(file_path).parent.name == 'Voicemail' \
+                and Path(file_path).suffix == '.transcript']
 
     if db_file:
         source_file = db_file
@@ -94,17 +95,19 @@ def voicemail(files_found, report_folder, seeker, wrap_text, timezone_offset):
                 if isinstance(record[-2], int) else record[-2]
             audio_filename = f'{record[-1]}.amr'
             media_item = check_in_media(audio_filename, audio_filename)
-            transcript_file_path = get_file_path(extracted_transcript_files, f'{record[-1]}.transcript')
-            transcript = get_plist_file_content(transcript_file_path) if transcript_file_path else {}
+            transcript_file_path = get_file_path(
+                extracted_transcript_files, f'{record[-1]}.transcript')
+            transcript = get_plist_file_content(transcript_file_path) if transcript_file_path \
+                else {}
             transcription_string = transcript.get('transcriptionString', '')
             transcription_confidence = transcript.get('confidence', '')
             if table_map_exists:
                 data_list.append(
-                    (timestamp, record[1], record[2], record[3], record[4], deleted, media_item, 
+                    (timestamp, record[1], record[2], record[3], record[4], deleted, media_item,
                     transcription_string, transcription_confidence))
             else:
                 data_list.append(
-                    (timestamp, record[1], record[2], record[3], deleted, media_item, 
+                    (timestamp, record[1], record[2], record[3], deleted, media_item,
                     transcription_string, transcription_confidence))
     else:
         source_file = 'See Filename Column'
@@ -132,7 +135,7 @@ def voicemail(files_found, report_folder, seeker, wrap_text, timezone_offset):
                 ))
 
         data_headers = (
-            ('File Created', 'datetime'), ('File Modified', 'datetime'), 
+            ('File Created', 'datetime'), ('File Modified', 'datetime'),
             'Audio Filename', ('Audio File', 'media'), 'Transcript Filename', 
             'Transcript', 'Transcript confidence')
 
