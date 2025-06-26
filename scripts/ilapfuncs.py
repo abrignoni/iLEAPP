@@ -19,6 +19,7 @@ from functools import lru_cache
 from pathlib import Path
 from urllib.parse import quote
 import scripts.artifact_report as artifact_report
+from scripts.context import Context
 
 # common third party imports
 import pytz
@@ -167,20 +168,23 @@ def check_output_types(type, output_types):
     else:
         return False
 
-def get_media_references_id(media_id, artifact_info, name):
-    artifact_name = artifact_info.function
+def get_media_references_id(media_id, artifact_name, name):
     return hashlib.sha1(f"{media_id}-{artifact_name}-{name}".encode()).hexdigest()
 
-def set_media_references(media_ref_id, media_id, artifact_info, name, media_path):
-    module_name = Path(artifact_info.filename).stem
-    artifact_name = artifact_info.function
+def set_media_references(media_ref_id, media_id, module_name, artifact_name, name, media_path):
     media_references = MediaReferences(media_ref_id)
     media_references.set_values((
         media_ref_id, media_id, module_name, artifact_name, name, media_path
     ))
     lava_insert_sqlite_media_references(media_references)
 
-def check_in_media(artifact_info, report_folder, seeker, files_found, file_path, name="", converted_file_path=False):
+def check_in_media(file_path, name="", converted_file_path=False):
+    report_folder = Context.get_report_folder()
+    seeker = Context.get_seeker()
+    files_found = Context.get_files_found()
+    module_name = Context.get_module_name()
+    artifact_name = Context.get_artifact_name()
+
     extraction_path = next(
         (path for path in files_found if Path(path).match(file_path)), None)
     file_info = seeker.file_infos.get(extraction_path)
@@ -188,7 +192,7 @@ def check_in_media(artifact_info, report_folder, seeker, files_found, file_path,
         extraction_path = converted_file_path if converted_file_path else Path(extraction_path)
         if extraction_path.is_file():
             media_id = hashlib.sha1(f"{file_info.source_path}".encode()).hexdigest()
-            media_ref_id = get_media_references_id(media_id, artifact_info, name)
+            media_ref_id = get_media_references_id(media_id, artifact_name, name)
             lava_media_ref = lava_get_media_references(media_ref_id)
             if lava_media_ref:
                 return media_ref_id
@@ -207,7 +211,7 @@ def check_in_media(artifact_info, report_folder, seeker, files_found, file_path,
                 media_item.created_at = file_info.creation_date
                 media_item.updated_at = file_info.modification_date
                 lava_insert_sqlite_media_item(media_item)
-            set_media_references(media_ref_id, media_id, artifact_info, name, media_path)
+            set_media_references(media_ref_id, media_id, module_name, artifact_name, name, media_path)
             return media_ref_id
         else:
             logfunc(f"{extraction_path} is not a file")
@@ -216,12 +220,17 @@ def check_in_media(artifact_info, report_folder, seeker, files_found, file_path,
         logfunc(f'No matching file found for "{file_path}"')
         return None
 
-def check_in_embedded_media(artifact_info, report_folder, seeker, source_file, data, name=""):
+def check_in_embedded_media(source_file, data, name=""):
+    report_folder = Context.get_report_folder()
+    seeker = Context.get_seeker()
+    module_name = Context.get_module_name()
+    artifact_name = Context.get_artifact_name()
+
     file_info = seeker.file_infos.get(source_file)
     source_path = file_info.source_path if file_info else source_file
     if data:
         media_id = hashlib.sha1(data).hexdigest()
-        media_ref_id = get_media_references_id(media_id, artifact_info, name)
+        media_ref_id = get_media_references_id(media_id, artifact_name, name)
         lava_media_ref = lava_get_media_references(media_ref_id)
         if lava_media_ref:
             return media_ref_id
@@ -241,7 +250,7 @@ def check_in_embedded_media(artifact_info, report_folder, seeker, source_file, d
             except Exception as ex:
                 logfunc(f'Could not copy embedded media into {media_item.extraction_path} ' + str(ex))
             lava_insert_sqlite_media_item(media_item)
-        set_media_references(media_ref_id, media_id, artifact_info, name, media_path)
+        set_media_references(media_ref_id, media_id, module_name, artifact_name, name, media_path)
         return media_ref_id
     else:
         return None
@@ -318,9 +327,10 @@ def artifact_processor(func):
     def wrapper(files_found, report_folder, seeker, wrap_text, timezone_offset):
         module_name = func.__module__.split('.')[-1]
         func_name = func.__name__
+        module_file_path = inspect.getfile(func)
 
-        func_object = func.__globals__.get(func_name, {})
-        artifact_info = func_object.artifact_info  #get('artifact_info', {})
+        all_artifacts_info = func.__globals__.get('__artifacts_v2__', {})
+        artifact_info = all_artifacts_info.get(func_name, {})
 
         artifact_name = artifact_info.get('name', func_name)
         category = artifact_info.get('category', '')
@@ -331,7 +341,22 @@ def artifact_processor(func):
         output_types = artifact_info.get('output_types', ['html', 'tsv', 'timeline', 'lava', 'kml'])
         is_lava_only = 'lava_only' in output_types
 
-        data_headers, data_list, source_path = func(files_found, report_folder, seeker, wrap_text, timezone_offset)
+        Context.set_report_folder(report_folder)
+        Context.set_seeker(seeker)
+        Context.set_files_found(files_found)
+        Context.set_artifact_info(artifact_info)
+        Context.set_module_name(module_name)
+        Context.set_module_file_path(module_file_path)
+        Context.set_artifact_name(artifact_name)
+        
+        try:
+            sig = inspect.signature(func)
+            if len(sig.parameters) == 1:
+                data_headers, data_list, source_path = func(Context)
+            else:
+                data_headers, data_list, source_path = func(files_found, report_folder, seeker, wrap_text, timezone_offset)
+        finally:
+            Context.clear()
         
         if not source_path:
             logfunc(f"No file found")

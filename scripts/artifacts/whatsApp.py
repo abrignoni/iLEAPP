@@ -212,14 +212,13 @@ def whatsAppMessages(files_found, report_folder, seeker, wrap_text, timezone_off
         media_local_path = record['ZMEDIALOCALPATH']
         if media_local_path:
             attach_file_name = Path(media_local_path).name
-            attach_file = check_in_media(artifact_info, report_folder, seeker, files_found, media_local_path, 
-                                         attach_file_name)
+            attach_file = check_in_media(media_local_path, attach_file_name)
 
         thumb = ''
         thumb_path = record['ZXMPPTHUMBPATH']
         if thumb_path:
             thumb_name = Path(thumb_path).name
-            thumb = check_in_media(artifact_info, report_folder, seeker, files_found, thumb_path, thumb_name)
+            thumb = check_in_media(thumb_path, thumb_name)
 
         metadata = record['ZMETADATA']
         number_forward = ''

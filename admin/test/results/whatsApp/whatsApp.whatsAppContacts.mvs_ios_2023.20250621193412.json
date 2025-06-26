@@ -1,0 +1,34 @@
+{
+  "metadata": {
+    "module_name": "whatsApp",
+    "artifact_name": "WhatsApp - Contacts",
+    "function_name": "whatsAppContacts",
+    "case_number": "mvs_ios_2023",
+    "number_of_columns": 7,
+    "number_of_rows": 0,
+    "total_data_size_bytes": 0,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/whatsApp/testdata.whatsApp.whatsAppContacts.mvs_ios_2023.zip",
+    "start_time": "2025-06-21T19:34:12.164365+00:00",
+    "end_time": "2025-06-21T19:34:12.221880+00:00",
+    "run_time_seconds": 0.000990152359008789,
+    "last_commit": {
+      "hash": "7a03c9d90edeba84420bb53358387ffc37996bac",
+      "author_name": "Johann POLEWCZYK",
+      "author_email": "johannplw@me.com",
+      "date": "2025-05-13T09:42:25+02:00",
+      "message": "Update last_update_date of modules using media manager with hardlinks"
+    }
+  },
+  "headers": [
+    "Fullname",
+    "About Text",
+    "About Text Timestamp",
+    "Phone Number",
+    "Phone Number Label",
+    "Whatsapp ID",
+    "Identifier"
+  ],
+  "data": []
+}
