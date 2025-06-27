@@ -15,7 +15,6 @@ __artifacts_v2__ = {
 }
 
 
-import inspect
 from scripts.ilapfuncs import artifact_processor, \
     get_file_path, get_sqlite_db_records, attach_sqlite_db_readonly, check_in_embedded_media, \
     convert_cocoa_core_data_ts_to_utc, get_birthdate
@@ -36,13 +35,12 @@ def remove_unused_rows(data, count_rows):
 
 
 @artifact_processor
-def addressBook(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    source_path = get_file_path(files_found, 'AddressBook.sqlitedb')
-    address_book_images_db = get_file_path(files_found, 'AddressBookImages.sqlitedb')
+def addressBook(context):
+    source_path = get_file_path(context.get_files_found(), 'AddressBook.sqlitedb')
+    address_book_images_db = get_file_path(context.get_files_found(), 'AddressBookImages.sqlitedb')
 
     data_list = []
-    artifact_info = inspect.stack()[0]
-    
+
     attach_query = attach_sqlite_db_readonly(address_book_images_db, 'ABI')
     query = '''
     SELECT    
@@ -152,9 +150,9 @@ def addressBook(files_found, report_folder, seeker, wrap_text, timezone_offset):
     '''
 
     data_headers = [
-        ('Creation Date', 'datetime'), 
-        ('Thumbnail', 'media', 'height: 80px; border-radius: 50%;'), 
-        ('Full Size Image', 'media', 'height: 80px;'), 
+        ('Creation Date', 'datetime'),
+        ('Thumbnail', 'media', 'height: 80px; border-radius: 50%;'),
+        ('Full Size Image', 'media', 'height: 80px;'),
         'Prefix', 
         'First Name', 
         'Middle Name', 
@@ -167,7 +165,7 @@ def addressBook(files_found, report_folder, seeker, wrap_text, timezone_offset):
         'Company', 
         'Department', 
         'Job Title', 
-        ('Phone Numbers', 'phonenumber'), 
+        ('Phone Numbers', 'phonenumber'),
         'Email addresses', 
         'Addresses', 
         'Instant Messages', 
@@ -186,55 +184,55 @@ def addressBook(files_found, report_folder, seeker, wrap_text, timezone_offset):
     for record in db_records:
         creation_date = convert_cocoa_core_data_ts_to_utc(record[1])
         media_name = f'{record[5]} {record[7]}'
-        
+
         thumbnail = record[2]
         if thumbnail:
-            thumbnail = check_in_embedded_media(artifact_info, report_folder, seeker, address_book_images_db, 
-                                                thumbnail, media_name)
+            thumbnail = check_in_embedded_media(address_book_images_db, thumbnail, media_name)
 
         full_size_image = record[3]
         if full_size_image:
-                full_size_image = check_in_embedded_media(artifact_info, report_folder, seeker, address_book_images_db, 
+            full_size_image = check_in_embedded_media(address_book_images_db,
                                                           full_size_image, media_name)
 
         phone_numbers = record[16]
         if phone_numbers:
             phone_numbers = clean_label(phone_numbers)
-        
+
         email_addresses = record[17]
         if email_addresses:
             email_addresses = clean_label(email_addresses)
-        
+
         addresses = record[18]
         if addresses:
             addresses = clean_label(addresses)
-        
+
         instant_message = record[19]
         if instant_message:
             instant_message = clean_label(instant_message)
-        
+
         url = record[20]
         if url:
             url = clean_label(url)
-        
+
         related_name = record[21]
         if related_name:
             related_name = clean_label(related_name)
-        
+
         profile = record[22]
         if profile:
             profile = clean_label(profile)
-        
+
         birthday = record[-4]
         birthday = get_birthdate(birthday) if birthday else ''
 
         modified_date = convert_cocoa_core_data_ts_to_utc(record[-1])
-        
-        data_list.append([creation_date, thumbnail, full_size_image, record[4], record[5], record[6], 
-                          record[7], record[8], record[9], record[10], record[11], record[12], record[13], 
-                          record[14], record[15], phone_numbers, email_addresses, addresses, instant_message, 
-                          url, related_name, profile, record[23], record[24], birthday, record[26], 
-                          record[27], modified_date])
+
+        data_list.append(
+            [creation_date, thumbnail, full_size_image, record[4], record[5], record[6],
+             record[7], record[8], record[9], record[10], record[11], record[12], record[13],
+             record[14], record[15], phone_numbers, email_addresses, addresses, instant_message,
+             url, related_name, profile, record[23], record[24], birthday, record[26],
+             record[27], modified_date])
 
     # Removing unused columns
     remove_empty_cols_query = '''
@@ -297,5 +295,5 @@ def addressBook(files_found, report_folder, seeker, wrap_text, timezone_offset):
     empty_cols_records = get_sqlite_db_records(source_path, remove_empty_cols_query, attach_query)
     data_headers = remove_unused_rows(data_headers, empty_cols_records)
     data_list = [remove_unused_rows(data, empty_cols_records) for data in data_list]
-    
+
     return data_headers, data_list, source_path

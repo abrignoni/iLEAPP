@@ -16,25 +16,25 @@ jobs:
 
       - name: Get changed Python files
         id: changed-files-py
-        uses: tj-actions/changed-files@v44 # This action finds changed files
+        uses: tj-actions/changed-files@v46 # This action finds changed files
         with:
           files: |
             **.py
 
       - name: Set up Python
-        if: steps.changed-files-py.outputs.any_changed == 'true' # Only run if Python files changed
+        if: steps.changed-files-py.outputs.any_changed == 'true'
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Install Flake8
+      - name: Install Pylint
         if: steps.changed-files-py.outputs.any_changed == 'true'
-        run: python -m pip install flake8
+        run: python -m pip install pylint
 
-      - name: Run Flake8 on changed files
+      - name: Run on changed files
         if: steps.changed-files-py.outputs.any_changed == 'true'
         run: |
           echo "Linting the following files:"
           echo "${{ steps.changed-files-py.outputs.all_changed_files }}"
           
-          flake8 ${{ steps.changed-files-py.outputs.all_changed_files }}
+          pylint ${{ steps.changed-files-py.outputs.all_changed_files }} --max-line-length=120 --reports y

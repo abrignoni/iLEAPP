@@ -651,7 +651,6 @@ def bereal_contacts(files_found, report_folder, seeker, wrap_text, timezone_offs
     data_list = []
     data_list_html = []
     source_paths = set()
-    artifact_info = inspect.stack()[0]
 
     # all files
     for file_found in files_found:
@@ -693,7 +692,7 @@ def bereal_contacts(files_found, report_folder, seeker, wrap_text, timezone_offs
                 photo_b64 = contact.get('photo')
                 if bool(photo_b64):
                     photo_raw = standard_b64decode(photo_b64)   # bytes
-                    photo = check_in_embedded_media(artifact_info, report_folder, seeker, file_found, photo_raw)
+                    photo = check_in_embedded_media(file_found, photo_raw)
                 else:
                     photo = ''
                 # organization name
