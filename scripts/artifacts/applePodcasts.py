@@ -23,6 +23,34 @@ from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, get_n
 
 def get_applePodcasts(files_found, report_folder, seeker, wrap_text, timezone_offset):
     
+    data_list1 = []
+    data_headers1 = [
+                'Date Added',
+                'Date Last Played',
+                'Date Last Updated',
+                'Date Downloaded',
+                'Author','Title',
+                'Feed URL',
+                'Description',
+                'Web Page URL']
+    
+    data_list2 = []
+    data_headers2 = [
+                'Import Date',
+                'Metadata Timestamp',
+                'Date Last Played',
+                'Play State Last Modified',
+                'Download Date',
+                'Play Count',
+                'Author',
+                'Title',
+                'Subtitle',
+                'Asset URL',
+                'Web Page URL',
+                'Duration',
+                'Size',
+                'Play State'] 
+    
     for file_found in files_found:
         file_found = str(file_found)
         if not file_found.endswith('.sqlite'):
@@ -47,9 +75,6 @@ def get_applePodcasts(files_found, report_folder, seeker, wrap_text, timezone_of
         all_rows = cursor.fetchall()
         usageentries = len(all_rows)
         if usageentries > 0:
-            
-            
-            data_list1 = []
             for row in all_rows:
                 
                 if (row[0] == '') or (row[0]== None):
@@ -77,17 +102,7 @@ def get_applePodcasts(files_found, report_folder, seeker, wrap_text, timezone_of
                     timestampdowndate  = convert_utc_human_to_timezone(timestampdowndate,timezone_offset)
                 
                 data_list1.append((timestampadded,timestampdateplayed,timestampdupdate,timestampdupdate,row[4],row[5],row[6],row[7],row[8]))
-            
-            data_headers1 = [
-                'Date Added',
-                'Date Last Played',
-                'Date Last Updated',
-                'Date Downloaded',
-                'Author','Title',
-                'Feed URL',
-                'Description',
-                'Web Page URL']
-            
+
             report1 = ArtifactHtmlReport('Apple Podcasts - Shows')
             report1.start_artifact_report(report_folder, 'Apple Podcasts - Shows')
             report1.add_script()
@@ -126,7 +141,6 @@ def get_applePodcasts(files_found, report_folder, seeker, wrap_text, timezone_of
         usageentries = len(all_rows)
         
         if usageentries > 0:
-            data_list2 = []
             for row in all_rows:
                 
                 timestampimport = convert_ts_human_to_utc(row[0])
@@ -157,22 +171,6 @@ def get_applePodcasts(files_found, report_folder, seeker, wrap_text, timezone_of
                     timestampdowndate = convert_utc_human_to_timezone(timestampdupdate,timezone_offset)
 
             data_list2.append((timestampimport,timestampmeta,timestamplastplay,timestamplastmod,timestampdowndate,row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12],row[13]))
-            
-            data_headers2 = [
-                'Import Date',
-                'Metadata Timestamp',
-                'Date Last Played',
-                'Play State Last Modified',
-                'Download Date',
-                'Play Count',
-                'Author',
-                'Title',
-                'Subtitle',
-                'Asset URL',
-                'Web Page URL',
-                'Duration',
-                'Size',
-                'Play State'] 
             
             report2 = ArtifactHtmlReport('Apple Podcasts - Episodes')
             report2.start_artifact_report(report_folder, 'Apple Podcasts - Episodes')
@@ -207,7 +205,4 @@ def get_applePodcasts(files_found, report_folder, seeker, wrap_text, timezone_of
         data_headers2[4] = (data_headers2[4], 'datetime')
         
         table_name2, object_columns2, column_map2 = lava_process_artifact(category, module_name, 'Apple Podcasts - Episodes', data_headers2, len(data_list2))
-        lava_insert_sqlite_data(table_name2, data_list2, object_columns2, data_headers2, column_map2)    
-        
-
-        
+        lava_insert_sqlite_data(table_name2, data_list2, object_columns2, data_headers2, column_map2)
