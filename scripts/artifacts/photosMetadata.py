@@ -22,7 +22,7 @@ def get_photosMetadata(files_found, report_folder, seeker, wrap_text, timezone_o
       
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
-    iosversion = iOS.get_version()
+    iOSversion = iOS.get_version()
     if version.parse(iOSversion) < version.parse("12"):
         logfunc("Unsupported version for Photos.sqlite metadata on iOS " + iOSversion)
     if (version.parse(iOSversion) >= version.parse("12")) & (version.parse(iOSversion) < version.parse("13")):
