@@ -7,6 +7,7 @@ import typing
 import scripts.report as report
 import traceback
 import sys
+from pathlib import Path
 
 import scripts.plugin_loader as plugin_loader
 
@@ -314,6 +315,18 @@ def crunch_artifacts(
     logfunc('Objective: Triage iOS Full File System and iTunes Backup Extractions.')
     logfunc('By: Alexis Brignoni | @AlexisBrignoni | abrignoni.com')
     logfunc('By: Yogesh Khatri   | @SwiftForensics | swiftforensics.com\n')
+
+    logfunc('Checking for keychain file in the same folder as the input "*keychain.plist\n')
+    input_path_directory = Path(input_path)
+    if extracttype != 'fs':
+        input_path_directory = input_path_directory.parent
+    matching_files = list(input_path_directory.glob("*keychain.plist"))
+
+    if matching_files:
+        logfunc(f'Found Keychain File: {matching_files[0]}')
+        iOS.load_keychain(matching_files[0])
+    else:
+        logfunc(f'Did not find keychain file. Make sure it is located in the folder: {input_path_directory}')
     logdevinfo()
     
     seeker = None

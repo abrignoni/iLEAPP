@@ -18,6 +18,7 @@ from datetime import *
 from functools import lru_cache
 from pathlib import Path
 from urllib.parse import quote
+from sqlcipher3 import dbapi2 as sqlcipher3
 import scripts.artifact_report as artifact_report
 
 # common third party imports
@@ -46,6 +47,7 @@ lava_only_artifacts = {}
 
 class iOS:
     _version = None
+    _keyChain = None
 
     @staticmethod
     def get_version():
@@ -58,6 +60,17 @@ class iOS:
         if iOS._version is None:
             iOS._version = os_version
 
+    @staticmethod
+    def load_keychain(plist_path):
+        """Loads the keychain data from a plist file once."""
+        if iOS._keyChain is None:
+            with open(plist_path, 'rb') as fp:
+                iOS._keyChain = plistlib.load(fp)
+
+    @staticmethod
+    def get_keychain():
+        """Returns the loaded keychain data."""
+        return iOS._keyChain
 
 class OutputParameters:
     '''Defines the parameters that are common for '''
@@ -1361,3 +1374,37 @@ def get_resolution_for_model_id(model_id: str):
         f"Warning! - Resolution not found for '{model_id}', contact developers to add resolution into the get_resolution_for_model_id function")
     return None
 
+def open_sqlite_cipher_db_readonly(path, key, header_size=0):
+    '''Opens a sqlite db in read-only mode, so original db (and -wal/journal are intact)'''
+    try:
+        if path:
+            #path = get_sqlite_db_path(path)
+            #with sqlcipher3.connect(f"file:{path}?mode=ro", uri=True) as db:
+            with sqlcipher3.connect(path) as db:
+                key_pragma = f"PRAGMA key=\"x'{key}'\";"
+                db.execute(key_pragma)
+                db.execute(f"PRAGMA cipher_plaintext_header_size = {header_size};")
+                return db
+    except sqlcipher3.OperationalError as e:
+        logfunc(f"Error with {path}:")
+        logfunc(f" - {str(e)}")
+    return None
+
+def get_sqlite_cipher_db_records(path, query, key, header_size=0,  attach_query=None):
+    db = open_sqlite_cipher_db_readonly(path, key, header_size)
+    if db:
+        db.row_factory = sqlcipher3.Row  # For fetching columns by name
+        try:
+            cursor = db.cursor()
+            if attach_query:
+                cursor.execute(attach_query)
+            cursor.execute(query)
+            records = cursor.fetchall()
+            return records
+        except sqlcipher3.OperationalError as e:
+            logfunc(f"Error with {path}:")
+            logfunc(f" - {str(e)}")
+        except sqlcipher3.ProgrammingError as e:
+            logfunc(f"Error with {path}:")
+            logfunc(f" - {str(e)}")
+    return []
