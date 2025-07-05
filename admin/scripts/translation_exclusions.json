@@ -1,0 +1,10 @@
+{
+  "exclude_modules": [],
+  "exclude_artifacts": [],
+  "exclude_headers": [
+    "_kMDItemBundleID",
+    "_kMDItemDomainIdentifier",
+    "_kMDItemExternalID",
+    "_kMDItemInterestingDate"
+  ]
+} 
