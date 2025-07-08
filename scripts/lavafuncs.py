@@ -74,7 +74,7 @@ def initialize_lava(input_path, output_path, input_type):
                         FROM _lava_media_references as lmr 
                         LEFT JOIN _lava_media_items as lmi ON lmr.media_item_id = lmi.id''')
     
-def lava_process_artifact(category, module_name, artifact_name, data, record_count=None, data_views=None):
+def lava_process_artifact(category, module_name, artifact_name, data, record_count=None, data_views=None, artifact_icon=None):
     global lava_data
     
     if category not in lava_data["artifacts"]:
@@ -88,6 +88,9 @@ def lava_process_artifact(category, module_name, artifact_name, data, record_cou
         "module": module_name,
         "column_map": column_map
     }
+    if artifact_icon:
+        artifact['artifact_icon'] = artifact_icon
+
     if record_count is not None:
         artifact["record_count"] = record_count
     if object_columns:
