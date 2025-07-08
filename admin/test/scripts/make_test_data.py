@@ -28,7 +28,7 @@ from collections import defaultdict
 import csv
 from io import StringIO
 import textwrap
-import glob
+# import glob
 
 # Add the correct path to the system path
 repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
@@ -291,7 +291,7 @@ def find_file_in_tar(tar_archive, target_path, tar_filename):
     # If both attempts fail, return None
     return None
 
-def create_test_data(module_name, image_name=None, case_number=None, input_file=None):
+def create_test_data(module_name, image_name=None, case_number=None, input_file=None, image_metadata=None):
     """Orchestrates the creation of test data for a specific module.
 
     This function performs the end-to-end process of generating test data:
@@ -310,6 +310,8 @@ def create_test_data(module_name, image_name=None, case_number=None, input_file=
                                      Defaults to None.
         input_file (str, optional): The path to the input archive. Required
                                     if `case_number` is used. Defaults to None.
+        image_metadata (dict, optional): A dictionary of metadata about the
+                                         image. Defaults to None.
     """
     overall_start_time = time.time()
     print(f"Processing module: {module_name}")
@@ -367,6 +369,9 @@ def create_test_data(module_name, image_name=None, case_number=None, input_file=
 
     if image_name:
         json_data[case_key]["image_name"] = image_name
+
+    if image_metadata:
+        json_data[case_key]["image_info"] = image_metadata
 
     # Collect all patterns
     all_patterns = {artifact_name: artifact_info['paths'] for artifact_name, artifact_info in artifacts.items()}
@@ -477,6 +482,50 @@ def create_test_data(module_name, image_name=None, case_number=None, input_file=
     print(f"\nTotal processing time: {overall_end_time - overall_start_time:.2f} seconds")
     print(f"Script completed at: {local_overall_end_time}")
 
+def get_case_data_summary(module_name, image_name):
+    """
+    Checks for existing test data for a given module and image, and returns
+    a summary.
+
+    Args:
+        module_name (str): The name of the artifact module.
+        image_name (str): The name of the image, used as the case key.
+
+    Returns:
+        dict: A dictionary with 'exists' (bool), and if it exists,
+              'file_count' (int) and 'zip_size' (int).
+    """
+    json_file_path = os.path.join(repo_root, 'admin', 'test', 'cases',
+                                  f'testdata.{module_name}.json')
+
+    if not os.path.exists(json_file_path):
+        return {'exists': False}
+
+    with open(json_file_path, 'r', encoding='utf-8') as f:
+        try:
+            all_cases_data = json.load(f)
+        except json.JSONDecodeError:
+            return {'exists': False}  # Treat invalid JSON as no data
+
+    case_data = all_cases_data.get(image_name)
+    if not case_data:
+        return {'exists': False}
+
+    artifacts = case_data.get('artifacts', {})
+    total_file_count = 0
+    total_zip_size = 0
+    data_dir = os.path.join(repo_root, 'admin', 'test', 'cases', 'data', module_name)
+
+    for artifact_name, artifact_data in artifacts.items():
+        file_count = artifact_data.get('file_count', 0)
+        total_file_count += file_count
+        if file_count > 0:
+            zip_path = os.path.join(data_dir, f"testdata.{module_name}.{artifact_name}.{image_name}.zip")
+            if os.path.exists(zip_path):
+                total_zip_size += os.path.getsize(zip_path)
+
+    return {'exists': True, 'file_count': total_file_count, 'zip_size': total_zip_size}
+
 def prompt_for_image(module_name):
     """Displays a menu of available images and prompts the user to select one.
 
@@ -494,8 +543,16 @@ def prompt_for_image(module_name):
     print("\nAvailable images:")
     for i, image in enumerate(manifest, 1):
         image_name = image['image_name']
-        has_case_data = check_existing_case_data(module_name, image_name)
-        case_data_status = "✓ Has case data" if has_case_data else "✗ No case data"
+        summary = get_case_data_summary(module_name, image_name)
+
+        if not summary['exists']:
+            case_data_status = "✗ No case data"
+        elif summary['file_count'] == 0:
+            case_data_status = "✓ Case logged (0 files)"
+        else:
+            size_kb = summary['zip_size'] / 1024
+            case_data_status = (f"✓ Has data ({summary['file_count']} files, "
+                              f"{size_kb:.2f} KB)")
 
         print(f"{i}. {image_name} [{case_data_status}]")
         if 'description' in image:
@@ -512,24 +569,6 @@ def prompt_for_image(module_name):
                 print("Invalid choice. Please enter a number from the list.")
         except ValueError:
             print("Invalid input. Please enter a number.")
-
-def check_existing_case_data(module_name, image_name):
-    """Checks if test data for a given module and image already exists.
-
-    It looks for existing .zip files in the appropriate data directory
-    that match the module and image name.
-
-    Args:
-        module_name (str): The name of the artifact module.
-        image_name (str): The name of the image, used as the case key.
-
-    Returns:
-        bool: True if test data files exist, False otherwise.
-    """
-    cases_dir = os.path.join(repo_root, 'admin', 'test', 'cases', 'data', module_name)
-    pattern = f"testdata.*.{image_name}.zip"
-    existing_files = glob.glob(os.path.join(cases_dir, pattern))
-    return len(existing_files) > 0
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Create test data for artifacts")
@@ -560,14 +599,18 @@ if __name__ == "__main__":
             print(f"Image path: {input_image_info['input_file']}")
 
             # Check if case data already exists
-            if check_existing_case_data(input_module_name, args.image):
+            case_summary = get_case_data_summary(input_module_name, args.image)
+            if case_summary['exists']:
                 print(f"Note: Case data already exists for module '{input_module_name}' using image '{args.image}'.")
                 proceed = input("Do you want to proceed and potentially overwrite existing data? (y/n): ")
                 if proceed.lower() != 'y':
                     print("Operation aborted.")
                     sys.exit(0)
 
-            create_test_data(input_module_name, image_name=args.image, input_file=input_image_info['input_file'])
+            create_test_data(input_module_name,
+                             image_name=args.image,
+                             input_file=input_image_info['input_file'],
+                             image_metadata=input_image_info.get('image_info'))
         except (ValueError, FileNotFoundError) as e:
             print(f"Error: {e}")
             sys.exit(1)

@@ -354,11 +354,12 @@ def main(module_name, artifact_name=None, case_number=None):
                     start_datetime = datetime.now(timezone.utc)
 
                     # Extract os_version from case_data
-                    current_os_version = case_data.get("os_version")
+                    image_info = case_data.get("image_info", {})
+                    current_os_version = image_info.get("os_version")
                     if current_os_version:
                         print(f"Using OS version from test case data for {case}: {current_os_version}")
                     else:
-                        print(f"Warning: 'os_version' not found in test case data for {case}. "
+                        print(f"Warning: 'os_version' not found in image_info for {case}. "
                               "iOS.get_version() will not be specifically mocked.")
 
                     headers, data, run_time, last_commit_info, media_checkins_count, media_embedded_checkins_count = \

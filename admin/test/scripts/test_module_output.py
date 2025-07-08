@@ -4,9 +4,10 @@ import json
 import argparse
 import zipfile
 import shutil
-import importlib
+# import importlib
 import datetime
 from pathlib import Path
+from unittest.mock import patch, MagicMock
 
 # Add the root directory to sys.path to import ileapp
 root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -16,13 +17,13 @@ import ileapp
 def validate_module(module_name):
     # Remove .py extension if present
     module_name = module_name.replace('.py', '')
-    
+
     # Check if the module exists
     module_path = Path('scripts/artifacts') / f'{module_name}.py'
     if not module_path.exists():
         print(f"Error: Module '{module_name}' not found.")
         sys.exit(1)
-    
+
     return module_name
 
 def get_test_cases(module_name):
@@ -30,10 +31,10 @@ def get_test_cases(module_name):
     if not test_case_file.exists():
         print(f"No test cases found for module '{module_name}'.")
         sys.exit(1)
-    
-    with open(test_case_file, 'r') as f:
+
+    with open(test_case_file, 'r', encoding='utf-8') as f:
         test_cases = json.load(f)
-    
+
     return test_cases
 
 def select_test_case(test_cases):
@@ -45,7 +46,7 @@ def select_test_case(test_cases):
         print(f"   Input: {os.path.basename(input_path)}")
         print(f"   Description: {description or 'No description available'}")
         print()
-    
+
     while True:
         try:
             choice = int(input("Select a test case number: "))
@@ -115,7 +116,7 @@ class SingleModuleLoaderWrapper:
     def __contains__(self, item):
         return any(plugin.name == item for plugin in self._plugins)
 
-def run_module_test(module_name, temp_folder):
+def run_module_test(module_name, temp_folder, test_case):
     output_folder = Path('admin/test/output')
     output_folder.mkdir(parents=True, exist_ok=True)
 
@@ -137,11 +138,24 @@ def run_module_test(module_name, temp_folder):
     original_PluginLoader = ileapp.plugin_loader.PluginLoader
     ileapp.plugin_loader.PluginLoader = lambda: wrapper_loader
 
+    # Get os_version from test_case and patch ilapfuncs.iOS.get_version
+    image_info = test_case.get("image_info", {})
+    os_version = image_info.get("os_version")
+
+    patcher = None
+    if os_version:
+        print(f"Mocking iOS version to: {os_version}")
+        mock_ios_get_version = MagicMock(return_value=os_version)
+        patcher = patch('scripts.ilapfuncs.iOS.get_version', mock_ios_get_version)
+        patcher.start()
+
     try:
         ileapp.main()
     finally:
         # Restore the original loader
         ileapp.plugin_loader.PluginLoader = original_PluginLoader
+        if patcher:
+            patcher.stop()
 
 def main():
     parser = argparse.ArgumentParser(description="Run a single module test for iLEAPP")
@@ -165,7 +179,7 @@ def main():
 
     try:
         extract_test_data(module_name, selected_case_name, selected_case, temp_folder)
-        run_module_test(module_name, temp_folder)
+        run_module_test(module_name, temp_folder, selected_case)
     finally:
         # Clean up contents of temp folder
         for item in temp_folder.iterdir():
