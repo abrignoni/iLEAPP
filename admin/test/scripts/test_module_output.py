@@ -38,8 +38,32 @@ def get_test_cases(module_name):
     return test_cases
 
 def select_test_case(test_cases):
-    print("Available test cases:")
-    for i, (case_name, case_data) in enumerate(test_cases.items(), 1):
+    cases_with_data = {}
+    cases_without_data = {}
+
+    for case_name, case_data in test_cases.items():
+        has_files = any(artifact.get('file_count', 0) > 0
+                        for artifact in case_data['artifacts'].values())
+        if has_files:
+            cases_with_data[case_name] = case_data
+        else:
+            cases_without_data[case_name] = case_data
+
+    if cases_without_data:
+        print("Test cases with no responsive files:")
+        for case_name, case_data in cases_without_data.items():
+            description = case_data.get('description', 'No description available')
+            print(f"- {case_name}: {description}")
+        print()
+
+    if not cases_with_data:
+        print("No test cases with responsive files found for this module. Exiting.")
+        sys.exit(0)
+
+    print("Available test cases with data:")
+    sorted_cases_with_data = sorted(cases_with_data.keys())
+    for i, case_name in enumerate(sorted_cases_with_data, 1):
+        case_data = cases_with_data[case_name]
         input_path = case_data.get('make_data', {}).get('input_data_path', 'N/A')
         description = case_data.get('description', 'No description available')
         print(f"{i}. {case_name}")
@@ -50,13 +74,16 @@ def select_test_case(test_cases):
     while True:
         try:
             choice = int(input("Select a test case number: "))
-            if 1 <= choice <= len(test_cases):
-                selected_case_name = list(test_cases.keys())[choice - 1]
-                return selected_case_name, test_cases[selected_case_name]
+            if 1 <= choice <= len(sorted_cases_with_data):
+                selected_case_name = sorted_cases_with_data[choice - 1]
+                return selected_case_name, cases_with_data[selected_case_name]
             else:
                 print("Invalid choice. Please try again.")
         except ValueError:
             print("Invalid input. Please enter a number.")
+        except KeyboardInterrupt:
+            print("\nExiting...")
+            sys.exit(0)
 
 def extract_test_data(module_name, case_name, test_case, temp_folder):
     data_folder = Path('admin/test/cases/data') / module_name  # Updated path

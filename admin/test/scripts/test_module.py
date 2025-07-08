@@ -217,31 +217,39 @@ def get_artifact_names(module_name, test_cases):
     return list(artifact_names)
 
 def select_case(test_cases):
-    print("Available test cases:")
     sorted_cases = sorted(test_cases.keys())
     valid_cases = []
-    for i, case_num in enumerate(sorted_cases, 1):
+    invalid_cases = []
+
+    for case_num in sorted_cases:
+        case_data = test_cases[case_num]
+        has_files = any(artifact.get('file_count', 0) > 0
+                        for artifact in case_data['artifacts'].values())
+        if has_files:
+            valid_cases.append(case_num)
+        else:
+            invalid_cases.append(case_num)
+
+    if not valid_cases:
+        print("No valid test cases with responsive files found for this module.")
+        return None
+
+    if invalid_cases:
+        print("Test cases with no responsive files:")
+        for case_num in invalid_cases:
+            print(f"- {case_num}")
+        print()
+
+    print("Available test cases:")
+    for i, case_num in enumerate(valid_cases, 1):
         case_data = test_cases[case_num]
         input_path = case_data.get('make_data', {}).get('input_data_path', 'N/A')
         input_filename = os.path.basename(input_path)
         description = case_data.get('description', 'No description')
-
-        # Check if any artifact has files
-        has_files = any(artifact.get('file_count', 0) > 0
-                        for artifact in case_data['artifacts'].values())
-
-        if has_files:
-            valid_cases.append(case_num)
-            print(f"{len(valid_cases)}. {case_num}")
-            print(f"   Input: {input_filename}")
-            print(f"   Description: {description}")
-            print()
-        else:
-            print(f"Skipping case {case_num} (no files found for any artifact)")
-
-    if not valid_cases:
-        print("No valid test cases found with files.")
-        return None
+        print(f"{i}. {case_num}")
+        print(f"   Input: {input_filename}")
+        print(f"   Description: {description}")
+        print()
 
     print("\nEnter case number, name, or press Enter for all cases (Ctrl+C to exit):")
     try:
@@ -261,26 +269,52 @@ def select_case(test_cases):
         print("\nExiting...")
         sys.exit(0)
 
-def select_artifact(artifact_names):
-    print("Available artifacts:")
+def select_artifact(artifact_names, test_cases):
+    artifacts_with_data = []
+    artifacts_without_data = []
     sorted_artifacts = sorted(artifact_names)
-    for i, name in enumerate(sorted_artifacts, 1):
+
+    for name in sorted_artifacts:
+        has_data = False
+        for case_data in test_cases.values():
+            if name in case_data['artifacts'] and \
+                    case_data['artifacts'][name].get('file_count', 0) > 0:
+                has_data = True
+                break
+        if has_data:
+            artifacts_with_data.append(name)
+        else:
+            artifacts_without_data.append(name)
+
+    if artifacts_without_data:
+        print("Artifacts with no test data available:")
+        for name in artifacts_without_data:
+            print(f"- {name}")
+        print()
+
+    if not artifacts_with_data:
+        print("No test data found for any artifacts in this module. Exiting.")
+        sys.exit(0)
+
+    print("Available artifacts with test data:")
+    for i, name in enumerate(artifacts_with_data, 1):
         print(f"{i}. {name}")
 
-    print("\nEnter artifact number, name, or press Enter for all artifacts (Ctrl+C to exit):")
+    print("\nEnter artifact number, name, or press Enter for all artifacts "
+          "(Ctrl+C to exit):")
     try:
         artifact_choice = input().strip().lower()
         if artifact_choice == '' or artifact_choice == 'all':
             return 'all'
         try:
             index = int(artifact_choice) - 1
-            if 0 <= index < len(sorted_artifacts):
-                return sorted_artifacts[index]
+            if 0 <= index < len(artifacts_with_data):
+                return artifacts_with_data[index]
         except ValueError:
-            if artifact_choice in sorted_artifacts:
+            if artifact_choice in artifacts_with_data:
                 return artifact_choice
         print("Invalid choice. Please try again.")
-        return select_artifact(artifact_names)
+        return select_artifact(artifact_names, test_cases)
     except KeyboardInterrupt:
         print("\nExiting...")
         sys.exit(0)
@@ -316,7 +350,7 @@ def main(module_name, artifact_name=None, case_number=None):
         artifact_names = get_artifact_names(module_name, test_cases)
 
         if artifact_name is None:
-            artifact_name = select_artifact(artifact_names)
+            artifact_name = select_artifact(artifact_names, test_cases)
         elif artifact_name.lower() == 'all':
             artifact_name = 'all'
 
