@@ -387,12 +387,18 @@ def artifact_processor(func):
 
             if check_output_types('tsv', output_types):
                 tsv(report_folder, stripped_headers, txt_data_list if media_header_info else data_list, artifact_name)
-            
+
             if check_output_types('timeline', output_types):
                 timeline(report_folder, artifact_name, txt_data_list if media_header_info else data_list, stripped_headers)
 
             if check_output_types('lava', output_types):
-                table_name, object_columns, column_map = lava_process_artifact(category, module_name, artifact_name, data_headers, len(data_list), data_views=artifact_info.get("data_views"))
+                table_name, object_columns, column_map = lava_process_artifact(category,
+                                                                               module_name,
+                                                                               artifact_name,
+                                                                               data_headers,
+                                                                               len(data_list),
+                                                                               data_views=artifact_info.get("data_views"),
+                                                                               artifact_icon=icon)
                 if is_lava_only:
                     lava_only_info(category, artifact_name, table_name, len(data_list))
                 lava_insert_sqlite_data(table_name, data_list, object_columns, data_headers, column_map)
@@ -405,7 +411,7 @@ def artifact_processor(func):
                 logfunc(f"No data found for {artifact_name}")
                 if is_lava_only:
                     lava_only_info(category, artifact_name, artifact_name, 0)
-        
+
         return data_headers, data_list, source_path
     return wrapper
 

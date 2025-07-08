@@ -37,6 +37,7 @@ This guide outlines the process of adding a new test image to the LEAPP project'
   },
   "image_info": {
     "creation_date": "YYYY-MM-DD",
+    "os_name": "iPhone OS",
     "os_version": "iOS X.X.X",
     "device_model": "iPhone Model (if known)",
     "extraction_method": "Full Filesystem / Logical / etc.",

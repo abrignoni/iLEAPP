@@ -40,7 +40,7 @@
           "organization": "Magnet Forensics"
         },
         "image_info": {
-          "creation_date": "2023-01-01T00:00:00Z",
+          "creation_date": "2023-01-01",
           "os_name": "iPhone OS",
           "os_version": "14.7.1",
           "device_model": "Unknown",
@@ -66,7 +66,7 @@
           "organization": "BelkaSoft"
         },
         "image_info": {
-          "creation_date": "2023-01-01T00:00:00Z",
+          "creation_date": "2023-01-01",
           "os_name": "iPhone OS",
           "os_version": "16.3",  
           "device_model": "Unknown",

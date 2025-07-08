@@ -14,6 +14,14 @@
         "message": "Update last_update_date of modules using media manager with hardlinks"
       }
     },
+    "image_info": {
+      "creation_date": "2023-05-20",
+      "os_name": "iPhone OS",
+      "os_version": "15.3.1",
+      "device_model": "iPhone 8",
+      "extraction_method": "Full Filesystem",
+      "extraction_tool": "Cellebrite"
+    },
     "artifacts": {
       "bereal_preferences": {
         "search_patterns": "*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.BeReal.plist",
@@ -138,6 +146,14 @@
         "message": "Update last_update_date of modules using media manager with hardlinks"
       }
     },
+    "image_info": {
+      "creation_date": "2023-01-01",
+      "os_name": "iPhone OS",
+      "os_version": "14.7.1",
+      "device_model": "Unknown",
+      "extraction_method": "Full Filesystem",
+      "extraction_tool": "Magnet"
+    },
     "artifacts": {
       "bereal_preferences": {
         "search_patterns": "*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.BeReal.plist",
@@ -238,6 +254,14 @@
         "date": "2025-05-13T09:42:25+02:00",
         "message": "Update last_update_date of modules using media manager with hardlinks"
       }
+    },
+    "image_info": {
+      "creation_date": "2023-01-01",
+      "os_name": "iPhone OS",
+      "os_version": "16.3",  
+      "device_model": "Unknown",
+      "extraction_method": "Unknown",
+      "extraction_tool": "Unknown"
     },
     "artifacts": {
       "bereal_preferences": {
