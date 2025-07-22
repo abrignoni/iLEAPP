@@ -110,7 +110,7 @@ def AMDSQLiteDB_UsageEvents(files_found, report_folder, seeker, wrap_text, timez
     db_records = get_sqlite_db_records(source_path, query, attach_query)
     for record in db_records:
         app_name, bundle_name = results_for_id(record[3], process_ids(record[3], my_data_store, 'adamId'))
-        data_list.append((record[0], record[1], app_name, record[2], record[3], record[4], record[5], record[6], record[7]]))
+        data_list.append((record[0], record[1], app_name, record[2], record[3], record[4], record[5], record[6], record[7]))
                             
     data_headers = (('Timestamp', 'datetime'),'App Action','App Name','Bundle ID','AdamID','App Version','Foreground Duration (Secs)','Apple ID','User ID')
     return data_headers, data_list, source_path
