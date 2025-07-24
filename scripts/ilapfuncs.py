@@ -35,6 +35,9 @@ from scripts.lavafuncs import lava_process_artifact, lava_insert_sqlite_data, la
     lava_insert_sqlite_media_item, lava_insert_sqlite_media_references, lava_get_media_references, \
     lava_get_full_media_info
 
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+from asn1crypto import core
+
 os.path.basename = lru_cache(maxsize=None)(os.path.basename)
 
 thumbnail_root = '**/Media/PhotoData/Thumbnails/**/'
@@ -45,9 +48,21 @@ identifiers = {}
 icons = {}
 lava_only_artifacts = {}
 
+
+class InnerSequence(core.Sequence):
+    _fields = [
+        ('key', core.UTF8String),
+        ('value', core.Any),
+    ]
+
+class KeychainItem(core.SetOf):
+    _child_spec = InnerSequence
+
 class iOS:
     _version = None
     _keyChain = None
+
+
 
     @staticmethod
     def get_version():
@@ -68,9 +83,62 @@ class iOS:
                 iOS._keyChain = plistlib.load(fp)
 
     @staticmethod
+    def load_ufed_keychain(plist_path):
+        """Loads the keychain data from a plist file once."""
+        if iOS._keyChain is None:
+            with open(plist_path, 'rb') as fp:
+                iOS._keyChain = iOS.process_ufed_keychain(plistlib.load(fp))
+
+    @staticmethod
     def get_keychain():
         """Returns the loaded keychain data."""
         return iOS._keyChain
+
+    @staticmethod
+    def process_ufed_keychain(kcplist):
+
+        def normalize_to_bytes(val):
+            if isinstance(val, str):
+                return val.encode('utf-8')
+            return val
+
+        full_keychain = {}
+        for entry in kcplist['keychainEntries']:
+            ct = nska_deserialize.deserialize_plist_from_string(entry['data']['ciphertext'])
+            key = entry['data']['unwrappedKey']
+            aesgcm_decrypter = AESGCM(key)
+            pt = aesgcm_decrypter.decrypt(ct['SFInitializationVector'], ct['SFCiphertext'] + ct['SFAuthenticationCode'],
+                                         None)
+            as1_result = KeychainItem.load(pt)
+            md_wrapping_key = kcplist['classKeyIdxToUnwrappedMetadataClassKey'][str(entry['classKeyIdx'])]
+
+            metadata = entry['metadata']
+
+            metadata_wrapped_key = nska_deserialize.deserialize_plist_from_string(metadata['wrappedKey'])
+            metadata_key_decrypter = AESGCM(md_wrapping_key)
+            metadata_unwrapped_key = metadata_key_decrypter.decrypt(metadata_wrapped_key['SFInitializationVector'],
+                                                                   metadata_wrapped_key['SFCiphertext'] +
+                                                                   metadata_wrapped_key['SFAuthenticationCode'], None)
+
+            metadata_ciphertext = nska_deserialize.deserialize_plist_from_string(metadata['ciphertext'])
+            metadata_decrypter = AESGCM(metadata_unwrapped_key)
+            decrypted_metadata = metadata_decrypter.decrypt(metadata_ciphertext['SFInitializationVector'],
+                                                           metadata_ciphertext['SFCiphertext'] + metadata_ciphertext[
+                                                               'SFAuthenticationCode'], None)
+            md_as1_result = KeychainItem.load(decrypted_metadata)
+
+            full_entry = {'clas': entry['classKeyIdx'], 'rowid': entry['rowID']}
+            for item in as1_result:
+                full_entry[str(item['key'])] = normalize_to_bytes(item['value'].native)
+
+            for item in md_as1_result:
+                full_entry[str(item['key'])] = normalize_to_bytes(item['value'].native)
+
+            if entry['table'] not in full_keychain:
+                full_keychain[entry['table']] = []
+            full_keychain[entry['table']].append(full_entry)
+
+        return full_keychain
 
 class OutputParameters:
     '''Defines the parameters that are common for '''

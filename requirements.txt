@@ -27,3 +27,5 @@ pyliblzfse
 
 pytz
 simplekml
+cryptography
+asn1crypto
