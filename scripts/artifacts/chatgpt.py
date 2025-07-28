@@ -32,7 +32,6 @@ from scripts.ccl import ccl_segb1
 from scripts.ccl import ccl_segb2
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, media_to_html,webkit_timestampsconv, convert_utc_human_to_timezone,convert_ts_int_to_utc,is_platform_windows
-import scripts.artifacts.artGlobals
 
 
 def get_chatgpt(files_found, report_folder, seeker, wrap_text, time_offset):
@@ -43,6 +42,7 @@ def get_chatgpt(files_found, report_folder, seeker, wrap_text, time_offset):
     account_list_files_found = []
     voice_list = []
     photo_list = []
+    app_bundle_id = ''
     for file_found in files_found:
         file_found = str(file_found)
         #counter += 1 

@@ -1,12 +1,12 @@
 __artifacts_v2__ = {
     "get_biomeUseractmeta": {
-        "name": "Biome User Activity Metadata",
+        "name": "Biome - User Activity Metadata",
         "description": "Parses battery percentage entries from biomes",
         "author": "@JohnHyla",
         "version": "0.0.2",
         "date": "2024-10-17",
         "requirements": "none",
-        "category": "Biome User Act Meta",
+        "category": "Biome",
         "notes": "",
         "paths": ('*/Biome/streams/restricted/UserActivityMetadata/local*'),
         "output_types": "standard"

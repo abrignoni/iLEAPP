@@ -13,10 +13,9 @@
 import os
 import plistlib
 import nska_deserialize as nd
-import scripts.artifacts.artGlobals
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, kmlgen, is_platform_windows, media_to_html, open_sqlite_db_readonly
+from scripts.ilapfuncs import logfunc, tsv, timeline, kmlgen, is_platform_windows, media_to_html, open_sqlite_db_readonly, iOS
 
 
 def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -28,7 +27,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
       
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
-    iosversion = scripts.artifacts.artGlobals.versionf
+    iosversion = iOS.get_version()
     if version.parse(iosversion) <= version.parse("10.3.4"):
         logfunc("Unsupported ios version for PhotosData-Photos.sqlite assets have embedded files from iOS " + iosversion)
     if (version.parse(iosversion) >= version.parse("11")) & (version.parse(iosversion) < version.parse("13")):
@@ -2232,7 +2231,7 @@ def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, w
 
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
-    iosversion = scripts.artifacts.artGlobals.versionf
+    iosversion = iOS.get_version()
     if version.parse(iosversion) <= version.parse("10.3.4"):
         logfunc("Unsupported ios version for Syndication.photoslibrary-database-Photos.sqlite assets have embedded files from iOS " + iosversion)
     if (version.parse(iosversion) >= version.parse("11")) & (version.parse(iosversion) < version.parse("13")):

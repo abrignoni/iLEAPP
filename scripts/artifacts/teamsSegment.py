@@ -1,5 +1,4 @@
 import json
-import scripts.artifacts.artGlobals #use to get iOS version -> iOSversion = scripts.artifacts.artGlobals.versionf
 
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, timeline, kmlgen, tsv, is_platform_windows
@@ -18,29 +17,29 @@ def get_teamsSegment(files_found, report_folder, seeker, wrap_text, timezone_off
                 timestamp = serial[0].replace('T',' ')
                 #print(serial[1])
                 if serial[1] == 'location':
-                    locationtimestamp = serial[2]['sourceTimestamp']
+                    locationtimestamp = serial[2].get('sourceTimestamp', '')
                     locationtimestamp = locationtimestamp.replace('T',' ')
-                    longitude = serial[2]['longitude']
-                    latitude = serial[2]['latitude']
-                    speed = serial[2]['speed']
-                    altitude = serial[2]['altitude']
-                    vertacc = serial[2]['verticalAccuracy']
-                    horiacc = serial[2]['horizontalAccuracy']
+                    longitude = serial[2].get('longitude', '')
+                    latitude = serial[2].get('latitude', '')
+                    speed = serial[2].get('speed', '')
+                    altitude = serial[2].get('altitude', '')
+                    vertacc = serial[2].get('verticalAccuracy', '')
+                    horiacc = serial[2].get('horizontalAccuracy', '')
                     data_list_location.append((locationtimestamp, longitude, latitude, speed, altitude, vertacc, horiacc))
                     
                 if serial[1] == 'motion':
-                    motionact = (serial[2]['activityName'])
+                    motionact = (serial[2].get('activityName', ''))
                     data_list_motion.append((timestamp, motionact))
                     
                 if serial[1] == 'timeCheck':
-                    tczone = serial[2]['timezone']
-                    tcoffset = serial[2]['offset']
-                    tcreason = serial[2]['reason']
+                    tczone = serial[2].get('timezone', '')
+                    tcoffset = serial[2].get('offset', '')
+                    tcreason = serial[2].get('reason', '')
                     data_list_timecheck.append((timestamp, tczone, tcoffset, tcreason))
                     
                 if serial[1] == 'power':
-                    plugged = serial[2]['isPluggedIn']
-                    batlvl = serial[2]['batteryLevel']
+                    plugged = serial[2].get('isPluggedIn', '')
+                    batlvl = serial[2].get('batteryLevel', '')
                     data_list_power.append((timestamp, plugged, batlvl))
                     
                 if serial[1] == 'stateChange':

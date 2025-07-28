@@ -129,7 +129,7 @@ def get_burner_accounts(files_found, report_folder, seeker, wrap_text, timezone_
             db = open_sqlite_db_readonly(file_found)
             cursor = db.cursor()
 
-            if does_column_exist_in_db(db, 'ZBURNER', 'ZUSER'):
+            if does_column_exist_in_db(file_found, 'ZBURNER', 'ZUSER'):
                 cursor.execute('''
                 SELECT 
                     U.Z_PK,
@@ -302,7 +302,7 @@ def get_burner_numbers(files_found, report_folder, seeker, wrap_text, timezone_o
             report_file = file_found
             db = open_sqlite_db_readonly(file_found)
             cursor = db.cursor()
-            if does_column_exist_in_db(db, 'ZBURNER', 'ZUSER'):
+            if does_column_exist_in_db(file_found, 'ZBURNER', 'ZUSER'):
                 cursor.execute('''
                 SELECT
                     B.Z_PK,
@@ -428,17 +428,17 @@ def get_burner_messages(files_found, report_folder, seeker, wrap_text, timezone_
             report_file = file_found if (file_found == 'Unknown') else report_file + ', ' + file_found
             db = open_sqlite_db_readonly(file_found)
             # 5.4.11
-            if does_column_exist_in_db(db, 'ZMESSAGE', 'ZCONVERSATIONID'):
+            if does_column_exist_in_db(file_found, 'ZMESSAGE', 'ZCONVERSATIONID'):
                 extra_join_thread = ' OR (M.ZMESSAGETHREAD IS NULL AND M.ZBURNERID = MT.ZBURNERID AND M.ZCONVERSATIONID = MT.ZCONVERSATIONID)'
             # 5.3.8
-            elif does_column_exist_in_db(db, 'ZMESSAGE', 'M.ZCONTACTID'):
+            elif does_column_exist_in_db(file_found, 'ZMESSAGE', 'M.ZCONTACTID'):
                 extra_join_thread = ' OR (M.ZMESSAGETHREAD IS NULL AND M.ZBURNERID = MT.ZBURNERID AND coalesce(M.ZCONTACTID, M.ZCONTACTPHONENUMBER) = MT.ZCONTACTPHONENUMBER)'
             # 4.0.18, 4.3.3
             else:
                 extra_join_thread = '' # OR (M.ZMESSAGETHREAD IS NULL AND M.ZBURNERID = MT.ZBURNERID AND M.ZCONTACTPHONENUMBER = MT.ZCONTACTPHONENUMBER)'
 
             # 5.3.8, 5.4.11
-            if does_column_exist_in_db(db, 'ZMESSAGE', 'ZCONTACTID'):
+            if does_column_exist_in_db(file_found, 'ZMESSAGE', 'ZCONTACTID'):
                 extra_join_contact = ' OR (MT.ZCONTACT IS NULL AND coalesce(M.ZCONTACTID, M.ZCONTACTPHONENUMBER) = C.ZPHONENUMBER)'
             # 4.0.18 e 4.3.3
             else:

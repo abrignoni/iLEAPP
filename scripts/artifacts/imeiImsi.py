@@ -2,9 +2,10 @@ __artifacts_v2__ = {
     "imeiImsi": {
         "name": "IMEI - IMSI",
         "description": "Extracts Cellular information",
-        "author": "@AlexisBrignoni",
-        "version": "0.2",
-        "date": "2023-10-03",
+        "author": "@AlexisBrignoni - @stark4n6",
+        "version": "0.3",
+        "creation_date": "2023-10-03",
+        "last_update_date": "2025-02-04",
         "requirements": "none",
         "category": "Identifiers",
         "notes": "",
@@ -12,7 +13,6 @@ __artifacts_v2__ = {
         "output_types": ["html", "tsv", "lava"]
     }
 }
-
 
 import plistlib
 from scripts.ilapfuncs import artifact_processor, device_info
@@ -27,15 +27,15 @@ def imeiImsi(files_found, report_folder, seeker, wrap_text, timezone_offset):
         for key, val in pl.items():
             if key == 'PersonalWallet':
                 val = (list(val.values())[0])
-                lastgoodimsi = val['CarrierEntitlements']['lastGoodImsi']
+                lastgoodimsi = val['CarrierEntitlements'].get('lastGoodImsi','')
                 data_list.append(('Last Good IMSI', lastgoodimsi))
                 device_info("Cellular", "Last Good IMSI", lastgoodimsi, source_path)
                 
-                selfregitrationupdateimsi = val['CarrierEntitlements']['kEntitlementsSelfRegistrationUpdateImsi']
+                selfregitrationupdateimsi = val['CarrierEntitlements'].get('kEntitlementsSelfRegistrationUpdateImsi','')
                 data_list.append(('Self Registration Update IMSI', selfregitrationupdateimsi))
                 device_info("Cellular", "Self Registration Update IMSI", selfregitrationupdateimsi, source_path)
                 
-                selfregistrationupdateimei = val['CarrierEntitlements']['kEntitlementsSelfRegistrationUpdateImei']
+                selfregistrationupdateimei = val['CarrierEntitlements'].get('kEntitlementsSelfRegistrationUpdateImei','')
                 data_list.append(('Self Registration Update IMEI', selfregistrationupdateimei))
                 device_info("Cellular", "Self Registration Update IMEI", selfregistrationupdateimei, source_path)
                 
@@ -52,5 +52,5 @@ def imeiImsi(files_found, report_folder, seeker, wrap_text, timezone_offset):
             else:
                 data_list.append((key, val ))
     
-    data_headers = ('Property', 'Property Value' )     
+    data_headers = ('Property', 'Property Value')
     return data_headers, data_list, source_path

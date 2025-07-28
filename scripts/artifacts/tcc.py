@@ -1,48 +1,41 @@
 __artifacts_v2__ = {
-    "tcc": {
-        "name": "Application Permissions",
-        "description": "Extract application permissions from TCC.db database",
-        "author": "@AlexisBrignoni - @KevinPagano3 - @johannplw",
-        "version": "0.7.2",
-        "date": "2020-12-15",
-        "requirements": "none",
-        "category": "App Permissions",
-        "notes": "",
-        "paths": ('*/mobile/Library/TCC/TCC.db*',),
-        "output_types": "standard",
-        "function": "get_tcc"
+    'tcc': {
+        'name': 'Application Permissions',
+        'description': 'Extract application permissions from TCC.db database',
+        'author': '@AlexisBrignoni - @KevinPagano3 - @johannplw',
+        'creation_date': '2020-12-15',
+        'last_update_date': '2025-04-07',
+        'requirements': 'none',
+        'category': 'App Permissions',
+        'notes': '',
+        'paths': ('*/mobile/Library/TCC/TCC.db*','*/logs/Accessibility/TCC.db*'),
+        'output_types': 'standard',
+        'artifact_icon': 'key'
     }
 }
 
 
-#from scripts.artifact_report import ArtifactHtmlReport
-#from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, does_column_exist_in_db, convert_ts_human_to_utc, convert_utc_human_to_timezone
-from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, does_column_exist_in_db, convert_ts_human_to_utc, convert_utc_human_to_timezone
+from scripts.ilapfuncs import artifact_processor, \
+    get_file_path, get_sqlite_db_records, does_column_exist_in_db, \
+    convert_unix_ts_to_utc
+
 
 @artifact_processor
-def get_tcc(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    for file_found in files_found:
-        file_found = str(file_found)
-        
-        if file_found.endswith('TCC.db'):
-            break
-        
-    db = open_sqlite_db_readonly(file_found)
-    cursor = db.cursor()
+def tcc(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    source_path = get_file_path(files_found, 'TCC.db')
+    data_list = []
 
-    if does_column_exist_in_db(db, 'access', 'last_modified'):
-        last_modified_timestamp = "datetime(last_modified,'unixepoch') as 'Last Modified Timestamp'"
-    else:
-        last_modified_timestamp = ""
-    
-    if does_column_exist_in_db(db, 'access', 'auth_value'):
+    last_modified_timestamp_exists = does_column_exist_in_db(
+        source_path, 'access', 'last_modified')
+
+    if does_column_exist_in_db(source_path, 'access', 'auth_value'):
         access = '''
         case auth_value
             when 0 then 'Not allowed'
             when 2 then 'Allowed'
             when 3 then 'Limited'
             else auth_value
-        end as "Access"
+        end as 'Access'
         '''
     else:
         access = '''
@@ -50,61 +43,43 @@ def get_tcc(files_found, report_folder, seeker, wrap_text, timezone_offset):
             when 0 then 'Not allowed'
             when 1 then 'Allowed'
             else allowed
-        end as "Access"
+        end as 'Access'
         '''
 
-    prompt_count = does_column_exist_in_db(db, 'access', 'prompt_count')
+    prompt_count_exists = does_column_exist_in_db(
+        source_path, 'access', 'prompt_count')
 
-    cursor.execute(f'''
-    select {last_modified_timestamp if last_modified_timestamp else "''"},
-    client,
-    service,
-    {access},
-    {'prompt_count' if prompt_count else "''"}
-    from access
-    order by client
-    ''')
-    
-    all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
-    if usageentries > 0:
-        data_list =[]
-        for row in all_rows:
-            if last_modified_timestamp:
-                timestamp = convert_ts_human_to_utc(row[0])
-                timestamp = convert_utc_human_to_timezone(timestamp,timezone_offset)        
-                data_list.append((timestamp, row[1], row[2].replace("kTCCService",""), row[3]))
-            else:
-                data_list.append((row[1], row[2].replace("kTCCService",""), row[3], row[4]))
+    query = f'''
+    SELECT
+        {'last_modified,' if last_modified_timestamp_exists else ''}
+        client,
+        service,
+        {access}
+        {',prompt_count' if prompt_count_exists else ''}
+    FROM access
+    ORDER BY client
+    '''
 
-    if usageentries > 0:
-        """
-        description = "Applications permissions"
-        report = ArtifactHtmlReport('TCC - Permissions')
-        report.start_artifact_report(report_folder, 'TCC - Permissions', description)
-        report.add_script()
-        if last_modified_timestamp:
-            data_headers = ('Last Modified Timestamp','Bundle ID','Service','Access')
+    if last_modified_timestamp_exists:
+        data_headers = (
+            ('Last Modified Timestamp', 'datetime'),
+            'Bundle ID',
+            'Service',
+            'Access')
+    else:
+        data_headers = ('Bundle ID', 'Service', 'Access', 'Prompt Count')
+
+    db_records = get_sqlite_db_records(source_path, query)
+
+    for record in db_records:
+        if last_modified_timestamp_exists:
+            last_modified_timestamp = convert_unix_ts_to_utc(
+                record['last_modified'])
+            data_list.append(
+                (last_modified_timestamp, record[1],
+                 record[2].replace('kTCCService', ''), record[3]))
         else:
-            data_headers = ('Bundle ID','Service','Access','Prompt Count')
-        report.write_artifact_data_table(data_headers, data_list, file_found, html_escape=False)
-        report.end_artifact_report()
-        tsvname = 'TCC - Permissions'
-        tsv(report_folder, data_headers, data_list, tsvname)
-        
-        tlactivity = 'TCC - Permissions'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-        """
-        if last_modified_timestamp:
-            data_headers = (
-                ('Last Modified Timestamp', 'datetime'), 
-                'Bundle ID', 
-                'Service', 
-                'Access')
-        else:
-            data_headers = ('Bundle ID', 'Service', 'Access', 'Prompt Count')    
-        
-        return data_headers, data_list, file_found
-        
-    db.close()
-    
+            data_list.append((record[1], record[2].replace('kTCCService', ''),
+                              record[3], record[4]))
+
+    return data_headers, data_list, source_path

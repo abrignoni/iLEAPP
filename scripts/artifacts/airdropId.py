@@ -3,8 +3,8 @@ __artifacts_v2__ = {
         "name": "Airdrop ID",
         "description": "Extract Airdrop ID",
         "author": "@AlexisBrignoni",
-        "version": "0.2.1",
-        "date": "2023-10-03",
+        "creation_date": "2023-10-03",
+        "last_update_date": "2025-01-28",
         "requirements": "none",
         "category": "Identifiers",
         "notes": "",
@@ -23,8 +23,10 @@ def airdropId(files_found, report_folder, seeker, wrap_text, timezone_offset):
     pl = get_plist_file_content(source_path)
     for key, val in pl.items():
         if key == 'AirDropID':
-            device_info("Airdrop", "Airdrop ID", val, source_path)
-            break
-
+            device_info("AirDrop", "AirDrop ID", val, source_path)
+                        
+        elif key == 'DiscoverableMode':
+            device_info("AirDrop", "Discoverable Mode", val, source_path)
+            
     # Return empty data since this artifact only collects device info
     return (), [], source_path

@@ -111,7 +111,7 @@ def knowledgeC_DevicePluginStatus(files_found, report_folder, seeker, wrap_text,
         cursor = db.cursor()
 
         does_adapteriswireless_exist = does_column_exist_in_db(
-            db, 'ZSTRUCTUREDMETADATA', 'Z_DKDEVICEISPLUGGEDINMETADATAKEY__ADAPTERISWIRELESS')
+            db_file, 'ZSTRUCTUREDMETADATA', 'Z_DKDEVICEISPLUGGEDINMETADATAKEY__ADAPTERISWIRELESS')
         if does_adapteriswireless_exist:
             adapter_is_wireless = '''
             CASE ZSTRUCTUREDMETADATA.Z_DKDEVICEISPLUGGEDINMETADATAKEY__ADAPTERISWIRELESS
@@ -173,7 +173,7 @@ def knowledgeC_MediaPlaying(files_found, report_folder, seeker, wrap_text, timez
         cursor = db.cursor()
 
         does_airplayvideo_exist = does_column_exist_in_db(
-            db, 'ZSTRUCTUREDMETADATA', 'Z_DKNOWPLAYINGMETADATAKEY__ISAIRPLAYVIDEO')
+            db_file, 'ZSTRUCTUREDMETADATA', 'Z_DKNOWPLAYINGMETADATAKEY__ISAIRPLAYVIDEO')
         if does_airplayvideo_exist:
             is_airplay_video = '''
             CASE ZSTRUCTUREDMETADATA.Z_DKNOWPLAYINGMETADATAKEY__ISAIRPLAYVIDEO

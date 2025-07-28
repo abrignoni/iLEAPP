@@ -37,7 +37,7 @@ body_start = \
 """
     <!-- Start your project here-->
     <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
-        <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">{0}</a>
+        <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="index.html">{0}</a>
         <div class="custom-control custom-switch">
             <input type="checkbox" class="custom-control-input" id="darkSwitch" />
             <label class="custom-control-label mr-2" for="darkSwitch" style="color:white">Dark Switch</label>
@@ -127,7 +127,8 @@ body_main_header = \
 body_main_data_title = \
 """
                 <div class="justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="display-5">{0}</h1>
+                    <img src="_elements/iLEAPP_banner.png" alt="iLEAPP banner">
+                    <h3 class="display-5">{0}</h1>
                     <h6 class="animated fadeIn mb-3">{1}</h6>
                 </div>
 """
@@ -171,7 +172,7 @@ r"""
 """
 # tabs code for Case information in index.html
 # Variables are {case_table_code}, {script_run_log}, {processed_file_list}
-tabs_code = \
+tabs_nav = \
 """
     <ul class="nav nav-tabs" id="myTab" role="tablist">
         <li class="nav-item">
@@ -186,14 +187,32 @@ tabs_code = \
         <li class="nav-item">
             <a class="nav-link" id="files-list-tab" data-toggle="tab" href="#files" role="tab" aria-controls="files" aria-selected="false">Processed files list</a>
         </li>
+"""
+tabs_nav_with_lava = tabs_nav + \
+"""
+        <li class="nav-item">
+            <a class="nav-link" id="lava-tab" data-toggle="tab" href="#lava-only" role="tab" aria-controls="lava" aria-selected="false">LAVA only artifacts</a>
+        </li>
+"""
+tabs_contents = \
+"""
     </ul>
     <div class="tab-content" id="myTabContent">
         <div class="tab-pane fade show active" id="case" role="tabpanel" aria-labelledby="case-tab"><br />{}</div>
         <div class="tab-pane fade" id="device" role="tabpanel" aria-labelledby="device-tab"><br />{}</div>
         <div class="tab-pane fade text-monospace" id="run" role="tabpanel" aria-labelledby="script-run-tab"><br />{}</div>
         <div class="tab-pane fade" id="files" role="tabpanel" aria-labelledby="profile-tab"><br />{}</div>
+"""
+tabs_code_with_lava = tabs_nav_with_lava + tabs_contents + \
+"""
+        <div class="tab-pane fade" id="lava-only" role="tabpanel" aria-labelledby="lava-tab"><br />{}</div>
     </div>
 """
+tabs_code = tabs_nav + tabs_contents + \
+"""
+    </div>
+"""
+
 # thank you note , at bottom of index.html
 thank_you_note = \
 """
@@ -203,7 +222,7 @@ thank_you_note = \
                     <div class="card bg-white mb-3" style="max-width: 500px; margin:auto">
                         <div class="row no-gutters">
                             <center><div class="col-md-4">
-                                <img src="_elements/logo.jpg" class="card-img" alt="DFIR">
+                                <img src="_elements/logo.png" class="card-img" alt="iLEAPP Logo">
                             </div>
                             <div class="col-md-8">
                             <div class="card-body">

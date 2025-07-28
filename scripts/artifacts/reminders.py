@@ -15,7 +15,7 @@ def get_reminders(files_found, report_folder, seeker, wrap_text, timezone_offset
 
         if file_found.endswith('.sqlite'):
             db = open_sqlite_db_readonly(file_found)
-            answer = does_column_exist_in_db(db, 'ZREMCDOBJECT', 'ZLASTMODIFIEDDATE')
+            answer = does_column_exist_in_db(file_found, 'ZREMCDOBJECT', 'ZLASTMODIFIEDDATE')
         
             if answer:
                 #db = open_sqlite_db_readonly(file_found)
@@ -40,7 +40,7 @@ def get_reminders(files_found, report_folder, seeker, wrap_text, timezone_offset
                         createdate = convert_utc_human_to_timezone(createdate,timezone_offset)
                         
                         moddate = convert_ts_human_to_utc(row[1])
-                        moddate = convert_utc_human_to_timezone(moddate,timezone)
+                        moddate = convert_utc_human_to_timezone(moddate,timezone_offset)
                         data_list.append((createdate, row[3], row[2], moddate, location_file_found))
                         
                     dir_file_found = dirname(sqlite_file).split('Stores', 1)[0] + 'Stores'

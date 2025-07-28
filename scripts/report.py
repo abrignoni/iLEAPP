@@ -1,6 +1,6 @@
 import html
 import os
-import pathlib
+from pathlib import Path
 import shutil
 
 from collections import OrderedDict
@@ -64,7 +64,7 @@ def get_search_mode_categories():
 search_set = get_search_mode_categories()
 
 
-def generate_report(reportfolderbase, time_in_secs, time_HMS, extraction_type, image_input_path, casedata, profile_filename, icons):
+def generate_report(reportfolderbase, time_in_secs, time_HMS, extraction_type, image_input_path, casedata, profile_filename, icons, lava_only):
     control = None
     side_heading = \
         """
@@ -89,11 +89,13 @@ def generate_report(reportfolderbase, time_in_secs, time_HMS, extraction_type, i
     for root, dirs, files in sorted(os.walk(reportfolderbase)):
         files = sorted(files)
         for file in files:
+            if file.startswith('._'):
+                continue
             if file.endswith(".temphtml"):
                 fullpath = (os.path.join(root, file))
                 head, tail = os.path.split(fullpath)
                 filename = tail.replace(".temphtml", "")
-                p = pathlib.Path(fullpath)
+                p = Path(fullpath)
                 SectionHeader = (p.parts[-2])
                 if SectionHeader == '_elements':
                     pass
@@ -134,7 +136,7 @@ def generate_report(reportfolderbase, time_in_secs, time_HMS, extraction_type, i
                 pass # Perhaps it was not empty!
 
     # Create index.html's page content
-    create_index_html(reportfolderbase, time_in_secs, time_HMS, extraction_type, image_input_path, nav_list_data, casedata, profile_filename)
+    create_index_html(reportfolderbase, time_in_secs, time_HMS, extraction_type, image_input_path, nav_list_data, casedata, profile_filename, lava_only)
     elements_folder = os.path.join(reportfolderbase, '_HTML', '_elements')
     __location__ = os.path.dirname(os.path.abspath(__file__))
 
@@ -157,9 +159,11 @@ def get_file_content(path):
     f.close()
     return data
 
-def create_index_html(reportfolderbase, time_in_secs, time_HMS, extraction_type, image_input_path, nav_list_data, casedata, profile_filename):
+def create_index_html(reportfolderbase, time_in_secs, time_HMS, extraction_type, image_input_path, nav_list_data, casedata, profile_filename, lava_only):
     '''Write out the index.html page to the report folder'''
     case_list = []
+    agency_logo_mimetype = ''
+    agency_logo_b64 = ''
     content = '<br />'
     content += """
                    <div class="card bg-white" style="padding: 20px;">
@@ -168,6 +172,12 @@ def create_index_html(reportfolderbase, time_in_secs, time_HMS, extraction_type,
 
     if len(casedata) > 0:
         for key, value in casedata.items():
+            if 'Agency Logo' in key:
+                if key == 'Agency Logo mimetype':
+                    agency_logo_mimetype = value
+                if key == 'Agency Logo base64':
+                    agency_logo_b64 = value
+                continue
             if value:
                 case_list.append([key, value])
     
@@ -181,7 +191,16 @@ def create_index_html(reportfolderbase, time_in_secs, time_HMS, extraction_type,
         ['Processing time', f'{time_HMS} (Total {time_in_secs} seconds)']
     ]
     
-    tab1_content = generate_key_val_table_without_headings('', case_list) + \
+    tab1_content = generate_key_val_table_without_headings('', case_list, agency_logo_mimetype, agency_logo_b64)
+    if lava_only:
+        tab1_content += \
+        """
+            <p class="note alert-warning mb-4">
+            This report contains artifacts that are likely to return too much data to be viewed in a Web browser.<br>
+            Please review the <i>'LAVA only artifacts'</i> tab for a listing of those artifacts and information on how to open this report using LAVA.
+            </p>
+        """
+    tab1_content += \
         """
             <p class="note note-primary mb-4">
             All dates and times are in UTC unless noted otherwise!
@@ -189,18 +208,24 @@ def create_index_html(reportfolderbase, time_in_secs, time_HMS, extraction_type,
         """
 
     # Get script run log (this will be tab2)
-    devinfo_files_path = os.path.join(reportfolderbase, 'Script Logs', 'DeviceInfo.html')
+    devinfo_files_path = os.path.join(reportfolderbase, '_HTML', '_Script_Logs', 'DeviceInfo.html')
     tab2_content = get_file_content(devinfo_files_path)
 
     # Get script run log (this will be tab3)
-    script_log_path = os.path.join(reportfolderbase, 'Script Logs', 'Screen Output.html')
+    script_log_path = os.path.join(reportfolderbase, '_HTML', '_Script_Logs', 'Screen_Output.html')
     tab3_content = get_file_content(script_log_path)
 
-    # Get processed files list (this will be tab3)
-    processed_files_path = os.path.join(reportfolderbase, 'Script Logs', 'ProcessedFilesLog.html')
+    # Get processed files list (this will be tab4)
+    processed_files_path = os.path.join(reportfolderbase, '_HTML', '_Script_Logs', 'ProcessedFilesLog.html')
     tab4_content = get_file_content(processed_files_path)
 
-    content += tabs_code.format(tab1_content, tab2_content, tab3_content, tab4_content)
+    # Get processed LAVA list (this will be tab5)
+    if lava_only:
+        lava_path = os.path.join(reportfolderbase, '_HTML', '_Script_Logs', 'Lava_only_artifacts_log.html')
+        tab5_content = get_file_content(lava_path)
+        content += tabs_code_with_lava.format(tab1_content, tab2_content, tab3_content, tab4_content, tab5_content)
+    else:
+        content += tabs_code.format(tab1_content, tab2_content, tab3_content, tab4_content)
 
     content += '</div>'  # CARD end
 
@@ -214,16 +239,17 @@ def create_index_html(reportfolderbase, time_in_secs, time_HMS, extraction_type,
     body_description = 'iLEAPP is an open source project that aims to parse every known iOS artifact for the purpose of forensic analysis.'
     active_nav_list_data = mark_item_active(nav_list_data, filename) + nav_bar_script
 
-    f = open(os.path.join(reportfolderbase, '_HTML', filename), 'w', encoding='utf8')
-    f.write(page_header.format(page_title))
-    f.write(body_start.format(f"iLEAPP {ileapp_version}"))
-    f.write(body_sidebar_setup + active_nav_list_data + body_sidebar_trailer)
-    f.write(body_main_header + body_main_data_title.format(body_heading, body_description))
-    f.write(content)
-    f.write(thank_you_note)
-    f.write(credits_code)
-    f.write(body_main_trailer + body_end + nav_bar_script_footer + page_footer)
-    f.close()
+    html_reportfolderbase = Path(reportfolderbase).joinpath('_HTML')
+    html_reportfolderbase.mkdir(exist_ok=True)
+    with html_reportfolderbase.joinpath(filename).open('w', encoding='utf8') as f:
+        f.write(page_header.format(page_title))
+        f.write(body_start.format(f"iLEAPP {ileapp_version}"))
+        f.write(body_sidebar_setup + active_nav_list_data + body_sidebar_trailer)
+        f.write(body_main_header + body_main_data_title.format(body_heading, body_description))
+        f.write(content)
+        f.write(thank_you_note)
+        f.write(credits_code)
+        f.write(body_main_trailer + body_end + nav_bar_script_footer + page_footer)
 
     # Create Index Redirection Page
     redirection = \
@@ -261,7 +287,7 @@ def generate_authors_table_code(ileapp_contributors):
         authors_data += individual_contributor.format(author_name, author_data)
     return authors_data
 
-def generate_key_val_table_without_headings(title, data_list, html_escape=True, width="70%"):
+def generate_key_val_table_without_headings(title, data_list, agency_logo_mimetype, agency_logo_b64):
     '''Returns the html code for a key-value table (2 cols) without col names'''
     code = ''
     if title:
@@ -269,7 +295,7 @@ def generate_key_val_table_without_headings(title, data_list, html_escape=True, 
     table_header_code = \
         """
         <div class="table-responsive">
-            <table class="table table-bordered table-hover table-sm" width={}>
+            <table class="table table-bordered table-hover table-sm" width="70%">
                 <tbody>
         """
     table_footer_code = \
@@ -278,15 +304,17 @@ def generate_key_val_table_without_headings(title, data_list, html_escape=True, 
             </table>
         </div>
         """
-    code += table_header_code.format(width)
+    code += table_header_code
 
     # Add the rows
-    if html_escape:
-        for row in data_list:
-            code += '<tr>' + ''.join( ('<td>{}</td>'.format(html.escape(str(x))) for x in row) ) + '</tr>'
-    else:
-        for row in data_list:
-            code += '<tr>' + ''.join( ('<td>{}</td>'.format(str(x)) for x in row) ) + '</tr>'
+    code += '<tr>'
+    if agency_logo_b64 and agency_logo_mimetype:
+        code += f'<td rowspan="{len(data_list) + 1}" style="text-align: center; vertical-align: middle">\
+            <img src="data:{agency_logo_mimetype};base64,{agency_logo_b64}" \
+            style="min-width: 50px; max-width:200px"></div>\
+            </td>'
+    for row in data_list:
+        code += '<tr>' + ''.join( ('<td>{}</td>'.format(html.escape(str(x))) for x in row) ) + '</tr>'
 
     # Add footer
     code += table_footer_code
@@ -311,6 +339,3 @@ def mark_item_active(data, itemname):
     else:
         ret = data[0: pos] + " active" + data[pos:]
         return ret
-    
-    
-    

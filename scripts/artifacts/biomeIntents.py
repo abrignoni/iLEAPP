@@ -1,12 +1,12 @@
 __artifacts_v2__ = {
     "get_biomeIntents": {
-        "name": "Biome Intents",
+        "name": "Biome - Intents",
         "description": "Parses battery percentage entries from biomes",
         "author": "@JohnHyla",
         "version": "0.0.2",
         "date": "2024-10-17",
         "requirements": "none",
-        "category": "Biome Intents",
+        "category": "Biome",
         "notes": "",
         "paths": ('*/AppIntent/local/*'),
         "output_types": "none",

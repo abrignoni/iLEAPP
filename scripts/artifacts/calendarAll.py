@@ -39,7 +39,7 @@ __artifacts_v2__ = {
 
 from scripts.artifact_report import ArtifactHtmlReport
 from urllib.parse import unquote
-from scripts.ilapfuncs import open_sqlite_db_readonly, does_table_exist, does_column_exist_in_db,convert_ts_human_to_utc, convert_utc_human_to_timezone, artifact_processor, get_birthdate
+from scripts.ilapfuncs import open_sqlite_db_readonly, does_table_exist_in_db, does_column_exist_in_db,convert_ts_human_to_utc, convert_utc_human_to_timezone, artifact_processor, get_birthdate
 
 
 def get_sharees(cursor):
@@ -155,7 +155,7 @@ def calendarEvents(files_found, report_folder, seeker, wrap_text, timezone_offse
 
             # Calendar Events
 
-            attachment_file_exists = does_table_exist(db, 'AttachmentFile')
+            attachment_file_exists = does_table_exist_in_db(file_found, 'AttachmentFile')
 
             if attachment_file_exists:
                 attachments = '''
@@ -173,7 +173,7 @@ def calendarEvents(files_found, report_folder, seeker, wrap_text, timezone_offse
                 GROUP BY Attachment.owner_id) AS 'Attachments',
                 '''
             
-            conference_url_detected_exists = does_column_exist_in_db(db, 'CalendarItem', 'conference_url_detected')
+            conference_url_detected_exists = does_column_exist_in_db(file_found, 'CalendarItem', 'conference_url_detected')
             conference_url = f"CalendarItem.conference_url{'_detected' if conference_url_detected_exists else ''} AS 'Conference URL',"
 
 

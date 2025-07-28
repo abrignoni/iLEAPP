@@ -1,5 +1,5 @@
 
-ileapp_version = '2.0.1'
+ileapp_version = '2.2.0'
 
 # Contributors List
 # Format = [ Name, Blog-url, Twitter-handle, Github-url]
@@ -43,5 +43,10 @@ ileapp_contributors = [
     ['Ruud Schramp', '', '', 'https://github.com/Schramp'],
     ['Matt Beers', 'https://www.linkedin.com/in/mattbeersii','','https://github.com/dabeersboys'],
     ['Django Faiola', 'https://djangofaiola.blogspot.com', '@DjangoFaiola', 'https://github.com/djangofaiola'],
-    ['Marco Neumann', 'https://bebinary4n6.blogspot.com/', '@kalinko4n6', 'https://github.com/kalink0']
+    ['Marco Neumann', 'https://bebinary4n6.blogspot.com/', '@kalinko4n6', 'https://github.com/kalink0'],
+    ['Bruno Fischer', 'https://german4n6.blogspot.com/', '', 'https://github.com/BrunoFischerGermany'],
+    ['Christian Peter', 'https://www.linkedin.com/in/christian-peter-49b4ab182/', '@DasZamomin', 'https://github.com/prosch88'],
+    ['James McGee', 'https://sqlmcgee.wordpress.com/', '@SQL_McGee', 'https://github.com/sqlmcgee'],
+    ['Metadata Forensics', 'https://metadataperspective.com/', '', 'https://github.com/metadataforensics/'],
+    ['Bruno Constanzo', 'https://www.linkedin.com/in/bruno-constanzo/', '@bruno_constanzo', 'https://github.com/bconstanzo/'],
 ]

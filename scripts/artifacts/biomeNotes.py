@@ -1,12 +1,12 @@
 __artifacts_v2__ = {
     "get_biomeNotes": {
-        "name": "Biome Notes",
+        "name": "Biome - Notes",
         "description": "Parses notes entries from biomes",
         "author": "@JohnHyla",
         "version": "0.0.2",
         "date": "2024-10-17",
         "requirements": "none",
-        "category": "Biome Notes",
+        "category": "Biome",
         "notes": "",
         "paths": ('*/Biome/streams/restricted/NotesContent/local/*'),
         "output_types": "none",

@@ -1,44 +1,62 @@
 __artifacts_v2__ = {
     'systemVersionPlist': {
         'name': 'System Version plist',
-        'description': 'Parses basic data from device acquisition */System/Library/CoreServices/SystemVersion.plist'
-                       ' which contains some important data related to a device being analyzed to include'
-                       ' the iOS version. Previously named Ph99SystemVersionPlist.py',
+        'description': 'Parses basic data from */System/Library/CoreServices/SystemVersion.plist'
+                       ' which is a plist in GK Logical Plus extractions and sysdiagnose archives' 
+                       ' that will contain the iOS version. Previously named Ph99SystemVersionPlist.py',
         'author': 'Scott Koenig',
-        'version': '1.1',
-        'date': '2024-06-17',
+        'version': '5.1',
+        'date': '2025-06-02',
         'requirements': 'Acquisition that contains SystemVersion.plist',
         'category': 'IOS Build',
-        'notes': '',
-        'paths': ('*/System/Library/CoreServices/SystemVersion.plist',),
-        "output_types": ["html", "tsv", "lava"]
+        'notes': 'Added parsing of SystemVersion.plist in a sysdiagnose archive by C_Peter',
+        'paths': ('*/System/Library/CoreServices/SystemVersion.plist','**/sysdiagnose_*.tar.gz'),
+        "output_types": ["standard", "tsv", "none"]
     }
 }
 
 import plistlib
-import scripts.artifacts.artGlobals 
-
-from scripts.ilapfuncs import artifact_processor, logfunc, device_info
+import tarfile
+from scripts.ilapfuncs import artifact_processor, logfunc, device_info, iOS
 
 @artifact_processor
 def systemVersionPlist(files_found, report_folder, seeker, wrap_text, time_offset):
     data_list = []
-    source_path = str(files_found[0])
+    for filename in files_found:
+        if "SystemVersion.plist" in filename:
+            source_path = str(filename)
+            with open(source_path, "rb") as fp:
+                pl = plistlib.load(fp)
+            break
+        elif 'sysdiagnose_' in filename and not "IN_PROGRESS_" in filename:
+            source_path = str(filename)
+            tar = tarfile.open(filename)
+            root = tar.getmembers()[0].name.split('/')[0]
+            try:
+                tarf = tar.extractfile(f"{root}/logs/SystemVersion/SystemVersion.plist")
+                pl = plistlib.load(tarf)
+            except:
+                pl = None
     
-    with open(source_path, "rb") as fp:
-        pl = plistlib.load(fp)
+    if pl != None:
         for key, val in pl.items():
             data_list.append((key, val))
-            if key == "ProductBuildVersion":
-                device_info("Device Information", "ProductBuildVersion", val, source_path)
+            if key == "Product Build Version":
+                device_info("Device Information", "Product Build Version", val, source_path)
 
             if key == "ProductVersion":
-                scripts.artifacts.artGlobals.versionf = val
-                logfunc(f"iOS version: {val}")
-                device_info("Device Information", "iOS version", val, source_path)
+                iOS.set_version(val)
+                logfunc(f"iOS Version: {val}")
+                device_info("Device Information", "iOS Version", val, source_path)
 
             if key == "ProductName":
                 device_info("Device Information", "Product Name", val, source_path)
+                
+            if key == "BuildID":
+                device_info("Device Information", "Build ID", val, source_path)
+                
+            if key == "SystemImageID":
+                device_info("Device Information", "System Image ID", val, source_path)
 
-    data_headers = ('Property','Property Value' )     
+    data_headers = ('Property','Property Value')
     return data_headers, data_list, source_path

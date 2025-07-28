@@ -3,6 +3,7 @@ bencoding
 biplist
 blackboxprotobuf
 bs4
+ijson
 mmh3
 mdplistlib
 nska-deserialize>=1.3.1
