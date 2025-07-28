@@ -1,10 +1,10 @@
 __artifacts_v2__ = {
     "user_defaults": {
-        "name": "iOS User Defaults",
+        "name": "Application User Defaults",
         "description": "Extracts the user defaults Plist file for each application",
         "author": "@jfhyla",
         "version": "0.1",
-        "date": "2024-12-16",
+        "date": "2025-07-28",
         "requirements": "none",
         "category": "Installed Apps",
         "notes": "https://developer.apple.com/documentation/foundation/userdefaults",
@@ -22,7 +22,7 @@ import datetime
 from scripts.ilapfuncs import artifact_processor
 
 @artifact_processor
-def app_preferences(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def user_defaults(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
     apps = {}
     found_apps = []
@@ -56,18 +56,15 @@ def app_preferences(files_found, report_folder, seeker, wrap_text, timezone_offs
                             plist = 'INVALID FILE'
                     else:
                         plist = biplist.readPlist(fp)
-                    data_list.append((bundleid, guid, clean_data(plist), file_found))
+                    for (key,item) in plist.items():
 
-    for guid, bundleid in apps.items():
-        if guid not in found_apps:
-            data_list.append((bundleid, guid, 'No Userdefaults Found', None))
-
+                        data_list.append((bundleid, guid, key, clean_data(item), file_found))
 
     if len(data_list) > 0:
         
         filelocdesc = 'Path column in the report'
 
-        data_headers = ('Application BundleID', 'Application GUID', 'User Defaults Plist Content', 'Path')
+        data_headers = ('Application BundleID', 'Application GUID', 'Key', 'Item', 'Path')
         return data_headers, data_list, filelocdesc
 
 
