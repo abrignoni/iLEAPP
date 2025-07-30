@@ -141,6 +141,19 @@ __artifacts_v2__ = {
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "headphones",
+    },
+    "logarchive_navigation": {
+        "name": "logarchive navigation",
+        "description": "Navigation entries",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2025-07-25",
+        "last_update_date": "2025-07-25",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "map-pin",
     }
 }
 
@@ -335,6 +348,19 @@ def logarchive_artifacts(files_found, report_folder, seeker, wrap_text, timezone
         OR event_message LIKE '%Tethering is now enabled with%'
         OR event_message LIKE '%Received notification that wireless modem state changed%'
         OR event_message LIKE '%Previous tethering state was%'
+        OR event_message LIKE '%Proceed to%'
+        OR event_message LIKE '%Turn right%'
+        OR event_message LIKE '%Turn left%'
+        OR event_message LIKE '%roundabout%'
+        OR event_message LIKE '%first exit%'
+        OR event_message LIKE '%Stay in the%'
+        OR event_message LIKE '%parking lot%'
+        OR event_message LIKE '%of a mile%'
+        OR event_message LIKE '%In about%'
+        OR event_message LIKE '%Arrived%'
+        OR event_message LIKE '%destination%'
+        OR event_message LIKE '%At the light%'
+        OR event_message LIKE '%Starting route to%'
     '''
 
     data_list = get_sqlite_db_records(source_path, query)
@@ -577,5 +603,36 @@ def logarchive_audio_status(files_found, report_folder, seeker, wrap_text, timez
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
     #Info: https://thesisfriday.com/index.php/2025/05/30/thesis-friday-8-aul-physical-buttons-volume/
+    
+    return data_headers, data_list, source_path
+
+@artifact_processor
+def logarchive_navigation(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    source_path = get_file_path(files_found, '_lava_artifacts.db')
+    data_list = []
+    
+    query = '''
+    SELECT *
+    FROM logarchive_artifacts
+    WHERE event_message LIKE '%Starting route to%'
+        OR event_message LIKE '%Proceed to the%'
+        OR event_message LIKE '%Proceed to\%'
+        OR event_message LIKE '%Turn right%'
+        OR event_message LIKE '%Turn left%'
+        OR event_message LIKE '%roundabout%'
+        OR event_message LIKE '%first exit%'
+        OR event_message LIKE '%Stay in the%'
+        OR event_message LIKE '%parking lot for%'
+        OR event_message LIKE '%of a mile%'
+        OR event_message LIKE '%In about%'
+        OR event_message LIKE '%then arrive%'
+        OR event_message LIKE '%your destination%'
+        OR event_message LIKE '%At the light%'
+        OR event_message LIKE '%Arrived\%'
+    '''
+    
+    data_list = get_sqlite_db_records(source_path, query)
+    data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
+                    'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
     return data_headers, data_list, source_path
