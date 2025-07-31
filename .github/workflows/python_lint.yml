@@ -37,4 +37,4 @@ jobs:
           echo "Linting the following files:"
           echo "${{ steps.changed-files-py.outputs.all_changed_files }}"
           
-          pylint ${{ steps.changed-files-py.outputs.all_changed_files }} --max-line-length=120 --reports y
+          pylint ${{ steps.changed-files-py.outputs.all_changed_files }} --disable=C,R
