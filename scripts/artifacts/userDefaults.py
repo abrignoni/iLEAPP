@@ -8,7 +8,8 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Installed Apps",
         "notes": "https://developer.apple.com/documentation/foundation/userdefaults",
-        "paths": ('*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist','*/mobile/Containers/Data/Application/*/Preferences/*.plist'),
+        "paths": ('*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist',
+                  '*/mobile/Containers/Data/Application/*/Preferences/*.plist'),
         "output_types": ["html", "tsv", "lava"]
     }
 }
@@ -36,7 +37,6 @@ def user_defaults(files_found, report_folder, seeker, wrap_text, timezone_offset
             else:
                 plist = biplist.readPlist(fp)
             bundleid = plist['MCMMetadataIdentifier']
-            
             p = pathlib.Path(file_found)
             appgroupid = p.parent.name
             apps[appgroupid] = bundleid
