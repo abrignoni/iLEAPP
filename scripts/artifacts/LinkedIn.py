@@ -4,7 +4,7 @@
 # Tested with the following versions:
 # 2024-09-16: iOS 17.5.1, App: 2024.0828.0932
 
-# Requirements:  json, ccl_bplist
+# Requirements:  ccl_bplist
 
 
 __artifacts_v2__ = {
@@ -31,7 +31,7 @@ __artifacts_v2__ = {
         "version": "0.2",
         "creation_date": "2024-10-01",
         "last_update_date": "2025-04-23",
-        "requirements": "json",
+        "requirements": "",
         "category": "LinkedIn",
         "notes": "",
         "paths": ('*/Documents/msg_database.sqlite'),
@@ -45,7 +45,7 @@ __artifacts_v2__ = {
         "version": "0.2",
         "creation_date": "2024-10-01",
         "last_update_date": "2025-04-23",
-        "requirements": "json",
+        "requirements": "",
         "category": "LinkedIn",
         "notes": "Messages threaded",
         "paths": ('*/Documents/msg_database.sqlite'),
@@ -65,13 +65,11 @@ __artifacts_v2__ = {
     }
 }
 
-import json
-
 from scripts.ilapfuncs import artifact_processor, convert_unix_ts_to_utc, get_sqlite_db_records
 from scripts.ccl import ccl_bplist
 
 @artifact_processor
-def get_linkedin_account(files_found, report_folder, seeker, wrap_text, timezone_offset):    
+def get_linkedin_account(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):    
     
     with open(files_found[0], 'rb') as bplist_file:
         bplist_data = ccl_bplist.load(bplist_file)
@@ -81,27 +79,27 @@ def get_linkedin_account(files_found, report_folder, seeker, wrap_text, timezone
     data_list = []
     try: 
         member_id = bplist_data['voy.authenticatedMemberId']
-    except:
+    except (IndexError, TypeError, KeyError):
         member_id = ''
     try:
         firstname = bplist_data['voy.authenticatedDashProfileModel']['firstName']
-    except:
+    except (IndexError, TypeError, KeyError):
         firstname = ''
     try:
         lastname = bplist_data['voy.authenticatedDashProfileModel']['lastName']
-    except:
+    except (IndexError, TypeError, KeyError):
         lastname = ''
     try:
         headline = bplist_data['voy.authenticatedDashProfileModel']['headline']
-    except:
+    except (IndexError, TypeError, KeyError):
         headline = ''
     try:
         location = bplist_data['voy.authenticatedDashProfileModel']['geoLocation']['geo']['defaultLocalizedName']
-    except:
+    except (IndexError, TypeError, KeyError):
         location = ''
     try:
         public_identifier = bplist_data['voy.authenticatedDashProfileModel']['publicIdentifier']
-    except:
+    except (IndexError, TypeError, KeyError):
         public_identifier = ''
 
     data_list.append((member_id, lastname, firstname, headline, location, public_identifier))
@@ -113,7 +111,7 @@ def get_linkedin_account(files_found, report_folder, seeker, wrap_text, timezone
 
 
 @artifact_processor
-def get_linkedin_messages(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def get_linkedin_messages(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
     files_found = [x for x in files_found if not x.endswith('wal') and not x.endswith('shm')]
     
     query = ('''
@@ -154,7 +152,7 @@ def get_linkedin_messages(files_found, report_folder, seeker, wrap_text, timezon
 
 
 @artifact_processor
-def get_linkedin_conversations(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def get_linkedin_conversations(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
     files_found = [x for x in files_found if not x.endswith('wal') and not x.endswith('shm')]
     
     query = ('''

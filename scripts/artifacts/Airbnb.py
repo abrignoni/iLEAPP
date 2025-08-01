@@ -5,7 +5,7 @@
 # Tested with the following versions:
 # 2025-04-23: iOS 18.4.1, App: 24.50.2
 
-# Requirements: datetime, json
+# Requirements: -
 
 __artifacts_v2__ = {
 
@@ -26,13 +26,10 @@ __artifacts_v2__ = {
     }
 }
 
-import datetime
-import json
-
 from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records
 
 @artifact_processor
-def get_airbnb_messages(files_found, report_folder, seeker, wrap_text, time_offset):
+def get_airbnb_messages(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
     files_found = [x for x in files_found if not x.endswith('wal') and not x.endswith('shm')]
     
     query = ('''
