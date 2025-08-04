@@ -10,7 +10,7 @@ When the device in our experiment was left untouched for a period of hours or
 days, the timestamps were not updated. This indicates that the timestamps can
 be used to investigate hypothesis concerning user-activity at the specific time
 periods. A write-up of our experiments will be published online at which point
-this docstring will be updated to contain the link to the write-up.
+a link will be added to this plugin.
 
 Support for applicationState.db is already present in applicationstate.py, but
 that analysis is focussed on obtaining the bundleIdentifier, bundlePath and
@@ -40,8 +40,8 @@ from scripts.ilapfuncs import logfunc
 
 __artifacts_v2__ = {
     "get_snapshot_metadata": {
-        "name": "Application Snapshot metadata",
-        "description": "Extract metadata about application snapshots from applicationState.db",
+        "name": "Application Snapshot Manifest",
+        "description": "Extract XBApplicationSnapshotManifest records from applicationState.db",
         "author": "@mxkrt",
         "version": "0.1",
         "date": "2025-08-04",
@@ -101,8 +101,8 @@ _snapshot = _nt('snapshot', 'bundleID snapshot_group snapshot_index '
 
 @artifact_processor
 def get_snapshot_metadata(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    ''' main artifact processor, parses XBApplicationSnapshotManifest snapshots '''
 
-    # look for the first occurence of applicationState.db file
     for file_found in files_found:
         file_found = str(file_found)
         if file_found.endswith('applicationState.db'):
@@ -115,8 +115,8 @@ def get_snapshot_metadata(files_found, report_folder, seeker, wrap_text, timezon
 
 @artifact_processor
 def add_creationDates_to_tl(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    ''' add the creationDate for each snapshot to the timeline '''
 
-    # look for the first occurence of applicationState.db file
     for file_found in files_found:
         file_found = str(file_found)
         if file_found.endswith('applicationState.db'):
@@ -135,9 +135,9 @@ def add_creationDates_to_tl(files_found, report_folder, seeker, wrap_text, timez
 
 
 @artifact_processor
-def add_lastUsedDates(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def add_lastUsedDates_to_tl(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    ''' add the lastUsedDate for each snapshot to the timeline '''
 
-    # look for the first occurence of applicationState.db file
     for file_found in files_found:
         file_found = str(file_found)
         if file_found.endswith('applicationState.db'):
@@ -244,7 +244,7 @@ def _group_records(all_rows):
 
 
 def _parse_blob(appid, key, blob):
-    ''' parse the given data, similar to what is done in applicationstate.py '''
+    ''' parse the blob, based on code in original applicationstate.py '''
 
     if blob is None:
         return
