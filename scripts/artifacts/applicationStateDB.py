@@ -129,7 +129,7 @@ def get_recs_with_lastUsedDate(files_found, report_folder, seeker, wrap_text, ti
     for entry in data_list:
         if entry.lastUsedDate == '':
             continue
-        # swap lastUsedDate and creationDate columns in 
+        # swap lastUsedDate and creationDate columns in
         # order to keep other fields in the same place
         new_entry = [entry.lastUsedDate]
         new_headers = ['lastUsedDate']
