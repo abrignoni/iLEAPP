@@ -4,7 +4,9 @@ This artifact plugin focusses on the XBApplicationSnapshotManifest BLOBs in
 applicationState.db. Initial experiments on an iPhone 8 with iOS version 16.7.7
 indicate that the timestamps in these BLOBs are only stored or updated at a
 moment when a user interacts with a device, for example when switching between
-apps using the app selector.
+apps using the app selector. Note that the timestamps do not necessarily
+reflect the moment at which the corresponding app was actively used in the
+foreground, so be careful with the interpretation of these records.
 
 When the device in our experiment was left untouched for a period of hours or
 days, the timestamps were not updated. This indicates that the timestamps can
@@ -16,7 +18,7 @@ Support for applicationState.db is already present in applicationstate.py, but
 that analysis is focussed on obtaining the bundleIdentifier, bundlePath and
 sandboxPath. The XBApplicationSnapshotManifest BLOBs in applicationState.db are
 related to .ktx files, for which support is also already available in iLEAPP in
-the appSnapshots.py artificat script. However, in absence of .ktx files (i.e.
+the appSnapshots.py artifact script. However, in absence of .ktx files (i.e.
 with a Logical dump), parsing the relevant timestamps from applicationState.db
 can still be beneficial. Thus this additional artifact plugin.
 
@@ -40,40 +42,39 @@ from scripts.ilapfuncs import logfunc
 
 __artifacts_v2__ = {
     "get_snapshot_metadata": {
-        "name": "Application Snapshot Manifest",
-        "description": "Extract XBApplicationSnapshotManifest records from applicationState.db",
+        "name": "Application Snapshot",
+        "description": "Extract XBApplicationSnapshotManifest records from applicationState.db. " +\
+                       "NOTE: these timestamps do not always indicate application usage " +\
+                       "but experiments on an iPhone 8 with iOS 16.7.7 suggest that these " +\
+                       "timestamps do indicate user-interaction with the " +\
+                       "device, such as switching between apps.",
         "author": "@mxkrt",
         "version": "0.1",
         "date": "2025-08-04",
         "requirements": "none",
-        "category": "App usage",
+        "category": "Device Usage",
         "notes": "",
         "paths": ('*/mobile/Library/FrontBoard/applicationState.db*'),
-        "output_types": ['html', 'tsv']
+        "output_types": "standard",
+        "artifact_icon": "smartphone"
     },
-    "add_creationDates_to_tl": {
-        "name": "Application Snapshot creationDate",
-        "description": "adds creationDate for application snapshot to timeline",
-        "author": "@mxkrt",
-        "version": "0.1",
-        "date": "2025-08-04",
-        "requirements": "none",
-        "category": "App usage",
-        "notes": "",
-        "paths": ('*/mobile/Library/FrontBoard/applicationState.db*'),
-        "output_types": "timeline"
-    },
-    "add_lastUsedDates_to_tl": {
+    "get_recs_with_lastUsedDate": {
         "name": "Application Snapshot lastUsedDate",
-        "description": "adds lastUsedDate for application snapshot to timeline",
+        "description": "Extract XBApplicationSnapshotManifest records with a " +\
+                       "lastUsedDate from applicationState.db. " +\
+                       "NOTE: these timestamps do not always indicate application usage " +\
+                       "but experiments on an iPhone 8 with iOS 16.7.7 suggest that these " +\
+                       "timestamps do indicate user-interaction with the " +\
+                       "device, such as switching between apps.",
         "author": "@mxkrt",
         "version": "0.1",
         "date": "2025-08-04",
         "requirements": "none",
-        "category": "App usage",
+        "category": "Device Usage",
         "notes": "",
         "paths": ('*/mobile/Library/FrontBoard/applicationState.db*'),
-        "output_types": "timeline"
+        "output_types": "standard",
+        "artifact_icon": "smartphone"
     }
 }
 
@@ -90,8 +91,8 @@ _query = '''SELECT application_identifier_tab.application_identifier,
 
 
 # namedtuple to represent the common fields from a snapshot
-_snapshot = _nt('snapshot', 'bundleID snapshot_group snapshot_index '
-                            'expirationDate lastUsedDate creationDate '
+_snapshot = _nt('snapshot', 'creationDate bundleID snapshot_group '
+                            'snapshot_index expirationDate lastUsedDate '
                             'launchInterfaceIdentifier relativePath '
                             'groupID imageScale fullScreen name '
                             'interfaceOrientation fileLocation '
@@ -114,28 +115,7 @@ def get_snapshot_metadata(files_found, report_folder, seeker, wrap_text, timezon
 
 
 @artifact_processor
-def add_creationDates_to_tl(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    ''' add the creationDate for each snapshot to the timeline '''
-
-    for file_found in files_found:
-        file_found = str(file_found)
-        if file_found.endswith('applicationState.db'):
-            break
-
-    data_list = _get_snapshots(file_found)
-    # prepend the entry with the creation date
-    new_data_list = []
-    for entry in data_list:
-        if entry.creationDate is '':
-            continue
-        new_entry = [entry.creationDate] + list(entry)
-        new_data_list.append(new_entry)
-    data_headers = ['creationDate'] + [fld for fld in _snapshot._fields]
-    return data_headers, new_data_list, file_found
-
-
-@artifact_processor
-def add_lastUsedDates_to_tl(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def get_recs_with_lastUsedDate(files_found, report_folder, seeker, wrap_text, timezone_offset):
     ''' add the lastUsedDate for each snapshot to the timeline '''
 
     for file_found in files_found:
@@ -147,12 +127,23 @@ def add_lastUsedDates_to_tl(files_found, report_folder, seeker, wrap_text, timez
     # prepend the entry with the lastUsedDate
     new_data_list = []
     for entry in data_list:
-        if entry.lastUsedDate is '':
+        if entry.lastUsedDate == '':
             continue
-        new_entry = [entry.lastUsedDate] + list(entry)
+        # swap lastUsedDate and creationDate columns in 
+        # order to keep other fields in the same place
+        new_entry = [entry.lastUsedDate]
+        new_headers = ['lastUsedDate']
+        for fld in _snapshot._fields:
+            if fld == 'lastUsedDate':
+                new_headers.append('creationDate')
+                new_entry.append(entry.creationDate)
+            elif fld == 'creationDate':
+                continue
+            else:
+                new_entry.append(getattr(entry, fld))
+                new_headers.append(fld)
         new_data_list.append(new_entry)
-    data_headers = ['lastUsedDate'] + [fld for fld in _snapshot._fields]
-    return data_headers, new_data_list, file_found
+    return new_headers, new_data_list, file_found
 
 
 def _get_snapshots(file_found):
@@ -216,11 +207,13 @@ def _get_snapshots(file_found):
 
             # if we get here, we have snapshots, get the required metadata
             for idx, snapshot in enumerate(snapshots):
-                # the first three fields are bundleID, snapshot_group and index
+                # first get the creationDate, which is used as first field
+                vals = [snapshot.get('creationDate')]
+                # next three fields are bundleID, snapshot_group and index
                 # within the list of snapshots
-                vals = [bundleID, snapshot_group, idx]
+                vals.extend([bundleID, snapshot_group, idx])
                 # remaining fields are fetched from the parsed snapshot dict
-                for fld in _snapshot._fields[3:]:
+                for fld in _snapshot._fields[4:]:
                     vals.append(snapshot.get(fld))
                 entry = _snapshot(*vals)
                 snapshot_list.append(entry)
