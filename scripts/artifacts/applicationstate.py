@@ -9,8 +9,8 @@ __artifacts_v2__ = {
         "category": "Installed Apps",
         "notes": "",
         "paths": ('*/mobile/Library/FrontBoard/applicationState.db*'),
-        "function": "get_applicationstate",
-        "output_types": ["html", "tsv", "lava"]
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "package"
     }
 }
 
@@ -20,12 +20,11 @@ import io
 import nska_deserialize as nd
 import plistlib
 import sys
-#from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import open_sqlite_db_readonly
-from scripts.ilapfuncs import artifact_processor
+
+from scripts.ilapfuncs import open_sqlite_db_readonly, artifact_processor
 
 @artifact_processor
-def get_applicationstate(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def applicationstate(files_found, report_folder, seeker, wrap_text, timezone_offset):
     for file_found in files_found:
         file_found = str(file_found)
     
