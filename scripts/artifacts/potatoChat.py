@@ -1,10 +1,10 @@
 __artifacts_v2__ = {
-    'potatoChat_Chats': {
+    'potatochat_chats': {
         'name': 'Potato Chat - Chats',
         'description': 'Extract chats from Potato Chat',
         'author': '@C_Peter',
-        'creation_date': '2025-08-12',
-        'last_update_date': '2025-08-12',
+        'creation_date': '2025-08-13',
+        'last_update_date': '2025-08-13',
         'requirements': 'none',
         'category': 'Potato Chat',
         'notes': '',
@@ -15,6 +15,21 @@ __artifacts_v2__ = {
         ),
         'output_types': 'standard',
         'artifact_icon': 'message-square',
+    },
+    'potatochat_users': {
+        'name': 'Potato Chat - Known Users',
+        'description': 'Extract known users from Potato Chat',
+        'author': '@C_Peter',
+        'creation_date': '2025-08-13',
+        'last_update_date': '2025-08-13',
+        'requirements': 'none',
+        'category': 'Potato Chat',
+        'notes': '',
+        'paths': (
+            '*/mobile/Containers/Shared/AppGroup/*/Documents/tgdata.db*',
+        ),
+        'output_types': 'standard',
+        'artifact_icon': 'users',
     }
 }
 
@@ -49,7 +64,7 @@ def extract_attachment_message(media_blob):
         return None
 
 @artifact_processor
-def potatoChat_Chats(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def potatochat_chats(files_found, report_folder, seeker, wrap_text, timezone_offset):
     source_path = get_file_path(files_found, 'tgdata.db')
     data_list = []
     #The table names aren't fix and change the trailing number from time to time
@@ -127,9 +142,9 @@ def potatoChat_Chats(files_found, report_folder, seeker, wrap_text, timezone_off
                         locblob = record['media']
                         start = locblob.find(b"bplist00")
                         plistb = locblob[start:]
-                        loca = get_plist_content(plistb)
-                        location = " | ".join(f"{k}: {v}" for k, v in loca.items())
+                        location = get_plist_content(plistb)
                         message = f"Location: {location}"
+
                     except:
                         pass
 
@@ -186,5 +201,39 @@ def potatoChat_Chats(files_found, report_folder, seeker, wrap_text, timezone_off
     data_headers = (
         ('Timestamp', 'datetime'), 'Chat', 'Chat-ID', 'Message-ID', 'Sender Name', 'From ID', 'Receiver', 'To ID',
         'Message', ('Attachment File', 'media'), 'Reply (Message-ID)')
+
+    return data_headers, data_list, source_path
+
+@artifact_processor
+def potatochat_users(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    source_path = get_file_path(files_found, 'tgdata.db')
+    data_list = []
+    users_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'users_v__';"
+    users_nr = get_sqlite_db_records(source_path, users_query)[0]['name']
+    list_query = f'''
+        SELECT
+            uid,
+            first_name,
+            last_name,
+            access_hash,
+            username,
+            last_seen
+        FROM {users_nr}
+    '''
+    db_records = get_sqlite_db_records(source_path, list_query)
+    for record in db_records:
+        user_id = record['uid']
+        first_name = record['first_name']
+        last_name = record['last_name']
+        acc_hash = record['access_hash']
+        username = record ['username']
+        if int(record['last_seen']) > 1:
+            last_seen = datetime.datetime.fromtimestamp(record['last_seen'], tz=datetime.timezone.utc)
+        else:
+            last_seen = ''
+        data_list.append((user_id, first_name, last_name, acc_hash, username, last_seen))
+    
+    data_headers = (
+        'User-ID', 'First Name', 'Last Name', 'Access Hash', 'Username', ('Last Seen', 'datetime'))
 
     return data_headers, data_list, source_path
