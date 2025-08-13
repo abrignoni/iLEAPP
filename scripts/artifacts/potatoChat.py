@@ -1,12 +1,12 @@
 __artifacts_v2__ = {
     'potatoChat_Chats': {
-        'name': 'PotatoChat - Chats',
-        'description': 'Extract chats from PotatoChat',
+        'name': 'Potato Chat - Chats',
+        'description': 'Extract chats from Potato Chat',
         'author': '@C_Peter',
         'creation_date': '2025-08-12',
         'last_update_date': '2025-08-12',
         'requirements': 'none',
-        'category': 'PotatoChat',
+        'category': 'Potato Chat',
         'notes': '',
         'paths': (
             '*/mobile/Containers/Shared/AppGroup/*/Documents/tgdata.db*',
@@ -19,10 +19,12 @@ __artifacts_v2__ = {
 }
 
 import datetime
+import struct
+import plistlib
 from pathlib import Path
 from scripts.ilapfuncs import artifact_processor, \
     get_file_path, get_sqlite_db_records, attach_sqlite_db_readonly, \
-    check_in_media
+    check_in_media, get_plist_content
 
 def extract_attachment_message(media_blob):
     if media_blob is None:
@@ -53,13 +55,10 @@ def potatoChat_Chats(files_found, report_folder, seeker, wrap_text, timezone_off
     #The table names aren't fix and change the trailing number from time to time
     messages_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'messages_v__';"
     messages_nr = get_sqlite_db_records(source_path, messages_query)[0]['name']
-    print(messages_nr)
     media_cache_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'media_cache_v__';"
     media_cache_nr = get_sqlite_db_records(source_path, media_cache_query)[0]['name']
-    print(media_cache_nr)
     users_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'users_v__';"
     users_nr = get_sqlite_db_records(source_path, users_query)[0]['name']
-    print(users_nr)
 
 
     #The chat-ID is saved as little-endian blob in the media_cache table
@@ -118,16 +117,53 @@ def potatoChat_Chats(files_found, report_folder, seeker, wrap_text, timezone_off
         receiver = record['to_name'] if record['outgoing'] == 1 else 'Local User'
         receiver_id = record['to_id']
         message = record['message']
+        reply = ''
+        location = ''
         if message == "" or message == None:
             if record['media']:
                 message = extract_attachment_message(record['media'])
+                if b"foursquare" in record['media']:
+                    try:
+                        locblob = record['media']
+                        start = locblob.find(b"bplist00")
+                        plistb = locblob[start:]
+                        loca = get_plist_content(plistb)
+                        location = " | ".join(f"{k}: {v}" for k, v in loca.items())
+                        message = f"Location: {location}"
+                    except:
+                        pass
+
+        else:
+            if record['media']:
+                if b"replyMessage" in record['media']:
+                    try:
+                        reblob = record['media']
+                        replystart = reblob.find(b"replyMessage")
+                        pattern = b"\x01\x69\x02"
+                        nr_start = reblob.find(pattern, replystart)
+                        id_start = nr_start + len(pattern)
+                        id_bytes = reblob[id_start:id_start+4]
+                        reply = struct.unpack("<I", id_bytes)[0]
+                    except:
+                        pass
+
         attach_file = ''
         if record['media_id'] != None:
             if record['media'] != None:
+                media_found = False
                 media_str = record['media'].hex()
+                hex_path = format(int(record['media_id']), 'x')
                 # Check if the media_id is present in the media_blob - Message IDs can be given multiple times
-                if str(record['media_id']).encode().hex() in media_str: 
-                    hex_path = format(int(record['media_id']), 'x')
+                if str(record['media_id']).encode().hex() in media_str:
+                    media_found = True
+                elif bytes.fromhex(hex_path)[::-1].hex() in media_str:
+                    media_found = True
+                else:
+                    if record['message'] == "" or record['message'] == None:
+                        continue
+                    else:
+                        attach_file = ''
+                if media_found:
                     if record['media_type'] == 2:
                         media_local_path = f'files/image-remote-{hex_path}/image.jpg'
                     elif record['media_type'] == 1:
@@ -141,29 +177,14 @@ def potatoChat_Chats(files_found, report_folder, seeker, wrap_text, timezone_off
                         attach_file = check_in_media(media_local_path, attach_file_name)
                     else:
                         attach_file = ''
-                elif "617564696f2f6f6767" in media_str:
-                    hex_path = format(int(record['media_id']), 'x')
-                    if record['media_type'] == 3:
-                        media_local_path = f'files/{hex_path}/file'
-                        if media_local_path != None:
-                            attach_file_name = Path(media_local_path).name
-                            attach_file = check_in_media(media_local_path, attach_file_name)
-                        else:
-                            attach_file = ''
-                    else:
-                        if message == "" or message == None:
-                            continue
-                else:
-                    if message == "" or message == None:
-                        continue
             else:
                 pass
-        data_list.append((message_date, chat_name, chat_id, message_id, sender, sender_id, receiver, receiver_id, message, attach_file))
+        data_list.append((message_date, chat_name, chat_id, message_id, sender, sender_id, receiver, receiver_id, message, attach_file, reply))
         
 
 
     data_headers = (
         ('Timestamp', 'datetime'), 'Chat', 'Chat-ID', 'Message-ID', 'Sender Name', 'From ID', 'Receiver', 'To ID',
-        'Message', ('Attachment File', 'media'),)
+        'Message', ('Attachment File', 'media'), 'Reply (Message-ID)')
 
     return data_headers, data_list, source_path
