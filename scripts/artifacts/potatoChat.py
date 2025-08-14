@@ -74,20 +74,28 @@ def potatochat_chats(files_found, report_folder, seeker, wrap_text, timezone_off
     media_cache_nr = get_sqlite_db_records(source_path, media_cache_query)[0]['name']
     users_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'users_v__';"
     users_nr = get_sqlite_db_records(source_path, users_query)[0]['name']
+    conversations_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'convesations_v__' OR 'conversations_v__';"
+    conversations_nr = get_sqlite_db_records(source_path, conversations_query)[0]['name']
+
+    media_query = f'''
+        SELECT
+            media_type,
+            media_id
+        FROM
+            {media_cache_nr}
+    '''
+
+    conv_query = f'''
+        SELECT
+            cid,
+            participants
+        FROM
+            {conversations_nr}
+    '''
 
 
     #The chat-ID is saved as little-endian blob in the media_cache table
     chat_query = f'''
-        WITH mc_swapped AS (
-            SELECT
-                *,
-                ("0x" || hex(substr(mids, 4,1)) || 
-                         hex(substr(mids, 3,1)) || 
-                         hex(substr(mids, 2,1)) || 
-                         hex(substr(mids, 1,1)) 
-                )->>'$' AS mid_hex
-            FROM {media_cache_nr}
-        )
         SELECT     
             m."date",
             CASE 
@@ -108,12 +116,8 @@ def potatochat_chats(files_found, report_folder, seeker, wrap_text, timezone_off
                 ELSE ut.first_name || ' ' || ut.last_name
             END AS to_name,
             m.to_id,
-            m.outgoing,
-            mc.media_type,
-            mc.media_id
+            m.outgoing
         FROM {messages_nr} m
-        LEFT JOIN mc_swapped mc
-            ON m.mid = mid_hex
         LEFT JOIN {users_nr} uf 
             ON m.from_id = uf.uid
         LEFT JOIN {users_nr} ut 
@@ -121,7 +125,19 @@ def potatochat_chats(files_found, report_folder, seeker, wrap_text, timezone_off
         LEFT JOIN {users_nr} cn 
             ON m.cid = cn.uid;
     '''
+    user_cid_query = f'''
+        SELECT
+            uid,
+            first_name,
+            last_name
+        FROM {users_nr}
+    '''
+        
+    media_records = get_sqlite_db_records(source_path, media_query)
     db_records = get_sqlite_db_records(source_path, chat_query)
+    conv_records = get_sqlite_db_records(source_path, conv_query)
+    u_cid_records = get_sqlite_db_records(source_path, user_cid_query)
+
     for record in db_records:
         message_date = datetime.datetime.fromtimestamp(record['date'], tz=datetime.timezone.utc)
         chat_name = record['chat']
@@ -132,6 +148,27 @@ def potatochat_chats(files_found, report_folder, seeker, wrap_text, timezone_off
         receiver = record['to_name'] if record['outgoing'] == 1 else 'Local User'
         receiver_id = record['to_id']
         message = record['message']
+        if chat_name == None:
+            for c_record in conv_records:
+                if c_record['cid'] == chat_id and c_record['participants'] != None:
+                    p_blob = c_record['participants'][:16]
+                    length = p_blob[4]
+                    le_cid = p_blob[-length:]
+                    sc_cid = int.from_bytes(le_cid, byteorder="little")
+                    c_cid = next((rec for rec in u_cid_records if rec["uid"] == sc_cid), None)
+                    if c_cid:
+                        if c_cid['last_name'] != None:
+                            new_name = f"{c_cid['first_name']} {c_cid['last_name']}"
+                        else:
+                            new_name = f"{c_cid['first_name']}"
+                        chat_name = f"{new_name} (Secret Chat)"
+                        if sender == None: 
+                            sender = new_name
+                        if receiver == None:
+                            receiver = new_name  
+                    else:
+                        chat_name = 'Unknown/Secret Chat'
+
         reply = ''
         location = ''
         if message == "" or message == None:
@@ -163,28 +200,22 @@ def potatochat_chats(files_found, report_folder, seeker, wrap_text, timezone_off
                         pass
 
         attach_file = ''
-        if record['media_id'] != None:
-            if record['media'] != None:
-                media_found = False
+        if record['media'] != None:
+            for m_record in media_records:
                 media_str = record['media'].hex()
-                hex_path = format(int(record['media_id']), 'x')
-                # Check if the media_id is present in the media_blob - Message IDs can be given multiple times
-                if str(record['media_id']).encode().hex() in media_str:
-                    media_found = True
-                elif bytes.fromhex(hex_path)[::-1].hex() in media_str:
-                    media_found = True
-                else:
-                    if record['message'] == "" or record['message'] == None:
-                        continue
-                    else:
-                        attach_file = ''
-                if media_found:
-                    if record['media_type'] == 2:
+                hex_path = format(abs(m_record['media_id']), 'x')
+                if str(m_record['media_id']).startswith("-"):
+                    unsigned = m_record['media_id'] & 0xFFFFFFFFFFFFFFFF
+                    hex_path = format(int(unsigned), 'x')
+                if bytes.fromhex(hex_path)[::-1].hex() in media_str:
+                    if m_record['media_type'] == 2:
                         media_local_path = f'files/image-remote-{hex_path}/image.jpg'
-                    elif record['media_type'] == 1:
+                    elif m_record['media_type'] == 1:
                         media_local_path = f'video/remote{hex_path}.mov'
-                    elif record['media_type'] == 3:
+                    elif m_record['media_type'] == 3:
                         media_local_path = f'files/{hex_path}/file'
+                        if str(m_record['media_id']).startswith("-"):
+                            media_local_path = f'files/local{hex_path}/file'
                     else: 
                         media_local_path = None
                     if media_local_path != None:
@@ -192,8 +223,7 @@ def potatochat_chats(files_found, report_folder, seeker, wrap_text, timezone_off
                         attach_file = check_in_media(media_local_path, attach_file_name)
                     else:
                         attach_file = ''
-            else:
-                pass
+                    break
         data_list.append((message_date, chat_name, chat_id, message_id, sender, sender_id, receiver, receiver_id, message, attach_file, reply))
         
 
