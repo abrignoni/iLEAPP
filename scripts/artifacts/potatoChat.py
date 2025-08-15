@@ -182,12 +182,9 @@ def potatochat_chats(files_found, report_folder, seeker, wrap_text, timezone_off
                 message = extract_attachment_message(blob)
                 try:
                     if blob[4:4 + len(location)] == location:
-                        print("location")
                         message = "Location"
                         lon_b = blob[20:28]
                         lat_b = blob[12:20]
-                        print(lat_b)
-                        print(lon_b)
                         lon = struct.unpack('<d', lon_b)[0]
                         lat = struct.unpack('<d', lat_b)[0]
                 except:
