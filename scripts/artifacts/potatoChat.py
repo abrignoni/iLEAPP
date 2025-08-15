@@ -93,7 +93,6 @@ def potatochat_chats(files_found, report_folder, seeker, wrap_text, timezone_off
             {conversations_nr}
     '''
 
-
     #The chat-ID is saved as little-endian blob in the media_cache table
     chat_query = f'''
         SELECT     
@@ -138,6 +137,7 @@ def potatochat_chats(files_found, report_folder, seeker, wrap_text, timezone_off
     conv_records = get_sqlite_db_records(source_path, conv_query)
     u_cid_records = get_sqlite_db_records(source_path, user_cid_query)
 
+
     for record in db_records:
         message_date = datetime.datetime.fromtimestamp(record['date'], tz=datetime.timezone.utc)
         chat_name = record['chat']
@@ -171,20 +171,62 @@ def potatochat_chats(files_found, report_folder, seeker, wrap_text, timezone_off
 
         reply = ''
         location = ''
+        lon = ""
+        lat = ""
         if message == "" or message == None:
             if record['media']:
-                message = extract_attachment_message(record['media'])
-                if b"foursquare" in record['media']:
+                blob = record['media']
+                contact = bytes.fromhex("63 56 0a b9")
+                call = bytes.fromhex("8b e2 67 11 18")
+                location = bytes.fromhex("6e d0 9e 0c")
+                message = extract_attachment_message(blob)
+                try:
+                    if blob[4:4 + len(location)] == location:
+                        print("location")
+                        message = "Location"
+                        lon_b = blob[20:28]
+                        lat_b = blob[12:20]
+                        print(lat_b)
+                        print(lon_b)
+                        lon = struct.unpack('<d', lon_b)[0]
+                        lat = struct.unpack('<d', lat_b)[0]
+                except:
+                    lon = None
+                    lat = None
+
+                if b"foursquare" in blob:
                     try:
-                        locblob = record['media']
-                        start = locblob.find(b"bplist00")
-                        plistb = locblob[start:]
+                        start = blob.find(b"bplist00")
+                        plistb = blob[start:]
                         location = get_plist_content(plistb)
                         message = f"Location: {location}"
-
                     except:
                         pass
-
+                try:
+                    if blob[4:4 + len(contact)] == contact:
+                        uid_b = blob[12:16]
+                        c_uid = int.from_bytes(uid_b, byteorder="little")
+                        c_cid = next((rec for rec in u_cid_records if rec["uid"] == c_uid), None)
+                        if c_cid:
+                            message = f"Contact: User-ID: {c_uid}, First Name: {c_cid['first_name']}, Last Name: {c_cid['last_name']}"
+                        else:
+                            message = "Contact (not found in database)"
+                except:
+                    pass
+                try:
+                    if blob[4:4 + len(call)] == call:
+                        dur_b = blob[32:35]
+                        dur_sec = int.from_bytes(dur_b, byteorder="little")
+                        if blob[16] in (0x01, 0x23):
+                            type = "Voice "
+                        elif blob[16] in (0x05, 0x27):
+                            type = "Video "
+                        else:
+                            type = ""
+                        c_cid = next((rec for rec in u_cid_records if rec["uid"] == c_uid), None)
+                        message = f"{type}Call - Duration: {dur_sec} Seconds"
+                except:
+                    pass
         else:
             if record['media']:
                 if b"replyMessage" in record['media']:
@@ -224,13 +266,13 @@ def potatochat_chats(files_found, report_folder, seeker, wrap_text, timezone_off
                     else:
                         attach_file = ''
                     break
-        data_list.append((message_date, chat_name, chat_id, message_id, sender, sender_id, receiver, receiver_id, message, attach_file, reply))
+        data_list.append((message_date, chat_name, chat_id, message_id, sender, sender_id, receiver, receiver_id, message, attach_file, reply, lat, lon))
         
 
 
     data_headers = (
         ('Timestamp', 'datetime'), 'Chat', 'Chat-ID', 'Message-ID', 'Sender Name', 'From ID', 'Receiver', 'To ID',
-        'Message', ('Attachment File', 'media'), 'Reply (Message-ID)')
+        'Message', ('Attachment File', 'media'), 'Reply (Message-ID)', 'Latitude', 'Longitude')
 
     return data_headers, data_list, source_path
 
