@@ -13,6 +13,7 @@
 #   https://betawiki.net/wiki/Category:MacOS_versions
 # All:
 # https://x.com/iSWUpdates
+# https://theapplewiki.com/wiki/Firmware
 
 from os.path import join
 
@@ -863,6 +864,7 @@ OS_build = {
     "22G5073b": "iOS 18.6 beta 3",
     "22G84": "iOS 18.6 RC",
     "22G86": "iOS 18.6",
+    "22G90": "iOS 18.6.1",
     "23A5260n": "iOS 26.0 beta 1",
     "23A5260u": "iOS 26.0 beta 1 Update",
     "23A5276f": "iOS 26.0 beta 2",
@@ -2750,6 +2752,7 @@ OS_build = {
     "22U5054b": "watchOS 11.6 beta 1",
     "22U5065c": "watchOS 11.6 beta 2",
     "22U84": "watchOS 11.6",
+    "22U90": "watchOS 11.6.1",
     "23R5280m": "watchOS 26.0 beta 1",
     "23R5296f": "watchOS 26.0 beta 2",
     "23R5307g": "watchOS 26.0 beta 3",
