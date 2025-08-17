@@ -479,7 +479,7 @@ def potatochat_group_chats(files_found, report_folder, seeker, wrap_text, timezo
         data_list.append((message_date, group_name, group_ID, message_id, user_name, user_ID, message, attach_file))
 
     data_headers = (
-        ('Timestamp', 'datetime'), 'Group-Name', 'Group-ID', 'Message-ID', 'Sender Name', 'From ID',
+        ('Timestamp', 'datetime'), 'Group Name', 'Group-ID', 'Message-ID', 'Sender Name', 'From ID',
         'Message', ('Attachment File', 'media'))
 
     return data_headers, data_list, source_path
