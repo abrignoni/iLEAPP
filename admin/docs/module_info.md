@@ -11,7 +11,7 @@ Total number of modules: 278
 Number of v1 artifacts: 87  
 Number of v2 artifacts: 332  
 Number of modules with 'lava output': 308  
-Number of modules using 'artifact_icon': 217  
+Number of modules using 'artifact_icon': 218  
 Number of modules using 'version': 253  
 Number of modules using 'last_update_date': 115  
 Number of modules with errors or no recognized artifacts: 2  
@@ -150,7 +150,7 @@ Number of modules with errors or no recognized artifacts: 2
 | [appleWifiPlist.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/appleWifiPlist.py) | appleWifiScannedPrivate | WiFi Scanned Networks (Private) | standard |  | 0.1 |  | Parses WiFi connection data for networks scanned while using private MAC address | ``*/com.apple.wifi-private-mac-networks.plist`` |
 | [appleWifiPlist.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/appleWifiPlist.py) | appleWifiBSSList | WiFi BSS List | standard |  | 0.1 |  | Parses BSS (Basic Service Set) information for known WiFi networks | ``*/com.apple.wifi.known-networks.plist`` |
 | [appleWorldClock.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/appleWorldClock.py) | worldclock | WorldClock | standard | clock |  |  | Extraction of different World Clock entries | ``*/mobile/Library/Preferences/com.apple.mobiletimer.plist`` |
-| [applicationstate.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/applicationstate.py) | applicationstate | Application State | html, tsv, lava |  | 0.2.2 |  | Extract information about bundle container path and data path for Applications | ``*/mobile/Library/FrontBoard/applicationState.db*`` |
+| [applicationstate.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/applicationstate.py) | applicationstate | Application State | html, tsv, lava | package | 0.2.2 |  | Extract information about bundle container path and data path for Applications | ``*/mobile/Library/FrontBoard/applicationState.db*`` |
 | [ashHistory.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/ashHistory.py) | AshHistory | Alpine Linux Bash History | all |  | 1.0 |  | Extracts command history from Alpine Linux bash | ``*/.ash_history`` |
 | [atxDatastore.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/atxDatastore.py) | atxDatastore | iOS ATXDatastore | all |  | 0.1.4 |  | Parses ATXDataStore and matches actions with Frequent locations, when available. | ``*DuetExpertCenter/_ATXDataStore.db*``, ``*routined/Local.sqlite*`` |
 | [backupSettings.py](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/backupSettings.py) | backupSettings | Backup Settings | html, tsv, lava | save |  | 2024-12-20 | Extracts Backup settings | ``*/mobile/Library/Preferences/com.apple.mobile.ldbackup.plist`` |
