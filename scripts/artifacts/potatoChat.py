@@ -3,8 +3,8 @@ __artifacts_v2__ = {
         'name': 'Potato Chat - Chats',
         'description': 'Extract chats from Potato Chat',
         'author': '@C_Peter',
-        'creation_date': '2025-08-13',
-        'last_update_date': '2025-08-13',
+        'creation_date': '2025-08-17',
+        'last_update_date': '2025-08-17',
         'requirements': 'none',
         'category': 'Potato Chat',
         'notes': '',
@@ -16,12 +16,30 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'message-square',
     },
+    'potatochat_group_chats': {
+        'name': 'Potato Chat - Group Chats',
+        'description': 'Extract group chats from Potato Chat',
+        'author': '@C_Peter',
+        'creation_date': '2025-08-17',
+        'last_update_date': '2025-08-17',
+        'requirements': 'none',
+        'category': 'Potato Chat',
+        'notes': '',
+        'paths': (
+            '*/mobile/Containers/Shared/AppGroup/*/Documents/tgdata.db*',
+            '*/mobile/Containers/Shared/AppGroup/*/Documents/shareDialogList.db*',
+            '*/mobile/Containers/Shared/AppGroup/*/Documents/files/*',
+            '*/mobile/Containers/Shared/AppGroup/*/Documents/video/*',
+        ),
+        'output_types': 'standard',
+        'artifact_icon': 'message-square',
+    },
     'potatochat_users': {
         'name': 'Potato Chat - Known Users',
         'description': 'Extract known users from Potato Chat',
         'author': '@C_Peter',
-        'creation_date': '2025-08-13',
-        'last_update_date': '2025-08-13',
+        'creation_date': '2025-08-17',
+        'last_update_date': '2025-08-17',
         'requirements': 'none',
         'category': 'Potato Chat',
         'notes': '',
@@ -36,6 +54,7 @@ __artifacts_v2__ = {
 import datetime
 import struct
 import plistlib
+import json
 from pathlib import Path
 from scripts.ilapfuncs import artifact_processor, \
     get_file_path, get_sqlite_db_records, attach_sqlite_db_readonly, \
@@ -62,6 +81,18 @@ def extract_attachment_message(media_blob):
         return msg_bytes.decode("utf-8", errors="replace")
     except UnicodeDecodeError:
         return None
+
+def decode_varint(source_data, offset): # Taken from https://github.com/Whee30/AppParsers/blob/main/Potato/decode_BLOB.py
+    value = 0
+    shift = 0
+    while True:
+        byte = source_data[offset]
+        offset += 1
+        value |= (byte & 0x7F) << shift
+        shift += 7 
+        if (byte & 0x80) == 0:
+            break
+    return value, offset
 
 @artifact_processor
 def potatochat_chats(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -304,5 +335,151 @@ def potatochat_users(files_found, report_folder, seeker, wrap_text, timezone_off
     
     data_headers = (
         'User-ID', 'First Name', 'Last Name', 'Access Hash', 'Username', ('Last Seen', 'datetime'))
+
+    return data_headers, data_list, source_path
+
+@artifact_processor
+def potatochat_group_chats(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    source_path = get_file_path(files_found, 'tgdata.db')
+    share_dialog = get_file_path(files_found, 'shareDialogList.db')
+    data_list = []
+    media_cache_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'media_cache_v__';"
+    media_cache_nr = get_sqlite_db_records(source_path, media_cache_query)[0]['name']
+    users_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'users_v__';"
+    users_nr = get_sqlite_db_records(source_path, users_query)[0]['name']
+    group_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'share_dialog_list_users_v__';"
+    group_nr = get_sqlite_db_records(share_dialog, group_query)[0]['name']
+    channels_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'channel_messages_v__';"
+    channels_nr = get_sqlite_db_records(source_path, channels_query)[0]['name']
+    group_query = f"SELECT userInfosJson FROM {group_nr} WHERE typeId=2"
+    try:
+        group_json = get_sqlite_db_records(share_dialog, group_query)[0]['userInfosJson'] 
+        groups = json.loads(group_json)
+    except: 
+        group_json = None
+        groups = []
+
+
+    chat_query = f'''
+        SELECT     
+            mid,
+            data
+        FROM
+            {channels_nr}
+    '''
+    user_cid_query = f'''
+        SELECT
+            uid,
+            first_name,
+            last_name
+        FROM {users_nr}
+    '''
+    media_query = f'''
+        SELECT
+            media_type,
+            media_id
+        FROM
+            {media_cache_nr}
+    '''
+
+    media_records = get_sqlite_db_records(source_path, media_query)
+    u_cid_records = get_sqlite_db_records(source_path, user_cid_query)
+    db_records = get_sqlite_db_records(source_path, chat_query)
+    for record in db_records:
+        message_id = record['mid']
+        blob_data = record['data']
+        blob_length = len(blob_data)
+        working_length = 1
+        working_offset = 0
+        data_type = 0
+        data_length = 0
+        title_length = 1
+        while working_offset < blob_length:
+            title_length = int.from_bytes(blob_data[working_offset:working_offset + working_length])
+            working_offset += working_length
+            ASCII_title = blob_data[working_offset:working_offset + title_length].decode('utf-8', errors='replace')
+            working_offset += title_length
+            data_type = int.from_bytes(blob_data[working_offset:working_offset + 1])
+            working_offset += 1
+            if data_type == 1: 
+                d_t = "Str"
+                x = working_offset
+                d = blob_data
+                value, offset = decode_varint(d, x)
+                working_offset = offset
+                data_length = value
+            elif data_type == 2:
+                d_t = "Int"
+                data_length = 4
+            elif data_type == 3:
+                d_t = "Int"
+                data_length = 8
+            elif data_type == 6: 
+                d_t = "Varint"
+                x = working_offset
+                d = blob_data
+                value, offset = decode_varint(d, x)
+                working_offset = offset
+                data_length = value
+            else:
+                break
+            payload_data = blob_data[working_offset:working_offset + data_length]
+            working_offset += data_length
+            formatted_bytes = ' '.join(f'{byte:02X}' for byte in payload_data)
+            if d_t == "Str" and ASCII_title == "t":
+                message = payload_data.decode('utf-8', errors='replace')
+            elif d_t == "Int" and ASCII_title == 'd':
+                timestamp = int.from_bytes(payload_data, byteorder='little')
+                message_date = datetime.datetime.fromtimestamp(timestamp, tz=datetime.timezone.utc)
+            elif ASCII_title == "ti" or ASCII_title == "ci": 
+                group_ID = abs(int.from_bytes(payload_data[0:4], byteorder="little", signed=True))
+                try:
+                    group = next((rec for rec in groups if rec.get("groupId") == group_ID), None)
+                    group_name = group["title"]
+                except:
+                    group_name = None
+            elif ASCII_title == "fi":
+                user_ID = int.from_bytes(payload_data, byteorder='little')
+                c_uid = next((rec for rec in u_cid_records if rec["uid"] == user_ID), None)
+                if c_uid:
+                    if c_uid['last_name'] != None:
+                        user_name = f"{c_uid['first_name']} {c_uid['last_name']}"
+                    else:
+                        user_name = f"{c_uid['first_name']}"
+                else:
+                    user_name = None
+            elif ASCII_title == 'i':
+                mid = int.from_bytes(payload_data, byteorder='little')
+            elif ASCII_title == 'out':
+                outgoing = int.from_bytes(payload_data, byteorder='little')
+            attach_file = ''
+            for m_record in media_records:
+                media_str = blob_data.hex()
+                hex_path = format(abs(m_record['media_id']), 'x')
+                if str(m_record['media_id']).startswith("-"):
+                    unsigned = m_record['media_id'] & 0xFFFFFFFFFFFFFFFF
+                    hex_path = format(int(unsigned), 'x')
+                if bytes.fromhex(hex_path)[::-1].hex() in media_str:
+                    if m_record['media_type'] == 2:
+                        media_local_path = f'files/image-remote-{hex_path}/image.jpg'
+                    elif m_record['media_type'] == 1:
+                        media_local_path = f'video/remote{hex_path}.mov'
+                    elif m_record['media_type'] == 3:
+                        media_local_path = f'files/{hex_path}/file'
+                        if str(m_record['media_id']).startswith("-"):
+                            media_local_path = f'files/local{hex_path}/file'
+                    else: 
+                        media_local_path = None
+                    if media_local_path != None:
+                        attach_file_name = Path(media_local_path).name
+                        attach_file = check_in_media(media_local_path, attach_file_name)
+                    else:
+                        attach_file = ''
+                    break
+        data_list.append((message_date, group_name, group_ID, message_id, user_name, user_ID, message, attach_file))
+
+    data_headers = (
+        ('Timestamp', 'datetime'), 'Group-Name', 'Group-ID', 'Message-ID', 'Sender Name', 'From ID',
+        'Message', ('Attachment File', 'media'))
 
     return data_headers, data_list, source_path
