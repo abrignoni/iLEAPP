@@ -60,13 +60,17 @@ from scripts.ilapfuncs import artifact_processor, \
     get_file_path, get_sqlite_db_records, attach_sqlite_db_readonly, \
     check_in_media, get_plist_content
 
-def extract_attachment_message(media_blob):
+def extract_attachment_message(media_blob, group=False):
     if media_blob is None:
         return None
     else:
         pass
 
-    marker = bytes.fromhex("44 00 00 a0 44")
+    if group:
+        marker = bytes.fromhex("42 a4 04 00 00")   
+    else: 
+        marker = bytes.fromhex("44 00 00 a0 44")
+
     end_marker = b"\x00" * 6
     start_index = media_blob.rfind(marker)
     if start_index == -1:
@@ -394,6 +398,7 @@ def potatochat_group_chats(files_found, report_folder, seeker, wrap_text, timezo
         data_type = 0
         data_length = 0
         title_length = 1
+        reply = ""
         while working_offset < blob_length:
             title_length = int.from_bytes(blob_data[working_offset:working_offset + working_length])
             working_offset += working_length
@@ -452,6 +457,20 @@ def potatochat_group_chats(files_found, report_folder, seeker, wrap_text, timezo
                 mid = int.from_bytes(payload_data, byteorder='little')
             elif ASCII_title == 'out':
                 outgoing = int.from_bytes(payload_data, byteorder='little')
+            elif ASCII_title == "md":
+                if message == None or message == "":
+                    message = extract_attachment_message(payload_data, group=True)
+                if b"replyMessage" in payload_data:
+                    try:
+                        reblob = payload_data
+                        replystart = reblob.find(b"replyMessage")
+                        pattern = b"\x01\x69\x02"
+                        nr_start = reblob.find(pattern, replystart)
+                        id_start = nr_start + len(pattern)
+                        id_bytes = reblob[id_start:id_start+4]
+                        reply = struct.unpack("<I", id_bytes)[0]
+                    except:
+                        pass
             attach_file = ''
             for m_record in media_records:
                 media_str = blob_data.hex()
@@ -476,10 +495,28 @@ def potatochat_group_chats(files_found, report_folder, seeker, wrap_text, timezo
                     else:
                         attach_file = ''
                     break
-        data_list.append((message_date, group_name, group_ID, message_id, user_name, user_ID, message, attach_file))
+        """
+        pdf_marker = b"application/pdf"
+        pattern = b"\xa1\x68\x01"
+        if pdf_marker in blob_data:
+            pos_marker = blob_data.find(pdf_marker)
+            if pos_marker == -1:
+                break
+            idx = blob_data.rfind(pattern, 0, pos_marker)
+            if idx == -1:
+                break
+            pos = idx + len(pattern) + 4
+            end = pos_marker - 4
+            if end <= pos:
+                break
+            pdf_name = blob_data[pos:end]
+            pdf_str = pdf_name.decode("utf-8", errors="replace")
+            message = f"Attachement: {pdf_str} {message}"
+        """
+        data_list.append((message_date, group_name, group_ID, message_id, user_name, user_ID, message, attach_file, reply))
 
     data_headers = (
         ('Timestamp', 'datetime'), 'Group Name', 'Group-ID', 'Message-ID', 'Sender Name', 'From ID',
-        'Message', ('Attachment File', 'media'))
+        'Message', ('Attachment File', 'media'), 'Reply (Message-ID)')
 
     return data_headers, data_list, source_path
