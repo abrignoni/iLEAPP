@@ -3,8 +3,8 @@ __artifacts_v2__ = {
         'name': 'Potato Chat - Chats',
         'description': 'Extract chats from Potato Chat',
         'author': '@C_Peter',
-        'creation_date': '2025-08-17',
-        'last_update_date': '2025-08-17',
+        'creation_date': '2025-08-18',
+        'last_update_date': '2025-08-1',
         'requirements': 'none',
         'category': 'Potato Chat',
         'notes': '',
@@ -18,10 +18,10 @@ __artifacts_v2__ = {
     },
     'potatochat_group_chats': {
         'name': 'Potato Chat - Group Chats',
-        'description': 'Extract group chats from Potato Chat',
+        'description': 'Extract group chats from Potato Chat, based off the work by Forrest Cook - https://github.com/Whee30',
         'author': '@C_Peter',
-        'creation_date': '2025-08-17',
-        'last_update_date': '2025-08-17',
+        'creation_date': '2025-08-18',
+        'last_update_date': '2025-08-18',
         'requirements': 'none',
         'category': 'Potato Chat',
         'notes': '',
@@ -38,8 +38,8 @@ __artifacts_v2__ = {
         'name': 'Potato Chat - Known Users',
         'description': 'Extract known users from Potato Chat',
         'author': '@C_Peter',
-        'creation_date': '2025-08-17',
-        'last_update_date': '2025-08-17',
+        'creation_date': '2025-08-18',
+        'last_update_date': '2025-08-18',
         'requirements': 'none',
         'category': 'Potato Chat',
         'notes': '',
@@ -208,6 +208,7 @@ def potatochat_chats(files_found, report_folder, seeker, wrap_text, timezone_off
         location = ''
         lon = ""
         lat = ""
+        filename = None
         if message == "" or message == None:
             if record['media']:
                 blob = record['media']
@@ -259,6 +260,32 @@ def potatochat_chats(files_found, report_folder, seeker, wrap_text, timezone_off
                         message = f"{type}Call - Duration: {dur_sec} Seconds"
                 except:
                     pass
+                if b"TGDocumentAttributeFilename" in blob:
+                    try:
+                        fn = b"TGDocumentAttributeFilename"
+                        stop = b"\x00" * 6
+                        start = 0
+                        fn_start = blob.find(fn)
+                        if fn_start == -1:
+                            break
+                        pos = fn_start + len(fn) + 5
+                        stop_pos = blob.find(stop, pos)
+                        if stop_pos == -1:
+                            break
+                        fn_hex = blob[pos:stop_pos]
+
+                        try:
+                            filename = fn_hex.decode('utf-8')
+                        except:
+                            filename = "file"
+                        if fn_hex.startswith(b'file\x18'):
+                            filename = "file"
+                        if message == None or message == "":
+                            message = f"File: {filename}"
+                        else:
+                            message = f"{message} | File: {filename}"
+                    except:
+                        pass
         else:
             if record['media']:
                 if b"replyMessage" in record['media']:
@@ -287,9 +314,14 @@ def potatochat_chats(files_found, report_folder, seeker, wrap_text, timezone_off
                     elif m_record['media_type'] == 1:
                         media_local_path = f'video/remote{hex_path}.mov'
                     elif m_record['media_type'] == 3:
-                        media_local_path = f'files/{hex_path}/file'
-                        if str(m_record['media_id']).startswith("-"):
-                            media_local_path = f'files/local{hex_path}/file'
+                        if filename == None:
+                            media_local_path = f'files/{hex_path}/file'
+                            if str(m_record['media_id']).startswith("-"):
+                                media_local_path = f'files/local{hex_path}/file'
+                        else:
+                            media_local_path = f'files/{hex_path}/{filename}'
+                            if str(m_record['media_id']).startswith("-"):
+                                media_local_path = f'files/local{hex_path}/{filename}'
                     else: 
                         media_local_path = None
                     if media_local_path != None:
@@ -314,16 +346,25 @@ def potatochat_users(files_found, report_folder, seeker, wrap_text, timezone_off
     data_list = []
     users_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'users_v__';"
     users_nr = get_sqlite_db_records(source_path, users_query)[0]['name']
+    contact_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'contacts_v__';"
+    contact_nr = get_sqlite_db_records(source_path, contact_query)[0]['name']
     list_query = f'''
         SELECT
-            uid,
-            first_name,
-            last_name,
-            access_hash,
-            username,
-            last_seen
-        FROM {users_nr}
+            u.uid,
+            u.first_name,
+            u.last_name,
+            u.access_hash,
+            u.username,
+            u.last_seen,
+            CASE
+                WHEN c.uid IS NOT NULL THEN 'yes'
+                ELSE 'no'
+            END AS contact
+        FROM {users_nr} u
+        LEFT JOIN {contact_nr} c
+            ON u.uid = c.uid
     '''
+
     db_records = get_sqlite_db_records(source_path, list_query)
     for record in db_records:
         user_id = record['uid']
@@ -331,14 +372,15 @@ def potatochat_users(files_found, report_folder, seeker, wrap_text, timezone_off
         last_name = record['last_name']
         acc_hash = record['access_hash']
         username = record ['username']
+        contact = record ['contact']
         if int(record['last_seen']) > 1:
             last_seen = datetime.datetime.fromtimestamp(record['last_seen'], tz=datetime.timezone.utc)
         else:
             last_seen = ''
-        data_list.append((user_id, first_name, last_name, acc_hash, username, last_seen))
+        data_list.append((user_id, first_name, last_name, acc_hash, username, last_seen, contact))
     
     data_headers = (
-        'User-ID', 'First Name', 'Last Name', 'Access Hash', 'Username', ('Last Seen', 'datetime'))
+        'User-ID', 'First Name', 'Last Name', 'Access Hash', 'Username', ('Last Seen', 'datetime'), 'Contact')
 
     return data_headers, data_list, source_path
 
@@ -485,11 +527,16 @@ def potatochat_group_chats(files_found, report_folder, seeker, wrap_text, timezo
                         if stop_pos == -1:
                             break
                         fn_hex = payload_data[pos:stop_pos]
-                        filename = fn_hex.decode('utf-8', errors='ignore')
+                        try:
+                            filename = fn_hex.decode('utf-8')
+                        except:
+                            filename = "file"
+                        if fn_hex.startswith(b'file\x18'):
+                            filename = "file"
                         if message == None or message == "":
                             message = f"File: {filename}"
                         else:
-                            message = f"{message} | File: {fn_hex.decode('utf-8', errors='ignore')}"
+                            message = f"{message} | File: {filename}"
                     except:
                         pass
         attach_file = ''
