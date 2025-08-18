@@ -60,16 +60,16 @@ from scripts.ilapfuncs import artifact_processor, \
     get_file_path, get_sqlite_db_records, attach_sqlite_db_readonly, \
     check_in_media, get_plist_content
 
-def extract_attachment_message(media_blob, group=False):
+def extract_attachment_message(media_blob):
     if media_blob is None:
         return None
     else:
         pass
 
-    if group:
-        marker = bytes.fromhex("42 a4 04 00 00")   
+    if bytes.fromhex("44 00 00 a0 44") in media_blob:
+        marker = bytes.fromhex("44 00 00 a0 44") 
     else: 
-        marker = bytes.fromhex("44 00 00 a0 44")
+        marker = bytes.fromhex("42 a4 04 00 00")  
 
     end_marker = b"\x00" * 6
     start_index = media_blob.rfind(marker)
@@ -399,6 +399,7 @@ def potatochat_group_chats(files_found, report_folder, seeker, wrap_text, timezo
         data_length = 0
         title_length = 1
         reply = ""
+        filename = None
         while working_offset < blob_length:
             title_length = int.from_bytes(blob_data[working_offset:working_offset + working_length])
             working_offset += working_length
@@ -459,7 +460,7 @@ def potatochat_group_chats(files_found, report_folder, seeker, wrap_text, timezo
                 outgoing = int.from_bytes(payload_data, byteorder='little')
             elif ASCII_title == "md":
                 if message == None or message == "":
-                    message = extract_attachment_message(payload_data, group=True)
+                    message = extract_attachment_message(payload_data)
                 if b"replyMessage" in payload_data:
                     try:
                         reblob = payload_data
@@ -471,48 +472,55 @@ def potatochat_group_chats(files_found, report_folder, seeker, wrap_text, timezo
                         reply = struct.unpack("<I", id_bytes)[0]
                     except:
                         pass
-            attach_file = ''
-            for m_record in media_records:
-                media_str = blob_data.hex()
-                hex_path = format(abs(m_record['media_id']), 'x')
-                if str(m_record['media_id']).startswith("-"):
-                    unsigned = m_record['media_id'] & 0xFFFFFFFFFFFFFFFF
-                    hex_path = format(int(unsigned), 'x')
-                if bytes.fromhex(hex_path)[::-1].hex() in media_str:
-                    if m_record['media_type'] == 2:
-                        media_local_path = f'files/image-remote-{hex_path}/image.jpg'
-                    elif m_record['media_type'] == 1:
-                        media_local_path = f'video/remote{hex_path}.mov'
-                    elif m_record['media_type'] == 3:
+                if b"TGDocumentAttributeFilename" in payload_data:
+                    try:
+                        fn = b"TGDocumentAttributeFilename"
+                        stop = b"\x00" * 6
+                        start = 0
+                        fn_start = payload_data.find(fn)
+                        if fn_start == -1:
+                            break
+                        pos = fn_start + len(fn) + 5
+                        stop_pos = payload_data.find(stop, pos)
+                        if stop_pos == -1:
+                            break
+                        fn_hex = payload_data[pos:stop_pos]
+                        filename = fn_hex.decode('utf-8', errors='ignore')
+                        if message == None or message == "":
+                            message = f"File: {filename}"
+                        else:
+                            message = f"{message} | File: {fn_hex.decode('utf-8', errors='ignore')}"
+                    except:
+                        pass
+        attach_file = ''
+        for m_record in media_records:
+            media_str = blob_data.hex()
+            hex_path = format(abs(m_record['media_id']), 'x')
+            if str(m_record['media_id']).startswith("-"):
+                unsigned = m_record['media_id'] & 0xFFFFFFFFFFFFFFFF
+                hex_path = format(int(unsigned), 'x')
+            if bytes.fromhex(hex_path)[::-1].hex() in media_str:
+                if m_record['media_type'] == 2:
+                    media_local_path = f'files/image-remote-{hex_path}/image.jpg'
+                elif m_record['media_type'] == 1:
+                    media_local_path = f'video/remote{hex_path}.mov'
+                elif m_record['media_type'] == 3:
+                    if filename == None:
                         media_local_path = f'files/{hex_path}/file'
                         if str(m_record['media_id']).startswith("-"):
                             media_local_path = f'files/local{hex_path}/file'
-                    else: 
-                        media_local_path = None
-                    if media_local_path != None:
-                        attach_file_name = Path(media_local_path).name
-                        attach_file = check_in_media(media_local_path, attach_file_name)
                     else:
-                        attach_file = ''
-                    break
-        """
-        pdf_marker = b"application/pdf"
-        pattern = b"\xa1\x68\x01"
-        if pdf_marker in blob_data:
-            pos_marker = blob_data.find(pdf_marker)
-            if pos_marker == -1:
+                        media_local_path = f'files/{hex_path}/{filename}'
+                        if str(m_record['media_id']).startswith("-"):
+                            media_local_path = f'files/local{hex_path}/{filename}'
+                else: 
+                    media_local_path = None
+                if media_local_path != None:
+                    attach_file_name = Path(media_local_path).name
+                    attach_file = check_in_media(media_local_path, attach_file_name)
+                else:
+                    attach_file = ''
                 break
-            idx = blob_data.rfind(pattern, 0, pos_marker)
-            if idx == -1:
-                break
-            pos = idx + len(pattern) + 4
-            end = pos_marker - 4
-            if end <= pos:
-                break
-            pdf_name = blob_data[pos:end]
-            pdf_str = pdf_name.decode("utf-8", errors="replace")
-            message = f"Attachement: {pdf_str} {message}"
-        """
         data_list.append((message_date, group_name, group_ID, message_id, user_name, user_ID, message, attach_file, reply))
 
     data_headers = (
