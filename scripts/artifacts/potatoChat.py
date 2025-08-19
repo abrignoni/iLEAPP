@@ -174,6 +174,8 @@ def potatochat_chats(files_found, report_folder, seeker, wrap_text, timezone_off
 
 
     for record in db_records:
+        text = False
+        m_type = 'Unknown/System-Message'
         message_date = datetime.datetime.fromtimestamp(record['date'], tz=datetime.timezone.utc)
         chat_name = record['chat']
         chat_id = record['cid']
@@ -183,6 +185,8 @@ def potatochat_chats(files_found, report_folder, seeker, wrap_text, timezone_off
         receiver = record['to_name'] if record['outgoing'] == 1 else 'Local User'
         receiver_id = record['to_id']
         message = record['message']
+        if message != None or message != "":
+            text = True
         if chat_name == None:
             for c_record in conv_records:
                 if c_record['cid'] == chat_id and c_record['participants'] != None:
@@ -216,13 +220,17 @@ def potatochat_chats(files_found, report_folder, seeker, wrap_text, timezone_off
                 call = bytes.fromhex("8b e2 67 11 18")
                 location = bytes.fromhex("6e d0 9e 0c")
                 message = extract_attachment_message(blob)
+                if message != None:
+                    text = True
+                if message == "" or message == " ":
+                    text = False
                 try:
                     if blob[4:4 + len(location)] == location:
-                        message = "Location"
                         lon_b = blob[20:28]
                         lat_b = blob[12:20]
                         lon = struct.unpack('<d', lon_b)[0]
                         lat = struct.unpack('<d', lat_b)[0]
+                        m_type = "Location"
                 except:
                     lon = None
                     lat = None
@@ -232,7 +240,7 @@ def potatochat_chats(files_found, report_folder, seeker, wrap_text, timezone_off
                         start = blob.find(b"bplist00")
                         plistb = blob[start:]
                         location = get_plist_content(plistb)
-                        message = f"Location: {location}"
+                        message = f"{location}"
                     except:
                         pass
                 try:
@@ -244,10 +252,12 @@ def potatochat_chats(files_found, report_folder, seeker, wrap_text, timezone_off
                             message = f"Contact: User-ID: {c_uid}, First Name: {c_cid['first_name']}, Last Name: {c_cid['last_name']}"
                         else:
                             message = "Contact (not found in database)"
+                        m_type = "Contact"
                 except:
                     pass
                 try:
                     if blob[4:4 + len(call)] == call:
+                        m_type = "Call"
                         dur_b = blob[32:35]
                         dur_sec = int.from_bytes(dur_b, byteorder="little")
                         if blob[16] in (0x01, 0x23):
@@ -281,14 +291,16 @@ def potatochat_chats(files_found, report_folder, seeker, wrap_text, timezone_off
                         if fn_hex.startswith(b'file\x18'):
                             filename = "file"
                         if message == None or message == "":
-                            message = f"File: {filename}"
+                            m_type = "File"
                         else:
-                            message = f"{message} | File: {filename}"
+                            m_type = "Text and File"
                     except:
                         pass
         else:
+            m_type = "Text"
             if record['media']:
                 if b"replyMessage" in record['media']:
+                    m_type = "Reply"
                     try:
                         reblob = record['media']
                         replystart = reblob.find(b"replyMessage")
@@ -311,8 +323,20 @@ def potatochat_chats(files_found, report_folder, seeker, wrap_text, timezone_off
                 if bytes.fromhex(hex_path)[::-1].hex() in media_str:
                     if m_record['media_type'] == 2:
                         media_local_path = f'files/image-remote-{hex_path}/image.jpg'
+                        if text:
+                            m_type = "Text and Image"
+                        else:
+                            m_type = "Image"
+                        if message == None or message == "":
+                            m_type = "Image"
                     elif m_record['media_type'] == 1:
                         media_local_path = f'video/remote{hex_path}.mov'
+                        if text:
+                            m_type = "Text and Video"
+                        else:
+                            m_type = "Video"
+                        if message == None or message == "":
+                            m_type = "Video"
                     elif m_record['media_type'] == 3:
                         if filename == None:
                             media_local_path = f'files/{hex_path}/file'
@@ -322,6 +346,15 @@ def potatochat_chats(files_found, report_folder, seeker, wrap_text, timezone_off
                             media_local_path = f'files/{hex_path}/{filename}'
                             if str(m_record['media_id']).startswith("-"):
                                 media_local_path = f'files/local{hex_path}/{filename}'
+                        if message == None or message == "":
+                            m_type = "File"
+                            try:
+                                if filename != "file":
+                                    message = f"File: {filename}"
+                            except:
+                                pass
+                        else:
+                            m_type = "Text and File"
                     else: 
                         media_local_path = None
                     if media_local_path != None:
@@ -330,12 +363,14 @@ def potatochat_chats(files_found, report_folder, seeker, wrap_text, timezone_off
                     else:
                         attach_file = ''
                     break
-        data_list.append((message_date, chat_name, chat_id, message_id, sender, sender_id, receiver, receiver_id, message, attach_file, reply, lat, lon))
+        if reply != "":
+            m_type = "Reply"
+        data_list.append((message_date, chat_name, chat_id, message_id, sender, sender_id, receiver, receiver_id, m_type, message, attach_file, reply, lat, lon))
         
 
 
     data_headers = (
-        ('Timestamp', 'datetime'), 'Chat', 'Chat-ID', 'Message-ID', 'Sender Name', 'From ID', 'Receiver', 'To ID',
+        ('Timestamp', 'datetime'), 'Chat', 'Chat-ID', 'Message-ID', 'Sender Name', 'From ID', 'Receiver', 'To ID', 'Message Type',
         'Message', ('Attachment File', 'media'), 'Reply (Message-ID)', 'Latitude', 'Longitude')
 
     return data_headers, data_list, source_path
@@ -441,6 +476,7 @@ def potatochat_group_chats(files_found, report_folder, seeker, wrap_text, timezo
         data_length = 0
         title_length = 1
         reply = ""
+        m_type = 'Unknown/System-Message'
         filename = None
         while working_offset < blob_length:
             title_length = int.from_bytes(blob_data[working_offset:working_offset + working_length])
@@ -476,6 +512,7 @@ def potatochat_group_chats(files_found, report_folder, seeker, wrap_text, timezo
             formatted_bytes = ' '.join(f'{byte:02X}' for byte in payload_data)
             if d_t == "Str" and ASCII_title == "t":
                 message = payload_data.decode('utf-8', errors='replace')
+                m_type = 'Text'
             elif d_t == "Int" and ASCII_title == 'd':
                 timestamp = int.from_bytes(payload_data, byteorder='little')
                 message_date = datetime.datetime.fromtimestamp(timestamp, tz=datetime.timezone.utc)
@@ -504,6 +541,7 @@ def potatochat_group_chats(files_found, report_folder, seeker, wrap_text, timezo
                 if message == None or message == "":
                     message = extract_attachment_message(payload_data)
                 if b"replyMessage" in payload_data:
+                    m_type = 'Reply'
                     try:
                         reblob = payload_data
                         replystart = reblob.find(b"replyMessage")
@@ -516,6 +554,7 @@ def potatochat_group_chats(files_found, report_folder, seeker, wrap_text, timezo
                         pass
                 if b"TGDocumentAttributeFilename" in payload_data:
                     try:
+                        m_type = 'File'
                         fn = b"TGDocumentAttributeFilename"
                         stop = b"\x00" * 6
                         start = 0
@@ -535,8 +574,10 @@ def potatochat_group_chats(files_found, report_folder, seeker, wrap_text, timezo
                             filename = "file"
                         if message == None or message == "":
                             message = f"File: {filename}"
+                            m_type = "File"
                         else:
                             message = f"{message} | File: {filename}"
+                            m_type = 'Text and File'
                     except:
                         pass
         attach_file = ''
@@ -549,9 +590,19 @@ def potatochat_group_chats(files_found, report_folder, seeker, wrap_text, timezo
             if bytes.fromhex(hex_path)[::-1].hex() in media_str:
                 if m_record['media_type'] == 2:
                     media_local_path = f'files/image-remote-{hex_path}/image.jpg'
+                    if message == None or message == "":
+                        m_type = 'Image'
+                    else:
+                        m_type = 'Text and Image'
                 elif m_record['media_type'] == 1:
                     media_local_path = f'video/remote{hex_path}.mov'
+                    if message == None or message == "":
+                        m_type = 'Video'
+                    else:
+                        m_type = 'Text and Video'
                 elif m_record['media_type'] == 3:
+                    if m_type != "Text and File":
+                        m_type = 'File'
                     if filename == None:
                         media_local_path = f'files/{hex_path}/file'
                         if str(m_record['media_id']).startswith("-"):
@@ -568,10 +619,12 @@ def potatochat_group_chats(files_found, report_folder, seeker, wrap_text, timezo
                 else:
                     attach_file = ''
                 break
-        data_list.append((message_date, group_name, group_ID, message_id, user_name, user_ID, message, attach_file, reply))
+        if reply != "":
+            m_type = "Reply"
+        data_list.append((message_date, group_name, group_ID, message_id, user_name, user_ID, m_type, message, attach_file, reply))
 
     data_headers = (
-        ('Timestamp', 'datetime'), 'Group Name', 'Group-ID', 'Message-ID', 'Sender Name', 'From ID',
+        ('Timestamp', 'datetime'), 'Group Name', 'Group-ID', 'Message-ID', 'Sender Name', 'From ID', 'Message Type',
         'Message', ('Attachment File', 'media'), 'Reply (Message-ID)')
 
     return data_headers, data_list, source_path
