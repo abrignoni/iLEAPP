@@ -359,7 +359,7 @@ class FileSeekerItunes(FileSeekerBase):
                         # Snag the right protection class
                         tmp_file_meta = self._all_file_meta[relative_path]
                         if tmp_file_meta['Class'] not in self._protection_classes:
-                            logfunc(f'Can\'t locate the protection class for {relative_path}: {tmp_file_meta['Class']}')
+                            logfunc(f'Can\'t locate the protection class for {relative_path}: {tmp_file_meta["Class"]}')
                             raise Exception
                         tmp_protection_class = self._protection_classes[tmp_file_meta['Class']]
 
@@ -375,7 +375,7 @@ class FileSeekerItunes(FileSeekerBase):
                             decrypted_contents = decryptor.update(temp_original_file.read()) + decryptor.finalize()
 
                             # Write the decrypt into the expected located, only write the expected size, no padding
-                            with open(temp_location, "wb") as temp_new_file:
+                            with open(data_path, "wb") as temp_new_file:
                                 temp_new_file.write(decrypted_contents[0:tmp_file_meta['Size']])
 
                     # If not encrypted, just copy the thing
