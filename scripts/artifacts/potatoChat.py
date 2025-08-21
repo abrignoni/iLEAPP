@@ -230,7 +230,7 @@ def potatochat_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone
                         lon = struct.unpack('<d', lon_b)[0]
                         lat = struct.unpack('<d', lat_b)[0]
                         m_type = "Location"
-                except Exception:
+                except (struct.error, IndexError):
                     lon = None
                     lat = None
 
@@ -240,7 +240,7 @@ def potatochat_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone
                         plistb = blob[start:]
                         location = get_plist_content(plistb)
                         message = f"{location}"
-                    except Exception:
+                    except (ValueError, IndexError):
                         pass
                 try:
                     if blob[4:4 + len(contact)] == contact:
@@ -252,7 +252,7 @@ def potatochat_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone
                         else:
                             message = "Contact (not found in database)"
                         m_type = "Contact"
-                except Exception:
+                except IndexError:
                     pass
                 c_type = ""
                 try:
@@ -268,7 +268,7 @@ def potatochat_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone
                             c_type = ""
                         c_cid = next((rec for rec in u_cid_records if rec["uid"] == c_uid), None)
                         message = f"{c_type}Call - Duration: {dur_sec} Seconds"
-                except Exception:
+                except (IndexError, struct.error):
                     pass
                 if b"TGDocumentAttributeFilename" in blob:
                     try:
@@ -286,7 +286,7 @@ def potatochat_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone
 
                         try:
                             filename = fn_hex.decode('utf-8')
-                        except Exception:
+                        except UnicodeDecodeError:
                             filename = "file"
                         if fn_hex.startswith(b'file\x18'):
                             filename = "file"
@@ -294,7 +294,7 @@ def potatochat_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone
                             m_type = "File"
                         else:
                             m_type = "Text and File"
-                    except Exception:
+                    except UnicodeDecodeError:
                         pass
         else:
             m_type = "Text"
@@ -309,7 +309,7 @@ def potatochat_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone
                         id_start = nr_start + len(pattern)
                         id_bytes = reblob[id_start:id_start+4]
                         reply = struct.unpack("<I", id_bytes)[0]
-                    except Exception:
+                    except (IndexError, struct.error):
                         pass
 
         attach_file = ''
@@ -348,11 +348,8 @@ def potatochat_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone
                                 media_local_path = f'files/local{hex_path}/{filename}'
                         if message == None or message == "":
                             m_type = "File"
-                            try:
-                                if filename != "file":
-                                    message = f"File: {filename}"
-                            except Exception:
-                                pass
+                            if filename and filename != "file":
+                                message = f"File: {filename}"
                         else:
                             m_type = "Text and File"
                     else: 
@@ -436,7 +433,7 @@ def potatochat_group_chats(files_found, _report_folder, _seeker, _wrap_text, _ti
     try:
         group_json = get_sqlite_db_records(share_dialog, group_query)[0]['userInfosJson'] 
         groups = json.loads(group_json)
-    except Exception: 
+    except (IndexError, KeyError): 
         group_json = None
         groups = []
 
@@ -509,7 +506,7 @@ def potatochat_group_chats(files_found, _report_folder, _seeker, _wrap_text, _ti
                 break
             payload_data = blob_data[working_offset:working_offset + data_length]
             working_offset += data_length
-            formatted_bytes = ' '.join(f'{byte:02X}' for byte in payload_data)
+            #formatted_bytes = ' '.join(f'{byte:02X}' for byte in payload_data)
             if d_t == "Str" and ASCII_title == "t":
                 message = payload_data.decode('utf-8', errors='replace')
                 m_type = 'Text'
@@ -550,7 +547,7 @@ def potatochat_group_chats(files_found, _report_folder, _seeker, _wrap_text, _ti
                         id_start = nr_start + len(pattern)
                         id_bytes = reblob[id_start:id_start+4]
                         reply = struct.unpack("<I", id_bytes)[0]
-                    except Exception:
+                    except (IndexError, struct.error):
                         pass
                 if b"TGDocumentAttributeFilename" in payload_data:
                     try:
@@ -567,7 +564,7 @@ def potatochat_group_chats(files_found, _report_folder, _seeker, _wrap_text, _ti
                         fn_hex = payload_data[pos:stop_pos]
                         try:
                             filename = fn_hex.decode('utf-8')
-                        except Exception:
+                        except UnicodeDecodeError:
                             filename = "file"
                         if fn_hex.startswith(b'file\x18'):
                             filename = "file"
@@ -577,7 +574,7 @@ def potatochat_group_chats(files_found, _report_folder, _seeker, _wrap_text, _ti
                         else:
                             message = f"{message} | File: {filename}"
                             m_type = 'Text and File'
-                    except Exception:
+                    except (IndexError, TypeError):
                         pass
         attach_file = ''
         for m_record in media_records:
