@@ -1,12 +1,12 @@
 __artifacts_v2__ = {
     "get_biomeDevWifi": {
-        "name": "Biome Device WiFi",
+        "name": "Biome - WiFi Devices",
         "description": "Parses (device) WiFi connection entries from biomes",
         "author": "@JohnHyla",
         "version": "0.0.2",
         "date": "2024-10-17",
         "requirements": "none",
-        "category": "Biome WiFi",
+        "category": "Biome",
         "notes": "",
         "paths": ('*/Biome/streams/restricted/Device.Wireless.WiFi/local/*'),
         "output_types": "standard"

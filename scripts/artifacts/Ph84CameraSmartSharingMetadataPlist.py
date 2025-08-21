@@ -13,7 +13,8 @@ __artifacts_v2__ = {
         'category': 'Photos-Z-Settings',
         'notes': '',
         'paths': ('*/PhotoData/Caches/SmartSharing/camera_smart_sharing_metadata.plist',),
-        "output_types": ["standard", "tsv", "none"]
+        "output_types": ["standard", "tsv", "none"],
+        "artifact_icon": "camera"
     }
 }
 
@@ -21,7 +22,6 @@ import datetime
 import os
 import plistlib
 import nska_deserialize as nd
-import scripts.artifacts.artGlobals
 from scripts.builds_ids import OS_build
 from scripts.ilapfuncs import artifact_processor, logfunc, device_info, get_file_path
 

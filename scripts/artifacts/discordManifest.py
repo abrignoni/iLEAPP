@@ -2,7 +2,6 @@
 import os
 import json
 from pathlib import Path
-import scripts.artifacts.artGlobals
 
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport

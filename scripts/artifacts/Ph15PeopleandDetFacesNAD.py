@@ -10,7 +10,8 @@ __artifacts_v2__ = {
         'category': 'Photos.sqlite-G-People_Faces_Data',
         'notes': '',
         'paths': ('*/PhotoData/Photos.sqlite*',),
-        "output_types": ["standard", "tsv", "none"]
+        "output_types": ["standard", "tsv", "none"],
+        "artifact_icon": "smile"
     },
     'Ph15_2PeopleFacesNADSyndPL': {
         'name': 'Ph15.2-People & Faces NAD-SyndPL',
@@ -24,16 +25,16 @@ __artifacts_v2__ = {
         'category': 'Photos.sqlite-S-Syndication_PL_Artifacts',
         'notes': '',
         'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
-        "output_types": ["standard", "tsv", "none"]
+        "output_types": ["standard", "tsv", "none"],
+        "artifact_icon": "smile"
     }
 }
 
 import os
 import nska_deserialize as nd
-import scripts.artifacts.artGlobals
 from packaging import version
 from scripts.builds_ids import OS_build
-from scripts.ilapfuncs import media_to_html, artifact_processor, get_file_path, open_sqlite_db_readonly, get_sqlite_db_records, logfunc
+from scripts.ilapfuncs import media_to_html, artifact_processor, get_file_path, open_sqlite_db_readonly, get_sqlite_db_records, logfunc, iOS
 
 @artifact_processor
 def Ph15_1PeopleFacesNADPhDaPsql(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -45,7 +46,7 @@ def Ph15_1PeopleFacesNADPhDaPsql(files_found, report_folder, seeker, wrap_text, 
 
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
-    iosversion = scripts.artifacts.artGlobals.versionf
+    iosversion = iOS.get_version()
     if version.parse(iosversion) <= version.parse("13.7"):
         logfunc("Unsupported version for PhotoData-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
@@ -2607,7 +2608,7 @@ def Ph15_2PeopleFacesNADSyndPL(files_found, report_folder, seeker, wrap_text, ti
 
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
-    iosversion = scripts.artifacts.artGlobals.versionf
+    iosversion = iOS.get_version()
     if version.parse(iosversion) <= version.parse("13.7"):
         logfunc("Unsupported version for Syndication.photoslibrary iOS " + iosversion)
         return (), [], source_path

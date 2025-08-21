@@ -1,42 +1,251 @@
 __artifacts_v2__ = {
-    "booking": {
-        "name": "Booking.com",
-        "description": "account, payment methods, wish lists, viewed, recently searched, recently booked, booked, \
-            stored destinations, notifications and flights searched",
-        "author": "Django Faiola (djangofaiola.blogspot.com)",
-        "version": "0.1.0",
-        "date": "28/05/2024",
+    "booking_preferences": {
+        "name": "Preferences",
+        "description": "Parses and extract Booking.com Preferences",
+        "author": "@djangofaiola",
+        "version": "0.2",
+        "creation_date": "2024-05-28",
+        "last_update_date": "2025-05-02",
         "requirements": "none",
         "category": "Booking.com",
-        "notes": "",
+        "notes": "https://djangofaiola.blogspot.com",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Preferences/com.booking.BookingApp.plist'),
-        "function": "get_booking"
+        "output_types": [ "none" ],
+        "artifact_icon": "settings"
+    },
+    "booking_account": {
+        "name": "Account",
+        "description": "Parses and extract Booking.com Account",
+        "author": "@djangofaiola",
+        "version": "0.2",
+        "creation_date": "2024-05-28",
+        "last_update_date": "2025-05-02",
+        "requirements": "none",
+        "category": "Booking.com",
+        "notes": "https://djangofaiola.blogspot.com",
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/KeyValueStorageAccountDomain*',
+                  '*/mobile/Containers/Data/Application/*/Library/Application Support/AccountSettings*'),
+        "output_types": [ "lava", "html", "tsv" ],
+        "html_columns": [ "Profile picture URL", "Emails", "Facilities", "Source file name", "Location" ],
+        "artifact_icon": "user"
+    },
+    "booking_payment_methods": {
+        "name": "Payment Methods",
+        "description": "Parses and extract Booking.com Payment Methods",
+        "author": "@djangofaiola",
+        "version": "0.2",
+        "creation_date": "2024-05-28",
+        "last_update_date": "2025-05-02",
+        "requirements": "none",
+        "category": "Booking.com",
+        "notes": "https://djangofaiola.blogspot.com",
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/KeyValueStorageAccountDomain*',
+                  '*/mobile/Containers/Data/Application/*/Library/Application Support/AccountSettings*'),
+        "output_types": [ "lava", "html", "tsv" ],
+        "html_columns": [ "Source file name", "Location" ],
+        "artifact_icon": "credit-card"
+    },
+    "booking_wish_lists": {
+        "name": "Wish Lists",
+        "description": "Parses and extract Booking.com Wish Lists",
+        "author": "@djangofaiola",
+        "version": "0.2",
+        "creation_date": "2024-05-28",
+        "last_update_date": "2025-05-02",
+        "requirements": "none",
+        "category": "Booking.com",
+        "notes": "https://djangofaiola.blogspot.com",
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/KeyValueStorageRecentsDomain*'),
+        "output_types": [ "lava", "html", "tsv" ],
+        "html_columns": [ "Source file name", "Location" ],
+        "artifact_icon": "star"
+    },
+    "booking_viewed": {
+        "name": "Viewed",
+        "description": "Parses and extract Booking.com Viewed",
+        "author": "@djangofaiola",
+        "version": "0.2",
+        "creation_date": "2024-05-28",
+        "last_update_date": "2025-05-02",
+        "requirements": "none",
+        "category": "Booking.com",
+        "notes": "https://djangofaiola.blogspot.com",
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/KeyValueStorageRecentsDomain*'),
+        "output_types": [ "lava", "html", "tsv", "timeline" ],
+        "html_columns": [ "Image URL", "Website", "Source file name", "Location" ],
+        "artifact_icon": "eye"
+    },
+    "booking_recently_searched": {
+        "name": "Recently Searched",
+        "description": "Parses and extract Booking.com Recently Searched",
+        "author": "@djangofaiola",
+        "version": "0.2",
+        "creation_date": "2024-05-28",
+        "last_update_date": "2025-05-02",
+        "requirements": "none",
+        "category": "Booking.com",
+        "notes": "https://djangofaiola.blogspot.com",
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/KeyValueStorageRecentsDomain*'),
+        "output_types": [ "lava", "html", "tsv", "timeline" ],
+        "html_columns": [ "Source file name", "Location" ],
+        "artifact_icon": "search"
+    },
+    "booking_recently_booked": {
+        "name": "Recently Booked",
+        "description": "Parses and extract Booking.com Recently Booked",
+        "author": "@djangofaiola",
+        "version": "0.2",
+        "creation_date": "2024-05-28",
+        "last_update_date": "2025-05-02",
+        "requirements": "none",
+        "category": "Booking.com",
+        "notes": "https://djangofaiola.blogspot.com",
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/KeyValueStorageRecentsDomain*'),
+        "output_types": [ "lava", "html", "tsv" ],
+        "html_columns": [ "Image URL", "Website", "Source file name", "Location" ],
+        "artifact_icon": "shopping-bag"
+    },
+    "booking_booked": {
+        "name": "Booked",
+        "description": "Parses and extract Booking.com Booked",
+        "author": "@djangofaiola",
+        "version": "0.2",
+        "creation_date": "2024-05-28",
+        "last_update_date": "2025-05-13",
+        "requirements": "none",
+        "category": "Booking.com",
+        "notes": "https://djangofaiola.blogspot.com",
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/BookingClouds*'),
+        "output_types": [ "lava", "html", "tsv" ],
+        "html_columns": [ "Check-in/out (Hotel time zone)", "Hotel contacts", "Confirmation number/Pin code", "Rooms", "Booker details", "Attachment",
+                          "Source file name", "Location" ],
+        "artifact_icon": "shopping-bag"
+    },
+    "booking_stored_destinations": {
+        "name": "Stored Destinations",
+        "description": "Parses and extract Booking.com Stored Destinations",
+        "author": "@djangofaiola",
+        "version": "0.2",
+        "creation_date": "2024-05-28",
+        "last_update_date": "2025-05-02",
+        "requirements": "none",
+        "category": "Booking.com",
+        "notes": "https://djangofaiola.blogspot.com",
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/KeyValueStorageSharedDomain*'),
+        "output_types": [ "lava", "html", "tsv", "timeline" ],
+        "html_columns": [ "Image URL", "Source file name", "Location" ],
+        "artifact_icon": "map"
+    },
+    "booking_notifications": {
+        "name": "Notifications",
+        "description": "Parses and extract Booking.com Notifications",
+        "author": "@djangofaiola",
+        "version": "0.2",
+        "creation_date": "2024-05-28",
+        "last_update_date": "2025-05-02",
+        "requirements": "none",
+        "category": "Booking.com",
+        "notes": "https://djangofaiola.blogspot.com",
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/NotificationsModel.sqlite*'),
+        "output_types": [ "lava", "html", "tsv", "timeline" ],
+        "html_columns": [ "Image URL", "Action arguments", "Source file name", "Location" ],
+        "artifact_icon": "bell"
+    },
+    "booking_flights_searched": {
+        "name": "Flights Searched",
+        "description": "Parses and extract Booking.com Flights Searched",
+        "author": "@djangofaiola",
+        "version": "0.2",
+        "creation_date": "2024-05-28",
+        "last_update_date": "2025-05-02",
+        "requirements": "none",
+        "category": "Booking.com",
+        "notes": "https://djangofaiola.blogspot.com",
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/flight_rs_v2'),
+        "output_types": [ "lava", "html", "tsv", "timeline" ],
+        "html_columns": [ "Source airports", "Destination airports", "Routes", "Travellers' details", "Source file name", "Location" ],
+        "artifact_icon": "search"
     }
 }
 
-import os
+import inspect
+from urllib.parse import urlparse, urlunparse
 import json
-import biplist
-import plistlib
-import nska_deserialize as nd
-import sys
-import shutil
-import sqlite3
-import textwrap
 import pytz
 from datetime import datetime, date
 from pathlib import Path
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, kmlgen, open_sqlite_db_readonly, convert_ts_int_to_utc, convert_utc_human_to_timezone, \
-    convert_ts_human_to_utc, media_to_html
+from scripts.ilapfuncs import get_file_path, get_sqlite_db_records, get_plist_content, get_plist_file_content, lava_get_full_media_info, \
+    convert_plist_date_to_utc, convert_unix_ts_to_utc, convert_ts_int_to_utc, check_in_media, artifact_processor, logfunc
+
+
+# booking app id
+booking_app_identifier = None
+# constants
+LINE_BREAK = '\n'
+COMMA_SEP = ', '
+HTML_LINE_BREAK = '<br>'
+HTML_HORZ_RULE = '<hr>'
+
+
+# unordered list
+def unordered_list(values, html_format=False):
+    if not bool(values):
+        return None
+
+    return HTML_LINE_BREAK.join(values) if html_format else LINE_BREAK.join(values)
+
+
+# generic url
+def generic_url(value, html_format=False):
+    # default
+    result = None
+
+    if bool(value) and (value != 'null'):
+        u = urlparse(value)
+        # 0=scheme, 2=path
+        if not bool(u.scheme) and u.path.startswith('www'):
+            u = u._replace(scheme='http')
+        url = urlunparse(u)
+        result =  f'<a href="{url}" target="_blank">{value}</a>' if html_format else url
+
+    return result
+
+
+# json file content
+def get_json_file_content(file_path):
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            return json.load(file)
+    except Exception as e:
+        logfunc(f"Error reading file {file_path}: {str(e)}")
+        return None
+
+
+# device path/local path
+def get_device_file_path(file_path, seeker):
+    device_path = file_path
+
+    if bool(file_path):
+        file_info = seeker.file_infos.get(file_path) if file_path else None
+        # data folder: /path/to/report/data
+        if file_info:
+            source_path = file_info.source_path
+        # extraction folder: /path/to/directory
+        else:
+            source_path = file_path
+        source_path = Path(source_path).as_posix()
+
+        index_private = source_path.find('/private/')
+        if index_private > 0:
+            device_path = source_path[index_private:]
+    
+    return device_path
 
 
 def location_type_names(value):
-    if (value == None) or (value < 0) or (value > 7):
+    if (value == None):
         return ''
-    # else:
-    #     names = [ 'City', 'District', 'Region', 'Country', 'Hotel', 'Airport', 'Landmark', 'Google Places' ]
-    #     return names[value]
+
     # city
     elif value == 0: return 'City'
     # district
@@ -52,12 +261,16 @@ def location_type_names(value):
     # landmark
     elif value == 6: return 'Landmark'
     # google place
-    else: return 'Google Places'
+    elif value == 7: return 'Google Places'
+    # unknown
+    else: 
+        return f"N/D: {value}"
 
 
 def hotel_type_names(value):
     if (value == None):
         return ''
+
     # apartment
     elif value == 201: return 'Apartment'
     # guest accommodation
@@ -128,12 +341,21 @@ def hotel_type_names(value):
     elif value == 235: return 'Student Accommodation'
     # unknown
     else: 
-        return f'Unknown: {value}'
+        return f"N/D: {value}"
 
 
-def convert_ts_utc_to_hotel_tz(ts, tz_str):
-    utc_ts = pytz.timezone('UTC').localize(ts)
-    return utc_ts.astimezone(pytz.timezone(tz_str))
+# iso 8601 format to utc
+def convert_iso8601_to_utc(str_date):
+    if bool(str_date) and isinstance(str_date, str) and (str_date != 'null'):
+        dt = datetime.fromisoformat(str_date).timestamp()
+        return convert_ts_int_to_utc(dt)
+    else:
+        return str_date
+
+
+def convert_utc_to_hotel_timezone(ts, timezone_offset):
+    utc = pytz.timezone('UTC').localize(ts)
+    return utc.astimezone(pytz.timezone(timezone_offset))
 
 
 def format_check_in_out(ts_from, ts_until, tz=''):
@@ -141,13 +363,13 @@ def format_check_in_out(ts_from, ts_until, tz=''):
     if bool(ts_from):
         # seconds
         if isinstance(ts_from, float):
-            check_from = convert_ts_int_to_utc(ts_from).strftime('%H:%M')
+            check_from = convert_unix_ts_to_utc(ts_from).strftime('%H:%M')            
         # '00:00'
         elif isinstance(ts_from, str):
             check_from = ts_from
         # timestamp to time zone
         elif len(tz) > 0:
-            check_from = convert_ts_utc_to_hotel_tz(ts_from, tz).strftime('%H:%M')
+            check_from = convert_utc_to_hotel_timezone(ts_from, tz).strftime('%H:%M')
         # timestamp
         else:
             check_from = ts_from.strftime('%H:%M')
@@ -158,20 +380,20 @@ def format_check_in_out(ts_from, ts_until, tz=''):
     if bool(ts_until):
         # seconds
         if isinstance(ts_until, float):
-            check_until = convert_ts_int_to_utc(ts_until).strftime('%H:%M')
+            check_until = convert_unix_ts_to_utc(ts_until).strftime('%H:%M')
         # '00:00'
         elif isinstance(ts_until, str):
             check_until = ts_until
         # timestamp to time zone
         elif len(tz) > 0:
-            check_until = convert_ts_utc_to_hotel_tz(ts_until, tz).strftime('%H:%M')
+            check_until = convert_utc_to_hotel_timezone(ts_until, tz).strftime('%H:%M')
         # timestamp
         else:
             check_until = ts_until.strftime('%H:%M')
     else:
         check_until = '00:00'
 
-    return f'{check_from} - {check_until}'
+    return f"{check_from} - {check_until}"
 
 
 def append_tag_value(target, tag, value):
@@ -181,1044 +403,1173 @@ def append_tag_value(target, tag, value):
     # dict, list, set, tuple
     elif isinstance(value, (dict, list, set, tuple)):
         if len(value) > 0:
-            target.append(f'{tag}: {value}')
+            target.append(f"{tag}: {value}")
     else:
-        target.append(f'{tag}: {value}')
+        target.append(f"{tag}: {value}")
 
 
-def load_plist_from_string(data):
-    if not bool(data):
-        return None
-    
-    if isinstance(data, (bytes, bytearray)):
-        isNska = data.find(b'NSKeyedArchiver') != -1
-    else:
-        isNska = data.find('NSKeyedArchiver') != -1
+# preferences
+@artifact_processor
+def booking_preferences(context):
 
-    if not isNska:
-        if sys.version_info >= (3, 9):
-            plist = plistlib.loads(data)
-        else:
-            plist = biplist.readPlistFromString(data)
-    else:
+    source_path = None
+    global booking_app_identifier
+
+    # all files
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        # prefs
+        plist_data = get_plist_file_content(file_found)
+        if not bool(plist_data):
+            continue
+
         try:
-            plist = nd.deserialize_plist_from_string(data)
-        except (nd.DeserializeError, nd.biplist.NotBinaryPlistException, nd.biplist.InvalidPlistException,
-                nd.plistlib.InvalidFileException, nd.ccl_bplist.BplistError, ValueError, TypeError, OSError, OverflowError) as ex:
-            logfunc(f'Failed to read plist for {data}, error was:' + str(ex))
-    return plist
+            # source path
+            source_path = file_found
+
+            # Library/Preferences/com.booking.BookingApp.plist
+            booking_app_identifier = Path(file_found).parents[2].name
+
+        except Exception as e:
+            logfunc(f"Error: {str(e)}")
+            pass
+
+    # return empty
+    return (), [], source_path
 
 
 # account
-def get_account(file_found, report_folder, timezone_offset):
-    data_list = []
-    row = [ None ] * 15
+@artifact_processor
+def booking_account(context):
 
-    f = open(file_found, "rb")
-    try:
-        plist = plistlib.load(f)
-        if bool(plist):
-            # authentication token
-            row[14] = plist.get('auth_token')
-            # user profile
-            user_profile = plist.get('user_profile')
-            if bool(user_profile):
+    data_headers = (
+        'First name',
+        'Last name',
+        'Nickname',
+        'Profile picture URL',
+        'Gender',
+        ('Birth date', 'date'),
+        'Street',
+        'City',
+        'Zip code',
+        'Country',
+        ('Phone number', 'phonenumber'),
+        'Emails',
+        "Genius membership",
+        "Facilities",
+        "Unique ID",
+        'Authentication token',
+        'Source file name',
+        'Location'
+    )
+    data_list = []
+    data_list_html = []
+    device_file_paths = []
+
+    # all files
+    for file_found in context.get_files_found():
+        file_rel_path = Path(Path(file_found).parent.name, Path(file_found).name).as_posix()
+        device_file_path = get_device_file_path(file_found, context.get_seeker())
+
+        # KeyValueStorageAccountDomain[.plist]
+        if file_rel_path.endswith('KeyValueStorageAccountDomain') or file_rel_path.endswith('KeyValueStorageAccountDomain.plist'):
+            try:
+                device_file_paths = [ device_file_path ]
+
+                # plist data
+                plist_data = get_plist_file_content(file_found)
+                if not bool(plist_data):
+                    continue
+
+                # authentication token
+                auth_token = plist_data.get('auth_token')
+                # user profile
+                user_profile = plist_data.get('user_profile', {})
                 # first name
-                row[0] = user_profile.get('first_name')
+                first_name = user_profile.get('first_name')
                 # last name
-                row[1] = user_profile.get('last_name')
+                last_name = user_profile.get('last_name')
                 # nickname
-                # avatar
-                try: row[2] = user_profile['avatar_details']['urls']['256']
-                except: pass
+                nickname = user_profile.get('nickname')
+                # profile picture url
+                pp_urls = user_profile.get('avatar_details', {}).get('urls',{})
+                pp_url = next(iter(pp_urls.items()))[1] if bool(pp_urls) else None
+                pp_url_html = generic_url(pp_url, html_format=True)
                 # gender
-                row[3] = user_profile.get('gender')
+                gender = user_profile.get('gender')
                 # date of birth (yyyy/mm/dd)
-                dob = user_profile.get('date_of_birth')
-                if bool(dob):
-                    row[4] = dob.date()
+                birth_date = user_profile.get('date_of_birth')
+                birth_date = birth_date.date() if bool(birth_date) else None
                 # street
-                row[5] = user_profile.get('street')
+                street = user_profile.get('street')
                 # city
-                row[6] = user_profile.get('city')
+                city = user_profile.get('city')
                 # zip code
-                row[7] = user_profile.get('zipcode')
+                zip_code = user_profile.get('zipcode')
                 # country
-                row[8] = user_profile.get('country')
-                # telephone
-                row[9] = user_profile.get('telephone')
+                country = user_profile.get('country')
+                # phone number
+                phone_number = user_profile.get('telephone')
                 # email address
-                email_address = user_profile.get('email_address')
-                if bool(email_address):
-                    row[10] = ', '.join(email_address)
+                email_address = user_profile.get('email_address', [])
+                emails = unordered_list(email_address)
+                emails_html = unordered_list(email_address, html_format=True)
                 # email data
                 # genius membership
-                row[11] = user_profile.get('is_genius')
+                is_genius = user_profile.get('is_genius')
                 # preferred.facility
-                preferred = user_profile.get('preferred')
-                if bool(preferred):
-                    facility = preferred.get('facility')
-                    prefs = []
-                    for x in facility:
-                        if bool(x.get('is_selected')):
-                            prefs.append(x.get('name'))
-                    row[12] = ', '.join(prefs)
+                facility = user_profile.get('preferred', {}).get('facility', [])
+                prefs = []
+                for x in facility:
+                    if bool(x.get('is_selected')): prefs.append(x.get('name'))
+                facilities = unordered_list(prefs)
+                facilities_html = unordered_list(prefs, html_format=True)
                 # uid
-                row[13] = user_profile.get('uid')
+                uid = user_profile.get('uid')
 
-    except Exception as ex:
-        logfunc('Exception while parsing Booking Account: ' + str(ex))
-    finally:
-        f.close()
+                # source file name
+                device_file_paths = dict.fromkeys(device_file_paths)
+                source_file_name = unordered_list(device_file_paths)
+                source_file_name_html = unordered_list(device_file_paths, html_format=True)
+                # location
+                location = f""
 
-    # row
-    if row.count(None) != len(row):
-        report = ArtifactHtmlReport('Booking Account')
-        report.start_artifact_report(report_folder, 'Booking Account')
-        report.add_script()
-        data_headers = ('First name', 'Last name', 'Profile picture url', 'Gender', 'Birth date', 'Street', 'City', 'Zip code',
-                        'Country', 'Telephone', 'Emails', 'Genius membership', 'Facilities', 'UID', 'Authentication token') 
+                # html row
+                data_list_html.append((first_name, last_name, nickname, pp_url_html, gender, birth_date, street, city, zip_code,country, phone_number,
+                                       emails_html, is_genius, facilities_html, uid, auth_token, source_file_name_html, source_file_name, location))
+                # lava row
+                data_list.append((first_name, last_name, nickname, pp_url, gender, birth_date, street, city, zip_code,country, phone_number,
+                                  emails, is_genius, facilities, uid, auth_token, source_file_name_html, source_file_name, location))
+            except Exception as ex:
+                logfunc(f"Exception while parsing {context.get_artifact_name()} - {file_found}: " + str(ex))
+                pass
 
-        data_list.append(row)
+        # AccountSettings[.plist]
+        elif file_rel_path.endswith('AccountSettings') or file_rel_path.endswith('AccountSettings.plist'):
+            try:
+                device_file_paths = [ device_file_path ]
 
-        report.write_artifact_data_table(data_headers, data_list, file_found, html_escape=False)
-        report.end_artifact_report()
-                
-        tsvname = f'Booking Account'
-        tsv(report_folder, data_headers, data_list, tsvname)
-                
-        tlactivity = 'Booking Account'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-    else:
-        logfunc('No Booking Account data available')
+                # plist data
+                plist_data = get_plist_file_content(file_found)
+                if not bool(plist_data):
+                    continue
 
-
-# account settings
-def get_account_settings(file_found, report_folder, timezone_offset):
-    data_list = []
-    row = [ None ] * 11
-
-    f = open(file_found, "rb")
-    try:
-        plist = plistlib.load(f)
-        if bool(plist):
-            # user details
-            userDetails = None
-            try: userDetails = plist['userDetailsResponse']['userDetails']
-            except: pass
-
-            if bool(userDetails):
                 # personal details
-                personalDetails = userDetails.get('personalDetails')
-                if bool(personalDetails):
-                    # gender
-                    row[3] = personalDetails.get('gender')
-                    # name
-                    name = personalDetails.get('name')
-                    if bool(name):
-                        # first name
-                        row[0] = name.get('first')
-                        # last name
-                        row[1] = name.get('last')
-                    # displayName
-                    # date of birth
-                    dateOfBirth = personalDetails.get('dateOfBirth')
-                    if bool(dateOfBirth):
-                        row[4] = date(dateOfBirth.get('year'), dateOfBirth.get('month'), dateOfBirth.get('day'))
-                    # avatar
-                    try: row[2] = personalDetails['avatar']['urls']['square256']
-                    except: pass
+                personal_details = plist_data.get('userDetailsResponse', {}).get('userDetails', {}).get('personalDetails', {})
                 # contact details
-                contactDetails = userDetails.get('contactDetails')
-                if bool(contactDetails):
-                    # address
-                    address = contactDetails.get('address')
-                    if bool(address):
-                        # street
-                        row[5] = address.get('street')
-                        # city
-                        row[6] = address.get('cityName')
-                        # zip
-                        row[7] = address.get('zip')
-                        # country code
-                        row[8] = address.get('countryCode')
-                    # email address
-                    try: row[10] = contactDetails['primaryEmail']['address']
-                    except: pass
-                    # telephone
-                    try: row[9] = contactDetails['primaryPhone']['fullNumber']
-                    except: pass
+                contact_details = plist_data.get('userDetailsResponse', {}).get('userDetails', {}).get('contactDetails', {})
 
-    except Exception as ex:
-        logfunc('Exception while parsing Booking Account: ' + str(ex))
-    finally:
-        f.close()
+                # authentication token
+                auth_token = None
+                # first name
+                first_name = personal_details.get('name', {}).get('first')
+                # last name
+                last_name = personal_details.get('name', {}).get('last')
+                # nickname
+                nickname = personal_details.get('displayName')
+                # profile picture url
+                pp_urls = personal_details.get('avatar', {}).get('urls', {})
+                pp_url = next(iter(pp_urls.items()))[1] if bool(pp_urls) else None
+                pp_url_html = generic_url(pp_url, html_format=True)
+                # gender
+                gender = personal_details.get('gender')
+                # date of birth (yyyy/mm/dd)
+                birth_date = personal_details.get('dateOfBirth', {})                   
+                birth_date = date(birth_date.get('year'), birth_date.get('month'), birth_date.get('day')) if bool(birth_date) else None
+                # street
+                street = contact_details.get('address', {}).get('street')
+                # city
+                city = contact_details.get('address', {}).get('cityName')
+                # zip code
+                zip_code = contact_details.get('address', {}).get('zip')
+                # country
+                country = contact_details.get('address', {}).get('countryCode')
+                # phone number
+                phone_number = contact_details.get('primaryPhone', {}).get('fullNumber')
+                # email address
+                emails =  contact_details.get('primaryEmail', {}).get('address')
+                emails_html = emails
+                # email data
+                # genius membership
+                is_genius = None
+                # preferred.facility
+                facilities = None
+                facilities_html = None
+                # uid
+                uid = None
 
-    # row
-    if row.count(None) != len(row):
-        report = ArtifactHtmlReport('Booking Account Settings')
-        report.start_artifact_report(report_folder, 'Booking Account Settings')
-        report.add_script()
-        data_headers = ('First name', 'Last name', 'Profile picture url', 'Gender', 'Birth date', 'Street', 'City', 'Zip code',
-                        'Country', 'Telephone', 'Email') 
+                # source file name
+                device_file_paths = dict.fromkeys(device_file_paths)
+                source_file_name = unordered_list(device_file_paths)
+                source_file_name_html = unordered_list(device_file_paths, html_format=True)
+                # location
+                location = f"[userDetailsResponse][userDetails]"
 
-        data_list.append(row)
+                # html row
+                data_list_html.append((first_name, last_name, nickname, pp_url_html, gender, birth_date, street, city, zip_code,country, phone_number,
+                                       emails_html, is_genius, facilities_html, uid, auth_token, source_file_name_html, source_file_name, location))
+                # lava row
+                data_list.append((first_name, last_name, nickname, pp_url, gender, birth_date, street, city, zip_code,country, phone_number,
+                                  emails, is_genius, facilities, uid, auth_token, source_file_name_html, source_file_name, location))
+            except Exception as ex:
+                logfunc(f"Exception while parsing {context.get_artifact_name()} - {file_found}: " + str(ex))
+                pass
 
-        report.write_artifact_data_table(data_headers, data_list, file_found, html_escape=False)
-        report.end_artifact_report()
-                
-        tsvname = f'Booking Account Settings'
-        tsv(report_folder, data_headers, data_list, tsvname)
-                
-        tlactivity = 'Booking Account Settings'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-    else:
-        logfunc('No Account Settings data available')
+    return data_headers, (data_list, data_list_html), ' '
 
 
 # payment methods
-def get_payment_methods(file_found, report_folder, timezone_offset):
-    data_list = []
+@artifact_processor
+def booking_payment_methods(context):
 
-    f = open(file_found, "rb")
-    try:
-        plist = plistlib.load(f)
-        if bool(plist):
-            # user profile
-            user_profile = plist.get('user_profile')
-            if bool(user_profile):
+    data_headers = (
+        'Unique ID',
+        'Type',
+        'Status',
+        'Valid thru',
+        'Cardholder name',
+        'Last four digits',
+        'Business',        
+        'Source file name',
+        'Location'
+    )
+    data_list = []
+    data_list_html = []
+    device_file_paths = []
+
+    # all files
+    for file_found in context.get_files_found():
+        file_rel_path = Path(Path(file_found).parent.name, Path(file_found).name).as_posix()
+        device_file_path = get_device_file_path(file_found, context.get_seeker())
+
+        # KeyValueStorageAccountDomain[.plist]
+        if file_rel_path.endswith('KeyValueStorageAccountDomain') or file_rel_path.endswith('KeyValueStorageAccountDomain.plist'):
+            try:
+                device_file_paths = [ device_file_path ]
+
+                # plist data
+                plist_data = get_plist_file_content(file_found)
+                if not bool(plist_data):
+                    continue
+
                 # credit card details
-                cc_details = user_profile.get('cc_details')
-                if bool(cc_details):
-                    # array
-                    for i in range(0, len(cc_details)):
-                        row = [ None ] * 7
-                        cc = cc_details[i]
-                        # cc_id
-                        row[0] = cc.get('cc_id')
-                        # cc_type
-                        row[1] = cc.get('cc_type')
-                        # cc_status
-                        row[2] = cc.get('cc_status')
-                        # cc_expire_year
-                        ey = cc.get('cc_expire_year')
-                        # cc_expire_month
-                        em = cc.get('cc_expire_month')
-                        # valid thru (mm-yyyy)
-                        row[3] = f'{ey}-{em:02}'
-                        # cc_name
-                        row[4] = cc.get('cc_name')
-                        # last_digits
-                        row[5] = cc.get('last_digits')
-                        # cc_is_business
-                        row[6] = cc.get('cc_is_business')
-                        # location
-                        location = f'[user_profile][cc_details][{i}]'
+                cc_details = plist_data.get('user_profile', {}).get('cc_details')
 
-                        # row
-                        data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], location))
-
-    except Exception as ex:
-        logfunc('Exception while parsing Booking Payment Methods: ' + str(ex))
-    finally:
-        f.close()
-
-    # row
-    if len(data_list) > 0:
-        report = ArtifactHtmlReport('Booking Payment Methods')
-        report.start_artifact_report(report_folder, 'Booking Payment Methods')
-        report.add_script()
-        data_headers = ('UID', 'Type', 'Status', 'Valid thru', 'Cardholder name', 'Last four digits', 'Business', 'Location') 
-
-        #data_list.append(row)
-
-        report.write_artifact_data_table(data_headers, data_list, file_found, html_escape=False)
-        report.end_artifact_report()
-                
-        tsvname = f'Booking Payment Methods'
-        tsv(report_folder, data_headers, data_list, tsvname)
-                
-        tlactivity = 'Booking Payment Methods'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-    else:
-        logfunc('No Booking Payment Methods data available')
-
-
-# payment methods settings
-def get_payment_methods_settings(file_found, report_folder, timezone_offset):
-    data_list = []
-
-    f = open(file_found, "rb")
-    try:
-        plist = plistlib.load(f)
-        if bool(plist):
-            # values
-            values = None
-            try: values = plist['cardsResponse']['values']
-            except: pass
- 
-            if bool(values):
-                # credit cards
-                for i in range(0, len(values)):
-                    row = [ None ] * 5
-                    cc = values[i]
+                # array
+                for i in range(0, len(cc_details)):
+                    cc = cc_details[i]
+                    
                     # id
-                    row[0] = cc.get('id')
-                    # type/name
-                    row[1] = cc.get('name')
+                    id = cc.get('cc_id')
+                    # type
+                    type_ = cc.get('cc_type')
                     # status
-                    row[2] = cc.get('status')
+                    status = cc.get('cc_status')
                     # valid thru (mm-yyyy)
-                    row[3] = cc.get('expirationDateFormatted')
-                    # last_digits
-                    row[4] = cc.get('lastDigits')
+                    valid_thru = f"{cc.get('cc_expire_month'):02}-{cc.get('cc_expire_year')}"
+                    # cardholder name
+                    cardholder_name = cc.get('cc_name')
+                    # last digits
+                    last_digits = cc.get('last_digits')
+                    # is business
+                    is_business = cc.get('cc_is_business')
+
+                    # source file name
+                    device_file_paths = dict.fromkeys(device_file_paths)
+                    source_file_name = unordered_list(device_file_paths)
                     # location
-                    location = f'[cardsResponse][values][{i}]'
+                    location = f"[user_profile][cc_details][{i}]"
 
-                    # row
-                    data_list.append((row[0], row[1], row[2], row[3], row[4], location))
+                    # html row
+                    data_list_html.append((id, type_, status, valid_thru, cardholder_name, last_digits, is_business, source_file_name, location))
+                    # lava row
+                    data_list.append((id, type_, status, valid_thru, cardholder_name, last_digits, is_business, source_file_name, location))
+            except Exception as ex:
+                logfunc(f"Exception while parsing {context.get_artifact_name()} - {file_found}: " + str(ex))
+                pass
 
-    except Exception as ex:
-        logfunc('Exception while parsing Booking Payment Methods Settings: ' + str(ex))
-    finally:
-        f.close()
+        # AccountSettings[.plist]
+        elif file_rel_path.endswith('AccountSettings') or file_rel_path.endswith('AccountSettings.plist'):
+            try:
+                device_file_paths = [ device_file_path ]
 
-    # row
-    if len(data_list) > 0:
-        report = ArtifactHtmlReport('Booking Payment Methods Settings')
-        report.start_artifact_report(report_folder, 'Booking Payment Methods Settings')
-        report.add_script()
-        data_headers = ('UID', 'Type', 'Status', 'Valid thru', 'Last four digits', 'Location') 
+                # plist data
+                plist_data = get_plist_file_content(file_found)
+                if not bool(plist_data):
+                    continue
 
-        #data_list.append(row)
+                # credit card details
+                cc_details = plist_data.get('cardsResponse', {}).get('values')
 
-        report.write_artifact_data_table(data_headers, data_list, file_found, html_escape=False)
-        report.end_artifact_report()
-                
-        tsvname = f'Booking Payment Methods Settings'
-        tsv(report_folder, data_headers, data_list, tsvname)
-                
-        tlactivity = 'Booking Payment Methods Settings'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-    else:
-        logfunc('No Booking Payment Methods Settings data available')
+                # array
+                for i in range(0, len(cc_details)):
+                    cc = cc_details[i]
+                    
+                    # id
+                    id = cc.get('id')
+                    # type
+                    type_ = cc.get('name')
+                    # status
+                    status = cc.get('status')
+                    # valid thru (mm-yyyy)
+                    valid_thru = cc.get('expirationDateFormatted')
+                    # card holder name
+                    cardholder_name = None
+                    # last digits
+                    last_digits = cc.get('lastDigits')
+                    # is business
+                    is_business = cc.get('cc_is_business')
+
+                    # source file name
+                    device_file_paths = dict.fromkeys(device_file_paths)
+                    source_file_name = unordered_list(device_file_paths)
+                    # location
+                    location = f"[cardsResponse][values][{i}]"
+
+                    # html row
+                    data_list_html.append((id, type_, status, valid_thru, cardholder_name, last_digits, is_business, source_file_name, location))
+                    # lava row
+                    data_list.append((id, type_, status, valid_thru, cardholder_name, last_digits, is_business, source_file_name, location))
+            except Exception as ex:
+                logfunc(f"Exception while parsing {context.get_artifact_name()} - {file_found}: " + str(ex))
+                pass
+
+    return data_headers, (data_list, data_list_html), ' '
+
+
+# stored destinations
+@artifact_processor
+def booking_stored_destinations(context):
+
+    data_headers = (
+        ('Created', 'datetime'),
+        'Location type',
+        'Unique ID',
+        'Destination name',
+        'Address/Description',
+        'City',
+        'Region',
+        'Country',
+        'Latitude',
+        'Longitude',
+        'Time zone',
+        'Image URL',
+        'Source file name',
+        'Location'
+    )
+    data_list = []
+    data_list_html = []
+    device_file_paths = []
+
+    # all files
+    for file_found in context.get_files_found():
+        file_rel_path = Path(Path(file_found).parent.name, Path(file_found).name).as_posix()
+        device_file_path = get_device_file_path(file_found, context.get_seeker())
+
+        # KeyValueStorageSharedDomain[.plist]
+        if file_rel_path.endswith('KeyValueStorageSharedDomain') or file_rel_path.endswith('KeyValueStorageSharedDomain.plist'):
+            try:
+                device_file_paths = [ device_file_path ]
+
+                # plist data
+                plist_data = get_plist_file_content(file_found)
+                if not bool(plist_data):
+                    continue
+
+                # stored destinations
+                stored_destinations = plist_data.get('stored_destinations')
+                # array
+                for i in range(0, len(stored_destinations)):
+                    dest = stored_destinations[i]
+
+                    # created/last updated
+                    created = convert_plist_date_to_utc(dest.get('created'))
+                    # location
+                    loc = dest.get('loc', {})
+                    # type
+                    type_ = location_type_names(loc.get('locationType_'))
+                    # id
+                    id = loc.get('id_')
+                    # destination name
+                    dest_name = loc.get('string_')
+                    # description (place name)
+                    description = loc.get('substring_')
+                    if not bool(description): description = loc.get('address')      # (locationType_=7)
+                    # city_
+                    city = loc.get('city_')
+                    if bool(city):
+                        # city name
+                        city_name = city.get('string_')
+                        # region name
+                        region_name = city.get('region_name')
+                    # no city_
+                    else:
+                        # city name
+                        city_name = loc.get('cityName_')
+                        # region name
+                        region_name = loc.get('region_name')
+                    # country name
+                    country_name = loc.get('countryName_')
+                    if not bool(country_name): country_name = loc.get('country')    # (locationType_=7)
+                    # location (locationType_=7)
+                    location_dict = loc.get('location')
+                    if bool(location_dict):
+                        # latitude
+                        latitude = location_dict.get('latitude')
+                        # longitude
+                        longitude = location_dict.get('longitude')
+                    # no location
+                    else:
+                        # latitude
+                        latitude = loc.get('latitude_')
+                        # longitude
+                        longitude = loc.get('longitude_')
+                    # time zone
+                    timezone = loc.get('timezone')
+                    # image url
+                    image_url = loc.get('image_url')
+                    image_url_html = generic_url(image_url, html_format=True)
+
+                    # source file name
+                    device_file_paths = dict.fromkeys(device_file_paths)
+                    source_file_name = unordered_list(device_file_paths)
+                    # location
+                    location = f"[stored_destinations][{i}]"
+
+                    # html row
+                    data_list_html.append((created, type_, id, dest_name, description, city_name, region_name, country_name, latitude, longitude,
+                                      timezone, image_url_html, source_file_name, location))
+                    # lava row
+                    data_list.append((created, type_, id, dest_name, description, city_name, region_name, country_name, latitude, longitude,
+                                      timezone, image_url, source_file_name, location))
+
+            except Exception as ex:
+                logfunc(f"Exception while parsing {context.get_artifact_name()} - {file_found}: " + str(ex))
+                pass
+
+    return data_headers, (data_list, data_list_html), ' '
 
 
 # recently searched
-def get_recently_searched(file_found, report_folder, timezone_offset):
-    data_list = []
+@artifact_processor
+def booking_recently_searched(context):
 
-    f = open(file_found, "rb")
-    try:
-        plist = plistlib.load(f)
-        if bool(plist):
-            # stored searches
-            stored_searches = plist.get('stored_searches')
-            if bool(stored_searches):
+    data_headers = (
+        ('Searched', 'datetime'),
+        'Location type',
+        'Unique ID',
+        'Destination name',
+        'Description',
+        'City',
+        'Region',
+        'Country',
+        'Latitude',
+        'Longitude',
+        'Time zone',
+        'Check-in',
+        'Check-out',
+        'Number of rooms',
+        'Guests',
+        'Number of nights',
+        'Source',
+        'Source file name',
+        'Location'
+    )
+    data_list = []
+    data_list_html = []
+    device_file_paths = []
+
+    # all files
+    for file_found in context.get_files_found():
+        file_rel_path = Path(Path(file_found).parent.name, Path(file_found).name).as_posix()
+        device_file_path = get_device_file_path(file_found, context.get_seeker())
+
+        # KeyValueStorageRecentsDomain[.plist]
+        if file_rel_path.endswith('KeyValueStorageRecentsDomain') or file_rel_path.endswith('KeyValueStorageRecentsDomain.plist'):
+            try:
+                device_file_paths = [ device_file_path ]
+
+                # plist data
+                plist_data = get_plist_file_content(file_found)
+                if not bool(plist_data):
+                    continue
+
+                # stored searches
+                stored_searches = plist_data.get('stored_searches')
                 # array
                 for i in range(0, len(stored_searches)):
-                    row = [ None ] * 17
                     ss = stored_searches[i]
 
                     # searched
-                    searched = ss.get('created')
-                    if bool(searched):
-                        searched = convert_ts_human_to_utc(str(searched))
-                        row[0] = convert_utc_human_to_timezone(searched, timezone_offset)
+                    searched = convert_plist_date_to_utc(ss.get('created'))
                     # destination
-                    destination = ss.get('destination')
-                    if bool(destination):
-                        # location type
-                        row[1] = location_type_names(destination.get('locationType_'))
-                        # id
-                        row[2] = destination.get('id_')
-                        # destination name
-                        row[3] = destination.get('string_')
-                        # description (place name)
-                        row[4] = destination.get('substring_')
-                        if not bool(row[4]): row[4] = destination.get('address')    # (locationType_=7)
-                        # city_
-                        city = destination.get('city_')
-                        if bool(city):
-                            # city name
-                            row[5] = city.get('string_')
-                            # region name
-                            row[6] = city.get('region_name')
-                        # no city_
-                        else:
-                            # city name
-                            row[5] = destination.get('cityName_')
-                            # region
-                            row[6] = destination.get('region_name')
-                        # country name
-                        row[7] = destination.get('countryName_')
-                        if not bool(row[7]): row[7] = destination.get('country')    # (locationType_=7)
-                        # location (locationType_=7)
-                        location_dict = city = destination.get('location')
-                        if bool(location_dict):
-                            # latitude
-                            row[8] = location_dict.get('latitude')
-                            # longitude
-                            row[9] = location_dict.get('longitude')
-                        # no location
-                        else:
-                            # latitude
-                            row[8] = destination.get('latitude_')
-                            # longitude
-                            row[9] = destination.get('longitude_')
-                        # time zone
-                        row[10] = destination.get('timezone')
+                    dest = ss.get('destination')
+                    # location type
+                    type_ = location_type_names(dest.get('locationType_'))
+                    # id
+                    id = dest.get('id_')
+                    # destination name
+                    dest_name = dest.get('string_')
+                    # description (place name)
+                    description = dest.get('substring_')
+                    if not bool(description): description = dest.get('address')     # (locationType_=7)
+                    # city_
+                    city = dest.get('city_')
+                    if bool(city):
+                        # city name
+                        city_name = city.get('string_')
+                        # region name
+                        region_name = city.get('region_name')
+                    # no city_
+                    else:
+                        # city name
+                        city_name = dest.get('cityName_')
+                        # region name
+                        region_name = dest.get('region_name')
+                    # country name
+                    country_name = dest.get('countryName_')
+                    if not bool(country_name): country_name = dest.get('country')   # (locationType_=7)
+                    # location (locationType_=7)
+                    location_dict = dest.get('location')
+                    if bool(location_dict):
+                        # latitude
+                        latitude = location_dict.get('latitude')
+                        # longitude
+                        longitude = location_dict.get('longitude')
+                    # no location
+                    else:
+                        # latitude
+                        latitude = dest.get('latitude_')
+                        # longitude
+                        longitude = dest.get('longitude_')
+                    # time zone
+                    timezone = dest.get('timezone')
                     # check-in
-                    row[11] = ss.get('checkin')
+                    check_in = ss.get('checkin')
                     # check-out
-                    row[12] = ss.get('checkout')
+                    check_out = ss.get('checkout')
                     # number of rooms
-                    row[13] = ss.get('number_of_rooms')
+                    number_of_rooms = ss.get('number_of_rooms')
                     # guests per room
-                    row[14] = ss.get('guests_per_room')
+                    guests_per_room = ss.get('guests_per_room')
                     # number of nights
-                    row[15] = ss.get('number_of_nights')
+                    number_of_nights = ss.get('number_of_nights')
                     # source
-                    row[16] = ss.get('source')
+                    source = ss.get('source')
 
+                    # source file name
+                    device_file_paths = dict.fromkeys(device_file_paths)
+                    source_file_name = unordered_list(device_file_paths)
                     # location
-                    location = f'[stored_searches][{i}]'
+                    location = f"[stored_searches][{i}]"
 
-                    # row
-                    data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], 
-                                      row[8], row[9], row[10], row[11], row[12], row[13], row[14], row[15], 
-                                      row[16], location))
+                    # html row
+                    data_list_html.append((searched, type_, id, dest_name, description, city_name, region_name, country_name, latitude, longitude,
+                                      timezone, check_in, check_out, number_of_rooms, guests_per_room, number_of_nights, source, source_file_name, location))
+                    # lava row
+                    data_list.append((searched, type_, id, dest_name, description, city_name, region_name, country_name, latitude, longitude,
+                                      timezone, check_in, check_out, number_of_rooms, guests_per_room, number_of_nights, source, source_file_name, location))
+            except Exception as ex:
+                logfunc(f"Exception while parsing {context.get_artifact_name()} - {file_found}: " + str(ex))
+                pass
 
-    except Exception as ex:
-        logfunc('Exception while parsing Booking Recently Searched: ' + str(ex))
-    finally:
-        f.close()
+    return data_headers, (data_list, data_list_html), ' '
 
-    # row
-    if len(data_list) > 0:
-        report = ArtifactHtmlReport('Booking Recently Searched')
-        report.start_artifact_report(report_folder, 'Booking Recently Searched')
-        report.add_script()
-        data_headers = ('Searched', 'Location type', 'Id', 'Destination name', 'Description', 'City', 'Region', 'Country', 
-                        'Latitude', 'Longitude', 'Time zone', 'Check-in', 'Check-out', 'Number of rooms', 'Guests', 'Number of nights', 
-                        'Source', 'Location')
 
-        #data_list.append(row)
+# recently booked
+@artifact_processor
+def booking_recently_booked(context):
 
-        report.write_artifact_data_table(data_headers, data_list, file_found, html_escape=False)
-        report.end_artifact_report()
-                
-        tsvname = f'Booking Recently Searched'
-        tsv(report_folder, data_headers, data_list, tsvname)
-                
-        tlactivity = 'Booking Recently Searched'
-        timeline(report_folder, tlactivity, data_list, data_headers)
+    data_headers = (
+        'Hotel type',
+        'Hotel Id',
+        'Hotel name',
+        'Address',
+        'City',
+        'Region',
+        'Zip code',
+        'Latitude',
+        'Longitude',
+        'Check-in (Hotel time zone)',
+        'Check-out (Hotel time zone)',
+        'Image URL',
+        'Website',
+        'Source file name',
+        'Location'
+    )
+    data_list = []
+    data_list_html = []
+    device_file_paths = []
 
-        kmlactivity = 'Booking Recently Searched'
-        kmlgen(report_folder, kmlactivity, data_list, data_headers)    
-    else:
-        logfunc('No Booking Recently Searched data available')
+    # all files
+    for file_found in context.get_files_found():
+        file_rel_path = Path(Path(file_found).parent.name, Path(file_found).name).as_posix()
+        device_file_path = get_device_file_path(file_found, context.get_seeker())
+
+        # KeyValueStorageRecentsDomain[.plist]
+        if file_rel_path.endswith('KeyValueStorageRecentsDomain') or file_rel_path.endswith('KeyValueStorageRecentsDomain.plist'):
+            try:
+                device_file_paths = [ device_file_path ]
+
+                # plist data
+                plist_data = get_plist_file_content(file_found)
+                if not bool(plist_data):
+                    continue
+
+                # booked
+                booked = plist_data.get('booked', {})
+                # dict
+                for key, value in booked.items():
+                    # hotel
+                    hotel = value.get('hotel')
+
+                    # hotel type
+                    type_ = hotel_type_names(hotel.get('hotel_type'))
+                    # hotel id = key
+                    id = hotel.get('hotel_id')
+                    # hotel name
+                    hotel_name = hotel.get('name')
+                    # address
+                    address = hotel.get('address')
+                    # city
+                    city = hotel.get('city')
+                    if bool(city):
+                        # city name
+                        city_name = city.get('string_')
+                        # region name
+                        region_name = city.get('region_name')
+                    # no city
+                    else:
+                        # city name
+                        city_name = hotel.get('cityName')
+                        # region name
+                        region_name = hotel.get('region_name')
+                        # zip code
+                        zip_code = hotel.get('zip')
+                        # latitude
+                        latitude = hotel.get('latitude')
+                        # longitude
+                        longitude = hotel.get('longitude')
+                        # check-in
+                        check_in = format_check_in_out(hotel.get('checkInFrom'), hotel.get('checkInUntil'))
+                        # check-out
+                        check_out = format_check_in_out(hotel.get('checkOutFrom'), hotel.get('checkOutUntil'))
+                        # picture url
+                        p_url = hotel.get('pictureURL')
+                        p_url_html = generic_url(p_url, html_format=True)
+                        # website
+                        website = hotel.get('hotelURL')
+                        website_html = generic_url(website, html_format=True)
+
+                        # source file name
+                        device_file_paths = dict.fromkeys(device_file_paths)
+                        source_file_name = unordered_list(device_file_paths)
+                        # location
+                        location = f"[booked][{key}]"
+
+                        # html row
+                        data_list_html.append((type_, id, hotel_name, address, city_name, region_name, zip_code, latitude, longitude,
+                                               check_in, check_out, p_url_html, website_html, source_file_name, location))
+                        # lava row
+                        data_list.append((type_, id, hotel_name, address, city_name, region_name, zip_code, latitude, longitude,
+                                               check_in, check_out, p_url, website, source_file_name, location))
+            except Exception as ex:
+                logfunc(f"Exception while parsing {context.get_artifact_name()} - {file_found}: " + str(ex))
+                pass
+
+    return data_headers, (data_list, data_list_html), ' '
+
+
+# booked
+@artifact_processor
+def booking_booked(context):
+
+    data_headers = (
+        ('Created', 'datetime'),
+        'Hotel Id',
+        'Hotel name',
+        'Full address',
+        'Time zone',
+        'Check-in/out (Hotel time zone)',
+        'Hotel contacts',
+        'Confirmation number/Pin code',
+        'Total price',
+        'Number of rooms',
+        'Rooms',
+        'Booker details',
+        'Source',
+        ('Attachment', 'media'),
+        'Source file name',
+        'Location'
+    )
+    data_list = []
+    data_list_html = []
+    device_file_paths = []
+
+    # rooms
+    def get_rooms(rooms, html_format=False):
+        result = ''
+        if not bool(rooms) or not isinstance(rooms, list):
+            return None
+
+        for r in range(len(rooms)):
+            room = rooms[r]
+            if not bool(room):
+                continue
+            room_meta = []
+
+            room_meta.append(f"Room {r} - {room.get('name', 'N/A')}")                           
+            # guest name
+            append_tag_value(room_meta, 'Guest name', room.get('guest_name'))
+            # number of guests
+            append_tag_value(room_meta, 'Number of guests', room.get('nr_guests'))
+            # is cancelled
+            append_tag_value(room_meta, 'Cancelled', room.get('is_cancelled'))
+            # cancel date
+            cancel_date = convert_plist_date_to_utc(room.get('cancel_date'))
+            append_tag_value(room_meta, 'Cancel date', cancel_date)
+            # room id
+            append_tag_value(room_meta, 'Identifier', room.get('room_id'))
+            # room photo (string)
+            append_tag_value(room_meta, 'URL photo', room.get('room_photo'))
+            # room photos (array)
+            room_photos = room.get('room_photos', [])
+            for j in range(len(room_photos)):
+                # url_original
+                append_tag_value(room_meta, f"URL photo #{j}", room_photos[j].get('url_original'))
+
+            # result
+            result += unordered_list(room_meta, html_format=html_format)
+
+            # room separator
+            if r < len(rooms) - 1:
+                result += HTML_HORZ_RULE if html_format else LINE_BREAK + LINE_BREAK
+
+        return result
+
+
+    # Documents
+    documents = context.get_seeker().search(f"*/{booking_app_identifier}/Documents/Booking #*", return_on_first_hit=False)
+
+    # all files
+    for file_found in context.get_files_found():
+        file_rel_path = Path(Path(file_found).parent.name, Path(file_found).name).as_posix()
+        device_file_path = get_device_file_path(file_found, context.get_seeker())
+
+        # BookingClouds[.plist]
+        if file_rel_path.endswith('BookingClouds') or file_rel_path.endswith('BookingClouds.plist'):
+            try:
+                device_file_paths = [ device_file_path ]
+
+                # plist data
+                plist_data = get_plist_file_content(file_found)
+                if not bool(plist_data):
+                    continue
+
+                for key_root, value_root in plist_data.items():
+                    if not isinstance(value_root, dict):
+                        continue
+                  
+                # booked
+                if (key_root == 'DeviceBookings') or (key_root == 'AccountBookings'):
+                    # array
+                    for key, value in value_root.items():
+                        # created
+                        created = convert_plist_date_to_utc(value.get('created_epoch'))
+                        # name
+                        hotel_id = value.get('hotel_id')
+                        # name
+                        hotel_name = value.get('hotel_name')
+                        # full address + country
+                        full_address = value.get('hotel_full_address')
+                        # country name
+                        country_name = value.get('hotel_country_name')
+                        full_address = COMMA_SEP.join([full_address, country_name])
+                        # time zone
+                        hotel_timezone = value.get('hotel_timezone')
+                        # check-in - check out
+                        check_io = []
+                        # check-in
+                        check_in = value.get('checkin')
+                        if bool(check_in):
+                            tmp = f"Check-in: {check_in.strftime('%Y-%m-%d')}"
+                            tmp += ' ' + format_check_in_out(value.get('checkin_from_epoch'), value.get('checkin_until_epoch'), tz=hotel_timezone)
+                            check_io.append(tmp)
+                        # check-out
+                        check_out = value.get('checkout')
+                        if bool(check_out):
+                            tmp = f"Check-out: {check_out.strftime('%Y-%m-%d')}"
+                            tmp += ' ' + format_check_in_out(value.get('checkout_from_epoch'), value.get('checkout_until_epoch'), tz=hotel_timezone)
+                            check_io.append(tmp)
+                        registration = unordered_list(check_io)
+                        registration_html = unordered_list(check_io, html_format=True)
+                        # hotel contacts
+                        contacts = []
+                        # telephone
+                        append_tag_value(contacts, 'Telephone', value.get('hotel_telephone'))
+                        # email
+                        append_tag_value(contacts, 'Email', value.get('hotel_email'))
+                        hotel_contacts = unordered_list(contacts)
+                        hotel_contacts_html = unordered_list(contacts, html_format=True)
+                        # confirmation number
+                        conf_info = []
+                        append_tag_value(conf_info, 'Confirmation number', value.get('id'))
+                        # pin code
+                        append_tag_value(conf_info, 'Pin code', value.get('pincode'))
+                        confirm_info = unordered_list(conf_info)
+                        confirm_info_html = unordered_list(conf_info, html_format=True)
+                        # currency code + total price
+                        total_price = f"{value.get('user_selected_currency_code')} {value.get('totalprice', '0'):.4f}"
+                        # rooms (array)
+                        rooms = ''
+                        rooms_html = ''
+                        rooms_list = value.get('room', [])
+                        # number of rooms
+                        number_of_rooms = len(rooms_list)
+                        # rooms details
+                        rooms = get_rooms(rooms_list)
+                        rooms_html = get_rooms(rooms_list, html_format=True)
+                        # booker details
+                        booker_dets = []
+                        # first name
+                        append_tag_value(booker_dets, 'First name', value.get('booker_firstname'))
+                        # last name
+                        append_tag_value(booker_dets, 'Last name', value.get('booker_lastname'))
+                        # country code                        
+                        append_tag_value(booker_dets, 'Country code', value.get('booker_cc1'))
+                        # email
+                        append_tag_value(booker_dets, 'Email', value.get('booker_email'))
+                        # credit card last digits
+                        append_tag_value(booker_dets, 'Credit card last four digits', value.get('cc_number_last_digits'))
+                        booker_details = unordered_list(booker_dets)
+                        booker_details_html = unordered_list(booker_dets, html_format=True)           
+                        # source (ios-app, web, etc.)
+                        source = value.get('source')
+                        # attachment (key=id)Booking
+                        if bool(documents):
+                            # url encode "#"???
+                            att_media_ref_id = check_in_media(f"Booking #{key}.pdf")
+                            att_media_item = lava_get_full_media_info(att_media_ref_id)
+                            if att_media_item: device_file_paths.append(get_device_file_path(att_media_item[6], context.get_seeker()))
+
+                        # source file name
+                        device_file_paths = dict.fromkeys(device_file_paths)
+                        source_file_name = unordered_list(device_file_paths)
+                        # location
+                        location = f"[{key_root}][{key}]"
+
+                        # html row
+                        data_list_html.append((created, hotel_id, hotel_name, full_address, hotel_timezone, registration_html, hotel_contacts_html,
+                                               confirm_info_html, total_price, number_of_rooms, rooms_html, booker_details_html, source, att_media_ref_id,
+                                               source_file_name, location))
+                        # lava row
+                        data_list.append((created, hotel_id, hotel_name, full_address, hotel_timezone, registration, hotel_contacts,
+                                          confirm_info, total_price, number_of_rooms, rooms, booker_details, source, att_media_ref_id,
+                                          source_file_name, location))
+            except Exception as ex:
+                logfunc(f"Exception while parsing {context.get_artifact_name()} - {file_found}: " + str(ex))
+                pass
+
+    return data_headers, (data_list, data_list_html), ' '
 
 
 # wish lists
-def get_wish_lists(file_found, report_folder, timezone_offset):
-    data_list = []
+@artifact_processor
+def booking_wish_lists(context):
 
-    f = open(file_found, "rb")
-    try:
-        plist = plistlib.load(f)
-        if bool(plist):
-            # wish lists
-            wish_lists = plist.get('wishlists')
-            if bool(wish_lists):
+    data_headers = (
+        ('Added', 'datetime'),
+        'Title',
+        'Hotel ID',
+        'Source file name',
+        'Location'
+    )
+    data_list = []
+    data_list_html = []
+    device_file_paths = []
+
+    # all files
+    for file_found in context.get_files_found():
+        file_rel_path = Path(Path(file_found).parent.name, Path(file_found).name).as_posix()
+        device_file_path = get_device_file_path(file_found, context.get_seeker())
+
+        # KeyValueStorageRecentsDomain[.plist]
+        if file_rel_path.endswith('KeyValueStorageRecentsDomain') or file_rel_path.endswith('KeyValueStorageRecentsDomain.plist'):
+            try:
+                device_file_paths = [ device_file_path ]
+
+                # plist data
+                plist_data = get_plist_file_content(file_found)
+                if not bool(plist_data):
+                    continue
+
+                # wish lists
+                wish_lists = plist_data.get('wishlists')
                 # array
                 for i in range(0, len(wish_lists)):
-                    row = [ None ] * 3
                     wish = wish_lists[i]
 
                     # list name
-                    row[1] = wish.get('name')
+                    list_name = wish.get('name')
                     # hotels
                     hotels = wish.get('hotels')
                     for j in range(0, len(hotels)):
                         hotel = hotels[j]
+
                         # added
-                        added = hotel.get('created')
-                        if bool(added):
-                            added = convert_ts_human_to_utc(str(added))
-                            row[0] = convert_utc_human_to_timezone(added, timezone_offset)
+                        added = convert_plist_date_to_utc(hotel.get('date'))
+                        # id
+                        id = hotel['id']
 
-                        row[2] = hotel['id']
-                        
+                        # source file name
+                        device_file_paths = dict.fromkeys(device_file_paths)
+                        source_file_name = unordered_list(device_file_paths)
                         # location
-                        location = f'[wishlists][{i}], [wishlists][{i}][hotels][{j}]'
+                        location = [ f"[wishlists][{i}]" ]
+                        location.append(f"[wishlists][{i}][hotels][{j}]")
+                        location = COMMA_SEP.join(location)
 
-                        # row
-                        data_list.append((row[0], row[1], row[2], location))
+                        # html row
+                        data_list_html.append((added, list_name, id, source_file_name, location))
+                        # lava row
+                        data_list.append((added, list_name, id, source_file_name, location))
+            except Exception as ex:
+                logfunc(f"Exception while parsing {context.get_artifact_name()} - {file_found}: " + str(ex))
+                pass
 
-    except Exception as ex:
-        logfunc('Exception while parsing Booking Wish Lists: ' + str(ex))
-    finally:
-        f.close()
-
-    # row
-    if len(data_list) > 0:
-        report = ArtifactHtmlReport('Booking Wish Lists')
-        report.start_artifact_report(report_folder, 'Booking Wish Lists')
-        report.add_script()
-        data_headers = ('Added', 'Title', 'Hotel Id', 'Location') 
-
-        #data_list.append(row)
-
-        report.write_artifact_data_table(data_headers, data_list, file_found, html_escape=False)
-        report.end_artifact_report()
-                
-        tsvname = f'Booking Wish Lists'
-        tsv(report_folder, data_headers, data_list, tsvname)
-                
-        tlactivity = 'Booking Wish Lists'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-    else:
-        logfunc('No Booking Wish Lists data available')
-
-
-# recently booked
-def get_recently_booked(file_found, report_folder, timezone_offset):
-    data_list = []
-
-    f = open(file_found, "rb")
-    try:
-        plist = plistlib.load(f)
-        if bool(plist):
-            # booked
-            booked = plist.get('booked')
-            if bool(booked):
-                # array
-                for key, value in booked.items():
-                    # hotel
-                    hotel = value.get('hotel')
-                    if bool(hotel):
-                        row = [ None ] * 13
-                        # hotel type
-                        row[0] = hotel_type_names(hotel.get('hotel_type'))
-                        # hotel id = key
-                        row[1] = hotel.get('hotel_id')
-                        # name
-                        row[2] = hotel.get('name')
-                        # address
-                        row[3] = hotel.get('address')
-                        # city
-                        city = hotel.get('city')
-                        if bool(city):
-                            # city
-                            row[4] = city.get('string_')
-                            # region
-                            row[5] = city.get('region_name')
-                        # no city
-                        else:
-                            # city name
-                            row[4] = hotel.get('cityName')
-                            # region name
-                            row[5] = hotel.get('region_name')
-                        # zip code
-                        row[6] = hotel.get('zip')
-                        # latitude
-                        row[7] = hotel.get('latitude')
-                        # longitude
-                        row[8] = hotel.get('longitude')
-                        # check-in
-                        row[9] =format_check_in_out(hotel.get('checkInFrom'), hotel.get('checkInUntil'))
-                        # check-out
-                        row[10] =format_check_in_out(hotel.get('checkOutFrom'), hotel.get('checkOutUntil'))
-                        # picture url
-                        row[11] = hotel.get('pictureURL')
-                        # website
-                        row[12] = hotel.get('hotelURL')
-
-                        # location
-                        location = f'[booked][{key}]'
-
-                        # row
-                        data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], 
-                                          row[8], row[9], row[10], row[11], row[12], location))
-
-    except Exception as ex:
-        logfunc('Exception while parsing Booking Recently Booked: ' + str(ex))
-    finally:
-        f.close()
-
-    # row
-    if len(data_list) > 0:
-        report = ArtifactHtmlReport('Booking Recently Booked')
-        report.start_artifact_report(report_folder, 'Booking Recently Booked')
-        report.add_script()
-        data_headers = ('Hotel type', 'Hotel Id', 'Hotel name', 'Address', 'City', 'Region', 'Zip code', 'Latitude', 'Longitude', 
-                        'Check-in (Hotel time zone)', 'Check-out (Hotel time zone)', 'Picture url', 'Website', 'Location') 
-
-        #data_list.append(row)
-
-        report.write_artifact_data_table(data_headers, data_list, file_found, html_escape=False)
-        report.end_artifact_report()
-                
-        tsvname = f'Booking Recently Booked'
-        tsv(report_folder, data_headers, data_list, tsvname)
-                
-        tlactivity = 'Booking Recently Booked'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-
-        kmlactivity = 'Booking Recently Booked'
-        kmlgen(report_folder, kmlactivity, data_list, data_headers)    
-    else:
-        logfunc('No Booking Recently Booked data available')
+    return data_headers, (data_list, data_list_html), ' '
 
 
 # viewed
-def get_viewed(file_found, report_folder, timezone_offset):
+@artifact_processor
+def booking_viewed(context):
+
+    data_headers = (
+        ('Last viewed', 'datetime'),
+        'Hotel type',
+        'Hotel Id',
+        'Hotel name',
+        'Address',
+        'City',
+        'Region',
+        'Zip code',
+        'Latitude',
+        'Longitude',
+        'Image URL',
+        'Website',
+        'Source file name',
+        'Location'
+    )
     data_list = []
+    data_list_html = []
+    device_file_paths = []
 
-    f = open(file_found, "rb")
-    try:
-        plist = plistlib.load(f)
-        if bool(plist):
-            # viewed
-            viewed = plist.get('viewed')
-            if bool(viewed):
-                # array
+    # all files
+    for file_found in context.get_files_found():
+        file_rel_path = Path(Path(file_found).parent.name, Path(file_found).name).as_posix()
+        device_file_path = get_device_file_path(file_found, context.get_seeker())
+
+        # KeyValueStorageRecentsDomain[.plist]
+        if file_rel_path.endswith('KeyValueStorageRecentsDomain') or file_rel_path.endswith('KeyValueStorageRecentsDomain.plist'):
+            try:
+                device_file_paths = [ device_file_path ]
+
+                # plist data
+                plist_data = get_plist_file_content(file_found)
+                if not bool(plist_data):
+                    continue
+
+                # viewed
+                viewed = plist_data.get('viewed', {})
+                # dict
                 for key, value in viewed.items():
-                    row = [ None ] * 12
-
                     # hotel
                     hotel = value.get('hotel')
-                    if bool(hotel):
-                        # last viewed
-                        last_viewed = hotel.get('lastViewed')
-                        if bool(last_viewed):
-                            last_viewed = convert_ts_human_to_utc(str(last_viewed))
-                            row[0] = convert_utc_human_to_timezone(last_viewed, timezone_offset)
-                        row[1] = hotel_type_names(hotel.get('hotel_type'))
-                        # key=id
-                        row[2] = hotel.get('hotel_id')
-                        # name
-                        row[3] = hotel.get('name')
-                        # address
-                        row[4] = hotel.get('address')
-                        # city
-                        city = hotel.get('city')
-                        if bool(city):
-                            # city name
-                            row[5] = city.get('string_')
-                            # region
-                            row[6] = city.get('region_name')
-                        # zip code
-                        row[7] = hotel.get('zip')
-                        # latitude
-                        row[8] = hotel.get('latitude')
-                        # longitude
-                        row[9] = hotel.get('longitude')
-                        # picture url
-                        row[10] = hotel.get('pictureURL')
-                        # website
-                        row[11] = hotel.get('hotelURL')
 
+                    # last viewed
+                    last_viewed = convert_plist_date_to_utc(hotel.get('lastViewed'))
+                    # hotel type
+                    type_ = hotel_type_names(hotel.get('hotel_type'))
+                    # key=hotel id
+                    id = hotel.get('hotel_id')
+                    # hotel name
+                    hotel_name = hotel.get('name')
+                    # address
+                    address = hotel.get('address')
+                    # city
+                    city = hotel.get('city')
+                    if bool(city):
+                        # city name
+                        city_name = city.get('string_')
+                        # region
+                        region_name = city.get('region_name')
+                    # no city
+                    else:
+                        # city name
+                        city_name = hotel.get('cityName')
+                        # region name
+                        region_name = hotel.get('region_name')
+                    # zip code
+                    zip_code = hotel.get('zip')
+                    # latitude
+                    latitude = hotel.get('latitude')
+                    # longitude
+                    longitude = hotel.get('longitude')
+                    # picture url
+                    p_url = hotel.get('pictureURL')
+                    p_url_html = generic_url(p_url, html_format=True)
+                    # website
+                    website = hotel.get('hotelURL')
+                    website_html = generic_url(website, html_format=True)
+
+                    # source file name
+                    device_file_paths = dict.fromkeys(device_file_paths)
+                    source_file_name = unordered_list(device_file_paths)
                     # location
-                    location = f'[viewed][{key}]'
+                    location = f"[viewed][{key}]"
 
-                    # row
-                    data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7],
-                                      row[8], row[9], row[10], row[11], location))
+                    # html row
+                    data_list_html.append((last_viewed, type_, id, hotel_name, address, city_name, region_name, zip_code, latitude, longitude,
+                                           p_url_html, website_html, source_file_name, location))
+                    # lava row
+                    data_list.append((last_viewed, type_, id, hotel_name, address, city_name, region_name, zip_code, latitude, longitude,
+                                      p_url, website, source_file_name, location))
+            except Exception as ex:
+                logfunc(f"Exception while parsing {context.get_artifact_name()} - {file_found}: " + str(ex))
+                pass
 
-    except Exception as ex:
-        logfunc('Exception while parsing Booking Viewed: ' + str(ex))
-    finally:
-        f.close()
-
-    # row
-    if len(data_list) > 0:
-        report = ArtifactHtmlReport('Booking Viewed')
-        report.start_artifact_report(report_folder, 'Booking Viewed')
-        report.add_script()
-        data_headers = ('Last viewed', 'Hotel type', 'Hotel Id', 'Hotel name', 'Address', 'City', 'Region', 'Zip code',
-                        'Latitude', 'Longitude', 'Picture url', 'Website', 'Location') 
-
-        #data_list.append(row)
-
-        report.write_artifact_data_table(data_headers, data_list, file_found, html_escape=False)
-        report.end_artifact_report()
-                
-        tsvname = f'Booking Viewed'
-        tsv(report_folder, data_headers, data_list, tsvname)
-                
-        tlactivity = 'Booking Viewed'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-
-        kmlactivity = 'Booking Viewed'
-        kmlgen(report_folder, kmlactivity, data_list, data_headers)    
-    else:
-        logfunc('No Booking Viewed data available')
-
-
-# booked
-def get_booked(file_found, documents, report_folder, timezone_offset):
-    data_list = []
-
-    f = open(file_found, "rb")
-    try:
-        plist = plistlib.load(f)
-        if bool(plist):
-            for key_b, value_b in plist.items():
-                if not isinstance(value_b, dict):
-                    continue
-                  
-                # booked
-                if (key_b == 'DeviceBookings') or (key_b == 'AccountBookings'):
-                    # array
-                    for key, value in value_b.items():
-                        row = [ None ] * 14
-
-                        # created
-                        created = value.get('created_epoch')
-                        if bool(created):
-                            created = convert_ts_human_to_utc(str(created))
-                            row[0] = convert_utc_human_to_timezone(created, timezone_offset)
-                        # name
-                        row[1] = value.get('hotel_id')
-                        # name
-                        row[2] = value.get('hotel_name')
-                        # full address + couuntry
-                        row[3] = value.get('hotel_full_address')
-                        # country name
-                        country_name = value.get('hotel_country_name')
-                        row[3] = ', '.join([row[3], country_name])
-                        # time zone
-                        hotel_time_zone = value.get('hotel_timezone')
-                        row[4] = hotel_time_zone
-
-                        # check-in - check out
-                        check_io = []
-                        # check-in
-                        tmp = value.get('checkin')
-                        if bool(tmp):
-                            tmp = f"Check-in: {tmp.strftime('%Y-%m-%d')}"
-                            tmp = tmp + ' ' + format_check_in_out(value.get('checkin_from_epoch'), value.get('checkin_until_epoch'), tz=hotel_time_zone)
-                            check_io.append(tmp)
-                        # check-out
-                        tmp = value.get('checkout')
-                        if bool(tmp):
-                            tmp = f"Check-out: {tmp.strftime('%Y-%m-%d')}"
-                            tmp = tmp + ' ' + format_check_in_out(value.get('checkout_from_epoch'), value.get('checkout_until_epoch'), tz=hotel_time_zone)
-                            check_io.append(tmp)
-                        row[5] = '<br />'.join(check_io)
-
-                        # hotel contacts
-                        hotel_contacts = []
-                        # telephone
-                        append_tag_value(hotel_contacts, 'Telephone', value.get('hotel_telephone'))
-                        # email
-                        append_tag_value(hotel_contacts, 'Email', value.get('hotel_email'))
-                        row[6] = '<br />'.join(hotel_contacts)
-                        
-                        # confirmation number
-                        confirm_info = []
-                        append_tag_value(confirm_info, 'Confirmation number', value.get('id'))
-                        # pin code
-                        append_tag_value(confirm_info, 'Pin code', value.get('pincode'))
-                        row[7] = '<br />'.join(confirm_info)
-
-                        # currency code + total price
-                        row[8] = f"{value.get('user_selected_currency_code')} {value.get('totalprice', '0'):.4f}"
-
-                        # rooms
-                        room_meta = []
-                        rooms = value.get('room')
-                        if bool(rooms):
-                            # number of rooms
-                            row[9] = len(rooms)
-
-                            for r in range(len(rooms)):
-                                room = rooms[r]
-                                room_meta.append(f"Room {r} - {room.get('name', '')}")
-                                # guest name
-                                append_tag_value(room_meta, 'Guest name', room.get('guest_name'))
-                                # number of guests
-                                append_tag_value(room_meta, 'Number of guests', room.get('nr_guests'))
-                                # is cancelled
-                                append_tag_value(room_meta, 'Cancelled', room.get('is_cancelled'))
-                                # cancel date
-                                cancel_date = room.get('cancel_date')
-                                if bool(cancel_date):
-                                    cancel_date = convert_ts_human_to_utc(str(cancel_date))
-                                    cancel_date = convert_utc_human_to_timezone(cancel_date, timezone_offset)
-                                    append_tag_value(room_meta, 'Cancel date', cancel_date)
-                                # room id
-                                append_tag_value(room_meta, 'Identifier', room.get('room_id'))
-                                # room photo (string)
-                                append_tag_value(room_meta, 'URL photo', room.get('room_photo'))
-                                # room photos (array)
-                                room_photos = room.get('room_photos')
-                                if bool(room_photos):
-                                    for j in range(len(room_photos)):
-                                        # url_original
-                                        append_tag_value(room_meta, f'URL photo #{j}', room_photos[j].get('url_original'))
-                                # room separator
-                                if r < len(rooms) - 1:
-                                    room_meta.append('<hr>')
-                        row[10] = '<br />'.join(room_meta).replace('<hr><br />', '<hr>')
-
-                        # booker details
-                        booker_details = []
-                        # first name
-                        append_tag_value(booker_details, 'First name', value.get('booker_firstname'))
-                        # last name
-                        append_tag_value(booker_details, 'Last name', value.get('booker_lastname'))
-                        # country code                        
-                        append_tag_value(booker_details, 'Country code', value.get('booker_cc1'))
-                        # email
-                        append_tag_value(booker_details, 'Email', value.get('booker_email'))
-                        # credit card last digits
-                        append_tag_value(booker_details, 'Credit card last four digits', value.get('cc_number_last_digits'))
-                        row[11] = '<br />'.join(booker_details)
-            
-                        # source (ios-app, web, etc.)
-                        row[12] = value.get('source')
-
-                        # attachment (key=id)Booking
-                        if len(documents) > 0:
-                            # url encode "#"???
-                            attachment_file = f'Booking #{key}.pdf'
-                            row[13] = media_to_html(attachment_file, documents, report_folder)
-                            if not row[13].startswith('<'):
-                                row[13] = ''
-                            else:
-                                # ".\Booking.com\Documents\Booking #0123456789.pdf" -> ".\Booking.com\Documents\Booking %230123456789.pdf"
-                                row[13] = row[13].replace(attachment_file+'"', f'Booking %23{key}.pdf"')
-
-                        # location
-                        location = f'[{key_b}][{key}]'
-
-                        # row
-                        data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], 
-                                          row[7], row[8], row[9], row[10], row[11], row[12], row[13], 
-                                          location))
-
-    except Exception as ex:
-        logfunc('Exception while parsing Booking Booked: ' + str(ex))
-    finally:
-        f.close()
-
-    # row
-    if len(data_list) > 0:
-        report = ArtifactHtmlReport('Booking Booked')
-        report.start_artifact_report(report_folder, 'Booking Booked')
-        report.add_script()
-        data_headers = ('Created', 'Hotel Id', 'Hotel name', 'Full address', 'Time zone', 'Check-in/out (Hotel time zone)', 'Hotel contacts', 
-                        'Confirmation number/Pin code', 'Total price', 'Number of rooms', 'Rooms', 'Booker details', 'Source', 'Attachment', 
-                        'Location') 
-
-        #data_list.append(row)
-
-        report.write_artifact_data_table(data_headers, data_list, file_found, \
-                                         html_no_escape=['Check-in/out (Hotel time zone)', 'Hotel contacts', 'Confirmation number/Pin code',
-                                                         'Rooms', 'Booker details', 'Attachment'])
-        report.end_artifact_report()
-                
-        tsvname = f'Booking Booked'
-        tsv(report_folder, data_headers, data_list, tsvname)
-                
-        tlactivity = 'Booking Booked'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-
-        #kmlactivity = 'Booking Booked'
-        #kmlgen(report_folder, kmlactivity, data_list, data_headers)    
-    else:
-        logfunc('No Booking Booked data available')
-
-
-# stored destinations
-def get_stored_destinations(file_found, report_folder, timezone_offset):
-    data_list = []
-
-    f = open(file_found, "rb")
-    try:
-        plist = plistlib.load(f)
-        if bool(plist):
-            # stored destinations
-            stored_destinations = plist.get('stored_destinations')
-            if bool(stored_destinations):
-                # array
-                for i in range(len(stored_destinations)):
-                    row = [ None ] * 12
-                    dest = stored_destinations[i]
-
-                    # created/last updated
-                    created = dest.get('created')
-                    if bool(created):
-                        created = convert_ts_human_to_utc(str(created))
-                        row[0] = convert_utc_human_to_timezone(created, timezone_offset)
-                    # location
-                    loc = dest.get('loc')
-                    if bool(loc):
-                        # location type
-                        row[1] = location_type_names(loc.get('locationType_'))
-                        # id
-                        row[2] = loc.get('id_')
-                        # destination name
-                        row[3] = loc.get('string_')
-                        # description (place name)
-                        row[4] = loc.get('substring_')
-                        if not bool(row[4]): row[4] = loc.get('address')    # (locationType_=7)
-                        # city_
-                        city = loc.get('city_')
-                        if bool(city):
-                            # city name
-                            row[5] = city.get('string_')
-                            # region name
-                            row[6] = city.get('region_name')
-                        # no city_
-                        else:
-                            # city name
-                            row[5] = loc.get('cityName_')
-                            # region
-                            row[6] = loc.get('region_name')
-                        # country name
-                        row[7] = loc.get('countryName_')
-                        if not bool(row[7]): row[7] = loc.get('country')    # (locationType_=7)
-                        # location (locationType_=7)
-                        location_dict = city = loc.get('location')
-                        if bool(location_dict):
-                            # latitude
-                            row[8] = location_dict.get('latitude')
-                            # longitude
-                            row[9] = location_dict.get('longitude')
-                        # no location
-                        else:
-                            # latitude
-                            row[8] = loc.get('latitude_')
-                            # longitude
-                            row[9] = loc.get('longitude_')
-                        # time zone
-                        row[10] = loc.get('timezone')
-                        # image url
-                        row[11] = loc.get('image_url')
-
-                    # location
-                    location = f'[stored_destinations][{i}]'
-
-                    # row
-                    data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], 
-                                      row[8], row[9], row[10], row[11], location))
-
-    except Exception as ex:
-        logfunc('Exception while parsing Booking Stored Destinations: ' + str(ex))
-    finally:
-        f.close()
-
-    # row
-    if len(data_list) > 0:
-        report = ArtifactHtmlReport('Booking Stored Destinations')
-        report.start_artifact_report(report_folder, 'Booking Stored Destinations')
-        report.add_script()
-        data_headers = ('Created', 'Location type', 'Id', 'Destination name', 'Address/Description', 'City', 'Region', 'Country',
-                        'Latitude', 'Longitude', 'Time zone', 'URL image', 'Location') 
-
-        #data_list.append(row)
-
-        report.write_artifact_data_table(data_headers, data_list, file_found, html_escape=False)
-        report.end_artifact_report()
-                
-        tsvname = f'Booking Stored Destinations'
-        tsv(report_folder, data_headers, data_list, tsvname)
-                
-        tlactivity = 'Booking Stored Destinations'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-
-        kmlactivity = 'Booking Stored Destinations'
-        kmlgen(report_folder, kmlactivity, data_list, data_headers)    
-    else:
-        logfunc('No Booking Stored Destinations data available')
+    return data_headers, (data_list, data_list_html), ' '
 
 
 # notifications
-def get_notifications(file_found, report_folder, timezone_offset):
-    database = open_sqlite_db_readonly(file_found)
-    try:
-        cursor = database.cursor()
-        cursor.execute('''
-        SELECT
-	        ROWID AS "N_ID",
-            (ZDATE + 978307200) AS "timestamp",
-            ZIDENTIFIER AS "identifier",
-            ZTITLE AS "title",
-            ZBODY AS "message",
-            ZVIEWED AS "viewed",
-            ZLOCALLYDELETED AS "deleted",
-            ZACTIONIDENTIFIER AS "action_id",
-            ZACTIONARGUMENTS AS "arguments"
-        FROM ZNOTIFICATION
-        ''')
+@artifact_processor
+def booking_notifications(context):
 
-        all_rows = cursor.fetchall()
-        usageentries = len(all_rows)
-        if usageentries > 0:
-            report = ArtifactHtmlReport('Booking Notifications')
-            report.start_artifact_report(report_folder, 'Booking Notifications')
-            report.add_script()
-            data_headers = ('Timestamp', 'Identifier', 'Title', 'Message', 'Viewed', 'Deleted', 'Action Id', 'Action arguments', 'Location') 
-            data_list = []
-            for row in all_rows:
-                # timestamp
-                if bool(row[1]):
-                    timestamp = convert_ts_int_to_utc(row[1])
-                    timestamp = convert_utc_human_to_timezone(timestamp, timezone_offset)
-                else:
-                    timestamp = ''
-                # is_viewed
-                is_viewed = bool(row[5])
-                # is_deleted
-                is_deleted = bool(row[6])
-                # arguments
-                arguments = ''
-                try:
-                    # plist = load_plist_from_string(row[8])
-                    # arguments = str(plist)
-                    arguments = load_plist_from_string(row[8])
-                except Exception as ex:
-                    logfunc('Exception while parsing Booking Notifications action arguments: ' + str(ex))
-                    pass
+    data_headers = (
+        ('Timestamp', 'datetime'),
+        'Identifier',
+        'Title',
+        'Message',
+        'Viewed',
+        'Deleted',
+        'Action ID',
+        'Action arguments',
+        'Source file name',
+        'Location'
+    )
+    data_list = []
+    data_list_html = []
+    device_file_paths = []
+    file_found = get_file_path(context.get_files_found(), "NotificationsModel.sqlite")
+    device_file_path = get_device_file_path(file_found, context.get_seeker())
 
-                # location
-                location = f'ZNOTIFICATION (ROWID: {row[0]})'
+    query = '''
+    SELECT
+        ROWID,
+        (ZDATE + 978307200) AS "timestamp",
+        ZIDENTIFIER,
+        ZTITLE,
+        ZBODY,
+        ZVIEWED,
+        ZLOCALLYDELETED,
+        ZACTIONIDENTIFIER,
+        ZACTIONARGUMENTS
+    FROM ZNOTIFICATION
+    '''
 
-                # row
-                data_list.append((timestamp, row[2], row[3], row[4], is_viewed, is_deleted, row[7], arguments, location))
+    db_records = get_sqlite_db_records(file_found, query)
+    for record in db_records:
+        device_file_paths = [ device_file_path ]
 
-            report.write_artifact_data_table(data_headers, data_list, file_found, html_no_escape=['Action arguments'])
-            report.end_artifact_report()
-                
-            tsvname = f'Booking Notifications'
-            tsv(report_folder, data_headers, data_list, tsvname)
-                
-            tlactivity = f'Booking Notifications'
-            timeline(report_folder, tlactivity, data_list, data_headers)
-        else:
-            logfunc('No Booking Notifications data available')
+        # timestamp
+        timestamp = convert_unix_ts_to_utc(record[1])
+        # identifier
+        identifier = record[2]
+        # title
+        title = record[3]
+        # body
+        body = record[4]
+        # is_viewed
+        is_viewed = bool(record[5])
+        # is_deleted
+        is_deleted = bool(record[6])
+        # action identifier
+        action_identifier = record[7]
+        # arguments
+        arguments = get_plist_content(record[8])
 
-    except Exception as ex:
-        logfunc('Exception while parsing Booking Notifications: ' + str(ex))
+        # location
+        location = f""
+
+        # source file name
+        device_file_paths = dict.fromkeys(device_file_paths)
+        source_file_name = unordered_list(device_file_paths)
+        source_file_name_html = unordered_list(device_file_paths, html_format=True)
+        # location
+        location = f"ZNOTIFICATION (ROWID: {record[0]})"
+
+        # html row
+        data_list_html.append((timestamp, identifier, title, body, is_viewed, is_deleted, action_identifier, arguments, source_file_name_html, location))
+        # lava row
+        data_list.append((timestamp, identifier, title, body, is_viewed, is_deleted, action_identifier, arguments, source_file_name, location))
+
+    return data_headers, (data_list, data_list_html), ' '
 
 
 # flights searched
-def get_flights_searched(file_found, report_folder, timezone_offset):
+@artifact_processor
+def booking_flights_searched(context):
+
+    data_headers = (
+        ('Last updated', 'datetime'),
+        'Start date',
+        'Return date',
+        'Direct flight',
+        'Search type',
+        'Cabin class',
+        'Source airports',
+        'Destination airports',
+        'Routes',
+        "Travellers' details",
+        'Source file name',
+        'Location'
+    )
     data_list = []
+    data_list_html = []
+    device_file_paths = []
+
+
+    # traveller details
+    def get_traveller_details(traveller_details, html_format=False):
+        if not bool(traveller_details) or not isinstance(traveller_details, dict):
+            return None
+        travellers_meta = []
+
+        travellers_details = params.get('travellersDetails', {})
+        # adults count
+        append_tag_value(travellers_meta, 'Adults count', travellers_details.get('adultsCount'))
+        # children count
+        append_tag_value(travellers_meta, 'Children count', travellers_details.get('childrenCount'))
+        # children ages (array of int)
+        children_ages = travellers_details.get('childrenAges', {})
+        append_tag_value(travellers_meta, 'Children ages', COMMA_SEP.join([str(x) for x in children_ages]))
+
+        return unordered_list(travellers_meta, html_format=html_format)
+
 
     # airports details
-    def get_airports(airports, section_name='Airport'):
+    def get_airports(airports, section_name='Airport', html_format=False):
+        result = ''
         if not bool(airports) or not isinstance(airports, list):
-            return ''
+            return None
         
-        airport_meta = []
         for a in range(len(airports)):
             airport = airports[a]
-            airport_meta.append(f"{section_name} {a} - {airport.get('name', '')}")
+            if not bool(airport):
+                continue
+            airport_meta = []
+
+            airport_meta.append(f"{section_name} {a} - {airport.get('name', 'N/A')}")
             # city name
             append_tag_value(airport_meta, 'City', airport.get('cityName'))
             # region name
@@ -1232,19 +1583,27 @@ def get_flights_searched(file_found, report_folder, timezone_offset):
             # selected
             append_tag_value(airport_meta, 'Selected', airport.get('selected'))
                                 
+            # result
+            result += unordered_list(airport_meta, html_format=html_format)
+
             # airport separator
             if a < len(airports) - 1:
-                airport_meta.append('<hr>')
-        return '<br />'.join(airport_meta).replace('<hr><br />', '<hr>')
-    
-    # routes
-    def get_routes(routes):
-        if not bool(routes) or not isinstance(routes, list):
-            return ""
+                result += HTML_HORZ_RULE if html_format else LINE_BREAK + LINE_BREAK
 
-        routes_meta = []
+        return result
+
+
+    # routes
+    def get_routes(routes, html_format=False):
+        result = ''
+        if not bool(routes) or not isinstance(routes, list):
+            return None
+
         for r in range(len(routes)):
             route = routes[r]
+            if not bool(route):
+                continue
+            routes_meta = []
             
             # start date
             start_date = None
@@ -1252,174 +1611,92 @@ def get_flights_searched(file_found, report_folder, timezone_offset):
             except: pass
             if not bool(start_date):
                 continue
-            routes_meta.append(f'Route {r} - {start_date}')
+
+            routes_meta.append(f"Route {r} - {start_date}")
             # sources airports
             routes_meta.append(get_airports(route.get('sourceAirports'), section_name='Source airport'))
             # destinations airports
             routes_meta.append(get_airports(route.get('destinationAirports'), section_name='Destination airport'))
 
+            # result
+            result += unordered_list(routes_meta, html_format=html_format)
+
             # routes separator
             if r < len(routes) - 1:
-                routes_meta.append('<hr>')
-        return '<br />'.join(routes_meta).replace('<hr><br />', '<hr>')
+                result += HTML_HORZ_RULE if html_format else LINE_BREAK + LINE_BREAK
+
+        return result
 
 
-    f = open(file_found, 'r', encoding='utf-8')
-    try:
-        json_data = json.load(f)
-        if bool(json_data):
-            # flights (array)
-            flights = json_data.get('value')
-            if bool(flights):
+    # all files
+    for file_found in context.get_files_found():
+        file_rel_path = Path(Path(file_found).parent.name, Path(file_found).name).as_posix()
+        device_file_path = get_device_file_path(file_found, context.get_seeker())
+
+        # flight_rs_v2
+        if file_rel_path.endswith('flight_rs_v2'):
+            try:
+                device_file_paths = [ device_file_path ]
+
+                # json data
+                json_data = get_json_file_content(file_found)
+                if not bool(json_data):
+                    continue
+
+                # flights (array)
+                flights = json_data.get('value')
+                if not bool(flights):
+                    continue
+
                 # array
                 for i in range(0, len(flights)):
                     # flight
                     flight = flights[i]
-                    row = [ None ] * 10
 
                     # last updated
-                    last_updated = flight.get('lastUpdated')
-                    if bool(last_updated):
-                         last_updated = datetime.fromisoformat(last_updated)
-                         row[0] = convert_utc_human_to_timezone(last_updated, timezone_offset)
+                    last_updated = convert_iso8601_to_utc(flight.get('lastUpdated'))
                     # parameters
-                    params = flight['parameters']['searchOptionModel']
+                    params = flight.get('parameters', {}).get('searchOptionModel', {})
                     # start date
-                    try: row[1] = date(params.get('startYear'), params.get('startMonth'), params.get('startDay'))
+                    try: start_date = date(params.get('startYear'), params.get('startMonth'), params.get('startDay'))
                     except: pass
                     # return date (returnType=ONEWAY-> returnYear, returnMonth, returnDay are Null)
-                    try: row[2] = date(params.get('returnYear'), params.get('returnMonth'), params.get('returnDay'))
+                    try: return_date = date(params.get('returnYear'), params.get('returnMonth'), params.get('returnDay'))
                     except: pass
                     # direct flight
-                    row[3] = params.get('direct')
+                    direct_flight = params.get('direct')
                     # search type
-                    row[4] = params.get('searchType')
-                    # cabin
-                    row[5] = params.get('cabin')
+                    search_type = params.get('searchType')
+                    # cabin class
+                    cabin_class = params.get('cabin')
                     # source airports
-                    row[6] = get_airports(params.get('sourceAirports'))
+                    source_airports = get_airports(params.get('sourceAirports'))
+                    source_airports_html = get_airports(params.get('sourceAirports'), html_format=True)
                     # destination airports
-                    row[7] = get_airports(params.get('destinationAirports'))
+                    destination_airports = get_airports(params.get('destinationAirports'))
+                    destination_airports_html = get_airports(params.get('destinationAirports'), html_format=True)
                     # routes
-                    row[8] = get_routes(params.get('routes'))
+                    routes = get_routes(params.get('routes'))
+                    routes_html = get_routes(params.get('routes'), html_format=True)
                     # travellers' details
-                    travellers_details = params.get('travellersDetails')
-                    if bool(travellers_details):
-                        travellers_meta = []
-                        # adults count
-                        append_tag_value(travellers_meta, 'Adults count', travellers_details.get('adultsCount'))
-                        # children count
-                        append_tag_value(travellers_meta, 'Children count', travellers_details.get('childrenCount'))
-                        # children ages (array of int)
-                        children_ages = travellers_details.get('childrenAges')
-                        if bool(children_ages):
-                            append_tag_value(travellers_meta, 'Children ages', ', '.join([str(x) for x in children_ages]))
-                        row[9] = '<br />'.join(travellers_meta)
+                    travellers_details = get_traveller_details(params.get('travellersDetails'))
+                    travellers_details_html = get_traveller_details(params.get('travellersDetails'), html_format=True)
 
+                    # source file name
+                    device_file_paths = dict.fromkeys(device_file_paths)
+                    source_file_name = unordered_list(device_file_paths)
+                    source_file_name_html = unordered_list(device_file_paths, html_format=True)
                     # location
-                    location = f'[value][{i}]'
+                    location = f"[value][{i}]"
 
-                    # row
-                    data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], 
-                                      row[6], row[7], row[8], row[9], location))
+                    # html row
+                    data_list_html.append((last_updated, start_date, return_date, direct_flight, search_type, cabin_class, source_airports_html,
+                                           destination_airports_html, routes_html, travellers_details_html, source_file_name_html, source_file_name, location))
+                    # lava row
+                    data_list.append((last_updated, start_date, return_date, direct_flight, search_type, cabin_class, source_airports,
+                                      destination_airports, routes, travellers_details, source_file_name_html, source_file_name, location))
+            except Exception as ex:
+                logfunc(f"Exception while parsing {context.get_artifact_name()} - {file_found}: " + str(ex))
+                pass
 
-    except Exception as ex:
-        logfunc('Exception while parsing Booking Flights Searched: ' + str(ex))
-    finally:
-        f.close()
-
-    # row
-    if len(data_list) > 0:
-        report = ArtifactHtmlReport('Booking Flights Searched')
-        report.start_artifact_report(report_folder, 'Booking Flights Searched')
-        report.add_script()
-        data_headers = ('Last updated', 'Start date', 'Return date', 'Direct flight', 'Search type', 'Cabin class', 
-                        'Source airports', 'Destination airports', 'Routes', "Travellers' details", 'Location') 
-
-        #data_list.append(row)
-
-        report.write_artifact_data_table(data_headers, data_list, file_found, 
-                                         html_no_escape=['Source airports', 'Destination airports', 'Routes', "Travellers' details"])
-        report.end_artifact_report()
-                
-        tsvname = f'Booking Flights Searched'
-        tsv(report_folder, data_headers, data_list, tsvname)
-                
-        tlactivity = 'Booking Flights Searched'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-    else:
-        logfunc('No Booking Flights Searched data available')
-
-
-# booking
-def get_booking(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    identifier = ''
-
-    for file_found in files_found:
-        if file_found.endswith('com.booking.BookingApp.plist'):
-            # Library/Preferences/com.booking.BookingApp.plist
-            identifier = (Path(file_found).parts[-4:])[0]
-            break
-
-    if len(identifier) > 0:
-        # Documents
-        documents = seeker.search(f'*/{identifier}/Documents/*', return_on_first_hit=False)
-
-        # */Library/Application Support/KeyValueStorageAccountDomain[.plist]
-        source_files = seeker.search(f'*/{identifier}/Library/Application Support/KeyValueStorageAccountDomain*', return_on_first_hit=True)
-        if bool(source_files):
-            # account
-            get_account(source_files[0], report_folder, timezone_offset)
-
-            # payment methods
-            get_payment_methods(source_files[0], report_folder, timezone_offset)
-
-        # */Library/Application Support/AccountSettings[.plist]
-        source_files = seeker.search(f'*/{identifier}/Library/Application Support/AccountSettings*', return_on_first_hit=True)
-        if bool(source_files):
-            # account settings
-            get_account_settings(source_files[0], report_folder, timezone_offset)
-
-            # payment methods settings
-            get_payment_methods_settings(source_files[0], report_folder, timezone_offset)
-
-        # */Library/Application Support/BookingClouds[.plist]
-        source_files = seeker.search(f'*/{identifier}/Library/Application Support/BookingClouds*', return_on_first_hit=True)
-        if bool(source_files):
-            # booked
-            get_booked(source_files[0], documents, report_folder, timezone_offset)
-
-        # */Library/Application Support/KeyValueStorageRecentsDomain[.plist]
-        source_files = seeker.search(f'*/{identifier}/Library/Application Support/KeyValueStorageRecentsDomain*', return_on_first_hit=True)
-        if bool(source_files):
-            # recently searched
-            get_recently_searched(source_files[0], report_folder, timezone_offset)
-
-            # recently booked
-            get_recently_booked(source_files[0], report_folder, timezone_offset)
-
-            # viewed
-            get_viewed(source_files[0], report_folder, timezone_offset)
-
-            # wish lists
-            get_wish_lists(source_files[0], report_folder, timezone_offset)
-
-        # */Library/Application Support/KeyValueStorageSharedDomain[.plist]
-        source_files = seeker.search(f'*/{identifier}/Library/Application Support/KeyValueStorageSharedDomain*', return_on_first_hit=True)
-        if bool(source_files):
-            # stored destinations
-            get_stored_destinations(source_files[0], report_folder, timezone_offset)
-
-        # */Library/Application Support/NotificationsModel.sqlite
-        source_files = seeker.search(f'*/{identifier}/Library/Application Support/NotificationsModel.sqlite*')
-        for file_found in source_files:
-            file_found = str(file_found)
-            if file_found.endswith('.sqlite'):
-                # notifications
-                get_notifications(file_found, report_folder, timezone_offset)
-
-        # */Library/Application Support/flight_rs_v2
-        source_files = seeker.search(f'*/{identifier}/Library/Application Support/flight_rs_v2', return_on_first_hit=True)
-        if bool(source_files):
-            # flights searched
-            get_flights_searched(source_files[0], report_folder, timezone_offset)
+    return data_headers, (data_list, data_list_html), ' '

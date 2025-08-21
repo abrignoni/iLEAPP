@@ -4,7 +4,7 @@
         "image_name": "josh_ios15_ffs",
         "description": "iPhone 8 extraction with sample data for testing",
         "local_image_paths": [
-            "~/Documents/phone-images/Josh/iOS_15_Public_Image.tar.gz",
+            "~/Documents/phone-images/Josh/iOS_15_Public_Image.tar",
             "/home/user/images/iphone_001.zip"
         ],
         "file_path_list": "admin/data/filepath-lists/josh-hickman-ios15.csv.zip",
@@ -14,7 +14,8 @@
         },
         "image_info": {
           "creation_date": "2023-05-20",
-          "os_version": "iOS 15.3.1",
+          "os_name": "iPhone OS",
+          "os_version": "15.3.1",
           "device_model": "iPhone 8",
           "extraction_method": "Full Filesystem",
           "extraction_tool": "Cellebrite"
@@ -39,8 +40,9 @@
           "organization": "Magnet Forensics"
         },
         "image_info": {
-          "creation_date": "2023-01-01T00:00:00Z",
-          "os_version": "iOS 14.7.1",
+          "creation_date": "2023-01-01",
+          "os_name": "iPhone OS",
+          "os_version": "14.7.1",
           "device_model": "Unknown",
           "extraction_method": "Full Filesystem",
           "extraction_tool": "Magnet"
@@ -53,19 +55,20 @@
       },
       {
         "image_name": "belkasoft_ctf6_ios_device1",
-        "description": "BelkaSoft CTF 6 iOS Device 1 image for forensic analysis and competition",
+        "description": "BelkaSoft CTF 6 iOS 16 Device 1 image for forensic analysis and competition",
         "local_image_paths": [
           "~/Documents/phone-images/belkasoft/BelkaCTF_6_CASE240405_D201AP.tar"
         ],
-        "file_path_list": "admin/data/filepath-lists/belkasoft-ctf6-ios-device1.csv.zip",
+        "file_path_list": "admin/data/filepath-lists/belkasoft-ctf6-ios-dev1.csv.zip",
         "download_url": "https://cfreds.nist.gov/all/Belkasoft/BelkaCTF6BogusBill",
         "author": {
           "name": "BelkaSoft",
           "organization": "BelkaSoft"
         },
         "image_info": {
-          "creation_date": "2023-01-01T00:00:00Z",
-          "os_version": "iOS",  
+          "creation_date": "2023-01-01",
+          "os_name": "iPhone OS",
+          "os_version": "16.3",  
           "device_model": "Unknown",
           "extraction_method": "Unknown",
           "extraction_tool": "Unknown"

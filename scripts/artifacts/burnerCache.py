@@ -1,86 +1,286 @@
 __artifacts_v2__ = {
-    "burnerCache": {
-        "name": "Burner Cache",
-        "description": "Parses and extract accounts, contacts, burner numbers and messages",
-        "author": "Django Faiola (https://djangofaiola.blogspot.com https://www.linkedin.com/in/djangofaiola/)",
-        "version": "0.2.0",
-        "date": "2024-03-05",
+    "burnerCache_preferences": {
+        "name": "Preferences",
+        "description": "Parses and extract Burner Cache Preferences",
+        "author": "@djangofaiola",
+        "version": "0.3",
+        "creation_date": "2024-03-05",
+        "last_update_date": "2025-05-02",
         "requirements": "none",
-        "category": "Burner",
-        "notes": "App version tested: 4.0.18, 4.3.3, 5.3.8, 5.4.11",
-        "paths": ('*/Library/Caches/com.adhoclabs.burner/Cache.db*',
-                  '*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist'),
-        "function": "get_burner_cache"
+        "category": "Burner Cache",
+        "notes": ("https://djangofaiola.blogspot.com",
+                  "App version tested: 4.0.18, 4.3.3, 5.3.8, 5.4.11"),
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/Preferences/com.adhoclabs.burner.plist'),
+        "output_types": [ "none" ],
+        "artifact_icon": "settings"
+    },
+    "burnerCache_accounts": {
+        "name": "Accounts",
+        "description": "Parses and extract Burner Cache Accounts",
+        "author": "@djangofaiola",
+        "version": "0.3",
+        "creation_date": "2024-03-05",
+        "last_update_date": "2025-05-02",
+        "requirements": "none",
+        "category": "Burner Cache",
+        "notes": "https://djangofaiola.blogspot.com",
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.adhoclabs.burner/Cache.db*'),
+        "output_types": [ "lava", "html", "tsv", "timeline" ],
+        "html_columns": [ "Source file name", "Location" ],
+        "artifact_icon": "user"
+    },
+    "burnerCache_contacts": {
+        "name": "Contacts",
+        "description": "Parses and extract Burner Cache Contacts",
+        "author": "@djangofaiola",
+        "version": "0.3",
+        "creation_date": "2024-03-05",
+        "last_update_date": "2025-05-02",
+        "requirements": "none",
+        "category": "Burner Cache",
+        "notes": "https://djangofaiola.blogspot.com",
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.adhoclabs.burner/Cache.db*'),
+        "output_types": [ "lava", "html", "tsv", "timeline" ],
+        "html_columns": [ "Source file name", "Location" ],
+        "artifact_icon": "users"
+    },
+    "burnerCache_numbers": {
+        "name": "Numbers",
+        "description": "Parses and extract Burner Cache Numbers",
+        "author": "@djangofaiola",
+        "version": "0.3",
+        "creation_date": "2024-03-05",
+        "last_update_date": "2025-05-02",
+        "requirements": "none",
+        "category": "Burner Cache",
+        "notes": "https://djangofaiola.blogspot.com",
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.adhoclabs.burner/Cache.db*'),
+        "output_types": [ "lava", "html", "tsv", "timeline" ],
+        "html_columns": [ "Source file name", "Location" ],
+        "artifact_icon": "phone"
+    },
+    "burnerCache_messages": {
+        "name": "Messages",
+        "description": "Parses and extract Burner Cache Messages",
+        "author": "@djangofaiola",
+        "version": "0.3",
+        "creation_date": "2024-03-05",
+        "last_update_date": "2025-05-13",
+        "requirements": "none",
+        "category": "Burner Cache",
+        "notes": "https://djangofaiola.blogspot.com",
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.adhoclabs.burner/Cache.db*',
+                  '*/Library/Caches/com.adhoclabs.burner/fsCachedData/*'),
+        "output_types": [ "lava", "html", "tsv", "timeline" ],
+        "html_columns": [ "Media URL", "Source file name", "Location" ],
+        "artifact_icon": "message-circle",
+        "data_views": {
+            "chat": {
+                "directionSentValue": "Outgoing",
+                "threadDiscriminatorColumn": "Thread",
+                "textColumn": "Message",
+                "directionColumn": "Direction",
+                "timeColumn": "Sent",
+                "senderColumn": "Sender",
+                "mediaColumn": "Media"
+            }
+        }
     }
 }
 
-import os
+import inspect
+from urllib.parse import urlparse, urlunparse
 import json
 import re
-import plistlib
-import shutil
 import sqlite3
-import textwrap
-
 from pathlib import Path
-from base64 import b64encode
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly, convert_ts_int_to_utc, convert_utc_human_to_timezone, media_to_html
-from scripts.filetype import image_match
-
-# format timestamp
-def FormatTimestamp(utc, timezone_offset, divisor=1.0):
-    if not bool(utc):
-        return ''
-    else:
-        timestamp = convert_ts_int_to_utc(int(float(utc) / divisor))
-        return convert_utc_human_to_timezone(timestamp, timezone_offset)
+from scripts.ilapfuncs import get_file_path, get_plist_file_content, open_sqlite_db_readonly, lava_get_full_media_info, \
+    convert_unix_ts_to_utc, check_in_media, check_in_embedded_media, artifact_processor, logfunc
 
 
-# blob image to html
-def blob_image_to_html(data, max_width=96):
-    mimetype = image_match(data)
-    if bool(mimetype):
-        base64 = b64encode(data).decode('utf-8')
-        return f'<img src="data:{mimetype.MIME};base64,{base64}" width="{max_width}">'
-    else:
-        return ''
-                  
-
-LIKEXP_MEDIA = r'WHERE cr.request_key like "https://s3.amazonaws.com/burner-%"'
-REGEXP_ACCOUNTS = r'WHERE cr.request_key REGEXP "https:\/\/phoenix\.burnerapp\.com(\/v\d)?(\/register(\/phone)?$|\/user\/[a-fA-F\d-]{36}\/token)"'
-REGEXP_CONTACTS = r'WHERE cr.request_key REGEXP "https:\/\/phoenix\.burnerapp\.com(\/v\d)?\/user\/[a-fA-F\d-]{36}\/contacts\?.+"'
-REGEXP_MESSAGES = r'WHERE cr.request_key REGEXP "https:\/\/phoenix\.burnerapp\.com(\/v\d)?\/user\/[a-fA-F\d-]{36}(\/messages($|\?.*contactPhoneNumber=.+)|(\/burners\/[a-fA-F\d-]{36}\/conversations\/.+\/messages($|\?.*pageSize=.+)))"'
-REGEXP_NUMBERS = r'WHERE cr.request_key REGEXP "https:\/\/phoenix\.burnerapp\.com(\/v\d)?\/user\/[a-fA-F\d-]{36}\/burners(\/[a-fA-F\d-]{36})?$"'
-
-# cache query
-def cache_query(db, where=''):
-    cursor = db.cursor()
-    cursor.execute('''
+# burner app id
+burner_app_identifier = None
+# <id, phone number (display name)>
+burner_uid_map = {}
+# constants
+LINE_BREAK = '\n'
+COMMA_SEP = ', '
+HTML_LINE_BREAK = '<br>'
+HTML_HORZ_RULE = '<hr>'
+# Cache.db query
+BURNER_CACHE_DB_QUERY = '''
     SELECT
-        cr.entry_ID,
         crd.entry_ID,
         cr.request_key,
-	    crd.isDataOnFS,
-	    crd.receiver_data
+        crd.isDataOnFS,
+        crd.receiver_data
     FROM cfurl_cache_response AS "cr"
     LEFT JOIN cfurl_cache_receiver_data AS "crd" ON (cr.entry_ID = crd.entry_ID)
-    {0}                       
-    '''.format(where)
-    )
-    return cursor.fetchall()
+    WHERE cr.request_key REGEXP "{0}"
+    '''
 
-                       
-# cache accounts
-def get_cache_accounts(file_found, cache_files, report_folder, timezone_offset, uids):
+
+def get_sqlite_db_records_regexpr(file_path, query, attach_query=None, regexpr=None):
+    file_path = str(file_path)
+    db = open_sqlite_db_readonly(file_path)
+    if not bool(db):
+        return None
+
+    try:
+        # regexp() user function
+        if bool(regexpr):
+            db.create_function('regexp', 2, lambda x, y: 1 if re.search(x,y) else 0)
+    
+        cursor = db.cursor()
+        if bool(attach_query):
+            cursor.execute(attach_query)
+        cursor.execute(query)
+        records = cursor.fetchall()
+        return records
+
+    except sqlite3.OperationalError as e:
+        logfunc(f"Error with {file_path}:")
+        logfunc(f" - {str(e)}")
+
+    except sqlite3.ProgrammingError as e:
+        logfunc(f"Error with {file_path}:")
+        logfunc(f" - {str(e)}")
+
+
+def get_json_file_content(file_path):
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            return json.load(file)
+    except Exception as e:
+        logfunc(f"Error reading file {file_path}: {str(e)}")
+        return None
+
+
+def get_json_content(data):
+    try:
+        return json.loads(data)
+    except Exception as e:
+        logfunc(f"Unexpected error reading json data: {str(e)}")
+        return {}
+
+
+# device path/local path
+def get_device_file_path(file_path, seeker):
+    device_path = file_path
+
+    if bool(file_path):
+        file_info = seeker.file_infos.get(file_path) if file_path else None
+        # data folder: /path/to/report/data
+        if file_info:
+            source_path = file_info.source_path
+        # extraction folder: /path/to/directory
+        else:
+            source_path = file_path
+        source_path = Path(source_path).as_posix()
+
+        index_private = source_path.find('/private/')
+        if index_private > 0:
+            device_path = source_path[index_private:]
+    
+    return device_path
+
+
+def get_cache_db_fs_path(data, file_found, seeker):
+    if bool(data):
+        # */<GUID>/Library/Caches/com.adhoclabs.burner/fsCachedData/<data>
+        filter = Path('*').joinpath(*Path(file_found).parts[-5:-1], 'fsCachedData', data)
+        json_file = seeker.search(filter, return_on_first_hit=True)
+        return json_file
+    else:
+        return None
+
+
+# unordered list
+def unordered_list(values, html_format=False):
+    if not bool(values):
+        return None
+
+    return HTML_LINE_BREAK.join(values) if html_format else LINE_BREAK.join(values)
+
+
+# generic url
+def generic_url(value, html_format=False):
+    # default
+    result = None
+
+    if bool(value) and (value != 'null'):
+        u = urlparse(value)
+        # 0=scheme, 2=path
+        if not bool(u.scheme) and u.path.startswith('www'):
+            u = u._replace(scheme='http')
+        url = urlunparse(u)
+        result =  f'<a href="{url}" target="_blank">{value}</a>' if html_format else url
+
+    return result
+
+
+# preferences
+@artifact_processor
+def burnerCache_preferences(files_found, report_folder, seeker, wrap_text, timezone_offset):
+
+    source_path = None
+    global burner_app_identifier
+
+    # all files
+    for file_found in files_found:
+        file_found = str(file_found)
+        # prefs
+        plist_data = get_plist_file_content(file_found)
+        if not bool(plist_data):
+            continue
+
+        try:
+            # source path
+            source_path = file_found
+
+            # Library/Preferences/com.adhoclabs.burner.plist
+            burner_app_identifier = Path(file_found).parents[2].name
+
+        except Exception as e:
+            logfunc(f"Error: {str(e)}")
+            pass
+
+    # return empty
+    return (), [], source_path
+
+
+# accounts
+@artifact_processor
+def burnerCache_accounts(files_found, report_folder, seeker, wrap_text, timezone_offset):
+
+    data_headers = (
+        ('Last updated', 'datetime'),
+        ('Created', 'datetime'),
+        ('Phone number', 'phonenumber'),
+        'Country code',
+        'Carrier name',
+        'Number of burners',
+        'User ID',
+        'Source file name',
+        'Location'
+    )
+    data_list = []
+    data_list_html = []
+    device_file_paths = []
+    artifact_info_name = __artifacts_v2__['burnerCache_accounts']['name']
+    file_found = get_file_path(files_found, "Cache.db")
+    device_file_path = get_device_file_path(file_found, seeker)
+
     # get account
     def get_account(account):
         acc_ref = account.get('user')
         if not bool(acc_ref):
             acc_ref = account
 
+        # last updated date
+        last_updated = convert_unix_ts_to_utc(acc_ref.get('lastUpdatedDate'))
         # date created
-        created = FormatTimestamp(acc_ref.get('dateCreated'), timezone_offset, divisor=1000)
+        created = convert_unix_ts_to_utc(acc_ref.get('dateCreated'))
         # phone number
         phone_number = acc_ref.get('phoneNumber', '')
         # country code
@@ -89,107 +289,117 @@ def get_cache_accounts(file_found, cache_files, report_folder, timezone_offset, 
         carrier_name = acc_ref.get('carrierName')
         # total number burners
         total_number_burners = acc_ref.get('totalNumberBurners')
-        # last updated date
-        last_updated = FormatTimestamp(acc_ref.get('lastUpdatedDate'), timezone_offset, divisor=1000)
         # user id
         user_id = acc_ref.get('id')
         if bool(user_id):
-            uids[user_id] = phone_number
+            burner_uid_map[user_id] = phone_number
 
         # out values
         return last_updated, created, phone_number, country_code, carrier_name, total_number_burners, user_id
-    
-    # accounts
-    db = open_sqlite_db_readonly(file_found)
-    try:
-        # regexp() user function
-        db.create_function('regexp', 2, lambda x, y: 1 if re.search(x,y) else 0)
 
-        all_rows = cache_query(db, where=REGEXP_ACCOUNTS)
-        usageentries = len(all_rows)
-        if usageentries > 0:
-            report = ArtifactHtmlReport('Burner Cache accounts')
-            report.start_artifact_report(report_folder, 'Burner Cache accounts')
-            report.add_script()
-            data_headers = ('Last updated', 'Created', 'Phone number', 'Country code', 'Carrier name', 'Number of burners', 'User ID', 'Item') 
-                       
-            data_list = []
-            json_data = None
-            for row in all_rows:
-                # from file?
-                isDataOnFS = bool(row[3])
-                if isDataOnFS:
-                    json_file = os.path.dirname(file_found)
-                    json_file = Path(json_file).joinpath('fsCachedData', row[4])
-                    if os.path.isfile(json_file):
-                        f = open(json_file, 'r', encoding='utf-8')
-                        try:
-                            json_data = json.load(f)
-                        finally:
-                            f.close()
-                # from blob
-                else:
-                    json_data = json.loads(row[4])
 
-                # accounts
-                if type(json_data) in (list, tuple):
-                    a_count = 0
-                    for account in json_data:
-                        # fsCachedData
-                        if isDataOnFS:
-                            location = f'{row[4]}[{a_count}]'
-                        # cfurl_cache_receiver_data.receiver_data
-                        else:
-                            location = f'receiver_data[{a_count}]'
+    query = BURNER_CACHE_DB_QUERY.format(r'https:\/\/phoenix\.burnerapp\.com(\/v\d)?(\/register(\/phone)?$|\/user\/[a-fA-F\d-]{36}\/token)')
+    db_records = get_sqlite_db_records_regexpr(file_found, query, regexpr=True)
+    for record in db_records:
+        db_device_file_paths = [ device_file_path ]
 
-                        last_updated, created, phone_number, country_code, carrier_name, total_number_burners, user_id = get_account(account)
-                        data_list.append((last_updated, created, phone_number, country_code, carrier_name, total_number_burners, user_id, location))                       
-                        a_count += 1
-                # account
-                elif type(json_data) is dict:
-                    # fsCachedData
-                    if isDataOnFS:
-                        location = f'{row[4]}[0]'
-                    # cfurl_cache_receiver_data.receiver_data
-                    else:
-                        location = 'receiver_data[0]'
-
-                    last_updated, created, phone_number, country_code, carrier_name, total_number_burners, user_id = get_account(json_data)
-                    data_list.append((last_updated, created, phone_number, country_code, carrier_name, total_number_burners, user_id, location))
-        
-            report.write_artifact_data_table(data_headers, data_list, file_found, html_escape=False)
-            report.end_artifact_report()
-                
-            tsvname = f'Burner Cache accounts'
-            tsv(report_folder, data_headers, data_list, tsvname)
-                
-            tlactivity = 'Burner Cache accounts'
-            timeline(report_folder, tlactivity, data_list, data_headers)
+        # from file?
+        isDataOnFS = bool(record[2])
+        # from FS
+        if isDataOnFS:
+            fs_cached_data_path = get_cache_db_fs_path(record[3], file_found, seeker)
+            json_data = get_json_file_content(fs_cached_data_path)
+            if bool(fs_cached_data_path): db_device_file_paths.append(get_device_file_path(fs_cached_data_path, seeker))
+        # from BLOB
         else:
-            logfunc('No Burner Cache accounts data available')
+            json_data = get_json_content(record[3])
 
-    except Exception as ex:
-        logfunc('Exception while parsing Burner Cache accounts: ' + str(ex))
+        device_file_paths = db_device_file_paths
 
-    finally:
-        db.close()
+        # accounts
+        if isinstance(json_data, (list, tuple)):
+            for i in range(0, len(json_data)):
+                device_file_paths = db_device_file_paths
+
+                account = json_data[i]
+                if not bool(account):
+                    continue
+
+                # account
+                last_updated, created, phone_number, country_code, carrier_name, total_number_burners, user_id = get_account(account)
+        
+                # source file name
+                device_file_paths = dict.fromkeys(device_file_paths)
+                source_file_name = unordered_list(device_file_paths)
+                source_file_name_html = unordered_list(device_file_paths, html_format=True)
+                # location
+                location = [ f"cfurl_cache_receiver_data (entry_ID: {record[0]})" ]
+                location.append(f"{record[3]}[{i}]" if isDataOnFS else f"receiver_data[{i}]")
+                location = COMMA_SEP.join(location)
+
+                # html row
+                data_list_html.append((last_updated, created, phone_number, country_code, carrier_name, total_number_burners, user_id, source_file_name_html, location))
+                # lava row
+                data_list.append((last_updated, created, phone_number, country_code, carrier_name, total_number_burners, user_id, source_file_name, location))
+        # account
+        elif isinstance(json_data, dict):
+            # account
+            last_updated, created, phone_number, country_code, carrier_name, total_number_burners, user_id = get_account(json_data)
+            
+            # source file name
+            device_file_paths = dict.fromkeys(device_file_paths)
+            source_file_name = unordered_list(device_file_paths)
+            source_file_name_html = unordered_list(device_file_paths, html_format=True)
+            # location
+            location = [ f"cfurl_cache_receiver_data (entry_ID: {record[0]})" ]
+            location.append(f"{record[3]}" if isDataOnFS else f"receiver_data")
+            location = COMMA_SEP.join(location)
+
+            # html row
+            data_list_html.append((last_updated, created, phone_number, country_code, carrier_name, total_number_burners, user_id, source_file_name_html, location))
+            # lava row
+            data_list.append((last_updated, created, phone_number, country_code, carrier_name, total_number_burners, user_id, source_file_name, location))
+
+    return data_headers, (data_list, data_list_html), ' '
 
 
-# cache contacts
-def get_cache_contacts(file_found, cache_files, report_folder, timezone_offset, uids):
+# contacts
+@artifact_processor
+def burnerCache_contacts(files_found, report_folder, seeker, wrap_text, timezone_offset):
+
+    data_headers = (
+        ('Created', 'datetime'),
+        ('Phone number', 'phonenumber'),
+        'Full name',
+        'Notes',
+        'Verified',
+        'Blocked',
+        'Muted',
+        'Burner IDs',
+        'Contact ID',
+        'Source file name',
+        'Location'
+    )
+    data_list = []
+    data_list_html = []
+    device_file_paths = []
+    artifact_info_name = __artifacts_v2__['burnerCache_contacts']['name']
+    file_found = get_file_path(files_found, "Cache.db")
+    device_file_path = get_device_file_path(file_found, seeker)
+
     # get contact
     def get_contact(contact):
         # date created
-        created = FormatTimestamp(contact.get('dateCreated'), timezone_offset, divisor=1000)
+        created = convert_unix_ts_to_utc(contact.get('dateCreated'))
         # display name
-        display_name = contact.get('name', '')
+        display_name = contact.get('name')
         # phone number
-        phone_number = contact.get('phoneNumber', '')
+        phone_number = contact.get('phoneNumber')
         if bool(phone_number):
-            uids[phone_number] = f'{phone_number} ({display_name})'
+            burner_uid_map[phone_number] = f"{phone_number} ({display_name})" if bool(display_name) else phone_number            
         # other phones ???
         # notes
-        notes = contact.get('text', '')
+        notes = contact.get('text')
         # verified
         verified = 'Yes' if bool(contact.get('verified')) else 'No'
         # blocked
@@ -211,113 +421,130 @@ def get_cache_contacts(file_found, cache_files, report_folder, timezone_offset, 
             thumbnail = ''
             thumbnail_url = ''
         # burner ids
-        burner_ids = ', '.join(contact.get('burnerIds', []))       
+        burner_ids = COMMA_SEP.join(contact.get('burnerIds', []))       
         # contact id
         contact_id = contact.get('id')
         if bool(contact_id):
-            uids[contact_id] = f'{phone_number} ({display_name})' if bool(display_name) else phone_number
+            burner_uid_map[contact_id] = f"{phone_number} ({display_name})" if bool(display_name) else phone_number
 
         # out values
         return created, phone_number, display_name, notes, verified, blocked, muted, burner_ids, contact_id
 
-    db = open_sqlite_db_readonly(file_found)
-    try:
-        # regexp() user function
-        db.create_function('regexp', 2, lambda x, y: 1 if re.search(x,y) else 0)
 
-        all_rows = cache_query(db, where=REGEXP_CONTACTS)
-        usageentries = len(all_rows)
-        if usageentries > 0:
-            report = ArtifactHtmlReport('Burner Cache contacts')
-            report.start_artifact_report(report_folder, 'Burner Cache contacts')
-            report.add_script()
-            data_headers = ('Created', 'Phone number', 'Full name', 'Notes', 'Verified', 'Blocked', 'Muted', 'Burner IDs', 'Contact ID', 'Item') 
+    query = BURNER_CACHE_DB_QUERY.format(r'https:\/\/phoenix\.burnerapp\.com(\/v\d)?\/user\/[a-fA-F\d-]{36}\/contacts\?.+')
+    db_records = get_sqlite_db_records_regexpr(file_found, query, regexpr=True)
+    for record in db_records:
+        db_device_file_paths = [ device_file_path ]
 
-            data_list = []
-            json_data = None
-            for row in all_rows:
-                # from file?
-                isDataOnFS = bool(row[3])
-                if isDataOnFS:
-                    json_file = os.path.dirname(file_found)
-                    json_file = Path(json_file).joinpath('fsCachedData', row[4])
-                    if os.path.isfile(json_file):
-                        f = open(json_file, 'r', encoding='utf-8')
-                        try:
-                            json_data = json.load(f)
-                        finally:
-                            f.close()
-                # from blob
-                else:
-                    json_data = json.loads(row[4])
-
-                # contacts
-                if type(json_data) in (list, tuple):
-                    c_count = 0
-                    for contact in json_data:
-                        # fsCachedData
-                        if isDataOnFS:
-                            location = f'{row[4]}[{c_count}]'
-                        # cfurl_cache_receiver_data.receiver_data
-                        else:
-                            location = f'receiver_data[{c_count}]'
-
-                        created, phone_number, display_name, notes, verified, blocked, muted, burner_ids, contact_id = get_contact(contact)
-                        data_list.append((created, phone_number, display_name, notes, verified, blocked, muted, burner_ids, contact_id, location))
-                        c_count += 1
-                # contact
-                elif type(json_data) is dict:
-                    # fsCachedData
-                    if isDataOnFS:
-                        location = f'{row[4]}[0]'
-                    # cfurl_cache_receiver_data.receiver_data
-                    else:
-                        location = 'receiver_data[0]'
-
-                    created, phone_number, display_name, notes, verified, blocked, muted, burner_ids, contact_id = get_contact(json_data)
-                    data_list.append((created, phone_number, display_name, notes, verified, blocked, muted, burner_ids, contact_id, location))
-    
-            report.write_artifact_data_table(data_headers, data_list, file_found, html_escape=False)
-            report.end_artifact_report()
-                
-            tsvname = f'Burner Cache contacts'
-            tsv(report_folder, data_headers, data_list, tsvname)
-                
-            tlactivity = 'Burner Cache contacts'
-            timeline(report_folder, tlactivity, data_list, data_headers)
+        # from file?
+        isDataOnFS = bool(record[2])
+        # from FS
+        if isDataOnFS:
+            fs_cached_data_path = get_cache_db_fs_path(record[3], file_found, seeker)
+            json_data = get_json_file_content(fs_cached_data_path)
+            if bool(fs_cached_data_path): db_device_file_paths.append(get_device_file_path(fs_cached_data_path, seeker))
+        # from BLOB
         else:
-            logfunc('No Burner Cache contacts data available')
+            json_data = get_json_content(record[3])
 
-    except Exception as ex:
-        logfunc('Exception while parsing Burner Cache contacts: ' + str(ex))
+        device_file_paths = db_device_file_paths
 
-    finally:
-        db.close()
+        # contacts
+        if isinstance(json_data, (list, tuple)):
+            for i in range(0, len(json_data)):
+                device_file_paths = db_device_file_paths
+
+                contact = json_data[i]
+                if not bool(contact):
+                    continue
+
+                # contact
+                created, phone_number, display_name, notes, verified, blocked, muted, burner_ids, contact_id = get_contact(contact)
+
+                # source file name
+                device_file_paths = dict.fromkeys(device_file_paths)
+                source_file_name = unordered_list(device_file_paths)
+                source_file_name_html = unordered_list(device_file_paths, html_format=True)
+                # location
+                location = [ f"cfurl_cache_receiver_data (entry_ID: {record[0]})" ]
+                location.append(f"{record[3]}[{i}]" if isDataOnFS else f"receiver_data[{i}]")
+                location = COMMA_SEP.join(location)
+
+                # html row
+                data_list_html.append((created, phone_number, display_name, notes, verified, blocked, muted, burner_ids, contact_id, source_file_name_html, location))
+                # lava row
+                data_list.append((created, phone_number, display_name, notes, verified, blocked, muted, burner_ids, contact_id, source_file_name, location))
+
+        # contact
+        elif isinstance(json_data, dict):
+            created, phone_number, display_name, notes, verified, blocked, muted, burner_ids, contact_id = get_contact(json_data)
+            
+            # source file name
+            device_file_paths = dict.fromkeys(device_file_paths)
+            source_file_name = unordered_list(device_file_paths)
+            source_file_name_html = unordered_list(device_file_paths, html_format=True)
+            # location
+            location = [ f"cfurl_cache_receiver_data (entry_ID: {record[0]})" ]
+            location.append(f"{record[3]}" if isDataOnFS else f"receiver_data")
+            location = COMMA_SEP.join(location)
+
+            # html row
+            data_list_html.append((created, phone_number, display_name, notes, verified, blocked, muted, burner_ids, contact_id, source_file_name_html, location))
+            # lava row
+            data_list.append((created, phone_number, display_name, notes, verified, blocked, muted, burner_ids, contact_id, source_file_name, location))
+
+    return data_headers, (data_list, data_list_html), ' '
 
 
-# cache numbers
-def get_cache_numbers(file_found, cache_files, report_folder, timezone_offset, uids):
+# numbers
+@artifact_processor
+def burnerCache_numbers(files_found, report_folder, seeker, wrap_text, timezone_offset):
+
+    data_headers = (
+        ('Created', 'datetime'),
+        'Burner number',
+        'Display name',
+        'Subscription Expires',
+        'Version',
+        'Notifications',
+        'Inbound caller ID',
+        'In-App calling (VoIP)',
+        'Auto-replay enabled',
+        'Auto-reply message',
+        'Remaining/Total minutes',
+        'Remaining/Total messages',
+        ('Phone number', 'phonenumber'),
+        'User ID',
+        'Burner ID',
+        'Source file name',
+        'Location'
+    )
+    data_list = []
+    data_list_html = []
+    device_file_paths = []
+    artifact_info_name = __artifacts_v2__['burnerCache_numbers']['name']
+    file_found = get_file_path(files_found, "Cache.db")
+    device_file_path = get_device_file_path(file_found, seeker)
+
+
     # get number
     def get_number(number):
         # burner number
         burner_number = number.get('phoneNumber')
         if not bool(burner_number):
             burner_number = number.get('phoneNumberId')
-
         # user id
-        user_id = number.get('userId', '')
+        user_id = number.get('userId')
         if not bool(user_id):
             # https://phoenix.burnerapp.com/v3/user/<user_id>/burners
-            user_id = str(row[2]).split('/')[-2]
-        user_phone_number = uids.get(user_id, '')
-
+            user_id = str(record[1]).split('/')[-2]
+        user_phone_number = burner_uid_map.get(user_id)
         # version
         version = number.get('version')
         # date created
-        created = FormatTimestamp(number.get('dateCreated'), timezone_offset, divisor=1000)
+        created = convert_unix_ts_to_utc(number.get('dateCreated'))
         # subscription expires
-        expires = FormatTimestamp(number.get('expirationDate'), timezone_offset, divisor=1000)
-
+        expires = convert_unix_ts_to_utc(number.get('expirationDate'))
         # entitlements
         entitlements = number.get('entitlements')
         if bool(entitlements):
@@ -330,7 +557,6 @@ def get_cache_numbers(file_found, cache_files, report_folder, timezone_offset, u
             rt_minutes = f"{number.get('remainingMinutes', 0)}/{number.get('totalMinutes', 0)}"
             # remaining messages/total messages
             rt_texts = f"{number.get('remainingTexts', 0)}/{number.get('totalTexts', 0)}"
-
         # settings
         settings = number.get('settings')
         if bool(settings):
@@ -362,114 +588,120 @@ def get_cache_numbers(file_found, cache_files, report_folder, timezone_offset, u
             auto_reply_enabled = 'Yes' if number.get('autoReplyActive') == True else 'No'
             # auto-reply message
             auto_reply_text = number.get('autoReplyText')
-
         # burned id
         burner_id = number.get('id')
         if bool(burner_id):
-            uids[burner_id] = f'{burner_number} ({display_name})' if bool(display_name) else burner_number
+            burner_uid_map[burner_id] = f"{burner_number} ({display_name})" if bool(display_name) else burner_number
 
         # out values
-        return burner_number, display_name, created, expires, version, notifications, inbound_caller_id,  \
-            voip, auto_reply_enabled, auto_reply_text, rt_minutes, rt_texts, \
-            user_phone_number, user_id, burner_id
-    
-    # numbers
-    db = open_sqlite_db_readonly(file_found)
-    try:
-        # regexp() user function
-        db.create_function('regexp', 2, lambda x, y: 1 if re.search(x,y) else 0)
+        return created, burner_number, display_name, expires, version, notifications, inbound_caller_id, voip, \
+            auto_reply_enabled, auto_reply_text, rt_minutes, rt_texts, user_phone_number, user_id, burner_id
 
-        all_rows = cache_query(db, where=REGEXP_NUMBERS)       
-        usageentries = len(all_rows)
-        if usageentries > 0:
-            report = ArtifactHtmlReport('Burner Cache numbers')
-            report.start_artifact_report(report_folder, 'Burner Cache numbers')
-            report.add_script()
-            data_headers = ('Burner number', 'Display name', 'Created', 'Subscription Expires', 'Version', 'Notifications', 'Inbound caller ID', 
-                            'In-App calling (VoIP)', 'Auto-replay enabled', 'Auto-reply message', 'Remaining/Total minutes', 'Remaining/Total messages', 
-                            'Phone number', 'User ID', 'Burner ID', 'Item') 
-                        
-            data_list = []
-            json_data = None
-            for row in all_rows:
-                # from file?
-                isDataOnFS = bool(row[3])
-                if isDataOnFS:
-                    json_file = os.path.dirname(file_found)
-                    json_file = Path(json_file).joinpath('fsCachedData', row[4])
-                    if os.path.isfile(json_file):
-                        f = open(json_file, 'r', encoding='utf-8')
-                        try:
-                            json_data = json.load(f)
-                        finally:
-                            f.close()
-                # from blob
-                else:
-                    json_data = json.loads(row[4])
 
-                # numbers
-                if type(json_data) in (list, tuple):
-                    n_count = 0
-                    for number in json_data:
-                        # fsCachedData
-                        if isDataOnFS:
-                            location = f'{row[4]}[{n_count}]'
-                        # cfurl_cache_receiver_data.receiver_data
-                        else:
-                            location = f'receiver_data[{n_count}]'
+    query = BURNER_CACHE_DB_QUERY.format(r'https:\/\/phoenix\.burnerapp\.com(\/v\d)?\/user\/[a-fA-F\d-]{36}\/burners(\/[a-fA-F\d-]{36})?$')
+    db_records = get_sqlite_db_records_regexpr(file_found, query, regexpr=True)
+    for record in db_records:
+        db_device_file_paths = [ device_file_path ]
 
-                        burner_number, display_name, created, expires, version, notifications, inbound_caller_id,  \
-                        voip, auto_reply_enabled, auto_reply_text, rt_minutes, rt_texts, \
-                        user_phone_number, user_id, burner_id = get_number(number)
-                        data_list.append((burner_number, display_name, created, expires, version, notifications, inbound_caller_id,
-                                          voip, auto_reply_enabled, auto_reply_text, rt_minutes, rt_texts, 
-                                          user_phone_number, user_id, burner_id, location))
-                        n_count += 1
-                # number
-                elif type(json_data) is dict:
-                    # fsCachedData
-                    if isDataOnFS:
-                        location = f'{row[4]}[0]'
-                    # cfurl_cache_receiver_data.receiver_data
-                    else:
-                        location = 'receiver_data[0]'
-
-                    burner_number, display_name, created, expires, version, notifications, inbound_caller_id,  \
-                    voip, auto_reply_enabled, auto_reply_text, rt_minutes, rt_texts, \
-                    user_phone_number, user_id, burner_id = get_number(json_data)
-                    data_list.append((burner_number, display_name, created, expires, version, notifications, inbound_caller_id,
-                                      voip, auto_reply_enabled, auto_reply_text, rt_minutes, rt_texts, 
-                                      user_phone_number, user_id, burner_id, location))
-        
-            report.write_artifact_data_table(data_headers, data_list, file_found, html_escape=False)
-            report.end_artifact_report()
-                
-            tsvname = f'Burner Cache numbers'
-            tsv(report_folder, data_headers, data_list, tsvname)
-                
-            tlactivity = 'Burner Cache numbers'
-            timeline(report_folder, tlactivity, data_list, data_headers)
+        # from file?
+        isDataOnFS = bool(record[2])
+        # from FS
+        if isDataOnFS:
+            fs_cached_data_path = get_cache_db_fs_path(record[3], file_found, seeker)
+            json_data = get_json_file_content(fs_cached_data_path)
+            if bool(fs_cached_data_path): db_device_file_paths.append(get_device_file_path(fs_cached_data_path, seeker))
+        # from BLOB
         else:
-            logfunc('No Burner Cache numbers data available')
+            json_data = get_json_content(record[3])
 
-    except Exception as ex:
-        logfunc('Exception while parsing Burner Cache numbers: ' + str(ex))
+        device_file_paths = db_device_file_paths
 
-    finally:
-        db.close()
+        # numbers
+        if isinstance(json_data, (list, tuple)):
+            for i in range(0, len(json_data)):
+                device_file_paths = db_device_file_paths
+
+                number = json_data[i]
+                if not bool(number):
+                    continue
+
+                # number
+                created, burner_number, display_name, expires, version, notifications, inbound_caller_id, voip, auto_reply_enabled, auto_reply_text, \
+                rt_minutes, rt_texts, user_phone_number, user_id, burner_id = get_number(number)
+
+                # source file name
+                device_file_paths = dict.fromkeys(device_file_paths)
+                source_file_name = unordered_list(device_file_paths)
+                source_file_name_html = unordered_list(device_file_paths, html_format=True)
+                # location
+                location = [ f"cfurl_cache_receiver_data (entry_ID: {record[0]})" ]
+                location.append(f"{record[3]}[{i}]" if isDataOnFS else f"receiver_data[{i}]")
+                location = COMMA_SEP.join(location)
+
+                # html row
+                data_list_html.append((created, burner_number, display_name, expires, version, notifications, inbound_caller_id, voip, auto_reply_enabled, auto_reply_text,
+                                       rt_minutes, rt_texts, user_phone_number, user_id, burner_id, source_file_name_html, location))
+                # lava row
+                data_list.append((created, burner_number, display_name, expires, version, notifications, inbound_caller_id, voip, auto_reply_enabled, auto_reply_text,
+                                  rt_minutes, rt_texts, user_phone_number, user_id, burner_id, source_file_name, location))
+
+        # number
+        elif isinstance(json_data, dict):
+            created, burner_number, display_name, expires, version, notifications, inbound_caller_id, voip, auto_reply_enabled, auto_reply_text, \
+            rt_minutes, rt_texts, user_phone_number, user_id, burner_id = get_number(json_data)
+            
+            # source file name
+            device_file_paths = dict.fromkeys(device_file_paths)
+            source_file_name = unordered_list(device_file_paths)
+            source_file_name_html = unordered_list(device_file_paths, html_format=True)
+            # location
+            location = [ f"cfurl_cache_receiver_data (entry_ID: {record[0]})" ]
+            location.append(f"{record[3]}" if isDataOnFS else f"receiver_data")
+            location = COMMA_SEP.join(location)
+
+            # html row
+            data_list_html.append((created, burner_number, display_name, expires, version, notifications, inbound_caller_id, voip, auto_reply_enabled, auto_reply_text,
+                                   rt_minutes, rt_texts, user_phone_number, user_id, burner_id, source_file_name_html, location))
+            # lava row
+            data_list.append((created, burner_number, display_name, expires, version, notifications, inbound_caller_id, voip, auto_reply_enabled, auto_reply_text,
+                              rt_minutes, rt_texts, user_phone_number, user_id, burner_id, source_file_name, location))
+
+    return data_headers, (data_list, data_list_html), ' '
 
 
-# cache messages
-def get_cache_messages(file_found, cache_files, report_folder, timezone_offset, uids):
+# messages
+@artifact_processor
+def burnerCache_messages(files_found, report_folder, seeker, wrap_text, timezone_offset):
+
+    data_headers = (
+        'Thread',
+        ('Sent', 'datetime'),
+        'Direction',
+        'Read',
+        'Sender',
+        'Recipient',
+        'Message',
+        'Message type',
+        ('Media', 'media', 'height: 96px; border-radius: 5%;'),
+        'Media URL',
+        'Message ID',
+        'Source file name',
+        'Location'
+    )
+    data_list = []
+    data_list_html = []
+    device_file_paths = []
+    artifact_info = inspect.stack()[0]
+    artifact_info_name = __artifacts_v2__['burnerCache_messages']['name']
+    file_found = get_file_path(files_found, "Cache.db")
+    device_file_path = get_device_file_path(file_found, seeker)
+
     # get message
     def get_message(message):
         # date created
-        created = FormatTimestamp(message.get('dateCreated'), timezone_offset, divisor=1000)
+        created = convert_unix_ts_to_utc(message.get('dateCreated'))
         # read
-        if bool(message.get('read')):
-            read = 'Read'
-        else:
-            read = 'Not read'
+        read = 'Read' if bool(message.get('read')) else 'Not read'
         # state
         state = message.get('state')
         # direction
@@ -483,15 +715,11 @@ def get_cache_messages(file_found, cache_files, report_folder, timezone_offset, 
         # burner id
         burner_id = message.get('burnerId', '')
         # burner number
-        burner_number = uids.get(burner_id, '')
+        burner_number = burner_uid_map.get(burner_id)
         # contact id
-        contact_id = message.get('contactId')
-        contact_temp = uids.get(contact_id, '')
-        if bool(contact_temp):
-            contact_phone_number = contact_temp
-        # contact phone number
-        else:
-            contact_phone_number = message.get('contactPhoneNumber')       
+        contact_id = message.get('contactId', '')
+        contact_temp = burner_uid_map.get(contact_id)
+        contact_phone_number = contact_temp if bool(contact_temp) else message.get('contactPhoneNumber')       
         # sender, recipient
         if dir_val == 1:
             sender = contact_phone_number
@@ -514,55 +742,46 @@ def get_cache_messages(file_found, cache_files, report_folder, timezone_offset, 
             body = 'Missed outgoing call with voicemail'
         else:
             body = message.get('message')
-        media = ''
         # asset url
-        asset_url = message.get('assetUrl')
-        if bool(asset_url):
-            for row_media in all_media:
-                if row_media[2] == asset_url:
-                    # isDataOnFS
-                    if row_media[3] == 1:
-                        media = media_to_html(row_media[4], cache_files, report_folder)
-                    else:
-                        media = blob_image_to_html(row_media[4])
-                    break
+        media_ref_id = None
+        media_url = message.get('assetUrl')
+        voice_url = message.get('voiceUrl')
+        ref_url = media_url if bool(media_url) else voice_url
+        if bool(ref_url):
+            for m_record in media_records:
+                if m_record[1] != ref_url:
+                    continue
+                # isDataOnFS
+                if bool(m_record[2]):
+                    media_ref_id = check_in_media(m_record[3])
+                else:
+                    media_ref_id = check_in_embedded_media(file_found, m_record[3])
+                media_item = lava_get_full_media_info(media_ref_id)
+                if media_item: device_file_paths.append(get_device_file_path(media_item[5], seeker))
+                break
         # message type
         message_type = message.get('messageType')
         if  (message_type == 1) and (state in (3, 4)):
             message_type = 'Call'
         elif  (message_type == 1) and (state == 5):
             message_type = 'Voicemail'
-        elif  (message_type == 2) and not bool(asset_url):
+        elif  (message_type == 2) and not bool(media_url):
             message_type = 'Text'
         elif  (message_type == 2):
             message_type = 'Picture'
-        # voice url
-        voice_url = message.get('voiceUrl')
-        if bool(voice_url):
-            for row_media in all_media:
-                if row_media[2] == voice_url:
-                    # isDataOnFS
-                    if row_media[3] == 1:
-                        media += media_to_html(row_media[4], cache_files, report_folder)
-                    else:
-                        media += blob_image_to_html(row_media[4])
-                    break
         # message id
         message_id = message.get('id')
 
         # out values
-        return contact_phone_number, created, direction, read, sender, recipient, body, message_type, media, asset_url, voice_url, message_id
+        return contact_phone_number, created, direction, read, sender, recipient, body, message_type, media_ref_id, ref_url, message_id
 
 
     # get conversation
     def get_conversation(conversation):
         # date created
-        created = FormatTimestamp(conversation.get('dateCreated'), timezone_offset, divisor=1000)
+        created = convert_unix_ts_to_utc(conversation.get('dateCreated'))
         # read
-        if bool(conversation.get('read')):
-            read = 'Read'
-        else:
-            read = 'Not read'
+        read = 'Read' if bool(conversation.get('read')) else 'Not read'
         # state
         state = conversation.get('state')
         # direction
@@ -576,16 +795,11 @@ def get_cache_messages(file_found, cache_files, report_folder, timezone_offset, 
         # burner id
         burner_id = conversation.get('burnerId', '')
         # burner number
-        burner_number = uids.get(burner_id, '')
+        burner_number = burner_uid_map.get(burner_id)
         # contact phone number
-        try: 
-            contact_phone_number = conversation['conversation']['conversationId']
-            contact_temp = uids.get(contact_phone_number, '')
-            if bool(contact_temp):
-                contact_phone_number = contact_temp
-        except:
-            contact_phone_number = '' 
-            pass
+        contact_phone_number = conversation.get('conversation', {}).get('conversationId')
+        contact_temp = burner_uid_map.get(contact_phone_number)
+        if bool(contact_temp): contact_phone_number = contact_temp
         # sender, recipient
         if dir_val == 'Inbound':
             sender = contact_phone_number
@@ -607,19 +821,24 @@ def get_cache_messages(file_found, cache_files, report_folder, timezone_offset, 
         elif (dir_val == 'Outbound') and (state == 'Voicemail'):
             body = 'Missed outgoing call with voicemail'
         else:
-            body = conversation.get('text')       
-        media = ''
+            body = conversation.get('text')
         # media url
+        media_ref_id = None
         media_url = conversation.get('mediaUrl')
-        if bool(media_url):
-            for row_media in all_media:
-                if row_media[2] == media_url:
-                    # isDataOnFS
-                    if row_media[3] == 1:
-                        media = media_to_html(row_media[4], cache_files, report_folder)
-                    else:
-                        media = blob_image_to_html(row_media[4])
-                    break
+        voice_url = conversation.get('voicemail', {}).get('audioUrl')
+        ref_url = media_url if bool(media_url) else voice_url
+        if bool(ref_url):
+            for m_record in media_records:
+                if m_record[1] != ref_url:
+                    continue
+                # isDataOnFS
+                if bool(m_record[2]):
+                    media_ref_id = check_in_media(m_record[3])
+                else:
+                    media_ref_id = check_in_embedded_media(file_found, m_record[3])
+                media_item = lava_get_full_media_info(media_ref_id)
+                if media_item: device_file_paths.append(get_device_file_path(media_item[5], seeker))
+                break
         # message type
         message_type = conversation.get('messageType')
         if  message_type == 'Voice':
@@ -628,161 +847,102 @@ def get_cache_messages(file_found, cache_files, report_folder, timezone_offset, 
             message_type = 'Text'
         elif  (message_type == 'Text'):
             message_type = 'Picture'
-        # voice url
-        voice_url = ''
-        if state == 'Voicemail':
-            try: 
-                voice_url = conversation['voicemail']['audioUrl'] 
-                if bool(voice_url):
-                    for row_media in all_media:
-                        if row_media[2] == voice_url:
-                            # isDataOnFS
-                            if row_media[3] == 1:
-                                media += media_to_html(row_media[4], cache_files, report_folder)
-                            else:
-                                media += blob_image_to_html(row_media[4])
-                            break
-            except: 
-                pass
         # message id
         message_id = conversation.get('id')
 
         # out values
-        return contact_phone_number, created, direction, read, sender, recipient, body, message_type, media, media_url, voice_url, message_id
-    
-
-    # messages
-    db = open_sqlite_db_readonly(file_found)
-    try:
-        # regexp() user function
-        db.create_function('regexp', 2, lambda x, y: 1 if re.search(x,y) else 0)
-
-        # media
-        all_media = cache_query(db, where=LIKEXP_MEDIA)
-
-        all_rows = cache_query(db, where=REGEXP_MESSAGES)
-        usageentries = len(all_rows)
-        if usageentries > 0:
-            report = ArtifactHtmlReport('Burner Cache messages')
-            report.start_artifact_report(report_folder, 'Burner Cache messages')
-            report.add_script()
-            data_headers = ('Thread', 'Sent', 'Direction', 'Read', 'Sender', 'Recipient', 'Message', 'Message type',
-                            'Media', 'Media URL', 'Voicemail URL', 'Message ID', 'Item') 
-                        
-            data_list = []
-            json_data = None
-            for row in all_rows:
-                # from file?
-                isDataOnFS = bool(row[3])
-                if isDataOnFS:
-                    json_file = os.path.dirname(file_found)
-                    json_file = Path(json_file).joinpath('fsCachedData', row[4])
-                    if os.path.isfile(json_file):
-                        f = open(json_file, 'r', encoding='utf-8')
-                        try:
-                            json_data = json.load(f)
-                        finally:
-                            f.close()
-                # from blob
-                else:
-                    json_data = json.loads(row[4])
-
-                # messages
-                if type(json_data) in (list, tuple):
-                    m_count = 0
-                    for message in json_data:
-                        # fsCachedData
-                        if isDataOnFS:
-                            location = f'{row[4]}[{m_count}]'
-                        # cfurl_cache_receiver_data.receiver_data
-                        else:
-                            location = f'receiver_data[{m_count}]'
-
-                        # message
-                        if not bool(message.get('conversation')):
-                            thread, created, direction, read, sender, recipient, body, message_type, \
-                            media, asset_url, voice_url, message_id = get_message(message)
-                        # conversation
-                        else:
-                            thread, created, direction, read, sender, recipient, body, message_type, \
-                            media, asset_url, voice_url, message_id = get_conversation(message)
+        return contact_phone_number, created, direction, read, sender, recipient, body, message_type, media_ref_id, ref_url, message_id
 
 
-                        data_list.append((thread, created, direction, read, sender, recipient, body, message_type,
-                                          media, asset_url, voice_url, message_id, location))
-                        m_count += 1
-                # message
-                elif type(json_data) is dict:
-                    # fsCachedData
-                    if isDataOnFS:
-                        location = f'{row[4]}[0]'
-                    # cfurl_cache_receiver_data.receiver_data
-                    else:
-                        location = 'receiver_data[0]'
+    # fsCachedData
+    media_files = seeker.search(f"*/{burner_app_identifier}/Library/Caches/com.adhoclabs.burner/fsCachedData/*")
 
-                    # message
-                    if not bool(json_data.get('conversation')):
-                        thread, created, direction, read, sender, recipient, body, message_type, \
-                        media, asset_url, voice_url, message_id = get_message(json_data)
-                    # conversation
-                    else:
-                        thread, created, direction, read, sender, recipient, body, message_type, \
-                        media, asset_url, voice_url, message_id = get_conversation(json_data)
+    # media
+    query = BURNER_CACHE_DB_QUERY.format(r'https:\/\/s3\.amazonaws\.com\/burner-*')
+    media_records = get_sqlite_db_records_regexpr(file_found, query, regexpr=True)
 
-                    data_list.append((thread, created, direction, read, sender, recipient, body, message_type,
-                                      media, asset_url, voice_url, message_id, location))
-        
-            report.write_artifact_data_table(data_headers, data_list, file_found, html_no_escape=[ 'Media' ])
-            report.end_artifact_report()
-                
-            tsvname = f'Burner Cache messages'
-            tsv(report_folder, data_headers, data_list, tsvname)
-                
-            tlactivity = 'Burner Cache messages'
-            timeline(report_folder, tlactivity, data_list, data_headers)
+    # cache
+    query = BURNER_CACHE_DB_QUERY.format(r'https:\/\/phoenix\.burnerapp\.com(\/v\d)?\/user\/[a-fA-F\d-]{36}(\/messages($|\?.*contactPhoneNumber=.+)|(\/burners\/[a-fA-F\d-]{36}\/conversations\/.+\/messages($|\?.*pageSize=.+)))')
+    db_records = get_sqlite_db_records_regexpr(file_found, query, regexpr=True)
+    for record in db_records:
+        db_device_file_paths = [ device_file_path ]
+
+        # from file?
+        isDataOnFS = bool(record[2])
+        # from FS
+        if isDataOnFS:
+            fs_cached_data_path = get_file_path(files_found, f"*{record[3]}") #get_cache_db_fs_path(record[3], file_found, seeker)
+            json_data = get_json_file_content(fs_cached_data_path)
+            if bool(fs_cached_data_path): db_device_file_paths.append(get_device_file_path(fs_cached_data_path, seeker))
+        # from BLOB
         else:
-            logfunc('No Burner Cache messages data available')
+            json_data = get_json_content(record[3])
 
-    except Exception as ex:
-        logfunc('Exception while parsing Burner Cache messages: ' + str(ex))
+        device_file_paths = db_device_file_paths
 
-    finally:
-        db.close()
+        # messages
+        if isinstance(json_data, (list, tuple)):
+            for i in range(0, len(json_data)):
+                device_file_paths = db_device_file_paths
 
+                message = json_data[i]
+                if not bool(message):
+                    continue
 
-# burner
-def get_burner_cache(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    cache_files = []
-    for file_foundm in files_found:
-        if file_foundm.endswith('.com.apple.mobile_container_manager.metadata.plist'):
-            with open(file_foundm, 'rb') as f:
-                pl = plistlib.load(f)
-                if pl['MCMMetadataIdentifier'] == 'com.adhoclabs.burner':
-                    fulldir = (os.path.dirname(file_foundm))
-                    identifier = (os.path.basename(fulldir))
-                    
-                    # fsCachedData
-                    cache_files = seeker.search(f'*/{identifier}/Library/Caches/com.adhoclabs.burner/fsCachedData/**')
-                f.close()
+                # message
+                if not bool(message.get('conversation')):
+                    thread, created, direction, read, sender, recipient, body, message_type, \
+                    media_ref_id, media_url, message_id = get_message(message)
+                # conversation
+                else:
+                    thread, created, direction, read, sender, recipient, body, message_type, \
+                    media_ref_id, media_url, message_id = get_conversation(message)
 
-    for file_found in files_found:
-        file_found = str(file_found)
+                media_url_html = generic_url(media_url, html_format=True)
 
-        # Cache.db
-        if file_found.endswith('Cache.db'):
-            # map {<type>_id: phone_number (display name)}
-            uids = {}
+                # source file name
+                device_file_paths = dict.fromkeys(device_file_paths)
+                source_file_name = unordered_list(device_file_paths)
+                source_file_name_html = unordered_list(device_file_paths, html_format=True)
+                # location
+                location = [ f"cfurl_cache_receiver_data (entry_ID: {record[0]})" ]
+                location.append(f"{record[3]}[{i}]" if isDataOnFS else f"receiver_data[{i}]")
+                location = COMMA_SEP.join(location)
 
-            db = open_sqlite_db_readonly(file_found)
-            try:
-                # accounts
-                get_cache_accounts(file_found, cache_files, report_folder, timezone_offset, uids)
-                # contacts
-                get_cache_contacts(file_found, cache_files, report_folder, timezone_offset, uids)
-                # numbers
-                get_cache_numbers(file_found, cache_files, report_folder, timezone_offset, uids)
-                # messages
-                get_cache_messages(file_found, cache_files, report_folder, timezone_offset, uids)
+                # html row
+                data_list_html.append((thread, created, direction, read, sender, recipient, body, message_type, media_ref_id, media_url_html,
+                                       message_id, source_file_name_html, location))
+                # lava row
+                data_list.append((thread, created, direction, read, sender, recipient, body, message_type, media_ref_id, media_url,
+                                  message_id, source_file_name, location))
 
-            finally:
-                db.close()
+        # message
+        elif isinstance(json_data, dict):
+            # message
+            if not bool(json_data.get('conversation')):
+                thread, created, direction, read, sender, recipient, body, message_type, \
+                media_ref_id, media_url, message_id = get_message(json_data)
+            # conversation
+            else:
+                thread, created, direction, read, sender, recipient, body, message_type, \
+                media_ref_id, media_url, message_id = get_conversation(json_data)
+
+            media_url_html = generic_url(media_url, html_format=True)
+
+            # source file name
+            device_file_paths = dict.fromkeys(device_file_paths)
+            source_file_name = unordered_list(device_file_paths)
+            source_file_name_html = unordered_list(device_file_paths, html_format=True)
+            # location
+            location = [ f"cfurl_cache_receiver_data (entry_ID: {record[0]})" ]
+            location.append(f"{record[3]}" if isDataOnFS else f"receiver_data")
+            location = COMMA_SEP.join(location)
+
+            # html row
+            data_list_html.append((thread, created, direction, read, sender, recipient, body, message_type, media_ref_id, media_url_html,
+                                   message_id, source_file_name_html, location))
+            # lava row
+            data_list.append((thread, created, direction, read, sender, recipient, body, message_type, media_ref_id, media_url,
+                              message_id, source_file_name, location))
+
+    return data_headers, (data_list, data_list_html), ' '

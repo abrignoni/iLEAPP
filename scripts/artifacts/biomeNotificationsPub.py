@@ -1,12 +1,12 @@
 __artifacts_v2__ = {
     "get_biomeNotificationsPub": {
-        "name": "Biome Notifications Pub",
+        "name": "Biome - Notifications",
         "description": "Parses notifications entries from biomes",
         "author": "@JohnHyla",
         "version": "0.0.2",
         "date": "2024-10-17",
         "requirements": "none",
-        "category": "Biome Notifications",
+        "category": "Biome",
         "notes": "",
         "paths": ('*/Biome/streams/public/Notification/local/*'),
         "output_types": "standard"

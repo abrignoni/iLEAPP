@@ -86,7 +86,7 @@ __artifacts_v2__ = {
         "artifact_icon": "star"
     },
     "FilesIosUpdates": {
-        "name": "'Files App - Operating System Updates'",
+        "name": "Files App - Operating System Updates",
         "description": "iOS Updates",
         "author": "@JohannPLW",
         "creation_date": "2024-02-02",
@@ -100,11 +100,9 @@ __artifacts_v2__ = {
     }
 }
 
-
-import scripts.artifacts.artGlobals
 from packaging import version
 from scripts.builds_ids import OS_build
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, get_plist_content, convert_bytes_to_unit, convert_unix_ts_to_utc
+from scripts.ilapfuncs import artifact_processor, get_file_path, attach_sqlite_db_readonly, get_sqlite_db_records, get_plist_content, convert_bytes_to_unit, convert_unix_ts_to_utc, iOS
 
 def get_tree_structure(source_path):
 
@@ -158,7 +156,7 @@ def iCloudApplicationList(files_found, report_folder, seeker, wrap_text, timezon
     source_path = get_file_path(files_found, "client.db")
     data_list = []
 
-    iOSversion = scripts.artifacts.artGlobals.versionf
+    iOSversion = iOS.get_version()
     if version.parse(iOSversion) < version.parse('18'):
         query = '''
         SELECT 
@@ -187,7 +185,7 @@ def iCloudDriveStoredFiles(files_found, report_folder, seeker, wrap_text, timezo
     server_db_path = get_file_path(files_found, "server.db")
     data_list = []
 
-    attach_query = '''ATTACH DATABASE "file:''' + server_db_path + '''?mode=ro" AS server '''
+    attach_query = attach_sqlite_db_readonly(server_db_path, 'server')
     query = '''
     SELECT
         client_items.item_birthtime AS 'Created',
@@ -266,7 +264,7 @@ def iCloudDriveSharedFiles(files_found, report_folder, seeker, wrap_text, timezo
     server_db_path = get_file_path(files_found, "server.db")
     data_list = []
 
-    attach_query = '''ATTACH DATABASE "file:''' + server_db_path + '''?mode=ro" AS server '''
+    attach_query = attach_sqlite_db_readonly(server_db_path, 'server')
     query = '''
     SELECT
         client_items.item_birthtime AS 'Created',
@@ -364,7 +362,7 @@ def iCloudDriveTaggedFiles(files_found, report_folder, seeker, wrap_text, timezo
     server_db_path = get_file_path(files_found, "server.db")
     data_list = []
 
-    attach_query = '''ATTACH DATABASE "file:''' + server_db_path + '''?mode=ro" AS server '''
+    attach_query = attach_sqlite_db_readonly(server_db_path, 'server')
     query = '''
     SELECT
         client_items.item_birthtime AS 'Created',
@@ -441,7 +439,7 @@ def iCloudDriveFavouriteFiles(files_found, report_folder, seeker, wrap_text, tim
     server_db_path = get_file_path(files_found, "server.db")
     data_list = []
 
-    attach_query = '''ATTACH DATABASE "file:''' + server_db_path + '''?mode=ro" AS server '''
+    attach_query = attach_sqlite_db_readonly(server_db_path, 'server')
     query = '''
     SELECT
         client_items.item_birthtime AS 'Created',

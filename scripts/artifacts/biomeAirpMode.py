@@ -1,12 +1,12 @@
 __artifacts_v2__ = {
     "get_biomeAirpMode": {
-        "name": "Biome DKEvent Airplane Mode",
+        "name": "Biome - Airplane Mode DKEvent",
         "description": "Parses airplane mode entries from biomes",
         "author": "@JohnHyla",
         "version": "0.0.2",
         "date": "2020-04-30",
         "requirements": "none",
-        "category": "Biome Airplane Mode",
+        "category": "Biome",
         "notes": "",
         "paths": ('*/Biome/streams/restricted/_DKEvent.System.AirplaneMode/local/*'),
         "output_types": "standard"

@@ -1,38 +1,39 @@
 # common standard imports
 import codecs
-from datetime import *
+import csv
+import hashlib
+import inspect
+import json
+import math
+import nska_deserialize
 import os
+import plistlib
 import re
 import shutil
-import sys
-import math
-import inspect
-
-import csv
-import xml
-import plistlib
-import nska_deserialize
-import json
 import sqlite3
+import sys
+import xml
 
+from datetime import *
 from functools import lru_cache
 from pathlib import Path
-
+from urllib.parse import quote
 import scripts.artifact_report as artifact_report
+from scripts.context import Context
 
 # common third party imports
 import pytz
 import simplekml
-from bs4 import BeautifulSoup
-from scripts.filetype import guess_mime
+from scripts.filetype import guess_mime, guess_extension
 from functools import wraps
 
 # LEAPP version unique imports
 import binascii
-import math
 from PIL import Image
 
-from scripts.lavafuncs import lava_process_artifact, lava_insert_sqlite_data
+from scripts.lavafuncs import lava_process_artifact, lava_insert_sqlite_data, lava_get_media_item, \
+    lava_insert_sqlite_media_item, lava_insert_sqlite_media_references, lava_get_media_references, \
+    lava_get_full_media_info
 
 os.path.basename = lru_cache(maxsize=None)(os.path.basename)
 
@@ -42,87 +43,22 @@ thumb_size = 256, 256
 
 identifiers = {}
 icons = {}
+lava_only_artifacts = {}
 
-def get_file_path(files_found, filename):
-    """Returns the path of the searched filename id exists or returns None"""
-    try:
-        for file_found in files_found:
-            if file_found.endswith(filename):
-                return file_found
-    except Exception as e:
-        logfunc(f"Error: {str(e)}")
-    return None        
+class iOS:
+    _version = None
 
-def strip_tuple_from_headers(data_headers):
-    return [header[0] if isinstance(header, tuple) else header for header in data_headers]
+    @staticmethod
+    def get_version():
+        """Return the value of the class property."""
+        return iOS._version
 
-def check_output_types(type, output_types):
-    if type in output_types or type == output_types or 'all' in output_types or 'all' == output_types:
-        return True
-    elif type != 'kml' and ('standard' in output_types or 'standard' == output_types):
-        return True
-    else:
-        return False
+    @staticmethod
+    def set_version(os_version):
+        """Assign a value to the class property once."""
+        if iOS._version is None:
+            iOS._version = os_version
 
-def artifact_processor(func):
-    @wraps(func)
-    def wrapper(files_found, report_folder, seeker, wrap_text, timezone_offset):
-        module_name = func.__module__.split('.')[-1]
-        func_name = func.__name__
-
-        func_object = func.__globals__.get(func_name, {})
-        artifact_info = func_object.artifact_info #get('artifact_info', {})
-
-        artifact_name = artifact_info.get('name', func_name)
-        category = artifact_info.get('category', '')
-        description = artifact_info.get('description', '')
-        icon = artifact_info.get('artifact_icon', '')
-        html_columns = artifact_info.get('html_columns', [])
-        
-        output_types = artifact_info.get('output_types', ['html', 'tsv', 'timeline', 'lava', 'kml'])
-
-        data_headers, data_list, source_path = func(files_found, report_folder, seeker, wrap_text, timezone_offset)
-        
-        if not source_path:
-            logfunc(f"No file found")
-
-        elif len(data_list):
-            if isinstance(data_list, tuple):
-                data_list, data_list_html = data_list
-            else:
-                data_list_html = data_list
-            logfunc(f"Found {len(data_list)} {'records' if len(data_list)>1 else 'record'} for {artifact_name}")
-            icons.setdefault(category, {artifact_name: icon}).update({artifact_name: icon})
-
-            # Strip tuples from headers for HTML, TSV, and timeline
-            stripped_headers = strip_tuple_from_headers(data_headers)
-
-            if check_output_types('html', output_types):
-                report = artifact_report.ArtifactHtmlReport(artifact_name)
-                report.start_artifact_report(report_folder, artifact_name, description)
-                report.add_script()
-                report.write_artifact_data_table(stripped_headers, data_list_html, source_path, html_no_escape=html_columns)
-                report.end_artifact_report()
-
-            if check_output_types('tsv', output_types):
-                tsv(report_folder, stripped_headers, data_list, artifact_name)
-            
-            if check_output_types('timeline', output_types):
-                timeline(report_folder, artifact_name, data_list, stripped_headers)
-
-            if check_output_types('lava', output_types):
-                table_name, object_columns, column_map = lava_process_artifact(category, module_name, artifact_name, data_headers, len(data_list), data_views=artifact_info.get("data_views"))
-                lava_insert_sqlite_data(table_name, data_list, object_columns, data_headers, column_map)
-
-            if check_output_types('kml', output_types):
-                kmlgen(report_folder, artifact_name, data_list, stripped_headers)
-
-        else:
-            if output_types != 'none':
-                logfunc(f"No {artifact_name} data available")
-        
-        return data_headers, data_list, source_path
-    return wrapper
 
 class OutputParameters:
     '''Defines the parameters that are common for '''
@@ -138,135 +74,347 @@ class OutputParameters:
         else:
             folder_name = 'iLEAPP_Reports_' + currenttime
         self.report_folder_base = os.path.join(output_folder, folder_name)
-        self.temp_folder = os.path.join(self.report_folder_base, 'data')
-        OutputParameters.screen_output_file_path = os.path.join(self.report_folder_base, 'Script Logs',
-                                                                'Screen Output.html')
-        OutputParameters.screen_output_file_path_devinfo = os.path.join(self.report_folder_base, 'Script Logs',
-                                                                        'DeviceInfo.html')
+        self.data_folder = os.path.join(self.report_folder_base, 'data')
+        OutputParameters.screen_output_file_path = os.path.join(
+            self.report_folder_base, '_HTML', '_Script_Logs', 'Screen_Output.html')
+        OutputParameters.screen_output_file_path_devinfo = os.path.join(
+            self.report_folder_base, '_HTML', '_Script_Logs', 'DeviceInfo.html')
+        OutputParameters.screen_output_file_path_lava_only = os.path.join(
+            self.report_folder_base, '_HTML', '_Script_Logs', 'Lava_only_artifacts_log.html')
 
-        os.makedirs(os.path.join(self.report_folder_base, 'Script Logs'))
-        os.makedirs(self.temp_folder)
+        os.makedirs(os.path.join(self.report_folder_base, '_HTML', '_Script_Logs'))
+        os.makedirs(self.data_folder)
         
-def convert_local_to_utc(local_timestamp_str):
-    # Parse the timestamp string with timezone offset, ex. 2023-10-27 18:18:29-0400
-    local_timestamp = datetime.strptime(local_timestamp_str, "%Y-%m-%d %H:%M:%S%z")
-    
-    # Convert to UTC timestamp
-    utc_timestamp = local_timestamp.astimezone(timezone.utc)
-    
-    # Return the UTC timestamp
-    return utc_timestamp
+class GuiWindow:
+    '''This only exists to hold window handle if script is run from GUI'''
+    window_handle = None  # static variable
 
-def convert_time_obj_to_utc(ts):
-    timestamp = ts.replace(tzinfo=timezone.utc)
-    return timestamp
+    @staticmethod
+    def SetProgressBar(n, total):
+        if GuiWindow.window_handle:
+            progress_bar = GuiWindow.window_handle.nametowidget('!progressbar')
+            progress_bar.config(value=n)
 
-def convert_utc_human_to_timezone(utc_time, time_offset): 
-    #fetch the timezone information
-    timezone = pytz.timezone(time_offset)
+class MediaItem():
+    def __init__(self, id):
+        self.id = id
+        self.source_path = ""
+        self.extraction_path = ""
+        self.mimetype = ""
+        self.metadata = ""
+        self.created_at = 0
+        self.updated_at = 0
     
-    #convert utc to timezone
-    timezone_time = utc_time.astimezone(timezone)
+    def set_values(self, media_info):
+        self.id = media_info[0]
+        self.source_path = media_info[1]
+        self.extraction_path = media_info[2]
+        self.mimetype = media_info[3]
+        self.metadata = media_info[4]
+        self.created_at = media_info[5]
+        self.updated_at = media_info[6]
+
+class MediaReferences():
+    def __init__(self, id):
+        self.id = id
+        self.media_item_id = ""
+        self.module_name = ""
+        self.artifact_name = ""
+        self.name = ""
+        self.media_path = ""
     
-    #return the converted value
-    return timezone_time
+    def set_values(self, media_ref_info):
+        self.id = media_ref_info[0]
+        self.media_item_id = media_ref_info[1]
+        self.module_name = media_ref_info[2]
+        self.artifact_name = media_ref_info[3]
+        self.name = media_ref_info[4]
+        self.media_path = media_ref_info[5]
 
-def convert_ts_int_to_timezone(time, time_offset):
-    #convert ts_int_to_utc_human
-    utc_time = convert_ts_int_to_utc(time)
 
-    #fetch the timezone information
-    timezone = pytz.timezone(time_offset)
-    
-    #convert utc to timezone
-    timezone_time = utc_time.astimezone(timezone)
-    
-    #return the converted value
-    return timezone_time
+def logfunc(message=""):
+    def redirect_logs(string):
+        log_text.insert('end', string)
+        log_text.see('end')
+        log_text.update()
 
-def convert_unix_ts_in_seconds(ts):
-    digits = int(math.log10(ts))+1
-    if digits > 10:
-        extra_digits = digits - 10
-        ts = ts // 10**extra_digits
-    return int(ts)
+    if GuiWindow.window_handle:
+        log_text = GuiWindow.window_handle.nametowidget('logs_frame.log_text')
+        sys.stdout.write = redirect_logs
 
-def convert_unix_ts_to_utc(ts):
-    if ts:
-        ts = convert_unix_ts_in_seconds(ts)
-        return datetime.fromtimestamp(ts, tz=timezone.utc)
+    with open(OutputParameters.screen_output_file_path, 'a', encoding='utf8') as a:
+        print(message)
+        a.write(message + '<br>' + OutputParameters.nl)
+
+
+def strip_tuple_from_headers(data_headers):
+    return [header[0] if isinstance(header, tuple) else header for header in data_headers]
+
+def get_media_header_info(data_headers):
+    media_header_info = {}
+    for index, header in enumerate(data_headers):
+        if isinstance(header, tuple) and header[1] == 'media':
+            style = header[2] if len(header) == 3 else ''
+            media_header_info[index] = style
+    return media_header_info
+
+def check_output_types(type, output_types):
+    if type in output_types or type == output_types or 'all' in output_types or 'all' == output_types:
+        return True
+    elif type != 'kml' and ('standard' in output_types or 'standard' == output_types):
+        return True
+    elif type == 'lava' and ('lava_only' in output_types or 'lava_only' == output_types):
+        return True
     else:
-        return ts
+        return False
 
-def convert_unix_ts_to_str(ts):
-    if ts:
-        ts = convert_unix_ts_in_seconds(ts)
-        return datetime.fromtimestamp(ts, UTC).strftime('%Y-%m-%d %H:%M:%S')
+def get_media_references_id(media_id, artifact_name, name):
+    return hashlib.sha1(f"{media_id}-{artifact_name}-{name}".encode()).hexdigest()
+
+def set_media_references(media_ref_id, media_id, module_name, artifact_name, name, media_path):
+    media_references = MediaReferences(media_ref_id)
+    media_references.set_values((
+        media_ref_id, media_id, module_name, artifact_name, name, media_path
+    ))
+    lava_insert_sqlite_media_references(media_references)
+
+def check_in_media(file_path, name="", converted_file_path=False):
+    report_folder = Context.get_report_folder()
+    seeker = Context.get_seeker()
+    files_found = Context.get_files_found()
+    module_name = Context.get_module_name()
+    artifact_name = Context.get_artifact_name()
+
+    extraction_path = next(
+        (path for path in files_found if Path(path).match(file_path)), None)
+    file_info = seeker.file_infos.get(extraction_path)
+    if file_info:
+        extraction_path = converted_file_path if converted_file_path else Path(extraction_path)
+        if extraction_path.is_file():
+            media_id = hashlib.sha1(f"{file_info.source_path}".encode()).hexdigest()
+            media_ref_id = get_media_references_id(media_id, artifact_name, name)
+            lava_media_ref = lava_get_media_references(media_ref_id)
+            if lava_media_ref:
+                return media_ref_id
+            media_path = Path(report_folder).joinpath(media_ref_id).with_suffix(extraction_path.suffix)
+            try:
+                media_path.hardlink_to(extraction_path)
+            except OSError:
+                shutil.copy2(extraction_path, media_path)
+            lava_media_item = lava_get_media_item(media_id)
+            if not lava_media_item:
+                media_item = MediaItem(media_id)
+                media_item.source_path = file_info.source_path
+                media_item.extraction_path = f"./{Path(report_folder).stem}/{media_ref_id}{extraction_path.suffix}"
+                media_item.mimetype = guess_mime(extraction_path)
+                media_item.metadata = "not implemented yet"
+                media_item.created_at = file_info.creation_date
+                media_item.updated_at = file_info.modification_date
+                lava_insert_sqlite_media_item(media_item)
+            set_media_references(media_ref_id, media_id, module_name, artifact_name, name, media_path)
+            return media_ref_id
+        else:
+            logfunc(f"{extraction_path} is not a file")
+            return None            
     else:
-        return ts
+        logfunc(f'No matching file found for "{file_path}"')
+        return None
 
-def convert_cocoa_core_data_ts_to_utc(cocoa_core_data_ts):
-    if cocoa_core_data_ts:
-        unix_timestamp = cocoa_core_data_ts + 978307200
-        return convert_unix_ts_to_utc(unix_timestamp)
+def check_in_embedded_media(source_file, data, name=""):
+    report_folder = Context.get_report_folder()
+    seeker = Context.get_seeker()
+    module_name = Context.get_module_name()
+    artifact_name = Context.get_artifact_name()
+
+    file_info = seeker.file_infos.get(source_file)
+    source_path = file_info.source_path if file_info else source_file
+    if data:
+        media_id = hashlib.sha1(data).hexdigest()
+        media_ref_id = get_media_references_id(media_id, artifact_name, name)
+        lava_media_ref = lava_get_media_references(media_ref_id)
+        if lava_media_ref:
+            return media_ref_id
+        media_path = Path(report_folder).joinpath(media_ref_id).with_suffix(f".{guess_extension(data)}")
+        lava_media_item = lava_get_media_item(media_id)
+        if not lava_media_item:
+            media_item = MediaItem(media_id)
+            media_item.source_path = source_path
+            media_item.extraction_path = media_path
+            media_item.mimetype = guess_mime(data)
+            media_item.metadata = "not implemented yet"
+            media_item.created_at = 0
+            media_item.updated_at = 0
+            try:
+                with open(media_item.extraction_path, "wb") as file:
+                    file.write(data)
+            except Exception as ex:
+                logfunc(f'Could not copy embedded media into {media_item.extraction_path} ' + str(ex))
+            lava_insert_sqlite_media_item(media_item)
+        set_media_references(media_ref_id, media_id, module_name, artifact_name, name, media_path)
+        return media_ref_id
     else:
-        return cocoa_core_data_ts
+        return None
 
-def webkit_timestampsconv(webkittime):
-    unix_timestamp = webkittime + 978307200
-    finaltime = datetime.fromtimestamp(unix_timestamp, tz=timezone.utc)
-    return(finaltime)
+def html_media_tag(media_path, mimetype, style, title=''):
+    def relative_paths(source):
+        splitter = '\\' if is_platform_windows() else '/'
+        first_split = source.split(splitter)
+        for x in first_split:
+            if 'data' in x:
+                index = first_split.index(x)
+                last_split = source.split(first_split[index - 1])
+                return '..' + last_split[1].replace('\\', '/')
+            elif '_HTML' in x:
+                index = first_split.index(x)
+                last_split = source.split(first_split[index])
+                return '.' + last_split[1].replace('\\', '/')
+        return source
 
-def convert_ts_human_to_utc(ts): #This is for timestamp in human form
-    if '.' in ts:
-        ts = ts.split('.')[0]
+    filename = Path(media_path).name
+    media_path = quote(relative_paths(media_path))
+
+    if mimetype == None:
+        mimetype = ''
+    if 'video' in mimetype:
+        thumb = f'<video width="320" height="240" controls="controls"><source src="{media_path}" type="video/mp4" preload="none">Your browser does not support the video tag.</video>'
+    elif 'image' in mimetype:
+        image_style = style if style else "max-height:300px; max-width:400px;"
+        thumb = f'<a href="{media_path}" target="_blank"><img title="{title}"  src="{media_path}" style="{image_style}"></img></a>'
+    elif 'audio' in mimetype:
+        thumb = f'<audio controls><source src="{media_path}" type="audio/ogg"><source src="{media_path}" type="audio/mpeg">Your browser does not support the audio element.</audio>'
+    else:
+        thumb = f'<a href="{media_path}" target="_blank"> Link to {filename} file</>'
+    return thumb
+
+def get_data_list_with_media(media_header_info, data_list):
+    ''' 
+    For columns with media item, generate:
+      - A data list with HTML code for HTML output
+      - A data list with extraaction path of media items for TSV, KML and Timeline exports  
+    '''
+    html_data_list = []
+    txt_data_list = []
+    for data in data_list:
+        html_data = list(data)
+        txt_data = list(data)
+        for idx, style in media_header_info.items():
+            if html_data[idx]:
+                media_ref_id = html_data[idx]
+                if isinstance(media_ref_id, list):
+                    html_code = ''
+                    path_list = []
+                    for item in media_ref_id:
+                        media_item = lava_get_full_media_info(item)
+                        html_code += html_media_tag(
+                            media_item['media_path'], media_item['type'], style, media_item['name'])
+                        path_list.append(media_item[6])
+                    txt_code = ' | '.join(path_list)
+                else:
+                    media_item = lava_get_full_media_info(media_ref_id)
+                    html_code = html_media_tag(media_item['media_path'], media_item['type'], style, media_item['name'])
+                    txt_code = media_item[6]
+                html_data[idx] = html_code
+                txt_data[idx] = txt_code
+            else:
+                html_data[idx] = ''
+                txt_data[idx] = ''
+        html_data_list.append(tuple(html_data))
+        txt_data_list.append(tuple(txt_data))
+    return html_data_list, txt_data_list
+
+def artifact_processor(func):
+    @wraps(func)
+    def wrapper(files_found, report_folder, seeker, wrap_text, timezone_offset):
+        module_name = func.__module__.split('.')[-1]
+        func_name = func.__name__
+        module_file_path = inspect.getfile(func)
+
+        all_artifacts_info = func.__globals__.get('__artifacts_v2__', {})
+        artifact_info = all_artifacts_info.get(func_name, {})
+
+        artifact_name = artifact_info.get('name', func_name)
+        category = artifact_info.get('category', '')
+        description = artifact_info.get('description', '')
+        icon = artifact_info.get('artifact_icon', '')
+        html_columns = artifact_info.get('html_columns', [])
+
+        output_types = artifact_info.get('output_types', ['html', 'tsv', 'timeline', 'lava', 'kml'])
+        is_lava_only = 'lava_only' in output_types
+
+        Context.set_report_folder(report_folder)
+        Context.set_seeker(seeker)
+        Context.set_files_found(files_found)
+        Context.set_artifact_info(artifact_info)
+        Context.set_module_name(module_name)
+        Context.set_module_file_path(module_file_path)
+        Context.set_artifact_name(artifact_name)
         
-    dt = datetime.strptime(ts, '%Y-%m-%d %H:%M:%S') #Make it a datetime object
-    timestamp = dt.replace(tzinfo=timezone.utc) #Make it UTC
-    return timestamp
+        try:
+            sig = inspect.signature(func)
+            if len(sig.parameters) == 1:
+                data_headers, data_list, source_path = func(Context)
+            else:
+                data_headers, data_list, source_path = func(files_found, report_folder, seeker, wrap_text, timezone_offset)
+        finally:
+            Context.clear()
+        
+        if not source_path:
+            logfunc(f"No file found")
 
-def convert_ts_int_to_utc(ts): #This int timestamp to human format & utc
-    timestamp = datetime.fromtimestamp(ts, tz=timezone.utc)
-    return timestamp
+        elif len(data_list):
+            if isinstance(data_list, tuple):
+                data_list, html_data_list = data_list
+            else:
+                html_data_list = data_list
+            logfunc(f"Found {len(data_list):,} {'records' if len(data_list)>1 else 'record'} for {artifact_name}")
+            icons.setdefault(category, {artifact_name: icon}).update({artifact_name: icon})
 
-def convert_unix_ts_to_timezone(ts, timezone_offset):
-    if ts:
-        digits = int(math.log10(ts))+1
-        if digits > 10:
-            extra_digits = digits - 10
-            ts = ts // 10**extra_digits
-        return convert_ts_int_to_timezone(ts, timezone_offset)
-    else:
-        return ts
+            # Strip tuples from headers for HTML, TSV, and timeline
+            stripped_headers = strip_tuple_from_headers(data_headers)
 
-def convert_ts_human_to_timezone_offset(ts, timezone_offset):
-    return convert_utc_human_to_timezone(convert_ts_human_to_utc(ts), timezone_offset) if ts else ts
+            # Check if headers contains a 'media' type
+            media_header_info = get_media_header_info(data_headers)
+            if media_header_info:
+                html_columns.extend([data_headers[idx][0] for idx in media_header_info])
+                html_data_list, txt_data_list = get_data_list_with_media(media_header_info, data_list)
 
-def convert_plist_date_to_timezone_offset(plist_date, timezone_offset):
-    if plist_date:
-        str_date = '%04d-%02d-%02dT%02d:%02d:%02dZ' % (
-            plist_date.year, plist_date.month, plist_date.day, 
-            plist_date.hour, plist_date.minute, plist_date.second
-            )
-        iso_date = datetime.fromisoformat(str_date).strftime("%Y-%m-%d %H:%M:%S")
-        return convert_ts_human_to_timezone_offset(iso_date, timezone_offset)
-    else:
-        return plist_date
+            if check_output_types('html', output_types):
+                report = artifact_report.ArtifactHtmlReport(artifact_name)
+                report.start_artifact_report(report_folder, artifact_name, description)
+                report.add_script()
+                report.write_artifact_data_table(stripped_headers, html_data_list, source_path, html_no_escape=html_columns)
+                report.end_artifact_report()
 
-def convert_plist_date_to_utc(plist_date):
-    if plist_date:
-        str_date = '%04d-%02d-%02dT%02d:%02d:%02dZ' % (
-            plist_date.year, plist_date.month, plist_date.day, 
-            plist_date.hour, plist_date.minute, plist_date.second
-            )
-        return datetime.fromisoformat(str_date)
-    else:
-        return plist_date
+            if check_output_types('tsv', output_types):
+                tsv(report_folder, stripped_headers, txt_data_list if media_header_info else data_list, artifact_name)
 
-def get_birthdate(date):
-    ns_date = date + 978307200
-    utc_date = datetime.utcfromtimestamp(ns_date)
-    return utc_date.strftime('%d %B %Y') if utc_date.year != 1604 else utc_date.strftime('%d %B')
+            if check_output_types('timeline', output_types):
+                timeline(report_folder, artifact_name, txt_data_list if media_header_info else data_list, stripped_headers)
+
+            if check_output_types('lava', output_types):
+                table_name, object_columns, column_map = lava_process_artifact(category,
+                                                                               module_name,
+                                                                               artifact_name,
+                                                                               data_headers,
+                                                                               len(data_list),
+                                                                               data_views=artifact_info.get("data_views"),
+                                                                               artifact_icon=icon)
+                if is_lava_only:
+                    lava_only_info(category, artifact_name, table_name, len(data_list))
+                lava_insert_sqlite_data(table_name, data_list, object_columns, data_headers, column_map)
+
+            if check_output_types('kml', output_types):
+                kmlgen(report_folder, artifact_name, txt_data_list if media_header_info else data_list, stripped_headers)
+
+        else:
+            if output_types != 'none':
+                logfunc(f"No data found for {artifact_name}")
+                if is_lava_only:
+                    lava_only_info(category, artifact_name, artifact_name, 0)
+
+        return data_headers, data_list, source_path
+    return wrapper
+
 
 def is_platform_linux():
     '''Returns True if running on Linux'''
@@ -279,64 +427,6 @@ def is_platform_macos():
 def is_platform_windows():
     '''Returns True if running on Windows'''
     return sys.platform == 'win32'
-
-def utf8_in_extended_ascii(input_string, *, raise_on_unexpected=False):
-    """Returns a tuple of bool (whether mis-encoded utf-8 is present) and str (the converted string)"""
-    output = []  # individual characters, join at the end
-    is_in_multibyte = False  # True if we're currently inside a utf-8 multibyte character
-    multibytes_expected = 0
-    multibyte_buffer = []
-    mis_encoded_utf8_present = False
-    
-    def handle_bad_data(index, character):
-        if not raise_on_unexpected: # not raising, so we dump the buffer into output and append this character
-            output.extend(multibyte_buffer)
-            multibyte_buffer.clear()
-            output.append(character)
-            nonlocal is_in_multibyte
-            is_in_multibyte = False
-            nonlocal multibytes_expected
-            multibytes_expected = 0
-        else:
-            raise ValueError(f"Expected multibyte continuation at index: {index}")
-            
-    for idx, c in enumerate(input_string):
-        code_point = ord(c)
-        if code_point <= 0x7f or code_point > 0xf4:  # ASCII Range data or higher than you get for mis-encoded utf-8:
-            if not is_in_multibyte:
-                output.append(c)  # not in a multibyte, valid ascii-range data, so we append
-            else:
-                handle_bad_data(idx, c)
-        else:  # potentially utf-8
-            if (code_point & 0xc0) == 0x80:  # continuation byte
-                if is_in_multibyte:
-                    multibyte_buffer.append(c)
-                else:
-                    handle_bad_data(idx, c)
-            else:  # start-byte
-                if not is_in_multibyte:
-                    assert multibytes_expected == 0
-                    assert len(multibyte_buffer) == 0
-                    while (code_point & 0x80) != 0:
-                        multibytes_expected += 1
-                        code_point <<= 1
-                    multibyte_buffer.append(c)
-                    is_in_multibyte = True
-                else:
-                    handle_bad_data(idx, c)
-                    
-        if is_in_multibyte and len(multibyte_buffer) == multibytes_expected:  # output utf-8 character if complete
-            utf_8_character = bytes(ord(x) for x in multibyte_buffer).decode("utf-8")
-            output.append(utf_8_character)
-            multibyte_buffer.clear()
-            is_in_multibyte = False
-            multibytes_expected = 0
-            mis_encoded_utf8_present = True
-        
-    if multibyte_buffer:  # if we have left-over data
-        handle_bad_data(len(input_string), "")
-    
-    return mis_encoded_utf8_present, "".join(output)
 
 def sanitize_file_path(filename, replacement_char='_'):
     r'''
@@ -369,6 +459,32 @@ def get_next_unused_name(path):
             new_name += f"{ext}"
         num += 1
     return os.path.join(folder, new_name)
+
+
+def get_file_path(files_found, filename, skip=False):
+    """Returns the path of the searched filename if exists or returns None"""
+    try:
+        for file_found in files_found:
+            if skip and skip in file_found:
+                continue
+            if Path(file_found).match(filename):
+                return file_found
+    except Exception as e:
+        logfunc(f"Error: {str(e)}")
+    return None        
+
+def get_txt_file_content(file_path):
+    try:
+        with open(file_path, "r", encoding="utf-8") as file:
+            file_content = file.readlines()
+            return file_content
+    except FileNotFoundError:
+        logfunc(f"Error: File not found at {file_path}")
+    except PermissionError:
+        logfunc(f"Error: Permission denied when trying to read {file_path}")
+    except Exception as e:
+        logfunc(f"Unexpected error reading file {file_path}: {str(e)}")
+    return []
 
 def get_plist_content(data):
     try:
@@ -421,30 +537,42 @@ def get_plist_file_content(file_path):
         logfunc(f"Unexpected error reading plist file {file_path}: {str(e)}")
     return {}
 
-def open_sqlite_db_readonly(path):
-    '''Opens an sqlite db in read-only mode, so original db (and -wal/journal are intact)'''
+def get_sqlite_db_path(path):
     if is_platform_windows():
-        if path.startswith('\\\\?\\UNC\\'): # UNC long path
-            path = "%5C%5C%3F%5C" + path[4:]
-        elif path.startswith('\\\\?\\'):    # normal long path
-            path = "%5C%5C%3F%5C" + path[4:]
-        elif path.startswith('\\\\'):       # UNC path
-            path = "%5C%5C%3F%5C\\UNC" + path[1:]
+        if str(path).startswith('\\\\?\\UNC\\'): # UNC long path
+            return "%5C%5C%3F%5C" + path[4:]
+        elif str(path).startswith('\\\\?\\'):    # normal long path
+            return "%5C%5C%3F%5C" + path[4:]
+        elif str(path).startswith('\\\\'):       # UNC path
+            return "%5C%5C%3F%5C\\UNC" + path[1:]
         else:                               # normal path
-            path = "%5C%5C%3F%5C" + path
+            return "%5C%5C%3F%5C" + path
+    else:
+        return path
+
+def open_sqlite_db_readonly(path):
+    '''Opens a sqlite db in read-only mode, so original db (and -wal/journal are intact)'''
     try:
         if path:
+            path = get_sqlite_db_path(path)
             with sqlite3.connect(f"file:{path}?mode=ro", uri=True) as db:
                 return db
     except sqlite3.OperationalError as e:
         logfunc(f"Error with {path}:")
         logfunc(f" - {str(e)}")
     return None
-    # return sqlite3.connect(f"file:{path}?mode=ro", uri=True)
+
+def attach_sqlite_db_readonly(path, db_name):
+    '''Return the query to attach a sqlite db in read-only mode.
+    path: str --> Path of the SQLite DB to attach
+    db_name: str --> Name of the SQLite DB in the query'''
+    path = get_sqlite_db_path(path)
+    return  f'''ATTACH DATABASE "file:{path}?mode=ro" AS {db_name}'''
 
 def get_sqlite_db_records(path, query, attach_query=None):
     db = open_sqlite_db_readonly(path)
     if db:
+        db.row_factory = sqlite3.Row  # For fetching columns by name
         try:
             cursor = db.cursor()
             if attach_query:
@@ -459,6 +587,27 @@ def get_sqlite_db_records(path, query, attach_query=None):
             logfunc(f"Error with {path}:")
             logfunc(f" - {str(e)}")
     return []
+
+def get_sqlite_multiple_db_records(path_list, query, data_headers):
+    multiple_source_files = len(path_list) > 1
+    source_path = ""
+    data_list = []
+    if multiple_source_files:
+        data_headers = list(data_headers)
+        data_headers.append('Source Path')
+        data_headers = tuple(data_headers)
+        source_path = 'file path in the report below'
+    elif path_list:
+        source_path = path_list[0]
+    for file in path_list:
+        db_records = get_sqlite_db_records(file, query)
+        for record in db_records:
+            if multiple_source_files:
+                modifiable_record = list(record)
+                modifiable_record.append(file)
+                record = tuple(modifiable_record)
+            data_list.append(record)
+    return data_headers, data_list, source_path
 
 def does_column_exist_in_db(path, table_name, col_name):
     '''Checks if a specific col exists'''
@@ -491,102 +640,21 @@ def does_table_exist_in_db(path, table_name):
             logfunc(f"Query error, query={query} Error={str(ex)}")
     return False
 
-def does_view_exist_in_db(db, table_name):
+def does_view_exist_in_db(path, table_name):
     '''Checks if a table with specified name exists in an sqlite db'''
-    try:
-        query = f"SELECT name FROM sqlite_master WHERE type='view' AND name='{table_name}'"
-        cursor = db.execute(query)
-        for row in cursor:
-            return True
-    except sqlite3.Error as ex:
-        logfunc(f"Query error, query={query} Error={str(ex)}")
+    db = open_sqlite_db_readonly(path)
+    if db:
+        try:
+            query = f"SELECT name FROM sqlite_master WHERE type='view' AND name='{table_name}'"
+            cursor = db.execute(query)
+            for row in cursor:
+                return True
+        except sqlite3.Error as ex:
+            logfunc(f"Query error, query={query} Error={str(ex)}")
     return False
 
-class GuiWindow:
-    '''This only exists to hold window handle if script is run from GUI'''
-    window_handle = None  # static variable
 
-    @staticmethod
-    def SetProgressBar(n, total):
-        if GuiWindow.window_handle:
-            progress_bar = GuiWindow.window_handle.nametowidget('!progressbar')
-            progress_bar.config(value=n)
-
-
-def logfunc(message=""):
-    def redirect_logs(string):
-        log_text.insert('end', string)
-        log_text.see('end')
-        log_text.update()
-
-    if GuiWindow.window_handle:
-        log_text = GuiWindow.window_handle.nametowidget('logs_frame.log_text')
-        sys.stdout.write = redirect_logs
-
-    with open(OutputParameters.screen_output_file_path, 'a', encoding='utf8') as a:
-        print(message)
-        a.write(message + '<br>' + OutputParameters.nl)
-
-
-def logdevinfo(message=""):
-    with open(OutputParameters.screen_output_file_path_devinfo, 'a', encoding='utf8') as b:
-        b.write(message + '<br>' + OutputParameters.nl)
-
-def write_device_info():
-    with open(OutputParameters.screen_output_file_path_devinfo, 'a', encoding='utf8') as b:
-        for category, values in identifiers.items():
-            b.write('<b>--- <u>' + category + ' </u>---</b><br>' + OutputParameters.nl)
-            b.write('<ul>' + OutputParameters.nl)
-            for label, data in values.items():
-                if isinstance(data, list):
-                    # Handle multiple values
-                    b.write('<li><b>' + label + ':</b><ul>' + OutputParameters.nl)
-                    for item in data:
-                        b.write(f'<li>{item["value"]} <span title="{item["source_file"]}" style="cursor:help"><i>(Source: {item["artifact"]})</i></span></li>' + OutputParameters.nl)
-                    b.write('</ul></li>' + OutputParameters.nl)
-                else:
-                    # Handle single value
-                    b.write(f'<li><b>{label}:</b> {data["value"]} <span title="{data["source_file"]}" style="cursor:help"><i>(Source: {data["artifact"]})</i></span></li>' + OutputParameters.nl)
-            b.write('</ul>' + OutputParameters.nl)
-
-def device_info(category, label, value, source_file=""):
-    """
-    Stores device information in the identifiers dictionary
-    Args:
-        category (str): The category of the information (e.g., "Device Info", "User Info")
-        label (str): The label/description to use as the key
-        value (str): The actual value to store
-    """
-    # Get the calling module's name more robustly
-    try:
-        frame = inspect.stack()[1]
-        func_name = frame.function
-    except:
-        func_name = 'unknown'
-    
-    values = identifiers.get(category, {})
-    
-    # Create value object with both the value and source module
-    value_obj = {
-        'value': value,
-        'source_file': source_file,
-        'artifact': func_name
-    }
-    
-    if label in values:
-        # If the label exists, check if it's already a list
-        if isinstance(values[label], list):
-            values[label].append(value_obj)
-        else:
-            # Convert existing single value to list with both values
-            values[label] = [values[label], value_obj]
-    else:
-        # New label, store single value
-        values[label] = value_obj
-        
-    identifiers[category] = values
-
-def tsv(report_folder, data_headers, data_list, tsvname):
+def tsv(report_folder, data_headers, data_list, tsvname, source_file=None):
     report_folder = report_folder.rstrip('/')
     report_folder = report_folder.rstrip('\\')
     report_folder_base = os.path.dirname(os.path.dirname(report_folder))
@@ -698,7 +766,404 @@ def kmlgen(report_folder, kmlactivity, data_list, data_headers):
         db.commit()
         db.close()
         kml.save(os.path.join(kml_report_folder, f'{kmlactivity}.kml'))
+
+def media_to_html(media_path, files_found, report_folder):
+
+    def media_path_filter(name):
+        return media_path in name
+
+    def relative_paths(source, splitter):
+        splitted_a = source.split(splitter)
+        for x in splitted_a:
+            if '_HTML' in x:
+                splitted_b = source.split(x)
+                return '.' + splitted_b[1]
+            elif 'data' in x:
+                index = splitted_a.index(x)
+                splitted_b = source.split(splitted_a[index - 1])
+                return '..' + splitted_b[1]
+
+
+    platform = is_platform_windows()
+    if platform:
+        media_path = media_path.replace('/', '\\')
+        splitter = '\\'
+    else:
+        splitter = '/'
+
+    thumb = media_path
+    for match in filter(media_path_filter, files_found):
+        filename = os.path.basename(match)
+        if filename.startswith('~') or filename.startswith('._') or filename != media_path:
+            continue
+
+        dirs = os.path.dirname(report_folder)
+        dirs = os.path.dirname(dirs)
+        env_path = os.path.join(dirs, 'data')
+        if env_path in match:
+            source = match
+            source = relative_paths(source, splitter)
+        else:
+            path = os.path.dirname(match)
+            dirname = os.path.basename(path)
+            filename = Path(match)
+            filename = filename.name
+            locationfiles = Path(report_folder).joinpath(dirname)
+            Path(f'{locationfiles}').mkdir(parents=True, exist_ok=True)
+            shutil.copy2(match, locationfiles)
+            source = Path(locationfiles, filename)
+            source = relative_paths(str(source), splitter)
+
+        mimetype = guess_mime(match)
+        if mimetype == None:
+            mimetype = ''
+
+        if 'video' in mimetype:
+            thumb = f'<video width="320" height="240" controls="controls"><source src="{source}" type="video/mp4" preload="none">Your browser does not support the video tag.</video>'
+        elif 'image' in mimetype:
+            thumb = f'<a href="{source}" target="_blank"><img src="{source}"width="300"></img></a>'
+        elif 'audio' in mimetype:
+            thumb = f'<audio controls><source src="{source}" type="audio/ogg"><source src="{source}" type="audio/mpeg">Your browser does not support the audio element.</audio>'
+        else:
+            thumb = f'<a href="{source}" target="_blank"> Link to {filename} file</>'
+    return thumb
+
+
+"""
+Copyright 2021, CCL Forensics
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+"""
+def utf8_in_extended_ascii(input_string, *, raise_on_unexpected=False):
+    """Returns a tuple of bool (whether mis-encoded utf-8 is present) and str (the converted string)"""
+    output = []  # individual characters, join at the end
+    is_in_multibyte = False  # True if we're currently inside a utf-8 multibyte character
+    multibytes_expected = 0
+    multibyte_buffer = []
+    mis_encoded_utf8_present = False
     
+    def handle_bad_data(index, character):
+        if not raise_on_unexpected: # not raising, so we dump the buffer into output and append this character
+            output.extend(multibyte_buffer)
+            multibyte_buffer.clear()
+            output.append(character)
+            nonlocal is_in_multibyte
+            is_in_multibyte = False
+            nonlocal multibytes_expected
+            multibytes_expected = 0
+        else:
+            raise ValueError(f"Expected multibyte continuation at index: {index}")
+            
+    for idx, c in enumerate(input_string):
+        code_point = ord(c)
+        if code_point <= 0x7f or code_point > 0xf4:  # ASCII Range data or higher than you get for mis-encoded utf-8:
+            if not is_in_multibyte:
+                output.append(c)  # not in a multibyte, valid ascii-range data, so we append
+            else:
+                handle_bad_data(idx, c)
+        else:  # potentially utf-8
+            if (code_point & 0xc0) == 0x80:  # continuation byte
+                if is_in_multibyte:
+                    multibyte_buffer.append(c)
+                else:
+                    handle_bad_data(idx, c)
+            else:  # start-byte
+                if not is_in_multibyte:
+                    assert multibytes_expected == 0
+                    assert len(multibyte_buffer) == 0
+                    while (code_point & 0x80) != 0:
+                        multibytes_expected += 1
+                        code_point <<= 1
+                    multibyte_buffer.append(c)
+                    is_in_multibyte = True
+                else:
+                    handle_bad_data(idx, c)
+                    
+        if is_in_multibyte and len(multibyte_buffer) == multibytes_expected:  # output utf-8 character if complete
+            utf_8_character = bytes(ord(x) for x in multibyte_buffer).decode("utf-8")
+            output.append(utf_8_character)
+            multibyte_buffer.clear()
+            is_in_multibyte = False
+            multibytes_expected = 0
+            mis_encoded_utf8_present = True
+        
+    if multibyte_buffer:  # if we have left-over data
+        handle_bad_data(len(input_string), "")
+    
+    return mis_encoded_utf8_present, "".join(output)
+
+def logdevinfo(message=""):
+    with open(OutputParameters.screen_output_file_path_devinfo, 'a', encoding='utf8') as b:
+        b.write(message + '<br>' + OutputParameters.nl)
+
+def write_device_info():
+    with open(OutputParameters.screen_output_file_path_devinfo, 'a', encoding='utf8') as b:
+        for category, values in identifiers.items():
+            b.write('<b>--- <u>' + category + ' </u>---</b><br>' + OutputParameters.nl)
+            b.write('<ul>' + OutputParameters.nl)
+            for label, data in values.items():
+                if isinstance(data, list):
+                    # Handle multiple values
+                    b.write('<li><b>' + label + ':</b><ul>' + OutputParameters.nl)
+                    for item in data:
+                        b.write(f'<li>{item["value"]} <span title="{item["source_file"]}" style="cursor:help"><i>(Source: {item["artifact"]})</i></span></li>' + OutputParameters.nl)
+                    b.write('</ul></li>' + OutputParameters.nl)
+                else:
+                    # Handle single value
+                    b.write(f'<li><b>{label}:</b> {data["value"]} <span title="{data["source_file"]}" style="cursor:help"><i>(Source: {data["artifact"]})</i></span></li>' + OutputParameters.nl)
+            b.write('</ul>' + OutputParameters.nl)
+
+def device_info(category, label, value, source_file=""):
+    """
+    Stores device information in the identifiers dictionary
+    Args:
+        category (str): The category of the information (e.g., "Device Info", "User Info")
+        label (str): The label/description to use as the key
+        value (str): The actual value to store
+    """
+    # Get the calling module's name more robustly
+    try:
+        frame = inspect.stack()[1]
+        func_name = frame.function
+    except:
+        func_name = 'unknown'
+    
+    values = identifiers.get(category, {})
+    
+    # Create value object with both the value and source module
+    value_obj = {
+        'value': value,
+        'source_file': source_file,
+        'artifact': func_name
+    }
+    
+    if label in values:
+        # If the label exists, check if it's already a list
+        if isinstance(values[label], list):
+            values[label].append(value_obj)
+        else:
+            # Convert existing single value to list with both values
+            values[label] = [values[label], value_obj]
+    else:
+        # New label, store single value
+        values[label] = value_obj
+        
+    identifiers[category] = values
+
+def write_lava_only_log():
+    """Crates the lava_only_artifacts log file"""
+    with open(OutputParameters.screen_output_file_path_lava_only, 'w', encoding='utf8') as lava_log:
+        lava_log.write(
+            """
+                <p class="note alert-info mb-4">
+                The artifacts listed below are likely to return too much data to be viewed \
+                in a Web browser, so they have been stored in the <i>'_lava_artifacts.db'</i> \
+                SQLite database.<br>
+                They are not available from the side bar of the HTML report, but they can \
+                currently be viewed with any SQLite database viewer until we release <b>LAVA</b> \
+                (LEAPP Artifact Viewer App).<br></p>
+            """
+        )
+        for category, artifacts in lava_only_artifacts.items():
+            lava_log.write('<b>--- ' + category.upper() + ' ---</b><br>' + OutputParameters.nl)
+            lava_log.write('<ul>' + OutputParameters.nl)
+            for artifact in artifacts:
+                lava_log.write('<li><b>' + artifact['artifact_name'] + '</b>' + OutputParameters.nl)
+                if artifact['table_name']:
+                    if artifact['records']:
+                        lava_log.write(f'<ul><li>- Table name: <i>{artifact["table_name"]}</i></li>' + OutputParameters.nl)
+                        lava_log.write(f'<li>- Number of records: <i>{artifact["records"]}</i></li>' + OutputParameters.nl)
+                    else:
+                        lava_log.write('<ul><li>- No data found</li>' + OutputParameters.nl)
+                else:
+                    lava_log.write('<ul><li>- No file found</li>' + OutputParameters.nl)
+                lava_log.write('</ul></li>' + OutputParameters.nl)
+            lava_log.write('</ul>' + OutputParameters.nl)
+
+def lava_only_info(category, artifact_name, table_name, records):
+    """
+    Stores artifact information in the lava_only_artifacts dictionary
+    Args:
+        category (str): The category of the artifact collected from artifact_info block
+        artifact_name (str): The name of the artifact collected from artifact_info block
+        table_name (str): The name of the table in the _lava_artifacts.db SQLite database
+        records (int): The number of records returned by the artifact
+    """
+
+    artifacts = lava_only_artifacts.get(category, [])
+
+    artifacts.append({
+        'artifact_name': artifact_name,
+        'table_name': table_name,
+        'records': records
+    })
+
+    lava_only_artifacts[category] = artifacts
+
+### New timestamp conversion functions
+def convert_unix_ts_in_seconds(ts):
+    digits = int(math.log10(ts if ts > 0 else -ts))+1
+    if digits > 10:
+        extra_digits = digits - 10
+        ts = ts // 10**extra_digits
+    return int(ts)
+
+def convert_unix_ts_to_utc(ts):
+    if ts:
+        ts = convert_unix_ts_in_seconds(ts)
+        return datetime.fromtimestamp(ts, tz=timezone.utc)
+    else:
+        return ts
+
+def convert_unix_ts_to_str(ts):
+    if ts:
+        ts = convert_unix_ts_in_seconds(ts)
+        return datetime.fromtimestamp(ts, UTC).strftime('%Y-%m-%d %H:%M:%S')
+    else:
+        return ts
+
+def convert_human_ts_to_utc(ts):  #This is for timestamp in human form
+    if ts:
+        if '.' in ts:
+            ts = ts.split('.')[0]
+        dt = datetime.strptime(ts, '%Y-%m-%d %H:%M:%S')  #Make it a datetime object
+        return dt.replace(tzinfo=timezone.utc)  #Make it UTC
+    else:
+        return ts
+
+def convert_cocoa_core_data_ts_to_utc(cocoa_core_data_ts):
+    if cocoa_core_data_ts:
+        unix_timestamp = cocoa_core_data_ts + 978307200
+        return convert_unix_ts_to_utc(unix_timestamp)
+    else:
+        return cocoa_core_data_ts
+
+def convert_log_ts_to_utc(str_dt):
+    if str_dt:
+        try:
+            return datetime.strptime(str_dt, '%b %d %Y %H:%M:%S').replace(tzinfo=timezone.utc)
+        except:
+            return str_dt
+    else:
+        return str_dt
+
+### Legacy timestamp conversion functions
+def convert_local_to_utc(local_timestamp_str):
+    # Parse the timestamp string with timezone offset, ex. 2023-10-27 18:18:29-0400
+    local_timestamp = datetime.strptime(local_timestamp_str, "%Y-%m-%d %H:%M:%S%z")
+    
+    # Convert to UTC timestamp
+    utc_timestamp = local_timestamp.astimezone(timezone.utc)
+    
+    # Return the UTC timestamp
+    return utc_timestamp
+
+def convert_time_obj_to_utc(ts):
+    timestamp = ts.replace(tzinfo=timezone.utc)
+    return timestamp
+
+def convert_utc_human_to_timezone(utc_time, time_offset): 
+    #fetch the timezone information
+    timezone = pytz.timezone(time_offset)
+    
+    #convert utc to timezone
+    timezone_time = utc_time.astimezone(timezone)
+    
+    #return the converted value
+    return timezone_time
+
+def convert_ts_int_to_timezone(time, time_offset):
+    #convert ts_int_to_utc_human
+    utc_time = convert_ts_int_to_utc(time)
+
+    #fetch the timezone information
+    timezone = pytz.timezone(time_offset)
+    
+    #convert utc to timezone
+    timezone_time = utc_time.astimezone(timezone)
+    
+    #return the converted value
+    return timezone_time
+
+def webkit_timestampsconv(webkittime):
+    unix_timestamp = webkittime + 978307200
+    finaltime = datetime.fromtimestamp(unix_timestamp, tz=timezone.utc)
+    return(finaltime)
+
+def convert_ts_human_to_utc(ts): #This is for timestamp in human form
+    if '.' in ts:
+        ts = ts.split('.')[0]
+        
+    dt = datetime.strptime(ts, '%Y-%m-%d %H:%M:%S') #Make it a datetime object
+    timestamp = dt.replace(tzinfo=timezone.utc) #Make it UTC
+    return timestamp
+
+def convert_ts_int_to_utc(ts): #This int timestamp to human format & utc
+    timestamp = datetime.fromtimestamp(ts, tz=timezone.utc)
+    return timestamp
+
+def convert_unix_ts_to_timezone(ts, timezone_offset):
+    if ts:
+        digits = int(math.log10(ts))+1
+        if digits > 10:
+            extra_digits = digits - 10
+            ts = ts // 10**extra_digits
+        return convert_ts_int_to_timezone(ts, timezone_offset)
+    else:
+        return ts
+
+def convert_ts_human_to_timezone_offset(ts, timezone_offset):
+    return convert_utc_human_to_timezone(convert_ts_human_to_utc(ts), timezone_offset) if ts else ts
+
+def convert_plist_date_to_timezone_offset(plist_date, timezone_offset):
+    if plist_date:
+        str_date = '%04d-%02d-%02dT%02d:%02d:%02dZ' % (
+            plist_date.year, plist_date.month, plist_date.day, 
+            plist_date.hour, plist_date.minute, plist_date.second
+            )
+        iso_date = datetime.fromisoformat(str_date).strftime("%Y-%m-%d %H:%M:%S")
+        return convert_ts_human_to_timezone_offset(iso_date, timezone_offset)
+    else:
+        return plist_date
+
+def convert_plist_date_to_utc(plist_date):
+    if plist_date:
+        str_date = '%04d-%02d-%02dT%02d:%02d:%02dZ' % (
+            plist_date.year, plist_date.month, plist_date.day, 
+            plist_date.hour, plist_date.minute, plist_date.second
+            )
+        return datetime.fromisoformat(str_date)
+    else:
+        return plist_date
+
+def get_birthdate(date):
+    cocoa_epoch = datetime(2001, 1, 1, tzinfo=timezone.utc) # Create our own epoch to avoid gmtime() errors in fromtimestamp().
+    utc_date = cocoa_epoch + timedelta(seconds=date)
+    return utc_date.strftime('%d %B %Y') if utc_date.year != 1604 else utc_date.strftime('%d %B')
+
+def convert_bytes_to_unit(size):
+    if size:
+        for unit in ['bytes', 'KB', 'MB', 'GB']:
+            if size < 1024.0:
+                return f"{size:3.1f} {unit}"
+            size /= 1024.0
+        return size
+    else:
+        return size
+  
 ''' Returns string of printable characters. Replacing non-printable characters
 with '.', or CHR(46)
 '''
@@ -770,80 +1235,19 @@ def generate_thumbnail(imDirectory, imFilename, seeker, report_folder):
     pathToThumb = os.path.join(os.path.basename(os.path.abspath(report_folder)), thumbname)
     htmlThumbTag = '<img src="{0}"></img>'.format(pathToThumb)
     if thumblist:
-        shutil.copyfile(thumblist[0],os.path.join(report_folder, thumbname))
+        shutil.copyfile(thumblist,os.path.join(report_folder, thumbname))
     else:
         #recreate thumbnail from image
         #TODO: handle videos and HEIC
         files = seeker.search(media_root+imDirectory+'/'+imFilename, return_on_first_hit=True)
         if files:
             try:
-                im = Image.open(files[0])
+                im = Image.open(files)
                 im.thumbnail(thumb_size)
                 im.save(os.path.join(report_folder, thumbname))
             except:
                 pass #unsupported format
     return htmlThumbTag
-
-def media_to_html(media_path, files_found, report_folder):
-
-    def media_path_filter(name):
-        return media_path in name
-
-    def relative_paths(source, splitter):
-        splitted_a = source.split(splitter)
-        for x in splitted_a:
-            if '_HTML' in x:
-                splitted_b = source.split(x)
-                return '.' + splitted_b[1]
-            elif 'data' in x:
-                index = splitted_a.index(x)
-                splitted_b = source.split(splitted_a[index - 1])
-                return '..' + splitted_b[1]
-
-
-    platform = is_platform_windows()
-    if platform:
-        media_path = media_path.replace('/', '\\')
-        splitter = '\\'
-    else:
-        splitter = '/'
-
-    thumb = media_path
-    for match in filter(media_path_filter, files_found):
-        filename = os.path.basename(match)
-        if filename.startswith('~') or filename.startswith('._') or filename != media_path:
-            continue
-
-        dirs = os.path.dirname(report_folder)
-        dirs = os.path.dirname(dirs)
-        env_path = os.path.join(dirs, 'data')
-        if env_path in match:
-            source = match
-            source = relative_paths(source, splitter)
-        else:
-            path = os.path.dirname(match)
-            dirname = os.path.basename(path)
-            filename = Path(match)
-            filename = filename.name
-            locationfiles = Path(report_folder).joinpath(dirname)
-            Path(f'{locationfiles}').mkdir(parents=True, exist_ok=True)
-            shutil.copy2(match, locationfiles)
-            source = Path(locationfiles, filename)
-            source = relative_paths(str(source), splitter)
-
-        mimetype = guess_mime(match)
-        if mimetype == None:
-            mimetype = ''
-
-        if 'video' in mimetype:
-            thumb = f'<video width="320" height="240" controls="controls"><source src="{source}" type="video/mp4" preload="none">Your browser does not support the video tag.</video>'
-        elif 'image' in mimetype:
-            thumb = f'<a href="{source}" target="_blank"><img src="{source}"width="300"></img></a>'
-        elif 'audio' in mimetype:
-            thumb = f'<audio controls><source src="{source}" type="audio/ogg"><source src="{source}" type="audio/mpeg">Your browser does not support the audio element.</audio>'
-        else:
-            thumb = f'<a href="{source}" target="_blank"> Link to {filename} file</>'
-    return thumb
 
 
 def get_resolution_for_model_id(model_id: str):
@@ -988,13 +1392,3 @@ def get_resolution_for_model_id(model_id: str):
         f"Warning! - Resolution not found for '{model_id}', contact developers to add resolution into the get_resolution_for_model_id function")
     return None
 
-
-def convert_bytes_to_unit(size):
-    if size:
-        for unit in ['bytes', 'KB', 'MB', 'GB']:
-            if size < 1024.0:
-                return f"{size:3.1f} {unit}"
-            size /= 1024.0
-        return size
-    else:
-        return size

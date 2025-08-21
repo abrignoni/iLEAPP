@@ -27,7 +27,7 @@ __artifacts_v2__ = {
         "name": "knowledgeC - Media Playing",
         "description": "Media playing events extracted from knowledgeC database",
         "author": "@JohannPLW",
-        "version": "0.2",
+        "version": "0.2.1",
         "date": "2023-10-31",
         "requirements": "none",
         "category": "KnowledgeC",
@@ -185,7 +185,7 @@ def knowledgeC_MediaPlaying(files_found, report_folder, seeker, wrap_text, timez
             '''
             data_headers = (
                 ('Start Time', 'datetime'), ('End Time', 'datetime'), 'Playing State', 'Playing Duration', 
-                'App Bundle ID', 'Artist', 'Album', 'Title', 'Genre', 'Media Duration', 'AirPLay Video', 
+                'App Bundle ID', 'Artist', 'Album', 'Title', 'Genre', 'Media Duration', 'AirPlay Video', 
                 'Output Device', ('Time Added', 'datetime'))
         else:
             is_airplay_video = ''

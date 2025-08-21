@@ -1,0 +1,31 @@
+{
+    "photosMetadata": {
+        "get_photosMetadata": {
+            "conditions": {
+                "ios_version": [
+                {
+                    "value": "< 12",
+                    "description": "Module execution should result in a log message indicating it's unsupported and no data rows returned.",
+                    "relevant_test_cases": [],
+                    "unsupported": true
+                },
+                {
+                    "value": "12.x",
+                    "description": "Uses specific SQL queries for iOS 12 schema.",
+                    "relevant_test_cases": []
+                },
+                {
+                    "value": "13.x",
+                    "description": "Uses specific SQL queries for iOS 13 schema.",
+                    "relevant_test_cases": []
+                },
+                {
+                    "value": "14 +",
+                    "description": "Uses specific SQL queries for iOS 14 schema.",
+                    "relevant_test_cases": []
+                }
+                ]
+            }
+        }
+    }
+}

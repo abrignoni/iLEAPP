@@ -321,7 +321,7 @@ def get_googleChat(files_found, report_folder, seeker, wrap_text, timezone_offse
                                 if len(attachment) < 1:
                                     thumb = ''
                                 else:
-                                    thumb = media_to_html(attachment[0], (attachment[0],), report_folder)
+                                    thumb = media_to_html(attachment, (attachment,), report_folder)
                             else:
                                 mediafilename = ''
                                 media = ''

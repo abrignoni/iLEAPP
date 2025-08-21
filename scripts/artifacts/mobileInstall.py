@@ -3,13 +3,14 @@ import textwrap
 import datetime
 import sys
 import re
+import io
 import string
 import sqlite3
+import tarfile
 from html import escape
 
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows
-
 
 def month_converter(month):
     months = [
@@ -31,13 +32,11 @@ def month_converter(month):
         month = f"{month:02d}"
     return month
 
-
 def day_converter(day):
     day = int(day)
     if day < 10:
         day = f"{day:02d}"
     return day
-
 
 def get_mobileInstall(files_found, report_folder, seeker, wrap_text, timezone_offset):
     counter = 0
@@ -54,11 +53,27 @@ def get_mobileInstall(files_found, report_folder, seeker, wrap_text, timezone_of
     )
 
     db.commit()
+    files = []
 
     for filename in files_found:
-        file = open(filename, "r", encoding="utf8")
-        filescounter = filescounter + 1
-        file_datainserts = []
+        if "mobile_installation" in filename:
+            file = open(filename, "r", encoding="utf8")
+            filescounter = filescounter + 1
+            files.append(file)
+        elif 'sysdiagnose_' in filename and not "IN_PROGRESS_" in filename:
+            tar = tarfile.open(filename)
+
+            matching_members = [
+                    m for m in tar.getmembers()
+                    if re.search(r"logs/MobileInstallation/mobile_installation\.log(\.\d+)?$", m.name)
+                ]
+            for member in matching_members:   
+                tar_log = tar.extractfile(member)
+                file = io.TextIOWrapper(tar_log, encoding="utf-8", errors="ignore")
+                files.append(file)
+                filescounter = filescounter + 1
+    file_datainserts = []
+    for file in files:
         for line in file:
             counter = counter + 1
             matchObj = re.search(
@@ -137,7 +152,7 @@ def get_mobileInstall(files_found, report_folder, seeker, wrap_text, timezone_of
                 if matchObj:
                     bundleid = matchObj.group(1)
                     # logfunc ("Bundle ID: ", bundleid )
-                  
+                
                 matchObj = re.search(r"(?<=^)(.*)(?= \[)", line)  # Regex for timestamp
                 if matchObj:
                     timestamp = matchObj.group(1)
@@ -153,14 +168,14 @@ def get_mobileInstall(files_found, report_folder, seeker, wrap_text, timezone_of
                     # logfunc(year)
                     # logfunc(time)
                     # logfunc ("Timestamp: ", timestamp)
-                  
+                
                 matchObj = re.search(r"(?<= at )(.*)(?=$)", line)  # Regex for path
                 if matchObj:
                     path = matchObj.group(1)
                     # logfunc ("Path: ", matchObj.group(1))
-                  
+                
                 # logfunc(inserttime, actiondesc, bundleid, path)
-                  
+                
                 # insert to database
                 cursor = db.cursor()
                 datainsert = (
@@ -175,10 +190,10 @@ def get_mobileInstall(files_found, report_folder, seeker, wrap_text, timezone_of
                 # )
                 # db.commit()
                 file_datainserts.append(datainsert)
-              
+            
                 tsv_tml_data_list.append((inserttime, actiondesc, bundleid, path))
                 # logfunc()
-              
+            
             matchObj = re.search(
                 r"(Destroying container with identifier)", line
             )  # Regex for destroyed containers
@@ -502,7 +517,7 @@ def get_mobileInstall(files_found, report_folder, seeker, wrap_text, timezone_of
     sysstatecount = 0
 
     # created folders for reports for App history
-    os.makedirs(os.path.join(report_folder, "Apps_Historical"))
+    os.makedirs(os.path.join(report_folder, "Apps_Historical"), exist_ok=True)
 
     data_list_installed = []
     data_list_uninstalled = []
@@ -574,9 +589,9 @@ def get_mobileInstall(files_found, report_folder, seeker, wrap_text, timezone_of
             continue
         else:
             f3 = open(os.path.join(report_folder, "Apps_Historical", distinctbundle + ".txt"),
-                      "w+",
-                      encoding="utf8"
-                      )  # Create historical app report per app
+                    "w+",
+                    encoding="utf8"
+                    )  # Create historical app report per app
             cursor.execute(
                 """SELECT * from dimm where bundle_id=? order by time_stamp DESC""",
                 (distinctbundle,),
@@ -708,6 +723,6 @@ def get_mobileInstall(files_found, report_folder, seeker, wrap_text, timezone_of
 __artifacts__ = {
     "mobileInstall": (
         "Mobile Installation Logs",
-        ('**/mobile_installation.log.*'),
+        ('**/mobile_installation.log.*','**/sysdiagnose_*.tar.gz'),
         get_mobileInstall)
 }

@@ -11,7 +11,8 @@ This document outlines the various device information collected by iLEAPP module
 | Category | Label | Source Modules |
 |-----------|-------|----------------|
 | Advertising Identifier | Apple Advertising Identifier | advertisingID |
-| Airdrop | Airdrop ID | airdropId |
+| AirDrop | AirDrop ID | airdropId |
+| AirDrop | Discoverable Mode | airdropId |
 | Backup Settings | Cloud Backup Enabled | backupSettings |
 | Backup Settings | Last Cloud iTunes Backup Date | backupSettings |
 | Backup Settings | Last Cloud iTunes Backup TZ | backupSettings |
@@ -28,6 +29,7 @@ This document outlines the various device information collected by iLEAPP module
 | Cellular | SIM Cards | subscriberInfo |
 | Cellular | Self Registration Update IMEI | imeiImsi |
 | Cellular | Self Registration Update IMSI | imeiImsi |
+| Device Information | Build ID | systemVersionPlist |
 | Device Information | Device Name | deviceName |
 | Device Information | Device/Computer Name | preferencesPlist |
 | Device Information | Host Name | preferencesPlist |
@@ -36,11 +38,20 @@ This document outlines the various device information collected by iLEAPP module
 | Device Information | Local Host Name | preferencesPlist |
 | Device Information | Model | preferencesPlist |
 | Device Information | Model Number | deviceActivator |
+| Device Information | Product Build Version | systemVersionPlist |
 | Device Information | Product Name | lastBuild, systemVersionPlist |
-| Device Information | ProductBuildVersion | lastBuild, systemVersionPlist |
+| Device Information | ProductBuildVersion | lastBuild |
 | Device Information | Reported Phone Number | deviceDatam |
 | Device Information | Serial Number | serialNumber |
-| Device Information | iOS version | lastBuild, systemVersionPlist |
+| Device Information | System Image ID | systemVersionPlist |
+| Device Information | iOS Version | systemVersionPlist |
+| Device Information | iOS version | lastBuild |
+| Messages Settings | com.apple.MobileSMS.plist - Keep Messages for Days | messageRetention |
+| Messages Settings | com.apple.MobileSMS.plist - Keep Messages for Days (iOS 17+) | messageRetention |
+| Messages Settings | com.apple.MobileSMS.plist - Keep Messages for Days (iOS <=16) | messageRetention |
+| Messages Settings | com.apple.mobileSMS.plist - Keep Messages for Days | messageRetention |
+| Messages Settings | com.apple.mobileSMS.plist - Keep Messages for Days (iOS 17+) | messageRetention |
+| Messages Settings | com.apple.mobileSMS.plist - Keep Messages for Days (iOS <=16) | messageRetention |
 | Network | Bluetooth Address | deviceActivator |
 | Network | Ethernet MAC Address | deviceActivator |
 | Network | MAC Addresses | wifiIdentifiers |
@@ -75,15 +86,5 @@ This document outlines the various device information collected by iLEAPP module
 | Find My iPhone Add Time: {addtime} | findMy |
 | Find My iPhone: Enabled | findMy |
 | Obliterated Timestamp: {utc_modified_date} | obliterated |
-| com.apple.MobileSMS.plist - Keep Messages for Days (iOS 17+): {val} | messageRetention |
-| com.apple.MobileSMS.plist - Keep Messages for Days (iOS {val} | messageRetention |
-| com.apple.MobileSMS.plist - Keep Messages for Days: No Value | messageRetention |
-| com.apple.mobileSMS.plist - Keep Messages for Days (iOS 17+): {keep_val} | messageRetention |
-| com.apple.mobileSMS.plist - Keep Messages for Days (iOS {keep_val} | messageRetention |
-| com.apple.mobileSMS.plist - Keep Messages for Days: No Value | messageRetention |
-| {base_file} - Keep Message for Days: No Value | messageRetention |
-| {base_file} - Keep Messages for Days (iOS 17+): {keep_val} | messageRetention |
-| {base_file} - Keep Messages for Days (iOS {keep_val} | messageRetention |
-| {info_key}: {value_key} | iTunesBackupInfo |
 <!-- LOGDEVINFO_END -->
 

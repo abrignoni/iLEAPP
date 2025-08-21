@@ -5,13 +5,12 @@ import stat
 import pathlib
 import sqlite3
 import nska_deserialize as nd
-import scripts.artifacts.artGlobals
 import shutil
 
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, kmlgen, timeline, is_platform_windows, generate_thumbnail, \
-    open_sqlite_db_readonly
+    open_sqlite_db_readonly, iOS
 
 
 def get_photosMetadata(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -23,7 +22,7 @@ def get_photosMetadata(files_found, report_folder, seeker, wrap_text, timezone_o
       
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
-    iOSversion = scripts.artifacts.artGlobals.versionf
+    iOSversion = iOS.get_version()
     if version.parse(iOSversion) < version.parse("12"):
         logfunc("Unsupported version for Photos.sqlite metadata on iOS " + iOSversion)
     if (version.parse(iOSversion) >= version.parse("12")) & (version.parse(iOSversion) < version.parse("13")):

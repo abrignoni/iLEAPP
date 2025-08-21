@@ -1,12 +1,12 @@
 __artifacts_v2__ = {
     "get_biomeInfocus": {
-        "name": "Biome In Focus",
+        "name": "Biome - In Focus",
         "description": "Parses InFocus Events from biomes",
         "author": "@JohnHyla",
         "version": "0.0.2",
         "date": "2024-10-17",
         "requirements": "none",
-        "category": "Biome In Focus",
+        "category": "Biome",
         "notes": "",
         "paths": ('*/biome/streams/restricted/App.InFocus/local/*'),
         "output_types": "standard"

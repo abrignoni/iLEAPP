@@ -32,10 +32,9 @@ __artifacts_v2__ = {
 
 import json
 
-import scripts.artifacts.artGlobals
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, timeline, kmlgen, tsv, open_sqlite_db_readonly, media_to_html
+from scripts.ilapfuncs import logfunc, timeline, kmlgen, tsv, open_sqlite_db_readonly, media_to_html, iOS
 
 
 def get_viber(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -43,7 +42,7 @@ def get_viber(files_found, report_folder, seeker, wrap_text, timezone_offset):
 	for file_found in files_found:
 		file_found = str(file_found)
 
-		iOSversion = scripts.artifacts.artGlobals.versionf
+		iosversion = iOS.get_version()
 		if version.parse(iOSversion) < version.parse("14"):
 			logfunc("Viber parsing has not be tested on this iOS " + iOSversion + " version. Please contact @theAtropos4n6 for resolving this issue.")
 
@@ -215,7 +214,6 @@ def get_viber(files_found, report_folder, seeker, wrap_text, timezone_offset):
 					for row in all_rows: 
 						data_list.append((row[0], row[1], row[2], row[3], row[4], row[5]))
 						
-
 				if usageentries > 0:
 					report = ArtifactHtmlReport('Viber - Contacts')
 					report.start_artifact_report(report_folder, 'Viber - Contacts')
@@ -260,8 +258,6 @@ def get_viber(files_found, report_folder, seeker, wrap_text, timezone_offset):
 						row = tuple(temp_list)
 						data_list.append((row[0], row[1], row[2], row[3]))
 
-
-
 				if usageentries > 0:
 					report = ArtifactHtmlReport('Viber - Call Remnants')
 					report.start_artifact_report(report_folder, 'Viber - Call Remnants')
@@ -269,7 +265,6 @@ def get_viber(files_found, report_folder, seeker, wrap_text, timezone_offset):
 					data_headers = ('Timestamp - UTC','Caller','Call Type','Duration')
 					report.write_artifact_data_table(data_headers, data_list, file_found, html_escape=False)
 					report.end_artifact_report()
-
 
 				cursor.execute('''
 					SELECT 	
@@ -687,4 +682,4 @@ def get_viber(files_found, report_folder, seeker, wrap_text, timezone_offset):
 				
 				db.close()
 			else:
-				logfunc('No Viber data found.')
+				continue

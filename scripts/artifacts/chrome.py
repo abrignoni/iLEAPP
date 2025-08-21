@@ -96,6 +96,7 @@ __artifacts_v2__ = {
         "author": "@stark4n6",
         "version": "0.0.3",
         "date": "2024-11-10",
+        "last_update_date": "2025-06-20",
         "requirements": "none",
         "category": "Chromium",
         "notes": "",
@@ -217,7 +218,7 @@ from Crypto.Cipher import AES
 from Crypto.Protocol.KDF import PBKDF2
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, get_next_unused_name, open_sqlite_db_readonly, does_column_exist_in_db, lava_process_artifact, lava_insert_sqlite_data, artifact_processor, convert_utc_human_to_timezone, convert_ts_human_to_utc
+from scripts.ilapfuncs import logfunc, tsv, timeline, get_next_unused_name, open_sqlite_db_readonly, does_table_exist_in_db, does_column_exist_in_db, lava_process_artifact, lava_insert_sqlite_data, artifact_processor, convert_utc_human_to_timezone, convert_ts_human_to_utc
 
 
 def get_browser_name(file_name):
@@ -948,71 +949,74 @@ def chromeAutofillProfiles(files_found, report_folder, seeker, wrap_text, timezo
         report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
         
         db = open_sqlite_db_readonly(file_found)
-        cursor = db.cursor()
+        
+        if does_table_exist_in_db(file_found, 'autofill_profiles'):
+            cursor = db.cursor()
 
-        cursor.execute(f'''
-        select
-            datetime(date_modified, 'unixepoch'),
-            autofill_profiles.guid,
-            autofill_profile_names.first_name,
-            autofill_profile_names.middle_name,
-            autofill_profile_names.last_name,
-            autofill_profile_emails.email,
-            autofill_profile_phones.number,
-            autofill_profiles.company_name,
-            autofill_profiles.street_address,
-            autofill_profiles.city,
-            autofill_profiles.state,
-            autofill_profiles.zipcode,
-            datetime(use_date, 'unixepoch'),
-            autofill_profiles.use_count
-        from autofill_profiles
-        inner join autofill_profile_emails ON autofill_profile_emails.guid = autofill_profiles.guid
-        inner join autofill_profile_phones ON autofill_profiles.guid = autofill_profile_phones.guid
-        inner join autofill_profile_names ON autofill_profile_phones.guid = autofill_profile_names.guid
-        ''')
+            cursor.execute(f'''
+            select
+                datetime(date_modified, 'unixepoch'),
+                autofill_profiles.guid,
+                autofill_profile_names.first_name,
+                autofill_profile_names.middle_name,
+                autofill_profile_names.last_name,
+                autofill_profile_emails.email,
+                autofill_profile_phones.number,
+                autofill_profiles.company_name,
+                autofill_profiles.street_address,
+                autofill_profiles.city,
+                autofill_profiles.state,
+                autofill_profiles.zipcode,
+                datetime(use_date, 'unixepoch'),
+                autofill_profiles.use_count
+            from autofill_profiles
+            inner join autofill_profile_emails ON autofill_profile_emails.guid = autofill_profiles.guid
+            inner join autofill_profile_phones ON autofill_profiles.guid = autofill_profile_phones.guid
+            inner join autofill_profile_names ON autofill_profile_phones.guid = autofill_profile_names.guid
+            ''')
 
 
-        all_rows = cursor.fetchall()
-        if len(all_rows) > 0:
-            report_name = f'{browser_name} - Autofill - Profiles'
-            report = ArtifactHtmlReport(report_name)
-            # check for existing and get next name for report file, so report from another file does not get overwritten
-            report_path = os.path.join(report_folder, f'{report_name}.temphtml')
-            report_path = get_next_unused_name(report_path)[:-9]  # remove .temphtml
-            report.start_artifact_report(report_folder, os.path.basename(report_path))
-            report.add_script()
+            all_rows = cursor.fetchall()
+            if len(all_rows) > 0:
+                report_name = f'{browser_name} - Autofill - Profiles'
+                report = ArtifactHtmlReport(report_name)
+                # check for existing and get next name for report file, so report from another file does not get overwritten
+                report_path = os.path.join(report_folder, f'{report_name}.temphtml')
+                report_path = get_next_unused_name(report_path)[:-9]  # remove .temphtml
+                report.start_artifact_report(report_folder, os.path.basename(report_path))
+                report.add_script()
 
-            data_list = []
-            for row in all_rows:
-                modified_dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]), timezone_offset)
-                last_used_dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[12]), timezone_offset)
+                data_list = []
+                for row in all_rows:
+                    modified_dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]), timezone_offset)
+                    last_used_dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[12]), timezone_offset)
 
-                data_list.append((modified_dt, row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                                  row[10], row[11], last_used_dt, row[13]))
+                    data_list.append((modified_dt, row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
+                                      row[10], row[11], last_used_dt, row[13]))
 
-            report.write_artifact_data_table(data_headers, data_list, file_found)
-            report.end_artifact_report()
+                report.write_artifact_data_table(data_headers, data_list, file_found)
+                report.end_artifact_report()
 
-            # Generate LAVA output
+                # Generate LAVA output
 
-            category = "Chromium"
-            module_name = "chromeAutofillProfiles"
+                category = "Chromium"
+                module_name = "chromeAutofillProfiles"
 
-            table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                           lava_data_headers, len(data_list))
+                table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
+                                                                               lava_data_headers, len(data_list))
 
-            lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
+                lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
-            # Add browser name column to the data
-            data_list = [row + (browser_name,) for row in data_list]
+                # Add browser name column to the data
+                data_list = [row + (browser_name,) for row in data_list]
 
-            # Add current list to the combined list
-            all_data.extend(data_list)
+                # Add current list to the combined list
+                all_data.extend(data_list)
 
+            else:
+                logfunc(f'No {browser_name} - Autofill - Profiles data available')
         else:
             logfunc(f'No {browser_name} - Autofill - Profiles data available')
-
         db.close()
 
     return all_data_headers, all_data, report_file
@@ -1035,7 +1039,9 @@ def chromeBookmarks(files_found, report_folder, seeker, wrap_text, timezone_offs
 
     for file_found in files_found:
         file_found = str(file_found)
-        if not os.path.basename(file_found) == 'Bookmarks':  # skip -journal and other files
+        file_path = os.path.basename(file_found)
+
+        if not (file_path == 'Bookmarks' or file_path == 'Bookmarks.bak'):  # skip -journal and other files
             continue
 
         report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
@@ -1048,25 +1054,27 @@ def chromeBookmarks(files_found, report_folder, seeker, wrap_text, timezone_offs
             dataa = json.load(f)
         data_list = []
         for x, y in dataa.items():
-            flag = 0
+            children_items = list()
             if isinstance(y, dict):
                 for key, value in y.items():
                     if isinstance(value, dict):
                         for keyb, valueb in value.items():
                             if keyb == 'children':
                                 if len(valueb) > 0:
-                                    url = valueb[0]['url']
-                                    dateadd = valueb[0]['date_added']
-                                    dateaddconv = datetime.datetime(1601, 1, 1) + datetime.timedelta(
-                                        microseconds=int(dateadd))
-                                    added_dt = convert_utc_human_to_timezone(dateaddconv, timezone_offset)
-                                    name = valueb[0]['name']
-                                    typed = valueb[0]['type']
-                                    flag = 1
-                            if keyb == 'name' and flag == 1:
-                                flag = 0
+                                    for index in range(len(valueb)):
+                                        url = valueb[index]['url']
+                                        dateadd = valueb[index]['date_added']
+                                        dateaddconv = datetime.datetime(1601, 1, 1) + datetime.timedelta(
+                                            microseconds=int(dateadd))
+                                        added_dt = convert_utc_human_to_timezone(dateaddconv, timezone_offset)
+                                        name = valueb[0]['name']
+                                        typed = valueb[0]['type']
+                                        children_items.append((url, dateadd, dateaddconv, added_dt, name, typed))
+                            if keyb == 'name' and len(children_items) > 0:
                                 parent = valueb
-                                data_list.append((added_dt, url, name, parent, typed))
+                                for (url, _, _, added_dt, name, typed) in children_items:
+                                    data_list.append((added_dt, url, name, parent, typed))
+                                children_items = list()
         if len(data_list) > 0:
             report_name = f'{browser_name} - Bookmarks'
             report = ArtifactHtmlReport(report_name)

@@ -13,7 +13,8 @@ __artifacts_v2__ = {
 		'category': 'Photos.sqlite-R-Reference_for_Asset_Analysis',
 		'notes': '',
 		'paths': ('*/PhotoData/Photos.sqlite*',),
-		"output_types": ["standard", "tsv", "none"]
+		"output_types": ["standard", "tsv", "none"],
+		"artifact_icon": "database"
 	},
 	'Ph97_2iOS17RefforAssetAnalysisSyndPL': {
 		'name': 'Ph97.2-iOS17_Ref_for_Asset_Analysis-SyndPL',
@@ -29,15 +30,15 @@ __artifacts_v2__ = {
 		'category': 'Photos.sqlite-R-Reference_for_Asset_Analysis',
 		'notes': '',
 		'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
-		"output_types": ["standard", "tsv", "none"]
+		"output_types": ["standard", "tsv", "none"],
+		"artifact_icon": "database"
 	}
 }
 
 import os
-import scripts.artifacts.artGlobals
 from packaging import version
 from scripts.builds_ids import OS_build
-from scripts.ilapfuncs import artifact_processor, get_file_path, open_sqlite_db_readonly, get_sqlite_db_records, logfunc
+from scripts.ilapfuncs import artifact_processor, get_file_path, open_sqlite_db_readonly, get_sqlite_db_records, logfunc, iOS
 
 @artifact_processor
 def Ph97_1iOS17RefforAssetAnalysisPhDaPsql(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -49,7 +50,7 @@ def Ph97_1iOS17RefforAssetAnalysisPhDaPsql(files_found, report_folder, seeker, w
 
 	if report_folder.endswith('/') or report_folder.endswith('\\'):
 		report_folder = report_folder[:-1]
-	iosversion = scripts.artifacts.artGlobals.versionf
+	iosversion = iOS.get_version()
 	if (version.parse(iosversion) <= version.parse("16.7.7")) or (version.parse(iosversion) >= version.parse("18")):
 		logfunc(f"Unsupported version for PhotoData-Photos.sqlite for iOS " + iosversion)
 		return (), [], source_path
@@ -7800,7 +7801,7 @@ def Ph97_2iOS17RefforAssetAnalysisSyndPL(files_found, report_folder, seeker, wra
 			break
 	if report_folder.endswith('/') or report_folder.endswith('\\'):
 		report_folder = report_folder[:-1]
-	iosversion = scripts.artifacts.artGlobals.versionf
+	iosversion = iOS.get_version()
 	if (version.parse(iosversion) <= version.parse("16.7.7")) or (version.parse(iosversion) >= version.parse("18")):
 		logfunc("Unsupported version for Syndication.photoslibrary for iOS " + iosversion)
 		return (), [], source_path

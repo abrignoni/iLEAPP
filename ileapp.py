@@ -7,11 +7,11 @@ import os.path
 import typing
 import scripts.report as report
 import traceback
-import sqlite3
 import sys
 
 import scripts.plugin_loader as plugin_loader
 
+from shutil import copyfile
 from scripts.search_files import *
 from scripts.ilapfuncs import *
 from scripts.version_info import ileapp_version
@@ -32,10 +32,27 @@ def validate_args(args):
 
     # Check existence of paths
     if not os.path.exists(args.input_path):
-        raise argparse.ArgumentError(None, 'INPUT file/folder does not exist! Run the program again.')
+        raise argparse.ArgumentError(None, f'INPUT path \'{args.input_path}\' does not exist! Run the program again.')
 
     if not os.path.exists(args.output_path):
-        raise argparse.ArgumentError(None, 'OUTPUT folder does not exist! Run the program again.')
+        raise argparse.ArgumentError(None, 'OUTPUT path \'{args.output_path}\' does not exist! Run the program again.')
+    if not os.path.isdir(os.path.abspath(args.output_path)): 
+        raise argparse.ArgumentError(None, f'OUTPUT path \'{args.output_path}\' must be a directory! Run the program again.')
+
+    # Validate input_path based on type
+    abs_input_path = os.path.abspath(args.input_path)
+    if args.t == 'fs': # Filesystem input type
+        # Check if input path is a directory
+        if not os.path.isdir(abs_input_path):
+            raise argparse.ArgumentError(None, f'INPUT path \'{args.input_path}\' is not a directory. Type "fs" requires '
+                                               f'a directory input. Run the program again.')
+        # Check if directory is empty
+        if not os.listdir(abs_input_path):
+            raise argparse.ArgumentError(None, f'Input directory \'{args.input_path}\' is empty. Run the program again.')
+    elif args.t == 'file': # Single file input type
+        if not os.path.isfile(abs_input_path):
+            raise argparse.ArgumentError(None, f'INPUT path \'{args.input_path}\' is not a file. Type "file" requires a '
+                                               f'single file input. Run the program again.')
 
     if args.load_case_data and not os.path.exists(args.load_case_data):
         raise argparse.ArgumentError(None, 'LEAPP Case Data file not found! Run the program again.')
@@ -139,12 +156,13 @@ def create_casedata(path):
     return
 
 def main():
-    parser = argparse.ArgumentParser(description='iLEAPP: iOS Logs, Events, And Plists Parser.')
-    parser.add_argument('-t', choices=['fs', 'tar', 'zip', 'gz', 'itunes'], required=False, action="store",
+    parser = argparse.ArgumentParser(description=f'iLEAPP v{ileapp_version}: iOS Logs, Events, And Plists Parser.')
+    parser.add_argument('-t', choices=['fs', 'tar', 'zip', 'gz', 'itunes', 'file'], required=False, action="store",
                         help=("Specify the input type. "
                               "'fs' for a folder containing extracted files with normal paths and names, "
                               "'tar', 'zip', or 'gz' for compressed packages containing files with normal names, "
-                              "'itunes' for a folder containing a raw iTunes backup with hashed paths and names."))
+                              "'itunes' for a folder containing a raw iTunes backup with hashed paths and names, "
+                              "'file' for a single file input."))
     parser.add_argument('-o', '--output_path', required=False, action="store",
                         help='Path to base output folder (this must exist)')
     parser.add_argument('-i', '--input_path', required=False, action="store", help='Path to input file/folder')
@@ -163,8 +181,16 @@ def main():
     parser.add_argument('--itunes_passcode', required=False, action="store", help="Passcode used for encrypted iTunes backup")
     parser.add_argument('--prompt_for_passcode', required=False, action="store_true", default=False, help="Passcode used for encrypted iTunes backup, but from a password prompt")
 
+    available_plugins = []
     loader = plugin_loader.PluginLoader()
-    available_plugins = list(loader.plugins)
+    for plugin in sorted(loader.plugins, key=lambda p: p.category):
+        if (plugin.module_name == 'iTunesBackupInfo'
+                or plugin.name == 'lastBuild'
+                or plugin.module_name == 'logarchive' and plugin.name != 'logarchive'):
+            continue
+        else:
+            available_plugins.append(plugin)
+    selected_plugins = available_plugins.copy()
     profile_filename = None
     casedata = {}
 
@@ -176,20 +202,6 @@ def main():
     args = parser.parse_args()
 
     extracttype = args.t
-
-    plugins = []
-    plugins_parsed_first = []
-
-    for plugin in available_plugins:
-        if plugin.module_name == 'lastBuild':
-            if extracttype == 'itunes':
-                continue
-            else:
-                plugins_parsed_first.append(plugin)
-        elif plugin.module_name != 'iTunesBackupInfo':
-            plugins.append(plugin)
-
-    selected_plugins = plugins.copy()
 
     try:
         validate_args(args)
@@ -226,7 +238,7 @@ def main():
                 create_choice = input('Please enter your choice: ').lower()
                 print()
                 if create_choice == '1':
-                    create_profile(plugins, args.create_profile_casedata)
+                    create_profile(available_plugins, args.create_profile_casedata)
                     create_choice = ''
                 elif create_choice == '2':
                     create_casedata(args.create_profile_casedata)
@@ -284,7 +296,7 @@ def main():
                     return
                 else:
                     profile_plugins = set(profile.get("plugins", []))
-                    selected_plugins = [selected_plugin for selected_plugin in plugins 
+                    selected_plugins = [selected_plugin for selected_plugin in available_plugins
                                         if selected_plugin.name in profile_plugins]
             else:
                 profile_load_error = "File was not a valid profile file: invalid format"
@@ -313,8 +325,6 @@ def main():
 
     out_params = OutputParameters(output_path, custom_output_folder)
 
-    selected_plugins = plugins_parsed_first + selected_plugins
-    
     initialize_lava(input_path, out_params.report_folder_base, extracttype)
 
     crunch_artifacts(selected_plugins, extracttype, input_path, out_params, wrap_text, loader, casedata, time_offset, profile_filename, passcode)
@@ -339,13 +349,16 @@ def crunch_artifacts(
     seeker = None
     try:
         if extracttype == 'fs':
-            seeker = FileSeekerDir(input_path)
+            seeker = FileSeekerDir(input_path, out_params.data_folder)
 
+        elif extracttype == 'file':
+            seeker = FileSeekerFile(input_path, out_params.data_folder)
+            
         elif extracttype in ('tar', 'gz'):
-            seeker = FileSeekerTar(input_path, out_params.temp_folder)
+            seeker = FileSeekerTar(input_path, out_params.data_folder)
 
         elif extracttype == 'zip':
-            seeker = FileSeekerZip(input_path, out_params.temp_folder)
+            seeker = FileSeekerZip(input_path, out_params.data_folder)
 
         elif extracttype == 'itunes':
             seeker = FileSeekerItunes(input_path, out_params.temp_folder, passcode)
@@ -362,32 +375,45 @@ def crunch_artifacts(
         return False
 
     # Now ready to run
+    # add lastBuild at the start except for iTunes backups
+    if extracttype != 'itunes':
+        plugins.insert(0, loader["lastBuild"])
+
     logfunc(f'Info: {len(loader) - 2} modules loaded.') # excluding lastbuild and iTunesBackupInfo
     if profile_filename:
         logfunc(f'Loaded profile: {profile_filename}')
-    logfunc(f'Artifact categories to parse: {len(plugins) - 1}') # excluding lastbuild always executed first
+    logfunc(f'Artifact to parse: {len(plugins)}')
     logfunc(f'File/Directory selected: {input_path}')
     logfunc('\n--------------------------------------------------------------------------------------')
 
-    log = open(os.path.join(out_params.report_folder_base, 'Script Logs', 'ProcessedFilesLog.html'), 'w+', encoding='utf8')
+    log = open(os.path.join(out_params.report_folder_base, '_HTML', '_Script_Logs', 'ProcessedFilesLog.html'), 'w+', encoding='utf8')
     log.write(f'Extraction/Path selected: {input_path}<br><br>')
     log.write(f'Timezone selected: {time_offset}<br><br>')
     
     parsed_modules = 0
+    lava_only = False
     # Special processing for iTunesBackup Info.plist as it is a seperate entity, not part of the Manifest.db. Seeker won't find it
     if extracttype == 'itunes':
         info_plist_path = os.path.join(input_path, 'Info.plist')
         if os.path.exists(info_plist_path):
             # process_artifact([info_plist_path], 'iTunesBackupInfo', 'Device Info', seeker, out_params.report_folder_base)
             #plugin.method([info_plist_path], out_params.report_folder_base, seeker, wrap_text)
-            report_folder = os.path.join(out_params.report_folder_base, '_HTML')
+            report_folder = os.path.join(out_params.report_folder_base, '_HTML', 'iTunes Backup')
             if not os.path.exists(report_folder):
                 try:
                     os.makedirs(report_folder)
                 except (FileExistsError, FileNotFoundError) as ex:
                     logfunc('Error creating report directory at path {}'.format(report_folder))
                     logfunc('Error was {}'.format(str(ex)))
-            loader["iTunesBackupInfo"].method([info_plist_path], out_params.report_folder_base, seeker, wrap_text, time_offset)
+            loader["iTunesBackupInfo"].method([info_plist_path], report_folder, seeker, wrap_text, time_offset)
+            report_folder = os.path.join(out_params.report_folder_base, '_HTML', 'Installed Apps')
+            if not os.path.exists(report_folder):
+                try:
+                    os.makedirs(report_folder)
+                except (FileExistsError, FileNotFoundError) as ex:
+                    logfunc('Error creating report directory at path {}'.format(report_folder))
+                    logfunc('Error was {}'.format(str(ex)))
+            loader["iTunesBackupInstalledApplications"].method([info_plist_path], report_folder, seeker, wrap_text, time_offset)
             #del search_list['lastBuild'] # removing lastBuild as this takes its place
             print([info_plist_path])  # TODO Remove special consideration for itunes? Merge into main search
         else:
@@ -395,10 +421,14 @@ def crunch_artifacts(
             log.write('Info.plist not found for iTunes Backup!')
 
     # Search for the files per the arguments
-    for plugin in plugins:
+    for plugin_number, plugin in enumerate(plugins, start=1):
         logfunc()
-        logfunc('{} [{}] artifact started'.format(plugin.name, plugin.module_name))
+        logfunc('[{}/{}] {} [{}] artifact started'.format(plugin_number, len(plugins),
+                                                              plugin.name, plugin.module_name))
+        output_types = plugin.artifact_info.get('output_types', '')
         if isinstance(plugin.search, list) or isinstance(plugin.search, tuple):
+            search_regexes = plugin.search
+        elif plugin.search is None:
             search_regexes = plugin.search
         else:
             search_regexes = [plugin.search]
@@ -406,22 +436,32 @@ def crunch_artifacts(
         GuiWindow.SetProgressBar(parsed_modules, len(plugins))
         files_found = []
         log.write(f'<b>For {plugin.name} module</b>')
-        for artifact_search_regex in search_regexes:
-            if artifact_search_regex in seeker.searched:
-                found = seeker.searched[artifact_search_regex]
-            else:
+        if search_regexes is None:
+            log.write(f'<ul><li>No search regexes provided for {plugin.name} module.')
+            log.write("<ul><li><i>'_lava_artifacts.db'</i> used as source file.</li></ul></li></ul>")
+            files_found = [os.path.join(out_params.report_folder_base, '_lava_artifacts.db')]
+        else:
+            for artifact_search_regex in search_regexes:
                 found = seeker.search(artifact_search_regex)
-            if not found:
-                log.write(f'<ul><li>No file found for regex <i>{artifact_search_regex}</i></li></ul>')
-            else:
-                log.write(f'<ul><li>{len(found)} {"files" if len(found) > 1 else "file"} for regex <i>{artifact_search_regex}</i> located at:')
-                for pathh in found:
-                    if pathh.startswith('\\\\?\\'):
-                        pathh = pathh[4:]
-                    log.write(f'<ul><li>{pathh}</li></ul>')
-                log.write(f'</li></ul>')
-                files_found.extend(found)
+                if not found:
+                    if plugin.name == 'logarchive' and extracttype != 'fs' and extracttype != 'file':
+                        src = os.path.join(os.path.dirname(input_path), "logarchive.json")
+                        dst = os.path.join(out_params.data_folder, "logarchive.json")
+                        if os.path.exists(src):
+                            copyfile(src, dst)
+                            files_found.append(dst)
+                    log.write(f'<ul><li>No file found for regex <i>{artifact_search_regex}</i></li></ul>')
+                else:
+                    log.write(f'<ul><li>{len(found)} {"files" if len(found) > 1 else "file"} for regex <i>{artifact_search_regex}</i> located at:')
+                    for pathh in found:
+                        if pathh.startswith('\\\\?\\'):
+                            pathh = pathh[4:]
+                        log.write(f'<ul><li>{pathh}</li></ul>')
+                    log.write(f'</li></ul>')
+                    files_found.extend(found)
         if files_found:
+            if not lava_only and 'lava_only' in output_types:
+                lava_only = True
             category_folder = os.path.join(out_params.report_folder_base, '_HTML', plugin.category)
             if not os.path.exists(category_folder):
                 try:
@@ -431,17 +471,32 @@ def crunch_artifacts(
                     logfunc('Error was {}'.format(str(ex)))
                     continue  # cannot do work
             try:
-                artifact_data = plugin.method(files_found, category_folder, seeker, wrap_text, time_offset)
+                plugin.method(files_found, category_folder, seeker, wrap_text, time_offset)
+                if plugin.name == 'logarchive':
+                    lava_db_path = os.path.join(out_params.report_folder_base, '_lava_artifacts.db')
+                    if does_table_exist_in_db(lava_db_path, 'logarchive'):
+                        loader["logarchive_artifacts"].method([lava_db_path], category_folder, seeker, wrap_text, time_offset)
+                    if does_table_exist_in_db(lava_db_path, 'logarchive_artifacts'):
+                        unifed_logs_artifacts = []
+                        unifed_logs_artifacts = [plugin.name for plugin in loader.plugins
+                                                 if plugin.module_name=='logarchive'
+                                                 and plugin.name != 'logarchive'
+                                                 and plugin.name != 'logarchive_artifacts']
+                        for unifed_log_artifact in unifed_logs_artifacts:
+                            loader[unifed_log_artifact].method([lava_db_path], category_folder, seeker, wrap_text, time_offset)
             except Exception as ex:
                 logfunc('Reading {} artifact had errors!'.format(plugin.name))
                 logfunc('Error was {}'.format(str(ex)))
                 logfunc('Exception Traceback: {}'.format(traceback.format_exc()))
                 continue  # nope
-
+        else:
+            logfunc(f"No file found")
         logfunc('{} [{}] artifact completed'.format(plugin.name, plugin.module_name))
     log.close()
 
     write_device_info()
+    if lava_only:
+        write_lava_only_log()
     logfunc('')
     logfunc('Processes completed.')
     end = process_time()
@@ -462,7 +517,7 @@ def crunch_artifacts(
         if input_path.startswith('\\\\?\\'):
             input_path = input_path[4:]
     
-    report.generate_report(out_params.report_folder_base, run_time_secs, run_time_HMS, extracttype, input_path, casedata, profile_filename, icons)
+    report.generate_report(out_params.report_folder_base, run_time_secs, run_time_HMS, extracttype, input_path, casedata, profile_filename, icons, lava_only)
     logfunc('Report generation Completed.')
     logfunc('')
     logfunc(f'Report location: {out_params.report_folder_base}')

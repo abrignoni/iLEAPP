@@ -1,0 +1,90 @@
+{
+  "josh_ios15_ffs": {
+    "description": "",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "/Users/jameshabben/Documents/phone-images/Josh/iOS_15_Public_Image.tar.gz",
+      "os": "macOS-15.0-x86_64-i386-64bit",
+      "timestamp": "2025-04-30T07:44:25.544184",
+      "last_commit": {
+        "hash": "6b9d2ec6483c4d08fb2b0d4bbbc40bb161a013b0",
+        "author_name": "Kevin - Stark 4N6",
+        "author_email": "48143894+stark4n6@users.noreply.github.com",
+        "date": "2025-02-05T11:36:45-05:00",
+        "message": "Minor Formatting and R/O fixes"
+      }
+    },
+    "artifacts": {
+      "telegramMessages": {
+        "search_patterns": [
+          "*/telegram-data/account-*/postbox/db/db_sqlite*",
+          "*/telegram-data/account-*/postbox/media/**"
+        ],
+        "file_count": 2006,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "image_name": "josh_ios15_ffs"
+  },
+  "mvs_ios_2023": {
+    "description": "",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "/Users/jameshabben/Documents/phone-images/magnet/00008101-0010541A1130001E_files_full-001.zip",
+      "os": "macOS-15.0-x86_64-i386-64bit",
+      "timestamp": "2025-06-21T12:18:40.816835",
+      "last_commit": {
+        "hash": "590f793291dea537437ea9828a2d552564a971ce",
+        "author_name": "James Habben",
+        "author_email": "james@wmif.net",
+        "date": "2025-05-20T08:19:51-07:00",
+        "message": "Update telegramMesssages.py"
+      }
+    },
+    "artifacts": {
+      "telegramMessages": {
+        "search_patterns": [
+          "*/telegram-data/account-*/postbox/db/db_sqlite*",
+          "*/telegram-data/account-*/postbox/media/**"
+        ],
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      }
+    },
+    "image_name": "mvs_ios_2023",
+    "note": "No responsive files found for any artifacts"
+  },
+  "belkasoft_ctf6_ios_device1": {
+    "description": "",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "/Users/jameshabben/Documents/phone-images/belkasoft/BelkaCTF_6_CASE240405_D201AP.tar",
+      "os": "macOS-15.0-x86_64-i386-64bit",
+      "timestamp": "2025-06-21T12:19:03.578058",
+      "last_commit": {
+        "hash": "590f793291dea537437ea9828a2d552564a971ce",
+        "author_name": "James Habben",
+        "author_email": "james@wmif.net",
+        "date": "2025-05-20T08:19:51-07:00",
+        "message": "Update telegramMesssages.py"
+      }
+    },
+    "artifacts": {
+      "telegramMessages": {
+        "search_patterns": [
+          "*/telegram-data/account-*/postbox/db/db_sqlite*",
+          "*/telegram-data/account-*/postbox/media/**"
+        ],
+        "file_count": 1243,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "image_name": "belkasoft_ctf6_ios_device1"
+  }
+}

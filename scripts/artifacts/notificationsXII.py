@@ -84,23 +84,24 @@ def get_notificationsXII(files_found, report_folder, seeker, wrap_text, timezone
             elif "AttachmentsList" in file_name:
                 pass  # future development
 
-    description = 'iOS > 12 Notifications'
-    report = ArtifactHtmlReport('iOS Notificatons')
-    report.start_artifact_report(report_folder, 'iOS Notifications', description)
-    report.add_script()
-    data_headers = ('Creation Time', 'Bundle', 'Title[Subtitle]', 'Message', 'Other Details')
-    report.write_artifact_data_table(data_headers, data_list, filepath)
-    report.end_artifact_report()
+    if data_list:
+        description = 'iOS > 12 Notifications'
+        report = ArtifactHtmlReport('iOS Notificatons')
+        report.start_artifact_report(report_folder, 'iOS Notifications', description)
+        report.add_script()
+        data_headers = ('Creation Time', 'Bundle', 'Title[Subtitle]', 'Message', 'Other Details')
+        report.write_artifact_data_table(data_headers, data_list, filepath)
+        report.end_artifact_report()
 
-    logfunc("Total notifications processed:" + str(len(data_list)))
-    #logfunc("Total exported bplists from notifications:" + str(exportedbplistcount))
-    
-    tsvname = 'Notifications'
-    tsv(report_folder, data_headers, data_list, tsvname)
+        logfunc("Total notifications processed:" + str(len(data_list)))
+        #logfunc("Total exported bplists from notifications:" + str(exportedbplistcount))
+        
+        tsvname = 'Notifications'
+        tsv(report_folder, data_headers, data_list, tsvname)
 
-    tlactivity = 'Notifications'
-    timeline(report_folder, tlactivity, data_list, data_headers)
-    if len(data_list) == 0:
+        tlactivity = 'Notifications'
+        timeline(report_folder, tlactivity, data_list, data_headers)
+    else:
         logfunc("No notifications found.")
 
 __artifacts__ = {

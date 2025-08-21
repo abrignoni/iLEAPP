@@ -1,6 +1,6 @@
 # Guide: Adding a New Image to the Manifest
 
-This guide outlines the process of adding a new test image to the LEAPP project's image manifest. The manifest is used to track metadata about publicly available test images and facilitate test data creation.
+This guide outlines the process of adding a new test image to the LEAPP project's image manifest (`admin/image_manifest.json`). The manifest is used to track metadata about publicly available test images (which are typically too large to store in the repository) and allows the `make_test_data.py` script to locate these images on a contributor's local system to generate focused test case data. Accurate image metadata, especially `os_version`, is also helpful for creating targeted test cases for conditional module logic.
 
 ## Steps to Add a New Image
 
@@ -37,6 +37,7 @@ This guide outlines the process of adding a new test image to the LEAPP project'
   },
   "image_info": {
     "creation_date": "YYYY-MM-DD",
+    "os_name": "iPhone OS",
     "os_version": "iOS X.X.X",
     "device_model": "iPhone Model (if known)",
     "extraction_method": "Full Filesystem / Logical / etc.",

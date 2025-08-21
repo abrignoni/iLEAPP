@@ -661,7 +661,7 @@ def get_uber_client(files_found, report_folder, seeker, wrap_text, timezone_offs
         source_files = seeker.search(f'*/{identifier}/Library/Application Support/PersistentStorage/Store/PaymentFoundation.PaymentStreamModelKey/profiles',
                                      return_on_first_hit=True)
         if bool(source_files) and len(source_files) > 0:
-            get_payment_profiles(source_files[0], report_folder, timezone_offset)
+            get_payment_profiles(source_files, report_folder, timezone_offset)
 
         # */Documents/database.db or */Documents/ur_message.db
         source_files = seeker.search(f'*/{identifier}/Documents/*.db', return_on_first_hit=False)
@@ -696,4 +696,4 @@ def get_uber_client(files_found, report_folder, seeker, wrap_text, timezone_offs
         source_files = seeker.search(f'*/{identifier}/Library/Application Support/com.ubercab.UberClient/__METADATA/*.ldb', 
                                      return_on_first_hit=True)
         if bool(source_files) and len(source_files) > 0:
-            parse_leveldb(os.path.dirname(source_files[0]), report_folder, timezone_offset)
+            parse_leveldb(os.path.dirname(source_files), report_folder, timezone_offset)

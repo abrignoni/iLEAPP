@@ -13,18 +13,17 @@ __artifacts_v2__ = {
     }
 }
 
-import scripts.artifacts.artGlobals
 import sqlite3
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, open_sqlite_db_readonly
+from scripts.ilapfuncs import logfunc, tsv, open_sqlite_db_readonly, iOS
 
 def get_line(files_found, report_folder, seeker, wrap_text, timezone_offset):
     
     for file_found in files_found:
         file_found = str(file_found)
         
-        iOSversion = scripts.artifacts.artGlobals.versionf
+        iOSversion = iOS.get_version()
         if version.parse(iOSversion) < version.parse('15'):
             logfunc('Line parsing has not been tested on iOS version ' + iOSversion)
             
