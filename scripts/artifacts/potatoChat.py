@@ -53,11 +53,10 @@ __artifacts_v2__ = {
 
 import datetime
 import struct
-import plistlib
 import json
 from pathlib import Path
 from scripts.ilapfuncs import artifact_processor, \
-    get_file_path, get_sqlite_db_records, attach_sqlite_db_readonly, \
+    get_file_path, get_sqlite_db_records, \
     check_in_media, get_plist_content
 
 def extract_attachment_message(media_blob):
@@ -261,13 +260,13 @@ def potatochat_chats(files_found, report_folder, seeker, wrap_text, timezone_off
                         dur_b = blob[32:35]
                         dur_sec = int.from_bytes(dur_b, byteorder="little")
                         if blob[16] in (0x01, 0x23):
-                            type = "Voice "
+                            c_type = "Voice "
                         elif blob[16] in (0x05, 0x27):
-                            type = "Video "
+                            c_type = "Video "
                         else:
-                            type = ""
+                            C_type = ""
                         c_cid = next((rec for rec in u_cid_records if rec["uid"] == c_uid), None)
-                        message = f"{type}Call - Duration: {dur_sec} Seconds"
+                        message = f"{c_type}Call - Duration: {dur_sec} Seconds"
                 except:
                     pass
                 if b"TGDocumentAttributeFilename" in blob:
@@ -467,7 +466,7 @@ def potatochat_group_chats(files_found, report_folder, seeker, wrap_text, timezo
     u_cid_records = get_sqlite_db_records(source_path, user_cid_query)
     db_records = get_sqlite_db_records(source_path, chat_query)
     for record in db_records:
-        message_id = record['mid']
+        #message_id = record['mid']
         blob_data = record['data']
         blob_length = len(blob_data)
         working_length = 1
@@ -534,7 +533,7 @@ def potatochat_group_chats(files_found, report_folder, seeker, wrap_text, timezo
                 else:
                     user_name = None
             elif ASCII_title == 'i':
-                mid = int.from_bytes(payload_data, byteorder='little')
+                message_id = int.from_bytes(payload_data, byteorder='little')
             elif ASCII_title == 'out':
                 outgoing = int.from_bytes(payload_data, byteorder='little')
             elif ASCII_title == "md":
