@@ -361,7 +361,7 @@ def crunch_artifacts(
             seeker = FileSeekerZip(input_path, out_params.data_folder)
 
         elif extracttype == 'itunes':
-            seeker = FileSeekerItunes(input_path, out_params.temp_folder, passcode)
+            seeker = FileSeekerItunes(input_path, out_params.data_folder, passcode)
 
         else:
             logfunc('Error on argument -o (input type)')
