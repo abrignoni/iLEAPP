@@ -518,7 +518,7 @@ def potatochat_group_chats(files_found, _report_folder, _seeker, _wrap_text, _ti
                 try:
                     group = next((rec for rec in groups if rec.get("groupId") == group_ID), None)
                     group_name = group["title"]
-                except Exception:
+                except (TypeError, KeyError):
                     group_name = None
             elif ASCII_title == "fi":
                 user_ID = int.from_bytes(payload_data, byteorder='little')
