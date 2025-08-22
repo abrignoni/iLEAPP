@@ -61,6 +61,7 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | logarchive |
 | nsVault |
 | payByPhone |
+| potatoChat |
 | sms |
 | splitwise |
 | storeUser |
