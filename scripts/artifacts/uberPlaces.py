@@ -55,8 +55,10 @@ def get_uberPlaces(files_found, report_folder, seeker, wrap_text, timezone_offse
                     if row[1] is None:
                         last_used = ''
                     else:
-                        last_used = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[1]),timezone_offset)
-                    data_list.append((timestamp,row[1],last_used,row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12]))
+                        cleaned_timestamp = str(row[1]).replace('T', ' ')
+                        cleaned_timestamp = cleaned_timestamp.replace('.000Z', '')
+                        last_used = convert_utc_human_to_timezone(convert_ts_human_to_utc(cleaned_timestamp),timezone_offset)
+                    data_list.append((timestamp,last_used,row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12]))
             db.close()
                     
         else:
