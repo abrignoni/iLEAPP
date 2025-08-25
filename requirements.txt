@@ -8,7 +8,7 @@ mmh3
 mdplistlib
 nska-deserialize>=1.3.1
 nska_deserialize
-numpy
+numpy==1.26.4
 packaging==24.1
 pandas
 pathlib2==2.3.5
