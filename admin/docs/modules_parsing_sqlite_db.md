@@ -53,6 +53,7 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | appleWalletTransactions |
 | booking |
 | callHistory |
+| cashAppB |
 | discordChats |
 | discord_a |
 | filesApp |
@@ -61,6 +62,7 @@ This document outlines iLEAPP modules parsing SQLite databases using the new `ge
 | logarchive |
 | nsVault |
 | payByPhone |
+| potatoChat |
 | sms |
 | splitwise |
 | storeUser |
