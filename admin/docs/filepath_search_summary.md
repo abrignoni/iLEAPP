@@ -10,53 +10,80 @@ This script reads in all of the artifact modules to extract the provided search 
 
 | Module | Artifact | belkasoft-ctf6-ios-dev1 | josh-hickman-ios15 | josh-hickman-ios17 | magnet-mvs-2023-ios |
 |---|---|---|---|---|---|
+| AMDSQLiteDB | AMDSQLiteDB_StorageCapacity | 1 | 0 | 3 | 1 |
+| AMDSQLiteDB | AMDSQLiteDB_UsageEvents | 4 | 3 | 6 | 4 |
 | AWESearch | AWESearch | 0 | 0 | 0 | 0 |
-| AllTrails | alltrails | 0 | 3 | 3 | 0 |
+| Airbnb | get_airbnb_messages | 0 | 0 | 0 | 0 |
+| BeReal | bereal_accounts | 0 | 1 | 1 | 0 |
+| BeReal | bereal_blocked_users | 0 | 1 | 1 | 0 |
+| BeReal | bereal_chat_list | 0 | 0 | 3 | 0 |
+| BeReal | bereal_comments | 0 | 1 | 1 | 0 |
+| BeReal | bereal_contacts | 0 | 1 | 1 | 0 |
+| BeReal | bereal_friends | 0 | 3 | 3 | 0 |
+| BeReal | bereal_messages | 0 | 0 | 3 | 0 |
+| BeReal | bereal_persons | 0 | 0 | 0 | 0 |
+| BeReal | bereal_pinned_memories | 0 | 0 | 1 | 0 |
+| BeReal | bereal_posts | 0 | 1 | 1 | 0 |
+| BeReal | bereal_preferences | 0 | 1 | 1 | 0 |
+| BeReal | bereal_realmojis | 0 | 1 | 1 | 0 |
+| ConnectedDeviceInformation | ConnectedDeviceInformation_ConsolidatedConnectedDeviceHistory | 3 | 3 | 3 | 3 |
+| ConnectedDeviceInformation | ConnectedDeviceInformation_CurrentDeviceInfo | 3 | 3 | 3 | 3 |
+| ConnectedDeviceInformation | ConnectedDeviceInformation_DeviceHistory | 3 | 3 | 3 | 3 |
 | DataUsage | get_DataUsage | 3 | 3 | 3 | 3 |
-| FacebookMessenger | facebookmessenger | 0 | 5 | 13 | 0 |
 | FitnessWorkoutsLocationData | Fitness | 3 | 3 | 3 | 3 |
-| Health | health | 6 | 6 | 6 | 6 |
-| LinkedIn | LinkedInAccounts | 0 | 0 | 0 | 0 |
-| LinkedIn | LinkedInConversations | 0 | 0 | 0 | 0 |
-| LinkedIn | LinkedInMessages | 0 | 0 | 0 | 0 |
+| LinkedIn | get_linkedin_account | 0 | 0 | 0 | 0 |
+| LinkedIn | get_linkedin_conversations | 0 | 0 | 0 | 0 |
+| LinkedIn | get_linkedin_messages | 0 | 0 | 0 | 0 |
 | Oops | Oops | 0 | 0 | 0 | 0 |
-| Ph100UFEDdevcievaluesplist | Ph100-UFED-device-values-Plist | 0 | 0 | 0 | 0 |
+| Ph100UFEDdevcievaluesplist | Ph100UFEDdevicevaluesPlist | 0 | 0 | 0 | 0 |
 | Ph10AssetParsedEmbeddedFiles | Ph10-1-Assets have embedded files-PhDaPsql | 3 | 3 | 3 | 3 |
 | Ph10AssetParsedEmbeddedFiles | Ph10-2-Assets have embedded files-SyndPL | 3 | 3 | 3 | 3 |
-| Ph11KwrdsCapsTitlesDescripsBasicAssetData | Ph11-KwrdsCapsTitlesDescripsLikesBasicAsstData-PhDaPsql | 3 | 3 | 3 | 3 |
-| Ph15PeopleandDetFacesNAD | Ph15-1-People & Faces NAD-PhDaPsql | 3 | 3 | 3 | 3 |
-| Ph15PeopleandDetFacesNAD | Ph15-2-People & Faces NAD-SyndPL | 3 | 3 | 3 | 3 |
-| Ph16AssetPeopleandDetFaces | Ph16-1-People & Faces Asset Data-PhDaPsql | 3 | 3 | 3 | 3 |
-| Ph16AssetPeopleandDetFaces | Ph16-2-People & Faces Asset Data-SyndPL | 3 | 3 | 3 | 3 |
-| Ph1BasicAssetData | Ph1-1-Asset Basic Data-PhDaPsql | 3 | 3 | 3 | 3 |
-| Ph1BasicAssetData | Ph1-2-Asset Basic Data-SyndPL | 3 | 3 | 3 | 3 |
-| Ph20AlbumsNAD | Ph20-1-Album Records with NAD-PhDaPsql | 3 | 3 | 3 | 3 |
-| Ph20AlbumsNAD | Ph20-2-Album Records with NAD-SyndPL | 3 | 3 | 3 | 3 |
-| Ph21AlbumsNonSharedNAD | Ph21-Non-Shared Album Records with NAD-PhDaPsql | 3 | 3 | 3 | 3 |
-| Ph22AssetsInNonSharedAlbums | Ph22-Assets in Non-Shared Albums-PhDaPsql | 3 | 3 | 3 | 3 |
-| Ph23AlbumsSharedNAD | Ph23-Shared Album Records & Invites with NAD-PhDaPsql | 3 | 3 | 3 | 3 |
-| Ph24AssetsInSharedAlbums | Ph24-Asset in Shared Albums & Invites-PhDaPsql | 3 | 3 | 3 | 3 |
-| Ph25SWYConvAlbumsNAD | Ph25-1-SWY Conversation Records with NAD-PhDaPsql | 3 | 3 | 3 | 3 |
-| Ph25SWYConvAlbumsNAD | Ph25-2-SWY Conversation Records with NAD-SyndPL | 3 | 3 | 3 | 3 |
-| Ph26SyndicationPLAssets | Ph26-1-Syndication ID Assets-PhDaPsql | 3 | 3 | 3 | 3 |
-| Ph26SyndicationPLAssets | Ph26-2-Syndication PL Assets-SyndPL | 3 | 3 | 3 | 3 |
-| Ph2BasicAssetandAlbumData | Ph2-1-Asset Basic & GenAlbum Data-PhDaPsql | 3 | 3 | 3 | 3 |
-| Ph2BasicAssetandAlbumData | Ph2-2-Asset Basic & Conversation Data-SyndPL | 3 | 3 | 3 | 3 |
-| Ph30iCloudShareMethodsNAD | Ph30-iCloud Shared Methods with NAD-PhDaPsql | 3 | 3 | 3 | 3 |
-| Ph31iCloudSharePhotoLibraryNAD | Ph31-iCloud SPL with Participants with NAD-PhDaPsql | 3 | 3 | 3 | 3 |
-| Ph32AssetsIniCldSPLwContrib | Ph32-iCloud SPL Assets with Contributor-PhDaPsql | 3 | 3 | 3 | 3 |
-| Ph33AssetsIniCldSPLfromOtherContrib | Ph33-iCld SPL Assets from other contrib-PhDaPsql | 3 | 3 | 3 | 3 |
-| Ph34iCloudSharedLinksNAD | Ph34-iCloud Shared Link Records with NAD-PhDaPsql | 3 | 3 | 3 | 3 |
-| Ph35iCloudSharedLinkAssets | Ph35-iCloud Shared Link Assets-PhDaPsql | 3 | 3 | 3 | 3 |
-| Ph3TrashedRemovedfromCamRoll | Ph3-1-Recently Deleted Trashed-PhDaPsql | 3 | 3 | 3 | 3 |
-| Ph3TrashedRemovedfromCamRoll | Ph3-2-Removed from Camera Roll-SyndPL | 3 | 3 | 3 | 3 |
-| Ph4Hidden | Ph4-Hidden-PhDaPsql | 3 | 3 | 3 | 3 |
-| Ph50AssetIntResouData | Ph50-1-Asset_IntResou-PhDaPsql | 3 | 3 | 3 | 3 |
-| Ph50AssetIntResouData | Ph50-2-Asset_IntResou-SyndPL | 3 | 3 | 3 | 3 |
-| Ph51PossOptimizedAssetsIntResouData | Ph51-Possible_Optimized_Assets_IntResou-PhDaPsql | 3 | 3 | 3 | 3 |
-| Ph5HasLocations | Ph5-1-Assets have valid locations-PhDaPsql | 3 | 3 | 3 | 3 |
-| Ph5HasLocations | Ph5-2-Assets have valid locations-SyndPL | 3 | 3 | 3 | 3 |
-| Ph6ViewedPlayData | Ph6-View and Play Data-PhDaPsql | 3 | 3 | 3 | 3 |
+| Ph11KwrdsCapsTitlesDescripsBasicAssetData | Ph11_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql | 3 | 3 | 3 | 3 |
+| Ph11KwrdsCapsTitlesDescripsBasicAssetData | Ph11_3KwrdsCapsTitlesDescripsLikesBasicAsstDataGenPlayPsql | 0 | 0 | 0 | 0 |
+| Ph15PeopleandDetFacesNAD | Ph15_1PeopleFacesNADPhDaPsql | 3 | 3 | 3 | 3 |
+| Ph15PeopleandDetFacesNAD | Ph15_2PeopleFacesNADSyndPL | 3 | 3 | 3 | 3 |
+| Ph16AssetPeopleandDetFaces | Ph16_1PeopleFacesAssetDataPhDaPsql | 3 | 3 | 3 | 3 |
+| Ph16AssetPeopleandDetFaces | Ph16_2PeopleFacesAssetDataSyndPL | 3 | 3 | 3 | 3 |
+| Ph17GenAIDetected | Ph17_1GenAIDetectedPhDaPsql | 3 | 3 | 3 | 3 |
+| Ph17GenAIDetected | Ph17_2GenAIDetectedSyndPL | 3 | 3 | 3 | 3 |
+| Ph17GenAIDetected | Ph17_3GenAIDetectedGenPlayPsql | 0 | 0 | 0 | 0 |
+| Ph1BasicAssetData | Ph1_1AssetBasicDataPhDaPsql | 3 | 3 | 3 | 3 |
+| Ph1BasicAssetData | Ph1_2AssetBasicDataSyndPL | 3 | 3 | 3 | 3 |
+| Ph1BasicAssetData | Ph1_3AssetBasicDataGenPlayPsql | 0 | 0 | 0 | 0 |
+| Ph20AlbumsNAD | Ph20_1AlbumRecordswithNADPhDaPsql | 3 | 3 | 3 | 3 |
+| Ph20AlbumsNAD | Ph20_2AlbumRecordswithNADSyndPL | 3 | 3 | 3 | 3 |
+| Ph20AlbumsNAD | Ph20_3AlbumRecordswithNADGenPlayPsql | 0 | 0 | 0 | 0 |
+| Ph21AlbumsNonSharedNAD | Ph21NonSharedAlbumRecordswithNADPhDaPsql | 3 | 3 | 3 | 3 |
+| Ph22AssetsInNonSharedAlbums | Ph22AssetsinNonSharedAlbumsPhDaPsql | 3 | 3 | 3 | 3 |
+| Ph23AlbumsSharedNAD | Ph23SharedAlbumRecordsInviteswithNADPhDaPsql | 3 | 3 | 3 | 3 |
+| Ph24AssetsInSharedAlbums | Ph24AssetinSharedAlbumsInvitesPhDaPsql | 3 | 3 | 3 | 3 |
+| Ph25SWYConvAlbumsNAD | Ph25_1SWYConversationRecordswithNADPhDaPsql | 3 | 3 | 3 | 3 |
+| Ph25SWYConvAlbumsNAD | Ph25_2SWYConversationRecordswithNADSyndPL | 3 | 3 | 3 | 3 |
+| Ph26SyndicationPLAssets | Ph26_1SyndicationIDAssetsPhDaPsql | 3 | 3 | 3 | 3 |
+| Ph26SyndicationPLAssets | Ph26_2SyndicationPLAssetsSyndPL | 3 | 3 | 3 | 3 |
+| Ph2BasicAssetandAlbumData | Ph2_1AssetBasicGenAlbumDataPhDaPsql | 3 | 3 | 3 | 3 |
+| Ph2BasicAssetandAlbumData | Ph2_2AssetBasicConversationDataSyndPL | 3 | 3 | 3 | 3 |
+| Ph2BasicAssetandAlbumData | Ph2_3AssetBasicGenAlbumGenPlayPsql | 0 | 0 | 0 | 0 |
+| Ph30iCloudShareMethodsNAD | Ph30iCloudSharedMethodswithNADPhDaPsql | 3 | 3 | 3 | 3 |
+| Ph31iCloudSharePhotoLibraryNAD | Ph31iCloudSPLwithParticipantswithNADPhDaPsql | 3 | 3 | 3 | 3 |
+| Ph32AssetsIniCldSPLwContrib | Ph32iCloudSPLAssetswithContributorPhDaPsql | 3 | 3 | 3 | 3 |
+| Ph33AssetsIniCldSPLfromOtherContrib | Ph33iCldSPLAssetsfromothercontribPhDaPsql | 3 | 3 | 3 | 3 |
+| Ph34iCloudSharedLinksNAD | Ph34iCloudSharedLinkRecordswithNADPhDaPsql | 3 | 3 | 3 | 3 |
+| Ph35iCloudSharedLinkAssets | Ph35iCloudSharedLinkAssetsPhDaPsql | 3 | 3 | 3 | 3 |
+| Ph3TrashedRemovedfromCamRoll | Ph3_1TrashedRecentlyDeletedPhDaPsql | 3 | 3 | 3 | 3 |
+| Ph3TrashedRemovedfromCamRoll | Ph3_2RemovedfromCameraRollSyndPL | 3 | 3 | 3 | 3 |
+| Ph3TrashedRemovedfromCamRoll | Ph3_3TrashedRecentlyDeletedGenPlayPsql | 0 | 0 | 0 | 0 |
+| Ph4Hidden | Ph4_1HiddenPhDaPsql | 3 | 3 | 3 | 3 |
+| Ph4Hidden | Ph4_3HiddenGenPlayPsql | 0 | 0 | 0 | 0 |
+| Ph50AssetIntResouData | Ph50_1AssetIntResouPhDaPsql | 3 | 3 | 3 | 3 |
+| Ph50AssetIntResouData | Ph50_2AssetIntResouSyndPL | 3 | 3 | 3 | 3 |
+| Ph50AssetIntResouData | Ph50_3AssetIntResouGenPlayPsql | 0 | 0 | 0 | 0 |
+| Ph51PossOptimizedAssetsIntResouData | Ph51PossibleOptimizedAssetsIntResouPhDaPsql | 3 | 3 | 3 | 3 |
+| Ph5HasLocations | Ph5_1AssetshavevalidlocationsPhDaPsql | 3 | 3 | 3 | 3 |
+| Ph5HasLocations | Ph5_2AssetshavevalidlocationsSyndPL | 3 | 3 | 3 | 3 |
+| Ph5HasLocations | Ph5_3AssetshavevalidlocationsGenPlayPsql | 0 | 0 | 0 | 0 |
+| Ph6ViewedPlayData | Ph6_1ViewandPlayDataPhDaPsql | 3 | 3 | 3 | 3 |
+| Ph6ViewedPlayData | Ph6_3ViewandPlayDataGenPlayPsql | 0 | 0 | 0 | 0 |
 | Ph70UserAdjustDateTimezoneLocation | Ph70-1-Possible_Adjust_Date-Timezone-Location-PhDaPsql | 3 | 3 | 3 | 3 |
 | Ph70UserAdjustDateTimezoneLocation | Ph71-1-Possible_Adjust_Date-Timezone-PhDaPsql | 3 | 3 | 3 | 3 |
 | Ph70UserAdjustDateTimezoneLocation | Ph72-1-Possible_Adjust_Date-Location-PhDaPsql | 3 | 3 | 3 | 3 |
@@ -64,67 +91,72 @@ This script reads in all of the artifact modules to extract the provided search 
 | Ph70UserAdjustDateTimezoneLocation | Ph74-1-Possible_Adjust_Timezone-Location-PhDaPsql | 3 | 3 | 3 | 3 |
 | Ph70UserAdjustDateTimezoneLocation | Ph75-1-Possible_Adjust_Timezone-PhDaPsql | 3 | 3 | 3 | 3 |
 | Ph70UserAdjustDateTimezoneLocation | Ph76-1-Possible_Adjust_Location-PhDaPsql | 3 | 3 | 3 | 3 |
-| Ph7Favorite | Ph7-Favorite-PhDaPsql | 3 | 3 | 3 | 3 |
-| Ph80comappleMobileSlideShowPlist | Ph80-Com-Apple-MobileSlideshow-Plist | 1 | 1 | 1 | 1 |
-| Ph81comappleCameraPlist | Ph81-Com-Apple-Camera-Plist | 1 | 1 | 1 | 1 |
-| Ph82comappleMediaAnalysisDPlist | Ph82-Com-Apple-MediaAnalysisD-Plist | 1 | 1 | 1 | 1 |
-| Ph83comapplePurpleBuddyPlist | Ph83-Com-Apple-PurpleBuddy-Plist | 1 | 1 | 1 | 1 |
-| Ph84CameraSmartSharingMetadataPlist | Ph84-Camera-Smart-Sharing-Metadata-Plist | 0 | 0 | 0 | 0 |
-| Ph85acntsdcloudServiceEnableLogplist | Ph85-accountsd-cloud-Service-Enable-Log-Plist | 1 | 1 | 1 | 1 |
-| Ph86astsdcloudServiceEnableLogplist | Ph86-assetsd-cloud-Service-Enable-Log-Plist | 1 | 1 | 1 | 1 |
-| Ph8HasAdjustment | Ph8-Has Adjustment-PhDaPsql | 3 | 3 | 3 | 3 |
-| Ph94Ios14REFforAssetAnalysis | Ph94-1-iOS14_Ref_for_Asset_Analysis-PhDaPsql | 3 | 3 | 3 | 3 |
-| Ph94Ios14REFforAssetAnalysis | Ph94-2-iOS14_Ref_for_Asset_Analysis-SyndPL | 3 | 3 | 3 | 3 |
-| Ph95iOS15REFforAssetAnalysis | Ph95-1-iOS15_Ref_for_Asset_Analysis-PhDaPsql | 3 | 3 | 3 | 3 |
-| Ph95iOS15REFforAssetAnalysis | Ph95-2-iOS15_Ref_for_Asset_Analysis-SyndPL | 3 | 3 | 3 | 3 |
-| Ph96iOS16REFforAssetAnalysis | Ph96-1-iOS16_Ref_for_Asset_Analysis-PhDaPsql | 3 | 3 | 3 | 3 |
-| Ph96iOS16REFforAssetAnalysis | Ph96-2-iOS16_Ref_for_Asset_Analysis-SyndPL | 3 | 3 | 3 | 3 |
-| Ph97iOS17REFforAssetAnalysis | Ph97-1-iOS17_Ref_for_Asset_Analysis-PhDaPsql | 3 | 3 | 3 | 3 |
-| Ph97iOS17REFforAssetAnalysis | Ph97-2-iOS17_Ref_for_Asset_Analysis-SyndPL | 3 | 3 | 3 | 3 |
-| Ph98iOS18REFforAssetAnalysis | Ph98-1-iOS18_Ref_for_Asset_Analysis-PhDaPsql | 3 | 3 | 3 | 3 |
-| Ph98iOS18REFforAssetAnalysis | Ph98-2-iOS18_Ref_for_Asset_Analysis-SyndPL | 3 | 3 | 3 | 3 |
-| Ph99SystemVersionPlist | Ph99-System-Version-Plist | 0 | 1 | 1 | 1 |
-| Ph9BurstAvalanche | Ph9-Burst Avalanche-PhDaPsql | 3 | 3 | 3 | 3 |
+| Ph7Favorite | Ph7_1FavoritePhDaPsql | 3 | 3 | 3 | 3 |
+| Ph7Favorite | Ph7_3FavoriteGenPlayPsql | 0 | 0 | 0 | 0 |
+| Ph80comappleMobileSlideShowPlist | Ph80ComAppleMobileSlideshowPlist | 1 | 1 | 1 | 1 |
+| Ph81comappleCameraPlist | Ph81ComAppleCameraPlist | 1 | 1 | 1 | 1 |
+| Ph82comappleMediaAnalysisDPlist | Ph82ComAppleMediaAnalysisDPlist | 1 | 1 | 1 | 1 |
+| Ph83comapplePurpleBuddyPlist | Ph83ComApplePurpleBuddyPlist | 1 | 1 | 1 | 1 |
+| Ph84CameraSmartSharingMetadataPlist | Ph84CameraSmartSharingMetadataPlist | 0 | 0 | 0 | 0 |
+| Ph85acntsdcloudServiceEnableLogplist | Ph85accountsdcloudServiceEnableLogPlist | 1 | 1 | 1 | 1 |
+| Ph86astsdcloudServiceEnableLogplist | Ph86assetsdcloudServiceEnableLogPlist | 1 | 1 | 1 | 1 |
+| Ph8HasAdjustment | Ph8_1HasAdjustmentPhDaPsql | 3 | 3 | 3 | 3 |
+| Ph8HasAdjustment | Ph8_3HasAdjustmentGenPlayPsql | 0 | 0 | 0 | 0 |
+| Ph94Ios14REFforAssetAnalysis | Ph94_1iOS14RefforAssetAnalysisPhDaPsql | 3 | 3 | 3 | 3 |
+| Ph94Ios14REFforAssetAnalysis | Ph94_2iOS14RefforAssetAnalysisSyndPL | 3 | 3 | 3 | 3 |
+| Ph95iOS15REFforAssetAnalysis | Ph95_1iOS15RefforAssetAnalysisPhDaPsql | 3 | 3 | 3 | 3 |
+| Ph95iOS15REFforAssetAnalysis | Ph95_2iOS15RefforAssetAnalysisSyndPL | 3 | 3 | 3 | 3 |
+| Ph96iOS16REFforAssetAnalysis | Ph96_1iOS16RefforAssetAnalysisPhDaPsql | 3 | 3 | 3 | 3 |
+| Ph96iOS16REFforAssetAnalysis | Ph96_2iOS16RefforAssetAnalysisSyndPL | 3 | 3 | 3 | 3 |
+| Ph97iOS17REFforAssetAnalysis | Ph97_1iOS17RefforAssetAnalysisPhDaPsql | 3 | 3 | 3 | 3 |
+| Ph97iOS17REFforAssetAnalysis | Ph97_2iOS17RefforAssetAnalysisSyndPL | 3 | 3 | 3 | 3 |
+| Ph98iOS18REFforAssetAnalysis | Ph98_1iOS18RefforAssetAnalysisPhDaPsql | 3 | 3 | 3 | 3 |
+| Ph98iOS18REFforAssetAnalysis | Ph98_2iOS18RefforAssetAnalysisSyndPL | 3 | 3 | 3 | 3 |
+| Ph98iOS18REFforAssetAnalysis | Ph98_3iOS18RefforAssetAnalysisGenPlayPsql | 0 | 0 | 0 | 0 |
+| Ph9BurstAvalanche | Ph9_1BurstAvalanchePhDaPsql | 3 | 3 | 3 | 3 |
+| Ph9BurstAvalanche | Ph9_3BurstAvalancheGenPlayPsql | 0 | 0 | 0 | 0 |
 | SMSmissingROWIDs | SMS Missing ROWIDs | 3 | 3 | 3 | 3 |
 | SiriRemembers | Siri Remembers | 0 | 2 | 4 | 0 |
-| Splitwise | splitwise | 1 | 0 | 0 | 0 |
-| WatchSleepData | HealthSleepData | 3 | 3 | 3 | 3 |
-| WatchWornData | WatchWornData | 3 | 3 | 3 | 3 |
-| WithingsHealthMate | HealthMateAccounts | 0 | 0 | 0 | 0 |
-| WithingsHealthMate | HealthMateDailySummary | 0 | 0 | 0 | 0 |
-| WithingsHealthMate | HealthMateDevices | 0 | 0 | 0 | 0 |
-| WithingsHealthMate | HealthMateMeasurements | 0 | 0 | 0 | 0 |
-| WithingsHealthMate | HealthMateMessages | 0 | 0 | 0 | 0 |
-| WithingsHealthMate | HealthMateSleepTracking | 0 | 0 | 0 | 0 |
-| WithingsHealthMate | HealthMateTrackedActivities | 0 | 0 | 0 | 0 |
+| WithingsHealthMate | get_healthmate_accounts | 0 | 0 | 0 | 0 |
+| WithingsHealthMate | get_healthmate_daily_summary | 0 | 0 | 0 | 0 |
+| WithingsHealthMate | get_healthmate_devices | 0 | 0 | 0 | 0 |
+| WithingsHealthMate | get_healthmate_measurements | 0 | 0 | 0 | 0 |
+| WithingsHealthMate | get_healthmate_messages | 0 | 0 | 0 | 0 |
+| WithingsHealthMate | get_healthmate_sleep_tracking | 0 | 0 | 0 | 0 |
+| WithingsHealthMate | get_healthmate_tracked_activities | 0 | 0 | 0 | 0 |
 | ZangiChats | Zangi_Chats | 0 | 0 | 0 | 0 |
 | accountConfig | accountConfig | 1 | 1 | 1 | 1 |
 | accountData | accountData | 3 | 3 | 3 | 3 |
-| addressBook | addressbook | 6 | 6 | 6 | 6 |
-| advertisingID | get_adId | 1 | 1 | 1 | 1 |
-| airdropId | get_airdropId | 1 | 1 | 1 | 1 |
-| alarms | get_alarms | 1 | 1 | 1 | 1 |
-| appConduit | get_appConduit | 0 | 0 | 2 | 0 |
-| appGrouplisting | get_appGrouplisting | 591 | 741 | 950 | 685 |
+| addressBook | addressBook | 6 | 6 | 6 | 6 |
+| advertisingID | advertisingID | 1 | 1 | 1 | 1 |
+| airdropId | airdropId | 1 | 1 | 1 | 1 |
+| allTrails | allTrailsTrailDetails | 0 | 3 | 3 | 0 |
+| allTrails | allTrailsUserInfo | 0 | 3 | 3 | 0 |
+| appConduit | appConduit | 0 | 0 | 2 | 0 |
+| appGrouplisting | appGrouplisting | 591 | 741 | 950 | 685 |
 | appItunesmeta | get_appItunesmeta | 48 | 134 | 147 | 97 |
-| appSnapshots | applicationsnapshots | 347 | 636 | 657 | 472 |
-| appleLocationd | get_applelocationd | 1 | 1 | 1 | 1 |
+| appSnapshots | applicationSnapshots | 347 | 636 | 657 | 472 |
+| appleAlarms | alarms | 1 | 1 | 1 | 1 |
+| appleLocationd | appleLocationd | 1 | 1 | 1 | 1 |
 | appleMapsApplication | appleMapsApplication | 1 | 1 | 1 | 1 |
-| appleMapsGroup | applemapsgroup | 1 | 1 | 1 | 1 |
+| appleMapsGroup | appleMapsGroup | 1 | 1 | 1 | 1 |
 | appleMapsSearchHistory | applemapssearchhistory | 0 | 0 | 0 | 0 |
 | applePodcasts | get_applePodcasts | 0 | 0 | 3 | 0 |
+| appleStopwatch | stopwatch | 1 | 1 | 1 | 1 |
+| appleTimers | timer | 1 | 1 | 1 | 1 |
 | appleWalletCards | applewalletcards | 0 | 3 | 3 | 3 |
 | appleWalletPasses | get_appleWalletPasses | 0 | 1 | 4 | 1 |
-| appleWalletTransactions | applewallettransactions | 1 | 1 | 1 | 1 |
+| appleWalletTransactions | appleWalletTransactions | 1 | 1 | 1 | 1 |
 | appleWifiPlist | appleWifiBSSList | 1 | 1 | 1 | 1 |
 | appleWifiPlist | appleWifiKnownNetworks | 3 | 2 | 2 | 2 |
 | appleWifiPlist | appleWifiKnownNetworksTimes | 3 | 2 | 2 | 2 |
 | appleWifiPlist | appleWifiScannedPrivate | 1 | 1 | 1 | 1 |
+| appleWorldClock | worldclock | 1 | 1 | 1 | 1 |
 | applicationstate | applicationstate | 3 | 3 | 3 | 3 |
 | ashHistory | AshHistory | 0 | 0 | 0 | 0 |
 | atxDatastore | atxDatastore | 3 | 6 | 6 | 6 |
 | audiTripdata | auditrip | 0 | 0 | 0 | 0 |
-| backupSettings | get_backupSettings | 1 | 1 | 1 | 1 |
+| backupSettings | backupSettings | 1 | 1 | 1 | 1 |
 | biomeAirpMode | get_biomeAirpMode | 0 | 0 | 2 | 1 |
 | biomeAppinstall | get_biomeAppinstall | 2 | 0 | 4 | 2 |
 | biomeBacklight | get_biomeBacklight | 0 | 2 | 0 | 2 |
@@ -132,6 +164,7 @@ This script reads in all of the artifact modules to extract the provided search 
 | biomeBluetooth | get_biomeBluetooth | 0 | 0 | 2 | 0 |
 | biomeCarplayisconnected | get_biomeCarplayisconnected | 0 | 0 | 2 | 0 |
 | biomeDKInfocus | get_biomeDKInfocus | 2 | 0 | 2 | 2 |
+| biomeDKKeybag | get_biomeDKKeybag | 2 | 0 | 2 | 2 |
 | biomeDevWifi | get_biomeDevWifi | 2 | 0 | 2 | 2 |
 | biomeDevplugin | get_biomeDevplugin | 2 | 0 | 2 | 2 |
 | biomeHardware | get_biomeHardware | 2 | 0 | 2 | 2 |
@@ -146,31 +179,60 @@ This script reads in all of the artifact modules to extract the provided search 
 | biomeTextinputses | get_biomeTextinputses | 2 | 2 | 2 | 2 |
 | biomeUseractmeta | get_biomeUseractmeta | 2 | 2 | 0 | 2 |
 | biomeWifi | get_biomeWifi | 2 | 0 | 2 | 2 |
-| blockedContacts | get_blocked_contacts | 0 | 1 | 1 | 0 |
+| blockedContacts | blockedContacts | 0 | 1 | 1 | 0 |
 | bluetoothOther | get_bluetoothOtherLE | 3 | 3 | 3 | 3 |
 | bluetoothPairedLE | get_bluetoothPairedLE | 1 | 1 | 1 | 1 |
 | bluetoothPairedReg | get_bluetoothPairedReg | 0 | 1 | 1 | 0 |
-| booking | booking | 0 | 0 | 0 | 0 |
+| booking | booking_account | 0 | 0 | 0 | 0 |
+| booking | booking_booked | 0 | 0 | 0 | 0 |
+| booking | booking_flights_searched | 0 | 0 | 0 | 0 |
+| booking | booking_notifications | 0 | 0 | 0 | 0 |
+| booking | booking_payment_methods | 0 | 0 | 0 | 0 |
+| booking | booking_preferences | 0 | 0 | 0 | 0 |
+| booking | booking_recently_booked | 0 | 0 | 0 | 0 |
+| booking | booking_recently_searched | 0 | 0 | 0 | 0 |
+| booking | booking_stored_destinations | 0 | 0 | 0 | 0 |
+| booking | booking_viewed | 0 | 0 | 0 | 0 |
+| booking | booking_wish_lists | 0 | 0 | 0 | 0 |
 | bumble | bumble | 0 | 0 | 0 | 0 |
-| burner | burnerPhoenix | 164 | 182 | 266 | 185 |
-| burnerCache | burnerCache | 164 | 182 | 266 | 185 |
+| burner | get_burner_accounts | 0 | 3 | 3 | 0 |
+| burner | get_burner_contacts | 0 | 3 | 3 | 0 |
+| burner | get_burner_messages | 164 | 182 | 266 | 185 |
+| burner | get_burner_numbers | 0 | 3 | 3 | 0 |
+| burnerCache | burnerCache_accounts | 0 | 3 | 3 | 0 |
+| burnerCache | burnerCache_contacts | 0 | 3 | 3 | 0 |
+| burnerCache | burnerCache_messages | 0 | 9 | 12 | 0 |
+| burnerCache | burnerCache_numbers | 0 | 3 | 3 | 0 |
+| burnerCache | burnerCache_preferences | 0 | 1 | 1 | 0 |
 | cacheRoutesGmap | cacheroutesgmap | 0 | 0 | 1 | 0 |
 | cachev0 | cachev0 | 0 | 2 | 3 | 7 |
-| calendarAll | calendar | 1 | 1 | 1 | 1 |
-| callHistory | get_callHistory | 3 | 3 | 3 | 3 |
-| carCD | get_carCD | 1 | 1 | 1 | 1 |
+| calendarAll | calendarBirthdays | 1 | 1 | 1 | 1 |
+| calendarAll | calendarEvents | 1 | 1 | 1 | 1 |
+| calendarAll | calendarList | 1 | 1 | 1 | 1 |
+| callHistory | callHistory | 3 | 6 | 6 | 6 |
+| callHistoryGroupCall | callHistoryGroupCall | 3 | 6 | 6 | 6 |
+| callHistoryGroupCall | callHistoryInteractionC | 3 | 3 | 3 | 3 |
+| callHistoryTransactions | callHistoryTransactions | 0 | 0 | 1 | 1 |
+| carCD | carCD | 1 | 1 | 1 | 1 |
 | cashApp | cashapp | 0 | 0 | 0 | 0 |
 | celWireless | celWireless | 1 | 2 | 2 | 2 |
 | chatgpt | chatgpt | 6 | 48 | 733 | 13 |
-| chrome | Chrome | 0 | 4 | 4 | 2 |
-| chromeAutofill | ChromeAutofill | 0 | 4 | 4 | 2 |
-| chromeBookmarks | ChromeBookmarks | 0 | 1 | 1 | 2 |
-| chromeCookies | ChromeCookies | 0 | 0 | 0 | 0 |
-| chromeLoginData | ChromeLoginData | 0 | 4 | 8 | 2 |
-| chromeMediaHistory | ChromeMediaHistory | 0 | 0 | 0 | 0 |
-| chromeNetworkActionPredictor | ChromeNetworkActionPredictor | 0 | 0 | 0 | 0 |
-| chromeOfflinePages | ChromeOfflinePages | 0 | 0 | 0 | 0 |
-| chromeTopSites | ChromeTopSites | 0 | 2 | 2 | 2 |
+| chrome | chromeAutofillEntries | 0 | 4 | 4 | 2 |
+| chrome | chromeAutofillProfiles | 0 | 4 | 4 | 2 |
+| chrome | chromeBookmarks | 0 | 1 | 1 | 2 |
+| chrome | chromeCookies | 0 | 0 | 0 | 0 |
+| chrome | chromeDownloads | 0 | 4 | 4 | 2 |
+| chrome | chromeKeywordSearchTerms | 0 | 4 | 4 | 2 |
+| chrome | chromeLoginData | 0 | 4 | 8 | 2 |
+| chrome | chromeMediaHistoryOrigins | 0 | 0 | 0 | 0 |
+| chrome | chromeMediaHistoryPlaybacks | 0 | 0 | 0 | 0 |
+| chrome | chromeMediaHistorySessions | 0 | 0 | 0 | 0 |
+| chrome | chromeNetworkActionPredictor | 0 | 0 | 0 | 0 |
+| chrome | chromeOfflinePages | 0 | 0 | 0 | 0 |
+| chrome | chromeTopSites | 0 | 2 | 2 | 2 |
+| chrome | chromeWebHistory | 0 | 4 | 4 | 2 |
+| chrome | chromeWebSearch | 0 | 4 | 4 | 2 |
+| chrome | chromeWebVisits | 0 | 4 | 4 | 2 |
 | cloudkitCache | cloudkitcache | 0 | 0 | 3 | 0 |
 | cloudkitParticipants | cloudkitparticipants | 3 | 3 | 3 | 3 |
 | cloudkitSharing | cloudkitsharing | 3 | 3 | 3 | 3 |
@@ -184,26 +246,66 @@ This script reads in all of the artifact modules to extract the provided search 
 | dhcphp | dhcpHotspotClients | 0 | 0 | 0 | 0 |
 | dhcpl | dhcpLeases | 1 | 1 | 0 | 1 |
 | discordAcct | discordacct | 1 | 2 | 2 | 2 |
-| discordJson | discordjson | 1 | 1249 | 714 | 14 |
+| discordChats | discordChats | 1 | 1252 | 717 | 14 |
 | discordManifest | discordmanifest | 0 | 0 | 0 | 0 |
+| discord_a | DiscordChatsA | 0 | 3 | 3 | 0 |
 | dmss | Dahua Technology (DMSS) | 0 | 0 | 0 | 0 |
 | draftmessage | draftmessage | 0 | 0 | 0 | 0 |
 | duetLocations | duetlocations | 2 | 0 | 2 | 2 |
-| filesApps | filesapp | 0 | 6 | 6 | 6 |
+| facebookMessenger | facebookMessengerCalls | 0 | 5 | 13 | 0 |
+| facebookMessenger | facebookMessengerChats | 0 | 5 | 13 | 0 |
+| facebookMessenger | facebookMessengerContacts | 0 | 5 | 13 | 0 |
+| facebookMessenger | facebookMessengerConversationGroups | 0 | 5 | 13 | 0 |
+| facebookMessenger | facebookMessengerSecretConversations | 0 | 5 | 13 | 0 |
+| filesApp | FilesIosUpdates | 0 | 3 | 3 | 3 |
+| filesApp | iCloudApplicationList | 0 | 3 | 3 | 3 |
+| filesApp | iCloudDriveFavouriteFiles | 0 | 6 | 6 | 6 |
+| filesApp | iCloudDriveSharedFiles | 0 | 6 | 6 | 6 |
+| filesApp | iCloudDriveStoredFiles | 0 | 6 | 6 | 6 |
+| filesApp | iCloudDriveTaggedFiles | 0 | 6 | 6 | 6 |
+| filesApp | iCloudSyncDeviceNames | 0 | 3 | 3 | 3 |
 | findMy | findMy | 0 | 1 | 1 | 0 |
-| findMyItems | findMy_items | 0 | 1 | 1 | 0 |
-| fsCachedData | fsChachedData | 232 | 2138 | 3900 | 1037 |
+| findMyItems | findMyItemsCrowdsourcedLocations | 0 | 1 | 1 | 0 |
+| findMyItems | findMyItemsInfo | 0 | 1 | 1 | 0 |
+| findMyItems | findMyItemsLocations | 0 | 1 | 1 | 0 |
+| findMyItems | findMyItemsSafeLocations | 0 | 1 | 1 | 0 |
+| foursquareSwarm | foursquare_swarm_account | 0 | 0 | 0 | 0 |
+| foursquareSwarm | foursquare_swarm_checkins | 0 | 0 | 0 | 0 |
+| foursquareSwarm | foursquare_swarm_checkins_comments | 0 | 0 | 0 | 0 |
+| foursquareSwarm | foursquare_swarm_contacts | 0 | 0 | 0 | 0 |
+| foursquareSwarm | foursquare_swarm_stickers | 0 | 0 | 0 | 0 |
+| foursquareSwarm | foursquare_swarm_tips | 0 | 0 | 0 | 0 |
+| foursquareSwarm | foursquare_swarm_venues_history | 0 | 0 | 0 | 0 |
+| foursquareSwarm | foursquare_swarm_venues_photos | 0 | 0 | 0 | 0 |
+| fsCachedData | fsCachedData | 232 | 2138 | 3900 | 1037 |
 | geodApplications | geodapplications | 3 | 3 | 6 | 3 |
-| geodMapTiles | geodmaptiles | 3 | 3 | 3 | 3 |
+| geodMapTiles | geodMapTiles | 3 | 3 | 3 | 3 |
 | geodPDPlaceCache | geodpdplacecache | 3 | 3 | 3 | 3 |
 | gmail | gmailLabelDetails | 0 | 3 | 3 | 6 |
 | gmail | gmailOfflineSearch | 0 | 1 | 1 | 1 |
 | googleChat | get_googleChat | 0 | 3 | 3 | 3 |
 | googleDuo | googleduo | 0 | 6 | 3 | 0 |
-| googleTranslate | googleTranslate | 0 | 0 | 0 | 0 |
+| googleTranslate | googleTranslateHistory | 0 | 0 | 0 | 0 |
+| googleTranslate | googleTranslateStarred | 0 | 0 | 0 | 0 |
+| googleTranslate | googleTranslateTts | 0 | 0 | 0 | 0 |
+| health | healthAchievements | 3 | 3 | 3 | 3 |
+| health | healthAllWatchSleepData | 3 | 3 | 3 | 3 |
+| health | healthHeadphoneAudioLevels | 6 | 6 | 6 | 6 |
+| health | healthHeartRate | 6 | 6 | 6 | 6 |
+| health | healthHeight | 3 | 3 | 3 | 3 |
+| health | healthProvenances | 6 | 6 | 6 | 6 |
+| health | healthRestingHeartRate | 6 | 6 | 6 | 6 |
+| health | healthSourceDevices | 3 | 3 | 3 | 3 |
+| health | healthSteps | 3 | 3 | 3 | 3 |
+| health | healthWatchBySleepPeriod | 3 | 3 | 3 | 3 |
+| health | healthWatchWornData | 3 | 3 | 3 | 3 |
+| health | healthWeight | 3 | 3 | 3 | 3 |
+| health | healthWorkouts | 6 | 6 | 6 | 6 |
+| health | healthWristTemperature | 6 | 6 | 6 | 6 |
 | hikvision | hikvision | 3 | 8 | 187 | 0 |
 | iCloudWifi | iCloudWifi | 0 | 1 | 1 | 1 |
-| iTunesBackupInfo | iTunesBackupInfo | 991 | 8978 | 13662 | 8151 |
+| iTunesBackupInfo | iTunesBackupInfo | 0 | 0 | 0 | 0 |
+| iTunesBackupInfo | iTunesBackupInstalledApplications | 0 | 0 | 0 | 0 |
 | icloudMeta | icloudmeta | 0 | 0 | 0 | 0 |
 | icloudPhotoMeta | aicloudphotometa | 0 | 0 | 0 | 0 |
 | icloudSharedalbums | icloudSharedalbums | 3 | 39 | 52 | 3 |
@@ -223,16 +325,24 @@ This script reads in all of the artifact modules to extract the provided search 
 | kikMessages | kikMessages | 0 | 5 | 7 | 0 |
 | kikPendingUploads | kikPendingUploads | 0 | 1 | 1 | 0 |
 | kikUsersgroups | kikUsersgroups | 0 | 3 | 3 | 0 |
-| knowledgeC | knowledgeC | 3 | 3 | 3 | 3 |
-| lastBuild | lastbuild | 1 | 1 | 1 | 1 |
+| kleinanzeigen.de | get_kleinanzeigenlastquery | 0 | 0 | 0 | 0 |
+| kleinanzeigen.de | get_kleinanzeigenmessagecache | 0 | 0 | 0 | 0 |
+| kleinanzeigen.de | get_kleinanzeigensearchhistory | 0 | 0 | 0 | 0 |
+| kleinanzeigen.de | get_kleinanzeigenuser | 0 | 0 | 0 | 0 |
+| knowledgeC | knowledgeC_BatteryPercentage | 3 | 3 | 3 | 3 |
+| knowledgeC | knowledgeC_DevicePluginStatus | 3 | 3 | 3 | 3 |
+| knowledgeC | knowledgeC_DoNotDisturb | 3 | 3 | 3 | 3 |
+| knowledgeC | knowledgeC_MediaPlaying | 3 | 3 | 3 | 3 |
+| lastBuild | lastBuild | 1 | 1 | 1 | 1 |
 | life360 | Life360 | 0 | 0 | 27 | 0 |
 | line | line | 0 | 3 | 3 | 0 |
 | locServicesconfig | locServicesconfig | 4 | 4 | 4 | 4 |
+| logarchive | logarchive | 0 | 0 | 0 | 0 |
 | mailprotect | get_mailprotect | 6 | 6 | 6 | 9 |
 | mapsSync | mapsSync | 6 | 6 | 6 | 6 |
 | mediaLibrary | mediaLibrary | 0 | 0 | 0 | 0 |
 | medicalID | medicalID | 0 | 0 | 0 | 0 |
-| messageRetention | messageRetention | 1 | 1 | 2 | 1 |
+| messageRetention | messageRetention | 1 | 1 | 1 | 1 |
 | metamask | metamask | 0 | 0 | 0 | 0 |
 | mobileActivationLogs | mobileActivationLogs | 2 | 3 | 2 | 0 |
 | mobileBackup | mobileBackup | 1 | 1 | 1 | 1 |
@@ -245,13 +355,17 @@ This script reads in all of the artifact modules to extract the provided search 
 | notificationsDuet | get_notificationsDuet | 2 | 2 | 2 | 2 |
 | notificationsXI | notificationsXI | 0 | 0 | 0 | 0 |
 | notificationsXII | notificationsXII | 115 | 273 | 862 | 512 |
+| nsVault | calculatorVault | 0 | 0 | 0 | 0 |
 | obliterated | get_obliterated | 1 | 1 | 1 | 1 |
 | offlinePages | pages | 0 | 0 | 0 | 0 |
 | ooklaSpeedtestData | ooklaSpeedtestData | 0 | 0 | 0 | 0 |
 | parsecdCache | get_parseCDCache | 1 | 1 | 1 | 1 |
+| payByPhone | sessionPayByPhone | 0 | 0 | 0 | 0 |
+| payByPhone | userPayByPhone | 0 | 0 | 0 | 0 |
 | photosDbexif | photosDbexif | 34 | 80 | 308 | 150 |
 | photosMetadata | photosMetadata | 3 | 3 | 3 | 3 |
 | photosMigration | get_photosMigration | 3 | 3 | 3 | 3 |
+| pingertextfree | pingertextfree | 0 | 0 | 0 | 0 |
 | preferencesPlist | preferencesPlist | 1 | 1 | 1 | 1 |
 | protonMail | protonMail | 109 | 355 | 991 | 45 |
 | queryPredictions | queryPredictions | 0 | 0 | 0 | 0 |
@@ -268,10 +382,22 @@ This script reads in all of the artifact modules to extract the provided search 
 | secretCalculator | secretCalculatorPhotoAlbum | 164 | 179 | 263 | 185 |
 | serialNumber | serialNumber | 3 | 3 | 3 | 3 |
 | simInfo | siminfo | 1 | 1 | 1 | 1 |
+| skg_archive | skg_archive | 0 | 0 | 0 | 0 |
 | slack | slack | 0 | 3 | 3 | 3 |
-| sms | get_sms | 3 | 3 | 3 | 3 |
+| sms | sms | 3 | 3 | 3 | 3 |
+| splitwise | splitwiseExpenseBalances | 1 | 0 | 0 | 0 |
+| splitwise | splitwiseExpenses | 1 | 0 | 0 | 0 |
+| splitwise | splitwiseGroups | 1 | 0 | 0 | 0 |
+| splitwise | splitwiseNotifications | 1 | 0 | 0 | 0 |
+| splitwise | splitwiseTotalBalances | 1 | 0 | 0 | 0 |
+| splitwise | splitwiseUsers | 1 | 0 | 0 | 0 |
+| storeUser | storeUser_ca | 3 | 3 | 3 | 3 |
+| storeUser | storeUser_pha | 3 | 3 | 3 | 3 |
+| subscriberInfo | subscriberInfo | 1 | 1 | 1 | 1 |
 | syncDev | syncDev | 3 | 3 | 3 | 3 |
 | sysShutdown | get_sysShutdown | 1 | 1 | 0 | 0 |
+| sysdiagnose | get_sysdiag_account_devices | 0 | 0 | 0 | 0 |
+| systemVersionPlist | systemVersionPlist | 0 | 1 | 1 | 1 |
 | tcc | tcc | 3 | 3 | 3 | 3 |
 | teams | teamsCalls | 0 | 1 | 1 | 0 |
 | teams | teamsContacts | 0 | 1 | 1 | 0 |
@@ -279,7 +405,7 @@ This script reads in all of the artifact modules to extract the provided search 
 | teams | teamsMessages | 0 | 34 | 21 | 0 |
 | teams | teamsUser | 0 | 1 | 1 | 0 |
 | teamsSegment | teamsSegment | 0 | 0 | 0 | 0 |
-| telegramMesssages | TelegramMessages | 1243 | 2006 | 2186 | 0 |
+| telegramMesssages | telegramMessages | 1243 | 2006 | 2186 | 0 |
 | teleguard | Teleguard | 836 | 1056 | 1353 | 974 |
 | textinputTyping | textinputTyping | 0 | 0 | 0 | 0 |
 | tikTok | tikTok | 5 | 5 | 5 | 1 |
@@ -289,14 +415,15 @@ This script reads in all of the artifact modules to extract the provided search 
 | tileAppDisc | tileAppDisc | 0 | 0 | 0 | 0 |
 | tileAppNetDb | tileAppNetDb | 0 | 0 | 0 | 0 |
 | timezoneInfo | timezoneInfo | 1 | 1 | 1 | 1 |
-| timezoneset | timezoneset | 0 | 1 | 1 | 1 |
+| timezoneSet | timezoneSet | 0 | 1 | 1 | 1 |
 | torrentData | TorrentData | 0 | 0 | 0 | 0 |
 | torrentResumeinfo | torrentResumeinfo | 0 | 0 | 0 | 0 |
 | torrentinfo | torrentinfo | 0 | 0 | 0 | 0 |
-| twint | Twint | 0 | 0 | 0 | 0 |
+| trustedPeers | trustedPeers | 3 | 3 | 3 | 3 |
+| twint | twintTransactions | 0 | 0 | 0 | 0 |
 | uberClient | uberClient | 164 | 179 | 263 | 185 |
 | uberLeveldb | uberLocations | 188 | 0 | 0 | 0 |
-| uberPlaces | uberPlaces | 0 | 0 | 0 | 0 |
+| uberPlaces | uberPlaces | 1 | 0 | 0 | 0 |
 | venmo | venmo | 0 | 0 | 0 | 0 |
 | viber | viber | 0 | 16 | 16 | 0 |
 | vipps | vipps | 0 | 0 | 0 | 0 |
@@ -309,12 +436,13 @@ This script reads in all of the artifact modules to extract the provided search 
 | weatherAppLocations | weatherAppLocations | 1 | 1 | 1 | 1 |
 | webClips | webClips | 0 | 0 | 0 | 0 |
 | webkit | webkitCacheRecords | 3489 | 4137 | 6513 | 1627 |
-| whatsappCallHistory | whatsappCallHistory | 0 | 0 | 6 | 3 |
-| whatsappContacts | whatsappContacts | 0 | 0 | 3 | 3 |
-| whatsappMessages | whatsappMessages | 0 | 0 | 19 | 0 |
-| wifiIdent | wifiIdent | 1 | 1 | 1 | 1 |
+| whatsApp | whatsAppCallHistory | 0 | 6 | 6 | 3 |
+| whatsApp | whatsAppContacts | 0 | 3 | 3 | 3 |
+| whatsApp | whatsAppMessages | 0 | 11 | 19 | 0 |
+| wifiIdentifiers | wifiIdentifiers | 1 | 1 | 1 | 1 |
 | wifiNetworkStoreModel | wifiNetworkStoreModel | 0 | 0 | 0 | 0 |
-| wire | wire | 0 | 3 | 3 | 0 |
+| wire | wireAccount | 0 | 3 | 3 | 0 |
+| wire | wireMessages | 0 | 3 | 3 | 0 |
 
 <!-- FILEPATH_SEARCH_SUMMARY_END -->
 
