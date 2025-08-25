@@ -57,8 +57,47 @@ def get_cashAppB(files_found, report_folder, seeker, wrap_text, timezone_offset)
                     howmuch = amount['amount']
                     currency = amount['currency_code']
                     note = payment.get('note')
+                    role = (payment.get('role'))
                     
-        
+                    #Estan bajo instrument
+                    if payment.get('instrument') is not None:
+                        cardbrand = (payment['instrument'].get('card_brand'))
+                        suffix = (payment['instrument'].get('suffix'))
+                        displayname = (payment['instrument'].get('display_name'))
+                        
+                    displayinstrument = (payment.get('display_instrument'))
+                    instrumenttype = (payment.get('instrument_type'))
+                    transactionid = (payment.get('transaction_id'))
+                    state = (payment.get('state'))
+                    
+                    createdat = (payment.get('created_at'))
+                    if createdat is not None:
+                        createdat = datetime.fromtimestamp(createdat/1000, tz=timezone.utc)
+                        
+                    capturedat = (payment.get('captured_at'))
+                    if capturedat is not None:
+                        capturedat = datetime.fromtimestamp(capturedat/1000, tz=timezone.utc)
+                        
+                    reachedcustomerat = (payment.get('reached_customer_at'))
+                    if reachedcustomerat is not None:
+                        reachedcustomerat = datetime.fromtimestamp(reachedcustomerat/1000, tz=timezone.utc)
+                        
+                    paidoutat = (payment.get('paid_out_at'))
+                    if paidoutat is not None:
+                        paidoutat = datetime.fromtimestamp(paidoutat/1000, tz=timezone.utc)
+                        
+                    depositedat = (payment.get('deposited_at'))
+                    if depositedat is not None:
+                        depositedat = datetime.fromtimestamp(depositedat/1000, tz=timezone.utc)
+                        
+                    displaydate = (payment.get('display_date'))
+                    if displaydate is not None:
+                        displaydate = datetime.fromtimestamp(displaydate/1000, tz=timezone.utc)
+                        
+                url = protocustomer['1'].get('5')
+                if url is not None:
+                    url = url.decode()
+                    
                 name = (protocustomer['1'].get('3'))
                 if name is not None:
                     name = name.decode()
@@ -77,9 +116,9 @@ def get_cashAppB(files_found, report_folder, seeker, wrap_text, timezone_offset)
                     region = (extrainfo.get('region'))
                     dunits = (extrainfo.get('display_units'))
                     
-                data_list.append((timestamp,customertoken,name,username,id,fullname,howmuch,currency,note,region,dunits,str(protocustomer),str(protopayment)))
+                data_list.append((timestamp,customertoken,name,username,id,fullname,role,howmuch,currency,note,region,dunits,url,cardbrand,suffix,displayname,displayinstrument,instrumenttype,transactionid,state,createdat,capturedat,reachedcustomerat,paidoutat,depositedat,displaydate))
         
-    data_headers = (('Timestamp', 'datetime'), 'Customer Token', 'Name', 'Username','ID','Full Name', 'Amount', 'Currency','Note', 'Region', 'Units','Customer Data', 'Payment Data',)
+    data_headers = (('Timestamp', 'datetime'),'Customer Token','Name','Username','ID','Full Name','Role','Amount','Currency','Note','Region','Units','URL','Card Brand','Suffix','Display Name','Display Instrument','Instrument Type','Transaction ID','State',('Created At', 'datetime'),('Captured At', 'datetime'),('Reached Customer At', 'datetime'),('Paid Out At', 'datetime'),('Deposited At', 'datetime'),('Display Date', 'datetime'))
     return data_headers,data_list,source
     
     
