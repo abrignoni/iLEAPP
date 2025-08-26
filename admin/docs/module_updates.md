@@ -59,7 +59,6 @@ from scripts.ilapfuncs import artifact_processor, get_file_path
 # After (ensure all needed functions are imported)
 from scripts.ilapfuncs import (
     artifact_processor,
-    get_file_path,
     check_in_media,            # For media files on disk
     check_in_embedded_media,   # For media stored as blobs/binary data
     # ... other necessary ilapfuncs ...
@@ -73,7 +72,7 @@ Add the decorator to the main function:
 
 ```python
 @artifact_processor
-def artifactname(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def artifactname(context):
     # ... function body ...
 ```
 
@@ -82,8 +81,10 @@ def artifactname(files_found, report_folder, seeker, wrap_text, timezone_offset)
 Modify the function to return data instead of generating reports:
 
 ```python
-def artifactname(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    source_path = get_file_path(files_found, "filename")
+def artifactname(context):
+    # if artifact needs to iterate through found files
+    found_files = context.get_files_found()
+    source_path = context.get_source_file_path("filename")
     data_list = []
 
     # ... Get file contents and process data ...
@@ -186,18 +187,13 @@ Both functions will copy/link the media to a central data location in the report
 
     * **For files on disk (`check_in_media`):**
         ```python
-        artifact_info = inspect.stack()[0]
-        
         current_file_path = "**/path/to/image.jpg" # dummy for example
-        media_file_on_disk = get_file_path(files_found, current_file_path) 
+        media_file_on_disk = context.get_source_file_path(current_file_path) 
 
         if media_file_on_disk: 
             media_ref_id = check_in_media(
-                artifact_info=artifact_info,
-                report_folder=report_folder,
-                seeker=seeker,
-                files_found=files_found,
-                file_path=media_file_on_disk
+                file_path=media_file_on_disk,
+                name='if-different-than-name-in-path' # optional
             )
             if media_ref_id:
                 data_list.append((timestamp_column, text_column, media_ref_id))
@@ -205,19 +201,14 @@ Both functions will copy/link the media to a central data location in the report
 
     * **For embedded binary data (`check_in_embedded_media`):**
         ```python
-        artifact_info = inspect.stack()[0]
-        
         original_source_path_of_db = "*/path/to/sqlite.db" # dummy for example
         binary_image_data = db.msg_record.imagedata # dummy for example
 
         if binary_image_data and original_source_path_of_db:
             media_ref_id = check_in_embedded_media(
-                artifact_info=artifact_info,
-                report_folder=report_folder, 
-                seeker=seeker,
                 source_file=original_source_path_of_db,
                 data=binary_image_data,
-                name=db.msg_record.imagename
+                name=db.msg_record.imagename # optional but good idea if name is available
             )
             if media_ref_id:
                 data_list.append((timestamp_column, description_column, media_ref_id))
