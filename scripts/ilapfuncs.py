@@ -181,12 +181,15 @@ def set_media_references(media_ref_id, media_id, module_name, artifact_name, nam
 def check_in_media(file_path, name="", converted_file_path=False):
     report_folder = Context.get_report_folder()
     seeker = Context.get_seeker()
-    files_found = Context.get_files_found()
     module_name = Context.get_module_name()
     artifact_name = Context.get_artifact_name()
 
-    extraction_path = next(
-        (path for path in files_found if Path(path).match(file_path)), None)
+    extraction_path = Context.get_source_file_path(file_path)
+
+    if not extraction_path:
+        logfunc(f'No matching file found for "{file_path}"')
+        return None
+
     file_info = seeker.file_infos.get(extraction_path)
     if file_info:
         extraction_path = converted_file_path if converted_file_path else Path(extraction_path)
