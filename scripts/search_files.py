@@ -5,6 +5,7 @@ import tarfile
 import hashlib
 import struct
 
+
 from pathlib import Path
 from scripts.ilapfuncs import *
 from shutil import copyfile
@@ -14,11 +15,24 @@ from fnmatch import _compile_pattern
 from functools import lru_cache
 
 # Yes, this is hazmat, but we're only using it to unwrap existing keys
+from getpass import getpass
 from cryptography.hazmat.primitives.keywrap import aes_key_unwrap
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
 from scripts.builds_ids import get_root_path_from_domain
 normcase = lru_cache(maxsize=None)(os.path.normcase)
+
+
+def is_encrypted_backup(directory):
+    '''Returns True if the iTunes backup at directory is encrypted,
+    False otherwise'''
+    manifest_plist = os.path.join(directory, "Manifest.plist")
+    if os.path.exists(manifest_plist):
+        with open(manifest_plist, "rb") as manifest_fp:
+            tmp_plist = plistlib.load(manifest_fp)
+            return True if tmp_plist["IsEncrypted"] else False
+    return False
+
 
 class FileInfo:
     def __init__(self, source_path, creation_date, modification_date):
@@ -128,12 +142,9 @@ class FileSeekerItunes(FileSeekerBase):
                         self._manifest_wrapped_key = tmp_manifest_string[4:]
                         self._backup_keybag = tmp_plist["BackupKeyBag"]
                         
-
-            # If so, make sure we have a passcode....
             if self.encrypted:
                 if passcode == None:
-                    logfunc('Attempted to recover an encrypted backup without a passcode, this will never work, exiting immediately.')
-                    raise Exception
+                    passcode = getpass("iTunes Backup Passcode: ")
 
                 # Initialize some values
                 tmp_backup_keybag_index = 0

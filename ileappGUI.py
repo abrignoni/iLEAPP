@@ -155,6 +155,14 @@ def ValidateInput():
         return False, ext_type
     elif os.path.isdir(i_path) and (os.path.exists(os.path.join(i_path, 'Manifest.db')) or os.path.exists(os.path.join(i_path, 'Manifest.mbdb'))):
         ext_type = 'itunes'
+        encrypted_backup = is_encrypted_backup(i_path)
+        if encrypted_backup:
+            passcode = tk.simpledialog.askstring(
+                "Detected encrypted iTunes backup",
+                "iTunes Backup Passcode:",
+                show='*',
+                parent=main_window)
+
     elif os.path.isdir(i_path):
         ext_type = 'fs'
     else:
@@ -170,7 +178,7 @@ def ValidateInput():
         tk_msgbox.showerror(title='Error', message='No module selected for processing!', parent=main_window)
         return False, ext_type
 
-    return True, ext_type
+    return True, ext_type, passcode
 
 
 def open_report(report_path):
@@ -194,7 +202,7 @@ def resource_path(filename):
 def process(casedata):
     '''Execute selected modules and create reports'''
     # check if selections made properly; if not we will return to input form without exiting app altogether
-    is_valid, extracttype = ValidateInput()
+    is_valid, extracttype, passcode = ValidateInput()
 
     if is_valid:
         GuiWindow.window_handle = main_window
@@ -225,8 +233,8 @@ def process(casedata):
         initialize_lava(input_path, out_params.report_folder_base, extracttype)
 
         crunch_successful = ileapp.crunch_artifacts(
-            selected_modules, extracttype, input_path, out_params, wrap_text, loader,
-            casedata, time_offset, profile_filename)
+            selected_modules, extracttype, input_path, out_params, wrap_text,
+            loader, casedata, time_offset, profile_filename, passcode)
         
         lava_finalize_output(out_params.report_folder_base)
 
