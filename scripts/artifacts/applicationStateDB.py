@@ -45,7 +45,7 @@ from scripts.ilapfuncs import logfunc
 
 __artifacts_v2__ = {
     "get_installed_apps": {
-        "name": "Application State new",
+        "name": "Application State",
         "description": "Extract information about bundle container path and data path for Applications",
         "author": "@AlexisBrignoni - @mxkrt",
         "version": "0.2.3",
