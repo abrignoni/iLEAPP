@@ -1,12 +1,17 @@
 ''' applicationStateDB.py - artifact plugin for applicationState.db
 
-This artifact plugin focusses on the XBApplicationSnapshotManifest BLOBs in
-applicationState.db. Initial experiments on an iPhone 8 with iOS version 16.7.7
-indicate that the timestamps in these BLOBs are only stored or updated at a
-moment when a user interacts with a device, for example when switching between
-apps using the app selector. Note that the timestamps do not necessarily
-reflect the moment at which the corresponding app was actively used in the
-foreground, so be careful with the interpretation of these records.
+This artifact plugin analyses applicationState.db files. The original plugin by
+Alexis Brignoni had basic support for applicationState.db files by extracting
+bundleIdentifier, bundlePath and sandboxPath. This new version includes a
+refactored version of the original plugin and adds support for
+XBApplicationSnapshotManifest BLOBs in applicationState.db records.
+
+Initial experiments on an iPhone 8 with iOS version 16.7.7 indicate that the
+timestamps in these BLOBs are only stored or updated at a moment when a user
+interacts with a device, for example when switching between apps using the app
+selector. Note that the timestamps do not necessarily reflect the moment at
+which the corresponding app was actively used in the foreground, so be careful
+with the interpretation of these records.
 
 When the device in our experiment was left untouched for a period of hours or
 days, the timestamps were not updated. This indicates that the timestamps can
@@ -14,9 +19,7 @@ be used to investigate hypothesis concerning user-activity at the specific time
 periods. A write-up of our experiments will be published online at which point
 a link will be added to this plugin.
 
-Support for applicationState.db is already present in applicationstate.py, but
-that analysis is focussed on obtaining the bundleIdentifier, bundlePath and
-sandboxPath. The XBApplicationSnapshotManifest BLOBs in applicationState.db are
+The XBApplicationSnapshotManifest BLOBs in applicationState.db are
 related to .ktx files, for which support is also already available in iLEAPP in
 the appSnapshots.py artifact script. However, in absence of .ktx files (i.e.
 with a Logical dump), parsing the relevant timestamps from applicationState.db
@@ -41,6 +44,19 @@ from scripts.ilapfuncs import logfunc
 
 
 __artifacts_v2__ = {
+    "get_installed_apps": {
+        "name": "Application State new",
+        "description": "Extract information about bundle container path and data path for Applications",
+        "author": "@AlexisBrignoni - @mxkrt",
+        "version": "0.2.3",
+        "date": "2025-08-27",
+        "requirements": "none",
+        "category": "Installed Apps",
+        "notes": "",
+        "paths": ('*/mobile/Library/FrontBoard/applicationState.db*'),
+        "output_types": "standard",
+        "artifact_icon": "package"
+    },
     "get_snapshot_metadata": {
         "name": "Application Snapshot",
         "description": "Extract XBApplicationSnapshotManifest records from applicationState.db. " +\
@@ -101,6 +117,38 @@ _snapshot = _nt('snapshot', 'creationDate bundleID snapshot_group '
 
 
 @artifact_processor
+def get_installed_apps(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    ''' get bundle container path and sandbox data path for installed applications '''
+
+    # this is a refactored version of the original applicationstate.py module
+    for file_found in files_found:
+        file_found = str(file_found)
+        if file_found.endswith('applicationState.db'):
+            break
+
+    # get the records grouped by application identifier
+    applications = _do_query(file_found)
+    if applications is None:
+        return
+
+    data_headers = ('Bundle ID','Bundle Path','Sandbox Path')
+    data_list = []
+    # iterate over the applications and collect results
+    for appid, keyvals in applications.items():
+        compat_info =  keyvals.get('compatibilityInfo')
+        compat_info = _parse_blob(appid, 'compatibilityInfo', compat_info)
+        if compat_info is None:
+            logfunc(f"NOTE: application {appid} has no compatibilityInfo")
+            continue
+        else:
+            bundleID = compat_info.get('bundleIdentifier', '')
+            bundlePath = compat_info.get('bundlePath', '')
+            sandboxPath = compat_info.get('sandboxPath', '')
+            data_list.append((bundleID, bundlePath, sandboxPath))
+    return data_headers, data_list, file_found
+
+
+@artifact_processor
 def get_snapshot_metadata(files_found, report_folder, seeker, wrap_text, timezone_offset):
     ''' main artifact processor, parses XBApplicationSnapshotManifest snapshots '''
 
@@ -146,8 +194,8 @@ def get_recs_with_lastUsedDate(files_found, report_folder, seeker, wrap_text, ti
     return new_headers, new_data_list, file_found
 
 
-def _get_snapshots(file_found):
-    ''' actually performs the query and parses the snapshot entries '''
+def _do_query(file_found):
+    ''' perform the query and return all records grouped by application '''
 
     # perform the query
     db = open_sqlite_db_readonly(file_found)
@@ -163,6 +211,17 @@ def _get_snapshots(file_found):
 
     # group results by application identifier
     applications = _group_records(all_rows)
+    return applications
+
+
+def _get_snapshots(file_found):
+    ''' process the snapshot entries in XBApplicationSnapshotManifest records
+    '''
+
+    # get the records grouped by application
+    applications = _do_query(file_found)
+    if applications is None:
+        return
 
     # collect results in list
     snapshot_list = []
