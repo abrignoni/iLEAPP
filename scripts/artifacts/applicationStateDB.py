@@ -54,10 +54,10 @@ __artifacts_v2__ = {
         "category": "Installed Apps",
         "notes": "",
         "paths": ('*/mobile/Library/FrontBoard/applicationState.db*'),
-        "output_types": "standard",
+        "output_types": ["html","tsv","lava"],
         "artifact_icon": "package"
     },
-    "get_snapshot_metadata": {
+    "get_snapshot_creationDate": {
         "name": "Application Snapshot",
         "description": "Extract XBApplicationSnapshotManifest records from applicationState.db. " +\
                        "NOTE: these timestamps do not always indicate application usage " +\
@@ -74,7 +74,7 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "smartphone"
     },
-    "get_recs_with_lastUsedDate": {
+    "get_snapshot_lastUsedDate": {
         "name": "Application Snapshot lastUsedDate",
         "description": "Extract XBApplicationSnapshotManifest records with a " +\
                        "lastUsedDate from applicationState.db. " +\
@@ -115,6 +115,15 @@ _snapshot = _nt('snapshot', 'creationDate bundleID snapshot_group '
                             'backgroundStyle identifier referenceSize '
                             'contentType imageOpaque requiredOSVersion')
 
+# display headers for the snapshot analysis results
+_snapshot_headers = ('Creation Date', 'Bundle ID', 'Snapshot Group',
+                     'Snapshot Index', 'Expiration Date', 'Last Used Date',
+                     'Launch Interface Identifier', 'Relative Path',
+                     'Group ID', 'Image Scale', 'Fullscreen', 'Name',
+                     'Interface Orientation', 'File Location',
+                     'Background Style', 'Identifier', 'Reference Size',
+                     'Content Type', 'Image Opaque', 'Required OS Version')
+
 
 @artifact_processor
 def get_installed_apps(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -149,7 +158,7 @@ def get_installed_apps(files_found, report_folder, seeker, wrap_text, timezone_o
 
 
 @artifact_processor
-def get_snapshot_metadata(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def get_snapshot_creationDate(files_found, report_folder, seeker, wrap_text, timezone_offset):
     ''' main artifact processor, parses XBApplicationSnapshotManifest snapshots '''
 
     for file_found in files_found:
@@ -158,12 +167,11 @@ def get_snapshot_metadata(files_found, report_folder, seeker, wrap_text, timezon
             break
 
     data_list = _get_snapshots(file_found)
-    data_headers = _snapshot._fields
-    return data_headers, data_list, file_found
+    return _snapshot_headers, data_list, file_found
 
 
 @artifact_processor
-def get_recs_with_lastUsedDate(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def get_snapshot_lastUsedDate(files_found, report_folder, seeker, wrap_text, timezone_offset):
     ''' add the lastUsedDate for each snapshot to the timeline '''
 
     for file_found in files_found:
@@ -172,25 +180,28 @@ def get_recs_with_lastUsedDate(files_found, report_folder, seeker, wrap_text, ti
             break
 
     data_list = _get_snapshots(file_found)
-    # prepend the entry with the lastUsedDate
     new_data_list = []
     for entry in data_list:
         if entry.lastUsedDate == '':
             continue
-        # swap lastUsedDate and creationDate columns in
-        # order to keep other fields in the same place
+        # swap lastUsedDate and creationDate columns,
+        # keeping other fields in the same place
         new_entry = [entry.lastUsedDate]
-        new_headers = ['lastUsedDate']
         for fld in _snapshot._fields:
             if fld == 'lastUsedDate':
-                new_headers.append('creationDate')
                 new_entry.append(entry.creationDate)
             elif fld == 'creationDate':
                 continue
             else:
                 new_entry.append(getattr(entry, fld))
-                new_headers.append(fld)
         new_data_list.append(new_entry)
+
+    # swap Last Used Date and Creation Date in headers as well
+    last_idx = _snapshot_headers.index('Last Used Date')
+    new_headers = [hdr for hdr in _snapshot_headers[1:] if hdr != 'Last Used Date']
+    new_headers.insert(0, 'Last Used Date')
+    new_headers.insert(last_idx, 'Creation Date')
+
     return new_headers, new_data_list, file_found
 
 
