@@ -11,6 +11,7 @@ import sys
 import scripts.plugin_loader as plugin_loader
 
 from shutil import copyfile
+from getpass import getpass
 from scripts.search_files import *
 from scripts.ilapfuncs import *
 from scripts.version_info import ileapp_version
@@ -176,7 +177,7 @@ def main():
                         help=("Generate a text file list of artifact paths. "
                               "This argument is meant to be used alone, without any other arguments."))
     parser.add_argument('--custom_output_folder', required=False, action="store", help="Custom name for the output folder")
-    parser.add_argument('--itunes_passcode', required=False, action="store", help="Passcode used for encrypted iTunes backup")
+    parser.add_argument('--itunes_password', required=False, action="store", help="Password used for encrypted iTunes backup")
 
     available_plugins = []
     loader = plugin_loader.PluginLoader()
@@ -305,6 +306,7 @@ def main():
     output_path = os.path.abspath(args.output_path)
     time_offset = args.timezone
     custom_output_folder = args.custom_output_folder
+    itunes_backup_password = args.itunes_password
 
     # ios file system extractions contain paths > 260 char, which causes problems
     # This fixes the problem by prefixing \\?\ on each windows path.
@@ -312,22 +314,17 @@ def main():
         if input_path[1] == ':' and extracttype =='fs': input_path = '\\\\?\\' + input_path.replace('/', '\\')
         if output_path[1] == ':': output_path = '\\\\?\\' + output_path.replace('/', '\\')
 
-    # Handle passcodes for encrypted iTunes backups
-    passcode = None
-    if args.itunes_passcode:
-        passcode = args.itunes_passcode
-    
     out_params = OutputParameters(output_path, custom_output_folder)
 
     initialize_lava(input_path, out_params.report_folder_base, extracttype)
 
-    crunch_artifacts(selected_plugins, extracttype, input_path, out_params, wrap_text, loader, casedata, time_offset, profile_filename, passcode)
+    crunch_artifacts(selected_plugins, extracttype, input_path, out_params, wrap_text, loader, casedata, time_offset, profile_filename, itunes_backup_password)
 
     lava_finalize_output(out_params.report_folder_base)
 
 def crunch_artifacts(
         plugins: typing.Sequence[plugin_loader.PluginSpec], extracttype, input_path, out_params, wrap_text,
-        loader: plugin_loader.PluginLoader, casedata, time_offset, profile_filename, passcode=None):
+        loader: plugin_loader.PluginLoader, casedata, time_offset, profile_filename, itunes_backup_password=None, decryption_keys=None):
     start = process_time()
     start_wall = perf_counter()
  
@@ -341,6 +338,7 @@ def crunch_artifacts(
     logdevinfo()
     
     seeker = None
+    password = itunes_backup_password
     try:
         if extracttype == 'fs':
             seeker = FileSeekerDir(input_path, out_params.data_folder)
@@ -355,7 +353,26 @@ def crunch_artifacts(
             seeker = FileSeekerZip(input_path, out_params.data_folder)
 
         elif extracttype == 'itunes':
-            seeker = FileSeekerItunes(input_path, out_params.data_folder, passcode)
+            itunes_backup_type = get_itunes_backup_type(input_path)
+            if itunes_backup_type:
+                supported, encrypted, message = check_itunes_backup_status(
+                    input_path, itunes_backup_type)
+                if not supported:
+                    logfunc(message)
+                    return False
+                else:
+                    if encrypted:
+                        while not decryption_keys:
+                            if not password:
+                                password = getpass("iTunes Backup password: ")
+                            decryption_keys, _ = decrypt_itunes_backup(input_path, password)
+                            if not decryption_keys:
+                                return False
+            else:
+                logfunc('Input folder is not a valid iTunes backup!')
+                return False
+            seeker = FileSeekerItunes(input_path, out_params.data_folder,
+                                    itunes_backup_type, decryption_keys)
 
         else:
             logfunc('Error on argument -o (input type)')

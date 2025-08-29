@@ -149,36 +149,52 @@ def ValidateInput():
     # check input
     if len(i_path) == 0:
         tk_msgbox.showerror(title='Error', message='No INPUT file or folder selected!', parent=main_window)
-        return False, ext_type
+        return False, ext_type, None
     elif not os.path.exists(i_path):
         tk_msgbox.showerror(title='Error', message='INPUT file/folder does not exist!', parent=main_window)
-        return False, ext_type
-    elif os.path.isdir(i_path) and (os.path.exists(os.path.join(i_path, 'Manifest.db')) or os.path.exists(os.path.join(i_path, 'Manifest.mbdb'))):
-        ext_type = 'itunes'
-        encrypted_backup = is_encrypted_backup(i_path)
-        if encrypted_backup:
-            passcode = tk.simpledialog.askstring(
-                "Detected encrypted iTunes backup",
-                "iTunes Backup Passcode:",
-                show='*',
-                parent=main_window)
-
+        return False, ext_type, None
     elif os.path.isdir(i_path):
-        ext_type = 'fs'
+        itunes_backup_type = get_itunes_backup_type(i_path)
+        if itunes_backup_type:
+            supported, encrypted, message = check_itunes_backup_status(
+                i_path, itunes_backup_type)
+            if not supported:
+                tk_msgbox.showerror(title='Error', message=message,
+                                    parent=main_window)
+                return False, ext_type, None
+            else:
+                if encrypted:
+                    decryption_keys = None
+                    while not decryption_keys:
+                        password = tk.simpledialog.askstring(
+                            "Detected encrypted iTunes backup",
+                            "iTunes Backup password:",
+                            show='*',
+                            parent=main_window)
+                        decryption_keys, message = decrypt_itunes_backup(i_path, password)
+                        if not decryption_keys:
+                            tk_msgbox.showerror(title='Error', message=message,
+                                                parent=main_window)
+                            return False, ext_type, decryption_keys
+                        else:
+                            return True, 'itunes', decryption_keys
+            ext_type = 'itunes'
+        else:
+            ext_type = 'fs'
     else:
         ext_type = Path(i_path).suffix[1:].lower()
 
     # check output now
     if len(o_path) == 0:  # output folder
         tk_msgbox.showerror(title='Error', message='No OUTPUT folder selected!', parent=main_window)
-        return False, ext_type
+        return False, ext_type, None
 
     # check if at least one module is selected
     if len(get_selected_modules()) == 0:
         tk_msgbox.showerror(title='Error', message='No module selected for processing!', parent=main_window)
-        return False, ext_type
+        return False, ext_type, None
 
-    return True, ext_type, passcode
+    return True, ext_type, None
 
 
 def open_report(report_path):
@@ -199,10 +215,11 @@ def resource_path(filename):
 
     return os.path.join(base_path, 'assets', filename)
 
+
 def process(casedata):
     '''Execute selected modules and create reports'''
     # check if selections made properly; if not we will return to input form without exiting app altogether
-    is_valid, extracttype, passcode = ValidateInput()
+    is_valid, extracttype, decryption_keys = ValidateInput()
 
     if is_valid:
         GuiWindow.window_handle = main_window
@@ -234,7 +251,7 @@ def process(casedata):
 
         crunch_successful = ileapp.crunch_artifacts(
             selected_modules, extracttype, input_path, out_params, wrap_text,
-            loader, casedata, time_offset, profile_filename, passcode)
+            loader, casedata, time_offset, profile_filename, None, decryption_keys)
         
         lava_finalize_output(out_params.report_folder_base)
 

@@ -142,9 +142,10 @@ def logfunc(message=""):
         log_text = GuiWindow.window_handle.nametowidget('logs_frame.log_text')
         sys.stdout.write = redirect_logs
 
-    with open(OutputParameters.screen_output_file_path, 'a', encoding='utf8') as a:
-        print(message)
-        a.write(message + '<br>' + OutputParameters.nl)
+    if OutputParameters.screen_output_file_path:
+        with open(OutputParameters.screen_output_file_path, 'a', encoding='utf8') as a:
+            a.write(message + '<br>' + OutputParameters.nl)
+    print(message)
 
 
 def strip_tuple_from_headers(data_headers):
