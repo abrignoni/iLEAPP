@@ -5,6 +5,7 @@ import tarfile
 import hashlib
 import struct
 
+
 from pathlib import Path
 from scripts.ilapfuncs import *
 from shutil import copyfile
@@ -13,8 +14,139 @@ from zipfile import ZipFile
 from fnmatch import _compile_pattern
 from functools import lru_cache
 
+# Yes, this is hazmat, but we're only using it to unwrap existing keys
+from cryptography.hazmat.primitives.keywrap import aes_key_unwrap
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+
 from scripts.builds_ids import get_root_path_from_domain
 normcase = lru_cache(maxsize=None)(os.path.normcase)
+
+
+def get_itunes_backup_type(directory):
+    '''Returns the iTunes backup type'''
+    if os.path.exists(os.path.join(directory, "Manifest.db")):
+        return "db"
+    if os.path.exists(os.path.join(directory, "Manifest.mbdb")):
+        return "mbdb"
+    return ""
+
+
+def get_itunes_backup_encryption(directory):
+    '''Returns True if the iTunes backup at directory is encrypted,
+    False otherwise'''
+    manifest_path = os.path.join(directory, "Manifest.plist")
+    manifest = get_plist_file_content(manifest_path)
+    return manifest.get("IsEncrypted")
+
+
+def check_itunes_backup_status(directory, backup_type):
+    backup_encrypted = get_itunes_backup_encryption(directory)
+    if not backup_encrypted and (backup_type == "db" or backup_type == "mbdb"):
+        return True, False, "iTunes backup supported"
+    if backup_encrypted and backup_type == "mbdb":
+        return False, True, "iTunes Legacy Encrypted Backup not supported"
+    if backup_encrypted and backup_type == "db":
+        logfunc('Detected encrypted iTunes backup')
+        return True, True, "iTunes Encrypted Backup"
+    return False, "Missing Manifest.db, Manifest.mbdb or Manifest.plist"
+
+
+def decrypt_itunes_backup(directory, passcode):
+    protection_classes = {}
+    manifest_key_class = None
+    manifest_path = os.path.join(directory, "Manifest.plist")
+    manifest = get_plist_file_content(manifest_path)
+
+    manifest_key = manifest.get("ManifestKey")
+    manifest_key_class = int.from_bytes(manifest_key[0:4], byteorder="little")
+    manifest_wrapped_key = manifest_key[4:]
+    backup_keybag = manifest.get("BackupKeyBag")
+
+    # Initialize some values
+    tmp_backup_keybag_index = 0
+    tmp_protection_class = None
+    tmp_salt = ''
+    tmp_iter = 0
+    tmp_double_protection_salt = ''
+    tmp_double_protection_iter = 0
+    keybag_uuid = None
+
+    # Iterate across the entire Keybag contents
+    while tmp_backup_keybag_index < len(backup_keybag):
+        # Grab the type of value we're looking at
+        tmp_string_type = backup_keybag[
+            tmp_backup_keybag_index:tmp_backup_keybag_index + 4]
+        tmp_backup_keybag_index += 4
+
+        # Figure out the length we need to pull
+        tmp_length = int.from_bytes(backup_keybag[
+            tmp_backup_keybag_index:tmp_backup_keybag_index + 4])
+        tmp_backup_keybag_index += 4
+
+        # Store the actual value itself
+        tmp_value = backup_keybag[
+            tmp_backup_keybag_index:tmp_backup_keybag_index + tmp_length]
+        tmp_backup_keybag_index += tmp_length
+
+        match tmp_string_type:
+            case b'CLAS':
+                tmp_protection_class['CLAS'] = int.from_bytes(tmp_value)
+            case b'DPIC':
+                tmp_double_protection_iter = int.from_bytes(tmp_value)
+            case b'DPSL':
+                tmp_double_protection_salt = tmp_value
+            case b'ITER':
+                tmp_iter = int.from_bytes(tmp_value)
+            case b'KTYP':
+                tmp_protection_class['KTYP'] = int.from_bytes(tmp_value)
+            case b'UUID':
+                if keybag_uuid is None:
+                    keybag_uuid = tmp_value
+                else:
+                    if tmp_protection_class is not None:
+                        protection_classes[tmp_protection_class['CLAS']] = tmp_protection_class
+                    tmp_protection_class = {}
+            case b'SALT':
+                tmp_salt = tmp_value
+            case b'WPKY':
+                tmp_protection_class['WPKY'] = tmp_value
+            case b'WRAP':
+                if tmp_protection_class is not None:
+                    tmp_protection_class['WRAP'] = tmp_value
+
+    # Clean up the open protection class
+    protection_classes[tmp_protection_class['CLAS']] = tmp_protection_class
+
+    # Decrypt the Manifest password
+    try:
+        initial_unwrapped_key = hashlib.pbkdf2_hmac(
+            'sha256', str.encode(passcode), tmp_double_protection_salt,
+            tmp_double_protection_iter) 
+        unwrapped_key = hashlib.pbkdf2_hmac('sha1', initial_unwrapped_key,
+                                            tmp_salt, tmp_iter, dklen=32)
+    except TypeError:
+        return None, "No password provided"
+    # Unwrap all of the protection class keys
+    for protection_class_key in protection_classes:
+        protection_class = protection_classes[protection_class_key]
+        try:
+            protection_class['Unwrapped'] = aes_key_unwrap(
+                unwrapped_key, protection_class['WPKY'])
+        except:
+            logfunc("Could not unwrap a protection class key, likely due to an incorrect passcode. Exiting.")
+            return None, "Incorrect password"
+
+    # Find the right one for the Manifest.db
+    if manifest_key_class not in protection_classes:
+        logfunc("Did not find the right protection class to decrypt Manifest.db. Exiting.")
+        return None, "Could not find protection class for Manifest.db"
+
+    manifest_protection_class = protection_classes[manifest_key_class]
+    unwrapped_manifest_key = aes_key_unwrap(manifest_protection_class["Unwrapped"], manifest_wrapped_key)
+
+    logfunc(f"Manifest.db was successfully decrypted with passcode {passcode}")
+    return (protection_classes, unwrapped_manifest_key), "Decryption successful"
+
 
 class FileInfo:
     def __init__(self, source_path, creation_date, modification_date):
@@ -95,28 +227,41 @@ class FileSeekerDir(FileSeekerBase):
         return pathlist
 
 class FileSeekerItunes(FileSeekerBase):
-    def __init__(self, directory, data_folder):
+    def __init__(self, directory, data_folder, backup_type, decryption_keys):
         FileSeekerBase.__init__(self)
         self.directory = directory
         self._all_files = {}
-        self.files_metadata = {}
+        self._all_file_meta = {}
         self.data_folder = data_folder
+        self.files_metadata = {}
+        self.decryption_keys = decryption_keys
+        self.backup_type = backup_type
         logfunc('Building files listing...')
-        if os.path.exists(os.path.join(directory, "Manifest.db")):
-            self.build_files_list_from_manifest_db(directory)
-            self.backup_type = "Manifest.db"
-        elif os.path.exists(os.path.join(directory, "Manifest.mbdb")):
-            self.build_files_list_from_manifest_mbdb(directory)
-            self.backup_type = "Manifest.mbdb"
+        if backup_type == "db":
+            manifest_path = os.path.join(directory, "Manifest.db")
+            if decryption_keys:
+                unwrapped_manifest_key = decryption_keys[1]
+                with open(manifest_path, "rb") as manifest_contents:
+                    cipher = Cipher(algorithms.AES(unwrapped_manifest_key), modes.CBC(b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'))
+                    decryptor = cipher.decryptor()
+                    decrypted_manifest_contents = decryptor.update(manifest_contents.read()) + decryptor.finalize()
+                    manifest_path = os.path.join(data_folder, "Manifest.db")
+                    with open(manifest_path, "wb") as new_manifest_contents:
+                        new_manifest_contents.write(decrypted_manifest_contents)
+
+            self.build_files_list_from_manifest_db(manifest_path)
+        elif backup_type == "mbdb":
+            manifest_path = os.path.join(directory, "Manifest.mbdb")
+            self.build_files_list_from_manifest_mbdb(manifest_path)
         logfunc(f'File listing complete - {len(self._all_files)} files')
         self.searched = {}
         self.copied = {}
         self.file_infos = {}
-    
-    def build_files_list_from_manifest_db(self, directory):
+
+    def build_files_list_from_manifest_db(self, manifest_path):
         '''Populates paths from Manifest.db files into _all_files'''
         try: 
-            db = open_sqlite_db_readonly(os.path.join(directory, "Manifest.db"))
+            db = open_sqlite_db_readonly(manifest_path)
             cursor = db.cursor()
             cursor.execute(
                 """
@@ -134,13 +279,25 @@ class FileSeekerItunes(FileSeekerBase):
                 file_metadata = row[3]
                 full_path = os.path.join(root_path, relative_path)
                 self._all_files[full_path] = hash_filename
+                if self.decryption_keys:
+                    # Load the file's plist and find the encryption key
+                    tmp_file_plist = plistlib.loads(row[3])
+                    tmp_plist_root = tmp_file_plist["$top"]["root"]
+                    tmp_key_position = tmp_file_plist["$objects"][tmp_plist_root]["EncryptionKey"]
+                    tmp_wrapped_key = tmp_file_plist["$objects"][tmp_key_position]["NS.data"]
+
+                    # Store the results into a dict for future
+                    self._all_file_meta[full_path] = {}
+                    self._all_file_meta[full_path]['Class'] = int.from_bytes(tmp_wrapped_key[0:4], byteorder="little")
+                    self._all_file_meta[full_path]['Key'] = tmp_wrapped_key[4:]
+                    self._all_file_meta[full_path]['Size'] = tmp_file_plist["$objects"][tmp_plist_root]["Size"]
                 self.files_metadata[hash_filename] = file_metadata
             db.close()
         except Exception as ex:
-            logfunc(f'Error opening Manifest.db from {directory}, ' + str(ex))
+            logfunc(f'Error opening Manifest.db from {manifest_path}, ' + str(ex))
             raise ex
 
-    def build_files_list_from_manifest_mbdb(self, directory):
+    def build_files_list_from_manifest_mbdb(self, manifest_path):
         '''Populates paths from Manifest.mbdb files into _all_files'''
         def getint(data, offset, intsize):
             """Retrieve an integer (big-endian) and new offset from the current offset"""
@@ -159,9 +316,9 @@ class FileSeekerItunes(FileSeekerBase):
             value = "" if bin else data[offset:offset+length].decode()
             return value, (offset + length)
 
-        def process_mbdb_file(directory):
+        def process_mbdb_file(manifest_path):
             files = list()
-            with open(os.path.join(directory, "Manifest.mbdb"), 'rb') as f:
+            with open(manifest_path, 'rb') as f:
                 data = f.read()
             if data[0:4].decode() != "mbdb": raise Exception("This does not look like an MBDB file")
             offset = 4
@@ -191,7 +348,7 @@ class FileSeekerItunes(FileSeekerBase):
             return files
 
         try: 
-            all_rows = process_mbdb_file(directory)
+            all_rows = process_mbdb_file(manifest_path)
             for row in all_rows:
                 hash_filename = row[0]
                 domain = row[1]
@@ -200,7 +357,7 @@ class FileSeekerItunes(FileSeekerBase):
                 full_path = os.path.join(root_path, relative_path)
                 self._all_files[full_path] = hash_filename
         except Exception as ex:
-            logfunc(f'Error opening Manifest.mbdb from {directory}, ' + str(ex))
+            logfunc(f'Error opening Manifest.mbdb from {self.directory}, ' + str(ex))
             raise ex
 
     def search(self, filepattern, return_on_first_hit=False, force=False):
@@ -211,7 +368,7 @@ class FileSeekerItunes(FileSeekerBase):
         matching_keys = fnmatch.filter(self._all_files, filepattern)
         for relative_path in matching_keys:
             hash_filename = self._all_files[relative_path]
-            if self.backup_type == "Manifest.db":
+            if self.backup_type == "db":
                 original_location = os.path.join(self.directory, hash_filename[:2], hash_filename)
                 metadata = get_plist_content(self.files_metadata[hash_filename])
                 creation_date = metadata.get('Birth', 0)
@@ -227,7 +384,36 @@ class FileSeekerItunes(FileSeekerBase):
             if original_location not in self.copied or force:
                 try:
                     os.makedirs(os.path.dirname(data_path), exist_ok=True)
-                    copyfile(original_location, data_path)
+
+                    # Handle encrypted backups differently, don't just copy the encrypted files
+                    if self.decryption_keys:
+                        protection_classes = self.decryption_keys[0]
+                        # Snag the right protection class
+                        tmp_file_meta = self._all_file_meta[relative_path]
+                        if tmp_file_meta['Class'] not in protection_classes:
+                            logfunc(f'Can\'t locate the protection class for {relative_path}: {tmp_file_meta["Class"]}')
+                            raise Exception
+                        tmp_protection_class = protection_classes[tmp_file_meta['Class']]
+
+                        # Grab the file's key
+                        tmp_file_wrapped_key = tmp_file_meta['Key']
+                        tmp_file_unwrapped_key = aes_key_unwrap(tmp_protection_class['Unwrapped'], tmp_file_wrapped_key)
+
+                        # Open the file and snag the contents
+                        with open(original_location, "rb") as temp_original_file:
+                            # Decrypt the contents, Apple uses a 0'd out 16-byte IV
+                            cipher = Cipher(algorithms.AES(tmp_file_unwrapped_key), modes.CBC(b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'))
+                            decryptor = cipher.decryptor()
+                            decrypted_contents = decryptor.update(temp_original_file.read()) + decryptor.finalize()
+
+                            # Write the decrypt into the expected located, only write the expected size, no padding
+                            with open(data_path, "wb") as temp_new_file:
+                                temp_new_file.write(decrypted_contents[0:tmp_file_meta['Size']])
+
+                    # If not encrypted, just copy the thing
+                    else:
+                        copyfile(original_location, data_path)
+
                     file_info = FileInfo(original_location, creation_date, modification_date)
                     self.file_infos[data_path] = file_info
                     self.copied[original_location] = data_path
