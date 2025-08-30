@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         'description': 'Extract chats from Potato Chat',
         'author': '@C_Peter',
         'creation_date': '2025-08-21',
-        'last_update_date': '2025-08-21',
+        'last_update_date': '2025-08-30',
         'requirements': 'none',
         'category': 'Potato Chat',
         'notes': '',
@@ -21,7 +21,7 @@ __artifacts_v2__ = {
         'description': 'Extract group chats from Potato Chat, based off the work by Forrest Cook - https://github.com/Whee30',
         'author': '@C_Peter',
         'creation_date': '2025-08-21',
-        'last_update_date': '2025-08-21',
+        'last_update_date': '2025-08-30',
         'requirements': 'none',
         'category': 'Potato Chat',
         'notes': '',
@@ -320,46 +320,49 @@ def potatochat_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone
                 if str(m_record['media_id']).startswith("-"):
                     unsigned = m_record['media_id'] & 0xFFFFFFFFFFFFFFFF
                     hex_path = format(int(unsigned), 'x')
-                if bytes.fromhex(hex_path)[::-1].hex() in media_str:
-                    if m_record['media_type'] == 2:
-                        media_local_path = f'files/image-remote-{hex_path}/image.jpg'
-                        if text:
-                            m_type = "Text and Image"
+                try:
+                    if bytes.fromhex(hex_path)[::-1].hex() in media_str:
+                        if m_record['media_type'] == 2:
+                            media_local_path = f'files/image-remote-{hex_path}/image.jpg'
+                            if text:
+                                m_type = "Text and Image"
+                            else:
+                                m_type = "Image"
+                            if message == None or message == "":
+                                m_type = "Image"
+                        elif m_record['media_type'] == 1:
+                            media_local_path = f'video/remote{hex_path}.mov'
+                            if text:
+                                m_type = "Text and Video"
+                            else:
+                                m_type = "Video"
+                            if message == None or message == "":
+                                m_type = "Video"
+                        elif m_record['media_type'] == 3:
+                            if filename == None:
+                                media_local_path = f'files/{hex_path}/file'
+                                if str(m_record['media_id']).startswith("-"):
+                                    media_local_path = f'files/local{hex_path}/file'
+                            else:
+                                media_local_path = f'files/{hex_path}/{filename}'
+                                if str(m_record['media_id']).startswith("-"):
+                                    media_local_path = f'files/local{hex_path}/{filename}'
+                            if message == None or message == "":
+                                m_type = "File"
+                                if filename and filename != "file":
+                                    message = f"File: {filename}"
+                            else:
+                                m_type = "Text and File"
+                        else: 
+                            media_local_path = None
+                        if media_local_path != None:
+                            attach_file_name = Path(media_local_path).name
+                            attach_file = check_in_media(media_local_path, attach_file_name)
                         else:
-                            m_type = "Image"
-                        if message == None or message == "":
-                            m_type = "Image"
-                    elif m_record['media_type'] == 1:
-                        media_local_path = f'video/remote{hex_path}.mov'
-                        if text:
-                            m_type = "Text and Video"
-                        else:
-                            m_type = "Video"
-                        if message == None or message == "":
-                            m_type = "Video"
-                    elif m_record['media_type'] == 3:
-                        if filename == None:
-                            media_local_path = f'files/{hex_path}/file'
-                            if str(m_record['media_id']).startswith("-"):
-                                media_local_path = f'files/local{hex_path}/file'
-                        else:
-                            media_local_path = f'files/{hex_path}/{filename}'
-                            if str(m_record['media_id']).startswith("-"):
-                                media_local_path = f'files/local{hex_path}/{filename}'
-                        if message == None or message == "":
-                            m_type = "File"
-                            if filename and filename != "file":
-                                message = f"File: {filename}"
-                        else:
-                            m_type = "Text and File"
-                    else: 
-                        media_local_path = None
-                    if media_local_path != None:
-                        attach_file_name = Path(media_local_path).name
-                        attach_file = check_in_media(media_local_path, attach_file_name)
-                    else:
-                        attach_file = ''
-                    break
+                            attach_file = ''
+                        break
+                except ValueError:
+                    pass
         if reply != "":
             m_type = "Reply"
         data_list.append((message_date, chat_name, chat_id, message_id, sender, sender_id, receiver, receiver_id, m_type, message, attach_file, reply, lat, lon))
@@ -583,38 +586,41 @@ def potatochat_group_chats(files_found, _report_folder, _seeker, _wrap_text, _ti
             if str(m_record['media_id']).startswith("-"):
                 unsigned = m_record['media_id'] & 0xFFFFFFFFFFFFFFFF
                 hex_path = format(int(unsigned), 'x')
-            if bytes.fromhex(hex_path)[::-1].hex() in media_str:
-                if m_record['media_type'] == 2:
-                    media_local_path = f'files/image-remote-{hex_path}/image.jpg'
-                    if message == None or message == "":
-                        m_type = 'Image'
+            try:
+                if bytes.fromhex(hex_path)[::-1].hex() in media_str:
+                    if m_record['media_type'] == 2:
+                        media_local_path = f'files/image-remote-{hex_path}/image.jpg'
+                        if message == None or message == "":
+                            m_type = 'Image'
+                        else:
+                            m_type = 'Text and Image'
+                    elif m_record['media_type'] == 1:
+                        media_local_path = f'video/remote{hex_path}.mov'
+                        if message == None or message == "":
+                            m_type = 'Video'
+                        else:
+                            m_type = 'Text and Video'
+                    elif m_record['media_type'] == 3:
+                        if m_type != "Text and File":
+                            m_type = 'File'
+                        if filename == None:
+                            media_local_path = f'files/{hex_path}/file'
+                            if str(m_record['media_id']).startswith("-"):
+                                media_local_path = f'files/local{hex_path}/file'
+                        else:
+                            media_local_path = f'files/{hex_path}/{filename}'
+                            if str(m_record['media_id']).startswith("-"):
+                                media_local_path = f'files/local{hex_path}/{filename}'
+                    else: 
+                        media_local_path = None
+                    if media_local_path != None:
+                        attach_file_name = Path(media_local_path).name
+                        attach_file = check_in_media(media_local_path, attach_file_name)
                     else:
-                        m_type = 'Text and Image'
-                elif m_record['media_type'] == 1:
-                    media_local_path = f'video/remote{hex_path}.mov'
-                    if message == None or message == "":
-                        m_type = 'Video'
-                    else:
-                        m_type = 'Text and Video'
-                elif m_record['media_type'] == 3:
-                    if m_type != "Text and File":
-                        m_type = 'File'
-                    if filename == None:
-                        media_local_path = f'files/{hex_path}/file'
-                        if str(m_record['media_id']).startswith("-"):
-                            media_local_path = f'files/local{hex_path}/file'
-                    else:
-                        media_local_path = f'files/{hex_path}/{filename}'
-                        if str(m_record['media_id']).startswith("-"):
-                            media_local_path = f'files/local{hex_path}/{filename}'
-                else: 
-                    media_local_path = None
-                if media_local_path != None:
-                    attach_file_name = Path(media_local_path).name
-                    attach_file = check_in_media(media_local_path, attach_file_name)
-                else:
-                    attach_file = ''
-                break
+                        attach_file = ''
+                    break
+            except ValueError:
+                pass
         if reply != "":
             m_type = "Reply"
         data_list.append((message_date, group_name, group_ID, message_id, user_name, user_ID, m_type, message, attach_file, reply))
