@@ -616,7 +616,7 @@ def logarchive_navigation(files_found, report_folder, seeker, wrap_text, timezon
     FROM logarchive_artifacts
     WHERE event_message LIKE '%Starting route to%'
         OR event_message LIKE '%Proceed to the%'
-        OR event_message LIKE '%Proceed to\%'
+        OR event_message LIKE '%Proceed to\\%'
         OR event_message LIKE '%Turn right%'
         OR event_message LIKE '%Turn left%'
         OR event_message LIKE '%roundabout%'
@@ -628,7 +628,7 @@ def logarchive_navigation(files_found, report_folder, seeker, wrap_text, timezon
         OR event_message LIKE '%then arrive%'
         OR event_message LIKE '%your destination%'
         OR event_message LIKE '%At the light%'
-        OR event_message LIKE '%Arrived\%'
+        OR event_message LIKE '%Arrived\\%'
     '''
     
     data_list = get_sqlite_db_records(source_path, query)
