@@ -26,6 +26,7 @@ __artifacts_v2__ = {
         'notes': '',
         'paths': (
             '*/mobile/Containers/Shared/AppGroup/*/ChatStorage.sqlite*',
+            '*/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*',
             '*/mobile/Containers/Shared/AppGroup/*/Message/Media/*/*/*/*'),
         'output_types': 'all',
         'artifact_icon': 'message-square'
@@ -170,6 +171,7 @@ def whatsAppContacts(files_found, report_folder, seeker, wrap_text, timezone_off
 def whatsAppMessages(files_found, report_folder, seeker, wrap_text, timezone_offset):
     artifact_info = inspect.stack()[0]
     source_path = get_file_path(files_found, 'ChatStorage.sqlite')
+    contacts_db = get_file_path(files_found, 'ContactsV2.sqlite')
     data_list = []
 
     query = '''
@@ -228,6 +230,21 @@ def whatsAppMessages(files_found, report_folder, seeker, wrap_text, timezone_off
                 decoded_data, _ = blackboxprotobuf.decode_message(metadata)
                 number_forward = f'{decoded_data.get("17")}'
                 from_forward = f'{decoded_data.get("21").decode("utf-8")}'
+                if contacts_db and from_forward:
+                    attach_query = attach_sqlite_db_readonly(contacts_db, 'ContactsV2')
+                    query_contact = f"""
+                                SELECT
+                                    ZWHATSAPPID,
+                                    ZFULLNAME,
+                                    ZPHONENUMBER
+                                FROM ContactsV2.ZWAADDRESSBOOKCONTACT
+                                WHERE ZWHATSAPPID = '{from_forward}'
+                            """
+                    contact_records = get_sqlite_db_records(source_path, query_contact, attach_query)
+                    if contact_records:
+                        forwardedwhatsappid, fullname, phone = contact_records[0]
+                        from_forward = f"{fullname} ({phone}) - ({forwardedwhatsappid})"
+
             except:
                 pass
 
