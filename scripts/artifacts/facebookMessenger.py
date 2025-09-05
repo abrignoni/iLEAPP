@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         'category': 'Facebook Messenger',
         'notes': '',
         'paths': (
-            '**/lightspeed-*.db*',),
+            '*/lightspeed-userDatabases/*.db*',),
         'output_types': 'standard',
         'artifact_icon': 'phone-call',
     },
@@ -18,14 +18,24 @@ __artifacts_v2__ = {
         'description': 'Extract messages from Facebook Messenger.',
         'author': '@stark4n6',
         'creation_date': '2021-03-03',
-        'last_update_date': '2025-04-09',
+        'last_update_date': '2025-08-27',
         'requirements': 'none',
         'category': 'Facebook Messenger',
         'notes': '',
         'paths': (
-            '**/lightspeed-*.db*',),
+            '*/lightspeed-userDatabases/*.db*',),
         'output_types': 'standard',
         'artifact_icon': 'message-circle',
+        'data_views': {
+            'chat': {
+                'threadDiscriminatorColumn': 'Thread ID',
+                'textColumn': 'Message',
+                'directionColumn': 'Message Direction',
+                'directionSentValue': 'Sent',
+                'timeColumn': 'Timestamp',
+                'senderColumn': 'Sender Name'
+            }
+        }
     },
     'facebookMessengerSecretConversations': {
         'name': 'Facebook Messenger - Secret Conversations',
@@ -37,7 +47,7 @@ __artifacts_v2__ = {
         'category': 'Facebook Messenger',
         'notes': '',
         'paths': (
-            '**/lightspeed-*.db*',),
+            '*/lightspeed-userDatabases/*.db*',),
         'output_types': 'standard',
         'artifact_icon': 'lock',
     },
@@ -51,7 +61,7 @@ __artifacts_v2__ = {
         'category': 'Facebook Messenger',
         'notes': '',
         'paths': (
-            '**/lightspeed-*.db*',),
+            '*/lightspeed-userDatabases/*.db*',),
         'output_types': 'standard',
         'artifact_icon': 'facebook',
     },
@@ -65,7 +75,7 @@ __artifacts_v2__ = {
         'category': 'Facebook Messenger',
         'notes': '',
         'paths': (
-            '**/lightspeed-*.db*',),
+            '*/lightspeed-userDatabases/*.db*',),
         'output_types': 'standard',
         'artifact_icon': 'users',
     }
@@ -103,7 +113,7 @@ def facebookMessengerCalls(files_found, report_folder, seeker, wrap_text, timezo
         ON thread_messages.sender_id = contacts.id
     LEFT JOIN attachments
         ON thread_messages.message_id = attachments.message_id
-    WHERE attachments.title_text like 'Audio Call' or attachments.title_text like 'Video Chat'
+    WHERE attachments.title_text like '%call%'
     '''
 
     data_headers = (
@@ -138,17 +148,29 @@ def facebookMessengerChats(files_found, report_folder, seeker, wrap_text, timezo
 
     query = '''
     SELECT
-        thread_messages.timestamp_ms,
-        contacts.name,
-        thread_messages.thread_key,
-        thread_messages.text,
-        CASE thread_messages.has_attachment
-            WHEN NULL THEN ''
-            WHEN 1 THEN 'Yes'
-        END AS Attachment,
-        attachments.filename,
-        attachments.filesize,
-        attachment_items.title_text
+	thread_messages.timestamp_ms,
+	CASE 
+        WHEN (SELECT CASE
+		WHEN _user_info.facebook_user_id IS NOT NULL THEN 'Sent'
+		ELSE 'Received'
+	END) = 'Sent' THEN concat(contacts.name, ' (Local User)')
+        ELSE contacts.name
+    END,
+	contacts.id,
+	CASE
+		WHEN _user_info.facebook_user_id IS NOT NULL THEN 'Sent'
+		ELSE 'Received'
+	END AS "Message Direction",
+	thread_messages.text,
+	CASE thread_messages.has_attachment
+		WHEN NULL THEN ''
+		WHEN 1 THEN 'Yes'
+	END AS Attachment,
+	attachments.filename,
+	attachments.filesize,
+	attachment_items.title_text,
+    attachment_items.subtitle_text,
+    thread_messages.thread_key
     FROM thread_messages
     LEFT JOIN contacts
         ON thread_messages.sender_id = contacts.id
@@ -156,12 +178,15 @@ def facebookMessengerChats(files_found, report_folder, seeker, wrap_text, timezo
         ON thread_messages.message_id = attachments.message_id
     LEFT JOIN attachment_items
         ON thread_messages.message_id = attachment_items.message_id
-    WHERE attachment_items.title_text IS NULL or attachment_items.title_text like 'Location sharing ended'
+    LEFT JOIN _user_info
+        ON thread_messages.sender_id = _user_info.facebook_user_id
+    WHERE attachment_items.title_text IS NULL or attachment_items.title_text NOT LIKE '%call%'
+    ORDER BY thread_messages.timestamp_ms ASC
     '''
 
     data_headers = (
-        ('Timestamp', 'datetime'), 'Sender Name', 'Sender ID', 'Message',
-        'Attachment', 'Attachment Name', 'Attachment Size', 'Title Text')
+        ('Timestamp', 'datetime'), 'Sender Name', 'Sender ID', 'Message Direction', 'Message', 
+        'Attachment', 'Attachment Name', 'Attachment Size', 'Title Text', 'Subtitle Text', 'Thread ID')
 
     data_headers, db_records, source_path = get_sqlite_multiple_db_records(
         db_path_list, query, data_headers)
@@ -174,6 +199,7 @@ def facebookMessengerChats(files_found, report_folder, seeker, wrap_text, timezo
                 record_data.append(timestamp_ms)
             else:
                 record_data.append(record[key])
+           
         data_list.append(tuple(record_data))
 
     return data_headers, data_list, source_path
