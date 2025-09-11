@@ -31,6 +31,6 @@ jobs:
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git add admin/docs/filepath_search_summary.md
+        git add admin/
         git commit -m "Update filepath search summary"
         git push

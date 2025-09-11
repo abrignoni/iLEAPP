@@ -1,13 +1,46 @@
+"""
+Parses artifact modules to find usage of device_info and logdevinfo.
+
+This script scans all Python files in the scripts/artifacts directory to
+identify calls to the `device_info` and `logdevinfo` functions. It extracts
+the arguments passed to these functions and aggregates them to create a summary
+of what device information is being logged and by which modules.
+
+The aggregated data is then formatted into two Markdown tables:
+1. `device_info` usage, showing Category, Label, and Source Modules.
+2. `logdevinfo` usage, showing the Key and Source Modules.
+
+Finally, the script updates the 'admin/docs/generated/device_info_values.md'
+file by replacing placeholder sections with the newly generated tables. This
+provides an up-to-date reference of device info usage across all artifacts.
+"""
 import os
 import re
 import ast
 from pathlib import Path
 
+# Define project structure paths
+ARTIFACTS_DIR_NAME = 'scripts/artifacts'
+DEVICE_INFO_DOC_PATH = 'admin/docs/generated/device_info_values.md'
+
+
 def find_function_calls(file_path, function_name):
     """
-    Parse a Python file and find all calls to the specified function
-    Returns a list of tuples containing (category, label) for device_info
-    or (key) for logdevinfo
+    Parse a Python file and find all calls to the specified function.
+
+    This function attempts to use Abstract Syntax Trees (AST) for accurately
+    finding function calls and their arguments. If AST parsing fails for any
+    reason, it falls back to using regular expressions to find matches.
+
+    Args:
+        file_path (str or Path): The path to the Python file to analyze.
+        function_name (str): The name of the function to search for
+                             ('device_info' or 'logdevinfo').
+
+    Returns:
+        list[tuple]: A list of tuples containing the captured arguments.
+                     For 'device_info', it's (category, label).
+                     For 'logdevinfo', it's (key,).
     """
     with open(file_path, 'r', encoding='utf-8') as f:
         content = f.read()
@@ -45,11 +78,19 @@ def find_function_calls(file_path, function_name):
     
     return calls
 
+
 def generate_markdown():
+    """
+    Generate markdown documentation for device_info and logdevinfo usage.
+
+    This function orchestrates the process of scanning artifact files,
+    collecting usage data, formatting it into markdown tables, and
+    updating the documentation file.
+    """
     script_dir = Path(__file__).parent
     root_dir = script_dir.parent.parent
     
-    artifacts_dir = Path( root_dir, 'scripts/artifacts')
+    artifacts_dir = Path(root_dir, ARTIFACTS_DIR_NAME)
     device_info_usage = {}
     logdevinfo_usage = {}
     
@@ -88,7 +129,7 @@ def generate_markdown():
         logdevinfo_md += f"| {key} | {modules} |\n"
     
     # Read the existing markdown file
-    doc_path = Path( root_dir, 'admin/docs/device_info_values.md')
+    doc_path = Path(root_dir, DEVICE_INFO_DOC_PATH)
     with open(doc_path, 'r', encoding='utf-8') as f:
         content = f.read()
     
