@@ -30,7 +30,7 @@ REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 # Define key paths and constants
 ARTIFACTS_DIR = os.path.join(REPO_ROOT, 'scripts', 'artifacts')
 MD_FILE_PATH = os.path.join(REPO_ROOT, 'admin', 'docs', 'generated', 'module_info.md')
-GITHUB_MODULE_URL = "https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/"
+GITHUB_MODULE_URL = "/scripts/artifacts/"
 START_MARKER = "<!-- MODULE_INFO_START -->"
 END_MARKER = "<!-- MODULE_INFO_END -->"
 
