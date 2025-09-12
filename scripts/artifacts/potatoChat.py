@@ -15,6 +15,18 @@ __artifacts_v2__ = {
         ),
         'output_types': 'standard',
         'artifact_icon': 'message-square',
+        'data_views': {
+            'chat': {
+                'threadDiscriminatorColumn': 'Chat-ID',
+                'threadLabelColumn': 'Chat',
+                'textColumn': 'Message',
+                'directionColumn': 'From Me',
+                'directionSentValue': 1,
+                'timeColumn': 'Timestamp',
+                'senderColumn': 'Sender Name',
+                'mediaColumn': 'Attachment File'
+            }
+        }
     },
     'potatochat_group_chats': {
         'name': 'Potato Chat - Group Chats',
@@ -33,6 +45,18 @@ __artifacts_v2__ = {
         ),
         'output_types': 'standard',
         'artifact_icon': 'message-square',
+        'data_views': {
+            'chat': {
+                'threadDiscriminatorColumn': 'Group-ID',
+                'threadLabelColumn': 'Group Name',
+                'textColumn': 'Message',
+                'directionColumn': 'From Me',
+                'directionSentValue': 1,
+                'timeColumn': 'Timestamp',
+                'senderColumn': 'Sender Name',
+                'mediaColumn': 'Attachment File'
+            }
+        }
     },
     'potatochat_users': {
         'name': 'Potato Chat - Known Users',
@@ -183,6 +207,7 @@ def potatochat_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone
         sender_id = record['from_id']
         receiver = record['to_name'] if record['outgoing'] == 1 else 'Local User'
         receiver_id = record['to_id']
+        outgoing = record['outgoing']
         message = record['message']
         if message != None or message != "":
             text = True
@@ -365,13 +390,13 @@ def potatochat_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone
                     pass
         if reply != "":
             m_type = "Reply"
-        data_list.append((message_date, chat_name, chat_id, message_id, sender, sender_id, receiver, receiver_id, m_type, message, attach_file, reply, lat, lon))
+        data_list.append((message_date, chat_name, chat_id, message_id, sender, sender_id, receiver, receiver_id, m_type, message, attach_file, reply, lat, lon, outgoing))
         
 
 
     data_headers = (
         ('Timestamp', 'datetime'), 'Chat', 'Chat-ID', 'Message-ID', 'Sender Name', 'From ID', 'Receiver', 'To ID', 'Message Type',
-        'Message', ('Attachment File', 'media'), 'Reply (Message-ID)', 'Latitude', 'Longitude')
+        'Message', ('Attachment File', 'media'), 'Reply (Message-ID)', 'Latitude', 'Longitude', 'From Me')
 
     return data_headers, data_list, source_path
 
@@ -515,14 +540,14 @@ def potatochat_group_chats(files_found, _report_folder, _seeker, _wrap_text, _ti
                 m_type = 'Text'
             elif d_t == "Int" and ASCII_title == 'd':
                 timestamp = int.from_bytes(payload_data, byteorder='little')
-                message_date = datetime.datetime.fromtimestamp(timestamp, tz=datetime.timezone.utc)
+                #message_date = datetime.datetime.fromtimestamp(timestamp, tz=datetime.timezone.utc)
             elif ASCII_title == "ti" or ASCII_title == "ci": 
                 group_ID = abs(int.from_bytes(payload_data[0:4], byteorder="little", signed=True))
                 try:
                     group = next((rec for rec in groups if rec.get("groupId") == group_ID), None)
                     group_name = group["title"]
                 except (TypeError, KeyError):
-                    group_name = None
+                    group_name = "Unknown/System"
             elif ASCII_title == "fi":
                 user_ID = int.from_bytes(payload_data, byteorder='little')
                 c_uid = next((rec for rec in u_cid_records if rec["uid"] == user_ID), None)
@@ -532,11 +557,11 @@ def potatochat_group_chats(files_found, _report_folder, _seeker, _wrap_text, _ti
                     else:
                         user_name = f"{c_uid['first_name']}"
                 else:
-                    user_name = None
+                    user_name = group_name
             elif ASCII_title == 'i':
                 message_id = int.from_bytes(payload_data, byteorder='little')
-            #elif ASCII_title == 'out':
-            #    outgoing = int.from_bytes(payload_data, byteorder='little')
+            elif ASCII_title == 'out':
+                outgoing = int.from_bytes(payload_data, byteorder='little')
             elif ASCII_title == "md":
                 if message == None or message == "":
                     message = extract_attachment_message(payload_data)
@@ -621,12 +646,14 @@ def potatochat_group_chats(files_found, _report_folder, _seeker, _wrap_text, _ti
                     break
             except ValueError:
                 pass
+        if user_name == "None":
+            user_name = group_name
         if reply != "":
             m_type = "Reply"
-        data_list.append((message_date, group_name, group_ID, message_id, user_name, user_ID, m_type, message, attach_file, reply))
+        data_list.append((timestamp, group_name, group_ID, message_id, user_name, user_ID, m_type, message, attach_file, reply, outgoing))
 
     data_headers = (
         ('Timestamp', 'datetime'), 'Group Name', 'Group-ID', 'Message-ID', 'Sender Name', 'From ID', 'Message Type',
-        'Message', ('Attachment File', 'media'), 'Reply (Message-ID)')
+        'Message', ('Attachment File', 'media'), 'Reply (Message-ID)', 'From Me')
 
     return data_headers, data_list, source_path
