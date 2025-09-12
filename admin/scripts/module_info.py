@@ -1,22 +1,68 @@
+"""
+Parses artifact modules to generate comprehensive documentation.
+
+This script scans all Python files in the 'scripts/artifacts' directory to
+extract metadata about the artifacts they define. It supports two formats for
+artifact definitions: a legacy `__artifacts__` (v1) dictionary and a newer,
+more detailed `__artifacts_v2__` dictionary.
+
+The script processes each module to determine its artifact version and extracts
+relevant details. For v2 artifacts, it captures the name, description, search
+paths, output types, icon, version, and last update date. For v1 artifacts, it
+simply lists the artifact names.
+
+Finally, it aggregates all this information and generates a detailed summary in a
+Markdown file ('admin/docs/generated/module_info.md'). The summary includes:
+- A statistical overview (total modules, v1/v2 artifact counts, etc.).
+- A detailed table for v2 artifacts.
+- A simpler table for v1 artifacts.
+- A table listing any modules that caused parsing errors.
+
+This provides a centralized, auto-generated reference for all artifacts in the
+project, which is kept up-to-date by running this script.
+"""
 import os
 import re
 
-# Get the root directory of the repository (2 directories above the script location)
+# Get the root directory of the repository (2 directories above the script)
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 
-# Adjust paths relative to the repository root
+# Define key paths and constants
 ARTIFACTS_DIR = os.path.join(REPO_ROOT, 'scripts', 'artifacts')
-MD_FILE_PATH = os.path.join(REPO_ROOT, 'admin', 'docs', 'module_info.md')
-
+MD_FILE_PATH = os.path.join(REPO_ROOT, 'admin', 'docs', 'generated', 'module_info.md')
+GITHUB_MODULE_URL = "/scripts/artifacts/"
 START_MARKER = "<!-- MODULE_INFO_START -->"
 END_MARKER = "<!-- MODULE_INFO_END -->"
 
+
 def clean_string(s):
-    """Remove line breaks and limit string length."""
+    """
+    Sanitize a string by removing line breaks and limiting its length.
+
+    Args:
+        s (str): The input string to clean.
+
+    Returns:
+        str: The cleaned and truncated string.
+    """
     return ' '.join(s.split())[:150]
 
+
 def extract_v2_info(module_content):
-    """Extract artifact information from a v2 block."""
+    """
+    Extract artifact information from a v2 `__artifacts_v2__` block.
+
+    This function uses regular expressions to find the v2 artifact dictionary
+    and then `exec` to safely evaluate it in a restricted scope.
+
+    Args:
+        module_content (str): The string content of the Python module.
+
+    Returns:
+        list[dict]: A list of dictionaries, where each dictionary contains
+                    the details for a single v2 artifact. Returns a list
+                    with an error dictionary if parsing fails.
+    """
     pattern = re.compile(r"__artifacts_v2__.*\}\n}\n", re.DOTALL)
     match = pattern.search(module_content)
     if not match:
@@ -73,8 +119,17 @@ def extract_v2_info(module_content):
         })
     return results
 
+
 def extract_v1_info(module_content):
-    """Extract artifact names from a v1 block."""
+    """
+    Extract artifact names from a legacy v1 `__artifacts__` block.
+
+    Args:
+        module_content (str): The string content of the Python module.
+
+    Returns:
+        list[str]: A list of artifact names found in the block.
+    """
     pattern = re.compile(r"__artifacts__\s*=\s*{(.*?)}", re.DOTALL)
     match = pattern.search(module_content)
     if not match:
@@ -84,8 +139,19 @@ def extract_v1_info(module_content):
     artifact_names = re.findall(r'"(\w+)":', artifact_block)
     return artifact_names
 
+
 def parse_module_file(module_path):
-    """Parse a module file and return the artifact details."""
+    """
+    Parse a module file to extract artifact details for either v1 or v2.
+
+    Args:
+        module_path (str): The path to the artifact module file.
+
+    Returns:
+        tuple[str, list]: A tuple containing the artifact version ('v1', 'v2',
+                          or 'error') and a list of the extracted artifact
+                          details or error messages.
+    """
     try:
         with open(module_path, 'r', encoding='utf-8') as f:
             content = f.read()
@@ -99,12 +165,22 @@ def parse_module_file(module_path):
     except Exception as e:
         return "error", [f"Error reading file: {clean_string(str(e))}"]
 
+
 def generate_v2_markdown_table(artifact_data):
-    """Generate a markdown table for v2 artifacts."""
+    """
+    Generate a markdown table for v2 artifacts.
+
+    Args:
+        artifact_data (dict): A dictionary mapping module names to their
+                              v2 artifact data.
+
+    Returns:
+        str: A string containing the formatted markdown table.
+    """
     table = "| Module | Artifact | Name | Output Types | Icon | Version | Last Update Date | Description | Paths |\n"
     table += "|--------|----------|------|--------------|------|---------|------------------|-------------|-------|\n"
     for module, artifacts in artifact_data.items():
-        module_link = f"[{module}](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/{module})"
+        module_link = f"[{module}]({GITHUB_MODULE_URL}{module})"
         for artifact in artifacts:
             name = clean_string(artifact.get('name', ''))
             description = clean_string(artifact.get('description', ''))
@@ -121,18 +197,38 @@ def generate_v2_markdown_table(artifact_data):
 
     return table
 
+
 def generate_v1_markdown_table(artifact_data):
-    """Generate a markdown table for v1 artifacts."""
+    """
+    Generate a markdown table for v1 artifacts.
+
+    Args:
+        artifact_data (dict): A dictionary mapping module names to their
+                              v1 artifact data.
+
+    Returns:
+        str: A string containing the formatted markdown table.
+    """
     table = "| Module | Artifacts |\n"
     table += "|--------|----------|\n"
     for module, artifacts in artifact_data.items():
-        module_link = f"[{module}](https://github.com/abrignoni/iLEAPP/blob/main/scripts/artifacts/{module})"
+        module_link = f"[{module}]({GITHUB_MODULE_URL}{module})"
         artifacts_str = ', '.join(artifacts)
         table += f"| {module_link} | {artifacts_str} |\n"
     return table
 
+
 def generate_error_markdown_table(error_data):
-    """Generate a markdown table for modules with errors or no recognized artifacts."""
+    """
+    Generate a markdown table for modules with errors.
+
+    Args:
+        error_data (dict): A dictionary mapping module names to the
+                           errors encountered.
+
+    Returns:
+        str: A string containing the formatted markdown table for errors.
+    """
     table = "| Module | Error/Issue |\n"
     table += "|--------|-------------|\n"
     for module, errors in error_data.items():
@@ -140,8 +236,20 @@ def generate_error_markdown_table(error_data):
         table += f"| {module} | {error_str} |\n"
     return table
 
+
 def update_markdown_file(v1_data, v2_data, error_data):
-    """Update the markdown file with the parsed artifact data."""
+    """
+    Update the markdown file with the parsed artifact data and summary.
+
+    This function calculates summary statistics, generates markdown tables for
+    v1, v2, and error data, and then replaces a designated section in the
+    markdown file with this new content.
+
+    Args:
+        v1_data (dict): Data for v1 artifacts.
+        v2_data (dict): Data for v2 artifacts.
+        error_data (dict): Data for modules with errors.
+    """
     total_modules = len(v1_data) + len(v2_data) + len(error_data)
     v1_count = sum(len(artifacts) for artifacts in v1_data.values())
     v2_count = sum(len(artifacts) for artifacts in v2_data.values())
@@ -175,7 +283,7 @@ def update_markdown_file(v1_data, v2_data, error_data):
         if artifact.get('last_update_date')
     )
 
-    with open(MD_FILE_PATH, 'r') as md_file:
+    with open(MD_FILE_PATH, 'r', encoding='utf-8') as md_file:
         content = md_file.read()
 
     # Split the content into before, between, and after the markers
@@ -211,10 +319,18 @@ def update_markdown_file(v1_data, v2_data, error_data):
     new_content = f"{before_marker}{START_MARKER}\n\n{new_module_info}\n{END_MARKER}{after_info_marker}"
 
     # Write the updated content back to the markdown file
-    with open(MD_FILE_PATH, 'w') as md_file:
+    with open(MD_FILE_PATH, 'w', encoding='utf-8') as md_file:
         md_file.write(new_content)
 
+
 def main():
+    """
+    Main function to drive the artifact parsing and documentation generation.
+
+    It initializes data structures, iterates through all artifact modules,
+    parses each file, sorts the collected data, and then calls the function
+    to update the final markdown documentation file.
+    """
     v1_data = {}
     v2_data = {}
     error_data = {}

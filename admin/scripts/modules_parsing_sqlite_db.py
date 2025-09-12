@@ -55,7 +55,7 @@ def generate_markdown():
         get_records_md += f"| {module} |\n"
     
     # Read the existing markdown file
-    doc_path = Path( root_dir, 'admin/docs/modules_parsing_sqlite_db.md')
+    doc_path = Path( root_dir, 'admin/docs/generated/modules_parsing_sqlite_db.md')
     with open(doc_path, 'r', encoding='utf-8') as f:
         content = f.read()
     

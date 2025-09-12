@@ -502,10 +502,10 @@ def main():
     # Configuration
     repo_url = "https://github.com/abrignoni/LAVA.git"
     repo_path = "src/renderer/locales"
-    output_file = "admin/docs/module_language_list.md"
-    missing_file = "admin/docs/module_language_missing.md"
-    no_headers_file = "admin/docs/module_language_no_headers.md"
-    csv_file = "admin/docs/all_data_headers.csv"
+    output_file = "admin/docs/generated/module_language_list.md"
+    missing_file = "admin/docs/generated/module_language_missing.md"
+    no_headers_file = "admin/docs/generated/module_language_no_headers.md"
+    csv_file = "admin/data/generated/all_data_headers.csv"
     exclusion_file = "admin/scripts/translation_exclusions.json"
 
     # Determine local repo path
