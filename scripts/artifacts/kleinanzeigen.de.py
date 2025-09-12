@@ -23,7 +23,18 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/conversation_cache', ),
         "output_types": "standard",
-        "artifact_icon": "message-circle"
+        "artifact_icon": "message-circle",
+        "data_views": {
+            'chat': {
+                'threadDiscriminatorColumn': 'Conversation-ID',
+                'threadLabelColumn': 'Advertisement',
+                'textColumn': 'Message',
+                'directionColumn': 'From Me',
+                'directionSentValue': 1,
+                'timeColumn': 'Timestamp',
+                'senderColumn': 'From_Name',
+            }
+        }
     },
     "get_kleinanzeigensearchhistory": {
         "name": "Kleinanzeigen.de - Search History",
@@ -60,7 +71,7 @@ import datetime
 from scripts.ilapfuncs import artifact_processor, get_file_path
 
 @artifact_processor
-def get_kleinanzeigenmessagecache(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def get_kleinanzeigenmessagecache(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
     source_path = get_file_path(files_found, 'conversation_cache')
     data_list = []
 
@@ -68,11 +79,12 @@ def get_kleinanzeigenmessagecache(files_found, report_folder, seeker, wrap_text,
         m_cache = json.load(ka_in)
 
     for elem in m_cache['data']:
+        conv_id = elem['conversationId']
         ad_name = elem['ad']['displayTitle']
         ad_id = elem['ad']['identifier']
         try:
             ad_stat = elem['clientData']['adStatus']
-        except:
+        except (KeyError, TypeError):
             ad_stat = "UNKNOWN"
         counter_name = elem['counterParty']['name']
         counter_id = elem['counterParty']['identifier']
@@ -91,14 +103,17 @@ def get_kleinanzeigenmessagecache(files_found, report_folder, seeker, wrap_text,
                     id_from = my_id
                     m_to = counter_name
                     id_to = counter_id
+                    out = 1
                 else:
                     m_from = counter_name
                     id_from = counter_id
                     m_to = my_name
                     id_to = my_id
-                data_list.append((ad_name, ad_id, m_rec, m_from, id_from, m_to, id_to, m_text, m_att, m_id, ad_stat))
+                    out = 0
+                conv_name = f"{ad_name} ({counter_name})"
+                data_list.append((m_rec, conv_id, conv_name, ad_id, m_from, id_from, m_to, id_to, m_text, m_att, m_id, ad_stat, out))
 
-            except:
+            except (KeyError, TypeError, ValueError, OverflowError, OSError, NameError):
                 pass
         else:
             for message in elem['messages']:
@@ -118,20 +133,23 @@ def get_kleinanzeigenmessagecache(files_found, report_folder, seeker, wrap_text,
                     id_from = my_id
                     m_to = counter_name
                     id_to = counter_id
+                    out = 1
                 else:
                     m_from = counter_name
                     id_from = counter_id
                     m_to = my_name
                     id_to = my_id
-                data_list.append((ad_name, ad_id, m_rec, m_from, id_from, m_to, id_to, m_text, m_att, m_id, ad_stat))
+                    out = 0
+                conv_name = f"{ad_name} ({counter_name})"
+                data_list.append((m_rec, conv_id, conv_name, ad_id, m_from, id_from, m_to, id_to, m_text, m_att, m_id, ad_stat, out))
 
     data_headers = (
-        "Advertisement", "Ad-ID", "Sent", 
-        "From_Name", "From_ID", "To_Name", "To_ID", "Message", "Attachment", "Message_ID", "AD-Status")
+        ('Timestamp', 'datetime'), "Conversation-ID", "Advertisement", "Ad-ID",
+        "From_Name", "From_ID", "To_Name", "To_ID", "Message", "Attachment", "Message_ID", "AD-Status", "From Me")
     return data_headers, data_list, source_path
 
 @artifact_processor
-def get_kleinanzeigenlastquery(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def get_kleinanzeigenlastquery(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
     source_path = get_file_path(files_found, '.last_search_query')
     data_list = []
 
@@ -153,7 +171,7 @@ def get_kleinanzeigenlastquery(files_found, report_folder, seeker, wrap_text, ti
     return data_headers, data_list, source_path
 
 @artifact_processor
-def get_kleinanzeigenuser(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def get_kleinanzeigenuser(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
     source_path = get_file_path(files_found, 'com.ebaykleinanzeigen.ebc.plist')
     data_list = []
 
@@ -164,14 +182,14 @@ def get_kleinanzeigenuser(files_found, report_folder, seeker, wrap_text, timezon
         u_id = user['id']
         name = user['preferences']['contactName']
         u_in = user['preferences']['initials']
-        type = user['accountType']
+        atype = user['accountType']
         c_dt = user['userSince']
         m_dt = user['lastModified']
         data_list.append(("Account E-Mail", mail))
         data_list.append(("Account ID", u_id))
         data_list.append(("Contact Name", name))
         data_list.append(("Contact Initials", u_in))
-        data_list.append(("Account Type", type))
+        data_list.append(("Account Type", atype))
         data_list.append(("User since", datetime.datetime.fromtimestamp(c_dt + 978307200).strftime('%Y-%m-%d %H:%M:%S')))
         data_list.append(("Last modified", datetime.datetime.fromtimestamp(m_dt + 978307200).strftime('%Y-%m-%d %H:%M:%S')))
     
@@ -179,7 +197,7 @@ def get_kleinanzeigenuser(files_found, report_folder, seeker, wrap_text, timezon
     return data_headers, data_list, source_path
 
 @artifact_processor
-def get_kleinanzeigensearchhistory(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def get_kleinanzeigensearchhistory(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
     source_path = get_file_path(files_found, 'com.ebaykleinanzeigen.ebc.plist')
     data_list = []
 
