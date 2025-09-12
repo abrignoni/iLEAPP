@@ -23,7 +23,18 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/conversation_cache', ),
         "output_types": "standard",
-        "artifact_icon": "message-circle"
+        "artifact_icon": "message-circle",
+        "data_views": {
+            'chat': {
+                'threadDiscriminatorColumn': 'Conversation-ID',
+                'threadLabelColumn': 'Advertisement',
+                'textColumn': 'Message',
+                'directionColumn': 'From Me',
+                'directionSentValue': 1,
+                'timeColumn': 'Timestamp',
+                'senderColumn': 'From_Name',
+            }
+        }
     },
     "get_kleinanzeigensearchhistory": {
         "name": "Kleinanzeigen.de - Search History",
@@ -68,6 +79,7 @@ def get_kleinanzeigenmessagecache(files_found, report_folder, seeker, wrap_text,
         m_cache = json.load(ka_in)
 
     for elem in m_cache['data']:
+        conv_id = elem['conversationId']
         ad_name = elem['ad']['displayTitle']
         ad_id = elem['ad']['identifier']
         try:
@@ -91,12 +103,15 @@ def get_kleinanzeigenmessagecache(files_found, report_folder, seeker, wrap_text,
                     id_from = my_id
                     m_to = counter_name
                     id_to = counter_id
+                    out = 1
                 else:
                     m_from = counter_name
                     id_from = counter_id
                     m_to = my_name
                     id_to = my_id
-                data_list.append((ad_name, ad_id, m_rec, m_from, id_from, m_to, id_to, m_text, m_att, m_id, ad_stat))
+                    out = 0
+                conv_name = f"{ad_name} ({counter_name})"
+                data_list.append((m_rec, conv_id, conv_name, ad_id, m_from, id_from, m_to, id_to, m_text, m_att, m_id, ad_stat, out))
 
             except:
                 pass
@@ -118,16 +133,19 @@ def get_kleinanzeigenmessagecache(files_found, report_folder, seeker, wrap_text,
                     id_from = my_id
                     m_to = counter_name
                     id_to = counter_id
+                    out = 1
                 else:
                     m_from = counter_name
                     id_from = counter_id
                     m_to = my_name
                     id_to = my_id
-                data_list.append((ad_name, ad_id, m_rec, m_from, id_from, m_to, id_to, m_text, m_att, m_id, ad_stat))
+                    out = 0
+                conv_name = f"{ad_name} ({counter_name})"
+                data_list.append((m_rec, conv_id, conv_name, ad_id, m_from, id_from, m_to, id_to, m_text, m_att, m_id, ad_stat, out))
 
     data_headers = (
-        "Advertisement", "Ad-ID", "Sent", 
-        "From_Name", "From_ID", "To_Name", "To_ID", "Message", "Attachment", "Message_ID", "AD-Status")
+        ('Timestamp', 'datetime'), "Conversation-ID", "Advertisement", "Ad-ID",
+        "From_Name", "From_ID", "To_Name", "To_ID", "Message", "Attachment", "Message_ID", "AD-Status", "From Me")
     return data_headers, data_list, source_path
 
 @artifact_processor
