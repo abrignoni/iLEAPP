@@ -540,7 +540,7 @@ def potatochat_group_chats(files_found, _report_folder, _seeker, _wrap_text, _ti
                 m_type = 'Text'
             elif d_t == "Int" and ASCII_title == 'd':
                 timestamp = int.from_bytes(payload_data, byteorder='little')
-                #message_date = datetime.datetime.fromtimestamp(timestamp, tz=datetime.timezone.utc)
+                message_date = datetime.datetime.fromtimestamp(timestamp, tz=datetime.timezone.utc)
             elif ASCII_title == "ti" or ASCII_title == "ci": 
                 group_ID = abs(int.from_bytes(payload_data[0:4], byteorder="little", signed=True))
                 try:
@@ -650,7 +650,7 @@ def potatochat_group_chats(files_found, _report_folder, _seeker, _wrap_text, _ti
             user_name = group_name
         if reply != "":
             m_type = "Reply"
-        data_list.append((timestamp, group_name, group_ID, message_id, user_name, user_ID, m_type, message, attach_file, reply, outgoing))
+        data_list.append((message_date, group_name, group_ID, message_id, user_name, user_ID, m_type, message, attach_file, reply, outgoing))
 
     data_headers = (
         ('Timestamp', 'datetime'), 'Group Name', 'Group-ID', 'Message-ID', 'Sender Name', 'From ID', 'Message Type',
