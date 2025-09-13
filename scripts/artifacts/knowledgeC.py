@@ -48,7 +48,34 @@ __artifacts_v2__ = {
         "notes": "Based on research by Geraldine Blay and Dan Ogden",
         "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
         "output_types": "standard"
+    },
+    "knowledgeC_AppUsage": {
+        "name": "knowledgeC - App Usage",
+        "description": "App Usage logging from knowledgeC Database",
+        "author": "mxkrt@lsjam.nl",
+        "version": "0.1",
+        "date": "2025-09-13",
+        "requirements": "none",
+        "category": "App Usage",
+        "notes": "",
+        "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
+        "output_types": "standard",
+        "artifact_icon": "activity"
+    },
+    "knowledgeC_AppUsage_EndTime": {
+        "name": "knowledgeC - App Usage",
+        "description": "add End Time from App Usage logging from knowledgeC Database to tl.db",
+        "author": "mxkrt@lsjam.nl",
+        "version": "0.1",
+        "date": "2025-09-13",
+        "requirements": "none",
+        "category": "App Usage",
+        "notes": "",
+        "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
+        "output_types": "timeline",
+        "artifact_icon": "activity"
     }
+
 }
 
 import plistlib
@@ -284,3 +311,63 @@ def knowledgeC_DoNotDisturb(files_found, report_folder, seeker, wrap_text, timez
     data_headers = (
         ('Start Time', 'datetime'), ('End Time', 'datetime'), 'Do Not Disturb?', ('Time Added', 'datetime'))
     return data_headers, data_list, db_file
+
+
+@artifact_processor
+def knowledgeC_AppUsage(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    ''' parse /app/usage entries from knowledgeC.db '''
+
+    for file_found in files_found:
+        file_found = str(file_found)
+        if file_found.endswith('knowledgeC.db'):
+            break
+
+    with open_sqlite_db_readonly(file_found) as db:
+        cursor = db.cursor()
+
+        cursor.execute('''
+            SELECT datetime(ZOBJECT.ZSTARTDATE + 978307200, 'unixepoch') AS 'Start Time',
+                   datetime(ZOBJECT.ZENDDATE + 978307200, 'unixepoch') AS 'End Time',
+                   datetime(ZOBJECT.ZCREATIONDATE + 978307200, 'unixepoch') AS 'Date Added',
+                   ZVALUESTRING
+            FROM ZOBJECT
+            WHERE ZSTREAMNAME = '/app/usage'
+            ORDER BY ZOBJECT.ZSTARTDATE''')
+
+        all_rows = cursor.fetchall()
+
+    data_headers = (
+        ('Start Time', 'datetime'), ('End Time', 'datetime'), ('Time Added', 'datetime'), 'Application')
+    return data_headers, all_rows, file_found
+
+
+@artifact_processor
+def knowledgeC_AppUsage_EndTime(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    ''' Parse /app/usage entries from knowledgeC.db with End Time as first column'''
+
+    # NOTE: there is no need to add this to html and lava output, the only
+    # purpose of this additional parsing is to add the End Time as separate
+    # event in the tl.db 
+
+    for file_found in files_found:
+        file_found = str(file_found)
+        if file_found.endswith('knowledgeC.db'):
+            break
+
+    with open_sqlite_db_readonly(file_found) as db:
+        cursor = db.cursor()
+
+        cursor.execute('''
+            SELECT datetime(ZOBJECT.ZENDDATE + 978307200, 'unixepoch') AS 'End Time',
+                   datetime(ZOBJECT.ZSTARTDATE + 978307200, 'unixepoch') AS 'Start Time',
+                   datetime(ZOBJECT.ZCREATIONDATE + 978307200, 'unixepoch') AS 'Date Added',
+                   ZVALUESTRING
+            FROM ZOBJECT
+            WHERE ZSTREAMNAME = '/app/usage'
+            ORDER BY ZOBJECT.ZENDDATE''')
+
+        all_rows = cursor.fetchall()
+
+    data_headers = (
+        ('End Time', 'datetime'), ('Start Time', 'datetime'), ('Time Added', 'datetime'), 'Application')
+    return data_headers, all_rows, file_found
