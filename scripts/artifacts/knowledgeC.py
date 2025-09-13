@@ -51,7 +51,7 @@ __artifacts_v2__ = {
     },
     "knowledgeC_AppUsage": {
         "name": "knowledgeC - App Usage",
-        "description": "App Usage logging from knowledgeC Database",
+        "description": "parses /app/usage events from knowledgeC Database",
         "author": "mxkrt@lsjam.nl",
         "version": "0.1",
         "date": "2025-09-13",
@@ -63,8 +63,8 @@ __artifacts_v2__ = {
         "artifact_icon": "activity"
     },
     "knowledgeC_AppUsage_EndTime": {
-        "name": "knowledgeC - App Usage",
-        "description": "add End Time from App Usage logging from knowledgeC Database to tl.db",
+        "name": "knowledgeC - App Usage End",
+        "description": "include End Time in timeline for /app/usage events from knowledgeC Database",
         "author": "mxkrt@lsjam.nl",
         "version": "0.1",
         "date": "2025-09-13",
@@ -74,8 +74,33 @@ __artifacts_v2__ = {
         "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
         "output_types": "timeline",
         "artifact_icon": "activity"
+    },
+    "knowledgeC_isLocked": {
+        "name": "knowledgeC - Device Lock Status",
+        "description": "parses /device/isLocked events from knowledgeC Database",
+        "author": "mxkrt@lsjam.nl",
+        "version": "0.1",
+        "date": "2025-09-13",
+        "requirements": "none",
+        "category": "Device Usage",
+        "notes": "",
+        "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
+        "output_types": "standard",
+        "artifact_icon": "smartphone"
+    },
+    "knowledgeC_isBacklit": {
+        "name": "knowledgeC - Device Screen Status",
+        "description": "parses /display/isBacklit evemts from knowledgeC Database",
+        "author": "mxkrt@lsjam.nl",
+        "version": "0.1",
+        "date": "2025-09-13",
+        "requirements": "none",
+        "category": "Device Usage",
+        "notes": "",
+        "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
+        "output_types": "standard",
+        "artifact_icon": "smartphone"
     }
-
 }
 
 import plistlib
@@ -370,4 +395,68 @@ def knowledgeC_AppUsage_EndTime(files_found, report_folder, seeker, wrap_text, t
 
     data_headers = (
         ('End Time', 'datetime'), ('Start Time', 'datetime'), ('Time Added', 'datetime'), 'Application')
+    return data_headers, all_rows, file_found
+
+
+@artifact_processor
+def knowledgeC_isLocked(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    ''' parse /device/isLocked entries from knowledgeC.db '''
+
+    for file_found in files_found:
+        file_found = str(file_found)
+        if file_found.endswith('knowledgeC.db'):
+            break
+
+    with open_sqlite_db_readonly(file_found) as db:
+        cursor = db.cursor()
+
+        cursor.execute('''
+            SELECT datetime(ZOBJECT.ZSTARTDATE + 978307200, 'unixepoch') AS 'Start Time',
+                   datetime(ZOBJECT.ZENDDATE + 978307200, 'unixepoch') AS 'End Time',
+                   datetime(ZOBJECT.ZCREATIONDATE + 978307200, 'unixepoch') AS 'Date Added',
+                   CASE ZOBJECT.ZVALUEINTEGER
+                      WHEN '0' THEN 'Unlocked'
+                      WHEN '1' THEN 'Locked'
+                      ELSE ZOBJECT.ZVALUEINTEGER
+                   END AS 'Device Lock Status'
+            FROM ZOBJECT
+            WHERE ZSTREAMNAME = '/device/isLocked'
+            ORDER BY ZOBJECT.ZSTARTDATE''')
+
+        all_rows = cursor.fetchall()
+
+    data_headers = (
+        ('Start Time', 'datetime'), ('End Time', 'datetime'), ('Time Added', 'datetime'), 'Device Lock Status')
+    return data_headers, all_rows, file_found
+
+
+@artifact_processor
+def knowledgeC_isBacklit(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    ''' parse /display/isBacklit entries from knowledgeC.db '''
+
+    for file_found in files_found:
+        file_found = str(file_found)
+        if file_found.endswith('knowledgeC.db'):
+            break
+
+    with open_sqlite_db_readonly(file_found) as db:
+        cursor = db.cursor()
+
+        cursor.execute('''
+            SELECT datetime(ZOBJECT.ZSTARTDATE + 978307200, 'unixepoch') AS 'Start Time',
+                   datetime(ZOBJECT.ZENDDATE + 978307200, 'unixepoch') AS 'End Time',
+                   datetime(ZOBJECT.ZCREATIONDATE + 978307200, 'unixepoch') AS 'Date Added',
+                   CASE ZOBJECT.ZVALUEINTEGER
+                      WHEN '0' THEN 'Screen off'
+                      WHEN '1' THEN 'Screen on'
+                      ELSE ZOBJECT.ZVALUEINTEGER
+                   END AS 'Device Screen Status'
+            FROM ZOBJECT
+            WHERE ZSTREAMNAME = '/display/isBacklit'
+            ORDER BY ZOBJECT.ZSTARTDATE''')
+
+        all_rows = cursor.fetchall()
+
+    data_headers = (
+        ('Start Time', 'datetime'), ('End Time', 'datetime'), ('Time Added', 'datetime'), 'Device Screen Status')
     return data_headers, all_rows, file_found
