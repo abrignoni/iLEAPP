@@ -347,6 +347,8 @@ def knowledgeC_AppUsage(files_found, report_folder, seeker, wrap_text, timezone_
         if file_found.endswith('knowledgeC.db'):
             break
 
+    data_list = []
+
     with open_sqlite_db_readonly(file_found) as db:
         cursor = db.cursor()
 
@@ -361,9 +363,16 @@ def knowledgeC_AppUsage(files_found, report_folder, seeker, wrap_text, timezone_
 
         all_rows = cursor.fetchall()
 
+        for row in all_rows:
+            start_time = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
+            end_time = convert_ts_human_to_timezone_offset(row[1], timezone_offset)
+            added_time = convert_ts_human_to_timezone_offset(row[2],timezone_offset)
+            data_list.append((start_time, end_time, added_time, row[3]))
+
     data_headers = (
         ('Start Time', 'datetime'), ('End Time', 'datetime'), ('Time Added', 'datetime'), 'Application')
-    return data_headers, all_rows, file_found
+
+    return data_headers, data_list, file_found
 
 
 @artifact_processor
@@ -379,6 +388,8 @@ def knowledgeC_AppUsage_EndTime(files_found, report_folder, seeker, wrap_text, t
         if file_found.endswith('knowledgeC.db'):
             break
 
+    data_list = []
+
     with open_sqlite_db_readonly(file_found) as db:
         cursor = db.cursor()
 
@@ -393,9 +404,15 @@ def knowledgeC_AppUsage_EndTime(files_found, report_folder, seeker, wrap_text, t
 
         all_rows = cursor.fetchall()
 
+        for row in all_rows:
+            end_time = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
+            start_time = convert_ts_human_to_timezone_offset(row[1], timezone_offset)
+            added_time = convert_ts_human_to_timezone_offset(row[2],timezone_offset)
+            data_list.append((end_time, start_time, added_time, row[3]))
+
     data_headers = (
         ('End Time', 'datetime'), ('Start Time', 'datetime'), ('Time Added', 'datetime'), 'Application')
-    return data_headers, all_rows, file_found
+    return data_headers, data_list, file_found
 
 
 @artifact_processor
@@ -406,6 +423,8 @@ def knowledgeC_isLocked(files_found, report_folder, seeker, wrap_text, timezone_
         file_found = str(file_found)
         if file_found.endswith('knowledgeC.db'):
             break
+
+    data_list = []
 
     with open_sqlite_db_readonly(file_found) as db:
         cursor = db.cursor()
@@ -424,10 +443,15 @@ def knowledgeC_isLocked(files_found, report_folder, seeker, wrap_text, timezone_
             ORDER BY ZOBJECT.ZSTARTDATE''')
 
         all_rows = cursor.fetchall()
+        for row in all_rows:
+            start_time = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
+            end_time = convert_ts_human_to_timezone_offset(row[1], timezone_offset)
+            added_time = convert_ts_human_to_timezone_offset(row[2],timezone_offset)
+            data_list.append((start_time, end_time, added_time, row[3]))
 
     data_headers = (
         ('Start Time', 'datetime'), ('End Time', 'datetime'), ('Time Added', 'datetime'), 'Device Lock Status')
-    return data_headers, all_rows, file_found
+    return data_headers, data_list, file_found
 
 
 @artifact_processor
@@ -438,6 +462,8 @@ def knowledgeC_isBacklit(files_found, report_folder, seeker, wrap_text, timezone
         file_found = str(file_found)
         if file_found.endswith('knowledgeC.db'):
             break
+
+    data_list = []
 
     with open_sqlite_db_readonly(file_found) as db:
         cursor = db.cursor()
@@ -457,6 +483,12 @@ def knowledgeC_isBacklit(files_found, report_folder, seeker, wrap_text, timezone
 
         all_rows = cursor.fetchall()
 
+        for row in all_rows:
+            start_time = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
+            end_time = convert_ts_human_to_timezone_offset(row[1], timezone_offset)
+            added_time = convert_ts_human_to_timezone_offset(row[2],timezone_offset)
+            data_list.append((start_time, end_time, added_time, row[3]))
+
     data_headers = (
         ('Start Time', 'datetime'), ('End Time', 'datetime'), ('Time Added', 'datetime'), 'Device Screen Status')
-    return data_headers, all_rows, file_found
+    return data_headers, data_list, file_found
