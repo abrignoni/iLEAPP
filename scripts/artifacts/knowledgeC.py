@@ -116,7 +116,7 @@ def knowledgeC_BatteryPercentage(files_found, report_folder, seeker, wrap_text, 
         if file_found.endswith('knowledgeC.db'):
             db_file = file_found
             break
-    
+
     with open_sqlite_db_readonly(db_file) as db:
         cursor = db.cursor()
         cursor.execute('''
@@ -144,7 +144,7 @@ def knowledgeC_BatteryPercentage(files_found, report_folder, seeker, wrap_text, 
             data_list.append((start_time, end_time, row[2], row[3], added_time))
 
     data_headers = (
-         ('Start Time', 'datetime'), ('End Time', 'datetime'), 'Battery Percentage', 'Is Fully Charged?', 
+         ('Start Time', 'datetime'), ('End Time', 'datetime'), 'Battery Percentage', 'Is Fully Charged?',
          ('Time Added', 'datetime'))
     return data_headers, data_list, db_file
 
@@ -158,7 +158,7 @@ def knowledgeC_DevicePluginStatus(files_found, report_folder, seeker, wrap_text,
         if file_found.endswith('knowledgeC.db'):
             db_file = file_found
             break
-    
+
     with open_sqlite_db_readonly(db_file) as db:
         cursor = db.cursor()
 
@@ -173,19 +173,19 @@ def knowledgeC_DevicePluginStatus(files_found, report_folder, seeker, wrap_text,
             END AS "Adapter Is Wireless?",
             '''
             data_headers = (
-                ('Start Time', 'datetime'), ('End Time', 'datetime'), 'Device Plugin Status', 
-                'Is Adapter Wireless?', ('Time Added', 'datetime'))   
+                ('Start Time', 'datetime'), ('End Time', 'datetime'), 'Device Plugin Status',
+                'Is Adapter Wireless?', ('Time Added', 'datetime'))
         else:
             adapter_is_wireless = ''
-            data_headers = (('Start Time', 'datetime'), ('End Time', 'datetime'), 'Device Plugin Status', 
-                            ('Time Added', 'datetime'))   
+            data_headers = (('Start Time', 'datetime'), ('End Time', 'datetime'), 'Device Plugin Status',
+                            ('Time Added', 'datetime'))
 
         cursor.execute(f'''
         SELECT
         datetime(ZOBJECT.ZSTARTDATE + 978307200, 'unixepoch') AS 'Start Time',
         datetime(ZOBJECT.ZENDDATE + 978307200, 'unixepoch') AS 'End Time',
         CASE ZOBJECT.ZVALUEINTEGER
-            WHEN '0' THEN 'Unplugged' 
+            WHEN '0' THEN 'Unplugged'
             WHEN '1' THEN 'Plugged in'
             ELSE ZOBJECT.ZVALUEINTEGER
         END AS "Device Plugin Status",
@@ -220,7 +220,7 @@ def knowledgeC_MediaPlaying(files_found, report_folder, seeker, wrap_text, timez
         if file_found.endswith('knowledgeC.db'):
             db_file = file_found
             break
-    
+
     with open_sqlite_db_readonly(db_file) as db:
         cursor = db.cursor()
 
@@ -232,17 +232,17 @@ def knowledgeC_MediaPlaying(files_found, report_folder, seeker, wrap_text, timez
                 WHEN 0 THEN 'No'
                 WHEN 1 THEN 'Yes'
                 ELSE ZSTRUCTUREDMETADATA.Z_DKNOWPLAYINGMETADATAKEY__ISAIRPLAYVIDEO
-            END AS 'Is AirPlay Video',                
+            END AS 'Is AirPlay Video',
             ZSTRUCTUREDMETADATA.Z_DKNOWPLAYINGMETADATAKEY__OUTPUTDEVICEIDS AS 'Output Device',
             '''
             data_headers = (
-                ('Start Time', 'datetime'), ('End Time', 'datetime'), 'Playing State', 'Playing Duration', 
-                'App Bundle ID', 'Artist', 'Album', 'Title', 'Genre', 'Media Duration', 'AirPlay Video', 
+                ('Start Time', 'datetime'), ('End Time', 'datetime'), 'Playing State', 'Playing Duration',
+                'App Bundle ID', 'Artist', 'Album', 'Title', 'Genre', 'Media Duration', 'AirPlay Video',
                 'Output Device', ('Time Added', 'datetime'))
         else:
             is_airplay_video = ''
             data_headers = (
-                ('Start Time', 'datetime'), ('End Time', 'datetime'), 'Playing State', 'Playing Duration', 
+                ('Start Time', 'datetime'), ('End Time', 'datetime'), 'Playing State', 'Playing Duration',
                 'App Bundle ID', 'Artist', 'Album', 'Title', 'Genre', 'Media Duration', ('Time Added', 'datetime'))
 
         cursor.execute(f'''
@@ -287,11 +287,11 @@ def knowledgeC_MediaPlaying(files_found, report_folder, seeker, wrap_text, timez
                     for key, val in output_device_bplist.items():
                         if key == '$objects':
                             output_device = val[6]
-                data_list.append((start_time, end_time, row[2], row[3], row[4], row[5], 
-                                row[6], row[7], row[8], row[9], row[10], output_device, 
+                data_list.append((start_time, end_time, row[2], row[3], row[4], row[5],
+                                row[6], row[7], row[8], row[9], row[10], output_device,
                                 added_time))
             else:
-                data_list.append((start_time, end_time, row[2], row[3], row[4], row[5], 
+                data_list.append((start_time, end_time, row[2], row[3], row[4], row[5],
                                 row[6], row[7], row[8], row[9], added_time))
 
     return data_headers, data_list, db_file
@@ -305,7 +305,7 @@ def knowledgeC_DoNotDisturb(files_found, report_folder, seeker, wrap_text, timez
         if file_found.endswith('knowledgeC.db'):
             db_file = file_found
             break
-    
+
     with open_sqlite_db_readonly(db_file) as db:
         cursor = db.cursor()
 
@@ -372,7 +372,7 @@ def knowledgeC_AppUsage_EndTime(files_found, report_folder, seeker, wrap_text, t
 
     # NOTE: there is no need to add this to html and lava output, the only
     # purpose of this additional parsing is to add the End Time as separate
-    # event in the tl.db 
+    # event in the tl.db
 
     for file_found in files_found:
         file_found = str(file_found)
