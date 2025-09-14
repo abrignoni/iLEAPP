@@ -473,8 +473,8 @@ def knowledgeC_isBacklit(files_found, report_folder, seeker, wrap_text, timezone
                    datetime(ZOBJECT.ZENDDATE + 978307200, 'unixepoch') AS 'End Time',
                    datetime(ZOBJECT.ZCREATIONDATE + 978307200, 'unixepoch') AS 'Date Added',
                    CASE ZOBJECT.ZVALUEINTEGER
-                      WHEN '0' THEN 'Screen off'
-                      WHEN '1' THEN 'Screen on'
+                      WHEN '0' THEN 'Backlight off'
+                      WHEN '1' THEN 'Backlight on'
                       ELSE ZOBJECT.ZVALUEINTEGER
                    END AS 'Device Screen Status'
             FROM ZOBJECT
