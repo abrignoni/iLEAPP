@@ -342,14 +342,17 @@ def knowledgeC_DoNotDisturb(files_found, report_folder, seeker, wrap_text, timez
 def knowledgeC_AppUsage(files_found, report_folder, seeker, wrap_text, timezone_offset):
     ''' parse /app/usage entries from knowledgeC.db '''
 
+    db_file = ''
+
     for file_found in files_found:
         file_found = str(file_found)
         if file_found.endswith('knowledgeC.db'):
+            db_file = file_found
             break
 
     data_list = []
 
-    with open_sqlite_db_readonly(file_found) as db:
+    with open_sqlite_db_readonly(db_file) as db:
         cursor = db.cursor()
 
         cursor.execute('''
@@ -383,14 +386,17 @@ def knowledgeC_AppUsage_EndTime(files_found, report_folder, seeker, wrap_text, t
     # purpose of this additional parsing is to add the End Time as separate
     # event in the tl.db
 
+    db_file = ''
+
     for file_found in files_found:
         file_found = str(file_found)
         if file_found.endswith('knowledgeC.db'):
+            db_file = file_found
             break
 
     data_list = []
 
-    with open_sqlite_db_readonly(file_found) as db:
+    with open_sqlite_db_readonly(db_file) as db:
         cursor = db.cursor()
 
         cursor.execute('''
@@ -419,14 +425,17 @@ def knowledgeC_AppUsage_EndTime(files_found, report_folder, seeker, wrap_text, t
 def knowledgeC_isLocked(files_found, report_folder, seeker, wrap_text, timezone_offset):
     ''' parse /device/isLocked entries from knowledgeC.db '''
 
+    db_file = ''
+
     for file_found in files_found:
         file_found = str(file_found)
         if file_found.endswith('knowledgeC.db'):
+            db_file = file_found
             break
 
     data_list = []
 
-    with open_sqlite_db_readonly(file_found) as db:
+    with open_sqlite_db_readonly(db_file) as db:
         cursor = db.cursor()
 
         cursor.execute('''
@@ -458,14 +467,17 @@ def knowledgeC_isLocked(files_found, report_folder, seeker, wrap_text, timezone_
 def knowledgeC_isBacklit(files_found, report_folder, seeker, wrap_text, timezone_offset):
     ''' parse /display/isBacklit entries from knowledgeC.db '''
 
+    db_file = ''
+
     for file_found in files_found:
         file_found = str(file_found)
         if file_found.endswith('knowledgeC.db'):
+            db_file = file_found
             break
 
     data_list = []
 
-    with open_sqlite_db_readonly(file_found) as db:
+    with open_sqlite_db_readonly(db_file) as db:
         cursor = db.cursor()
 
         cursor.execute('''
