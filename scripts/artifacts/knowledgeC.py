@@ -375,7 +375,7 @@ def knowledgeC_AppUsage(files_found, report_folder, seeker, wrap_text, timezone_
     data_headers = (
         ('Start Time', 'datetime'), ('End Time', 'datetime'), ('Time Added', 'datetime'), 'Application')
 
-    return data_headers, data_list, file_found
+    return data_headers, data_list, db_file
 
 
 @artifact_processor
@@ -418,7 +418,7 @@ def knowledgeC_AppUsage_EndTime(files_found, report_folder, seeker, wrap_text, t
 
     data_headers = (
         ('End Time', 'datetime'), ('Start Time', 'datetime'), ('Time Added', 'datetime'), 'Application')
-    return data_headers, data_list, file_found
+    return data_headers, data_list, db_file
 
 
 @artifact_processor
@@ -460,7 +460,7 @@ def knowledgeC_isLocked(files_found, report_folder, seeker, wrap_text, timezone_
 
     data_headers = (
         ('Start Time', 'datetime'), ('End Time', 'datetime'), ('Time Added', 'datetime'), 'Device Lock Status')
-    return data_headers, data_list, file_found
+    return data_headers, data_list, db_file
 
 
 @artifact_processor
@@ -503,4 +503,4 @@ def knowledgeC_isBacklit(files_found, report_folder, seeker, wrap_text, timezone
 
     data_headers = (
         ('Start Time', 'datetime'), ('End Time', 'datetime'), ('Time Added', 'datetime'), 'Device Screen Status')
-    return data_headers, data_list, file_found
+    return data_headers, data_list, db_file
