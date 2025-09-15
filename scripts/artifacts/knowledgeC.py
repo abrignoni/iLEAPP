@@ -90,7 +90,7 @@ __artifacts_v2__ = {
     },
     "knowledgeC_isBacklit": {
         "name": "knowledgeC - Device Screen Status",
-        "description": "parses /display/isBacklit evemts from knowledgeC Database",
+        "description": "parses /display/isBacklit events from knowledgeC Database",
         "author": "mxkrt@lsjam.nl",
         "version": "0.1",
         "date": "2025-09-13",
@@ -108,7 +108,7 @@ from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, does_
     convert_ts_human_to_timezone_offset
 
 @artifact_processor
-def knowledgeC_BatteryPercentage(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def knowledgeC_BatteryPercentage(files_found, _report_folder, _seeker, _wrap_text, timezone_offset):
     data_list = []
     db_file = ''
 
@@ -149,7 +149,7 @@ def knowledgeC_BatteryPercentage(files_found, report_folder, seeker, wrap_text, 
     return data_headers, data_list, db_file
 
 @artifact_processor
-def knowledgeC_DevicePluginStatus(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def knowledgeC_DevicePluginStatus(files_found, _report_folder, _seeker, _wrap_text, timezone_offset):
     data_list = []
     data_headers = ()
     db_file = ''
@@ -211,7 +211,7 @@ def knowledgeC_DevicePluginStatus(files_found, report_folder, seeker, wrap_text,
     return data_headers, data_list, db_file
 
 @artifact_processor
-def knowledgeC_MediaPlaying(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def knowledgeC_MediaPlaying(files_found, _report_folder, _seeker, _wrap_text, timezone_offset):
     data_list = []
     data_headers = ()
     db_file = ''
@@ -297,7 +297,7 @@ def knowledgeC_MediaPlaying(files_found, report_folder, seeker, wrap_text, timez
     return data_headers, data_list, db_file
 
 @artifact_processor
-def knowledgeC_DoNotDisturb(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def knowledgeC_DoNotDisturb(files_found, _report_folder, _seeker, _wrap_text, timezone_offset):
     data_list = []
     db_file = ''
 
@@ -339,7 +339,7 @@ def knowledgeC_DoNotDisturb(files_found, report_folder, seeker, wrap_text, timez
 
 
 @artifact_processor
-def knowledgeC_AppUsage(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def knowledgeC_AppUsage(files_found, _report_folder, _seeker, _wrap_text, timezone_offset):
     ''' parse /app/usage entries from knowledgeC.db '''
 
     db_file = ''
@@ -379,7 +379,7 @@ def knowledgeC_AppUsage(files_found, report_folder, seeker, wrap_text, timezone_
 
 
 @artifact_processor
-def knowledgeC_AppUsage_EndTime(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def knowledgeC_AppUsage_EndTime(files_found, _report_folder, _seeker, _wrap_text, timezone_offset):
     ''' Parse /app/usage entries from knowledgeC.db with End Time as first column'''
 
     # NOTE: there is no need to add this to html and lava output, the only
@@ -422,7 +422,7 @@ def knowledgeC_AppUsage_EndTime(files_found, report_folder, seeker, wrap_text, t
 
 
 @artifact_processor
-def knowledgeC_isLocked(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def knowledgeC_isLocked(files_found, _report_folder, _seeker, _wrap_text, timezone_offset):
     ''' parse /device/isLocked entries from knowledgeC.db '''
 
     db_file = ''
@@ -464,7 +464,7 @@ def knowledgeC_isLocked(files_found, report_folder, seeker, wrap_text, timezone_
 
 
 @artifact_processor
-def knowledgeC_isBacklit(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def knowledgeC_isBacklit(files_found, _report_folder, _seeker, _wrap_text, timezone_offset):
     ''' parse /display/isBacklit entries from knowledgeC.db '''
 
     db_file = ''
