@@ -23,6 +23,7 @@ project, which is kept up-to-date by running this script.
 """
 import os
 import re
+import ast
 
 # Get the root directory of the repository (2 directories above the script)
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
@@ -50,18 +51,23 @@ def clean_string(s):
 
 def extract_v2_info(module_content):
     """
-    Extract artifact information from a v2 `__artifacts_v2__` block.
+    Extract artifact information from a v2 `__artifacts_v2__` block
+    and number of parameters in the corresponding function definition to detect
+    usage of new context.
 
-    This function uses regular expressions to find the v2 artifact dictionary
-    and then `exec` to safely evaluate it in a restricted scope.
+    This function uses :
+     - regular expressions to find the v2 artifact dictionary
+        and then `exec` to safely evaluate it in a restricted scope.
+     - ast module to parse the function definition and count its parameters.
 
     Args:
         module_content (str): The string content of the Python module.
 
     Returns:
         list[dict]: A list of dictionaries, where each dictionary contains
-                    the details for a single v2 artifact. Returns a list
-                    with an error dictionary if parsing fails.
+                    the details for a single v2 artifact with the number of 
+                    parameters in the corresponding function definition. 
+                    Returns a list with an error dictionary if parsing fails.
     """
     pattern = re.compile(r"__artifacts_v2__.*\}\n}\n", re.DOTALL)
     match = pattern.search(module_content)
@@ -117,6 +123,11 @@ def extract_v2_info(module_content):
             "last_update_date": last_update_date,
             "artifact_icon": artifact_icon
         })
+        tree = ast.parse(module_content)
+        for item in tree.body:
+            if isinstance(item, ast.FunctionDef) and item.name == artifact_name:
+                parameters_len = len([arg.arg for arg in item.args.args])
+                results[0]["parameters_len"] = parameters_len
     return results
 
 
@@ -177,8 +188,8 @@ def generate_v2_markdown_table(artifact_data):
     Returns:
         str: A string containing the formatted markdown table.
     """
-    table = "| Module | Artifact | Name | Output Types | Icon | Version | Last Update Date | Description | Paths |\n"
-    table += "|--------|----------|------|--------------|------|---------|------------------|-------------|-------|\n"
+    table = "| Module | Artifact | Name | Output Types | Context | Icon | Version | Last Update Date | Description | Paths |\n"
+    table += "|--------|----------|------|--------------|---------|------|---------|------------------|-------------|-------|\n"
     for module, artifacts in artifact_data.items():
         module_link = f"[{module}]({GITHUB_MODULE_URL}{module})"
         for artifact in artifacts:
@@ -190,10 +201,11 @@ def generate_v2_markdown_table(artifact_data):
             else:
                 paths = f'`{paths}`'
             output_types = artifact.get('output_types', '-')
+            context = "Yes" if artifact.get('parameters_len') == 1 else "No"
             artifact_icon = artifact.get('artifact_icon', '')
             version = artifact.get('version', '')
             last_update_date = artifact.get('last_update_date', '')
-            table += f"| {module_link} | {artifact['artifact']} | {name} | {output_types} | {artifact_icon} | {version} | {last_update_date} | {description} | {paths} |\n"
+            table += f"| {module_link} | {artifact['artifact']} | {name} | {output_types} | {context} | {artifact_icon} | {version} | {last_update_date} | {description} | {paths} |\n"
 
     return table
 
@@ -276,11 +288,18 @@ def update_markdown_file(v1_data, v2_data, error_data):
         if artifact.get('version')
     )
 
-    # Count modules using 'artifact_icon'
+    # Count modules using 'last_update_date'
     last_update_date_count = sum(
         1 for artifacts in v2_data.values()
         for artifact in artifacts
         if artifact.get('last_update_date')
+    )
+
+    # Count modules using 'context'
+    context_count = sum(
+        1 for artifacts in v2_data.values()
+        for artifact in artifacts
+        if artifact.get('parameters_len') == 1
     )
 
     with open(MD_FILE_PATH, 'r', encoding='utf-8') as md_file:
@@ -295,6 +314,7 @@ def update_markdown_file(v1_data, v2_data, error_data):
     new_module_info += f"Total number of modules: {total_modules}  \n"
     new_module_info += f"Number of v1 artifacts: {v1_count}  \n"
     new_module_info += f"Number of v2 artifacts: {v2_count}  \n"
+    new_module_info += f"Number of modules using context parameter: {context_count}  \n"
     new_module_info += f"Number of modules with 'lava output': {lava_output_count}  \n"
     new_module_info += f"Number of modules using 'artifact_icon': {artifact_icon_count}  \n"
     new_module_info += f"Number of modules using 'version': {version_count}  \n"
