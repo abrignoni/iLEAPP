@@ -81,7 +81,7 @@ def extract_v2_info(module_content):
         local_dict = {}
         exec(f"__artifacts_v2__ = {artifact_block}", {}, local_dict)
         artifacts_dict = local_dict['__artifacts_v2__']
-    except Exception as e:
+    except SyntaxError as e:
         return [{
             "artifact": "ERROR",
             "name": "Error parsing v2 artifact",
@@ -100,7 +100,7 @@ def extract_v2_info(module_content):
             paths = [f'`{path}`' for path in paths]
         else:
             paths = f'`{paths}`'
-        
+
         output_types = details.get("output_types", "")
         if output_types:
             if isinstance(output_types, (list, tuple)):
@@ -109,7 +109,7 @@ def extract_v2_info(module_content):
                 output_types = str(output_types)
         else:
             output_types = ""
-        
+
         version = details.get("version", "")
         last_update_date = details.get("last_update_date", "")
         artifact_icon = details.get("artifact_icon", "")
@@ -166,15 +166,16 @@ def parse_module_file(module_path):
     try:
         with open(module_path, 'r', encoding='utf-8') as f:
             content = f.read()
-        
+
         if "__artifacts_v2__" in content:
             return "v2", extract_v2_info(content)
-        elif "__artifacts__" in content:
+        if "__artifacts__" in content:
             return "v1", extract_v1_info(content)
-        else:
-            return "error", ["No recognized artifacts found"]
-    except Exception as e:
+        return "error", ["No recognized artifacts found"]
+    except OSError as e:
         return "error", [f"Error reading file: {clean_string(str(e))}"]
+    except UnicodeDecodeError as e:
+        return "error", [f"Encoding error: {clean_string(str(e))}"]
 
 
 def generate_v2_markdown_table(artifact_data):
@@ -188,8 +189,10 @@ def generate_v2_markdown_table(artifact_data):
     Returns:
         str: A string containing the formatted markdown table.
     """
-    table = "| Module | Artifact | Name | Output Types | Context | Icon | Version | Last Update Date | Description | Paths |\n"
-    table += "|--------|----------|------|--------------|---------|------|---------|------------------|-------------|-------|\n"
+    table = "| Module | Artifact | Name | Output Types | Context | Icon " + \
+        "| Version | Last Update Date | Description | Paths |\n"
+    table += "|--------|----------|------|--------------|---------|------" + \
+        "|---------|------------------|-------------|-------|\n"
     for module, artifacts in artifact_data.items():
         module_link = f"[{module}]({GITHUB_MODULE_URL}{module})"
         for artifact in artifacts:
@@ -205,7 +208,9 @@ def generate_v2_markdown_table(artifact_data):
             artifact_icon = artifact.get('artifact_icon', '')
             version = artifact.get('version', '')
             last_update_date = artifact.get('last_update_date', '')
-            table += f"| {module_link} | {artifact['artifact']} | {name} | {output_types} | {context} | {artifact_icon} | {version} | {last_update_date} | {description} | {paths} |\n"
+            table += f"| {module_link} | {artifact['artifact']} | {name} " + \
+                f"| {output_types} | {context} | {artifact_icon} | " + \
+                f"{version} | {last_update_date} | {description} | {paths} |\n"
 
     return table
 
@@ -265,6 +270,7 @@ def update_markdown_file(v1_data, v2_data, error_data):
     total_modules = len(v1_data) + len(v2_data) + len(error_data)
     v1_count = sum(len(artifacts) for artifacts in v1_data.values())
     v2_count = sum(len(artifacts) for artifacts in v2_data.values())
+    total_artifacts = v1_count + v2_count
     error_count = len(error_data)
 
     # Count modules with 'lava output'
@@ -312,31 +318,39 @@ def update_markdown_file(v1_data, v2_data, error_data):
     # Generate new markdown content
     new_module_info = "## Summary\n\n"
     new_module_info += f"Total number of modules: {total_modules}  \n"
+    new_module_info += f"Total number of artifacts: {total_artifacts}  \n"
     new_module_info += f"Number of v1 artifacts: {v1_count}  \n"
     new_module_info += f"Number of v2 artifacts: {v2_count}  \n"
-    new_module_info += f"Number of modules using context parameter: {context_count}  \n"
-    new_module_info += f"Number of modules with 'lava output': {lava_output_count}  \n"
-    new_module_info += f"Number of modules using 'artifact_icon': {artifact_icon_count}  \n"
-    new_module_info += f"Number of modules using 'version': {version_count}  \n"
-    new_module_info += f"Number of modules using 'last_update_date': {last_update_date_count}  \n"
-    new_module_info += f"Number of modules with errors or no recognized artifacts: {error_count}  \n\n"
-    
+    new_module_info += "Number of artifacts with 'lava output': " + \
+        f"{lava_output_count}  \n"
+    new_module_info += "Number of artifacts using 'artifact_icon': " + \
+        f"{artifact_icon_count}  \n"
+    new_module_info += "Number of artifacts using 'version': " + \
+        f"{version_count}  \n"
+    new_module_info += "Number of artifacts using 'last_update_date': " + \
+        f"{last_update_date_count}  \n"
+    new_module_info += "Number of artifacts using context parameter: " + \
+        f"{context_count}  \n"
+    new_module_info += "Number of artifacts with errors or no recognized " + \
+        f"artifacts: {error_count}  \n\n"
+
     if v2_data:
         new_module_info += "## V2 Artifacts Table\n\n"
         new_module_info += generate_v2_markdown_table(v2_data)
         new_module_info += "\n"
-    
+
     if v1_data:
         new_module_info += "## V1 Artifacts Table\n\n"
         new_module_info += generate_v1_markdown_table(v1_data)
         new_module_info += "\n"
-    
+
     if error_data:
         new_module_info += "## Modules with Errors or No Recognized Artifacts\n\n"
         new_module_info += generate_error_markdown_table(error_data)
 
     # Rebuild the file content with the updated section
-    new_content = f"{before_marker}{START_MARKER}\n\n{new_module_info}\n{END_MARKER}{after_info_marker}"
+    new_content = f"{before_marker}{START_MARKER}\n\n{new_module_info}\n" + \
+        f"{END_MARKER}{after_info_marker}"
 
     # Write the updated content back to the markdown file
     with open(MD_FILE_PATH, 'w', encoding='utf-8') as md_file:
@@ -354,7 +368,7 @@ def main():
     v1_data = {}
     v2_data = {}
     error_data = {}
-    
+
     print(f"Scanning directory: {ARTIFACTS_DIR}")
     # Scan the artifacts directory for module files
     for module_file in os.listdir(ARTIFACTS_DIR):
@@ -369,16 +383,16 @@ def main():
                 v2_data[module_name] = artifacts
             else:
                 error_data[module_name] = artifacts
-    
+
     # Sort the artifact_data dictionaries by keys (module filenames)
     v1_data = dict(sorted(v1_data.items()))
     v2_data = dict(sorted(v2_data.items()))
     error_data = dict(sorted(error_data.items()))
-    
+
     print("Debug: v1_data =", v1_data)
     print("Debug: v2_data =", v2_data)
     print("Debug: error_data =", error_data)
-    
+
     # Update the markdown file with the sorted artifact data
     update_markdown_file(v1_data, v2_data, error_data)
     print(f"\nMarkdown file updated: {MD_FILE_PATH}")
