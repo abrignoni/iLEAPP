@@ -11,8 +11,8 @@ relevant details. For v2 artifacts, it captures the name, description, search
 paths, output types, icon, version, and last update date. For v1 artifacts, it
 simply lists the artifact names.
 
-Finally, it aggregates all this information and generates a detailed summary in a
-Markdown file ('admin/docs/generated/module_info.md'). The summary includes:
+Finally, it aggregates all this information and generates a detailed summary in
+a Markdown file ('admin/docs/generated/module_info.md'). The summary includes:
 - A statistical overview (total modules, v1/v2 artifact counts, etc.).
 - A detailed table for v2 artifacts.
 - A simpler table for v1 artifacts.
@@ -26,11 +26,13 @@ import re
 import ast
 
 # Get the root directory of the repository (2 directories above the script)
-REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+REPO_ROOT = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), '..', '..'))
 
 # Define key paths and constants
 ARTIFACTS_DIR = os.path.join(REPO_ROOT, 'scripts', 'artifacts')
-MD_FILE_PATH = os.path.join(REPO_ROOT, 'admin', 'docs', 'generated', 'module_info.md')
+MD_FILE_PATH = os.path.join(
+    REPO_ROOT, 'admin', 'docs', 'generated', 'module_info.md')
 GITHUB_MODULE_URL = "/scripts/artifacts/"
 START_MARKER = "<!-- MODULE_INFO_START -->"
 END_MARKER = "<!-- MODULE_INFO_END -->"
@@ -55,45 +57,38 @@ def extract_v2_info(module_content):
     and number of parameters in the corresponding function definition to detect
     usage of new context.
 
-    This function uses :
-     - regular expressions to find the v2 artifact dictionary
-        and then `exec` to safely evaluate it in a restricted scope.
-     - ast module to parse the function definition and count its parameters.
+    This function uses ast module to parse the module content and extract
+    the `__artifacts_v2__` dictionary and function definitions. It counts the
+    number of parameters in each function to determine if context is used.
 
     Args:
         module_content (str): The string content of the Python module.
 
     Returns:
         list[dict]: A list of dictionaries, where each dictionary contains
-                    the details for a single v2 artifact with the number of 
-                    parameters in the corresponding function definition. 
-                    Returns a list with an error dictionary if parsing fails.
+                    the details for a single v2 artifact with the number of
+                    parameters in the corresponding function definition.
+                    Returns "error" and an error message if parsing fails.
     """
-    pattern = re.compile(r"__artifacts_v2__.*\}\n}\n", re.DOTALL)
-    match = pattern.search(module_content)
-    if not match:
-        return []
-
-    artifact_block = match.group(0)  # Get just the dictionary content
-
-    try:
-        # Create a local dictionary to store the executed result
-        local_dict = {}
-        exec(f"__artifacts_v2__ = {artifact_block}", {}, local_dict)
-        artifacts_dict = local_dict['__artifacts_v2__']
-    except SyntaxError as e:
-        return [{
-            "artifact": "ERROR",
-            "name": "Error parsing v2 artifact",
-            "description": clean_string(str(e)),
-            "paths": "",
-            "output_types": "",
-            "version": "",
-            "last_update_date": "",
-            "artifact_icon": ""
-        }]
 
     results = []
+    artifacts_dict = {}
+    parameters_dict = {}
+
+    tree = ast.parse(module_content)
+    for item in tree.body:
+        if (
+            isinstance(item, ast.Assign) and
+            (target.id == '___artifacts_v2__' for target in item.targets)
+        ):
+            if isinstance(item.value, ast.Dict):
+                try:
+                    artifacts_dict = ast.literal_eval(item.value)
+                except ValueError:
+                    return "error", ["Error evaluating __artifacts_v2__"]
+        if isinstance(item, ast.FunctionDef):
+            parameters_len = len([arg.arg for arg in item.args.args])
+            parameters_dict[item.name] = parameters_len
     for artifact_name, details in artifacts_dict.items():
         paths = details.get("paths", "")
         if isinstance(paths, (list, tuple)):
@@ -121,14 +116,10 @@ def extract_v2_info(module_content):
             "output_types": output_types,
             "version": version,
             "last_update_date": last_update_date,
-            "artifact_icon": artifact_icon
+            "artifact_icon": artifact_icon,
+            "parameters_len": parameters_dict.get(artifact_name, 0)
         })
-        tree = ast.parse(module_content)
-        for item in tree.body:
-            if isinstance(item, ast.FunctionDef) and item.name == artifact_name:
-                parameters_len = len([arg.arg for arg in item.args.args])
-                results[0]["parameters_len"] = parameters_len
-    return results
+    return "v2", results
 
 
 def extract_v1_info(module_content):
@@ -168,7 +159,7 @@ def parse_module_file(module_path):
             content = f.read()
 
         if "__artifacts_v2__" in content:
-            return "v2", extract_v2_info(content)
+            return extract_v2_info(content)
         if "__artifacts__" in content:
             return "v1", extract_v1_info(content)
         return "error", ["No recognized artifacts found"]
@@ -312,8 +303,8 @@ def update_markdown_file(v1_data, v2_data, error_data):
         content = md_file.read()
 
     # Split the content into before, between, and after the markers
-    before_marker, _ , after_marker = content.partition(START_MARKER)
-    _, _ , after_info_marker = after_marker.partition(END_MARKER)
+    before_marker, _, after_marker = content.partition(START_MARKER)
+    _, _, after_info_marker = after_marker.partition(END_MARKER)
 
     # Generate new markdown content
     new_module_info = "## Summary\n\n"
@@ -345,7 +336,8 @@ def update_markdown_file(v1_data, v2_data, error_data):
         new_module_info += "\n"
 
     if error_data:
-        new_module_info += "## Modules with Errors or No Recognized Artifacts\n\n"
+        new_module_info += \
+            "## Modules with Errors or No Recognized Artifacts\n\n"
         new_module_info += generate_error_markdown_table(error_data)
 
     # Rebuild the file content with the updated section
@@ -396,6 +388,7 @@ def main():
     # Update the markdown file with the sorted artifact data
     update_markdown_file(v1_data, v2_data, error_data)
     print(f"\nMarkdown file updated: {MD_FILE_PATH}")
+
 
 if __name__ == "__main__":
     main()
