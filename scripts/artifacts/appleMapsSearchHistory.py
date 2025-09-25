@@ -23,7 +23,7 @@ import pprint
 
 from scripts.ilapfuncs import (
     artifact_processor,
-    get_plist_file_content
+    get_plist_content
 )
 from scripts.context import Context
 
@@ -51,7 +51,7 @@ def get_appleMapsSearchHistory(context:Context):
         with open(file_found, "rb") as plist_file:
             #plist_content = plistlib.load(plist_file)
             #print(plist_content)
-            plist_content = get_plist_file_content(plist_file)
+            plist_content = get_plist_content(plist_file)
             
             for a, b in plist_content.items():
                 pass
