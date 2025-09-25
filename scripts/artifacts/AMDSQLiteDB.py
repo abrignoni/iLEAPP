@@ -3,7 +3,8 @@ __artifacts_v2__ = {
         "name": "App Usage Events (AMDSQLiteDB)",
         "description": "Apple App Store application foreground events",
         "author": "@stark4n6",
-        "date": "2025-07-21",
+        "creation_date": "2025-07-21",
+        "last_update_date": "2025-07-21",
         "requirements": "none",
         "category": "App Usage",
         "notes": "",
@@ -18,7 +19,8 @@ __artifacts_v2__ = {
         "name": "Device Storage Capacity",
         "description": "Shows storage capacity size over time",
         "author": "@stark4n6",
-        "date": "2025-07-21",
+        "creation_date": "2025-07-21",
+        "last_update_date": "2025-07-21",
         "requirements": "none",
         "category": "Device Information",
         "notes": "",
@@ -33,8 +35,8 @@ __artifacts_v2__ = {
 import urllib.request
 import json
 
-from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, attach_sqlite_db_readonly, logfunc
+from scripts.context import Context
 
 def get_data_from_itunes(lookup_value, lookup_type):
     response_json_data = None
@@ -59,7 +61,7 @@ def process_ids(item_record, data_dictionary, lookup_type):
     if item_record not in data_dictionary:
         error, result = get_data_from_itunes(item_record, lookup_type)
         if error:
-            logfunc(error)
+            #logfunc(error)
             data_dictionary[item_record] = ''
         else:
             data_dictionary[item_record] = result
@@ -78,10 +80,10 @@ def results_for_id(item_record, data_dictionary):
             return app_name, bundle_name
 
 @artifact_processor
-def AMDSQLiteDB_UsageEvents(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def AMDSQLiteDB_UsageEvents(context:Context):
     data_list = []
     my_data_store = {}
-    
+    files_found = context.get_files_found()
     source_path = get_file_path(files_found, "AMDSQLite.db.0")
     
     storeUserDB = get_file_path(files_found, "storeUser.db")
@@ -116,8 +118,9 @@ def AMDSQLiteDB_UsageEvents(files_found, report_folder, seeker, wrap_text, timez
     return data_headers, data_list, source_path
     
 @artifact_processor
-def AMDSQLiteDB_StorageCapacity(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def AMDSQLiteDB_StorageCapacity(context:Context):
     data_list = []
+    files_found = context.get_files_found()
     source_path = get_file_path(files_found, "AMDSQLite.db.0")
     
     query = '''
