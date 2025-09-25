@@ -16,10 +16,12 @@ __artifacts_v2__ = {
 
 import datetime
 
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content, convert_plist_date_to_utc
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content
+from scripts.context import Context
 
 @artifact_processor
-def timer(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def timer(context:Context):
+    files_found = context.get_files_found()
     source_path = get_file_path(files_found, "com.apple.mobiletimerd.plist")
     data_list = []
 
@@ -40,20 +42,20 @@ def timer(files_found, report_folder, seeker, wrap_text, timezone_offset):
                     timer_firstDate = timer_fireTime.get('MTTimerTimeDate', '')
 
                 data_list.append((
+                    timer_firstDate, 
+                    timer_lastModified, 
                     timer_title, 
                     timer_state, 
                     str(datetime.timedelta(seconds = timer_duration)), 
-                    timer_firstDate, 
-                    timer_lastModified, 
                     timers_dict['MTTimerSound']['$MTSound']['MTSoundToneID'] 
                     ))
 
     data_headers = (
+            ('First Date', 'datetime'), 
+            ('Last Modified', 'datetime'), 
             'Timer Title', 
             'Timer State', 
             'Timer Time', 
-            ('First Date', 'datetime'), 
-            ('Last Modified', 'datetime'), 
             'Timer Sound'
             )
 
