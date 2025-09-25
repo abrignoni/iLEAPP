@@ -18,13 +18,13 @@ __artifacts_v2__ = {
 
 import pathlib
 from scripts.ilapfuncs import artifact_processor, get_plist_file_content
+from scripts.context import Context
 
 @artifact_processor
-def appGrouplisting(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    source_path = 'Path column in the report'
+def appGrouplisting(context:Context):
     data_list = []       
     
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         plist = get_plist_file_content(file_found)
         bundleid = plist['MCMMetadataIdentifier']
         
@@ -36,5 +36,5 @@ def appGrouplisting(files_found, report_folder, seeker, wrap_text, timezone_offs
         data_list.append((bundleid, typedir, appgroupid, fileloc))
                 
     data_headers = ('Bundle ID', 'Type', 'Directory GUID', 'Path')
-    return data_headers, data_list, source_path
+    return data_headers, data_list, ''
     
