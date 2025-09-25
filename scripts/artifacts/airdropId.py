@@ -15,9 +15,11 @@ __artifacts_v2__ = {
 }
 
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content, device_info
+from scripts.context import Context
 
 @artifact_processor
-def airdropId(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def airdropId(context:Context):
+    files_found = context.get_files_found()
     source_path = get_file_path(files_found, "com.apple.sharingd.plist")
 
     pl = get_plist_file_content(source_path)
