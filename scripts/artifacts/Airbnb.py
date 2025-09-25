@@ -8,14 +8,11 @@
 # Requirements: -
 
 __artifacts_v2__ = {
-
-    
     "get_airbnb_messages": {
         "name": "Airbnb - Messages",
         "description": "Messages sent and received in the Airbnb App",
         "author": "Marco Neumann {kalinko@be-binary.de}",
-        "version": "0.0.1",
-        "creatin_date": "2024-04-29",
+        "creation_date": "2024-04-29",
         "last_update_date": "2025-04-29",
         "requirements": "",
         "category": "Airbnb",
@@ -27,10 +24,11 @@ __artifacts_v2__ = {
 }
 
 from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records
+from scripts.context import Context
 
 @artifact_processor
-def get_airbnb_messages(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    files_found = [x for x in files_found if not x.endswith('wal') and not x.endswith('shm')]
+def get_airbnb_messages(context:Context):
+    files_found = [x for x in context.get_files_found() if not x.endswith('wal') and not x.endswith('shm')]
     
     query = ('''
         SELECT
