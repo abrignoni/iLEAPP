@@ -19,12 +19,12 @@ __artifacts_v2__ = {
 import pathlib
 import re
 import scripts.builds_ids as builds_ids
-
+from scripts.context import Context
 from scripts.ilapfuncs import artifact_processor, get_txt_file_content, convert_log_ts_to_utc
 
 
 @artifact_processor
-def appConduit(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def appConduit(context:Context):
     source_paths = set()
     data_list = []
     device_type_and_info = {}
@@ -34,7 +34,7 @@ def appConduit(files_found, report_folder, seeker, wrap_text, timezone_offset):
         r'(([A-Za-z]+[\s]+([a-zA-Z]+[\s]+[0-9]+)[\s]+([0-9]+\:[0-9]+\:[0-9]+)[\s]+([0-9]{4}))([\s]+[\[\d\]]+[\s]+[\<a-z\>]+[\s]+[\(\w\)]+)[\s\-]+(((.*)(device+\:([\w]+\-[\w]+\-[\w]+\-[\w]+\-[\w]+))(.*)$)))')
     date_filter = re.compile(reg_filter)
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         if file_found.startswith('\\\\?\\'):
             file_name = pathlib.Path(file_found[4:]).name
             file_location = pathlib.Path(file_found[4:]).parent
@@ -84,6 +84,5 @@ def appConduit(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
     data_headers = (('Timestamp', 'datetime'), 'Device interaction',
                     'Device ID', 'Device type and OS version', 'Log File Name')
-    source_path = ', '.join(source_paths)
 
-    return data_headers, data_list, source_path
+    return data_headers, data_list, ''
