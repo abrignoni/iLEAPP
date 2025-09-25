@@ -28,9 +28,11 @@ __artifacts_v2__ = {
 }
 
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, convert_cocoa_core_data_ts_to_utc
+from scripts.context import Context
 
 @artifact_processor
-def allTrailsTrailDetails(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def allTrailsTrailDetails(context:Context):
+    files_found = context.get_files_found()
     source_path = get_file_path(files_found, "AllTrails.sqlite")
     data_list = []
 
@@ -87,7 +89,8 @@ def allTrailsTrailDetails(files_found, report_folder, seeker, wrap_text, timezon
 
 
 @artifact_processor
-def allTrailsUserInfo(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def allTrailsUserInfo(context:Context):
+    files_found = context.get_files_found()
     source_path = get_file_path(files_found, "AllTrails.sqlite")
     data_list = []
 
