@@ -1,10 +1,31 @@
+__artifacts_v2__ = {
+    "get_appleMapsSearchHistory": {
+        "name": "Get Apple Maps seach history",
+        "description": "",
+        "author": "@any333",
+        "creation_date": "2021-01-29",
+        "last_update_date": "2023-10-10",
+        "requirements": "none",
+        "category": "Locations",
+        "notes": "",
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/Maps/GeoHistory.mapsdata','*/GeoHistory.mapsdata',),
+        "output_types": "standard",
+    }
+}
+
 import plistlib
 import blackboxprotobuf
 import base64
 import pprint
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows
+#from scripts.artifact_report import ArtifactHtmlReport
+#from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows
+
+from scripts.ilapfuncs import (
+    artifact_processor,
+    get_plist_file_content
+)
+from scripts.context import Context
 
 def longbase64proto(longstuff, longtypes):
     longstuff = longstuff.split('placeRequest=')[1]
@@ -16,22 +37,21 @@ def shortbase64proto(shortstuff, shorttypes):
     shortstuff, t = blackboxprotobuf.decode_message(base64.b64decode(shortstuff), shorttypes)
     return shortstuff
 
-def get_appleMapsSearchHistory(files_found, report_folder, seeker, wrap_text, timezone_offset):
+@artifact_processor
+def get_appleMapsSearchHistory(context:Context):
     data_list = []
 
     shorttypes = {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'bytes', 'name': ''}}, 'name': ''}, '7': {'type': 'int', 'name': ''}, '8': {'type': 'message', 'message_typedef': {'4': {'type': 'message', 'message_typedef': {'3': {'type': 'int', 'name': ''}, '4': {'type': 'message', 'message_typedef': {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'double', 'name': ''}, '2': {'type': 'double', 'name': ''}}, 'name': ''}}, 'name': ''}}, 'name': ''}}, 'name': ''}}
     
     longtypes = {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'bytes', 'name': ''}}, 'name': ''}, '7': {'type': 'int', 'name': ''}, '8': {'type': 'message', 'message_typedef': {'1': {'type': 'message', 'message_typedef': {'3': {'type': 'bytes', 'name': ''}, '4': {'type': 'message', 'message_typedef': {'1': {'type': 'message', 'message_typedef': {'5': {'type': 'double', 'name': ''}, '6': {'type': 'double', 'name': ''}, '7': {'type': 'double', 'name': ''}, '8': {'type': 'double', 'name': ''}}, 'name': ''}, '3': {'type': 'int', 'name': ''}}, 'name': ''}, '7': {'type': 'message', 'message_typedef': {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'bytes', 'name': ''}, '2': {'type': 'message', 'message_typedef': {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''}}, 'name': ''}}, 'name': ''}, '2': {'type': 'message', 'message_typedef': {'1': {'type': 'bytes', 'name': ''}}, 'name': ''}, '3': {'type': 'int', 'name': ''}, '5': {'type': 'message', 'message_typedef': {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'double', 'name': ''}, '2': {'type': 'double', 'name': ''}}, 'name': ''}, '2': {'type': 'int', 'name': ''}, '3': {'type': 'int', 'name': ''}}, 'name': ''}, '12': {'type': 'message', 'message_typedef': {'1': {'type': 'bytes', 'name': ''}}, 'name': ''}, '15': {'type': 'int', 'name': ''}, '16': {'type': 'message', 'message_typedef': {'1': {'type': 'fixed32', 'name': ''}}, 'name': ''}, '10000': {'type': 'bytes', 'name': ''}, '10001': {'type': 'int', 'name': ''}, '10011': {'type': 'message', 'message_typedef': {'1': {'type': 'double', 'name': ''}, '2': {'type': 'double', 'name': ''}, '6': {'type': 'bytes', 'name': ''}}, 'name': ''}, '10019': {'type': 'int', 'name': ''}}, 'name': ''}}, 'name': ''}}, 'name': ''}}
 
-
-
-
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         
         with open(file_found, "rb") as plist_file:
-            plist_content = plistlib.load(plist_file)
+            #plist_content = plistlib.load(plist_file)
             #print(plist_content)
+            plist_content = get_plist_file_content(plist_file)
             
             for a, b in plist_content.items():
                 pass
@@ -163,31 +183,9 @@ def get_appleMapsSearchHistory(files_found, report_folder, seeker, wrap_text, ti
                                         pp = pprint.PrettyPrinter(indent = 0)
                                         items = pp.pformat(protostuff['7']['1']['1'][0]['2']['1']['4'])
                                         
-                                data_list.append((modificationdate,app,location,shortadd,pname,shortlat,shortlon,usersearchnotinproto,usersearch1, usersearch2,geo1,geo2,geo3,geo4,geo5,geo6,guid,currentlocation,items ))
-                                modificationdate = app = locatio = shortadd = pname = shortlat = shortlon = usersearch1 = usersearch2 = geo1 = geo2 = geo3 = geo4 = geo5 = geo6 = guid = items = currentlocation = '' 
+                                data_list.append((modificationdate,app,location,shortadd,pname,shortlat,shortlon,usersearchnotinproto,usersearch1, usersearch2,geo1,geo2,geo3,geo4,geo5,geo6,guid,currentlocation,items, file_found ))
+                                modificationdate = app = location = shortadd = pname = shortlat = shortlon = usersearch1 = usersearch2 = geo1 = geo2 = geo3 = geo4 = geo5 = geo6 = guid = items = currentlocation = '' 
         
-        
-
-    if len(data_list) > 0:
-        report = ArtifactHtmlReport('Apple Maps Search History')
-        report.start_artifact_report(report_folder, 'Apple Maps Search History')
-        report.add_script()
-        data_headers = ('Timestamp','App','Location','Short Address','Place Name','Latitude','Longitude','Search Not in Protobuf','Search Term','Search Term','Lat1','Lon1','Lat2','Lon2','Lat2','Lon3','Record GUID','Current Location','Items' )
-        report.write_artifact_data_table(data_headers, data_list, file_found)
-        report.end_artifact_report()
-
-        tsvname = 'Apple Maps Search History'
-        tsv(report_folder, data_headers, data_list, tsvname)
-
-        tlactivity = 'Apple Maps Search History'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-
-    else:
-        logfunc('No data available for Apple Maps Search History')
-
-__artifacts__ = {
-    "applemapssearchhistory": (
-        "Locations",
-        ('*/mobile/Containers/Data/Application/*/Library/Maps/GeoHistory.mapsdata','*/GeoHistory.mapsdata'),
-        get_appleMapsSearchHistory)
-}
+    data_headers = ('Timestamp','App','Location','Short Address','Place Name','Latitude','Longitude','Search Not in Protobuf','Search Term','Search Term','Lat1','Lon1','Lat2','Lon2','Lat2','Lon3','Record GUID','Current Location','Items', 'Source File')        
+    
+    return data_list, data_headers, ''
