@@ -14,13 +14,13 @@ __artifacts_v2__ = {
     }
 }
 
-
 from scripts.ilapfuncs import artifact_processor, \
     get_file_path, get_sqlite_db_records, convert_cocoa_core_data_ts_to_utc
-
+from scripts.context import Context
 
 @artifact_processor
-def appleWalletTransactions(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def appleWalletTransactions(context:Context):
+    files_found = context.get_files_found()
     source_path = get_file_path(files_found, 'passes23.sqlite')
     data_list = []
 
@@ -45,12 +45,12 @@ def appleWalletTransactions(files_found, report_folder, seeker, wrap_text, timez
 
     data_headers = (
         ('Transaction Date', 'datetime'),
+        ('Location Date', 'datetime'),
         'Merchant',
         'Locality',
         'Administrative Area',
         'Currency Amount',
         'Currency Type',
-        ('Location Date', 'datetime'),
         'Latitude',
         'Longitude',
         'Altitude',
@@ -69,7 +69,7 @@ def appleWalletTransactions(files_found, report_folder, seeker, wrap_text, timez
             record['location_date'])
 
         data_list.append((
-            transaction_date, record[1], record[2], record[3], record[4], record[5], location_date,
+            transaction_date, location_date, record[1], record[2], record[3], record[4], record[5],
             record[7], record[8], record[9], record[10], record[11], record[12], record[13]))
 
     return data_headers, data_list, source_path
