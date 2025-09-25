@@ -4,6 +4,7 @@ __artifacts_v2__ = {
         "description": "Extraction of different World Clock entries",
         "author": "Mohammad Natiq Khan",
         "creation_date": "2025-02-23",
+        "last_update_date": "2025-02-23",
         "requirements": "none",
         "category": "Clock",
         "notes": "",
@@ -13,10 +14,12 @@ __artifacts_v2__ = {
     }
 }
 
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content, convert_plist_date_to_utc
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content
+from scripts.context import Context
 
 @artifact_processor
-def worldclock(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def worldclock(context:Context):
+    files_found = context.get_files_found()
     source_path = get_file_path(files_found, "com.apple.mobiletimer.plist")
     data_list = []
 
