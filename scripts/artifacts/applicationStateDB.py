@@ -41,6 +41,7 @@ from collections import namedtuple as _nt
 from scripts.ilapfuncs import open_sqlite_db_readonly
 from scripts.ilapfuncs import artifact_processor
 from scripts.ilapfuncs import logfunc
+from scripts.context import Context
 
 
 __artifacts_v2__ = {
@@ -48,8 +49,8 @@ __artifacts_v2__ = {
         "name": "Application State",
         "description": "Extract information about bundle container path and data path for Applications",
         "author": "@AlexisBrignoni - @mxkrt",
-        "version": "0.2.3",
-        "date": "2025-08-27",
+        "creation_date": "2025-08-27",
+        "last_update_date": "2025-08-27",
         "requirements": "none",
         "category": "Installed Apps",
         "notes": "",
@@ -65,8 +66,8 @@ __artifacts_v2__ = {
                        "timestamps do indicate user-interaction with the " +\
                        "device, such as switching between apps.",
         "author": "@mxkrt",
-        "version": "0.1",
-        "date": "2025-08-04",
+        "creation_date": "2025-08-04",
+        "last_update_date": "2025-08-04",
         "requirements": "none",
         "category": "Device Usage",
         "notes": "",
@@ -83,8 +84,8 @@ __artifacts_v2__ = {
                        "timestamps do indicate user-interaction with the " +\
                        "device, such as switching between apps.",
         "author": "@mxkrt",
-        "version": "0.1",
-        "date": "2025-08-04",
+        "creation_date": "2025-08-04",
+        "last_update_date": "2025-08-04",
         "requirements": "none",
         "category": "Device Usage",
         "notes": "",
@@ -126,11 +127,11 @@ _snapshot_headers = ('Creation Date', 'Bundle ID', 'Snapshot Group',
 
 
 @artifact_processor
-def get_installed_apps(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def get_installed_apps(context:Context):
     ''' get bundle container path and sandbox data path for installed applications '''
 
     # this is a refactored version of the original applicationstate.py module
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if file_found.endswith('applicationState.db'):
             break
@@ -158,10 +159,10 @@ def get_installed_apps(files_found, report_folder, seeker, wrap_text, timezone_o
 
 
 @artifact_processor
-def get_snapshot_creationDate(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def get_snapshot_creationDate(context:Context):
     ''' main artifact processor, parses XBApplicationSnapshotManifest snapshots '''
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if file_found.endswith('applicationState.db'):
             break
@@ -171,10 +172,10 @@ def get_snapshot_creationDate(files_found, report_folder, seeker, wrap_text, tim
 
 
 @artifact_processor
-def get_snapshot_lastUsedDate(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def get_snapshot_lastUsedDate(context:Context):
     ''' add the lastUsedDate for each snapshot to the timeline '''
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if file_found.endswith('applicationState.db'):
             break
