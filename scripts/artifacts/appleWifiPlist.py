@@ -53,7 +53,7 @@ __artifacts_v2__ = {
     }
 }
 
-from scripts.ilapfuncs import device_info, artifact_processor, get_plist_file_content, convert_plist_date_to_utc
+from scripts.ilapfuncs import device_info, artifact_processor, get_plist_content, convert_plist_date_to_utc
 from scripts.context import Context
 
 def _bytes_to_mac_address(encoded_bytes):
@@ -73,7 +73,7 @@ def appleWifiKnownNetworks(context:Context):
     for file_found in context.get_files_found():
         file_found = str(file_found)
         with open(file_found, 'rb') as f:
-            deserialized = get_plist_file_content(f)
+            deserialized = get_plist_content(f)
             if 'KeepWiFiPoweredAirplaneMode' in deserialized:
                 val = (deserialized['KeepWiFiPoweredAirplaneMode'])
                 device_info('WiFi', 'Keep Wifi Powered Airplane Mode', val, file_found)
@@ -133,7 +133,7 @@ def appleWifiKnownNetworksTimes(context:Context):
     for file_found in context.get_files_found():
         file_found = str(file_found)
         with open(file_found, 'rb') as f:
-            deserialized = get_plist_file_content(f)
+            deserialized = get_plist_content(f)
 
             if 'List of known networks' in deserialized:
                 for known_network in deserialized['List of known networks']:
@@ -183,7 +183,7 @@ def appleWifiScannedPrivate(context:Context):
     for file_found in context.get_files_found():
         file_found = str(file_found)
         with open(file_found, 'rb') as f:
-            deserialized = get_plist_file_content(f)
+            deserialized = get_plist_content(f)
             if 'List of scanned networks with private mac' in deserialized:
                 for scanned_network in deserialized['List of scanned networks with private mac']:
                     ssid = scanned_network.get('SSID_STR', '')
@@ -220,7 +220,7 @@ def appleWifiBSSList(context:Context):
     for file_found in context.files_found():
         file_found = str(file_found)
         with open(file_found, 'rb') as f:
-            deserialized = get_plist_file_content(f)
+            deserialized = get_plist_content(f)
             if 'com.apple.wifi.known-networks.plist' in file_found:
                 for network_key, known_network in deserialized.items():
                     ssid = _decode_ssid(known_network.get('SSID', b''))
