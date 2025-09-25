@@ -18,6 +18,7 @@ __artifacts_v2__ = {
 from scripts.ilapfuncs import artifact_processor, \
     get_sqlite_db_records, attach_sqlite_db_readonly, check_in_embedded_media, \
     convert_cocoa_core_data_ts_to_utc, get_birthdate
+from scripts.context import Context
 
 
 def clean_label(data):
@@ -35,7 +36,7 @@ def remove_unused_rows(data, count_rows):
 
 
 @artifact_processor
-def addressBook(context):
+def addressBook(context:Context):
     source_path = context.get_source_file_path('AddressBook.sqlitedb')
     address_book_images_db = context.get_source_file_path('AddressBookImages.sqlitedb')
 
