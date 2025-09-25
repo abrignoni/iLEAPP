@@ -16,9 +16,11 @@ __artifacts_v2__ = {
 
 import blackboxprotobuf
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content
+from scripts.context import Context
 
 @artifact_processor
-def appleMapsGroup(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def appleMapsGroup(context:Context):
+    files_found = context.get_files_found()
     source_path = get_file_path(files_found, "group.com.apple.Maps.plist")
     data_list = []
 
