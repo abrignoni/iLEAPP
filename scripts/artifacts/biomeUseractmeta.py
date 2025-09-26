@@ -3,8 +3,8 @@ __artifacts_v2__ = {
         "name": "Biome - User Activity Metadata",
         "description": "Parses battery percentage entries from biomes",
         "author": "@JohnHyla",
-        "version": "0.0.2",
-        "date": "2024-10-17",
+        "creation_date": "2024-10-17",
+        "last_update_date": "2025-03-05",
         "requirements": "none",
         "category": "Biome",
         "notes": "",
@@ -20,16 +20,16 @@ import blackboxprotobuf
 import nska_deserialize as nd
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
-from scripts.ilapfuncs import artifact_processor, convert_time_obj_to_utc, convert_utc_human_to_timezone
+from scripts.ilapfuncs import artifact_processor, convert_time_obj_to_utc
+from scripts.context import Context
 
 
 @artifact_processor
-def get_biomeUseractmeta(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def get_biomeUseractmeta(context:Context):
 
     #typess = {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'str', 'name': ''}, '2': {'type': 'message', 'message_typedef': {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''}}, 'name': ''}}, 'name': ''}, '2': {'type': 'double', 'name': ''}, '3': {'type': 'double', 'name': ''}, '4': {'type': 'message', 'message_typedef': {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''}}, 'name': ''}, '5': {'type': 'double', 'name': ''}}, 'name': ''}, '5': {'type': 'str', 'name': ''}, '8': {'type': 'double', 'name': ''}, '10': {'type': 'int', 'name': ''}}
     data_list = []
-    report_file = 'Unknown'
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         filename = os.path.basename(file_found)
         if filename.startswith('.'):
@@ -37,8 +37,6 @@ def get_biomeUseractmeta(files_found, report_folder, seeker, wrap_text, timezone
         if os.path.isfile(file_found):
             if 'tombstone' in file_found:
                 continue
-            else:
-                report_file = os.path.dirname(file_found)
         else:
             continue
 
@@ -59,7 +57,6 @@ def get_biomeUseractmeta(files_found, report_folder, seeker, wrap_text, timezone
                 title = (deserialized_plist.get('title',''))
                 when = (deserialized_plist['when'])
                 when = convert_time_obj_to_utc(when)
-                when = convert_utc_human_to_timezone(when, timezone_offset)
                 actype = (deserialized_plist['activityType'])
                 exdate = (deserialized_plist.get('expirationDate',''))
                 
@@ -104,4 +101,4 @@ def get_biomeUseractmeta(files_found, report_folder, seeker, wrap_text, timezone
                     'Description', 'Bundle ID', 'Title', 'Bplist Data', 'Payload Data','Container Data', 'Filename',
                     'Offset')
 
-    return data_headers, data_list, report_file
+    return data_headers, data_list, ''

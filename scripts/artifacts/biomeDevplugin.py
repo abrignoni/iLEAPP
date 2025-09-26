@@ -3,8 +3,8 @@ __artifacts_v2__ = {
         "name": "Biome - Device Plugged In",
         "description": "Parses device plugged in entries from biomes",
         "author": "@JohnHyla",
-        "version": "0.0.2",
-        "date": "2024-10-17",
+        "creation_date": "2024-10-17",
+        "last_update_date": "2025-03-05",
         "requirements": "none",
         "category": "Biome",
         "notes": "",
@@ -19,17 +19,17 @@ from datetime import timezone
 import blackboxprotobuf
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
-from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv, convert_utc_human_to_timezone
+from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv
+from scripts.context import Context
 
 
 @artifact_processor
-def get_biomeDevplugin(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def get_biomeDevplugin(context:Context):
 
     typess = {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'str', 'name': ''}, '2': {'type': 'message', 'message_typedef': {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''}}, 'name': ''}}, 'name': ''}, '2': {'type': 'double', 'name': ''}, '3': {'type': 'double', 'name': ''}, '4': {'type': 'message', 'message_typedef': {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''}}, 'name': ''}, '4': {'type': 'int', 'name': ''}}, 'name': ''}, '5': {'type': 'str', 'name': ''}, '7': {'type': 'message', 'message_typedef': {'1': {'type': 'message', 'message_typedef': {}, 'name': ''}, '2': {'type': 'message', 'message_typedef': {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''}}, 'name': ''}, '4': {'type': 'int', 'name': ''}}, 'name': ''}, '3': {'type': 'int', 'name': ''}}, 'name': ''}, '8': {'type': 'double', 'name': ''}, '10': {'type': 'int', 'name': ''}}
 
     data_list = []
-    report_file = 'Unknown'
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         filename = os.path.basename(file_found)
         if filename.startswith('.'):
@@ -37,8 +37,6 @@ def get_biomeDevplugin(files_found, report_folder, seeker, wrap_text, timezone_o
         if os.path.isfile(file_found):
             if 'tombstone' in file_found:
                 continue
-            else:
-                report_file = os.path.dirname(file_found)
         else:
             continue
 
@@ -51,13 +49,10 @@ def get_biomeDevplugin(files_found, report_folder, seeker, wrap_text, timezone_o
 
                 activity = (protostuff['1']['1'])
                 timestart = (webkit_timestampsconv(protostuff['2']))
-                timestart = convert_utc_human_to_timezone(timestart, timezone_offset)
                 
                 timeend = (webkit_timestampsconv(protostuff['3']))
-                timeend = convert_utc_human_to_timezone(timeend, timezone_offset)
                 
                 timewrite = (webkit_timestampsconv(protostuff['8']))
-                timewrite = convert_utc_human_to_timezone(timewrite, timezone_offset)
                 
                 con = (protostuff['4']['4'])
                 actionguid = (protostuff['5'])
@@ -72,4 +67,4 @@ def get_biomeDevplugin(files_found, report_folder, seeker, wrap_text, timezone_o
     data_headers = (('SEGB Timestamp', 'datetime'), ('Time Start', 'datetime'), ('Time End', 'datetime'),
                     ('Time Write', 'datetime'), 'SEGB State', 'Activity', 'Status', 'Action GUID', 'Filename', 'Offset')
 
-    return data_headers, data_list, report_file
+    return data_headers, data_list, ''

@@ -3,12 +3,12 @@ __artifacts_v2__ = {
         "name": "Biome - Device Syncs",
         "description": "Parses Biome Device Sync records",
         "author": "@JohnHyla",
-        "version": "0.0.2",
-        "date": "2024-10-17",
+        "creation_date": "2024-10-17",
+        "last_update_date": "2025-03-05",
         "requirements": "none",
         "category": "Biome",
         "notes": "",
-        "paths": ('**/Biome/sync/sync.db*'),
+        "paths": ('*/Biome/sync/sync.db*'),
         "output_types": "standard"
     }
 }
@@ -16,14 +16,14 @@ __artifacts_v2__ = {
 
 from scripts.builds_ids import OS_build
 from scripts.ilapfuncs import open_sqlite_db_readonly, convert_ts_human_to_utc
-from scripts.ilapfuncs import artifact_processor, convert_utc_human_to_timezone
+from scripts.ilapfuncs import artifact_processor
+from scripts.context import Context
 
 @artifact_processor
-def get_biomeSync(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def get_biomeSync(context:Context):
 
     data_list = []
-    report_file = 'Unknown'
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if not file_found.endswith('.db'):
             continue # Skip all other files
@@ -61,7 +61,6 @@ def get_biomeSync(files_found, report_folder, seeker, wrap_text, timezone_offset
             else:
                 timestamp = row[0]
                 timestamp = convert_ts_human_to_utc(timestamp)
-                timestamp = convert_utc_human_to_timezone(timestamp, timezone_offset)
 
             os_build = 'Unknown'
             for key, value in OS_build.items():
@@ -69,10 +68,10 @@ def get_biomeSync(files_found, report_folder, seeker, wrap_text, timezone_offset
                     os_build = value
                     break
 
-            data_list.append((timestamp, row[1], row[2], row[3], row[4], os_build, row[5]))
+            data_list.append((timestamp, row[1], row[2], row[3], row[4], os_build, row[5], file_found))
 
         db.close()
 
-    data_headers = (('Last Sync Timestamp', 'datetime'), 'Device ID', 'Name', 'Device Type', 'OS Build', 'OS Version', 'Local Device')
+    data_headers = (('Last Sync Timestamp', 'datetime'), 'Device ID', 'Name', 'Device Type', 'OS Build', 'OS Version', 'Local Device', 'Source File')
 
-    return data_headers, data_list, report_file
+    return data_headers, data_list, ''

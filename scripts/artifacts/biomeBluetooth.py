@@ -3,8 +3,8 @@ __artifacts_v2__ = {
         "name": "Biome - Bluetooth",
         "description": "Parses bluetooth connection entries from biomes",
         "author": "@JohnHyla",
-        "version": "0.0.2",
-        "date": "2024-10-17",
+        "creation_date": "2024-10-17",
+        "last_update_date": "2025-03-05",
         "requirements": "none",
         "category": "Biome",
         "notes": "",
@@ -20,14 +20,14 @@ from datetime import *
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
 from scripts.ilapfuncs import artifact_processor
+from scripts.context import Context
 
 
 @artifact_processor
-def get_biomeBluetooth(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def get_biomeBluetooth(context:Context):
 
     data_list = []
-    report_file = 'Unknown'
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         filename = os.path.basename(file_found)
         if filename.startswith('.'):
@@ -35,8 +35,6 @@ def get_biomeBluetooth(files_found, report_folder, seeker, wrap_text, timezone_o
         if os.path.isfile(file_found):
             if 'tombstone' in file_found:
                 continue
-            else:
-                report_file = os.path.dirname(file_found)
         else:
             continue
 
@@ -59,4 +57,4 @@ def get_biomeBluetooth(files_found, report_folder, seeker, wrap_text, timezone_o
 
     data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'MAC', 'Name', 'Filename', 'Offset')
 
-    return data_headers, data_list, report_file
+    return data_headers, data_list, ''
