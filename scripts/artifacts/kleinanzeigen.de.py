@@ -25,14 +25,14 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "message-circle",
         "data_views": {
-            'chat': {
-                'threadDiscriminatorColumn': 'Conversation-ID',
-                'threadLabelColumn': 'Advertisement',
+            'conversation': {
+                'conversationColumn': 'Conversation-ID',
+                'conversationLabelColumn': 'Advertisement',
                 'textColumn': 'Message',
+                'senderColumn': 'From_Name'
                 'directionColumn': 'From Me',
                 'directionSentValue': 1,
                 'timeColumn': 'Timestamp',
-                'senderColumn': 'From_Name',
             }
         }
     },
