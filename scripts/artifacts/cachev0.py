@@ -14,14 +14,14 @@ __artifacts_v2__ = {
 }
 
 from scripts.ilapfuncs import (
-    logfunc,
     open_sqlite_db_readonly,
     check_in_embedded_media,
     artifact_processor,
 )
+from scripts.context import Context
 
 @artifact_processor
-def cachev0(context):
+def cachev0(context:Context):
     
     data_list = []
     for file_found in context.get_files_found():
@@ -50,4 +50,4 @@ def cachev0(context):
         return
 
     data_headers = ('ID', ('Media', 'media'), 'Source DB')
-    return data_headers, data_list, file_found
+    return data_headers, data_list, ''
