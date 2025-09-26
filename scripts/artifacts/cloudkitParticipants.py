@@ -1,19 +1,32 @@
-import glob
-import os
+__artifacts_v2__ = {
+    "get_cloudkitParticipants": {  
+        "name": "CloudKit Participants",
+        "description": "CloudKit Participants - Cloudkit accounts participating in CloudKit shares",
+        "author": "@threeplanetssoftware",
+        "creation_date": "2022-10-22",
+        "last_update_date": "2025-09-26",
+        "requirements": "none",
+        "category": "CloudKit",
+        "notes": "",
+        "paths": ('*NoteStore.sqlite*',), # TODO confirm this is the correct file ref see issue #322
+        "output_types": "standard", 
+    }
+}
+
+#import os
 import nska_deserialize as nd
-import sqlite3
-import datetime
 import io
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
+from scripts.ilapfuncs import open_sqlite_db_readonly, artifact_processor
+from scripts.context import Context
 
-
-def get_cloudkitParticipants(files_found, report_folder, seeker, wrap_text, timezone_offset):
+@artifact_processor
+def get_cloudkitParticipants(context:Context):
 
     user_dictionary = {}    
+    #report_folder = context.get_report_folder()
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
 
         # Can add a separate section for each file this information is found in.
@@ -32,10 +45,10 @@ def get_cloudkitParticipants(files_found, report_folder, seeker, wrap_text, time
             all_rows = cursor.fetchall()
             for row in all_rows:
                 
-                filename = os.path.join(report_folder, 'zserversharedata_'+str(row[0])+'.bplist')
-                output_file = open(filename, "wb") 
-                output_file.write(row[1])
-                output_file.close()
+                # filename = os.path.join(report_folder, 'zserversharedata_'+str(row[0])+'.bplist')
+                # output_file = open(filename, "wb") 
+                # output_file.write(row[1])
+                # output_file.close()
                 
                 deserialized_plist = nd.deserialize_plist(io.BytesIO(row[1]))
                 for item in deserialized_plist:
@@ -56,25 +69,6 @@ def get_cloudkitParticipants(files_found, report_folder, seeker, wrap_text, time
     
     # Build the array after dealing with all the files 
     user_list = list(user_dictionary.values())
+    user_headers = ('Record ID','Email Address',('Phone Number', 'phonenumber'),'Name Prefix','First Name','Middle Name','Last Name','Name Suffix','Nickname')     
 
-    if len(user_list) > 0:
-        description = 'CloudKit Participants - Cloudkit accounts participating in CloudKit shares.'
-        report = ArtifactHtmlReport('Participants')
-        report.start_artifact_report(report_folder, 'Participants', description)
-        report.add_script()
-        user_headers = ('Record ID','Email Address','Phone Number','Name Prefix','First Name','Middle Name','Last Name','Name Suffix','Nickname')     
-        report.write_artifact_data_table(user_headers, user_list, '', write_location=False)
-        report.end_artifact_report()
-        
-        tsvname = 'Cloudkit Participants'
-        tsv(report_folder, user_headers, user_list, tsvname)
-    else:
-        logfunc('No Cloudkit - Cloudkit Participants data available')
-
-    
-__artifacts__ = {
-    "cloudkitparticipants": (
-        "Cloudkit",
-        ('*NoteStore.sqlite*'), # TODO confirm this is the correct file ref see issue #322
-        get_cloudkitParticipants)
-}
+    return user_headers, user_list, ''
