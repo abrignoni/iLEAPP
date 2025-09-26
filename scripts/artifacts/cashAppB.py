@@ -3,33 +3,29 @@ __artifacts_v2__ = {
         "name": "Cash App",
         "description": "",
         "author": "Alexis Brignoni",
-        "version": "0.0.1",
-        "date": "2025-08-24",
+        "creation_date": "2025-08-24",
+        "last_update_date": "2025-08-24",
         "requirements": "none",
         "category": "Banking",
         "notes": "",
         "paths": ('*/Environments/Production/Accounts/*/*-internal.cashappapi.com.sqlite*'),
-        "output_types": "none",
-        "function": "get_cashAppB",
-        "output_types": "all",
+        "output_types": "standard",
         "artifact_icon": "dollar-sign",
     }
 }
 
 import blackboxprotobuf
-import sqlite3
 import json
-from datetime import datetime, timezone
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records
+from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, convert_unix_ts_to_utc
+from scripts.context import Context
 
 @artifact_processor
-def get_cashAppB(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def get_cashAppB(context:Context):
     data_list = []
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         
         if file_found.endswith('.sqlite'):
-            source = file_found
             
             query = """
             SELECT
@@ -44,7 +40,7 @@ def get_cashAppB(files_found, report_folder, seeker, wrap_text, timezone_offset)
             results = get_sqlite_db_records(file_found, query)
         
             for row in results:
-                timestamp = datetime.fromtimestamp(row[0]/1000, tz=timezone.utc)
+                timestamp = convert_unix_ts_to_utc(row[0])
                 customertoken = row[1]
                 protocustomer, types = blackboxprotobuf.decode_message(row[2])
                 protopayment, types = blackboxprotobuf.decode_message(row[3])
@@ -72,27 +68,27 @@ def get_cashAppB(files_found, report_folder, seeker, wrap_text, timezone_offset)
                     
                     createdat = (payment.get('created_at'))
                     if createdat is not None:
-                        createdat = datetime.fromtimestamp(createdat/1000, tz=timezone.utc)
+                        createdat = convert_unix_ts_to_utc(createdat)
                         
                     capturedat = (payment.get('captured_at'))
                     if capturedat is not None:
-                        capturedat = datetime.fromtimestamp(capturedat/1000, tz=timezone.utc)
+                        capturedat = convert_unix_ts_to_utc(capturedat)
                         
                     reachedcustomerat = (payment.get('reached_customer_at'))
                     if reachedcustomerat is not None:
-                        reachedcustomerat = datetime.fromtimestamp(reachedcustomerat/1000, tz=timezone.utc)
+                        reachedcustomerat = convert_unix_ts_to_utc(reachedcustomerat)
                         
                     paidoutat = (payment.get('paid_out_at'))
                     if paidoutat is not None:
-                        paidoutat = datetime.fromtimestamp(paidoutat/1000, tz=timezone.utc)
+                        paidoutat = convert_unix_ts_to_utc(paidoutat)
                         
                     depositedat = (payment.get('deposited_at'))
                     if depositedat is not None:
-                        depositedat = datetime.fromtimestamp(depositedat/1000, tz=timezone.utc)
+                        depositedat = convert_unix_ts_to_utc(depositedat)
                         
                     displaydate = (payment.get('display_date'))
                     if displaydate is not None:
-                        displaydate = datetime.fromtimestamp(displaydate/1000, tz=timezone.utc)
+                        displaydate = convert_unix_ts_to_utc(displaydate)
                         
                 url = protocustomer['1'].get('5')
                 if url is not None:
@@ -116,9 +112,13 @@ def get_cashAppB(files_found, report_folder, seeker, wrap_text, timezone_offset)
                     region = (extrainfo.get('region'))
                     dunits = (extrainfo.get('display_units'))
                     
-                data_list.append((timestamp,customertoken,name,username,id,fullname,role,howmuch,currency,note,region,dunits,url,cardbrand,suffix,displayname,displayinstrument,instrumenttype,transactionid,state,createdat,capturedat,reachedcustomerat,paidoutat,depositedat,displaydate))
+                data_list.append((timestamp,createdat,capturedat,reachedcustomerat,paidoutat,depositedat,displaydate,customertoken,name,username,id,fullname,role,howmuch,currency,note,region,dunits,url,cardbrand,suffix,displayname,displayinstrument,instrumenttype,transactionid,state, file_found))
         
-    data_headers = (('Timestamp', 'datetime'),'Customer Token','Name','Username','ID','Full Name','Role','Amount','Currency','Note','Region','Units','URL','Card Brand','Suffix','Display Name','Display Instrument','Instrument Type','Transaction ID','State',('Created At', 'datetime'),('Captured At', 'datetime'),('Reached Customer At', 'datetime'),('Paid Out At', 'datetime'),('Deposited At', 'datetime'),('Display Date', 'datetime'))
-    return data_headers,data_list,source
+    data_headers = (('Timestamp', 'datetime'), ('Created At', 'datetime'),('Captured At', 'datetime'),
+                    ('Reached Customer At', 'datetime'),('Paid Out At', 'datetime'),('Deposited At', 'datetime'),('Display Date', 'datetime'), 
+                    'Customer Token','Name','Username','ID','Full Name','Role','Amount',
+                    'Currency','Note','Region','Units','URL','Card Brand','Suffix','Display Name','Display Instrument',
+                    'Instrument Type','Transaction ID','State', 'Source File')
+    return data_headers,data_list, ''
     
     
