@@ -29,7 +29,7 @@ __artifacts_v2__ = {
                 'conversationColumn': 'Conversation-ID',
                 'conversationLabelColumn': 'Advertisement',
                 'textColumn': 'Message',
-                'senderColumn': 'From_Name'
+                'senderColumn': 'From_Name',
                 'directionColumn': 'From Me',
                 'directionSentValue': 1,
                 'timeColumn': 'Timestamp',
