@@ -1,12 +1,21 @@
-import glob
-import os
-import nska_deserialize as nd
-import sqlite3
-import datetime
-import io
+__artifacts_v2__ = {
+    "get_cloudkitCache": {
+        "name": "CloudKit",
+        "description": "",
+        "author": "@snoop168",
+        "creation_date": "2024-05-02",
+        "last_update_date": "2025-09-26",
+        "requirements": "none",
+        "category": "CloudKit",
+        "notes": "",
+        "paths": ('*/mobile/Library/Caches/Backup/cloudkit_cache.db*',),
+        "output_types": "standard",
+    }
+}
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
+import nska_deserialize as nd
+from scripts.ilapfuncs import logfunc, open_sqlite_db_readonly, artifact_processor
+from scripts.context import Context
 
 def get_snapshots(db):
     cursor = db.cursor()
@@ -31,14 +40,12 @@ def get_manifests_for_snapshot(db, snapshot_id):
         ''', (snapshot_id,))
     return cursor.fetchall()
 
-def get_cloudkitCache(files_found, report_folder, seeker, wrap_text, timezone_offset):
-
-    user_dictionary = {}
-    description = 'CloudKit Cache'
+@artifact_processor
+def get_cloudkitCache(context:Context):
 
     snapshots_array = []
     files_dictionary = {}
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if file_found.endswith('cloudkit_cache.db'):
             logfunc(f"Running artifact on: {file_found}")
@@ -68,34 +75,9 @@ def get_cloudkitCache(files_found, report_folder, seeker, wrap_text, timezone_of
                     #logfunc(manifest[0])
 
                     data_list.append((file[4], file[5], file[2], file[3],
-                                      file[6], file[7], file[8], file[9], file[0]))
+                                      file[6], file[7], file[8], file[9], file[0], file_found))
                 files_dictionary[snapshot[0]] = data_list
             db.close()
-
-            #logfunc(str(len(snapshots_array)))
-            for snapshot_record in snapshots_array:
-
-                report = ArtifactHtmlReport(f'Cloudkit Cache - SnapshotID {snapshot_record["SnapshotID"]}')
-                report.start_artifact_report(report_folder, f'Cloudkit Cache - SnapshotID {snapshot_record["SnapshotID"]}', description)
-
-                snapshot_data_headers = ('Key', 'Value')
-                #snapshot_data = [('SnapshotID', snapshot_record[0]), ('Committed', snapshot_record[1]), ('Created', snapshot_record[2])]
-                report.write_artifact_data_table(snapshot_data_headers, list(snapshot_record.items()), file_found)
-
-                report.add_section_heading("Files")
-                report.add_script()
-                data_headers = ('Modified', 'Relative Path', 'File ID', 'File Domain', 'Deleted', 'File Type', 'Size', 'Protection Class', 'ManifestID')
-                #report.write_artifact_data_table(user_headers, user_list, '', write_location=False)
-                report.write_artifact_data_table(data_headers, files_dictionary[snapshot_record['SnapshotID']], file_found, write_location=False, )
-                report.end_artifact_report()
-
-                tsvname = ''
-                #tsv(report_folder, user_headers, user_list, tsvname)
-
-    
-__artifacts__ = {
-    "cloudkitcache": (
-        "Cloudkit",
-        ('*/mobile/Library/Caches/Backup/cloudkit_cache.db*'),
-        get_cloudkitCache)
-}
+            
+    data_headers = ('Modified', 'Relative Path', 'File ID', 'File Domain', 'Deleted', 'File Type', 'Size', 'Protection Class', 'ManifestID', 'Source DB')
+    return data_headers, data_list, ''
