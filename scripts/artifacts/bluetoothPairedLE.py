@@ -3,26 +3,26 @@ __artifacts_v2__ = {
         "name": "Bluetooth Paired LE",
         "description": "",
         "author": "@JohnHyla",
-        "version": "0.0.2",
-        "date": "2024-10-21",
+        "creation_date": "2024-10-21",
+        "last_update_date": "2024-10-21",
         "requirements": "none",
         "category": "Bluetooth",
         "notes": "",
-        "paths": ('**/com.apple.MobileBluetooth.ledevices.paired.db'),
+        "paths": ('*/com.apple.MobileBluetooth.ledevices.paired.db'),
         "output_types": "standard"
     }
 }
 
-from scripts.ilapfuncs import logfunc, artifact_processor, open_sqlite_db_readonly
+from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly
+from scripts.context import Context
 
 @artifact_processor
-def get_bluetoothPairedLE(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def get_bluetoothPairedLE(context:Context):
 
     data_list = []
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if file_found.endswith('.db'):
-            report_file = file_found
             db = open_sqlite_db_readonly(file_found)
             cursor = db.cursor()
 
@@ -41,11 +41,11 @@ def get_bluetoothPairedLE(files_found, report_folder, seeker, wrap_text, timezon
 
             all_rows = cursor.fetchall()
             for row in all_rows:
-                data_list.append((row[0], row[1], row[2], row[3], row[4],row[6]))
+                data_list.append((row[0], row[1], row[2], row[3], row[4],row[6], file_found))
 
             db.close()
 
-    data_headers = ('UUID','Name','Name Origin','Address','Resolved Address','Last Connection Time')
+    data_headers = ('UUID','Name','Name Origin','Address','Resolved Address','Last Connection Time', 'Source File')
 
-    return data_headers, data_list, report_file
+    return data_headers, data_list, ''
 
