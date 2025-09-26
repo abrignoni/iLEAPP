@@ -1,11 +1,24 @@
-import re
+__artifacts_v2__ = {
+    "get_cashApp": {  
+        "name": "Cash App",
+        "description": "",
+        "author": "@gforce4n6",
+        "creation_date": "2021-10-06",
+        "last_update_date": "2025-09-26",
+        "requirements": "none",
+        "category": "Banking",
+        "notes": "",
+        "paths": ('*/mobile/Containers/Shared/AppGroup/*/CCEntitySync-api.squareup.com.sqlite*', '*/mobile/Containers/Shared/AppGroup/*/CCEntitySync-internal.cashappapi.com.sqlite*',),
+        "output_types": "standard",
+    }
+}
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly
+from scripts.ilapfuncs import open_sqlite_db_readonly, artifact_processor
+from scripts.context import Context
 
-
-def get_cashApp(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    for file_found in files_found:
+@artifact_processor
+def get_cashApp(context:Context):
+    for file_found in context.get_files_found():
         file_found = str(file_found)
 
         if file_found.endswith('.sqlite'):
@@ -51,34 +64,12 @@ ORDER BY ZPAYMENT.ZDISPLAYDATE ASC
 
             all_rows = cursor.fetchall()
             db_file = file_found
-
-    if len(all_rows) > 0:
         
         data_list = []
         for row in all_rows:
-            data_list.append((row[6], row[1], row[2], row[0], row[3], row[5], row[4]))
+            data_list.append((row[6], row[1], row[2], row[0], row[3], row[5], row[4], db_file))
 
-        report = ArtifactHtmlReport('Transactions')
-        report.start_artifact_report(report_folder, 'Transactions')
-        report.add_script()
-        data_headers = ('Transaction Date', 'Display Name', 'Cashtag', 'Account Owner Role', 'Currency Amount', 'Transaction State', 'Transaction State')
-        report.write_artifact_data_table(data_headers, data_list, db_file)
-        report.end_artifact_report()
+        db.close()
 
-        tsvname = 'Cash App Transactions'
-        tsv(report_folder, data_headers, data_list, tsvname)
-
-        tlactivity = 'Cash App Transactions'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-    else:
-        logfunc('No Cash App Transactions available')
-
-    db.close()
-    return
-
-__artifacts__ = {
-    "cashapp": (
-        "Cash App",
-        ('*/mobile/Containers/Shared/AppGroup/*/CCEntitySync-api.squareup.com.sqlite*', '*/mobile/Containers/Shared/AppGroup/*/CCEntitySync-internal.cashappapi.com.sqlite*'),
-        get_cashApp)
-}
+    data_headers = ('Transaction Date', 'Display Name', 'Cashtag', 'Account Owner Role', 'Currency Amount', 'Transaction State', 'Transaction State', 'Source DB')
+    return data_headers, data_list, ''
