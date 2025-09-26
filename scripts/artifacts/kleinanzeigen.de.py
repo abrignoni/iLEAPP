@@ -32,7 +32,7 @@ __artifacts_v2__ = {
                 'senderColumn': 'From_Name',
                 'directionColumn': 'From Me',
                 'directionSentValue': 1,
-                'timeColumn': 'Timestamp',
+                'timeColumn': 'Timestamp'
             }
         }
     },
