@@ -328,10 +328,11 @@ When you are processing data, call the method with a device identifier
 model_name = Context.get_device_model(record[x])
 ```
 - record[x] contains a string representing the device identifier (e.g., "iPhone10,1").
+
 The function returns the model name as a string (e.g., "iPhone 8"). If the identifier is not found, it returns an empty string.
 
 ### 11. Get OS version from OS build
-The `get_os_version` method of the Context class allows you to retrieve the operating system version string for a given build number in the internal OS builds mapping loaded from [data/os_builds.json](../../scripts/data/os_builds.json), and device family loaded from [data/device_ids.json](../../scripts/data/device_ids.json). This is useful when processing artifacts that include OS build information and you need to display or use the corresponding OS version.
+The `get_os_version(build, device_family='')` method of the Context class allows you to retrieve the operating system version string for a given build number in the internal OS builds mapping loaded from [data/os_builds.json](../../scripts/data/os_builds.json), and device family loaded from [data/device_ids.json](../../scripts/data/device_ids.json). This is useful when processing artifacts that include OS build information and you need to display or use the corresponding OS version.
 
 When you are processing data, call the method with a build and an optional device identifier
 ```python
