@@ -1,47 +1,35 @@
-import os
-import plistlib
-from datetime import datetime
+__artifacts_v2__ = {
+    "get_AWESearch": {
+        "name": "TikTok",
+        "description": "",
+        "author": "@gforce4n6",
+        "creation_date": "2023-02-25",
+        "last_update_date": "2022-09-26",
+        "requirements": "none",
+        "category": "TikTok",
+        "notes": "",
+        "paths": ('*/Documents/search_history/history_words/AWESearchHistory*',),
+        "output_types": "standard",
+    }
+}
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import timeline, logfunc, logdevinfo, tsv, is_platform_windows
+from scripts.ilapfuncs import convert_cocoa_core_data_ts_to_utc, get_plist_file_content ,artifact_processor
+from scripts.context import Context
 
-def get_AWESearch(files_found, report_folder, seeker, wrap_text, timezone_offset):
+@artifact_processor
+def get_AWESearch(context:Context):
     data_list = []
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         
-        with open(file_found, 'rb') as fp:
-            pl= plistlib.load(fp)
+        pl = get_plist_file_content(file_found)
         for x in pl:
             kword = (x['keyword'])
             cocoatime = (x['time'])
-            unix_timestamp = cocoatime + 978307200
-            converted = datetime.utcfromtimestamp(unix_timestamp)
-            data_list.append((converted, kword))
+            timestamp = convert_cocoa_core_data_ts_to_utc(cocoatime)
+            data_list.append((timestamp, kword, file_found))
+            
+    data_headers = (('Time', 'datetime'), 'Keyword', 'Source File')
+    return data_headers, data_list, ''
 
-    if len(data_list) > 0:
-        report = ArtifactHtmlReport('TikTok Search')
-        report.start_artifact_report(report_folder, 'TikTok Search')
-        report.add_script()
-        data_headers = ('Time','Keyword')
-        report.write_artifact_data_table(data_headers, data_list, file_found)
-        report.end_artifact_report()
-            
-        tsvname = 'TikTok Search'
-        tsv(report_folder, data_headers, data_list, tsvname)
-            
-        tlactivity = f'TikTok - Search History'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-        
-    else:
-        logfunc('No data on TikTok Search')
-
-            
-        
-__artifacts__ = {
-    "AWESearch": (
-        "TikTok",
-        ('*/Documents/search_history/history_words/AWESearchHistory*'),
-        get_AWESearch)
-}
 
