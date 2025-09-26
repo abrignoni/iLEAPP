@@ -3,8 +3,8 @@ __artifacts_v2__ = {
         "name": "Call History - Group Call",
         "description": "Extract Call History",
         "author": "@SQLMcGee",
-        "version": "0.1",
-        "date": "2025-02-05",
+        "creation_date": "2025-02-05",
+        "last_update_date": "2025-04-13",
         "requirements": "none",
         "category": "Call History",
         "notes": "",
@@ -16,8 +16,8 @@ __artifacts_v2__ = {
         "name": "interactionC Call History - Group Call",
         "description": "Extract Call History",
         "author": "@SQLMcGee",
-        "version": "0.1",
-        "date": "2025-02-05",
+        "creation_date": "2025-02-05",
+        "last_update_date": "2025-04-13",
         "requirements": "none",
         "category": "Call History",
         "notes": "",
@@ -28,15 +28,15 @@ __artifacts_v2__ = {
     }
 }
 
-from packaging import version
-from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, convert_bytes_to_unit, convert_ts_human_to_timezone_offset
+from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, convert_cocoa_core_data_ts_to_utc
+from scripts.context import Context
 
 @artifact_processor
-def callHistoryGroupCall(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def callHistoryGroupCall(context:Context):
     data_list = []
     CallHistory = ''
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         if file_found.endswith('CallHistory.storedata'):
            CallHistory = file_found
         else:
@@ -70,7 +70,7 @@ def callHistoryGroupCall(files_found, report_folder, seeker, wrap_text, timezone
             datetime("ZCALLRECORD"."ZDATE" + 978307200, 'UNIXEPOCH') As "Call Date/Time", 
             Case 
                 When "ZCALLRECORD"."ZDATE" = ("ZCALLRECORD"."ZDATE" + "ZCALLRECORD"."ZDURATION") Then NULL
-                Else datetime(("ZCALLRECORD"."ZDATE" + "ZCALLRECORD"."ZDURATION")+ 978307200, 'UNIXEPOCH') End As "Call End Date/Time", 
+                Else "ZCALLRECORD"."ZDATE" + "ZCALLRECORD"."ZDURATION" End As "Call End Date/Time", 
             ZSERVICE_PROVIDER AS "Service Provider",
             CASE ZCALLTYPE
                 WHEN 0 then 'Third-Party App'
@@ -128,7 +128,7 @@ def callHistoryGroupCall(files_found, report_folder, seeker, wrap_text, timezone
             datetime("ZCALLRECORD"."ZDATE" + 978307200, 'UNIXEPOCH') As "Call Date/Time", 
             Case 
                 When "ZCALLRECORD"."ZDATE" = ("ZCALLRECORD"."ZDATE" + "ZCALLRECORD"."ZDURATION") Then NULL
-                Else datetime(("ZCALLRECORD"."ZDATE" + "ZCALLRECORD"."ZDURATION")+ 978307200, 'UNIXEPOCH') End As "Call End Date/Time", 
+                Else "ZCALLRECORD"."ZDATE" + "ZCALLRECORD"."ZDURATION" End As "Call End Date/Time", 
             ZSERVICE_PROVIDER AS "Service Provider",
             CASE ZCALLTYPE
                 WHEN 0 then 'Third-Party App'
@@ -181,8 +181,8 @@ def callHistoryGroupCall(files_found, report_folder, seeker, wrap_text, timezone
         all_rows = cursor.fetchall()
 
         for row in all_rows:
-            start_timestamp = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
-            end_timestamp = convert_ts_human_to_timezone_offset(row[1], timezone_offset)
+            start_timestamp = convert_cocoa_core_data_ts_to_utc(row[0])
+            end_timestamp = convert_cocoa_core_data_ts_to_utc(row[1])
             data_list.append(
                 (start_timestamp, end_timestamp, row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11], row[12]))
         
@@ -191,11 +191,11 @@ def callHistoryGroupCall(files_found, report_folder, seeker, wrap_text, timezone
     return data_headers, data_list, CallHistory
 
 @artifact_processor
-def callHistoryInteractionC(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def callHistoryInteractionC(context:Context):
     data_list = []
     interactionC = ''
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         if file_found.endswith('interactionC.db'):
            interactionC = file_found
         else:
@@ -206,8 +206,8 @@ def callHistoryInteractionC(files_found, report_folder, seeker, wrap_text, timez
 
         cursor.execute('''
             SELECT
-            datetime(ZINTERACTIONS.ZSTARTDATE + 978307200, 'UNIXEPOCH') AS "Call Date/Time",
-            datetime(ZINTERACTIONS.ZENDDATE + 978307200, 'UNIXEPOCH') AS "Call End Date/Time",
+            ZINTERACTIONS.ZSTARTDATE AS "Call Date/Time",
+            ZINTERACTIONS.ZENDDATE AS "Call End Date/Time",
             ZBUNDLEID AS "Application Bundle ID",
             CASE
                 WHEN ZDIRECTION IS 1 THEN "Outgoing"
@@ -231,8 +231,8 @@ def callHistoryInteractionC(files_found, report_folder, seeker, wrap_text, timez
         all_rows = cursor.fetchall()
 
         for row in all_rows:
-            start_timestamp = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
-            end_timestamp = convert_ts_human_to_timezone_offset(row[1], timezone_offset)
+            start_timestamp = convert_cocoa_core_data_ts_to_utc(row[0])
+            end_timestamp = convert_cocoa_core_data_ts_to_utc(row[1])
             data_list.append(
                 (start_timestamp, end_timestamp, row[2], row[3], row[4], row[5], row[6], row[7]))
         
