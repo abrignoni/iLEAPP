@@ -3,7 +3,6 @@ __artifacts_v2__ = {
         "name": "Cellular Wireless",
         "description": "Extracts cellular wireless information from device preferences",
         "author": "@abrignoni",
-        "version": "1.0",
         "date": "2024-10-22",
         "requirements": "none",
         "category": "Cellular",
@@ -15,18 +14,18 @@ __artifacts_v2__ = {
 }
 
 import os
-import plistlib
 
-from scripts.ilapfuncs import device_info, artifact_processor
+from scripts.ilapfuncs import device_info, artifact_processor, get_plist_content
+from scripts.context import Context
 
 @artifact_processor
-def celWireless(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def celWireless(context:Context):
     data_list = []
-    for filepath in files_found:
+    for filepath in context.files_found():
         basename = os.path.basename(filepath)
         if basename in ["com.apple.commcenter.device_specific_nobackup.plist", "com.apple.commcenter.plist"]:
             with open(filepath, "rb") as p:
-                plist = plistlib.load(p)
+                plist = get_plist_content(p)
                 for key, val in plist.items():
                     data_list.append((key, str(val), filepath))
                     if key == "ReportedPhoneNumber":
