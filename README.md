@@ -207,3 +207,5 @@ For more information, read:
 ## Acknowledgements
 
 This tool is the result of a collaborative effort of many people in the DFIR community.
+
+iLEAPP logo courtesy of Derek Eiri.
