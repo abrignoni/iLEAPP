@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "description": "Parses Biome Device Sync records",
         "author": "@JohnHyla",
         'creation_date': '2023-03-22',
-        'last_update_date': '2025-03-05',
+        'last_update_date': '2029-09-29',
         "requirements": "none",
         "category": "Biome",
         "notes": "",
