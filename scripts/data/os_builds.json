@@ -862,7 +862,9 @@
         "23A5330a": "iOS 26.0 beta 8",
         "23A5336a": "iOS 26.0 beta 9",
         "23A340": "iOS 26.0 RC",
-        "23A341": "iOS 26.0"
+        "23A341": "iOS 26.0",
+        "23A355": "iOS 26.0.1",
+        "23B5044l": "iOS 26.1 beta 1"
     },
     "macOS": {
         "4K78": "Mac OS X 10.0",
@@ -2179,6 +2181,8 @@
         "23J18": "macOS 14.8 RC 4",
         "23J19": "macOS 14.8 RC 5",
         "23J21": "macOS 14.8",
+        "23J111": "macOS 14.8.1 RC",
+        "23J30": "macOS 14.8.1",
         "24A5264n": "macOS 15.0 beta 1",
         "24A5279h": "macOS 15.0 beta 2",
         "24A5289g": "macOS 15.0 beta 3",
@@ -2238,6 +2242,8 @@
         "24G217": "macOS 15.7 RC 4",
         "24G219": "macOS 15.7 RC 5",
         "24G222": "macOS 15.7",
+        "24G309": "macOS 15.7.1 RC",
+        "24G231": "macOS 15.7.1",
         "25A5279m": "macOS 26.0 beta 1",
         "25A5295e": "macOS 26.0 beta 2",
         "25A5306g": "macOS 26.0 beta 3",
@@ -2248,7 +2254,9 @@
         "25A5349a": "macOS 26.0 beta 8",
         "25A5351b": "macOS 26.0 beta 9",
         "25A353": "macOS 26.0 RC",
-        "25A354": "macOS 26.0"
+        "25A354": "macOS 26.0",
+        "25A362": "macOS 26.0.1",
+        "25B5042k": "macOS 26.1 beta 1"
     },
     "visionOS": {
         "21N5165g": "visionOS 1.0 beta 1",
@@ -2341,7 +2349,9 @@
         "23M5328a": "visionOS 26.0 beta 7",
         "23M5332a": "visionOS 26.0 beta 8",
         "23M5335b": "visionOS 26.0 beta 9",
-        "23M336": "visionOS 26.0"
+        "23M336": "visionOS 26.0",
+        "23M341": "visionOS 26.0.1",
+        "23N5013j": "visionOS 26.1 beta 1"
     },
     "watchOS": {
         "12S507": "watchOS 1.0",
@@ -2791,7 +2801,10 @@
         "23R350": "watchOS 26.0 RC",
         "23R352": "watchOS 26.0",
         "23R8351": "watchOS 26.0.1 RC",
-        "23R8352": "watchOS 26.0.1"
+        "23R8352": "watchOS 26.0.1",
+        "23R8362": "watchOS 26.0.2",
+        "23R362": "watchOS 26.0.2",
+        "23S5002i": "watchOS 26.1 beta 1"
     },
     "tvOS": {
         "8M89": "Apple TV Software 4.0",
@@ -3270,7 +3283,9 @@
         "23J5348a": "tvOS 26.0 beta 8",
         "23J5351a": "tvOS 26.0 beta 9",
         "23J352": "tvOS 26.0 RC",
-        "23J353": "tvOS 26.0"
+        "23J353": "tvOS 26.0",
+        "23J362": "tvOS 26.0.1",
+        "23J5543j": "tvOS 26.1 beta 1"
     },
     "Windows": {
         "6002": "Windows Vista",
