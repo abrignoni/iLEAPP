@@ -4,7 +4,7 @@ interactions between iPhone and other iOS devices (e.g., Apple Watch).
 """
 
 __artifacts_v2__ = {
-    'appConduit': {
+    'app_conduit': {
         'name': 'App Conduit',
         'description': 'The AppConduit log file stores information about \
             interactions between iPhone and other iOS devices, \
@@ -29,7 +29,7 @@ from scripts.ilapfuncs import artifact_processor, get_txt_file_content, \
 
 
 @artifact_processor
-def appConduit(context):
+def app_conduit(context):
     """
     Parses each log file found and from lines that match a specific regular
     expression pattern extracts device connection and disconnection events,
