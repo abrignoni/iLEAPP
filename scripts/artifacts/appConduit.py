@@ -11,7 +11,7 @@ __artifacts_v2__ = {
             i.e. Apple Watch',
         'author': '@ydkhatri',
         'creation_date': '2020-08-05',
-        'last_update_date': '2025-04-05',
+        'last_update_date': '2025-09-29',
         'requirements': 'none',
         'category': 'App Conduit',
         'notes': '',
