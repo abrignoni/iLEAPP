@@ -12,10 +12,10 @@ Total number of artifacts: 433
 Number of v1 artifacts: 87  
 Number of v2 artifacts: 346  
 Number of artifacts with 'lava output': 322  
-Number of artifacts using 'artifact_icon': 215  
-Number of artifacts using 'version': 263  
-Number of artifacts using 'last_update_date': 103  
-Number of artifacts using context parameter: 17  
+Number of artifacts using 'artifact_icon': 216  
+Number of artifacts using 'version': 262  
+Number of artifacts using 'last_update_date': 104  
+Number of artifacts using context parameter: 18  
 Number of artifacts with errors or no recognized artifacts: 3  
 
 ## V2 Artifacts Table
@@ -128,7 +128,7 @@ Number of artifacts with errors or no recognized artifacts: 3
 | [airdropId.py](/scripts/artifacts/airdropId.py) | airdropId | Airdrop ID | none | No | settings |  | 2025-01-28 | Extract Airdrop ID | ``*/mobile/Library/Preferences/com.apple.sharingd.plist`` |
 | [allTrails.py](/scripts/artifacts/allTrails.py) | allTrailsTrailDetails | AllTrails - Trail Details | html, tsv, lava | No | map |  | 2024-12-17 | Extract trail details from AllTrails App | ``*/Documents/AllTrails.sqlite*`` |
 | [allTrails.py](/scripts/artifacts/allTrails.py) | allTrailsUserInfo | AllTrails - User Info | all | No | user |  | 2024-12-17 | Extract user info from AllTrails App | ``*/Documents/AllTrails.sqlite*`` |
-| [appConduit.py](/scripts/artifacts/appConduit.py) | appConduit | App Conduit | standard | Yes | activity |  | 2025-04-05 | The AppConduit log file stores information about interactions between iPhone and other iOS devices, i.e. Apple Watch | ``*/mobile/Library/Logs/AppConduit/AppConduit.log.*`` |
+| [appConduit.py](/scripts/artifacts/appConduit.py) | app_conduit | App Conduit | standard | Yes | activity |  | 2025-04-05 | The AppConduit log file stores information about interactions between iPhone and other iOS devices, i.e. Apple Watch | ``*/mobile/Library/Logs/AppConduit/AppConduit.log.*`` |
 | [appGrouplisting.py](/scripts/artifacts/appGrouplisting.py) | appGrouplisting | Bundle ID by AppGroup & PluginKit IDs | html, tsv, lava | No | package |  | 2024-12-20 | List can included once installed but not present apps. Each file is named .com.apple.mobile_container_manager.metadata.plist | ``*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist``, ``*/Containers/Data/PluginKitPlugin/*/.com.apple.mobile_container_manager.metadata.plist`` |
 | [appItunesmeta.py](/scripts/artifacts/appItunesmeta.py) | get_appItunesmeta | Apps - Itunes Metadata | standard | No |  | 0.2 |  | iTunes & Bundle ID Metadata contents for apps | ``*/iTunesMetadata.plist``, ``**/BundleMetadata.plist`` |
 | [appSnapshots.py](/scripts/artifacts/appSnapshots.py) | applicationSnapshots | App Snapshots | standard | Yes | package |  | 2025-05-13 | Snapshots saved by iOS for individual apps appear here. Blank screenshots are excluded here. Dates and times shown are from file modified timestamps | ``*/Library/Caches/Snapshots/*.ktx``, ``*/Library/Caches/Snapshots/*.jpeg``, ``*/SplashBoard/Snapshots/*.ktx``, ``*/SplashBoard/Snapshots/*.jpeg`` |
@@ -168,7 +168,7 @@ Number of artifacts with errors or no recognized artifacts: 3
 | [biomeNotificationsPub.py](/scripts/artifacts/biomeNotificationsPub.py) | get_biomeNotificationsPub | Biome - Notifications | standard | No |  | 0.0.2 |  | Parses notifications entries from biomes | ``*/Biome/streams/public/Notification/local/*`` |
 | [biomeNowplaying.py](/scripts/artifacts/biomeNowplaying.py) | get_biomeNowplaying | Biome - Now Playing | standard | No |  | 0.0.2 |  | Parses Now Playing entries from biomes | ``*/Biome/streams/public/NowPlaying/local/*`` |
 | [biomeSafari.py](/scripts/artifacts/biomeSafari.py) | get_biomeSafari | Biome - Safari | standard | No |  | 0.0.2 |  | Parses safari entries from biomes | ``*/biome/streams/restricted/_DKEvent.Safari.History/local/*`` |
-| [biomeSync.py](/scripts/artifacts/biomeSync.py) | get_biomeSync | Biome - Device Syncs | standard | No |  | 0.0.2 |  | Parses Biome Device Sync records | ``**/Biome/sync/sync.db*`` |
+| [biomeSync.py](/scripts/artifacts/biomeSync.py) | biome_sync | Biome - Device Syncs | standard | Yes | eye |  | 2025-03-05 | Parses Biome Device Sync records | ``*/Biome/sync/sync.db*`` |
 | [biomeTextinputses.py](/scripts/artifacts/biomeTextinputses.py) | get_biomeTextinputses | Biome - Text Input Session | standard | No |  | 0.0.2 |  | Parses Text Input Session entries from biomes | ``*/Biome/streams/public/TextInputSession/local/*``, ``*/Biome/streams/restricted/Text.InputSession/local/*`` |
 | [biomeUseractmeta.py](/scripts/artifacts/biomeUseractmeta.py) | get_biomeUseractmeta | Biome - User Activity Metadata | standard | No |  | 0.0.2 |  | Parses battery percentage entries from biomes | ``*/Biome/streams/restricted/UserActivityMetadata/local*`` |
 | [biomeWifi.py](/scripts/artifacts/biomeWifi.py) | get_biomeWifi | Biome - WiFi DKEvent | standard | No |  | 0.0.2 |  | Parses DKEvent WiFi entries from biomes | ``*/Biome/streams/restricted/_DKEvent.Wifi.Connection/local/*`` |
