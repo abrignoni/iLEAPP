@@ -20,7 +20,6 @@ import os
 import plistlib
 import biplist
 import nska_deserialize as nd
-from scripts.builds_ids import OS_build
 from scripts.ilapfuncs import artifact_processor, logfunc, device_info, get_file_path, iOS
 
 @artifact_processor
