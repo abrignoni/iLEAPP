@@ -97,31 +97,41 @@ def lava_process_artifact(category, module_name, artifact_name, data, record_cou
         artifact["object_columns"] = [{"name": name, "type": type_} for name, type_ in object_columns.items()]
 
     if data_views:
-        if chat_params := data_views.get("chat"):
-            sanitized_params = {}
+        view_params = None
+        view_name = None
 
-            #Boolean value is whether or not to sanitize the column name. Should do this for parameters that map to columns
-            keys = {
-                "directionSentValue": False,
-                "threadDiscriminatorColumn": True,
-                "threadLabelColumn": True,
-                "textColumn": True,
-                "directionColumn": True,
-                "timeColumn": True,
-                "senderColumn": True,
-                "mediaColumn": True,
-                "sentMessageLabelColumn": True,
-                "sentMessageStaticLabel": False
+        # Backward compatibility for chat view. Remove 'chat' once modules are updated.
+        if "chat" in data_views:
+            view_name = "chat"
+            view_params = data_views.pop("chat")
+            data_views["conversation"] = view_params # Upgrade to conversation
+        elif "conversation" in data_views:
+            view_name = "conversation"
+            view_params = data_views.get("conversation")
+
+        if view_params:
+            sanitized_params = {}
+            
+            # Get original column names for dynamic sanitization check
+            column_names = [item[0] if isinstance(item, tuple) else item for item in data]
+
+            # Conversion map for backward compatibility. Remove once modules are updated.
+            convert_map = {
+                "threadDiscriminatorColumn": "conversationDiscriminatorColumn",
+                "threadLabelColumn": "conversationLabelColumn"
             }
 
-            for (key, value) in chat_params.items():
-                if key in keys:
-                    if keys[key]:
-                        sanitized_params[key] = sanitize_sql_name(value)
-                    else:
-                        sanitized_params[key] = value
+            for key, value in view_params.items():
+                # Remap old keys to new keys
+                final_key = convert_map.get(key, key)
 
-            data_views["chat"] = sanitized_params
+                # Sanitize value if it's a column name, otherwise pass through
+                if value in column_names:
+                    sanitized_params[final_key] = sanitize_sql_name(value)
+                else:
+                    sanitized_params[final_key] = value
+            
+            data_views["conversation"] = sanitized_params
 
         artifact['data_views'] = data_views
     
