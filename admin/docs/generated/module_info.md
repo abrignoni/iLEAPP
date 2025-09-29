@@ -13,9 +13,9 @@ Number of v1 artifacts: 87
 Number of v2 artifacts: 346  
 Number of artifacts with 'lava output': 322  
 Number of artifacts using 'artifact_icon': 216  
-Number of artifacts using 'version': 262  
-Number of artifacts using 'last_update_date': 104  
-Number of artifacts using context parameter: 18  
+Number of artifacts using 'version': 259  
+Number of artifacts using 'last_update_date': 107  
+Number of artifacts using context parameter: 21  
 Number of artifacts with errors or no recognized artifacts: 3  
 
 ## V2 Artifacts Table
@@ -25,9 +25,9 @@ Number of artifacts with errors or no recognized artifacts: 3
 | [AMDSQLiteDB.py](/scripts/artifacts/AMDSQLiteDB.py) | AMDSQLiteDB_UsageEvents | App Usage Events (AMDSQLiteDB) | standard | No | activity |  |  | Apple App Store application foreground events | ``*/mobile/Containers/Data/PluginKitPlugin/*/Documents/AMDSQLite.db.0*``, ``*/mobile/Library/Caches/com.apple.appstored/storeUser.db*`` |
 | [AMDSQLiteDB.py](/scripts/artifacts/AMDSQLiteDB.py) | AMDSQLiteDB_StorageCapacity | Device Storage Capacity | standard | No | hard-drive |  |  | Shows storage capacity size over time | ``*/mobile/Containers/Data/PluginKitPlugin/*/Documents/AMDSQLite.db.0*`` |
 | [Airbnb.py](/scripts/artifacts/Airbnb.py) | get_airbnb_messages | Airbnb - Messages | standard | No | message-square | 0.0.1 | 2025-04-29 | Messages sent and received in the Airbnb App | ``*/Containers/Data/Application/*/Library/Application Support/user_*_messaging_core.sqlite3*`` |
-| [ConnectedDeviceInformation.py](/scripts/artifacts/ConnectedDeviceInformation.py) | ConnectedDeviceInformation_DeviceHistory | Connected Device Information - Connected Device and OS History | standard | No | smartphone | 0.3 |  | Connected Devices | ``*Health/healthdb_secure.sqlite*`` |
-| [ConnectedDeviceInformation.py](/scripts/artifacts/ConnectedDeviceInformation.py) | ConnectedDeviceInformation_ConsolidatedConnectedDeviceHistory | Connected Device Information - Consolidated Connected Device History | standard | No | smartphone | 0.2 |  | Connected Devices | ``*Health/healthdb_secure.sqlite*`` |
-| [ConnectedDeviceInformation.py](/scripts/artifacts/ConnectedDeviceInformation.py) | ConnectedDeviceInformation_CurrentDeviceInfo | Connected Device Information - Current Device Information | standard | No | smartphone | 0.2 |  | Connected Devices | ``*Health/healthdb.sqlite*`` |
+| [ConnectedDeviceInformation.py](/scripts/artifacts/ConnectedDeviceInformation.py) | connected_device_info_device_history | Connected Device Information - Connected Device and OS History | standard | Yes | smartphone |  | 2025-09-29 | Connected Devices | ``*Health/healthdb_secure.sqlite*`` |
+| [ConnectedDeviceInformation.py](/scripts/artifacts/ConnectedDeviceInformation.py) | connected_device_info_consolidated_connected_device_history | Connected Device Information - Consolidated Connected Device History | standard | Yes | smartphone |  | 2025-09-29 | Connected Devices | ``*Health/healthdb_secure.sqlite*`` |
+| [ConnectedDeviceInformation.py](/scripts/artifacts/ConnectedDeviceInformation.py) | connected_device_information_current_device_info | Connected Device Information - Current Device Information | standard | Yes | smartphone |  | 2025-09-29 | Connected Devices | ``*Health/healthdb.sqlite*`` |
 | [DataUsage.py](/scripts/artifacts/DataUsage.py) | get_DataUsage | Data Usage | html, tsv, timeline, lava | No |  | 0.0.1 | 2025-02-04 | Parses application network data usage | ``*/wireless/Library/Databases/DataUsage.sqlite*`` |
 | [LinkedIn.py](/scripts/artifacts/LinkedIn.py) | get_linkedin_account | LinkedIn - Account | html | No | user | 0.2 | 2025-04-23 | Existing account in LinkedIn App. The Public Identifier can be used to visit the public profile on the LinkedIn Website (https://www.linkedin.com/in/[ | ``*/Library/Preferences/com.linkedin.LinkedIn.plist`` |
 | [LinkedIn.py](/scripts/artifacts/LinkedIn.py) | get_linkedin_messages | LinkedIn - Messages | standard | No | message-square | 0.2 | 2025-04-23 | Messages sent and received in the LinkedIn App. | ``*/Documents/msg_database.sqlite`` |
