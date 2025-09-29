@@ -33,7 +33,6 @@ __artifacts_v2__ = {
 import os
 import nska_deserialize as nd
 from packaging import version
-from scripts.builds_ids import OS_build
 from scripts.ilapfuncs import media_to_html, artifact_processor, get_file_path, open_sqlite_db_readonly, get_sqlite_db_records, logfunc, iOS
 
 @artifact_processor
