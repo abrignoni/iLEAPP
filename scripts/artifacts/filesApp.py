@@ -362,8 +362,8 @@ def icloud_drive_shared_files(context):
             if user:
                 user_given_name = user.get('NS.givenName', '')
                 user_family_name = user.get('NS.familyName', '')
-                user_full_name = f"{
-                    user_given_name + ' ' if user_given_name else ''}{user_family_name}"
+                user_full_name = f"{user_given_name + ' ' if user_given_name else ''}" +\
+                    f"{user_family_name}"
         creator_name = user_full_name if user_full_name else 'an unknown user'
         shared_by = creator_name if creator_id else 'me'
 
