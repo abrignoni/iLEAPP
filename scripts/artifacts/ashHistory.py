@@ -15,10 +15,9 @@ __artifacts_v2__ = {
 
 import codecs
 from scripts.ilapfuncs import artifact_processor
-from scripts.context import Context
 
 @artifact_processor
-def AshHistory(context:Context):
+def AshHistory(context):
     files_found = context.get_files_found()
     data_list = []
     file_found = str(files_found[0])

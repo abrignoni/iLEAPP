@@ -15,11 +15,9 @@ __artifacts_v2__ = {
 
 
 from scripts.ilapfuncs import artifact_processor, convert_unix_ts_to_str, get_plist_content
-from scripts.context import Context
-
 
 @artifact_processor
-def get_bluetoothPairedReg(context:Context):
+def get_bluetoothPairedReg(context):
     data_list = []
     for file_found in context.get_files_found():
         file_found = str(file_found)

@@ -18,10 +18,9 @@ import nska_deserialize as nd
 import io
 
 from scripts.ilapfuncs import open_sqlite_db_readonly, artifact_processor
-from scripts.context import Context
 
 @artifact_processor
-def get_cloudkitParticipants(context:Context):
+def get_cloudkitParticipants(context):
 
     user_dictionary = {}    
     #report_folder = context.get_report_folder()

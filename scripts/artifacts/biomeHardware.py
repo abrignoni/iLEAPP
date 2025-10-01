@@ -20,11 +20,9 @@ import blackboxprotobuf
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
 from scripts.ilapfuncs import artifact_processor
-from scripts.context import Context
-
 
 @artifact_processor
-def get_biomeHardware(context:Context):
+def get_biomeHardware(context):
 
     typess = {'1': {'type': 'str', 'name': ''}}
 

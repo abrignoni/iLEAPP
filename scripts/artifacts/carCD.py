@@ -14,10 +14,9 @@ __artifacts_v2__ = {
 }
 
 from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv, device_info, get_plist_content
-from scripts.context import Context
 
 @artifact_processor
-def carCD(context:Context):
+def carCD(context):
     files_found = context.get_files_found()
     source_path = str(files_found[0])
         

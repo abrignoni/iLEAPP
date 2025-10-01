@@ -14,10 +14,9 @@ __artifacts_v2__ = {
 }
 
 from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly
-from scripts.context import Context
 
 @artifact_processor
-def get_bluetoothPairedLE(context:Context):
+def get_bluetoothPairedLE(context):
 
     data_list = []
     for file_found in context.get_files_found():

@@ -17,10 +17,9 @@ __artifacts_v2__ = {
 import datetime
 
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content
-from scripts.context import Context
 
 @artifact_processor
-def timer(context:Context):
+def timer(context):
     files_found = context.get_files_found()
     source_path = get_file_path(files_found, "com.apple.mobiletimerd.plist")
     data_list = []

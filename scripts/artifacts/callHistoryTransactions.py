@@ -17,11 +17,9 @@ from datetime import *
 import struct
 import nska_deserialize as nd
 from scripts.ilapfuncs import artifact_processor, convert_plist_date_to_utc
-from scripts.context import Context
-
 
 @artifact_processor
-def callHistoryTransactions(context:Context):
+def callHistoryTransactions(context):
     data_list = []
 
     for file_found in context.get_files_found():

@@ -14,10 +14,9 @@ __artifacts_v2__ = {
 }
 
 from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, attach_sqlite_db_readonly, convert_cocoa_core_data_ts_to_utc
-from scripts.context import Context
 
 @artifact_processor
-def atxDatastore(context:Context):
+def atxDatastore(context):
     data_list = []
     data_headers = ()
     source_path = ''

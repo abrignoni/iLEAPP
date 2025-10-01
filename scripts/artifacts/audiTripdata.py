@@ -17,10 +17,9 @@ import json
 import os
 
 from scripts.ilapfuncs import convert_ts_human_to_utc, artifact_processor
-from scripts.context import Context
 
 @artifact_processor
-def get_audiTripdata(context:Context):
+def get_audiTripdata(context):
 	data_list = []
 	for file_found in context.get_files_found():
 		file_found = str(file_found)

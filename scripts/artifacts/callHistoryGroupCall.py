@@ -29,10 +29,9 @@ __artifacts_v2__ = {
 }
 
 from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, convert_cocoa_core_data_ts_to_utc
-from scripts.context import Context
 
 @artifact_processor
-def callHistoryGroupCall(context:Context):
+def callHistoryGroupCall(context):
     data_list = []
     CallHistory = ''
 
@@ -191,7 +190,7 @@ def callHistoryGroupCall(context:Context):
     return data_headers, data_list, CallHistory
 
 @artifact_processor
-def callHistoryInteractionC(context:Context):
+def callHistoryInteractionC(context):
     data_list = []
     interactionC = ''
 

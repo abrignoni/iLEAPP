@@ -18,10 +18,9 @@ __artifacts_v2__ = {
 
 import pathlib
 from scripts.ilapfuncs import artifact_processor, get_plist_file_content
-from scripts.context import Context
 
 @artifact_processor
-def appGrouplisting(context:Context):
+def appGrouplisting(context):
     data_list = []       
     
     for file_found in context.get_files_found():

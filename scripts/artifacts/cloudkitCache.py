@@ -15,7 +15,6 @@ __artifacts_v2__ = {
 
 import nska_deserialize as nd
 from scripts.ilapfuncs import logfunc, open_sqlite_db_readonly, artifact_processor
-from scripts.context import Context
 
 def get_snapshots(db):
     cursor = db.cursor()
@@ -41,7 +40,7 @@ def get_manifests_for_snapshot(db, snapshot_id):
     return cursor.fetchall()
 
 @artifact_processor
-def get_cloudkitCache(context:Context):
+def get_cloudkitCache(context):
 
     snapshots_array = []
     files_dictionary = {}

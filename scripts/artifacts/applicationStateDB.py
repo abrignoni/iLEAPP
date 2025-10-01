@@ -31,18 +31,6 @@ Related work:
     https://gforce4n6.blogspot.com/2019/09/a-quick-look-into-ios-snapshots.html
 '''
 
-import biplist
-import io
-import nska_deserialize as nd
-import plistlib
-import sys
-from collections import namedtuple as _nt
-
-from scripts.ilapfuncs import open_sqlite_db_readonly
-from scripts.ilapfuncs import artifact_processor
-from scripts.ilapfuncs import logfunc
-from scripts.context import Context
-
 
 __artifacts_v2__ = {
     "get_installed_apps": {
@@ -95,6 +83,17 @@ __artifacts_v2__ = {
     }
 }
 
+import biplist
+import io
+import nska_deserialize as nd
+import plistlib
+import sys
+from collections import namedtuple as _nt
+
+from scripts.ilapfuncs import open_sqlite_db_readonly
+from scripts.ilapfuncs import artifact_processor
+from scripts.ilapfuncs import logfunc
+
 
 # simply get all (application, key, value) entries, post-process in code
 _query = '''SELECT application_identifier_tab.application_identifier,
@@ -127,7 +126,7 @@ _snapshot_headers = ('Creation Date', 'Bundle ID', 'Snapshot Group',
 
 
 @artifact_processor
-def get_installed_apps(context:Context):
+def get_installed_apps(context):
     ''' get bundle container path and sandbox data path for installed applications '''
 
     # this is a refactored version of the original applicationstate.py module
@@ -159,7 +158,7 @@ def get_installed_apps(context:Context):
 
 
 @artifact_processor
-def get_snapshot_creationDate(context:Context):
+def get_snapshot_creationDate(context):
     ''' main artifact processor, parses XBApplicationSnapshotManifest snapshots '''
 
     for file_found in context.get_files_found():
@@ -172,7 +171,7 @@ def get_snapshot_creationDate(context:Context):
 
 
 @artifact_processor
-def get_snapshot_lastUsedDate(context:Context):
+def get_snapshot_lastUsedDate(context):
     ''' add the lastUsedDate for each snapshot to the timeline '''
 
     for file_found in context.get_files_found():

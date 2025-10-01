@@ -15,7 +15,6 @@ __artifacts_v2__ = {
 }
 
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content, convert_plist_date_to_utc
-from scripts.context import Context
 
 def decode_repeat_schedule(repeat_schedule_value):
     days_list = {
@@ -44,7 +43,7 @@ def decode_repeat_schedule(repeat_schedule_value):
 
 
 @artifact_processor
-def alarms(context:Context):
+def alarms(context):
     files_found = context.get_files_found()
     source_path = get_file_path(files_found, "com.apple.mobiletimerd.plist")
     data_list = []

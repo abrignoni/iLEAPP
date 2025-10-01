@@ -54,7 +54,6 @@ __artifacts_v2__ = {
 }
 
 from scripts.ilapfuncs import device_info, artifact_processor, get_plist_content, convert_plist_date_to_utc
-from scripts.context import Context
 
 def _bytes_to_mac_address(encoded_bytes):
     return ':'.join(f"{byte:02x}" for byte in encoded_bytes[:6])
@@ -68,7 +67,7 @@ def _decode_ssid(ssid_bytes):
     return str(ssid_bytes)
 
 @artifact_processor
-def appleWifiKnownNetworks(context:Context):
+def appleWifiKnownNetworks(context):
     data_list = []
     for file_found in context.get_files_found():
         file_found = str(file_found)
@@ -128,7 +127,7 @@ def appleWifiKnownNetworks(context:Context):
     return data_headers, data_list, ''
 
 @artifact_processor
-def appleWifiKnownNetworksTimes(context:Context):
+def appleWifiKnownNetworksTimes(context):
     data_list = []
     for file_found in context.get_files_found():
         file_found = str(file_found)
@@ -178,7 +177,7 @@ def appleWifiKnownNetworksTimes(context:Context):
     return data_headers, data_list, ''
 
 @artifact_processor
-def appleWifiScannedPrivate(context:Context):
+def appleWifiScannedPrivate(context):
     data_list = []
     for file_found in context.get_files_found():
         file_found = str(file_found)
@@ -215,7 +214,7 @@ def appleWifiScannedPrivate(context:Context):
     return data_headers, data_list, ''
 
 @artifact_processor
-def appleWifiBSSList(context:Context):
+def appleWifiBSSList(context):
     data_list = []
     for file_found in context.files_found():
         file_found = str(file_found)

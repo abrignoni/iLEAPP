@@ -17,10 +17,9 @@ __artifacts_v2__ = {
 
 from scripts.ilapfuncs import artifact_processor, \
     get_file_path, get_sqlite_db_records, convert_cocoa_core_data_ts_to_utc
-from scripts.context import Context
 
 @artifact_processor
-def accountData(context:Context):
+def accountData(context):
     files_found = context.get_files_found()
     source_path = get_file_path(files_found, 'Accounts3.sqlite')
     data_list = []

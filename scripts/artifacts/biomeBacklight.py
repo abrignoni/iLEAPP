@@ -20,11 +20,9 @@ import blackboxprotobuf
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
 from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv
-from scripts.context import Context
-
 
 @artifact_processor
-def get_biomeBacklight(context:Context):
+def get_biomeBacklight(context):
 
     typess = {'1': {'type': 'double', 'name': ''}, '2': {'type': 'int', 'name': ''}}
 

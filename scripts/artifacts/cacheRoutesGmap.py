@@ -16,10 +16,9 @@ __artifacts_v2__ = {
 import os 
 
 from scripts.ilapfuncs import artifact_processor, get_plist_content, convert_unix_ts_to_utc
-from scripts.context import Context
 
 @artifact_processor
-def get_cacheRoutesGmap(context:Context):
+def get_cacheRoutesGmap(context):
     data_list = []
     for file_found in context.get_files_found():
         file_found = str(file_found)

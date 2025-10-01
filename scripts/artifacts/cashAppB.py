@@ -17,10 +17,9 @@ __artifacts_v2__ = {
 import blackboxprotobuf
 import json
 from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, convert_unix_ts_to_utc
-from scripts.context import Context
 
 @artifact_processor
-def get_cashAppB(context:Context):
+def get_cashAppB(context):
     data_list = []
     for file_found in context.get_files_found():
         file_found = str(file_found)

@@ -14,10 +14,9 @@ __artifacts_v2__ = {
 }
 
 from scripts.ilapfuncs import convert_cocoa_core_data_ts_to_utc, get_plist_file_content ,artifact_processor
-from scripts.context import Context
 
 @artifact_processor
-def get_AWESearch(context:Context):
+def get_AWESearch(context):
     data_list = []
     for file_found in context.get_files_found():
         file_found = str(file_found)

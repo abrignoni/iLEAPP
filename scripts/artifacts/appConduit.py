@@ -19,12 +19,11 @@ __artifacts_v2__ = {
 import pathlib
 import re
 import scripts.builds_ids as builds_ids
-from scripts.context import Context
 from scripts.ilapfuncs import artifact_processor, get_txt_file_content, convert_log_ts_to_utc
 
 
 @artifact_processor
-def appConduit(context:Context):
+def appConduit(context):
     source_paths = set()
     data_list = []
     device_type_and_info = {}

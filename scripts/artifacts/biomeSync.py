@@ -17,10 +17,9 @@ __artifacts_v2__ = {
 from scripts.builds_ids import OS_build
 from scripts.ilapfuncs import open_sqlite_db_readonly, convert_ts_human_to_utc
 from scripts.ilapfuncs import artifact_processor
-from scripts.context import Context
 
 @artifact_processor
-def get_biomeSync(context:Context):
+def get_biomeSync(context):
 
     data_list = []
     for file_found in context.get_files_found():

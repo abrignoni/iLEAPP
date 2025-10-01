@@ -13,7 +13,6 @@ __artifacts_v2__ = {
     }
 }
 
-import plistlib
 import blackboxprotobuf
 import base64
 import pprint
@@ -25,7 +24,6 @@ from scripts.ilapfuncs import (
     artifact_processor,
     get_plist_content
 )
-from scripts.context import Context
 
 def longbase64proto(longstuff, longtypes):
     longstuff = longstuff.split('placeRequest=')[1]
@@ -38,7 +36,7 @@ def shortbase64proto(shortstuff, shorttypes):
     return shortstuff
 
 @artifact_processor
-def get_appleMapsSearchHistory(context:Context):
+def get_appleMapsSearchHistory(context):
     data_list = []
 
     shorttypes = {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'bytes', 'name': ''}}, 'name': ''}, '7': {'type': 'int', 'name': ''}, '8': {'type': 'message', 'message_typedef': {'4': {'type': 'message', 'message_typedef': {'3': {'type': 'int', 'name': ''}, '4': {'type': 'message', 'message_typedef': {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'double', 'name': ''}, '2': {'type': 'double', 'name': ''}}, 'name': ''}}, 'name': ''}}, 'name': ''}}, 'name': ''}}

@@ -20,11 +20,9 @@ from datetime import *
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
 from scripts.ilapfuncs import artifact_processor
-from scripts.context import Context
-
 
 @artifact_processor
-def get_biomeBluetooth(context:Context):
+def get_biomeBluetooth(context):
 
     data_list = []
     for file_found in context.get_files_found():

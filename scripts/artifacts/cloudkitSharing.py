@@ -27,10 +27,9 @@ import nska_deserialize as nd
 import io
 
 from scripts.ilapfuncs import open_sqlite_db_readonly, artifact_processor
-from scripts.context import Context
 
 @artifact_processor
-def get_cloudkitServerSharedData(context:Context):
+def get_cloudkitServerSharedData(context):
     user_dictionary = {}
     for file_found in context.get_files_found():
         file_found = str(file_found)
@@ -80,7 +79,7 @@ def get_cloudkitServerSharedData(context:Context):
     return user_headers, user_list, ''
 
 @artifact_processor
-def get_cloudkitServerRecordData(context:Context):
+def get_cloudkitServerRecordData(context):
     for file_found in context.get_files_found():
         file_found = str(file_found)
         if file_found.endswith('NoteStore.sqlite'):

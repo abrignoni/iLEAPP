@@ -24,10 +24,9 @@ from datetime import *
 #from scripts.artifact_report import ArtifactHtmlReport
 #from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows
 from scripts.ilapfuncs import artifact_processor, convert_time_obj_to_utc, convert_plist_date_to_utc
-from scripts.context import Context
 
 @artifact_processor
-def get_appItunesmeta(context:Context):
+def get_appItunesmeta(context):
     data_list = []       
     for file_found in context.get_files_found():
         file_found = str(file_found)

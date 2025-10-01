@@ -19,7 +19,6 @@ import re
 from scripts.ilapfuncs import artifact_processor, \
     get_file_path, get_sqlite_db_records, \
     convert_human_ts_to_utc
-from scripts.context import Context
 
 
 def get_bank_card_number(card_information):
@@ -50,7 +49,7 @@ def get_card_type(card_num, num_length):
 
 
 @artifact_processor
-def applewalletcards(context:Context):
+def applewalletcards(context):
     files_found = context.get_files_found()
     source_path = get_file_path(files_found, "Cache.db")
     data_list = []

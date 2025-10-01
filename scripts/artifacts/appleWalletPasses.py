@@ -28,10 +28,9 @@ __artifacts_v2__ = {
 import json
 import nska_deserialize as nd
 from scripts.ilapfuncs import open_sqlite_db_readonly, artifact_processor, convert_cocoa_core_data_ts_to_utc
-from scripts.context import Context
 
 @artifact_processor
-def get_appleWalletPKPasses(context:Context):
+def get_appleWalletPKPasses(context):
     data_list = []
     for file_found in context.get_files_found():
         file_found = str(file_found)
@@ -47,7 +46,7 @@ def get_appleWalletPKPasses(context:Context):
     return data_list, data_headers, ''
         
 @artifact_processor
-def get_appleWalletPasses(context:Context):
+def get_appleWalletPasses(context):
     data_list = []
     for file_found in context.get_files_found():
         file_found = str(file_found)

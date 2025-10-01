@@ -14,10 +14,9 @@ __artifacts_v2__ = {
 }
 
 from scripts.ilapfuncs import open_sqlite_db_readonly, artifact_processor
-from scripts.context import Context
 
 @artifact_processor
-def get_cashApp(context:Context):
+def get_cashApp(context):
     for file_found in context.get_files_found():
         file_found = str(file_found)
 

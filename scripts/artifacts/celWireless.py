@@ -16,10 +16,9 @@ __artifacts_v2__ = {
 import os
 
 from scripts.ilapfuncs import device_info, artifact_processor, get_plist_content
-from scripts.context import Context
 
 @artifact_processor
-def celWireless(context:Context):
+def celWireless(context):
     data_list = []
     for filepath in context.files_found():
         basename = os.path.basename(filepath)

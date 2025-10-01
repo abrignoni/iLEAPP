@@ -36,7 +36,6 @@ import urllib.request
 import json
 
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, attach_sqlite_db_readonly, logfunc
-from scripts.context import Context
 
 def get_data_from_itunes(lookup_value, lookup_type):
     response_json_data = None
@@ -80,7 +79,7 @@ def results_for_id(item_record, data_dictionary):
             return app_name, bundle_name
 
 @artifact_processor
-def AMDSQLiteDB_UsageEvents(context:Context):
+def AMDSQLiteDB_UsageEvents(context):
     data_list = []
     my_data_store = {}
     files_found = context.get_files_found()
@@ -118,7 +117,7 @@ def AMDSQLiteDB_UsageEvents(context:Context):
     return data_headers, data_list, source_path
     
 @artifact_processor
-def AMDSQLiteDB_StorageCapacity(context:Context):
+def AMDSQLiteDB_StorageCapacity(context):
     data_list = []
     files_found = context.get_files_found()
     source_path = get_file_path(files_found, "AMDSQLite.db.0")

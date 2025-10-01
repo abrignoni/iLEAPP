@@ -20,11 +20,9 @@ import blackboxprotobuf
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
 from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv
-from scripts.context import Context
-
 
 @artifact_processor
-def get_biomeNotificationsPub(context:Context):
+def get_biomeNotificationsPub(context):
 
     typess = {'1': {'type': 'str', 'name': ''}, '2': {'type': 'double', 'name': ''}, '3': {'type': 'int', 'name': ''}, '4': {'type': 'str', 'name': ''}, '5': {'type': 'str', 'name': ''}, '8': {'type': 'str', 'name': ''}, '9': {'type': 'str', 'name': ''}, '11': {'type': 'int', 'name': ''}, '12': {'type': 'str', 'name': ''}, '14': {'type': 'str', 'name': ''}, '16': {'type': 'int', 'name': ''}}
 

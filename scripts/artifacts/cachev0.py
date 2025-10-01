@@ -18,10 +18,9 @@ from scripts.ilapfuncs import (
     check_in_embedded_media,
     artifact_processor,
 )
-from scripts.context import Context
 
 @artifact_processor
-def cachev0(context:Context):
+def cachev0(context):
     
     data_list = []
     for file_found in context.get_files_found():

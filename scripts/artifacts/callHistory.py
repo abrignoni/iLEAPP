@@ -22,10 +22,8 @@ __artifacts_v2__ = {
 # Additional details published within "Maximizing iOS Call Log Timestamps and Call Duration Effectiveness: Will You Answer the Call?" at https://sqlmcgee.wordpress.com/2022/11/30/maximizing-ios-call-log-timestamps-and-call-duration-effectiveness-will-you-answer-the-call/
 
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, convert_bytes_to_unit, convert_cocoa_core_data_ts_to_utc
-from scripts.context import Context
-
 @artifact_processor
-def callHistory(context:Context):
+def callHistory(context):
     files_found = context.get_files_found()
     source_path = ''
     data_list = []

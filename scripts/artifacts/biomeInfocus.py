@@ -20,11 +20,9 @@ import blackboxprotobuf
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
 from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv
-from scripts.context import Context
-
 
 @artifact_processor
-def get_biomeInfocus(context:Context):
+def get_biomeInfocus(context):
 
     typess = {'10': {'name': '', 'type': 'str'}, '2': {'name': '', 'type': 'int'}, '3': {'name': '', 'type': 'int'},
               '4': {'name': '', 'type': 'double'}, '6': {'name': '', 'type': 'str'}, '9': {'name': '', 'type': 'str'}}

@@ -26,10 +26,9 @@ __artifacts_v2__ = {
 }
 
 from scripts.ilapfuncs import open_sqlite_db_readonly, convert_cocoa_core_data_ts_to_utc, artifact_processor
-from scripts.context import Context
 
 @artifact_processor
-def get_applePodcastsShows(context:Context):
+def get_applePodcastsShows(context):
     
     data_list = []
     data_headers = [
@@ -93,7 +92,7 @@ def get_applePodcastsShows(context:Context):
     return data_list, data_headers, ''
         
 @artifact_processor
-def get_applePodcastsEpisodes(context:Context):
+def get_applePodcastsEpisodes(context):
     data_list = []
     data_headers = [
                 ('Import Date', 'datetime'),
