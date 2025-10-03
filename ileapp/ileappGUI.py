@@ -4,6 +4,7 @@ import json
 import ileapp
 import webbrowser
 import base64
+from importlib.resources import files
 
 import ileapp.scripts.plugin_loader as plugin_loader
 
@@ -208,10 +209,7 @@ def open_website(url):
 
 
 def resource_path(filename):
-    try:
-        base_path = sys._MEIPASS
-    except Exception:
-        base_path = os.path.abspath(".")
+    base_path = files("ileapp")
 
     return os.path.join(base_path, 'assets', filename)
 
