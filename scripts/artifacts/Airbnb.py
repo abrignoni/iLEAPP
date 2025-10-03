@@ -23,7 +23,7 @@ __artifacts_v2__ = {
     }
 }
 
-from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records
+from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, convert_human_ts_to_utc
 from scripts.context import Context
 
 @artifact_processor
@@ -49,9 +49,9 @@ def get_airbnb_messages(context:Context):
 
     data_list = []
     for row in db_records:
-        created = row[0]
-        updated = row[1]
-        fetched = row[2]
+        created = convert_human_ts_to_utc(row[0])
+        updated = convert_human_ts_to_utc(row[1])
+        fetched = convert_human_ts_to_utc(row[2])
         thread_id = row[3]
         sender_user_id = row[4]
         sender_user_type = row[5]
@@ -61,7 +61,7 @@ def get_airbnb_messages(context:Context):
 
         data_list.append((created, updated, fetched, thread_id, sender_user_id, sender_user_type, sender_display_name, orig_message, trans_message))
 
-    data_headers = ('Created Date', 'Updated Date', 'Fetched Date', 'Thread ID', 'Sender User ID', 'Sender User Type', 'Sender Display Name', 'Original Message', 'Translated Message')
+    data_headers = (('Created Date', 'datetime'), ('Updated Date', 'datetime'), ('Fetched Date', 'datetime'), 'Thread ID', 'Sender User ID', 'Sender User Type', 'Sender Display Name', 'Original Message', 'Translated Message')
     
     return data_headers, data_list, files_found[0]
 

@@ -152,6 +152,7 @@ def addressBook(context:Context):
 
     data_headers = [
         ('Creation Date', 'datetime'),
+        ('Modification Date', 'datetime')
         ('Thumbnail', 'media', 'height: 80px; border-radius: 50%;'),
         ('Full Size Image', 'media', 'height: 80px;'),
         'Prefix', 
@@ -178,7 +179,7 @@ def addressBook(context:Context):
         'Birthday', 
         'Group Name', 
         'Storage Place', 
-        ('Modification Date', 'datetime')]
+    ]
 
     db_records = get_sqlite_db_records(source_path, query, attach_query)
 
@@ -229,11 +230,11 @@ def addressBook(context:Context):
         modified_date = convert_cocoa_core_data_ts_to_utc(record[-1])
 
         data_list.append(
-            [creation_date, thumbnail, full_size_image, record[4], record[5], record[6],
+            [creation_date, modified_date, thumbnail, full_size_image, record[4], record[5], record[6],
              record[7], record[8], record[9], record[10], record[11], record[12], record[13],
              record[14], record[15], phone_numbers, email_addresses, addresses, instant_message,
              url, related_name, profile, record[23], record[24], birthday, record[26],
-             record[27], modified_date])
+             record[27]])
 
     # Removing unused columns
     remove_empty_cols_query = '''
