@@ -42,21 +42,17 @@ pyliblzfse = [
 ]
 
 [project.scripts]
-ileapp = "ileapp:main"
-ileapp-gui = "ileappGUI:main"
-
-[tool.setuptools]
-py-modules = ["ileapp", "ileappGUI"]
-include-package-data = false
+ileapp = "ileapp.ileapp:main"
+ileapp-gui = "ileapp.ileappGUI:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["scripts*"]
+include = ["ileapp*"]
 exclude = ["admin*", "test*", "*.pyc", "__pycache__"]
 
 [tool.setuptools.package-data]
-"scripts" = ["*.py", "data/*", "**/*"]
-"*" = [
+"ileapp" = [
+    "assets/*",
     "*.json",
     "*.lcasedata",
     "*.ilprofile",

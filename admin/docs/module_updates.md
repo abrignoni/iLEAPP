@@ -48,16 +48,16 @@ Remove imports related to manual report generation (ArtifactHtmlReport, tsv, kml
 #### Remove this import
 
 ```python
-from scripts.artifact_report import ArtifactHtmlReport
+from ileapp.scripts.artifact_report import ArtifactHtmlReport
 ```
 
 #### Modify this import
 
 ```python
-from scripts.ilapfuncs import artifact_processor, get_file_path
+from ileapp.scripts.ilapfuncs import artifact_processor, get_file_path
 
 # After (ensure all needed functions are imported)
-from scripts.ilapfuncs import (
+from ileapp.scripts.ilapfuncs import (
     artifact_processor,
     check_in_media,            # For media files on disk
     check_in_embedded_media,   # For media stored as blobs/binary data
@@ -415,7 +415,7 @@ When working with timestamps, especially from plist files:
 Example usage:
 
 ```python
-from scripts.ilapfuncs import convert_plist_date_to_utc
+from ileapp.scripts.ilapfuncs import convert_plist_date_to_utc
 
 # ... in your processing function ...
 timestamp = convert_plist_date_to_utc(plist_date)

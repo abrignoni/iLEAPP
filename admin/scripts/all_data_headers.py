@@ -53,7 +53,7 @@ import shutil
 root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(root_dir)
 
-from scripts.lavafuncs import sanitize_sql_name  # pylint: disable=wrong-import-position
+from ileapp.scripts.lavafuncs import sanitize_sql_name  # pylint: disable=wrong-import-position
 
 class V2ArtifactInfoFinder(ast.NodeVisitor):
     """

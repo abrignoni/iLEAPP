@@ -42,12 +42,12 @@ Add imports for LAVA functions and, if your module handles media, the Media Mana
 
 ```python
 # Existing imports for your module...
-# import scripts.artifact_report # For manual HTML reports
-# from scripts.ilapfuncs import tsv # For manual TSV
+# import ileapp.scripts.artifact_report # For manual HTML reports
+# from ileapp.scripts.ilapfuncs import tsv # For manual TSV
 
 # Add these for LAVA and Media Management:
-from scripts.lavafuncs import lava_process_artifact, lava_insert_sqlite_data
-from scripts.ilapfuncs import (
+from ileapp.scripts.lavafuncs import lava_process_artifact, lava_insert_sqlite_data
+from ileapp.scripts.ilapfuncs import (
     check_in_media,
     check_in_embedded_media,
     get_file_path, # If you use it to find files

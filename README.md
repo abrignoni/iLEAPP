@@ -182,7 +182,7 @@ __artifacts_v2__ = {
     }
 }
 
-from scripts.ilapfuncs import artifact_processor
+from ileapp.scripts.ilapfuncs import artifact_processor
 
 @artifact_processor
 def get_artifactname(files_found, report_folder, seeker, wrap_text, timezone_offset):
