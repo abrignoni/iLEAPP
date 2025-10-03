@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ileapp"
-version = "0.1.0"
+dynamic = ["version"]
 description = "iOS Logs, Events, And Plist Parser"
 requires-python = ">=3.10,<3.13"
 dependencies = [
@@ -25,7 +25,6 @@ dependencies = [
     "pillow>=11.3.0",
     "pillow-heif>=1.1.1",
     "pycryptodome>=3.23.0",
-    "pyinstaller>=6.16.0",
     "pyliblzfse>=0.4.1",
     "pyliblzfse ; python_full_version == '3.10.*' and sys_platform == 'win32'",
     "pyliblzfse ; python_full_version == '3.11.*' and sys_platform == 'win32'",
@@ -57,4 +56,12 @@ exclude = ["admin*", "test*", "*.pyc", "__pycache__"]
     "*.lcasedata",
     "*.ilprofile",
     "whl_files/*"
+]
+
+[tool.setuptools.dynamic]
+version = {attr = "ileapp.scripts.version_info.ileapp_version"}
+
+[dependency-groups]
+dev = [
+    "pyinstaller>=6.16.0",
 ]
