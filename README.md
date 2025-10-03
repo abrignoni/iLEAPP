@@ -1,4 +1,4 @@
-![iLEAPP](scripts/_elements/iLEAPP_banner.png)
+![iLEAPP](ileapp/scripts/_elements/iLEAPP_banner.png)
 
 # iOS Logs, Events, And Plists Parser
 
