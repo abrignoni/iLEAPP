@@ -15,6 +15,7 @@ from ileapp.scripts.search_files import *
 from ileapp.scripts.tz_offset import tzvalues
 from ileapp.scripts.modules_to_exclude import modules_to_exclude
 from ileapp.scripts.lavafuncs import *
+from ileapp.ileapp import crunch_artifacts
 
 
 def pickModules():
@@ -247,7 +248,7 @@ def process(casedata):
 
         initialize_lava(input_path, out_params.report_folder_base, extracttype)
 
-        crunch_successful = ileapp.crunch_artifacts(
+        crunch_successful = crunch_artifacts(
             selected_modules, extracttype, input_path, out_params, wrap_text,
             loader, casedata, time_offset, profile_filename, None, decryption_keys)
         
