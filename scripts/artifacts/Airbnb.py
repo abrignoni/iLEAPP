@@ -24,10 +24,9 @@ __artifacts_v2__ = {
 }
 
 from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, convert_human_ts_to_utc
-from scripts.context import Context
 
 @artifact_processor
-def get_airbnb_messages(context:Context):
+def get_airbnb_messages(context):
     files_found = [x for x in context.get_files_found() if not x.endswith('wal') and not x.endswith('shm')]
     
     query = ('''
