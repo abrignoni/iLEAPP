@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Extract Apple advertising identifier",
         "author": "@AlexisBrignoni",
         "creation_date": "2023-10-03",
-        "last_update_date": "2024-12-17",
+        "last_update_date": "2025-10-03",
         "requirements": "none",
         "category": "Identifiers",
         "notes": "",

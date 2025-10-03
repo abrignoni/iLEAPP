@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "description": "Messages sent and received in the Airbnb App",
         "author": "Marco Neumann {kalinko@be-binary.de}",
         "creation_date": "2024-04-29",
-        "last_update_date": "2025-04-29",
+        "last_update_date": "2025-10-03",
         "requirements": "",
         "category": "Airbnb",
         "notes": "",

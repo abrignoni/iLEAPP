@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         'description': 'Configured user accounts',
         'author': '@AlexisBrignoni',
         'creation_date': '2020-04-30',
-        'last_update_date': '2025-04-05',
+        "last_update_date": "2025-10-03",
         'requirements': 'none',
         'category': 'Accounts',
         'notes': '',
