@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "ileapp"
 version = "0.1.0"
@@ -35,4 +39,26 @@ pyliblzfse = [
     { path = "whl_files/pyliblzfse-0.4.1-cp310-cp310-win_amd64.whl", marker = "python_full_version == '3.10.*' and sys_platform == 'win32'" },
     { path = "whl_files/pyliblzfse-0.4.1-cp311-cp311-win_amd64.whl", marker = "python_full_version == '3.11.*' and sys_platform == 'win32'" },
     { path = "whl_files/pyliblzfse-0.4.1-cp312-cp312-win_amd64.whl", marker = "python_full_version == '3.12.*' and sys_platform == 'win32'" },
+]
+
+[project.scripts]
+ileapp = "ileapp:main"
+ileapp-gui = "ileappGUI:main"
+
+[tool.setuptools]
+py-modules = ["ileapp", "ileappGUI"]
+include-package-data = false
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["scripts*"]
+exclude = ["admin*", "test*", "*.pyc", "__pycache__"]
+
+[tool.setuptools.package-data]
+"scripts" = ["*.py", "data/*", "**/*"]
+"*" = [
+    "*.json",
+    "*.lcasedata",
+    "*.ilprofile",
+    "whl_files/*"
 ]
