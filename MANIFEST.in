@@ -1,0 +1,31 @@
+include assets/*
+include whl_files/*
+include *.json
+include *.lcasedata
+include *.ilprofile
+
+# Include scripts/ but exclude __pycache__ inside it
+recursive-include scripts *.py
+recursive-include scripts *.json
+recursive-include scripts *.txt
+recursive-include scripts _elements/*
+recursive-include scripts artifacts/*
+recursive-include scripts ccl/*
+recursive-include scripts ccl_segb/*
+recursive-include scripts filetypes/*
+recursive-include scripts keychain/*
+recursive-include scripts ktx/*
+recursive-include scripts pyinstaller/*
+
+# Exclude ALL __pycache__ and .pyc files
+global-exclude __pycache__/*
+global-exclude *.pyc
+global-exclude */__pycache__/*
+global-exclude *.__pycache__/*
+prune __pycache__
+prune */__pycache__
+prune *.__pycache__
+
+# Exclude admin/
+exclude admin/*
+prune admin

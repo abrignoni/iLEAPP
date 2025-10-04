@@ -15,8 +15,8 @@ import inspect
 
 # Adjust import paths as necessary
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..')))
-# import scripts.ilapfuncs as ilapfuncs
-from scripts.context import Context
+# import ileapp.scripts.ilapfuncs as ilapfuncs
+from ileapp.scripts.context import Context
 
 
 def mock_logdevinfo(message):
@@ -149,7 +149,7 @@ def process_artifact(zip_path, module_name, artifact_name, artifact_data, target
             patch('scripts.ilapfuncs.check_in_media', mocked_check_in_media),
             patch('scripts.ilapfuncs.check_in_embedded_media', mocked_check_in_embedded_media),
             # Also patch it directly in the artifact module's namespace if it's imported there like:
-            # from scripts.ilapfuncs import check_in_media
+            # from ileapp.scripts.ilapfuncs import check_in_media
             patch(f'scripts.artifacts.{module_name}.check_in_media', mocked_check_in_media, create=True),
             patch(f'scripts.artifacts.{module_name}.check_in_embedded_media', mocked_check_in_embedded_media, create=True),
             patch(f'scripts.artifacts.{module_name}.lava_get_full_media_info', mocked_lava_get_full_media_info, create=True)

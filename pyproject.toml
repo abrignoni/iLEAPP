@@ -1,0 +1,67 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ileapp"
+dynamic = ["version"]
+description = "iOS Logs, Events, And Plist Parser"
+requires-python = ">=3.10,<3.13"
+dependencies = [
+    "astc-decomp-faster>=1.1.2",
+    "bencoding>=0.2.6",
+    "biplist>=1.0.3",
+    "blackboxprotobuf>=1.0.1",
+    "bs4>=0.0.2",
+    "ijson>=3.4.0",
+    "mdplistlib>=0.1.3",
+    "mmh3>=5.2.0",
+    "nska-deserialize>=1.3.1",
+    "numpy==1.26.4",
+    "packaging==24.1",
+    "pandas>=2.3.3",
+    "pathlib2==2.3.5",
+    "pgpy>=0.6.0",
+    "pillow>=11.3.0",
+    "pillow-heif>=1.1.1",
+    "pycryptodome>=3.23.0",
+    "pyliblzfse>=0.4.1",
+    "pyliblzfse ; python_full_version == '3.10.*' and sys_platform == 'win32'",
+    "pyliblzfse ; python_full_version == '3.11.*' and sys_platform == 'win32'",
+    "pyliblzfse ; python_full_version == '3.12.*' and sys_platform == 'win32'",
+    "pytz>=2025.2",
+    "simplekml>=1.3.6",
+]
+
+[tool.uv.sources]
+pyliblzfse = [
+    { path = "whl_files/pyliblzfse-0.4.1-cp310-cp310-win_amd64.whl", marker = "python_full_version == '3.10.*' and sys_platform == 'win32'" },
+    { path = "whl_files/pyliblzfse-0.4.1-cp311-cp311-win_amd64.whl", marker = "python_full_version == '3.11.*' and sys_platform == 'win32'" },
+    { path = "whl_files/pyliblzfse-0.4.1-cp312-cp312-win_amd64.whl", marker = "python_full_version == '3.12.*' and sys_platform == 'win32'" },
+]
+
+[project.scripts]
+ileapp = "ileapp.ileapp:main"
+ileapp-gui = "ileapp.ileappGUI:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["ileapp*"]
+exclude = ["admin*", "test*", "*.pyc", "__pycache__"]
+
+[tool.setuptools.package-data]
+"ileapp" = [
+    "assets/*",
+    "*.json",
+    "*.lcasedata",
+    "*.ilprofile",
+    "whl_files/*"
+]
+
+[tool.setuptools.dynamic]
+version = {attr = "ileapp.scripts.version_info.ileapp_version"}
+
+[dependency-groups]
+dev = [
+    "pyinstaller>=6.16.0",
+]
