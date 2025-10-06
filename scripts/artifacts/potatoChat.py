@@ -17,7 +17,7 @@ __artifacts_v2__ = {
         'artifact_icon': 'message-square',
         'data_views': {
             'conversation': {
-                'conversationColumn': 'Chat-ID',
+                'conversationDiscriminatorColumn': 'Chat-ID',
                 'conversationLabelColumn': 'Chat',
                 'textColumn': 'Message',
                 'directionColumn': 'From Me',
@@ -47,7 +47,7 @@ __artifacts_v2__ = {
         'artifact_icon': 'message-square',
         'data_views': {
             'conversation': {
-                'conversationColumn': 'Group-ID',
+                'conversationDiscriminatorColumn': 'Group-ID',
                 'conversationLabelColumn': 'Group Name',
                 'textColumn': 'Message',
                 'directionColumn': 'From Me',

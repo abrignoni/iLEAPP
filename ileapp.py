@@ -215,9 +215,11 @@ def main():
                     for x in plugin.search:
                         paths.write(x + '\n')
                         print(x)
-                else:  # TODO check that this is actually a string?
+                elif isinstance(plugin.search, str):
                     paths.write(plugin.search + '\n')
                     print(plugin.search)
+                else:
+                    continue
         print('')
         print('Artifact path list generation completed')
         return

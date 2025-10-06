@@ -26,7 +26,7 @@ __artifacts_v2__ = {
         "artifact_icon": "message-circle",
         "data_views": {
             'conversation': {
-                'conversationColumn': 'Conversation-ID',
+                'conversationDiscriminatorColumn': 'Conversation-ID',
                 'conversationLabelColumn': 'Advertisement',
                 'textColumn': 'Message',
                 'senderColumn': 'From_Name',
