@@ -866,7 +866,7 @@ OS_build = {
     "22G86": "iOS 18.6",
     "22G90": "iOS 18.6.1",
     "22G100": "iOS 18.6.2",
-    "22H20": "iOS 18.7 RC",
+    "22H20": "iOS 18.7",
     "23A5260n": "iOS 26.0 beta 1",
     "23A5260u": "iOS 26.0 beta 1 Update",
     "23A5276f": "iOS 26.0 beta 2",
@@ -881,6 +881,8 @@ OS_build = {
     "23A5336a": "iOS 26.0 beta 9",
     "23A340": "iOS 26.0 RC",
     "23A341": "iOS 26.0",
+    "23A355": "iOS 26.0.1",
+    "23B5044l": "iOS 26.1 beta 1",
     "4K78": "Mac OS X 10.0",
     "4L8": "Mac OS X 10.0.1",
     "4L13": "Mac OS X 10.0.1",
@@ -2804,6 +2806,7 @@ OS_build = {
     "23R352": "watchOS 26.0",
     "23R8351": "watchOS 26.0.1 RC",
     "23R8352": "watchOS 26.0.1",
+    "23R8362": "watchOS 26.0.2",
     "8M89": "Apple TV Software 4.0",
     "8F5148c": "Apple TV Software 4.2 beta",
     "8F191m": "Apple TV Software 4.2",
@@ -3307,6 +3310,7 @@ OS_build = {
     "22621": "Windows 11 version 22H2",
     "22631": "Windows 11 version 23H2",
     "26100": "Windows 11 version 24H2",
+    "26200": "Windows 11 version 25H2",
 }
 
 domains = {
