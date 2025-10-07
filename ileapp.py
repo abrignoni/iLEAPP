@@ -209,17 +209,21 @@ def main():
     if args.artifact_paths:
         print('Artifact path list generation started.')
         print('')
-        with open('path_list.txt', 'a') as paths:
-            for plugin in loader.plugins:
-                if isinstance(plugin.search, tuple):
-                    for x in plugin.search:
-                        paths.write(x + '\n')
-                        print(x)
-                elif isinstance(plugin.search, str):
-                    paths.write(plugin.search + '\n')
-                    print(plugin.search)
-                else:
-                    continue
+        path_list = set()
+        for plugin in loader.plugins:
+            if plugin.module_name == 'logarchive':
+                continue
+            if isinstance(plugin.search, tuple):
+                for x in plugin.search:
+                    path_list.add(x)
+            elif isinstance(plugin.search, str):
+                path_list.add(plugin.search)
+            else:
+                continue
+        with open('path_list.txt', 'w') as paths:
+            for path in sorted(path_list):
+                paths.write(f'{path}\n')
+                print(path)
         print('')
         print('Artifact path list generation completed')
         return
