@@ -152,7 +152,6 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | secretCalculator |
 | serialNumber |
 | slack |
-| syncDev |
 | teams |
 | telegramMesssages |
 | teleguard |
