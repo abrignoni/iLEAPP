@@ -651,6 +651,8 @@
         "19H380": "iOS 15.8.1",
         "19H384": "iOS 15.8.2",
         "19H386": "iOS 15.8.3",
+        "19H390": "iOS 15.8.4",
+        "19H394": "iOS 15.8.5",
         "20A5283p": "iOS 16.0 beta 1",
         "20A5303i": "iOS 16.0 beta 2",
         "20A5312g": "iOS 16.0 beta 3",
@@ -720,6 +722,8 @@
         "20H343": "iOS 16.7.8",
         "20H348": "iOS 16.7.9",
         "20H350": "iOS 16.7.10",
+        "20H360": "iOS 16.7.11",
+        "20H364": "iOS 16.7.12",
         "21A5248v": "iOS 17.0 beta 1",
         "21A5268h": "iOS 17.0 beta 2",
         "21A5277h": "iOS 17.0 beta 3",
@@ -785,6 +789,11 @@
         "21H312": "iOS 17.7.3",
         "21H414": "iOS 17.7.4",
         "21H420": "iOS 17.7.5",
+        "21H423": "iOS 17.7.6",
+        "21H433": "iOS 17.7.7",
+        "21H440": "iOS 17.7.8",
+        "21H446": "iOS 17.7.9",
+        "21H450": "iOS 17.7.10",
         "22A5282m": "iOS 18.0 beta 1",
         "22A5297f": "iOS 18.0 beta 2",
         "22A5307f": "iOS 18.0 beta 3",
@@ -848,23 +857,28 @@
         "22G86": "iOS 18.6",
         "22G90": "iOS 18.6.1",
         "22G100": "iOS 18.6.2",
-        "22H20": "iOS 18.7 RC",
+        "22H20": "iOS 18.7",
+        "22H31": "iOS 18.7.1",
         "23A5260n": "iOS 26.0 beta 1",
         "23A5260u": "iOS 26.0 beta 1 Update",
         "23A5276f": "iOS 26.0 beta 2",
         "23A5287g": "iOS 26.0 beta 3",
         "23A5297i": "iOS 26.0 beta 4",
-        "23A5297m": "iOS 26.0 beta 4 Revised",
+        "23A5297m": "iOS 26.0 beta 4 Update",
+        "23A5297n": "iOS 26.0 beta 4 Update",
         "23A5308g": "iOS 26.0 beta 5",
         "23A5318c": "iOS 26.0 beta 6",
-        "23A5318f": "iOS 26.0 beta 6 Revised",
+        "23A5318f": "iOS 26.0 beta 6 Update",
         "23A5326a": "iOS 26.0 beta 7",
         "23A5330a": "iOS 26.0 beta 8",
         "23A5336a": "iOS 26.0 beta 9",
+        "23A330": "iOS 26.0",
         "23A340": "iOS 26.0 RC",
         "23A341": "iOS 26.0",
+        "23A345": "iOS 26.0",
         "23A355": "iOS 26.0.1",
-        "23B5044l": "iOS 26.1 beta 1"
+        "23B5044l": "iOS 26.1 beta 1",
+        "23B5059e": "iOS 26.1 beta 2"
     },
     "macOS": {
         "4K78": "Mac OS X 10.0",
@@ -2183,6 +2197,7 @@
         "23J21": "macOS 14.8",
         "23J111": "macOS 14.8.1 RC",
         "23J30": "macOS 14.8.1",
+        "23J115": "macOS 14.8.2 RC",
         "24A5264n": "macOS 15.0 beta 1",
         "24A5279h": "macOS 15.0 beta 2",
         "24A5289g": "macOS 15.0 beta 3",
@@ -2244,6 +2259,7 @@
         "24G222": "macOS 15.7",
         "24G309": "macOS 15.7.1 RC",
         "24G231": "macOS 15.7.1",
+        "24G313": "macOS 15.7.2 RC",
         "25A5279m": "macOS 26.0 beta 1",
         "25A5295e": "macOS 26.0 beta 2",
         "25A5306g": "macOS 26.0 beta 3",
@@ -2256,7 +2272,8 @@
         "25A353": "macOS 26.0 RC",
         "25A354": "macOS 26.0",
         "25A362": "macOS 26.0.1",
-        "25B5042k": "macOS 26.1 beta 1"
+        "25B5042k": "macOS 26.1 beta 1",
+        "25B5057f": "macOS 26.1 beta 2"
     },
     "visionOS": {
         "21N5165g": "visionOS 1.0 beta 1",
@@ -2351,7 +2368,8 @@
         "23M5335b": "visionOS 26.0 beta 9",
         "23M336": "visionOS 26.0",
         "23M341": "visionOS 26.0.1",
-        "23N5013j": "visionOS 26.1 beta 1"
+        "23N5013j": "visionOS 26.1 beta 1",
+        "23N5028e": "visionOS 26.1 beta 2"
     },
     "watchOS": {
         "12S507": "watchOS 1.0",
@@ -2804,7 +2822,8 @@
         "23R8352": "watchOS 26.0.1",
         "23R8362": "watchOS 26.0.2",
         "23R362": "watchOS 26.0.2",
-        "23S5002i": "watchOS 26.1 beta 1"
+        "23S5002i": "watchOS 26.1 beta 1",
+        "23S5017d": "watchOS 26.1 beta 2"
     },
     "tvOS": {
         "8M89": "Apple TV Software 4.0",
@@ -3285,7 +3304,8 @@
         "23J352": "tvOS 26.0 RC",
         "23J353": "tvOS 26.0",
         "23J362": "tvOS 26.0.1",
-        "23J5543j": "tvOS 26.1 beta 1"
+        "23J5543j": "tvOS 26.1 beta 1",
+        "23J5558e": "tvOS 26.1 beta 2"
     },
     "Windows": {
         "6002": "Windows Vista",
@@ -3309,6 +3329,7 @@
         "22000": "Windows 11 version 21H2",
         "22621": "Windows 11 version 22H2",
         "22631": "Windows 11 version 23H2",
-        "26100": "Windows 11 version 24H2"
+        "26100": "Windows 11 version 24H2",
+        "26200": "Windows 11 version 25H2"
     }
 }
