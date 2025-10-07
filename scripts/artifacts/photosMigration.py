@@ -1,43 +1,43 @@
+""" See notes below """
+
 __artifacts_v2__ = {
-    "get_photosMigration": {
+    "photos_migration": {
         "name": "Migrations",
         "description": "Parses migration records from photos.sqlite database",
         "author": "@JohnHyla",
-        "version": "1.0.1",
-        "date": "2024-10-17",
+        'creation_date': '2023-08-01',
+        'last_update_date': '2025-10-07',
         "requirements": "none",
-        "category": "Photos",
+        "category": "OS Updates",
         "notes": "Parses migration records found in the Photos.sqlite database. May assist in determining history of "
                  "iOS versions history Based on SQL Queries written by Scott Koenig https://theforensicscooter.com/",
-        "paths": ('*/PhotoData/Photos.sqlite*'),
-        "output_types": "standard"
+        "paths": ('*/PhotoData/Photos.sqlite*',),
+        "output_types": "standard",
+        'artifact_icon': "chevrons-up"
     }
 }
 
-from scripts.ilapfuncs import convert_ts_human_to_utc, convert_utc_human_to_timezone, open_sqlite_db_readonly, artifact_processor
-from scripts.builds_ids import OS_build
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, \
+    convert_cocoa_core_data_ts_to_utc
+
 
 @artifact_processor
-def get_photosMigration(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    for file_found in files_found:
-        file_found = str(file_found)
-        if file_found.endswith('.sqlite'):
-            break
+def photos_migration(context):
+    """ See artifact description """
+    data_source = get_file_path(context.get_files_found(), "Photos.sqlite")
+    data_list = []
 
-    db = open_sqlite_db_readonly(file_found)
-    cursor = db.cursor()
-
-    cursor.execute("""
+    query = """
         SELECT zMigrationHistory.Z_PK AS 'zMigrationHistory-zPK',
           zMigrationHistory.Z_ENT AS 'zMigrationHistory-zENT',
           zMigrationHistory.Z_OPT AS 'zMigrationHistory-zOPT',
-          DateTime(zMigrationHistory.ZMIGRATIONDATE + 978307200, 'UNIXEPOCH') AS 'zMigrationHistory-Migration Date',
+          zMigrationHistory.ZMIGRATIONDATE,
           zMigrationHistory.ZINDEX AS 'zMigrationHistory-Index',
           CASE zMigrationHistory.ZMIGRATIONTYPE
-            WHEN 0 THEN '0-StillTesting'
-            WHEN 1 THEN '1-StillTesting'
-            WHEN 2 THEN '2-iOS Update-2'
-            WHEN 3 THEN '3-iOS History Start/Factory Reset-3'
+            WHEN 0 THEN '0 - StillTesting'
+            WHEN 1 THEN '1 - StillTesting'
+            WHEN 2 THEN '2 - OS Update'
+            WHEN 3 THEN '3 - OS History Start/Factory Reset'
             ELSE 'Unknown-New-Value!: ' || zMigrationHistory.ZMIGRATIONTYPE || ''
           END AS 'zMigrationHistory-Migration Type',
           zMigrationHistory.ZFORCEREBUILDREASON AS 'zMigrationHistory-Force Rebuild Reason',
@@ -49,21 +49,20 @@ def get_photosMigration(files_found, report_folder, seeker, wrap_text, timezone_
           zMigrationHistory.ZGLOBALKEYVALUES AS 'zMigrationHistory-Global Key Values/HEX'
         FROM ZMIGRATIONHISTORY zMigrationHistory
         ORDER BY zMigrationHistory.ZMIGRATIONDATE
-    """)
+    """
 
-    all_rows = cursor.fetchall()
-    data_list = []
+    data_headers = (
+        ('Timestamp', 'datetime'), 'Migration Index', 'Type', 'Force Rebuild Reason',
+        'Source Model Version', 'Model Version', 'OS Build', 'OS Version', 'Origin',
+        'Store UUID')
 
-    for row in all_rows:
-        ios_version = row[9] + ' - ' + OS_build[row[9]]
-        timestamp = convert_ts_human_to_utc(row[3])
-        timestamp = convert_utc_human_to_timezone(timestamp,timezone_offset)
+    db_records = get_sqlite_db_records(data_source, query)
 
-        data_list.append((timestamp, row[4], row[5], row[6], row[7], row[8], ios_version, row[10], row[11]))
+    for record in db_records:
+        os_version = context.get_os_version(record[9])
+        timestamp = convert_cocoa_core_data_ts_to_utc(record[3])
 
-    db.close()
+        data_list.append((timestamp, record[4], record[5], record[6], record[7],
+                          record[8], record[9], os_version, record[10], record[11]))
 
-    data_headers = (('Timestamp', 'datetime'), 'Migration Index', 'Type', 'Force Rebuild Reason', 'Source Model Version',
-                    'Model Version', 'Build/iOS Version', 'Origin', 'Store UUID')
-
-    return data_headers, data_list, file_found
+    return data_headers, data_list, data_source
