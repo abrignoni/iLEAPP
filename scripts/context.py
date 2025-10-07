@@ -24,6 +24,7 @@ class Context:
     _files_found = []
     _filename_lookup_map = {}
     _device_ids = {}
+    _device_boards = {}
     _os_builds = {}
 
     @staticmethod
@@ -117,6 +118,18 @@ class Context:
             __file__).parent.absolute().joinpath('data', 'device_ids.json')
         with open(device_ids_path, 'rt', encoding='utf-8') as json_file:
             Context._device_ids = json.load(json_file)
+
+    @staticmethod
+    def _set_device_boards():
+        """
+        Loads device boards from the data/device_boards.json file and
+        assigns them to _device_boards Context class variable.
+        """
+
+        device_boards_path = Path(
+            __file__).parent.absolute().joinpath('data', 'device_boards.json')
+        with open(device_boards_path, 'rt', encoding='utf-8') as json_file:
+            Context._device_boards = json.load(json_file)
 
     @staticmethod
     def _set_os_builds():
@@ -338,6 +351,22 @@ class Context:
         if not Context._device_ids:
             Context._set_device_ids()
         return Context._device_ids.get(identifier, '')
+
+    @staticmethod
+    def get_device_model_from_board(board_id):
+        """
+        Retrieves the device model name corresponding to a given board ID.
+
+        Args:
+            board_id (str): The board ID to look up.
+
+        Returns:
+            str: The device model name if found; otherwise, an empty string.
+        """
+
+        if not Context._device_boards:
+            Context._set_device_boards()
+        return Context._device_boards.get(board_id, '')
 
     @staticmethod
     def get_os_version(build, device_family=''):
