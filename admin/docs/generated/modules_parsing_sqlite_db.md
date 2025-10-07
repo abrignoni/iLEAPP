@@ -64,6 +64,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | logarchive |
 | nsVault |
 | payByPhone |
+| photosMigration |
 | potatoChat |
 | sms |
 | splitwise |
@@ -138,7 +139,6 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | parsecdCache |
 | photosDbexif |
 | photosMetadata |
-| photosMigration |
 | pingertextfree |
 | protonMail |
 | queryPredictions |

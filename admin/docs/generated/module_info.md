@@ -12,10 +12,10 @@ Total number of artifacts: 432
 Number of v1 artifacts: 85  
 Number of v2 artifacts: 347  
 Number of artifacts with 'lava output': 323  
-Number of artifacts using 'artifact_icon': 217  
-Number of artifacts using 'version': 258  
-Number of artifacts using 'last_update_date': 108  
-Number of artifacts using context parameter: 30  
+Number of artifacts using 'artifact_icon': 218  
+Number of artifacts using 'version': 257  
+Number of artifacts using 'last_update_date': 109  
+Number of artifacts using context parameter: 31  
 Number of artifacts with errors or no recognized artifacts: 3  
 
 ## V2 Artifacts Table
@@ -319,7 +319,7 @@ Number of artifacts with errors or no recognized artifacts: 3
 | [parsecdCache.py](/scripts/artifacts/parsecdCache.py) | get_parseCDCache | ParseCD Cache | Spotlight Searches | standard | No |  | 0.0.1 |  | Parses Spotlight search completion from ParseCD Cache database. If completion is a bundle ID it's likely that application opened as a result of comple | ``**/EngagedCompletions/Cache.db*`` |
 | [payByPhone.py](/scripts/artifacts/payByPhone.py) | userPayByPhone | PayByPhone - Users and Vehicules Info | Parking | tsv, timeline, kml, lava | No | users | 1.2 |  | Extract users and vehicules infos | ``*/mobile/Containers/Data/Application/*/Documents/PayByPhone.sqlite*`` |
 | [payByPhone.py](/scripts/artifacts/payByPhone.py) | sessionPayByPhone | PayByPhone - Parking Sessions | Parking | all | No | map | 1.2 |  | List of parking sessions | ``*/mobile/Containers/Data/Application/*/Documents/PayByPhone.sqlite*`` |
-| [photosMigration.py](/scripts/artifacts/photosMigration.py) | get_photosMigration | Migrations | Photos | standard | No |  | 1.0.1 |  | Parses migration records from photos.sqlite database | ``*/PhotoData/Photos.sqlite*`` |
+| [photosMigration.py](/scripts/artifacts/photosMigration.py) | photos_migration | Migrations | OS Updates | standard | Yes | chevrons-up |  | 2025-10-07 | Parses migration records from photos.sqlite database | ``*/PhotoData/Photos.sqlite*`` |
 | [pingertextfree.py](/scripts/artifacts/pingertextfree.py) | pingertextfree | Text Free - Pinger | Pinger | standard | No |  | 0.0.1 |  | Text free messages | ``*/Messaging_*.sqlite*`` |
 | [potatoChat.py](/scripts/artifacts/potatoChat.py) | potatochat_chats | Potato Chat - Chats | Potato Chat | standard | No | message-square |  | 2025-08-30 | Extract chats from Potato Chat | ``*/mobile/Containers/Shared/AppGroup/*/Documents/tgdata.db*``, ``*/mobile/Containers/Shared/AppGroup/*/Documents/files/*``, ``*/mobile/Containers/Shared/AppGroup/*/Documents/video/*`` |
 | [potatoChat.py](/scripts/artifacts/potatoChat.py) | potatochat_group_chats | Potato Chat - Group Chats | Potato Chat | standard | No | message-square |  | 2025-08-30 | Extract group chats from Potato Chat, based off the work by Forrest Cook - https://github.com/Whee30 | ``*/mobile/Containers/Shared/AppGroup/*/Documents/tgdata.db*``, ``*/mobile/Containers/Shared/AppGroup/*/Documents/shareDialogList.db*``, ``*/mobile/Containers/Shared/AppGroup/*/Documents/files/*``, ``*/mobile/Containers/Shared/AppGroup/*/Documents/video/*`` |
