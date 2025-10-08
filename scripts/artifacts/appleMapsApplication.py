@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "",
         "author": "@AlexisBrignoni",
         "creation_date": "2020-08-03",
-        "last_update_date": "2024-12-20",
+        "last_update_date": "2025-10-08",
         "requirements": "none",
         "category": "Locations",
         "notes": "",
@@ -19,7 +19,8 @@ import blackboxprotobuf
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content
 
 @artifact_processor
-def appleMapsApplication(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def appleMapsApplication(context):
+    files_found = context.get_files_found()
     source_path = get_file_path(files_found, "com.apple.Maps.plist")
     data_list = []
     

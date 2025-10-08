@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Extraction of alarms set",
         "author": "Anna-Mariya Mateyna",
         "creation_date": "2021-01-17",
-        "last_update_date": "2024-12-22",
+        "last_update_date": "2025-10-08",
         "requirements": "none",
         "category": "Clock",
         "notes": "",
@@ -43,7 +43,8 @@ def decode_repeat_schedule(repeat_schedule_value):
 
 
 @artifact_processor
-def alarms(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def alarms(context):
+    files_found = context.get_files_found()
     source_path = get_file_path(files_found, "com.apple.mobiletimerd.plist")
     data_list = []
 
@@ -95,6 +96,7 @@ def alarms(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
                 data_list.append(
                     (fire_date, 
+                    None, # alarm time 
                     alarm_title, 
                     sleep_alarm_dict['MTAlarmEnabled'], 
                     dismiss_date, 
