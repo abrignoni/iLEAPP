@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Extraction of timers set",
         "author": "Mohammad Natiq Khan",
         "creation_date": "2024-12-22",
-        "last_update_date": "2024-12-22",
+        "last_update_date": "2025-10-09",
         "requirements": "none",
         "category": "Clock",
         "notes": "",
@@ -15,12 +15,10 @@ __artifacts_v2__ = {
 }
 
 import datetime
-
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content
-from scripts.context import Context
 
 @artifact_processor
-def timer(context:Context):
+def timer(context):
     files_found = context.get_files_found()
     source_path = get_file_path(files_found, "com.apple.mobiletimerd.plist")
     data_list = []
@@ -31,7 +29,6 @@ def timer(context:Context):
             for timers in pl['MTTimers']['MTTimers']:
                 timers_dict = timers['$MTTimer']
                 timer_title = timers_dict.get('MTTimerTitle', '')
-                timer_time = timers_dict.get('MTTimerDuration', '')
                 timer_state = timers_dict.get('MTTimerState', '')
                 timer_duration = timers_dict.get('MTTimerDuration', '')
                 timer_lastModified = timers_dict.get('MTTimerLastModifiedDate', '')
