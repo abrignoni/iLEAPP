@@ -42,7 +42,7 @@ def get_viber(files_found, report_folder, seeker, wrap_text, timezone_offset):
 	for file_found in files_found:
 		file_found = str(file_found)
 
-		iosversion = iOS.get_version()
+		iOSversion = iOS.get_version()
 		if version.parse(iOSversion) < version.parse("14"):
 			logfunc("Viber parsing has not be tested on this iOS " + iOSversion + " version. Please contact @theAtropos4n6 for resolving this issue.")
 
