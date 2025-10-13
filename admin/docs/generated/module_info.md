@@ -13,9 +13,9 @@ Number of v1 artifacts: 85
 Number of v2 artifacts: 350  
 Number of artifacts with 'lava output': 327  
 Number of artifacts using 'artifact_icon': 222  
-Number of artifacts using 'version': 256  
+Number of artifacts using 'version': 255  
 Number of artifacts using 'last_update_date': 113  
-Number of artifacts using context parameter: 35  
+Number of artifacts using context parameter: 39  
 Number of artifacts with errors or no recognized artifacts: 3  
 
 ## V2 Artifacts Table
@@ -24,7 +24,7 @@ Number of artifacts with errors or no recognized artifacts: 3
 |--------|----------|------|----------|--------------|---------|------|---------|------------------|-------------|-------|
 | [AMDSQLiteDB.py](/scripts/artifacts/AMDSQLiteDB.py) | AMDSQLiteDB_UsageEvents | App Usage Events (AMDSQLiteDB) | App Usage | standard | No | activity |  |  | Apple App Store application foreground events | ``*/mobile/Containers/Data/PluginKitPlugin/*/Documents/AMDSQLite.db.0*``, ``*/mobile/Library/Caches/com.apple.appstored/storeUser.db*`` |
 | [AMDSQLiteDB.py](/scripts/artifacts/AMDSQLiteDB.py) | AMDSQLiteDB_StorageCapacity | Device Storage Capacity | Device Information | standard | No | hard-drive |  |  | Shows storage capacity size over time | ``*/mobile/Containers/Data/PluginKitPlugin/*/Documents/AMDSQLite.db.0*`` |
-| [Airbnb.py](/scripts/artifacts/Airbnb.py) | get_airbnb_messages | Airbnb - Messages | Airbnb | standard | No | message-square | 0.0.1 | 2025-04-29 | Messages sent and received in the Airbnb App | ``*/Containers/Data/Application/*/Library/Application Support/user_*_messaging_core.sqlite3*`` |
+| [Airbnb.py](/scripts/artifacts/Airbnb.py) | get_airbnb_messages | Airbnb - Messages | Airbnb | standard | Yes | message-square |  | 2025-10-03 | Messages sent and received in the Airbnb App | ``*/Containers/Data/Application/*/Library/Application Support/user_*_messaging_core.sqlite3*`` |
 | [ConnectedDeviceInformation.py](/scripts/artifacts/ConnectedDeviceInformation.py) | connected_device_info_device_history | Connected Device Information - Connected Device and OS History | Device Information | standard | Yes | smartphone |  | 2025-09-29 | Connected Devices | ``*Health/healthdb_secure.sqlite*`` |
 | [ConnectedDeviceInformation.py](/scripts/artifacts/ConnectedDeviceInformation.py) | connected_device_info_consolidated_connected_device_history | Connected Device Information - Consolidated Connected Device History | Device Information | standard | Yes | smartphone |  | 2025-09-29 | Connected Devices | ``*Health/healthdb_secure.sqlite*`` |
 | [ConnectedDeviceInformation.py](/scripts/artifacts/ConnectedDeviceInformation.py) | connected_device_information_current_device_info | Connected Device Information - Current Device Information | Device Information | standard | Yes | smartphone |  | 2025-09-29 | Connected Devices | ``*Health/healthdb.sqlite*`` |
@@ -121,10 +121,10 @@ Number of artifacts with errors or no recognized artifacts: 3
 | [WithingsHealthMate.py](/scripts/artifacts/WithingsHealthMate.py) | get_healthmate_measurements | Health Mate - Measurements | Withings Health Mate | standard | No | activity | 0.0.1 | 2025-04-23 | Existing Measurements data in Health Mate App from Withings. This decoding is based on the blog post https://bebinary4n6.blogspot.com/2024/09/app-heal | ``*/Library/Application Support/coredata/*_vasistas*`` |
 | [WithingsHealthMate.py](/scripts/artifacts/WithingsHealthMate.py) | get_healthmate_devices | Health Mate - Devices | Withings Health Mate | standard | No | watch | 0.0.1 | 2025-04-23 | Existing Devices data in Health Mate App from Withings. This decoding is based on the blog post https://bebinary4n6.blogspot.com/2024/09/app-healthmat | ``*/Library/Application Support/coredata/associated_device.sqlite`` |
 | [ZangiChats.py](/scripts/artifacts/ZangiChats.py) | Zangi_Chats | Zangi Chats | Chats |  | No |  | 0.0.1 |  | Parses Zangi Chat database | ``*/mobile/Containers/Shared/AppGroup/*/zangidb.sqlite*`` |
-| [accountConfig.py](/scripts/artifacts/accountConfig.py) | accountConfig | Account Configuration | Accounts | html, tsv, lava | No | user |  | 2025-04-05 | Extracts account configuration information | ``*/preferences/SystemConfiguration/com.apple.accounts.exists.plist`` |
-| [accountData.py](/scripts/artifacts/accountData.py) | accountData | Account Data | Accounts | standard | No | user |  | 2025-04-05 | Configured user accounts | ``*/mobile/Library/Accounts/Accounts3.sqlite*`` |
-| [addressBook.py](/scripts/artifacts/addressBook.py) | addressBook | Address Book | Contacts | standard | Yes | user |  | 2025-05-13 | Extract information from the native contacts application | ``*/mobile/Library/AddressBook/AddressBook*.sqlitedb*`` |
-| [advertisingID.py](/scripts/artifacts/advertisingID.py) | advertisingID | Advertising Identifier | Identifiers | none | No | settings |  | 2024-12-17 | Extract Apple advertising identifier | ``*/containers/Shared/SystemGroup/*/Library/Caches/com.apple.lsdidentifiers.plist`` |
+| [accountConfig.py](/scripts/artifacts/accountConfig.py) | accountConfig | Account Configuration | Accounts | html, tsv, lava | Yes | user |  | 2025-10-03 | Extracts account configuration information | ``*/preferences/SystemConfiguration/com.apple.accounts.exists.plist`` |
+| [accountData.py](/scripts/artifacts/accountData.py) | accountData | Account Data | Accounts | standard | Yes | user |  | 2025-10-03 | Configured user accounts | ``*/mobile/Library/Accounts/Accounts3.sqlite*`` |
+| [addressBook.py](/scripts/artifacts/addressBook.py) | addressBook | Address Book | Contacts | standard | Yes | user |  | 2025-10-03 | Extract information from the native contacts application | ``*/mobile/Library/AddressBook/AddressBook*.sqlitedb*`` |
+| [advertisingID.py](/scripts/artifacts/advertisingID.py) | advertisingID | Advertising Identifier | Identifiers | none | Yes | settings |  | 2025-10-03 | Extract Apple advertising identifier | ``*/containers/Shared/SystemGroup/*/Library/Caches/com.apple.lsdidentifiers.plist`` |
 | [airdropId.py](/scripts/artifacts/airdropId.py) | airdropId | Airdrop ID | Identifiers | none | No | settings |  | 2025-01-28 | Extract Airdrop ID | ``*/mobile/Library/Preferences/com.apple.sharingd.plist`` |
 | [allTrails.py](/scripts/artifacts/allTrails.py) | allTrailsTrailDetails | AllTrails - Trail Details | Health & Fitness | html, tsv, lava | No | map |  | 2024-12-17 | Extract trail details from AllTrails App | ``*/Documents/AllTrails.sqlite*`` |
 | [allTrails.py](/scripts/artifacts/allTrails.py) | allTrailsUserInfo | AllTrails - User Info | Health & Fitness | all | No | user |  | 2024-12-17 | Extract user info from AllTrails App | ``*/Documents/AllTrails.sqlite*`` |
