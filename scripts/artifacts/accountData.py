@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         'description': 'Configured user accounts',
         'author': '@AlexisBrignoni',
         'creation_date': '2020-04-30',
-        'last_update_date': '2025-04-05',
+        "last_update_date": "2025-10-03",
         'requirements': 'none',
         'category': 'Accounts',
         'notes': '',
@@ -18,9 +18,9 @@ __artifacts_v2__ = {
 from scripts.ilapfuncs import artifact_processor, \
     get_file_path, get_sqlite_db_records, convert_cocoa_core_data_ts_to_utc
 
-
 @artifact_processor
-def accountData(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def accountData(context):
+    files_found = context.get_files_found()
     source_path = get_file_path(files_found, 'Accounts3.sqlite')
     data_list = []
 
