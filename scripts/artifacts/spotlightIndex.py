@@ -16,7 +16,7 @@ __artifacts_v2__ = {
 
 import os
 import datetime
-from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv, convert_ts_human_to_timezone_offset
+from scripts.ilapfuncs import artifact_processor
 
 @artifact_processor
 def get_spotlightIndexCache(context):
