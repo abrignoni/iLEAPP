@@ -151,7 +151,7 @@ def addressBook(context):
 
     data_headers = [
         ('Creation Date', 'datetime'),
-        ('Modification Date', 'datetime')
+        ('Modification Date', 'datetime'),
         ('Thumbnail', 'media', 'height: 80px; border-radius: 50%;'),
         ('Full Size Image', 'media', 'height: 80px;'),
         'Prefix', 
