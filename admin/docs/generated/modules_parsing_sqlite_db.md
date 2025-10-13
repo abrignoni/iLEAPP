@@ -74,6 +74,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | tileAppDisc |
 | tileAppNetDb |
 | twint |
+| viber |
 | voicemail |
 | whatsApp |
 | wire |
@@ -161,7 +162,6 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | trustedPeers |
 | uberClient |
 | uberPlaces |
-| viber |
 | vipps |
 | vippsContacts |
 | waze |
