@@ -18,7 +18,7 @@ from scripts.lavafuncs import *
 
 def pickModules():
     '''Create a list of available modules:
-        - iTunesBackupInfo, iTunesBackupInstalledApplications, lastBuild and Ph100-UFED-device-values-Plist that need 
+        - itunes_backup_info, itunes_backup_installed_applications, last_build and Ph100-UFED-device-values-Plist that need 
         to be executed first are excluded
         - logarchive_artifacts is also excluded as it uses the LAVA SQLite database to extract 
         relevant event messages from the logarchive table and must be executed only if logarchive 
@@ -27,7 +27,7 @@ def pickModules():
     global mlist
     for plugin in sorted(loader.plugins, key=lambda p: p.category.upper()):
         if (plugin.module_name == 'iTunesBackupInfo'
-                or plugin.name == 'lastBuild'
+                or plugin.name == 'last_build'
                 or plugin.module_name == 'logarchive' and plugin.name != 'logarchive'):
             continue
         # Items that take a long time to execute are deselected by default
