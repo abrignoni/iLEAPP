@@ -32,6 +32,10 @@ def get_appItunesmeta(context):
             #         plist = biplist.readPlist(fp)
             
             plist = get_plist_file_content(file_found)
+            
+            # Check if plist is a valid parseable object
+            if not plist or not isinstance(plist, dict):
+                continue
                 
             purchasedate = plist.get('com.apple.iTunesStore.downloadInfo', {}).get('purchaseDate', '')
             #print(purchasedate, timezone_offset)
@@ -58,9 +62,13 @@ def get_appItunesmeta(context):
             if os.path.exists(itunes_metadata_path):
                 #with open(itunes_metadata_path, 'rb') as f:
                 deserialized_plist = get_plist_file_content(itunes_metadata_path)
-                install_date = deserialized_plist.get('installDate', '')
-                #print(install_date, type(install_date))
-                install_date = convert_time_obj_to_utc(install_date)
+                # Check if plist is a valid parseable object
+                if not plist or not isinstance(plist, dict):
+                    install_date = ''
+                else:
+                    install_date = deserialized_plist.get('installDate', '')
+                    #print(install_date, type(install_date))
+                    install_date = convert_time_obj_to_utc(install_date)
             else:
                 install_date = ''
     
