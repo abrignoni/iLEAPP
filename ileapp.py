@@ -183,7 +183,7 @@ def main():
     loader = plugin_loader.PluginLoader()
     for plugin in sorted(loader.plugins, key=lambda p: p.category):
         if (plugin.module_name == 'iTunesBackupInfo'
-                or plugin.name == 'lastBuild'
+                or plugin.name == 'last_build'
                 or plugin.module_name == 'logarchive' and plugin.name != 'logarchive'):
             continue
         else:
@@ -209,15 +209,21 @@ def main():
     if args.artifact_paths:
         print('Artifact path list generation started.')
         print('')
-        with open('path_list.txt', 'a') as paths:
-            for plugin in loader.plugins:
-                if isinstance(plugin.search, tuple):
-                    for x in plugin.search:
-                        paths.write(x + '\n')
-                        print(x)
-                else:  # TODO check that this is actually a string?
-                    paths.write(plugin.search + '\n')
-                    print(plugin.search)
+        path_list = set()
+        for plugin in loader.plugins:
+            if plugin.module_name == 'logarchive':
+                continue
+            if isinstance(plugin.search, tuple):
+                for x in plugin.search:
+                    path_list.add(x)
+            elif isinstance(plugin.search, str):
+                path_list.add(plugin.search)
+            else:
+                continue
+        with open('path_list.txt', 'w') as paths:
+            for path in sorted(path_list):
+                paths.write(f'{path}\n')
+                print(path)
         print('')
         print('Artifact path list generation completed')
         return
@@ -386,11 +392,11 @@ def crunch_artifacts(
         return False
 
     # Now ready to run
-    # add lastBuild at the start except for iTunes backups
+    # add last_build at the start except for iTunes backups
     if extracttype != 'itunes':
-        plugins.insert(0, loader["lastBuild"])
+        plugins.insert(0, loader["last_build"])
 
-    logfunc(f'Info: {len(loader) - 2} modules loaded.') # excluding lastbuild and iTunesBackupInfo
+    logfunc(f'Info: {len(loader) - 2} modules loaded.') # excluding last_build and iTunesBackupInfo
     if profile_filename:
         logfunc(f'Loaded profile: {profile_filename}')
     logfunc(f'Artifact to parse: {len(plugins)}')
@@ -416,7 +422,7 @@ def crunch_artifacts(
                 except (FileExistsError, FileNotFoundError) as ex:
                     logfunc('Error creating report directory at path {}'.format(report_folder))
                     logfunc('Error was {}'.format(str(ex)))
-            loader["iTunesBackupInfo"].method([info_plist_path], report_folder, seeker, wrap_text, time_offset)
+            loader["itunes_backup_info"].method([info_plist_path], report_folder, seeker, wrap_text, time_offset)
             report_folder = os.path.join(out_params.report_folder_base, '_HTML', 'Installed Apps')
             if not os.path.exists(report_folder):
                 try:
@@ -424,8 +430,8 @@ def crunch_artifacts(
                 except (FileExistsError, FileNotFoundError) as ex:
                     logfunc('Error creating report directory at path {}'.format(report_folder))
                     logfunc('Error was {}'.format(str(ex)))
-            loader["iTunesBackupInstalledApplications"].method([info_plist_path], report_folder, seeker, wrap_text, time_offset)
-            #del search_list['lastBuild'] # removing lastBuild as this takes its place
+            loader["itunes_backup_installed_applications"].method([info_plist_path], report_folder, seeker, wrap_text, time_offset)
+            #del search_list['last_build'] # removing last_build as this takes its place
             print([info_plist_path])  # TODO Remove special consideration for itunes? Merge into main search
         else:
             logfunc('Info.plist not found for iTunes Backup!')

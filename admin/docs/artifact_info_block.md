@@ -71,7 +71,7 @@ __artifacts_v2__ = {
         "data_views": {
             "table": {}, # optional
             "conversation": {
-                "conversationColumn": "Chat ID",
+                "conversationDiscriminatorColumn": "Chat ID",
                 "conversationLabelColumn": "Chat Contact ID",
                 "textColumn": "Message",
                 "senderColumn": "Chat Contact ID",

@@ -11,6 +11,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | AMDSQLiteDB |
 | Airbnb |
 | BeReal |
+| ConnectedDeviceInformation |
 | LinkedIn |
 | Ph11KwrdsCapsTitlesDescripsBasicAssetData |
 | Ph15PeopleandDetFacesNAD |
@@ -51,6 +52,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | allTrails |
 | appleWalletCards |
 | appleWalletTransactions |
+| biomeSync |
 | booking |
 | callHistory |
 | cashAppB |
@@ -59,9 +61,11 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | filesApp |
 | foursquareSwarm |
 | googleTranslate |
+| health |
 | logarchive |
 | nsVault |
 | payByPhone |
+| photosMigration |
 | potatoChat |
 | sms |
 | splitwise |
@@ -71,6 +75,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | tileAppDisc |
 | tileAppNetDb |
 | twint |
+| viber |
 | voicemail |
 | whatsApp |
 | wire |
@@ -80,7 +85,6 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 <!-- READONLY_START -->
 | Source Modules |
 |----------------|
-| ConnectedDeviceInformation |
 | DataUsage |
 | FitnessWorkoutsLocationData |
 | Oops |
@@ -93,7 +97,6 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | appleWalletPasses |
 | applicationStateDB |
 | atxDatastore |
-| biomeSync |
 | bluetoothOther |
 | bluetoothPairedLE |
 | bumble |
@@ -116,7 +119,6 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | gmail |
 | googleChat |
 | googleDuo |
-| health |
 | hikvision |
 | imoHD_Chat |
 | instagramThreads |
@@ -138,7 +140,6 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | parsecdCache |
 | photosDbexif |
 | photosMetadata |
-| photosMigration |
 | pingertextfree |
 | protonMail |
 | queryPredictions |
@@ -152,7 +153,6 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | secretCalculator |
 | serialNumber |
 | slack |
-| syncDev |
 | teams |
 | telegramMesssages |
 | teleguard |
@@ -162,7 +162,6 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | trustedPeers |
 | uberClient |
 | uberPlaces |
-| viber |
 | vipps |
 | vippsContacts |
 | waze |

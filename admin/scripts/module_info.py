@@ -111,6 +111,7 @@ def extract_v2_info(module_content):
         results.append({
             "artifact": artifact_name,
             "name": clean_string(details.get("name", "")),
+            "category": details.get("category", ""),
             "description": clean_string(details.get("description", "")),
             "paths": paths,
             "output_types": output_types,
@@ -180,15 +181,16 @@ def generate_v2_markdown_table(artifact_data):
     Returns:
         str: A string containing the formatted markdown table.
     """
-    table = "| Module | Artifact | Name | Output Types | Context | Icon " + \
+    table = "| Module | Artifact | Name | Category | Output Types | Context | Icon " + \
         "| Version | Last Update Date | Description | Paths |\n"
-    table += "|--------|----------|------|--------------|---------|------" + \
+    table += "|--------|----------|------|----------|--------------|---------|------" + \
         "|---------|------------------|-------------|-------|\n"
     for module, artifacts in artifact_data.items():
         module_link = f"[{module}]({GITHUB_MODULE_URL}{module})"
         for artifact in artifacts:
             name = clean_string(artifact.get('name', ''))
             description = clean_string(artifact.get('description', ''))
+            category = artifact.get('category', '')
             paths = artifact.get('paths', '')
             if isinstance(paths, (list, tuple)):
                 paths = ', '.join(f'`{path}`' for path in paths)
@@ -200,7 +202,7 @@ def generate_v2_markdown_table(artifact_data):
             version = artifact.get('version', '')
             last_update_date = artifact.get('last_update_date', '')
             table += f"| {module_link} | {artifact['artifact']} | {name} " + \
-                f"| {output_types} | {context} | {artifact_icon} | " + \
+                f"| {category} | {output_types} | {context} | {artifact_icon} | " + \
                 f"{version} | {last_update_date} | {description} | {paths} |\n"
 
     return table

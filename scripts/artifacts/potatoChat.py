@@ -16,9 +16,9 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'message-square',
         'data_views': {
-            'chat': {
-                'threadDiscriminatorColumn': 'Chat-ID',
-                'threadLabelColumn': 'Chat',
+            'conversation': {
+                'conversationDiscriminatorColumn': 'Chat-ID',
+                'conversationLabelColumn': 'Chat',
                 'textColumn': 'Message',
                 'directionColumn': 'From Me',
                 'directionSentValue': 1,
@@ -46,9 +46,9 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'message-square',
         'data_views': {
-            'chat': {
-                'threadDiscriminatorColumn': 'Group-ID',
-                'threadLabelColumn': 'Group Name',
+            'conversation': {
+                'conversationDiscriminatorColumn': 'Group-ID',
+                'conversationLabelColumn': 'Group Name',
                 'textColumn': 'Message',
                 'directionColumn': 'From Me',
                 'directionSentValue': 1,
@@ -202,7 +202,12 @@ def potatochat_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone
         message_date = datetime.datetime.fromtimestamp(record['date'], tz=datetime.timezone.utc)
         chat_name = record['chat']
         chat_id = record['cid']
-        message_id = record['mid']
+        message_id = str(record['mid'])
+        if message_id.startswith("8"):
+            message_id = message_id[message_id.rfind("0")+1:]
+        if message_id.startswith("-"):
+            message_id = (int(message_id) - 1) & 0xFFFF
+
         sender = 'Local User' if record['outgoing'] == 1 else record['from_name']
         sender_id = record['from_id']
         receiver = record['to_name'] if record['outgoing'] == 1 else 'Local User'
@@ -333,7 +338,11 @@ def potatochat_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone
                         nr_start = reblob.find(pattern, replystart)
                         id_start = nr_start + len(pattern)
                         id_bytes = reblob[id_start:id_start+4]
-                        reply = struct.unpack("<I", id_bytes)[0]
+                        reply = str(struct.unpack("<I", id_bytes)[0])
+                        if reply.startswith("8"):
+                            reply = reply[reply.rfind("0")+1:]
+                        if reply.startswith("-"):
+                            reply = (int(reply) - 1) & 0xFFFF
                     except (IndexError, struct.error):
                         pass
 
@@ -559,7 +568,11 @@ def potatochat_group_chats(files_found, _report_folder, _seeker, _wrap_text, _ti
                 else:
                     user_name = group_name
             elif ASCII_title == 'i':
-                message_id = int.from_bytes(payload_data, byteorder='little')
+                message_id = str(int.from_bytes(payload_data, byteorder='little'))
+                if message_id.startswith("8"):
+                    message_id = message_id[message_id.rfind("0")+1:]
+                if message_id.startswith("-"):
+                    message_id = (int(message_id) - 1) & 0xFFFF
             elif ASCII_title == 'out':
                 outgoing = int.from_bytes(payload_data, byteorder='little')
             elif ASCII_title == "md":

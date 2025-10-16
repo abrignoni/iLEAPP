@@ -1027,6 +1027,10 @@ def convert_unix_ts_in_seconds(ts):
 
 def convert_unix_ts_to_utc(ts):
     if ts:
+        try:
+            ts = float(ts)
+        except ValueError:
+            return ts
         ts = convert_unix_ts_in_seconds(ts)
         return datetime.fromtimestamp(ts, tz=timezone.utc)
     else:
@@ -1156,6 +1160,10 @@ def convert_plist_date_to_utc(plist_date):
 def get_birthdate(date):
     cocoa_epoch = datetime(2001, 1, 1, tzinfo=timezone.utc) # Create our own epoch to avoid gmtime() errors in fromtimestamp().
     utc_date = cocoa_epoch + timedelta(seconds=date)
+    return utc_date.strftime('%d %B %Y') if utc_date.year != 1604 else utc_date.strftime('%d %B')
+
+def get_birthdate_from_unix_ts(date):
+    utc_date = convert_unix_ts_to_utc(date)
     return utc_date.strftime('%d %B %Y') if utc_date.year != 1604 else utc_date.strftime('%d %B')
 
 def convert_bytes_to_unit(size):
