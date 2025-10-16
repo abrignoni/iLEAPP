@@ -26,6 +26,9 @@ def appGrouplisting(context):
     
     for file_found in context.get_files_found():
         plist = get_plist_file_content(file_found)
+        # Check if plist is a valid parseable object
+        if not plist or not isinstance(plist, dict):
+            continue
         bundleid = plist['MCMMetadataIdentifier']
         
         p = pathlib.Path(file_found)
