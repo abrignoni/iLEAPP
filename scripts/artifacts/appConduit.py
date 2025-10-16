@@ -106,7 +106,8 @@ def app_conduit(context):
                 #     data_list.append((dtime_obj,info,device_id,device_type_tmp,file_name))
 
     data_headers = (('Timestamp', 'datetime'), 'Device interaction',
-                    'Device ID', 'Device type and OS version', 'Log File Name')
+                    'Device ID', 'Pairing ID', 'Device Type', 'Device Model',
+                    'OS Build', 'OS Version', 'Log File Name')
     source_path = 'see Log File Name for more info'
 
     return data_headers, data_list, source_path
