@@ -23,6 +23,11 @@ def appleLocationd(context):
     data_list = []
 
     pl = get_plist_file_content(source_path)
+    
+    # Check if plist is valid before processing
+    if not pl or not isinstance(pl, dict):
+        return (), [], ''
+    
     for key, val in pl.items():
         if key == 'LocationServicesEnabledIn8.0':
             data_list.append(('Location Services Enabled', val))

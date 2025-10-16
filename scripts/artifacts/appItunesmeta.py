@@ -62,8 +62,8 @@ def get_appItunesmeta(context):
             if os.path.exists(itunes_metadata_path):
                 #with open(itunes_metadata_path, 'rb') as f:
                 deserialized_plist = get_plist_file_content(itunes_metadata_path)
-                # Check if plist is a valid parseable object
-                if not plist or not isinstance(plist, dict):
+                # Check if deserialized_plist is a valid parseable object
+                if not deserialized_plist or not isinstance(deserialized_plist, dict):
                     install_date = ''
                 else:
                     install_date = deserialized_plist.get('installDate', '')

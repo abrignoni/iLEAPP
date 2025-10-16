@@ -26,6 +26,10 @@ def appleMapsApplication(context):
     
     plist = get_plist_file_content(source_path)
     
+    # Check if plist is valid before processing
+    if not plist or not isinstance(plist, dict):
+        return (), [], ''
+    
     types = {'1': {'type': 'double', 'name': 'Latitude'},
             '2': {'type': 'double', 'name': 'Longitude'}, 
             '3': {'type': 'double', 'name': ''}, 

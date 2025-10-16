@@ -24,6 +24,9 @@ def appleMapsGroup(context):
     data_list = []
 
     pl = get_plist_file_content(source_path)
+    # Check if plist is valid before processing
+    if not pl or not isinstance(pl, dict):
+        return (), [], ''
     maps_activity = pl.get('MapsActivity', None)
     if maps_activity:
         types = {'1': {'type': 'message', 'message_typedef': 

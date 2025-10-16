@@ -14,7 +14,7 @@ __artifacts_v2__ = {
     }
 }
 
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content, convert_plist_date_to_utc
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content, convert_plist_date_to_utc, logfunc
 
 def decode_repeat_schedule(repeat_schedule_value):
     days_list = {
@@ -49,6 +49,11 @@ def alarms(context):
     data_list = []
 
     pl = get_plist_file_content(source_path)
+    
+    # Check if plist is valid before processing
+    if not pl or not isinstance(pl, dict):
+        return (), [], ''
+        
     if 'MTAlarms' in pl:
         if 'MTAlarms' in pl['MTAlarms']:
             for alarms in pl['MTAlarms']['MTAlarms']:
@@ -83,6 +88,7 @@ def alarms(context):
 
         if 'MTSleepAlarm' in pl['MTAlarms']:
             for sleep_alarms in pl['MTAlarms']['MTSleepAlarm']:
+                logfunc(sleep_alarms)
                 sleep_alarm_dict = pl['MTAlarms']['MTSleepAlarm'][sleep_alarms]
 
                 alarm_title = sleep_alarm_dict.get('MTAlarmTitle', 'Bedtime')
