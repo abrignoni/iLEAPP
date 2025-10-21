@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Extract trail details from AllTrails App",
         "author": "@stark4n6",
         "creation_date": "2022-04-28",
-        "last_update_date": "2024-12-17",
+        "last_update_date": "2025-10-08",
         "requirements": "none",
         "category": "Health & Fitness",
         "notes": "",
@@ -17,7 +17,7 @@ __artifacts_v2__ = {
         "description": "Extract user info from AllTrails App",
         "author": "@stark4n6",
         "creation_date": "2022-04-28",
-        "last_update_date": "2024-12-17",
+        "last_update_date": "2025-10-08",
         "requirements": "none",
         "category": "Health & Fitness",
         "notes": "",
@@ -30,7 +30,8 @@ __artifacts_v2__ = {
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, convert_cocoa_core_data_ts_to_utc
 
 @artifact_processor
-def allTrailsTrailDetails(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def allTrailsTrailDetails(context):
+    files_found = context.get_files_found()
     source_path = get_file_path(files_found, "AllTrails.sqlite")
     data_list = []
 
@@ -87,7 +88,8 @@ def allTrailsTrailDetails(files_found, report_folder, seeker, wrap_text, timezon
 
 
 @artifact_processor
-def allTrailsUserInfo(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def allTrailsUserInfo(context):
+    files_found = context.get_files_found()
     source_path = get_file_path(files_found, "AllTrails.sqlite")
     data_list = []
 
