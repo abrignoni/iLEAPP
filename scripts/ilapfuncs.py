@@ -1162,6 +1162,10 @@ def get_birthdate(date):
     utc_date = cocoa_epoch + timedelta(seconds=date)
     return utc_date.strftime('%d %B %Y') if utc_date.year != 1604 else utc_date.strftime('%d %B')
 
+def get_birthdate_from_unix_ts(date):
+    utc_date = convert_unix_ts_to_utc(date)
+    return utc_date.strftime('%d %B %Y') if utc_date.year != 1604 else utc_date.strftime('%d %B')
+
 def convert_bytes_to_unit(size):
     if size:
         for unit in ['bytes', 'KB', 'MB', 'GB']:

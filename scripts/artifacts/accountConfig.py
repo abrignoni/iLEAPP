@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         'description': 'Extracts account configuration information',
         'author': '@AlexisBrignoni',
         'creation_date': '2020-04-30',
-        'last_update_date': '2025-04-05',
+        "last_update_date": "2025-10-03",
         'requirements': 'none',
         'category': 'Accounts',
         'notes': '',
@@ -17,9 +17,9 @@ __artifacts_v2__ = {
 
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content
 
-
 @artifact_processor
-def accountConfig(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def accountConfig(context):
+    files_found = context.get_files_found()
     source_path = get_file_path(files_found, 'com.apple.accounts.exists.plist')
     data_list = []
 
