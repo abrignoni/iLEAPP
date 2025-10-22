@@ -19,10 +19,6 @@ __artifacts_v2__ = {
     },
 }
 
-
-import inspect
-import hashlib
-import shutil
 from pathlib import Path
 
 from PIL import Image
