@@ -115,7 +115,7 @@ __artifacts_v2__ = {
 from packaging import version
 from scripts.ilapfuncs import artifact_processor, get_file_path, \
     attach_sqlite_db_readonly, get_sqlite_db_records, get_plist_content, \
-    convert_bytes_to_unit, convert_unix_ts_to_utc, iOS
+    convert_bytes_to_unit, convert_unix_ts_to_utc
 
 
 def get_tree_structure(source_path):
@@ -180,8 +180,8 @@ def icloud_application_list(context):
     source_path = get_file_path(files_found, "client.db")
     data_list = []
 
-    ios_version = iOS.get_version()
-    if version.parse(ios_version) < version.parse('18'):
+    os_version = context.get_installed_os_version()
+    if version.parse(os_version) < version.parse('18'):
         query = '''
         SELECT
             app_libraries.app_library_name,

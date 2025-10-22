@@ -8,15 +8,12 @@
 # Requirements: -
 
 __artifacts_v2__ = {
-
-    
     "get_airbnb_messages": {
         "name": "Airbnb - Messages",
         "description": "Messages sent and received in the Airbnb App",
         "author": "Marco Neumann {kalinko@be-binary.de}",
-        "version": "0.0.1",
-        "creatin_date": "2024-04-29",
-        "last_update_date": "2025-04-29",
+        "creation_date": "2024-04-29",
+        "last_update_date": "2025-10-03",
         "requirements": "",
         "category": "Airbnb",
         "notes": "",
@@ -26,11 +23,11 @@ __artifacts_v2__ = {
     }
 }
 
-from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records
+from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, convert_human_ts_to_utc
 
 @artifact_processor
-def get_airbnb_messages(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    files_found = [x for x in files_found if not x.endswith('wal') and not x.endswith('shm')]
+def get_airbnb_messages(context):
+    files_found = [x for x in context.get_files_found() if not x.endswith('wal') and not x.endswith('shm')]
     
     query = ('''
         SELECT
@@ -51,9 +48,9 @@ def get_airbnb_messages(files_found, _report_folder, _seeker, _wrap_text, _timez
 
     data_list = []
     for row in db_records:
-        created = row[0]
-        updated = row[1]
-        fetched = row[2]
+        created = convert_human_ts_to_utc(row[0])
+        updated = convert_human_ts_to_utc(row[1])
+        fetched = convert_human_ts_to_utc(row[2])
         thread_id = row[3]
         sender_user_id = row[4]
         sender_user_type = row[5]
@@ -63,7 +60,7 @@ def get_airbnb_messages(files_found, _report_folder, _seeker, _wrap_text, _timez
 
         data_list.append((created, updated, fetched, thread_id, sender_user_id, sender_user_type, sender_display_name, orig_message, trans_message))
 
-    data_headers = ('Created Date', 'Updated Date', 'Fetched Date', 'Thread ID', 'Sender User ID', 'Sender User Type', 'Sender Display Name', 'Original Message', 'Translated Message')
+    data_headers = (('Created Date', 'datetime'), ('Updated Date', 'datetime'), ('Fetched Date', 'datetime'), 'Thread ID', 'Sender User ID', 'Sender User Type', 'Sender Display Name', 'Original Message', 'Translated Message')
     
     return data_headers, data_list, files_found[0]
 
