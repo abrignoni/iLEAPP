@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Extract Apple podcasts shows.",
         "author": "@stark4n6",
         "creation_date": "2021-07-21",
-        "last_update_date": "2025-10-09",
+        "last_update_date": "2025-10-22",
         "requirements": "none",
         "category": "Apple Podcasts",
         "notes": "",
@@ -16,7 +16,7 @@ __artifacts_v2__ = {
         "description": "Extract Apple podcasts episodes.",
         "author": "@stark4n6",
         "creation_date": "2021-07-21",
-        "last_update_date": "2025-10-09",
+        "last_update_date": "2025-10-22",
         "requirements": "none",
         "category": "Apple Podcasts",
         "notes": "",
@@ -139,4 +139,4 @@ def get_applePodcastsEpisodes(context):
 
             data_list.append((timestampimport,timestampmeta,timestamplastplay,timestamplastmod,timestampdowndate,row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12],row[13], file_found))
     
-    return data_list, data_headers, ''
+    return data_list, data_headers, 'see Source File for more info'
