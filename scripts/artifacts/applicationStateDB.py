@@ -31,26 +31,13 @@ Related work:
     https://gforce4n6.blogspot.com/2019/09/a-quick-look-into-ios-snapshots.html
 '''
 
-import biplist
-import io
-import nska_deserialize as nd
-import plistlib
-import sys
-from collections import namedtuple as _nt
-
-from scripts.ilapfuncs import open_sqlite_db_readonly
-from scripts.ilapfuncs import artifact_processor
-from scripts.ilapfuncs import logfunc
-from scripts.context import Context
-
-
 __artifacts_v2__ = {
     "get_installed_apps": {
         "name": "Application State",
         "description": "Extract information about bundle container path and data path for Applications",
         "author": "@AlexisBrignoni - @mxkrt",
         "creation_date": "2025-08-27",
-        "last_update_date": "2025-08-27",
+        "last_update_date": "2025-10-09",
         "requirements": "none",
         "category": "Installed Apps",
         "notes": "",
@@ -67,7 +54,7 @@ __artifacts_v2__ = {
                        "device, such as switching between apps.",
         "author": "@mxkrt",
         "creation_date": "2025-08-04",
-        "last_update_date": "2025-08-04",
+        "last_update_date": "2025-10-09",
         "requirements": "none",
         "category": "Device Usage",
         "notes": "",
@@ -85,7 +72,7 @@ __artifacts_v2__ = {
                        "device, such as switching between apps.",
         "author": "@mxkrt",
         "creation_date": "2025-08-04",
-        "last_update_date": "2025-08-04",
+        "last_update_date": "2025-10-09",
         "requirements": "none",
         "category": "Device Usage",
         "notes": "",
@@ -94,6 +81,9 @@ __artifacts_v2__ = {
         "artifact_icon": "smartphone"
     }
 }
+
+from collections import namedtuple as _nt
+from scripts.ilapfuncs import artifact_processor, get_file_path,logfunc, open_sqlite_db_readonly, get_plist_content
 
 
 # simply get all (application, key, value) entries, post-process in code
@@ -127,27 +117,24 @@ _snapshot_headers = ('Creation Date', 'Bundle ID', 'Snapshot Group',
 
 
 @artifact_processor
-def get_installed_apps(context:Context):
+def get_installed_apps(context):
     ''' get bundle container path and sandbox data path for installed applications '''
-
-    # this is a refactored version of the original applicationstate.py module
-    for file_found in context.get_files_found():
-        file_found = str(file_found)
-        if file_found.endswith('applicationState.db'):
-            break
+    
+    files_found = context.get_files_found()
+    file_found = get_file_path(files_found, 'applicationState.db')
 
     # get the records grouped by application identifier
     applications = _do_query(file_found)
     if applications is None:
-        return
+        return (), [], ''
 
     data_headers = ('Bundle ID','Bundle Path','Sandbox Path')
     data_list = []
     # iterate over the applications and collect results
     for appid, keyvals in applications.items():
         compat_info =  keyvals.get('compatibilityInfo')
-        compat_info = _parse_blob(appid, 'compatibilityInfo', compat_info)
-        if compat_info is None:
+        compat_info = get_plist_content(compat_info)
+        if compat_info is None or not isinstance(compat_info, dict):
             logfunc(f"NOTE: application {appid} has no compatibilityInfo")
             continue
         else:
@@ -159,26 +146,32 @@ def get_installed_apps(context:Context):
 
 
 @artifact_processor
-def get_snapshot_creationDate(context:Context):
+def get_snapshot_creationDate(context):
     ''' main artifact processor, parses XBApplicationSnapshotManifest snapshots '''
 
-    for file_found in context.get_files_found():
-        file_found = str(file_found)
-        if file_found.endswith('applicationState.db'):
-            break
+    files_found = context.get_files_found()
+    file_found = get_file_path(files_found, 'applicationState.db')
 
     data_list = _get_snapshots(file_found)
-    return _snapshot_headers, data_list, file_found
+    # TODO: Shouldn't we do any date handling?
+    data_headers = _snapshot_headers[:]
+    data_headers[0] = ('Creation Date', 'datetime')
+    data_headers[4] = ('Expiration Date', 'datetime')
+    data_headers[5] = ('Last Used Date', 'datetime')
+    return data_headers, data_list, file_found
 
 
 @artifact_processor
-def get_snapshot_lastUsedDate(context:Context):
+def get_snapshot_lastUsedDate(context):
     ''' add the lastUsedDate for each snapshot to the timeline '''
 
-    for file_found in context.get_files_found():
-        file_found = str(file_found)
-        if file_found.endswith('applicationState.db'):
-            break
+    # for file_found in context.get_files_found():
+    #     file_found = str(file_found)
+    #     if file_found.endswith('applicationState.db'):
+    #         break
+
+    files_found = context.get_files_found()
+    file_found = get_file_path(files_found, 'applicationState.db')
 
     data_list = _get_snapshots(file_found)
     new_data_list = []
@@ -243,14 +236,14 @@ def _get_snapshots(file_found):
 
         # check if we have XBApplicationSnapshotManifest that we can parse
         snap_info = keyvals.get('XBApplicationSnapshotManifest')
-        snap_info = _parse_blob(appid, 'XBApplicationSnapshotManifest', snap_info)
-        if snap_info is None:
+        snap_info = get_plist_content(snap_info)
+        if snap_info is None or not isinstance(snap_info, dict):
             continue
 
         # get compatibilityInfo blob so we can extract the BundleID
         compat_info =  keyvals.get('compatibilityInfo')
-        compat_info = _parse_blob(appid, 'compatibilityInfo', compat_info)
-        if compat_info is None:
+        compat_info = get_plist_content(compat_info)
+        if compat_info is None or not isinstance(compat_info, dict):
             # in this case, simply use application identifier as bundleID
             logfunc(f"NOTE: application {appid} has no compatibilityInfo")
             bundleID = appid
@@ -305,29 +298,3 @@ def _group_records(all_rows):
         else:
             applications[appid] = {key:value}
     return applications
-
-
-def _parse_blob(appid, key, blob):
-    ''' parse the blob, based on code in original applicationstate.py '''
-
-    if blob is None:
-        return
-
-    plist_file_object = io.BytesIO(blob)
-    if blob.find(b'NSKeyedArchiver') == -1:
-        if sys.version_info >= (3, 9):
-            plist = plistlib.load(plist_file_object)
-        else:
-            plist = biplist.readPlist(plist_file_object)
-    else:
-        try:
-            plist = nd.deserialize_plist(plist_file_object)
-        except (nd.DeserializeError, nd.biplist.NotBinaryPlistException, nd.biplist.InvalidPlistException,
-                nd.plistlib.InvalidFileException, nd.ccl_bplist.BplistError, ValueError, TypeError, OSError, OverflowError) as ex:
-            logfunc(f'WARNING: Failed to read blob {key} for application {appid}, error was:' + str(ex))
-            return
-
-    if not isinstance(plist, dict):
-        logfunc(f'WARNING: unexpected type for blob {key} for application {appid} :' +str(type(plist)))
-    else:
-        return plist
