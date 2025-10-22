@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Extraction of timers set",
         "author": "Mohammad Natiq Khan",
         "creation_date": "2024-12-22",
-        "last_update_date": "2025-10-09",
+        "last_update_date": "2025-10-22",
         "requirements": "none",
         "category": "Clock",
         "notes": "",
@@ -24,6 +24,9 @@ def timer(context):
     data_list = []
 
     pl = get_plist_file_content(source_path)
+    if not pl or not isinstance(pl, dict):
+        return (), [], ''
+    
     if 'MTTimers' in pl:
         if 'MTTimers' in pl['MTTimers']:
             for timers in pl['MTTimers']['MTTimers']:

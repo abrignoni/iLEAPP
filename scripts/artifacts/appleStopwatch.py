@@ -24,6 +24,9 @@ def stopwatch(context):
     data_list = []
 
     pl = get_plist_file_content(source_path)
+    if not pl or not isinstance(pl, dict):
+        return (), [], ''
+    
     if 'MTStopwatches' in pl:
         if 'MTStopwatches' in pl['MTStopwatches']:
             for stop_watch in pl['MTStopwatches']['MTStopwatches']:
