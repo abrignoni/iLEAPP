@@ -5,9 +5,13 @@ from collections import OrderedDict
 import re
 import datetime
 
+from scripts.context import Context
+
 # Global variables
 lava_data = None
 lava_db = None
+lava_db_name = '_lava_artifacts.db'
+lava_json_name = '_lava_data.lava'
 
 def sanitize_sql_name(name):
     # Remove non-alphanumeric characters and replace spaces with underscores
@@ -26,20 +30,32 @@ def get_sql_type(python_type):
     return type_map.get(python_type, 'TEXT')
 
 def initialize_lava(input_path, output_path, input_type):
+    '''
+    Initialize the LAVA data.
+    Args:
+        input_path: The path to the input file.
+        output_path: The path to the output file.
+        input_type: The type of input file.
+    '''
+
     global lava_data, lava_db
-    
+
     lava_data = {
         "param_input": input_path,
         "param_output": output_path,
         "param_type": input_type,
         "processing_status": "In Progress",
+        "lava_db_name": lava_db_name,
         "modules": [],
-        "artifacts": OrderedDict()
+        "artifacts": OrderedDict(),
+        "meta": {
+            "modules": []
+        }
     }
-    
-    db_path = os.path.join(output_path, '_lava_artifacts.db')
+
+    db_path = os.path.join(output_path, lava_db_name)
     lava_db = sqlite3.connect(db_path)
-    
+
     cursor = lava_db.cursor()
     cursor.execute('''CREATE TABLE _lava_media_items (
                         id TEXT PRIMARY KEY, 
@@ -57,7 +73,7 @@ def initialize_lava(input_path, output_path, input_type):
                         name TEXT,
                         media_path TEXT,
                         FOREIGN KEY (media_item_id) REFERENCES _lava_media_items(id))''')
-    cursor.execute('''CREATE VIEW _lava_media_info AS 
+    cursor.execute('''CREATE VIEW _lava_media_info AS
                         SELECT 
                             lmr.id as 'media_ref_id', 
                             lmr.media_item_id, 
@@ -73,14 +89,60 @@ def initialize_lava(input_path, output_path, input_type):
                             lmi.updated_at 
                         FROM _lava_media_references as lmr 
                         LEFT JOIN _lava_media_items as lmi ON lmr.media_item_id = lmi.id''')
-    
-def lava_process_artifact(category, module_name, artifact_name, data, record_count=None, data_views=None, artifact_icon=None):
+
+def lava_process_artifact(
+    category,
+    module_name,
+    artifact_name,
+    data,
+    record_count=None,
+    data_views=None,
+    artifact_icon=None,
+    source_path=None):
+
+    '''
+    Process an artifact and add it to the LAVA data.
+    Args:
+        category: The category of the artifact.
+        module_name: The name of the module that processed the artifact.
+        artifact_name: The name of the artifact.
+        data: The data of the artifact.
+        record_count: The number of records in the artifact.
+        data_views: The data views of the artifact.
+        artifact_icon: The icon of the artifact.
+        source_path: The source path of the artifact.
+    '''
     global lava_data
-    
+
     if category not in lava_data["artifacts"]:
         lava_data["artifacts"][category] = []
-    
+
     sanitized_table_name, column_map, object_columns = lava_create_sqlite_table(artifact_name, data)
+
+    # Add artifact metadata
+    artifact_info = Context.get_artifact_info()
+    module_info = next((m for m in lava_data['meta']['modules'] if m['module_name'] == module_name), None)
+
+    if not module_info:
+        module_info = {
+            "module_name": module_name,
+            "module_filename": os.path.basename(Context.get_module_file_path()),
+            "artifacts": []
+        }
+        lava_data['meta']['modules'].append(module_info)
+
+    artifact_meta = {
+        "artifact_key": sanitized_table_name,
+        "tablename": sanitized_table_name,
+        "name": artifact_name,
+        "description": artifact_info.get('description', ''),
+        "author": artifact_info.get('author', ''),
+        "created_date": artifact_info.get('creation_date', ''),
+        "last_updated_date": artifact_info.get('last_update_date', ''),
+        "notes": artifact_info.get('notes', ''),
+        "category": category
+    }
+    module_info['artifacts'].append(artifact_meta)
 
     artifact = {
         "name": artifact_name,
@@ -93,6 +155,10 @@ def lava_process_artifact(category, module_name, artifact_name, data, record_cou
 
     if record_count is not None:
         artifact["record_count"] = record_count
+
+    if source_path:
+        artifact['source_path'] = source_path
+
     if object_columns:
         artifact["object_columns"] = [{"name": name, "type": type_} for name, type_ in object_columns.items()]
 
@@ -111,7 +177,7 @@ def lava_process_artifact(category, module_name, artifact_name, data, record_cou
 
         if view_params:
             sanitized_params = {}
-            
+
             # Get original column names for dynamic sanitization check
             column_names = [item[0] if isinstance(item, tuple) else item for item in data]
 
@@ -130,13 +196,13 @@ def lava_process_artifact(category, module_name, artifact_name, data, record_cou
                     sanitized_params[final_key] = sanitize_sql_name(value)
                 else:
                     sanitized_params[final_key] = value
-            
+
             data_views["conversation"] = sanitized_params
 
         artifact['data_views'] = data_views
-    
+
     lava_data["artifacts"][category].append(artifact)
-    
+
     return sanitized_table_name, object_columns, column_map
 
 def lava_add_module(module_name, module_status, file_count=None):
@@ -274,23 +340,28 @@ def lava_get_full_media_info(media_ref_id):
     return cursor.execute(query).fetchone()
 
 def lava_finalize_output(output_path):
+    '''
+    Finalize the LAVA output.
+    Args:
+        output_path: The path to the output file.
+    '''
     global lava_data, lava_db
-    
+
     lava_data["processing_status"] = "Complete"
-    
+
     # Sort modules alphabetically
     lava_data["modules"].sort(key=lambda x: x["module_name"])
-    
+
     # Sort artifacts categories alphabetically
     lava_data["artifacts"] = OrderedDict(sorted(lava_data["artifacts"].items()))
-    
+
     # Sort artifacts within each category alphabetically
     for category in lava_data["artifacts"]:
         lava_data["artifacts"][category].sort(key=lambda x: x["name"])
-    
+
     # Save LAVA JSON output
-    with open(os.path.join(output_path, '_lava_data.json'), 'w') as f:
+    with open(os.path.join(output_path, lava_json_name), 'w', encoding='utf-8') as f:
         json.dump(lava_data, f, indent=4)
-    
+
     # Close the SQLite database
     lava_db.close()
