@@ -211,7 +211,7 @@ def _do_query(file_found):
     # abort if we have no records
     if len(all_rows) == 0:
         #logfunc('No Application State data available')
-        return (), [], ''
+        return {}
 
     # group results by application identifier
     applications = _group_records(all_rows)
@@ -225,7 +225,7 @@ def _get_snapshots(file_found):
     # get the records grouped by application
     applications = _do_query(file_found)
     if applications is None:
-        return (), [], ''
+        return []
 
     # collect results in list
     snapshot_list = []
@@ -260,7 +260,7 @@ def _get_snapshots(file_found):
             identifier = metadata.get('identifier')
             if snapshot_group != identifier:
                 # we expect identifier and snapshot_group to be equal
-                logfunc(f"WARNING: assumption broken on identifier field")
+                logfunc("WARNING: assumption broken on identifier field")
 
             # get the snapshots
             snapshots = metadata.get('snapshots')

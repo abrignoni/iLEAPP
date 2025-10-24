@@ -82,7 +82,7 @@ def get_appleWalletNanoPasses(context):
                             agg = agg + f'{y}: {z}<br><br>'
                     else:
                         agg = agg + f'{x}<br>'
-                encoded_pass = agg + f'<br>'
+                encoded_pass = agg + '<br>'
                 
                 agg = ''
                 front_field = get_plist_content(row[7])
@@ -95,7 +95,7 @@ def get_appleWalletNanoPasses(context):
                             agg = agg + f'{y}: {z}<br><br>'
                     else:
                         agg = agg + f'{x}<br>'
-                front_field = agg + f'<br>'
+                front_field = agg + '<br>'
                 
                 agg = ''
                 back_field = get_plist_content(row[8])
