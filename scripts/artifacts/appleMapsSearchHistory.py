@@ -48,6 +48,7 @@ def get_appleMapsSearchHistory(context):
         if not plist_content or not isinstance(plist_content, dict):
             continue
             
+        b = None  # Initialize to avoid undefined variable warning
         for _, b in plist_content.items():
             pass
         
