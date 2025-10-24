@@ -61,6 +61,8 @@ def get_appleMapsSearchHistory(context):
                 for e, f in d.items():
                     guid = e
                     shortadd = pname = app = location = geo1 = geo2 = geo3 = geo4 = geo5 = geo6 = usersearch1 = usersearch2 = shortlat = shortlon = usersearchnotinproto = items = currentlocation = ''
+                    if not f or not isinstance(f, dict):
+                        continue
                     for g, h in f.items():
                         
                         if g == 'modificationDate':
