@@ -24,12 +24,12 @@ from scripts.ilapfuncs import (
 
 def longbase64proto(longstuff, longtypes):
     longstuff = longstuff.split('placeRequest=')[1]
-    longstuff, t = blackboxprotobuf.decode_message(base64.b64decode(longstuff), longtypes)
+    longstuff, _ = blackboxprotobuf.decode_message(base64.b64decode(longstuff), longtypes)
     return longstuff
 
 def shortbase64proto(shortstuff, shorttypes):
     shortstuff = shortstuff.split('=')[1]
-    shortstuff, t = blackboxprotobuf.decode_message(base64.b64decode(shortstuff), shorttypes)
+    shortstuff, _ = blackboxprotobuf.decode_message(base64.b64decode(shortstuff), shorttypes)
     return shortstuff
 
 @artifact_processor
@@ -45,10 +45,10 @@ def get_appleMapsSearchHistory(context):
         
         plist_content = get_plist_file_content(file_found)
             
-        for a, b in plist_content.items():
+        for _, b in plist_content.items():
             pass
             
-        for c, d in b.items():
+        for _, d in b.items():
             if isinstance(d, str):
                 pass
             if isinstance(d, dict): #records
@@ -61,7 +61,7 @@ def get_appleMapsSearchHistory(context):
                             modificationdate = h
                         if g == 'contents':
                             
-                            protostuff, types = blackboxprotobuf.decode_message(h)
+                            protostuff, _ = blackboxprotobuf.decode_message(h)
                             #pp.pprint(protostuff)
                             items = (protostuff)
                             if protostuff.get('7'):
@@ -71,7 +71,7 @@ def get_appleMapsSearchHistory(context):
                                             data = (look['8'].get('1'))
                                             if data is not None:
                                                 pname = (data['10']['3'].decode())
-                                except:
+                                except (KeyError, IndexError, AttributeError, TypeError):
                                     #yelp like stuff
                                     pp = pprint.PrettyPrinter(indent = 0)
                                     items = pp.pformat(protostuff.get('7')['1']['1'][1])
@@ -81,14 +81,14 @@ def get_appleMapsSearchHistory(context):
                                 try:
                                     location = protostuff['6']['1'].decode()
                                     location = location + ', ' + protostuff['6']['2'].decode() #GPs after it?
-                                except:
+                                except (KeyError, AttributeError, UnicodeDecodeError):
                                     pass
                             try:    
                                 if protostuff.get('8'):
                                     if (protostuff['8']['2']['1'].get('201')):
                                         usersearchnotinproto = (protostuff['8']['2']['1']['201']['2']['2']['1'].decode())
-                            except:
-                                pass
+                            except (KeyError, AttributeError, UnicodeDecodeError):
+                                #pass
                                 try:
                                     for mira in (protostuff['8']['2']['1']['4']):
                                         #print(mira)
@@ -106,7 +106,7 @@ def get_appleMapsSearchHistory(context):
                                                     usersearch2 = longstuff['8']['1']['7']['10000'].decode()
                                                     geo5 = longstuff['8']['1']['7']['5']['1']['1']
                                                     geo6 = longstuff['8']['1']['7']['5']['1']['2']
-                                                except:
+                                                except (KeyError, AttributeError, UnicodeDecodeError, TypeError):
                                                     pass
                                                     
                                                 try: 
@@ -117,12 +117,12 @@ def get_appleMapsSearchHistory(context):
                                                     shortlon = (shortstuff['8']['4']['4']['1']['2'])
                                                     
                                                     
-                                                except:
+                                                except (KeyError, AttributeError, UnicodeDecodeError, TypeError):
                                                     pass
                                                 
                                                 if mira.get('8'):
                                                     pname = (mira.get('8')['1']['10']['3'].decode())
-                                except:
+                                except (KeyError, AttributeError, UnicodeDecodeError, TypeError):
                                     currentlocation = (protostuff['8']['2']['8']['3'].decode())
                                     
                             try: 
@@ -141,17 +141,16 @@ def get_appleMapsSearchHistory(context):
                                         for parts in (protostuff.get('7')['1']['1'][1]['1'].get('2')['6']):
                                             shortadd = shortadd  + parts.decode() + ', '
                                         shortadd = (shortadd[:-2])
-                            except:
-                                pass
+                            except (KeyError, IndexError, AttributeError, UnicodeDecodeError, TypeError):
+                                #pass
                                 
                                 
-                                """
-                                counter = 0
-                                for masa in protostuff.get('7')['1']['1'][1]['2']['1']['4']:
-                                    print(counter)
-                                    print(masa)
-                                    counter = counter + 1
-                                """
+                                # counter = 0
+                                # for masa in protostuff.get('7')['1']['1'][1]['2']['1']['4']:
+                                #     print(counter)
+                                #     print(masa)
+                                #     counter = counter + 1
+                                
                                 try:
                                     for mira in (protostuff.get('7')['1']['1'][1]['2']['1']['4']):
                                         #print(mira)
@@ -169,9 +168,9 @@ def get_appleMapsSearchHistory(context):
                                                     usersearch2 = longstuff['8']['1']['7']['10000'].decode()
                                                     geo5 = longstuff['8']['1']['7']['5']['1']['1']
                                                     geo6 = longstuff['8']['1']['7']['5']['1']['2']
-                                                except:
+                                                except (KeyError, AttributeError, UnicodeDecodeError, TypeError):
                                                     pass
-                                except:
+                                except (KeyError, IndexError, AttributeError, TypeError):
                                     pp = pprint.PrettyPrinter(indent = 0)
                                     items = pp.pformat(protostuff['7']['1']['1'][0]['2']['1']['4'])
                                     
