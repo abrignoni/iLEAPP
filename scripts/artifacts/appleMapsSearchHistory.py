@@ -44,9 +44,15 @@ def get_appleMapsSearchHistory(context):
         file_found = str(file_found)
         
         plist_content = get_plist_file_content(file_found)
+        
+        if not plist_content or not isinstance(plist_content, dict):
+            continue
             
         for _, b in plist_content.items():
             pass
+        
+        if not b or not isinstance(b, dict):
+            continue
             
         for _, d in b.items():
             if isinstance(d, str):
