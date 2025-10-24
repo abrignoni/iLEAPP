@@ -41,10 +41,9 @@ def get_appleWalletPKPasses(context):
                 for x, y in data.items():
                     data_list.append((x,str(y), file_found))
     
-    data_headers = ['Identidicator','Data Value', 'Source File']
-            
-    return data_list, data_headers, 'see Source File for more info'
-        
+    data_headers = ['Identifier','Items', 'Source File']
+    return data_headers, data_list, 'see Source File for more info'
+                    
 @artifact_processor
 def get_appleWalletNanoPasses(context):
     data_list = []
