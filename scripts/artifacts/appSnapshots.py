@@ -53,7 +53,6 @@ def save_ktx_to_png_if_valid(ktx_path, save_to_path):
 @artifact_processor
 def applicationSnapshots(context): #files_found, report_folder, seeker, wrap_text, timezone_offset):
     # artifact_info = inspect.stack()[0]
-    source_path = 'File path in the report below'
     data_list = []
     
     for file_found in context.get_files_found():
@@ -85,4 +84,4 @@ def applicationSnapshots(context): #files_found, report_folder, seeker, wrap_tex
     
     data_headers = (('Date Modified', 'datetime'), 'App Name', 'Source Path', ('Snapshot', 'media'))
 
-    return data_headers, data_list, source_path
+    return data_headers, data_list, 'see Source Path for more info'

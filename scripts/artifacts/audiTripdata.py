@@ -2,9 +2,9 @@ __artifacts_v2__ = {
     "get_audiTripdata": {
         "name": "Audi Trip Data",
         "description": "",
-        "author": "@AuthorUsername",
+        "author": "@abrignoni",
         "creation_date": "2024-06-01",
-        "last_update_date": "2025-04-13",
+        "last_update_date": "2025-10-28",
         "requirements": "none",
         "category": "Audi Trips",
         "notes": "",
@@ -17,10 +17,9 @@ import json
 import os
 
 from scripts.ilapfuncs import convert_ts_human_to_utc, artifact_processor
-from scripts.context import Context
 
 @artifact_processor
-def get_audiTripdata(context:Context):
+def get_audiTripdata(context):
 	data_list = []
 	for file_found in context.get_files_found():
 		file_found = str(file_found)
@@ -33,7 +32,7 @@ def get_audiTripdata(context:Context):
 				
 			jsondata = json.loads(data)
 			
-			for key, values in jsondata.items():
+			for _, values in jsondata.items():
 				if isinstance(values, dict):
 					audidata = values.get('tripData','')
 					if audidata == '':
@@ -61,4 +60,4 @@ def get_audiTripdata(context:Context):
 							
 							data_list.append((timestamp,avgspeed,traveltime,startmileage,mileage,overallmileage,tripid,avgelecconsumpt,avgfuelconsumpt,zeroemdistance,triptyme,reportreason, file_found))
 	data_headers = (('Timestamp', 'datetime'),'Avg. Speed','Travel Time','Start Mileage','Mileage','Overall Mileage','Trip ID','Avg. Electric Consumption','Avg. Fuel Consumption','Zero Emission Distance','Trip Type','Report Reason', 'Source File')   
-	return data_headers, data_list, ''
+	return data_headers, data_list, 'see Source File for more info'
