@@ -590,7 +590,86 @@ def get_sqlite_db_records(path, query, attach_query=None):
         except sqlite3.ProgrammingError as e:
             logfunc(f"Error with {path}:")
             logfunc(f" - {str(e)}")
+        finally:
+            db.close()
     return []
+
+def get_sqlite_db_records_iter(path, query, attach_query=None, batch_size=1000):
+    """
+    Memory-efficient iterator for SQLite database queries.
+    Returns an iterator that yields records in batches instead of loading everything into memory.
+    
+    Args:
+        path: Path to SQLite database
+        query: SQL query to execute
+        attach_query: Optional query to attach another database
+        batch_size: Number of rows to fetch per batch (default: 1000)
+    
+    Yields:
+        List of rows (each row is a sqlite3.Row object)
+    """
+    db = open_sqlite_db_readonly(path)
+    if db:
+        db.row_factory = sqlite3.Row
+        try:
+            cursor = db.cursor()
+            if attach_query:
+                cursor.execute(attach_query)
+            cursor.execute(query)
+            
+            while True:
+                batch = cursor.fetchmany(batch_size)
+                if not batch:
+                    break
+                yield batch
+        except sqlite3.OperationalError as e:
+            logfunc(f"Error with {path}:")
+            logfunc(f" - {str(e)}")
+        except sqlite3.ProgrammingError as e:
+            logfunc(f"Error with {path}:")
+            logfunc(f" - {str(e)}")
+        finally:
+            db.close()
+
+def get_sqlite_db_cursor_iter(path, query, attach_query=None):
+    """
+    Memory-efficient iterator that yields rows one at a time.
+    The database connection remains open until iteration is complete.
+    
+    Args:
+        path: Path to SQLite database
+        query: SQL query to execute
+        attach_query: Optional query to attach another database
+    
+    Yields:
+        sqlite3.Row objects (one row at a time)
+    
+    Note:
+        The caller is responsible for ensuring the iteration completes
+        or properly handling exceptions to avoid connection leaks.
+    """
+    db = open_sqlite_db_readonly(path)
+    if not db:
+        return
+    
+    db.row_factory = sqlite3.Row
+    try:
+        cursor = db.cursor()
+        if attach_query:
+            cursor.execute(attach_query)
+        cursor.execute(query)
+        
+        # Iterate over cursor directly - most memory efficient
+        for row in cursor:
+            yield row
+    except sqlite3.OperationalError as e:
+        logfunc(f"Error with {path}:")
+        logfunc(f" - {str(e)}")
+    except sqlite3.ProgrammingError as e:
+        logfunc(f"Error with {path}:")
+        logfunc(f" - {str(e)}")
+    finally:
+        db.close()
 
 def get_sqlite_multiple_db_records(path_list, query, data_headers):
     multiple_source_files = len(path_list) > 1

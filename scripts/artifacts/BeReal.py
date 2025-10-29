@@ -225,7 +225,8 @@ from datetime import timedelta
 from base64 import standard_b64decode
 from urllib.parse import urlparse, urlunparse
 from scripts.ilapfuncs import get_file_path, get_sqlite_db_records, get_plist_content, get_plist_file_content, convert_unix_ts_to_utc, \
-    convert_cocoa_core_data_ts_to_utc, check_in_embedded_media, artifact_processor, logfunc, is_platform_windows
+    convert_cocoa_core_data_ts_to_utc, check_in_embedded_media, artifact_processor, logfunc, is_platform_windows, open_sqlite_db_readonly
+import sqlite3
 
 # <id, fullname|username>
 map_id_name = {}
@@ -1906,51 +1907,61 @@ def bereal_messages(files_found, report_folder, seeker, wrap_text, timezone_offs
     LEFT JOIN ZMEDIAMO AS "ME" ON (M.Z_PK = ME.ZMESSAGE)
     '''
 
-    db_records = get_sqlite_db_records(source_path, query)
-    for record in db_records:
-        # created
-        created = convert_unix_ts_to_utc(record[3])
+    # Memory-efficient: iterate directly over cursor instead of loading all records
+    db = open_sqlite_db_readonly(source_path)
+    if not db:
+        return data_headers, (data_list, data_list_html), source_path
+    
+    db.row_factory = sqlite3.Row
+    try:
+        cursor = db.cursor()
+        cursor.execute(query)
+        for record in cursor:
+            # created
+            created = convert_unix_ts_to_utc(record[3])
 
-        # owner
-        owner = record[4]
+            # owner
+            owner = record[4]
 
-        # sender
-        sender = record[6]
+            # sender
+            sender = record[6]
 
-        # recipient
-        if record[5] == 'Outgoing':
-            recipient = bereal_user_id
-        else:
-            recipient = owner
-        
-        # "id (fullame|userid)"
-        owner = format_userid(owner)
-        sender = format_userid(sender)
-        recipient = format_userid(recipient)
+            # recipient
+            if record[5] == 'Outgoing':
+                recipient = bereal_user_id
+            else:
+                recipient = owner
+            
+            # "id (fullame|userid)"
+            owner = format_userid(owner)
+            sender = format_userid(sender)
+            recipient = format_userid(recipient)
 
-        # body
-        body = record[7].decode('utf-8') if bool(record[7]) else record[7]
+            # body
+            body = record[7].decode('utf-8') if bool(record[7]) else record[7]
 
-        # media url
-        media_url_html = generic_url(record[10], html_format = True)
-        media_url = generic_url(record[10], html_format = False)
+            # media url
+            media_url_html = generic_url(record[10], html_format = True)
+            media_url = generic_url(record[10], html_format = False)
 
-        # location
-        location = [ f'ZMESSAGEMO (Z_PK: {record[0]})' ]
-        if record[1] is not None: location.append(f'ZCONVERSATIONMO (Z_PK: {record[1]})')
-        if record[2] is not None: location.append(f'ZMEDIAMO (Z_PK: {record[2]})')
-        location = ', '.join(location)
+            # location
+            location = [ f'ZMESSAGEMO (Z_PK: {record[0]})' ]
+            if record[1] is not None: location.append(f'ZCONVERSATIONMO (Z_PK: {record[1]})')
+            if record[2] is not None: location.append(f'ZMEDIAMO (Z_PK: {record[2]})')
+            location = ', '.join(location)
 
-        # html row
-        data_list_html.append((created, owner, record[5], sender, recipient, body, record[8], 
-                               record[9], media_url_html, record[11], location))
+            # html row
+            data_list_html.append((created, owner, record[5], sender, recipient, body, record[8], 
+                                   record[9], media_url_html, record[11], location))
 
-        # lava row
-        data_list.append((created, owner, record[5], sender, recipient, body, record[8], 
-                          record[9], media_url, record[11], location))
+            # lava row
+            data_list.append((created, owner, record[5], sender, recipient, body, record[8], 
+                              record[9], media_url, record[11], location))
 
-    # lava types
-    data_headers[0] = (data_headers[0], 'datetime')
+        # lava types
+        data_headers[0] = (data_headers[0], 'datetime')
+    finally:
+        db.close()
 
     return data_headers, (data_list, data_list_html), source_path
 
@@ -1985,54 +1996,64 @@ def bereal_chat_list(files_found, report_folder, seeker, wrap_text, timezone_off
     LEFT JOIN ZMESSAGEMO AS "M" ON (C.ZLASTMESSAGE = M.Z_PK)
     '''
 
-    db_records = get_sqlite_db_records(source_path, query)
-    for record in db_records:
-        # created
-        created = convert_unix_ts_to_utc(record[3])
+    # Memory-efficient: iterate directly over cursor instead of loading all records
+    db = open_sqlite_db_readonly(source_path)
+    if not db:
+        return data_headers, (data_list, data_list_html), source_path
+    
+    db.row_factory = sqlite3.Row
+    try:
+        cursor = db.cursor()
+        cursor.execute(query)
+        for record in cursor:
+            # created
+            created = convert_unix_ts_to_utc(record[3])
 
-        # owner
-        owner = format_userid(record[4])
+            # owner
+            owner = format_userid(record[4])
 
-        # last updated
-        last_updated = convert_unix_ts_to_utc(record[10])
+            # last updated
+            last_updated = convert_unix_ts_to_utc(record[10])
 
-        # admins (plist)
-        admins = get_plist_content(record[6])
-        admins_list = []
-        for a in admins:
-            admins_list.append(format_userid(a))
-        if bool(admins_list):
-            admins = '\n'.join(admins_list)
-        admins_html = admins.replace('\n', '<br />')
+            # admins (plist)
+            admins = get_plist_content(record[6])
+            admins_list = []
+            for a in admins:
+                admins_list.append(format_userid(a))
+            if bool(admins_list):
+                admins = '\n'.join(admins_list)
+            admins_html = admins.replace('\n', '<br />')
 
-        # participants (plist)
-        participants = get_plist_content(record[7])
-        participants_list = []
-        for p in participants:
-            participants_list.append(format_userid(p))
-        if bool(participants_list):
-            participants = '\n'.join(participants_list)
-        participants_html = participants.replace('\n', '<br />')
+            # participants (plist)
+            participants = get_plist_content(record[7])
+            participants_list = []
+            for p in participants:
+                participants_list.append(format_userid(p))
+            if bool(participants_list):
+                participants = '\n'.join(participants_list)
+            participants_html = participants.replace('\n', '<br />')
 
-        # body
-        body = record[8].decode('utf-8') if bool(record[8]) else record[8]
+            # body
+            body = record[8].decode('utf-8') if bool(record[8]) else record[8]
 
-        # location
-        location = [ f'ZCONVERSATIONMO (Z_PK: {record[0]})' ]
-        if record[1] is not None: location.append(f'ZCONVERSATIONSTATUSMO (Z_PK: {record[1]})')
-        if record[2] is not None: location.append(f'ZMESSAGEMO (Z_PK: {record[2]})')
-        location = ', '.join(location)
+            # location
+            location = [ f'ZCONVERSATIONMO (Z_PK: {record[0]})' ]
+            if record[1] is not None: location.append(f'ZCONVERSATIONSTATUSMO (Z_PK: {record[1]})')
+            if record[2] is not None: location.append(f'ZMESSAGEMO (Z_PK: {record[2]})')
+            location = ', '.join(location)
 
-        # html row
-        data_list_html.append((created, owner, record[5], admins_html, participants_html, body, record[9], last_updated,
-                               record[11], record[12], location))
+            # html row
+            data_list_html.append((created, owner, record[5], admins_html, participants_html, body, record[9], last_updated,
+                                   record[11], record[12], location))
 
-        # lava row
-        data_list.append((created, owner, record[5], admins, participants, body, record[9], last_updated,
-                          record[11], record[12], location))
+            # lava row
+            data_list.append((created, owner, record[5], admins, participants, body, record[9], last_updated,
+                              record[11], record[12], location))
 
-    # lava types
-    data_headers[0] = (data_headers[0], 'datetime')
-    data_headers[10] = (data_headers[10], 'datetime')
+        # lava types
+        data_headers[0] = (data_headers[0], 'datetime')
+        data_headers[10] = (data_headers[10], 'datetime')
+    finally:
+        db.close()
 
     return data_headers, (data_list, data_list_html), source_path
