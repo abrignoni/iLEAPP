@@ -17,6 +17,7 @@ from scripts.ilapfuncs import *
 from scripts.version_info import ileapp_version
 from time import process_time, gmtime, strftime, perf_counter
 from scripts.lavafuncs import *
+from scripts.context import Context
 
 def validate_args(args):
     if args.artifact_paths or args.create_profile_casedata:
@@ -321,12 +322,14 @@ def main():
         if output_path[1] == ':': output_path = '\\\\?\\' + output_path.replace('/', '\\')
 
     out_params = OutputParameters(output_path, custom_output_folder)
+    Context.set_output_params(out_params)
 
-    initialize_lava(input_path, out_params.report_folder_base, extracttype)
+    initialize_lava(input_path, out_params.output_folder_base, extracttype)
 
-    crunch_artifacts(selected_plugins, extracttype, input_path, out_params, wrap_text, loader, casedata, time_offset, profile_filename, itunes_backup_password)
+    crunch_artifacts(selected_plugins, extracttype, input_path, out_params, wrap_text, loader, casedata, time_offset, 
+        profile_filename, itunes_backup_password)
 
-    lava_finalize_output(out_params.report_folder_base)
+    lava_finalize_output(out_params.output_folder_base)
 
 def crunch_artifacts(
         plugins: typing.Sequence[plugin_loader.PluginSpec], extracttype, input_path, out_params, wrap_text,
@@ -403,7 +406,7 @@ def crunch_artifacts(
     logfunc(f'File/Directory selected: {input_path}')
     logfunc('\n--------------------------------------------------------------------------------------')
 
-    log = open(os.path.join(out_params.report_folder_base, '_HTML', '_Script_Logs', 'ProcessedFilesLog.html'), 'w+', encoding='utf8')
+    log = open(os.path.join(out_params.output_folder_base, '_HTML', '_Script_Logs', 'ProcessedFilesLog.html'), 'w+', encoding='utf8')
     log.write(f'Extraction/Path selected: {input_path}<br><br>')
     log.write(f'Timezone selected: {time_offset}<br><br>')
     
@@ -413,9 +416,9 @@ def crunch_artifacts(
     if extracttype == 'itunes':
         info_plist_path = os.path.join(input_path, 'Info.plist')
         if os.path.exists(info_plist_path):
-            # process_artifact([info_plist_path], 'iTunesBackupInfo', 'Device Info', seeker, out_params.report_folder_base)
-            #plugin.method([info_plist_path], out_params.report_folder_base, seeker, wrap_text)
-            report_folder = os.path.join(out_params.report_folder_base, '_HTML', 'iTunes Backup')
+            # process_artifact([info_plist_path], 'iTunesBackupInfo', 'Device Info', seeker, out_params.output_folder_base)
+            #plugin.method([info_plist_path], out_params.output_folder_base, seeker, wrap_text)
+            report_folder = os.path.join(out_params.output_folder_base, '_HTML', 'iTunes Backup')
             if not os.path.exists(report_folder):
                 try:
                     os.makedirs(report_folder)
@@ -423,7 +426,7 @@ def crunch_artifacts(
                     logfunc('Error creating report directory at path {}'.format(report_folder))
                     logfunc('Error was {}'.format(str(ex)))
             loader["itunes_backup_info"].method([info_plist_path], report_folder, seeker, wrap_text, time_offset)
-            report_folder = os.path.join(out_params.report_folder_base, '_HTML', 'Installed Apps')
+            report_folder = os.path.join(out_params.output_folder_base, '_HTML', 'Installed Apps')
             if not os.path.exists(report_folder):
                 try:
                     os.makedirs(report_folder)
@@ -456,7 +459,7 @@ def crunch_artifacts(
         if search_regexes is None:
             log.write(f'<ul><li>No search regexes provided for {plugin.name} module.')
             log.write("<ul><li><i>'_lava_artifacts.db'</i> used as source file.</li></ul></li></ul>")
-            files_found = [os.path.join(out_params.report_folder_base, '_lava_artifacts.db')]
+            files_found = [os.path.join(out_params.output_folder_base, '_lava_artifacts.db')]
         else:
             for artifact_search_regex in search_regexes:
                 found = seeker.search(artifact_search_regex)
@@ -479,7 +482,7 @@ def crunch_artifacts(
         if files_found:
             if not lava_only and 'lava_only' in output_types:
                 lava_only = True
-            category_folder = os.path.join(out_params.report_folder_base, '_HTML', plugin.category)
+            category_folder = os.path.join(out_params.output_folder_base, '_HTML', plugin.category)
             if not os.path.exists(category_folder):
                 try:
                     os.makedirs(category_folder)
@@ -490,7 +493,7 @@ def crunch_artifacts(
             try:
                 plugin.method(files_found, category_folder, seeker, wrap_text, time_offset)
                 if plugin.name == 'logarchive':
-                    lava_db_path = os.path.join(out_params.report_folder_base, '_lava_artifacts.db')
+                    lava_db_path = os.path.join(out_params.output_folder_base, '_lava_artifacts.db')
                     if does_table_exist_in_db(lava_db_path, 'logarchive'):
                         loader["logarchive_artifacts"].method([lava_db_path], category_folder, seeker, wrap_text, time_offset)
                     if does_table_exist_in_db(lava_db_path, 'logarchive_artifacts'):
@@ -529,15 +532,15 @@ def crunch_artifacts(
     logfunc('Report generation started.')
     # remove the \\?\ prefix we added to input and output paths, so it does not reflect in report
     if is_platform_windows(): 
-        if out_params.report_folder_base.startswith('\\\\?\\'):
-            out_params.report_folder_base = out_params.report_folder_base[4:]
+        if out_params.output_folder_base.startswith('\\\\?\\'):
+            out_params.output_folder_base = out_params.output_folder_base[4:]
         if input_path.startswith('\\\\?\\'):
             input_path = input_path[4:]
     
-    report.generate_report(out_params.report_folder_base, run_time_secs, run_time_HMS, extracttype, input_path, casedata, profile_filename, icons, lava_only)
+    report.generate_report(out_params.output_folder_base, run_time_secs, run_time_HMS, extracttype, input_path, casedata, profile_filename, icons, lava_only)
     logfunc('Report generation Completed.')
     logfunc('')
-    logfunc(f'Report location: {out_params.report_folder_base}')
+    logfunc(f'Report location: {out_params.output_folder_base}')
 
     return True
 
