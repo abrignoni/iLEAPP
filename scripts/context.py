@@ -15,6 +15,7 @@ class Context:
     methods for retrieving and manipulating this data.
     """
 
+    _output_params = None
     _report_folder = None
     _seeker = None
     _artifact_info = None
@@ -27,6 +28,17 @@ class Context:
     _device_boards = {}
     _os_builds = {}
     _installed_os_version = ""
+
+    @staticmethod
+    def set_output_params(output_params):
+        """
+        Sets the OutputParameters instance in the Context. This should only be
+        called once at the start of a run.
+
+        Args:
+            output_params: The initialized OutputParameters object.
+        """
+        Context._output_params = output_params
 
     @staticmethod
     def set_report_folder(report_folder):
@@ -168,6 +180,21 @@ class Context:
                 filename_lookup[filename] = []
             filename_lookup[filename].append(full_path)
         return filename_lookup
+
+    @staticmethod
+    def get_output_params():
+        """
+        Retrieves the current OutputParameters instance from the Context.
+
+        Raises:
+            ValueError: If the output parameters are not set.
+
+        Returns:
+            OutputParameters: The OutputParameters instance.
+        """
+        if not Context._output_params:
+            raise ValueError("Context not set. OutputParameters not available.")
+        return Context._output_params
 
     @staticmethod
     def get_report_folder():
@@ -433,8 +460,8 @@ class Context:
     def clear():
         """
         Resets all context-related class variables to None, effectively
-        clearing any stored state or references, except for the device IDs and
-        OS builds which are retained for efficiency.
+        clearing any stored state or references, except for the device IDs,
+        OS builds, and output parameters which are retained for efficiency.
         """
         Context._report_folder = None
         Context._seeker = None
