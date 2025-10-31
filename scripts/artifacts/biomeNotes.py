@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Biome/streams/restricted/NotesContent/local/*'),
         "html_columns" : ['Note'],
-        "output_types": "none",
+        "output_types": "standard",
         "function": "get_biomeNotes"
     }
 }
