@@ -249,16 +249,16 @@ def process(casedata):
         bottom_frame.grid_remove()
         progress_bar.grid(padx=16, sticky='we')
 
-        initialize_lava(input_path, out_params.report_folder_base, extracttype)
+        initialize_lava(input_path, out_params.output_folder_base, extracttype)
 
         crunch_successful = ileapp.crunch_artifacts(
             selected_modules, extracttype, input_path, out_params, wrap_text,
             loader, casedata, time_offset, profile_filename, None, decryption_keys)
 
-        lava_finalize_output(out_params.report_folder_base)
+        lava_finalize_output(out_params.output_folder_base)
 
         if crunch_successful:
-            report_path = os.path.join(out_params.report_folder_base, 'index.html')
+            report_path = os.path.join(out_params.output_folder_base, 'index.html')
             if report_path.startswith('\\\\?\\'):  # windows
                 report_path = report_path[4:]
             if report_path.startswith('\\\\'):  # UNC path
