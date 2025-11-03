@@ -246,12 +246,17 @@ def _check_in_media(media_id, source_path, is_embedded, name, media_data=None, c
         if suffix and not suffix.startswith('.'):
             suffix = f".{suffix}"
 
+        extraction_path = Context.get_source_file_path(source_path)
+        file_info = seeker.file_infos.get(extraction_path)
+        if file_info:
+            media_item.source_path = file_info.source_path
+        else:
+            media_item.source_path = source_path
+
         if is_embedded:
             media_item.created_at = force_creation_date if force_creation_date else 0
             media_item.updated_at = force_modification_date if force_modification_date else 0
-            media_item.source_path = source_path
         else:
-            extraction_path = Context.get_source_file_path(source_path)
             if not extraction_path:
                 return None
 
@@ -259,24 +264,19 @@ def _check_in_media(media_id, source_path, is_embedded, name, media_data=None, c
             if not file_to_copy.is_file():
                 return None
 
-            file_info = seeker.file_infos.get(extraction_path)
             if force_creation_date:
                 media_item.created_at = force_creation_date
             elif file_info:
                 media_item.created_at = file_info.creation_date
             else:
                 media_item.created_at = 0
+
             if force_modification_date:
                 media_item.updated_at = force_modification_date
             elif file_info:
                 media_item.updated_at = file_info.modification_date
             else:
                 media_item.updated_at = 0
-
-            if file_info:
-                media_item.source_path = file_info.source_path
-            else:
-                media_item.source_path = source_path
 
         # 1. Create the canonical media file
         canonical_media_path = Path(output_params.media_folder).joinpath(media_id).with_suffix(suffix)
