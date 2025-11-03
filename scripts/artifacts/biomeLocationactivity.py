@@ -20,7 +20,7 @@ from datetime import timezone
 import blackboxprotobuf
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
-from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv
+from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv, get_plist_content
 
 
 @artifact_processor
@@ -144,17 +144,26 @@ def get_biomeLocationactivity(context):
                 
                 data4 = (protostuff['7'][10]['2'].get('6',''))
                 if isinstance(data4, bytes):
-                    deserialized_plist = nd.deserialize_plist_from_string(data4)
+                    #deserialized_plist = nd.deserialize_plist_from_string(data4)
+                    deserialized_plist = get_plist_content(data4)
+                    if not deserialized_plist or not isinstance(deserialized_plist, dict):
+                        data4 = None
                     data4 = (deserialized_plist['NS.relative'])
                     
                 data5 = (protostuff['7'][13]['2'].get('6',''))
                 if isinstance(data5, bytes):
-                    deserialized_plist = nd.deserialize_plist_from_string(data5)
+                    #deserialized_plist = nd.deserialize_plist_from_string(data5)
+                    deserialized_plist = get_plist_content(data5)
+                    if not deserialized_plist or not isinstance(deserialized_plist, dict):
+                        data5 = None
                     data5 = (deserialized_plist)
                     
                 data6 = (protostuff['7'][16]['2'].get('6',''))
                 if isinstance(data6, bytes):
-                    deserialized_plist = nd.deserialize_plist_from_string(data6)
+                    #deserialized_plist = nd.deserialize_plist_from_string(data6)
+                    deserialized_plist = get_plist_content(data6)
+                    if not deserialized_plist or not isinstance(deserialized_plist, dict):
+                        data6 = None
                     data6 = (deserialized_plist['NS.relative'])
                     
                 timewrite = (webkit_timestampsconv(protostuff['8']))
