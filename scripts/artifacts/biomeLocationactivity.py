@@ -15,7 +15,6 @@ __artifacts_v2__ = {
 
 
 import os
-import nska_deserialize as nd
 from datetime import timezone
 import blackboxprotobuf
 from scripts.ccl_segb.ccl_segb import read_segb_file
