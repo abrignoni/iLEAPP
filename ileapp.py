@@ -349,7 +349,7 @@ def main():
             
             # Validate required fields in device config
             if not isinstance(device_config, dict):
-                print(f'Error: Device {idx} configuration is not a valid object')
+                logfunc(f'Error: Device {idx} configuration is not a valid object')
                 failed += 1
                 continue
             
@@ -357,19 +357,29 @@ def main():
             device_output = device_config.get('output_path')
             device_type = device_config.get('type')
             
-            if not device_input or not device_output or not device_type:
-                print(f'Error: Device {idx} missing required fields (input_path, output_path, type)')
+            if device_input is None or device_output is None or device_type is None:
+                logfunc(f'Error: Device {idx} missing required fields (input_path, output_path, type)')
+                failed += 1
+                continue
+            
+            if not isinstance(device_input, str) or not isinstance(device_output, str) or not isinstance(device_type, str):
+                logfunc(f'Error: Device {idx} has invalid field types (must be strings)')
+                failed += 1
+                continue
+            
+            if not device_input.strip() or not device_output.strip() or not device_type.strip():
+                logfunc(f'Error: Device {idx} has empty required fields')
                 failed += 1
                 continue
             
             # Validate paths
             if not os.path.exists(device_input):
-                print(f'Error: Input path "{device_input}" does not exist for device {idx}')
+                logfunc(f'Error: Input path "{device_input}" does not exist for device {idx}')
                 failed += 1
                 continue
             
             if not os.path.exists(device_output):
-                print(f'Error: Output path "{device_output}" does not exist for device {idx}')
+                logfunc(f'Error: Output path "{device_output}" does not exist for device {idx}')
                 failed += 1
                 continue
             
@@ -393,8 +403,8 @@ def main():
                                 profile_plugins = set(profile.get("plugins", []))
                                 device_selected_plugins = [p for p in available_plugins if p.name in profile_plugins]
                                 device_profile_filename = device_profile
-                        except:
-                            print(f'Warning: Could not load profile for device {idx}, using default')
+                        except Exception as e:
+                            logfunc(f'Warning: Could not load profile for device {idx}, using default: {str(e)}')
             
             # Load device-specific case data if provided
             device_casedata = casedata.copy()
@@ -405,8 +415,8 @@ def main():
                             case_data = json.load(device_case_file)
                             if isinstance(case_data, dict) and case_data.get("leapp") == "case_data":
                                 device_casedata = case_data.get('case_data_values', {})
-                        except:
-                            print(f'Warning: Could not load case data for device {idx}, using default')
+                        except Exception as e:
+                            logfunc(f'Warning: Could not load case data for device {idx}, using default: {str(e)}')
             
             # Prepare paths
             device_input_path = device_input
@@ -440,7 +450,7 @@ def main():
                     print(f'\nDevice {idx} processing failed')
                     failed += 1
             except Exception as e:
-                print(f'\nDevice {idx} processing failed with error: {str(e)}')
+                logfunc(f'\nDevice {idx} processing failed with error: {str(e)}')
                 failed += 1
             
             print('')
