@@ -1,0 +1,18 @@
+[
+  {
+    "input_path": "/path/to/device1",
+    "output_path": "/path/to/output1",
+    "type": "fs",
+    "timezone": "UTC",
+    "custom_output_folder": "device1_analysis",
+    "profile": "/path/to/profile1.ilprofile",
+    "case_data": "/path/to/casedata1.lcasedata"
+  },
+  {
+    "input_path": "/path/to/device2.zip",
+    "output_path": "/path/to/output2",
+    "type": "zip",
+    "timezone": "America/New_York",
+    "custom_output_folder": "device2_analysis"
+  }
+]

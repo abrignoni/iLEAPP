@@ -21,6 +21,12 @@ from scripts.lavafuncs import *
 def validate_args(args):
     if args.artifact_paths or args.create_profile_casedata:
         return  # Skip further validation if --artifact_paths is used
+    
+    if args.batch:
+        # Skip validation of individual input/output when using batch mode
+        if not os.path.exists(args.batch):
+            raise argparse.ArgumentError(None, f'BATCH file \'{args.batch}\' does not exist! Run the program again.')
+        return
 
     # Ensure other arguments are provided
     mandatory_args = ['input_path', 'output_path', 't']
@@ -178,6 +184,10 @@ def main():
                               "This argument is meant to be used alone, without any other arguments."))
     parser.add_argument('--custom_output_folder', required=False, action="store", help="Custom name for the output folder")
     parser.add_argument('--itunes_password', required=False, action="store", help="Password used for encrypted iTunes backup")
+    parser.add_argument('-b', '--batch', required=False, action="store", 
+                        help=("Path to a JSON batch file for processing multiple devices. "
+                              "The JSON file should contain a list of device configurations with 'input_path', 'output_path', 'type', and optional parameters. "
+                              "Example: [{\"input_path\": \"/path/to/device1\", \"output_path\": \"/path/to/output1\", \"type\": \"fs\"}, ...]"))
 
     available_plugins = []
     loader = plugin_loader.PluginLoader()
@@ -306,6 +316,139 @@ def main():
                 profile_load_error = "File was not a valid profile file: invalid format"
                 print(profile_load_error)
                 return
+    
+    # Handle batch processing mode
+    if args.batch:
+        batch_file_path = args.batch
+        batch_load_error = None
+        print(f'Batch processing mode: Loading batch file {batch_file_path}')
+        print('')
+        
+        with open(batch_file_path, "rt", encoding="utf-8") as batch_file:
+            try:
+                batch_config = json.load(batch_file)
+            except Exception as e:
+                batch_load_error = f"File was not a valid batch file: {str(e)}"
+                print(batch_load_error)
+                return
+        
+        if not isinstance(batch_config, list):
+            print("Batch file must contain a JSON array of device configurations")
+            return
+        
+        print(f'Found {len(batch_config)} device(s) to process')
+        print('')
+        
+        successful = 0
+        failed = 0
+        
+        for idx, device_config in enumerate(batch_config, 1):
+            print('=' * 80)
+            print(f'Processing device {idx}/{len(batch_config)}')
+            print('=' * 80)
+            
+            # Validate required fields in device config
+            if not isinstance(device_config, dict):
+                print(f'Error: Device {idx} configuration is not a valid object')
+                failed += 1
+                continue
+            
+            device_input = device_config.get('input_path')
+            device_output = device_config.get('output_path')
+            device_type = device_config.get('type')
+            
+            if not device_input or not device_output or not device_type:
+                print(f'Error: Device {idx} missing required fields (input_path, output_path, type)')
+                failed += 1
+                continue
+            
+            # Validate paths
+            if not os.path.exists(device_input):
+                print(f'Error: Input path "{device_input}" does not exist for device {idx}')
+                failed += 1
+                continue
+            
+            if not os.path.exists(device_output):
+                print(f'Error: Output path "{device_output}" does not exist for device {idx}')
+                failed += 1
+                continue
+            
+            # Get optional parameters from device config or fall back to command-line args
+            device_timezone = device_config.get('timezone', args.timezone)
+            device_wrap_text = device_config.get('wrap_text', args.wrap_text)
+            device_custom_folder = device_config.get('custom_output_folder')
+            device_itunes_password = device_config.get('itunes_password')
+            device_profile = device_config.get('profile', args.load_profile)
+            device_case_data = device_config.get('case_data', args.load_case_data)
+            
+            # Load device-specific profile if provided
+            device_selected_plugins = selected_plugins.copy()
+            device_profile_filename = profile_filename
+            if device_profile and device_profile != args.load_profile:
+                if os.path.exists(device_profile):
+                    with open(device_profile, "rt", encoding="utf-8") as device_profile_file:
+                        try:
+                            profile = json.load(device_profile_file)
+                            if isinstance(profile, dict) and profile.get("leapp") == "ileapp":
+                                profile_plugins = set(profile.get("plugins", []))
+                                device_selected_plugins = [p for p in available_plugins if p.name in profile_plugins]
+                                device_profile_filename = device_profile
+                        except:
+                            print(f'Warning: Could not load profile for device {idx}, using default')
+            
+            # Load device-specific case data if provided
+            device_casedata = casedata.copy()
+            if device_case_data and device_case_data != args.load_case_data:
+                if os.path.exists(device_case_data):
+                    with open(device_case_data, "rt", encoding="utf-8") as device_case_file:
+                        try:
+                            case_data = json.load(device_case_file)
+                            if isinstance(case_data, dict) and case_data.get("leapp") == "case_data":
+                                device_casedata = case_data.get('case_data_values', {})
+                        except:
+                            print(f'Warning: Could not load case data for device {idx}, using default')
+            
+            # Prepare paths
+            device_input_path = device_input
+            device_output_path = os.path.abspath(device_output)
+            
+            if is_platform_windows():
+                if device_input_path[1] == ':' and device_type == 'fs': 
+                    device_input_path = '\\\\?\\' + device_input_path.replace('/', '\\')
+                if device_output_path[1] == ':': 
+                    device_output_path = '\\\\?\\' + device_output_path.replace('/', '\\')
+            
+            out_params = OutputParameters(device_output_path, device_custom_folder)
+            initialize_lava(device_input_path, out_params.report_folder_base, device_type)
+            
+            print(f'Device {idx}: Input={device_input}, Output={device_output}, Type={device_type}')
+            print('')
+            
+            # Process the device
+            try:
+                success = crunch_artifacts(
+                    device_selected_plugins, device_type, device_input_path, out_params, 
+                    device_wrap_text, loader, device_casedata, device_timezone, 
+                    device_profile_filename, device_itunes_password)
+                
+                lava_finalize_output(out_params.report_folder_base)
+                
+                if success:
+                    print(f'\nDevice {idx} processing completed successfully')
+                    successful += 1
+                else:
+                    print(f'\nDevice {idx} processing failed')
+                    failed += 1
+            except Exception as e:
+                print(f'\nDevice {idx} processing failed with error: {str(e)}')
+                failed += 1
+            
+            print('')
+        
+        print('=' * 80)
+        print(f'Batch processing completed: {successful} successful, {failed} failed out of {len(batch_config)} total')
+        print('=' * 80)
+        return
     
     input_path = args.input_path
     wrap_text = args.wrap_text

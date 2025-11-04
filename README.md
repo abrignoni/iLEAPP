@@ -80,9 +80,46 @@ pyinstaller /scripts/pyinstaller/ileappGUI_macos.spec
 
 ### CLI
 
+#### Single Device Processing
+
 ```
 $ python ileapp.py -t <zip | tar | fs | gz> -i <path_to_extraction> -o <path_for_report_output>
 ```
+
+#### Batch Processing (Multiple Devices)
+
+To process multiple devices in a single run, create a JSON batch file and use the `-b` or `--batch` option:
+
+```
+$ python ileapp.py -b batch_config.json
+```
+
+Example batch configuration file (`batch_config.json`):
+
+```json
+[
+  {
+    "input_path": "/path/to/device1",
+    "output_path": "/path/to/output1",
+    "type": "fs",
+    "timezone": "UTC",
+    "custom_output_folder": "device1_analysis"
+  },
+  {
+    "input_path": "/path/to/device2.zip",
+    "output_path": "/path/to/output2",
+    "type": "zip",
+    "timezone": "America/New_York",
+    "custom_output_folder": "device2_analysis"
+  }
+]
+```
+
+Each device configuration in the batch file supports the following parameters:
+- **Required**: `input_path`, `output_path`, `type`
+- **Optional**: `timezone`, `custom_output_folder`, `profile`, `case_data`, `itunes_password`, `wrap_text`
+
+See `batch_example.json` for a complete example.
 
 ### GUI
 
