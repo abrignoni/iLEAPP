@@ -444,10 +444,15 @@ def main():
                 lava_finalize_output(out_params.report_folder_base)
                 
                 if success:
-                    print(f'\nDevice {idx} processing completed successfully')
+                    # Remove Windows path prefix for display
+                    report_location = out_params.report_folder_base
+                    if report_location.startswith('\\\\?\\'):
+                        report_location = report_location[4:]
+                    logfunc(f'\nDevice {idx} processing completed successfully')
+                    logfunc(f'Report location: {report_location}')
                     successful += 1
                 else:
-                    print(f'\nDevice {idx} processing failed')
+                    logfunc(f'\nDevice {idx} processing failed')
                     failed += 1
             except Exception as e:
                 logfunc(f'\nDevice {idx} processing failed with error: {str(e)}')
