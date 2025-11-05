@@ -23,6 +23,8 @@ def blockedContacts(context):
     data_list = []
 
     pl = get_plist_file_content(source_path)
+    if not pl or not isinstance(pl, dict):
+        return (), [], ''
     StoreArrayKey = pl.get('__kCMFBlockListStoreTopLevelKey', {}).get('__kCMFBlockListStoreArrayKey', {})
     for item in StoreArrayKey:
         type_key = item.get('__kCMFItemTypeKey', '')
