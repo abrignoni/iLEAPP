@@ -66,7 +66,7 @@ def validate_args(args):
         raise argparse.ArgumentError(None, 'iLEAPP Profile file not found! Run the program again.')
 
     try:
-        timezone = pytz.timezone(args.timezone)
+        pytz.timezone(args.timezone)
     except pytz.UnknownTimeZoneError:
       raise argparse.ArgumentError(None, 'Unknown timezone! Run the program again.')
         
@@ -200,7 +200,7 @@ def main():
             available_plugins.append(plugin)
     selected_plugins = available_plugins.copy()
     profile_filename = None
-    casedata = {}
+    casedata: typing.Dict[str, typing.Any] = {}
 
     # Check if no arguments were provided
     if len(sys.argv) == 1:
@@ -384,12 +384,12 @@ def main():
                 continue
             
             # Get optional parameters from device config or fall back to command-line args
-            device_timezone = device_config.get('timezone', args.timezone)
-            device_wrap_text = device_config.get('wrap_text', args.wrap_text)
-            device_custom_folder = device_config.get('custom_output_folder')
-            device_itunes_password = device_config.get('itunes_password')
-            device_profile = device_config.get('profile', args.load_profile)
-            device_case_data = device_config.get('case_data', args.load_case_data)
+            device_timezone: str = device_config.get('timezone', args.timezone) # pyright: ignore[reportUnknownVariableType]
+            device_wrap_text: bool = device_config.get('wrap_text', args.wrap_text)
+            device_custom_folder: typing.Optional[str] = device_config.get('custom_output_folder')
+            device_itunes_password: typing.Optional[str] = device_config.get('itunes_password')
+            device_profile: typing.Optional[str] = device_config.get('profile', args.load_profile)
+            device_case_data: typing.Optional[str] = device_config.get('case_data', args.load_case_data)
             
             # Load device-specific profile if provided
             device_selected_plugins = selected_plugins.copy()
@@ -407,7 +407,7 @@ def main():
                             logfunc(f'Warning: Could not load profile for device {idx}, using default: {str(e)}')
             
             # Load device-specific case data if provided
-            device_casedata = casedata.copy()
+            device_casedata: typing.Dict[str, typing.Any] = casedata.copy()
             if device_case_data and device_case_data != args.load_case_data:
                 if os.path.exists(device_case_data):
                     with open(device_case_data, "rt", encoding="utf-8") as device_case_file:
