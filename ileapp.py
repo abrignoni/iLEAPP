@@ -160,6 +160,106 @@ def create_casedata(path):
     print()
     return
 
+def generate_dubai_police_html_report(report_folder_base, input_path, time_offset):
+    """
+    Generate a Dubai Police–style HTML report layout with header, metadata, evidence summary, and logs.
+    """
+    import datetime
+    html_dir = os.path.join(report_folder_base, '_HTML')
+    if not os.path.exists(html_dir):
+        try:
+            os.makedirs(html_dir)
+        except Exception:
+            html_dir = report_folder_base
+    report_file = os.path.join(html_dir, 'Dubai_Police_Forensics_Report.html')
+    now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    html_content = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dubai Police Forensic Analysis Report</title>
+    <style>
+        body {{
+            font-family: Arial, sans-serif;
+            background: #f6f6f6;
+            margin: 0; padding: 0;
+        }}
+        .header {{
+            background: #006e3c;
+            color: white;
+            padding: 30px 20px 20px 20px;
+            text-align: center;
+        }}
+        .section {{
+            background: white;
+            margin: 30px auto;
+            padding: 25px 30px;
+            border-radius: 8px;
+            max-width: 900px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+        }}
+        h1 {{
+            margin-bottom: 10px;
+        }}
+        h2 {{
+            color: #006e3c;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 5px;
+        }}
+        .meta-table {{
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }}
+        .meta-table td {{
+            padding: 5px 12px;
+            border-bottom: 1px solid #eaeaea;
+        }}
+        .logs {{
+            font-family: monospace;
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            max-height: 250px;
+        }}
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Dubai Police Forensic Analysis</h1>
+        <div>Forensics &amp; Evidence Department</div>
+        <div style="margin-top:10px; font-size:1.1em;">Report generated: {now}</div>
+    </div>
+    <div class="section">
+        <h2>Metadata</h2>
+        <table class="meta-table">
+            <tr><td><b>Input Path</b></td><td>{input_path}</td></tr>
+            <tr><td><b>Timezone</b></td><td>{time_offset}</td></tr>
+            <tr><td><b>Report Output Folder</b></td><td>{report_folder_base}</td></tr>
+        </table>
+    </div>
+    <div class="section">
+        <h2>Evidence Summary</h2>
+        <p><i>Summary of extracted artifacts and findings will appear here.</i></p>
+        <ul>
+            <li>Number of artifacts processed: <b>[Placeholder]</b></li>
+            <li>Key evidence highlights: <b>[Placeholder]</b></li>
+            <li>Examiner: <b>[Placeholder]</b></li>
+        </ul>
+    </div>
+    <div class="section">
+        <h2>Detailed Logs</h2>
+        <div class="logs">
+            <i>Log details and extraction steps will be included here.</i>
+        </div>
+    </div>
+</body>
+</html>
+"""
+    with open(report_file, "w", encoding="utf-8") as f:
+        f.write(html_content)
+
 def main():
     parser = argparse.ArgumentParser(description=f'iLEAPP v{ileapp_version}: iOS Logs, Events, And Plists Parser.')
     parser.add_argument('-t', choices=['fs', 'tar', 'zip', 'gz', 'itunes', 'file'], required=False, action="store",
@@ -485,6 +585,7 @@ def main():
     crunch_artifacts(selected_plugins, extracttype, input_path, out_params, wrap_text, loader, casedata, time_offset, profile_filename, itunes_backup_password)
 
     lava_finalize_output(out_params.report_folder_base)
+    generate_dubai_police_html_report(out_params.report_folder_base, input_path, time_offset)
 
 def crunch_artifacts(
         plugins: typing.Sequence[plugin_loader.PluginSpec], extracttype, input_path, out_params, wrap_text,
@@ -701,4 +802,4 @@ def crunch_artifacts(
 
 if __name__ == '__main__':
     main()
-    
+
