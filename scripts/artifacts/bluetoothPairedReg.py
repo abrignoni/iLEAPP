@@ -13,7 +13,7 @@ __artifacts_v2__ = {
     }
 }
 
-from scripts.ilapfuncs import artifact_processor, convert_unix_ts_to_str, get_plist_file_content
+from scripts.ilapfuncs import artifact_processor, convert_unix_ts_to_utc, get_plist_file_content
 
 @artifact_processor
 def get_bluetoothPairedReg(context):
@@ -26,7 +26,7 @@ def get_bluetoothPairedReg(context):
             for x in plist.items():
                 macaddress = x[0]
                 if 'LastSeenTime' in x[1]:
-                    lastseen = convert_unix_ts_to_str(x[1]['LastSeenTime'])
+                    lastseen = convert_unix_ts_to_utc(x[1]['LastSeenTime'])
                 else:
                     lastseen = ''
                 if 'UserNameKey' in x[1]:
@@ -49,6 +49,6 @@ def get_bluetoothPairedReg(context):
 
                 data_list.append((lastseen, macaddress, usernkey, nameu, deviceid, defname, file_found))
 
-        data_headers = ('Last Seen Time', 'MAC Address', 'Name Key', 'Name', 'Device Product ID', 'Default Name', 'Source File')     
+        data_headers = (('Last Seen Time', 'datetime'), 'MAC Address', 'Name Key', 'Name', 'Device Product ID', 'Default Name', 'Source File')     
 
         return data_headers, data_list, 'see Source File for more info'
