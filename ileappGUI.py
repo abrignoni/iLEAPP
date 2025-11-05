@@ -1,4 +1,5 @@
 import tkinter as tk
+import sys
 import typing
 import json
 import ileapp
@@ -7,7 +8,12 @@ import base64
 
 import scripts.plugin_loader as plugin_loader
 
-from PIL import Image, ImageTk
+try:
+    from PIL import Image, ImageTk
+except ImportError:
+    print("Warning: Pillow library not found. Please install it with: pip install Pillow")
+    sys.exit(1)
+
 from tkinter import ttk, filedialog as tk_filedialog, messagebox as tk_msgbox
 from scripts.version_info import ileapp_version
 from scripts.search_files import *
