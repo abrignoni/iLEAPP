@@ -37,7 +37,7 @@ def pickModules():
                 or plugin.module_name == 'logarchive' and plugin.name != 'logarchive'):
             continue
         # Items that take a long time to execute are deselected by default
-        # and referenced in the modules_to_exclude list in an external file (modules_to_exclude.py).
+        # and referenced in the modules_to_exclude list in an external file (modules_to-exclude.py).
         plugin_enabled = tk.BooleanVar(value=False) if plugin.module_name in modules_to_exclude else tk.BooleanVar(value=True)
         plugin_module_name = plugin.artifact_info.get('name', plugin.name) if hasattr(plugin, 'artifact_info') else plugin.name
         mlist[plugin.name] = [plugin.category, plugin_module_name, plugin.module_name, plugin_enabled]
