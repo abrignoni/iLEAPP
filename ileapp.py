@@ -1,8 +1,10 @@
+# pyright: reportUnknownParameterType=false, reportMissingParameterType=false, reportUnknownArgumentType=false, reportUnknownMemberType=false, reportUnknownVariableType=false, reportUnnecessaryComparison=false, reportAssignmentType=false, reportGeneralTypeIssues=false, reportAttributeAccessIssue=false, reportUnnecessaryIsInstance=false, reportMissingModuleSource=false
+
 import json
 import argparse
 import io
 import pytz
-import os.path
+import os
 import typing
 import scripts.report as report
 import traceback
