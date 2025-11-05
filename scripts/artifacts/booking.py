@@ -126,7 +126,7 @@ __artifacts_v2__ = {
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/NotificationsModel.sqlite*'),
         "output_types": [ "lava", "html", "tsv", "timeline" ],
-        "html_columns": [ "Image URL", "Action arguments", "Source file name", "Location" ],
+        "html_columns": [ "Action arguments", "Source file name", "Location" ],
         "artifact_icon": "bell"
     },
     "booking_flights_searched": {
@@ -481,10 +481,10 @@ def booking_account(context):
 
                 # html row
                 data_list_html.append((birth_date, first_name, last_name, nickname, pp_url_html, gender, street, city, zip_code,country, phone_number,
-                                       emails_html, is_genius, facilities_html, uid, auth_token, source_file_name_html, source_file_name, location))
+                                       emails_html, is_genius, facilities_html, uid, auth_token, source_file_name_html, location))
                 # lava row
                 data_list.append((birth_date, first_name, last_name, nickname, pp_url, gender, street, city, zip_code,country, phone_number,
-                                  emails, is_genius, facilities, uid, auth_token, source_file_name_html, source_file_name, location))
+                                  emails, is_genius, facilities, uid, auth_token, source_file_name, location))
             except Exception as ex:
                 logfunc(f"Exception while parsing {context.get_artifact_name()} - {file_found}: " + str(ex))
                 pass
@@ -622,11 +622,12 @@ def booking_payment_methods(context):
                     # source file name
                     device_file_paths = dict.fromkeys(device_file_paths)
                     source_file_name = unordered_list(device_file_paths)
+                    source_file_name_html = unordered_list(device_file_paths, html_format=True)
                     # location
                     location = f"[user_profile][cc_details][{i}]"
 
                     # html row
-                    data_list_html.append((id, type_, status, valid_thru, cardholder_name, last_digits, is_business, source_file_name, location))
+                    data_list_html.append((id, type_, status, valid_thru, cardholder_name, last_digits, is_business, source_file_name_html, location))
                     # lava row
                     data_list.append((id, type_, status, valid_thru, cardholder_name, last_digits, is_business, source_file_name, location))
             except Exception as ex:
@@ -778,12 +779,13 @@ def booking_stored_destinations(context):
                     # source file name
                     device_file_paths = dict.fromkeys(device_file_paths)
                     source_file_name = unordered_list(device_file_paths)
+                    source_file_name_html = unordered_list(device_file_paths, html_format=True)
                     # location
                     location = f"[stored_destinations][{i}]"
 
                     # html row
                     data_list_html.append((created, type_, id, dest_name, description, city_name, region_name, country_name, latitude, longitude,
-                                      timezone, image_url_html, source_file_name, location))
+                                      timezone, image_url_html, source_file_name_html, location))
                     # lava row
                     data_list.append((created, type_, id, dest_name, description, city_name, region_name, country_name, latitude, longitude,
                                       timezone, image_url, source_file_name, location))
@@ -905,12 +907,13 @@ def booking_recently_searched(context):
                     # source file name
                     device_file_paths = dict.fromkeys(device_file_paths)
                     source_file_name = unordered_list(device_file_paths)
+                    source_file_name_html = unordered_list(device_file_paths, html_format=True)
                     # location
                     location = f"[stored_searches][{i}]"
 
                     # html row
                     data_list_html.append((searched, type_, id, dest_name, description, city_name, region_name, country_name, latitude, longitude,
-                                      timezone, check_in, check_out, number_of_rooms, guests_per_room, number_of_nights, source, source_file_name, location))
+                                      timezone, check_in, check_out, number_of_rooms, guests_per_room, number_of_nights, source, source_file_name_html, location))
                     # lava row
                     data_list.append((searched, type_, id, dest_name, description, city_name, region_name, country_name, latitude, longitude,
                                       timezone, check_in, check_out, number_of_rooms, guests_per_room, number_of_nights, source, source_file_name, location))
@@ -1009,12 +1012,13 @@ def booking_recently_booked(context):
                         # source file name
                         device_file_paths = dict.fromkeys(device_file_paths)
                         source_file_name = unordered_list(device_file_paths)
+                        source_file_name_html = unordered_list(device_file_paths, html_format=True)
                         # location
                         location = f"[booked][{key}]"
 
                         # html row
                         data_list_html.append((type_, id, hotel_name, address, city_name, region_name, zip_code, latitude, longitude,
-                                               check_in, check_out, p_url_html, website_html, source_file_name, location))
+                                               check_in, check_out, p_url_html, website_html, source_file_name_html, location))
                         # lava row
                         data_list.append((type_, id, hotel_name, address, city_name, region_name, zip_code, latitude, longitude,
                                                check_in, check_out, p_url, website, source_file_name, location))
@@ -1228,13 +1232,14 @@ def booking_booked(context):
                         # source file name
                         device_file_paths = dict.fromkeys(device_file_paths)
                         source_file_name = unordered_list(device_file_paths)
+                        source_file_name_html = unordered_list(device_file_paths, html_format=True)
                         # location
                         location = f"[{key_root}][{key}]"
 
                         # html row
                         data_list_html.append((created, hotel_id, hotel_name, full_address, hotel_timezone, registration_html, hotel_contacts_html,
                                                confirm_info_html, total_price, number_of_rooms, rooms_html, booker_details_html, source, att_media_ref_id,
-                                               source_file_name, location))
+                                               source_file_name_html, location))
                         # lava row
                         data_list.append((created, hotel_id, hotel_name, full_address, hotel_timezone, registration, hotel_contacts,
                                           confirm_info, total_price, number_of_rooms, rooms, booker_details, source, att_media_ref_id,
@@ -1664,10 +1669,10 @@ def booking_flights_searched(context):
 
                     # html row
                     data_list_html.append((last_updated, start_date, return_date, direct_flight, search_type, cabin_class, source_airports_html,
-                                           destination_airports_html, routes_html, travellers_details_html, source_file_name_html, source_file_name, location))
+                                           destination_airports_html, routes_html, travellers_details_html, source_file_name_html, location))
                     # lava row
                     data_list.append((last_updated, start_date, return_date, direct_flight, search_type, cabin_class, source_airports,
-                                      destination_airports, routes, travellers_details, source_file_name_html, source_file_name, location))
+                                      destination_airports, routes, travellers_details, source_file_name, location))
             except Exception as ex:
                 logfunc(f"Exception while parsing {context.get_artifact_name()} - {file_found}: " + str(ex))
                 pass
