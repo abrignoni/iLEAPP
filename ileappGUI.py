@@ -11,6 +11,7 @@ from PIL import Image, ImageTk
 from tkinter import ttk, filedialog as tk_filedialog, messagebox as tk_msgbox
 from scripts.version_info import ileapp_version
 from scripts.search_files import *
+from scripts.ilapfuncs import *
 from scripts.tz_offset import tzvalues
 from scripts.modules_to_exclude import modules_to_exclude
 from scripts.lavafuncs import *
