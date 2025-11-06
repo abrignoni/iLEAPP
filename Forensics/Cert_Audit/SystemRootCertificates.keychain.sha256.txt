@@ -1,0 +1,2 @@
+subject= /C=US/O=DigiCert, Inc./CN=DigiCert TLS ECC P384 Root G5
+SHA256 Fingerprint=01:8E:13:F0:77:25:32:CF:80:9B:D1:B1:72:81:86:72:83:FC:48:C6:E1:3B:E9:C6:98:12:85:4A:49:0C:1B:05
