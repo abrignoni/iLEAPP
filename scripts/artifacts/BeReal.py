@@ -1,25 +1,10 @@
 __artifacts_v2__ = {
-    "bereal_preferences": {
-        "name": "BeReal Preferences",
-        "description": "Parses and extract BeReal Preferences",
-        "author": "@djangofaiola",
-        "version": "0.1",
-        "creation_date": "2024-12-20",
-        "last_update_date": "2024-03-09",
-        "requirements": "none",
-        "category": "BeReal",
-        "notes": "https://djangofaiola.blogspot.com",
-        "paths": ('*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.BeReal.plist'),
-        "output_types": [ "none" ],
-        "artifact_icon": "settings"
-    },
     "bereal_accounts": {
         "name": "BeReal Accounts",
         "description": "Parses and extract BeReal Accounts",
         "author": "@djangofaiola",
-        "version": "0.1",
         "creation_date": "2024-12-20",
-        "last_update_date": "2024-03-08",
+        "last_update_date": "2025-10-31",
         "requirements": "none",
         "category": "BeReal",
         "notes": "https://djangofaiola.blogspot.com",
@@ -32,9 +17,8 @@ __artifacts_v2__ = {
         "name": "BeReal Contacts",
         "description": "Parses and extract BeReal Contacts",
         "author": "@djangofaiola",
-        "version": "0.1",
         "creation_date": "2024-12-20",
-        "last_update_date": "2025-05-13",
+        "last_update_date": "2025-10-31",
         "requirements": "none",
         "category": "BeReal",
         "notes": "https://djangofaiola.blogspot.com",
@@ -47,9 +31,8 @@ __artifacts_v2__ = {
         "name": "BeReal Persons",
         "description": "Parses and extract BeReal Persons",
         "author": "@djangofaiola",
-        "version": "0.1",
         "creation_date": "2024-12-20",
-        "last_update_date": "2024-03-08",
+        "last_update_date": "2025-10-31",
         "requirements": "none",
         "category": "BeReal",
         "notes": "https://djangofaiola.blogspot.com",
@@ -62,9 +45,8 @@ __artifacts_v2__ = {
         "name": "BeReal Friends",
         "description": "Parses and extract BeReal Friends, Friend Requests Sent, Friend Requests Received, and Friends Following",
         "author": "@djangofaiola",
-        "version": "0.1",
         "creation_date": "2024-12-20",
-        "last_update_date": "2024-03-08",
+        "last_update_date": "2025-10-31",
         "requirements": "none",
         "category": "BeReal",
         "notes": "https://djangofaiola.blogspot.com",
@@ -81,9 +63,8 @@ __artifacts_v2__ = {
         "name": "BeReal Blocked Users",
         "description": "Parses and extract BeReal Blocked Users",
         "author": "@djangofaiola",
-        "version": "0.1",
         "creation_date": "2024-12-20",
-        "last_update_date": "2024-03-08",
+        "last_update_date": "2025-10-31",
         "requirements": "none",
         "category": "BeReal",
         "notes": "https://djangofaiola.blogspot.com",
@@ -96,13 +77,13 @@ __artifacts_v2__ = {
         "name": "BeReal Posts",
         "description": "Parses and extract BeReal Memories, Person BeReal of the day and Production Feeds",
         "author": "@djangofaiola",
-        "version": "0.1",
         "creation_date": "2024-12-20",
-        "last_update_date": "2024-03-08",
+        "last_update_date": "2025-10-31",
         "requirements": "none",
         "category": "BeReal",
         "notes": "https://djangofaiola.blogspot.com",
-        "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-MemoriesRepository-subject-key/*',
+        "paths": ('*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.BeReal.plist',
+                  '*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-MemoriesRepository-subject-key/*',
                   '*/mobile/Containers/Data/Application/*/Library/Caches/PersonRepository/*',
                   '*/mobile/Containers/Shared/AppGroup/*/disk-bereal-Production_postFeedItems/*'),
         "output_types": [ "lava", "html", "tsv", "timeline" ],
@@ -113,9 +94,8 @@ __artifacts_v2__ = {
         "name": "BeReal Pinned Memories",
         "description": "Parses and extract BeReal Pinned Memories",
         "author": "@djangofaiola",
-        "version": "0.1",
         "creation_date": "2024-12-20",
-        "last_update_date": "2024-03-08",
+        "last_update_date": "2025-10-31",
         "requirements": "none",
         "category": "BeReal",
         "notes": "https://djangofaiola.blogspot.com",
@@ -129,13 +109,13 @@ __artifacts_v2__ = {
         "name": "BeReal RealMojis",
         "description": "Parses and extract BeReal RealMojis from my memories and Person's memories",
         "author": "@djangofaiola",
-        "version": "0.1",
         "creation_date": "2024-12-20",
-        "last_update_date": "2024-03-08",
+        "last_update_date": "2025-10-31",
         "requirements": "none",
         "category": "BeReal",
         "notes": "https://djangofaiola.blogspot.com",
-        "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-MemoriesRepository-subject-key/*',
+        "paths": ('*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.BeReal.plist',
+                  '*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-MemoriesRepository-subject-key/*',
                   '*/mobile/Containers/Data/Application/*/Library/Caches/PersonRepository/*',
                   '*/mobile/Containers/Shared/AppGroup/*/disk-bereal-Production_postFeedItems/*'),
         "output_types": [ "lava", "html", "tsv", "timeline" ],
@@ -155,13 +135,13 @@ __artifacts_v2__ = {
         "name": "BeReal Comments",
         "description": "Parses and extract BeReal Comments from my memories, Person's posts, and Production post Feeds",
         "author": "@djangofaiola",
-        "version": "0.1",
         "creation_date": "2024-12-20",
-        "last_update_date": "2024-03-08",
+        "last_update_date": "2025-10-31",
         "requirements": "none",
         "category": "BeReal",
         "notes": "https://djangofaiola.blogspot.com",
-        "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-MemoriesRepository-subject-key/*',
+        "paths": ('*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.BeReal.plist',
+                  '*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-MemoriesRepository-subject-key/*',
                   '*/mobile/Containers/Data/Application/*/Library/Caches/PersonRepository/*',
                   '*/mobile/Containers/Shared/AppGroup/*/disk-bereal-Production_postFeedItems/*'),
         "output_types": [ "lava", "html", "tsv", "timeline" ],
@@ -181,13 +161,13 @@ __artifacts_v2__ = {
         "name": "BeReal Messages",
         "description": "Parses and extract BeReal Messages",
         "author": "@djangofaiola",
-        "version": "0.1",
         "creation_date": "2024-12-20",
-        "last_update_date": "2024-03-08",
+        "last_update_date": "2025-10-31",
         "requirements": "none",
         "category": "BeReal",
         "notes": "https://djangofaiola.blogspot.com",
-        "paths": ('*/mobile/Containers/Shared/AppGroup/*/bereal-chat.sqlite*'),
+        "paths": ('*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.BeReal.plist',
+                  '*/mobile/Containers/Shared/AppGroup/*/bereal-chat.sqlite*'),
         "output_types": [ "lava", "html", "tsv", "timeline" ],
         "html_columns": [ "Media URL" ],
         "chatParams": {
@@ -205,13 +185,13 @@ __artifacts_v2__ = {
         "name": "BeReal Chat List",
         "description": "Parses and extract BeReal Chat List",
         "author": "@djangofaiola",
-        "version": "0.1",
         "creation_date": "2024-12-20",
-        "last_update_date": "2024-03-08",
+        "last_update_date": "2025-10-31",
         "requirements": "none",
         "category": "BeReal",
         "notes": "https://djangofaiola.blogspot.com",
-        "paths": ('*/mobile/Containers/Shared/AppGroup/*/bereal-chat.sqlite*'),
+        "paths": ('*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.BeReal.plist',
+                  '*/mobile/Containers/Shared/AppGroup/*/bereal-chat.sqlite*'),
         "output_types": [ "lava", "html", "tsv", "timeline" ],
         "html_columns": [ "Administrators", "Participants" ],
         "artifact_icon": "message-circle"
@@ -219,7 +199,6 @@ __artifacts_v2__ = {
 }
 
 from pathlib import Path
-import inspect
 import json
 from datetime import timedelta
 from base64 import standard_b64decode
@@ -229,8 +208,12 @@ from scripts.ilapfuncs import get_file_path, get_sqlite_db_records, get_plist_co
 
 # <id, fullname|username>
 map_id_name = {}
+
 # bereal user id
 bereal_user_id = None
+
+# flag
+_bereal_processed = False
 
 
 def format_userid(id, name=None):
@@ -453,73 +436,56 @@ def get_tags(obj, html_format=False):
 
     return '<br />'.join(tag_list) if html_format else '\n'.join(tag_list)
 
+# set up global variables
+def process_bereal_preferences(plist_path):
+    global map_id_name, bereal_user_id, _bereal_processed
+    
+    plist_data = get_plist_file_content(plist_path)
+    if not (plist_data):
+        logfunc(f"BeReal Helper: Couldn't parse data from plist")
+    
+    try:
+        # me <id, username>
+        user_name = 'Local User'
+        user_id = plist_data.get('bereal-user-id')
+        if not bool(user_id):
+            user_id = plist_data.get('userId')
+        if not bool(user_id):
+            user_id = plist_data.get('myUserID')
+        if bool(user_id):
+            user_name = plist_data.get('myAccount', {}).get(user_id, {}).get('username')
+            if not bool(user_name): user_name = 'Local User'
+            map_id_name[user_id] = user_name
+            # bereal user id
+            bereal_user_id = user_id
+            # local profile picture (file:///private/var/mobile/Containers/Shared/AppGroup/<APP_GUID>/notification/file.jpg)
+            bereal_profile_picture = plist_data.get('myAccount', {}).get(user_id, {}).get('profilePictureURL')
 
-# preferences
-@artifact_processor
-def bereal_preferences(files_found, report_folder, seeker, wrap_text, timezone_offset):
-
-    source_path = None
-    global bereal_user_id
-
-    # all files
-    for file_found in files_found:
-        # prefs
-        plist_data = get_plist_file_content(file_found)
-        if not bool(plist_data):
-            continue
-
-        try:
-            # source path
-            source_path = file_found
-
-            # group
-            if str(file_found).endswith('group.BeReal.plist'):
-                # me <id, username>
-                user_name = 'Local User'
-                user_id = plist_data.get('bereal-user-id')
-                if not bool(user_id):
-                    user_id = plist_data.get('userId')
-                if not bool(user_id):
-                    user_id = plist_data.get('myUserID')
-                if bool(user_id):
-                    user_name = plist_data.get('myAccount', {}).get(user_id, {}).get('username')
-                    if not bool(user_name): user_name = 'Local User'
-                    map_id_name[user_id] = user_name
-                    # bereal user id
-                    bereal_user_id = user_id
-                    # local profile picture (file:///private/var/mobile/Containers/Shared/AppGroup/<APP_GUID>/notification/file.jpg)
-                    bereal_profile_picture = plist_data.get('myAccount', {}).get(user_id, {}).get('profilePictureURL')
-
-                # current friends <id, fullname>
-                current_friends = plist_data.get('currentFriends', {})
-                for user_id, user_name in current_friends.items():
-                    map_id_name[user_id] = user_name
+        # current friends <id, fullname>
+        current_friends = plist_data.get('currentFriends', {})
+        for user_id, user_name in current_friends.items():
+            map_id_name[user_id] = user_name
             
-            # app
-            else:
-                continue
+        _bereal_processed = True
+        return True
 
-        except Exception as e:
-            logfunc(f"Error: {str(e)}")
-            pass
-
-    # return empty
-    return (), [], source_path
+    except Exception as e:
+        logfunc(f"Error: {str(e)}")
+        pass
 
 
 # accounts
 @artifact_processor
-def bereal_accounts(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def bereal_accounts(context):
 
     data_headers = [ 'Created', 'Profile type', 'Full name', 'User name', 'Profile picture URL', 'Gender', 'Birthday', 'Biography', 
                      'Country code', 'Region', 'Address', 'Timezone', 'Phone number', 'Device UID', 'Device Model and OS', 'App version', 
                      'Private', 'RealMojis', 'User ID', 'Source file name' ]
     data_list = []
     data_list_html = []
-    source_paths = set()
 
     # all files
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         # accounts
         json_data = get_json_data(file_found)
         if not bool(json_data):
@@ -532,7 +498,6 @@ def bereal_accounts(files_found, report_folder, seeker, wrap_text, timezone_offs
             else:
                 file_location = str(Path(file_found).parents[1])
                 file_rel_path = str(Path(file_found).relative_to(file_location))
-            source_paths.add(file_location)
 
             # account
             account = json_data.get('object')
@@ -548,7 +513,7 @@ def bereal_accounts(files_found, report_folder, seeker, wrap_text, timezone_offs
             # username
             username = account.get('username')
             # profile picture url
-            pp_mt, pp_url, pp_size = get_media(account.get('profilePicture'))
+            _, pp_url, _ = get_media(account.get('profilePicture'))
             pp_url_html = generic_url(pp_url, html_format = True)
             # gender          
             gender = get_key0(account.get('gender'))
@@ -629,15 +594,12 @@ def bereal_accounts(files_found, report_folder, seeker, wrap_text, timezone_offs
     data_headers[6] = (data_headers[6], 'date')
     data_headers[12] = (data_headers[12], 'phonenumber')
 
-    # paths
-    source_path = ', '.join(source_paths)
-
-    return data_headers, (data_list, data_list_html), source_path
+    return data_headers, (data_list, data_list_html), 'see Source File name for more info'
 
 
 # contacts
 @artifact_processor
-def bereal_contacts(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def bereal_contacts(context):
 
     data_headers = ('Full name', 
                     'Family name', 
@@ -650,10 +612,9 @@ def bereal_contacts(files_found, report_folder, seeker, wrap_text, timezone_offs
                     'Location')
     data_list = []
     data_list_html = []
-    source_paths = set()
 
     # all files
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         json_data = get_json_data(file_found)
         if not bool(json_data):
             continue
@@ -665,7 +626,6 @@ def bereal_contacts(files_found, report_folder, seeker, wrap_text, timezone_offs
             else:
                 file_location = str(Path(file_found).parents[1])
                 file_rel_path = str(Path(file_found).relative_to(file_location))
-            source_paths.add(file_location)
 
             # contacts
             contacts = json_data.get('object')
@@ -716,24 +676,20 @@ def bereal_contacts(files_found, report_folder, seeker, wrap_text, timezone_offs
             logfunc(f"Error: {str(e)}")
             pass
 
-    # paths
-    source_path = ', '.join(source_paths)
-
-    return data_headers, (data_list, data_list_html), source_path
+    return data_headers, (data_list, data_list_html), 'see Source File name for more info'
 
 
 # persons
 @artifact_processor
-def bereal_persons(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def bereal_persons(context):
 
     data_headers = [ 'Created', 'Profile type', 'Full name', 'User name', 'Profile picture URL', 'Biography', 'Address',
                      'Relationship', 'Friended at', 'Urls', 'Streak count', 'Unique ID', 'Source file name', 'Location' ]
     data_list = []
     data_list_html = []
-    source_paths = set()
 
     # all files
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         json_data = get_json_data(file_found)
         if not bool(json_data):
             continue
@@ -745,7 +701,6 @@ def bereal_persons(files_found, report_folder, seeker, wrap_text, timezone_offse
             else:
                 file_location = str(Path(file_found).parents[1])
                 file_rel_path = str(Path(file_found).relative_to(file_location))
-            source_paths.add(file_location)
             
             # person
             person = json_data.get('object')
@@ -808,24 +763,20 @@ def bereal_persons(files_found, report_folder, seeker, wrap_text, timezone_offse
     data_headers[0] = (data_headers[0], 'datetime')
     data_headers[8] = (data_headers[8], 'datetime')
 
-    # paths
-    source_path = ', '.join(source_paths)
-
-    return data_headers, (data_list, data_list_html), source_path
+    return data_headers, (data_list, data_list_html), 'see Source File name for more info'
 
 
 # friends
 @artifact_processor
-def bereal_friends(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def bereal_friends(context):
 
     data_headers = [ 'Status updated at', 'Status', 'Profile type', 'Full name', 'Username', 'Profile picture URL', 'Mutual friends', 'Unique ID', 
                      'Source file name', 'Location' ]
     data_list = []
     data_list_html = []
-    source_paths = set()
 
     # all files
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         json_data = get_json_data(file_found)
         if not bool(json_data):
             continue
@@ -837,7 +788,6 @@ def bereal_friends(files_found, report_folder, seeker, wrap_text, timezone_offse
             else:
                 file_location = str(Path(file_found).parents[1])
                 file_rel_path = str(Path(file_found).relative_to(file_location))
-            source_paths.add(file_location)
             
             # object?
             obj_ref = json_data.get('object')
@@ -938,23 +888,19 @@ def bereal_friends(files_found, report_folder, seeker, wrap_text, timezone_offse
     # lava types
     data_headers[0] = (data_headers[0], 'datetime')
 
-    # paths
-    source_path = ', '.join(source_paths)
-
-    return data_headers, (data_list, data_list_html), source_path
+    return data_headers, (data_list, data_list_html), 'see Source File name for more info'
 
 
 # blocked users
 @artifact_processor
-def bereal_blocked_users(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def bereal_blocked_users(context):
 
     data_headers = [ 'Blocked', 'Full name', 'Username', 'Profile picture URL', 'Unique ID', 'Source file name', 'Location' ]
     data_list = []
     data_list_html = []
-    source_paths = set()
 
     # all files
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         json_data = get_json_data(file_found)
         if not bool(json_data):
             continue
@@ -966,7 +912,6 @@ def bereal_blocked_users(files_found, report_folder, seeker, wrap_text, timezone
             else:
                 file_location = str(Path(file_found).parents[1])
                 file_rel_path = str(Path(file_found).relative_to(file_location))
-            source_paths.add(file_location)
 
             # friends
             friends = json_data.get('object')
@@ -1007,25 +952,28 @@ def bereal_blocked_users(files_found, report_folder, seeker, wrap_text, timezone
     # lava types
     data_headers[0] = (data_headers[0], 'datetime')
 
-    # paths
-    source_path = ', '.join(source_paths)
-
-    return data_headers, (data_list, data_list_html), source_path
+    return data_headers, (data_list, data_list_html), 'see Source File name for more info'
 
 
 # posts
 @artifact_processor
-def bereal_posts(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def bereal_posts(context):
 
     data_headers = [ 'Taken at', 'Moment day', 'Post type', 'Author', 'Primary media type', 'Primary URL', 'Secondary media type', 'Secondary URL',
                      'Thumbnail media type', 'Thumbnail URL', 'Caption', 'Latitude', 'Longitude', 'Retake counter', 'Late time', 'Tagged friends',
                      'Moment ID', 'BeReal ID', 'Source file name', 'Location' ]
     data_list = []
     data_list_html = []
-    source_paths = set()
+    files_found = context.get_files_found()
+    if not _bereal_processed: 
+        preferences_file = get_file_path(files_found,'group.BeReal.plist')
+        process_bereal_preferences(preferences_file)
 
     # all files
     for file_found in files_found:
+        if str(file_found).endswith('group.BeReal.plist'):
+            continue
+        
         json_data = get_json_data(file_found)
         if not bool(json_data):
             continue
@@ -1037,7 +985,6 @@ def bereal_posts(files_found, report_folder, seeker, wrap_text, timezone_offset)
             else:
                 file_location = str(Path(file_found).parents[1])
                 file_rel_path = str(Path(file_found).relative_to(file_location))
-            source_paths.add(file_location)
 
             # object?
             obj_ref = json_data.get('object')
@@ -1089,10 +1036,10 @@ def bereal_posts(files_found, report_folder, seeker, wrap_text, timezone_offset)
                     # retake counter
                     retake_counter = post.get('retakeCounter')
                     # primary
-                    p_mt, p_url, p_size = get_media(post.get('primaryMedia'))
+                    p_mt, p_url, _ = get_media(post.get('primaryMedia'))
                     p_url_html = generic_url(p_url, html_format = True)
                     # secondary
-                    s_mt, s_url, s_size = get_media(post.get('secondaryMedia'))
+                    s_mt, s_url, _ = get_media(post.get('secondaryMedia'))
                     s_url_html = generic_url(s_url, html_format = True)
                     # tags
                     tags = get_tags(post, html_format = False)
@@ -1174,13 +1121,13 @@ def bereal_posts(files_found, report_folder, seeker, wrap_text, timezone_offset)
                             late_secs = data.get('lateInSeconds')
                             if bool(late_secs): str(timedelta(seconds=late_secs))
                         # primary
-                        p_mt, p_url, p_size = get_media(data.get('primary'))
+                        p_mt, p_url, _ = get_media(data.get('primary'))
                         p_url_html = generic_url(p_url, html_format = True)
                         # secondary
-                        s_mt, s_url, s_size = get_media(data.get('secondary'))
+                        s_mt, s_url, _ = get_media(data.get('secondary'))
                         s_url_html = generic_url(s_url, html_format = True)
                         # thumbnail
-                        t_mt, t_url, t_size = get_media(data.get('thumbnail'))
+                        t_mt, t_url, _ = get_media(data.get('thumbnail'))
                         t_url_html = generic_url(t_url, html_format = True)
 
                         # location
@@ -1255,10 +1202,10 @@ def bereal_posts(files_found, report_folder, seeker, wrap_text, timezone_offset)
                             # retake counter
                             retake_counter = post.get('retakeCounter')
                             # primary
-                            p_mt, p_url, p_size = get_media(post.get('primaryMedia'))
+                            p_mt, p_url, _ = get_media(post.get('primaryMedia'))
                             p_url_html = generic_url(p_url, html_format = True)
                             # secondary
-                            s_mt, s_url, s_size = get_media(post.get('secondaryMedia'))
+                            s_mt, s_url, _ = get_media(post.get('secondaryMedia'))
                             s_url_html = generic_url(s_url, html_format = True)
 
                             # location
@@ -1281,21 +1228,17 @@ def bereal_posts(files_found, report_folder, seeker, wrap_text, timezone_offset)
     data_headers[0] = (data_headers[0], 'datetime')
     data_headers[1] = (data_headers[1], 'datetime')
 
-    # paths
-    source_path = ', '.join(source_paths)
-
-    return data_headers, (data_list, data_list_html), source_path
+    return data_headers, (data_list, data_list_html), 'see Source File name for more info'
 
 
 # pinned memories
 @artifact_processor
-def bereal_pinned_memories(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def bereal_pinned_memories(context):
 
     data_headers = [ 'Pinned at', 'Moment day', 'Post type', 'Author ID', 'Primary media type', 'Primary URL', 'Secondary media type', 'Secondary URL',
                      'Moment ID', 'Pin ID', 'Source file name', 'Location' ]
     data_list = []
     data_list_html = []
-    source_paths = set()
 
     def append_data(obj, index, from_person):
         if not bool(obj):
@@ -1310,10 +1253,10 @@ def bereal_pinned_memories(files_found, report_folder, seeker, wrap_text, timezo
         # author id
         author_id = obj.get('analyticsAuthorID')
         # primary
-        p_mt, p_url, p_size = get_media(obj.get('primary'))
+        p_mt, p_url, _ = get_media(obj.get('primary'))
         p_url_html = generic_url(p_url, html_format = True)
         # secondary
-        s_mt, s_url, s_size = get_media(obj.get('secondary'))
+        s_mt, s_url, _ = get_media(obj.get('secondary'))
         s_url_html = generic_url(s_url, html_format = True)
         # moment id
         moment_id = obj.get('analyticsMomentID')
@@ -1335,7 +1278,7 @@ def bereal_pinned_memories(files_found, report_folder, seeker, wrap_text, timezo
 
 
     # all files
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         json_data = get_json_data(file_found)
         if not bool(json_data):
             continue
@@ -1347,7 +1290,6 @@ def bereal_pinned_memories(files_found, report_folder, seeker, wrap_text, timezo
             else:
                 file_location = str(Path(file_found).parents[1])
                 file_rel_path = str(Path(file_found).relative_to(file_location))
-            source_paths.add(file_location)
 
             # object?
             obj_ref = json_data.get('object')
@@ -1365,7 +1307,7 @@ def bereal_pinned_memories(files_found, report_folder, seeker, wrap_text, timezo
             # disk-bereal-PersonRepository-pinnedMemories-key
             elif file_rel_path.startswith('disk-bereal-PersonRepository-pinnedMemories-key'):
                 # users
-                for key, val in obj_ref.items():
+                for _, val in obj_ref.items():
                     # uids
                     if not bool(val) or not isinstance(val, list):
                         continue
@@ -1386,23 +1328,27 @@ def bereal_pinned_memories(files_found, report_folder, seeker, wrap_text, timezo
     data_headers[0] = (data_headers[0], 'datetime')
     data_headers[1] = (data_headers[1], 'datetime')
 
-    # paths
-    source_path = ', '.join(source_paths)
-
-    return data_headers, (data_list, data_list_html), source_path
+    return data_headers, (data_list, data_list_html), 'see Source File name for more info'
 
 
 # realmojis
 @artifact_processor
-def bereal_realmojis(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def bereal_realmojis(context):
 
     data_headers = [ 'Created', 'BeReal ID', 'Direction', 'Owner', 'Author', 'Emoji', 'RealMoji', 'Moment ID', 'RealMoji ID', 'Source file name', 'Location' ]
     data_list = []
     data_list_html = []
-    source_paths = set()
+    
+    files_found = context.get_files_found()
+    if not _bereal_processed: 
+        preferences_file = get_file_path(files_found,'group.BeReal.plist')
+        process_bereal_preferences(preferences_file)
 
     # all files
     for file_found in files_found:
+        if str(files_found).endswith('group.BeReal.plist'):
+            continue
+        
         json_data = get_json_data(file_found)
         if not bool(json_data):
             continue
@@ -1414,7 +1360,6 @@ def bereal_realmojis(files_found, report_folder, seeker, wrap_text, timezone_off
             else:
                 file_location = str(Path(file_found).parents[1])
                 file_rel_path = str(Path(file_found).relative_to(file_location))
-            source_paths.add(file_location)
 
             # object?
             obj_ref = json_data.get('object')
@@ -1496,10 +1441,8 @@ def bereal_realmojis(files_found, report_folder, seeker, wrap_text, timezone_off
 
                 # owner user id
                 owner_user_id = bereal_user_id
-                # owner user name
-                owner_user_name = map_id_name.get(owner_user_id)
                 # owner
-                owner = format_userid(owner_user_id, owner_user_name)
+                owner = format_userid(owner_user_id)
 
                 # array
                 for i in range(0, len(memories)):
@@ -1634,22 +1577,27 @@ def bereal_realmojis(files_found, report_folder, seeker, wrap_text, timezone_off
     # lava types
     data_headers[0] = (data_headers[0], 'datetime')
 
-    # paths
-    source_path = ', '.join(source_paths)
-
-    return data_headers, (data_list, data_list_html), source_path
+    return data_headers, (data_list, data_list_html), 'see Source File name for more info'
 
 
 # comments
 @artifact_processor
-def bereal_comments(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def bereal_comments(context):
 
     data_headers = [ 'Created', 'BeReal ID', 'Direction', 'Owner', 'Author', 'Text', 'Moment ID', 'Comment ID', 'Source file name', 'Location' ]
     data_list = []
-    source_paths = set()
+
+    files_found = context.get_files_found()
+    if not _bereal_processed:
+        preferences_file = get_file_path(files_found, 'group.BeReal.plist')
+        process_bereal_preferences(preferences_file)
 
     # all files
-    for file_found in files_found:
+    for file_found in context.get_files_found():
+        
+        if str(file_found).endswith('group.BeReal.plist'):
+            continue
+        
         json_data = get_json_data(file_found)
         if not bool(json_data):
             continue
@@ -1661,7 +1609,6 @@ def bereal_comments(files_found, report_folder, seeker, wrap_text, timezone_offs
             else:
                 file_location = str(Path(file_found).parents[1])
                 file_rel_path = str(Path(file_found).relative_to(file_location))
-            source_paths.add(file_location)
 
             # object?
             obj_ref = json_data.get('object')
@@ -1737,8 +1684,6 @@ def bereal_comments(files_found, report_folder, seeker, wrap_text, timezone_offs
 
                 # owner user id
                 owner_user_id = bereal_user_id
-                # owner user name
-                owner_user_name = map_id_name.get(owner_user_id)
                 # owner
                 owner = format_userid(owner_user_id, owner_user_name)
 
@@ -1865,20 +1810,23 @@ def bereal_comments(files_found, report_folder, seeker, wrap_text, timezone_offs
     # lava types
     data_headers[0] = (data_headers[0], 'datetime')
 
-    # paths
-    source_path = ', '.join(source_paths)
-
-    return data_headers, data_list, source_path
+    return data_headers, data_list, 'see Source File name for more info'
 
 
 # messages
 @artifact_processor
-def bereal_messages(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def bereal_messages(context):
 
     data_headers = [ 'Sent', 'Owner', 'Direction', 'Sender', 'Recipient', 'Message', 'Message type',
                     'Source', 'Media URL', 'Thread ID', 'Location' ]
     data_list = []
     data_list_html = []
+    files_found = context.get_files_found()
+    
+    if not _bereal_processed:
+        preferences_file = get_file_path(files_found, 'group.BeReal.plist')
+        process_bereal_preferences(preferences_file)
+    
     source_path = get_file_path(files_found, "bereal-chat.sqlite")
 
     query = '''
@@ -1886,7 +1834,7 @@ def bereal_messages(files_found, report_folder, seeker, wrap_text, timezone_offs
         M.Z_PK,
         C.Z_PK,
         ME.Z_PK,        
-        (M.ZCREATEDAT + 978307200) AS "sent",
+        M.ZCREATEDAT AS "sent",
         C.ZOWNER,
         IIF(M.ZSENDER = C.ZOWNER, "Outgoing", "Incoming") AS "direction",
         M.ZSENDER AS "sender",
@@ -1909,7 +1857,7 @@ def bereal_messages(files_found, report_folder, seeker, wrap_text, timezone_offs
     db_records = get_sqlite_db_records(source_path, query)
     for record in db_records:
         # created
-        created = convert_unix_ts_to_utc(record[3])
+        created = convert_cocoa_core_data_ts_to_utc(record[3])
 
         # owner
         owner = record[4]
@@ -1957,12 +1905,18 @@ def bereal_messages(files_found, report_folder, seeker, wrap_text, timezone_offs
 
 # chat list
 @artifact_processor
-def bereal_chat_list(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def bereal_chat_list(context):
 
     data_headers = [ 'Created', 'Owner', 'Type', 'Administrators', 'Participants', 'Last message', 'Total messages', 'Last updated',
                      'Unread messages count', 'ID', 'Location' ]
     data_list = []
     data_list_html = []
+    files_found = context.get_files_found()
+    
+    if not _bereal_processed:
+        preferences_file = get_file_path(files_found, 'group.BeReal.plist')
+        process_bereal_preferences(preferences_file)
+    
     source_path = get_file_path(files_found, "bereal-chat.sqlite")
 
     query = '''
@@ -1970,7 +1924,7 @@ def bereal_chat_list(files_found, report_folder, seeker, wrap_text, timezone_off
         C.Z_PK,
         S.Z_PK,
         M.Z_PK,
-        (C.ZCREATEDAT + 978307200) AS "created",
+        C.ZCREATEDAT AS "created",
         C.ZOWNER,
         CASE C.ZTYPE WHEN 1 THEN "private" ELSE "group" END AS "chat_type",
         C.ZADMINS,
@@ -1988,7 +1942,7 @@ def bereal_chat_list(files_found, report_folder, seeker, wrap_text, timezone_off
     db_records = get_sqlite_db_records(source_path, query)
     for record in db_records:
         # created
-        created = convert_unix_ts_to_utc(record[3])
+        created = convert_cocoa_core_data_ts_to_utc(record[3])
 
         # owner
         owner = format_userid(record[4])
