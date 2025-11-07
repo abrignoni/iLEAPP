@@ -22,7 +22,7 @@ __artifacts_v2__ = {
 from pathlib import Path
 
 from PIL import Image
-from scripts.ktx.ios_ktx2png import KTX_reader, liblzfse
+from scripts.ktx.ios_ktx2png import KTX_reader
 from scripts.ilapfuncs import artifact_processor, check_in_media, lava_get_full_media_info, logfunc, convert_unix_ts_to_utc
 
 
@@ -45,7 +45,7 @@ def save_ktx_to_png_if_valid(ktx_path, save_to_path):
                 # as per https://github.com/python-pillow/Pillow/issues/5986
 
                 return True
-        except (OSError, ValueError, liblzfse.error) as ex:
+        except (OSError, ValueError) as ex:
             logfunc(f'Had an exception - {str(ex)}')
     return False
 

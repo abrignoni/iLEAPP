@@ -26,9 +26,9 @@ def atxDatastore(context):
     for file_found in context.get_files_found():
         file_name = str(file_found)
         if file_name.endswith('_ATXDataStore.db'):
-           atxdb = str(file_found)
+            atxdb = str(file_found)
         elif file_name.endswith('Local.sqlite'):
-           localdb = str(file_found)
+            localdb = str(file_found)
     
     db = open_sqlite_db_readonly(atxdb)
     cursor = db.cursor()
