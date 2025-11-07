@@ -2208,6 +2208,7 @@
         "23J119": "macOS 14.8.2 RC 2",
         "23J124": "macOS 14.8.2 RC 3",
         "23J126": "macOS 14.8.2",
+        "23J208": "macOS 14.8.3 RC",
         "24A5264n": "macOS 15.0 beta 1",
         "24A5279h": "macOS 15.0 beta 2",
         "24A5289g": "macOS 15.0 beta 3",
@@ -2273,6 +2274,7 @@
         "24G317": "macOS 15.7.2 RC 2",
         "24G322": "macOS 15.7.2 RC 3",
         "24G325": "macOS 15.7.2",
+        "24G407": "macOS 15.7.3 RC",
         "25A5279m": "macOS 26.0 beta 1",
         "25A5295e": "macOS 26.0 beta 2",
         "25A5306g": "macOS 26.0 beta 3",
@@ -2290,7 +2292,8 @@
         "25B5062e": "macOS 26.1 beta 3",
         "25B5072a": "macOS 26.1 beta 4",
         "25B77": "macOS 26.1 RC",
-        "25B78": "macOS 26.1"
+        "25B78": "macOS 26.1",
+        "25C5031i": "macOS 26.2 beta 1"
     },
     "visionOS": {
         "21N5165g": "visionOS 1.0 beta 1",
