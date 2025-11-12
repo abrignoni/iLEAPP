@@ -3,8 +3,8 @@ __artifacts_v2__ = {
         "name": "Image cacheV0",
         "description": "Images cached in the SQLite database.",
         "author": "@AlexisBrignoni",
-        "created_date": "2024-02-06",
-        "last_update_date": "2025-06-26",
+        "creation_date": "2024-02-06",
+        "last_update_date": "2025-11-12",
         "requirements": "none",
         "category": "Image cacheV0",
         "notes": "",
@@ -14,7 +14,6 @@ __artifacts_v2__ = {
 }
 
 from scripts.ilapfuncs import (
-    logfunc,
     open_sqlite_db_readonly,
     check_in_embedded_media,
     artifact_processor,
