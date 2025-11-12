@@ -36,7 +36,7 @@ def get_cacheRoutesGmap(context):
                 lat = deserialized['$objects'][x]['_coordinateLat']
                 lon = deserialized['$objects'][x]['_coordinateLong'] #lat longs
                 data_list.append((datetime_time, lat, lon, file_found))
-            except:
+            except (KeyError, TypeError):
                 pass    
             
 

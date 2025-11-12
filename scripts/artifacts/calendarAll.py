@@ -281,7 +281,7 @@ def calendarBirthdays(context):
             # Birthdays
 
             cursor.execute(
-            f'''
+            '''
             SELECT 
             CalendarItem.summary AS 'Person Name',
             CAST(CalendarItem.start_date AS INT) AS 'Date of Birth',
@@ -364,7 +364,8 @@ def calendarList(context):
                     else:
                         data_list_html.append((calendar_name_tag, row[3], row[4], row[5], owner_email, row[7], row[8]))
                         data_list.append((calendar_name, row[3], row[4], row[5], owner_email, row[7], row[8]))
-
+                
+                data_headers = ()
                 if sharees:
                     data_headers = ('Calendar Name', 'Account Name', 'Account Email', 'Owner Name',
                                     'Owner Email', 'Sharing Status', 'Sharing Participants', 'Notes', 'Source File')
