@@ -144,9 +144,9 @@ def get_calendar_name(name, color):
 def calendarEvents(context):
     data_list_html = []
     data_list = []
-    data_headers = [('Start Time', 'datetime'), ('End Time', 'datetime'), 'Timezone', 'Calendar Name', 'Account Name', 'Event Title',
+    data_headers = (('Start Time', 'datetime'), ('End Time', 'datetime'), 'Timezone', 'Calendar Name', 'Account Name', 'Event Title',
                     'Location Name', 'Location Address', 'Location Coordinates', 'Invitation From', 'Invitees',
-                    'Conference URL', 'Attachments', 'Notes', ('Creation Time', 'datetime'), ('Last Modification Time', 'datetime'), 'Source File']
+                    'Conference URL', 'Attachments', 'Notes', ('Creation Time', 'datetime'), ('Last Modification Time', 'datetime'), 'Source File')
 
     for file_found in context.get_files_found():
         file_found = str(file_found)
@@ -269,7 +269,7 @@ def calendarBirthdays(context):
 
     data_list_html = []
     data_list = []
-    data_headers = [('Date of Birth', 'datetime'), 'Person Name', 'Calendar Name', 'Account Name', 'Source File']
+    data_headers = (('Date of Birth', 'datetime'), 'Person Name', 'Calendar Name', 'Account Name', 'Source File')
 
     for file_found in context.get_files_found():
         file_found = str(file_found)
@@ -311,6 +311,7 @@ def calendarBirthdays(context):
 def calendarList(context):
     data_list_html = []
     data_list = []
+    data_headers = ()
 
     for file_found in context.get_files_found():
         file_found = str(file_found)
@@ -365,7 +366,6 @@ def calendarList(context):
                         data_list_html.append((calendar_name_tag, row[3], row[4], row[5], owner_email, row[7], row[8]))
                         data_list.append((calendar_name, row[3], row[4], row[5], owner_email, row[7], row[8]))
                 
-                data_headers = ()
                 if sharees:
                     data_headers = ('Calendar Name', 'Account Name', 'Account Email', 'Owner Name',
                                     'Owner Email', 'Sharing Status', 'Sharing Participants', 'Notes', 'Source File')
