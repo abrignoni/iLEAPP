@@ -61,7 +61,7 @@ def callHistoryGroupCall(context):
 
             cursor.execute('''
             Select 
-            datetime"ZCALLRECORD"."ZDATE" As "Call Date/Time", 
+            "ZCALLRECORD"."ZDATE" As "Call Date/Time", 
             Case 
                 When "ZCALLRECORD"."ZDATE" = ("ZCALLRECORD"."ZDATE" + "ZCALLRECORD"."ZDURATION") Then NULL
                 Else ("ZCALLRECORD"."ZDATE" + "ZCALLRECORD"."ZDURATION") End As "Call End Date/Time", 
