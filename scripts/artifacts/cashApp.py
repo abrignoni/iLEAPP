@@ -1,11 +1,24 @@
-import re
+__artifacts_v2__ = {
+    "get_cashApp": {
+        "name": "Cash App",
+        "description": "",
+        "author": "@gforce4n6",
+        "creation_date": "2021-10-06",
+        "last_update_date": "2025-11-12",
+        "requirements": "none",
+        "category": "Cash App",
+        "notes": "",
+        "paths": ('*/mobile/Containers/Shared/AppGroup/*/CCEntitySync-api.squareup.com.sqlite*',
+                  '*/mobile/Containers/Shared/AppGroup/*/CCEntitySync-internal.cashappapi.com.sqlite*'),
+        "output_types": "standards",
+    }
+}
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly
+from scripts.ilapfuncs import open_sqlite_db_readonly, artifact_processor, convert_unix_ts_to_utc
 
-
-def get_cashApp(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    for file_found in files_found:
+@artifact_processor
+def get_cashApp(context):
+    for file_found in context.get_files_found():
         file_found = str(file_found)
 
         if file_found.endswith('.sqlite'):
@@ -42,7 +55,7 @@ instr(CAST(ZPAYMENT.ZSYNCPAYMENT AS BLOB), CAST('"note":' AS BLOB))), ',"note":'
 CASE WHEN ZPAYMENT.ZSYNCPAYMENT LIKE '%"COMPLETED"%' THEN 'COMPLETED' WHEN ZPAYMENT.ZSYNCPAYMENT LIKE '%"CANCELED"%' THEN 'CANCELED' ELSE 'WAITING ON RECIPIENT' END AS 'Transaction State',
 
 --Unix Epoch timestamp for the transaction display time.
-datetime(ZPAYMENT.ZDISPLAYDATE/1000.0,'unixepoch') as "TRANSACTION DISPLAY DATE"
+ZPAYMENT.ZDISPLAYDATE as "TRANSACTION DISPLAY DATE"
 
 FROM ZPAYMENT
 INNER JOIN ZCUSTOMER ON ZCUSTOMER.ZCUSTOMERTOKEN = ZPAYMENT.ZREMOTECUSTOMERID
@@ -50,35 +63,17 @@ ORDER BY ZPAYMENT.ZDISPLAYDATE ASC
                             ''')
 
             all_rows = cursor.fetchall()
-            db_file = file_found
 
     if len(all_rows) > 0:
         
         data_list = []
         for row in all_rows:
-            data_list.append((row[6], row[1], row[2], row[0], row[3], row[5], row[4]))
+            date = convert_unix_ts_to_utc(row[6])
+            data_list.append((date, row[1], row[2], row[0], row[3], row[5], row[4], file_found))
 
-        report = ArtifactHtmlReport('Transactions')
-        report.start_artifact_report(report_folder, 'Transactions')
-        report.add_script()
-        data_headers = ('Transaction Date', 'Display Name', 'Cashtag', 'Account Owner Role', 'Currency Amount', 'Transaction State', 'Transaction State')
-        report.write_artifact_data_table(data_headers, data_list, db_file)
-        report.end_artifact_report()
-
-        tsvname = 'Cash App Transactions'
-        tsv(report_folder, data_headers, data_list, tsvname)
-
-        tlactivity = 'Cash App Transactions'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-    else:
-        logfunc('No Cash App Transactions available')
+        data_headers = (('Transaction Date', 'datetime'), 'Display Name', 'Cashtag', 'Account Owner Role', 
+                        'Currency Amount', 'Transaction State', 'Transaction State', 'Source File')
 
     db.close()
-    return
-
-__artifacts__ = {
-    "cashapp": (
-        "Cash App",
-        ('*/mobile/Containers/Shared/AppGroup/*/CCEntitySync-api.squareup.com.sqlite*', '*/mobile/Containers/Shared/AppGroup/*/CCEntitySync-internal.cashappapi.com.sqlite*'),
-        get_cashApp)
-}
+    
+    return data_headers, data_list, 'see Source File for more info'
