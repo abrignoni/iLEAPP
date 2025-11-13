@@ -1,25 +1,10 @@
 __artifacts_v2__ = {
-    "booking_preferences": {
-        "name": "Preferences",
-        "description": "Parses and extract Booking.com Preferences",
-        "author": "@djangofaiola",
-        "version": "0.2",
-        "creation_date": "2024-05-28",
-        "last_update_date": "2025-05-02",
-        "requirements": "none",
-        "category": "Booking.com",
-        "notes": "https://djangofaiola.blogspot.com",
-        "paths": ('*/mobile/Containers/Data/Application/*/Library/Preferences/com.booking.BookingApp.plist'),
-        "output_types": [ "none" ],
-        "artifact_icon": "settings"
-    },
     "booking_account": {
         "name": "Account",
         "description": "Parses and extract Booking.com Account",
         "author": "@djangofaiola",
-        "version": "0.2",
         "creation_date": "2024-05-28",
-        "last_update_date": "2025-05-02",
+        "last_update_date": "2025-11-05",
         "requirements": "none",
         "category": "Booking.com",
         "notes": "https://djangofaiola.blogspot.com",
@@ -33,9 +18,8 @@ __artifacts_v2__ = {
         "name": "Payment Methods",
         "description": "Parses and extract Booking.com Payment Methods",
         "author": "@djangofaiola",
-        "version": "0.2",
         "creation_date": "2024-05-28",
-        "last_update_date": "2025-05-02",
+        "last_update_date": "2025-11-05",
         "requirements": "none",
         "category": "Booking.com",
         "notes": "https://djangofaiola.blogspot.com",
@@ -49,9 +33,8 @@ __artifacts_v2__ = {
         "name": "Wish Lists",
         "description": "Parses and extract Booking.com Wish Lists",
         "author": "@djangofaiola",
-        "version": "0.2",
         "creation_date": "2024-05-28",
-        "last_update_date": "2025-05-02",
+        "last_update_date": "2025-11-05",
         "requirements": "none",
         "category": "Booking.com",
         "notes": "https://djangofaiola.blogspot.com",
@@ -64,9 +47,8 @@ __artifacts_v2__ = {
         "name": "Viewed",
         "description": "Parses and extract Booking.com Viewed",
         "author": "@djangofaiola",
-        "version": "0.2",
         "creation_date": "2024-05-28",
-        "last_update_date": "2025-05-02",
+        "last_update_date": "2025-11-05",
         "requirements": "none",
         "category": "Booking.com",
         "notes": "https://djangofaiola.blogspot.com",
@@ -79,9 +61,8 @@ __artifacts_v2__ = {
         "name": "Recently Searched",
         "description": "Parses and extract Booking.com Recently Searched",
         "author": "@djangofaiola",
-        "version": "0.2",
         "creation_date": "2024-05-28",
-        "last_update_date": "2025-05-02",
+        "last_update_date": "2025-11-05",
         "requirements": "none",
         "category": "Booking.com",
         "notes": "https://djangofaiola.blogspot.com",
@@ -94,9 +75,8 @@ __artifacts_v2__ = {
         "name": "Recently Booked",
         "description": "Parses and extract Booking.com Recently Booked",
         "author": "@djangofaiola",
-        "version": "0.2",
         "creation_date": "2024-05-28",
-        "last_update_date": "2025-05-02",
+        "last_update_date": "2025-11-05",
         "requirements": "none",
         "category": "Booking.com",
         "notes": "https://djangofaiola.blogspot.com",
@@ -109,13 +89,13 @@ __artifacts_v2__ = {
         "name": "Booked",
         "description": "Parses and extract Booking.com Booked",
         "author": "@djangofaiola",
-        "version": "0.2",
         "creation_date": "2024-05-28",
-        "last_update_date": "2025-05-13",
+        "last_update_date": "2025-11-05",
         "requirements": "none",
         "category": "Booking.com",
         "notes": "https://djangofaiola.blogspot.com",
-        "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/BookingClouds*'),
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/Preferences/com.booking.BookingApp.plist',
+                  '*/mobile/Containers/Data/Application/*/Library/Application Support/BookingClouds*'),
         "output_types": [ "lava", "html", "tsv" ],
         "html_columns": [ "Check-in/out (Hotel time zone)", "Hotel contacts", "Confirmation number/Pin code", "Rooms", "Booker details", "Attachment",
                           "Source file name", "Location" ],
@@ -125,9 +105,8 @@ __artifacts_v2__ = {
         "name": "Stored Destinations",
         "description": "Parses and extract Booking.com Stored Destinations",
         "author": "@djangofaiola",
-        "version": "0.2",
         "creation_date": "2024-05-28",
-        "last_update_date": "2025-05-02",
+        "last_update_date": "2025-11-05",
         "requirements": "none",
         "category": "Booking.com",
         "notes": "https://djangofaiola.blogspot.com",
@@ -140,24 +119,22 @@ __artifacts_v2__ = {
         "name": "Notifications",
         "description": "Parses and extract Booking.com Notifications",
         "author": "@djangofaiola",
-        "version": "0.2",
         "creation_date": "2024-05-28",
-        "last_update_date": "2025-05-02",
+        "last_update_date": "2025-11-05",
         "requirements": "none",
         "category": "Booking.com",
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/NotificationsModel.sqlite*'),
         "output_types": [ "lava", "html", "tsv", "timeline" ],
-        "html_columns": [ "Image URL", "Action arguments", "Source file name", "Location" ],
+        "html_columns": [ "Action arguments", "Source file name", "Location" ],
         "artifact_icon": "bell"
     },
     "booking_flights_searched": {
         "name": "Flights Searched",
         "description": "Parses and extract Booking.com Flights Searched",
         "author": "@djangofaiola",
-        "version": "0.2",
         "creation_date": "2024-05-28",
-        "last_update_date": "2025-05-02",
+        "last_update_date": "2025-11-05",
         "requirements": "none",
         "category": "Booking.com",
         "notes": "https://djangofaiola.blogspot.com",
@@ -168,18 +145,16 @@ __artifacts_v2__ = {
     }
 }
 
-import inspect
 from urllib.parse import urlparse, urlunparse
 import json
-import pytz
 from datetime import datetime, date
 from pathlib import Path
+
+import pytz
 from scripts.ilapfuncs import get_file_path, get_sqlite_db_records, get_plist_content, get_plist_file_content, lava_get_full_media_info, \
-    convert_plist_date_to_utc, convert_unix_ts_to_utc, convert_ts_int_to_utc, check_in_media, artifact_processor, logfunc
+    convert_plist_date_to_utc, convert_unix_ts_to_utc, convert_ts_int_to_utc, check_in_media, artifact_processor, logfunc, convert_cocoa_core_data_ts_to_utc
 
 
-# booking app id
-booking_app_identifier = None
 # constants
 LINE_BREAK = '\n'
 COMMA_SEP = ', '
@@ -408,47 +383,17 @@ def append_tag_value(target, tag, value):
         target.append(f"{tag}: {value}")
 
 
-# preferences
-@artifact_processor
-def booking_preferences(context):
-
-    source_path = None
-    global booking_app_identifier
-
-    # all files
-    for file_found in context.get_files_found():
-        file_found = str(file_found)
-        # prefs
-        plist_data = get_plist_file_content(file_found)
-        if not bool(plist_data):
-            continue
-
-        try:
-            # source path
-            source_path = file_found
-
-            # Library/Preferences/com.booking.BookingApp.plist
-            booking_app_identifier = Path(file_found).parents[2].name
-
-        except Exception as e:
-            logfunc(f"Error: {str(e)}")
-            pass
-
-    # return empty
-    return (), [], source_path
-
-
 # account
 @artifact_processor
 def booking_account(context):
 
     data_headers = (
+        ('Birth date', 'date'),
         'First name',
         'Last name',
         'Nickname',
         'Profile picture URL',
         'Gender',
-        ('Birth date', 'date'),
         'Street',
         'City',
         'Zip code',
@@ -535,11 +480,11 @@ def booking_account(context):
                 location = f""
 
                 # html row
-                data_list_html.append((first_name, last_name, nickname, pp_url_html, gender, birth_date, street, city, zip_code,country, phone_number,
-                                       emails_html, is_genius, facilities_html, uid, auth_token, source_file_name_html, source_file_name, location))
+                data_list_html.append((birth_date, first_name, last_name, nickname, pp_url_html, gender, street, city, zip_code,country, phone_number,
+                                       emails_html, is_genius, facilities_html, uid, auth_token, source_file_name_html, location))
                 # lava row
-                data_list.append((first_name, last_name, nickname, pp_url, gender, birth_date, street, city, zip_code,country, phone_number,
-                                  emails, is_genius, facilities, uid, auth_token, source_file_name_html, source_file_name, location))
+                data_list.append((birth_date, first_name, last_name, nickname, pp_url, gender, street, city, zip_code,country, phone_number,
+                                  emails, is_genius, facilities, uid, auth_token, source_file_name, location))
             except Exception as ex:
                 logfunc(f"Exception while parsing {context.get_artifact_name()} - {file_found}: " + str(ex))
                 pass
@@ -606,16 +551,16 @@ def booking_account(context):
                 location = f"[userDetailsResponse][userDetails]"
 
                 # html row
-                data_list_html.append((first_name, last_name, nickname, pp_url_html, gender, birth_date, street, city, zip_code,country, phone_number,
+                data_list_html.append((birth_date, first_name, last_name, nickname, pp_url_html, gender, street, city, zip_code,country, phone_number,
                                        emails_html, is_genius, facilities_html, uid, auth_token, source_file_name_html, source_file_name, location))
                 # lava row
-                data_list.append((first_name, last_name, nickname, pp_url, gender, birth_date, street, city, zip_code,country, phone_number,
+                data_list.append((birth_date, first_name, last_name, nickname, pp_url, gender, street, city, zip_code,country, phone_number,
                                   emails, is_genius, facilities, uid, auth_token, source_file_name_html, source_file_name, location))
             except Exception as ex:
                 logfunc(f"Exception while parsing {context.get_artifact_name()} - {file_found}: " + str(ex))
                 pass
 
-    return data_headers, (data_list, data_list_html), ' '
+    return data_headers, (data_list, data_list_html), 'see Source File name for more info'
 
 
 # payment methods
@@ -677,11 +622,12 @@ def booking_payment_methods(context):
                     # source file name
                     device_file_paths = dict.fromkeys(device_file_paths)
                     source_file_name = unordered_list(device_file_paths)
+                    source_file_name_html = unordered_list(device_file_paths, html_format=True)
                     # location
                     location = f"[user_profile][cc_details][{i}]"
 
                     # html row
-                    data_list_html.append((id, type_, status, valid_thru, cardholder_name, last_digits, is_business, source_file_name, location))
+                    data_list_html.append((id, type_, status, valid_thru, cardholder_name, last_digits, is_business, source_file_name_html, location))
                     # lava row
                     data_list.append((id, type_, status, valid_thru, cardholder_name, last_digits, is_business, source_file_name, location))
             except Exception as ex:
@@ -734,7 +680,7 @@ def booking_payment_methods(context):
                 logfunc(f"Exception while parsing {context.get_artifact_name()} - {file_found}: " + str(ex))
                 pass
 
-    return data_headers, (data_list, data_list_html), ' '
+    return data_headers, (data_list, data_list_html), 'see Source File name for more info'
 
 
 # stored destinations
@@ -833,12 +779,13 @@ def booking_stored_destinations(context):
                     # source file name
                     device_file_paths = dict.fromkeys(device_file_paths)
                     source_file_name = unordered_list(device_file_paths)
+                    source_file_name_html = unordered_list(device_file_paths, html_format=True)
                     # location
                     location = f"[stored_destinations][{i}]"
 
                     # html row
                     data_list_html.append((created, type_, id, dest_name, description, city_name, region_name, country_name, latitude, longitude,
-                                      timezone, image_url_html, source_file_name, location))
+                                      timezone, image_url_html, source_file_name_html, location))
                     # lava row
                     data_list.append((created, type_, id, dest_name, description, city_name, region_name, country_name, latitude, longitude,
                                       timezone, image_url, source_file_name, location))
@@ -847,7 +794,7 @@ def booking_stored_destinations(context):
                 logfunc(f"Exception while parsing {context.get_artifact_name()} - {file_found}: " + str(ex))
                 pass
 
-    return data_headers, (data_list, data_list_html), ' '
+    return data_headers, (data_list, data_list_html), 'see Source File name for more info'
 
 
 # recently searched
@@ -960,12 +907,13 @@ def booking_recently_searched(context):
                     # source file name
                     device_file_paths = dict.fromkeys(device_file_paths)
                     source_file_name = unordered_list(device_file_paths)
+                    source_file_name_html = unordered_list(device_file_paths, html_format=True)
                     # location
                     location = f"[stored_searches][{i}]"
 
                     # html row
                     data_list_html.append((searched, type_, id, dest_name, description, city_name, region_name, country_name, latitude, longitude,
-                                      timezone, check_in, check_out, number_of_rooms, guests_per_room, number_of_nights, source, source_file_name, location))
+                                      timezone, check_in, check_out, number_of_rooms, guests_per_room, number_of_nights, source, source_file_name_html, location))
                     # lava row
                     data_list.append((searched, type_, id, dest_name, description, city_name, region_name, country_name, latitude, longitude,
                                       timezone, check_in, check_out, number_of_rooms, guests_per_room, number_of_nights, source, source_file_name, location))
@@ -973,7 +921,7 @@ def booking_recently_searched(context):
                 logfunc(f"Exception while parsing {context.get_artifact_name()} - {file_found}: " + str(ex))
                 pass
 
-    return data_headers, (data_list, data_list_html), ' '
+    return data_headers, (data_list, data_list_html), 'see Source File name for more info'
 
 
 # recently booked
@@ -1064,12 +1012,13 @@ def booking_recently_booked(context):
                         # source file name
                         device_file_paths = dict.fromkeys(device_file_paths)
                         source_file_name = unordered_list(device_file_paths)
+                        source_file_name_html = unordered_list(device_file_paths, html_format=True)
                         # location
                         location = f"[booked][{key}]"
 
                         # html row
                         data_list_html.append((type_, id, hotel_name, address, city_name, region_name, zip_code, latitude, longitude,
-                                               check_in, check_out, p_url_html, website_html, source_file_name, location))
+                                               check_in, check_out, p_url_html, website_html, source_file_name_html, location))
                         # lava row
                         data_list.append((type_, id, hotel_name, address, city_name, region_name, zip_code, latitude, longitude,
                                                check_in, check_out, p_url, website, source_file_name, location))
@@ -1077,7 +1026,7 @@ def booking_recently_booked(context):
                 logfunc(f"Exception while parsing {context.get_artifact_name()} - {file_found}: " + str(ex))
                 pass
 
-    return data_headers, (data_list, data_list_html), ' '
+    return data_headers, (data_list, data_list_html), 'see Source File name for more info'
 
 
 # booked
@@ -1105,6 +1054,25 @@ def booking_booked(context):
     data_list = []
     data_list_html = []
     device_file_paths = []
+    files_found = context.get_files_found()
+    # booking app id
+    booking_app_identifier = None
+
+    # preferences
+    def setting_booking_preferences(file):
+        nonlocal booking_app_identifier
+        if not booking_app_identifier:
+            # prefs
+            plist_data = get_plist_file_content(file)
+            if not bool(plist_data):
+                return
+            try:
+                # Library/Preferences/com.booking.BookingApp.plist
+                booking_app_identifier = Path(file_found).parents[2].name
+
+            except Exception as e:
+                logfunc(f"Error: {str(e)}")
+                pass
 
     # rooms
     def get_rooms(rooms, html_format=False):
@@ -1148,11 +1116,20 @@ def booking_booked(context):
         return result
 
 
+    # set preferences
+    for file_found in files_found:
+        if str(file_found).endswith('com.booking.BookingApp.plist'):
+            setting_booking_preferences(file_found)
+            if booking_app_identifier: break
+
     # Documents
     documents = context.get_seeker().search(f"*/{booking_app_identifier}/Documents/Booking #*", return_on_first_hit=False)
 
     # all files
-    for file_found in context.get_files_found():
+    for file_found in files_found:
+        if str(file_found).endswith('com.booking.BookingApp.plist'):
+            continue
+        
         file_rel_path = Path(Path(file_found).parent.name, Path(file_found).name).as_posix()
         device_file_path = get_device_file_path(file_found, context.get_seeker())
 
@@ -1255,13 +1232,14 @@ def booking_booked(context):
                         # source file name
                         device_file_paths = dict.fromkeys(device_file_paths)
                         source_file_name = unordered_list(device_file_paths)
+                        source_file_name_html = unordered_list(device_file_paths, html_format=True)
                         # location
                         location = f"[{key_root}][{key}]"
 
                         # html row
                         data_list_html.append((created, hotel_id, hotel_name, full_address, hotel_timezone, registration_html, hotel_contacts_html,
                                                confirm_info_html, total_price, number_of_rooms, rooms_html, booker_details_html, source, att_media_ref_id,
-                                               source_file_name, location))
+                                               source_file_name_html, location))
                         # lava row
                         data_list.append((created, hotel_id, hotel_name, full_address, hotel_timezone, registration, hotel_contacts,
                                           confirm_info, total_price, number_of_rooms, rooms, booker_details, source, att_media_ref_id,
@@ -1270,7 +1248,7 @@ def booking_booked(context):
                 logfunc(f"Exception while parsing {context.get_artifact_name()} - {file_found}: " + str(ex))
                 pass
 
-    return data_headers, (data_list, data_list_html), ' '
+    return data_headers, (data_list, data_list_html), 'see Source File name for more info'
 
 
 # wish lists
@@ -1337,7 +1315,7 @@ def booking_wish_lists(context):
                 logfunc(f"Exception while parsing {context.get_artifact_name()} - {file_found}: " + str(ex))
                 pass
 
-    return data_headers, (data_list, data_list_html), ' '
+    return data_headers, (data_list, data_list_html), 'see Source File name for more info'
 
 
 # viewed
@@ -1438,7 +1416,7 @@ def booking_viewed(context):
                 logfunc(f"Exception while parsing {context.get_artifact_name()} - {file_found}: " + str(ex))
                 pass
 
-    return data_headers, (data_list, data_list_html), ' '
+    return data_headers, (data_list, data_list_html), 'see Source File name for more info'
 
 
 # notifications
@@ -1466,7 +1444,7 @@ def booking_notifications(context):
     query = '''
     SELECT
         ROWID,
-        (ZDATE + 978307200) AS "timestamp",
+        ZDATE AS "timestamp",
         ZIDENTIFIER,
         ZTITLE,
         ZBODY,
@@ -1482,7 +1460,7 @@ def booking_notifications(context):
         device_file_paths = [ device_file_path ]
 
         # timestamp
-        timestamp = convert_unix_ts_to_utc(record[1])
+        timestamp = convert_cocoa_core_data_ts_to_utc(record[1])
         # identifier
         identifier = record[2]
         # title
@@ -1513,7 +1491,7 @@ def booking_notifications(context):
         # lava row
         data_list.append((timestamp, identifier, title, body, is_viewed, is_deleted, action_identifier, arguments, source_file_name, location))
 
-    return data_headers, (data_list, data_list_html), ' '
+    return data_headers, (data_list, data_list_html), 'see Source File name for more info'
 
 
 # flights searched
@@ -1691,12 +1669,12 @@ def booking_flights_searched(context):
 
                     # html row
                     data_list_html.append((last_updated, start_date, return_date, direct_flight, search_type, cabin_class, source_airports_html,
-                                           destination_airports_html, routes_html, travellers_details_html, source_file_name_html, source_file_name, location))
+                                           destination_airports_html, routes_html, travellers_details_html, source_file_name_html, location))
                     # lava row
                     data_list.append((last_updated, start_date, return_date, direct_flight, search_type, cabin_class, source_airports,
-                                      destination_airports, routes, travellers_details, source_file_name_html, source_file_name, location))
+                                      destination_airports, routes, travellers_details, source_file_name, location))
             except Exception as ex:
                 logfunc(f"Exception while parsing {context.get_artifact_name()} - {file_found}: " + str(ex))
                 pass
 
-    return data_headers, (data_list, data_list_html), ' '
+    return data_headers, (data_list, data_list_html), 'see Source File name for more info'
