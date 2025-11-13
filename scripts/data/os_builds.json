@@ -885,7 +885,8 @@
         "23B5073a": "iOS 26.1 beta 4",
         "23B82": "iOS 26.1 RC",
         "23B85": "iOS 26.1",
-        "23C5027f": "iOS 26.2 beta 1"
+        "23C5027f": "iOS 26.2 beta 1",
+        "23C5033g": "iOS 26.2 beta 2"
     },
     "macOS": {
         "4K78": "Mac OS X 10.0",
@@ -2209,6 +2210,7 @@
         "23J124": "macOS 14.8.2 RC 3",
         "23J126": "macOS 14.8.2",
         "23J208": "macOS 14.8.3 RC",
+        "23J213": "macOS 14.8.3 RC 2",
         "24A5264n": "macOS 15.0 beta 1",
         "24A5279h": "macOS 15.0 beta 2",
         "24A5289g": "macOS 15.0 beta 3",
@@ -2275,6 +2277,7 @@
         "24G322": "macOS 15.7.2 RC 3",
         "24G325": "macOS 15.7.2",
         "24G407": "macOS 15.7.3 RC",
+        "24G412": "macOS 15.7.3 RC 2",
         "25A5279m": "macOS 26.0 beta 1",
         "25A5295e": "macOS 26.0 beta 2",
         "25A5306g": "macOS 26.0 beta 3",
@@ -2293,7 +2296,8 @@
         "25B5072a": "macOS 26.1 beta 4",
         "25B77": "macOS 26.1 RC",
         "25B78": "macOS 26.1",
-        "25C5031i": "macOS 26.2 beta 1"
+        "25C5031i": "macOS 26.2 beta 1",
+        "25C5037g": "macOS 26.2 beta 2"
     },
     "visionOS": {
         "21N5165g": "visionOS 1.0 beta 1",
@@ -2394,7 +2398,8 @@
         "23N5042a": "visionOS 26.1 beta 4",
         "23N48": "visionOS 26.1 RC",
         "23N49": "visionOS 26.1",
-        "23N5279e": "visionOS 26.2 beta 1"
+        "23N5279e": "visionOS 26.2 beta 1",
+        "23N5285d": "visionOS 26.2 beta 2"
     },
     "watchOS": {
         "12S507": "watchOS 1.0",
@@ -2853,7 +2858,8 @@
         "23S5031a": "watchOS 26.1 beta 4",
         "23S36": "watchOS 26.1 RC",
         "23S37": "watchOS 26.1",
-        "23S5280e": "watchOS 26.2 beta 1"
+        "23S5280e": "watchOS 26.2 beta 1",
+        "23S5286d": "watchOS 26.2 beta 2"
     },
     "tvOS": {
         "8M89": "Apple TV Software 4.0",
@@ -3340,7 +3346,8 @@
         "23J5571a": "tvOS 26.1 beta 4",
         "23J580": "tvOS 26.1 RC",
         "23J582": "tvOS 26.1",
-        "23K5029e": "tvOS 26.2 beta 1"
+        "23K5029e": "tvOS 26.2 beta 1",
+        "23K5035d": "tvOS 26.2 beta 2"
     },
     "Windows": {
         "6002": "Windows Vista",
