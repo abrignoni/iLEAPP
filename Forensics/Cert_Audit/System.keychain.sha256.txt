@@ -1,0 +1,2 @@
+subject= /C=EN/O=AdGuard/CN=Adguard Personal CA
+SHA256 Fingerprint=AC:51:52:E3:EF:48:1A:08:B7:C7:D2:19:92:CF:3F:5E:B0:12:B5:DF:2D:3A:AE:B2:AD:BF:E5:E9:0F:49:D8:B3

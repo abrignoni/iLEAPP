@@ -1,0 +1,2 @@
+subject= /C=US/ST=California/L=Irvine/O=CrowdStrike, Inc./2.5.4.97=NTRUS+DE-5030737/CN=omar.atabani@crowdstrike.com/emailAddress=omar.atabani@crowdstrike.com
+SHA256 Fingerprint=43:C1:44:61:E0:0F:28:42:16:25:B0:53:74:31:8E:07:56:29:6F:FF:0E:3B:D8:4D:68:E4:BB:85:2B:E8:50:FF
