@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Calendar.sqlitedb',),
         "html_columns": ['Calendar Name', 'Location Coordinates', 'Invitees'],
-        "output_types": ["lava", "tsv", "timeline"]
+        "output_types": "standard"
     },
     "calendarBirthdays": {
         "name": "Calendar Birthdays",
@@ -23,7 +23,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Calendar.sqlitedb',),
         "html_columns": ['Calendar Name'],
-        "output_types": ["lava", "tsv"]
+        "output_types": "standard"
     },
     "calendarList": {
         "name": "Calendar List",
@@ -36,12 +36,13 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Calendar.sqlitedb',),
         "html_columns": ['Calendar Name', 'Sharing Participants'],
-        "output_types": ["lava", "tsv"]
+        "output_types": "standard"
     }
 }
 
 from urllib.parse import unquote
-from scripts.ilapfuncs import open_sqlite_db_readonly, does_table_exist_in_db, does_column_exist_in_db,convert_ts_human_to_utc, artifact_processor, get_birthdate
+from scripts.ilapfuncs import open_sqlite_db_readonly, does_table_exist_in_db, does_column_exist_in_db,\
+    convert_ts_human_to_utc, artifact_processor, get_birthdate
 
 
 def get_sharees(cursor):
@@ -152,6 +153,7 @@ def calendarEvents(context):
         file_found = str(file_found)
 
         if file_found.endswith('.sqlitedb'):
+            print('Eventos: Archivo ', file_found)
             db = open_sqlite_db_readonly(file_found)
             cursor = db.cursor()
 
@@ -260,8 +262,10 @@ def calendarEvents(context):
                     data_list.append((start_time, end_time, timezone, calendar_name, row[6], row[7], row[8], 
                                       row[9], location_coordinates, invitation_from, attendees, row[15], row[16],
                                       row[17], creation_time, modification_time, file_found))
+                    
+                    print('Eventos: Hice append ', file_found)
 
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, (data_list, data_list_html), 'see Source File for more info'
 
 
 @artifact_processor
@@ -275,6 +279,7 @@ def calendarBirthdays(context):
         file_found = str(file_found)
 
         if file_found.endswith('.sqlitedb'):
+            print('Birthdays: Archivo ', file_found)
             db = open_sqlite_db_readonly(file_found)
             cursor = db.cursor()
 
@@ -301,8 +306,9 @@ def calendarBirthdays(context):
                 calendar_name = row[2]
                 calendar_name_tag = get_calendar_name(row[2], row[3])
 
-                data_list_html.append((birthdate, row[0], calendar_name_tag, row[4]))
-                data_list.append((birthdate, row[0], calendar_name, row[4]))
+                data_list_html.append((birthdate, row[0], calendar_name_tag, row[4], file_found))
+                data_list.append((birthdate, row[0], calendar_name, row[4], file_found))
+                print('Birthdays: Hice append ', file_found)
 
     return data_headers, (data_list, data_list_html), 'see Source File for more info'
 
@@ -311,12 +317,14 @@ def calendarBirthdays(context):
 def calendarList(context):
     data_list_html = []
     data_list = []
-    data_headers = ()
+    data_headers = ('Calendar Name', 'Account Name', 'Account Email', 'Owner Name',
+                    'Owner Email', 'Sharing Status', 'Sharing Participants', 'Notes', 'Source File')
 
     for file_found in context.get_files_found():
         file_found = str(file_found)
 
         if file_found.endswith('.sqlitedb'):
+            print('Eventos: List ', file_found)
             db = open_sqlite_db_readonly(file_found)
             cursor = db.cursor()
 
@@ -359,18 +367,12 @@ def calendarList(context):
                         sharing_participants_html = sharees.get(row[0], '')
                         sharing_participants = sharees.get(row[0], '').replace('<br>', ' ')
                         data_list_html.append((calendar_name_tag, row[3], row[4], row[5], owner_email, row[7],
-                                          sharing_participants_html, row[8]))
+                                          sharing_participants_html, row[8], file_found))
                         data_list.append((calendar_name, row[3], row[4], row[5], owner_email, row[7],
-                                              sharing_participants, row[8]))
+                                              sharing_participants, row[8], file_found))
                     else:
-                        data_list_html.append((calendar_name_tag, row[3], row[4], row[5], owner_email, row[7], row[8]))
-                        data_list.append((calendar_name, row[3], row[4], row[5], owner_email, row[7], row[8]))
+                        data_list_html.append((calendar_name_tag, row[3], row[4], row[5], owner_email, row[7], None, row[8], file_found))
+                        data_list.append((calendar_name, row[3], row[4], row[5], owner_email, row[7], None, row[8], file_found))
+                    print('List: Hice append ', file_found)
                 
-                if sharees:
-                    data_headers = ('Calendar Name', 'Account Name', 'Account Email', 'Owner Name',
-                                    'Owner Email', 'Sharing Status', 'Sharing Participants', 'Notes', 'Source File')
-                else:
-                    data_headers = ('Calendar Name', 'Account Name', 'Account Email', 'Owner Name',
-                                    'Owner Email', 'Sharing Status', 'Notes', 'Source File')
-
     return data_headers, (data_list, data_list_html), 'see Source File for more info'
