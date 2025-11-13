@@ -14,8 +14,7 @@ __artifacts_v2__ = {
     }
 }
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, open_sqlite_db_readonly
+from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records
 
 @artifact_processor
 def SMS_Missing_ROWIDs(context):
