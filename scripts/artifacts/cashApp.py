@@ -18,9 +18,9 @@ from scripts.ilapfuncs import open_sqlite_db_readonly, artifact_processor, conve
 
 @artifact_processor
 def get_cashApp(context):
+    data_list = []
     for file_found in context.get_files_found():
         file_found = str(file_found)
-
         if file_found.endswith('.sqlite'):
             db = open_sqlite_db_readonly(file_found)
             db.text_factory = lambda b: b.decode(errors = 'ignore')
@@ -63,16 +63,13 @@ ORDER BY ZPAYMENT.ZDISPLAYDATE ASC
                             ''')
 
             all_rows = cursor.fetchall()
+            
+            for row in all_rows:
+                date = convert_unix_ts_to_utc(row[6])
+                data_list.append((date, row[1], row[2], row[0], row[3], row[5], row[4], file_found))
 
-    if len(all_rows) > 0:
-        
-        data_list = []
-        for row in all_rows:
-            date = convert_unix_ts_to_utc(row[6])
-            data_list.append((date, row[1], row[2], row[0], row[3], row[5], row[4], file_found))
-
-        data_headers = (('Transaction Date', 'datetime'), 'Display Name', 'Cashtag', 'Account Owner Role', 
-                        'Currency Amount', 'Transaction State', 'Transaction State', 'Source File')
+    data_headers = (('Transaction Date', 'datetime'), 'Display Name', 'Cashtag', 'Account Owner Role', 
+                    'Currency Amount', 'Transaction State', 'Transaction State', 'Source File')
 
     db.close()
     
