@@ -43,6 +43,29 @@ def get_cashAppB(context):
                 protocustomer, _ = blackboxprotobuf.decode_message(row[2])
                 protopayment, _ = blackboxprotobuf.decode_message(row[3])
         
+                # initialize optional fields to avoid NameError if keys are missing
+                role = None
+                howmuch = None
+                currency = None
+                note = None
+                cardbrand = None
+                suffix = None
+                displayname = None
+                displayinstrument = None
+                instrumenttype = None
+                transactionid = None
+                state = None
+                createdat = None
+                capturedat = None
+                reachedcustomerat = None
+                paidoutat = None
+                depositedat = None
+                displaydate = None
+                identificator = None
+                fullname = None
+                region = None
+                dunits = None
+
                 payment = (protopayment['1'].get('16'))
                 if payment is not None:
                     payment = payment.decode()
@@ -105,12 +128,12 @@ def get_cashAppB(context):
                     extrainfo = extrainfo.decode()
                     extrainfo = json.loads(extrainfo)
                     
-                    id = (extrainfo['id'])
+                    identificator = (extrainfo['id'])
                     fullname = (extrainfo['full_name'])
                     region = (extrainfo.get('region'))
                     dunits = (extrainfo.get('display_units'))
                     
-                data_list.append((timestamp, customertoken, name, username, id, fullname,
+                data_list.append((timestamp, customertoken, name, username, identificator, fullname,
                                   role, howmuch, currency, note, region, dunits, url, cardbrand,
                                   suffix, displayname, displayinstrument, instrumenttype, transactionid,
                                   state, createdat, capturedat, reachedcustomerat, 
