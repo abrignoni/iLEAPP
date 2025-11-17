@@ -1,4 +1,5 @@
 import tkinter as tk
+import sys
 import typing
 import json
 import ileapp
@@ -7,7 +8,12 @@ import base64
 
 import scripts.plugin_loader as plugin_loader
 
-from PIL import Image, ImageTk
+try:
+    from PIL import Image, ImageTk
+except ImportError:
+    print("Warning: Pillow library not found. Please install it with: pip install Pillow")
+    sys.exit(1)
+
 from tkinter import ttk, filedialog as tk_filedialog, messagebox as tk_msgbox
 from scripts.version_info import ileapp_version
 from scripts.search_files import *
@@ -32,7 +38,7 @@ def pickModules():
                 or plugin.module_name == 'logarchive' and plugin.name != 'logarchive'):
             continue
         # Items that take a long time to execute are deselected by default
-        # and referenced in the modules_to_exclude list in an external file (modules_to_exclude.py).
+        # and referenced in the modules_to_exclude list in an external file (modules_to-exclude.py).
         plugin_enabled = tk.BooleanVar(value=False) if plugin.module_name in modules_to_exclude else tk.BooleanVar(value=True)
         plugin_module_name = plugin.artifact_info.get('name', plugin.name) if hasattr(plugin, 'artifact_info') else plugin.name
         mlist[plugin.name] = [plugin.category, plugin_module_name, plugin.module_name, plugin_enabled]
