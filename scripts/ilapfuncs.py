@@ -345,6 +345,7 @@ def artifact_processor(func):
         output_types = artifact_info.get('output_types', ['html', 'tsv', 'timeline', 'lava', 'kml'])
         is_lava_only = 'lava_only' in output_types
 
+        Context.clear()
         Context.set_report_folder(report_folder)
         Context.set_seeker(seeker)
         Context.set_files_found(files_found)
@@ -352,20 +353,17 @@ def artifact_processor(func):
         Context.set_module_name(module_name)
         Context.set_module_file_path(module_file_path)
         Context.set_artifact_name(artifact_name)
-        
-        try:
-            sig = inspect.signature(func)
-            if len(sig.parameters) == 1:
-                data_headers, data_list, source_path = func(Context)
-            else:
-                data_headers, data_list, source_path = func(files_found, report_folder, seeker, wrap_text, timezone_offset)
-        finally:
-            Context.clear()
-        
-        if not source_path:
-            logfunc(f"No file found")
 
-        elif len(data_list):
+        sig = inspect.signature(func)
+        if len(sig.parameters) == 1:
+            data_headers, data_list, source_path = func(Context)
+        else:
+            data_headers, data_list, source_path = func(files_found, report_folder, seeker, wrap_text, timezone_offset)
+
+        if not source_path:
+            logfunc("No source_path provided")
+
+        if len(data_list):
             if isinstance(data_list, tuple):
                 data_list, html_data_list = data_list
             else:
@@ -402,7 +400,8 @@ def artifact_processor(func):
                                                                                data_headers,
                                                                                len(data_list),
                                                                                data_views=artifact_info.get("data_views"),
-                                                                               artifact_icon=icon)
+                                                                               artifact_icon=icon,
+                                                                               source_path=source_path)
                 if is_lava_only:
                     lava_only_info(category, artifact_name, table_name, len(data_list))
                 lava_insert_sqlite_data(table_name, data_list, object_columns, data_headers, column_map)
@@ -1160,6 +1159,10 @@ def convert_plist_date_to_utc(plist_date):
 def get_birthdate(date):
     cocoa_epoch = datetime(2001, 1, 1, tzinfo=timezone.utc) # Create our own epoch to avoid gmtime() errors in fromtimestamp().
     utc_date = cocoa_epoch + timedelta(seconds=date)
+    return utc_date.strftime('%d %B %Y') if utc_date.year != 1604 else utc_date.strftime('%d %B')
+
+def get_birthdate_from_unix_ts(date):
+    utc_date = convert_unix_ts_to_utc(date)
     return utc_date.strftime('%d %B %Y') if utc_date.year != 1604 else utc_date.strftime('%d %B')
 
 def convert_bytes_to_unit(size):

@@ -26,6 +26,7 @@ class Context:
     _device_ids = {}
     _device_boards = {}
     _os_builds = {}
+    _installed_os_version = ""
 
     @staticmethod
     def set_report_folder(report_folder):
@@ -142,6 +143,14 @@ class Context:
             __file__).parent.absolute().joinpath('data', 'os_builds.json')
         with open(os_builds_path, 'rt', encoding='utf-8') as json_file:
             Context._os_builds = json.load(json_file)
+
+    @staticmethod
+    def set_installed_os_version(os_version):
+        """
+        Sets the OS version of the analyzed device only once.
+        """
+        if not Context._installed_os_version:
+            Context._installed_os_version = os_version
 
     @staticmethod
     def _build_lookup_map():
@@ -411,6 +420,14 @@ class Context:
             if build in builds:
                 os_version.append(Context._os_builds[os_family][build])
         return (" or ").join(os_version)
+
+    @staticmethod
+    def get_installed_os_version():
+        """
+        Retrieves the OS version of the installed device.
+        """
+
+        return Context._installed_os_version
 
     @staticmethod
     def clear():

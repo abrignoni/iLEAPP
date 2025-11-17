@@ -3,34 +3,32 @@ __artifacts_v2__ = {
         "name": "iOS ATXDatastore",
         "description": "Parses ATXDataStore and matches actions with Frequent locations, when available.",
         "author": "@magpol",
-        "version": "0.1.4",
-        "date": "2023-10-11",
+        "creation_date": "2023-10-11",
+        "last_update_date": "2025-10-22",
         "requirements": "none",
-        "category": "Location",
+        "category": "Locations",
         "notes": "",
         "paths": ('*DuetExpertCenter/_ATXDataStore.db*', '*routined/Local.sqlite*'),
         "output_types": "all"
     }
 }
 
-from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, attach_sqlite_db_readonly, convert_ts_human_to_timezone_offset 
+from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, attach_sqlite_db_readonly, convert_cocoa_core_data_ts_to_utc
 
 @artifact_processor
-def atxDatastore(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def atxDatastore(context):
     data_list = []
     data_headers = ()
-    source_path = ''
 
     atxdb = ''
     localdb = ''
    
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_name = str(file_found)
         if file_name.endswith('_ATXDataStore.db'):
-           atxdb = str(file_found)
-           source_path = atxdb
+            atxdb = str(file_found)
         elif file_name.endswith('Local.sqlite'):
-           localdb = str(file_found)
+            localdb = str(file_found)
     
     db = open_sqlite_db_readonly(atxdb)
     cursor = db.cursor()
@@ -45,9 +43,9 @@ def atxDatastore(files_found, report_folder, seeker, wrap_text, timezone_offset)
         alogAction.actionType AS ptype,
         Local.ZRTLEARNEDLOCATIONOFINTERESTMO.ZLOCATIONLATITUDE AS latitude, 
         Local.ZRTLEARNEDLOCATIONOFINTERESTMO.ZLOCATIONLONGITUDE AS longitude,
-        DateTime(alog.date + 978307200, 'UNIXEPOCH') AS date,
-        DateTime(alog.appSessionStartDate + 978307200, 'UNIXEPOCH') AS appSessionStartDate,
-        DateTime(alog.appSessionEndDate + 978307200, 'UNIXEPOCH') AS appSessionEndDate,
+        alog.date AS date,
+        alog.appSessionStartDate AS appSessionStartDate,
+        alog.appSessionEndDate AS appSessionEndDate,
         hex(alog.location) AS location,
         hex(alog.prevLocation) AS prevLocation,
         alog.motionType AS potionType,
@@ -62,27 +60,26 @@ def atxDatastore(files_found, report_folder, seeker, wrap_text, timezone_offset)
     all_rows = cursor.fetchall()
 
     for row in all_rows:
-        timestamp = convert_ts_human_to_timezone_offset(row[5], timezone_offset)
-        
-        startdate = convert_ts_human_to_timezone_offset(row[6], timezone_offset)
-        
-        enddate = convert_ts_human_to_timezone_offset(row[7], timezone_offset)
-        
+        timestamp = convert_cocoa_core_data_ts_to_utc(row[5])
+        startdate = convert_cocoa_core_data_ts_to_utc(row[6])
+        enddate = convert_cocoa_core_data_ts_to_utc(row[7])
         data_list.append(
-            (timestamp, row[2], row[3], row[4], startdate, enddate, row[8], row[9], row[0])
+            (timestamp, startdate, enddate, row[2], row[3], row[4],row[8], row[9], row[0])
             )
 
     db.close()
 
     data_headers = (
-        ('Timestamp', 'datetime'), 
+        ('Timestamp', 'datetime'),
+        ('AppSessionStartDate', 'datetime'), 
+        ('AppSessionEndDate', 'datetime'),  
         'Type', 
         'Latitude', 
         'Longitude', 
-        'AppSessionStartDate', 
-        'AppSessionEndDate', 
         'Location', 
         'Previous Location', 
         'ID'
         )
-    return data_headers, data_list, source_path
+    
+    source_path = f"ATX Database: {atxdb}\nLocal Database: {localdb}"
+    return data_headers, data_list, source_path 
