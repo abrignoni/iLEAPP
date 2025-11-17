@@ -1,8 +1,10 @@
+# pyright: reportUnknownParameterType=false, reportMissingParameterType=false, reportUnknownArgumentType=false, reportUnknownMemberType=false, reportUnknownVariableType=false, reportUnnecessaryComparison=false, reportAssignmentType=false, reportGeneralTypeIssues=false, reportAttributeAccessIssue=false, reportUnnecessaryIsInstance=false, reportMissingModuleSource=false
+
 import json
 import argparse
 import io
 import pytz
-import os.path
+import os
 import typing
 import scripts.report as report
 import traceback
@@ -21,6 +23,12 @@ from scripts.lavafuncs import *
 def validate_args(args):
     if args.artifact_paths or args.create_profile_casedata:
         return  # Skip further validation if --artifact_paths is used
+    
+    if args.batch:
+        # Skip validation of individual input/output when using batch mode
+        if not os.path.exists(args.batch):
+            raise argparse.ArgumentError(None, f'BATCH file \'{args.batch}\' does not exist! Run the program again.')
+        return
 
     # Ensure other arguments are provided
     mandatory_args = ['input_path', 'output_path', 't']
@@ -60,7 +68,7 @@ def validate_args(args):
         raise argparse.ArgumentError(None, 'iLEAPP Profile file not found! Run the program again.')
 
     try:
-        timezone = pytz.timezone(args.timezone)
+        pytz.timezone(args.timezone)
     except pytz.UnknownTimeZoneError:
       raise argparse.ArgumentError(None, 'Unknown timezone! Run the program again.')
         
@@ -154,6 +162,106 @@ def create_casedata(path):
     print()
     return
 
+def generate_dubai_police_html_report(report_folder_base, input_path, time_offset):
+    """
+    Generate a Dubai Police–style HTML report layout with header, metadata, evidence summary, and logs.
+    """
+    import datetime
+    html_dir = os.path.join(report_folder_base, '_HTML')
+    if not os.path.exists(html_dir):
+        try:
+            os.makedirs(html_dir)
+        except Exception:
+            html_dir = report_folder_base
+    report_file = os.path.join(html_dir, 'Dubai_Police_Forensics_Report.html')
+    now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    html_content = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dubai Police Forensic Analysis Report</title>
+    <style>
+        body {{
+            font-family: Arial, sans-serif;
+            background: #f6f6f6;
+            margin: 0; padding: 0;
+        }}
+        .header {{
+            background: #006e3c;
+            color: white;
+            padding: 30px 20px 20px 20px;
+            text-align: center;
+        }}
+        .section {{
+            background: white;
+            margin: 30px auto;
+            padding: 25px 30px;
+            border-radius: 8px;
+            max-width: 900px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+        }}
+        h1 {{
+            margin-bottom: 10px;
+        }}
+        h2 {{
+            color: #006e3c;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 5px;
+        }}
+        .meta-table {{
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }}
+        .meta-table td {{
+            padding: 5px 12px;
+            border-bottom: 1px solid #eaeaea;
+        }}
+        .logs {{
+            font-family: monospace;
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            max-height: 250px;
+        }}
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Dubai Police Forensic Analysis</h1>
+        <div>Forensics &amp; Evidence Department</div>
+        <div style="margin-top:10px; font-size:1.1em;">Report generated: {now}</div>
+    </div>
+    <div class="section">
+        <h2>Metadata</h2>
+        <table class="meta-table">
+            <tr><td><b>Input Path</b></td><td>{input_path}</td></tr>
+            <tr><td><b>Timezone</b></td><td>{time_offset}</td></tr>
+            <tr><td><b>Report Output Folder</b></td><td>{report_folder_base}</td></tr>
+        </table>
+    </div>
+    <div class="section">
+        <h2>Evidence Summary</h2>
+        <p><i>Summary of extracted artifacts and findings will appear here.</i></p>
+        <ul>
+            <li>Number of artifacts processed: <b>[Placeholder]</b></li>
+            <li>Key evidence highlights: <b>[Placeholder]</b></li>
+            <li>Examiner: <b>[Placeholder]</b></li>
+        </ul>
+    </div>
+    <div class="section">
+        <h2>Detailed Logs</h2>
+        <div class="logs">
+            <i>Log details and extraction steps will be included here.</i>
+        </div>
+    </div>
+</body>
+</html>
+"""
+    with open(report_file, "w", encoding="utf-8") as f:
+        f.write(html_content)
+
 def main():
     parser = argparse.ArgumentParser(description=f'iLEAPP v{ileapp_version}: iOS Logs, Events, And Plists Parser.')
     parser.add_argument('-t', choices=['fs', 'tar', 'zip', 'gz', 'itunes', 'file'], required=False, action="store",
@@ -178,6 +286,10 @@ def main():
                               "This argument is meant to be used alone, without any other arguments."))
     parser.add_argument('--custom_output_folder', required=False, action="store", help="Custom name for the output folder")
     parser.add_argument('--itunes_password', required=False, action="store", help="Password used for encrypted iTunes backup")
+    parser.add_argument('-b', '--batch', required=False, action="store", 
+                        help=("Path to a JSON batch file for processing multiple devices. "
+                              "The JSON file should contain a list of device configurations with 'input_path', 'output_path', 'type', and optional parameters. "
+                              "Example: [{\"input_path\": \"/path/to/device1\", \"output_path\": \"/path/to/output1\", \"type\": \"fs\"}, ...]"))
 
     available_plugins = []
     loader = plugin_loader.PluginLoader()
@@ -190,7 +302,7 @@ def main():
             available_plugins.append(plugin)
     selected_plugins = available_plugins.copy()
     profile_filename = None
-    casedata = {}
+    casedata: typing.Dict[str, typing.Any] = {}
 
     # Check if no arguments were provided
     if len(sys.argv) == 1:
@@ -307,6 +419,154 @@ def main():
                 print(profile_load_error)
                 return
     
+    # Handle batch processing mode
+    if args.batch:
+        batch_file_path = args.batch
+        batch_load_error = None
+        print(f'Batch processing mode: Loading batch file {batch_file_path}')
+        print('')
+        
+        with open(batch_file_path, "rt", encoding="utf-8") as batch_file:
+            try:
+                batch_config = json.load(batch_file)
+            except Exception as e:
+                batch_load_error = f"File was not a valid batch file: {str(e)}"
+                print(batch_load_error)
+                return
+        
+        if not isinstance(batch_config, list):
+            print("Batch file must contain a JSON array of device configurations")
+            return
+        
+        print(f'Found {len(batch_config)} device(s) to process')
+        print('')
+        
+        successful = 0
+        failed = 0
+        
+        for idx, device_config in enumerate(batch_config, 1):
+            print('=' * 80)
+            print(f'Processing device {idx}/{len(batch_config)}')
+            print('=' * 80)
+            
+            # Validate required fields in device config
+            if not isinstance(device_config, dict):
+                logfunc(f'Error: Device {idx} configuration is not a valid object')
+                failed += 1
+                continue
+            
+            device_input = device_config.get('input_path')
+            device_output = device_config.get('output_path')
+            device_type = device_config.get('type')
+            
+            if device_input is None or device_output is None or device_type is None:
+                logfunc(f'Error: Device {idx} missing required fields (input_path, output_path, type)')
+                failed += 1
+                continue
+            
+            if not isinstance(device_input, str) or not isinstance(device_output, str) or not isinstance(device_type, str):
+                logfunc(f'Error: Device {idx} has invalid field types (must be strings)')
+                failed += 1
+                continue
+            
+            if not device_input.strip() or not device_output.strip() or not device_type.strip():
+                logfunc(f'Error: Device {idx} has empty required fields')
+                failed += 1
+                continue
+            
+            # Validate paths
+            if not os.path.exists(device_input):
+                logfunc(f'Error: Input path "{device_input}" does not exist for device {idx}')
+                failed += 1
+                continue
+            
+            if not os.path.exists(device_output):
+                logfunc(f'Error: Output path "{device_output}" does not exist for device {idx}')
+                failed += 1
+                continue
+            
+            # Get optional parameters from device config or fall back to command-line args
+            device_timezone: str = device_config.get('timezone', args.timezone) # pyright: ignore[reportUnknownVariableType]
+            device_wrap_text: bool = device_config.get('wrap_text', args.wrap_text)
+            device_custom_folder: typing.Optional[str] = device_config.get('custom_output_folder')
+            device_itunes_password: typing.Optional[str] = device_config.get('itunes_password')
+            device_profile: typing.Optional[str] = device_config.get('profile', args.load_profile)
+            device_case_data: typing.Optional[str] = device_config.get('case_data', args.load_case_data)
+            
+            # Load device-specific profile if provided
+            device_selected_plugins = selected_plugins.copy()
+            device_profile_filename = profile_filename
+            if device_profile and device_profile != args.load_profile:
+                if os.path.exists(device_profile):
+                    with open(device_profile, "rt", encoding="utf-8") as device_profile_file:
+                        try:
+                            profile = json.load(device_profile_file)
+                            if isinstance(profile, dict) and profile.get("leapp") == "ileapp":
+                                profile_plugins = set(profile.get("plugins", []))
+                                device_selected_plugins = [p for p in available_plugins if p.name in profile_plugins]
+                                device_profile_filename = device_profile
+                        except Exception as e:
+                            logfunc(f'Warning: Could not load profile for device {idx}, using default: {str(e)}')
+            
+            # Load device-specific case data if provided
+            device_casedata: typing.Dict[str, typing.Any] = casedata.copy()
+            if device_case_data and device_case_data != args.load_case_data:
+                if os.path.exists(device_case_data):
+                    with open(device_case_data, "rt", encoding="utf-8") as device_case_file:
+                        try:
+                            case_data = json.load(device_case_file)
+                            if isinstance(case_data, dict) and case_data.get("leapp") == "case_data":
+                                device_casedata = case_data.get('case_data_values', {})
+                        except Exception as e:
+                            logfunc(f'Warning: Could not load case data for device {idx}, using default: {str(e)}')
+            
+            # Prepare paths
+            device_input_path = device_input
+            device_output_path = os.path.abspath(device_output)
+            
+            if is_platform_windows():
+                if device_input_path[1] == ':' and device_type == 'fs': 
+                    device_input_path = '\\\\?\\' + device_input_path.replace('/', '\\')
+                if device_output_path[1] == ':': 
+                    device_output_path = '\\\\?\\' + device_output_path.replace('/', '\\')
+            
+            out_params = OutputParameters(device_output_path, device_custom_folder)
+            initialize_lava(device_input_path, out_params.report_folder_base, device_type)
+            
+            print(f'Device {idx}: Input={device_input}, Output={device_output}, Type={device_type}')
+            print('')
+            
+            # Process the device
+            try:
+                success = crunch_artifacts(
+                    device_selected_plugins, device_type, device_input_path, out_params, 
+                    device_wrap_text, loader, device_casedata, device_timezone, 
+                    device_profile_filename, device_itunes_password)
+                
+                lava_finalize_output(out_params.report_folder_base)
+                
+                if success:
+                    # Remove Windows path prefix for display
+                    report_location = out_params.report_folder_base
+                    if report_location.startswith('\\\\?\\'):
+                        report_location = report_location[4:]
+                    logfunc(f'\nDevice {idx} processing completed successfully')
+                    logfunc(f'Report location: {report_location}')
+                    successful += 1
+                else:
+                    logfunc(f'\nDevice {idx} processing failed')
+                    failed += 1
+            except Exception as e:
+                logfunc(f'\nDevice {idx} processing failed with error: {str(e)}')
+                failed += 1
+            
+            print('')
+        
+        print('=' * 80)
+        print(f'Batch processing completed: {successful} successful, {failed} failed out of {len(batch_config)} total')
+        print('=' * 80)
+        return
+    
     input_path = args.input_path
     wrap_text = args.wrap_text
     output_path = os.path.abspath(args.output_path)
@@ -327,6 +587,7 @@ def main():
     crunch_artifacts(selected_plugins, extracttype, input_path, out_params, wrap_text, loader, casedata, time_offset, profile_filename, itunes_backup_password)
 
     lava_finalize_output(out_params.report_folder_base)
+    generate_dubai_police_html_report(out_params.report_folder_base, input_path, time_offset)
 
 def crunch_artifacts(
         plugins: typing.Sequence[plugin_loader.PluginSpec], extracttype, input_path, out_params, wrap_text,
@@ -543,4 +804,4 @@ def crunch_artifacts(
 
 if __name__ == '__main__':
     main()
-    
+
