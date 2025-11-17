@@ -2,9 +2,9 @@ __artifacts_v2__ = {
     "get_spotlightIndexCache": {
         "name": "Spotlight Index Cache V2",
         "description": "Spotlight Index Cache V2",
-        "author": "@JohnHyla",
-        "version": "0.0.1",
-        "date": "2025-10-09",
+        "author": "@snoop168",
+        "creation_date": "2025-10-09",
+        "last_update_date": "2025-10-09",
         "requirements": "none",
         "category": "Spotlight",
         "notes": "",
