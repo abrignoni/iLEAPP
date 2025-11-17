@@ -92,7 +92,7 @@ def SMS_Missing_ROWIDs(context):
     
     def fix_ts(val):
         if not isinstance(val, (int, float)):
-                return val
+            return val
             
         digits = len(str(abs(int(val))))
 
