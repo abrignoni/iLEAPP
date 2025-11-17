@@ -3,8 +3,8 @@ __artifacts_v2__ = {
         "name": "Call History",
         "description": "Extract Call History",
         "author": "@AlexisBrignoni - @JohnHyla",
-        "version": "0.8",
-        "date": "2020-04-30",
+        "creation_date": "2020-04-30",
+        "last_update_date": "2025-11-12",
         "requirements": "none",
         "category": "Call History",
         "notes": "",
@@ -24,10 +24,10 @@ __artifacts_v2__ = {
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, convert_bytes_to_unit, convert_cocoa_core_data_ts_to_utc
 
 @artifact_processor
-def callHistory(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def callHistory(context):
     source_path = ''
     data_list = []
-
+    files_found = context.get_files_found()
     db_path = get_file_path(files_found, "CallHistory.storedata")
     temp_db_path = get_file_path(files_found, "CallHistoryTemp.storedata")
     old_db_path = get_file_path(files_found, "call_history.db")
