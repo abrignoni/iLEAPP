@@ -14,7 +14,7 @@ __artifacts_v2__ = {
     }
 }
 
-from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records
+from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, convert_cocoa_core_data_ts_to_utc
 
 @artifact_processor
 def SMS_Missing_ROWIDs(context):
@@ -32,18 +32,10 @@ def SMS_Missing_ROWIDs(context):
     SELECT * FROM (
 	    SELECT * FROM (
 	        SELECT 
-	        CASE
-	            WHEN length(DATE) = 18 
-	            THEN LAG(DATETIME(DATE/1000000000 + 978307200, 'UNIXEPOCH'),1) OVER (ORDER BY ROWID) 
-	            WHEN length(DATE) = 9
-	            THEN LAG(DATETIME(DATE + 978307200, 'UNIXEPOCH'),1) OVER (ORDER BY ROWID)
-	            END AS "Beginning Timestamp",
-	        CASE
-	            WHEN length(DATE) = 18 
-	            THEN DATETIME(DATE/1000000000 + 978307200, 'UNIXEPOCH') 
-	            WHEN length(DATE) = 9
-	            THEN DATETIME(DATE + 978307200, 'UNIXEPOCH')
-	            END  AS "Ending Timestamp",
+	        LAG(message.date,1) OVER (ORDER BY ROWID) AS "Beginning Timestamp",
+            message.date AS "Ending Timestamp",
+            LAG(message.date,1) OVER (ORDER BY ROWID) AS "Beginning Timestamp (RAW)",
+            message.date AS "Ending Timestamp (RAW)",
 			LAG (guid,1) OVER (ORDER BY ROWID) AS "Previous guid", 
             guid AS "guid", 
 			LAG (ROWID,1) OVER (ORDER BY ROWID) AS "Previous ROWID", 
@@ -57,15 +49,20 @@ def SMS_Missing_ROWIDs(context):
             SELECT
             CASE
                 WHEN message.ROWID != (SELECT last_rowid FROM LastROWID)
-                THEN MAX(CASE
-                            WHEN length(DATE) = 18 THEN DATETIME(DATE/1000000000 + 978307200, 'UNIXEPOCH')
-                            WHEN length(DATE) = 9  THEN DATETIME(DATE + 978307200, 'UNIXEPOCH')
-                        END)
+                THEN MAX(message.date)
                 END AS "Beginning Timestamp",
             CASE
                 WHEN message.ROWID != (SELECT last_rowid FROM LastROWID)
                 THEN "Time of Extraction"
                 END AS "Ending Timestamp",
+			CASE
+                WHEN message.ROWID != (SELECT last_rowid FROM LastROWID)
+                THEN MAX(message.date)
+                END AS "Beginning Timestamp (RAW)",
+            CASE
+                WHEN message.ROWID != (SELECT last_rowid FROM LastROWID)
+                THEN CAST('Time of Extraction' AS TEXT)
+                END AS "Ending Timestamp (RAW)",
             CASE
                 WHEN message.ROWID != (SELECT last_rowid FROM LastROWID)
                 THEN guid
@@ -89,13 +86,33 @@ def SMS_Missing_ROWIDs(context):
             FROM message)
         WHERE "ROWID" IS NOT NULL;'''
     
-    data_headers = ('Beginning Timestamp', 'Ending Timestamp', 'Previous guid', 'guid', 'Previous ROWID', 'ROWID', 'Number of Missing Rows')
+    data_headers = (('Beginning Timestamp', 'datetime'), ('Ending Timestamp', 'datetime'), 'Beginning Timestamp (RAW)', 'Ending Timestamp (RAW)', 'Previous guid', 'guid', 'Previous ROWID', 'ROWID', 'Number of Missing Rows')
 
     db_records = get_sqlite_db_records(data_source, query)
     
+    def fix_ts(val):
+        if not isinstance(val, (int, float)):
+                return val
+            
+        digits = len(str(abs(int(val))))
+
+        if digits > 17:
+            val = val / 1e9
+
+        elif digits > 14: 
+            val = val / 1e6
+
+        return convert_cocoa_core_data_ts_to_utc(val)
+    
     for record in db_records:
+        start_raw = record[0]
+        end_raw   = record[1]
+
+        start_timestamp = fix_ts(start_raw)
+        end_timestamp   = fix_ts(end_raw)
+
         data_list.append(
-            (record[0], record[1], record[2], record[3], record[4], record[5], record[6])
-            )
+            (start_timestamp, end_timestamp, record[2], record[3], record[4], record[5], record[6], record[7], record[8])
+        )
     
     return data_headers, data_list, data_source
