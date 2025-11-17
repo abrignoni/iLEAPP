@@ -13,8 +13,8 @@ Number of v1 artifacts: 82
 Number of v2 artifacts: 355  
 Number of artifacts with 'lava output': 332  
 Number of artifacts using 'artifact_icon': 224  
-Number of artifacts using 'version': 237  
-Number of artifacts using 'last_update_date': 136  
+Number of artifacts using 'version': 236  
+Number of artifacts using 'last_update_date': 137  
 Number of artifacts using context parameter: 69  
 Number of artifacts with errors or no recognized artifacts: 3  
 
@@ -339,7 +339,7 @@ Number of artifacts with errors or no recognized artifacts: 3
 | [splitwise.py](/scripts/artifacts/splitwise.py) | splitwiseTotalBalances | Splitwise - Total Balances | Finance | standard | No | dollar-sign |  | 2025-01-07 | Parses total balances information from Splitwise app | ``*/Library/Application Support/database.sqlite*`` |
 | [splitwise.py](/scripts/artifacts/splitwise.py) | splitwiseGroups | Splitwise - Groups | Finance | standard | No | users |  | 2025-01-07 | Parses groups information in Splitwise app | ``*/Library/Application Support/database.sqlite*`` |
 | [splitwise.py](/scripts/artifacts/splitwise.py) | splitwiseNotifications | Splitwise - Notifications | Finance | standard | No | bell |  | 2025-01-07 | Parses notifications from Splitwise app | ``*/Library/Application Support/database.sqlite*`` |
-| [spotlightIndex.py](/scripts/artifacts/spotlightIndex.py) | get_spotlightIndexCache | Spotlight Index Cache V2 | Spotlight | standard | Yes | search | 0.0.1 |  | Spotlight Index Cache V2 | ``*/var/mobile/Library/Spotlight/CoreSpotlight/NSFileProtectionCompleteUntilFirstUserAuthentication/index.spotlightV2/Cache/*/*.txt`` |
+| [spotlightIndex.py](/scripts/artifacts/spotlightIndex.py) | get_spotlightIndexCache | Spotlight Index Cache V2 | Spotlight | standard | Yes | search |  | 2025-10-09 | Spotlight Index Cache V2 | ``*/var/mobile/Library/Spotlight/CoreSpotlight/NSFileProtectionCompleteUntilFirstUserAuthentication/index.spotlightV2/Cache/*/*.txt`` |
 | [storeUser.py](/scripts/artifacts/storeUser.py) | storeUser_ca | Installed Apps (storeUser) | Installed Apps | standard | No | package |  |  | Parses storeUser.db for installed app history | ``*/mobile/Library/Caches/com.apple.appstored/storeUser.db*`` |
 | [storeUser.py](/scripts/artifacts/storeUser.py) | storeUser_pha | Purchased Apps History (storeUser) | Installed Apps | standard | No | shopping-cart |  |  | Parses storeUser.db for App Store purchased app history | ``*/mobile/Library/Caches/com.apple.appstored/storeUser.db*`` |
 | [subscriberInfo.py](/scripts/artifacts/subscriberInfo.py) | subscriberInfo | Subscriber Info | Identifiers | standard | No | settings | 0.1 |  | Information about inserted SIM Cards | ``*/wireless/Library/Databases/CellularUsage.db*`` |
