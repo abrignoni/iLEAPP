@@ -203,4 +203,4 @@ def webkitCacheRecords(context):
         logfunc('No WebKit Cache Records were successfully parsed.')
         return data_headers, [], source_path_ref
 
-    return data_headers, data_list, source_path_ref\
+    return data_headers, data_list, source_path_ref
