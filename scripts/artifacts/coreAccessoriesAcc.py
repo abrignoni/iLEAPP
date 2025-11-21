@@ -13,7 +13,7 @@ __artifacts_v2__ = {
             to accessories that are connected.",
         "author": "John Hyla",
         "creation_date": "2023-08-01",
-        "last_update_date": "2025-10-01",
+        "last_update_date": "2025-11-21",
         "requirements": "none",
         "category": "Core Accessories",
         "notes": "",
@@ -71,4 +71,4 @@ def get_coreAccessories(context):
 
     all_keys_list[0] = (all_keys_list[0], 'datetime')
 
-    return (all_keys_list, data_list, db_file)
+    return all_keys_list, data_list, db_file
