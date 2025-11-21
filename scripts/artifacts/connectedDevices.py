@@ -13,7 +13,7 @@ __artifacts_v2__ = {
     }
 }
 
-from scripts.ilapfuncs import logfunc, artifact_processor
+from scripts.ilapfuncs import artifact_processor
 import os
 
 MAGIC_BYTES = b"\x01\x01\x80\x00\x00"
@@ -24,10 +24,8 @@ NAME_OFFSET = 157
 def conDev(context):
     data_list = []
     data_headers = ('User Name', 'Computer Name', 'File Offset', 'Source File')
-    source_path = ''
 
     for file_found in context.get_files_found():
-        source_path = file_found
         with open(file_found, "rb") as f:
             data = f.read()
 
