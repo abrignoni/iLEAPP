@@ -399,6 +399,7 @@ def artifact_processor(func):
                                                                                artifact_name,
                                                                                data_headers,
                                                                                len(data_list),
+                                                                               func_name=func_name,
                                                                                data_views=artifact_info.get("data_views"),
                                                                                artifact_icon=icon,
                                                                                source_path=source_path)
