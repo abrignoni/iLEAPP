@@ -153,7 +153,6 @@ def calendarEvents(context):
         file_found = str(file_found)
 
         if file_found.endswith('.sqlitedb'):
-            print('Eventos: Archivo ', file_found)
             db = open_sqlite_db_readonly(file_found)
             cursor = db.cursor()
 
@@ -263,7 +262,6 @@ def calendarEvents(context):
                                       row[9], location_coordinates, invitation_from, attendees, row[15], row[16],
                                       row[17], creation_time, modification_time, file_found))
                     
-                    print('Eventos: Hice append ', file_found)
 
     return data_headers, (data_list, data_list_html), 'see Source File for more info'
 
@@ -279,7 +277,6 @@ def calendarBirthdays(context):
         file_found = str(file_found)
 
         if file_found.endswith('.sqlitedb'):
-            print('Birthdays: Archivo ', file_found)
             db = open_sqlite_db_readonly(file_found)
             cursor = db.cursor()
 
@@ -308,7 +305,6 @@ def calendarBirthdays(context):
 
                 data_list_html.append((birthdate, row[0], calendar_name_tag, row[4], file_found))
                 data_list.append((birthdate, row[0], calendar_name, row[4], file_found))
-                print('Birthdays: Hice append ', file_found)
 
     return data_headers, (data_list, data_list_html), 'see Source File for more info'
 
@@ -324,7 +320,6 @@ def calendarList(context):
         file_found = str(file_found)
 
         if file_found.endswith('.sqlitedb'):
-            print('Eventos: List ', file_found)
             db = open_sqlite_db_readonly(file_found)
             cursor = db.cursor()
 
@@ -373,6 +368,5 @@ def calendarList(context):
                     else:
                         data_list_html.append((calendar_name_tag, row[3], row[4], row[5], owner_email, row[7], None, row[8], file_found))
                         data_list.append((calendar_name, row[3], row[4], row[5], owner_email, row[7], None, row[8], file_found))
-                    print('List: Hice append ', file_found)
                 
     return data_headers, (data_list, data_list_html), 'see Source File for more info'
