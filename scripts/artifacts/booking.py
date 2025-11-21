@@ -1,6 +1,6 @@
 __artifacts_v2__ = {
     "booking_preferences": {
-        "name": "Preferences",
+        "name": "Booking Preferences",
         "description": "Parses and extract Booking.com Preferences",
         "author": "@djangofaiola",
         "version": "0.2",
@@ -14,7 +14,7 @@ __artifacts_v2__ = {
         "artifact_icon": "settings"
     },
     "booking_account": {
-        "name": "Account",
+        "name": "Booking Account",
         "description": "Parses and extract Booking.com Account",
         "author": "@djangofaiola",
         "version": "0.2",
@@ -30,7 +30,7 @@ __artifacts_v2__ = {
         "artifact_icon": "user"
     },
     "booking_payment_methods": {
-        "name": "Payment Methods",
+        "name": "Booking Payment Methods",
         "description": "Parses and extract Booking.com Payment Methods",
         "author": "@djangofaiola",
         "version": "0.2",
@@ -46,7 +46,7 @@ __artifacts_v2__ = {
         "artifact_icon": "credit-card"
     },
     "booking_wish_lists": {
-        "name": "Wish Lists",
+        "name": "Booking Wish Lists",
         "description": "Parses and extract Booking.com Wish Lists",
         "author": "@djangofaiola",
         "version": "0.2",
@@ -61,7 +61,7 @@ __artifacts_v2__ = {
         "artifact_icon": "star"
     },
     "booking_viewed": {
-        "name": "Viewed",
+        "name": "Booking Viewed",
         "description": "Parses and extract Booking.com Viewed",
         "author": "@djangofaiola",
         "version": "0.2",
@@ -76,7 +76,7 @@ __artifacts_v2__ = {
         "artifact_icon": "eye"
     },
     "booking_recently_searched": {
-        "name": "Recently Searched",
+        "name": "Booking Recently Searched",
         "description": "Parses and extract Booking.com Recently Searched",
         "author": "@djangofaiola",
         "version": "0.2",
@@ -91,7 +91,7 @@ __artifacts_v2__ = {
         "artifact_icon": "search"
     },
     "booking_recently_booked": {
-        "name": "Recently Booked",
+        "name": "Booking Recently Booked",
         "description": "Parses and extract Booking.com Recently Booked",
         "author": "@djangofaiola",
         "version": "0.2",
@@ -106,7 +106,7 @@ __artifacts_v2__ = {
         "artifact_icon": "shopping-bag"
     },
     "booking_booked": {
-        "name": "Booked",
+        "name": "Booking Booked",
         "description": "Parses and extract Booking.com Booked",
         "author": "@djangofaiola",
         "version": "0.2",
@@ -122,7 +122,7 @@ __artifacts_v2__ = {
         "artifact_icon": "shopping-bag"
     },
     "booking_stored_destinations": {
-        "name": "Stored Destinations",
+        "name": "Booking Stored Destinations",
         "description": "Parses and extract Booking.com Stored Destinations",
         "author": "@djangofaiola",
         "version": "0.2",
@@ -137,7 +137,7 @@ __artifacts_v2__ = {
         "artifact_icon": "map"
     },
     "booking_notifications": {
-        "name": "Notifications",
+        "name": "Booking Notifications",
         "description": "Parses and extract Booking.com Notifications",
         "author": "@djangofaiola",
         "version": "0.2",
@@ -152,7 +152,7 @@ __artifacts_v2__ = {
         "artifact_icon": "bell"
     },
     "booking_flights_searched": {
-        "name": "Flights Searched",
+        "name": "Booking Flights Searched",
         "description": "Parses and extract Booking.com Flights Searched",
         "author": "@djangofaiola",
         "version": "0.2",
