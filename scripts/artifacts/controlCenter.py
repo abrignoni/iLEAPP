@@ -3,8 +3,8 @@ __artifacts_v2__ = {
         "name": "Control Center Configuration",
         "description": "Parses controls/apps added to the Control Center",
         "author": "@KevinPagano3",
-        "version": "0.0.2",
-        "date": "2024-10-18",
+        "creation_date": "2024-10-18",
+        "last_update_date": "2025-11-21",
         "requirements": "none",
         "category": "Control Center",
         "notes": "",
@@ -13,39 +13,27 @@ __artifacts_v2__ = {
     }
 }
 
-
-import plistlib
-
-from packaging import version
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, tsv, is_platform_windows 
-from scripts.ilapfuncs import artifact_processor
+from scripts.ilapfuncs import artifact_processor, get_plist_file_content
 
 @artifact_processor
-def controlCenter(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def controlCenter(context):
     data_list = []
-    
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
-
-        with open(file_found, 'rb') as f:
-            pl = plistlib.load(f)
+        pl = get_plist_file_content(file_found)
             
-            for control_type, key, prefix in [
-                ('Active', 'module-identifiers', 'A'),
-                ('User Toggled', 'userenabled-fixed-module-identifiers', 'U'),
-                ('Disabled', 'disabled-module-identifiers', 'D')
-            ]:
-                if key in pl and pl[key]:
-                    for position, module in enumerate(pl[key], 1):
-                        formatted_position = f"{prefix}-{position}"
-                        data_list.append((formatted_position, module, control_type))
+        for control_type, key, prefix in [
+            ('Active', 'module-identifiers', 'A'),
+            ('User Toggled', 'userenabled-fixed-module-identifiers', 'U'),
+            ('Disabled', 'disabled-module-identifiers', 'D')
+        ]:
+            if key in pl and pl[key]:
+                for position, module in enumerate(pl[key], 1):
+                    formatted_position = f"{prefix}-{position}"
+                    data_list.append((formatted_position, module, control_type, file_found))
+
+    data_headers = ('Position', 'App Bundle', 'Control Type', 'Source File')
     
-    data_headers = ('Position', 'App Bundle', 'Control Type')
-    
-    if not data_list:
-        logfunc('No Control Center Configuration data available')
-    
-    return data_headers, data_list, file_found
+    return data_headers, data_list, 'see Source File for more info'
 
 
