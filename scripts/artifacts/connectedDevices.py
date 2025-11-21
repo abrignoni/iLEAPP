@@ -3,8 +3,8 @@ __artifacts_v2__ = {
         "name": "Connected Devices",
         "description": "Extracts information about connected devices from iTunes preferences",
         "author": "",
-        "version": "1.0",
-        "date": "2024-10-23",
+        "creation_date": "2024-10-23",
+        "last_update_date": "2025-11-21",
         "requirements": "none",
         "category": "Connected Devices",
         "notes": "",
@@ -21,24 +21,24 @@ MAGIC_OFFSET = 92
 NAME_OFFSET = 157
 
 @artifact_processor
-def conDev(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def conDev(context):
     data_list = []
     data_headers = ('User Name', 'Computer Name', 'File Offset', 'Source File')
     source_path = ''
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         source_path = file_found
         with open(file_found, "rb") as f:
             data = f.read()
 
-        logfunc(f"Data being interpreted for FRPD is of type: {type(data)}")
+        #logfunc(f"Data being interpreted for FRPD is of type: {type(data)}")
         
         magic_index = data.find(MAGIC_BYTES)
         if magic_index == -1:
-            logfunc("Magic bytes not found in iTunes Prefs FRPD")
+            #logfunc("Magic bytes not found in iTunes Prefs FRPD")
             continue
 
-        logfunc("Found magic bytes in iTunes Prefs FRPD... Finding Usernames and Desktop names now")
+        #logfunc("Found magic bytes in iTunes Prefs FRPD... Finding Usernames and Desktop names now")
         
         names = []
         current_name = bytearray()
@@ -72,4 +72,4 @@ def conDev(files_found, report_folder, seeker, wrap_text, timezone_offset):
                     os.path.basename(file_found)
                 ))
 
-    return data_headers, data_list, source_path
+    return data_headers, data_list, 'see Source File for more info'
