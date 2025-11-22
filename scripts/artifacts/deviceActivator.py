@@ -3,8 +3,8 @@ __artifacts_v2__ = {
         "name": "iOS Device Activator Data",
         "description": "Extracts device information from activation data",
         "author": "",
-        "version": "1.0",
-        "date": "2024-10-29",
+        "creation_date": "2024-10-29",
+        "last_update_date": "2025-11-21",
         "requirements": "none",
         "category": "Device Information",
         "paths": ('*/mobile/Library/Logs/mobileactivationd/ucrt_oob_request.txt',),
@@ -15,14 +15,15 @@ __artifacts_v2__ = {
 import re
 import base64
 import os
-from itertools import compress 
 import xml.etree.ElementTree as ET
-from scripts.ilapfuncs import logfunc, device_info, artifact_processor
+from scripts.ilapfuncs import device_info, artifact_processor
 
 @artifact_processor
-def deviceActivator(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def deviceActivator(context):
     data_list = []
+    files_found = context.get_files_found()
     file_found = str(files_found[0])
+    report_folder = context.get_report_folder()
     
     with open(file_found, 'r') as f_in:
         for line in f_in:
@@ -60,9 +61,5 @@ def deviceActivator(files_found, report_folder, seeker, wrap_text, timezone_offs
         if x[0] == 'ModelNumber':
             device_info("Device Information", "Model Number", x[1], file_found)
     
-    if len(results) > 0:
-        data_headers = ('Property', 'Property Value')
-        return data_headers, results, file_found
-    else:
-        logfunc('No iOS Device Activator Data')
-        return None
+    data_headers = ('Property', 'Property Value')
+    return data_headers, results, file_found
