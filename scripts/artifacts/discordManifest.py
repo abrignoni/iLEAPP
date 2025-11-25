@@ -1,16 +1,26 @@
+__artifacts_v2__ = {
+    "get_discordManifest": {  # This should match the function name exactly
+        "name": "Discord - Manifest",
+        "description": "Parses Discord manifest",
+        "author": "",
+        "creation_date": "",
+        "last_updated": "2025-11-25",
+        "requirements": "none",
+        "category": "Discord",
+        "notes": "",
+        "paths": ('*/mobile/Containers/Data/Application/*/Documents/RCTAsyncLocalStorage_V1/manifest.json'),
+        "output_types": "standard",  # or ["html", "tsv", "timeline", "lava"]
+    }
+}
 
 import os
 import json
-from pathlib import Path
+from scripts.ilapfuncs import artifact_processor
 
-from packaging import version
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, timeline, tsv, is_platform_windows 
-
-
-def get_discordManifest(files_found, report_folder, seeker, wrap_text, timezone_offset):
+@artifact_processor
+def get_discordManifest(context):
 	data_list = []
-	for file_found in files_found:
+	for file_found in context.get_files_found():
 		file_found = str(file_found)
 		
 		if os.path.isfile(file_found):
@@ -19,23 +29,8 @@ def get_discordManifest(files_found, report_folder, seeker, wrap_text, timezone_
 					jsonfinal = json.loads(jsondata)
 
 		for key, value in jsonfinal.items():
-			data_list.append((key, value))
+			data_list.append((key, value, file_found))
 
-
-	if len(data_list) > 0:	
-		report = ArtifactHtmlReport('Discord Manifest')
-		report.start_artifact_report(report_folder, 'Discord Manifest')
-		report.add_script()
-		data_headers = ('Key', 'Value')   
-		report.write_artifact_data_table(data_headers, data_list, file_found)
-		report.end_artifact_report()
+	data_headers = ('Key Name', 'Data Value')   
 		
-		tsvname = 'Discord Manifest'
-		tsv(report_folder, data_headers, data_list, tsvname)
-		
-__artifacts__ = {
-    "discordmanifest": (
-        "Discord",
-        ('*/mobile/Containers/Data/Application/*/Documents/RCTAsyncLocalStorage_V1/manifest.json'),
-        get_discordManifest)
-}
+	return data_headers, data_list, 'see Source File for more'
