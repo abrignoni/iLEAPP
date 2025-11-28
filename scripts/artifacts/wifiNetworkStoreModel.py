@@ -14,11 +14,11 @@ __artifacts_v2__ = {
         "creation_date": "2022-08-23",
         "last_update_date": "2025-11-12",
         "requirements": "none",
-        "category": "",
+        "category": "Network",
         "notes": "",
         "paths": ('*/root/Library/Application Support/WiFiNetworkStoreModel.sqlite*'),
         "output_types": "standard",
-        "artifact_icon": ""
+        "artifact_icon": "wifi"
     }
 }
 
