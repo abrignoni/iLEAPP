@@ -27,7 +27,7 @@ from scripts.ilapfuncs import artifact_processor, convert_utc_human_to_timezone,
 @artifact_processor
 def get_biomeTextinputses(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
-    typess = {'1': {'type': 'double', 'name': ''}, '2': {'type': 'double', 'name': ''}, '3': {'type': 'str', 'name': ''}, '4': {'type': 'int', 'name': ''}}
+    typess = {'1': {'type': 'double', 'name': ''}, '2': {'type': 'double', 'name': ''}, '3': {'type': 'string', 'name': ''}, '4': {'type': 'int', 'name': ''}}
 
     data_list = []
     report_file = 'Unknown'
