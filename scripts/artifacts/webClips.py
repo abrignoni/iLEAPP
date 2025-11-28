@@ -6,11 +6,11 @@ __artifacts_v2__ = {
         "creation_date": "2020-04-20",
         "last_update_date": "2025-11-20",
         "requirements": "none",
-        "category": "",
+        "category": "Home Screen",
         "notes": "",
         "paths": ('*WebClips/*.webclip/*',),
         "output_types": "standard",
-        "artifact_icon": ""
+        "artifact_icon": "bookmark"
     }
 }
 import os

@@ -1,16 +1,16 @@
 __artifacts_v2__ = {
     "get_weatherAppLocations": {
-        "name": "Location",
+        "name": "Weather App - Location",
         "description": "",
         "author": "@Anna-Mariya Mateyna",
         "creation_date": "2021-01-29",
         "last_update_date": "2025-11-20",
         "requirements": "none",
-        "category": "",
+        "category": "Location",
         "notes": "",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.com.apple.weather.plist',),
         "output_types": "standard",
-        "artifact_icon": ""
+        "artifact_icon": "sun"
     }
 }
 from scripts.ilapfuncs import (

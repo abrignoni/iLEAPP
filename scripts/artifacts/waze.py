@@ -232,8 +232,8 @@ def get_waze_session(context):
                     continue
                 # Last synced (ms)
                 if line.startswith(patternLastSynced):
-                    timestamp = int(float(line.split(sep, 1)[1]) / 1000)
-                    row[0] = convert_unix_ts_to_utc(timestamp / 1000)
+                    timestamp = int(float(line.split(sep, 1)[1]))
+                    row[0] = convert_unix_ts_to_utc(timestamp)
                 # last position
                 elif line.startswith(patternGPSPosition):
                     coordinates = line.split(sep, 1)[1].split(',')      # lon,lat
@@ -450,7 +450,7 @@ def get_waze_searched_locations(context):
             # P.id
             location = FormatLocation('', str(row[0]), 'PLACES', 'id')
             # created
-            created = convert_unix_ts_to_utc(int(float(row[0])))
+            created = convert_unix_ts_to_utc(int(float(row[1])))
             # row
             data_list.append((
                 created,
