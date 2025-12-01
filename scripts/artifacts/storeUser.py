@@ -26,7 +26,7 @@ __artifacts_v2__ = {
 }
 
 import os
-
+import sqlite3
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, does_column_exist_in_db
 
@@ -66,6 +66,18 @@ def storeUser_ca(files_found, report_folder, seeker, wrap_text, timezone_offset)
     '''
 
     data_headers = (('Install Timestamp', 'datetime'),'Bundle ID','App Name','Developer Name','App Version','App Bundle Version','App Store ID','System App','Deletion Date')
+
+    try:
+        conn = sqlite3.connect(source_path)
+        cur = conn.cursor()
+        cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='current_apps';")
+        table_exists = cur.fetchone() is not None
+    finally:
+        conn.close()
+
+    if not table_exists:
+        logfunc(f"storeUser: table 'current_apps' not found in {source_path}")
+        return data_headers, data_list, source_path
 
     if does_column_exist_in_db(source_path, "current_apps", "is_system_app"):
         db_records = get_sqlite_db_records(source_path, current_app_query)
