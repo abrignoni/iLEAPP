@@ -3,8 +3,8 @@ __artifacts_v2__ = {
         "name": "Biome - Location Activity",
         "description": "Parses location activity entries from biomes",
         "author": "@JohnHyla",
-        "version": "0.0.2",
-        "date": "2024-10-17",
+        "creation_date": "2024-10-17",
+        "last_update_date": "2025-10-31",
         "requirements": "none",
         "category": "Biome",
         "notes": "",
@@ -15,22 +15,93 @@ __artifacts_v2__ = {
 
 
 import os
-import nska_deserialize as nd
 from datetime import timezone
 import blackboxprotobuf
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
-from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv, convert_utc_human_to_timezone
+from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv, get_plist_content
 
 
 @artifact_processor
-def get_biomeLocationactivity(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def get_biomeLocationactivity(context):
 
-    typess = {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'str', 'name': ''}, '2': {'type': 'message', 'message_typedef': {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''}}, 'name': ''}}, 'name': ''}, '2': {'type': 'double', 'name': ''}, '3': {'type': 'double', 'name': ''}, '4': {'type': 'message', 'message_typedef': {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''}}, 'name': ''}, '3': {'type': 'str', 'name': ''}}, 'name': ''}, '5': {'type': 'str', 'name': ''}, '6': {'type': 'message', 'message_typedef': {'1': {'type': 'str', 'name': ''}, '2': {'type': 'str', 'name': ''}, '3': {'type': 'bytes', 'name': ''}, '6': {'type': 'int', 'name': ''}}, 'name': ''}, '7': {'type': 'message', 'message_typedef': {'1': {'type': 'message', 'message_typedef': {}, 'name': ''}, '2': {'type': 'message', 'message_typedef': {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''}}, 'name': ''}, '3': {'type': 'bytes', 'name': ''}, '5': {'type': 'fixed64', 'name': ''}, '4': {'type': 'int', 'name': ''}, '6': {'type': 'bytes', 'name': ''}, '7': {'type': 'fixed64', 'name': ''}}, 'name': ''}, '3': {'type': 'int', 'name': ''}}, 'name': ''}, '8': {'type': 'double', 'name': ''}, '10': {'type': 'int', 'name': ''}}
+    typess = {
+        '1': {
+            'type': 'message',
+            'message_typedef': {
+                '1': {'type': 'str', 'name': ''},
+                '2': {
+                    'type': 'message',
+                    'message_typedef': {
+                        '1': {'type': 'int', 'name': ''},
+                        '2': {'type': 'int', 'name': ''}
+                    },
+                    'name': ''
+                }
+            },
+            'name': ''
+        },
+        '2': {'type': 'double', 'name': ''},
+        '3': {'type': 'double', 'name': ''},
+        '4': {
+            'type': 'message',
+            'message_typedef': {
+                '1': {
+                    'type': 'message',
+                    'message_typedef': {
+                        '1': {'type': 'int', 'name': ''},
+                        '2': {'type': 'int', 'name': ''}
+                    },
+                    'name': ''
+                },
+                '3': {'type': 'str', 'name': ''}
+            },
+            'name': ''
+        },
+        '5': {'type': 'str', 'name': ''},
+        '6': {
+            'type': 'message',
+            'message_typedef': {
+                '1': {'type': 'str', 'name': ''},
+                '2': {'type': 'str', 'name': ''},
+                '3': {'type': 'bytes', 'name': ''},
+                '6': {'type': 'int', 'name': ''}
+            },
+            'name': ''
+        },
+        '7': {
+            'type': 'message',
+            'message_typedef': {
+                '1': {'type': 'message', 'message_typedef': {}, 'name': ''},
+                '2': {
+                    'type': 'message',
+                    'message_typedef': {
+                        '1': {
+                            'type': 'message',
+                            'message_typedef': {
+                                '1': {'type': 'int', 'name': ''},
+                                '2': {'type': 'int', 'name': ''}
+                            },
+                            'name': ''
+                        },
+                        '3': {'type': 'bytes', 'name': ''},
+                        '5': {'type': 'fixed64', 'name': ''},
+                        '4': {'type': 'int', 'name': ''},
+                        '6': {'type': 'bytes', 'name': ''},
+                        '7': {'type': 'fixed64', 'name': ''}
+                    },
+                    'name': ''
+                },
+                '3': {'type': 'int', 'name': ''}
+            },
+            'name': ''
+        },
+        '8': {'type': 'double', 'name': ''},
+        '10': {'type': 'int', 'name': ''}
+    }
 
     data_list = []
-    report_file = 'Unknown'
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         filename = os.path.basename(file_found)
         if filename.startswith('.'):
@@ -38,8 +109,6 @@ def get_biomeLocationactivity(files_found, report_folder, seeker, wrap_text, tim
         if os.path.isfile(file_found):
             if 'tombstone' in file_found:
                 continue
-            else:
-                report_file = os.path.dirname(file_found)
         else:
             continue
 
@@ -48,14 +117,11 @@ def get_biomeLocationactivity(files_found, report_folder, seeker, wrap_text, tim
             ts = ts.replace(tzinfo=timezone.utc)
 
             if record.state == EntryState.Written:
-                protostuff, types = blackboxprotobuf.decode_message(record.data, typess)
+                protostuff, _ = blackboxprotobuf.decode_message(record.data, typess)
                 
                 activity = (protostuff['1']['1'])
                 timestart = (webkit_timestampsconv(protostuff['2']))
-                timestart = convert_utc_human_to_timezone(timestart, timezone_offset)
-                
                 timeend = (webkit_timestampsconv(protostuff['3']))
-                timeend = convert_utc_human_to_timezone(timeend, timezone_offset)
                 
                 bundle = (protostuff['4']['3'])
                 actionguid = (protostuff['5'])
@@ -77,21 +143,29 @@ def get_biomeLocationactivity(files_found, report_folder, seeker, wrap_text, tim
                 
                 data4 = (protostuff['7'][10]['2'].get('6',''))
                 if isinstance(data4, bytes):
-                    deserialized_plist = nd.deserialize_plist_from_string(data4)
+                    #deserialized_plist = nd.deserialize_plist_from_string(data4)
+                    deserialized_plist = get_plist_content(data4)
+                    if not deserialized_plist or not isinstance(deserialized_plist, dict):
+                        data4 = None
                     data4 = (deserialized_plist['NS.relative'])
                     
                 data5 = (protostuff['7'][13]['2'].get('6',''))
                 if isinstance(data5, bytes):
-                    deserialized_plist = nd.deserialize_plist_from_string(data5)
+                    #deserialized_plist = nd.deserialize_plist_from_string(data5)
+                    deserialized_plist = get_plist_content(data5)
+                    if not deserialized_plist or not isinstance(deserialized_plist, dict):
+                        data5 = None
                     data5 = (deserialized_plist)
                     
                 data6 = (protostuff['7'][16]['2'].get('6',''))
                 if isinstance(data6, bytes):
-                    deserialized_plist = nd.deserialize_plist_from_string(data6)
+                    #deserialized_plist = nd.deserialize_plist_from_string(data6)
+                    deserialized_plist = get_plist_content(data6)
+                    if not deserialized_plist or not isinstance(deserialized_plist, dict):
+                        data6 = None
                     data6 = (deserialized_plist['NS.relative'])
                     
                 timewrite = (webkit_timestampsconv(protostuff['8']))
-                timewrite = convert_utc_human_to_timezone(timewrite, timezone_offset)
                 
                 data_list.append((ts, timestart, timeend, timewrite, record.state.name, activity, bundle, bundle2,
                                   data0, data1, data2, data3, data4, data5, data6, actionguid, filename,
@@ -105,4 +179,4 @@ def get_biomeLocationactivity(files_found, report_folder, seeker, wrap_text, tim
                     ('Time Write', 'datetime'), 'SEGB State', 'Activity', 'Bundle ID','Bundle ID 2', 'Data 0', 'Data 1',
                     'Data 2', 'Data 3', 'Data 4', 'Data 5', 'Data 6', 'Action GUID', 'Filename', 'Offset')
 
-    return data_headers, data_list, report_file
+    return data_headers, data_list, 'see Filename for more info'
