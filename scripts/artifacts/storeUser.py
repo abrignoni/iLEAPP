@@ -76,7 +76,6 @@ def storeUser_ca(files_found, report_folder, seeker, wrap_text, timezone_offset)
         conn.close()
 
     if not table_exists:
-        logfunc(f"storeUser: table 'current_apps' not found in {source_path}")
         return data_headers, data_list, source_path
 
     if does_column_exist_in_db(source_path, "current_apps", "is_system_app"):
