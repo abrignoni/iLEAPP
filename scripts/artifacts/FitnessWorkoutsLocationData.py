@@ -31,7 +31,7 @@ def get_Health(files_found, report_folder, seeker, wrap_text, timezone_offset):
     if  does_table_exist_in_db(healthdb_secure, 'location_series_data') == True:
     
     # Fitness Workouts Location Data Analysis
-
+        try:
         cursor.execute('''
         SELECT
             datetime(workout_activities.start_date + 978307200, 'UNIXEPOCH') as "Workout Start Time",
