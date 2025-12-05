@@ -38,41 +38,60 @@ def get_torrentinfo(context):
         try:
             with open(file_found, 'rb') as f:
                 decodedDict = bencoding.bdecode(f.read())
+
             aggregate = ''
             infohash = ''
-            try:
-                if b"info" in decodedDict:
+
+            if b"info" in decodedDict:
+                try:
                     infoh = hashlib.sha1(bencoding.bencode(decodedDict[b"info"])).hexdigest()
-                    infohash = infoh
-            except Exception:
-                infohash = ''
+                    infohash = infoh.upper()
+                except Exception as e:
+                    infohash = ''
+
             for key, value in decodedDict.items():
                 try:
                     key_str = key.decode('utf-8', 'ignore')
-                except:
+                except (UnicodeDecodeError, AttributeError):
                     key_str = str(key)
 
                 if key_str == 'info':
                     for x, y in value.items():
                         try:
                             x_str = x.decode('utf-8', 'ignore')
-                        except:
+                        except (UnicodeDecodeError, AttributeError):
                             x_str = str(x)
 
                         if x_str == 'pieces':
                             pass
+
                         elif x_str == 'files':
                             for file_item in y:
+                                path_str = ''
+                                size_str = ''
+
                                 if b'path' in file_item:
-                                    path_list = [p.decode('utf-8', 'ignore') for p in file_item[b'path']]
-                                    file_path = "/".join(path_list)
-                                    aggregate += f'File: {file_path} <br>'
-                                    if b'length' in file_item:
-                                        aggregate += f'Size: {file_item[b"length"]} bytes <br>'
+                                    try:
+                                        path_parts = [p.decode('utf-8', 'ignore') for p in file_item[b'path']]
+                                        path_str = "/".join(path_parts)
+                                    except Exception:
+                                        path_str = str(file_item[b'path'])
+
+                                if b'length' in file_item:
+                                    size_str = str(file_item[b'length'])
+
+                                aggregate += f'File: {path_str} <br>Size: {size_str} bytes <br>'
+
                         elif x_str == 'name':
-                             aggregate += f'Name: {y.decode("utf-8", "ignore")} <br>'
+                             try:
+                                 name_val = y.decode("utf-8", "ignore")
+                             except:
+                                 name_val = str(y)
+                             aggregate += f'Name: {name_val} <br>'
+
                         elif x_str == 'length':
                              aggregate += f'Size: {y} bytes <br>'
+
                         else:
                              try:
                                 val_str = y.decode('utf-8', 'ignore') if isinstance(y, bytes) else str(y)
@@ -93,8 +112,8 @@ def get_torrentinfo(context):
                         aggregate += f'{key_str}: {val_str} <br>'
                     except:
                         pass
-            aggregate = aggregate.strip()
 
+            aggregate = aggregate.strip()
             wrapped_path = textwrap.fill(file_found, width=50)
             data_list.append((wrapped_path, infohash, aggregate))
 
@@ -102,4 +121,9 @@ def get_torrentinfo(context):
             logfunc(f"Error parsing {file_found}: {str(e)}")
 
     data_headers = ('File', 'InfoHash', 'Data')
+
+    if not data_list:
+        logfunc('No Torrent data found')
+        return data_headers, [], source_path
+
     return data_headers, data_list, source_path
