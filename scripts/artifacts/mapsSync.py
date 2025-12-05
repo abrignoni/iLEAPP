@@ -40,6 +40,9 @@ def get_mapsSync(files_found, report_folder, seeker, wrap_text, timezone_offset)
             continue # Skip all other files
     
         db = open_sqlite_db_readonly(file_found)
+        cols = {row[1].upper() for row in db.execute("PRAGMA table_info(ZHISTORYITEM)")}
+        lat1_select = "ZHISTORYITEM.ZLATITUDE1 AS 'Latitude1'" if 'ZLATITUDE1' in cols else "NULL AS 'Latitude1'"
+        lon1_select = "ZHISTORYITEM.ZLONGITUDE1 AS 'Longitude1'" if 'ZLONGITUDE1' in cols else "NULL AS 'Longitude1'"
         cursor = db.cursor()
         cursor.execute('''
         SELECT
@@ -55,8 +58,8 @@ def get_mapsSync(files_found, report_folder, seeker, wrap_text, timezone_offset)
         ZHISTORYITEM.ZLOCATIONDISPLAY AS 'Location City',
         ZHISTORYITEM.ZLATITUDE AS 'Latitude',
         ZHISTORYITEM.ZLONGITUDE AS 'Longitude',
-        ZHISTORYITEM.ZLATITUDE1 AS 'Latitude1',
-        ZHISTORYITEM.ZLONGITUDE1 AS 'Longitude1',
+        ''' + lat1_select + ''',
+        ''' + lon1_select + ''',
         ZHISTORYITEM.ZROUTEREQUESTSTORAGE AS 'Journey BLOB',
         ZMIXINMAPITEM.ZMAPITEMSTORAGE as 'Map Item Storage BLOB'
         from ZHISTORYITEM

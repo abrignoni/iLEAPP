@@ -30,15 +30,24 @@ def get_parseCDCache(files_found, report_folder, seeker, wrap_text, timezone_off
         db = open_sqlite_db_readonly(file_found)
 
         cursor = db.cursor()
-        cursor.execute('''
+        # Determine whether the score column exists to avoid failing the query
+        cols = {row[1] for row in db.execute("PRAGMA table_info(completion_cache_engagement)")}
+        has_score = 'score' in cols
+
+        query = '''
         select 
             datetime(engagement_date + 978307200,'unixepoch') as engagement_date, 
             input, 
             completion, 
-            transformed, 
-            score
+            transformed
+        '''
+        if has_score:
+            query += ', score'
+        query += '''
         FROM completion_cache_engagement
-        ''')
+        '''
+
+        cursor.execute(query)
 
         all_rows = cursor.fetchall()
 
@@ -47,10 +56,15 @@ def get_parseCDCache(files_found, report_folder, seeker, wrap_text, timezone_off
             timestamp = convert_ts_human_to_utc(timestamp)
             timestamp = convert_utc_human_to_timezone(timestamp, timezone_offset)
 
-            data_list.append((timestamp, row[1], row[2], row[3], row[4]))
+            if has_score:
+                data_list.append((timestamp, row[1], row[2], row[3], row[4]))
+            else:
+                data_list.append((timestamp, row[1], row[2], row[3]))
 
         db.close()
 
-    data_headers = (('Engagement Date', 'datetime'), 'Input', 'Completion', 'Transformed', 'Score')
+    data_headers = (('Engagement Date', 'datetime'), 'Input', 'Completion', 'Transformed')
+    if has_score:
+        data_headers = data_headers + ('Score',)
 
     return data_headers, data_list, report_file

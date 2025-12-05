@@ -792,6 +792,28 @@ def Ph2_1AssetBasicGenAlbumDataPhDaPsql(files_found, report_folder, seeker, wrap
             return (), [], source_path
         data_list = []
 
+        db = open_sqlite_db_readonly(source_path)
+        zadd_cols = {row[1].upper() for row in db.execute("PRAGMA table_info(ZADDITIONALASSETATTRIBUTES)")}
+        zcld_cols = {row[1].upper() for row in db.execute("PRAGMA table_info(ZCLOUDMASTER)")}
+        zgen_cols = {row[1].upper() for row in db.execute("PRAGMA table_info(ZGENERICALBUM)")}
+        db.close()
+
+        add_imported_display = "zAddAssetAttr.ZIMPORTEDBYDISPLAYNAME AS 'zAddAssetAttr-Imported By Display Name'"
+        if 'ZIMPORTEDBYDISPLAYNAME' not in zadd_cols:
+            add_imported_display = "'' AS 'zAddAssetAttr-Imported By Display Name'"
+
+        cld_imported_display = "zCldMast.ZIMPORTEDBYDISPLAYNAME AS 'zCldMast-Imported by Display Name'"
+        if 'ZIMPORTEDBYDISPLAYNAME' not in zcld_cols:
+            cld_imported_display = "'' AS 'zCldMast-Imported by Display Name'"
+
+        cld_imported_bundle = "zCldMast.ZIMPORTEDBYBUNDLEIDENTIFIER AS 'zCldMast-Imported by Bundle ID'"
+        if 'ZIMPORTEDBYBUNDLEIDENTIFIER' not in zcld_cols:
+            cld_imported_bundle = "'' AS 'zCldMast-Imported by Bundle ID'"
+
+        gen_creator_bundle = "zGenAlbum.ZCREATORBUNDLEID AS 'zGenAlbum-Creator Bundle Identifier'"
+        if 'ZCREATORBUNDLEID' not in zgen_cols:
+            gen_creator_bundle = "'' AS 'zGenAlbum-Creator Bundle Identifier'"
+
         query = '''
         SELECT
         DateTime(zAsset.ZDATECREATED + 978307200, 'UNIXEPOCH') AS 'zAsset-Date Created',  
@@ -827,7 +849,7 @@ def Ph2_1AssetBasicGenAlbumDataPhDaPsql(files_found, report_folder, seeker, wrap
             ELSE 'Unknown-New-Value!: ' || zAsset.ZSAVEDASSETTYPE || ''
         END AS 'zAsset-Saved Asset Type',
         zAddAssetAttr.ZCREATORBUNDLEID AS 'zAddAssetAttr-Creator Bundle ID',
-        zAddAssetAttr.ZIMPORTEDBYDISPLAYNAME AS 'zAddAssetAttr-Imported By Display Name',        
+        ''' + add_imported_display + ''',        
         CASE zAddAssetAttr.ZIMPORTEDBY
             WHEN 0 THEN '0-Cloud-Other-0'
             WHEN 1 THEN '1-Native-Back-Camera-1'
@@ -844,8 +866,8 @@ def Ph2_1AssetBasicGenAlbumDataPhDaPsql(files_found, report_folder, seeker, wrap
             WHEN 12 THEN '12-SWY_Syndication_PL-12'
             ELSE 'Unknown-New-Value!: ' || zAddAssetAttr.ZIMPORTEDBY || ''
         END AS 'zAddAssetAttr-Imported by',
-        zCldMast.ZIMPORTEDBYBUNDLEIDENTIFIER AS 'zCldMast-Imported by Bundle ID',
-        zCldMast.ZIMPORTEDBYDISPLAYNAME AS 'zCldMast-Imported by Display Name',
+        ''' + cld_imported_bundle + ''',
+        ''' + cld_imported_display + ''',
         CASE zCldMast.ZIMPORTEDBY
             WHEN 0 THEN '0-Cloud-Other-0'
             WHEN 1 THEN '1-Native-Back-Camera-1'
@@ -981,8 +1003,8 @@ def Ph2_1AssetBasicGenAlbumDataPhDaPsql(files_found, report_folder, seeker, wrap
             ELSE 'Unknown-New-Value!: ' || zGenAlbum.ZKIND || ''
         END AS 'zGenAlbum-Album Kind',
         zGenAlbum.ZTITLE AS 'zGenAlbum-Title-User&System Applied',
-        zGenAlbum.ZIMPORTSESSIONID AS 'zGenAlbum- Import Session ID',    
-        zGenAlbum.ZCREATORBUNDLEID AS 'zGenAlbum-Creator Bundle Identifier',  
+        zGenAlbum.ZIMPORTSESSIONID AS 'zGenAlbum- Import Session ID',
+        ''' + gen_creator_bundle + ''',
         zGenAlbum.ZCACHEDPHOTOSCOUNT AS 'zGenAlbum-Cached Photos Count',
         zGenAlbum.ZCACHEDVIDEOSCOUNT AS 'zGenAlbum-Cached Videos Count',
         zGenAlbum.ZCACHEDCOUNT AS 'zGenAlbum-Cached Count',
@@ -3588,6 +3610,28 @@ def Ph2_2AssetBasicConversationDataSyndPL(files_found, report_folder, seeker, wr
             return (), [], source_path
         data_list = []
 
+        db = open_sqlite_db_readonly(source_path)
+        zadd_cols = {row[1].upper() for row in db.execute("PRAGMA table_info(ZADDITIONALASSETATTRIBUTES)")}
+        zcld_cols = {row[1].upper() for row in db.execute("PRAGMA table_info(ZCLOUDMASTER)")}
+        zgen_cols = {row[1].upper() for row in db.execute("PRAGMA table_info(ZGENERICALBUM)")}
+        db.close()
+
+        add_imported_display = "zAddAssetAttr.ZIMPORTEDBYDISPLAYNAME AS 'zAddAssetAttr-Imported By Display Name'"
+        if 'ZIMPORTEDBYDISPLAYNAME' not in zadd_cols:
+            add_imported_display = "'' AS 'zAddAssetAttr-Imported By Display Name'"
+
+        cld_imported_display = "zCldMast.ZIMPORTEDBYDISPLAYNAME AS 'zCldMast-Imported by Display Name'"
+        if 'ZIMPORTEDBYDISPLAYNAME' not in zcld_cols:
+            cld_imported_display = "'' AS 'zCldMast-Imported by Display Name'"
+
+        cld_imported_bundle = "zCldMast.ZIMPORTEDBYBUNDLEIDENTIFIER AS 'zCldMast-Imported by Bundle ID'"
+        if 'ZIMPORTEDBYBUNDLEIDENTIFIER' not in zcld_cols:
+            cld_imported_bundle = "'' AS 'zCldMast-Imported by Bundle ID'"
+
+        gen_creator_bundle = "zGenAlbum.ZCREATORBUNDLEID AS 'zGenAlbum-Creator Bundle Identifier'"
+        if 'ZCREATORBUNDLEID' not in zgen_cols:
+            gen_creator_bundle = "'' AS 'zGenAlbum-Creator Bundle Identifier'"
+
         query = '''
         SELECT
         DateTime(zAsset.ZDATECREATED + 978307200, 'UNIXEPOCH') AS 'zAsset-Date Created',  
@@ -3623,7 +3667,7 @@ def Ph2_2AssetBasicConversationDataSyndPL(files_found, report_folder, seeker, wr
             ELSE 'Unknown-New-Value!: ' || zAsset.ZSAVEDASSETTYPE || ''
         END AS 'zAsset-Saved Asset Type',
         zAddAssetAttr.ZCREATORBUNDLEID AS 'zAddAssetAttr-Creator Bundle ID',
-        zAddAssetAttr.ZIMPORTEDBYDISPLAYNAME AS 'zAddAssetAttr-Imported By Display Name',        
+        ''' + add_imported_display + ''',        
         CASE zAddAssetAttr.ZIMPORTEDBY
             WHEN 0 THEN '0-Cloud-Other-0'
             WHEN 1 THEN '1-Native-Back-Camera-1'
@@ -3640,8 +3684,8 @@ def Ph2_2AssetBasicConversationDataSyndPL(files_found, report_folder, seeker, wr
             WHEN 12 THEN '12-SWY_Syndication_PL-12'
             ELSE 'Unknown-New-Value!: ' || zAddAssetAttr.ZIMPORTEDBY || ''
         END AS 'zAddAssetAttr-Imported by',
-        zCldMast.ZIMPORTEDBYBUNDLEIDENTIFIER AS 'zCldMast-Imported by Bundle ID',
-        zCldMast.ZIMPORTEDBYDISPLAYNAME AS 'zCldMast-Imported by Display Name',
+        ''' + cld_imported_bundle + ''',
+        ''' + cld_imported_display + ''',
         CASE zCldMast.ZIMPORTEDBY
             WHEN 0 THEN '0-Cloud-Other-0'
             WHEN 1 THEN '1-Native-Back-Camera-1'
@@ -3778,7 +3822,7 @@ def Ph2_2AssetBasicConversationDataSyndPL(files_found, report_folder, seeker, wr
         END AS 'zGenAlbum-Album Kind',
         zGenAlbum.ZTITLE AS 'zGenAlbum-Title-User&System Applied',
         zGenAlbum.ZIMPORTSESSIONID AS 'zGenAlbum- Import Session ID',    
-        zGenAlbum.ZCREATORBUNDLEID AS 'zGenAlbum-Creator Bundle Identifier',  
+        ''' + gen_creator_bundle + ''',
         zGenAlbum.ZCACHEDPHOTOSCOUNT AS 'zGenAlbum-Cached Photos Count',
         zGenAlbum.ZCACHEDVIDEOSCOUNT AS 'zGenAlbum-Cached Videos Count',
         zGenAlbum.ZCACHEDCOUNT AS 'zGenAlbum-Cached Count',

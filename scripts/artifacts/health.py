@@ -1178,25 +1178,32 @@ def health_source_devices(context):
         "0x2024": "AirPods Pro (2nd generation) (USB-C)",
     }
 
-    query = '''
-    SELECT
-        creation_date,
-        name,
-        manufacturer,
-        model,
-        hardware,
-        firmware,
-        software,
-        localIdentifier,
-        sync_provenance,
-        sync_identity
-    FROM source_devices
-    WHERE name NOT LIKE '__NONE__' AND localIdentifier NOT LIKE '__NONE__'
-    '''
+    cols = {row[1].lower() for row in get_sqlite_db_records(data_source, "PRAGMA table_info(source_devices)")}
+    has_sync_identity = 'sync_identity' in cols
+
+    select_fields = [
+        "creation_date",
+        "name",
+        "manufacturer",
+        "model",
+        "hardware",
+        "firmware",
+        "software",
+        "localIdentifier",
+        "sync_provenance"
+    ]
+    if has_sync_identity:
+        select_fields.append("sync_identity")
+
+    query = "SELECT\n    " + ",\n    ".join(select_fields) + "\nFROM source_devices\n" \
+            "WHERE name NOT LIKE '__NONE__' AND localIdentifier NOT LIKE '__NONE__'"
 
     data_headers = (
         ('Creation Date', 'datetime'), 'Device Name', 'Manufacturer', 'Model',
-        'Device ID', 'Device Model', 'Firmware', 'Software', 'Local ID', 'Sync Provenance', 'Sync ID')
+        'Device ID', 'Device Model', 'Firmware', 'Software', 'Local ID', 'Sync Provenance'
+    )
+    if has_sync_identity:
+        data_headers = data_headers + ('Sync ID',)
 
     db_records = get_sqlite_db_records(data_source, query)
 
@@ -1207,9 +1214,13 @@ def health_source_devices(context):
         local_id = ''
         if str(record[7]).endswith('-tacl'):
             local_id = str(record[7])[:-5]
-        data_list.append(
-            (creation_date, record[1], record[2], model, record[4], device_model, record[5],
-             record[6], local_id, record[8], record[9]))
+        row_out = [
+            creation_date, record[1], record[2], model, record[4], device_model,
+            record[5], record[6], local_id, record[8]
+        ]
+        if has_sync_identity:
+            row_out.append(record[9])
+        data_list.append(tuple(row_out))
 
     return data_headers, data_list, data_source
 
