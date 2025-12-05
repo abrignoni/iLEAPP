@@ -34,8 +34,6 @@ def SMS_Missing_ROWIDs(context):
 	        SELECT 
 	        LAG(message.date,1) OVER (ORDER BY ROWID) AS "Beginning Timestamp",
             message.date AS "Ending Timestamp",
-            LAG(message.date,1) OVER (ORDER BY ROWID) AS "Beginning Timestamp (RAW)",
-            message.date AS "Ending Timestamp (RAW)",
 			LAG (guid,1) OVER (ORDER BY ROWID) AS "Previous guid", 
             guid AS "guid", 
 			LAG (ROWID,1) OVER (ORDER BY ROWID) AS "Previous ROWID", 
@@ -55,14 +53,6 @@ def SMS_Missing_ROWIDs(context):
                 WHEN message.ROWID != (SELECT last_rowid FROM LastROWID)
                 THEN "Time of Extraction"
                 END AS "Ending Timestamp",
-			CASE
-                WHEN message.ROWID != (SELECT last_rowid FROM LastROWID)
-                THEN MAX(message.date)
-                END AS "Beginning Timestamp (RAW)",
-            CASE
-                WHEN message.ROWID != (SELECT last_rowid FROM LastROWID)
-                THEN CAST('Time of Extraction' AS TEXT)
-                END AS "Ending Timestamp (RAW)",
             CASE
                 WHEN message.ROWID != (SELECT last_rowid FROM LastROWID)
                 THEN guid
@@ -86,7 +76,7 @@ def SMS_Missing_ROWIDs(context):
             FROM message)
         WHERE "ROWID" IS NOT NULL;'''
     
-    data_headers = (('Beginning Timestamp', 'datetime'), ('Ending Timestamp', 'datetime'), 'Beginning Timestamp (RAW)', 'Ending Timestamp (RAW)', 'Previous guid', 'guid', 'Previous ROWID', 'ROWID', 'Number of Missing Rows')
+    data_headers = (('Beginning Timestamp', 'datetime'), ('Ending Timestamp', 'datetime'), 'Previous guid', 'guid', 'Previous ROWID', 'ROWID', 'Number of Missing Rows')
 
     db_records = get_sqlite_db_records(data_source, query)
     
@@ -112,7 +102,7 @@ def SMS_Missing_ROWIDs(context):
         end_timestamp   = fix_ts(end_raw)
 
         data_list.append(
-            (start_timestamp, end_timestamp, record[2], record[3], record[4], record[5], record[6], record[7], record[8])
+            (start_timestamp, end_timestamp, record[2], record[3], record[4], record[5], record[6])
         )
     
     return data_headers, data_list, data_source
