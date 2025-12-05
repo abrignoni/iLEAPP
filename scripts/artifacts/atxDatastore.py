@@ -60,9 +60,9 @@ def atxDatastore(context):
     all_rows = cursor.fetchall()
 
     for row in all_rows:
-        timestamp = convert_cocoa_core_data_ts_to_utc(row[5])
-        startdate = convert_cocoa_core_data_ts_to_utc(row[6])
-        enddate = convert_cocoa_core_data_ts_to_utc(row[7])
+        timestamp = convert_cocoa_core_data_ts_to_utc(row[5]) if row[5] is not None else ''
+        startdate = convert_cocoa_core_data_ts_to_utc(row[6]) if row[6] is not None else ''
+        enddate = convert_cocoa_core_data_ts_to_utc(row[7]) if row[7] is not None else ''
         data_list.append(
             (timestamp, startdate, enddate, row[2], row[3], row[4],row[8], row[9], row[0])
             )
