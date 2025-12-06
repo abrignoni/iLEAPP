@@ -1084,6 +1084,9 @@ def convert_time_obj_to_utc(ts):
     return timestamp
 
 def convert_utc_human_to_timezone(utc_time, time_offset): 
+    if utc_time == None: 
+        return ''
+
     #fetch the timezone information
     timezone = pytz.timezone(time_offset)
     
@@ -1115,7 +1118,12 @@ def convert_ts_human_to_utc(ts): #This is for timestamp in human form
     if '.' in ts:
         ts = ts.split('.')[0]
         
-    dt = datetime.strptime(ts, '%Y-%m-%d %H:%M:%S') #Make it a datetime object
+    try:
+        dt = datetime.strptime(ts, '%Y-%m-%d %H:%M:%S') #Make it a datetime object
+    except ValueError as e:
+        logfunc(f"Invalid timestamp '{ts}': {e}")
+        return None
+
     timestamp = dt.replace(tzinfo=timezone.utc) #Make it UTC
     return timestamp
 
