@@ -47,6 +47,11 @@ def get_tikTok(files_found, report_folder, seeker, wrap_text, timezone_offset):
             else:
                 contacts_subquery = 'SELECT null as uid, null as customid, null as nickname, null as url1 FROM sqlite_master WHERE 1=0'
 
+            cursor.execute("SELECT name FROM AwemeIM.sqlite_master WHERE type='table' and name='TIMMessageORM';")
+            if cursor.fetchone() is None:
+                logfunc("Table TIMMessageORM not found in AwemeIM.db")
+                continue
+
             cursor.execute(f'''
                 select
                     datetime(localcreatedat, 'unixepoch') as Local_Create_Time,
