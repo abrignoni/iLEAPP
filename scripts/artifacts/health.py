@@ -1155,7 +1155,6 @@ def health_watch_by_sleep_period(context):
 
     return data_headers, data_list, data_source
 
-
 @artifact_processor
 def health_source_devices(context):
     """ See artifact description """
@@ -1178,7 +1177,24 @@ def health_source_devices(context):
         "0x2024": "AirPods Pro (2nd generation) (USB-C)",
     }
 
-    query = '''
+    import sqlite3
+    
+    sync_identity_selection = "'' AS sync_identity"
+    
+    try:
+        db = sqlite3.connect(data_source)
+        cursor = db.cursor()
+        cursor.execute("PRAGMA table_info(source_devices)")
+        columns = [col[1] for col in cursor.fetchall()]
+        
+        if 'sync_identity' in columns:
+            sync_identity_selection = "sync_identity"
+        
+        db.close()
+    except Exception as e:
+        pass
+
+    query = f'''
     SELECT
         creation_date,
         name,
@@ -1189,7 +1205,7 @@ def health_source_devices(context):
         software,
         localIdentifier,
         sync_provenance,
-        sync_identity
+        {sync_identity_selection}
     FROM source_devices
     WHERE name NOT LIKE '__NONE__' AND localIdentifier NOT LIKE '__NONE__'
     '''
@@ -1212,7 +1228,6 @@ def health_source_devices(context):
              record[6], local_id, record[8], record[9]))
 
     return data_headers, data_list, data_source
-
 
 @artifact_processor
 def health_wrist_temperature(context):
