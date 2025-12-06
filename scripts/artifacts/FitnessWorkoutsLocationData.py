@@ -33,9 +33,8 @@ def get_Health(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
     if missing_tables:
         logfunc(f'Missing tables in healthdb_secure.sqlite: {", ".join(missing_tables)}')
-
-    if  does_table_exist_in_db(healthdb_secure, 'location_series_data') == True:
-    
+        return
+    else:
     # Fitness Workouts Location Data Analysis
 
         cursor.execute('''
@@ -280,9 +279,6 @@ def get_Health(files_found, report_folder, seeker, wrap_text, timezone_offset):
         else:
             logfunc('No data available in Fitness Workouts Location Data')
     
-    else:
-        logfunc('No table location_series_data in healthdb_secure.sqlite')
-        
 __artifacts__ = {
     "Fitness": (
         "Fitness",
