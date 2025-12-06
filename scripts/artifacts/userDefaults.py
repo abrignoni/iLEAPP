@@ -53,15 +53,17 @@ def user_defaults(files_found, report_folder, seeker, wrap_text, timezone_offset
                         try:
                             plist = plistlib.load(fp)
                         except InvalidFileException as e:
-                            plist = 'INVALID FILE'
+                            plist = None
                     else:
-                        plist = biplist.readPlist(fp)
-                    for (key,item) in plist.items():
+                        try:
+                            plist = biplist.readPlist(fp)
+                        except:
+                            plist = None
 
-                        data_list.append((bundleid, guid, key, clean_data(item), file_found))
-
-    if len(data_list) > 0:
-        
+                    if plist and isinstance(plist, dict):
+                        for (key,item) in plist.items():
+                            data_list.append((bundleid, guid, key, clean_data(item), file_found))    
+                            
         filelocdesc = 'Path column in the report'
 
         data_headers = ('Application BundleID', 'Application GUID', 'Key', 'Item', 'Path')
