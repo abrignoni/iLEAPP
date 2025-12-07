@@ -41,7 +41,18 @@ def get_mapsSync(files_found, report_folder, seeker, wrap_text, timezone_offset)
     
         db = open_sqlite_db_readonly(file_found)
         cursor = db.cursor()
-        cursor.execute('''
+
+        cursor.execute("PRAGMA table_info(ZHISTORYITEM)")
+        columns = [col[1] for col in cursor.fetchall()]
+        
+        if 'ZLATITUDE1' in columns:
+            lat1_query = "ZHISTORYITEM.ZLATITUDE1 AS 'Latitude1',"
+            lon1_query = "ZHISTORYITEM.ZLONGITUDE1 AS 'Longitude1',"
+        else:
+            lat1_query = "'' AS 'Latitude1',"
+            lon1_query = "'' AS 'Longitude1',"
+
+        cursor.execute(f'''
         SELECT
         datetime(ZHISTORYITEM.ZCREATETIME+978307200,'UNIXEPOCH') AS 'Time Created',
         datetime(ZHISTORYITEM.ZMODIFICATIONTIME+978307200,'UNIXEPOCH') AS 'Time Modified',
@@ -55,8 +66,8 @@ def get_mapsSync(files_found, report_folder, seeker, wrap_text, timezone_offset)
         ZHISTORYITEM.ZLOCATIONDISPLAY AS 'Location City',
         ZHISTORYITEM.ZLATITUDE AS 'Latitude',
         ZHISTORYITEM.ZLONGITUDE AS 'Longitude',
-        ZHISTORYITEM.ZLATITUDE1 AS 'Latitude1',
-        ZHISTORYITEM.ZLONGITUDE1 AS 'Longitude1',
+        {lat1_query}
+        {lon1_query}
         ZHISTORYITEM.ZROUTEREQUESTSTORAGE AS 'Journey BLOB',
         ZMIXINMAPITEM.ZMAPITEMSTORAGE as 'Map Item Storage BLOB'
         from ZHISTORYITEM
