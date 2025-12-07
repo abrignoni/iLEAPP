@@ -491,6 +491,26 @@ def health_workouts(context):
         GROUP BY workout_activities.ROWID
         ORDER BY workout_activities.start_date
         '''
+        
+        db_records = get_sqlite_db_records(data_source, query, attach_query)
+
+        for record in db_records:
+            start_timestamp = convert_cocoa_core_data_ts_to_utc(record[0])
+            end_timestamp = convert_cocoa_core_data_ts_to_utc(record[1])
+            added_timestamp = convert_cocoa_core_data_ts_to_utc(record[26])
+            device_model = context.get_device_model(record[22])
+
+            if record[16]:
+                celcius_temp = round(((record[16] - 32) * (5 / 9)), 2)
+
+            data_list.append(
+                (start_timestamp, end_timestamp, str(record[2]).title(), record[3],
+                 record[4], record[5], record[6], record[7], record[8], record[9],
+                 record[10], record[11], record[12], record[13], record[14],
+                 record[15], celcius_temp, record[16], record[17], record[18],
+                 record[19], record[20], record[21], record[22], device_model,
+                 record[23], record[24], record[25], added_timestamp)
+                )
     else:
         query = '''
         SELECT
@@ -516,6 +536,26 @@ def health_workouts(context):
         GROUP BY workouts.data_id
         ORDER BY samples.start_date
         '''
+        
+        db_records = get_sqlite_db_records(data_source, query, attach_query)
+
+        for record in db_records:
+            start_timestamp = convert_cocoa_core_data_ts_to_utc(record[0])
+            end_timestamp = convert_cocoa_core_data_ts_to_utc(record[1])
+            added_timestamp = convert_cocoa_core_data_ts_to_utc(record[25])
+            device_model = context.get_device_model(record[21])
+
+            if record[15]:
+                celcius_temp = round(((record[15] - 32) * (5 / 9)), 2)
+
+            data_list.append(
+                (start_timestamp, end_timestamp, str(record[2]).title(), None,
+                 record[3], record[4], record[5], record[6], record[7], record[8],
+                 record[9], record[10], record[11], record[12], record[13],
+                 record[14], celcius_temp, record[15], record[16], record[17],
+                 record[18], record[19], record[20], record[21], device_model,
+                 record[22], record[23], record[24], added_timestamp)
+                )
 
     data_headers = (
         ('Start Timestamp', 'datetime'), ('End Timestamp', 'datetime'),
@@ -527,26 +567,6 @@ def health_workouts(context):
         'Min. ground elevation (in Meters)', 'Max. ground elevation (in Meters)',
         'Device ID', 'Device Model', 'Source', 'Software Version', 'Timezone',
         ('Timestamp added to Health', 'datetime'))
-
-    db_records = get_sqlite_db_records(data_source, query, attach_query)
-
-    for record in db_records:
-        start_timestamp = convert_cocoa_core_data_ts_to_utc(record[0])
-        end_timestamp = convert_cocoa_core_data_ts_to_utc(record[1])
-        added_timestamp = convert_cocoa_core_data_ts_to_utc(record[26])
-        device_model = context.get_device_model(record[22])
-
-        if record[16]:
-            celcius_temp = round(((record[16] - 32) * (5 / 9)), 2)
-
-        data_list.append(
-            (start_timestamp, end_timestamp, str(record[2]).title(), record[3],
-             record[4], record[5], record[6], record[7], record[8], record[9],
-             record[10], record[11], record[12], record[13], record[14],
-             record[15], celcius_temp, record[16], record[17], record[18],
-             record[19], record[20], record[21], record[22], device_model,
-             record[23], record[24], record[25], added_timestamp)
-            )
 
     return data_headers, data_list, data_source
 
