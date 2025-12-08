@@ -499,6 +499,7 @@ def health_workouts(context):
             CASE workouts.activity_type''' + activity_types + '''
                 ELSE "Unknown" || "-" || workouts.activity_type
             END AS 'Type',
+            NULL AS 'Location Type',
             strftime('%H:%M:%S', samples.end_date - samples.start_date, 'unixepoch') AS 'Total Time Duration',
             strftime('%H:%M:%S', workouts.duration, 'unixepoch') AS 'Duration',
             ''' + distance_and_goals + '''

@@ -703,9 +703,11 @@ def timeline(report_folder, tlactivity, data_list, data_headers):
         db.commit()
     
     for entry in data_list:
-        entry = [str(field) for field in entry]
+        entry = [str(field) if not isinstance(field, datetime) else field.isoformat() for field in entry]
         
-        data_dict = dict(zip(data_headers, entry))
+        # Strip tuples from headers for JSON serialization
+        stripped_headers = strip_tuple_from_headers(data_headers)
+        data_dict = dict(zip(stripped_headers, entry))
 
         data_str = json.dumps(data_dict)
         cursor.executemany(
@@ -1087,6 +1089,10 @@ def convert_utc_human_to_timezone(utc_time, time_offset):
     #fetch the timezone information
     timezone = pytz.timezone(time_offset)
     
+    # Handle None value from invalid timestamps
+    if utc_time is None:
+        return None
+    
     #convert utc to timezone
     timezone_time = utc_time.astimezone(timezone)
     
@@ -1114,6 +1120,10 @@ def webkit_timestampsconv(webkittime):
 def convert_ts_human_to_utc(ts): #This is for timestamp in human form
     if '.' in ts:
         ts = ts.split('.')[0]
+    
+    # Check for invalid year (year 0 or negative)
+    if ts.startswith('0000-') or ts.startswith('-'):
+        return None
         
     dt = datetime.strptime(ts, '%Y-%m-%d %H:%M:%S') #Make it a datetime object
     timestamp = dt.replace(tzinfo=timezone.utc) #Make it UTC
