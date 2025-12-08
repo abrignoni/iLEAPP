@@ -1231,7 +1231,7 @@ def chromeLoginData(files_found, report_folder, seeker, wrap_text, timezone_offs
 
     lava_data_headers[0] = (lava_data_headers[0], 'datetime')
 
-    all_data_headers = lava_data_headers + ['Browser Name']
+    all_data_headers = lava_data_headers
 
     report_file = 'Unknown'
     for file_found in files_found:
