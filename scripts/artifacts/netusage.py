@@ -46,18 +46,29 @@ def get_netusage(files_found, report_folder, seeker, wrap_text, timezone_offset)
                 data_headers = ('Last Connect Timestamp','First Usage Timestamp','Last Usage Timestamp','Bundle Name','Process Name','Type','Wifi In (Bytes)','Wifi Out (Bytes)','Mobile/WWAN In (Bytes)','Mobile/WWAN Out (Bytes)','Wired In (Bytes)','Wired Out (Bytes)') # Don't remove the comma, that is required to make this a tuple as there is only 1 element
                 data_list = []
                 for row in all_rows:
-                    if row[0] is None:
+                    if row[0] is None or row[0].startswith('0000'):
                         lastconnected = ''
                     else: 
-                        lastconnected = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]),timezone_offset)
-                    if row[1] is None:    
+                        try:
+                            lastconnected = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]),timezone_offset)
+                        except (ValueError, OSError):
+                            lastconnected = ''
+                    
+                    if row[1] is None or row[1].startswith('0000'):    
                         firstused = ''
                     else:
-                        firstused = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[1]),timezone_offset)
-                    if row[2] is None: 
+                        try:
+                            firstused = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[1]),timezone_offset)
+                        except (ValueError, OSError):
+                            firstused = ''
+                    
+                    if row[2] is None or row[2].startswith('0000'): 
                         lastused = ''
                     else:
-                        lastused = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[2]),timezone_offset)
+                        try:
+                            lastused = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[2]),timezone_offset)
+                        except (ValueError, OSError):
+                            lastused = ''
                     
                     data_list.append((lastconnected,firstused,lastused,row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11]))
 
@@ -101,8 +112,21 @@ def get_netusage(files_found, report_folder, seeker, wrap_text, timezone_offset)
                 data_headers = ('First Connection Timestamp','Last Connection Timestamp','Network Name','Cell Tower ID/Wifi MAC','Network Type','Bytes In','Bytes Out','Connection Attempts','Connection Successes','Packets In','Packets Out') # Don't remove the comma, that is required to make this a tuple as there is only 1 element
                 data_list = []
                 for row in all_rows:
-                    firstconncted = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]),timezone_offset)
-                    lastconnected = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[1]),timezone_offset)
+                    if row[0] is None or row[0].startswith('0000'):
+                        firstconncted = ''
+                    else:
+                        try:
+                            firstconncted = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]),timezone_offset)
+                        except (ValueError, OSError):
+                            firstconncted = ''
+                    
+                    if row[1] is None or row[1].startswith('0000'):
+                        lastconnected = ''
+                    else:
+                        try:
+                            lastconnected = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[1]),timezone_offset)
+                        except (ValueError, OSError):
+                            lastconnected = ''
                 
                     if row[2] == None:
                         data_list.append((firstconncted,lastconnected,'','',row[3],row[4],row[5],row[6],row[7],row[8],row[9]))
