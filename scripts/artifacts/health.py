@@ -253,8 +253,8 @@ __artifacts_v2__ = {
 }
 
 from packaging import version
-from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, \
-    attach_sqlite_db_readonly, does_table_exist_in_db, convert_cocoa_core_data_ts_to_utc
+from scripts.ilapfuncs import artifact_processor, does_column_exist_in_db, get_sqlite_db_records, \
+    attach_sqlite_db_readonly, does_table_exist_in_db, convert_cocoa_core_data_ts_to_utc, logfunc
 
 
 @artifact_processor
@@ -1178,6 +1178,14 @@ def health_source_devices(context):
         "0x2024": "AirPods Pro (2nd generation) (USB-C)",
     }
 
+    required_column = ['creation_date', 'name', 'manufacturer', 'model', 'hardware',
+                       'firmware', 'software', 'localIdentifier', 'sync_provenance', 'sync_identity']
+    missing_column = [column for column in required_column if not does_column_exist_in_db(data_source, 'source_devices', column)]
+
+    if missing_column:
+        logfunc(f'Missing column in {data_source}: {", ".join(missing_column)}')
+        return ([], [], data_source)
+    
     query = '''
     SELECT
         creation_date,
