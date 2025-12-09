@@ -30,6 +30,18 @@ from scripts.ilapfuncs import logfunc, tsv, timeline, convert_ts_human_to_utc, c
 from scripts.lavafuncs import lava_process_artifact, lava_insert_sqlite_data
 from scripts.parse3 import ParseProto
 
+#checking if the file is a valid sqlite database
+def is_valid_sqlite(path):
+    if not os.path.isfile(path):
+        return False
+    try:
+        with open(path, "rb") as f:
+            header = f.read(16)
+        return header.startswith(b"SQLite format 3")
+    except:
+        return False
+
+
 def get_mailprotect(files_found, report_folder, seeker, wrap_text, timezone_offset):
     iOSversion = iOS.get_version()
     
@@ -44,10 +56,14 @@ def get_mailprotect(files_found, report_folder, seeker, wrap_text, timezone_offs
         else:
             continue
 
+    if not envelope_db or not protected_db:
+        logfunc("MailProtect database is missing skipping.")
+        return()
+
     if version.parse(iOSversion) <= version.parse("11"):
         logfunc("Unsupported version for iOS emails in iOS " + iOSversion)
         return ()
-
+    
     if version.parse(iOSversion) < version.parse("13"):
         head, end = os.path.split(envelope_db)
         db = sqlite3.connect(os.path.join(report_folder, "emails.db"))
@@ -58,22 +74,38 @@ def get_mailprotect(files_found, report_folder, seeker, wrap_text, timezone_offs
         """
         )
         db.commit()
-
+        
+        if not is_valid_sqlite(f"{head}/Protected Index"):
+            logfunc("Protected Index is not a valid SQLite database skipping mailprotect.")
+            return ()
+            
+        if not is_valid_sqlite(envelope_db):
+            logfunc("Envelope Index is not a valid SQLite database skipping mailprotect.")
+            return()
+        
         cursor.execute(
             """
         create table email2(rowid int, data text)
         """
         )
         db.commit()
-        db.close()
+        # db.close()
 
         with open_sqlite_db_readonly(os.path.join(head, "Envelope Index")) as db:
-            attach_query = attach_sqlite_db_readonly(f"{head}/Protected Index", 'PI')
-            cursor.execute(attach_query)
-            attach_query = attach_sqlite_db_readonly(f"{report_folder}/emails.db", 'emails')
-            cursor.execute(attach_query)
+            # attach_query = attach_sqlite_db_readonly(f"{head}/Protected Index", 'PI')
+            # cursor.execute(attach_query)
+            # attach_query = attach_sqlite_db_readonly(f"{report_folder}/emails.db", 'emails')
+            # cursor.execute(attach_query)
 
-            cursor = db.cursor()
+            # cursor = db.cursor()
+            cursor = db.cursor() 
+
+            attach_query = attach_sqlite_db_readonly(f"{head}/Protected Index", 'PI')
+            cursor.execute(attach_query) 
+
+            attach_query = attach_sqlite_db_readonly(f"{report_folder}/emails.db", 'emails')
+            cursor.execute(attach_query) 
+
             cursor.execute(
                 """
             select  
