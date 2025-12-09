@@ -75,6 +75,8 @@ def get_mobileInstall(files_found, report_folder, seeker, wrap_text, timezone_of
     file_datainserts = []
     for file in files:
         for line in file:
+            bundleid = ''
+            path = ''
             counter = counter + 1
             matchObj = re.search(
                 r"(Install Successful for)", line
