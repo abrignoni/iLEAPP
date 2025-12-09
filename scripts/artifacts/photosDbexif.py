@@ -66,20 +66,58 @@ def get_photosDbexif(files_found, report_folder, seeker, wrap_text, timezone_off
             #sqlite portion
             db = open_sqlite_db_readonly(file_found)
             cursor = db.cursor()
-            cursor.execute('''
-                SELECT
-                DATETIME(ZASSET.ZDATECREATED+978307200,'UNIXEPOCH') AS DATECREATED,
-                DATETIME(ZASSET.ZMODIFICATIONDATE+978307200,'UNIXEPOCH') AS MODIFICATIONDATE,
-                ZASSET.ZDIRECTORY,
-                ZASSET.ZFILENAME,
-                ZASSET.ZLATITUDE,
-                ZASSET.ZLONGITUDE,
-                ZADDITIONALASSETATTRIBUTES.ZCREATORBUNDLEID
-                FROM ZASSET
-                INNER JOIN ZADDITIONALASSETATTRIBUTES ON ZASSET.Z_PK = ZADDITIONALASSETATTRIBUTES.Z_PK
-            ''')
             
-            all_rows = cursor.fetchall()
+            try:
+                cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+                tables = {row[0] for row in cursor.fetchall()}
+            except Exception as e:
+                logfunc(f'Can not find table: {e}')
+                db.close()
+                continue
+
+            use_zasset = 'ZASSET' in tables
+            use_zgeneric = 'ZGENERICASSET' in tables
+            
+            if not use_zasset and not use_zgeneric:
+                logfunc('PhotosDbexif: can not find table.')
+                db.close()
+                continue
+
+            if use_zasset:
+                cursor.execute('''
+                    SELECT
+                    DATETIME(ZASSET.ZDATECREATED+978307200,'UNIXEPOCH') AS DATECREATED,
+                    DATETIME(ZASSET.ZMODIFICATIONDATE+978307200,'UNIXEPOCH') AS MODIFICATIONDATE,
+                    ZASSET.ZDIRECTORY,
+                    ZASSET.ZFILENAME,
+                    ZASSET.ZLATITUDE,
+                    ZASSET.ZLONGITUDE,
+                    ZADDITIONALASSETATTRIBUTES.ZCREATORBUNDLEID
+                    FROM ZASSET
+                    INNER JOIN ZADDITIONALASSETATTRIBUTES ON ZASSET.Z_PK = ZADDITIONALASSETATTRIBUTES.Z_PK
+                ''')
+            else:
+                logfunc('PhotosDbexif: menggunakan ZGENERICASSET.')
+                select_sql = '''
+                    SELECT
+                        DATETIME(ZGENERICASSET.ZDATECREATED+978307200,'UNIXEPOCH') AS DATECREATED,
+                        DATETIME(ZGENERICASSET.ZMODIFICATIONDATE+978307200,'UNIXEPOCH') AS MODIFICATIONDATE,
+                        ZGENERICASSET.ZDIRECTORY,
+                        ZGENERICASSET.ZFILENAME,
+                        ZGENERICASSET.ZLATITUDE,
+                        ZGENERICASSET.ZLONGITUDE,
+                        ZADDITIONALASSETATTRIBUTES.ZCREATORBUNDLEID
+                    FROM ZGENERICASSET
+                    INNER JOIN ZADDITIONALASSETATTRIBUTES ON ZGENERICASSET.Z_PK = ZADDITIONALASSETATTRIBUTES.Z_PK
+                '''
+            
+            try:
+                cursor.execute(select_sql)
+                all_rows = cursor.fetchall()
+            except Exception as e:
+                logfunc(f'PhotosDbexif: query Photos.sqlite gagal: {e}')
+                db.close()
+                continue
             usageentries = len(all_rows)
             
             
