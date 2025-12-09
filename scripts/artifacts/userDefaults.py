@@ -56,9 +56,11 @@ def user_defaults(files_found, report_folder, seeker, wrap_text, timezone_offset
                             plist = 'INVALID FILE'
                     else:
                         plist = biplist.readPlist(fp)
-                    for (key,item) in plist.items():
+                    
+                    if isinstance(plist, dict):
+                        for (key,item) in plist.items():
 
-                        data_list.append((bundleid, guid, key, clean_data(item), file_found))
+                            data_list.append((bundleid, guid, key, clean_data(item), file_found))
 
     if len(data_list) > 0:
         
