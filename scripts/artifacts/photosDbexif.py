@@ -10,7 +10,7 @@ from pillow_heif import register_heif_opener
 from pathlib import Path	
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, kmlgen, is_platform_windows, media_to_html, open_sqlite_db_readonly
+from scripts.ilapfuncs import logfunc, tsv, timeline, kmlgen, is_platform_windows, media_to_html, open_sqlite_db_readonly, does_table_exist_in_db, does_column_exist_in_db
 
 def isclose(a, b, rel_tol=1e-06, abs_tol=0.0):
     return abs(a-b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
@@ -63,6 +63,28 @@ def get_photosDbexif(files_found, report_folder, seeker, wrap_text, timezone_off
         if filename.endswith('.sqlite'):
             #print(file_found)
             data_list =[]
+
+            required_tables = ['ZASSET', 'ZADDITIONALASSETATTRIBUTES']
+            missing_tables = [table for table in required_tables if not does_table_exist_in_db(file_found, table)]
+
+            if missing_tables:
+                logfunc(f'Missing tables in Photos.sqlite: {", ".join(missing_tables)}')
+                continue
+
+            required_columns_zasset = ['ZDATECREATED', 'ZMODIFICATIONDATE', 'ZDIRECTORY', 'ZFILENAME', 'ZLATITUDE', 'ZLONGITUDE', 'Z_PK']
+            required_columns_additional = ['ZCREATORBUNDLEID', 'Z_PK']
+
+            missing_columns_zasset = [col for col in required_columns_zasset if not does_column_exist_in_db(file_found, 'ZASSET', col)]
+            missing_columns_additional = [col for col in required_columns_additional if not does_column_exist_in_db(file_found, 'ZADDITIONALASSETATTRIBUTES', col)]
+
+            if missing_columns_zasset:
+                logfunc(f'Missing columns in ZASSET table: {", ".join(missing_columns_zasset)}')
+                continue
+
+            if missing_columns_additional:
+                logfunc(f'Missing columns in ZADDITIONALASSETATTRIBUTES table: {", ".join(missing_columns_additional)}')
+                continue
+
             #sqlite portion
             db = open_sqlite_db_readonly(file_found)
             cursor = db.cursor()
