@@ -24,6 +24,7 @@ def deviceActivator(files_found, report_folder, seeker, wrap_text, timezone_offs
     data_list = []
     file_found = str(files_found[0])
     
+    alllines = ''
     with open(file_found, 'r') as f_in:
         for line in f_in:
             line = line.strip()

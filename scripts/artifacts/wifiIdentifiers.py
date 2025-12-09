@@ -31,6 +31,8 @@ def wifiIdentifiers(files_found, report_folder, seeker, wrap_text, timezone_offs
         for key, value in pl.items():
             if key == 'Interfaces':
                 for y in value:
+                    if 'IOMACAddress' not in y:
+                        continue
                     hexstring = (y['IOMACAddress'])
                     hexstring = pad_mac_adr("%x:%x:%x:%x:%x:%x" % struct.unpack("BBBBBB",hexstring))
                     userdefinedname = y['SCNetworkInterfaceInfo']['UserDefinedName']

@@ -48,16 +48,19 @@ def get_netusage(files_found, report_folder, seeker, wrap_text, timezone_offset)
                 for row in all_rows:
                     if row[0] is None:
                         lastconnected = ''
-                    else: 
-                        lastconnected = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]),timezone_offset)
+                    else:
+                        ts_result = convert_ts_human_to_utc(row[0])
+                        lastconnected = convert_utc_human_to_timezone(ts_result, timezone_offset) if ts_result else ''
                     if row[1] is None:    
                         firstused = ''
                     else:
-                        firstused = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[1]),timezone_offset)
+                        ts_result = convert_ts_human_to_utc(row[1])
+                        firstused = convert_utc_human_to_timezone(ts_result, timezone_offset) if ts_result else ''
                     if row[2] is None: 
                         lastused = ''
                     else:
-                        lastused = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[2]),timezone_offset)
+                        ts_result = convert_ts_human_to_utc(row[2])
+                        lastused = convert_utc_human_to_timezone(ts_result, timezone_offset) if ts_result else ''
                     
                     data_list.append((lastconnected,firstused,lastused,row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11]))
 
@@ -101,8 +104,16 @@ def get_netusage(files_found, report_folder, seeker, wrap_text, timezone_offset)
                 data_headers = ('First Connection Timestamp','Last Connection Timestamp','Network Name','Cell Tower ID/Wifi MAC','Network Type','Bytes In','Bytes Out','Connection Attempts','Connection Successes','Packets In','Packets Out') # Don't remove the comma, that is required to make this a tuple as there is only 1 element
                 data_list = []
                 for row in all_rows:
-                    firstconncted = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]),timezone_offset)
-                    lastconnected = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[1]),timezone_offset)
+                    if row[0] is None:
+                        firstconncted = ''
+                    else:
+                        ts_result = convert_ts_human_to_utc(row[0])
+                        firstconncted = convert_utc_human_to_timezone(ts_result, timezone_offset) if ts_result else ''
+                    if row[1] is None:
+                        lastconnected = ''
+                    else:
+                        ts_result = convert_ts_human_to_utc(row[1])
+                        lastconnected = convert_utc_human_to_timezone(ts_result, timezone_offset) if ts_result else ''
                 
                     if row[2] == None:
                         data_list.append((firstconncted,lastconnected,'','',row[3],row[4],row[5],row[6],row[7],row[8],row[9]))

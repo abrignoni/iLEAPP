@@ -33,6 +33,14 @@ def get_trustedPeers(files_found, report_folder, seeker, wrap_text, timezone_off
             
     db = open_sqlite_db_readonly(file_found)
     cursor = db.cursor()
+    
+    # Check if table exists
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='ZESCROWCLIENTMETADATA'")
+    if not cursor.fetchone():
+        logfunc('ZESCROWCLIENTMETADATA table does not exist in database')
+        db.close()
+        return
+    
     cursor.execute('''
     SELECT 
     DISTINCT datetime(client.ZSECUREBACKUPMETADATATIMESTAMP + 978307200, 'unixepoch') AS "Timestamp",

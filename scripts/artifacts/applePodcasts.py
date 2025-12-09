@@ -39,7 +39,7 @@ def get_applePodcastsShows(context):
                 'Author','Title',
                 'Feed URL',
                 'Description',
-                'Web Page URL'
+                'Web Page URL',
                 'Source File']
     
     for file_found in context.get_files_found():
@@ -74,7 +74,7 @@ def get_applePodcastsShows(context):
             
             data_list.append((timestampadded,timestampdateplayed,timestampdupdate,timestampdowndate,row[4],row[5],row[6],row[7],row[8], file_found))
     
-    return data_list, data_headers, 'see Source File for more info'
+    return data_headers, data_list, 'see Source File for more info'
         
 @artifact_processor
 def get_applePodcastsEpisodes(context):
@@ -139,4 +139,4 @@ def get_applePodcastsEpisodes(context):
 
             data_list.append((timestampimport,timestampmeta,timestamplastplay,timestamplastmod,timestampdowndate,row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12],row[13], file_found))
     
-    return data_list, data_headers, 'see Source File for more info'
+    return data_headers, data_list, 'see Source File for more info'

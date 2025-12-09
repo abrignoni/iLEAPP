@@ -66,6 +66,14 @@ def get_photosDbexif(files_found, report_folder, seeker, wrap_text, timezone_off
             #sqlite portion
             db = open_sqlite_db_readonly(file_found)
             cursor = db.cursor()
+            
+            # Check if ZASSET table exists
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='ZASSET'")
+            if not cursor.fetchone():
+                logfunc(f'ZASSET table does not exist in {file_found}')
+                db.close()
+                continue
+            
             cursor.execute('''
                 SELECT
                 DATETIME(ZASSET.ZDATECREATED+978307200,'UNIXEPOCH') AS DATECREATED,
