@@ -252,6 +252,7 @@ __artifacts_v2__ = {
     }
 }
 
+import sqlite3
 from packaging import version
 from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, \
     attach_sqlite_db_readonly, does_table_exist_in_db, convert_cocoa_core_data_ts_to_utc
@@ -528,25 +529,35 @@ def health_workouts(context):
         'Device ID', 'Device Model', 'Source', 'Software Version', 'Timezone',
         ('Timestamp added to Health', 'datetime'))
 
-    db_records = get_sqlite_db_records(data_source, query, attach_query)
+    try:
+        # Mencoba akses database. Jika file corrupt/encrypted, baris ini yang akan melempar error.
+        db_records = get_sqlite_db_records(data_source, query, attach_query)
+    except (sqlite3.DatabaseError, sqlite3.OperationalError) as e:
+        # Menangkap error spesifik SQLite
+        print(f" [!] Error executing query on {data_source}: {e}")
+        # Kembalikan list kosong agar proses iLEAPP tidak mati (crash)
+        return data_headers, [], data_source
 
-    for record in db_records:
-        start_timestamp = convert_cocoa_core_data_ts_to_utc(record[0])
-        end_timestamp = convert_cocoa_core_data_ts_to_utc(record[1])
-        added_timestamp = convert_cocoa_core_data_ts_to_utc(record[26])
-        device_model = context.get_device_model(record[22])
+    if db_records:
+        for record in db_records:
+            start_timestamp = convert_cocoa_core_data_ts_to_utc(record[0])
+            end_timestamp = convert_cocoa_core_data_ts_to_utc(record[1])
+            added_timestamp = convert_cocoa_core_data_ts_to_utc(record[26])
+            device_model = context.get_device_model(record[22])
 
-        if record[16]:
-            celcius_temp = round(((record[16] - 32) * (5 / 9)), 2)
+            # Reset temp variable untuk setiap iterasi
+            celcius_temp = None
+            if record[16]:
+                celcius_temp = round(((record[16] - 32) * (5 / 9)), 2)
 
-        data_list.append(
-            (start_timestamp, end_timestamp, str(record[2]).title(), record[3],
-             record[4], record[5], record[6], record[7], record[8], record[9],
-             record[10], record[11], record[12], record[13], record[14],
-             record[15], celcius_temp, record[16], record[17], record[18],
-             record[19], record[20], record[21], record[22], device_model,
-             record[23], record[24], record[25], added_timestamp)
-            )
+            data_list.append(
+                (start_timestamp, end_timestamp, str(record[2]).title(), record[3],
+                 record[4], record[5], record[6], record[7], record[8], record[9],
+                 record[10], record[11], record[12], record[13], record[14],
+                 record[15], celcius_temp, record[16], record[17], record[18],
+                 record[19], record[20], record[21], record[22], device_model,
+                 record[23], record[24], record[25], added_timestamp)
+                )
 
     return data_headers, data_list, data_source
 
