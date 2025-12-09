@@ -303,8 +303,7 @@ def get_identity_services(file_found, identifiers, report_folder, timezone_offse
     finally:
         f.close()
 
-    # row
-    if row.count(None) != len(row):
+    if data_list:
         report = ArtifactHtmlReport('Identity Lookup Service')
         report.start_artifact_report(report_folder, 'Identity Lookup Service')
         report.add_script()
