@@ -1148,7 +1148,7 @@ def convert_ts_human_to_timezone_offset(ts, timezone_offset):
 
 def convert_plist_date_to_timezone_offset(plist_date, timezone_offset):
     if plist_date:
-        str_date = '%04d-%02d-%02dT%02d:%02d:%02dZ' % (
+        str_date = '%04d-%02d-%02dT%02d:%02d:%02d' % (
             plist_date.year, plist_date.month, plist_date.day, 
             plist_date.hour, plist_date.minute, plist_date.second
             )
@@ -1159,7 +1159,7 @@ def convert_plist_date_to_timezone_offset(plist_date, timezone_offset):
 
 def convert_plist_date_to_utc(plist_date):
     if plist_date:
-        str_date = '%04d-%02d-%02dT%02d:%02d:%02dZ' % (
+        str_date = '%04d-%02d-%02dT%02d:%02d:%02d' % (
             plist_date.year, plist_date.month, plist_date.day, 
             plist_date.hour, plist_date.minute, plist_date.second
             )
