@@ -31,15 +31,22 @@ def user_defaults(files_found, report_folder, seeker, wrap_text, timezone_offset
         file_found = str(file_found)
         if not file_found.endswith('mobile_container_manager.metadata.plist'):
             continue
-        with open(file_found, "rb") as fp:
-            if sys.version_info >= (3, 9):
-                plist = plistlib.load(fp)
-            else:
-                plist = biplist.readPlist(fp)
-            bundleid = plist['MCMMetadataIdentifier']
-            p = pathlib.Path(file_found)
-            appgroupid = p.parent.name
-            apps[appgroupid] = bundleid
+        try:
+            with open(file_found, "rb") as fp:
+                if sys.version_info >= (3, 9):
+                    plist = plistlib.load(fp)
+                else:
+                    plist = biplist.readPlist(fp)
+                
+                if not isinstance(plist, dict) or 'MCMMetadataIdentifier' not in plist:
+                    continue
+                    
+                bundleid = plist['MCMMetadataIdentifier']
+                p = pathlib.Path(file_found)
+                appgroupid = p.parent.name
+                apps[appgroupid] = bundleid
+        except Exception:
+            continue
 
     for file_found in files_found:
         file_found = str(file_found)
@@ -48,17 +55,19 @@ def user_defaults(files_found, report_folder, seeker, wrap_text, timezone_offset
         for guid, bundleid in apps.items():
             if f'{bundleid}.plist' in file_found and guid in file_found:
                 found_apps.append(guid)
-                with open(file_found, "rb") as fp:
-                    if sys.version_info >= (3, 9):
-                        try:
+                try:
+                    with open(file_found, "rb") as fp:
+                        if sys.version_info >= (3, 9):
                             plist = plistlib.load(fp)
-                        except InvalidFileException as e:
-                            plist = 'INVALID FILE'
-                    else:
-                        plist = biplist.readPlist(fp)
-                    for (key,item) in plist.items():
-
-                        data_list.append((bundleid, guid, key, clean_data(item), file_found))
+                        else:
+                            plist = biplist.readPlist(fp)
+                    
+                    if isinstance(plist, dict):
+                        for (key,item) in plist.items():
+                            data_list.append((bundleid, guid, key, clean_data(item), file_found))
+                    
+                except (InvalidFileException, Exception) as e:
+                    continue
 
     if len(data_list) > 0:
         
