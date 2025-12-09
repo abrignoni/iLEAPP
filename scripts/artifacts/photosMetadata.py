@@ -12,6 +12,29 @@ from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, kmlgen, timeline, is_platform_windows, generate_thumbnail, \
     open_sqlite_db_readonly, iOS
 
+import plistlib
+from io import BytesIO
+import json
+
+def safe_parse_reverse_location(raw):
+    if b"$archiver" in raw:
+        try:
+            return nd.deserialize_plist(BytesIO(raw))
+        except Exception:
+            pass  
+
+    try:
+        return plistlib.loads(raw)
+    except Exception:
+        pass
+
+    try:
+        return json.loads(raw.decode("utf-8"))
+    except Exception:
+        pass
+
+    return None
+
 
 def get_photosMetadata(files_found, report_folder, seeker, wrap_text, timezone_offset):
     for file_found in files_found:
@@ -291,10 +314,21 @@ def get_photosMetadata(files_found, report_folder, seeker, wrap_text, timezone_o
 
                     with open(pathto, 'rb') as f:
                         try:
-                            deserialized_plist = nd.deserialize_plist(f)
-                            postal_address = deserialized_plist['postalAddress']['_formattedAddress']
-                            postal_address_subadminarea = deserialized_plist['postalAddress']['_subAdministrativeArea']
-                            postal_address_sublocality = deserialized_plist['postalAddress']['_subLocality']
+                        #     deserialized_plist = nd.deserialize_plist(f)
+                                raw = f.read()
+                                parsed = safe_parse_reverse_location(raw)
+
+                                if parsed and "postalAddress" in parsed:
+                                        pa = parsed["postalAddress"]
+                                        postal_address = pa.get("_formattedAddress", "")
+                                        postal_address_subadminarea = pa.get("_subAdministrativeArea", "")
+                                        postal_address_sublocality = pa.get("_subLocality", "")
+                                else:
+                                        logfunc(f"[iOS Photos] ReverseLocationData unsupported format for asset {row[0]}")
+
+                        #     postal_address = deserialized_plist['postalAddress']['_formattedAddress']
+                        #     postal_address_subadminarea = deserialized_plist['postalAddress']['_subAdministrativeArea']
+                        #     postal_address_sublocality = deserialized_plist['postalAddress']['_subLocality']
 
                         except (KeyError, ValueError, TypeError) as ex:
                             if str(ex).find("does not contain an '$archiver' key") >= 0:
@@ -632,11 +666,24 @@ def get_photosMetadata(files_found, report_folder, seeker, wrap_text, timezone_o
                         wf.write(row[61])
 
                     with open(pathto, 'rb') as f:
+                        # try:
+                        #     deserialized_plist = nd.deserialize_plist(f)
+                        #     postal_address = deserialized_plist['postalAddress']['_formattedAddress']
+                        #     postal_address_subadminarea = deserialized_plist['postalAddress']['_subAdministrativeArea']
+                        #     postal_address_sublocality = deserialized_plist['postalAddress']['_subLocality']
                         try:
-                            deserialized_plist = nd.deserialize_plist(f)
-                            postal_address = deserialized_plist['postalAddress']['_formattedAddress']
-                            postal_address_subadminarea = deserialized_plist['postalAddress']['_subAdministrativeArea']
-                            postal_address_sublocality = deserialized_plist['postalAddress']['_subLocality']
+                                # deserialized_plist = nd.deserialize_plist(f)
+                                raw = f.read()
+                                parsed = safe_parse_reverse_location(raw)
+
+                                if parsed and "postalAddress" in parsed:
+                                        pa = parsed["postalAddress"]
+                                        postal_address = pa.get("_formattedAddress", "")
+                                        postal_address_subadminarea = pa.get("_subAdministrativeArea", "")
+                                        postal_address_sublocality = pa.get("_subLocality", "")
+                                else:
+                                        logfunc(f"[iOS Photos] ReverseLocationData unsupported format for asset {row[0]}")
+
 
                         except:
                             logfunc('Error reading exported bplist from Asset PK' + row[0])
@@ -975,10 +1022,21 @@ def get_photosMetadata(files_found, report_folder, seeker, wrap_text, timezone_o
 
                     with open(pathto, 'rb') as f:
                         try:
-                            deserialized_plist = nd.deserialize_plist(f)
-                            postal_address = deserialized_plist['postalAddress']['_formattedAddress']
-                            postal_address_subadminarea = deserialized_plist['postalAddress']['_subAdministrativeArea']
-                            postal_address_sublocality = deserialized_plist['postalAddress']['_subLocality']
+                                raw = f.read()
+                                parsed = safe_parse_reverse_location(raw)
+
+                                if parsed and "postalAddress" in parsed:
+                                        pa = parsed["postalAddress"]
+                                        postal_address = pa.get("_formattedAddress", "")
+                                        postal_address_subadminarea = pa.get("_subAdministrativeArea", "")
+                                        postal_address_sublocality = pa.get("_subLocality", "")
+                                else:
+                                        logfunc(f"[iOS Photos] ReverseLocationData unsupported format for asset {row[0]}")
+
+                        #     deserialized_plist = nd.deserialize_plist(f)
+                        #     postal_address = deserialized_plist['postalAddress']['_formattedAddress']
+                        #     postal_address_subadminarea = deserialized_plist['postalAddress']['_subAdministrativeArea']
+                        #     postal_address_sublocality = deserialized_plist['postalAddress']['_subLocality']
 
                         except:
                             logfunc('Error reading exported bplist from Asset PK' + row[0])
