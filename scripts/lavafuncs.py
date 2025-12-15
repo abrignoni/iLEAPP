@@ -115,14 +115,14 @@ def initialize_lava(input_path, output_path, input_type):
                         type TEXT,
                         metadata TEXT,
                         created_at INTEGER,
-                        updated_at INTEGER)''')
+                        updated_at INTEGER,
+                        is_embedded INTEGER)''')
     cursor.execute('''CREATE TABLE _lava_media_references (
                         id TEXT PRIMARY KEY,
                         media_item_id TEXT,
                         module_name TEXT,
                         artifact_name TEXT,
                         name TEXT,
-                        media_path TEXT,
                         FOREIGN KEY (media_item_id) REFERENCES _lava_media_items(id))''')
     cursor.execute('''CREATE VIEW _lava_media_info AS
                         SELECT
@@ -131,13 +131,13 @@ def initialize_lava(input_path, output_path, input_type):
                             lmr.module_name,
                             lmr.artifact_name,
                             lmr.name,
-                            lmr.media_path,
                             lmi.source_path,
                             lmi.extraction_path,
                             lmi.type,
                             lmi.metadata,
                             lmi.created_at,
-                            lmi.updated_at
+                            lmi.updated_at,
+                            lmi.is_embedded
                         FROM _lava_media_references as lmr
                         LEFT JOIN _lava_media_items as lmi ON lmr.media_item_id = lmi.id''')
 
@@ -174,7 +174,7 @@ def lava_process_artifact(
     # To backward compatibility for modules not updated that are not passing func_name
     if func_name is None:
         func_name = artifact_name
-    
+
     sanitized_table_name, column_map, object_columns = lava_create_sqlite_table(func_name, data)
 
     # Add artifact metadata
@@ -425,14 +425,24 @@ def lava_insert_sqlite_media_item(media_item):
     """
 
     global lava_db
-    created_at = media_item.created_at if media_item.created_at else 'NULL'
-    updated_at = media_item.updated_at if media_item.updated_at else 'NULL'
     cursor = lava_db.cursor()
+    sql = '''INSERT INTO _lava_media_items
+                ("id", "source_path", "extraction_path", "type", "metadata", "created_at", "updated_at", "is_embedded")
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)'''
+
+    params = (
+        media_item.id,
+        str(media_item.source_path),
+        str(media_item.extraction_path),
+        media_item.mimetype,
+        media_item.metadata,
+        media_item.created_at if media_item.created_at else None,
+        media_item.updated_at if media_item.updated_at else None,
+        media_item.is_embedded
+    )
+
     try:
-        cursor.execute(f'''INSERT INTO _lava_media_items
-                    ("id", "source_path", "extraction_path", "type", "metadata", "created_at", "updated_at")
-                    VALUES ("{media_item.id}", "{media_item.source_path}", "{media_item.extraction_path}",
-                    "{media_item.mimetype}", "{media_item.metadata}", {created_at}, {updated_at})''')
+        cursor.execute(sql, params)
         lava_db.commit()
     except sqlite3.IntegrityError as e:
         print(str(e))
@@ -470,11 +480,18 @@ def lava_insert_sqlite_media_references(media_references):
 
     global lava_db
     cursor = lava_db.cursor()
-    cursor.execute(f'''INSERT INTO _lava_media_references
-                ("id", "media_item_id", "module_name", "artifact_name", "name", "media_path")
-                VALUES ("{media_references.id}", "{media_references.media_item_id}",
-                "{media_references.module_name}", "{media_references.artifact_name}",
-                "{media_references.name}", "{media_references.media_path}")''')
+    sql = '''INSERT INTO _lava_media_references
+                ("id", "media_item_id", "module_name", "artifact_name", "name")
+                VALUES (?, ?, ?, ?, ?)'''
+
+    params = (
+        media_references.id,
+        media_references.media_item_id,
+        media_references.module_name,
+        media_references.artifact_name,
+        media_references.name
+    )
+    cursor.execute(sql, params)
     lava_db.commit()
 
 
