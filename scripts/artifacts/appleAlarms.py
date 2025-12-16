@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Extraction of alarms set",
         "author": "Anna-Mariya Mateyna",
         "creation_date": "2021-01-17",
-        "last_update_date": "2025-10-08",
+        "last_update_date": "2025-12-16",
         "requirements": "none",
         "category": "Clock",
         "notes": "",
@@ -56,8 +56,8 @@ def alarms(context):
         
     if 'MTAlarms' in pl:
         if 'MTAlarms' in pl['MTAlarms']:
-            for alarms in pl['MTAlarms']['MTAlarms']:
-                alarms_dict = alarms['$MTAlarm']
+            for alarm in pl['MTAlarms']['MTAlarms']:
+                alarms_dict = alarm['$MTAlarm']
 
                 alarm_title = alarms_dict.get('MTAlarmTitle', 'Alarm')
                 alarm_hour = alarms_dict.get('MTAlarmHour', '')

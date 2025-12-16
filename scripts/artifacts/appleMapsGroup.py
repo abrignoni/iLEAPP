@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "",
         "author": "@AlexisBrignoni",
         "creation_date": "2020-08-03",
-        "last_update_date": "2025-10-08",
+        "last_update_date": "2025-12-16",
         "requirements": "none",
         "category": "Locations",
         "notes": "",
@@ -42,7 +42,7 @@ def appleMapsGroup(context):
                                 '7': {'type': 'int', 'name': ''}},
                         'name': ''}
                 }    
-        internal_deserialized_plist, di = blackboxprotobuf.decode_message(maps_activity, types)
+        internal_deserialized_plist, _ = blackboxprotobuf.decode_message(maps_activity, types)
         latitude = (internal_deserialized_plist['1']['5']['Latitude'])
         longitude = (internal_deserialized_plist['1']['5']['Longitude'])
         data_list.append((latitude, longitude))

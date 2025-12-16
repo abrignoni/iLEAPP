@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "iTunes & Bundle ID Metadata contents for apps",
         "author": "@AlexisBrignoni",
         "creation_date": "2020-10-04",
-        "last_update_date": "2025-10-08",
+        "last_update_date": "2025-12-16",
         "requirements": "none",
         "category": "Installed Apps",
         "notes": "",
@@ -15,7 +15,6 @@ __artifacts_v2__ = {
 
 import pathlib
 import os
-from datetime import *
 from scripts.ilapfuncs import artifact_processor, convert_time_obj_to_utc, convert_plist_date_to_utc, get_plist_file_content
 
 @artifact_processor
