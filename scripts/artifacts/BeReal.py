@@ -216,15 +216,15 @@ bereal_user_id = None
 _bereal_processed = False
 
 
-def format_userid(id, name=None):
-    if id:
+def format_userid(user_id, name=None):
+    if user_id:
         # "id (name)"
         if name:
-            return f"{id} ({name})"
+            return f"{user_id} ({name})"
         # "id (m_name)"
         else:
-            m_name = map_id_name.get(id)
-            return f"{id} ({m_name})" if bool(m_name) else id
+            m_name = map_id_name.get(user_id)
+            return f"{user_id} ({m_name})" if bool(m_name) else user_id
     else:
         return "Local User"
 
@@ -233,7 +233,7 @@ def get_json_data(file_path):
     try:
         with open(file_path, 'r', encoding='utf-8') as file:
             return json.load(file)
-    except Exception as e:
+    except (FileNotFoundError, PermissionError, UnicodeDecodeError, json.JSONDecodeError, OSError) as e:
         logfunc(f"Error reading file {file_path}: {str(e)}")
         return None
 
@@ -329,8 +329,8 @@ def get_links(obj, html_format=False):
         links_urls = []
         # array
         for i in range(0, len(obj)):
-           url = generic_url(obj[i].get('url'), html_format)
-           links_urls.append(url)
+            url = generic_url(obj[i].get('url'), html_format)
+            links_urls.append(url)
         if html_format:
             return '<br />'.join(links_urls)
         else:
@@ -420,15 +420,15 @@ def get_tags(obj, html_format=False):
                 user = format_userid(tag.get('userId'))
             # V2
             else:
-                id = tag.get('id')
+                tag_id = tag.get('id')
                 fullname = tag.get('fullname')
                 # userid (fullname)
                 if bool(fullname):
-                    user = f"{id} ({fullname})"
+                    user = f"{tag_id} ({fullname})"
                 # userid (fullname|username)
                 else:
                     username = tag.get('username')
-                    user = f"{id} ({username})"
+                    user = f"{tag_id} ({username})"
 
             if bool(user):
                 tag_list.append(user)
@@ -438,11 +438,11 @@ def get_tags(obj, html_format=False):
 
 # set up global variables
 def process_bereal_preferences(plist_path):
-    global map_id_name, bereal_user_id, _bereal_processed
+    global bereal_user_id, _bereal_processed
     
     plist_data = get_plist_file_content(plist_path)
     if not (plist_data):
-        logfunc(f"BeReal Helper: Couldn't parse data from plist")
+        logfunc("BeReal Helper: Couldn't parse data from plist")
     
     try:
         # me <id, username>
@@ -459,7 +459,7 @@ def process_bereal_preferences(plist_path):
             # bereal user id
             bereal_user_id = user_id
             # local profile picture (file:///private/var/mobile/Containers/Shared/AppGroup/<APP_GUID>/notification/file.jpg)
-            bereal_profile_picture = plist_data.get('myAccount', {}).get(user_id, {}).get('profilePictureURL')
+            # bereal_profile_picture = plist_data.get('myAccount', {}).get(user_id, {}).get('profilePictureURL')
 
         # current friends <id, fullname>
         current_friends = plist_data.get('currentFriends', {})
@@ -469,10 +469,8 @@ def process_bereal_preferences(plist_path):
         _bereal_processed = True
         return True
 
-    except Exception as e:
+    except (AttributeError, TypeError, KeyError) as e:
         logfunc(f"Error: {str(e)}")
-        pass
-
 
 # accounts
 @artifact_processor
@@ -573,21 +571,20 @@ def bereal_accounts(context):
             realmojis = get_realmojis(account, html_format = False)
             realmojis_html = get_realmojis(account, html_format = True)
             # unique id/user id
-            id = account.get('id')
+            unique_user_id = account.get('id')
 
             # html row
             data_list_html.append((created, profile_type, fullname, username, pp_url_html, gender, birth_date, biography, 
                                    country_code, region, address, timezone_html, phone_number, dev_uid_html, dev_info_html, app_ver_html, 
-                                   is_private, realmojis_html, id, file_rel_path))
+                                   is_private, realmojis_html, unique_user_id, file_rel_path))
 
             # lava row
             data_list.append((created, profile_type, fullname, username, pp_url, gender, birth_date, biography, 
                               country_code, region, address, timezone, phone_number, dev_uid, dev_info, app_ver, 
-                              is_private, realmojis, id, file_rel_path))
+                              is_private, realmojis, unique_user_id, file_rel_path))
 
-        except Exception as e:
+        except (ValueError, TypeError, AttributeError, IndexError) as e:
             logfunc(f"Error: {str(e)}")
-            pass
 
     # lava types
     data_headers[0] = (data_headers[0], 'datetime')
@@ -672,9 +669,8 @@ def bereal_contacts(context):
                 data_list.append((full_name, family_name, middle_name, given_name, nick_name, photo, organization_name,
                                   phone_numbers, file_rel_path, location))
 
-        except Exception as e:
+        except (ValueError, TypeError, IndexError, AttributeError) as e:
             logfunc(f"Error: {str(e)}")
-            pass
 
     return data_headers, (data_list, data_list_html), 'see Source File name for more info'
 
@@ -742,22 +738,21 @@ def bereal_persons(context):
             # streak count
             streak_count = person.get('streakCount')
             # unique id
-            id = person.get('id')
+            person_id = person.get('id')
 
             # location
-            location = f"[object]"
+            location = "[object]"
 
             # html row
             data_list_html.append((created, profile_type, fullname, username, pp_url_html, biography, address,
-                                   relationship_type, relationship_friended_at, links_html, streak_count, id, file_rel_path, location))
+                                   relationship_type, relationship_friended_at, links_html, streak_count, person_id, file_rel_path, location))
 
             # lava row
             data_list.append((created, profile_type, fullname, username, pp_url, biography, address,
-                              relationship_type, relationship_friended_at, links, streak_count, id, file_rel_path, location))
+                              relationship_type, relationship_friended_at, links, streak_count, person_id, file_rel_path, location))
 
-        except Exception as e:
+        except (ValueError, IndexError, TypeError, AttributeError, OverflowError) as e:
             logfunc(f"Error: {str(e)}")
-            pass
             
     # lava types
     data_headers[0] = (data_headers[0], 'datetime')
@@ -823,16 +818,16 @@ def bereal_friends(context):
                     pp_url = user.get('profilePictureURL')
                     pp_url_html = generic_url(pp_url, html_format = True)
                     # unique id
-                    id = user.get('id')
+                    user_id = user.get('id')
 
                     # location
                     location = f"[object][users][{i}]"
 
                     # html row
-                    data_list_html.append((None, status, profile_type, fullname, username, pp_url_html, None, id,
+                    data_list_html.append((None, status, profile_type, fullname, username, pp_url_html, None, user_id,
                                            file_rel_path, location))
                     # lava row
-                    data_list.append((None, status, profile_type, fullname, username, pp_url, None, id,
+                    data_list.append((None, status, profile_type, fullname, username, pp_url, None, user_id,
                                       file_rel_path, location))
 
             # friends (array)
@@ -869,21 +864,20 @@ def bereal_friends(context):
                     # mutual friends
                     mutual_friends = friend.get('mutualFriends')
                     # unique id
-                    id = friend.get('id')
+                    user_id = friend.get('id')
 
                     # location
                     location = f"[object][{i}]"
 
                     # html row
-                    data_list_html.append((status_updated_at, status, profile_type, fullname, username, pp_url_html, mutual_friends, id,
+                    data_list_html.append((status_updated_at, status, profile_type, fullname, username, pp_url_html, mutual_friends, user_id,
                                            file_rel_path, location))
                     # lava row
-                    data_list.append((status_updated_at, status, profile_type, fullname, username, pp_url, mutual_friends, id,
+                    data_list.append((status_updated_at, status, profile_type, fullname, username, pp_url, mutual_friends, user_id,
                                       file_rel_path, location))
 
-        except Exception as e:
+        except (ValueError, TypeError, AttributeError, IndexError, OverflowError) as e:
             logfunc(f"Error: {str(e)}")
-            pass
 
     # lava types
     data_headers[0] = (data_headers[0], 'datetime')
@@ -934,20 +928,19 @@ def bereal_blocked_users(context):
                 pp_url = friend.get('profilePictureURL')
                 pp_url_html = generic_url(pp_url, html_format = True)
                 # unique id
-                id = friend.get('id')
+                friend_id = friend.get('id')
 
                 # location
                 location = f"[object][{i}]"
 
                 # html row
-                data_list_html.append((blocked_date, fullname, username, pp_url_html, id, file_rel_path, location))
+                data_list_html.append((blocked_date, fullname, username, pp_url_html, friend_id, file_rel_path, location))
 
                 # lava row
-                data_list.append((blocked_date, fullname, username, pp_url, id, file_rel_path, location))
+                data_list.append((blocked_date, fullname, username, pp_url, friend_id, file_rel_path, location))
 
-        except Exception as e:
+        except (ValueError, AttributeError, IndexError, TypeError, OverflowError) as e:
             logfunc(f"Error: {str(e)}")
-            pass
 
     # lava types
     data_headers[0] = (data_headers[0], 'datetime')
@@ -1030,7 +1023,7 @@ def bereal_posts(context):
                     author_id, author_user_name = get_user(post)
                     author = format_userid(author_id, author_user_name)
                     # post visibilities
-                    post_visibilities = get_post_visibilities(post)
+                    # post_visibilities = get_post_visibilities(post)
                     # taken at
                     taken_at = convert_cocoa_core_data_ts_to_utc(post.get('takenAt'))
                     # retake counter
@@ -1196,7 +1189,7 @@ def bereal_posts(context):
                             tags = get_tags(post, html_format = False)
                             tags_html = get_tags(post, html_format = True)
                             # post visibilities
-                            post_visibilities = get_post_visibilities(post)
+                            # post_visibilities = get_post_visibilities(post)
                             # taken at
                             taken_at = convert_cocoa_core_data_ts_to_utc(post.get('takenAt'))
                             # retake counter
@@ -1220,9 +1213,8 @@ def bereal_posts(context):
                                               t_mt, t_url, caption, latitude, longitude, retake_counter, late_secs, tags,
                                               moment_id, bereal_id, file_rel_path, location))
 
-        except Exception as e:
+        except (ValueError, TypeError, AttributeError, IndexError, OverflowError, KeyError) as e:
             logfunc(f"Error: {str(e)}")
-            pass
 
     # lava types
     data_headers[0] = (data_headers[0], 'datetime')
@@ -1320,9 +1312,8 @@ def bereal_pinned_memories(context):
             else:
                 continue
    
-        except Exception as e:
+        except (ValueError, TypeError, AttributeError, IndexError, OverflowError) as e:
             logfunc(f"Error: {str(e)}")
-            pass
 
     # lava types
     data_headers[0] = (data_headers[0], 'datetime')
@@ -1570,9 +1561,8 @@ def bereal_realmojis(context):
                                 # lava row
                                 data_list.append((reaction_date, bereal_id, direction, owner, author, emoji, uri_moji, moment_id, realmoji_id, file_rel_path, location))
 
-        except Exception as e:
+        except (ValueError, AttributeError, IndexError, TypeError, OverflowError, KeyError) as e:
             logfunc(f"Error: {str(e)}")
-            pass
             
     # lava types
     data_headers[0] = (data_headers[0], 'datetime')
@@ -1803,9 +1793,8 @@ def bereal_comments(context):
                                 # lava row
                                 data_list.append((creation_date, bereal_id, direction, owner, author, text, moment_id, comment_id, file_rel_path, location))
 
-        except Exception as e:
+        except (ValueError, TypeError, AttributeError, IndexError, OverflowError, KeyError, NameError) as e:
             logfunc(f"Error: {str(e)}")
-            pass
             
     # lava types
     data_headers[0] = (data_headers[0], 'datetime')
