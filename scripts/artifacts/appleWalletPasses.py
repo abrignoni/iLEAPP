@@ -36,7 +36,7 @@ def get_appleWalletPKPasses(context):
         file_found = str(file_found)
 
         if file_found.endswith('pass.json'):
-            with open(file_found, 'r') as f:
+            with open(file_found, 'r', encoding='utf-8') as f:
                 data = json.load(f)
                 for x, y in data.items():
                     data_list.append((x,str(y), file_found))
