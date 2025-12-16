@@ -23,7 +23,6 @@ __artifacts_v2__ = {
 }
 
 from scripts.ilapfuncs import open_sqlite_db_readonly, artifact_processor, get_plist_content, convert_unix_ts_to_utc
-import datetime
 
 @artifact_processor
 def get_coreAccessoriesUserEvent(context):
