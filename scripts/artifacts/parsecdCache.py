@@ -19,7 +19,6 @@ from scripts.ilapfuncs import artifact_processor, convert_utc_human_to_timezone
 
 @artifact_processor
 def get_parseCDCache(files_found, report_folder, seeker, wrap_text, timezone_offset):
-
     data_list = []
     report_file = 'Unknown'
     for file_found in files_found:
@@ -30,15 +29,26 @@ def get_parseCDCache(files_found, report_folder, seeker, wrap_text, timezone_off
         db = open_sqlite_db_readonly(file_found)
 
         cursor = db.cursor()
-        cursor.execute('''
-        select 
+        
+        cursor.execute("PRAGMA table_info(completion_cache_engagement);")
+        columns = [i[1] for i in cursor.fetchall()]
+        
+        if 'score' in columns:
+            score_column = 'score'
+        else:
+            score_column = 'NULL as score'
+        
+        query = f'''
+        SELECT 
             datetime(engagement_date + 978307200,'unixepoch') as engagement_date, 
             input, 
             completion, 
             transformed, 
-            score
+            {score_column}
         FROM completion_cache_engagement
-        ''')
+        '''
+        
+        cursor.execute(query)
 
         all_rows = cursor.fetchall()
 
