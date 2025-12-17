@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "",
         "author": "@AlexisBrignoni",
         "creation_date": "2020-08-03",
-        "last_update_date": "2025-01-21",
+        "last_update_date": "2025-12-16",
         "requirements": "none",
         "category": "Locations",
         "notes": "",
@@ -18,11 +18,15 @@ import blackboxprotobuf
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content
 
 @artifact_processor
-def appleMapsGroup(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def appleMapsGroup(context):
+    files_found = context.get_files_found()
     source_path = get_file_path(files_found, "group.com.apple.Maps.plist")
     data_list = []
 
     pl = get_plist_file_content(source_path)
+    # Check if plist is valid before processing
+    if not pl or not isinstance(pl, dict):
+        return (), [], ''
     maps_activity = pl.get('MapsActivity', None)
     if maps_activity:
         types = {'1': {'type': 'message', 'message_typedef': 
@@ -38,7 +42,7 @@ def appleMapsGroup(files_found, report_folder, seeker, wrap_text, timezone_offse
                                 '7': {'type': 'int', 'name': ''}},
                         'name': ''}
                 }    
-        internal_deserialized_plist, di = blackboxprotobuf.decode_message(maps_activity, types)
+        internal_deserialized_plist, _ = blackboxprotobuf.decode_message(maps_activity, types)
         latitude = (internal_deserialized_plist['1']['5']['Latitude'])
         longitude = (internal_deserialized_plist['1']['5']['Longitude'])
         data_list.append((latitude, longitude))
