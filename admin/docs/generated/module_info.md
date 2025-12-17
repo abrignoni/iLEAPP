@@ -13,9 +13,9 @@ Number of v1 artifacts: 78
 Number of v2 artifacts: 360  
 Number of artifacts with 'lava output': 337  
 Number of artifacts using 'artifact_icon': 225  
-Number of artifacts using 'version': 222  
-Number of artifacts using 'last_update_date': 155  
-Number of artifacts using context parameter: 88  
+Number of artifacts using 'version': 221  
+Number of artifacts using 'last_update_date': 156  
+Number of artifacts using context parameter: 93  
 Number of artifacts with errors or no recognized artifacts: 3  
 
 ## V2 Artifacts Table
@@ -132,12 +132,12 @@ Number of artifacts with errors or no recognized artifacts: 3
 | [allTrails.py](/scripts/artifacts/allTrails.py) | allTrailsUserInfo | AllTrails - User Info | Health & Fitness | all | No | user |  | 2024-12-17 | Extract user info from AllTrails App | ``*/Documents/AllTrails.sqlite*`` |
 | [appConduit.py](/scripts/artifacts/appConduit.py) | app_conduit | App Conduit | App Conduit | standard | Yes | activity |  | 2025-09-29 | The AppConduit log file stores information about interactions between iPhone and other iOS devices, i.e. Apple Watch | ``*/mobile/Library/Logs/AppConduit/AppConduit.log.*`` |
 | [appGrouplisting.py](/scripts/artifacts/appGrouplisting.py) | appGrouplisting | Bundle ID by AppGroup & PluginKit IDs | Installed Apps | html, tsv, lava | No | package |  | 2024-12-20 | List can included once installed but not present apps. Each file is named .com.apple.mobile_container_manager.metadata.plist | ``*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist``, ``*/Containers/Data/PluginKitPlugin/*/.com.apple.mobile_container_manager.metadata.plist`` |
-| [appItunesmeta.py](/scripts/artifacts/appItunesmeta.py) | get_appItunesmeta | Apps - Itunes Metadata | Installed Apps | standard | No |  | 0.2 |  | iTunes & Bundle ID Metadata contents for apps | ``*/iTunesMetadata.plist``, ``**/BundleMetadata.plist`` |
+| [appItunesmeta.py](/scripts/artifacts/appItunesmeta.py) | get_appItunesmeta | Apps - Itunes Metadata | Installed Apps | standard | Yes |  |  | 2025-12-16 | iTunes & Bundle ID Metadata contents for apps | ``*/iTunesMetadata.plist``, ``*/BundleMetadata.plist`` |
 | [appSnapshots.py](/scripts/artifacts/appSnapshots.py) | applicationSnapshots | App Snapshots | Installed Apps | standard | Yes | package |  | 2025-05-13 | Snapshots saved by iOS for individual apps appear here. Blank screenshots are excluded here. Dates and times shown are from file modified timestamps | ``*/Library/Caches/Snapshots/*.ktx``, ``*/Library/Caches/Snapshots/*.jpeg``, ``*/SplashBoard/Snapshots/*.ktx``, ``*/SplashBoard/Snapshots/*.jpeg`` |
-| [appleAlarms.py](/scripts/artifacts/appleAlarms.py) | alarms | Alarms | Clock | standard | No | clock |  | 2024-12-22 | Extraction of alarms set | ``*/mobile/Library/Preferences/com.apple.mobiletimerd.plist`` |
-| [appleLocationd.py](/scripts/artifacts/appleLocationd.py) | appleLocationd | Location Services | Identifiers | html, tsv, lava | No | navigation |  | 2024-12-20 | Extracts location services settings | ``*/mobile/Library/Preferences/com.apple.locationd.plist`` |
-| [appleMapsApplication.py](/scripts/artifacts/appleMapsApplication.py) | appleMapsApplication | Apple Maps Last Activity Camera | Locations | html, tsv, lava | No | map-pin |  | 2024-12-20 |  | ``*/Data/Application/*/Library/Preferences/com.apple.Maps.plist`` |
-| [appleMapsGroup.py](/scripts/artifacts/appleMapsGroup.py) | appleMapsGroup | Apple Maps Group | Locations | html, tsv, lava | No | map-pin |  | 2025-01-21 |  | ``*/Shared/AppGroup/*/Library/Preferences/group.com.apple.Maps.plist`` |
+| [appleAlarms.py](/scripts/artifacts/appleAlarms.py) | alarms | Alarms | Clock | standard | Yes | clock |  | 2025-12-16 | Extraction of alarms set | ``*/mobile/Library/Preferences/com.apple.mobiletimerd.plist`` |
+| [appleLocationd.py](/scripts/artifacts/appleLocationd.py) | appleLocationd | Location Services | Identifiers | html, tsv, lava | Yes | navigation |  | 2025-10-08 | Extracts location services settings | ``*/mobile/Library/Preferences/com.apple.locationd.plist`` |
+| [appleMapsApplication.py](/scripts/artifacts/appleMapsApplication.py) | appleMapsApplication | Apple Maps Last Activity Camera | Locations | html, tsv, lava | Yes | map-pin |  | 2025-10-08 |  | ``*/Data/Application/*/Library/Preferences/com.apple.Maps.plist`` |
+| [appleMapsGroup.py](/scripts/artifacts/appleMapsGroup.py) | appleMapsGroup | Apple Maps Group | Locations | html, tsv, lava | Yes | map-pin |  | 2025-12-16 |  | ``*/Shared/AppGroup/*/Library/Preferences/group.com.apple.Maps.plist`` |
 | [appleMapsSearchHistory.py](/scripts/artifacts/appleMapsSearchHistory.py) | get_appleMapsSearchHistory | Get Apple Maps seach history | Locations | standard | Yes |  |  | 2023-10-22 |  | ``*/mobile/Containers/Data/Application/*/Library/Maps/GeoHistory.mapsdata``, ``*/GeoHistory.mapsdata`` |
 | [applePodcasts.py](/scripts/artifacts/applePodcasts.py) | get_applePodcastsShows | Apple Podcasts Shows | Apple Podcasts | standard | Yes |  |  | 2025-10-22 | Extract Apple podcasts shows. | ``*/MTLibrary.sqlite*`` |
 | [applePodcasts.py](/scripts/artifacts/applePodcasts.py) | get_applePodcastsEpisodes | Apple Podcasts Episodes | Apple Podcasts | standard | Yes |  |  | 2025-10-22 | Extract Apple podcasts episodes. | ``*/MTLibrary.sqlite*`` |
