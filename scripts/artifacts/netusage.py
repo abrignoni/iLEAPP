@@ -7,6 +7,21 @@ from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_
 def pad_mac_adr(adr):
     return ':'.join([i.zfill(2) for i in adr.split(':')]).upper()
 
+def safe_convert_timestamp(ts, timezone_offset): 
+    if ts is None:
+        return ""
+
+    ts = str(ts)
+
+    if ts.startswith("0000") or ts.startswith("0001") or ts == "0" or ts.strip() == "":
+        return ""
+
+    try:
+        return convert_utc_human_to_timezone(convert_ts_human_to_utc(ts), timezone_offset)
+    except:
+        return ""
+
+
 def get_netusage(files_found, report_folder, seeker, wrap_text, timezone_offset):
     for file_found in files_found:
         file_found = str(file_found)
@@ -46,18 +61,22 @@ def get_netusage(files_found, report_folder, seeker, wrap_text, timezone_offset)
                 data_headers = ('Last Connect Timestamp','First Usage Timestamp','Last Usage Timestamp','Bundle Name','Process Name','Type','Wifi In (Bytes)','Wifi Out (Bytes)','Mobile/WWAN In (Bytes)','Mobile/WWAN Out (Bytes)','Wired In (Bytes)','Wired Out (Bytes)') # Don't remove the comma, that is required to make this a tuple as there is only 1 element
                 data_list = []
                 for row in all_rows:
-                    if row[0] is None:
-                        lastconnected = ''
-                    else: 
-                        lastconnected = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]),timezone_offset)
-                    if row[1] is None:    
-                        firstused = ''
-                    else:
-                        firstused = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[1]),timezone_offset)
-                    if row[2] is None: 
-                        lastused = ''
-                    else:
-                        lastused = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[2]),timezone_offset)
+                    # if row[0] is None:
+                    #     lastconnected = ''
+                    # else: 
+                    #     lastconnected = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]),timezone_offset)
+                    # if row[1] is None:    
+                    #     firstused = ''
+                    # else:
+                    #     firstused = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[1]),timezone_offset)
+                    # if row[2] is None: 
+                    #     lastused = ''
+                    # else:
+                    #     lastused = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[2]),timezone_offset)
+                    lastconnected = safe_convert_timestamp(row[0], timezone_offset)
+                    firstused = safe_convert_timestamp(row[1], timezone_offset)
+                    lastused = safe_convert_timestamp(row[2], timezone_offset)
+
                     
                     data_list.append((lastconnected,firstused,lastused,row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11]))
 
