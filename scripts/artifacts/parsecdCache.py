@@ -29,19 +29,24 @@ def get_parseCDCache(files_found, report_folder, seeker, wrap_text, timezone_off
         report_file = file_found
         db = open_sqlite_db_readonly(file_found)
 
-        cursor = db.cursor()
-        cursor.execute('''
-        select 
-            datetime(engagement_date + 978307200,'unixepoch') as engagement_date, 
-            input, 
-            completion, 
-            transformed, 
-            score
-        FROM completion_cache_engagement
-        ''')
+        # Bug-Fix: give this exception handling in case db is malformed or columns are missing
+        try:
+            cursor = db.cursor()
+            cursor.execute('''
+            select 
+                datetime(engagement_date + 978307200,'unixepoch') as engagement_date, 
+                input, 
+                completion, 
+                transformed, 
+                score
+            FROM completion_cache_engagement
+            ''')
 
-        all_rows = cursor.fetchall()
-
+            all_rows = cursor.fetchall()
+        except Exception as e:
+            all_rows = []
+            print(f'Error reading ParseCD Cache database: {e}')
+        
         for row in all_rows:
             timestamp = row[0]
             timestamp = convert_ts_human_to_utc(timestamp)

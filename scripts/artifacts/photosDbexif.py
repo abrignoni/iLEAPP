@@ -65,21 +65,27 @@ def get_photosDbexif(files_found, report_folder, seeker, wrap_text, timezone_off
             data_list =[]
             #sqlite portion
             db = open_sqlite_db_readonly(file_found)
-            cursor = db.cursor()
-            cursor.execute('''
-                SELECT
-                DATETIME(ZASSET.ZDATECREATED+978307200,'UNIXEPOCH') AS DATECREATED,
-                DATETIME(ZASSET.ZMODIFICATIONDATE+978307200,'UNIXEPOCH') AS MODIFICATIONDATE,
-                ZASSET.ZDIRECTORY,
-                ZASSET.ZFILENAME,
-                ZASSET.ZLATITUDE,
-                ZASSET.ZLONGITUDE,
-                ZADDITIONALASSETATTRIBUTES.ZCREATORBUNDLEID
-                FROM ZASSET
-                INNER JOIN ZADDITIONALASSETATTRIBUTES ON ZASSET.Z_PK = ZADDITIONALASSETATTRIBUTES.Z_PK
-            ''')
             
-            all_rows = cursor.fetchall()
+            # Bug-Fix: give this exception handling in case db is malformed or columns are missing
+            try:
+                cursor = db.cursor()
+                cursor.execute('''
+                    SELECT
+                    DATETIME(ZASSET.ZDATECREATED+978307200,'UNIXEPOCH') AS DATECREATED,
+                    DATETIME(ZASSET.ZMODIFICATIONDATE+978307200,'UNIXEPOCH') AS MODIFICATIONDATE,
+                    ZASSET.ZDIRECTORY,
+                    ZASSET.ZFILENAME,
+                    ZASSET.ZLATITUDE,
+                    ZASSET.ZLONGITUDE,
+                    ZADDITIONALASSETATTRIBUTES.ZCREATORBUNDLEID
+                    FROM ZASSET
+                    INNER JOIN ZADDITIONALASSETATTRIBUTES ON ZASSET.Z_PK = ZADDITIONALASSETATTRIBUTES.Z_PK
+                ''')
+                
+                all_rows = cursor.fetchall()
+            except Exception as e:
+                all_rows = []
+                print(f'Error reading photos database: {e}')
             usageentries = len(all_rows)
             
             
