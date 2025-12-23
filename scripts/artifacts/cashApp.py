@@ -6,11 +6,12 @@ __artifacts_v2__ = {
         "creation_date": "2021-10-06",
         "last_update_date": "2025-11-12",
         "requirements": "none",
-        "category": "Cash App",
+        "category": "Banking",
         "notes": "",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/CCEntitySync-api.squareup.com.sqlite*',
                   '*/mobile/Containers/Shared/AppGroup/*/CCEntitySync-internal.cashappapi.com.sqlite*'),
         "output_types": "standard",
+        "artifact_icon": "dollar-sign",
     }
 }
 
