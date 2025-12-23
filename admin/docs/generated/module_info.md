@@ -12,7 +12,7 @@ Total number of artifacts: 438
 Number of v1 artifacts: 78  
 Number of v2 artifacts: 360  
 Number of artifacts with 'lava output': 337  
-Number of artifacts using 'artifact_icon': 225  
+Number of artifacts using 'artifact_icon': 226  
 Number of artifacts using 'version': 221  
 Number of artifacts using 'last_update_date': 156  
 Number of artifacts using context parameter: 93  
@@ -206,8 +206,8 @@ Number of artifacts with errors or no recognized artifacts: 3
 | [callHistoryGroupCall.py](/scripts/artifacts/callHistoryGroupCall.py) | callHistoryInteractionC | interactionC Call History - Group Call | Call History | standard | Yes | phone-call |  | 2025-11-12 | Extract Call History | ``*/mobile/Library/CoreDuet/People/interactionC.db*`` |
 | [callHistoryTransactions.py](/scripts/artifacts/callHistoryTransactions.py) | callHistoryTransactions | Call History Transactions | Call History | standard | Yes |  |  | 2025-11-12 | Parses transaction.log file in Call History Transactions | ``*/var/mobile/Library/CallHistoryTransactions/transactions.log*`` |
 | [carCD.py](/scripts/artifacts/carCD.py) | carCD | Last Car Connection and UDID | Identifiers | none | Yes |  |  | 2025-11-12 |  | ``*/Library/Caches/locationd/cache.plist`` |
-| [cashApp.py](/scripts/artifacts/cashApp.py) | get_cashApp | Cash App | Cash App | standard | Yes |  |  | 2025-11-12 |  | ``*/mobile/Containers/Shared/AppGroup/*/CCEntitySync-api.squareup.com.sqlite*``, ``*/mobile/Containers/Shared/AppGroup/*/CCEntitySync-internal.cashappapi.com.sqlite*`` |
-| [cashAppB.py](/scripts/artifacts/cashAppB.py) | get_cashAppB | Cash App | Banking | all | Yes | dollar-sign |  | 2025-11-12 |  | ``*/Environments/Production/Accounts/*/*-internal.cashappapi.com.sqlite*`` |
+| [cashApp.py](/scripts/artifacts/cashApp.py) | get_cashApp | Cash App | Banking | standard | Yes | dollar-sign |  | 2025-11-12 |  | ``*/mobile/Containers/Shared/AppGroup/*/CCEntitySync-api.squareup.com.sqlite*``, ``*/mobile/Containers/Shared/AppGroup/*/CCEntitySync-internal.cashappapi.com.sqlite*`` |
+| [cashAppB.py](/scripts/artifacts/cashAppB.py) | get_cashAppB | Cash App (B) | Banking | all | Yes | dollar-sign |  | 2025-11-12 |  | ``*/Environments/Production/Accounts/*/*-internal.cashappapi.com.sqlite*`` |
 | [celWireless.py](/scripts/artifacts/celWireless.py) | celWireless | Cellular Wireless | Cellular | standard | Yes |  |  | 2025-11-12 | Extracts cellular wireless information from device preferences | ``*wireless/Library/Preferences/com.apple.commcenter.plist``, ``*wireless/Library/Preferences/com.apple.commcenter.device_specific_nobackup.plist`` |
 | [chatgpt.py](/scripts/artifacts/chatgpt.py) | chatgpt | ChatGPT | ChatGPT |  | No |  | 1.0.2 |  | Get user's ChatGPT conversations, settings and media files. This parser is based on a research project. Parser is validated up to the app's 1.2024.178 | ``**/Containers/Data/Application/*/Library/Application Support/conversations-*/*.*``, ``**/Containers/Data/Application/*/Library/Application Support/drafts-*/*.*``, ``**/Containers/Data/Application/*/Library/Preferences/com.openai.chat.StatsigService.plist``, ``**/Containers/Data/Application/*/Library/Preferences/com.segment.storage.oai.plist``, ``**/Containers/Data/Application/*/Library/Preferences/com.openai.chat.plist``, ``**/Containers/Data/Application/*/tmp/recordings/*.*``, ``**/Containers/Data/Application/*/tmp/photo-*.*``, ``**/Containers/Data/Application/*/tmp/*/*.*`` |
 | [chrome.py](/scripts/artifacts/chrome.py) | chromeWebHistory | Web History | Chromium | standard | No |  | 0.0.3 |  | Parses web history from Chromium Based Browsers | ``*/Chrome/Default/History*``, ``*/app_sbrowser/Default/History*``, ``*/app_opera/History*``, ``*/Chromium/Default/History*`` |
