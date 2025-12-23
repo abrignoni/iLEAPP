@@ -1,6 +1,6 @@
 __artifacts_v2__ = {
     "get_cashAppB": {
-        "name": "Cash App",
+        "name": "Cash App (B)",
         "description": "",
         "author": "Alexis Brignoni",
         "creation_date": "2025-08-24",
