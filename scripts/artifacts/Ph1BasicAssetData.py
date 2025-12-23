@@ -150,6 +150,13 @@ def Ph1_1AssetBasicDataPhDaPsql(files_found, report_folder, seeker, wrap_text, t
             return (), [], source_path
         data_list = []
 
+        db = open_sqlite_db_readonly(source_path)
+        zadd_cols = {row[1].upper() for row in db.execute("PRAGMA table_info(ZADDITIONALASSETATTRIBUTES)")}
+        db.close()
+        imported_display_select = "zAddAssetAttr.ZIMPORTEDBYDISPLAYNAME AS 'zAddAssetAttr- Imported By Display Name'"
+        if 'ZIMPORTEDBYDISPLAYNAME' not in zadd_cols:
+            imported_display_select = "'' AS 'zAddAssetAttr- Imported By Display Name'"
+
         query = '''
         SELECT
         DateTime(zAsset.ZDATECREATED + 978307200, 'UNIXEPOCH') AS 'zAsset-Date Created',
@@ -166,7 +173,7 @@ def Ph1_1AssetBasicDataPhDaPsql(files_found, report_folder, seeker, wrap_text, t
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
         zAddAssetAttr.ZCREATORBUNDLEID AS 'zAddAssetAttr- Creator Bundle ID',
-        zAddAssetAttr.ZIMPORTEDBYDISPLAYNAME AS 'zAddAssetAttr- Imported By Display Name',
+        ''' + imported_display_select + ''',
         CASE zAsset.ZSAVEDASSETTYPE
             WHEN 0 THEN '0-Saved-via-other-source-0'
             WHEN 1 THEN '1-StillTesting-1'

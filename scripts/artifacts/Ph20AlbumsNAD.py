@@ -142,14 +142,16 @@ def Ph20_1AlbumRecordswithNADPhDaPsql(files_found, report_folder, seeker, wrap_t
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
             return (), [], source_path
-        data_list = []
+        db = open_sqlite_db_readonly(source_path)
+        zgen_cols = {row[1].upper() for row in db.execute("PRAGMA table_info(ZGENERICALBUM)")}
+        db.close()
+        has_creator_bundle_id = 'ZCREATORBUNDLEID' in zgen_cols
 
-        query = '''
-        SELECT
-        DateTime(zGenAlbum.ZCREATIONDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-Creation Date',
-        DateTime(zGenAlbum.ZSTARTDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-Start Date',
-        DateTime(zGenAlbum.ZENDDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-End Date',
-        CASE zGenAlbum.ZKIND
+        select_fields = [
+            "DateTime(zGenAlbum.ZCREATIONDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-Creation Date'",
+            "DateTime(zGenAlbum.ZSTARTDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-Start Date'",
+            "DateTime(zGenAlbum.ZENDDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-End Date'",
+            """CASE zGenAlbum.ZKIND
             WHEN 2 THEN '2-Non-Shared-Album-2'
             WHEN 1505 THEN '1505-Shared-Album-1505'
             WHEN 1506 THEN '1506-Import_Session_AssetsImportedatSameTime-1506_RT'
@@ -163,44 +165,47 @@ def Ph20_1AlbumRecordswithNADPhDaPsql(files_found, report_folder, seeker, wrap_t
             WHEN 3999 THEN '3999-Parent_Root_for_Generic_Album-3999'
             WHEN 4000 THEN '4000-Parent_is_Folder_on_Local_Device-4000'
             ELSE 'Unknown-New-Value!: ' || zGenAlbum.ZKIND || ''
-        END AS 'zGenAlbum-Album Kind',
-        zGenAlbum.ZTITLE AS 'zGenAlbum-Title-User&System Applied',
-        zGenAlbum.ZIMPORTSESSIONID AS 'zGenAlbum- Import Session ID',
-        zGenAlbum.ZCREATORBUNDLEID AS 'zGenAlbum-Creator Bundle Identifier',        
-        zGenAlbum.ZCACHEDPHOTOSCOUNT AS 'zGenAlbum-Cached Photos Count',
-        zGenAlbum.ZCACHEDVIDEOSCOUNT AS 'zGenAlbum-Cached Videos Count',
-        zGenAlbum.ZCACHEDCOUNT AS 'zGenAlbum-Cached Count',
-        CASE zGenAlbum.ZTRASHEDSTATE
+        END AS 'zGenAlbum-Album Kind'""",
+            "zGenAlbum.ZTITLE AS 'zGenAlbum-Title-User&System Applied'",
+            "zGenAlbum.ZIMPORTSESSIONID AS 'zGenAlbum- Import Session ID'"
+        ]
+        if has_creator_bundle_id:
+            select_fields.append("zGenAlbum.ZCREATORBUNDLEID AS 'zGenAlbum-Creator Bundle Identifier'")
+        select_fields.extend([
+            "zGenAlbum.ZCACHEDPHOTOSCOUNT AS 'zGenAlbum-Cached Photos Count'",
+            "zGenAlbum.ZCACHEDVIDEOSCOUNT AS 'zGenAlbum-Cached Videos Count'",
+            "zGenAlbum.ZCACHEDCOUNT AS 'zGenAlbum-Cached Count'",
+            """CASE zGenAlbum.ZTRASHEDSTATE
             WHEN 0 THEN 'zGenAlbum Not In Trash-0'
             WHEN 1 THEN 'zGenAlbum Album In Trash-1'
             ELSE 'Unknown-New-Value!: ' || zGenAlbum.ZTRASHEDSTATE || ''
-        END AS 'zGenAlbum-Trashed State',
-        DateTime(zGenAlbum.ZTRASHEDDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-Trash Date',
-        zGenAlbum.ZUUID AS 'zGenAlbum-UUID-4TableStart',
-        zGenAlbum.ZCLOUDGUID AS 'zGenAlbum-Cloud GUID-4TableStart'
-        FROM ZGENERICALBUM zGenAlbum
-        ORDER BY zGenAlbum.ZCREATIONDATE
-        '''
+        END AS 'zGenAlbum-Trashed State'""",
+            "DateTime(zGenAlbum.ZTRASHEDDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-Trash Date'",
+            "zGenAlbum.ZUUID AS 'zGenAlbum-UUID-4TableStart'",
+            "zGenAlbum.ZCLOUDGUID AS 'zGenAlbum-Cloud GUID-4TableStart'"
+        ])
 
-        db_records = get_sqlite_db_records(source_path, query)
-        for row in db_records:
-            data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7],
-                              row[8], row[9], row[10], row[11], row[12], row[13]))
+        query = "SELECT\n" + ",\n".join(select_fields) + "\nFROM ZGENERICALBUM zGenAlbum\nORDER BY zGenAlbum.ZCREATIONDATE"
 
-        data_headers = (('zGenAlbum-Creation Date', 'datetime'),
-                        ('zGenAlbum-Start Date', 'datetime'),
-                        ('zGenAlbum-End Date', 'datetime'),
-                        'zGenAlbum-Album Kind',
-                        'zGenAlbum-Title',
-                        'zGenAlbum-Import Session ID',
-                        'zGenAlbum-Creator Bundle Identifier',
-                        'zGenAlbum-Cached Photos Count',
-                        'zGenAlbum-Cached Videos Count',
-                        'zGenAlbum-Cached Count',
-                        'zGenAlbum-Trashed State',
-                        ('zGenAlbum-Trash Date', 'datetime'),
-                        'zGenAlbum-UUID',
-                        'zGenAlbum-Cloud GUID')
+        data_headers = (
+            ('zGenAlbum-Creation Date', 'datetime'),
+            ('zGenAlbum-Start Date', 'datetime'),
+            ('zGenAlbum-End Date', 'datetime'),
+            'zGenAlbum-Album Kind',
+            'zGenAlbum-Title',
+            'zGenAlbum-Import Session ID'
+        )
+        if has_creator_bundle_id:
+            data_headers = data_headers + ('zGenAlbum-Creator Bundle Identifier',)
+        data_headers = data_headers + (
+            'zGenAlbum-Cached Photos Count',
+            'zGenAlbum-Cached Videos Count',
+            'zGenAlbum-Cached Count',
+            'zGenAlbum-Trashed State',
+            ('zGenAlbum-Trash Date', 'datetime'),
+            'zGenAlbum-UUID',
+            'zGenAlbum-Cloud GUID'
+        )
         data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
@@ -424,14 +429,16 @@ def Ph20_2AlbumRecordswithNADSyndPL(files_found, report_folder, seeker, wrap_tex
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
             return (), [], source_path
-        data_list = []
+        db = open_sqlite_db_readonly(source_path)
+        zgen_cols = {row[1].upper() for row in db.execute("PRAGMA table_info(ZGENERICALBUM)")}
+        db.close()
+        has_creator_bundle_id = 'ZCREATORBUNDLEID' in zgen_cols
 
-        query = '''
-        SELECT
-        DateTime(zGenAlbum.ZCREATIONDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-Creation Date',
-        DateTime(zGenAlbum.ZSTARTDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-Start Date',
-        DateTime(zGenAlbum.ZENDDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-End Date',
-        CASE zGenAlbum.ZKIND
+        select_fields = [
+            "DateTime(zGenAlbum.ZCREATIONDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-Creation Date'",
+            "DateTime(zGenAlbum.ZSTARTDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-Start Date'",
+            "DateTime(zGenAlbum.ZENDDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-End Date'",
+            """CASE zGenAlbum.ZKIND
             WHEN 2 THEN '2-Non-Shared-Album-2'
             WHEN 1505 THEN '1505-Shared-Album-1505'
             WHEN 1506 THEN '1506-Import_Session_AssetsImportedatSameTime-1506_RT'
@@ -445,44 +452,47 @@ def Ph20_2AlbumRecordswithNADSyndPL(files_found, report_folder, seeker, wrap_tex
             WHEN 3999 THEN '3999-Parent_Root_for_Generic_Album-3999'
             WHEN 4000 THEN '4000-Parent_is_Folder_on_Local_Device-4000'
             ELSE 'Unknown-New-Value!: ' || zGenAlbum.ZKIND || ''
-        END AS 'zGenAlbum-Album Kind',
-        zGenAlbum.ZTITLE AS 'zGenAlbum-Title-User&System Applied',
-        zGenAlbum.ZIMPORTSESSIONID AS 'zGenAlbum- Import Session ID',
-        zGenAlbum.ZCREATORBUNDLEID AS 'zGenAlbum-Creator Bundle Identifier',        
-        zGenAlbum.ZCACHEDPHOTOSCOUNT AS 'zGenAlbum-Cached Photos Count',
-        zGenAlbum.ZCACHEDVIDEOSCOUNT AS 'zGenAlbum-Cached Videos Count',
-        zGenAlbum.ZCACHEDCOUNT AS 'zGenAlbum-Cached Count',
-        CASE zGenAlbum.ZTRASHEDSTATE
+        END AS 'zGenAlbum-Album Kind'""",
+            "zGenAlbum.ZTITLE AS 'zGenAlbum-Title-User&System Applied'",
+            "zGenAlbum.ZIMPORTSESSIONID AS 'zGenAlbum- Import Session ID'"
+        ]
+        if has_creator_bundle_id:
+            select_fields.append("zGenAlbum.ZCREATORBUNDLEID AS 'zGenAlbum-Creator Bundle Identifier'")
+        select_fields.extend([
+            "zGenAlbum.ZCACHEDPHOTOSCOUNT AS 'zGenAlbum-Cached Photos Count'",
+            "zGenAlbum.ZCACHEDVIDEOSCOUNT AS 'zGenAlbum-Cached Videos Count'",
+            "zGenAlbum.ZCACHEDCOUNT AS 'zGenAlbum-Cached Count'",
+            """CASE zGenAlbum.ZTRASHEDSTATE
             WHEN 0 THEN 'zGenAlbum Not In Trash-0'
             WHEN 1 THEN 'zGenAlbum Album In Trash-1'
             ELSE 'Unknown-New-Value!: ' || zGenAlbum.ZTRASHEDSTATE || ''
-        END AS 'zGenAlbum-Trashed State',
-        DateTime(zGenAlbum.ZTRASHEDDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-Trash Date',
-        zGenAlbum.ZUUID AS 'zGenAlbum-UUID-4TableStart',
-        zGenAlbum.ZCLOUDGUID AS 'zGenAlbum-Cloud GUID-4TableStart'
-        FROM ZGENERICALBUM zGenAlbum
-        ORDER BY zGenAlbum.ZCREATIONDATE
-        '''
-        
-        db_records = get_sqlite_db_records(source_path, query)
-        for row in db_records:
-            data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7],
-                              row[8], row[9], row[10], row[11], row[12], row[13]))
+        END AS 'zGenAlbum-Trashed State'""",
+            "DateTime(zGenAlbum.ZTRASHEDDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-Trash Date'",
+            "zGenAlbum.ZUUID AS 'zGenAlbum-UUID-4TableStart'",
+            "zGenAlbum.ZCLOUDGUID AS 'zGenAlbum-Cloud GUID-4TableStart'"
+        ])
 
-        data_headers = (('zGenAlbum-Creation Date', 'datetime'),
-                        ('zGenAlbum-Start Date', 'datetime'),
-                        ('zGenAlbum-End Date', 'datetime'),
-                        'zGenAlbum-Album Kind',
-                        'zGenAlbum-Title',
-                        'zGenAlbum-Import Session ID',
-                        'zGenAlbum-Creator Bundle Identifier',
-                        'zGenAlbum-Cached Photos Count',
-                        'zGenAlbum-Cached Videos Count',
-                        'zGenAlbum-Cached Count',
-                        'zGenAlbum-Trashed State',
-                        ('zGenAlbum-Trash Date', 'datetime'),
-                        'zGenAlbum-UUID',
-                        'zGenAlbum-Cloud GUID')
+        query = "SELECT\n" + ",\n".join(select_fields) + "\nFROM ZGENERICALBUM zGenAlbum\nORDER BY zGenAlbum.ZCREATIONDATE"
+
+        data_headers = (
+            ('zGenAlbum-Creation Date', 'datetime'),
+            ('zGenAlbum-Start Date', 'datetime'),
+            ('zGenAlbum-End Date', 'datetime'),
+            'zGenAlbum-Album Kind',
+            'zGenAlbum-Title',
+            'zGenAlbum-Import Session ID'
+        )
+        if has_creator_bundle_id:
+            data_headers = data_headers + ('zGenAlbum-Creator Bundle Identifier',)
+        data_headers = data_headers + (
+            'zGenAlbum-Cached Photos Count',
+            'zGenAlbum-Cached Videos Count',
+            'zGenAlbum-Cached Count',
+            'zGenAlbum-Trashed State',
+            ('zGenAlbum-Trash Date', 'datetime'),
+            'zGenAlbum-UUID',
+            'zGenAlbum-Cloud GUID'
+        )
         data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
