@@ -36,15 +36,28 @@ def system_version_plist(context):
     sysdiagnose_archive = context.get_source_file_path("sysdiagnose_*.tar.gz")
 
     if plist_file:
-        data_source = system_version_plist
+        # PERBAIKAN: Gunakan variabel 'plist_file' (string path), BUKAN nama fungsi 'system_version_plist'
+        data_source = plist_file 
         pl = get_plist_file_content(data_source)
-    elif 'sysdiagnose_' in sysdiagnose_archive and "IN_PROGRESS_" not in sysdiagnose_archive:
-        tar = tarfile.open(sysdiagnose_archive)
-        root = tar.getmembers()[0].name.split('/')[0]
+        
+    elif sysdiagnose_archive and 'sysdiagnose_' in sysdiagnose_archive and "IN_PROGRESS_" not in sysdiagnose_archive:
         try:
-            data_source = tar.extractfile(f"{root}/logs/SystemVersion/SystemVersion.plist")
-            pl = get_plist_file_content(data_source)
-        except KeyError:
+            tar = tarfile.open(sysdiagnose_archive)
+            # Validasi agar tidak crash jika tar kosong
+            members = tar.getmembers()
+            if members:
+                root = members[0].name.split('/')[0]
+                try:
+                    # Kita ubah data_source menjadi string path arsip untuk keperluan reporting
+                    data_source = sysdiagnose_archive 
+                    
+                    # Ekstrak file spesifik dari dalam tar
+                    extracted_file = tar.extractfile(f"{root}/logs/SystemVersion/SystemVersion.plist")
+                    if extracted_file:
+                        pl = get_plist_file_content(extracted_file)
+                except KeyError:
+                    pl = None
+        except tarfile.ReadError:
             pl = None
 
     if pl is not None:

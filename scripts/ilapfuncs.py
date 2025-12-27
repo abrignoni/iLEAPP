@@ -1265,11 +1265,8 @@ def convert_plist_date_to_timezone_offset(plist_date, timezone_offset):
 
 def convert_plist_date_to_utc(plist_date):
     if plist_date:
-        str_date = '%04d-%02d-%02dT%02d:%02d:%02dZ' % (
-            plist_date.year, plist_date.month, plist_date.day, 
-            plist_date.hour, plist_date.minute, plist_date.second
-            )
-        return datetime.fromisoformat(str_date)
+        # Langsung set timezone ke UTC tanpa konversi string yang tidak perlu
+        return plist_date.replace(tzinfo=datetime.timezone.utc)
     else:
         return plist_date
 
