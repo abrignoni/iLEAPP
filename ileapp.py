@@ -545,6 +545,7 @@ def crunch_artifacts(
         nonlocal current_proc
         nonlocal subprocess_phase
         q = ctx_mp.SimpleQueue()
+        q_reader = getattr(q, "_reader", None)
         payload = {
             "plugin_key": plugin_key,
             "files_found": files_found,
@@ -585,9 +586,34 @@ def crunch_artifacts(
         )
         #endregion agent log
 
-        # Join in a loop so we can react to Ctrl+C and treat it as "skip current plugin"
+        # Join in a loop so we can react to Ctrl+C and treat it as "skip current plugin".
+        # Also proactively drain the queue while the child is alive to avoid the child blocking on put().
         subprocess_phase = "join_loop"
+        result = None
         while proc.is_alive():
+            # Try to drain once per tick if data is available, but never block.
+            try:
+                if result is None and q_reader is not None and hasattr(q_reader, "poll") and q_reader.poll(0):
+                    subprocess_phase = "queue_get"
+                    result = q.get()
+                    subprocess_phase = "join_loop"
+                    #region agent log
+                    _agent_log(
+                        "A",
+                        "ileapp.py:_run_plugin_subprocess",
+                        "drained result while child alive",
+                        {"plugin_key": plugin_key, "result_ok": (result or {}).get("ok") if result else None},
+                    )
+                    #endregion agent log
+            except Exception as ex:
+                #region agent log
+                _agent_log(
+                    "A",
+                    "ileapp.py:_run_plugin_subprocess",
+                    "queue drain error while child alive",
+                    {"plugin_key": plugin_key, "exc_type": type(ex).__name__, "exc": str(ex)},
+                )
+                #endregion agent log
             proc.join(timeout=0.25)
         subprocess_phase = "post_join"
         #region agent log
@@ -599,24 +625,34 @@ def crunch_artifacts(
         )
         #endregion agent log
 
-        result = None
+        # If we killed the process due to interrupt/skip, treat it as a skip and keep going.
+        # IMPORTANT: do this BEFORE attempting any queue reads, because queue state can be corrupted
+        # if the child was terminated mid-put.
+        if proc.exitcode is not None and proc.exitcode < 0:
+            logfunc(f"Plugin {plugin_key} was interrupted (exitcode={proc.exitcode}). Skipping.")
+            current_proc = None
+            return {"ok": True, "plugin_key": plugin_key, "skipped": True}
+
+        if result is None:
+            result = None
         try:
-            # multiprocessing.SimpleQueue.get() has no timeout; guard with empty() to avoid blocking.
+            # multiprocessing.SimpleQueue.get() has no timeout; use underlying reader.poll() to avoid blocking.
             subprocess_phase = "queue_check"
-            empty_val = None
+            has_data = None
             try:
-                empty_val = bool(q.empty())
+                if q_reader is not None and hasattr(q_reader, "poll"):
+                    has_data = bool(q_reader.poll(0))
             except Exception:
-                empty_val = None
+                has_data = None
             #region agent log
             _agent_log(
                 "A",
                 "ileapp.py:_run_plugin_subprocess",
                 "queue check",
-                {"plugin_key": plugin_key, "queue_empty": empty_val},
+                {"plugin_key": plugin_key, "has_data": has_data, "already_have_result": bool(result is not None)},
             )
             #endregion agent log
-            if empty_val is False:
+            if result is None and has_data:
                 subprocess_phase = "queue_get"
                 result = q.get()
                 subprocess_phase = "post_queue_get"

@@ -229,6 +229,14 @@ def run_one_plugin(payload: dict, result_queue) -> None:
             "lava_only_delta": lava_only_delta,
             "installed_os_version": discovered_os_version,
         })
+        #region agent log
+        _agent_log(
+            "A",
+            "mp_plugin_runner.py:run_one_plugin",
+            "child put complete",
+            {"plugin_key": plugin_key},
+        )
+        #endregion agent log
 
     except Exception as ex:
         #region agent log
