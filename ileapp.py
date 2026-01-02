@@ -11,6 +11,8 @@ import scripts.report as report
 import traceback
 import sys
 import multiprocessing
+import signal
+import time
 
 import scripts.plugin_loader as plugin_loader
 import leapp_functions.app.history as history
@@ -456,11 +458,45 @@ def crunch_artifacts(
 
     ctx_mp = multiprocessing.get_context("spawn") if mp_per_plugin else None
     installed_os_version = ''
+    current_proc = None
+    last_interrupt_ts = 0.0
+
+    def _terminate_current_plugin_proc(reason: str):
+        nonlocal current_proc
+        if current_proc is not None and current_proc.is_alive():
+            logfunc(f"Skip requested ({reason}). Terminating current plugin subprocess (pid={current_proc.pid}) ...")
+            try:
+                current_proc.terminate()
+            except Exception:
+                pass
+
+    def _interrupt_handler(signum, frame):
+        """
+        Ctrl+C / Ctrl+Break handling for mp mode:
+        - first press: terminate current plugin process and continue
+        - second press within 2 seconds: abort run
+        """
+        nonlocal last_interrupt_ts
+        now = time.time()
+        if now - last_interrupt_ts < 2.0:
+            logfunc("Second interrupt received. Aborting run.")
+            raise KeyboardInterrupt
+        last_interrupt_ts = now
+        _terminate_current_plugin_proc("SIGINT/SIGBREAK")
+
+    if mp_per_plugin:
+        # Register interrupt handler (cross-platform):
+        # - SIGINT is Ctrl+C everywhere
+        # - SIGBREAK is Ctrl+Break on Windows (if present)
+        signal.signal(signal.SIGINT, _interrupt_handler)
+        if hasattr(signal, "SIGBREAK"):
+            signal.signal(signal.SIGBREAK, _interrupt_handler)
 
     def _run_plugin_subprocess(plugin_key: str, files_found: list, category_folder: str, file_infos_subset: dict | None = None):
         """Run a plugin in a spawned subprocess and merge returned deltas into parent globals."""
         nonlocal installed_os_version
-        q = ctx_mp.Queue()
+        nonlocal current_proc
+        q = ctx_mp.SimpleQueue()
         payload = {
             "plugin_key": plugin_key,
             "files_found": files_found,
@@ -474,13 +510,29 @@ def crunch_artifacts(
             "installed_os_version": installed_os_version,
         }
         proc = ctx_mp.Process(target=run_one_plugin, args=(payload, q))
+        current_proc = proc
         proc.start()
-        proc.join()
+
+        # Join in a loop so we can react to Ctrl+C and treat it as "skip current plugin"
+        while proc.is_alive():
+            proc.join(timeout=0.25)
 
         result = None
-        if not q.empty():
-            result = q.get()
+        try:
+            # SimpleQueue doesn't reliably support .empty() cross-platform; just try get_nowait
+            if hasattr(q, "get_nowait"):
+                result = q.get_nowait()
+            else:
+                # Fallback: try blocking very briefly
+                result = q.get(timeout=0.01)
+        except Exception:
+            result = None
         if not result or not result.get("ok"):
+            # If we killed the process due to interrupt/skip, treat it as a skip and keep going.
+            if proc.exitcode is not None and proc.exitcode < 0:
+                logfunc(f"Plugin {plugin_key} was interrupted (exitcode={proc.exitcode}). Skipping.")
+                current_proc = None
+                return {"ok": True, "plugin_key": plugin_key, "skipped": True}
             err = (result or {}).get("error") if result else "Child process failed without result"
             tb = (result or {}).get("traceback") if result else ""
             raise RuntimeError(f"Subprocess plugin run failed for {plugin_key}: {err}\n{tb}")
