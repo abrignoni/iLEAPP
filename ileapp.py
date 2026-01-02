@@ -12,7 +12,7 @@ import traceback
 import sys
 import multiprocessing
 import signal
-import time
+import time as time_module
 
 import scripts.plugin_loader as plugin_loader
 import leapp_functions.app.history as history
@@ -460,6 +460,16 @@ def crunch_artifacts(
     installed_os_version = ''
     current_proc = None
     last_interrupt_ts = 0.0
+    seeker_all_files = []
+    try:
+        # For iTunes backups, seeker._all_files is a dict keyed by "virtual paths" in backup
+        # (eg. private/var/mobile/Library/...).
+        if hasattr(seeker, "_all_files") and isinstance(seeker._all_files, dict):
+            seeker_all_files = list(seeker._all_files.keys())
+        elif hasattr(seeker, "_all_files") and isinstance(seeker._all_files, list):
+            seeker_all_files = list(seeker._all_files)
+    except Exception:
+        seeker_all_files = []
 
     def _terminate_current_plugin_proc(reason: str):
         nonlocal current_proc
@@ -477,7 +487,8 @@ def crunch_artifacts(
         - second press within 2 seconds: abort run
         """
         nonlocal last_interrupt_ts
-        now = time.time()
+        # IMPORTANT: use time module explicitly; `time` can be shadowed by datetime.time via star-imports.
+        now = time_module.time()
         if now - last_interrupt_ts < 2.0:
             logfunc("Second interrupt received. Aborting run.")
             raise KeyboardInterrupt
@@ -508,6 +519,7 @@ def crunch_artifacts(
             "extracttype": extracttype,
             "file_infos_subset": file_infos_subset or {},
             "installed_os_version": installed_os_version,
+            "seeker_all_files": seeker_all_files,
         }
         proc = ctx_mp.Process(target=run_one_plugin, args=(payload, q))
         current_proc = proc

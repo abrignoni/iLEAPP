@@ -16,6 +16,7 @@ import re  # pylint: disable=unused-import  # re-exported for modules importing 
 import shutil
 import sqlite3
 import sys
+import typing
 import xml
 
 from datetime import datetime, timezone, timedelta
@@ -190,8 +191,46 @@ class SeekerProxy:
     Currently only provides .file_infos, which is used by media helpers to map extracted
     paths back to original source paths and timestamps.
     """
-    def __init__(self, file_infos: dict[str, FileInfoSnapshot]):
+    def __init__(self, file_infos: dict[str, FileInfoSnapshot], all_files: typing.Optional[list[str]] = None):
         self.file_infos = file_infos
+        # Optional lightweight search index: list of "virtual paths" (eg. iTunes full paths like
+        # private/var/mobile/Library/...).
+        self._all_files = all_files or []
+        self.searched = {}
+
+    def search(self, filepattern, return_on_first_hit: bool = False, force: bool = False):
+        """
+        Lightweight seeker.search() for subprocess mode.
+
+        This mimics FileSeekerItunes.search() behavior for matching (fnmatch against virtual paths),
+        but returns *already-extracted* paths only. It does NOT perform extraction/copying.
+        It exists so plugins that call seeker.search() for auxiliary files don't crash in mp mode.
+        """
+        try:
+            if filepattern in self.searched and not force:
+                pathlist = self.searched[filepattern]
+                return pathlist[0] if return_on_first_hit and pathlist else pathlist
+
+            import fnmatch as _fnmatch  # local import to keep module import side-effects minimal
+
+            matches = _fnmatch.filter(self._all_files, filepattern) if self._all_files else []
+
+            # Map virtual paths to extracted paths via known file_infos (only those copied/extracted so far)
+            found = []
+            if matches:
+                for extracted_path, finfo in (self.file_infos or {}).items():
+                    try:
+                        if finfo and finfo.source_path in matches:
+                            found.append(extracted_path)
+                            if return_on_first_hit:
+                                break
+                    except Exception:
+                        continue
+
+            self.searched[filepattern] = found
+            return found[0] if return_on_first_hit and found else found
+        except Exception:
+            return "" if return_on_first_hit else []
 
 class GuiWindow:
     '''This only exists to hold window handle if script is run from GUI'''

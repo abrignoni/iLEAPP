@@ -79,6 +79,7 @@ def run_one_plugin(payload: dict, result_queue) -> None:
     - extracttype: str
     - file_infos_subset: dict[str, tuple[str, float, float]]
     - installed_os_version: str (optional)
+    - seeker_all_files: list[str] (optional)
     """
     try:
         plugin_key: str = payload["plugin_key"]
@@ -91,6 +92,7 @@ def run_one_plugin(payload: dict, result_queue) -> None:
         extracttype: str = payload.get("extracttype") or ""
         file_infos_subset: dict[str, tuple[str, float, float]] = payload.get("file_infos_subset") or {}
         installed_os_version: str = payload.get("installed_os_version") or ""
+        seeker_all_files: list[str] = payload.get("seeker_all_files") or []
 
         # Rehydrate output params + log paths for logfunc()
         out_params_existing = output_params_from_existing_output_folder_base(
@@ -107,7 +109,7 @@ def run_one_plugin(payload: dict, result_queue) -> None:
                 pass
 
         # Minimal seeker proxy (media helpers depend on seeker.file_infos)
-        seeker_proxy = SeekerProxy(_build_file_infos_snapshot(file_infos_subset))
+        seeker_proxy = SeekerProxy(_build_file_infos_snapshot(file_infos_subset), seeker_all_files)
 
         # Load plugin inside child to avoid pickling callables
         loader = plugin_loader.PluginLoader()
