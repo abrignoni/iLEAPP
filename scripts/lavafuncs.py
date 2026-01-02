@@ -852,5 +852,6 @@ def lava_finalize_output(output_path):
     with open(os.path.join(output_path, lava_json_name), 'w', encoding='utf-8') as f:
         json.dump(lava_data, f, indent=4)
 
-    # Close the SQLite database
-    lava_db.close()
+    # Close the SQLite database (may be None in per-plugin multiprocessing mode)
+    if lava_db is not None:
+        lava_db.close()
