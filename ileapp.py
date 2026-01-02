@@ -453,6 +453,50 @@ def crunch_artifacts(
     log.write(f'Extraction/Path selected: {input_path}<br><br>')
     log.write(f'Timezone selected: {time_offset}<br><br>')
 
+    ctx_mp = multiprocessing.get_context("spawn") if mp_per_plugin else None
+
+    def _run_plugin_subprocess(plugin_key: str, files_found: list, category_folder: str, file_infos_subset: dict | None = None):
+        """Run a plugin in a spawned subprocess and merge returned deltas into parent globals."""
+        q = ctx_mp.Queue()
+        payload = {
+            "plugin_key": plugin_key,
+            "files_found": files_found,
+            "category_folder": category_folder,
+            "wrap_text": wrap_text,
+            "time_offset": time_offset,
+            "output_folder_base": out_params.output_folder_base,
+            "input_path": input_path,
+            "extracttype": extracttype,
+            "file_infos_subset": file_infos_subset or {},
+        }
+        proc = ctx_mp.Process(target=run_one_plugin, args=(payload, q))
+        proc.start()
+        proc.join()
+
+        result = None
+        if not q.empty():
+            result = q.get()
+        if not result or not result.get("ok"):
+            err = (result or {}).get("error") if result else "Child process failed without result"
+            tb = (result or {}).get("traceback") if result else ""
+            raise RuntimeError(f"Subprocess plugin run failed for {plugin_key}: {err}\n{tb}")
+
+        icons_delta = result.get("icons_delta") or {}
+        for cat, icon_map in icons_delta.items():
+            icons.setdefault(cat, {}).update(icon_map)
+
+        lava_meta_delta = result.get("lava_meta_delta")
+        if lava_meta_delta:
+            lava_merge_meta_delta(lava_data, lava_meta_delta)
+
+        for item in (result.get("lava_only_delta") or []):
+            try:
+                lava_only_info(item["category"], item["artifact_name"], item["table_name"], item["records"])
+            except Exception:
+                pass
+
+        return result
+
     # Special processing for iTunesBackup Info.plist as it is a seperate entity, not part of the Manifest.db. Seeker won't find it
     if extracttype == 'itunes':
         info_plist_path = os.path.join(input_path, 'Info.plist')
@@ -466,7 +510,10 @@ def crunch_artifacts(
                 except (FileExistsError, FileNotFoundError) as ex:
                     logfunc('Error creating report directory at path {}'.format(report_folder))
                     logfunc('Error was {}'.format(str(ex)))
-            loader["itunes_backup_info"].method([info_plist_path], report_folder, seeker, wrap_text, time_offset)
+            if not mp_per_plugin:
+                loader["itunes_backup_info"].method([info_plist_path], report_folder, seeker, wrap_text, time_offset)
+            else:
+                _run_plugin_subprocess("itunes_backup_info", [info_plist_path], report_folder)
             report_folder = os.path.join(out_params.output_folder_base, '_HTML', 'Installed Apps')
             if not os.path.exists(report_folder):
                 try:
@@ -474,7 +521,10 @@ def crunch_artifacts(
                 except (FileExistsError, FileNotFoundError) as ex:
                     logfunc('Error creating report directory at path {}'.format(report_folder))
                     logfunc('Error was {}'.format(str(ex)))
-            loader["itunes_backup_installed_applications"].method([info_plist_path], report_folder, seeker, wrap_text, time_offset)
+            if not mp_per_plugin:
+                loader["itunes_backup_installed_applications"].method([info_plist_path], report_folder, seeker, wrap_text, time_offset)
+            else:
+                _run_plugin_subprocess("itunes_backup_installed_applications", [info_plist_path], report_folder)
             #del search_list['last_build'] # removing last_build as this takes its place
             print([info_plist_path])  # Future: remove special consideration for itunes? Merge into main search
         else:
@@ -552,8 +602,6 @@ def crunch_artifacts(
                 if not mp_per_plugin:
                     plugin.method(files_found, category_folder, seeker, wrap_text, time_offset)
                 else:
-                    ctx = multiprocessing.get_context("spawn")
-                    q = ctx.Queue()
                     file_infos_subset = {}
                     try:
                         for pth in files_found:
@@ -562,44 +610,7 @@ def crunch_artifacts(
                                 file_infos_subset[pth] = (fi.source_path, fi.creation_date, fi.modification_date)
                     except Exception:
                         file_infos_subset = {}
-
-                    payload = {
-                        "plugin_key": plugin.name,
-                        "files_found": files_found,
-                        "category_folder": category_folder,
-                        "wrap_text": wrap_text,
-                        "time_offset": time_offset,
-                        "output_folder_base": out_params.output_folder_base,
-                        "input_path": input_path,
-                        "extracttype": extracttype,
-                        "file_infos_subset": file_infos_subset,
-                    }
-                    proc = ctx.Process(target=run_one_plugin, args=(payload, q))
-                    proc.start()
-                    proc.join()
-
-                    result = None
-                    if not q.empty():
-                        result = q.get()
-                    if not result or not result.get("ok"):
-                        err = (result or {}).get("error") if result else "Child process failed without result"
-                        tb = (result or {}).get("traceback") if result else ""
-                        raise RuntimeError(f"Subprocess plugin run failed for {plugin.name}: {err}\n{tb}")
-
-                    # Merge deltas into parent process globals (icons + LAVA meta + lava_only artifacts)
-                    icons_delta = result.get("icons_delta") or {}
-                    for cat, icon_map in icons_delta.items():
-                        icons.setdefault(cat, {}).update(icon_map)
-
-                    lava_meta_delta = result.get("lava_meta_delta")
-                    if lava_meta_delta:
-                        lava_merge_meta_delta(lava_data, lava_meta_delta)
-
-                    for item in (result.get("lava_only_delta") or []):
-                        try:
-                            lava_only_info(item["category"], item["artifact_name"], item["table_name"], item["records"])
-                        except Exception:
-                            pass
+                    _run_plugin_subprocess(plugin.name, files_found, category_folder, file_infos_subset)
 
                 if plugin.name == 'logarchive':
                     lava_db_path = os.path.join(out_params.output_folder_base, '_lava_artifacts.db')
@@ -607,27 +618,7 @@ def crunch_artifacts(
                         if not mp_per_plugin:
                             loader["logarchive_artifacts"].method([lava_db_path], category_folder, seeker, wrap_text, time_offset)
                         else:
-                            # run this follow-on artifact in its own subprocess too
-                            ctx = multiprocessing.get_context("spawn")
-                            q = ctx.Queue()
-                            payload = {
-                                "plugin_key": "logarchive_artifacts",
-                                "files_found": [lava_db_path],
-                                "category_folder": category_folder,
-                                "wrap_text": wrap_text,
-                                "time_offset": time_offset,
-                                "output_folder_base": out_params.output_folder_base,
-                                "input_path": input_path,
-                                "extracttype": extracttype,
-                                "file_infos_subset": {},
-                            }
-                            proc = ctx.Process(target=run_one_plugin, args=(payload, q))
-                            proc.start()
-                            proc.join()
-                            if not q.empty():
-                                result = q.get()
-                                if result and result.get("ok") and result.get("lava_meta_delta"):
-                                    lava_merge_meta_delta(lava_data, result["lava_meta_delta"])
+                            _run_plugin_subprocess("logarchive_artifacts", [lava_db_path], category_folder, {})
                     if does_table_exist_in_db(lava_db_path, 'logarchive_artifacts'):
                         unifed_logs_artifacts = []
                         unifed_logs_artifacts = [plugin.name for plugin in loader.plugins
@@ -638,31 +629,7 @@ def crunch_artifacts(
                             if not mp_per_plugin:
                                 loader[unifed_log_artifact].method([lava_db_path], category_folder, seeker, wrap_text, time_offset)
                             else:
-                                ctx = multiprocessing.get_context("spawn")
-                                q = ctx.Queue()
-                                payload = {
-                                    "plugin_key": unifed_log_artifact,
-                                    "files_found": [lava_db_path],
-                                    "category_folder": category_folder,
-                                    "wrap_text": wrap_text,
-                                    "time_offset": time_offset,
-                                    "output_folder_base": out_params.output_folder_base,
-                                    "input_path": input_path,
-                                    "extracttype": extracttype,
-                                    "file_infos_subset": {},
-                                }
-                                proc = ctx.Process(target=run_one_plugin, args=(payload, q))
-                                proc.start()
-                                proc.join()
-                                if not q.empty():
-                                    result = q.get()
-                                    if result and result.get("ok"):
-                                        icons_delta = result.get("icons_delta") or {}
-                                        for cat, icon_map in icons_delta.items():
-                                            icons.setdefault(cat, {}).update(icon_map)
-                                        lava_meta_delta = result.get("lava_meta_delta")
-                                        if lava_meta_delta:
-                                            lava_merge_meta_delta(lava_data, lava_meta_delta)
+                                _run_plugin_subprocess(unifed_log_artifact, [lava_db_path], category_folder, {})
             except Exception as ex:  # pylint: disable=broad-exception-caught
                 logfunc('Reading {} artifact had errors!'.format(plugin.name))
                 logfunc('Error was {}'.format(str(ex)))
