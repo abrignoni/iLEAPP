@@ -203,6 +203,9 @@ def main():
                         help=("Path to a keychain file captured from the device. Some apps keep "
                               "their database key in the keychain, which is collected separately "
                               "from the file system extraction."))
+    parser.add_argument('--mp_per_plugin', required=False, action="store_true", default=False,
+                        help=("EXPERIMENTAL: Run each plugin in its own subprocess (spawn). "
+                              "This enables skipping a long-running plugin (planned) without stopping the whole run."))
 
     # Check if no arguments were provided
     if len(sys.argv) == 1:
@@ -351,6 +354,9 @@ def main():
 
     out_params = OutputParameters(output_path, custom_output_folder)
     Context.set_output_params(out_params)
+
+    if args.mp_per_plugin:
+        logfunc("EXPERIMENTAL MODE ENABLED: --mp_per_plugin (per-plugin subprocess execution)")
 
     initialize_lava(input_path, out_params.output_folder_base, extracttype)
 
