@@ -19,6 +19,7 @@ from scripts.ilapfuncs import (
     FileInfoSnapshot,
     SeekerProxy,
     check_output_types,
+    iOS,
     output_params_from_existing_output_folder_base,
 )
 import scripts.lavafuncs as lavafuncs
@@ -77,6 +78,7 @@ def run_one_plugin(payload: dict, result_queue) -> None:
     - input_path: str
     - extracttype: str
     - file_infos_subset: dict[str, tuple[str, float, float]]
+    - installed_os_version: str (optional)
     """
     try:
         plugin_key: str = payload["plugin_key"]
@@ -88,12 +90,21 @@ def run_one_plugin(payload: dict, result_queue) -> None:
         input_path: str = payload.get("input_path") or ""
         extracttype: str = payload.get("extracttype") or ""
         file_infos_subset: dict[str, tuple[str, float, float]] = payload.get("file_infos_subset") or {}
+        installed_os_version: str = payload.get("installed_os_version") or ""
 
         # Rehydrate output params + log paths for logfunc()
         out_params_existing = output_params_from_existing_output_folder_base(
             output_folder_base, ensure_dirs=True
         )
         Context.set_output_params(out_params_existing)
+
+        # Propagate installed iOS version into the subprocess (many plugins depend on it)
+        if installed_os_version:
+            try:
+                iOS.set_version(installed_os_version)
+                Context.set_installed_os_version(installed_os_version)
+            except Exception:
+                pass
 
         # Minimal seeker proxy (media helpers depend on seeker.file_infos)
         seeker_proxy = SeekerProxy(_build_file_infos_snapshot(file_infos_subset))
@@ -115,6 +126,13 @@ def run_one_plugin(payload: dict, result_queue) -> None:
         data_headers, data_list, source_path = plugin_spec.method(
             files_found, category_folder, seeker_proxy, wrap_text, time_offset
         )
+
+        # Capture installed OS version if this plugin discovered it
+        discovered_os_version = ""
+        try:
+            discovered_os_version = Context.get_installed_os_version() or ""
+        except Exception:
+            discovered_os_version = ""
 
         # Build deltas to send back
         category = artifact_info.get("category", "")
@@ -171,6 +189,7 @@ def run_one_plugin(payload: dict, result_queue) -> None:
             "icons_delta": icons_delta,
             "lava_meta_delta": lava_meta_delta,
             "lava_only_delta": lava_only_delta,
+            "installed_os_version": discovered_os_version,
         })
 
     except Exception as ex:

@@ -455,9 +455,11 @@ def crunch_artifacts(
     log.write(f'Timezone selected: {time_offset}<br><br>')
 
     ctx_mp = multiprocessing.get_context("spawn") if mp_per_plugin else None
+    installed_os_version = ''
 
     def _run_plugin_subprocess(plugin_key: str, files_found: list, category_folder: str, file_infos_subset: dict | None = None):
         """Run a plugin in a spawned subprocess and merge returned deltas into parent globals."""
+        nonlocal installed_os_version
         q = ctx_mp.Queue()
         payload = {
             "plugin_key": plugin_key,
@@ -469,6 +471,7 @@ def crunch_artifacts(
             "input_path": input_path,
             "extracttype": extracttype,
             "file_infos_subset": file_infos_subset or {},
+            "installed_os_version": installed_os_version,
         }
         proc = ctx_mp.Process(target=run_one_plugin, args=(payload, q))
         proc.start()
@@ -494,6 +497,16 @@ def crunch_artifacts(
         for item in (result.get("lava_only_delta") or []):
             try:
                 lava_only_info(item["category"], item["artifact_name"], item["table_name"], item["records"])
+            except Exception:
+                pass
+
+        # Keep installed OS version in parent so we can pass it to future subprocesses
+        discovered_os_version = result.get("installed_os_version") or ''
+        if discovered_os_version:
+            installed_os_version = discovered_os_version
+            try:
+                iOS.set_version(discovered_os_version)
+                Context.set_installed_os_version(discovered_os_version)
             except Exception:
                 pass
 
