@@ -12,6 +12,8 @@ import os
 import traceback
 import typing
 from collections import OrderedDict
+import json as _agent_json
+import time as _agent_time
 
 import scripts.plugin_loader as plugin_loader
 from scripts.context import Context
@@ -81,6 +83,24 @@ def run_one_plugin(payload: dict, result_queue) -> None:
     - installed_os_version: str (optional)
     - seeker_all_files: list[str] (optional)
     """
+    #region agent log
+    def _agent_log(hypothesis_id: str, location: str, message: str, data: dict):
+        try:
+            payload2 = {
+                "sessionId": "debug-session",
+                "runId": "hang1",
+                "hypothesisId": hypothesis_id,
+                "location": location,
+                "message": message,
+                "data": data,
+                "timestamp": int(_agent_time.time() * 1000),
+            }
+            with open("/Users/pl-2134/Development/iLEAPP/.cursor/debug.log", "a", encoding="utf-8") as f:
+                f.write(_agent_json.dumps(payload2, ensure_ascii=False) + "\n")
+        except Exception:
+            pass
+    #endregion agent log
+
     try:
         plugin_key: str = payload["plugin_key"]
         files_found: list[str] = payload.get("files_found") or []
@@ -93,6 +113,14 @@ def run_one_plugin(payload: dict, result_queue) -> None:
         file_infos_subset: dict[str, tuple[str, float, float]] = payload.get("file_infos_subset") or {}
         installed_os_version: str = payload.get("installed_os_version") or ""
         seeker_all_files: list[str] = payload.get("seeker_all_files") or []
+        #region agent log
+        _agent_log(
+            "C",
+            "mp_plugin_runner.py:run_one_plugin",
+            "child start",
+            {"plugin_key": plugin_key, "files_found_len": len(files_found or []), "seeker_all_files_len": len(seeker_all_files or [])},
+        )
+        #endregion agent log
 
         # Rehydrate output params + log paths for logfunc()
         out_params_existing = output_params_from_existing_output_folder_base(
@@ -184,6 +212,14 @@ def run_one_plugin(payload: dict, result_queue) -> None:
                     "records": len(data_list) if data_list else 0,
                 })
 
+        #region agent log
+        _agent_log(
+            "A",
+            "mp_plugin_runner.py:run_one_plugin",
+            "child putting result",
+            {"plugin_key": plugin_key, "ok": True, "record_count": len(data_list) if data_list else 0},
+        )
+        #endregion agent log
         result_queue.put({
             "ok": True,
             "plugin_key": plugin_key,
@@ -195,6 +231,14 @@ def run_one_plugin(payload: dict, result_queue) -> None:
         })
 
     except Exception as ex:
+        #region agent log
+        _agent_log(
+            "A",
+            "mp_plugin_runner.py:run_one_plugin",
+            "child exception",
+            {"plugin_key": payload.get("plugin_key"), "exc_type": type(ex).__name__, "exc": str(ex)},
+        )
+        #endregion agent log
         result_queue.put({
             "ok": False,
             "plugin_key": payload.get("plugin_key"),

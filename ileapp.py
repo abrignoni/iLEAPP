@@ -13,6 +13,7 @@ import sys
 import multiprocessing
 import signal
 import time as time_module
+import json as _agent_json
 
 import scripts.plugin_loader as plugin_loader
 import leapp_functions.app.history as history
@@ -460,6 +461,25 @@ def crunch_artifacts(
     installed_os_version = ''
     current_proc = None
     last_interrupt_ts = 0.0
+    subprocess_phase = "idle"
+
+    #region agent log
+    def _agent_log(hypothesis_id: str, location: str, message: str, data: dict):
+        try:
+            payload = {
+                "sessionId": "debug-session",
+                "runId": "hang1",
+                "hypothesisId": hypothesis_id,
+                "location": location,
+                "message": message,
+                "data": data,
+                "timestamp": int(time_module.time() * 1000),
+            }
+            with open("/Users/pl-2134/Development/iLEAPP/.cursor/debug.log", "a", encoding="utf-8") as f:
+                f.write(_agent_json.dumps(payload, ensure_ascii=False) + "\n")
+        except Exception:
+            pass
+    #endregion agent log
     seeker_all_files = []
     try:
         # For iTunes backups, seeker._all_files is a dict keyed by "virtual paths" in backup
@@ -487,8 +507,24 @@ def crunch_artifacts(
         - second press within 2 seconds: abort run
         """
         nonlocal last_interrupt_ts
+        nonlocal subprocess_phase
         # IMPORTANT: use time module explicitly; `time` can be shadowed by datetime.time via star-imports.
         now = time_module.time()
+        #region agent log
+        _agent_log(
+            "A",
+            "ileapp.py:_interrupt_handler",
+            "signal received",
+            {
+                "signum": int(signum),
+                "phase": subprocess_phase,
+                "has_proc": bool(current_proc is not None),
+                "proc_pid": getattr(current_proc, "pid", None),
+                "proc_alive": bool(current_proc.is_alive()) if current_proc is not None else None,
+                "since_last_s": round(now - last_interrupt_ts, 3),
+            },
+        )
+        #endregion agent log
         if now - last_interrupt_ts < 2.0:
             logfunc("Second interrupt received. Aborting run.")
             raise KeyboardInterrupt
@@ -507,6 +543,7 @@ def crunch_artifacts(
         """Run a plugin in a spawned subprocess and merge returned deltas into parent globals."""
         nonlocal installed_os_version
         nonlocal current_proc
+        nonlocal subprocess_phase
         q = ctx_mp.SimpleQueue()
         payload = {
             "plugin_key": plugin_key,
@@ -521,21 +558,78 @@ def crunch_artifacts(
             "installed_os_version": installed_os_version,
             "seeker_all_files": seeker_all_files,
         }
+        #region agent log
+        _agent_log(
+            "A",
+            "ileapp.py:_run_plugin_subprocess",
+            "spawn child",
+            {
+                "plugin_key": plugin_key,
+                "ctx_start_method": getattr(ctx_mp, "get_start_method", lambda: None)(),
+                "global_start_method": multiprocessing.get_start_method(allow_none=True),
+                "files_found_len": len(files_found or []),
+                "file_infos_subset_len": len(file_infos_subset or {}),
+                "seeker_all_files_len": len(seeker_all_files or []),
+            },
+        )
+        #endregion agent log
         proc = ctx_mp.Process(target=run_one_plugin, args=(payload, q))
         current_proc = proc
         proc.start()
+        #region agent log
+        _agent_log(
+            "B",
+            "ileapp.py:_run_plugin_subprocess",
+            "child started",
+            {"plugin_key": plugin_key, "pid": proc.pid},
+        )
+        #endregion agent log
 
         # Join in a loop so we can react to Ctrl+C and treat it as "skip current plugin"
+        subprocess_phase = "join_loop"
         while proc.is_alive():
             proc.join(timeout=0.25)
+        subprocess_phase = "post_join"
+        #region agent log
+        _agent_log(
+            "B",
+            "ileapp.py:_run_plugin_subprocess",
+            "child exited",
+            {"plugin_key": plugin_key, "pid": proc.pid, "exitcode": proc.exitcode},
+        )
+        #endregion agent log
 
         result = None
         try:
             # multiprocessing.SimpleQueue.get() has no timeout; guard with empty() to avoid blocking.
-            if not q.empty():
+            subprocess_phase = "queue_check"
+            empty_val = None
+            try:
+                empty_val = bool(q.empty())
+            except Exception:
+                empty_val = None
+            #region agent log
+            _agent_log(
+                "A",
+                "ileapp.py:_run_plugin_subprocess",
+                "queue check",
+                {"plugin_key": plugin_key, "queue_empty": empty_val},
+            )
+            #endregion agent log
+            if empty_val is False:
+                subprocess_phase = "queue_get"
                 result = q.get()
+                subprocess_phase = "post_queue_get"
         except Exception:
             result = None
+        #region agent log
+        _agent_log(
+            "A",
+            "ileapp.py:_run_plugin_subprocess",
+            "queue result",
+            {"plugin_key": plugin_key, "got_result": bool(result is not None), "result_ok": (result or {}).get("ok") if result else None},
+        )
+        #endregion agent log
         if not result or not result.get("ok"):
             # If we killed the process due to interrupt/skip, treat it as a skip and keep going.
             if proc.exitcode is not None and proc.exitcode < 0:
