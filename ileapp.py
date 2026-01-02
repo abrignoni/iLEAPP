@@ -14,6 +14,7 @@ import multiprocessing
 
 import scripts.plugin_loader as plugin_loader
 import leapp_functions.app.history as history
+import scripts.lavafuncs as lavafuncs
 
 from shutil import copy2
 from getpass import getpass
@@ -487,7 +488,8 @@ def crunch_artifacts(
 
         lava_meta_delta = result.get("lava_meta_delta")
         if lava_meta_delta:
-            lava_merge_meta_delta(lava_data, lava_meta_delta)
+            # IMPORTANT: use module global, not the `lava_data` name imported into this module.
+            lavafuncs.lava_merge_meta_delta(lavafuncs.lava_data, lava_meta_delta)
 
         for item in (result.get("lava_only_delta") or []):
             try:
