@@ -519,12 +519,9 @@ def crunch_artifacts(
 
         result = None
         try:
-            # SimpleQueue doesn't reliably support .empty() cross-platform; just try get_nowait
-            if hasattr(q, "get_nowait"):
-                result = q.get_nowait()
-            else:
-                # Fallback: try blocking very briefly
-                result = q.get(timeout=0.01)
+            # multiprocessing.SimpleQueue.get() has no timeout; guard with empty() to avoid blocking.
+            if not q.empty():
+                result = q.get()
         except Exception:
             result = None
         if not result or not result.get("ok"):
