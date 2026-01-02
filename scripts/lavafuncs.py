@@ -44,6 +44,9 @@ lava_db = None
 lava_db_name = '_lava_artifacts.db'
 lava_json_name = '_lava_data.lava'
 
+def _get_lava_db_path(output_path: str) -> str:
+    return os.path.join(output_path, lava_db_name)
+
 
 def sanitize_sql_name(name):
     """
@@ -137,7 +140,7 @@ def initialize_lava(input_path, output_path, input_type):
         }
     }
 
-    db_path = os.path.join(output_path, lava_db_name)
+    db_path = _get_lava_db_path(output_path)
     lava_db = sqlite3.connect(db_path)
 
     cursor = lava_db.cursor()
@@ -155,7 +158,7 @@ def initialize_lava(input_path, output_path, input_type):
                         file_path_id INTEGER NOT NULL,
                         FOREIGN KEY (artifact_search_pattern_id) REFERENCES _artifact_search_patterns(id),
                         FOREIGN KEY (file_path_id) REFERENCES _file_path_list(id))''')
-    cursor.execute('''CREATE TABLE _lava_media_items (
+    cursor.execute('''CREATE TABLE IF NOT EXISTS _lava_media_items (
                         id TEXT PRIMARY KEY,
                         source_path TEXT,
                         extraction_path TEXT,
@@ -164,13 +167,15 @@ def initialize_lava(input_path, output_path, input_type):
                         created_at INTEGER,
                         updated_at INTEGER,
                         is_embedded INTEGER)''')
-    cursor.execute('''CREATE TABLE _lava_media_references (
+    cursor.execute('''CREATE TABLE IF NOT EXISTS _lava_media_references (
                         id TEXT PRIMARY KEY,
                         media_item_id TEXT,
                         module_name TEXT,
                         artifact_name TEXT,
                         name TEXT,
                         FOREIGN KEY (media_item_id) REFERENCES _lava_media_items(id))''')
+    # Make view creation idempotent (eg, safe across subprocesses)
+    cursor.execute('''DROP VIEW IF EXISTS _lava_media_info''')
     cursor.execute('''CREATE VIEW _lava_media_info AS
                         SELECT
                             lmr.id as 'media_ref_id',
@@ -187,6 +192,28 @@ def initialize_lava(input_path, output_path, input_type):
                             lmi.is_embedded
                         FROM _lava_media_references as lmr
                         LEFT JOIN _lava_media_items as lmi ON lmr.media_item_id = lmi.id''')
+    lava_db.commit()
+
+
+def lava_open_existing(output_path: str) -> None:
+    """
+    Open an existing `_lava_artifacts.db` inside a child process.
+
+    The parent process is expected to have created the database file already.
+    """
+    global lava_db
+    db_path = _get_lava_db_path(output_path)
+    lava_db = sqlite3.connect(db_path)
+
+
+def lava_close_db() -> None:
+    """Close the global LAVA sqlite connection if open."""
+    global lava_db
+    if lava_db is not None:
+        try:
+            lava_db.close()
+        finally:
+            lava_db = None
 
 
 def lava_process_artifact(
