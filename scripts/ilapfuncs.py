@@ -239,7 +239,7 @@ def _check_in_media(media_id, source_path, is_embedded, name, media_data=None, c
             suffix = force_extension
         elif name and len(name.split('.')[-1]) < 5:
             suffix = name.split('.')[-1]
-        elif not is_embedded and source_path.split('.')[-1] < 5:
+        elif not is_embedded and len(source_path.split('.')[-1]) < 5:
             suffix = source_path.split('.')[-1]
         else:
             suffix = f".{guess_extension(media_data)}"
