@@ -1,6 +1,6 @@
 __artifacts_v2__ = {
     "get_dmss_pin": {
-        "name": "Dahua Technology (DMSS)",
+        "name": "Dahua Technology (DMSS) - PIN",
         "description": "Extract PINs from Dahua Technology (DMSS) Application",
         "author": "@theAtropos4n6",
         "creation_date": "2023-11-21",
@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "output_types": "standard",
     },
     "get_dmss_channels": {
-        "name": "Dahua Technology (DMSS)",
+        "name": "Dahua Technology (DMSS) - Channels",
         "description": "Extract channels from Dahua Technology (DMSS) Application",
         "author": "@theAtropos4n6",
         "creation_date": "2023-11-21",
@@ -24,7 +24,7 @@ __artifacts_v2__ = {
         "output_types": "standard",
     },
     "get_dmss_info": {
-        "name": "Dahua Technology (DMSS)",
+        "name": "Dahua Technology (DMSS) - Info",
         "description": "Extract info from Dahua Technology (DMSS) Application",
         "author": "@theAtropos4n6",
         "creation_date": "2023-11-21",
@@ -36,7 +36,7 @@ __artifacts_v2__ = {
         "output_types": "standard",
     },
     "get_dmss_registered_sensors": {
-        "name": "Dahua Technology (DMSS)",
+        "name": "Dahua Technology (DMSS) - Sensors",
         "description": "Extract registered sensors from Dahua Technology (DMSS) Application",
         "author": "@theAtropos4n6",
         "creation_date": "2023-11-21",
@@ -48,7 +48,7 @@ __artifacts_v2__ = {
         "output_types": "standard",
     },
     "get_dmss_registered_devices": {
-        "name": "Dahua Technology (DMSS)",
+        "name": "Dahua Technology (DMSS) - Devices",
         "description": "Extract registered devices from Dahua Technology (DMSS) Application",
         "author": "@theAtropos4n6",
         "creation_date": "2023-11-21",
@@ -60,7 +60,7 @@ __artifacts_v2__ = {
         "output_types": "standard",
     },
     "get_dmss_notifications": {
-        "name": "Dahua Technology (DMSS)",
+        "name": "Dahua Technology (DMSS) - Notifications",
         "description": "Extract notifications from Dahua Technology (DMSS) Application",
         "author": "@theAtropos4n6",
         "creation_date": "2023-11-21",
@@ -72,7 +72,7 @@ __artifacts_v2__ = {
         "output_types": "standard",
     },
     "get_dmss_created_media": {
-        "name": "Dahua Technology (DMSS)",
+        "name": "Dahua Technology (DMSS) - Media",
         "description": "Extract created media from Dahua Technology (DMSS) Application",
         "author": "@theAtropos4n6",
         "creation_date": "2023-11-21",
@@ -383,7 +383,6 @@ def get_dmss_notifications(context):
 @artifact_processor
 def get_dmss_created_media(context):
     files_found = context.get_files_found()
-    report_folder = context.get_report_folder()
     
     media_data_list = []
     data_headers = ('File Name', ('File Content', 'media'), 'Source File') 
