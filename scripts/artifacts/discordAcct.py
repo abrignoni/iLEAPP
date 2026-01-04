@@ -14,21 +14,22 @@ __artifacts_v2__ = {
 }
 
 import string
-from scripts.ilapfuncs import artifact_processor
+from scripts.ilapfuncs import artifact_processor, logfunc
 
-def strings(filename, min=4):
-	with open(filename, errors="ignore") as f:  # Python 3.x
+def strings(filename, min_length=4):
+    with open(filename, "rb") as f:  # Python 3.x
 	# with open(filename, "rb") as f:           # Python 2.x
-		result = ""
-		for c in f.read():
-			if c in string.printable:
-				result += c
-				continue
-			if len(result) >= min:
-				yield result
-			result = ""
-		if len(result) >= min:  # catch result at EOF
-			yield result
+        result = ""
+        for c in f.read():
+            char = chr(c)
+            if char in string.printable:
+                result += char
+                continue
+            if len(result) >= min_length:
+                yield result
+            result = ""
+        if len(result) >= min_length:  # catch result at EOF
+            yield result
 
 @artifact_processor
 def get_discordAcct(context):
@@ -47,16 +48,16 @@ def get_discordAcct(context):
                 wf = searchlist[counter].split('"')
                 try:
                     data_list.append(('USER_ID_CACHE', wf[1], file_found))
-                except:
-                    pass
+                except (IndexError, TypeError) as e:
+                    logfunc(f"Error parsing user_id_cache: {str(e)}")
                 
             if 'email_cache' in x:
                 #print(x)
                 wfa = searchlist[counter].split('"')
                 try:
                     data_list.append(('EMAIL_CACHE', wfa[1], file_found))
-                except:
-                    pass
+                except (IndexError, TypeError) as e:
+                    logfunc(f"Error parsing email_cache: {str(e)}")
 
     return data_headers, data_list, 'see Source File for more info'
     
