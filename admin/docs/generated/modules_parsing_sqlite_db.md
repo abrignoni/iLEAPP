@@ -47,6 +47,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | Ph98iOS18REFforAssetAnalysis |
 | Ph9BurstAvalanche |
 | SMSmissingROWIDs |
+| Threema |
 | WithingsHealthMate |
 | accountData |
 | addressBook |
