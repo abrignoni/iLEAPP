@@ -192,15 +192,15 @@ def discordChats(context):
             model_id = parsed_data.get('ProductType')
 
             if not model_id:
-                logfunc(f"Cannot detect model ID. Cannot link attachments")
+                logfunc("Cannot detect model ID. Cannot link attachments")
                 break
             resolution = get_resolution_for_model_id(model_id)
 
             break
     if not activation_record_found:
-        logfunc(f'activation_record.plist not found. Unable to determine model/resolution for attachment linking')
+        logfunc('activation_record.plist not found. Unable to determine model/resolution for attachment linking')
     if not resolution:
-        logfunc(f"Cannot link attachments due to missing resolution")
+        logfunc("Cannot link attachments due to missing resolution")
 
     data_list = []
 
@@ -217,11 +217,8 @@ def discordChats(context):
                         if isinstance(jsonfinal, list):
                             jsonfinal = jsonfinal[0]
                             process_json(jsonfinal)
-                        else:
-                            pass
             elif source_path:
                 query = '''select data from messages0'''
-                #data_headers = (('Message Timestamp', 'datetime'), ('Edited Timestamp', 'datetime'),'Sender Username','Sender Global Name','Sender ID','Message','Attachment(s)','Message Type','Call Ended','Message ID','Channel ID',)
 
                 db_records = get_sqlite_db_records(source_path, query)
                 for record in db_records:
@@ -234,7 +231,7 @@ def discordChats(context):
                             process_json(jsonfinal)
                 
         except ValueError as e:
-            pass
+            logfunc(f"Error parsing JSON from {file_found}: {str(e)}")
 
     data_headers = (('Timestamp', 'datetime'), ('Edited Timestamp', 'datetime'), 'Username', 'Bot?', 'Content', 'Attachments',
                     'User ID', 'Channel ID', 'Embedded Author', 'Author URL', 'Author Icon URL', 'Embedded URL', 'Embedded Script',
