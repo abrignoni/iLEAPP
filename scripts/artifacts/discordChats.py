@@ -211,7 +211,7 @@ def discordChats(context):
         
         try:
             if not file_found.endswith('activation_record.plist') and os.path.isfile(file_found) and file_found != source_path:
-                with open(file_found, "r") as f_in:
+                with open(file_found, "r", encoding="utf-8") as f_in:
                     for jsondata in f_in:
                         jsonfinal = json.loads(jsondata)
                         if isinstance(jsonfinal, list):
