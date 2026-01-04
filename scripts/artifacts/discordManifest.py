@@ -19,18 +19,20 @@ from scripts.ilapfuncs import artifact_processor
 
 @artifact_processor
 def get_discordManifest(context):
-	data_list = []
-	for file_found in context.get_files_found():
-		file_found = str(file_found)
-		
-		if os.path.isfile(file_found):
-			with open(file_found) as f_in:
-				for jsondata in f_in:
-					jsonfinal = json.loads(jsondata)
+    data_list = []
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
 
-		for key, value in jsonfinal.items():
-			data_list.append((key, value, file_found))
+        jsonfinal = None
+        if os.path.isfile(file_found):
+            with open(file_found, encoding='utf-8') as f_in:
+                for jsondata in f_in:
+                    jsonfinal = json.loads(jsondata)
 
-	data_headers = ('Key Name', 'Data Value')   
-		
-	return data_headers, data_list, 'see Source File for more'
+        if jsonfinal:
+            for key, value in jsonfinal.items():
+                data_list.append((key, value, file_found))
+
+    data_headers = ('Key Name', 'Data Value')   
+
+    return data_headers, data_list, 'see Source File for more'
