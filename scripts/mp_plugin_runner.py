@@ -148,7 +148,7 @@ def run_one_plugin(payload: dict, result_queue) -> None:
         lava_meta_delta: dict | None = None
         lava_only_delta: list[dict] = []
 
-        if wants_lava and data_headers:
+        if wants_lava and data_headers and data_list:
             # Derive table name + maps consistently with lava_create_sqlite_table()
             func_name = plugin_spec.name
             table_name, column_map, object_columns = lavafuncs.lava_create_sqlite_table(func_name, data_headers)
