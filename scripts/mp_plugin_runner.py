@@ -83,7 +83,7 @@ def run_one_plugin(payload: dict, result_queue) -> None:
     - installed_os_version: str (optional)
     - seeker_all_files: list[str] (optional)
     """
-    # Suppress common deprecation warnings that appear in every subprocess
+    # Suppress common deprecation warnings that appear in every subprocess, we need to do this because the plugin loader is using pkg_resources.
     warnings.filterwarnings("ignore", category=DeprecationWarning, module="pkg_resources")
     warnings.filterwarnings("ignore", message=".*pkg_resources is deprecated.*")
     
@@ -131,18 +131,9 @@ def run_one_plugin(payload: dict, result_queue) -> None:
             lavafuncs.lava_open_existing(output_folder_base)
 
         # Execute plugin
-        try:
-            data_headers, data_list, source_path = plugin_spec.method(
-                files_found, category_folder, seeker_proxy, wrap_text, time_offset
-            )
-        except TypeError as ex:
-            logfunc(f"TypeError: {ex}")
-            logfunc(f"Traceback: {traceback.format_exc()}")
-            raise ex
-        except Exception as ex:
-            logfunc(f"Exception: {ex}")
-            logfunc(f"Traceback: {traceback.format_exc()}")
-            raise ex
+        data_headers, data_list, source_path = plugin_spec.method(
+            files_found, category_folder, seeker_proxy, wrap_text, time_offset
+        )
 
         # Capture installed OS version if this plugin discovered it
         discovered_os_version = ""
