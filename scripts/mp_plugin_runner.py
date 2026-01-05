@@ -11,6 +11,7 @@ from __future__ import annotations
 import os
 import traceback
 import typing
+import warnings
 from collections import OrderedDict
 
 import scripts.plugin_loader as plugin_loader
@@ -21,6 +22,7 @@ from scripts.ilapfuncs import (
     check_output_types,
     iOS,
     output_params_from_existing_output_folder_base,
+    logfunc,
 )
 import scripts.lavafuncs as lavafuncs
 
@@ -81,6 +83,10 @@ def run_one_plugin(payload: dict, result_queue) -> None:
     - installed_os_version: str (optional)
     - seeker_all_files: list[str] (optional)
     """
+    # Suppress common deprecation warnings that appear in every subprocess
+    warnings.filterwarnings("ignore", category=DeprecationWarning, module="pkg_resources")
+    warnings.filterwarnings("ignore", message=".*pkg_resources is deprecated.*")
+    
     try:
         plugin_key: str = payload["plugin_key"]
         files_found: list[str] = payload.get("files_found") or []
@@ -125,9 +131,18 @@ def run_one_plugin(payload: dict, result_queue) -> None:
             lavafuncs.lava_open_existing(output_folder_base)
 
         # Execute plugin
-        data_headers, data_list, source_path = plugin_spec.method(
-            files_found, category_folder, seeker_proxy, wrap_text, time_offset
-        )
+        try:
+            data_headers, data_list, source_path = plugin_spec.method(
+                files_found, category_folder, seeker_proxy, wrap_text, time_offset
+            )
+        except TypeError as ex:
+            logfunc(f"TypeError: {ex}")
+            logfunc(f"Traceback: {traceback.format_exc()}")
+            raise ex
+        except Exception as ex:
+            logfunc(f"Exception: {ex}")
+            logfunc(f"Traceback: {traceback.format_exc()}")
+            raise ex
 
         # Capture installed OS version if this plugin discovered it
         discovered_os_version = ""
