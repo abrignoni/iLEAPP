@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses Discord chat messages from FSCacheData and \'a\' database",
         "author": "Original Unknown, John Hyla & @stark4n6",
         "creation_date": "",
-        "last_updated": "2025-06-23",
+        "last_updated": "2025-11-25",
         "requirements": "none",
         "category": "Discord",
         "notes": "",
@@ -21,12 +21,12 @@ import math
 import os
 import re
 
-from scripts.ilapfuncs import artifact_processor, logfunc, logdevinfo, media_to_html, get_resolution_for_model_id, get_file_path, get_sqlite_db_records
+from scripts.ilapfuncs import artifact_processor, logfunc, media_to_html, get_resolution_for_model_id, get_file_path, get_sqlite_db_records
 
 @artifact_processor
-def discordChats(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    
-    pathedhead = pathedtail = ''
+def discordChats(context):
+    files_found = context.get_files_found()
+    report_folder = context.get_report_folder()
     
     def reduceSize(width: int, height: int, max_width: int, max_height: int) -> (int, int):
         if width > height:
@@ -166,7 +166,7 @@ def discordChats(files_found, report_folder, seeker, wrap_text, timezone_offset)
 
                     y = y + 1
                     
-        pathedhead, pathedtail = os.path.split(pathed)    
+        _, pathedtail = os.path.split(pathed)    
         
         if timestamp == '':
             pass
@@ -192,15 +192,15 @@ def discordChats(files_found, report_folder, seeker, wrap_text, timezone_offset)
             model_id = parsed_data.get('ProductType')
 
             if not model_id:
-                logfunc(f"Cannot detect model ID. Cannot link attachments")
+                logfunc("Cannot detect model ID. Cannot link attachments")
                 break
             resolution = get_resolution_for_model_id(model_id)
 
             break
     if not activation_record_found:
-        logfunc(f'activation_record.plist not found. Unable to determine model/resolution for attachment linking')
+        logfunc('activation_record.plist not found. Unable to determine model/resolution for attachment linking')
     if not resolution:
-        logfunc(f"Cannot link attachments due to missing resolution")
+        logfunc("Cannot link attachments due to missing resolution")
 
     data_list = []
 
@@ -211,21 +211,17 @@ def discordChats(files_found, report_folder, seeker, wrap_text, timezone_offset)
         
         try:
             if not file_found.endswith('activation_record.plist') and os.path.isfile(file_found) and file_found != source_path:
-                with open(file_found, "r") as f_in:
+                with open(file_found, "r", encoding="utf-8") as f_in:
                     for jsondata in f_in:
                         jsonfinal = json.loads(jsondata)
                         if isinstance(jsonfinal, list):
                             jsonfinal = jsonfinal[0]
                             process_json(jsonfinal)
-                        else:
-                            pass
             elif source_path:
                 query = '''select data from messages0'''
-                #data_headers = (('Message Timestamp', 'datetime'), ('Edited Timestamp', 'datetime'),'Sender Username','Sender Global Name','Sender ID','Message','Attachment(s)','Message Type','Call Ended','Message ID','Channel ID',)
 
                 db_records = get_sqlite_db_records(source_path, query)
                 for record in db_records:
-                    attach_name = message_type = call_end = sender_id = ''
                     blob_data = record[0]
                     if len(blob_data) > 1:
                         blob_data = blob_data[1:]
@@ -235,8 +231,9 @@ def discordChats(files_found, report_folder, seeker, wrap_text, timezone_offset)
                             process_json(jsonfinal)
                 
         except ValueError as e:
-            pass
-            #logfunc('JSON error: %s' % e)
+            logfunc(f"Error parsing JSON from {file_found}: {str(e)}")
 
-    data_headers = ('Timestamp','Edited Timestamp','Username','Bot?','Content','Attachments','User ID','Channel ID','Embedded Author','Author URL','Author Icon URL','Embedded URL','Embedded Script','Footer Text', 'Footer Icon URL', 'Source File')   
+    data_headers = (('Timestamp', 'datetime'), ('Edited Timestamp', 'datetime'), 'Username', 'Bot?', 'Content', 'Attachments',
+                    'User ID', 'Channel ID', 'Embedded Author', 'Author URL', 'Author Icon URL', 'Embedded URL', 'Embedded Script',
+                    'Footer Text', 'Footer Icon URL', 'Source File')   
     return data_headers, data_list, 'See source file(s) below:'
