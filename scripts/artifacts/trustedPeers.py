@@ -32,24 +32,31 @@ def get_trustedPeers(files_found, report_folder, seeker, wrap_text, timezone_off
             break
             
     db = open_sqlite_db_readonly(file_found)
-    cursor = db.cursor()
-    cursor.execute('''
-    SELECT 
-    DISTINCT datetime(client.ZSECUREBACKUPMETADATATIMESTAMP + 978307200, 'unixepoch') AS "Timestamp",
-	client.ZDEVICEMODEL AS "Model",
-    client.ZDEVICEMODELVERSION AS "Model Version", 
-    client.ZDEVICENAME AS "Device Name",
-    metadata.ZSERIAL AS "Serial Number",
-	client.ZSECUREBACKUPNUMERICPASSPHRASELENGTH AS "Passcode Length"
-    FROM 
-        ZESCROWCLIENTMETADATA AS client
-    LEFT JOIN 
-        ZESCROWMETADATA AS metadata
-    ON 
-        client.ZESCROWMETADATA = metadata.Z_PK;
-    ''')
+    
+    # Bug-Fix: give this exception handling in case db is malformed or no such table exists
+    try:
+        cursor = db.cursor()
+        cursor.execute('''
+        SELECT 
+        DISTINCT datetime(client.ZSECUREBACKUPMETADATATIMESTAMP + 978307200, 'unixepoch') AS "Timestamp",
+        client.ZDEVICEMODEL AS "Model",
+        client.ZDEVICEMODELVERSION AS "Model Version", 
+        client.ZDEVICENAME AS "Device Name",
+        metadata.ZSERIAL AS "Serial Number",
+        client.ZSECUREBACKUPNUMERICPASSPHRASELENGTH AS "Passcode Length"
+        FROM 
+            ZESCROWCLIENTMETADATA AS client
+        LEFT JOIN 
+            ZESCROWMETADATA AS metadata
+        ON 
+            client.ZESCROWMETADATA = metadata.Z_PK;
+        ''')
 
-    all_rows = cursor.fetchall()
+        all_rows = cursor.fetchall()
+    except Exception as e:
+        all_rows = []
+        print(f'Error reading trusted peers database: {e}')
+        
     usageentries = len(all_rows)
     data_list = []  
     
