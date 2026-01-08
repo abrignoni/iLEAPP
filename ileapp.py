@@ -497,6 +497,15 @@ def crunch_artifacts(
         last_interrupt_ts = now
         _terminate_current_plugin_proc("SIGINT/SIGBREAK")
 
+    def _skip_handler(signum, frame):
+        """
+        SIGUSR1/SIGUSR2 handling for mp mode:
+        - Always skip current plugin (no abort risk)
+        - Can be sent externally via: kill -USR1 <pid> or kill -USR2 <pid>
+        """
+        signal_name = "SIGUSR1" if signum == signal.SIGUSR1 else "SIGUSR2"
+        _terminate_current_plugin_proc(signal_name)
+
     if mp_per_plugin:
         # Register interrupt handler (cross-platform):
         # - SIGINT is Ctrl+C everywhere
@@ -504,6 +513,13 @@ def crunch_artifacts(
         signal.signal(signal.SIGINT, _interrupt_handler)
         if hasattr(signal, "SIGBREAK"):
             signal.signal(signal.SIGBREAK, _interrupt_handler)
+        # Register skip handlers (Unix-like systems only):
+        # - SIGUSR1: dedicated skip signal (no abort risk)
+        # - SIGUSR2: dedicated skip signal (no abort risk)
+        if hasattr(signal, "SIGUSR1"):
+            signal.signal(signal.SIGUSR1, _skip_handler)
+        if hasattr(signal, "SIGUSR2"):
+            signal.signal(signal.SIGUSR2, _skip_handler)
 
     def _run_plugin_subprocess(plugin_key: str, files_found: list, category_folder: str, file_infos_subset: dict | None = None):
         """Run a plugin in a spawned subprocess and merge returned deltas into parent globals."""
