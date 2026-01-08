@@ -6,23 +6,42 @@
 
 # Queries are derivitive of work provided by Heather Mahalik and Jared Barnhart as part of their SANS DFIR Summit 2022 talk
 # https://for585.com/dfirsummit22
+__artifacts_v2__ = {
+     "get_wifiNetworkStoreModel": {
+        "name": "Wifi Known Networkss",
+        "description": "Parses Wifi details found in WiFiNetworkStoreModel database",
+        "author": "@KevinPagano",
+        "creation_date": "2022-08-23",
+        "last_update_date": "2025-11-12",
+        "requirements": "none",
+        "category": "Network",
+        "notes": "",
+        "paths": ('*/root/Library/Application Support/WiFiNetworkStoreModel.sqlite*'),
+        "output_types": "standard",
+        "artifact_icon": "wifi"
+    }
+}
 
-import sqlite3
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
 
-def get_wifiNetworkStoreModel(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    
+from scripts.ilapfuncs import (
+    open_sqlite_db_readonly,
+    artifact_processor,
+    convert_cocoa_core_data_ts_to_utc
+    )
+
+
+@artifact_processor
+def get_wifiNetworkStoreModel(context):
+    files_found = context.get_files_found()
     for file_found in files_found:
         file_found = str(file_found)
         if file_found.endswith('WiFiNetworkStoreModel.sqlite'):
             break
-    
     db = open_sqlite_db_readonly(file_found)
     cursor = db.cursor()
     cursor.execute('''
     SELECT
-    DATETIME(ZGEOTAG.ZDATE+978307200,'unixepoch') AS "Last Connection Timestamp",
+    ZGEOTAG.ZDATE AS "Last Connection Timestamp",
     ZNETWORK.Z_PK,
     ZNETWORK.ZSSID,
     ZGEOTAG.ZLATITUDE,
@@ -40,37 +59,30 @@ def get_wifiNetworkStoreModel(files_found, report_folder, seeker, wrap_text, tim
     LEFT JOIN ZGEOTAG ON ZGEOTAG.Z_PK = ZNETWORK.Z_PK
     ORDER BY "Last Connection Timestamp" DESC
     ''')
+    data_headers = (
+        ('Last Connection Timestamp', 'datetime'),
+        'Record ID',
+        'SSID',
+        'Latitude',
+        'Longitude',
+        'BSSID',
+        '5 GHz Network',
+        '2.4 GHz Network'
+        )
 
     all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
     data_list = []
-    
-    if usageentries > 0:
-        
-        for row in all_rows:
-            data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]))
 
-        report = ArtifactHtmlReport('Wifi Network Store Model - Networks')
-        report.start_artifact_report(report_folder, 'Wifi Network Store Model - Networks')
-        report.add_script()
-        data_headers = ('Last Connected Timestamp', 'PK', 'SSID', 'Latitude', 'Longitude', 'BSSID', '5 GHz Network', '2.4 GHz Network')
-        report.write_artifact_data_table(data_headers, data_list, file_found)
-        report.end_artifact_report()
-        
-        tsvname = 'Wifi Network Store Model - Networks'
-        tsv(report_folder, data_headers, data_list, tsvname)
-        
-        tlactivity = 'Wifi Network Store Model - Networks'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-    else:
-        logfunc('No Wifi Network Store Model - Networks data available')
-
-    db.close()
-    return
-
-__artifacts__ = {
-    "wifiNetworkStoreModel": (
-        "Wifi Known Networks",
-        ('*/root/Library/Application Support/WiFiNetworkStoreModel.sqlite*'),
-        get_wifiNetworkStoreModel)
-}
+    for row in all_rows:
+        last_conn_time = convert_cocoa_core_data_ts_to_utc(row[0])
+        data_list.append((
+            last_conn_time,
+            row[1],
+            row[2],
+            row[3],
+            row[4],
+            row[5],
+            row[6],
+            row[7]
+            ))
+    return data_headers, data_list, files_found[0]
