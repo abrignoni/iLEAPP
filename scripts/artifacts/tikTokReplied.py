@@ -53,6 +53,10 @@ def tiktok_replied(files_found, report_folder, seeker, wrap_text, timezone_offse
 
             # There are sometimes more than one table that contacts are contained in. Need to union them all together
             contacts_tables = [row[0] for row in table_results]
+            
+            if not contacts_tables:
+                logfunc("No contacts tables found, skipping TikTok replied messages. ")
+                return [], [], report_file
 
             # create the contact subquery
             contacts_subqueries = []
