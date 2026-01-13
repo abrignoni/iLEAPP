@@ -217,7 +217,23 @@ def main():
         parser.print_help(sys.stderr)
         sys.exit()
 
-    args = parser.parse_args()
+    # Filter out multiprocessing spawn arguments that argparse doesn't recognize
+    # When using multiprocessing with 'spawn', Python may inject internal flags that
+    # our CLI parser doesn't know about (and would otherwise treat as fatal errors).
+    filtered_argv = []
+    for arg in sys.argv[1:]:
+        # Skip multiprocessing / interpreter-injected arguments
+        if (
+            arg.startswith('--multiprocessing-')
+            or arg.startswith('tracker_fd=')
+            or arg.startswith('pipe_handle=')
+            or arg in ['-B', '-S', '-I']  # Python optimization / startup flags
+        ):
+            continue
+        filtered_argv.append(arg)
+
+    # Use filtered arguments for parsing so frozen mp children don't break argparse
+    args = parser.parse_args(filtered_argv)
 
     available_plugins = []
     loader_paths = [plugin_loader.PLUGINPATH]
@@ -792,4 +808,6 @@ def crunch_artifacts(
     return True
 
 if __name__ == '__main__':
+    # Support for multiprocessing with PyInstaller frozen binaries
+    multiprocessing.freeze_support()
     main()
