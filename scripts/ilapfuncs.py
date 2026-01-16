@@ -328,7 +328,9 @@ def check_in_media(file_path, name="", converted_file_path=False, force_type=Non
     file_info = Context.get_seeker().file_infos.get(extraction_path)
     if file_info:
         media_id = hashlib.sha1(f"{file_info.source_path}".encode()).hexdigest()
-        return _check_in_media(media_id, file_path, False, name, converted_file_path=converted_file_path,
+        with open(extraction_path, "rb") as f:
+            file_data = f.read()
+        return _check_in_media(media_id, file_path, False, name, media_data=file_data, converted_file_path=converted_file_path,
                                force_type=force_type, force_extension=force_extension,
                                force_creation_date=force_creation_date, force_modification_date=force_modification_date)
     return None

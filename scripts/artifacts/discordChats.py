@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Discord",
         "notes": "",
-        "paths": ('*/activation_record.plist', '*/com.hammerandchisel.discord/fsCachedData/*', '*/Library/Caches/com.hackemist.SDImageCache/default/*', '*/Library/Caches/kv-storage/@account*/a*'),
+        "paths": ('*/activation_record.plist', '*/com.hammerandchisel.discord/fsCachedData/*', '*/Library/Caches/kv-storage/@account*/a*', '*/Library/Caches/com.hackemist.SDImageCache/default/*'),
         "output_types": "standard",  # or ["html", "tsv", "timeline", "lava"]
         "artifact_icon": "message-circle"
     }
@@ -21,13 +21,12 @@ import math
 import os
 import re
 
-from scripts.ilapfuncs import artifact_processor, logfunc, media_to_html, get_resolution_for_model_id, get_file_path, get_sqlite_db_records
+from scripts.ilapfuncs import artifact_processor, logfunc, get_resolution_for_model_id, get_file_path, get_sqlite_db_records, check_in_media
 
 @artifact_processor
 def discordChats(context):
     files_found = context.get_files_found()
-    report_folder = context.get_report_folder()
-    
+
     def reduceSize(width: int, height: int, max_width: int, max_height: int) -> (int, int):
         if width > height:
             if width > max_width:
@@ -116,18 +115,15 @@ def discordChats(context):
                             #Check if a file by this name was found
                             if any(proxy_url_md5 in string for string in files_found):
                                 #If Yes, generate thumbnail
-                                attachmentsArray.append(media_to_html(proxy_url_md5, files_found, report_folder))
+                                #attachmentsArray.append(media_to_html(proxy_url_md5, files_found, report_folder))
+                                attachment_file = check_in_media(proxy_url_md5)
+                                attachmentsArray.append([attachment_file, proxy_url_md5])
                             else:
                                 #If no, show the URL, but also show the filename we think should exist in case it can be located elsewhere
-                                attachmentsArray.append(a.get('proxy_url') + f' ({proxy_url_md5})')
+                                attachmentsArray.append([None, a.get('proxy_url') + f' ({proxy_url_md5})'])
                     else:
                         #Resolution was not found, just show the URL
-                        attachmentsArray.append(a.get('proxy_url'))
-
-                #Combine all attachments
-                attachments = "<br>".join(attachmentsArray)
-            else:
-                attachments = ''
+                        attachmentsArray.append([None, a.get('proxy_url')])
     
         if 'embeds' in jsonfinal:
             if len(jsonfinal['embeds']) > 0:
@@ -171,7 +167,14 @@ def discordChats(context):
         if timestamp == '':
             pass
         else:
-            data_list.append((timestamp, editedtimestamp, username,  botuser, content, attachments, userid, channelid, emdeddedauthor, authorurl, authoriconurl, embededurl, embededdescript, footertext, footericonurl, pathedtail))
+            if len(attachmentsArray) > 0:
+                for attach in attachmentsArray:
+                    data_list.append((timestamp, editedtimestamp, username,  botuser, content, attach[0], attach[1], userid, channelid, emdeddedauthor, authorurl, authoriconurl, embededurl, embededdescript, footertext, footericonurl, pathedtail))
+            else:
+                data_list.append(
+                    (timestamp, editedtimestamp, username, botuser, content, None, None, userid, channelid,
+                     emdeddedauthor, authorurl, authoriconurl, embededurl, embededdescript, footertext, footericonurl,
+                     pathedtail))
 
     #First find modelID and screen resolution
     resolution = None
@@ -210,13 +213,13 @@ def discordChats(context):
         source_path = get_file_path(files_found, "a")
         
         try:
-            if not file_found.endswith('activation_record.plist') and os.path.isfile(file_found) and file_found != source_path:
+            if not file_found.endswith('activation_record.plist') and os.path.isfile(file_found) and file_found != source_path and 'com.hackemist.SDImageCache' not in file_found:
                 with open(file_found, "r", encoding="utf-8") as f_in:
                     for jsondata in f_in:
                         jsonfinal = json.loads(jsondata)
                         if isinstance(jsonfinal, list):
-                            jsonfinal = jsonfinal[0]
-                            process_json(jsonfinal)
+                            for json_record in jsonfinal:
+                                process_json(json_record)
             elif source_path:
                 query = '''select data from messages0'''
 
@@ -233,7 +236,7 @@ def discordChats(context):
         except ValueError as e:
             logfunc(f"Error parsing JSON from {file_found}: {str(e)}")
 
-    data_headers = (('Timestamp', 'datetime'), ('Edited Timestamp', 'datetime'), 'Username', 'Bot?', 'Content', 'Attachments',
+    data_headers = (('Timestamp', 'datetime'), ('Edited Timestamp', 'datetime'), 'Username', 'Bot?', 'Content', ('Attachment', 'media'), 'Attachment Link',
                     'User ID', 'Channel ID', 'Embedded Author', 'Author URL', 'Author Icon URL', 'Embedded URL', 'Embedded Script',
                     'Footer Text', 'Footer Icon URL', 'Source File')   
     return data_headers, data_list, 'See source file(s) below:'
