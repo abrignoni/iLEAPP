@@ -21,13 +21,12 @@ import math
 import os
 import re
 
-from scripts.ilapfuncs import artifact_processor, logfunc, media_to_html, get_resolution_for_model_id, get_file_path, get_sqlite_db_records, check_in_media
+from scripts.ilapfuncs import artifact_processor, logfunc, get_resolution_for_model_id, get_file_path, get_sqlite_db_records, check_in_media
 
 @artifact_processor
 def discordChats(context):
     files_found = context.get_files_found()
-    report_folder = context.get_report_folder()
-    
+
     def reduceSize(width: int, height: int, max_width: int, max_height: int) -> (int, int):
         if width > height:
             if width > max_width:
@@ -125,11 +124,6 @@ def discordChats(context):
                     else:
                         #Resolution was not found, just show the URL
                         attachmentsArray.append([None, a.get('proxy_url')])
-
-                #Combine all attachments
-                #attachments = "<br>".join(attachmentsArray)
-            else:
-                attachments = ''
     
         if 'embeds' in jsonfinal:
             if len(jsonfinal['embeds']) > 0:
