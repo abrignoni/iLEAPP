@@ -48,17 +48,26 @@ def get_netusage(files_found, report_folder, seeker, wrap_text, timezone_offset)
                 for row in all_rows:
                     if row[0] is None:
                         lastconnected = ''
-                    else: 
-                        lastconnected = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]),timezone_offset)
-                    if row[1] is None:    
+                    else:
+                        try:
+                            lastconnected = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]),timezone_offset)
+                        except (ValueError, TypeError):
+                            lastconnected = 'N/A'
+                    if row[1] is None:
                         firstused = ''
                     else:
-                        firstused = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[1]),timezone_offset)
-                    if row[2] is None: 
+                        try:
+                            firstused = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[1]),timezone_offset)
+                        except (ValueError, TypeError):
+                            firstused = 'N/A'
+                    if row[2] is None:
                         lastused = ''
                     else:
-                        lastused = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[2]),timezone_offset)
-                    
+                        try:
+                            lastused = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[2]),timezone_offset)
+                        except (ValueError, TypeError):
+                            lastused = 'N/A'
+
                     data_list.append((lastconnected,firstused,lastused,row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11]))
 
                 report.write_artifact_data_table(data_headers, data_list, file_found)
@@ -101,9 +110,15 @@ def get_netusage(files_found, report_folder, seeker, wrap_text, timezone_offset)
                 data_headers = ('First Connection Timestamp','Last Connection Timestamp','Network Name','Cell Tower ID/Wifi MAC','Network Type','Bytes In','Bytes Out','Connection Attempts','Connection Successes','Packets In','Packets Out') # Don't remove the comma, that is required to make this a tuple as there is only 1 element
                 data_list = []
                 for row in all_rows:
-                    firstconncted = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]),timezone_offset)
-                    lastconnected = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[1]),timezone_offset)
-                
+                    try:
+                        firstconncted = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]),timezone_offset)
+                    except (ValueError, TypeError):
+                        firstconncted = 'N/A'
+                    try:
+                        lastconnected = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[1]),timezone_offset)
+                    except (ValueError, TypeError):
+                        lastconnected = 'N/A'
+
                     if row[2] == None:
                         data_list.append((firstconncted,lastconnected,'','',row[3],row[4],row[5],row[6],row[7],row[8],row[9]))
                     else:
@@ -113,7 +128,7 @@ def get_netusage(files_found, report_folder, seeker, wrap_text, timezone_offset)
                             id_split = row[2].rsplit('-',1)
                             netname = id_split[0]
                             id_mac = pad_mac_adr(id_split[1])
-                    
+
                             data_list.append((firstconncted,lastconnected,netname,id_mac,row[3],row[4],row[5],row[6],row[7],row[8],row[9]))
 
                 report.write_artifact_data_table(data_headers, data_list, file_found)
