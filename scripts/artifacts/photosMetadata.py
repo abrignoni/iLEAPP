@@ -274,39 +274,38 @@ def get_photosMetadata(files_found, report_folder, seeker, wrap_text, timezone_o
         LEFT JOIN ZGENERICALBUM ON ZGENERICALBUM.Z_PK = Z_23ASSETS.Z_23ALBUMS
 
         """)
-        all_rows = cursor.fetchall()
-        usageentries = len(all_rows)
+        # Memory-efficient: iterate over cursor instead of fetchall()
         data_list = []
         counter = 0
-        if usageentries > 0:
-            for row in all_rows:
-                postal_address = ''
-                postal_address_subadminarea = ''
-                postal_address_sublocality = ''
+        row_count = 0
+        for row in cursor:
+            row_count += 1
+            postal_address = ''
+            postal_address_subadminarea = ''
+            postal_address_sublocality = ''
 
-                if row[59] is not None:
-                    pathto = os.path.join(report_folder, 'ReverseLocationData' + str(counter) + '.bplist')
-                    with open(pathto, 'ab') as wf:
-                        wf.write(row[59])
+            if row[59] is not None:
+                pathto = os.path.join(report_folder, 'ReverseLocationData' + str(counter) + '.bplist')
+                with open(pathto, 'ab') as wf:
+                    wf.write(row[59])
 
-                    with open(pathto, 'rb') as f:
-                        try:
-                            deserialized_plist = nd.deserialize_plist(f)
-                            postal_address = deserialized_plist['postalAddress']['_formattedAddress']
-                            postal_address_subadminarea = deserialized_plist['postalAddress']['_subAdministrativeArea']
-                            postal_address_sublocality = deserialized_plist['postalAddress']['_subLocality']
+                with open(pathto, 'rb') as f:
+                    try:
+                        deserialized_plist = nd.deserialize_plist(f)
+                        postal_address = deserialized_plist['postalAddress']['_formattedAddress']
+                        postal_address_subadminarea = deserialized_plist['postalAddress']['_subAdministrativeArea']
+                        postal_address_sublocality = deserialized_plist['postalAddress']['_subLocality']
 
-                        except (KeyError, ValueError, TypeError) as ex:
-                            if str(ex).find("does not contain an '$archiver' key") >= 0:
-                                logfunc('plist was Not an NSKeyedArchive ' + row[0])
-                            else:
-                                logfunc('Error reading exported bplist from Asset PK ' + row[0])
-                            deserialized_plist = None
+                    except (KeyError, ValueError, TypeError) as ex:
+                        if str(ex).find("does not contain an '$archiver' key") >= 0:
+                            logfunc('plist was Not an NSKeyedArchive ' + row[0])
+                        else:
+                            logfunc('Error reading exported bplist from Asset PK ' + row[0])
+                        deserialized_plist = None
 
-                htmlThumbTag = generate_thumbnail(row[13], row[8], seeker, report_folder)
+            htmlThumbTag = generate_thumbnail(row[13], row[8], seeker, report_folder)
 
-
-                data_list.append((htmlThumbTag, row[0], row[0], postal_address, postal_address_subadminarea,
+            data_list.append((htmlThumbTag, row[0], row[0], postal_address, postal_address_subadminarea,
                                   postal_address_sublocality, row[1], row[2], row[3], row[4], row[5], row[6], row[7],
                                   row[8], row[9], row[10], row[11], row[12], row[13], row[14], row[15], row[16],
                                   row[17], row[18], row[19], row[20], row[21], row[22], row[23], row[24], row[25],
@@ -317,8 +316,17 @@ def get_photosMetadata(files_found, report_folder, seeker, wrap_text, timezone_o
                                   row[62], row[63], row[64], row[65], row[66], row[67], row[68], row[69], row[70],
                                   row[71], row[72], row[73], row[74], row[75], row[76], row[77], row[78]))
 
-                counter += 1
+            counter += 1
+            # Clean up temporary files immediately to free memory
+            if row[59] is not None:
+                pathto = os.path.join(report_folder, 'ReverseLocationData' + str(counter - 1) + '.bplist')
+                if os.path.exists(pathto):
+                    try:
+                        os.remove(pathto)
+                    except:
+                        pass
 
+        if row_count > 0:
             description = ''
             report = ArtifactHtmlReport('Photos.sqlite')
             report.start_artifact_report(report_folder, 'Metadata', description)
@@ -616,35 +624,35 @@ def get_photosMetadata(files_found, report_folder, seeker, wrap_text, timezone_o
         LEFT JOIN ZGENERICALBUM ON ZGENERICALBUM.Z_PK = Z_26ASSETS.Z_26ALBUMS
         """)
 
-        all_rows = cursor.fetchall()
-        usageentries = len(all_rows)
+        # Memory-efficient: iterate over cursor instead of fetchall()
         data_list = []
         counter = 0
-        if usageentries > 0:
-            for row in all_rows:
-                postal_address = ''
-                postal_address_subadminarea = ''
-                postal_address_sublocality = ''
+        row_count = 0
+        for row in cursor:
+            row_count += 1
+            postal_address = ''
+            postal_address_subadminarea = ''
+            postal_address_sublocality = ''
 
-                if row[61] is not None:
-                    pathto = os.path.join(report_folder, 'ReverseLocationData' + str(counter) + '.bplist')
-                    with open(pathto, 'ab') as wf:
-                        wf.write(row[61])
+            if row[61] is not None:
+                pathto = os.path.join(report_folder, 'ReverseLocationData' + str(counter) + '.bplist')
+                with open(pathto, 'ab') as wf:
+                    wf.write(row[61])
 
-                    with open(pathto, 'rb') as f:
-                        try:
-                            deserialized_plist = nd.deserialize_plist(f)
-                            postal_address = deserialized_plist['postalAddress']['_formattedAddress']
-                            postal_address_subadminarea = deserialized_plist['postalAddress']['_subAdministrativeArea']
-                            postal_address_sublocality = deserialized_plist['postalAddress']['_subLocality']
+                with open(pathto, 'rb') as f:
+                    try:
+                        deserialized_plist = nd.deserialize_plist(f)
+                        postal_address = deserialized_plist['postalAddress']['_formattedAddress']
+                        postal_address_subadminarea = deserialized_plist['postalAddress']['_subAdministrativeArea']
+                        postal_address_sublocality = deserialized_plist['postalAddress']['_subLocality']
 
-                        except:
-                            logfunc('Error reading exported bplist from Asset PK' + row[0])
-                            deserialized_plist = None
+                    except:
+                        logfunc('Error reading exported bplist from Asset PK' + row[0])
+                        deserialized_plist = None
 
-                htmlThumbTag = generate_thumbnail(row[14], row[9], seeker, report_folder)
+            htmlThumbTag = generate_thumbnail(row[14], row[9], seeker, report_folder)
 
-                data_list.append((htmlThumbTag, row[0], row[0], postal_address, postal_address_subadminarea,
+            data_list.append((htmlThumbTag, row[0], row[0], postal_address, postal_address_subadminarea,
                                   postal_address_sublocality, row[1], row[2], row[3], row[4], row[5], row[6], row[7],
                                   row[8], row[9], row[10], row[11], row[12], row[13], row[14], row[15], row[16],
                                   row[17], row[18], row[19], row[20], row[21], row[22], row[23], row[24], row[25],
@@ -656,8 +664,17 @@ def get_photosMetadata(files_found, report_folder, seeker, wrap_text, timezone_o
                                   row[71], row[72], row[73], row[74], row[75], row[76], row[77], row[78], row[79],
                                   row[80]))
 
-                counter += 1
+            counter += 1
+            # Clean up temporary files immediately to free memory
+            if row[61] is not None:
+                pathto = os.path.join(report_folder, 'ReverseLocationData' + str(counter - 1) + '.bplist')
+                if os.path.exists(pathto):
+                    try:
+                        os.remove(pathto)
+                    except:
+                        pass
 
+        if row_count > 0:
             description = ''
             report = ArtifactHtmlReport('Photos.sqlite')
             report.start_artifact_report(report_folder, 'Metadata', description)
@@ -958,33 +975,33 @@ def get_photosMetadata(files_found, report_folder, seeker, wrap_text, timezone_o
         LEFT JOIN Z_26ASSETS ON ZASSET.Z_PK = Z_26ASSETS.Z_3ASSETS
         LEFT JOIN ZGENERICALBUM ON ZGENERICALBUM.Z_PK = Z_26ASSETS.Z_26ALBUMS
         """)
-        all_rows = cursor.fetchall()
-        usageentries = len(all_rows)
+        # Memory-efficient: iterate over cursor instead of fetchall()
         data_list = []
         counter = 0
-        if usageentries > 0:
-            for row in all_rows:
-                postal_address = ''
-                postal_address_subadminarea = ''
-                postal_address_sublocality = ''
+        row_count = 0
+        for row in cursor:
+            row_count += 1
+            postal_address = ''
+            postal_address_subadminarea = ''
+            postal_address_sublocality = ''
 
-                if row[61] is not None:
-                    pathto = os.path.join(report_folder, 'ReverseLocationData' + str(counter) + '.bplist')
-                    with open(pathto, 'ab') as wf:
-                        wf.write(row[61])
+            if row[61] is not None:
+                pathto = os.path.join(report_folder, 'ReverseLocationData' + str(counter) + '.bplist')
+                with open(pathto, 'ab') as wf:
+                    wf.write(row[61])
 
-                    with open(pathto, 'rb') as f:
-                        try:
-                            deserialized_plist = nd.deserialize_plist(f)
-                            postal_address = deserialized_plist['postalAddress']['_formattedAddress']
-                            postal_address_subadminarea = deserialized_plist['postalAddress']['_subAdministrativeArea']
-                            postal_address_sublocality = deserialized_plist['postalAddress']['_subLocality']
+                with open(pathto, 'rb') as f:
+                    try:
+                        deserialized_plist = nd.deserialize_plist(f)
+                        postal_address = deserialized_plist['postalAddress']['_formattedAddress']
+                        postal_address_subadminarea = deserialized_plist['postalAddress']['_subAdministrativeArea']
+                        postal_address_sublocality = deserialized_plist['postalAddress']['_subLocality']
 
-                        except:
-                            logfunc('Error reading exported bplist from Asset PK' + row[0])
-                            deserialized_plist = None
+                    except:
+                        logfunc('Error reading exported bplist from Asset PK' + row[0])
+                        deserialized_plist = None
 
-                data_list.append((row[0], row[0], postal_address, postal_address_subadminarea,
+            data_list.append((row[0], row[0], postal_address, postal_address_subadminarea,
                                   postal_address_sublocality, row[1], row[2], row[3], row[4], row[5], row[6], row[7],
                                   row[8], row[9], row[10], row[11], row[12], row[13], row[14], row[15], row[16],
                                   row[17], row[18], row[19], row[20], row[21], row[22], row[23], row[24], row[25],
@@ -996,8 +1013,17 @@ def get_photosMetadata(files_found, report_folder, seeker, wrap_text, timezone_o
                                   row[71], row[72], row[73], row[74], row[75], row[76], row[77], row[78], row[79],
                                   row[80], row[81]))
 
-                counter += 1
+            counter += 1
+            # Clean up temporary files immediately to free memory
+            if row[61] is not None:
+                pathto = os.path.join(report_folder, 'ReverseLocationData' + str(counter - 1) + '.bplist')
+                if os.path.exists(pathto):
+                    try:
+                        os.remove(pathto)
+                    except:
+                        pass
 
+        if row_count > 0:
             description = ''
             report = ArtifactHtmlReport('Photos.sqlite')
             report.start_artifact_report(report_folder, 'Metadata', description)
