@@ -40,39 +40,44 @@ def get_tikTok(files_found, report_folder, seeker, wrap_text, timezone_offset):
             for table in contacts_tables:
                 contacts_subqueries.append(f'SELECT uid, customid, nickname, url1 FROM {table}')
 
-            contacts_subquery = '''
-            UNION ALL
-            '''.join(contacts_subqueries)
+            if contacts_subqueries:
+                contacts_subquery = ' UNION ALL '.join(contacts_subqueries)
+            else:
+                contacts_subquery = "SELECT NULL as uid, NULL as customid, NULL as nickname, NULL as url1 WHERE 0"
 
-            cursor.execute(f'''
-                select
-                    datetime(localcreatedat, 'unixepoch') as Local_Create_Time,
-                    sender,
-                    customid,
-                    nickname,
-                    CASE 
-                        WHEN json_valid(content) THEN json_extract(content, '$.text')
-                    END message,
-                    CASE 
-                        WHEN json_valid(content) THEN json_extract(content, '$.tips') 
-                    END localresponse,
-                    CASE 
-                        WHEN json_valid(content) THEN json_extract(content,'$.display_name')
-                    END links_display_name,
-                    CASE 
-                        WHEN json_valid(content) THEN json_extract(content, '$.url.url_list[0]')
-                    END links_gifs_urls,
-                    case 
-                        when servercreatedat > 1 then datetime(servercreatedat, 'unixepoch')
-                        else servercreatedat
-                    end servercreatedat,
-                    url1 as profilepicURL
-                from TIMMessageORM
-                left join ({contacts_subquery}) as contacts on contacts.uid = sender
-                order by Local_Create_Time
-                ''')
+            try:
+                cursor.execute(f'''
+                    select
+                        datetime(localcreatedat, 'unixepoch') as Local_Create_Time,
+                        sender,
+                        customid,
+                        nickname,
+                        CASE 
+                            WHEN json_valid(content) THEN json_extract(content, '$.text')
+                        END message,
+                        CASE 
+                            WHEN json_valid(content) THEN json_extract(content, '$.tips') 
+                        END localresponse,
+                        CASE 
+                            WHEN json_valid(content) THEN json_extract(content,'$.display_name')
+                        END links_display_name,
+                        CASE 
+                            WHEN json_valid(content) THEN json_extract(content, '$.url.url_list[0]')
+                        END links_gifs_urls,
+                        case 
+                            when servercreatedat > 1 then datetime(servercreatedat, 'unixepoch')
+                            else servercreatedat
+                        end servercreatedat,
+                        url1 as profilepicURL
+                    from TIMMessageORM
+                    left join ({contacts_subquery}) as contacts on contacts.uid = sender
+                    order by Local_Create_Time
+                    ''')
 
-            all_rows = cursor.fetchall()
+                all_rows = cursor.fetchall()
+            except sqlite3.OperationalError as e:
+                logfunc(f'Reading TikTok messages had SQL error: {e}')
+                all_rows = []
             logfunc(f'all rows length {len(all_rows)}')
             if len(all_rows) > 0:
                 for row in all_rows:
@@ -101,23 +106,23 @@ def get_tikTok(files_found, report_folder, seeker, wrap_text, timezone_offset):
             case 
                 when latestchattimestamp > 1 then datetime(latestchattimestamp, 'unixepoch')
                 else latestchattimestamp
-            end
-        latestchattimestamp,
+            end as latestchattimestamp,
         nickname,
         uid,
         customID,
         url1,
-        '{table}'
+        '{table}' as table_name
         from {table}
         ''')
 
-    contacts_query = '''
-                UNION ALL
-                '''.join(contacts_queries)
+    contacts_query = ' UNION ALL '.join(contacts_queries)
 
-    cursor.execute(contacts_query)
-    
-    all_rows1 = cursor.fetchall()
+    try:
+        cursor.execute(contacts_query)
+        all_rows1 = cursor.fetchall()
+    except sqlite3.OperationalError as e:
+        logfunc(f'Reading TikTok contacts had SQL error: {e}')
+        all_rows1 = []
     data_list1 = []
     if len(all_rows) > 0:
         description = 'Timestamp corresponds to latest chat if available'
