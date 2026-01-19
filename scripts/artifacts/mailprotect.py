@@ -68,12 +68,19 @@ def get_mailprotect(files_found, report_folder, seeker, wrap_text, timezone_offs
         db.close()
 
         with open_sqlite_db_readonly(os.path.join(head, "Envelope Index")) as db:
+            # [PENTING] Inisialisasi cursor baru dari koneksi DB yang baru dibuka
+            cursor = db.cursor() 
+
+            # Baru kemudian lakukan ATTACH
             attach_query = attach_sqlite_db_readonly(f"{head}/Protected Index", 'PI')
             cursor.execute(attach_query)
+            
             attach_query = attach_sqlite_db_readonly(f"{report_folder}/emails.db", 'emails')
             cursor.execute(attach_query)
-
-            cursor = db.cursor()
+            
+            # Baris di bawah ini (baris 73 lama) bisa dihapus atau dibiarkan 
+            # (tapi redundant karena sudah didefinisikan di atas)
+            # cursor = db.cursor()
             cursor.execute(
                 """
             select  
