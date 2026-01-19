@@ -41,6 +41,7 @@ import plistlib
 import sqlite3
 import string
 from os.path import dirname
+from datetime import datetime
 
 from scripts.ilapfuncs import logfunc, open_sqlite_db_readonly, convert_ts_human_to_utc, convert_utc_human_to_timezone, artifact_processor, convert_plist_date_to_timezone_offset
 
@@ -79,9 +80,17 @@ def keyboardAppUsage(files_found, report_folder, seeker, wrap_text, timezone_off
                 plist_content = plistlib.load(plist_file)
                 for app in plist_content:
                     for entry in plist_content[app]:
-                        start_date = convert_plist_date_to_timezone_offset(entry['startDate'], timezone_offset)
-                        data_list.append((start_date, app, entry['appTime'], ', '.join(map(str, entry['keyboardTimes']))))
-    
+                        raw_date = str(entry.get('startDate', ''))
+                        if raw_date.endswith('Z'):
+                            raw_date = raw_date.replace('Z', '+00:00')
+                        try:
+                            dt_obj = datetime.fromisoformat(raw_date)
+                            start_date = dt_obj.strftime('%Y-%m-%d %H:%M:%S')
+                        except ValueError:
+                            start_date = raw_date
+
+                        data_list.append((start_date, app, entry['appTime'], ', '.join(map(str, entry['keyboardTimes']))))  
+                                                 
     data_headers = (('Date', 'datetime'), 'Application Name', 'Application Time Used in Seconds', 'Keyboard Times Used in Seconds')
     return data_headers, data_list, files_found[0]
 
