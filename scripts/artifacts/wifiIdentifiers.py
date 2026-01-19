@@ -31,13 +31,19 @@ def wifiIdentifiers(files_found, report_folder, seeker, wrap_text, timezone_offs
         for key, value in pl.items():
             if key == 'Interfaces':
                 for y in value:
-                    hexstring = (y['IOMACAddress'])
-                    hexstring = pad_mac_adr("%x:%x:%x:%x:%x:%x" % struct.unpack("BBBBBB",hexstring))
-                    userdefinedname = y['SCNetworkInterfaceInfo']['UserDefinedName']
-                    bsdname = y['BSD Name']
+                    if 'IOMACAddress' in y:
+                        hexstring = (y['IOMACAddress'])
+                        hexstring = pad_mac_adr("%x:%x:%x:%x:%x:%x" % struct.unpack("BBBBBB",hexstring))
+                    else:
+                        hexstring = ''
+
+                    userdefinedname = y.get('SCNetworkInterfaceInfo', {}).get('UserDefinedName', '')
+                    bsdname = y.get('BSD Name', '')
 
                     data_list.append((hexstring, userdefinedname, bsdname))
-                    device_info("Network", "MAC Addresses", f"- {userdefinedname}: {hexstring}", source_path)
+                    
+                    if hexstring:
+                        device_info("Network", "MAC Addresses", f"- {userdefinedname}: {hexstring}", source_path)
                     
     data_headers = ('MAC Address', 'User Defined Name', 'BSD Name')
     return data_headers, data_list, source_path
