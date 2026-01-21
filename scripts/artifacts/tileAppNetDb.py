@@ -15,14 +15,14 @@ __artifacts_v2__ = {
     }
 }
 
-
 from scripts.ilapfuncs import artifact_processor, \
     get_file_path, get_sqlite_db_records, \
     convert_cocoa_core_data_ts_to_utc
 
 
 @artifact_processor
-def tileAppNetDb(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def tileAppNetDb(context):
+    files_found = context.get_files_found()
     source_path = get_file_path(
         files_found, 'com.thetileapp.tile-TileNetworkDB.sqlite')
     data_list = []
