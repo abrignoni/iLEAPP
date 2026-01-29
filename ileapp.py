@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import json
 import argparse
 import io
@@ -36,7 +38,7 @@ def validate_args(args):
 
     if not os.path.exists(args.output_path):
         raise argparse.ArgumentError(None, 'OUTPUT path \'{args.output_path}\' does not exist! Run the program again.')
-    if not os.path.isdir(os.path.abspath(args.output_path)): 
+    if not os.path.isdir(os.path.abspath(args.output_path)):
         raise argparse.ArgumentError(None, f'OUTPUT path \'{args.output_path}\' must be a directory! Run the program again.')
 
     # Validate input_path based on type
@@ -64,7 +66,7 @@ def validate_args(args):
         timezone = pytz.timezone(args.timezone)
     except pytz.UnknownTimeZoneError:
       raise argparse.ArgumentError(None, 'Unknown timezone! Run the program again.')
-        
+
 
 def create_profile(plugins, path):
     available_modules = [(module_data.category, module_data.name) for module_data in plugins]
@@ -135,7 +137,7 @@ def create_profile(plugins, path):
         else:
             print('Please enter a valid choice!!!\n')
             user_choice = ''
-  
+
 def create_casedata(path):
     case_data_values = {}
     print('--- LEAPP Case Data file creation ---\n')
@@ -281,7 +283,7 @@ def main():
                 case_data_load_error = "File was not a valid case data file: invalid format"
                 print(case_data_load_error)
                 return
-    
+
     if args.load_profile:
         profile_filename = args.load_profile
         profile_load_error = None
@@ -307,7 +309,7 @@ def main():
                 profile_load_error = "File was not a valid profile file: invalid format"
                 print(profile_load_error)
                 return
-    
+
     input_path = args.input_path
     wrap_text = args.wrap_text
     output_path = os.path.abspath(args.output_path)
@@ -326,7 +328,7 @@ def main():
 
     initialize_lava(input_path, out_params.output_folder_base, extracttype)
 
-    crunch_artifacts(selected_plugins, extracttype, input_path, out_params, wrap_text, loader, casedata, time_offset, 
+    crunch_artifacts(selected_plugins, extracttype, input_path, out_params, wrap_text, loader, casedata, time_offset,
         profile_filename, itunes_backup_password)
 
     lava_finalize_output(out_params.output_folder_base)
@@ -336,7 +338,7 @@ def crunch_artifacts(
         loader: plugin_loader.PluginLoader, casedata, time_offset, profile_filename, itunes_backup_password=None, decryption_keys=None):
     start = process_time()
     start_wall = perf_counter()
- 
+
     logfunc('Processing started. Please wait. This may take a few minutes...')
 
     logfunc('\n--------------------------------------------------------------------------------------')
@@ -345,7 +347,7 @@ def crunch_artifacts(
     logfunc('By: Alexis Brignoni | @AlexisBrignoni | abrignoni.com')
     logfunc('By: Yogesh Khatri   | @SwiftForensics | swiftforensics.com\n')
     logdevinfo()
-    
+
     seeker = None
     password = itunes_backup_password
     try:
@@ -354,7 +356,7 @@ def crunch_artifacts(
 
         elif extracttype == 'file':
             seeker = FileSeekerFile(input_path, out_params.data_folder)
-            
+
         elif extracttype in ('tar', 'gz'):
             seeker = FileSeekerTar(input_path, out_params.data_folder)
 
@@ -409,7 +411,7 @@ def crunch_artifacts(
     log = open(os.path.join(out_params.output_folder_base, '_HTML', '_Script_Logs', 'ProcessedFilesLog.html'), 'w+', encoding='utf8')
     log.write(f'Extraction/Path selected: {input_path}<br><br>')
     log.write(f'Timezone selected: {time_offset}<br><br>')
-    
+
     parsed_modules = 0
     lava_only = False
     # Special processing for iTunesBackup Info.plist as it is a seperate entity, not part of the Manifest.db. Seeker won't find it
@@ -531,12 +533,12 @@ def crunch_artifacts(
     logfunc('')
     logfunc('Report generation started.')
     # remove the \\?\ prefix we added to input and output paths, so it does not reflect in report
-    if is_platform_windows(): 
+    if is_platform_windows():
         if out_params.output_folder_base.startswith('\\\\?\\'):
             out_params.output_folder_base = out_params.output_folder_base[4:]
         if input_path.startswith('\\\\?\\'):
             input_path = input_path[4:]
-    
+
     report.generate_report(out_params.output_folder_base, run_time_secs, run_time_HMS, extracttype, input_path, casedata, profile_filename, icons, lava_only)
     logfunc('Report generation Completed.')
     logfunc('')
@@ -546,4 +548,4 @@ def crunch_artifacts(
 
 if __name__ == '__main__':
     main()
-    
+
