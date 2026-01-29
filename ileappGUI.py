@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import tkinter as tk
 import typing
 import json
@@ -20,10 +22,10 @@ from scripts.context import Context
 
 def pickModules():
     '''Create a list of available modules:
-        - itunes_backup_info, itunes_backup_installed_applications, last_build and Ph100-UFED-device-values-Plist that need 
+        - itunes_backup_info, itunes_backup_installed_applications, last_build and Ph100-UFED-device-values-Plist that need
         to be executed first are excluded
-        - logarchive_artifacts is also excluded as it uses the LAVA SQLite database to extract 
-        relevant event messages from the logarchive table and must be executed only if logarchive 
+        - logarchive_artifacts is also excluded as it uses the LAVA SQLite database to extract
+        relevant event messages from the logarchive table and must be executed only if logarchive
         module has been already executed
         - ones that take a long time to run are deselected by default'''
     global mlist
