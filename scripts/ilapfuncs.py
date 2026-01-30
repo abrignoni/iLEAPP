@@ -708,6 +708,8 @@ def get_sqlite_db_records(path, query, attach_query=None):
         except sqlite3.ProgrammingError as e:
             logfunc(f"Error with {path}:")
             logfunc(f" - {str(e)}")
+        finally:
+            db.close()
     return []
 
 def get_sqlite_multiple_db_records(path_list, query, data_headers):
