@@ -15,7 +15,7 @@ Number of artifacts with 'lava output': 351
 Number of artifacts using 'artifact_icon': 229  
 Number of artifacts using 'version': 220  
 Number of artifacts using 'last_update_date': 167  
-Number of artifacts using context parameter: 106  
+Number of artifacts using context parameter: 107  
 Number of artifacts with errors or no recognized artifacts: 3  
 
 ## V2 Artifacts Table
@@ -156,7 +156,7 @@ Number of artifacts with errors or no recognized artifacts: 3
 | [ashHistory.py](/scripts/artifacts/ashHistory.py) | AshHistory | Alpine Linux Bash History | Linux | all | Yes |  |  | 2025-10-22 | Extracts command history from Alpine Linux bash | ``*/.ash_history`` |
 | [atxDatastore.py](/scripts/artifacts/atxDatastore.py) | atxDatastore | iOS ATXDatastore | Locations | all | Yes |  |  | 2025-10-22 | Parses ATXDataStore and matches actions with Frequent locations, when available. | ``*DuetExpertCenter/_ATXDataStore.db*``, ``*routined/Local.sqlite*`` |
 | [audiTripdata.py](/scripts/artifacts/audiTripdata.py) | get_audiTripdata | Audi Trip Data | Audi Trips | standard | Yes |  |  | 2025-10-28 |  | ``*/Library/Caches/de.audi.myaudimobileassistant/fsCachedData/**`` |
-| [backupSettings.py](/scripts/artifacts/backupSettings.py) | backupSettings | Backup Settings | Identifiers | html, tsv, lava | No | save |  | 2024-12-20 | Extracts Backup settings | ``*/mobile/Library/Preferences/com.apple.mobile.ldbackup.plist`` |
+| [backupSettings.py](/scripts/artifacts/backupSettings.py) | backupSettings | Backup Settings | Identifiers | html, tsv, lava | Yes | save |  | 2025-10-29 | Extracts Backup settings | ``*/mobile/Library/Preferences/com.apple.mobile.ldbackup.plist`` |
 | [biomeAirpMode.py](/scripts/artifacts/biomeAirpMode.py) | get_biomeAirpMode | Biome - Airplane Mode DKEvent | Biome | standard | No |  | 0.0.2 |  | Parses airplane mode entries from biomes | ``*/Biome/streams/restricted/_DKEvent.System.AirplaneMode/local/*`` |
 | [biomeAppinstall.py](/scripts/artifacts/biomeAppinstall.py) | get_biomeAppinstall | Biome - App Install | Biome | standard | No |  | 0.0.2 |  | Parses airplane mode entries from biomes | ``*/Biome/streams/restricted/_DKEvent.App.Install/local/*``, ``*/Biome/streams/restricted/App.Install/local/*`` |
 | [biomeBacklight.py](/scripts/artifacts/biomeBacklight.py) | get_biomeBacklight | Biome - Backlight | Biome | standard | No |  | 0.0.2 |  | Parses backlight entries from biomes | ``*/Biome/streams/public/Backlight/local/*`` |
