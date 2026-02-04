@@ -206,6 +206,8 @@ from urllib.parse import urlparse, urlunparse
 from scripts.ilapfuncs import get_file_path, get_sqlite_db_records, get_plist_content, get_plist_file_content, convert_unix_ts_to_utc, \
     convert_cocoa_core_data_ts_to_utc, check_in_embedded_media, artifact_processor, logfunc, is_platform_windows
 
+global bereal_user_id, _bereal_processed
+
 # <id, fullname|username>
 map_id_name = {}
 
@@ -438,7 +440,6 @@ def get_tags(obj, html_format=False):
 
 # set up global variables
 def process_bereal_preferences(plist_path):
-    global bereal_user_id, _bereal_processed
     
     plist_data = get_plist_file_content(plist_path)
     if not (plist_data):
@@ -1979,3 +1980,4 @@ def bereal_chat_list(context):
     data_headers[10] = (data_headers[10], 'datetime')
 
     return data_headers, (data_list, data_list_html), source_path
+
