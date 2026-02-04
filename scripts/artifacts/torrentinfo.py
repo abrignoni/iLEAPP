@@ -83,20 +83,20 @@ def get_torrentinfo(context):
                                 aggregate += f'File: {path_str} <br>Size: {size_str} bytes <br>'
 
                         elif x_str == 'name':
-                             try:
-                                 name_val = y.decode("utf-8", "ignore")
-                             except:
-                                 name_val = str(y)
-                             aggregate += f'Name: {name_val} <br>'
+                            try:
+                                name_val = y.decode("utf-8", "ignore")
+                            except:
+                                name_val = str(y)
+                            aggregate += f'Name: {name_val} <br>'
 
                         elif x_str == 'length':
-                             aggregate += f'Size: {y} bytes <br>'
+                            aggregate += f'Size: {y} bytes <br>'
 
                         else:
-                             try:
+                            try:
                                 val_str = y.decode('utf-8', 'ignore') if isinstance(y, bytes) else str(y)
                                 aggregate += f'{x_str}: {val_str} <br>'
-                             except:
+                            except:
                                 pass
 
                 elif key_str == 'pieces':
