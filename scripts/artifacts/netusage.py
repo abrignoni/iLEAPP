@@ -25,8 +25,7 @@ __artifacts_v2__ = {
     }
 }
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly, convert_ts_human_to_utc, convert_utc_human_to_timezone, artifact_processor, convert_cocoa_core_data_ts_to_utc
+from scripts.ilapfuncs import open_sqlite_db_readonly, artifact_processor, convert_cocoa_core_data_ts_to_utc
 
 def pad_mac_adr(adr):
     return ':'.join([i.zfill(2) for i in adr.split(':')]).upper()
