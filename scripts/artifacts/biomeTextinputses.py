@@ -3,8 +3,8 @@ __artifacts_v2__ = {
         "name": "Biome - Text Input Session",
         "description": "Parses Text Input Session entries from biomes",
         "author": "@JohnHyla",
-        "version": "0.0.2",
-        "date": "2024-10-17",
+        "creation_date": "2024-10-17",
+        "last_update_date": "2025-10-31",
         "requirements": "none",
         "category": "Biome",
         "notes": "",
@@ -21,17 +21,21 @@ from datetime import timezone
 import blackboxprotobuf
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
-from scripts.ilapfuncs import artifact_processor, convert_utc_human_to_timezone, convert_ts_int_to_timezone, webkit_timestampsconv
+from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv, convert_ts_human_to_utc
 
 
 @artifact_processor
-def get_biomeTextinputses(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def get_biomeTextinputses(context):
 
-    typess = {'1': {'type': 'double', 'name': ''}, '2': {'type': 'double', 'name': ''}, '3': {'type': 'str', 'name': ''}, '4': {'type': 'int', 'name': ''}}
+    typess = {
+        '1': {'type': 'double', 'name': ''},
+        '2': {'type': 'double', 'name': ''},
+        '3': {'type': 'str', 'name': ''},
+        '4': {'type': 'int', 'name': ''}
+    }
 
     data_list = []
-    report_file = 'Unknown'
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         filename = os.path.basename(file_found)
         if filename.startswith('.'):
@@ -39,8 +43,6 @@ def get_biomeTextinputses(files_found, report_folder, seeker, wrap_text, timezon
         if os.path.isfile(file_found):
             if 'tombstone' in file_found:
                 continue
-            else:
-                report_file = os.path.dirname(file_found)
         else:
             continue
 
@@ -49,15 +51,14 @@ def get_biomeTextinputses(files_found, report_folder, seeker, wrap_text, timezon
             ts = ts.replace(tzinfo=timezone.utc)
 
             if record.state == EntryState.Written:
-                protostuff, types = blackboxprotobuf.decode_message(record.data, typess)
+                protostuff, _ = blackboxprotobuf.decode_message(record.data, typess)
 
                 duration = protostuff['1']
                 # Records in "restricted" folder seem to have time in Unix time, whereas public was cocoa time
                 if 'restricted' in file_found:
-                    timestart = (convert_ts_int_to_timezone(protostuff['2'], timezone_offset))
+                    timestart = convert_ts_human_to_utc(protostuff['2'])
                 else:
                     timestart = (webkit_timestampsconv(protostuff['2']))
-                    timestart = convert_utc_human_to_timezone(timestart, timezone_offset)
 
                 bundleid = (protostuff.get('3',''))
                 
@@ -70,4 +71,4 @@ def get_biomeTextinputses(files_found, report_folder, seeker, wrap_text, timezon
     data_headers = (('SEGB Timestamp', 'datetime'), ('Time Start', 'datetime'), 'SEGB State', 'Bundle ID', 'Duration',
                     'Filename', 'Offset')
 
-    return data_headers, data_list, report_file
+    return data_headers, data_list, 'see Filename for more info'

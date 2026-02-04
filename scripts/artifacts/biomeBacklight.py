@@ -3,8 +3,8 @@ __artifacts_v2__ = {
         "name": "Biome - Backlight",
         "description": "Parses backlight entries from biomes",
         "author": "@JohnHyla",
-        "version": "0.0.2",
-        "date": "2024-10-17",
+        "creation_date": "2024-10-17",
+        "last_update_date": "2025-10-31",
         "requirements": "none",
         "category": "Biome",
         "notes": "",
@@ -19,17 +19,16 @@ from datetime import timezone
 import blackboxprotobuf
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
-from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv, convert_utc_human_to_timezone
+from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv
 
 
 @artifact_processor
-def get_biomeBacklight(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def get_biomeBacklight(context):
 
     typess = {'1': {'type': 'double', 'name': ''}, '2': {'type': 'int', 'name': ''}}
 
     data_list = []
-    report_file = 'Unknown'
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         filename = os.path.basename(file_found)
         if filename.startswith('.'):
@@ -37,8 +36,6 @@ def get_biomeBacklight(files_found, report_folder, seeker, wrap_text, timezone_o
         if os.path.isfile(file_found):
             if 'tombstone' in file_found:
                 continue
-            else:
-                report_file = os.path.dirname(file_found)
         else:
             continue
 
@@ -47,10 +44,9 @@ def get_biomeBacklight(files_found, report_folder, seeker, wrap_text, timezone_o
             ts = ts.replace(tzinfo=timezone.utc)
 
             if record.state == EntryState.Written:
-                protostuff, types = blackboxprotobuf.decode_message(record.data, typess)
+                protostuff, _ = blackboxprotobuf.decode_message(record.data, typess)
 
                 timestart = (webkit_timestampsconv(protostuff['1']))
-                timestart = convert_utc_human_to_timezone(timestart, timezone_offset)
                 state = (protostuff['2'])
 
                 data_list.append((ts, timestart, record.state.name, state, filename, record.data_start_offset))
@@ -60,4 +56,4 @@ def get_biomeBacklight(files_found, report_folder, seeker, wrap_text, timezone_o
     data_headers = (('SEGB Timestamp', 'datetime'), ('Timestamp', 'datetime'), 'SEGB State', 'State', 'Filename',
                     'Offset')
 
-    return data_headers, data_list, report_file
+    return data_headers, data_list, 'see Filename for more info'
