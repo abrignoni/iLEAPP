@@ -1,71 +1,78 @@
+__artifacts_v2__ = {
+    "get_voiceTriggers": {
+        "name": "Voice-Triggers",
+        "description": "Extracts Voice Trigger audio recordings and metadata.",
+        "author": "@Anna-Mariya Mateyna",
+        "creation_date": "2020-12-21",
+        "last_update_date": "2025-11-20",
+        "requirements": "none",
+        "category": "Audio",
+        "notes": "",
+        "paths": ('*/Library/VoiceTrigger/SAT/*/td/audio/*.json', '*/Library/VoiceTrigger/SAT/*/td/audio/*.wav'),
+        "output_types": "standard",
+        "artifact_icon": "mic"
+    }
+}
+
 import json
 import datetime
-import shutil
-from os import listdir
-from os.path import isfile, join, basename, dirname
+import os
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline
+from scripts.ilapfuncs import (
+    artifact_processor,
+    logfunc,
+    check_in_media
+)
 
 
 def format_time(date_time_str):
-    date_time_obj = datetime.datetime.strptime(date_time_str, '%Y%m%d')
-    formatted = '{}-{}-{}'.format(date_time_obj.year, date_time_obj.month, date_time_obj.day)
-    return formatted
+    try:
+        date_time_obj = datetime.datetime.strptime(date_time_str, '%Y%m%d')
+        formatted = '{}-{}-{}'.format(date_time_obj.year, date_time_obj.month, date_time_obj.day)
+        return formatted
+    except ValueError:
+        return date_time_str
 
 
-def get_voiceTriggers(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    info_files = []
+@artifact_processor
+def get_voiceTriggers(context):
+    files_found = context.get_files_found()
+
     data_list = []
-    if len(files_found) > 1:
-        for file_found in files_found:
-            if file_found.endswith('wav'):
-                shutil.copyfile(file_found, join(report_folder, basename(file_found)))
-            elif file_found.endswith('json') and 'meta_version.json' != basename(file_found):
-                info_files.append(file_found)
+    json_files = [str(f) for f in files_found if str(f).endswith('.json') and 'meta_version.json' not in str(f)]
 
-        info_files.sort()
-        wav_files = [join(report_folder, file) for file in listdir(report_folder) if isfile(join(report_folder, file))]
-        wav_files.sort()
+    for info_file in json_files:
+        wav_file_path = info_file.replace('.json', '.wav')
+        audio_id = None
+        if os.path.exists(wav_file_path):
+            audio_id = check_in_media(wav_file_path)
 
-        for info_file, wav_file in zip(info_files, wav_files):
-            if basename(info_file).split('.')[0] == basename(wav_file).split('.')[0]:
-                with open(info_file, "rb") as file:
-                    fl = json.load(file)
-                    if 'grainedDate' in fl:
-                        creation_date = format_time(fl['grainedDate'])
-                    else:
-                        creation_date = ''
+        try:
+            with open(info_file, "rb") as file:
+                fl = json.load(file)
+                if 'grainedDate' in fl:
+                    creation_date = format_time(fl['grainedDate'])
+                else:
+                    creation_date = ''
 
-                    audio = ''' 
-                            <audio controls>
-                                <source src={} type="audio/wav">
-                                <p>Your browser does not support HTML5 audio elements.</p>
-                            </audio> 
-                            '''.format(wav_file)
+                data_list.append((
+                    creation_date,
+                    fl.get('productType', ''),
+                    fl.get('utteranceWav', ''),
+                    audio_id,
+                    info_file
+                ))
 
-                    data_list.append((creation_date, fl['productType'], fl['utteranceWav'], audio))
+        except Exception as e:
+            logfunc(f"Error processing {info_file}: {e}")
 
-        report = ArtifactHtmlReport('Voice Triggers')
-        report.start_artifact_report(report_folder, 'Voice Triggers')
-        report.add_script()
-        data_headers = ('Creation Date', 'Device', 'Path to File', 'Audio File')
-        report.write_artifact_data_table(data_headers, data_list, dirname(file_found), html_no_escape=['Audio File'])
-        report.end_artifact_report()
+    data_headers = (
+        'Creation Date',
+        'Device',
+        'Internal Path Info',
+        ('Audio File', 'media')
+    )
 
-        tsvname = 'Voice Triggers'
-        tsv(report_folder, data_headers, data_list, tsvname)
+    source_path = json_files[0] if json_files else ''
 
-        tlactivity = 'Voice Triggers'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-    else:
-        logfunc('No Voice Triggers found')
-
-    return
-
-__artifacts__ = {
-    "voiceTriggers": (
-        "Voice-Triggers",
-        ('**/td/audio/*.json','**/td/audio/*.wav'),
-        get_voiceTriggers)
-}
+    return data_headers, data_list, source_path
