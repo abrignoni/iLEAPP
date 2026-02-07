@@ -1,10 +1,10 @@
 __artifacts_v2__ = {
-    "twintTransactions": {
+    "twintTransactions": { #get_twint... or  twint... ?
         "name": "Twint - Transactions",
         "description": "Extract data related to transactions made with the instant payment app Twint prepaid",
         "author": "@KefreR (Frank Ressat)",
-        "version": "0.1",
-        "date": "2023-11-21",
+        "creation_date": "2023-11-21",
+        "last_update_date": "2024-11-25",
         "requirements": "none",
         "category": "Finance",
         "notes": "",
@@ -13,40 +13,44 @@ __artifacts_v2__ = {
         "artifact_icon": "dollar-sign"
     }
 }
+from scripts.ilapfuncs import (
+    artifact_processor,
+    get_sqlite_db_records,
+    convert_cocoa_core_data_ts_to_utc
+    )
 
-
-from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, convert_cocoa_core_data_ts_to_utc
 
 @artifact_processor
-def twintTransactions(files_found, report_folder, seeker, wrap_text, time_offset):
+def twintTransactions(context):
+    files_found = context.get_files_found()
     data_list = []
     db_file = ''
     db_records = []
 
     query = '''
         SELECT
-            ZTRANSACTION.ZCREATIONDATE, 
-            ZTRANSACTION.ZMODIFIEDTIMESTAMP, 
-            ZTRANSACTION.ZSECONDPHASETIMESTAMP, 
-            ZTRANSACTION.ZSTATUSPENDINGUNTILDATE, 
-            ZTRANSACTION.ZMERCHANTBRANCHNAME, 
-            ZTRANSACTION.ZMERCHANTNAME, 
-            ZTRANSACTION.ZP2PSENDERMOBILENR, 
-            ZTRANSACTION.ZP2PINITIATEMESSAGE, 
-            ZTRANSACTION.ZP2PRECIPIENTMOBILENR, 
-            ZTRANSACTION.ZP2PRECIPIENTNAME, 
-            ZTRANSACTION.ZP2PREPLYMESSAGE, 
-            ZTRANSACTION.ZAUTHORIZEDAMOUNT, 
-            ZTRANSACTION.ZPAIDAMOUNT, 
-            ZTRANSACTION.ZREQUESTEDAMOUNT, 
-            ZTRANSACTION.ZDISCOUNT, 
-            ZTRANSACTION.ZCURRENCY, 
-            ZTRANSACTION.ZCONTENTREFERENCE, 
-            ZTRANSACTION.ZORDERLINK, 
-            ZTRANSACTION.ZP2PHASPICTURE, 
-            ZTRANSACTION.ZORDERSTATEVALUE, 
-            ZTRANSACTION.ZORDERTYPEVALUE, 
-            ZTRANSACTION.ZTRANSACTIONSIDEVALUE, 
+            ZTRANSACTION.ZCREATIONDATE,
+            ZTRANSACTION.ZMODIFIEDTIMESTAMP,
+            ZTRANSACTION.ZSECONDPHASETIMESTAMP,
+            ZTRANSACTION.ZSTATUSPENDINGUNTILDATE,
+            ZTRANSACTION.ZMERCHANTBRANCHNAME,
+            ZTRANSACTION.ZMERCHANTNAME,
+            ZTRANSACTION.ZP2PSENDERMOBILENR,
+            ZTRANSACTION.ZP2PINITIATEMESSAGE,
+            ZTRANSACTION.ZP2PRECIPIENTMOBILENR,
+            ZTRANSACTION.ZP2PRECIPIENTNAME,
+            ZTRANSACTION.ZP2PREPLYMESSAGE,
+            ZTRANSACTION.ZAUTHORIZEDAMOUNT,
+            ZTRANSACTION.ZPAIDAMOUNT,
+            ZTRANSACTION.ZREQUESTEDAMOUNT,
+            ZTRANSACTION.ZDISCOUNT,
+            ZTRANSACTION.ZCURRENCY,
+            ZTRANSACTION.ZCONTENTREFERENCE,
+            ZTRANSACTION.ZORDERLINK,
+            ZTRANSACTION.ZP2PHASPICTURE,
+            ZTRANSACTION.ZORDERSTATEVALUE,
+            ZTRANSACTION.ZORDERTYPEVALUE,
+            ZTRANSACTION.ZTRANSACTIONSIDEVALUE,
             ZTRANSACTION.ZMERCHANTCONFIRMATION
         FROM ZTRANSACTION'''
 
