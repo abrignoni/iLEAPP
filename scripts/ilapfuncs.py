@@ -151,6 +151,24 @@ def logfunc(message=""):
             a.write(message + '<br>' + OutputParameters.nl)
     print(message)
 
+def safe_execute(cursor, query, params=()):
+    """Execute a SQL query safely and return rows or None if failed."""
+    try:
+        cursor.execute(query, params)
+        return cursor.fetchall()
+    except (sqlite3.ProgrammingError, sqlite3.OperationalError, sqlite3.DatabaseError) as e:
+        logfunc(f"SQL error executing query: {str(e)}  Query: {query}")
+        return None
+    except Exception as e:
+        logfunc(f"Unexpected SQL error: {str(e)}  Query: {query}")
+        return None
+
+def safe_in_list(values):
+    values = [v for v in values if v is not None]
+    if not values:
+        return None
+    placeholders = ",".join("?" for _ in values)
+    return placeholders, values
 
 def strip_tuple_from_headers(data_headers):
     return [header[0] if isinstance(header, tuple) else header for header in data_headers]
