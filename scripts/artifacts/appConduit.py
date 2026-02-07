@@ -11,7 +11,7 @@ __artifacts_v2__ = {
             i.e. Apple Watch',
         'author': '@ydkhatri',
         'creation_date': '2020-08-05',
-        'last_update_date': '2025-09-29',
+        "last_update_date": "2025-10-08",
         'requirements': 'none',
         'category': 'App Conduit',
         'notes': '',
@@ -108,6 +108,6 @@ def app_conduit(context):
     data_headers = (('Timestamp', 'datetime'), 'Device interaction',
                     'Device ID', 'Pairing ID', 'Device Type', 'Device Model',
                     'OS Build', 'OS Version', 'Log File Name')
-    source_path = ', '.join(source_paths)
+    source_path = 'see Log File Name for more info'
 
     return data_headers, data_list, source_path
