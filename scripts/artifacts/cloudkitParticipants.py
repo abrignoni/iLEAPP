@@ -41,17 +41,45 @@ def get_cloudkitParticipants(files_found, report_folder, seeker, wrap_text, time
                 for item in deserialized_plist:
                     if 'Participants' in item:
                         for participant in item['Participants']:
-                            record_id = participant['UserIdentity']['UserRecordID']['RecordName']
-                            email_address = participant['UserIdentity']['LookupInfo']['EmailAddress']
-                            phone_number = participant['UserIdentity']['LookupInfo']['PhoneNumber']
-                            first_name = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate']['NS.givenName']
-                            middle_name = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate']['NS.middleName']
-                            last_name = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate']['NS.familyName']
-                            name_prefix = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate']['NS.namePrefix']
-                            name_suffix = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate']['NS.nameSuffix']
-                            nickname = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate']['NS.nickname']
-                
-                            user_dictionary[record_id] = [record_id, email_address, phone_number, name_prefix, first_name, middle_name, last_name, name_suffix, nickname]
+                            try:
+                                if not isinstance(participant, dict) or 'UserIdentity' not in participant:
+                                    continue
+                                
+                                # must be dict and have UserIdentity
+                                user_identity = participant.get('UserIdentity')
+                                if not isinstance(user_identity, dict):
+                                    continue
+                                
+                                user_record_id = user_identity.get('UserRecordID')
+                                if not isinstance(user_record_id, dict):
+                                    continue
+
+                                record_id = user_record_id.get('RecordName', '')
+                                lookup_info = user_identity.get('LookupInfo', {})
+                                email_address = lookup_info.get('EmailAddress', '') if isinstance(lookup_info, dict) else ''
+                                phone_number = lookup_info.get('PhoneNumber', '') if isinstance(lookup_info, dict) else ''
+                                
+                                name_components = user_identity.get('NameComponents', {})
+                                if isinstance(name_components, dict):
+                                    name_private = name_components.get('NS.nameComponentsPrivate', {})
+                                    if isinstance(name_private, dict):
+                                        first_name = name_private.get('NS.givenName', '')
+                                        middle_name = name_private.get('NS.middleName', '')
+                                        last_name = name_private.get('NS.familyName', '')
+                                        name_prefix = name_private.get('NS.namePrefix', '')
+                                        name_suffix = name_private.get('NS.nameSuffix', '')
+                                        nickname = name_private.get('NS.nickname', '')
+                                    else:
+                                        first_name = middle_name = last_name = name_prefix = name_suffix = nickname = ''
+                                else:
+                                    first_name = middle_name = last_name = name_prefix = name_suffix = nickname = ''
+                                
+                                # only add valid entries
+                                if record_id: 
+                                    user_dictionary[record_id] = [record_id, email_address, phone_number, name_prefix, first_name, middle_name, last_name, name_suffix, nickname]
+                            except (KeyError, TypeError, AttributeError) as e:
+                                logfunc(f'Error processing participant data: {str(e)}')
+                                continue
             db.close()
     
     # Build the array after dealing with all the files 
