@@ -7,6 +7,7 @@ from PIL import Image
 import imghdr
 import zlib
 import binascii
+import os
 
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly, does_column_exist_in_db
@@ -148,12 +149,24 @@ def get_notes(files_found, report_folder, seeker, wrap_text, timezone_offset):
             if row[10] is not None and row[11] is not None:
                 attachment_file = join(dirname(analyzed_file), 'Accounts/LocalAccount/Media', row[11], row[10])
                 attachment_storage_path = dirname(attachment_file)
-                if imghdr.what(attachment_file) == 'jpeg' or imghdr.what(attachment_file) == 'jpg' or imghdr.what(attachment_file) == 'png':
-                    thumbnail_path = join(report_folder, 'thumbnail_'+row[10])
-                    save_original_attachment_as_thumbnail(attachment_file, thumbnail_path)
-                    thumbnail = '<img src="{}">'.format(thumbnail_path)
+
+                if not os.path.exists(attachment_file):
+                    thumbnail = 'Attachment file not found.'
                 else:
-                    thumbnail = 'File is not an image or the filetype is not supported yet.'
+                    try:
+                        filetype = imghdr.what(attachment_file)
+                    except Exception as e:
+                        filetype = None
+
+                    if filetype in ('jpeg', 'jpg', 'png'):
+                        thumbnail_path = join(report_folder, 'thumbnail_' + basename(attachment_file))
+                        try:
+                            save_original_attachment_as_thumbnail(attachment_file, thumbnail_path)
+                            thumbnail = f'<img src="{thumbnail_path}">'
+                        except Exception as e:
+                            thumbnail = 'Attachment present but thumbnail creation failed.'
+                    else:
+                        thumbnail = 'File is not an image or the filetype is not supported'
             else:
                 thumbnail = ''
                 attachment_storage_path = ''
