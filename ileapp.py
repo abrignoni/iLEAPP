@@ -9,6 +9,7 @@ import typing
 import scripts.report as report
 import traceback
 import sys
+from pathlib import Path
 
 import scripts.plugin_loader as plugin_loader
 
@@ -346,6 +347,9 @@ def crunch_artifacts(
     logfunc('Objective: Triage iOS Full File System and iTunes Backup Extractions.')
     logfunc('By: Alexis Brignoni | @AlexisBrignoni | abrignoni.com')
     logfunc('By: Yogesh Khatri   | @SwiftForensics | swiftforensics.com\n')
+
+
+
     logdevinfo()
 
     seeker = None
@@ -395,6 +399,31 @@ def crunch_artifacts(
         logfunc(temp_file.getvalue())
         temp_file.close()
         return False
+
+    # Attempt to load a KeyChain
+    input_path_directory = Path(input_path)
+    if extracttype != 'fs':
+        logfunc('Checking for GrayKey keychain file in the same folder as the input "*keychain.plist\n')
+        input_path_directory = input_path_directory.parent
+    # Checks for file ending in keychain.plist in the root of the input folder
+    # If input is an archive (ZIP, TAR, GZ) the file needs to be in the same folder as the archive file
+    # If input is a Folder (FS) it needs to be contained in the root folder - Not sure if this should do something more
+    matching_files = list(input_path_directory.glob("*keychain.plist"))
+
+    if matching_files:
+        logfunc(f'Found Keychain File: {matching_files[0]}')
+        iOS.load_keychain(matching_files[0])
+    else:
+        logfunc(f'Did not find GrayKey keychain file. Make sure it is located in the folder: {input_path_directory}\n')
+        # If a GrayKey style keychain was not found alongside the Archive file, it may be a UFED extraction.
+        # Check inside the archive for the file: extra/KeychainDump/backup_keychain_v2.plist
+        keychain_search = "*/extra/KeychainDump/backup_keychain_v2.plist"
+        logfunc('Checking for UFED keychain file within the Input File\n')
+        logfunc(f'Checking for file at the path: {keychain_search}\n')
+        keychain_seeker_results = seeker.search(keychain_search, True)
+        if keychain_seeker_results:
+            logfunc("UFED Keychain Found")
+            iOS.load_ufed_keychain(keychain_seeker_results)
 
     # Now ready to run
     # add last_build at the start except for iTunes backups
