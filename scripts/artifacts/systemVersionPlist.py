@@ -36,7 +36,7 @@ def system_version_plist(context):
     sysdiagnose_archive = context.get_source_file_path("sysdiagnose_*.tar.gz")
 
     if plist_file:
-        data_source = system_version_plist
+        data_source = plist_file
         pl = get_plist_file_content(data_source)
     elif 'sysdiagnose_' in sysdiagnose_archive and "IN_PROGRESS_" not in sysdiagnose_archive:
         tar = tarfile.open(sysdiagnose_archive)
