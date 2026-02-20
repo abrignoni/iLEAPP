@@ -22,11 +22,11 @@ class Context:
     _module_name = None
     _module_file_path = None
     _artifact_name = None
-    _files_found = []
-    _filename_lookup_map = {}
-    _device_ids = {}
-    _device_boards = {}
-    _os_builds = {}
+    _files_found: list = []
+    _filename_lookup_map: dict = {}
+    _device_ids: dict = {}
+    _device_boards: dict = {}
+    _os_builds: dict = {}
     _installed_os_version = ""
 
     @staticmethod

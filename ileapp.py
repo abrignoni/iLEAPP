@@ -18,7 +18,7 @@ from scripts.search_files import *
 from scripts.ilapfuncs import *
 from scripts.version_info import ileapp_version
 from time import process_time, gmtime, strftime, perf_counter
-from scripts.lavafuncs import *
+from scripts.lavafuncs import *  # type: ignore[assignment]
 from scripts.context import Context
 
 def validate_args(args):
@@ -348,7 +348,7 @@ def crunch_artifacts(
     logfunc('By: Yogesh Khatri   | @SwiftForensics | swiftforensics.com\n')
     logdevinfo()
 
-    seeker = None
+    seeker: FileSeekerBase | None = None
     password = itunes_backup_password
     try:
         if extracttype == 'fs':
@@ -399,7 +399,7 @@ def crunch_artifacts(
     # Now ready to run
     # add last_build at the start except for iTunes backups
     if extracttype != 'itunes':
-        plugins.insert(0, loader["last_build"])
+        plugins.insert(0, loader["last_build"])  # type: ignore[attr-defined]
 
     logfunc(f'Info: {len(loader) - 2} modules loaded.') # excluding last_build and iTunesBackupInfo
     if profile_filename:
@@ -464,6 +464,7 @@ def crunch_artifacts(
             files_found = [os.path.join(out_params.output_folder_base, '_lava_artifacts.db')]
         else:
             for artifact_search_regex in search_regexes:
+                assert seeker is not None
                 found = seeker.search(artifact_search_regex)
                 if not found:
                     if plugin.name == 'logarchive' and extracttype != 'fs' and extracttype != 'file':

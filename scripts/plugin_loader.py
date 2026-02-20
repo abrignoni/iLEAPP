@@ -89,6 +89,8 @@ class PluginLoader:
         """
 
         spec = importlib.util.spec_from_file_location(path.stem, path)
+        assert spec is not None
+        assert spec.loader is not None
         loader = importlib.util.LazyLoader(spec.loader)
         spec.loader = loader
         mod = importlib.util.module_from_spec(spec)

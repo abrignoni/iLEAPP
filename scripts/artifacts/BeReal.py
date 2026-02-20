@@ -209,7 +209,7 @@ from scripts.ilapfuncs import get_file_path, get_sqlite_db_records, get_plist_co
 global bereal_user_id, _bereal_processed
 
 # <id, fullname|username>
-map_id_name = {}
+map_id_name: dict = {}
 
 # bereal user id
 bereal_user_id = None
@@ -251,8 +251,8 @@ def get_media(obj : dict):
         # url
         pp_url = obj.get('url')
         # size 1.x
-        if bool(pp_size := obj.get('size')) and len(pp_size) == 2:
-            pp_size = f"{pp_size[0]}x{pp_size[1]}"
+        if bool(pp_size := obj.get('size')) and len(pp_size) == 2:  # type: ignore[arg-type]
+            pp_size = f"{pp_size[0]}x{pp_size[1]}"  # type: ignore[index]
         # size 2.x, 4.x
         elif (w := obj.get('width')) and (h := obj.get('height')):
             pp_size = f"{w}x{h}"

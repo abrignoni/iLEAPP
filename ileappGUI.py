@@ -16,7 +16,7 @@ from scripts.search_files import *
 from scripts.ilapfuncs import *
 from scripts.tz_offset import tzvalues
 from scripts.modules_to_exclude import modules_to_exclude
-from scripts.lavafuncs import *
+from scripts.lavafuncs import *  # type: ignore[assignment]
 from scripts.context import Context
 
 
@@ -479,7 +479,7 @@ window_height = 620
 icon = resource_path('icon.png')
 loader: typing.Optional[plugin_loader.PluginLoader] = None
 loader = plugin_loader.PluginLoader()
-mlist = {}
+mlist: dict = {}
 profile_filename = None
 casedata = {'Case Number': tk.StringVar(),
             'Agency': tk.StringVar(),

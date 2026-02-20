@@ -35,15 +35,15 @@ from scripts.lavafuncs import lava_process_artifact, lava_insert_sqlite_data, la
     lava_insert_sqlite_media_item, lava_insert_sqlite_media_references, lava_get_media_references, \
     lava_get_full_media_info
 
-os.path.basename = lru_cache(maxsize=None)(os.path.basename)
+os.path.basename = lru_cache(maxsize=None)(os.path.basename)  # type: ignore[assignment]
 
 thumbnail_root = '**/Media/PhotoData/Thumbnails/**/'
 media_root = '**/Media/'
 thumb_size = 256, 256
 
-identifiers = {}
-icons = {}
-lava_only_artifacts = {}
+identifiers: dict = {}
+icons: dict = {}
+lava_only_artifacts: dict = {}
 
 class iOS:
     _version = None
@@ -1516,7 +1516,7 @@ def get_resolution_for_model_id(model_id: str):
         {'Model ID': 'iPad1,1', 'Model Name': 'iPad 1st gen', 'Width': 768, 'Height': 1024}]
 
     for entry in data:
-        if entry.get('Model ID').lower() == model_id.lower():
+        if entry.get('Model ID').lower() == model_id.lower():  # type: ignore[union-attr, attr-defined]
             return entry
     logfunc(
         f"Warning! - Resolution not found for '{model_id}', contact developers to add resolution into the get_resolution_for_model_id function")

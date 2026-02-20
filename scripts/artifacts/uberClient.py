@@ -47,7 +47,7 @@ def FormatLocation(location, values, item, key,
     if bool(str_values):
         if str_item.startswith('\\\\?\\'):
             str_item = str_item[4:]
-        str_values = str_values.split(sep_split)
+        str_values = str_values.split(sep_split)  # type: ignore[assignment]
         for elem in range(0, len(str_values)):
             if bool(str_values[elem]) and (str_values[elem].lower() != 'none'):
                 if len(newLocation) > 0:

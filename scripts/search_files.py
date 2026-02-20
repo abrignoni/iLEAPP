@@ -30,7 +30,7 @@ import struct
 from pathlib import Path
 from shutil import copyfile
 from zipfile import ZipFile
-from fnmatch import _compile_pattern
+from fnmatch import _compile_pattern  # type: ignore[attr-defined]
 from functools import lru_cache
 
 # Yes, this is hazmat, but we're only using it to unwrap existing keys

@@ -107,7 +107,7 @@ _query = '''SELECT application_identifier_tab.application_identifier,
 
 
 # namedtuple to represent the common fields from a snapshot
-_snapshot = _nt('snapshot', 'creationDate bundleID snapshot_group '
+_snapshot = _nt('_snapshot', 'creationDate bundleID snapshot_group '
                             'snapshot_index expirationDate lastUsedDate '
                             'launchInterfaceIdentifier relativePath '
                             'groupID imageScale fullScreen name '
