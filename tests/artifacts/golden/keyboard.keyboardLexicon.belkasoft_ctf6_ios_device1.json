@@ -1,0 +1,12 @@
+{
+  "headers": [
+    "Found Strings",
+    "File Location"
+  ],
+  "data": [
+    [
+      "N.2mo,and,another,bike,bills,bucket,buy,N+?Cannondale,checkup,Chicago,chi,Detroit,evenings,evening,Grace,grace,Greece,N*Gr,hockey,ideas,Italy,N*?iu,just,list,magnesium,midday,morning,multi,new,nice,omega,one,Paris,pickles,pick,pic,rent,sell,Singapore,some,todo,travel",
+      "en-dynamic.lm/dynamic-lexicon.dat"
+    ]
+  ]
+}

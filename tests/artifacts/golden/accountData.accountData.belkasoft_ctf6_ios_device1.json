@@ -1,0 +1,140 @@
+{
+  "headers": [
+    "Timestamp",
+    "Account Desc.",
+    "Username",
+    "Description",
+    "Identifier",
+    "Bundle ID"
+  ],
+  "data": [
+    [
+      "2023-08-24 21:19:23+00:00",
+      "iTunes Store",
+      "local",
+      "None",
+      "BECAF528-9F85-4896-A765-11A436A88EE9",
+      "com.apple.AssistantServices"
+    ],
+    [
+      "2023-08-24 21:19:25+00:00",
+      "iTunes Store (Sandbox)",
+      "local",
+      "None",
+      "30A6F256-0C5A-430A-B968-5A0589AE17BC",
+      "appstored"
+    ],
+    [
+      "2023-08-24 22:24:01+00:00",
+      "Holiday Calendar",
+      "None",
+      "US Holidays",
+      "20A1F3B5-06FF-45DE-95DE-01DD9BB356EE",
+      "dataaccessd"
+    ],
+    [
+      "2024-04-04 05:11:52+00:00",
+      "IDMS",
+      "billthemegakill@icloud.com",
+      "None",
+      "845B40E3-C2C4-4C7E-B86B-26AF7260AD5F",
+      "com.apple.AuthKit"
+    ],
+    [
+      "2024-04-04 05:11:52+00:00",
+      "Apple ID",
+      "billthemegakill@icloud.com",
+      "None",
+      "4DCC45DF-C77F-4F31-9FC3-6BDF4D8DB816",
+      "com.apple.AuthKit"
+    ],
+    [
+      "2024-04-04 05:11:56+00:00",
+      "Messages",
+      "billthemegakill@icloud.com",
+      "None",
+      "C039B651-0B80-450B-AB50-7F8DAFA3A11C",
+      "com.apple.Preferences"
+    ],
+    [
+      "2024-04-04 05:11:56+00:00",
+      "iCloud",
+      "billthemegakill@icloud.com",
+      "iCloud",
+      "9990A8F4-F5F6-4313-AAC8-CA4A7B4901FB",
+      "com.apple.Preferences"
+    ],
+    [
+      "2024-04-04 05:11:56+00:00",
+      "CloudKit",
+      "billthemegakill@icloud.com",
+      "None",
+      "84DE4495-6F13-4D5B-9094-8EC0FC0A8DB8",
+      "com.apple.accounts.accountsd"
+    ],
+    [
+      "2024-04-04 05:12:15+00:00",
+      "IMAPMail",
+      "billthemegakill@icloud.com",
+      "None",
+      "C770711F-1C9A-495A-BF82-B655D00E9D5E",
+      "com.apple.accounts.accountsd"
+    ],
+    [
+      "2024-04-04 05:12:15+00:00",
+      "IMAPNotes",
+      "None",
+      "None",
+      "971C7396-BEB6-47A9-AF85-1F3092F29DA6",
+      "com.apple.accounts.accountsd"
+    ],
+    [
+      "2024-04-04 05:12:15+00:00",
+      "CalDAV",
+      "None",
+      "None",
+      "599EEC39-B56E-4455-AA42-A7D74123F2E6",
+      "com.apple.accounts.accountsd"
+    ],
+    [
+      "2024-04-04 05:12:15+00:00",
+      "CardDAV",
+      "None",
+      "None",
+      "D1210347-46BE-45C7-9962-210FD45282E1",
+      "com.apple.accounts.accountsd"
+    ],
+    [
+      "2024-04-04 05:12:17+00:00",
+      "Device Locator",
+      "billthemegakill@icloud.com",
+      "iCloud - Device Locator",
+      "45E7AF6F-906A-4FF0-9E28-90CF0B10EF13",
+      "com.apple.accountsd"
+    ],
+    [
+      "2024-04-04 05:12:22+00:00",
+      "Find My Friends",
+      "billthemegakill@icloud.com",
+      "iCloud - Find My Friends",
+      "293FD11E-2894-4AD7-A9F6-D13084008640",
+      "com.apple.accountsd"
+    ],
+    [
+      "2024-04-04 05:12:25+00:00",
+      "iTunes Store",
+      "billthemegakill@icloud.com",
+      "None",
+      "17D0AF66-72DA-413B-83AE-FE85078A5E07",
+      "com.apple.accountsd"
+    ],
+    [
+      "2024-01-19 20:11:17+00:00",
+      "Game Center",
+      "billthemegakill@icloud.com",
+      "billthemegakill@icloud.com",
+      "10E7127A-EC68-4FEC-9009-A7A948F17159",
+      "com.apple.cloudd"
+    ]
+  ]
+}

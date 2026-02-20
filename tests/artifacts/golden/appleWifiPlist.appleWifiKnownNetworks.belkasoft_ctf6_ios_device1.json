@@ -1,0 +1,58 @@
+{
+  "headers": [
+    "SSID",
+    "BSSID",
+    "Network Usage",
+    "Country Code",
+    "Device Name",
+    "Manufacturer",
+    "Serial Number",
+    "Model Name",
+    "Enabled",
+    "Carplay Network",
+    "Hidden",
+    "Captive Network",
+    "User Portal URL",
+    "Add Reason",
+    "Bundle ID",
+    "Source File"
+  ],
+  "data": [
+    [
+      "TWR9",
+      "80:69:1a:6a:e3:93",
+      "7670860.175439",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "False",
+      "False",
+      "",
+      "",
+      "",
+      "<ROOT>/private/var/preferences/com.apple.wifi.known-networks.plist"
+    ],
+    [
+      "UCPLPublicWireless",
+      "36:56:ee:50:83:97",
+      "902.350212931633",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "False",
+      "False",
+      "",
+      "",
+      "",
+      "<ROOT>/private/var/preferences/com.apple.wifi.known-networks.plist"
+    ]
+  ]
+}

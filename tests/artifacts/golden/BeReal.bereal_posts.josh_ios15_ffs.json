@@ -1,0 +1,25 @@
+{
+  "headers": [
+    "Taken at",
+    "Moment day",
+    "Post type",
+    "Author",
+    "Primary media type",
+    "Primary URL",
+    "Secondary media type",
+    "Secondary URL",
+    "Thumbnail media type",
+    "Thumbnail URL",
+    "Caption",
+    "Latitude",
+    "Longitude",
+    "Retake counter",
+    "Late time",
+    "Tagged friends",
+    "Moment ID",
+    "BeReal ID",
+    "Source file name",
+    "Location"
+  ],
+  "data": []
+}

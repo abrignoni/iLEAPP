@@ -1,0 +1,40 @@
+{
+  "headers": [
+    "SSID",
+    "BSSID",
+    "Network Usage",
+    "Country Code",
+    "Device Name",
+    "Manufacturer",
+    "Serial Number",
+    "Model Name",
+    "Enabled",
+    "Carplay Network",
+    "Hidden",
+    "Captive Network",
+    "User Portal URL",
+    "Add Reason",
+    "Bundle ID",
+    "Source File"
+  ],
+  "data": [
+    [
+      "Matt_Foley",
+      "6a:22:32:98:f4:df",
+      "2262707.5380142927",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "False",
+      "False",
+      "",
+      "",
+      "",
+      "<ROOT>/filesystem2/preferences/com.apple.wifi.known-networks.plist"
+    ]
+  ]
+}

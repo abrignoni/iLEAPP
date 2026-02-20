@@ -1,0 +1,16 @@
+{
+  "headers": [
+    "Created",
+    "BeReal ID",
+    "Direction",
+    "Owner",
+    "Author",
+    "Emoji",
+    "RealMoji",
+    "Moment ID",
+    "RealMoji ID",
+    "Source file name",
+    "Location"
+  ],
+  "data": []
+}

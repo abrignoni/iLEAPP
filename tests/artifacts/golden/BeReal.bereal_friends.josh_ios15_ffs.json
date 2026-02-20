@@ -1,0 +1,28 @@
+{
+  "headers": [
+    "Status updated at",
+    "Status",
+    "Profile type",
+    "Full name",
+    "Username",
+    "Profile picture URL",
+    "Mutual friends",
+    "Unique ID",
+    "Source file name",
+    "Location"
+  ],
+  "data": [
+    [
+      "None",
+      "Friend",
+      "None",
+      "DFIRTwo",
+      "thisisdfirtwo",
+      "None",
+      "None",
+      "XcGNCWomJHgq0HzF8QL8k1pRkI82",
+      "disk-bereal-RelationshipsFriendsListManager/5D0D66C27E420224031B3AE11392258F",
+      "[object][0]"
+    ]
+  ]
+}

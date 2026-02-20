@@ -1,0 +1,40 @@
+{
+  "headers": [
+    "SSID",
+    "BSSID",
+    "Channel Flags",
+    "Channel",
+    "Last Associated/Roamed At",
+    "Location Accuracy",
+    "Location Timestamp",
+    "Location Latitude",
+    "Location Longitude",
+    "Source File"
+  ],
+  "data": [
+    [
+      "TWR9",
+      "80:69:1a:6a:e3:93",
+      "10",
+      "11",
+      "2024-01-21 22:38:29+00:00",
+      "",
+      "",
+      "",
+      "",
+      "<ROOT>/private/var/preferences/com.apple.wifi.known-networks.plist"
+    ],
+    [
+      "UCPLPublicWireless",
+      "36:56:ee:50:83:97",
+      "1040",
+      "36",
+      "2024-04-03 07:26:18+00:00",
+      "",
+      "",
+      "",
+      "",
+      "<ROOT>/private/var/preferences/com.apple.wifi.known-networks.plist"
+    ]
+  ]
+}

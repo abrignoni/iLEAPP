@@ -1,0 +1,39 @@
+{
+  "headers": [
+    "Property Name",
+    "Property Value",
+    "Source File"
+  ],
+  "data": [
+    [
+      "IPAddress",
+      "100.64.0.236",
+      "<ROOT>/private/var/db/dhcpclient/leases/en0.plist"
+    ],
+    [
+      "LeaseLength",
+      "7200",
+      "<ROOT>/private/var/db/dhcpclient/leases/en0.plist"
+    ],
+    [
+      "LeaseStartDate",
+      "2023-01-08 16:39:17",
+      "<ROOT>/private/var/db/dhcpclient/leases/en0.plist"
+    ],
+    [
+      "RouterHardwareAddress",
+      "ac:1f:6b:6e:20:9d",
+      "<ROOT>/private/var/db/dhcpclient/leases/en0.plist"
+    ],
+    [
+      "RouterIPAddress",
+      "100.64.0.1",
+      "<ROOT>/private/var/db/dhcpclient/leases/en0.plist"
+    ],
+    [
+      "SSID",
+      "Spinner Place",
+      "<ROOT>/private/var/db/dhcpclient/leases/en0.plist"
+    ]
+  ]
+}

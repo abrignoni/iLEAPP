@@ -1,0 +1,19 @@
+{
+  "headers": [
+    "Timestamp Last Sync",
+    "Display Name",
+    "Phone Number"
+  ],
+  "data": [
+    [
+      "2023-05-18 13:12:00+00:00",
+      "ThisIs DFIR",
+      "19195794674"
+    ],
+    [
+      "2023-05-17 13:09:50+00:00",
+      "ThisIs DfirTwo",
+      ""
+    ]
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "headers": [
+    "Created",
+    "BeReal ID",
+    "Direction",
+    "Owner",
+    "Author",
+    "Text",
+    "Moment ID",
+    "Comment ID",
+    "Source file name",
+    "Location"
+  ],
+  "data": []
+}

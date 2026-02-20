@@ -1,0 +1,13 @@
+{
+  "headers": [
+    "Starting Timestamp",
+    "Ending Timestamp",
+    "Duration H:M:S",
+    "Direction",
+    "Disconnected cause",
+    "Contact ID",
+    "Contact Fullname",
+    "Phone Number"
+  ],
+  "data": []
+}

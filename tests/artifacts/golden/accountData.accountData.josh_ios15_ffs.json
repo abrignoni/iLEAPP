@@ -1,0 +1,164 @@
+{
+  "headers": [
+    "Timestamp",
+    "Account Desc.",
+    "Username",
+    "Description",
+    "Identifier",
+    "Bundle ID"
+  ],
+  "data": [
+    [
+      "2023-04-11 14:45:47+00:00",
+      "iTunes Store",
+      "local",
+      "None",
+      "8F20C9B2-32DB-48F1-9B9F-23037D0105C4",
+      "locationd"
+    ],
+    [
+      "2023-04-15 13:54:24+00:00",
+      "iTunes Store (Sandbox)",
+      "local",
+      "None",
+      "C4ED1414-7F34-4128-BFB1-51C5B6F31E1E",
+      "appstored"
+    ],
+    [
+      "2023-04-15 13:58:18+00:00",
+      "IDMS",
+      "thisisdfir@gmail.com",
+      "None",
+      "A557D70F-95E6-41E9-9469-AE7E3D3BFBF1",
+      "com.apple.AuthKit"
+    ],
+    [
+      "2023-04-15 13:58:18+00:00",
+      "Apple ID",
+      "thisisdfir@gmail.com",
+      "None",
+      "E78C1C66-9632-4991-948D-4719D4A5D016",
+      "com.apple.AuthKit"
+    ],
+    [
+      "2023-04-15 13:58:28+00:00",
+      "Game Center",
+      "thisisdfir@gmail.com",
+      "thisisdfir@gmail.com",
+      "800619F5-D745-4591-A9AA-FCE86AD2D9A0",
+      "com.apple.purplebuddy"
+    ],
+    [
+      "2023-04-15 13:58:28+00:00",
+      "Messages",
+      "thisisdfir@gmail.com",
+      "None",
+      "11AB33A0-0233-400A-9B5B-4960720458E6",
+      "com.apple.purplebuddy"
+    ],
+    [
+      "2023-04-15 13:58:28+00:00",
+      "iCloud",
+      "thisisdfir@gmail.com",
+      "iCloud",
+      "79327CCA-8D1E-4F0A-B32B-871C0CC1C1AF",
+      "com.apple.purplebuddy"
+    ],
+    [
+      "2023-04-15 13:58:28+00:00",
+      "CloudKit",
+      "thisisdfir@gmail.com",
+      "None",
+      "8A19A168-0E55-4E8C-8424-231E0261D3AF",
+      "com.apple.accounts.accountsd"
+    ],
+    [
+      "2023-04-15 13:58:39+00:00",
+      "CardDAV",
+      "None",
+      "None",
+      "4309665D-5460-4602-ADED-0C4121AD6A3D",
+      "com.apple.accounts.accountsd"
+    ],
+    [
+      "2023-04-15 13:58:39+00:00",
+      "IMAPNotes",
+      "None",
+      "None",
+      "2C08C313-0A73-42F5-9D5C-8A770BE09F2D",
+      "com.apple.accounts.accountsd"
+    ],
+    [
+      "2023-04-15 13:58:39+00:00",
+      "CalDAV",
+      "None",
+      "None",
+      "32785ECA-F771-45DE-976D-0A4C483ED5A3",
+      "com.apple.accounts.accountsd"
+    ],
+    [
+      "2023-04-15 13:58:42+00:00",
+      "Device Locator",
+      "thisisdfir@gmail.com",
+      "iCloud - Device Locator",
+      "94E5BDF7-B2D9-4C68-A648-95FB3053B779",
+      "com.apple.accountsd"
+    ],
+    [
+      "2023-04-15 13:58:42+00:00",
+      "Find My Friends",
+      "thisisdfir@gmail.com",
+      "iCloud - Find My Friends",
+      "51799F1D-4CBB-4516-BA46-6BB388709395",
+      "com.apple.accountsd"
+    ],
+    [
+      "2023-04-15 13:58:42+00:00",
+      "iTunes Store",
+      "thisisdfir@gmail.com",
+      "None",
+      "9CDDF80D-D8A1-45CB-B409-33EF12107ED0",
+      "com.apple.purplebuddy"
+    ],
+    [
+      "2023-04-15 14:00:07+00:00",
+      "Holiday Calendar",
+      "None",
+      "US Holidays",
+      "21B932F3-4DE5-4B0C-84DE-64B1D2328094",
+      "dataaccessd"
+    ],
+    [
+      "2023-04-24 17:59:52+00:00",
+      "Gmail",
+      "thisisdfir@gmail.com",
+      "Gmail",
+      "56AB9BA6-2343-41BF-9B3A-CF187043AC5C",
+      "com.apple.mobilemail"
+    ],
+    [
+      "2023-04-24 17:59:52+00:00",
+      "CardDAV",
+      "None",
+      "None",
+      "BEBE918C-3A13-4949-8C19-9B6B7E7E266F",
+      "com.apple.accounts.accountsd"
+    ],
+    [
+      "2023-04-24 17:59:52+00:00",
+      "CalDAV",
+      "None",
+      "None",
+      "DCAAA518-A99E-4B92-964A-0015D769FA77",
+      "com.apple.accounts.accountsd"
+    ],
+    [
+      "2023-04-24 17:59:52+00:00",
+      "IMAPNotes",
+      "None",
+      "None",
+      "E1073B39-D3EB-474B-A50E-1368BC1515F6",
+      "com.apple.accounts.accountsd"
+    ]
+  ]
+}

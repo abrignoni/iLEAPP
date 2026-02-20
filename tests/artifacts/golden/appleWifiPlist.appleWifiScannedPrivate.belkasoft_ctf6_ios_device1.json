@@ -1,0 +1,49 @@
+{
+  "headers": [
+    "Last Updated",
+    "SSID",
+    "BSSID",
+    "Added At",
+    "Last Joined",
+    "Link Down Timestamp",
+    "MAC Generation Timestamp",
+    "First Join With New MAC Timestamp",
+    "MAC Used For Network",
+    "Private MAC Computed For Network",
+    "MAC Valid",
+    "In Known Networks",
+    "Source File"
+  ],
+  "data": [
+    [
+      "2024-04-05 21:10:54+00:00",
+      "TWR9",
+      "80:69:1a:6a:e3:93",
+      "2023-08-24 21:51:11+00:00",
+      "2024-01-21 22:38:32+00:00",
+      "2024-04-02 02:44:08+00:00",
+      "2023-08-24 21:51:10+00:00",
+      "2023-08-24 21:51:17+00:00",
+      "da:00:46:19:98:39",
+      "da:00:46:19:98:39",
+      "True",
+      "True",
+      "<ROOT>/private/var/preferences/SystemConfiguration/com.apple.wifi-private-mac-networks.plist"
+    ],
+    [
+      "2024-04-05 21:10:54+00:00",
+      "UCPLPublicWireless",
+      "36:56:ee:50:83:97",
+      "2024-04-03 07:26:18+00:00",
+      "2024-04-03 07:26:26+00:00",
+      "2024-04-03 07:41:20+00:00",
+      "2024-04-03 07:26:18+00:00",
+      "2024-04-03 07:26:26+00:00",
+      "96:22:c9:bd:b0:df",
+      "96:22:c9:bd:b0:df",
+      "True",
+      "True",
+      "<ROOT>/private/var/preferences/SystemConfiguration/com.apple.wifi-private-mac-networks.plist"
+    ]
+  ]
+}

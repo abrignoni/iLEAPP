@@ -1,0 +1,34 @@
+{
+  "headers": [
+    "Last Updated",
+    "SSID",
+    "BSSID",
+    "Added At",
+    "Last Joined",
+    "Link Down Timestamp",
+    "MAC Generation Timestamp",
+    "First Join With New MAC Timestamp",
+    "MAC Used For Network",
+    "Private MAC Computed For Network",
+    "MAC Valid",
+    "In Known Networks",
+    "Source File"
+  ],
+  "data": [
+    [
+      "2023-05-20 19:55:03+00:00",
+      "Matt_Foley",
+      "6a:22:32:98:f4:df",
+      "2023-04-15 13:53:47+00:00",
+      "2023-05-20 19:55:03+00:00",
+      "2023-05-20 17:01:31+00:00",
+      "2023-04-15 13:53:50+00:00",
+      "2023-04-15 14:08:23+00:00",
+      "5e:e9:b1:2c:04:fb",
+      "5e:e9:b1:2c:04:fb",
+      "True",
+      "True",
+      "<ROOT>/filesystem2/preferences/SystemConfiguration/com.apple.wifi-private-mac-networks.plist"
+    ]
+  ]
+}

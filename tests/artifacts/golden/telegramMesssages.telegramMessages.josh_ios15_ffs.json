@@ -1,0 +1,664 @@
+{
+  "headers": [
+    "Timestamp",
+    "Direction",
+    "Author ID",
+    "Text",
+    "Forward Timestamp",
+    "Forward From",
+    "Action Data",
+    "Thumbnail"
+  ],
+  "data": [
+    [
+      "2023-01-04 14:49:51+00:00",
+      "Incoming",
+      "Telegram (777000)",
+      "Login code: 17779. Do not give this code to anyone, even if they say they are from Telegram!\n\nThis code can be used to log in to your Telegram account. We never ask it for anything else.\n\nIf you didn't request this code by trying to log in on another device, simply ignore this message.",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "2023-03-07 13:34:35+00:00",
+      "Incoming",
+      "Telegram (777000)",
+      "Enable Two-Step Verification\nDear ThisIs, your account is currently not protected with an additional password and only requires an SMS code to log in.\n\nFor your security, Telegram recommends that you set up a password in Settings > Privacy & Security > Two-Step Verification.\n\nThis password will be required each time you log in on a new device. This way, simply entering an SMS code will not be enough to access any of your data.",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "2023-04-29 19:57:15+00:00",
+      "Incoming",
+      "Telegram (777000)",
+      "Login code: 20424. Do not give this code to anyone, even if they say they are from Telegram!\n\nThis code can be used to log in to your Telegram account. We never ask it for anything else.\n\nIf you didn't request this code by trying to log in on another device, simply ignore this message.",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "2022-11-24 12:57:35+00:00",
+      "Incoming",
+      "This Is DFIR Two (1364243771)",
+      "Good morning!",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "2022-11-24 12:58:13+00:00",
+      "Outgoing",
+      "ThisIs DFIR (35845572390)",
+      "Good morning. Happy Thanksgiving.",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "2022-11-24 12:59:07+00:00",
+      "Incoming",
+      "This Is DFIR Two (1364243771)",
+      "Happy Thanksgiving. Got your stretchy pants on?",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "2022-11-24 13:01:12+00:00",
+      "Outgoing",
+      "ThisIs DFIR (35845572390)",
+      "You know it. I'm skipping breakfast so I have extra room.  😀",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "2022-11-24 13:03:25+00:00",
+      "Incoming",
+      "This Is DFIR Two (1364243771)",
+      "You're a professional.",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "2022-11-24 13:08:40+00:00",
+      "Outgoing",
+      "ThisIs DFIR (35845572390)",
+      "I like to think of myself as experienced. Lol.",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "2022-11-24 13:09:32+00:00",
+      "Incoming",
+      "This Is DFIR Two (1364243771)",
+      "Agreed. Lol.",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "2022-11-24 13:10:31+00:00",
+      "Outgoing",
+      "ThisIs DFIR (35845572390)",
+      "Games have started. Uruguay v South Korea.",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "2022-11-24 13:11:16+00:00",
+      "Incoming",
+      "This Is DFIR Two (1364243771)",
+      "I'm already setup to watch.",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "2022-11-24 13:30:12+00:00",
+      "Outgoing",
+      "ThisIs DFIR (35845572390)",
+      "Good. I'll send you a picture in a moment.",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "2022-11-24 13:31:20+00:00",
+      "Outgoing",
+      "ThisIs DFIR (35845572390)",
+      "",
+      "",
+      "",
+      "Image: ID telegram-cloud-photo-size-1-4899965091374541689-y",
+      "mock_hash_telegram-cloud-photo-size-1-4899965091374541689-y"
+    ],
+    [
+      "2022-11-24 13:32:51+00:00",
+      "Incoming",
+      "This Is DFIR Two (1364243771)",
+      "Got it. I'll send a picture to you in a minute.",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "2022-11-24 13:34:43+00:00",
+      "Incoming",
+      "This Is DFIR Two (1364243771)",
+      "",
+      "",
+      "",
+      "Image: ID telegram-cloud-photo-size-1-4899965091374541690-y",
+      "mock_hash_telegram-cloud-photo-size-1-4899965091374541690-y"
+    ],
+    [
+      "2022-11-24 13:39:22+00:00",
+      "Outgoing",
+      "ThisIs DFIR (35845572390)",
+      "Nice. I can audio call you in a minute.",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "2022-11-24 13:42:11+00:00",
+      "Outgoing",
+      "ThisIs DFIR (35845572390)",
+      "",
+      "",
+      "",
+      "Action: <phoneCall (i=6381608536056868852, dr=2, d=105, vc=0)>",
+      ""
+    ],
+    [
+      "2022-11-24 13:43:19+00:00",
+      "Incoming",
+      "This Is DFIR Two (1364243771)",
+      "I'll audio call you in a minute.",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "2022-11-24 13:46:06+00:00",
+      "Incoming",
+      "This Is DFIR Two (1364243771)",
+      "",
+      "",
+      "",
+      "Action: <phoneCall (i=5859382381906221519, dr=2, d=115, vc=0)>",
+      ""
+    ],
+    [
+      "2022-11-24 13:48:11+00:00",
+      "Outgoing",
+      "ThisIs DFIR (35845572390)",
+      "I'll video call you momentarily.",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "2022-11-24 13:51:06+00:00",
+      "Outgoing",
+      "ThisIs DFIR (35845572390)",
+      "",
+      "",
+      "",
+      "Action: <phoneCall (i=6381608536056715108, dr=2, d=117, vc=1)>",
+      ""
+    ],
+    [
+      "2022-11-24 13:51:32+00:00",
+      "Incoming",
+      "This Is DFIR Two (1364243771)",
+      "Got it. I'll video call you in a minute.",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "2022-11-24 13:52:26+00:00",
+      "Outgoing",
+      "ThisIs DFIR (35845572390)",
+      "Sounds good. I'll be here.",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "2022-11-24 13:55:19+00:00",
+      "Incoming",
+      "This Is DFIR Two (1364243771)",
+      "",
+      "",
+      "",
+      "Action: <phoneCall (i=5859382380446882168, dr=2, d=109, vc=1)>",
+      ""
+    ],
+    [
+      "2022-11-24 13:58:13+00:00",
+      "Outgoing",
+      "ThisIs DFIR (35845572390)",
+      "Your message has been deleted.",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "2022-12-04 21:03:25+00:00",
+      "Outgoing",
+      "ThisIs DFIR (35845572390)",
+      "",
+      "",
+      "",
+      "Static Location: Lat: 35.63195857223736; Lon: -78.87106345712746",
+      ""
+    ],
+    [
+      "2022-12-04 21:04:45+00:00",
+      "Incoming",
+      "This Is DFIR Two (1364243771)",
+      "",
+      "",
+      "",
+      "Static Location: Lat: 35.63204444040317; Lon: -78.86898243786648",
+      ""
+    ],
+    [
+      "2022-12-04 21:05:40+00:00",
+      "Outgoing",
+      "ThisIs DFIR (35845572390)",
+      "",
+      "",
+      "",
+      "Dynamic Location Update: Lat: 35.629791696148295; Lon: -78.86690333022126; Hdg: 319°; Acc: 4.0m; Period: 172s",
+      ""
+    ],
+    [
+      "2022-12-04 21:09:21+00:00",
+      "Incoming",
+      "This Is DFIR Two (1364243771)",
+      "",
+      "",
+      "",
+      "Dynamic Location Update: Lat: 35.63196636516886; Lon: -78.85295768606213; Hdg: 62°; Acc: 4.0m; Period: 183s",
+      ""
+    ],
+    [
+      "2023-03-07 13:46:29+00:00",
+      "Outgoing",
+      "ThisIs DFIR (35845572390)",
+      "You there?",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "2023-03-07 13:47:51+00:00",
+      "Incoming",
+      "This Is DFIR Two (1364243771)",
+      "You want to send me a video?",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "2023-03-07 13:48:02+00:00",
+      "Outgoing",
+      "ThisIs DFIR (35845572390)",
+      "Sure. Give me a moment.",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "2023-03-07 13:48:51+00:00",
+      "Outgoing",
+      "ThisIs DFIR (35845572390)",
+      "",
+      "",
+      "",
+      "File: video.mp4 (MIME: video/mp4, ID: telegram-cloud-document-1-4916066008482972280)",
+      "mock_hash_telegram-cloud-document-1-4916066008482972280"
+    ],
+    [
+      "2023-03-07 13:50:48+00:00",
+      "Outgoing",
+      "ThisIs DFIR (35845572390)",
+      "Send me one?",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "2023-03-07 13:54:04+00:00",
+      "Incoming",
+      "This Is DFIR Two (1364243771)",
+      "",
+      "",
+      "",
+      "File: None (MIME: video/mp4, ID: telegram-cloud-document-1-4916066008482972281)",
+      "mock_hash_telegram-cloud-document-1-4916066008482972281"
+    ],
+    [
+      "2023-03-07 16:15:56+00:00",
+      "Outgoing",
+      "ThisIs DFIR (35845572390)",
+      "",
+      "",
+      "",
+      "File: video.mp4 (MIME: video/mp4, ID: telegram-cloud-document-1-4916066008482972284)",
+      "mock_hash_telegram-cloud-document-1-4916066008482972284"
+    ],
+    [
+      "2023-03-07 16:40:41+00:00",
+      "Incoming",
+      "This Is DFIR Two (1364243771)",
+      "Got it. I'll send one over. Give me a moment.",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "2023-03-07 16:41:50+00:00",
+      "Incoming",
+      "This Is DFIR Two (1364243771)",
+      "",
+      "",
+      "",
+      "File: None (MIME: video/mp4, ID: telegram-cloud-document-1-4916066008482972286)",
+      "mock_hash_telegram-cloud-document-1-4916066008482972286"
+    ],
+    [
+      "2023-04-30 14:38:56+00:00",
+      "Incoming",
+      "This Is DFIR Two (1364243771)",
+      "Good morning!",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "2023-04-30 14:41:03+00:00",
+      "Outgoing",
+      "ThisIs DFIR (35845572390)",
+      "Good morning!  Battery is mostly charged. Should last about two hours. Lol.",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "2023-04-30 14:43:02+00:00",
+      "Incoming",
+      "This Is DFIR Two (1364243771)",
+      "Ha!  Sounds about right.  What’s does the battery health status ay?",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "2023-04-30 14:44:54+00:00",
+      "Outgoing",
+      "ThisIs DFIR (35845572390)",
+      "86%, so not “service.”",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "2023-04-30 14:46:19+00:00",
+      "Incoming",
+      "This Is DFIR Two (1364243771)",
+      "Well, something is up. I bet that drop in the strawberry field didn’t help.",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "2023-04-30 14:47:23+00:00",
+      "Outgoing",
+      "ThisIs DFIR (35845572390)",
+      "No it did not. I’ll send you a picture in a moment.",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "2023-04-30 14:56:27+00:00",
+      "Outgoing",
+      "ThisIs DFIR (35845572390)",
+      "",
+      "",
+      "",
+      "Image: ID telegram-cloud-photo-size-1-5076097242007448292-y",
+      "mock_hash_telegram-cloud-photo-size-1-5076097242007448292-y"
+    ],
+    [
+      "2023-04-30 14:57:28+00:00",
+      "Incoming",
+      "This Is DFIR Two (1364243771)",
+      "I also feel that. Lol. I’ll send you picture now.",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "2023-04-30 14:59:43+00:00",
+      "Incoming",
+      "This Is DFIR Two (1364243771)",
+      "",
+      "",
+      "",
+      "Image: ID telegram-cloud-photo-size-1-5076097242007448293-y",
+      "mock_hash_telegram-cloud-photo-size-1-5076097242007448293-y"
+    ],
+    [
+      "2023-04-30 15:08:52+00:00",
+      "Outgoing",
+      "ThisIs DFIR (35845572390)",
+      "I will audio call you in a minute.",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "2023-04-30 15:10:26+00:00",
+      "Incoming",
+      "This Is DFIR Two (1364243771)",
+      "Sounds good. I’ll be here.",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "2023-04-30 15:12:56+00:00",
+      "Outgoing",
+      "ThisIs DFIR (35845572390)",
+      "",
+      "",
+      "",
+      "Action: <phoneCall (i=6381608536056773282, dr=2, d=96, vc=0)>",
+      ""
+    ],
+    [
+      "2023-04-30 15:14:02+00:00",
+      "Incoming",
+      "This Is DFIR Two (1364243771)",
+      "Now I’ll audio call you.",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "2023-04-30 15:16:50+00:00",
+      "Incoming",
+      "This Is DFIR Two (1364243771)",
+      "",
+      "",
+      "",
+      "Action: <phoneCall (i=5859382380465099325, dr=2, d=100, vc=0)>",
+      ""
+    ],
+    [
+      "2023-04-30 15:17:30+00:00",
+      "Outgoing",
+      "ThisIs DFIR (35845572390)",
+      "Video call incoming.",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "2023-04-30 15:19:44+00:00",
+      "Outgoing",
+      "ThisIs DFIR (35845572390)",
+      "",
+      "",
+      "",
+      "Action: <phoneCall (i=6381608536059638221, dr=2, d=91, vc=1)>",
+      ""
+    ],
+    [
+      "2023-04-30 15:20:53+00:00",
+      "Incoming",
+      "This Is DFIR Two (1364243771)",
+      "Video call coming your way.",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "2023-04-30 15:22:34+00:00",
+      "Incoming",
+      "This Is DFIR Two (1364243771)",
+      "",
+      "",
+      "",
+      "Action: <phoneCall (i=5859382380583080506, dr=2, d=84, vc=1)>",
+      ""
+    ],
+    [
+      "2023-04-30 15:25:26+00:00",
+      "Outgoing",
+      "ThisIs DFIR (35845572390)",
+      "Got you fam. It’s been trashed.",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "2023-05-17 13:42:23+00:00",
+      "Incoming",
+      "This Is DFIR Two (1364243771)",
+      "",
+      "",
+      "",
+      "Dynamic Location Update: Lat: 35.646329666407055; Lon: -78.83352349654857; Hdg: 175°; Period: 311s",
+      ""
+    ],
+    [
+      "2023-05-17 13:50:18+00:00",
+      "Incoming",
+      "This Is DFIR Two (1364243771)",
+      "",
+      "",
+      "",
+      "Static Location: Lat: 35.640410960208484; Lon: -78.83935391411009",
+      ""
+    ],
+    [
+      "2023-05-17 13:54:16+00:00",
+      "Outgoing",
+      "ThisIs DFIR (35845572390)",
+      "",
+      "",
+      "",
+      "Static Location: Lat: 35.63931447510166; Lon: -78.84447371922532",
+      ""
+    ],
+    [
+      "2023-05-17 14:00:39+00:00",
+      "Outgoing",
+      "ThisIs DFIR (35845572390)",
+      "",
+      "",
+      "",
+      "Dynamic Location Update: Lat: 35.62990890657066; Lon: -78.86678865249752; Hdg: 235°; Period: 312s",
+      ""
+    ],
+    [
+      "2022-08-17 15:40:04+00:00",
+      "Incoming",
+      "WARN: UNK NAME (35614153509)",
+      "",
+      "",
+      "",
+      "Action: <addedMembers (peerIds=b'\\x01\\x00\\x00\\x00&\\x07\\x90X\\x08\\x00\\x00\\x00')>",
+      ""
+    ],
+    [
+      "2023-05-05 18:11:23+00:00",
+      "Incoming",
+      "veronica (36239033433)",
+      "Hello Sophia, How are you?",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "2023-04-01 00:02:49+00:00",
+      "Incoming",
+      "This Is DFIR (36348462556)",
+      "",
+      "",
+      "",
+      "Action: <peerJoined (No payload)>",
+      ""
+    ]
+  ]
+}

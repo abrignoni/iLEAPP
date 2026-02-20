@@ -1,0 +1,22 @@
+{
+  "headers": [
+    "User Name",
+    "Computer Name",
+    "File Offset",
+    "Source File"
+  ],
+  "data": [
+    [
+      "user",
+      "DESKTOP-0CBP2ID",
+      "384",
+      "iTunesPrefs"
+    ],
+    [
+      "user",
+      "DESKTOP-0CBP2ID",
+      "661",
+      "iTunesPrefs"
+    ]
+  ]
+}

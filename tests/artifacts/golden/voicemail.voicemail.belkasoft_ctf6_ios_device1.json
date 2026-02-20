@@ -1,0 +1,14 @@
+{
+  "headers": [
+    "Date and time",
+    "Sender",
+    "Receiver",
+    "ICCID receiver",
+    "Duration",
+    "Deleted",
+    "Audio File",
+    "Transcript",
+    "Transcript confidence"
+  ],
+  "data": []
+}

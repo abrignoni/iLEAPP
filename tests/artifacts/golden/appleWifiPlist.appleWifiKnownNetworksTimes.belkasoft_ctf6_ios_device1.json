@@ -1,0 +1,52 @@
+{
+  "headers": [
+    "SSID",
+    "BSSID",
+    "Last Updated",
+    "Last Auto Joined",
+    "Last Joined",
+    "System Joined",
+    "User Joined",
+    "WiFi Network Password Modification Date",
+    "Last Discovered",
+    "Added At",
+    "Whitelisted Captive Network Probe Date",
+    "Captive Web Sheet Login Date",
+    "Previous Joined",
+    "Source File"
+  ],
+  "data": [
+    [
+      "TWR9",
+      "80:69:1a:6a:e3:93",
+      "2024-04-02 02:44:08+00:00",
+      "",
+      "",
+      "2024-01-21 22:38:29+00:00",
+      "2023-08-24 21:51:11+00:00",
+      "2023-08-24 21:51:11+00:00",
+      "2024-04-05 01:15:00+00:00",
+      "2023-08-24 21:51:11+00:00",
+      "",
+      "",
+      "2023-12-15 00:43:43+00:00",
+      "<ROOT>/private/var/preferences/com.apple.wifi.known-networks.plist"
+    ],
+    [
+      "UCPLPublicWireless",
+      "36:56:ee:50:83:97",
+      "2024-04-03 07:41:20+00:00",
+      "",
+      "",
+      "",
+      "2024-04-03 07:26:18+00:00",
+      "2024-04-03 07:26:18+00:00",
+      "",
+      "2024-04-03 07:26:18+00:00",
+      "",
+      "",
+      "",
+      "<ROOT>/private/var/preferences/com.apple.wifi.known-networks.plist"
+    ]
+  ]
+}

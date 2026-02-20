@@ -1,0 +1,39 @@
+{
+  "headers": [
+    "Creation Date",
+    "Last Update Date",
+    "Key",
+    "Data Value",
+    "Source File"
+  ],
+  "data": [
+    [
+      "2023-08-24 21:21:10+00:00",
+      "2024-04-03 07:26:44+00:00",
+      "tium.totalWordsTyped",
+      "294",
+      "<ROOT>/private/var/mobile/Library/Keyboard/user_model_database.sqlite"
+    ],
+    [
+      "2023-12-15 00:39:39+00:00",
+      "2024-03-29 19:24:04+00:00",
+      "tium.totalWordsAutocorrected",
+      "8",
+      "<ROOT>/private/var/mobile/Library/Keyboard/user_model_database.sqlite"
+    ],
+    [
+      "2023-12-15 00:39:39+00:00",
+      "2024-03-29 19:24:04+00:00",
+      "tium.totalWordsPathed",
+      "66",
+      "<ROOT>/private/var/mobile/Library/Keyboard/user_model_database.sqlite"
+    ],
+    [
+      "2024-03-23 03:03:14+00:00",
+      "2024-03-23 03:03:14+00:00",
+      "tium.totalWordsFromCandidateBar",
+      "1",
+      "<ROOT>/private/var/mobile/Library/Keyboard/user_model_database.sqlite"
+    ]
+  ]
+}

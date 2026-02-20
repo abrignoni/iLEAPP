@@ -1,0 +1,36 @@
+{
+  "headers": [
+    "SSID",
+    "BSSID",
+    "Last Updated",
+    "Last Auto Joined",
+    "Last Joined",
+    "System Joined",
+    "User Joined",
+    "WiFi Network Password Modification Date",
+    "Last Discovered",
+    "Added At",
+    "Whitelisted Captive Network Probe Date",
+    "Captive Web Sheet Login Date",
+    "Previous Joined",
+    "Source File"
+  ],
+  "data": [
+    [
+      "Matt_Foley",
+      "6a:22:32:98:f4:df",
+      "2023-05-20 19:55:03+00:00",
+      "",
+      "",
+      "2023-05-20 19:55:03+00:00",
+      "2023-04-15 13:53:47+00:00",
+      "2023-04-15 13:53:47+00:00",
+      "",
+      "2023-04-15 13:53:47+00:00",
+      "",
+      "",
+      "2023-05-20 15:52:55+00:00",
+      "<ROOT>/filesystem2/preferences/com.apple.wifi.known-networks.plist"
+    ]
+  ]
+}

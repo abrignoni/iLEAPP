@@ -1,0 +1,59 @@
+{
+  "headers": [
+    "Data Key",
+    "Data Value",
+    "Source File"
+  ],
+  "data": [
+    [
+      "EnhancedLQMLinkQualityFingerPrintRegistration",
+      "True",
+      "<ROOT>/private/var/wireless/Library/Preferences/com.apple.commcenter.plist"
+    ],
+    [
+      "EnhancedLQMDataTransferTimeRegistration",
+      "True",
+      "<ROOT>/private/var/wireless/Library/Preferences/com.apple.commcenter.plist"
+    ],
+    [
+      "EnhancedLQMDataStallRegistration",
+      "False",
+      "<ROOT>/private/var/wireless/Library/Preferences/com.apple.commcenter.plist"
+    ],
+    [
+      "EnhancedLQMLinkStateRegistration",
+      "True",
+      "<ROOT>/private/var/wireless/Library/Preferences/com.apple.commcenter.plist"
+    ],
+    [
+      "EnhancedLQMLinkPowerCostRegistration",
+      "True",
+      "<ROOT>/private/var/wireless/Library/Preferences/com.apple.commcenter.plist"
+    ],
+    [
+      "LteDbHasDeploymentTypeKey",
+      "1",
+      "<ROOT>/private/var/wireless/Library/Preferences/com.apple.commcenter.plist"
+    ],
+    [
+      "lastKnownOSVersion",
+      "16.3",
+      "<ROOT>/private/var/wireless/Library/Preferences/com.apple.commcenter.plist"
+    ],
+    [
+      "LASDNextUpdate",
+      "2024-04-15 05:19:02.097449",
+      "<ROOT>/private/var/wireless/Library/Preferences/com.apple.commcenter.plist"
+    ],
+    [
+      "PhoneServices",
+      "{'Version': 1}",
+      "<ROOT>/private/var/wireless/Library/Preferences/com.apple.commcenter.plist"
+    ],
+    [
+      "EnhancedLQMTrafficClassRegistration",
+      "True",
+      "<ROOT>/private/var/wireless/Library/Preferences/com.apple.commcenter.plist"
+    ]
+  ]
+}

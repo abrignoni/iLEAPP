@@ -1,0 +1,124 @@
+{
+  "headers": [
+    "SSID",
+    "BSSID",
+    "Channel Flags",
+    "Channel",
+    "Last Associated/Roamed At",
+    "Location Accuracy",
+    "Location Timestamp",
+    "Location Latitude",
+    "Location Longitude",
+    "Source File"
+  ],
+  "data": [
+    [
+      "Matt_Foley",
+      "76:a7:41:e7:7c:9d",
+      "10",
+      "1",
+      "2023-05-14 01:15:45+00:00",
+      "",
+      "",
+      "",
+      "",
+      "<ROOT>/filesystem2/preferences/com.apple.wifi.known-networks.plist"
+    ],
+    [
+      "Matt_Foley",
+      "7a:a7:41:e7:7c:9e",
+      "1040",
+      "36",
+      "2023-05-19 23:43:37+00:00",
+      "",
+      "",
+      "",
+      "",
+      "<ROOT>/filesystem2/preferences/com.apple.wifi.known-networks.plist"
+    ],
+    [
+      "Matt_Foley",
+      "7a:a7:41:e7:7c:66",
+      "1040",
+      "48",
+      "2023-05-20 16:58:52+00:00",
+      "",
+      "",
+      "",
+      "",
+      "<ROOT>/filesystem2/preferences/com.apple.wifi.known-networks.plist"
+    ],
+    [
+      "Matt_Foley",
+      "7e:45:58:f7:b3:30",
+      "10",
+      "11",
+      "2023-05-11 20:05:42+00:00",
+      "",
+      "",
+      "",
+      "",
+      "<ROOT>/filesystem2/preferences/com.apple.wifi.known-networks.plist"
+    ],
+    [
+      "Matt_Foley",
+      "82:45:58:f7:b3:31",
+      "1040",
+      "153",
+      "2023-05-20 00:28:31+00:00",
+      "",
+      "",
+      "",
+      "",
+      "<ROOT>/filesystem2/preferences/com.apple.wifi.known-networks.plist"
+    ],
+    [
+      "Matt_Foley",
+      "66:22:32:98:f4:de",
+      "10",
+      "1",
+      "2023-05-20 15:52:55+00:00",
+      "",
+      "",
+      "",
+      "",
+      "<ROOT>/filesystem2/preferences/com.apple.wifi.known-networks.plist"
+    ],
+    [
+      "Matt_Foley",
+      "66:22:32:1d:3e:a2",
+      "10",
+      "11",
+      "2023-05-19 21:40:31+00:00",
+      "",
+      "",
+      "",
+      "",
+      "<ROOT>/filesystem2/preferences/com.apple.wifi.known-networks.plist"
+    ],
+    [
+      "Matt_Foley",
+      "6a:22:32:98:f4:df",
+      "1040",
+      "161",
+      "2023-05-20 19:55:03+00:00",
+      "",
+      "",
+      "",
+      "",
+      "<ROOT>/filesystem2/preferences/com.apple.wifi.known-networks.plist"
+    ],
+    [
+      "Matt_Foley",
+      "6a:22:32:1d:3e:a3",
+      "1040",
+      "44",
+      "2023-05-20 12:02:35+00:00",
+      "",
+      "",
+      "",
+      "",
+      "<ROOT>/filesystem2/preferences/com.apple.wifi.known-networks.plist"
+    ]
+  ]
+}

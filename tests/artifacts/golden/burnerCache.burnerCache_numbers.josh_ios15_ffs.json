@@ -1,0 +1,42 @@
+{
+  "headers": [
+    "Created",
+    "Burner number",
+    "Display name",
+    "Subscription Expires",
+    "Version",
+    "Notifications",
+    "Inbound caller ID",
+    "In-App calling (VoIP)",
+    "Auto-replay enabled",
+    "Auto-reply message",
+    "Remaining/Total minutes",
+    "Remaining/Total messages",
+    "Phone number",
+    "User ID",
+    "Burner ID",
+    "Source file name",
+    "Location"
+  ],
+  "data": [
+    [
+      "2023-05-08 17:22:57+00:00",
+      "+18285205789",
+      "My New Burner",
+      "2023-06-07 17:22:57+00:00",
+      "None",
+      "On",
+      "Burner Number",
+      "Standard Voice",
+      "No",
+      "I'm away from my phone. I'll get back to you ASAP.",
+      "48/50",
+      "87/100",
+      "+19195794674",
+      "21d2ca9c-aba1-4ada-b7f5-23b0d97acb47",
+      "3419959a-a3aa-4cd0-b5e1-eed24fa52192",
+      "<ROOT>/filesystem2/mobile/Containers/Data/Application/43637BC0-E3FA-4375-9A56-B85713075C0D/Library/Caches/com.adhoclabs.burner/Cache.db",
+      "cfurl_cache_receiver_data (entry_ID: 16), receiver_data[0]"
+    ]
+  ]
+}

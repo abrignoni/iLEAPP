@@ -1,0 +1,34 @@
+{
+  "headers": [
+    "ID",
+    "Media",
+    "Source DB"
+  ],
+  "data": [
+    [
+      "1",
+      "mock_embedded",
+      "<ROOT>/private/var/mobile/Containers/Data/Application/DFE27397-F770-45C8-8726-245E613CE98A/Library/Caches/drivekit/users/100708051342911799753/image-fetcher-cache/main-cache/cacheV0.db"
+    ],
+    [
+      "2",
+      "mock_embedded",
+      "<ROOT>/private/var/mobile/Containers/Data/Application/DFE27397-F770-45C8-8726-245E613CE98A/Library/Caches/drivekit/users/100708051342911799753/image-fetcher-cache/main-cache/cacheV0.db"
+    ],
+    [
+      "1",
+      "mock_embedded",
+      "<ROOT>/private/var/mobile/Containers/Data/Application/DFE27397-F770-45C8-8726-245E613CE98A/Library/Caches/drivekit/users/117165063630066444062/image-fetcher-cache/main-cache/cacheV0.db"
+    ],
+    [
+      "2",
+      "mock_embedded",
+      "<ROOT>/private/var/mobile/Containers/Data/Application/DFE27397-F770-45C8-8726-245E613CE98A/Library/Caches/drivekit/users/117165063630066444062/image-fetcher-cache/main-cache/cacheV0.db"
+    ],
+    [
+      "1",
+      "mock_embedded",
+      "<ROOT>/private/var/mobile/Containers/Data/Application/862D62F2-A6A8-476F-A76E-77885F11E736/Library/Caches/drivekit/users/100708051342911799753/image-fetcher-cache/main-cache/cacheV0.db"
+    ]
+  ]
+}
