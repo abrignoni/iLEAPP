@@ -1,0 +1,48 @@
+name: Run Tests
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    paths:
+      - '**.py'
+      - 'tests/**'
+      - 'pytest.ini'
+      - 'requirements-dev.txt'
+
+jobs:
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Run unit tests
+        run: PYTHONPATH=. pytest tests/unit/ -v --tb=short -m unit
+
+  artifact-tests:
+    name: Artifact Integration Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Run artifact integration tests
+        run: PYTHONPATH=. pytest tests/artifacts/ -v --tb=short -m artifact
