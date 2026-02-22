@@ -7,17 +7,17 @@
 # Queries are derivitive of work provided by Heather Mahalik and Jared Barnhart as part of their SANS DFIR Summit 2022 talk
 # https://for585.com/dfirsummit22
 
-import sqlite3
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
+from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly
 
+
+@artifact_processor
 def get_wifiNetworkStoreModel(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    
+    file_found = str(files_found[0])
     for file_found in files_found:
         file_found = str(file_found)
         if file_found.endswith('WiFiNetworkStoreModel.sqlite'):
             break
-    
+
     db = open_sqlite_db_readonly(file_found)
     cursor = db.cursor()
     cursor.execute('''
@@ -42,43 +42,27 @@ def get_wifiNetworkStoreModel(files_found, report_folder, seeker, wrap_text, tim
     ''')
 
     all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
     data_list = []
-    
-    if usageentries > 0:
-        
-        for row in all_rows:
-            data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]))
 
-        report = ArtifactHtmlReport('Wifi Network Store Model - Networks')
-        report.start_artifact_report(report_folder, 'Wifi Network Store Model - Networks')
-        report.add_script()
-        data_headers = ('Last Connected Timestamp', 'PK', 'SSID', 'Latitude', 'Longitude', 'BSSID', '5 GHz Network', '2.4 GHz Network')
-        report.write_artifact_data_table(data_headers, data_list, file_found)
-        report.end_artifact_report()
-        
-        tsvname = 'Wifi Network Store Model - Networks'
-        tsv(report_folder, data_headers, data_list, tsvname)
-        
-        tlactivity = 'Wifi Network Store Model - Networks'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-    else:
-        logfunc('No Wifi Network Store Model - Networks data available')
+    for row in all_rows:
+        data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]))
 
     db.close()
-    return
+
+    data_headers = ('Last Connected Timestamp', 'PK', 'SSID', 'Latitude', 'Longitude', 'BSSID', '5 GHz Network', '2.4 GHz Network')
+    return data_headers, data_list, file_found
 
 __artifacts_v2__ = {
-    "wifiNetworkStoreModel": {
-        "name": "Wifi Known Networks",
+    "get_wifiNetworkStoreModel": {
+        "name": "Wifi Network Store Model",
         "description": "",
-        "author": "",
-        "version": "0.1",
-        "date": "2026-02-22",
+        "author": "@KevinPagano3",
+        "version": "0.0.1",
+        "date": "2022-08-23",
         "requirements": "none",
         "category": "Wifi Known Networks",
         "notes": "",
-        "paths": ('*/root/Library/Application Support/WiFiNetworkStoreModel.sqlite*'),
+        "paths": ('*/root/Library/Application Support/WiFiNetworkStoreModel.sqlite*',),
         "output_types": "all",
         "artifact_icon": "alert-triangle"
     }

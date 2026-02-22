@@ -1,33 +1,33 @@
-import io
-import nska_deserialize as nd
-import sqlite3
-import json
 import os
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, does_column_exist_in_db
+from scripts.ilapfuncs import artifact_processor, logfunc, open_sqlite_db_readonly, does_column_exist_in_db, is_platform_windows
+
 
 def relative_paths(source, splitter):
     splitted_a = source.split(splitter)
+    rpt_folder = ''
     for x in splitted_a:
         if 'LEAPP_Reports_' in x:
-            report_folder = x
-            
-    splitted_b = source.split(report_folder)
+            rpt_folder = x
+
+    splitted_b = source.split(rpt_folder)
     return '.'+ splitted_b[1]
 
+
+@artifact_processor
 def get_vippsContacts(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    for file_found in files_found:
-        file_found = str(file_found)
-        
-        if file_found.endswith('.sqlite'):
+    file_found = str(files_found[0])
+    for ff in files_found:
+        ff = str(ff)
+        if ff.endswith('.sqlite'):
+            file_found = ff
             break
-    
+
     data_list = []
-    
+
     db = open_sqlite_db_readonly(file_found)
     cursor = db.cursor()
-    
+
     # Check if ZRAWPHONENUMBERS exists, if not, check ZPHONENUMBERS
     if does_column_exist_in_db(file_found, 'ZCONTACTMODEL', 'ZRAWPHONENUMBERS'):
         phone_column = 'ZRAWPHONENUMBERS'
@@ -36,7 +36,7 @@ def get_vippsContacts(files_found, report_folder, seeker, wrap_text, timezone_of
     else:
         logfunc('Neither ZRAWPHONENUMBERS nor ZPHONENUMBERS exist in ZCONTACTMODEL table.')
         db.close()
-        return
+        return (), [], ''
 
     # phone_column is always one of two hardcoded values above, safe for interpolation
     cursor.execute(f'''
@@ -47,62 +47,51 @@ def get_vippsContacts(files_found, report_folder, seeker, wrap_text, timezone_of
     ZCONTACTSTOREIDENTIFIER
     FROM ZCONTACTMODEL
     ''')
-    
-    all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
-    
-    if usageentries > 0:
-        for row in all_rows:
-            name = row[0]
-            phonenumbers = row[1]
-            image = row[2]
-            pathing = os.path.join(report_folder, f'{row[3]}')
-            if image is not None:
-                with open(pathing, 'wb') as f:
-                    f.write(image)
-                
-                platform = is_platform_windows()
-                if platform:
-                    pathing = pathing.replace('/', '\\')
-                    splitter = '\\'
-                else:
-                    splitter = '/'
-                    
-                source = relative_paths(pathing, splitter)
 
-                thumb = f'<img src="{source}"width="300"></img>'
-                
+    all_rows = cursor.fetchall()
+
+    for row in all_rows:
+        name = row[0]
+        phonenumbers = row[1]
+        image = row[2]
+        pathing = os.path.join(report_folder, f'{row[3]}')
+        if image is not None:
+            with open(pathing, 'wb') as f:
+                f.write(image)
+
+            platform = is_platform_windows()
+            if platform:
+                pathing = pathing.replace('/', '\\')
+                splitter = '\\'
             else:
-                thumb = ''
-           
-            data_list.append((thumb, name, phonenumbers))
-        
-        report = ArtifactHtmlReport('Vipps - Contacts')
-        report.start_artifact_report(report_folder, 'Vipps - Contacts')
-        report.add_script()
-        data_headers = ('Profile Image', 'Name', 'Telephone')
-        report.write_artifact_data_table(data_headers, data_list, file_found, html_no_escape=['Profile Image'])
-        report.end_artifact_report()
-        
-        tsvname = 'Vipps Contacts'
-        tsv(report_folder, data_headers, data_list, tsvname)
-        
-    else:
-        logfunc('No data available for Vipps Contacts')
+                splitter = '/'
+
+            source = relative_paths(pathing, splitter)
+
+            thumb = f'<img src="{source}"width="300"></img>'
+
+        else:
+            thumb = ''
+
+        data_list.append((thumb, name, phonenumbers))
+
     db.close()
-    
+    data_headers = ('Profile Image', 'Name', 'Telephone')
+    return data_headers, data_list, file_found
+
 __artifacts_v2__ = {
-    "vippsContacts": {
-        "name": "Vipps",
-        "description": "",
+    "get_vippsContacts": {
+        "name": "Vipps Contacts",
+        "description": "Vipps contact profiles with images.",
         "author": "",
         "version": "0.1",
         "date": "2026-02-22",
         "requirements": "none",
         "category": "Vipps",
         "notes": "",
-        "paths": ('*/Vipps.sqlite*'),
-        "output_types": "all",
-        "artifact_icon": "alert-triangle"
+        "paths": ('*/Vipps.sqlite*',),
+        "output_types": "standard",
+        "artifact_icon": "users",
+        "html_columns": ["Profile Image"]
     }
 }

@@ -1,33 +1,15 @@
-__artifacts_v2__ = {
-    "Oops": {
-        "name": "Oops: Make New Friends",
-        "description": "Parses Oops Message Database",
-        "author": "Heather Charpentier",
-        "version": "0.0.1",
-        "date": "2024-06-26",
-        "requirements": "none",
-        "category": "Oops",
-        "notes": "",
-        "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/RongCloud/*/storage*'),
-        "function": "get_OopsMessages"
-    }
-}
+from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly
 
-import sqlite3
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, timeline, tsv, is_platform_windows, open_sqlite_db_readonly, convert_ts_human_to_utc, convert_utc_human_to_timezone
-
+@artifact_processor
 def get_OopsMessages(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    
     data_list = []
-    
+
     for file_found in files_found:
         file_found = str(file_found)
-        
+
         if file_found.endswith('storage'):
             db = open_sqlite_db_readonly(file_found)
-            #SQL QUERY TIME!
             cursor = db.cursor()
             cursor.execute('''
             SELECT
@@ -50,31 +32,30 @@ def get_OopsMessages(files_found, report_folder, seeker, wrap_text, timezone_off
             ''')
 
             all_rows = cursor.fetchall()
-            usageentries = len(all_rows)
-            if usageentries > 0:
-               for row in all_rows:
-               
-                   data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8]))
+            if len(all_rows) > 0:
+                for row in all_rows:
+                    data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8]))
             db.close()
-                    
+
         else:
             continue
-        
-    if data_list:
-        description = 'Oops: Make New Friends'
-        report = ArtifactHtmlReport('Oops Messages')
-        report.start_artifact_report(report_folder, 'Oops Messages', description)
-        report.add_script()
-        data_headers = ('Date Sent','Date Received','Message Type','Sender Name','Sender ID','Direction','Message','Nickname','User ID')
-        report.write_artifact_data_table(data_headers, data_list, file_found,html_escape=False)
-        report.end_artifact_report()
-        
-        tsvname = 'Oops Messages'
-        tsv(report_folder, data_headers, data_list, tsvname)
-        
-        tlactivity = 'Oops Messages'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-    
-    else:
-        logfunc('No Oops data available')
 
+    data_headers = ('Date Sent', 'Date Received', 'Message Type', 'Sender Name', 'Sender ID',
+                    'Direction', 'Message', 'Nickname', 'User ID')
+    return data_headers, data_list, str(files_found[0])
+
+__artifacts_v2__ = {
+    "get_OopsMessages": {
+        "name": "Oops: Make New Friends",
+        "description": "Parses Oops Message Database",
+        "author": "Heather Charpentier",
+        "version": "0.0.1",
+        "date": "2024-06-26",
+        "requirements": "none",
+        "category": "Oops",
+        "notes": "",
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/RongCloud/*/storage*',),
+        "output_types": "standard",
+        "artifact_icon": "message-square"
+    }
+}

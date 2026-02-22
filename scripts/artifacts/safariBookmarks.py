@@ -1,60 +1,40 @@
-import glob
-import os
-import pathlib
-import plistlib
-import sqlite3
-import json
-
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
+from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly
 
 
+@artifact_processor
 def get_safariBookmarks(files_found, report_folder, seeker, wrap_text, timezone_offset):
-	for file_found in files_found:
-		file_found = str(file_found)
-		
-		if file_found.endswith('.db'):
-			break
-		
-	db = open_sqlite_db_readonly(file_found)
-	cursor = db.cursor()
+    file_found = str(files_found[0])
+    for file_found in files_found:
+        file_found = str(file_found)
 
-	cursor.execute("""
-	SELECT
-		title,
-		url,
-		hidden
-	FROM
-	bookmarks
-			""")
+        if file_found.endswith('.db'):
+            break
 
-	all_rows = cursor.fetchall()
-	usageentries = len(all_rows)
-	data_list = []    
-	if usageentries > 0:
-		for row in all_rows:
-			data_list.append((row[0], row[1], row[2]))
-	
-		description = ''
-		report = ArtifactHtmlReport('Safari Browser Bookmarks')
-		report.start_artifact_report(report_folder, 'Bookmarks', description)
-		report.add_script()
-		data_headers = ('Title','URL','Hidden')     
-		report.write_artifact_data_table(data_headers, data_list, file_found)
-		report.end_artifact_report()
-		
-		tsvname = 'Safari Browser Bookmarks'
-		tsv(report_folder, data_headers, data_list, tsvname)
-		
-	else:
-		logfunc('No data available in table')
-	
-	db.close()
-	return 
+    db = open_sqlite_db_readonly(file_found)
+    cursor = db.cursor()
+
+    cursor.execute("""
+    SELECT
+        title,
+        url,
+        hidden
+    FROM
+    bookmarks
+            """)
+
+    all_rows = cursor.fetchall()
+    data_list = []
+    for row in all_rows:
+        data_list.append((row[0], row[1], row[2]))
+
+    db.close()
+
+    data_headers = ('Title', 'URL', 'Hidden')
+    return data_headers, data_list, file_found
 
 __artifacts_v2__ = {
-    "safariBookmarks": {
-        "name": "Safari Browser",
+    "get_safariBookmarks": {
+        "name": "Safari Bookmarks",
         "description": "",
         "author": "",
         "version": "0.1",
@@ -62,7 +42,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Safari Browser",
         "notes": "",
-        "paths": ('**/Safari/Bookmarks.db*'),
+        "paths": ('**/Safari/Bookmarks.db*',),
         "output_types": "all",
         "artifact_icon": "alert-triangle"
     }

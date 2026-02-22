@@ -2,17 +2,19 @@ import biplist
 import plistlib
 import sys
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline
+from scripts.ilapfuncs import logfunc, artifact_processor
 
+
+@artifact_processor
 def get_safariRecentWebSearches(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
+    file_found = str(files_found[0])
     for file_found in files_found:
         file_found = str(file_found)
-        
+
         if file_found.endswith('.db'):
             break
-        
+
     with open(file_found, "rb") as fp:
         try:
             if sys.version_info >= (3, 9):
@@ -26,24 +28,13 @@ def get_safariRecentWebSearches(files_found, report_folder, seeker, wrap_text, t
                 data_list.append((date, term))
         except (biplist.InvalidPlistException, plistlib.InvalidFileException) as ex:
             logfunc(f'Failed to read plist {file_found} ' + str(ex))
-                
-    if data_list:
-        report = ArtifactHtmlReport('Safari Recent WebSearches')
-        report.start_artifact_report(report_folder, 'Recent WebSearches')
-        report.add_script()
-        data_headers = ('Date','Search Term')
-        report.write_artifact_data_table(data_headers, data_list, file_found)
-        report.end_artifact_report()
-        
-        tsvname = 'Recent WebSearches'
-        tsv(report_folder, data_headers, data_list, tsvname)
-        timeline(report_folder, tsvname, data_list, data_headers)
-    else:
-        logfunc('No data for recent web searches')
+
+    data_headers = ('Date', 'Search Term')
+    return data_headers, data_list, file_found
 
 __artifacts_v2__ = {
-    "safariRecentWebSearches": {
-        "name": "Safari Browser",
+    "get_safariRecentWebSearches": {
+        "name": "Safari Recent Web Searches",
         "description": "",
         "author": "",
         "version": "0.1",
@@ -51,7 +42,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Safari Browser",
         "notes": "",
-        "paths": ('**/Library/Preferences/com.apple.mobilesafari.plist'),
+        "paths": ('**/Library/Preferences/com.apple.mobilesafari.plist',),
         "output_types": "all",
         "artifact_icon": "alert-triangle"
     }

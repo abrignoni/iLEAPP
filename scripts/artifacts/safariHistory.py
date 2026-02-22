@@ -4,23 +4,24 @@
 # Artifact version: 0.0.1
 # Requirements: none
 
-import os
-import sqlite3
 import textwrap
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, convert_ts_human_to_utc, convert_utc_human_to_timezone
+from scripts.ilapfuncs import (artifact_processor, open_sqlite_db_readonly,
+                               convert_ts_human_to_utc, convert_utc_human_to_timezone)
 
+
+@artifact_processor
 def get_safariHistory(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    file_found = str(files_found[0])
     for file_found in files_found:
         file_found = str(file_found)
-        
+
         if file_found.endswith('.db'):
             break
-        
+
     db = open_sqlite_db_readonly(file_found)
     cursor = db.cursor()
-    
+
     cursor.execute("""
     select
     history_visits.id,
@@ -31,12 +32,10 @@ def get_safariHistory(files_found, report_folder, seeker, wrap_text, timezone_of
     """)
 
     all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
     dl_ref_dest = {}
-    if usageentries > 0:
-        for row in all_rows:
-            dl_ref_dest.update({str(row[0]): row[1]})
-    
+    for row in all_rows:
+        dl_ref_dest.update({str(row[0]): row[1]})
+
     cursor.execute("""
     select
     datetime(history_visits.visit_time + 978307200,'unixepoch'),
@@ -55,61 +54,44 @@ def get_safariHistory(files_found, report_folder, seeker, wrap_text, timezone_of
     """)
 
     all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
     data_list = []
-    
-    if usageentries > 0:
-        for row in all_rows:
-            timestamp = convert_ts_human_to_utc(row[0])
-            timestamp = convert_utc_human_to_timezone(timestamp, timezone_offset)
-            
-            redirect_source = ''
-            redirect_destination = ''
-            if str(row[4]) is None:
-                redirect_source = ''
-            else:
-                for key, value in dl_ref_dest.items():
-                    if str(row[4]) == key:
-                        redirect_source = value
-            if str(row[5]) is None:
-                redirect_destination = ''
-            else:
-                for key, value in dl_ref_dest.items():
-                    if str(row[5]) == key:
-                        redirect_destination = value
-        
-            data_list.append((timestamp, row[1], textwrap.fill(row[2], width=100), row[3], textwrap.fill(redirect_source, width=100), textwrap.fill(redirect_destination, width=100), row[6], row[7]))
-    
-        description = ''
-        report = ArtifactHtmlReport('Safari Browser - History')
-        report.start_artifact_report(report_folder, 'Safari Browser - History', description)
-        report.add_script()
-        data_headers = ('Visit Timestamp','Title','URL','Visit Count','Redirect Source','Redirect Destination','Visit ID','Origin')
-        report.write_artifact_data_table(data_headers, data_list, file_found)
-        report.end_artifact_report()
-        
-        tsvname = 'Safari Browser - History'
-        tsv(report_folder, data_headers, data_list, tsvname)
-        
-        tlactivity = 'Safari Browser - History'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-        
-    else:
-        logfunc('No Safari Browser - History data available in table')
-    
+
+    for row in all_rows:
+        timestamp = convert_ts_human_to_utc(row[0])
+        timestamp = convert_utc_human_to_timezone(timestamp, timezone_offset)
+
+        redirect_source = ''
+        redirect_destination = ''
+        if str(row[4]) is not None:
+            for key, value in dl_ref_dest.items():
+                if str(row[4]) == key:
+                    redirect_source = value
+        if str(row[5]) is not None:
+            for key, value in dl_ref_dest.items():
+                if str(row[5]) == key:
+                    redirect_destination = value
+
+        data_list.append((timestamp, row[1], textwrap.fill(row[2], width=100), row[3],
+                         textwrap.fill(redirect_source, width=100),
+                         textwrap.fill(redirect_destination, width=100), row[6], row[7]))
+
     db.close()
-    
+
+    data_headers = ('Visit Timestamp', 'Title', 'URL', 'Visit Count', 'Redirect Source',
+                    'Redirect Destination', 'Visit ID', 'Origin')
+    return data_headers, data_list, file_found
+
 __artifacts_v2__ = {
-    "safariHistory": {
-        "name": "Safari Browser",
+    "get_safariHistory": {
+        "name": "Safari History",
         "description": "",
-        "author": "",
-        "version": "0.1",
-        "date": "2026-02-22",
+        "author": "@KevinPagano3",
+        "version": "0.0.1",
+        "date": "2023-02-14",
         "requirements": "none",
         "category": "Safari Browser",
         "notes": "",
-        "paths": ('**/Safari/History.db*'),
+        "paths": ('**/Safari/History.db*',),
         "output_types": "all",
         "artifact_icon": "alert-triangle"
     }

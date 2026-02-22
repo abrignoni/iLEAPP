@@ -5,19 +5,19 @@
 #   Parses basic data from */mobile/Library/Preferences/com.apple.MobileBackup.plist which contains some important data
 #   related to a device Backup, device restore from iCloud Backup, and or Quick Start Data Transfer.
 
-import os
 import plistlib
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, tsv, is_platform_windows 
+
+from scripts.ilapfuncs import artifact_processor
 
 
+@artifact_processor
 def get_mobilebackupplist(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
     file_found = str(files_found[0])
-    
+
     with open(file_found, 'rb') as fp:
         pl = plistlib.load(fp)
-        
+
         if 'BackupStateInfo' in pl.keys():
             for key, val in pl['BackupStateInfo'].items():
                 if key == 'isCloud':
@@ -40,59 +40,24 @@ def get_mobilebackupplist(files_found, report_folder, seeker, wrap_text, timezon
 
         if 'DeviceTransferInfo' in pl.keys():
             for key, val in pl['DeviceTransferInfo'].items():
-                if key == 'BytesTransferred':
-                    data_list.append((key, val))
-                if key == 'RestoreDuration':
-                    data_list.append((key, val))
-                if key == 'FileTransferDuration':
-                    data_list.append((key, val))
-                if key == 'PreFlightDuration':
-                    data_list.append((key, val))
-                if key == 'SourceDeviceProtocolVersion':
-                    data_list.append((key, val))
-                if key == 'BuildVersion':
-                    data_list.append((key, val))
-                if key == 'FileTransferStartDate':
-                    data_list.append((key, val))
-                if key == 'ConnectionType':
-                    data_list.append((key, val))
-                if key == 'RestoreStartDate':
-                    data_list.append((key, val))
-                if key == 'SourceDeviceBuildVersion':
-                    data_list.append((key, val))
-                if key == 'FilesTransferred':
-                    data_list.append((key, val))
-                if key == 'PreFlightStartDate':
-                    data_list.append((key, val))
-                if key == 'SourceDeviceUDID':
+                if key in ('BytesTransferred', 'RestoreDuration', 'FileTransferDuration',
+                          'PreFlightDuration', 'SourceDeviceProtocolVersion', 'BuildVersion',
+                          'FileTransferStartDate', 'ConnectionType', 'RestoreStartDate',
+                          'SourceDeviceBuildVersion', 'FilesTransferred', 'PreFlightStartDate',
+                          'SourceDeviceUDID'):
                     data_list.append((key, val))
 
         if 'FSEventState' in pl.keys():
             for key, val in pl['FSEventState'].items():
-                if key == 'eventId':
-                    data_list.append((key, val))
-                if key == 'eventDatabaseUUID':
-                    data_list.append((key, val))
-                if key == 'dateCreated':
+                if key in ('eventId', 'eventDatabaseUUID', 'dateCreated'):
                     data_list.append((key, val))
 
-    description = ('Parses basic data from */mobile/Library/Preferences/com.apple.MobileBackup.plist which contains'
-                   ' some important data related to a device Backup, device restore from iCloud Backup, and'
-                   ' or Quick Start Data Transfer.')
-    report = ArtifactHtmlReport('Mobile Backup Plist')
-    report.start_artifact_report(report_folder, 'Mobile_Backup_plist', description)
-    report.add_script()
     data_headers = ('Key', 'Values')
-    report.write_artifact_data_table(data_headers, data_list, file_found)
-    report.end_artifact_report()
-    
-    tsvname = 'Mobile_Backup_plist'
-    tsv(report_folder, data_headers, data_list, tsvname)
-
+    return data_headers, data_list, file_found
 
 __artifacts_v2__ = {
-    'Mobile_Backup_plist': {
-        'name': 'Mobile Backup Plist Settings com-apple-MobileBackup-plist',
+    'get_mobilebackupplist': {
+        'name': 'Mobile Backup Plist Settings',
         'description': 'Parses basic data from */mobile/Library/Preferences/com.apple.MobileBackup.plist which'
                        ' contains some important data related to a device Backup, device restore from iCloud Backup,'
                        ' and or Quick Start Data Transfer.',
@@ -102,7 +67,8 @@ __artifacts_v2__ = {
         'requirements': 'Acquisition that contains com.apple.MobileBackup.plist',
         'category': 'Mobile Backup Plist',
         'notes': '',
-        'paths': '*/Library/Preferences/com.apple.MobileBackup.plist',
-        'function': 'get_mobilebackupplist'
+        'paths': ('*/Library/Preferences/com.apple.MobileBackup.plist',),
+        'output_types': 'all',
+        'artifact_icon': 'alert-triangle'
     }
 }

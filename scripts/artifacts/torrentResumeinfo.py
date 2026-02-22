@@ -3,29 +3,33 @@ import hashlib
 import datetime
 import textwrap
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
+from scripts.ilapfuncs import artifact_processor
+
 
 def timestampcalc(timevalue):
     timestamp = (datetime.datetime.fromtimestamp(int(timevalue)).strftime('%Y-%m-%d %H:%M:%S'))
     return timestamp
 
+
+@artifact_processor
 def get_torrentResumeinfo(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
     data_list = []
+    file_found = str(files_found[0])
+
     for file_found in files_found:
         file_found = str(file_found)
 
         with open(file_found, 'rb') as f:
             decodedDict = bencoding.bdecode(f.read())
-        
+
         aggregate = ''
         try:
-            infoh= hashlib.sha1(bencoding.bencode(decodedDict[b"info"])).hexdigest()
+            infoh = hashlib.sha1(bencoding.bencode(decodedDict[b"info"])).hexdigest()
             infohash = infoh
-        except:
+        except Exception:
             infohash = ''
-            
+
         for key, value in decodedDict.items():
             if key.decode() == 'info':
                 for x, y in value.items():
@@ -38,33 +42,26 @@ def get_torrentResumeinfo(files_found, report_folder, seeker, wrap_text, timezon
             elif key.decode() == 'creation date':
                 aggregate = aggregate + f'{key.decode()}: {timestampcalc(value)} <br>'
             else:
-                aggregate = aggregate + f'{key.decode()}: {value} <br>' #add if value is binary decode
-        
-        data_list.append((textwrap.fill(file_found, width=25),infohash,aggregate.strip()))
+                aggregate = aggregate + f'{key.decode()}: {value} <br>'
 
-    # Reporting
-    title = "Torrent Resume Info"
-    report = ArtifactHtmlReport(title)
-    report.start_artifact_report(report_folder, title)
-    report.add_script()
+        data_list.append((textwrap.fill(file_found, width=25), infohash, aggregate.strip()))
+
     data_headers = ('File', 'InfoHash', 'Data')
-    report.write_artifact_data_table(data_headers, data_list, file_found, html_no_escape=['Data'])
-    report.end_artifact_report()
-    
-    tsv(report_folder, data_headers, data_list, title)
+    return data_headers, data_list, file_found
 
 __artifacts_v2__ = {
-    "torrentResumeinfo": {
-        "name": "BitTorrent",
-        "description": "",
+    "get_torrentResumeinfo": {
+        "name": "Torrent Resume Info",
+        "description": "BitTorrent resume file metadata.",
         "author": "",
         "version": "0.1",
         "date": "2026-02-22",
         "requirements": "none",
         "category": "BitTorrent",
         "notes": "",
-        "paths": ('*/*.resume'),
-        "output_types": "all",
-        "artifact_icon": "alert-triangle"
+        "paths": ('*/*.resume',),
+        "output_types": "standard",
+        "artifact_icon": "download",
+        "html_columns": ["Data"]
     }
 }

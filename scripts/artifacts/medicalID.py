@@ -1,10 +1,7 @@
-import biplist
-import pathlib
-import os
 import nska_deserialize as nd
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows
+from scripts.ilapfuncs import artifact_processor
+
 
 def get_name(name_with_prefix):
     retval = name_with_prefix
@@ -14,6 +11,8 @@ def get_name(name_with_prefix):
         retval = retval[:-3]
     return retval
 
+
+@artifact_processor
 def get_medicalID(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
     file_found = str(files_found[0])
@@ -32,35 +31,21 @@ def get_medicalID(files_found, report_folder, seeker, wrap_text, timezone_offset
                 data_list.append((key_name, str(value)))
             else:
                 data_list.append((key_name, value))
-    
-    if len(data_list) > 0:
-        description = 'User entered Medical information about self'
-        report = ArtifactHtmlReport('Medical ID')
-        report.start_artifact_report(report_folder, 'Health Info', description)
-        report.add_script()
-        data_headers = ('Key', 'Value')
-        report.write_artifact_data_table(data_headers, data_list, file_found)
-        report.end_artifact_report()
-        
-        tsvname = 'Medical ID'
-        tsv(report_folder, data_headers, data_list, tsvname)
-        
-        tlactivity = 'Medical ID'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-    else:
-        logfunc('No data on Medical ID')
+
+    data_headers = ('Key', 'Value')
+    return data_headers, data_list, file_found
 
 __artifacts_v2__ = {
-    "medicalID": {
+    "get_medicalID": {
         "name": "Medical ID",
-        "description": "",
+        "description": "User entered Medical information about self",
         "author": "",
         "version": "0.1",
         "date": "2026-02-22",
         "requirements": "none",
         "category": "Medical ID",
         "notes": "",
-        "paths": ('*/mobile/Library/MedicalID/MedicalIDData.archive'),
+        "paths": ('*/mobile/Library/MedicalID/MedicalIDData.archive',),
         "output_types": "all",
         "artifact_icon": "alert-triangle"
     }

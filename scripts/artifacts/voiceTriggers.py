@@ -2,10 +2,9 @@ import json
 import datetime
 import shutil
 from os import listdir
-from os.path import isfile, join, basename, dirname
+from os.path import isfile, join, basename
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline
+from scripts.ilapfuncs import artifact_processor
 
 
 def format_time(date_time_str):
@@ -14,6 +13,7 @@ def format_time(date_time_str):
     return formatted
 
 
+@artifact_processor
 def get_voiceTriggers(files_found, report_folder, seeker, wrap_text, timezone_offset):
     info_files = []
     data_list = []
@@ -25,56 +25,43 @@ def get_voiceTriggers(files_found, report_folder, seeker, wrap_text, timezone_of
                 info_files.append(file_found)
 
         info_files.sort()
-        wav_files = [join(report_folder, file) for file in listdir(report_folder) if isfile(join(report_folder, file))]
+        wav_files = [join(report_folder, fname) for fname in listdir(report_folder) if isfile(join(report_folder, fname))]
         wav_files.sort()
 
         for info_file, wav_file in zip(info_files, wav_files):
             if basename(info_file).split('.')[0] == basename(wav_file).split('.')[0]:
-                with open(info_file, "rb") as file:
-                    fl = json.load(file)
+                with open(info_file, "rb") as f:
+                    fl = json.load(f)
                     if 'grainedDate' in fl:
                         creation_date = format_time(fl['grainedDate'])
                     else:
                         creation_date = ''
 
-                    audio = ''' 
+                    audio = '''
                             <audio controls>
                                 <source src={} type="audio/wav">
                                 <p>Your browser does not support HTML5 audio elements.</p>
-                            </audio> 
+                            </audio>
                             '''.format(wav_file)
 
                     data_list.append((creation_date, fl['productType'], fl['utteranceWav'], audio))
 
-        report = ArtifactHtmlReport('Voice Triggers')
-        report.start_artifact_report(report_folder, 'Voice Triggers')
-        report.add_script()
-        data_headers = ('Creation Date', 'Device', 'Path to File', 'Audio File')
-        report.write_artifact_data_table(data_headers, data_list, dirname(file_found), html_no_escape=['Audio File'])
-        report.end_artifact_report()
-
-        tsvname = 'Voice Triggers'
-        tsv(report_folder, data_headers, data_list, tsvname)
-
-        tlactivity = 'Voice Triggers'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-    else:
-        logfunc('No Voice Triggers found')
-
-    return
+    data_headers = ('Creation Date', 'Device', 'Path to File', 'Audio File')
+    return data_headers, data_list, str(files_found[0])
 
 __artifacts_v2__ = {
-    "voiceTriggers": {
-        "name": "Voice-Triggers",
-        "description": "",
+    "get_voiceTriggers": {
+        "name": "Voice Triggers",
+        "description": "Voice trigger audio samples with device metadata.",
         "author": "",
         "version": "0.1",
         "date": "2026-02-22",
         "requirements": "none",
         "category": "Voice-Triggers",
         "notes": "",
-        "paths": ('**/td/audio/*.json','**/td/audio/*.wav'),
-        "output_types": "all",
-        "artifact_icon": "alert-triangle"
+        "paths": ('**/td/audio/*.json', '**/td/audio/*.wav'),
+        "output_types": "standard",
+        "artifact_icon": "mic",
+        "html_columns": ["Audio File"]
     }
 }

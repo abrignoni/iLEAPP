@@ -1,27 +1,22 @@
-import os
 import plistlib
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, tsv, is_platform_windows 
+from scripts.ilapfuncs import artifact_processor
 
 
-# Backup version of iOS, iOS version installed at the time of recovery, 
-# recovery date, and whether the backup was restored from iCloud.
+@artifact_processor
 def get_mobileBackup(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
     file_found = str(files_found[0])
-    
+
     with open(file_found, 'rb') as fp:
         pl = plistlib.load(fp)
-        
+
         if 'BackupStateInfo' in pl.keys():
             for key, val in pl['BackupStateInfo'].items():
                 if key == 'isCloud':
                     data_list.append((key, val))
                 if key == 'date':
                     data_list.append((key, val))
-        else:
-            pass
 
         if 'RestoreInfo' in pl.keys():
             for key, val in pl['RestoreInfo'].items():
@@ -34,19 +29,11 @@ def get_mobileBackup(files_found, report_folder, seeker, wrap_text, timezone_off
                 if key == 'RestoreDate':
                     data_list.append((key, val))
 
-            
-    report = ArtifactHtmlReport('Mobile Backup')
-    report.start_artifact_report(report_folder, 'Mobile Backup')
-    report.add_script()
-    data_headers = ('Key', 'Value')     
-    report.write_artifact_data_table(data_headers, data_list, file_found)
-    report.end_artifact_report()
-    
-    tsvname = 'Mobile Backup'
-    tsv(report_folder, data_headers, data_list, tsvname)
+    data_headers = ('Key', 'Value')
+    return data_headers, data_list, file_found
 
 __artifacts_v2__ = {
-    "mobileBackup": {
+    "get_mobileBackup": {
         "name": "Mobile Backup",
         "description": "",
         "author": "",
@@ -55,7 +42,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Mobile Backup",
         "notes": "",
-        "paths": ('*/Preferences/com.apple.MobileBackup.plist'),
+        "paths": ('*/Preferences/com.apple.MobileBackup.plist',),
         "output_types": "all",
         "artifact_icon": "alert-triangle"
     }

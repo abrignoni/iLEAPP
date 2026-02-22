@@ -2,10 +2,9 @@ import plistlib
 from datetime import datetime
 import shutil
 from os import listdir
-from os.path import isfile, join, basename, dirname
+from os.path import isfile, join, basename
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline
+from scripts.ilapfuncs import artifact_processor
 
 
 def unix_epoch_to_readable_date(unix_epoch_time):
@@ -14,68 +13,54 @@ def unix_epoch_to_readable_date(unix_epoch_time):
     return readable_time
 
 
+@artifact_processor
 def get_voiceRecordings(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    if len(files_found) > 0:
-        data_list = []
-        plist_files = []
+    data_list = []
+    plist_files = []
 
-        for file_found in files_found:
-            if file_found.endswith('plist'):
-                plist_files.append(file_found)
-            elif file_found.endswith('m4a'):
-                m4a_filename = basename(file_found)
-                if ' ' in m4a_filename:
-                    m4a_filename = m4a_filename.replace(' ', '_')
-                shutil.copyfile(file_found, join(report_folder, m4a_filename))
+    for file_found in files_found:
+        if file_found.endswith('plist'):
+            plist_files.append(file_found)
+        elif file_found.endswith('m4a'):
+            m4a_filename = basename(file_found)
+            if ' ' in m4a_filename:
+                m4a_filename = m4a_filename.replace(' ', '_')
+            shutil.copyfile(file_found, join(report_folder, m4a_filename))
 
-        plist_files.sort()
-        m4a_files = [join(report_folder, file) for file in listdir(report_folder) if isfile(join(report_folder, file))]
-        m4a_files.sort()
+    plist_files.sort()
+    m4a_files = [join(report_folder, fname) for fname in listdir(report_folder) if isfile(join(report_folder, fname))]
+    m4a_files.sort()
 
-        for plist_file, m4a_file in zip(plist_files, m4a_files):
-            with open(plist_file, "rb") as file:
-                pl = plistlib.load(file)
-                ct = unix_epoch_to_readable_date(pl['RCSavedRecordingCreationTime'])
+    for plist_file, m4a_file in zip(plist_files, m4a_files):
+        with open(plist_file, "rb") as f:
+            pl = plistlib.load(f)
+            ct = unix_epoch_to_readable_date(pl['RCSavedRecordingCreationTime'])
 
-                audio = ''' 
-                            <audio controls>
-                                <source src={} type="audio/wav">
-                                <p>Your browser does not support HTML5 audio elements.</p>
-                            </audio> 
-                            '''.format(m4a_file)
+            audio = '''
+                        <audio controls>
+                            <source src={} type="audio/wav">
+                            <p>Your browser does not support HTML5 audio elements.</p>
+                        </audio>
+                        '''.format(m4a_file)
 
-                data_list.append((ct, pl['RCSavedRecordingTitle'], pl['RCComposedAVURL'].split('//')[1], audio))
+            data_list.append((ct, pl['RCSavedRecordingTitle'], pl['RCComposedAVURL'].split('//')[1], audio))
 
-        report = ArtifactHtmlReport('Voice Recordings')
-        report.start_artifact_report(report_folder, 'Voice Recordings')
-        report.add_script()
-        data_headers = ('Creation Date', 'Title', 'Path to File', 'Audio File')
-        report.write_artifact_data_table(data_headers, data_list, dirname(file_found), html_no_escape=['Audio File'])
-        report.end_artifact_report()
-
-        tsvname = 'Voice Recordings'
-        tsv(report_folder, data_headers, data_list, tsvname)
-
-        tlactivity = 'Voice Recordings'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-
-    else:
-        logfunc('No Voice Recordings found')
-
-    return
+    data_headers = ('Creation Date', 'Title', 'Path to File', 'Audio File')
+    return data_headers, data_list, str(files_found[0])
 
 __artifacts_v2__ = {
-    "voiceRecordings": {
-        "name": "Voice-Recordings",
-        "description": "",
+    "get_voiceRecordings": {
+        "name": "Voice Recordings",
+        "description": "Voice memo recordings with creation dates.",
         "author": "",
         "version": "0.1",
         "date": "2026-02-22",
         "requirements": "none",
         "category": "Voice-Recordings",
         "notes": "",
-        "paths": ('**/Recordings/*.composition/manifest.plist','**/Recordings/*.m4a'),
-        "output_types": "all",
-        "artifact_icon": "alert-triangle"
+        "paths": ('**/Recordings/*.composition/manifest.plist', '**/Recordings/*.m4a'),
+        "output_types": "standard",
+        "artifact_icon": "mic",
+        "html_columns": ["Audio File"]
     }
 }

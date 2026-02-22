@@ -1,62 +1,43 @@
 import os
 import datetime
 
-from packaging import version
 from scripts.filetype import guess_mime
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, timeline, tsv, is_platform_windows, open_sqlite_db_readonly, media_to_html
+from scripts.ilapfuncs import artifact_processor, media_to_html
 
 
+@artifact_processor
 def get_fsCachedData(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    data_list = []  
-    
+    data_list = []
+
     for file_found in files_found:
         file_found = str(file_found)
-        
+
         filename = os.path.basename(file_found)
-        
+
         modified_time = os.path.getmtime(file_found)
         utc_modified_date = datetime.datetime.utcfromtimestamp(modified_time)
 
-        #ext = (mime.split('/')[1])
-            
         if os.path.isfile(file_found):
             mime = guess_mime(file_found)
             media = media_to_html(file_found, files_found, report_folder)
             data_list.append((utc_modified_date, media, mime, filename, file_found))
-        
-    
-    if len(data_list) > 0:
-        note = 'Source location in extraction found in the report for each item.'
-        description = 'Media files'
-        report = ArtifactHtmlReport('fsCachedData')
-        report.start_artifact_report(report_folder, 'fsCachedData', description)
-        report.add_script()
-        data_headers = ('Timestamp Modified', 'Media', 'Mime Type', 'Filename', 'Path')
-        report.write_artifact_data_table(data_headers, data_list, note, html_no_escape=['Media'])
-        report.end_artifact_report()
-        
-        tsvname = 'fsCachedData'
-        tsv(report_folder, data_headers, data_list, tsvname)
-        
-        tlactivity = 'fsCachedData'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-    else:
-        logfunc('No fsCachedData data available')
-        
+
+    data_headers = ('Timestamp Modified', 'Media', 'Mime Type', 'Filename', 'Path')
+    return data_headers, data_list, str(files_found[0])
 
 __artifacts_v2__ = {
-    "fsCachedData": {
+    "get_fsCachedData": {
         "name": "Cache Data",
-        "description": "",
+        "description": "Cached media files with timestamps and MIME types.",
         "author": "",
         "version": "0.1",
         "date": "2026-02-22",
         "requirements": "none",
         "category": "Cache Data",
         "notes": "",
-        "paths": ('*/fsCachedData/**'),
-        "output_types": "all",
-        "artifact_icon": "alert-triangle"
+        "paths": ('*/fsCachedData/**',),
+        "output_types": "standard",
+        "artifact_icon": "hard-drive",
+        "html_columns": ["Media"]
     }
 }

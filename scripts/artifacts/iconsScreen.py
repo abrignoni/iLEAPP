@@ -1,16 +1,16 @@
 import plistlib
 
-
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, is_platform_windows
+from scripts.ilapfuncs import artifact_processor, logfunc
 
 
+@artifact_processor
 def get_iconsScreen(files_found, report_folder, seeker, wrap_text, timezone_offset):
-
     data_list = []
     file_found = str(files_found[0])
     with open(file_found, "rb") as fp:
         plist = plistlib.load(fp)
+        bbar = []
+        icon = []
         for key, val in plist.items():
             if key == "buttonBar":
                 bbar = val
@@ -19,10 +19,10 @@ def get_iconsScreen(files_found, report_folder, seeker, wrap_text, timezone_offs
 
         for x in range(0, len(icon)):
             page = icon[x]
-            htmlstring = (f"<table><tr>")
+            htmlstring = "<table><tr>"
             htmlstring = htmlstring + \
                 (f'<td> Icons screen #{x}</td></tr><tr><td>') + \
-                (f'<div style="display: grid;grid-template-columns: repeat(4, 1fr);grid-gap: 2px;">')
+                '<div style="display: grid;grid-template-columns: repeat(4, 1fr);grid-gap: 2px;">'
             for y in range(0, len(page)):
                 rows = page[y]
                 style = 'border: 1px solid grey;padding: 10px;max-height: 235px; overflow-y: scroll;'
@@ -64,8 +64,7 @@ def get_iconsScreen(files_found, report_folder, seeker, wrap_text, timezone_offs
             data_list.append((htmlstring,))
 
         htmlstring = ''
-        htmlstring = (
-            f'<table><tr> <td colspan="4"> Icons bottom bar</td></tr><tr>')
+        htmlstring = '<table><tr> <td colspan="4"> Icons bottom bar</td></tr><tr>'
         for x in range(0, len(bbar)):
             htmlstring = htmlstring + (f"<td width = 25%>{bbar[x]}</td>")
         htmlstring = htmlstring + ("</tr></table>")
@@ -73,27 +72,22 @@ def get_iconsScreen(files_found, report_folder, seeker, wrap_text, timezone_offs
 
         logfunc("Screens: " + str(len(icon)))
 
-        report = ArtifactHtmlReport(f'Apps per screen')
-        report.start_artifact_report(report_folder, f'Apps per screen')
-        report.add_script()
-        data_headers = ((f'Apps per Screens',))
-        report.write_artifact_data_table(
-            data_headers, data_list, file_found, html_escape=False)
-        report.end_artifact_report()
-
+    data_headers = ('Apps per Screens',)
+    return data_headers, data_list, file_found
 
 __artifacts_v2__ = {
-    "iconsScreen": {
-        "name": "iOS Screens",
-        "description": "",
+    "get_iconsScreen": {
+        "name": "Apps per Screen",
+        "description": "Home screen app layout and widget placement.",
         "author": "",
         "version": "0.1",
         "date": "2026-02-22",
         "requirements": "none",
         "category": "iOS Screens",
         "notes": "",
-        "paths": ('**/SpringBoard/IconState.plist'),
-        "output_types": "all",
-        "artifact_icon": "alert-triangle"
+        "paths": ('**/SpringBoard/IconState.plist',),
+        "output_types": ["html"],
+        "artifact_icon": "grid",
+        "html_columns": ["Apps per Screens"]
     }
 }
