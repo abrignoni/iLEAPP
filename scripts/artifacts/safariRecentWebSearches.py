@@ -41,9 +41,18 @@ def get_safariRecentWebSearches(files_found, report_folder, seeker, wrap_text, t
     else:
         logfunc('No data for recent web searches')
 
-__artifacts__ = {
-    "safariRecentWebSearches": (
-        "Safari Browser",
-        ('**/Library/Preferences/com.apple.mobilesafari.plist'),
-        get_safariRecentWebSearches)
+__artifacts_v2__ = {
+    "safariRecentWebSearches": {
+        "name": "Safari Browser",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Safari Browser",
+        "notes": "",
+        "paths": ('**/Library/Preferences/com.apple.mobilesafari.plist'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

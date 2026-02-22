@@ -175,9 +175,18 @@ def get_bumble(files_found, report_folder, seeker, wrap_text, timezone_offset):
     
     db.close()
 
-__artifacts__ = {
-    "bumble": (
-        "Bumble",
-        ('**/Library/Caches/Chat.sqlite*','**/Documents/yap-database.sqlite*'),
-        get_bumble)
+__artifacts_v2__ = {
+    "bumble": {
+        "name": "Bumble",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Bumble",
+        "notes": "",
+        "paths": ('**/Library/Caches/Chat.sqlite*','**/Documents/yap-database.sqlite*'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

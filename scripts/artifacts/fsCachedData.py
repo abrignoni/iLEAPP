@@ -45,9 +45,18 @@ def get_fsCachedData(files_found, report_folder, seeker, wrap_text, timezone_off
         logfunc('No fsCachedData data available')
         
 
-__artifacts__ = {
-    "fsCachedData": (
-        "Cache Data",
-        ('*/fsCachedData/**'),
-        get_fsCachedData)
+__artifacts_v2__ = {
+    "fsCachedData": {
+        "name": "Cache Data",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Cache Data",
+        "notes": "",
+        "paths": ('*/fsCachedData/**'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

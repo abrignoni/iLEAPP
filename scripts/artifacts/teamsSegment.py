@@ -137,9 +137,18 @@ def get_teamsSegment(files_found, report_folder, seeker, wrap_text, timezone_off
     else:
         logfunc('No Microsoft Teams Power State Change')
 
-__artifacts__ = {
-    "teamsSegment": (
-        "Microsoft Teams - Logs",
-        ('*/mobile/Containers/Data/Application/*/Library/DriveIQ/segments/current/*.*'),
-        get_teamsSegment)
+__artifacts_v2__ = {
+    "teamsSegment": {
+        "name": "Microsoft Teams - Logs",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Microsoft Teams - Logs",
+        "notes": "",
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/DriveIQ/segments/current/*.*'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

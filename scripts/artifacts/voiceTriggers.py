@@ -63,9 +63,18 @@ def get_voiceTriggers(files_found, report_folder, seeker, wrap_text, timezone_of
 
     return
 
-__artifacts__ = {
-    "voiceTriggers": (
-        "Voice-Triggers",
-        ('**/td/audio/*.json','**/td/audio/*.wav'),
-        get_voiceTriggers)
+__artifacts_v2__ = {
+    "voiceTriggers": {
+        "name": "Voice-Triggers",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Voice-Triggers",
+        "notes": "",
+        "paths": ('**/td/audio/*.json','**/td/audio/*.wav'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

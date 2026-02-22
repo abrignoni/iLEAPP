@@ -176,9 +176,18 @@ def get_venmo(files_found, report_folder, seeker, wrap_text, timezone_offset):
     output_transactions(report_folder, transaction_data, filenames)
     output_users(report_folder, transaction_data, filenames)
 
-__artifacts__ = {
-    "venmo": (
-        "Venmo",
-        ('*PrivateFeed','*PublicFeed','*FriendsFeed'),
-        get_venmo)
+__artifacts_v2__ = {
+    "venmo": {
+        "name": "Venmo",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Venmo",
+        "notes": "",
+        "paths": ('*PrivateFeed','*PublicFeed','*FriendsFeed'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

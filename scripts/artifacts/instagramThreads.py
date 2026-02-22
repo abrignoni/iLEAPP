@@ -177,9 +177,18 @@ def get_instagramThreads(files_found, report_folder, seeker, wrap_text, timezone
     db.close()
     
 
-__artifacts__ = {
-    "instagramThreads": (
-        "Instagram",
-        ('*/mobile/Containers/Data/Application/*/Library/Application Support/DirectSQLiteDatabase/*.db*'),
-        get_instagramThreads)
+__artifacts_v2__ = {
+    "instagramThreads": {
+        "name": "Instagram",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Instagram",
+        "notes": "",
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/DirectSQLiteDatabase/*.db*'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

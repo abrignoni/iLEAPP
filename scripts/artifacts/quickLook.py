@@ -53,9 +53,18 @@ def get_quickLook(files_found, report_folder, seeker, wrap_text, timezone_offset
         
     else:
         logfunc('No Quicklook DB file found. Check -wal files for possible data remnants.')
-__artifacts__ = {
-    "quickLook": (
-        "iCloud Quick Look",
-        ('*/Quick Look/cloudthumbnails.db*'),
-        get_quickLook)
+__artifacts_v2__ = {
+    "quickLook": {
+        "name": "iCloud Quick Look",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "iCloud Quick Look",
+        "notes": "",
+        "paths": ('*/Quick Look/cloudthumbnails.db*'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

@@ -277,9 +277,18 @@ def get_Health(files_found, report_folder, seeker, wrap_text, timezone_offset):
     else:
         logfunc('No table location_series_data in healthdb_secure.sqlite')
         
-__artifacts__ = {
-    "Fitness": (
-        "Fitness",
-        ('*Health/healthdb_secure.sqlite*'),
-        get_Health)
+__artifacts_v2__ = {
+    "Fitness": {
+        "name": "Fitness",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Fitness",
+        "notes": "",
+        "paths": ('*Health/healthdb_secure.sqlite*'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

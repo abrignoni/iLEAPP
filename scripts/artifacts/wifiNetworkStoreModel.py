@@ -68,9 +68,18 @@ def get_wifiNetworkStoreModel(files_found, report_folder, seeker, wrap_text, tim
     db.close()
     return
 
-__artifacts__ = {
-    "wifiNetworkStoreModel": (
-        "Wifi Known Networks",
-        ('*/root/Library/Application Support/WiFiNetworkStoreModel.sqlite*'),
-        get_wifiNetworkStoreModel)
+__artifacts_v2__ = {
+    "wifiNetworkStoreModel": {
+        "name": "Wifi Known Networks",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Wifi Known Networks",
+        "notes": "",
+        "paths": ('*/root/Library/Application Support/WiFiNetworkStoreModel.sqlite*'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

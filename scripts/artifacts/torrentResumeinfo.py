@@ -53,9 +53,18 @@ def get_torrentResumeinfo(files_found, report_folder, seeker, wrap_text, timezon
     
     tsv(report_folder, data_headers, data_list, title)
 
-__artifacts__ = {
-    "torrentResumeinfo": (
-        "BitTorrent",
-        ('*/*.resume'),
-        get_torrentResumeinfo)
+__artifacts_v2__ = {
+    "torrentResumeinfo": {
+        "name": "BitTorrent",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "BitTorrent",
+        "notes": "",
+        "paths": ('*/*.resume'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

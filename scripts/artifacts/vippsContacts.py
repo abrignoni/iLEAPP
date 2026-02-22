@@ -91,9 +91,18 @@ def get_vippsContacts(files_found, report_folder, seeker, wrap_text, timezone_of
         logfunc('No data available for Vipps Contacts')
     db.close()
     
-__artifacts__ = {
-    "vippsContacts": (
-        "Vipps",
-        ('*/Vipps.sqlite*'),
-        get_vippsContacts)
+__artifacts_v2__ = {
+    "vippsContacts": {
+        "name": "Vipps",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Vipps",
+        "notes": "",
+        "paths": ('*/Vipps.sqlite*'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

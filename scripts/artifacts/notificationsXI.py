@@ -328,11 +328,20 @@ def get_notificationsXI(files_found, report_folder, seeker, wrap_text, timezone_
     if notdircount == 0:
         logfunc("No notifications located.")
     
-__artifacts__ = {
-    "notificationsXI": (
-        "Notifications",
-        ('*PushStore*'),
-        get_notificationsXI)
+__artifacts_v2__ = {
+    "notificationsXI": {
+        "name": "Notifications",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Notifications",
+        "notes": "",
+        "paths": ('*PushStore*'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }  
        
 

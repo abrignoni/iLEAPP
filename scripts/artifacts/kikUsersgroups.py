@@ -72,11 +72,20 @@ def get_kikUsersgroups(files_found, report_folder, seeker, wrap_text, timezone_o
     else:
         logfunc('No Kik Users in Groups data available')
     
-__artifacts__ = {
-    "kikUsersgroups": (
-        "Kik",
-        ('*/kik.sqlite*'),
-        get_kikUsersgroups)
+__artifacts_v2__ = {
+    "kikUsersgroups": {
+        "name": "Kik",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Kik",
+        "notes": "",
+        "paths": ('*/kik.sqlite*'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }
    
     

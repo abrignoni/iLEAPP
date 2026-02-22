@@ -37,10 +37,19 @@ def get_recentApphistory(files_found, report_folder, seeker, wrap_text, timezone
     else:
         logfunc('No data on CarPlay Recent App History')
 
-__artifacts__ = {
-    "recentApphistory": (
-        "CarPlay",
-        ('*/com.apple.CarPlayApp.plist'),
-        get_recentApphistory)
+__artifacts_v2__ = {
+    "recentApphistory": {
+        "name": "CarPlay",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "CarPlay",
+        "notes": "",
+        "paths": ('*/com.apple.CarPlayApp.plist'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }
     

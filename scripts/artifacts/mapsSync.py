@@ -183,9 +183,18 @@ def get_mapsSync(files_found, report_folder, seeker, wrap_text, timezone_offset)
         else:
             logfunc('No MapsSync data available')
 
-__artifacts__ = {
-    "mapsSync": (
-        "Location",
-        ('*/MapsSync_0.0.1*'),
-        get_mapsSync)
+__artifacts_v2__ = {
+    "mapsSync": {
+        "name": "Location",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Location",
+        "notes": "",
+        "paths": ('*/MapsSync_0.0.1*'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

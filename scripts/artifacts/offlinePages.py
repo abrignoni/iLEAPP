@@ -36,10 +36,19 @@ def get_offlinePages(files_found, report_folder, seeker, wrap_text, timezone_off
         tsvname = f'Offline Pages'
         tsv(report_folder, data_headers, data_list, tsvname)
 
-__artifacts__ = {
-        "pages": (
-                "Offline Pages",
-                ('*/*.mhtml', '*/*.mht'),
-                get_offlinePages)
+__artifacts_v2__ = {
+    "pages": {
+        "name": "Offline Pages",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Offline Pages",
+        "notes": "",
+        "paths": ('*/*.mhtml', '*/*.mht'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }
             

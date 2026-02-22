@@ -257,9 +257,18 @@ def save_original_attachment_as_thumbnail(file, store_path):
     image.thumbnail(thumbnail_max_size)
     image.save(store_path)
 
-__artifacts__ = {
-    "notes": (
-        "Notes",
-        ('*/NoteStore.sqlite*'),
-        get_notes)
+__artifacts_v2__ = {
+    "notes": {
+        "name": "Notes",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Notes",
+        "notes": "",
+        "paths": ('*/NoteStore.sqlite*'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

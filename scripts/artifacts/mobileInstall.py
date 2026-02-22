@@ -722,9 +722,18 @@ def get_mobileInstall(files_found, report_folder, seeker, wrap_text, timezone_of
     report.end_artifact_report()
 '''
 
-__artifacts__ = {
-    "mobileInstall": (
-        "Mobile Installation Logs",
-        ('**/mobile_installation.log.*','**/sysdiagnose_*.tar.gz'),
-        get_mobileInstall)
+__artifacts_v2__ = {
+    "mobileInstall": {
+        "name": "Mobile Installation Logs",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Mobile Installation Logs",
+        "notes": "",
+        "paths": ('**/mobile_installation.log.*','**/sysdiagnose_*.tar.gz'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

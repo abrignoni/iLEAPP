@@ -179,9 +179,18 @@ def get_hikvision(files_found, report_folder, seeker, wrap_text, timezone_offset
     else:
         logfunc(f'No Hikvision - User Created Media data available')
 
-__artifacts__ = {
-        "hikvision": (
-                "Hikvision",
-                ('*/Documents/DCLOG/YSDCLogItem.sqlite*','*/Documents/database.hik*','*/Documents/*/*/*/*.jpg','*/Documents/*/*/*/*.mov','*/Documents/*/*/*/*.mp4'),
-                get_hikvision)
+__artifacts_v2__ = {
+    "hikvision": {
+        "name": "Hikvision",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Hikvision",
+        "notes": "",
+        "paths": ('*/Documents/DCLOG/YSDCLogItem.sqlite*','*/Documents/database.hik*','*/Documents/*/*/*/*.jpg','*/Documents/*/*/*/*.mov','*/Documents/*/*/*/*.mp4'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

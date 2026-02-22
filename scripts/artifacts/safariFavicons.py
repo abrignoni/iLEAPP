@@ -55,9 +55,18 @@ def get_safariFavicons(files_found, report_folder, seeker, wrap_text, timezone_o
     
     db.close()
 
-__artifacts__ = {
-    "safariFavicons": (
-        "Safari Browser",
-        ('*/Containers/Data/Application/*/Library/Image Cache/Favicons/Favicons.db*'),
-        get_safariFavicons)
+__artifacts_v2__ = {
+    "safariFavicons": {
+        "name": "Safari Browser",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Safari Browser",
+        "notes": "",
+        "paths": ('*/Containers/Data/Application/*/Library/Image Cache/Favicons/Favicons.db*'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

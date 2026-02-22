@@ -1041,9 +1041,18 @@ def get_photosMetadata(files_found, report_folder, seeker, wrap_text, timezone_o
         db.close()
         return
 
-__artifacts__ = {
-    "photosMetadata": (
-        "Photos",
-        ('*/mobile/Media/PhotoData/Photos.sqlite*'),
-        get_photosMetadata)
+__artifacts_v2__ = {
+    "photosMetadata": {
+        "name": "Photos",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Photos",
+        "notes": "",
+        "paths": ('*/mobile/Media/PhotoData/Photos.sqlite*'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

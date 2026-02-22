@@ -149,9 +149,18 @@ def get_mobileInstallb(files_found, report_folder, seeker, wrap_text, timezone_o
       else:
         logfunc(f'No Reboots - Mobile Installation Logs')
     
-__artifacts__ = {
-    "mobileInstallb": (
-        "Mobile Installation Logs",
-        ('*/mobile_installation.log.*'),
-        get_mobileInstallb)
+__artifacts_v2__ = {
+    "mobileInstallb": {
+        "name": "Mobile Installation Logs",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Mobile Installation Logs",
+        "notes": "",
+        "paths": ('*/mobile_installation.log.*'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

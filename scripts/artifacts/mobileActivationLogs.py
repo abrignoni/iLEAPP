@@ -94,9 +94,18 @@ def get_mobileActivationLogs(files_found, report_folder, seeker, wrap_text, time
     tsv(report_folder, data_headers, data_list, tsvname)
     tsv(report_folder, data_headers_info, data_list_info, tsvname)
 
-__artifacts__ = {
-    "mobileActivationLogs": (
-        "Mobile Activation Logs",
-        ('**/mobileactivationd.log*','**/sysdiagnose_*.tar.gz'),
-        get_mobileActivationLogs)
+__artifacts_v2__ = {
+    "mobileActivationLogs": {
+        "name": "Mobile Activation Logs",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Mobile Activation Logs",
+        "notes": "",
+        "paths": ('**/mobileactivationd.log*','**/sysdiagnose_*.tar.gz'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

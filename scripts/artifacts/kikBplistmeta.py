@@ -78,9 +78,18 @@ def get_kikBplistmeta(files_found, report_folder, seeker, wrap_text, timezone_of
 	else:
 		logfunc('No data on Kik Attachments Bplist MetadataD')
 
-__artifacts__ = {
-    "kikBplistmeta": (
-        "Kik",
-        ('*/mobile/Containers/Shared/AppGroup/*/cores/private/*/attachments/*'),
-        get_kikBplistmeta)
+__artifacts_v2__ = {
+    "kikBplistmeta": {
+        "name": "Kik",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Kik",
+        "notes": "",
+        "paths": ('*/mobile/Containers/Shared/AppGroup/*/cores/private/*/attachments/*'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

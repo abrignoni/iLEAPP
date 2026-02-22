@@ -86,9 +86,18 @@ def get_weatherAppLocations(files_found, report_folder, seeker, wrap_text, timez
     else:
         logfunc('No data available for Weather App Locations')
 
-__artifacts__ = {
-    "weatherAppLocations": (
-        "Location",
-        ('*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.com.apple.weather.plist'),
-        get_weatherAppLocations)
+__artifacts_v2__ = {
+    "weatherAppLocations": {
+        "name": "Location",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Location",
+        "notes": "",
+        "paths": ('*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.com.apple.weather.plist'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

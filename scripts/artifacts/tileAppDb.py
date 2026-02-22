@@ -83,9 +83,18 @@ def get_tileAppDb(files_found, report_folder, seeker, wrap_text, timezone_offset
     db.close()
     return 
 
-__artifacts__ = {
-    "tileAppDb": (
-        "Locations",
-        ('*/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-TileNetworkDB.sqlite*'),
-        get_tileAppDb)
+__artifacts_v2__ = {
+    "tileAppDb": {
+        "name": "Locations",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Locations",
+        "notes": "",
+        "paths": ('*/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-TileNetworkDB.sqlite*'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

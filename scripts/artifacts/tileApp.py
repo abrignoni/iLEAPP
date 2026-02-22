@@ -57,9 +57,18 @@ def get_tileApp(files_found, report_folder, seeker, wrap_text, timezone_offset):
         kmlactivity = 'Tile App Lat Long'
         kmlgen(report_folder, kmlactivity, data_list, data_headers)
     
-__artifacts__ = {
-    "tileApp": (
-        "Locations",
-        ('*/mobile/Containers/Data/Application/*/Library/log/com.thetileapp.tile*'),
-        get_tileApp)
+__artifacts_v2__ = {
+    "tileApp": {
+        "name": "Locations",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Locations",
+        "notes": "",
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/log/com.thetileapp.tile*'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

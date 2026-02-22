@@ -125,9 +125,18 @@ def get_safariTabs(files_found, report_folder, seeker, wrap_text, timezone_offse
             db.close()
         
 
-__artifacts__ = {
-    "safariTabs": (
-        "Safari Browser",
-        ('**/Safari/BrowserState.db*','**/Safari/CloudTabs.db*'),
-        get_safariTabs)
+__artifacts_v2__ = {
+    "safariTabs": {
+        "name": "Safari Browser",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Safari Browser",
+        "notes": "",
+        "paths": ('**/Safari/BrowserState.db*','**/Safari/CloudTabs.db*'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

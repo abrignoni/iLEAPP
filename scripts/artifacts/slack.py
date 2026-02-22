@@ -479,10 +479,19 @@ def get_slack(files_found, report_folder, seeker, wrap_text, timezone_offset):
         else:
             logfunc('No Slack Workspace Data available')
     
-__artifacts__ = {
-    "slack": (
-        "Slack",
-        ('*/mobile/Containers/Data/Application/*/Library/Application Support/Slack/*/*/main_db*','*/mobile/Containers/Shared/AppGroup/*/*/ModelDatabase/db.sqlite*'),
-        get_slack)
+__artifacts_v2__ = {
+    "slack": {
+        "name": "Slack",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Slack",
+        "notes": "",
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/Slack/*/*/main_db*','*/mobile/Containers/Shared/AppGroup/*/*/ModelDatabase/db.sqlite*'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }
     

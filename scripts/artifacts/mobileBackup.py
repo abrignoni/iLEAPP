@@ -45,9 +45,18 @@ def get_mobileBackup(files_found, report_folder, seeker, wrap_text, timezone_off
     tsvname = 'Mobile Backup'
     tsv(report_folder, data_headers, data_list, tsvname)
 
-__artifacts__ = {
-    "mobileBackup": (
-        "Mobile Backup",
-        ('*/Preferences/com.apple.MobileBackup.plist'),
-        get_mobileBackup)
+__artifacts_v2__ = {
+    "mobileBackup": {
+        "name": "Mobile Backup",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Mobile Backup",
+        "notes": "",
+        "paths": ('*/Preferences/com.apple.MobileBackup.plist'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

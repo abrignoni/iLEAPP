@@ -80,9 +80,18 @@ def get_kikLocaladmin(files_found, report_folder, seeker, wrap_text, timezone_of
         logfunc('No Kik Local Account data available')
     
     
-__artifacts__ = {
-    "kikLocaladmin": (
-        "Kik",
-        ('*/kik.sqlite*'),
-        get_kikLocaladmin)
+__artifacts_v2__ = {
+    "kikLocaladmin": {
+        "name": "Kik",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Kik",
+        "notes": "",
+        "paths": ('*/kik.sqlite*'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

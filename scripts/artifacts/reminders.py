@@ -65,9 +65,18 @@ def get_reminders(files_found, report_folder, seeker, wrap_text, timezone_offset
     db.close()
     return
 
-__artifacts__ = {
-    "reminders": (
-        "Reminders",
-        ('**/Reminders/Container_v1/Stores/*.sqlite*'),
-        get_reminders)
+__artifacts_v2__ = {
+    "reminders": {
+        "name": "Reminders",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Reminders",
+        "notes": "",
+        "paths": ('**/Reminders/Container_v1/Stores/*.sqlite*'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

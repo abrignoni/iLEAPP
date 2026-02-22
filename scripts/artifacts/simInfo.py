@@ -84,9 +84,18 @@ def get_siminfo(files_found, report_folder, seeker, wrap_text, timezone_offset):
     else:
         logfunc('No SIM - Unique Label Store data available')
 
-__artifacts__ = {
-    "siminfo": (
-        "SIM Info",
-        ('*/com.apple.commcenter.data.plist'),
-        get_siminfo)
+__artifacts_v2__ = {
+    "siminfo": {
+        "name": "SIM Info",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "SIM Info",
+        "notes": "",
+        "paths": ('*/com.apple.commcenter.data.plist'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

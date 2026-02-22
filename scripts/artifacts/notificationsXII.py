@@ -104,9 +104,18 @@ def get_notificationsXII(files_found, report_folder, seeker, wrap_text, timezone
     else:
         logfunc("No notifications found.")
 
-__artifacts__ = {
-    "notificationsXII": (
-        "Notifications",
-        ('*/mobile/Library/UserNotifications*'),
-        get_notificationsXII)
+__artifacts_v2__ = {
+    "notificationsXII": {
+        "name": "Notifications",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Notifications",
+        "notes": "",
+        "paths": ('*/mobile/Library/UserNotifications*'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

@@ -184,9 +184,18 @@ def get_duetLocations(files_found, report_folder, seeker, wrap_text, timezone_of
             logfunc(f'No data available for Duet Locations')
     
 
-__artifacts__ = {
-    "duetlocations": (
-        "Geolocation",
-        ('*/DuetExpertCenter/streams/location/local/*'),
-        get_duetLocations)
+__artifacts_v2__ = {
+    "duetlocations": {
+        "name": "Geolocation",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Geolocation",
+        "notes": "",
+        "paths": ('*/DuetExpertCenter/streams/location/local/*'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

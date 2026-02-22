@@ -115,9 +115,18 @@ def get_TorrentData(files_found, report_folder, seeker, wrap_text, timezone_offs
         
 
 
-__artifacts__ = {
-        "TorrentData": (
-                "Torrent Data",
-                ('*/*.torrent'),
-                get_TorrentData)
+__artifacts_v2__ = {
+    "TorrentData": {
+        "name": "Torrent Data",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Torrent Data",
+        "notes": "",
+        "paths": ('*/*.torrent'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

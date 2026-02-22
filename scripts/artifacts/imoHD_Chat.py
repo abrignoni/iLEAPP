@@ -146,9 +146,18 @@ def get_imoHD_Chat(files_found, report_folder, seeker, wrap_text, timezone_offse
         
     db.close()
 
-__artifacts__ = {
-    "imoHD_Chat": (
-        "IMO HD Chat",
-        ('*/IMODb2.sqlite*','*/mobile/Containers/Data/Application/*/Library/Caches/videos/*.webp'),
-        get_imoHD_Chat)
+__artifacts_v2__ = {
+    "imoHD_Chat": {
+        "name": "IMO HD Chat",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "IMO HD Chat",
+        "notes": "",
+        "paths": ('*/IMODb2.sqlite*','*/mobile/Containers/Data/Application/*/Library/Caches/videos/*.webp'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

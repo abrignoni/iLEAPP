@@ -160,9 +160,18 @@ def get_icloudSharedalbums(files_found, report_folder, seeker, wrap_text, timezo
 	else:
 		logfunc('No iCloud Shared Emails')
 	
-__artifacts__ = {
-    "icloudSharedalbums": (
-        "iCloud Shared Albums",
-        ('*/mobile/Media/PhotoData/PhotoCloudSharingData/*'),
-        get_icloudSharedalbums)
+__artifacts_v2__ = {
+    "icloudSharedalbums": {
+        "name": "iCloud Shared Albums",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "iCloud Shared Albums",
+        "notes": "",
+        "paths": ('*/mobile/Media/PhotoData/PhotoCloudSharingData/*'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

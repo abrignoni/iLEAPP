@@ -64,9 +64,18 @@ def get_textinputTyping(files_found, report_folder, seeker, wrap_text, timezone_
         else:
             logfunc(f"No Messages {count} available")
 
-__artifacts__ = {
-    "textinputTyping": (
-        "Text Input Messages",
-        ('*/DES/Records/com.apple.TextInput.TypingDESPlugin/*.desdata'),
-        get_textinputTyping)
+__artifacts_v2__ = {
+    "textinputTyping": {
+        "name": "Text Input Messages",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Text Input Messages",
+        "notes": "",
+        "paths": ('*/DES/Records/com.apple.TextInput.TypingDESPlugin/*.desdata'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

@@ -67,9 +67,18 @@ def get_webClips(files_found, report_folder, seeker, wrap_text, timezone_offset)
     report.write_artifact_data_table(data_headers, data_list, files_found[0], html_escape=False)
     report.end_artifact_report()
 
-__artifacts__ = {
-    "webClips": (
-        "iOS Screens",
-        ('*WebClips/*.webclip/*'),
-        get_webClips)
+__artifacts_v2__ = {
+    "webClips": {
+        "name": "iOS Screens",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "iOS Screens",
+        "notes": "",
+        "paths": ('*WebClips/*.webclip/*'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

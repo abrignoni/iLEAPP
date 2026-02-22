@@ -86,9 +86,18 @@ def get_metamask(files_found, report_folder, seeker, wrap_text, timezone_offset)
         timeline(report_folder, tlactivity, artifacts_from_in_app_browser, browser_headers)
     
     
-__artifacts__ = {
-    "metamask": (
-        "Metamask",
-        ('*/mobile/Containers/Data/Application/*/Documents/persistStore/persist-root'),
-        get_metamask)
+__artifacts_v2__ = {
+    "metamask": {
+        "name": "Metamask",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Metamask",
+        "notes": "",
+        "paths": ('*/mobile/Containers/Data/Application/*/Documents/persistStore/persist-root'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

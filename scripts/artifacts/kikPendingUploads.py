@@ -83,9 +83,18 @@ def get_kikPendingUploads(files_found, report_folder, seeker, wrap_text, timezon
         else:
             logfunc('No data on Kik Pending Uploads')
 
-__artifacts__ = {
-    "kikPendingUploads": (
-        "Kik",
-        ('*/mobile/Containers/Shared/AppGroup/*/cores/private/*/chunked_upload_storage/pending_uploads','*/mobile/Containers/Shared/AppGroup/*/cores/private/*/chunked_upload_storage/data_cache/*'),
-        get_kikPendingUploads)
+__artifacts_v2__ = {
+    "kikPendingUploads": {
+        "name": "Kik",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Kik",
+        "notes": "",
+        "paths": ('*/mobile/Containers/Shared/AppGroup/*/cores/private/*/chunked_upload_storage/pending_uploads','*/mobile/Containers/Shared/AppGroup/*/cores/private/*/chunked_upload_storage/data_cache/*'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

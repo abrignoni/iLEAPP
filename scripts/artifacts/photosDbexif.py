@@ -258,9 +258,18 @@ def get_photosDbexif(files_found, report_folder, seeker, wrap_text, timezone_off
         else:
             continue
         
-__artifacts__ = {
-        "photosDbexif": (
-            "Photos",
-            ('*Media/PhotoData/Photos.sqlite*','*Media/DCIM/*/**'),
-            get_photosDbexif)
+__artifacts_v2__ = {
+    "photosDbexif": {
+        "name": "Photos",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Photos",
+        "notes": "",
+        "paths": ('*Media/PhotoData/Photos.sqlite*','*Media/DCIM/*/**'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

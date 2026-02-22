@@ -50,9 +50,18 @@ def get_medicalID(files_found, report_folder, seeker, wrap_text, timezone_offset
     else:
         logfunc('No data on Medical ID')
 
-__artifacts__ = {
-    "medicalID": (
-        "Medical ID",
-        ('*/mobile/Library/MedicalID/MedicalIDData.archive'),
-        get_medicalID)
+__artifacts_v2__ = {
+    "medicalID": {
+        "name": "Medical ID",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Medical ID",
+        "notes": "",
+        "paths": ('*/mobile/Library/MedicalID/MedicalIDData.archive'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

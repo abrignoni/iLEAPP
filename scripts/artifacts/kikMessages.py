@@ -106,9 +106,18 @@ def get_kikMessages(files_found, report_folder, seeker, wrap_text, timezone_offs
     db.close()
     return 
 
-__artifacts__ = {
-    "kikMessages": (
-        "Kik",
-        ('**/kik.sqlite*','*/mobile/Containers/Shared/AppGroup/*/cores/private/*/content_manager/data_cache/*'),
-        get_kikMessages)
+__artifacts_v2__ = {
+    "kikMessages": {
+        "name": "Kik",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Kik",
+        "notes": "",
+        "paths": ('**/kik.sqlite*','*/mobile/Containers/Shared/AppGroup/*/cores/private/*/content_manager/data_cache/*'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

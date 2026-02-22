@@ -72,9 +72,18 @@ def get_cloudkitParticipants(files_found, report_folder, seeker, wrap_text, time
         logfunc('No Cloudkit - Cloudkit Participants data available')
 
     
-__artifacts__ = {
-    "cloudkitparticipants": (
-        "Cloudkit",
-        ('*NoteStore.sqlite*'), # TODO confirm this is the correct file ref see issue #322
-        get_cloudkitParticipants)
+__artifacts_v2__ = {
+    "cloudkitparticipants": {
+        "name": "Cloudkit",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Cloudkit",
+        "notes": "see issue #322 — confirm NoteStore.sqlite is correct file ref",
+        "paths": ('*NoteStore.sqlite*',),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

@@ -93,9 +93,18 @@ def get_cloudkitCache(files_found, report_folder, seeker, wrap_text, timezone_of
                 #tsv(report_folder, user_headers, user_list, tsvname)
 
     
-__artifacts__ = {
-    "cloudkitcache": (
-        "Cloudkit",
-        ('*/mobile/Library/Caches/Backup/cloudkit_cache.db*'),
-        get_cloudkitCache)
+__artifacts_v2__ = {
+    "cloudkitcache": {
+        "name": "Cloudkit",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Cloudkit",
+        "notes": "",
+        "paths": ('*/mobile/Library/Caches/Backup/cloudkit_cache.db*'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

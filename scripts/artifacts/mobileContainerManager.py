@@ -49,9 +49,18 @@ def get_mobileContainerManager(files_found, report_folder, seeker, wrap_text, ti
     tsvname = 'Mobile Container Manager'
     tsv(report_folder, data_headers, data_list, tsvname)
 
-__artifacts__ = {
-    "mobileContainerManager": (
-        "Mobile Container Manager",
-        ('**/containermanagerd.log.*'),
-        get_mobileContainerManager)
+__artifacts_v2__ = {
+    "mobileContainerManager": {
+        "name": "Mobile Container Manager",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Mobile Container Manager",
+        "notes": "",
+        "paths": ('**/containermanagerd.log.*'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

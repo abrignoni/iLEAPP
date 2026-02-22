@@ -113,9 +113,18 @@ def get_vipps(files_found, report_folder, seeker, wrap_text, time_offset):
     else:
         logfunc('No data available for Vipps')
     
-__artifacts__ = {
-    "vipps": (
-        "Vipps",
-        ('*/Vipps.sqlite*'),
-        get_vipps)
+__artifacts_v2__ = {
+    "vipps": {
+        "name": "Vipps",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Vipps",
+        "notes": "",
+        "paths": ('*/Vipps.sqlite*'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

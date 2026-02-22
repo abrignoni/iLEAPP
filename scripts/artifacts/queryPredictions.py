@@ -46,9 +46,18 @@ def get_queryPredictions(files_found, report_folder, seeker, wrap_text, timezone
     db.close()
     return
 
-__artifacts__ = {
-    "queryPredictions": (
-        "SMS & iMessage",
-        ('**/query_predictions.db'),
-        get_queryPredictions)
+__artifacts_v2__ = {
+    "queryPredictions": {
+        "name": "SMS & iMessage",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "SMS & iMessage",
+        "notes": "",
+        "paths": ('**/query_predictions.db'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

@@ -82,9 +82,18 @@ def get_iconsScreen(files_found, report_folder, seeker, wrap_text, timezone_offs
         report.end_artifact_report()
 
 
-__artifacts__ = {
-    "iconsScreen": (
-        "iOS Screens",
-        ('**/SpringBoard/IconState.plist'),
-        get_iconsScreen)
+__artifacts_v2__ = {
+    "iconsScreen": {
+        "name": "iOS Screens",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "iOS Screens",
+        "notes": "",
+        "paths": ('**/SpringBoard/IconState.plist'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

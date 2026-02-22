@@ -54,9 +54,18 @@ def get_geodPDPlaceCache(files_found, report_folder, seeker, wrap_text, timezone
 	db.close()
 	return
 	
-__artifacts__ = {
-    "geodpdplacecache": (
-        "Location",
-        ('**/PDPlaceCache.db*'),
-        get_geodPDPlaceCache)
+__artifacts_v2__ = {
+    "geodpdplacecache": {
+        "name": "Location",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Location",
+        "notes": "",
+        "paths": ('**/PDPlaceCache.db*'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

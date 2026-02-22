@@ -63,9 +63,18 @@ def get_torrentinfo(files_found, report_folder, seeker, wrap_text, timezone_offs
     
     tsv(report_folder, data_headers, data_list, title)
 
-__artifacts__ = {
-    "torrentinfo": (
-        "BitTorrent",
-        ('*/*.torrent'),
-        get_torrentinfo)
+__artifacts_v2__ = {
+    "torrentinfo": {
+        "name": "BitTorrent",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "BitTorrent",
+        "notes": "",
+        "paths": ('*/*.torrent'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

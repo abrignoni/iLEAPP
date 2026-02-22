@@ -583,9 +583,18 @@ def get_SiriRemembers(files_found, report_folder, seeker, wrap_text, timezone_of
     else:
         logfunc('No data available in Siri Remembers')
     
-__artifacts__ = {
-    "Siri Remembers": (
-        "Siri Remembers",
-        ('*/mobile/Library/com.apple.siri.inference/siriremembers*'),
-        get_SiriRemembers)
+__artifacts_v2__ = {
+    "Siri Remembers": {
+        "name": "Siri Remembers",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Siri Remembers",
+        "notes": "",
+        "paths": ('*/mobile/Library/com.apple.siri.inference/siriremembers*'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

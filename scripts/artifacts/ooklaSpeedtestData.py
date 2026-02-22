@@ -173,9 +173,18 @@ def get_ooklaSpeedtestData(files_found, report_folder, seeker, wrap_text, timezo
         db.close()
         return 
 
-__artifacts__ = {
-    "ooklaSpeedtestData": (
-        "Applications",
-        ('**/speedtest.sqlite*'),
-        get_ooklaSpeedtestData)
+__artifacts_v2__ = {
+    "ooklaSpeedtestData": {
+        "name": "Applications",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Applications",
+        "notes": "",
+        "paths": ('**/speedtest.sqlite*'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

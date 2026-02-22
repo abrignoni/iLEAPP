@@ -194,9 +194,18 @@ def get_teleguard(files_found, report_folder, seeker, wrap_text, time_offset):
                 logfunc('No Teleguard Channels available')
     #db.close()
 
-__artifacts__ = {
-        "Teleguard": (
-                "Teleguard",
-                ('*/Shared/AppGroup/*/Library/teleguard_database.db*','*/.com.apple.mobile_container_manager.metadata.plist'),
-                get_teleguard)
+__artifacts_v2__ = {
+    "Teleguard": {
+        "name": "Teleguard",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Teleguard",
+        "notes": "",
+        "paths": ('*/Shared/AppGroup/*/Library/teleguard_database.db*','*/.com.apple.mobile_container_manager.metadata.plist'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

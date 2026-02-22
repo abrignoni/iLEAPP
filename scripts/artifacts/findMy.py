@@ -35,9 +35,18 @@ def get_findMy(files_found, report_folder, seeker, wrap_text, timezone_offset):
         logfunc('No Find My iPhone Settings available')
             
 
-__artifacts__ = {
-    "findMy": (
-        "Identifiers",
-        ('*/mobile/Library/Preferences/com.apple.icloud.findmydeviced.FMIPAccounts.plist'),
-        get_findMy)
+__artifacts_v2__ = {
+    "findMy": {
+        "name": "Identifiers",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Identifiers",
+        "notes": "",
+        "paths": ('*/mobile/Library/Preferences/com.apple.icloud.findmydeviced.FMIPAccounts.plist'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

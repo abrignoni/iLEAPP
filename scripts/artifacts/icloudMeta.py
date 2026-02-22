@@ -62,9 +62,18 @@ def get_icloudMeta(files_found, report_folder, seeker, wrap_text, timezone_offse
             else:
                 logfunc('No data available')
 
-__artifacts__ = {
-    "icloudmeta": (
-        "iCloud Returns",
-        ('*/iclouddrive/Metadata.txt'),
-        get_icloudMeta)
+__artifacts_v2__ = {
+    "icloudmeta": {
+        "name": "iCloud Returns",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "iCloud Returns",
+        "notes": "",
+        "paths": ('*/iclouddrive/Metadata.txt'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

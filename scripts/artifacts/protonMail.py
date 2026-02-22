@@ -255,9 +255,18 @@ def get_protonMail(files_found, report_folder, seeker, wrap_text, timezone_offse
     else:
       logfunc('No Proton Mail - Decrypted Emails')
 
-__artifacts__ = {
-    "protonMail": (
-        "Proton Mail",
-        ('*/group.ch.protonmail.protonmail.plist','*/ProtonMail.sqlite*','*/Containers/Data/Application/*/tmp/*'),
-        get_protonMail)
+__artifacts_v2__ = {
+    "protonMail": {
+        "name": "Proton Mail",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Proton Mail",
+        "notes": "",
+        "paths": ('*/group.ch.protonmail.protonmail.plist','*/ProtonMail.sqlite*','*/Containers/Data/Application/*/tmp/*'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

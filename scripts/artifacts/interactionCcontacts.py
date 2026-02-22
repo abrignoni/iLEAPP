@@ -129,9 +129,18 @@ def get_interactionCcontacts(files_found, report_folder, seeker, wrap_text, time
     db.close()
     return      
     
-__artifacts__ = {
-    "interactionCcontacts": (
-        "InteractionC",
-        ('**/interactionC.db*'),
-        get_interactionCcontacts)
+__artifacts_v2__ = {
+    "interactionCcontacts": {
+        "name": "InteractionC",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "InteractionC",
+        "notes": "",
+        "paths": ('**/interactionC.db*'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

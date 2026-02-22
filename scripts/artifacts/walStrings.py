@@ -60,9 +60,18 @@ def get_walStrings(files_found, report_folder, seeker, wrap_text, timezone_offse
     report.write_artifact_data_table(data_headers, data_list, location, html_escape=False)
     report.end_artifact_report()
 
-__artifacts__ = {
-    "walStrings": (
-        "SQLite Journaling",
-        ('**/*-wal','**/*-journal'),
-        get_walStrings)
+__artifacts_v2__ = {
+    "walStrings": {
+        "name": "SQLite Journaling",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "SQLite Journaling",
+        "notes": "",
+        "paths": ('**/*-wal','**/*-journal'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

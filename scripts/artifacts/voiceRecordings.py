@@ -64,9 +64,18 @@ def get_voiceRecordings(files_found, report_folder, seeker, wrap_text, timezone_
 
     return
 
-__artifacts__ = {
-    "voiceRecordings": (
-        "Voice-Recordings",
-        ('**/Recordings/*.composition/manifest.plist','**/Recordings/*.m4a'),
-        get_voiceRecordings)
+__artifacts_v2__ = {
+    "voiceRecordings": {
+        "name": "Voice-Recordings",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Voice-Recordings",
+        "notes": "",
+        "paths": ('**/Recordings/*.composition/manifest.plist','**/Recordings/*.m4a'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

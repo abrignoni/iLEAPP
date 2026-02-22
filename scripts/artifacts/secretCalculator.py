@@ -93,9 +93,18 @@ def get_secretCalculator(files_found, report_folder, seeker, wrap_text, timezone
                 db.close()
     return
     
-__artifacts__ = {
-    "secretCalculatorPhotoAlbum": (
-        "Secret Calculator Photo Album",
-        ('**mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist'),
-        get_secretCalculator)
+__artifacts_v2__ = {
+    "secretCalculatorPhotoAlbum": {
+        "name": "Secret Calculator Photo Album",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Secret Calculator Photo Album",
+        "notes": "",
+        "paths": ('**mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

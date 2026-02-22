@@ -52,9 +52,18 @@ def get_safariBookmarks(files_found, report_folder, seeker, wrap_text, timezone_
 	db.close()
 	return 
 
-__artifacts__ = {
-    "safariBookmarks": (
-        "Safari Browser",
-        ('**/Safari/Bookmarks.db*'),
-        get_safariBookmarks)
+__artifacts_v2__ = {
+    "safariBookmarks": {
+        "name": "Safari Browser",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Safari Browser",
+        "notes": "",
+        "paths": ('**/Safari/Bookmarks.db*'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

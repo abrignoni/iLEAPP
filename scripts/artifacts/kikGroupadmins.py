@@ -145,10 +145,19 @@ order by Z_9ADMINSINVERSE
         logfunc('No Kik Group Administrators data available')
     
     
-__artifacts__ = {
-    "kikGroupadmins": (
-        "Kik",
-        ('*/kik.sqlite*'),
-        get_kikGroupadmins)
+__artifacts_v2__ = {
+    "kikGroupadmins": {
+        "name": "Kik",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Kik",
+        "notes": "",
+        "paths": ('*/kik.sqlite*'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }
         

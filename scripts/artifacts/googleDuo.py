@@ -161,9 +161,18 @@ def get_googleDuo(files_found, report_folder, seeker, wrap_text, timezone_offset
         db.close()
         return
 
-__artifacts__ = {
-    "googleduo": (
-        "Google Duo",
-        ('*/Application Support/DataStore*','*/Application Support/ClipsCache/*.png'),
-        get_googleDuo)
+__artifacts_v2__ = {
+    "googleduo": {
+        "name": "Google Duo",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Google Duo",
+        "notes": "",
+        "paths": ('*/Application Support/DataStore*','*/Application Support/ClipsCache/*.png'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

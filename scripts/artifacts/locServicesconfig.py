@@ -100,9 +100,18 @@ def get_locServicesconfig(files_found, report_folder, seeker, wrap_text, timezon
     else:
       logfunc('No LSC - clients.plist')
 
-__artifacts__ = {
-    "locServicesconfig": (
-        "Location Services Configurations",
-        ('*/Library/Preferences/com.apple.locationd.plist','*/Library/Caches/locationd/clients.plist','*/Library/Preferences/com.apple.routined.plist'),
-        get_locServicesconfig)
+__artifacts_v2__ = {
+    "locServicesconfig": {
+        "name": "Location Services Configurations",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Location Services Configurations",
+        "notes": "",
+        "paths": ('*/Library/Preferences/com.apple.locationd.plist','*/Library/Caches/locationd/clients.plist','*/Library/Preferences/com.apple.routined.plist'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

@@ -64,9 +64,18 @@ def get_iCloudWifi(files_found, report_folder, seeker, wrap_text, timezone_offse
     else:
         logfunc('No data on iCloud WiFi networks')
 
-__artifacts__ = {
-    "iCloudWifi": (
-        "Wifi Connections",
-        ('**/com.apple.wifid.plist'),
-        get_iCloudWifi)
+__artifacts_v2__ = {
+    "iCloudWifi": {
+        "name": "Wifi Connections",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Wifi Connections",
+        "notes": "",
+        "paths": ('**/com.apple.wifid.plist'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }

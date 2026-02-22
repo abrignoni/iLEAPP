@@ -51,9 +51,18 @@ def get_geodApplications(files_found, report_folder, seeker, wrap_text, timezone
 	db.close()
 	return
 	
-__artifacts__ = {
-    "geodapplications": (
-        "Location",
-        ('**/AP.db*'),
-        get_geodApplications)
+__artifacts_v2__ = {
+    "geodapplications": {
+        "name": "Location",
+        "description": "",
+        "author": "",
+        "version": "0.1",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Location",
+        "notes": "",
+        "paths": ('**/AP.db*'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle"
+    }
 }
