@@ -42,6 +42,24 @@ from scripts.ilapfuncs import get_plist_file_content, get_plist_content, logfunc
     is_platform_windows, open_sqlite_db_readonly, sanitize_file_path
 
 normcase = lru_cache(maxsize=None)(os.path.normcase)
+
+
+def _is_safe_path(base_folder, entry_name):
+    """Check that a resolved archive entry path stays within base_folder.
+
+    Prevents path traversal attacks (zip slip / tar slip) where malicious
+    entries contain '../' sequences or absolute paths to escape the
+    extraction directory.
+
+    Returns the resolved path if safe, or None if the entry is malicious.
+    """
+    resolved = os.path.normpath(os.path.abspath(os.path.join(base_folder, entry_name)))
+    base_abs = os.path.normpath(os.path.abspath(base_folder))
+    if resolved.startswith(base_abs + os.sep) or resolved == base_abs:
+        return resolved
+    return None
+
+
 domains = {
     "AppDomain-": "private/var/mobile/Containers/Data/Application",
     "AppDomainGroup-": "private/var/mobile/Containers/Shared/AppGroup",
@@ -662,7 +680,10 @@ class FileSeekerTar(FileSeekerBase):
         for member in self.tar_file.getmembers():
             if pat(root + normcase(member.name)) is not None:
                 clean_name = sanitize_file_path(member.name)
-                full_path = os.path.join(self.data_folder, Path(clean_name))
+                full_path = _is_safe_path(self.data_folder, clean_name)
+                if full_path is None:
+                    logfunc(f'Skipping path traversal attempt in tar: {member.name}')
+                    continue
                 if member.name not in self.copied or force:
                     try:
                         if member.isdir():
@@ -766,6 +787,10 @@ class FileSeekerZip(FileSeekerBase):
             if member.startswith("__MACOSX"):
                 continue
             if pat(root + normcase(member)) is not None:
+                safe_path = _is_safe_path(self.data_folder, member)
+                if safe_path is None:
+                    logfunc(f'Skipping path traversal attempt in zip: {member}')
+                    continue
                 if member not in self.copied or force:
                     try:
                         # already replaces illegal chars with _ when exporting
