@@ -119,7 +119,7 @@ def get_notificationsDuet(files_found, report_folder, seeker, wrap_text, timezon
             report.end_artifact_report()
 
             tsvname = f'Notifications Duet - {filename}'
-            tsv(report_folder, data_headers, file_data_list, tsvname)  # TODO: _csv.Error: need to escape, but no escapechar set
+            tsv(report_folder, data_headers, file_data_list, tsvname)
 
     # Single table for LAVA output
     table_name, object_columns, column_map = lava_process_artifact(category, module_name,

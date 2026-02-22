@@ -827,8 +827,7 @@ def chromeAutofillEntries(files_found, report_folder, seeker, wrap_text, timezon
         cursor = db.cursor()
 
         columns = [i[1] for i in cursor.execute('PRAGMA table_info(autofill)')]
-        # TODO: Was this supposed to be if 'date_last_used' in columns?
-        if 'date_created' in columns:
+        if 'date_last_used' in columns:
             cursor.execute(f'''
             select
                 datetime(date_created, 'unixepoch'),

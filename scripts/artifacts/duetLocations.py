@@ -172,7 +172,7 @@ def get_duetLocations(files_found, report_folder, seeker, wrap_text, timezone_of
             report.end_artifact_report()
             
             tsvname = f'Duet Locations - {filename}'
-            tsv(report_folder, data_headers, data_list, tsvname) # TODO: _csv.Error: need to escape, but no escapechar set
+            tsv(report_folder, data_headers, data_list, tsvname)
             
             tlactivity = f'Duet Locations - {filename}'
             timeline(report_folder, tlactivity, data_list, data_headers)

@@ -249,7 +249,7 @@ def get_biomeIntents(files_found, report_folder, seeker, wrap_text, timezone_off
             report.end_artifact_report()
 
             tsvname = f'Biome Intents - {filename}'
-            tsv(report_folder, data_headers, file_data_list_tsv, tsvname) # TODO: _csv.Error: need to escape, but no escapechar set
+            tsv(report_folder, data_headers, file_data_list_tsv, tsvname)
 
             tlactivity = f'Biome Intents - {filename}'
             timeline(report_folder, tlactivity, file_data_list_tsv, data_headers)

@@ -90,7 +90,7 @@ def get_biomeNotes(files_found, report_folder, seeker, wrap_text, timezone_offse
             report.end_artifact_report()
             
             tsvname = f'Biome Notes - {filename}'
-            tsv(report_folder, data_headers, file_data_list, tsvname) # TODO: _csv.Error: need to escape, but no escapechar set
+            tsv(report_folder, data_headers, file_data_list, tsvname)
             
             tlactivity = f'Biome Notes - {filename}'
             timeline(report_folder, tlactivity, file_data_list, data_headers)
