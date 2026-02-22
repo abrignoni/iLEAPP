@@ -509,12 +509,7 @@ def lava_get_full_media_info(media_ref_id):
     global lava_db
     lava_db.row_factory = sqlite3.Row
     cursor = lava_db.cursor()
-    query = f'''
-    SELECT *
-    FROM _lava_media_info
-    WHERE media_ref_id = '{media_ref_id}'
-    '''
-    return cursor.execute(query).fetchone()
+    return cursor.execute("SELECT * FROM _lava_media_info WHERE media_ref_id = ?", (media_ref_id,)).fetchone()
 
 
 def lava_finalize_output(output_path):

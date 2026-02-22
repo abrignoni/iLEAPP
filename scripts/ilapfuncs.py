@@ -411,8 +411,14 @@ def get_data_list_with_media(media_header_info, data_list):
             media_ref_ids = media_ref_id_cell if isinstance(media_ref_id_cell, list) else [media_ref_id_cell]
 
             for ref_id in media_ref_ids:
-                media_item = lava_get_full_media_info(ref_id)
-                if not (media_item and media_item['extraction_path']):
+                try:
+                    media_item = lava_get_full_media_info(ref_id)
+                except Exception:
+                    media_item = None
+                if not media_item:
+                    logfunc(f'Warning: invalid media reference ID "{ref_id}" — skipping')
+                    continue
+                if not media_item['extraction_path']:
                     continue
 
                 # Construct the full, absolute path to the canonical media file

@@ -457,9 +457,9 @@ def crunch_artifacts(
         parsed_modules += 1
         GuiWindow.SetProgressBar(parsed_modules, len(plugins))
         files_found = []
-        log.write(f'<b>For {plugin.name} module</b>')
+        log.write(f'<h2>{plugin.name}</h2>')
         if search_regexes is None:
-            log.write(f'<ul><li>No search regexes provided for {plugin.name} module.')
+            log.write(f'<ul><li>No search regexes provided for {plugin.name} artifact.')
             log.write("<ul><li><i>'_lava_artifacts.db'</i> used as source file.</li></ul></li></ul>")
             files_found = [os.path.join(out_params.output_folder_base, '_lava_artifacts.db')]
         else:

@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Discord",
         "notes": "",
-        "paths": ('*/mobile/Containers/Data/Application/*/Documents/RCTAsyncLocalStorage_V1/manifest.json'),
+        "paths": ('*/mobile/Containers/Data/Application/*/Documents/RCTAsyncLocalStorage_V1/manifest.json',),
         "output_types": "standard",  # or ["html", "tsv", "timeline", "lava"]
     }
 }
@@ -22,6 +22,17 @@ def get_discordManifest(context):
     data_list = []
     for file_found in context.get_files_found():
         file_found = str(file_found)
+
+        # Only process manifests that belong to Discord's app container
+        if 'com.hammerandchisel.discord' not in file_found:
+            # Check for Discord-specific keys in the manifest as a fallback
+            try:
+                with open(file_found, encoding='utf-8') as f_check:
+                    test_data = json.loads(f_check.read())
+                    if not any(k for k in test_data if 'discord' in k.lower()):
+                        continue
+            except (json.JSONDecodeError, OSError):
+                continue
 
         jsonfinal = None
         if os.path.isfile(file_found):
