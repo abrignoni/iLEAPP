@@ -47,7 +47,7 @@ def get_pingertextfree(files_found, report_folder, seeker, wrap_text, timezone_o
             
             if usageentries > 0:
                 for row in all_rows:
-                    cursor.execute(f'''
+                    cursor.execute('''
                     SELECT
                     ZCONVERSATIONCD.Z_PK,
                     datetime(ZCOMMUNICATIONCD.ZTIMECREATED, 'unixepoch'),
@@ -59,9 +59,9 @@ def get_pingertextfree(files_found, report_folder, seeker, wrap_text, timezone_o
                     ZCOMMUNICATIONCD.ZTYPE,
                     ZCOMMUNICATIONCD.ZTIMECREATED
                     FROM ZCONVERSATIONCD, ZCOMMUNICATIONCD
-                    WHERE ZCONVERSATIONCD.Z_PK = {row[0]}  AND ZCOMMUNICATIONCD.ZCONVERSATION = {row[0]}
+                    WHERE ZCONVERSATIONCD.Z_PK = ?  AND ZCOMMUNICATIONCD.ZCONVERSATION = ?
                     order by ZCOMMUNICATIONCD.ZTIMECREATED
-                    ''')
+                    ''', (row[0], row[0]))
                     
                     all_rowsb = cursor.fetchall()
                     usageentriesb = len(all_rowsb)

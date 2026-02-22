@@ -243,7 +243,7 @@ def get_googleChat(files_found, report_folder, seeker, wrap_text, timezone_offse
             
             db = open_sqlite_db_readonly(file_found)
             cursor = db.cursor()
-            cursor.execute(f'''
+            cursor.execute('''
             SELECT
             datetime(topic_messages.create_time/1000000,'unixepoch') AS "Message Time",
             CASE
@@ -257,15 +257,15 @@ def get_googleChat(files_found, report_folder, seeker, wrap_text, timezone_offse
             topic_messages.reactions AS "Message Reactions",
             topic_messages.annotation AS "Message Annotation (Possible Attachment Information)",
             CASE
-                WHEN topic_messages.creator_id = '{account_id}' THEN 1
+                WHEN topic_messages.creator_id = ? THEN 1
                 ELSE 0
             END is_sent
-            FROM 
+            FROM
             topic_messages
             JOIN users ON users.user_id=topic_messages.creator_id
             JOIN Groups ON Groups.group_id=topic_messages.group_id
             ORDER BY "Message Time" ASC
-            ''')
+            ''', (account_id,))
 
             all_rows = cursor.fetchall()
             usageentries = len(all_rows)

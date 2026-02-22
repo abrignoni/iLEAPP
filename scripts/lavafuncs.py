@@ -403,8 +403,7 @@ def lava_get_media_item(media_id):
 
     global lava_db
     cursor = lava_db.cursor()
-    query = f"SELECT * FROM _lava_media_items WHERE id='{media_id}'"
-    return cursor.execute(query).fetchone()
+    return cursor.execute("SELECT * FROM _lava_media_items WHERE id=?", (media_id,)).fetchone()
     # return result.fetchone()
 
 
@@ -459,8 +458,7 @@ def lava_get_media_references(media_ref):
 
     global lava_db
     cursor = lava_db.cursor()
-    query = f"SELECT * FROM _lava_media_references WHERE id='{media_ref}'"
-    return cursor.execute(query).fetchone()
+    return cursor.execute("SELECT * FROM _lava_media_references WHERE id=?", (media_ref,)).fetchone()
 
 
 def lava_insert_sqlite_media_references(media_references):

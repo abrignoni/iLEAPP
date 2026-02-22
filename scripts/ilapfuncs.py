@@ -737,29 +737,30 @@ def does_column_exist_in_db(path, table_name, col_name):
     col_name = col_name.lower()
     try:
         db.row_factory = sqlite3.Row # For fetching columns by name
-        query = f"pragma table_info('{table_name}');"
+        # PRAGMA doesn't support ? params, so validate table_name via sqlite_master first
         cursor = db.cursor()
-        cursor.execute(query)
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?", (table_name,))
+        if cursor.fetchone() is None:
+            return False
+        cursor.execute(f'PRAGMA table_info("{table_name}")')
         all_rows = cursor.fetchall()
         for row in all_rows:
             if row['name'].lower() == col_name:
                 return True
     except sqlite3.Error as ex:
-        logfunc(f"Query error, query={query} Error={str(ex)}")
-        pass
+        logfunc(f"Query error, table={table_name} col={col_name} Error={str(ex)}")
     return False
 
 def does_table_exist_in_db(path, table_name):
     '''Checks if a table with specified name exists in an sqlite db'''
     db = open_sqlite_db_readonly(path)
-    if db:    
+    if db:
         try:
-            query = f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}'"
-            cursor = db.execute(query)
+            cursor = db.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?", (table_name,))
             for row in cursor:
                 return True
         except sqlite3.Error as ex:
-            logfunc(f"Query error, query={query} Error={str(ex)}")
+            logfunc(f"Query error, table={table_name} Error={str(ex)}")
     return False
 
 def does_view_exist_in_db(path, table_name):
@@ -788,7 +789,7 @@ def tsv(report_folder, data_headers, data_list, tsvname, source_file=None):
         os.makedirs(tsv_report_folder)
     
     with codecs.open(os.path.join(tsv_report_folder, tsvname + '.tsv'), 'a', 'utf-8-sig') as tsvfile:
-        tsv_writer = csv.writer(tsvfile, delimiter='\t')
+        tsv_writer = csv.writer(tsvfile, delimiter='\t', escapechar='\\', quoting=csv.QUOTE_MINIMAL)
         tsv_writer.writerow(data_headers)
         
         for i in data_list:

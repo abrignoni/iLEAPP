@@ -37,11 +37,12 @@ def get_vippsContacts(files_found, report_folder, seeker, wrap_text, timezone_of
         logfunc('Neither ZRAWPHONENUMBERS nor ZPHONENUMBERS exist in ZCONTACTMODEL table.')
         db.close()
         return
-    
+
+    # phone_column is always one of two hardcoded values above, safe for interpolation
     cursor.execute(f'''
-    SELECT 
+    SELECT
     ZNAME,
-    {phone_column},
+    "{phone_column}",
     ZPROFILEIMAGEDATA,
     ZCONTACTSTOREIDENTIFIER
     FROM ZCONTACTMODEL
