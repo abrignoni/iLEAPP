@@ -103,3 +103,21 @@ For iTunes backups, `FileSeekerItunes` handles domain-to-path mapping (e.g., `Ho
 - **Media**: `check_in_media(file_path)` registers media files in the LAVA database and creates hardlinks in the report media folders
 - **Device info**: `logdevinfo(message)` writes to device info log; the `identifiers` dict collects device metadata across all plugins
 - **iOS version**: `iOS.set_version()` / `iOS.get_version()` — set once by the `last_build` plugin, available to all subsequent plugins
+
+## Pre-Commit Checklist
+
+Run these before every commit. Both must pass:
+
+1. `PYTHONPATH=. pylint scripts/ --disable=C,R --exit-zero` — lints (warnings and errors only)
+2. `PYTHONPATH=. pytest tests/unit/ -v -m unit` — unit tests
+
+Or just run `/qa` from the repo root.
+
+## Common Pitfalls
+
+- **Function name must match `__artifacts_v2__` key** — If the dict key is `"my_artifact"`, the decorated function must be `def my_artifact(...)`. Mismatches cause silent plugin load failures.
+- **Always use `open_sqlite_db_readonly()`** — Never open forensic SQLite databases with plain `sqlite3.connect()`. The readonly helper preserves WAL/journal integrity, which is critical for forensic soundness.
+- **Paths tuple needs trailing comma** — `('*/path/to/file*',)` not `('*/path/to/file*')`. Without the comma, Python treats it as a parenthesized string, not a tuple, and the seeker will iterate character-by-character.
+- **New plugins should use the context signature** — `def func(context):` instead of the legacy 5-arg form. The decorator auto-detects via `inspect.signature`.
+- **Pylint CI uses `--disable=C,R`** — Convention and refactor checks are disabled. Only warnings (W) and errors (E) are enforced. Don't waste time fixing C/R violations unless the user asks.
+- **Integration tests need test data** — `pytest tests/artifacts/` requires actual iOS extraction data. Unit tests (`tests/unit/`) run without external data.
