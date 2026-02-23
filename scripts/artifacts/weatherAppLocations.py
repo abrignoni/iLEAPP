@@ -2,10 +2,10 @@ import plistlib
 import time
 import datetime
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, kmlgen, timeline, is_platform_windows
+from scripts.ilapfuncs import logfunc, artifact_processor
 
 
+@artifact_processor
 def get_weatherAppLocations(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
     data_list_two_one = []
@@ -19,7 +19,7 @@ def get_weatherAppLocations(files_found, report_folder, seeker, wrap_text, timez
               
               if plist_content.get('Cities', '0') == '0':
                 logfunc('No cities available')
-                return
+                return (), [], ''
 
               for x in plist_content['Cities']:
                 lon = x.get('Lon','')
@@ -33,7 +33,7 @@ def get_weatherAppLocations(files_found, report_folder, seeker, wrap_text, timez
             else:
               if plist_content.get('Cities', '0') == '0':
                 logfunc('No cities available')
-                return
+                return (), [], ''
               
               for city in plist_content['Cities']:
                   update_time = city.get('UpateTime','')
@@ -51,47 +51,19 @@ def get_weatherAppLocations(files_found, report_folder, seeker, wrap_text, timez
                                 local_weather['Lon'], local_weather['Name'], local_weather['Country'], local_weather['SecondsFromGMT']))
 
     if len(data_list) > 0:
-        report = ArtifactHtmlReport('Weather App Locations')
-        report.start_artifact_report(report_folder, 'Weather App Locations')
-        report.add_script()
         data_headers = ("Update Time", "Type", "Last Location Update", "Latitude", "Longitude", "City", "Country", "Seconds from GMT")
-        report.write_artifact_data_table(data_headers, data_list, file_found)
-        report.end_artifact_report()
-
-        tsvname = 'Weather App Locations'
-        tsv(report_folder, data_headers, data_list, tsvname)
-
-        tlactivity = 'Weather App Locations'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-        
-        kmlactivity = 'Weather App Locations'
-        kmlgen(report_folder, kmlactivity, data_list, data_headers)
-
+        return data_headers, data_list, file_found
     elif len(data_list_two_one) > 0:
-        report = ArtifactHtmlReport('Weather App Locations')
-        report.start_artifact_report(report_folder, 'Weather App Locations')
-        report.add_script()
-        data_headers = ("Update Time", "Name", "Country", "TimeZone", "City Timezone Update Key","Latitude", "Longitude")
-        report.write_artifact_data_table(data_headers, data_list_two_one, file_found)
-        report.end_artifact_report()
-      
-        tsvname = 'Weather App Locations'
-        tsv(report_folder, data_headers, data_list_two_one, tsvname)
-      
-        tlactivity = 'Weather App Locations'
-        timeline(report_folder, tlactivity, data_list_two_one, data_headers)
-      
-        kmlactivity = 'Weather App Locations'
-        kmlgen(report_folder, kmlactivity, data_list_two_one, data_headers)
-    else:
-        logfunc('No data available for Weather App Locations')
+        data_headers = ("Update Time", "Name", "Country", "TimeZone", "City Timezone Update Key", "Latitude", "Longitude")
+        return data_headers, data_list_two_one, file_found
+    return (), [], ''
 
 __artifacts_v2__ = {
-    "weatherAppLocations": {
-        "name": "Location",
+    "get_weatherAppLocations": {
+        "name": "Weather App Locations",
         "description": "",
         "author": "",
-        "version": "0.1",
+        "version": "0.2",
         "date": "2026-02-22",
         "requirements": "none",
         "category": "Location",

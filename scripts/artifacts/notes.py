@@ -8,12 +8,18 @@ import imghdr
 import zlib
 import binascii
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly, does_column_exist_in_db
+from scripts.ilapfuncs import logfunc, artifact_processor, open_sqlite_db_readonly, does_column_exist_in_db
 
 
+@artifact_processor
 def get_notes(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
+    data_headers = ('Creation Date', 'Note Title', 'Snippet', 'Note Contents', 'Folder', 'Storage Place', 'Last Modified',
+                    'Password Protected', 'Password Hint', 'Marked for Deletion', 'Pinned', 'Attachment Thumbnail',
+                    'Attachment Original Filename', 'Attachment Storage Folder', 'Attachment Size in KB',
+                    'Attachment Type', 'Attachment Creation Date', 'Attachment Last Modified')
+    analyzed_file = ''
+    all_rows = []
     for file_found in files_found:
         file_found = str(file_found)
 
@@ -165,25 +171,9 @@ def get_notes(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
             data_list.append((row[0], row[1], row[2], text_content, row[3], row[4], row[5], row[6], row[7], row[8], row[9], thumbnail, row[10], attachment_storage_path, filesize, row[13], row[14], row[15]))
 
-        report = ArtifactHtmlReport('Notes')
-        report.start_artifact_report(report_folder, 'Notes')
-        report.add_script()
-        data_headers = ('Creation Date', 'Note Title', 'Snippet', 'Note Contents', 'Folder', 'Storage Place', 'Last Modified',
-                        'Password Protected', 'Password Hint', 'Marked for Deletion', 'Pinned', 'Attachment Thumbnail',
-                        'Attachment Original Filename', 'Attachment Storage Folder', 'Attachment Size in KB',
-                        'Attachment Type', 'Attachment Creation Date', 'Attachment Last Modified')
-        report.write_artifact_data_table(data_headers, data_list, analyzed_file, html_no_escape=['Attachment Thumbnail'])
-        report.end_artifact_report()
-
-        tsvname = 'Notes'
-        tsv(report_folder, data_headers, data_list, tsvname)
-
-        tlactivity = 'Notes'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-    else:
-        logfunc('No Notes available')
-
-    db.close()
+    if analyzed_file:
+        db.close()
+    return data_headers, data_list, analyzed_file
 
 def GetUncompressedData(compressed):
     if compressed == None:
@@ -258,17 +248,18 @@ def save_original_attachment_as_thumbnail(file, store_path):
     image.save(store_path)
 
 __artifacts_v2__ = {
-    "notes": {
+    "get_notes": {
         "name": "Notes",
         "description": "",
         "author": "",
-        "version": "0.1",
+        "version": "0.2",
         "date": "2026-02-22",
         "requirements": "none",
         "category": "Notes",
         "notes": "",
         "paths": ('*/NoteStore.sqlite*'),
         "output_types": "all",
-        "artifact_icon": "alert-triangle"
+        "artifact_icon": "alert-triangle",
+        "html_columns": ["Attachment Thumbnail"]
     }
 }

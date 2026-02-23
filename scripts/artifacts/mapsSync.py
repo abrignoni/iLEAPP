@@ -1,9 +1,6 @@
-import sqlite3
-import textwrap
 import blackboxprotobuf
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, kmlgen, timeline, is_platform_windows, get_next_unused_name, open_sqlite_db_readonly
+from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly
 
 def get_recursively(search_dict, field):
     """
@@ -32,6 +29,7 @@ def get_recursively(search_dict, field):
                         
     return fields_found
 
+@artifact_processor
 def get_mapsSync(files_found, report_folder, seeker, wrap_text, timezone_offset):
     
     for file_found in files_found:
@@ -162,33 +160,18 @@ def get_mapsSync(files_found, report_folder, seeker, wrap_text, timezone_offset)
                 agg1 = ''
             
 
-        if usageentries > 0:
-            description = 'Disclaimer: Entries should be corroborated. Locations and searches from other linked devices might show up here. Travel should be confirmed. Medium confidence.'
-            report = ArtifactHtmlReport('MapsSync')
-            report.start_artifact_report(report_folder, 'MapsSync', description)
-            report.add_script()
-            data_headers = ('Timestamp','Modified Time','Item Number','Type','Location Search','Location City','Latitude','Longitude','Latitude1','Longitude','Journey Destination Address', 'Map Item Storage BLOB Address')
-            
-            report.write_artifact_data_table(data_headers, data_list, file_found)
-            report.end_artifact_report()
-            
-            tsvname = f'MapsSync'
-            tsv(report_folder, data_headers, data_list, tsvname)
-            
-            tlactivity = 'MapsSync'
-            timeline(report_folder, tlactivity, data_list, data_headers)
-            
-            kmlactivity = 'MapsSync'
-            kmlgen(report_folder, kmlactivity, data_list, data_headers)
-        else:
-            logfunc('No MapsSync data available')
+        data_headers = ('Timestamp','Modified Time','Item Number','Type','Location Search','Location City','Latitude','Longitude','Latitude1','Longitude','Journey Destination Address', 'Map Item Storage BLOB Address')
+        db.close()
+        return data_headers, data_list if usageentries > 0 else [], file_found
+
+    return (), [], ''
 
 __artifacts_v2__ = {
-    "mapsSync": {
+    "get_mapsSync": {
         "name": "Location",
-        "description": "",
+        "description": "Disclaimer: Entries should be corroborated. Locations and searches from other linked devices might show up here. Travel should be confirmed. Medium confidence.",
         "author": "",
-        "version": "0.1",
+        "version": "0.2",
         "date": "2026-02-22",
         "requirements": "none",
         "category": "Location",
