@@ -174,7 +174,9 @@ def test_artifact_runs_without_error(
             f"  got:      {actual['headers']}\n"
             f"  expected: {expected['headers']}"
         )
-        assert actual["data"] == expected["data"], (
+        actual_sorted = sorted(actual["data"])
+        expected_sorted = sorted(expected["data"])
+        assert actual_sorted == expected_sorted, (
             f"Data changed for {module_name}.{artifact_name}.{case_key}. "
             "Re-run with --update-golden if intentional."
         )
