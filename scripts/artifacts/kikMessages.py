@@ -1,20 +1,15 @@
-import os
-import shutil
-import sqlite3
-
-from packaging import version
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, timeline, tsv, is_platform_windows, open_sqlite_db_readonly, media_to_html
+from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, media_to_html
 
 
+@artifact_processor
 def get_kikMessages(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    
+
     for file_found in files_found:
         file_found = str(file_found)
-        
+
         if file_found.endswith('.sqlite'):
             break
-            
+
     db = open_sqlite_db_readonly(file_found)
     cursor = db.cursor()
     cursor.execute('''
@@ -38,33 +33,29 @@ def get_kikMessages(files_found, report_folder, seeker, wrap_text, timezone_offs
     ''')
 
     all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
-    data_list = []  
-    
-    if usageentries > 0:
-        for row in all_rows:
-        
-            attachmentName = str(row[7])
-            thumb = media_to_html(attachmentName, files_found, report_folder)
-            
-            data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], thumb))
+    data_list = []
 
-        description = 'Kik Messages'
-        report = ArtifactHtmlReport('Kik Messages')
-        report.start_artifact_report(report_folder, 'Kik Messages', description)
-        report.add_script()
-        data_headers = ('Received Time', 'Timestamp', 'Message', 'Type', 'User', 'Display Name', 'User Name','Attachment Name','Attachment')
-        report.write_artifact_data_table(data_headers, data_list, file_found, html_no_escape=['Attachment'])
-        report.end_artifact_report()
-        
-        tsvname = 'Kik Messages'
-        tsv(report_folder, data_headers, data_list, tsvname)
-        
-        tlactivity = 'Kik Messages'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-    else:
-        logfunc('No Kik Messages data available')
-        
+    for row in all_rows:
+        attachmentName = str(row[7])
+        thumb = media_to_html(attachmentName, files_found, report_folder)
+        data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], thumb))
+
+    db.close()
+    data_headers = ('Received Time', 'Timestamp', 'Message', 'Type', 'User', 'Display Name', 'User Name','Attachment Name','Attachment')
+    return data_headers, data_list, file_found
+
+
+@artifact_processor
+def get_kikUsers(files_found, report_folder, seeker, wrap_text, timezone_offset):
+
+    for file_found in files_found:
+        file_found = str(file_found)
+
+        if file_found.endswith('.sqlite'):
+            break
+
+    db = open_sqlite_db_readonly(file_found)
+    cursor = db.cursor()
     cursor.execute('''
     SELECT
     Z_PK,
@@ -80,43 +71,40 @@ def get_kikMessages(files_found, report_folder, seeker, wrap_text, timezone_offs
     ''')
 
     all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
-    data_list = []  
-    
-    if usageentries > 0:
-        for row in all_rows:
-            data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8]))
+    data_list = []
 
-        description = 'Kik Users'
-        report = ArtifactHtmlReport('Kik Users')
-        report.start_artifact_report(report_folder, 'Kik Users', description)
-        report.add_script()
-        data_headers = ('PK','Display Name','User Name','Email','JID','First Name','Last Name','Profile Pic Timestamp','Profile Pic URL')     
-        report.write_artifact_data_table(data_headers, data_list, file_found)
-        report.end_artifact_report()
-        
-        tsvname = 'Kik Users'
-        tsv(report_folder, data_headers, data_list, tsvname)
-        
-        tlactivity = 'Kik Users'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-    else:
-        logfunc('No Kik Users data available')
-    
+    for row in all_rows:
+        data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8]))
+
     db.close()
-    return 
+    data_headers = ('PK','Display Name','User Name','Email','JID','First Name','Last Name','Profile Pic Timestamp','Profile Pic URL')
+    return data_headers, data_list, file_found
 
 __artifacts_v2__ = {
-    "kikMessages": {
-        "name": "Kik",
+    "get_kikMessages": {
+        "name": "Kik Messages",
         "description": "",
         "author": "",
-        "version": "0.1",
+        "version": "0.2",
         "date": "2026-02-22",
         "requirements": "none",
         "category": "Kik",
         "notes": "",
         "paths": ('**/kik.sqlite*','*/mobile/Containers/Shared/AppGroup/*/cores/private/*/content_manager/data_cache/*'),
+        "output_types": "all",
+        "artifact_icon": "alert-triangle",
+        "html_columns": ["Attachment"]
+    },
+    "get_kikUsers": {
+        "name": "Kik Users",
+        "description": "",
+        "author": "",
+        "version": "0.2",
+        "date": "2026-02-22",
+        "requirements": "none",
+        "category": "Kik",
+        "notes": "",
+        "paths": ('**/kik.sqlite*'),
         "output_types": "all",
         "artifact_icon": "alert-triangle"
     }
