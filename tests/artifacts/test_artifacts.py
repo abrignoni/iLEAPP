@@ -158,7 +158,7 @@ def test_artifact_runs_without_error(
     normalized_headers = [
         h[0] if isinstance(h, tuple) else h for h in headers
     ]
-    actual = {"headers": normalized_headers, "data": normalized_data}
+    actual = {"headers": normalized_headers, "data": sorted(normalized_data)}
 
     if update_golden:
         GOLDEN_DIR.mkdir(exist_ok=True)
@@ -174,9 +174,7 @@ def test_artifact_runs_without_error(
             f"  got:      {actual['headers']}\n"
             f"  expected: {expected['headers']}"
         )
-        actual_sorted = sorted(actual["data"])
-        expected_sorted = sorted(expected["data"])
-        assert actual_sorted == expected_sorted, (
+        assert actual["data"] == sorted(expected["data"]), (
             f"Data changed for {module_name}.{artifact_name}.{case_key}. "
             "Re-run with --update-golden if intentional."
         )
