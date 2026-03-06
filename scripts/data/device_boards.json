@@ -168,6 +168,10 @@
     "J608AP": "iPad Air 11-inch (M3) Wi-Fi + Cellular",
     "J637AP": "iPad Air 13-inch (M3) Wi-Fi",
     "J638AP": "iPad Air 13-inch (M3) Wi-Fi + Cellular",
+    "J707AP": "iPad Air 11-inch (M4) Wi-Fi",
+    "J708AP": "iPad Air 11-inch (M4) Wi-Fi + Cellular",
+    "J737AP": "iPad Air 13-inch (M4) Wi-Fi",
+    "J738AP": "iPad Air 13-inch (M4) Wi-Fi + Cellular",
     "J481AP": "iPad (A16) Wi-Fi",
     "J482AP": "iPad (A16) Wi-Fi + Cellular",
     "J410AP": "iPad mini (A17 Pro) Wi-Fi",
@@ -252,6 +256,7 @@
     "V53AP": "iPhone 17 Pro",
     "V54AP": "iPhone 17 Pro Max",
     "D23AP": "iPhone Air",
+    "V159AP": "iPhone 17e",
     "J704AP": "MacBook Pro 14-inch (M5)",
     "N301AP": "Vision Pro",
     "N301aAP": "Vision Pro (M5)"
