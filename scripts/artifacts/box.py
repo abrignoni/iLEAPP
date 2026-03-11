@@ -86,8 +86,9 @@ from pathlib import Path
 import html
 from urllib.parse import urlparse, urlunparse
 from scripts.filetype import get_type
-from scripts.ilapfuncs import artifact_processor, check_in_media, get_plist_file_content, get_plist_content, attach_sqlite_db_readonly, \
-    get_sqlite_db_records, convert_unix_ts_to_utc, convert_bytes_to_unit, logfunc
+from scripts.ilapfuncs import artifact_processor, check_in_media, get_plist_file_content, \
+    get_plist_content, attach_sqlite_db_readonly, get_sqlite_db_records, convert_unix_ts_to_utc, \
+    convert_bytes_to_unit, logfunc
 
 
 # Pattern to normalize timezone offsets from +HHMM -> +HH:MM
@@ -111,19 +112,14 @@ def convert_iso8601_to_utc(str_date : str) -> str:
     if isinstance(str_date, bytes):
         try:
             str_date = str_date.decode('utf-8', errors='ignore')
-        except Exception:
-            try:
-                return str(str_date)
-            except Exception as e:
-                logfunc(f"Box Error - convert_iso8601_to_utc: Error decoding bytes to string. Exception: {e}")
-                return None
+        except UnicodeDecodeError as e:
+            logfunc(f"Box Error - convert_iso8601_to_utc: "
+                    f"Error decoding bytes to string. Exception: {e}")
+            return None
 
     # If not a string, preserve its string representation
     if not isinstance(str_date, str):
-        try:
-            return str(str_date)
-        except Exception:
-            return None
+        return str(str_date)
 
     s = str_date.strip()
     if not s or s.lower() == 'null':
@@ -172,7 +168,8 @@ def format_url(str_url : str, html_format : bool = False) -> str:
         if not parsed.scheme:
             parsed = parsed._replace(scheme='http')
         normalized = urlunparse(parsed)
-    except Exception as e:
+
+    except (ValueError, AttributeError) as e:
         # Forensic trace: preserve raw input and log the failure
         logfunc(f"Box Error - format_url parse failed for {str_url!r}: {e}")
         return s
@@ -190,6 +187,10 @@ def format_url(str_url : str, html_format : bool = False) -> str:
 # Processes Box account data from the plist file
 @artifact_processor
 def box_account(context):
+    """
+    Extract Box account metadata from the main app plist, 
+    deserializing embedded JSON user data.
+    """
 
     data_headers = (
         ('Created At', 'datetime'),
@@ -204,7 +205,7 @@ def box_account(context):
         'Used space',
         'Max upload size'
     )
-    
+
     data_list = []
     data_list_html = []
 
@@ -214,7 +215,7 @@ def box_account(context):
     # Deserializing the embedded JSON string containing user metadata
     last_user_data = get_plist_content(plist_data.get('lastUserJSON'))
 
-    if bool(last_user_data):
+    if last_user_data:
         try:
             # Profile and Localization metadata
             created_at = convert_iso8601_to_utc(last_user_data.get('created_at'))
@@ -223,24 +224,27 @@ def box_account(context):
             has_avatar = last_user_data.get('has_custom_avatar')
             is_enterprise = bool(last_user_data.get('enterprise'))
             user_id = last_user_data.get('id')
-            timezone = last_user_data.get('timezone')
+            user_timezone = last_user_data.get('timezone')
             language = last_user_data.get('language')
 
             # Storage metrics and quota formatting
-            total_space = last_user_data.get('space_amount')
+            total_space = last_user_data.get('space_amount', 0)
             total_space_html = convert_bytes_to_unit(total_space)
-            
-            used_space = last_user_data.get('space_used')
+            used_space = last_user_data.get('space_used', 0)
             used_space_html = convert_bytes_to_unit(used_space)
-            
-            max_upload_size = last_user_data.get('max_upload_size')
+            max_upload_size = last_user_data.get('max_upload_size', 0)
             max_upload_size_html = convert_bytes_to_unit(max_upload_size)
 
-            data_list_html.append((created_at, login, name, has_avatar, is_enterprise, user_id, timezone, language, total_space_html, used_space_html, max_upload_size_html))
-            data_list.append((created_at, login, name, has_avatar, is_enterprise, user_id, timezone, language, total_space, used_space, max_upload_size))
+            data_list_html.append((created_at, login, name, has_avatar, is_enterprise, user_id,
+                                   user_timezone, language, total_space_html, used_space_html,
+                                   max_upload_size_html))
+            data_list.append((created_at, login, name, has_avatar, is_enterprise, user_id,
+                              user_timezone, language, total_space, used_space,
+                              max_upload_size))
 
-        except Exception as ex:
-            logfunc(f"Box Error - Exception while parsing {context.get_artifact_name()} - {source_path}: {ex}")
+        except (TypeError, ValueError, AttributeError) as ex:
+            logfunc(f"Box Error - Data mismatch while parsing "
+                    f"{context.get_artifact_name()} - {source_path}: {ex}")
 
     return data_headers, (data_list, data_list_html), source_path
 
@@ -248,6 +252,10 @@ def box_account(context):
 # Processes Box file information from the Item.db SQLite database
 @artifact_processor
 def box_all_files(context):
+    """
+    Reconstruct the full Box file hierarchy using a recursive CTE 
+    and correlate with offline availability artifacts (plists).
+    """
 
     data_headers = (
         'Item ID',
@@ -281,7 +289,7 @@ def box_all_files(context):
         'SHA1',
         'Permissions'
     )
-    
+
     data_list = []
     data_list_html = []
 
@@ -292,14 +300,23 @@ def box_all_files(context):
     last_dates_path = context.get_source_file_path('lastDownloadDates.plist')
     last_dates_data = get_plist_file_content(last_dates_path) if last_dates_path else None
 
-    offline_ids = dict()   
+    offline_ids = dict()
     if ids_data:
         for model_id in ids_data:
-            offline_ids[str(model_id)] = { 'offline' : True, 'download_date' : None, 'source' : ids_path }
+            offline_ids[str(model_id)] = {
+                'offline' : True,
+                'download_date' : None,
+                'source' : ids_path 
+            }
 
     if last_dates_data:
         for model_id, date in last_dates_data.items():
-            offline_ids[str(model_id)] = { 'offline' : True, 'download_date' : date, 'source' : last_dates_path }
+            offline_ids[str(model_id)] = {
+                'offline' : True,
+                'download_date' :
+                date, 'source' :
+                last_dates_path
+            }
     offline_artifacts_available = bool(ids_data or last_dates_data)
 
     source_path = context.get_source_file_path('Item.db')
@@ -428,20 +445,25 @@ def box_all_files(context):
                     is_offline = 'Yes (cache only)'
                     offline_source = 'Filesystem cache'
 
-            data_list_html.append((item_id, item_type, item_name, item_ext, full_path, url_html, description, item_size_html, version_id, \
-                                   content_created_at, content_modified_at, created_at, modified_at, last_fetched_at, \
-                                   is_offline, downloaded_at, offline_source, favorites, collection_names, \
-                                   owner_login, owner_name, owner_id, creator_login, creator_name, creator_id, modifier_login, modifier_name, modifier_id, \
-                                   sha1, permissions))
+            data_list_html.append((item_id, item_type, item_name, item_ext, full_path, url_html,
+                                   description, item_size_html, version_id, content_created_at,
+                                   content_modified_at, created_at, modified_at, last_fetched_at,
+                                   is_offline, downloaded_at, offline_source, favorites,
+                                   collection_names, owner_login, owner_name, owner_id,
+                                   creator_login, creator_name, creator_id, modifier_login,
+                                   modifier_name, modifier_id, sha1, permissions))
 
-            data_list.append((item_id, item_type, item_name, item_ext, full_path, url, description, item_size, version_id, \
-                              content_created_at, content_modified_at, created_at, modified_at, last_fetched_at, \
-                              is_offline, downloaded_at, offline_source, favorites, collection_names, \
-                              owner_login, owner_name, owner_id, creator_login, creator_name, creator_id, modifier_login, modifier_name, modifier_id, \
-                              sha1, permissions))
+            data_list.append((item_id, item_type, item_name, item_ext, full_path, url,
+                              description, item_size, version_id, content_created_at,
+                              content_modified_at, created_at, modified_at, last_fetched_at,
+                              is_offline, downloaded_at, offline_source, favorites,
+                              collection_names, owner_login, owner_name, owner_id,
+                              creator_login, creator_name, creator_id, modifier_login,
+                              modifier_name, modifier_id, sha1, permissions))
 
-        except Exception as ex:
-            logfunc(f"Box Error - itemID {record[0]} while parsing {context.get_artifact_name()} - {source_path}: {ex}")
+        except (IndexError, TypeError, ValueError) as ex:
+            logfunc(f"Box Error - itemID {record[0]} while parsing "
+                    f"{context.get_artifact_name()} - {source_path}: {ex}")
             continue
 
     return data_headers, (data_list, data_list_html), '; '.join(source_paths)
@@ -459,27 +481,27 @@ def extract_user_id_safe(path: str) -> str:
     """
     try:
         p = Path(path)
-        
+
         # Validation: check if the file is the expected PreviewItem database
         if p.name.lower() != 'previewitem.db':
             return None
-            
+
         # Forensic mapping: navigate up to the parent directory 'db'
         db_dir = p.parent
         if db_dir.name.lower() != 'db':
             return None
-            
+
         # The user ID is the name of the directory containing 'db'
         user_dir = db_dir.parent
         user_id = user_dir.name if user_dir and user_dir.name else None
-        
+
         if not user_id:
             logfunc(f"Box Error - User ID could not be determined from path: {path}")
             return None
-            
+
         return user_id
 
-    except Exception as ex:
+    except (AttributeError, TypeError, ValueError) as ex:
         logfunc(f"Box Error - User ID extraction failed for {path}: {ex}")
         return None
 
@@ -487,6 +509,11 @@ def extract_user_id_safe(path: str) -> str:
 # Processes Box preview images and thumbnails from PreviewItem.db SQLite database
 @artifact_processor
 def box_previews(context):
+    """
+    Process Box preview and thumbnail information from PreviewItem.db, 
+    linking cached images to their respective file IDs and versions.
+    """
+
     data_headers = (
         ('Preview Thumbnail', 'media', 'height: 96px; border-radius: 5%;'),
         'Item ID',
@@ -499,13 +526,13 @@ def box_previews(context):
         'Original SHA1',
         'User ID'
     )
-    
+
     data_list = []
     source_paths = []
 
     for file_found in context.get_files_found():
         source_path = str(file_found)
-   
+
         if not file_found.endswith('PreviewItem.db'):
             continue
 
@@ -549,8 +576,9 @@ def box_previews(context):
                 if not all([ file_id, file_name, file_ext, dimensions, sha1 ]):
                     continue
 
-                # Preview thumbnail path: "File Provider Storage/boxpreview/<userID>/cache/files/<fileID>/<extension>_<dimensions>/<preview_name>"
-                preview_path = f'File Provider Storage/boxpreview/{user_id}/cache/files/{file_id}/{file_ext}_{dimensions}/{file_name}'
+                # Preview thumbnail path
+                base_p = f'File Provider Storage/boxpreview/{user_id}/cache/files/{file_id}'
+                preview_path = f'{base_p}/{file_ext}_{dimensions}/{file_name}'
 
                 preview_ref_id = None
                 if context.get_source_file_path(preview_path):
@@ -558,9 +586,8 @@ def box_previews(context):
                     mime = matcher.mime if matcher else matcher
                     preview_ref_id = check_in_media(preview_path, file_name, force_type=mime)
 
-
-                # Original file path: "File Provider Storage/boxpreview/<userID>/cache/files/<fileID>/original/<file_name>"
-                original_path = f'File Provider Storage/boxpreview/{user_id}/cache/files/{file_id}/original/{file_name}'
+                # Original file path
+                original_path = f'{base_p}/original/{file_name}'
 
                 original_ref_id = None
                 if context.get_source_file_path(original_path):
@@ -568,10 +595,12 @@ def box_previews(context):
                     mime = matcher.mime if matcher else matcher
                     original_ref_id = check_in_media(original_path, file_name, force_type=mime)
 
-                data_list.append((preview_ref_id, file_id, file_name, file_ext, dimensions, original_ref_id, version_id, last_accessed_at, sha1, user_id))
+                data_list.append((preview_ref_id, file_id, file_name, file_ext, dimensions,
+                                  original_ref_id, version_id, last_accessed_at, sha1, user_id))
 
-            except Exception as ex:
-                logfunc(f"Box Error - fileID {record[0]} preview '{record[1]}' in {context.get_artifact_name()} ({source_path}): {ex}")
+            except (IndexError, TypeError, ValueError) as ex:
+                logfunc(f"Box Error - fileID {record[0]} preview '{record[1]}' "
+                        f"in {context.get_artifact_name()} ({source_path}): {ex}")
                 continue
 
     return data_headers, data_list, '; '.join(source_paths)
@@ -580,6 +609,10 @@ def box_previews(context):
 # Processes Box Recents information from the Recents.db SQLite database
 @artifact_processor
 def box_recents(context):
+    """
+    Process Box recent activity by joining Recents.db with the 
+    attached Item.db to retrieve full metadata for each item.
+    """
 
     data_headers = (
         ('Interaction Timestamp', 'datetime'),
@@ -590,7 +623,7 @@ def box_recents(context):
         'Extension',
         'File/Folder Size'
     )
-    
+
     data_list = []
     data_list_html = []
 
@@ -626,11 +659,14 @@ def box_recents(context):
             item_size = record[6]
             item_size_html = convert_bytes_to_unit(item_size)
 
-            data_list_html.append((interaction_ts, interaction_type, item_id, item_type, item_name, item_ext, item_size_html))
-            data_list.append((interaction_ts, interaction_type, item_id, item_type, item_name, item_ext, item_size))
+            data_list_html.append((interaction_ts, interaction_type, item_id, item_type,
+                                   item_name, item_ext, item_size_html))
+            data_list.append((interaction_ts, interaction_type, item_id, item_type,
+                              item_name, item_ext, item_size))
 
-        except Exception as ex:
-            logfunc(f"Box Error - itemID {record[2]} parsing {context.get_artifact_name()} - {source_path}: {ex}")
+        except (IndexError, TypeError, ValueError) as ex:
+            logfunc(f"Box Error - itemID {record[2]} parsing "
+                    f"{context.get_artifact_name()} - {source_path}: {ex}")
             continue
 
     return data_headers, (data_list, data_list_html), source_path
@@ -639,6 +675,10 @@ def box_recents(context):
 # Processes Box Comments and Annotations from the annotations.db SQLite database
 @artifact_processor
 def box_comments(context):
+    """
+    Process Box comments and annotations by correlating activity 
+    between annotations.db and Item.db.
+    """
 
     data_headers = (
         'ID',
@@ -658,7 +698,7 @@ def box_comments(context):
         'Modifier ID',
         ('Fetched At', 'datetime')
     )
-    
+
     data_list = []
 
     source_path = context.get_source_file_path('annotations.db')
@@ -756,7 +796,7 @@ def box_comments(context):
             if resource_type == 'comment':
                 is_reply = 'Yes' if val == 1 else ('No' if val == 0 else None)
             else:
-                is_reply = None                
+                is_reply = None
 
             creator_login = record[9]
             creator_name = record[10]
@@ -766,11 +806,14 @@ def box_comments(context):
             modifier_id = record[14]
             fetched_at = convert_unix_ts_to_utc(record[15])
 
-            data_list.append((resource_id, resource_type, created_at, modified_at, file_id, file_name, message, tagged_message, is_reply, creator_login, \
-                              creator_name, creator_id, modifier_login, modifier_name, modifier_id, fetched_at))
+            data_list.append((resource_id, resource_type, created_at, modified_at, file_id,
+                              file_name, message, tagged_message, is_reply, creator_login,
+                              creator_name, creator_id, modifier_login, modifier_name,
+                              modifier_id, fetched_at))
 
-        except Exception as ex:
-            logfunc(f"Box Error - record {record[0]} ({record[1]}) while parsing {context.get_artifact_name()} - {source_path}: {ex}")
+        except (IndexError, TypeError, ValueError) as ex:
+            logfunc(f"Box Error - record {record[0]} ({record[1]}) while parsing "
+                    f"{context.get_artifact_name()} - {source_path}: {ex}")
             continue
 
     return data_headers, data_list, source_path
