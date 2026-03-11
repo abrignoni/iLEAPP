@@ -58,7 +58,7 @@ def plz_interaction(files_found, _report_folder, _seeker, _wrap_text):
         FROM plz_interaction
         '''
 
-        data_headers = ('Consulted timestamp', "Meteo of the city", "Meteo of the city (link)", "Consultation Location")
+        data_headers = (('Consulted Timestamp','datetime'), "Meteo of the city", "Meteo of the city (link)", "Consultation Location")
         db_records = get_sqlite_db_records(prediction_db, query)
 
         local_data = []
@@ -103,7 +103,7 @@ def swissmeteo_plz(files_found, _report_folder, _seeker, _wrap_text):
         FROM app_open
         '''
 
-        data_headers = ('Opened timestamp', 'Latitude', 'Longitude', "Map link")
+        data_headers = (('Opened Timestamp','datetime'), 'Latitude', 'Longitude', "Map link")
         db_records = get_sqlite_db_records(prediction_db, query)
         for record in db_records:
             data_list.append((record[0], record[1], record[2], coordinate_to_osm(record[1], record[2])))
