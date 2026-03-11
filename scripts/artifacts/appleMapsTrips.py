@@ -10,7 +10,11 @@ __artifacts_v2__ = {
         "category": "Locations",
         "notes": "",
         "paths": ('*/Library/Caches/com.apple.routined/Local.sqlite',
-                  '*/Library/Caches/com.apple.routined/Cloud-V2.sqlite'),
+                  '*/Library/Caches/com.apple.routined/Local.sqlite-shm',
+                  '*/Library/Caches/com.apple.routined/Local.sqlite-wal',
+                  '*/Library/Caches/com.apple.routined/Cloud-V2.sqlite',
+                  '*/Library/Caches/com.apple.routined/Cloud-V2.sqlite-shm',
+                  '*/Library/Caches/com.apple.routined/Cloud-V2.sqlite-wal'),
         "output_types": ["html", "tsv", "lava"],
         "html_columns": ["Google Maps Link"],
         "artifact_icon": "map-pin"
@@ -26,7 +30,11 @@ __artifacts_v2__ = {
         "category": "Locations",
         "notes": "",
         "paths": ('*/Library/Caches/com.apple.routined/Local.sqlite',
-                  '*/Library/Caches/com.apple.routined/Cloud-V2.sqlite'),
+                  '*/Library/Caches/com.apple.routined/Local.sqlite-shm',
+                  '*/Library/Caches/com.apple.routined/Local.sqlite-wal',
+                  '*/Library/Caches/com.apple.routined/Cloud-V2.sqlite',
+                  '*/Library/Caches/com.apple.routined/Cloud-V2.sqlite-shm',
+                  '*/Library/Caches/com.apple.routined/Cloud-V2.sqlite-wal'),
         "output_types": ["html", "tsv", "lava"],
         "html_columns": ["Google Maps Link"],
         "artifact_icon": "map-pin"
@@ -42,14 +50,17 @@ __artifacts_v2__ = {
         "category": "Locations",
         "notes": "",
         "paths": ('*/Library/Caches/com.apple.routined/Local.sqlite',
-                  '*/Library/Caches/com.apple.routined/Cloud-V2.sqlite'),
+                  '*/Library/Caches/com.apple.routined/Local.sqlite-shm',
+                  '*/Library/Caches/com.apple.routined/Local.sqlite-wal',
+                  '*/Library/Caches/com.apple.routined/Cloud-V2.sqlite',
+                  '*/Library/Caches/com.apple.routined/Cloud-V2.sqlite-shm',
+                  '*/Library/Caches/com.apple.routined/Cloud-V2.sqlite-wal'),
         "output_types": ["html", "tsv", "lava"],
         "html_columns": ["Google Maps Link"],
         "artifact_icon": "map-pin"
     }
 }
 
-import blackboxprotobuf
 from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly
 
 def get_google_map_link(latitude_value, longitude_value):
