@@ -96,6 +96,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | Ph70UserAdjustDateTimezoneLocation |
 | SiriRemembers |
 | ZangiChats |
+| appleMapsTrips |
 | applePodcasts |
 | appleWalletPasses |
 | applicationStateDB |
