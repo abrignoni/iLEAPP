@@ -635,7 +635,8 @@ def get_plist_file_content(file_path):
     try:
         with open(file_path, 'rb') as file:
             plist_content = plistlib.load(file)
-            if plist_content.get('$archiver', '') == 'NSKeyedArchiver':
+            # Only dict plists can contain NSKeyedArchiver metadata
+            if isinstance(plist_content, dict) and plist_content.get('$archiver', '') == 'NSKeyedArchiver':
                 return nska_deserialize.deserialize_plist(file_path)
             else:
                 return plist_content
