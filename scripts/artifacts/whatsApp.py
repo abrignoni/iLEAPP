@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         'description': 'Extract call history from WhatsApp',
         'author': '@Vinceckert',
         'creation_date': '2024-05-31',
-        'last_update_date': '2025-04-08',
+        'last_update_date': '2025-11-20',
         'requirements': 'none',
         'category': 'WhatsApp',
         'notes': '',
@@ -20,7 +20,7 @@ __artifacts_v2__ = {
         'description': 'Extract WhatsApp messages',
         'author': '@AlexisBrignoni',
         'creation_date': '2021-03-26',
-        'last_update_date': '2025-05-13',
+        'last_update_date': '2025-11-20',
         'requirements': '',
         'category': 'WhatsApp',
         'notes': '',
@@ -28,7 +28,7 @@ __artifacts_v2__ = {
             '*/mobile/Containers/Shared/AppGroup/*/ChatStorage.sqlite*',
             '*/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*',
             '*/mobile/Containers/Shared/AppGroup/*/Message/Media/*/*/*/*'),
-        'output_types': 'all',
+        'output_types': 'standard',
         'artifact_icon': 'message-square'
     },
     'whatsAppContacts': {
@@ -41,7 +41,7 @@ __artifacts_v2__ = {
         'category': 'WhatsApp',
         'notes': '',
         'paths': ('*/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*',),
-        'output_types': ['html', 'tsv', 'lava'],
+        'output_types': 'standard',
         'artifact_icon': 'users'
     }
 }
@@ -51,13 +51,19 @@ import inspect
 import blackboxprotobuf
 
 from pathlib import Path
-from scripts.ilapfuncs import artifact_processor, \
-    get_file_path, get_sqlite_db_records, attach_sqlite_db_readonly, \
-    check_in_media, convert_cocoa_core_data_ts_to_utc, logfunc
+from scripts.ilapfuncs import (
+    artifact_processor,
+    get_file_path,
+    get_sqlite_db_records,
+    attach_sqlite_db_readonly,
+    check_in_media,
+    convert_cocoa_core_data_ts_to_utc
+)
 
 
 @artifact_processor
-def whatsAppCallHistory(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def whatsAppCallHistory(context):
+    files_found = context.get_files_found()
     source_path = get_file_path(files_found, 'CallHistory.sqlite')
     contacts_db = get_file_path(files_found, 'ContactsV2.sqlite')
 
@@ -75,10 +81,10 @@ def whatsAppCallHistory(files_found, report_folder, seeker, wrap_text, timezone_
     query = f'''
     SELECT
         ZWACDCALLEVENT.ZDATE,
-        ZWACDCALLEVENT.ZDATE + ZWACDCALLEVENT.ZDURATION AS 'Datetime_end', 
+        ZWACDCALLEVENT.ZDATE + ZWACDCALLEVENT.ZDURATION AS 'Datetime_end',
         time(ZWACDCALLEVENT.ZDURATION, 'unixepoch') AS 'Duration',
         CASE
-            WHEN ZWACDCALLEVENT.ZGROUPCALLCREATORUSERJIDSTRING = ZWACDCALLEVENTPARTICIPANT.ZJIDSTRING then 'Incoming' 
+            WHEN ZWACDCALLEVENT.ZGROUPCALLCREATORUSERJIDSTRING = ZWACDCALLEVENTPARTICIPANT.ZJIDSTRING then 'Incoming'
             ELSE 'Outgoing'
         END Direction,
         CASE ZWACDCALLEVENT.ZOUTCOME
@@ -125,7 +131,8 @@ def whatsAppCallHistory(files_found, report_folder, seeker, wrap_text, timezone_
 
 
 @artifact_processor
-def whatsAppContacts(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def whatsAppContacts(context):
+    files_found = context.get_files_found()
     source_path = get_file_path(files_found, 'ContactsV2.sqlite')
     data_list = []
 
@@ -168,7 +175,8 @@ def whatsAppContacts(files_found, report_folder, seeker, wrap_text, timezone_off
 
 
 @artifact_processor
-def whatsAppMessages(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def whatsAppMessages(context):
+    files_found = context.get_files_found()
     artifact_info = inspect.stack()[0]
     source_path = get_file_path(files_found, 'ChatStorage.sqlite')
     contacts_db = get_file_path(files_found, 'ContactsV2.sqlite')
@@ -191,15 +199,25 @@ def whatsAppMessages(files_found, report_folder, seeker, wrap_text, timezone_off
         ZXMPPTHUMBPATH,
         ZMETADATA
     FROM ZWAMESSAGE
-    LEFT JOIN ZWAMEDIAITEM ON ZWAMESSAGE.Z_PK = ZWAMEDIAITEM.ZMESSAGE 
+    LEFT JOIN ZWAMEDIAITEM ON ZWAMESSAGE.Z_PK = ZWAMEDIAITEM.ZMESSAGE
     LEFT JOIN ZWACHATSESSION ON ZWACHATSESSION.Z_PK = ZWAMESSAGE.ZCHATSESSION
     '''
 
     data_headers = (
-        ('Timestamp', 'datetime'), 'Sender Name', 'From ID', 'Receiver', 'To ID',
-        'Message', ('Attachment File', 'media'), ('Thumb', 'media'),
-        'Starred?', 'Number of Forwardings', 'Forwarded from',
-        'Latitude', 'Longitude',)
+        ('Timestamp', 'datetime'),
+        'Sender Name',
+        'From ID',
+        'Receiver',
+        'To ID',
+        'Message',
+        ('Attachment File', 'media'),
+        ('Thumb', 'media'),
+        'Starred?',
+        'Number of Forwardings',
+        'Forwarded from',
+        'Latitude',
+        'Longitude',
+        )
 
     db_records = get_sqlite_db_records(source_path, query)
 
