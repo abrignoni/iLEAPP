@@ -38,7 +38,7 @@ def system_version_plist(context):
     if plist_file:
         data_source = system_version_plist
         pl = get_plist_file_content(data_source)
-    elif 'sysdiagnose_' in sysdiagnose_archive and "IN_PROGRESS_" not in sysdiagnose_archive:
+    elif sysdiagnose_archive and 'sysdiagnose_' in sysdiagnose_archive and "IN_PROGRESS_" not in sysdiagnose_archive:
         tar = tarfile.open(sysdiagnose_archive)
         root = tar.getmembers()[0].name.split('/')[0]
         try:
