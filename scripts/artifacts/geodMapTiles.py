@@ -133,10 +133,13 @@ def geodMapTiles(files_found, report_folder, seeker, wrap_text, timezone_offset)
     except Exception as e:
         print(e)
         logfunc('Table is missing columns. No data available.')
-        return
+        return ([], [], file_found)
 
     all_rows = cursor.fetchall()
     data_list = []
+    
+    data_headers = ["Timestamp", "Places_from_VLOC", "Labels_in_tile", "Image", "Tileset", "Key A", "Key B", "Key C", "Key D"]
+    
     if len(all_rows) > 0:
         for row in all_rows:
             tcol_places = ''
@@ -155,27 +158,22 @@ def geodMapTiles(files_found, report_folder, seeker, wrap_text, timezone_offset)
                 elif len(data) >=4 and data[:4] == b'VMP4':
                     vmp4_places = ParseVMP4(data)
                     vmp4_places = ", ".join(vmp4_places)
-            #else:
-                #header_bytes = data[:28]
-                #hexdump = generate_hexdump(header_bytes, 5) if header_bytes else ''
-                #data_parsed = hexdump
 
             if usesDataTable:
                 data_list.append((row['timestamp'], tcol_places, vmp4_places, data_parsed, get_hex(row['tileset']), 
                                     get_hex(row['key_a']), get_hex(row['key_b']), get_hex(row['key_c']), get_hex(row['key_d'])) )
-                                    # row['size']) , row['etag']))
             else:                                    
                 data_list.append((row['timestamp'], tcol_places, vmp4_places, data_parsed, get_hex(row['tileset']), 
                                     get_hex(row['a']), get_hex(row['b']), get_hex(row['c']), get_hex(row['d'])) )
-                                    # row['size']) , row['etag']))
 
         description = ''
         report = ArtifactHtmlReport('Geolocation')
         report.start_artifact_report(report_folder, 'Map Tile Cache', description)
         report.add_script()
-        data_headers = ["Timestamp", "Places_from_VLOC", "Labels_in_tile", "Image", "Tileset", "Key A", "Key B", "Key C", "Key D"]#, "Size", "ETAG")
         report.write_artifact_data_table(data_headers, data_list, file_found, html_escape = False)
         report.end_artifact_report()
+    else:
+        logfunc('No data available in Map Tile Cache')
 
     db.close()
 
@@ -184,4 +182,5 @@ def geodMapTiles(files_found, report_folder, seeker, wrap_text, timezone_offset)
     # remove the image from lava output until Media Manager is ready
     data_list = [(row[0], row[1], row[2], 'See HTML Report', row[4], row[5], row[6], row[7], row[8])
                  if row[3] else row for row in data_list]
+    
     return data_headers, data_list, file_found
