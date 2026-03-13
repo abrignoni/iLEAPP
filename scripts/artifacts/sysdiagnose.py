@@ -57,7 +57,7 @@ def get_sysdiag_account_devices(context):
 
         for elem in f["contextDump"]["peers"]:
             model = elem["permanentInfo"]["model_id"]
-            m_name = context.get_model_name(model)
+            m_name = context.get_device_model(model)
             os_bnum = elem["stableInfo"]["os_version"]
             os_build = os_bnum.split('(')[1].split(')')[0]
             os_ver = context.get_os_version(os_build, model)
