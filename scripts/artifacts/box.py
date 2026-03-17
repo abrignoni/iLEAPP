@@ -258,6 +258,7 @@ def box_all_files(context):
     """
 
     data_headers = (
+        ('Created At', 'datetime'),
         'Item ID',
         'Type',
         'Name',
@@ -269,7 +270,6 @@ def box_all_files(context):
         'Version ID',
         ('Content Created At', 'datetime'),
         ('Content Modified At', 'datetime'),
-        ('Created At', 'datetime'),
         ('Modified At', 'datetime'),
         ('Last Fetched At', 'datetime'),
         'Is Offline',
@@ -445,19 +445,19 @@ def box_all_files(context):
                     is_offline = 'Yes (cache only)'
                     offline_source = 'Filesystem cache'
 
-            data_list_html.append((item_id, item_type, item_name, item_ext, full_path, url_html,
-                                   description, item_size_html, version_id, content_created_at,
-                                   content_modified_at, created_at, modified_at, last_fetched_at,
-                                   is_offline, downloaded_at, offline_source, favorites,
-                                   collection_names, owner_login, owner_name, owner_id,
+            data_list_html.append((created_at, item_id, item_type, item_name, item_ext, full_path,
+                                   url_html, description, item_size_html, version_id,
+                                   content_created_at, content_modified_at, modified_at,
+                                   last_fetched_at, is_offline, downloaded_at, offline_source,
+                                   favorites, collection_names, owner_login, owner_name, owner_id,
                                    creator_login, creator_name, creator_id, modifier_login,
                                    modifier_name, modifier_id, sha1, permissions))
 
-            data_list.append((item_id, item_type, item_name, item_ext, full_path, url,
-                              description, item_size, version_id, content_created_at,
-                              content_modified_at, created_at, modified_at, last_fetched_at,
-                              is_offline, downloaded_at, offline_source, favorites,
-                              collection_names, owner_login, owner_name, owner_id,
+            data_list.append((created_at, item_id, item_type, item_name, item_ext, full_path,
+                              url, description, item_size, version_id,
+                              content_created_at, content_modified_at, modified_at,
+                              last_fetched_at, is_offline, downloaded_at, offline_source,
+                              favorites, collection_names, owner_login, owner_name, owner_id,
                               creator_login, creator_name, creator_id, modifier_login,
                               modifier_name, modifier_id, sha1, permissions))
 
@@ -515,6 +515,7 @@ def box_previews(context):
     """
 
     data_headers = (
+        ('Last Accessed At', 'datetime'),
         ('Preview Thumbnail', 'media', 'height: 96px; border-radius: 5%;'),
         'Item ID',
         'File Name',
@@ -522,7 +523,6 @@ def box_previews(context):
         'Preview Resolution',
         ('Original', 'media', 'height: 96px; border-radius: 5%;'),
         'Version ID',
-        ('Last Accessed At', 'datetime'),
         'Original SHA1',
         'User ID'
     )
@@ -595,8 +595,8 @@ def box_previews(context):
                     mime = matcher.mime if matcher else matcher
                     original_ref_id = check_in_media(original_path, file_name, force_type=mime)
 
-                data_list.append((preview_ref_id, file_id, file_name, file_ext, dimensions,
-                                  original_ref_id, version_id, last_accessed_at, sha1, user_id))
+                data_list.append((last_accessed_at, preview_ref_id, file_id, file_name, file_ext,
+                                  dimensions, original_ref_id, version_id, sha1, user_id))
 
             except (IndexError, TypeError, ValueError) as ex:
                 logfunc(f"Box Error - fileID {record[0]} preview '{record[1]}' "
@@ -681,9 +681,9 @@ def box_comments(context):
     """
 
     data_headers = (
+        ('Created At', 'datetime'),
         'ID',
         'Type',
-        ('Created At', 'datetime'),
         ('Modified At', 'datetime'),
         'Item ID',
         'Name',
@@ -806,7 +806,7 @@ def box_comments(context):
             modifier_id = record[14]
             fetched_at = convert_unix_ts_to_utc(record[15])
 
-            data_list.append((resource_id, resource_type, created_at, modified_at, file_id,
+            data_list.append((created_at, resource_id, resource_type, modified_at, file_id,
                               file_name, message, tagged_message, is_reply, creator_login,
                               creator_name, creator_id, modifier_login, modifier_name,
                               modifier_id, fetched_at))
