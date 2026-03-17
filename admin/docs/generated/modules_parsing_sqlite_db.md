@@ -74,6 +74,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | splitwise |
 | storeUser |
 | subscriberInfo |
+| swissmeteo |
 | tcc |
 | tileAppDisc |
 | tileAppNetDb |
@@ -95,6 +96,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | Ph70UserAdjustDateTimezoneLocation |
 | SiriRemembers |
 | ZangiChats |
+| appleMapsTrips |
 | applePodcasts |
 | appleWalletPasses |
 | applicationStateDB |
@@ -155,6 +157,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | secretCalculator |
 | serialNumber |
 | slack |
+| swissmeteo |
 | teams |
 | telegramMesssages |
 | teleguard |
