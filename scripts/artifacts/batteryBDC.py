@@ -15,8 +15,6 @@ __artifacts_v2__ = {
 }
 
 import csv
-import re
-from datetime import datetime
 from scripts.ilapfuncs import artifact_processor
 
 @artifact_processor
@@ -27,7 +25,7 @@ def batteryBDC(context):
     for file_found in files_found:
         file_found = str(file_found)
         
-        with open(file_found, 'r') as f:
+        with open(file_found, 'r', encoding='utf-8') as f:
             delimited = csv.reader(f, delimiter=',')
             next(delimited)
             for item in delimited:
@@ -39,6 +37,7 @@ def batteryBDC(context):
                         charging_status = 'No'
                     elif is_charging == 1:                    
                         charging_status = 'Yes'
+                    else charging_status = is_charging
                     temp = round(float(item[4]) / 100 * 1.8 + 32,3)
                     temp2 = float(item[4]) / 100
                     amperage = item[5]
