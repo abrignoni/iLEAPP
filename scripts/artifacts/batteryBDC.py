@@ -37,7 +37,8 @@ def batteryBDC(context):
                         charging_status = 'No'
                     elif is_charging == 1:                    
                         charging_status = 'Yes'
-                    else charging_status = is_charging
+                    else:
+                        charging_status = is_charging
                     temp = round(float(item[4]) / 100 * 1.8 + 32,3)
                     temp2 = float(item[4]) / 100
                     amperage = item[5]
