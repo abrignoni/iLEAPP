@@ -108,6 +108,6 @@ def app_conduit(context):
     data_headers = (('Timestamp', 'datetime'), 'Device interaction',
                     'Device ID', 'Pairing ID', 'Device Type', 'Device Model',
                     'OS Build', 'OS Version', 'Log File Name')
-    source_path = 'see Log File Name for more info'
+    source_path = 'See source info below'
 
     return data_headers, data_list, source_path
