@@ -57,7 +57,7 @@ def get_voiceRecordings(context):
             else:
                 internal_audio_path = os.path.join(os.path.dirname(plist_path), expected_audio_name)
                 if os.path.exists(internal_audio_path):
-                     audio_id = check_in_media(internal_audio_path)
+                    audio_id = check_in_media(internal_audio_path)
 
             data_list.append((
                 creation_time,
