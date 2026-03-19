@@ -166,8 +166,7 @@ def get_venmo_users(context):
                     str(user_data.get('is_payable', '')),
                     user_data.get('identity_type', ''),
                     user_data.get('profile_picture_url', ''),
-                    file_found
-                )
+                    file_found)
 
             process_user(payment.get('actor'))
             process_user(payment.get('target', {}).get('user'))
