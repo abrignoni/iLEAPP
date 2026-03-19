@@ -67,7 +67,7 @@ def get_voiceTriggers(context):
             logfunc(f"Error processing {info_file}: {e}")
 
     data_headers = (
-        'Creation Date',
+        ('Creation Date','datetime),
         'Device',
         'Internal Path Info',
         ('Audio File', 'media')
