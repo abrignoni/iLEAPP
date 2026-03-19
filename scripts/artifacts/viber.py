@@ -49,7 +49,12 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Viber",
         "notes": "",
-        "paths": ('*/com.viber/database/Contacts.data*','*/com.viber/settings/Settings.data*','*/Containers/Data/Application/*/Documents/Attachments/*.*','*/com.viber/ViberIcons/*.*')
+        "paths": (
+            '*/com.viber/database/Contacts.data*',
+            '*/com.viber/settings/Settings.data*',
+            '*/Containers/Data/Application/*/Documents/Attachments/*.*',
+            '*/com.viber/ViberIcons/*.*'
+        ),
         "output_types": "standard",
         "artifact_icon": "message-circle"
     }
