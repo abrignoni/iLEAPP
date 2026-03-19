@@ -107,7 +107,6 @@ __artifacts_v2__ = {
 
 import os
 import json
-import pathlib
 import scripts.ccl_leveldb
 
 from scripts.ilapfuncs import (
