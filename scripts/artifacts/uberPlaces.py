@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Uber",
         "notes": "",
-        "paths": ('**/Documents/database.db*',),
+        "paths": ('*/Documents/database.db*'),
         "output_types": "standard",
         "artifact_icon": "map-pin"
     }
