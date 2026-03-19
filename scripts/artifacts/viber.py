@@ -137,11 +137,11 @@ def get_viber_settings(context):
         elif key == '_registrationDate':
             key = 'Registration Date'
             if not str(value).startswith("-"):
-                 value = convert_cocoa_core_data_ts_to_utc(value)
+                value = convert_cocoa_core_data_ts_to_utc(value)
         elif key == '_autoBackupLastRunTime':
             key = 'Auto Backup Last Run Time'
             if not str(value).startswith("-"):
-                 value = convert_cocoa_core_data_ts_to_utc(value)
+                value = convert_cocoa_core_data_ts_to_utc(value)
         elif key == '_uid': key = 'User ID'
         elif key == '_myPhoneNumber': key = 'Phone Number'
         elif key == '_myCanonizedPhoneNumber': key = 'Canonized Phone Number'
