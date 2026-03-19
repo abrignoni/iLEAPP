@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Trusted Peers",
         "notes": "",
-        "paths": ('**/*TrustedPeersHelper.db*',),
+        "paths": ('**/*TrustedPeersHelper.db*'),
         "output_types": "standard",
         "artifact_icon": "check-circle"
     }
