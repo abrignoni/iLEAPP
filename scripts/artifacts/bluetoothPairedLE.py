@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Bluetooth",
         "notes": "",
-        "paths": ('*/com.apple.MobileBluetooth.ledevices.paired.db'),
+        "paths": ('*/com.apple.MobileBluetooth.ledevices.paired.db*'),
         "output_types": "standard"
     }
 }
