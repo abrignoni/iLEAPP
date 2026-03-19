@@ -53,13 +53,10 @@ __artifacts_v2__ = {
             '*/com.viber/database/Contacts.data*',
             '*/com.viber/settings/Settings.data*',
             '*/Containers/Data/Application/*/Documents/Attachments/*.*',
-            '*/com.viber/ViberIcons/*.*'
-        ),
+            '*/com.viber/ViberIcons/*.*')
         "output_types": "standard",
         "artifact_icon": "message-circle"
     }
-
-}
 }
 
 import json
