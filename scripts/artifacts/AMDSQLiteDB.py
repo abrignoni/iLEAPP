@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Apple App Store application foreground events",
         "author": "@stark4n6",
         "creation_date": "2025-07-21",
-        "last_update_date": "2025-10-08",
+        "last_update_date": "2026-03-19",
         "requirements": "none",
         "category": "App Usage",
         "notes": "",
@@ -102,7 +102,9 @@ def AMDSQLiteDB_UsageEvents(context):
     AMDAppStoreUsageEvents.appVersion,
     AMDAppStoreUsageEvents.foregroundDuration,
     storeUser.account_events.apple_id,
-    AMDAppStoreUsageEvents.userId
+    AMDAppStoreUsageEvents.userId,
+    storeUser.current_apps.item_name,
+    storeUser.current_apps.vendor_name
     from AMDAppStoreUsageEvents
     left join storeUser.current_apps on AMDAppStoreUsageEvents.adamId = storeUser.current_apps.item_id
     left join storeUser.account_events on AMDAppStoreUsageEvents.userId = storeUser.account_events.account_id
@@ -110,11 +112,29 @@ def AMDSQLiteDB_UsageEvents(context):
 
     db_records = get_sqlite_db_records(source_path, query, attach_query)
     for record in db_records:
-        app_name, bundle_name = results_for_id(record[3], process_ids(record[3], my_data_store, 'adamId'))
         time = convert_unix_ts_to_utc(record[0])
-        data_list.append((time, record[1], app_name, record[2], record[3], record[4], record[5], record[6], record[7]))
+
+        local_bundle_id = record[2]
+        adam_id = record[3]
+        local_item_name = record[8] # The new item_name column
+        
+        # Fetch from iTunes
+        app_name_api, bundle_name_api = results_for_id(adam_id, process_ids(adam_id, my_data_store, 'adamId'))
+        
+        # Resolve Bundle ID: Local DB first, then API
+        final_bundle_id = local_bundle_id if local_bundle_id else bundle_name_api
+        
+        # Resolve App Name: API first, then Local DB, then Bundle ID as last resort
+        if app_name_api:
+            final_app_name = app_name_api
+        elif local_item_name:
+            final_app_name = local_item_name
+        else:
+            final_app_name = f"Unknown ({final_bundle_id})"
+
+        data_list.append((time, record[1], final_app_name, final_bundle_id, record[3], record[4], record[9], record[5], record[6], record[7]))
                             
-    data_headers = (('Timestamp', 'datetime'),'App Action','App Name','Bundle ID','AdamID','App Version','Foreground Duration (Secs)','Apple ID','User ID')
+    data_headers = (('Timestamp', 'datetime'),'App Action','App Name','Bundle ID','AdamID','App Version','Vendor Name','Foreground Duration (Secs)','Apple ID','User ID')
     return data_headers, data_list, source_path
     
 @artifact_processor
