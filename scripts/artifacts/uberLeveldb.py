@@ -1,6 +1,6 @@
 __artifacts_v2__ = {
     "uberLocations": {
-        "name": "Uber",
+        "name": "Uber Locations",
         "description": "Uber locations inside LevelDB",
         "author": "Alexis 'Brigs' Brignoni",
         "version": "1",

@@ -3,8 +3,8 @@ __artifacts_v2__ = {
         "name": "Call History Transactions",
         "description": "Parses transaction.log file in Call History Transactions",
         "author": "@JohnHyla",
-        "version": "0.0.1",
-        "date": "2024-12-11",
+        "creation_date": "2024-12-11",
+        "last_update_date": "2025-11-12",
         "requirements": "none",
         "category": "Call History",
         "notes": "",
@@ -13,20 +13,17 @@ __artifacts_v2__ = {
     }
 }
 
-import os
-import blackboxprotobuf
-from datetime import *
 import struct
 import nska_deserialize as nd
-from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv, convert_ts_human_to_timezone_offset, \
-    convert_plist_date_to_timezone_offset
+from scripts.ilapfuncs import artifact_processor, \
+    convert_plist_date_to_utc
 
 
 @artifact_processor
-def callHistoryTransactions(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def callHistoryTransactions(context):
     data_list = []
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         with open(file_found, 'rb') as file:
             file.seek(0, 2)
@@ -38,15 +35,15 @@ def callHistoryTransactions(files_found, report_folder, seeker, wrap_text, timez
                 plist_data = file.read(length)
                 ds_plist = nd.deserialize_plist_from_string(plist_data)
                 inner_record = nd.deserialize_plist_from_string(ds_plist['record'])
-                date = convert_plist_date_to_timezone_offset(inner_record.get('date', ''), timezone_offset)
-                data_list.append([date, inner_record['handleType'], inner_record['callStatus'],
+                date = convert_plist_date_to_utc(inner_record.get('date', ''))
+                data_list.append((date, inner_record['handleType'], inner_record['callStatus'],
                                   inner_record['duration'], inner_record['remoteParticipantHandles'][0]['value'],
                                   inner_record['callerId'], inner_record['timeToEstablish'],
-                                  inner_record['disconnectedCause'], inner_record['uniqueId']])
+                                  inner_record['disconnectedCause'], inner_record['uniqueId'], file_found))
 
-    data_headers = [('Date', 'datetime'), 'handleType', 'callStatus', 'duration', 'remoteParticipantHandle', 'callerId',
-                    'timeToEstablish', 'disconnectedCause', 'uniqueId']
+    data_headers = (('Date', 'datetime'), 'handleType', 'callStatus', 'duration', 'remoteParticipantHandle', 'callerId',
+                    'timeToEstablish', 'disconnectedCause', 'uniqueId', 'Source File')
 
-    return data_headers, data_list, file_found
+    return data_headers, data_list, 'see Source File for more info'
 
 

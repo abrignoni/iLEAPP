@@ -1,14 +1,29 @@
-import os
-import plistlib
-import nska_deserialize as nd
-import datetime
-from pathlib import Path
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
+__artifacts_v2__ = {
+    "get_draftmessage": {  # This should match the function name exactly
+        "name": "Draft Native Messages",
+        "description": "",
+        "author": "",
+        "creation_date": "",
+        "last_updated": "2025-11-25",
+        "requirements": "none",
+        "category": "Messages",
+        "notes": "",
+        "paths": ('*/SMS/Drafts/*/composition.plist'),
+        "output_types": "standard",  # or ["html", "tsv", "timeline", "lava"]
+        "artifact_icon": "message-circle"
+    }
+}
 
-def get_draftmessage(files_found, report_folder, seeker, wrap_text, timezone_offset):
+import os
+import nska_deserialize as nd
+from pathlib import Path
+from scripts.ilapfuncs import artifact_processor, convert_unix_ts_in_seconds, get_plist_file_content
+
+@artifact_processor
+def get_draftmessage(context):
     data_list = []
-    for file_found in files_found:
+    data_headers = (('Modified Time', 'datetime'),'Intended Recipient','Draft Message', 'Source file')
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         filename = os.path.basename(file_found) #reusing old code and adding new underneath. I know. "Cringe."
         path = Path(file_found)
@@ -24,36 +39,10 @@ def get_draftmessage(files_found, report_folder, seeker, wrap_text, timezone_off
             continue
     
         modifiedtime = os.path.getmtime(file_found)
-        modifiedtime = (datetime.datetime.fromtimestamp(int(modifiedtime)).strftime('%Y-%m-%d %H:%M:%S'))
+        modifiedtime = convert_unix_ts_in_seconds(modifiedtime)
         
-        with open(file_found, 'rb') as fp:
-            pl = plistlib.load(fp)
-            deserialized_plist = nd.deserialize_plist_from_string(pl['text'])
-            data_list.append((modifiedtime, directoryname, deserialized_plist['NSString']))
+        pl = get_plist_file_content(file_found)
+        deserialized_plist = nd.deserialize_plist_from_string(pl['text'])
+        data_list.append((modifiedtime, directoryname, deserialized_plist.get('NSString', ''), file_found))
     
-    if len(data_list) > 0:
-        folderlocation = str(path.resolve().parents[1])
-        description = ''
-        report = ArtifactHtmlReport(f'Drafts - Native Messages')
-        report.start_artifact_report(report_folder, f'Drafts - Native Messages', description)
-        report.add_script()
-        data_headers = ('Modified Time','Intended Recipient','Draft Message')
-        report.write_artifact_data_table(data_headers, data_list, folderlocation)
-        report.end_artifact_report()
-        
-        tsvname = f'Drafts - Native Messages'
-        tsv(report_folder, data_headers, data_list, tsvname) # TODO: _csv.Error: need to escape, but no escapechar set
-        
-        tlactivity = f'Drafts - Native Messages'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-        
-    else:
-        logfunc(f'No data available for Drafts - Native Messages')
-    
-
-__artifacts__ = {
-    "draftmessage": (
-        "Draft Native Messages",
-        ('*/SMS/Drafts/*/composition.plist'),
-        get_draftmessage)
-}
+    return data_headers, data_list, 'see Source File for more info'

@@ -3,7 +3,8 @@ __artifacts_v2__ = {
         "name": "App Usage Events (AMDSQLiteDB)",
         "description": "Apple App Store application foreground events",
         "author": "@stark4n6",
-        "date": "2025-07-21",
+        "creation_date": "2025-07-21",
+        "last_update_date": "2026-03-19",
         "requirements": "none",
         "category": "App Usage",
         "notes": "",
@@ -18,7 +19,8 @@ __artifacts_v2__ = {
         "name": "Device Storage Capacity",
         "description": "Shows storage capacity size over time",
         "author": "@stark4n6",
-        "date": "2025-07-21",
+        "creation_date": "2025-07-21",
+        "last_update_date": "2025-10-08",
         "requirements": "none",
         "category": "Device Information",
         "notes": "",
@@ -33,8 +35,7 @@ __artifacts_v2__ = {
 import urllib.request
 import json
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, attach_sqlite_db_readonly, logfunc
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, attach_sqlite_db_readonly, logfunc, convert_unix_ts_to_utc
 
 def get_data_from_itunes(lookup_value, lookup_type):
     response_json_data = None
@@ -78,10 +79,10 @@ def results_for_id(item_record, data_dictionary):
             return app_name, bundle_name
 
 @artifact_processor
-def AMDSQLiteDB_UsageEvents(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def AMDSQLiteDB_UsageEvents(context):
     data_list = []
     my_data_store = {}
-    
+    files_found = context.get_files_found()
     source_path = get_file_path(files_found, "AMDSQLite.db.0")
     
     storeUserDB = get_file_path(files_found, "storeUser.db")
@@ -89,7 +90,7 @@ def AMDSQLiteDB_UsageEvents(files_found, report_folder, seeker, wrap_text, timez
     
     query = '''
     select
-    datetime(AMDAppStoreUsageEvents.time/1000,'unixepoch') as "Timestamp",
+    AMDAppStoreUsageEvents.time,
     case AMDAppStoreUsageEvents.type
         when "0" then "Install/Update"
         when "1" then "Uninstall"
@@ -101,7 +102,9 @@ def AMDSQLiteDB_UsageEvents(files_found, report_folder, seeker, wrap_text, timez
     AMDAppStoreUsageEvents.appVersion,
     AMDAppStoreUsageEvents.foregroundDuration,
     storeUser.account_events.apple_id,
-    AMDAppStoreUsageEvents.userId
+    AMDAppStoreUsageEvents.userId,
+    storeUser.current_apps.item_name,
+    storeUser.current_apps.vendor_name
     from AMDAppStoreUsageEvents
     left join storeUser.current_apps on AMDAppStoreUsageEvents.adamId = storeUser.current_apps.item_id
     left join storeUser.account_events on AMDAppStoreUsageEvents.userId = storeUser.account_events.account_id
@@ -109,20 +112,40 @@ def AMDSQLiteDB_UsageEvents(files_found, report_folder, seeker, wrap_text, timez
 
     db_records = get_sqlite_db_records(source_path, query, attach_query)
     for record in db_records:
-        app_name, bundle_name = results_for_id(record[3], process_ids(record[3], my_data_store, 'adamId'))
-        data_list.append((record[0], record[1], app_name, record[2], record[3], record[4], record[5], record[6], record[7]))
+        time = convert_unix_ts_to_utc(record[0])
+
+        local_bundle_id = record[2]
+        adam_id = record[3]
+        local_item_name = record[8] # The new item_name column
+        
+        # Fetch from iTunes
+        app_name_api, bundle_name_api = results_for_id(adam_id, process_ids(adam_id, my_data_store, 'adamId'))
+        
+        # Resolve Bundle ID: Local DB first, then API
+        final_bundle_id = local_bundle_id if local_bundle_id else bundle_name_api
+        
+        # Resolve App Name: API first, then Local DB, then Bundle ID as last resort
+        if app_name_api:
+            final_app_name = app_name_api
+        elif local_item_name:
+            final_app_name = local_item_name
+        else:
+            final_app_name = f"Unknown ({final_bundle_id})"
+
+        data_list.append((time, record[1], final_app_name, final_bundle_id, record[3], record[4], record[9], record[5], record[6], record[7]))
                             
-    data_headers = (('Timestamp', 'datetime'),'App Action','App Name','Bundle ID','AdamID','App Version','Foreground Duration (Secs)','Apple ID','User ID')
+    data_headers = (('Timestamp', 'datetime'),'App Action','App Name','Bundle ID','AdamID','App Version','Vendor Name','Foreground Duration (Secs)','Apple ID','User ID')
     return data_headers, data_list, source_path
     
 @artifact_processor
-def AMDSQLiteDB_StorageCapacity(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def AMDSQLiteDB_StorageCapacity(context):
     data_list = []
+    files_found = context.get_files_found()
     source_path = get_file_path(files_found, "AMDSQLite.db.0")
     
     query = '''
     select
-    datetime(time/1000,'unixepoch'),
+    time,
     availableDeviceCapacityGB,
     totalDeviceCapacityGB
     from DeviceStorageUsage
@@ -130,7 +153,8 @@ def AMDSQLiteDB_StorageCapacity(files_found, report_folder, seeker, wrap_text, t
 
     db_records = get_sqlite_db_records(source_path, query)
     for record in db_records:
-        data_list.append((record[0], record[1], record[2]))
+        time = convert_unix_ts_to_utc(record[0])
+        data_list.append((time, record[1], record[2]))
                             
     data_headers = (('Timestamp', 'datetime'),'Available Capacity (GB)','Total Capacity (GB)')
     return data_headers, data_list, source_path

@@ -1,12 +1,12 @@
 __artifacts_v2__ = {
     "get_biomeDKKeybag": {
-        "name": "Biome Keybag",
+        "name": "Biome - Keybag",
         "description": "Parses DKEvent Keybag IsLocked entries from biomes",
         "author": "@JohnHyla",
         "version": "0.0.1",
         "date": "2025-04-29",
         "requirements": "none",
-        "category": "Biome Keybag",
+        "category": "Biome",
         "notes": "",
         "paths": ('*/Biome/streams/restricted/_DKEvent.Keybag.IsLocked/local/*'),
         "output_types": "standard"

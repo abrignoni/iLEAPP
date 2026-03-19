@@ -3,9 +3,8 @@ __artifacts_v2__ = {
         "name": "Data Usage",
         "description": "Parses application network data usage",
         "author": "@KevinPagano3",
-        "version": "0.0.1",
         "creation_date": "2023-10-10",
-        "last_update_date": "2025-02-04",
+        "last_update_date": "2025-11-21",
         "requirements": "none",
         "category": "Network Usage",
         "notes": "",
@@ -14,17 +13,14 @@ __artifacts_v2__ = {
     }
 }
 
-import sqlite3
-
 from scripts.ilapfuncs import artifact_processor
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, does_column_exist_in_db, convert_cocoa_core_data_ts_to_utc
+from scripts.ilapfuncs import logfunc, open_sqlite_db_readonly, does_column_exist_in_db, convert_cocoa_core_data_ts_to_utc
 
 @artifact_processor
-def get_DataUsage(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    
+def get_DataUsage(context):
     data_list = []
     
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         
         if file_found.endswith('.sqlite'):
@@ -62,7 +58,11 @@ def get_DataUsage(files_found, report_folder, seeker, wrap_text, timezone_offset
                     process_split = row[4].split('/')
                     data_list.append((lastconnected,firstused,lastused,row[3],process_split[0],row[5],row[6],row[7],row[8],row[9]))
                 
-                data_headers = ((('Last Connect Timestamp','datetime'),('First Usage Timestamp','datetime'),('Last Usage Timestamp','datetime'),'Bundle Name','Process Name','Entry Type','Wifi In (Bytes)','Wifi Out (Bytes)','Mobile/WWAN In (Bytes)','Mobile/WWAN Out (Bytes)'))
+                db.close()
+                
+                data_headers = (('Last Connect Timestamp','datetime'), ('First Usage Timestamp','datetime'), ('Last Usage Timestamp','datetime'),
+                                'Bundle Name', 'Process Name', 'Entry Type', 'Wifi In (Bytes)', 'Wifi Out (Bytes)', 'Mobile/WWAN In (Bytes)',
+                                'Mobile/WWAN Out (Bytes)')
                 return data_headers, data_list, file_found
                  
             else:
@@ -95,13 +95,12 @@ def get_DataUsage(files_found, report_folder, seeker, wrap_text, timezone_offset
                     process_split = row[4].split('/')
                     data_list.append((lastconnected,firstused,lastused,row[3],process_split[0],row[5],row[6],row[7]))
                     
-                data_headers = ((('Last Connect Timestamp','datetime'),('First Usage Timestamp','datetime'),('Last Usage Timestamp','datetime'),'Bundle Name','Process Name','Entry Type','Mobile/WWAN In (Bytes)','Mobile/WWAN Out (Bytes)'))
-                return data_headers, data_list, file_found
+                db.close()
                     
-            db.close()
-            
-        else:
-            continue
+                data_headers = (('Last Connect Timestamp','datetime'), ('First Usage Timestamp','datetime'), ('Last Usage Timestamp','datetime'),
+                                'Bundle Name', 'Process Name', 'Entry Type', 'Mobile/WWAN In (Bytes)', 'Mobile/WWAN Out (Bytes)')
+                return data_headers, data_list, file_found
             
     if not data_list:
         logfunc('No Network Usage (DataUsage) - App Data available')
+        return (), [], ''

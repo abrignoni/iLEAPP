@@ -254,7 +254,8 @@ __artifacts_v2__ = {
 
 from packaging import version
 from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, \
-    attach_sqlite_db_readonly, does_table_exist_in_db, convert_cocoa_core_data_ts_to_utc
+    attach_sqlite_db_readonly, does_table_exist_in_db, convert_cocoa_core_data_ts_to_utc, \
+    does_column_exist_in_db
 
 
 @artifact_processor
@@ -1178,40 +1179,78 @@ def health_source_devices(context):
         "0x2024": "AirPods Pro (2nd generation) (USB-C)",
     }
 
-    query = '''
+    sync_provenance_exists = does_column_exist_in_db(data_source, 'source_devices', 'sync_provenance')
+    sync_identity_exists = does_column_exist_in_db(data_source, 'source_devices', 'sync_identity')
+
+    select_columns = [
+        'creation_date',
+        'name',
+        'manufacturer',
+        'model',
+        'hardware',
+        'firmware',
+        'software',
+        'localIdentifier'
+    ]
+
+    if sync_provenance_exists:
+        select_columns.append('sync_provenance')
+    if sync_identity_exists:
+        select_columns.append('sync_identity')
+
+    query = f'''
     SELECT
-        creation_date,
-        name,
-        manufacturer,
-        model,
-        hardware,
-        firmware,
-        software,
-        localIdentifier,
-        sync_provenance,
-        sync_identity
+        {', '.join(select_columns)}
     FROM source_devices
     WHERE name NOT LIKE '__NONE__' AND localIdentifier NOT LIKE '__NONE__'
     '''
 
-    data_headers = (
+    data_headers = [
         ('Creation Date', 'datetime'), 'Device Name', 'Manufacturer', 'Model',
-        'Device ID', 'Device Model', 'Firmware', 'Software', 'Local ID', 'Sync Provenance', 'Sync ID')
+        'Device ID', 'Device Model', 'Firmware', 'Software', 'Local ID'
+    ]
+    if sync_provenance_exists:
+        data_headers.append('Sync Provenance')
+    if sync_identity_exists:
+        data_headers.append('Sync ID')
+
+    column_positions = {col: idx for idx, col in enumerate(select_columns)}
 
     db_records = get_sqlite_db_records(data_source, query)
 
     for record in db_records:
-        creation_date = convert_cocoa_core_data_ts_to_utc(record[0])
-        model = bluetooth_pid.get(record[3], record[3])
-        device_model = context.get_device_model(record[4])
+        creation_date = convert_cocoa_core_data_ts_to_utc(record[column_positions['creation_date']])
+        model_value = record[column_positions['model']]
+        model = bluetooth_pid.get(model_value, model_value)
+        hardware_value = record[column_positions['hardware']]
+        device_model = context.get_device_model(hardware_value)
         local_id = ''
-        if str(record[7]).endswith('-tacl'):
-            local_id = str(record[7])[:-5]
-        data_list.append(
-            (creation_date, record[1], record[2], model, record[4], device_model, record[5],
-             record[6], local_id, record[8], record[9]))
+        local_identifier = str(record[column_positions['localIdentifier']])
+        if local_identifier.endswith('-tacl'):
+            local_id = local_identifier[:-5]
+        else:
+            local_id = local_identifier
 
-    return data_headers, data_list, data_source
+        row = [
+            creation_date,
+            record[column_positions['name']],
+            record[column_positions['manufacturer']],
+            model,
+            hardware_value,
+            device_model,
+            record[column_positions['firmware']],
+            record[column_positions['software']],
+            local_id,
+        ]
+
+        if sync_provenance_exists:
+            row.append(record[column_positions['sync_provenance']])
+        if sync_identity_exists:
+            row.append(record[column_positions['sync_identity']])
+
+        data_list.append(tuple(row))
+
+    return tuple(data_headers), data_list, data_source
 
 
 @artifact_processor

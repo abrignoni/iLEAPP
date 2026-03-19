@@ -46,7 +46,10 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | Ph97iOS17REFforAssetAnalysis |
 | Ph98iOS18REFforAssetAnalysis |
 | Ph9BurstAvalanche |
+| SMSmissingROWIDs |
+| Threema |
 | WithingsHealthMate |
+| ZangiMessenger |
 | accountData |
 | addressBook |
 | allTrails |
@@ -71,6 +74,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | splitwise |
 | storeUser |
 | subscriberInfo |
+| swissmeteo |
 | tcc |
 | tileAppDisc |
 | tileAppNetDb |
@@ -90,9 +94,9 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | Oops |
 | Ph10AssetParsedEmbeddedFiles |
 | Ph70UserAdjustDateTimezoneLocation |
-| SMSmissingROWIDs |
 | SiriRemembers |
 | ZangiChats |
+| appleMapsTrips |
 | applePodcasts |
 | appleWalletPasses |
 | applicationStateDB |
@@ -153,6 +157,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | secretCalculator |
 | serialNumber |
 | slack |
+| swissmeteo |
 | teams |
 | telegramMesssages |
 | teleguard |

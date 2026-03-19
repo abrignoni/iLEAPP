@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import tkinter as tk
 import typing
 import json
@@ -11,17 +13,19 @@ from PIL import Image, ImageTk
 from tkinter import ttk, filedialog as tk_filedialog, messagebox as tk_msgbox
 from scripts.version_info import ileapp_version
 from scripts.search_files import *
+from scripts.ilapfuncs import *
 from scripts.tz_offset import tzvalues
 from scripts.modules_to_exclude import modules_to_exclude
 from scripts.lavafuncs import *
+from scripts.context import Context
 
 
 def pickModules():
     '''Create a list of available modules:
-        - itunes_backup_info, itunes_backup_installed_applications, last_build and Ph100-UFED-device-values-Plist that need 
+        - itunes_backup_info, itunes_backup_installed_applications, last_build and Ph100-UFED-device-values-Plist that need
         to be executed first are excluded
-        - logarchive_artifacts is also excluded as it uses the LAVA SQLite database to extract 
-        relevant event messages from the logarchive table and must be executed only if logarchive 
+        - logarchive_artifacts is also excluded as it uses the LAVA SQLite database to extract
+        relevant event messages from the logarchive table and must be executed only if logarchive
         module has been already executed
         - ones that take a long time to run are deselected by default'''
     global mlist
@@ -238,6 +242,7 @@ def process(casedata):
         progress_bar.config(maximum=len(selected_modules))
         casedata = {key: value.get() for key, value in casedata.items()}
         out_params = OutputParameters(output_folder)
+        Context.set_output_params(out_params)
         wrap_text = True
         time_offset = timezone_set.get()
         if time_offset == '':
@@ -247,16 +252,16 @@ def process(casedata):
         bottom_frame.grid_remove()
         progress_bar.grid(padx=16, sticky='we')
 
-        initialize_lava(input_path, out_params.report_folder_base, extracttype)
+        initialize_lava(input_path, out_params.output_folder_base, extracttype)
 
         crunch_successful = ileapp.crunch_artifacts(
             selected_modules, extracttype, input_path, out_params, wrap_text,
             loader, casedata, time_offset, profile_filename, None, decryption_keys)
-        
-        lava_finalize_output(out_params.report_folder_base)
+
+        lava_finalize_output(out_params.output_folder_base)
 
         if crunch_successful:
-            report_path = os.path.join(out_params.report_folder_base, 'index.html')
+            report_path = os.path.join(out_params.output_folder_base, 'index.html')
             if report_path.startswith('\\\\?\\'):  # windows
                 report_path = report_path[4:]
             if report_path.startswith('\\\\'):  # UNC path

@@ -1,6 +1,20 @@
 __artifacts_v2__ = {
+    "booking_preferences": {
+        "name": "Booking Preferences",
+        "description": "Parses and extract Booking.com Preferences",
+        "author": "@djangofaiola",
+        "version": "0.2",
+        "creation_date": "2024-05-28",
+        "last_update_date": "2025-05-02",
+        "requirements": "none",
+        "category": "Booking.com",
+        "notes": "https://djangofaiola.blogspot.com",
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/Preferences/com.booking.BookingApp.plist'),
+        "output_types": [ "none" ],
+        "artifact_icon": "settings"
+    },
     "booking_account": {
-        "name": "Account",
+        "name": "Booking Account",
         "description": "Parses and extract Booking.com Account",
         "author": "@djangofaiola",
         "creation_date": "2024-05-28",
@@ -15,7 +29,7 @@ __artifacts_v2__ = {
         "artifact_icon": "user"
     },
     "booking_payment_methods": {
-        "name": "Payment Methods",
+        "name": "Booking Payment Methods",
         "description": "Parses and extract Booking.com Payment Methods",
         "author": "@djangofaiola",
         "creation_date": "2024-05-28",
@@ -30,7 +44,7 @@ __artifacts_v2__ = {
         "artifact_icon": "credit-card"
     },
     "booking_wish_lists": {
-        "name": "Wish Lists",
+        "name": "Booking Wish Lists",
         "description": "Parses and extract Booking.com Wish Lists",
         "author": "@djangofaiola",
         "creation_date": "2024-05-28",
@@ -44,7 +58,7 @@ __artifacts_v2__ = {
         "artifact_icon": "star"
     },
     "booking_viewed": {
-        "name": "Viewed",
+        "name": "Booking Viewed",
         "description": "Parses and extract Booking.com Viewed",
         "author": "@djangofaiola",
         "creation_date": "2024-05-28",
@@ -58,7 +72,7 @@ __artifacts_v2__ = {
         "artifact_icon": "eye"
     },
     "booking_recently_searched": {
-        "name": "Recently Searched",
+        "name": "Booking Recently Searched",
         "description": "Parses and extract Booking.com Recently Searched",
         "author": "@djangofaiola",
         "creation_date": "2024-05-28",
@@ -72,7 +86,7 @@ __artifacts_v2__ = {
         "artifact_icon": "search"
     },
     "booking_recently_booked": {
-        "name": "Recently Booked",
+        "name": "Booking Recently Booked",
         "description": "Parses and extract Booking.com Recently Booked",
         "author": "@djangofaiola",
         "creation_date": "2024-05-28",
@@ -86,7 +100,7 @@ __artifacts_v2__ = {
         "artifact_icon": "shopping-bag"
     },
     "booking_booked": {
-        "name": "Booked",
+        "name": "Booking Booked",
         "description": "Parses and extract Booking.com Booked",
         "author": "@djangofaiola",
         "creation_date": "2024-05-28",
@@ -102,7 +116,7 @@ __artifacts_v2__ = {
         "artifact_icon": "shopping-bag"
     },
     "booking_stored_destinations": {
-        "name": "Stored Destinations",
+        "name": "Booking Stored Destinations",
         "description": "Parses and extract Booking.com Stored Destinations",
         "author": "@djangofaiola",
         "creation_date": "2024-05-28",
@@ -116,7 +130,7 @@ __artifacts_v2__ = {
         "artifact_icon": "map"
     },
     "booking_notifications": {
-        "name": "Notifications",
+        "name": "Booking Notifications",
         "description": "Parses and extract Booking.com Notifications",
         "author": "@djangofaiola",
         "creation_date": "2024-05-28",
@@ -130,7 +144,7 @@ __artifacts_v2__ = {
         "artifact_icon": "bell"
     },
     "booking_flights_searched": {
-        "name": "Flights Searched",
+        "name": "Booking Flights Searched",
         "description": "Parses and extract Booking.com Flights Searched",
         "author": "@djangofaiola",
         "creation_date": "2024-05-28",

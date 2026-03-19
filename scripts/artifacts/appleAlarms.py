@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Extraction of alarms set",
         "author": "Anna-Mariya Mateyna",
         "creation_date": "2021-01-17",
-        "last_update_date": "2024-12-22",
+        "last_update_date": "2025-12-16",
         "requirements": "none",
         "category": "Clock",
         "notes": "",
@@ -14,7 +14,7 @@ __artifacts_v2__ = {
     }
 }
 
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content, convert_plist_date_to_utc
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content, convert_plist_date_to_utc, logfunc
 
 def decode_repeat_schedule(repeat_schedule_value):
     days_list = {
@@ -43,15 +43,21 @@ def decode_repeat_schedule(repeat_schedule_value):
 
 
 @artifact_processor
-def alarms(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def alarms(context):
+    files_found = context.get_files_found()
     source_path = get_file_path(files_found, "com.apple.mobiletimerd.plist")
     data_list = []
 
     pl = get_plist_file_content(source_path)
+    
+    # Check if plist is valid before processing
+    if not pl or not isinstance(pl, dict):
+        return (), [], ''
+        
     if 'MTAlarms' in pl:
         if 'MTAlarms' in pl['MTAlarms']:
-            for alarms in pl['MTAlarms']['MTAlarms']:
-                alarms_dict = alarms['$MTAlarm']
+            for alarm in pl['MTAlarms']['MTAlarms']:
+                alarms_dict = alarm['$MTAlarm']
 
                 alarm_title = alarms_dict.get('MTAlarmTitle', 'Alarm')
                 alarm_hour = alarms_dict.get('MTAlarmHour', '')
@@ -82,6 +88,7 @@ def alarms(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
         if 'MTSleepAlarm' in pl['MTAlarms']:
             for sleep_alarms in pl['MTAlarms']['MTSleepAlarm']:
+                logfunc(sleep_alarms)
                 sleep_alarm_dict = pl['MTAlarms']['MTSleepAlarm'][sleep_alarms]
 
                 alarm_title = sleep_alarm_dict.get('MTAlarmTitle', 'Bedtime')
@@ -95,6 +102,7 @@ def alarms(files_found, report_folder, seeker, wrap_text, timezone_offset):
 
                 data_list.append(
                     (fire_date, 
+                    None, # alarm time 
                     alarm_title, 
                     sleep_alarm_dict['MTAlarmEnabled'], 
                     dismiss_date, 
