@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "List can included once installed but not present apps. Each file is named .com.apple.mobile_container_manager.metadata.plist",
         "author": "@AlexisBrignoni",
         "creation_date": "2020-09-22",
-        "last_update_date": "2024-12-20",
+        "last_update_date": "2025-10-08",
         "requirements": "none",
         "category": "Installed Apps",
         "notes": "",
@@ -20,12 +20,15 @@ import pathlib
 from scripts.ilapfuncs import artifact_processor, get_plist_file_content
 
 @artifact_processor
-def appGrouplisting(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def appGrouplisting(context):
     source_path = 'Path column in the report'
     data_list = []       
     
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         plist = get_plist_file_content(file_found)
+        # Check if plist is a valid parseable object
+        if not plist or not isinstance(plist, dict):
+            continue
         bundleid = plist['MCMMetadataIdentifier']
         
         p = pathlib.Path(file_found)
