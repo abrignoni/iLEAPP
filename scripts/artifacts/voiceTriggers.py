@@ -66,12 +66,7 @@ def get_voiceTriggers(context):
         except Exception as e:
             logfunc(f"Error processing {info_file}: {e}")
 
-    data_headers = (
-        ('Creation Date','datetime),
-        'Device',
-        'Internal Path Info',
-        ('Audio File', 'media')
-    )
+    data_headers = (('Creation Date','datetime'),'Device','Internal Path Info',('Audio File', 'media'))
 
     source_path = json_files[0] if json_files else ''
 
