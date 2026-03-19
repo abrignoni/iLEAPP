@@ -17,12 +17,11 @@ __artifacts_v2__ = {
     }
 }
 
-import os
 from pathlib import Path
 from scripts.ilapfuncs import artifact_processor, \
     get_file_path, does_table_exist_in_db, get_sqlite_db_records, \
     get_plist_file_content, check_in_media, convert_unix_ts_to_utc, \
-    convert_cocoa_core_data_ts_to_utc, logfunc
+    convert_cocoa_core_data_ts_to_utc
 
 
 @artifact_processor
@@ -96,9 +95,9 @@ def voicemail(context):
 
             deleted_raw = record[-2] 
             if isinstance(deleted_raw, int) and deleted_raw != 0:
-                 deleted = convert_cocoa_core_data_ts_to_utc(deleted_raw)
+                deleted = convert_cocoa_core_data_ts_to_utc(deleted_raw)
             else:
-                 deleted = deleted_raw
+                deleted = deleted_raw
 
             row_id = record[-1]
             audio_name_target = f'{row_id}.amr'
