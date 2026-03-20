@@ -43,7 +43,7 @@ import string
 from os.path import dirname
 from datetime import datetime
 
-from scripts.ilapfuncs import logfunc, open_sqlite_db_readonly, convert_ts_human_to_utc, convert_utc_human_to_timezone, artifact_processor, convert_plist_date_to_timezone_offset
+from scripts.ilapfuncs import logfunc, open_sqlite_db_readonly, convert_ts_human_to_utc, convert_utc_human_to_timezone, artifact_processor
 
 @artifact_processor
 def keyboardLexicon(files_found, report_folder, seeker, wrap_text, timezone_offset):
