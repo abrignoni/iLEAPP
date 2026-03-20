@@ -16,7 +16,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Network",
         "notes": "",
-        "paths": ('*/root/Library/Application Support/WiFiNetworkStoreModel.sqlite*'),
+        "paths": ('*/Library/Application Support/WiFiNetworkStoreModel.sqlite*'),
         "output_types": "standard",
         "artifact_icon": "wifi"
     }
