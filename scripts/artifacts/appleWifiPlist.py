@@ -54,7 +54,7 @@ __artifacts_v2__ = {
 }
 
 import plistlib
-from scripts.ilapfuncs import device_info, artifact_processor, convert_plist_date_to_timezone_offset
+from scripts.ilapfuncs import device_info, artifact_processor
 from datetime import datetime
 
 def _bytes_to_mac_address(encoded_bytes):
@@ -247,10 +247,10 @@ def appleWifiBSSList(context):
                     for bss in bss_list:
                         channel_flags = bss.get('ChannelFlags', '')
                         channel = bss.get('Channel', '')
-                        last_associated_at = convert_plist_date_to_timezone_offset(bss.get('LastAssociatedAt', ''), timezone_offset)
+                        last_associated_at = bss.get('LastAssociatedAt', '')
                         bssid = bss.get('BSSID', '')
                         location_accuracy = bss.get('LocationAccuracy', '')
-                        location_timestamp = convert_plist_date_to_timezone_offset(bss.get('LocationTimestamp', ''), timezone_offset)
+                        location_timestamp = bss.get('LocationTimestamp', '')
                         location_latitude = bss.get('LocationLatitude', '')
                         location_longitude = bss.get('LocationLongitude', '')
 
@@ -266,7 +266,7 @@ def appleWifiBSSList(context):
                     bss_list = known_network.get('networkKnownBSSListKey', [])
                     for bss in bss_list:
                         channel = bss.get('CHANNEL', '')
-                        last_roamed = convert_plist_date_to_timezone_offset(bss.get('lastRoamed', ''), timezone_offset)
+                        last_roamed = bss.get('lastRoamed', '')
                         bssid = bss.get('BSSID', '')
                         channel_flags = bss.get('CHANNEL_FLAGS', '')
 
