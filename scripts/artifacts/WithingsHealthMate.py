@@ -93,7 +93,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Withings Health Mate",
         "notes": "Based on https://bebinary4n6.blogspot.com/2024/09/app-healthmate-on-ios.html",
-        "paths": ('*/Library/Application Support/coredata/associated_device.sqlite'),
+        "paths": ('*/Library/Application Support/coredata/associated_device.sqlite*'),
         "output_types": "standard",
         "artifact_icon": "watch"
     }
@@ -116,7 +116,7 @@ def get_healthmate_accounts(context):
 
     data_list = []
     for user in json_data['account']['sources'][0]['users']:
-        id = user['userId']
+        user_id = user['userId']
         lastname = user['lastName']
         firstname = user['firstName']
         shortname = user['shortName']
@@ -128,7 +128,7 @@ def get_healthmate_accounts(context):
         data_list.append((
             creationdate,
             modifieddate,
-            id,
+            user_id,
             lastname,
             firstname,
             shortname,
@@ -179,7 +179,7 @@ def get_healthmate_sleep_tracking(context):
 
     data_list = []
     for row in db_records:
-        id = row[0]
+        dev_id = row[0]
         startdate = convert_cocoa_core_data_ts_to_utc(row[1])
         enddate = convert_cocoa_core_data_ts_to_utc(row[2])
         refrencedate = convert_cocoa_core_data_ts_to_utc(row[3])
@@ -202,7 +202,7 @@ def get_healthmate_sleep_tracking(context):
             moddate,
             man_start,
             man_end,
-            id,
+            dev_id,
             dur_light,
             dur_rem,
             dur_deep,
@@ -348,7 +348,7 @@ def get_healthmate_tracked_activities(context):
     db_records = get_sqlite_db_records(str(files_found[0]), query)
     data_list = []
     for row in db_records:
-        id = row[0]
+        dev_id = row[0]
         act_type = row[1]
         is_removed = row[2]
         dur_pause = row[3]
@@ -389,7 +389,7 @@ def get_healthmate_tracked_activities(context):
             moddate,
             man_start,
             man_end,
-            id,
+            dev_id,
             track,
             act_type,
             is_removed,
@@ -481,7 +481,7 @@ def get_healthmate_messages(context):
 
     data_list = []
     for row in db_records:
-        id = row[0]
+        accountid = row[0]
         senderid = row[1]
         receiverid = row[2]
         sender_name = row[3]
@@ -496,7 +496,7 @@ def get_healthmate_messages(context):
             date,
             date_mod,
             date_exp,
-            id,
+            accountid,
             senderid,
             receiverid,
             sender_name,
@@ -643,7 +643,7 @@ def get_healthmate_devices(context):
 
     data_list = []
     for row in db_records:
-        id = row[0]
+        entid = row[0]
         userid = row[1]
         assdate = convert_unix_ts_to_utc(row[2])
         lastdate = convert_cocoa_core_data_ts_to_utc(row[3])
@@ -659,7 +659,7 @@ def get_healthmate_devices(context):
             assdate,
             lastdate,
             lastweighin,
-            id,
+            entid,
             userid,
             mac,
             firmware,
