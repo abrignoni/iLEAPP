@@ -111,7 +111,7 @@ from scripts.ilapfuncs import (
 @artifact_processor
 def get_healthmate_accounts(context):
     files_found = context.get_files_found()
-    with open(str(files_found[0])) as json_file:
+    with open(str(files_found[0]),encoding="utf-8") as json_file:
         json_data = json.load(json_file)
 
     data_list = []
