@@ -25,13 +25,11 @@ __artifacts_v2__ = {
     }
 }
 
-import os
-
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, does_column_exist_in_db
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, does_table_exist_in_db, does_column_exist_in_db
 
 @artifact_processor
-def storeUser_ca(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def storeUser_ca(context):
+    files_found = context.get_files_found()
     source_path = get_file_path(files_found, "storeUser.db")
     data_list = []
     
@@ -81,7 +79,8 @@ def storeUser_ca(files_found, report_folder, seeker, wrap_text, timezone_offset)
         return data_headers, data_list, source_path
 
 @artifact_processor  
-def storeUser_pha(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def storeUser_pha(context):
+    files_found = context.get_files_found()
     source_path = get_file_path(files_found, "storeUser.db")
     data_list = []
 
