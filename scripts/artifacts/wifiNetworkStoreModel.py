@@ -67,8 +67,8 @@ def get_wifiNetworkStoreModel(context):
                data_list = []
                
                for row in all_rows:
-                  last_conn_time = convert_cocoa_core_data_ts_to_utc(row[0])
-                  data_list.append((
+                    last_conn_time = convert_cocoa_core_data_ts_to_utc(row[0])
+                    data_list.append((
                       last_conn_time,
                       row[1],
                       row[2],
