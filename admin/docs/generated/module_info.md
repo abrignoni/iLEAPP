@@ -15,7 +15,7 @@ Number of artifacts with 'lava output': 362
 Number of artifacts using 'artifact_icon': 240  
 Number of artifacts using 'version': 217  
 Number of artifacts using 'last_update_date': 181  
-Number of artifacts using context parameter: 136  
+Number of artifacts using context parameter: 138  
 Number of artifacts with errors or no recognized artifacts: 3  
 
 ## V2 Artifacts Table
@@ -365,8 +365,8 @@ Number of artifacts with errors or no recognized artifacts: 3
 | [splitwise.py](/scripts/artifacts/splitwise.py) | splitwiseGroups | Splitwise - Groups | Finance | standard | No | users |  | 2025-01-07 | Parses groups information in Splitwise app | ``*/Library/Application Support/database.sqlite*`` |
 | [splitwise.py](/scripts/artifacts/splitwise.py) | splitwiseNotifications | Splitwise - Notifications | Finance | standard | No | bell |  | 2025-01-07 | Parses notifications from Splitwise app | ``*/Library/Application Support/database.sqlite*`` |
 | [spotlightIndex.py](/scripts/artifacts/spotlightIndex.py) | get_spotlightIndexCache | Spotlight Index Cache V2 | Spotlight | standard | Yes | search |  | 2025-10-09 | Spotlight Index Cache V2 | ``*/var/mobile/Library/Spotlight/CoreSpotlight/NSFileProtectionCompleteUntilFirstUserAuthentication/index.spotlightV2/Cache/*/*.txt`` |
-| [storeUser.py](/scripts/artifacts/storeUser.py) | storeUser_ca | Installed Apps (storeUser) | Installed Apps | standard | No | package |  |  | Parses storeUser.db for installed app history | ``*/mobile/Library/Caches/com.apple.appstored/storeUser.db*`` |
-| [storeUser.py](/scripts/artifacts/storeUser.py) | storeUser_pha | Purchased Apps History (storeUser) | Installed Apps | standard | No | shopping-cart |  |  | Parses storeUser.db for App Store purchased app history | ``*/mobile/Library/Caches/com.apple.appstored/storeUser.db*`` |
+| [storeUser.py](/scripts/artifacts/storeUser.py) | storeUser_ca | Installed Apps (storeUser) | Installed Apps | standard | Yes | package |  |  | Parses storeUser.db for installed app history | ``*/mobile/Library/Caches/com.apple.appstored/storeUser.db*`` |
+| [storeUser.py](/scripts/artifacts/storeUser.py) | storeUser_pha | Purchased Apps History (storeUser) | Installed Apps | standard | Yes | shopping-cart |  |  | Parses storeUser.db for App Store purchased app history | ``*/mobile/Library/Caches/com.apple.appstored/storeUser.db*`` |
 | [subscriberInfo.py](/scripts/artifacts/subscriberInfo.py) | subscriberInfo | Subscriber Info | Identifiers | standard | No | settings | 0.1 |  | Information about inserted SIM Cards | ``*/wireless/Library/Databases/CellularUsage.db*`` |
 | [swissmeteo.py](/scripts/artifacts/swissmeteo.py) | plz_interaction | Swissmeteo - Interaction with places | Meteo | standard | No | flag |  | 2026-03-11 | Parse the interaction with meteo prevision of particular places | ``*/mobile/Containers/Data/Application/*/Library/Application Support/databases/favorites_prediction_db.sqlite*``, ``*/mobile/Containers/Data/Application/*/Documents/localdata.sqlite*`` |
 | [swissmeteo.py](/scripts/artifacts/swissmeteo.py) | swissmeteo_plz | Swissmeteo - App opening with geolocation | Meteo | standard | No | flag |  | 2026-03-11 | Parse the app opening time and location | ``*/mobile/Containers/Data/Application/*/Library/Application Support/databases/favorites_prediction_db.sqlite*``, ``*/mobile/Containers/Data/Application/*/Documents/localdata.sqlite*`` |
