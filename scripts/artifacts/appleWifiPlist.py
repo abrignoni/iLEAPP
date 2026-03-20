@@ -115,7 +115,7 @@ def appleWifiKnownNetworks(context):
                                       user_portal_url, '', '', file_found])
 
             if 'com.apple.wifi.known-networks.plist' in file_found:
-                for network_key, known_network in deserialized.items():
+                for known_network in deserialized.items():
                     ssid = _decode_ssid(known_network.get('SSID', b''))
                     add_reason = known_network.get('AddReason', '')
                     bundle = known_network.get('BundleID', '')
@@ -162,7 +162,7 @@ def appleWifiKnownNetworksTimes(context):
                     data_list.append([ssid, bssid, last_updated, last_auto_joined, last_joined, '', '', wnpmd, '', '', '', '', prev_joined, file_found])
 
             if 'com.apple.wifi.known-networks.plist' in file_found:
-                for network_key, known_network in deserialized.items():
+                for known_network in deserialized.items():
                     ssid = _decode_ssid(known_network.get('SSID', b''))
                     
                     last_updated = _get_safe_date(known_network.get('UpdatedAt', ''))
@@ -241,7 +241,7 @@ def appleWifiBSSList(context):
         with open(file_found, 'rb') as f:
             deserialized = plistlib.load(f)
             if 'com.apple.wifi.known-networks.plist' in file_found:
-                for network_key, known_network in deserialized.items():
+                for known_network in deserialized.items():
                     ssid = _decode_ssid(known_network.get('SSID', b''))
                     bss_list = known_network.get('BSSList', [])
                     for bss in bss_list:
