@@ -67,17 +67,18 @@ def storeUser_ca(files_found, report_folder, seeker, wrap_text, timezone_offset)
 
     data_headers = (('Install Timestamp', 'datetime'),'Bundle ID','App Name','Developer Name','App Version','App Bundle Version','App Store ID','System App','Deletion Date')
 
-    if does_column_exist_in_db(source_path, "current_apps", "is_system_app"):
-        db_records = get_sqlite_db_records(source_path, current_app_query)
-        for record in db_records:
-            data_list.append((record[0], record[1], record[2], record[3], record[4], record[5], record[6], record[7], record[8]))
-                            
-    else:
-        db_records = get_sqlite_db_records(source_path, current_app_prev_query)
-        for record in db_records:
-            data_list.append((record[0], record[1], record[2], record[3], record[4], record[5], 'No', record[6], record[7]))
+    if does_table_exist_in_db(source_path, "current_apps"):
+        if does_column_exist_in_db(source_path, "current_apps", "is_system_app"):
+            db_records = get_sqlite_db_records(source_path, current_app_query)
+            for record in db_records:
+                data_list.append((record[0], record[1], record[2], record[3], record[4], record[5], record[6], record[7], record[8]))
+                                
+        else:
+            db_records = get_sqlite_db_records(source_path, current_app_prev_query)
+            for record in db_records:
+                data_list.append((record[0], record[1], record[2], record[3], record[4], record[5], 'No', record[6], record[7]))
 
-    return data_headers, data_list, source_path
+        return data_headers, data_list, source_path
 
 @artifact_processor  
 def storeUser_pha(files_found, report_folder, seeker, wrap_text, timezone_offset):
