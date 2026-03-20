@@ -22,8 +22,8 @@ from scripts.ilapfuncs import (open_sqlite_db_readonly,artifact_processor,conver
 def get_wifiNetworkStoreModel(context):
 	files_found = context.get_files_found()
 	for file_found in files_found:
-    	file_found = str(file_found)
-    	if file_found.endswith('WiFiNetworkStoreModel.sqlite'):
+		file_found = str(file_found)
+		if file_found.endswith('WiFiNetworkStoreModel.sqlite'):
 			db = open_sqlite_db_readonly(file_found)
 			cursor = db.cursor()
 			cursor.execute('''
