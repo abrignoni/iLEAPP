@@ -53,7 +53,6 @@ __artifacts_v2__ = {
     }
 }
 
-import glob
 import plistlib
 from scripts.ilapfuncs import device_info, artifact_processor, convert_plist_date_to_timezone_offset
 from datetime import datetime
@@ -80,8 +79,9 @@ def _get_safe_date(raw_val):
         return val
 
 @artifact_processor
-def appleWifiKnownNetworks(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def appleWifiKnownNetworks(context):
     data_list = []
+    files_found = context.get_files_found()
     for file_found in files_found:
         file_found = str(file_found)
         with open(file_found, 'rb') as f:
@@ -140,8 +140,9 @@ def appleWifiKnownNetworks(files_found, report_folder, seeker, wrap_text, timezo
     return data_headers, data_list, ','.join(files_found)
 
 @artifact_processor
-def appleWifiKnownNetworksTimes(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def appleWifiKnownNetworksTimes(context):
     data_list = []
+    files_found = context.get_files_found()
     for file_found in files_found:
         file_found = str(file_found)
         with open(file_found, 'rb') as f:
@@ -192,8 +193,9 @@ def appleWifiKnownNetworksTimes(files_found, report_folder, seeker, wrap_text, t
     return data_headers, data_list, ','.join(files_found)
 
 @artifact_processor
-def appleWifiScannedPrivate(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def appleWifiScannedPrivate(context):
     data_list = []
+    files_found = context.get_files_found()
     for file_found in files_found:
         file_found = str(file_found)
         with open(file_found, 'rb') as f:
@@ -231,8 +233,9 @@ def appleWifiScannedPrivate(files_found, report_folder, seeker, wrap_text, timez
     return data_headers, data_list, ','.join(files_found)
 
 @artifact_processor
-def appleWifiBSSList(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def appleWifiBSSList(context):
     data_list = []
+    files_found = context.get_files_found()
     for file_found in files_found:
         file_found = str(file_found)
         with open(file_found, 'rb') as f:
