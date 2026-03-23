@@ -38,16 +38,16 @@ __artifacts_v2__ = {
 }
 
 import plistlib
-import sqlite3
 import string
 from os.path import dirname
+from datetime import datetime
 
-from scripts.ilapfuncs import logfunc, open_sqlite_db_readonly, convert_ts_human_to_utc, convert_utc_human_to_timezone, artifact_processor, convert_plist_date_to_timezone_offset
+from scripts.ilapfuncs import open_sqlite_db_readonly, convert_ts_human_to_utc, artifact_processor
 
 @artifact_processor
-def keyboardLexicon(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def keyboardLexicon(context):
     data_list = []
-    
+    files_found = context.get_files_found()
     for file_found in files_found:
         if file_found.endswith('dynamic-lexicon.dat'):
             strings_list = []
@@ -70,25 +70,33 @@ def keyboardLexicon(files_found, report_folder, seeker, wrap_text, timezone_offs
     return data_headers, data_list, dirname(files_found[0]).split('Keyboard', 1)[0] + 'Keyboard'
 
 @artifact_processor
-def keyboardAppUsage(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def keyboardAppUsage(context):
     data_list = []
-    
+    files_found = context.get_files_found()
     for file_found in files_found:
         if file_found.endswith('app_usage_database.plist'):
             with open(file_found, "rb") as plist_file:
                 plist_content = plistlib.load(plist_file)
                 for app in plist_content:
                     for entry in plist_content[app]:
-                        start_date = convert_plist_date_to_timezone_offset(entry['startDate'], timezone_offset)
-                        data_list.append((start_date, app, entry['appTime'], ', '.join(map(str, entry['keyboardTimes']))))
-    
+                        raw_date = str(entry.get('startDate', ''))
+                        if raw_date.endswith('Z'):
+                            raw_date = raw_date.replace('Z', '+00:00')
+                        try:
+                            dt_obj = datetime.fromisoformat(raw_date)
+                            start_date = dt_obj.strftime('%Y-%m-%d %H:%M:%S')
+                        except ValueError:
+                            start_date = raw_date
+
+                        data_list.append((start_date, app, entry['appTime'], ', '.join(map(str, entry['keyboardTimes']))))  
+                                                 
     data_headers = (('Date', 'datetime'), 'Application Name', 'Application Time Used in Seconds', 'Keyboard Times Used in Seconds')
     return data_headers, data_list, files_found[0]
 
 @artifact_processor
-def keyboardUsageStats(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def keyboardUsageStats(context):
     data_list = []
-    
+    files_found = context.get_files_found()
     for file_found in files_found:
         if file_found.endswith('user_model_database.sqlite'):
             db = open_sqlite_db_readonly(file_found)
@@ -103,8 +111,8 @@ def keyboardUsageStats(files_found, report_folder, seeker, wrap_text, timezone_o
             ''')
             
             for row in cursor.fetchall():
-                create_ts = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]), timezone_offset)
-                update_ts = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[1]), timezone_offset)
+                create_ts = convert_ts_human_to_utc(row[0])
+                update_ts = convert_ts_human_to_utc(row[1])
                 data_list.append((create_ts, update_ts, row[2], row[3], file_found))
     
     data_headers = (('Creation Date', 'datetime'), ('Last Update Date', 'datetime'), 'Key', 'Data Value', 'Source File')
