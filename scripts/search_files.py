@@ -190,7 +190,7 @@ def decrypt_itunes_backup(directory, passcode):
 
         # Figure out the length we need to pull
         tmp_length = int.from_bytes(backup_keybag[
-            tmp_backup_keybag_index:tmp_backup_keybag_index + 4])
+            tmp_backup_keybag_index:tmp_backup_keybag_index + 4], byteorder="big")
         tmp_backup_keybag_index += 4
 
         # Store the actual value itself
@@ -200,15 +200,15 @@ def decrypt_itunes_backup(directory, passcode):
 
         match tmp_string_type:
             case b'CLAS':
-                tmp_protection_class['CLAS'] = int.from_bytes(tmp_value)
+                tmp_protection_class['CLAS'] = int.from_bytes(tmp_value, byteorder="big")
             case b'DPIC':
-                tmp_double_protection_iter = int.from_bytes(tmp_value)
+                tmp_double_protection_iter = int.from_bytes(tmp_value, byteorder="big")
             case b'DPSL':
                 tmp_double_protection_salt = tmp_value
             case b'ITER':
-                tmp_iter = int.from_bytes(tmp_value)
+                tmp_iter = int.from_bytes(tmp_value, byteorder="big")
             case b'KTYP':
-                tmp_protection_class['KTYP'] = int.from_bytes(tmp_value)
+                tmp_protection_class['KTYP'] = int.from_bytes(tmp_value, byteorder="big")
             case b'UUID':
                 if keybag_uuid is None:
                     keybag_uuid = tmp_value
