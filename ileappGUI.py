@@ -522,6 +522,8 @@ main_window.configure(bg=theme_bgcolor)
 logo_icon = tk.PhotoImage(file=icon)
 main_window.iconphoto(True, logo_icon)
 main_window.grid_columnconfigure(0, weight=1)
+main_window.option_add('*TkChooseDir*foreground', 'black')
+main_window.option_add('*TkFDialog*foreground', 'black')
 
 ## Widgets default style
 style = ttk.Style()
