@@ -4,12 +4,12 @@ __artifacts_v2__ = {
         "description": "Parses and extracts Box Account information",
         "author": "@djangofaiola",
         "creation_date": "2025-12-05",
-        "last_update_date": "2026-10-03",
+        "last_update_date": "2026-03-26",
         "requirements": "none",
         "category": "Box",
         "notes": "https://djangofaiola.blogspot.com",
-        "paths": ('*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.net.box.BoxNet.plist',
-                  '*/*group.net.box.BoxNet/Library/Preferences/group.net.box.BoxNet.plist'),
+        "paths": ("*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/"
+                  "group.net.box.BoxNet.plist"),
         "output_types": [ "lava", "html", "timeline" ],
         "artifact_icon": "user"
     },
@@ -18,14 +18,15 @@ __artifacts_v2__ = {
         "description": "Parses and extracts Box All Files information",
         "author": "@djangofaiola",
         "creation_date": "2025-12-05",
-        "last_update_date": "2026-10-03",
+        "last_update_date": "2026-03-26",
         "requirements": "none",
         "category": "Box",
         "notes": "https://djangofaiola.blogspot.com",
-        "paths": ('*/mobile/Containers/Shared/AppGroup/*/Documents/db/Item.db*',
-                  '*/mobile/Containers/Shared/AppGroup/*/Documents/offlinefilesinfo/itemIDs.plist',
-                  '*/mobile/Containers/Shared/AppGroup/*/Documents/offlinefilesinfo/lastDownloadDates.plist',
-                  '*/*group.net.box.BoxNet/Documents/db/Item.db*'),
+        "paths": ("*/mobile/Containers/Shared/AppGroup/*/Documents/db/Item.db*",
+                  "*/mobile/Containers/Shared/AppGroup/*/Documents/offlinefilesinfo/"
+                  "itemIDs.plist",
+                  "*/mobile/Containers/Shared/AppGroup/*/Documents/offlinefilesinfo/"
+                  "lastDownloadDates.plist"),
         "output_types": [ "lava", "html", "timeline" ],
         "html_columns": [ "URL" ],
         "artifact_icon": "cloud"
@@ -35,13 +36,14 @@ __artifacts_v2__ = {
         "description": "Parses and extracts all Previews and Original media files",
         "author": "@djangofaiola",
         "creation_date": "2025-12-05",
-        "last_update_date": "2026-10-03",
+        "last_update_date": "2026-03-26",
         "requirements": "none",
         "category": "Box",
         "notes": "https://djangofaiola.blogspot.com",
-        "paths": ('*/mobile/Containers/Shared/AppGroup/*/File Provider Storage/boxpreview/*/db/PreviewItem.db*',
-                  '*/mobile/Containers/Shared/AppGroup/*/File Provider Storage/boxpreview/*/cache/files/*/*/*',
-                  '*/*group.net.box.BoxNet/File Provider Storage/boxpreview/*/db/PreviewItem.db*'),
+        "paths": ("*/mobile/Containers/Shared/AppGroup/*/File Provider Storage/boxpreview/*/db/"
+                  "PreviewItem.db*",
+                  "*/mobile/Containers/Shared/AppGroup/*/File Provider Storage/boxpreview/*/cache/"
+                  "files/*/*/*"),
         "output_types": [ "lava", "html", "timeline" ],
         "html_columns": [ "URL" ],
         "artifact_icon": "image"
@@ -51,14 +53,12 @@ __artifacts_v2__ = {
         "description": "Parses and extracts Recents",
         "author": "@djangofaiola",
         "creation_date": "2025-12-05",
-        "last_update_date": "2026-10-03",
+        "last_update_date": "2026-03-26",
         "requirements": "none",
         "category": "Box",
         "notes": "https://djangofaiola.blogspot.com",
-        "paths": ('*/mobile/Containers/Shared/AppGroup/*/Documents/db/Recents.db*',
-                  '*/*group.net.box.BoxNet/Documents/db/Recents.db*',
-                  '*/mobile/Containers/Shared/AppGroup/*/Documents/db/Item.db*',
-                  '*/*group.net.box.BoxNet/Documents/db/Item.db*'),
+        "paths": ("*/mobile/Containers/Shared/AppGroup/*/Documents/db/Recents.db*",
+                  "*/mobile/Containers/Shared/AppGroup/*/Documents/db/Item.db*"),
         "output_types": [ "lava", "html", "timeline" ],
         "artifact_icon": "search"
     },
@@ -67,124 +67,140 @@ __artifacts_v2__ = {
         "description": "Parses and extracts Comments and Annotations",
         "author": "@djangofaiola",
         "creation_date": "2025-12-05",
-        "last_update_date": "2026-10-03",
+        "last_update_date": "2026-03-26",
         "requirements": "none",
         "category": "Box",
         "notes": "https://djangofaiola.blogspot.com",
-        "paths": ('*/mobile/Containers/Shared/AppGroup/*/Documents/db/annotations.db*',
-                  '*/*group.net.box.BoxNet/Documents/db/annotations.db*',
-                  '*/mobile/Containers/Shared/AppGroup/*/Documents/db/Item.db*',
-                  '*/*group.net.box.BoxNet/Documents/db/Item.db*'),
+        "paths": ("*/mobile/Containers/Shared/AppGroup/*/Documents/db/annotations.db*",
+                  "*/mobile/Containers/Shared/AppGroup/*/Documents/db/Item.db*"),
         "output_types": [ "lava", "html", "timeline" ],
         "artifact_icon": "message-circle"
     },
 }
 
 import re
-from datetime import datetime, timezone
-from pathlib import Path
 import html
+import plistlib
+from datetime import timezone, datetime
+from pathlib import Path
 from urllib.parse import urlparse, urlunparse
 from scripts.filetype import get_type
 from scripts.ilapfuncs import artifact_processor, check_in_media, get_plist_file_content, \
-    get_plist_content, attach_sqlite_db_readonly, get_sqlite_db_records, convert_unix_ts_to_utc, \
-    convert_bytes_to_unit, logfunc
+    get_plist_content, attach_sqlite_db_readonly, get_sqlite_db_records, open_sqlite_db_readonly, \
+    convert_unix_ts_to_utc, convert_bytes_to_unit, logfunc
 
 
 # Pattern to normalize timezone offsets from +HHMM -> +HH:MM
 ISO_OFFSET_FIX = re.compile(r'([+-]\d{2})(\d{2})$')
 
-def convert_iso8601_to_utc(str_date : str) -> str:
+def convert_iso8601_to_utc(str_date: str | bytes | None) -> str | None:
     """
     Convert an ISO 8601 formatted date string to a canonical UTC string
-    consistent with ilapfuncs.convert_unix_ts_to_utc.
+    consistent with convert_unix_ts_to_utc.
+    - Input is expected to be a string or bytes.
+    - Decodes bytes using UTF-8 with errors ignored.
+    - Normalizes trailing 'Z' and compact offsets (+HHMM -> +HH:MM).
+    - Returns the canonical UTC string on success.
+    - On failure, returns the trimmed original string and logs the parse failure.
 
-    - Input is expected to be a string (framework convention).
-    - Best-effort handles bytes by decoding UTF-8 (errors ignored).
-    - On success returns the canonical UTC string from convert_unix_ts_to_utc.
-    - On failure returns the trimmed original string and logs the parse failure.
+    Args:
+        str_date: ISO 8601 formatted string or bytes, or None.
+
+    Returns:
+        str | None: Canonical UTC string, trimmed original string if parsing fails,
+                    or None if input is None or cannot be decoded.
     """
-    # Preserve None explicitly
+
+    # Explicitly preserve None input
     if str_date is None:
         return None
 
-    # Best-effort: decode bytes to str (framework functions normally accept str)
+    # Decode bytes to string if necessary
     if isinstance(str_date, bytes):
-        try:
-            str_date = str_date.decode('utf-8', errors='ignore')
-        except UnicodeDecodeError as e:
-            logfunc(f"Box Error - convert_iso8601_to_utc: "
-                    f"Error decoding bytes to string. Exception: {e}")
-            return None
+        str_date = str_date.decode('utf-8', errors='ignore')
 
-    # If not a string, preserve its string representation
+    # Ensure the input is a string
     if not isinstance(str_date, str):
-        return str(str_date)
+        str_date = str(str_date)
 
+    # Trim leading/trailing whitespace
     s = str_date.strip()
+
+    # Return early for empty or "null"-like values
     if not s or s.lower() == 'null':
         return s
 
-    # Normalize trailing Z -> +00:00 (covers common API outputs)
+    # Replace comma with dot in fractional seconds
+    s = s.replace(",", ".")
+
+    # Normalize trailing 'Z' (UTC designator) to explicit offset
     if s.endswith('Z'):
         s = s[:-1] + '+00:00'
 
-    # Normalize compact offsets +HHMM -> +HH:MM
-    s = ISO_OFFSET_FIX.sub(r'\1:\2', s)
+    # Normalize compact timezone offsets (+HHMM -> +HH:MM)
+    s = ISO_OFFSET_FIX.sub(r"\1:\2", s)
 
     try:
-        # datetime.fromisoformat on Python 3.10+ handles common ISO variants after normalization
+        # Parse ISO 8601 string
         dt = datetime.fromisoformat(s)
+
         if dt.tzinfo is None:
-            # Policy: treat naive datetimes as UTC (document this choice)
+            # Treat naive datetimes as UTC
             dt = dt.replace(tzinfo=timezone.utc)
         else:
+            # Convert aware datetimes to UTC
             dt = dt.astimezone(timezone.utc)
-        # Return canonical project format used across iLEAPP
+
+        # Convert to canonical UTC string using helper
         return convert_unix_ts_to_utc(dt.timestamp())
+
     except (ValueError, TypeError) as e:
-        # Forensic trace: preserve raw trimmed value and log the parse failure
-        logfunc(f"Box Error - convert_iso8601_to_utc: parse failed for {s!r}: {e}")
+        # Log parsing failure and return original trimmed string
+        logfunc(f"Error - convert_iso8601_to_utc: parse failed for {s!r}: {e}")
         return s
 
 
-def format_url(str_url : str, html_format : bool = False) -> str:
+def format_url(str_url : str | None, html_format : bool = False) -> str:
     """
     Normalize a raw URL and optionally format it as a safe HTML anchor.
-    - If str_url is None, an empty string, or the literal 'null', return an empty string.
-    - Strip surrounding whitespace.
-    - If the URL has no scheme, assume 'http' as a fallback.
-    - On parsing errors, return the cleaned input (do not raise).
-    - When html_format=True, escape values and add rel attributes to mitigate tabnabbing.
+    - Return an empty string if str_url is None, empty, or the literal 'null'.
+    - Strip leading and trailing whitespace.
+    - If the URL has no scheme, default to 'https'.
+    - In case of unexpected errors, return the cleaned input (do not raise).
+    - When html_format=True, escape values and add rel attributes to prevent tabnabbing.
     """
-    # Treat None, empty string, and the literal 'null' as missing input; return ''.
-    if str_url is None or str_url == '' or str_url == 'null':
+
+    # Treat None, empty strings, and the literal 'null' as missing input.
+    if not str_url or str_url.strip().lower() == 'null':
         return ''
 
     s = str_url.strip()
     try:
         parsed = urlparse(s)
-        # If no scheme is present, assume http (urlparse may place domain in path)
+
+        # If no scheme is present, assume http
         if not parsed.scheme:
-            parsed = parsed._replace(scheme='http')
+            parsed = urlparse(f"https://{s}")
         normalized = urlunparse(parsed)
 
-    except (ValueError, AttributeError) as e:
-        # Forensic trace: preserve raw input and log the failure
-        logfunc(f"Box Error - format_url parse failed for {str_url!r}: {e}")
+    except (ValueError, TypeError, AttributeError) as e:
+        # Log the error and return the cleaned input without raising
+        logfunc(f"Error - format_url parse failed for {str_url!r}: {e}")
         return s
 
     if html_format:
-        # Escape href and visible text to prevent XSS
+        # Escape both the href and the visible text to prevent XSS
         safe_href = html.escape(normalized, quote=True)
         safe_text = html.escape(normalized, quote=False)
-        # Use rel="noopener noreferrer" with target="_blank" to prevent tabnabbing
-        return f'<a href="{safe_href}" target="_blank" rel="noopener noreferrer">{safe_text}</a>'
+        # Add rel="noopener noreferrer" with target="_blank" to prevent tabnabbing
+        return (
+            f'<a href="{safe_href}" target="_blank" '
+            f'rel="noopener noreferrer">{safe_text}</a>'
+        )
 
     return normalized
 
 
-# Processes Box account data from the plist file
 @artifact_processor
 def box_account(context):
     """
@@ -211,45 +227,49 @@ def box_account(context):
 
     source_path = context.get_source_file_path('group.net.box.BoxNet.plist')
     plist_data = get_plist_file_content(source_path)
+    try:
+        # Deserializing the embedded JSON string containing user metadata
+        last_user_data = get_plist_content(plist_data.get('lastUserJSON'))
+        if not plist_data:
+            return data_headers, (data_list, data_list_html), source_path
 
-    # Deserializing the embedded JSON string containing user metadata
-    last_user_data = get_plist_content(plist_data.get('lastUserJSON'))
+        # Profile and Localization metadata
+        created_at = convert_iso8601_to_utc(last_user_data.get('created_at'))
+        login = last_user_data.get('login')
+        name = last_user_data.get('name')
+        has_avatar = last_user_data.get('has_custom_avatar')
+        is_enterprise = bool(last_user_data.get('enterprise'))
+        user_id = last_user_data.get('id')
+        user_timezone = last_user_data.get('timezone')
+        language = last_user_data.get('language')
 
-    if last_user_data:
-        try:
-            # Profile and Localization metadata
-            created_at = convert_iso8601_to_utc(last_user_data.get('created_at'))
-            login = last_user_data.get('login')
-            name = last_user_data.get('name')
-            has_avatar = last_user_data.get('has_custom_avatar')
-            is_enterprise = bool(last_user_data.get('enterprise'))
-            user_id = last_user_data.get('id')
-            user_timezone = last_user_data.get('timezone')
-            language = last_user_data.get('language')
+        # Storage metrics and quota formatting
+        total_space = last_user_data.get('space_amount', 0)
+        total_space_html = convert_bytes_to_unit(total_space)
+        used_space = last_user_data.get('space_used', 0)
+        used_space_html = convert_bytes_to_unit(used_space)
+        max_upload_size = last_user_data.get('max_upload_size', 0)
+        max_upload_size_html = convert_bytes_to_unit(max_upload_size)
 
-            # Storage metrics and quota formatting
-            total_space = last_user_data.get('space_amount', 0)
-            total_space_html = convert_bytes_to_unit(total_space)
-            used_space = last_user_data.get('space_used', 0)
-            used_space_html = convert_bytes_to_unit(used_space)
-            max_upload_size = last_user_data.get('max_upload_size', 0)
-            max_upload_size_html = convert_bytes_to_unit(max_upload_size)
+        # HTML row
+        data_list_html.append((created_at, login, name, has_avatar, is_enterprise, user_id,
+                                user_timezone, language, total_space_html, used_space_html,
+                                max_upload_size_html))
+        # LAVA row
+        data_list.append((created_at, login, name, has_avatar, is_enterprise, user_id,
+                            user_timezone, language, total_space, used_space,
+                            max_upload_size))
 
-            data_list_html.append((created_at, login, name, has_avatar, is_enterprise, user_id,
-                                   user_timezone, language, total_space_html, used_space_html,
-                                   max_upload_size_html))
-            data_list.append((created_at, login, name, has_avatar, is_enterprise, user_id,
-                              user_timezone, language, total_space, used_space,
-                              max_upload_size))
-
-        except (TypeError, ValueError, AttributeError) as ex:
-            logfunc(f"Box Error - Data mismatch while parsing "
-                    f"{context.get_artifact_name()} - {source_path}: {ex}")
+    except (KeyError, TypeError, ValueError) as ex:
+        logfunc(f"[{context.get_artifact_name()}] "
+                f"Error - Malformed structure in {source_path}: {ex}")
+    except OSError as ex:
+        logfunc(f"[{context.get_artifact_name()}] "
+                f"Error - Could not read {source_path}: {ex}")
 
     return data_headers, (data_list, data_list_html), source_path
 
 
-# Processes Box file information from the Item.db SQLite database
 @artifact_processor
 def box_all_files(context):
     """
@@ -286,8 +306,7 @@ def box_all_files(context):
         'Modifier Login',
         'Modifier Name',
         'Modifier ID',
-        'SHA1',
-        'Permissions'
+        'SHA1'
     )
 
     data_list = []
@@ -295,32 +314,46 @@ def box_all_files(context):
 
     # Offline status correlation: Primary (itemIDs) and Secondary (lastDownloadDates) sources
     ids_path = context.get_source_file_path('itemIDs.plist')
-    ids_data = get_plist_file_content(ids_path) if ids_path else None
-
     last_dates_path = context.get_source_file_path('lastDownloadDates.plist')
-    last_dates_data = get_plist_file_content(last_dates_path) if last_dates_path else None
-
-    offline_ids = dict()
-    if ids_data:
-        for model_id in ids_data:
-            offline_ids[str(model_id)] = {
-                'offline' : True,
-                'download_date' : None,
-                'source' : ids_path 
-            }
-
-    if last_dates_data:
-        for model_id, date in last_dates_data.items():
-            offline_ids[str(model_id)] = {
-                'offline' : True,
-                'download_date' :
-                date, 'source' :
-                last_dates_path
-            }
-    offline_artifacts_available = bool(ids_data or last_dates_data)
-
+    # Main database (Item.db)
     source_path = context.get_source_file_path('Item.db')
     source_paths = [ p for p in [ source_path, ids_path, last_dates_path ] if p ]
+
+    offline_ids: dict[str, dict] = {}
+
+    # Process itemIDs.plist
+    if ids_path:
+        try:
+            with open(ids_path, 'rb') as f:
+                ids_data = plistlib.load(f)
+            if ids_data:
+                offline_ids.update({
+                    str(model_id): {
+                        'offline': True,
+                        'download_date': None,
+                        'source': ids_path
+                    } for model_id in ids_data
+                })
+        except (OSError, ValueError, TypeError) as ex:
+            logfunc(f"[{context.get_artifact_name()}] Error reading {ids_path}: {ex}")
+
+    # Process lastDownloadDates.plist
+    if last_dates_path:
+        try:
+            with open(last_dates_path, 'rb') as f:
+                last_dates_data = plistlib.load(f)
+            if last_dates_data:
+                offline_ids.update({
+                    str(model_id): {
+                        'offline': True,
+                        'download_date': date,
+                        'source': last_dates_path
+                    } for model_id, date in last_dates_data.items()
+                })
+        except (OSError, ValueError, TypeError) as ex:
+            logfunc(f"[{context.get_artifact_name()}] Error reading {last_dates_path}: {ex}")
+
+    offline_artifacts_available = bool(offline_ids)
 
     # Recursive CTE to reconstruct full directory hierarchy and extract JSON metadata
     query = '''
@@ -378,18 +411,17 @@ def box_all_files(context):
         json_extract(i.jsonData, '$.modified_by.login'),
         json_extract(i.jsonData, '$.modified_by.name'),
         json_extract(i.jsonData, '$.modified_by.id'),
-        i.SHA1,
-        (
-            SELECT group_concat(p.key || '=' || p.value, ', ')
-            FROM json_each(json_extract(i.jsonData, '$.permissions')) AS p
-        ) AS "Permissions"
+        i.SHA1
     FROM cte_paths AS p
     LEFT JOIN items AS i ON (i.modelID = p.id)
     ORDER BY i.type DESC, p.path ASC;
     '''
 
-    db_records = get_sqlite_db_records(source_path, query)
-    for record in db_records:
+    db = open_sqlite_db_readonly(source_path)
+    cursor = db.cursor()
+    cursor.execute(query)
+
+    for record in cursor:
         try:
             # Resource identifiers and basic metadata
             item_id = record[0]
@@ -424,9 +456,8 @@ def box_all_files(context):
             modifier_name = record[23]
             modifier_id = record[24]
 
-            # Integrity and access control
+            # Hash SHA1
             sha1 = record[25]
-            permissions = record[26]
 
             # Offline status logic: cross-referencing DB with Plists and Seeker
             is_offline = 'Undetermined (no artifacts)'
@@ -445,35 +476,34 @@ def box_all_files(context):
                     is_offline = 'Yes (cache only)'
                     offline_source = 'Filesystem cache'
 
-            data_list_html.append((created_at, item_id, item_type, item_name, item_ext, full_path,
-                                   url_html, description, item_size_html, version_id,
-                                   content_created_at, content_modified_at, modified_at,
-                                   last_fetched_at, is_offline, downloaded_at, offline_source,
-                                   favorites, collection_names, owner_login, owner_name, owner_id,
-                                   creator_login, creator_name, creator_id, modifier_login,
-                                   modifier_name, modifier_id, sha1, permissions))
-
+            # HTML row
+            data_list_html.append((created_at, item_id, item_type, item_name, item_ext,
+                                    full_path, url_html, description, item_size_html, version_id,
+                                    content_created_at, content_modified_at, modified_at,
+                                    last_fetched_at, is_offline, downloaded_at, offline_source,
+                                    favorites, collection_names, owner_login, owner_name,
+                                    owner_id, creator_login, creator_name, creator_id,
+                                    modifier_login, modifier_name, modifier_id, sha1))
+            # LAVA row
             data_list.append((created_at, item_id, item_type, item_name, item_ext, full_path,
-                              url, description, item_size, version_id,
-                              content_created_at, content_modified_at, modified_at,
-                              last_fetched_at, is_offline, downloaded_at, offline_source,
-                              favorites, collection_names, owner_login, owner_name, owner_id,
-                              creator_login, creator_name, creator_id, modifier_login,
-                              modifier_name, modifier_id, sha1, permissions))
+                                url, description, item_size, version_id,
+                                content_created_at, content_modified_at, modified_at,
+                                last_fetched_at, is_offline, downloaded_at, offline_source,
+                                favorites, collection_names, owner_login, owner_name, owner_id,
+                                creator_login, creator_name, creator_id, modifier_login,
+                                modifier_name, modifier_id, sha1))
 
         except (IndexError, TypeError, ValueError) as ex:
-            logfunc(f"Box Error - itemID {record[0]} while parsing "
-                    f"{context.get_artifact_name()} - {source_path}: {ex}")
+            logfunc(f"[{context.get_artifact_name()}] Error - itemID {record[0]}: {ex}")
             continue
 
     return data_headers, (data_list, data_list_html), '; '.join(source_paths)
 
 
-def extract_user_id_safe(path: str) -> str:
+def extract_user_id_safe(path: str, context) -> str | None:
     """
     Safely extract the Box user ID from the file system structure.
     Expected structure: .../<user_id>/db/PreviewItem.db
-
     - Input is expected to be a string representing the file path.
     - Validates that the target file is 'PreviewItem.db' within a 'db' directory.
     - On success, returns the parent directory name (the User ID).
@@ -489,24 +519,27 @@ def extract_user_id_safe(path: str) -> str:
         # Forensic mapping: navigate up to the parent directory 'db'
         db_dir = p.parent
         if db_dir.name.lower() != 'db':
+            # This is a soft failure, might be a different DB version
             return None
 
         # The user ID is the name of the directory containing 'db'
         user_dir = db_dir.parent
-        user_id = user_dir.name if user_dir and user_dir.name else None
+        user_id = user_dir.name
 
-        if not user_id:
-            logfunc(f"Box Error - User ID could not be determined from path: {path}")
+        # Validate that user_id is not empty and not just the root
+        if not user_id or user_id in ('.', '..', '/'):
+            logfunc(f"[{context.get_artifact_name()}] Error - User ID could "
+                    f"not be determined from path: {path}")
             return None
 
         return user_id
 
-    except (AttributeError, TypeError, ValueError) as ex:
-        logfunc(f"Box Error - User ID extraction failed for {path}: {ex}")
+    except (TypeError, AttributeError, ValueError) as ex:
+        logfunc(f"[{context.get_artifact_name()}] Error - User ID extraction "
+                f"failed for {path}: {ex}")
         return None
 
 
-# Processes Box preview images and thumbnails from PreviewItem.db SQLite database
 @artifact_processor
 def box_previews(context):
     """
@@ -539,7 +572,7 @@ def box_previews(context):
         source_paths.append(source_path)
 
         # Safely retrieve User ID from path; defaults to empty string if extraction fails
-        user_id = extract_user_id_safe(source_path) or ''
+        user_id = extract_user_id_safe(source_path, context) or ''
 
         # SQL query utilizing JSON functions to extract representation metadata
         query = '''
@@ -595,18 +628,18 @@ def box_previews(context):
                     mime = matcher.mime if matcher else matcher
                     original_ref_id = check_in_media(original_path, file_name, force_type=mime)
 
+                # LAVA row
                 data_list.append((last_accessed_at, preview_ref_id, file_id, file_name, file_ext,
                                   dimensions, original_ref_id, version_id, sha1, user_id))
 
             except (IndexError, TypeError, ValueError) as ex:
-                logfunc(f"Box Error - fileID {record[0]} preview '{record[1]}' "
-                        f"in {context.get_artifact_name()} ({source_path}): {ex}")
+                logfunc(f"[{context.get_artifact_name()}] Error - Parsing failed for "
+                        f"fileID {record[0]} preview '{record[1]}' in {source_path}: {ex}")
                 continue
 
     return data_headers, data_list, '; '.join(source_paths)
 
 
-# Processes Box Recents information from the Recents.db SQLite database
 @artifact_processor
 def box_recents(context):
     """
@@ -659,20 +692,21 @@ def box_recents(context):
             item_size = record[6]
             item_size_html = convert_bytes_to_unit(item_size)
 
+            # HTML row
             data_list_html.append((interaction_ts, interaction_type, item_id, item_type,
                                    item_name, item_ext, item_size_html))
+            # LAVA row
             data_list.append((interaction_ts, interaction_type, item_id, item_type,
                               item_name, item_ext, item_size))
 
         except (IndexError, TypeError, ValueError) as ex:
-            logfunc(f"Box Error - itemID {record[2]} parsing "
-                    f"{context.get_artifact_name()} - {source_path}: {ex}")
+            logfunc(f"[{context.get_artifact_name()}] Error - Parsing failed for "
+                    f"itemID {record[2]} in {source_path}: {ex}")
             continue
 
     return data_headers, (data_list, data_list_html), source_path
 
 
-# Processes Box Comments and Annotations from the annotations.db SQLite database
 @artifact_processor
 def box_comments(context):
     """
@@ -793,11 +827,10 @@ def box_comments(context):
 
             # Reply flag logic (specific to comments)
             val = int(record[8]) if record[8] is not None else None
-            if resource_type == 'comment':
-                is_reply = 'Yes' if val == 1 else ('No' if val == 0 else None)
-            else:
-                is_reply = None
+            is_reply = 'Yes' if (resource_type == 'comment' and val == 1) else \
+                       ('No' if (resource_type == 'comment' and val == 0) else None)
 
+            # User metadata
             creator_login = record[9]
             creator_name = record[10]
             creator_id = record[11]
@@ -806,14 +839,15 @@ def box_comments(context):
             modifier_id = record[14]
             fetched_at = convert_unix_ts_to_utc(record[15])
 
+            # LAVA row
             data_list.append((created_at, resource_id, resource_type, modified_at, file_id,
                               file_name, message, tagged_message, is_reply, creator_login,
                               creator_name, creator_id, modifier_login, modifier_name,
                               modifier_id, fetched_at))
 
         except (IndexError, TypeError, ValueError) as ex:
-            logfunc(f"Box Error - record {record[0]} ({record[1]}) while parsing "
-                    f"{context.get_artifact_name()} - {source_path}: {ex}")
+            logfunc(f"[{context.get_artifact_name()}] Error - Parsing failed for "
+                    f"record {record[0] if record else 'Unknown'}: {ex}")
             continue
 
     return data_headers, data_list, source_path
