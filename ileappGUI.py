@@ -478,10 +478,6 @@ def case_data():
 
 ## Main window creation
 main_window = tk.Tk()
-window_width = 890
-window_height = 624
-
-## Variables
 icon = resource_path('icon.png')
 loader: typing.Optional[plugin_loader.PluginLoader] = None
 loader = plugin_loader.PluginLoader()
@@ -504,22 +500,8 @@ theme_bgcolor = '#2c2825'
 theme_inputcolor = '#705e52'
 theme_fgcolor = '#fdcb52'
 
-if is_platform_macos():
-    log_text_height = 36
-elif is_platform_linux():
-    log_text_height = 28
-else:
-    log_text_height = 29
-
-## Places main window in the center
-screen_width = main_window.winfo_screenwidth()
-screen_height = main_window.winfo_screenheight()
-margin_width = (screen_width - window_width) // 2
-margin_height = (screen_height - window_height) // 2
-
 ## Main window properties
-main_window.geometry(f'{window_width}x{window_height}+{margin_width}+{margin_height}')
-main_window.minsize(window_width, window_height)
+main_window.minsize(890, 690)
 main_window.title(f'iLEAPP version {ileapp_version}')
 main_window.configure(bg=theme_bgcolor)
 logo_icon = tk.PhotoImage(file=icon)
