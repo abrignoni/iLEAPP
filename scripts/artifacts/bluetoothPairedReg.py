@@ -3,35 +3,30 @@ __artifacts_v2__ = {
         "name": "Bluetooth Paired",
         "description": "",
         "author": "@JohnHyla",
-        "version": "0.0.2",
-        "date": "2024-10-21",
+        "creation_date": "2024-10-21",
+        "last_update_date": "2025-11-03",
         "requirements": "none",
         "category": "Bluetooth",
         "notes": "",
-        "paths": ('**/com.apple.MobileBluetooth.devices.plist'),
+        "paths": ('*/com.apple.MobileBluetooth.devices.plist'),
         "output_types": "standard"
     }
 }
 
-
-import plistlib
-import datetime
-
-from scripts.ilapfuncs import artifact_processor, convert_unix_ts_to_str
-
+from scripts.ilapfuncs import artifact_processor, convert_unix_ts_to_utc, get_plist_file_content
 
 @artifact_processor
-def get_bluetoothPairedReg(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def get_bluetoothPairedReg(context):
     data_list = []
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
-        with open(file_found, 'rb') as f:
-            plist = plistlib.load(f)
-        if len(plist) > 0:
+        
+        plist = get_plist_file_content(file_found)
+        if plist and isinstance(plist, dict):
             for x in plist.items():
                 macaddress = x[0]
                 if 'LastSeenTime' in x[1]:
-                    lastseen = convert_unix_ts_to_str(x[1]['LastSeenTime'])
+                    lastseen = convert_unix_ts_to_utc(x[1]['LastSeenTime'])
                 else:
                     lastseen = ''
                 if 'UserNameKey' in x[1]:
@@ -52,8 +47,8 @@ def get_bluetoothPairedReg(files_found, report_folder, seeker, wrap_text, timezo
                 else:
                     defname = ''
 
-                data_list.append((lastseen, macaddress, usernkey, nameu, deviceid, defname))
+                data_list.append((lastseen, macaddress, usernkey, nameu, deviceid, defname, file_found))
 
-        data_headers = ('Last Seen Time', 'MAC Address', 'Name Key', 'Name', 'Device Product ID', 'Default Name' )     
+        data_headers = (('Last Seen Time', 'datetime'), 'MAC Address', 'Name Key', 'Name', 'Device Product ID', 'Default Name', 'Source File')     
 
-        return data_headers, data_list, file_found
+        return data_headers, data_list, 'see Source File for more info'
