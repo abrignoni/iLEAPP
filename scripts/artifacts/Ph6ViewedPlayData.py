@@ -37,7 +37,7 @@ __artifacts_v2__ = {
 
 import os
 from packaging import version
-from scripts.ilapfuncs import artifact_processor, get_file_path, open_sqlite_db_readonly, get_sqlite_db_records, logfunc, iOS
+from scripts.ilapfuncs import artifact_processor, get_file_path, open_sqlite_db_readonly, get_sqlite_db_records, logfunc, iOS, does_column_exist_in_db
 
 @artifact_processor
 def Ph6_1ViewandPlayDataPhDaPsql(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -53,6 +53,15 @@ def Ph6_1ViewandPlayDataPhDaPsql(files_found, report_folder, seeker, wrap_text, 
     if version.parse(iosversion) <= version.parse("10.3.4"):
         logfunc("Unsupported version for PhotosData-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
+    
+    if (version.parse(iosversion) >= version.parse("16")) | (version.parse(iosversion) >= version.parse("18")):
+        required_columns = ['ZLASTVIEWEDDATE']
+        missing_columns = [col for col in required_columns if not does_column_exist_in_db(source_path, 'ZADDITIONALASSETATTRIBUTES', col)]
+    
+        if missing_columns:
+            logfunc(f'Missing columns in ZADDITIONALASSETATTRIBUTES table: {", ".join(missing_columns)}')
+            return (), [], source_path
+    
     if (version.parse(iosversion) >= version.parse("11")) & (version.parse(iosversion) < version.parse("13")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
