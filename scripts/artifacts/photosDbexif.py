@@ -45,6 +45,33 @@ def get_all_exif(filename):
     image.verify()
     return image.getexif()
 
+def get_asset_table_name(db_path):
+    """
+    Dynamically detect which asset table exists: ZASSET (iOS 13+) or ZGENERICASSET (iOS 12)
+    Returns table name or None if neither exists
+    """
+    try:
+        db = open_sqlite_db_readonly(db_path)
+        cursor = db.cursor()
+
+        cursor.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='ZASSET'"
+        )
+        if cursor.fetchone() is not None:
+            return 'ZASSET'
+
+        cursor.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='ZGENERICASSET'"
+        )
+        if cursor.fetchone() is not None:
+            return 'ZGENERICASSET'
+
+        return None
+    except Exception as e:
+        logfunc(f"Error detecting asset table: {str(e)}")
+        return None
+
+
 def get_photosDbexif(files_found, report_folder, seeker, wrap_text, timezone_offset):
     
     for file_found in files_found:
@@ -66,19 +93,32 @@ def get_photosDbexif(files_found, report_folder, seeker, wrap_text, timezone_off
             #sqlite portion
             db = open_sqlite_db_readonly(file_found)
             cursor = db.cursor()
-            cursor.execute('''
+
+            asset_table = get_asset_table_name(file_found)
+
+            if asset_table is None:
+                logfunc("No asset table (ZASSET or ZGENERICASSET) found in database")
+                continue
+
+            query = f'''
                 SELECT
-                DATETIME(ZASSET.ZDATECREATED+978307200,'UNIXEPOCH') AS DATECREATED,
-                DATETIME(ZASSET.ZMODIFICATIONDATE+978307200,'UNIXEPOCH') AS MODIFICATIONDATE,
-                ZASSET.ZDIRECTORY,
-                ZASSET.ZFILENAME,
-                ZASSET.ZLATITUDE,
-                ZASSET.ZLONGITUDE,
+                DATETIME({asset_table}.ZDATECREATED+978307200,'UNIXEPOCH') AS DATECREATED,
+                DATETIME({asset_table}.ZMODIFICATIONDATE+978307200,'UNIXEPOCH') AS MODIFICATIONDATE,
+                {asset_table}.ZDIRECTORY,
+                {asset_table}.ZFILENAME,
+                {asset_table}.ZLATITUDE,
+                {asset_table}.ZLONGITUDE,
                 ZADDITIONALASSETATTRIBUTES.ZCREATORBUNDLEID
-                FROM ZASSET
-                INNER JOIN ZADDITIONALASSETATTRIBUTES ON ZASSET.Z_PK = ZADDITIONALASSETATTRIBUTES.Z_PK
-            ''')
-            
+                FROM {asset_table}
+                INNER JOIN ZADDITIONALASSETATTRIBUTES ON {asset_table}.Z_PK = ZADDITIONALASSETATTRIBUTES.Z_PK
+            '''
+
+            try:
+                cursor.execute(query)
+            except Exception as e:
+                logfunc(f"Error executing query on {asset_table} table: {str(e)}")
+                continue
+
             all_rows = cursor.fetchall()
             usageentries = len(all_rows)
             
