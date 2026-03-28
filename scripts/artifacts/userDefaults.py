@@ -20,7 +20,7 @@ import plistlib
 from plistlib import InvalidFileException
 import sys
 import datetime
-from scripts.ilapfuncs import artifact_processor
+from scripts.ilapfuncs import artifact_processor, logfunc
 
 @artifact_processor
 def user_defaults(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -49,14 +49,22 @@ def user_defaults(files_found, report_folder, seeker, wrap_text, timezone_offset
             if f'{bundleid}.plist' in file_found and guid in file_found:
                 found_apps.append(guid)
                 with open(file_found, "rb") as fp:
+                    plist = None
                     if sys.version_info >= (3, 9):
                         try:
                             plist = plistlib.load(fp)
-                        except InvalidFileException as e:
-                            plist = 'INVALID FILE'
+                        except InvalidFileException:
+                            logfunc(f'Invalid plist encountered: {file_found}')
                     else:
-                        plist = biplist.readPlist(fp)
-                    for (key,item) in plist.items():
+                        try:
+                            plist = biplist.readPlist(fp)
+                        except (InvalidFileException, ValueError):
+                            logfunc(f'Invalid plist encountered: {file_found}')
+
+                    if not isinstance(plist, dict):
+                        continue
+
+                    for (key, item) in plist.items():
 
                         data_list.append((bundleid, guid, key, clean_data(item), file_found))
 
