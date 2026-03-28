@@ -534,19 +534,31 @@ def health_workouts(context):
     for record in db_records:
         start_timestamp = convert_cocoa_core_data_ts_to_utc(record[0])
         end_timestamp = convert_cocoa_core_data_ts_to_utc(record[1])
-        added_timestamp = convert_cocoa_core_data_ts_to_utc(record[26])
-        device_model = context.get_device_model(record[22])
+        
+        # Check if record has enough elements to avoid IndexError
+        added_timestamp = convert_cocoa_core_data_ts_to_utc(record[26]) if len(record) > 26 else ''
+        device_model = context.get_device_model(record[22]) if len(record) > 22 else ''
 
-        if record[16]:
+        celcius_temp = ''
+        if len(record) > 16 and record[16]:
             celcius_temp = round(((record[16] - 32) * (5 / 9)), 2)
 
+        # safe access
         data_list.append(
-            (start_timestamp, end_timestamp, str(record[2]).title(), record[3],
-             record[4], record[5], record[6], record[7], record[8], record[9],
-             record[10], record[11], record[12], record[13], record[14],
-             record[15], celcius_temp, record[16], record[17], record[18],
-             record[19], record[20], record[21], record[22], device_model,
-             record[23], record[24], record[25], added_timestamp)
+            (start_timestamp, end_timestamp, str(record[2]).title() if len(record) > 2 else '',
+            record[3] if len(record) > 3 else '', record[4] if len(record) > 4 else '',
+            record[5] if len(record) > 5 else '', record[6] if len(record) > 6 else '',
+            record[7] if len(record) > 7 else '', record[8] if len(record) > 8 else '',
+            record[9] if len(record) > 9 else '', record[10] if len(record) > 10 else '',
+            record[11] if len(record) > 11 else '', record[12] if len(record) > 12 else '',
+            record[13] if len(record) > 13 else '', record[14] if len(record) > 14 else '',
+            record[15] if len(record) > 15 else '', celcius_temp,
+            record[16] if len(record) > 16 else '', record[17] if len(record) > 17 else '',
+            record[18] if len(record) > 18 else '', record[19] if len(record) > 19 else '',
+            record[20] if len(record) > 20 else '', record[21] if len(record) > 21 else '',
+            record[22] if len(record) > 22 else '', device_model,
+            record[23] if len(record) > 23 else '', record[24] if len(record) > 24 else '',
+            record[25] if len(record) > 25 else '', added_timestamp)
             )
 
     return data_headers, data_list, data_source
