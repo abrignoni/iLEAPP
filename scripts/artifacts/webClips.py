@@ -1,21 +1,44 @@
+__artifacts_v2__ = {
+    "get_webClips": {
+        "name": "iOS Screens",
+        "description": "",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2020-04-20",
+        "last_update_date": "2025-11-20",
+        "requirements": "none",
+        "category": "Home Screen",
+        "notes": "",
+        "paths": ('*WebClips/*.webclip/*',),
+        "output_types": "standard",
+        "artifact_icon": "bookmark"
+    }
+}
 import os
-import plistlib
-import base64
+from scripts.ilapfuncs import (
+    logfunc,
+    artifact_processor,
+    check_in_media,
+    get_plist_file_content,
+    )
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, tsv, is_platform_windows 
 
-
-def get_webClips(files_found, report_folder, seeker, wrap_text, timezone_offset):
+@artifact_processor
+def get_webClips(context):
+    files_found = context.get_files_found()
     webclip_data = {}
     data_list = []
+    source_path = ''
     for path_val in files_found:
         # Extract the unique identifier
         pathstr = str(path_val).replace("\\", "/")
-        
-        unique_id = pathstr.split("/WebClips/")[1].split(".webclip/")[0]
-        if unique_id.endswith('.webclip'):
-            unique_id = unique_id[:-8]
+        if not source_path:
+            source_path = pathstr
+        try:
+            unique_id = pathstr.split("/WebClips/")[1].split(".webclip/")[0]
+            if unique_id.endswith('.webclip'):
+                unique_id = unique_id[:-8]
+        except IndexError:
+            continue
         if unique_id != "" and unique_id not in webclip_data:
             webclip_data[unique_id] = {
                 "Info": "",
@@ -31,45 +54,30 @@ def get_webClips(files_found, report_folder, seeker, wrap_text, timezone_offset)
         # Is this the path to the icon?
         if "icon.png" in pathstr:
             webclip_data[unique_id]["Icon_path"] = path_val
-    
     logfunc(f"Webclips found: {len(webclip_data)} ")
 
     for unique_id, data in webclip_data.items():
         # Info plist information
-        #logfunc(str(data))
-        info_plist_raw = open(data["Info"], "rb")
-        info_plist = plistlib.load(info_plist_raw)
-        webclip_data[unique_id]["Title"] = info_plist["Title"]
-        webclip_data[unique_id]["URL"] = info_plist["URL"]
-        info_plist_raw.close()
-
-        # Open and convert icon into b64 for serialisation in report
-        icon_data_raw = open(data["Icon_path"], "rb")
-        icon_data = base64.b64encode(icon_data_raw.read()).decode("utf-8")
-        webclip_data[unique_id]["Icon_data"] = icon_data
-        icon_data_raw.close()
-        
-    # Create the report
-    for unique_id, data in webclip_data.items():
-        htmlstring = (f'<table>')
-        htmlstring = htmlstring +('<tr>')
-        htmlstring = htmlstring +(f'<td><img src="data:image/png;base64,{data["Icon_data"]}"></td>')
-        htmlstring = htmlstring +(f'<td><b>UID:{unique_id}</b><br> Title: {data["Title"]}<br>URL: {data["URL"]}</td>')
-        htmlstring = htmlstring +('</tr>')
-        htmlstring = htmlstring +('</table>')
-        data_list.append((htmlstring,))
-        
-    
-    report = ArtifactHtmlReport(f'WebClips')
-    report.start_artifact_report(report_folder, f'WebClips')
-    report.add_script()
-    data_headers = ((f'WebClips',))     
-    report.write_artifact_data_table(data_headers, data_list, files_found[0], html_escape=False)
-    report.end_artifact_report()
-
-__artifacts__ = {
-    "webClips": (
-        "iOS Screens",
-        ('*WebClips/*.webclip/*'),
-        get_webClips)
-}
+        # logfunc(str(data))
+        title = ""
+        url = ""
+        icon_ref = ""
+        if data["Info"]:
+            info_plist = get_plist_file_content(data["Info"])
+            if info_plist:
+                title = info_plist.get("Title", "")
+                url = info_plist.get("URL", "")
+        if data["Icon_path"]:
+            icon_ref = check_in_media(
+                data["Icon_path"],
+                f"{unique_id}_icon.png"
+                )
+        data_list.append((icon_ref, title, url, unique_id, data["Info"]))
+    data_headers = (
+        ('Icon', 'media'),
+        'Title',
+        'URL',
+        'Unique Identifier',
+        'Source File'
+    )
+    return data_headers, data_list, ''
