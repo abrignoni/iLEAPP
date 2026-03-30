@@ -57,6 +57,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | appleWalletTransactions |
 | biomeSync |
 | booking |
+| box |
 | callHistory |
 | cashAppB |
 | discordChats |
@@ -103,6 +104,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | atxDatastore |
 | bluetoothOther |
 | bluetoothPairedLE |
+| box |
 | bumble |
 | burner |
 | burnerCache |
