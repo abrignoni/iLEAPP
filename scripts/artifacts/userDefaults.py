@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "notes": "https://developer.apple.com/documentation/foundation/userdefaults",
         "paths": ('*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist',
                   '*/mobile/Containers/Data/Application/*/Preferences/*.plist'),
-        "output_types": ["html", "tsv", "lava"]
+        "output_types": "standard"
     }
 }
 
