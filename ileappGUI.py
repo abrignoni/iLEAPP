@@ -248,9 +248,12 @@ def process(casedata):
         if time_offset == '':
             time_offset = 'UTC'
 
-        logtext_frame.grid(row=1, column=0, rowspan=3, padx=14, pady=4, sticky='nswe')
-        bottom_frame.grid_remove()
-        progress_bar.grid(padx=16, sticky='we')
+        bottom_frame.pack_forget()
+        mlist_frame.pack_forget()
+        output_frame.pack_forget()
+        input_frame.pack_forget()
+        logtext_frame.pack(padx=8, pady=4, expand=True, fill='both')
+        progress_bar_frame.pack(padx=2, pady=2, ipady=2, fill='x')
 
         initialize_lava(input_path, out_params.output_folder_base, extracttype)
 
@@ -266,7 +269,6 @@ def process(casedata):
                 report_path = report_path[4:]
             if report_path.startswith('\\\\'):  # UNC path
                 report_path = report_path[2:]
-            progress_bar.grid_remove()
             if lava_only_artifacts:
                 message = "You have selected artifacts that are likely to return too much data "
                 message += "to be viewed in a Web browser.\n\n"
@@ -276,8 +278,12 @@ def process(casedata):
                     title="Important information",
                     message=message,
                     parent=main_window)
-            open_report_button = ttk.Button(main_window, text='Open Report & Close', command=lambda: open_report(report_path))
-            open_report_button.grid(ipadx=8)
+            progress_bar.pack_forget()
+            open_report_button = ttk.Button(
+                progress_bar_frame,
+                text='Open Report & Close',
+                command=lambda: open_report(report_path))
+            open_report_button.place(relx=0.5, rely=0.5, anchor='center')
         else:
             log_path = out_params.screen_output_file_path
             if log_path.startswith('\\\\?\\'):  # windows
@@ -472,10 +478,6 @@ def case_data():
 
 ## Main window creation
 main_window = tk.Tk()
-window_width = 890
-window_height = 620
-
-## Variables
 icon = resource_path('icon.png')
 loader: typing.Optional[plugin_loader.PluginLoader] = None
 loader = plugin_loader.PluginLoader()
@@ -498,26 +500,9 @@ theme_bgcolor = '#2c2825'
 theme_inputcolor = '#705e52'
 theme_fgcolor = '#fdcb52'
 
-if is_platform_macos():
-    mlist_window_height = 24
-    log_text_height = 36
-elif is_platform_linux():
-    mlist_window_height = 17
-    log_text_height = 28
-else:
-    mlist_window_height = 19
-    log_text_height = 29
-
-## Places main window in the center
-screen_width = main_window.winfo_screenwidth()
-screen_height = main_window.winfo_screenheight()
-margin_width = (screen_width - window_width) // 2
-margin_height = (screen_height - window_height) // 2
-
 ## Main window properties
-main_window.geometry(f'{window_width}x{window_height}+{margin_width}+{margin_height}')
+main_window.minsize(890, 690)
 main_window.title(f'iLEAPP version {ileapp_version}')
-main_window.resizable(False, False)
 main_window.configure(bg=theme_bgcolor)
 logo_icon = tk.PhotoImage(file=icon)
 main_window.iconphoto(True, logo_icon)
@@ -548,70 +533,65 @@ style.configure('TProgressbar', thickness=4, background='DarkGreen')
 ## Main Window Layout
 ### Top part of the window
 title_frame = ttk.Frame(main_window)
-title_frame.grid(padx=14, pady=8, sticky='we')
-title_frame.grid_columnconfigure(0, weight=1)
+title_frame.pack(padx=14, pady=8, fill='x')
 ileapp_logo = ImageTk.PhotoImage(file=resource_path("iLEAPP_logo.png"))
 ileapp_logo_label = ttk.Label(title_frame, image=ileapp_logo)
-ileapp_logo_label.grid(row=0, column=0, sticky='w')
+ileapp_logo_label.pack(side='left')
 leapps_logo = ImageTk.PhotoImage(Image.open(resource_path("leapps_i_logo.png")).resize((110, 51)))
 leapps_logo_label = ttk.Label(title_frame, image=leapps_logo, cursor="target")
-leapps_logo_label.grid(row=0, column=1, sticky='w')
+leapps_logo_label.pack(side='right')
 leapps_logo_label.bind("<Button-1>", lambda e: open_website("https://leapps.org"))
 
 ### Input output selection
 input_frame = ttk.LabelFrame(
     main_window,
     text=' Select the file (tar/zip/gz) or directory of the target iOS full file system extraction for parsing: ')
-input_frame.grid(padx=14, pady=2, sticky='we')
-input_frame.grid_columnconfigure(0, weight=1)
+input_frame.pack(padx=14, pady=2, fill='x')
 input_entry = ttk.Entry(input_frame)
-input_entry.grid(row=0, column=0, padx=5, pady=4, sticky='we')
+input_entry.pack(side='left', padx=5, pady=4, fill='x', expand=True)
 input_file_button = ttk.Button(input_frame, text='Browse File', command=lambda: select_input('file'))
-input_file_button.grid(row=0, column=1, padx=5, pady=4)
+input_file_button.pack(side='left', padx=5, pady=4)
 input_folder_button = ttk.Button(input_frame, text='Browse Folder', command=lambda: select_input('folder'))
-input_folder_button.grid(row=0, column=2, padx=5, pady=4)
+input_folder_button.pack(side='left', padx=5, pady=4)
 
 output_frame = ttk.LabelFrame(main_window, text=' Select Output Folder: ')
-output_frame.grid(padx=14, pady=5, sticky='we')
-output_frame.grid_columnconfigure(0, weight=1)
+output_frame.pack(padx=14, pady=5, fill='x')
 output_entry = ttk.Entry(output_frame)
-output_entry.grid(row=0, column=0, padx=5, pady=4, sticky='we')
+output_entry.pack(side='left', padx=5, pady=4, fill='x', expand=True)
 output_folder_button = ttk.Button(output_frame, text='Browse Folder', command=select_output)
-output_folder_button.grid(row=0, column=1, padx=5, pady=4)
+output_folder_button.pack(side='left', padx=5, pady=4)
 
 mlist_frame = ttk.LabelFrame(main_window, text=' Available Modules: ', name='f_list')
-mlist_frame.grid(padx=14, pady=5, sticky='we')
-mlist_frame.grid_columnconfigure(0, weight=1)
+mlist_frame.pack(padx=14, pady=5, expand=True, fill='both')
 
 button_frame = ttk.Frame(mlist_frame)
-button_frame.grid(row=0, column=0, columnspan=2,pady=4, sticky='we')
-button_frame.grid_columnconfigure(1, weight=1)
+button_frame.pack(pady=4, fill='x')
 
 if is_platform_macos():
     modules_filter_icon = ttk.Label(button_frame, text="\U0001F50E")
-    modules_filter_icon.grid(row=0, column=0, padx=4)
 else:
     modules_filter_img = ImageTk.PhotoImage(file=resource_path("magnif_glass.png"))
     modules_filter_icon = ttk.Label(button_frame, image=modules_filter_img)
-    modules_filter_icon.grid(row=0, column=0, padx=4)
+modules_filter_icon.pack(padx=4, side='left')
 modules_filter_entry = ttk.Entry(button_frame, textvariable=modules_filter_var)
-modules_filter_entry.grid(row=0, column=1, padx=1, sticky='we')
-ttk.Separator(button_frame, orient='vertical').grid(row=0, column=2, padx=10, sticky='ns')
+modules_filter_entry.pack(padx=2, fill='x', expand=True, side='left')
+ttk.Separator(button_frame, orient='vertical').pack(padx=10, side='left', fill='y')
 all_button = ttk.Button(button_frame, text='Select All', command=select_all)
-all_button.grid(row=0, column=3, padx=5)
+all_button.pack(padx=5, side='left')
 none_button = ttk.Button(button_frame, text='Deselect All', command=deselect_all)
-none_button.grid(row=0, column=4, padx=5)
-ttk.Separator(button_frame, orient='vertical').grid(row=0, column=5, padx=10, sticky='ns')
+none_button.pack(padx=5, side='left')
+ttk.Separator(button_frame, orient='vertical').pack(padx=10, side='left', fill='y')
 load_button = ttk.Button(button_frame, text='Load Profile', command=load_profile)
-load_button.grid(row=0, column=6, padx=5)
+load_button.pack(padx=5, side='left')
 save_button = ttk.Button(button_frame, text='Save Profile', command=save_profile)
-save_button.grid(row=0, column=7, padx=5)
-v = ttk.Scrollbar(mlist_frame, orient='vertical')
-v.grid(row=1, column=1, sticky='ns')
-mlist_text = tk.Text(mlist_frame, name='tbox', bg=theme_bgcolor, highlightthickness=0,
-                     yscrollcommand=v.set, height=mlist_window_height)
-mlist_text.grid(row=1, column=0, sticky='we')
-v.config(command=mlist_text.yview)
+save_button.pack(padx=5, side='left')
+module_list_frame = ttk.Frame(mlist_frame)
+module_list_frame.pack(expand=True, fill='both')
+mlist_text = tk.Text(module_list_frame, name='tbox', bg=theme_bgcolor, highlightthickness=0)
+mlist_text.pack(expand=True, fill='both', padx=4)
+mlist_text_scrollbar = ttk.Scrollbar(module_list_frame, orient='vertical', command=mlist_text.yview)
+mlist_text.config(yscrollcommand=mlist_text_scrollbar.set)
+mlist_text_scrollbar.place(relx=1, rely=0, relheight=1, anchor='ne')
 filter_modules()
 mlist_text.config(state='disabled')
 main_window.bind_class('Checkbutton', '<MouseWheel>', scroll)
@@ -623,43 +603,41 @@ main_window.bind("<Control-o>", lambda event: output_entry.focus_set()) # Focus 
 
 ### Process
 bottom_frame = ttk.Frame(main_window)
-bottom_frame.grid(padx=16, pady=6, sticky='we')
-bottom_frame.grid_columnconfigure(2, weight=1)
-bottom_frame.grid_columnconfigure(4, weight=1)
+bottom_frame.pack(padx=16, pady=6, fill='x')
 process_button = ttk.Button(bottom_frame, text='Process', command=lambda: process(casedata))
-process_button.grid(row=0, column=0, rowspan=2, padx=5)
+process_button.pack(side='left', padx=5)
 close_button = ttk.Button(bottom_frame, text='Close', command=main_window.quit)
-close_button.grid(row=0, column=1, rowspan=2, padx=5)
-ttk.Separator(bottom_frame, orient='vertical').grid(row=0, column=2, rowspan=2, padx=10, sticky='ns')
-case_data_button = ttk.Button(bottom_frame, text='Case Data', command=case_data)
-case_data_button.grid(row=0, column=3, rowspan=2, padx=5)
-ttk.Separator(bottom_frame, orient='vertical').grid(row=0, column=4, rowspan=2, padx=10, sticky='ns')
-selected_modules_label = ttk.Label(bottom_frame, text='Number of selected modules: ')
-selected_modules_label.grid(row=0, column=5, padx=5, sticky='e')
-auto_unselected_modules_text = '(Modules making some time to run were automatically unselected)'
-if is_platform_macos():
-    auto_unselected_modules_label = ttk.Label(
-        bottom_frame,
-        text=auto_unselected_modules_text,
-        font=('Helvetica 10'))
-else:
-    auto_unselected_modules_label = ttk.Label(bottom_frame, text=auto_unselected_modules_text)
-auto_unselected_modules_label.grid(row=1, column=5, padx=5, sticky='e')
+close_button.pack(side='left', padx=5)
+# ttk.Separator(bottom_frame, orient='vertical').pack(padx=10, side='left', expand=True, fill='both')
+case_data_button_frame = ttk.Frame(bottom_frame)
+case_data_button_frame.pack(side='left', expand=True, fill='x')
+case_data_button = ttk.Button(case_data_button_frame, text='Case Data', command=case_data)
+case_data_button.pack(padx=5)
+# ttk.Separator(bottom_frame, orient='vertical').pack(padx=10, side='left', expand=True, fill='both')
+selected_modules_frame = ttk.Frame(bottom_frame)
+selected_modules_frame.pack(side='right', padx=5)
+selected_modules_label = ttk.Label(selected_modules_frame, text='Number of selected modules: ')
+selected_modules_label.pack(anchor='e')
+auto_unselected_modules_label = ttk.Label(
+    selected_modules_frame,
+    text='(Modules making some time to run were automatically unselected)',
+    font='Helvetica 10')
+auto_unselected_modules_label.pack(anchor='e')
 get_selected_modules()
 
 #### Logs
 logtext_frame = ttk.Frame(main_window, name='logs_frame')
-logtext_frame.grid_columnconfigure(0, weight=1)
-vlog = ttk.Scrollbar(logtext_frame, orient='vertical')
-vlog.grid(row=0, column=1, pady=10, sticky='ns')
 log_text = tk.Text(
-    logtext_frame, name='log_text', bg=theme_inputcolor, fg=theme_fgcolor,
-    highlightthickness=1, yscrollcommand=vlog.set, height=log_text_height)
-log_text.grid(row=0, column=0, padx=4, pady=10, sticky='we')
-vlog.config(command=log_text.yview)
+    logtext_frame, name='log_text', bg=theme_inputcolor, fg=theme_fgcolor, highlightthickness=1)
+log_text.pack(expand=True, fill='both')
+log_text_scrollbar = ttk.Scrollbar(logtext_frame, orient='vertical', command=log_text.yview)
+log_text.config(yscrollcommand=log_text_scrollbar.set)
+log_text_scrollbar.place(relx=1, rely=0, relheight=1, anchor='ne')
 
 ### Progress bar
-progress_bar = ttk.Progressbar(main_window, orient='horizontal')
+progress_bar_frame = ttk.Frame(main_window, name='progress_bar_frame')
+progress_bar = ttk.Progressbar(progress_bar_frame, name='progress_bar', orient='horizontal')
+progress_bar.pack(padx=16, pady=20, fill='x')
 
 ### Push main window on top
 def OnFocusIn(event):
