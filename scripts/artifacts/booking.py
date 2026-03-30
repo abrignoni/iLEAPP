@@ -4,16 +4,16 @@ __artifacts_v2__ = {
         "description": "Extracts Booking.com user profile details.",
         "author": "@djangofaiola",
         "creation_date": "2024-05-28",
-        "last_update_date": "2026-03-21",
+        "last_update_date": "2026-03-30",
         "requirements": "none",
-        "category": "Travel",
+        "category": "Booking.com",
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Application Support/"
                   "KeyValueStorageAccountDomain*",
                   "*/mobile/Containers/Data/Application/*/Library/Application Support/"
                   "AccountSettings*"),
         "output_types": [ "lava", "html", "tsv" ],
-        "html_columns": [ "Profile picture URL", "Emails", "Facilities" ],
+        "html_columns": [ "Profile Picture URL", "Emails", "Facilities" ],
         "artifact_icon": "user"
     },
     "booking_travellers": {
@@ -21,9 +21,9 @@ __artifacts_v2__ = {
         "description": "Extracts Booking.com saved travel companions details.",
         "author": "@djangofaiola",
         "creation_date": "2026-03-21",
-        "last_update_date": "2026-03-21",
+        "last_update_date": "2026-03-30",
         "requirements": "none",
-        "category": "Travel",
+        "category": "Booking.com",
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Application Support/"
                   "AccountSettings*"),
@@ -35,9 +35,9 @@ __artifacts_v2__ = {
         "description": "Extracts Booking.com saved payment methods and credit card details.",
         "author": "@djangofaiola",
         "creation_date": "2024-05-28",
-        "last_update_date": "2026-03-21",
+        "last_update_date": "2026-03-30",
         "requirements": "none",
-        "category": "Travel",
+        "category": "Booking.com",
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Application Support/"
                   "KeyValueStorageAccountDomain*",
@@ -51,12 +51,12 @@ __artifacts_v2__ = {
         "description": "Extracts Booking.com saved property wish lists.",
         "author": "@djangofaiola",
         "creation_date": "2024-05-28",
-        "last_update_date": "2026-03-21",
+        "last_update_date": "2026-03-30",
         "requirements": "none",
-        "category": "Travel",
+        "category": "Booking.com",
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Application Support/KeyValueStorageRecentsDomain*"),
-        "output_types": [ "lava", "html", "tsv", "timeline" ],
+        "output_types": [ "standard" ],
         "artifact_icon": "star"
     },
     "booking_viewed": {
@@ -64,12 +64,12 @@ __artifacts_v2__ = {
         "description": "Extracts Booking.com recently viewed accommodations.",
         "author": "@djangofaiola",
         "creation_date": "2024-05-28",
-        "last_update_date": "2026-03-21",
+        "last_update_date": "2026-03-30",
         "requirements": "none",
-        "category": "Travel",
+        "category": "Booking.com",
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Application Support/KeyValueStorageRecentsDomain*"),
-        "output_types": [ "lava", "html", "tsv", "timeline" ],
+        "output_types": [ "standard" ],
         "html_columns": [ "Image URL", "Website" ],
         "artifact_icon": "eye"
     },
@@ -78,12 +78,12 @@ __artifacts_v2__ = {
         "description": "Extracts Booking.com recent searches for accommodations and destinations.",
         "author": "@djangofaiola",
         "creation_date": "2024-05-28",
-        "last_update_date": "2026-03-21",
+        "last_update_date": "2026-03-30",
         "requirements": "none",
-        "category": "Travel",
+        "category": "Booking.com",
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Application Support/KeyValueStorageRecentsDomain*"),
-        "output_types": [ "lava", "html", "tsv", "timeline" ],
+        "output_types": [ "standard" ],
         "artifact_icon": "search"
     },
     "booking_recently_booked": {
@@ -91,9 +91,9 @@ __artifacts_v2__ = {
         "description": "Extracts Booking.com recently booked accommodations and reservations.",
         "author": "@djangofaiola",
         "creation_date": "2024-05-28",
-        "last_update_date": "2026-03-21",
+        "last_update_date": "2026-03-30",
         "requirements": "none",
-        "category": "Travel",
+        "category": "Booking.com",
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Application Support/KeyValueStorageRecentsDomain*"),
         "output_types": [ "lava", "html", "tsv" ],
@@ -105,17 +105,17 @@ __artifacts_v2__ = {
         "description": "Extracts Booking.com saved and confirmed reservations.",
         "author": "@djangofaiola",
         "creation_date": "2024-05-28",
-        "last_update_date": "2026-03-21",
+        "last_update_date": "2026-03-30",
         "requirements": "none",
-        "category": "Travel",
+        "category": "Booking.com",
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Application Support/BookingClouds*",
                   "*/mobile/Containers/Data/Application/*/Documents/Booking #*.pdf",
                   "*/mobile/Containers/Data/Application/*/Library/Preferences/com.booking.BookingApp.plist"),
-        "output_types": [ "lava", "html", "tsv", "timeline" ],
-        "html_columns": [ "Check-in/out (Hotel time zone)", "Hotel contacts",
-                          "Confirmation number/Pin code", "Rooms", "Booker details",
-                          "Attachment", "Source file name" ],
+        "output_types": [ "standard" ],
+        "html_columns": [ "Check-In/Out (Hotel Time Zone)", "Hotel Contacts",
+                          "Confirmation Number/PIN Code", "Rooms", "Booker Details",
+                          "Attachment", "Source File Name" ],
         "artifact_icon": "shopping-bag"
     },
     "booking_stored_destinations": {
@@ -123,12 +123,12 @@ __artifacts_v2__ = {
         "description": "Extracts Booking.com stored travel destinations.",
         "author": "@djangofaiola",
         "creation_date": "2024-05-28",
-        "last_update_date": "2026-03-21",
+        "last_update_date": "2026-03-30",
         "requirements": "none",
-        "category": "Travel",
+        "category": "Booking.com",
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Application Support/KeyValueStorageSharedDomain*"),
-        "output_types": [ "lava", "html", "tsv", "timeline" ],
+        "output_types": [ "standard" ],
         "html_columns": [ "Image URL" ],
         "artifact_icon": "map"
     },
@@ -137,12 +137,12 @@ __artifacts_v2__ = {
         "description": "Extracts Booking.com app notifications and messages.",
         "author": "@djangofaiola",
         "creation_date": "2024-05-28",
-        "last_update_date": "2026-03-21",
+        "last_update_date": "2026-03-30",
         "requirements": "none",
-        "category": "Travel",
+        "category": "Booking.com",
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Application Support/NotificationsModel.sqlite*"),
-        "output_types": [ "lava", "html", "tsv", "timeline" ],
+        "output_types": [ "standard" ],
         "artifact_icon": "bell"
     },
     "booking_flights_searched": {
@@ -150,14 +150,14 @@ __artifacts_v2__ = {
         "description": "Extracts Booking.com recent flight searches and trip preferences.",
         "author": "@djangofaiola",
         "creation_date": "2024-05-28",
-        "last_update_date": "2026-03-21",
+        "last_update_date": "2026-03-30",
         "requirements": "none",
-        "category": "Travel",
+        "category": "Booking.com",
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Application Support/flight_rs_v2"),
-        "output_types": [ "lava", "html", "tsv", "timeline" ],
-        "html_columns": [ "Source airports", "Destination airports", "Routes",
-                          "Travellers' details" ],
+        "output_types": [ "standard" ],
+        "html_columns": [ "Source Airports", "Destination Airports", "Routes",
+                          "Travellers' Details" ],
         "artifact_icon": "search"
     }
     #P2GV2Messages.sqlite
@@ -169,9 +169,8 @@ import html
 from urllib.parse import urlparse, urlunparse
 from datetime import timezone, date, datetime
 from pathlib import Path
-from typing import Any, List
 import pytz
-from scripts.ilapfuncs import get_sqlite_db_records, get_sqlite_db_path, \
+from scripts.ilapfuncs import get_sqlite_db_records, \
     get_plist_content, get_plist_file_content, convert_plist_date_to_utc, \
     convert_unix_ts_to_utc, check_in_media, artifact_processor, logfunc
 
@@ -323,17 +322,17 @@ def get_json_file_content(file_path):
     """
     Read a JSON file and return its content as a dictionary.
     - On success, returns the parsed JSON as a dict.
-    - If the file is missing, unreadable, or malformed, logs the error and returns None.
+    - If the file is missing, unreadable, or malformed, logs the error and returns {}.
 
     Args:
         file_path: Path to the JSON file.
 
     Returns:
-        dict: Parsed JSON content, or None if an error occurs.
+        dict: Parsed JSON content, or {} if an error occurs.
     """
 
     try:
-        with open(file_path, 'r', encoding='utf-8') as file:
+        with open(file_path, 'r', encoding='utf-8', errors='ignore') as file:
             return json.load(file)
     except FileNotFoundError:
         logfunc(f"Error: JSON file not found at {file_path}")
@@ -341,46 +340,55 @@ def get_json_file_content(file_path):
         logfunc(f"Error: Permission denied when trying to read {file_path}")
     except json.JSONDecodeError as e:
         logfunc(f"Error: Malformed JSON in file {file_path}: {str(e)}")
-    except OSError as e:  # Covers other I/O related errors
-        logfunc(f"OS error reading JSON file {file_path}: {str(e)}")
-
-    return None
+    except (OSError, UnicodeDecodeError) as e:
+        logfunc(f"Error: OS or Encoding issue reading {file_path}: {e}")
+    except Exception as e: # pylint: disable=broad-except
+        logfunc(f"Unexpected error reading json data: {str(e)}")
+    return {}
 
 
 def get_device_file_path(file_path: str, context) -> str:
     """
-    Convert a local extraction path into the original device file path.
-    Integrates path sanitization and iOS-specific marker extraction.
-
-    Returns:
-        The cleaned device path (starting from /private/ or similar).
+    Converts a local report file path back to the original iOS device path.
+    Strips the local report base directory and reconstructs the /private/var 
+    structure for File System extractions or preserves Domain paths for iTunes.
     """
 
     if not file_path:
         return ''
 
-    # Get the original source path from the context/seeker
-    source_path = context.get_source_file_path(file_path)
+    # Retrieve the seeker from the context to access the local data_folder
+    seeker = context.get_seeker()
 
-    # If not found, fallback to the provided file_path
-    if not source_path:
-        return file_path
+    # The data_folder is the root where the seeker extracted the files (e.g., E:/Case/Data/)
+    base_folder = getattr(seeker, 'data_folder', '')
 
-    # Path Sanitization: Remove Windows long path prefix if present
-    source_path = get_sqlite_db_path(source_path)
+    # Standardize separators to forward slashes for cross-platform consistency
+    norm_file_path = file_path.replace('\\', '/')
+    norm_base_folder = base_folder.replace('\\', '/')
 
-    # Ensure forward slashes for consistent processing
-    source_path = Path(source_path).as_posix()
+    # Check if the file is within the report's data directory
+    if norm_base_folder and norm_file_path.startswith(norm_base_folder):
+        # Strip the local PC base path to get the relative extraction path
+        relative_path = norm_file_path[len(norm_base_folder):].lstrip('/')
 
-    # Extract path starting from the '/private/' marker
-    marker = '/private/'
-    index_marker = source_path.find(marker)
+        # Case 1: Path starts with 'var/' but is missing the 'private/' prefix.
+        # In iOS forensics, /private/var/ is the canonical physical path.
+        if relative_path.startswith('var/') and not relative_path.startswith('private/var/'):
+            return '/private/' + relative_path
 
-    if index_marker != -1:
-        # We take everything from the marker onwards
-        return source_path[index_marker:]
+        # Case 2: Path already contains standard iOS system roots.
+        # We add a leading slash to represent the root of the device.
+        ios_system_roots = ('private/', 'Library/', 'System/', 'Developer/', 'usr/')
+        if relative_path.startswith(ios_system_roots):
+            return '/' + relative_path
 
-    return source_path
+        # Case 3: iTunes Backup Domains (e.g., AppDomain-com.apple.mobilesafari).
+        # These are kept relative as they don't represent a direct file system root.
+        return relative_path
+
+    # Fallback: if the path is outside the data folder, return the cleaned input path
+    return norm_file_path.lstrip('/')
 
 
 def location_type_names(value: int | None) -> str:
@@ -493,12 +501,6 @@ def convert_utc_to_hotel_timezone(ts, timezone_offset):
             # If already aware, ensure it's converted to UTC first
             ts = ts.astimezone(utc_tz)
 
-        # Ensure ts is timezone‑aware as UTC
-        if ts.tzinfo is None:
-            ts = utc_tz.localize(ts)
-        else:
-            ts = ts.astimezone(utc_tz)
-
         # Convert to target timezone
         return ts.astimezone(target_tz)
 
@@ -550,7 +552,7 @@ def format_check_in_out(ts_from, ts_until, tz: str = '') -> str:
     return f"{check_from} - {check_until}"
 
 
-def append_tag_value(target: List[str], tag: str, value: Any) -> None:
+def append_tag_value(target: list, tag: str, value: any) -> None:
     """
     Append a formatted tag-value string to the target list.
 
@@ -562,6 +564,10 @@ def append_tag_value(target: List[str], tag: str, value: Any) -> None:
 
     # Skip if value is None
     if value is None:
+        return
+
+    # Skip if it's a string that is empty or contains only whitespace
+    if isinstance(value, str) and not value.strip():
         return
 
     # Check for collections (dict, list, set, tuple)
@@ -647,30 +653,41 @@ def _parse_key_value_account(plist_data: dict, device_path: str) -> tuple:
     )
 
 
-def _parse_booking_dob(dob_dict: dict) -> any:
+def _parse_booking_dob(dob_dict: dict) -> date | str:
     """
-    Safely parse a date of birth dictionary from Booking.com plists.
-    Expected format: {'year': 1990, 'month': 5, 'day': 20}
+    Safely parse Date of Birth from Booking.com dictionary.
     
     Returns:
-        A datetime.date object if valid, a formatted string as fallback, 
-        or None if no year/month data is present.
+        date: if the date is complete and valid.
+        str: if the date is partial (e.g., '2024-05-00') or an empty string.
     """
-    if not dob_dict or not isinstance(dob_dict, dict):
-        return None
 
-    year = dob_dict.get('year')
-    month = dob_dict.get('month')
-    day = dob_dict.get('day', 1) # Default to 1st if day is missing
+    if not isinstance(dob_dict, dict):
+        return ''
 
-    if year and month:
+    # Extract values with 0 as fallback
+    try:
+        year = int(dob_dict.get('year', 0))
+        month = int(dob_dict.get('month', 0))
+        day = int(dob_dict.get('day', 0))
+    except (ValueError, TypeError):
+        return ''
+
+    # Full and valid date
+    if year > 0 and month > 0 and day > 0:
         try:
-            return date(int(year), int(month), int(day))
-        except (ValueError, TypeError):
-            # Fallback for malformed data (e.g., month 13 or non-numeric strings)
-            return f"{year}-{month}-{day}"
+            return date(year, month, day)
+        except ValueError:
+            # For invalid dates like Feb 31st, return formatted string
+            return f"{year:04d}-{month:02d}-{day:02d}"
 
-    return None
+    # Partial date (only year or year/month)
+    if year > 0:
+        m_str = f"{month:02d}" if month > 0 else "00"
+        d_str = f"{day:02d}" if day > 0 else "00"
+        return f"{year:04d}-{m_str}-{d_str}"
+
+    return ''
 
 
 def _parse_account_settings(plist_data: dict, device_path: str) -> tuple:
@@ -706,22 +723,23 @@ def booking_account(context):
     """
 
     data_headers = (
-        'First name',
-        'Last name',
+        'First Name',
+        'Last Name',
         'Nickname',
-        'Profile picture URL',
+        'Profile Picture URL',
         'Gender',
-        ('Birth date', 'date'),
+        ('Birth Date', 'date'),
         'Street',
         'City',
-        'Zip code',
+        'Zip Code',
         'Country',
-        ('Phone number', 'phonenumber'),
-        'Emails', 'Genius membership',
+        ('Phone Number', 'phonenumber'),
+        'Emails', 
+        'Genius Membership',
         'Facilities',
         'Unique ID',
-        'Authentication token',
-        'Source file name',
+        'Authentication Token',
+        'Source File Name',
         'Location'
     )
 
@@ -729,8 +747,17 @@ def booking_account(context):
     data_list_html = []
 
     for file_found in context.get_files_found():
-        file_name = Path(file_found).name
-        if not any(s in file_name for s in ['AccountSettings', 'KeyValueStorageAccountDomain']):
+        file_found = str(file_found)
+
+        # Check for AccountSettings (with or without .plist)
+        is_account_settings = (file_found.endswith('AccountSettings') or
+                               file_found.endswith('AccountSettings.plist'))
+
+        # Check for KeyValueStorage (with or without .plist)
+        is_key_value = (file_found.endswith('KeyValueStorageAccountDomain') or
+                        file_found.endswith('KeyValueStorageAccountDomain.plist'))
+
+        if not (is_account_settings or is_key_value):
             continue
 
         try:
@@ -741,15 +768,15 @@ def booking_account(context):
 
             # Determine which parser to use
             row_data = None
-            if 'KeyValueStorageAccountDomain' in file_name:
-                row_data = _parse_key_value_account(plist_data, device_path)
-            elif 'AccountSettings' in file_name:
+            if is_account_settings:
                 row_data = _parse_account_settings(plist_data, device_path)
+            else:
+                row_data = _parse_key_value_account(plist_data, device_path)
 
             if row_data:
                 # Unpack row_data for processing
                 (f_name, l_name, nick, pp, gnd, bday, strt, cty,
-                 zipc, cntry, ph, em, gen, fac, id_u, token, src, loc) = row_data
+                 zipc, cntry, ph, em, gen, fac, id_u, token, src, location) = row_data
 
                 # Prepare HTML and LAVA versions
                 pp_html = format_url(pp, html_format=True)
@@ -761,20 +788,21 @@ def booking_account(context):
                 # HTML row
                 data_list_html.append((
                     f_name, l_name, nick, pp_html, gnd, bday, strt, cty, zipc, cntry, ph,
-                    emails_h, gen, fac_h, id_u, token, src, loc
+                    emails_h, gen, fac_h, id_u, token, src, location
                 ))
+
                 # LAVA row
                 data_list.append((
                     f_name, l_name, nick, pp, gnd, bday, strt, cty, zipc, cntry, ph,
-                    emails_p, gen, fac_p, id_u, token, src, loc
+                    emails_p, gen, fac_p, id_u, token, src, location
                 ))
 
         except (KeyError, TypeError, IndexError) as ex:
             logfunc(f"[{context.get_artifact_name()}] "
-                    f"Error - Malformed structure in {file_name}: {ex}")
+                    f"Error - Malformed structure in {file_found}: {ex}")
         except OSError as ex:
             logfunc(f"[{context.get_artifact_name()}] "
-                    f"Error - Could not read {file_name}: {ex}")
+                    f"Error - Could not read {file_found}: {ex}")
 
     return data_headers, (data_list, data_list_html), SOURCE_PATH_NOTE
 
@@ -786,10 +814,10 @@ def booking_travellers(context):
     """
 
     data_headers = (
-        'First name',
-        'Last name',
+        'First Name',
+        'Last Name',
         'Gender',
-        ('Birth date', 'date'),
+        ('Birth Date', 'date'),
         'Unique ID',
         'Location'
     )
@@ -798,8 +826,11 @@ def booking_travellers(context):
     source_path = ''
 
     for file_found in context.get_files_found():
-        file_name = Path(file_found).name
-        if 'AccountSettings' not in file_name:
+        file_found = str(file_found)
+
+        # Check for AccountSettings (with or without .plist)
+        if not (file_found.endswith('AccountSettings') or
+                file_found.endswith('AccountSettings.plist')):
             continue
 
         try:
@@ -822,9 +853,9 @@ def booking_travellers(context):
                 last_name = fullname.get('last')
 
                 # Gender
-                gender = tc.get('gender')
+                gender = tc.get('gender', '')
 
-                # Birth date with safety parsing
+                # Birth date with safety parsing (returns date or '')
                 bday = _parse_booking_dob(tc.get('dateOfBirth'))
 
                 # Unique identifier
@@ -836,12 +867,17 @@ def booking_travellers(context):
                 # LAVA row
                 data_list.append((first_name, last_name, gender, bday, uid, loc))
 
+            # Stop the parser if data was successfully extracted from
+            # either the legacy or the modern version of the file.
+            if data_list:
+                break
+
         except (KeyError, TypeError, IndexError) as ex:
             logfunc(f"[{context.get_artifact_name()}] "
-                    f"Error - Malformed structure in {file_name}: {ex}")
+                    f"Error - Malformed structure in {file_found}: {ex}")
         except OSError as ex:
             logfunc(f"[{context.get_artifact_name()}] "
-                    f"Error - Could not read {file_name}: {ex}")
+                    f"Error - Could not read {file_found}: {ex}")
 
     return data_headers, data_list, source_path
 
@@ -902,19 +938,28 @@ def booking_payment_methods(context):
         'Unique ID',
         'Type',
         'Status',
-        'Valid thru',
-        'Cardholder name',
-        'Last four digits',
+        'Valid Thru',
+        'Cardholder Name',
+        'Last Four Digits',
         'Business',
-        'Source file name',
+        'Source File Name',
         'Location'
     )
 
     data_list = []
 
     for file_found in context.get_files_found():
-        file_name = Path(file_found).name
-        if not any(s in file_name for s in ['AccountSettings', 'KeyValueStorageAccountDomain']):
+        file_found = str(file_found)
+
+        # Check for AccountSettings (with or without .plist)
+        is_account_settings = (file_found.endswith('AccountSettings') or
+                               file_found.endswith('AccountSettings.plist'))
+
+        # Check for KeyValueStorage (with or without .plist)
+        is_key_value = (file_found.endswith('KeyValueStorageAccountDomain') or
+                        file_found.endswith('KeyValueStorageAccountDomain.plist'))
+
+        if not (is_account_settings or is_key_value):
             continue
 
         try:
@@ -923,23 +968,24 @@ def booking_payment_methods(context):
                 continue
             device_path = get_device_file_path(file_found, context)
 
-            extracted_rows = []
             # Determine which parser to use
-            if 'KeyValueStorageAccountDomain' in file_name:
-                extracted_rows = _parse_key_value_payment(plist_data, device_path)
-            elif 'AccountSettings' in file_name:
-                extracted_rows = _parse_account_settings_payment(plist_data, device_path)
+            rows_data = None
+            if is_account_settings:
+                rows_data = _parse_account_settings_payment(plist_data, device_path)
+            else:
+                rows_data = _parse_key_value_payment(plist_data, device_path)
 
-            for row in extracted_rows:
-                # LAVA row
-                data_list.append((row))
+            if rows_data:
+                for row in rows_data:
+                    # LAVA row
+                    data_list.append(row)
 
         except (KeyError, TypeError, IndexError) as ex:
             logfunc(f"[{context.get_artifact_name()}] "
-                    f"Error - Malformed structure in {file_name}: {ex}")
+                    f"Error - Malformed structure in {file_found}: {ex}")
         except OSError as ex:
             logfunc(f"[{context.get_artifact_name()}] "
-                    f"Error - Could not read {file_name}: {ex}")
+                    f"Error - Could not read {file_found}: {ex}")
 
     return data_headers, data_list, SOURCE_PATH_NOTE
 
@@ -984,16 +1030,16 @@ def booking_stored_destinations(context):
 
     data_headers = (
         ('Created', 'datetime'),
-        'Location type',
+        'Location Type',
         'Unique ID',
-        'Destination name',
+        'Destination Name',
         'Address/Description',
         'City',
         'Region',
         'Country',
         'Latitude',
         'Longitude',
-        'Time zone',
+        'Time Zone',
         'Image URL',
         'Location'
     )
@@ -1003,12 +1049,16 @@ def booking_stored_destinations(context):
     source_path = ''
 
     for file_found in context.get_files_found():
-        file_name = Path(file_found).name
-        if 'KeyValueStorageSharedDomain' not in file_name:
+        file_found = str(file_found)
+
+        # Check for KeyValueStorageSharedDomain (with or without .plist)
+        if not (file_found.endswith('KeyValueStorageSharedDomain') or
+                file_found.endswith('KeyValueStorageSharedDomain.plist')):
             continue
 
         try:
             source_path = file_found
+
             plist_data = get_plist_file_content(source_path)
             if not plist_data:
                 continue
@@ -1025,26 +1075,32 @@ def booking_stored_destinations(context):
                 img_url = loc_dict.get('image_url')
                 img_url_h = format_url(img_url, html_format=True)
 
-                # Precise location within the plist structure for validation
-                loc = f"[stored_destinations][{i}]"
-
                 # Standard row data (excluding image and source)
                 base_data = (
                     created, loc_type, loc_dict.get('id_'), loc_dict.get('string_'),
                     desc, city, region, country, lat, lon, loc_dict.get('timezone')
                 )
 
-                # LAVA row
-                data_list.append((*base_data, img_url, loc))
+                # Precise location within the plist structure for validation
+                location = f"[stored_destinations][{i}]"
+
                 # HTML row
-                data_list_html.append((*base_data, img_url_h, loc))
+                data_list_html.append(base_data + (img_url_h, location))
+
+                # LAVA row
+                data_list.append(base_data + (img_url, location))
+
+            # Stop the parser if data was successfully extracted from
+            # either the legacy or the modern version of the file.
+            if data_list:
+                break
 
         except (KeyError, TypeError, IndexError) as ex:
             logfunc(f"[{context.get_artifact_name()}] "
-                    f"Error - Malformed structure in {file_name}: {ex}")
+                    f"Error - Malformed structure in {file_found}: {ex}")
         except OSError as ex:
             logfunc(f"[{context.get_artifact_name()}] "
-                    f"Error - Could not read {file_name}: {ex}")
+                    f"Error - Could not read {file_found}: {ex}")
 
     return data_headers, (data_list, data_list_html), source_path
 
@@ -1057,22 +1113,22 @@ def booking_recently_searched(context):
 
     data_headers = (
         ('Searched', 'datetime'),
-        'Location type',
+        'Location Type',
         'Unique ID',
-        'Destination name',
+        'Destination Name',
         'Description',
         'City',
         'Region',
         'Country',
         'Latitude',
         'Longitude',
-        'Time zone',
-        'Check-in',
-        'Check-out',
-        'Number of rooms',
+        'Time Zone',
+        'Check-In',
+        'Check-Out',
+        'Number of Rooms',
         'Guests',
-        'Number of nights',
-        'Source',
+        'Number of Nights',
+        'App Source',
         'Location'
     )
 
@@ -1080,12 +1136,16 @@ def booking_recently_searched(context):
     source_path = ''
 
     for file_found in context.get_files_found():
-        file_name = Path(file_found).name
-        if 'KeyValueStorageRecentsDomain' not in file_name:
+        file_found = str(file_found)
+
+        # Check for KeyValueStorageRecentsDomain (with or without .plist)
+        if not (file_found.endswith('KeyValueStorageRecentsDomain') or
+                file_found.endswith('KeyValueStorageRecentsDomain.plist')):
             continue
 
         try:
             source_path = file_found
+
             plist_data = get_plist_file_content(source_path)
             if not plist_data:
                 continue
@@ -1112,12 +1172,17 @@ def booking_recently_searched(context):
                     loc
                 ))
 
+            # Stop the parser if data was successfully extracted from
+            # either the legacy or the modern version of the file.
+            if data_list:
+                break
+
         except (KeyError, TypeError, IndexError) as ex:
             logfunc(f"[{context.get_artifact_name()}] "
-                    f"Error - Malformed structure in {file_name}: {ex}")
+                    f"Error - Malformed structure in {file_found}: {ex}")
         except OSError as ex:
             logfunc(f"[{context.get_artifact_name()}] "
-                    f"Error - Could not read {file_name}: {ex}")
+                    f"Error - Could not read {file_found}: {ex}")
 
     return data_headers, data_list, source_path
 
@@ -1145,17 +1210,17 @@ def booking_recently_booked(context):
     """
 
     data_headers = (
-        'Hotel type',
-        'Hotel Id',
-        'Hotel name',
+        'Hotel Type',
+        'Hotel ID',
+        'Hotel Name',
         'Address',
         'City',
         'Region',
-        'Zip code',
+        'Zip Code',
         'Latitude',
         'Longitude',
-        'Check-in (Hotel time zone)',
-        'Check-out (Hotel time zone)',
+        'Check-In (Hotel Time Zone)',
+        'Check-Out (Hotel Time Zone)',
         'Image URL',
         'Website', 
         'Location'
@@ -1166,12 +1231,16 @@ def booking_recently_booked(context):
     source_path = ''
 
     for file_found in context.get_files_found():
-        file_name = Path(file_found).name
-        if 'KeyValueStorageRecentsDomain' not in file_name:
+        file_found = str(file_found)
+
+        # Check for KeyValueStorageRecentsDomain (with or without .plist)
+        if not (file_found.endswith('KeyValueStorageRecentsDomain') or
+                file_found.endswith('KeyValueStorageRecentsDomain.plist')):
             continue
 
         try:
             source_path = file_found
+
             plist_data = get_plist_file_content(source_path)
             if not plist_data:
                 continue
@@ -1205,32 +1274,31 @@ def booking_recently_booked(context):
                 # Precise location within the plist structure for validation
                 loc = f"[booked][{key}]"
 
-                # Standard row data
+                # Standard row data (excluding profile picture url, website and location)
                 base_data = (
-                    hotel_type_names(hotel.get('hotel_type')),
-                    hotel.get('hotel_id'),
-                    hotel.get('name'),
-                    hotel.get('address'),
-                    city_name,
-                    region_name,
-                    zip_code,
-                    hotel.get('latitude'),
-                    hotel.get('longitude'),
-                    check_in,
-                    check_out
+                    hotel_type_names(hotel.get('hotel_type')), hotel.get('hotel_id'),
+                    hotel.get('name'), hotel.get('address'), city_name, region_name,
+                    zip_code, hotel.get('latitude'), hotel.get('longitude'),
+                    check_in, check_out
                 )
 
-                # LAVA row
-                data_list.append((*base_data, p_url, website, loc))
                 # HTML row
-                data_list_html.append((*base_data, p_url_h, website_h, loc))
+                data_list_html.append(base_data + (p_url_h, website_h, loc))
+
+                # LAVA row
+                data_list.append(base_data + (p_url, website, loc))
+
+            # Stop the parser if data was successfully extracted from
+            # either the legacy or the modern version of the file.
+            if data_list:
+                break
 
         except (KeyError, TypeError, IndexError) as ex:
             logfunc(f"[{context.get_artifact_name()}] "
-                    f"Error - Malformed structure in {file_name}: {ex}")
+                    f"Error - Malformed structure in {file_found}: {ex}")
         except OSError as ex:
             logfunc(f"[{context.get_artifact_name()}] "
-                    f"Error - Could not read {file_name}: {ex}")
+                    f"Error - Could not read {file_found}: {ex}")
 
     return data_headers, (data_list, data_list_html), source_path
 
@@ -1298,20 +1366,20 @@ def booking_booked(context):
 
     data_headers = (
         ('Created', 'datetime'),
-        'Hotel Id',
-        'Hotel name',
-        'Full address',
-        'Time zone',
-        'Check-in/out (Hotel time zone)',
-        'Hotel contacts',
-        'Confirmation number/Pin code',
-        'Total price',
-        'Number of rooms',
+        'Hotel ID',
+        'Hotel Name',
+        'Full Address',
+        'Time Zone',
+        'Check-In/Out (Hotel Time Zone)',
+        'Hotel Contacts',
+        'Confirmation Number/PIN Code',
+        'Total Price',
+        'Number of Rooms',
         'Rooms',
-        'Booker details',
+        'Booker Details',
         'Source',
         ('Attachment', 'media'),
-        'Source file name',
+        'Source File Name',
         'Location'
     )
 
@@ -1321,16 +1389,20 @@ def booking_booked(context):
     booking_app_id = get_booking_app_id(context)
 
     for file_found in context.get_files_found():
-        file_name = Path(file_found).name
-        if 'BookingClouds' not in file_name:
-            continue
+        file_found = str(file_found)
 
-        plist_data = get_plist_file_content(file_found)
-        if not plist_data:
+        # Check for BookingClouds (with or without .plist)
+        if not (file_found.endswith('BookingClouds') or
+                file_found.endswith('BookingClouds.plist')):
             continue
-        device_path = get_device_file_path(file_found, context)
 
         try:
+            plist_data = get_plist_file_content(file_found)
+            if not plist_data:
+                continue
+
+            device_path = get_device_file_path(file_found, context)
+
             for root_key in ['DeviceBookings', 'AccountBookings']:
                 bookings = plist_data.get(root_key, {})
                 if not isinstance(bookings, dict):
@@ -1353,7 +1425,7 @@ def booking_booked(context):
                     append_tag_value(conf_info, 'Pin code', val.get('pincode'))
                     price = (
                         f"{val.get('user_selected_currency_code')} "
-                        f"{val.get('totalprice', 0):.4f}"
+                        f"{val.get('totalprice', 0):.2f}"
                     )
 
                     # Booker info
@@ -1379,43 +1451,53 @@ def booking_booked(context):
                     reg_p, reg_h = _format_booking_registration(val, tz)
                     rooms_list = val.get('room', [])
 
-                    # Build Row
-                    common_row = (
+                    # Standard row data
+                    base_data = (
                         convert_plist_date_to_utc(val.get('created_epoch')),
-                        val.get('hotel_id'), val.get('hotel_name'), full_addr, tz,
-                        None, # Placeholder for registration
+                        val.get('hotel_id'),
+                        val.get('hotel_name'),
+                        full_addr,
+                        tz,
+                        None,                                   # 5 Registration (Placeholder)
                         unordered_list(contacts),
                         unordered_list(conf_info),
-                        price, len(rooms_list),
-                        None, # Placeholder for rooms
+                        price,
+                        len(rooms_list),
+                        None,                                   # 10 Rooms (Placeholder)
                         unordered_list(booker),
-                        val.get('source'), media_ref_id,
-                        None, # Placeholder for source files
+                        val.get('source'),
+                        media_ref_id,
+                        None,                                   # 14 Source Files (Placeholder)
                         f"[{root_key}][{key}]"
                     )
 
-                    # LAVA row
-                    data_list.append((
-                        *common_row[:5], reg_p, *common_row[6:10],
-                        _get_room_details(rooms_list), *common_row[11:14],
-                        unordered_list(src_files), common_row[15]
-                    ))
                     # HTML row
-                    data_list_html.append((
-                        *common_row[:5], reg_h, *common_row[6:10],
-                        _get_room_details(rooms_list, True), *common_row[11:14],
-                        unordered_list(src_files, True), common_row[15]
-                    ))
+                    html_row = list(base_data)
+                    html_row[5] = reg_h
+                    html_row[10] = _get_room_details(rooms_list, html_format=True)
+                    html_row[14] = unordered_list(src_files, html_format=True)
+                    data_list_html.append(tuple(html_row))
+
+                    # LAVA row
+                    lava_row = list(base_data)
+                    lava_row[5] = reg_p
+                    lava_row[10] = _get_room_details(rooms_list)
+                    lava_row[14] = unordered_list(src_files)
+                    data_list.append(tuple(lava_row))
+
+            # Stop the parser if data was successfully extracted from
+            # either the legacy or the modern version of the file.
+            if data_list:
+                break
 
         except (KeyError, TypeError, IndexError) as ex:
             logfunc(f"[{context.get_artifact_name()}] "
-                    f"Error - Malformed structure in {file_name}: {ex}")
+                    f"Error - Malformed structure in {file_found}: {ex}")
         except OSError as ex:
             logfunc(f"[{context.get_artifact_name()}] "
-                    f"Error - Could not read {file_name}: {ex}")
+                    f"Error - Could not read {file_found}: {ex}")
 
     return data_headers, (data_list, data_list_html), SOURCE_PATH_NOTE
-
 
 
 @artifact_processor
@@ -1434,12 +1516,16 @@ def booking_wish_lists(context):
     source_path = ''
 
     for file_found in context.get_files_found():
-        file_name = Path(file_found).name
-        if 'KeyValueStorageRecentsDomain' not in file_name:
+        file_found = str(file_found)
+
+        # Check for KeyValueStorageRecentsDomain (with or without .plist)
+        if not (file_found.endswith('KeyValueStorageRecentsDomain') or
+                file_found.endswith('KeyValueStorageRecentsDomain.plist')):
             continue
 
         try:
             source_path = file_found
+
             plist_data = get_plist_file_content(source_path)
             if not plist_data:
                 continue
@@ -1455,17 +1541,22 @@ def booking_wish_lists(context):
                     hotel_id = hotel.get('id')
 
                     # Precise location within the plist structure for validation
-                    loc = f"[wishlists][{i}], [wishlists][{i}][hotels][{j}]"
+                    location = f"[wishlists][{i}], [wishlists][{i}][hotels][{j}]"
 
                     # LAVA row
-                    data_list.append((added, list_name, hotel_id, loc))
+                    data_list.append((added, list_name, hotel_id, location))
+
+            # Stop the parser if data was successfully extracted from
+            # either the legacy or the modern version of the file.
+            if data_list:
+                break
 
         except (KeyError, TypeError, IndexError) as ex:
             logfunc(f"[{context.get_artifact_name()}] "
-                    f"Error - Malformed structure in {file_name}: {ex}")
+                    f"Error - Malformed structure in {file_found}: {ex}")
         except OSError as ex:
             logfunc(f"[{context.get_artifact_name()}] "
-                    f"Error - Could not read {file_name}: {ex}")
+                    f"Error - Could not read {file_found}: {ex}")
 
     return data_headers, data_list, source_path
 
@@ -1477,14 +1568,14 @@ def booking_viewed(context):
     """
 
     data_headers = (
-        ('Last viewed', 'datetime'),
-        'Hotel type',
-        'Hotel Id',
-        'Hotel name',
+        ('Last Viewed', 'datetime'),
+        'Hotel Type',
+        'Hotel ID',
+        'Hotel Name',
         'Address',
         'City',
         'Region',
-        'Zip code',
+        'Zip Code',
         'Latitude',
         'Longitude',
         'Image URL',
@@ -1497,12 +1588,16 @@ def booking_viewed(context):
     source_path = ''
 
     for file_found in context.get_files_found():
-        file_name = Path(file_found).name
-        if 'KeyValueStorageRecentsDomain' not in file_name:
+        file_found = str(file_found)
+
+        # Check for KeyValueStorageRecentsDomain (with or without .plist)
+        if not (file_found.endswith('KeyValueStorageRecentsDomain') or
+                file_found.endswith('KeyValueStorageRecentsDomain.plist')):
             continue
 
         try:
             source_path = file_found
+
             plist_data = get_plist_file_content(source_path)
             if not plist_data:
                 continue
@@ -1527,33 +1622,46 @@ def booking_viewed(context):
                 p_url = hotel.get('pictureURL')
                 web_url = hotel.get('hotelURL')
 
-                # Precise location within the plist structure for validation
-                loc = f"[viewed][{key}]"
-
-                # LAVA row
-                data_list.append((
-                    last_viewed, h_type, hotel.get('hotel_id'), hotel.get('name'),
-                    hotel.get('address'), city_name, region_name, hotel.get('zip'),
-                    hotel.get('latitude'), hotel.get('longitude'), p_url, web_url,
-                    loc
-                ))
+                # Standard row data
+                base_data = (
+                    last_viewed,
+                    h_type,
+                    hotel.get('hotel_id'),
+                    hotel.get('name'),
+                    hotel.get('address'),
+                    city_name,
+                    region_name,
+                    hotel.get('zip'),
+                    hotel.get('latitude'),
+                    hotel.get('longitude'),
+                    None,                                   # 10 URL (Placeholder)
+                    None,                                   # 11 Website (Placeholder)
+                    f"[viewed][{key}]"
+                )
 
                 # HTML row
-                data_list_html.append((
-                    last_viewed, h_type, hotel.get('hotel_id'), hotel.get('name'),
-                    hotel.get('address'), city_name, region_name, hotel.get('zip'),
-                    hotel.get('latitude'), hotel.get('longitude'),
-                    format_url(p_url, html_format=True),
-                    format_url(web_url, html_format=True),
-                    loc
-                ))
+                html_row = list(base_data)
+                html_row[10] = format_url(p_url, html_format=True)
+                html_row[11] = format_url(web_url, html_format=True)
+                data_list_html.append(tuple(html_row))
+
+                # LAVA row
+                lava_row = list(base_data)
+                lava_row[10] = p_url
+                lava_row[11] = web_url
+                data_list.append(tuple(lava_row))
+
+            # Stop the parser if data was successfully extracted from
+            # either the legacy or the modern version of the file.
+            if data_list:
+                break
 
         except (KeyError, TypeError, IndexError) as ex:
             logfunc(f"[{context.get_artifact_name()}] "
-                    f"Error - Malformed structure in {file_name}: {ex}")
+                    f"Error - Malformed structure in {file_found}: {ex}")
         except OSError as ex:
             logfunc(f"[{context.get_artifact_name()}] "
-                    f"Error - Could not read {file_name}: {ex}")
+                    f"Error - Could not read {file_found}: {ex}")
 
     return data_headers, (data_list, data_list_html), source_path
 
@@ -1572,7 +1680,7 @@ def booking_notifications(context):
         'Viewed',
         'Deleted',
         'Action ID',
-        'Action arguments',
+        'Action Arguments',
         'Location'
     )
 
@@ -1597,15 +1705,35 @@ def booking_notifications(context):
     db_records = get_sqlite_db_records(source_path, query)
 
     for record in db_records:
-        row_id, ts_val, identifier, title, body, viewed, deleted, action_id, blob_args = record
-        timestamp = convert_unix_ts_to_utc(ts_val)
-        args_content = get_plist_content(blob_args) if blob_args else ''
+        (
+            row_id, ts_val, identifier, title, body,
+            viewed, deleted, action_id, blob_args
+         ) = record
 
-        loc = f"ZNOTIFICATION (ROWID: {row_id})"
+        try:
+            # Convert timestamps to UTC
+            timestamp = convert_unix_ts_to_utc(ts_val)
 
-        # LAVA row
-        data_list.append((timestamp, identifier, title, body, bool(viewed), bool(deleted),
-                          action_id, args_content, loc))
+            args_content = get_plist_content(blob_args) if blob_args else ''
+
+            # Reference to the source table and row
+            location = f"ZNOTIFICATION (ROWID: {row_id})"
+
+            # LAVA row
+            data_list.append((
+                timestamp, identifier,
+                title, body,
+                "Yes" if viewed else "No",
+                "Yes" if deleted else "No",
+                action_id, args_content,
+                location
+            ))
+
+        except (IndexError, TypeError, ValueError) as ex:
+            logfunc(f"[{context.get_artifact_name()}] "
+                    f"Error - Failed parsing record ZNOTIFICATION ROWID {record[0]} in "
+                    f"{source_path}: {ex}")
+            continue
 
     return data_headers, data_list, source_path
 
@@ -1718,16 +1846,16 @@ def booking_flights_searched(context):
     """
 
     data_headers = (
-        ('Last updated', 'datetime'),
-        'Start date',
-        'Return date',
-        'Direct flight',
-        'Search type',
-        'Cabin class',
-        'Source airports',
-        'Destination airports',
+        ('Last Updated', 'datetime'),
+        'Start Date',
+        'Return Date',
+        'Direct Flight',
+        'Search Type',
+        'Cabin Class',
+        'Source Airports',
+        'Destination Airports',
         'Routes',
-        "Travellers' details",
+        "Travellers' Details",
         'Location'
     )
 
@@ -1736,12 +1864,15 @@ def booking_flights_searched(context):
     source_path = ''
 
     for file_found in context.get_files_found():
-        file_name = Path(file_found).name
-        if 'flight_rs_v2' not in file_name:
+        file_found = str(file_found)
+
+        # Check for flight_rs_v2
+        if not file_found.endswith('flight_rs_v2'):
             continue
 
         try:
             source_path = file_found
+
             json_data = get_json_file_content(source_path)
             if not json_data:
                 continue
@@ -1749,45 +1880,52 @@ def booking_flights_searched(context):
             flights = json_data.get('value', [])
 
             for i, flight in enumerate(flights):
+                # Convert timestamps to UTC
                 last_updated = convert_iso8601_to_utc(flight.get('lastUpdated'))
+
                 params = flight.get('parameters', {}).get('searchOptionModel', {})
 
                 # Refactored date parsing
                 start_dt = _get_safe_date(params, 'start')
                 return_dt = _get_safe_date(params, 'return')
 
-                # Precise location within the plist structure for validation
-                loc = f"[value][{i}]"
-
-                base_info = (
-                    last_updated, start_dt, return_dt, params.get('direct'),
-                    params.get('searchType'), params.get('cabin')
+                # Standard row data
+                base_data = (
+                    last_updated,
+                    start_dt,
+                    return_dt,
+                    params.get('direct'),
+                    params.get('searchType'),
+                    params.get('cabin'),
+                    None,                                   # 6 Source Airports (Placeholder)
+                    None,                                   # 7 Destination Airports (Placeholder)
+                    None,                                   # 8 Routes (Placeholder)
+                    None,                                   # 9 Travellers' Details (Placeholder)
+                    f"[value][{i}]"
                 )
 
-                # LAVA row
-                data_list.append((
-                    *base_info,
-                    _format_airports(params.get('sourceAirports')),
-                    _format_airports(params.get('destinationAirports')),
-                    _format_routes(params.get('routes')),
-                    _format_traveller_details(params.get('travellersDetails')),
-                    loc
-                ))
                 # HTML row
-                data_list_html.append((
-                    *base_info,
-                    _format_airports(params.get('sourceAirports'), html_format=True),
-                    _format_airports(params.get('destinationAirports'), html_format=True),
-                    _format_routes(params.get('routes'), html_format=True),
-                    _format_traveller_details(params.get('travellersDetails'), html_format=True),
-                    loc
-                ))
+                html_row = list(base_data)
+                html_row[6] = _format_airports(params.get('sourceAirports'), html_format=True)
+                html_row[7] = _format_airports(params.get('destinationAirports'), html_format=True)
+                html_row[8] = _format_routes(params.get('routes'), html_format=True)
+                html_row[9] = _format_traveller_details(params.get('travellersDetails'),
+                    html_format=True)
+                data_list_html.append(tuple(html_row))
+
+                # LAVA row
+                lava_row = list(base_data)
+                lava_row[6] = _format_airports(params.get('sourceAirports'))
+                lava_row[7] = _format_airports(params.get('destinationAirports'))
+                lava_row[8] = _format_routes(params.get('routes'))
+                lava_row[9] = _format_traveller_details(params.get('travellersDetails'))
+                data_list.append(tuple(lava_row))
 
         except (KeyError, TypeError, IndexError) as ex:
             logfunc(f"[{context.get_artifact_name()}] "
-                    f"Error - Malformed structure in {file_name}: {ex}")
+                    f"Error - Malformed structure in {file_found}: {ex}")
         except OSError as ex:
             logfunc(f"[{context.get_artifact_name()}] "
-                    f"Error - Could not read {file_name}: {ex}")
+                    f"Error - Could not read {file_found}: {ex}")
 
     return data_headers, (data_list, data_list_html), source_path
