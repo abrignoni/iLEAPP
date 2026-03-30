@@ -1,16 +1,23 @@
+"""
+Box Artifact Module
+Extracts account, file hierarchy, and offline metadata from Box on iOS, 
+including shared links, collections, and cached media previews, 
+along with recent activity, comments, and file annotations.
+"""
+
 __artifacts_v2__ = {
     "box_account": {
         "name": "Box - Account",
         "description": "Parses and extracts Box Account information",
         "author": "@djangofaiola",
         "creation_date": "2025-12-05",
-        "last_update_date": "2026-03-26",
+        "last_update_date": "2026-03-30",
         "requirements": "none",
         "category": "Box",
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/"
                   "group.net.box.BoxNet.plist"),
-        "output_types": [ "lava", "html", "timeline" ],
+        "output_types": [ "standard" ],
         "artifact_icon": "user"
     },
     "box_all_files": {
@@ -18,7 +25,7 @@ __artifacts_v2__ = {
         "description": "Parses and extracts Box All Files information",
         "author": "@djangofaiola",
         "creation_date": "2025-12-05",
-        "last_update_date": "2026-03-26",
+        "last_update_date": "2026-03-30",
         "requirements": "none",
         "category": "Box",
         "notes": "https://djangofaiola.blogspot.com",
@@ -27,7 +34,7 @@ __artifacts_v2__ = {
                   "itemIDs.plist",
                   "*/mobile/Containers/Shared/AppGroup/*/Documents/offlinefilesinfo/"
                   "lastDownloadDates.plist"),
-        "output_types": [ "lava", "html", "timeline" ],
+        "output_types": [ "standard" ],
         "html_columns": [ "URL" ],
         "artifact_icon": "cloud"
     },
@@ -36,7 +43,7 @@ __artifacts_v2__ = {
         "description": "Parses and extracts all Previews and Original media files",
         "author": "@djangofaiola",
         "creation_date": "2025-12-05",
-        "last_update_date": "2026-03-26",
+        "last_update_date": "2026-03-30",
         "requirements": "none",
         "category": "Box",
         "notes": "https://djangofaiola.blogspot.com",
@@ -44,8 +51,7 @@ __artifacts_v2__ = {
                   "PreviewItem.db*",
                   "*/mobile/Containers/Shared/AppGroup/*/File Provider Storage/boxpreview/*/cache/"
                   "files/*/*/*"),
-        "output_types": [ "lava", "html", "timeline" ],
-        "html_columns": [ "URL" ],
+        "output_types": [ "standard" ],
         "artifact_icon": "image"
     },
     "box_recents": {
@@ -53,13 +59,13 @@ __artifacts_v2__ = {
         "description": "Parses and extracts Recents",
         "author": "@djangofaiola",
         "creation_date": "2025-12-05",
-        "last_update_date": "2026-03-26",
+        "last_update_date": "2026-03-30",
         "requirements": "none",
         "category": "Box",
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Shared/AppGroup/*/Documents/db/Recents.db*",
                   "*/mobile/Containers/Shared/AppGroup/*/Documents/db/Item.db*"),
-        "output_types": [ "lava", "html", "timeline" ],
+        "output_types": [ "standard" ],
         "artifact_icon": "search"
     },
     "box_comments": {
@@ -67,13 +73,13 @@ __artifacts_v2__ = {
         "description": "Parses and extracts Comments and Annotations",
         "author": "@djangofaiola",
         "creation_date": "2025-12-05",
-        "last_update_date": "2026-03-26",
+        "last_update_date": "2026-03-30",
         "requirements": "none",
         "category": "Box",
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Shared/AppGroup/*/Documents/db/annotations.db*",
                   "*/mobile/Containers/Shared/AppGroup/*/Documents/db/Item.db*"),
-        "output_types": [ "lava", "html", "timeline" ],
+        "output_types": [ "standard" ],
         "artifact_icon": "message-circle"
     },
 }
@@ -81,6 +87,7 @@ __artifacts_v2__ = {
 import re
 import html
 import plistlib
+import sqlite3
 from datetime import timezone, datetime
 from pathlib import Path
 from urllib.parse import urlparse, urlunparse
@@ -212,14 +219,14 @@ def box_account(context):
         ('Created At', 'datetime'),
         'Login',
         'Name',
-        'Has custom avatar',
-        'Is enterprise account',
+        'Has Custom Avatar',
+        'Is Enterprise Account',
         'User ID',
         'Timezone',
         'Language',
-        'Total space',
-        'Used space',
-        'Max upload size'
+        'Total Space',
+        'Used Space',
+        'Max Upload Size'
     )
 
     data_list = []
@@ -227,10 +234,13 @@ def box_account(context):
 
     source_path = context.get_source_file_path('group.net.box.BoxNet.plist')
     plist_data = get_plist_file_content(source_path)
+    if not plist_data:
+        return data_headers, (data_list, data_list_html), source_path
+
     try:
         # Deserializing the embedded JSON string containing user metadata
         last_user_data = get_plist_content(plist_data.get('lastUserJSON'))
-        if not plist_data:
+        if not last_user_data:
             return data_headers, (data_list, data_list_html), source_path
 
         # Profile and Localization metadata
@@ -335,7 +345,7 @@ def box_all_files(context):
                     } for model_id in ids_data
                 })
         except (OSError, ValueError, TypeError) as ex:
-            logfunc(f"[{context.get_artifact_name()}] Error reading {ids_path}: {ex}")
+            logfunc(f"[{context.get_artifact_name()}] Error - reading {ids_path}: {ex}")
 
     # Process lastDownloadDates.plist
     if last_dates_path:
@@ -351,151 +361,154 @@ def box_all_files(context):
                     } for model_id, date in last_dates_data.items()
                 })
         except (OSError, ValueError, TypeError) as ex:
-            logfunc(f"[{context.get_artifact_name()}] Error reading {last_dates_path}: {ex}")
+            logfunc(f"[{context.get_artifact_name()}] Error - reading {last_dates_path}: {ex}")
 
     offline_artifacts_available = bool(offline_ids)
 
-    # Recursive CTE to reconstruct full directory hierarchy and extract JSON metadata
-    query = '''
-    WITH
-    RECURSIVE cte_paths(id, name, path) AS (
-        SELECT
-            modelID AS id,
-            name,
-            '/' || name AS path
-        FROM items
-        WHERE COALESCE(parentID, 0) = 0
-        UNION ALL
-        SELECT
-            i.modelID AS id,
-            i.name,
-            p.path || '/' || i.name AS path
-        FROM items AS i
-        JOIN cte_paths AS p ON (i.parentID = p.id)
-    )
-
-    SELECT
-        p.id,
-        i.type,
-        p.name,
-        json_extract(i.jsonData, '$.extension'),
-        p.path,
-        json_extract(i.jsonData, '$.shared_link.url'),
-        json_extract(i.jsonData, '$.description'),
-        json_extract(i.jsonData, '$.size'),
-        json_extract(i.jsonData, '$.file_version.id'),
-        json_extract(i.jsonData, '$.content_created_at'),
-        json_extract(i.jsonData, '$.content_modified_at'),
-        json_extract(i.jsonData, '$.created_at'),
-        json_extract(i.jsonData, '$.modified_at'),
-        i.lastNetworkFetchedTimestamp,
-        CASE
-            WHEN EXISTS (
-            SELECT 1
-            FROM json_each(i.jsonData, '$.collections')
-            WHERE json_extract(json_each.value, '$.collection_type') = 'favorites'
-            )
-            THEN 'Yes'
-            ELSE 'No'
-        END AS "Favorites",
-        (
-            SELECT group_concat(json_extract(cn.value, '$.name'), ', ')
-            FROM json_each(json_extract(i.jsonData, '$.collections')) AS cn
-        ) AS "Collection Names",
-        json_extract(i.jsonData, '$.owned_by.login'),
-        json_extract(i.jsonData, '$.owned_by.name'),
-        json_extract(i.jsonData, '$.owned_by.id'),
-        json_extract(i.jsonData, '$.created_by.login'),
-        json_extract(i.jsonData, '$.created_by.name'),
-        json_extract(i.jsonData, '$.created_by.id'),
-        json_extract(i.jsonData, '$.modified_by.login'),
-        json_extract(i.jsonData, '$.modified_by.name'),
-        json_extract(i.jsonData, '$.modified_by.id'),
-        i.SHA1
-    FROM cte_paths AS p
-    LEFT JOIN items AS i ON (i.modelID = p.id)
-    ORDER BY i.type DESC, p.path ASC;
-    '''
 
     db = open_sqlite_db_readonly(source_path)
-    cursor = db.cursor()
-    cursor.execute(query)
+    if not db:
+        return data_headers, (data_list, data_list_html), source_path
 
-    for record in cursor:
-        try:
-            # Resource identifiers and basic metadata
-            item_id = record[0]
-            item_type = record[1]
-            item_name = record[2]
-            item_ext = record[3]
-            full_path = record[4]
-            url = record[5]
-            url_html = format_url(url, html_format=True)
-            description = record[6]
-            item_size = record[7]
-            item_size_html = convert_bytes_to_unit(item_size)
-            version_id = record[8]
+    try:
+        cursor = db.cursor()
 
-            # Parsing and normalization of timestamps (ISO8601 and Unix)
-            content_created_at = convert_iso8601_to_utc(record[9])
-            content_modified_at = convert_iso8601_to_utc(record[10])
-            created_at = convert_iso8601_to_utc(record[11])
-            modified_at = convert_iso8601_to_utc(record[12])
-            last_fetched_at = convert_unix_ts_to_utc(record[13])
+        # Recursive CTE to reconstruct full directory hierarchy and extract JSON metadata
+        query = '''
+        WITH
+        RECURSIVE cte_paths(id, name, path) AS (
+            SELECT
+                modelID AS id,
+                name,
+                '/' || name AS path
+            FROM items
+            WHERE COALESCE(parentID, 0) = 0
+            UNION ALL
+            SELECT
+                i.modelID AS id,
+                i.name,
+                p.path || '/' || i.name AS path
+            FROM items AS i
+            JOIN cte_paths AS p ON (i.parentID = p.id)
+        )
 
-            # Ownership and tracking properties
-            favorites = record[14]
-            collection_names = record[15]
-            owner_login = record[16]
-            owner_name = record[17]
-            owner_id = record[18]
-            creator_login = record[19]
-            creator_name = record[20]
-            creator_id = record[21]
-            modifier_login = record[22]
-            modifier_name = record[23]
-            modifier_id = record[24]
+        SELECT
+            p.id,
+            i.type,
+            p.name,
+            json_extract(i.jsonData, '$.extension'),
+            p.path,
+            json_extract(i.jsonData, '$.shared_link.url'),
+            json_extract(i.jsonData, '$.description'),
+            json_extract(i.jsonData, '$.size'),
+            json_extract(i.jsonData, '$.file_version.id'),
+            json_extract(i.jsonData, '$.content_created_at'),
+            json_extract(i.jsonData, '$.content_modified_at'),
+            json_extract(i.jsonData, '$.created_at'),
+            json_extract(i.jsonData, '$.modified_at'),
+            i.lastNetworkFetchedTimestamp,
+            CASE
+                WHEN EXISTS (
+                SELECT 1
+                FROM json_each(i.jsonData, '$.collections')
+                WHERE json_extract(json_each.value, '$.collection_type') = 'favorites'
+                )
+                THEN 'Yes'
+                ELSE 'No'
+            END AS "Favorites",
+            (
+                SELECT group_concat(json_extract(cn.value, '$.name'), ', ')
+                FROM json_each(json_extract(i.jsonData, '$.collections')) AS cn
+            ) AS "Collection Names",
+            json_extract(i.jsonData, '$.owned_by.login'),
+            json_extract(i.jsonData, '$.owned_by.name'),
+            json_extract(i.jsonData, '$.owned_by.id'),
+            json_extract(i.jsonData, '$.created_by.login'),
+            json_extract(i.jsonData, '$.created_by.name'),
+            json_extract(i.jsonData, '$.created_by.id'),
+            json_extract(i.jsonData, '$.modified_by.login'),
+            json_extract(i.jsonData, '$.modified_by.name'),
+            json_extract(i.jsonData, '$.modified_by.id'),
+            i.SHA1
+        FROM cte_paths AS p
+        LEFT JOIN items AS i ON (i.modelID = p.id)
+        ORDER BY i.type DESC, p.path ASC;
+        '''
 
-            # Hash SHA1
-            sha1 = record[25]
+        cursor.execute(query)
 
-            # Offline status logic: cross-referencing DB with Plists and Seeker
-            is_offline = 'Undetermined (no artifacts)'
-            downloaded_at, offline_source = None, None
-            item_id_str = str(item_id) if item_id is not None else ''
+        for record in cursor:
+            try:
+                # Unpack record for clarity
+                (
+                    item_id, item_type, item_name, item_ext, full_path, url,
+                    description, item_size, version_id, r_ccreated, r_cmodified,
+                    r_created, r_modified, r_fetched, favorites, collections,
+                    o_login, o_name, o_id, c_login, c_name, c_id,
+                    m_login, m_name, m_id, sha1
+                ) = record
 
-            if offline_artifacts_available:
-                is_offline = 'No'
-                # Strong offline evidence
-                if item_id_str in offline_ids:
-                    is_offline = 'Yes'
-                    downloaded_at = offline_ids[item_id_str]['download_date']
-                    offline_source = Path(offline_ids[item_id_str]['source']).name
-                # Weak offline evidence via cache
-                elif bool(sha1) and context.get_seeker().search(sha1):
-                    is_offline = 'Yes (cache only)'
-                    offline_source = 'Filesystem cache'
+                # Format URLs with safety checks
+                url_html = format_url(url, html_format=True)
 
-            # HTML row
-            data_list_html.append((created_at, item_id, item_type, item_name, item_ext,
-                                    full_path, url_html, description, item_size_html, version_id,
-                                    content_created_at, content_modified_at, modified_at,
-                                    last_fetched_at, is_offline, downloaded_at, offline_source,
-                                    favorites, collection_names, owner_login, owner_name,
-                                    owner_id, creator_login, creator_name, creator_id,
-                                    modifier_login, modifier_name, modifier_id, sha1))
-            # LAVA row
-            data_list.append((created_at, item_id, item_type, item_name, item_ext, full_path,
-                                url, description, item_size, version_id,
-                                content_created_at, content_modified_at, modified_at,
-                                last_fetched_at, is_offline, downloaded_at, offline_source,
-                                favorites, collection_names, owner_login, owner_name, owner_id,
-                                creator_login, creator_name, creator_id, modifier_login,
-                                modifier_name, modifier_id, sha1))
+                # Convert bytes to human-readable format (e.g., MB, GB)
+                item_size_html = convert_bytes_to_unit(item_size)
 
-        except (IndexError, TypeError, ValueError) as ex:
-            logfunc(f"[{context.get_artifact_name()}] Error - itemID {record[0]}: {ex}")
-            continue
+                # Parsing and normalization of timestamps (ISO8601 and Unix)
+                ccreated_at = convert_iso8601_to_utc(r_ccreated)
+                cmodified_at = convert_iso8601_to_utc(r_cmodified)
+                created_at = convert_iso8601_to_utc(r_created)
+                modified_at = convert_iso8601_to_utc(r_modified)
+                last_fetched_at = convert_unix_ts_to_utc(r_fetched)
+
+                # Offline status logic: cross-referencing DB with Plists and Seeker
+                is_offline = 'Undetermined (no artifacts)'
+                downloaded_at, offline_source = None, None
+                item_id_str = str(item_id) if item_id is not None else ''
+
+                if offline_artifacts_available:
+                    is_offline = 'No'
+                    # Strong offline evidence
+                    if item_id_str in offline_ids:
+                        is_offline = 'Yes'
+                        downloaded_at = offline_ids[item_id_str]['download_date']
+                        offline_source = Path(offline_ids[item_id_str]['source']).name
+                    # Weak offline evidence via cache
+                    elif bool(sha1) and context.get_seeker().search(sha1):
+                        is_offline = 'Yes (cache only)'
+                        offline_source = 'Filesystem cache'
+
+                # Base row for both lists
+                base_data = (
+                    created_at, item_id, item_type, item_name, item_ext, full_path, url,
+                    description, item_size, version_id, ccreated_at, cmodified_at,
+                    modified_at, last_fetched_at, is_offline, downloaded_at, offline_source,
+                    favorites, collections, o_login, o_name, o_id, c_login, c_name, c_id,
+                    m_login, m_name, m_id, sha1
+                )
+
+                # LAVA row
+                data_list.append(base_data)
+
+                # HTML row
+                html_list = list(base_data)
+                html_list[6] = url_html
+                html_list[8] = item_size_html
+                data_list_html.append(tuple(html_list))
+
+            except (IndexError, TypeError, ValueError) as ex:
+                logfunc(f"[{context.get_artifact_name()}] "
+                        f"Error - Failed parsing record items id {record[0]} in "
+                        f"{source_path}: {ex}")
+                continue
+
+    except sqlite3.Error as db_ex:
+        # Log fatal database errors (e.g., malformed DB or missing tables)
+        logfunc(f"[{context.get_artifact_name()}] "
+                f"Error - executing query on {source_path}: {db_ex}")
+    finally:
+        # Ensure the database connection is closed safely
+        db.close()
 
     return data_headers, (data_list, data_list_html), '; '.join(source_paths)
 
@@ -563,79 +576,74 @@ def box_previews(context):
     data_list = []
     source_paths = []
 
-    for file_found in context.get_files_found():
-        source_path = str(file_found)
+    source_path = context.get_source_file_path('PreviewItem.db')
+    if not source_path:
+        return data_headers, data_list, source_path
+    source_paths.append(source_path)
 
-        if not file_found.endswith('PreviewItem.db'):
-            continue
+    # Safely retrieve User ID from path; defaults to empty string if extraction fails
+    user_id = extract_user_id_safe(source_path, context) or ''
 
-        source_paths.append(source_path)
+    # SQL query utilizing JSON functions to extract representation metadata
+    query = '''
+    SELECT
+        p.fileID AS "File ID",
+        p.name AS "Preview Name",
+        LOWER(json_extract(e.value, '$.representation')),
+        json_extract(e.value, '$.properties.dimensions') AS "dimensions",
+        TRIM(
+            SUBSTR(
+                json_extract(e.value, '$.info.url'),
+                INSTR(json_extract(e.value, '$.info.url'), 'versions/') + 9,
+                INSTR(SUBSTR(json_extract(e.value, '$.info.url'), INSTR(json_extract(e.value, '$.info.url'), 'versions/') + 9), '/') - 1
+            )
+        ) AS "File Version",
+        p.lastAccessedDate,
+        p.sha1
+    FROM previewItems AS p
+    JOIN json_each(p.representations, '$.entries') AS e
+    ORDER BY p.lastAccessedDate DESC, p.fileID, LENGTH(dimensions) DESC, dimensions DESC
+    '''
 
-        # Safely retrieve User ID from path; defaults to empty string if extraction fails
-        user_id = extract_user_id_safe(source_path, context) or ''
+    db_records = get_sqlite_db_records(source_path, query)
 
-        # SQL query utilizing JSON functions to extract representation metadata
-        query = '''
-        SELECT
-            p.fileID AS "File ID",
-            p.name AS "Preview Name",
-            LOWER(json_extract(e.value, '$.representation')),
-            json_extract(e.value, '$.properties.dimensions') AS "dimensions",
-            TRIM(
-                SUBSTR(
-                    json_extract(e.value, '$.info.url'),
-                    INSTR(json_extract(e.value, '$.info.url'), 'versions/') + 9,
-                    INSTR(SUBSTR(json_extract(e.value, '$.info.url'), INSTR(json_extract(e.value, '$.info.url'), 'versions/') + 9), '/') - 1
-                )
-            ) AS "File Version",
-            p.lastAccessedDate,
-            p.sha1
-        FROM previewItems AS p
-        JOIN json_each(p.representations, '$.entries') AS e
-        ORDER BY p.lastAccessedDate DESC, p.fileID, LENGTH(dimensions) DESC, dimensions DESC
-        '''
+    for record in db_records:
+        try:
+            # Unpack record for clarity
+            f_id, f_name, f_ext, dim, v_id, r_accessed, sha1 = record
 
-        db_records = get_sqlite_db_records(source_path, query)
-        for record in db_records:
-            try:
-                file_id = str(record[0] or '')
-                file_name = str(record[1] or '')
-                file_ext = (record[2] or '')
-                dimensions = (record[3] or '')
-                version_id = record[4]
-                last_accessed_at = convert_unix_ts_to_utc(record[5])
-                sha1 = (record[6] or '')
+            # Parsing and normalization of timestamps (ISO8601 and Unix)
+            last_accessed_at = convert_unix_ts_to_utc(r_accessed)
 
-                if not all([ file_id, file_name, file_ext, dimensions, sha1 ]):
-                    continue
-
-                # Preview thumbnail path
-                base_p = f'File Provider Storage/boxpreview/{user_id}/cache/files/{file_id}'
-                preview_path = f'{base_p}/{file_ext}_{dimensions}/{file_name}'
-
-                preview_ref_id = None
-                if context.get_source_file_path(preview_path):
-                    matcher = get_type(mime=None, ext=file_ext)
-                    mime = matcher.mime if matcher else matcher
-                    preview_ref_id = check_in_media(preview_path, file_name, force_type=mime)
-
-                # Original file path
-                original_path = f'{base_p}/original/{file_name}'
-
-                original_ref_id = None
-                if context.get_source_file_path(original_path):
-                    matcher = get_type(mime=None, ext=Path(file_name).suffix.strip('.'))
-                    mime = matcher.mime if matcher else matcher
-                    original_ref_id = check_in_media(original_path, file_name, force_type=mime)
-
-                # LAVA row
-                data_list.append((last_accessed_at, preview_ref_id, file_id, file_name, file_ext,
-                                  dimensions, original_ref_id, version_id, sha1, user_id))
-
-            except (IndexError, TypeError, ValueError) as ex:
-                logfunc(f"[{context.get_artifact_name()}] Error - Parsing failed for "
-                        f"fileID {record[0]} preview '{record[1]}' in {source_path}: {ex}")
+            if not all([ f_id, f_name, f_ext, dim, sha1 ]):
                 continue
+
+            # Preview thumbnail path
+            base_p = f"File Provider Storage/boxpreview/{user_id}/cache/files/{f_id}"
+            preview_path = f"{base_p}/{f_ext}_{dim}/{f_name}"
+            preview_ref_id = None
+            if context.get_source_file_path(preview_path):
+                preview_ref_id = check_in_media(preview_path, f_name)
+
+            # Original file path
+            original_path = f"{base_p}/original/{f_name}"
+            original_ref_id = None
+            if context.get_source_file_path(original_path):
+                matcher = get_type(mime=None, ext=Path(f_name).suffix.strip('.'))
+                mime = matcher.mime if matcher else matcher
+                original_ref_id = check_in_media(original_path, f_name, force_type=mime)
+
+            # LAVA row
+            data_list.append((
+                last_accessed_at, preview_ref_id, f_id, f_name,
+                f_ext, dim, original_ref_id, v_id, sha1, user_id
+            ))
+
+        except (IndexError, TypeError, ValueError) as ex:
+            logfunc(f"[{context.get_artifact_name()}] "
+                    f"Error - Failed parsing record previewItems fileID {record[0]} in "
+                    f"{source_path}: {ex}")
+            continue
 
     return data_headers, data_list, '; '.join(source_paths)
 
@@ -661,6 +669,8 @@ def box_recents(context):
     data_list_html = []
 
     source_path = context.get_source_file_path('Recents.db')
+    if not source_path:
+        return data_headers, (data_list, data_list_html), source_path
     item_db = context.get_source_file_path('Item.db')
 
     # Attach the Item.db database to the current query in a read-only mode
@@ -681,28 +691,33 @@ def box_recents(context):
     '''
 
     db_records = get_sqlite_db_records(source_path, query, attach_query)
+
     for record in db_records:
         try:
-            interaction_ts = convert_unix_ts_to_utc(record[0])
-            interaction_type = record[1]
-            item_id = record[2]
-            item_type = record[3]
-            item_name = record[4]
-            item_ext = record[5]
-            item_size = record[6]
-            item_size_html = convert_bytes_to_unit(item_size)
+            # Unpack for clarity
+            r_int_ts, int_type, i_id, i_type, i_name, i_ext, i_size = record
+
+            # Parsing and normalization of timestamps (ISO8601 and Unix)
+            interaction_ts = convert_unix_ts_to_utc(r_int_ts)
+
+            # Convert bytes to human-readable format (e.g., MB, GB)
+            item_size_html = convert_bytes_to_unit(i_size)
+
+            # Base row for both lists
+            base_data = (
+                interaction_ts, int_type, i_id, i_type, i_name, i_ext, i_size
+            )
+
+            # LAVA row
+            data_list.append(base_data)
 
             # HTML row
-            data_list_html.append((interaction_ts, interaction_type, item_id, item_type,
-                                   item_name, item_ext, item_size_html))
-            # LAVA row
-            data_list.append((interaction_ts, interaction_type, item_id, item_type,
-                              item_name, item_ext, item_size))
+            data_list_html.append(base_data[:-1] + (item_size_html,))
 
         except (IndexError, TypeError, ValueError) as ex:
-            logfunc(f"[{context.get_artifact_name()}] Error - Parsing failed for "
-                    f"itemID {record[2]} in {source_path}: {ex}")
-            continue
+            logfunc(f"[{context.get_artifact_name()}] "
+                    f"Error - Failed parsing record recents itemID {record[2]} in "
+                    f"{source_path}: {ex}")
 
     return data_headers, (data_list, data_list_html), source_path
 
@@ -736,6 +751,8 @@ def box_comments(context):
     data_list = []
 
     source_path = context.get_source_file_path('annotations.db')
+    if not source_path:
+        return data_headers, data_list, source_path
     item_db = context.get_source_file_path('Item.db')
 
     # Attach Item.db to correlate activity with file names
@@ -808,46 +825,40 @@ def box_comments(context):
     db_records = get_sqlite_db_records(source_path, query, attach_query)
     for record in db_records:
         try:
-            resource_id = record[0]
-            resource_type = record[1]
-            created_at = convert_unix_ts_to_utc(record[2])
+            (
+                r_id, r_type, r_created, r_modified, f_id, f_name, msg, t_msg,
+                reply_val, c_login, c_name, c_id, m_login, m_name, m_id, r_fetched
+            ) = record
+
+
+            # Parsing and normalization of timestamps (ISO8601 and Unix)
+            created_at = convert_unix_ts_to_utc(r_created)
+            fetched_at = convert_unix_ts_to_utc(r_fetched)
 
             # Differential timestamp parsing: comments use ISO8601, annotations use Unix
-            if resource_type == 'comment':
-                modified_at = convert_iso8601_to_utc(record[3])
-            elif resource_type == 'annotation':
-                modified_at = convert_unix_ts_to_utc(record[3])
+            if r_type == 'comment':
+                modified_at = convert_iso8601_to_utc(r_modified)
+            elif r_type == 'annotation':
+                modified_at = convert_unix_ts_to_utc(r_modified)
             else:
                 modified_at = None
 
-            file_id = record[4]
-            file_name = record[5]
-            message = record[6]
-            tagged_message = record[7]
-
             # Reply flag logic (specific to comments)
-            val = int(record[8]) if record[8] is not None else None
-            is_reply = 'Yes' if (resource_type == 'comment' and val == 1) else \
-                       ('No' if (resource_type == 'comment' and val == 0) else None)
-
-            # User metadata
-            creator_login = record[9]
-            creator_name = record[10]
-            creator_id = record[11]
-            modifier_login = record[12]
-            modifier_name = record[13]
-            modifier_id = record[14]
-            fetched_at = convert_unix_ts_to_utc(record[15])
+            val = int(reply_val) if reply_val is not None else None
+            is_reply = 'Yes' if (r_type == 'comment' and val == 1) else \
+                       ('No' if (r_type == 'comment' and val == 0) else None)
 
             # LAVA row
-            data_list.append((created_at, resource_id, resource_type, modified_at, file_id,
-                              file_name, message, tagged_message, is_reply, creator_login,
-                              creator_name, creator_id, modifier_login, modifier_name,
-                              modifier_id, fetched_at))
+            data_list.append((
+                created_at, r_id, r_type, modified_at, f_id, f_name, msg,
+                t_msg, is_reply, c_login, c_name, c_id, m_login, m_name,
+                m_id, fetched_at
+            ))
 
         except (IndexError, TypeError, ValueError) as ex:
-            logfunc(f"[{context.get_artifact_name()}] Error - Parsing failed for "
-                    f"record {record[0] if record else 'Unknown'}: {ex}")
+            logfunc(f"[{context.get_artifact_name()}] "
+                    f"Error - Failed parsing record fileActivity id {record[0]} in "
+                    f"{source_path}: {ex}")
             continue
 
     return data_headers, data_list, source_path
