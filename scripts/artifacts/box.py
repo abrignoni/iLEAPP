@@ -1,7 +1,7 @@
 """
 Box Artifact Module
-Extracts account, file hierarchy, and offline metadata from Box on iOS, 
-including shared links, collections, and cached media previews, 
+Extracts account, file hierarchy, and offline metadata from Box on iOS,
+including shared links, collections, and cached media previews,
 along with recent activity, comments, and file annotations.
 """
 
@@ -17,7 +17,7 @@ __artifacts_v2__ = {
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/"
                   "group.net.box.BoxNet.plist"),
-        "output_types": [ "standard" ],
+        "output_types": ["standard"],
         "artifact_icon": "user"
     },
     "box_all_files": {
@@ -34,8 +34,8 @@ __artifacts_v2__ = {
                   "itemIDs.plist",
                   "*/mobile/Containers/Shared/AppGroup/*/Documents/offlinefilesinfo/"
                   "lastDownloadDates.plist"),
-        "output_types": [ "standard" ],
-        "html_columns": [ "URL" ],
+        "output_types": ["standard"],
+        "html_columns": ["URL"],
         "artifact_icon": "cloud"
     },
     "box_previews": {
@@ -51,7 +51,7 @@ __artifacts_v2__ = {
                   "PreviewItem.db*",
                   "*/mobile/Containers/Shared/AppGroup/*/File Provider Storage/boxpreview/*/cache/"
                   "files/*/*/*"),
-        "output_types": [ "standard" ],
+        "output_types": ["standard"],
         "artifact_icon": "image"
     },
     "box_recents": {
@@ -65,7 +65,7 @@ __artifacts_v2__ = {
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Shared/AppGroup/*/Documents/db/Recents.db*",
                   "*/mobile/Containers/Shared/AppGroup/*/Documents/db/Item.db*"),
-        "output_types": [ "standard" ],
+        "output_types": ["standard"],
         "artifact_icon": "search"
     },
     "box_comments": {
@@ -79,14 +79,13 @@ __artifacts_v2__ = {
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Shared/AppGroup/*/Documents/db/annotations.db*",
                   "*/mobile/Containers/Shared/AppGroup/*/Documents/db/Item.db*"),
-        "output_types": [ "standard" ],
+        "output_types": ["standard"],
         "artifact_icon": "message-circle"
     },
 }
 
 import re
 import html
-import plistlib
 import sqlite3
 from datetime import timezone, datetime
 from pathlib import Path
@@ -99,6 +98,7 @@ from scripts.ilapfuncs import artifact_processor, check_in_media, get_plist_file
 
 # Pattern to normalize timezone offsets from +HHMM -> +HH:MM
 ISO_OFFSET_FIX = re.compile(r'([+-]\d{2})(\d{2})$')
+
 
 def convert_iso8601_to_utc(str_date: str | bytes | None) -> str | None:
     """
@@ -167,7 +167,7 @@ def convert_iso8601_to_utc(str_date: str | bytes | None) -> str | None:
         return s
 
 
-def format_url(str_url : str | None, html_format : bool = False) -> str:
+def format_url(str_url: str | None, html_format: bool = False) -> str:
     """
     Normalize a raw URL and optionally format it as a safe HTML anchor.
     - Return an empty string if str_url is None, empty, or the literal 'null'.
@@ -211,7 +211,7 @@ def format_url(str_url : str | None, html_format : bool = False) -> str:
 @artifact_processor
 def box_account(context):
     """
-    Extract Box account metadata from the main app plist, 
+    Extract Box account metadata from the main app plist,
     deserializing embedded JSON user data.
     """
 
@@ -263,12 +263,12 @@ def box_account(context):
 
         # HTML row
         data_list_html.append((created_at, login, name, has_avatar, is_enterprise, user_id,
-                                user_timezone, language, total_space_html, used_space_html,
-                                max_upload_size_html))
+                               user_timezone, language, total_space_html, used_space_html,
+                               max_upload_size_html))
         # LAVA row
         data_list.append((created_at, login, name, has_avatar, is_enterprise, user_id,
-                            user_timezone, language, total_space, used_space,
-                            max_upload_size))
+                          user_timezone, language, total_space, used_space,
+                          max_upload_size))
 
     except (KeyError, TypeError, ValueError) as ex:
         logfunc(f"[{context.get_artifact_name()}] "
@@ -283,7 +283,7 @@ def box_account(context):
 @artifact_processor
 def box_all_files(context):
     """
-    Reconstruct the full Box file hierarchy using a recursive CTE 
+    Reconstruct the full Box file hierarchy using a recursive CTE
     and correlate with offline availability artifacts (plists).
     """
 
@@ -327,44 +327,35 @@ def box_all_files(context):
     last_dates_path = context.get_source_file_path('lastDownloadDates.plist')
     # Main database (Item.db)
     source_path = context.get_source_file_path('Item.db')
-    source_paths = [ p for p in [ source_path, ids_path, last_dates_path ] if p ]
+    source_paths = [p for p in [source_path, ids_path, last_dates_path] if p]
 
     offline_ids: dict[str, dict] = {}
 
     # Process itemIDs.plist
     if ids_path:
-        try:
-            with open(ids_path, 'rb') as f:
-                ids_data = plistlib.load(f)
-            if ids_data:
-                offline_ids.update({
-                    str(model_id): {
-                        'offline': True,
-                        'download_date': None,
-                        'source': ids_path
-                    } for model_id in ids_data
-                })
-        except (OSError, ValueError, TypeError) as ex:
-            logfunc(f"[{context.get_artifact_name()}] Error - reading {ids_path}: {ex}")
+        ids_data = get_plist_file_content(ids_path)
+        if ids_data:
+            offline_ids.update({
+                str(model_id): {
+                    'offline': True,
+                    'download_date': None,
+                    'source': ids_path
+                } for model_id in ids_data
+            })
 
     # Process lastDownloadDates.plist
     if last_dates_path:
-        try:
-            with open(last_dates_path, 'rb') as f:
-                last_dates_data = plistlib.load(f)
-            if last_dates_data:
-                offline_ids.update({
-                    str(model_id): {
-                        'offline': True,
-                        'download_date': date,
-                        'source': last_dates_path
-                    } for model_id, date in last_dates_data.items()
-                })
-        except (OSError, ValueError, TypeError) as ex:
-            logfunc(f"[{context.get_artifact_name()}] Error - reading {last_dates_path}: {ex}")
+        last_dates_data = get_plist_file_content(last_dates_path)
+        if last_dates_data:
+            offline_ids.update({
+                str(model_id): {
+                    'offline': True,
+                    'download_date': date,
+                    'source': last_dates_path
+                } for model_id, date in last_dates_data.items()
+            })
 
     offline_artifacts_available = bool(offline_ids)
-
 
     db = open_sqlite_db_readonly(source_path)
     if not db:
@@ -556,7 +547,7 @@ def extract_user_id_safe(path: str, context) -> str | None:
 @artifact_processor
 def box_previews(context):
     """
-    Process Box preview and thumbnail information from PreviewItem.db, 
+    Process Box preview and thumbnail information from PreviewItem.db,
     linking cached images to their respective file IDs and versions.
     """
 
@@ -595,7 +586,11 @@ def box_previews(context):
             SUBSTR(
                 json_extract(e.value, '$.info.url'),
                 INSTR(json_extract(e.value, '$.info.url'), 'versions/') + 9,
-                INSTR(SUBSTR(json_extract(e.value, '$.info.url'), INSTR(json_extract(e.value, '$.info.url'), 'versions/') + 9), '/') - 1
+                INSTR(SUBSTR(
+                    json_extract(e.value, '$.info.url'),
+                    INSTR(json_extract(e.value, '$.info.url'),
+                    'versions/') + 9), '/'
+                ) - 1
             )
         ) AS "File Version",
         p.lastAccessedDate,
@@ -615,7 +610,7 @@ def box_previews(context):
             # Parsing and normalization of timestamps (ISO8601 and Unix)
             last_accessed_at = convert_unix_ts_to_utc(r_accessed)
 
-            if not all([ f_id, f_name, f_ext, dim, sha1 ]):
+            if not all([f_id, f_name, f_ext, dim, sha1]):
                 continue
 
             # Preview thumbnail path
@@ -651,7 +646,7 @@ def box_previews(context):
 @artifact_processor
 def box_recents(context):
     """
-    Process Box recent activity by joining Recents.db with the 
+    Process Box recent activity by joining Recents.db with the
     attached Item.db to retrieve full metadata for each item.
     """
 
@@ -725,7 +720,7 @@ def box_recents(context):
 @artifact_processor
 def box_comments(context):
     """
-    Process Box comments and annotations by correlating activity 
+    Process Box comments and annotations by correlating activity
     between annotations.db and Item.db.
     """
 
@@ -829,7 +824,6 @@ def box_comments(context):
                 r_id, r_type, r_created, r_modified, f_id, f_name, msg, t_msg,
                 reply_val, c_login, c_name, c_id, m_login, m_name, m_id, r_fetched
             ) = record
-
 
             # Parsing and normalization of timestamps (ISO8601 and Unix)
             created_at = convert_unix_ts_to_utc(r_created)
