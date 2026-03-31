@@ -611,10 +611,9 @@ def get_txt_file_content(file_path):
 def get_plist_content(data):
     try:
         plist_content = plistlib.loads(data)
-            if isinstance(plist_content, dict) and plist_content.get('$archiver', '') == 'NSKeyedArchiver':
+        if isinstance(plist_content, dict) and plist_content.get('$archiver', '') == 'NSKeyedArchiver':
             return nska_deserialize.deserialize_plist_from_string(data)
-        else:
-            return plist_content
+        return plist_content
     except plistlib.InvalidFileException:
         logfunc(f"Error: Invalid plist data")
     except xml.parsers.expat.ExpatError:
@@ -637,8 +636,7 @@ def get_plist_file_content(file_path):
             plist_content = plistlib.load(file)
             if isinstance(plist_content, dict) and plist_content.get('$archiver', '') == 'NSKeyedArchiver':
                 return nska_deserialize.deserialize_plist(file_path)
-            else:
-                return plist_content
+            return plist_content
     except FileNotFoundError:
         logfunc(f"Error: Plist file not found at {file_path}")
     except PermissionError:
