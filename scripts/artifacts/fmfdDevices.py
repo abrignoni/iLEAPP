@@ -74,7 +74,8 @@ def _parse_fmfd_plist(raw_bytes):
 
 
 @artifact_processor
-def fmfd_notbackedup_devices(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def fmfd_notbackedup_devices(context):
+    files_found = context.get_files_found()
     data_headers = (
         'Device Name',
         'Device ID',
