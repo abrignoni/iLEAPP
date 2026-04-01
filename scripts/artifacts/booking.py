@@ -1,10 +1,20 @@
+"""
+Booking.com Artifact Module
+Extracts comprehensive user data from the Booking.com iOS application, including 
+account profiles, saved travel companions, payment methods, and wish lists. 
+It also parses recently viewed accommodations, search history, confirmed 
+reservations (from plists and PDFs), stored destinations, app notifications, 
+and flight searches.
+"""
+# pylint: disable=too-many-lines
+
 __artifacts_v2__ = {
     "booking_account": {
         "name": "Booking - Account",
         "description": "Extracts Booking.com user profile details.",
         "author": "@djangofaiola",
         "creation_date": "2024-05-28",
-        "last_update_date": "2026-03-30",
+        "last_update_date": "2026-03-31",
         "requirements": "none",
         "category": "Booking.com",
         "notes": "https://djangofaiola.blogspot.com",
@@ -21,7 +31,7 @@ __artifacts_v2__ = {
         "description": "Extracts Booking.com saved travel companions details.",
         "author": "@djangofaiola",
         "creation_date": "2026-03-21",
-        "last_update_date": "2026-03-30",
+        "last_update_date": "2026-03-31",
         "requirements": "none",
         "category": "Booking.com",
         "notes": "https://djangofaiola.blogspot.com",
@@ -35,7 +45,7 @@ __artifacts_v2__ = {
         "description": "Extracts Booking.com saved payment methods and credit card details.",
         "author": "@djangofaiola",
         "creation_date": "2024-05-28",
-        "last_update_date": "2026-03-30",
+        "last_update_date": "2026-03-31",
         "requirements": "none",
         "category": "Booking.com",
         "notes": "https://djangofaiola.blogspot.com",
@@ -51,11 +61,12 @@ __artifacts_v2__ = {
         "description": "Extracts Booking.com saved property wish lists.",
         "author": "@djangofaiola",
         "creation_date": "2024-05-28",
-        "last_update_date": "2026-03-30",
+        "last_update_date": "2026-03-31",
         "requirements": "none",
         "category": "Booking.com",
         "notes": "https://djangofaiola.blogspot.com",
-        "paths": ("*/mobile/Containers/Data/Application/*/Library/Application Support/KeyValueStorageRecentsDomain*"),
+        "paths": ("*/mobile/Containers/Data/Application/*/Library/Application Support/"
+                  "KeyValueStorageRecentsDomain*"),
         "output_types": [ "standard" ],
         "artifact_icon": "star"
     },
@@ -64,11 +75,12 @@ __artifacts_v2__ = {
         "description": "Extracts Booking.com recently viewed accommodations.",
         "author": "@djangofaiola",
         "creation_date": "2024-05-28",
-        "last_update_date": "2026-03-30",
+        "last_update_date": "2026-03-31",
         "requirements": "none",
         "category": "Booking.com",
         "notes": "https://djangofaiola.blogspot.com",
-        "paths": ("*/mobile/Containers/Data/Application/*/Library/Application Support/KeyValueStorageRecentsDomain*"),
+        "paths": ("*/mobile/Containers/Data/Application/*/Library/Application Support/"
+                  "KeyValueStorageRecentsDomain*"),
         "output_types": [ "standard" ],
         "html_columns": [ "Image URL", "Website" ],
         "artifact_icon": "eye"
@@ -78,11 +90,12 @@ __artifacts_v2__ = {
         "description": "Extracts Booking.com recent searches for accommodations and destinations.",
         "author": "@djangofaiola",
         "creation_date": "2024-05-28",
-        "last_update_date": "2026-03-30",
+        "last_update_date": "2026-03-31",
         "requirements": "none",
         "category": "Booking.com",
         "notes": "https://djangofaiola.blogspot.com",
-        "paths": ("*/mobile/Containers/Data/Application/*/Library/Application Support/KeyValueStorageRecentsDomain*"),
+        "paths": ("*/mobile/Containers/Data/Application/*/Library/Application Support/"
+                  "KeyValueStorageRecentsDomain*"),
         "output_types": [ "standard" ],
         "artifact_icon": "search"
     },
@@ -91,11 +104,12 @@ __artifacts_v2__ = {
         "description": "Extracts Booking.com recently booked accommodations and reservations.",
         "author": "@djangofaiola",
         "creation_date": "2024-05-28",
-        "last_update_date": "2026-03-30",
+        "last_update_date": "2026-03-31",
         "requirements": "none",
         "category": "Booking.com",
         "notes": "https://djangofaiola.blogspot.com",
-        "paths": ("*/mobile/Containers/Data/Application/*/Library/Application Support/KeyValueStorageRecentsDomain*"),
+        "paths": ("*/mobile/Containers/Data/Application/*/Library/Application Support/"
+                  "KeyValueStorageRecentsDomain*"),
         "output_types": [ "lava", "html", "tsv" ],
         "html_columns": [ "Image URL", "Website" ],
         "artifact_icon": "shopping-bag"
@@ -105,17 +119,19 @@ __artifacts_v2__ = {
         "description": "Extracts Booking.com saved and confirmed reservations.",
         "author": "@djangofaiola",
         "creation_date": "2024-05-28",
-        "last_update_date": "2026-03-30",
+        "last_update_date": "2026-03-31",
         "requirements": "none",
         "category": "Booking.com",
         "notes": "https://djangofaiola.blogspot.com",
-        "paths": ("*/mobile/Containers/Data/Application/*/Library/Application Support/BookingClouds*",
+        "paths": ("*/mobile/Containers/Data/Application/*/Library/Application Support/"
+                  "BookingClouds*",
                   "*/mobile/Containers/Data/Application/*/Documents/Booking #*.pdf",
-                  "*/mobile/Containers/Data/Application/*/Library/Preferences/com.booking.BookingApp.plist"),
+                  "*/mobile/Containers/Data/Application/*/Library/Preferences/"
+                  "com.booking.BookingApp.plist"),
         "output_types": [ "standard" ],
         "html_columns": [ "Check-In/Out (Hotel Time Zone)", "Hotel Contacts",
                           "Confirmation Number/PIN Code", "Rooms", "Booker Details",
-                          "Attachment", "Source File Name" ],
+                          "Source File Name" ],
         "artifact_icon": "shopping-bag"
     },
     "booking_stored_destinations": {
@@ -123,11 +139,12 @@ __artifacts_v2__ = {
         "description": "Extracts Booking.com stored travel destinations.",
         "author": "@djangofaiola",
         "creation_date": "2024-05-28",
-        "last_update_date": "2026-03-30",
+        "last_update_date": "2026-03-31",
         "requirements": "none",
         "category": "Booking.com",
         "notes": "https://djangofaiola.blogspot.com",
-        "paths": ("*/mobile/Containers/Data/Application/*/Library/Application Support/KeyValueStorageSharedDomain*"),
+        "paths": ("*/mobile/Containers/Data/Application/*/Library/Application Support/"
+                  "KeyValueStorageSharedDomain*"),
         "output_types": [ "standard" ],
         "html_columns": [ "Image URL" ],
         "artifact_icon": "map"
@@ -137,11 +154,12 @@ __artifacts_v2__ = {
         "description": "Extracts Booking.com app notifications and messages.",
         "author": "@djangofaiola",
         "creation_date": "2024-05-28",
-        "last_update_date": "2026-03-30",
+        "last_update_date": "2026-03-31",
         "requirements": "none",
         "category": "Booking.com",
         "notes": "https://djangofaiola.blogspot.com",
-        "paths": ("*/mobile/Containers/Data/Application/*/Library/Application Support/NotificationsModel.sqlite*"),
+        "paths": ("*/mobile/Containers/Data/Application/*/Library/Application Support/"
+                  "NotificationsModel.sqlite*"),
         "output_types": [ "standard" ],
         "artifact_icon": "bell"
     },
@@ -150,11 +168,12 @@ __artifacts_v2__ = {
         "description": "Extracts Booking.com recent flight searches and trip preferences.",
         "author": "@djangofaiola",
         "creation_date": "2024-05-28",
-        "last_update_date": "2026-03-30",
+        "last_update_date": "2026-03-31",
         "requirements": "none",
         "category": "Booking.com",
         "notes": "https://djangofaiola.blogspot.com",
-        "paths": ("*/mobile/Containers/Data/Application/*/Library/Application Support/flight_rs_v2"),
+        "paths": ("*/mobile/Containers/Data/Application/*/Library/Application Support/"
+                  "flight_rs_v2"),
         "output_types": [ "standard" ],
         "html_columns": [ "Source Airports", "Destination Airports", "Routes",
                           "Travellers' Details" ],
@@ -183,6 +202,53 @@ HTML_HORZ_RULE = '<hr>'
 SOURCE_PATH_NOTE = "Refer to the 'Source file name' column to identify the exact " \
                    "device location of the origin file."
 
+LOCATION_TYPES = {
+    0: 'City',
+    1: 'District',
+    2: 'Region',
+    3: 'Country',
+    4: 'Hotel',
+    5: 'Airport',
+    6: 'Landmark',
+    7: 'Google Places'
+}
+
+HOTEL_TYPES = {
+    201: 'Apartment',
+    202: 'Guest Accommodation',
+    203: 'Hostel',
+    204: 'Hotel',
+    205: 'Motel',
+    206: 'Resort',
+    207: 'Residence',
+    208: 'Bed and Breakfast',
+    209: 'Ryokan',
+    210: 'Farmstay',
+    211: 'Bungalow',
+    212: 'Resort Village',
+    213: 'Villa',
+    214: 'Campground',
+    215: 'Boat',
+    216: 'Guesthouse',
+    218: 'Inn',
+    219: 'Condo Hotel',
+    220: 'Vacation Home',
+    221: 'Lodge',
+    222: 'Homestay',
+    223: 'Country House',
+    224: 'Luxury Tent',
+    225: 'Capsule Hotel',
+    226: 'Love Hotel',
+    227: 'Riad',
+    228: 'Chalet',
+    229: 'Condo',
+    230: 'Cottage',
+    231: 'Economy Hotel',
+    232: 'Gite',
+    233: 'Health Resort',
+    234: 'Cruise',
+    235: 'Student Accommodation'
+}
 
 def unordered_list(values: list[str] | None, html_format: bool = False) -> str | None:
     """
@@ -394,85 +460,23 @@ def get_device_file_path(file_path: str, context) -> str:
 def location_type_names(value: int | None) -> str:
     """
     Convert a numeric location type code into its human-readable name.
-
-    Args:
-        value: Integer code representing a location type (0-7), or None.
-
-    Returns:
-        str: Corresponding location type name, or empty string if value is None,
-             or 'N/D: <value>' if value is unknown.
     """
 
     if value is None:
         return ''
 
-    mapping = {
-        0 : 'City',
-        1 : 'District',
-        2 : 'Region',
-        3 : 'Country',
-        4 : 'Hotel',
-        5 : 'Airport',
-        6 : 'Landmark',
-        7 : 'Google Places',
-    }
-
-    return mapping.get(value, f"N/D: {value}")
+    return LOCATION_TYPES.get(value, f"N/D: {value}")
 
 
 def hotel_type_names(value: int | None) -> str:
     """
     Convert a numeric hotel type code into its human-readable name.
-
-    Args:
-        value: Integer code representing a hotel type, or None.
-
-    Returns:
-        str: Corresponding hotel type name, or empty string if value is None,
-             or 'N/D: <value>' if value is unknown.
     """
 
     if value is None:
         return ''
 
-    mapping = {
-        201 : 'Apartment',
-        202 : 'Guest Accommodation',
-        203 : 'Hostel',
-        204 : 'Hotel',
-        205 : 'Motel',
-        206 : 'Resort',
-        207 : 'Residence',
-        208 : 'Bed and Breakfast',
-        209 : 'Ryokan',
-        210 : 'Farmstay',
-        211 : 'Bungalow',
-        212 : 'Resort Village',
-        213 : 'Villa',
-        214 : 'Campground',
-        215 : 'Boat',
-        216 : 'Guesthouse',
-        218 : 'Inn',
-        219 : 'Condo Hotel',
-        220 : 'Vacation Home',
-        221 : 'Lodge',
-        222 : 'Homestay',
-        223 : 'Country House',
-        224 : 'Luxury Tent',
-        225 : 'Capsule Hotel',
-        226 : 'Love Hotel',
-        227 : 'Riad',
-        228 : 'Chalet',
-        229 : 'Condo',
-        230 : 'Cottage',
-        231 : 'Economy Hotel',
-        232 : 'Gite',
-        233 : 'Health Resort',
-        234 : 'Cruise',
-        235 : 'Student Accommodation',
-    }
-
-    return mapping.get(value, f"N/D: {value}")
+    return HOTEL_TYPES.get(value, f"N/D: {value}")
 
 
 def convert_utc_to_hotel_timezone(ts, timezone_offset):
@@ -1303,22 +1307,25 @@ def booking_recently_booked(context):
     return data_headers, (data_list, data_list_html), source_path
 
 
-def _get_room_details(rooms: list, html_format: bool = False) -> str:
+def _get_rooms_details(rooms: list) -> tuple:
     """
-    Extract and format room-specific information.
+    Extract and format room-specific information for both Plain Text and HTML outputs.
+    Processes the list in a single pass.
     """
-
     if not isinstance(rooms, list) or not rooms:
-        return ''
+        return '', ''
 
-    results = []
+    results_plain = []
+    results_html = []
+
     for i, room in enumerate(rooms):
         if not room:
             continue
 
         meta = []
-
         meta.append(f"Room {i} - {room.get('name', 'N/A')}")
+
+        # Append available room details
         append_tag_value(meta, 'Guest name', room.get('guest_name'))
         append_tag_value(meta, 'Number of guests', room.get('nr_guests'))
         append_tag_value(meta, 'Cancelled', room.get('is_cancelled'))
@@ -1328,34 +1335,54 @@ def _get_room_details(rooms: list, html_format: bool = False) -> str:
         append_tag_value(meta, 'Identifier', room.get('room_id'))
         append_tag_value(meta, 'URL photo', room.get('room_photo'))
 
+        # Extract multiple photos if present
         for j, photo in enumerate(room.get('room_photos', [])):
             append_tag_value(meta, f"URL photo #{j}", photo.get('url_original'))
 
-        results.append(unordered_list(meta, html_format=html_format))
+        # Generate both output formats using the exact same extracted metadata
+        results_plain.append(unordered_list(meta, html_format=False))
+        results_html.append(unordered_list(meta, html_format=True))
 
-    separator = HTML_HORZ_RULE if html_format else f"{LINE_BREAK}{LINE_BREAK}"
+    # Join the finalized lists with their respective visual separators
+    plain_text = f"{LINE_BREAK}{LINE_BREAK}".join(results_plain)
+    html_text = HTML_HORZ_RULE.join(results_html)
 
-    return separator.join(results)
+    return plain_text, html_text
 
 
 def _format_booking_registration(val: dict, tz: str) -> tuple:
     """
-    Format check-in and check-out information.
+    Extract and format check-in and check-out information.
+    Generates both Plain Text and HTML formats.
     """
+    if not isinstance(val, dict) or not val:
+        return '', ''
 
     check_io = []
-    for action in [ 'checkin', 'checkout' ]:
+
+    # Iterate over both check-in and check-out actions
+    for action in ['checkin', 'checkout']:
         date_val = val.get(action)
+
         if date_val:
+            # Determine the correct prefix label
             prefix = 'Check-in' if action == 'checkin' else 'Check-out'
+
+            # Format the time range using the helper function
             time_str = format_check_in_out(
                 val.get(f"{action}_from_epoch"),
                 val.get(f"{action}_until_epoch"),
                 tz=tz
             )
+
+            # Append the formatted date and time string
             check_io.append(f"{prefix}: {date_val.strftime('%Y-%m-%d')} {time_str}")
 
-    return unordered_list(check_io), unordered_list(check_io, html_format=True)
+    # Generate both output formats using the exact same extracted metadata
+    plain_text = unordered_list(check_io, html_format=False)
+    html_text = unordered_list(check_io, html_format=True)
+
+    return plain_text, html_text
 
 
 @artifact_processor
@@ -1440,16 +1467,16 @@ def booking_booked(context):
                     booking_pdf = f"Booking #{key}.pdf"
                     media_path = f"{booking_app_id}/Documents/{booking_pdf}"
                     media_ref_id = None
-                    src_file_path = get_device_file_path(media_path, context)
-                    # Ensure the path exists and is not just the fallback input
-                    if src_file_path and src_file_path != media_path:
+                    src_file_path = context.get_source_file_path(media_path)
+                    if src_file_path:
                         media_ref_id = check_in_media(media_path, booking_pdf)
                         if media_ref_id:
-                            src_files.append(src_file_path)
+                            src_files.append(get_device_file_path(src_file_path, context))
 
                     # Format complex fields
                     reg_p, reg_h = _format_booking_registration(val, tz)
                     rooms_list = val.get('room', [])
+                    rooms_p, rooms_h = _get_rooms_details(rooms_list)
 
                     # Standard row data
                     base_data = (
@@ -1458,32 +1485,35 @@ def booking_booked(context):
                         val.get('hotel_name'),
                         full_addr,
                         tz,
-                        None,                                   # 5 Registration (Placeholder)
-                        unordered_list(contacts),
-                        unordered_list(conf_info),
+                        reg_p,                                  # 5: Registration (Plain)
+                        unordered_list(contacts),               # 6: Hotel Contacts (Plain)
+                        unordered_list(conf_info),              # 7: Conf Number/PIN (Plain)
                         price,
                         len(rooms_list),
-                        None,                                   # 10 Rooms (Placeholder)
-                        unordered_list(booker),
+                        rooms_p,                                # 10: Rooms (Plain)
+                        unordered_list(booker),                 # 11: Booker Details (Plain)
                         val.get('source'),
                         media_ref_id,
-                        None,                                   # 14 Source Files (Placeholder)
+                        unordered_list(src_files),              # 14: Source Files (Plain)
                         f"[{root_key}][{key}]"
                     )
 
                     # HTML row
-                    html_row = list(base_data)
-                    html_row[5] = reg_h
-                    html_row[10] = _get_room_details(rooms_list, html_format=True)
-                    html_row[14] = unordered_list(src_files, html_format=True)
-                    data_list_html.append(tuple(html_row))
+                    data_list_html.append((
+                        *base_data[:5],
+                        reg_h,                                       # Replaces index 5
+                        unordered_list(contacts, html_format=True),  # Replaces index 6
+                        unordered_list(conf_info, html_format=True), # Replaces index 7
+                        *base_data[8:10],
+                        rooms_h,                                     # Replaces index 10
+                        unordered_list(booker, html_format=True),    # Replaces index 11
+                        *base_data[12:14],
+                        unordered_list(src_files, html_format=True), # Replaces index 14
+                        *base_data[15:]
+                    ))
 
                     # LAVA row
-                    lava_row = list(base_data)
-                    lava_row[5] = reg_p
-                    lava_row[10] = _get_room_details(rooms_list)
-                    lava_row[14] = unordered_list(src_files)
-                    data_list.append(tuple(lava_row))
+                    data_list.append(base_data)
 
             # Stop the parser if data was successfully extracted from
             # either the legacy or the modern version of the file.
@@ -1634,22 +1664,21 @@ def booking_viewed(context):
                     hotel.get('zip'),
                     hotel.get('latitude'),
                     hotel.get('longitude'),
-                    None,                                   # 10 URL (Placeholder)
-                    None,                                   # 11 Website (Placeholder)
+                    p_url,                                      # 10 URL (Plain)
+                    web_url,                                    # 11 Website (Plain)
                     f"[viewed][{key}]"
                 )
 
                 # HTML row
-                html_row = list(base_data)
-                html_row[10] = format_url(p_url, html_format=True)
-                html_row[11] = format_url(web_url, html_format=True)
-                data_list_html.append(tuple(html_row))
+                data_list_html.append((
+                    *base_data[:10],
+                    format_url(p_url, html_format=True),        # Replaces index 10
+                    format_url(web_url, html_format=True),      # Replaces index 11
+                    *base_data[12:]
+                ))
 
                 # LAVA row
-                lava_row = list(base_data)
-                lava_row[10] = p_url
-                lava_row[11] = web_url
-                data_list.append(tuple(lava_row))
+                data_list.append(base_data)
 
             # Stop the parser if data was successfully extracted from
             # either the legacy or the modern version of the file.
@@ -1738,39 +1767,51 @@ def booking_notifications(context):
     return data_headers, data_list, source_path
 
 
-def _format_traveller_details(details: dict, html_format: bool = False) -> str:
+def _format_traveller_details(details: dict) -> tuple:
     """
-    Extract and format passenger information.
+    Extract and format passenger information (e.g., adults, children, ages).
+    Generates both Plain Text and HTML formats in a single pass.
     """
-
     if not isinstance(details, dict) or not details:
-        return ''
+        return '', ''
 
     meta = []
+
+    # Append basic passenger counts
     append_tag_value(meta, 'Adults count', details.get('adultsCount'))
     append_tag_value(meta, 'Children count', details.get('childrenCount'))
 
+    # Handle children ages if present and format them as a comma-separated string
     ages = details.get('childrenAges', [])
     if ages:
         append_tag_value(meta, 'Children ages', COMMA_SEP.join(map(str, ages)))
 
-    return unordered_list(meta, html_format=html_format)
+    # Generate both output formats using the exact same extracted metadata
+    plain_text = unordered_list(meta, html_format=False)
+    html_text = unordered_list(meta, html_format=True)
+
+    return plain_text, html_text
 
 
-def _format_airports(airports: list, section: str = 'Airport', html_format: bool = False) -> str:
+def _format_airports(airports: list, section: str = 'Airport') -> tuple:
     """
-    Extract and format list of airports (source or destination).
+    Extract and format a list of airports (e.g., source or destination).
+    Generates both Plain Text and HTML formats in a single pass.
     """
-
     if not isinstance(airports, list) or not airports:
-        return ''
+        return '', ''
 
-    results = []
+    results_plain = []
+    results_html = []
+
     for i, airport in enumerate(airports):
         if not airport:
             continue
 
+        # Initialize the metadata list with the section header
         meta = [f"{section} {i} - {airport.get('name', 'N/A')}"]
+
+        # Append available airport details
         append_tag_value(meta, 'City', airport.get('cityName'))
         append_tag_value(meta, 'Region', airport.get('regionName'))
         append_tag_value(meta, 'Country', airport.get('countryName'))
@@ -1778,44 +1819,63 @@ def _format_airports(airports: list, section: str = 'Airport', html_format: bool
         append_tag_value(meta, 'Code', airport.get('code'))
         append_tag_value(meta, 'Selected', airport.get('selected'))
 
-        results.append(unordered_list(meta, html_format=html_format))
+        # Generate both output formats using the same underlying parsed data
+        results_plain.append(unordered_list(meta, html_format=False))
+        results_html.append(unordered_list(meta, html_format=True))
 
-    sep = HTML_HORZ_RULE if html_format else f"{LINE_BREAK}{LINE_BREAK}"
+    # Join the finalized lists with their respective visual separators
+    plain_text = f"{LINE_BREAK}{LINE_BREAK}".join(results_plain)
+    html_text = HTML_HORZ_RULE.join(results_html)
 
-    return sep.join(results)
+    return plain_text, html_text
 
 
-def _format_routes(routes: list, html_format: bool = False) -> str:
+def _format_routes(routes: list) -> tuple:
     """
-    Extract and format flight routes with dates and airports.
+    Extract and format flight routes, including nested airport details.
+    Generates both Plain Text and HTML formats in a single pass.
     """
 
     if not isinstance(routes, list) or not routes:
-        return ''
+        return '', ''
 
-    results = []
+    results_plain = []
+    results_html = []
+
     for i, route in enumerate(routes):
         try:
+            # Safely construct the route date
             r_date = date(route.get('startYear'), route.get('startMonth'), route.get('startDay'))
-            meta = [f"Route {i} - {r_date}"]
 
-            # Nested airport formatting
-            meta.append(
-                _format_airports(route.get('sourceAirports'),
-                'Source airport', html_format
-            ))
-            meta.append(
-                _format_airports(route.get('destinationAirports'),
-                'Destination airport', html_format
-            ))
+            # Extract nested airports in a single pass (returns both Plain and HTML for each)
+            src_p, src_h = _format_airports(route.get('sourceAirports'), 'Source airport')
+            dst_p, dst_h = _format_airports(route.get('destinationAirports'), 'Destination airport')
 
-            results.append(unordered_list(meta, html_format=html_format))
+            # Reconstruct the data hierarchy for Plain Text
+            meta_p = [f"Route {i} - {r_date}"]
+            if src_p:
+                meta_p.append(src_p)
+            if dst_p:
+                meta_p.append(dst_p)
+            results_plain.append(unordered_list(meta_p, html_format=False))
+
+            # Reconstruct the data hierarchy for HTML
+            meta_h = [f"Route {i} - {r_date}"]
+            if src_h:
+                meta_h.append(src_h)
+            if dst_h:
+                meta_h.append(dst_h)
+            results_html.append(unordered_list(meta_h, html_format=True))
+
         except (TypeError, ValueError):
+            # Gracefully skip routes with malformed or missing dates
             continue
 
-    sep = HTML_HORZ_RULE if html_format else f"{LINE_BREAK}{LINE_BREAK}"
+    # Join the finalized lists with their respective visual separators
+    plain_text = f"{LINE_BREAK}{LINE_BREAK}".join(results_plain)
+    html_text = HTML_HORZ_RULE.join(results_html)
 
-    return sep.join(results)
+    return plain_text, html_text
 
 
 def _get_safe_date(params, prefix):
@@ -1889,6 +1949,16 @@ def booking_flights_searched(context):
                 start_dt = _get_safe_date(params, 'start')
                 return_dt = _get_safe_date(params, 'return')
 
+                # Airports
+                src_air_p, src_air_h = _format_airports(params.get('sourceAirports'))
+                dst_air_p, dst_air_h =_format_airports(params.get('destinationAirports'))
+
+                # Routes
+                routes_p, routes_h = _format_routes(params.get('routes'))
+
+                travel_p, travel_h = _format_traveller_details(params.get('travellersDetails'))
+
+
                 # Standard row data
                 base_data = (
                     last_updated,
@@ -1897,29 +1967,25 @@ def booking_flights_searched(context):
                     params.get('direct'),
                     params.get('searchType'),
                     params.get('cabin'),
-                    None,                                   # 6 Source Airports (Placeholder)
-                    None,                                   # 7 Destination Airports (Placeholder)
-                    None,                                   # 8 Routes (Placeholder)
-                    None,                                   # 9 Travellers' Details (Placeholder)
+                    src_air_p,                                  # 6 Source Airports (Plain)
+                    dst_air_p,                                  # 7 Destination Airports (Plain)
+                    routes_p,                                   # 8 Routes (Plain)
+                    travel_p,                                   # 9 Travellers' Details (Plain)
                     f"[value][{i}]"
                 )
 
                 # HTML row
-                html_row = list(base_data)
-                html_row[6] = _format_airports(params.get('sourceAirports'), html_format=True)
-                html_row[7] = _format_airports(params.get('destinationAirports'), html_format=True)
-                html_row[8] = _format_routes(params.get('routes'), html_format=True)
-                html_row[9] = _format_traveller_details(params.get('travellersDetails'),
-                    html_format=True)
-                data_list_html.append(tuple(html_row))
+                data_list_html.append((
+                    *base_data[:6],
+                    src_air_h,                                  # Replaces index 6
+                    dst_air_h,                                  # Replaces index 7
+                    routes_h,                                   # Replaces index 8
+                    travel_h,                                   # Replaces index 9
+                    *base_data[10:]
+                ))
 
                 # LAVA row
-                lava_row = list(base_data)
-                lava_row[6] = _format_airports(params.get('sourceAirports'))
-                lava_row[7] = _format_airports(params.get('destinationAirports'))
-                lava_row[8] = _format_routes(params.get('routes'))
-                lava_row[9] = _format_traveller_details(params.get('travellersDetails'))
-                data_list.append(tuple(lava_row))
+                data_list.append(base_data)
 
         except (KeyError, TypeError, IndexError) as ex:
             logfunc(f"[{context.get_artifact_name()}] "
