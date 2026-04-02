@@ -17,7 +17,7 @@ __artifacts_v2__ = {
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/"
                   "group.net.box.BoxNet.plist"),
-        "output_types": ["standard"],
+        "output_types": [ "standard" ],
         "artifact_icon": "user"
     },
     "box_all_files": {
@@ -34,8 +34,8 @@ __artifacts_v2__ = {
                   "itemIDs.plist",
                   "*/mobile/Containers/Shared/AppGroup/*/Documents/offlinefilesinfo/"
                   "lastDownloadDates.plist"),
-        "output_types": ["standard"],
-        "html_columns": ["URL"],
+        "output_types": [ "standard" ],
+        "html_columns": [ "URL" ],
         "artifact_icon": "cloud"
     },
     "box_previews": {
@@ -51,7 +51,7 @@ __artifacts_v2__ = {
                   "PreviewItem.db*",
                   "*/mobile/Containers/Shared/AppGroup/*/File Provider Storage/boxpreview/*/cache/"
                   "files/*/*/*"),
-        "output_types": ["standard"],
+        "output_types": [ "standard" ],
         "artifact_icon": "image"
     },
     "box_recents": {
@@ -65,7 +65,7 @@ __artifacts_v2__ = {
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Shared/AppGroup/*/Documents/db/Recents.db*",
                   "*/mobile/Containers/Shared/AppGroup/*/Documents/db/Item.db*"),
-        "output_types": ["standard"],
+        "output_types": [ "standard" ],
         "artifact_icon": "search"
     },
     "box_comments": {
@@ -79,7 +79,7 @@ __artifacts_v2__ = {
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Shared/AppGroup/*/Documents/db/annotations.db*",
                   "*/mobile/Containers/Shared/AppGroup/*/Documents/db/Item.db*"),
-        "output_types": ["standard"],
+        "output_types": [ "standard" ],
         "artifact_icon": "message-circle"
     },
 }
@@ -98,7 +98,6 @@ from scripts.ilapfuncs import artifact_processor, check_in_media, get_plist_file
 
 # Pattern to normalize timezone offsets from +HHMM -> +HH:MM
 ISO_OFFSET_FIX = re.compile(r'([+-]\d{2})(\d{2})$')
-
 
 def convert_iso8601_to_utc(str_date: str | bytes | None) -> str | None:
     """
@@ -167,7 +166,7 @@ def convert_iso8601_to_utc(str_date: str | bytes | None) -> str | None:
         return s
 
 
-def format_url(str_url: str | None, html_format: bool = False) -> str:
+def format_url(str_url : str | None, html_format : bool = False) -> str:
     """
     Normalize a raw URL and optionally format it as a safe HTML anchor.
     - Return an empty string if str_url is None, empty, or the literal 'null'.
@@ -327,7 +326,7 @@ def box_all_files(context):
     last_dates_path = context.get_source_file_path('lastDownloadDates.plist')
     # Main database (Item.db)
     source_path = context.get_source_file_path('Item.db')
-    source_paths = [p for p in [source_path, ids_path, last_dates_path] if p]
+    source_paths = [ p for p in [ source_path, ids_path, last_dates_path ] if p ]
 
     offline_ids: dict[str, dict] = {}
 
@@ -471,21 +470,30 @@ def box_all_files(context):
 
                 # Base row for both lists
                 base_data = (
-                    created_at, item_id, item_type, item_name, item_ext, full_path, url,
-                    description, item_size, version_id, ccreated_at, cmodified_at,
-                    modified_at, last_fetched_at, is_offline, downloaded_at, offline_source,
-                    favorites, collections, o_login, o_name, o_id, c_login, c_name, c_id,
+                    created_at, item_id, item_type,
+                    item_name, item_ext, full_path,
+                    url,                                        # 6 URL (Plain)
+                    description,
+                    item_size,                                  # 8 Size (Plain)
+                    version_id, ccreated_at, cmodified_at,
+                    modified_at, last_fetched_at, is_offline,
+                    downloaded_at, offline_source, favorites,
+                    collections, o_login, o_name, o_id,
+                    c_login, c_name, c_id,
                     m_login, m_name, m_id, sha1
                 )
 
+                # HTML row
+                data_list_html.append((
+                    *base_data[:6],
+                    url_html,                                   # Replaces index 6
+                    base_data[7],
+                    item_size_html,                             # Replaces index 8
+                    *base_data[9:]
+                ))
+
                 # LAVA row
                 data_list.append(base_data)
-
-                # HTML row
-                html_list = list(base_data)
-                html_list[6] = url_html
-                html_list[8] = item_size_html
-                data_list_html.append(tuple(html_list))
 
             except (IndexError, TypeError, ValueError) as ex:
                 logfunc(f"[{context.get_artifact_name()}] "
@@ -586,10 +594,12 @@ def box_previews(context):
             SUBSTR(
                 json_extract(e.value, '$.info.url'),
                 INSTR(json_extract(e.value, '$.info.url'), 'versions/') + 9,
-                INSTR(SUBSTR(
-                    json_extract(e.value, '$.info.url'),
-                    INSTR(json_extract(e.value, '$.info.url'),
-                    'versions/') + 9), '/'
+                INSTR(
+                    SUBSTR(
+                        json_extract(e.value, '$.info.url'),
+                        INSTR(json_extract(e.value, '$.info.url'), 'versions/') + 9
+                    ),
+                    '/'
                 ) - 1
             )
         ) AS "File Version",
@@ -610,7 +620,7 @@ def box_previews(context):
             # Parsing and normalization of timestamps (ISO8601 and Unix)
             last_accessed_at = convert_unix_ts_to_utc(r_accessed)
 
-            if not all([f_id, f_name, f_ext, dim, sha1]):
+            if not all([ f_id, f_name, f_ext, dim, sha1 ]):
                 continue
 
             # Preview thumbnail path
@@ -818,6 +828,7 @@ def box_comments(context):
     '''
 
     db_records = get_sqlite_db_records(source_path, query, attach_query)
+
     for record in db_records:
         try:
             (
