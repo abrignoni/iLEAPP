@@ -47,8 +47,8 @@ from bs4 import BeautifulSoup
 
 
 @artifact_processor
-def sbb_searchhistory(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    source_path = get_file_path(files_found, "ch.sbb.coredata.searchhistory.sqlite")
+def sbb_searchhistory(context):
+    source_path = context.get_file_path(files_found, "ch.sbb.coredata.searchhistory.sqlite")
     data_list = []
 
     if not source_path:
@@ -92,8 +92,8 @@ def sbb_searchhistory(files_found, _report_folder, _seeker, _wrap_text, _timezon
 
 
 @artifact_processor
-def sbb_easyride_trips(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    source_path = get_file_path(files_found, "ch.sbb.coredata.logs.sqlite")
+def sbb_easyride_trips(context):
+    source_path = context.get_file_path(files_found, "ch.sbb.coredata.logs.sqlite")
     data_list = []
 
     if not source_path:
@@ -170,8 +170,8 @@ def sbb_easyride_trips(files_found, _report_folder, _seeker, _wrap_text, _timezo
 
 
 @artifact_processor
-def sbb_purchased_tickets(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    source_path = get_file_path(files_found, "SbbMobile.db")
+def sbb_purchased_tickets(context):
+    source_path = context.get_file_path(files_found, "SbbMobile.db")
     data_list = []
 
     if not source_path:
