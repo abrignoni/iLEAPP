@@ -2,7 +2,7 @@
 # found in Yogesh Khatri's mac_apt project Notes plugin (https://github.com/ydkhatri/mac_apt) 
 # and used under terms of the MIT License.
 
-from os.path import dirname, join
+from os.path import dirname, join, exists, normpath
 from PIL import Image
 import imghdr
 import zlib
@@ -146,14 +146,21 @@ def get_notes(files_found, report_folder, seeker, wrap_text, timezone_offset):
                 text_content = ''
             
             if row[10] is not None and row[11] is not None:
-                attachment_file = join(dirname(analyzed_file), 'Accounts/LocalAccount/Media', row[11], row[10])
+                attachment_file = normpath(join(dirname(analyzed_file), 'Accounts', 'LocalAccount', 'Media', row[11], row[10]))
                 attachment_storage_path = dirname(attachment_file)
-                if imghdr.what(attachment_file) == 'jpeg' or imghdr.what(attachment_file) == 'jpg' or imghdr.what(attachment_file) == 'png':
-                    thumbnail_path = join(report_folder, 'thumbnail_'+row[10])
-                    save_original_attachment_as_thumbnail(attachment_file, thumbnail_path)
-                    thumbnail = '<img src="{}">'.format(thumbnail_path)
-                else:
-                    thumbnail = 'File is not an image or the filetype is not supported yet.'
+                
+                if exists(attachment_file):
+                    try:
+                        file_type = imghdr.what(attachment_file)
+                        if file_type in ['jpeg', 'jpg', 'png']:
+                            thumbnail_path = join(report_folder, 'thumbnail_'+row[10])
+                            save_original_attachment_as_thumbnail(attachment_file, thumbnail_path)
+                            thumbnail = '<img src="{}">'.format(thumbnail_path)
+                        else:
+                            thumbnail = 'File is not an image or the filetype is not supported yet.'
+                    except Exception as e:
+                        logfunc(f'Error processing attachment {attachment_file}: {str(e)}')
+                        thumbnail = f'Error processing attachment: {str(e)}'
             else:
                 thumbnail = ''
                 attachment_storage_path = ''
