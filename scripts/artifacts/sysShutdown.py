@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Sysdiagnose",
         "notes": "",
-        "paths": ('*/shutdown.log'),
+        "paths": ('*/shutdown*.log'),
         "output_types": "none", #["html","tsv","timeline","lava"]
         "function": "get_sysShutdown"
     }
