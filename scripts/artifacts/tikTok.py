@@ -40,9 +40,17 @@ def get_tikTok(files_found, report_folder, seeker, wrap_text, timezone_offset):
             for table in contacts_tables:
                 contacts_subqueries.append(f'SELECT uid, customid, nickname, url1 FROM {table}')
 
-            contacts_subquery = '''
-            UNION ALL
-            '''.join(contacts_subqueries)
+            if len(contacts_subqueries) > 0:
+                contacts_subquery = '''
+                            UNION ALL
+                            '''.join(contacts_subqueries)
+            else:
+                contacts_subquery = 'SELECT null as uid, null as customid, null as nickname, null as url1 FROM sqlite_master WHERE 1=0'
+
+            cursor.execute("SELECT name FROM AwemeIM.sqlite_master WHERE type='table' and name='TIMMessageORM';")
+            if cursor.fetchone() is None:
+                logfunc("Table TIMMessageORM not found in AwemeIM.db")
+                continue
 
             cursor.execute(f'''
                 select
@@ -119,7 +127,7 @@ def get_tikTok(files_found, report_folder, seeker, wrap_text, timezone_offset):
     
     all_rows1 = cursor.fetchall()
     data_list1 = []
-    if len(all_rows) > 0:
+    if len(all_rows1) > 0:
         description = 'Timestamp corresponds to latest chat if available'
         for row in all_rows1:
             
