@@ -1,5 +1,5 @@
 
-ileapp_version = '2.3.1'
+ileapp_version = '2.3.2'
 
 # Contributors List
 # Format = [ Name, Blog-url, Twitter-handle, Github-url]
@@ -50,4 +50,5 @@ ileapp_contributors = [
     ['Metadata Forensics', 'https://metadataperspective.com/', '', 'https://github.com/metadataforensics/'],
     ['Bruno Constanzo', 'https://www.linkedin.com/in/bruno-constanzo/', '@bruno_constanzo', 'https://github.com/bconstanzo/'],
     ['Marnix Kaart', '', '', 'https://github.com/mxkrt'],
+    ['Arun Kalackattu Hari', 'https://dfdive.com/', '', 'https://github.com/ardfr'],
 ]
