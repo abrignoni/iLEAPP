@@ -14,6 +14,22 @@ __artifacts_v2__ = {
         ),
         "output_types": ["html", "tsv", "timeline"],
         "artifact_icon": "instagram",
+    },
+    "get_instagram_calls": {
+        "name": "Instagram Threads Calls",
+        "description": "Existing calls sent and received in the Instagram App.",
+        "author": "Alexis Brignoni",
+        "version": "0.7",
+        "creation_date": "2021-03-09",
+        "last_update_date": "2026-04-23",
+        "requirements": "",
+        "category": "Instagram",
+        "notes": "",
+        "paths": (
+            "*/mobile/Containers/Data/Application/*/Library/Application Support/DirectSQLiteDatabase/*.db*"
+        ),
+        "output_types": ["html", "tsv", "timeline"],
+        "artifact_icon": "phone",
     }
 }
 
@@ -48,7 +64,6 @@ def get_instagramThreads(
             usageentries = len(all_rows)
             userdict = {}
             data_list = []
-            video_calls = []
 
             if usageentries > 0:
                 for row in all_rows:
@@ -74,16 +89,39 @@ def get_instagramThreads(
                             OverflowError,
                         ) as ex:
                             logfunc(f"Failed to read plist for {row[0]}, error was:" + str(ex))
-
+                    
                     for _i in plist["NSArray<IGUser *>*users"]:
                         for x, _y in enumerate(plist["NSArray<IGUser *>*users"]):
-                            userPk = plist["NSArray<IGUser *>*users"][x]["NSDictionary<NSString *, id>*userDict"]["pk"]
-                            userFull = plist["NSArray<IGUser *>*users"][x]["NSDictionary<NSString *, id>*userDict"]["full_name"]
-                            userdict[userPk] = userFull
+                            if plist["NSArray<IGUser *>*users"][x].get("NSDictionary<NSString *, id>*userDict", {}).get("pk"):
+                                userPk = plist["NSArray<IGUser *>*users"][x]["NSDictionary<NSString *, id>*userDict"]["pk"]
+                            elif plist["NSArray<IGUser *>*users"][x].get("pk"):
+                                userPk = plist["NSArray<IGUser *>*users"][x]["pk"]
+                            else:
+                                userPk = None
 
-                    # DEPRECATED?
-                    inviterPk = plist["IGUser*inviter_DEPRECATED"]["NSDictionary<NSString *, id>*userDict"]["pk"]
-                    inviterFull = plist["IGUser*inviter_DEPRECATED"]["NSDictionary<NSString *, id>*userDict"]["full_name"]
+                            if plist["NSArray<IGUser *>*users"][x].get("NSDictionary<NSString *, id>*userDict", {}).get("full_name"):
+                                userFull = plist["NSArray<IGUser *>*users"][x]["NSDictionary<NSString *, id>*userDict"]["full_name"]
+                            elif plist["NSArray<IGUser *>*users"][x].get("fullName"):
+                                userFull = (plist["NSArray<IGUser *>*users"][x]["fullName"])
+                            elif plist["NSArray<IGUser *>*users"][x].get("userName"):
+                                userFull = (plist["NSArray<IGUser *>*users"][x]["userName"])
+                            else:
+                                userFull = None
+                            userdict[userPk] = userFull
+                    
+                    if plist.get("IGUser*inviter_DEPRECATED", {}).get("NSDictionary<NSString *, id>*userDict", {}).get("pk"):
+                        inviterPk = plist["IGUser*inviter_DEPRECATED"]["NSDictionary<NSString *, id>*userDict"]["pk"]
+                    elif plist["IGUser*inviter"].get("pk"):
+                        inviterPk = plist["IGUser*inviter"]["pk"]
+                    else:
+                        inviterPk = None
+
+                    if plist.get("IGUser*inviter_DEPRECATED", {}).get("NSDictionary<NSString *, id>*userDict", {}).get("full_name"):
+                        inviterFull = plist["IGUser*inviter_DEPRECATED"]["NSDictionary<NSString *, id>*userDict"]["full_name"]
+                    elif plist["IGUser*inviter"].get("fullName"):
+                        inviterFull = plist["IGUser*inviter"]["fullName"]
+                    else:
+                        inviterFull = None
                     userdict[inviterPk] = inviterFull
 
             cursor.execute("""
@@ -196,10 +234,6 @@ def get_instagramThreads(
                             shared_media_url_expiration_date,
                         )
                     )
-                    if videoChatTitle:
-                        video_calls.append(
-                            (serverTimestamp, senderpk, user, videoChatTitle, videoChatCallID)
-                        )
 
                 data_headers = (
                     "Timestamp (UTC)",
@@ -217,7 +251,153 @@ def get_instagramThreads(
                 )
                 return data_headers, data_list, file_found
 
-            if len(video_calls) > 0:
+            db.close()
+
+
+@artifact_processor
+def get_instagram_calls(
+    files_found, _report_folder, _seeker, _wrap_text, _timezone_offset
+):
+
+    for file_found in files_found:
+        file_found = str(file_found)
+
+        if file_found.endswith(".db"):
+
+            db = open_sqlite_db_readonly(file_found)
+            cursor = db.cursor()
+            cursor.execute("""
+            select
+            metadata
+            from threads
+            """)
+
+            all_rows = cursor.fetchall()
+            usageentries = len(all_rows)
+            userdict = {}
+            video_calls = []
+
+            if usageentries > 0:
+                for row in all_rows:
+                    plist = ""
+                    plist_file_object = io.BytesIO(row[0])
+                    if row[0].find(b"NSKeyedArchiver") == -1:
+                        if sys.version_info >= (3, 9):
+                            plist = plistlib.load(plist_file_object)
+                        else:
+                            plist = biplist.readPlist(plist_file_object)
+                    else:
+                        try:
+                            plist = nd.deserialize_plist(plist_file_object)
+                        except (
+                            nd.DeserializeError,
+                            nd.biplist.NotBinaryPlistException,
+                            nd.biplist.InvalidPlistException,
+                            nd.plistlib.InvalidFileException,
+                            nd.ccl_bplist.BplistError,
+                            ValueError,
+                            TypeError,
+                            OSError,
+                            OverflowError,
+                        ) as ex:
+                            logfunc(f"Failed to read plist for {row[0]}, error was:" + str(ex))
+                    
+                    for _i in plist["NSArray<IGUser *>*users"]:
+                        for x, _y in enumerate(plist["NSArray<IGUser *>*users"]):
+                            if plist["NSArray<IGUser *>*users"][x].get("NSDictionary<NSString *, id>*userDict", {}).get("pk"):
+                                userPk = plist["NSArray<IGUser *>*users"][x]["NSDictionary<NSString *, id>*userDict"]["pk"]
+                            elif plist["NSArray<IGUser *>*users"][x].get("pk"):
+                                userPk = plist["NSArray<IGUser *>*users"][x]["pk"]
+                            else:
+                                userPk = None
+
+                            if plist["NSArray<IGUser *>*users"][x].get("NSDictionary<NSString *, id>*userDict", {}).get("full_name"):
+                                userFull = plist["NSArray<IGUser *>*users"][x]["NSDictionary<NSString *, id>*userDict"]["full_name"]
+                            elif plist["NSArray<IGUser *>*users"][x].get("fullName"):
+                                userFull = (plist["NSArray<IGUser *>*users"][x]["fullName"])
+                            elif plist["NSArray<IGUser *>*users"][x].get("userName"):
+                                userFull = (plist["NSArray<IGUser *>*users"][x]["userName"])
+                            else:
+                                userFull = None
+                            userdict[userPk] = userFull
+                    
+                    if plist.get("IGUser*inviter_DEPRECATED", {}).get("NSDictionary<NSString *, id>*userDict", {}).get("pk"):
+                        inviterPk = plist["IGUser*inviter_DEPRECATED"]["NSDictionary<NSString *, id>*userDict"]["pk"]
+                    elif plist["IGUser*inviter"].get("pk"):
+                        inviterPk = plist["IGUser*inviter"]["pk"]
+                    else:
+                        inviterPk = None
+
+                    if plist.get("IGUser*inviter_DEPRECATED", {}).get("NSDictionary<NSString *, id>*userDict", {}).get("full_name"):
+                        inviterFull = plist["IGUser*inviter_DEPRECATED"]["NSDictionary<NSString *, id>*userDict"]["full_name"]
+                    elif plist["IGUser*inviter"].get("fullName"):
+                        inviterFull = plist["IGUser*inviter"]["fullName"]
+                    else:
+                        inviterFull = None
+                    userdict[inviterPk] = inviterFull
+
+            cursor.execute("""
+            select
+            messages.message_id,
+            messages.thread_id,
+            messages.archive,
+            threads.metadata,
+            threads.thread_messages_range,
+            threads.visual_message_info
+            from messages, threads
+            where messages.thread_id = threads.thread_id
+            """)
+
+            all_rows = cursor.fetchall()
+            usageentries = len(all_rows)
+
+            if usageentries > 0:
+                for row in all_rows:
+                    plist = ""
+                    senderpk = ""
+                    serverTimestamp = ""
+                    videoChatTitle = ""
+                    videoChatCallID = ""
+
+                    plist_file_object = io.BytesIO(row[2])
+                    if row[2].find(b"NSKeyedArchiver") == -1:
+                        if sys.version_info >= (3, 9):
+                            plist = plistlib.load(plist_file_object)
+                        else:
+                            plist = biplist.readPlist(plist_file_object)
+                    else:
+                        try:
+                            plist = nd.deserialize_plist(plist_file_object)
+                        except (
+                            nd.DeserializeError,
+                            nd.biplist.NotBinaryPlistException,
+                            nd.biplist.InvalidPlistException,
+                            nd.plistlib.InvalidFileException,
+                            nd.ccl_bplist.BplistError,
+                            ValueError,
+                            TypeError,
+                            OSError,
+                            OverflowError,
+                        ) as ex:
+                            logfunc(f"Failed to read plist for {row[2]}, error was:" + str(ex))
+
+                    # Messages
+                    senderpk = plist["IGDirectPublishedMessageMetadata*metadata"]["NSString*senderPk"]
+                    serverTimestamp = plist["IGDirectPublishedMessageMetadata*metadata"]["NSDate*serverTimestamp"]
+
+                    # VOIP calls
+                    if (plist["IGDirectPublishedMessageContent*content"].get("IGDirectThreadActivityAnnouncement*threadActivity") is not None):
+                        videoChatTitle = plist["IGDirectPublishedMessageContent*content"]["IGDirectThreadActivityAnnouncement*threadActivity"].get("NSString*voipTitle")
+                        videoChatCallID = plist["IGDirectPublishedMessageContent*content"]["IGDirectThreadActivityAnnouncement*threadActivity"].get("NSString*videoCallId")
+
+                    if senderpk in userdict:
+                        user = userdict[senderpk]
+                    else:
+                        user = ""
+
+                    if videoChatTitle:
+                        video_calls.append((serverTimestamp, senderpk, user, videoChatTitle, videoChatCallID))
+                    
                 data_headersv = (
                     "Timestamp",
                     "Sender ID",
