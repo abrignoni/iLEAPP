@@ -79,7 +79,10 @@ def extract_v2_info(module_content):
     for item in tree.body:
         if (
             isinstance(item, ast.Assign) and
-            (target.id == '___artifacts_v2__' for target in item.targets)
+            any(
+                isinstance(target, ast.Name) and target.id == '__artifacts_v2__'
+                for target in item.targets
+            )
         ):
             if isinstance(item.value, ast.Dict):
                 try:
