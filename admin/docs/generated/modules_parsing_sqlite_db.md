@@ -71,6 +71,8 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | payByPhone |
 | photosMigration |
 | potatoChat |
+| reddit |
+| sbbmobile |
 | sms |
 | splitwise |
 | storeUser |
