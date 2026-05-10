@@ -175,11 +175,11 @@ def potatochat_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone
             m.to_id,
             m.outgoing
         FROM {messages_nr} m
-        LEFT JOIN {users_nr} uf 
+        LEFT JOIN {users_nr} uf
             ON m.from_id = uf.uid
-        LEFT JOIN {users_nr} ut 
+        LEFT JOIN {users_nr} ut
             ON m.to_id = ut.uid
-        LEFT JOIN {users_nr} cn 
+        LEFT JOIN {users_nr} cn
             ON m.cid = cn.uid;
     '''
     user_cid_query = f'''
@@ -214,26 +214,26 @@ def potatochat_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone
         receiver_id = record['to_id']
         outgoing = record['outgoing']
         message = record['message']
-        if message != None or message != "":
+        if message is not None or message != "":
             text = True
-        if chat_name == None:
+        if chat_name is None:
             for c_record in conv_records:
-                if c_record['cid'] == chat_id and c_record['participants'] != None:
+                if c_record['cid'] is chat_id and c_record['participants'] is not None:
                     p_blob = c_record['participants'][:16]
                     length = p_blob[4]
                     le_cid = p_blob[-length:]
                     sc_cid = int.from_bytes(le_cid, byteorder="little")
                     c_cid = next((rec for rec in u_cid_records if rec["uid"] == sc_cid), None)
                     if c_cid:
-                        if c_cid['last_name'] != None:
+                        if c_cid['last_name'] is not None:
                             new_name = f"{c_cid['first_name']} {c_cid['last_name']}"
                         else:
                             new_name = f"{c_cid['first_name']}"
                         chat_name = f"{new_name} (Secret Chat)"
-                        if sender == None: 
+                        if sender is None: 
                             sender = new_name
-                        if receiver == None:
-                            receiver = new_name  
+                        if receiver is None:
+                            receiver = new_name 
                     else:
                         chat_name = 'Unknown/Secret Chat'
 
@@ -242,14 +242,14 @@ def potatochat_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone
         lon = ""
         lat = ""
         filename = None
-        if message == "" or message == None:
+        if message == "" or message is None:
             if record['media']:
                 blob = record['media']
                 contact = bytes.fromhex("63 56 0a b9")
                 call = bytes.fromhex("8b e2 67 11 18")
                 location = bytes.fromhex("6e d0 9e 0c")
                 message = extract_attachment_message(blob)
-                if message != None:
+                if message is not None:
                     text = True
                 if message == "" or message == " ":
                     text = False
@@ -296,9 +296,10 @@ def potatochat_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone
                             c_type = "Video "
                         else:
                             c_type = ""
+                        c_uid = int.from_bytes(uid_b, byteorder="little")
                         c_cid = next((rec for rec in u_cid_records if rec["uid"] == c_uid), None)
                         message = f"{c_type}Call - Duration: {dur_sec} Seconds"
-                except (IndexError, struct.error):
+                except (NameError, IndexError, struct.error):
                     pass
                 if b"TGDocumentAttributeFilename" in blob:
                     try:
@@ -320,7 +321,7 @@ def potatochat_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone
                             filename = "file"
                         if fn_hex.startswith(b'file\x18'):
                             filename = "file"
-                        if message == None or message == "":
+                        if message is None or message == "":
                             m_type = "File"
                         else:
                             m_type = "Text and File"
@@ -347,7 +348,7 @@ def potatochat_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone
                         pass
 
         attach_file = ''
-        if record['media'] != None:
+        if record['media'] is not None:
             for m_record in media_records:
                 media_str = record['media'].hex()
                 hex_path = format(abs(m_record['media_id']), 'x')
@@ -362,7 +363,7 @@ def potatochat_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone
                                 m_type = "Text and Image"
                             else:
                                 m_type = "Image"
-                            if message == None or message == "":
+                            if message is None or message is "":
                                 m_type = "Image"
                         elif m_record['media_type'] == 1:
                             media_local_path = f'video/remote{hex_path}.mov'
@@ -370,10 +371,10 @@ def potatochat_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone
                                 m_type = "Text and Video"
                             else:
                                 m_type = "Video"
-                            if message == None or message == "":
+                            if message is None or message is "":
                                 m_type = "Video"
                         elif m_record['media_type'] == 3:
-                            if filename == None:
+                            if filename is None:
                                 media_local_path = f'files/{hex_path}/file'
                                 if str(m_record['media_id']).startswith("-"):
                                     media_local_path = f'files/local{hex_path}/file'
@@ -381,15 +382,15 @@ def potatochat_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone
                                 media_local_path = f'files/{hex_path}/{filename}'
                                 if str(m_record['media_id']).startswith("-"):
                                     media_local_path = f'files/local{hex_path}/{filename}'
-                            if message == None or message == "":
+                            if message is None or message == "":
                                 m_type = "File"
                                 if filename and filename != "file":
                                     message = f"File: {filename}"
                             else:
                                 m_type = "Text and File"
-                        else: 
+                        else:
                             media_local_path = None
-                        if media_local_path != None:
+                        if media_local_path is not None:
                             attach_file_name = Path(media_local_path).name
                             attach_file = check_in_media(media_local_path, attach_file_name)
                         else:
@@ -470,7 +471,7 @@ def potatochat_group_chats(files_found, _report_folder, _seeker, _wrap_text, _ti
     try:
         group_json = get_sqlite_db_records(share_dialog, group_query)[0]['userInfosJson'] 
         groups = json.loads(group_json)
-    except (IndexError, KeyError): 
+    except (IndexError, KeyError):
         group_json = None
         groups = []
 
@@ -513,11 +514,11 @@ def potatochat_group_chats(files_found, _report_folder, _seeker, _wrap_text, _ti
         m_type = 'Unknown/System-Message'
         filename = None
         while working_offset < blob_length:
-            title_length = int.from_bytes(blob_data[working_offset:working_offset + working_length])
+            title_length = int.from_bytes(blob_data[working_offset:working_offset + working_length], byteorder='big')
             working_offset += working_length
             ASCII_title = blob_data[working_offset:working_offset + title_length].decode('utf-8', errors='replace')
             working_offset += title_length
-            data_type = int.from_bytes(blob_data[working_offset:working_offset + 1])
+            data_type = int.from_bytes(blob_data[working_offset:working_offset + 1], byteorder='big')
             working_offset += 1
             if data_type == 1: 
                 d_t = "Str"
