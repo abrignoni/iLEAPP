@@ -26,7 +26,6 @@ def get_cashAppB(context):
     # This avoids message types being misinterpreted (ie: str as sub-message)
     typedef_customer = {
         "1": {"type": "message", "message_typedef": {
-            "1": {"name": "customertoken", "type": "str"},
             "3": {"name": "name", "type": "str"},
             "5": {"name": "url", "type": "str"},
             "8": {"name": "cashtag", "type": "str"},
@@ -36,15 +35,7 @@ def get_cashAppB(context):
 
     typedef_payment = {
         "1": {"type": "message", "message_typedef": {
-            "1": {"name": "token", "type": "str"},
             "16": {"name": "extrainfo", "type": "str"},
-            "17": {"name": "payment", "type": "message", "message_typedef": {
-                    "2": {"name": "amount", "type": "int"},
-                    "3": {"name": "currency_num_code", "type": "int"},
-                }
-            },
-            "19": {"name": "notes", "type": "str"},
-            "20": {"name": "created_at", "type": "int"},
         }},
     }
 
