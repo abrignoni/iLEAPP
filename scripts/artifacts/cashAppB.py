@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "",
         "author": "Alexis Brignoni",
         "creation_date": "2025-08-24",
-        "last_update_date": "2025-11-12",
+        "last_update_date": "2026-05-14",
         "requirements": "none",
         "category": "Banking",
         "notes": "",
@@ -21,6 +21,33 @@ from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, convert
 @artifact_processor
 def get_cashAppB(context):
     data_list = []
+
+    # Define the protobuf message structure for decoding the binary data in ZSYNCCUSTOMER and ZSYNCPAYMENT
+    # This avoids message types being misinterpreted (ie: str as sub-message)
+    typedef_customer = {
+        "1": {"type": "message", "message_typedef": {
+            "1": {"name": "customertoken", "type": "str"},
+            "3": {"name": "name", "type": "str"},
+            "5": {"name": "url", "type": "str"},
+            "8": {"name": "cashtag", "type": "str"},
+            "15": {"name": "extrainfo", "type": "str"},
+        }},
+    }
+
+    typedef_payment = {
+        "1": {"type": "message", "message_typedef": {
+            "1": {"name": "token", "type": "str"},
+            "16": {"name": "extrainfo", "type": "str"},
+            "17": {"name": "payment", "type": "message", "message_typedef": {
+                    "2": {"name": "amount", "type": "int"},
+                    "3": {"name": "currency_num_code", "type": "int"},
+                }
+            },
+            "19": {"name": "notes", "type": "str"},
+            "20": {"name": "created_at", "type": "int"},
+        }},
+    }
+
     for file_found in context.get_files_found():
         file_found = str(file_found)
         
@@ -40,8 +67,8 @@ def get_cashAppB(context):
             for row in results:
                 timestamp = convert_unix_ts_to_utc(row[0])
                 customertoken = row[1]
-                protocustomer, _ = blackboxprotobuf.decode_message(row[2])
-                protopayment, _ = blackboxprotobuf.decode_message(row[3])
+                protocustomer, _ = blackboxprotobuf.decode_message(row[2], typedef_customer)
+                protopayment, _ = blackboxprotobuf.decode_message(row[3], typedef_payment)
         
                 # initialize optional fields to avoid NameError if keys are missing
                 role = None
@@ -65,14 +92,17 @@ def get_cashAppB(context):
                 fullname = None
                 region = None
                 dunits = None
+                token = None
+                receipt = None
 
-                payment = (protopayment['1'].get('16'))
+                payment = protopayment['1'].get('extrainfo')
                 if payment is not None:
-                    payment = payment.decode()
                     payment = json.loads(payment)
                     amount = payment.get('amount')
-                    howmuch = amount['amount']
-                    currency = amount['currency_code']
+                    token = payment.get('token')
+                    receipt = payment.get('receipt_token')
+                    howmuch = amount['amount']  # Amounts are expressed in the smallest denomination unit of that currency (e.g., 100 = $1.00 USD)
+                    currency = amount['currency_code']  # ISO 4217 Alpha-3 format 
                     note = payment.get('note')
                     role = (payment.get('role'))
                     
@@ -111,21 +141,12 @@ def get_cashAppB(context):
                     if displaydate is not None:
                         displaydate = convert_unix_ts_to_utc(displaydate)
                         
-                url = protocustomer['1'].get('5')
-                if url is not None:
-                    url = url.decode()
-                    
-                name = (protocustomer['1'].get('3'))
-                if name is not None:
-                    name = name.decode()
-                    
-                username = (protocustomer['1'].get('8'))
-                if username is not None:
-                    username = username.decode()
-                    
-                extrainfo = (protocustomer['1'].get('15'))
+                url = protocustomer['1'].get('url')
+                name = protocustomer['1'].get('name')                  
+                username = protocustomer['1'].get('cashtag')
+                extrainfo = protocustomer['1'].get('extrainfo')
+
                 if extrainfo is not None:
-                    extrainfo = extrainfo.decode()
                     extrainfo = json.loads(extrainfo)
                     
                     identificator = (extrainfo['id'])
@@ -136,13 +157,13 @@ def get_cashAppB(context):
                 data_list.append((timestamp, customertoken, name, username, identificator, fullname,
                                   role, howmuch, currency, note, region, dunits, url, cardbrand,
                                   suffix, displayname, displayinstrument, instrumenttype, transactionid,
-                                  state, createdat, capturedat, reachedcustomerat, 
+                                  token, receipt, state, createdat, capturedat, reachedcustomerat, 
                                   paidoutat, depositedat, displaydate, file_found))
         
     data_headers = (('Timestamp', 'datetime'), 'Customer Token', 'Name', 'Username', 'ID', 'Full Name',
                     'Role', 'Amount', 'Currency', 'Note', 'Region', 'Units', 'URL', 'Card Brand',
                     'Suffix', 'Display Name', 'Display Instrument', 'Instrument Type', 'Transaction ID',
-                    'State', ('Created At', 'datetime'), ('Captured At', 'datetime'), ('Reached Customer At', 'datetime'),
+                    'Token', 'Receipt', 'State', ('Created At', 'datetime'), ('Captured At', 'datetime'), ('Reached Customer At', 'datetime'),
                     ('Paid Out At', 'datetime'), ('Deposited At', 'datetime'), ('Display Date', 'datetime'), 'Source File')
     return data_headers, data_list, 'see source File for more info'
     
