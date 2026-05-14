@@ -28,7 +28,7 @@ import hashlib
 import struct
 
 from pathlib import Path
-from shutil import copyfile
+from shutil import copy2
 from zipfile import ZipFile
 from fnmatch import _compile_pattern
 from functools import lru_cache
@@ -346,7 +346,7 @@ class FileSeekerDir(FileSeekerBase):
                             pathlist.append(data_path)
                         elif os.path.isfile(item):
                             os.makedirs(os.path.dirname(data_path), exist_ok=True)
-                            copyfile(item, data_path)
+                            copy2(item, data_path)
                             self.copied[item] = data_path
                             creation_date = Path(item).stat().st_ctime
                             modification_date = Path(item).stat().st_mtime
@@ -603,7 +603,7 @@ class FileSeekerItunes(FileSeekerBase):
 
                     # If not encrypted, just copy the thing
                     else:
-                        copyfile(original_location, data_path)
+                        copy2(original_location, data_path)
 
                     file_info = FileInfo(original_location, creation_date, modification_date)
                     self.file_infos[data_path] = file_info
@@ -882,7 +882,7 @@ class FileSeekerFile(FileSeekerBase):
             if self.single_file_abs_path not in self.copied or force:
                 try:
                     os.makedirs(self.data_folder, exist_ok=True)
-                    copyfile(self.single_file_abs_path, dest_data_path)
+                    copy2(self.single_file_abs_path, dest_data_path)
                     self.copied[self.single_file_abs_path] = dest_data_path
                     s = Path(self.single_file_abs_path).stat()
                     file_info_obj = FileInfo(self.single_file_abs_path, s.st_ctime, s.st_mtime)

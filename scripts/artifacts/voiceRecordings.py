@@ -26,7 +26,7 @@ def get_voiceRecordings(files_found, report_folder, seeker, wrap_text, timezone_
                 m4a_filename = basename(file_found)
                 if ' ' in m4a_filename:
                     m4a_filename = m4a_filename.replace(' ', '_')
-                shutil.copyfile(file_found, join(report_folder, m4a_filename))
+                shutil.copy2(file_found, join(report_folder, m4a_filename))
 
         plist_files.sort()
         m4a_files = [join(report_folder, file) for file in listdir(report_folder) if isfile(join(report_folder, file))]
