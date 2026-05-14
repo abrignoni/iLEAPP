@@ -1363,7 +1363,7 @@ def generate_thumbnail(imDirectory, imFilename, seeker, report_folder):
     pathToThumb = os.path.join(os.path.basename(os.path.abspath(report_folder)), thumbname)
     htmlThumbTag = '<img src="{0}"></img>'.format(pathToThumb)
     if thumblist:
-        shutil.copyfile(thumblist,os.path.join(report_folder, thumbname))
+        shutil.copy2(thumblist,os.path.join(report_folder, thumbname))
     else:
         #recreate thumbnail from image
         #TODO: handle videos and HEIC

@@ -142,7 +142,7 @@ def generate_report(reportfolderbase, time_in_secs, time_HMS, extraction_type, i
 
     def copy_no_perm(src, dst, *, follow_symlinks=True):
         if not os.path.isdir(dst):
-            shutil.copyfile(src, dst)
+            shutil.copy2(src, dst)
         return dst
 
     try:

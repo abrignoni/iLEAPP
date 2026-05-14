@@ -12,7 +12,7 @@ import sys
 
 import scripts.plugin_loader as plugin_loader
 
-from shutil import copyfile
+from shutil import copy2
 from getpass import getpass
 from scripts.search_files import *
 from scripts.ilapfuncs import *
@@ -470,7 +470,7 @@ def crunch_artifacts(
                         src = os.path.join(os.path.dirname(input_path), "logarchive.json")
                         dst = os.path.join(out_params.data_folder, "logarchive.json")
                         if os.path.exists(src):
-                            copyfile(src, dst)
+                            copy2(src, dst)
                             files_found.append(dst)
                     log.write(f'<ul><li>No file found for regex <i>{artifact_search_regex}</i></li></ul>')
                 else:
