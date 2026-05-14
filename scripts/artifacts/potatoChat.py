@@ -363,7 +363,7 @@ def potatochat_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone
                                 m_type = "Text and Image"
                             else:
                                 m_type = "Image"
-                            if message is None or message is "":
+                            if message is None or message == "":
                                 m_type = "Image"
                         elif m_record['media_type'] == 1:
                             media_local_path = f'video/remote{hex_path}.mov'
@@ -371,7 +371,7 @@ def potatochat_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone
                                 m_type = "Text and Video"
                             else:
                                 m_type = "Video"
-                            if message is None or message is "":
+                            if message is None or message == "":
                                 m_type = "Video"
                         elif m_record['media_type'] == 3:
                             if filename is None:
