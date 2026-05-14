@@ -66,6 +66,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | foursquareSwarm |
 | googleTranslate |
 | health |
+| iOSCacheLocations |
 | logarchive |
 | nsVault |
 | payByPhone |
