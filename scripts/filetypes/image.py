@@ -1,3 +1,5 @@
+"""Image file type matchers."""
+
 # -*- coding: utf-8 -*-
 
 from .base import Type
@@ -46,6 +48,38 @@ class Jpx(Type):
         )
 
 
+class Jxl(Type):
+    """
+    Implements the JPEG XL image type matcher.
+    """
+
+    MIME = "image/jxl"
+    EXTENSION = "jxl"
+
+    def __init__(self):
+        super(Jxl, self).__init__(mime=Jxl.MIME, extension=Jxl.EXTENSION)
+
+    def match(self, buf):
+        return (
+            (len(buf) > 1 and
+             buf[0] == 0xFF and
+             buf[1] == 0x0A) or
+            (len(buf) > 11 and
+             buf[0] == 0x00 and
+             buf[1] == 0x00 and
+             buf[2] == 0x00 and
+             buf[3] == 0x0C and
+             buf[4] == 0x4A and
+             buf[5] == 0x58 and
+             buf[6] == 0x4C and
+             buf[7] == 0x20 and
+             buf[8] == 0x0D and
+             buf[9] == 0x0A and
+             buf[10] == 0x87 and
+             buf[11] == 0x0A)
+        )
+
+
 class Apng(Type):
     """
     Implements the APNG image type matcher.
@@ -76,7 +110,7 @@ class Apng(Type):
                 # IEND is end of PNG
                 if (chunk_type == "IDAT" or chunk_type == "IEND"):
                     return False
-                if (chunk_type == "acTL"):
+                if chunk_type == "acTL":
                     return True
 
                 # move to the next chunk by skipping data and crc (4 bytes)
@@ -295,7 +329,7 @@ class Heic(IsoBmff):
         if not self._is_isobmff(buf):
             return False
 
-        major_brand, minor_version, compatible_brands = self._get_ftyp(buf)
+        major_brand, _, compatible_brands = self._get_ftyp(buf)
         if major_brand == 'heic':
             return True
         if major_brand in ['mif1', 'msf1'] and 'heic' in compatible_brands:
@@ -304,7 +338,9 @@ class Heic(IsoBmff):
 
 
 class Dcm(Type):
-
+    """
+    Implements the DCM image type matcher.
+    """
     MIME = 'application/dicom'
     EXTENSION = 'dcm'
     OFFSET = 128
@@ -373,7 +409,7 @@ class Avif(IsoBmff):
         if not self._is_isobmff(buf):
             return False
 
-        major_brand, minor_version, compatible_brands = self._get_ftyp(buf)
+        major_brand, _, compatible_brands = self._get_ftyp(buf)
         if major_brand in ['avif', 'avis']:
             return True
         if major_brand in ['mif1', 'msf1'] and 'avif' in compatible_brands:
@@ -400,3 +436,20 @@ class Qoi(Type):
                 buf[1] == 0x6F and
                 buf[2] == 0x69 and
                 buf[3] == 0x66)
+
+
+class Dds(Type):
+    """
+    Implements the DDS image type matcher.
+    """
+    MIME = 'image/dds'
+    EXTENSION = 'dds'
+
+    def __init__(self):
+        super(Dds, self).__init__(
+            mime=Dds.MIME,
+            extension=Dds.EXTENSION
+        )
+
+    def match(self, buf):
+        return buf.startswith(b'\x44\x44\x53\x20')

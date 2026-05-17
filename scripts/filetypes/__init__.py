@@ -1,3 +1,11 @@
+"""
+filetypes package.
+
+Provides collections of supported file type matchers grouped by category
+(image, video, audio, font, archive, application, document, text) and a
+combined TYPES list for general-purpose file type detection.
+"""
+
 # -*- coding: utf-8 -*-
 
 from . import application
@@ -16,6 +24,7 @@ IMAGE = (
     image.Xcf(),
     image.Jpeg(),
     image.Jpx(),
+    image.Jxl(),
     image.Apng(),
     image.Png(),
     image.Gif(),
@@ -30,6 +39,7 @@ IMAGE = (
     image.Dcm(),
     image.Avif(),
     image.Qoi(),
+    image.Dds(),
 )
 
 # Supported video types
