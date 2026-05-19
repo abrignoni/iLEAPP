@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360">
+  <rect x="20" y="20" width="600" height="320" fill="#eeeeee" stroke="#222222" stroke-width="4"/>
+  <text x="50" y="85" font-family="Arial, sans-serif" font-size="36" font-weight="700">LEAPP Media Test</text>
+  <text x="50" y="155" font-family="Arial, sans-serif" font-size="22">Type: SVG</text>
+  <text x="50" y="193" font-family="Arial, sans-serif" font-size="22">MIME: image/svg+xml</text>
+  <text x="50" y="231" font-family="Arial, sans-serif" font-size="22">Extension: .svg</text>
+  <text x="50" y="281" font-family="Arial, sans-serif" font-size="22">Text/vector image asset sample.</text>
+</svg>

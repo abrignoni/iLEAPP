@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import pathlib
 import json
 import argparse
 import io
@@ -180,10 +181,21 @@ def main():
                         help=("Generate a text file list of artifact paths. "
                               "This argument is meant to be used alone, without any other arguments."))
     parser.add_argument('--custom_output_folder', required=False, action="store", help="Custom name for the output folder")
+    parser.add_argument('--custom_artifacts_path', required=False, action="store", help="Additional path to load artifacts from (e.g., scripts/alternate_artifacts)")
     parser.add_argument('--itunes_password', required=False, action="store", help="Password used for encrypted iTunes backup")
 
+    # Check if no arguments were provided
+    if len(sys.argv) == 1:
+        parser.print_help(sys.stderr)
+        sys.exit()
+
+    args = parser.parse_args()
+
     available_plugins = []
-    loader = plugin_loader.PluginLoader()
+    loader_paths = [plugin_loader.PLUGINPATH]
+    if args.custom_artifacts_path:
+        loader_paths.append(pathlib.Path(args.custom_artifacts_path))
+    loader = plugin_loader.PluginLoader(plugin_paths=loader_paths)
     for plugin in sorted(loader.plugins, key=lambda p: p.category):
         if (plugin.module_name == 'iTunesBackupInfo'
                 or plugin.name == 'last_build'
@@ -194,13 +206,6 @@ def main():
     selected_plugins = available_plugins.copy()
     profile_filename = None
     casedata = {}
-
-    # Check if no arguments were provided
-    if len(sys.argv) == 1:
-        parser.print_help(sys.stderr)
-        sys.exit()
-
-    args = parser.parse_args()
 
     extracttype = args.t
 
