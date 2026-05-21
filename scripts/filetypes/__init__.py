@@ -40,6 +40,7 @@ IMAGE = (
     image.Avif(),
     image.Qoi(),
     image.Dds(),
+    image.Svg(),
 )
 
 # Supported video types

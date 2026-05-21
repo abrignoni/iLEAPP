@@ -4,7 +4,7 @@ Format = [ Name, Blog-url, Twitter-handle, Github-url]
 Leave blank if not available
 """
 
-ileapp_version = '2.4.0'
+ileapp_version = '2.5.0-dev.0'
 
 ileapp_contributors = [
     ['Alexis Brignoni', 'https://abrignoni.com', '@AlexisBrignoni', 'https://github.com/abrignoni'],

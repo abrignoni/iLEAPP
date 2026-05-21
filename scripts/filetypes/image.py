@@ -453,3 +453,28 @@ class Dds(Type):
 
     def match(self, buf):
         return buf.startswith(b'\x44\x44\x53\x20')
+
+
+class Svg(Type):
+    """
+    Implements the SVG image type matcher.
+    """
+    MIME = 'image/svg+xml'
+    EXTENSION = 'svg'
+
+    def __init__(self):
+        super(Svg, self).__init__(
+            mime=Svg.MIME,
+            extension=Svg.EXTENSION
+        )
+
+    def match(self, buf):
+        return (len(buf) > 7 and
+                buf[-8] == 0x0A and
+                buf[-7] == 0x3C and
+                buf[-6] == 0x2F and
+                buf[-5] == 0x73 and
+                buf[-4] == 0x76 and
+                buf[-3] == 0x67 and
+                buf[-2] == 0x3E and
+                buf[-1] == 0x0A)
