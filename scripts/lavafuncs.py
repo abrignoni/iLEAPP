@@ -547,7 +547,12 @@ def lava_get_full_media_info(media_ref_id):
 
 def lava_insert_sqlite_artifact_search_pattern(artifact_regex_id, module_name, artifact_name, regex):
     """
-    Docstrings to be added.
+    Inserts artifact search pattern into the _artifact_search_patterns table.
+    Args:
+        artifact_regex_id (str): Unique identifier for the artifact search pattern.
+        module_name (str): Name of the module containing the artifact.
+        artifact_name (str): Name of the artifact.
+        regex (str): The regular expression for the artifact search pattern.
     """
 
     global lava_db
@@ -567,7 +572,10 @@ def lava_insert_sqlite_artifact_search_pattern(artifact_regex_id, module_name, a
 
 def lava_insert_sqlite_file_path(file_id, file_path):
     """
-    Docstrings to be added.
+    Insert a file path record into the _file_path_list table.
+    Args:
+        file_id (int): Unique identifier for the file path entry.
+        file_path (str): Relative file path to store.
     """
 
     global lava_db
@@ -587,7 +595,10 @@ def lava_insert_sqlite_file_path(file_id, file_path):
 
 def lava_insert_sqlite_artifact_link_pattern_to_file(artifact_regex_id, file_id):
     """
-    Docstrings to be added.
+    Link an artifact search pattern to a file path entry.
+    Args:
+        artifact_regex_id (int): ID of the artifact search pattern.
+        file_id (int): ID of the related file path entry.
     """
 
     global lava_db
