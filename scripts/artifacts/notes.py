@@ -4,11 +4,11 @@
 
 from os.path import dirname, join
 from PIL import Image
-import imghdr
 import zlib
 import binascii
 
 from scripts.artifact_report import ArtifactHtmlReport
+from scripts.filetype import image_match
 from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly, does_column_exist_in_db
 
 
@@ -148,7 +148,8 @@ def get_notes(files_found, report_folder, seeker, wrap_text, timezone_offset):
             if row[10] is not None and row[11] is not None:
                 attachment_file = join(dirname(analyzed_file), 'Accounts/LocalAccount/Media', row[11], row[10])
                 attachment_storage_path = dirname(attachment_file)
-                if imghdr.what(attachment_file) == 'jpeg' or imghdr.what(attachment_file) == 'jpg' or imghdr.what(attachment_file) == 'png':
+                attachment_type = image_match(attachment_file)
+                if attachment_type and attachment_type.extension in ('jpg', 'png'):
                     thumbnail_path = join(report_folder, 'thumbnail_'+row[10])
                     save_original_attachment_as_thumbnail(attachment_file, thumbnail_path)
                     thumbnail = '<img src="{}">'.format(thumbnail_path)
