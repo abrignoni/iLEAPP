@@ -27,11 +27,14 @@ Functions:
 
 import json
 import sqlite3
+import sys
 import os
+from platform import platform
 from collections import OrderedDict
 import re
 import datetime
 
+from scripts.version_info import leapp_name, leapp_version
 from scripts.context import Context
 
 # Global variables
@@ -87,11 +90,20 @@ def initialize_lava(input_path, output_path, input_type):
         input_path: The path to the input file.
         output_path: The path to the output file.
         input_type: The type of input file.
+        selected_artifacts: List of selected artifacts.
     '''
 
     global lava_data, lava_db
 
     lava_data = {
+        "parser_info": {
+            "leapp_name": leapp_name,
+            "leapp_version": leapp_version,
+            "leapp_mode": "GUI" if "leappGUI" in sys.argv[0] else "CLI", 
+            "package": "Source code" if not getattr(sys, 'frozen', False) else "Binary",
+            "OS": platform(),
+            "start_timestamp": int(datetime.datetime.now(datetime.timezone.utc).timestamp())
+        },
         "param_input": input_path,
         "param_output": output_path,
         "param_type": input_type,
@@ -108,6 +120,20 @@ def initialize_lava(input_path, output_path, input_type):
     lava_db = sqlite3.connect(db_path)
 
     cursor = lava_db.cursor()
+    cursor.execute('''CREATE TABLE _artifact_search_patterns (
+                        id INTEGER PRIMARY KEY,
+                        module_name TEXT NOT NULL,
+                        artifact_name TEXT NOT NULL,
+                        regex TEXT NOT NULL)''')
+    cursor.execute('''CREATE TABLE _file_path_list (
+                        id INTEGER PRIMARY KEY,
+                        file_path TEXT NOT NULL)''')
+    cursor.execute('''CREATE TABLE _artifact_pattern_to_file (
+                        id INTEGER PRIMARY KEY,
+                        artifact_search_pattern_id INTEGER NOT NULL,
+                        file_path_id INTEGER NOT NULL,
+                        FOREIGN KEY (artifact_search_pattern_id) REFERENCES _artifact_search_patterns(id),
+                        FOREIGN KEY (file_path_id) REFERENCES _file_path_list(id))''')
     cursor.execute('''CREATE TABLE _lava_media_items (
                         id TEXT PRIMARY KEY,
                         source_path TEXT,
@@ -519,6 +545,77 @@ def lava_get_full_media_info(media_ref_id):
     return cursor.execute(query).fetchone()
 
 
+def lava_insert_sqlite_artifact_search_pattern(artifact_regex_id, module_name, artifact_name, regex):
+    """
+    Inserts artifact search pattern into the _artifact_search_patterns table.
+    Args:
+        artifact_regex_id (str): Unique identifier for the artifact search pattern.
+        module_name (str): Name of the module containing the artifact.
+        artifact_name (str): Name of the artifact.
+        regex (str): The regular expression for the artifact search pattern.
+    """
+
+    global lava_db
+    cursor = lava_db.cursor()
+    sql = '''INSERT INTO _artifact_search_patterns
+                ("id", "module_name", "artifact_name", "regex")
+                VALUES (?, ?, ?, ?)'''
+
+    data = (artifact_regex_id, module_name, artifact_name, regex)
+
+    try:
+        cursor.execute(sql, data)
+        lava_db.commit()
+    except sqlite3.IntegrityError as e:
+        print(str(e))
+
+
+def lava_insert_sqlite_file_path(file_id, file_path):
+    """
+    Insert a file path record into the _file_path_list table.
+    Args:
+        file_id (int): Unique identifier for the file path entry.
+        file_path (str): Relative file path to store.
+    """
+
+    global lava_db
+    cursor = lava_db.cursor()
+    sql = '''INSERT INTO _file_path_list
+                ("id", "file_path")
+                VALUES (?, ?)'''
+
+    data = (file_id, file_path)
+
+    try:
+        cursor.execute(sql, data)
+        lava_db.commit()
+    except sqlite3.IntegrityError as e:
+        print(str(e))
+
+
+def lava_insert_sqlite_artifact_link_pattern_to_file(artifact_regex_id, file_id):
+    """
+    Link an artifact search pattern to a file path entry.
+    Args:
+        artifact_regex_id (int): ID of the artifact search pattern.
+        file_id (int): ID of the related file path entry.
+    """
+
+    global lava_db
+    cursor = lava_db.cursor()
+    sql = '''INSERT INTO _artifact_pattern_to_file
+                ("artifact_search_pattern_id", "file_path_id")
+                VALUES (?, ?)'''
+
+    data = (artifact_regex_id, file_id)
+
+    try:
+        cursor.execute(sql, data)
+        lava_db.commit()
+    except sqlite3.IntegrityError as e:
+        print(str(e))
+
+
 def lava_finalize_output(output_path):
     """
     Finalizes the LAVA output by completing data processing and saving results.
@@ -551,6 +648,8 @@ def lava_finalize_output(output_path):
     # Sort artifacts within each category alphabetically
     for category in lava_data["artifacts"]:
         lava_data["artifacts"][category].sort(key=lambda x: x["name"])
+
+    lava_data["parser_info"]["end_timestamp"] = int(datetime.datetime.now(datetime.timezone.utc).timestamp())
 
     # Save LAVA JSON output
     with open(os.path.join(output_path, lava_json_name), 'w', encoding='utf-8') as f:
