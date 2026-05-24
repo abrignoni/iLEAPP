@@ -16,7 +16,7 @@ from shutil import copy2
 from getpass import getpass
 from scripts.search_files import *
 from scripts.ilapfuncs import *
-from scripts.version_info import ileapp_version
+from scripts.version_info import leapp_version
 from time import process_time, gmtime, strftime, perf_counter
 from scripts.lavafuncs import *
 from scripts.context import Context
@@ -158,7 +158,7 @@ def create_casedata(path):
     return
 
 def main():
-    parser = argparse.ArgumentParser(description=f'iLEAPP v{ileapp_version}: iOS Logs, Events, And Plists Parser.')
+    parser = argparse.ArgumentParser(description=f'iLEAPP v{leapp_version}: iOS Logs, Events, And Plists Parser.')
     parser.add_argument('-t', choices=['fs', 'tar', 'zip', 'gz', 'itunes', 'file'], required=False, action="store",
                         help=("Specify the input type. "
                               "'fs' for a folder containing extracted files with normal paths and names, "
@@ -342,12 +342,11 @@ def crunch_artifacts(
     logfunc('Processing started. Please wait. This may take a few minutes...')
 
     logfunc('\n--------------------------------------------------------------------------------------')
-    logfunc(f'iLEAPP v{ileapp_version}: iOS Logs, Events, And Plists Parser')
+    logfunc(f'iLEAPP v{leapp_version}: iOS Logs, Events, And Plists Parser')
     logfunc('Objective: Triage iOS Full File System and iTunes Backup Extractions.')
     logfunc('By: Alexis Brignoni | @AlexisBrignoni | abrignoni.com')
     logfunc('By: Yogesh Khatri   | @SwiftForensics | swiftforensics.com\n')
     logdevinfo()
-
     seeker = None
     password = itunes_backup_password
     try:

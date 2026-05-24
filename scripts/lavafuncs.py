@@ -27,11 +27,14 @@ Functions:
 
 import json
 import sqlite3
+import sys
 import os
+from platform import platform
 from collections import OrderedDict
 import re
 import datetime
 
+from scripts.version_info import leapp_name, leapp_version
 from scripts.context import Context
 
 # Global variables
@@ -87,11 +90,20 @@ def initialize_lava(input_path, output_path, input_type):
         input_path: The path to the input file.
         output_path: The path to the output file.
         input_type: The type of input file.
+        selected_artifacts: List of selected artifacts.
     '''
 
     global lava_data, lava_db
 
     lava_data = {
+        "parser_info": {
+            "leapp_name": leapp_name,
+            "leapp_version": leapp_version,
+            "leapp_mode": "GUI" if "leappGUI" in sys.argv[0] else "CLI", 
+            "package": "Source code" if not getattr(sys, 'frozen', False) else "Binary",
+            "OS": platform(),
+            "start_timestamp": int(datetime.datetime.now(datetime.timezone.utc).timestamp())
+        },
         "param_input": input_path,
         "param_output": output_path,
         "param_type": input_type,
@@ -625,6 +637,8 @@ def lava_finalize_output(output_path):
     # Sort artifacts within each category alphabetically
     for category in lava_data["artifacts"]:
         lava_data["artifacts"][category].sort(key=lambda x: x["name"])
+
+    lava_data["parser_info"]["end_timestamp"] = int(datetime.datetime.now(datetime.timezone.utc).timestamp())
 
     # Save LAVA JSON output
     with open(os.path.join(output_path, lava_json_name), 'w', encoding='utf-8') as f:

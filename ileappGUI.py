@@ -11,7 +11,7 @@ import scripts.plugin_loader as plugin_loader
 
 from PIL import Image, ImageTk
 from tkinter import ttk, filedialog as tk_filedialog, messagebox as tk_msgbox
-from scripts.version_info import ileapp_version
+from scripts.version_info import leapp_version
 from scripts.search_files import *
 from scripts.ilapfuncs import *
 from scripts.tz_offset import tzvalues
@@ -502,7 +502,7 @@ theme_fgcolor = '#fdcb52'
 
 ## Main window properties
 main_window.minsize(890, 690)
-main_window.title(f'iLEAPP version {ileapp_version}')
+main_window.title(f'iLEAPP version {leapp_version}')
 main_window.configure(bg=theme_bgcolor)
 logo_icon = tk.PhotoImage(file=icon)
 main_window.iconphoto(True, logo_icon)
