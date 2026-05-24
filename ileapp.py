@@ -412,8 +412,6 @@ def crunch_artifacts(
     log.write(f'Extraction/Path selected: {input_path}<br><br>')
     log.write(f'Timezone selected: {time_offset}<br><br>')
 
-    parsed_modules = 0
-    lava_only = False
     # Special processing for iTunesBackup Info.plist as it is a seperate entity, not part of the Manifest.db. Seeker won't find it
     if extracttype == 'itunes':
         info_plist_path = os.path.join(input_path, 'Info.plist')
@@ -443,6 +441,10 @@ def crunch_artifacts(
             log.write('Info.plist not found for iTunes Backup!')
 
     # Search for the files per the arguments
+    parsed_modules = 0
+    lava_only = False
+    artifact_search_pattern_id = 0
+
     for plugin_number, plugin in enumerate(plugins, start=1):
         logfunc()
         logfunc('[{}/{}] {} [{}] artifact started'.format(plugin_number, len(plugins),
@@ -454,8 +456,6 @@ def crunch_artifacts(
             search_regexes = plugin.search
         else:
             search_regexes = [plugin.search]
-        parsed_modules += 1
-        GuiWindow.SetProgressBar(parsed_modules, len(plugins))
         files_found = []
         log.write(f'<b>For {plugin.name} module</b>')
         if search_regexes is None:
@@ -464,6 +464,10 @@ def crunch_artifacts(
             files_found = [os.path.join(out_params.output_folder_base, '_lava_artifacts.db')]
         else:
             for artifact_search_regex in search_regexes:
+                artifact_search_pattern_id += 1
+                lava_insert_sqlite_artifact_search_pattern(
+                    artifact_search_pattern_id, plugin.module_name, plugin.name, artifact_search_regex)
+                pattern_already_searched = artifact_search_regex in seeker.searched
                 found = seeker.search(artifact_search_regex)
                 if not found:
                     if plugin.name == 'logarchive' and extracttype != 'fs' and extracttype != 'file':
@@ -479,6 +483,12 @@ def crunch_artifacts(
                         if pathh.startswith('\\\\?\\'):
                             pathh = pathh[4:]
                         log.write(f'<ul><li>{pathh}</li></ul>')
+                        if seeker.file_infos.get(pathh):
+                            if not pattern_already_searched and not pathh in seeker.file_infos:
+                                lava_insert_sqlite_file_path(
+                                    id(seeker.file_infos.get(pathh)),
+                                    seeker.file_infos.get(pathh).source_path)
+                            lava_insert_sqlite_artifact_link_pattern_to_file(artifact_search_pattern_id, id(seeker.file_infos.get(pathh)))
                     log.write(f'</li></ul>')
                     files_found.extend(found)
         if files_found:
@@ -514,6 +524,9 @@ def crunch_artifacts(
         else:
             logfunc(f"No file found")
         logfunc('{} [{}] artifact completed'.format(plugin.name, plugin.module_name))
+        parsed_modules += 1
+        GuiWindow.SetProgressBar(parsed_modules, len(plugins))
+        log.flush()
     log.close()
 
     write_device_info()

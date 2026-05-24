@@ -108,6 +108,20 @@ def initialize_lava(input_path, output_path, input_type):
     lava_db = sqlite3.connect(db_path)
 
     cursor = lava_db.cursor()
+    cursor.execute('''CREATE TABLE _artifact_search_patterns (
+                        id INTEGER PRIMARY KEY,
+                        module_name TEXT NOT NULL,
+                        artifact_name TEXT NOT NULL,
+                        regex TEXT NOT NULL)''')
+    cursor.execute('''CREATE TABLE _file_path_list (
+                        id INTEGER PRIMARY KEY,
+                        file_path TEXT NOT NULL)''')
+    cursor.execute('''CREATE TABLE _artifact_pattern_to_file (
+                        id INTEGER PRIMARY KEY,
+                        artifact_search_pattern_id INTEGER NOT NULL,
+                        file_path_id INTEGER NOT NULL,
+                        FOREIGN KEY (artifact_search_pattern_id) REFERENCES _artifact_search_patterns(id),
+                        FOREIGN KEY (file_path_id) REFERENCES _file_path_list(id))''')
     cursor.execute('''CREATE TABLE _lava_media_items (
                         id TEXT PRIMARY KEY,
                         source_path TEXT,
@@ -517,6 +531,66 @@ def lava_get_full_media_info(media_ref_id):
     WHERE media_ref_id = '{media_ref_id}'
     '''
     return cursor.execute(query).fetchone()
+
+
+def lava_insert_sqlite_artifact_search_pattern(artifact_regex_id, module_name, artifact_name, regex):
+    """
+    Docstrings to be added.
+    """
+
+    global lava_db
+    cursor = lava_db.cursor()
+    sql = '''INSERT INTO _artifact_search_patterns
+                ("id", "module_name", "artifact_name", "regex")
+                VALUES (?, ?, ?, ?)'''
+
+    data = (artifact_regex_id, module_name, artifact_name, regex)
+
+    try:
+        cursor.execute(sql, data)
+        lava_db.commit()
+    except sqlite3.IntegrityError as e:
+        print(str(e))
+
+
+def lava_insert_sqlite_file_path(file_id, file_path):
+    """
+    Docstrings to be added.
+    """
+
+    global lava_db
+    cursor = lava_db.cursor()
+    sql = '''INSERT INTO _file_path_list
+                ("id", "file_path")
+                VALUES (?, ?)'''
+
+    data = (file_id, file_path)
+
+    try:
+        cursor.execute(sql, data)
+        lava_db.commit()
+    except sqlite3.IntegrityError as e:
+        print(str(e))
+
+
+def lava_insert_sqlite_artifact_link_pattern_to_file(artifact_regex_id, file_id):
+    """
+    Docstrings to be added.
+    """
+
+    global lava_db
+    cursor = lava_db.cursor()
+    sql = '''INSERT INTO _artifact_pattern_to_file
+                ("artifact_search_pattern_id", "file_path_id")
+                VALUES (?, ?)'''
+
+    data = (artifact_regex_id, file_id)
+
+    try:
+        cursor.execute(sql, data)
+        lava_db.commit()
+    except sqlite3.IntegrityError as e:
+        print(str(e))
 
 
 def lava_finalize_output(output_path):
