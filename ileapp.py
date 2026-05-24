@@ -444,6 +444,7 @@ def crunch_artifacts(
     parsed_modules = 0
     lava_only = False
     artifact_search_pattern_id = 0
+    file_path_ids = set()
 
     for plugin_number, plugin in enumerate(plugins, start=1):
         logfunc()
@@ -484,11 +485,11 @@ def crunch_artifacts(
                             pathh = pathh[4:]
                         log.write(f'<ul><li>{pathh}</li></ul>')
                         if seeker.file_infos.get(pathh):
-                            if not pattern_already_searched and not pathh in seeker.file_infos:
-                                lava_insert_sqlite_file_path(
-                                    id(seeker.file_infos.get(pathh)),
-                                    seeker.file_infos.get(pathh).source_path)
-                            lava_insert_sqlite_artifact_link_pattern_to_file(artifact_search_pattern_id, id(seeker.file_infos.get(pathh)))
+                            file_path_id = id(seeker.file_infos.get(pathh))
+                            if not pattern_already_searched and file_path_id not in file_path_ids:
+                                lava_insert_sqlite_file_path(file_path_id,seeker.file_infos.get(pathh).source_path)
+                                file_path_ids.add(file_path_id)
+                            lava_insert_sqlite_artifact_link_pattern_to_file(artifact_search_pattern_id, file_path_id)
                     log.write(f'</li></ul>')
                     files_found.extend(found)
         if files_found:
