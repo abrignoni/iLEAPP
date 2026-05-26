@@ -5,7 +5,7 @@ Leave blank if not available
 """
 
 leapp_name = 'iLEAPP'
-leapp_version = '2.5.0-dev.2'
+leapp_version = '2.5.0'
 
 ileapp_contributors = [
     ['Alexis Brignoni', 'https://abrignoni.com', '@AlexisBrignoni', 'https://github.com/abrignoni'],
