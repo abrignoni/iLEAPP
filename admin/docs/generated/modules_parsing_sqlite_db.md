@@ -122,6 +122,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | coreAccessoriesAcc |
 | coreAccessoriesUserEvent |
 | dmss |
+| foursquareSwarm |
 | geodApplications |
 | geodMapTiles |
 | geodPDPlaceCache |
