@@ -855,7 +855,7 @@ def health_steps(context):
     '''
 
     data_headers = (
-        ('Start Time', 'datetime'), ('End Time', 'date'), 'Steps',
+        ('Start Time', 'datetime'), ('End Time', 'datetime'), 'Steps',
         'Duration (Seconds)', 'Device ID', 'Device Model')
 
     db_records = get_sqlite_db_records(data_source, query)
