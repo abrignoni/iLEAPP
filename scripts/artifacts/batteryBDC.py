@@ -5,7 +5,7 @@ __artifacts_v2__ = {
         "description": "Parses battery usage and temps from Battery Data Collection (BDC) logs",
         "author": "@stark4n6",
         "creation_date": "2026-03-18",
-        "last_update_date": "2026-03-18",
+        "last_update_date": "2026-05-27",
         "requirements": "none",
         "category": "Battery",
         "notes": "",
