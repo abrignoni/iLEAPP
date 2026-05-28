@@ -16,10 +16,12 @@ __artifacts_v2__ = {
 import blackboxprotobuf
 import base64
 import pprint
+import binascii
 
 from scripts.ilapfuncs import (
     artifact_processor,
-    get_plist_file_content
+    get_plist_file_content,
+    logfunc
 )
 
 def longbase64proto(longstuff, longtypes):
@@ -28,9 +30,13 @@ def longbase64proto(longstuff, longtypes):
     return longstuff
 
 def shortbase64proto(shortstuff, shorttypes):
-    shortstuff = shortstuff.split('=')[1]
-    shortstuff, _ = blackboxprotobuf.decode_message(base64.b64decode(shortstuff), shorttypes)
-    return shortstuff
+    try:
+        shortstuff = shortstuff.split('=')[1]
+        shortstuff, _ = blackboxprotobuf.decode_message(base64.b64decode(shortstuff), shorttypes)
+        return shortstuff
+    except (binascii.Error, ValueError) as e:
+        logfunc(f"Base64 decode error in shortbase64proto: {e}")
+        return None
 
 @artifact_processor
 def get_appleMapsSearchHistory(context):
@@ -94,8 +100,13 @@ def get_appleMapsSearchHistory(context):
                                     pass
                             try:    
                                 if protostuff.get('8'):
-                                    if (protostuff['8']['2']['1'].get('201')):
-                                        usersearchnotinproto = (protostuff['8']['2']['1']['201']['2']['2']['1'].decode())
+                                    if protostuff['8'].get('2'):
+                                        if protostuff['8']['2'].get('1'):
+                                            if protostuff['8']['2']['1'].get('201'):
+                                                if protostuff['8']['2']['1']['201'].get('2'):
+                                                    if protostuff['8']['2']['1']['201']['2'].get('2'):
+                                                        if protostuff['8']['2']['1']['201']['2']['2'].get('1'):
+                                                            usersearchnotinproto = (protostuff['8']['2']['1']['201']['2']['2']['1'].decode())
                             except (KeyError, AttributeError, UnicodeDecodeError):
                                 #pass
                                 try:
@@ -122,8 +133,9 @@ def get_appleMapsSearchHistory(context):
                                                     
                                                     shortstuff = shortbase64proto(mira['11']['2'].decode(), shorttypes)
                                                     
-                                                    shortlat = (shortstuff['8']['4']['4']['1']['1'])
-                                                    shortlon = (shortstuff['8']['4']['4']['1']['2'])
+                                                    if shortstuff:
+                                                        shortlat = (shortstuff['8']['4']['4']['1']['1'])
+                                                        shortlon = (shortstuff['8']['4']['4']['1']['2'])
                                                     
                                                     
                                                 except (KeyError, AttributeError, UnicodeDecodeError, TypeError):
@@ -132,15 +144,18 @@ def get_appleMapsSearchHistory(context):
                                                 if mira.get('8'):
                                                     pname = (mira.get('8')['1']['10']['3'].decode())
                                 except (KeyError, AttributeError, UnicodeDecodeError, TypeError):
-                                    currentlocation = (protostuff['8']['2']['8']['3'].decode())
+                                    if protostuff.get('8') and protostuff['8'].get('2') and protostuff['8']['2'].get('8'):
+                                        if protostuff['8']['2']['8'].get('3'):
+                                            currentlocation = (protostuff['8']['2']['8']['3'].decode())
                                     
                             try: 
                                 if protostuff.get('7'):
                                     shortstuff = shortbase64proto(protostuff.get('7')['1']['1'][0]['2']['1']['4'][8]['11']['2'].decode(), shorttypes)
-                                    app = shortstuff['1']['1'].decode()
-                                    location = (shortstuff['8']['1']['3'].decode())
-                                    shortlat = (shortstuff['8']['4']['4']['1']['1'])
-                                    shortlon = (shortstuff['8']['4']['4']['1']['2'])
+                                    if shortstuff:
+                                        app = shortstuff['1']['1'].decode()
+                                        location = (shortstuff['8']['1']['3'].decode())
+                                        shortlat = (shortstuff['8']['4']['4']['1']['1'])
+                                        shortlon = (shortstuff['8']['4']['4']['1']['2'])
                                     
                                     if (protostuff.get('7')['1']['1'][1]['1'].get('2')):
                                         
@@ -183,9 +198,9 @@ def get_appleMapsSearchHistory(context):
                                     pp = pprint.PrettyPrinter(indent = 0)
                                     items = pp.pformat(protostuff['7']['1']['1'][0]['2']['1']['4'])
                                     
-                            data_list.append((modificationdate,app,location,shortadd,pname,shortlat,shortlon,usersearchnotinproto,usersearch1, usersearch2,geo1,geo2,geo3,geo4,geo5,geo6,guid,currentlocation,items, file_found ))
+                            data_list.append((modificationdate,app,location,shortadd,pname,shortlat,shortlon,usersearchnotinproto,usersearch1, usersearch2,geo1,geo2,geo3,geo4,geo5,geo6,guid,currentlocation,str(items), file_found ))
                             modificationdate = app = location = shortadd = pname = shortlat = shortlon = usersearch1 = usersearch2 = geo1 = geo2 = geo3 = geo4 = geo5 = geo6 = guid = items = currentlocation = '' 
     
-    data_headers = (('Timestamp', 'datetime'),'App','Location','Short Address','Place Name','Latitude','Longitude','Search Not in Protobuf','Search Term','Search Term','Lat1','Lon1','Lat2','Lon2','Lat2','Lon3','Record GUID','Current Location','Items', 'Source File')        
+        data_headers = (('Timestamp', 'datetime'),'App','Location','Short Address','Place Name','Latitude','Longitude','Search Not in Protobuf','Search Term 1','Search Term 2','Lat1','Lon1','Lat2','Lon2','Lat3','Lon3','Record GUID','Current Location','Items', 'Source File')        
     
-    return data_list, data_headers, 'see Source File for more info'
+    return data_headers, data_list, 'see Source File for more info'
