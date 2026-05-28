@@ -1,3 +1,4 @@
+import sqlite3
 import os
 from datetime import datetime
 import pytz
@@ -66,7 +67,8 @@ def get_photosDbexif(files_found, report_folder, seeker, wrap_text, timezone_off
             #sqlite portion
             db = open_sqlite_db_readonly(file_found)
             cursor = db.cursor()
-            cursor.execute('''
+            try:
+                cursor.execute('''
                 SELECT
                 DATETIME(ZASSET.ZDATECREATED+978307200,'UNIXEPOCH') AS DATECREATED,
                 DATETIME(ZASSET.ZMODIFICATIONDATE+978307200,'UNIXEPOCH') AS MODIFICATIONDATE,
@@ -77,8 +79,21 @@ def get_photosDbexif(files_found, report_folder, seeker, wrap_text, timezone_off
                 ZADDITIONALASSETATTRIBUTES.ZCREATORBUNDLEID
                 FROM ZASSET
                 INNER JOIN ZADDITIONALASSETATTRIBUTES ON ZASSET.Z_PK = ZADDITIONALASSETATTRIBUTES.Z_PK
-            ''')
-            
+                ''')
+            except sqlite3.OperationalError:                
+                logfunc("INFO: Error accessing ZADDITIONALASSETATTRIBUTES columns. Switching to ZASSET-only query.")
+                cursor.execute('''
+                SELECT
+                DATETIME(ZASSET.ZDATECREATED+978307200,'UNIXEPOCH') AS DATECREATED,
+                DATETIME(ZASSET.ZMODIFICATIONDATE+978307200,'UNIXEPOCH') AS MODIFICATIONDATE,
+                ZASSET.ZDIRECTORY,
+                ZASSET.ZFILENAME,
+                ZASSET.ZLATITUDE,
+                ZASSET.ZLONGITUDE,
+                '' as "Placeholder_CreatorID"
+                FROM ZASSET
+                ''')
+
             all_rows = cursor.fetchall()
             usageentries = len(all_rows)
             
