@@ -20,6 +20,7 @@ __artifacts_v2__ = {
 }
 
 from os.path import dirname, basename
+import sqlite3
 from scripts.ilapfuncs import logfunc, open_sqlite_db_readonly, attach_sqlite_db_readonly, artifact_processor
 
 @artifact_processor
@@ -59,9 +60,10 @@ def tiktok_replied(files_found, report_folder, seeker, wrap_text, timezone_offse
             for table in contacts_tables:
                 contacts_subqueries.append(f'SELECT uid, customid, nickname, url1, "{table}" as t FROM AwemeIM.{table}')
 
-            contacts_subquery = '''
-                        UNION ALL
-                        '''.join(contacts_subqueries)
+            if contacts_subqueries:
+                contacts_subquery = ' UNION ALL '.join(contacts_subqueries)
+            else:
+                contacts_subquery = "SELECT NULL as uid, NULL as customid, NULL as nickname, NULL as url1, '' as t WHERE 0"
 
             # wrap subquery to select only a single record per contact
             contacts_subquery = f'''
@@ -126,9 +128,12 @@ def tiktok_replied(files_found, report_folder, seeker, wrap_text, timezone_offse
             left join DeduplicatedContacts as reply_sender on replySender = reply_sender.uid
             '''
 
-            cursor.execute(full_query)
-
-            all_rows = cursor.fetchall()
+            try:
+                cursor.execute(full_query)
+                all_rows = cursor.fetchall()
+            except sqlite3.OperationalError as e:
+                logfunc(f'Reading tiktok_replied had SQL error: {e}')
+                all_rows = []
 
             for row in all_rows:
                 data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
