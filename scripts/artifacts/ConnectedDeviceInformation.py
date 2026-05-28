@@ -91,7 +91,12 @@ def connected_device_info_device_history(context):
         'Origin Product Type', 'Device Model', 'Source ID', 'Origin Build',
         'OS Version')
 
-    db_records = get_sqlite_db_records(source_path, query)
+    try:
+        db_records = get_sqlite_db_records(source_path, query)
+    except Exception as e:
+        from scripts.ilapfuncs import logfunc
+        logfunc(f"Error querying Connected Device History database: {str(e)}")
+        db_records = []
 
     for record in db_records:
         start_timestamp = convert_cocoa_core_data_ts_to_utc(record[0])
@@ -135,7 +140,12 @@ def connected_device_info_consolidated_connected_device_history(context):
         ('Start Time', 'datetime'), ('End Time', 'datetime'),
         'Origin Product Type', 'Device Model')
 
-    db_records = get_sqlite_db_records(source_path, query)
+    try:
+        db_records = get_sqlite_db_records(source_path, query)
+    except Exception as e:
+        from scripts.ilapfuncs import logfunc
+        logfunc(f"Error querying Consolidated Connected Device History database: {str(e)}")
+        db_records = []
 
     for record in db_records:
         start_timestamp = convert_cocoa_core_data_ts_to_utc(record[0])
@@ -171,7 +181,13 @@ def connected_device_information_current_device_info(context):
         'OS Version')
 
     if does_table_exist_in_db(source_path, 'device_context'):
-        db_records = get_sqlite_db_records(source_path, query)
+        try:
+            db_records = get_sqlite_db_records(source_path, query)
+        except Exception as e:
+            from scripts.ilapfuncs import logfunc
+            logfunc(f"Error querying Current Device Information database: {str(e)}")
+            db_records = []
+
         for record in db_records:
             mod_timestamp = convert_cocoa_core_data_ts_to_utc(record[0])
             device_model = context.get_device_model(record[1])
