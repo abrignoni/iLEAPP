@@ -1,0 +1,44 @@
+{
+  "metadata": {
+    "module_name": "cloudkitSharing",
+    "artifact_name": "CloudKit Shares",
+    "function_name": "cloudkit_sharing",
+    "case_number": "mvs_ios_2023",
+    "number_of_columns": 17,
+    "number_of_rows": 0,
+    "total_data_size_bytes": 0,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/cloudkitSharing/testdata.cloudkitSharing.cloudkit_sharing.mvs_ios_2023.zip",
+    "start_time": "2026-05-27T23:07:14.447308+00:00",
+    "end_time": "2026-05-27T23:07:14.543199+00:00",
+    "run_time_seconds": 0.0016520023345947266,
+    "last_commit": {
+      "hash": "b2a401886e75c564e525dce398cb885d4e7eb2a6",
+      "author_name": "Kevin - Stark 4N6",
+      "author_email": "48143894+stark4n6@users.noreply.github.com",
+      "date": "2025-02-06T19:47:52-05:00",
+      "message": "Minor Fixes"
+    }
+  },
+  "headers": [
+    "Source File",
+    "Source Z_PK",
+    "ZIDENTIFIER",
+    "Record ID",
+    "Root Record ID",
+    "Record Type",
+    "Creation Date",
+    "Creator User Record ID",
+    "Modified Date",
+    "Last Modified User Record ID",
+    "Modified By Device",
+    "Container Identifier",
+    "Displayed Hostname",
+    "Public Permission",
+    "Participant Visibility",
+    "Allows Anonymous Access",
+    "Known To Server"
+  ],
+  "data": []
+}

@@ -1,0 +1,143 @@
+{
+  "mvs_ios_2023": {
+    "description": "",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "/Users/jameshabben/Documents/phone-images/magnet/00008101-0010541A1130001E_files_full-001.zip",
+      "os": "macOS-15.7.4-x86_64-i386-64bit",
+      "timestamp": "2026-05-27T15:33:22.409614",
+      "last_commit": {
+        "hash": "b2a401886e75c564e525dce398cb885d4e7eb2a6",
+        "author_name": "Kevin - Stark 4N6",
+        "author_email": "48143894+stark4n6@users.noreply.github.com",
+        "date": "2025-02-06T19:47:52-05:00",
+        "message": "Minor Fixes"
+      }
+    },
+    "artifacts": {
+      "cloudkit_sharing": {
+        "search_patterns": [
+          "*NoteStore.sqlite*"
+        ],
+        "file_count": 3,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "cloudkit_participants": {
+        "search_patterns": [
+          "*NoteStore.sqlite*"
+        ],
+        "file_count": 3,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "image_name": "mvs_ios_2023",
+    "image_info": {
+      "creation_date": "2023-01-01",
+      "os_name": "iPhone OS",
+      "os_version": "14.7.1",
+      "device_model": "Unknown",
+      "extraction_method": "Full Filesystem",
+      "extraction_tool": "Magnet"
+    }
+  },
+  "josh_ios15_ffs": {
+    "description": "",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "/Users/jameshabben/Documents/phone-images/Josh/iOS_15_Public_Image.zip",
+      "os": "macOS-15.7.4-x86_64-i386-64bit",
+      "timestamp": "2026-05-28T06:45:31.943111",
+      "last_commit": {
+        "hash": "b2a401886e75c564e525dce398cb885d4e7eb2a6",
+        "author_name": "Kevin - Stark 4N6",
+        "author_email": "48143894+stark4n6@users.noreply.github.com",
+        "date": "2025-02-06T19:47:52-05:00",
+        "message": "Minor Fixes"
+      }
+    },
+    "artifacts": {
+      "cloudkit_sharing": {
+        "search_patterns": [
+          "*NoteStore.sqlite*"
+        ],
+        "file_count": 3,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "cloudkit_participants": {
+        "search_patterns": [
+          "*NoteStore.sqlite*"
+        ],
+        "file_count": 3,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "image_name": "josh_ios15_ffs",
+    "image_info": {
+      "creation_date": "2023-05-20",
+      "os_name": "iPhone OS",
+      "os_version": "15.3.1",
+      "device_model": "iPhone 8",
+      "extraction_method": "Full Filesystem",
+      "extraction_tool": "Cellebrite"
+    }
+  },
+  "belkasoft_ctf6_ios_device1": {
+    "description": "",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "/Users/jameshabben/Documents/phone-images/belkasoft/BelkaCTF_6_CASE240405_D201AP.tar",
+      "os": "macOS-15.7.4-x86_64-i386-64bit",
+      "timestamp": "2026-05-28T09:04:21.116050",
+      "last_commit": {
+        "hash": "b2a401886e75c564e525dce398cb885d4e7eb2a6",
+        "author_name": "Kevin - Stark 4N6",
+        "author_email": "48143894+stark4n6@users.noreply.github.com",
+        "date": "2025-02-06T19:47:52-05:00",
+        "message": "Minor Fixes"
+      }
+    },
+    "artifacts": {
+      "cloudkit_sharing": {
+        "search_patterns": [
+          "*NoteStore.sqlite*"
+        ],
+        "file_count": 3,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "cloudkit_participants": {
+        "search_patterns": [
+          "*NoteStore.sqlite*"
+        ],
+        "file_count": 3,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "image_name": "belkasoft_ctf6_ios_device1",
+    "image_info": {
+      "creation_date": "2023-01-01",
+      "os_name": "iPhone OS",
+      "os_version": "16.3",
+      "device_model": "Unknown",
+      "extraction_method": "Unknown",
+      "extraction_tool": "Unknown"
+    }
+  }
+}
