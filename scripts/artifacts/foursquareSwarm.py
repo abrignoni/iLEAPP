@@ -2310,6 +2310,8 @@ def foursquare_swarm_photos(context):
     '''
 
     db_records = get_sqlite_db_records(source_path, query)
+    if not db_records:
+        return data_headers, (data_list, data_list_html), source_path
 
     for record in db_records:
         try:
@@ -3235,7 +3237,7 @@ def foursquare_swarm_saved_lists(context):
             # Unpack record for clarity
             (l_pk, li_pk, v_pk, u_pk, l_raw_created, l_raw_updated,
              l_raw_client_updated, l_raw_last_viewed, l_raw_meta_updated,
-             l_creator, l_owner, l_name, l_type, l_desc, l_collab, l_access_lvl,
+             l_owner, l_creator, l_name, l_type, l_desc, l_collab, l_access_lvl,
              l_items_cnt, l_followers_cnt, l_liked, l_likes_cnt, l_url,
              i_raw_added, i_raw_shared, v_name, v_addr, v_city, v_lat, v_lon,
              i_visited, i_unread, i_status, i_note, i_src_title, i_src_url, i_src,
@@ -3452,11 +3454,11 @@ def foursquare_swarm_plog(context):
         CASE
             WHEN PL.ZHORIZONTALACCURACY IS NULL THEN 'N/A'
             WHEN CAST(PL.ZHORIZONTALACCURACY AS TEXT) = '' THEN 'N/D'
-            WHEN PL.ZHORIZONTALACCURACY < 0.0 THEN 'Invalid (No Fix / Negative)'
+            WHEN PL.ZHORIZONTALACCURACY < 0.0 THEN 'Invalid (No Fix/Negative)'
             WHEN PL.ZHORIZONTALACCURACY = 0.0 THEN 'Invalid (Zero Accuracy)'
-            WHEN PL.ZHORIZONTALACCURACY <= 10.0 THEN 'High (GPS)'
-            WHEN PL.ZHORIZONTALACCURACY <= 100.0 THEN 'Medium (Wi-Fi/Cell)'
-            WHEN PL.ZHORIZONTALACCURACY <= 1000.0 THEN 'Low (Cell Tower)'
+            WHEN PL.ZHORIZONTALACCURACY <= 30.0 THEN 'High (GPS/Precise Wi-Fi)'
+            WHEN PL.ZHORIZONTALACCURACY <= 200.0 THEN 'Medium (Wi-Fi Network)'
+            WHEN PL.ZHORIZONTALACCURACY <= 1500.0 THEN 'Low (Cell Tower/Triangulation)'
             ELSE 'Very Low (' || CAST(PL.ZHORIZONTALACCURACY AS TEXT) || 'm)'
         END AS "accuracy_context",
         PL.ZRADIUS
