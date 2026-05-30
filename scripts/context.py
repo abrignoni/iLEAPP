@@ -24,6 +24,7 @@ class Context:
     _artifact_name = None
     _files_found = []
     _filename_lookup_map = {}
+    _data_folder = None
     _device_ids = {}
     _device_boards = {}
     _os_builds = {}
@@ -39,6 +40,7 @@ class Context:
             output_params: The initialized OutputParameters object.
         """
         Context._output_params = output_params
+        Context._data_folder = getattr(output_params, 'data_folder', None)
 
     @staticmethod
     def set_report_folder(report_folder):
@@ -371,6 +373,35 @@ class Context:
                     return candidate
 
         return None
+
+    @staticmethod
+    def get_data_folder():
+        """
+        Returns the global extraction folder path.
+        """
+        return Context._data_folder
+
+    @staticmethod
+    def get_relative_path(full_path):
+        """
+        Converts a full on-disk path (from files_found) to a relative
+        extraction path by removing the global data_folder prefix.
+
+        Args:
+            full_path (str): The full path to the file.
+
+        Returns:
+            str: The relative extraction path, or the original path if
+                 the data_folder is not available.
+        """
+        if not full_path or not Context._data_folder:
+            return full_path
+
+        if full_path.startswith(Context._data_folder):
+            # Strip the base path and any leading separators
+            return full_path[len(Context._data_folder):].lstrip('/\\')
+
+        return full_path
 
     @staticmethod
     def get_device_model(identifier):
