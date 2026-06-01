@@ -66,7 +66,7 @@ def extract_last_url(blob) -> str | None:
     if blob is None:
         return None
     if isinstance(blob, bytes):
-        blob = blob
+        pass
     else:
         blob = blob.tobytes()
     pattern = rb'https?://[^\x00\s"]+'
@@ -273,7 +273,7 @@ def zalo_messages(files_found, _report_folder, _seeker, _wrap_text, _timezone_of
                         else:
                             message = f"Missing Sticker: cateid={cateid} eid={eid}"
                     else:
-                            message = f"Missing Sticker: cateid={cateid} eid={eid}"
+                        message = f"Missing Sticker: cateid={cateid} eid={eid}"
                 except ValueError:
                     pass
 
