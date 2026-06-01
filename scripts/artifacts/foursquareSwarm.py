@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "description": "Parses and extracts Foursquare Swarm Account",
         "author": "@djangofaiola",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-05-25",
+        "last_update_date": "2026-06-01",
         "requirements": "none",
         "category": "Foursquare Swarm",
         "notes": "https://djangofaiola.blogspot.com",
@@ -28,7 +28,7 @@ __artifacts_v2__ = {
         "description": "Parses and extracts Foursquare Swarm Contacts",
         "author": "@djangofaiola",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-05-25",
+        "last_update_date": "2026-06-01",
         "requirements": "none",
         "category": "Foursquare Swarm",
         "notes": "https://djangofaiola.blogspot.com",
@@ -43,7 +43,7 @@ __artifacts_v2__ = {
         "description": "Parses and extracts device address book contacts harvested by Swarm",
         "author": "@djangofaiola",
         "creation_date": "2026-04-16",
-        "last_update_date": "2026-05-25",
+        "last_update_date": "2026-06-01",
         "requirements": "none",
         "category": "Foursquare Swarm",
         "notes": "https://djangofaiola.blogspot.com",
@@ -57,7 +57,7 @@ __artifacts_v2__ = {
         "description": "Parses and extracts Foursquare Swarm manual and passive check-ins",
         "author": "@djangofaiola",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-05-25",
+        "last_update_date": "2026-06-01",
         "requirements": "none",
         "category": "Foursquare Swarm",
         "notes": "https://djangofaiola.blogspot.com",
@@ -74,7 +74,7 @@ __artifacts_v2__ = {
         "description": "Parses and extracts Foursquare Swarm Tips",
         "author": "@djangofaiola",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-05-25",
+        "last_update_date": "2026-06-01",
         "requirements": "none",
         "category": "Foursquare Swarm",
         "notes": "https://djangofaiola.blogspot.com",
@@ -90,7 +90,7 @@ __artifacts_v2__ = {
         "description": "Parses and extracts Foursquare Swarm Stickers",
         "author": "@djangofaiola",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-05-25",
+        "last_update_date": "2026-06-01",
         "requirements": "none",
         "category": "Foursquare Swarm",
         "notes": "https://djangofaiola.blogspot.com",
@@ -106,7 +106,7 @@ __artifacts_v2__ = {
         "description": "Parses and extracts Foursquare Swarm Venues History",
         "author": "@djangofaiola",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-05-25",
+        "last_update_date": "2026-06-01",
         "requirements": "none",
         "category": "Foursquare Swarm",
         "notes": "https://djangofaiola.blogspot.com",
@@ -123,7 +123,7 @@ __artifacts_v2__ = {
         "description": "Parses and extracts Foursquare Swarm photos from all artifacts",
         "author": "@djangofaiola",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-05-25",
+        "last_update_date": "2026-06-01",
         "requirements": "none",
         "category": "Foursquare Swarm",
         "notes": "https://djangofaiola.blogspot.com",
@@ -141,7 +141,7 @@ __artifacts_v2__ = {
                        "check-ins, plans, tips, lists, and stickers",
         "author": "@djangofaiola",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-05-25",
+        "last_update_date": "2026-06-01",
         "requirements": "none",
         "category": "Foursquare Swarm",
         "notes": "https://djangofaiola.blogspot.com",
@@ -170,7 +170,7 @@ __artifacts_v2__ = {
         "description": "Parses and extracts Foursquare Swarm Plans (meetups)",
         "author": "@djangofaiola",
         "creation_date": "2026-04-18",
-        "last_update_date": "2026-05-25",
+        "last_update_date": "2026-06-01",
         "requirements": "none",
         "category": "Foursquare Swarm",
         "notes": "https://djangofaiola.blogspot.com",
@@ -186,7 +186,7 @@ __artifacts_v2__ = {
         "description": "Extracts scheduled events (concerts, movies, etc.) linked to venues",
         "author": "@djangofaiola",
         "creation_date": "2026-04-18",
-        "last_update_date": "2026-05-25",
+        "last_update_date": "2026-06-01",
         "requirements": "none",
         "category": "Foursquare Swarm",
         "notes": "https://djangofaiola.blogspot.com",
@@ -202,7 +202,7 @@ __artifacts_v2__ = {
         "description": "Parses and extracts user-created lists and saved venues (items)",
         "author": "@djangofaiola",
         "creation_date": "2026-04-20",
-        "last_update_date": "2026-05-25",
+        "last_update_date": "2026-06-01",
         "requirements": "none",
         "category": "Foursquare Swarm",
         "notes": "https://djangofaiola.blogspot.com",
@@ -216,7 +216,7 @@ __artifacts_v2__ = {
         "description": "Extracts passive location history (GPS breadcrumbs)",
         "author": "@djangofaiola",
         "creation_date": "2026-04-20",
-        "last_update_date": "2026-05-25",
+        "last_update_date": "2026-06-01",
         "requirements": "none",
         "category": "Foursquare Swarm",
         "notes": "https://djangofaiola.blogspot.com",
@@ -229,7 +229,7 @@ __artifacts_v2__ = {
         "description": "Parses and extracts Foursquare Swarm/Pilgrim SDK Logs",
         "author": "@djangofaiola",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-05-25",
+        "last_update_date": "2026-06-01",
         "requirements": "none",
         "category": "Foursquare Swarm",
         "notes": "https://djangofaiola.blogspot.com",
@@ -244,7 +244,7 @@ __artifacts_v2__ = {
                        "and interactive bulletins",
         "author": "@djangofaiola",
         "creation_date": "2026-05-16",
-        "last_update_date": "2026-05-25",
+        "last_update_date": "2026-06-01",
         "requirements": "none",
         "category": "Foursquare Swarm",
         "notes": "https://djangofaiola.blogspot.com",
@@ -956,8 +956,9 @@ def foursquare_swarm_account(context):
             data_list.append(base_data)
 
         except (ValueError, IndexError, TypeError) as ex:
+            _id = record[0] if record and len(record) > 0 else 'UNKNOWN'
             logfunc(f"[{context.get_artifact_name()}] "
-                    f"Error - Failed parsing record ZFSUSER {record[0]} in {source_path}: {ex}")
+                    f"Error - Failed parsing record ZFSUSER {_id} in {source_path}: {ex}")
             continue
 
     return data_headers, (data_list, data_list_html), source_path
@@ -1159,8 +1160,9 @@ def foursquare_swarm_contacts(context):
             data_list.append(base_data)
 
         except (ValueError, IndexError, TypeError) as ex:
+            _id = record[0] if record and len(record) > 0 else 'UNKNOWN'
             logfunc(f"[{context.get_artifact_name()}] "
-                    f"Error - Failed parsing record ZFSUSER {record[0]} in {source_path}: {ex}")
+                    f"Error - Failed parsing record ZFSUSER {_id} in {source_path}: {ex}")
             continue
 
     return data_headers, (data_list, data_list_html), source_path
@@ -1328,9 +1330,10 @@ def foursquare_swarm_address_book(context):
             data_list.append(base_data)
 
         except (ValueError, IndexError, TypeError) as ex:
+            _id = record[0] if record and len(record) > 0 else 'UNKNOWN'
             logfunc(f"[{context.get_artifact_name()}] "
                     f"Error - Failed parsing record ZFSADDRESSBOOKUSER "
-                    f"{record[0]} in {source_path}: {ex}")
+                    f"{_id} in {source_path}: {ex}")
             continue
 
     return data_headers, (data_list, data_list_html), source_path
@@ -1742,9 +1745,9 @@ def foursquare_swarm_checkins(context):
                 data_list.append(base_data)
 
             except (ValueError, IndexError, TypeError) as ex:
+                _id = record[0] if record and len(record) > 0 else 'UNKNOWN'
                 logfunc(f"[{context.get_artifact_name()}] "
-                        f"Error - Failed parsing record ZFSCHECKIN {record[0]} "
-                        f"in {source_path}: {ex}")
+                        f"Error - Failed parsing record ZFSCHECKIN {_id} in {source_path}: {ex}")
                 continue
 
     except sqlite3.Error as db_ex:
@@ -1909,8 +1912,9 @@ def foursquare_swarm_tips(context):
                 data_list.append(base_data)
 
         except (ValueError, IndexError, TypeError) as ex:
+            _id = record[0] if record and len(record) > 0 else 'UNKNOWN'
             logfunc(f"[{context.get_artifact_name()}] "
-                    f"Error - Failed parsing record ZFSTIP {record[0]} in {source_path}: {ex}")
+                    f"Error - Failed parsing record ZFSTIP {_id} in {source_path}: {ex}")
             continue
 
     return data_headers, (data_list, data_list_html), source_path
@@ -2014,8 +2018,9 @@ def foursquare_swarm_stickers(context):
             data_list.append(base_data)
 
         except (ValueError, IndexError, TypeError) as ex:
+            _id = record[0] if record and len(record) > 0 else 'UNKNOWN'
             logfunc(f"[{context.get_artifact_name()}] "
-                    f"Error - Failed parsing record ZFSSTICKER {record[0]} in {source_path}: {ex}")
+                    f"Error - Failed parsing record ZFSSTICKER {_id} in {source_path}: {ex}")
             continue
 
     return data_headers, (data_list, data_list_html), source_path
@@ -2193,8 +2198,9 @@ def foursquare_swarm_venues_history(context):
             data_list.append(base_data)
 
         except (ValueError, IndexError, TypeError) as ex:
+            _id = record[0] if record and len(record) > 0 else 'UNKNOWN'
             logfunc(f"[{context.get_artifact_name()}] "
-                    f"Error - Failed parsing record ZFSVENUE {record[0]} in {source_path}: {ex}")
+                    f"Error - Failed parsing record ZFSVENUE {_id} in {source_path}: {ex}")
             continue
 
     return data_headers, (data_list, data_list_html), source_path
@@ -2380,8 +2386,9 @@ def foursquare_swarm_photos(context):
             data_list.append(base_data)
 
         except (ValueError, IndexError, TypeError) as ex:
+            _id = record[0] if record and len(record) > 0 else 'UNKNOWN'
             logfunc(f"[{context.get_artifact_name()}] "
-                    f"Error - Failed parsing record ZFSPHOTO {record[0]} in {source_path}: {ex}")
+                    f"Error - Failed parsing record ZFSPHOTO {_id} in {source_path}: {ex}")
             continue
 
     return data_headers, (data_list, data_list_html), source_path
@@ -2567,8 +2574,9 @@ def foursquare_swarm_comments(context):
             data_list.append(base_data)
 
         except (ValueError, IndexError, TypeError) as ex:
+            _id = record[0] if record and len(record) > 0 else 'UNKNOWN'
             logfunc(f"[{context.get_artifact_name()}] "
-                    f"Error - Failed parsing record ZFSCOMMENT {record[0]} in {source_path}: {ex}")
+                    f"Error - Failed parsing record ZFSCOMMENT {_id} in {source_path}: {ex}")
             continue
 
     return data_headers, (data_list, data_list_html), source_path
@@ -2702,9 +2710,10 @@ def foursquare_swarm_friend_requests(context):
             data_list.append(base_data)
 
         except (ValueError, IndexError, TypeError) as ex:
+            _id = record[0] if record and len(record) > 0 else 'UNKNOWN'
             logfunc(f"[{context.get_artifact_name()}] "
                     "Error - Failed parsing record ZFSFRIENDREQUEST "
-                    f"{record[0]} in {source_path}: {ex}")
+                    f"{_id} in {source_path}: {ex}")
             continue
 
     return data_headers, (data_list, data_list_html), source_path
@@ -2802,7 +2811,6 @@ def foursquare_swarm_plans(context):
                 WHEN 3 THEN 'Expired'
                 WHEN 4 THEN 'Deleted'
                 WHEN 5 THEN 'Archived'
-                WHEN 6 THEN 'System Deleted'
                 ELSE 'Unknown (' || P.ZSTATUS || ')'
             END AS "status",
             IIF(P.ZHIDDENBYUSER = 1, 'Yes', IIF(P.ZHIDDENBYUSER = 0, 'No', NULL)) AS "is_hidden",
@@ -2811,19 +2819,17 @@ def foursquare_swarm_plans(context):
             CASE
                 WHEN P.ZMUTESTATE IS NULL THEN 'N/A'
                 WHEN P.ZMUTESTATE = '' THEN 'N/D'
-                WHEN P.ZMUTESTATE = '0' THEN 'Not Muted'
-                WHEN P.ZMUTESTATE = '1' THEN 'Muted Temporarily'
-                WHEN P.ZMUTESTATE = '2' THEN 'Muted Permanently'
-                ELSE 'Unknown (' || P.ZMUTESTATE || ')'
+                WHEN CAST(P.ZMUTESTATE AS TEXT) IN ('0', 'unmuted') THEN 'Not Muted' 
+                WHEN CAST(P.ZMUTESTATE AS TEXT) IN ('1', 'muted') THEN 'Muted'
+                ELSE 'Unknown (' || CAST(P.ZMUTESTATE AS TEXT) || ')'
             END AS "mute_state",
             CASE
                 WHEN P.ZREADMARKER IS NULL THEN 'N/A'
-                WHEN P.ZREADMARKER = '' THEN 'N/D'
-                WHEN P.ZREADMARKER = '0' THEN 'Initialized (No Read Activity)'
-                WHEN CAST(P.ZREADMARKER AS DOUBLE) > 0.0 THEN 'Last Read at: ' ||
-                  datetime(CAST(P.ZREADMARKER AS DOUBLE) + 978307200, 'unixepoch')
-                WHEN P.ZREADMARKER = 'false' THEN 'Never Read'
-                ELSE 'Marker: ' || P.ZREADMARKER
+                WHEN CAST(P.ZREADMARKER AS TEXT) = '' THEN 'N/D'
+                WHEN CAST(P.ZREADMARKER AS TEXT) = 'false' THEN 'Never Read'
+                WHEN LENGTH(CAST(P.ZREADMARKER AS TEXT)) = 24 THEN 'Marker: ' || CAST(P.ZREADMARKER AS TEXT)
+                WHEN CAST(P.ZREADMARKER AS DOUBLE) > 400000000.0 THEN 'Read at: ' || datetime(CAST(P.ZREADMARKER AS DOUBLE) + 978307200, 'unixepoch')
+                ELSE 'Marker: ' || CAST(P.ZREADMARKER AS TEXT)
             END AS "read_marker",
             CASE  
                 WHEN P.ZREADRECEIPT IS NULL THEN 'N/A'
@@ -2831,7 +2837,7 @@ def foursquare_swarm_plans(context):
                 WHEN P.ZREADRECEIPT = '0' THEN 'Unread/New'
                 WHEN P.ZREADRECEIPT = '1' THEN 'Confirmed (Read)'
                 WHEN P.ZREADRECEIPT = '2' THEN 'Read (Group)'
-                ELSE 'Status: ' || P.ZREADRECEIPT
+                ELSE 'Unknown (' || CAST(P.ZREADRECEIPT AS TEXT) || ')'
             END AS "read_receipt",
             P.ZINTERESTEDCOUNT,
             P.ZINTERESTEDSUMMARY,
@@ -2888,9 +2894,9 @@ def foursquare_swarm_plans(context):
                 data_list.append(base_data)
 
             except (ValueError, IndexError, TypeError) as ex:
+                _id = record[0] if record and len(record) > 0 else 'UNKNOWN'
                 logfunc(f"[{context.get_artifact_name()}] "
-                        f"Error - Failed parsing record ZFSPLAN {record[0]} "
-                        f"in {source_path}: {ex}")
+                        f"Error - Failed parsing record ZFSPLAN {_id} in {source_path}: {ex}")
                 continue
 
     except sqlite3.Error as db_ex:
@@ -2949,10 +2955,14 @@ def foursquare_swarm_events(context):
     try:
         cursor = db.cursor()
 
-        # Resolve the 'FRIENDSATTENDED' relationship for the 'FSEvent' entity
+        # Resolve the 'FRENDSATTENDED' relationship for the 'FSEvent' entity
+        # Bug: FRENDSATTENDED should be FRIENDSATTENDED (missing the letter "I").
         relation = _resolve_coredata_relationship(context, db, 'FSEvent',
-                                                  'FRIENDSATTENDED', 'EVENTSFRIENDSATTENDED')
-
+                                                  'FRENDSATTENDED', 'EVENTSFRIENDSATTENDED')
+        # Resolve the 'FRIENDSATTENDED' relationship for the 'FSEvent' entity
+        if not relation['table']:
+            relation = _resolve_coredata_relationship(context, db, 'FSEvent',
+                                                      'FRIENDSATTENDED', 'EVENTSFRENDSATTENDED')
         subquery_friends_attended = "'' AS friends_attended"
 
         # If Core Data mapped the table successfully, inject the dynamic columns
@@ -3045,9 +3055,9 @@ def foursquare_swarm_events(context):
                 data_list.append(base_data)
 
             except (ValueError, IndexError, TypeError) as ex:
+                _id = record[0] if record and len(record) > 0 else 'UNKNOWN'
                 logfunc(f"[{context.get_artifact_name()}] "
-                        f"Error - Failed parsing record ZFSEVENT "
-                        f"{record[0]} in {source_path}: {ex}")
+                        f"Error - Failed parsing record ZFSEVENT {_id} in {source_path}: {ex}")
                 continue
 
     except sqlite3.Error as db_ex:
@@ -3299,8 +3309,9 @@ def foursquare_swarm_saved_lists(context):
             data_list.append(base_data)
 
         except (ValueError, IndexError, TypeError) as ex:
+            _id = record[0] if record and len(record) > 0 else 'UNKNOWN'
             logfunc(f"[{context.get_artifact_name()}] "
-                    f"Error - Failed parsing record ZFSLIST {record[0]} in {source_path}: {ex}")
+                    f"Error - Failed parsing record ZFSLIST {_id} in {source_path}: {ex}")
             continue
 
     return data_headers, (data_list, data_list_html), source_path
@@ -3389,9 +3400,9 @@ def foursquare_swarm_location_history(context):
             data_list.append(base_data)
 
         except (ValueError, IndexError, TypeError) as ex:
+            _id = record[0] if record and len(record) > 0 else 'UNKNOWN'
             logfunc(f"[{context.get_artifact_name()}] "
-                    "Error - Failed parsing record ZFSPLOCATION "
-                    f"{record[0]} in {source_path}: {ex}")
+                    f"Error - Failed parsing record ZFSPLOCATION {_id} in {source_path}: {ex}")
             continue
 
     return data_headers, data_list, source_path
@@ -3505,9 +3516,9 @@ def foursquare_swarm_plog(context):
             data_list.append(base_data)
 
         except (ValueError, IndexError, TypeError) as ex:
+            _id = record[0] if record and len(record) > 0 else 'UNKNOWN'
             logfunc(f"[{context.get_artifact_name()}] "
-                    "Error - Failed parsing record ZFSPLOG "
-                    f"{record[0]} in {source_path}: {ex}")
+                    f"Error - Failed parsing record ZFSPLOG {_id} in {source_path}: {ex}")
             continue
 
     return data_headers, (data_list, data_list_html), source_path
@@ -3957,9 +3968,9 @@ def foursquare_swarm_feed(context):
             data_list.append(base_data)
 
         except (ValueError, IndexError, TypeError) as ex:
+            _id = record[0] if record and len(record) > 0 else 'UNKNOWN'
             logfunc(f"[{context.get_artifact_name()}] "
-                    f"Error - Failed parsing record ZFSSIMPLEFEEDITEM {record[0]} "
-                    f"in {source_path}: {ex}")
+                    f"Error - Failed parsing record ZFSSIMPLEFEEDITEM {_id} in {source_path}: {ex}")
             continue
 
     return data_headers, (data_list, data_list_html), source_path
