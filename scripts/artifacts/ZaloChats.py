@@ -98,8 +98,9 @@ def build_gif(png_files, metadata_file):
     return output
 
 @artifact_processor
-def zalo_users(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
+def zalo_users(context):
     """Extracts known Zalo Users"""
+    files_found = context.get_files_found()
     data_list = []
     source_path = get_file_path(files_found, 'profile.sqlite')
 
@@ -126,14 +127,15 @@ def zalo_users(files_found, _report_folder, _seeker, _wrap_text, _timezone_offse
 
         data_list.append([uid, uname, umobile, uglobal])
 
-    data_headers = ("User-ID", "Username", "Mobile", "Global-ID")
+    data_headers = ("User-ID", "Username", ('Phone Number', 'phonenumber'), "Global-ID")
 
     return data_headers, data_list, source_path
 
 
 @artifact_processor
-def zalo_messages(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
+def zalo_messages(context):
     """Extracts Zalo Chats and Groupchats"""
+    files_found = context.get_files_found()
     data_list = []
     chat_dbs = [x for x in files_found if "chat_dbs" in x and x.endswith('.db') and "_ext" not in x]
     chat_dbs = list(set(chat_dbs))
