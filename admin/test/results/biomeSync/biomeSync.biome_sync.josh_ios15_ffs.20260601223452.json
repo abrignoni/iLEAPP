@@ -1,0 +1,44 @@
+{
+  "metadata": {
+    "module_name": "biomeSync",
+    "artifact_name": "Biome - Device Syncs",
+    "function_name": "biome_sync",
+    "case_number": "josh_ios15_ffs",
+    "number_of_columns": 7,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 64,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/biomeSync/testdata.biomeSync.biome_sync.josh_ios15_ffs.zip",
+    "start_time": "2026-06-01T22:34:52.341723+00:00",
+    "end_time": "2026-06-01T22:34:52.412754+00:00",
+    "run_time_seconds": 0.011218786239624023,
+    "last_commit": {
+      "hash": "b67c38a5b61bb62187f7c7fa024dec400ccd226c",
+      "author_name": "Johann POLEWCZYK",
+      "author_email": "johannplw@me.com",
+      "date": "2025-09-29T18:06:22+02:00",
+      "message": "Update last_update_date in appConduit.py and biomeSync.py"
+    }
+  },
+  "headers": [
+    "Last Sync Timestamp",
+    "Device ID",
+    "Name",
+    "Device Type",
+    "OS Build",
+    "OS Version",
+    "Local Device"
+  ],
+  "data": [
+    [
+      null,
+      "766E7ED9-23AD-4B08-9F73-81FDD908B50F",
+      "",
+      "iPhone",
+      "19D52",
+      "iOS 15.3.1",
+      "Yes"
+    ]
+  ]
+}

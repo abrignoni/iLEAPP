@@ -535,7 +535,7 @@ def health_workouts(context):
         start_timestamp = convert_cocoa_core_data_ts_to_utc(record[0])
         end_timestamp = convert_cocoa_core_data_ts_to_utc(record[1])
         added_timestamp = convert_cocoa_core_data_ts_to_utc(record[26])
-        device_model = context.get_device_model(record[22])
+        device_model = context.lookup_metadata('apple_device_id_to_model', record[22])
 
         if record[16]:
             celcius_temp = round(((record[16] - 32) * (5 / 9)), 2)
@@ -593,10 +593,10 @@ def health_provenances(context):
     db_records = get_sqlite_db_records(data_source, query, attach_query)
 
     for record in db_records:
-        origin_device_model = context.get_device_model(record[1])
-        origin_os_version = context.get_os_version(record[2], record[1])
-        local_device_model = context.get_device_model(record[3])
-        local_os_version = context.get_os_version(record[4], record[3])
+        origin_device_model = context.lookup_metadata('apple_device_id_to_model', record[1])
+        origin_os_version = context.get_apple_os_version(record[2], record[1])
+        local_device_model = context.lookup_metadata('apple_device_id_to_model', record[3])
+        local_os_version = context.get_apple_os_version(record[4], record[3])
 
         data_list.append(
             (record[0], record[1], origin_device_model, record[2], origin_os_version,
@@ -715,7 +715,7 @@ def health_heart_rate(context):
         start_timestamp = convert_cocoa_core_data_ts_to_utc(record[0])
         end_timestamp = convert_cocoa_core_data_ts_to_utc(record[1])
         added_timestamp = convert_cocoa_core_data_ts_to_utc(record[4])
-        device_model = context.get_device_model(record[7])
+        device_model = context.lookup_metadata('apple_device_id_to_model', record[7])
         if version.parse(os_version) >= version.parse("15"):
             if record[11] and record[12] > 0:
                 quantity_series_data_query = '''
@@ -795,7 +795,7 @@ def health_resting_heart_rate(context):
         start_timestamp = convert_cocoa_core_data_ts_to_utc(record[0])
         end_timestamp = convert_cocoa_core_data_ts_to_utc(record[1])
         added_timestamp = convert_cocoa_core_data_ts_to_utc(record[3])
-        device_model = context.get_device_model(record[4])
+        device_model = context.lookup_metadata('apple_device_id_to_model', record[4])
         data_list.append(
             (start_timestamp, end_timestamp, record[2], added_timestamp, record[4],
              device_model, record[5]))
@@ -863,7 +863,7 @@ def health_steps(context):
     for record in db_records:
         start_timestamp = convert_cocoa_core_data_ts_to_utc(record[0])
         end_timestamp = convert_cocoa_core_data_ts_to_utc(record[1])
-        hardware = context.get_device_model(record[4])
+        hardware = context.lookup_metadata('apple_device_id_to_model', record[4])
         data_list.append((start_timestamp, end_timestamp, record[2], record[3],
                           record[4], hardware))
 
@@ -1223,7 +1223,7 @@ def health_source_devices(context):
         model_value = record[column_positions['model']]
         model = bluetooth_pid.get(model_value, model_value)
         hardware_value = record[column_positions['hardware']]
-        device_model = context.get_device_model(hardware_value)
+        device_model = context.lookup_metadata('apple_device_id_to_model', hardware_value)
         local_id = ''
         local_identifier = str(record[column_positions['localIdentifier']])
         if local_identifier.endswith('-tacl'):

@@ -57,10 +57,10 @@ def get_sysdiag_account_devices(context):
 
         for elem in f["contextDump"]["peers"]:
             model = elem["permanentInfo"]["model_id"]
-            m_name = context.get_device_model(model)
+            m_name = context.lookup_metadata('apple_device_id_to_model', model)
             os_bnum = elem["stableInfo"]["os_version"]
             os_build = os_bnum.split('(')[1].split(')')[0]
-            os_ver = context.get_os_version(os_build, model)
+            os_ver = context.get_apple_os_version(os_build, model)
             serial = elem["stableInfo"]["serial_number"]
             if not any(serial in subliste for subliste in data_list):
                 data_list.append((opush, model, m_name, os_bnum, os_ver, serial))

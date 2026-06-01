@@ -72,9 +72,9 @@ def app_conduit(context):
                 if 'devicesAreNowConnected' in values:
                     pairing_id = line_match.group(12).split(' ')[3][:-1]
                     device_type = line_match.group(12).split(' ')[4]
-                    device_model = context.get_device_model(device_type)
+                    device_model = context.lookup_metadata('apple_device_id_to_model', device_type)
                     os_build = line_match.group(12).split(' ')[7].strip('()')
-                    os_version = context.get_os_version(os_build, device_type)
+                    os_version = context.get_apple_os_version(os_build, device_type)
                     device_type_and_info.setdefault(
                         pairing_id, {'device_type': device_type,
                                      'device_model': device_model,
