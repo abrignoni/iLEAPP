@@ -49,7 +49,7 @@ def get_biomeIntents(context):
                 typeofintent = protostuff.get('2','')
                 try:
                     typeofintent = typeofintent.decode()
-                except:
+                except (AttributeError, UnicodeDecodeError):
                     break
                 appid = typeofintent
 
@@ -58,7 +58,7 @@ def get_biomeIntents(context):
                 classname = (protostuff.get('4',''))
                 try:
                     classname = classname.decode()
-                except:
+                except (AttributeError, UnicodeDecodeError):
                     pass
 
                 if protostuff.get('5') is not None:
@@ -128,9 +128,10 @@ def get_biomeIntents(context):
                 #calls
                 elif typeofintent == 'com.apple.InCallService':
                     #print(protostuffinner)
+                    a = ''
                     try:
                         a = (protostuffinner['5']['1']['4'].decode()) #content number
-                    except:
+                    except (KeyError, TypeError, AttributeError, UnicodeDecodeError):
                         pass
                         #print(protostuffinner)
 
@@ -161,7 +162,7 @@ def get_biomeIntents(context):
                         c = (protostuffinner.get('15', ''))#senderid if not binary show dict
                         try:
                             d = (protostuffinner['2']['1']['4'])
-                        except:
+                        except (KeyError, TypeError):
                             d = ''
 
                         datos = f'Thread ID: {b}, Sender ID: {c}, Content:, {a}'
@@ -198,7 +199,7 @@ def get_biomeIntents(context):
                             a = loopy['1'].decode()
                             try:
                                 b = loopy['2']['2']['2']
-                            except:
+                            except (KeyError, TypeError):
                                 b = loopy['2']
                             datos = datos + f'{a}: {b},'
 

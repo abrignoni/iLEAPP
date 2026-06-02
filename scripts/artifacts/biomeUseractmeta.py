@@ -72,7 +72,7 @@ def get_biomeUseractmeta(context):
                     if type(internalbplist) != str:
                         try:
                             internalbplist = (deserialized_plist['contentAttributeSetData']['NS.data'])
-                        except Exception as ex:
+                        except (KeyError, TypeError) as ex:
                             print(ex)
                             print('Processing as bplist["container"] directly.')
                         #deserialized_plist2 = nd.deserialize_plist_from_string(internalbplist)

@@ -115,7 +115,7 @@ def get_biomeAppinstall(context):
                 
                 bundleid = (protostuff['4']['3'])
                 actionguid = (protostuff['5'])
-                appinfo1 = appinfo2 = ''
+                appinfo1 = appinfo2 = bundleinfo = ''
                 if protostuff.get('7', '') != '':
                     if isinstance(protostuff['7'], list):
                         if len(protostuff['7']) < 3:
@@ -124,10 +124,6 @@ def get_biomeAppinstall(context):
                             appinfo1 = (protostuff['7'][0]['2'].get('3', ''))
                             bundleinfo = (protostuff['7'][1]['2'].get('3', ''))
                             appinfo2 = (protostuff['7'][2]['2'].get('3', ''))
-                    else:
-                        bundleinfo = ''
-                else:
-                    bundleinfo = ''
                 
                 timewrite = (webkit_timestampsconv(protostuff['8']))
                 
