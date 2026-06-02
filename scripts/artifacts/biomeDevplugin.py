@@ -86,7 +86,7 @@ def get_biomeDevplugin(context):
     }
 
     data_list = []
-    for file_found in context.files_found():
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         filename = os.path.basename(file_found)
         if filename.startswith('.'):

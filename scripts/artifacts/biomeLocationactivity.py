@@ -147,7 +147,8 @@ def get_biomeLocationactivity(context):
                     deserialized_plist = get_plist_content(data4)
                     if not deserialized_plist or not isinstance(deserialized_plist, dict):
                         data4 = None
-                    data4 = (deserialized_plist['NS.relative'])
+                    else:
+                        data4 = (deserialized_plist.get('NS.relative'))
                     
                 data5 = (protostuff['7'][13]['2'].get('6',''))
                 if isinstance(data5, bytes):
@@ -155,7 +156,8 @@ def get_biomeLocationactivity(context):
                     deserialized_plist = get_plist_content(data5)
                     if not deserialized_plist or not isinstance(deserialized_plist, dict):
                         data5 = None
-                    data5 = (deserialized_plist)
+                    else:
+                        data5 = (deserialized_plist)
                     
                 data6 = (protostuff['7'][16]['2'].get('6',''))
                 if isinstance(data6, bytes):
@@ -163,7 +165,8 @@ def get_biomeLocationactivity(context):
                     deserialized_plist = get_plist_content(data6)
                     if not deserialized_plist or not isinstance(deserialized_plist, dict):
                         data6 = None
-                    data6 = (deserialized_plist['NS.relative'])
+                    else:
+                        data6 = (deserialized_plist.get('NS.relative'))
                     
                 timewrite = (webkit_timestampsconv(protostuff['8']))
                 

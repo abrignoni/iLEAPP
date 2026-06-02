@@ -21,7 +21,7 @@ from datetime import timezone
 import blackboxprotobuf
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
-from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv, convert_ts_human_to_utc
+from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv, convert_ts_int_to_utc
 
 
 @artifact_processor
@@ -56,7 +56,7 @@ def get_biomeTextinputses(context):
                 duration = protostuff['1']
                 # Records in "restricted" folder seem to have time in Unix time, whereas public was cocoa time
                 if 'restricted' in file_found:
-                    timestart = convert_ts_human_to_utc(protostuff['2'])
+                    timestart = convert_ts_int_to_utc(protostuff['2'])
                 else:
                     timestart = (webkit_timestampsconv(protostuff['2']))
 
