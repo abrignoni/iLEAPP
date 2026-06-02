@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Extraction of stopwatch set",
         "author": "Mohammad Natiq Khan",
         "creation_date": "2024-12-22",
-        "last_update_date": "2024-12-22",
+        "last_update_date": "2025-10-09",
         "requirements": "none",
         "category": "Clock",
         "notes": "",
@@ -15,15 +15,18 @@ __artifacts_v2__ = {
 }
 
 import datetime
-
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content, convert_plist_date_to_utc
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content
 
 @artifact_processor
-def stopwatch(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def stopwatch(context):
+    files_found = context.get_files_found()
     source_path = get_file_path(files_found, "com.apple.mobiletimerd.plist")
     data_list = []
 
     pl = get_plist_file_content(source_path)
+    if not pl or not isinstance(pl, dict):
+        return (), [], ''
+    
     if 'MTStopwatches' in pl:
         if 'MTStopwatches' in pl['MTStopwatches']:
             for stop_watch in pl['MTStopwatches']['MTStopwatches']:

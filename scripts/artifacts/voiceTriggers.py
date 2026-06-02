@@ -20,7 +20,7 @@ def get_voiceTriggers(files_found, report_folder, seeker, wrap_text, timezone_of
     if len(files_found) > 1:
         for file_found in files_found:
             if file_found.endswith('wav'):
-                shutil.copyfile(file_found, join(report_folder, basename(file_found)))
+                shutil.copy2(file_found, join(report_folder, basename(file_found)))
             elif file_found.endswith('json') and 'meta_version.json' != basename(file_found):
                 info_files.append(file_found)
 

@@ -204,6 +204,8 @@ def Ph17_1GenAIDetectedPhDaPsql(files_found, report_folder, seeker, wrap_text, t
 
         return data_headers, data_list, source_path
 
+    return (), [], source_path
+
 @artifact_processor
 def Ph17_2GenAIDetectedSyndPL(files_found, report_folder, seeker, wrap_text, timezone_offset):
     for source_path in files_found:
@@ -356,6 +358,8 @@ def Ph17_2GenAIDetectedSyndPL(files_found, report_folder, seeker, wrap_text, tim
         data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
+
+    return (), [], source_path
 
 @artifact_processor
 def Ph17_3GenAIDetectedGenPlayPsql(files_found, report_folder, seeker, wrap_text, timezone_offset):

@@ -15,6 +15,7 @@ class Context:
     methods for retrieving and manipulating this data.
     """
 
+    _output_params = None
     _report_folder = None
     _seeker = None
     _artifact_info = None
@@ -23,10 +24,23 @@ class Context:
     _artifact_name = None
     _files_found = []
     _filename_lookup_map = {}
+    _data_folder = None
     _device_ids = {}
     _device_boards = {}
     _os_builds = {}
     _installed_os_version = ""
+
+    @staticmethod
+    def set_output_params(output_params):
+        """
+        Sets the OutputParameters instance in the Context. This should only be
+        called once at the start of a run.
+
+        Args:
+            output_params: The initialized OutputParameters object.
+        """
+        Context._output_params = output_params
+        Context._data_folder = getattr(output_params, 'data_folder', None)
 
     @staticmethod
     def set_report_folder(report_folder):
@@ -168,6 +182,21 @@ class Context:
                 filename_lookup[filename] = []
             filename_lookup[filename].append(full_path)
         return filename_lookup
+
+    @staticmethod
+    def get_output_params():
+        """
+        Retrieves the current OutputParameters instance from the Context.
+
+        Raises:
+            ValueError: If the output parameters are not set.
+
+        Returns:
+            OutputParameters: The OutputParameters instance.
+        """
+        if not Context._output_params:
+            raise ValueError("Context not set. OutputParameters not available.")
+        return Context._output_params
 
     @staticmethod
     def get_report_folder():
@@ -346,6 +375,35 @@ class Context:
         return None
 
     @staticmethod
+    def get_data_folder():
+        """
+        Returns the global extraction folder path.
+        """
+        return Context._data_folder
+
+    @staticmethod
+    def get_relative_path(full_path):
+        """
+        Converts a full on-disk path (from files_found) to a relative
+        extraction path by removing the global data_folder prefix.
+
+        Args:
+            full_path (str): The full path to the file.
+
+        Returns:
+            str: The relative extraction path, or the original path if
+                 the data_folder is not available.
+        """
+        if not full_path or not Context._data_folder:
+            return full_path
+
+        if full_path.startswith(Context._data_folder):
+            # Strip the base path and any leading separators
+            return full_path[len(Context._data_folder):].lstrip('/\\')
+
+        return full_path
+
+    @staticmethod
     def get_device_model(identifier):
         """
         Retrieves the device model name corresponding to a given identifier.
@@ -433,8 +491,8 @@ class Context:
     def clear():
         """
         Resets all context-related class variables to None, effectively
-        clearing any stored state or references, except for the device IDs and
-        OS builds which are retained for efficiency.
+        clearing any stored state or references, except for the device IDs,
+        OS builds, and output parameters which are retained for efficiency.
         """
         Context._report_folder = None
         Context._seeker = None

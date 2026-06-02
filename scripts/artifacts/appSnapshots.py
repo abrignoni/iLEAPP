@@ -19,14 +19,10 @@ __artifacts_v2__ = {
     },
 }
 
-
-import inspect
-import hashlib
-import shutil
 from pathlib import Path
 
 from PIL import Image
-from scripts.ktx.ios_ktx2png import KTX_reader, liblzfse
+from scripts.ktx.ios_ktx2png import KTX_reader
 from scripts.ilapfuncs import artifact_processor, check_in_media, lava_get_full_media_info, logfunc, convert_unix_ts_to_utc
 
 
@@ -49,7 +45,7 @@ def save_ktx_to_png_if_valid(ktx_path, save_to_path):
                 # as per https://github.com/python-pillow/Pillow/issues/5986
 
                 return True
-        except (OSError, ValueError, liblzfse.error) as ex:
+        except (OSError, ValueError) as ex:
             logfunc(f'Had an exception - {str(ex)}')
     return False
 
@@ -57,7 +53,6 @@ def save_ktx_to_png_if_valid(ktx_path, save_to_path):
 @artifact_processor
 def applicationSnapshots(context): #files_found, report_folder, seeker, wrap_text, timezone_offset):
     # artifact_info = inspect.stack()[0]
-    source_path = 'File path in the report below'
     data_list = []
     
     for file_found in context.get_files_found():
@@ -89,4 +84,4 @@ def applicationSnapshots(context): #files_found, report_folder, seeker, wrap_tex
     
     data_headers = (('Date Modified', 'datetime'), 'App Name', 'Source Path', ('Snapshot', 'media'))
 
-    return data_headers, data_list, source_path
+    return data_headers, data_list, 'see Source Path for more info'

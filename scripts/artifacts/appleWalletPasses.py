@@ -72,7 +72,7 @@ def get_appleWalletNanoPasses(context):
                 #typeID = row[2]
                 
                 agg = ''
-                encoded_pass = get_plist_content(row[6])
+                encoded_pass = get_plist_content(row[6]) or []
                 for x in encoded_pass:
                     if isinstance(x, list):
                         for a in x:
@@ -85,7 +85,7 @@ def get_appleWalletNanoPasses(context):
                 encoded_pass = agg + '<br>'
                 
                 agg = ''
-                front_field = get_plist_content(row[7])
+                front_field = get_plist_content(row[7]) or []
                 for x in front_field:
                     if isinstance(x, list):
                         for a in x:
@@ -98,7 +98,7 @@ def get_appleWalletNanoPasses(context):
                 front_field = agg + '<br>'
                 
                 agg = ''
-                back_field = get_plist_content(row[8])
+                back_field = get_plist_content(row[8]) or []
                 for x in back_field:
                     if isinstance(x, list):
                         for a in x:

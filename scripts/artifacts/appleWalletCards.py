@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Apple Wallet Cards",
         "author": "@any333",
         "creation_date": "2021-02-05",
-        "last_update_date": "2025-04-01",
+        "last_update_date": "2025-10-09",
         "requirements": "none",
         "category": "Apple Wallet",
         "notes": "",
@@ -50,7 +50,8 @@ def get_card_type(card_num, num_length):
 
 
 @artifact_processor
-def applewalletcards(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def applewalletcards(context):
+    files_found = context.get_files_found()
     source_path = get_file_path(files_found, "Cache.db")
     data_list = []
 

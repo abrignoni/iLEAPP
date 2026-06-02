@@ -4,12 +4,12 @@ __artifacts_v2__ = {
         "description": "Wire account details",
         "author": "Elliot Glendye",
         "creation_date": "2024-01-21",
-        "last_update_date": "2025-01-03",
+        "last_update_date": "2025-11-12",
         "requirements": "",
         "category": "Business",
         "notes": "",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/AccountData/*/store/store.wiredatabase*'),
-        "output_types": "all",
+        "output_types": "standard",
         "artifact_icon": "user"
     },
     "wireMessages": {
@@ -17,7 +17,7 @@ __artifacts_v2__ = {
         "description": "Wire messages, including message sender, associated user identifiers and message type",
         "author": "Elliot Glendye",
         "creation_date": "2024-01-21",
-        "last_update_date": "2025-01-03",
+        "last_update_date": "2025-11-12",
         "requirements": "",
         "category": "Business",
         "notes": "",
@@ -27,14 +27,26 @@ __artifacts_v2__ = {
     }
 }
 
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, does_column_exist_in_db, convert_cocoa_core_data_ts_to_utc
+from scripts.ilapfuncs import (
+    artifact_processor,
+    get_file_path,
+    get_sqlite_db_records,
+    does_column_exist_in_db,
+    convert_cocoa_core_data_ts_to_utc
+    )
+
 
 @artifact_processor
-def wireAccount(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def wireAccount(context):
+    files_found = context().get_files_found()
     source_path = get_file_path(files_found, "store.wiredatabase")
     data_list = []
 
-    has_location_data = does_column_exist_in_db(source_path, 'ZUSER', 'ZUSERCLIENT.ZACTIVATIONLOCATIONLATITUDE')
+    has_location_data = does_column_exist_in_db(
+        source_path,
+        'ZUSER',
+        'ZUSERCLIENT.ZACTIVATIONLOCATIONLATITUDE'
+        )
 
     if has_location_data:
         query = '''
@@ -48,14 +60,14 @@ def wireAccount(files_found, report_folder, seeker, wrap_text, timezone_offset):
             ZUSERCLIENT.ZACTIVATIONLOCATIONLONGITUDE AS 'Activation Longitude'
         FROM ZUSER
         LEFT JOIN ZUSERCLIENT ON ZUSER.Z_PK = ZUSERCLIENT.ZUSER;
-        '''            
+        '''
         data_headers = (
-            'User ID', 
-            'Display Name', 
-            ('Activation Date', 'datetime'), 
-            ('Phone Number', 'phonenumber'), 
-            'Email Address', 
-            'Latitude', 
+            'User ID',
+            'Display Name',
+            ('Activation Date', 'datetime'),
+            ('Phone Number', 'phonenumber'),
+            'Email Address',
+            'Latitude',
             'Longitude'
             )
     else:
@@ -68,12 +80,12 @@ def wireAccount(files_found, report_folder, seeker, wrap_text, timezone_offset):
             ZUSER.ZEMAILADDRESS AS 'Email Address'
         FROM ZUSER
         LEFT JOIN ZUSERCLIENT ON ZUSER.Z_PK = ZUSERCLIENT.ZUSER;
-        '''            
+        '''
         data_headers = (
-            'User ID', 
-            'Display Name', 
-            ('Activation Date', 'datetime'), 
-            ('Phone Number', 'phonenumber'), 
+            'User ID',
+            'Display Name',
+            ('Activation Date', 'datetime'),
+            ('Phone Number', 'phonenumber'),
             'Email Address'
             )
 
@@ -82,14 +94,29 @@ def wireAccount(files_found, report_folder, seeker, wrap_text, timezone_offset):
     for record in db_records:
         activation_date = convert_cocoa_core_data_ts_to_utc(record[2])
         if has_location_data:
-            data_list.append((record[0], record[1], activation_date, record[3], record[4], record[5], record[6]))
+            data_list.append((
+                record[0],
+                record[1],
+                activation_date,
+                record[3],
+                record[4],
+                record[5],
+                record[6]
+                ))
         else:
-            data_list.append((record[0], record[1], activation_date, record[3], record[4]))
-        
-    return data_headers, data_list, source_path    
-    
+            data_list.append((
+                record[0],
+                record[1],
+                activation_date,
+                record[3],
+                record[4]
+                ))
+    return data_headers, data_list, source_path
+
+
 @artifact_processor
-def wireMessages(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def wireMessages(context):
+    files_found = context().get_files_found()
     source_path = get_file_path(files_found, "store.wiredatabase")
     data_list = []
 
@@ -110,19 +137,24 @@ def wireMessages(files_found, report_folder, seeker, wrap_text, timezone_offset)
     LEFT Join ZUSER On ZUSER.Z_PK = ZMESSAGE.ZSENDER
     WHERE ZMESSAGE.ZCACHEDCATEGORY != 1;
     '''
-    
     data_headers = (
-        ('Date / Time', 'datetime'), 
-        'User ID', 
-        'Display Name', 
-        'Message', 
-        'Message Type', 
+        ('Date / Time', 'datetime'),
+        'User ID',
+        'Display Name',
+        'Message',
+        'Message Type',
         'Call Duration (seconds)')
 
     db_records = get_sqlite_db_records(source_path, query)
-    
     for record in db_records:
         date_time = convert_cocoa_core_data_ts_to_utc(record[0])
-        data_list.append((date_time, record[1], record[2], record[3], record[4], record[5]))
+        data_list.append((
+            date_time,
+            record[1],
+            record[2],
+            record[3],
+            record[4],
+            record[5]
+            ))
 
     return data_headers, data_list, source_path
