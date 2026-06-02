@@ -410,7 +410,7 @@ def lava_insert_sqlite_data(table_name, data, object_columns, headers, column_ma
                         pass
                 elif isinstance(value, datetime.datetime):
                     # Need to do it this way due to dates that could be before Epoch
-                    epoch = datetime.datetime(1970, 1, 1)
+                    epoch = datetime.datetime(1970, 1, 1, tzinfo=datetime.timezone.utc)
                     value = (value - epoch).total_seconds()
             processed_row.append(value)
         rows_to_insert.append(tuple(processed_row))
