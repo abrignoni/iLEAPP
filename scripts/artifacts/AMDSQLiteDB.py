@@ -13,7 +13,7 @@ __artifacts_v2__ = {
             '*/mobile/Library/Caches/com.apple.appstored/storeUser.db*'
             ),
         "output_types": "standard",
-        'artifact_icon': 'activity'
+        "artifact_icon": "activity"
     },
     "AMDSQLiteDB_StorageCapacity": {
         "name": "Device Storage Capacity",
@@ -28,7 +28,7 @@ __artifacts_v2__ = {
             '*/mobile/Containers/Data/PluginKitPlugin/*/Documents/AMDSQLite.db.0*'
             ),
         "output_types": "standard",
-        'artifact_icon': 'hard-drive'
+        "artifact_icon": "hard-drive"
     }
 }
 

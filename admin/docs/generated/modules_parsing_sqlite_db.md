@@ -49,6 +49,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | SMSmissingROWIDs |
 | Threema |
 | WithingsHealthMate |
+| ZaloChats |
 | ZangiMessenger |
 | accountData |
 | addressBook |
@@ -57,6 +58,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | appleWalletTransactions |
 | biomeSync |
 | booking |
+| box |
 | callHistory |
 | cashAppB |
 | discordChats |
@@ -65,11 +67,14 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | foursquareSwarm |
 | googleTranslate |
 | health |
+| iOSCacheLocations |
 | logarchive |
 | nsVault |
 | payByPhone |
 | photosMigration |
 | potatoChat |
+| reddit |
+| sbbmobile |
 | sms |
 | splitwise |
 | storeUser |
@@ -103,6 +108,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | atxDatastore |
 | bluetoothOther |
 | bluetoothPairedLE |
+| box |
 | bumble |
 | burner |
 | burnerCache |
@@ -117,6 +123,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | coreAccessoriesAcc |
 | coreAccessoriesUserEvent |
 | dmss |
+| foursquareSwarm |
 | geodApplications |
 | geodMapTiles |
 | geodPDPlaceCache |

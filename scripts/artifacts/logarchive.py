@@ -142,6 +142,19 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "headphones",
     },
+    "logarchive_motionstate": {
+        "name": "logarchive motion state transitions",
+        "description": "Navigation entries",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-04-30",
+        "last_update_date": "2025-04-30",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "activity",
+    },
     "logarchive_navigation": {
         "name": "logarchive navigation",
         "description": "Navigation entries",
@@ -415,6 +428,23 @@ def logarchive_executed_apps(files_found, report_folder, seeker, wrap_text, time
     WHERE event_message LIKE '%Allowing tap for icon view%'
         OR event_message LIKE '%Launching application%'
         OR event_message LIKE '%transition source:%'
+    '''
+    
+    data_list = get_sqlite_db_records(source_path, query)
+    data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
+                    'Subsystem', 'Category', 'Event Message', 'Trace ID')
+    
+    return data_headers, data_list, source_path
+
+@artifact_processor
+def logarchive_motionstate(files_found, report_folder, seeker, wrap_text, timezone_offset):
+    source_path = get_file_path(files_found, '_lava_artifacts.db')
+    data_list = []
+    
+    query = '''
+    SELECT *
+    FROM logarchive_artifacts
+    WHERE event_message LIKE '%Motion State Transition:%'
     '''
     
     data_list = get_sqlite_db_records(source_path, query)

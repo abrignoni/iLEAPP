@@ -96,7 +96,7 @@ class GuiWindow:
     @staticmethod
     def SetProgressBar(n, total):
         if GuiWindow.window_handle:
-            progress_bar = GuiWindow.window_handle.nametowidget('!progressbar')
+            progress_bar = GuiWindow.window_handle.nametowidget('progress_bar_frame.progress_bar')
             progress_bar.config(value=n)
 
 class MediaItem():
@@ -611,10 +611,9 @@ def get_txt_file_content(file_path):
 def get_plist_content(data):
     try:
         plist_content = plistlib.loads(data)
-        if plist_content.get('$archiver', '') == 'NSKeyedArchiver':
+        if isinstance(plist_content, dict) and plist_content.get('$archiver', '') == 'NSKeyedArchiver':
             return nska_deserialize.deserialize_plist_from_string(data)
-        else:
-            return plist_content
+        return plist_content
     except plistlib.InvalidFileException:
         logfunc(f"Error: Invalid plist data")
     except xml.parsers.expat.ExpatError:
@@ -635,10 +634,9 @@ def get_plist_file_content(file_path):
     try:
         with open(file_path, 'rb') as file:
             plist_content = plistlib.load(file)
-            if plist_content.get('$archiver', '') == 'NSKeyedArchiver':
+            if isinstance(plist_content, dict) and plist_content.get('$archiver', '') == 'NSKeyedArchiver':
                 return nska_deserialize.deserialize_plist(file_path)
-            else:
-                return plist_content
+            return plist_content
     except FileNotFoundError:
         logfunc(f"Error: Plist file not found at {file_path}")
     except PermissionError:
@@ -1365,7 +1363,7 @@ def generate_thumbnail(imDirectory, imFilename, seeker, report_folder):
     pathToThumb = os.path.join(os.path.basename(os.path.abspath(report_folder)), thumbname)
     htmlThumbTag = '<img src="{0}"></img>'.format(pathToThumb)
     if thumblist:
-        shutil.copyfile(thumblist,os.path.join(report_folder, thumbname))
+        shutil.copy2(thumblist,os.path.join(report_folder, thumbname))
     else:
         #recreate thumbnail from image
         #TODO: handle videos and HEIC
