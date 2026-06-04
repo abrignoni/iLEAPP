@@ -1,6 +1,6 @@
 __artifacts_v2__ = {
-    "get_weatherAppLocations": {
-        "name": "Weather App - Location",
+    "weather_app_locations": {
+        "name": "Weather App - Locations",
         "description": "",
         "author": "@Anna-Mariya Mateyna",
         "creation_date": "2021-01-29",
@@ -24,7 +24,7 @@ from scripts.ilapfuncs import (
 
 
 @artifact_processor
-def get_weatherAppLocations(context):
+def weather_app_locations(context):
     files_found = context.get_files_found()
     data_list = []
     source_path = get_file_path(files_found, 'group.com.apple.weather.plist')
@@ -46,7 +46,7 @@ def get_weatherAppLocations(context):
         lastupdated = convert_plist_date_to_utc(plist_content.get('LastUpdated'))
         if plist_content.get('Cities', '0') == '0':
             logfunc('No cities available')
-            return
+            return (), [], source_path
 
         for x in plist_content['Cities']:
             lon = x.get('Lon', '')
@@ -77,7 +77,7 @@ def get_weatherAppLocations(context):
             )
         if plist_content.get('Cities', '0') == '0':
             logfunc('No cities available')
-            return
+            return (), [], source_path
         for city in plist_content['Cities']:
             update_time = convert_plist_date_to_utc(city.get('UpateTime', ''))
             data_list.append((
@@ -88,8 +88,7 @@ def get_weatherAppLocations(context):
                 city['Lon'],
                 city['Name'],
                 city['Country'],
-                city['SecondsFromGMT'],
-                source_path
+                city['SecondsFromGMT']
                 ))
         local_weather = plist_content.get('LocalWeather', {})
         local_update_time = convert_plist_date_to_utc(local_weather.get('UpateTime', ''))

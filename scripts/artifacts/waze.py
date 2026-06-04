@@ -1,6 +1,6 @@
 #'*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist' unused
 __artifacts_v2__ = {
-    "get_waze_account": {
+    "waze_account": {
         "name": "Waze - Account",
         "description": "Get Waze account information.",
         "author": "Django Faiola (djangofaiola.blogspot.com @DjangoFaiola)",
@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "user"
     },
-    "get_waze_session": {
+    "waze_session": {
         "name": "Waze - Session",
         "description": "Get Waze session information.",
         "author": "Django Faiola (djangofaiola.blogspot.com @DjangoFaiola)",
@@ -26,7 +26,7 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "globe"
     },
-    "get_waze_tts": {
+    "waze_tts": {
         "name": "Waze - TTS Navigation",
         "description": "Get Waze text-to-speech navigation entries.",
         "author": "Django Faiola (djangofaiola.blogspot.com @DjangoFaiola)",
@@ -39,7 +39,7 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "volume-2"
     },
-    "get_waze_gps_quality": {
+    "waze_gps_quality": {
         "name": "Waze - GPS Quality",
         "description": "Get Waze GPS quality track logs.",
         "author": "Django Faiola (djangofaiola.blogspot.com @DjangoFaiola)",
@@ -55,7 +55,7 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "map"
     },
-    "get_waze_searched_locations": {
+    "waze_searched_locations": {
         "name": "Waze - Searched Locations",
         "description": "Get Waze searched locations from user.db.",
         "author": "Django Faiola (djangofaiola.blogspot.com @DjangoFaiola)",
@@ -68,7 +68,7 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "search"
     },
-    "get_waze_recent_locations": {
+    "waze_recent_locations": {
         "name": "Waze - Recent Locations",
         "description": "Get Waze recent locations from user.db.",
         "author": "Django Faiola (djangofaiola.blogspot.com @DjangoFaiola)",
@@ -81,7 +81,7 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "clock"
     },
-    "get_waze_favorite_locations": {
+    "waze_favorite_locations": {
         "name": "Waze - Favorite Locations",
         "description": "Get Waze favorite locations from user.db.",
         "author": "Django Faiola (djangofaiola.blogspot.com @DjangoFaiola)",
@@ -94,7 +94,7 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "star"
     },
-    "get_waze_shared_locations": {
+    "waze_shared_locations": {
         "name": "Waze - Shared Locations",
         "description": "Get Waze shared locations from user.db.",
         "author": "Django Faiola (djangofaiola.blogspot.com @DjangoFaiola)",
@@ -111,7 +111,6 @@ __artifacts_v2__ = {
 
 import os
 import re
-import pathlib
 import sqlite3
 
 
@@ -143,7 +142,7 @@ def FormatLocation(location, value, tableName, key):
 
 
 @artifact_processor
-def get_waze_account(context):
+def waze_account(context):
     files_found = context.get_files_found()
     data_list = []
     source_path = get_file_path(files_found, 'user')
@@ -197,7 +196,7 @@ def get_waze_account(context):
 
 
 @artifact_processor
-def get_waze_session(context):
+def waze_session(context):
     files_found = context.get_files_found()
     data_list = []
     source_path = get_file_path(files_found, 'session')
@@ -232,7 +231,7 @@ def get_waze_session(context):
                     continue
                 # Last synced (ms)
                 if line.startswith(patternLastSynced):
-                    timestamp = int(float(line.split(sep, 1)[1]))
+                    timestamp = float(line.split(sep, 1)[1]) / 1000
                     row[0] = convert_unix_ts_to_utc(timestamp)
                 # last position
                 elif line.startswith(patternGPSPosition):
@@ -269,7 +268,7 @@ def get_waze_session(context):
 
 
 @artifact_processor
-def get_waze_tts(context):
+def waze_tts(context):
     files_found = context.get_files_found()
     data_list = []
     source_path = get_file_path(files_found, 'tts.db')
@@ -314,7 +313,7 @@ def get_waze_tts(context):
 
 
 @artifact_processor
-def get_waze_gps_quality(context):
+def waze_gps_quality(context):
     files_found = context.get_files_found()
     data_list = []
     source_files = []
@@ -408,11 +407,11 @@ def get_waze_gps_quality(context):
         logfunc('No Waze Track GPS quality data available in the processed files.')
         return data_headers, [], ''
 
-    return data_headers, data_list, ', '
+    return data_headers, data_list, ', '.join(source_files)
 
 
 @artifact_processor
-def get_waze_searched_locations(context):
+def waze_searched_locations(context):
     files_found = context.get_files_found()
     source_path = get_file_path(files_found, 'user.db')
     if not source_path:
@@ -469,7 +468,7 @@ def get_waze_searched_locations(context):
 
 
 @artifact_processor
-def get_waze_recent_locations(context):
+def waze_recent_locations(context):
     files_found = context.get_files_found()
     data_list = []
     source_path = get_file_path(files_found, 'user.db')
@@ -513,7 +512,7 @@ def get_waze_recent_locations(context):
 
 
 @artifact_processor
-def get_waze_favorite_locations(context):
+def waze_favorite_locations(context):
     files_found = context.get_files_found()
     data_list = []
     source_path = get_file_path(files_found, 'user.db')
@@ -560,7 +559,7 @@ def get_waze_favorite_locations(context):
 
 
 @artifact_processor
-def get_waze_shared_locations(context):
+def waze_shared_locations(context):
     files_found = context.get_files_found()
     data_list = []
     source_path = get_file_path(files_found, 'user.db')
