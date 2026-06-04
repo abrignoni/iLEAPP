@@ -31,7 +31,7 @@
     See main 
 """
 
-import astc_decomp_faster 
+import astc_decomp_faster # pylint: disable=unused-import
 import liblzfse
 import os
 import struct
