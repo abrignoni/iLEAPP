@@ -139,7 +139,7 @@ class KTX_reader:
                 self.aapl_data_pos = f.tell() + 4
                 self.aapl_data_size = item_size - 4
                 self.aapl_is_compressed = True
-            elif item_identifier == b'astc':
+            elif item_identifier in (b'astc', b'ASTC'):
                 self.aapl_data_pos = f.tell() + 4
                 self.aapl_data_size = item_size - 4
             next_header_pos += 8 + item_size
