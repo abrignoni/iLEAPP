@@ -3,27 +3,25 @@ __artifacts_v2__ = {
         "name": "Bluetooth Other LE",
         "description": "",
         "author": "@JohnHyla",
-        "version": "0.0.2",
-        "date": "2024-10-21",
+        "creation_date": "2024-10-21",
+        "last_update_date": "2025-11-03",
         "requirements": "none",
         "category": "Bluetooth",
         "notes": "",
-        "paths": ('**/Library/Database/com.apple.MobileBluetooth.ledevices.other.db*'),
+        "paths": ('*/Library/Database/com.apple.MobileBluetooth.ledevices.other.db*'),
         "output_types": "standard"
     }
 }
 
-
-from scripts.ilapfuncs import logfunc, artifact_processor, open_sqlite_db_readonly
+from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly
 
 @artifact_processor
-def get_bluetoothOtherLE(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def get_bluetoothOtherLE(context):
 
     data_list = []
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if file_found.endswith('.db'):
-            report_file = file_found
             db = open_sqlite_db_readonly(file_found)
             cursor = db.cursor()
 
@@ -42,12 +40,12 @@ def get_bluetoothOtherLE(files_found, report_folder, seeker, wrap_text, timezone
             all_rows = cursor.fetchall()
 
             for row in all_rows:
-                data_list.append((row[0], row[1], row[3]))
+                data_list.append((row[0], row[1], row[3], file_found))
 
             db.close()
 
-    data_headers = ('Name','Address','UUID')
+    data_headers = ('Name','Address','UUID', 'Source File')
 
-    return data_headers, data_list, report_file
+    return data_headers, data_list, 'see Source File for more info'
 
 
