@@ -13,9 +13,9 @@ Number of v1 artifacts: 73
 Number of v2 artifacts: 423  
 Number of artifacts with 'lava output': 403  
 Number of artifacts using 'artifact_icon': 280  
-Number of artifacts using 'version': 184  
-Number of artifacts using 'last_update_date': 250  
-Number of artifacts using context parameter: 204  
+Number of artifacts using 'version': 181  
+Number of artifacts using 'last_update_date': 253  
+Number of artifacts using context parameter: 208  
 Number of artifacts with errors or no recognized artifacts: 3  
 
 ## V2 Artifacts Table
@@ -201,10 +201,10 @@ Number of artifacts with errors or no recognized artifacts: 3
 | [biomeTextinputses.py](/scripts/artifacts/biomeTextinputses.py) | get_biomeTextinputses | Biome - Text Input Session | Biome | standard | Yes |  |  | 2025-10-31 | Parses Text Input Session entries from biomes | ``*/Biome/streams/public/TextInputSession/local/*``, ``*/Biome/streams/restricted/Text.InputSession/local/*`` |
 | [biomeUseractmeta.py](/scripts/artifacts/biomeUseractmeta.py) | get_biomeUseractmeta | Biome - User Activity Metadata | Biome | standard | Yes |  |  | 2025-10-31 | Parses battery percentage entries from biomes | ``*/Biome/streams/restricted/UserActivityMetadata/local*`` |
 | [biomeWifi.py](/scripts/artifacts/biomeWifi.py) | get_biomeWifi | Biome - WiFi DKEvent | Biome | standard | Yes |  |  | 2025-10-31 | Parses DKEvent WiFi entries from biomes | ``*/Biome/streams/restricted/_DKEvent.Wifi.Connection/local/*`` |
-| [blockedContacts.py](/scripts/artifacts/blockedContacts.py) | blockedContacts | Blocked contacts | Contacts | html, tsv, lava | No | user-x |  | 2024-12-20 | Extract blocked contacts | ``*/mobile/Library/Preferences/com.apple.cmfsyncagent.plist`` |
-| [bluetoothOther.py](/scripts/artifacts/bluetoothOther.py) | get_bluetoothOtherLE | Bluetooth Other LE | Bluetooth | standard | No |  | 0.0.2 |  |  | ``**/Library/Database/com.apple.MobileBluetooth.ledevices.other.db*`` |
-| [bluetoothPairedLE.py](/scripts/artifacts/bluetoothPairedLE.py) | get_bluetoothPairedLE | Bluetooth Paired LE | Bluetooth | standard | No |  | 0.0.2 |  |  | ``**/com.apple.MobileBluetooth.ledevices.paired.db`` |
-| [bluetoothPairedReg.py](/scripts/artifacts/bluetoothPairedReg.py) | get_bluetoothPairedReg | Bluetooth Paired | Bluetooth | standard | No |  | 0.0.2 |  |  | ``**/com.apple.MobileBluetooth.devices.plist`` |
+| [blockedContacts.py](/scripts/artifacts/blockedContacts.py) | blockedContacts | Blocked contacts | Contacts | html, tsv, lava | Yes | user-x |  | 2025-11-03 | Extract blocked contacts | ``*/mobile/Library/Preferences/com.apple.cmfsyncagent.plist`` |
+| [bluetoothOther.py](/scripts/artifacts/bluetoothOther.py) | get_bluetoothOtherLE | Bluetooth Other LE | Bluetooth | standard | Yes |  |  | 2025-11-03 |  | ``*/Library/Database/com.apple.MobileBluetooth.ledevices.other.db*`` |
+| [bluetoothPairedLE.py](/scripts/artifacts/bluetoothPairedLE.py) | get_bluetoothPairedLE | Bluetooth Paired LE | Bluetooth | standard | Yes |  |  | 2025-11-03 |  | ``*/com.apple.MobileBluetooth.ledevices.paired.db*`` |
+| [bluetoothPairedReg.py](/scripts/artifacts/bluetoothPairedReg.py) | get_bluetoothPairedReg | Bluetooth Paired | Bluetooth | standard | Yes |  |  | 2025-11-03 |  | ``*/com.apple.MobileBluetooth.devices.plist`` |
 | [booking.py](/scripts/artifacts/booking.py) | booking_account | Booking - Account | Booking.com | lava, html, tsv | Yes | user |  | 2026-03-31 | Extracts Booking.com user profile details. | ``*/mobile/Containers/Data/Application/*/Library/Application Support/KeyValueStorageAccountDomain*``, ``*/mobile/Containers/Data/Application/*/Library/Application Support/AccountSettings*`` |
 | [booking.py](/scripts/artifacts/booking.py) | booking_travellers | Booking - Travel Companions | Booking.com | lava, html, tsv | Yes | users |  | 2026-03-31 | Extracts Booking.com saved travel companions details. | ``*/mobile/Containers/Data/Application/*/Library/Application Support/AccountSettings*`` |
 | [booking.py](/scripts/artifacts/booking.py) | booking_payment_methods | Booking - Payment Methods | Booking.com | lava, html, tsv | Yes | credit-card |  | 2026-03-31 | Extracts Booking.com saved payment methods and credit card details. | ``*/mobile/Containers/Data/Application/*/Library/Application Support/KeyValueStorageAccountDomain*``, ``*/mobile/Containers/Data/Application/*/Library/Application Support/AccountSettings*`` |
