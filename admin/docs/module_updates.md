@@ -235,40 +235,44 @@ Both functions will copy/link the media to a central data location in the report
 
 Instructions:
 
-The `chatParams` key will contain a dictionary of items to assist LAVA in determining which columns should be used to group messages into threads and which columns should be used to render the elements of the chat message bubble. Whenever a column name is specified it should match the column header as defined in the `data_headers` of the artifact.
+The `data_views` key will contain a `conversation` dictionary of items to assist LAVA in determining which columns should be used to group messages into threads and which columns should be used to render the elements of the chat message bubble. Whenever a column name is specified it should match the column header as defined in the `data_headers` of the artifact.
 
 ```python
 __artifacts_v2__ = {
-    "get_artifactname": {
+    "artifact_function_name": {
         # Other parameters as shown above,
-        "chatParams": {
-            "threadDiscriminatorColumn": Column that determines which thread messages belong to. This must be unique for each thread
-            "threadLabelColumn": Optional column name providing a friendly name for the thread
-            "textColumn": Column name containing the text message
-            "directionColumn": Column name to determine if the message was sent/received
-            "directionSentValue": Any Value that if present in the directionColumn specified above indicates the message was sent (ie: 1, True, "SENT"), any other value treated as received.
-            "timeColumn": Column name containing the DateTime for the message (presumably the sent time),
-            "senderColumn": Column name containing the senders name/identifier,
-            "mediaColumn": Optional column containing an attachment (Further development required on this),
-            "sentMessageLabelColumn": Optional column name containing the local users name/identifier (used for a case where the data only contains the remote users information and the senders information is located in a different column (ie an Account ID),
-            "sentMessageStaticLabel": Optional string that will provide a static sender name/identifier for artifacts where this is unknown (ie "Local User")
+        "data_views": {
+            "conversation": {
+                "conversationDiscriminatorColumn": "Column that determines which thread messages belong to. This must be unique for each thread",
+                "conversationLabelColumn": "Optional column name providing a friendly name for the thread",
+                "textColumn": "Column name containing the text message",
+                "senderColumn": "Column name containing the senders name/identifier",
+                "directionColumn": "Column name to determine if the message was sent/received",
+                "directionSentValue": "Any Value that if present in the directionColumn specified above indicates the message was sent (ie: 1, True, \"SENT\"), any other value treated as received.",
+                "timeColumn": "Column name containing the DateTime for the message (presumably the sent time)",
+                "mediaColumn": "Optional column containing a media reference ID (from check_in_media)",
+                "sentMessageLabelColumn": "Optional column name containing the local users name/identifier (used for a case where the data only contains the remote users information and the senders information is located in a different column (ie an Account ID)",
+                "sentMessageStaticLabel": "Optional string that will provide a static sender name/identifier for artifacts where this is unknown (ie \"Local User\")"
+            }
         }
 ```
 
 Example (From googleChat.py artifact):
 ```python
 __artifacts_v2__ = {
-    "get_googleChat": {  # This should match the function name exactly
+    "google_chat": {  # This should match the function name exactly
         "name": "Google Chat",
         # Other parameters as shown above,
-        "chatParams": {
-            "threadDiscriminatorColumn": "Conversation Name",
-            "textColumn": "Message",
-            "directionColumn": "Is Sent",
-            "directionSentValue": 1,
-            "timeColumn": "Timestamp",
-            "senderColumn": "Message Author",
-            "mediaColumn": "Media"
+        "data_views": {
+            "conversation": {
+                "conversationDiscriminatorColumn": "Conversation Name",
+                "textColumn": "Message",
+                "senderColumn": "Message Author",
+                "directionColumn": "Is Sent",
+                "directionSentValue": 1,
+                "timeColumn": "Timestamp",
+                "mediaColumn": "Media"
+            }
         }
     }
 }
@@ -341,7 +345,7 @@ os_version = Context.get_os_version(record[x], record[y])
 - record[x] contains a string representing the OS build number to look up (e.g., "22E240").
 - record[y], which is optional, contains a string representing the device identifier (e.g., "iPhone10,1"). It is better to use it if available in order to avoid having multiple versions of different operating system families with the same build number. If it is not provided, the function will search all OS families and return all matching ones.
 
-The function returns the OS version as a string (e.g., "iOS 18.4"). If any matching build number is found, it returns an empty string.
+The function returns the OS version as a string (e.g., "iOS 18.4"). If no matching build number is found, it returns an empty string.
 
 ## Reasoning
 
