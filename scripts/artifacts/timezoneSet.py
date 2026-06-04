@@ -3,30 +3,44 @@ __artifacts_v2__ = {
         "name": "Timezone Set",
         "description": "Is the timezone set on the device?",
         "author": "@AlexisBrignoni",
-        "version": "0.2",
-        "date": "2023-10-04",
+        "creation_date": "2023-10-04",
+        "last_update_date": "2024-11-28",
         "requirements": "none",
         "category": "Identifiers",
         "notes": "",
         "paths": ('*/db/timed/Library/Preferences/com.apple.preferences.datetime.plist',),
-        "output_types": "none"
+        "output_types": "standard",
+        "artifact_icon": "clock"
     }
 }
 
+from scripts.ilapfuncs import (
+    artifact_processor,
+    device_info,
+    get_file_path,
+    get_plist_file_content,
+    logfunc
+)
 
-import plistlib
-from scripts.ilapfuncs import artifact_processor, device_info
 
 @artifact_processor
-def timezoneSet(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    source_path = str(files_found[0])
-    
-    with open(source_path, "rb") as fp:
-        pl = plistlib.load(fp)
-        for key, val in pl.items():
-            if key == 'timezoneset':
-                device_info("Settings", "Timezone Set", val, source_path)
-                break
+def timezoneSet(context):
+    files_found = context.get_files_found()
+    data_list = []
 
-    # Return empty data since this artifact only collects device info
-    return (), [], source_path
+    source_path = get_file_path(files_found, 'com.apple.preferences.datetime.plist')
+
+    if not source_path:
+        logfunc('com.apple.preferences.datetime.plist not found')
+        return (), [], ''
+
+    pl = get_plist_file_content(source_path)
+
+    if pl:
+        val = pl.get('timezoneset')
+        if val is not None:
+            device_info("Settings", "Timezone Set", str(val), source_path)
+            data_list.append(('Timezone Set', str(val)))
+
+    data_headers = ('Key', 'Value')
+    return data_headers, data_list, source_path
