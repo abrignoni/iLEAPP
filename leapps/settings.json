@@ -1,0 +1,7 @@
+{
+  "name": "iLEAPP",
+  "version": "3.0.0-dev.0",
+  "description": "iOS Logs, Events, And Plists Parser",
+  "profile_extension": ".ilprofile",
+  "casedata_extension": ".lcasedata"
+}
