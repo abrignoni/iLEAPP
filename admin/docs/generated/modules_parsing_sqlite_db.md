@@ -86,6 +86,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | twint |
 | viber |
 | voicemail |
+| waze |
 | whatsApp |
 | wire |
 <!-- GET_RECORDS_END -->
