@@ -188,7 +188,7 @@ def waze_account(context):
         # row
         if row.count(None) != len(row):
             data_list.append((row[0], row[1], row[2], row[3], row[4]))
-    except Exception as e:
+    except (OSError, IndexError, ValueError) as e:
         logfunc(f'Error reading Waze "user" file: {e}')
     if not data_list:
         logfunc('No Waze Account data available')
@@ -260,7 +260,7 @@ def waze_session(context):
             if row.count(None) != len(row):
                 data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]))
                 row = [None] * 8
-    except Exception as e:
+    except (OSError, IndexError, ValueError) as e:
         logfunc(f'Error reading Waze "session" file: {e}')
     if not data_list:
         logfunc('No Wazew Session info data available')
@@ -283,7 +283,7 @@ def waze_tts(context):
     try:
         db = open_sqlite_db_readonly(source_path)
         # list tables
-        cursor = db.execute(f"SELECT name FROM sqlite_master WHERE type='table'")
+        cursor = db.execute("SELECT name FROM sqlite_master WHERE type='table'")
         all_tables = cursor.fetchall()
         if len(all_tables) == 0:
             logfunc('No Waze Text-To-Speech navigation data available')
@@ -374,10 +374,10 @@ def waze_gps_quality(context):
                                 row[0] = val
                         elif key == 'LAT':
                             try: row[1] = float(val) / 1000000
-                            except: row[1] = val
+                            except ValueError: row[1] = val
                         elif key == 'LON':
                             try: row[2] = float(val) / 1000000
-                            except: row[2] = val
+                            except ValueError: row[2] = val
                         elif key == 'SAMPLE_COUNT':
                             row[3] = val
                         elif key == 'BAD_SAMPLE_COUNT':
@@ -400,7 +400,7 @@ def waze_gps_quality(context):
                 if hit_count > 0:
                     source_files.append(file_found)
 
-        except Exception as e:
+        except (OSError, ValueError) as e:
             logfunc(f'Error reading Waze GPS log {file_name}: {e}')
 
     if not data_list:

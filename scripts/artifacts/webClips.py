@@ -1,5 +1,5 @@
 __artifacts_v2__ = {
-    "get_webClips": {
+    "web_clips": {
         "name": "iOS Screens",
         "description": "",
         "author": "@AlexisBrignoni",
@@ -13,7 +13,6 @@ __artifacts_v2__ = {
         "artifact_icon": "bookmark"
     }
 }
-import os
 from scripts.ilapfuncs import (
     logfunc,
     artifact_processor,
@@ -23,7 +22,7 @@ from scripts.ilapfuncs import (
 
 
 @artifact_processor
-def get_webClips(context):
+def web_clips(context):
     files_found = context.get_files_found()
     webclip_data = {}
     data_list = []
@@ -80,4 +79,4 @@ def get_webClips(context):
         'Unique Identifier',
         'Source File'
     )
-    return data_headers, data_list, ''
+    return data_headers, data_list, 'See Source File column'

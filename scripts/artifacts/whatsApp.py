@@ -47,8 +47,8 @@ __artifacts_v2__ = {
 }
 
 
-import inspect
 import blackboxprotobuf
+from blackboxprotobuf.lib.exceptions import DecoderException
 
 from pathlib import Path
 from scripts.ilapfuncs import (
@@ -177,7 +177,6 @@ def whatsAppContacts(context):
 @artifact_processor
 def whatsAppMessages(context):
     files_found = context.get_files_found()
-    artifact_info = inspect.stack()[0]
     source_path = get_file_path(files_found, 'ChatStorage.sqlite')
     contacts_db = get_file_path(files_found, 'ContactsV2.sqlite')
     data_list = []
@@ -263,7 +262,7 @@ def whatsAppMessages(context):
                         forwardedwhatsappid, fullname, phone = contact_records[0]
                         from_forward = f"{fullname} ({phone}) - ({forwardedwhatsappid})"
 
-            except:
+            except (TypeError, ValueError, KeyError, DecoderException):
                 pass
 
         lon = record['ZLONGITUDE'] if record['ZMESSAGETYPE'] == 5 else ''
