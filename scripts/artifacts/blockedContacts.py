@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Contacts",
         "notes": "",
-        "paths": ('*/mobile/Library/Preferences/com.apple.cmfsyncagent.plist'),
+        "paths": ('*/mobile/Library/Preferences/com.apple.cmfsyncagent.plist',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "user-x"
     }

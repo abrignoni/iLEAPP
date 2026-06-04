@@ -1,18 +1,4 @@
 __artifacts_v2__ = {
-    "booking_preferences": {
-        "name": "Booking Preferences",
-        "description": "Parses and extract Booking.com Preferences",
-        "author": "@djangofaiola",
-        "version": "0.2",
-        "creation_date": "2024-05-28",
-        "last_update_date": "2025-05-02",
-        "requirements": "none",
-        "category": "Booking.com",
-        "notes": "https://djangofaiola.blogspot.com",
-        "paths": ('*/mobile/Containers/Data/Application/*/Library/Preferences/com.booking.BookingApp.plist'),
-        "output_types": [ "none" ],
-        "artifact_icon": "settings"
-    },
     "booking_account": {
         "name": "Booking Account",
         "description": "Parses and extract Booking.com Account",
@@ -414,9 +400,9 @@ def booking_account(context):
         'Country',
         ('Phone number', 'phonenumber'),
         'Emails',
-        "Genius membership",
-        "Facilities",
-        "Unique ID",
+        'Genius membership',
+        'Facilities',
+        'Unique ID',
         'Authentication token',
         'Source file name',
         'Location'
@@ -566,10 +552,10 @@ def booking_account(context):
 
                 # html row
                 data_list_html.append((birth_date, first_name, last_name, nickname, pp_url_html, gender, street, city, zip_code,country, phone_number,
-                                       emails_html, is_genius, facilities_html, uid, auth_token, source_file_name_html, source_file_name, location))
+                                       emails_html, is_genius, facilities_html, uid, auth_token, source_file_name_html, location))
                 # lava row
                 data_list.append((birth_date, first_name, last_name, nickname, pp_url, gender, street, city, zip_code,country, phone_number,
-                                  emails, is_genius, facilities, uid, auth_token, source_file_name_html, source_file_name, location))
+                                  emails, is_genius, facilities, uid, auth_token, source_file_name, location))
             except Exception as ex:
                 logfunc(f"Exception while parsing {context.get_artifact_name()} - {file_found}: " + str(ex))
                 pass

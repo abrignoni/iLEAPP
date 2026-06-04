@@ -49,6 +49,6 @@ def get_bluetoothPairedReg(context):
 
                 data_list.append((lastseen, macaddress, usernkey, nameu, deviceid, defname, file_found))
 
-        data_headers = (('Last Seen Time', 'datetime'), 'MAC Address', 'Name Key', 'Name', 'Device Product ID', 'Default Name', 'Source File')     
+    data_headers = (('Last Seen Time', 'datetime'), 'MAC Address', 'Name Key', 'Name', 'Device Product ID', 'Default Name', 'Source File')     
 
-        return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, 'see Source File for more info'
