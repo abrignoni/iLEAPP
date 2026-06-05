@@ -59,7 +59,7 @@ def photos_migration(context):
     db_records = get_sqlite_db_records(data_source, query)
 
     for record in db_records:
-        os_version = context.get_os_version(record[9])
+        os_version = context.get_apple_os_version(record[9])
         timestamp = convert_cocoa_core_data_ts_to_utc(record[3])
 
         data_list.append((timestamp, record[4], record[5], record[6], record[7],

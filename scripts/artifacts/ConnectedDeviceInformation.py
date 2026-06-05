@@ -96,8 +96,8 @@ def connected_device_info_device_history(context):
     for record in db_records:
         start_timestamp = convert_cocoa_core_data_ts_to_utc(record[0])
         end_timestamp = convert_cocoa_core_data_ts_to_utc(record[1])
-        device_model = context.get_device_model(record[2])
-        os_version = context.get_os_version(record[4], record[2])
+        device_model = context.lookup_metadata('apple_device_id_to_model', record[2])
+        os_version = context.get_apple_os_version(record[4], record[2])
         data_list.append(
             (start_timestamp, end_timestamp, record[2], device_model,
              record[3], record[4], os_version))
@@ -140,7 +140,7 @@ def connected_device_info_consolidated_connected_device_history(context):
     for record in db_records:
         start_timestamp = convert_cocoa_core_data_ts_to_utc(record[0])
         end_timestamp = convert_cocoa_core_data_ts_to_utc(record[1])
-        device_model = context.get_device_model(record[2])
+        device_model = context.lookup_metadata('apple_device_id_to_model', record[2])
         data_list.append(
             (start_timestamp, end_timestamp, record[2], device_model))
 
@@ -174,7 +174,7 @@ def connected_device_information_current_device_info(context):
         db_records = get_sqlite_db_records(source_path, query)
         for record in db_records:
             mod_timestamp = convert_cocoa_core_data_ts_to_utc(record[0])
-            device_model = context.get_device_model(record[1])
+            device_model = context.lookup_metadata('apple_device_id_to_model', record[1])
             data_list.append(
                 (mod_timestamp, record[1], device_model, record[2]))
 

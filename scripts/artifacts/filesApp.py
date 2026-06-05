@@ -533,7 +533,7 @@ def files_ios_updates(context):
     for record in db_records:
         os_date, os_os = record
         os_date = convert_unix_ts_to_utc(os_date)
-        os_version = context.get_os_version(os_os)
+        os_version = context.get_apple_os_version(os_os)
 
         data_list.append((os_date, os_os, os_version))
 

@@ -25,9 +25,7 @@ class Context:
     _files_found = []
     _filename_lookup_map = {}
     _data_folder = None
-    _device_ids = {}
-    _device_boards = {}
-    _os_builds = {}
+    _metadata = {}
     _installed_os_version = ""
 
     @staticmethod
@@ -123,40 +121,62 @@ class Context:
         Context._files_found = files_found
 
     @staticmethod
-    def _set_device_ids():
+    def get_metadata(collection):
         """
-        Loads device IDs from the data/device_ids.json file and
-        assigns them to _device_ids Context class variable.
-        """
+        Lazily loads and caches metadata from a JSON file in the scripts/data/
+        directory.
 
-        device_ids_path = Path(
-            __file__).parent.absolute().joinpath('data', 'device_ids.json')
-        with open(device_ids_path, 'rt', encoding='utf-8') as json_file:
-            Context._device_ids = json.load(json_file)
+        Args:
+            collection (str): The name of the collection (filename without .json).
 
-    @staticmethod
-    def _set_device_boards():
+        Returns:
+            dict: The decoded JSON collection, or {} if the file does not exist.
         """
-        Loads device boards from the data/device_boards.json file and
-        assigns them to _device_boards Context class variable.
-        """
-
-        device_boards_path = Path(
-            __file__).parent.absolute().joinpath('data', 'device_boards.json')
-        with open(device_boards_path, 'rt', encoding='utf-8') as json_file:
-            Context._device_boards = json.load(json_file)
+        if collection not in Context._metadata:
+            metadata_path = Path(__file__).parent.absolute().joinpath(
+                'data', f'{collection}.json')
+            if metadata_path.exists():
+                with open(metadata_path, 'rt', encoding='utf-8') as json_file:
+                    Context._metadata[collection] = json.load(json_file)
+            else:
+                Context._metadata[collection] = {}
+        return Context._metadata[collection]
 
     @staticmethod
-    def _set_os_builds():
+    def lookup_metadata(collection, key, group=None):
         """
-        Loads OS builds information from the data/os_builds.json file and
-        assigns it to the _os_builds Context class variable.
-        """
+        Retrieves a value from a metadata collection.
 
-        os_builds_path = Path(
-            __file__).parent.absolute().joinpath('data', 'os_builds.json')
-        with open(os_builds_path, 'rt', encoding='utf-8') as json_file:
-            Context._os_builds = json.load(json_file)
+        Args:
+            collection (str): The name of the collection.
+            key (str): The key to look up.
+            group (str, optional): The group within the collection to search.
+
+        Returns:
+            str: The matching value, or '' if not found.
+        """
+        data = Context.get_metadata(collection)
+        if not data:
+            return ''
+
+        if group:
+            return data.get(group, {}).get(key, '')
+
+        key = str(key)
+        # Check if it's a flat collection
+        if key in data and not isinstance(data[key], dict):
+            return data[key]
+
+        # Check if it's a grouped collection and search all groups
+        matches = []
+        for group_data in data.values():
+            if isinstance(group_data, dict) and key in group_data:
+                matches.append(group_data[key])
+
+        if matches:
+            return " or ".join(matches)
+
+        return ''
 
     @staticmethod
     def set_installed_os_version(os_version):
@@ -404,42 +424,10 @@ class Context:
         return full_path
 
     @staticmethod
-    def get_device_model(identifier):
+    def get_apple_os_version(build, device_family=''):
         """
-        Retrieves the device model name corresponding to a given identifier.
-
-        Args:
-            identifier (str): The device identifier to look up.
-
-        Returns:
-            str: The device model name if found; otherwise, an empty string.
-        """
-
-        if not Context._device_ids:
-            Context._set_device_ids()
-        return Context._device_ids.get(identifier, '')
-
-    @staticmethod
-    def get_device_model_from_board(board_id):
-        """
-        Retrieves the device model name corresponding to a given board ID.
-
-        Args:
-            board_id (str): The board ID to look up.
-
-        Returns:
-            str: The device model name if found; otherwise, an empty string.
-        """
-
-        if not Context._device_boards:
-            Context._set_device_boards()
-        return Context._device_boards.get(board_id, '')
-
-    @staticmethod
-    def get_os_version(build, device_family=''):
-        """
-        Returns the operating system version corresponding to a given build
-        number and device family.
+        Returns the Apple operating system version corresponding to a given
+        build number and device family.
 
         Args:
             build (str): The build number to look up.
@@ -451,33 +439,35 @@ class Context:
             str: The OS version string associated with the build and device
             family. If not found, returns an empty string.
         """
-
-        if not Context._os_builds:
-            Context._set_os_builds()
+        group = None
         if 'iPhone' in device_family:
-            return Context._os_builds['iOS'].get(build, '')
+            group = 'iOS'
+        elif 'iPad' in device_family:
+            group = 'iOS'
+        elif 'Mac' in device_family:
+            group = 'macOS'
+        elif 'RealityDevice' in device_family:
+            group = 'visionOS'
+        elif 'Watch' in device_family:
+            group = 'watchOS'
+        elif 'AppleTV' in device_family:
+            group = 'tvOS'
+
+        resolved = Context.lookup_metadata(
+            'apple_build_id_to_os_version', build, group)
+
+        if not resolved:
+            return ''
+
         if 'iPad' in device_family:
             try:
-                kernel_major_version = int(re.match(r'^(\d+)', build).group(1))
-                if kernel_major_version >= 17:
-                    return Context._os_builds['iOS'].get(
-                        build, '').replace('iOS', 'iPadOS')
-            except TypeError:
+                build_major = int(re.match(r'^(\d+)', build).group(1))
+                if build_major >= 17:
+                    resolved = resolved.replace('iOS', 'iPadOS', 1)
+            except (TypeError, ValueError, AttributeError):
                 pass
-            return Context._os_builds['iOS'].get(build, '')
-        if 'Mac' in device_family:
-            return Context._os_builds['macOS'].get(build, '')
-        if 'RealityDevice' in device_family:
-            return Context._os_builds['visionOS'].get(build, '')
-        if 'Watch' in device_family:
-            return Context._os_builds['watchOS'].get(build, '')
-        if 'AppleTV' in device_family:
-            return Context._os_builds['tvOS'].get(build, '')
-        os_version = []
-        for os_family, builds in Context._os_builds.items():
-            if build in builds:
-                os_version.append(Context._os_builds[os_family][build])
-        return (" or ").join(os_version)
+
+        return resolved
 
     @staticmethod
     def get_installed_os_version():
@@ -491,8 +481,8 @@ class Context:
     def clear():
         """
         Resets all context-related class variables to None, effectively
-        clearing any stored state or references, except for the device IDs,
-        OS builds, and output parameters which are retained for efficiency.
+        clearing any stored state or references, except for the metadata
+        cache and output parameters which are retained for efficiency.
         """
         Context._report_folder = None
         Context._seeker = None
