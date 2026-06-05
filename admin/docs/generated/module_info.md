@@ -15,7 +15,7 @@ Number of artifacts with 'lava output': 413
 Number of artifacts using 'artifact_icon': 290  
 Number of artifacts using 'version': 179  
 Number of artifacts using 'last_update_date': 264  
-Number of artifacts using context parameter: 221  
+Number of artifacts using context parameter: 222  
 Number of artifacts with errors or no recognized artifacts: 3  
 
 ## V2 Artifacts Table
@@ -397,7 +397,7 @@ Number of artifacts with errors or no recognized artifacts: 3
 | [sbbmobile.py](/scripts/artifacts/sbbmobile.py) | sbb_purchased_tickets | SBB Mobile - Purchased Tickets | Travel | standard | Yes | star |  | 2026-03-24 | Parse purchased tickets from SbbMobile | ``*/mobile/Containers/Shared/AppGroup/*/SbbMobile.db*`` |
 | [serialNumber.py](/scripts/artifacts/serialNumber.py) | serialNumber | Serial Number | Identifiers | none | No |  | 0.2 |  | Serial Number of the device | ``*/Library/Caches/locationd/consolidated.db*`` |
 | [skg_archive.py](/scripts/artifacts/skg_archive.py) | skg_archive | SKG Archive | Spotlight | standard | No |  | 0.2 |  | Parses SKG Archive Records | ``*/CoreSpotlight/SpotlightKnowledge/index.V2/keyphrases/NSFileProtectionComplete/skg_archive.V2.*``, ``*/CoreSpotlight/SpotlightKnowledge/index.V2/archives/NSFileProtectionComplete/skg_archive.V2.*``, ``*/CoreSpotlight/SpotlightKnowledge/index.V2/archives/NSFileProtectionCompleteUntilFirstUserAuthentication/skg_archive-*`` |
-| [sms.py](/scripts/artifacts/sms.py) | sms | SMS | SMS & iMessage | standard | No | message-square |  | 2025-03-24 | Parses SMS and iMessage chats | ``*/mobile/Library/SMS/sms.db*`` |
+| [sms.py](/scripts/artifacts/sms.py) | sms | SMS | SMS & iMessage | standard | Yes | message-square |  | 2025-03-24 | Parses SMS and iMessage chats | ``*/Library/SMS/sms.db*``, ``*/Library/SMS/Attachments/*`` |
 | [splitwise.py](/scripts/artifacts/splitwise.py) | splitwiseUsers | Splitwise - Users | Finance | standard | No | user |  | 2025-01-07 | Parses users information from Splitwise app | ``*/Library/Application Support/database.sqlite*`` |
 | [splitwise.py](/scripts/artifacts/splitwise.py) | splitwiseExpenses | Splitwise - Expenses | Finance | standard | No | dollar-sign |  | 2025-01-07 | Parses expenses information from Splitwise app | ``*/Library/Application Support/database.sqlite*`` |
 | [splitwise.py](/scripts/artifacts/splitwise.py) | splitwiseExpenseBalances | Splitwise - Expense Balances | Finance | standard | No | dollar-sign |  | 2025-01-07 | Parses expense balances information from Splitwise app | ``*/Library/Application Support/database.sqlite*`` |
