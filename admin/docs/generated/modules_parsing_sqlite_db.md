@@ -123,6 +123,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | cloudkit_cache |
 | coreAccessoriesAcc |
 | coreAccessoriesUserEvent |
+| discord_cache |
 | dmss |
 | foursquareSwarm |
 | geodApplications |
