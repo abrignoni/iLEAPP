@@ -61,6 +61,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | box |
 | callHistory |
 | cashAppB |
+| cloudkit_cache |
 | discordChats |
 | discord_a |
 | filesApp |
@@ -118,8 +119,8 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | callHistoryGroupCall |
 | cashApp |
 | chrome |
-| cloudkitCache |
 | cloudkitSharing |
+| cloudkit_cache |
 | coreAccessoriesAcc |
 | coreAccessoriesUserEvent |
 | dmss |
