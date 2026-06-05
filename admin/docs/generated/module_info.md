@@ -13,8 +13,8 @@ Number of v1 artifacts: 71
 Number of v2 artifacts: 432  
 Number of artifacts with 'lava output': 413  
 Number of artifacts using 'artifact_icon': 290  
-Number of artifacts using 'version': 180  
-Number of artifacts using 'last_update_date': 263  
+Number of artifacts using 'version': 179  
+Number of artifacts using 'last_update_date': 264  
 Number of artifacts using context parameter: 221  
 Number of artifacts with errors or no recognized artifacts: 3  
 
@@ -253,7 +253,7 @@ Number of artifacts with errors or no recognized artifacts: 3
 | [chrome.py](/scripts/artifacts/chrome.py) | chromeAutofillProfiles | Autofill Profiles | Chromium | standard | No |  | 0.0.3 |  | Parses Autofill Profiles from Chromium Based Browsers | ``*/Chrome/Default/Web Data*``, ``*/app_sbrowser/Default/Web Data*``, ``*/app_opera/Web Data*``, ``*/Chromium/Default/Web Data*`` |
 | [chrome.py](/scripts/artifacts/chrome.py) | chromeBookmarks | Bookmarks | Chromium | standard | No |  | 0.0.3 | 2025-06-20 | Parses Bookmarks from Chromium Based Browsers | ``*/Chrome/Default/Bookmarks*``, ``*/app_sbrowser/Default/Bookmarks*``, ``*/app_opera/Bookmarks*``, ``*/Chromium/Default/Bookmarks*`` |
 | [chrome.py](/scripts/artifacts/chrome.py) | chromeCookies | Cookies | Chromium | standard | No |  | 0.0.3 |  | Parses Cookies from Chromium Based Browsers | ``*/Chrome/Default/Cookies*``, ``*/app_sbrowser/Default/Cookies*``, ``*/app_opera/Cookies*``, ``*/Chromium/Default/Cookies*`` |
-| [chrome.py](/scripts/artifacts/chrome.py) | chromeLoginData | Login Data | Chromium | standard | No |  | 0.0.3 |  | Parses Login Data from Chromium Based Browsers | ``*/Chrome/Default/Login Data*``, ``*/app_sbrowser/Default/Login Data*``, ``*/app_opera/Login Data*``, ``*/Chromium/Default/Login Data*`` |
+| [chrome.py](/scripts/artifacts/chrome.py) | chromeLoginData | Login Data | Chromium | standard | No |  |  | 2026-05-27 | Parses Login Data from Chromium Based Browsers | ``*/Chrome/Default/Login Data*``, ``*/app_sbrowser/Default/Login Data*``, ``*/app_opera/Login Data*``, ``*/Chromium/Default/Login Data*`` |
 | [chrome.py](/scripts/artifacts/chrome.py) | chromeTopSites | Top Sites | Chromium | lava, tsv, html | No |  | 0.0.3 |  | Parses Top Sites from Chromium Based Browsers | ``*/Chrome/Default/Top Sites*``, ``*/app_sbrowser/Default/Top Sites*``, ``*/app_opera/Top Sites*``, ``*/Chromium/Default/Top Sites*`` |
 | [chrome.py](/scripts/artifacts/chrome.py) | chromeOfflinePages | Offline Pages | Chromium | standard | No |  | 0.0.3 |  | Parses Offline Pages from Chromium Based Browsers | ``*/Chrome/Default/Offline Pages/metadata/OfflinePages.db*``, ``*/app_sbrowser/Default/Offline Pages/metadata/OfflinePages.db*``, ``*/Chromium/Default/Offline Pages/metadata/OfflinePages.db*`` |
 | [chrome.py](/scripts/artifacts/chrome.py) | chromeMediaHistorySessions | Media History Sessions | Chromium | standard | No |  | 0.0.3 |  | Parses Media History Sessions from Chromium Based Browsers | ``*/Chrome/Default/Media History*``, ``*/app_sbrowser/Default/Media History*``, ``*/app_opera/Media History*``, ``*/Chromium/Default/Media History*`` |
