@@ -1,0 +1,86 @@
+{
+  "metadata": {
+    "module_name": "cloudkit_cache",
+    "artifact_name": "iCloud Backup Snapshots",
+    "function_name": "cloudkit_snapshots",
+    "case_number": "josh_ios15_ffs",
+    "number_of_columns": 13,
+    "number_of_rows": 3,
+    "total_data_size_bytes": 453,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/cloudkit_cache/testdata.cloudkit_cache.cloudkit_snapshots.josh_ios15_ffs.zip",
+    "start_time": "2026-05-30T18:59:50.056680+00:00",
+    "end_time": "2026-05-30T18:59:50.461470+00:00",
+    "run_time_seconds": 0.02889704704284668,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-05-30T11:59:50.393179",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Snapshot ID",
+    "Committed",
+    "Created Timestamp",
+    "Snapshot Modification Timestamp",
+    "Snapshot Created Timestamp",
+    "Device UUID",
+    "Device Name",
+    "Product Version",
+    "Backup Type",
+    "Backup Reason",
+    "Is Backup Allowed On Cellular",
+    "File Count",
+    "Total File Size"
+  ],
+  "data": [
+    [
+      "F8F5A7C2-7EFA-4883-9E0D-C488D89E8262",
+      1,
+      1684153543,
+      1684352819,
+      1684153543,
+      "bf8c4cf1692cd7837f1f1b90f96d2fcfda3809d4",
+      "This Is\u2019s iPhone",
+      "15.3.1",
+      0,
+      2,
+      false,
+      5072,
+      "208.18 MiB"
+    ],
+    [
+      "190E3AC4-E3C7-40A9-B23C-AB7814536B20",
+      1,
+      1684352808,
+      1684352820,
+      1684352808,
+      "bf8c4cf1692cd7837f1f1b90f96d2fcfda3809d4",
+      "This Is\u2019s iPhone",
+      "15.3.1",
+      1,
+      2,
+      false,
+      2033,
+      "58.73 MiB"
+    ],
+    [
+      "2FFDD791-4E1F-4942-848C-65D6227217C2",
+      1,
+      1684546854,
+      1684546854,
+      1684546854,
+      "bf8c4cf1692cd7837f1f1b90f96d2fcfda3809d4",
+      "This Is\u2019s iPhone",
+      "15.3.1",
+      1,
+      2,
+      false,
+      772,
+      "10.77 MiB"
+    ]
+  ]
+}
