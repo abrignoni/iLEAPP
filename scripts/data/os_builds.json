@@ -933,6 +933,7 @@
     "23F5069b": "iOS 26.5 beta 4",
     "23F75": "iOS 26.5 RC",
     "23F77": "iOS 26.5",
+    "23F81": "iOS 26.5.1",
     "23G5028e": "iOS 26.6 beta 1"
   },
   "macOS": {
@@ -2411,6 +2412,7 @@
     "25F5058e": "macOS 26.5 beta 3",
     "25F5068a": "macOS 26.5 beta 4",
     "25F71": "macOS 26.5",
+    "25F80": "macOS 26.5.1",
     "25G5028f": "macOS 26.6 beta 1"
   },
   "visionOS": {
