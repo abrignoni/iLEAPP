@@ -13,9 +13,9 @@ Number of v1 artifacts: 70
 Number of v2 artifacts: 433  
 Number of artifacts with 'lava output': 415  
 Number of artifacts using 'artifact_icon': 292  
-Number of artifacts using 'version': 178  
-Number of artifacts using 'last_update_date': 266  
-Number of artifacts using context parameter: 224  
+Number of artifacts using 'version': 177  
+Number of artifacts using 'last_update_date': 267  
+Number of artifacts using context parameter: 225  
 Number of artifacts with errors or no recognized artifacts: 3  
 
 ## V2 Artifacts Table
@@ -447,7 +447,7 @@ Number of artifacts with errors or no recognized artifacts: 3
 | [waze.py](/scripts/artifacts/waze.py) | waze_shared_locations | Waze - Shared Locations | Waze | standard | Yes | search-2 |  | 2025-11-20 | Get Waze shared locations from user.db. | ``*/mobile/Containers/Data/Application/*/Documents/user.db*`` |
 | [weatherAppLocations.py](/scripts/artifacts/weatherAppLocations.py) | weather_app_locations | Weather App - Locations | Location | standard | Yes | sun |  | 2025-11-20 |  | ``*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.com.apple.weather.plist`` |
 | [webClips.py](/scripts/artifacts/webClips.py) | web_clips | iOS Screens | Home Screen | standard | Yes | bookmark |  | 2025-11-20 |  | ``*WebClips/*.webclip/*`` |
-| [webkit.py](/scripts/artifacts/webkit.py) | webkitCacheRecords | WebKit Cache Records | Browser | standard | No |  | 1.0 |  | Extracts detailed information from WebKit Network Cache record files | ``*/Library/Caches/WebKit/NetworkCache/Version*/Records/*/Resource/*`` |
+| [webkit.py](/scripts/artifacts/webkit.py) | webkit_cache_records | WebKit Cache Records | Browser | standard | Yes |  |  | 2025-10-13 | Extracts detailed information from WebKit Network Cache record files | ``*/Library/Caches/WebKit/NetworkCache/Version*/salt``, ``*/Library/Caches/WebKit/NetworkCache/Version*/Records/*/Resource/*`` |
 | [whatsApp.py](/scripts/artifacts/whatsApp.py) | whatsAppCallHistory | WhatsApp - Call History | WhatsApp | standard | Yes | user |  | 2025-11-20 | Extract call history from WhatsApp | ``*/mobile/Containers/Shared/AppGroup/*/CallHistory.sqlite*``, ``*/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*`` |
 | [whatsApp.py](/scripts/artifacts/whatsApp.py) | whatsAppMessages | WhatsApp - Messages | WhatsApp | standard | Yes | message-square |  | 2025-11-20 | Extract WhatsApp messages | ``*/mobile/Containers/Shared/AppGroup/*/ChatStorage.sqlite*``, ``*/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*``, ``*/mobile/Containers/Shared/AppGroup/*/Message/Media/*/*/*/*`` |
 | [whatsApp.py](/scripts/artifacts/whatsApp.py) | whatsAppContacts | WhatsApp - Contacts | WhatsApp | standard | Yes | users |  | 2025-04-08 | Extract contacts registered in WhatsApp | ``*/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*`` |
