@@ -5,6 +5,7 @@
         "description": "iPhone 8 extraction with sample data for testing",
         "local_image_paths": [
             "~/Documents/phone-images/Josh/iOS_15_Public_Image.tar",
+            "~/Documents/phone-images/Josh/iOS_15_Public_Image.zip",
             "/home/user/images/iphone_001.zip"
         ],
         "file_path_list": "admin/data/filepath-lists/josh-hickman-ios15.csv.zip",

@@ -159,25 +159,25 @@ def process_artifact(zip_path, module_name, artifact_name, artifact_data, target
             # Similar to above, call original or return dummy
             return "mock_embedded_html_path"
 
-        def mocked_lava_get_full_media_info(media_ref_id):
-            # Return a tuple that mimics the real function's output, needed by some artifacts.
+        def mocked_lava_get_full_media_info(_media_ref_id):
+            # Return a dictionary to support string indexing used in artifacts and ilapfuncs
             # The last element should be a Unix timestamp for the modification date.
             # Using Jan 24, 1984 - the day the first Mac went on sale.
             mac_bday_ts = 443750400
-            return (
-                'mock_media_ref_id',
-                'mock_media_item_id',
-                'mock_module_name',
-                'mock_artifact_name',
-                'mock_name',
-                'mock_media_path',
-                'mock_source_path',
-                'mock_extraction_path',
-                'image/png',
-                'mock_metadata',
-                mac_bday_ts, # created_at
-                mac_bday_ts  # updated_at (modification_date)
-            )
+            return {
+                'media_ref_id': 'mock_media_ref_id',
+                'media_item_id': 'mock_media_item_id',
+                'module_name': 'mock_module_name',
+                'artifact_name': 'mock_artifact_name',
+                'name': 'mock_name',
+                'source_path': 'mock_source_path',
+                'extraction_path': 'mock_extraction_path',
+                'type': 'image/png',
+                'metadata': 'mock_metadata',
+                'created_at': mac_bday_ts,
+                'updated_at': mac_bday_ts,
+                'is_embedded': 0
+            }
 
         patches = [
             patch('scripts.ilapfuncs.logdevinfo', mock_logdevinfo),

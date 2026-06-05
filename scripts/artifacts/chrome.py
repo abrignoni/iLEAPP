@@ -120,8 +120,8 @@ __artifacts_v2__ = {
         "name": "Login Data",
         "description": "Parses Login Data from Chromium Based Browsers",
         "author": "@stark4n6",
-        "version": "0.0.3",
-        "date": "2024-11-10",
+        "creation_date": "2024-11-10",
+        "last_update_date": "2026-05-27",
         "requirements": "none",
         "category": "Chromium",
         "notes": "",
@@ -1225,7 +1225,7 @@ def chromeLoginData(files_found, report_folder, seeker, wrap_text, timezone_offs
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
 
-    data_headers = ['Created Time', 'Username', 'Password', 'Origin URL', 'Blacklisted by User', 'Browser Name']
+    data_headers = ['Created Time', 'Username', 'Password', 'Origin URL', 'Blacklisted by User']
 
     lava_data_headers = data_headers.copy()
 

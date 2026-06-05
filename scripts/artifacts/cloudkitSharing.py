@@ -1,169 +1,235 @@
+""" cloudkitSharing """
 __artifacts_v2__ = {
-    "cloudkitsharing": {
-        "name": "Cloudkit Sharing",
-        "description": "This module processes data related to CloudKit sharing, encompassing information on notes "
-                       "shared via CloudKit and the accounts participating in CloudKit shares. It allows for the "
-                       "retrieval of Record ID from the ZICCLOUDSYNCINGOBJECT.ZIDENTIFIER column for shared notes, "
-                       "and provides details on CloudKit participants.",
+    "cloudkit_sharing": {
+        "name": "CloudKit Shares",
+        "description": "Processes CloudKit sharing data from NoteStore.sqlite",
         "author": "@DFIRScience",
-        "version": "0.3",
-        "date": "2022-08-09",
-        "requirements": "",
+        "creation_date": "2022-08-09",
+        "last_update_date": "2026-05-28",
+        "requirements": "none",
         "category": "Cloudkit",
         "notes": "",
         "paths": ('*NoteStore.sqlite*',),
-        "function": "get_cloudkitSharing"
+        "output_types": "standard",
+        "artifact_icon": "share-2"
+    },
+    "cloudkit_participants": {
+        "name": "CloudKit Share Participants",
+        "description": "Processes CloudKit participant data from NoteStore.sqlite",
+        "author": "@DFIRScience",
+        "creation_date": "2022-08-09",
+        "last_update_date": "2026-05-28",
+        "requirements": "none",
+        "category": "Cloudkit",
+        "notes": "",
+        "paths": ('*NoteStore.sqlite*',),
+        "output_types": "standard",
+        "artifact_icon": "users"
     }
 }
 
-import glob
 import os
-import nska_deserialize as nd
-import sqlite3
-import datetime
 import io
+import nska_deserialize as nd
+from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
+
+def deep_get(data, path, default=''):
+    """Safe nested dictionary access."""
+    for key in path:
+        if not isinstance(data, dict):
+            return default
+        data = data.get(key)
+        if data is None:
+            return default
+    return data
 
 
-def get_cloudkitSharing(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    for file_found in files_found:
+def write_debug_bplist(report_folder, prefix, z_pk, data):
+    """Writes extracted blobs to the report folder for validation."""
+    filename = os.path.join(report_folder, f'{prefix}_{z_pk}.bplist')
+    with open(filename, "wb") as f:
+        f.write(data)
+
+
+@artifact_processor
+def cloudkit_sharing(context):
+    """ See artifact description """
+    data_list = []
+
+    for file_found in context.get_files_found():
         file_found = str(file_found)
+        if not file_found.endswith('NoteStore.sqlite'):
+            continue
 
-        if file_found.endswith('NoteStore.sqlite'):
-            get_cloudkitServerRecordData(file_found, report_folder, seeker, wrap_text)
-            get_cloudkitServerSharedData(file_found, report_folder, seeker, wrap_text)
+        # Dictionary to merge share and record data by Z_PK
+        shares = {}
+
+        db = open_sqlite_db_readonly(file_found)
+        cursor = db.cursor()
+
+        # 1. Process Server Record Data
+        cursor.execute('SELECT Z_PK, ZIDENTIFIER, ZSERVERRECORDDATA FROM ZICCLOUDSYNCINGOBJECT WHERE ZSERVERRECORDDATA IS NOT NULL')
+        for row in cursor:
+            z_pk, z_id, blob = row
+            write_debug_bplist(context.get_report_folder(), 'zserverrecorddata', z_pk, blob)
+
+            deserialized = nd.deserialize_plist(io.BytesIO(blob))
+            
+            record_items = []
+            if isinstance(deserialized, list):
+                record_items = [x for x in deserialized if isinstance(x, dict) and 'RecordID' in x]
+            elif isinstance(deserialized, dict) and 'RecordID' in deserialized:
+                record_items = [deserialized]
+
+            for item in record_items:
+                shares[z_pk] = {
+                    'z_id': z_id,
+                    'record_id': deep_get(item, ['RecordID', 'RecordName']),
+                    'record_type': item.get('RecordType', ''),
+                    'ctime': item.get('RecordCtime', ''),
+                    'creator': deep_get(item, ['CreatorUserRecordID', 'RecordName']),
+                    'mtime': item.get('RecordMtime', ''),
+                    'modifier': deep_get(item, ['LastModifiedUserRecordID', 'RecordName']),
+                    'device': item.get('ModifiedByDevice', ''),
+                    'root_id': '',  # Filled by share data if available
+                    'container': '',
+                    'hostname': '',
+                    'permission': '',
+                    'visibility': '',
+                    'anon': '',
+                    'known': ''
+                }
+                break # Only take the first matching record item per Z_PK
+
+        # 2. Process Server Share Data
+        cursor.execute('SELECT Z_PK, ZIDENTIFIER, ZSERVERSHAREDATA FROM ZICCLOUDSYNCINGOBJECT WHERE ZSERVERSHAREDATA IS NOT NULL')
+        for row in cursor:
+            z_pk, z_id, blob = row
+            write_debug_bplist(context.get_report_folder(), 'zserversharedata', z_pk, blob)
+
+            deserialized = nd.deserialize_plist(io.BytesIO(blob))
+
+            share_items = []
+            if isinstance(deserialized, list):
+                share_items = [x for x in deserialized if isinstance(x, dict) and 'RecordID' in x]
+            elif isinstance(deserialized, dict) and 'RecordID' in deserialized:
+                share_items = [deserialized]
+
+            for item in share_items:
+                if z_pk not in shares:
+                    shares[z_pk] = {
+                        'z_id': z_id,
+                        'record_id': deep_get(item, ['RecordID', 'RecordName']),
+                        'record_type': '',
+                        'ctime': '',
+                        'creator': '',
+                        'mtime': '',
+                        'modifier': '',
+                        'device': ''
+                    }
+
+                shares[z_pk].update({
+                    'root_id': deep_get(item, ['RootRecordID', 'RecordName']),
+                    'container': deep_get(item, ['ContainerID', 'ContainerIdentifier']),
+                    'hostname': item.get('DisplayedHostname', ''),
+                    'permission': item.get('PublicPermission', ''),
+                    'visibility': item.get('ParticipantVisibility', ''),
+                    'anon': item.get('AllowsAnonymousAccess', ''),
+                    'known': item.get('KnownToServer', '')
+                })
+                break # Only take the first matching share item per Z_PK
+
+        db.close()
+
+        for z_pk, s in shares.items():
+            data_list.append((
+                file_found, z_pk, s['z_id'], s['record_id'], s['root_id'], s['record_type'],
+                s['ctime'], s['creator'], s['mtime'], s['modifier'], s['device'],
+                s['container'], s['hostname'], s['permission'], s['visibility'],
+                s['anon'], s['known']
+            ))
+
+    data_headers = (
+        'Source File', 'Source Z_PK', 'ZIDENTIFIER', 'Record ID', 'Root Record ID', 'Record Type',
+        ('Creation Date', 'datetime'), 'Creator User Record ID', ('Modified Date', 'datetime'),
+        'Last Modified User Record ID', 'Modified By Device', 'Container Identifier',
+        'Displayed Hostname', 'Public Permission', 'Participant Visibility',
+        'Allows Anonymous Access', 'Known To Server'
+    )
+    return data_headers, data_list, 'NoteStore.sqlite'
 
 
-def get_cloudkitServerSharedData(file_found, report_folder, seeker, wrap_text):
-    user_dictionary = {}
+@artifact_processor
+def cloudkit_participants(context):
+    """ See artifact description """
+    data_list = []
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        if not file_found.endswith('NoteStore.sqlite'):
+            continue
 
-    db = open_sqlite_db_readonly(file_found)
-    cursor = db.cursor()
-    cursor.execute('''
-    SELECT Z_PK, ZSERVERSHAREDATA 
-    FROM
-    ZICCLOUDSYNCINGOBJECT
-    WHERE
-    ZSERVERSHAREDATA NOT NULL
-    ''')
+        db = open_sqlite_db_readonly(file_found)
+        cursor = db.cursor()
+        cursor.execute('SELECT Z_PK, ZIDENTIFIER, ZSERVERSHAREDATA FROM ZICCLOUDSYNCINGOBJECT WHERE ZSERVERSHAREDATA IS NOT NULL')
 
-    all_rows = cursor.fetchall()
-    for row in all_rows:
+        for row in cursor:
+            z_pk, z_id, blob = row
+            deserialized = nd.deserialize_plist(io.BytesIO(blob))
 
-        filename = os.path.join(report_folder, 'zserversharedata_' + str(row[0]) + '.bplist')
-        output_file = open(filename, "wb")
-        output_file.write(row[1])
-        output_file.close()
+            share_items = []
+            if isinstance(deserialized, list):
+                share_items = [x for x in deserialized if isinstance(x, dict) and 'Participants' in x]
+            elif isinstance(deserialized, dict) and 'Participants' in deserialized:
+                share_items = [deserialized]
 
-        deserialized_plist = nd.deserialize_plist(io.BytesIO(row[1]))
-        for item in deserialized_plist:
-            if 'Participants' in item:
-                for participant in item['Participants']:
-                    record_id = participant['UserIdentity']['UserRecordID']['RecordName']
-                    email_address = participant['UserIdentity']['LookupInfo']['EmailAddress']
-                    phone_number = participant['UserIdentity']['LookupInfo']['PhoneNumber']
-                    first_name = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate']['NS.givenName']
-                    middle_name = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate']['NS.middleName']
-                    last_name = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate']['NS.familyName']
-                    name_prefix = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate']['NS.namePrefix']
-                    name_suffix = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate']['NS.nameSuffix']
-                    nickname = participant['UserIdentity']['NameComponents']['NS.nameComponentsPrivate']['NS.nickname']
+            for item in share_items:
+                share_record_id = deep_get(item, ['RecordID', 'RecordName'])
+                root_record_id = deep_get(item, ['RootRecordID', 'RecordName'])
 
-                    user_dictionary[record_id] = [record_id, email_address, phone_number, name_prefix, first_name,
-                                                  middle_name, last_name, name_suffix, nickname]
-    db.close()
+                participants = item.get('Participants') or []
+                for p in participants:
+                    if not isinstance(p, dict):
+                        continue
+                    ui = p.get('UserIdentity') or {}
+                    name_priv = deep_get(ui, ['NameComponents', 'NS.nameComponentsPrivate'], {})
 
-    # Build the array after dealing with all the files 
-    user_list = list(user_dictionary.values())
+                    data_list.append((
+                        file_found, z_pk, z_id, share_record_id, root_record_id,
+                        p.get('ParticipantID', ''),
+                        deep_get(ui, ['UserRecordID', 'RecordName']),
+                        deep_get(ui, ['LookupInfo', 'EmailAddress']),
+                        deep_get(ui, ['LookupInfo', 'PhoneNumber']),
+                        p.get('Type', ''),
+                        p.get('AcceptanceStatus', ''),
+                        p.get('Permission', ''),
+                        p.get('OriginalType', ''),
+                        p.get('OriginalAcceptanceStatus', ''),
+                        p.get('OriginalPermission', ''),
+                        p.get('IsCurrentUser', ''),
+                        p.get('InviterID', ''),
+                        p.get('HasICloudAccount', ''),
+                        p.get('InvitationTokenStatus', ''),
+                        p.get('WantsNewInvitationToken', ''),
+                        p.get('IsAnonymousInvitedParticipant', ''),
+                        p.get('CreatedInProcess', ''),
+                        p.get('AcceptedInProcess', ''),
+                        name_priv.get('NS.namePrefix', ''),
+                        name_priv.get('NS.givenName', ''),
+                        name_priv.get('NS.middleName', ''),
+                        name_priv.get('NS.familyName', ''),
+                        name_priv.get('NS.nameSuffix', ''),
+                        name_priv.get('NS.nickname', '')
+                    ))
+        db.close()
 
-    if len(user_list) > 0:
-        description = 'CloudKit Participants - Cloudkit accounts participating in CloudKit shares.'
-        report = ArtifactHtmlReport('Participants')
-        report.start_artifact_report(report_folder, 'Participants', description)
-        report.add_script()
-        user_headers = (
-        'Record ID', 'Email Address', 'Phone Number', 'Name Prefix', 'First Name', 'Middle Name', 'Last Name',
-        'Name Suffix', 'Nickname')
-        report.write_artifact_data_table(user_headers, user_list, '', write_location=False)
-        report.end_artifact_report()
-
-        tsvname = 'Cloudkit Participants'
-        tsv(report_folder, user_headers, user_list, tsvname)
-    else:
-        logfunc('No Cloudkit - Cloudkit Participants data available')
-
-
-def get_cloudkitServerRecordData(file_found, report_folder, seeker, wrap_text):
-    db = open_sqlite_db_readonly(file_found)
-    cursor = db.cursor()
-    cursor.execute('''
-    select z_pk, zserverrecorddata 
-    from
-    ziccloudsyncingobject
-    where
-    zserverrecorddata not null
-    ''')
-
-    note_data = []
-    all_rows = cursor.fetchall()
-    result_number = len(all_rows)
-    if result_number > 0:
-
-        for row in all_rows:
-
-            filename = os.path.join(report_folder, 'zserverrecorddata_' + str(row[0]) + '.bplist')
-            output_file = open(filename, "wb")
-            output_file.write(row[1])
-            output_file.close()
-
-            deserialized_plist = nd.deserialize_plist(io.BytesIO(row[1]))
-            creator_id = ''
-            last_modified_id = ''
-            creation_date = ''
-            last_modified_date = ''
-            last_modified_device = ''
-            record_type = ''
-            record_id = ''
-            for item in deserialized_plist:
-                if 'RecordCtime' in item:
-                    creation_date = item['RecordCtime']
-                elif 'RecordMtime' in item:
-                    last_modified_date = item['RecordMtime']
-                elif 'LastModifiedUserRecordID' in item:
-                    last_modified_id = item['LastModifiedUserRecordID']['RecordName']
-                elif 'CreatorUserRecordID' in item:
-                    creator_id = item['CreatorUserRecordID']['RecordName']
-                elif 'ModifiedByDevice' in item:
-                    last_modified_device = item['ModifiedByDevice']
-                elif 'RecordType' in item:
-                    record_type = item['RecordType']
-                elif 'RecordID' in item:
-                    record_id = item['RecordID']['RecordName']
-
-            note_data.append([record_id, record_type, creation_date, creator_id, last_modified_date, last_modified_id,
-                              last_modified_device])
-
-        description = 'CloudKit Note Sharing - Notes information shared via CloudKit. Look up the Record ID in the ZICCLOUDSYYNCINGOBJECT.ZIDENTIFIER column. '
-        report = ArtifactHtmlReport('Note Sharing')
-        report.start_artifact_report(report_folder, 'Note Sharing', description)
-        report.add_script()
-        note_headers = (
-        'Record ID', 'Record Type', 'Creation Date', 'Creator ID', 'Modified Date', 'Modifier ID', 'Modifier Device')
-        report.write_artifact_data_table(note_headers, note_data, file_found)
-        report.end_artifact_report()
-
-        tsvname = 'Cloudkit Note Sharing'
-        tsv(report_folder, note_headers, note_data, tsvname)
-    else:
-        logfunc('No Cloudkit - Cloudkit Note Sharing data available')
-
-    db.close()
-
-# __artifacts__ = {
-#     "cloudkitsharing": (
-#         "Cloudkit",
-#         ('*NoteStore.sqlite*'),
-#         get_cloudkitSharing)
-# }
+    data_headers = (
+        'Source File', 'Source Z_PK', 'ZIDENTIFIER', 'Share Record ID', 'Root Record ID',
+        'Participant ID', 'Participant User Record ID', 'Email Address', ('Phone Number', 'phonenumber'),
+        'Participant Type', 'Acceptance Status', 'Permission', 'Original Participant Type',
+        'Original Acceptance Status', 'Original Permission', 'Is Current User', 'Inviter ID',
+        'Has iCloud Account', 'Invitation Token Status', 'Wants New Invitation Token',
+        'Is Anonymous Invited Participant', 'Created In Process', 'Accepted In Process',
+        'Name Prefix', 'First Name', 'Middle Name', 'Last Name', 'Name Suffix', 'Nickname'
+    )
+    return data_headers, data_list, 'NoteStore.sqlite'
