@@ -6,7 +6,7 @@ import shutil
 from collections import OrderedDict
 from scripts.html_parts import *
 from scripts.ilapfuncs import logfunc
-from scripts.version_info import ileapp_version, ileapp_contributors
+from scripts.version_info import leapp_version, ileapp_contributors
 from scripts.report_icons import icon_mappings, feather_icon_names
 
 def get_icon_name(category, artifact):
@@ -142,7 +142,7 @@ def generate_report(reportfolderbase, time_in_secs, time_HMS, extraction_type, i
 
     def copy_no_perm(src, dst, *, follow_symlinks=True):
         if not os.path.isdir(dst):
-            shutil.copyfile(src, dst)
+            shutil.copy2(src, dst)
         return dst
 
     try:
@@ -243,7 +243,7 @@ def create_index_html(reportfolderbase, time_in_secs, time_HMS, extraction_type,
     html_reportfolderbase.mkdir(exist_ok=True)
     with html_reportfolderbase.joinpath(filename).open('w', encoding='utf8') as f:
         f.write(page_header.format(page_title))
-        f.write(body_start.format(f"iLEAPP {ileapp_version}"))
+        f.write(body_start.format(f"iLEAPP {leapp_version}"))
         f.write(body_sidebar_setup + active_nav_list_data + body_sidebar_trailer)
         f.write(body_main_header + body_main_data_title.format(body_heading, body_description))
         f.write(content)

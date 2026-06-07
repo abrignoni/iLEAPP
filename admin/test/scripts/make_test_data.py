@@ -66,8 +66,17 @@ def get_last_commit_info(file_path):
     try:
         # Get the last commit hash
         git_log = subprocess.check_output(['git', 'log', '-n', '1', '--pretty=format:%H|%an|%ae|%ad|%s', '--', file_path],
-                                          universal_newlines=True)
-        commit_hash, author_name, author_email, commit_date, commit_message = git_log.strip().split('|')
+                                          universal_newlines=True).strip()
+        if not git_log:
+            # File is not yet in git history
+            return {
+                'hash': 'Uncommitted',
+                'author_name': 'N/A',
+                'author_email': 'N/A',
+                'date': datetime.now().isoformat(),
+                'message': 'File not yet committed to git'
+            }
+        commit_hash, author_name, author_email, commit_date, commit_message = git_log.split('|')
 
         # Convert the commit date to ISO format
         commit_date = datetime.strptime(commit_date, '%a %b %d %H:%M:%S %Y %z').isoformat()

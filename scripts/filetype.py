@@ -1,10 +1,17 @@
 """
 This is a Python port from filetype Go package.
-Small and dependency free Python package to infer file type and MIME type checking the magic numbers signature of a file or buffer.
+Small and dependency free Python package to infer file type and MIME type checking
+the magic numbers signature of a file or buffer.
 Version: 1.2.0
 Copyright (c) 2016 Tomás Aparicio
 
 -----
+Adapted from https://github.com/h2non/filetype.py to be used as a standalone package
+for LEAPP tools.
+Last code update: May 2, 2025
+Commit hash: 3eae5cedad2dc65076a501a9374abafb1d700602
+-----
+
 The MIT License (MIT)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -36,7 +43,7 @@ from scripts.filetypes import DOCUMENT as document_matchers
 from scripts.filetypes import FONT as font_matchers
 from scripts.filetypes import IMAGE as image_matchers
 from scripts.filetypes import VIDEO as video_matchers
-from scripts.filetypes import TYPES, Type
+from scripts.filetypes import TYPES
 
 
 # utils.py
@@ -115,12 +122,12 @@ def get_bytes(obj):
             return get_bytes(magic_bytes)
         return get_bytes(obj.read(_NUM_SIGNATURE_BYTES))
 
-    raise TypeError('Unsupported type as file input: %s' % type(obj))
+    raise TypeError(f'Unsupported type as file input: {type(obj)}')
 
 
 # match.py
 
-def match(obj, matchers=TYPES):
+def match(obj, matchers):
     """
     Matches the given input against the available
     file type matchers.
@@ -282,7 +289,7 @@ def guess(obj):
     Raises:
         TypeError: if obj is not a supported type.
     """
-    return match(obj) if obj else None
+    return match(obj, TYPES) if obj else None
 
 
 def guess_mime(obj):
@@ -337,4 +344,3 @@ def get_type(mime=None, ext=None):
         if kind.extension == ext or kind.mime == mime:
             return kind
     return None
-

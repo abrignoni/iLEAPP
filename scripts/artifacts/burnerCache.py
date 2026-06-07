@@ -1,6 +1,6 @@
 __artifacts_v2__ = {
     "burnerCache_preferences": {
-        "name": "Preferences",
+        "name": "Burner Cache Preferences",
         "description": "Parses and extract Burner Cache Preferences",
         "author": "@djangofaiola",
         "version": "0.3",
@@ -15,7 +15,7 @@ __artifacts_v2__ = {
         "artifact_icon": "settings"
     },
     "burnerCache_accounts": {
-        "name": "Accounts",
+        "name": "Burner Cache Accounts",
         "description": "Parses and extract Burner Cache Accounts",
         "author": "@djangofaiola",
         "version": "0.3",
@@ -30,7 +30,7 @@ __artifacts_v2__ = {
         "artifact_icon": "user"
     },
     "burnerCache_contacts": {
-        "name": "Contacts",
+        "name": "Burner Cache Contacts",
         "description": "Parses and extract Burner Cache Contacts",
         "author": "@djangofaiola",
         "version": "0.3",
@@ -45,7 +45,7 @@ __artifacts_v2__ = {
         "artifact_icon": "users"
     },
     "burnerCache_numbers": {
-        "name": "Numbers",
+        "name": "Burner Cache Numbers",
         "description": "Parses and extract Burner Cache Numbers",
         "author": "@djangofaiola",
         "version": "0.3",
@@ -60,7 +60,7 @@ __artifacts_v2__ = {
         "artifact_icon": "phone"
     },
     "burnerCache_messages": {
-        "name": "Messages",
+        "name": "Burner Cache Messages",
         "description": "Parses and extract Burner Cache Messages",
         "author": "@djangofaiola",
         "version": "0.3",

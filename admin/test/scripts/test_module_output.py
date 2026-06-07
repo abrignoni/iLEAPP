@@ -163,7 +163,7 @@ def run_module_test(module_name, temp_folder, test_case):
 
     # Monkey-patch ileapp to use our wrapper loader
     original_PluginLoader = ileapp.plugin_loader.PluginLoader
-    ileapp.plugin_loader.PluginLoader = lambda: wrapper_loader
+    ileapp.plugin_loader.PluginLoader = lambda *args, **kwargs: wrapper_loader
 
     # Get os_version from test_case and patch ilapfuncs.iOS.get_version
     image_info = test_case.get("image_info", {})

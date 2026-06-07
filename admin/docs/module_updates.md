@@ -235,40 +235,44 @@ Both functions will copy/link the media to a central data location in the report
 
 Instructions:
 
-The `chatParams` key will contain a dictionary of items to assist LAVA in determining which columns should be used to group messages into threads and which columns should be used to render the elements of the chat message bubble. Whenever a column name is specified it should match the column header as defined in the `data_headers` of the artifact.
+The `data_views` key will contain a `conversation` dictionary of items to assist LAVA in determining which columns should be used to group messages into threads and which columns should be used to render the elements of the chat message bubble. Whenever a column name is specified it should match the column header as defined in the `data_headers` of the artifact.
 
 ```python
 __artifacts_v2__ = {
-    "get_artifactname": {
+    "artifact_function_name": {
         # Other parameters as shown above,
-        "chatParams": {
-            "threadDiscriminatorColumn": Column that determines which thread messages belong to. This must be unique for each thread
-            "threadLabelColumn": Optional column name providing a friendly name for the thread
-            "textColumn": Column name containing the text message
-            "directionColumn": Column name to determine if the message was sent/received
-            "directionSentValue": Any Value that if present in the directionColumn specified above indicates the message was sent (ie: 1, True, "SENT"), any other value treated as received.
-            "timeColumn": Column name containing the DateTime for the message (presumably the sent time),
-            "senderColumn": Column name containing the senders name/identifier,
-            "mediaColumn": Optional column containing an attachment (Further development required on this),
-            "sentMessageLabelColumn": Optional column name containing the local users name/identifier (used for a case where the data only contains the remote users information and the senders information is located in a different column (ie an Account ID),
-            "sentMessageStaticLabel": Optional string that will provide a static sender name/identifier for artifacts where this is unknown (ie "Local User")
+        "data_views": {
+            "conversation": {
+                "conversationDiscriminatorColumn": "Column that determines which thread messages belong to. This must be unique for each thread",
+                "conversationLabelColumn": "Optional column name providing a friendly name for the thread",
+                "textColumn": "Column name containing the text message",
+                "senderColumn": "Column name containing the senders name/identifier",
+                "directionColumn": "Column name to determine if the message was sent/received",
+                "directionSentValue": "Any Value that if present in the directionColumn specified above indicates the message was sent (ie: 1, True, \"SENT\"), any other value treated as received.",
+                "timeColumn": "Column name containing the DateTime for the message (presumably the sent time)",
+                "mediaColumn": "Optional column containing a media reference ID (from check_in_media)",
+                "sentMessageLabelColumn": "Optional column name containing the local users name/identifier (used for a case where the data only contains the remote users information and the senders information is located in a different column (ie an Account ID)",
+                "sentMessageStaticLabel": "Optional string that will provide a static sender name/identifier for artifacts where this is unknown (ie \"Local User\")"
+            }
         }
 ```
 
 Example (From googleChat.py artifact):
 ```python
 __artifacts_v2__ = {
-    "get_googleChat": {  # This should match the function name exactly
+    "google_chat": {  # This should match the function name exactly
         "name": "Google Chat",
         # Other parameters as shown above,
-        "chatParams": {
-            "threadDiscriminatorColumn": "Conversation Name",
-            "textColumn": "Message",
-            "directionColumn": "Is Sent",
-            "directionSentValue": 1,
-            "timeColumn": "Timestamp",
-            "senderColumn": "Message Author",
-            "mediaColumn": "Media"
+        "data_views": {
+            "conversation": {
+                "conversationDiscriminatorColumn": "Conversation Name",
+                "textColumn": "Message",
+                "senderColumn": "Message Author",
+                "directionColumn": "Is Sent",
+                "directionSentValue": 1,
+                "timeColumn": "Timestamp",
+                "mediaColumn": "Media"
+            }
         }
     }
 }
@@ -321,27 +325,27 @@ The new structure allows for:
 You can view the current categories and labels being used across all modules in the [Device Info Values](device_info_values.md) documentation.
 
 ### 10. Get device model from device identifier
-The `get_device_model(identifier)` method of the Context class allows you to retrieve the human-readable device model name for a given device identifier (such as "iPhone10,1" or "iPad7,4") in the internal device ID mapping loaded from [data/device_ids.json](../../scripts/data/device_ids.json). This is useful when processing artifacts that include device identifiers and you want to display or use the corresponding model name.
+The `lookup_metadata('apple_device_id_to_model', identifier)` method of the Context class allows you to retrieve the human-readable device model name for a given device identifier (such as "iPhone10,1" or "iPad7,4") in the internal device ID mapping loaded from [data/apple_device_id_to_model.json](../../scripts/data/apple_device_id_to_model.json). This is useful when processing artifacts that include device identifiers and you want to display or use the corresponding model name.
 
 When you are processing data, call the method with a device identifier
 ```python
-model_name = Context.get_device_model(record[x])
+model_name = context.lookup_metadata('apple_device_id_to_model', record[x])
 ```
 - record[x] contains a string representing the device identifier (e.g., "iPhone10,1").
 
 The function returns the model name as a string (e.g., "iPhone 8"). If the identifier is not found, it returns an empty string.
 
 ### 11. Get OS version from OS build
-The `get_os_version(build, device_family='')` method of the Context class allows you to retrieve the operating system version string for a given build number in the internal OS builds mapping loaded from [data/os_builds.json](../../scripts/data/os_builds.json), and device family loaded from [data/device_ids.json](../../scripts/data/device_ids.json). This is useful when processing artifacts that include OS build information and you need to display or use the corresponding OS version.
+The `get_apple_os_version(build, device_family='')` method of the Context class allows you to retrieve the operating system version string for a given build number in the internal OS builds mapping loaded from [data/apple_build_id_to_os_version.json](../../scripts/data/apple_build_id_to_os_version.json). This is useful when processing artifacts that include OS build information and you need to display or use the corresponding OS version.
 
 When you are processing data, call the method with a build and an optional device identifier
 ```python
-os_version = Context.get_os_version(record[x], record[y])
+os_version = context.get_apple_os_version(record[x], record[y])
 ```
 - record[x] contains a string representing the OS build number to look up (e.g., "22E240").
 - record[y], which is optional, contains a string representing the device identifier (e.g., "iPhone10,1"). It is better to use it if available in order to avoid having multiple versions of different operating system families with the same build number. If it is not provided, the function will search all OS families and return all matching ones.
 
-The function returns the OS version as a string (e.g., "iOS 18.4"). If any matching build number is found, it returns an empty string.
+The function returns the OS version as a string (e.g., "iOS 18.4"). If no matching build number is found, it returns an empty string.
 
 ## Reasoning
 

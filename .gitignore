@@ -108,3 +108,4 @@ instance/
 .python-version
 
 /.obsidian
+/admin/docs/.obsidian

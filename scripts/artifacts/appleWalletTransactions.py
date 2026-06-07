@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         'description': 'Apple Wallet Transactions',
         'author': '@any333',
         'creation_date': '2021-02-05',
-        'last_update_date': '2025-04-05',
+        'last_update_date': '2025-10-09',
         'requirements': 'none',
         'category': 'Apple Wallet',
         'notes': '',
@@ -20,7 +20,8 @@ from scripts.ilapfuncs import artifact_processor, \
 
 
 @artifact_processor
-def appleWalletTransactions(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def appleWalletTransactions(context):
+    files_found = context.get_files_found()
     source_path = get_file_path(files_found, 'passes23.sqlite')
     data_list = []
 

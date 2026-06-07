@@ -28,7 +28,7 @@ import hashlib
 import struct
 
 from pathlib import Path
-from shutil import copyfile
+from shutil import copy2
 from zipfile import ZipFile
 from fnmatch import _compile_pattern
 from functools import lru_cache
@@ -190,7 +190,7 @@ def decrypt_itunes_backup(directory, passcode):
 
         # Figure out the length we need to pull
         tmp_length = int.from_bytes(backup_keybag[
-            tmp_backup_keybag_index:tmp_backup_keybag_index + 4])
+            tmp_backup_keybag_index:tmp_backup_keybag_index + 4], byteorder="big")
         tmp_backup_keybag_index += 4
 
         # Store the actual value itself
@@ -200,15 +200,15 @@ def decrypt_itunes_backup(directory, passcode):
 
         match tmp_string_type:
             case b'CLAS':
-                tmp_protection_class['CLAS'] = int.from_bytes(tmp_value)
+                tmp_protection_class['CLAS'] = int.from_bytes(tmp_value, byteorder="big")
             case b'DPIC':
-                tmp_double_protection_iter = int.from_bytes(tmp_value)
+                tmp_double_protection_iter = int.from_bytes(tmp_value, byteorder="big")
             case b'DPSL':
                 tmp_double_protection_salt = tmp_value
             case b'ITER':
-                tmp_iter = int.from_bytes(tmp_value)
+                tmp_iter = int.from_bytes(tmp_value, byteorder="big")
             case b'KTYP':
-                tmp_protection_class['KTYP'] = int.from_bytes(tmp_value)
+                tmp_protection_class['KTYP'] = int.from_bytes(tmp_value, byteorder="big")
             case b'UUID':
                 if keybag_uuid is None:
                     keybag_uuid = tmp_value
@@ -346,7 +346,7 @@ class FileSeekerDir(FileSeekerBase):
                             pathlist.append(data_path)
                         elif os.path.isfile(item):
                             os.makedirs(os.path.dirname(data_path), exist_ok=True)
-                            copyfile(item, data_path)
+                            copy2(item, data_path)
                             self.copied[item] = data_path
                             creation_date = Path(item).stat().st_ctime
                             modification_date = Path(item).stat().st_mtime
@@ -603,7 +603,7 @@ class FileSeekerItunes(FileSeekerBase):
 
                     # If not encrypted, just copy the thing
                     else:
-                        copyfile(original_location, data_path)
+                        copy2(original_location, data_path)
 
                     file_info = FileInfo(original_location, creation_date, modification_date)
                     self.file_infos[data_path] = file_info
@@ -882,7 +882,7 @@ class FileSeekerFile(FileSeekerBase):
             if self.single_file_abs_path not in self.copied or force:
                 try:
                     os.makedirs(self.data_folder, exist_ok=True)
-                    copyfile(self.single_file_abs_path, dest_data_path)
+                    copy2(self.single_file_abs_path, dest_data_path)
                     self.copied[self.single_file_abs_path] = dest_data_path
                     s = Path(self.single_file_abs_path).stat()
                     file_info_obj = FileInfo(self.single_file_abs_path, s.st_ctime, s.st_mtime)

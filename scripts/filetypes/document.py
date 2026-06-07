@@ -1,10 +1,15 @@
+"""Document file type matchers."""
+
 # -*- coding: utf-8 -*-
 
 from .base import Type
 
 
 class ZippedDocumentBase(Type):
+    """Base class for ZIP-based document file type matchers."""
+
     def match(self, buf):
+        """Match a buffer to determine if it is a ZIP-based document."""
         # start by checking for ZIP local file header signature
         idx = self.search_signature(buf, 0, 6000)
         if idx != 0:
@@ -13,9 +18,11 @@ class ZippedDocumentBase(Type):
         return self.match_document(buf)
 
     def match_document(self, buf):
+        """Match document-specific signatures. Subclasses must implement this."""
         raise NotImplementedError
 
     def compare_bytes(self, buf, subslice, start_offset):
+        """Compare a byte sequence at a specific offset in the buffer."""
         sl = len(subslice)
 
         if start_offset + sl > len(buf):
@@ -23,11 +30,12 @@ class ZippedDocumentBase(Type):
 
         return buf[start_offset:start_offset + sl] == subslice
 
-    def search_signature(self, buf, start, rangeNum):
+    def search_signature(self, buf, start, range_num):
+        """Search for the ZIP local file header signature (PK\x03\x04) within a range."""
         signature = b"PK\x03\x04"
         length = len(buf)
 
-        end = start + rangeNum
+        end = start + range_num
         end = length if end > length else end
 
         if start >= end:
@@ -40,7 +48,10 @@ class ZippedDocumentBase(Type):
 
 
 class OpenDocument(ZippedDocumentBase):
+    """Base class for OpenDocument format file type matchers."""
+
     def match_document(self, buf):
+        """Match OpenDocument format by checking mimetype file."""
         # Check if first file in archive is the identifying file
         if not self.compare_bytes(buf, b"mimetype", 0x1E):
             return
@@ -50,7 +61,10 @@ class OpenDocument(ZippedDocumentBase):
 
 
 class OfficeOpenXml(ZippedDocumentBase):
+    """Base class for Office Open XML (OOXML) format file type matchers."""
+
     def match_document(self, buf):
+        """Match OOXML format by checking for characteristic files and directories."""
         # Check if first file in archive is the identifying file
         ft = self.match_filename(buf, 0x1E)
         if ft:
@@ -68,7 +82,7 @@ class OfficeOpenXml(ZippedDocumentBase):
         # NOTE: OpenOffice/Libreoffice orders ZIP entry differently, so check the 4th file
         # https://github.com/h2non/filetype/blob/d730d98ad5c990883148485b6fd5adbdd378364a/matchers/document.go#L134
         idx = 0
-        for i in range(4):
+        for _ in range(4):
             # Search for next file header
             idx = self.search_signature(buf, idx + 4, 6000)
             if idx == -1:
@@ -80,6 +94,7 @@ class OfficeOpenXml(ZippedDocumentBase):
                 return ft
 
     def match_filename(self, buf, offset):
+        """Match OOXML file type by checking for characteristic directory names."""
         if self.compare_bytes(buf, b"word/", offset):
             return (
                 self.mime
@@ -120,6 +135,11 @@ class Doc(Type):
                     or b"W\0o\0r\0d\0D\0o\0c\0u\0m\0e\0n\0t\0"
                     in buf[0x580:0x598]
                 )
+            ):
+                return True
+            if (
+                len(buf) > 663 and buf[512:531] == b"R\x00o\x00o\x00t\x00 \x00E\x00n\x00t\x00r\x00y"
+                and buf[640:663] == b"W\x00o\x00r\x00d\x00D\x00o\x00c\x00u\x00m\x00e\x00n\x00t"
             ):
                 return True
 
