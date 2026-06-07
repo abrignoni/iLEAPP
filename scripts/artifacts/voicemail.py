@@ -93,7 +93,7 @@ def voicemail(context):
         for record in db_records:
             timestamp = convert_unix_ts_to_utc(record[0])
 
-            deleted_raw = record[-2] 
+            deleted_raw = record[-2]
             if isinstance(deleted_raw, int) and deleted_raw != 0:
                 deleted = convert_cocoa_core_data_ts_to_utc(deleted_raw)
             else:
@@ -114,7 +114,7 @@ def voicemail(context):
             if transcript_file_path:
                 try:
                     transcript = get_plist_file_content(transcript_file_path)
-                except:
+                except (OSError, TypeError, ValueError):
                     transcript = {}
 
             transcription_string = transcript.get('transcriptionString', '')
@@ -139,7 +139,7 @@ def voicemail(context):
             try:
                 pl = get_plist_file_content(transcript_path)
                 transcriptions_map[t_id] = pl
-            except:
+            except (OSError, TypeError, ValueError):
                 continue
 
         for audio_file_path in extracted_audio_files:
@@ -151,7 +151,7 @@ def voicemail(context):
                 if audio_file_path in seeker.file_infos:
                     created = convert_unix_ts_to_utc(seeker.file_infos[audio_file_path].creation_date)
                     modified = convert_unix_ts_to_utc(seeker.file_infos[audio_file_path].modification_date)
-            except:
+            except (KeyError, AttributeError, TypeError, ValueError):
                 pass
 
             media_item = check_in_media(audio_file_path, file_name)

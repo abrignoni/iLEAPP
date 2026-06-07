@@ -1,5 +1,5 @@
 __artifacts_v2__ = {
-    'get_vippsContacts': {
+    'vippsContacts': {
         'name': 'Vipps - Contacts',
         'description': 'Extracts contacts and profile images from Vipps.',
         'author': '@AlexisBrignoni',
@@ -25,7 +25,7 @@ from scripts.ilapfuncs import (
 
 
 @artifact_processor
-def get_vippsContacts(context):
+def vippsContacts(context):
     files_found = context.get_files_found()
     data_list = []
 

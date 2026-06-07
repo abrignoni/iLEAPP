@@ -1,5 +1,5 @@
 __artifacts_v2__ = {
-    "get_voiceRecordings": {
+    "voiceRecordings": {
         "name": "Voice Recordings",
         "description": "Extracts Voice Memo recordings and metadata.",
         "author": "@Anna-Mariya Mateyna",
@@ -28,7 +28,7 @@ from scripts.ilapfuncs import (
 
 
 @artifact_processor
-def get_voiceRecordings(context):
+def voiceRecordings(context):
     files_found = context.get_files_found()
     data_list = []
     plist_files = [str(f) for f in files_found if str(f).endswith('manifest.plist')]
@@ -67,7 +67,7 @@ def get_voiceRecordings(context):
                 plist_path
             ))
 
-        except Exception as e:
+        except (OSError, TypeError, ValueError, KeyError) as e:
             logfunc(f"Error processing {plist_path}: {e}")
 
     data_headers = (

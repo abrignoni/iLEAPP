@@ -1,5 +1,5 @@
 __artifacts_v2__ = {
-    "get_voiceTriggers": {
+    "voiceTriggers": {
         "name": "Voice-Triggers",
         "description": "Extracts Voice Trigger audio recordings and metadata.",
         "author": "@Anna-Mariya Mateyna",
@@ -27,15 +27,13 @@ from scripts.ilapfuncs import (
 
 def format_time(date_time_str):
     try:
-        date_time_obj = datetime.datetime.strptime(date_time_str, '%Y%m%d')
-        formatted = '{}-{}-{}'.format(date_time_obj.year, date_time_obj.month, date_time_obj.day)
-        return formatted
-    except ValueError:
+        return datetime.datetime.strptime(date_time_str, '%Y%m%d').replace(tzinfo=datetime.timezone.utc)
+    except (TypeError, ValueError):
         return date_time_str
 
 
 @artifact_processor
-def get_voiceTriggers(context):
+def voiceTriggers(context):
     files_found = context.get_files_found()
 
     data_list = []
@@ -63,10 +61,16 @@ def get_voiceTriggers(context):
                     info_file
                 ))
 
-        except Exception as e:
+        except (OSError, TypeError, ValueError, KeyError) as e:
             logfunc(f"Error processing {info_file}: {e}")
 
-    data_headers = (('Creation Date','datetime'),'Device','Internal Path Info',('Audio File', 'media'))
+    data_headers = (
+        ('Creation Date', 'datetime'),
+        'Device',
+        'Internal Path Info',
+        ('Audio File', 'media'),
+        'Source File'
+    )
 
     source_path = json_files[0] if json_files else ''
 
