@@ -659,16 +659,21 @@ def get_plist_file_content(file_path):
 
 def get_sqlite_db_path(path):
     if is_platform_windows():
-        if str(path).startswith('\\\\?\\UNC\\'): # UNC long path
-            return "%5C%5C%3F%5C" + path[4:]
-        elif str(path).startswith('\\\\?\\'):    # normal long path
-            return "%5C%5C%3F%5C" + path[4:]
-        elif str(path).startswith('\\\\'):       # UNC path
-            return "%5C%5C%3F%5C\\UNC" + path[1:]
-        else:                               # normal path
-            return "%5C%5C%3F%5C" + path
+        path_str = str(path)
+        if path_str.startswith('\\\\?\\UNC\\'): # UNC long path
+            remainder = path_str[4:]
+        elif path_str.startswith('\\\\?\\'):    # normal long path
+            remainder = path_str[4:]
+        elif path_str.startswith('\\\\'):       # UNC path
+            remainder = '\\UNC' + path_str[1:]
+        else:                                   # normal path
+            remainder = path_str
+        # Encode special URI characters (e.g. '#', space) so SQLite doesn't
+        # treat them as fragment delimiters or query separators. Keep ':'
+        # and '/' safe so the drive letter and forward slashes are preserved.
+        return "%5C%5C%3F%5C" + quote(remainder, safe=':/')
     else:
-        return path
+        return quote(str(path), safe='/')
 
 def open_sqlite_db_readonly(path):
     '''Opens a sqlite db in read-only mode, so original db (and -wal/journal are intact)'''
