@@ -1,9 +1,12 @@
+"""
+Contributors List
+Format = [ Name, Blog-url, Twitter-handle, Github-url]
+Leave blank if not available
+"""
 
-ileapp_version = '2.3.0'
+leapp_name = 'iLEAPP'
+leapp_version = '2.6.0-dev.0'
 
-# Contributors List
-# Format = [ Name, Blog-url, Twitter-handle, Github-url]
-# Leave blank if not available
 ileapp_contributors = [
     ['Alexis Brignoni', 'https://abrignoni.com', '@AlexisBrignoni', 'https://github.com/abrignoni'],
     ['Yogesh Khatri', 'https://swiftforensics.com', '@SwiftForensics', 'https://github.com/ydkhatri'],
@@ -14,12 +17,14 @@ ileapp_contributors = [
     ['Mattia Epifani', 'https://blog.digital-forensics.it', '@mattiaep', ''],
     ['Mike Williamson', 'https://forensicmike1.com', '@forensicmike1', 'https://github.com/forensicmike'],
     ['Geraldine Blay', 'https://gforce4n6.blogspot.com', '@i_am_the_gia', ''],
-    ['Johann Polewczyk', 'https://www.linkedin.com/in/johann-polewczyk-6a905425/', '@johannplw', 'https://github.com/Johann-PLW'],
+    ['Johann Polewczyk', 'https://www.linkedin.com/in/johann-polewczyk-6a905425/',
+     '@johannplw', 'https://github.com/Johann-PLW'],
     ['Christopher Vance', 'https://blog.d204n6.com/', '@cScottVance', 'https://github.com/cScottVance'],
     ['Brooke Gottlieb', '', '@xbrookego', ''],
     ['Jack Farley', 'http://farleyforensics.com', '@JackFarley248', ''],
     ['Shafik Punja', '', '@qubytelogic', ''],
-    ['Cheeky4N6Monkey', 'https://cheeky4n6monkey.blogspot.com', '@Cheeky4n6Monkey', 'https://github.com/cheeky4n6monkey'],
+    ['Cheeky4N6Monkey', 'https://cheeky4n6monkey.blogspot.com',
+     '@Cheeky4n6Monkey', 'https://github.com/cheeky4n6monkey'],
     ['Edward Greybeard', '', '', 'https://github.com/edward-greybeard'],
     ['Douglas Kein', '', '@DouglasKein', ''],
     ['Claudia Meda', '', '@KlodiaMaida', 'https://github.com/KlodiaMaida'],
@@ -35,19 +40,22 @@ ileapp_contributors = [
     ['Troy Schnack', '', '@TroySchnack', ''],
     ['Bo Amos', '', '@Bo_Knows_65', ''],
     ['Joshua James', 'https://dfir.science', '@dfirscience', 'https://github.com/dfirscience'],
-    ['Evangelos Dragonas', 'https://atropos4n6.com/','@theAtropos4n6','https://github.com/theAtropos4n6'],
-    ['Viktor Oreshkin', 'https://stek29.rocks/','@stek29','https://gist.github.com/stek29'],
-    ['James Habben', 'https://4n6ir.com/','@JamesHabben','https://github.com/JamesHabben'],
+    ['Evangelos Dragonas', 'https://atropos4n6.com/', '@theAtropos4n6', 'https://github.com/theAtropos4n6'],
+    ['Viktor Oreshkin', 'https://stek29.rocks/', '@stek29', 'https://gist.github.com/stek29'],
+    ['James Habben', 'https://4n6ir.com/', '@JamesHabben', 'https://github.com/JamesHabben'],
     ['John Hyla', 'https://bluecrewforensics.com', '@jfhyla', 'https://github.com/snoop168'],
     ['Panos Nakoutis', '', '@4n6equals10', ''],
-    ['Ruud Schramp', '', '', 'https://github.com/Schramp'],
-    ['Matt Beers', 'https://www.linkedin.com/in/mattbeersii','','https://github.com/dabeersboys'],
+    ['Ruud Schramp', 'https://nfi.nl', '@idafanatic', 'https://github.com/Schramp'],
+    ['Matt Beers', 'https://www.linkedin.com/in/mattbeersii', '', 'https://github.com/dabeersboys'],
     ['Django Faiola', 'https://djangofaiola.blogspot.com', '@DjangoFaiola', 'https://github.com/djangofaiola'],
     ['Marco Neumann', 'https://bebinary4n6.blogspot.com/', '@kalinko4n6', 'https://github.com/kalink0'],
     ['Bruno Fischer', 'https://german4n6.blogspot.com/', '', 'https://github.com/BrunoFischerGermany'],
-    ['Christian Peter', 'https://www.linkedin.com/in/christian-peter-49b4ab182/', '@DasZamomin', 'https://github.com/prosch88'],
+    ['Christian Peter', 'https://www.linkedin.com/in/christian-peter-49b4ab182/',
+     '@DasZamomin', 'https://github.com/prosch88'],
     ['James McGee', 'https://sqlmcgee.wordpress.com/', '@SQL_McGee', 'https://github.com/sqlmcgee'],
     ['Metadata Forensics', 'https://metadataperspective.com/', '', 'https://github.com/metadataforensics/'],
-    ['Bruno Constanzo', 'https://www.linkedin.com/in/bruno-constanzo/', '@bruno_constanzo', 'https://github.com/bconstanzo/'],
+    ['Bruno Constanzo', 'https://www.linkedin.com/in/bruno-constanzo/',
+     '@bruno_constanzo', 'https://github.com/bconstanzo/'],
     ['Marnix Kaart', '', '', 'https://github.com/mxkrt'],
+    ['Arun Kalackattu Hari', 'https://dfdive.com/', '', 'https://github.com/ardfr'],
 ]

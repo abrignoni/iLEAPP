@@ -1,0 +1,10 @@
+type,mime,file,notes
+JPEG,image/jpeg,sample_jpg.jpg,Baseline common photo format.
+PNG,image/png,sample_png.png,Baseline image with lossless support.
+WebP,image/webp,sample_webp.webp,Modern browser image format.
+AVIF,image/avif,sample_avif.avif,Modern browser image format.
+JPEG 2000,image/jp2,sample_jp2.jp2,JPEG 2000 sample.
+QOI,image/qoi,sample_qoi.qoi,Quite OK Image sample.
+GIF,image/gif,sample_gif.gif,Animated GIF sample.
+SVG,image/svg+xml,sample_svg.svg,Text/vector image asset sample.
+JPEG XL,image/jxl,sample_jxl.jxl,JPEG XL sample encoded with ffmpeg/libjxl.

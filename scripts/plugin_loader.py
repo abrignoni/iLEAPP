@@ -68,10 +68,13 @@ class PluginLoader:
         KeyError: If duplicate function names are found across different modules.
     """
 
-    def __init__(self, plugin_path: typing.Optional[pathlib.Path] = None):
-        self._plugin_path = plugin_path or PLUGINPATH
+    def __init__(self, plugin_paths: typing.Optional[typing.List[pathlib.Path]] = None):
+        self._plugin_paths = plugin_paths or [PLUGINPATH]
         self._plugins: dict[str, PluginSpec] = {}
-        self._load_plugins()
+        self._artifact_names = {}
+        self._plugin_sources = {}
+        for path in self._plugin_paths:
+            self._load_plugins(path)
 
     @staticmethod
     def load_module_lazy(path: pathlib.Path):
@@ -88,16 +91,19 @@ class PluginLoader:
                 first attribute access.
         """
 
-        spec = importlib.util.spec_from_file_location(path.stem, path)
+        # Use the full module path to avoid name collisions between different plugin directories
+        module_name = f"{path.parent.name}.{path.stem}"
+        spec = importlib.util.spec_from_file_location(module_name, path)
         loader = importlib.util.LazyLoader(spec.loader)
         spec.loader = loader
         mod = importlib.util.module_from_spec(spec)
         loader.exec_module(mod)
         return mod
 
-    def _load_plugins(self):
-        artifact_names = {}
-        for py_file in self._plugin_path.glob("*.py"):
+    def _load_plugins(self, plugin_path: pathlib.Path):
+        for py_file in plugin_path.glob("*.py"):
+            if py_file.name == "__init__.py":
+                continue
             mod = PluginLoader.load_module_lazy(py_file)
             mod_artifacts = getattr(mod, '__artifacts_v2__', None) or getattr(mod, '__artifacts__', None)
             if mod_artifacts is None:
@@ -140,12 +146,25 @@ class PluginLoader:
                     category, search, func = artifact
                     artifact_info = {'category': category, 'paths': search}
 
+                # Check for duplicate plugin keys within the same artifact folder and error
+                # Identify duplicate plugin in alternate plugin folder and override standard
                 if name in self._plugins:
-                    raise KeyError(f"Duplicate plugin: '{name}' in module '{py_file.stem}'")
-                if artifact_name in artifact_names:
-                    raise KeyError(f"Duplicate artifact name in {py_file.name}: "
-                                   f"'{artifact_name}' was also found in module '{artifact_names[artifact_name]}'")
-                artifact_names[artifact_name] = py_file.name
+                    prev_path = self._plugin_sources[name]
+                    if prev_path == plugin_path:
+                        raise KeyError(f"Duplicate plugin key: '{name}' in module '{py_file.stem}'")
+                    else:
+                        print(f"Info: Overriding artifact key '{name}' from {prev_path.name} "
+                              f"with version from {plugin_path.name}/{py_file.name}")
+
+                # Check for duplicate artifact names within the same artifact folder
+                if artifact_name in self._artifact_names:
+                    prev_file, prev_path = self._artifact_names[artifact_name]
+                    if prev_path == plugin_path:
+                        raise KeyError(f"Duplicate artifact name in {py_file.name}: "
+                                       f"'{artifact_name}' was also found in module '{prev_file}'")
+
+                self._artifact_names[artifact_name] = (py_file.name, plugin_path)
+                self._plugin_sources[name] = plugin_path
 
                 # Add artifact_info to PluginSpec
                 self._plugins[name] = PluginSpec(name, py_file.stem, category, search, func, artifact_info)

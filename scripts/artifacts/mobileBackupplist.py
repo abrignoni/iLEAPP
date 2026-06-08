@@ -5,11 +5,27 @@
 #   Parses basic data from */mobile/Library/Preferences/com.apple.MobileBackup.plist which contains some important data
 #   related to a device Backup, device restore from iCloud Backup, and or Quick Start Data Transfer.
 
+__artifacts_v2__ = {
+    'Mobile_Backup_plist': {
+        'name': 'Mobile Backup Plist Settings com-apple-MobileBackup-plist',
+        'description': 'Parses basic data from */mobile/Library/Preferences/com.apple.MobileBackup.plist which'
+                       ' contains some important data related to a device Backup, device restore from iCloud Backup,'
+                       ' and or Quick Start Data Transfer.',
+        'author': 'Other Unknown contributors and Scott Koenig',
+        'version': '2.0',
+        'date': '2024-06-11',
+        'requirements': 'Acquisition that contains com.apple.MobileBackup.plist',
+        'category': 'Mobile Backup Plist',
+        'notes': '',
+        'paths': '*/Library/Preferences/com.apple.MobileBackup.plist',
+        'function': 'get_mobilebackupplist'
+    }
+}
+
 import os
 import plistlib
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, logdevinfo, tsv, is_platform_windows 
-
 
 def get_mobilebackupplist(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
@@ -88,21 +104,3 @@ def get_mobilebackupplist(files_found, report_folder, seeker, wrap_text, timezon
     
     tsvname = 'Mobile_Backup_plist'
     tsv(report_folder, data_headers, data_list, tsvname)
-
-
-__artifacts_v2__ = {
-    'Mobile_Backup_plist': {
-        'name': 'Mobile Backup Plist Settings com-apple-MobileBackup-plist',
-        'description': 'Parses basic data from */mobile/Library/Preferences/com.apple.MobileBackup.plist which'
-                       ' contains some important data related to a device Backup, device restore from iCloud Backup,'
-                       ' and or Quick Start Data Transfer.',
-        'author': 'Other Unknown contributors and Scott Koenig',
-        'version': '2.0',
-        'date': '2024-06-11',
-        'requirements': 'Acquisition that contains com.apple.MobileBackup.plist',
-        'category': 'Mobile Backup Plist',
-        'notes': '',
-        'paths': '*/Library/Preferences/com.apple.MobileBackup.plist',
-        'function': 'get_mobilebackupplist'
-    }
-}

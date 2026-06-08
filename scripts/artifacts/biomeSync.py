@@ -64,7 +64,7 @@ def biome_sync(context):
 
     for record in db_records:
         timestamp = convert_unix_ts_to_utc(record[0])
-        os_version = context.get_os_version(record[4], record[3])
+        os_version = context.get_apple_os_version(record[4], record[3])
 
         data_list.append((timestamp, record[1], record[2], record[3],
                           record[4], os_version, record[5]))
