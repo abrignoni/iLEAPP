@@ -18,8 +18,6 @@ __artifacts_v2__ = {
 }
 
 import os
-import json
-import plistlib
 from scripts.ilapfuncs import artifact_processor
 
 @artifact_processor
