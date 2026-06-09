@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         'artifact_icon': 'map-pin'
     }
 }
-
+from datetime import datetime, timezone
 from scripts.ilapfuncs import (artifact_processor, get_file_path, get_sqlite_db_records, logfunc)
 
 @artifact_processor
@@ -26,7 +26,7 @@ def CacheSQLite_Locations(context):
 
     query = '''
     SELECT
-        datetime(ZTIMESTAMP + 978307200, 'unixepoch') AS Timestamp,
+        ZTIMESTAMP AS Timestamp,
         ZLATITUDE,
         ZLONGITUDE,
         ZHORIZONTALACCURACY,
@@ -42,8 +42,10 @@ def CacheSQLite_Locations(context):
         db_records = get_sqlite_db_records(source_path, query)
 
         for record in db_records:
+            unix_timestamp = record[0] + 978307200
+            timestampr = datetime.fromtimestamp(unix_timestamp, tz=timezone.utc)
 
-            data_list.append((record[0], record[1], record[2], record[3], record[4], record[5]))
+            data_list.append((timestampr, record[1], record[2], record[3], record[4], record[5]))
 
     except Exception as e:
         logfunc(f'Error processing Cache.sqlite locations: {e}')
