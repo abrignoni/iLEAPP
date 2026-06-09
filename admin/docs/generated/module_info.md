@@ -11,11 +11,11 @@ Total number of modules: 293
 Total number of artifacts: 506  
 Number of v1 artifacts: 65  
 Number of v2 artifacts: 441  
-Number of artifacts with 'lava output': 423  
-Number of artifacts using 'artifact_icon': 300  
-Number of artifacts using 'version': 177  
-Number of artifacts using 'last_update_date': 274  
-Number of artifacts using context parameter: 233  
+Number of artifacts with 'lava output': 424  
+Number of artifacts using 'artifact_icon': 301  
+Number of artifacts using 'version': 176  
+Number of artifacts using 'last_update_date': 275  
+Number of artifacts using context parameter: 234  
 Number of artifacts with errors or no recognized artifacts: 3  
 
 ## V2 Artifacts Table
@@ -433,7 +433,7 @@ Number of artifacts with errors or no recognized artifacts: 3
 | [twint.py](/scripts/artifacts/twint.py) | twintTransactions | Twint - Transactions | Finance | standard | No | dollar-sign | 0.1 |  | Extract data related to transactions made with the instant payment app Twint prepaid | ``*/var/mobile/Containers/Data/Application/*/Library/Application Support/Twint.sqlite*`` |
 | [uberClient.py](/scripts/artifacts/uberClient.py) | uberClient | Uber | Uber |  | No |  | 0.1.0 |  | account, payment profiles, nearby vehicles, user address location, searched rides, cached locations, sqlite locations data, locations | ``*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist`` |
 | [uberLeveldb.py](/scripts/artifacts/uberLeveldb.py) | uberLocations | Uber Locations | Uber |  | No |  | 1 |  | Uber locations inside LevelDB | ``*/Data/Application/*/Library/Application Support/com.ubercab.UberClient/storagev2/*`` |
-| [uberPlaces.py](/scripts/artifacts/uberPlaces.py) | uberPlaces | Uber - Places | Uber |  | No |  | 0.0.1 |  | Parses Uber Places Database | ``*/mobile/Containers/Data/Application/*/Documents/database.db*`` |
+| [uberPlaces.py](/scripts/artifacts/uberPlaces.py) | uber_places | Uber - Places | Uber | all | Yes | map-pin |  | 2026-06-08 | Parses Uber Places Database | ``*/Documents/database.db*`` |
 | [userDefaults.py](/scripts/artifacts/userDefaults.py) | user_defaults | Application User Defaults | Installed Apps | standard | No |  | 0.1 |  | Extracts the user defaults Plist file for each application | ``*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist``, ``*/mobile/Containers/Data/Application/*/Preferences/*.plist`` |
 | [viber.py](/scripts/artifacts/viber.py) | viber_settings | Viber - Settings | Viber | html, tsv, lava | Yes | settings |  | 2025-10-10 | Parses settings db, extracts and reports on user's available information regarding Viber settings. | ``*/com.viber/settings/Settings.data`` |
 | [viber.py](/scripts/artifacts/viber.py) | viber_contacts | Viber - Contacts | Viber | html, tsv, lava | Yes | users |  | 2025-10-11 | Parses contacts db, extracts and reports on user's contacts. Be advised that a contact may not participate in a chat (therefore a contact is not a cha | ``**/com.viber/database/Contacts.data*`` |
