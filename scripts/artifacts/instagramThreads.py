@@ -1,6 +1,16 @@
 __artifacts_v2__ = {
     "get_instagramThreads": {
         "name": "Instagram Threads",
+        "data_views": {
+            "conversation": {
+                "conversationDiscriminatorColumn": "Thread ID",
+                "textColumn": "Message",
+                "senderColumn": "Username",
+                "directionColumn": "Viewer ID equals Sender PK",
+                "directionSentValue": 1,
+                "timeColumn": "Timestamp (UTC)"
+            }
+        },
         "description": "Existing messages sent and received in the Instagram App.",
         "author": "@AlexisBrignoni",
         "version": "0.7",
@@ -33,7 +43,7 @@ __artifacts_v2__ = {
     },
 }
 
-from scripts.ilapfuncs import (artifact_processor, get_plist_content,
+from scripts.ilapfuncs import (artifact_processor, convert_plist_date_to_utc, get_plist_content,
                                get_sqlite_db_records, logfunc)
 
 
@@ -93,9 +103,7 @@ def get_instagramThreads(context):
         MESSAGES.MESSAGE_ID,
         MESSAGES.THREAD_ID,
         MESSAGES.ARCHIVE,
-        THREADS.METADATA,
-        THREADS.THREAD_MESSAGES_RANGE,
-        THREADS.VISUAL_MESSAGE_INFO
+        THREADS.VIEWER_ID
         FROM MESSAGES, THREADS
         WHERE MESSAGES.THREAD_ID = THREADS.THREAD_ID
     """
@@ -106,6 +114,7 @@ def get_instagramThreads(context):
 
         sender_pk = ""
         server_timestamp = ""
+        thread_id = ""
         message = ""
         video_chat_title = ""
         video_chat_call_id = ""
@@ -115,10 +124,19 @@ def get_instagramThreads(context):
         shared_media_id = ""
         shared_media_url = ""
         shared_media_url_expiration_date = ""
+        was_sent = None
 
         # Messages
         sender_pk = plist["IGDirectPublishedMessageMetadata*metadata"]["NSString*senderPk"]
+        # Calculating directionColumn for LAVA Coversations View
+        if int(sender_pk) == int(row[3]):
+            was_sent = 1
+        else:
+            was_sent = 0
+
+        thread_id = plist["IGDirectPublishedMessageMetadata*metadata"]["NSString*threadId"]
         server_timestamp = plist["IGDirectPublishedMessageMetadata*metadata"]["NSDate*serverTimestamp"]
+        server_timestamp = convert_plist_date_to_utc(server_timestamp)
         message = plist["IGDirectPublishedMessageContent*content"].get("NSString*string")
 
         # VOIP calls
@@ -131,6 +149,7 @@ def get_instagramThreads(context):
         if reactions:
             dm_reaction = reactions[0].get("emojiUnicode")
             reaction_server_timestamp = reactions[0].get("serverTimestamp")
+            reaction_server_timestamp = convert_plist_date_to_utc(reaction_server_timestamp)
             reaction_user_id = reactions[0].get("userId")
 
         # Shared media
@@ -149,6 +168,7 @@ def get_instagramThreads(context):
 
             try:
                 shared_media_url_expiration_date = plist["IGDirectPublishedMessageContent*content"]["IGDirectPublishedMessageMedia*media"]["IGDirectPublishedMessagePermanentMedia*permanentMedia"]["IGPhoto*photo"]["imageVersions"][0]["expiration_date"]
+                shared_media_url_expiration_date = convert_plist_date_to_utc(shared_media_url_expiration_date)
             except (KeyError, ValueError, TypeError, OSError, OverflowError) as e:
                 logfunc(f"Error: {str(e)}")
                 shared_media_url_expiration_date = None
@@ -164,6 +184,7 @@ def get_instagramThreads(context):
                 sender_pk,
                 user,
                 message,
+                thread_id,
                 video_chat_title,
                 video_chat_call_id,
                 dm_reaction,
@@ -172,6 +193,7 @@ def get_instagramThreads(context):
                 shared_media_id,
                 shared_media_url,
                 shared_media_url_expiration_date,
+                was_sent,
             )
         )
 
@@ -180,6 +202,7 @@ def get_instagramThreads(context):
         "Sender ID",
         "Username",
         "Message",
+        "Thread ID",
         "Video Chat Title",
         "Video Chat ID",
         "DM Reaction",
@@ -187,7 +210,8 @@ def get_instagramThreads(context):
         "Reaction User ID",
         "Shared Media ID",
         "Shared Media URL",
-        "Shared Media URL Expiration Date",
+        ("Shared Media URL Expiration Date", "datetime"),
+        "Viewer ID equals Sender PK",
     )
 
     return data_headers, data_list, files_found[0]
@@ -248,9 +272,7 @@ def get_instagram_calls(context):
     MESSAGES.MESSAGE_ID,
     MESSAGES.THREAD_ID,
     MESSAGES.ARCHIVE,
-    THREADS.METADATA,
-    THREADS.THREAD_MESSAGES_RANGE,
-    THREADS.VISUAL_MESSAGE_INFO
+    THREADS.VIEWER_ID
     FROM MESSAGES, THREADS
     WHERE MESSAGES.THREAD_ID = THREADS.THREAD_ID
 """
@@ -266,6 +288,7 @@ def get_instagram_calls(context):
         # Messages
         sender_pk = plist["IGDirectPublishedMessageMetadata*metadata"]["NSString*senderPk"]
         server_timestamp = plist["IGDirectPublishedMessageMetadata*metadata"]["NSDate*serverTimestamp"]
+        server_timestamp = convert_plist_date_to_utc(server_timestamp)
 
         # VOIP calls
         if plist["IGDirectPublishedMessageContent*content"].get("IGDirectThreadActivityAnnouncement*threadActivity") is not None:
