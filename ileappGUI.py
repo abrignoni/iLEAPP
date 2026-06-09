@@ -8,6 +8,7 @@ import webbrowser
 import base64
 
 import scripts.plugin_loader as plugin_loader
+import leapps.functions.history as history
 
 from PIL import Image, ImageTk
 from tkinter import ttk, filedialog as tk_filedialog, messagebox as tk_msgbox
@@ -18,6 +19,33 @@ from scripts.tz_offset import tzvalues
 from scripts.modules_to_exclude import modules_to_exclude
 from scripts.lavafuncs import *
 from scripts.context import Context
+from scripts.lavafuncs import lava_json_name
+
+
+def show_history_menu(button, path_type):
+    """
+    Displays a popup menu with recently used paths.
+    """
+    menu = tk.Menu(main_window, tearoff=0)
+
+    if not history.is_history_enabled():
+        menu.add_command(label="(History Disabled - Enable in Settings)", state="disabled")
+    else:
+        paths = history.get_input_paths() if path_type == 'input' else history.get_output_paths()
+        if not paths:
+            menu.add_command(label="(No recent paths)", state="disabled")
+        for path in paths:
+            def set_path(p=path):
+                if path_type == 'input':
+                    input_entry.delete(0, tk.END)
+                    input_entry.insert(0, p)
+                else:
+                    output_entry.delete(0, tk.END)
+                    output_entry.insert(0, p)
+            menu.add_command(label=path, command=set_path)
+    x = input_entry.winfo_rootx()
+    y = button.winfo_rooty() + button.winfo_height()
+    menu.post(x, y)
 
 
 def pickModules():
@@ -211,6 +239,50 @@ def open_website(url):
     webbrowser.open_new_tab(url)
 
 
+def open_settings_window():
+    '''Open Settings modal window'''
+    settings_window = tk.Toplevel(main_window)
+    settings_window_width = 400
+    settings_window_height = 200
+
+    #### Places Case Data window in the center of the main window
+    main_window.update_idletasks()
+    main_x = main_window.winfo_x()
+    main_y = main_window.winfo_y()
+    main_w = main_window.winfo_width()
+    main_h = main_window.winfo_height()
+
+    margin_width = main_x + (main_w - settings_window_width) // 2
+    margin_height = main_y + (main_h - settings_window_height) // 2
+
+    settings_window.geometry(f'{settings_window_width}x{settings_window_height}+{margin_width}+{margin_height}')
+    settings_window.resizable(False, False)
+    settings_window.configure(bg=theme_bgcolor)
+    settings_window.title('Settings')
+    settings_window.grid_columnconfigure(0, weight=1)
+
+    settings_title_label = ttk.Label(settings_window, text='Settings', font='Helvetica 18')
+    settings_title_label.grid(row=0, column=0, padx=14, pady=7, sticky='w')
+
+    history_enabled_var = tk.BooleanVar(value=history.is_history_enabled())
+
+    def toggle_history():
+        history.set_history_enabled(history_enabled_var.get())
+
+    history_check = ttk.Checkbutton(
+        settings_window, 
+        text='Enable saving paths as recent history', 
+        variable=history_enabled_var,
+        command=toggle_history
+    )
+    history_check.grid(row=1, column=0, padx=14, pady=20, sticky='w')
+
+    close_btn = ttk.Button(settings_window, text='Close', command=settings_window.destroy)
+    close_btn.grid(row=2, column=0, padx=14, pady=20, sticky='e')
+
+    settings_window.grab_set()
+
+
 def resource_path(filename):
     try:
         base_path = sys._MEIPASS
@@ -257,6 +329,10 @@ def process(casedata):
 
         initialize_lava(input_path, out_params.output_folder_base, extracttype)
 
+        # Record history if enabled
+        history.record_input_path(input_path)
+        history.record_output_path(output_folder)
+
         crunch_successful = ileapp.crunch_artifacts(
             selected_modules, extracttype, input_path, out_params, wrap_text,
             loader, casedata, time_offset, profile_filename, None, decryption_keys)
@@ -264,7 +340,11 @@ def process(casedata):
         lava_finalize_output(out_params.output_folder_base)
 
         if crunch_successful:
+            # Record the run in history
             report_path = os.path.join(out_params.output_folder_base, 'index.html')
+            lava_project_path = os.path.join(out_params.output_folder_base, lava_json_name)
+            history.record_recent_run('ileapp', leapp_version, lava_project_path)
+
             if report_path.startswith('\\\\?\\'):  # windows
                 report_path = report_path[4:]
             if report_path.startswith('\\\\'):  # UNC path
@@ -306,6 +386,8 @@ def select_input(button_type):
         input_filename = tk_filedialog.askdirectory(parent=main_window, title='Select a folder')
     input_entry.delete(0, 'end')
     input_entry.insert(0, input_filename)
+    if input_filename:
+        history.record_input_path(input_filename)
 
 
 def select_output():
@@ -313,6 +395,8 @@ def select_output():
     output_filename = tk_filedialog.askdirectory(parent=main_window, title='Select a folder')
     output_entry.delete(0, 'end')
     output_entry.insert(0, output_filename)
+    if output_filename:
+        history.record_output_path(output_filename)
 
 
 def case_data():
@@ -537,6 +621,11 @@ title_frame.pack(padx=14, pady=8, fill='x')
 ileapp_logo = ImageTk.PhotoImage(file=resource_path("iLEAPP_logo.png"))
 ileapp_logo_label = ttk.Label(title_frame, image=ileapp_logo)
 ileapp_logo_label.pack(side='left')
+
+settings_label = ttk.Label(title_frame, text="\u2699", font=("Helvetica", 32), cursor="hand2")
+settings_label.pack(side='right', padx=(10, 0))
+settings_label.bind("<Button-1>", lambda e: open_settings_window())
+
 leapps_logo = ImageTk.PhotoImage(Image.open(resource_path("leapps_i_logo.png")).resize((110, 51)))
 leapps_logo_label = ttk.Label(title_frame, image=leapps_logo, cursor="target")
 leapps_logo_label.pack(side='right')
@@ -549,6 +638,9 @@ input_frame = ttk.LabelFrame(
 input_frame.pack(padx=14, pady=2, fill='x')
 input_entry = ttk.Entry(input_frame)
 input_entry.pack(side='left', padx=5, pady=4, fill='x', expand=True)
+input_history_button = ttk.Button(input_frame, text='▼', width=3,
+                                command=lambda: show_history_menu(input_history_button, 'input'))
+input_history_button.pack(side='left', padx=2, pady=4)
 input_file_button = ttk.Button(input_frame, text='Browse File', command=lambda: select_input('file'))
 input_file_button.pack(side='left', padx=5, pady=4)
 input_folder_button = ttk.Button(input_frame, text='Browse Folder', command=lambda: select_input('folder'))
@@ -558,6 +650,9 @@ output_frame = ttk.LabelFrame(main_window, text=' Select Output Folder: ')
 output_frame.pack(padx=14, pady=5, fill='x')
 output_entry = ttk.Entry(output_frame)
 output_entry.pack(side='left', padx=5, pady=4, fill='x', expand=True)
+output_history_button = ttk.Button(output_frame, text='▼', width=3,
+                                 command=lambda: show_history_menu(output_history_button, 'output'))
+output_history_button.pack(side='left', padx=2, pady=4)
 output_folder_button = ttk.Button(output_frame, text='Browse Folder', command=select_output)
 output_folder_button.pack(side='left', padx=5, pady=4)
 
