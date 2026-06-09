@@ -414,24 +414,47 @@ def case_data():
 
     ### Case Data Window creation
     case_window = tk.Toplevel(main_window)
+    case_window.transient(main_window)
     case_window_width = 560
     if is_platform_linux():
         case_window_height = 325
+    elif is_platform_macos():
+        case_window_height = 317
     else:
         case_window_height = 305
 
-    #### Places Case Data window in the center of the screen
-    screen_width = main_window.winfo_screenwidth()
-    screen_height = main_window.winfo_screenheight()
-    margin_width = (screen_width - case_window_width) // 2
-    margin_height = (screen_height - case_window_height) // 2
+    #### Places Case Data window in the center of the main window
+    main_window.update_idletasks()
+    main_x = main_window.winfo_x()
+    main_y = main_window.winfo_y()
+    main_w = main_window.winfo_width()
+    main_h = main_window.winfo_height()
+
+    margin_width = main_x + (main_w - case_window_width) // 2
+    margin_height = main_y + (main_h - case_window_height) // 2
 
     #### Case Data window properties
-    case_window.geometry(f'{case_window_width}x{case_window_height}+{margin_width}+{margin_height}')
+    case_window.geometry(
+        f'{case_window_width}x{case_window_height}'
+        f'{geometry_offset(margin_width)}{geometry_offset(margin_height)}')
     case_window.resizable(False, False)
     case_window.configure(bg=theme_bgcolor)
     case_window.title('Add Case Data')
     case_window.grid_columnconfigure(0, weight=1)
+
+    def on_main_focus(event):
+        if case_window.winfo_exists():
+            case_window.bell()
+            case_window.lift()
+            case_window.focus_force()
+
+    main_window.bind("<FocusIn>", on_main_focus)
+
+    def close_case_window():
+        main_window.unbind("<FocusIn>")
+        case_window.destroy()
+
+    case_window.protocol("WM_DELETE_WINDOW", close_case_window)
 
     #### Layout
     case_title_label = ttk.Label(case_window, text='Add Case Data', font=('Helvetica 18'))
@@ -470,10 +493,13 @@ def case_data():
     ttk.Separator(modules_btn_frame, orient='vertical').grid(row=0, column=2, padx=20, sticky='ns')
     clear_case_button = ttk.Button(modules_btn_frame, text='Clear', command=clear)
     clear_case_button.grid(row=0, column=3, padx=5)
-    close_case_button = ttk.Button(modules_btn_frame, text='Close', command=case_window.destroy)
+    close_case_button = ttk.Button(modules_btn_frame, text='Close', command=close_case_window)
     close_case_button.grid(row=0, column=4, padx=5)
 
-    case_window.grab_set()
+    if is_platform_macos():
+        case_window.grab_set_global()
+    else:
+        case_window.grab_set()
 
 
 ## Main window creation
@@ -644,8 +670,32 @@ def OnFocusIn(event):
     if type(event.widget).__name__ == 'Tk':
         event.widget.attributes('-topmost', False)
 
+def geometry_offset(value):
+    return f'+{value}' if value >= 0 else str(value)
+
+def center_main_window_macos(window, width, height):
+    window.update_idletasks()
+    mouse_x, mouse_y = window.winfo_pointerxy()
+    # Moving the window lets Tk report the screen containing the pointer on
+    # macOS, where its screen dimensions are monitor-specific.
+    window.geometry(f'{geometry_offset(mouse_x)}{geometry_offset(mouse_y)}')
+    window.update_idletasks()
+    screen_width = window.winfo_screenwidth()
+    screen_height = window.winfo_screenheight()
+    left = (mouse_x // screen_width) * screen_width
+    top = (mouse_y // screen_height) * screen_height
+    right = left + screen_width
+    bottom = top + screen_height
+
+    start_x = left + max(0, (right - left - width) // 2)
+    start_y = top + max(0, (bottom - top - height) // 2)
+    window.geometry(
+        f'{width}x{height}{geometry_offset(start_x)}{geometry_offset(start_y)}')
+
 main_window.attributes('-topmost', True)
 main_window.focus_force()
 main_window.bind('<FocusIn>', OnFocusIn)
 
+if is_platform_macos():
+    center_main_window_macos(main_window, 890, 690)
 main_window.mainloop()
