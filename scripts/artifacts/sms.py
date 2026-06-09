@@ -28,13 +28,12 @@ __artifacts_v2__ = {
     }
 }
 
-import os
 import pandas as pd
 
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.chat_rendering import render_chat, chat_HTML
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, \
-    convert_cocoa_core_data_ts_to_utc, check_in_media, logfunc, lava_get_full_media_info
+    convert_cocoa_core_data_ts_to_utc, check_in_media, lava_get_full_media_info
 
 import typedstream
 
@@ -50,7 +49,7 @@ def parse_typedstream(buffer):
     """
     try:
         root = typedstream.unarchive_from_data(buffer)
-    except Exception:
+    except (ValueError, TypeError, OSError):
         return None
 
     # Handle GenericArchivedObject with contents list (NSMutableAttributedString)
@@ -165,7 +164,7 @@ def sms(context):
                                    'data-name', 'Attachment Name', 'Attachment File', 'Attachment Timestamp',
                                    'content-type', 'Attachment Size (Bytes)', 'message-id', 'Chat ID', 'from_me'])
 
-    sms_df["file-path"] = sms_df.apply(lambda rec: copy_attachments(rec), axis=1)
+    sms_df["file-path"] = sms_df.apply(copy_attachments, axis=1)
 
     report = ArtifactHtmlReport('SMS & iMessage - Messages (Threaded)')
     report.start_artifact_report(context.get_report_folder(), 'SMS & iMessage - Messages (Threaded)')
