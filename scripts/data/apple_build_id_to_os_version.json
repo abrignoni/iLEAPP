@@ -934,7 +934,8 @@
     "23F75": "iOS 26.5 RC",
     "23F77": "iOS 26.5",
     "23F81": "iOS 26.5.1",
-    "23G5028e": "iOS 26.6 beta 1"
+    "23G5028e": "iOS 26.6 beta 1",
+    "24A5355q": "iOS 27.0 beta 1"
   },
   "macOS": {
     "4K78": "Mac OS X 10.0",
@@ -2413,7 +2414,8 @@
     "25F5068a": "macOS 26.5 beta 4",
     "25F71": "macOS 26.5",
     "25F80": "macOS 26.5.1",
-    "25G5028f": "macOS 26.6 beta 1"
+    "25G5028f": "macOS 26.6 beta 1",
+    "26A5353q": "macOS 27.0 beta 1"
   },
   "visionOS": {
     "21N5165g": "visionOS 1.0 beta 1",
@@ -2535,7 +2537,8 @@
     "23O5458e": "visionOS 26.5 beta 3",
     "23O5468a": "visionOS 26.5 beta 4",
     "23O471": "visionOS 26.5",
-    "23O5728e": "visionOS 26.6 beta 1"
+    "23O5728e": "visionOS 26.6 beta 1",
+    "24M5291p": "visionOS 27.0 beta 1"
   },
   "watchOS": {
     "12S507": "watchOS 1.0",
@@ -3020,7 +3023,8 @@
     "23T5558e": "watchOS 26.5 beta 3",
     "23T5568a": "watchOS 26.5 beta 4",
     "23T570": "watchOS 26.5",
-    "23U5025e": "watchOS 26.6 beta 1"
+    "23U5025e": "watchOS 26.6 beta 1",
+    "24R5289n": "watchOS 27.0 beta 1"
   },
   "tvOS": {
     "8M89": "Apple TV Software 4.0",
@@ -3528,7 +3532,8 @@
     "23L5460d": "tvOS 26.5 beta 3",
     "23L5469a": "tvOS 26.5 beta 4",
     "23L471": "tvOS 26.5",
-    "23L5729e": "tvOS 26.6 beta 1"
+    "23L5729e": "tvOS 26.6 beta 1",
+    "24J5289o": "tvOS 27.0 beta 1"
   },
   "Windows": {
     "6002": "Windows Vista",
