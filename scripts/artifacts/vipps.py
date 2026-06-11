@@ -1,5 +1,5 @@
 __artifacts_v2__ = {
-    'get_vipps': {
+    'vipps': {
         'name': 'Vipps - Messages',
         'description': 'Extracts messages and transaction details from Vipps.',
         'author': '@AlexisBrignoni',
@@ -22,16 +22,64 @@ from scripts.ilapfuncs import (
     get_sqlite_db_records,
     does_column_exist_in_db,
     convert_unix_ts_to_utc,
-    get_plist_content,
-    logfunc
+    get_plist_content
 )
 
 
+def _get_contact_name(source_path, telephone, phone_columns):
+    if not telephone:
+        return ''
+
+    escaped_telephone = telephone.replace("'", "''")
+    for phone_column in phone_columns:
+        query = f'''
+        SELECT ZNAME
+        FROM ZCONTACTMODEL
+        WHERE {phone_column} LIKE '%{escaped_telephone}%'
+        '''
+        contact_rows = get_sqlite_db_records(source_path, query)
+        if contact_rows:
+            return contact_rows[0][0]
+    return ''
+
+
+def _convert_message_timestamp(timestamp_value):
+    if timestamp_value in (None, ''):
+        return ''
+
+    try:
+        return convert_unix_ts_to_utc(float(timestamp_value) / 1000)
+    except (TypeError, ValueError, OverflowError, OSError):
+        return timestamp_value
+
+
+def _parse_chat_item(json_items, telephone, name, relative_source_path):
+    if json_items.get('model') != 'CHAT':
+        return None
+
+    data_content = json_items.get('data', {})
+    if not isinstance(data_content, dict):
+        return None
+
+    return (
+        _convert_message_timestamp(data_content.get('messageTimeStamp')),
+        telephone,
+        name,
+        data_content.get('message', ''),
+        data_content.get('amount', ''),
+        data_content.get('statusText', ''),
+        data_content.get('statusCategory', ''),
+        data_content.get('direction', ''),
+        data_content.get('transactionID', ''),
+        data_content.get('type', ''),
+        relative_source_path
+    )
+
+
 @artifact_processor
-def get_vipps(context):
-    files_found = context.get_files_found()
+def vipps(context):
     data_list = []
-    source_path = get_file_path(files_found, 'Vipps.sqlite')
+    source_path = get_file_path(context.get_files_found(), 'Vipps.sqlite')
 
     if not source_path:
         return (), [], ''
@@ -47,70 +95,43 @@ def get_vipps(context):
     '''
 
     db_records = get_sqlite_db_records(source_path, query)
+    phone_columns = []
+    if does_column_exist_in_db(source_path, 'ZCONTACTMODEL', 'ZRAWPHONENUMBERS'):
+        phone_columns.append('ZRAWPHONENUMBERS')
+    if does_column_exist_in_db(source_path, 'ZCONTACTMODEL', 'ZPHONENUMBERS'):
+        phone_columns.append('ZPHONENUMBERS')
+    relative_source_path = context.get_relative_path(source_path)
 
     for row in db_records:
-        plist_data = row[4]
-        if not plist_data:
+        if not row[4]:
             continue
 
-        try:
-            plist = get_plist_content(plist_data)
-        except Exception as ex:
-            logfunc(f'Failed to read plist for {row[0]}, error was: {ex}')
+        plist = get_plist_content(row[4])
+        if not isinstance(plist, dict):
             continue
 
-        for i, y in plist.items():
+        for plist_value in plist.values():
             try:
-                jsonitems = json.loads(y)
-            except json.JSONDecodeError:
+                json_items = json.loads(plist_value)
+            except (json.JSONDecodeError, TypeError):
+                continue
+
+            if not isinstance(json_items, dict):
                 continue
 
             telephone = ''
             if row[0] and '-' in row[0]:
-                telephone = row[0].split('-')[1]
-            name = ''
-
-            phone_col = 'ZPHONENUMBERS'
-            if does_column_exist_in_db(source_path, 'ZCONTACTMODEL', 'ZRAWPHONENUMBERS'):
-                phone_col = 'ZRAWPHONENUMBERS'
-
-            query_contact = f'''
-            SELECT ZNAME FROM ZCONTACTMODEL WHERE {phone_col} LIKE "%{telephone}%"
-            '''
-
-            contact_rows = get_sqlite_db_records(source_path, query_contact)
-            if contact_rows:
-                name = contact_rows[0][0]
-
-            if jsonitems.get('model') == "CHAT":
-                data_content = jsonitems.get('data', {})
-
-                timestamp = convert_unix_ts_to_utc(int(data_content.get('messageTimeStamp', 0))/1000)
-                message = data_content.get('message', '')
-                amount = data_content.get('amount', '')
-                status_text = data_content.get('statusText', '')
-                status_category = data_content.get('statusCategory', '')
-                direction = data_content.get('direction', '')
-                transaction_id = data_content.get('transactionID', '')
-                type_val = data_content.get('type', '')
-
-                data_list.append((
-                    timestamp,
-                    telephone,
-                    name,
-                    message,
-                    amount,
-                    status_text,
-                    status_category,
-                    direction,
-                    transaction_id,
-                    type_val,
-                    source_path
-                ))
+                telephone = row[0].split('-', 1)[1]
+            name = _get_contact_name(source_path, telephone, phone_columns)
+            chat_item = _parse_chat_item(
+                json_items, telephone, name, relative_source_path
+            )
+            if chat_item:
+                data_list.append(chat_item)
 
     data_headers = (
         ('Timestamp', 'datetime'),
-        'Telephone',
+        ('Telephone', 'phonenumber'),
         'Name',
         'Message',
         'Amount',
@@ -118,8 +139,8 @@ def get_vipps(context):
         'Status Category',
         'Direction',
         'Transaction ID',
-        'Type',
-        'File Name'
+        'Message Type',
+        'Source File'
     )
 
     return data_headers, data_list, source_path
