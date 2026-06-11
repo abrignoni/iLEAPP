@@ -1,121 +1,146 @@
-import io
-import nska_deserialize as nd
-import plistlib
-import json
-import sys
-
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, does_column_exist_in_db
-
-def get_vipps(files_found, report_folder, seeker, wrap_text, time_offset):
-    for file_found in files_found:
-        file_found = str(file_found)
-        
-        if file_found.endswith('.sqlite'):
-            break
-    
-    data_list = []
-    
-    db = open_sqlite_db_readonly(file_found)
-    cursor = db.cursor()
-    
-    cursor.execute('''
-    SELECT 
-    ZFEEDMODELKEY, 
-    ZMODELTYPE, 
-    ZSTATUS, 
-    ZVIPPSTRANSACTIONID, 
-    ZBLOB 
-    FROM ZFEEDDETAILMODEL
-    ''')
-    
-    all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
-    
-    if usageentries > 0:
-        for row in all_rows:
-            plist_file_object = io.BytesIO(row[4])
-            if row[4].find(b'NSKeyedArchiver') == -1:
-                if sys.version_info >= (3, 9):
-                    plist = plistlib.load(plist_file_object)
-                else:
-                    plist = biplist.readPlist(plist_file_object)
-            else:
-                try:
-                    plist = nd.deserialize_plist(plist_file_object)
-                except (nd.DeserializeError, nd.biplist.NotBinaryPlistException, nd.biplist.InvalidPlistException,
-                        nd.plistlib.InvalidFileException, nd.ccl_bplist.BplistError, ValueError, TypeError, OSError, OverflowError) as ex:
-                    logfunc(f'Failed to read plist for {row[0]}, error was:' + str(ex))
-                
-            for i, y in plist.items():
-                msg_keys = ["message", "messageTimeStamp","type","direction"]
-                pay_keys = ["amount", "statusCategory", "message", "statusText", "transactionID", "type", "direction", "messageTimeStamp"]
-                req_keys = ["amount", "status", "message", "statusText", "orderID", "direction", "p2pPayment", "ts"]
-                
-                jsonitems = json.loads(y)
-                telephone = row[0].split('-')[1]
-
-                cursor1 = db.cursor()
-                cursor1.execute(f'''
-                SELECT 
-                ZNAME,
-                ZRAWPHONENUMBERS,
-                ZPROFILEIMAGEDATA,
-                ZCONTACTSTOREIDENTIFIER
-                FROM ZCONTACTMODEL
-                WHERE ZRAWPHONENUMBERS LIKE "%{telephone}%"
-                ''')
-                all_rows1 = cursor1.fetchall()
-                usageentries1 = len(all_rows1)
-                
-                if usageentries1 > 0:
-                    for row1 in all_rows1:
-                        name = row1[0]
-                else:
-                    # Check if ZPHONENUMBERS exists, if so, use it instead
-                    if does_column_exist_in_db(file_found, 'ZCONTACTMODEL', 'ZPHONENUMBERS'):
-                        cursor1.execute(f'''
-                        SELECT 
-                        ZNAME,
-                        ZPHONENUMBERS,
-                        ZPROFILEIMAGEDATA,
-                        ZCONTACTSTOREIDENTIFIER
-                        FROM ZCONTACTMODEL
-                        WHERE ZPHONENUMBERS LIKE "%{telephone}%"
-                        ''')
-                        all_rows1 = cursor1.fetchall()
-                        usageentries1 = len(all_rows1)
-                        
-                        if usageentries1 > 0:
-                            for row1 in all_rows1:
-                                name = row1[0]
-                                break
-                data    = (telephone, name)
-                if jsonitems['model'] == "CHAT":
-                  for key in jsonitems['data'].keys():
-                    data += (jsonitems['data'][key],)
-                data_list.append(data)
-                
-        report = ArtifactHtmlReport('Vipps - Transactions')
-        report.start_artifact_report(report_folder, 'Vipps - Transactions')
-        report.add_script()
-        data_headers = ('Timestamp', 'Telephone', 'Name', 'Message','Amount','Status Text','Status Category','Direction','Transaction ID','Type')
-        report.write_artifact_data_table(data_headers, data_list, file_found)
-        report.end_artifact_report()
-        
-        tsvname = 'Vipps'
-        tsv(report_folder, data_headers, data_list, tsvname)
-        
-        tlactivity = 'Vipps'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-        
-        db.close()
-    else:
-        logfunc('No data available for Vipps')
-    
-__artifacts__ = {
-    "vipps": (
-        "Vipps",
-        ('*/Vipps.sqlite*'),
-        get_vipps)
+__artifacts_v2__ = {
+    'vipps': {
+        'name': 'Vipps - Messages',
+        'description': 'Extracts messages and transaction details from Vipps.',
+        'author': '@AlexisBrignoni',
+        'creation_date': '2022-06-22',
+        'last_update_date': '2025-11-28',
+        'requirements': 'none',
+        'category': 'Vipps',
+        'notes': '',
+        'paths': ('*/Vipps.sqlite*',),
+        'output_types': 'standard',
+        'artifact_icon': 'message-square'
+    }
 }
+
+import json
+
+from scripts.ilapfuncs import (
+    artifact_processor,
+    get_file_path,
+    get_sqlite_db_records,
+    does_column_exist_in_db,
+    convert_unix_ts_to_utc,
+    get_plist_content
+)
+
+
+def _get_contact_name(source_path, telephone, phone_columns):
+    if not telephone:
+        return ''
+
+    escaped_telephone = telephone.replace("'", "''")
+    for phone_column in phone_columns:
+        query = f'''
+        SELECT ZNAME
+        FROM ZCONTACTMODEL
+        WHERE {phone_column} LIKE '%{escaped_telephone}%'
+        '''
+        contact_rows = get_sqlite_db_records(source_path, query)
+        if contact_rows:
+            return contact_rows[0][0]
+    return ''
+
+
+def _convert_message_timestamp(timestamp_value):
+    if timestamp_value in (None, ''):
+        return ''
+
+    try:
+        return convert_unix_ts_to_utc(float(timestamp_value) / 1000)
+    except (TypeError, ValueError, OverflowError, OSError):
+        return timestamp_value
+
+
+def _parse_chat_item(json_items, telephone, name, relative_source_path):
+    if json_items.get('model') != 'CHAT':
+        return None
+
+    data_content = json_items.get('data', {})
+    if not isinstance(data_content, dict):
+        return None
+
+    return (
+        _convert_message_timestamp(data_content.get('messageTimeStamp')),
+        telephone,
+        name,
+        data_content.get('message', ''),
+        data_content.get('amount', ''),
+        data_content.get('statusText', ''),
+        data_content.get('statusCategory', ''),
+        data_content.get('direction', ''),
+        data_content.get('transactionID', ''),
+        data_content.get('type', ''),
+        relative_source_path
+    )
+
+
+@artifact_processor
+def vipps(context):
+    data_list = []
+    source_path = get_file_path(context.get_files_found(), 'Vipps.sqlite')
+
+    if not source_path:
+        return (), [], ''
+
+    query = '''
+    SELECT
+    ZFEEDMODELKEY,
+    ZMODELTYPE,
+    ZSTATUS,
+    ZVIPPSTRANSACTIONID,
+    ZBLOB
+    FROM ZFEEDDETAILMODEL
+    '''
+
+    db_records = get_sqlite_db_records(source_path, query)
+    phone_columns = []
+    if does_column_exist_in_db(source_path, 'ZCONTACTMODEL', 'ZRAWPHONENUMBERS'):
+        phone_columns.append('ZRAWPHONENUMBERS')
+    if does_column_exist_in_db(source_path, 'ZCONTACTMODEL', 'ZPHONENUMBERS'):
+        phone_columns.append('ZPHONENUMBERS')
+    relative_source_path = context.get_relative_path(source_path)
+
+    for row in db_records:
+        if not row[4]:
+            continue
+
+        plist = get_plist_content(row[4])
+        if not isinstance(plist, dict):
+            continue
+
+        for plist_value in plist.values():
+            try:
+                json_items = json.loads(plist_value)
+            except (json.JSONDecodeError, TypeError):
+                continue
+
+            if not isinstance(json_items, dict):
+                continue
+
+            telephone = ''
+            if row[0] and '-' in row[0]:
+                telephone = row[0].split('-', 1)[1]
+            name = _get_contact_name(source_path, telephone, phone_columns)
+            chat_item = _parse_chat_item(
+                json_items, telephone, name, relative_source_path
+            )
+            if chat_item:
+                data_list.append(chat_item)
+
+    data_headers = (
+        ('Timestamp', 'datetime'),
+        ('Telephone', 'phonenumber'),
+        'Name',
+        'Message',
+        'Amount',
+        'Status Text',
+        'Status Category',
+        'Direction',
+        'Transaction ID',
+        'Message Type',
+        'Source File'
+    )
+
+    return data_headers, data_list, source_path
