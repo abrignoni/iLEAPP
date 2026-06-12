@@ -10,13 +10,12 @@
 __artifacts_v2__ = {
 
     
-    "get_linkedin_account": {
+    "linkedin_account": {
         "name": "LinkedIn - Account",
         "description": "Existing account in LinkedIn App. The Public Identifier can be used to visit the public profile on the LinkedIn Website (https://www.linkedin.com/in/[Public Identifier])",
         "author": "Marco Neumann {kalinko@be-binary.de}",
-        "version": "0.2",
         "creation_date": "2024-10-01",
-        "last_update_date": "2025-04-23",
+        "last_update_date": "2026-06-12",
         "requirements": "ccl_bplist",
         "category": "LinkedIn",
         "notes": "",
@@ -24,41 +23,39 @@ __artifacts_v2__ = {
         "output_types": "html",
         "artifact_icon": "user"
     },
-    "get_linkedin_messages": {
+    "linkedin_messages": {
         "name": "LinkedIn - Messages",
         "description": "Messages sent and received in the LinkedIn App.",
         "author": "Marco Neumann {kalinko@be-binary.de}",
-        "version": "0.2",
         "creation_date": "2024-10-01",
-        "last_update_date": "2025-04-23",
-        "requirements": "",
+        "last_update_date": "2026-06-12",
+        "requirements": "none",
         "category": "LinkedIn",
         "notes": "",
         "paths": ('*/Documents/msg_database.sqlite'),
         "output_types": "standard",
         "artifact_icon": "message-square"
     },
-    "get_linkedin_conversations": {
+    "linkedin_conversations": {
         "name": "LinkedIn - Conversations",
         "description": "LinkedIn Conversations",
         "author": "Marco Neumann {kalinko@be-binary.de}",
-        "version": "0.2",
         "creation_date": "2024-10-01",
-        "last_update_date": "2025-04-23",
-        "requirements": "",
+        "last_update_date": "2026-06-12",
+        "requirements": "none",
         "category": "LinkedIn",
         "notes": "Messages threaded",
         "paths": ('*/Documents/msg_database.sqlite'),
         "output_types": "all", 
         "data_views": {
-            "chat": {
+            "conversation": {
                 "directionSentValue": 1,
-                "threadDiscriminatorColumn": "Conversation-ID",
+                "conversationDiscriminatorColumn": "Conversation-ID",
                 "textColumn": "Message",
                 "directionColumn": "Sent",
                 "timeColumn": "Timestamp",
                 "senderColumn": "Sender Name",
-                "threadLabelColumn": "Conversation Name"
+                "conversationLabelColumn": "Conversation Name"
             }
         },
         "artifact_icon": "message-circle"
@@ -69,7 +66,8 @@ from scripts.ilapfuncs import artifact_processor, convert_unix_ts_to_utc, get_sq
 from scripts.ccl import ccl_bplist
 
 @artifact_processor
-def get_linkedin_account(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):    
+def linkedin_account(context):
+    files_found = context.get_files_found()
     
     with open(files_found[0], 'rb') as bplist_file:
         bplist_data = ccl_bplist.load(bplist_file)
@@ -111,8 +109,11 @@ def get_linkedin_account(files_found, _report_folder, _seeker, _wrap_text, _time
 
 
 @artifact_processor
-def get_linkedin_messages(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    files_found = [x for x in files_found if not x.endswith('wal') and not x.endswith('shm')]
+def linkedin_messages(context):
+    files_found = [
+        x for x in context.get_files_found()
+        if not x.endswith(('wal', 'shm'))
+    ]
     
     query = ('''
         SELECT
@@ -152,8 +153,11 @@ def get_linkedin_messages(files_found, _report_folder, _seeker, _wrap_text, _tim
 
 
 @artifact_processor
-def get_linkedin_conversations(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    files_found = [x for x in files_found if not x.endswith('wal') and not x.endswith('shm')]
+def linkedin_conversations(context):
+    files_found = [
+        x for x in context.get_files_found()
+        if not x.endswith(('wal', 'shm'))
+    ]
     
     query = ('''
         SELECT
@@ -190,6 +194,13 @@ def get_linkedin_conversations(files_found, _report_folder, _seeker, _wrap_text,
 
         data_list.append((delivery_date, conversation_urn, conversation_label, message, sent, sender_name))
 
-    data_headers = ( 'Timestamp', 'Conversation-ID', 'Conversation Name', 'Message', 'Sent', 'Sender Name')
+    data_headers = (
+        ('Timestamp', 'datetime'),
+        'Conversation-ID',
+        'Conversation Name',
+        'Message',
+        'Sent',
+        'Sender Name'
+    )
 
     return data_headers, data_list, files_found[0]
