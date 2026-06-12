@@ -28,13 +28,38 @@ __artifacts_v2__ = {
     }
 }
 
-import os
 import pandas as pd
 
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.chat_rendering import render_chat, chat_HTML
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, \
-    convert_cocoa_core_data_ts_to_utc, check_in_media, logfunc, lava_get_full_media_info
+    convert_cocoa_core_data_ts_to_utc, check_in_media, lava_get_full_media_info
+
+import typedstream
+
+
+def parse_typedstream(buffer):
+    """Parse NSAttributedString from typedstream format.
+    
+    Args:
+        buffer: The attributedBody buffer from the database (bytes)
+        
+    Returns:
+        str or None: The parsed text string, or None if parsing fails
+    """
+    try:
+        root = typedstream.unarchive_from_data(buffer)
+    except (ValueError, TypeError, OSError):
+        return None
+
+    # Handle GenericArchivedObject with contents list (NSMutableAttributedString)
+    if hasattr(root, 'contents') and root.contents:
+        # First item typically contains the string value (NSMutableString)
+        first_item = root.contents[0]
+        if hasattr(first_item, 'value') and hasattr(first_item.value, 'value'):
+            return first_item.value.value
+
+    return None
 
 @artifact_processor
 def sms(context):
@@ -82,7 +107,8 @@ def sms(context):
     attachment.total_bytes as "Attachment Size",
     message.rowid as "Message Row ID",
     chat_message_join.chat_id as "Chat ID",
-    message.is_from_me as "From Me"
+    message.is_from_me as "From Me",
+    message.attributedBody
     from message
     left join message_attachment_join on message.ROWID = message_attachment_join.message_id
     left join attachment on message_attachment_join.attachment_id = attachment.ROWID
@@ -108,6 +134,11 @@ def sms(context):
         message_timestamp = fix_cocoa_date(record[0])
         read_timestamp = fix_cocoa_date(record[1])
         attachment_timestamp = fix_cocoa_date(record[13])
+        
+        # Use message.text if available, otherwise try to parse from attributedBody
+        message_text = record[2]
+        if not message_text and record[19]:
+            message_text = parse_typedstream(record[19])
 
         attachment_path = record[12]
         media_ref_id = None
@@ -115,7 +146,7 @@ def sms(context):
             clean_path = '*' + attachment_path.replace('~', '', 1)
             media_ref_id = check_in_media(clean_path, record[11])
 
-        data_list.append((message_timestamp, read_timestamp, record[2], record[3], record[4], record[5],
+        data_list.append((message_timestamp, read_timestamp, message_text, record[3], record[4], record[5],
                           record[6], record[7], record[8], record[9], record[10], record[11], media_ref_id,
                           attachment_timestamp, record[14], record[15], record[16], record[17], record[18]))
 
@@ -133,7 +164,7 @@ def sms(context):
                                    'data-name', 'Attachment Name', 'Attachment File', 'Attachment Timestamp',
                                    'content-type', 'Attachment Size (Bytes)', 'message-id', 'Chat ID', 'from_me'])
 
-    sms_df["file-path"] = sms_df.apply(lambda rec: copy_attachments(rec), axis=1)
+    sms_df["file-path"] = sms_df.apply(copy_attachments, axis=1)
 
     report = ArtifactHtmlReport('SMS & iMessage - Messages (Threaded)')
     report.start_artifact_report(context.get_report_folder(), 'SMS & iMessage - Messages (Threaded)')
