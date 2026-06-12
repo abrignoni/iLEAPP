@@ -20,6 +20,7 @@ __artifacts_v2__ = {
                 "directionColumn": "Sent By Me",
                 "directionSentValue": 1,
                 "timeColumn": "Timestamp",
+                "mediaColumn": "Media",
                 #"sentMessageStaticLabel": "This Device" 
             }
         }
@@ -71,19 +72,18 @@ __artifacts_v2__ = {
 }
 
 import sqlite3
-import io
 import json
-import os
 import re
-import shutil
 import datetime
 from scripts.ilapfuncs import (
     artifact_processor,
+    check_in_media,
     convert_ts_human_to_utc,
+    get_plist_content,
+    get_plist_file_content,
     logfunc,
     open_sqlite_db_readonly
 )
-import nska_deserialize as nd
 
 
 def _convert_teams_timestamp(timestamp):
@@ -97,8 +97,6 @@ def teamsMessages(context):
     files_found = context.get_files_found()
     if not files_found:
         return (), [], ''
-
-    report_folder = context.get_report_folder()
     
     data_list = []
     cache_file = None
@@ -118,11 +116,8 @@ def teamsMessages(context):
     # Initialize cache dictionary
     nsplist = {}
     if cache_file:
-        try:
-            with open(cache_file, 'rb') as nsfile:
-                nsplist = nd.deserialize_plist(nsfile)
-        except Exception as e:
-            logfunc(f'Error parsing CacheFile: {str(e)}')
+        nsplist = get_plist_file_content(cache_file)
+        if not isinstance(nsplist, dict):
             nsplist = {}
     
     db = open_sqlite_db_readonly(db_file)
@@ -150,26 +145,26 @@ def teamsMessages(context):
 
     for row in cursor:
         timestamp = _convert_teams_timestamp(row['timestamp'])
-        thumb = ''
+        media_ref = None
         
         # Process media content
         if row['ZCONTENT'] and '<div><img src=' in row['ZCONTENT']:
-            try:
-                matches = re.search('"([^"]+)"', row['ZCONTENT'])
-                if matches:
-                    image_url = matches[0].strip('\"')
-                    if image_url in nsplist:
-                        data_file_real_path = nsplist[image_url]
-                        for match in files_found:
-                            if data_file_real_path in match:
-                                try:
-                                    shutil.copy2(match, report_folder)
-                                    data_file_name = os.path.basename(match)
-                                    thumb = f'<img src="{report_folder}/{data_file_name}"></img>'
-                                except Exception as e:
-                                    logfunc(f'Error copying media file: {str(e)}')
-            except Exception as e:
-                logfunc(f'Error processing image for message at {timestamp}: {str(e)}')
+            matches = re.search('"([^"]+)"', row['ZCONTENT'])
+            if matches:
+                image_url = matches.group(1)
+                try:
+                    data_file_real_path = nsplist.get(image_url, '')
+                    media_path = next(
+                        (
+                            match for match in files_found
+                            if data_file_real_path and data_file_real_path in str(match)
+                        ),
+                        None
+                    )
+                    if media_path:
+                        media_ref = check_in_media(str(media_path))
+                except (AttributeError, OSError, TypeError, ValueError) as ex:
+                    logfunc(f'Error processing image for message at {timestamp}: {ex}')
         
         data_list.append((
             timestamp,
@@ -183,7 +178,8 @@ def teamsMessages(context):
             row['thread_name'] or '',
             row['ZTS_MESSAGEBASETYPE'] or '',
             row['ZTS_MESSAGECONTENTTYPE'] or '',
-			row['ZTS_ISSENTBYME']
+			row['ZTS_ISSENTBYME'],
+            media_ref
         ))
     
     db.close()
@@ -200,7 +196,8 @@ def teamsMessages(context):
         'Thread Name',
         'Message Base Type',
         'Message Content Type',
-        'Sent By Me'
+        'Sent By Me',
+        ('Media', 'media')
     )
     
     return data_headers, data_list, db_file
@@ -338,45 +335,37 @@ def teamsCalls(context):
     ''')
     
     for row in cursor:
+        plist = get_plist_content(row['ZPROPERTIES'])
+        if not isinstance(plist, dict):
+            continue
+
+        if 'call-log' not in plist:
+            continue
+
         try:
-            plist_file_object = io.BytesIO(row['ZPROPERTIES'])
-            
-            try:
-                plist = nd.deserialize_plist(plist_file_object)
-            except Exception as e:
-                logfunc(f'Failed to read plist: {str(e)}')
-                continue
-            
-            if 'call-log' in plist:
-                try:
-                    if isinstance(plist['call-log'], dict):
-                        datacalls = plist['call-log']
-                    else:
-                        datacalls = json.loads(plist['call-log'])
-                    
-                    call_start = _convert_teams_timestamp(datacalls.get('startTime'))
-                    
-                    call_connect = _convert_teams_timestamp(datacalls.get('connectTime'))
-                    
-                    call_end = _convert_teams_timestamp(datacalls.get('endTime'))
-                    
-                    data_list.append((
-                        call_start,
-                        call_connect,
-                        call_end,
-                        datacalls.get('callDirection', ''),
-                        datacalls.get('callType', ''),
-                        datacalls.get('callState', ''),
-                        datacalls.get('originator', ''),
-                        datacalls.get('target', ''),
-                        datacalls.get('originatorParticipant', {}).get('displayName', ''),
-                        datacalls.get('targetParticipant', {}).get('displayName', '')
-                    ))
-                except Exception as e:
-                    logfunc(f'Error processing call log data: {str(e)} - Data: {plist["call-log"]}')
-                    
-        except Exception as e:
-            logfunc(f'Error processing row: {str(e)}')
+            if isinstance(plist['call-log'], dict):
+                datacalls = plist['call-log']
+            else:
+                datacalls = json.loads(plist['call-log'])
+
+            call_start = _convert_teams_timestamp(datacalls.get('startTime'))
+            call_connect = _convert_teams_timestamp(datacalls.get('connectTime'))
+            call_end = _convert_teams_timestamp(datacalls.get('endTime'))
+
+            data_list.append((
+                call_start,
+                call_connect,
+                call_end,
+                datacalls.get('callDirection', ''),
+                datacalls.get('callType', ''),
+                datacalls.get('callState', ''),
+                datacalls.get('originator', ''),
+                datacalls.get('target', ''),
+                datacalls.get('originatorParticipant', {}).get('displayName', ''),
+                datacalls.get('targetParticipant', {}).get('displayName', '')
+            ))
+        except (AttributeError, IndexError, KeyError, TypeError, ValueError) as ex:
+            logfunc(f'Error processing call log data: {ex} - Data: {plist["call-log"]}')
     
     db.close()
     
@@ -430,65 +419,59 @@ def teamsLocations(context):
     ''')
     
     for row in cursor:
+        compose_time = _convert_teams_timestamp(row['ZCOMPOSETIME'])
+        plist = get_plist_content(row['ZPROPERTIES'])
+        if not isinstance(plist, dict):
+            continue
+
+        if 'cards' not in plist:
+            continue
+
         try:
-            compose_time = _convert_teams_timestamp(row['ZCOMPOSETIME'])
-            plist_file_object = io.BytesIO(row['ZPROPERTIES'])
-            
-            try:
-                plist = nd.deserialize_plist(plist_file_object)
-            except Exception as e:
-                logfunc(f'Failed to read plist: {str(e)}')
-                continue
-            
-            if 'cards' in plist:
+            cards = json.loads(plist['cards'])
+            card = cards[0]['content']['body'][0]
+
+            card_url = card.get('selectAction', {}).get('url', '')
+            card_title = card.get('selectAction', {}).get('title', '')
+            card_text = cards[0]['content']['body'][1].get('text', '')
+            card_url2 = card.get('url', '')
+
+            card_lat = None
+            card_long = None
+            card_expires = None
+            card_devid = None
+
+            if card.get('id'):
                 try:
-                    cards = json.loads(plist['cards'])
-                    card = cards[0]['content']['body'][0]
-                    
-                    card_url = card.get('selectAction', {}).get('url', '')
-                    card_title = card.get('selectAction', {}).get('title', '')
-                    card_text = cards[0]['content']['body'][1].get('text', '')
-                    card_url2 = card.get('url', '')
-                    
-                    card_lat = None
-                    card_long = None
-                    card_expires = None
-                    card_devid = None
-                    
-                    if card.get('id'):
-                        try:
-                            id_content = json.loads(card['id'])
-                            card_lat = id_content.get('latitude')
-                            card_long = id_content.get('longitude')
-                            expires_ms = id_content.get('expiresAt')
-                            if expires_ms:
-                                card_expires = datetime.datetime.fromtimestamp(
-                                    expires_ms / 1000,
-                                    tz=datetime.timezone.utc
-                                )
-                            card_devid = id_content.get('deviceId')
-                        except Exception as e:
-                            logfunc(f'Error processing card ID data: {str(e)}')
-                    
-                    data_list.append((
-                        compose_time,
-                        row['ZFROM'] if row['ZFROM'] else '',
-                        row['ZIMDISPLAYNAME'] if row['ZIMDISPLAYNAME'] else '',
-                        row['ZCONTENT'] if row['ZCONTENT'] else '',
-                        card_url,
-                        card_title,
-                        card_text,
-                        card_url2,
-                        card_lat,
-                        card_long,
-                        card_expires,
-                        card_devid
-                    ))
-                except Exception as e:
-                    logfunc(f'Error processing card data: {str(e)}')
-                    
-        except Exception as e:
-            logfunc(f'Error processing row: {str(e)}')
+                    id_content = json.loads(card['id'])
+                    card_lat = id_content.get('latitude')
+                    card_long = id_content.get('longitude')
+                    expires_ms = id_content.get('expiresAt')
+                    if expires_ms:
+                        card_expires = datetime.datetime.fromtimestamp(
+                            expires_ms / 1000,
+                            tz=datetime.timezone.utc
+                        )
+                    card_devid = id_content.get('deviceId')
+                except (AttributeError, TypeError, ValueError, OverflowError, OSError) as ex:
+                    logfunc(f'Error processing card ID data: {ex}')
+
+            data_list.append((
+                compose_time,
+                row['ZFROM'] if row['ZFROM'] else '',
+                row['ZIMDISPLAYNAME'] if row['ZIMDISPLAYNAME'] else '',
+                row['ZCONTENT'] if row['ZCONTENT'] else '',
+                card_url,
+                card_title,
+                card_text,
+                card_url2,
+                card_lat,
+                card_long,
+                card_expires,
+                card_devid
+            ))
+        except (AttributeError, IndexError, KeyError, TypeError, ValueError) as ex:
+            logfunc(f'Error processing card data: {ex}')
     
     db.close()
     
