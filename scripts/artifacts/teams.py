@@ -3,16 +3,18 @@ __artifacts_v2__ = {
         "name": "Teams Messages",
         "description": "Microsoft Teams messages and shared media",
         "author": "",
-        "version": "1.0",
+        "last_update_date": "2026-06-12",
+        "requirements": "nska_deserialize",
         "category": "Microsoft Teams",
+        "notes": "",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*',
                  '*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/Downloads/*/Images/*'),
         "output_types": "standard",
         "data_views": {
             "table": {},
-            "chat": {
-                "threadDiscriminatorColumn": "Thread ID",
-                "threadLabelColumn": "Thread Name",
+            "conversation": {
+                "conversationDiscriminatorColumn": "Thread ID",
+                "conversationLabelColumn": "Thread Name",
                 "textColumn": "Message",
                 "senderColumn": "Display Name",
                 "directionColumn": "Sent By Me",
@@ -26,8 +28,10 @@ __artifacts_v2__ = {
         "name": "Teams Contacts",
         "description": "Microsoft Teams contact list",
         "author": "",
-        "version": "1.0",
+        "last_update_date": "2026-06-12",
+        "requirements": "nska_deserialize",
         "category": "Microsoft Teams",
+        "notes": "",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*',),
         "output_types": "standard"
     },
@@ -35,8 +39,10 @@ __artifacts_v2__ = {
         "name": "Teams User Information",
         "description": "Microsoft Teams user profile and sync data",
         "author": "",
-        "version": "1.0",
+        "last_update_date": "2026-06-12",
+        "requirements": "nska_deserialize",
         "category": "Microsoft Teams",
+        "notes": "",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*',),
         "output_types": "standard"
     },
@@ -44,8 +50,10 @@ __artifacts_v2__ = {
         "name": "Teams Call Logs",
         "description": "Microsoft Teams call history",
         "author": "",
-        "version": "1.0",
+        "last_update_date": "2026-06-12",
+        "requirements": "nska_deserialize",
         "category": "Microsoft Teams",
+        "notes": "",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*',),
         "output_types": "standard"
     },
@@ -53,8 +61,10 @@ __artifacts_v2__ = {
         "name": "Teams Shared Locations",
         "description": "Microsoft Teams shared location data",
         "author": "",
-        "version": "1.0",
+        "last_update_date": "2026-06-12",
+        "requirements": "nska_deserialize",
         "category": "Microsoft Teams",
+        "notes": "",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*',),
         "output_types": "all"
     }
@@ -67,13 +77,28 @@ import os
 import re
 import shutil
 import datetime
-from scripts.ilapfuncs import logfunc, convert_ts_human_to_timezone_offset, artifact_processor, open_sqlite_db_readonly
+from scripts.ilapfuncs import (
+    artifact_processor,
+    convert_ts_human_to_utc,
+    logfunc,
+    open_sqlite_db_readonly
+)
 import nska_deserialize as nd
 
+
+def _convert_teams_timestamp(timestamp):
+    if not timestamp:
+        return ''
+    return convert_ts_human_to_utc(str(timestamp).replace('T', ' ').rstrip('Z'))
+
+
 @artifact_processor
-def teamsMessages(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def teamsMessages(context):
+    files_found = context.get_files_found()
     if not files_found:
-        return
+        return (), [], ''
+
+    report_folder = context.get_report_folder()
     
     data_list = []
     cache_file = None
@@ -88,8 +113,7 @@ def teamsMessages(files_found, report_folder, seeker, wrap_text, timezone_offset
             cache_file = file_found
     
     if not db_file:
-        logfunc('No Teams database found')
-        return
+        return (), [], files_found[0]
     
     # Initialize cache dictionary
     nsplist = {}
@@ -125,7 +149,7 @@ def teamsMessages(files_found, report_folder, seeker, wrap_text, timezone_offset
     ''')
 
     for row in cursor:
-        timestamp = convert_ts_human_to_timezone_offset(row['timestamp'], timezone_offset)
+        timestamp = _convert_teams_timestamp(row['timestamp'])
         thumb = ''
         
         # Process media content
@@ -182,9 +206,10 @@ def teamsMessages(files_found, report_folder, seeker, wrap_text, timezone_offset
     return data_headers, data_list, db_file
 
 @artifact_processor
-def teamsContacts(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def teamsContacts(context):
+    files_found = context.get_files_found()
     if not files_found:
-        return
+        return (), [], ''
     
     data_list = []
     db_file = None
@@ -195,8 +220,7 @@ def teamsContacts(files_found, report_folder, seeker, wrap_text, timezone_offset
             break
     
     if not db_file:
-        logfunc('No Teams database found')
-        return
+        return (), [], files_found[0]
     
     db = open_sqlite_db_readonly(db_file)
     cursor = db.cursor()
@@ -234,9 +258,10 @@ def teamsContacts(files_found, report_folder, seeker, wrap_text, timezone_offset
     return data_headers, data_list, db_file
 
 @artifact_processor
-def teamsUser(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def teamsUser(context):
+    files_found = context.get_files_found()
     if not files_found:
-        return
+        return (), [], ''
     
     data_list = []
     db_file = None
@@ -247,8 +272,7 @@ def teamsUser(files_found, report_folder, seeker, wrap_text, timezone_offset):
             break
     
     if not db_file:
-        logfunc('No Teams database found')
-        return
+        return (), [], files_found[0]
     
     db = open_sqlite_db_readonly(db_file)
     cursor = db.cursor()
@@ -264,7 +288,7 @@ def teamsUser(files_found, report_folder, seeker, wrap_text, timezone_offset):
     
     for row in cursor:
         data_list.append((
-            convert_ts_human_to_timezone_offset(row['lastsyncedat'], timezone_offset),
+            _convert_teams_timestamp(row['lastsyncedat']),
             row['ZDISPLAYNAME'] if row['ZDISPLAYNAME'] else '',
             row['ZTELEPHONENUMBER'] if row['ZTELEPHONENUMBER'] else ''
         ))
@@ -280,9 +304,10 @@ def teamsUser(files_found, report_folder, seeker, wrap_text, timezone_offset):
     return data_headers, data_list, db_file
 
 @artifact_processor
-def teamsCalls(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def teamsCalls(context):
+    files_found = context.get_files_found()
     if not files_found:
-        return
+        return (), [], ''
     
     data_list = []
     db_file = None
@@ -293,8 +318,7 @@ def teamsCalls(files_found, report_folder, seeker, wrap_text, timezone_offset):
             break
     
     if not db_file:
-        logfunc('No Teams database found')
-        return
+        return (), [], files_found[0]
     
     db = open_sqlite_db_readonly(db_file)
     cursor = db.cursor()
@@ -315,7 +339,6 @@ def teamsCalls(files_found, report_folder, seeker, wrap_text, timezone_offset):
     
     for row in cursor:
         try:
-            compose_time = convert_ts_human_to_timezone_offset(row['ZCOMPOSETIME'].replace('T', ' '), timezone_offset)
             plist_file_object = io.BytesIO(row['ZPROPERTIES'])
             
             try:
@@ -331,20 +354,11 @@ def teamsCalls(files_found, report_folder, seeker, wrap_text, timezone_offset):
                     else:
                         datacalls = json.loads(plist['call-log'])
                     
-                    call_start = convert_ts_human_to_timezone_offset(
-                        datacalls.get('startTime', '').replace('T', ' '), 
-                        timezone_offset
-                    ) if datacalls.get('startTime') else ''
+                    call_start = _convert_teams_timestamp(datacalls.get('startTime'))
                     
-                    call_connect = convert_ts_human_to_timezone_offset(
-                        datacalls.get('connectTime', '').replace('T', ' '), 
-                        timezone_offset
-                    ) if datacalls.get('connectTime') else ''
+                    call_connect = _convert_teams_timestamp(datacalls.get('connectTime'))
                     
-                    call_end = convert_ts_human_to_timezone_offset(
-                        datacalls.get('endTime', '').replace('T', ' '), 
-                        timezone_offset
-                    ) if datacalls.get('endTime') else ''
+                    call_end = _convert_teams_timestamp(datacalls.get('endTime'))
                     
                     data_list.append((
                         call_start,
@@ -382,9 +396,10 @@ def teamsCalls(files_found, report_folder, seeker, wrap_text, timezone_offset):
     return data_headers, data_list, db_file
 
 @artifact_processor
-def teamsLocations(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def teamsLocations(context):
+    files_found = context.get_files_found()
     if not files_found:
-        return
+        return (), [], ''
     
     data_list = []
     db_file = None
@@ -395,8 +410,7 @@ def teamsLocations(files_found, report_folder, seeker, wrap_text, timezone_offse
             break
     
     if not db_file:
-        logfunc('No Teams database found')
-        return
+        return (), [], files_found[0]
     
     db = open_sqlite_db_readonly(db_file)
     cursor = db.cursor()
@@ -417,7 +431,7 @@ def teamsLocations(files_found, report_folder, seeker, wrap_text, timezone_offse
     
     for row in cursor:
         try:
-            compose_time = convert_ts_human_to_timezone_offset(row['ZCOMPOSETIME'].replace('T', ' '), timezone_offset)
+            compose_time = _convert_teams_timestamp(row['ZCOMPOSETIME'])
             plist_file_object = io.BytesIO(row['ZPROPERTIES'])
             
             try:
@@ -448,9 +462,9 @@ def teamsLocations(files_found, report_folder, seeker, wrap_text, timezone_offse
                             card_long = id_content.get('longitude')
                             expires_ms = id_content.get('expiresAt')
                             if expires_ms:
-                                card_expires = convert_ts_human_to_timezone_offset(
-                                    datetime.datetime.fromtimestamp(expires_ms / 1000).strftime('%Y-%m-%d %H:%M:%S'),
-                                    timezone_offset
+                                card_expires = datetime.datetime.fromtimestamp(
+                                    expires_ms / 1000,
+                                    tz=datetime.timezone.utc
                                 )
                             card_devid = id_content.get('deviceId')
                         except Exception as e:
