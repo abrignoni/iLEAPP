@@ -1,5 +1,5 @@
 __artifacts_v2__ = {
-    "twintTransactions": { #get_twint... or  twint... ?
+    "twint_transactions": {
         "name": "Twint - Transactions",
         "description": "Extract data related to transactions made with the instant payment app Twint prepaid",
         "author": "@KefreR (Frank Ressat)",
@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Finance",
         "notes": "",
-        "paths": ('*/var/mobile/Containers/Data/Application/*/Library/Application Support/Twint.sqlite*'),
+        "paths": ('*/var/mobile/Containers/Data/Application/*/Library/Application Support/Twint.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "dollar-sign"
     }
@@ -21,7 +21,7 @@ from scripts.ilapfuncs import (
 
 
 @artifact_processor
-def twintTransactions(context):
+def twint_transactions(context):
     files_found = context.get_files_found()
     data_list = []
     db_file = ''
@@ -72,11 +72,19 @@ def twintTransactions(context):
              record[20], record[21], record[22]))
 
     data_headers = (
-        ('Creation date', 'datetime'), ('Sender confirmation date', 'datetime'), ('Receiver validation date', 'datetime'), 
-        ('Transaction expiry date', 'datetime'), 'Merchant branch name', 'Merchant name', 'Sender mobile number', 
-        'Sender message', 'Receiver mobile number', 'Receiver contact name', 'Response message', 
-        'Amount authorized for the transaction', 'Paid amount', 'Requested amount', 'Discount', 'Currency', 
-        'Content reference', 'Order link', 'Presence of multimedia content', 'Transaction status', 'Type of transaction', 
+        ('Creation date', 'datetime'),
+        ('Sender confirmation date', 'datetime'),
+        ('Receiver validation date', 'datetime'),
+        ('Transaction expiry date', 'datetime'),
+        'Merchant branch name', 'Merchant name',
+        ('Sender mobile number', 'phonenumber'),
+        'Sender message',
+        ('Receiver mobile number', 'phonenumber'),
+        'Receiver contact name', 'Response message',
+        'Amount authorized for the transaction', 'Paid amount',
+        'Requested amount', 'Discount', 'Currency',
+        'Content reference', 'Order link', 'Presence of multimedia content',
+        'Transaction status', 'Type of transaction',
         'Direction of the transaction', 'Merchant confirmation')
 
-    return data_headers, data_list, db_file
+    return data_headers, data_list, context.get_relative_path(db_file)
