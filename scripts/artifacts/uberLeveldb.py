@@ -1,5 +1,5 @@
 __artifacts_v2__ = {
-    "get_uberloc": {
+    "uber_locations": {
         "name": "Uber - Locations (LevelDB)",
         "description": "Uber locations extracted from LevelDB storage.",
         "author": "Alexis Brignoni",
@@ -27,19 +27,17 @@ from scripts.ilapfuncs import (
 
 
 @artifact_processor
-def get_uberloc(context):
+def uber_locations(context):
     files_found = context.get_files_found()
     data_list = []
 
     in_dirs = set(pathlib.Path(x).parent for x in files_found)
 
-    source_path = ', '.join([str(p) for p in in_dirs])
-
     for in_db_dir in in_dirs:
         try:
             leveldb_records = scripts.ccl_leveldb.RawLevelDb(in_db_dir)
-        except Exception as e:
-            logfunc(f"Error opening LevelDB at {in_db_dir}: {e}")
+        except (OSError, ValueError) as ex:
+            logfunc(f"Error opening LevelDB at {in_db_dir}: {ex}")
             continue
 
         for record in leveldb_records.iterate_records_raw():
@@ -51,75 +49,73 @@ def get_uberloc(context):
             p = str(pathlib.Path(origin).parent.name)
             f = str(pathlib.Path(origin).name)
             pf = f'{p}/{f}'
+            source_file = context.get_relative_path(origin)
 
             try:
                 value_str = record_value.decode()
                 value = json.loads(value_str)
-            except Exception:
+            except (UnicodeDecodeError, json.JSONDecodeError):
                 continue
 
-            try:
-                json_obj = value.get('jsonConformingObject', {})
-                data_obj = json_obj.get('data', {})
-                meta_obj = json_obj.get('meta', {})
+            json_obj = value.get('jsonConformingObject', {})
+            data_obj = json_obj.get('data', {})
+            meta_obj = json_obj.get('meta', {})
 
-                active_trips = data_obj.get('active_trips', '')
-                ui_state = data_obj.get('ui_state', '')
-                app_type_value_map = data_obj.get('app_type_value_map', '')
+            active_trips = data_obj.get('active_trips', '')
+            ui_state = data_obj.get('ui_state', '')
+            app_type_value_map = data_obj.get('app_type_value_map', '')
 
-                metadata = ''
-                scene = ''
-                timestamp_ms_ui = ''
+            metadata = ''
+            scene = ''
+            timestamp_ms_ui = ''
 
-                if ui_state:
-                    metadata = ui_state.get('metadata', '')
-                    scene = ui_state.get('scene', '')
-                    ts_val = ui_state.get('timestamp_ms')
-                    if ts_val:
-                        timestamp_ms_ui = convert_unix_ts_to_utc(ts_val / 1000)
+            if ui_state:
+                metadata = ui_state.get('metadata', '')
+                scene = ui_state.get('scene', '')
+                ts_val = ui_state.get('timestamp_ms')
+                if ts_val:
+                    timestamp_ms_ui = convert_unix_ts_to_utc(ts_val)
 
-                time_ms_val = meta_obj.get('time_ms')
-                time_ms = ''
-                if time_ms_val:
-                    time_ms = convert_unix_ts_to_utc(time_ms_val / 1000)
+            time_ms_val = meta_obj.get('time_ms')
+            time_ms = ''
+            if time_ms_val:
+                time_ms = convert_unix_ts_to_utc(time_ms_val)
 
-                location = meta_obj.get('location', '')
-                lat = ''
-                lon = ''
-                speed = ''
-                city = ''
-                gps_time = ''
-                horz_acc = ''
+            location = meta_obj.get('location', '')
+            lat = ''
+            lon = ''
+            speed = ''
+            city = ''
+            gps_time = ''
+            horz_acc = ''
 
-                if location:
-                    lat = location.get('latitude', '')
-                    lon = location.get('longitude', '')
-                    speed = location.get('speed', '')
-                    city = location.get('city', '')
-                    gps_val = location.get('gps_time_ms')
-                    if gps_val:
-                        gps_time = convert_unix_ts_to_utc(gps_val / 1000)
-                    horz_acc = location.get('horizontal_accuracy', '')
+            if location:
+                lat = location.get('latitude', '')
+                lon = location.get('longitude', '')
+                speed = location.get('speed', '')
+                city = location.get('city', '')
+                gps_val = location.get('gps_time_ms')
+                if gps_val:
+                    gps_time = convert_unix_ts_to_utc(gps_val)
+                horz_acc = location.get('horizontal_accuracy', '')
 
-                data_list.append((
-                    time_ms,
-                    record_sequence,
-                    city,
-                    speed,
-                    gps_time,
-                    lat,
-                    lon,
-                    horz_acc,
-                    timestamp_ms_ui,
-                    metadata,
-                    scene,
-                    app_type_value_map,
-                    active_trips,
-                    pf
-                ))
-
-            except Exception as e:
-                pass
+            data_list.append((
+                time_ms,
+                record_sequence,
+                city,
+                speed,
+                gps_time,
+                lat,
+                lon,
+                horz_acc,
+                timestamp_ms_ui,
+                metadata,
+                scene,
+                app_type_value_map,
+                active_trips,
+                pf,
+                source_file
+            ))
 
     data_headers = (
         ('Timestamp', 'datetime'),
@@ -135,7 +131,8 @@ def get_uberloc(context):
         'Scene',
         'App Type Value Map',
         'Active Trips',
-        'Origin'
+        'Origin',
+        'Source File'
     )
 
-    return data_headers, data_list, source_path
+    return data_headers, data_list, 'see Source File column'
