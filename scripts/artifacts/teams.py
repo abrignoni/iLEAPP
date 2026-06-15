@@ -92,6 +92,66 @@ def _convert_teams_timestamp(timestamp):
     return convert_ts_human_to_utc(str(timestamp).replace('T', ' ').rstrip('Z'))
 
 
+def _get_first_image_source(content):
+    if not content:
+        return ''
+
+    match = re.search(
+        r'<img\b[^>]*\bsrc\s*=\s*["\']([^"\']+)["\']',
+        content,
+        flags=re.IGNORECASE | re.DOTALL
+    )
+    return match.group(1) if match else ''
+
+
+def _get_display_message(content):
+    if not content:
+        return ''
+
+    emoji_match = re.search(
+        r'<img\b(?=[^>]*\bitemtype\s*=\s*["\']http://schema\.skype\.com/Emoji["\'])'
+        r'(?=[^>]*\balt\s*=\s*["\']([^"\']+)["\'])[^>]*>',
+        content,
+        flags=re.IGNORECASE | re.DOTALL
+    )
+    if not emoji_match:
+        return content
+
+    content_without_emoji = content[:emoji_match.start()] + content[emoji_match.end():]
+    remaining_text = re.sub(r'<[^>]+>', '', content_without_emoji).strip()
+    return emoji_match.group(1) if not remaining_text else content
+
+
+def _find_cached_media_path(files_found, cached_path):
+    if not cached_path:
+        return None
+
+    normalized_cached_path = str(cached_path).replace('\\', '/')
+    marker = '/SkypeSpacesDogfood/'
+    cached_suffix = (
+        f'SkypeSpacesDogfood/{normalized_cached_path.split(marker, 1)[1]}'
+        if marker in normalized_cached_path
+        else ''
+    )
+
+    normalized_files = [
+        (file_found, str(file_found).replace('\\', '/'))
+        for file_found in files_found
+    ]
+
+    if cached_suffix:
+        for file_found, normalized_file in normalized_files:
+            if normalized_file.endswith(cached_suffix):
+                return file_found
+
+    cached_name = normalized_cached_path.rsplit('/', 1)[-1]
+    for file_found, normalized_file in normalized_files:
+        if normalized_file.rsplit('/', 1)[-1] == cached_name:
+            return file_found
+
+    return None
+
+
 @artifact_processor
 def teamsMessages(context):
     files_found = context.get_files_found()
@@ -146,30 +206,25 @@ def teamsMessages(context):
     for row in cursor:
         timestamp = _convert_teams_timestamp(row['timestamp'])
         media_ref = None
+        raw_message = row['ZCONTENT'] or ''
+        display_message = _get_display_message(raw_message)
         
-        # Process media content
-        if row['ZCONTENT'] and '<div><img src=' in row['ZCONTENT']:
-            matches = re.search('"([^"]+)"', row['ZCONTENT'])
-            if matches:
-                image_url = matches.group(1)
-                try:
-                    data_file_real_path = nsplist.get(image_url, '')
-                    media_path = next(
-                        (
-                            match for match in files_found
-                            if data_file_real_path and data_file_real_path in str(match)
-                        ),
-                        None
-                    )
-                    if media_path:
-                        media_ref = check_in_media(str(media_path))
-                except (AttributeError, OSError, TypeError, ValueError) as ex:
-                    logfunc(f'Error processing image for message at {timestamp}: {ex}')
+        # Process the first cached image associated with the message.
+        image_url = _get_first_image_source(raw_message)
+        if image_url:
+            try:
+                cached_path = nsplist.get(image_url, '')
+                media_path = _find_cached_media_path(files_found, cached_path)
+                if media_path:
+                    media_ref = check_in_media(str(media_path))
+            except (AttributeError, OSError, TypeError, ValueError) as ex:
+                logfunc(f'Error processing image for message at {timestamp}: {ex}')
         
         data_list.append((
             timestamp,
             row['ZIMDISPLAYNAME'] or '',
-            row['ZCONTENT'] or '',
+            display_message,
+            raw_message,
             row['ZFROM'] or '',
             row['ZTHREADID'] or '',
             row['ZTHREADTYPE'] or '',
@@ -188,6 +243,7 @@ def teamsMessages(context):
         ('Timestamp', 'datetime'),
         'Display Name',
         'Message',
+        'Raw Message',
         'Sender',
         'Thread ID',
         'Thread Type',
