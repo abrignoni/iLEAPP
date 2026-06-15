@@ -161,21 +161,34 @@ def find_lava_launcher(project_path):
     return None
 
 
-def open_lava_project(project_path, launcher):
+def open_lava_project(project_path, launcher, log=print):
     """Open a LEAPP project using a launcher returned by find_lava_launcher."""
 
     launcher_type, launcher_value = launcher
+    log(
+        f"LAVA launcher: type={launcher_type!r}, value={launcher_value!r}, "
+        f"project={project_path!r}"
+    )
     if launcher_type == "executable":
         if sys.platform == "win32":
-            os.startfile(
-                launcher_value,
-                arguments=subprocess.list2cmdline([project_path]),
+            log("LAVA detected as executable")
+            subprocess.Popen(
+                [launcher_value, project_path],
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                close_fds=True,
+                creationflags=(
+                    subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.DETACHED_PROCESS
+                ),
             )
         else:
             subprocess.Popen([launcher_value, project_path])
     elif launcher_type == "application":
+        log("LAVA detected as application")
         subprocess.Popen(["open", "-a", launcher_value, project_path])
     elif launcher_type == "association":
+        log("LAVA detected as association")
         if sys.platform == "win32":
             os.startfile(project_path)
         else:
