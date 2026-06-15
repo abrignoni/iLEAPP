@@ -10,6 +10,19 @@ from pathlib import Path
 LAVA_WEBSITE = "https://www.leapps.org/#lava"
 
 
+def _windows_detached_popen(args):
+    subprocess.Popen(
+        args,
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        close_fds=True,
+        creationflags=(
+            subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.DETACHED_PROCESS
+        ),
+    )
+
+
 def _windows_registry_value(root, key_path):
     try:
         import winreg
@@ -161,17 +174,30 @@ def find_lava_launcher(project_path):
     return None
 
 
-def open_lava_project(project_path, launcher):
+def open_lava_project(project_path, launcher, log=print):
     """Open a LEAPP project using a launcher returned by find_lava_launcher."""
 
     launcher_type, launcher_value = launcher
+    log(
+        f"LAVA launcher: type={launcher_type!r}, value={launcher_value!r}, "
+        f"project={project_path!r}"
+    )
     if launcher_type == "executable":
-        subprocess.Popen([launcher_value, project_path])
+        if sys.platform == "win32":
+            log("LAVA detected as executable")
+            _windows_detached_popen([launcher_value, project_path])
+        else:
+            subprocess.Popen([launcher_value, project_path])
     elif launcher_type == "application":
+        log("LAVA detected as application")
         subprocess.Popen(["open", "-a", launcher_value, project_path])
     elif launcher_type == "association":
+        log("LAVA detected as association")
         if sys.platform == "win32":
-            os.startfile(project_path)
+            explorer = shutil.which("explorer.exe")
+            if not explorer:
+                raise FileNotFoundError("explorer.exe is not available")
+            _windows_detached_popen([explorer, project_path])
         else:
             xdg_open = shutil.which("xdg-open")
             if not xdg_open:

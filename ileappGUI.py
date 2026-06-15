@@ -216,7 +216,7 @@ def open_report(report_path):
 def open_lava(project_path, launcher):
     '''Open the generated project in LAVA and quit after processing completed.'''
     try:
-        open_lava_project(project_path, launcher)
+        open_lava_project(project_path, launcher, logfunc)
     except (OSError, ValueError) as ex:
         tk_msgbox.showerror(
             title='Unable to open LAVA',
