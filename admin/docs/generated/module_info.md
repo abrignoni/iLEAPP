@@ -13,9 +13,9 @@ Number of v1 artifacts: 63
 Number of v2 artifacts: 444  
 Number of artifacts with 'lava output': 427  
 Number of artifacts using 'artifact_icon': 305  
-Number of artifacts using 'version': 175  
+Number of artifacts using 'version': 172  
 Number of artifacts using 'last_update_date': 279  
-Number of artifacts using context parameter: 238  
+Number of artifacts using context parameter: 241  
 Number of artifacts with errors or no recognized artifacts: 3  
 
 ## V2 Artifacts Table
@@ -41,9 +41,9 @@ Number of artifacts with errors or no recognized artifacts: 3
 | [ConnectedDeviceInformation.py](/scripts/artifacts/ConnectedDeviceInformation.py) | connected_device_info_consolidated_connected_device_history | Connected Device Information - Consolidated Connected Device History | Device Information | standard | Yes | smartphone |  | 2025-09-29 | Connected Devices | ``*Health/healthdb_secure.sqlite*`` |
 | [ConnectedDeviceInformation.py](/scripts/artifacts/ConnectedDeviceInformation.py) | connected_device_information_current_device_info | Connected Device Information - Current Device Information | Device Information | standard | Yes | smartphone |  | 2025-09-29 | Connected Devices | ``*Health/healthdb.sqlite*`` |
 | [DataUsage.py](/scripts/artifacts/DataUsage.py) | get_DataUsage | Data Usage | Network Usage | html, tsv, timeline, lava | Yes |  |  | 2025-11-21 | Parses application network data usage | ``*/wireless/Library/Databases/DataUsage.sqlite*`` |
-| [LinkedIn.py](/scripts/artifacts/LinkedIn.py) | get_linkedin_account | LinkedIn - Account | LinkedIn | html | No | user | 0.2 | 2025-04-23 | Existing account in LinkedIn App. The Public Identifier can be used to visit the public profile on the LinkedIn Website (https://www.linkedin.com/in/[ | ``*/Library/Preferences/com.linkedin.LinkedIn.plist`` |
-| [LinkedIn.py](/scripts/artifacts/LinkedIn.py) | get_linkedin_messages | LinkedIn - Messages | LinkedIn | standard | No | message-square | 0.2 | 2025-04-23 | Messages sent and received in the LinkedIn App. | ``*/Documents/msg_database.sqlite`` |
-| [LinkedIn.py](/scripts/artifacts/LinkedIn.py) | get_linkedin_conversations | LinkedIn - Conversations | LinkedIn | all | No | message-circle | 0.2 | 2025-04-23 | LinkedIn Conversations | ``*/Documents/msg_database.sqlite`` |
+| [LinkedIn.py](/scripts/artifacts/LinkedIn.py) | linkedin_account | LinkedIn - Account | LinkedIn | html | Yes | user |  | 2026-06-15 | Existing account in LinkedIn App. The Public Identifier can be used to visit the public profile on the LinkedIn Website (https://www.linkedin.com/in/[ | ``*/Library/Preferences/com.linkedin.LinkedIn.plist`` |
+| [LinkedIn.py](/scripts/artifacts/LinkedIn.py) | linkedin_messages | LinkedIn - Messages | LinkedIn | standard | Yes | message-square |  | 2026-06-15 | Messages sent and received in the LinkedIn App. | ``*/Documents/msg_database.sqlite*`` |
+| [LinkedIn.py](/scripts/artifacts/LinkedIn.py) | linkedin_conversations | LinkedIn - Conversations | LinkedIn | all | Yes | message-circle |  | 2026-06-15 | LinkedIn Conversations | ``*/Documents/msg_database.sqlite*`` |
 | [Oops.py](/scripts/artifacts/Oops.py) | Oops | Oops: Make New Friends | Oops |  | No |  | 0.0.1 |  | Parses Oops Message Database | ``*/mobile/Containers/Data/Application/*/Library/Application Support/RongCloud/*/storage*`` |
 | [Ph100UFEDdevcievaluesplist.py](/scripts/artifacts/Ph100UFEDdevcievaluesplist.py) | ph_100_ufed_device_values_plist | Ph100-UFED-device-values-Plist | Photos-Z-Settings | standard, tsv, none | Yes | settings |  | 2025-10-14 | Parses basic data from */device_values.plist which is a part of a UFED Advance Logical acquisitions with non-encrypted backups. The parsing of this fi | ``*/device_values.plist`` |
 | [Ph10AssetParsedEmbeddedFiles.py](/scripts/artifacts/Ph10AssetParsedEmbeddedFiles.py) | Ph10-1-Assets have embedded files-PhDaPsql | PhDaPL Photos.sqlite Ph10.1 assets have embedded files | Photos.sqlite-C-Other_Artifacts |  | No |  | 2.0 |  | Parses basic asset record data from Photos.sqlite for assets that have embedded files records for a variety of data. This parser should be used in con | ``*/PhotoData/Photos.sqlite*`` |
