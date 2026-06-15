@@ -87,6 +87,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | twint |
 | uberPlaces |
 | viber |
+| vipps |
 | vippsContacts |
 | voicemail |
 | waze |
@@ -178,7 +179,6 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | trustedPeers |
 | uberClient |
 | uberPlaces |
-| vipps |
 | waze |
 | wifiNetworkStoreModel |
 <!-- READONLY_END -->
