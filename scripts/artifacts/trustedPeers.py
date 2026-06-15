@@ -1,5 +1,5 @@
 __artifacts_v2__ = {
-    "get_trustedPeers": {
+    "trusted_peers": {
         "name": "Trusted Peers",
         "description": "Devices Associated with iCloud Account",
         "author": "Heather Charpentier",
@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Trusted Peers",
         "notes": "",
-        "paths": ('**/*TrustedPeersHelper.db*'),
+        "paths": ('**/*TrustedPeersHelper.db*',),
         "output_types": "standard",
         "artifact_icon": "check-circle"
     }
@@ -24,7 +24,7 @@ from scripts.ilapfuncs import (
 
 
 @artifact_processor
-def get_trustedPeers(context):
+def trusted_peers(context):
     files_found = context.get_files_found()
     data_list = []
     source_path = get_file_path(files_found, '*TrustedPeersHelper.db')
@@ -72,4 +72,4 @@ def get_trustedPeers(context):
         'Passcode Length',
     )
 
-    return data_headers, data_list, source_path
+    return data_headers, data_list, context.get_relative_path(source_path)
