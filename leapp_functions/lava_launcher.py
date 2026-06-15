@@ -166,7 +166,15 @@ def open_lava_project(project_path, launcher):
 
     launcher_type, launcher_value = launcher
     if launcher_type == "executable":
-        subprocess.Popen([launcher_value, project_path])
+        popen_kwargs = {}
+        if sys.platform == "win32":
+            popen_kwargs = {
+                "close_fds": True,
+                "creationflags": (
+                    subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.DETACHED_PROCESS
+                ),
+            }
+        subprocess.Popen([launcher_value, project_path], **popen_kwargs)
     elif launcher_type == "application":
         subprocess.Popen(["open", "-a", launcher_value, project_path])
     elif launcher_type == "association":
