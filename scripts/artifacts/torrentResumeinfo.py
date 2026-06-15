@@ -1,5 +1,5 @@
 __artifacts_v2__ = {
-    'get_torrentResumeinfo': {
+    'torrent_resume_info': {
         'name': 'BitTorrent Resume Info',
         'description': 'Extracts resume data from BitTorrent files',
         'author': '@AlexisBrignoni',
@@ -25,29 +25,28 @@ from scripts.ilapfuncs import (
 
 
 @artifact_processor
-def get_torrentResumeinfo(context):
+def torrent_resume_info(context):
     files_found = context.get_files_found()
     data_list = []
     source_path = ''
 
     for file_found in files_found:
         file_found = str(file_found)
-        source_path = file_found
+        source_path = context.get_relative_path(file_found)
 
         try:
             with open(file_found, 'rb') as f:
                 decodedDict = bencoding.bdecode(f.read())
-        except Exception:
+        except (OSError, TypeError, ValueError):
             continue
 
         aggregate = ''
         infohash = ''
-        try:
-            if b"info" in decodedDict:
-                infoh = hashlib.sha1(bencoding.bencode(decodedDict[b"info"])).hexdigest()
-                infohash = infoh
-        except:
-            pass
+        if b"info" in decodedDict:
+            try:
+                infohash = hashlib.sha1(bencoding.bencode(decodedDict[b"info"])).hexdigest()
+            except (TypeError, ValueError):
+                infohash = ''
 
         for key, value in decodedDict.items():
             key_str = key.decode('utf-8', 'ignore')
@@ -65,7 +64,7 @@ def get_torrentResumeinfo(context):
                 aggregate += f'{key_str}: {ts_val} <br>'
             else:
                 aggregate += f'{key_str}: {value} <br>' 
-        wrapped_path = textwrap.fill(file_found, width=50)
+        wrapped_path = textwrap.fill(context.get_relative_path(file_found), width=50)
         data_list.append((wrapped_path, infohash, aggregate.strip()))
 
     data_headers = ('File', 'InfoHash', 'Data')
