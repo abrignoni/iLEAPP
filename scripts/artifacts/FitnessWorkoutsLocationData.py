@@ -29,6 +29,9 @@ def get_Health(files_found, report_folder, seeker, wrap_text, timezone_offset):
     cursor = db.cursor()
 
     if  does_table_exist_in_db(healthdb_secure, 'location_series_data') == True:
+        if not does_table_exist_in_db(healthdb_secure, 'associations'):
+            logfunc("INFO: Table 'associations' not found in HealthDB (Likely older iOS version). Skipping Fitness Workouts Location Data.")
+            return
     
         try:
     # Fitness Workouts Location Data Analysis
@@ -126,10 +129,10 @@ def get_Health(files_found, report_folder, seeker, wrap_text, timezone_offset):
                 FROM location_series_data
                 LEFT OUTER JOIN data_series on data_series.hfd_key = location_series_data.series_identifier
                 LEFT OUTER JOIN associations on associations.child_id = data_series.data_id
-                LEFT OUTER JOIN workout_activities on workout_activities.owner_id = associations.parent_id 
+                LEFT OUTER JOIN workout_activities on workout_activities.owner_id = associations.parent_id
                 GROUP BY location_series_data.series_identifier
                 ORDER BY workout_activities.start_date
-            ''') 
+            ''')
             
             all_rows = cursor.fetchall()
             usageentries = len(all_rows)
@@ -153,11 +156,11 @@ def get_Health(files_found, report_folder, seeker, wrap_text, timezone_offset):
                 timeline(report_folder, tlactivity, data_list, data_headers)
             else:
                 logfunc('No data available in Fitness Workouts Location Data Analysis')
-        except sqlite3.OperationalError:
-            logfunc("INFO: Table 'associations' not found in HealthDB (Likely older iOS version). Skipping Fitness Workouts Location Data Analysis.")
+        except sqlite3.OperationalError as ex:
+            logfunc(f'Error processing Fitness Workouts Location Data Analysis: {ex}')
 
     # Fitness Workouts Location Data
-        try: 
+        try:
             cursor.execute('''
             SELECT
                 datetime(timestamp+978307200,'unixepoch') as "Timestamp",
@@ -249,15 +252,15 @@ def get_Health(files_found, report_folder, seeker, wrap_text, timezone_offset):
                 FROM location_series_data
                 LEFT OUTER JOIN data_series on data_series.hfd_key = location_series_data.series_identifier
                 LEFT OUTER JOIN associations on associations.child_id = data_series.data_id
-                LEFT OUTER JOIN workout_activities on workout_activities.owner_id = associations.parent_id 
+                LEFT OUTER JOIN workout_activities on workout_activities.owner_id = associations.parent_id
             ''') #Note Vertical, Speed, and Course Accuracy values also in database table, not added here to reduce processing
-        
+
             all_rows = cursor.fetchall()
             usageentries = len(all_rows)
             if usageentries > 0:
                 data_list = []
                 for row in all_rows:
-                
+
                     data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8]))
 
                 report = ArtifactHtmlReport('Fitness Workouts Location Data')
@@ -275,8 +278,8 @@ def get_Health(files_found, report_folder, seeker, wrap_text, timezone_offset):
                 timeline(report_folder, tlactivity, data_list, data_headers)
             else:
                 logfunc('No data available in Fitness Workouts Location Data')
-        except sqlite3.OperationalError:
-            logfunc("INFO: Table 'associations' not found in HealthDB (Likely older iOS version). Skipping Fitness Workouts Location Data.")
+        except sqlite3.OperationalError as ex:
+            logfunc(f'Error processing Fitness Workouts Location Data: {ex}')
     else:
         logfunc('No table location_series_data in healthdb_secure.sqlite')
         
