@@ -24,6 +24,7 @@ def deviceActivator(context):
     files_found = context.get_files_found()
     file_found = str(files_found[0])
     report_folder = context.get_report_folder()
+    alllines = ''
     
     with open(file_found, 'r', encoding='utf-8') as f_in:
         for line in f_in:
