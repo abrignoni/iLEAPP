@@ -1,5 +1,6 @@
+""" timezoneInfo """
 __artifacts_v2__ = {
-    "timezoneInfo": {
+    "timezone_info": {
         "name": "Timezone Information",
         "description": "Timezone Information extracted from AppStore plist.",
         "author": "@AlexisBrignoni",
@@ -14,6 +15,8 @@ __artifacts_v2__ = {
     }
 }
 
+from datetime import datetime
+
 from scripts.ilapfuncs import (
     artifact_processor,
     device_info,
@@ -25,7 +28,8 @@ from scripts.ilapfuncs import (
 
 
 @artifact_processor
-def timezoneInfo(context):
+def timezone_info(context):
+    """ see artifact description """
     files_found = context.get_files_found()
     data_list = []
 
@@ -41,10 +45,13 @@ def timezoneInfo(context):
         for key, val in pl.items():
             if key == 'lastBootstrapTimeZone':
                 data_list.append(('Last Bootstrap Timezone', val))
-                device_info("Settings", "Last Bootstrap Timezone", val, source_path)
+                device_info("Settings", "Last Bootstrap Timezone", str(val), source_path)
 
             elif key == 'lastBootstrapDate':
-                times = convert_cocoa_core_data_ts_to_utc(val)
+                if isinstance(val, datetime):
+                    times = val
+                else:
+                    times = convert_cocoa_core_data_ts_to_utc(val)
                 data_list.append(('Last Bootstrap Date', times))
                 device_info("Device Information", "Last Bootstrap Date", str(times), source_path)
             else:

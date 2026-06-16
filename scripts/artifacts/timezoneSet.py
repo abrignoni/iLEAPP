@@ -1,5 +1,6 @@
+""" timezoneSet """
 __artifacts_v2__ = {
-    "timezoneSet": {
+    "timezone_set": {
         "name": "Timezone Set",
         "description": "Is the timezone set on the device?",
         "author": "@AlexisBrignoni",
@@ -24,7 +25,8 @@ from scripts.ilapfuncs import (
 
 
 @artifact_processor
-def timezoneSet(context):
+def timezone_set(context):
+    """ see artifact description """
     files_found = context.get_files_found()
     data_list = []
 

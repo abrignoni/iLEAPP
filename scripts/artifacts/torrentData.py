@@ -1,5 +1,6 @@
+""" torrentData """
 __artifacts_v2__ = {
-    'get_TorrentData': {
+    'torrent_data': {
         'name': 'BitTorrent Data',
         'description': 'Parses .torrent files to extract metadata and file lists.',
         'author': '@AlexisBrignoni',
@@ -11,13 +12,15 @@ __artifacts_v2__ = {
         'paths': ('*/*.torrent',),
         'output_types': 'standard',
         'artifact_icon': 'download-cloud',
-        'html_columns': ['Files']
+        'html_columns': ['Data']
     }
 }
 
-import bencoding
 import hashlib
-import textwrap
+from html import escape
+import bencoding
+from bencoding.decoder import DecoderError
+
 from scripts.ilapfuncs import (
     artifact_processor,
     logfunc,
@@ -25,8 +28,15 @@ from scripts.ilapfuncs import (
 )
 
 
+def _decode_torrent_value(value):
+    if isinstance(value, bytes):
+        return value.decode('utf-8', 'ignore')
+    return str(value)
+
+
 @artifact_processor
-def get_TorrentData(context):
+def torrent_data(context):
+    """ see artifact description"""
     files_found = context.get_files_found()
     data_list = []
     source_path = ''
@@ -38,101 +48,86 @@ def get_TorrentData(context):
         try:
             with open(file_found, 'rb') as f:
                 encoded_data = f.read()
-            
-            decodedDict = bencoding.bdecode(encoded_data)
-            
+
+            decoded_dict = bencoding.bdecode(encoded_data)
+
             aggregate = ''
             infohash = ''
-            
+
             try:
-                if b"info" in decodedDict:
-                    infoh = hashlib.sha1(bencoding.bencode(decodedDict[b"info"])).hexdigest()
+                if b"info" in decoded_dict:
+                    infoh = hashlib.sha1(bencoding.bencode(decoded_dict[b"info"])).hexdigest()
                     infohash = infoh.upper()
-            except Exception:
+            except (KeyError, TypeError, ValueError):
                 infohash = ''
-            
+
             torrentname = ''
-            
-            for key, value in decodedDict.items():
-                try:
-                    key_str = key.decode('utf-8', 'ignore')
-                except (UnicodeDecodeError, AttributeError):
-                    key_str = str(key)
+
+            for key, value in decoded_dict.items():
+                key_str = _decode_torrent_value(key)
 
                 if key_str == 'info':
                     for x, y in value.items():
-                        try:
-                            x_str = x.decode('utf-8', 'ignore')
-                        except (UnicodeDecodeError, AttributeError):
-                            x_str = str(x)
+                        x_str = _decode_torrent_value(x)
 
                         if x_str == 'pieces':
-                            pass
+                            continue
                         elif x_str == 'files':
                             aggregate += '<table style="border: 1px solid black; border-collapse: collapse;">'
                             aggregate += '<tr><th style="border: 1px solid black; padding: 5px;">Path</th><th style="border: 1px solid black; padding: 5px;">Size</th></tr>'
-                            
+
                             for file_item in y:
                                 path_str = ''
                                 size_str = ''
-                                
+
                                 if b'path' in file_item:
                                     try:
-                                        path_parts = [p.decode('utf-8', 'ignore') for p in file_item[b'path']]
-                                        path_str = "/".join(path_parts)
-                                    except Exception:
-                                        path_str = str(file_item[b'path'])
-                                
+                                        path_parts = [_decode_torrent_value(p) for p in file_item[b'path']]
+                                        path_str = '/'.join(path_parts)
+                                    except (AttributeError, TypeError):
+                                        path_str = _decode_torrent_value(file_item[b'path'])
+
                                 if b'length' in file_item:
                                     size_str = str(file_item[b'length'])
-                                
-                                aggregate += f'<tr><td style="border: 1px solid black; padding: 5px;">{path_str}</td>'
-                                aggregate += f'<td style="border: 1px solid black; padding: 5px;">{size_str}</td></tr>'
-                            
+
+                                aggregate += f'<tr><td style="border: 1px solid black; padding: 5px;">{escape(path_str)}</td>'
+                                aggregate += f'<td style="border: 1px solid black; padding: 5px;">{escape(size_str)}</td></tr>'
+
                             aggregate += '</table>'
 
                         elif x_str == 'name':
-                            try:
-                                name_val = y.decode("utf-8", "ignore")
-                            except (UnicodeDecodeError, AttributeError):
-                                name_val = str(y)
+                            name_val = _decode_torrent_value(y)
                             torrentname = name_val
-                            aggregate += f'Name: {name_val} <br>'
+                            aggregate += f'Name: {escape(name_val)} <br>'
 
                         elif x_str == 'length':
                             size_val = str(y)
-                            aggregate += f'Single File Size: {size_val} bytes <br>'
+                            aggregate += f'Single File Size: {escape(size_val)} bytes <br>'
 
                         else:
-                            try:
-                                val_str = y.decode('utf-8', 'ignore') if isinstance(y, bytes) else str(y)
-                                aggregate += f'{x_str}: {val_str} <br>'
-                            except (UnicodeDecodeError, AttributeError):
-                                pass
+                            val_str = _decode_torrent_value(y)
+                            aggregate += f'{escape(x_str)}: {escape(val_str)} <br>'
 
                 elif key_str == 'pieces':
-                    pass
+                    continue
 
                 elif key_str == 'creation date':
                     ts_obj = convert_unix_ts_to_utc(value)
-                    aggregate += f'{key_str}: {ts_obj} <br>'
+                    aggregate += f'{escape(key_str)}: {escape(str(ts_obj))} <br>'
 
                 else:
-                    try:
-                        val_str = value.decode('utf-8', 'ignore') if isinstance(value, bytes) else str(value)
-                        aggregate += f'{key_str}: {val_str} <br>'
-                    except (UnicodeDecodeError, AttributeError):
-                        pass
-            
-            aggregate = aggregate.strip()
-            wrapped_path = textwrap.fill(file_found, width=50)
-            data_list.append((torrentname, infohash, aggregate, wrapped_path))
+                    val_str = _decode_torrent_value(value)
+                    aggregate += f'{escape(key_str)}: {escape(val_str)} <br>'
 
-        except Exception as e:
+            aggregate = aggregate.strip()
+            relative_path = context.get_relative_path(file_found)
+            data_list.append((torrentname, infohash, aggregate, relative_path))
+
+        except (DecoderError, OSError, TypeError, ValueError) as e:
             logfunc(f"Error parsing torrent {file_found}: {str(e)}")
 
     data_headers = ('Torrent Name', 'Info Hash', 'Data', 'Source File')
-    
+
     if not data_list:
         logfunc('No Torrent data found')
         return data_headers, [], source_path

@@ -1,5 +1,6 @@
+""" torrentinfo """
 __artifacts_v2__ = {
-    'get_torrentinfo': {
+    'torrent_info': {
         'name': 'BitTorrent Info',
         'description': 'Extracts metadata and file lists from .torrent files',
         'author': '@AlexisBrignoni',
@@ -15,9 +16,11 @@ __artifacts_v2__ = {
     }
 }
 
-import bencoding
 import hashlib
-import textwrap
+from html import escape
+import bencoding
+from bencoding.decoder import DecoderError
+
 from scripts.ilapfuncs import (
     artifact_processor,
     logfunc,
@@ -25,8 +28,15 @@ from scripts.ilapfuncs import (
 )
 
 
+def _decode_torrent_value(value):
+    if isinstance(value, bytes):
+        return value.decode('utf-8', 'ignore')
+    return str(value)
+
+
 @artifact_processor
-def get_torrentinfo(context):
+def torrent_info(context):
+    """ see artifact description """
     files_found = context.get_files_found()
     data_list = []
     source_path = ''
@@ -37,33 +47,27 @@ def get_torrentinfo(context):
 
         try:
             with open(file_found, 'rb') as f:
-                decodedDict = bencoding.bdecode(f.read())
+                decoded_dict = bencoding.bdecode(f.read())
 
             aggregate = ''
             infohash = ''
 
-            if b"info" in decodedDict:
+            if b"info" in decoded_dict:
                 try:
-                    infoh = hashlib.sha1(bencoding.bencode(decodedDict[b"info"])).hexdigest()
+                    infoh = hashlib.sha1(bencoding.bencode(decoded_dict[b"info"])).hexdigest()
                     infohash = infoh.upper()
-                except Exception as e:
+                except (KeyError, TypeError, ValueError):
                     infohash = ''
 
-            for key, value in decodedDict.items():
-                try:
-                    key_str = key.decode('utf-8', 'ignore')
-                except (UnicodeDecodeError, AttributeError):
-                    key_str = str(key)
+            for key, value in decoded_dict.items():
+                key_str = _decode_torrent_value(key)
 
                 if key_str == 'info':
                     for x, y in value.items():
-                        try:
-                            x_str = x.decode('utf-8', 'ignore')
-                        except (UnicodeDecodeError, AttributeError):
-                            x_str = str(x)
+                        x_str = _decode_torrent_value(x)
 
                         if x_str == 'pieces':
-                            pass
+                            continue
 
                         elif x_str == 'files':
                             for file_item in y:
@@ -72,52 +76,43 @@ def get_torrentinfo(context):
 
                                 if b'path' in file_item:
                                     try:
-                                        path_parts = [p.decode('utf-8', 'ignore') for p in file_item[b'path']]
-                                        path_str = "/".join(path_parts)
-                                    except Exception:
-                                        path_str = str(file_item[b'path'])
+                                        path_parts = [_decode_torrent_value(p) for p in file_item[b'path']]
+                                        path_str = '/'.join(path_parts)
+                                    except (AttributeError, TypeError):
+                                        path_str = _decode_torrent_value(file_item[b'path'])
 
                                 if b'length' in file_item:
                                     size_str = str(file_item[b'length'])
 
-                                aggregate += f'File: {path_str} <br>Size: {size_str} bytes <br>'
+                                aggregate += f'File: {escape(path_str)} <br>Size: {escape(size_str)} bytes <br>'
 
                         elif x_str == 'name':
-                            try:
-                                name_val = y.decode("utf-8", "ignore")
-                            except:
-                                name_val = str(y)
-                            aggregate += f'Name: {name_val} <br>'
+                            name_val = _decode_torrent_value(y)
+                            aggregate += f'Name: {escape(name_val)} <br>'
 
                         elif x_str == 'length':
-                            aggregate += f'Size: {y} bytes <br>'
+                            aggregate += f'Size: {escape(str(y))} bytes <br>'
 
                         else:
-                            try:
-                                val_str = y.decode('utf-8', 'ignore') if isinstance(y, bytes) else str(y)
-                                aggregate += f'{x_str}: {val_str} <br>'
-                            except:
-                                pass
+                            val_str = _decode_torrent_value(y)
+                            aggregate += f'{escape(x_str)}: {escape(val_str)} <br>'
 
                 elif key_str == 'pieces':
-                    pass
+                    continue
 
                 elif key_str == 'creation date':
                     ts_obj = convert_unix_ts_to_utc(value)
-                    aggregate += f'{key_str}: {ts_obj} <br>'
+                    aggregate += f'{escape(key_str)}: {escape(str(ts_obj))} <br>'
 
                 else:
-                    try:
-                        val_str = value.decode('utf-8', 'ignore') if isinstance(value, bytes) else str(value)
-                        aggregate += f'{key_str}: {val_str} <br>'
-                    except:
-                        pass
+                    val_str = _decode_torrent_value(value)
+                    aggregate += f'{escape(key_str)}: {escape(val_str)} <br>'
 
             aggregate = aggregate.strip()
-            wrapped_path = textwrap.fill(file_found, width=50)
-            data_list.append((wrapped_path, infohash, aggregate))
+            relative_path = context.get_relative_path(file_found)
+            data_list.append((relative_path, infohash, aggregate))
 
-        except Exception as e:
+        except (DecoderError, OSError, TypeError, ValueError) as e:
             logfunc(f"Error parsing {file_found}: {str(e)}")
 
     data_headers = ('File', 'InfoHash', 'Data')
