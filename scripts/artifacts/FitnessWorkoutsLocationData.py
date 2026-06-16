@@ -7,13 +7,11 @@
 # available for review at https://tinyurl.com/4zyd6z9n
 
 import sqlite3
-import textwrap
 
-from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, does_table_exist_in_db
+from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly, does_table_exist_in_db
 
-def get_Health(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def get_Health(files_found, report_folder, seeker, _wrap_text, _timezone_offset):
 
     healthdb_secure = ''
     source_file_healthdb_secure = ''
@@ -21,8 +19,8 @@ def get_Health(files_found, report_folder, seeker, wrap_text, timezone_offset):
     for file_found in files_found:
         file_name = str(file_found)
         if file_name.endswith('healthdb_secure.sqlite'): 
-           healthdb_secure = str(file_found)
-           source_file_healthdb_secure = file_found.replace(seeker.data_folder, '')
+            healthdb_secure = str(file_found)
+            # source_file_healthdb_secure = file_found.replace(seeker.data_folder, '')
 
     db = open_sqlite_db_readonly(healthdb_secure)
     
