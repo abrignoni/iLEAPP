@@ -584,7 +584,7 @@ def get_sqlite_db_records(path, query, attach_query=None):
             cursor.execute(query)
             records = cursor.fetchall()
             return records
-        except Exception as e:
+        except sqlite3.DatabaseError as e:
             logfunc(f"Error with {path}:")
             logfunc(f" - {str(e)}")
     return []
