@@ -2,7 +2,7 @@
 # found in Yogesh Khatri's mac_apt project Notes plugin (https://github.com/ydkhatri/mac_apt) 
 # and used under terms of the MIT License.
 
-from os.path import dirname, join
+from os.path import basename, dirname, join
 from PIL import Image
 import imghdr
 import zlib
@@ -155,7 +155,7 @@ def get_notes(files_found, report_folder, seeker, wrap_text, timezone_offset):
                 else:
                     try:
                         filetype = imghdr.what(attachment_file)
-                    except Exception as e:
+                    except OSError:
                         filetype = None
 
                     if filetype in ('jpeg', 'jpg', 'png'):
@@ -163,7 +163,7 @@ def get_notes(files_found, report_folder, seeker, wrap_text, timezone_offset):
                         try:
                             save_original_attachment_as_thumbnail(attachment_file, thumbnail_path)
                             thumbnail = f'<img src="{thumbnail_path}">'
-                        except Exception as e:
+                        except OSError:
                             thumbnail = 'Attachment present but thumbnail creation failed.'
                     else:
                         thumbnail = 'File is not an image or the filetype is not supported'
