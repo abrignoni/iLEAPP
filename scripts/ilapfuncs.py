@@ -1151,7 +1151,7 @@ def convert_unix_ts_to_utc(ts):
     if ts:
         try:
             ts = float(ts)
-        except ValueError:
+        except (ValueError, TypeError, OSError, OverflowError):
             return ts
         ts = convert_unix_ts_in_seconds(ts)
         return datetime.fromtimestamp(ts, tz=timezone.utc)
