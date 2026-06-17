@@ -269,11 +269,17 @@ def open_settings_window():
     def toggle_history():
         history.set_history_enabled(history_enabled_var.get())
 
-    history_check = ttk.Checkbutton(
-        settings_window, 
-        text='Enable saving paths as recent history', 
+    history_check = tk.Checkbutton(
+        settings_window,
+        text='Enable saving paths as recent history',
         variable=history_enabled_var,
-        command=toggle_history
+        command=toggle_history,
+        background=theme_bgcolor,
+        fg=theme_fgcolor,
+        selectcolor=theme_inputcolor,
+        activebackground=theme_bgcolor,
+        activeforeground=theme_fgcolor,
+        highlightthickness=0,
     )
     history_check.grid(row=1, column=0, padx=14, pady=20, sticky='w')
 
@@ -613,18 +619,6 @@ style.map('TCombobox',
           )
 style.configure('TScrollbar', background=theme_fgcolor, arrowcolor='black', troughcolor=theme_inputcolor)
 style.configure('TProgressbar', thickness=4, background='DarkGreen')
-style.configure(
-    'TCheckbutton',
-    background=theme_bgcolor,
-    foreground=theme_fgcolor,
-)
-style.map(
-    'TCheckbutton',
-    background=[('active', theme_bgcolor)],
-    foreground=[('active', theme_fgcolor)],
-    indicatorcolor=[('selected', theme_fgcolor), ('!selected', theme_inputcolor)],
-    indicatorbackground=[('selected', theme_inputcolor), ('!selected', theme_bgcolor)],
-)
 
 ## Main Window Layout
 ### Top part of the window
