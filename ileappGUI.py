@@ -42,7 +42,7 @@ def show_history_menu(button, path_type):
                 else:
                     output_entry.delete(0, tk.END)
                     output_entry.insert(0, p)
-            menu.add_command(label=path, command=set_path)
+            menu.add_command(label=history.format_path_for_display(path), command=set_path)
     x = input_entry.winfo_rootx()
     y = button.winfo_rooty() + button.winfo_height()
     menu.post(x, y)
