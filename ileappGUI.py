@@ -613,6 +613,18 @@ style.map('TCombobox',
           )
 style.configure('TScrollbar', background=theme_fgcolor, arrowcolor='black', troughcolor=theme_inputcolor)
 style.configure('TProgressbar', thickness=4, background='DarkGreen')
+style.configure(
+    'TCheckbutton',
+    background=theme_bgcolor,
+    foreground=theme_fgcolor,
+)
+style.map(
+    'TCheckbutton',
+    background=[('active', theme_bgcolor)],
+    foreground=[('active', theme_fgcolor)],
+    indicatorcolor=[('selected', theme_fgcolor), ('!selected', theme_inputcolor)],
+    indicatorbackground=[('selected', theme_inputcolor), ('!selected', theme_bgcolor)],
+)
 
 ## Main Window Layout
 ### Top part of the window
