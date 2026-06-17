@@ -130,6 +130,13 @@ def get_duetLocations(files_found, report_folder, seeker, wrap_text, timezone_of
             else:
                 try:
                     plist = nd.deserialize_plist_from_string(datos)
+                    
+                    if not isinstance(plist, dict) or len(plist) == 0:
+                        logfunc(f'Plist is empty or not a dictionary (iOS 16.3+): {type(plist)}')
+                        continue
+                    
+                    timestamp = latitude = longitude = horzacc = altitude = speed = ''
+                    
                     for key, value in plist.items():
                         #print(key, value)
                         if key == 'kCLLocationCodingKeyCoordinateLongitude':
@@ -145,13 +152,13 @@ def get_duetLocations(files_found, report_folder, seeker, wrap_text, timezone_of
                             altitude = value
                         elif key == 'kCLLocationCodingKeySpeed':
                             speed = value
-                            
-                    data_list.append((timestamp,latitude,longitude,horzacc,altitude,speed))
-                    timestamp = latitude = longitude = horzacc, altitude = ''
+                    
+                    if latitude != '' and longitude != '':
+                        data_list.append((timestamp, latitude, longitude, horzacc, altitude, speed))
                     
                 except (nd.DeserializeError, nd.biplist.NotBinaryPlistException, nd.biplist.InvalidPlistException,
                         nd.plistlib.InvalidFileException, nd.ccl_bplist.BplistError, ValueError, TypeError, OSError, OverflowError) as ex:
-                    logfunc(f'Failed to read plist, error was:' + str(ex))
+                    logfunc(f'Failed to read plist, error was: {str(ex)}')
                 
             modresult = (sizeofnotificaton % 8)
             resultante =  8 - modresult
