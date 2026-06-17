@@ -1,4 +1,5 @@
 astc_decomp_faster
+pytypedstream
 bencoding
 biplist
 blackboxprotobuf

@@ -59,9 +59,17 @@ def tiktok_replied(files_found, report_folder, seeker, wrap_text, timezone_offse
             for table in contacts_tables:
                 contacts_subqueries.append(f'SELECT uid, customid, nickname, url1, "{table}" as t FROM AwemeIM.{table}')
 
-            contacts_subquery = '''
-                        UNION ALL
-                        '''.join(contacts_subqueries)
+            if len(contacts_subqueries) > 0:
+                contacts_subquery = '''
+                            UNION ALL
+                            '''.join(contacts_subqueries)
+            else:
+                 contacts_subquery = 'SELECT null as uid, null as customid, null as nickname, null as url1, null as t WHERE 1=0'
+
+            cursor.execute("SELECT name FROM AwemeIM.sqlite_master WHERE type='table' and name='TIMMessageKVORM';")
+            if cursor.fetchone() is None:
+                logfunc("Table TIMMessageKVORM not found in AwemeIM.db")
+                continue
 
             # wrap subquery to select only a single record per contact
             contacts_subquery = f'''

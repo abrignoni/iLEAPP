@@ -1,4 +1,5 @@
 import os
+import sqlite3
 from datetime import datetime
 import pytz
 import json
@@ -10,7 +11,16 @@ from pillow_heif import register_heif_opener
 from pathlib import Path	
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, kmlgen, is_platform_windows, media_to_html, open_sqlite_db_readonly
+from scripts.ilapfuncs import (
+    logfunc,
+    tsv,
+    timeline,
+    kmlgen,
+    is_platform_windows,
+    media_to_html,
+    open_sqlite_db_readonly,
+    does_column_exist_in_db
+)
 
 def isclose(a, b, rel_tol=1e-06, abs_tol=0.0):
     return abs(a-b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
@@ -66,7 +76,8 @@ def get_photosDbexif(files_found, report_folder, seeker, wrap_text, timezone_off
             #sqlite portion
             db = open_sqlite_db_readonly(file_found)
             cursor = db.cursor()
-            cursor.execute('''
+            if does_column_exist_in_db(file_found, 'ZADDITIONALASSETATTRIBUTES', 'ZCREATORBUNDLEID'):
+                query = '''
                 SELECT
                 DATETIME(ZASSET.ZDATECREATED+978307200,'UNIXEPOCH') AS DATECREATED,
                 DATETIME(ZASSET.ZMODIFICATIONDATE+978307200,'UNIXEPOCH') AS MODIFICATIONDATE,
@@ -77,8 +88,27 @@ def get_photosDbexif(files_found, report_folder, seeker, wrap_text, timezone_off
                 ZADDITIONALASSETATTRIBUTES.ZCREATORBUNDLEID
                 FROM ZASSET
                 INNER JOIN ZADDITIONALASSETATTRIBUTES ON ZASSET.Z_PK = ZADDITIONALASSETATTRIBUTES.Z_PK
-            ''')
-            
+                '''
+            else:
+                logfunc("INFO: ZADDITIONALASSETATTRIBUTES.ZCREATORBUNDLEID not found. Using ZASSET-only query.")
+                query = '''
+                SELECT
+                DATETIME(ZASSET.ZDATECREATED+978307200,'UNIXEPOCH') AS DATECREATED,
+                DATETIME(ZASSET.ZMODIFICATIONDATE+978307200,'UNIXEPOCH') AS MODIFICATIONDATE,
+                ZASSET.ZDIRECTORY,
+                ZASSET.ZFILENAME,
+                ZASSET.ZLATITUDE,
+                ZASSET.ZLONGITUDE,
+                '' as "Placeholder_CreatorID"
+                FROM ZASSET
+                '''
+
+            try:
+                cursor.execute(query)
+            except sqlite3.OperationalError as ex:
+                logfunc(f'Error processing Photos.sqlite Analysis: {ex}')
+                continue
+
             all_rows = cursor.fetchall()
             usageentries = len(all_rows)
             
