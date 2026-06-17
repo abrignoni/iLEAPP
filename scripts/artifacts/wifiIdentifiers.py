@@ -42,27 +42,29 @@ def wifiIdentifiers(context):
         for key, value in pl.items():
             if key == 'Interfaces':
                 for y in value:
-                    try:
-                        hexstring_raw = y.get('IOMACAddress')
-                        if hexstring_raw:
-                            hexstring = pad_mac_adr("%x:%x:%x:%x:%x:%x" % struct.unpack("BBBBBB", hexstring_raw))
-                        else:
-                            hexstring = "N/A"
+                    hexstring = "N/A"
+                    sc_info = y.get('SCNetworkInterfaceInfo', {})
+                    userdefinedname = sc_info.get('UserDefinedName', 'N/A')
+                    bsdname = y.get('BSD Name', 'N/A')
+                    hexstring_raw = y.get('IOMACAddress')
+                    if hexstring_raw:
+                        try:
+                            mac_octets = struct.unpack("BBBBBB", hexstring_raw)
+                            hexstring = pad_mac_adr(":".join(f"{octet:x}" for octet in mac_octets))
+                            device_info(
+                                "Network",
+                                "MAC Addresses",
+                                f"{userdefinedname}: {hexstring}",
+                                source_path
+                            )
+                        except (struct.error, TypeError) as ex:
+                            logfunc(f"Error processing Wi-Fi MAC address: {ex}")
 
-                        # Usamos .get() para evitar errores si la clave no existe
-                        sc_info = y.get('SCNetworkInterfaceInfo', {})
-                        userdefinedname = sc_info.get('UserDefinedName', 'N/A')
-                        bsdname = y.get('BSD Name', 'N/A')
-
-                        data_list.append((
-                            hexstring,
-                            userdefinedname,
-                            bsdname
-                        ))
-                        if userdefinedname != 'N/A':
-                            device_info("Network", userdefinedname, hexstring, source_path)
-                    except Exception as e:
-                        logfunc(f"Error processing interface: {e}")
+                    data_list.append((
+                        hexstring,
+                        userdefinedname,
+                        bsdname
+                    ))
 
     data_headers = (
         'MAC Address',
