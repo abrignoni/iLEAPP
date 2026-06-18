@@ -13,9 +13,9 @@ Number of v1 artifacts: 60
 Number of v2 artifacts: 454  
 Number of artifacts with 'lava output': 439  
 Number of artifacts using 'artifact_icon': 319  
-Number of artifacts using 'version': 166  
-Number of artifacts using 'last_update_date': 295  
-Number of artifacts using context parameter: 258  
+Number of artifacts using 'version': 165  
+Number of artifacts using 'last_update_date': 296  
+Number of artifacts using context parameter: 259  
 Number of artifacts with errors or no recognized artifacts: 3  
 
 ## V2 Artifacts Table
@@ -319,7 +319,7 @@ Number of artifacts with errors or no recognized artifacts: 3
 | [foursquareSwarm.py](/scripts/artifacts/foursquareSwarm.py) | foursquare_swarm_location_history | Foursquare Swarm - Location History | Foursquare Swarm | all | Yes | navigation |  | 2026-06-01 | Extracts passive location history (GPS breadcrumbs) | ``*/mobile/Containers/Data/Application/*/Library/Caches/foursquare.sqlite*`` |
 | [foursquareSwarm.py](/scripts/artifacts/foursquareSwarm.py) | foursquare_swarm_plog | Foursquare Swarm - Logs | Foursquare Swarm | standard | Yes | terminal |  | 2026-06-01 | Parses and extracts Foursquare Swarm/Pilgrim SDK Logs | ``*/mobile/Containers/Data/Application/*/Library/Caches/foursquare.sqlite*`` |
 | [foursquareSwarm.py](/scripts/artifacts/foursquareSwarm.py) | foursquare_swarm_feed | Foursquare Swarm - Activity Feed & Bulletins | Foursquare Swarm | standard | Yes | activity |  | 2026-06-01 | Parses and extracts the social activity feed, notifications, and interactive bulletins | ``*/mobile/Containers/Data/Application/*/Library/Caches/foursquare.sqlite*``, ``*/com.pinterest.PINDiskCache.PINRemoteImageManagerCache/*%2Fimg%2F*`` |
-| [geodMapTiles.py](/scripts/artifacts/geodMapTiles.py) | geodMapTiles | GeoD Maptiles | Location | lava, tsv, timeline | No |  | 0.0.2 |  | Parses Map Tile Records from Apple geod Cache | ``**/MapTiles.sqlitedb*`` |
+| [geodMapTiles.py](/scripts/artifacts/geodMapTiles.py) | geodMapTiles | GeoD Maptiles | Location | standard | Yes |  |  | 2026-06-17 | Parses Map Tile Records from Apple geod Cache | ``**/MapTiles.sqlitedb*`` |
 | [gmail.py](/scripts/artifacts/gmail.py) | gmailOfflineSearch | Gmail - Offline Search | Gmail | html, tsv, lava, timeline | No |  | 0.0.2 |  | Parses Gmail offline search content | ``*/mobile/Containers/Data/Application/*/Library/Application Support/data/*/searchsqlitedb*`` |
 | [gmail.py](/scripts/artifacts/gmail.py) | gmailLabelDetails | Gmail - Label Details | Gmail | html, tsv, lava | No |  | 0.0.2 |  | Parses Gmail label details | ``*/mobile/Containers/Data/Application/*/Library/Application Support/data/*/sqlitedb*`` |
 | [googleChat.py](/scripts/artifacts/googleChat.py) | get_googleChat | Google Chat | Google Chats | all | No |  | 0.1 |  | Parses google chats | ``*/Documents/user_accounts/*/dynamite.db*`` |
