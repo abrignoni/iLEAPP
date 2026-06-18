@@ -5,7 +5,7 @@ __artifacts_v2__ = {
         "description": "Devices Associated with iCloud Account",
         "author": "Heather Charpentier",
         "creation_date": "2024-12-13",
-        "last_update_date": "2025-04-14",
+        "last_update_date": "2026-06-18",
         "requirements": "none",
         "category": "Trusted Peers",
         "notes": "",
