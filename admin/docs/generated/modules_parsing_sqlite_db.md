@@ -69,6 +69,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | googleTranslate |
 | health |
 | iOSCacheLocations |
+| instagramThreads |
 | logarchive |
 | nsVault |
 | payByPhone |
@@ -139,7 +140,6 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | googleDuo |
 | hikvision |
 | imoHD_Chat |
-| instagramThreads |
 | interactionCcontacts |
 | keyboard |
 | kikGroupadmins |
