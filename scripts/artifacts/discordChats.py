@@ -1,252 +1,382 @@
 __artifacts_v2__ = {
     "discordChats": {
         "name": "Discord - Chats",
-        "description": "Parses Discord chat messages from FSCacheData and \'a\' database",
+        "description": "Parses Discord chat messages from fsCachedData and the local KV storage database",
         "author": "Original Unknown, John Hyla & @stark4n6",
         "creation_date": "",
-        "last_updated": "2025-11-25",
+        "last_update_date": "2026-06-18",
         "requirements": "none",
         "category": "Discord",
         "notes": "",
-        "paths": ('*/activation_record.plist', 
-            '*/com.hammerandchisel.discord/fsCachedData/*', 
-            '*/Library/Caches/kv-storage/@account*/a*', 
-            '*/Library/Caches/com.hackemist.SDImageCache/default/*'),
+        "paths": (
+            "*/activation_record.plist",
+            "*/com.hammerandchisel.discord/fsCachedData/*",
+            "*/Library/Caches/kv-storage/@account*/a*",
+            "*/Library/Caches/com.hackemist.SDImageCache/default/*",
+        ),
         "output_types": "standard",
-        "artifact_icon": "message-circle"
+        "artifact_icon": "message-circle",
+        "data_views": {
+            "conversation": {
+                "conversationDiscriminatorColumn": "Channel ID",
+                "conversationLabelColumn": "Channel ID",
+                "textColumn": "Content",
+                "directionColumn": "Direction",
+                "directionSentValue": "Sent",
+                "timeColumn": "Timestamp",
+                "senderColumn": "Sender",
+                "mediaColumn": "Attachment",
+            }
+        },
+        "sample_data": {
+            "josh_ios_15": (
+                "204 rows from fsCachedData and KV storage; 30 attachment rows; "
+                "11 cached media matches"
+            ),
+        },
     }
 }
 
-import biplist
 import hashlib
 import json
 import math
-import os
 import re
+from datetime import datetime
+from os.path import basename, isfile, normcase, normpath
 
-from scripts.ilapfuncs import artifact_processor, logfunc, get_resolution_for_model_id, get_file_path, \
-    get_sqlite_db_records, check_in_media
+import biplist
+
+from scripts.ilapfuncs import (
+    artifact_processor,
+    check_in_media,
+    get_resolution_for_model_id,
+    get_sqlite_db_records,
+    logfunc,
+)
+
+
+MESSAGE_TYPES = {
+    0: "Message",
+    3: "Call",
+    7: "User Joined",
+    19: "Reply",
+}
+
+
+def _discord_timestamp(timestamp):
+    if not timestamp or timestamp == "None":
+        return ""
+    try:
+        return datetime.fromisoformat(str(timestamp).replace("Z", "+00:00"))
+    except ValueError:
+        return str(timestamp).replace("T", " ")
+
+
+def _reduced_size(width, height, max_width, max_height):
+    if width > height:
+        if width <= max_width:
+            return width, height
+        ratio = width / max_width
+        return max_width, math.ceil(height / ratio)
+
+    if height <= max_height:
+        return width, height
+
+    ratio = height / max_height
+    return math.ceil(width / ratio), max_height
+
+
+def _source_type(file_path):
+    if "fsCachedData" in file_path:
+        return "fsCachedData"
+    if basename(file_path) == "a":
+        return "KV Storage"
+    return ""
+
+
+def _source_path(context, file_path):
+    return context.get_relative_path(file_path)
+
+
+def _application_container(path):
+    parts = normpath(path).replace("/", "\\").split("\\")
+    if "Application" not in parts:
+        return ""
+    app_index = len(parts) - 1 - parts[::-1].index("Application")
+    if app_index + 1 >= len(parts):
+        return ""
+    return normcase("\\".join(parts[:app_index + 2]))
+
+
+def _account_id_from_path(path):
+    match = re.search(r"[/\\]@account\.([^/\\]+)", path)
+    return match.group(1) if match else ""
+
+
+def _account_ids_by_container(files_found):
+    account_ids = {}
+    for file_found in files_found:
+        file_found = str(file_found)
+        account_id = _account_id_from_path(file_found)
+        if account_id:
+            account_ids[_application_container(file_found)] = account_id
+    return account_ids
+
+
+def _account_id_for_file(file_path, account_ids):
+    return account_ids.get(_application_container(file_path), "")
+
+
+def _direction(author_id, account_id):
+    if account_id and str(author_id) == str(account_id):
+        return "Sent"
+    return "Received"
+
+
+def _message_type(message_type):
+    if message_type in MESSAGE_TYPES:
+        return MESSAGE_TYPES[message_type]
+    return message_type if message_type is not None else ""
+
+
+def _activation_resolution(files_found):
+    for file_found in files_found:
+        if not str(file_found).endswith("activation_record.plist"):
+            continue
+
+        plist = biplist.readPlist(str(file_found))
+        account_token = plist["AccountToken"].decode("utf-8")
+        matches = re.findall(r'"(.*?)" = "(.*?)";', account_token, re.DOTALL)
+        model_id = {key: value for key, value in matches}.get("ProductType")
+        if not model_id:
+            logfunc("Cannot detect model ID. Cannot link Discord attachments")
+            return None
+
+        return get_resolution_for_model_id(model_id)
+
+    logfunc("activation_record.plist not found. Unable to determine model/resolution for attachment linking")
+    return None
+
+
+def _attachment_extension(proxy_url):
+    match = re.search(r"attachments.+(\.[^?=]{1,4})\??", proxy_url)
+    return match.group(1) if match else ""
+
+
+def _resized_proxy_url(proxy_url, width, height, resolution):
+    if not width or not height or not resolution:
+        return proxy_url
+
+    new_width, new_height = _reduced_size(width, height, resolution["Width"], int(resolution["Height"] / 2))
+    if new_height == height and new_width == width:
+        if _attachment_extension(proxy_url) == ".gif":
+            return proxy_url
+        return f"{proxy_url}="
+
+    if proxy_url.endswith("&"):
+        return f"{proxy_url}=&width={new_width}&height={new_height}"
+    return f"{proxy_url}?width={new_width}&height={new_height}"
+
+
+def _attachment_rows(message, files_found, resolution):
+    attachments = message.get("attachments") or []
+    attachment_rows = []
+
+    for attachment in attachments:
+        filename = attachment.get("filename", "")
+        proxy_url = attachment.get("proxy_url") or attachment.get("url", "")
+        if not proxy_url:
+            attachment_rows.append((None, filename, ""))
+            continue
+        if not resolution:
+            attachment_rows.append((None, filename, proxy_url))
+            continue
+
+        width = attachment.get("width")
+        height = attachment.get("height")
+        resized_url = _resized_proxy_url(proxy_url, width, height, resolution)
+        extension = _attachment_extension(proxy_url)
+        cached_filename = hashlib.md5(resized_url.encode("utf-8")).hexdigest() + extension
+
+        if any(cached_filename in str(file_found) for file_found in files_found):
+            attachment_rows.append((check_in_media(cached_filename), filename, cached_filename))
+        else:
+            attachment_rows.append((None, filename, f"{proxy_url} ({cached_filename})"))
+
+    return attachment_rows or [(None, "", "")]
+
+
+def _embed_values(message):
+    embed_author = author_url = author_icon_url = embedded_url = embedded_description = ""
+    footer_text = footer_icon_url = ""
+
+    for embed in message.get("embeds") or []:
+        embedded_url = embed.get("url", "")
+        embedded_description = embed.get("description", "")
+
+        author = embed.get("author") or {}
+        embed_author = author.get("name", "")
+        author_url = author.get("url", "")
+        author_icon_url = author.get("icon_url", "")
+
+        footer = embed.get("footer") or {}
+        footer_text = footer.get("text", "")
+        footer_icon_url = footer.get("icon_url", "")
+
+    return embed_author, author_url, author_icon_url, embedded_url, embedded_description, footer_text, footer_icon_url
+
+
+def _message_rows(message, files_found, resolution, source_type, source_file, context, account_id):
+    timestamp = _discord_timestamp(message.get("timestamp"))
+    if not timestamp:
+        return []
+
+    author = message.get("author") or {}
+    sender = author.get("global_name") or author.get("globalName") or author.get("display_name")
+    sender = sender or author.get("username", "")
+    author_id = author.get("id", "")
+    edited_timestamp = _discord_timestamp(message.get("edited_timestamp"))
+    call_ended = _discord_timestamp((message.get("call") or {}).get("ended_timestamp"))
+    embed_values = _embed_values(message)
+
+    rows = []
+    for media_ref, attachment_filename, attachment_link in _attachment_rows(message, files_found, resolution):
+        rows.append((
+            timestamp,
+            edited_timestamp,
+            author.get("username", ""),
+            author.get("global_name") or author.get("globalName") or author.get("display_name") or "",
+            sender,
+            author.get("bot", ""),
+            message.get("content", ""),
+            media_ref,
+            attachment_filename,
+            attachment_link,
+            author_id,
+            account_id,
+            _direction(author_id, account_id),
+            message.get("channel_id", ""),
+            _message_type(message.get("type")),
+            call_ended,
+            message.get("id", ""),
+            *embed_values,
+            source_type,
+            _source_path(context, source_file),
+        ))
+
+    return rows
+
+
+def _fs_cache_messages(files_found):
+    for file_found in files_found:
+        file_found = str(file_found)
+        if "fsCachedData" not in file_found or not isfile(file_found):
+            continue
+
+        try:
+            with open(file_found, "r", encoding="utf-8") as json_file:
+                for line in json_file:
+                    json_record = json.loads(line)
+                    if isinstance(json_record, list):
+                        for message in json_record:
+                            yield file_found, message
+                    elif isinstance(json_record, dict):
+                        yield file_found, json_record
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError) as ex:
+            logfunc(f"Skipping Discord cache file {file_found}: {ex}")
+
+
+def _kv_storage_dbs(files_found):
+    return [
+        str(file_found)
+        for file_found in files_found
+        if basename(str(file_found)) == "a" and "kv-storage" in str(file_found)
+    ]
+
+
+def _kv_storage_messages(db_file):
+    query = "SELECT data FROM messages0"
+    for record in get_sqlite_db_records(db_file, query):
+        blob_data = record[0]
+        if len(blob_data) <= 1:
+            continue
+
+        try:
+            json_load = json.loads(blob_data[1:])
+        except (TypeError, UnicodeDecodeError, json.JSONDecodeError) as ex:
+            logfunc(f"Skipping Discord KV storage record in {db_file}: {ex}")
+            continue
+
+        message = json_load.get("message")
+        if message:
+            yield db_file, message
+
 
 @artifact_processor
 def discordChats(context):
-    """ see artifact info """
     files_found = context.get_files_found()
-
-    def reduceSize(width: int, height: int, max_width: int, max_height: int) -> (int, int):
-        if width > height:
-            if width > max_width:
-                new_width = max_width
-                ratio = width / new_width
-                new_height = math.ceil(height / ratio)
-            else:
-                new_width = width
-                new_height = height
-        else:
-            if height > max_height:
-                new_height = max_height
-                ratio = height / new_height
-                new_width = math.ceil(width / ratio)
-            else:
-                new_width = width
-                new_height = height
-        return (new_width, new_height)
-
-    def process_json(jsonfinal):
-        timestamp = editedtimestamp = username =  botuser = content = attachments = userid = channelid = emdeddedauthor = authorurl = authoriconurl = embededurl = embededdescript = footertext = footericonurl = pathedtail = ''
-
-        if 'author' in jsonfinal:
-            username = jsonfinal['author']['username']
-            userid = jsonfinal['author']['id']
-            if 'bot' in jsonfinal['author']:
-                botuser = jsonfinal['author']['bot']
-            else:
-                botuser = ''
-
-        if 'timestamp' in jsonfinal:
-            timestamp = str(jsonfinal['timestamp']).replace('T',' ')
-
-        if 'edited_timestamp' in jsonfinal:
-            editedtimestamp = str(jsonfinal['edited_timestamp']).replace('T',' ')
-
-        if 'content' in jsonfinal:
-            content = jsonfinal['content']
-
-        if 'channel_id' in jsonfinal:
-            channelid = jsonfinal['channel_id']
-
-        if 'attachments' in jsonfinal:
-            attachmentsData = jsonfinal['attachments']
-            attachmentsArray = []
-            if len(attachmentsData) > 0:
-                for a in attachmentsData:
-                    if resolution:
-                        #Get the width and height from the attachment record
-                        width = a.get('width')
-                        height = a.get('height')
-                        original_proxy_url = a.get('proxy_url')
-                        #Make sure there is a width or its probably not an image we can do anything with
-                        if not width:
-                            #Just show the URL (Could be a voice message or other type)
-                            attachmentsArray.append(original_proxy_url)
-                        else:
-                            # Find the extension in the url
-                            pattern = r'attachments.+(\.[^?=]{1,4})\??'
-                            match = re.search(pattern, original_proxy_url)
-
-                            if match:
-                                ext = match.group(1)
-                            else:
-                                ext = ''
-
-                            #Found an image (maybe video?)
-                            new_width, new_height = reduceSize(width, height, resolution['Width'], int(resolution['Height']/2))
-                            if new_height == height and new_width == width:
-                                if ext == '.gif':
-                                    #Not sure what other extensions might need to omit the = at end?
-                                    proxy_url = original_proxy_url
-                                else:
-                                    proxy_url = original_proxy_url + '='
-                            else:
-                                proxy_url = original_proxy_url
-                                if proxy_url[-1] == "&":
-                                    proxy_url += f'=&width={new_width}&height={new_height}'
-                                else:
-                                    proxy_url += f'?width={new_width}&height={new_height}'
-
-                            #Generate MD5 with extension appended
-                            proxy_url_md5 = hashlib.md5(proxy_url.encode('utf-8')).hexdigest() + ext
-
-                            #Check if a file by this name was found
-                            if any(proxy_url_md5 in string for string in files_found):
-                                # If Yes, generate thumbnail
-                                # attachmentsArray.append(media_to_html(proxy_url_md5, files_found, report_folder))
-                                attachment_file = check_in_media(proxy_url_md5)
-                                attachmentsArray.append([attachment_file, proxy_url_md5])
-                            else:
-                                # If no, show the URL, but also show the filename we think should exist
-                                # in case it can be located elsewhere
-                                attachmentsArray.append([None, a.get('proxy_url') + f' ({proxy_url_md5})'])
-                    else:
-                        #Resolution was not found, just show the URL
-                        attachmentsArray.append([None, a.get('proxy_url')])
-
-        if 'embeds' in jsonfinal:
-            if len(jsonfinal['embeds']) > 0:
-                y = 0
-                lenembeds = len(jsonfinal['embeds'])     
-                while y < lenembeds:
-                    if 'url' in jsonfinal['embeds'][y]:
-                        embededurl = jsonfinal['embeds'][y]['url']
-                    else:
-                        embededurl = ''
-
-                    if 'description' in jsonfinal['embeds'][y]:
-                        embededdescript = jsonfinal['embeds'][y]['description']
-                    else:
-                        embededdescript = ''
-
-                    if 'author' in jsonfinal['embeds'][y]:
-                        emdeddedauthor = jsonfinal['embeds'][y]['author']['name']
-                        if 'url' in jsonfinal['embeds'][y]['author']:
-                            authorurl = jsonfinal['embeds'][y]['author']['url']
-                        else:
-                            authorurl = ''
-                        if 'icon_url' in jsonfinal['embeds'][y]['author']:
-                            authoriconurl = jsonfinal['embeds'][y]['author']['icon_url']
-                        else:
-                            authoriconurl = ''
-                    else:
-                        emdeddedauthor = ''
-
-                    if 'footer' in jsonfinal['embeds']:
-                        footertext = jsonfinal['embeds'][y]['footer']['text']
-                        footericonurl = jsonfinal['embeds'][y]['footer']['icon_url']
-                    else:
-                        footertext = ''
-                        footericonurl = ''
-
-                    y = y + 1
-
-        _, pathedtail = os.path.split(pathed)
-
-        if timestamp == '':
-            pass
-        else:
-            if len(attachmentsArray) > 0:
-                for attach in attachmentsArray:
-                    data_list.append((timestamp, editedtimestamp, username,  botuser, content, attach[0],\
-                        attach[1], userid, channelid, emdeddedauthor, authorurl, authoriconurl, embededurl,\
-                        embededdescript, footertext, footericonurl, pathedtail))
-            else:
-                data_list.append(
-                    (timestamp, editedtimestamp, username, botuser, content, None, None, userid, channelid,
-                     emdeddedauthor, authorurl, authoriconurl, embededurl, embededdescript, footertext, footericonurl,
-                     pathedtail))
-
-    #First find modelID and screen resolution
-    resolution = None
-    activation_record_found = False
-    for file_found in files_found:
-        file_found = str(file_found)
-        if file_found.endswith('activation_record.plist'):
-            activation_record_found = True
-            plist = biplist.readPlist(file_found)
-            account_token = plist['AccountToken'].decode("utf-8")
-
-            pattern = r'"(.*?)" = "(.*?)";'
-            matches = re.findall(pattern, account_token, re.DOTALL)
-
-            # Create a dictionary from the extracted key-value pairs
-            parsed_data = {key: value for key, value in matches}
-
-            model_id = parsed_data.get('ProductType')
-
-            if not model_id:
-                logfunc("Cannot detect model ID. Cannot link attachments")
-                break
-            resolution = get_resolution_for_model_id(model_id)
-
-            break
-    if not activation_record_found:
-        logfunc('activation_record.plist not found. Unable to determine model/resolution for attachment linking')
+    resolution = _activation_resolution(files_found)
     if not resolution:
-        logfunc("Cannot link attachments due to missing resolution")
+        logfunc("Cannot link Discord attachments due to missing resolution")
 
+    account_ids = _account_ids_by_container(files_found)
     data_list = []
+    for source_file, message in _fs_cache_messages(files_found):
+        account_id = _account_id_for_file(source_file, account_ids)
+        data_list.extend(
+            _message_rows(
+                message,
+                files_found,
+                resolution,
+                _source_type(source_file),
+                source_file,
+                context,
+                account_id,
+            )
+        )
 
-    source_path = get_file_path(files_found, "a")
+    for db_file in _kv_storage_dbs(files_found):
+        for source_file, message in _kv_storage_messages(db_file):
+            account_id = _account_id_for_file(source_file, account_ids)
+            data_list.extend(
+                _message_rows(
+                    message,
+                    files_found,
+                    resolution,
+                    _source_type(source_file),
+                    source_file,
+                    context,
+                    account_id,
+                )
+            )
 
-    for file_found in files_found:
-        file_found = str(file_found)
-        pathed = file_found
+    data_headers = (
+        ("Timestamp", "datetime"),
+        ("Edited Timestamp", "datetime"),
+        "Username",
+        "Global Name",
+        "Sender",
+        "Bot?",
+        "Content",
+        ("Attachment", "media"),
+        "Attachment Filename",
+        "Attachment Link",
+        "User ID",
+        "Account ID",
+        "Direction",
+        "Channel ID",
+        "Message Type",
+        ("Call Ended", "datetime"),
+        "Message ID",
+        "Embedded Author",
+        "Author URL",
+        "Author Icon URL",
+        "Embedded URL",
+        "Embedded Description",
+        "Footer Text",
+        "Footer Icon URL",
+        "Source Type",
+        "Source File",
+    )
 
-        try:
-            if not file_found.endswith('activation_record.plist') and os.path.isfile(file_found) \
-                    and file_found != source_path and 'com.hackemist.SDImageCache' not in file_found:
-                with open(file_found, "r", encoding="utf-8") as f_in:
-                    for jsondata in f_in:
-                        jsonfinal = json.loads(jsondata)
-                        if isinstance(jsonfinal, list):
-                            for json_record in jsonfinal:
-                                process_json(json_record)
-            elif file_found == source_path:
-                query = '''select data from messages0'''
-
-                db_records = get_sqlite_db_records(source_path, query)
-                for record in db_records:
-                    blob_data = record[0]
-                    if len(blob_data) > 1:
-                        blob_data = blob_data[1:]
-                        json_load = json.loads(blob_data)
-                        if 'message' in json_load:
-                            jsonfinal = json.loads(json.dumps(json_load['message']))
-                            process_json(jsonfinal)
-
-        except ValueError as e:
-            logfunc(f"Error parsing JSON from {file_found}: {str(e)}")
-
-    data_headers = (('Timestamp', 'datetime'), ('Edited Timestamp', 'datetime'), 'Username', 'Bot?', 'Content',
-                    ('Attachment', 'media'), 'Attachment Link', 'User ID', 'Channel ID', 'Embedded Author',
-                    'Author URL', 'Author Icon URL', 'Embedded URL', 'Embedded Script',
-                    'Footer Text', 'Footer Icon URL', 'Source File')   
-    return data_headers, data_list, 'See source file(s) below:'
+    return data_headers, data_list, "see Source File column"
