@@ -1,4 +1,5 @@
 import os
+import sqlite3
 from datetime import datetime
 import pytz
 import json
@@ -10,7 +11,17 @@ from pillow_heif import register_heif_opener
 from pathlib import Path	
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, kmlgen, is_platform_windows, media_to_html, open_sqlite_db_readonly
+from scripts.ilapfuncs import (
+    logfunc,
+    tsv,
+    timeline,
+    kmlgen,
+    is_platform_windows,
+    media_to_html,
+    open_sqlite_db_readonly,
+    does_table_exist_in_db,
+    does_column_exist_in_db
+)
 
 def isclose(a, b, rel_tol=1e-06, abs_tol=0.0):
     return abs(a-b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
@@ -45,6 +56,13 @@ def get_all_exif(filename):
     image.verify()
     return image.getexif()
 
+def get_asset_table_name(db_path):
+    if does_table_exist_in_db(db_path, 'ZASSET'):
+        return 'ZASSET'
+    if does_table_exist_in_db(db_path, 'ZGENERICASSET'):
+        return 'ZGENERICASSET'
+    return None
+
 def get_photosDbexif(files_found, report_folder, seeker, wrap_text, timezone_offset):
     
     for file_found in files_found:
@@ -66,19 +84,44 @@ def get_photosDbexif(files_found, report_folder, seeker, wrap_text, timezone_off
             #sqlite portion
             db = open_sqlite_db_readonly(file_found)
             cursor = db.cursor()
-            cursor.execute('''
+            asset_table = get_asset_table_name(file_found)
+            if not asset_table:
+                logfunc("INFO: No asset table (ZASSET or ZGENERICASSET) found. Skipping Photos.sqlite Analysis.")
+                continue
+
+            if does_column_exist_in_db(file_found, 'ZADDITIONALASSETATTRIBUTES', 'ZCREATORBUNDLEID'):
+                query = f'''
                 SELECT
-                DATETIME(ZASSET.ZDATECREATED+978307200,'UNIXEPOCH') AS DATECREATED,
-                DATETIME(ZASSET.ZMODIFICATIONDATE+978307200,'UNIXEPOCH') AS MODIFICATIONDATE,
-                ZASSET.ZDIRECTORY,
-                ZASSET.ZFILENAME,
-                ZASSET.ZLATITUDE,
-                ZASSET.ZLONGITUDE,
+                DATETIME({asset_table}.ZDATECREATED+978307200,'UNIXEPOCH') AS DATECREATED,
+                DATETIME({asset_table}.ZMODIFICATIONDATE+978307200,'UNIXEPOCH') AS MODIFICATIONDATE,
+                {asset_table}.ZDIRECTORY,
+                {asset_table}.ZFILENAME,
+                {asset_table}.ZLATITUDE,
+                {asset_table}.ZLONGITUDE,
                 ZADDITIONALASSETATTRIBUTES.ZCREATORBUNDLEID
-                FROM ZASSET
-                INNER JOIN ZADDITIONALASSETATTRIBUTES ON ZASSET.Z_PK = ZADDITIONALASSETATTRIBUTES.Z_PK
-            ''')
-            
+                FROM {asset_table}
+                INNER JOIN ZADDITIONALASSETATTRIBUTES ON {asset_table}.Z_PK = ZADDITIONALASSETATTRIBUTES.Z_PK
+                '''
+            else:
+                logfunc(f"INFO: ZADDITIONALASSETATTRIBUTES.ZCREATORBUNDLEID not found. Using {asset_table}-only query.")
+                query = f'''
+                SELECT
+                DATETIME({asset_table}.ZDATECREATED+978307200,'UNIXEPOCH') AS DATECREATED,
+                DATETIME({asset_table}.ZMODIFICATIONDATE+978307200,'UNIXEPOCH') AS MODIFICATIONDATE,
+                {asset_table}.ZDIRECTORY,
+                {asset_table}.ZFILENAME,
+                {asset_table}.ZLATITUDE,
+                {asset_table}.ZLONGITUDE,
+                '' as "Placeholder_CreatorID"
+                FROM {asset_table}
+                '''
+
+            try:
+                cursor.execute(query)
+            except sqlite3.OperationalError as ex:
+                logfunc(f'Error processing Photos.sqlite Analysis: {ex}')
+                continue
+
             all_rows = cursor.fetchall()
             usageentries = len(all_rows)
             

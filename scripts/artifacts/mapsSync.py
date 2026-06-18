@@ -1,9 +1,15 @@
 import sqlite3
-import textwrap
 import blackboxprotobuf
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, kmlgen, timeline, is_platform_windows, get_next_unused_name, open_sqlite_db_readonly
+from scripts.ilapfuncs import (
+    logfunc,
+    tsv,
+    kmlgen,
+    timeline,
+    open_sqlite_db_readonly,
+    does_column_exist_in_db
+)
 
 def get_recursively(search_dict, field):
     """
@@ -41,27 +47,76 @@ def get_mapsSync(files_found, report_folder, seeker, wrap_text, timezone_offset)
     
         db = open_sqlite_db_readonly(file_found)
         cursor = db.cursor()
-        cursor.execute('''
-        SELECT
-        datetime(ZHISTORYITEM.ZCREATETIME+978307200,'UNIXEPOCH') AS 'Time Created',
-        datetime(ZHISTORYITEM.ZMODIFICATIONTIME+978307200,'UNIXEPOCH') AS 'Time Modified',
-        ZHISTORYITEM.z_pk AS 'Item Number',
-        CASE
-        when ZHISTORYITEM.z_ent = 14 then 'coordinates of search'
-        when ZHISTORYITEM.z_ent = 16 then 'location search'
-        when ZHISTORYITEM.z_ent = 12 then 'navigation journey'
-        end AS 'Type',
-        ZHISTORYITEM.ZQUERY AS 'Location Search',
-        ZHISTORYITEM.ZLOCATIONDISPLAY AS 'Location City',
-        ZHISTORYITEM.ZLATITUDE AS 'Latitude',
-        ZHISTORYITEM.ZLONGITUDE AS 'Longitude',
-        ZHISTORYITEM.ZLATITUDE1 AS 'Latitude1',
-        ZHISTORYITEM.ZLONGITUDE1 AS 'Longitude1',
-        ZHISTORYITEM.ZROUTEREQUESTSTORAGE AS 'Journey BLOB',
-        ZMIXINMAPITEM.ZMAPITEMSTORAGE as 'Map Item Storage BLOB'
-        from ZHISTORYITEM
-        left join ZMIXINMAPITEM on ZMIXINMAPITEM.Z_PK=ZHISTORYITEM.ZMAPITEM
-        ''')
+        if (
+            does_column_exist_in_db(file_found, 'ZHISTORYITEM', 'ZLOCATIONDISPLAY')
+            and does_column_exist_in_db(file_found, 'ZHISTORYITEM', 'ZLATITUDE1')
+            and does_column_exist_in_db(file_found, 'ZHISTORYITEM', 'ZROUTEREQUESTSTORAGE')
+            and does_column_exist_in_db(file_found, 'ZMIXINMAPITEM', 'ZMAPITEMSTORAGE')
+        ):
+            query = '''
+            SELECT
+            datetime(ZHISTORYITEM.ZCREATETIME+978307200,'UNIXEPOCH') AS 'Time Created',
+            datetime(ZHISTORYITEM.ZMODIFICATIONTIME+978307200,'UNIXEPOCH') AS 'Time Modified',
+            ZHISTORYITEM.z_pk AS 'Item Number',
+            CASE
+            when ZHISTORYITEM.z_ent = 14 then 'coordinates of search'
+            when ZHISTORYITEM.z_ent = 16 then 'location search'
+            when ZHISTORYITEM.z_ent = 12 then 'navigation journey'
+            end AS 'Type',
+            ZHISTORYITEM.ZQUERY AS 'Location Search',
+            ZHISTORYITEM.ZLOCATIONDISPLAY AS 'Location City',
+            ZHISTORYITEM.ZLATITUDE AS 'Latitude',
+            ZHISTORYITEM.ZLONGITUDE AS 'Longitude',
+            ZHISTORYITEM.ZLATITUDE1 AS 'Latitude1',
+            ZHISTORYITEM.ZLONGITUDE1 AS 'Longitude1',
+            ZHISTORYITEM.ZROUTEREQUESTSTORAGE AS 'Journey BLOB',
+            ZMIXINMAPITEM.ZMAPITEMSTORAGE as 'Map Item Storage BLOB'
+            from ZHISTORYITEM
+            left join ZMIXINMAPITEM on ZMIXINMAPITEM.Z_PK=ZHISTORYITEM.ZMAPITEM
+            '''
+        elif does_column_exist_in_db(file_found, 'ZMIXINMAPITEM', 'ZNAME'):
+            logfunc("INFO: MapsSync modern schema columns not found. Trying iOS 15 schema.")
+            query = '''
+            SELECT
+            datetime(ZHISTORYITEM.ZCREATETIME + 978307200, 'UNIXEPOCH') as "Creation Time",
+            datetime(ZHISTORYITEM.ZMODIFICATIONTIME + 978307200, 'UNIXEPOCH') as "Modification Time",
+            ZHISTORYITEM.Z_PK,
+            'Unknown' as "Type",
+            ZHISTORYITEM.ZQUERY,
+            ZMIXINMAPITEM.ZNAME,
+            ZHISTORYITEM.ZLATITUDE,
+            ZHISTORYITEM.ZLONGITUDE,
+            NULL as "Latitude1",
+            NULL as "Longitude1",
+            NULL as "Journey BLOB",
+            NULL as "Map Item Storage BLOB"
+            FROM ZHISTORYITEM
+            LEFT JOIN ZMIXINMAPITEM ON ZHISTORYITEM.ZMAPITEM = ZMIXINMAPITEM.Z_PK
+            '''
+        else:
+            logfunc("INFO: MapsSync mixin map item columns not found. Trying basic history query.")
+            query = '''
+            SELECT
+            datetime(ZHISTORYITEM.ZCREATETIME + 978307200, 'UNIXEPOCH') as "Creation Time",
+            datetime(ZHISTORYITEM.ZMODIFICATIONTIME + 978307200, 'UNIXEPOCH') as "Modification Time",
+            ZHISTORYITEM.Z_PK,
+            'Unknown' as "Type",
+            ZHISTORYITEM.ZQUERY,
+            '' as "Name_Placeholder",
+            ZHISTORYITEM.ZLATITUDE,
+            ZHISTORYITEM.ZLONGITUDE,
+            NULL as "Latitude1",
+            NULL as "Longitude1",
+            NULL as "Journey BLOB",
+            NULL as "Map Item Storage BLOB"
+            FROM ZHISTORYITEM
+            '''
+
+        try:
+            cursor.execute(query)
+        except sqlite3.OperationalError as ex:
+            logfunc(f'Error processing MapsSync data: {ex}')
+            continue
         
         # Above query courtesy of CheekyForensicsMonkey
         # https://cheeky4n6monkey.blogspot.com/2020/11/ios14-maps-history-blob-script.html

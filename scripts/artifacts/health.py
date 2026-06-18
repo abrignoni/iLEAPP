@@ -266,8 +266,6 @@ def health_workouts(context):
 
     data_list = []
 
-    celcius_temp = None
-
     activity_types = '''
         WHEN 1 THEN "AMERICAN FOOTBALL"
         WHEN 2 THEN "ARCHERY"
@@ -500,6 +498,7 @@ def health_workouts(context):
             CASE workouts.activity_type''' + activity_types + '''
                 ELSE "Unknown" || "-" || workouts.activity_type
             END AS 'Type',
+            NULL AS 'Location Type',
             strftime('%H:%M:%S', samples.end_date - samples.start_date, 'unixepoch') AS 'Total Time Duration',
             strftime('%H:%M:%S', workouts.duration, 'unixepoch') AS 'Duration',
             ''' + distance_and_goals + '''
@@ -532,6 +531,7 @@ def health_workouts(context):
     db_records = get_sqlite_db_records(data_source, query, attach_query)
 
     for record in db_records:
+        celcius_temp = None
         start_timestamp = convert_cocoa_core_data_ts_to_utc(record[0])
         end_timestamp = convert_cocoa_core_data_ts_to_utc(record[1])
         added_timestamp = convert_cocoa_core_data_ts_to_utc(record[26])

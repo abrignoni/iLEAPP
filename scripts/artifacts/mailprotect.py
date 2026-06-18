@@ -209,7 +209,6 @@ def get_mailprotect(files_found, report_folder, seeker, wrap_text, timezone_offs
                    
             else:
                 logfunc("No iOS emails available")
-        db.close()
 
     if version.parse(iOSversion) >= version.parse("13"):
         head, end = os.path.split(envelope_db)
