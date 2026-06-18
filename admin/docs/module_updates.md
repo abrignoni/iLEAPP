@@ -35,11 +35,16 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('Path/to/artifact/files',),
         "output_types": "all"  # or "standard" or ["html", "tsv", "timeline", "kml", "lava"],
-        "artifact_icon": "feather-icon-name"
+        "artifact_icon": "feather-icon-name",
+        "sample_data": {
+            "sample_name": "Short note about where this artifact has been tested"
+        }
     }
 }
 ```
 Read [Artifact Info Block Structure](./artifact_info_block.md) for more info about `__artifacts_v2__` block
+
+The optional `sample_data` key is a human-readable place to record known sample coverage for the artifact. Keep it lightweight: use short names for local/test images or cases, and note the important condition covered, such as row counts, missing optional columns, empty blobs, or OS versions. This is not currently used by the artifact processor; it is there to help reviewers and future maintainers find useful sample data.
 
 ### 2. Modify imports
 
