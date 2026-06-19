@@ -14,7 +14,7 @@ Number of v2 artifacts: 456
 Number of artifacts with 'lava output': 441  
 Number of artifacts using 'artifact_icon': 321  
 Number of artifacts using 'version': 167  
-Number of artifacts using 'last_update_date': 298  
+Number of artifacts using 'last_update_date': 299  
 Number of artifacts using context parameter: 261  
 Number of artifacts with errors or no recognized artifacts: 3  
 
@@ -274,7 +274,7 @@ Number of artifacts with errors or no recognized artifacts: 3
 | [dhcphp.py](/scripts/artifacts/dhcphp.py) | dhcpHotspotClients | DHCP Hotspot Clients | DHCP | standard | No |  | 1.0 |  | Information about devices that connected to the hotspot | ``*/db/dhcpd_leases*`` |
 | [dhcpl.py](/scripts/artifacts/dhcpl.py) | dhcpLeases | DHCP Received List | DHCP | standard | No |  | 1.0 |  | DHCP client lease information | ``*/db/dhcpclient/leases/en*`` |
 | [discordAcct.py](/scripts/artifacts/discordAcct.py) | get_discordAcct | Discord - Account | Discord | standard | Yes |  |  |  | Parses Discord accounts | ``*/mobile/Containers/Data/Application/*/Documents/mmkv/mmkv.default`` |
-| [discordChats.py](/scripts/artifacts/discordChats.py) | discordChats | Discord - Chats | Discord | standard | Yes | message-circle |  |  | Parses Discord chat messages from FSCacheData and 'a' database | ``*/activation_record.plist``, ``*/com.hammerandchisel.discord/fsCachedData/*``, ``*/Library/Caches/kv-storage/@account*/a*``, ``*/Library/Caches/com.hackemist.SDImageCache/default/*`` |
+| [discordChats.py](/scripts/artifacts/discordChats.py) | discordChats | Discord - Chats | Discord | standard | Yes | message-circle |  | 2026-06-18 | Parses Discord chat messages from fsCachedData and the local KV storage database | ``*/activation_record.plist``, ``*/com.hammerandchisel.discord/fsCachedData/*``, ``*/Library/Caches/kv-storage/@account*/a*``, ``*/Library/Caches/com.hackemist.SDImageCache/default/*`` |
 | [discordManifest.py](/scripts/artifacts/discordManifest.py) | get_discordManifest | Discord - Manifest | Discord | standard | Yes |  |  |  | Parses Discord manifest | ``*/mobile/Containers/Data/Application/*/Documents/RCTAsyncLocalStorage_V1/manifest.json`` |
 | [discord_a.py](/scripts/artifacts/discord_a.py) | DiscordChatsA | Discord Chats (KV Storage) | Discord | standard | No | message-circle |  |  | Parses Discord chats from "a" database | ``*/Library/Caches/kv-storage/@account*/a*`` |
 | [discord_cache.py](/scripts/artifacts/discord_cache.py) | discord_cache | Discord Cache | Discord | standard | Yes | database |  |  | Parses Discord URL cache records and files from Cache.db and fsCachedData | ``*/Library/Caches/com.hammerandchisel.discord/Cache.db*``, ``*/Library/Caches/com.hammerandchisel.discord/fsCachedData/*`` |
