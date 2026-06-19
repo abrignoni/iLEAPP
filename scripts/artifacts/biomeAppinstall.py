@@ -18,8 +18,7 @@ from datetime import timezone
 import blackboxprotobuf
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
-from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv
-from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv, logfunc
 
 @artifact_processor
 def get_biomeAppinstall(context):
