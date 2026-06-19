@@ -112,7 +112,10 @@ def get_biomeAppinstall(context):
                 try:
                     protostuff, _ = blackboxprotobuf.decode_message(record.data, typess)
                 except (KeyError, ValueError, TypeError, IndexError) as ex:
-                    logfunc(f"Skipping biomeAppinstall record due to protobuf decode error: {ex}")
+                    logfunc(f"Skipping biomeAppinstall record due to protobuf decode error: {ex} |"
+                    f"File: {context.get_relative_path(file_found)} | "
+                    f"Offset: {record.data_start_offset}"
+                    )
                     continue
 
                 activity = protostuff['1']['1']
