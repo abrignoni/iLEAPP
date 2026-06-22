@@ -30,8 +30,18 @@ def get_name(name_with_prefix):
 
 @artifact_processor
 def medicalID(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
+    data_headers = ('Key', 'Value')
     data_list = []
-    source_path = str(files_found[0])
+
+    source_path = ''
+    for file_found in files_found:
+        file_found = str(file_found)
+        if file_found.endswith('MedicalIDData.archive'):
+            source_path = file_found
+            break
+    if not source_path:
+        return data_headers, data_list, ''
+
     with open(source_path, 'rb') as f:
         deserialized_plist = nd.deserialize_plist(f)
         for key, value in deserialized_plist.items():
@@ -48,5 +58,4 @@ def medicalID(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset
             else:
                 data_list.append((key_name, value))
 
-    data_headers = ('Key', 'Value')
     return data_headers, data_list, source_path
