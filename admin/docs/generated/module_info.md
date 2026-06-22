@@ -13,9 +13,9 @@ Number of v1 artifacts: 58
 Number of v2 artifacts: 458  
 Number of artifacts with 'lava output': 443  
 Number of artifacts using 'artifact_icon': 324  
-Number of artifacts using 'version': 164  
-Number of artifacts using 'last_update_date': 302  
-Number of artifacts using context parameter: 264  
+Number of artifacts using 'version': 159  
+Number of artifacts using 'last_update_date': 307  
+Number of artifacts using context parameter: 269  
 Number of artifacts with errors or no recognized artifacts: 3  
 
 ## V2 Artifacts Table
@@ -420,11 +420,11 @@ Number of artifacts with errors or no recognized artifacts: 3
 | [sysdiagnose.py](/scripts/artifacts/sysdiagnose.py) | get_sysdiag_account_devices | Sysdiagnose - Account Devices | Sysdiagnose | standard | Yes | smartphone |  | 2025-10-01 | Parses the otctl_status.txt file from Sysdiagnose logs, to get informations about other devices connected to the same Apple-ID. | ``*/otctl_status.txt``, ``*/mobile/Library/Logs/CrashReporter/DiagnosticLogs/sysdiagnose/sysdiagnose_*.tar.gz`` |
 | [systemVersionPlist.py](/scripts/artifacts/systemVersionPlist.py) | system_version_plist | System Version plist | IOS Build | standard, tsv, none | Yes | git-commit |  | 2025-10-14 | Parses basic data from */System/Library/CoreServices/SystemVersion.plist which is a plist in GK Logical Plus extractions and sysdiagnose archives that | ``*/System/Library/CoreServices/SystemVersion.plist``, ``*/sysdiagnose_*.tar.gz`` |
 | [tcc.py](/scripts/artifacts/tcc.py) | tcc | Application Permissions | App Permissions | standard | No | key |  | 2025-04-07 | Extract application permissions from TCC.db database | ``*/mobile/Library/TCC/TCC.db*``, ``*/logs/Accessibility/TCC.db*`` |
-| [teams.py](/scripts/artifacts/teams.py) | teamsMessages | Teams Messages | Microsoft Teams | standard | No |  | 1.0 |  | Microsoft Teams messages and shared media | ``*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*``, ``*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/Downloads/*/Images/*`` |
-| [teams.py](/scripts/artifacts/teams.py) | teamsContacts | Teams Contacts | Microsoft Teams | standard | No |  | 1.0 |  | Microsoft Teams contact list | ``*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*`` |
-| [teams.py](/scripts/artifacts/teams.py) | teamsUser | Teams User Information | Microsoft Teams | standard | No |  | 1.0 |  | Microsoft Teams user profile and sync data | ``*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*`` |
-| [teams.py](/scripts/artifacts/teams.py) | teamsCalls | Teams Call Logs | Microsoft Teams | standard | No |  | 1.0 |  | Microsoft Teams call history | ``*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*`` |
-| [teams.py](/scripts/artifacts/teams.py) | teamsLocations | Teams Shared Locations | Microsoft Teams | all | No |  | 1.0 |  | Microsoft Teams shared location data | ``*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*`` |
+| [teams.py](/scripts/artifacts/teams.py) | teamsMessages | Teams Messages | Microsoft Teams | standard | Yes |  |  | 2026-06-12 | Microsoft Teams messages and shared media | ``*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*``, ``*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/Downloads/*/Images/*`` |
+| [teams.py](/scripts/artifacts/teams.py) | teamsContacts | Teams Contacts | Microsoft Teams | standard | Yes |  |  | 2026-06-12 | Microsoft Teams contact list | ``*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*`` |
+| [teams.py](/scripts/artifacts/teams.py) | teamsUser | Teams User Information | Microsoft Teams | standard | Yes |  |  | 2026-06-12 | Microsoft Teams user profile and sync data | ``*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*`` |
+| [teams.py](/scripts/artifacts/teams.py) | teamsCalls | Teams Call Logs | Microsoft Teams | standard | Yes |  |  | 2026-06-12 | Microsoft Teams call history | ``*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*`` |
+| [teams.py](/scripts/artifacts/teams.py) | teamsLocations | Teams Shared Locations | Microsoft Teams | all | Yes |  |  | 2026-06-12 | Microsoft Teams shared location data | ``*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*`` |
 | [telegramMesssages.py](/scripts/artifacts/telegramMesssages.py) | telegramMessages | Telegram Messages | Telegram | standard | Yes |  |  | 2024-07-15 | Parses Telegram messages, including text, media, and forwarding information from the local cache database. | ``*/telegram-data/account-*/postbox/db/db_sqlite*``, ``*/telegram-data/account-*/postbox/media/**`` |
 | [tikTok.py](/scripts/artifacts/tikTok.py) | tiktok_messages | TikTok - Messages | TikTok | standard | Yes | message-circle |  | 2026-06-18 | Extracts TikTok message data from the ChatFiles databases | ``*/Application/*/Library/Application Support/ChatFiles/*/db.sqlite*``, ``*AwemeIM.db*`` |
 | [tikTok.py](/scripts/artifacts/tikTok.py) | tiktok_contacts | TikTok - Contacts | TikTok | standard | Yes | users |  | 2026-06-18 | Extracts TikTok contact data from AwemeIM.db | ``*AwemeIM.db*`` |
