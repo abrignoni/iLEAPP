@@ -13,7 +13,7 @@ Number of v1 artifacts: 59
 Number of v2 artifacts: 456  
 Number of artifacts with 'lava output': 441  
 Number of artifacts using 'artifact_icon': 321  
-Number of artifacts using 'version': 167  
+Number of artifacts using 'version': 165  
 Number of artifacts using 'last_update_date': 299  
 Number of artifacts using context parameter: 261  
 Number of artifacts with errors or no recognized artifacts: 3  
@@ -345,8 +345,8 @@ Number of artifacts with errors or no recognized artifacts: 3
 | [iTunesBackupInfo.py](/scripts/artifacts/iTunesBackupInfo.py) | itunes_backup_installed_applications | iTunes Backup - Installed Applications | Installed Apps | html, tsv, lava | Yes | package |  | 2025-10-14 | Extract information about installed applications from the Info.plist file of an iTunes backup | ``info.plist`` |
 | [idstatuscache.py](/scripts/artifacts/idstatuscache.py) | idstatuscache | Identity Lookup Service | Identity Lookup Service | standard | Yes | user |  | 2026-03-31 | Extracts iCloud sync, Email, FaceTime, more. | ``*/mobile/Library/Preferences/com.apple.identityservices.idstatuscache.plist``, ``*/mobile/Library/IdentityServices/idstatuscache.plist`` |
 | [imeiImsi.py](/scripts/artifacts/imeiImsi.py) | imeiImsi | IMEI - IMSI | Identifiers | html, tsv, lava | No |  | 0.3 | 2025-02-04 | Extracts Cellular information | ``*/wireless/Library/Preferences/com.apple.commcenter.plist`` |
-| [instagramThreads.py](/scripts/artifacts/instagramThreads.py) | get_instagramThreads | Instagram Threads | Instagram | standard | Yes | instagram | 0.7 | 2026-06-05 | Existing messages sent and received in the Instagram App. | ``*/mobile/Containers/Data/Application/*/Library/Application Support/DirectSQLiteDatabase/*.db*`` |
-| [instagramThreads.py](/scripts/artifacts/instagramThreads.py) | get_instagram_calls | Instagram Threads Calls | Instagram | standard | Yes | phone | 0.7 | 2026-06-05 | Existing calls sent and received in the Instagram App. | ``*/mobile/Containers/Data/Application/*/Library/Application Support/DirectSQLiteDatabase/*.db*`` |
+| [instagramThreads.py](/scripts/artifacts/instagramThreads.py) | instagram_threads | Instagram Threads | Instagram | standard | Yes | instagram |  | 2026-06-05 | Existing messages sent and received in the Instagram App. | ``*/mobile/Containers/Data/Application/*/Library/Application Support/DirectSQLiteDatabase/*.db*`` |
+| [instagramThreads.py](/scripts/artifacts/instagramThreads.py) | instagram_calls | Instagram Threads Calls | Instagram | standard | Yes | phone |  | 2026-06-05 | Existing calls sent and received in the Instagram App. | ``*/mobile/Containers/Data/Application/*/Library/Application Support/DirectSQLiteDatabase/*.db*`` |
 | [keyboard.py](/scripts/artifacts/keyboard.py) | keyboardLexicon | Keyboard Dynamic Lexicon | User Activity | html, tsv, lava, timeline | Yes |  | 1.0 |  | Extracts dynamic lexicon data from the keyboard | ``*/mobile/Library/Keyboard/*-dynamic.lm/dynamic-lexicon.dat`` |
 | [keyboard.py](/scripts/artifacts/keyboard.py) | keyboardAppUsage | Keyboard Application Usage | User Activity | html, tsv, lava, timeline | Yes |  | 1.0 |  | Extracts keyboard application usage data | ``*/mobile/Library/Keyboard/app_usage_database.plist`` |
 | [keyboard.py](/scripts/artifacts/keyboard.py) | keyboardUsageStats | Keyboard Usage Stats | User Activity | html, tsv, lava, timeline | Yes |  | 1.0 |  | Extracts keyboard usage statistics | ``*/mobile/Library/Keyboard/user_model_database.sqlite*`` |
