@@ -281,6 +281,7 @@ class FileSeekerBase:
     """
     def search(self, filepattern, return_on_first_hit=False):
         '''Returns a list of paths for files/folders that matched'''
+        raise NotImplementedError
 
     def cleanup(self):
         '''close any open handles'''
@@ -343,7 +344,7 @@ class FileSeekerDir(FileSeekerBase):
                 if item not in self.copied or force:
                     try:
                         if os.path.isdir(item):
-                            pathlist.append(data_path)
+                            pass
                         elif os.path.isfile(item):
                             os.makedirs(os.path.dirname(data_path), exist_ok=True)
                             copy2(item, data_path)
