@@ -56,6 +56,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | allTrails |
 | appleWalletCards |
 | appleWalletTransactions |
+| atxDatastore |
 | biomeSync |
 | booking |
 | box |
@@ -72,6 +73,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | instagramThreads |
 | logarchive |
 | nsVault |
+| parsecdCache |
 | payByPhone |
 | photosMigration |
 | potatoChat |
@@ -115,7 +117,6 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | applePodcasts |
 | appleWalletPasses |
 | applicationStateDB |
-| atxDatastore |
 | bluetoothOther |
 | bluetoothPairedLE |
 | box |
@@ -157,7 +158,6 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | netusage |
 | notes |
 | ooklaSpeedtestData |
-| parsecdCache |
 | photosDbexif |
 | photosMetadata |
 | pingertextfree |
