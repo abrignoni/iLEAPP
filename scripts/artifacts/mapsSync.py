@@ -1,246 +1,206 @@
+__artifacts_v2__ = {
+    "mapsSync": {
+        "name": "Maps Sync",
+        "description": "Apple Maps history — searches, displayed locations and navigation journeys "
+                       "from MapsSync_0.0.1",
+        "author": "",
+        "version": "2.0",
+        "date": "2026-06-23",
+        "requirements": "none",
+        "category": "Location",
+        "notes": "Journey/Map Item addresses are decoded from protobuf BLOBs. Query courtesy of "
+                 "CheekyForensicsMonkey "
+                 "(https://cheeky4n6monkey.blogspot.com/2020/11/ios14-maps-history-blob-script.html). "
+                 "Disclaimer: Entries should be corroborated. Locations and searches from other linked "
+                 "devices might show up here. Travel should be confirmed. Medium confidence.",
+        "paths": ('*/MapsSync_0.0.1*',),
+        "output_types": "all",
+        "artifact_icon": "map-pin"
+    }
+}
+
 import sqlite3
+import struct
+
 import blackboxprotobuf
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import (
-    logfunc,
-    tsv,
-    kmlgen,
-    timeline,
-    open_sqlite_db_readonly,
-    does_column_exist_in_db
-)
+from scripts.ilapfuncs import (artifact_processor, logfunc, open_sqlite_db_readonly,
+                               does_column_exist_in_db)
+
+_DECODE_ERRORS = (KeyError, TypeError, IndexError, ValueError, AttributeError, struct.error)
+
 
 def get_recursively(search_dict, field):
-    """
-    Takes a dict with nested lists and dicts,
-    and searches all dicts for a key of the field
-    provided.
-    """
+    """Search all nested dicts/lists in search_dict for the given key, returning every value found."""
     fields_found = []
-    
     for key, value in search_dict.items():
-        
         if key == field:
             fields_found.append(value)
-            
         elif isinstance(value, dict):
-            results = get_recursively(value, field)
-            for result in results:
-                fields_found.append(result)
-                
+            fields_found.extend(get_recursively(value, field))
         elif isinstance(value, list):
             for item in value:
                 if isinstance(item, dict):
-                    more_results = get_recursively(item, field)
-                    for another_result in more_results:
-                        fields_found.append(another_result)
-                        
+                    fields_found.extend(get_recursively(item, field))
     return fields_found
 
-def get_mapsSync(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    
-    for file_found in files_found:
-        file_found = str(file_found)
-        if not file_found.endswith('MapsSync_0.0.1'):
-            continue # Skip all other files
-    
-        db = open_sqlite_db_readonly(file_found)
-        cursor = db.cursor()
-        if (
-            does_column_exist_in_db(file_found, 'ZHISTORYITEM', 'ZLOCATIONDISPLAY')
+
+def _journey_addresses(message, w, agg1):
+    """Pull the destination address(es) for a 'create' journey leg out of the decoded protobuf."""
+    msg2 = message['1'][1]['1'].get('2')
+    if msg2 is not None:
+        if isinstance(msg2, bytes):
+            return agg1 + ' ' + msg2.decode('latin-1')
+        directa = ''
+        for address in message['1'][1]['1']['2']['6']:
+            directa += ' ' + address.decode('latin-1')
+    else:
+        directa = ''
+        try:
+            for address in w['1']['101']['2']['11']:
+                directa += ' ' + address.decode('latin-1')
+        except (KeyError, TypeError, IndexError):
+            directa = ''
+            for address in w['1']['101']['2']:
+                directa += ' ' + str(address)
+    return directa if agg1 == '' else agg1 + ' <---> ' + directa
+
+
+def _parse_journey_blob(blob):
+    """Best-effort decode of ZROUTEREQUESTSTORAGE into a human-readable journey destination string."""
+    if blob is None:
+        return ''
+    agg1 = ''
+    try:
+        message, _ = blackboxprotobuf.decode_message(blob)
+        for x in message['1']:
+            if isinstance(x, dict):
+                check = x.get('2')
+                if check is not None and x['2'].get('1', '') != '':
+                    for y in x['2']['1']['4']:
+                        z = y.get('8')
+                        if isinstance(z, dict):
+                            w = z.get('31')
+                            if w is not None:
+                                three = get_recursively(w, '3')
+                                if three[1] == b'create':
+                                    agg1 = _journey_addresses(message, w, agg1)
+            else:
+                agg1 = x['2']['8']['1'].decode() + ' -> ' + x['2']['8']['3'].decode()
+    except _DECODE_ERRORS:
+        pass
+    return agg1
+
+
+def _parse_mapitem_blob(blob):
+    """Best-effort decode of ZMAPITEMSTORAGE into a human-readable address string."""
+    if blob is None:
+        return ''
+    mapitem = ''
+    try:
+        message, _ = blackboxprotobuf.decode_message(blob)
+        get101 = get_recursively(message, '101')
+        if not isinstance(get101[0]['2'], bytes):
+            for address in get101[0]['2']['11']:
+                mapitem += ' ' + address.decode('latin-1')
+        else:
+            for address in get101[0]['2']:
+                mapitem += ' ' + str(address)
+    except _DECODE_ERRORS:
+        pass
+    return mapitem
+
+
+def _build_query(file_found):
+    """Pick the MapsSync query variant that matches the schema present in this database."""
+    if (does_column_exist_in_db(file_found, 'ZHISTORYITEM', 'ZLOCATIONDISPLAY')
             and does_column_exist_in_db(file_found, 'ZHISTORYITEM', 'ZLATITUDE1')
             and does_column_exist_in_db(file_found, 'ZHISTORYITEM', 'ZROUTEREQUESTSTORAGE')
-            and does_column_exist_in_db(file_found, 'ZMIXINMAPITEM', 'ZMAPITEMSTORAGE')
-        ):
-            query = '''
-            SELECT
-            datetime(ZHISTORYITEM.ZCREATETIME+978307200,'UNIXEPOCH') AS 'Time Created',
-            datetime(ZHISTORYITEM.ZMODIFICATIONTIME+978307200,'UNIXEPOCH') AS 'Time Modified',
-            ZHISTORYITEM.z_pk AS 'Item Number',
-            CASE
-            when ZHISTORYITEM.z_ent = 14 then 'coordinates of search'
-            when ZHISTORYITEM.z_ent = 16 then 'location search'
-            when ZHISTORYITEM.z_ent = 12 then 'navigation journey'
-            end AS 'Type',
-            ZHISTORYITEM.ZQUERY AS 'Location Search',
-            ZHISTORYITEM.ZLOCATIONDISPLAY AS 'Location City',
-            ZHISTORYITEM.ZLATITUDE AS 'Latitude',
-            ZHISTORYITEM.ZLONGITUDE AS 'Longitude',
-            ZHISTORYITEM.ZLATITUDE1 AS 'Latitude1',
-            ZHISTORYITEM.ZLONGITUDE1 AS 'Longitude1',
-            ZHISTORYITEM.ZROUTEREQUESTSTORAGE AS 'Journey BLOB',
-            ZMIXINMAPITEM.ZMAPITEMSTORAGE as 'Map Item Storage BLOB'
-            from ZHISTORYITEM
-            left join ZMIXINMAPITEM on ZMIXINMAPITEM.Z_PK=ZHISTORYITEM.ZMAPITEM
-            '''
-        elif does_column_exist_in_db(file_found, 'ZMIXINMAPITEM', 'ZNAME'):
-            logfunc("INFO: MapsSync modern schema columns not found. Trying iOS 15 schema.")
-            query = '''
-            SELECT
-            datetime(ZHISTORYITEM.ZCREATETIME + 978307200, 'UNIXEPOCH') as "Creation Time",
-            datetime(ZHISTORYITEM.ZMODIFICATIONTIME + 978307200, 'UNIXEPOCH') as "Modification Time",
-            ZHISTORYITEM.Z_PK,
-            'Unknown' as "Type",
-            ZHISTORYITEM.ZQUERY,
-            ZMIXINMAPITEM.ZNAME,
-            ZHISTORYITEM.ZLATITUDE,
-            ZHISTORYITEM.ZLONGITUDE,
-            NULL as "Latitude1",
-            NULL as "Longitude1",
-            NULL as "Journey BLOB",
-            NULL as "Map Item Storage BLOB"
-            FROM ZHISTORYITEM
-            LEFT JOIN ZMIXINMAPITEM ON ZHISTORYITEM.ZMAPITEM = ZMIXINMAPITEM.Z_PK
-            '''
-        else:
-            logfunc("INFO: MapsSync mixin map item columns not found. Trying basic history query.")
-            query = '''
-            SELECT
-            datetime(ZHISTORYITEM.ZCREATETIME + 978307200, 'UNIXEPOCH') as "Creation Time",
-            datetime(ZHISTORYITEM.ZMODIFICATIONTIME + 978307200, 'UNIXEPOCH') as "Modification Time",
-            ZHISTORYITEM.Z_PK,
-            'Unknown' as "Type",
-            ZHISTORYITEM.ZQUERY,
-            '' as "Name_Placeholder",
-            ZHISTORYITEM.ZLATITUDE,
-            ZHISTORYITEM.ZLONGITUDE,
-            NULL as "Latitude1",
-            NULL as "Longitude1",
-            NULL as "Journey BLOB",
-            NULL as "Map Item Storage BLOB"
-            FROM ZHISTORYITEM
-            '''
+            and does_column_exist_in_db(file_found, 'ZMIXINMAPITEM', 'ZMAPITEMSTORAGE')):
+        return '''
+        SELECT
+        datetime(ZHISTORYITEM.ZCREATETIME+978307200,'UNIXEPOCH'),
+        datetime(ZHISTORYITEM.ZMODIFICATIONTIME+978307200,'UNIXEPOCH'),
+        ZHISTORYITEM.z_pk,
+        CASE
+        when ZHISTORYITEM.z_ent = 14 then 'coordinates of search'
+        when ZHISTORYITEM.z_ent = 16 then 'location search'
+        when ZHISTORYITEM.z_ent = 12 then 'navigation journey'
+        end,
+        ZHISTORYITEM.ZQUERY,
+        ZHISTORYITEM.ZLOCATIONDISPLAY,
+        ZHISTORYITEM.ZLATITUDE,
+        ZHISTORYITEM.ZLONGITUDE,
+        ZHISTORYITEM.ZLATITUDE1,
+        ZHISTORYITEM.ZLONGITUDE1,
+        ZHISTORYITEM.ZROUTEREQUESTSTORAGE,
+        ZMIXINMAPITEM.ZMAPITEMSTORAGE
+        from ZHISTORYITEM
+        left join ZMIXINMAPITEM on ZMIXINMAPITEM.Z_PK=ZHISTORYITEM.ZMAPITEM
+        '''
+    if does_column_exist_in_db(file_found, 'ZMIXINMAPITEM', 'ZNAME'):
+        logfunc("INFO: MapsSync modern schema columns not found. Trying iOS 15 schema.")
+        return '''
+        SELECT
+        datetime(ZHISTORYITEM.ZCREATETIME + 978307200, 'UNIXEPOCH'),
+        datetime(ZHISTORYITEM.ZMODIFICATIONTIME + 978307200, 'UNIXEPOCH'),
+        ZHISTORYITEM.Z_PK,
+        'Unknown',
+        ZHISTORYITEM.ZQUERY,
+        ZMIXINMAPITEM.ZNAME,
+        ZHISTORYITEM.ZLATITUDE,
+        ZHISTORYITEM.ZLONGITUDE,
+        NULL, NULL, NULL, NULL
+        FROM ZHISTORYITEM
+        LEFT JOIN ZMIXINMAPITEM ON ZHISTORYITEM.ZMAPITEM = ZMIXINMAPITEM.Z_PK
+        '''
+    logfunc("INFO: MapsSync mixin map item columns not found. Trying basic history query.")
+    return '''
+    SELECT
+    datetime(ZHISTORYITEM.ZCREATETIME + 978307200, 'UNIXEPOCH'),
+    datetime(ZHISTORYITEM.ZMODIFICATIONTIME + 978307200, 'UNIXEPOCH'),
+    ZHISTORYITEM.Z_PK,
+    'Unknown',
+    ZHISTORYITEM.ZQUERY,
+    '',
+    ZHISTORYITEM.ZLATITUDE,
+    ZHISTORYITEM.ZLONGITUDE,
+    NULL, NULL, NULL, NULL
+    FROM ZHISTORYITEM
+    '''
 
+
+@artifact_processor
+def mapsSync(context):
+    data_headers = (
+        ('Timestamp', 'datetime'), ('Modified Time', 'datetime'), 'Item Number', 'Type',
+        'Location Search', 'Location City', 'Latitude', 'Longitude', 'Latitude1', 'Longitude1',
+        'Journey Destination Address', 'Map Item Storage BLOB Address')
+    data_list = []
+    sources = []
+
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        if not file_found.endswith('MapsSync_0.0.1'):
+            continue
+
+        query = _build_query(file_found)
+        db = open_sqlite_db_readonly(file_found)
+        cursor = db.cursor()
         try:
             cursor.execute(query)
-        except sqlite3.OperationalError as ex:
+            all_rows = cursor.fetchall()
+        except sqlite3.Error as ex:
             logfunc(f'Error processing MapsSync data: {ex}')
+            db.close()
             continue
-        
-        # Above query courtesy of CheekyForensicsMonkey
-        # https://cheeky4n6monkey.blogspot.com/2020/11/ios14-maps-history-blob-script.html
-        
-        all_rows = cursor.fetchall()
-        usageentries = len(all_rows)
-        if usageentries > 0:
-            data_list = []
-            for row in all_rows:
-                #print(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7])
-                directa = ''
-                directb = ''
-                mapitem = ''
-                agg1 = ''
-                if row[10] is None:
-                    pass
-                #pp = pprint.PrettyPrinter(indent = 1)
-                #pp.pprint(message)
-                else:
-                    message, types = blackboxprotobuf.decode_message(row[10])
-                    
-                    for x in message['1']:
-                        
-                        if isinstance(x, dict):
-                            check = x.get('2')
-                            if check is None:
-                                pass
-                            elif x['2'].get('1','') != '':
-                                for y in x['2']['1']['4']:
-                                    z = y.get('8')
-                                    if z == None:
-                                        pass
-                                    else:
-                                        if isinstance(z, dict):
-                                            w = z.get('31')
-                                            if w == None:
-                                                pass
-                                            else:
-                                                three = get_recursively(w, '3')
-                                                if three[1] == b'create':
-                                                    #print(f'Three: {three[1]}')
-                                                    if message['1'][1]['1'].get('2') is not None:
-                                                        if type(message['1'][1]['1'].get('2')) == bytes:
-                                                            agg1 = agg1 + ' ' + (message['1'][1]['1'].get('2').decode('latin-1'))
-                                                        else:
-                                                            for address in (message['1'][1]['1']['2']['6']):
-                                                                directa = directa + ' ' + (address.decode('latin-1'))
-                                                                #print(row[0],directa, 'directa')
-                                                            if agg1 == '':
-                                                                agg1 = directa
-                                                                directa = ''
-                                                            else:
-                                                                agg1 = agg1 + ' <---> ' + directa
-                                                            
-                                                    else:
-                                                        try:
-                                                            for address in (w['1']['101']['2']['11']):
-                                                                directa = directa + ' ' + (address.decode('latin-1'))
-                                                                #print(row[0], directb, 'directb')
-                                                            if agg1 == '':
-                                                                agg1 = directa
-                                                                directa = ''
-                                                            else:
-                                                                agg1 = agg1 + ' <---> ' + directa
-                                                        except:
-                                                            for address in (w['1']['101']['2']):
-                                                                directa = directa + ' ' + str(address)
-                                                                #print(row[0], directb, 'directb')
-                                                            if agg1 == '':
-                                                                agg1 = directa
-                                                                directa = ''
-                                                            else:
-                                                                agg1 = agg1 + ' <---> ' + directa
-                                                    
-                                                    
-                        else:
-                            try:
-                                agg1 = (x['2']['8']['1'].decode() + ' -> ' + x['2']['8']['3'].decode())
-                            except:
-                                agg1 = ''
-                            
-                if row[11] is None:
-                    pass
-                else: 
-                    message, types = blackboxprotobuf.decode_message(row[11])
-                    #pp = pprint.PrettyPrinter(indent = 1)
-                    #pp.pprint(message['1']['4'])#[7]['8']['31']['1']['101']['2']['11'])
-                    get101 = (get_recursively(message, '101'))
-                    
-                    if type(get101[0]['2']) != bytes:
-                        for address in (get101[0]['2']['11']):
-                            mapitem = mapitem + ' ' + (address.decode('latin-1'))
-                    else:
-                        for address in (get101[0]['2']):
-                            mapitem = mapitem + ' ' + (str(address))
-                            
-                data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], agg1, mapitem))
-                agg1 = ''
-            
+        db.close()
 
-        if usageentries > 0:
-            description = 'Disclaimer: Entries should be corroborated. Locations and searches from other linked devices might show up here. Travel should be confirmed. Medium confidence.'
-            report = ArtifactHtmlReport('MapsSync')
-            report.start_artifact_report(report_folder, 'MapsSync', description)
-            report.add_script()
-            data_headers = ('Timestamp','Modified Time','Item Number','Type','Location Search','Location City','Latitude','Longitude','Latitude1','Longitude','Journey Destination Address', 'Map Item Storage BLOB Address')
-            
-            report.write_artifact_data_table(data_headers, data_list, file_found)
-            report.end_artifact_report()
-            
-            tsvname = f'MapsSync'
-            tsv(report_folder, data_headers, data_list, tsvname)
-            
-            tlactivity = 'MapsSync'
-            timeline(report_folder, tlactivity, data_list, data_headers)
-            
-            kmlactivity = 'MapsSync'
-            kmlgen(report_folder, kmlactivity, data_list, data_headers)
-        else:
-            logfunc('No MapsSync data available')
+        for row in all_rows:
+            data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7],
+                              row[8], row[9], _parse_journey_blob(row[10]), _parse_mapitem_blob(row[11])))
 
-__artifacts__ = {
-    "mapsSync": (
-        "Location",
-        ('*/MapsSync_0.0.1*'),
-        get_mapsSync)
-}
+        if all_rows:
+            sources.append(context.get_relative_path(file_found))
+
+    return data_headers, data_list, ', '.join(dict.fromkeys(sources))
