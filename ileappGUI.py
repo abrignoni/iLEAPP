@@ -277,6 +277,7 @@ def open_website(url):
 def open_settings_window():
     '''Open Settings modal window'''
     settings_window = tk.Toplevel(main_window)
+    settings_window.transient(main_window)
     settings_window_width = 400
     settings_window_height = 260
 
@@ -296,6 +297,20 @@ def open_settings_window():
     settings_window.title('Settings')
     settings_window.grid_columnconfigure(0, weight=1)
 
+    def on_main_focus(event):
+        if settings_window.winfo_exists():
+            settings_window.bell()
+            settings_window.lift()
+            settings_window.focus_force()
+
+    main_window.bind("<FocusIn>", on_main_focus)
+
+    def close_settings_window():
+        main_window.unbind("<FocusIn>")
+        settings_window.destroy()
+
+    settings_window.protocol("WM_DELETE_WINDOW", close_settings_window)
+
     settings_title_label = ttk.Label(settings_window, text='Settings', font='Helvetica 18')
     settings_title_label.grid(row=0, column=0, padx=14, pady=7, sticky='w')
 
@@ -310,6 +325,7 @@ def open_settings_window():
 
     def open_clear_history_window():
         clear_window = tk.Toplevel(settings_window)
+        clear_window.transient(settings_window)
         clear_window_width = 460
         clear_window_height = 220
 
@@ -327,6 +343,20 @@ def open_settings_window():
         clear_window.configure(bg=theme_bgcolor)
         clear_window.title('Clear History')
         clear_window.grid_columnconfigure(0, weight=1)
+
+        def on_settings_focus(event):
+            if clear_window.winfo_exists():
+                clear_window.bell()
+                clear_window.lift()
+                clear_window.focus_force()
+
+        settings_window.bind("<FocusIn>", on_settings_focus)
+
+        def close_clear_window():
+            settings_window.unbind("<FocusIn>")
+            clear_window.destroy()
+
+        clear_window.protocol("WM_DELETE_WINDOW", close_clear_window)
 
         clear_title_label = ttk.Label(clear_window, text='Clear History', font='Helvetica 18')
         clear_title_label.grid(row=0, column=0, padx=14, pady=7, sticky='w')
@@ -352,7 +382,7 @@ def open_settings_window():
                 return
             history.clear_single_leapp_history(leapp_name.lower())
             update_clear_history_button()
-            clear_window.destroy()
+            close_clear_window()
 
         def clear_all_history():
             if not tk_msgbox.askyesno(
@@ -362,7 +392,7 @@ def open_settings_window():
                 return
             history.clear_history()
             update_clear_history_button()
-            clear_window.destroy()
+            close_clear_window()
 
         clear_single_leapp_btn = ttk.Button(
             button_frame,
@@ -378,11 +408,13 @@ def open_settings_window():
             command=clear_all_history)
         clear_all_btn.pack(side='left', padx=5)
 
-        cancel_btn = ttk.Button(button_frame, text='Cancel', command=clear_window.destroy)
+        cancel_btn = ttk.Button(button_frame, text='Cancel', command=close_clear_window)
         cancel_btn.pack(side='left', padx=5)
 
-        clear_window.transient(settings_window)
-        clear_window.grab_set()
+        if is_platform_macos():
+            clear_window.grab_set_global()
+        else:
+            clear_window.grab_set()
 
     history_check = tk.Checkbutton(
         settings_window,
@@ -405,10 +437,13 @@ def open_settings_window():
     clear_history_btn.grid(row=2, column=0, padx=14, pady=10, sticky='w')
     update_clear_history_button()
 
-    close_btn = ttk.Button(settings_window, text='Close', command=settings_window.destroy)
+    close_btn = ttk.Button(settings_window, text='Close', command=close_settings_window)
     close_btn.grid(row=3, column=0, padx=14, pady=20, sticky='e')
 
-    settings_window.grab_set()
+    if is_platform_macos():
+        settings_window.grab_set_global()
+    else:
+        settings_window.grab_set()
 
 
 def resource_path(filename):
