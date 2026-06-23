@@ -12,6 +12,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | Airbnb |
 | BeReal |
 | ConnectedDeviceInformation |
+| FitnessWorkoutsLocationData |
 | LinkedIn |
 | Ph11KwrdsCapsTitlesDescripsBasicAssetData |
 | Ph15PeopleandDetFacesNAD |
@@ -110,7 +111,6 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | Source Modules |
 |----------------|
 | DataUsage |
-| FitnessWorkoutsLocationData |
 | Oops |
 | Ph10AssetParsedEmbeddedFiles |
 | Ph70UserAdjustDateTimezoneLocation |
