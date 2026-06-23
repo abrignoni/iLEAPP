@@ -67,6 +67,8 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | discord_a |
 | filesApp |
 | foursquareSwarm |
+| geodApplications |
+| geodPDPlaceCache |
 | googleTranslate |
 | health |
 | iOSCacheLocations |
@@ -136,9 +138,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | discord_cache |
 | dmss |
 | foursquareSwarm |
-| geodApplications |
 | geodMapTiles |
-| geodPDPlaceCache |
 | gmail |
 | googleChat |
 | googleDuo |
