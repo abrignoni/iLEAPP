@@ -35,7 +35,7 @@ _SECTIONS = {
 
 @artifact_processor
 def mobilebackupplist(context):
-    data_headers = ('Key', 'Values')
+    data_headers = ('Key', 'Value')
     data_list = []
 
     source_path = ''
