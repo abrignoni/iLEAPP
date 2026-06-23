@@ -12,7 +12,7 @@ import leapps.functions.history as history
 
 from PIL import Image, ImageTk
 from tkinter import ttk, filedialog as tk_filedialog, messagebox as tk_msgbox
-from scripts.version_info import leapp_version
+from scripts.version_info import leapp_name, leapp_version
 from scripts.search_files import *
 from scripts.ilapfuncs import *
 from scripts.tz_offset import tzvalues
@@ -278,7 +278,7 @@ def open_settings_window():
     '''Open Settings modal window'''
     settings_window = tk.Toplevel(main_window)
     settings_window_width = 400
-    settings_window_height = 200
+    settings_window_height = 260
 
     #### Places Case Data window in the center of the main window
     main_window.update_idletasks()
@@ -304,6 +304,86 @@ def open_settings_window():
     def toggle_history():
         history.set_history_enabled(history_enabled_var.get())
 
+    def update_clear_history_button():
+        state = tk.NORMAL if history.has_history() else tk.DISABLED
+        clear_history_btn.config(state=state)
+
+    def open_clear_history_window():
+        clear_window = tk.Toplevel(settings_window)
+        clear_window_width = 460
+        clear_window_height = 220
+
+        settings_window.update_idletasks()
+        settings_x = settings_window.winfo_x()
+        settings_y = settings_window.winfo_y()
+        settings_w = settings_window.winfo_width()
+        settings_h = settings_window.winfo_height()
+
+        margin_width = settings_x + (settings_w - clear_window_width) // 2
+        margin_height = settings_y + (settings_h - clear_window_height) // 2
+
+        clear_window.geometry(f'{clear_window_width}x{clear_window_height}+{margin_width}+{margin_height}')
+        clear_window.resizable(False, False)
+        clear_window.configure(bg=theme_bgcolor)
+        clear_window.title('Clear History')
+        clear_window.grid_columnconfigure(0, weight=1)
+
+        clear_title_label = ttk.Label(clear_window, text='Clear History', font='Helvetica 18')
+        clear_title_label.grid(row=0, column=0, padx=14, pady=7, sticky='w')
+
+        clear_message = (
+            'History is stored in shared LEAPP files. Input and output paths are shared by all '
+            'LEAPP tools, while recent runs are tagged by tool.'
+        )
+        clear_message_label = ttk.Label(clear_window, text=clear_message, wraplength=420)
+        clear_message_label.grid(row=1, column=0, padx=14, pady=10, sticky='w')
+
+        button_frame = ttk.Frame(clear_window)
+        button_frame.grid(row=2, column=0, padx=14, pady=18, sticky='e')
+
+        def clear_single_leapp_history():
+            if not tk_msgbox.askyesno(
+                    title=f'Clear {leapp_name} history',
+                    message=(
+                        f'Clear shared recent input/output paths and '
+                        f'{leapp_name} recent run entries?'
+                    ),
+                    parent=clear_window):
+                return
+            history.clear_single_leapp_history(leapp_name.lower())
+            update_clear_history_button()
+            clear_window.destroy()
+
+        def clear_all_history():
+            if not tk_msgbox.askyesno(
+                    title='Clear all LEAPP history',
+                    message='Clear all shared LEAPP history, including recent input and output paths?',
+                    parent=clear_window):
+                return
+            history.clear_history()
+            update_clear_history_button()
+            clear_window.destroy()
+
+        clear_single_leapp_btn = ttk.Button(
+            button_frame,
+            text=f'Clear {leapp_name} History',
+            command=clear_single_leapp_history)
+        clear_single_leapp_btn.pack(side='left', padx=5)
+        if not history.has_single_leapp_history(leapp_name.lower()):
+            clear_single_leapp_btn.config(state=tk.DISABLED)
+
+        clear_all_btn = ttk.Button(
+            button_frame,
+            text='Clear All History',
+            command=clear_all_history)
+        clear_all_btn.pack(side='left', padx=5)
+
+        cancel_btn = ttk.Button(button_frame, text='Cancel', command=clear_window.destroy)
+        cancel_btn.pack(side='left', padx=5)
+
+        clear_window.transient(settings_window)
+        clear_window.grab_set()
+
     history_check = tk.Checkbutton(
         settings_window,
         text='Enable saving paths as recent history',
@@ -318,8 +398,15 @@ def open_settings_window():
     )
     history_check.grid(row=1, column=0, padx=14, pady=20, sticky='w')
 
+    clear_history_btn = ttk.Button(
+        settings_window,
+        text='Clear History',
+        command=open_clear_history_window)
+    clear_history_btn.grid(row=2, column=0, padx=14, pady=10, sticky='w')
+    update_clear_history_button()
+
     close_btn = ttk.Button(settings_window, text='Close', command=settings_window.destroy)
-    close_btn.grid(row=2, column=0, padx=14, pady=20, sticky='e')
+    close_btn.grid(row=3, column=0, padx=14, pady=20, sticky='e')
 
     settings_window.grab_set()
 
@@ -384,7 +471,7 @@ def process(casedata):
             # Record the run in history
             report_path = os.path.join(out_params.output_folder_base, 'index.html')
             lava_project_path = os.path.join(out_params.output_folder_base, lava_json_name)
-            history.record_recent_run('ileapp', leapp_version, lava_project_path)
+            history.record_recent_run(leapp_name.lower(), leapp_version, lava_project_path)
 
             output_folder_path = out_params.output_folder_base
             if report_path.startswith('\\\\?\\'):  # windows

@@ -18,11 +18,12 @@ from shutil import copy2
 from getpass import getpass
 from scripts.search_files import *
 from scripts.ilapfuncs import *
-from scripts.version_info import leapp_version
+from scripts.version_info import leapp_name, leapp_version
 from time import process_time, gmtime, strftime, perf_counter
 from scripts.lavafuncs import *
 from scripts.context import Context
 from scripts.lavafuncs import lava_json_name
+
 
 def validate_args(args):
     if args.artifact_paths or args.create_profile_casedata:
@@ -568,7 +569,7 @@ def crunch_artifacts(
 
     # Record the run in history
     lava_project_path = os.path.join(out_params.output_folder_base, lava_json_name)
-    history.record_recent_run('ileapp', leapp_version, lava_project_path)
+    history.record_recent_run(leapp_name.lower(), leapp_version, lava_project_path)
 
     logfunc('')
     logfunc(f'Report location: {out_params.output_folder_base}')

@@ -165,6 +165,13 @@ def _read_json(path, default=None):
         return default
 
 
+def _has_history_entries(history_data):
+    return any(
+        history_data.get(key)
+        for key in ("input_paths", "output_paths", "runs")
+    )
+
+
 def is_history_enabled():
     """
     Checks if history recording is enabled in settings.
@@ -265,6 +272,29 @@ def get_recent_runs():
     return history_data.get("runs", [])
 
 
+def has_history():
+    """
+    Returns True if the shared history file has any stored entries.
+    """
+    history_data = _read_json(get_history_path())
+    return _has_history_entries(history_data)
+
+
+def has_single_leapp_history(leapp_id):
+    """
+    Returns True if shared paths or this LEAPP tool's runs exist.
+    """
+    history_data = _read_json(get_history_path())
+    if history_data.get("input_paths") or history_data.get("output_paths"):
+        return True
+
+    leapp_id = leapp_id.lower()
+    return any(
+        run.get("leapp_id") == leapp_id
+        for run in history_data.get("runs", [])
+    )
+
+
 def record_recent_run(leapp_id, leapp_version, lava_file_path):
     """
     Records a successful tool run in history.
@@ -311,6 +341,27 @@ def remove_recent_run(lava_file_path):
     if len(runs) != len(new_runs):
         history_data["runs"] = new_runs
         _atomic_write_json(get_history_path(), history_data)
+
+
+def clear_single_leapp_history(leapp_id):
+    """
+    Clears shared paths and this LEAPP tool's recent runs.
+    """
+    history_data = _read_json(get_history_path())
+    history_data.pop("input_paths", None)
+    history_data.pop("output_paths", None)
+
+    leapp_id = leapp_id.lower()
+    runs = history_data.get("runs", [])
+    history_data["runs"] = [
+        run for run in runs
+        if run.get("leapp_id") != leapp_id
+    ]
+
+    if _has_history_entries(history_data):
+        _atomic_write_json(get_history_path(), history_data)
+    else:
+        clear_history()
 
 
 def clear_history():
