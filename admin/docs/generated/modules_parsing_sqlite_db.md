@@ -71,6 +71,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | health |
 | iOSCacheLocations |
 | instagramThreads |
+| keychain |
 | logarchive |
 | nsVault |
 | parsecdCache |
@@ -145,6 +146,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | imoHD_Chat |
 | interactionCcontacts |
 | keyboard |
+| keychain |
 | kikGroupadmins |
 | kikLocaladmin |
 | kikMessages |
