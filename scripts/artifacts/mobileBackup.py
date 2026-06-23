@@ -1,53 +1,52 @@
-import os
+__artifacts_v2__ = {
+    "mobileBackup": {
+        "name": "Mobile Backup",
+        "description": "Backup/restore info from com.apple.MobileBackup.plist (backup version, "
+                       "iOS version at recovery, recovery date, and whether restored from iCloud)",
+        "author": "@AlexisBrignoni",
+        "version": "1.0",
+        "date": "2026-06-23",
+        "requirements": "none",
+        "category": "Mobile Backup",
+        "notes": "",
+        "paths": ('*/Preferences/com.apple.MobileBackup.plist',),
+        "output_types": "standard",
+        "artifact_icon": "save"
+    }
+}
+
 import plistlib
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, tsv, is_platform_windows 
+from scripts.ilapfuncs import artifact_processor
 
 
-# Backup version of iOS, iOS version installed at the time of recovery, 
-# recovery date, and whether the backup was restored from iCloud.
-def get_mobileBackup(files_found, report_folder, seeker, wrap_text, timezone_offset):
+@artifact_processor
+def mobileBackup(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
+    data_headers = ('Key', 'Value')
     data_list = []
-    file_found = str(files_found[0])
-    
-    with open(file_found, 'rb') as fp:
+
+    source_path = ''
+    for file_found in files_found:
+        file_found = str(file_found)
+        if file_found.endswith('com.apple.MobileBackup.plist'):
+            source_path = file_found
+            break
+    if not source_path:
+        return data_headers, data_list, ''
+
+    with open(source_path, 'rb') as fp:
         pl = plistlib.load(fp)
-        
-        if 'BackupStateInfo' in pl.keys():
-            for key, val in pl['BackupStateInfo'].items():
-                if key == 'isCloud':
-                    data_list.append((key, val))
-                if key == 'date':
-                    data_list.append((key, val))
-        else:
-            pass
 
-        if 'RestoreInfo' in pl.keys():
-            for key, val in pl['RestoreInfo'].items():
-                if key == 'BackupBuildVersion':
-                    data_list.append((key, val))
-                if key == 'DeviceBuildVersion':
-                    data_list.append((key, val))
-                if key == 'WasCloudRestore':
-                    data_list.append((key, val))
-                if key == 'RestoreDate':
-                    data_list.append((key, val))
+    state = pl.get('BackupStateInfo', {})
+    if isinstance(state, dict):
+        for key in ('isCloud', 'date'):
+            if key in state:
+                data_list.append((key, state[key]))
 
-            
-    report = ArtifactHtmlReport('Mobile Backup')
-    report.start_artifact_report(report_folder, 'Mobile Backup')
-    report.add_script()
-    data_headers = ('Key', 'Value')     
-    report.write_artifact_data_table(data_headers, data_list, file_found)
-    report.end_artifact_report()
-    
-    tsvname = 'Mobile Backup'
-    tsv(report_folder, data_headers, data_list, tsvname)
+    restore = pl.get('RestoreInfo', {})
+    if isinstance(restore, dict):
+        for key in ('BackupBuildVersion', 'DeviceBuildVersion', 'WasCloudRestore', 'RestoreDate'):
+            if key in restore:
+                data_list.append((key, restore[key]))
 
-__artifacts__ = {
-    "mobileBackup": (
-        "Mobile Backup",
-        ('*/Preferences/com.apple.MobileBackup.plist'),
-        get_mobileBackup)
-}
+    return data_headers, data_list, source_path
