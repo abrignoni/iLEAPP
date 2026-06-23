@@ -1,154 +1,114 @@
-import glob
-import os
-import nska_deserialize as nd
-import sqlite3
-import datetime
+__artifacts_v2__ = {
+    "kikGroupadmins": {
+        "name": "Kik Group Administrators",
+        "description": "Kik users that are administrators of a group (kik.sqlite)",
+        "author": "@AlexisBrignoni",
+        "version": "1.0",
+        "date": "2026-06-22",
+        "requirements": "none",
+        "category": "Kik",
+        "notes": "",
+        "paths": ('*/kik.sqlite*',),
+        "output_types": "standard",
+        "artifact_icon": "users"
+    }
+}
+
 import blackboxprotobuf
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
+from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly
 
 
-def get_kikGroupadmins(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def _decode_additional_info(blob):
+    """Decode the ZROSTERENTRYDATA protobuf; return (user_a, user_b, display, value)."""
+    user_a = user_b = display = value = ''
+    if blob is None:
+        return user_a, user_b, display, value
+    try:
+        data, _ = blackboxprotobuf.decode_message(blob)
+        raw = data['1']['1']
+        user_a = '' if isinstance(raw, dict) else raw.decode('utf-8')
+        if data.get('2') is not None:
+            raw = data['2']['1']['1']
+            value = '' if isinstance(raw, dict) else raw.decode('utf-8')
+        user_b = data['3']['1'].decode('utf-8')
+        raw = data['4']['1']
+        display = '' if isinstance(raw, dict) else raw.decode('utf-8')
+    except Exception:  # pylint: disable=broad-exception-caught
+        pass  # blob layout varies / may be absent; keep whatever was decoded
+    return user_a, user_b, display, value
+
+
+def _decode_entity_blob(blob):
+    """Decode the ZENTITYUSERDATA protobuf; return (username, description, interests)."""
+    username = description = interests = ''
+    if blob is None:
+        return username, description, interests
+    try:
+        data, _ = blackboxprotobuf.decode_message(blob)
+        if data['1'].get('5') is not None:
+            for item in data['1']['5']['1']:
+                interests = item['2'].decode('utf-8') + ', ' + interests
+            interests = interests[:-2]
+        if isinstance(data['1'].get('1'), bytes):
+            username = data['1']['1'].decode('utf-8')
+        elif isinstance(data['1'].get('1'), dict) and data['1']['1'].get('1') is not None:
+            description = data['1']['1']['1'].decode('utf-8')
+        if data.get('104') is not None:
+            for item in data['104']['1']:
+                interests = item['2'].decode('utf-8') + ', ' + interests
+            interests = interests[:-2]
+    except Exception:  # pylint: disable=broad-exception-caught
+        pass  # blob layout varies / may be absent; keep whatever was decoded
+    return username, description, interests
+
+
+@artifact_processor
+def kikGroupadmins(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
+    data_headers = ('User ID', 'Display Name', 'Username', 'Profile Pic URL', 'Member Group ID',
+                    'Group Tag', 'Group Name', 'Group ID', 'Group Pic URL', 'Blob User',
+                    'Blob Description', 'Blob Interests', 'Additional Info User A',
+                    'Additional Info User B', 'Additional Info Display', 'Additional Info Value')
+    data_list = []
+
+    source_path = ''
     for file_found in files_found:
         file_found = str(file_found)
-        
         if file_found.endswith('kik.sqlite'):
+            source_path = file_found
             break
-            
-    db = open_sqlite_db_readonly(file_found)
+    if not source_path:
+        return data_headers, data_list, ''
+
+    db = open_sqlite_db_readonly(source_path)
     cursor = db.cursor()
     cursor.execute('''
-    Select ZKIKUSER.Z_PK, /*User ID*/
-        ZKIKUSER.ZDISPLAYNAME, /*Display Name*/
-        ZKIKUSER.ZUSERNAME, /*Username, if available*/
-        ZKIKUSER.ZPPURL, /*Profile Picture URL*/
-        Z_9ADMINSINVERSE.Z_9ADMINSINVERSE, /*Group ID of group where user is an administrator. */
-        ZKIKUSEREXTRA.ZENTITYUSERDATA, /*BLOB from ZKIKUSEREXTRA that contains additional user information. */
-        ZKIKUSEREXTRA.ZROSTERENTRYDATA /*Field from ZKIKUSEREXTRA that contains additional user information*/
-    From ZKIKUSER
-    Inner Join Z_9ADMINSINVERSE On ZKIKUSER.Z_PK = Z_9ADMINSINVERSE.Z_9ADMINS /*(matched Z_PK from ZKIKUSER table with Z_9ADMINS from Z_9ADMINSINVERSE table)*/
-    LEFT JOIN ZKIKUSEREXTRA On ZKIKUSER.Z_PK = ZKIKUSEREXTRA.ZUSER /*(matched Z_PK from ZKIKUSER with ZUSER from ZKIKUSEREXTRA)*/
-order by Z_9ADMINSINVERSE
+    SELECT ZKIKUSER.Z_PK,
+        ZKIKUSER.ZDISPLAYNAME,
+        ZKIKUSER.ZUSERNAME,
+        ZKIKUSER.ZPPURL,
+        Z_9ADMINSINVERSE.Z_9ADMINSINVERSE,
+        ZKIKUSEREXTRA.ZENTITYUSERDATA,
+        ZKIKUSEREXTRA.ZROSTERENTRYDATA
+    FROM ZKIKUSER
+        INNER JOIN Z_9ADMINSINVERSE ON ZKIKUSER.Z_PK = Z_9ADMINSINVERSE.Z_9ADMINS
+        LEFT JOIN ZKIKUSEREXTRA ON ZKIKUSER.Z_PK = ZKIKUSEREXTRA.ZUSER
+    ORDER BY Z_9ADMINSINVERSE
     ''')
 
-    all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
-    data_list = []
-    finalintlist = ''
-    blobuser = ''
-    blobdesc = ''
-    addinfousera = ''
-    addinfouserb = ''
-    addinfodisp = ''
-    addinfdesc = ''
-    if usageentries > 0:
+    for row in cursor.fetchall():
+        grouptag = groupdname = zjid = zpurl = ''
+        cursor2 = db.cursor()
+        cursor2.execute('SELECT ZGROUPTAG, ZDISPLAYNAME, ZJID, ZPPURL FROM ZKIKUSER WHERE Z_PK = ?',
+                        (row[4],))
+        for rows2 in cursor2.fetchall():
+            grouptag, groupdname, zjid, zpurl = rows2[0], rows2[1], rows2[2], rows2[3]
 
-        for row in all_rows:
-            
-            cursor2 = db.cursor()
-            cursor2.execute(f'''
-            SELECT ZGROUPTAG,
-                ZDISPLAYNAME,
-                ZJID,
-                ZPPURL
-            FROM ZKIKUSER 
-            WHERE Z_PK = {row[4]}
-            ''')
-            
-            all_rows2 = cursor2.fetchall()
-            for rows2 in all_rows2:
-                grouptag = rows2[0]
-                groupdname = rows2[1]
-                zjid = rows2[2]
-                zpurl = rows2[3]
-            
-            if row[6] is None:
-                pass
-            else:
-                addinfousera = ''
-                addinfouserb = ''
-                addinfodisp = ''
-                addinfdesc = ''
-                
-                data, typess = blackboxprotobuf.decode_message(row[6])
-                addinfousera = data['1']['1']
-                if type(addinfousera) is dict:
-                    addinfousera = ''
-                else:
-                    addinfousera = data['1']['1'].decode('utf-8')
-                
-                if data.get('2') is not None:
-                    addinfdesc = data.get('2')['1']['1']
-                    if type(addinfdesc) is dict:
-                        addinfdesc = ''
-                    else:
-                        addinfdesc = data.get('2')['1']['1'].decode('utf-8')
+        username, description, interests = _decode_entity_blob(row[5])
+        info_a, info_b, info_display, info_value = _decode_additional_info(row[6])
 
-                addinfouserb = data['3']['1'].decode('utf-8')
-                
-                addinfodisp = data['4']['1']
-                if type(addinfodisp) is dict:
-                    addinfodisp = ''
-                else:
-                    addinfodisp = data['4']['1'].decode('utf-8')
-            
-            if row[5] is not None:
+        data_list.append((row[0], row[1], row[2], row[3], row[4], grouptag, groupdname, zjid, zpurl,
+                          username, description, interests, info_a, info_b, info_display, info_value))
+    db.close()
 
-                finalintlist = ''
-                blobuser = ''
-                blobdesc = ''
-                
-                data, typess = blackboxprotobuf.decode_message(row[5])
-                
-                if (data['1'].get('5')) is not None:
-                    listofinterests = (data['1']['5']['1'])
-                    for x in listofinterests:
-                        finalintlist = (x['2'].decode('utf-8')) + ', ' + finalintlist #interests
-                    finalintlist = finalintlist[:-2]
-                    
-                if type(data['1'].get('1')) is bytes:
-                    blobuser = (data['1'].get('1').decode('utf-8')) #Username?
-                if type(data['1'].get('1')) is dict:
-                    if (data['1']['1'].get('1')) is not None:
-                        blobdesc = (data['1']['1'].get('1').decode('utf-8')) #Description
-                        
-                if (data['1'].get('7')) is not None:
-                    if type(data['1']['7'].get('1')) is dict:
-                        pass #has a dictionary with values i dont care about
-                    else:
-                        blobname = ((data['1']['7'].get('1').decode('utf-8'))) #some name?
-                if (data.get('102')) is not None:
-                    blobpicfull = (data['102']['1']['2']['1'].decode('utf-8')) #profilepic full
-                    blobpicthu = (data['102']['1']['2']['2'].decode('utf-8')) #profile pic thumb
-                if (data.get('104')) is not None:
-                    listofinterests = data['104']['1']
-                    for x in listofinterests:
-                        finalintlist = (x['2'].decode('utf-8')) + ', ' + finalintlist #interests
-                    finalintlist = finalintlist[:-2]
-            
-            data_list.append((row[0],row[1],row[2],row[3],row[4],grouptag,groupdname,zjid, zpurl, blobuser, blobdesc, finalintlist,addinfousera, addinfouserb, addinfodisp, addinfdesc))
-            
-            
-        description = 'Kik users that are Administrators of a group.'
-        report = ArtifactHtmlReport('Kik Group Administrators')
-        report.start_artifact_report(report_folder, 'Kik Group Administrators', description)
-        report.add_script()
-        data_headers = ('User ID','Display Name','Username','Profile Pic URL','Member Group ID','Group Tag','Group Name','Group ID','Group Pic URL','Blob User','Blob Description','Blob Interests','Additional Info User','Additional Info User','Additional Info Display', 'Additional Info Value' )     
-        report.write_artifact_data_table(data_headers, data_list, file_found)
-        report.end_artifact_report()
-        
-        tsvname = 'Kik Group Administrators'
-        tsv(report_folder, data_headers, data_list, tsvname)
-    
-    else:
-        logfunc('No Kik Group Administrators data available')
-    
-    
-__artifacts__ = {
-    "kikGroupadmins": (
-        "Kik",
-        ('*/kik.sqlite*'),
-        get_kikGroupadmins)
-}
-        
+    return data_headers, data_list, source_path
