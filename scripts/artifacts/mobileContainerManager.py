@@ -1,57 +1,54 @@
-import plistlib
-import re
+__artifacts_v2__ = {
+    "mobileContainerManager": {
+        "name": "Mobile Container Manager",
+        "description": "Group container removals logged by containermanagerd (last reference removed)",
+        "author": "@AlexisBrignoni",
+        "version": "1.0",
+        "date": "2026-06-23",
+        "requirements": "none",
+        "category": "Mobile Container Manager",
+        "notes": "",
+        "paths": ('**/containermanagerd.log.*',),
+        "output_types": "standard",
+        "artifact_icon": "trash-2"
+    }
+}
 
 from datetime import datetime
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, is_platform_windows
+from scripts.ilapfuncs import artifact_processor
 
-def get_mobileContainerManager(files_found, report_folder, seeker, wrap_text, timezone_offset):
+_MARKER = ('[MCMGroupManager _removeGroupContainersIfNeededforUser:groupContainerClass:identifiers:'
+           'referenceCounts:]: Last reference to group container')
 
+
+@artifact_processor
+def mobileContainerManager(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
+    data_headers = (('Datetime', 'datetime'), 'Removed', 'Line')
     data_list = []
+    source_path = ''
 
     for file_found in files_found:
+        file_found = str(file_found)
+        source_path = source_path or file_found
+        try:
+            with open(file_found, 'r', encoding='utf-8', errors='ignore') as fp:
+                lines = fp.readlines()
+        except OSError:
+            continue
 
-        linecount = 0
-        hitcount = 0
-        with open(file_found, 'r') as fp:
-            data = fp.readlines()
+        for linecount, line in enumerate(lines, 1):
+            if _MARKER not in line:
+                continue
+            txts = line.split()
+            try:
+                # log prefix: <dow> <Mon> <day> <HH:MM:SS> <year> ... <group at index 15>
+                month_number = datetime.strptime(txts[1], '%b').month
+                dtime_obj = datetime.strptime(f'{txts[4]}-{month_number}-{txts[2]} {txts[3]}',
+                                              '%Y-%m-%d %H:%M:%S')
+                group = txts[15]
+            except (ValueError, IndexError):
+                continue
+            data_list.append((dtime_obj, group, linecount))
 
-            for line in data:
-                linecount += 1
-                
-                if '[MCMGroupManager _removeGroupContainersIfNeededforUser:groupContainerClass:identifiers:referenceCounts:]: Last reference to group container' in line:
-                    hitcount += 1
-                    txts = line.split()
-                    dayofweek = txts[0]
-                    month = txts[1]
-                    day = txts[2]
-                    time = txts[3]
-                    year = txts[4]
-                    group = txts[15]
-
-                    datetime_object = datetime.strptime(month, "%b")
-                    month_number = datetime_object.month
-                    concat_date = year + "-" + str(month_number) + "-" + day + " " + time 
-                    dtime_obj = datetime.strptime(concat_date, '%Y-%m-%d %H:%M:%S')
-                    
-                    data_list.append((str(dtime_obj), group, str(linecount)))
-
-    
-    report = ArtifactHtmlReport('Mobile Container Manager')
-    report.start_artifact_report(report_folder, 'Mobile Container Manager')
-    report.add_script()
-    data_headers = ('Datetime', 'Removed', 'Line')
-
-    report.write_artifact_data_table(data_headers, data_list, file_found)
-    report.end_artifact_report()
-        
-    tsvname = 'Mobile Container Manager'
-    tsv(report_folder, data_headers, data_list, tsvname)
-
-__artifacts__ = {
-    "mobileContainerManager": (
-        "Mobile Container Manager",
-        ('**/containermanagerd.log.*'),
-        get_mobileContainerManager)
-}
+    return data_headers, data_list, source_path
