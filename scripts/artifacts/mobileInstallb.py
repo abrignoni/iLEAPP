@@ -1,157 +1,117 @@
-import os
-import re
-from packaging import version
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, iOS
-
-def month_converter(month):
-  months = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ]
-  month = months.index(month) + 1
-  if month < 10:
-    month = f"{month:02d}"
-  return month
-
-def day_converter(day):
-  day = int(day)
-  if day < 10:
-    day = f"{day:02d}"
-  return day
-
-def line_splitting(line):
-  datecheck = re.match(r"^[a-zA-Z]", line)
-  if datecheck:
-      splitline = line.split(' ',6)
-      notice = splitline.pop(6)
-      weekday, month, space, day, time, year = splitline
-      if space == '':
-        pass
-      else:
-        splitline = line.split(' ',5)
-        notice = splitline.pop(5)
-        weekday, month, day, time, year = splitline
-      if 'Reboot detected' in notice:
-        notice = notice.split('main: ')[1]
-      else:
-        if ':]: ' in notice:
-            notice = notice.split(':]: ')[1]
-        else:
-            notice = notice.split(': ')[1]
-      day = day_converter(day)
-      month = month_converter(month)
-      timestamp = (str(year) + "-" + str(month) + "-" + str(day) + " " + str(time))
-      return((timestamp,notice))
-  else:
-      pass
-
-def get_mobileInstallb(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    iosversion = iOS.get_version()
-    if (version.parse(iosversion) >= version.parse("17")):
-      data_list = []
-      data_list_reboot = []
-      for file_found in files_found:
-        filename = os.path.basename(file_found)
-        
-        with open(file_found, 'r', encoding='utf8') as f:
-          data = f.readlines()
-        
-        for line in data:
-          if 'Attempting Delta patch update' in line:
-            desc = 'Update'
-            values = line_splitting(line)
-            data_list.append((values[0],desc,values[1],filename))
-          elif 'Installing <MIInstallableBundle' in line:
-            desc = 'Install'
-            values = line_splitting(line)
-            data_list.append((values[0],desc,values[1],filename))
-          elif 'Data container for' in line:
-            desc = 'Container'
-            values = line_splitting(line)
-            data_list.append((values[0],desc,values[1],filename))
-          elif 'Made container live for' in line:
-            desc = 'Container Live'
-            values = line_splitting(line)
-            data_list.append((values[0],desc,values[1],filename))
-          elif 'Reboot detected' in line: #anadir un data_list_reboot para esta data
-            desc = 'Reboot'
-            values = line_splitting(line)
-            data_list_reboot.append((values[0],desc,values[1],filename))
-            data_list.append((values[0],desc,values[1],filename))
-          elif 'Install Successful for' in line: 
-            desc = 'Install Successful'
-            values = line_splitting(line)
-            data_list.append((values[0],desc,values[1],filename))
-          elif 'Running installation as' in line: 
-            desc = 'Running Installation'
-            values = line_splitting(line)
-            data_list.append((values[0],desc,values[1],filename))
-          elif 'Attempting Parallel patch update' in line: 
-            desc = 'Parallel Update'
-            values = line_splitting(line)
-            data_list.append((values[0],desc,values[1],filename))
-          elif 'Uninstalling identifier' in line: 
-            desc = 'Uninstalling'
-            values = line_splitting(line)
-            data_list.append((values[0],desc,values[1],filename))
-          elif 'Destroying container' in line: 
-            desc = 'Destroying'
-            values = line_splitting(line)
-            data_list.append((values[0],desc,values[1],filename))
-          else:
-            pass
-      
-      if len(data_list) > 0:
-        description = 'Mobile Installation Logs. All timestamps are in Local Time'
-        report = ArtifactHtmlReport(f'Mobile Installation Logs History')
-        report.start_artifact_report(report_folder, f'Mobile Installation Logs History', description)
-        report.add_script()
-        data_headers = ('Timestamp (Local)','Type','Notice','Source File')
-        report.write_artifact_data_table(data_headers, data_list, file_found, html_no_escape=[''])
-        report.end_artifact_report()
-        
-        tsvname = f'Mobile Installation Logs History'
-        tsv(report_folder, data_headers, data_list, tsvname)
-        
-        tlactivity = f'Mobile Installation Logs History'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-        
-      else:
-        logfunc(f'No Mobile Installation Logs History')
-        
-      
-      if len(data_list_reboot) > 0:
-        description = 'Reboots - Mobile Installation Logs. All timestamps are in Local Time'
-        report = ArtifactHtmlReport(f'Reboots - Mobile Installation Logs')
-        report.start_artifact_report(report_folder, f'Reboots - Mobile Installation Logs', description)
-        report.add_script()
-        data_headers = ('Timestamp (Local)','Type','Notice','Source File')
-        report.write_artifact_data_table(data_headers, data_list_reboot, file_found, html_no_escape=[''])
-        report.end_artifact_report()
-        
-        tsvname = f'Reboots - Mobile Installation Logs History'
-        tsv(report_folder, data_headers, data_list, tsvname)
-        
-        tlactivity = f'Reboots - Mobile Installation Logs History'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-        
-      else:
-        logfunc(f'No Reboots - Mobile Installation Logs')
-    
-__artifacts__ = {
-    "mobileInstallb": (
-        "Mobile Installation Logs",
-        ('*/mobile_installation.log.*'),
-        get_mobileInstallb)
+__artifacts_v2__ = {
+    "mobileInstallb": {
+        "name": "Mobile Installation Logs History",
+        "description": "App install/update/uninstall and reboot events from mobile_installation.log (iOS 17+)",
+        "author": "@AlexisBrignoni",
+        "version": "2.0",
+        "date": "2026-06-23",
+        "requirements": "none",
+        "category": "Mobile Installation Logs",
+        "notes": "All timestamps are in LOCAL device time (the log records local time), not UTC.",
+        "paths": ('*/mobile_installation.log.*',),
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "package"
+    },
+    "mobileInstallb_reboots": {
+        "name": "Reboots - Mobile Installation Logs",
+        "description": "Reboot events from mobile_installation.log (iOS 17+)",
+        "author": "@AlexisBrignoni",
+        "version": "2.0",
+        "date": "2026-06-23",
+        "requirements": "none",
+        "category": "Mobile Installation Logs",
+        "notes": "All timestamps are in LOCAL device time (the log records local time), not UTC.",
+        "paths": ('*/mobile_installation.log.*',),
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "refresh-cw"
+    }
 }
+
+import re
+
+from packaging import version
+
+from scripts.ilapfuncs import artifact_processor, iOS
+
+_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+# marker substring -> event Type label (first match wins, matching the original elif order)
+_EVENTS = {
+    'Attempting Delta patch update': 'Update',
+    'Installing <MIInstallableBundle': 'Install',
+    'Data container for': 'Container',
+    'Made container live for': 'Container Live',
+    'Reboot detected': 'Reboot',
+    'Install Successful for': 'Install Successful',
+    'Running installation as': 'Running Installation',
+    'Attempting Parallel patch update': 'Parallel Update',
+    'Uninstalling identifier': 'Uninstalling',
+    'Destroying container': 'Destroying',
+}
+
+
+def _line_splitting(line):
+    if not re.match(r"^[a-zA-Z]", line):
+        return None
+    splitline = line.split(' ', 6)
+    if len(splitline) < 7:
+        return None
+    notice = splitline.pop(6)
+    _weekday, month, space, day, time, year = splitline
+    if space != '':
+        splitline = line.split(' ', 5)
+        notice = splitline.pop(5)
+        _weekday, month, day, time, year = splitline
+    if 'Reboot detected' in notice:
+        notice = notice.split('main: ')[-1]
+    elif ':]: ' in notice:
+        notice = notice.split(':]: ')[-1]
+    else:
+        notice = notice.split(': ')[-1]
+    try:
+        month_num = _MONTHS.index(month) + 1
+    except ValueError:
+        return None
+    timestamp = f'{year}-{month_num:02d}-{int(day):02d} {time}'
+    return timestamp, notice.strip()
+
+
+def _parse(context):
+    """Return (rows, source) where rows are (timestamp_local, type, notice, source_rel); iOS 17+ only."""
+    rows = []
+    sources = []
+    if version.parse(iOS.get_version()) < version.parse("17"):
+        return rows, ''
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        rel = context.get_relative_path(file_found)
+        try:
+            with open(file_found, 'r', encoding='utf8', errors='ignore') as f:
+                lines = f.readlines()
+        except OSError:
+            continue
+        if rel not in sources:
+            sources.append(rel)
+        for line in lines:
+            for marker, desc in _EVENTS.items():
+                if marker in line:
+                    values = _line_splitting(line)
+                    if values:
+                        rows.append((values[0], desc, values[1], rel))
+                    break
+
+    return rows, ', '.join(sources)
+
+
+@artifact_processor
+def mobileInstallb(context):
+    data_headers = ('Timestamp (Local)', 'Type', 'Notice', 'Source File')
+    rows, source = _parse(context)
+    return data_headers, rows, source
+
+
+@artifact_processor
+def mobileInstallb_reboots(context):
+    data_headers = ('Timestamp (Local)', 'Type', 'Notice', 'Source File')
+    rows, source = _parse(context)
+    return data_headers, [row for row in rows if row[1] == 'Reboot'], source
