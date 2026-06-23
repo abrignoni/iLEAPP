@@ -715,7 +715,8 @@ ileapp_logo = ImageTk.PhotoImage(file=resource_path("iLEAPP_logo.png"))
 ileapp_logo_label = ttk.Label(title_frame, image=ileapp_logo)
 ileapp_logo_label.pack(side='left')
 
-settings_label = ttk.Label(title_frame, text="\u2699", font=("Helvetica", 32), cursor="hand2")
+settings_icon = ImageTk.PhotoImage(Image.open(resource_path("settings.png")).resize((32, 32)))
+settings_label = ttk.Label(title_frame, image=settings_icon, cursor="hand2")
 settings_label.pack(side='right', padx=(10, 0))
 settings_label.bind("<Button-1>", lambda e: open_settings_window())
 
