@@ -924,23 +924,41 @@ def geometry_offset(value):
     return f'+{value}' if value >= 0 else str(value)
 
 def center_main_window_macos(window, width, height):
+    """ 
+    MacOS: Determine full desktop dimensions and which monitor the mouse is on, 
+    then center the window within those specific monitor boundaries.
+    """
     window.update_idletasks()
-    mouse_x, mouse_y = window.winfo_pointerxy()
-    # Moving the window lets Tk report the screen containing the pointer on
-    # macOS, where its screen dimensions are monitor-specific.
-    window.geometry(f'{geometry_offset(mouse_x)}{geometry_offset(mouse_y)}')
-    window.update_idletasks()
-    screen_width = window.winfo_screenwidth()
-    screen_height = window.winfo_screenheight()
-    left = (mouse_x // screen_width) * screen_width
-    top = (mouse_y // screen_height) * screen_height
-    right = left + screen_width
-    bottom = top + screen_height
+    mx, my = window.winfo_pointerxy()
 
-    start_x = left + max(0, (right - left - width) // 2)
-    start_y = top + max(0, (bottom - top - height) // 2)
-    window.geometry(
-        f'{width}x{height}{geometry_offset(start_x)}{geometry_offset(start_y)}')
+    # 1. Get primary monitor dimensions (always starts at 0,0 on macOS)
+    window.geometry("+0+0")
+    window.update_idletasks()
+    pw = window.winfo_screenwidth()
+    ph = window.winfo_screenheight()
+
+    # 2. Move to mouse position to get the second monitor's dimensions
+    window.geometry(f'{geometry_offset(mx)}{geometry_offset(my)}')
+    window.update_idletasks()
+    sw = window.winfo_screenwidth()
+    sh = window.winfo_screenheight()
+
+    # 3. Get virtual desktop bounds to handle monitors to the left/right
+    vx = window.winfo_vrootx()
+
+    # 4. Determine the actual boundaries of the monitor the mouse is on
+    if mx < 0: # Monitor is to the left of primary
+        mon_x, mon_y, mon_w, mon_h = vx, 0, abs(vx), sh
+    elif mx >= pw: # Monitor is to the right of primary
+        mon_x, mon_y, mon_w, mon_h = pw, 0, sw, sh
+    else: # Mouse is on the primary monitor
+        mon_x, mon_y, mon_w, mon_h = 0, 0, pw, ph
+
+    # 5. Center the window within those specific monitor boundaries
+    start_x = mon_x + (mon_w - width) // 2
+    start_y = mon_y + (mon_h - height) // 2
+
+    window.geometry(f'{width}x{height}{geometry_offset(start_x)}{geometry_offset(start_y)}')
 
 main_window.attributes('-topmost', True)
 main_window.focus_force()
