@@ -10,7 +10,8 @@ __artifacts_v2__ = {
         "requirements": "Acquisition that contains com.apple.MobileBackup.plist",
         "category": "Mobile Backup Plist",
         "notes": "",
-        "paths": ('*/Library/Preferences/com.apple.MobileBackup.plist',),
+        "paths": ('*/Library/Preferences/com.apple.MobileBackup.plist',
+                  '*/Preferences/com.apple.MobileBackup.plist'),
         "output_types": "standard",
         "artifact_icon": "save"
     }
@@ -56,4 +57,4 @@ def mobilebackupplist(context):
                 if key in block:
                     data_list.append((key, block[key]))
 
-    return data_headers, data_list, source_path
+    return data_headers, data_list, context.get_relative_path(source_path)
