@@ -1,185 +1,334 @@
-import sqlite3
-import io
-import json
-import nska_deserialize as nd
-
-from packaging import version
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, timeline, kmlgen, tsv, is_platform_windows, open_sqlite_db_readonly
-
-
-def get_instagramThreads(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    for file_found in files_found:
-        file_found = str(file_found)
-        
-        if file_found.endswith('.db'):
-            break
-        
-    db = open_sqlite_db_readonly(file_found)
-    cursor = db.cursor()
-    cursor.execute('''
-    select
-    metadata
-    from threads
-    ''')
-    
-    all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
-    fila = 0
-    userdict = {}
-    data_list = []
-    video_calls = []
-    
-    if usageentries > 0:
-        for row in all_rows:
-            plist = ''
-            plist_file_object = io.BytesIO(row[0])
-            if row[0].find(b'NSKeyedArchiver') == -1:
-                if sys.version_info >= (3, 9):
-                    plist = plistlib.load(plist_file_object)
-                else:
-                    plist = biplist.readPlist(plist_file_object)
-            else:
-                try:
-                    plist = nd.deserialize_plist(plist_file_object)                    
-                except (nd.DeserializeError, nd.biplist.NotBinaryPlistException, nd.biplist.InvalidPlistException,
-                        nd.plistlib.InvalidFileException, nd.ccl_bplist.BplistError, ValueError, TypeError, OSError, OverflowError) as ex:
-                    logfunc(f'Failed to read plist for {row[0]}, error was:' + str(ex))
-            
-            for i in plist['NSArray<IGUser *>*users']:
-                for x, y in enumerate(plist['NSArray<IGUser *>*users']):
-                    userPk = plist['NSArray<IGUser *>*users'][x]['pk']
-                    userFull = (plist['NSArray<IGUser *>*users'][x]['fullName'])
-                    userdict[userPk] = userFull
-                
-            inviterPk = plist['IGUser*inviter']['pk']
-            inviterFull = plist['IGUser*inviter']['fullName']
-            userdict[inviterPk] = inviterFull
-        
-    cursor.execute('''
-    select
-    messages.message_id,
-    messages.thread_id,
-    messages.archive,
-    threads.metadata,
-    threads.thread_messages_range,
-    threads.visual_message_info
-    from messages, threads
-    where messages.thread_id = threads.thread_id
-    ''')
-
-    all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
-    
-    if usageentries > 0:
-        for row in all_rows:
-            plist = ''
-            senderpk =''
-            serverTimestamp = ''
-            message = ''
-            videoChatTitle = ''
-            videoChatCallID = ''
-            dmreaction = ''
-            reactionServerTimestamp = ''
-            reactionUserID = ''
-            sharedMediaID = ''
-            sharedMediaURL = ''
-            
-            plist_file_object = io.BytesIO(row[2])
-            if row[2].find(b'NSKeyedArchiver') == -1:
-                if sys.version_info >= (3, 9):
-                    plist = plistlib.load(plist_file_object)
-                else:
-                    plist = biplist.readPlist(plist_file_object)
-            else:
-                try:
-                    plist = nd.deserialize_plist(plist_file_object)                    
-                except (nd.DeserializeError, nd.biplist.NotBinaryPlistException, nd.biplist.InvalidPlistException,
-                        nd.plistlib.InvalidFileException, nd.ccl_bplist.BplistError, ValueError, TypeError, OSError, OverflowError) as ex:
-                    logfunc(f'Failed to read plist for {row[2]}, error was:' + str(ex))
-                
-            #Messages
-            senderpk = plist['IGDirectPublishedMessageMetadata*metadata']['NSString*senderPk']
-            serverTimestamp = plist['IGDirectPublishedMessageMetadata*metadata']['NSDate*serverTimestamp']
-            message = plist['IGDirectPublishedMessageContent*content'].get('NSString*string')
-            
-            #VOIP calls
-            if plist['IGDirectPublishedMessageContent*content'].get('IGDirectThreadActivityAnnouncement*threadActivity') is not None:
-                videoChatTitle = plist['IGDirectPublishedMessageContent*content']['IGDirectThreadActivityAnnouncement*threadActivity'].get('NSString*voipTitle')
-                videoChatCallID = plist['IGDirectPublishedMessageContent*content']['IGDirectThreadActivityAnnouncement*threadActivity'].get('NSString*videoCallId')
-                
-                
-            #Reactions
-            reactions = (plist['NSArray<IGDirectMessageReaction *>*reactions'])
-            if reactions:
-                dmreaction = reactions[0].get('emojiUnicode')
-                reactionServerTimestamp = reactions[0].get('serverTimestamp')
-                reactionUserID = reactions[0].get('userId')
-                
-            #Shared media
-            if (plist['IGDirectPublishedMessageContent*content'].get('IGDirectPublishedMessageMedia*media')): 
-                try:
-                    sharedMediaID = plist['IGDirectPublishedMessageContent*content']['IGDirectPublishedMessageMedia*media']['IGDirectPublishedMessagePermanentMedia*permanentMedia']['IGPhoto*photo']['kIGPhotoMediaID']
-                except (KeyError, ValueError, TypeError, OSError, OverflowError) as ex:
-                    print('Had exception: ' + str(ex))
-                    sharedMediaID = None
-                    
-                try:
-                    sharedMediaURL =  plist['IGDirectPublishedMessageContent*content']['IGDirectPublishedMessageMedia*media']['IGDirectPublishedMessagePermanentMedia*permanentMedia']['IGPhoto*photo']['imageVersions'][0]['url']['NS.relative']
-                except (KeyError, ValueError, TypeError, OSError, OverflowError) as ex:
-                    print('Had exception: ' + str(ex))
-                    sharedMediaURL= None
-                
-            if senderpk in userdict:
-                user = userdict[senderpk]
-            else:
-                user = ''
-                
-            data_list.append((serverTimestamp, senderpk, user, message, videoChatTitle, videoChatCallID, dmreaction, reactionServerTimestamp, reactionUserID, sharedMediaID, sharedMediaURL))
-            if videoChatTitle:
-                video_calls.append((serverTimestamp, senderpk, user, videoChatTitle, videoChatCallID))
-
-        description = 'Instagram Threads'
-        report = ArtifactHtmlReport('Instagram Threads')
-        report.start_artifact_report(report_folder, 'Instagram Threads', description)
-        report.add_script()
-        data_headers = ('Timestamp', 'Sender ID', 'Username', 'Message', 'Video Chat Title', 'Video Chat ID', 'DM Reaction', 'DM Reaction Server Timestamp', 'Reaction User ID', 'Shared Media ID', 'Shared Media URL')
-        report.write_artifact_data_table(data_headers, data_list, file_found)
-        report.end_artifact_report()
-        
-        tsvname = 'Instagram Threads'
-        tsv(report_folder, data_headers, data_list, tsvname)
-        
-        tlactivity = 'Instagram Threads'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-        
-    else:
-        logfunc('No Instagram Threads data available')
-        
-    if len(video_calls) > 0:
-        description = 'Instagram Threads Calls'
-        report = ArtifactHtmlReport('Instagram Threads Calls')
-        report.start_artifact_report(report_folder, 'Instagram Threads Calls', description)
-        report.add_script()
-        data_headersv = ('Timestamp', 'Sender ID', 'Username',  'Video Chat Title', 'Video Chat ID')
-        report.write_artifact_data_table(data_headersv, video_calls, file_found)
-        report.end_artifact_report()
-        
-        tsvname = 'Instagram Threads Calls'
-        tsv(report_folder, data_headersv, video_calls, tsvname)
-        
-        tlactivity = 'Instagram Threads Calls'
-        timeline(report_folder, tlactivity, video_calls, data_headersv)
-    
-    else:
-        logfunc('No Instagram Threads Video Calls data available')
-        
-    db.close()
-    
-
-__artifacts__ = {
-    "instagramThreads": (
-        "Instagram",
-        ('*/mobile/Containers/Data/Application/*/Library/Application Support/DirectSQLiteDatabase/*.db*'),
-        get_instagramThreads)
+""" instagramThreads """
+__artifacts_v2__ = {
+    "instagram_threads": {
+        "name": "Instagram Threads",
+        "data_views": {
+            "conversation": {
+                "conversationDiscriminatorColumn": "Thread ID",
+                "textColumn": "Message",
+                "senderColumn": "Username",
+                "directionColumn": "Viewer ID equals Sender PK",
+                "directionSentValue": 1,
+                "timeColumn": "Timestamp"
+            }
+        },
+        "description": "Existing messages sent and received in the Instagram App.",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2021-03-09",
+        "last_update_date": "2026-06-05",
+        "requirements": "",
+        "category": "Instagram",
+        "notes": "",
+        "paths": (
+            "*/mobile/Containers/Data/Application/*/Library/Application Support/DirectSQLiteDatabase/*.db*",
+        ),
+        "output_types": "standard",
+        "artifact_icon": "instagram",
+        "sample_data": {
+            "josh_ios_15": "75 rows; includes messages, VOIP call activity, and conversation view fields",
+            "mvs_2026": "0 rows; verifies multi-DB handling with no matching thread records",
+        },
+    },
+    "instagram_calls": {
+        "name": "Instagram Threads Calls",
+        "description": "Existing calls sent and received in the Instagram App.",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2021-03-09",
+        "last_update_date": "2026-06-05",
+        "requirements": "",
+        "category": "Instagram",
+        "notes": "",
+        "paths": (
+            "*/mobile/Containers/Data/Application/*/Library/Application Support/DirectSQLiteDatabase/*.db*",
+        ),
+        "output_types": "standard",
+        "artifact_icon": "phone",
+        "sample_data": {
+            "josh_ios_15": "25 rows; VOIP call activity extracted from Threads messages",
+            "mvs_2026": "0 rows; verifies multi-DB handling with no matching call records",
+        },
+    },
 }
+
+from scripts.ilapfuncs import (
+    artifact_processor,
+    convert_plist_date_to_utc,
+    get_plist_content,
+    get_sqlite_db_records,
+)
+
+
+def _database_files(context):
+    return [
+        str(file_found)
+        for file_found in context.get_files_found()
+        if not str(file_found).endswith(("wal", "shm"))
+    ]
+
+
+def _source_path(context, files_found):
+    if not files_found:
+        return ''
+    return '\n'.join(context.get_relative_path(file_found) for file_found in files_found)
+
+
+def _add_user(userdict, user):
+    if not isinstance(user, dict):
+        return
+
+    user_data = user.get("NSDictionary<NSString *, id>*userDict", {})
+    user_pk = user_data.get("pk") or user.get("pk")
+    if not user_pk:
+        return
+
+    user_full = (
+        user_data.get("full_name")
+        or user.get("fullName")
+        or user.get("userName")
+    )
+    userdict[user_pk] = user_full
+
+
+def _build_userdict(db_records):
+    userdict = {}
+    for row in db_records:
+        plist = get_plist_content(row[0])
+        if not isinstance(plist, dict):
+            continue
+
+        for user in plist.get("NSArray<IGUser *>*users", []):
+            _add_user(userdict, user)
+
+        inviter = plist.get("IGUser*inviter_DEPRECATED") or plist.get("IGUser*inviter")
+        _add_user(userdict, inviter)
+
+    return userdict
+
+
+def _nested_get(value, *keys):
+    for key in keys:
+        try:
+            value = value[key]
+        except (IndexError, KeyError, TypeError):
+            return None
+    return value
+
+
+@artifact_processor
+def instagram_threads(context):
+    """ see artifact description """
+    files_found = _database_files(context)
+    source_path = _source_path(context, files_found)
+    query = """
+        SELECT
+        METADATA
+        FROM THREADS
+    """
+
+    query_2 = """
+        SELECT
+        MESSAGES.MESSAGE_ID,
+        MESSAGES.THREAD_ID,
+        MESSAGES.ARCHIVE,
+        THREADS.VIEWER_ID
+        FROM MESSAGES, THREADS
+        WHERE MESSAGES.THREAD_ID = THREADS.THREAD_ID
+    """
+
+    data_list = []
+    for file_found in files_found:
+        db_records = get_sqlite_db_records(file_found, query)
+        userdict = _build_userdict(db_records)
+        db_records_2 = get_sqlite_db_records(file_found, query_2)
+
+        for row in db_records_2:
+            plist = get_plist_content(row[2])
+            if not isinstance(plist, dict):
+                continue
+
+            sender_pk = ""
+            server_timestamp = ""
+            thread_id = ""
+            message = ""
+            video_chat_title = ""
+            video_chat_call_id = ""
+            dm_reaction = ""
+            reaction_server_timestamp = ""
+            reaction_user_id = ""
+            shared_media_id = ""
+            shared_media_url = ""
+            shared_media_url_expiration_date = ""
+            was_sent = None
+
+            # Messages
+            metadata = plist["IGDirectPublishedMessageMetadata*metadata"]
+            content = plist["IGDirectPublishedMessageContent*content"]
+            sender_pk = metadata["NSString*senderPk"]
+            # Calculating directionColumn for LAVA Coversations View
+            if int(sender_pk) == int(row[3]):
+                was_sent = 1
+            else:
+                was_sent = 0
+
+            thread_id = metadata["NSString*threadId"]
+            server_timestamp = metadata["NSDate*serverTimestamp"]
+            server_timestamp = convert_plist_date_to_utc(server_timestamp)
+            message = content.get("NSString*string")
+
+            # VOIP calls
+            thread_activity = content.get("IGDirectThreadActivityAnnouncement*threadActivity")
+            if thread_activity is not None:
+                video_chat_title = thread_activity.get("NSString*voipTitle")
+                video_chat_call_id = thread_activity.get("NSString*videoCallId")
+
+            # Reactions
+            reactions = plist["NSArray<IGDirectMessageReaction *>*reactions"]
+            if reactions:
+                dm_reaction = reactions[0].get("emojiUnicode")
+                reaction_server_timestamp = reactions[0].get("serverTimestamp")
+                reaction_server_timestamp = convert_plist_date_to_utc(reaction_server_timestamp)
+                reaction_user_id = reactions[0].get("userId")
+
+            # Shared media
+            media = content.get("IGDirectPublishedMessageMedia*media")
+            if media:
+                shared_media_id = _nested_get(
+                    media,
+                    "IGDirectPublishedMessagePermanentMedia*permanentMedia",
+                    "IGPhoto*photo",
+                    "kIGPhotoMediaID",
+                )
+                shared_media_url = _nested_get(
+                    media,
+                    "IGDirectPublishedMessagePermanentMedia*permanentMedia",
+                    "IGPhoto*photo",
+                    "imageVersions",
+                    0,
+                    "url",
+                    "NS.relative",
+                )
+                shared_media_url_expiration_date = _nested_get(
+                    media,
+                    "IGDirectPublishedMessagePermanentMedia*permanentMedia",
+                    "IGPhoto*photo",
+                    "imageVersions",
+                    0,
+                    "expiration_date",
+                )
+                shared_media_url_expiration_date = convert_plist_date_to_utc(
+                    shared_media_url_expiration_date
+                )
+
+            user = userdict.get(sender_pk, "")
+
+            data_list.append(
+                (
+                    server_timestamp,
+                    sender_pk,
+                    user,
+                    message,
+                    thread_id,
+                    video_chat_title,
+                    video_chat_call_id,
+                    dm_reaction,
+                    reaction_server_timestamp,
+                    reaction_user_id,
+                    shared_media_id,
+                    shared_media_url,
+                    shared_media_url_expiration_date,
+                    was_sent,
+                )
+            )
+
+    data_headers = (
+        ("Timestamp", "datetime"),
+        "Sender ID",
+        "Username",
+        "Message",
+        "Thread ID",
+        "Video Chat Title",
+        "Video Chat ID",
+        "DM Reaction",
+        ("DM Reaction Server Timestamp", "datetime"),
+        "Reaction User ID",
+        "Shared Media ID",
+        "Shared Media URL",
+        ("Shared Media URL Expiration Date", "datetime"),
+        "Viewer ID equals Sender PK",
+    )
+
+    return data_headers, data_list, source_path
+
+
+@artifact_processor
+def instagram_calls(context):
+    """ see artifact description """
+    files_found = _database_files(context)
+    source_path = _source_path(context, files_found)
+    query = """
+        SELECT
+        METADATA
+        FROM THREADS
+    """
+
+    query_2 = """
+        SELECT
+        MESSAGES.MESSAGE_ID,
+        MESSAGES.THREAD_ID,
+        MESSAGES.ARCHIVE,
+        THREADS.VIEWER_ID
+        FROM MESSAGES, THREADS
+        WHERE MESSAGES.THREAD_ID = THREADS.THREAD_ID
+    """
+
+    data_list = []
+    for file_found in files_found:
+        db_records = get_sqlite_db_records(file_found, query)
+        userdict = _build_userdict(db_records)
+        db_records_2 = get_sqlite_db_records(file_found, query_2)
+
+        for row in db_records_2:
+            plist = get_plist_content(row[2])
+            if not isinstance(plist, dict):
+                continue
+
+            sender_pk = ""
+            server_timestamp = ""
+            video_chat_title = ""
+            video_chat_call_id = ""
+
+            # Messages
+            metadata = plist["IGDirectPublishedMessageMetadata*metadata"]
+            content = plist["IGDirectPublishedMessageContent*content"]
+            sender_pk = metadata["NSString*senderPk"]
+            server_timestamp = metadata["NSDate*serverTimestamp"]
+            server_timestamp = convert_plist_date_to_utc(server_timestamp)
+
+            # VOIP calls
+            thread_activity = content.get("IGDirectThreadActivityAnnouncement*threadActivity")
+            if thread_activity is not None:
+                video_chat_title = thread_activity.get("NSString*voipTitle")
+                video_chat_call_id = thread_activity.get("NSString*videoCallId")
+
+            user = userdict.get(sender_pk, "")
+
+            if video_chat_title:
+                data_list.append(
+                    (
+                        server_timestamp,
+                        sender_pk,
+                        user,
+                        video_chat_title,
+                        video_chat_call_id,
+                    )
+                )
+
+    data_headers = (
+        ("Timestamp", "datetime"),
+        "Sender ID",
+        "Username",
+        "Video Chat Title",
+        "Video Chat ID",
+    )
+
+    return data_headers, data_list, source_path

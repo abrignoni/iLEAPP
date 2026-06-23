@@ -7,16 +7,13 @@
 # Requirements:  ccl_bplist
 
 
-__artifacts_v2__ = {
-
-    
-    "get_linkedin_account": {
+__artifacts_v2__ = {    
+    "linkedin_account": {
         "name": "LinkedIn - Account",
         "description": "Existing account in LinkedIn App. The Public Identifier can be used to visit the public profile on the LinkedIn Website (https://www.linkedin.com/in/[Public Identifier])",
         "author": "Marco Neumann {kalinko@be-binary.de}",
-        "version": "0.2",
         "creation_date": "2024-10-01",
-        "last_update_date": "2025-04-23",
+        "last_update_date": "2026-06-15",
         "requirements": "ccl_bplist",
         "category": "LinkedIn",
         "notes": "",
@@ -24,56 +21,55 @@ __artifacts_v2__ = {
         "output_types": "html",
         "artifact_icon": "user"
     },
-    "get_linkedin_messages": {
+    "linkedin_messages": {
         "name": "LinkedIn - Messages",
         "description": "Messages sent and received in the LinkedIn App.",
         "author": "Marco Neumann {kalinko@be-binary.de}",
-        "version": "0.2",
         "creation_date": "2024-10-01",
-        "last_update_date": "2025-04-23",
-        "requirements": "",
+        "last_update_date": "2026-06-15",
+        "requirements": "none",
         "category": "LinkedIn",
         "notes": "",
-        "paths": ('*/Documents/msg_database.sqlite'),
+        "paths": ('*/Documents/msg_database.sqlite*'),
         "output_types": "standard",
         "artifact_icon": "message-square"
     },
-    "get_linkedin_conversations": {
+    "linkedin_conversations": {
         "name": "LinkedIn - Conversations",
         "description": "LinkedIn Conversations",
         "author": "Marco Neumann {kalinko@be-binary.de}",
-        "version": "0.2",
         "creation_date": "2024-10-01",
-        "last_update_date": "2025-04-23",
-        "requirements": "",
+        "last_update_date": "2026-06-15",
+        "requirements": "none",
         "category": "LinkedIn",
         "notes": "Messages threaded",
-        "paths": ('*/Documents/msg_database.sqlite'),
+        "paths": ('*/Documents/msg_database.sqlite*'),
         "output_types": "all", 
         "data_views": {
-            "chat": {
+            "conversation": {
                 "directionSentValue": 1,
-                "threadDiscriminatorColumn": "Conversation-ID",
+                "conversationDiscriminatorColumn": "Conversation-ID",
                 "textColumn": "Message",
                 "directionColumn": "Sent",
                 "timeColumn": "Timestamp",
                 "senderColumn": "Sender Name",
-                "threadLabelColumn": "Conversation Name"
+                "conversationLabelColumn": "Conversation Name"
             }
         },
         "artifact_icon": "message-circle"
     }
 }
 
-from scripts.ilapfuncs import artifact_processor, convert_unix_ts_to_utc, get_sqlite_db_records
+from scripts.ilapfuncs import artifact_processor, convert_unix_ts_to_utc, get_sqlite_db_records, get_file_path
 from scripts.ccl import ccl_bplist
 
 @artifact_processor
-def get_linkedin_account(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):    
+def linkedin_account(context):
+    files_found = context.get_files_found()
+    source_path = get_file_path(files_found, "com.linkedin.LinkedIn.plist")
     
-    with open(files_found[0], 'rb') as bplist_file:
+    with open(source_path, 'rb') as bplist_file:
         bplist_data = ccl_bplist.load(bplist_file)
-
 
     data_headers = ( 'Member ID', 'Last Name', 'First Name', 'Headline', 'Location', 'Public Identifier')
     data_list = []
@@ -104,19 +100,16 @@ def get_linkedin_account(files_found, _report_folder, _seeker, _wrap_text, _time
 
     data_list.append((member_id, lastname, firstname, headline, location, public_identifier))
 
-    return data_headers, data_list, files_found[0]
-
-
-
-
+    return data_headers, data_list, source_path
 
 @artifact_processor
-def get_linkedin_messages(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    files_found = [x for x in files_found if not x.endswith('wal') and not x.endswith('shm')]
+def linkedin_messages(context):
+    files_found = context.get_files_found()
+    source_path = get_file_path(files_found, "msg_database.sqlite")
     
     query = ('''
         SELECT
-        strftime('%Y-%m-%d %H:%M:%S.', "deliveredAt"/1000, 'unixepoch') || ("deliveredAt"%1000) [deliveredAt],
+        deliveredAt,
         deliveryStatus,
         json_extract(serializedMessage, '$.sender.participantType.member.firstName.text') [sender_firstname],
 		json_extract(serializedMessage, '$.sender.participantType.member.lastName.text') [sender_lastname],
@@ -128,13 +121,10 @@ def get_linkedin_messages(files_found, _report_folder, _seeker, _wrap_text, _tim
         FROM messages
     ''')
 
-    db_records = get_sqlite_db_records(str(files_found[0]), query)
-
-
+    db_records = get_sqlite_db_records(source_path, query)
     data_list = []
     for record in db_records:
-    
-        delivery_date = record[0]
+        delivery_date = convert_unix_ts_to_utc(record[0])
         delivery_status = record[1]
         sender_firstname = record[2]
         sender_lastname = record[3]
@@ -146,14 +136,15 @@ def get_linkedin_messages(files_found, _report_folder, _seeker, _wrap_text, _tim
 
         data_list.append((delivery_date, delivery_status, sender_firstname, sender_lastname, sender_headline, sender_profile_url, sender_distance, message, conversationurn))
 
-    data_headers = ('Delivery Date', 'Delivery Status', 'Sender First Name', 'Sender Last Name', 'Sender Headline', 'Sender Profile Url', 'Sender Distance', 'Message', 'Conversation Urn')
+    data_headers = (('Delivery Date','datetime'), 'Delivery Status', 'Sender First Name', 'Sender Last Name', 'Sender Headline', 'Sender Profile Url', 'Sender Distance', 'Message', 'Conversation Urn')
 
-    return data_headers, data_list, files_found[0]
+    return data_headers, data_list, source_path
 
 
 @artifact_processor
-def get_linkedin_conversations(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    files_found = [x for x in files_found if not x.endswith('wal') and not x.endswith('shm')]
+def linkedin_conversations(context):
+    files_found = context.get_files_found()
+    source_path = get_file_path(files_found, "msg_database.sqlite")
     
     query = ('''
         SELECT
@@ -176,7 +167,7 @@ def get_linkedin_conversations(files_found, _report_folder, _seeker, _wrap_text,
 		INNER JOIN conversations c on messages.conversationUrn = c.conversationUrn
     ''')
 
-    db_records = get_sqlite_db_records(str(files_found[0]), query)
+    db_records = get_sqlite_db_records(source_path, query)
     data_list = []
 
     for record in db_records:
@@ -190,6 +181,13 @@ def get_linkedin_conversations(files_found, _report_folder, _seeker, _wrap_text,
 
         data_list.append((delivery_date, conversation_urn, conversation_label, message, sent, sender_name))
 
-    data_headers = ( 'Timestamp', 'Conversation-ID', 'Conversation Name', 'Message', 'Sent', 'Sender Name')
+    data_headers = (
+        ('Timestamp', 'datetime'),
+        'Conversation-ID',
+        'Conversation Name',
+        'Message',
+        'Sent',
+        'Sender Name'
+    )
 
-    return data_headers, data_list, files_found[0]
+    return data_headers, data_list, source_path

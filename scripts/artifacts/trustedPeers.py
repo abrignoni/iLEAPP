@@ -1,78 +1,176 @@
+""" trustedPeers """
 __artifacts_v2__ = {
-    "trustedPeers": {
+    "trusted_peers": {
         "name": "Trusted Peers",
-        "description": "Devices Associtated with iCloud Account",
+        "description": "Devices Associated with iCloud Account",
         "author": "Heather Charpentier",
-        "version": "0.1",
-        "date": "2024-12-13",
+        "creation_date": "2024-12-13",
+        "last_update_date": "2026-06-18",
         "requirements": "none",
         "category": "Trusted Peers",
         "notes": "",
-        "paths": ('*/Keychains/com.apple.security.keychain-defaultContext.TrustedPeersHelper.db*',),
+        "paths": ('**/*TrustedPeersHelper.db*',),
         "output_types": "standard",
-        "function": "get_trustedPeers",
-        "artifact_icon": "check-circle"
+        "artifact_icon": "check-circle",
+        "sample_data": {
+            "josh_ios_15": "23 rows",
+            "mvs_2026": "6 rows but ZPEERINFO is empty"
+        }
     }
 }
 
+from scripts.ilapfuncs import (
+    artifact_processor,
+    convert_cocoa_core_data_ts_to_utc,
+    does_column_exist_in_db,
+    get_file_path,
+    get_sqlite_db_records,
+    logfunc,
+)
 
-import os
-import sqlite3
+PEER_INFO_KEYS = (
+    'OSVersion',
+    'ModelName',
+    'ComputerName',
+    'SerialNumber',
+)
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, timeline, tsv, is_platform_windows, open_sqlite_db_readonly
+
+def _read_der_length(data, offset):
+    if offset >= len(data):
+        return None, offset
+
+    length = data[offset]
+    offset += 1
+    if length < 0x80:
+        return length, offset
+
+    length_bytes = length & 0x7f
+    if length_bytes == 0 or offset + length_bytes > len(data):
+        return None, offset
+
+    length = int.from_bytes(data[offset:offset + length_bytes], 'big')
+    return length, offset + length_bytes
 
 
-def get_trustedPeers(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    
-    for file_found in files_found:
-        file_found = str(file_found)
-        
-        if file_found.endswith('TrustedPeersHelper.db'):
+def _read_der_strings(data, start=0, end=None):
+    end = len(data) if end is None else end
+    offset = start
+    strings = []
+
+    while offset < end:
+        if offset + 2 > end:
             break
-            
-    db = open_sqlite_db_readonly(file_found)
-    cursor = db.cursor()
-    cursor.execute('''
-    SELECT 
-    DISTINCT datetime(client.ZSECUREBACKUPMETADATATIMESTAMP + 978307200, 'unixepoch') AS "Timestamp",
-	client.ZDEVICEMODEL AS "Model",
-    client.ZDEVICEMODELVERSION AS "Model Version", 
-    client.ZDEVICENAME AS "Device Name",
-    metadata.ZSERIAL AS "Serial Number",
-	client.ZSECUREBACKUPNUMERICPASSPHRASELENGTH AS "Passcode Length"
-    FROM 
+
+        tag = data[offset]
+        offset += 1
+        length, offset = _read_der_length(data, offset)
+        if length is None or offset + length > end:
+            break
+
+        value = data[offset:offset + length]
+        if tag in (0x0c, 0x13, 0x16, 0x1a):
+            strings.append(value.decode('utf-8', errors='ignore'))
+        elif tag & 0x20:
+            strings.extend(_read_der_strings(data, offset, offset + length))
+
+        offset += length
+
+    return strings
+
+
+def _peer_info_values(peer_info):
+    values = {key: '' for key in PEER_INFO_KEYS}
+    if not peer_info:
+        return values
+
+    strings = _read_der_strings(bytes(peer_info))
+    for index, item in enumerate(strings[:-1]):
+        if item in values:
+            values[item] = strings[index + 1]
+
+    return values
+
+
+@artifact_processor
+def trusted_peers(context):
+    """ see artifact description """
+    files_found = context.get_files_found()
+    data_list = []
+    source_path = get_file_path(files_found, '*TrustedPeersHelper.db')
+    if not source_path:
+        logfunc('TrustedPeersHelper.db not found')
+        return (), [], ''
+
+    device_color = (
+        'client.ZDEVICECOLOR'
+        if does_column_exist_in_db(source_path, 'ZESCROWCLIENTMETADATA', 'ZDEVICECOLOR')
+        else 'NULL'
+    )
+    device_enclosure_color = (
+        'client.ZDEVICEENCLOSURECOLOR'
+        if does_column_exist_in_db(source_path, 'ZESCROWCLIENTMETADATA', 'ZDEVICEENCLOSURECOLOR')
+        else 'NULL'
+    )
+    peer_info = (
+        'metadata.ZPEERINFO'
+        if does_column_exist_in_db(source_path, 'ZESCROWMETADATA', 'ZPEERINFO')
+        else 'NULL'
+    )
+
+    query = f'''
+    SELECT DISTINCT
+        client.ZSECUREBACKUPMETADATATIMESTAMP,
+        client.ZDEVICEMODEL,
+        client.ZDEVICEMODELVERSION,
+        client.ZDEVICENAME,
+        metadata.ZSERIAL,
+        client.ZSECUREBACKUPNUMERICPASSPHRASELENGTH,
+        {device_color} AS ZDEVICECOLOR,
+        {device_enclosure_color} AS ZDEVICEENCLOSURECOLOR,
+        {peer_info} AS ZPEERINFO
+    FROM
         ZESCROWCLIENTMETADATA AS client
-    LEFT JOIN 
+    LEFT JOIN
         ZESCROWMETADATA AS metadata
-    ON 
+    ON
         client.ZESCROWMETADATA = metadata.Z_PK;
-    ''')
+    '''
 
-    all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
-    data_list = []  
-    
-    if usageentries > 0:
-        for row in all_rows:
-        
-            data_list.append((row[0], row[1], row[2], row[3], row[4], row[5]))
+    db_records = get_sqlite_db_records(source_path, query)
 
-        description = 'Trusted Peers'
-        report = ArtifactHtmlReport('Trusted Peers')
-        report.start_artifact_report(report_folder, 'Trusted Peers', description)
-        report.add_script()
-        data_headers = ('Timestamp', 'Model', 'Model Version', 'Device Name', 'Serial Number', 'Passcode Length')
-        report.write_artifact_data_table(data_headers, data_list, file_found)
-        report.end_artifact_report()
-        
-        tsvname = 'Trusted Peers'
-        tsv(report_folder, data_headers, data_list, tsvname)
-        
-        tlactivity = 'Trusted Peers'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-    else:
-        logfunc('No Trusted Peers data available')
-        
-    db.close()
+    for row in db_records:
+        timestamp = convert_cocoa_core_data_ts_to_utc(row[0])
+        peer_values = _peer_info_values(row[8])
 
+        data_list.append((
+            timestamp,
+            row[1],
+            row[2],
+            row[3],
+            row[4],
+            row[5],
+            row[6],
+            row[7],
+            peer_values['OSVersion'],
+            peer_values['ModelName'],
+            peer_values['ComputerName'],
+            peer_values['SerialNumber'],
+        ))
+
+    data_headers = (
+        ('Timestamp', 'datetime'),
+        'Model',
+        'Model Version',
+        'Device Name',
+        'Serial Number',
+        'Passcode Length',
+        'Device Color',
+        'Device Enclosure Color',
+        'Peer OS Version',
+        'Peer Model Name',
+        'Peer Computer Name',
+        'Peer Serial Number',
+    )
+
+    return data_headers, data_list, context.get_relative_path(source_path)

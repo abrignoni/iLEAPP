@@ -21,6 +21,7 @@ a = Analysis(
         'pgpy',
         'PIL._tkinter_finder',
         'pillow_heif',
+        'typedstream',
         'xml.etree.ElementTree',
         ],
     hookspath=[],

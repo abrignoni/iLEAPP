@@ -21,6 +21,9 @@ from urllib.parse import quote
 import scripts.artifact_report as artifact_report
 from scripts.context import Context
 
+
+_console_write = sys.stdout.write
+
 # common third party imports
 import pytz
 import simplekml
@@ -138,6 +141,7 @@ class MediaReferences():
 
 def logfunc(message=""):
     def redirect_logs(string):
+        _console_write(string)
         log_text.insert('end', string)
         log_text.see('end')
         log_text.update()
@@ -705,10 +709,7 @@ def get_sqlite_db_records(path, query, attach_query=None):
             cursor.execute(query)
             records = cursor.fetchall()
             return records
-        except sqlite3.OperationalError as e:
-            logfunc(f"Error with {path}:")
-            logfunc(f" - {str(e)}")
-        except sqlite3.ProgrammingError as e:
+        except sqlite3.DatabaseError as e:
             logfunc(f"Error with {path}:")
             logfunc(f" - {str(e)}")
     return []
@@ -1150,7 +1151,7 @@ def convert_unix_ts_to_utc(ts):
     if ts:
         try:
             ts = float(ts)
-        except ValueError:
+        except (ValueError, TypeError, OSError, OverflowError):
             return ts
         ts = convert_unix_ts_in_seconds(ts)
         return datetime.fromtimestamp(ts, tz=timezone.utc)

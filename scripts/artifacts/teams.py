@@ -3,21 +3,24 @@ __artifacts_v2__ = {
         "name": "Teams Messages",
         "description": "Microsoft Teams messages and shared media",
         "author": "",
-        "version": "1.0",
+        "last_update_date": "2026-06-12",
+        "requirements": "nska_deserialize",
         "category": "Microsoft Teams",
+        "notes": "",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*',
                  '*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/Downloads/*/Images/*'),
         "output_types": "standard",
         "data_views": {
             "table": {},
-            "chat": {
-                "threadDiscriminatorColumn": "Thread ID",
-                "threadLabelColumn": "Thread Name",
+            "conversation": {
+                "conversationDiscriminatorColumn": "Thread ID",
+                "conversationLabelColumn": "Thread Name",
                 "textColumn": "Message",
                 "senderColumn": "Display Name",
                 "directionColumn": "Sent By Me",
                 "directionSentValue": 1,
                 "timeColumn": "Timestamp",
+                "mediaColumn": "Media",
                 #"sentMessageStaticLabel": "This Device" 
             }
         }
@@ -26,8 +29,10 @@ __artifacts_v2__ = {
         "name": "Teams Contacts",
         "description": "Microsoft Teams contact list",
         "author": "",
-        "version": "1.0",
+        "last_update_date": "2026-06-12",
+        "requirements": "nska_deserialize",
         "category": "Microsoft Teams",
+        "notes": "",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*',),
         "output_types": "standard"
     },
@@ -35,8 +40,10 @@ __artifacts_v2__ = {
         "name": "Teams User Information",
         "description": "Microsoft Teams user profile and sync data",
         "author": "",
-        "version": "1.0",
+        "last_update_date": "2026-06-12",
+        "requirements": "nska_deserialize",
         "category": "Microsoft Teams",
+        "notes": "",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*',),
         "output_types": "standard"
     },
@@ -44,8 +51,10 @@ __artifacts_v2__ = {
         "name": "Teams Call Logs",
         "description": "Microsoft Teams call history",
         "author": "",
-        "version": "1.0",
+        "last_update_date": "2026-06-12",
+        "requirements": "nska_deserialize",
         "category": "Microsoft Teams",
+        "notes": "",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*',),
         "output_types": "standard"
     },
@@ -53,27 +62,101 @@ __artifacts_v2__ = {
         "name": "Teams Shared Locations",
         "description": "Microsoft Teams shared location data",
         "author": "",
-        "version": "1.0",
+        "last_update_date": "2026-06-12",
+        "requirements": "nska_deserialize",
         "category": "Microsoft Teams",
+        "notes": "",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*',),
         "output_types": "all"
     }
 }
 
 import sqlite3
-import io
 import json
-import os
 import re
-import shutil
 import datetime
-from scripts.ilapfuncs import logfunc, convert_ts_human_to_timezone_offset, artifact_processor, open_sqlite_db_readonly
-import nska_deserialize as nd
+from scripts.ilapfuncs import (
+    artifact_processor,
+    check_in_media,
+    convert_ts_human_to_utc,
+    get_plist_content,
+    get_plist_file_content,
+    logfunc,
+    open_sqlite_db_readonly
+)
+
+
+def _convert_teams_timestamp(timestamp):
+    if not timestamp:
+        return ''
+    return convert_ts_human_to_utc(str(timestamp).replace('T', ' ').rstrip('Z'))
+
+
+def _get_first_image_source(content):
+    if not content:
+        return ''
+
+    match = re.search(
+        r'<img\b[^>]*\bsrc\s*=\s*["\']([^"\']+)["\']',
+        content,
+        flags=re.IGNORECASE | re.DOTALL
+    )
+    return match.group(1) if match else ''
+
+
+def _get_display_message(content):
+    if not content:
+        return ''
+
+    emoji_match = re.search(
+        r'<img\b(?=[^>]*\bitemtype\s*=\s*["\']http://schema\.skype\.com/Emoji["\'])'
+        r'(?=[^>]*\balt\s*=\s*["\']([^"\']+)["\'])[^>]*>',
+        content,
+        flags=re.IGNORECASE | re.DOTALL
+    )
+    if not emoji_match:
+        return content
+
+    content_without_emoji = content[:emoji_match.start()] + content[emoji_match.end():]
+    remaining_text = re.sub(r'<[^>]+>', '', content_without_emoji).strip()
+    return emoji_match.group(1) if not remaining_text else content
+
+
+def _find_cached_media_path(files_found, cached_path):
+    if not cached_path:
+        return None
+
+    normalized_cached_path = str(cached_path).replace('\\', '/')
+    marker = '/SkypeSpacesDogfood/'
+    cached_suffix = (
+        f'SkypeSpacesDogfood/{normalized_cached_path.split(marker, 1)[1]}'
+        if marker in normalized_cached_path
+        else ''
+    )
+
+    normalized_files = [
+        (file_found, str(file_found).replace('\\', '/'))
+        for file_found in files_found
+    ]
+
+    if cached_suffix:
+        for file_found, normalized_file in normalized_files:
+            if normalized_file.endswith(cached_suffix):
+                return file_found
+
+    cached_name = normalized_cached_path.rsplit('/', 1)[-1]
+    for file_found, normalized_file in normalized_files:
+        if normalized_file.rsplit('/', 1)[-1] == cached_name:
+            return file_found
+
+    return None
+
 
 @artifact_processor
-def teamsMessages(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def teamsMessages(context):
+    files_found = context.get_files_found()
     if not files_found:
-        return
+        return (), [], ''
     
     data_list = []
     cache_file = None
@@ -88,17 +171,13 @@ def teamsMessages(files_found, report_folder, seeker, wrap_text, timezone_offset
             cache_file = file_found
     
     if not db_file:
-        logfunc('No Teams database found')
-        return
+        return (), [], files_found[0]
     
     # Initialize cache dictionary
     nsplist = {}
     if cache_file:
-        try:
-            with open(cache_file, 'rb') as nsfile:
-                nsplist = nd.deserialize_plist(nsfile)
-        except Exception as e:
-            logfunc(f'Error parsing CacheFile: {str(e)}')
+        nsplist = get_plist_file_content(cache_file)
+        if not isinstance(nsplist, dict):
             nsplist = {}
     
     db = open_sqlite_db_readonly(db_file)
@@ -125,32 +204,27 @@ def teamsMessages(files_found, report_folder, seeker, wrap_text, timezone_offset
     ''')
 
     for row in cursor:
-        timestamp = convert_ts_human_to_timezone_offset(row['timestamp'], timezone_offset)
-        thumb = ''
+        timestamp = _convert_teams_timestamp(row['timestamp'])
+        media_ref = None
+        raw_message = row['ZCONTENT'] or ''
+        display_message = _get_display_message(raw_message)
         
-        # Process media content
-        if row['ZCONTENT'] and '<div><img src=' in row['ZCONTENT']:
+        # Process the first cached image associated with the message.
+        image_url = _get_first_image_source(raw_message)
+        if image_url:
             try:
-                matches = re.search('"([^"]+)"', row['ZCONTENT'])
-                if matches:
-                    image_url = matches[0].strip('\"')
-                    if image_url in nsplist:
-                        data_file_real_path = nsplist[image_url]
-                        for match in files_found:
-                            if data_file_real_path in match:
-                                try:
-                                    shutil.copy2(match, report_folder)
-                                    data_file_name = os.path.basename(match)
-                                    thumb = f'<img src="{report_folder}/{data_file_name}"></img>'
-                                except Exception as e:
-                                    logfunc(f'Error copying media file: {str(e)}')
-            except Exception as e:
-                logfunc(f'Error processing image for message at {timestamp}: {str(e)}')
+                cached_path = nsplist.get(image_url, '')
+                media_path = _find_cached_media_path(files_found, cached_path)
+                if media_path:
+                    media_ref = check_in_media(str(media_path))
+            except (AttributeError, OSError, TypeError, ValueError) as ex:
+                logfunc(f'Error processing image for message at {timestamp}: {ex}')
         
         data_list.append((
             timestamp,
             row['ZIMDISPLAYNAME'] or '',
-            row['ZCONTENT'] or '',
+            display_message,
+            raw_message,
             row['ZFROM'] or '',
             row['ZTHREADID'] or '',
             row['ZTHREADTYPE'] or '',
@@ -159,7 +233,8 @@ def teamsMessages(files_found, report_folder, seeker, wrap_text, timezone_offset
             row['thread_name'] or '',
             row['ZTS_MESSAGEBASETYPE'] or '',
             row['ZTS_MESSAGECONTENTTYPE'] or '',
-			row['ZTS_ISSENTBYME']
+			row['ZTS_ISSENTBYME'],
+            media_ref
         ))
     
     db.close()
@@ -168,6 +243,7 @@ def teamsMessages(files_found, report_folder, seeker, wrap_text, timezone_offset
         ('Timestamp', 'datetime'),
         'Display Name',
         'Message',
+        'Raw Message',
         'Sender',
         'Thread ID',
         'Thread Type',
@@ -176,15 +252,17 @@ def teamsMessages(files_found, report_folder, seeker, wrap_text, timezone_offset
         'Thread Name',
         'Message Base Type',
         'Message Content Type',
-        'Sent By Me'
+        'Sent By Me',
+        ('Media', 'media')
     )
     
     return data_headers, data_list, db_file
 
 @artifact_processor
-def teamsContacts(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def teamsContacts(context):
+    files_found = context.get_files_found()
     if not files_found:
-        return
+        return (), [], ''
     
     data_list = []
     db_file = None
@@ -195,8 +273,7 @@ def teamsContacts(files_found, report_folder, seeker, wrap_text, timezone_offset
             break
     
     if not db_file:
-        logfunc('No Teams database found')
-        return
+        return (), [], files_found[0]
     
     db = open_sqlite_db_readonly(db_file)
     cursor = db.cursor()
@@ -234,9 +311,10 @@ def teamsContacts(files_found, report_folder, seeker, wrap_text, timezone_offset
     return data_headers, data_list, db_file
 
 @artifact_processor
-def teamsUser(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def teamsUser(context):
+    files_found = context.get_files_found()
     if not files_found:
-        return
+        return (), [], ''
     
     data_list = []
     db_file = None
@@ -247,8 +325,7 @@ def teamsUser(files_found, report_folder, seeker, wrap_text, timezone_offset):
             break
     
     if not db_file:
-        logfunc('No Teams database found')
-        return
+        return (), [], files_found[0]
     
     db = open_sqlite_db_readonly(db_file)
     cursor = db.cursor()
@@ -264,7 +341,7 @@ def teamsUser(files_found, report_folder, seeker, wrap_text, timezone_offset):
     
     for row in cursor:
         data_list.append((
-            convert_ts_human_to_timezone_offset(row['lastsyncedat'], timezone_offset),
+            _convert_teams_timestamp(row['lastsyncedat']),
             row['ZDISPLAYNAME'] if row['ZDISPLAYNAME'] else '',
             row['ZTELEPHONENUMBER'] if row['ZTELEPHONENUMBER'] else ''
         ))
@@ -280,9 +357,10 @@ def teamsUser(files_found, report_folder, seeker, wrap_text, timezone_offset):
     return data_headers, data_list, db_file
 
 @artifact_processor
-def teamsCalls(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def teamsCalls(context):
+    files_found = context.get_files_found()
     if not files_found:
-        return
+        return (), [], ''
     
     data_list = []
     db_file = None
@@ -293,8 +371,7 @@ def teamsCalls(files_found, report_folder, seeker, wrap_text, timezone_offset):
             break
     
     if not db_file:
-        logfunc('No Teams database found')
-        return
+        return (), [], files_found[0]
     
     db = open_sqlite_db_readonly(db_file)
     cursor = db.cursor()
@@ -314,55 +391,37 @@ def teamsCalls(files_found, report_folder, seeker, wrap_text, timezone_offset):
     ''')
     
     for row in cursor:
+        plist = get_plist_content(row['ZPROPERTIES'])
+        if not isinstance(plist, dict):
+            continue
+
+        if 'call-log' not in plist:
+            continue
+
         try:
-            compose_time = convert_ts_human_to_timezone_offset(row['ZCOMPOSETIME'].replace('T', ' '), timezone_offset)
-            plist_file_object = io.BytesIO(row['ZPROPERTIES'])
-            
-            try:
-                plist = nd.deserialize_plist(plist_file_object)
-            except Exception as e:
-                logfunc(f'Failed to read plist: {str(e)}')
-                continue
-            
-            if 'call-log' in plist:
-                try:
-                    if isinstance(plist['call-log'], dict):
-                        datacalls = plist['call-log']
-                    else:
-                        datacalls = json.loads(plist['call-log'])
-                    
-                    call_start = convert_ts_human_to_timezone_offset(
-                        datacalls.get('startTime', '').replace('T', ' '), 
-                        timezone_offset
-                    ) if datacalls.get('startTime') else ''
-                    
-                    call_connect = convert_ts_human_to_timezone_offset(
-                        datacalls.get('connectTime', '').replace('T', ' '), 
-                        timezone_offset
-                    ) if datacalls.get('connectTime') else ''
-                    
-                    call_end = convert_ts_human_to_timezone_offset(
-                        datacalls.get('endTime', '').replace('T', ' '), 
-                        timezone_offset
-                    ) if datacalls.get('endTime') else ''
-                    
-                    data_list.append((
-                        call_start,
-                        call_connect,
-                        call_end,
-                        datacalls.get('callDirection', ''),
-                        datacalls.get('callType', ''),
-                        datacalls.get('callState', ''),
-                        datacalls.get('originator', ''),
-                        datacalls.get('target', ''),
-                        datacalls.get('originatorParticipant', {}).get('displayName', ''),
-                        datacalls.get('targetParticipant', {}).get('displayName', '')
-                    ))
-                except Exception as e:
-                    logfunc(f'Error processing call log data: {str(e)} - Data: {plist["call-log"]}')
-                    
-        except Exception as e:
-            logfunc(f'Error processing row: {str(e)}')
+            if isinstance(plist['call-log'], dict):
+                datacalls = plist['call-log']
+            else:
+                datacalls = json.loads(plist['call-log'])
+
+            call_start = _convert_teams_timestamp(datacalls.get('startTime'))
+            call_connect = _convert_teams_timestamp(datacalls.get('connectTime'))
+            call_end = _convert_teams_timestamp(datacalls.get('endTime'))
+
+            data_list.append((
+                call_start,
+                call_connect,
+                call_end,
+                datacalls.get('callDirection', ''),
+                datacalls.get('callType', ''),
+                datacalls.get('callState', ''),
+                datacalls.get('originator', ''),
+                datacalls.get('target', ''),
+                datacalls.get('originatorParticipant', {}).get('displayName', ''),
+                datacalls.get('targetParticipant', {}).get('displayName', '')
+            ))
+        except (AttributeError, IndexError, KeyError, TypeError, ValueError) as ex:
+            logfunc(f'Error processing call log data: {ex} - Data: {plist["call-log"]}')
     
     db.close()
     
@@ -382,9 +441,10 @@ def teamsCalls(files_found, report_folder, seeker, wrap_text, timezone_offset):
     return data_headers, data_list, db_file
 
 @artifact_processor
-def teamsLocations(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def teamsLocations(context):
+    files_found = context.get_files_found()
     if not files_found:
-        return
+        return (), [], ''
     
     data_list = []
     db_file = None
@@ -395,8 +455,7 @@ def teamsLocations(files_found, report_folder, seeker, wrap_text, timezone_offse
             break
     
     if not db_file:
-        logfunc('No Teams database found')
-        return
+        return (), [], files_found[0]
     
     db = open_sqlite_db_readonly(db_file)
     cursor = db.cursor()
@@ -416,65 +475,59 @@ def teamsLocations(files_found, report_folder, seeker, wrap_text, timezone_offse
     ''')
     
     for row in cursor:
+        compose_time = _convert_teams_timestamp(row['ZCOMPOSETIME'])
+        plist = get_plist_content(row['ZPROPERTIES'])
+        if not isinstance(plist, dict):
+            continue
+
+        if 'cards' not in plist:
+            continue
+
         try:
-            compose_time = convert_ts_human_to_timezone_offset(row['ZCOMPOSETIME'].replace('T', ' '), timezone_offset)
-            plist_file_object = io.BytesIO(row['ZPROPERTIES'])
-            
-            try:
-                plist = nd.deserialize_plist(plist_file_object)
-            except Exception as e:
-                logfunc(f'Failed to read plist: {str(e)}')
-                continue
-            
-            if 'cards' in plist:
+            cards = json.loads(plist['cards'])
+            card = cards[0]['content']['body'][0]
+
+            card_url = card.get('selectAction', {}).get('url', '')
+            card_title = card.get('selectAction', {}).get('title', '')
+            card_text = cards[0]['content']['body'][1].get('text', '')
+            card_url2 = card.get('url', '')
+
+            card_lat = None
+            card_long = None
+            card_expires = None
+            card_devid = None
+
+            if card.get('id'):
                 try:
-                    cards = json.loads(plist['cards'])
-                    card = cards[0]['content']['body'][0]
-                    
-                    card_url = card.get('selectAction', {}).get('url', '')
-                    card_title = card.get('selectAction', {}).get('title', '')
-                    card_text = cards[0]['content']['body'][1].get('text', '')
-                    card_url2 = card.get('url', '')
-                    
-                    card_lat = None
-                    card_long = None
-                    card_expires = None
-                    card_devid = None
-                    
-                    if card.get('id'):
-                        try:
-                            id_content = json.loads(card['id'])
-                            card_lat = id_content.get('latitude')
-                            card_long = id_content.get('longitude')
-                            expires_ms = id_content.get('expiresAt')
-                            if expires_ms:
-                                card_expires = convert_ts_human_to_timezone_offset(
-                                    datetime.datetime.fromtimestamp(expires_ms / 1000).strftime('%Y-%m-%d %H:%M:%S'),
-                                    timezone_offset
-                                )
-                            card_devid = id_content.get('deviceId')
-                        except Exception as e:
-                            logfunc(f'Error processing card ID data: {str(e)}')
-                    
-                    data_list.append((
-                        compose_time,
-                        row['ZFROM'] if row['ZFROM'] else '',
-                        row['ZIMDISPLAYNAME'] if row['ZIMDISPLAYNAME'] else '',
-                        row['ZCONTENT'] if row['ZCONTENT'] else '',
-                        card_url,
-                        card_title,
-                        card_text,
-                        card_url2,
-                        card_lat,
-                        card_long,
-                        card_expires,
-                        card_devid
-                    ))
-                except Exception as e:
-                    logfunc(f'Error processing card data: {str(e)}')
-                    
-        except Exception as e:
-            logfunc(f'Error processing row: {str(e)}')
+                    id_content = json.loads(card['id'])
+                    card_lat = id_content.get('latitude')
+                    card_long = id_content.get('longitude')
+                    expires_ms = id_content.get('expiresAt')
+                    if expires_ms:
+                        card_expires = datetime.datetime.fromtimestamp(
+                            expires_ms / 1000,
+                            tz=datetime.timezone.utc
+                        )
+                    card_devid = id_content.get('deviceId')
+                except (AttributeError, TypeError, ValueError, OverflowError, OSError) as ex:
+                    logfunc(f'Error processing card ID data: {ex}')
+
+            data_list.append((
+                compose_time,
+                row['ZFROM'] if row['ZFROM'] else '',
+                row['ZIMDISPLAYNAME'] if row['ZIMDISPLAYNAME'] else '',
+                row['ZCONTENT'] if row['ZCONTENT'] else '',
+                card_url,
+                card_title,
+                card_text,
+                card_url2,
+                card_lat,
+                card_long,
+                card_expires,
+                card_devid
+            ))
+        except (AttributeError, IndexError, KeyError, TypeError, ValueError) as ex:
+            logfunc(f'Error processing card data: {ex}')
     
     db.close()
     

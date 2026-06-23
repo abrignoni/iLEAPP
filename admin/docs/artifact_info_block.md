@@ -17,7 +17,10 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('Path/to/artifact/files',),
         "output_types": "all"  # or "standard" or ["html", "tsv", "timeline", "kml", "lava"],
-        "artifact_icon": "feather-icon-name"
+        "artifact_icon": "feather-icon-name",
+        "sample_data": {
+            "sample_name": "Short note about where this artifact has been tested"
+        }
     }
 }
 ```
@@ -38,6 +41,16 @@ __artifacts_v2__ = {
 | `paths`         | A tuple containing one or more file paths (with wildcards if needed) where the artifact data can be found                                 | Required          |
 | `output_types`  | Specifies the desired output formats. See 'Output Types Details' below for options.                                                     | Required          |
 | `artifact_icon` | The name of the feathericon to display in the left sidebar ot the HTML report. List of available icons on [feathericons.com](https://feathericons.com) website | Optional          |
+| `sample_data`   | Optional human-readable notes about known sample data or test coverage for the artifact. This can include local image names, test case names, row counts, OS versions, or schema variations that were verified. Not used by the artifact processor. | Optional          |
+
+Example:
+
+```python
+"sample_data": {
+    "josh_ios_15": "23 rows; ZPEERINFO contains peer OS/model/name values",
+    "mvs_2026": "6 rows; ZPEERINFO is empty"
+}
+```
 
 ### Output Types Details
 

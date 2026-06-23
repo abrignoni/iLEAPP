@@ -18,6 +18,12 @@ from scripts.ilapfuncs import *
 from scripts.tz_offset import tzvalues
 from scripts.modules_to_exclude import modules_to_exclude
 from scripts.lavafuncs import *
+from leapp_functions.lava_launcher import (
+    LAVA_WEBSITE,
+    find_lava_launcher,
+    open_lava_project,
+    open_output_folder,
+)
 from scripts.context import Context
 from scripts.lavafuncs import lava_json_name
 
@@ -235,6 +241,35 @@ def open_report(report_path):
     main_window.quit()
 
 
+def open_lava(project_path, launcher):
+    '''Open the generated project in LAVA and quit after processing completed.'''
+    try:
+        open_lava_project(project_path, launcher, logfunc)
+    except (OSError, ValueError) as ex:
+        tk_msgbox.showerror(
+            title='Unable to open LAVA',
+            message=f'iLEAPP could not open the project in LAVA:\n{ex}',
+            parent=main_window)
+        return
+    main_window.quit()
+
+
+def explore_lava():
+    '''Open the LAVA website.'''
+    webbrowser.open_new_tab(LAVA_WEBSITE)
+
+
+def open_folder(output_path):
+    '''Open the generated output folder.'''
+    try:
+        open_output_folder(output_path)
+    except OSError as ex:
+        tk_msgbox.showerror(
+            title='Unable to open output folder',
+            message=f'iLEAPP could not open the output folder:\n{ex}',
+            parent=main_window)
+
+
 def open_website(url):
     webbrowser.open_new_tab(url)
 
@@ -351,10 +386,15 @@ def process(casedata):
             lava_project_path = os.path.join(out_params.output_folder_base, lava_json_name)
             history.record_recent_run('ileapp', leapp_version, lava_project_path)
 
+            output_folder_path = out_params.output_folder_base
             if report_path.startswith('\\\\?\\'):  # windows
                 report_path = report_path[4:]
+                lava_project_path = lava_project_path[4:]
+                output_folder_path = output_folder_path[4:]
             if report_path.startswith('\\\\'):  # UNC path
                 report_path = report_path[2:]
+                lava_project_path = lava_project_path[2:]
+                output_folder_path = output_folder_path[2:]
             if lava_only_artifacts:
                 message = "You have selected artifacts that are likely to return too much data "
                 message += "to be viewed in a Web browser.\n\n"
@@ -365,11 +405,32 @@ def process(casedata):
                     message=message,
                     parent=main_window)
             progress_bar.pack_forget()
+            completion_button_frame = ttk.Frame(progress_bar_frame)
+            completion_button_frame.place(relx=0.5, rely=0.5, anchor='center')
             open_report_button = ttk.Button(
-                progress_bar_frame,
-                text='Open Report & Close',
+                completion_button_frame,
+                text='Open HTML in Browser & Close',
                 command=lambda: open_report(report_path))
-            open_report_button.place(relx=0.5, rely=0.5, anchor='center')
+            open_report_button.pack(side='left', padx=5)
+
+            lava_launcher = find_lava_launcher(lava_project_path)
+            if lava_launcher:
+                lava_button = ttk.Button(
+                    completion_button_frame,
+                    text='Open Project in LAVA & Close',
+                    command=lambda: open_lava(lava_project_path, lava_launcher))
+            else:
+                lava_button = ttk.Button(
+                    completion_button_frame,
+                    text='Explore LAVA',
+                    command=explore_lava)
+            lava_button.pack(side='left', padx=5)
+
+            open_folder_button = ttk.Button(
+                completion_button_frame,
+                text='Open Output Folder',
+                command=lambda: open_folder(output_folder_path))
+            open_folder_button.pack(side='left', padx=5)
         else:
             log_path = out_params.screen_output_file_path
             if log_path.startswith('\\\\?\\'):  # windows
@@ -504,24 +565,47 @@ def case_data():
 
     ### Case Data Window creation
     case_window = tk.Toplevel(main_window)
+    case_window.transient(main_window)
     case_window_width = 560
     if is_platform_linux():
         case_window_height = 325
+    elif is_platform_macos():
+        case_window_height = 317
     else:
         case_window_height = 305
 
-    #### Places Case Data window in the center of the screen
-    screen_width = main_window.winfo_screenwidth()
-    screen_height = main_window.winfo_screenheight()
-    margin_width = (screen_width - case_window_width) // 2
-    margin_height = (screen_height - case_window_height) // 2
+    #### Places Case Data window in the center of the main window
+    main_window.update_idletasks()
+    main_x = main_window.winfo_x()
+    main_y = main_window.winfo_y()
+    main_w = main_window.winfo_width()
+    main_h = main_window.winfo_height()
+
+    margin_width = main_x + (main_w - case_window_width) // 2
+    margin_height = main_y + (main_h - case_window_height) // 2
 
     #### Case Data window properties
-    case_window.geometry(f'{case_window_width}x{case_window_height}+{margin_width}+{margin_height}')
+    case_window.geometry(
+        f'{case_window_width}x{case_window_height}'
+        f'{geometry_offset(margin_width)}{geometry_offset(margin_height)}')
     case_window.resizable(False, False)
     case_window.configure(bg=theme_bgcolor)
     case_window.title('Add Case Data')
     case_window.grid_columnconfigure(0, weight=1)
+
+    def on_main_focus(event):
+        if case_window.winfo_exists():
+            case_window.bell()
+            case_window.lift()
+            case_window.focus_force()
+
+    main_window.bind("<FocusIn>", on_main_focus)
+
+    def close_case_window():
+        main_window.unbind("<FocusIn>")
+        case_window.destroy()
+
+    case_window.protocol("WM_DELETE_WINDOW", close_case_window)
 
     #### Layout
     case_title_label = ttk.Label(case_window, text='Add Case Data', font=('Helvetica 18'))
@@ -560,10 +644,13 @@ def case_data():
     ttk.Separator(modules_btn_frame, orient='vertical').grid(row=0, column=2, padx=20, sticky='ns')
     clear_case_button = ttk.Button(modules_btn_frame, text='Clear', command=clear)
     clear_case_button.grid(row=0, column=3, padx=5)
-    close_case_button = ttk.Button(modules_btn_frame, text='Close', command=case_window.destroy)
+    close_case_button = ttk.Button(modules_btn_frame, text='Close', command=close_case_window)
     close_case_button.grid(row=0, column=4, padx=5)
 
-    case_window.grab_set()
+    if is_platform_macos():
+        case_window.grab_set_global()
+    else:
+        case_window.grab_set()
 
 
 ## Main window creation
@@ -745,8 +832,32 @@ def OnFocusIn(event):
     if type(event.widget).__name__ == 'Tk':
         event.widget.attributes('-topmost', False)
 
+def geometry_offset(value):
+    return f'+{value}' if value >= 0 else str(value)
+
+def center_main_window_macos(window, width, height):
+    window.update_idletasks()
+    mouse_x, mouse_y = window.winfo_pointerxy()
+    # Moving the window lets Tk report the screen containing the pointer on
+    # macOS, where its screen dimensions are monitor-specific.
+    window.geometry(f'{geometry_offset(mouse_x)}{geometry_offset(mouse_y)}')
+    window.update_idletasks()
+    screen_width = window.winfo_screenwidth()
+    screen_height = window.winfo_screenheight()
+    left = (mouse_x // screen_width) * screen_width
+    top = (mouse_y // screen_height) * screen_height
+    right = left + screen_width
+    bottom = top + screen_height
+
+    start_x = left + max(0, (right - left - width) // 2)
+    start_y = top + max(0, (bottom - top - height) // 2)
+    window.geometry(
+        f'{width}x{height}{geometry_offset(start_x)}{geometry_offset(start_y)}')
+
 main_window.attributes('-topmost', True)
 main_window.focus_force()
 main_window.bind('<FocusIn>', OnFocusIn)
 
+if is_platform_macos():
+    center_main_window_macos(main_window, 890, 690)
 main_window.mainloop()

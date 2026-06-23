@@ -1,52 +1,56 @@
 __artifacts_v2__ = {
-    "twintTransactions": {
+    "twint_transactions": {
         "name": "Twint - Transactions",
         "description": "Extract data related to transactions made with the instant payment app Twint prepaid",
         "author": "@KefreR (Frank Ressat)",
-        "version": "0.1",
-        "date": "2023-11-21",
+        "creation_date": "2023-11-21",
+        "last_update_date": "2024-11-25",
         "requirements": "none",
         "category": "Finance",
         "notes": "",
-        "paths": ('*/var/mobile/Containers/Data/Application/*/Library/Application Support/Twint.sqlite*'),
+        "paths": ('*/var/mobile/Containers/Data/Application/*/Library/Application Support/Twint.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "dollar-sign"
     }
 }
+from scripts.ilapfuncs import (
+    artifact_processor,
+    get_sqlite_db_records,
+    convert_cocoa_core_data_ts_to_utc
+    )
 
-
-from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, convert_cocoa_core_data_ts_to_utc
 
 @artifact_processor
-def twintTransactions(files_found, report_folder, seeker, wrap_text, time_offset):
+def twint_transactions(context):
+    files_found = context.get_files_found()
     data_list = []
     db_file = ''
     db_records = []
 
     query = '''
         SELECT
-            ZTRANSACTION.ZCREATIONDATE, 
-            ZTRANSACTION.ZMODIFIEDTIMESTAMP, 
-            ZTRANSACTION.ZSECONDPHASETIMESTAMP, 
-            ZTRANSACTION.ZSTATUSPENDINGUNTILDATE, 
-            ZTRANSACTION.ZMERCHANTBRANCHNAME, 
-            ZTRANSACTION.ZMERCHANTNAME, 
-            ZTRANSACTION.ZP2PSENDERMOBILENR, 
-            ZTRANSACTION.ZP2PINITIATEMESSAGE, 
-            ZTRANSACTION.ZP2PRECIPIENTMOBILENR, 
-            ZTRANSACTION.ZP2PRECIPIENTNAME, 
-            ZTRANSACTION.ZP2PREPLYMESSAGE, 
-            ZTRANSACTION.ZAUTHORIZEDAMOUNT, 
-            ZTRANSACTION.ZPAIDAMOUNT, 
-            ZTRANSACTION.ZREQUESTEDAMOUNT, 
-            ZTRANSACTION.ZDISCOUNT, 
-            ZTRANSACTION.ZCURRENCY, 
-            ZTRANSACTION.ZCONTENTREFERENCE, 
-            ZTRANSACTION.ZORDERLINK, 
-            ZTRANSACTION.ZP2PHASPICTURE, 
-            ZTRANSACTION.ZORDERSTATEVALUE, 
-            ZTRANSACTION.ZORDERTYPEVALUE, 
-            ZTRANSACTION.ZTRANSACTIONSIDEVALUE, 
+            ZTRANSACTION.ZCREATIONDATE,
+            ZTRANSACTION.ZMODIFIEDTIMESTAMP,
+            ZTRANSACTION.ZSECONDPHASETIMESTAMP,
+            ZTRANSACTION.ZSTATUSPENDINGUNTILDATE,
+            ZTRANSACTION.ZMERCHANTBRANCHNAME,
+            ZTRANSACTION.ZMERCHANTNAME,
+            ZTRANSACTION.ZP2PSENDERMOBILENR,
+            ZTRANSACTION.ZP2PINITIATEMESSAGE,
+            ZTRANSACTION.ZP2PRECIPIENTMOBILENR,
+            ZTRANSACTION.ZP2PRECIPIENTNAME,
+            ZTRANSACTION.ZP2PREPLYMESSAGE,
+            ZTRANSACTION.ZAUTHORIZEDAMOUNT,
+            ZTRANSACTION.ZPAIDAMOUNT,
+            ZTRANSACTION.ZREQUESTEDAMOUNT,
+            ZTRANSACTION.ZDISCOUNT,
+            ZTRANSACTION.ZCURRENCY,
+            ZTRANSACTION.ZCONTENTREFERENCE,
+            ZTRANSACTION.ZORDERLINK,
+            ZTRANSACTION.ZP2PHASPICTURE,
+            ZTRANSACTION.ZORDERSTATEVALUE,
+            ZTRANSACTION.ZORDERTYPEVALUE,
+            ZTRANSACTION.ZTRANSACTIONSIDEVALUE,
             ZTRANSACTION.ZMERCHANTCONFIRMATION
         FROM ZTRANSACTION'''
 
@@ -68,11 +72,19 @@ def twintTransactions(files_found, report_folder, seeker, wrap_text, time_offset
              record[20], record[21], record[22]))
 
     data_headers = (
-        ('Creation date', 'datetime'), ('Sender confirmation date', 'datetime'), ('Receiver validation date', 'datetime'), 
-        ('Transaction expiry date', 'datetime'), 'Merchant branch name', 'Merchant name', 'Sender mobile number', 
-        'Sender message', 'Receiver mobile number', 'Receiver contact name', 'Response message', 
-        'Amount authorized for the transaction', 'Paid amount', 'Requested amount', 'Discount', 'Currency', 
-        'Content reference', 'Order link', 'Presence of multimedia content', 'Transaction status', 'Type of transaction', 
+        ('Creation date', 'datetime'),
+        ('Sender confirmation date', 'datetime'),
+        ('Receiver validation date', 'datetime'),
+        ('Transaction expiry date', 'datetime'),
+        'Merchant branch name', 'Merchant name',
+        ('Sender mobile number', 'phonenumber'),
+        'Sender message',
+        ('Receiver mobile number', 'phonenumber'),
+        'Receiver contact name', 'Response message',
+        'Amount authorized for the transaction', 'Paid amount',
+        'Requested amount', 'Discount', 'Currency',
+        'Content reference', 'Order link', 'Presence of multimedia content',
+        'Transaction status', 'Type of transaction',
         'Direction of the transaction', 'Merchant confirmation')
 
-    return data_headers, data_list, db_file
+    return data_headers, data_list, context.get_relative_path(db_file)

@@ -1,10 +1,23 @@
-import biplist
-import pathlib
-import os
+__artifacts_v2__ = {
+    "medicalID": {
+        "name": "Medical ID",
+        "description": "User entered Medical ID information about self (MedicalIDData.archive)",
+        "author": "@AlexisBrignoni",
+        "version": "1.0",
+        "date": "2026-06-22",
+        "requirements": "none",
+        "category": "Health",
+        "notes": "",
+        "paths": ('*/mobile/Library/MedicalID/MedicalIDData.archive',),
+        "output_types": "standard",
+        "artifact_icon": "heart"
+    }
+}
+
 import nska_deserialize as nd
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows
+from scripts.ilapfuncs import artifact_processor
+
 
 def get_name(name_with_prefix):
     retval = name_with_prefix
@@ -14,10 +27,22 @@ def get_name(name_with_prefix):
         retval = retval[:-3]
     return retval
 
-def get_medicalID(files_found, report_folder, seeker, wrap_text, timezone_offset):
+
+@artifact_processor
+def medicalID(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
+    data_headers = ('Key', 'Value')
     data_list = []
-    file_found = str(files_found[0])
-    with open(file_found, 'rb') as f:
+
+    source_path = ''
+    for file_found in files_found:
+        file_found = str(file_found)
+        if file_found.endswith('MedicalIDData.archive'):
+            source_path = file_found
+            break
+    if not source_path:
+        return data_headers, data_list, ''
+
+    with open(source_path, 'rb') as f:
         deserialized_plist = nd.deserialize_plist(f)
         for key, value in deserialized_plist.items():
             key_name = get_name(key)
@@ -32,27 +57,5 @@ def get_medicalID(files_found, report_folder, seeker, wrap_text, timezone_offset
                 data_list.append((key_name, str(value)))
             else:
                 data_list.append((key_name, value))
-    
-    if len(data_list) > 0:
-        description = 'User entered Medical information about self'
-        report = ArtifactHtmlReport('Medical ID')
-        report.start_artifact_report(report_folder, 'Health Info', description)
-        report.add_script()
-        data_headers = ('Key', 'Value')
-        report.write_artifact_data_table(data_headers, data_list, file_found)
-        report.end_artifact_report()
-        
-        tsvname = 'Medical ID'
-        tsv(report_folder, data_headers, data_list, tsvname)
-        
-        tlactivity = 'Medical ID'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-    else:
-        logfunc('No data on Medical ID')
 
-__artifacts__ = {
-    "medicalID": (
-        "Medical ID",
-        ('*/mobile/Library/MedicalID/MedicalIDData.archive'),
-        get_medicalID)
-}
+    return data_headers, data_list, source_path

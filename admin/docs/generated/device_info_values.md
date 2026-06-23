@@ -52,8 +52,10 @@ This document outlines the various device information collected by LEAPP modules
 | Messages Settings | com.apple.mobileSMS.plist - Keep Messages for Days | messageRetention |
 | Messages Settings | com.apple.mobileSMS.plist - Keep Messages for Days (iOS 17+) | messageRetention |
 | Messages Settings | com.apple.mobileSMS.plist - Keep Messages for Days (iOS <=16) | messageRetention |
-| Network | Bluetooth Address | deviceActivator |
+| Network | Bluetooth Address | deviceActivator, keychain |
+| Network | Bluetooth IRK | keychain |
 | Network | Ethernet MAC Address | deviceActivator |
+| Network | MAC Addresses | wifiIdentifiers |
 | Network | WiFi Address | deviceActivator |
 | Settings | Last Bootstrap Timezone | timezoneInfo |
 | Settings | Last System Version | appleLocationd |

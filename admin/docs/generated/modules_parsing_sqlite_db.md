@@ -56,6 +56,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | allTrails |
 | appleWalletCards |
 | appleWalletTransactions |
+| atxDatastore |
 | biomeSync |
 | booking |
 | box |
@@ -69,8 +70,11 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | googleTranslate |
 | health |
 | iOSCacheLocations |
+| instagramThreads |
+| keychain |
 | logarchive |
 | nsVault |
+| parsecdCache |
 | payByPhone |
 | photosMigration |
 | potatoChat |
@@ -82,11 +86,16 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | subscriberInfo |
 | swissmeteo |
 | tcc |
+| tikTok |
+| tikTokReplied |
 | tileAppDisc |
 | tileAppNetDb |
+| trustedPeers |
 | twint |
+| uberClient |
 | uberPlaces |
 | viber |
+| vipps |
 | vippsContacts |
 | voicemail |
 | waze |
@@ -109,7 +118,6 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | applePodcasts |
 | appleWalletPasses |
 | applicationStateDB |
-| atxDatastore |
 | bluetoothOther |
 | bluetoothPairedLE |
 | box |
@@ -136,9 +144,9 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | googleDuo |
 | hikvision |
 | imoHD_Chat |
-| instagramThreads |
 | interactionCcontacts |
 | keyboard |
+| keychain |
 | kikGroupadmins |
 | kikLocaladmin |
 | kikMessages |
@@ -152,7 +160,6 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | netusage |
 | notes |
 | ooklaSpeedtestData |
-| parsecdCache |
 | photosDbexif |
 | photosMetadata |
 | pingertextfree |
@@ -172,13 +179,9 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | teams |
 | telegramMesssages |
 | teleguard |
-| tikTok |
-| tikTokReplied |
 | tileAppDb |
-| trustedPeers |
 | uberClient |
 | uberPlaces |
-| vipps |
 | waze |
 | wifiNetworkStoreModel |
 <!-- READONLY_END -->
