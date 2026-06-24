@@ -94,6 +94,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | parsecdCache |
 | payByPhone |
 | photosDbexif |
+| photosMetadata |
 | photosMigration |
 | pingertextfree |
 | potatoChat |
@@ -175,7 +176,6 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | knowledgeC |
 | mapsSync |
 | netusage |
-| photosMetadata |
 | serialNumber |
 | swissmeteo |
 | teams |
