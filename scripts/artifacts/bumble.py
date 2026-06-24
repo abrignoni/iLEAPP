@@ -1,183 +1,131 @@
-# Module Description: Parses Bumble chat messages and some local user account details
-# Author: @KevinPagano3
-# Date: 2022-04-16
-# Artifact version: 0.0.1
-# Requirements: none
-
-import datetime
-import io
-import nska_deserialize as nd
-import sqlite3
-
-from packaging import version
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, timeline, kmlgen, tsv, is_platform_windows, open_sqlite_db_readonly
-
-
-def get_bumble(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    
-    for file_found in files_found:
-        file_found = str(file_found)
-        
-        if file_found.endswith('Chat.sqlite'):
-            chat_db = file_found
-        if file_found.endswith('yap-database.sqlite'):
-            account_db = file_found
-        
-    db = open_sqlite_db_readonly(chat_db)
-    cursor = db.cursor()
-    cursor.execute('''
-    select
-    database2.data,
-    case secondaryIndex_isReadIndex.isIncoming
-        when 0 then 'Outgoing'
-        when 1 then 'Incoming'
-    end as "Direction",
-    case secondaryIndex_isReadIndex.isRead
-        when 0 then ''
-        when 1 then 'Yes'
-    end as "Message Read"
-    from database2
-    join secondaryIndex_isReadIndex on database2.rowid = secondaryIndex_isReadIndex.rowid
-    ''')
-    
-    all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
-    data_list = []
-    bumble_datecreated = ''
-    bumble_datemodified = ''
-    bumble_message = ''
-    bumble_receiver = ''
-    bumble_sender = ''
-    
-    if usageentries > 0:
-        for row in all_rows:
-
-            plist_file_object = io.BytesIO(row[0])
-            if row[0] is None:
-                pass
-            else:
-                if row[0].find(b'NSKeyedArchiver') == -1:
-                    if sys.version_info >= (3, 9):
-                        plist = plistlib.load(plist_file_object)
-                    else:
-                        plist = biplist.readPlist(plist_file_object)
-                else:
-                    try:
-                        plist = nd.deserialize_plist(plist_file_object)
-                    except (nd.DeserializeError, nd.biplist.NotBinaryPlistException, nd.biplist.InvalidPlistException,
-                        nd.plistlib.InvalidFileException, nd.ccl_bplist.BplistError, ValueError, TypeError, OSError, OverflowError) as ex:
-                        logfunc(f'Failed to read plist for {row[0]}, error was:' + str(ex))
-                  
-            if 'self.dateCreated' in plist:
-                bumble_datecreated = datetime.datetime.utcfromtimestamp(plist['self.dateCreated'])
-                bumble_datemodified = datetime.datetime.utcfromtimestamp(plist['self.dateModified'])
-                bumble_sender = plist.get('self.fromPersonUid','')
-                bumble_receiver = plist.get('self.toPersonUid','')
-                bumble_message = plist.get('self.messageText','')
-            
-                data_list.append((bumble_datecreated, bumble_datemodified, bumble_sender, bumble_receiver, bumble_message, row[1], row[2]))
-            else: pass
-                
-        description = 'Bumble - Messages'
-        report = ArtifactHtmlReport('Bumble - Messages')
-        report.start_artifact_report(report_folder, 'Bumble - Messages')
-        report.add_script()
-        data_headers = (
-            'Created Timestamp','Modified Timestamp','Sender ID','Receiver ID','Message','Message Direction','Message Read')  # Don't remove the comma, that is required to make this a tuple as there is only 1 element
-        
-        report.write_artifact_data_table(data_headers, data_list, chat_db)
-        report.end_artifact_report()
-        
-        tsvname = f'Bumble - Messages'
-        tsv(report_folder, data_headers, data_list, tsvname)
-        
-        tlactivity = f'Bumble - Messages'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-        
-    else:
-        logfunc('Bumble - Messages data available')
-    
-    db = open_sqlite_db_readonly(account_db)
-    cursor = db.cursor()
-    cursor.execute('''
-    select
-    data,
-    key
-    from database2
-    where key = 'lastLocation' or key = 'appVersion' or key = 'userName' or key = 'userId'
-    ''')
-    
-    all_rows1 = cursor.fetchall()
-    usageentries = len(all_rows1)
-    data_list_account = []
-    
-    if usageentries > 0:
-        for row in all_rows1:
-
-            plist_file_object = io.BytesIO(row[0])
-            if row[0] is None:
-                pass
-            else:
-                if row[0].find(b'NSKeyedArchiver') == -1:
-                    if sys.version_info >= (3, 9):
-                        plist = plistlib.load(plist_file_object)
-                    else:
-                        plist = biplist.readPlist(plist_file_object)
-                else:
-                    try:
-                        plist = nd.deserialize_plist(plist_file_object)
-                    except (nd.DeserializeError, nd.biplist.NotBinaryPlistException, nd.biplist.InvalidPlistException,
-                        nd.plistlib.InvalidFileException, nd.ccl_bplist.BplistError, ValueError, TypeError, OSError, OverflowError) as ex:
-                        logfunc(f'Failed to read plist for {row[0]}, error was:' + str(ex))
-            
-            if row[1] == 'userId':
-                bumble_userId = plist.get('root','')
-                data_list_account.append(('User ID',str(bumble_userId)))
-                
-            elif row[1] == 'userName':
-                bumble_userName = plist.get('root','')
-                data_list_account.append(('User Name',str(bumble_userName)))
-                
-            elif row[1] == 'lastLocation':
-                bumble_timestamp = datetime.datetime.utcfromtimestamp(int(plist['kCLLocationCodingKeyTimestamp']) + 978307200)
-                bumble_lastlat = plist.get('kCLLocationCodingKeyRawCoordinateLatitude','')
-                bumble_lastlong = plist.get('kCLLocationCodingKeyRawCoordinateLongitude','') 
-                
-                data_list_account.append(('Timestamp',str(bumble_timestamp)))
-                data_list_account.append(('Last Latitude',bumble_lastlat))
-                data_list_account.append(('Last Longitude',bumble_lastlong))
-                
-            elif row[1] == 'appVersion':
-                bumble_appVersion = plist.get('root','')
-                data_list_account.append(('App Version',str(bumble_appVersion)))
-            
-            else: pass
-            
-        description = 'Bumble - Account Details'
-        report = ArtifactHtmlReport('Bumble - Account Details')
-        report.start_artifact_report(report_folder, 'Bumble - Account Details')
-        report.add_script()
-        data_headers_account = (
-            'Key', 'Values')  # Don't remove the comma, that is required to make this a tuple as there is only 1 element
-        
-        report.write_artifact_data_table(data_headers_account, data_list_account, account_db)
-        report.end_artifact_report()
-        
-        tsvname = f'Bumble - Account Details'
-        tsv(report_folder, data_headers_account, data_list_account, tsvname)
-        
-        tlactivity = f'Bumble - Account Details'
-        timeline(report_folder, tlactivity, data_list_account, data_headers_account)
-        
-    else:
-        logfunc('No Bumble - Account Details data available')
-    
-    db.close()
-
-__artifacts__ = {
-    "bumble": (
-        "Bumble",
-        ('**/Library/Caches/Chat.sqlite*','**/Documents/yap-database.sqlite*'),
-        get_bumble)
+__artifacts_v2__ = {
+    "bumbleMessages": {
+        "name": "Bumble - Messages",
+        "description": "Bumble chat messages",
+        "author": "@KevinPagano3",
+        "version": "2.0",
+        "date": "2022-04-16",
+        "requirements": "none",
+        "category": "Bumble",
+        "notes": "",
+        "paths": ('**/Library/Caches/Chat.sqlite*',),
+        "output_types": "standard",
+        "artifact_icon": "message-circle"
+    },
+    "bumbleAccount": {
+        "name": "Bumble - Account Details",
+        "description": "Bumble local user account details (user id/name, app version, last location)",
+        "author": "@KevinPagano3",
+        "version": "2.0",
+        "date": "2022-04-16",
+        "requirements": "none",
+        "category": "Bumble",
+        "notes": "Last location timestamp is Cocoa/Mac absolute time, converted to UTC.",
+        "paths": ('**/Documents/yap-database.sqlite*',),
+        "output_types": "standard",
+        "artifact_icon": "user"
+    }
 }
+
+import io
+import plistlib
+
+import nska_deserialize as nd
+
+from scripts.ilapfuncs import (artifact_processor, get_sqlite_db_records, logfunc,
+                               convert_unix_ts_to_utc, convert_cocoa_core_data_ts_to_utc)
+
+_PLIST_ERRORS = (nd.DeserializeError, nd.biplist.NotBinaryPlistException,
+                 nd.biplist.InvalidPlistException, nd.plistlib.InvalidFileException,
+                 nd.ccl_bplist.BplistError, ValueError, TypeError, OSError, OverflowError)
+
+
+def _load_blob_plist(blob):
+    """Decode a YapDatabase value blob: NSKeyedArchiver via nska_deserialize, otherwise plain plist."""
+    if blob is None:
+        return None
+    obj = io.BytesIO(blob)
+    if blob.find(b'NSKeyedArchiver') == -1:
+        try:
+            return plistlib.load(obj)
+        except (plistlib.InvalidFileException, ValueError, OSError):
+            return None
+    try:
+        return nd.deserialize_plist(obj)
+    except _PLIST_ERRORS as ex:
+        logfunc(f'Bumble: failed to read plist, error was: {ex}')
+        return None
+
+
+@artifact_processor
+def bumbleMessages(context):
+    data_headers = (('Created Timestamp', 'datetime'), ('Modified Timestamp', 'datetime'),
+                    'Sender ID', 'Receiver ID', 'Message', 'Message Direction', 'Message Read')
+    data_list = []
+
+    source_path = ''
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        if file_found.endswith('Chat.sqlite'):
+            source_path = file_found
+            break
+    if not source_path:
+        return data_headers, data_list, ''
+
+    query = '''
+    SELECT
+        database2.data,
+        CASE secondaryIndex_isReadIndex.isIncoming WHEN 0 THEN 'Outgoing' WHEN 1 THEN 'Incoming' END,
+        CASE secondaryIndex_isReadIndex.isRead WHEN 0 THEN '' WHEN 1 THEN 'Yes' END
+    FROM database2
+    JOIN secondaryIndex_isReadIndex ON database2.rowid = secondaryIndex_isReadIndex.rowid
+    '''
+    for row in get_sqlite_db_records(source_path, query):
+        plist = _load_blob_plist(row[0])
+        if not isinstance(plist, dict) or 'self.dateCreated' not in plist:
+            continue
+        data_list.append((convert_unix_ts_to_utc(plist['self.dateCreated']),
+                          convert_unix_ts_to_utc(plist.get('self.dateModified')),
+                          plist.get('self.fromPersonUid', ''), plist.get('self.toPersonUid', ''),
+                          plist.get('self.messageText', ''), row[1], row[2]))
+
+    return data_headers, data_list, context.get_relative_path(source_path)
+
+
+@artifact_processor
+def bumbleAccount(context):
+    data_headers = ('Key', 'Value')
+    data_list = []
+
+    source_path = ''
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        if file_found.endswith('yap-database.sqlite'):
+            source_path = file_found
+            break
+    if not source_path:
+        return data_headers, data_list, ''
+
+    query = '''
+    SELECT data, key FROM database2
+    WHERE key IN ('lastLocation', 'appVersion', 'userName', 'userId')
+    '''
+    for row in get_sqlite_db_records(source_path, query):
+        plist = _load_blob_plist(row[0])
+        if not isinstance(plist, dict):
+            continue
+        key = row[1]
+        if key == 'userId':
+            data_list.append(('User ID', str(plist.get('root', ''))))
+        elif key == 'userName':
+            data_list.append(('User Name', str(plist.get('root', ''))))
+        elif key == 'appVersion':
+            data_list.append(('App Version', str(plist.get('root', ''))))
+        elif key == 'lastLocation':
+            ts = plist.get('kCLLocationCodingKeyTimestamp')
+            if ts is not None:
+                data_list.append(('Timestamp', str(convert_cocoa_core_data_ts_to_utc(int(ts)))))
+            data_list.append(('Last Latitude', plist.get('kCLLocationCodingKeyRawCoordinateLatitude', '')))
+            data_list.append(('Last Longitude', plist.get('kCLLocationCodingKeyRawCoordinateLongitude', '')))
+
+    return data_headers, data_list, context.get_relative_path(source_path)
