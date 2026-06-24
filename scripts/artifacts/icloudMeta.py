@@ -1,70 +1,64 @@
-import json
-import datetime
-
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
-
-def get_icloudMeta(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    counter = 0
-    for file_found in files_found:
-        file_found = str(file_found)
-        counter = counter + 1
-        data_list = []
-        with open(file_found, "r") as filecontent:
-            for line in filecontent:
-                jsonconv = json.loads(line)
-                length = len(jsonconv)
-                for i in range(length):
-                    docid = (jsonconv[i].get('document_id', ''))
-                    parid = (jsonconv[i].get('parent_id', ''))
-                    name = (jsonconv[i].get('name', ''))
-                    typee = (jsonconv[i].get('type', ''))
-                    deleted= (jsonconv[i].get('deleted', ''))
-                    mtime = (jsonconv[i].get('mtime', ''))
-                    if mtime > 0:
-                        mtime = datetime.datetime.fromtimestamp(mtime/1000)
-                    else:
-                        mtime = ''
-                    ctime = (jsonconv[i].get('ctime', ''))
-                    if ctime > 0:
-                        ctime = datetime.datetime.fromtimestamp(ctime/1000)
-                    else:
-                        ctime = ''
-                    btime = (jsonconv[i].get('btime', ''))
-                    if btime > 0:
-                        btime = datetime.datetime.fromtimestamp(btime/1000)
-                    else:
-                        btime = ''
-                    size = (jsonconv[i].get('size', ''))
-                    zone = (jsonconv[i].get('zone', ''))
-                    exe = (jsonconv[i]['file_flags'].get('is_executable', ''))
-                    hid = (jsonconv[i]['file_flags'].get('is_hidden', ''))
-                    lasteditor = (jsonconv[i].get('last_editor_name', ''))
-                    if lasteditor:
-                        lasteditorname = json.loads(jsonconv[i]['last_editor_name'])
-                        lasteditorname = (lasteditorname.get('name', ''))
-                    else:
-                        lasteditorname = ''
-                    basehash = (jsonconv[i].get('basehash', ''))
-                    data_list.append((btime, ctime, mtime, name, lasteditorname, docid, parid, typee, deleted, size, zone, exe, hid))	
-            
-        
-            if len(data_list) > 0:
-                report = ArtifactHtmlReport('iCloud - File Metadata'+' '+str(counter))
-                report.start_artifact_report(report_folder, 'iCloud - File Metadata'+' '+str(counter))
-                report.add_script()
-                data_headers = ('Btime','Ctime','Mtime', 'Name', 'Last Editor Name', 'Doc ID', 'Parent ID', 'Type', 'Deleted?','Size', 'Zone', 'Executable?','Hidden?')   
-                report.write_artifact_data_table(data_headers, data_list, file_found, html_escape=False)
-                report.end_artifact_report()
-                
-                tsvname = 'iCloud - File Metadata'
-                tsv(report_folder, data_headers, data_list, tsvname)
-            else:
-                logfunc('No data available')
-
-__artifacts__ = {
-    "icloudmeta": (
-        "iCloud Returns",
-        ('*/iclouddrive/Metadata.txt'),
-        get_icloudMeta)
+__artifacts_v2__ = {
+    "icloudmeta": {
+        "name": "iCloud - File Metadata",
+        "description": "iCloud Drive file metadata parsed from Metadata.txt (iCloud Returns)",
+        "author": "",
+        "version": "2.0",
+        "date": "2026-06-23",
+        "requirements": "none",
+        "category": "iCloud Returns",
+        "notes": "btime/ctime/mtime are epoch milliseconds, stored as UTC.",
+        "paths": ('*/iclouddrive/Metadata.txt',),
+        "output_types": "standard",
+        "artifact_icon": "cloud"
+    }
 }
+
+import json
+
+from scripts.ilapfuncs import artifact_processor, convert_unix_ts_to_utc
+
+
+def _ms_to_utc(value):
+    """Epoch-milliseconds (UTC) to an aware UTC datetime; blank for missing/zero values."""
+    if isinstance(value, (int, float)) and value > 0:
+        return convert_unix_ts_to_utc(value)
+    return ''
+
+
+@artifact_processor
+def icloudmeta(context):
+    data_headers = (('Btime', 'datetime'), ('Ctime', 'datetime'), ('Mtime', 'datetime'), 'Name',
+                    'Last Editor Name', 'Doc ID', 'Parent ID', 'Type', 'Deleted?', 'Size', 'Zone',
+                    'Executable?', 'Hidden?')
+    data_list = []
+    sources = []
+
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        had_data = False
+        with open(file_found, 'r', encoding='utf-8') as filecontent:
+            for line in filecontent:
+                try:
+                    records = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                for rec in records:
+                    flags = rec.get('file_flags', {})
+                    last_editor = ''
+                    if rec.get('last_editor_name'):
+                        try:
+                            last_editor = json.loads(rec['last_editor_name']).get('name', '')
+                        except (json.JSONDecodeError, TypeError, AttributeError):
+                            last_editor = ''
+                    data_list.append((
+                        _ms_to_utc(rec.get('btime')), _ms_to_utc(rec.get('ctime')),
+                        _ms_to_utc(rec.get('mtime')), rec.get('name', ''), last_editor,
+                        rec.get('document_id', ''), rec.get('parent_id', ''), rec.get('type', ''),
+                        rec.get('deleted', ''), rec.get('size', ''), rec.get('zone', ''),
+                        flags.get('is_executable', ''), flags.get('is_hidden', '')))
+                    had_data = True
+        if had_data:
+            sources.append(context.get_relative_path(file_found))
+
+    return data_headers, data_list, ', '.join(dict.fromkeys(sources))
