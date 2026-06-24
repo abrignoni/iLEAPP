@@ -1,103 +1,64 @@
 __artifacts_v2__ = {
     "pingertextfree": {
         "name": "Text Free - Pinger",
-        "description": "Text free messages",
+        "description": "Text Free (Pinger) messages",
         "author": "@AlexisBrignoni",
-        "version": "0.0.1",
-        "date": "2020-11-18",
+        "creation_date": "2020-11-18",
+        "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Pinger",
         "notes": "",
-        "paths": ('*/Messaging_*.sqlite*'),
-        "function": "get_pingertextfree",
-        "output_types": "standard"
+        "paths": ('*/Messaging_*.sqlite*',),
+        "output_types": "standard",
+        "artifact_icon": "message-square"
     }
 }
 
-
-import os
-import shutil
 import sqlite3
-#import scripts.artifacts.artGlobals
 
-#from packaging import version
-#from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import artifact_processor, logfunc, logdevinfo, timeline, tsv, is_platform_windows, open_sqlite_db_readonly, media_to_html
+from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, logfunc
+
 
 @artifact_processor
-def get_pingertextfree(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    
-    for file_found in files_found:
+def pingertextfree(context):
+    data_headers = (
+        ('Timestamp', 'datetime'),
+        'Conversation ID',
+        'Directionality to from Other Party',
+        'Other Party',
+        'Status',
+        'Text',
+        'Type')
+    data_list = []
+    source_path = ''
+    for file_found in context.get_files_found():
         file_found = str(file_found)
-        
         if file_found.endswith('.sqlite'):
-            
-            db = open_sqlite_db_readonly(file_found)
-            cursor = db.cursor()
-            cursor.execute('''
-            SELECT
-            ZCONVERSATIONCD.Z_PK
-            from ZCONVERSATIONCD 
-            order by ZCONVERSATIONCD.Z_PK
-            ''')
-        
-            all_rows = cursor.fetchall()
-            usageentries = len(all_rows)
-            data_list = []  
-            
-            if usageentries > 0:
-                for row in all_rows:
-                    cursor.execute(f'''
-                    SELECT
-                    ZCONVERSATIONCD.Z_PK,
-                    datetime(ZCOMMUNICATIONCD.ZTIMECREATED, 'unixepoch'),
-                    ZCOMMUNICATIONCD.ZCONVERSATION,
-                    ZCOMMUNICATIONCD.ZDIRECTION,
-                    ZCONVERSATIONCD.ZDISPLAYNAME,
-                    ZCOMMUNICATIONCD.ZMYSTATUS,
-                    ZCOMMUNICATIONCD.ZTEXT,
-                    ZCOMMUNICATIONCD.ZTYPE,
-                    ZCOMMUNICATIONCD.ZTIMECREATED
-                    FROM ZCONVERSATIONCD, ZCOMMUNICATIONCD
-                    WHERE ZCONVERSATIONCD.Z_PK = {row[0]}  AND ZCOMMUNICATIONCD.ZCONVERSATION = {row[0]}
-                    order by ZCOMMUNICATIONCD.ZTIMECREATED
-                    ''')
-                    
-                    all_rowsb = cursor.fetchall()
-                    usageentriesb = len(all_rowsb)
-                
-                    
-                    if usageentriesb > 0:
-                        for rowb in all_rowsb:
-                            data_list.append((rowb[1], rowb[2], rowb[3], rowb[4], rowb[5], rowb[6], rowb[7]))
-        
-            
-            data_headers = (
-                'Timestamp', 
-                'Conversation ID',
-                'Directionality to from Other Party', 
-                'Other Party',
-                'Status',
-                'Text', 
-                'Type'
-                )
-            return data_headers, data_list, file_found
-        
-            '''
-            description = 'Text Free Messages'
-            report = ArtifactHtmlReport('Text Free Messages')
-            report.start_artifact_report(report_folder, 'Text Free Messages', description)
-            report.add_script()
-            data_headers = ('Timestamp', 'Conversation ID', 'Directionality to/from Other Party', 'Other Party', 'Status', 'Text', 'Type')
-            report.write_artifact_data_table(data_headers, data_list, file_found, html_no_escape=['Attachment'])
-            report.end_artifact_report()
-            
-            tsvname = 'Text Free Messages'
-            tsv(report_folder, data_headers, data_list, tsvname)
-            
-            tlactivity = 'Text Free Messages'
-            timeline(report_folder, tlactivity, data_list, data_headers)
-        '''
-        else:
-            logfunc('No Text Free Messages  data available')
-        
+            source_path = file_found
+            break
+    if not source_path:
+        return data_headers, data_list, ''
+
+    query = '''
+    SELECT
+        datetime(ZCOMMUNICATIONCD.ZTIMECREATED, 'unixepoch'),
+        ZCOMMUNICATIONCD.ZCONVERSATION,
+        ZCOMMUNICATIONCD.ZDIRECTION,
+        ZCONVERSATIONCD.ZDISPLAYNAME,
+        ZCOMMUNICATIONCD.ZMYSTATUS,
+        ZCOMMUNICATIONCD.ZTEXT,
+        ZCOMMUNICATIONCD.ZTYPE
+    FROM ZCOMMUNICATIONCD
+    JOIN ZCONVERSATIONCD ON ZCONVERSATIONCD.Z_PK = ZCOMMUNICATIONCD.ZCONVERSATION
+    ORDER BY ZCOMMUNICATIONCD.ZCONVERSATION, ZCOMMUNICATIONCD.ZTIMECREATED
+    '''
+    try:
+        rows = get_sqlite_db_records(source_path, query)
+    except sqlite3.Error as ex:
+        logfunc(f'Error reading Text Free messages: {ex}')
+        return data_headers, data_list, context.get_relative_path(source_path)
+
+    for row in rows:
+        data_list.append(tuple(row))
+
+    return data_headers, data_list, context.get_relative_path(source_path)

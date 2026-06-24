@@ -1,68 +1,54 @@
 __artifacts_v2__ = {
     "line": {
         "name": "Line Artifacts",
-        "description": "Get Line",
+        "description": "Line messages including message direction and associated usernames",
         "author": "Elliot Glendye",
-        "version": "0.0.1",
-        "date": "2023-11-22",
-        "requirements": "",
+        "creation_date": "2023-11-22",
+        "last_update_date": "2026-06-24",
+        "requirements": "none",
         "category": "Line",
-        "notes": "No notes at present.",
-        "paths": ('**/Line.sqlite*'),
-        "function": "get_line"
+        "notes": "",
+        "paths": ('**/Line.sqlite*',),
+        "output_types": "standard",
+        "artifact_icon": "message-circle"
     }
 }
 
 import sqlite3
-from packaging import version
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, open_sqlite_db_readonly, iOS
 
-def get_line(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    
-    for file_found in files_found:
-        file_found = str(file_found)
-        
-        iOSversion = iOS.get_version()
-        if version.parse(iOSversion) < version.parse('15'):
-            logfunc('Line parsing has not been tested on iOS version ' + iOSversion)
-            
-        if file_found.endswith('Line.sqlite'):
-            break
-        
-    db = open_sqlite_db_readonly(file_found)
-    cursor = db.cursor()
-    cursor.execute('''
-    Select datetime(ZMESSAGE.ZTIMESTAMP / 1000, 'unixepoch') AS Timestamp,
-    CASE 
-    WHEN ZMESSAGE.ZSENDER IS NULL THEN "Outgoing"
-     ELSE "Incoming" END AS "Sent / Received",
-    ZUSER.ZNAME AS "Username",
-    ZMESSAGE.ZTEXT AS "Message Content"
-    From ZMESSAGE
-    LEFT Join ZUSER On ZMESSAGE.ZSENDER = ZUSER.Z_PK
-    ORDER BY ZMESSAGE.ZTIMESTAMP Desc;
-    ''')
-        
-    all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
+from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, logfunc
+
+
+@artifact_processor
+def line(context):
+    data_headers = (('Timestamp', 'datetime'), 'Sent / Received', 'Username', 'Message')
     data_list = []
-        
-    if usageentries > 0:
-        for row in all_rows:
-            data_list.append((row[0], row[1], row[2], row[3]))
-            
-        description = 'A report of Line Messages, including message direction and associated usernames.'
-        report = ArtifactHtmlReport('Line Messages')
-        report.start_artifact_report(report_folder, 'Line Messages', description)
-        report.add_script()
-        data_headers = ('Timestamp', 'Sent / Received', 'Username', 'Message',)
-        report.write_artifact_data_table(data_headers, data_list, file_found)
-        report.end_artifact_report()
-        tsvname = 'Line Messages'
-        tsv(report_folder, data_headers, data_list, tsvname)
-    
-    else:
-        logfunc('No Line messages present')
-    db.close()
-    return
+    source_path = ''
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        if file_found.endswith('Line.sqlite'):
+            source_path = file_found
+            break
+    if not source_path:
+        return data_headers, data_list, ''
+
+    query = '''
+    SELECT
+        datetime(ZMESSAGE.ZTIMESTAMP / 1000, 'unixepoch'),
+        CASE WHEN ZMESSAGE.ZSENDER IS NULL THEN 'Outgoing' ELSE 'Incoming' END,
+        ZUSER.ZNAME,
+        ZMESSAGE.ZTEXT
+    FROM ZMESSAGE
+    LEFT JOIN ZUSER ON ZMESSAGE.ZSENDER = ZUSER.Z_PK
+    ORDER BY ZMESSAGE.ZTIMESTAMP DESC
+    '''
+    try:
+        rows = get_sqlite_db_records(source_path, query)
+    except sqlite3.Error as ex:
+        logfunc(f'Error reading Line messages: {ex}')
+        return data_headers, data_list, context.get_relative_path(source_path)
+
+    for row in rows:
+        data_list.append(tuple(row))
+
+    return data_headers, data_list, context.get_relative_path(source_path)

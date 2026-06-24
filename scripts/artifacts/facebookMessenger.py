@@ -82,21 +82,18 @@ __artifacts_v2__ = {
 }
 
 
-from os.path import basename
-
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly
 from scripts.ilapfuncs import artifact_processor, \
     does_table_exist_in_db, does_view_exist_in_db, get_sqlite_multiple_db_records, \
     convert_unix_ts_to_utc
 
 
 @artifact_processor
-def facebookMessengerCalls(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def facebookMessengerCalls(context):
     db_path_list = []
     data_list = []
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
         if file_found.endswith('.db'):
             if does_view_exist_in_db(file_found, 'thread_messages'):
                 db_path_list.append(file_found)
@@ -124,24 +121,20 @@ def facebookMessengerCalls(files_found, report_folder, seeker, wrap_text, timezo
         db_path_list, query, data_headers)
 
     for record in db_records:
-        record_data = []
-        for key in record.keys():
-            if key == 'timestamp_ms':
-                timestamp_ms = convert_unix_ts_to_utc(record['timestamp_ms'])
-                record_data.append(timestamp_ms)
-            else:
-                record_data.append(record[key])
-        data_list.append(tuple(record_data))
+        row = list(record)
+        row[0] = convert_unix_ts_to_utc(row[0])
+        data_list.append(tuple(row))
 
     return data_headers, data_list, source_path
 
 
 @artifact_processor
-def facebookMessengerChats(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def facebookMessengerChats(context):
     db_path_list = []
     data_list = []
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
         if file_found.endswith('.db'):
             if does_view_exist_in_db(file_found, 'thread_messages'):
                 db_path_list.append(file_found)
@@ -153,7 +146,7 @@ def facebookMessengerChats(files_found, report_folder, seeker, wrap_text, timezo
         WHEN (SELECT CASE
 		WHEN _user_info.facebook_user_id IS NOT NULL THEN 'Sent'
 		ELSE 'Received'
-	END) = 'Sent' THEN concat(contacts.name, ' (Local User)')
+	END) = 'Sent' THEN COALESCE(contacts.name, '') || ' (Local User)'
         ELSE contacts.name
     END,
 	contacts.id,
@@ -192,25 +185,20 @@ def facebookMessengerChats(files_found, report_folder, seeker, wrap_text, timezo
         db_path_list, query, data_headers)
 
     for record in db_records:
-        record_data = []
-        for key in record.keys():
-            if key == 'timestamp_ms':
-                timestamp_ms = convert_unix_ts_to_utc(record['timestamp_ms'])
-                record_data.append(timestamp_ms)
-            else:
-                record_data.append(record[key])
-           
-        data_list.append(tuple(record_data))
+        row = list(record)
+        row[0] = convert_unix_ts_to_utc(row[0])
+        data_list.append(tuple(row))
 
     return data_headers, data_list, source_path
 
 
 @artifact_processor
-def facebookMessengerSecretConversations(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def facebookMessengerSecretConversations(context):
     db_path_list = []
     data_list = []
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
         if file_found.endswith('.db'):
             if does_table_exist_in_db(file_found, 'contacts'):
                 db_path_list.append(file_found)
@@ -235,24 +223,20 @@ def facebookMessengerSecretConversations(files_found, report_folder, seeker, wra
         db_path_list, query, data_headers)
 
     for record in db_records:
-        record_data = []
-        for key in record.keys():
-            if key == 'timestamp_ms':
-                timestamp_ms = convert_unix_ts_to_utc(record['timestamp_ms'])
-                record_data.append(timestamp_ms)
-            else:
-                record_data.append(record[key])
-        data_list.append(tuple(record_data))
+        row = list(record)
+        row[0] = convert_unix_ts_to_utc(row[0])
+        data_list.append(tuple(row))
 
     return data_headers, data_list, source_path
 
 
 @artifact_processor
-def facebookMessengerConversationGroups(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def facebookMessengerConversationGroups(context):
     db_path_list = []
     data_list = []
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
         if file_found.endswith('.db'):
             if does_table_exist_in_db(file_found, 'thread_participant_detail'):
                 db_path_list.append(file_found)
@@ -264,7 +248,7 @@ def facebookMessengerConversationGroups(files_found, report_folder, seeker, wrap
         group_concat(thread_participant_detail.name, ';') 
     FROM thread_participant_detail
     JOIN threads
-        OM threads.thread_key = thread_participant_detail.thread_key
+        ON threads.thread_key = thread_participant_detail.thread_key
     GROUP BY thread_participant_detail.thread_key
     '''
 
@@ -275,24 +259,20 @@ def facebookMessengerConversationGroups(files_found, report_folder, seeker, wrap
         db_path_list, query, data_headers)
 
     for record in db_records:
-        record_data = []
-        for key in record.keys():
-            if key == 'timestamp_ms':
-                timestamp_ms = convert_unix_ts_to_utc(record['timestamp_ms'])
-                record_data.append(timestamp_ms)
-            else:
-                record_data.append(record[key])
-        data_list.append(tuple(record_data))
+        row = list(record)
+        row[0] = convert_unix_ts_to_utc(row[0])
+        data_list.append(tuple(row))
 
     return data_headers, data_list, source_path
 
 
 @artifact_processor
-def facebookMessengerContacts(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def facebookMessengerContacts(context):
     db_path_list = []
     data_list = []
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
         if file_found.endswith('.db'):
             if does_table_exist_in_db(file_found, 'contacts'):
                 db_path_list.append(file_found)
