@@ -1,60 +1,37 @@
-import glob
-import os
-import pathlib
-import plistlib
-import sqlite3
-import json
-
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
-
-
-def get_safariBookmarks(files_found, report_folder, seeker, wrap_text, timezone_offset):
-	for file_found in files_found:
-		file_found = str(file_found)
-		
-		if file_found.endswith('.db'):
-			break
-		
-	db = open_sqlite_db_readonly(file_found)
-	cursor = db.cursor()
-
-	cursor.execute("""
-	SELECT
-		title,
-		url,
-		hidden
-	FROM
-	bookmarks
-			""")
-
-	all_rows = cursor.fetchall()
-	usageentries = len(all_rows)
-	data_list = []    
-	if usageentries > 0:
-		for row in all_rows:
-			data_list.append((row[0], row[1], row[2]))
-	
-		description = ''
-		report = ArtifactHtmlReport('Safari Browser Bookmarks')
-		report.start_artifact_report(report_folder, 'Bookmarks', description)
-		report.add_script()
-		data_headers = ('Title','URL','Hidden')     
-		report.write_artifact_data_table(data_headers, data_list, file_found)
-		report.end_artifact_report()
-		
-		tsvname = 'Safari Browser Bookmarks'
-		tsv(report_folder, data_headers, data_list, tsvname)
-		
-	else:
-		logfunc('No data available in table')
-	
-	db.close()
-	return 
-
-__artifacts__ = {
-    "safariBookmarks": (
-        "Safari Browser",
-        ('**/Safari/Bookmarks.db*'),
-        get_safariBookmarks)
+__artifacts_v2__ = {
+    "safariBookmarks": {
+        "name": "Safari Browser - Bookmarks",
+        "description": "Safari bookmarks",
+        "author": "",
+        "version": "2.0",
+        "date": "2026-06-23",
+        "requirements": "none",
+        "category": "Safari Browser",
+        "notes": "",
+        "paths": ('**/Safari/Bookmarks.db*',),
+        "output_types": "standard",
+        "artifact_icon": "bookmark"
+    }
 }
+
+from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records
+
+
+@artifact_processor
+def safariBookmarks(context):
+    data_headers = ('Title', 'URL', 'Hidden')
+    data_list = []
+
+    source_path = ''
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        if file_found.endswith('Bookmarks.db'):
+            source_path = file_found
+            break
+    if not source_path:
+        return data_headers, data_list, ''
+
+    for row in get_sqlite_db_records(source_path, 'SELECT title, url, hidden FROM bookmarks'):
+        data_list.append(tuple(row))
+
+    return data_headers, data_list, context.get_relative_path(source_path)
