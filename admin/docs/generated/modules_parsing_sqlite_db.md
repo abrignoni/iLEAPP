@@ -81,6 +81,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | instagramThreads |
 | interactionCcontacts |
 | keychain |
+| line |
 | logarchive |
 | notes |
 | nsVault |
@@ -88,6 +89,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | parsecdCache |
 | payByPhone |
 | photosMigration |
+| pingertextfree |
 | potatoChat |
 | protonMail |
 | queryPredictions |
@@ -168,14 +170,12 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | kikUsersgroups |
 | knowledgeC |
 | life360 |
-| line |
 | mailprotect |
 | mapsSync |
 | mediaLibrary |
 | netusage |
 | photosDbexif |
 | photosMetadata |
-| pingertextfree |
 | serialNumber |
 | swissmeteo |
 | teams |
