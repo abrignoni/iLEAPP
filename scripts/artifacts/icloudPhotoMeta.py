@@ -1,172 +1,131 @@
-import json
-import datetime
-import base64
-import plistlib
-import os
-
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, kmlgen, is_platform_windows 
-
-def timefactorconversion(timeinutc):
-    #timeinutc has to be a string
-    if (len(timeinutc) == 16):
-        timefactor = 1000000
-    else:
-        timefactor = 1000
-    timeinutc = int(timeinutc)
-    if timeinutc > 0:
-        timeinutc = datetime.datetime.fromtimestamp(timeinutc/timefactor)
-        timeinutc = str(timeinutc)
-    return timeinutc
-
-def get_icloudPhotoMeta(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    counter = 0
-    os.makedirs(os.path.join(report_folder, "bplists"))
-    for file_found in files_found:
-        file_found = str(file_found)
-        counter = counter + 1
-        data_list = []
-        with open(file_found, "r") as filecontent:
-            for line in filecontent:
-                jsonconv = json.loads(line)
-                #print(jsonconv)
-                
-                if (isinstance(jsonconv, dict)):
-                    jsonconv = jsonconv['results']
-                length = len(jsonconv)
-                
-                for i in range(length):
-                    #Initialize variables for when items are not located in a loop.
-                    id = ''
-                    created_timestamp = ''
-                    created_user = ''
-                    created_device = ''
-                    modified_timestamp = ''
-                    modified_user = ''
-                    modified_device = ''
-                    decoded = ''
-                    is_deleted = ''
-                    is_expunged = ''
-                    org_filesize = ''
-                    rec_mod_date = ''
-                    import_date = ''
-                    f_org_creation_date = ''
-                    res_org_filesize = ''
-                    added_date = ''
-                    timezoneoffse = ''
-                    latitude = ''
-                    longitude = ''
-                    altitude = ''
-                    datestamp = ''
-                    timestamp = ''
-                    vid_name = ''
-                    decoded_tz = ''
-                    title = ''
-                    recordtype = ''
-                    tiff = ''
-                    exif = ''
-                    
-                    id = (jsonconv[i].get('id', ''))
-                    rowid = str(i)
-                    recordtype = (jsonconv[i].get('recordType', ''))
-                    
-                    if (jsonconv[i].get('created', '')):
-                        created_timestamp = (jsonconv[i]['created'].get('timestamp', ''))
-                        created_timestamp = timefactorconversion(str(created_timestamp))
-                        #created_user = (jsonconv[i]['created'].get('user', ''))
-                        #created_device = (jsonconv[i]['created'].get('device', ''))
-                        
-                    if(jsonconv[i].get('modified', '')):
-                        modified_timestamp = (jsonconv[i]['modified'].get('timestamp', ''))
-                        modified_timestamp = timefactorconversion(str(modified_timestamp))
-                        #modified_user = (jsonconv[i]['modified'].get('user', ''))
-                        #modified_device = (jsonconv[i]['modified'].get('device', ''))
-                        
-                    if (jsonconv[i].get('fields')):
-                        coded_string = (jsonconv[i]['fields'].get('filenameEnc', '')) #base64
-                        decoded = base64.b64decode(coded_string)
-                        decoded = decoded.decode()
-                        coded_string_tz = (jsonconv[i]['fields'].get('timeZoneNameEnc', ''))#base64
-                        decoded_tz = base64.b64decode(coded_string_tz)
-                        decoded_tz = decoded_tz.decode()
-                        is_deleted = (jsonconv[i]['fields'].get('isDeleted', ''))
-                        is_expunged = (jsonconv[i]['fields'].get('isExpunged', ''))
-                        org_filesize = (jsonconv[i]['fields'].get('resOriginalFileSize', ''))
-                        res_org_filesize = (jsonconv[i]['fields'].get('resOriginalFileSize', ''))
-                        
-                        if (jsonconv[i]['fields'].get('originalCreationDate', '')):
-                            created_timestamp = (jsonconv[i]['fields'].get('originalCreationDate', ''))
-                            created_timestamp = timefactorconversion(str(created_timestamp))
-                        
-                        rec_mod_date = (jsonconv[i]['fields'].get('recordModificationDate', ''))
-                        if isinstance(rec_mod_date, int):
-                            rec_mod_date = timefactorconversion(str(rec_mod_date))
-                        
-                        import_date = (jsonconv[i]['fields'].get('importDate', ''))
-                        if isinstance(import_date, int):
-                            import_date  = timefactorconversion(str(import_date))
-                            
-                        f_org_creation_date = (jsonconv[i]['fields'].get('originalCreationDate', ''))
-                        if isinstance(f_org_creation_date, int):
-                            f_org_creation_date  = timefactorconversion(str(f_org_creation_date))
-                            
-                        added_date = (jsonconv[i]['fields'].get('addedDate', ''))
-                        if isinstance(added_date, int):
-                            added_date  = timefactorconversion(str(added_date))
-                        
-                        timezoneoffse = (jsonconv[i]['fields'].get('timeZoneOffse', ''))
-                        title = (jsonconv[i]['fields'].get('title', ''))
-                        decodedt = base64.b64decode(title)
-                        title = decodedt.decode()
-                        
-                        coded_bplist = (jsonconv[i]['fields'].get('mediaMetaDataEnc')) #convert from base64 to bplist and process
-                        if coded_bplist is not None:
-                            decoded_bplist = base64.b64decode(coded_bplist)
-                            # If needed send the full bplist to report folder by editing the outputpath below
-                            with open(os.path.join(report_folder, "bplists", rowid + ".bplist"), 'wb') as g: 
-                                g.write(decoded_bplist)
-                            pl = plistlib.loads(decoded_bplist)
-                            if (pl.get('{TIFF}')):
-                                #print('YESS TIFF # '+str(i))
-                                tiff = (pl.get('{TIFF}'))
-                                exif = (pl.get('{Exif}'))
-                                
-                                if (pl.get('{GPS}')) is not None:
-                                    #print(pl['{GPS}'])
-                                    latitude = (pl['{GPS}'].get('Latitude'))
-                                    longitude = (pl['{GPS}'].get('Longitude'))
-                                    altitude = (pl['{GPS}'].get('Altitude'))
-                                    datestamp = (pl['{GPS}'].get('DateStamp'))
-                                    timestamp = (pl['{GPS}'].get('TimeStamp'))
-                                    #print(latitude)
-                            else:
-                                if (pl.get('moop')): #If needed send binary content to report flder
-                                    pass
-                                    #with open(f'{outputpath}/{i}.moop', 'wb') as g:
-                                    #    g.write(pl.get('moop'))
-                                        
-                    data_list.append((created_timestamp, rowid, recordtype, decoded, title, org_filesize, latitude,longitude,altitude,datestamp,timestamp,added_date, timezoneoffse, decoded_tz ,is_deleted,is_expunged, import_date, rec_mod_date,res_org_filesize, id, tiff, exif))
-            
-        
-        if len(data_list) > 0:
-            report = ArtifactHtmlReport('iCloud - Photos Metadata'+' '+str(counter))
-            report.start_artifact_report(report_folder, 'iCloud - Photos Metadata'+' '+str(counter))
-            report.add_script()
-            data_headers = ('Timestamp', 'Row ID','Record Type','Decoded', 'Title', 'Filesize', 'Latitude', 'Longitude', 'Altitude', 'GPS Datestamp','GPS Time', 'Added Date', 'Timezone Offset','Decoded TZ', 'Is Deleted?','Is Expunged?','Import Date', 'Modification Date', 'Filesize', 'ID', 'TIFF', 'EXIF')
-            report.write_artifact_data_table(data_headers, data_list, file_found, html_escape=False)
-            report.end_artifact_report()
-            
-            tsvname = 'iCloud - Photos Metadata'
-            tsv(report_folder, data_headers, data_list, tsvname)
-            
-            kmlactivity = 'iCloud - Photos Metadata'
-            kmlgen(report_folder, kmlactivity, data_list, data_headers)
-        else:
-            logfunc('No data available')
-                
-__artifacts__ = {
-    "aicloudphotometa": (
-        "iCloud Returns",
-        ('*/cloudphotolibrary/Metadata.txt'),
-        get_icloudPhotoMeta)
+__artifacts_v2__ = {
+    "icloudPhotoMeta": {
+        "name": "iCloud Photos Metadata",
+        "description": "Parses photo metadata returned by iCloud (cloudphotolibrary Metadata.txt), "
+                       "including decoded filenames, timestamps, GPS and embedded EXIF/TIFF.",
+        "author": "",
+        "creation_date": "2026-06-24",
+        "last_update_date": "2026-06-24",
+        "requirements": "none",
+        "category": "iCloud",
+        "notes": "The full decoded media-metadata bplist for each record is written to the "
+                 "report folder's 'bplists' subfolder.",
+        "paths": ('*/cloudphotolibrary/Metadata.txt',),
+        "output_types": ["html", "tsv", "timeline", "lava", "kml"],
+        "artifact_icon": "image"
+    }
 }
+
+import base64
+import datetime
+import json
+import os
+import plistlib
+
+from scripts.ilapfuncs import artifact_processor, logfunc
+
+
+def _convert_cloudkit_ts(value):
+    """CloudKit ms/microsecond epoch -> aware UTC datetime; '' for empty/non-positive."""
+    if not value:
+        return ''
+    text = str(value)
+    factor = 1000000 if len(text) == 16 else 1000
+    try:
+        ts = int(text)
+    except (ValueError, TypeError):
+        return ''
+    if ts <= 0:
+        return ''
+    return datetime.datetime.fromtimestamp(ts / factor, tz=datetime.timezone.utc)
+
+
+@artifact_processor
+def icloudPhotoMeta(context):
+    data_headers = (
+        ('Timestamp', 'datetime'), 'Row ID', 'Record Type', 'Decoded', 'Title', 'Original Filesize',
+        'Latitude', 'Longitude', 'Altitude', 'GPS Datestamp', 'GPS Time', ('Added Date', 'datetime'),
+        'Timezone Offset', 'Decoded TZ', 'Is Deleted?', 'Is Expunged?', ('Import Date', 'datetime'),
+        ('Modification Date', 'datetime'), 'Res Original Filesize', 'ID', 'TIFF', 'EXIF')
+    data_list = []
+    sources = []
+
+    bplist_folder = os.path.join(context.get_report_folder(), "bplists")
+    os.makedirs(bplist_folder, exist_ok=True)
+
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        try:
+            with open(file_found, "r", encoding="utf-8") as filecontent:
+                lines = filecontent.readlines()
+        except OSError as ex:
+            logfunc(f'Failed to read iCloud photo metadata {file_found}: {ex}')
+            continue
+
+        rel = context.get_relative_path(file_found)
+        for line in lines:
+            try:
+                jsonconv = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if isinstance(jsonconv, dict):
+                jsonconv = jsonconv.get('results', [])
+
+            for i, record in enumerate(jsonconv):
+                created_timestamp = ''
+                latitude = longitude = altitude = datestamp = timestamp = ''
+                decoded = decoded_tz = title = ''
+                is_deleted = is_expunged = org_filesize = res_org_filesize = ''
+                rec_mod_date = import_date = added_date = timezoneoffse = ''
+                tiff = exif = ''
+                rowid = str(i)
+                rec_id = record.get('id', '')
+                recordtype = record.get('recordType', '')
+
+                if record.get('created'):
+                    created_timestamp = _convert_cloudkit_ts(record['created'].get('timestamp', ''))
+
+                fields = record.get('fields')
+                if fields:
+                    decoded = base64.b64decode(fields.get('filenameEnc', '')).decode(errors='replace')
+                    decoded_tz = base64.b64decode(fields.get('timeZoneNameEnc', '')).decode(errors='replace')
+                    is_deleted = fields.get('isDeleted', '')
+                    is_expunged = fields.get('isExpunged', '')
+                    org_filesize = fields.get('resOriginalFileSize', '')
+                    res_org_filesize = fields.get('resOriginalFileSize', '')
+
+                    if fields.get('originalCreationDate', ''):
+                        created_timestamp = _convert_cloudkit_ts(fields.get('originalCreationDate', ''))
+                    rec_mod_date = _convert_cloudkit_ts(fields.get('recordModificationDate', ''))
+                    import_date = _convert_cloudkit_ts(fields.get('importDate', ''))
+                    added_date = _convert_cloudkit_ts(fields.get('addedDate', ''))
+                    timezoneoffse = fields.get('timeZoneOffse', '')
+                    title = base64.b64decode(fields.get('title', '')).decode(errors='replace')
+
+                    coded_bplist = fields.get('mediaMetaDataEnc')
+                    if coded_bplist is not None:
+                        decoded_bplist = base64.b64decode(coded_bplist)
+                        with open(os.path.join(bplist_folder, rowid + ".bplist"), 'wb') as g:
+                            g.write(decoded_bplist)
+                        try:
+                            pl = plistlib.loads(decoded_bplist)
+                        except (plistlib.InvalidFileException, ValueError):
+                            pl = {}
+                        if pl.get('{TIFF}'):
+                            tiff = str(pl.get('{TIFF}'))
+                            exif = str(pl.get('{Exif}'))
+                            gps = pl.get('{GPS}')
+                            if gps is not None:
+                                latitude = gps.get('Latitude')
+                                longitude = gps.get('Longitude')
+                                altitude = gps.get('Altitude')
+                                datestamp = gps.get('DateStamp')
+                                timestamp = gps.get('TimeStamp')
+
+                data_list.append((created_timestamp, rowid, recordtype, decoded, title, org_filesize,
+                                  latitude, longitude, altitude, datestamp, timestamp, added_date,
+                                  timezoneoffse, decoded_tz, is_deleted, is_expunged, import_date,
+                                  rec_mod_date, res_org_filesize, rec_id, tiff, exif))
+        sources.append(rel)
+
+    return data_headers, data_list, ', '.join(dict.fromkeys(sources))
