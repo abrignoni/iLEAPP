@@ -83,6 +83,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | potatoChat |
 | reddit |
 | sbbmobile |
+| secretCalculator |
 | sms |
 | splitwise |
 | storeUser |
@@ -173,7 +174,6 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | safariHistory |
 | safariTabs |
 | safariWebsearch |
-| secretCalculator |
 | serialNumber |
 | slack |
 | swissmeteo |
