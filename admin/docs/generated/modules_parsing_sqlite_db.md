@@ -61,6 +61,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | biomeSync |
 | booking |
 | box |
+| bumble |
 | callHistory |
 | cashAppB |
 | cloudkit_cache |
@@ -70,9 +71,11 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | foursquareSwarm |
 | geodApplications |
 | geodPDPlaceCache |
+| googleDuo |
 | googleTranslate |
 | health |
 | iOSCacheLocations |
+| imoHD_Chat |
 | instagramThreads |
 | keychain |
 | logarchive |
@@ -125,7 +128,6 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | bluetoothOther |
 | bluetoothPairedLE |
 | box |
-| bumble |
 | burner |
 | burnerCache |
 | cachev0 |
@@ -143,9 +145,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | geodMapTiles |
 | gmail |
 | googleChat |
-| googleDuo |
 | hikvision |
-| imoHD_Chat |
 | interactionCcontacts |
 | keyboard |
 | keychain |
