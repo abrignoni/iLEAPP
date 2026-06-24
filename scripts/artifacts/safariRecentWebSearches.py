@@ -15,6 +15,7 @@ __artifacts_v2__ = {
 }
 
 import plistlib
+from datetime import datetime, timezone
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 
@@ -41,6 +42,9 @@ def safariRecentWebSearches(context):
         return data_headers, data_list, context.get_relative_path(source_path)
 
     for search in plist.get('RecentWebSearches', []):
-        data_list.append((search.get('Date', ''), search.get('SearchString', '')))
+        date = search.get('Date', '')
+        if isinstance(date, datetime) and date.tzinfo is None:
+            date = date.replace(tzinfo=timezone.utc)
+        data_list.append((date, search.get('SearchString', '')))
 
     return data_headers, data_list, context.get_relative_path(source_path)
