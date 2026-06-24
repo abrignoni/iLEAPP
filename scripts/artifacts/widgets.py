@@ -4,7 +4,8 @@ __artifacts_v2__ = {
         "description": "Snapshots of widgets saved by iOS appear here. \
             Dates and times shown are from file modified timestamps",
         "author": "@maala-nfi",
-        "date": "2026-06-18",
+        "creation_date": "2026-06-18",
+        "last_update_date": "2026-06-18",
         "requirements": "none",
         "category": "Installed Apps",
         "notes": "Most code copied from appSnapshots.py",
