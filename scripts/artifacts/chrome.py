@@ -224,16 +224,20 @@ from scripts.ilapfuncs import logfunc, get_next_unused_name, open_sqlite_db_read
 
 def get_browser_name(file_name):
 
-    if 'brave' in file_name.lower():
+    name = file_name.lower()
+    if 'brave' in name:
         return 'Brave'
-    elif 'microsoft' in file_name.lower():
+    elif 'microsoft' in name:
         return 'Edge'
-    elif 'opera' in file_name.lower():
+    elif 'opera' in name:
         return 'Opera'
-    elif 'chrome' in file_name.lower():
+    elif 'chromium' in name:
+        return 'Chromium'
+    elif 'chrome' in name:
         return 'Chrome'
     else:
-        return 'Unknown'
+        # No known browser matched: return the source rather than a useless 'Unknown'
+        return file_name
 
 
 def decrypt(ciphertxt, key=b"peanuts"):
