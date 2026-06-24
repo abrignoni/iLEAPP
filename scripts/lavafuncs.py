@@ -404,11 +404,19 @@ def lava_insert_sqlite_data(table_name, data, object_columns, headers, column_ma
                 if isinstance(value, str):
                     try:
                         dt = datetime.datetime.fromisoformat(value)
+                        # Treat naive datetimes as UTC; otherwise int(dt.timestamp()) interprets the
+                        # value in the examiner machine's local tz, producing a wrong epoch off-UTC.
+                        if dt.tzinfo is None:
+                            dt = dt.replace(tzinfo=datetime.timezone.utc)
                         value = int(dt.timestamp())
                     except ValueError:
                         # If conversion fails, keep the original value
                         pass
                 elif isinstance(value, datetime.datetime):
+                    # Treat naive datetimes as UTC (the project convention is to store UTC) so the
+                    # subtraction below doesn't raise "can't subtract offset-naive and offset-aware".
+                    if value.tzinfo is None:
+                        value = value.replace(tzinfo=datetime.timezone.utc)
                     # Need to do it this way due to dates that could be before Epoch
                     epoch = datetime.datetime(1970, 1, 1, tzinfo=datetime.timezone.utc)
                     value = (value - epoch).total_seconds()
