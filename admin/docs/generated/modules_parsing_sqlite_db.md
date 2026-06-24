@@ -92,6 +92,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | safariWebsearch |
 | sbbmobile |
 | secretCalculator |
+| slack |
 | sms |
 | splitwise |
 | storeUser |
@@ -176,7 +177,6 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | quickLook |
 | reminders |
 | serialNumber |
-| slack |
 | swissmeteo |
 | teams |
 | telegramMesssages |
