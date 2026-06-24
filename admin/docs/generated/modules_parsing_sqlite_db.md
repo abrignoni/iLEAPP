@@ -74,13 +74,16 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | googleDuo |
 | googleTranslate |
 | health |
+| hikvision |
 | iOSCacheLocations |
 | imoHD_Chat |
 | instagramThreads |
 | interactionCcontacts |
 | keychain |
 | logarchive |
+| notes |
 | nsVault |
+| ooklaSpeedtestData |
 | parsecdCache |
 | payByPhone |
 | photosMigration |
@@ -157,7 +160,6 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | geodMapTiles |
 | gmail |
 | googleChat |
-| hikvision |
 | keyboard |
 | keychain |
 | kikGroupadmins |
@@ -171,8 +173,6 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | mapsSync |
 | mediaLibrary |
 | netusage |
-| notes |
-| ooklaSpeedtestData |
 | photosDbexif |
 | photosMetadata |
 | pingertextfree |
