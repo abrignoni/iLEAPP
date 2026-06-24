@@ -105,7 +105,7 @@ def _checkin_asset(asset_url, media_paths, source_file):
 
 @artifact_processor
 def get_burner_accounts(context):
-    data_headers = (('Created', 'datetime'), 'Phone number', 'Country code', 'Number of burners',
+    data_headers = (('Created', 'datetime'), ('Phone number', 'phonenumber'), 'Country code', 'Number of burners',
                     'Burner numbers', 'Burner IDs', 'Do not distub', 'Voicemail URL', 'User ID')
     data_list = []
     source_path = _find_phoenix(context)
@@ -164,7 +164,7 @@ def get_burner_accounts(context):
 
 @artifact_processor
 def get_burner_contacts(context):
-    data_headers = ('Phone number', 'Full name', 'Other phones', 'Notes', 'Verified', 'Blocked',
+    data_headers = (('Phone number', 'phonenumber'), 'Full name', 'Other phones', 'Notes', 'Verified', 'Blocked',
                     'Muted', ('Image', 'media'), ('Thumbnail', 'media'), 'Image URL',
                     'Thumbnail URL', 'Contact ID')
     data_list = []
@@ -219,11 +219,11 @@ def get_burner_contacts(context):
 
 @artifact_processor
 def get_burner_numbers(context):
-    data_headers = (('Created', 'datetime'), ('Profile picture', 'media'), 'Burner number',
+    data_headers = (('Created', 'datetime'), ('Profile picture', 'media'), ('Burner number', 'phonenumber'),
                     'Display name', ('Subscription Expires', 'datetime'), 'Notifications',
                     'Inbound caller ID', 'In-App calling (VoIP)', 'Auto-replay enabled',
                     'Auto-reply message', 'Remaining/Total minutes', 'Remaining/Total messages',
-                    'Phone number', 'User ID', 'Burner ID')
+                    ('Phone number', 'phonenumber'), 'User ID', 'Burner ID')
     data_list = []
     source_path = _find_phoenix(context)
     if not source_path:
