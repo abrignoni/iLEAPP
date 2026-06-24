@@ -1,46 +1,45 @@
-import biplist
-import datetime
-
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows
-
-
-def get_recentApphistory(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    data_list = []
-    for file_found in files_found:
-        file_found = str(file_found)
-        with open(file_found, 'rb') as f:
-            plist = biplist.readPlist(f)
-            RecentAppHistory = plist.get('CARRecentAppHistory')
-            
-        if RecentAppHistory is not None:
-            if len(RecentAppHistory) > 0:
-                for bundleid, timestamp in RecentAppHistory.items():
-                    timestamp = (datetime.datetime.utcfromtimestamp(int(timestamp)).strftime('%Y-%m-%d %H:%M:%S'))
-                    data_list.append((timestamp, bundleid))
-        
-    if len(data_list) > 0:
-        description = 'CarPlay recent app history.'
-        report = ArtifactHtmlReport('CarPlay Recent App History')
-        report.start_artifact_report(report_folder, 'CarPlay Recent App History', description)
-        report.add_script()
-        data_headers = ('Timestamp','Bundle ID')     
-        report.write_artifact_data_table(data_headers, data_list, file_found)
-        report.end_artifact_report()
-        
-        tsvname = 'CarPlay Recent App History'
-        tsv(report_folder, data_headers, data_list, tsvname)
-        
-        tlactivity = 'CarPlay Recent App History'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-        
-    else:
-        logfunc('No data on CarPlay Recent App History')
-
-__artifacts__ = {
-    "recentApphistory": (
-        "CarPlay",
-        ('*/com.apple.CarPlayApp.plist'),
-        get_recentApphistory)
+__artifacts_v2__ = {
+    "recentApphistory": {
+        "name": "CarPlay Recent App History",
+        "description": "CarPlay recent app history from com.apple.CarPlayApp.plist",
+        "author": "",
+        "version": "2.0",
+        "date": "2026-06-23",
+        "requirements": "none",
+        "category": "CarPlay",
+        "notes": "Timestamps are Unix epoch seconds (UTC).",
+        "paths": ('*/com.apple.CarPlayApp.plist',),
+        "output_types": "standard",
+        "artifact_icon": "navigation"
+    }
 }
-    
+
+import plistlib
+
+from scripts.ilapfuncs import artifact_processor, convert_unix_ts_to_utc
+
+
+@artifact_processor
+def recentApphistory(context):
+    data_headers = (('Timestamp', 'datetime'), 'Bundle ID')
+    data_list = []
+
+    source_path = ''
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        if file_found.endswith('com.apple.CarPlayApp.plist'):
+            source_path = file_found
+            break
+    if not source_path:
+        return data_headers, data_list, ''
+
+    with open(source_path, 'rb') as fp:
+        plist = plistlib.load(fp)
+    for bundle_id, timestamp in (plist.get('CARRecentAppHistory') or {}).items():
+        try:
+            ts = convert_unix_ts_to_utc(int(timestamp))
+        except (ValueError, TypeError):
+            ts = timestamp
+        data_list.append((ts, bundle_id))
+
+    return data_headers, data_list, context.get_relative_path(source_path)
