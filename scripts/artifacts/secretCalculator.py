@@ -1,101 +1,73 @@
-# Secret Calculator Photo Album (xyz.hypertornado.calculator)
-# Author:  John Hyla
-# Version: 1.0.0
-#
-#   Description:
-#   Obtains photos/videos stored in the Secret Calculator Photo Album and their corresponding album
-#
-
-
-import biplist
-import plistlib
-import pathlib
-import sys
-
-
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, sanitize_file_name, media_to_html
-
-
-def get_secretCalculator(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    
-    for file_found in files_found:
-
-        with open(file_found, "rb") as fp:
-            if sys.version_info >= (3, 9):
-                plist = plistlib.load(fp)
-            else:
-                plist = biplist.readPlist(fp)
-            bundleid = plist['MCMMetadataIdentifier']
-            if bundleid == 'xyz.hypertornado.calculator':
-                if is_platform_windows():
-                    split_on = '\\private\\'
-                else:
-                    split_on = '/private/'
-                p = str(pathlib.Path(file_found).parent).split(split_on, 1)
-                file = f'**{p[1]}/Library/data.sqlite'
-                if is_platform_windows():
-                    file.replace('/', '\\')
-                db_file = seeker.search(file, return_on_first_hit=True)
-                if not db_file:
-                    logfunc(' [!] Unable to extract db file: "{}"'.format(db_file))
-                    return
-
-                db = open_sqlite_db_readonly(db_file)
-
-                cursor = db.cursor()
-                cursor.execute('''
-                    SELECT
-                    datetime(Photos.date,'UNIXEPOCH') AS photoDate,
-                    datetime(Albums.date,'UNIXEPOCH') AS albumDate,
-                    Photos.path,
-                    Photos.video,
-                    Albums.name
-                    from Photos
-                    left join Albums on Photos.id = Albums.id
-                    ''')
-
-                all_rows = cursor.fetchall()
-                usageentries = len(all_rows)
-                data_list = []
-
-                if usageentries > 0:
-                    for row in all_rows:
-
-                        fileNameToSearch = f'/private/{p[1]}/Library/Data/{row[2]}.mov'
-                        if is_platform_windows():
-                            fileNameToSearch.replace('/', '\\')
-                        seekerResults = seeker.search(f'**{fileNameToSearch}', return_on_first_hit=True)
-                        thumb = None
-                        attachmentFile = None
-                        if seekerResults:
-                            attachmentFile = seekerResults
-                            thumb = media_to_html(attachmentFile, (attachmentFile,), report_folder)
-                        data_list.append((row[0], thumb, row[4], row[1], fileNameToSearch.replace('\\', '/'), row[3]))
-
-                    description = 'Secret Calculator'
-                    report = ArtifactHtmlReport('Secret Calculator')
-                    report.start_artifact_report(report_folder, 'Secret Calculator', description)
-                    report.add_script()
-                    data_headers = ('Date', 'File', 'Album', 'Album Date', 'Filename', 'Is Video')
-                    report.write_artifact_data_table(data_headers, data_list, file_found, html_no_escape=['File'])
-                    report.end_artifact_report()
-
-                    tsvname = 'Secret Calculator'
-                    tsv(report_folder, data_headers, data_list, tsvname)
-
-                    tlactivity = 'Secret Calculator'
-                    timeline(report_folder, tlactivity, data_list, data_headers)
-                    
-                else:
-                    logfunc('No Secret Calculator data available')
-
-                db.close()
-    return
-    
-__artifacts__ = {
-    "secretCalculatorPhotoAlbum": (
-        "Secret Calculator Photo Album",
-        ('**mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist'),
-        get_secretCalculator)
+__artifacts_v2__ = {
+    "secretCalculatorPhotoAlbum": {
+        "name": "Secret Calculator Photo Album",
+        "description": "Photos/videos hidden in the Secret Calculator Photo Album "
+                       "(xyz.hypertornado.calculator) and their albums",
+        "author": "John Hyla",
+        "version": "2.0",
+        "date": "2026-06-23",
+        "requirements": "none",
+        "category": "Secret Calculator Photo Album",
+        "notes": "Photo/Album dates are Unix epoch seconds (UTC).",
+        "paths": ('*mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist',),
+        "output_types": "standard",
+        "artifact_icon": "lock"
+    }
 }
+
+import pathlib
+import plistlib
+
+from scripts.ilapfuncs import (artifact_processor, get_sqlite_db_records, check_in_media,
+                               is_platform_windows, logfunc)
+
+_BUNDLE_ID = 'xyz.hypertornado.calculator'
+_QUERY = '''
+    SELECT
+        datetime(Photos.date, 'UNIXEPOCH'),
+        datetime(Albums.date, 'UNIXEPOCH'),
+        Photos.path,
+        Photos.video,
+        Albums.name
+    FROM Photos
+    LEFT JOIN Albums ON Photos.id = Albums.id
+'''
+
+
+@artifact_processor
+def secretCalculatorPhotoAlbum(context):
+    data_headers = (
+        ('Date', 'datetime'), ('File', 'media', 'height: 96px;'), 'Album',
+        ('Album Date', 'datetime'), 'Filename', 'Is Video')
+    data_list = []
+    seeker = context.get_seeker()
+    source = ''
+
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        try:
+            with open(file_found, 'rb') as fp:
+                plist = plistlib.load(fp)
+        except (plistlib.InvalidFileException, OSError, ValueError):
+            continue
+        if plist.get('MCMMetadataIdentifier') != _BUNDLE_ID:
+            continue
+
+        split_on = '\\private\\' if is_platform_windows() else '/private/'
+        parts = str(pathlib.Path(file_found).parent).split(split_on, 1)
+        if len(parts) < 2:
+            continue
+        container = parts[1].replace('\\', '/')
+
+        db_file = seeker.search(f'**{container}/Library/data.sqlite', return_on_first_hit=True)
+        if not db_file:
+            logfunc(f'Secret Calculator: data.sqlite not found for {container}')
+            continue
+
+        for row in get_sqlite_db_records(str(db_file), _QUERY):
+            filename = f'/private/{container}/Library/Data/{row[2]}.mov'
+            media_ref = check_in_media(filename)
+            data_list.append((row[0], media_ref, row[4], row[1], filename, row[3]))
+        source = context.get_relative_path(file_found)
+
+    return data_headers, data_list, source
