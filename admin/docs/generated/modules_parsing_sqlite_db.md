@@ -84,6 +84,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | payByPhone |
 | photosMigration |
 | potatoChat |
+| protonMail |
 | reddit |
 | safariBookmarks |
 | safariFavicons |
@@ -172,7 +173,6 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | photosDbexif |
 | photosMetadata |
 | pingertextfree |
-| protonMail |
 | queryPredictions |
 | quickLook |
 | reminders |
