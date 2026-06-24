@@ -14,6 +14,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | ConnectedDeviceInformation |
 | FitnessWorkoutsLocationData |
 | LinkedIn |
+| Oops |
 | Ph11KwrdsCapsTitlesDescripsBasicAssetData |
 | Ph15PeopleandDetFacesNAD |
 | Ph16AssetPeopleandDetFaces |
@@ -84,6 +85,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | keychain |
 | line |
 | logarchive |
+| mediaLibrary |
 | notes |
 | nsVault |
 | ooklaSpeedtestData |
@@ -135,7 +137,6 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | Source Modules |
 |----------------|
 | DataUsage |
-| Oops |
 | Ph10AssetParsedEmbeddedFiles |
 | Ph70UserAdjustDateTimezoneLocation |
 | ZangiChats |
@@ -172,7 +173,6 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | life360 |
 | mailprotect |
 | mapsSync |
-| mediaLibrary |
 | netusage |
 | photosDbexif |
 | photosMetadata |
