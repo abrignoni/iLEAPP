@@ -20,6 +20,7 @@ import blackboxprotobuf
 import base64
 import binascii
 import pprint
+from datetime import datetime, timezone
 
 from scripts.ilapfuncs import (
     artifact_processor,
@@ -90,7 +91,8 @@ def get_appleMapsSearchHistory(context):
                     for g, h in f.items():
                         
                         if g == 'modificationDate':
-                            modificationdate = h
+                            modificationdate = (h.replace(tzinfo=timezone.utc)
+                                                if isinstance(h, datetime) and h.tzinfo is None else h)
                         if g == 'contents':
                             
                             protostuff, _ = blackboxprotobuf.decode_message(h)

@@ -19,6 +19,7 @@ __artifacts_v2__ = {
 
 import io
 import plistlib
+from datetime import datetime, timezone
 
 import nska_deserialize as nd
 
@@ -27,6 +28,13 @@ from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, logfunc
 _PLIST_ERRORS = (nd.DeserializeError, nd.biplist.NotBinaryPlistException,
                  nd.biplist.InvalidPlistException, nd.plistlib.InvalidFileException,
                  nd.ccl_bplist.BplistError, ValueError, TypeError, OSError, OverflowError)
+
+
+def _aware_utc(value):
+    """Tag a naive datetime as UTC (RecordCtime/RecordMtime deserialize naive); pass others through."""
+    if isinstance(value, datetime) and value.tzinfo is None:
+        return value.replace(tzinfo=timezone.utc)
+    return value
 
 
 def _load_blob_plist(blob):
@@ -105,6 +113,7 @@ def safariTabsiCloud(context):
                         modified = value
                     elif key == 'ModifiedByDevice':
                         mod_dev = value
-        data_list.append((created, modified, row[1], row[2], row[3], row[4], row[5], mod_dev))
+        data_list.append((_aware_utc(created), _aware_utc(modified), row[1], row[2], row[3],
+                          row[4], row[5], mod_dev))
 
     return data_headers, data_list, context.get_relative_path(source_path)
