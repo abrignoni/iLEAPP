@@ -220,6 +220,7 @@ from Crypto.Protocol.KDF import PBKDF2
 
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.ilapfuncs import logfunc, get_next_unused_name, open_sqlite_db_readonly, does_table_exist_in_db, does_column_exist_in_db, lava_process_artifact, lava_insert_sqlite_data, artifact_processor, convert_ts_human_to_utc
+from scripts.context import Context
 
 
 def get_browser_name(file_name):
@@ -236,8 +237,7 @@ def get_browser_name(file_name):
     elif 'chrome' in name:
         return 'Chrome'
     else:
-        # No known browser matched: return the source rather than a useless 'Unknown'
-        return file_name
+        return 'Unknown'
 
 
 def decrypt(ciphertxt, key=b"peanuts"):
@@ -285,7 +285,7 @@ def chromeWebHistory(files_found, report_folder, _seeker, wrap_text, _timezone_o
     lava_data_headers = data_headers.copy()
     lava_data_headers[0] = (lava_data_headers[0], 'datetime')
 
-    all_data_headers = lava_data_headers + ['Browser Name']
+    all_data_headers = lava_data_headers + ['Browser Name', 'Source']
 
     report_file = 'Unknown'
     
@@ -348,7 +348,7 @@ def chromeWebHistory(files_found, report_folder, _seeker, wrap_text, _timezone_o
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
             # Add browser name column to the data
-            data_list = [row + (browser_name,) for row in data_list]
+            data_list = [row + (browser_name, Context.get_relative_path(file_found)) for row in data_list]
 
             # Add current list to the combined list
             all_data.extend(data_list)
@@ -370,7 +370,7 @@ def chromeWebVisits(files_found, report_folder, _seeker, wrap_text, _timezone_of
     lava_data_headers = data_headers.copy()
     lava_data_headers[0] = (lava_data_headers[0], 'datetime')
 
-    all_data_headers = lava_data_headers + ['Browser Name']
+    all_data_headers = lava_data_headers + ['Browser Name', 'Source']
     
     report_file = 'Unknown'
 
@@ -459,7 +459,7 @@ def chromeWebVisits(files_found, report_folder, _seeker, wrap_text, _timezone_of
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
             # Add browser name column to the data
-            data_list = [row + (browser_name,) for row in data_list]
+            data_list = [row + (browser_name, Context.get_relative_path(file_found)) for row in data_list]
 
             # Add current list to the combined list
             all_data.extend(data_list)
@@ -482,7 +482,7 @@ def chromeWebSearch(files_found, report_folder, _seeker, wrap_text, _timezone_of
     lava_data_headers = data_headers.copy()
     lava_data_headers[0] = (lava_data_headers[0], 'datetime')
 
-    all_data_headers = lava_data_headers + ['Browser Name']
+    all_data_headers = lava_data_headers + ['Browser Name', 'Source']
     
     report_file = 'Unknown'
 
@@ -544,7 +544,7 @@ def chromeWebSearch(files_found, report_folder, _seeker, wrap_text, _timezone_of
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
             # Add browser name column to the data
-            data_list = [row + (browser_name,) for row in data_list]
+            data_list = [row + (browser_name, Context.get_relative_path(file_found)) for row in data_list]
 
             # Add current list to the combined list
             all_data.extend(data_list)
@@ -571,7 +571,7 @@ def chromeDownloads(files_found, report_folder, _seeker, _wrap_text, _timezone_o
     lava_data_headers[1] = (lava_data_headers[1], 'datetime')
     lava_data_headers[2] = (lava_data_headers[2], 'datetime')
 
-    all_data_headers = lava_data_headers + ['Browser Name']
+    all_data_headers = lava_data_headers + ['Browser Name', 'Source']
     
     report_file = 'Unknown'
 
@@ -706,7 +706,7 @@ def chromeDownloads(files_found, report_folder, _seeker, _wrap_text, _timezone_o
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
             # Add browser name column to the data
-            data_list = [row + (browser_name,) for row in data_list]
+            data_list = [row + (browser_name, Context.get_relative_path(file_found)) for row in data_list]
 
             # Add current list to the combined list
             all_data.extend(data_list)
@@ -728,7 +728,7 @@ def chromeKeywordSearchTerms(files_found, report_folder, _seeker, wrap_text, _ti
     lava_data_headers = data_headers.copy()
     lava_data_headers[0] = (lava_data_headers[0], 'datetime')
 
-    all_data_headers = lava_data_headers + ['Browser Name']
+    all_data_headers = lava_data_headers + ['Browser Name', 'Source']
     
     report_file = 'Unknown'
 
@@ -788,7 +788,7 @@ def chromeKeywordSearchTerms(files_found, report_folder, _seeker, wrap_text, _ti
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
             # Add browser name column to the data
-            data_list = [row + (browser_name,) for row in data_list]
+            data_list = [row + (browser_name, Context.get_relative_path(file_found)) for row in data_list]
 
             # Add current list to the combined list
             all_data.extend(data_list)
@@ -811,7 +811,7 @@ def chromeAutofillEntries(files_found, report_folder, _seeker, _wrap_text, _time
     lava_data_headers[0] = (lava_data_headers[0], 'datetime')
     lava_data_headers[3] = (lava_data_headers[3], 'datetime')
 
-    all_data_headers = lava_data_headers + ['Browser Name']
+    all_data_headers = lava_data_headers + ['Browser Name', 'Source']
 
     category = "Chromium"
     module_name = "chromeAutofillEntries"
@@ -871,7 +871,7 @@ def chromeAutofillEntries(files_found, report_folder, _seeker, _wrap_text, _time
                 lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
                 # Add browser name column to the data
-                data_list = [row + (browser_name,) for row in data_list]
+                data_list = [row + (browser_name, Context.get_relative_path(file_found)) for row in data_list]
 
                 # Add current list to the combined list
                 all_data.extend(data_list)
@@ -915,7 +915,7 @@ def chromeAutofillEntries(files_found, report_folder, _seeker, _wrap_text, _time
                 lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
                 # Add browser name column to the data
-                data_list = [row + (browser_name,) for row in data_list]
+                data_list = [row + (browser_name, Context.get_relative_path(file_found)) for row in data_list]
 
                 # Add current list to the combined list
                 all_data.extend(data_list)
@@ -939,7 +939,7 @@ def chromeAutofillProfiles(files_found, report_folder, _seeker, _wrap_text, _tim
     lava_data_headers = data_headers.copy()
     lava_data_headers[0] = (lava_data_headers[0], 'datetime')
 
-    all_data_headers = lava_data_headers + ['Browser Name']
+    all_data_headers = lava_data_headers + ['Browser Name', 'Source']
     
     report_file = 'Unknown'
     
@@ -1013,7 +1013,7 @@ def chromeAutofillProfiles(files_found, report_folder, _seeker, _wrap_text, _tim
                 lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
                 # Add browser name column to the data
-                data_list = [row + (browser_name,) for row in data_list]
+                data_list = [row + (browser_name, Context.get_relative_path(file_found)) for row in data_list]
 
                 # Add current list to the combined list
                 all_data.extend(data_list)
@@ -1038,7 +1038,7 @@ def chromeBookmarks(files_found, report_folder, _seeker, _wrap_text, _timezone_o
 
     lava_data_headers[0] = (lava_data_headers[0], 'datetime')
 
-    all_data_headers = lava_data_headers + ['Browser Name']
+    all_data_headers = lava_data_headers + ['Browser Name', 'Source']
 
     report_file = 'Unknown'
 
@@ -1103,7 +1103,7 @@ def chromeBookmarks(files_found, report_folder, _seeker, _wrap_text, _timezone_o
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
             # Add browser name column to the data
-            data_list = [row + (browser_name,) for row in data_list]
+            data_list = [row + (browser_name, Context.get_relative_path(file_found)) for row in data_list]
 
             # Add current list to the combined list
             all_data.extend(data_list)
@@ -1126,7 +1126,7 @@ def chromeCookies(files_found, report_folder, _seeker, wrap_text, _timezone_offs
     lava_data_headers[4] = (lava_data_headers[4], 'datetime')
     lava_data_headers[5] = (lava_data_headers[5], 'datetime')
 
-    all_data_headers = lava_data_headers + ['Browser Name']
+    all_data_headers = lava_data_headers + ['Browser Name', 'Source']
 
     report_file = 'Unknown'
 
@@ -1213,7 +1213,7 @@ def chromeCookies(files_found, report_folder, _seeker, wrap_text, _timezone_offs
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
             # Add browser name column to the data
-            data_list = [row + (browser_name,) for row in data_list]
+            data_list = [row + (browser_name, Context.get_relative_path(file_found)) for row in data_list]
 
             # Add current list to the combined list
             all_data.extend(data_list)
@@ -1236,7 +1236,7 @@ def chromeLoginData(files_found, report_folder, _seeker, _wrap_text, _timezone_o
 
     lava_data_headers[0] = (lava_data_headers[0], 'datetime')
 
-    all_data_headers = lava_data_headers + ['Browser Name']
+    all_data_headers = lava_data_headers + ['Browser Name', 'Source']
 
     report_file = 'Unknown'
     for file_found in files_found:
@@ -1299,7 +1299,7 @@ def chromeLoginData(files_found, report_folder, _seeker, _wrap_text, _timezone_o
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
             # Add browser name column to the data
-            data_list = [row + (browser_name,) for row in data_list]
+            data_list = [row + (browser_name, Context.get_relative_path(file_found)) for row in data_list]
 
             # Add current list to the combined list
             all_data.extend(data_list)
@@ -1320,7 +1320,7 @@ def chromeTopSites(files_found, report_folder, _seeker, _wrap_text, _timezone_of
 
     lava_data_headers = data_headers.copy()
 
-    all_data_headers = lava_data_headers + ['Browser Name']
+    all_data_headers = lava_data_headers + ['Browser Name', 'Source']
 
     report_file = 'Unknown'
 
@@ -1378,7 +1378,7 @@ def chromeTopSites(files_found, report_folder, _seeker, _wrap_text, _timezone_of
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
             # Add browser name column to the data
-            data_list = [row + (browser_name,) for row in data_list]
+            data_list = [row + (browser_name, Context.get_relative_path(file_found)) for row in data_list]
 
             # Add current list to the combined list
             all_data.extend(data_list)
@@ -1403,7 +1403,7 @@ def chromeOfflinePages(files_found, report_folder, _seeker, wrap_text, _timezone
     lava_data_headers[0] = (lava_data_headers[0], 'datetime')
     lava_data_headers[1] = (lava_data_headers[1], 'datetime')
 
-    all_data_headers = lava_data_headers + ['Browser Name']
+    all_data_headers = lava_data_headers + ['Browser Name', 'Source']
 
     report_file = 'Unknown'
 
@@ -1463,7 +1463,7 @@ def chromeOfflinePages(files_found, report_folder, _seeker, wrap_text, _timezone
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
             # Add browser name column to the data
-            data_list = [row + (browser_name,) for row in data_list]
+            data_list = [row + (browser_name, Context.get_relative_path(file_found)) for row in data_list]
 
             # Add current list to the combined list
             all_data.extend(data_list)
@@ -1487,7 +1487,7 @@ def chromeMediaHistorySessions(files_found, report_folder, _seeker, _wrap_text, 
     lava_data_headers = data_headers.copy()
     lava_data_headers[0] = (lava_data_headers[0], 'datetime')
 
-    all_data_headers = lava_data_headers + ['Browser Name']
+    all_data_headers = lava_data_headers + ['Browser Name', 'Source']
 
     report_file = 'Unknown'
 
@@ -1546,7 +1546,7 @@ def chromeMediaHistorySessions(files_found, report_folder, _seeker, _wrap_text, 
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
             # Add browser name column to the data
-            data_list = [row + (browser_name,) for row in data_list]
+            data_list = [row + (browser_name, Context.get_relative_path(file_found)) for row in data_list]
 
             # Add current list to the combined list
             all_data.extend(data_list)
@@ -1568,7 +1568,7 @@ def chromeMediaHistoryPlaybacks(files_found, report_folder, _seeker, _wrap_text,
     lava_data_headers[0] = (lava_data_headers[0], 'datetime')
     lava_data_headers[4] = (lava_data_headers[4], 'datetime')
 
-    all_data_headers = lava_data_headers + ['Browser Name']
+    all_data_headers = lava_data_headers + ['Browser Name', 'Source']
 
     report_file = 'Unknown'
 
@@ -1632,7 +1632,7 @@ def chromeMediaHistoryPlaybacks(files_found, report_folder, _seeker, _wrap_text,
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
             # Add browser name column to the data
-            data_list = [row + (browser_name,) for row in data_list]
+            data_list = [row + (browser_name, Context.get_relative_path(file_found)) for row in data_list]
 
             # Add current list to the combined list
             all_data.extend(data_list)
@@ -1653,7 +1653,7 @@ def chromeMediaHistoryOrigins(files_found, report_folder, _seeker, _wrap_text, _
     lava_data_headers = data_headers.copy()
     lava_data_headers[0] = (lava_data_headers[0], 'datetime')
 
-    all_data_headers = lava_data_headers + ['Browser Name']
+    all_data_headers = lava_data_headers + ['Browser Name', 'Source']
 
     report_file = 'Unknown'
 
@@ -1708,7 +1708,7 @@ def chromeMediaHistoryOrigins(files_found, report_folder, _seeker, _wrap_text, _
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
             # Add browser name column to the data
-            data_list = [row + (browser_name,) for row in data_list]
+            data_list = [row + (browser_name, Context.get_relative_path(file_found)) for row in data_list]
 
             # Add current list to the combined list
             all_data.extend(data_list)
@@ -1731,7 +1731,7 @@ def chromeNetworkActionPredictor(files_found, report_folder, _seeker, _wrap_text
     lava_data_headers = data_headers.copy()
     lava_data_headers[0] = (lava_data_headers[0], 'datetime')
 
-    all_data_headers = lava_data_headers + ['Browser Name']
+    all_data_headers = lava_data_headers + ['Browser Name', 'Source']
 
     report_file = 'Unknown'
 
@@ -1785,7 +1785,7 @@ def chromeNetworkActionPredictor(files_found, report_folder, _seeker, _wrap_text
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
             # Add browser name column to the data
-            data_list = [row + (browser_name,) for row in data_list]
+            data_list = [row + (browser_name, Context.get_relative_path(file_found)) for row in data_list]
 
             # Add current list to the combined list
             all_data.extend(data_list)
