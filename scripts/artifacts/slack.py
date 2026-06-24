@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "slackModelMessages": {
         "name": "Slack - Messages (ModelDatabase)",
         "description": "Slack chat messages from the newer ModelDatabase (ZCOREDATA*) schema",
-        "author": "", "version": "2.0", "date": "2026-06-23", "requirements": "none",
+        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Slack", "notes": "",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/*/ModelDatabase/db.sqlite*',),
         "output_types": "standard", "artifact_icon": "message-circle"
@@ -10,7 +10,7 @@ __artifacts_v2__ = {
     "slackModelUsers": {
         "name": "Slack - User Data (ModelDatabase)",
         "description": "Slack users from the newer ModelDatabase (ZCOREDATAUSER) schema",
-        "author": "", "version": "2.0", "date": "2026-06-23", "requirements": "none",
+        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Slack", "notes": "",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/*/ModelDatabase/db.sqlite*',),
         "output_types": "standard", "artifact_icon": "users"
@@ -18,7 +18,7 @@ __artifacts_v2__ = {
     "slackModelChannels": {
         "name": "Slack - Channel Data (ModelDatabase)",
         "description": "Slack channels/DMs from the newer ModelDatabase schema",
-        "author": "", "version": "2.0", "date": "2026-06-23", "requirements": "none",
+        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Slack", "notes": "",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/*/ModelDatabase/db.sqlite*',),
         "output_types": "standard", "artifact_icon": "hash"
@@ -26,7 +26,7 @@ __artifacts_v2__ = {
     "slackMessages": {
         "name": "Slack - Messages",
         "description": "Slack chat messages from main_db (ZSLK*/ZSLKDEPRECATED* schema)",
-        "author": "", "version": "2.0", "date": "2026-06-23", "requirements": "none",
+        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Slack", "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/Slack/*/*/main_db*',),
         "output_types": "standard", "artifact_icon": "message-circle"
@@ -34,7 +34,7 @@ __artifacts_v2__ = {
     "slackUsers": {
         "name": "Slack - User Data",
         "description": "Slack users from main_db (ZSLK*/ZSLKDEPRECATED* schema)",
-        "author": "", "version": "2.0", "date": "2026-06-23", "requirements": "none",
+        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Slack", "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/Slack/*/*/main_db*',),
         "output_types": "standard", "artifact_icon": "users"
@@ -42,7 +42,7 @@ __artifacts_v2__ = {
     "slackAttachments": {
         "name": "Slack - Attachments",
         "description": "Slack messages with shared file attachments (main_db)",
-        "author": "", "version": "2.0", "date": "2026-06-23", "requirements": "none",
+        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Slack", "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/Slack/*/*/main_db*',),
         "output_types": "standard", "artifact_icon": "paperclip"
@@ -50,7 +50,7 @@ __artifacts_v2__ = {
     "slackChannels": {
         "name": "Slack - Channel Data",
         "description": "Slack channels from main_db (ZSLK*/ZSLKDEPRECATED* schema)",
-        "author": "", "version": "2.0", "date": "2026-06-23", "requirements": "none",
+        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Slack", "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/Slack/*/*/main_db*',),
         "output_types": "standard", "artifact_icon": "hash"
@@ -58,7 +58,7 @@ __artifacts_v2__ = {
     "slackTeams": {
         "name": "Slack - Team Data",
         "description": "Slack workspaces/teams from main_db (ZSLK*/ZSLKDEPRECATED* schema)",
-        "author": "", "version": "2.0", "date": "2026-06-23", "requirements": "none",
+        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Slack", "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/Slack/*/*/main_db*',),
         "output_types": "standard", "artifact_icon": "briefcase"

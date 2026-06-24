@@ -4,8 +4,8 @@ __artifacts_v2__ = {
         "description": "Apple Maps history — searches, displayed locations and navigation journeys "
                        "from MapsSync_0.0.1",
         "author": "",
-        "version": "2.0",
-        "date": "2026-06-23",
+        "creation_date": "2026-06-23",
+        "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Location",
         "notes": "Journey/Map Item addresses are decoded from protobuf BLOBs. Query courtesy of "

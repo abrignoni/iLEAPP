@@ -4,8 +4,8 @@ __artifacts_v2__ = {
         "description": "Upgrade and Mobile Activation Startup events parsed from mobileactivationd.log "
                        "(including logs found inside sysdiagnose archives)",
         "author": "@AlexisBrignoni",
-        "version": "2.0",
-        "date": "2026-06-23",
+        "creation_date": "2026-06-23",
+        "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Mobile Activation Logs",
         "notes": "",

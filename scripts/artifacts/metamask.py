@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "metamaskWallets": {
         "name": "MetaMask - Wallets",
         "description": "MetaMask wallet accounts (import time, name, address, balance)",
-        "author": "", "version": "2.0", "date": "2026-06-23", "requirements": "none",
+        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Metamask", "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/persistStore/persist-root',),
         "output_types": "standard", "artifact_icon": "credit-card"
@@ -10,7 +10,7 @@ __artifacts_v2__ = {
     "metamaskContacts": {
         "name": "MetaMask - Contacts",
         "description": "MetaMask address book contacts",
-        "author": "", "version": "2.0", "date": "2026-06-23", "requirements": "none",
+        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Metamask", "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/persistStore/persist-root',),
         "output_types": "standard", "artifact_icon": "users"
@@ -18,7 +18,7 @@ __artifacts_v2__ = {
     "metamaskTransactions": {
         "name": "MetaMask - Transactions",
         "description": "MetaMask transactions (time, from/to address, value, hash)",
-        "author": "", "version": "2.0", "date": "2026-06-23", "requirements": "none",
+        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Metamask", "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/persistStore/persist-root',),
         "output_types": "standard", "artifact_icon": "repeat"
@@ -26,7 +26,7 @@ __artifacts_v2__ = {
     "metamaskBrowser": {
         "name": "MetaMask - Browser",
         "description": "MetaMask in-app browser history",
-        "author": "", "version": "2.0", "date": "2026-06-23", "requirements": "none",
+        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Metamask", "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/persistStore/persist-root',),
         "output_types": "standard", "artifact_icon": "globe"

@@ -3,8 +3,8 @@ __artifacts_v2__ = {
         "name": "Kijiji Conversations",
         "description": "Chat messages sent and received using the Kijiji application",
         "author": "Terry Chabot (Krypterry)",
-        "version": "2.0",
-        "date": "2026-06-23",
+        "creation_date": "2026-06-23",
+        "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Kijiji Conversations",
         "notes": "Kijiji.ca is a Canadian online classified advertising site. Message timestamps are "

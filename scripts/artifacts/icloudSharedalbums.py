@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "icloudSharedOwnerInfo": {
         "name": "iCloud Shared Albums - Owner Info",
         "description": "iCloud shared album owner info (Info.plist)",
-        "author": "", "version": "2.0", "date": "2026-06-23", "requirements": "none",
+        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "iCloud Shared Albums", "notes": "",
         "paths": ('*/mobile/Media/PhotoData/PhotoCloudSharingData/*',),
         "output_types": "standard", "artifact_icon": "users"
@@ -10,7 +10,7 @@ __artifacts_v2__ = {
     "icloudSharedAlbumData": {
         "name": "iCloud Shared Albums - Album Data",
         "description": "iCloud shared album DCIM counters (DCIM_CLOUD.plist)",
-        "author": "", "version": "2.0", "date": "2026-06-23", "requirements": "none",
+        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "iCloud Shared Albums", "notes": "",
         "paths": ('*/mobile/Media/PhotoData/PhotoCloudSharingData/*',),
         "output_types": "standard", "artifact_icon": "image"
@@ -18,7 +18,7 @@ __artifacts_v2__ = {
     "icloudSharedPersonInfo": {
         "name": "iCloud Shared Albums - Person Info",
         "description": "iCloud shared album participants (cloudSharedPersonInfos.plist)",
-        "author": "", "version": "2.0", "date": "2026-06-23", "requirements": "none",
+        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "iCloud Shared Albums", "notes": "",
         "paths": ('*/mobile/Media/PhotoData/PhotoCloudSharingData/*',),
         "output_types": "standard", "artifact_icon": "user"
@@ -26,7 +26,7 @@ __artifacts_v2__ = {
     "icloudSharedEmails": {
         "name": "iCloud Shared Albums - Emails",
         "description": "iCloud shared album emails (cloudSharedEmails.plist)",
-        "author": "", "version": "2.0", "date": "2026-06-23", "requirements": "none",
+        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "iCloud Shared Albums", "notes": "",
         "paths": ('*/mobile/Media/PhotoData/PhotoCloudSharingData/*',),
         "output_types": "standard", "artifact_icon": "mail"

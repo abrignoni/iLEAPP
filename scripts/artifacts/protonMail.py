@@ -4,8 +4,8 @@ __artifacts_v2__ = {
         "description": "Decrypted Proton Mail emails and attachments (requires the device keychain "
                        "in scripts/keychain/)",
         "author": "",
-        "version": "2.0",
-        "date": "2026-06-23",
+        "creation_date": "2026-06-23",
+        "last_update_date": "2026-06-24",
         "requirements": "pgpy, pycryptodome, ccl_bplist; a keychain plist placed in scripts/keychain/",
         "category": "Proton Mail",
         "notes": "Decryption requires the device keychain plist in scripts/keychain/. Email bodies and "
