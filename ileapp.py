@@ -498,7 +498,7 @@ def crunch_artifacts(
                         if seeker.file_infos.get(pathh):
                             file_path_id = id(seeker.file_infos.get(pathh))
                             if not pattern_already_searched and file_path_id not in file_path_ids:
-                                lava_insert_sqlite_file_path(file_path_id,seeker.file_infos.get(pathh).source_path)
+                                lava_insert_sqlite_file_path(file_path_id, seeker.file_infos.get(pathh).source_path)
                                 file_path_ids.add(file_path_id)
                             lava_insert_sqlite_artifact_link_pattern_to_file(artifact_search_pattern_id, file_path_id)
                     log.write(f'</li></ul>')
