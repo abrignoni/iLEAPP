@@ -5,8 +5,8 @@ __artifacts_v2__ = {
                        " contains some important data related to a device Backup, device restore from iCloud Backup,"
                        " and or Quick Start Data Transfer.",
         "author": "Other Unknown contributors and Scott Koenig",
-        "version": "2.0",
-        "date": "2024-06-11",
+        "creation_date": "2024-06-11",
+        "last_update_date": "2026-06-24",
         "requirements": "Acquisition that contains com.apple.MobileBackup.plist",
         "category": "Mobile Backup Plist",
         "notes": "",

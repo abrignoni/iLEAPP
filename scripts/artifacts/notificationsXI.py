@@ -3,8 +3,8 @@ __artifacts_v2__ = {
         "name": "Notifications (iOS 11 PushStore)",
         "description": "Delivered notifications parsed from iOS <= 11 SpringBoard PushStore files",
         "author": "",
-        "version": "2.0",
-        "date": "2026-06-23",
+        "creation_date": "2026-06-23",
+        "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Notifications",
         "notes": "Best-effort structured rewrite of the old HTML-triage version: pulls the "

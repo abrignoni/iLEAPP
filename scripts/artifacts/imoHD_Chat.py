@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "imoHDChatMessages": {
         "name": "IMO HD Chat - Messages",
         "description": "IMO HD chat messages and attachments",
-        "author": "", "version": "2.0", "date": "2026-06-23", "requirements": "none",
+        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "IMO HD Chat", "notes": "",
         "paths": ('*/IMODb2.sqlite*',
                   '*/mobile/Containers/Data/Application/*/Library/Caches/videos/*.webp'),
@@ -11,7 +11,7 @@ __artifacts_v2__ = {
     "imoHDChatContacts": {
         "name": "IMO HD Chat - Contacts",
         "description": "IMO HD chat contacts",
-        "author": "", "version": "2.0", "date": "2026-06-23", "requirements": "none",
+        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "IMO HD Chat", "notes": "",
         "paths": ('*/IMODb2.sqlite*',),
         "output_types": "standard", "artifact_icon": "users"

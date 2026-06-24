@@ -4,8 +4,8 @@ __artifacts_v2__ = {
         "description": "Photos/videos hidden in the Secret Calculator Photo Album "
                        "(xyz.hypertornado.calculator) and their albums",
         "author": "John Hyla",
-        "version": "2.0",
-        "date": "2026-06-23",
+        "creation_date": "2026-06-23",
+        "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Secret Calculator Photo Album",
         "notes": "Photo/Album dates are Unix epoch seconds (UTC).",

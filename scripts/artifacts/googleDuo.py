@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "googleDuoContacts": {
         "name": "Google Duo - Contacts",
         "description": "Google Duo contacts",
-        "author": "", "version": "2.0", "date": "2026-06-23", "requirements": "none",
+        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Google Duo", "notes": "",
         "paths": ('*/Application Support/DataStore*',),
         "output_types": "standard", "artifact_icon": "users"
@@ -10,7 +10,7 @@ __artifacts_v2__ = {
     "googleDuoCallHistory": {
         "name": "Google Duo - Call History",
         "description": "Google Duo call history",
-        "author": "", "version": "2.0", "date": "2026-06-23", "requirements": "none",
+        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Google Duo", "notes": "",
         "paths": ('*/Application Support/DataStore*',),
         "output_types": "standard", "artifact_icon": "phone"
@@ -18,7 +18,7 @@ __artifacts_v2__ = {
     "googleDuoClips": {
         "name": "Google Duo - Clips",
         "description": "Google Duo media clips (with thumbnails from ClipsCache)",
-        "author": "", "version": "2.0", "date": "2026-06-23", "requirements": "none",
+        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Google Duo", "notes": "",
         "paths": ('*/Application Support/DataStore*', '*/Application Support/ClipsCache/*.png'),
         "output_types": "standard", "artifact_icon": "film"

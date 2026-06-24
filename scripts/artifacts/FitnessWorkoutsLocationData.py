@@ -4,8 +4,8 @@ __artifacts_v2__ = {
         "description": "Per-workout location-capture analysis from healthdb_secure.sqlite "
                        "(point counts vs expected, capture timespan/average, workout type and times)",
         "author": "@SQLMcGee",
-        "version": "2.0",
-        "date": "2023-05-22",
+        "creation_date": "2023-05-22",
+        "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Fitness",
         "notes": "Queries derived from research by James McGee, Metadata Forensics, LLC — 'Apple Fitness "
@@ -21,8 +21,8 @@ __artifacts_v2__ = {
         "description": "Per-point GPS location data captured during Apple Fitness workouts "
                        "(healthdb_secure.sqlite)",
         "author": "@SQLMcGee",
-        "version": "2.0",
-        "date": "2023-05-22",
+        "creation_date": "2023-05-22",
+        "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Fitness",
         "notes": "Queries derived from research by James McGee, Metadata Forensics, LLC — 'Apple Fitness "
