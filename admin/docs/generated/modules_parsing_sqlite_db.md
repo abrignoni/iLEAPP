@@ -91,6 +91,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | tcc |
 | tikTok |
 | tikTokReplied |
+| tileAppDb |
 | tileAppDisc |
 | tileAppNetDb |
 | trustedPeers |
@@ -179,7 +180,6 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | teams |
 | telegramMesssages |
 | teleguard |
-| tileAppDb |
 | uberClient |
 | uberPlaces |
 | waze |
