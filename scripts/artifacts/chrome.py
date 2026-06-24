@@ -3,8 +3,8 @@ __artifacts_v2__ = {
         "name": "Web History",
         "description": "Parses web history from Chromium Based Browsers",
         "author": "@stark4n6",
-        "version": "0.0.3",
-        "date": "2024-11-10",
+        "creation_date": "2024-11-10",
+        "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
         "notes": "",
@@ -16,8 +16,8 @@ __artifacts_v2__ = {
         "name": "Web Visits",
         "description": "Parses web visits from Chromium Based Browsers",
         "author": "@stark4n6",
-        "version": "0.0.3",
-        "date": "2024-11-10",
+        "creation_date": "2024-11-10",
+        "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
         "notes": "",
@@ -29,8 +29,8 @@ __artifacts_v2__ = {
         "name": "Web Searches",
         "description": "Parses web searches from Chromium Based Browsers",
         "author": "@stark4n6",
-        "version": "0.0.3",
-        "date": "2024-11-10",
+        "creation_date": "2024-11-10",
+        "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
         "notes": "",
@@ -42,8 +42,8 @@ __artifacts_v2__ = {
         "name": "Downloads",
         "description": "Parses downloads from Chromium Based Browsers",
         "author": "@stark4n6",
-        "version": "0.0.3",
-        "date": "2024-11-10",
+        "creation_date": "2024-11-10",
+        "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
         "notes": "",
@@ -55,8 +55,8 @@ __artifacts_v2__ = {
         "name": "Keyword Search Terms",
         "description": "Parses keyword search terms from Chromium Based Browsers",
         "author": "@stark4n6",
-        "version": "0.0.3",
-        "date": "2024-11-10",
+        "creation_date": "2024-11-10",
+        "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
         "notes": "",
@@ -68,8 +68,8 @@ __artifacts_v2__ = {
         "name": "Autofill Entries",
         "description": "Parses autofill entries from Chromium Based Browsers",
         "author": "@stark4n6",
-        "version": "0.0.3",
-        "date": "2024-11-10",
+        "creation_date": "2024-11-10",
+        "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
         "notes": "",
@@ -81,8 +81,8 @@ __artifacts_v2__ = {
         "name": "Autofill Profiles",
         "description": "Parses Autofill Profiles from Chromium Based Browsers",
         "author": "@stark4n6",
-        "version": "0.0.3",
-        "date": "2024-11-10",
+        "creation_date": "2024-11-10",
+        "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
         "notes": "",
@@ -94,9 +94,8 @@ __artifacts_v2__ = {
         "name": "Bookmarks",
         "description": "Parses Bookmarks from Chromium Based Browsers",
         "author": "@stark4n6",
-        "version": "0.0.3",
-        "date": "2024-11-10",
-        "last_update_date": "2025-06-20",
+        "creation_date": "2024-11-10",
+        "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
         "notes": "",
@@ -108,8 +107,8 @@ __artifacts_v2__ = {
         "name": "Cookies",
         "description": "Parses Cookies from Chromium Based Browsers",
         "author": "@stark4n6",
-        "version": "0.0.3",
-        "date": "2024-11-10",
+        "creation_date": "2024-11-10",
+        "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
         "notes": "",
@@ -121,7 +120,7 @@ __artifacts_v2__ = {
         "description": "Parses Login Data from Chromium Based Browsers",
         "author": "@stark4n6",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-05-27",
+        "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
         "notes": "",
@@ -132,8 +131,8 @@ __artifacts_v2__ = {
         "name": "Top Sites",
         "description": "Parses Top Sites from Chromium Based Browsers",
         "author": "@stark4n6",
-        "version": "0.0.3",
-        "date": "2024-11-10",
+        "creation_date": "2024-11-10",
+        "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
         "notes": "",
@@ -144,8 +143,8 @@ __artifacts_v2__ = {
         "name": "Offline Pages",
         "description": "Parses Offline Pages from Chromium Based Browsers",
         "author": "@stark4n6",
-        "version": "0.0.3",
-        "date": "2024-11-10",
+        "creation_date": "2024-11-10",
+        "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
         "notes": "",
@@ -158,8 +157,8 @@ __artifacts_v2__ = {
         "name": "Media History Sessions",
         "description": "Parses Media History Sessions from Chromium Based Browsers",
         "author": "@stark4n6",
-        "version": "0.0.3",
-        "date": "2024-11-10",
+        "creation_date": "2024-11-10",
+        "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
         "notes": "",
@@ -171,8 +170,8 @@ __artifacts_v2__ = {
         "name": "Media History Playbacks",
         "description": "Parses Media History Playbacks from Chromium Based Browsers",
         "author": "@stark4n6",
-        "version": "0.0.3",
-        "date": "2024-11-10",
+        "creation_date": "2024-11-10",
+        "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
         "notes": "",
@@ -184,8 +183,8 @@ __artifacts_v2__ = {
         "name": "Media History Origins",
         "description": "Parses Media History Origins from Chromium Based Browsers",
         "author": "@stark4n6",
-        "version": "0.0.3",
-        "date": "2024-11-10",
+        "creation_date": "2024-11-10",
+        "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
         "notes": "",
@@ -197,8 +196,8 @@ __artifacts_v2__ = {
         "name": "Network Action Predictor",
         "description": "Parses Network Action Predictor records from Chromium Based Browsers",
         "author": "@stark4n6",
-        "version": "0.0.3",
-        "date": "2024-11-10",
+        "creation_date": "2024-11-10",
+        "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
         "notes": "",
@@ -214,11 +213,13 @@ import urllib.parse
 import json
 import datetime
 import re
+import sqlite3
+
 from Crypto.Cipher import AES
 from Crypto.Protocol.KDF import PBKDF2
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, get_next_unused_name, open_sqlite_db_readonly, does_table_exist_in_db, does_column_exist_in_db, lava_process_artifact, lava_insert_sqlite_data, artifact_processor, convert_utc_human_to_timezone, convert_ts_human_to_utc
+from scripts.ilapfuncs import logfunc, get_next_unused_name, open_sqlite_db_readonly, does_table_exist_in_db, does_column_exist_in_db, lava_process_artifact, lava_insert_sqlite_data, artifact_processor, convert_ts_human_to_utc
 
 
 def get_browser_name(file_name):
@@ -271,7 +272,7 @@ def get_valid_date(d1, d2):
 
 
 @artifact_processor
-def chromeWebHistory(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def chromeWebHistory(files_found, report_folder, _seeker, wrap_text, _timezone_offset):
 
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
@@ -325,7 +326,7 @@ def chromeWebHistory(files_found, report_folder, seeker, wrap_text, timezone_off
             data_list = []
 
             for row in all_rows:
-                dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]),timezone_offset)
+                dt = convert_ts_human_to_utc(row[0])
                 if wrap_text:
                     data_list.append((dt,textwrap.fill(row[1], width=100),row[2],row[3],row[4],row[5],row[6]))
                 else:
@@ -356,7 +357,7 @@ def chromeWebHistory(files_found, report_folder, seeker, wrap_text, timezone_off
 
 
 @artifact_processor
-def chromeWebVisits(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def chromeWebVisits(files_found, report_folder, _seeker, wrap_text, _timezone_offset):
 
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
@@ -435,7 +436,7 @@ def chromeWebVisits(files_found, report_folder, seeker, wrap_text, timezone_offs
 
             data_list = []
             for row in all_rows:
-                dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]),timezone_offset)
+                dt = convert_ts_human_to_utc(row[0])
                 if wrap_text:
                     data_list.append((dt,textwrap.fill(row[1], width=100),row[2],row[3],row[4],row[5],row[6]))
                 else:
@@ -467,7 +468,7 @@ def chromeWebVisits(files_found, report_folder, seeker, wrap_text, timezone_offs
     return all_data_headers, all_data, report_file
 
 @artifact_processor
-def chromeWebSearch(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def chromeWebSearch(files_found, report_folder, _seeker, wrap_text, _timezone_offset):
 
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
@@ -517,7 +518,7 @@ def chromeWebSearch(files_found, report_folder, seeker, wrap_text, timezone_offs
 
             data_list = []
             for row in all_rows:
-                dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[3]),timezone_offset)
+                dt = convert_ts_human_to_utc(row[3])
                 search = row[0].split('search?q=')[1].split('&')[0]
                 search = urllib.parse.unquote(search).replace('+', ' ')
                 if wrap_text:
@@ -553,7 +554,7 @@ def chromeWebSearch(files_found, report_folder, seeker, wrap_text, timezone_offs
 
 
 @artifact_processor
-def chromeDownloads(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def chromeDownloads(files_found, report_folder, _seeker, _wrap_text, _timezone_offset):
 
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
@@ -714,7 +715,7 @@ def chromeDownloads(files_found, report_folder, seeker, wrap_text, timezone_offs
 
 
 @artifact_processor
-def chromeKeywordSearchTerms(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def chromeKeywordSearchTerms(files_found, report_folder, _seeker, wrap_text, _timezone_offset):
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
 
@@ -763,7 +764,7 @@ def chromeKeywordSearchTerms(files_found, report_folder, seeker, wrap_text, time
             report.add_script()
             data_list = []
             for row in all_rows:
-                dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[4]),timezone_offset)
+                dt = convert_ts_human_to_utc(row[4])
                 if wrap_text:
                     data_list.append((dt, row[1],(textwrap.fill(row[3], width=100))))
                 else:
@@ -796,7 +797,7 @@ def chromeKeywordSearchTerms(files_found, report_folder, seeker, wrap_text, time
 
 
 @artifact_processor
-def chromeAutofillEntries(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def chromeAutofillEntries(files_found, report_folder, _seeker, _wrap_text, _timezone_offset):
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
 
@@ -827,9 +828,9 @@ def chromeAutofillEntries(files_found, report_folder, seeker, wrap_text, timezon
         cursor = db.cursor()
 
         columns = [i[1] for i in cursor.execute('PRAGMA table_info(autofill)')]
-        # TODO: Was this supposed to be if 'date_last_used' in columns?
+        # Note: 'date_created' presence selects the modern autofill schema.
         if 'date_created' in columns:
-            cursor.execute(f'''
+            cursor.execute('''
             select
                 datetime(date_created, 'unixepoch'),
                 name,
@@ -851,8 +852,8 @@ def chromeAutofillEntries(files_found, report_folder, seeker, wrap_text, timezon
 
                 data_list = []
                 for row in all_rows:
-                    created_dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]), timezone_offset)
-                    last_used_dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[3]), timezone_offset)
+                    created_dt = convert_ts_human_to_utc(row[0])
+                    last_used_dt = convert_ts_human_to_utc(row[3])
                     data_list.append((created_dt, row[1], row[2], last_used_dt, row[4]))
 
                 report.write_artifact_data_table(data_headers, data_list, file_found)
@@ -875,7 +876,7 @@ def chromeAutofillEntries(files_found, report_folder, seeker, wrap_text, timezon
                 logfunc(f'No {browser_name} - Autofill - Entries data available')
 
         else:
-            cursor.execute(f'''
+            cursor.execute('''
             select
                 datetime(autofill_dates.date_created, 'unixepoch'),
                 autofill.name,
@@ -896,7 +897,7 @@ def chromeAutofillEntries(files_found, report_folder, seeker, wrap_text, timezon
                 report.add_script()
                 data_list = []
                 for row in all_rows:
-                    created_dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]), timezone_offset)
+                    created_dt = convert_ts_human_to_utc(row[0])
                     data_list.append((created_dt, row[1], row[2], None, row[3]))
 
                 report.write_artifact_data_table(data_headers, data_list, file_found)
@@ -924,7 +925,7 @@ def chromeAutofillEntries(files_found, report_folder, seeker, wrap_text, timezon
 
 
 @artifact_processor
-def chromeAutofillProfiles(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def chromeAutofillProfiles(files_found, report_folder, _seeker, _wrap_text, _timezone_offset):
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
 
@@ -953,7 +954,7 @@ def chromeAutofillProfiles(files_found, report_folder, seeker, wrap_text, timezo
         if does_table_exist_in_db(file_found, 'autofill_profiles'):
             cursor = db.cursor()
 
-            cursor.execute(f'''
+            cursor.execute('''
             select
                 datetime(date_modified, 'unixepoch'),
                 autofill_profiles.guid,
@@ -988,8 +989,8 @@ def chromeAutofillProfiles(files_found, report_folder, seeker, wrap_text, timezo
 
                 data_list = []
                 for row in all_rows:
-                    modified_dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]), timezone_offset)
-                    last_used_dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[12]), timezone_offset)
+                    modified_dt = convert_ts_human_to_utc(row[0])
+                    last_used_dt = convert_ts_human_to_utc(row[12])
 
                     data_list.append((modified_dt, row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
                                       row[10], row[11], last_used_dt, row[13]))
@@ -1023,7 +1024,7 @@ def chromeAutofillProfiles(files_found, report_folder, seeker, wrap_text, timezo
 
 
 @artifact_processor
-def chromeBookmarks(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def chromeBookmarks(files_found, report_folder, _seeker, _wrap_text, _timezone_offset):
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
 
@@ -1050,13 +1051,13 @@ def chromeBookmarks(files_found, report_folder, seeker, wrap_text, timezone_offs
         if file_found.find('app_sbrowser') >= 0:
             browser_name = 'Browser'
 
-        with open(file_found, "r") as f:
+        with open(file_found, "r", encoding="utf-8") as f:
             dataa = json.load(f)
         data_list = []
-        for x, y in dataa.items():
+        for _x, y in dataa.items():
             children_items = list()
             if isinstance(y, dict):
-                for key, value in y.items():
+                for _key, value in y.items():
                     if isinstance(value, dict):
                         for keyb, valueb in value.items():
                             if keyb == 'children':
@@ -1066,7 +1067,7 @@ def chromeBookmarks(files_found, report_folder, seeker, wrap_text, timezone_offs
                                         dateadd = valueb[index]['date_added']
                                         dateaddconv = datetime.datetime(1601, 1, 1) + datetime.timedelta(
                                             microseconds=int(dateadd))
-                                        added_dt = convert_utc_human_to_timezone(dateaddconv, timezone_offset)
+                                        added_dt = dateaddconv
                                         name = valueb[0]['name']
                                         typed = valueb[0]['type']
                                         children_items.append((url, dateadd, dateaddconv, added_dt, name, typed))
@@ -1109,7 +1110,7 @@ def chromeBookmarks(files_found, report_folder, seeker, wrap_text, timezone_offs
 
 
 @artifact_processor
-def chromeCookies(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def chromeCookies(files_found, report_folder, _seeker, wrap_text, _timezone_offset):
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
 
@@ -1185,9 +1186,9 @@ def chromeCookies(files_found, report_folder, seeker, wrap_text, timezone_offset
             report.add_script()
             data_list = []
             for row in all_rows:
-                last_accessed_dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]), timezone_offset)
-                created_dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[4]), timezone_offset)
-                expiration_dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[5]), timezone_offset)
+                last_accessed_dt = convert_ts_human_to_utc(row[0])
+                created_dt = convert_ts_human_to_utc(row[4])
+                expiration_dt = convert_ts_human_to_utc(row[5])
                 if wrap_text:
                     data_list.append(
                         (last_accessed_dt, row[1], (textwrap.fill(row[2], width=50)), row[3], created_dt, expiration_dt, row[6]))
@@ -1221,7 +1222,7 @@ def chromeCookies(files_found, report_folder, seeker, wrap_text, timezone_offset
     return all_data_headers, all_data, report_file
 
 @artifact_processor
-def chromeLoginData(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def chromeLoginData(files_found, report_folder, _seeker, _wrap_text, _timezone_offset):
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
 
@@ -1307,7 +1308,7 @@ def chromeLoginData(files_found, report_folder, seeker, wrap_text, timezone_offs
 
 
 @artifact_processor
-def chromeTopSites(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def chromeTopSites(files_found, report_folder, _seeker, _wrap_text, _timezone_offset):
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
 
@@ -1344,7 +1345,7 @@ def chromeTopSites(files_found, report_folder, seeker, wrap_text, timezone_offse
 
             all_rows = cursor.fetchall()
             usageentries = len(all_rows)
-        except:
+        except sqlite3.Error:
             usageentries = 0
 
         if usageentries > 0:
@@ -1387,7 +1388,7 @@ def chromeTopSites(files_found, report_folder, seeker, wrap_text, timezone_offse
 
 
 @artifact_processor
-def chromeOfflinePages(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def chromeOfflinePages(files_found, report_folder, _seeker, wrap_text, _timezone_offset):
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
 
@@ -1437,8 +1438,8 @@ def chromeOfflinePages(files_found, report_folder, seeker, wrap_text, timezone_o
             report.add_script()
             data_list = []
             for row in all_rows:
-                created_dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]), timezone_offset)
-                last_accessed_dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[1]), timezone_offset)
+                created_dt = convert_ts_human_to_utc(row[0])
+                last_accessed_dt = convert_ts_human_to_utc(row[1])
                 if wrap_text:
                     data_list.append(
                         (created_dt, last_accessed_dt, (textwrap.fill(row[2], width=75)), row[3], row[4], row[5], row[6]))
@@ -1472,7 +1473,7 @@ def chromeOfflinePages(files_found, report_folder, seeker, wrap_text, timezone_o
 
 
 @artifact_processor
-def chromeMediaHistorySessions(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def chromeMediaHistorySessions(files_found, report_folder, _seeker, _wrap_text, _timezone_offset):
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
 
@@ -1524,7 +1525,7 @@ def chromeMediaHistorySessions(files_found, report_folder, seeker, wrap_text, ti
             report.add_script()
             data_list = []
             for row in all_rows:
-                last_update_dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]), timezone_offset)
+                last_update_dt = convert_ts_human_to_utc(row[0])
                 data_list.append((last_update_dt, row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8]))
 
             report.write_artifact_data_table(data_headers, data_list, file_found)
@@ -1553,7 +1554,7 @@ def chromeMediaHistorySessions(files_found, report_folder, seeker, wrap_text, ti
     return all_data_headers, all_data, report_file
 
 @artifact_processor
-def chromeMediaHistoryPlaybacks(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def chromeMediaHistoryPlaybacks(files_found, report_folder, _seeker, _wrap_text, _timezone_offset):
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
 
@@ -1609,8 +1610,8 @@ def chromeMediaHistoryPlaybacks(files_found, report_folder, seeker, wrap_text, t
             report.add_script()
             data_list = []
             for row in all_rows:
-                last_update_dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]), timezone_offset)
-                watch_dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[4]), timezone_offset)
+                last_update_dt = convert_ts_human_to_utc(row[0])
+                watch_dt = convert_ts_human_to_utc(row[4])
                 data_list.append((last_update_dt, row[1], row[2], row[3], watch_dt, row[5], row[6]))
 
             report.write_artifact_data_table(data_headers, data_list, file_found)
@@ -1639,7 +1640,7 @@ def chromeMediaHistoryPlaybacks(files_found, report_folder, seeker, wrap_text, t
     return all_data_headers, all_data, report_file
 
 @artifact_processor
-def chromeMediaHistoryOrigins(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def chromeMediaHistoryOrigins(files_found, report_folder, _seeker, _wrap_text, _timezone_offset):
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
 
@@ -1686,7 +1687,7 @@ def chromeMediaHistoryOrigins(files_found, report_folder, seeker, wrap_text, tim
             report.add_script()
             data_list = []
             for row in all_rows:
-                last_update_dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]), timezone_offset)
+                last_update_dt = convert_ts_human_to_utc(row[0])
                 data_list.append((last_update_dt, row[1], row[2], row[3]))
 
             report.write_artifact_data_table(data_headers, data_list, file_found)
@@ -1717,7 +1718,7 @@ def chromeMediaHistoryOrigins(files_found, report_folder, seeker, wrap_text, tim
 
 
 @artifact_processor
-def chromeNetworkActionPredictor(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def chromeNetworkActionPredictor(files_found, report_folder, _seeker, _wrap_text, _timezone_offset):
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
 
