@@ -63,6 +63,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | booking |
 | box |
 | bumble |
+| burner |
 | callHistory |
 | cashAppB |
 | cloudkit_cache |
@@ -145,7 +146,6 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | bluetoothOther |
 | bluetoothPairedLE |
 | box |
-| burner |
 | burnerCache |
 | cachev0 |
 | calendarAll |

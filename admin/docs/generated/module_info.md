@@ -12,10 +12,10 @@ Total number of artifacts: 560
 Number of v1 artifacts: 3  
 Number of v2 artifacts: 557  
 Number of artifacts with 'lava output': 544  
-Number of artifacts using 'artifact_icon': 426  
-Number of artifacts using 'version': 152  
-Number of artifacts using 'last_update_date': 412  
-Number of artifacts using context parameter: 371  
+Number of artifacts using 'artifact_icon': 430  
+Number of artifacts using 'version': 148  
+Number of artifacts using 'last_update_date': 416  
+Number of artifacts using context parameter: 375  
 Number of artifacts with errors or no recognized artifacts: 2  
 
 ## V2 Artifacts Table
@@ -228,10 +228,10 @@ Number of artifacts with errors or no recognized artifacts: 2
 | [box.py](/scripts/artifacts/box.py) | box_comments | Box - Comments and Annotations | Box | standard | Yes | message-circle |  | 2026-03-30 | Parses and extracts Comments and Annotations | ``*/mobile/Containers/Shared/AppGroup/*/Documents/db/annotations.db*``, ``*/mobile/Containers/Shared/AppGroup/*/Documents/db/Item.db*`` |
 | [bumble.py](/scripts/artifacts/bumble.py) | bumbleMessages | Bumble - Messages | Bumble | standard | Yes | message-circle |  | 2026-06-24 | Bumble chat messages | ``**/Library/Caches/Chat.sqlite*`` |
 | [bumble.py](/scripts/artifacts/bumble.py) | bumbleAccount | Bumble - Account Details | Bumble | standard | Yes | user |  | 2026-06-24 | Bumble local user account details (user id/name, app version, last location) | ``**/Documents/yap-database.sqlite*`` |
-| [burner.py](/scripts/artifacts/burner.py) | get_burner_accounts | Burner Accounts | Burner | lava, tsv, timeline | No |  | 0.2.0 |  | Parses and extract burner accounts | ``*/mobile/Containers/Shared/AppGroup/*/Phoenix.sqlite*`` |
-| [burner.py](/scripts/artifacts/burner.py) | get_burner_messages | Burner Messages | Burner | lava, tsv | No |  | 0.2.0 |  | Parses and extract burner messages | ``*/mobile/Containers/Shared/AppGroup/*/Phoenix.sqlite*``, ``*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist`` |
-| [burner.py](/scripts/artifacts/burner.py) | get_burner_contacts | Burner Contacts | Burner | lava, tsv | No |  | 0.2.0 |  | Parses and extract burner contacts | ``*/mobile/Containers/Shared/AppGroup/*/Phoenix.sqlite*`` |
-| [burner.py](/scripts/artifacts/burner.py) | get_burner_numbers | Burner Numbers | Burner | lava, tsv, timeline | No |  | 0.2.0 |  | Parses and extract burner numbers | ``*/mobile/Containers/Shared/AppGroup/*/Phoenix.sqlite*`` |
+| [burner.py](/scripts/artifacts/burner.py) | get_burner_accounts | Burner Accounts | Burner | standard | Yes | user |  | 2026-06-24 | Parses and extract burner accounts | ``*/mobile/Containers/Shared/AppGroup/*/Phoenix.sqlite*`` |
+| [burner.py](/scripts/artifacts/burner.py) | get_burner_messages | Burner Messages | Burner | standard | Yes | message-circle |  | 2026-06-24 | Parses and extract burner messages | ``*/mobile/Containers/Shared/AppGroup/*/Phoenix.sqlite*``, ``*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist`` |
+| [burner.py](/scripts/artifacts/burner.py) | get_burner_contacts | Burner Contacts | Burner | standard | Yes | user |  | 2026-06-24 | Parses and extract burner contacts | ``*/mobile/Containers/Shared/AppGroup/*/Phoenix.sqlite*`` |
+| [burner.py](/scripts/artifacts/burner.py) | get_burner_numbers | Burner Numbers | Burner | standard | Yes | hash |  | 2026-06-24 | Parses and extract burner numbers | ``*/mobile/Containers/Shared/AppGroup/*/Phoenix.sqlite*`` |
 | [burnerCache.py](/scripts/artifacts/burnerCache.py) | burnerCache_preferences | Burner Cache Preferences | Burner Cache | none | No | settings | 0.3 | 2025-05-02 | Parses and extract Burner Cache Preferences | ``*/mobile/Containers/Data/Application/*/Library/Preferences/com.adhoclabs.burner.plist`` |
 | [burnerCache.py](/scripts/artifacts/burnerCache.py) | burnerCache_accounts | Burner Cache Accounts | Burner Cache | lava, html, tsv, timeline | No | user | 0.3 | 2025-05-02 | Parses and extract Burner Cache Accounts | ``*/mobile/Containers/Data/Application/*/Library/Caches/com.adhoclabs.burner/Cache.db*`` |
 | [burnerCache.py](/scripts/artifacts/burnerCache.py) | burnerCache_contacts | Burner Cache Contacts | Burner Cache | lava, html, tsv, timeline | No | users | 0.3 | 2025-05-02 | Parses and extract Burner Cache Contacts | ``*/mobile/Containers/Data/Application/*/Library/Caches/com.adhoclabs.burner/Cache.db*`` |
