@@ -48,6 +48,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | Ph98iOS18REFforAssetAnalysis |
 | Ph9BurstAvalanche |
 | SMSmissingROWIDs |
+| SiriRemembers |
 | Threema |
 | WithingsHealthMate |
 | ZaloChats |
@@ -134,7 +135,6 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | Oops |
 | Ph10AssetParsedEmbeddedFiles |
 | Ph70UserAdjustDateTimezoneLocation |
-| SiriRemembers |
 | ZangiChats |
 | appleMapsTrips |
 | applePodcasts |
