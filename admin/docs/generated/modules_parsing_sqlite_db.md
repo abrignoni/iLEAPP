@@ -57,6 +57,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | accountData |
 | addressBook |
 | allTrails |
+| appleMapsTrips |
 | appleWalletCards |
 | appleWalletTransactions |
 | atxDatastore |
@@ -144,7 +145,6 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | Ph10AssetParsedEmbeddedFiles |
 | Ph70UserAdjustDateTimezoneLocation |
 | ZangiChats |
-| appleMapsTrips |
 | applePodcasts |
 | appleWalletPasses |
 | applicationStateDB |
