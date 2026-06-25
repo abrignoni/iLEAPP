@@ -17,7 +17,9 @@ __artifacts_v2__ = {
     }
 }
 
+import json
 import plistlib
+from datetime import datetime
 
 from scripts.ilapfuncs import artifact_processor
 
@@ -55,6 +57,17 @@ def mobilebackupplist(context):
         if isinstance(block, dict):
             for key in keys:
                 if key in block:
-                    data_list.append((key, block[key]))
+                    value = block[key]
+                    if isinstance(value, datetime):
+                        # plist <date> values are UTC; store as a UTC string (the generic
+                        # 'Value' column is not datetime-typed, so a datetime would not
+                        # be JSON-serializable for LAVA).
+                        value = value.strftime('%Y-%m-%d %H:%M:%S')
+                    elif isinstance(value, bytes):
+                        value = value.hex()
+                    elif isinstance(value, (dict, list)):
+                        # default=str handles nested datetimes/bytes that LAVA's json.dumps cannot.
+                        value = json.dumps(value, default=str)
+                    data_list.append((key, value))
 
     return data_headers, data_list, context.get_relative_path(source_path)
