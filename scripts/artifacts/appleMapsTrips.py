@@ -46,7 +46,7 @@ __artifacts_v2__ = {
     }
 }
 
-from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly
+from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records
 
 def get_google_map_link(latitude_value, longitude_value):
     if latitude_value is None or longitude_value is None:
@@ -86,15 +86,13 @@ def appleMapsTrips(context):
     for file_found in files_found:
         file_found = str(file_found)
         
-        LocalDB = str(file_found)
-        LocalDB_found.append(LocalDB)
+        if file_found.endswith('.sqlite'):   # skip -wal/-shm/-journal sidecar files
+            LocalDB_found.append(str(file_found))
         
     for i in range(len(LocalDB_found)):
         LocalDB = LocalDB_found[i]
         
-        db = open_sqlite_db_readonly(LocalDB)
-        cursor = db.cursor()
-        cursor.execute('''
+        all_rows = get_sqlite_db_records(LocalDB, '''
         SELECT 
         CASE 
             WHEN trip.ZSTARTDATE < 0 THEN NULL 
@@ -110,12 +108,10 @@ def appleMapsTrips(context):
         ZRTLEARNEDLOCATIONOFINTERESTVISITMO as dest
         on trip.ZVISITIDENTIFIERDESTINATION = dest.ZIDENTIFIER
         ''')
-
-        all_rows = cursor.fetchall()
         for row in all_rows:
             row = list(row)
 
-            data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6], get_google_dir_link(row[2], row[3], row[4], row[5], row[6]), LocalDB))
+            data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6], get_google_dir_link(row[2], row[3], row[4], row[5], row[6]), context.get_relative_path(LocalDB)))
 
     data_headers = (('Start DateTime', 'datetime'), ('End DateTime', 'datetime'), 'Origin Latitude','Origin Longitude', 'Destination Latitude', 'Destination Longitude','ZZPREDOMINANTMOTIONACTIVITYTYPE', 'Google Maps Link','Source File')
     return data_headers, data_list, 'See source file(s) below:'
@@ -132,15 +128,13 @@ def appleMapsSignificantLocationsVisits(context):
     for file_found in files_found:
         file_found = str(file_found)
         
-        LocalDB = str(file_found)
-        LocalDB_found.append(LocalDB)
+        if file_found.endswith('.sqlite'):   # skip -wal/-shm/-journal sidecar files
+            LocalDB_found.append(str(file_found))
         
     for i in range(len(LocalDB_found)):
         LocalDB = LocalDB_found[i]
         
-        db = open_sqlite_db_readonly(LocalDB)
-        cursor = db.cursor()
-        cursor.execute('''
+        all_rows = get_sqlite_db_records(LocalDB, '''
         SELECT m.ZNAME, m.ZCATEGORY, a.ZSUBTHOROUGHFARE || ' ' || a.ZTHOROUGHFARE as Address, a.ZLOCALITY, a.ZADMINISTRATIVEAREA, a.ZADMINISTRATIVEAREACODE, 
             a.ZCOUNTRY, a.ZPOSTALCODE, a.ZSUBLOCALITY, a.ZAREASOFINTEREST, m.ZLATITUDE, m.ZLONGITUDE, 
             datetime(p.ZCREATIONDATE + 978307200, 'unixepoch') as CreationDateTime
@@ -148,24 +142,20 @@ def appleMapsSignificantLocationsVisits(context):
         ZRTADDRESSMO as a on p.ZMAPITEM = a.ZMAPITEM AND p.ZDEVICE = a.ZDEVICE INNER JOIN 
         ZRTMAPITEMMO as m on p.ZDEVICE = m.ZDEVICE AND p.ZMAPITEM = m.ZPLACE
         ''')
-
-        all_rows = cursor.fetchall()
         for row in all_rows:
             row = list(row)
 
-            data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11], get_google_map_link(row[10], row[11]),row[12],LocalDB))
+            data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11], get_google_map_link(row[10], row[11]),row[12],context.get_relative_path(LocalDB)))
 
-        cursor.execute('''
+        all_rows = get_sqlite_db_records(LocalDB, '''
         SELECT NULL,NULL,NULL,NULL, NULL, NULL, NULL, NULL, NULL, NULL, p.ZLOCATIONLATITUDE, p.ZLOCATIONLONGITUDE, 
             datetime(p.ZPLACECREATIONDATE + 978307200, 'unixepoch') as CreationDateTime
         FROM ZRTLEARNEDLOCATIONOFINTERESTMO as p
         ''')
-
-        all_rows = cursor.fetchall()
         for row in all_rows:
             row = list(row)
 
-            data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11], get_google_map_link(row[10], row[11]),row[12],LocalDB))
+            data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11], get_google_map_link(row[10], row[11]),row[12],context.get_relative_path(LocalDB)))
 
     data_headers = ('Significant Location Name', 'Category', 'Address','City', 'State', 'State-Abbrev',  'Country', 'Zip Code', 'ZSUBLOCALITY', 'ZAREASOFINTEREST', 'Latitude', 'Longitude', 'Google Maps Link', ('Created DateTime','datetime'), 'Source File')
     return data_headers, data_list, 'See source file(s) below:'
@@ -182,27 +172,23 @@ def appleMapsSignificantLocations(context):
     for file_found in files_found:
         file_found = str(file_found)
         
-        LocalDB = str(file_found)
-        LocalDB_found.append(LocalDB)
+        if file_found.endswith('.sqlite'):   # skip -wal/-shm/-journal sidecar files
+            LocalDB_found.append(str(file_found))
         
     for i in range(len(LocalDB_found)):
         LocalDB = LocalDB_found[i]
         
-        db = open_sqlite_db_readonly(LocalDB)
-        cursor = db.cursor()
-        cursor.execute('''
+        all_rows = get_sqlite_db_records(LocalDB, '''
         SELECT  datetime(ZENTRYDATE + 978307200, 'unixepoch') as VicinityEntryDate,  
                 datetime(ZEXITDATE + 978307200, 'unixepoch') as VicinityExitDate, 
                 datetime(ZCREATIONDATE + 978307200, 'unixepoch') as CreatedDateTime, 
                 ZLOCATIONLATITUDE, ZLOCATIONLONGITUDE, ZLOCATIONHORIZONTALUNCERTAINTY  
         FROM ZRTLEARNEDLOCATIONOFINTERESTVISITMO
         ''')
-
-        all_rows = cursor.fetchall()
         for row in all_rows:
             row = list(row)
 
-            data_list.append((row[0],row[1],row[2],row[3],row[4],row[5], get_google_map_link(row[3], row[4]), LocalDB))
+            data_list.append((row[0],row[1],row[2],row[3],row[4],row[5], get_google_map_link(row[3], row[4]), context.get_relative_path(LocalDB)))
 
     data_headers = (('Vicinity Entry Datetime','datetime'), ('Vicinity Exit Datetime','datetime'), ('Created Datetime','datetime'), 'Latitude', 'Longitude', 'Uncertainty', 'Google Maps Link', 'Source File')
     return data_headers, data_list, 'See source file(s) below:'
