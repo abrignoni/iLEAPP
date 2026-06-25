@@ -55,6 +55,13 @@ __artifacts_v2__ = {
 
 from scripts.ilapfuncs import device_info, artifact_processor, get_plist_file_content, convert_plist_date_to_utc
 
+from datetime import datetime as _dt
+
+def _safe_plist_date(value):
+    """Convert plist <date> objects to UTC; pass strings/None through unchanged."""
+    return convert_plist_date_to_utc(value) if isinstance(value, _dt) else value
+
+
 def _bytes_to_mac_address(encoded_bytes):
     return ':'.join(f"{byte:02x}" for byte in encoded_bytes[:6])
 
@@ -144,31 +151,31 @@ def appleWifiKnownNetworksTimes(context):
             for known_network in deserialized['List of known networks']:
                 ssid = _decode_ssid(known_network.get('SSID_STR', b''))
                 bssid = known_network.get('BSSID', '')
-                last_updated = convert_plist_date_to_utc(known_network.get('lastUpdated', ''))
-                last_auto_joined = convert_plist_date_to_utc(known_network.get('lastAutoJoined', ''))
-                last_joined = convert_plist_date_to_utc(known_network.get('lastJoined', ''))
-                wnpmd = convert_plist_date_to_utc(known_network.get('WiFiNetworkPasswordModificationDate', ''))
-                prev_joined = convert_plist_date_to_utc(known_network.get('prevJoined', ''))
+                last_updated = _safe_plist_date(known_network.get('lastUpdated', ''))
+                last_auto_joined = _safe_plist_date(known_network.get('lastAutoJoined', ''))
+                last_joined = _safe_plist_date(known_network.get('lastJoined', ''))
+                wnpmd = _safe_plist_date(known_network.get('WiFiNetworkPasswordModificationDate', ''))
+                prev_joined = _safe_plist_date(known_network.get('prevJoined', ''))
 
                 data_list.append([ssid, bssid, last_updated, last_auto_joined, last_joined, '', '', wnpmd, '', '', '', '', prev_joined, context.get_relative_path(file_found)])
 
         if 'com.apple.wifi.known-networks.plist' in file_found:
             for _, known_network in deserialized.items():
                 ssid = _decode_ssid(known_network.get('SSID', b''))
-                last_updated = convert_plist_date_to_utc(known_network.get('UpdatedAt', ''))
-                system_joined = convert_plist_date_to_utc(known_network.get('JoinedBySystemAt', ''))
-                user_joined = convert_plist_date_to_utc(known_network.get('JoinedByUserAt', ''))
-                last_discovered = convert_plist_date_to_utc(known_network.get('LastDiscoveredAt', ''))
-                added_at = convert_plist_date_to_utc(known_network.get('AddedAt', ''))
+                last_updated = _safe_plist_date(known_network.get('UpdatedAt', ''))
+                system_joined = _safe_plist_date(known_network.get('JoinedBySystemAt', ''))
+                user_joined = _safe_plist_date(known_network.get('JoinedByUserAt', ''))
+                last_discovered = _safe_plist_date(known_network.get('LastDiscoveredAt', ''))
+                added_at = _safe_plist_date(known_network.get('AddedAt', ''))
 
                 captive_profile = known_network.get('CaptiveProfile', {})
-                whitelisted_probe_date = convert_plist_date_to_utc(captive_profile.get('WhitelistedCaptiveNetworkProbeDate', ''))
-                captive_web_sheet_login_date = convert_plist_date_to_utc(captive_profile.get('CaptiveWebSheetLoginDate', ''))
+                whitelisted_probe_date = _safe_plist_date(captive_profile.get('WhitelistedCaptiveNetworkProbeDate', ''))
+                captive_web_sheet_login_date = _safe_plist_date(captive_profile.get('CaptiveWebSheetLoginDate', ''))
 
                 os_specific = known_network.get('__OSSpecific__', {})
                 bssid = os_specific.get('BSSID', '')
-                wnpmd = convert_plist_date_to_utc(os_specific.get('WiFiNetworkPasswordModificationDate', ''))
-                prev_joined = convert_plist_date_to_utc(os_specific.get('prevJoined', ''))
+                wnpmd = _safe_plist_date(os_specific.get('WiFiNetworkPasswordModificationDate', ''))
+                prev_joined = _safe_plist_date(os_specific.get('prevJoined', ''))
 
                 data_list.append([ssid, bssid, last_updated, '', '', system_joined, user_joined, wnpmd, 
                                     last_discovered, added_at, whitelisted_probe_date, captive_web_sheet_login_date, 
@@ -196,13 +203,13 @@ def appleWifiScannedPrivate(context):
             for scanned_network in deserialized['List of scanned networks with private mac']:
                 ssid = scanned_network.get('SSID_STR', '')
                 bssid = scanned_network.get('BSSID', '')
-                last_updated = convert_plist_date_to_utc(scanned_network.get('lastUpdated', ''))
-                last_joined = convert_plist_date_to_utc(scanned_network.get('lastJoined', ''))
-                added_at = convert_plist_date_to_utc(scanned_network.get('addedAt', ''))
+                last_updated = _safe_plist_date(scanned_network.get('lastUpdated', ''))
+                last_joined = _safe_plist_date(scanned_network.get('lastJoined', ''))
+                added_at = _safe_plist_date(scanned_network.get('addedAt', ''))
                 in_known_networks = scanned_network.get('PresentInKnownNetworks', '')
-                link_down_timestamp = convert_plist_date_to_utc(scanned_network.get('LinkDownTimestamp', ''))
-                mac_generation_timestamp = convert_plist_date_to_utc(scanned_network.get('MacGenerationTimeStamp', ''))
-                first_join_with_new_mac_timestamp = convert_plist_date_to_utc(scanned_network.get('FirstJoinWithNewMacTimestamp', ''))
+                link_down_timestamp = _safe_plist_date(scanned_network.get('LinkDownTimestamp', ''))
+                mac_generation_timestamp = _safe_plist_date(scanned_network.get('MacGenerationTimeStamp', ''))
+                first_join_with_new_mac_timestamp = _safe_plist_date(scanned_network.get('FirstJoinWithNewMacTimestamp', ''))
 
                 private_mac = scanned_network.get('PRIVATE_MAC_ADDRESS', {})
                 private_mac_in_use = _bytes_to_mac_address(private_mac.get('PRIVATE_MAC_ADDRESS_IN_USE', b''))
@@ -239,10 +246,10 @@ def appleWifiBSSList(context):
                 for bss in bss_list:
                     channel_flags = bss.get('ChannelFlags', '')
                     channel = bss.get('Channel', '')
-                    last_associated_at = convert_plist_date_to_utc(bss.get('LastAssociatedAt', ''))
+                    last_associated_at = _safe_plist_date(bss.get('LastAssociatedAt', ''))
                     bssid = bss.get('BSSID', '')
                     location_accuracy = bss.get('LocationAccuracy', '')
-                    location_timestamp = convert_plist_date_to_utc(bss.get('LocationTimestamp', ''))
+                    location_timestamp = _safe_plist_date(bss.get('LocationTimestamp', ''))
                     location_latitude = bss.get('LocationLatitude', '')
                     location_longitude = bss.get('LocationLongitude', '')
 
@@ -258,7 +265,7 @@ def appleWifiBSSList(context):
                 bss_list = known_network.get('networkKnownBSSListKey', [])
                 for bss in bss_list:
                     channel = bss.get('CHANNEL', '')
-                    last_roamed = convert_plist_date_to_utc(bss.get('lastRoamed', ''))
+                    last_roamed = _safe_plist_date(bss.get('lastRoamed', ''))
                     bssid = bss.get('BSSID', '')
                     channel_flags = bss.get('CHANNEL_FLAGS', '')
 

@@ -57,6 +57,13 @@ from scripts.ilapfuncs import (
     get_sqlite_db_records,
 )
 
+from datetime import datetime as _dt
+
+def _safe_plist_date(value):
+    """Convert plist <date> objects to UTC; pass strings/None through unchanged."""
+    return convert_plist_date_to_utc(value) if isinstance(value, _dt) else value
+
+
 
 def _database_files(context):
     return [
@@ -172,7 +179,7 @@ def instagram_threads(context):
 
             thread_id = metadata["NSString*threadId"]
             server_timestamp = metadata["NSDate*serverTimestamp"]
-            server_timestamp = convert_plist_date_to_utc(server_timestamp)
+            server_timestamp = _safe_plist_date(server_timestamp)
             message = content.get("NSString*string")
 
             # VOIP calls
@@ -186,7 +193,7 @@ def instagram_threads(context):
             if reactions:
                 dm_reaction = reactions[0].get("emojiUnicode")
                 reaction_server_timestamp = reactions[0].get("serverTimestamp")
-                reaction_server_timestamp = convert_plist_date_to_utc(reaction_server_timestamp)
+                reaction_server_timestamp = _safe_plist_date(reaction_server_timestamp)
                 reaction_user_id = reactions[0].get("userId")
 
             # Shared media
@@ -215,7 +222,7 @@ def instagram_threads(context):
                     0,
                     "expiration_date",
                 )
-                shared_media_url_expiration_date = convert_plist_date_to_utc(
+                shared_media_url_expiration_date = _safe_plist_date(
                     shared_media_url_expiration_date
                 )
 
@@ -302,7 +309,7 @@ def instagram_calls(context):
             content = plist["IGDirectPublishedMessageContent*content"]
             sender_pk = metadata["NSString*senderPk"]
             server_timestamp = metadata["NSDate*serverTimestamp"]
-            server_timestamp = convert_plist_date_to_utc(server_timestamp)
+            server_timestamp = _safe_plist_date(server_timestamp)
 
             # VOIP calls
             thread_activity = content.get("IGDirectThreadActivityAnnouncement*threadActivity")

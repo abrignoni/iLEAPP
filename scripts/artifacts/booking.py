@@ -193,6 +193,11 @@ from scripts.ilapfuncs import get_sqlite_db_records, \
     get_plist_content, get_plist_file_content, convert_plist_date_to_utc, \
     convert_unix_ts_to_utc, check_in_media, artifact_processor, logfunc
 
+def _safe_plist_date(value):
+    """Convert plist <date> objects to UTC; pass strings/None through unchanged."""
+    return convert_plist_date_to_utc(value) if isinstance(value, datetime) else value
+
+
 
 # Constants
 LINE_BREAK = '\n'
@@ -1074,7 +1079,7 @@ def booking_stored_destinations(context):
                 desc, city, region, country, lat, lon = _get_destination_details(loc_dict)
 
                 # Basic fields
-                created = convert_plist_date_to_utc(dest.get('created'))
+                created = _safe_plist_date(dest.get('created'))
                 loc_type = location_type_names(loc_dict.get('locationType_'))
                 img_url = loc_dict.get('image_url')
                 img_url_h = format_url(img_url, html_format=True)
@@ -1161,7 +1166,7 @@ def booking_recently_searched(context):
                 desc, city, region, country, lat, lon = _get_destination_details(dest_dict)
 
                 # Basic search info
-                searched = convert_plist_date_to_utc(ss.get('created'))
+                searched = _safe_plist_date(ss.get('created'))
                 loc_type = location_type_names(dest_dict.get('locationType_'))
 
                 # Precise location within the plist structure for validation
@@ -1330,7 +1335,7 @@ def _get_rooms_details(rooms: list) -> tuple:
         append_tag_value(meta, 'Number of guests', room.get('nr_guests'))
         append_tag_value(meta, 'Cancelled', room.get('is_cancelled'))
 
-        cancel_date = convert_plist_date_to_utc(room.get('cancel_date'))
+        cancel_date = _safe_plist_date(room.get('cancel_date'))
         append_tag_value(meta, 'Cancel date', cancel_date)
         append_tag_value(meta, 'Identifier', room.get('room_id'))
         append_tag_value(meta, 'URL photo', room.get('room_photo'))
@@ -1480,7 +1485,7 @@ def booking_booked(context):
 
                     # Standard row data
                     base_data = (
-                        convert_plist_date_to_utc(val.get('created_epoch')),
+                        _safe_plist_date(val.get('created_epoch')),
                         val.get('hotel_id'),
                         val.get('hotel_name'),
                         full_addr,
@@ -1567,7 +1572,7 @@ def booking_wish_lists(context):
                 hotels = wish.get('hotels', [])
 
                 for j, hotel in enumerate(hotels):
-                    added = convert_plist_date_to_utc(hotel.get('date'))
+                    added = _safe_plist_date(hotel.get('date'))
                     hotel_id = hotel.get('id')
 
                     # Precise location within the plist structure for validation
@@ -1640,7 +1645,7 @@ def booking_viewed(context):
                     continue
 
                 # Basic Info
-                last_viewed = convert_plist_date_to_utc(hotel.get('lastViewed'))
+                last_viewed = _safe_plist_date(hotel.get('lastViewed'))
                 h_type = hotel_type_names(hotel.get('hotel_type'))
 
                 # City and Region logic: checks 'city' dict first, then flattens to root keys
