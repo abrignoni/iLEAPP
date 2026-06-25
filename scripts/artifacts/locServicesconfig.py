@@ -40,9 +40,22 @@ __artifacts_v2__ = {
     }
 }
 
+import json
 import plistlib
+from datetime import datetime
 
 from scripts.ilapfuncs import artifact_processor, convert_cocoa_core_data_ts_to_utc, logfunc
+
+
+def _lava_safe(value):
+    """Make a raw plist value safe for LAVA's generic-column json serialization."""
+    if isinstance(value, datetime):
+        return value.strftime('%Y-%m-%d %H:%M:%S')   # plist <date> is UTC
+    if isinstance(value, bytes):
+        return value.hex()
+    if isinstance(value, (dict, list)):
+        return json.dumps(value, default=str)
+    return value
 
 
 def _load_plist(context, filename):
@@ -96,7 +109,7 @@ def locServicesConfigLocationd(context):
         return data_headers, data_list, source_path
 
     for key, value in plist.items():
-        data_list.append((value, key))
+        data_list.append((_lava_safe(value), key))
 
     return data_headers, data_list, source_path
 
@@ -111,6 +124,6 @@ def locServicesConfigRoutined(context):
 
     for key, value in plist.items():
         if key != 'CloudKitAccountInfoCache':
-            data_list.append((value, key))
+            data_list.append((_lava_safe(value), key))
 
     return data_headers, data_list, source_path
