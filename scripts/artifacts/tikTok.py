@@ -354,7 +354,7 @@ def tiktok_contacts(context):
         "Unique ID",
         "Custom ID",
         "URL",
-        "Table",
+        "Source Table",
         "Source File",
     )
 
