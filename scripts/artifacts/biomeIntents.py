@@ -20,6 +20,13 @@ from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
 from scripts.ilapfuncs import convert_time_obj_to_utc, get_plist_content, logfunc, artifact_processor
 
+from datetime import datetime as _dt
+
+def _safe_time_obj(value):
+    """Set UTC tzinfo on datetime objects; pass strings/None through unchanged."""
+    return convert_time_obj_to_utc(value) if isinstance(value, _dt) else value
+
+
 @artifact_processor
 def get_biomeIntents(context):
     data_headers = (('Timestamp', 'datetime'), ('End Date', 'datetime'), 'Duration Interval', 'Donated by Siri',
@@ -75,10 +82,10 @@ def get_biomeIntents(context):
                     continue
 
                 startdate = (deserialized_plist['dateInterval']['NS.startDate'])
-                startdate = convert_time_obj_to_utc(startdate)
+                startdate = _safe_time_obj(startdate)
 
                 enddate = (deserialized_plist['dateInterval']['NS.endDate'])
-                enddate = convert_time_obj_to_utc(enddate)
+                enddate = _safe_time_obj(enddate)
 
                 durationinterval = (deserialized_plist['dateInterval']['NS.duration'])
                 donatedbysiri = 'True' if deserialized_plist['_donatedBySiri'] else 'False'

@@ -22,6 +22,13 @@ from scripts.ilapfuncs import (
     convert_plist_date_to_utc
     )
 
+from datetime import datetime as _dt
+
+def _safe_plist_date(value):
+    """Convert plist <date> objects to UTC; pass strings/None through unchanged."""
+    return convert_plist_date_to_utc(value) if isinstance(value, _dt) else value
+
+
 
 @artifact_processor
 def weather_app_locations(context):
@@ -43,7 +50,7 @@ def weather_app_locations(context):
                     'Longitude',
                 )
 
-        lastupdated = convert_plist_date_to_utc(plist_content.get('LastUpdated'))
+        lastupdated = _safe_plist_date(plist_content.get('LastUpdated'))
         if plist_content.get('Cities', '0') == '0':
             logfunc('No cities available')
             return (), [], source_path
@@ -79,7 +86,7 @@ def weather_app_locations(context):
             logfunc('No cities available')
             return (), [], source_path
         for city in plist_content['Cities']:
-            update_time = convert_plist_date_to_utc(city.get('UpateTime', ''))
+            update_time = _safe_plist_date(city.get('UpateTime', ''))
             data_list.append((
                 update_time,
                 'Added from User',
@@ -91,7 +98,7 @@ def weather_app_locations(context):
                 city['SecondsFromGMT']
                 ))
         local_weather = plist_content.get('LocalWeather', {})
-        local_update_time = convert_plist_date_to_utc(local_weather.get('UpateTime', ''))
+        local_update_time = _safe_plist_date(local_weather.get('UpateTime', ''))
         last_location_update = convert_unix_ts_to_utc(plist_content.get('LastLocationUpdateTime'))
         data_list.append((
             local_update_time,
