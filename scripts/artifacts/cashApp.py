@@ -69,8 +69,8 @@ ORDER BY ZPAYMENT.ZDISPLAYDATE ASC
                 date = convert_unix_ts_to_utc(row[6])
                 data_list.append((date, row[1], row[2], row[0], row[3], row[5], row[4], context.get_relative_path(file_found)))
 
-    data_headers = (('Transaction Date', 'datetime'), 'Display Name', 'Cashtag', 'Account Owner Role', 
-                    'Currency Amount', 'Transaction State', 'Transaction State', 'Source File')
+    data_headers = (('Transaction Date', 'datetime'), 'Display Name', 'Cashtag', 'Account Owner Role',
+                    'Currency Amount', 'Transaction State', 'Note', 'Source File')
 
     db.close()
     
