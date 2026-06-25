@@ -59,7 +59,7 @@ def get_audiTripdata(context):
 
                             data_list.append((timestamp, avgspeed, traveltime, startmileage, mileage,
                                     overallmileage, tripid, avgelecconsumpt, avgfuelconsumpt,
-                                    zeroemdistance, triptyme, reportreason, file_found,
+                                    zeroemdistance, triptyme, reportreason, context.get_relative_path(file_found),
                             ))
 
     data_headers = (

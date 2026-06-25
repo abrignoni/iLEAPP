@@ -39,7 +39,7 @@ def get_appleWalletPKPasses(context):
             with open(file_found, 'r', encoding='utf-8') as f:
                 data = json.load(f)
                 for x, y in data.items():
-                    data_list.append((x,str(y), file_found))
+                    data_list.append((x,str(y), context.get_relative_path(file_found)))
     
     data_headers = ['Identifier','Items', 'Source File']
     return data_headers, data_list, 'see Source File for more info'
@@ -113,7 +113,7 @@ def get_appleWalletNanoPasses(context):
                 
                 timestamp = convert_cocoa_core_data_ts_to_utc(row[4])
                 
-                data_list.append((timestamp, row[0], row[1], row[2], row[3], row[5], front_field, back_field, encoded_pass, file_found))
+                data_list.append((timestamp, row[0], row[1], row[2], row[3], row[5], front_field, back_field, encoded_pass, context.get_relative_path(file_found)))
     
     data_headers = [('Pass Added', 'datetime'),'Unique ID', 'Organization Name', 'Type', 'Localized Description',
         'Pending Delete', 'Front Fields Content', 'Back Fields Content', 'Encoded Pass', 'Source File']

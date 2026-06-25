@@ -39,7 +39,7 @@ def callHistoryTransactions(context):
                 data_list.append((date, inner_record['handleType'], inner_record['callStatus'],
                                   inner_record['duration'], inner_record['remoteParticipantHandles'][0]['value'],
                                   inner_record['callerId'], inner_record['timeToEstablish'],
-                                  inner_record['disconnectedCause'], inner_record['uniqueId'], file_found))
+                                  inner_record['disconnectedCause'], inner_record['uniqueId'], context.get_relative_path(file_found)))
 
     data_headers = (('Date', 'datetime'), 'handleType', 'callStatus', 'duration', 'remoteParticipantHandle', 'callerId',
                     'timeToEstablish', 'disconnectedCause', 'uniqueId', 'Source File')

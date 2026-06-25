@@ -69,7 +69,7 @@ def widgets(context):
         last_modified_date = convert_unix_ts_to_utc(
             lava_get_full_media_info(media_item)[-2])
         data_list.append(
-            [last_modified_date, app_name, file_found, media_item])
+            [last_modified_date, app_name, context.get_relative_path(file_found), media_item])
 
     data_headers = (('Date Modified', 'datetime'), 'App Name',
                     'Source Path', ('Snapshot', 'media'))

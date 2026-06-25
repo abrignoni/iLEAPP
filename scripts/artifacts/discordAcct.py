@@ -47,7 +47,7 @@ def get_discordAcct(context):
             if 'user_id_cache' in x:
                 wf = searchlist[counter].split('"')
                 try:
-                    data_list.append(('USER_ID_CACHE', wf[1], file_found))
+                    data_list.append(('USER_ID_CACHE', wf[1], context.get_relative_path(file_found)))
                 except (IndexError, TypeError) as e:
                     logfunc(f"Error parsing user_id_cache: {str(e)}")
                 
@@ -55,7 +55,7 @@ def get_discordAcct(context):
                 #print(x)
                 wfa = searchlist[counter].split('"')
                 try:
-                    data_list.append(('EMAIL_CACHE', wfa[1], file_found))
+                    data_list.append(('EMAIL_CACHE', wfa[1], context.get_relative_path(file_found)))
                 except (IndexError, TypeError) as e:
                     logfunc(f"Error parsing email_cache: {str(e)}")
 

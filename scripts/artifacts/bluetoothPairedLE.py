@@ -40,7 +40,7 @@ def get_bluetoothPairedLE(context):
 
             all_rows = cursor.fetchall()
             for row in all_rows:
-                data_list.append((row[0], row[1], row[2], row[3], row[4],row[6], file_found))
+                data_list.append((row[0], row[1], row[2], row[3], row[4],row[6], context.get_relative_path(file_found)))
 
             db.close()
 

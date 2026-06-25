@@ -144,7 +144,7 @@ def cloudkit_sharing(context):
 
         for z_pk, s in shares.items():
             data_list.append((
-                file_found, z_pk, s['z_id'], s['record_id'], s['root_id'], s['record_type'],
+                context.get_relative_path(file_found), z_pk, s['z_id'], s['record_id'], s['root_id'], s['record_type'],
                 s['ctime'], s['creator'], s['mtime'], s['modifier'], s['device'],
                 s['container'], s['hostname'], s['permission'], s['visibility'],
                 s['anon'], s['known']
@@ -195,7 +195,7 @@ def cloudkit_participants(context):
                     name_priv = deep_get(ui, ['NameComponents', 'NS.nameComponentsPrivate'], {})
 
                     data_list.append((
-                        file_found, z_pk, z_id, share_record_id, root_record_id,
+                        context.get_relative_path(file_found), z_pk, z_id, share_record_id, root_record_id,
                         p.get('ParticipantID', ''),
                         deep_get(ui, ['UserRecordID', 'RecordName']),
                         deep_get(ui, ['LookupInfo', 'EmailAddress']),

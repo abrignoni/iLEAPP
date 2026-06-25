@@ -72,7 +72,7 @@ def get_applePodcastsShows(context):
             timestampdupdate = convert_cocoa_core_data_ts_to_utc(row[2])
             timestampdowndate = convert_cocoa_core_data_ts_to_utc(row[3])
             
-            data_list.append((timestampadded,timestampdateplayed,timestampdupdate,timestampdowndate,row[4],row[5],row[6],row[7],row[8], file_found))
+            data_list.append((timestampadded,timestampdateplayed,timestampdupdate,timestampdowndate,row[4],row[5],row[6],row[7],row[8], context.get_relative_path(file_found)))
     
     return data_headers, data_list, 'see Source File for more info'
         
@@ -137,6 +137,6 @@ def get_applePodcastsEpisodes(context):
             timestamplastmod = convert_cocoa_core_data_ts_to_utc(row[3])
             timestampdowndate = convert_cocoa_core_data_ts_to_utc(row[4])
 
-            data_list.append((timestampimport,timestampmeta,timestamplastplay,timestamplastmod,timestampdowndate,row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12],row[13], file_found))
+            data_list.append((timestampimport,timestampmeta,timestamplastplay,timestamplastmod,timestampdowndate,row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12],row[13], context.get_relative_path(file_found)))
     
     return data_headers, data_list, 'see Source File for more info'
