@@ -22,13 +22,15 @@ __artifacts_v2__ = {
         "category": "Burner",
         "notes": "App version tested: 4.0.18, 4.3.3, 5.3.8, 5.4.11",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/Phoenix.sqlite*',
-                  '*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist'),
+                  '*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist',
+                  '*/mobile/Containers/Data/Application/*/Library/Caches/outgoingPhotos/**',
+                  '*/mobile/Containers/Data/Application/*/Library/Caches/thumbnails/**'),
         "output_types": "standard",
         "artifact_icon": "message-circle",
         "data_views": {
-            "chat": {
+            "conversation": {
                 "directionSentValue": "Outgoing",
-                "threadDiscriminatorColumn": "Thread",
+                "conversationDiscriminatorColumn": "Thread",
                 "textColumn": "Message",
                 "directionColumn": "Direction",
                 "timeColumn": "Sent",
@@ -312,7 +314,7 @@ def get_burner_messages(context):
 
     if does_column_exist_in_db(source_path, 'ZMESSAGE', 'ZCONVERSATIONID'):
         extra_join_thread = ' OR (M.ZMESSAGETHREAD IS NULL AND M.ZBURNERID = MT.ZBURNERID AND M.ZCONVERSATIONID = MT.ZCONVERSATIONID)'
-    elif does_column_exist_in_db(source_path, 'ZMESSAGE', 'M.ZCONTACTID'):
+    elif does_column_exist_in_db(source_path, 'ZMESSAGE', 'ZCONTACTID'):
         extra_join_thread = ' OR (M.ZMESSAGETHREAD IS NULL AND M.ZBURNERID = MT.ZBURNERID AND coalesce(M.ZCONTACTID, M.ZCONTACTPHONENUMBER) = MT.ZCONTACTPHONENUMBER)'
     else:
         extra_join_thread = ''
