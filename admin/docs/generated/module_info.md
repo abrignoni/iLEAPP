@@ -12,10 +12,10 @@ Total number of artifacts: 570
 Number of v1 artifacts: 0  
 Number of v2 artifacts: 570  
 Number of artifacts with 'lava output': 561  
-Number of artifacts using 'artifact_icon': 448  
-Number of artifacts using 'version': 104  
-Number of artifacts using 'last_update_date': 464  
-Number of artifacts using context parameter: 394  
+Number of artifacts using 'artifact_icon': 450  
+Number of artifacts using 'version': 102  
+Number of artifacts using 'last_update_date': 466  
+Number of artifacts using context parameter: 396  
 Number of artifacts with errors or no recognized artifacts: 2  
 
 ## V2 Artifacts Table
@@ -283,8 +283,8 @@ Number of artifacts with errors or no recognized artifacts: 2
 | [deviceActivator.py](/scripts/artifacts/deviceActivator.py) | deviceActivator | iOS Device Activator Data | Device Information | standard | Yes |  |  | 2025-11-21 | Extracts device information from activation data | ``*/mobile/Library/Logs/mobileactivationd/ucrt_oob_request.txt`` |
 | [deviceDatam.py](/scripts/artifacts/deviceDatam.py) | deviceDatam | Device Data | Device Information | standard | No |  | 1.0 |  | Device identifiers and phone number information | ``*wireless/Library/Preferences/com.apple.commcenter.device_specific_nobackup.plist`` |
 | [deviceName.py](/scripts/artifacts/deviceName.py) | deviceName | Device Name | Identifiers | none | No |  | 1.0 |  | Extracts the device name from data_ark.plist | ``*/root/Library/Lockdown/data_ark.plist`` |
-| [dhcphp.py](/scripts/artifacts/dhcphp.py) | dhcpHotspotClients | DHCP Hotspot Clients | DHCP | standard | No |  | 1.0 |  | Information about devices that connected to the hotspot | ``*/db/dhcpd_leases*`` |
-| [dhcpl.py](/scripts/artifacts/dhcpl.py) | dhcpLeases | DHCP Received List | DHCP | standard | No |  | 1.0 |  | DHCP client lease information | ``*/db/dhcpclient/leases/en*`` |
+| [dhcphp.py](/scripts/artifacts/dhcphp.py) | dhcpHotspotClients | DHCP Hotspot Clients | DHCP | standard | Yes | wifi |  | 2026-06-24 | Information about devices that connected to the hotspot | ``*/db/dhcpd_leases*`` |
+| [dhcpl.py](/scripts/artifacts/dhcpl.py) | dhcpLeases | DHCP Received List | DHCP | standard | Yes | wifi |  | 2026-06-24 | DHCP client lease information | ``*/db/dhcpclient/leases/en*`` |
 | [discordAcct.py](/scripts/artifacts/discordAcct.py) | get_discordAcct | Discord - Account | Discord | standard | Yes |  |  |  | Parses Discord accounts | ``*/mobile/Containers/Data/Application/*/Documents/mmkv/mmkv.default`` |
 | [discordChats.py](/scripts/artifacts/discordChats.py) | discordChats | Discord - Chats | Discord | standard | Yes | message-circle |  | 2026-06-18 | Parses Discord chat messages from fsCachedData and the local KV storage database | ``*/activation_record.plist``, ``*/com.hammerandchisel.discord/fsCachedData/*``, ``*/Library/Caches/kv-storage/@account*/a*``, ``*/Library/Caches/com.hackemist.SDImageCache/default/*`` |
 | [discord_a.py](/scripts/artifacts/discord_a.py) | DiscordChatsA | Discord Chats (KV Storage) | Discord | standard | No | message-circle |  |  | Parses Discord chats from "a" database | ``*/Library/Caches/kv-storage/@account*/a*`` |
