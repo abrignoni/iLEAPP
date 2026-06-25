@@ -25,7 +25,7 @@ def celWireless(context):
         if basename in ["com.apple.commcenter.device_specific_nobackup.plist", "com.apple.commcenter.plist"]:
             plist = get_plist_file_content(filepath)
             for key, val in plist.items():
-                data_list.append((key, str(val), filepath))
+                data_list.append((key, str(val), context.get_relative_path(filepath)))
                 if key == "ReportedPhoneNumber":
                     device_info("Cellular", "Reported Phone Number", val, filepath)
                 elif key == "CDMANetworkPhoneNumberICCID":

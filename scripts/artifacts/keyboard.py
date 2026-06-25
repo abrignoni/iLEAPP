@@ -113,7 +113,7 @@ def keyboardUsageStats(context):
             for row in cursor.fetchall():
                 create_ts = convert_ts_human_to_utc(row[0])
                 update_ts = convert_ts_human_to_utc(row[1])
-                data_list.append((create_ts, update_ts, row[2], row[3], file_found))
+                data_list.append((create_ts, update_ts, row[2], row[3], context.get_relative_path(file_found)))
     
     data_headers = (('Creation Date', 'datetime'), ('Last Update Date', 'datetime'), 'Key', 'Data Value', 'Source File')
     return data_headers, data_list, 'See source paths in data'

@@ -67,7 +67,7 @@ def vippsContacts(context):
                     name=f"{contact_id}_profile"
                 )
 
-            data_list.append((thumb_id, name, phonenumbers, source_path))
+            data_list.append((thumb_id, name, phonenumbers, context.get_relative_path(source_path)))
 
     data_headers = (
         ('Profile Image', 'media'),

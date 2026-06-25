@@ -66,7 +66,7 @@ def get_zangichats(context):  # your def variable should match what you have aft
                         row[3],
                         row[4],
                         row[5],
-                        file_found
+                        context.get_relative_path(file_found)
                         ))
             db.close()
         else:

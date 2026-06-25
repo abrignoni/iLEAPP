@@ -310,7 +310,7 @@ def tiktok_replied(context):
                 record[16],
                 record[17],
                 account_id,
-                source_file,
+                context.get_relative_path(source_file),
             ))
 
     data_headers = (

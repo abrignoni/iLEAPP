@@ -405,7 +405,7 @@ def zalo_messages(context):
                     if message in [None, "", " "]:
                         message = f"geo:{latitude},{longitude}"
 
-            data_list.append([message_date, chat_name, sender_id, sender_name, msg_type, print_type, message, attach_file, latitude, longitude, outgoing, isgroup, source_file])
+            data_list.append([message_date, chat_name, sender_id, sender_name, msg_type, print_type, message, attach_file, latitude, longitude, outgoing, isgroup, context.get_relative_path(source_file)])
 
     data_headers = (('Timestamp', 'datetime'), "Chat Name", "Sender-ID", "Sender", "Type ID", "Message Type", "Message", ('Attachment File', 'media'), "Latitude", "Longitude", "Outgoing", "Group Chat", "Source File")
 

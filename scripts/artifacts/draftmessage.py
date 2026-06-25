@@ -43,6 +43,6 @@ def get_draftmessage(context):
         
         pl = get_plist_file_content(file_found)
         deserialized_plist = nd.deserialize_plist_from_string(pl['text'])
-        data_list.append((modifiedtime, directoryname, deserialized_plist.get('NSString', ''), file_found))
+        data_list.append((modifiedtime, directoryname, deserialized_plist.get('NSString', ''), context.get_relative_path(file_found)))
     
     return data_headers, data_list, 'see Source File for more info'

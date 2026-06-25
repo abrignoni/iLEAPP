@@ -103,7 +103,7 @@ def appleWifiKnownNetworks(context):
 
                 data_list.append([ssid, bssid, net_usage, country_code, device_name, manufacturer, 
                                     serial_number, model_name, enabled, carplay, hidden, captive_network, 
-                                    user_portal_url, '', '', file_found])
+                                    user_portal_url, '', '', context.get_relative_path(file_found)])
 
         if 'com.apple.wifi.known-networks.plist' in file_found:
             for _, known_network in deserialized.items():
@@ -122,7 +122,7 @@ def appleWifiKnownNetworks(context):
                 user_portal_url = captive_profile.get('UserPortalURL', '')
 
                 data_list.append([ssid, bssid, net_usage, '', '', '', '', '', '', carplay, hidden, 
-                                    captive_network, user_portal_url, add_reason, bundle, file_found])
+                                    captive_network, user_portal_url, add_reason, bundle, context.get_relative_path(file_found)])
 
     data_headers = ('SSID', 'BSSID', 'Network Usage', 'Country Code', 'Device Name', 'Manufacturer', 
                     'Serial Number', 'Model Name', 'Enabled', 'Carplay Network', 'Hidden', 
@@ -150,7 +150,7 @@ def appleWifiKnownNetworksTimes(context):
                 wnpmd = convert_plist_date_to_utc(known_network.get('WiFiNetworkPasswordModificationDate', ''))
                 prev_joined = convert_plist_date_to_utc(known_network.get('prevJoined', ''))
 
-                data_list.append([ssid, bssid, last_updated, last_auto_joined, last_joined, '', '', wnpmd, '', '', '', '', prev_joined, file_found])
+                data_list.append([ssid, bssid, last_updated, last_auto_joined, last_joined, '', '', wnpmd, '', '', '', '', prev_joined, context.get_relative_path(file_found)])
 
         if 'com.apple.wifi.known-networks.plist' in file_found:
             for _, known_network in deserialized.items():
@@ -172,7 +172,7 @@ def appleWifiKnownNetworksTimes(context):
 
                 data_list.append([ssid, bssid, last_updated, '', '', system_joined, user_joined, wnpmd, 
                                     last_discovered, added_at, whitelisted_probe_date, captive_web_sheet_login_date, 
-                                    prev_joined, file_found])
+                                    prev_joined, context.get_relative_path(file_found)])
 
     data_headers = ('SSID', 'BSSID', ('Last Updated', 'datetime'), ('Last Auto Joined', 'datetime'), 
                     ('Last Joined', 'datetime'), ('System Joined', 'datetime'), ('User Joined', 'datetime'),
@@ -212,7 +212,7 @@ def appleWifiScannedPrivate(context):
                 data_list.append([last_updated, added_at, last_joined, link_down_timestamp,
                                     mac_generation_timestamp, first_join_with_new_mac_timestamp,
                                     ssid, bssid, private_mac_in_use, private_mac_value, private_mac_valid, 
-                                    in_known_networks, file_found])
+                                    in_known_networks, context.get_relative_path(file_found)])
 
     data_headers = (('Last Updated', 'datetime'), ('Added At', 'datetime'), 
                     ('Last Joined', 'datetime'), ('Link Down Timestamp', 'datetime'),
@@ -249,7 +249,7 @@ def appleWifiBSSList(context):
                     data_list.append([
                         ssid, bssid, channel_flags, channel, last_associated_at,
                         location_accuracy, location_timestamp, location_latitude, location_longitude,
-                        file_found
+                        context.get_relative_path(file_found)
                     ])
 
         if 'List of known networks' in deserialized:
@@ -265,7 +265,7 @@ def appleWifiBSSList(context):
                     data_list.append([
                         ssid, bssid, channel_flags, channel, last_roamed,
                         '', '', '', '',
-                        file_found
+                        context.get_relative_path(file_found)
                     ])
 
     data_headers = (

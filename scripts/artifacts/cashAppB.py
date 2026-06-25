@@ -149,7 +149,7 @@ def get_cashAppB(context):
                                   role, howmuch, currency, note, region, dunits, url, cardbrand,
                                   suffix, displayname, displayinstrument, instrumenttype, transactionid,
                                   token, receipt, state, createdat, capturedat, reachedcustomerat, 
-                                  paidoutat, depositedat, displaydate, file_found))
+                                  paidoutat, depositedat, displaydate, context.get_relative_path(file_found)))
         
     data_headers = (('Timestamp', 'datetime'), 'Customer Token', 'Name', 'Username', 'ID', 'Full Name',
                     'Role', 'Amount', 'Currency', 'Note', 'Region', 'Units', 'URL', 'Card Brand',
