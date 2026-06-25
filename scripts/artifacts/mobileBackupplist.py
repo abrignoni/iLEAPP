@@ -17,6 +17,7 @@ __artifacts_v2__ = {
     }
 }
 
+import json
 import plistlib
 from datetime import datetime
 
@@ -64,6 +65,9 @@ def mobilebackupplist(context):
                         value = value.strftime('%Y-%m-%d %H:%M:%S')
                     elif isinstance(value, bytes):
                         value = value.hex()
+                    elif isinstance(value, (dict, list)):
+                        # default=str handles nested datetimes/bytes that LAVA's json.dumps cannot.
+                        value = json.dumps(value, default=str)
                     data_list.append((key, value))
 
     return data_headers, data_list, context.get_relative_path(source_path)
