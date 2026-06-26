@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "category": "Location",
         "notes": "",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.com.apple.weather.plist',),
-        "output_types": "standard",
+        "output_types": "all",
         "artifact_icon": "sun"
     }
 }

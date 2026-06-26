@@ -12,7 +12,7 @@ __artifacts_v2__ = {
             '*/mobile/Containers/Shared/AppGroup/*/ThreemaData.sqlite*',
             '*/mobile/Containers/Shared/AppGroup/*/.ThreemaData_SUPPORT/_EXTERNAL_DATA/*',
         ),
-        'output_types': 'standard',
+        'output_types': 'all',
         'artifact_icon': 'message-square',
         'data_views': {
             'conversation': {

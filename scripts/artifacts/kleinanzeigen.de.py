@@ -59,7 +59,7 @@ __artifacts_v2__ = {
         "category": "Kleinanzeigen.de",
         "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Private Documents/.last_search_query', ),
-        "output_types": "standard",
+        "output_types": "all",
         "artifact_icon": "search"
     }
 }
