@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "telegramMessages": {
         "name": "Telegram Messages",
-        "description": "Parses Telegram messages, including text, media, and forwarding information from the local cache database.",
+        "description": "Parses Telegram messages, including text, media, and forwarding information from the local cache database. The Chat/Chat ID columns identify the conversation; Author ID is the sender of each individual message. On Outgoing messages the Author ID is the account owner, so the device owner's Telegram user ID can be identified from any Outgoing message's Author ID.",
         "author": "Stek29 / Victor Oreshkin, updated by @AlexisBrignoni, @JamesHabben",
         "creation_date": "2023-05-01", # Placeholder, original date unknown
         "last_update_date": "2026-06-25",
@@ -43,10 +43,10 @@ def telegramMessages(context):
         'Direction',
         'Author ID',
         'Text',
-        ('Forward Timestamp', 'datetime'),
-        'Forward From',
         'Action Data',
-        ('Thumbnail', 'media')
+        ('Thumbnail', 'media'),
+        'Forward From',
+        ('Forward Timestamp', 'datetime'),
     ]
     report_file_path = 'Unknown'
 
@@ -278,13 +278,13 @@ def telegramMessages(context):
     def peer_str(peerId, con_param, cache_param): # Added con_param, cache_param
         peer = get_peer(peerId, con_param, cache_param)
         if peer is None:
-            return f"unknown peer {peerId}"
+            return f"Unknown ({peerId})"
         if 'fn' in peer: # Check if 'fn' key exists
             peerName = f"{peer.get('fn', '')} {peer.get('ln', '')}".strip()
         elif 't' in peer: # Check if 't' key exists
             peerName = peer.get('t', '')
         else:
-            peerName = 'WARN: UNK NAME'
+            peerName = 'Unknown'
         un_val = peer.get('un', '')
         return f"{peerName} (@{un_val} {peerId})" if un_val else f"{peerName} ({peerId})"
 
@@ -431,7 +431,7 @@ def telegramMessages(context):
                     
         text_content = msg_data.get('text', '')
         
-        return (ts, chat_str, chat_id, thread_id, direction, author_id_str, text_content, forward_date_obj, forward_from_str, final_action_data_text, media_item_ref_id)
+        return (ts, chat_str, chat_id, thread_id, direction, author_id_str, text_content, final_action_data_text, media_item_ref_id, forward_from_str, forward_date_obj)
                        
     def read_intermediate_fwd_info(buf): # No changes needed here, uses buf directly
         infoFlags = FwdInfoFlags(buf.read_int8())
