@@ -1,7 +1,14 @@
+""" telegramMessages """
 __artifacts_v2__ = {
     "telegramMessages": {
         "name": "Telegram Messages",
-        "description": "Parses Telegram messages, including text, media, and forwarding information from the local cache database. The Chat/Chat ID columns identify the conversation; the Author/Author ID columns identify the sender of each individual message. On Outgoing messages the Author ID is the account owner's user id, so the device owner's Telegram id can be identified from any Outgoing message.",
+        "description": (
+            "Parses Telegram messages, including text, media, and forwarding information "
+            "from the local cache database. The Chat/Chat ID columns identify the conversation; "
+            "the Author/Author ID columns identify the sender of each individual message. On "
+            "Outgoing messages the Author ID is the account owner's user id, so the device "
+            "owner's Telegram id can be identified from any Outgoing message."
+        ),
         "author": "Stek29 / Victor Oreshkin, updated by @AlexisBrignoni, @JamesHabben",
         "creation_date": "2023-05-01", # Placeholder, original date unknown
         "last_update_date": "2026-06-25",
@@ -14,18 +21,31 @@ __artifacts_v2__ = {
             '*/telegram-data/account-*/postbox/db/db_sqlite*',
             '*/telegram-data/account-*/postbox/media/**'
         ),
-        "output_types": "standard"
+        "output_types": "standard",
+        "data_views": {
+            "conversation": {
+                "conversationDiscriminatorColumn": "Chat ID",
+                "conversationLabelColumn": "Chat",
+                "textColumn": "Text",
+                "directionColumn": "Direction",
+                "directionSentValue": "Outgoing",
+                "timeColumn": "Timestamp",
+                "senderColumn": "Author",
+                "sentMessageLabelColumn": "Author",
+                "mediaColumn": "Thumbnail"
+            }
+        }
     }
 }
 
 
+import datetime
+import os
 import sqlite3
 import io
 import struct
 import enum
 import mmh3
-import datetime
-import os
 
 from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, check_in_media, logfunc
 
@@ -35,6 +55,7 @@ from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, check
 
 @artifact_processor
 def telegramMessages(context):
+    """ see artifact description """
     data_headers = [
         ('Timestamp', 'datetime'),
         'Chat',
@@ -52,7 +73,7 @@ def telegramMessages(context):
     report_file_path = 'Unknown'
 
     data_list = []
-    
+
     # Initialize caches here to avoid mutable default argument issues
     # These caches will be passed to helper functions
     peer_cache_global = {}
@@ -62,51 +83,52 @@ def telegramMessages(context):
     # These are self-contained and should not need modification for this refactor.
     # Ensure they are defined within or accessible to telegramMessages if they weren't top-level already.
     # They are defined at the module level in the original script, so they are accessible.
-    # (Definitions of byteutil, enums, MessageIndex, PostboxDecoder, Decodeable, and specific media classes follow)
+    # (Definitions of byteutil, enums, MessageIndex, PostboxDecoder,
+    # Decodeable, and specific media classes follow)
 
     class byteutil:
         def __init__(self, buffer, endian='<'):
             self.endian = endian
             self.buf = buffer
-            
+
         def read_fmt(self, fmt):
             fmt = self.endian + fmt
             data = self.buf.read(struct.calcsize(fmt))
             return struct.unpack(fmt, data)[0]
-        
+
         def read_int8(self):
             return self.read_fmt('b')
         def read_uint8(self):
             return self.read_fmt('B')
-        
+
         def read_int32(self):
             return self.read_fmt('i')
         def read_uint32(self):
             return self.read_fmt('I')
-        
+
         def read_int64(self):
             return self.read_fmt('q')
         def read_uint64(self):
             return self.read_fmt('Q')
-        
+
         def read_bytes(self):
             slen = self.read_int32()
             return self.buf.read(slen)
         def read_str(self):
             return self.read_bytes().decode('utf-8')
-        
+
         def read_short_bytes(self):
             slen = self.read_uint8()
             return self.buf.read(slen)
         def read_short_str(self):
             return self.read_short_bytes().decode('utf-8')
-        
+
         def read_double(self):
             return self.read_fmt('d')
-                  
+
     def murmur(d):
         return mmh3.hash(d, seed=4157243346)
-            
+
     class MessageDataFlags(enum.IntFlag):
         GloballyUniqueId = 1 << 0
         GlobalTags = 1 << 1
@@ -114,14 +136,14 @@ def telegramMessages(context):
         GroupInfo = 1 << 3
         LocalTags = 1 << 4
         ThreadId = 1 << 5
-        
+
     class FwdInfoFlags(enum.IntFlag):
         SourceId = 1 << 1
         SourceMessage = 1 << 2
         Signature = 1 << 3
         PsaType = 1 << 4
         Flags = 1 << 5
-        
+
     class MessageFlags(enum.IntFlag):
         Unsent = 1
         Failed = 2
@@ -131,7 +153,7 @@ def telegramMessages(context):
         CanBeGroupedIntoFeed = 64
         WasScheduled = 128
         CountedAsIncoming = 256
-        
+
     class MessageTags(enum.IntFlag):
         PhotoOrVideo = 1 << 0
         File = 1 << 1
@@ -144,14 +166,14 @@ def telegramMessages(context):
         Photo = 1 << 8
         Video = 1 << 9
         Pinned = 1 << 10
-                  
+
     class MessageIndex:
         def __init__(self, peerId, namespace, mid, timestamp):
             self.peerId = peerId
             self.namespace = namespace
             self.id = mid
             self.timestamp = timestamp
-            
+
         @classmethod
         def from_bytes(cls, b):
             bio = byteutil(io.BytesIO(b), endian='>')
@@ -160,18 +182,18 @@ def telegramMessages(context):
             timestamp = bio.read_int32()
             mid = bio.read_int32()
             return cls(peerId, namespace, mid, timestamp)
-        
+
         def as_bytes(self):
             return struct.pack('>qiii', self.peerId, self.namespace, self.timestamp, self.id)
-        
+
         def __repr__(self):
             return f'ns:{self.namespace} pr:{self.peerId} id:{self.id} ts:{self.timestamp}'
-                    
+
     # Helper functions now take `con` and caches explicitly
     def get_peer(peer_id, con, cache):
         if peer_id in cache:
             return cache[peer_id]
-        cur = con.cursor() 
+        cur = con.cursor()
         try:
             cur.execute("SELECT value FROM t2 WHERE key = ? ORDER BY key LIMIT 1", (peer_id,))
             v = cur.fetchone()
@@ -183,53 +205,54 @@ def telegramMessages(context):
             return data
         finally:
             cur.close()
-            
-    def get_ref_media(ns, mid, con, cache, message_idx_for_ref_lookup): # Added message_idx for context in read_media_entry
+
+    def get_ref_media(ns, mid, con, cache, message_idx_for_ref_lookup):
+        # Added message_idx for context in read_media_entry
         key = (ns, mid)
         if key in cache:
             return cache[key]
         rawKey = struct.pack('>iq', ns, mid)
-        
-        cur = con.cursor() 
+
+        cur = con.cursor()
         try:
             cur.execute("SELECT value FROM t6 WHERE key = ? ORDER BY key LIMIT 1", (rawKey,))
             v = cur.fetchone()
             if v is None:
                 cache[key] = None
                 return None
-            
+
             data_bytes = v[0]
             bio = byteutil(io.BytesIO(data_bytes))
             # Pass con and caches down if read_media_entry needs them for get_message
-            media_data = read_media_entry(key, bio, con, cache, message_idx_for_ref_lookup) 
+            media_data = read_media_entry(key, bio, con, cache, message_idx_for_ref_lookup)
             cache[key] = media_data
             # refcnt = bio.read_int32() # refcnt not used elsewhere
             return media_data
         finally:
             cur.close()
-            
+
     def get_message(idx: MessageIndex, con_param):
-        cur = con_param.cursor() 
+        cur = con_param.cursor()
         try:
             cur.execute("SELECT value FROM t7 WHERE key = ? ORDER BY key LIMIT 1", (idx.as_bytes(),))
             v = cur.fetchone()
             if v is None:
                 return None
             # Pass con_param to read_intermediate_message if it needs it for PostboxDecoder or further calls
-            return read_intermediate_message(v[0], con_param) 
+            return read_intermediate_message(v[0], con_param)
         finally:
-            cur.close()                
-            
+            cur.close()
+
     def get_all_messages(con_param, f=None, decode=True):
         cur = con_param.cursor()
         try:
             cur.execute("SELECT key, value FROM t7 ORDER BY key")
             for key, value in cur:
                 idx = MessageIndex.from_bytes(key)
-                
+
                 if f is not None and not f(idx):
                     continue
-                
+
                 if decode:
                     # Pass con_param to read_intermediate_message
                     msg = read_intermediate_message(value, con_param)
@@ -238,12 +261,13 @@ def telegramMessages(context):
                 yield idx, msg
         finally:
             cur.close()
-                          
+
     class MediaEntryType(enum.Enum):
         Direct = 0
         MessageReference = 1
-        
-    def read_media_entry(key, bio, con_param, _media_cache_param, message_idx_param): # _media_cache_param kept for signature symmetry
+
+    def read_media_entry(key, bio, con_param, _media_cache_param, message_idx_param):
+        # _media_cache_param kept for signature symmetry
         typ = MediaEntryType(bio.read_uint8())
         if typ == MediaEntryType.Direct:
             data_bytes = bio.read_bytes()
@@ -263,7 +287,8 @@ def telegramMessages(context):
                     if hasattr(m_item, 'mediaId') and m_item.mediaId == key:
                         return m_item
             # If not found in primary message, use the passed message_idx_param as context
-            # This part is complex, original code used message_idx (from get_ref_media context) implicitly for exception
+            # This part is complex, original code used message_idx (from get_ref_media context)
+            # implicitly for exception
             # Let's try to find it in the original message context if not in the direct reference message
             if message_idx_param:
                 msg_orig_context = get_message(message_idx_param, con_param)
@@ -272,10 +297,13 @@ def telegramMessages(context):
                         if hasattr(m_item_orig, 'mediaId') and m_item_orig.mediaId == key:
                             return m_item_orig
 
-            raise ValueError(f'Referenced media {key} not found in message {idx_ref} or original context {message_idx_param}')
+            raise ValueError(
+                f'Referenced media {key} not found in message {idx_ref} or '
+                f'original context {message_idx_param}'
+            )
         else:
             raise ValueError(f'Invalid mediaentrytype {typ}')
-                               
+
     def peer_str(peerId, con_param, cache_param): # Added con_param, cache_param
         peer = get_peer(peerId, con_param, cache_param)
         if peer is None:
@@ -293,25 +321,45 @@ def telegramMessages(context):
         text_for_report = ''
         searchable_filename = None
 
-        if isinstance(m, TelegramMediaFile) and hasattr(m, 'resource') and isinstance(m.resource, CloudDocumentMediaResource):
+        if (
+            isinstance(m, TelegramMediaFile)
+            and hasattr(m, 'resource')
+            and isinstance(m.resource, CloudDocumentMediaResource)
+        ):
             res = m.resource
             file_name_attr = getattr(res, 'fileName', 'N/A')
             mime_type_attr = getattr(m, 'mimeType', 'N/A')
             unique_id_attr = getattr(res, 'uniqueId', 'N/A')
-            text_for_report = f"File: {file_name_attr} (MIME: {mime_type_attr}, ID: {unique_id_attr})"
-            
+            text_for_report = (
+                f"File: {file_name_attr} "
+                f"(MIME: {mime_type_attr}, ID: {unique_id_attr})"
+            )
+
             searchable_filename = unique_id_attr
-            if not searchable_filename and file_name_attr != 'N/A': 
+            if not searchable_filename and file_name_attr != 'N/A':
                 searchable_filename = file_name_attr
 
         elif isinstance(m, TelegramMediaImage) and hasattr(m, 'representations'):
-            reps = [rep for rep in m.representations if isinstance(rep, TelegramMediaImageRepresentation) and hasattr(rep, 'resource')]
-            reps.sort(key=lambda x: getattr(x, 'height', 0) * getattr(x, 'width', 0), reverse=True)
-            if reps and hasattr(reps[0], 'resource') and isinstance(reps[0].resource, CloudPhotoSizeMediaResource):
+            reps = [
+                rep for rep in m.representations
+                if (
+                    isinstance(rep, TelegramMediaImageRepresentation)
+                    and hasattr(rep, 'resource')
+                )
+            ]
+            reps.sort(
+                key=lambda x: getattr(x, 'height', 0) * getattr(x, 'width', 0),
+                reverse=True
+            )
+            if (
+                reps
+                and hasattr(reps[0], 'resource')
+                and isinstance(reps[0].resource, CloudPhotoSizeMediaResource)
+            ):
                 res = reps[0].resource
                 unique_id_attr = getattr(res, 'uniqueId', 'N/A')
                 text_for_report = f"Image: ID {unique_id_attr}"
-                searchable_filename = unique_id_attr 
+                searchable_filename = unique_id_attr
             else:
                 text_for_report = "Image: Malformed representation or resource"
 
@@ -327,12 +375,12 @@ def telegramMessages(context):
             lon = m.get('lo')
             location_type_str = "Location"
             # Format coords to a reasonable number of decimal places
-            details = [f"Lat: {lat}", f"Lon: {lon}"] 
+            details = [f"Lat: {lat}", f"Lon: {lon}"]
 
             heading = m.get('hdg')
             accuracy = m.get('acc')
             period_bt = m.get('bt') # Likely the 'period' for live locations
-            
+
             # Fields often found in venue/static locations
             venue_title = m.get('venue_title') # Key based on common Telegram structures
             venue_address = m.get('address')   # Key based on common Telegram structures
@@ -341,7 +389,8 @@ def telegramMessages(context):
 
 
             # Differentiate based on presence of fields common in live locations vs static/venue
-            if period_bt is not None or heading is not None: # 'period' (bt) or 'heading' are good indicators of dynamic/live location
+            # 'period' (bt) or 'heading' are good indicators of dynamic/live location
+            if period_bt is not None or heading is not None:
                 location_type_str = "Dynamic Location Update"
                 if heading is not None:
                     details.append(f"Hdg: {heading}°")
@@ -370,7 +419,7 @@ def telegramMessages(context):
             text_for_report = f"Media: Type {type(m).__name__}, content {str(m)[:100]}"
 
         return {'text_for_report': text_for_report, 'identifier_for_file_search': searchable_filename}
-    
+
     def process_message_for_report(idx, msg_data, con_param, peer_cache_param, media_cache_param,
                                    files_found_param_main):
         direction = 'Incoming' if MessageFlags.Incoming in msg_data['flags'] else 'Outgoing'
@@ -381,25 +430,31 @@ def telegramMessages(context):
         thread_id = msg_data.get('threadId')
         if thread_id is None:
             thread_id = ''
-        author_id_str = peer_str(msg_data['authorId'], con_param, peer_cache_param) if msg_data.get('authorId') else "N/A"
+        author_id_str = (
+            peer_str(msg_data['authorId'], con_param, peer_cache_param)
+            if msg_data.get('authorId') else "N/A"
+        )
         author_id_num = msg_data.get('authorId') or ''   # raw numeric sender user id (blank if absent)
-        
+
         fwd_info = msg_data.get('fwd')
         forward_date_obj = ''
         forward_from_str = ''
         if fwd_info:
             forward_date_obj = datetime.datetime.fromtimestamp(fwd_info['date'], tz=datetime.timezone.utc)
-            forward_from_str = peer_str(fwd_info.get('author'), con_param, peer_cache_param) if fwd_info.get('author') else "N/A"
-            
+            forward_from_str = (
+                peer_str(fwd_info.get('author'), con_param, peer_cache_param)
+                if fwd_info.get('author') else "N/A"
+            )
+
         action_data_parts = []
         primary_media_search_id = None
-        
+
         for m_emb in msg_data.get('embeddedMedia', []):
             details = print_media_info(m_emb)
             action_data_parts.append(details['text_for_report'])
             if details['identifier_for_file_search'] and not primary_media_search_id:
                 primary_media_search_id = details['identifier_for_file_search']
-        
+
         for mref_id_tuple in msg_data.get("referencedMediaIds", []):
             m_ref = get_ref_media(mref_id_tuple[0], mref_id_tuple[1], con_param, media_cache_param, idx)
             if m_ref:
@@ -408,45 +463,57 @@ def telegramMessages(context):
                 if details['identifier_for_file_search'] and not primary_media_search_id:
                     primary_media_search_id = details['identifier_for_file_search']
             else:
-                action_data_parts.append(f"Referenced media not found: ns={mref_id_tuple[0]}, id={mref_id_tuple[1]}")
+                action_data_parts.append(
+                    f"Referenced media not found: ns={mref_id_tuple[0]}, "
+                    f"id={mref_id_tuple[1]}"
+                )
 
         final_action_data_text = '; '.join(filter(None, action_data_parts))
         media_item_ref_id = ''
 
         if primary_media_search_id:
             found_media_file_path = None
-            for f_path_item in files_found_param_main: 
+            for f_path_item in files_found_param_main:
                 current_f_path_str = str(f_path_item)
-                basename_matches = os.path.basename(current_f_path_str) == primary_media_search_id
-                is_in_media_path = "/postbox/media/" in current_f_path_str
-                
+                normalized_f_path = current_f_path_str.replace('\\', '/')
+                basename_matches = normalized_f_path.rsplit('/', 1)[-1] == primary_media_search_id
+                is_in_media_path = "/postbox/media/" in normalized_f_path
+
                 if is_in_media_path and basename_matches:
                     is_file = os.path.isfile(current_f_path_str)
                     if is_file:
                         found_media_file_path = current_f_path_str
-                        break 
-            
+                        break
+
             if found_media_file_path:
                 media_item_ref_id = check_in_media(file_path=found_media_file_path)
             else:
-                logfunc(f"INFO: No valid media file found for primary_media_search_id = '{primary_media_search_id}' after checking all files_found.")
-                    
+                logfunc(
+                    "INFO: No valid media file found for "
+                    f"primary_media_search_id = '{primary_media_search_id}' "
+                    "after checking all files_found."
+                )
+
         text_content = msg_data.get('text', '')
-        
-        return (ts, chat_str, chat_id, thread_id, direction, author_id_str, author_id_num, text_content, final_action_data_text, media_item_ref_id, forward_from_str, forward_date_obj)
-                       
+
+        return (
+            ts, chat_str, chat_id, thread_id, direction, author_id_str,
+            author_id_num, text_content, final_action_data_text,
+            media_item_ref_id, forward_from_str, forward_date_obj
+        )
+
     def read_intermediate_fwd_info(buf): # No changes needed here, uses buf directly
         infoFlags = FwdInfoFlags(buf.read_int8())
         if infoFlags == 0:
             return None
-        
+
         authorId = buf.read_int64()
         date = buf.read_int32()
-        
+
         sourceId = None
         if FwdInfoFlags.SourceId in infoFlags:
             sourceId = buf.read_int64()
-            
+
         sourceMessagePeerId = None
         sourceMessageNamespace = None
         sourceMessageIdId = None
@@ -454,19 +521,19 @@ def telegramMessages(context):
             sourceMessagePeerId = buf.read_int64()
             sourceMessageNamespace = buf.read_int32()
             sourceMessageIdId = buf.read_int32()
-            
+
         signature = None
         if FwdInfoFlags.Signature in infoFlags:
             signature = buf.read_str()
-            
+
         psaType = None
         if FwdInfoFlags.PsaType in infoFlags:
             psaType = buf.read_str()
-            
+
         flags = None
         if FwdInfoFlags.Flags in infoFlags:
             flags = buf.read_int32()
-            
+
         return {
             'author': authorId,
             'date': date,
@@ -478,85 +545,86 @@ def telegramMessages(context):
             'psaType': psaType,
             'flags': flags,
         }
-           
-    def read_intermediate_message(v: bytes, _con_param): # _con_param kept for signature symmetry (PostboxDecoder calls are self-contained)
+
+    # _con_param kept for signature symmetry; PostboxDecoder calls are self-contained.
+    def read_intermediate_message(v: bytes, _con_param):
         buf = byteutil(io.BytesIO(v))
         typ = buf.read_int8()
         if typ != 0:
             # print(f'wtf, type not 0 but {typ}') # Keep prints for debugging if necessary
             return None
-        
+
         # stableId = buf.read_uint32() # Not used
         # stableVer = buf.read_uint32() # Not used
         buf.read_uint32() # stableId
         buf.read_uint32() # stableVer
 
         dataFlags = MessageDataFlags(buf.read_uint8())
-        
+
         # globallyUniqueId = None # Not used
         if MessageDataFlags.GloballyUniqueId in dataFlags:
             # globallyUniqueId = buf.read_int64()
             buf.read_int64()
-            
+
         # globalTags = None # Not used
         if MessageDataFlags.GlobalTags in dataFlags:
             # globalTags = buf.read_uint32()
             buf.read_uint32()
-            
+
         # groupingKey = None # Not used
         if MessageDataFlags.GroupingKey in dataFlags:
             # groupingKey = buf.read_int64()
             buf.read_int64()
-            
+
         # groupInfoStableId = None # Not used
         if MessageDataFlags.GroupInfo in dataFlags:
             # groupInfoStableId = buf.read_uint32()
             buf.read_uint32()
-            
+
         # localTagsVal = None # Not used
         if MessageDataFlags.LocalTags in dataFlags:
             # localTagsVal = buf.read_uint32()
             buf.read_uint32()
-            
+
         threadId = None
         if MessageDataFlags.ThreadId in dataFlags:
             threadId = buf.read_int64()
-            
+
         flags = MessageFlags(buf.read_uint32())
         tags = MessageTags(buf.read_uint32())
-        
+
         fwd_info = read_intermediate_fwd_info(buf) # This function is self-contained
-        
+
         authorId = None
         hasAuthorId = buf.read_int8()
         if hasAuthorId == 1:
             authorId = buf.read_int64()
-            
+
         text = buf.read_str()
-        
+
         attributesCount = buf.read_int32()
         attributes = [None]*attributesCount
         for i in range(attributesCount):
             # Pass con_param to PostboxDecoder if it needs it, assumed not for now
-            attributes[i] = PostboxDecoder(buf.read_bytes()).decodeRootObject() 
-            
+            attributes[i] = PostboxDecoder(buf.read_bytes()).decodeRootObject()
+
         embeddedMediaCount = buf.read_int32()
         embeddedMedia = [None]*embeddedMediaCount
         for i in range(embeddedMediaCount):
             # Pass con_param to PostboxDecoder if it needs it
             embeddedMedia[i] = PostboxDecoder(buf.read_bytes()).decodeRootObject()
-            
+
         referencedMediaIds = []
         referencedMediaIdsCount = buf.read_int32()
         for _ in range(referencedMediaIdsCount):
             idNamespace = buf.read_int32()
             idId = buf.read_int64()
             referencedMediaIds.append((idNamespace, idId))
-            
+
         # leftover = buf.buf.read() # Not used
         # if leftover != b'':
         #     print('huh, y no empty', leftover)
-            
+
         return {
             'flags': flags,
             'tags': tags,
@@ -568,15 +636,15 @@ def telegramMessages(context):
             'embeddedMedia': embeddedMedia,
             'attributes': attributes,
         }
-              
+
     class PostboxDecoder: # This class and its methods appear self-contained, no con_param needed directly
         registry = {}
-        
+
         @classmethod
         def registerDecoder(cls, t):
             cls.registry[murmur(t.__name__)] = t
             return t
-        
+
         class ValueType(enum.Enum):
             Int32 = 0
             Int64 = 1
@@ -592,20 +660,20 @@ def telegramMessages(context):
             Nil = 11
             StringArray = 12
             BytesArray = 13
-            
+
         def __init__(self, data):
             self.bio = byteutil(io.BytesIO(data), endian='<')
             self.size = len(data)
-            
+
         def decodeRootObject(self):
             return self.decodeObjectForKey('_')
-        
+
         def decodeObjectForKey(self, key):
             _, v = self.get(self.ValueType.Object, key)
             if v:
                 return v
             return None # Explicitly return None if not found or value is None
-            
+
         def get(self, valueType, key, decodeObjects=None):
             for k, t, v in self._iter_kv(decodeObjects=decodeObjects):
                 if k != key:
@@ -617,28 +685,28 @@ def telegramMessages(context):
                 elif t == self.ValueType.Nil: # If value type is Nil, return it as None
                     return t, None # Ensure None is returned for Nil actual type
             return None, None
-        
+
         def _iter_kv(self, decodeObjects=None, registry=None):
             self.bio.buf.seek(0, io.SEEK_SET)
             while True:
                 pos = self.bio.buf.tell()
                 if pos >= self.size:
                     break
-                
+
                 key = self.bio.read_short_str()
                 valueType, value = self.readValue(decodeObjects=decodeObjects, registry=registry)
                 yield key, valueType, value
-                
+
         def _readObject(self, decode=None, registry=None): # Changed registry_param back to registry
             if decode is None:
                 decode = True
             if registry is None:
                 registry = self.registry
-                
+
             typeHash = self.bio.read_int32()
             dataLen = self.bio.read_int32()
             data_bytes = self.bio.buf.read(dataLen)
-            
+
             value = None
             if not decode:
                 value = {'type': typeHash, 'data': data_bytes}
@@ -649,15 +717,15 @@ def telegramMessages(context):
                 decoder = self.__class__(data_bytes)
                 value = {k: v for k, t, v in decoder._iter_kv()}  # pylint: disable=protected-access
                 value['@type'] = typeHash
-                
+
             return value
-        
+
         def readValue(self, decodeObjects=None, registry=None):
             valueType = self.ValueType(self.bio.read_uint8())
             value = None
-            
+
             objectArgs = {'decode': decodeObjects, 'registry': registry}
-            
+
             if valueType == self.ValueType.Int32:
                 value = self.bio.read_int32()
             elif valueType == self.ValueType.Int64:
@@ -681,7 +749,10 @@ def telegramMessages(context):
                 value = [self._readObject(**objectArgs) for _ in range(alen)]
             elif valueType == self.ValueType.ObjectDictionary:
                 dlen = self.bio.read_int32()
-                value = [(self._readObject(**objectArgs), self._readObject(**objectArgs)) for _ in range(dlen)]
+                value = [
+                    (self._readObject(**objectArgs), self._readObject(**objectArgs))
+                    for _ in range(dlen)
+                ]
             elif valueType == self.ValueType.Bytes:
                 value = self.bio.read_bytes()
             elif valueType == self.ValueType.Nil:
@@ -695,7 +766,7 @@ def telegramMessages(context):
             else:
                 raise ValueError(f'unknown value type: {valueType}')
             return valueType, value
-            
+
     # Decodeable class and registered media types
     # These should also be self-contained and use the PostboxDecoder correctly.
     class Decodeable:
@@ -704,10 +775,10 @@ def telegramMessages(context):
             for field, (key, typ) in self.FIELDS.items():
                 _, val = dec.get(typ, key)
                 setattr(self, field, val)
-                
+
         def __repr__(self):
             return repr(self.__dict__)
-            
+
     @PostboxDecoder.registerDecoder
     class TelegramMediaImage(Decodeable):
         FIELDS = {
@@ -720,7 +791,7 @@ def telegramMessages(context):
             'flags': ('fl', PostboxDecoder.ValueType.Int32),
         }
         imageId_raw = None   # set per-instance by Decodeable.__init__ from FIELDS
-        
+
         def __init__(self, dec):
             super().__init__(dec)
             if hasattr(self, 'imageId_raw') and self.imageId_raw:
@@ -728,11 +799,11 @@ def telegramMessages(context):
                 self.imageId = (bio.read_int32(), bio.read_int64())
             else:
                 self.imageId = (None, None) # Default if raw bytes are missing
-            
+
         @property
         def mediaId(self):
             return self.imageId
-            
+
     @PostboxDecoder.registerDecoder
     class TelegramMediaImageRepresentation(Decodeable):
         FIELDS = {
@@ -741,7 +812,7 @@ def telegramMessages(context):
             'resource': ('r', PostboxDecoder.ValueType.Object),
             'progressiveSizes': ('ps', PostboxDecoder.ValueType.Int32Array),
         }
-        
+
     @PostboxDecoder.registerDecoder
     class CloudPhotoSizeMediaResource(Decodeable):
         FIELDS = {
@@ -752,14 +823,14 @@ def telegramMessages(context):
             'size': ('n', PostboxDecoder.ValueType.Int32),
             'fileReference': ('fr', PostboxDecoder.ValueType.Bytes)
         }
-        
+
         @property
         def uniqueId(self):
             dc_id = getattr(self, 'datacenterId', 'unk_dc')
             ph_id = getattr(self, 'photoId', 'unk_photoid')
             sz_spec = getattr(self, 'sizeSpec', 'unk_spec')
             return f"telegram-cloud-photo-size-{dc_id}-{ph_id}-{sz_spec}"
-            
+
     @PostboxDecoder.registerDecoder
     class CloudDocumentMediaResource(Decodeable):
         FIELDS = {
@@ -770,13 +841,13 @@ def telegramMessages(context):
             'fileReference': ('fr', PostboxDecoder.ValueType.Bytes),
             'fileName': ('fn', PostboxDecoder.ValueType.String)
         }
-        
+
         @property
         def uniqueId(self):
             dc_id = getattr(self, 'datacenterId', 'unk_dc')
             f_id = getattr(self, 'fileId', 'unk_fileid')
             return f"telegram-cloud-document-{dc_id}-{f_id}"
-            
+
     @PostboxDecoder.registerDecoder
     class TelegramMediaFile(Decodeable):
         FIELDS = {
@@ -784,14 +855,15 @@ def telegramMessages(context):
             'partialReference': ('prf', PostboxDecoder.ValueType.Object),
             'resource': ('r', PostboxDecoder.ValueType.Object),
             'previewRepresentations': ('pr', PostboxDecoder.ValueType.ObjectArray),
-            'videoThumbnails': ('vr', PostboxDecoder.ValueType.ObjectArray), # Was 'videoThumbnails' in original, not 'vt'
+            # Was 'videoThumbnails' in original, not 'vt'.
+            'videoThumbnails': ('vr', PostboxDecoder.ValueType.ObjectArray),
             'immediateThumbnailData': ('itd', PostboxDecoder.ValueType.Bytes),
             'mimeType': ('mt', PostboxDecoder.ValueType.String),
             'size': ('s', PostboxDecoder.ValueType.Int32),
             'attributes': ('at', PostboxDecoder.ValueType.ObjectArray)
         }
         fileId_raw = None   # set per-instance by Decodeable.__init__ from FIELDS
-        
+
         def __init__(self, dec):
             super().__init__(dec)
             if hasattr(self, 'fileId_raw') and self.fileId_raw:
@@ -803,18 +875,19 @@ def telegramMessages(context):
         @property
         def mediaId(self):
             return self.fileId
-            
+
     @PostboxDecoder.registerDecoder
     class TelegramMediaWebpage(Decodeable):
         FIELDS = {
             'webpageId_raw': ('i', PostboxDecoder.ValueType.Bytes), # Renamed
             'pendingUrl': ('pendingUrl', PostboxDecoder.ValueType.String),
             'url': ('u', PostboxDecoder.ValueType.String),
-            # Add other fields like 'content', 'author', 'title', 'description', 'photo', 'embedUrl', etc. if needed from original schema
+            # Add fields such as content, author, title, description, photo,
+            # or embedUrl if needed from the original schema.
             # For now, keeping it simple based on original FIELDS provided in context.
         }
         webpageId_raw = None   # set per-instance by Decodeable.__init__ from FIELDS
-        
+
         def __init__(self, dec):
             super().__init__(dec)
             if hasattr(self, 'webpageId_raw') and self.webpageId_raw:
@@ -822,11 +895,11 @@ def telegramMessages(context):
                 self.webpageId = (bio.read_int32(), bio.read_int64())
             else:
                 self.webpageId = (None, None)
-                
+
         @property
         def mediaId(self):
             return self.webpageId
-            
+
     @PostboxDecoder.registerDecoder
     class TelegramMediaAction:
         class Type(enum.Enum):
@@ -843,20 +916,20 @@ def telegramMessages(context):
             setChatWallpaper = 33; setSameChatWallpaper = 34; botAppAccessGranted = 35
             giftCode = 36; giveawayLaunched = 37; joinedChannel = 38; giveawayResults = 39
             boostsApplied = 40; paymentRefunded = 41; giftStars = 42; prizeStars = 43; starGift = 44
-            
+
         def __init__(self, dec):
             raw = {k: v for k, t, v in dec._iter_kv()} # Get all key-value pairs
             raw_value = raw.get('_rawValue', 0) # Safely get _rawValue
             try:
                 self.type = self.Type(raw_value)
             except ValueError:
-                # print(f"ValueError: Unknown TelegramMediaAction.Type value '{raw_value}', defaulting to 'unknown'.")
+                # Unknown action types default to unknown.
                 self.type = self.Type.unknown # Default to unknown if value is not in enum
             # Remove _rawValue if it exists, so it's not part of payload
             if '_rawValue' in raw:
                 del raw['_rawValue']
             self.payload = raw # Store the rest of the decoded fields as payload
-            
+
         def __repr__(self):
             payload_repr = ', '.join([f"{k}={v}" for k,v in self.payload.items()])
             return f"<{self.type.name} ({payload_repr if payload_repr else 'No payload'})>"
@@ -865,24 +938,24 @@ def telegramMessages(context):
     # Main processing loop for database files
     for file_found_single_path in context.get_files_found():
         file_found_single_path = str(file_found_single_path)
-        
+
         if (file_found_single_path.endswith('db_sqlite')) and ('media' not in file_found_single_path):
             report_file_path = file_found_single_path # This is the source_path for the report
-            
+
             db_connection = None
             try:
                 db_connection = open_sqlite_db_readonly(report_file_path)
-                
+
                 # Iterate over all messages using the helper
                 for idx, msg_content in get_all_messages(db_connection):
                     if msg_content: # Ensure msg_content is not None
                         processed_row = process_message_for_report(
-                            idx, msg_content, db_connection, 
+                            idx, msg_content, db_connection,
                             peer_cache_global, media_cache_global,
                             context.get_files_found() # Pass main files_found
                         )
                         data_list.append(processed_row)
-            
+
             except sqlite3.Error:
                 # print(f"SQLite error processing {report_file_path}: {e}")
                 pass # Or log error appropriately
