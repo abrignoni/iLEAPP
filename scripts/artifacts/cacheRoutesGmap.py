@@ -9,13 +9,14 @@ __artifacts_v2__ = {
         "category": "Locations",
         "notes": "",
         "paths": ('*/Library/Application Support/CachedRoutes/*.plist',),
-        "output_types": "standard",
+        "output_types": "all",
     }
 }
 
 import os
+import plistlib
 from datetime import datetime, timezone
-from scripts.ilapfuncs import artifact_processor, get_plist_file_content
+from scripts.ilapfuncs import artifact_processor
 
 @artifact_processor
 def get_cacheRoutesGmap(context):
@@ -29,7 +30,16 @@ def get_cacheRoutesGmap(context):
             continue  # filename is not a numeric (ms epoch) timestamp
         datetime_time = datetime.fromtimestamp(epoch_ms / 1000, tz=timezone.utc)
 
-        deserialized = get_plist_file_content(file_found)
+        # Read the raw archive and walk $objects ourselves. Do NOT route this
+        # through get_plist_file_content / nska_deserialize: these CachedRoutes
+        # archives contain unhashable NSDictionary keys, which makes the
+        # deserializer emit noisy "unhashable" warnings, and it strips the
+        # $objects array this artifact actually needs.
+        try:
+            with open(file_found, 'rb') as f:
+                deserialized = plistlib.load(f)
+        except (plistlib.InvalidFileException, ValueError, OSError):
+            continue
         if not isinstance(deserialized, dict):
             continue
         objects = deserialized.get('$objects')
