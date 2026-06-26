@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses Telegram messages, including text, media, and forwarding information from the local cache database.",
         "author": "Stek29 / Victor Oreshkin, updated by @AlexisBrignoni, @JamesHabben",
         "creation_date": "2023-05-01", # Placeholder, original date unknown
-        "last_update_date": "2024-07-15",
+        "last_update_date": "2026-06-25",
         "requirements": "Python packages: mmh3",
         "category": "Telegram",
         "notes": "Original Gist: https://gist.github.com/stek29/8a7ac0e673818917525ec4031d77a713. "
@@ -25,7 +25,6 @@ import struct
 import enum
 import mmh3
 import datetime
-import inspect
 import os
 
 from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, check_in_media, logfunc
@@ -38,6 +37,9 @@ from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, check
 def telegramMessages(context):
     data_headers = [
         ('Timestamp', 'datetime'),
+        'Chat',
+        'Chat ID',
+        'Thread ID',
         'Direction',
         'Author ID',
         'Text',
@@ -240,7 +242,7 @@ def telegramMessages(context):
         Direct = 0
         MessageReference = 1
         
-    def read_media_entry(key, bio, con_param, media_cache_param, message_idx_param): # Added con_param, media_cache_param, message_idx_param
+    def read_media_entry(key, bio, con_param, _media_cache_param, message_idx_param): # _media_cache_param kept for signature symmetry
         typ = MediaEntryType(bio.read_uint8())
         if typ == MediaEntryType.Direct:
             data_bytes = bio.read_bytes()
@@ -265,13 +267,13 @@ def telegramMessages(context):
             if message_idx_param:
                 msg_orig_context = get_message(message_idx_param, con_param)
                 if msg_orig_context and 'embeddedMedia' in msg_orig_context:
-                     for m_item_orig in msg_orig_context['embeddedMedia']:
+                    for m_item_orig in msg_orig_context['embeddedMedia']:
                         if hasattr(m_item_orig, 'mediaId') and m_item_orig.mediaId == key:
                             return m_item_orig
 
-            raise Exception(f'Referenced media {key} not found in message {idx_ref} or original context {message_idx_param}')
+            raise ValueError(f'Referenced media {key} not found in message {idx_ref} or original context {message_idx_param}')
         else:
-            raise Exception(f'Invalid mediaentrytype {typ}')
+            raise ValueError(f'Invalid mediaentrytype {typ}')
                                
     def peer_str(peerId, con_param, cache_param): # Added con_param, cache_param
         peer = get_peer(peerId, con_param, cache_param)
@@ -358,7 +360,7 @@ def telegramMessages(context):
                     details.append(f"Venue ID: {venue_id}")
                 # Could also check for 'acc' (accuracy) here for static points if relevant
                 if accuracy is not None:
-                     details.append(f"Acc: {accuracy}m")
+                    details.append(f"Acc: {accuracy}m")
 
             text_for_report = f"{location_type_str}: {'; '.join(details)}"
             # No searchable_filename for these location dicts as they aren't separate files
@@ -372,6 +374,12 @@ def telegramMessages(context):
                                    files_found_param_main):
         direction = 'Incoming' if MessageFlags.Incoming in msg_data['flags'] else 'Outgoing'
         ts = datetime.datetime.fromtimestamp(idx.timestamp, tz=datetime.timezone.utc)
+        # idx.peerId is the chat/conversation the message belongs to (distinct from the sender).
+        chat_str = peer_str(idx.peerId, con_param, peer_cache_param)
+        chat_id = idx.peerId
+        thread_id = msg_data.get('threadId')
+        if thread_id is None:
+            thread_id = ''
         author_id_str = peer_str(msg_data['authorId'], con_param, peer_cache_param) if msg_data.get('authorId') else "N/A"
         
         fwd_info = msg_data.get('fwd')
@@ -423,7 +431,7 @@ def telegramMessages(context):
                     
         text_content = msg_data.get('text', '')
         
-        return (ts, direction, author_id_str, text_content, forward_date_obj, forward_from_str, final_action_data_text, media_item_ref_id)
+        return (ts, chat_str, chat_id, thread_id, direction, author_id_str, text_content, forward_date_obj, forward_from_str, final_action_data_text, media_item_ref_id)
                        
     def read_intermediate_fwd_info(buf): # No changes needed here, uses buf directly
         infoFlags = FwdInfoFlags(buf.read_int8())
@@ -469,7 +477,7 @@ def telegramMessages(context):
             'flags': flags,
         }
            
-    def read_intermediate_message(v: bytes, con_param): # Added con_param for PostboxDecoder if needed
+    def read_intermediate_message(v: bytes, _con_param): # _con_param kept for signature symmetry (PostboxDecoder calls are self-contained)
         buf = byteutil(io.BytesIO(v))
         typ = buf.read_int8()
         if typ != 0:
@@ -508,10 +516,9 @@ def telegramMessages(context):
             # localTagsVal = buf.read_uint32()
             buf.read_uint32()
             
-        # threadId = None # Not used
+        threadId = None
         if MessageDataFlags.ThreadId in dataFlags:
-            # threadId = buf.read_int64()
-            buf.read_int64()
+            threadId = buf.read_int64()
             
         flags = MessageFlags(buf.read_uint32())
         tags = MessageTags(buf.read_uint32())
@@ -552,6 +559,7 @@ def telegramMessages(context):
             'flags': flags,
             'tags': tags,
             'authorId': authorId,
+            'threadId': threadId,
             'fwd': fwd_info,
             'text': text,
             'referencedMediaIds': referencedMediaIds,
@@ -591,7 +599,7 @@ def telegramMessages(context):
             return self.decodeObjectForKey('_')
         
         def decodeObjectForKey(self, key):
-            t, v = self.get(self.ValueType.Object, key)
+            _, v = self.get(self.ValueType.Object, key)
             if v:
                 return v
             return None # Explicitly return None if not found or value is None
@@ -637,7 +645,7 @@ def telegramMessages(context):
                 value = registry[typeHash](decoder) # Changed registry_param to registry
             else:
                 decoder = self.__class__(data_bytes)
-                value = {k: v for k, t, v in decoder._iter_kv()}
+                value = {k: v for k, t, v in decoder._iter_kv()}  # pylint: disable=protected-access
                 value['@type'] = typeHash
                 
             return value
@@ -683,12 +691,13 @@ def telegramMessages(context):
                 alen = self.bio.read_int32()
                 value = [self.bio.read_bytes() for _ in range(alen)]
             else:
-                raise Exception(f'unknown value type: {valueType}')
+                raise ValueError(f'unknown value type: {valueType}')
             return valueType, value
             
     # Decodeable class and registered media types
     # These should also be self-contained and use the PostboxDecoder correctly.
     class Decodeable:
+        FIELDS = {}   # subclasses override; declared so the base reference resolves
         def __init__(self, dec):
             for field, (key, typ) in self.FIELDS.items():
                 _, val = dec.get(typ, key)
@@ -708,6 +717,7 @@ def telegramMessages(context):
             'partialReference': ('prf', PostboxDecoder.ValueType.Object),
             'flags': ('fl', PostboxDecoder.ValueType.Int32),
         }
+        imageId_raw = None   # set per-instance by Decodeable.__init__ from FIELDS
         
         def __init__(self, dec):
             super().__init__(dec)
@@ -778,6 +788,7 @@ def telegramMessages(context):
             'size': ('s', PostboxDecoder.ValueType.Int32),
             'attributes': ('at', PostboxDecoder.ValueType.ObjectArray)
         }
+        fileId_raw = None   # set per-instance by Decodeable.__init__ from FIELDS
         
         def __init__(self, dec):
             super().__init__(dec)
@@ -800,6 +811,7 @@ def telegramMessages(context):
             # Add other fields like 'content', 'author', 'title', 'description', 'photo', 'embedUrl', etc. if needed from original schema
             # For now, keeping it simple based on original FIELDS provided in context.
         }
+        webpageId_raw = None   # set per-instance by Decodeable.__init__ from FIELDS
         
         def __init__(self, dec):
             super().__init__(dec)
@@ -869,7 +881,7 @@ def telegramMessages(context):
                         )
                         data_list.append(processed_row)
             
-            except sqlite3.Error as e:
+            except sqlite3.Error:
                 # print(f"SQLite error processing {report_file_path}: {e}")
                 pass # Or log error appropriately
             finally:
