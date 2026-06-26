@@ -5,3 +5,6 @@
 
 - cpbitmap conversion logic adapted from `cpbitmap-to-png` by Harold Thetiot.
   Licensed under [MIT](https://github.com/hthetiot/cpbitmap-to-png/blob/main/LICENSE.md).
+
+- Apple ATX container and decode details adapted from `atx_reader` by galba-arueira.
+  Licensed under [MIT or Apache-2.0](https://github.com/galba-arueira/atx_reader).
