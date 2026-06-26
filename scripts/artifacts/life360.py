@@ -35,7 +35,7 @@ __artifacts_v2__ = {
         "category": "Life360",
         "notes": "",
         "paths": ('*/Library/Application Support/Messaging.sqlite*',),
-        "output_types": "standard",
+        "output_types": "all",
         "artifact_icon": "message-circle"
     },
     "life360Members": {

@@ -81,7 +81,7 @@ __artifacts_v2__ = {
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Application Support/"
                   "KeyValueStorageRecentsDomain*"),
-        "output_types": [ "standard" ],
+        "output_types": [ "standard", "kml"],
         "html_columns": [ "Image URL", "Website" ],
         "artifact_icon": "eye"
     },
@@ -96,7 +96,7 @@ __artifacts_v2__ = {
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Application Support/"
                   "KeyValueStorageRecentsDomain*"),
-        "output_types": [ "standard" ],
+        "output_types": [ "standard", "kml"],
         "artifact_icon": "search"
     },
     "booking_recently_booked": {
@@ -110,7 +110,7 @@ __artifacts_v2__ = {
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Application Support/"
                   "KeyValueStorageRecentsDomain*"),
-        "output_types": [ "lava", "html", "tsv" ],
+        "output_types": [ "lava", "html", "tsv", "kml"],
         "html_columns": [ "Image URL", "Website" ],
         "artifact_icon": "shopping-bag"
     },
@@ -145,7 +145,7 @@ __artifacts_v2__ = {
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Application Support/"
                   "KeyValueStorageSharedDomain*"),
-        "output_types": [ "standard" ],
+        "output_types": [ "standard", "kml"],
         "html_columns": [ "Image URL" ],
         "artifact_icon": "map"
     },

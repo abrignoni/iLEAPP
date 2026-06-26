@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "category": "Business",
         "notes": "",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/AccountData/*/store/store.wiredatabase*'),
-        "output_types": "standard",
+        "output_types": "all",
         "artifact_icon": "user"
     },
     "wireMessages": {

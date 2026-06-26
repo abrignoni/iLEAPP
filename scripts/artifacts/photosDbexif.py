@@ -11,7 +11,7 @@ __artifacts_v2__ = {
         "notes": "All times labeled 'False' require validation. Database timestamps are UTC; the EXIF "
                  "Creation/Changed timestamp is local time — use the Possible Exif Offset to compare.",
         "paths": ('*Media/PhotoData/Photos.sqlite*', '*Media/DCIM/*/**'),
-        "output_types": "standard",
+        "output_types": "all",
         "artifact_icon": "image"
     }
 }

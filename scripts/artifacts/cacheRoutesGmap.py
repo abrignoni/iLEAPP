@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "category": "Locations",
         "notes": "",
         "paths": ('*/Library/Application Support/CachedRoutes/*.plist',),
-        "output_types": "standard",
+        "output_types": "all",
     }
 }
 

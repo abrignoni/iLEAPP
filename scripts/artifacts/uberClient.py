@@ -11,7 +11,7 @@ __artifacts_v2__ = {
         "paths": (
             '*/Library/Application Support/PersistentStorage/BootstrapStore/RealtimeRider.StreamModelKey/client',
         ),
-        "output_types": "standard",
+        "output_types": "all",
         "artifact_icon": "user"
     },
     "uber_vehicles": {
@@ -26,7 +26,7 @@ __artifacts_v2__ = {
         "paths": (
             '*/Library/Application Support/PersistentStorage/BootstrapStore/RealtimeRider.StreamModelKey/eyeball',
         ),
-        "output_types": "standard",
+        "output_types": "all",
         "artifact_icon": "truck"
     },
     "uber_user_address": {
@@ -41,7 +41,7 @@ __artifacts_v2__ = {
         "paths": (
             '*/Library/Application Support/PersistentStorage/BootstrapStore/RealtimeRider.StreamModelKey/eyeball',
         ),
-        "output_types": "standard",
+        "output_types": "all",
         "artifact_icon": "map-pin"
     },
     "uber_payment_profiles": {
@@ -69,7 +69,7 @@ __artifacts_v2__ = {
         "category": "Uber",
         "notes": "",
         "paths": ('*/Documents/database.db*',),
-        "output_types": "standard",
+        "output_types": "all",
         "artifact_icon": "search"
     },
     "uber_cached_locations": {
@@ -82,7 +82,7 @@ __artifacts_v2__ = {
         "category": "Uber",
         "notes": "",
         "paths": ('*/Documents/database.db*',),
-        "output_types": "standard",
+        "output_types": "all",
         "artifact_icon": "map"
     },
     "uber_ur_locations": {
@@ -95,7 +95,7 @@ __artifacts_v2__ = {
         "category": "Uber",
         "notes": "",
         "paths": ('*/Documents/ur_message.db*',),
-        "output_types": "standard",
+        "output_types": "all",
         "artifact_icon": "navigation"
     },
     "uber_metadata_leveldb": {
@@ -108,7 +108,7 @@ __artifacts_v2__ = {
         "category": "Uber",
         "notes": "",
         "paths": ('*/Library/Application Support/com.ubercab.UberClient/__METADATA/*.ldb',),
-        "output_types": "standard",
+        "output_types": "all",
         "artifact_icon": "database"
     }
 }
@@ -250,7 +250,7 @@ def uber_account(context):
         'Country code', 'City ID', 'City',
         'Currency code', 'Timezone',
         ('Last used', 'datetime'),
-        'Latitude (startup)', 'Longitude (startup)',
+        'Latitude', 'Longitude',
         'Last payment profile ID', 'User ID'
     )
 

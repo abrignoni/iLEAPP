@@ -25,7 +25,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Library/Caches/com.apple.routined/Local.sqlite*',
                   '*/Library/Caches/com.apple.routined/Cloud-V2.sqlite*'),
-        "output_types": ["html", "tsv", "lava"],
+        "output_types": ["html", "tsv", "lava", "kml"],
         "html_columns": ["Google Maps Link"],
         "artifact_icon": "map-pin"
     },
@@ -40,7 +40,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Library/Caches/com.apple.routined/Local.sqlite*',
                   '*/Library/Caches/com.apple.routined/Cloud-V2.sqlite*'),
-        "output_types": ["html", "tsv", "lava"],
+        "output_types": ["html", "tsv", "lava", "kml"],
         "html_columns": ["Google Maps Link"],
         "artifact_icon": "map-pin"
     }

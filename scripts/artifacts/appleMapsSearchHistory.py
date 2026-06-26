@@ -12,7 +12,7 @@ __artifacts_v2__ = {
             '*/mobile/Containers/Data/Application/*/Library/Maps/GeoHistory.mapsdata',
             '*/GeoHistory.mapsdata',
         ),
-        "output_types": "standard",
+        "output_types": "all",
     }
 }
 

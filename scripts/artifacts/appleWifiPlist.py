@@ -49,7 +49,7 @@ __artifacts_v2__ = {
         "category": "WiFi Connections",
         "notes": "Extracts detailed BSS information from the com.apple.wifi.plist file",
         "paths": ('*/com.apple.wifi.known-networks.plist',),
-        "output_types": "standard"
+        "output_types": "all"
     }
 }
 
@@ -277,7 +277,7 @@ def appleWifiBSSList(context):
 
     data_headers = (
         'SSID', 'BSSID', 'Channel Flags', 'Channel', ('Last Associated/Roamed At', 'datetime'),
-        'Location Accuracy', ('Location Timestamp', 'datetime'), 'Location Latitude', 'Location Longitude',
+        'Location Accuracy', ('Location Timestamp', 'datetime'), 'Latitude', 'Longitude',
         'Source File'
     )
 

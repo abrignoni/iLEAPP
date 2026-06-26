@@ -18,7 +18,7 @@ __artifacts_v2__ = {
             '*/mobile/Containers/Data/Application/*/Documents/[0-9]*[0-9]/[0-9]*[0-9]/*/*.*',
             '*/mobile/Containers/Data/Application/*/tmp/[0-9]*[0-9]/[0-9]*[0-9]/*/*.*'
         ),
-        "output_types": "standard",
+        "output_types": "all",
         'data_views': {
             'conversation': {
                 'conversationDiscriminatorColumn': 'Chat Name',

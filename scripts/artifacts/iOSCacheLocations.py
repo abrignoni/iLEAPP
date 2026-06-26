@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         'category': 'Locations',
         'notes': 'Parses latitude, longitude, accuracy, and speeds from Cache.sqlite',
         'paths': ('*/Library/Caches/com.apple.routined/Cache.sqlite*',),
-        'output_types': 'standard',
+        'output_types': 'all',
         'artifact_icon': 'map-pin'
     }
 }
@@ -47,7 +47,7 @@ def CacheSQLite_Locations(context):
 
             data_list.append((timestampr, record[1], record[2], record[3], record[4], record[5]))
 
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-exception-caught
         logfunc(f'Error processing Cache.sqlite locations: {e}')
 
     data_headers = (

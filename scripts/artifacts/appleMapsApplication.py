@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "category": "Locations",
         "notes": "",
         "paths": ('*/Data/Application/*/Library/Preferences/com.apple.Maps.plist'),
-        "output_types": ["html", "tsv", "lava"],
+        "output_types": ["html", "tsv", "lava", "kml"],
         "artifact_icon": "map-pin"
     }
 }

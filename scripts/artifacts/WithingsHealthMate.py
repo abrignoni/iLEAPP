@@ -81,7 +81,7 @@ __artifacts_v2__ = {
         "category": "Withings Health Mate",
         "notes": "Based on https://bebinary4n6.blogspot.com/2024/09/app-healthmate-on-ios.html",
         "paths": ('*/Library/Application Support/coredata/*_vasistas*'),
-        "output_types": "standard",
+        "output_types": "all",
         "artifact_icon": "activity"
     },
     "get_healthmate_devices": {
@@ -94,7 +94,7 @@ __artifacts_v2__ = {
         "category": "Withings Health Mate",
         "notes": "Based on https://bebinary4n6.blogspot.com/2024/09/app-healthmate-on-ios.html",
         "paths": ('*/Library/Application Support/coredata/associated_device.sqlite*'),
-        "output_types": "standard",
+        "output_types": "all",
         "artifact_icon": "watch"
     }
 }

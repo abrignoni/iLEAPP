@@ -23,7 +23,7 @@ __artifacts_v2__ = {
         "category": "Meteo",
         "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/databases/favorites_prediction_db.sqlite*', '*/mobile/Containers/Data/Application/*/Documents/localdata.sqlite*'),
-        "output_types": "standard",
+        "output_types": "all",
         "html_columns": ['Map link'],
         "artifact_icon": "flag"
     }
