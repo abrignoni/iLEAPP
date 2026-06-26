@@ -206,16 +206,8 @@ from urllib.parse import urlparse, urlunparse
 from scripts.ilapfuncs import get_file_path, get_sqlite_db_records, get_plist_content, get_plist_file_content, convert_unix_ts_to_utc, \
     convert_cocoa_core_data_ts_to_utc, check_in_embedded_media, artifact_processor, logfunc, is_platform_windows
 
-global bereal_user_id, _bereal_processed
-
 # <id, fullname|username>
 map_id_name = {}
-
-# bereal user id
-bereal_user_id = None
-
-# flag
-_bereal_processed = False
 
 
 def format_userid(user_id, name=None):
@@ -440,6 +432,7 @@ def get_tags(obj, html_format=False):
 
 # set up global variables
 def process_bereal_preferences(plist_path):
+    owner_id = None
     
     plist_data = get_plist_file_content(plist_path)
     if not (plist_data):
@@ -458,7 +451,7 @@ def process_bereal_preferences(plist_path):
             if not bool(user_name): user_name = 'Local User'
             map_id_name[user_id] = user_name
             # bereal user id
-            bereal_user_id = user_id
+            owner_id = user_id
             # local profile picture (file:///private/var/mobile/Containers/Shared/AppGroup/<APP_GUID>/notification/file.jpg)
             # bereal_profile_picture = plist_data.get('myAccount', {}).get(user_id, {}).get('profilePictureURL')
 
@@ -467,11 +460,11 @@ def process_bereal_preferences(plist_path):
         for user_id, user_name in current_friends.items():
             map_id_name[user_id] = user_name
             
-        _bereal_processed = True
-        return True
+        return owner_id
 
     except (AttributeError, TypeError, KeyError) as e:
         logfunc(f"Error: {str(e)}")
+        return owner_id
 
 # accounts
 @artifact_processor
@@ -959,9 +952,8 @@ def bereal_posts(context):
     data_list = []
     data_list_html = []
     files_found = context.get_files_found()
-    if not _bereal_processed: 
-        preferences_file = get_file_path(files_found,'group.BeReal.plist')
-        process_bereal_preferences(preferences_file)
+    preferences_file = get_file_path(files_found, 'group.BeReal.plist')
+    bereal_user_id = process_bereal_preferences(preferences_file)
 
     # all files
     for file_found in files_found:
@@ -1332,9 +1324,8 @@ def bereal_realmojis(context):
     data_list_html = []
     
     files_found = context.get_files_found()
-    if not _bereal_processed: 
-        preferences_file = get_file_path(files_found,'group.BeReal.plist')
-        process_bereal_preferences(preferences_file)
+    preferences_file = get_file_path(files_found, 'group.BeReal.plist')
+    bereal_user_id = process_bereal_preferences(preferences_file)
 
     # all files
     for file_found in files_found:
@@ -1579,9 +1570,8 @@ def bereal_comments(context):
     data_list = []
 
     files_found = context.get_files_found()
-    if not _bereal_processed:
-        preferences_file = get_file_path(files_found, 'group.BeReal.plist')
-        process_bereal_preferences(preferences_file)
+    preferences_file = get_file_path(files_found, 'group.BeReal.plist')
+    bereal_user_id = process_bereal_preferences(preferences_file)
 
     # all files
     for file_found in context.get_files_found():
@@ -1813,9 +1803,8 @@ def bereal_messages(context):
     data_list_html = []
     files_found = context.get_files_found()
     
-    if not _bereal_processed:
-        preferences_file = get_file_path(files_found, 'group.BeReal.plist')
-        process_bereal_preferences(preferences_file)
+    preferences_file = get_file_path(files_found, 'group.BeReal.plist')
+    bereal_user_id = process_bereal_preferences(preferences_file)
     
     source_path = get_file_path(files_found, "bereal-chat.sqlite")
 
@@ -1903,9 +1892,8 @@ def bereal_chat_list(context):
     data_list_html = []
     files_found = context.get_files_found()
     
-    if not _bereal_processed:
-        preferences_file = get_file_path(files_found, 'group.BeReal.plist')
-        process_bereal_preferences(preferences_file)
+    preferences_file = get_file_path(files_found, 'group.BeReal.plist')
+    process_bereal_preferences(preferences_file)
     
     source_path = get_file_path(files_found, "bereal-chat.sqlite")
 
