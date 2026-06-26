@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "telegramMessages": {
         "name": "Telegram Messages",
-        "description": "Parses Telegram messages, including text, media, and forwarding information from the local cache database. The Chat/Chat ID columns identify the conversation; Author ID is the sender of each individual message. On Outgoing messages the Author ID is the account owner, so the device owner's Telegram user ID can be identified from any Outgoing message's Author ID.",
+        "description": "Parses Telegram messages, including text, media, and forwarding information from the local cache database. The Chat/Chat ID columns identify the conversation; the Author/Author ID columns identify the sender of each individual message. On Outgoing messages the Author ID is the account owner's user id, so the device owner's Telegram id can be identified from any Outgoing message.",
         "author": "Stek29 / Victor Oreshkin, updated by @AlexisBrignoni, @JamesHabben",
         "creation_date": "2023-05-01", # Placeholder, original date unknown
         "last_update_date": "2026-06-25",
@@ -41,6 +41,7 @@ def telegramMessages(context):
         'Chat ID',
         'Thread ID',
         'Direction',
+        'Author',
         'Author ID',
         'Text',
         'Action Data',
@@ -381,6 +382,7 @@ def telegramMessages(context):
         if thread_id is None:
             thread_id = ''
         author_id_str = peer_str(msg_data['authorId'], con_param, peer_cache_param) if msg_data.get('authorId') else "N/A"
+        author_id_num = msg_data.get('authorId') or ''   # raw numeric sender user id (blank if absent)
         
         fwd_info = msg_data.get('fwd')
         forward_date_obj = ''
@@ -431,7 +433,7 @@ def telegramMessages(context):
                     
         text_content = msg_data.get('text', '')
         
-        return (ts, chat_str, chat_id, thread_id, direction, author_id_str, text_content, final_action_data_text, media_item_ref_id, forward_from_str, forward_date_obj)
+        return (ts, chat_str, chat_id, thread_id, direction, author_id_str, author_id_num, text_content, final_action_data_text, media_item_ref_id, forward_from_str, forward_date_obj)
                        
     def read_intermediate_fwd_info(buf): # No changes needed here, uses buf directly
         infoFlags = FwdInfoFlags(buf.read_int8())
