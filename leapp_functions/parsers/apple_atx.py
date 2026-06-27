@@ -4,6 +4,15 @@ The public API is intentionally small and result-oriented so artifacts can use
 it similarly to Crush parser helpers: feed bytes in, receive parsed metadata,
 decoded output when possible, and warnings instead of surprise exceptions for
 expected format drift.
+
+Some ATX files store ASTC blocks in the same 32x32-block macro tiles but differ
+in how the Morton-order X/Y bits are interpreted inside each tile. When decoding
+raw `astc` chunks, this parser tries both plausible X/Y orientations, decodes
+both images, and scores the visible boundaries between 128-pixel macro tiles.
+The orientation with the smaller brightness jump at those boundaries is used.
+In simpler terms: if one block order leaves a checkerboard/grid artifact and the
+other looks smooth, the smoother one wins. This is a heuristic based on observed
+iOS PosterBoard samples, not a fully documented Apple format flag.
 """
 
 from __future__ import annotations
@@ -237,10 +246,10 @@ def _decode_image(header: AtxHeader, payload: TexturePayload, warnings: list[str
 
     if payload.compressed:
         astc_data, padded_width, padded_height = _linear_lzfs_payload(header, payload)
+        image = _decode_astc_4x4(astc_data, padded_width, padded_height)
     else:
-        astc_data, padded_width, padded_height = _macro_tiled_payload(header, payload)
+        image, padded_width, padded_height = _decode_macro_tiled_payload(header, payload)
 
-    image = _decode_astc_4x4(astc_data, padded_width, padded_height)
     if (padded_width, padded_height) != (header.width, header.height):
         image = image.crop((0, 0, header.width, header.height))
     return DecodedImage(header.width, header.height, image.convert("RGBA").tobytes())
@@ -258,7 +267,11 @@ def _linear_lzfs_payload(header: AtxHeader, payload: TexturePayload) -> tuple[by
     return astc_data[:expected], padded_width, padded_height
 
 
-def _macro_tiled_payload(header: AtxHeader, payload: TexturePayload) -> tuple[bytes, int, int]:
+def _macro_tiled_payload(
+    header: AtxHeader,
+    payload: TexturePayload,
+    swap_morton_xy: bool = True,
+) -> tuple[bytes, int, int]:
     padded_width = _round_up(header.width, DEFAULT_MACRO_BLOCKS * ASTC_BLOCK_WIDTH)
     padded_height = _round_up(header.height, DEFAULT_MACRO_BLOCKS * ASTC_BLOCK_HEIGHT)
     blocks_w = padded_width // ASTC_BLOCK_WIDTH
@@ -272,7 +285,9 @@ def _macro_tiled_payload(header: AtxHeader, payload: TexturePayload) -> tuple[by
     for macro_y in range(0, blocks_h, DEFAULT_MACRO_BLOCKS):
         for macro_x in range(0, blocks_w, DEFAULT_MACRO_BLOCKS):
             for morton_index in range(DEFAULT_MACRO_BLOCKS * DEFAULT_MACRO_BLOCKS):
-                local_y, local_x = _decode_morton_5bit(morton_index)
+                local_x, local_y = _decode_morton_5bit(morton_index)
+                if swap_morton_xy:
+                    local_x, local_y = local_y, local_x
                 block_x = macro_x + local_x
                 block_y = macro_y + local_y
                 dst_offset = (block_y * blocks_w + block_x) * ASTC_BLOCK_BYTES
@@ -284,11 +299,52 @@ def _macro_tiled_payload(header: AtxHeader, payload: TexturePayload) -> tuple[by
     return bytes(linear), padded_width, padded_height
 
 
+def _decode_macro_tiled_payload(header: AtxHeader, payload: TexturePayload):
+    candidates = []
+    for swap_morton_xy in (False, True):
+        astc_data, padded_width, padded_height = _macro_tiled_payload(
+            header,
+            payload,
+            swap_morton_xy=swap_morton_xy,
+        )
+        image = _decode_astc_4x4(astc_data, padded_width, padded_height)
+        cropped = image.crop((0, 0, header.width, header.height)).convert("RGB")
+        candidates.append((
+            _grid_seam_score(cropped, DEFAULT_MACRO_BLOCKS * ASTC_BLOCK_WIDTH),
+            image,
+            padded_width,
+            padded_height,
+        ))
+
+    _, image, padded_width, padded_height = min(candidates, key=lambda item: item[0])
+    return image, padded_width, padded_height
+
+
 def _decode_astc_4x4(astc_data: bytes, width: int, height: int):
     import astc_decomp_faster  # pylint: disable=unused-import
     from PIL import Image
 
     return Image.frombytes("RGBA", (width, height), astc_data, "astc", (4, 4, False))
+
+
+def _grid_seam_score(image, step: int) -> float:
+    gray = image.convert("L")
+    pixels = gray.load()
+    width, height = gray.size
+    total = 0
+    count = 0
+
+    for x in range(step, width, step):
+        for y in range(height):
+            total += abs(pixels[x, y] - pixels[x - 1, y])
+            count += 1
+
+    for y in range(step, height, step):
+        for x in range(width):
+            total += abs(pixels[x, y] - pixels[x, y - 1])
+            count += 1
+
+    return total / count if count else 0
 
 
 def _decode_morton_5bit(index: int) -> tuple[int, int]:
