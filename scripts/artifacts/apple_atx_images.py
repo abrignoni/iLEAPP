@@ -21,7 +21,9 @@ __artifacts_v2__ = {
         "category": "Images",
         "notes": "ATX files are AAPL texture containers wrapping ASTC image data. These files "
                  "can appear in wallpapers, PosterBoard snapshots, avatars, and other Apple "
-                 "UI image caches.",
+                 "UI image caches. Decoding uses observed Apple ATX layouts and a best-effort "
+                 "tile-order heuristic. If an image appears scrambled or fails to decode, please "
+                 "open an issue and provide sample ATX files when possible.",
         "paths": (
             '**/*.atx',
         ),
