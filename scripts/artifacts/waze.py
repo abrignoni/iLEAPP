@@ -39,7 +39,7 @@ __artifacts_v2__ = {
         "description": "Parses and extracts track GPS quality information",
         "author": "@djangofaiola",
         "creation_date": "2024-02-02",
-        "last_update_date": "2026-06-22",
+        "last_update_date": "2026-06-27",
         "requirements": "none",
         "category": "Waze",
         "notes": "https://djangofaiola.blogspot.com",
@@ -178,16 +178,17 @@ LINE_PATTERN_GPS_RE = re.compile(r"STAT\(buffer#[\d]{1,2}\)\sGPS_QUALITY\s")
 VALUES_PATTERN_GPS_RE = re.compile(r"(?<=\{)(.*?)(?=\})")
 
 LEGACY_GPS_RE = re.compile(
-    r"\[(?P<log_time>[0-9:.]+)\s+.*GPS_QUALITY\s+"
-    r"\{LAT=(?P<lat>-?[0-9]+)\}\{LON=(?P<lon>-?[0-9]+)\}"
-    r".*\{SAMPLE_COUNT=(?P<sam_cnt>[0-9]+)\}"
-    r".*\{BAD_SAMPLE_COUNT=(?P<bad_cnt>[0-9]+)\}"
-    r".*\{DUP_SAMPLE_COUNT=(?P<dup_cnt>[0-9]+)\}"
-    r".*\{ACC_AVG=(?P<acc_avg>[0-9]+)\}"
-    r".*\{ACC_MIN=(?P<acc_min>[0-9]+)\}"
-    r".*\{ACC_MAX=(?P<acc_max>[0-9]+)\}"
-    r".*\{PROVIDER=(?P<prov>[A-Za-z0-9_]+)\}"
-    r".*\{TIMESTAMP_MS=(?P<ts_ms>[0-9]+)\}"
+    r"\[(?P<log_time>[0-9:.]+)\s+.*GPS_QUALITY"
+    r"(?=.*\{LAT=(?P<lat>-?[0-9]+)\})"
+    r"(?=.*\{LON=(?P<lon>-?[0-9]+)\})"
+    r"(?:(?=.*\{SAMPLE_COUNT=(?P<sam_cnt>[0-9]+)\}))?"
+    r"(?:(?=.*\{BAD_SAMPLE_COUNT=(?P<bad_cnt>[0-9]+)\}))?"
+    r"(?:(?=.*\{DUP_SAMPLE_COUNT=(?P<dup_cnt>[0-9]+)\}))?"
+    r"(?:(?=.*\{ACC_AVG=(?P<acc_avg>[0-9]+)\}))?"
+    r"(?:(?=.*\{ACC_MIN=(?P<acc_min>[0-9]+)\}))?"
+    r"(?:(?=.*\{ACC_MAX=(?P<acc_max>[0-9]+)\}))?"
+    r"(?:(?=.*\{PROVIDER=(?P<prov>[A-Za-z0-9_]+)\}))?"
+    r"(?=.*\{TIMESTAMP_MS=(?P<ts_ms>[0-9]+)\})"
 )
 
 # GPS_QUALITY for new SWIFT payload format blocks
@@ -195,15 +196,15 @@ LEGACY_GPS_RE = re.compile(
 WAZE_EVENT_RE   = re.compile(r"WCEWazeAppEvent")
 # Step 2: matches the 'gps_quality {' line nested inside the block
 GPS_BLOCK_RE    = re.compile(r"^\s*gps_quality\s*\{")
-SWIFT_LAT_RE = re.compile(r"latitude:\s*([0-9.-]+)")
-SWIFT_LON_RE = re.compile(r"longitude:\s*([0-9.-]+)")
+SWIFT_LAT_RE = re.compile(r"latitude:\s*([+-]?[0-9.]+)")
+SWIFT_LON_RE = re.compile(r"longitude:\s*([+-]?[0-9.]+)")
 SWIFT_SAM_CNT_RE = re.compile(r"sample_count:\s*([0-9]+)")
 SWIFT_BAD_CNT_RE = re.compile(r"bad_sample_count:\s*([0-9]+)")
 SWIFT_DUP_CNT_RE = re.compile(r"dup_sample_count:\s*([0-9]+)")
 SWIFT_ACC_AVG_RE = re.compile(r"accuracy_avg_meters:\s*([0-9]+)")
 SWIFT_ACC_MIN_RE = re.compile(r"accuracy_min_meters:\s*([0-9]+)")
 SWIFT_ACC_MAX_RE = re.compile(r"accuracy_max_meters:\s*([0-9]+)")
-SWIFT_PROV_RE = re.compile(r"position_provider:\s*(\S+)")
+SWIFT_PROV_RE = re.compile(r"position_provider:\s*\"?([A-Za-z0-9_]+)\"?")
 SWIFT_SEC_RE = re.compile(r"seconds:\s*([0-9]+)")
 SWIFT_NANOS_RE = re.compile(r"nanos:\s*([0-9]+)")
 
@@ -938,10 +939,10 @@ def _parse_account_user(source_path: str, context, data_list: list, data_list_ht
         fields[F_WAZE_ID],
         fields[F_INVISIBLE_MODE],
         fields[F_LAST_LAUNCH],
-        None,   # F_PROVIDER_FIRST_NAME
-        None,   # F_PROVIDER_LAST_NAME
-        None,   # F_PROVIDER_NAME
-        None,   # F_PROVIDER_UID
+        fields[F_PROVIDER_FIRST_NAME],
+        fields[F_PROVIDER_LAST_NAME],
+        fields[F_PROVIDER_NAME],
+        fields[F_PROVIDER_UID],
         fields[F_DEVICE_PATH]
     )
 
