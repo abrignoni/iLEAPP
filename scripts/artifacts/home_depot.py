@@ -1,8 +1,8 @@
 """ home_depot """
 __artifacts_v2__ = {
     "home_depot_account": {
-        "name": "Home Depot - Account & Store",
-        "description": "Home Depot account profile and preferred local store details",
+        "name": "Home Depot - Account",
+        "description": "Home Depot account profile",
         "author": "@jameshabben",
         "creation_date": "2026-06-26",
         "last_update_date": "2026-06-26",
@@ -20,6 +20,26 @@ __artifacts_v2__ = {
         ),
         "output_types": "standard",
         "artifact_icon": "user",
+    },
+    "home_depot_store": {
+        "name": "Home Depot - Local Store",
+        "description": "Home Depot local store details from cached user info",
+        "author": "@jameshabben",
+        "creation_date": "2026-06-26",
+        "last_update_date": "2026-06-26",
+        "requirements": "nska_deserialize",
+        "category": "Home Depot",
+        "notes": (
+            "Store data is parsed from the same three user-info sources as the account artifact. "
+            "Preferred Store IDs are only present when sourced from com.thehomedepot.homedepot.plist."
+        ),
+        "paths": (
+            '*/Containers/Data/Application/*/Library/Preferences/com.thehomedepot.homedepot.plist',
+            '*/Shared/AppGroup/*/userInfo.txt',
+            '*/Shared/AppGroup/*/Library/Preferences/group.com.thehomedepot.homedepot.plist',
+        ),
+        "output_types": "all",
+        "artifact_icon": "map-pin",
     },
     "home_depot_saved_searches": {
         "name": "Home Depot - Saved Searches",
@@ -83,7 +103,7 @@ __artifacts_v2__ = {
         "category": "Home Depot",
         "notes": "Parsed from currentLocationKey CLLocation blob.",
         "paths": ('*/Containers/Data/Application/*/Library/Preferences/com.thehomedepot.homedepot.plist',),
-        "output_types": "standard",
+        "output_types": "all",
         "artifact_icon": "map-pin",
     },
     "home_depot_product_image_cache": {
@@ -379,13 +399,33 @@ def _product_field(product, field_name):
     return value
 
 
+def _iter_user_info_sources(context):
+    source_path, plist = _load_preferences(context)
+    if plist:
+        user_info = _extract_user_info(plist.get('USER_INFO_KEY'))
+        if user_info:
+            preferred_store_ids = _format_store_ids(plist.get('savedStorePreference'))
+            yield user_info, _SOURCE_USER_INFO_KEY, preferred_store_ids, context.get_relative_path(source_path)
+
+    group_path = _find_file_by_name(context, _GROUP_PREFERENCES_NAME)
+    if group_path:
+        group_plist = get_plist_file_content(group_path)
+        if isinstance(group_plist, dict):
+            user_info = _extract_user_info(group_plist.get('SharedUserInfoKey'))
+            if user_info:
+                yield user_info, _SOURCE_SHARED_USER_INFO, '', context.get_relative_path(group_path)
+
+    txt_path = _find_file_by_name(context, _USER_INFO_TXT)
+    if txt_path:
+        user_info = _load_user_info_txt(txt_path)
+        if user_info:
+            yield user_info, _SOURCE_USER_INFO_TXT, '', context.get_relative_path(txt_path)
+
+
 def _build_account_row(user_info, preferred_store_ids, source):
     account = user_info.get('accountInfo', {}).get('accountInfoB2C', {}).get('account', {})
     phone_list = account.get('profilePhones', {}).get('phone', [])
     phone = phone_list[0].get('number', '') if phone_list else ''
-    store = user_info.get('localStore', {})
-    address = store.get('address', {})
-    coords = store.get('coordinates', {})
 
     return (
         source,
@@ -397,6 +437,18 @@ def _build_account_row(user_info, preferred_store_ids, source):
         _dig(user_info, 'accountIdentity', 'customerType'),
         _dig(user_info, 'accountInfo', 'accountInfoB2C', 'account', 'profile', 'zipCode'),
         _dig(user_info, 'accountInfo', 'accountInfoB2C', 'account', 'customerAccountId'),
+        _dig(user_info, 'accountInfo', 'accountInfoB2C', 'account', 'profile', 'localStoreId'),
+        preferred_store_ids,
+    )
+
+
+def _build_store_row(user_info, preferred_store_ids, source):
+    store = user_info.get('localStore', {})
+    address = store.get('address', {})
+    coords = store.get('coordinates', {})
+
+    return (
+        source,
         _dig(user_info, 'accountInfo', 'accountInfoB2C', 'account', 'profile', 'localStoreId'),
         preferred_store_ids,
         store.get('name', ''),
@@ -415,37 +467,31 @@ def home_depot_account(context):
     """ see artifact description """
     data_headers = (
         'Source', 'User ID', 'Email', 'First Name', 'Last Name', ('Phone', 'phonenumber'), 'Customer Type',
-        'Zip Code', 'Customer Account ID', 'Local Store ID', 'Preferred Store IDs', 'Store Name', 'Store Street',
-        'Store City', 'Store State', 'Store Postal Code', 'Store Latitude', 'Store Longitude',
-        ('Store Phone', 'phonenumber'),
+        'Zip Code', 'Customer Account ID', 'Local Store ID', 'Preferred Store IDs',
     )
-    # TODO: wire in location data for KML output
     data_list = []
     source_paths = []
 
-    source_path, plist = _load_preferences(context)
-    if plist:
-        user_info = _extract_user_info(plist.get('USER_INFO_KEY'))
-        if user_info:
-            preferred_store_ids = _format_store_ids(plist.get('savedStorePreference'))
-            data_list.append(_build_account_row(user_info, preferred_store_ids, _SOURCE_USER_INFO_KEY))
-            source_paths.append(context.get_relative_path(source_path))
+    for user_info, source, preferred_store_ids, rel_path in _iter_user_info_sources(context):
+        data_list.append(_build_account_row(user_info, preferred_store_ids, source))
+        source_paths.append(rel_path)
 
-    group_path = _find_file_by_name(context, _GROUP_PREFERENCES_NAME)
-    if group_path:
-        group_plist = get_plist_file_content(group_path)
-        if isinstance(group_plist, dict):
-            user_info = _extract_user_info(group_plist.get('SharedUserInfoKey'))
-            if user_info:
-                data_list.append(_build_account_row(user_info, '', _SOURCE_SHARED_USER_INFO))
-                source_paths.append(context.get_relative_path(group_path))
+    return data_headers, data_list, '; '.join(source_paths)
 
-    txt_path = _find_file_by_name(context, _USER_INFO_TXT)
-    if txt_path:
-        user_info = _load_user_info_txt(txt_path)
-        if user_info:
-            data_list.append(_build_account_row(user_info, '', _SOURCE_USER_INFO_TXT))
-            source_paths.append(context.get_relative_path(txt_path))
+
+@artifact_processor
+def home_depot_store(context):
+    """ see artifact description """
+    data_headers = (
+        'Source', 'Local Store ID', 'Preferred Store IDs', 'Store Name', 'Store Street', 'Store City',
+        'Store State', 'Store Postal Code', 'Latitude', 'Longitude', ('Store Phone', 'phonenumber'),
+    )
+    data_list = []
+    source_paths = []
+
+    for user_info, source, preferred_store_ids, rel_path in _iter_user_info_sources(context):
+        data_list.append(_build_store_row(user_info, preferred_store_ids, source))
+        source_paths.append(rel_path)
 
     return data_headers, data_list, '; '.join(source_paths)
 
@@ -560,7 +606,6 @@ def home_depot_last_location(context):
     data_headers = (
         ('Timestamp', 'datetime'), 'Latitude', 'Longitude', 'Horizontal Accuracy', 'Altitude',
     )
-    # TODO: wire in location data for KML output
     data_list = []
     source_path, plist = _load_preferences(context)
     if not plist:
