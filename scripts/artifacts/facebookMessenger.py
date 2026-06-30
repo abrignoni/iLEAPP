@@ -122,28 +122,32 @@ THREAD_PARTICIPANT_DETAIL = "thread_participant_detail"
 
 
 def _database_files_with_view(context, view):
+    db_list = []
     for file_found in context.get_files_found():
-        if str(file_found).endswith(("db")) and does_view_exist_in_db(file_found, view):
-            return [str(file_found)]
+        if str(file_found).endswith(".db") and does_view_exist_in_db(file_found, view):
+            db_list.append(file_found)
         else:
             continue
+    return db_list
 
 
 def _database_files_with_table(context, table):
+    db_list = []
     for file_found in context.get_files_found():
-        if str(file_found).endswith(("db")) and does_table_exist_in_db(
+        if str(file_found).endswith(".db") and does_table_exist_in_db(
             file_found, table
         ):
-            return [str(file_found)]
+            db_list.append(file_found)
         else:
             continue
+    return db_list
 
 
 def _media_files(context):
     return [
         str(file_found)
         for file_found in context.get_files_found()
-        if str(file_found).endswith(("jpg"))
+        if str(file_found).endswith(".jpg")
     ]
 
 
@@ -248,7 +252,7 @@ def facebookMessengerChats(context):
         WHEN (SELECT CASE
 		WHEN _user_info.facebook_user_id IS NOT NULL THEN 'Sent'
 		ELSE 'Received'
-	END) = 'Sent' THEN contacts.name || ' (Local User)'
+	END) = 'Sent' THEN COALESCE(contacts.name, '') || ' (Local User)'
         ELSE contacts.name
     END,
 	contacts.id,
