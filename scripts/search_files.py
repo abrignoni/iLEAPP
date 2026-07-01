@@ -40,6 +40,7 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
 from scripts.ilapfuncs import get_plist_file_content, get_plist_content, logfunc, \
     is_platform_windows, open_sqlite_db_readonly, sanitize_file_path
+from scripts.filetype import guess_mime
 
 normcase = lru_cache(maxsize=None)(os.path.normcase)
 domains = {
@@ -98,9 +99,12 @@ def get_itunes_backup_encryption(directory):
         bool or None: True if the backup is encrypted, False if not encrypted,
                       or None if the 'IsEncrypted' key is not found in the manifest.
     """
-    manifest_path = os.path.join(directory, "Manifest.plist")
-    manifest = get_plist_file_content(manifest_path)
-    return manifest.get("IsEncrypted")
+    manifest_plist_path = os.path.join(directory, "Manifest.plist")
+    manifest_db_path = os.path.join(directory, "Manifest.db")
+    manifest_is_encrypted_key = get_plist_file_content(manifest_plist_path).get("IsEncrypted")
+    if manifest_is_encrypted_key and guess_mime(manifest_db_path) != "application/x-sqlite3":
+        return True
+    return False
 
 
 def check_itunes_backup_status(directory, backup_type):
