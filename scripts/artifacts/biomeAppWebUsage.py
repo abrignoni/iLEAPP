@@ -23,7 +23,7 @@ from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv
 
 
 @artifact_processor
-def get_biomeAppWebUsage(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
+def get_biomeAppWebUsage(context):
 
     # Tested with:
     # MagnetCTF2026/00008110-0008196A2299401E_files_full.zip
@@ -51,7 +51,7 @@ def get_biomeAppWebUsage(files_found, _report_folder, _seeker, _wrap_text, _time
     data_list = []
     report_file = 'Unknown'
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         filename = os.path.basename(file_found)
 
