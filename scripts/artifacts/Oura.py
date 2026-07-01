@@ -232,7 +232,7 @@ def _load_oura_plists(files_found):
             try:
                 with open(fp, "rb") as fh:
                     data = plistlib.load(fh)
-            except Exception:
+            except Exception:  # pylint: disable=broad-exception-caught
                 continue
             if isinstance(data, dict) and "deviceUid" in data:
                 pref_dir = os.path.dirname(fp)
@@ -245,7 +245,7 @@ def _load_oura_plists(files_found):
         try:
             with open(fp, "rb") as fh:
                 data = plistlib.load(fh)
-        except Exception as exc:
+        except Exception as exc:  # pylint: disable=broad-exception-caught
             logfunc(f"Oura: failed to parse {fp}: {exc}")
             continue
         name = os.path.basename(fp)
@@ -300,7 +300,7 @@ def _decode(value, depth=0):
         if value[:8] == b"bplist00":
             try:
                 return _decode(plistlib.loads(value), depth + 1)
-            except Exception:
+            except Exception:  # pylint: disable=broad-exception-caught
                 pass
         try:
             text = value.decode("utf-8")
@@ -371,7 +371,8 @@ def _ring_id(suite):
 
 
 @artifact_processor
-def oura_account_identity_profile(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def oura_account_identity_profile(context):
+    files_found = context.get_files_found()
     data_by_name, path_by_name, _ = _load_oura_plists(files_found)
     suite, source = _suite_plist(data_by_name, path_by_name)
     bundle = data_by_name.get("com.ouraring.oura.plist", {})
@@ -435,7 +436,7 @@ def oura_account_identity_profile(files_found, report_folder, seeker, wrap_text,
     if isinstance(z_account, dict) and z_account.get("account-id"):
         try:
             decoded = base64.b64decode(z_account["account-id"]).decode("utf-8", "replace")
-        except Exception:
+        except Exception:  # pylint: disable=broad-exception-caught
             decoded = z_account["account-id"]
         add("Support", "Zendesk Help Center URL", decoded)
     z_identity = data_by_name.get("com.zendesk.core.identity.plist", {})
@@ -465,7 +466,8 @@ def oura_account_identity_profile(files_found, report_folder, seeker, wrap_text,
 
 
 @artifact_processor
-def oura_find_my_ring_location(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def oura_find_my_ring_location(context):
+    files_found = context.get_files_found()
     data_by_name, path_by_name, _ = _load_oura_plists(files_found)
     suite, source = _suite_plist(data_by_name, path_by_name)
 
@@ -505,7 +507,8 @@ def oura_find_my_ring_location(files_found, report_folder, seeker, wrap_text, ti
 
 
 @artifact_processor
-def oura_ring_status(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def oura_ring_status(context):
+    files_found = context.get_files_found()
     data_by_name, path_by_name, _ = _load_oura_plists(files_found)
     suite, source = _suite_plist(data_by_name, path_by_name)
     ring = _ring_id(suite)
@@ -593,7 +596,8 @@ _NESTED_ACTIVITY = (
 
 
 @artifact_processor
-def oura_app_activity(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def oura_app_activity(context):
+    files_found = context.get_files_found()
     data_by_name, path_by_name, _ = _load_oura_plists(files_found)
     suite, source = _suite_plist(data_by_name, path_by_name)
 
@@ -623,7 +627,8 @@ def oura_app_activity(files_found, report_folder, seeker, wrap_text, timezone_of
 
 
 @artifact_processor
-def oura_daytime_heart_rate(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def oura_daytime_heart_rate(context):
+    files_found = context.get_files_found()
     data_by_name, path_by_name, _ = _load_oura_plists(files_found)
     suite, source = _suite_plist(data_by_name, path_by_name)
     widget = _jload(suite.get("widgetInfo")) or {}
@@ -661,7 +666,8 @@ def _segment_settings(data_by_name):
 
 
 @artifact_processor
-def oura_analytics_integrations(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def oura_analytics_integrations(context):
+    files_found = context.get_files_found()
     data_by_name, path_by_name, _ = _load_oura_plists(files_found)
     _, source = _suite_plist(data_by_name, path_by_name)
     settings = _segment_settings(data_by_name)
@@ -687,7 +693,8 @@ def oura_analytics_integrations(files_found, report_folder, seeker, wrap_text, t
 
 
 @artifact_processor
-def oura_analytics_event_plan(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def oura_analytics_event_plan(context):
+    files_found = context.get_files_found()
     data_by_name, path_by_name, _ = _load_oura_plists(files_found)
     _, source = _suite_plist(data_by_name, path_by_name)
     settings = _segment_settings(data_by_name)
