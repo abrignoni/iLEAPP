@@ -15,7 +15,7 @@ Number of artifacts with 'lava output': 575
 Number of artifacts using 'artifact_icon': 464  
 Number of artifacts using 'version': 102  
 Number of artifacts using 'last_update_date': 480  
-Number of artifacts using context parameter: 410  
+Number of artifacts using context parameter: 411  
 Number of artifacts with errors or no recognized artifacts: 2  
 
 ## V2 Artifacts Table
@@ -185,7 +185,7 @@ Number of artifacts with errors or no recognized artifacts: 2
 | [backupSettings.py](/scripts/artifacts/backupSettings.py) | backupSettings | Backup Settings | Identifiers | html, tsv, lava | Yes | save |  | 2025-10-29 | Extracts Backup settings | ``*/mobile/Library/Preferences/com.apple.mobile.ldbackup.plist`` |
 | [batteryBDC.py](/scripts/artifacts/batteryBDC.py) | battery_bdc | Battery Data Collection (BDC) | Battery | standard | Yes | battery-charging |  | 2026-05-27 | Parses battery usage and temps from Battery Data Collection (BDC) logs | ``*/Battery/BDC/BDC_SBC_*.csv`` |
 | [biomeAirpMode.py](/scripts/artifacts/biomeAirpMode.py) | get_biomeAirpMode | Biome - Airplane Mode DKEvent | Biome | standard | Yes |  |  | 2025-10-31 | Parses airplane mode entries from biomes | ``*/Biome/streams/restricted/_DKEvent.System.AirplaneMode/local/*`` |
-| [biomeAppWebUsage.py](/scripts/artifacts/biomeAppWebUsage.py) | get_biomeAppWebUsage | Biome - App Web Usage | Biome | standard | No |  | 0.0.1 |  | Parses App Web Usage entries from Biome | ``*/Biome/streams/restricted/App.WebUsage/local/*`` |
+| [biomeAppWebUsage.py](/scripts/artifacts/biomeAppWebUsage.py) | get_biomeAppWebUsage | Biome - App Web Usage | Biome | standard | Yes |  | 0.0.1 |  | Parses App Web Usage entries from Biome | ``*/Biome/streams/restricted/App.WebUsage/local/*`` |
 | [biomeAppinstall.py](/scripts/artifacts/biomeAppinstall.py) | get_biomeAppinstall | Biome - App Install | Biome | standard | Yes |  |  | 2026-06-18 | Parses airplane mode entries from biomes | ``*/Biome/streams/restricted/_DKEvent.App.Install/local/*``, ``*/Biome/streams/restricted/App.Install/local/*`` |
 | [biomeBacklight.py](/scripts/artifacts/biomeBacklight.py) | get_biomeBacklight | Biome - Backlight | Biome | standard | Yes |  |  | 2025-10-31 | Parses backlight entries from biomes | ``*/Biome/streams/public/Backlight/local/*`` |
 | [biomeBattperc.py](/scripts/artifacts/biomeBattperc.py) | get_biomeBattperc | Biome - Battery Percentage | Biome | standard | Yes |  |  | 2025-10-31 | Parses battery percentage entries from biomes | ``*/biome/streams/restricted/_DKEvent.Device.BatteryPercentage/local/*`` |
