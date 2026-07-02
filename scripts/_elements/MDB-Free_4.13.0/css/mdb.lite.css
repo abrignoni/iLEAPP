@@ -1522,7 +1522,7 @@
 .primary-color,
 ul.stepper li.active a .circle,
 ul.stepper li.completed a .circle {
-    background-color: #4285f4 !important
+    background-color: #e30613 !important
 }
 
 .primary-color-dark {
@@ -1706,7 +1706,7 @@ ul.stepper li.warning a .circle {
 }
 
 a {
-    color: #007bff;
+    color: #e30613;
     text-decoration: none;
     cursor: pointer;
     -webkit-transition: all 0.2s ease-in-out;
@@ -1714,7 +1714,7 @@ a {
 }
 
 a:hover {
-    color: #0056b3;
+    color: #9f040d;
     text-decoration: none;
     -webkit-transition: all 0.2s ease-in-out;
     transition: all 0.2s ease-in-out
@@ -1722,7 +1722,7 @@ a:hover {
 
 a.disabled:hover,
 a:disabled:hover {
-    color: #007bff
+    color: #e30613
 }
 
 a:not([href]):not([tabindex]),
@@ -1848,7 +1848,7 @@ a:not([href]):not([tabindex]):hover {
 }
 
 .bg-primary {
-    background-color: #4285f4 !important
+    background-color: #e30613 !important
 }
 
 a.bg-primary:hover,
@@ -1859,7 +1859,7 @@ button.bg-primary:focus {
 }
 
 .border-primary {
-    border-color: #4285f4 !important
+    border-color: #e30613 !important
 }
 
 .bg-danger {
@@ -2038,11 +2038,11 @@ h6 {
 }
 
 .bq-primary {
-    border-left: 3px solid #4285f4 !important
+    border-left: 3px solid #e30613 !important
 }
 
 .bq-primary .bq-title {
-    color: #4285f4 !important
+    color: #e30613 !important
 }
 
 .bq-danger {
@@ -2186,7 +2186,7 @@ h6 {
 }
 
 .text-primary {
-    color: #4285f4 !important
+    color: #e30613 !important
 }
 
 a.text-primary:hover,
@@ -3002,7 +3002,7 @@ a.waves-light {
 
 .btn-primary {
     color: #fff;
-    background-color: #4285f4 !important
+    background-color: #e30613 !important
 }
 
 .btn-primary:hover {
@@ -3023,7 +3023,7 @@ a.waves-light {
 }
 
 .btn-primary.dropdown-toggle {
-    background-color: #4285f4 !important
+    background-color: #e30613 !important
 }
 
 .btn-primary.dropdown-toggle:hover,
@@ -3047,12 +3047,12 @@ a.waves-light {
 }
 
 .primary-ic {
-    color: #4285f4 !important
+    color: #e30613 !important
 }
 
 .primary-ic:hover,
 .primary-ic:focus {
-    color: #4285f4
+    color: #e30613
 }
 
 a.btn:not([href]):not([tabindex]),
@@ -3066,9 +3066,9 @@ table.table a.btn.btn-primary {
 }
 
 .btn-outline-primary {
-    color: #4285f4 !important;
+    color: #e30613 !important;
     background-color: transparent !important;
-    border: 2px solid #4285f4 !important
+    border: 2px solid #e30613 !important
 }
 
 .btn-outline-primary:hover,
@@ -3076,16 +3076,16 @@ table.table a.btn.btn-primary {
 .btn-outline-primary:active,
 .btn-outline-primary:active:focus,
 .btn-outline-primary.active {
-    color: #4285f4 !important;
+    color: #e30613 !important;
     background-color: transparent !important;
-    border-color: #4285f4 !important
+    border-color: #e30613 !important
 }
 
 .btn-outline-primary:not([disabled]):not(.disabled):active,
 .btn-outline-primary:not([disabled]):not(.disabled).active,
 .show>.btn-outline-primary.dropdown-toggle {
     background-color: transparent !important;
-    border-color: #4285f4 !important;
+    border-color: #e30613 !important;
     -webkit-box-shadow: 0 5px 11px 0 rgba(0, 0, 0, 0.18), 0 4px 15px 0 rgba(0, 0, 0, 0.15);
     box-shadow: 0 5px 11px 0 rgba(0, 0, 0, 0.18), 0 4px 15px 0 rgba(0, 0, 0, 0.15)
 }
@@ -6588,7 +6588,7 @@ table.table a.btn.btn-black {
 }
 
 .navbar.navbar-light form .md-form input:focus:not([readonly]) {
-    border-color: #4285f4
+    border-color: #e30613
 }
 
 .navbar.navbar-light form .md-form .form-control {
@@ -6664,7 +6664,7 @@ table.table a.btn.btn-black {
 }
 
 .navbar.navbar-dark form .md-form input:focus:not([readonly]) {
-    border-color: #4285f4
+    border-color: #e30613
 }
 
 .navbar.navbar-dark form .md-form .form-control {
@@ -6717,7 +6717,7 @@ table.table a.btn.btn-black {
 
 .pagination .page-item.active .page-link {
     color: #fff;
-    background-color: #4285f4;
+    background-color: #e30613;
     border-radius: .125rem;
     -webkit-box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
     box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
@@ -6726,7 +6726,7 @@ table.table a.btn.btn-black {
 }
 
 .pagination .page-item.active .page-link:hover {
-    background-color: #4285f4
+    background-color: #e30613
 }
 
 .pagination .page-item.disabled .page-link {
@@ -6779,11 +6779,11 @@ table.table a.btn.btn-black {
 }
 
 .pagination.pg-blue .page-item.active .page-link {
-    background-color: #4285f4
+    background-color: #e30613
 }
 
 .pagination.pg-blue .page-item.active .page-link:hover {
-    background-color: #4285f4
+    background-color: #e30613
 }
 
 .pagination.pg-red .page-item.active .page-link {
@@ -6857,7 +6857,7 @@ table.table a.btn.btn-black {
 
 .badge-primary {
     color: #fff !important;
-    background-color: #4285f4 !important
+    background-color: #e30613 !important
 }
 
 .badge-danger {
@@ -7043,17 +7043,17 @@ body.scrollable {
 }
 
 .modal-dialog.modal-notify.modal-primary .modal-header {
-    background-color: #4285f4
+    background-color: #e30613
 }
 
 .modal-dialog.modal-notify.modal-primary .fas,
 .modal-dialog.modal-notify.modal-primary .fab,
 .modal-dialog.modal-notify.modal-primary .far {
-    color: #4285f4
+    color: #e30613
 }
 
 .modal-dialog.modal-notify.modal-primary .badge {
-    background-color: #4285f4
+    background-color: #e30613
 }
 
 .modal-dialog.modal-notify.modal-primary .btn .fas,
@@ -7065,7 +7065,7 @@ body.scrollable {
 .modal-dialog.modal-notify.modal-primary .btn.btn-outline-primary .fas,
 .modal-dialog.modal-notify.modal-primary .btn.btn-outline-primary .fab,
 .modal-dialog.modal-notify.modal-primary .btn.btn-outline-primary .far {
-    color: #4285f4
+    color: #e30613
 }
 
 .modal-dialog.modal-notify.modal-danger .modal-header {
@@ -7449,9 +7449,9 @@ body.scrollable {
 .md-form input[type="phone"]:not(.browser-default):focus:not([readonly]),
 .md-form input[type="search-md"]:focus:not([readonly]),
 .md-form textarea.md-textarea:focus:not([readonly]) {
-    border-bottom: 1px solid #4285f4;
-    -webkit-box-shadow: 0 1px 0 0 #4285f4;
-    box-shadow: 0 1px 0 0 #4285f4
+    border-bottom: 1px solid #e30613;
+    -webkit-box-shadow: 0 1px 0 0 #e30613;
+    box-shadow: 0 1px 0 0 #e30613
 }
 
 .md-form input:not([type]):focus:not([readonly])+label,
@@ -7469,7 +7469,7 @@ body.scrollable {
 .md-form input[type="phone"]:not(.browser-default):focus:not([readonly])+label,
 .md-form input[type="search-md"]:focus:not([readonly])+label,
 .md-form textarea.md-textarea:focus:not([readonly])+label {
-    color: #4285f4
+    color: #e30613
 }
 
 .md-form input:not([type])+label::after,
@@ -7980,7 +7980,7 @@ body.scrollable {
 }
 
 .md-form .prefix.active {
-    color: #4285f4
+    color: #e30613
 }
 
 .md-form.form-lg .validate {
@@ -8097,9 +8097,9 @@ body.scrollable {
 .md-form.md-outline input[type="search-md"]:focus:not([readonly]),
 .md-form.md-outline input[type="search"]:focus:not([readonly]),
 .md-form.md-outline textarea.md-textarea:focus:not([readonly]) {
-    border-color: #4285f4;
-    -webkit-box-shadow: inset 0 0 0 1px #4285f4;
-    box-shadow: inset 0 0 0 1px #4285f4
+    border-color: #e30613;
+    -webkit-box-shadow: inset 0 0 0 1px #e30613;
+    box-shadow: inset 0 0 0 1px #e30613
 }
 
 .md-form.md-outline input[type="text"]:focus:not([readonly])+label,
@@ -8114,7 +8114,7 @@ body.scrollable {
 .md-form.md-outline input[type="search-md"]:focus:not([readonly])+label,
 .md-form.md-outline input[type="search"]:focus:not([readonly])+label,
 .md-form.md-outline textarea.md-textarea:focus:not([readonly])+label {
-    color: #4285f4
+    color: #e30613
 }
 
 .md-form.md-outline input[type="text"].valid,
@@ -8469,7 +8469,7 @@ body.scrollable {
 }
 
 .md-form.md-outline .prefix:focus {
-    color: #4285f4
+    color: #e30613
 }
 
 .md-form.md-outline .prefix~input,
@@ -8506,8 +8506,8 @@ body.scrollable {
     box-sizing: border-box;
     padding: 10px 5px;
     background: #f5f5f5 no-repeat;
-    background-image: -webkit-gradient(linear, left top, left bottom, from(#4285f4), to(#4285f4)), -webkit-gradient(linear, left top, left bottom, from(#ced4da), to(#ced4da));
-    background-image: linear-gradient(to bottom, #4285f4, #4285f4), linear-gradient(to bottom, #ced4da, #ced4da);
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#e30613), to(#e30613)), -webkit-gradient(linear, left top, left bottom, from(#ced4da), to(#ced4da));
+    background-image: linear-gradient(to bottom, #e30613, #e30613), linear-gradient(to bottom, #ced4da, #ced4da);
     background-position: 50% 100%, 50% 100%;
     background-size: 0 2px, 100% 1px;
     border: 0;
