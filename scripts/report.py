@@ -1,74 +1,54 @@
+"""
+Generates the HTML report output, including per-artifact pages,
+sidebar navigation, and the index summary page with case information and credits.
+"""
+
 import html
 import os
 from pathlib import Path
 import shutil
 
 from collections import OrderedDict
-from scripts.html_parts import *
+from scripts.html_parts import nav_bar_script, nav_bar_script_footer, \
+    page_header, page_footer, body_start, body_end, body_sidebar_setup, body_sidebar_trailer, \
+    body_main_header, body_main_data_title, body_main_trailer, thank_you_note, credits_block, \
+    individual_contributor, blog_icon, twitter_icon, github_icon, blank_icon, tabs_code, \
+    tabs_code_with_lava, body_sidebar_dynamic_data_placeholder
 from scripts.ilapfuncs import logfunc
 from scripts.version_info import leapp_version, ileapp_contributors
-from scripts.report_icons import icon_mappings, feather_icon_names
 
-def get_icon_name(category, artifact):
+from leapp_functions.data_sources.text_files import get_txt_file_content
+from leapp_functions.data_sources.json_files import get_json_file_content
+
+
+def get_tabler_icon_names():
+    """Returns a set of available tabler icon names by scanning the tabler_icons directory."""
+    for _, dirs, files in Path.cwd().joinpath("assets/tabler_icons").walk():
+        if '__pycache__' in dirs:
+            dirs.remove('__pycache__')
+        return set(file.replace('.svg', '') for file in files if file.endswith('.svg'))
+
+
+def get_tabler_icon(icon_name):
+    """Return the SVG contents for a Tabler icon by name."""
+    return get_txt_file_content(Path.cwd().joinpath("assets/tabler_icons", f"{icon_name}.svg"))
+
+
+def generate_report(reportfolderbase, time_in_secs, time_hms, extraction_type, image_input_path,
+                    casedata, profile_filename, icons, lava_only):
     """
-    Returns the icon name from the feathericons collection. To add an icon type for
-    an artifact, select one of the types from ones listed @ feathericons.com
-    If no icon is available, the alert triangle is returned as default icon.
+    Builds the full HTML report by assembling sidebar navigation from .temphtml artifact files,
+    writing final .html pages, and generating the index.html summary page.
     """
-    category = category.upper()
-    artifact = artifact.upper()
 
-    category_match = icon_mappings.get(category)
+    tabler_icon_names = get_tabler_icon_names()
+    tabler_icon_correction = get_json_file_content('scripts/data/tabler_icon_correction.json')
+    feather_to_tabler_icon_names = get_json_file_content('scripts/data/feather_to_tabler_icon_names.json')
 
-    if category_match:
-        if isinstance(category_match, str):
-            return category_match
-        elif isinstance(category_match, dict):
-            artifact_match = category_match.get(artifact)
-            if artifact_match:
-                return artifact_match
-            else:
-                if category_match.get('_mode') == 'search':
-                    for key, value in category_match.items():
-                        if artifact.find(key) >= 0:
-                            return value
-                    art_default = category_match.get('default')
-                    if art_default:
-                        return art_default
-                art_default = category_match.get('default')
-                if art_default:
-                    return art_default
-    else:
-        # search_set = get_search_mode_categories()
-        for r in search_set:
-            for record in search_set:
-                category_key, category_mapping = list(record.items())[0]
-                if category.find(category_key) >= 0:
-                    for key, value in category_mapping.items():
-                        if artifact.find(key) >= 0:
-                            return value
-                    art_default = category_mapping.get('default')
-                    if art_default:
-                        return art_default
-
-    return 'alert-triangle'
-
-
-def get_search_mode_categories():
-    search_mode_categories = []
-    for category, mappings in icon_mappings.items():
-        if isinstance(mappings, dict) and mappings.get('_mode') == 'search':
-            search_mode_categories.append({category: mappings})
-    return search_mode_categories
-# get them populated
-search_set = get_search_mode_categories()
-
-
-def generate_report(reportfolderbase, time_in_secs, time_HMS, extraction_type, image_input_path, casedata, profile_filename, icons, lava_only):
     control = None
     side_heading = \
         """
-        <h6 class="sidebar-heading justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+        <h6 class="sidebar-heading justify-content-between align-items-center px-3 mt-4 mb-1">
             {0}
         </h6>
         """
@@ -76,44 +56,54 @@ def generate_report(reportfolderbase, time_in_secs, time_HMS, extraction_type, i
         """
         <li class="nav-item">
             <a class="nav-link {0}" href="{1}">
-                <span data-feather="{2}"></span> {3}
+                <span class="tabler-icon">{2}</span> {3}
             </a>
         </li>
         """
     # Populate the sidebar dynamic data (depends on data/files generated by parsers)
     # Start with the 'saved reports' (home) page link and then append elements
-    nav_list_data = side_heading.format('Saved Reports') + list_item.format('', 'index.html', 'home', 'Report Home')
+    nav_list_data = side_heading.format('Saved Reports') + \
+        list_item.format('', 'index.html', get_tabler_icon("home"), 'Report Home')
     # Get all files
-    side_list = OrderedDict() # { Category1 : [path1, path2, ..], Cat2:[..] } Dictionary containing paths as values, key=category
+    # { Category1 : [path1, path2, ..], Cat2:[..] } Dictionary containing paths as values, key=category
+    side_list = OrderedDict()
 
-    for root, dirs, files in sorted(os.walk(reportfolderbase)):
+    for root, _, files in sorted(os.walk(reportfolderbase)):
         files = sorted(files)
         for file in files:
             if file.startswith('._'):
                 continue
             if file.endswith(".temphtml"):
-                fullpath = (os.path.join(root, file))
-                head, tail = os.path.split(fullpath)
+                fullpath = os.path.join(root, file)
+                _, tail = os.path.split(fullpath)
                 filename = tail.replace(".temphtml", "")
                 p = Path(fullpath)
-                SectionHeader = (p.parts[-2])
-                if SectionHeader == '_elements':
+                section_header = p.parts[-2]
+                if section_header == '_elements':
                     pass
                 else:
-                    if control != SectionHeader:
-                        control = SectionHeader
-                        side_list[SectionHeader] = []
-                        nav_list_data += side_heading.format(SectionHeader)
-                    side_list[SectionHeader].append(fullpath)
-                    icon_name = icons.get(SectionHeader, {}).get(filename, "")
-                    icon = icon_name if icon_name else get_icon_name(SectionHeader, filename)
-                    icon = icon if icon in feather_icon_names else 'alert-triangle'
-                    nav_list_data += list_item.format('', tail.replace(".temphtml", ".html").replace(" ", "_"), 
-                                                      icon, filename.replace("_", " "))
+                    if control != section_header:
+                        control = section_header
+                        side_list[section_header] = []
+                        nav_list_data += side_heading.format(section_header)
+                    side_list[section_header].append(fullpath)
+                    icon_name = icons.get(section_header, {}).get(filename, "")
+                    if icon_name in tabler_icon_names:
+                        if icon_name in tabler_icon_correction:
+                            icon_name = tabler_icon_correction[icon_name]
+                        icon = get_tabler_icon(icon_name)
+                    elif icon_name in feather_to_tabler_icon_names:
+                        icon = get_tabler_icon(feather_to_tabler_icon_names[icon_name])
+                    else:
+                        icon = get_tabler_icon('alert-triangle')
+
+                    nav_list_data += list_item.format(
+                        '', tail.replace(".temphtml", ".html").replace(" ", "_"),
+                        icon, filename.replace("_", " "))
 
     # Now that we have all the file paths, start writing the files
 
-    for category, path_list in side_list.items():
+    for _, path_list in side_list.items():
         for path in path_list:
             old_filename = os.path.basename(path)
             filename = old_filename.replace(".temphtml", ".html").replace(" ", "_")
@@ -133,14 +123,15 @@ def generate_report(reportfolderbase, time_in_secs, time_HMS, extraction_type, i
             try:
                 os.rmdir(os.path.dirname(path))
             except OSError:
-                pass # Perhaps it was not empty!
+                pass  # Perhaps it was not empty!
 
     # Create index.html's page content
-    create_index_html(reportfolderbase, time_in_secs, time_HMS, extraction_type, image_input_path, nav_list_data, casedata, profile_filename, lava_only)
+    create_index_html(reportfolderbase, time_in_secs, time_hms, extraction_type, image_input_path,
+                      nav_list_data, casedata, profile_filename, lava_only)
     elements_folder = os.path.join(reportfolderbase, '_HTML', '_elements')
     __location__ = os.path.dirname(os.path.abspath(__file__))
 
-    def copy_no_perm(src, dst, *, follow_symlinks=True):
+    def copy_no_perm(src, dst):
         if not os.path.isdir(dst):
             shutil.copy2(src, dst)
         return dst
@@ -154,12 +145,15 @@ def generate_report(reportfolderbase, time_in_secs, time_HMS, extraction_type, i
 
 
 def get_file_content(path):
+    """Return UTF-8 text content from the file at the given path."""
     f = open(path, 'r', encoding='utf8')
     data = f.read()
     f.close()
     return data
 
-def create_index_html(reportfolderbase, time_in_secs, time_HMS, extraction_type, image_input_path, nav_list_data, casedata, profile_filename, lava_only):
+
+def create_index_html(reportfolderbase, time_in_secs, time_hms, extraction_type, image_input_path,
+                      nav_list_data, casedata, profile_filename, lava_only):
     '''Write out the index.html page to the report folder'''
     case_list = []
     agency_logo_mimetype = ''
@@ -180,26 +174,27 @@ def create_index_html(reportfolderbase, time_in_secs, time_HMS, extraction_type,
                 continue
             if value:
                 case_list.append([key, value])
-    
+
     if profile_filename:
         case_list.append(['Profile loaded', profile_filename])
-    
+
     case_list += [
         ['Extraction location', image_input_path],
         ['Extraction type', extraction_type],
         ['Report directory', reportfolderbase],
-        ['Processing time', f'{time_HMS} (Total {time_in_secs} seconds)']
+        ['Processing time', f'{time_hms} (Total {time_in_secs} seconds)']
     ]
-    
+
     tab1_content = generate_key_val_table_without_headings('', case_list, agency_logo_mimetype, agency_logo_b64)
     if lava_only:
         tab1_content += \
-        """
-            <p class="note alert-warning mb-4">
-            This report contains artifacts that are likely to return too much data to be viewed in a Web browser.<br>
-            Please review the <i>'LAVA only artifacts'</i> tab for a listing of those artifacts and information on how to open this report using LAVA.
-            </p>
-        """
+            """
+                <p class="note alert-warning mb-4">
+                This report contains artifacts that are likely to return too much data
+                 to be viewed in a Web browser.<br> Please review the <i>'LAVA only artifacts'</i>
+                 tab for a listing of those artifacts and information on how to open this report using LAVA.
+                </p>
+            """
     tab1_content += \
         """
             <p class="note note-primary mb-4">
@@ -236,7 +231,8 @@ def create_index_html(reportfolderbase, time_in_secs, time_HMS, extraction_type,
     filename = 'index.html'
     page_title = 'iLEAPP Report'
     body_heading = 'iOS Logs, Events, And Plists Parser'
-    body_description = 'iLEAPP is an open source project that aims to parse every known iOS artifact for the purpose of forensic analysis.'
+    body_description = 'iLEAPP is an open source project that aims to parse "\
+        "every known iOS artifact for the purpose of forensic analysis.'
     active_nav_list_data = mark_item_active(nav_list_data, filename) + nav_bar_script
 
     html_reportfolderbase = Path(reportfolderbase).joinpath('_HTML')
@@ -266,10 +262,10 @@ def create_index_html(reportfolderbase, time_in_secs, time_HMS, extraction_type,
     f.close()
 
 
-
-def generate_authors_table_code(ileapp_contributors):
+def generate_authors_table_code(contributors):
+    """Reads the contributors JSON file and returns HTML markup for the authors credits table."""
     authors_data = ''
-    for author_name, blog, tweet_handle, git in ileapp_contributors:
+    for author_name, blog, tweet_handle, git in contributors:
         author_data = ''
         if blog:
             author_data += f'<a href="{blog}" target="_blank">{blog_icon}</a> &nbsp;\n'
@@ -286,6 +282,7 @@ def generate_authors_table_code(ileapp_contributors):
 
         authors_data += individual_contributor.format(author_name, author_data)
     return authors_data
+
 
 def generate_key_val_table_without_headings(title, data_list, agency_logo_mimetype, agency_logo_b64):
     '''Returns the html code for a key-value table (2 cols) without col names'''
@@ -314,14 +311,16 @@ def generate_key_val_table_without_headings(title, data_list, agency_logo_mimety
             style="min-width: 50px; max-width:200px"></div>\
             </td>'
     for row in data_list:
-        code += '<tr>' + ''.join( ('<td>{}</td>'.format(html.escape(str(x))) for x in row) ) + '</tr>'
+        code += '<tr>' + ''.join((f'<td>{html.escape(str(x))}</td>' for x in row)) + '</tr>'
 
     # Add footer
     code += table_footer_code
 
     return code
 
+
 def insert_sidebar_code(data, sidebar_code, filename):
+    """Replaces the sidebar placeholder in the page HTML with the fully built navigation sidebar code."""
     pos = data.find(body_sidebar_dynamic_data_placeholder)
     if pos < 0:
         logfunc(f'Error, could not find {body_sidebar_dynamic_data_placeholder} in file {filename}')
@@ -329,6 +328,7 @@ def insert_sidebar_code(data, sidebar_code, filename):
     else:
         ret = data[0: pos] + sidebar_code + data[pos + len(body_sidebar_dynamic_data_placeholder):]
         return ret
+
 
 def mark_item_active(data, itemname):
     '''Finds itemname in data, then marks that node as active. Return value is changed data'''

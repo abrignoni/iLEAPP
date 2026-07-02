@@ -25,9 +25,6 @@ page_header = \
         <!-- MDBootstrap Datatables  -->
         <link rel="stylesheet" href="_elements/MDB-Free_4.13.0/css/addons/datatables.min.css" rel="stylesheet">
 
-        <!-- Icons -->
-        <!--script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script-->
-        <script src="_elements/feather.min.js"></script>
     </head>
     <body>
 """
@@ -50,66 +47,12 @@ body_start = \
 """
 body_sidebar_setup = \
 """
-            <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+            <nav class="col-md-2 d-none d-md-block bg-dark sidebar">
                 <div class="sidebar-sticky" id="sidebar_id">
                     <ul class="nav flex-column">
 """
 # The 'active' class must be set only for the current page, it will highlight that entry in blue
 #   class="nav-link active"
-# Below is sample data, use own generated data!
-body_sidebar_dynamic_data = \
-"""
-                        <h6 class="sidebar-heading justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-                            Saved reports
-                        </h6>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <span data-feather="home"></span> Report Home
-                            </a>
-                        </li>
-                        <h6 class="sidebar-heading justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-                            Recent Activity
-                        </h6>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <span data-feather="activity"></span> RecentActivity_0
-                            </a>
-                        </li>
-                        <h6 class="sidebar-heading justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-                            Script Logs
-                        </h6>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <span data-feather="archive"></span> Processed Files Log
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <span data-feather="archive"></span> Screen Output
-                            </a>
-                        </li>
-                        <h6 class="sidebar-heading justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-                            Usage Stats
-                        </h6>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <span data-feather="bar-chart-2"></span> UsageStats_0
-                            </a>
-                        </li>
-                        <h6 class="sidebar-heading justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-                            Wellbeing
-                        </h6>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <span data-feather="layers"></span> Events
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <span data-feather="user"></span> Wellbeing Account
-                            </a>
-                        </li>
-"""
 body_sidebar_dynamic_data_placeholder = '<!--__INSERT-NAV-BAR-DATA-HERE__-->'
 body_sidebar_trailer = \
 """
@@ -291,14 +234,10 @@ body_end = \
     <!-- Your custom scripts -->
     <!-- MDBootstrap Datatables  -->
     <script type="text/javascript" src="_elements/MDB-Free_4.13.0/js/addons/datatables.min.js"></script>
-    <script>
-        feather.replace()
-    </script>
 """
 nav_bar_script = \
 """
     <script>
-        feather.replace();
         var element = document.getElementById("sidebar_id");
         var searchParams = new URLSearchParams(window.location.search);
         if (searchParams.has('navpos')) {
