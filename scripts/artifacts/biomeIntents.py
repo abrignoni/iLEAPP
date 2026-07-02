@@ -11,6 +11,7 @@ __artifacts_v2__ = {
         "paths": ('*/AppIntent/local/*'),
         "html_columns": ["Data"],
         "output_types": "standard",
+        "artifact_icon": "bolt",
     }
 }
 

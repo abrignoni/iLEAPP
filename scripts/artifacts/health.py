@@ -40,7 +40,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ("*Health/healthdb_secure.sqlite*", "*Health/healthdb.sqlite*"),
         "output_types": ["html", "tsv", "lava"],
-        "artifact_icon": "smartphone"
+        "artifact_icon": "device-mobile"
     },
     "health_headphone_audio_levels": {
         "name": "Health - Headphone Audio Levels",
@@ -182,7 +182,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ("*Health/healthdb_secure.sqlite*",),
         "output_types": "standard",
-        "artifact_icon": "watch"
+        "artifact_icon": "device-watch"
     },
     'health_all_watch_sleep_data': {
         'name': 'Health - Sleep - All Watch Sleep Data',
@@ -233,7 +233,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ("*Health/healthdb.sqlite*",),
         "output_types": "standard",
-        "artifact_icon": "smartphone"
+        "artifact_icon": "device-mobile"
     },
     "health_wrist_temperature": {
         "name": "Health - Wrist Temperature",

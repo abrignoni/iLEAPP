@@ -11,7 +11,8 @@ __artifacts_v2__ = {
         "paths":
             ('*/Biome/streams/public/TextInputSession/local/*',
              '*/Biome/streams/restricted/Text.InputSession/local/*'),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": "keyboard"
     }
 }
 

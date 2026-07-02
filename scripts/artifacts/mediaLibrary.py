@@ -23,7 +23,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('**/Medialibrary.sqlitedb*',),
         "output_types": "standard",
-        "artifact_icon": "info"
+        "artifact_icon": "info-circle"
     }
 }
 

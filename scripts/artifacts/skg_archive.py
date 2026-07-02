@@ -14,19 +14,19 @@ __artifacts_v2__ = {
             #'*/CoreSpotlight/SpotlightKnowledge/index.V2/archives/NSFileProtectionComplete/skg_archive-*',
             '*/CoreSpotlight/SpotlightKnowledge/index.V2/archives/NSFileProtectionCompleteUntilFirstUserAuthentication/skg_archive-*'
         ),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": "search"
     }
 }
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 import mdplist
 import nska_deserialize as nd
-import os
 from collections import defaultdict
 from pathlib import Path
 
 @artifact_processor
-def skg_archive(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def skg_archive(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
 
     data_list = []
     dedupe = 0

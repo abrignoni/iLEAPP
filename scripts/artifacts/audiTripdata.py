@@ -10,6 +10,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ("*/Library/Caches/de.audi.myaudimobileassistant/fsCachedData/**",),
         "output_types": "standard",
+        "artifact_icon": "car",
     }
 }
 

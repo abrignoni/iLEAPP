@@ -9,7 +9,8 @@ __artifacts_v2__ = {
         "category": "Apple Podcasts",
         "notes": "",
         "paths": ('*/MTLibrary.sqlite*'),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": "microphone"
     },
     "get_applePodcastsEpisodes": {
         "name": "Apple Podcasts Episodes",
@@ -21,7 +22,8 @@ __artifacts_v2__ = {
         "category": "Apple Podcasts",
         "notes": "",
         "paths": ('*/MTLibrary.sqlite*'),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": "headphones"
     }
 }
 

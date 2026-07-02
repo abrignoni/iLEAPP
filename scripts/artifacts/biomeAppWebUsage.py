@@ -9,7 +9,8 @@ __artifacts_v2__ = {
         "category": "Biome",
         "notes": "",
         "paths": ('*/Biome/streams/restricted/App.WebUsage/local/*'),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": "world"
     }
 }
 
@@ -70,7 +71,7 @@ def get_biomeAppWebUsage(context):
             ts = ts.replace(tzinfo=timezone.utc)
 
             if record.state == EntryState.Written:
-                protostuff, types = blackboxprotobuf.decode_message(record.data, typess)
+                protostuff, _types = blackboxprotobuf.decode_message(record.data, typess)
 
                 guid               = protostuff.get('bundle_id', '')
                 timestamp          = webkit_timestampsconv(protostuff['timestamp'])

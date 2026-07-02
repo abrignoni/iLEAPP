@@ -9,7 +9,8 @@ __artifacts_v2__ = {
         "category": "Connected Devices",
         "notes": "",
         "paths": ('*/iTunes_Control/iTunes/iTunesPrefs',),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": "devices"
     }
 }
 

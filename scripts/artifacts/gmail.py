@@ -9,7 +9,8 @@ __artifacts_v2__ = {
         "category": "Gmail",
         "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/data/*/searchsqlitedb*',),
-        "output_types": ["html", "tsv", "lava", "timeline"]
+        "output_types": ["html", "tsv", "lava", "timeline"],
+        "artifact_icon": "search"
     },
     "gmailLabelDetails": {
         "name": "Gmail - Label Details",
@@ -21,18 +22,20 @@ __artifacts_v2__ = {
         "category": "Gmail",
         "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/data/*/sqlitedb*',),
-        "output_types": ["html", "tsv", "lava"]
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "tag"
     }
 }
 
-from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, logfunc, convert_ts_human_to_timezone_offset
+from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, convert_ts_human_to_timezone_offset
 
 @artifact_processor
-def gmailOfflineSearch(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def gmailOfflineSearch(files_found, _report_folder, _seeker, _wrap_text, timezone_offset):
     data_list = []
     data_headers = ()
     source_path = ''
     
+    file_found = ''
     for file_found in files_found:
         source_path = str(file_found)
         if file_found.endswith('searchsqlitedb'):
@@ -90,11 +93,12 @@ def gmailOfflineSearch(files_found, report_folder, seeker, wrap_text, timezone_o
     return data_headers, data_list, source_path
 
 @artifact_processor
-def gmailLabelDetails(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def gmailLabelDetails(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
     data_list = []
     data_headers = ()
     source_path = ''
     
+    file_found = ''
     for file_found in files_found:
         source_path = str(file_found)
         if file_found.endswith('sqlitedb'):

@@ -10,7 +10,8 @@ __artifacts_v2__ = {
         "category": "Identifiers",
         "notes": "",
         "paths": ('*/wireless/Library/Preferences/com.apple.commcenter.plist'),
-        "output_types": ["html", "tsv", "lava"]
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "hash"
     }
 }
 
@@ -18,7 +19,7 @@ import plistlib
 from scripts.ilapfuncs import artifact_processor, device_info
 
 @artifact_processor
-def imeiImsi(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def imeiImsi(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
     data_list = []
     source_path = str(files_found[0])
     
@@ -45,7 +46,6 @@ def imeiImsi(files_found, report_folder, seeker, wrap_text, timezone_offset):
                 device_info("Cellular", "Last Known ICCI", lastknownicci, source_path)
                 
             elif key == 'PhoneNumber':
-                phonenumber = val
                 data_list.append(('Phone Number', val))
                 device_info("Cellular", "Phone Number", val, source_path)
                 

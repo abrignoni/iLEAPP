@@ -10,6 +10,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/netusage.sqlite*'),
         "output_types": "standard",
+        "artifact_icon": "chart-pie",
     },
     "netusage_connections": {
         "name": "Connections",
@@ -22,6 +23,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/netusage.sqlite*'),
         "output_types": "standard",
+        "artifact_icon": "network",
     }
 }
 

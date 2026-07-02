@@ -11,6 +11,7 @@ __artifacts_v2__ = {
         "paths": ('*/Chrome/Default/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
+        "artifact_icon": "history",
     },
     "chromeWebVisits": {
         "name": "Web Visits",
@@ -24,6 +25,7 @@ __artifacts_v2__ = {
         "paths": ('*/Chrome/Default/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
+        "artifact_icon": "world",
     },
     "chromeWebSearch": {
         "name": "Web Searches",
@@ -37,6 +39,7 @@ __artifacts_v2__ = {
         "paths": ('*/Chrome/Default/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
+        "artifact_icon": "search",
     },
     "chromeDownloads": {
         "name": "Downloads",
@@ -50,6 +53,7 @@ __artifacts_v2__ = {
         "paths": ('*/Chrome/Default/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
+        "artifact_icon": "download",
     },
     "chromeKeywordSearchTerms": {
         "name": "Keyword Search Terms",
@@ -63,6 +67,7 @@ __artifacts_v2__ = {
         "paths": ('*/Chrome/Default/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
+        "artifact_icon": "search",
     },
     "chromeAutofillEntries": {
         "name": "Autofill Entries",
@@ -76,6 +81,7 @@ __artifacts_v2__ = {
         "paths": ('*/Chrome/Default/Web Data*', '*/app_sbrowser/Default/Web Data*', '*/app_opera/Web Data*',
                   '*/Chromium/Default/Web Data*'),
         "output_types": "standard",
+        "artifact_icon": "forms",
     },
     "chromeAutofillProfiles": {
         "name": "Autofill Profiles",
@@ -89,6 +95,7 @@ __artifacts_v2__ = {
         "paths": ('*/Chrome/Default/Web Data*', '*/app_sbrowser/Default/Web Data*', '*/app_opera/Web Data*',
                   '*/Chromium/Default/Web Data*'),
         "output_types": "standard",
+        "artifact_icon": "user",
     },
     "chromeBookmarks": {
         "name": "Bookmarks",
@@ -102,6 +109,7 @@ __artifacts_v2__ = {
         "paths": ('*/Chrome/Default/Bookmarks*', '*/app_sbrowser/Default/Bookmarks*', '*/app_opera/Bookmarks*',
                   '*/Chromium/Default/Bookmarks*'),
         "output_types": "standard",
+        "artifact_icon": "bookmark",
     },
     "chromeCookies": {
         "name": "Cookies",
@@ -114,6 +122,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Chrome/Default/Cookies*', '*/app_sbrowser/Default/Cookies*', '*/app_opera/Cookies*', '*/Chromium/Default/Cookies*'),
         "output_types": "standard",
+        "artifact_icon": "cookie",
     },
     "chromeLoginData": {
         "name": "Login Data",
@@ -126,6 +135,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Chrome/Default/Login Data*', '*/app_sbrowser/Default/Login Data*', '*/app_opera/Login Data*', '*/Chromium/Default/Login Data*'),
         "output_types": "standard",
+        "artifact_icon": "key",
     },
     "chromeTopSites": {
         "name": "Top Sites",
@@ -138,6 +148,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Chrome/Default/Top Sites*', '*/app_sbrowser/Default/Top Sites*', '*/app_opera/Top Sites*', '*/Chromium/Default/Top Sites*'),
         "output_types": ['lava', 'tsv', 'html'],
+        "artifact_icon": "star",
     },
     "chromeOfflinePages": {
         "name": "Offline Pages",
@@ -152,6 +163,7 @@ __artifacts_v2__ = {
                   '*/app_sbrowser/Default/Offline Pages/metadata/OfflinePages.db*',
                   '*/Chromium/Default/Offline Pages/metadata/OfflinePages.db*'),
         "output_types": "standard",
+        "artifact_icon": "wifi-off",
     },
     "chromeMediaHistorySessions": {
         "name": "Media History Sessions",
@@ -165,6 +177,7 @@ __artifacts_v2__ = {
         "paths": ('*/Chrome/Default/Media History*', '*/app_sbrowser/Default/Media History*',
                   '*/app_opera/Media History*', '*/Chromium/Default/Media History*'),
         "output_types": "standard",
+        "artifact_icon": "movie",
     },
     "chromeMediaHistoryPlaybacks": {
         "name": "Media History Playbacks",
@@ -178,6 +191,7 @@ __artifacts_v2__ = {
         "paths": ('*/Chrome/Default/Media History*', '*/app_sbrowser/Default/Media History*',
                   '*/app_opera/Media History*', '*/Chromium/Default/Media History*'),
         "output_types": "standard",
+        "artifact_icon": "player-play",
     },
     "chromeMediaHistoryOrigins": {
         "name": "Media History Origins",
@@ -191,6 +205,7 @@ __artifacts_v2__ = {
         "paths": ('*/Chrome/Default/Media History*', '*/app_sbrowser/Default/Media History*',
                   '*/app_opera/Media History*', '*/Chromium/Default/Media History*'),
         "output_types": "standard",
+        "artifact_icon": "world",
     },
     "chromeNetworkActionPredictor": {
         "name": "Network Action Predictor",
@@ -204,6 +219,7 @@ __artifacts_v2__ = {
         "paths": ('*/Chrome/Default/Network Action Predictor*','*/app_sbrowser/Default/Network Action Predictor*',
                   '*/app_opera/Network Action Predictor*', '*/Chromium/Default/Network Action Predictor*'),
         "output_types": ['lava', 'tsv', 'html'],
+        "artifact_icon": "trending-up",
     },
 }
 

@@ -23,7 +23,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Library/Application Support/database.sqlite*',),
         "output_types": "standard",
-        "artifact_icon": "dollar-sign"
+        "artifact_icon": "currency-dollar"
     },
     "splitwiseExpenseBalances": {
         "name": "Splitwise - Expense Balances",
@@ -36,7 +36,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Library/Application Support/database.sqlite*',),
         "output_types": "standard",
-        "artifact_icon": "dollar-sign"
+        "artifact_icon": "currency-dollar"
     },
     "splitwiseTotalBalances": {
         "name": "Splitwise - Total Balances",
@@ -49,7 +49,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Library/Application Support/database.sqlite*',),
         "output_types": "standard",
-        "artifact_icon": "dollar-sign"
+        "artifact_icon": "currency-dollar"
     },
     "splitwiseGroups": {
         "name": "Splitwise - Groups",
@@ -84,7 +84,7 @@ __artifacts_v2__ = {
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, convert_unix_ts_to_utc
 
 @artifact_processor
-def splitwiseUsers(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def splitwiseUsers(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
     source_path = get_file_path(files_found, "database.sqlite")
     data_list = []
 
@@ -131,7 +131,7 @@ def splitwiseUsers(files_found, report_folder, seeker, wrap_text, timezone_offse
 
 
 @artifact_processor
-def splitwiseExpenses(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def splitwiseExpenses(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
     source_path = get_file_path(files_found, "database.sqlite")
     data_list = []
 
@@ -178,7 +178,7 @@ def splitwiseExpenses(files_found, report_folder, seeker, wrap_text, timezone_of
 
 
 @artifact_processor
-def splitwiseExpenseBalances(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def splitwiseExpenseBalances(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
     source_path = get_file_path(files_found, "database.sqlite")
     data_list = []
 
@@ -213,7 +213,7 @@ def splitwiseExpenseBalances(files_found, report_folder, seeker, wrap_text, time
 
 
 @artifact_processor
-def splitwiseTotalBalances(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def splitwiseTotalBalances(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
     source_path = get_file_path(files_found, "database.sqlite")
     data_list = []
 
@@ -250,7 +250,7 @@ def splitwiseTotalBalances(files_found, report_folder, seeker, wrap_text, timezo
 
 
 @artifact_processor
-def splitwiseGroups(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def splitwiseGroups(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
     source_path = get_file_path(files_found, "database.sqlite")
     data_list = []
     data_list_html = []
@@ -312,7 +312,7 @@ def splitwiseGroups(files_found, report_folder, seeker, wrap_text, timezone_offs
 
 
 @artifact_processor
-def splitwiseNotifications(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def splitwiseNotifications(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
     source_path = get_file_path(files_found, "database.sqlite")
     data_list = []
     data_list_html = []
@@ -337,8 +337,7 @@ def splitwiseNotifications(files_found, report_folder, seeker, wrap_text, timezo
     for record in db_records:
         created_ts = convert_unix_ts_to_utc(record[0])
         data_list_html.append((created_ts, record[1], record[2], record[3]))
-        if '<strong>' and '</strong>' in record[1]:
-            remove_html = record[1].replace('<strong>', '').replace('</strong>', '')
+        remove_html = record[1].replace('<strong>', '').replace('</strong>', '')
         data_list.append((created_ts, remove_html, record[2], record[3]))
 
     return data_headers, (data_list, data_list_html), source_path

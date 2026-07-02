@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*PrivateFeed','*PublicFeed','*FriendsFeed'),
         "output_types": "standard",
-        "artifact_icon": "dollar-sign"
+        "artifact_icon": "currency-dollar"
     },
     "venmo_users": {
         "name": "Venmo - Users",

@@ -32,7 +32,7 @@ __artifacts_v2__ = {
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist"),
         "output_types": [ "all" ],
-        "artifact_icon": "navigation-2"
+        "artifact_icon": "navigation"
     },
     "waze_track_gps_quality": {
         "name": "Waze - Track GPS Quality",
@@ -45,7 +45,7 @@ __artifacts_v2__ = {
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Data/Application/*/Documents/spdlog.*logdata"),
         "output_types": [ "all" ],
-        "artifact_icon": "navigation-2"
+        "artifact_icon": "navigation"
     },
     "waze_search_history": {
         "name": "Waze - Search History",

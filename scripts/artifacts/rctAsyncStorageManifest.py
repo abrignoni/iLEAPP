@@ -13,6 +13,7 @@ __artifacts_v2__ = {
             "*/mobile/Containers/Data/Application/*/Library/Application Support/RCTAsyncLocalStorage_V1/manifest.json",
         ),
         "output_types": "standard",
+        "artifact_icon": "database",
     }
 }
 

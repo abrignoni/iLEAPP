@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/DES/Records/com.apple.TextInput.TypingDESPlugin/*.desdata',),
         "output_types": "standard",
-        "artifact_icon": "type"
+        "artifact_icon": "typography"
     }
 }
 

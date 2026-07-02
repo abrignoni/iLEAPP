@@ -10,7 +10,8 @@ __artifacts_v2__ = {
         "category": "Location",
         "notes": "",
         "paths": ('**/MapTiles.sqlitedb*'),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": "map"
     }
 }
 

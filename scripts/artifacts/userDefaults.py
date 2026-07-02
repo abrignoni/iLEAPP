@@ -13,7 +13,7 @@ __artifacts_v2__ = {
             "*/Containers/Data/Application/*/Library/Preferences/*.plist",
         ),
         "output_types": "standard",
-        "artifact_icon": "sliders",
+        "artifact_icon": "adjustments-alt",
     }
 }
 

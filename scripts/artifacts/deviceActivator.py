@@ -8,7 +8,8 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Device Information",
         "paths": ('*/mobile/Library/Logs/mobileactivationd/ucrt_oob_request.txt',),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": "circle-check"
     }
 }
 

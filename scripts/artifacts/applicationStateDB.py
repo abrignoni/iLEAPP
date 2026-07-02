@@ -61,7 +61,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Library/FrontBoard/applicationState.db*'),
         "output_types": "standard",
-        "artifact_icon": "smartphone"
+        "artifact_icon": "device-mobile"
     },
     "get_snapshot_lastUsedDate": {
         "name": "Application Snapshot lastUsedDate",
@@ -79,7 +79,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Library/FrontBoard/applicationState.db*'),
         "output_types": "standard",
-        "artifact_icon": "smartphone"
+        "artifact_icon": "device-mobile"
     }
 }
 

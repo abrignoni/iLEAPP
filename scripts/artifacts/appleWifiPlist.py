@@ -11,7 +11,8 @@ __artifacts_v2__ = {
         "paths": ('*/com.apple.wifi.plist', 
                   '*/com.apple.wifi-networks.plist.backup', 
                   '*/com.apple.wifi.known-networks.plist'),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": "wifi"
     },
     "appleWifiKnownNetworksTimes": {
         "name": "WiFi Known Networks Times",
@@ -25,7 +26,8 @@ __artifacts_v2__ = {
         "paths": ('*/com.apple.wifi.plist', 
                   '*/com.apple.wifi-networks.plist.backup', 
                   '*/com.apple.wifi.known-networks.plist'),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": "clock"
     },
     "appleWifiScannedPrivate": {
         "name": "WiFi Scanned Networks (Private)",
@@ -37,7 +39,8 @@ __artifacts_v2__ = {
         "category": "WiFi Connections",
         "notes": "",
         "paths": ('*/com.apple.wifi-private-mac-networks.plist',),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": "eye-off"
     },
     "appleWifiBSSList": {
         "name": "WiFi BSS List",
@@ -49,7 +52,8 @@ __artifacts_v2__ = {
         "category": "WiFi Connections",
         "notes": "Extracts detailed BSS information from the com.apple.wifi.plist file",
         "paths": ('*/com.apple.wifi.known-networks.plist',),
-        "output_types": "all"
+        "output_types": "all",
+        "artifact_icon": "wifi"
     }
 }
 

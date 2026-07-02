@@ -10,6 +10,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Documents/search_history/history_words/AWESearchHistory*',),
         "output_types": "standard",
+        "artifact_icon": "brand-tiktok",
     }
 }
 

@@ -13,7 +13,7 @@ __artifacts_v2__ = {
             '*/Recordings/*.m4a'
             ),
         "output_types": "standard",
-        "artifact_icon": "mic"
+        "artifact_icon": "microphone"
     }   
 }
 

@@ -25,7 +25,7 @@ __artifacts_v2__ = {
         "notes": _NOTE,
         "paths": ('**/mobile_installation.log.*', '**/sysdiagnose_*.tar.gz'),
         "output_types": ["html", "tsv", "lava"],
-        "artifact_icon": "trash-2"
+        "artifact_icon": "trash"
     },
     "mobileInstall_historical": {
         "name": "Apps - Historical Combined",
@@ -51,7 +51,7 @@ __artifacts_v2__ = {
         "notes": _NOTE,
         "paths": ('**/mobile_installation.log.*', '**/sysdiagnose_*.tar.gz'),
         "output_types": ["html", "tsv", "lava"],
-        "artifact_icon": "refresh-cw"
+        "artifact_icon": "refresh"
     }
 }
 

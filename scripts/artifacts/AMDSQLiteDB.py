@@ -28,7 +28,7 @@ __artifacts_v2__ = {
             '*/mobile/Containers/Data/PluginKitPlugin/*/Documents/AMDSQLite.db.0*'
             ),
         "output_types": "standard",
-        "artifact_icon": "hard-drive"
+        "artifact_icon": "database"
     }
 }
 
@@ -52,7 +52,7 @@ def get_data_from_itunes(lookup_value, lookup_type):
         with urllib.request.urlopen(url) as response:
             response_data = response.read()
             response_json_data = json.loads(response_data)
-    except Exception as e:
+    except Exception:  # pylint: disable=broad-exception-caught
         return f"\nERROR fetching data for {lookup_value} ({lookup_type})", None
     return None, response_json_data
 

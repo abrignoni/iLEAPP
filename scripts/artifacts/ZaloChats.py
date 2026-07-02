@@ -31,7 +31,7 @@ __artifacts_v2__ = {
                 'mediaColumn': 'Attachment File'
                 }
         },
-        "artifact_icon": "message-square"
+        "artifact_icon": "message"
     },
     "zalo_users": {
         "name": "Zalo - Known Users",

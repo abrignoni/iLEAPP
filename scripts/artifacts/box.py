@@ -52,7 +52,7 @@ __artifacts_v2__ = {
                   "*/mobile/Containers/Shared/AppGroup/*/File Provider Storage/boxpreview/*/cache/"
                   "files/*/*/*"),
         "output_types": [ "standard" ],
-        "artifact_icon": "image"
+        "artifact_icon": "photo"
     },
     "box_recents": {
         "name": "Box - Recents",

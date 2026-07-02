@@ -23,7 +23,7 @@ __artifacts_v2__ = {
             "*/mobile/Containers/Data/Application/*/Library/Application Support/DirectSQLiteDatabase/*.db*",
         ),
         "output_types": "standard",
-        "artifact_icon": "instagram",
+        "artifact_icon": "brand-instagram",
         "sample_data": {
             "josh_ios_15": "75 rows; includes messages, VOIP call activity, and conversation view fields",
             "mvs_2026": "0 rows; verifies multi-DB handling with no matching thread records",

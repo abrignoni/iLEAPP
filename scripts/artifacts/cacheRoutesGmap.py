@@ -10,6 +10,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Library/Application Support/CachedRoutes/*.plist',),
         "output_types": "all",
+        "artifact_icon": "route",
     }
 }
 
