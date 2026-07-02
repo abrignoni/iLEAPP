@@ -1900,7 +1900,7 @@ def bereal_chat_list(context):
     data_list = []
     data_list_html = []
     files_found = context.get_files_found()
-    bereal_user_id, user_map = get_bereal_preferences(files_found)
+    _, user_map = get_bereal_preferences(files_found)
     source_path = get_file_path(files_found, "bereal-chat.sqlite")
     if not source_path:
         logfunc("BeReal Chat List: bereal-chat.sqlite not found")
