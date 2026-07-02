@@ -23,7 +23,8 @@ __artifacts_v2__ = {
                 "mediaColumn": "Media",
                 #"sentMessageStaticLabel": "This Device" 
             }
-        }
+        },
+        "artifact_icon": "message-circle"
     },
     "teamsContacts": {
         "name": "Teams Contacts",
@@ -34,7 +35,8 @@ __artifacts_v2__ = {
         "category": "Microsoft Teams",
         "notes": "",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*',),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": "address-book"
     },
     "teamsUser": {
         "name": "Teams User Information",
@@ -45,7 +47,8 @@ __artifacts_v2__ = {
         "category": "Microsoft Teams",
         "notes": "",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*',),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": "user"
     },
     "teamsCalls": {
         "name": "Teams Call Logs",
@@ -56,7 +59,8 @@ __artifacts_v2__ = {
         "category": "Microsoft Teams",
         "notes": "",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*',),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": "phone-call"
     },
     "teamsLocations": {
         "name": "Teams Shared Locations",
@@ -67,7 +71,8 @@ __artifacts_v2__ = {
         "category": "Microsoft Teams",
         "notes": "",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*',),
-        "output_types": "all"
+        "output_types": "all",
+        "artifact_icon": "map-pin"
     }
 }
 

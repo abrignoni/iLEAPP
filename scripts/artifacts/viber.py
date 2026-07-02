@@ -62,7 +62,7 @@ __artifacts_v2__ = {
             '**/Containers/Data/Application/*/Documents/Attachments/*.*',
             '**/com.viber/ViberIcons/*.*'),
         'output_types': "all",
-        'artifact_icon': 'message-square'
+        'artifact_icon': 'message'
     }
 
 }

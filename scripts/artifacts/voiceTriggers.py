@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Library/VoiceTrigger/SAT/*/td/audio/*.json', '*/Library/VoiceTrigger/SAT/*/td/audio/*.wav'),
         "output_types": "standard",
-        "artifact_icon": "mic"
+        "artifact_icon": "microphone"
     }
 }
 

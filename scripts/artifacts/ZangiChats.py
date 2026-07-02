@@ -11,7 +11,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/zangidb.sqlite*'),
         "output_types": "standard",
-        "artifact_icon": ""
+        "artifact_icon": "message-circle"
     }
 }
 

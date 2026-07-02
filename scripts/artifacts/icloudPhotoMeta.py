@@ -12,7 +12,7 @@ __artifacts_v2__ = {
                  "report folder's 'bplists' subfolder.",
         "paths": ('*/cloudphotolibrary/Metadata.txt',),
         "output_types": ["html", "tsv", "timeline", "lava", "kml"],
-        "artifact_icon": "image"
+        "artifact_icon": "photo"
     }
 }
 

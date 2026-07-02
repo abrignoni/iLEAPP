@@ -11,7 +11,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('**/*TrustedPeersHelper.db*',),
         "output_types": "standard",
-        "artifact_icon": "check-circle",
+        "artifact_icon": "circle-check",
         "sample_data": {
             "josh_ios_15": "23 rows",
             "mvs_2026": "6 rows but ZPEERINFO is empty"

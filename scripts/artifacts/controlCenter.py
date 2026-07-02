@@ -9,7 +9,8 @@ __artifacts_v2__ = {
         "category": "Control Center",
         "notes": "",
         "paths": ('*/mobile/Library/ControlCenter/ModuleConfiguration.plist',),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": "adjustments"
     }
 }
 

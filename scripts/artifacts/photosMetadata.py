@@ -12,7 +12,7 @@ __artifacts_v2__ = {
                  "Reverse-location bplists are written to the report folder.",
         "paths": ('*/mobile/Media/PhotoData/Photos.sqlite*',),
         "output_types": ["html", "tsv", "timeline", "lava", "kml"],
-        "artifact_icon": "image"
+        "artifact_icon": "photo"
     }
 }
 

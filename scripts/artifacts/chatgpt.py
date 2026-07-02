@@ -11,7 +11,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('**/Containers/Data/Application/*/Library/Application Support/conversations-*/*.json',),
         "output_types": "standard",
-        "artifact_icon": "message-square"
+        "artifact_icon": "message"
     },
     "chatgptConversations": {
         "name": "ChatGPT - Conversations",
@@ -38,7 +38,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('**/Containers/Data/Application/*/Library/Application Support/drafts-*/*.json',),
         "output_types": "standard",
-        "artifact_icon": "edit-3"
+        "artifact_icon": "pencil-minus"
     },
     "chatgptPreferences": {
         "name": "ChatGPT - Preferences",
@@ -68,7 +68,7 @@ __artifacts_v2__ = {
                   '**/Containers/Data/Application/*/Library/Application Support/conversations-*/*.json',
                   '**/Containers/Data/Application/*/Library/Preferences/com.openai.chat.StatsigService.plist'),
         "output_types": "standard",
-        "artifact_icon": "image"
+        "artifact_icon": "photo"
     },
     "chatgptVoicePrompts": {
         "name": "ChatGPT - Voice Prompts",
@@ -84,7 +84,7 @@ __artifacts_v2__ = {
                   '**/Containers/Data/Application/*/Library/Application Support/conversations-*/*.json',
                   '**/Containers/Data/Application/*/Library/Preferences/com.openai.chat.StatsigService.plist'),
         "output_types": "standard",
-        "artifact_icon": "mic"
+        "artifact_icon": "microphone"
     }
 }
 

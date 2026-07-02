@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         'notes': '',
         'paths': ('*/*.resume',),
         'output_types': 'standard',
-        'artifact_icon': 'download-cloud',
+        'artifact_icon': 'cloud-download',
         'html_columns': ['Data']
     }
 }

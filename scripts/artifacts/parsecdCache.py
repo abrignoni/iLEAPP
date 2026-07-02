@@ -15,6 +15,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ("**/EngagedCompletions/Cache.db*"),
         "output_types": "standard",
+        "artifact_icon": "search",
     }
 }
 

@@ -9,7 +9,8 @@ __artifacts_v2__ = {
         "category": "KnowledgeC",
         "notes": "",
         "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": "battery"
     },
     "knowledgeC_DevicePluginStatus": {
         "name": "knowledgeC - Device Plugin Status",
@@ -21,7 +22,8 @@ __artifacts_v2__ = {
         "category": "KnowledgeC",
         "notes": "",
         "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": "battery-charging"
     },
     "knowledgeC_MediaPlaying": {
         "name": "knowledgeC - Media Playing",
@@ -35,7 +37,8 @@ __artifacts_v2__ = {
             - Sarah Edwards as part of her APOLLO project https://github.com/mac4n6/APOLLO \
             - Ian Wiffin blog post https://www.doubleblak.com/blogPosts.php?id=29",
         "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": "music"
     },
     "knowledgeC_DoNotDisturb": {
         "name": "knowledgeC - Do Not Disturb",
@@ -47,7 +50,8 @@ __artifacts_v2__ = {
         "category": "KnowledgeC",
         "notes": "Based on research by Geraldine Blay and Dan Ogden",
         "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": "moon"
     },
     "knowledgeC_AppUsage": {
         "name": "knowledgeC - App Usage",
@@ -86,7 +90,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
         "output_types": "standard",
-        "artifact_icon": "smartphone"
+        "artifact_icon": "device-mobile"
     },
     "knowledgeC_isBacklit": {
         "name": "knowledgeC - Device Screen Status",
@@ -99,7 +103,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
         "output_types": "standard",
-        "artifact_icon": "smartphone"
+        "artifact_icon": "device-mobile"
     }
 }
 

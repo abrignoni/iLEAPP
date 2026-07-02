@@ -9,17 +9,18 @@ __artifacts_v2__ = {
         "category": "Device Information",
         "notes": "",
         "paths": ('*wireless/Library/Preferences/com.apple.commcenter.device_specific_nobackup.plist',),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": "device-mobile"
     }
 }
 
 import ast
 import plistlib
 from datetime import datetime, timedelta
-from scripts.ilapfuncs import artifact_processor, device_info, convert_plist_date_to_timezone_offset, webkit_timestampsconv
+from scripts.ilapfuncs import artifact_processor, device_info, webkit_timestampsconv
 
 @artifact_processor
-def deviceDatam(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def deviceDatam(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
     data_list = []
     file_found = str(files_found[0])
     
@@ -57,7 +58,7 @@ def deviceDatam(files_found, report_folder, seeker, wrap_text, timezone_offset):
                         # Convert from Apple epoch timestamp
                         converted_time = webkit_timestampsconv(float(val))
                         val = f"{converted_time} (original: {val})"
-                except:
+                except Exception:  # pylint: disable=broad-exception-caught
                     val = str(val)
                     
             data_list.append((key, str(val)))

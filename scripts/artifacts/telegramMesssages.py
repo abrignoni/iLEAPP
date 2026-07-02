@@ -34,7 +34,8 @@ __artifacts_v2__ = {
                 "sentMessageLabelColumn": "Author",
                 "mediaColumn": "Thumbnail"
             }
-        }
+        },
+        "artifact_icon": "brand-telegram"
     }
 }
 

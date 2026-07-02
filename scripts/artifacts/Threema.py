@@ -13,7 +13,7 @@ __artifacts_v2__ = {
             '*/mobile/Containers/Shared/AppGroup/*/.ThreemaData_SUPPORT/_EXTERNAL_DATA/*',
         ),
         'output_types': 'all',
-        'artifact_icon': 'message-square',
+        'artifact_icon': 'message',
         'data_views': {
             'conversation': {
                 'conversationDiscriminatorColumn': 'Chat-ID',

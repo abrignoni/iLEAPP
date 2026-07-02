@@ -11,7 +11,7 @@ __artifacts_v2__ = {
         "paths": ('*/Library/SMS/sms.db*',
                   '*/Library/SMS/Attachments/*'),
         "output_types": "standard",
-        "artifact_icon": "message-square",
+        "artifact_icon": "message",
         "data_views": {
             "conversation": {
                 "conversationDiscriminatorColumn": "Chat ID",

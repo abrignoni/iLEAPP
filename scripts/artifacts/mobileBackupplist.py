@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "paths": ('*/Library/Preferences/com.apple.MobileBackup.plist',
                   '*/Preferences/com.apple.MobileBackup.plist'),
         "output_types": "standard",
-        "artifact_icon": "save"
+        "artifact_icon": "device-floppy"
     }
 }
 

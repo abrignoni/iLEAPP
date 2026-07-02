@@ -11,7 +11,7 @@ __artifacts_v2__ = {
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/CCEntitySync-api.squareup.com.sqlite*',
                   '*/mobile/Containers/Shared/AppGroup/*/CCEntitySync-internal.cashappapi.com.sqlite*'),
         "output_types": "standard",
-        "artifact_icon": "dollar-sign",
+        "artifact_icon": "currency-dollar",
     }
 }
 

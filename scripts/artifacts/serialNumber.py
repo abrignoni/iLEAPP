@@ -9,7 +9,8 @@ __artifacts_v2__ = {
         "category": "Identifiers",
         "notes": "",
         "paths": ('*/Library/Caches/locationd/consolidated.db*'),
-        "output_types": "none"
+        "output_types": "none",
+        "artifact_icon": "hash"
     }
 }
 
@@ -17,7 +18,7 @@ __artifacts_v2__ = {
 from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, device_info
 
 @artifact_processor
-def serialNumber(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def serialNumber(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
     db_file = ''
 
     for file_found in files_found:

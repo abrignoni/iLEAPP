@@ -10,6 +10,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Library/Support/configFile1',),
         "output_types": "standard",
+        "artifact_icon": "password",
     },
     "get_dmss_channels": {
         "name": "Dahua Technology (DMSS) - Channels",
@@ -22,6 +23,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Library/Support/Devices.sqlite3*'),
         "output_types": "standard",
+        "artifact_icon": "layout-grid",
     },
     "get_dmss_info": {
         "name": "Dahua Technology (DMSS) - Info",
@@ -34,6 +36,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Library/Support/Devices.sqlite3*'),
         "output_types": "standard",
+        "artifact_icon": "info-circle",
     },
     "get_dmss_registered_sensors": {
         "name": "Dahua Technology (DMSS) - Sensors",
@@ -46,6 +49,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Library/Support/*/DMSSCloud.sqlite*'),
         "output_types": "standard",
+        "artifact_icon": "radar",
     },
     "get_dmss_registered_devices": {
         "name": "Dahua Technology (DMSS) - Devices",
@@ -58,6 +62,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Library/Support/*/DMSSCloud.sqlite*'),
         "output_types": "standard",
+        "artifact_icon": "video",
     },
     "get_dmss_notifications": {
         "name": "Dahua Technology (DMSS) - Notifications",
@@ -70,6 +75,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Library/Support/*/DMSSCloud.sqlite*'),
         "output_types": "standard",
+        "artifact_icon": "bell",
     },
     "get_dmss_created_media": {
         "name": "Dahua Technology (DMSS) - Media",
@@ -82,6 +88,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Documents/Captures/*','*/Documents/Videos/*'),
         "output_types": "standard",
+        "artifact_icon": "movie",
     }
 }
 

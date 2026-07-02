@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Library/Preferences/com.apple.mobile.ldbackup.plist',),
         "output_types": ["html", "tsv", "lava"],
-        "artifact_icon": "save"
+        "artifact_icon": "device-floppy"
     }
 }
 

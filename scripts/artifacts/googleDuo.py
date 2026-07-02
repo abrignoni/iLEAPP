@@ -21,7 +21,7 @@ __artifacts_v2__ = {
         "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Google Duo", "notes": "",
         "paths": ('*/Application Support/DataStore*', '*/Application Support/ClipsCache/*.png'),
-        "output_types": "standard", "artifact_icon": "film"
+        "output_types": "standard", "artifact_icon": "movie"
     }
 }
 

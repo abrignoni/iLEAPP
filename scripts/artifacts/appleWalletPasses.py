@@ -9,7 +9,8 @@ __artifacts_v2__ = {
         "category": "Apple Wallet",
         "notes": "",
         "paths": ('*/Cards/*.pkpass/pass.json'),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": "credit-card"
     },
     "get_appleWalletNanoPasses": {
         "name": "Nano Passes",
@@ -21,7 +22,8 @@ __artifacts_v2__ = {
         "category": "Apple Wallet",
         "notes": "",
         "paths": ('*/nanopasses.sqlite3*',),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": "device-watch"
     }
 }
 

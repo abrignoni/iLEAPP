@@ -9,7 +9,8 @@ __artifacts_v2__ = {
         "category": "Biome",
         "notes": "",
         "paths": ('*/Biome/streams/restricted/_DKEvent.Carplay.IsConnected/local/*'),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": "car"
     }
 }
 

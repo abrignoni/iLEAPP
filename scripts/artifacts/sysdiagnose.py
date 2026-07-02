@@ -15,7 +15,7 @@ __artifacts_v2__ = {
             '*/otctl_status.txt',
             '*/mobile/Library/Logs/CrashReporter/DiagnosticLogs/sysdiagnose/sysdiagnose_*.tar.gz'),
         "output_types": "standard",
-        "artifact_icon": "smartphone"
+        "artifact_icon": "device-mobile"
     }
 }
 

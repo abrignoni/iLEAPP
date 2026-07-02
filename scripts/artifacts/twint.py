@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/var/mobile/Containers/Data/Application/*/Library/Application Support/Twint.sqlite*',),
         "output_types": "standard",
-        "artifact_icon": "dollar-sign"
+        "artifact_icon": "currency-dollar"
     }
 }
 from scripts.ilapfuncs import (

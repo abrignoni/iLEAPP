@@ -9,7 +9,8 @@ __artifacts_v2__ = {
         "category": "Biome",
         "notes": "",
         "paths": ('*/biome/streams/restricted/_DKEvent.Device.BatteryPercentage/local/*'),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": "battery"
     }
 }
 

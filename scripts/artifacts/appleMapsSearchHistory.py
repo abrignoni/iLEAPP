@@ -13,6 +13,7 @@ __artifacts_v2__ = {
             '*/GeoHistory.mapsdata',
         ),
         "output_types": "all",
+        "artifact_icon": "search",
     }
 }
 

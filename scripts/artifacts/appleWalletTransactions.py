@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         'notes': '',
         'paths': ('*/mobile/Library/Passes/passes23.sqlite*'),
         'output_types': 'all',
-        'artifact_icon': 'credit_card',
+        'artifact_icon': 'credit-card',
     }
 }
 

@@ -15,7 +15,8 @@ __artifacts_v2__ = {
             '*DuetExpertCenter/_ATXDataStore.db*', 
             '*routined/Local.sqlite*'
         ),
-        "output_types": "all"
+        "output_types": "all",
+        "artifact_icon": "map-pin"
     }
 }
 

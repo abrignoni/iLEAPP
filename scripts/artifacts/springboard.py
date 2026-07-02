@@ -12,7 +12,7 @@ __artifacts_v2__ = {
                  "flow order. See 'iOS Home Screen Layout - Visual' for a rendered image of each screen.",
         "paths": ('**/SpringBoard/IconState.plist',),
         "output_types": "standard",
-        "artifact_icon": "grid"
+        "artifact_icon": "layout-grid"
     },
     "icons_screen_visual": {
         "name": "iOS Home Screen Layout - Visual",
@@ -26,7 +26,7 @@ __artifacts_v2__ = {
                  "reference. The 'iOS Home Screen Layout' artifact holds the same data in queryable form.",
         "paths": ('**/SpringBoard/IconState.plist',),
         "output_types": "standard",
-        "artifact_icon": "grid"
+        "artifact_icon": "layout-grid"
     },
     "springboard_wallpaper": {
         "name": "SpringBoard Wallpaper",
@@ -47,7 +47,7 @@ __artifacts_v2__ = {
             '**/SpringBoard/*Background*.heic',
         ),
         "output_types": "standard",
-        "artifact_icon": "image"
+        "artifact_icon": "photo"
     },
     "posterboard_wallpaper": {
         "name": "PosterBoard Wallpaper",
@@ -66,7 +66,7 @@ __artifacts_v2__ = {
             '**/output.layerStack/*.png',
         ),
         "output_types": "standard",
-        "artifact_icon": "image"
+        "artifact_icon": "photo"
     }
 }
 

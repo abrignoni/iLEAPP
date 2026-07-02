@@ -117,7 +117,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Containers/Data/Application/*/Library/Preferences/com.thehomedepot.homedepot.plist',),
         "output_types": "standard",
-        "artifact_icon": "image",
+        "artifact_icon": "photo",
     },
     "home_depot_search_url_cache": {
         "name": "Home Depot - Search URL Cache",
@@ -143,7 +143,7 @@ __artifacts_v2__ = {
         "notes": "Excludes product image cache, search URL cache, and SDK analytics keys.",
         "paths": ('*/Containers/Data/Application/*/Library/Preferences/com.thehomedepot.homedepot.plist',),
         "output_types": "standard",
-        "artifact_icon": "sliders",
+        "artifact_icon": "adjustments-alt",
     },
 }
 

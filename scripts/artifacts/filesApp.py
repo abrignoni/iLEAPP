@@ -14,7 +14,7 @@ __artifacts_v2__ = {
             '*/mobile/Library/Application Support/CloudDocs/session/db/server.db*',
             ),
         "output_types": ["html", "tsv", "lava"],
-        "artifact_icon": "smartphone"
+        "artifact_icon": "device-mobile"
     },
     "icloud_application_list": {
         "name": "Files App - iCloud Application List",
@@ -108,7 +108,7 @@ __artifacts_v2__ = {
             '*/mobile/Library/Application Support/CloudDocs/session/db/client.db*',
             ),
         "output_types": "standard",
-        "artifact_icon": "refresh-cw"
+        "artifact_icon": "refresh"
     }
 }
 

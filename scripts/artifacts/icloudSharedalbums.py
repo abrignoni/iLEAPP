@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "iCloud Shared Albums", "notes": "",
         "paths": ('*/mobile/Media/PhotoData/PhotoCloudSharingData/*',),
-        "output_types": "standard", "artifact_icon": "image"
+        "output_types": "standard", "artifact_icon": "photo"
     },
     "icloudSharedPersonInfo": {
         "name": "iCloud Shared Albums - Person Info",

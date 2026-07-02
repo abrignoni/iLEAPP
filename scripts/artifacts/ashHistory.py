@@ -9,7 +9,8 @@ __artifacts_v2__ = {
         "category": "Linux",
         "notes": "",
         "paths": ('*/.ash_history',),
-        "output_types": "all"
+        "output_types": "all",
+        "artifact_icon": "terminal"
     }
 }
 

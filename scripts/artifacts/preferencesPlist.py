@@ -9,7 +9,8 @@ __artifacts_v2__ = {
         "category": "Identifiers",
         "notes": "",
         "paths": ('*preferences/SystemConfiguration/preferences.plist', ),
-        "output_types": ["html", "tsv", "lava"]
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "settings"
     }
 }
 
@@ -18,7 +19,7 @@ import plistlib
 from scripts.ilapfuncs import artifact_processor, device_info
 
 @artifact_processor
-def preferencesPlist(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def preferencesPlist(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
     data_list = []
     source_path = str(files_found[0])
     with open(source_path, "rb") as fp:

@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         'notes': '',
         'paths': ('*/mobile/MobileSoftwareUpdate/restore.log',),
         'output_types': 'standard',
-        'artifact_icon': 'refresh-cw'
+        'artifact_icon': 'refresh'
     }
 }
 

@@ -23,7 +23,7 @@ __artifacts_v2__ = {
         "notes": "All timestamps are in LOCAL device time (the log records local time), not UTC.",
         "paths": ('*/mobile_installation.log.*',),
         "output_types": ["html", "tsv", "lava"],
-        "artifact_icon": "refresh-cw"
+        "artifact_icon": "refresh"
     }
 }
 

@@ -9,7 +9,8 @@ __artifacts_v2__ = {
         "category": "User Activity",
         "notes": "",
         "paths": ('*/mobile/Library/Keyboard/*-dynamic.lm/dynamic-lexicon.dat',),
-        "output_types": ["html", "tsv", "lava", "timeline"]
+        "output_types": ["html", "tsv", "lava", "timeline"],
+        "artifact_icon": "vocabulary"
     },
     "keyboardAppUsage": {
         "name": "Keyboard Application Usage",
@@ -21,7 +22,8 @@ __artifacts_v2__ = {
         "category": "User Activity",
         "notes": "",
         "paths": ('*/mobile/Library/Keyboard/app_usage_database.plist',),
-        "output_types": ["html", "tsv", "lava", "timeline"]
+        "output_types": ["html", "tsv", "lava", "timeline"],
+        "artifact_icon": "keyboard"
     },
     "keyboardUsageStats": {
         "name": "Keyboard Usage Stats",
@@ -33,7 +35,8 @@ __artifacts_v2__ = {
         "category": "User Activity",
         "notes": "",
         "paths": ('*/mobile/Library/Keyboard/user_model_database.sqlite*',),
-        "output_types": ["html", "tsv", "lava", "timeline"]
+        "output_types": ["html", "tsv", "lava", "timeline"],
+        "artifact_icon": "chart-bar"
     }
 }
 

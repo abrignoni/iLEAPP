@@ -10,6 +10,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/root/.obliterated'),
         "output_types": "standard",
+        "artifact_icon": "trash",
     }
 }
 
@@ -19,7 +20,7 @@ import os
 from scripts.ilapfuncs import logdevinfo, artifact_processor
 
 @artifact_processor
-def get_obliterated(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def get_obliterated(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
     file_found = str(files_found[0])
     
     modified_time = os.path.getmtime(file_found)

@@ -9,7 +9,8 @@ __artifacts_v2__ = {
         "category": "Call History",
         "notes": "",
         "paths": ('*/var/mobile/Library/CallHistoryTransactions/transactions.log*'),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": "phone-call"
     }
 }
 

@@ -12,7 +12,7 @@ __artifacts_v2__ = {
                  "Creation/Changed timestamp is local time — use the Possible Exif Offset to compare.",
         "paths": ('*Media/PhotoData/Photos.sqlite*', '*Media/DCIM/*/**'),
         "output_types": "all",
-        "artifact_icon": "image"
+        "artifact_icon": "photo"
     }
 }
 

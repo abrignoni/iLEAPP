@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('**/containermanagerd.log.*',),
         "output_types": "standard",
-        "artifact_icon": "trash-2"
+        "artifact_icon": "trash"
     }
 }
 

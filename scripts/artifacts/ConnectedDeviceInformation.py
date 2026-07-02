@@ -19,7 +19,7 @@ OS History",
 Apple product identification, common name, OS, and timeframe of use",
         "paths": ('*Health/healthdb_secure.sqlite*'),
         "output_types": "standard",
-        "artifact_icon": "smartphone"
+        "artifact_icon": "device-mobile"
     },
     "connected_device_info_consolidated_connected_device_history": {
         "name": "Connected Device Information - Consolidated Connected Device \
@@ -34,7 +34,7 @@ History",
 Apple product grouped for starting and ending timeframe of use",
         "paths": ('*Health/healthdb_secure.sqlite*'),
         "output_types": "standard",
-        "artifact_icon": "smartphone"
+        "artifact_icon": "device-mobile"
     },
     "connected_device_information_current_device_info": {
         "name": "Connected Device Information - Current Device Information",
@@ -48,7 +48,7 @@ Apple product grouped for starting and ending timeframe of use",
 Current Apple Device and OS Information",
         "paths": ('*Health/healthdb.sqlite*'),
         "output_types": "standard",
-        "artifact_icon": "smartphone"
+        "artifact_icon": "device-mobile"
     }
 }
 

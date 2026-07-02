@@ -9,7 +9,8 @@ __artifacts_v2__ = {
         "category": "Biome",
         "notes": "",
         "paths": ('*/biome/streams/restricted/_DKEvent.Safari.History/local/*'),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": "compass"
     }
 }
 

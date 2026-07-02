@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Environments/Production/Accounts/*/*-internal.cashappapi.com.sqlite*'),
         "output_types": "all",
-        "artifact_icon": "dollar-sign",
+        "artifact_icon": "currency-dollar",
     }
 }
 

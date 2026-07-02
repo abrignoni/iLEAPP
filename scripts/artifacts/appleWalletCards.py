@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.apple.Passbook/Cache.db*'),
         "output_types": "standard",
-        "artifact_icon": "credit_card",
+        "artifact_icon": "credit-card",
     }
 }
 
