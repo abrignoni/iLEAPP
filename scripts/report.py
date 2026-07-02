@@ -88,6 +88,17 @@ def generate_report(reportfolderbase, time_in_secs, time_hms, extraction_type, i
                         nav_list_data += side_heading.format(section_header)
                     side_list[section_header].append(fullpath)
                     icon_name = icons.get(section_header, {}).get(filename, "")
+                    if not icon_name:
+                        # Some modules write reports under runtime names that differ from the
+                        # artifact metadata name (e.g. chrome.py's "Chrome - Web History" vs
+                        # "Web History", sms.py's "SMS & iMessage - ..." vs "SMS"). Fall back
+                        # to the longest registered artifact name the report name starts or
+                        # ends with, so those reports keep their artifact's icon.
+                        matches = [(len(art_name), art_icon)
+                                   for art_name, art_icon in icons.get(section_header, {}).items()
+                                   if filename.endswith(art_name) or filename.startswith(art_name)]
+                        if matches:
+                            icon_name = max(matches)[1]
                     if icon_name in tabler_icon_names:
                         if icon_name in tabler_icon_correction:
                             icon_name = tabler_icon_correction[icon_name]
