@@ -246,7 +246,7 @@ def get_json_data(file_path):
     except UnicodeDecodeError as ex:
         logfunc(f"Encoding error reading {file_path}: {ex}")
 
-    except Exception as ex:
+    except (FileNotFoundError, PermissionError, UnicodeDecodeError, json.JSONDecodeError, OSError) as ex:
         logfunc(f"Error reading file {file_path}: {ex}")
 
     return {}
@@ -1368,7 +1368,7 @@ def bereal_realmojis(context):
                     continue
 
                 # owner: user id, user name
-                owner_user_id, owner_user_name = get_user(series)
+                owner_user_id, _ = get_user(series)
                 # owner
                 owner_user_id = bereal_user_id
                 owner = format_userid(owner_user_id)
