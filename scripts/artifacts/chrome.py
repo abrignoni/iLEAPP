@@ -359,7 +359,8 @@ def chromeWebHistory(files_found, report_folder, _seeker, wrap_text, _timezone_o
             category = "Chromium"
             module_name = "chromeWebHistory"
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                           lava_data_headers, len(data_list))
+                                                                           lava_data_headers, len(data_list),
+                                                                           artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
@@ -470,7 +471,8 @@ def chromeWebVisits(files_found, report_folder, _seeker, wrap_text, _timezone_of
             module_name = "chromeWebVisits"
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                           lava_data_headers, len(data_list))
+                                                                           lava_data_headers, len(data_list),
+                                                                           artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
@@ -555,7 +557,8 @@ def chromeWebSearch(files_found, report_folder, _seeker, wrap_text, _timezone_of
             module_name = "chromeWebSearch"
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                           lava_data_headers, len(data_list))
+                                                                           lava_data_headers, len(data_list),
+                                                                           artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
@@ -717,7 +720,8 @@ def chromeDownloads(files_found, report_folder, _seeker, _wrap_text, _timezone_o
             module_name = "chromeDownloads"
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                           lava_data_headers, len(data_list))
+                                                                           lava_data_headers, len(data_list),
+                                                                           artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
@@ -799,7 +803,8 @@ def chromeKeywordSearchTerms(files_found, report_folder, _seeker, wrap_text, _ti
             module_name = "chromeKeywordSearchTerms"
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                           lava_data_headers, len(data_list))
+                                                                           lava_data_headers, len(data_list),
+                                                                           artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
@@ -882,7 +887,8 @@ def chromeAutofillEntries(files_found, report_folder, _seeker, _wrap_text, _time
                 # Generate LAVA output
 
                 table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                               lava_data_headers, len(data_list))
+                                                                               lava_data_headers, len(data_list),
+                                                                               artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
                 lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
@@ -926,7 +932,8 @@ def chromeAutofillEntries(files_found, report_folder, _seeker, _wrap_text, _time
                 # Generate LAVA output
 
                 table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                               lava_data_headers, len(data_list))
+                                                                               lava_data_headers, len(data_list),
+                                                                               artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
                 lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
@@ -1024,7 +1031,8 @@ def chromeAutofillProfiles(files_found, report_folder, _seeker, _wrap_text, _tim
                 module_name = "chromeAutofillProfiles"
 
                 table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                               lava_data_headers, len(data_list))
+                                                                               lava_data_headers, len(data_list),
+                                                                               artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
                 lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
@@ -1114,7 +1122,8 @@ def chromeBookmarks(files_found, report_folder, _seeker, _wrap_text, _timezone_o
             module_name = "chromeBookmarks"
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                           lava_data_headers, len(data_list))
+                                                                           lava_data_headers, len(data_list),
+                                                                           artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
@@ -1224,7 +1233,8 @@ def chromeCookies(files_found, report_folder, _seeker, wrap_text, _timezone_offs
             module_name = "chromeCookies"
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                           lava_data_headers, len(data_list))
+                                                                           lava_data_headers, len(data_list),
+                                                                           artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
@@ -1310,7 +1320,8 @@ def chromeLoginData(files_found, report_folder, _seeker, _wrap_text, _timezone_o
             module_name = "chromeLoginData"
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                           lava_data_headers, len(data_list))
+                                                                           lava_data_headers, len(data_list),
+                                                                           artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
@@ -1389,7 +1400,8 @@ def chromeTopSites(files_found, report_folder, _seeker, _wrap_text, _timezone_of
             module_name = "chromeTopSites"
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                           lava_data_headers, len(data_list))
+                                                                           lava_data_headers, len(data_list),
+                                                                           artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
@@ -1474,7 +1486,8 @@ def chromeOfflinePages(files_found, report_folder, _seeker, wrap_text, _timezone
             module_name = "chromeTopSites"
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                           lava_data_headers, len(data_list))
+                                                                           lava_data_headers, len(data_list),
+                                                                           artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
@@ -1557,7 +1570,8 @@ def chromeMediaHistorySessions(files_found, report_folder, _seeker, _wrap_text, 
             module_name = "chromeMediaHistorySessions"
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                           lava_data_headers, len(data_list))
+                                                                           lava_data_headers, len(data_list),
+                                                                           artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
@@ -1643,7 +1657,8 @@ def chromeMediaHistoryPlaybacks(files_found, report_folder, _seeker, _wrap_text,
             module_name = "chromeMediaHistoryPlaybacks"
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                           lava_data_headers, len(data_list))
+                                                                           lava_data_headers, len(data_list),
+                                                                           artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
@@ -1719,7 +1734,8 @@ def chromeMediaHistoryOrigins(files_found, report_folder, _seeker, _wrap_text, _
             module_name = "chromeMediaHistoryOrigins"
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                           lava_data_headers, len(data_list))
+                                                                           lava_data_headers, len(data_list),
+                                                                           artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
@@ -1796,7 +1812,8 @@ def chromeNetworkActionPredictor(files_found, report_folder, _seeker, _wrap_text
             module_name = "chromeNetworkActionPredictor"
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                           lava_data_headers, len(data_list))
+                                                                           lava_data_headers, len(data_list),
+                                                                           artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
