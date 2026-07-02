@@ -2,9 +2,9 @@ __artifacts_v2__ = {
     "bereal_accounts": {
         "name": "BeReal Accounts",
         "description": "Parses and extract BeReal Accounts",
-        "author": "@djangofaiola",
+        "author": "@djangofaiola, Gear-I",
         "creation_date": "2024-12-20",
-        "last_update_date": "2025-10-31",
+        "last_update_date": "2026-07-01",
         "requirements": "none",
         "category": "BeReal",
         "notes": "https://djangofaiola.blogspot.com",
@@ -16,9 +16,9 @@ __artifacts_v2__ = {
     "bereal_contacts": {
         "name": "BeReal Contacts",
         "description": "Parses and extract BeReal Contacts",
-        "author": "@djangofaiola",
+        "author": "@djangofaiola, Gear-I",
         "creation_date": "2024-12-20",
-        "last_update_date": "2025-10-31",
+        "last_update_date": "2026-07-01",
         "requirements": "none",
         "category": "BeReal",
         "notes": "https://djangofaiola.blogspot.com",
@@ -30,9 +30,9 @@ __artifacts_v2__ = {
     "bereal_persons": {
         "name": "BeReal Persons",
         "description": "Parses and extract BeReal Persons",
-        "author": "@djangofaiola",
+        "author": "@djangofaiola, Gear-I",
         "creation_date": "2024-12-20",
-        "last_update_date": "2025-10-31",
+        "last_update_date": "2026-07-01",
         "requirements": "none",
         "category": "BeReal",
         "notes": "https://djangofaiola.blogspot.com",
@@ -44,9 +44,9 @@ __artifacts_v2__ = {
     "bereal_friends": {
         "name": "BeReal Friends",
         "description": "Parses and extract BeReal Friends, Friend Requests Sent, Friend Requests Received, and Friends Following",
-        "author": "@djangofaiola",
+        "author": "@djangofaiola, Gear-I",
         "creation_date": "2024-12-20",
-        "last_update_date": "2025-10-31",
+        "last_update_date": "2026-07-01",
         "requirements": "none",
         "category": "BeReal",
         "notes": "https://djangofaiola.blogspot.com",
@@ -62,9 +62,9 @@ __artifacts_v2__ = {
     "bereal_blocked_users": {
         "name": "BeReal Blocked Users",
         "description": "Parses and extract BeReal Blocked Users",
-        "author": "@djangofaiola",
+        "author": "@djangofaiola, Gear-I",
         "creation_date": "2024-12-20",
-        "last_update_date": "2025-10-31",
+        "last_update_date": "2026-07-01",
         "requirements": "none",
         "category": "BeReal",
         "notes": "https://djangofaiola.blogspot.com",
@@ -76,9 +76,9 @@ __artifacts_v2__ = {
     "bereal_posts": {
         "name": "BeReal Posts",
         "description": "Parses and extract BeReal Memories, Person BeReal of the day and Production Feeds",
-        "author": "@djangofaiola",
+        "author": "@djangofaiola, Gear-I",
         "creation_date": "2024-12-20",
-        "last_update_date": "2025-10-31",
+        "last_update_date": "2026-07-01",
         "requirements": "none",
         "category": "BeReal",
         "notes": "https://djangofaiola.blogspot.com",
@@ -93,9 +93,9 @@ __artifacts_v2__ = {
     "bereal_pinned_memories": {
         "name": "BeReal Pinned Memories",
         "description": "Parses and extract BeReal Pinned Memories",
-        "author": "@djangofaiola",
+        "author": "@djangofaiola, Gear-I",
         "creation_date": "2024-12-20",
-        "last_update_date": "2025-10-31",
+        "last_update_date": "2026-07-01",
         "requirements": "none",
         "category": "BeReal",
         "notes": "https://djangofaiola.blogspot.com",
@@ -108,9 +108,9 @@ __artifacts_v2__ = {
     "bereal_realmojis": {
         "name": "BeReal RealMojis",
         "description": "Parses and extract BeReal RealMojis from my memories and Person's memories",
-        "author": "@djangofaiola",
+        "author": "@djangofaiola, Gear-I",
         "creation_date": "2024-12-20",
-        "last_update_date": "2025-10-31",
+        "last_update_date": "2026-07-01",
         "requirements": "none",
         "category": "BeReal",
         "notes": "https://djangofaiola.blogspot.com",
@@ -134,9 +134,9 @@ __artifacts_v2__ = {
     "bereal_comments": {
         "name": "BeReal Comments",
         "description": "Parses and extract BeReal Comments from my memories, Person's posts, and Production post Feeds",
-        "author": "@djangofaiola",
+        "author": "@djangofaiola, Gear-I",
         "creation_date": "2024-12-20",
-        "last_update_date": "2025-10-31",
+        "last_update_date": "2026-07-01",
         "requirements": "none",
         "category": "BeReal",
         "notes": "https://djangofaiola.blogspot.com",
@@ -160,9 +160,9 @@ __artifacts_v2__ = {
     "bereal_messages": {
         "name": "BeReal Messages",
         "description": "Parses and extract BeReal Messages",
-        "author": "@djangofaiola",
+        "author": "@djangofaiola, Gear-I",
         "creation_date": "2024-12-20",
-        "last_update_date": "2025-10-31",
+        "last_update_date": "2026-07-01",
         "requirements": "none",
         "category": "BeReal",
         "notes": "https://djangofaiola.blogspot.com",
@@ -184,9 +184,9 @@ __artifacts_v2__ = {
     "bereal_chat_list": {
         "name": "BeReal Chat List",
         "description": "Parses and extract BeReal Chat List",
-        "author": "@djangofaiola",
+        "author": "@djangofaiola, Gear-I",
         "creation_date": "2024-12-20",
-        "last_update_date": "2025-10-31",
+        "last_update_date": "2026-07-01",
         "requirements": "none",
         "category": "BeReal",
         "notes": "https://djangofaiola.blogspot.com",
@@ -200,6 +200,7 @@ __artifacts_v2__ = {
 
 from pathlib import Path
 import json
+import os
 from datetime import timedelta
 from base64 import standard_b64decode
 from urllib.parse import urlparse, urlunparse
@@ -232,12 +233,23 @@ def format_userid(user_id, name=None):
 
 
 def get_json_data(file_path):
+    if not os.path.isfile(file_path):
+        return {}
+
     try:
-        with open(file_path, 'r', encoding='utf-8') as file:
-            return json.load(file)
-    except (FileNotFoundError, PermissionError, UnicodeDecodeError, json.JSONDecodeError, OSError) as e:
-        logfunc(f"Error reading file {file_path}: {str(e)}")
-        return None
+        with open(file_path, "r", encoding="utf8") as f:
+            return json.load(f)
+
+    except json.JSONDecodeError as ex:
+        logfunc(f"Invalid JSON in {file_path}: {ex}")
+
+    except UnicodeDecodeError as ex:
+        logfunc(f"Encoding error reading {file_path}: {ex}")
+
+    except Exception as ex:
+        logfunc(f"Error reading file {file_path}: {ex}")
+
+    return {}
 
 
 # get key0
@@ -440,6 +452,7 @@ def get_tags(obj, html_format=False):
 
 # set up global variables
 def process_bereal_preferences(plist_path):
+    global bereal_user_id, _bereal_processed
     
     plist_data = get_plist_file_content(plist_path)
     if not (plist_data):
@@ -1338,7 +1351,7 @@ def bereal_realmojis(context):
 
     # all files
     for file_found in files_found:
-        if str(files_found).endswith('group.BeReal.plist'):
+        if str(file_found).endswith('group.BeReal.plist'):
             continue
         
         json_data = get_json_data(file_found)
@@ -1369,7 +1382,8 @@ def bereal_realmojis(context):
                 # owner: user id, user name
                 owner_user_id, owner_user_name = get_user(series)
                 # owner
-                owner = format_userid(owner_user_id, owner_user_name)
+                owner_user_id = bereal_user_id
+                owner = format_userid(owner_user_id)
 
                 # posts
                 posts = series.get('posts')
@@ -1524,7 +1538,8 @@ def bereal_realmojis(context):
                             # owner: user id, user name
                             owner_user_id, owner_user_name = get_user(post)
                             # owner
-                            owner = format_userid(owner_user_id, owner_user_name)
+                            owner_user_id = bereal_user_id
+                            owner = format_userid(owner_user_id)
 
                             # realmojis
                             realmojis = post.get('realMojis')
@@ -1617,7 +1632,8 @@ def bereal_comments(context):
                 # owner: user id, user name
                 owner_user_id, owner_user_name = get_user(series)
                 # owner
-                owner = format_userid(owner_user_id, owner_user_name)
+                owner_user_id = bereal_user_id
+                owner = format_userid(owner_user_id)
 
                 # posts
                 posts = series.get('posts')
@@ -1675,8 +1691,10 @@ def bereal_comments(context):
 
                 # owner user id
                 owner_user_id = bereal_user_id
+                owner = format_userid(owner_user_id)
                 # owner
-                owner = format_userid(owner_user_id, owner_user_name)
+                owner_user_id = bereal_user_id
+                owner = format_userid(owner_user_id)
 
                 # array
                 for i in range(0, len(memories)):
@@ -1759,7 +1777,8 @@ def bereal_comments(context):
                             # owner: user id, user name
                             owner_user_id, owner_user_name = get_user(post)
                             # owner
-                            owner = format_userid(owner_user_id, owner_user_name)
+                            owner_user_id = bereal_user_id
+                            owner = format_userid(owner_user_id)
 
                             # bereal id (thread)
                             bereal_id = post.get('id')
@@ -1818,6 +1837,9 @@ def bereal_messages(context):
         process_bereal_preferences(preferences_file)
     
     source_path = get_file_path(files_found, "bereal-chat.sqlite")
+    if not source_path:
+        logfunc("BeReal Messages: bereal-chat.sqlite not found")
+        return data_headers, (data_list, data_list_html), "No source file found"
 
     query = '''
     SELECT
@@ -1908,6 +1930,9 @@ def bereal_chat_list(context):
         process_bereal_preferences(preferences_file)
     
     source_path = get_file_path(files_found, "bereal-chat.sqlite")
+    if not source_path:
+        logfunc("BeReal Chat List: bereal-chat.sqlite not found")
+        return data_headers, (data_list, data_list_html), "No source file found"
 
     query = '''
     SELECT
@@ -1980,4 +2005,3 @@ def bereal_chat_list(context):
     data_headers[10] = (data_headers[10], 'datetime')
 
     return data_headers, (data_list, data_list_html), source_path
-
