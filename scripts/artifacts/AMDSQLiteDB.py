@@ -28,7 +28,7 @@ __artifacts_v2__ = {
             '*/mobile/Containers/Data/PluginKitPlugin/*/Documents/AMDSQLite.db.0*'
             ),
         "output_types": "standard",
-        "artifact_icon": "device-speaker"
+        "artifact_icon": "database"
     }
 }
 
