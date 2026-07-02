@@ -28,14 +28,6 @@
     border-left-color: rgb(222, 226, 230);
 }
 
-[data-theme="dark"] .sidebar .nav-link {
-    color: #999;
-}
-
-[data-theme="dark"] .sidebar .nav-link.active {
-    color: #007bff;
-}
-
 [data-theme="dark"] .table {
     color: #bdbdbd;
 }
@@ -94,13 +86,6 @@
     box-shadow: 0 2px 5px 0 rgba(255,255,255,0.16),0 2px 10px 0 rgba(255,255,255,0.12);
 }
 
-[data-theme="dark"] * {
-    scrollbar-color: #0079D3 #2E3645 !important;
-}
-
-* {
-    scrollbar-width: thin !important;
-}
 
 /* For Chrome & Safari 
 *::-webkit-scrollbar {

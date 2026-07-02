@@ -11,7 +11,8 @@ __artifacts_v2__ = {
         "paths": ('*/Biome/streams/restricted/NotesContent/local/*'),
         "html_columns" : ['Note'],
         "output_types": "standard",
-        "function": "get_biomeNotes"
+        "function": "get_biomeNotes",
+        "artifact_icon": "notes"
     }
 }
 
@@ -29,7 +30,7 @@ def get_biomeNotes(context):
     data_headers = (('SEGB Timestamp', 'datetime'), ('Timestamp', 'datetime'), 'SEGB State', 'Record Num', 'Identifier 1', 
                     'Identifier 2', 'Note', 'Filename', 'Offset')
 
-    # TODO: shouldn't it be used in decode_message?
+    # Note: shouldn't it be used in decode_message?
     # typess = {
     #     '1': {'type': 'str', 'name': ''},
     #     '2': {'type': 'str', 'name': ''},

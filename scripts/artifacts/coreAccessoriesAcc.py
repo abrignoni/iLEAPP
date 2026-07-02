@@ -19,6 +19,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Library/CoreAccessories/Analytics/acc_analytics_accessoryd_v3.db*',),
         "output_types": "standard",
+        "artifact_icon": "plug-connected",
     }
 }
 

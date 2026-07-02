@@ -10,6 +10,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/cacheV0.db*',),
         "output_types": "standard",
+        "artifact_icon": "photo",
     }
 }
 

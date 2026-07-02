@@ -69,7 +69,7 @@ __artifacts_v2__ = {
         "notes": "Based on https://bebinary4n6.blogspot.com/2024/09/app-healthmate-on-ios.html",
         "paths": ('*/Library/Application Support/coredata/*_HM3Timeline*'),
         "output_types": "standard",
-        "artifact_icon": "message-square"
+        "artifact_icon": "message"
     },
     "get_healthmate_measurements": {
         "name": "Health Mate - Measurements",
@@ -95,7 +95,7 @@ __artifacts_v2__ = {
         "notes": "Based on https://bebinary4n6.blogspot.com/2024/09/app-healthmate-on-ios.html",
         "paths": ('*/Library/Application Support/coredata/associated_device.sqlite*'),
         "output_types": "all",
-        "artifact_icon": "watch"
+        "artifact_icon": "device-watch"
     }
 }
 

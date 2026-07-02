@@ -13,7 +13,7 @@ __artifacts_v2__ = {
             '*/mobile/Library/Voicemail/*.amr',
             '*/mobile/Library/Voicemail/*.transcript'),
         'output_types': 'standard',
-        'artifact_icon': 'mic'
+        'artifact_icon': 'microphone'
     }
 }
 

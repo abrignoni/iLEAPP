@@ -10,6 +10,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Library/Caches/locationd/cache.plist'),
         "output_types": "none",
+        "artifact_icon": "car",
     }
 }
 

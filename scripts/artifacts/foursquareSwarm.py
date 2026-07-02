@@ -50,7 +50,7 @@ __artifacts_v2__ = {
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Caches/foursquare.sqlite*"),
         "output_types": [ "standard" ],
         "html_columns": [ "Profile Picture", "Phone Numbers", "Facebook Profile" ],
-        "artifact_icon": "book-open"
+        "artifact_icon": "book"
     },
     "foursquare_swarm_checkins": {
         "name": "Foursquare Swarm - Check-ins",
@@ -83,7 +83,7 @@ __artifacts_v2__ = {
                   "*/com.pinterest.PINDiskCache.PINRemoteImageManagerCache/*%2Fimg%2Fgeneral%2F*"),
         "output_types": [ "all" ],
         "html_columns": [ "Tip URL", "Short URL", "Photo URL" ],
-        "artifact_icon": "info"
+        "artifact_icon": "info-circle"
     },
     "foursquare_swarm_stickers": {
         "name": "Foursquare Swarm - Stickers",
@@ -148,7 +148,7 @@ __artifacts_v2__ = {
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Caches/foursquare.sqlite*"),
         "output_types": [ "all" ],
         "html_columns": [ "Entities" ],
-        "artifact_icon": "message-square"
+        "artifact_icon": "message"
     },
     "foursquare_swarm_friend_requests": {
         "name": "Foursquare Swarm - Friend Requests",

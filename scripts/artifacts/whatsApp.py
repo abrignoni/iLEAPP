@@ -29,7 +29,7 @@ __artifacts_v2__ = {
             '*/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*',
             '*/mobile/Containers/Shared/AppGroup/*/Message/Media/*/*/*/*'),
         'output_types': 'all',
-        'artifact_icon': 'message-square'
+        'artifact_icon': 'message'
     },
     'whatsAppContacts': {
         'name': 'WhatsApp - Contacts',

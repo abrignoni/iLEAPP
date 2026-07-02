@@ -35,7 +35,7 @@ __artifacts_v2__ = {
                 'mediaColumn': 'Attachment File'
                 }
         },
-        "artifact_icon": "message-square"
+        "artifact_icon": "message"
     },
     "zangi_contacts": {
         "name": "Zangi Messenger - Contacts",

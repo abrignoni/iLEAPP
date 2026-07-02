@@ -9,7 +9,8 @@ __artifacts_v2__ = {
         "category": "Installed Apps",
         "notes": "",
         "paths": ('*/iTunesMetadata.plist', '*/BundleMetadata.plist',),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": "apps"
     }
 }
 

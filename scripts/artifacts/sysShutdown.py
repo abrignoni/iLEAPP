@@ -26,7 +26,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/shutdown*.log',),
         "output_types": "standard",
-        "artifact_icon": "refresh-cw"
+        "artifact_icon": "refresh"
     }
 }
 

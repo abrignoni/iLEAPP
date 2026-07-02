@@ -50,7 +50,8 @@ __artifacts_v2__ = {
             '*/Keychains/keychain-2.db*',
         ),
         "output_types": "none",
-        "function": "keychain_bluetooth_info"
+        "function": "keychain_bluetooth_info",
+        "artifact_icon": "bluetooth"
     },
     "keychain_bluetooth_paired": {
         "name": "Paired Bluetooth Devices",
@@ -87,7 +88,7 @@ __artifacts_v2__ = {
             '*/Keychains/keychain-2.db*',
         ),
         "output_types": "standard",
-        "artifact_icon": "at-sign",
+        "artifact_icon": "at",
         "function": "keychain_mail_accounts"
     },
 }
@@ -283,7 +284,7 @@ def _decrypt_itb_key(data, decryption_keys) -> bytes | None:
         return None
 
     try:
-        key_uwkey = AES.new(key_dkey['Unwrapped'], AES.MODE_KW).unseal(key_wkey)  # type: ignore[attr-defined]
+        key_uwkey = AES.new(key_dkey['Unwrapped'], AES.MODE_KW).unseal(key_wkey)  # type: ignore[attr-defined]  # pylint: disable=no-member
         decrypted_data = gcm_decrypt(key_uwkey, b"", key_data, b"")
         return decrypted_data
     except ValueError as e:

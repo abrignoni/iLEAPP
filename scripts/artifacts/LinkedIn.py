@@ -32,7 +32,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Documents/msg_database.sqlite*'),
         "output_types": "standard",
-        "artifact_icon": "message-square"
+        "artifact_icon": "message"
     },
     "linkedin_conversations": {
         "name": "LinkedIn - Conversations",

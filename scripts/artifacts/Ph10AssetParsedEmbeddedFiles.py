@@ -15,10 +15,10 @@ import plistlib
 import nska_deserialize as nd
 from packaging import version
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, kmlgen, is_platform_windows, media_to_html, open_sqlite_db_readonly, iOS
+from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, media_to_html, open_sqlite_db_readonly, iOS
 
 
-def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, _seeker, _wrap_text, _timezone_offset):
     for file_found in files_found:
         file_found = str(file_found)
         
@@ -2222,7 +2222,7 @@ def get_ph10assetparsedembeddedfilesphdapsql(files_found, report_folder, seeker,
         return
 
 
-def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def get_ph10assetparsedembeddedfilessyndpl(files_found, report_folder, _seeker, _wrap_text, _timezone_offset):
     for file_found in files_found:
         file_found = str(file_found)
 
@@ -4440,7 +4440,8 @@ __artifacts_v2__ = {
         'category': 'Photos.sqlite-C-Other_Artifacts',
         'notes': '',
         'paths': '*/PhotoData/Photos.sqlite*',
-        'function': 'get_ph10assetparsedembeddedfilesphdapsql'
+        'function': 'get_ph10assetparsedembeddedfilesphdapsql',
+        "artifact_icon": "paperclip"
     },
     'Ph10-2-Assets have embedded files-SyndPL': {
         'name': 'SyndPL Photos.sqlite Ph10.2 assets have embedded files',
@@ -4455,6 +4456,7 @@ __artifacts_v2__ = {
         'category': 'Photos.sqlite-S-Syndication_PL_Artifacts',
         'notes': '',
         'paths': '*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',
-        'function': 'get_ph10assetparsedembeddedfilessyndpl'
+        'function': 'get_ph10assetparsedembeddedfilessyndpl',
+        "artifact_icon": "paperclip"
     }
 }

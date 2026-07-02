@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Messaging_*.sqlite*',),
         "output_types": "standard",
-        "artifact_icon": "message-square"
+        "artifact_icon": "message"
     }
 }
 

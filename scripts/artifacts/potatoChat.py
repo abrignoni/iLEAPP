@@ -14,7 +14,7 @@ __artifacts_v2__ = {
             '*/mobile/Containers/Shared/AppGroup/*/Documents/video/*',
         ),
         'output_types': 'all',
-        'artifact_icon': 'message-square',
+        'artifact_icon': 'message',
         'data_views': {
             'conversation': {
                 'conversationDiscriminatorColumn': 'Chat-ID',
@@ -44,7 +44,7 @@ __artifacts_v2__ = {
             '*/mobile/Containers/Shared/AppGroup/*/Documents/video/*',
         ),
         'output_types': 'standard',
-        'artifact_icon': 'message-square',
+        'artifact_icon': 'message',
         'data_views': {
             'conversation': {
                 'conversationDiscriminatorColumn': 'Group-ID',

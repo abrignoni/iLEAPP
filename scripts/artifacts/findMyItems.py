@@ -10,6 +10,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Caches/com.apple.findmy.fmipcore/Items.data'),
         "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "info-circle",
     },
     "findMyItemsLocations": {
         "name": "FindMy Items Locations",
@@ -21,7 +22,8 @@ __artifacts_v2__ = {
         "category": "Find My",
         "notes": "",
         "paths": ('*/Caches/com.apple.findmy.fmipcore/Items.data'),
-        "output_types": "all"
+        "output_types": "all",
+        "artifact_icon": "map-pin"
     },
     "findMyItemsSafeLocations": {
         "name": "FindMy Items Safe Locations",
@@ -33,7 +35,8 @@ __artifacts_v2__ = {
         "category": "Find My",
         "notes": "",
         "paths": ('*/Caches/com.apple.findmy.fmipcore/Items.data'),
-        "output_types": "all"
+        "output_types": "all",
+        "artifact_icon": "shield-check"
     },
     "findMyItemsCrowdsourcedLocations": {
         "name": "FindMy Items Crowdsourced Locations",
@@ -45,7 +48,8 @@ __artifacts_v2__ = {
         "category": "Find My",
         "notes": "",
         "paths": ('*/Caches/com.apple.findmy.fmipcore/Items.data'),
-        "output_types": "all"
+        "output_types": "all",
+        "artifact_icon": "users"
     }
 }
 
@@ -55,7 +59,7 @@ from scripts.ilapfuncs import artifact_processor
 from scripts.ilapfuncs import convert_unix_ts_to_timezone
 
 @artifact_processor
-def findMyItemsInfo(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def findMyItemsInfo(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
     data_list = []
     source_path = str(files_found[0])
     
@@ -64,7 +68,7 @@ def findMyItemsInfo(files_found, report_folder, seeker, wrap_text, timezone_offs
         for x in deserialized:
             name = (x['name'])
             serial = (x['serialNumber'])
-            id = (x['identifier'])
+            item_id = (x['identifier'])
             rname = (x['role'].get('name'))
             remoji = (x['role'].get('emoji'))
             ris = (x['role'].get('identifier'))
@@ -81,7 +85,7 @@ def findMyItemsInfo(files_found, report_folder, seeker, wrap_text, timezone_offs
             sysver = (x['systemVersion'])
 
             data_list.append(
-                (name, serial, id, rname, remoji, ris, ptype, maname, pid, vid, ap, gid, owner, 
+                (name, serial, item_id, rname, remoji, ris, ptype, maname, pid, vid, ap, gid, owner, 
                     batstat, lostmode, cap, sysver,))
 
     data_headers = (
@@ -90,7 +94,7 @@ def findMyItemsInfo(files_found, report_folder, seeker, wrap_text, timezone_offs
     return data_headers, data_list, source_path
 
 @artifact_processor
-def findMyItemsLocations(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def findMyItemsLocations(files_found, _report_folder, _seeker, _wrap_text, timezone_offset):
     data_list = []
     source_path = str(files_found[0])
     
@@ -101,7 +105,7 @@ def findMyItemsLocations(files_found, report_folder, seeker, wrap_text, timezone
             ltimestamp = convert_unix_ts_to_timezone(ltimestamp, timezone_offset)
             name = (x['name'])
             serial = (x['serialNumber'])
-            id = (x['identifier'])
+            item_id = (x['identifier'])
             rname = (x['role'].get('name'))
             remoji = (x['role'].get('emoji'))
             ris = (x['role'].get('identifier'))
@@ -140,7 +144,7 @@ def findMyItemsLocations(files_found, report_folder, seeker, wrap_text, timezone
             acountry =  (x['address'].get('country'))
 
             data_list.append(
-                (ltimestamp, name, serial, id, rname, remoji, ris, ptype, maname, pid, vid, ap, gid, 
+                (ltimestamp, name, serial, item_id, rname, remoji, ris, ptype, maname, pid, vid, ap, gid, 
                     owner, batstat, lostmode, cap, sysver, asubAdministrativeArea, aslabel, astreetAddress, 
                     acountryCode, astateCode, administrativeArea, astreetName, aformattedAddressLines, 
                     amapItemFullAddress, afullThroroughfare, areaOfInterest, alocality, lpostype, lverticalAccuracy, 
@@ -155,7 +159,7 @@ def findMyItemsLocations(files_found, report_folder, seeker, wrap_text, timezone
     return data_headers, data_list, source_path
 
 @artifact_processor
-def findMyItemsSafeLocations(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def findMyItemsSafeLocations(files_found, _report_folder, _seeker, _wrap_text, timezone_offset):
     data_list = []
     source_path = str(files_found[0])
     
@@ -164,7 +168,7 @@ def findMyItemsSafeLocations(files_found, report_folder, seeker, wrap_text, time
         for x in deserialized:
             name = (x['name'])
             serial = (x['serialNumber'])
-            id = (x['identifier'])
+            item_id = (x['identifier'])
             rname = (x['role'].get('name'))
             remoji = (x['role'].get('emoji'))
             ris = (x['role'].get('identifier'))
@@ -197,7 +201,7 @@ def findMyItemsSafeLocations(files_found, report_folder, seeker, wrap_text, time
                 scount = (safeloc['address'].get('country'))
 
                 data_list.append(
-                    (stimestamp, name, serial, id, rname, remoji, ris, sname, stype, sid, sva, sha, 
+                    (stimestamp, name, serial, item_id, rname, remoji, ris, sname, stype, sid, sva, sha, 
                         slong, slat, sfloor, sisina, sisold, salt, ssub, slabel, sstreet, scountry, 
                         sstate, sadmin, pstreetn, sformated, smapfull, sthro, saoi, sloc, scount))
 
@@ -209,7 +213,7 @@ def findMyItemsSafeLocations(files_found, report_folder, seeker, wrap_text, time
     return data_headers, data_list, source_path
 
 @artifact_processor
-def findMyItemsCrowdsourcedLocations(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def findMyItemsCrowdsourcedLocations(files_found, _report_folder, _seeker, _wrap_text, timezone_offset):
     data_list = []
     source_path = str(files_found[0])
     
@@ -220,7 +224,7 @@ def findMyItemsCrowdsourcedLocations(files_found, report_folder, seeker, wrap_te
             crowdtimestamp = convert_unix_ts_to_timezone(crowdtimestamp, timezone_offset)
             name = (x['name'])
             serial = (x['serialNumber'])
-            id = (x['identifier'])
+            item_id = (x['identifier'])
             rname = (x['role'].get('name'))
             remoji = (x['role'].get('emoji'))
             ris = (x['role'].get('identifier'))
@@ -247,7 +251,7 @@ def findMyItemsCrowdsourcedLocations(files_found, report_folder, seeker, wrap_te
             crowdlocfin = (x['crowdSourcedLocation'].get('locationFinished'))
 
             data_list.append(
-                (crowdtimestamp, name, serial, id, rname, remoji, ris, ptype, maname, pid, vid, 
+                (crowdtimestamp, name, serial, item_id, rname, remoji, ris, ptype, maname, pid, vid, 
                 ap, gid, owner, batstat, lostmode, cap, sysver, crowdpostype, crowdvert, crowdlong, 
                 crowdlat, crowdalt, crowdfloor, crowdisacc, crowdisold, crowdhorzcc, crowdlocfin ))
 

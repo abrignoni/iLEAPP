@@ -10,7 +10,8 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Calendar.sqlitedb',),
         "html_columns": ['Calendar Name', 'Location Coordinates', 'Invitees'],
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": "calendar"
     },
     "calendarBirthdays": {
         "name": "Calendar Birthdays",
@@ -23,7 +24,8 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Calendar.sqlitedb',),
         "html_columns": ['Calendar Name'],
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": "gift"
     },
     "calendarList": {
         "name": "Calendar List",
@@ -36,7 +38,8 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Calendar.sqlitedb',),
         "html_columns": ['Calendar Name', 'Sharing Participants'],
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": "list"
     }
 }
 

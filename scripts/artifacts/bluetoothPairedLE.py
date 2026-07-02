@@ -9,7 +9,8 @@ __artifacts_v2__ = {
         "category": "Bluetooth",
         "notes": "",
         "paths": ('*/com.apple.MobileBluetooth.ledevices.paired.db*'),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": "bluetooth-connected"
     }
 }
 

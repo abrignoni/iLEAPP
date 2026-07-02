@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ("info.plist",),
         "output_types": ["html", "tsv", "lava"],
-        "artifact_icon": "refresh-cw"
+        "artifact_icon": "refresh"
     },
     "itunes_backup_installed_applications": {
         "name": "iTunes Backup - Installed Applications",

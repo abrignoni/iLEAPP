@@ -17,7 +17,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Containers/Data/Application/*/Library/Application Support/user_*_messaging_core.sqlite3*'),
         "output_types": "standard",
-        "artifact_icon": "message-square",
+        "artifact_icon": "message",
         'data_views': {
             'conversation': {
                 'conversationDiscriminatorColumn': 'Thread ID',

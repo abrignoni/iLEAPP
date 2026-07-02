@@ -20,7 +20,8 @@ __artifacts_v2__ = {
                 "senderColumn": "Message Author",
                 "mediaColumn": "Media"
             }
-        }
+        },
+        "artifact_icon": "message-circle"
     }
 }
 
@@ -116,10 +117,10 @@ def aa_flatten_dict_tu(
                             forbidden=forbidden,
                             allowed=allowed,
                         )
-                except Exception:
+                except Exception:  # pylint: disable=broad-exception-caught
                     # if there is an exception, it is probably not an iterable, so we yield it
                     yield v2, listitem
-        except Exception:
+        except Exception:  # pylint: disable=broad-exception-caught
             # if there is an exception, it is probably not an iterable, so we yield it
             yield v, listitem
             
@@ -163,7 +164,7 @@ def fla_tu(
                     dict_variation=dict_variation,
                 )  # if we have an iterable, we check recursively for other iterables
                 
-            except Exception:
+            except Exception:  # pylint: disable=broad-exception-caught
                 
                 yield xaa, Tuppsub(
                     (walkthrough + Tuppsub((ini,)))
@@ -220,19 +221,19 @@ def fla_tu(
                             allowed=allowed,
                             dict_variation=dict_variation,
                         )
-                except Exception:
+                except Exception:  # pylint: disable=broad-exception-caught
                     
                     yield xaa, Tuppsub(
                         (walkthrough + (ini2,))
                     )  # in case of an exception, we yield  (value, (key1,key2,...))
-        except Exception:
+        except Exception:  # pylint: disable=broad-exception-caught
             
             yield item, Tuppsub(
                 (walkthrough + Tuppsub(item, ))
             )  # in case of an exception, we yield  (value, (key1,key2,...))
 
 @artifact_processor
-def get_googleChat(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def get_googleChat(files_found, report_folder, seeker, _wrap_text, timezone_offset):
     for file_found in files_found:
         file_found = str(file_found)
         
@@ -282,11 +283,11 @@ def get_googleChat(files_found, report_folder, seeker, wrap_text, timezone_offse
                         reaction = ''
                         reactionuser = ''
                     else:
-                        protostuff, types = blackboxprotobuf.decode_message(protobufreactions)
+                        protostuff, _types = blackboxprotobuf.decode_message(protobufreactions)
                         reaction = (protostuff['1']['1']['1']['1']).decode()
                         reaction = (utf8_in_extended_ascii(reaction))[1]
 
-                        timestampofreaction = protostuff['1']['1']['4']
+                        _timestampofreaction = protostuff['1']['1']['4']
                         reactionuser = protostuff['1'].get('2')
                         if reactionuser is not None:
                             reactionuser = protostuff['1']['2']['1']
@@ -299,7 +300,6 @@ def get_googleChat(files_found, report_folder, seeker, wrap_text, timezone_offse
                     check = checkforempty.read(3)
 
                     if check == b'\xfe\xff\x00':
-                        media = ''
                         mediafilename = ''
                     else:
                         protostuff, types = blackboxprotobuf.decode_message(protobufmedia)
@@ -334,6 +334,5 @@ def get_googleChat(files_found, report_folder, seeker, wrap_text, timezone_offse
                         'Is Sent', 'Filename', 'Media', 'Reaction', 'Reaction User', 'Account ID')
 
         return data_headers, data_list, file_found
-        
-    else:
-        logfunc('No Google Chat data available')
+
+    logfunc('No Google Chat data available')

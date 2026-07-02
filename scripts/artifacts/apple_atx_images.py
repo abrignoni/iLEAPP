@@ -28,7 +28,7 @@ __artifacts_v2__ = {
             '**/*.atx',
         ),
         "output_types": "standard",
-        "artifact_icon": "image"
+        "artifact_icon": "photo"
     }
 }
 

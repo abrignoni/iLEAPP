@@ -9,7 +9,8 @@ __artifacts_v2__ = {
         "category": "Discord",
         "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/mmkv/mmkv.default'),
-        "output_types": "standard",  # or ["html", "tsv", "timeline", "lava"]
+        "output_types": "standard",
+        "artifact_icon": "brand-discord",  # or ["html", "tsv", "timeline", "lava"]
     }
 }
 

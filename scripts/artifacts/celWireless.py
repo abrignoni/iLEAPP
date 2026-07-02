@@ -10,7 +10,8 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*wireless/Library/Preferences/com.apple.commcenter.plist', 
                   '*wireless/Library/Preferences/com.apple.commcenter.device_specific_nobackup.plist'),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": "antenna"
     }
 }
 

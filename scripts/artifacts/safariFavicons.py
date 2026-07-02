@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Containers/Data/Application/*/Library/Image Cache/Favicons/Favicons.db*',),
         "output_types": "standard",
-        "artifact_icon": "image"
+        "artifact_icon": "photo"
     }
 }
 

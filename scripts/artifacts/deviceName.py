@@ -8,7 +8,8 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Identifiers",
         "paths": ('*/root/Library/Lockdown/data_ark.plist',),
-        "output_types": "none"
+        "output_types": "none",
+        "artifact_icon": "device-mobile"
     }
 }
 
@@ -16,7 +17,7 @@ import plistlib
 from scripts.ilapfuncs import device_info, artifact_processor
 
 @artifact_processor
-def deviceName(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def deviceName(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
     file_found = str(files_found[0])
     with open(file_found, "rb") as fp:
         pl = plistlib.load(fp)

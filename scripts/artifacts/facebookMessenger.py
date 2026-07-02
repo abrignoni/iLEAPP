@@ -86,7 +86,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ("*/lightspeed-userDatabases/*.db*",),
         "output_types": "standard",
-        "artifact_icon": "facebook",
+        "artifact_icon": "brand-facebook",
     },
     "facebookMessengerContacts": {
         "name": "Facebook Messenger - Contacts",

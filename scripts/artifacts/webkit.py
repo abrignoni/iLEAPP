@@ -13,7 +13,8 @@ __artifacts_v2__ = {
             '*/Library/Caches/WebKit/NetworkCache/Version*/Records/*/Resource/*',
         ),
         "output_types": "standard",
-        "research_mode": False # Set to True to include all fields
+        "research_mode": False,
+        "artifact_icon": "archive" # Set to True to include all fields
     }
 }
 

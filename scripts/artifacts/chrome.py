@@ -11,6 +11,7 @@ __artifacts_v2__ = {
         "paths": ('*/Chrome/Default/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
+        "artifact_icon": "history",
     },
     "chromeWebVisits": {
         "name": "Web Visits",
@@ -24,6 +25,7 @@ __artifacts_v2__ = {
         "paths": ('*/Chrome/Default/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
+        "artifact_icon": "world",
     },
     "chromeWebSearch": {
         "name": "Web Searches",
@@ -37,6 +39,7 @@ __artifacts_v2__ = {
         "paths": ('*/Chrome/Default/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
+        "artifact_icon": "search",
     },
     "chromeDownloads": {
         "name": "Downloads",
@@ -50,6 +53,7 @@ __artifacts_v2__ = {
         "paths": ('*/Chrome/Default/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
+        "artifact_icon": "download",
     },
     "chromeKeywordSearchTerms": {
         "name": "Keyword Search Terms",
@@ -63,6 +67,7 @@ __artifacts_v2__ = {
         "paths": ('*/Chrome/Default/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
+        "artifact_icon": "search",
     },
     "chromeAutofillEntries": {
         "name": "Autofill Entries",
@@ -76,6 +81,7 @@ __artifacts_v2__ = {
         "paths": ('*/Chrome/Default/Web Data*', '*/app_sbrowser/Default/Web Data*', '*/app_opera/Web Data*',
                   '*/Chromium/Default/Web Data*'),
         "output_types": "standard",
+        "artifact_icon": "forms",
     },
     "chromeAutofillProfiles": {
         "name": "Autofill Profiles",
@@ -89,6 +95,7 @@ __artifacts_v2__ = {
         "paths": ('*/Chrome/Default/Web Data*', '*/app_sbrowser/Default/Web Data*', '*/app_opera/Web Data*',
                   '*/Chromium/Default/Web Data*'),
         "output_types": "standard",
+        "artifact_icon": "user",
     },
     "chromeBookmarks": {
         "name": "Bookmarks",
@@ -102,6 +109,7 @@ __artifacts_v2__ = {
         "paths": ('*/Chrome/Default/Bookmarks*', '*/app_sbrowser/Default/Bookmarks*', '*/app_opera/Bookmarks*',
                   '*/Chromium/Default/Bookmarks*'),
         "output_types": "standard",
+        "artifact_icon": "bookmark",
     },
     "chromeCookies": {
         "name": "Cookies",
@@ -114,6 +122,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Chrome/Default/Cookies*', '*/app_sbrowser/Default/Cookies*', '*/app_opera/Cookies*', '*/Chromium/Default/Cookies*'),
         "output_types": "standard",
+        "artifact_icon": "cookie",
     },
     "chromeLoginData": {
         "name": "Login Data",
@@ -126,6 +135,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Chrome/Default/Login Data*', '*/app_sbrowser/Default/Login Data*', '*/app_opera/Login Data*', '*/Chromium/Default/Login Data*'),
         "output_types": "standard",
+        "artifact_icon": "key",
     },
     "chromeTopSites": {
         "name": "Top Sites",
@@ -138,6 +148,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Chrome/Default/Top Sites*', '*/app_sbrowser/Default/Top Sites*', '*/app_opera/Top Sites*', '*/Chromium/Default/Top Sites*'),
         "output_types": ['lava', 'tsv', 'html'],
+        "artifact_icon": "star",
     },
     "chromeOfflinePages": {
         "name": "Offline Pages",
@@ -152,6 +163,7 @@ __artifacts_v2__ = {
                   '*/app_sbrowser/Default/Offline Pages/metadata/OfflinePages.db*',
                   '*/Chromium/Default/Offline Pages/metadata/OfflinePages.db*'),
         "output_types": "standard",
+        "artifact_icon": "wifi-off",
     },
     "chromeMediaHistorySessions": {
         "name": "Media History Sessions",
@@ -165,6 +177,7 @@ __artifacts_v2__ = {
         "paths": ('*/Chrome/Default/Media History*', '*/app_sbrowser/Default/Media History*',
                   '*/app_opera/Media History*', '*/Chromium/Default/Media History*'),
         "output_types": "standard",
+        "artifact_icon": "movie",
     },
     "chromeMediaHistoryPlaybacks": {
         "name": "Media History Playbacks",
@@ -178,6 +191,7 @@ __artifacts_v2__ = {
         "paths": ('*/Chrome/Default/Media History*', '*/app_sbrowser/Default/Media History*',
                   '*/app_opera/Media History*', '*/Chromium/Default/Media History*'),
         "output_types": "standard",
+        "artifact_icon": "player-play",
     },
     "chromeMediaHistoryOrigins": {
         "name": "Media History Origins",
@@ -191,6 +205,7 @@ __artifacts_v2__ = {
         "paths": ('*/Chrome/Default/Media History*', '*/app_sbrowser/Default/Media History*',
                   '*/app_opera/Media History*', '*/Chromium/Default/Media History*'),
         "output_types": "standard",
+        "artifact_icon": "world",
     },
     "chromeNetworkActionPredictor": {
         "name": "Network Action Predictor",
@@ -204,6 +219,7 @@ __artifacts_v2__ = {
         "paths": ('*/Chrome/Default/Network Action Predictor*','*/app_sbrowser/Default/Network Action Predictor*',
                   '*/app_opera/Network Action Predictor*', '*/Chromium/Default/Network Action Predictor*'),
         "output_types": ['lava', 'tsv', 'html'],
+        "artifact_icon": "trending-up",
     },
 }
 
@@ -343,7 +359,8 @@ def chromeWebHistory(files_found, report_folder, _seeker, wrap_text, _timezone_o
             category = "Chromium"
             module_name = "chromeWebHistory"
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                           lava_data_headers, len(data_list))
+                                                                           lava_data_headers, len(data_list),
+                                                                           artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
@@ -454,7 +471,8 @@ def chromeWebVisits(files_found, report_folder, _seeker, wrap_text, _timezone_of
             module_name = "chromeWebVisits"
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                           lava_data_headers, len(data_list))
+                                                                           lava_data_headers, len(data_list),
+                                                                           artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
@@ -539,7 +557,8 @@ def chromeWebSearch(files_found, report_folder, _seeker, wrap_text, _timezone_of
             module_name = "chromeWebSearch"
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                           lava_data_headers, len(data_list))
+                                                                           lava_data_headers, len(data_list),
+                                                                           artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
@@ -701,7 +720,8 @@ def chromeDownloads(files_found, report_folder, _seeker, _wrap_text, _timezone_o
             module_name = "chromeDownloads"
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                           lava_data_headers, len(data_list))
+                                                                           lava_data_headers, len(data_list),
+                                                                           artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
@@ -783,7 +803,8 @@ def chromeKeywordSearchTerms(files_found, report_folder, _seeker, wrap_text, _ti
             module_name = "chromeKeywordSearchTerms"
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                           lava_data_headers, len(data_list))
+                                                                           lava_data_headers, len(data_list),
+                                                                           artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
@@ -866,7 +887,8 @@ def chromeAutofillEntries(files_found, report_folder, _seeker, _wrap_text, _time
                 # Generate LAVA output
 
                 table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                               lava_data_headers, len(data_list))
+                                                                               lava_data_headers, len(data_list),
+                                                                               artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
                 lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
@@ -910,7 +932,8 @@ def chromeAutofillEntries(files_found, report_folder, _seeker, _wrap_text, _time
                 # Generate LAVA output
 
                 table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                               lava_data_headers, len(data_list))
+                                                                               lava_data_headers, len(data_list),
+                                                                               artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
                 lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
@@ -1008,7 +1031,8 @@ def chromeAutofillProfiles(files_found, report_folder, _seeker, _wrap_text, _tim
                 module_name = "chromeAutofillProfiles"
 
                 table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                               lava_data_headers, len(data_list))
+                                                                               lava_data_headers, len(data_list),
+                                                                               artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
                 lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
@@ -1098,7 +1122,8 @@ def chromeBookmarks(files_found, report_folder, _seeker, _wrap_text, _timezone_o
             module_name = "chromeBookmarks"
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                           lava_data_headers, len(data_list))
+                                                                           lava_data_headers, len(data_list),
+                                                                           artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
@@ -1208,7 +1233,8 @@ def chromeCookies(files_found, report_folder, _seeker, wrap_text, _timezone_offs
             module_name = "chromeCookies"
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                           lava_data_headers, len(data_list))
+                                                                           lava_data_headers, len(data_list),
+                                                                           artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
@@ -1294,7 +1320,8 @@ def chromeLoginData(files_found, report_folder, _seeker, _wrap_text, _timezone_o
             module_name = "chromeLoginData"
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                           lava_data_headers, len(data_list))
+                                                                           lava_data_headers, len(data_list),
+                                                                           artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
@@ -1373,7 +1400,8 @@ def chromeTopSites(files_found, report_folder, _seeker, _wrap_text, _timezone_of
             module_name = "chromeTopSites"
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                           lava_data_headers, len(data_list))
+                                                                           lava_data_headers, len(data_list),
+                                                                           artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
@@ -1458,7 +1486,8 @@ def chromeOfflinePages(files_found, report_folder, _seeker, wrap_text, _timezone
             module_name = "chromeTopSites"
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                           lava_data_headers, len(data_list))
+                                                                           lava_data_headers, len(data_list),
+                                                                           artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
@@ -1541,7 +1570,8 @@ def chromeMediaHistorySessions(files_found, report_folder, _seeker, _wrap_text, 
             module_name = "chromeMediaHistorySessions"
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                           lava_data_headers, len(data_list))
+                                                                           lava_data_headers, len(data_list),
+                                                                           artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
@@ -1627,7 +1657,8 @@ def chromeMediaHistoryPlaybacks(files_found, report_folder, _seeker, _wrap_text,
             module_name = "chromeMediaHistoryPlaybacks"
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                           lava_data_headers, len(data_list))
+                                                                           lava_data_headers, len(data_list),
+                                                                           artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
@@ -1703,7 +1734,8 @@ def chromeMediaHistoryOrigins(files_found, report_folder, _seeker, _wrap_text, _
             module_name = "chromeMediaHistoryOrigins"
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                           lava_data_headers, len(data_list))
+                                                                           lava_data_headers, len(data_list),
+                                                                           artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
@@ -1780,7 +1812,8 @@ def chromeNetworkActionPredictor(files_found, report_folder, _seeker, _wrap_text
             module_name = "chromeNetworkActionPredictor"
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                           lava_data_headers, len(data_list))
+                                                                           lava_data_headers, len(data_list),
+                                                                           artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 

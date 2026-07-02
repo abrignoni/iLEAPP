@@ -37,7 +37,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Documents/database.hik*',),
         "output_types": "standard",
-        "artifact_icon": "info"
+        "artifact_icon": "info-circle"
     },
     "hikvisionActivity": {
         "name": "Hikvision - CCTV Activity",
@@ -63,7 +63,7 @@ __artifacts_v2__ = {
         "notes": "Media are stored under Documents/YYYY/MM/DD within the app container.",
         "paths": ('*/Documents/*/*/*/*.jpg', '*/Documents/*/*/*/*.mov', '*/Documents/*/*/*/*.mp4'),
         "output_types": "standard",
-        "artifact_icon": "film"
+        "artifact_icon": "movie"
     }
 }
 
