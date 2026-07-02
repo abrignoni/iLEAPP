@@ -207,7 +207,7 @@ from urllib.parse import urlparse, urlunparse
 from scripts.ilapfuncs import get_file_path, get_sqlite_db_records, get_plist_content, get_plist_file_content, convert_unix_ts_to_utc, \
     convert_cocoa_core_data_ts_to_utc, check_in_embedded_media, artifact_processor, logfunc, is_platform_windows
 
-global bereal_user_id, _bereal_processed
+
 
 # <id, fullname|username>
 map_id_name = {}
@@ -450,41 +450,29 @@ def get_tags(obj, html_format=False):
 
     return '<br />'.join(tag_list) if html_format else '\n'.join(tag_list)
 
-# set up global variables
-def process_bereal_preferences(plist_path):
-    global bereal_user_id, _bereal_processed
-    
-    plist_data = get_plist_file_content(plist_path)
-    if not (plist_data):
-        logfunc("BeReal Helper: Couldn't parse data from plist")
-    
-    try:
-        # me <id, username>
-        user_name = 'Local User'
-        user_id = plist_data.get('bereal-user-id')
-        if not bool(user_id):
-            user_id = plist_data.get('userId')
-        if not bool(user_id):
-            user_id = plist_data.get('myUserID')
-        if bool(user_id):
-            user_name = plist_data.get('myAccount', {}).get(user_id, {}).get('username')
-            if not bool(user_name): user_name = 'Local User'
-            map_id_name[user_id] = user_name
-            # bereal user id
-            bereal_user_id = user_id
-            # local profile picture (file:///private/var/mobile/Containers/Shared/AppGroup/<APP_GUID>/notification/file.jpg)
-            # bereal_profile_picture = plist_data.get('myAccount', {}).get(user_id, {}).get('profilePictureURL')
 
-        # current friends <id, fullname>
-        current_friends = plist_data.get('currentFriends', {})
-        for user_id, user_name in current_friends.items():
+def process_bereal_preferences(plist_path):
+    owner_id = None
+
+    plist_data = get_plist_file_content(plist_path)
+    if not plist_data:
+        return owner_id
+
+    try:
+        user_id = plist_data.get("bereal-user-id") or plist_data.get("userId") or plist_data.get("myUserID")
+
+        if user_id:
+            user_name = plist_data.get("myAccount", {}).get(user_id, {}).get("username") or "Local User"
             map_id_name[user_id] = user_name
-            
-        _bereal_processed = True
-        return True
+            owner_id = user_id
+
+        for user_id, user_name in plist_data.get("currentFriends", {}).items():
+            map_id_name[user_id] = user_name
 
     except (AttributeError, TypeError, KeyError) as e:
         logfunc(f"Error: {str(e)}")
+
+    return owner_id
 
 # accounts
 @artifact_processor
