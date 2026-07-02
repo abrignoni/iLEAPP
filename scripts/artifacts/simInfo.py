@@ -1,92 +1,78 @@
-import os
-import datetime
-import json
-import plistlib
-import datetime
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, logdevinfo
-
-def timestampcalc(timevalue):
-    timestamp = (datetime.datetime.fromtimestamp(int(timevalue)).strftime('%Y-%m-%d %H:%M:%S'))
-    return timestamp
-
-    
-def get_siminfo(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    data_lista = []
-    data_listb = []
-    
-    for file_found in files_found:
-        file_found = str(file_found)
-    
-        #file_found = './com.apple.commcenter.data.plist'
-    
-        with open(file_found, "rb") as fp:
-                pl = plistlib.load(fp)
-                for key, val in pl.items():
-                    if key == 'PersonalWallet':
-                        for x, y in val.items():
-                            simid = x
-                            for a, z in y.items():
-                                cbver = z.get('cb_ver', '')
-                                labelid = z.get('label-id', '')
-                                labelidconf = z.get('label-id-confirmed', '')
-                                tss = z.get('ts', '')
-                                tss = timestampcalc(tss)
-                                cbid = z.get('cb_id', '')
-                                mdn = z.get('mdn', '')
-                                esim = z.get('esim', '')
-                                eapaka = z.get('eap_aka', '')
-                                types = z.get('type', '')
-                                nosrc = z.get('no_src', '')
-                                data_lista.append((tss,mdn,esim,types,cbid,nosrc,labelid,labelidconf,eapaka,cbver))
-                                
-                    if key == 'unique-sim-label-store':
-                        for x, y in val.items():
-                            simlabelstoreid = x
-                            tag = y.get('tag', '')
-                            text = y.get('text', '')
-                            ts = y.get('ts', '')
-                            ts = timestampcalc(ts)
-                            data_listb.append((ts,tag,simlabelstoreid,text))
-                        
-                        
-    if data_lista:
-        report = ArtifactHtmlReport('SIM - UUID')
-        report.start_artifact_report(report_folder, 'SIM - UUID')
-        report.add_script()
-        data_headers = ('Timestamp Unknown','MDM','ESIM','Type','CB_ID','No_SRC','Label-ID','Label-ID Confirmed','EAP_AKA','CB_Ver')
-        report.write_artifact_data_table(data_headers, data_lista, file_found)
-        report.end_artifact_report()
-        
-        tsvname = f'SIM - UUID'
-        tsv(report_folder, data_headers, data_lista, tsvname)
-        
-        tlactivity = f'SIM - UUID'
-        timeline(report_folder, tlactivity, data_lista, data_headers)
-        
-    else:
-        logfunc('No SIM - UUID data available')
-        
-    if data_listb:
-        report = ArtifactHtmlReport('SIM - Unique Label Store')
-        report.start_artifact_report(report_folder, 'SIM - Unique Label Store')
-        report.add_script()
-        data_headers = ('Timestamp','Tag','SIM Label Store ID','Text')
-        report.write_artifact_data_table(data_headers, data_listb, file_found)
-        report.end_artifact_report()
-        
-        tsvname = f'SIM - Unique Label Store'
-        tsv(report_folder, data_headers, data_listb, tsvname)
-        
-        tlactivity = f'SIM - Unique Label Store'
-        timeline(report_folder, tlactivity, data_listb, data_headers)
-        
-    else:
-        logfunc('No SIM - Unique Label Store data available')
-
-__artifacts__ = {
-    "siminfo": (
-        "SIM Info",
-        ('*/com.apple.commcenter.data.plist'),
-        get_siminfo)
+__artifacts_v2__ = {
+    "simInfoUUID": {
+        "name": "SIM - UUID",
+        "description": "SIM personal wallet entries from com.apple.commcenter.data.plist",
+        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
+        "category": "SIM Info", "notes": "Timestamps are Unix epoch seconds (UTC).",
+        "paths": ('*/com.apple.commcenter.data.plist',),
+        "output_types": "standard", "artifact_icon": "credit-card"
+    },
+    "simInfoLabelStore": {
+        "name": "SIM - Unique Label Store",
+        "description": "SIM unique label store from com.apple.commcenter.data.plist",
+        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
+        "category": "SIM Info", "notes": "Timestamps are Unix epoch seconds (UTC).",
+        "paths": ('*/com.apple.commcenter.data.plist',),
+        "output_types": "standard", "artifact_icon": "tag"
+    }
 }
+
+import plistlib
+
+from scripts.ilapfuncs import artifact_processor, convert_unix_ts_to_utc
+
+
+def _ts(value):
+    if value in ('', None):
+        return ''
+    try:
+        return convert_unix_ts_to_utc(int(value))
+    except (ValueError, TypeError):
+        return value
+
+
+def _find(context):
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        if file_found.endswith('com.apple.commcenter.data.plist'):
+            return file_found
+    return ''
+
+
+@artifact_processor
+def simInfoUUID(context):
+    data_headers = (('Timestamp', 'datetime'), 'MDN', 'ESIM', 'Type', 'CB_ID', 'No_SRC', 'Label-ID',
+                    'Label-ID Confirmed', 'EAP_AKA', 'CB_Ver')
+    data_list = []
+    source_path = _find(context)
+    if not source_path:
+        return data_headers, data_list, ''
+    with open(source_path, 'rb') as fp:
+        pl = plistlib.load(fp)
+    for sim in pl.get('PersonalWallet', {}).values():
+        if not isinstance(sim, dict):
+            continue
+        for z in sim.values():
+            if not isinstance(z, dict):
+                continue
+            data_list.append((_ts(z.get('ts', '')), z.get('mdn', ''), z.get('esim', ''),
+                              z.get('type', ''), z.get('cb_id', ''), z.get('no_src', ''),
+                              z.get('label-id', ''), z.get('label-id-confirmed', ''),
+                              z.get('eap_aka', ''), z.get('cb_ver', '')))
+    return data_headers, data_list, context.get_relative_path(source_path)
+
+
+@artifact_processor
+def simInfoLabelStore(context):
+    data_headers = (('Timestamp', 'datetime'), 'Tag', 'SIM Label Store ID', 'Text')
+    data_list = []
+    source_path = _find(context)
+    if not source_path:
+        return data_headers, data_list, ''
+    with open(source_path, 'rb') as fp:
+        pl = plistlib.load(fp)
+    for store_id, y in pl.get('unique-sim-label-store', {}).items():
+        if not isinstance(y, dict):
+            continue
+        data_list.append((_ts(y.get('ts', '')), y.get('tag', ''), store_id, y.get('text', '')))
+    return data_headers, data_list, context.get_relative_path(source_path)

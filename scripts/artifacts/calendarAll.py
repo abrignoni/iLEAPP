@@ -256,11 +256,11 @@ def calendarEvents(context):
 
                     data_list_html.append((start_time, end_time, timezone, calendar_name_tag, row[6], row[7], row[8], 
                                       row[9], location_coordinates_tag, invitation_from, attendees_tag, row[15], 
-                                      row[16], row[17], creation_time, modification_time, file_found))
+                                      row[16], row[17], creation_time, modification_time, context.get_relative_path(file_found)))
             
                     data_list.append((start_time, end_time, timezone, calendar_name, row[6], row[7], row[8], 
                                       row[9], location_coordinates, invitation_from, attendees, row[15], row[16],
-                                      row[17], creation_time, modification_time, file_found))
+                                      row[17], creation_time, modification_time, context.get_relative_path(file_found)))
                     
 
     return data_headers, (data_list, data_list_html), 'see Source File for more info'
@@ -303,8 +303,8 @@ def calendarBirthdays(context):
                 calendar_name = row[2]
                 calendar_name_tag = get_calendar_name(row[2], row[3])
 
-                data_list_html.append((birthdate, row[0], calendar_name_tag, row[4], file_found))
-                data_list.append((birthdate, row[0], calendar_name, row[4], file_found))
+                data_list_html.append((birthdate, row[0], calendar_name_tag, row[4], context.get_relative_path(file_found)))
+                data_list.append((birthdate, row[0], calendar_name, row[4], context.get_relative_path(file_found)))
 
     return data_headers, (data_list, data_list_html), 'see Source File for more info'
 
@@ -362,11 +362,11 @@ def calendarList(context):
                         sharing_participants_html = sharees.get(row[0], '')
                         sharing_participants = sharees.get(row[0], '').replace('<br>', ' ')
                         data_list_html.append((calendar_name_tag, row[3], row[4], row[5], owner_email, row[7],
-                                          sharing_participants_html, row[8], file_found))
+                                          sharing_participants_html, row[8], context.get_relative_path(file_found)))
                         data_list.append((calendar_name, row[3], row[4], row[5], owner_email, row[7],
-                                              sharing_participants, row[8], file_found))
+                                              sharing_participants, row[8], context.get_relative_path(file_found)))
                     else:
-                        data_list_html.append((calendar_name_tag, row[3], row[4], row[5], owner_email, row[7], None, row[8], file_found))
-                        data_list.append((calendar_name, row[3], row[4], row[5], owner_email, row[7], None, row[8], file_found))
+                        data_list_html.append((calendar_name_tag, row[3], row[4], row[5], owner_email, row[7], None, row[8], context.get_relative_path(file_found)))
+                        data_list.append((calendar_name, row[3], row[4], row[5], owner_email, row[7], None, row[8], context.get_relative_path(file_found)))
                 
     return data_headers, (data_list, data_list_html), 'see Source File for more info'

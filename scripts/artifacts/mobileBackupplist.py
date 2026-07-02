@@ -1,106 +1,73 @@
-# Author:  Multiple Contributors
-# Version: 2.0
-#
-#   Description:
-#   Parses basic data from */mobile/Library/Preferences/com.apple.MobileBackup.plist which contains some important data
-#   related to a device Backup, device restore from iCloud Backup, and or Quick Start Data Transfer.
-
 __artifacts_v2__ = {
-    'Mobile_Backup_plist': {
-        'name': 'Mobile Backup Plist Settings com-apple-MobileBackup-plist',
-        'description': 'Parses basic data from */mobile/Library/Preferences/com.apple.MobileBackup.plist which'
-                       ' contains some important data related to a device Backup, device restore from iCloud Backup,'
-                       ' and or Quick Start Data Transfer.',
-        'author': 'Other Unknown contributors and Scott Koenig',
-        'version': '2.0',
-        'date': '2024-06-11',
-        'requirements': 'Acquisition that contains com.apple.MobileBackup.plist',
-        'category': 'Mobile Backup Plist',
-        'notes': '',
-        'paths': '*/Library/Preferences/com.apple.MobileBackup.plist',
-        'function': 'get_mobilebackupplist'
+    "mobilebackupplist": {
+        "name": "Mobile Backup Plist Settings com-apple-MobileBackup-plist",
+        "description": "Parses basic data from */mobile/Library/Preferences/com.apple.MobileBackup.plist which"
+                       " contains some important data related to a device Backup, device restore from iCloud Backup,"
+                       " and or Quick Start Data Transfer.",
+        "author": "Other Unknown contributors and Scott Koenig",
+        "creation_date": "2024-06-11",
+        "last_update_date": "2026-06-24",
+        "requirements": "Acquisition that contains com.apple.MobileBackup.plist",
+        "category": "Mobile Backup Plist",
+        "notes": "",
+        "paths": ('*/Library/Preferences/com.apple.MobileBackup.plist',
+                  '*/Preferences/com.apple.MobileBackup.plist'),
+        "output_types": "standard",
+        "artifact_icon": "save"
     }
 }
 
-import os
+import json
 import plistlib
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, tsv, is_platform_windows 
+from datetime import datetime
 
-def get_mobilebackupplist(files_found, report_folder, seeker, wrap_text, timezone_offset):
+from scripts.ilapfuncs import artifact_processor
+
+_SECTIONS = {
+    'BackupStateInfo': ('isCloud', 'date', 'errors'),
+    'RestoreInfo': ('BackupBuildVersion', 'DeviceBuildVersion', 'WasCloudRestore', 'RestoreDate'),
+    'DeviceTransferInfo': ('BytesTransferred', 'RestoreDuration', 'FileTransferDuration',
+                           'PreFlightDuration', 'SourceDeviceProtocolVersion', 'BuildVersion',
+                           'FileTransferStartDate', 'ConnectionType', 'RestoreStartDate',
+                           'SourceDeviceBuildVersion', 'FilesTransferred', 'PreFlightStartDate',
+                           'SourceDeviceUDID'),
+    'FSEventState': ('eventId', 'eventDatabaseUUID', 'dateCreated'),
+}
+
+
+@artifact_processor
+def mobilebackupplist(context):
+    data_headers = ('Key', 'Value')
     data_list = []
-    file_found = str(files_found[0])
-    
-    with open(file_found, 'rb') as fp:
+
+    source_path = ''
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        if file_found.endswith('com.apple.MobileBackup.plist'):
+            source_path = file_found
+            break
+    if not source_path:
+        return data_headers, data_list, ''
+
+    with open(source_path, 'rb') as fp:
         pl = plistlib.load(fp)
-        
-        if 'BackupStateInfo' in pl.keys():
-            for key, val in pl['BackupStateInfo'].items():
-                if key == 'isCloud':
-                    data_list.append((key, val))
-                if key == 'date':
-                    data_list.append((key, val))
-                if key == 'errors':
-                    data_list.append((key, val))
 
-        if 'RestoreInfo' in pl.keys():
-            for key, val in pl['RestoreInfo'].items():
-                if key == 'BackupBuildVersion':
-                    data_list.append((key, val))
-                if key == 'DeviceBuildVersion':
-                    data_list.append((key, val))
-                if key == 'WasCloudRestore':
-                    data_list.append((key, val))
-                if key == 'RestoreDate':
-                    data_list.append((key, val))
+    for section, keys in _SECTIONS.items():
+        block = pl.get(section)
+        if isinstance(block, dict):
+            for key in keys:
+                if key in block:
+                    value = block[key]
+                    if isinstance(value, datetime):
+                        # plist <date> values are UTC; store as a UTC string (the generic
+                        # 'Value' column is not datetime-typed, so a datetime would not
+                        # be JSON-serializable for LAVA).
+                        value = value.strftime('%Y-%m-%d %H:%M:%S')
+                    elif isinstance(value, bytes):
+                        value = value.hex()
+                    elif isinstance(value, (dict, list)):
+                        # default=str handles nested datetimes/bytes that LAVA's json.dumps cannot.
+                        value = json.dumps(value, default=str)
+                    data_list.append((key, value))
 
-        if 'DeviceTransferInfo' in pl.keys():
-            for key, val in pl['DeviceTransferInfo'].items():
-                if key == 'BytesTransferred':
-                    data_list.append((key, val))
-                if key == 'RestoreDuration':
-                    data_list.append((key, val))
-                if key == 'FileTransferDuration':
-                    data_list.append((key, val))
-                if key == 'PreFlightDuration':
-                    data_list.append((key, val))
-                if key == 'SourceDeviceProtocolVersion':
-                    data_list.append((key, val))
-                if key == 'BuildVersion':
-                    data_list.append((key, val))
-                if key == 'FileTransferStartDate':
-                    data_list.append((key, val))
-                if key == 'ConnectionType':
-                    data_list.append((key, val))
-                if key == 'RestoreStartDate':
-                    data_list.append((key, val))
-                if key == 'SourceDeviceBuildVersion':
-                    data_list.append((key, val))
-                if key == 'FilesTransferred':
-                    data_list.append((key, val))
-                if key == 'PreFlightStartDate':
-                    data_list.append((key, val))
-                if key == 'SourceDeviceUDID':
-                    data_list.append((key, val))
-
-        if 'FSEventState' in pl.keys():
-            for key, val in pl['FSEventState'].items():
-                if key == 'eventId':
-                    data_list.append((key, val))
-                if key == 'eventDatabaseUUID':
-                    data_list.append((key, val))
-                if key == 'dateCreated':
-                    data_list.append((key, val))
-
-    description = ('Parses basic data from */mobile/Library/Preferences/com.apple.MobileBackup.plist which contains'
-                   ' some important data related to a device Backup, device restore from iCloud Backup, and'
-                   ' or Quick Start Data Transfer.')
-    report = ArtifactHtmlReport('Mobile Backup Plist')
-    report.start_artifact_report(report_folder, 'Mobile_Backup_plist', description)
-    report.add_script()
-    data_headers = ('Key', 'Values')
-    report.write_artifact_data_table(data_headers, data_list, file_found)
-    report.end_artifact_report()
-    
-    tsvname = 'Mobile_Backup_plist'
-    tsv(report_folder, data_headers, data_list, tsvname)
+    return data_headers, data_list, context.get_relative_path(source_path)

@@ -21,7 +21,7 @@ __artifacts_v2__ = {
         "category": "Health",
         "notes": "",
         "paths": ("*Health/healthdb_secure.sqlite*", "*Health/healthdb.sqlite*"),
-        "output_types": "standard",
+        "output_types": "all",
         "artifact_icon": "activity"
     },
     "health_provenances": {

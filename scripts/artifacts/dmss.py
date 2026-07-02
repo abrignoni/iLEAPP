@@ -135,7 +135,7 @@ def get_dmss_pin(context):
                     if "5" == str(v[3]) and "True" == str(v[4]):
                         pin_code = v[5] #v[5] value is where the PIN gets stored
                         
-            data_list.append((pin_code, file_found))
+            data_list.append((pin_code, context.get_relative_path(file_found)))
         
     data_headers = ('PIN', 'Source File')
     return data_headers, data_list, 'see Source File for more info'
@@ -160,7 +160,7 @@ def get_dmss_channels(context):
 
         all_rows = cursor.fetchall()
         for row in all_rows:
-            data_list.append((row[0],row[1],row[2], file_found))
+            data_list.append((row[0],row[1],row[2], context.get_relative_path(file_found)))
         db.close()
         
     return data_headers, data_list, 'see Source File for more info'
@@ -201,7 +201,7 @@ def get_dmss_info(context):
 
         for row in all_rows:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10],
-                                row[11], row[12], file_found))
+                                row[11], row[12], context.get_relative_path(file_found)))
         db.close()
         
     return data_headers, data_list, 'see Source File for more info'
@@ -255,7 +255,7 @@ def get_dmss_registered_sensors(context):
             db_owner = "(without DMSS account)" if str(dmss_db_file_list[-2]) == "0" else f'(Account- {str(dmss_db_file_list[-2])})'
 
             for row in all_rows:
-                data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], db_owner, file_found))
+                data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], db_owner, context.get_relative_path(file_found)))
         
             db.close()
         except sqlite3.OperationalError as e:
@@ -307,7 +307,7 @@ def get_dmss_registered_devices(context):
             db_owner = "(without DMSS account)" if str(dmss_db_file_list[-2]) == "0" else f'(Account- {str(dmss_db_file_list[-2])})'
             
             for row in all_rows:
-                data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12],row[13],row[14], db_owner, file_found))
+                data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12],row[13],row[14], db_owner, context.get_relative_path(file_found)))
         
             db.close()
         except sqlite3.OperationalError as e:
@@ -371,7 +371,7 @@ def get_dmss_notifications(context):
             db_owner = "(without DMSS account)" if str(dmss_db_file_list[-2]) == "0" else f'(Account- {str(dmss_db_file_list[-2])})'
 
             for row in all_rows:
-                data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], db_owner, file_found))
+                data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], db_owner, context.get_relative_path(file_found)))
             
             db.close()
         

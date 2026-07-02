@@ -1,72 +1,60 @@
-import os
-import plistlib
+__artifacts_v2__ = {
+    "iCloudWifi": {
+        "name": "iCloud Wifi Networks",
+        "description": "Wi-Fi networks synced via iCloud (com.apple.wifid.plist)",
+        "author": "",
+        "creation_date": "2026-06-23",
+        "last_update_date": "2026-06-24",
+        "requirements": "none",
+        "category": "Wifi Connections",
+        "notes": "",
+        "paths": ('**/com.apple.wifid.plist',),
+        "output_types": "standard",
+        "artifact_icon": "wifi"
+    }
+}
 
+import plistlib
 from datetime import datetime
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, tsv, is_platform_windows 
+from scripts.ilapfuncs import artifact_processor
 
 
-def get_iCloudWifi(files_found, report_folder, seeker, wrap_text, timezone_offset):
+@artifact_processor
+def iCloudWifi(context):
+    data_headers = ('BSSID', 'SSID', 'Added By', 'Enabled', ('Added At', 'datetime'))
     data_list = []
-    file_found = str(files_found[0])
-    with open(file_found, 'rb') as fp:
+
+    source_path = ''
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        if file_found.endswith('com.apple.wifid.plist'):
+            source_path = file_found
+            break
+    if not source_path:
+        return data_headers, data_list, ''
+
+    with open(source_path, 'rb') as fp:
         pl = plistlib.load(fp)
-        timestamp = ''
 
-        if 'values' in pl.keys():
-            for key, val in pl['values'].items():
-                network_name = key
+    for val in pl.get('values', {}).values():
+        if not isinstance(val, dict):
+            continue
+        info = val.get('value')
+        if not isinstance(info, dict):
+            continue
+        added_at = info.get('added_at')
+        if added_at:
+            try:
+                added_at = datetime.strptime(str(added_at), '%b  %d %Y %H:%M:%S')
+            except ValueError:
+                added_at = str(added_at)
+        else:
+            added_at = ''
+        data_list.append((str(info.get('BSSID', 'Not Available')),
+                          str(info.get('SSID_STR', 'Not Available')),
+                          str(info.get('added_by', 'Not Available')),
+                          str(info.get('enabled', 'Not Available')),
+                          added_at))
 
-                if type(val) == dict:
-                    for key2, val2 in val.items():
-                        if key2 == 'value':
-                            if type(val2) == dict:
-                                if 'BSSID' in val2:
-                                    bssid = str(val2['BSSID'])
-                                else:
-                                    bssid = 'Not Available'
-
-                                if 'SSID_STR' in val2:
-                                    ssid = str(val2['SSID_STR'])
-                                else:
-                                    ssid = 'Not Available'
-                                
-                                if 'added_by' in val2:
-                                    added_by = str(val2['added_by'])
-                                else:
-                                    added_by = 'Not Available'
-
-                                if 'enabled' in val2:
-                                    enabled = str(val2['enabled'])
-                                else:
-                                    enabled = 'Not Available'
-
-                                if 'added_at' in val2:
-                                    # Convert the value into a datetime object.
-                                    my_time2 = str(val2['added_at'])
-                                    datetime_obj = datetime.strptime(my_time2, '%b  %d %Y %H:%M:%S')
-                                    added_at = str(datetime_obj)
-                                else:
-                                    added_at = 'Not Available'
-                                data_list.append((bssid, ssid, added_by, enabled, added_at))
-
-    if len(data_list) > 0:
-        report = ArtifactHtmlReport('iCloud Wifi Networks')
-        report.start_artifact_report(report_folder, 'iCloud Wifi Networks')
-        report.add_script()
-        data_headers = ('BSSID','SSID', 'Added By', 'Enabled', 'Added At')     
-        report.write_artifact_data_table(data_headers, data_list, file_found)
-        report.end_artifact_report()
-        
-        tsvname = 'iCloud Wifi Networks'
-        tsv(report_folder, data_headers, data_list, tsvname)
-    else:
-        logfunc('No data on iCloud WiFi networks')
-
-__artifacts__ = {
-    "iCloudWifi": (
-        "Wifi Connections",
-        ('**/com.apple.wifid.plist'),
-        get_iCloudWifi)
-}
+    return data_headers, data_list, context.get_relative_path(source_path)

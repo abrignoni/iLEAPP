@@ -18,6 +18,13 @@ import nska_deserialize as nd
 from scripts.ilapfuncs import artifact_processor, \
     convert_plist_date_to_utc
 
+from datetime import datetime as _dt
+
+def _safe_plist_date(value):
+    """Convert plist <date> objects to UTC; pass strings/None through unchanged."""
+    return convert_plist_date_to_utc(value) if isinstance(value, _dt) else value
+
+
 
 @artifact_processor
 def callHistoryTransactions(context):
@@ -35,11 +42,11 @@ def callHistoryTransactions(context):
                 plist_data = file.read(length)
                 ds_plist = nd.deserialize_plist_from_string(plist_data)
                 inner_record = nd.deserialize_plist_from_string(ds_plist['record'])
-                date = convert_plist_date_to_utc(inner_record.get('date', ''))
+                date = _safe_plist_date(inner_record.get('date', ''))
                 data_list.append((date, inner_record['handleType'], inner_record['callStatus'],
                                   inner_record['duration'], inner_record['remoteParticipantHandles'][0]['value'],
                                   inner_record['callerId'], inner_record['timeToEstablish'],
-                                  inner_record['disconnectedCause'], inner_record['uniqueId'], file_found))
+                                  inner_record['disconnectedCause'], inner_record['uniqueId'], context.get_relative_path(file_found)))
 
     data_headers = (('Date', 'datetime'), 'handleType', 'callStatus', 'duration', 'remoteParticipantHandle', 'callerId',
                     'timeToEstablish', 'disconnectedCause', 'uniqueId', 'Source File')

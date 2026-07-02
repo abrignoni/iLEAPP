@@ -11,7 +11,7 @@ __artifacts_v2__ = {
         "paths": (
             '*/Data/Application/*/Library/Application Support/com.ubercab.UberClient/storagev2/*',
         ),
-        'output_types': "standard",
+        'output_types': "all",
         'artifact_icon': "map-pin"
     }
 }

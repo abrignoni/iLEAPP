@@ -3,8 +3,8 @@ __artifacts_v2__ = {
         "name": "Zalo - Chats",
         "description": "'Extract chats and groupchats from Zalo",
         "author": "C_Peter",
-        "version": "0.0.1",
         "creatin_date": "2026-06-01",
+        "creation_date": "2026-06-01",
         "last_update_date": "2026-06-01",
         "requirements": "pillow",
         "category": "Zalo",
@@ -18,7 +18,7 @@ __artifacts_v2__ = {
             '*/mobile/Containers/Data/Application/*/Documents/[0-9]*[0-9]/[0-9]*[0-9]/*/*.*',
             '*/mobile/Containers/Data/Application/*/tmp/[0-9]*[0-9]/[0-9]*[0-9]/*/*.*'
         ),
-        "output_types": "standard",
+        "output_types": "all",
         'data_views': {
             'conversation': {
                 'conversationDiscriminatorColumn': 'Chat Name',
@@ -37,8 +37,8 @@ __artifacts_v2__ = {
         "name": "Zalo - Known Users",
         "description": "Extract known users from Zalo",
         "author": "C_Peter",
-        "version": "0.0.1",
         "creatin_date": "2026-06-01",
+        "creation_date": "2026-06-01",
         "last_update_date": "2026-06-01",
         "requirements": "none",
         "category": "Zalo",
@@ -405,7 +405,7 @@ def zalo_messages(context):
                     if message in [None, "", " "]:
                         message = f"geo:{latitude},{longitude}"
 
-            data_list.append([message_date, chat_name, sender_id, sender_name, msg_type, print_type, message, attach_file, latitude, longitude, outgoing, isgroup, source_file])
+            data_list.append([message_date, chat_name, sender_id, sender_name, msg_type, print_type, message, attach_file, latitude, longitude, outgoing, isgroup, context.get_relative_path(source_file)])
 
     data_headers = (('Timestamp', 'datetime'), "Chat Name", "Sender-ID", "Sender", "Type ID", "Message Type", "Message", ('Attachment File', 'media'), "Latitude", "Longitude", "Outgoing", "Group Chat", "Source File")
 

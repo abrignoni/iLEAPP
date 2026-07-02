@@ -40,7 +40,7 @@ def get_bluetoothOtherLE(context):
             all_rows = cursor.fetchall()
 
             for row in all_rows:
-                data_list.append((row[0], row[1], row[3], file_found))
+                data_list.append((row[0], row[1], row[3], context.get_relative_path(file_found)))
 
             db.close()
 

@@ -234,7 +234,7 @@ __artifacts_v2__ = {
         "category": "Foursquare Swarm",
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Caches/foursquare.sqlite*",),
-        "output_types": [ "standard" ],
+        "output_types": [ "standard", "kml" ],
         "html_columns": [ "Details" ],
         "artifact_icon": "terminal"
     },
@@ -250,7 +250,7 @@ __artifacts_v2__ = {
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Caches/foursquare.sqlite*",
                   "*/com.pinterest.PINDiskCache.PINRemoteImageManagerCache/*%2Fimg%2F*"),
-        "output_types": [ "standard" ],
+        "output_types": [ "standard", "kml" ],
         "html_columns": [ "Participants", "Replies", "Social Actors", 
                           "Image URL", "Entities", "Target" ],
         "artifact_icon": "activity"
@@ -3784,8 +3784,8 @@ def foursquare_swarm_feed(context):
         ('Bulletin Image', 'media', 'height: 48px; border-radius: 5%;'),
         'Native Check-in Shout',
         'Venue Name',
-        'Venue Latitude',
-        'Venue Longitude',
+        'Latitude',
+        'Longitude',
         'Entities',
         'Target',
         'UID',

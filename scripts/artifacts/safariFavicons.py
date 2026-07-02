@@ -1,63 +1,49 @@
-import sqlite3
-import os
-
-from packaging import version
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, timeline, tsv, is_platform_windows, open_sqlite_db_readonly
-
-
-def get_safariFavicons(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    
-    for file_found in files_found:
-        file_found = str(file_found)
-        
-        if file_found.endswith('Favicons.db'):
-            break
-            
-    db = open_sqlite_db_readonly(file_found)
-    cursor = db.cursor()
-    cursor.execute('''
-    Select 
-    datetime('2001-01-01', "timestamp" || ' seconds') as icon_timestamp,
-    page_url.url,
-    icon_info.url,
-    icon_info.width,
-    icon_info.height,
-    icon_info.has_generated_representations
-    FROM icon_info
-    LEFT JOIN page_url
-    on icon_info.uuid = page_url.uuid
-    ''')
-
-    all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
-    data_list = []
-    
-    if usageentries > 0:
-        for row in all_rows:
-            data_list.append((row[0], row[1], row[2], row[3], row[4], row[5]))
-
-        description = 'Safari Favicons'
-        report = ArtifactHtmlReport('Favicons')
-        report.start_artifact_report(report_folder, 'Favicons', description)
-        report.add_script()
-        data_headers = ('Timestamp', 'Page URL', 'Icon URL', 'Width', 'Height', 'Generated Representations?' )
-        report.write_artifact_data_table(data_headers, data_list, file_found)
-        report.end_artifact_report()
-        
-        tsvname = 'Safari Favicons'
-        tsv(report_folder, data_headers, data_list, tsvname)
-        
-        tlactivity = 'Safari Favicons'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-    else:
-        logfunc('No Safari Favicons data available')
-    
-    db.close()
-
-__artifacts__ = {
-    "safariFavicons": (
-        "Safari Browser",
-        ('*/Containers/Data/Application/*/Library/Image Cache/Favicons/Favicons.db*'),
-        get_safariFavicons)
+__artifacts_v2__ = {
+    "safariFavicons": {
+        "name": "Safari Browser - Favicons",
+        "description": "Safari favicon cache entries (page URL, icon URL, dimensions)",
+        "author": "",
+        "creation_date": "2026-06-23",
+        "last_update_date": "2026-06-24",
+        "requirements": "none",
+        "category": "Safari Browser",
+        "notes": "",
+        "paths": ('*/Containers/Data/Application/*/Library/Image Cache/Favicons/Favicons.db*',),
+        "output_types": "standard",
+        "artifact_icon": "image"
+    }
 }
+
+from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records
+
+
+@artifact_processor
+def safariFavicons(context):
+    data_headers = (('Timestamp', 'datetime'), 'Page URL', 'Icon URL', 'Width', 'Height',
+                    'Generated Representations?')
+    data_list = []
+
+    source_path = ''
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        if file_found.endswith('Favicons.db'):
+            source_path = file_found
+            break
+    if not source_path:
+        return data_headers, data_list, ''
+
+    query = '''
+    SELECT
+        datetime('2001-01-01', "timestamp" || ' seconds'),
+        page_url.url,
+        icon_info.url,
+        icon_info.width,
+        icon_info.height,
+        icon_info.has_generated_representations
+    FROM icon_info
+    LEFT JOIN page_url ON icon_info.uuid = page_url.uuid
+    '''
+    for row in get_sqlite_db_records(source_path, query):
+        data_list.append(tuple(row))
+
+    return data_headers, data_list, context.get_relative_path(source_path)

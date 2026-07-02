@@ -28,7 +28,7 @@ __artifacts_v2__ = {
             '*/mobile/Containers/Shared/AppGroup/*/ChatStorage.sqlite*',
             '*/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*',
             '*/mobile/Containers/Shared/AppGroup/*/Message/Media/*/*/*/*'),
-        'output_types': 'standard',
+        'output_types': 'all',
         'artifact_icon': 'message-square'
     },
     'whatsAppContacts': {
@@ -244,8 +244,9 @@ def whatsAppMessages(context):
         if metadata:
             try:
                 decoded_data, _ = blackboxprotobuf.decode_message(metadata)
-                number_forward = f'{decoded_data.get("17")}'
-                from_forward = f'{decoded_data.get("21").decode("utf-8")}'
+                number_forward = f'{decoded_data.get("17", "")}'
+                forward_id = decoded_data.get("21")
+                from_forward = forward_id.decode("utf-8") if isinstance(forward_id, bytes) else ''
                 if contacts_db and from_forward:
                     attach_query = attach_sqlite_db_readonly(contacts_db, 'ContactsV2')
                     query_contact = f"""

@@ -38,6 +38,13 @@ from scripts.ilapfuncs import (
     convert_plist_date_to_utc
 )
 
+from datetime import datetime as _dt
+
+def _safe_plist_date(value):
+    """Convert plist <date> objects to UTC; pass strings/None through unchanged."""
+    return convert_plist_date_to_utc(value) if isinstance(value, _dt) else value
+
+
 def format_size(size):
     """
     Formats a byte size into a human-readable string with appropriate units (B, KiB, MiB, etc.).
@@ -86,13 +93,13 @@ def cloudkit_snapshots(context):
 
             deserialized_plist = nd.deserialize_plist_from_string(snapshot[3])
 
-            mod_date = convert_plist_date_to_utc(deserialized_plist.get('SnapshotModificationDate'))
+            mod_date = _safe_plist_date(deserialized_plist.get('SnapshotModificationDate'))
             device_uuid = deserialized_plist.get('DeviceUUID')
             product_version = deserialized_plist.get('ProductVersion')
             backup_type = deserialized_plist.get('BackupType')
             device_name = deserialized_plist.get('DeviceName')
             backup_reason = deserialized_plist.get('BackupReason')
-            snapshot_created = convert_plist_date_to_utc(deserialized_plist.get('SnapshotCreated'))
+            snapshot_created = _safe_plist_date(deserialized_plist.get('SnapshotCreated'))
             is_allowed_cellular = deserialized_plist.get('IsBackupAllowedOnCellular')
 
             # Calculate file count and total size

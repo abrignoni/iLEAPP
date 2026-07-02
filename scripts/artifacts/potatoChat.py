@@ -13,7 +13,7 @@ __artifacts_v2__ = {
             '*/mobile/Containers/Shared/AppGroup/*/Documents/files/*',
             '*/mobile/Containers/Shared/AppGroup/*/Documents/video/*',
         ),
-        'output_types': 'standard',
+        'output_types': 'all',
         'artifact_icon': 'message-square',
         'data_views': {
             'conversation': {

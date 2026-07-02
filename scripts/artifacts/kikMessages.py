@@ -1,114 +1,115 @@
-import os
-import shutil
-import sqlite3
+__artifacts_v2__ = {
+    "kikMessages": {
+        "name": "Kik Messages",
+        "description": "Kik chat messages with attachments (kik.sqlite)",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-06-22",
+        "last_update_date": "2026-06-24",
+        "requirements": "none",
+        "category": "Kik",
+        "notes": "",
+        "paths": ('**/kik.sqlite*',
+                  '*/mobile/Containers/Shared/AppGroup/*/cores/private/*/content_manager/data_cache/*'),
+        "output_types": "standard",
+        "artifact_icon": "message-circle"
+    },
+    "kikUsers": {
+        "name": "Kik Users",
+        "description": "Kik user accounts from kik.sqlite (ZKIKUSER)",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-06-22",
+        "last_update_date": "2026-06-24",
+        "requirements": "none",
+        "category": "Kik",
+        "notes": "",
+        "paths": ('**/kik.sqlite*',),
+        "output_types": "standard",
+        "artifact_icon": "users"
+    }
+}
 
-from packaging import version
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, timeline, tsv, is_platform_windows, open_sqlite_db_readonly, media_to_html
+import datetime
+
+from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, check_in_media
 
 
-def get_kikMessages(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    
+def _str_to_utc(value):
+    if not value:
+        return ''
+    try:
+        return datetime.datetime.strptime(str(value), '%Y-%m-%d %H:%M:%S').replace(
+            tzinfo=datetime.timezone.utc)
+    except (ValueError, TypeError):
+        return ''
+
+
+def _find_db(files_found):
     for file_found in files_found:
         file_found = str(file_found)
-        
-        if file_found.endswith('.sqlite'):
-            break
-            
-    db = open_sqlite_db_readonly(file_found)
+        if file_found.endswith('kik.sqlite'):
+            return file_found
+    return ''
+
+
+@artifact_processor
+def kikMessages(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
+    data_headers = (('Received Time', 'datetime'), ('Timestamp', 'datetime'), 'Message', 'Type',
+                    'User', 'Display Name', 'User Name', 'Attachment Name', ('Attachment', 'media'))
+    data_list = []
+    source_path = _find_db(files_found)
+    if not source_path:
+        return data_headers, data_list, ''
+
+    db = open_sqlite_db_readonly(source_path)
     cursor = db.cursor()
     cursor.execute('''
     SELECT
-    datetime(ZKIKMESSAGE.ZRECEIVEDTIMESTAMP +978307200,'UNIXEPOCH') AS RECEIVEDTIME,
-    datetime(ZKIKMESSAGE.ZTIMESTAMP +978307200,'UNIXEPOCH') as TIMESTAMP,
-    ZKIKMESSAGE.ZBODY,
-    case ZKIKMESSAGE.ZTYPE
-        when 1 then 'Received'
-        when 2 then 'Sent'
-        when 3 then 'Group Admin'
-        when 4 then 'Group Message'
-        else 'Unknown' end as 'Type',
-    ZKIKMESSAGE.ZUSER,
-    ZKIKUSER.ZDISPLAYNAME,
-    ZKIKUSER.ZUSERNAME,
-    ZKIKATTACHMENT.ZCONTENT
-    from ZKIKMESSAGE
-    left join ZKIKUSER on ZKIKMESSAGE.ZUSER = ZKIKUSER.Z_PK
-    left join ZKIKATTACHMENT on ZKIKMESSAGE.Z_PK = ZKIKATTACHMENT.ZMESSAGE
+        datetime(ZKIKMESSAGE.ZRECEIVEDTIMESTAMP +978307200,'UNIXEPOCH'),
+        datetime(ZKIKMESSAGE.ZTIMESTAMP +978307200,'UNIXEPOCH'),
+        ZKIKMESSAGE.ZBODY,
+        CASE ZKIKMESSAGE.ZTYPE
+            WHEN 1 THEN 'Received' WHEN 2 THEN 'Sent' WHEN 3 THEN 'Group Admin'
+            WHEN 4 THEN 'Group Message' ELSE 'Unknown' END,
+        ZKIKMESSAGE.ZUSER,
+        ZKIKUSER.ZDISPLAYNAME,
+        ZKIKUSER.ZUSERNAME,
+        ZKIKATTACHMENT.ZCONTENT
+    FROM ZKIKMESSAGE
+    LEFT JOIN ZKIKUSER ON ZKIKMESSAGE.ZUSER = ZKIKUSER.Z_PK
+    LEFT JOIN ZKIKATTACHMENT ON ZKIKMESSAGE.Z_PK = ZKIKATTACHMENT.ZMESSAGE
     ''')
 
-    all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
-    data_list = []  
-    
-    if usageentries > 0:
-        for row in all_rows:
-        
-            attachmentName = str(row[7])
-            thumb = media_to_html(attachmentName, files_found, report_folder)
-            
-            data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], thumb))
+    for row in cursor.fetchall():
+        media = ''
+        if row[7]:
+            media = check_in_media(str(row[7])) or ''
+        data_list.append((_str_to_utc(row[0]), _str_to_utc(row[1]), row[2], row[3], row[4], row[5],
+                          row[6], row[7], media))
+    db.close()
 
-        description = 'Kik Messages'
-        report = ArtifactHtmlReport('Kik Messages')
-        report.start_artifact_report(report_folder, 'Kik Messages', description)
-        report.add_script()
-        data_headers = ('Received Time', 'Timestamp', 'Message', 'Type', 'User', 'Display Name', 'User Name','Attachment Name','Attachment')
-        report.write_artifact_data_table(data_headers, data_list, file_found, html_no_escape=['Attachment'])
-        report.end_artifact_report()
-        
-        tsvname = 'Kik Messages'
-        tsv(report_folder, data_headers, data_list, tsvname)
-        
-        tlactivity = 'Kik Messages'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-    else:
-        logfunc('No Kik Messages data available')
-        
+    return data_headers, data_list, source_path
+
+
+@artifact_processor
+def kikUsers(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
+    data_headers = ('PK', 'Display Name', 'User Name', 'Email', 'JID', 'First Name', 'Last Name',
+                    ('Profile Pic Timestamp', 'datetime'), 'Profile Pic URL')
+    data_list = []
+    source_path = _find_db(files_found)
+    if not source_path:
+        return data_headers, data_list, ''
+
+    db = open_sqlite_db_readonly(source_path)
+    cursor = db.cursor()
     cursor.execute('''
-    SELECT
-    Z_PK,
-    ZDISPLAYNAME,
-    ZUSERNAME,
-    ZEMAIL,
-    ZJID,
-    ZFIRSTNAME,
-    ZLASTNAME,
-    datetime(ZPPTIMESTAMP/1000,'unixepoch'),
-    ZPPURL
+    SELECT Z_PK, ZDISPLAYNAME, ZUSERNAME, ZEMAIL, ZJID, ZFIRSTNAME, ZLASTNAME,
+        datetime(ZPPTIMESTAMP/1000,'unixepoch'), ZPPURL
     FROM ZKIKUSER
     ''')
 
-    all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
-    data_list = []  
-    
-    if usageentries > 0:
-        for row in all_rows:
-            data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8]))
-
-        description = 'Kik Users'
-        report = ArtifactHtmlReport('Kik Users')
-        report.start_artifact_report(report_folder, 'Kik Users', description)
-        report.add_script()
-        data_headers = ('PK','Display Name','User Name','Email','JID','First Name','Last Name','Profile Pic Timestamp','Profile Pic URL')     
-        report.write_artifact_data_table(data_headers, data_list, file_found)
-        report.end_artifact_report()
-        
-        tsvname = 'Kik Users'
-        tsv(report_folder, data_headers, data_list, tsvname)
-        
-        tlactivity = 'Kik Users'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-    else:
-        logfunc('No Kik Users data available')
-    
+    for row in cursor.fetchall():
+        data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], _str_to_utc(row[7]),
+                          row[8]))
     db.close()
-    return 
 
-__artifacts__ = {
-    "kikMessages": (
-        "Kik",
-        ('**/kik.sqlite*','*/mobile/Containers/Shared/AppGroup/*/cores/private/*/content_manager/data_cache/*'),
-        get_kikMessages)
-}
+    return data_headers, data_list, source_path

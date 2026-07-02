@@ -26,7 +26,7 @@ def get_AWESearch(context):
             kword = (x['keyword'])
             cocoatime = (x['time'])
             timestamp = convert_cocoa_core_data_ts_to_utc(cocoatime)
-            data_list.append((timestamp, kword, file_found))
+            data_list.append((timestamp, kword, context.get_relative_path(file_found)))
             
     data_headers = (('Time', 'datetime'), 'Keyword', 'Source File')
     return data_headers, data_list, 'see Source File for more info'

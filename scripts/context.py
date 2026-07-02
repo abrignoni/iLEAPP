@@ -388,8 +388,22 @@ class Context:
 
         if filename in lookup_map:
             candidate_paths = lookup_map[filename]
+            # The filename map already keyed on the exact basename, so a single
+            # candidate is unambiguous — return it without a pattern match.
+            if len(candidate_paths) == 1:
+                return candidate_paths[0]
+            # Multiple files share this basename; disambiguate by the fuller
+            # path. Path.match treats glob metacharacters ('[', ']', '*', '?')
+            # in the pattern as wildcards, so it fails for real filenames that
+            # contain them (e.g. "IMG_0347[1].jpg"). Try it first for backward
+            # compatibility, then fall back to an exact path-suffix comparison.
             for candidate in candidate_paths:
                 if Path(candidate).match(partial_path):
+                    return candidate
+            norm = partial_path.replace('\\', '/')
+            for candidate in candidate_paths:
+                cand_norm = candidate.replace('\\', '/')
+                if cand_norm == norm or cand_norm.endswith('/' + norm):
                     return candidate
 
         return None

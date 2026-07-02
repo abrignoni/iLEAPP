@@ -43,7 +43,7 @@ def cachev0(context):
                 media_ref = check_in_embedded_media(
                     file_found, row[1], str(row[0]))
                 if media_ref:
-                    data_list.append((row[0], media_ref, file_found))
+                    data_list.append((row[0], media_ref, context.get_relative_path(file_found)))
             
     if not data_list:
         return

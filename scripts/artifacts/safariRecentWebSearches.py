@@ -1,49 +1,50 @@
-import biplist
-import plistlib
-import sys
-
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline
-
-def get_safariRecentWebSearches(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    data_list = []
-    for file_found in files_found:
-        file_found = str(file_found)
-        
-        if file_found.endswith('.db'):
-            break
-        
-    with open(file_found, "rb") as fp:
-        try:
-            if sys.version_info >= (3, 9):
-                plist = plistlib.load(fp)
-            else:
-                plist = biplist.readPlist(fp)
-            searches = plist.get('RecentWebSearches', [])
-            for search in searches:
-                term = search.get('SearchString', '')
-                date = search.get('Date', '')
-                data_list.append((date, term))
-        except (biplist.InvalidPlistException, plistlib.InvalidFileException) as ex:
-            logfunc(f'Failed to read plist {file_found} ' + str(ex))
-                
-    if data_list:
-        report = ArtifactHtmlReport('Safari Recent WebSearches')
-        report.start_artifact_report(report_folder, 'Recent WebSearches')
-        report.add_script()
-        data_headers = ('Date','Search Term')
-        report.write_artifact_data_table(data_headers, data_list, file_found)
-        report.end_artifact_report()
-        
-        tsvname = 'Recent WebSearches'
-        tsv(report_folder, data_headers, data_list, tsvname)
-        timeline(report_folder, tsvname, data_list, data_headers)
-    else:
-        logfunc('No data for recent web searches')
-
-__artifacts__ = {
-    "safariRecentWebSearches": (
-        "Safari Browser",
-        ('**/Library/Preferences/com.apple.mobilesafari.plist'),
-        get_safariRecentWebSearches)
+__artifacts_v2__ = {
+    "safariRecentWebSearches": {
+        "name": "Safari Browser - Recent Web Searches",
+        "description": "Recent Safari web searches from com.apple.mobilesafari.plist",
+        "author": "",
+        "creation_date": "2026-06-23",
+        "last_update_date": "2026-06-24",
+        "requirements": "none",
+        "category": "Safari Browser",
+        "notes": "Search dates are stored as UTC in the plist.",
+        "paths": ('**/Library/Preferences/com.apple.mobilesafari.plist',),
+        "output_types": "standard",
+        "artifact_icon": "search"
+    }
 }
+
+import plistlib
+from datetime import datetime, timezone
+
+from scripts.ilapfuncs import artifact_processor, logfunc
+
+
+@artifact_processor
+def safariRecentWebSearches(context):
+    data_headers = (('Date', 'datetime'), 'Search Term')
+    data_list = []
+
+    source_path = ''
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        if file_found.endswith('com.apple.mobilesafari.plist'):
+            source_path = file_found
+            break
+    if not source_path:
+        return data_headers, data_list, ''
+
+    try:
+        with open(source_path, 'rb') as fp:
+            plist = plistlib.load(fp)
+    except (plistlib.InvalidFileException, ValueError, OSError) as ex:
+        logfunc(f'Failed to read plist {source_path}: {ex}')
+        return data_headers, data_list, context.get_relative_path(source_path)
+
+    for search in plist.get('RecentWebSearches', []):
+        date = search.get('Date', '')
+        if isinstance(date, datetime) and date.tzinfo is None:
+            date = date.replace(tzinfo=timezone.utc)
+        data_list.append((date, search.get('SearchString', '')))
+
+    return data_headers, data_list, context.get_relative_path(source_path)

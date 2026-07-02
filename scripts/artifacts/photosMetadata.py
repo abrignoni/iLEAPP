@@ -1,36 +1,31 @@
-import glob
+__artifacts_v2__ = {
+    "photosMetadata": {
+        "name": "Photos.sqlite Metadata",
+        "description": "Comprehensive asset metadata from Photos.sqlite (per iOS version): "
+                       "timestamps, location/reverse-geocode, faces, moments, fingerprints and more.",
+        "author": "",
+        "creation_date": "2026-06-24",
+        "last_update_date": "2026-06-24",
+        "requirements": "none",
+        "category": "Photos",
+        "notes": "Schema varies by iOS version; the matching query is selected automatically. "
+                 "Reverse-location bplists are written to the report folder.",
+        "paths": ('*/mobile/Media/PhotoData/Photos.sqlite*',),
+        "output_types": ["html", "tsv", "timeline", "lava", "kml"],
+        "artifact_icon": "image"
+    }
+}
+
 import os
-import sys
-import stat
-import pathlib
 import sqlite3
+
 import nska_deserialize as nd
-import shutil
-
 from packaging import version
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, kmlgen, timeline, is_platform_windows, generate_thumbnail, \
-    open_sqlite_db_readonly, iOS
 
+from scripts.ilapfuncs import (artifact_processor, check_in_embedded_media, get_sqlite_db_records,
+                               iOS, logfunc, thumbnail_root)
 
-def get_photosMetadata(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    for file_found in files_found:
-      file_found = str(file_found)
-      
-      if file_found.endswith('.sqlite'):
-        break
-      
-    if report_folder.endswith('/') or report_folder.endswith('\\'):
-        report_folder = report_folder[:-1]
-    iOSversion = iOS.get_version()
-    if version.parse(iOSversion) < version.parse("12"):
-        logfunc("Unsupported version for Photos.sqlite metadata on iOS " + iOSversion)
-    if (version.parse(iOSversion) >= version.parse("12")) & (version.parse(iOSversion) < version.parse("13")):
-        file_found = str(files_found[0])
-        db = open_sqlite_db_readonly(file_found)
-        cursor = db.cursor()
-
-        cursor.execute("""
+_QUERY_IOS12 = """
         SELECT
         DateTime( ZGENERICASSET.ZDATECREATED + 978307200, 'UNIXEPOCH' ) AS 'DateCreated',
                         ZGENERICASSET.Z_PK AS 'GenericAsset_zpk',
@@ -273,104 +268,9 @@ def get_photosMetadata(files_found, report_folder, seeker, wrap_text, timezone_o
         LEFT JOIN Z_23ASSETS ON ZGENERICASSET.Z_PK = Z_23ASSETS.Z_30ASSETS
         LEFT JOIN ZGENERICALBUM ON ZGENERICALBUM.Z_PK = Z_23ASSETS.Z_23ALBUMS
 
-        """)
-        all_rows = cursor.fetchall()
-        usageentries = len(all_rows)
-        data_list = []
-        counter = 0
-        if usageentries > 0:
-            for row in all_rows:
-                postal_address = ''
-                postal_address_subadminarea = ''
-                postal_address_sublocality = ''
+"""
 
-                if row[59] is not None:
-                    pathto = os.path.join(report_folder, 'ReverseLocationData' + str(counter) + '.bplist')
-                    with open(pathto, 'ab') as wf:
-                        wf.write(row[59])
-
-                    with open(pathto, 'rb') as f:
-                        try:
-                            deserialized_plist = nd.deserialize_plist(f)
-                            postal_address = deserialized_plist['postalAddress']['_formattedAddress']
-                            postal_address_subadminarea = deserialized_plist['postalAddress']['_subAdministrativeArea']
-                            postal_address_sublocality = deserialized_plist['postalAddress']['_subLocality']
-
-                        except (KeyError, ValueError, TypeError) as ex:
-                            if str(ex).find("does not contain an '$archiver' key") >= 0:
-                                logfunc('plist was Not an NSKeyedArchive ' + row[0])
-                            else:
-                                logfunc('Error reading exported bplist from Asset PK ' + row[0])
-                            deserialized_plist = None
-
-                htmlThumbTag = generate_thumbnail(row[13], row[8], seeker, report_folder)
-
-
-                data_list.append((htmlThumbTag, row[0], row[0], postal_address, postal_address_subadminarea,
-                                  postal_address_sublocality, row[1], row[2], row[3], row[4], row[5], row[6], row[7],
-                                  row[8], row[9], row[10], row[11], row[12], row[13], row[14], row[15], row[16],
-                                  row[17], row[18], row[19], row[20], row[21], row[22], row[23], row[24], row[25],
-                                  row[26], row[27], row[28], row[29], row[30], row[31], row[32], row[33], row[34],
-                                  row[35], row[36], row[37], row[38], row[39], row[40], row[41], row[42], row[43],
-                                  row[44], row[45], row[46], row[47], row[48], row[49], row[50], row[51], row[52],
-                                  row[53], row[54], row[55], row[56], row[57], row[58], row[59], row[60], row[61],
-                                  row[62], row[63], row[64], row[65], row[66], row[67], row[68], row[69], row[70],
-                                  row[71], row[72], row[73], row[74], row[75], row[76], row[77], row[78]))
-
-                counter += 1
-
-            description = ''
-            report = ArtifactHtmlReport('Photos.sqlite')
-            report.start_artifact_report(report_folder, 'Metadata', description)
-            report.add_script()
-            data_headers = (
-                'Thumbnail', 'Timestamp', 'Date Created', 'Postal Address', 'Postal Subadmin Area',
-                'Postal Sublocality',
-                'Generic Asset ZPK', 'Add Attributes Key', 'Detected Face Asset', 'Kind', 'EXIF Timestamp',
-                'Scene Analysis Timestamp', 'Add Date', 'Filename', 'Original Filename', 'Album Title',
-                'Creator Bundle ID',
-                'Editor Bundle ID', 'Directory', 'Uniform ID', 'Saved Asset Type', 'Face Detected in Photo',
-                'Display Name',
-                'Full Name', 'Face Count', 'Person', 'Contact Blob', 'Person UUID', 'Detected Face Quality',
-                'Age Type Estimate', 'Gender', 'Glasses Type', 'Facial Hair Type', 'Baldness', 'Color Space',
-                'Duration',
-                'Video Duration', 'Complete', 'Visibility State', 'Favorite', 'Hidden File?', 'Trash State',
-                'File Trash Date', 'View Count', 'Play Count', 'Share Count', 'Last Shared Date',
-                'File Modification Date',
-                'Has Adjustments?', 'Adjustment Timestamp', 'Original File Size', 'File Height', 'Org File Height',
-                'File Width', 'Org File Width', 'Orientation', 'Org Orientation', 'Timezone Name', 'Timezone Offset',
-                'File Location Data', 'Latitude', 'Longitude', 'Shifted Location Valid',
-                'Reverse Location Data is Valid',
-                'Org File Reverse Location Data', 'Thumbnail Index', 'Embedded Thumbnail Width',
-                'Embedded Thumbnail Height', 'Embedded Thumbnail Offset', 'Embedded Thumbnail Length', 'Moment PK',
-                'Moment Start Date', 'Moment Representative Date', 'Moment Modification Date', 'Moment End Date',
-                'Moment Title', 'Moment Approx Latitude', 'Moment Approx Longitude', 'UUID', 'Media Group UUID',
-                'Cloud Assets GUID', 'Public Global UUID', 'Master Fingerprint', 'Adjusted Fingerprint')
-            report.write_artifact_data_table(data_headers, data_list, file_found, html_no_escape=['Thumbnail'])
-            report.end_artifact_report()
-
-            tsvname = 'Photos-sqlite Metadata'
-            tsv(report_folder, data_headers, data_list, tsvname)
-
-            tlactivity = 'Photos-sqlite Metadata'
-            timeline(report_folder, tlactivity, data_list, data_headers)
-
-            kmlactivity = 'Photos-sqlite Metadata'
-            kmlgen(report_folder, kmlactivity, data_list, data_headers)
-
-        else:
-            logfunc('No data available for Photos.sqlite metadata')
-
-        db.close()
-        return
-
-    elif (version.parse(iOSversion) >= version.parse("13")) & (version.parse(iOSversion) < version.parse("14")):
-        file_found = str(files_found[0])
-        # os.chmod(file_found, 0o0777)
-        db = open_sqlite_db_readonly(file_found)
-        cursor = db.cursor()
-
-        cursor.execute("""
+_QUERY_IOS13 = """
         SELECT
         DateTime( ZGENERICASSET.ZDATECREATED + 978307200, 'UNIXEPOCH' ) AS 'DateCreated',
                         ZGENERICASSET.Z_PK AS 'GenericAsset_zpk',
@@ -614,98 +514,9 @@ def get_photosMetadata(files_found, report_folder, seeker, wrap_text, timezone_o
                         LEFT JOIN ZPERSON ON ZPERSON.Z_PK = ZDETECTEDFACE.ZPERSON
         LEFT JOIN Z_26ASSETS ON ZGENERICASSET.Z_PK = Z_26ASSETS.Z_34ASSETS
         LEFT JOIN ZGENERICALBUM ON ZGENERICALBUM.Z_PK = Z_26ASSETS.Z_26ALBUMS
-        """)
+"""
 
-        all_rows = cursor.fetchall()
-        usageentries = len(all_rows)
-        data_list = []
-        counter = 0
-        if usageentries > 0:
-            for row in all_rows:
-                postal_address = ''
-                postal_address_subadminarea = ''
-                postal_address_sublocality = ''
-
-                if row[61] is not None:
-                    pathto = os.path.join(report_folder, 'ReverseLocationData' + str(counter) + '.bplist')
-                    with open(pathto, 'ab') as wf:
-                        wf.write(row[61])
-
-                    with open(pathto, 'rb') as f:
-                        try:
-                            deserialized_plist = nd.deserialize_plist(f)
-                            postal_address = deserialized_plist['postalAddress']['_formattedAddress']
-                            postal_address_subadminarea = deserialized_plist['postalAddress']['_subAdministrativeArea']
-                            postal_address_sublocality = deserialized_plist['postalAddress']['_subLocality']
-
-                        except:
-                            logfunc('Error reading exported bplist from Asset PK' + row[0])
-                            deserialized_plist = None
-
-                htmlThumbTag = generate_thumbnail(row[14], row[9], seeker, report_folder)
-
-                data_list.append((htmlThumbTag, row[0], row[0], postal_address, postal_address_subadminarea,
-                                  postal_address_sublocality, row[1], row[2], row[3], row[4], row[5], row[6], row[7],
-                                  row[8], row[9], row[10], row[11], row[12], row[13], row[14], row[15], row[16],
-                                  row[17], row[18], row[19], row[20], row[21], row[22], row[23], row[24], row[25],
-                                  row[26], row[27], row[28], row[29], row[30], row[31], row[32], row[33], row[34],
-                                  row[35], row[36], row[37], row[38], row[39], row[40], row[41], row[42], row[43],
-                                  row[44], row[45], row[46], row[47], row[48], row[49], row[50], row[51], row[52],
-                                  row[53], row[54], row[55], row[56], row[57], row[58], row[59], row[60], row[61],
-                                  row[62], row[63], row[64], row[65], row[66], row[67], row[68], row[69], row[70],
-                                  row[71], row[72], row[73], row[74], row[75], row[76], row[77], row[78], row[79],
-                                  row[80]))
-
-                counter += 1
-
-            description = ''
-            report = ArtifactHtmlReport('Photos.sqlite')
-            report.start_artifact_report(report_folder, 'Metadata', description)
-            report.add_script()
-            data_headers = (
-                'Thumbnail', 'Timestamp', 'Date Created', 'Postal Address', 'Postal Subadmin Area',
-                'Postal Sublocality',
-                'Generic Asset ZPK', 'Add Attributes Key', 'Detected Face Asset', 'Kind', 'EXIF Timestamp',
-                'Scene Analysis Timestamp', 'Analysis State Modified Date', 'Add Date', 'Filename', 'Original Filename',
-                'Album Title', 'Creator Bundle ID', 'Editor Bundle ID', 'Directory', 'Uniform ID', 'Saved Asset Type',
-                'Face Detected in Photo', 'Display Name', 'Full Name', 'Face Count', 'Person', 'Contact Blob',
-                'Person UUID', 'Detected Face Quality', 'Age Type Estimate', 'Gender', 'Glasses Type',
-                'Facial Hair Type',
-                'Baldness', 'Color Space', 'Duration', 'Video Duration', 'Complete', 'Visibility State', 'Favorite',
-                'Hidden File?', 'Trash State', 'File Trash Date', 'View Count', 'Play Count', 'Share Count',
-                'Last Shared Date', 'File Modification Date', 'Has Adjustments?', 'Adjustment Timestamp',
-                'Original File Size', 'File Height', 'Org File Height', 'File Width', 'Org File Width', 'Orientation',
-                'Org Orientation', 'Timezone Name', 'Timezone Offset', 'Infered Timezone Offset', 'File Location Data',
-                'Latitude', 'Longitude', 'Shifted Location Valid', 'Reverse Location Data is Valid',
-                'Org File Reverse Location Data', 'Thumbnail Index', 'Embedded Thumbnail Width',
-                'Embedded Thumbnail Height', 'Embedded Thumbnail Offset', 'Embedded Thumbnail Lenght', 'Moment PK',
-                'Moment Start Date', 'Moment Representative Date', 'Moment Modification Date', 'Moment End Date',
-                'Moment Title', 'Moment Approx Latitude', 'Moment Approx Longitude', 'UUID', 'Media Group UUID',
-                'Cloud Assest GUID', 'Public Global UUID', 'Master Fingetprint', 'Adjusted Fingerprint')
-            report.write_artifact_data_table(data_headers, data_list, file_found, html_no_escape=['Thumbnail'])
-            report.end_artifact_report()
-
-            tsvname = 'Photos-sqlite Metadata'
-            tsv(report_folder, data_headers, data_list, tsvname)
-
-            tlactivity = 'Photos-sqlite Metadata'
-            timeline(report_folder, tlactivity, data_list, data_headers)
-
-            kmlactivity = 'Photos-sqlite Metadata'
-            kmlgen(report_folder, kmlactivity, data_list, data_headers)
-
-        else:
-            logfunc('No data available for Photos.sqlite metadata')
-
-        db.close()
-        return
-    elif version.parse(iOSversion) >= version.parse("14"):
-        file_found = str(files_found[0])
-        # os.chmod(file_found, 0o0777)
-        db = open_sqlite_db_readonly(file_found)
-        cursor = db.cursor()
-
-        cursor.execute("""
+_QUERY_IOS14 = """
         SELECT
 
                         DateTime( ZASSET.ZDATECREATED + 978307200, 'UNIXEPOCH' ) AS 'DateCreated',
@@ -957,93 +768,146 @@ def get_photosMetadata(files_found, report_folder, seeker, wrap_text, timezone_o
                         LEFT JOIN ZPERSON ON ZPERSON.Z_PK = ZDETECTEDFACE.ZPERSON
         LEFT JOIN Z_26ASSETS ON ZASSET.Z_PK = Z_26ASSETS.Z_3ASSETS
         LEFT JOIN ZGENERICALBUM ON ZGENERICALBUM.Z_PK = Z_26ASSETS.Z_26ALBUMS
-        """)
-        all_rows = cursor.fetchall()
-        usageentries = len(all_rows)
-        data_list = []
-        counter = 0
-        if usageentries > 0:
-            for row in all_rows:
-                postal_address = ''
-                postal_address_subadminarea = ''
-                postal_address_sublocality = ''
+"""
 
-                if row[61] is not None:
-                    pathto = os.path.join(report_folder, 'ReverseLocationData' + str(counter) + '.bplist')
-                    with open(pathto, 'ab') as wf:
-                        wf.write(row[61])
+_HEADERS_IOS12 = (
+    ('Thumbnail', 'media'), ('Timestamp', 'datetime'), ('Date Created', 'datetime'), 'Postal Address', 'Postal Subadmin Area',
+    'Postal Sublocality',
+    'Generic Asset ZPK', 'Add Attributes Key', 'Detected Face Asset', 'Kind', 'EXIF Timestamp',
+    'Scene Analysis Timestamp', 'Add Date', 'Filename', 'Original Filename', 'Album Title',
+    'Creator Bundle ID',
+    'Editor Bundle ID', 'Directory', 'Uniform ID', 'Saved Asset Type', 'Face Detected in Photo',
+    'Display Name',
+    'Full Name', 'Face Count', 'Person', 'Contact Blob', 'Person UUID', 'Detected Face Quality',
+    'Age Type Estimate', 'Gender', 'Glasses Type', 'Facial Hair Type', 'Baldness', 'Color Space',
+    'Duration',
+    'Video Duration', 'Complete', 'Visibility State', 'Favorite', 'Hidden File?', 'Trash State',
+    'File Trash Date', 'View Count', 'Play Count', 'Share Count', 'Last Shared Date',
+    'File Modification Date',
+    'Has Adjustments?', 'Adjustment Timestamp', 'Original File Size', 'File Height', 'Org File Height',
+    'File Width', 'Org File Width', 'Orientation', 'Org Orientation', 'Timezone Name', 'Timezone Offset',
+    'File Location Data', 'Latitude', 'Longitude', 'Shifted Location Valid',
+    'Reverse Location Data is Valid',
+    'Org File Reverse Location Data', 'Thumbnail Index', 'Embedded Thumbnail Width',
+    'Embedded Thumbnail Height', 'Embedded Thumbnail Offset', 'Embedded Thumbnail Length', 'Moment PK',
+    'Moment Start Date', 'Moment Representative Date', 'Moment Modification Date', 'Moment End Date',
+    'Moment Title', 'Moment Approx Latitude', 'Moment Approx Longitude', 'UUID', 'Media Group UUID',
+    'Cloud Assets GUID', 'Public Global UUID', 'Master Fingerprint', 'Adjusted Fingerprint')
 
-                    with open(pathto, 'rb') as f:
-                        try:
-                            deserialized_plist = nd.deserialize_plist(f)
-                            postal_address = deserialized_plist['postalAddress']['_formattedAddress']
-                            postal_address_subadminarea = deserialized_plist['postalAddress']['_subAdministrativeArea']
-                            postal_address_sublocality = deserialized_plist['postalAddress']['_subLocality']
+_HEADERS_IOS13 = (
+    ('Thumbnail', 'media'), ('Timestamp', 'datetime'), ('Date Created', 'datetime'), 'Postal Address', 'Postal Subadmin Area',
+    'Postal Sublocality',
+    'Generic Asset ZPK', 'Add Attributes Key', 'Detected Face Asset', 'Kind', 'EXIF Timestamp',
+    'Scene Analysis Timestamp', 'Analysis State Modified Date', 'Add Date', 'Filename', 'Original Filename',
+    'Album Title', 'Creator Bundle ID', 'Editor Bundle ID', 'Directory', 'Uniform ID', 'Saved Asset Type',
+    'Face Detected in Photo', 'Display Name', 'Full Name', 'Face Count', 'Person', 'Contact Blob',
+    'Person UUID', 'Detected Face Quality', 'Age Type Estimate', 'Gender', 'Glasses Type',
+    'Facial Hair Type',
+    'Baldness', 'Color Space', 'Duration', 'Video Duration', 'Complete', 'Visibility State', 'Favorite',
+    'Hidden File?', 'Trash State', 'File Trash Date', 'View Count', 'Play Count', 'Share Count',
+    'Last Shared Date', 'File Modification Date', 'Has Adjustments?', 'Adjustment Timestamp',
+    'Original File Size', 'File Height', 'Org File Height', 'File Width', 'Org File Width', 'Orientation',
+    'Org Orientation', 'Timezone Name', 'Timezone Offset', 'Infered Timezone Offset', 'File Location Data',
+    'Latitude', 'Longitude', 'Shifted Location Valid', 'Reverse Location Data is Valid',
+    'Org File Reverse Location Data', 'Thumbnail Index', 'Embedded Thumbnail Width',
+    'Embedded Thumbnail Height', 'Embedded Thumbnail Offset', 'Embedded Thumbnail Lenght', 'Moment PK',
+    'Moment Start Date', 'Moment Representative Date', 'Moment Modification Date', 'Moment End Date',
+    'Moment Title', 'Moment Approx Latitude', 'Moment Approx Longitude', 'UUID', 'Media Group UUID',
+    'Cloud Assest GUID', 'Public Global UUID', 'Master Fingetprint', 'Adjusted Fingerprint')
 
-                        except:
-                            logfunc('Error reading exported bplist from Asset PK' + row[0])
-                            deserialized_plist = None
+_HEADERS_IOS14 = (
+    ('Timestamp', 'datetime'), ('Date Created', 'datetime'), 'Postal Address', 'Postal Subadmin Area', 'Postal Sublocality',
+    'Asset ZPK',
+    'Add Attributes Key', 'Detected Face Asset', 'Kind', 'EXIF Timestamp', 'Scene Analysis Timestamp',
+    'Analysis State Modified Date', 'Add Date', 'Filename', 'Original Filename', 'Album Title',
+    'Creator Bundle ID', 'Editor Bundle ID', 'Directory', 'Uniform ID', 'Saved Asset Type',
+    'Face Detected in Photo', 'Display Name', 'Full Name', 'Face Count', 'Person', 'Contact Blob',
+    'Person UUID', 'Detected Face Quality', 'Age Type Estimate', 'Gender', 'Glasses Type',
+    'Facial Hair Type',
+    'Baldness', 'Color Space', 'Duration', 'Video Duration', 'Complete', 'Visibility State', 'Favorite',
+    'Hidden File?', 'Trash State', 'File Trash Date', 'View Count', 'Play Count', 'Share Count',
+    'Last Shared Date', 'File Modification Date', 'Has Adjustments?', 'Adjustment Timestamp',
+    'Original File Size', 'File Height', 'Org File Height', 'File Width', 'Org File Width', 'Orientation',
+    'Org Orientation', 'Timezone Name', 'Timezone Offset', 'Infered Timezone Offset', 'File Location Data',
+    'Latitude', 'Longitude', 'Shifted Location Valid', 'Reverse Location Data is Valid',
+    'Org File Reverse Location Data', 'Thumbnail Index', 'Embedded Thumbnail Width',
+    'Embedded Thumbnail Height', 'Embedded Thumbnail Offset', 'Embedded Thumbnail Lenght', 'Moment PK',
+    'Moment Title', 'Moment Start Date', 'Moment Representative Date', 'Moment Modification Date',
+    'Moment End Date', 'Moment Trash State', 'Moment Approx Latitude', 'Moment Approx Longitude', 'UUID',
+    'Media Group UUID', 'Cloud Assest GUID', 'Public Global UUID', 'Master Fingetprint',
+    'Adjusted Fingerprint')
 
-                data_list.append((row[0], row[0], postal_address, postal_address_subadminarea,
-                                  postal_address_sublocality, row[1], row[2], row[3], row[4], row[5], row[6], row[7],
-                                  row[8], row[9], row[10], row[11], row[12], row[13], row[14], row[15], row[16],
-                                  row[17], row[18], row[19], row[20], row[21], row[22], row[23], row[24], row[25],
-                                  row[26], row[27], row[28], row[29], row[30], row[31], row[32], row[33], row[34],
-                                  row[35], row[36], row[37], row[38], row[39], row[40], row[41], row[42], row[43],
-                                  row[44], row[45], row[46], row[47], row[48], row[49], row[50], row[51], row[52],
-                                  row[53], row[54], row[55], row[56], row[57], row[58], row[59], row[60], row[61],
-                                  row[62], row[63], row[64], row[65], row[66], row[67], row[68], row[69], row[70],
-                                  row[71], row[72], row[73], row[74], row[75], row[76], row[77], row[78], row[79],
-                                  row[80], row[81]))
 
-                counter += 1
+def _postal(blob, report_folder, counter):
+    """Write a reverse-location bplist and return (formatted, subadmin, sublocality)."""
+    if blob is None:
+        return '', '', ''
+    pathto = os.path.join(report_folder, 'ReverseLocationData' + str(counter) + '.bplist')
+    try:
+        with open(pathto, 'wb') as wf:
+            wf.write(blob)
+        with open(pathto, 'rb') as f:
+            dp = nd.deserialize_plist(f)
+        addr = dp['postalAddress']
+        return (addr.get('_formattedAddress', ''), addr.get('_subAdministrativeArea', ''),
+                addr.get('_subLocality', ''))
+    except (KeyError, ValueError, TypeError, OSError, nd.DeserializeError):
+        return '', '', ''
 
-            description = ''
-            report = ArtifactHtmlReport('Photos.sqlite')
-            report.start_artifact_report(report_folder, 'Metadata', description)
-            report.add_script()
-            data_headers = (
-                'Timestamp', 'Date Created', 'Postal Address', 'Postal Subadmin Area', 'Postal Sublocality',
-                'Asset ZPK',
-                'Add Attributes Key', 'Detected Face Asset', 'Kind', 'EXIF Timestamp', 'Scene Analysis Timestamp',
-                'Analysis State Modified Date', 'Add Date', 'Filename', 'Original Filename', 'Album Title',
-                'Creator Bundle ID', 'Editor Bundle ID', 'Directory', 'Uniform ID', 'Saved Asset Type',
-                'Face Detected in Photo', 'Display Name', 'Full Name', 'Face Count', 'Person', 'Contact Blob',
-                'Person UUID', 'Detected Face Quality', 'Age Type Estimate', 'Gender', 'Glasses Type',
-                'Facial Hair Type',
-                'Baldness', 'Color Space', 'Duration', 'Video Duration', 'Complete', 'Visibility State', 'Favorite',
-                'Hidden File?', 'Trash State', 'File Trash Date', 'View Count', 'Play Count', 'Share Count',
-                'Last Shared Date', 'File Modification Date', 'Has Adjustments?', 'Adjustment Timestamp',
-                'Original File Size', 'File Height', 'Org File Height', 'File Width', 'Org File Width', 'Orientation',
-                'Org Orientation', 'Timezone Name', 'Timezone Offset', 'Infered Timezone Offset', 'File Location Data',
-                'Latitude', 'Longitude', 'Shifted Location Valid', 'Reverse Location Data is Valid',
-                'Org File Reverse Location Data', 'Thumbnail Index', 'Embedded Thumbnail Width',
-                'Embedded Thumbnail Height', 'Embedded Thumbnail Offset', 'Embedded Thumbnail Lenght', 'Moment PK',
-                'Moment Title', 'Moment Start Date', 'Moment Representative Date', 'Moment Modification Date',
-                'Moment End Date', 'Moment Trash State', 'Moment Approx Latitude', 'Moment Approx Longitude', 'UUID',
-                'Media Group UUID', 'Cloud Assest GUID', 'Public Global UUID', 'Master Fingetprint',
-                'Adjusted Fingerprint')
-            report.write_artifact_data_table(data_headers, data_list, file_found)
-            report.end_artifact_report()
 
-            tsvname = 'Photos-sqlite Metadata'
-            tsv(report_folder, data_headers, data_list, tsvname)
+def _thumbnail_ref(directory, filename, seeker, source_file):
+    """Find the cached Photos thumbnail JPG and check it in as embedded media."""
+    found = seeker.search(thumbnail_root + directory + '/' + filename + '/**.JPG', return_on_first_hit=True)
+    if not found:
+        return None
+    try:
+        with open(found, 'rb') as f:
+            return check_in_embedded_media(source_file, f.read(), os.path.basename(str(found)))
+    except OSError:
+        return None
 
-            tlactivity = 'Photos-sqlite Metadata'
-            timeline(report_folder, tlactivity, data_list, data_headers)
 
-            kmlactivity = 'Photos-sqlite Metadata'
-            kmlgen(report_folder, kmlactivity, data_list, data_headers)
+@artifact_processor
+def photosMetadata(context):
+    source_file = ''
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        if file_found.endswith('.sqlite'):
+            source_file = file_found
+            break
 
+    data_list = []
+    if not source_file:
+        return _HEADERS_IOS14, data_list, ''
+
+    seeker = context.get_seeker()
+    report_folder = context.get_report_folder()
+    ios_version = iOS.get_version()
+
+    if version.parse(ios_version) >= version.parse("14"):
+        headers, query, postal_idx, thumb_idx = _HEADERS_IOS14, _QUERY_IOS14, 61, None
+    elif version.parse(ios_version) >= version.parse("13"):
+        headers, query, postal_idx, thumb_idx = _HEADERS_IOS13, _QUERY_IOS13, 61, (14, 9)
+    elif version.parse(ios_version) >= version.parse("12"):
+        headers, query, postal_idx, thumb_idx = _HEADERS_IOS12, _QUERY_IOS12, 59, (13, 8)
+    else:
+        logfunc(f"Unsupported iOS version for Photos.sqlite metadata: {ios_version}")
+        return _HEADERS_IOS14, data_list, context.get_relative_path(source_file)
+
+    try:
+        rows = get_sqlite_db_records(source_file, query)
+    except sqlite3.Error as ex:
+        logfunc(f'Error processing Photos.sqlite metadata: {ex}')
+        return headers, data_list, context.get_relative_path(source_file)
+
+    for counter, record in enumerate(rows):
+        row = tuple(record)
+        postal = _postal(row[postal_idx], report_folder, counter)
+        prefix = (row[0], row[0]) + postal + row[1:]
+        if thumb_idx is not None:
+            thumb = _thumbnail_ref(row[thumb_idx[0]], row[thumb_idx[1]], seeker, source_file)
+            data_list.append((thumb,) + prefix)
         else:
-            logfunc('No data available for Photos.sqlite metadata')
+            data_list.append(prefix)
 
-        db.close()
-        return
-
-__artifacts__ = {
-    "photosMetadata": (
-        "Photos",
-        ('*/mobile/Media/PhotoData/Photos.sqlite*'),
-        get_photosMetadata)
-}
+    return headers, data_list, context.get_relative_path(source_file)
