@@ -1,282 +1,300 @@
 __artifacts_v2__ = {
-    "chatgpt": {
-        "name": "ChatGPT",
-        "description": "Get user's ChatGPT conversations, settings and media files. This parser is based on a research project.  Parser is validated up to the app's 1.2024.178 version",
+    "chatgptConversationsMetadata": {
+        "name": "ChatGPT - Conversations Metadata",
+        "description": "Metadata from ChatGPT conversations. Based on a research project; "
+                       "validated up to the app's 1.2024.178 version.",
         "author": "Evangelos Dragonas (@theAtropos4n6)",
-        "version": "1.0.2",
-        "date": "2024-07-14",
-        "requirements": "",
+        "creation_date": "2024-07-14",
+        "last_update_date": "2026-06-24",
+        "requirements": "none",
         "category": "ChatGPT",
-        "paths": (
-            '**/Containers/Data/Application/*/Library/Application Support/conversations-*/*.*', 
-            '**/Containers/Data/Application/*/Library/Application Support/drafts-*/*.*',
-            '**/Containers/Data/Application/*/Library/Preferences/com.openai.chat.StatsigService.plist',
-            '**/Containers/Data/Application/*/Library/Preferences/com.segment.storage.oai.plist',
-            '**/Containers/Data/Application/*/Library/Preferences/com.openai.chat.plist',
-            '**/Containers/Data/Application/*/tmp/recordings/*.*',
-            '**/Containers/Data/Application/*/tmp/photo-*.*',
-            '**/Containers/Data/Application/*/tmp/*/*.*',
-        ),
-        "function": "get_chatgpt"
+        "notes": "",
+        "paths": ('**/Containers/Data/Application/*/Library/Application Support/conversations-*/*.json',),
+        "output_types": "standard",
+        "artifact_icon": "message-square"
+    },
+    "chatgptConversations": {
+        "name": "ChatGPT - Conversations",
+        "description": "User conversations with ChatGPT. Based on a research project; "
+                       "validated up to the app's 1.2024.178 version.",
+        "author": "Evangelos Dragonas (@theAtropos4n6)",
+        "creation_date": "2024-07-14",
+        "last_update_date": "2026-06-24",
+        "requirements": "none",
+        "category": "ChatGPT",
+        "notes": "",
+        "paths": ('**/Containers/Data/Application/*/Library/Application Support/conversations-*/*.json',),
+        "output_types": "standard",
+        "artifact_icon": "message-circle"
+    },
+    "chatgptDraftConversations": {
+        "name": "ChatGPT - Draft Conversations",
+        "description": "User draft conversations with ChatGPT.",
+        "author": "Evangelos Dragonas (@theAtropos4n6)",
+        "creation_date": "2024-07-14",
+        "last_update_date": "2026-06-24",
+        "requirements": "none",
+        "category": "ChatGPT",
+        "notes": "",
+        "paths": ('**/Containers/Data/Application/*/Library/Application Support/drafts-*/*.json',),
+        "output_types": "standard",
+        "artifact_icon": "edit-3"
+    },
+    "chatgptPreferences": {
+        "name": "ChatGPT - Preferences",
+        "description": "ChatGPT preferences (account information).",
+        "author": "Evangelos Dragonas (@theAtropos4n6)",
+        "creation_date": "2024-07-14",
+        "last_update_date": "2026-06-24",
+        "requirements": "none",
+        "category": "ChatGPT",
+        "notes": "",
+        "paths": ('**/Containers/Data/Application/*/Library/Preferences/com.openai.chat.StatsigService.plist',
+                  '**/Containers/Data/Application/*/Library/Preferences/com.segment.storage.oai.plist'),
+        "output_types": "standard",
+        "artifact_icon": "settings"
+    },
+    "chatgptMediaUploads": {
+        "name": "ChatGPT - Media Uploads",
+        "description": "Images uploaded to ChatGPT.",
+        "author": "Evangelos Dragonas (@theAtropos4n6)",
+        "creation_date": "2024-07-14",
+        "last_update_date": "2026-06-24",
+        "requirements": "none",
+        "category": "ChatGPT",
+        "notes": "",
+        "paths": ('**/Containers/Data/Application/*/tmp/photo-*.png',
+                  '**/Containers/Data/Application/*/tmp/*/*.png',
+                  '**/Containers/Data/Application/*/Library/Application Support/conversations-*/*.json',
+                  '**/Containers/Data/Application/*/Library/Preferences/com.openai.chat.StatsigService.plist'),
+        "output_types": "standard",
+        "artifact_icon": "image"
+    },
+    "chatgptVoicePrompts": {
+        "name": "ChatGPT - Voice Prompts",
+        "description": "Voice prompts that were transcribed and uploaded to ChatGPT.",
+        "author": "Evangelos Dragonas (@theAtropos4n6)",
+        "creation_date": "2024-07-14",
+        "last_update_date": "2026-06-24",
+        "requirements": "none",
+        "category": "ChatGPT",
+        "notes": "",
+        "paths": ('**/Containers/Data/Application/*/tmp/recordings/*.m4a',
+                  '**/Containers/Data/Application/*/tmp/*/*.m4a',
+                  '**/Containers/Data/Application/*/Library/Application Support/conversations-*/*.json',
+                  '**/Containers/Data/Application/*/Library/Preferences/com.openai.chat.StatsigService.plist'),
+        "output_types": "standard",
+        "artifact_icon": "mic"
     }
 }
 
-
-import biplist
 import json
 import os
-from pathlib import Path
-from datetime import datetime
-from packaging import version
-from scripts.ccl import ccl_segb1
-from scripts.ccl import ccl_segb2
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, media_to_html,webkit_timestampsconv, convert_utc_human_to_timezone,convert_ts_int_to_utc,is_platform_windows
+
+import biplist
+
+from scripts.ilapfuncs import (artifact_processor, check_in_media, convert_ts_int_to_utc,
+                               logfunc, webkit_timestampsconv)
+
+_JSON_ERRORS = (json.JSONDecodeError, KeyError, ValueError, TypeError, AttributeError, OSError)
+_PLIST_ERRORS = (biplist.InvalidPlistException, biplist.NotBinaryPlistException, OSError, ValueError)
 
 
-def get_chatgpt(files_found, report_folder, seeker, wrap_text, time_offset):
-    conversations_metadata = []
-    conversations_messages = []
-    draft_messages = []
-    account_list = []
-    account_list_files_found = []
-    voice_list = []
-    photo_list = []
-    app_bundle_id = ''
-    for file_found in files_found:
+def _webkit(value):
+    if not value:
+        return ''
+    try:
+        return webkit_timestampsconv(int(value))
+    except (ValueError, TypeError):
+        return ''
+
+
+def _unix(value):
+    if not value:
+        return ''
+    try:
+        return convert_ts_int_to_utc(int(value))
+    except (ValueError, TypeError):
+        return ''
+
+
+def _app_id(context):
+    """Identify the ChatGPT app container GUID from a conversations/openai marker file."""
+    for file_found in context.get_files_found():
         file_found = str(file_found)
-        #counter += 1 
-        file_name = os.path.basename(file_found)
-        if file_name.endswith('.json') and "conversations-" in file_found:
-            #filtering for the bundle id of the app which is needed for the artifacts within tmp folder
-            app_path_parts = file_found.split(os.sep)
-            for i in range(len(app_path_parts) - 1):
-                if app_path_parts[i] == "Application":
-                    app_bundle_id = app_path_parts[i + 1]
-                    break
-            with open(file_found, 'r', encoding="utf-8") as file:
-                data = json.load(file)
+        if 'conversations-' in file_found or 'com.openai.chat' in file_found:
+            parts = file_found.split(os.sep)
+            for i in range(len(parts) - 1):
+                if parts[i] == 'Application':
+                    return parts[i + 1]
+    return ''
+
+
+@artifact_processor
+def chatgptConversationsMetadata(context):
+    data_headers = (
+        ('Creation Time', 'datetime'), ('Modification Date', 'datetime'), 'Title', 'Conversation ID',
+        'Model', 'Custom Instructions (Model)', 'Custom Instructions (User)',
+        'Custom Instructions (Enabled)', 'Is Temporary', 'File Path')
+    data_list = []
+    sources = []
+
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        if not (file_found.endswith('.json') and 'conversations-' in file_found):
+            continue
+        try:
+            with open(file_found, 'r', encoding='utf-8') as fh:
+                data = json.load(fh)
+            config = data.get('configuration', {})
+            ci = config.get('custom_instructions', {})
+            data_list.append((
+                _webkit(data.get('creation_date', 0)), _webkit(data.get('modification_date', 0)),
+                data.get('title', ''), data.get('id', ''), config.get('model', ''),
+                ci.get('about_model_message', ''), ci.get('about_user_message', ''),
+                ci.get('active', False), config.get('is_temporary_chat', False),
+                context.get_relative_path(file_found)))
+            sources.append(context.get_relative_path(file_found))
+        except _JSON_ERRORS:
+            logfunc(f'Error parsing ChatGPT conversation metadata from -> {file_found}')
+
+    return data_headers, data_list, ', '.join(dict.fromkeys(sources))
+
+
+@artifact_processor
+def chatgptConversations(context):
+    data_headers = (
+        ('Creation Time', 'datetime'), 'Message ID', 'Conversation Title', 'Conversation ID',
+        'Author', 'Parts', 'Content Type', 'Finish Details', 'Voice Mode Message', 'Metadata',
+        'File Path')
+    data_list = []
+    sources = []
+
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        if not (file_found.endswith('.json') and 'conversations-' in file_found):
+            continue
+        try:
+            with open(file_found, 'r', encoding='utf-8') as fh:
+                data = json.load(fh)
+        except _JSON_ERRORS:
+            logfunc(f'Error parsing ChatGPT conversation from -> {file_found}')
+            continue
+
+        title = data.get('title', '')
+        conv_id = data.get('id', '')
+        tree = data.get('tree', {})
+        storage = tree.get('storage', {}) if isinstance(tree, dict) else {}
+        if not isinstance(storage, dict):
+            continue
+        rel = context.get_relative_path(file_found)
+        for message_id, message_details in storage.items():
+            content = message_details.get('content', {})
+            author = content.get('author', {}).get('role', '')
+            parts = content.get('content', {}).get('parts', [''])
+            parts = '\n'.join(str(p) for p in parts) if isinstance(parts, list) else str(parts)
+            metadata = content.get('metadata', {})
+            data_list.append((
+                _unix(content.get('create_time')), message_id, title, conv_id, author, parts,
+                content.get('content_type', ''), metadata.get('finish_details', {}).get('type', ''),
+                metadata.get('voice_mode_message', False), str(metadata), rel))
+        sources.append(rel)
+
+    return data_headers, data_list, ', '.join(dict.fromkeys(sources))
+
+
+@artifact_processor
+def chatgptDraftConversations(context):
+    data_headers = ('Conversation ID', 'Content', 'File Path')
+    data_list = []
+    sources = []
+
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        if not (file_found.endswith('.json') and 'drafts-' in file_found):
+            continue
+        try:
+            with open(file_found, 'r', encoding='utf-8') as fh:
+                data = json.load(fh)
+            data_list.append((data.get('conversation_id', ''),
+                              data.get('content', {}).get('text', ''),
+                              context.get_relative_path(file_found)))
+            sources.append(context.get_relative_path(file_found))
+        except _JSON_ERRORS:
+            logfunc(f'Error parsing ChatGPT draft messages from -> {file_found}')
+
+    return data_headers, data_list, ', '.join(dict.fromkeys(sources))
+
+
+@artifact_processor
+def chatgptPreferences(context):
+    data_headers = ('Account ID', 'User ID', 'Email', 'Plan Type', 'Paid Plan', 'Workspace ID',
+                    'Device ID', 'Segments Events')
+    data_list = []
+    sources = []
+
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        name = os.path.basename(file_found)
+
+        if name.endswith('com.openai.chat.StatsigService.plist'):
+            try:
+                with open(file_found, 'rb') as fh:
+                    plist_data = biplist.readPlist(fh)
+            except _PLIST_ERRORS as ex:
+                logfunc(f'Error parsing ChatGPT preferences from -> {file_found}: {ex}')
+                continue
+            data_list.append((plist_data.get('accountID', ''), plist_data.get('userID', ''),
+                              plist_data.get('userEmail', ''), plist_data.get('planType', ''),
+                              '', '', '', ''))
+            sources.append(context.get_relative_path(file_found))
+
+        elif name.endswith('com.segment.storage.oai.plist'):
+            try:
+                with open(file_found, 'rb') as fh:
+                    plist_data = biplist.readPlist(fh)
+            except _PLIST_ERRORS as ex:
+                logfunc(f'Error parsing ChatGPT account from -> {file_found}: {ex}')
+                continue
+            traits = {}
+            traits_raw = plist_data.get('segment.traits')
+            if traits_raw:
                 try:
-                    conversation_id = data.get("id", "")
-                    conversation_title = data.get("title", "")
-                    creation_time = convert_utc_human_to_timezone(webkit_timestampsconv(int(data.get("creation_date", 0))),time_offset)
-                    modification_time = convert_utc_human_to_timezone(webkit_timestampsconv(int(data.get("modification_date", 0))),time_offset)
-                    model = data.get("configuration", {}).get("model", "")
-                    custom_instructions_model = data.get("configuration", {}).get("custom_instructions", {}).get("about_model_message", "")
-                    custom_instructions_user = data.get("configuration", {}).get("custom_instructions", {}).get("about_user_message", "")
-                    custom_instructions_active = data.get("configuration", {}).get("custom_instructions", {}).get("active", False)
-                    is_temporary_chat = data.get("configuration", {}).get("is_temporary_chat", False)
-                    conversations_metadata.append((creation_time,modification_time,conversation_title,conversation_id,model,custom_instructions_model,custom_instructions_user,custom_instructions_active,is_temporary_chat,file_found))
-                except:
-                    logfunc(f'Error parsing ChatGPT - conversation metadata from -> {file_found}')
-                try:
-                    if isinstance(data.get("tree"), dict) and isinstance(data.get("tree", {}).get("storage"), dict):
-                        for message_id, message_details in data.get("tree").get("storage").items():
-                            content = message_details.get("content", {})
-                            author = content.get("author", {}).get("role", "")
-                            parts = content.get("content", {}).get("parts", [""])
-                            create_time_raw = content.get("create_time")
-                            if create_time_raw:
-                                create_time = convert_utc_human_to_timezone(convert_ts_int_to_utc(int(create_time_raw)), time_offset)
-                                # create_time = datetime.utcfromtimestamp(create_time_raw).isoformat() + 'Z'
-                            else:
-                                create_time = ""
-                            content_type = content.get("content_type", "")
-                            finish_details = content.get("metadata", {}).get("finish_details", {}).get("type", "")
-                            voice_mode_message = content.get("metadata", {}).get("voice_mode_message", False)
-                            metadata = {key: value for key, value in content.get("metadata", {}).items()}
-                            conversations_messages.append((create_time,message_id,conversation_title,conversation_id,author,parts,content_type,finish_details,voice_mode_message,metadata,file_found))
-                except:
-                    logfunc(f'Error parsing ChatGPT - conversation messages from -> {file_found}')
-                
-                #parsing collected conversations metadata
-                if len(conversations_metadata) > 0:
-                    description = f'Metadata from ChatGPT conversations'
-                    report = ArtifactHtmlReport(f'ChatGPT - Conversations Metadata')
-                    report.start_artifact_report(report_folder, f'Conversations Metadata', description)
-                    report.add_script()
-                    data_headers = ('Creation Time','Modification Date','Title','Conversation ID','Model','Custom Instructions (Model)','Custom Instructions (User)','Custom Instructions (Enabled)','Is Temporary','File Path') 
-                    report.write_artifact_data_table(data_headers, conversations_metadata, file_found, html_escape=False)
-                    report.end_artifact_report()
-                    
-                    tsvname = f'ChatGPT - Conversations Metadata'
-                    tsv(report_folder, data_headers, conversations_metadata, tsvname)
+                    traits = biplist.readPlistFromString(traits_raw)
+                except biplist.InvalidPlistException as ex:
+                    logfunc(f'Error parsing ChatGPT nested plist from {file_found}: {ex}')
+            data_list.append(('', plist_data.get('segment.userId', ''), '',
+                              traits.get('plan_type', ''), traits.get('has_paid_plan', ''),
+                              traits.get('workspace_id', ''), traits.get('device_id', ''),
+                              plist_data.get('segment.events', '')))
+            sources.append(context.get_relative_path(file_found))
 
-                    tlactivity = f'ChatGPT - Conversations Metadata'
-                    timeline(report_folder, tlactivity, conversations_metadata, data_headers)
-                else:
-                    logfunc(f'No ChatGPT - Conversations Metadata available')
-
-                #parsing collected conversations metadata
-                if len(conversations_messages) > 0:
-                    description = f'User conversations with ChatGPT'
-                    report = ArtifactHtmlReport(f'ChatGPT - Conversations')
-                    report.start_artifact_report(report_folder, f'Conversations', description)
-                    report.add_script()
-                    data_headers = ('Creation Time','Message ID','Conversation Title','Conversation ID','Author','Parts','Content Type','Finish Details', 'Voice Mode Message','Metadata','File Path')
-                    report.write_artifact_data_table(data_headers, conversations_messages, file_found, html_escape=False)
-                    report.end_artifact_report()
-                    
-                    tsvname = f'ChatGPT - Conversations'
-                    tsv(report_folder, data_headers, conversations_messages, tsvname)
-
-                    tlactivity = f'ChatGPT - Conversations'
-                    timeline(report_folder, tlactivity, conversations_messages, data_headers)
-                else:
-                    logfunc(f'No ChatGPT - Conversations available')
+    return data_headers, data_list, ', '.join(dict.fromkeys(sources))
 
 
-        if file_name.endswith('.json') and "drafts-" in file_found:
-            with open(file_found, 'r', encoding="utf-8") as file:
-                data = json.load(file)
-                try:
-                    conversation_id = data.get("conversation_id", "")
-                    text = data.get("content", {}).get("text", "")
-                    draft_messages.append((conversation_id,text,file_found))
-                except:
-                    logfunc(f'Error parsing ChatGPT - draft messages from -> {file_found}')
-
-                    #parsing draft conversations 
-                if len(draft_messages) > 0:
-                    description = f'User draft conversations with ChatGPT'
-                    report = ArtifactHtmlReport(f'ChatGPT - Draft Conversations')
-                    report.start_artifact_report(report_folder, f'Draft Conversations', description)
-                    report.add_script()
-                    data_headers = ('Conversation ID','Content','File Path')
-                    report.write_artifact_data_table(data_headers, draft_messages, file_found, html_escape=False)
-                    report.end_artifact_report()
-                    
-                    tsvname = f'ChatGPT - Draft Conversations'
-                    tsv(report_folder, data_headers, draft_messages, tsvname)
-
-                else:
-                    logfunc(f'No ChatGPT - Draft Conversations available')
-
-        if file_name.endswith('com.openai.chat.StatsigService.plist'):
-            #account_list = []
-            with open(file_found, 'rb') as file: #, encoding="utf-8"
-                try:
-                    plist_data = biplist.readPlist(file)
-                except (biplist.InvalidPlistException, biplist.NotBinaryPlistException, OSError) as e:
-                    logfunc(f"Error parsing ChatGPT while reading bplist {file_found} file: {str(e)}")
-
-                try:
-                    accountID = plist_data.get("accountID", "")
-                    planType = plist_data.get("planType", "")
-                    userID = plist_data.get("userID", "")
-                    userEmail = plist_data.get("userEmail", "")
-                    account_list.append((accountID,userID,userEmail,planType,"","","",""))
-                    account_list_files_found.append(file_found)
-                except:
-                    logfunc(f'Error parsing ChatGPT - preferences from -> {file_found}')
+def _checkin_tmp_media(context, extension):
+    """Check in tmp media of a given extension belonging to the ChatGPT app container."""
+    app_id = _app_id(context)
+    data_list = []
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        if not (file_found.endswith(extension) and 'tmp' in file_found):
+            continue
+        if app_id and app_id not in file_found:
+            continue
+        media_ref = check_in_media(file_found, os.path.basename(file_found))
+        data_list.append((media_ref, os.path.basename(file_found),
+                          context.get_relative_path(file_found)))
+    return data_list
 
 
-        if file_name.endswith('com.segment.storage.oai.plist'):
-            with open(file_found, 'rb') as file: #, encoding="utf-8"
-                try:
-                    plist_data = biplist.readPlist(file)
-                except (biplist.InvalidPlistException, biplist.NotBinaryPlistException, OSError) as e:
-                    logfunc(f"Error parsing ChatGPT while reading bplist {file_found} file: {str(e)}")
+@artifact_processor
+def chatgptMediaUploads(context):
+    data_headers = (('Media', 'media'), 'File Name', 'File Path')
+    return data_headers, _checkin_tmp_media(context, '.png'), ''
 
-                try:
-                    segevents = plist_data.get("segment.events", "")
-                    userID = plist_data.get("segment.userId", "")
-                    #segment.traits value is a nested plist
-                    segment_traits_data = plist_data.get("segment.traits")
-                    if segment_traits_data:
-                        try:
-                            segment_traits = biplist.readPlistFromString(segment_traits_data)
 
-                        except biplist.InvalidPlistException as e:
-                            print(f"Error parsing ChatGPT while reading nested plist data from {file_found}: . Error was: {e}")                    
-                    workspace_id = segment_traits.get("workspace_id", "")
-                    paid_plan = segment_traits.get("has_paid_plan", "")
-                    device_id = segment_traits.get("device_id", "")
-                    plan_type = segment_traits.get("plan_type", "")
-                    account_list.append(("",userID,"",plan_type,paid_plan,workspace_id,device_id,segevents))
-                    account_list_files_found.append(file_found)
-                except:
-                    logfunc(f'Error parsing ChatGPT - Account from -> {file_found}')
-
-        if file_name.endswith('com.openai.chat.plist'):
-            # To add suppport
-            # BPLIST file with embeeded SEGB v2 files that holds the external IP address of the user's device
-            pass
-
-        if file_name.endswith('.png') and "tmp" in file_found:
-            if app_bundle_id in file_found:
-                filename = (Path(file_found).name)
-                filepath = str(Path(file_found).parents[1])
-                    
-                thumb = media_to_html(filename, files_found, report_folder)
-                
-                platform = is_platform_windows()
-                if platform:
-                    thumb = thumb.replace('?', '')
-                    
-                photo_list.append((thumb, filename, file_found))
-            else:
-                pass
-
-        if file_name.endswith('.m4a') and "tmp" in file_found:
-            if app_bundle_id in file_found:
-                filename = (Path(file_found).name)
-                filepath = str(Path(file_found).parents[1])
-                    
-                audio = media_to_html(filename, files_found, report_folder)
-                
-                platform = is_platform_windows()
-                if platform:
-                    audio = audio.replace('?', '')
-                    
-                if (audio, filename, file_found) in voice_list:
-                    pass
-                else:
-                    voice_list.append((audio, filename, file_found))
-            else:
-                pass
-    
-    #reporting preferences
-    if len(account_list) > 0:
-        description = f'ChatGPT preferences (account information)'
-        report = ArtifactHtmlReport(f'ChatGPT - Preferences')
-        report.start_artifact_report(report_folder, f'Preferences', description)
-        report.add_script()
-        prefs_files_found = ',\n'.join(account_list_files_found) 
-        data_headers = ('Account ID','User ID','Email', 'Plan Type','Paid Plan','Workspace ID', 'Device ID','Segments Events')
-        report.write_artifact_data_table(data_headers, account_list, prefs_files_found, html_escape=False)
-        report.end_artifact_report()
-        
-        tsvname = f'ChatGPT - Preferences'
-        tsv(report_folder, data_headers, account_list, tsvname)
-
-    #after iterating through all files found we check if there are any images, voice prompts to report
-    if len(photo_list) > 0:
-        description = 'Images uploaded to ChatGPT'
-        report = ArtifactHtmlReport('ChatGPT - Media Uploads')
-        report.start_artifact_report(report_folder, 'Media Uploads', description)
-        report.add_script()
-        data_headers = ('Thumbnail','File Name','File Path')
-        report.write_artifact_data_table(data_headers, photo_list, filepath, html_escape=False)
-        report.end_artifact_report()
-        
-        tsvname = 'ChatGPT - Media Uploads'
-        tsv(report_folder, data_headers, photo_list, tsvname)
-        
-    else:
-        logfunc('No ChatGPT - Media Uploads available')
-
-    if len(voice_list) > 0:
-        description = 'Voice prompts that were transcribed and uploaded to ChatGPT'
-        report = ArtifactHtmlReport('ChatGPT - Voice Prompts')
-        report.start_artifact_report(report_folder, 'Voice Prompts', description)
-        report.add_script()
-        data_headers = ('Voice Prompt','File Name','File Path' )
-        report.write_artifact_data_table(data_headers, voice_list, filepath, html_escape=False)
-        report.end_artifact_report()
-        
-        tsvname = 'ChatGPT - Voice Prompts'
-        tsv(report_folder, data_headers, voice_list, tsvname)
-        
-    else:
-        logfunc('No ChatGPT - Voice Prompts available')
+@artifact_processor
+def chatgptVoicePrompts(context):
+    data_headers = (('Voice Prompt', 'media'), 'File Name', 'File Path')
+    return data_headers, _checkin_tmp_media(context, '.m4a'), ''

@@ -103,7 +103,7 @@ def webkit_cache_records(context):
             'Application GUID': app_guid,
             'Records GUID': records_guid,
             'File': os.path.basename(file_found),
-            'Full File Path': file_found
+            'Full File Path': context.get_relative_path(file_found)
         }
         try:
             with open(file_found, 'rb') as f:

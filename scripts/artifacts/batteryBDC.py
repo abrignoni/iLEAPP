@@ -68,7 +68,7 @@ def battery_bdc(context):
 
                 data_list.append((
                     timestamp, soc, current_cap, charging_status, temp, temp2,
-                    amperage, voltage, watts, file_found,
+                    amperage, voltage, watts, context.get_relative_path(file_found),
                 ))
 
     data_headers = (

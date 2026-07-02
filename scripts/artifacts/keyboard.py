@@ -3,8 +3,8 @@ __artifacts_v2__ = {
         "name": "Keyboard Dynamic Lexicon",
         "description": "Extracts dynamic lexicon data from the keyboard",
         "author": "@your_username",
-        "version": "1.0",
-        "date": "2023-05-24",
+        "creation_date": "2023-05-24",
+        "last_update_date": "2023-05-24",
         "requirements": "none",
         "category": "User Activity",
         "notes": "",
@@ -15,8 +15,8 @@ __artifacts_v2__ = {
         "name": "Keyboard Application Usage",
         "description": "Extracts keyboard application usage data",
         "author": "@your_username",
-        "version": "1.0",
-        "date": "2023-05-24",
+        "creation_date": "2023-05-24",
+        "last_update_date": "2023-05-24",
         "requirements": "none",
         "category": "User Activity",
         "notes": "",
@@ -27,8 +27,8 @@ __artifacts_v2__ = {
         "name": "Keyboard Usage Stats",
         "description": "Extracts keyboard usage statistics",
         "author": "@your_username",
-        "version": "1.0",
-        "date": "2023-05-24",
+        "creation_date": "2023-05-24",
+        "last_update_date": "2023-05-24",
         "requirements": "none",
         "category": "User Activity",
         "notes": "",
@@ -113,7 +113,7 @@ def keyboardUsageStats(context):
             for row in cursor.fetchall():
                 create_ts = convert_ts_human_to_utc(row[0])
                 update_ts = convert_ts_human_to_utc(row[1])
-                data_list.append((create_ts, update_ts, row[2], row[3], file_found))
+                data_list.append((create_ts, update_ts, row[2], row[3], context.get_relative_path(file_found)))
     
     data_headers = (('Creation Date', 'datetime'), ('Last Update Date', 'datetime'), 'Key', 'Data Value', 'Source File')
     return data_headers, data_list, 'See source paths in data'

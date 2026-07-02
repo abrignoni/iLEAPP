@@ -389,7 +389,7 @@ def get_data_list_with_media(media_header_info, data_list):
     ''' 
     For columns with media item, generate:
       - A data list with HTML code for HTML output
-      - A data list with extraction path of media items for TSV, KML and Timeline exports  
+      - A data list with extraction path of media items for TSV, KML and Timeline exports
     '''
     html_data_list = []
     txt_data_list = []
@@ -421,7 +421,7 @@ def get_data_list_with_media(media_header_info, data_list):
 
                 # Construct the full, absolute path to the canonical media file
                 canonical_path = os.path.join(output_params.output_folder_base, media_item['extraction_path'])
-                
+
                 # Construct the full, absolute path for the HTML link destination
                 html_path = os.path.join(output_params.html_media_folder, Path(canonical_path).name)
 
@@ -431,7 +431,7 @@ def get_data_list_with_media(media_header_info, data_list):
                         os.link(canonical_path, html_path)
                     except OSError:
                         shutil.copy2(canonical_path, html_path)
-                
+
                 # Generate the HTML tag and add the path for the text report
                 html_code += html_media_tag(media_item['extraction_path'], media_item['type'], style, media_item['name'])
                 path_list.append(media_item['extraction_path'])
@@ -445,7 +445,7 @@ def get_data_list_with_media(media_header_info, data_list):
 
         html_data_list.append(tuple(html_row))
         txt_data_list.append(tuple(txt_row))
-        
+
     return html_data_list, txt_data_list
 
 def artifact_processor(func):
@@ -1194,10 +1194,10 @@ def convert_log_ts_to_utc(str_dt):
 def convert_local_to_utc(local_timestamp_str):
     # Parse the timestamp string with timezone offset, ex. 2023-10-27 18:18:29-0400
     local_timestamp = datetime.strptime(local_timestamp_str, "%Y-%m-%d %H:%M:%S%z")
-    
+
     # Convert to UTC timestamp
     utc_timestamp = local_timestamp.astimezone(timezone.utc)
-    
+
     # Return the UTC timestamp
     return utc_timestamp
 
@@ -1205,7 +1205,7 @@ def convert_time_obj_to_utc(ts):
     timestamp = ts.replace(tzinfo=timezone.utc)
     return timestamp
 
-def convert_utc_human_to_timezone(utc_time, time_offset): 
+def convert_utc_human_to_timezone(utc_time, time_offset):
     #fetch the timezone information
     timezone = pytz.timezone(time_offset)
     
@@ -1231,12 +1231,12 @@ def convert_ts_int_to_timezone(time, time_offset):
 def webkit_timestampsconv(webkittime):
     unix_timestamp = webkittime + 978307200
     finaltime = datetime.fromtimestamp(unix_timestamp, tz=timezone.utc)
-    return(finaltime)
+    return finaltime
 
 def convert_ts_human_to_utc(ts): #This is for timestamp in human form
     if '.' in ts:
         ts = ts.split('.')[0]
-        
+
     dt = datetime.strptime(ts, '%Y-%m-%d %H:%M:%S') #Make it a datetime object
     timestamp = dt.replace(tzinfo=timezone.utc) #Make it UTC
     return timestamp
@@ -1261,7 +1261,7 @@ def convert_ts_human_to_timezone_offset(ts, timezone_offset):
 def convert_plist_date_to_timezone_offset(plist_date, timezone_offset):
     if plist_date:
         str_date = '%04d-%02d-%02dT%02d:%02d:%02dZ' % (
-            plist_date.year, plist_date.month, plist_date.day, 
+            plist_date.year, plist_date.month, plist_date.day,
             plist_date.hour, plist_date.minute, plist_date.second
             )
         iso_date = datetime.fromisoformat(str_date).strftime("%Y-%m-%d %H:%M:%S")
@@ -1272,7 +1272,7 @@ def convert_plist_date_to_timezone_offset(plist_date, timezone_offset):
 def convert_plist_date_to_utc(plist_date):
     if plist_date:
         str_date = '%04d-%02d-%02dT%02d:%02d:%02dZ' % (
-            plist_date.year, plist_date.month, plist_date.day, 
+            plist_date.year, plist_date.month, plist_date.day,
             plist_date.hour, plist_date.minute, plist_date.second
             )
         return datetime.fromisoformat(str_date)
@@ -1297,7 +1297,7 @@ def convert_bytes_to_unit(size):
         return size
     else:
         return size
-  
+
 ''' Returns string of printable characters. Replacing non-printable characters
 with '.', or CHR(46)
 '''

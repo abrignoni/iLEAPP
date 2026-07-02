@@ -30,7 +30,7 @@ def controlCenter(context):
             if key in pl and pl[key]:
                 for position, module in enumerate(pl[key], 1):
                     formatted_position = f"{prefix}-{position}"
-                    data_list.append((formatted_position, module, control_type, file_found))
+                    data_list.append((formatted_position, module, control_type, context.get_relative_path(file_found)))
 
     data_headers = ('Position', 'App Bundle', 'Control Type', 'Source File')
     

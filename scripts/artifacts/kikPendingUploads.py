@@ -1,91 +1,72 @@
-#!/usr/bin/env python3
+__artifacts_v2__ = {
+    "kikPendingUploads": {
+        "name": "Kik Pending Uploads",
+        "description": "Metadata from the Kik chunked_upload_storage pending_uploads bplist, with the pending media file",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-06-22",
+        "last_update_date": "2026-06-24",
+        "requirements": "none",
+        "category": "Kik",
+        "notes": "",
+        "paths": (
+            '*/mobile/Containers/Shared/AppGroup/*/cores/private/*/chunked_upload_storage/pending_uploads',
+            '*/mobile/Containers/Shared/AppGroup/*/cores/private/*/chunked_upload_storage/data_cache/*',
+        ),
+        "output_types": "standard",
+        "artifact_icon": "upload"
+    }
+}
 
 import os
-import shutil
 import xml.etree.ElementTree as ET
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, is_platform_windows
+from scripts.ilapfuncs import artifact_processor, check_in_media
 
 
-def get_kikPendingUploads(files_found, report_folder, seeker, wrap_text, timezone_offset):
+@artifact_processor
+def kikPendingUploads(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
+    data_headers = ('Upload Start Time', 'App ID', 'Content ID', 'Progress', 'Retries Remaining',
+                    'State', ('Pending File', 'media'))
     data_list = []
-    appID = ''
-    contentID = ''
-    progress = ''
-    retriesRemaining = ''
-    state = ''
-    uploadStartTime = ''
-    thumb = ''
-    
+    source_path = ''
+
     for file_found in files_found:
         file_found = str(file_found)
-        
         if not file_found.endswith('pending_uploads'):
             continue
-            
-        tree = ET.parse(file_found)
-        root = tree.getroot()
+        source_path = source_path or file_found
+
+        try:
+            root = ET.parse(file_found).getroot()
+        except ET.ParseError:
+            continue
+
+        # The plist stores alternating key/value text nodes; rebuild the dict.
         a_dict = {}
         counter = 0
+        key = ''
         for elem in root:
             for subelem in elem:
                 for subelem2 in subelem:
-
                     if counter == 0:
                         key = subelem2.text
                         a_dict[key] = ''
-                        counter += 1
+                        counter = 1
                     else:
-                        value = subelem2.text
-                        a_dict[key] = value
+                        a_dict[key] = subelem2.text
                         counter = 0
-                        
-                appID = a_dict['appID']
-                contentID = a_dict['contentID']
-                progress = a_dict['progress']
-                retriesRemaining = a_dict['retriesRemaining']
-                state = a_dict['state']
-                uploadStartTime = a_dict['uploadStartTime']
-        
-        thumb = f'<img src="{report_folder}{contentID}"  width="300"></img>'
-        
-        data_list.append((uploadStartTime, appID, contentID, progress, retriesRemaining, state, thumb))
 
-        a_dict = {}
-                        
-        if len(data_list) > 0:
-            
+        content_id = a_dict.get('contentID', '')
+        media = ''
+        if content_id:
             for match in files_found:
-                if contentID in match:
-                    shutil.copy2(match, report_folder)
-            
-            # for x in len(data_list):
-                # for match in files_found:
-                    # if contentID in match:
-                        # shutil.copy2(match, report_folder)
-                        # data_file_name = os.path.basename(match)
-                        # thumb = f'<img src="{report_folder}{data_file_name}"  width="300"></img>'
-        
-            # data_list.append((uploadStartTime, appID, contentID, progress, retriesRemaining, state, thumb))
-        
-            head_tail = os.path.split(file_found)
-            description = 'Metadata from Kik media directory. Source are bplist files.'
-            report = ArtifactHtmlReport('Kik Pending Uploads')
-            report.start_artifact_report(report_folder, 'Kik Pending Uploads', description)
-            report.add_script()
-            data_headers = ('Upload Start Time','App ID','Content ID','Progress','Retries Remaining','State','Pending File')
-            report.write_artifact_data_table(data_headers, data_list, head_tail[0],html_no_escape=['Pending File'])
-            report.end_artifact_report()
-            
-            tsvname = 'Kik Pending Uploads'
-            tsv(report_folder, data_headers, data_list, tsvname)
-        else:
-            logfunc('No data on Kik Pending Uploads')
+                match = str(match)
+                if content_id in match and os.path.isfile(match):
+                    media = check_in_media(match) or ''
+                    break
 
-__artifacts__ = {
-    "kikPendingUploads": (
-        "Kik",
-        ('*/mobile/Containers/Shared/AppGroup/*/cores/private/*/chunked_upload_storage/pending_uploads','*/mobile/Containers/Shared/AppGroup/*/cores/private/*/chunked_upload_storage/data_cache/*'),
-        get_kikPendingUploads)
-}
+        data_list.append((a_dict.get('uploadStartTime', ''), a_dict.get('appID', ''), content_id,
+                          a_dict.get('progress', ''), a_dict.get('retriesRemaining', ''),
+                          a_dict.get('state', ''), media))
+
+    return data_headers, data_list, source_path

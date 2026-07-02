@@ -1,254 +1,82 @@
-# Parts of this script have been modified from code 
-# found in Yogesh Khatri's mac_apt project Notes plugin (https://github.com/ydkhatri/mac_apt) 
+# Parts of this script have been modified from code
+# found in Yogesh Khatri's mac_apt project Notes plugin (https://github.com/ydkhatri/mac_apt)
 # and used under terms of the MIT License.
+__artifacts_v2__ = {
+    "notes": {
+        "name": "Notes",
+        "description": "Apple Notes including decoded note body text and embedded attachments",
+        "author": "",
+        "creation_date": "2026-06-24",
+        "last_update_date": "2026-06-24",
+        "requirements": "none",
+        "category": "Notes",
+        "notes": "Note body text is decompressed and parsed from the protobuf blob. "
+                 "Password-protected note contents are not decoded.",
+        "paths": ('*/NoteStore.sqlite*',),
+        "output_types": "standard",
+        "artifact_icon": "file-text"
+    }
+}
 
-from os.path import basename, dirname, join
-from PIL import Image
-import imghdr
-import zlib
 import binascii
 import os
+import zlib
+from os.path import dirname, join
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly, does_column_exist_in_db
+from scripts.ilapfuncs import (artifact_processor, check_in_embedded_media,
+                               does_column_exist_in_db, get_sqlite_db_records, logfunc)
 
 
-def get_notes(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    data_list = []
-    for file_found in files_found:
-        file_found = str(file_found)
+def _build_query(creation_col, account_col):
+    """Notes schema varies by iOS version; only the creation-date and account columns differ."""
+    return f'''
+    SELECT
+        DATETIME(TabA.{creation_col}+978307200,'UNIXEPOCH'),
+        TabA.ZTITLE1,
+        TabA.ZSNIPPET,
+        TabB.ZTITLE2,
+        TabC.ZNAME,
+        DATETIME(TabA.ZMODIFICATIONDATE1+978307200,'UNIXEPOCH'),
+        CASE TabA.ZISPASSWORDPROTECTED WHEN 0 THEN 'No' WHEN 1 THEN 'Yes' END,
+        TabA.ZPASSWORDHINT,
+        CASE TabA.ZMARKEDFORDELETION WHEN 0 THEN 'No' WHEN 1 THEN 'Yes' END,
+        CASE TabA.ZISPINNED WHEN 0 THEN 'No' WHEN 1 THEN 'Yes' END,
+        TabE.ZFILENAME,
+        TabE.ZIDENTIFIER,
+        TabD.ZFILESIZE,
+        TabD.ZTYPEUTI,
+        DATETIME(TabD.ZCREATIONDATE+978307200,'UNIXEPOCH'),
+        DATETIME(TabD.ZMODIFICATIONDATE+978307200,'UNIXEPOCH'),
+        TabF.ZDATA
+    FROM ZICCLOUDSYNCINGOBJECT TabA
+    INNER JOIN ZICCLOUDSYNCINGOBJECT TabB on TabA.ZFOLDER = TabB.Z_PK
+    INNER JOIN ZICCLOUDSYNCINGOBJECT TabC on TabA.{account_col} = TabC.Z_PK
+    LEFT JOIN ZICCLOUDSYNCINGOBJECT TabD on TabA.Z_PK = TabD.ZNOTE
+    LEFT JOIN ZICCLOUDSYNCINGOBJECT TabE on TabD.Z_PK = TabE.ZATTACHMENT1
+    LEFT JOIN ZICNOTEDATA TabF on TabF.ZNOTE = TabA.Z_PK
+    '''
 
-        if file_found.endswith('.sqlite'):
-            db = open_sqlite_db_readonly(file_found)
-            cursor = db.cursor()
-            
-            if does_column_exist_in_db(file_found, 'ZICCLOUDSYNCINGOBJECT','ZACCOUNT4') == True and does_column_exist_in_db(file_found, 'ZICCLOUDSYNCINGOBJECT','ZCREATIONDATE3') == True:
-                        
-                cursor.execute('''
-                    SELECT 
-                    DATETIME(TabA.ZCREATIONDATE3+978307200,'UNIXEPOCH'), 
-                    TabA.ZTITLE1,
-                    TabA.ZSNIPPET,
-                    TabB.ZTITLE2,
-                    TabC.ZNAME,
-                    DATETIME(TabA.ZMODIFICATIONDATE1+978307200,'UNIXEPOCH'),
-                    case TabA.ZISPASSWORDPROTECTED
-                    when 0 then "No"
-                    when 1 then "Yes"
-                    end,
-                    TabA.ZPASSWORDHINT,
-                    case TabA.ZMARKEDFORDELETION
-                    when 0 then "No"
-                    when 1 then "Yes"
-                    end,
-                    case TabA.ZISPINNED
-                    when 0 then "No"
-                    when 1 then "Yes"
-                    end,
-                    TabE.ZFILENAME,
-                    TabE.ZIDENTIFIER,
-                    TabD.ZFILESIZE,
-                    TabD.ZTYPEUTI,
-                    DATETIME(TabD.ZCREATIONDATE+978307200,'UNIXEPOCH') as "Attachment Created",
-                    DATETIME(TabD.ZMODIFICATIONDATE+978307200,'UNIXEPOCH') as "Attachment Modified",
-                    TabF.ZDATA
-                    FROM ZICCLOUDSYNCINGOBJECT TabA
-                    INNER JOIN ZICCLOUDSYNCINGOBJECT TabB on TabA.ZFOLDER = TabB.Z_PK
-                    INNER JOIN ZICCLOUDSYNCINGOBJECT TabC on TabA.ZACCOUNT4 = TabC.Z_PK
-                    LEFT JOIN ZICCLOUDSYNCINGOBJECT TabD on TabA.Z_PK = TabD.ZNOTE
-                    LEFT JOIN ZICCLOUDSYNCINGOBJECT TabE on TabD.Z_PK = TabE.ZATTACHMENT1
-                    LEFT JOIN ZICNOTEDATA TabF on TabF.ZNOTE = TabA.Z_PK
-                    ''')
 
-            elif does_column_exist_in_db(file_found, 'ZICCLOUDSYNCINGOBJECT','ZACCOUNT4') == True and does_column_exist_in_db(file_found, 'ZICCLOUDSYNCINGOBJECT','ZCREATIONDATE3') == False:
-                cursor.execute('''
-                    SELECT 
-                    DATETIME(TabA.ZCREATIONDATE1+978307200,'UNIXEPOCH'), 
-                    TabA.ZTITLE1,
-                    TabA.ZSNIPPET,
-                    TabB.ZTITLE2,
-                    TabC.ZNAME,
-                    DATETIME(TabA.ZMODIFICATIONDATE1+978307200,'UNIXEPOCH'),
-                    case TabA.ZISPASSWORDPROTECTED
-                    when 0 then "No"
-                    when 1 then "Yes"
-                    end,
-                    TabA.ZPASSWORDHINT,
-                    case TabA.ZMARKEDFORDELETION
-                    when 0 then "No"
-                    when 1 then "Yes"
-                    end,
-                    case TabA.ZISPINNED
-                    when 0 then "No"
-                    when 1 then "Yes"
-                    end,
-                    TabE.ZFILENAME,
-                    TabE.ZIDENTIFIER,
-                    TabD.ZFILESIZE,
-                    TabD.ZTYPEUTI,
-                    DATETIME(TabD.ZCREATIONDATE+978307200,'UNIXEPOCH') as "Attachment Created",
-                    DATETIME(TabD.ZMODIFICATIONDATE+978307200,'UNIXEPOCH') as "Attachment Modified",
-                    TabF.ZDATA
-                    FROM ZICCLOUDSYNCINGOBJECT TabA
-                    INNER JOIN ZICCLOUDSYNCINGOBJECT TabB on TabA.ZFOLDER = TabB.Z_PK
-                    INNER JOIN ZICCLOUDSYNCINGOBJECT TabC on TabA.ZACCOUNT3 = TabC.Z_PK
-                    LEFT JOIN ZICCLOUDSYNCINGOBJECT TabD on TabA.Z_PK = TabD.ZNOTE
-                    LEFT JOIN ZICCLOUDSYNCINGOBJECT TabE on TabD.Z_PK = TabE.ZATTACHMENT1
-                    LEFT JOIN ZICNOTEDATA TabF on TabF.ZNOTE = TabA.Z_PK
-                    ''')
+def _query_for_db(file_found):
+    if does_column_exist_in_db(file_found, 'ZICCLOUDSYNCINGOBJECT', 'ZACCOUNT4'):
+        if does_column_exist_in_db(file_found, 'ZICCLOUDSYNCINGOBJECT', 'ZCREATIONDATE3'):
+            return _build_query('ZCREATIONDATE3', 'ZACCOUNT4')
+        return _build_query('ZCREATIONDATE1', 'ZACCOUNT3')
+    return _build_query('ZCREATIONDATE1', 'ZACCOUNT2')
 
-            else:
-                cursor.execute('''
-                    SELECT 
-                    DATETIME(TabA.ZCREATIONDATE1+978307200,'UNIXEPOCH'), 
-                    TabA.ZTITLE1,
-                    TabA.ZSNIPPET,
-                    TabB.ZTITLE2,
-                    TabC.ZNAME,
-                    DATETIME(TabA.ZMODIFICATIONDATE1+978307200,'UNIXEPOCH'),
-                    case TabA.ZISPASSWORDPROTECTED
-                    when 0 then "No"
-                    when 1 then "Yes"
-                    end,
-                    TabA.ZPASSWORDHINT,
-                    case TabA.ZMARKEDFORDELETION
-                    when 0 then "No"
-                    when 1 then "Yes"
-                    end,
-                    case TabA.ZISPINNED
-                    when 0 then "No"
-                    when 1 then "Yes"
-                    end,
-                    TabE.ZFILENAME,
-                    TabE.ZIDENTIFIER,
-                    TabD.ZFILESIZE,
-                    TabD.ZTYPEUTI,
-                    DATETIME(TabD.ZCREATIONDATE+978307200,'UNIXEPOCH') as "Attachment Created",
-                    DATETIME(TabD.ZMODIFICATIONDATE+978307200,'UNIXEPOCH') as "Attachment Modified",
-                    TabF.ZDATA
-                    FROM ZICCLOUDSYNCINGOBJECT TabA
-                    INNER JOIN ZICCLOUDSYNCINGOBJECT TabB on TabA.ZFOLDER = TabB.Z_PK
-                    INNER JOIN ZICCLOUDSYNCINGOBJECT TabC on TabA.ZACCOUNT2 = TabC.Z_PK
-                    LEFT JOIN ZICCLOUDSYNCINGOBJECT TabD on TabA.Z_PK = TabD.ZNOTE
-                    LEFT JOIN ZICCLOUDSYNCINGOBJECT TabE on TabD.Z_PK = TabE.ZATTACHMENT1
-                    LEFT JOIN ZICNOTEDATA TabF on TabF.ZNOTE = TabA.Z_PK
-                    ''')
-            
-            all_rows = cursor.fetchall()
-            analyzed_file = file_found
 
-    if len(all_rows) > 0:
-        for row in all_rows:
-            
-            if row[6] == 'No' and row[16] is not None:
-                data = GetUncompressedData(row[16])
-                text_content = ProcessNoteBodyBlob(data)
-            else:
-                text_content = ''
-            
-            if row[10] is not None and row[11] is not None:
-                attachment_file = join(dirname(analyzed_file), 'Accounts/LocalAccount/Media', row[11], row[10])
-                attachment_storage_path = dirname(attachment_file)
-
-                if not os.path.exists(attachment_file):
-                    thumbnail = 'Attachment file not found.'
-                else:
-                    try:
-                        filetype = imghdr.what(attachment_file)
-                    except OSError:
-                        filetype = None
-
-                    if filetype in ('jpeg', 'jpg', 'png'):
-                        thumbnail_path = join(report_folder, 'thumbnail_' + basename(attachment_file))
-                        try:
-                            save_original_attachment_as_thumbnail(attachment_file, thumbnail_path)
-                            thumbnail = f'<img src="{thumbnail_path}">'
-                        except OSError:
-                            thumbnail = 'Attachment present but thumbnail creation failed.'
-                    else:
-                        thumbnail = 'File is not an image or the filetype is not supported'
-            else:
-                thumbnail = ''
-                attachment_storage_path = ''
-
-            if row[12] is not None:
-                filesize = '.'.join(str(row[12])[i:i+3] for i in range(0, len(str(row[12])), 3))
-            else:
-                filesize = ''
-
-            data_list.append((row[0], row[1], row[2], text_content, row[3], row[4], row[5], row[6], row[7], row[8], row[9], thumbnail, row[10], attachment_storage_path, filesize, row[13], row[14], row[15]))
-
-        report = ArtifactHtmlReport('Notes')
-        report.start_artifact_report(report_folder, 'Notes')
-        report.add_script()
-        data_headers = ('Creation Date', 'Note Title', 'Snippet', 'Note Contents', 'Folder', 'Storage Place', 'Last Modified',
-                        'Password Protected', 'Password Hint', 'Marked for Deletion', 'Pinned', 'Attachment Thumbnail',
-                        'Attachment Original Filename', 'Attachment Storage Folder', 'Attachment Size in KB',
-                        'Attachment Type', 'Attachment Creation Date', 'Attachment Last Modified')
-        report.write_artifact_data_table(data_headers, data_list, analyzed_file, html_no_escape=['Attachment Thumbnail'])
-        report.end_artifact_report()
-
-        tsvname = 'Notes'
-        tsv(report_folder, data_headers, data_list, tsvname)
-
-        tlactivity = 'Notes'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-    else:
-        logfunc('No Notes available')
-
-    db.close()
-
-def GetUncompressedData(compressed):
-    if compressed == None:
+def get_uncompressed_data(compressed):
+    if compressed is None:
         return None
-    data = None
     try:
-        data = zlib.decompress(compressed, 15 + 32)
+        return zlib.decompress(compressed, 15 + 32)
     except zlib.error:
-        print('Zlib Decompression failed!')
-    return data
+        logfunc('Notes: zlib decompression failed')
+        return None
 
-def ProcessNoteBodyBlob(blob):
-    data = b''
-    if blob == None: return data
-    try:
-        pos = 0
-        if blob[0:3] != b'\x08\x00\x12': # header
-            print('Unexpected bytes in header pos 0 - ' + binascii.hexlify(blob[0:3]) + '  Expected 080012')
-            return ''
-        pos += 3
-        length, skip = ReadLengthField(blob[pos:])
-        pos += skip
 
-        if blob[pos:pos+3] != b'\x08\x00\x10': # header 2
-            print('Unexpected bytes in header pos {0}:{0}+3'.format(pos))
-            return '' 
-        pos += 3
-        length, skip = ReadLengthField(blob[pos:])
-        pos += skip
-
-        # Now text data begins
-        if blob[pos] != 0x1A:
-            print('Unexpected byte in text header pos {} - byte is 0x{:X}'.format(pos, blob[pos]))
-            return ''
-        pos += 1
-        length, skip = ReadLengthField(blob[pos:])
-        pos += skip
-        # Read text tag next
-        if blob[pos] != 0x12:
-            print('Unexpected byte in pos {} - byte is 0x{:X}'.format(pos, blob[pos]))
-            return ''
-        pos += 1
-        length, skip = ReadLengthField(blob[pos:])
-        pos += skip
-        data = blob[pos : pos + length].decode('utf-8', 'backslashreplace')
-        # Skipping the formatting Tags
-    except (IndexError, ValueError):
-        print('Error processing note data blob')
-    return data
-
-def ReadLengthField(blob):
-    '''Returns a tuple (length, skip) where skip is number of bytes read'''
+def read_length_field(blob):
+    '''Return a tuple (length, skip) where skip is the number of bytes read.'''
     length = 0
     skip = 0
     try:
@@ -264,15 +92,90 @@ def ReadLengthField(blob):
     return length, skip
 
 
-def save_original_attachment_as_thumbnail(file, store_path):
-    image = Image.open(file)
-    thumbnail_max_size = (350, 350)
-    image.thumbnail(thumbnail_max_size)
-    image.save(store_path)
+def process_note_body_blob(blob):
+    if blob is None:
+        return ''
+    try:
+        pos = 0
+        if blob[0:3] != b'\x08\x00\x12':  # header
+            logfunc(f'Unexpected bytes in note header: {binascii.hexlify(blob[0:3])}')
+            return ''
+        pos += 3
+        _, skip = read_length_field(blob[pos:])
+        pos += skip
+        if blob[pos:pos + 3] != b'\x08\x00\x10':  # header 2
+            logfunc(f'Unexpected bytes in note header 2 at pos {pos}')
+            return ''
+        pos += 3
+        _, skip = read_length_field(blob[pos:])
+        pos += skip
+        if blob[pos] != 0x1A:  # text header
+            logfunc(f'Unexpected byte in note text header at pos {pos}')
+            return ''
+        pos += 1
+        _, skip = read_length_field(blob[pos:])
+        pos += skip
+        if blob[pos] != 0x12:  # text tag
+            logfunc(f'Unexpected byte at pos {pos}')
+            return ''
+        pos += 1
+        length, skip = read_length_field(blob[pos:])
+        pos += skip
+        return blob[pos:pos + length].decode('utf-8', 'backslashreplace')
+    except (IndexError, ValueError):
+        logfunc('Error processing note data blob')
+        return ''
 
-__artifacts__ = {
-    "notes": (
-        "Notes",
-        ('*/NoteStore.sqlite*'),
-        get_notes)
-}
+
+@artifact_processor
+def notes(context):
+    data_headers = (
+        ('Creation Date', 'datetime'), 'Note Title', 'Snippet', 'Note Contents', 'Folder',
+        'Storage Place', ('Last Modified', 'datetime'), 'Password Protected', 'Password Hint',
+        'Marked for Deletion', 'Pinned', ('Attachment', 'media'), 'Attachment Original Filename',
+        'Attachment Storage Folder', 'Attachment Size in KB', 'Attachment Type',
+        ('Attachment Creation Date', 'datetime'), ('Attachment Last Modified', 'datetime'))
+    data_list = []
+    sources = []
+
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        if not file_found.endswith('.sqlite'):
+            continue
+
+        rows = get_sqlite_db_records(file_found, _query_for_db(file_found))
+        if not rows:
+            continue
+
+        for row in rows:
+            if row[6] == 'No' and row[16] is not None:
+                text_content = process_note_body_blob(get_uncompressed_data(row[16]))
+            else:
+                text_content = ''
+
+            media_ref = None
+            attachment_storage = ''
+            filename, identifier = row[10], row[11]
+            if filename and identifier:
+                attachment_file = join(dirname(file_found), 'Accounts/LocalAccount/Media',
+                                       identifier, filename)
+                attachment_storage = context.get_relative_path(dirname(attachment_file))
+                if os.path.exists(attachment_file):
+                    try:
+                        with open(attachment_file, 'rb') as af:
+                            media_ref = check_in_embedded_media(file_found, af.read(), filename)
+                    except OSError as ex:
+                        logfunc(f'Failed to read Notes attachment {attachment_file}: {ex}')
+
+            if row[12] is not None:
+                filesize = '.'.join(str(row[12])[i:i + 3] for i in range(0, len(str(row[12])), 3))
+            else:
+                filesize = ''
+
+            data_list.append((row[0], row[1], row[2], text_content, row[3], row[4], row[5],
+                              row[6], row[7], row[8], row[9], media_ref, row[10],
+                              attachment_storage, filesize, row[13], row[14], row[15]))
+
+        sources.append(context.get_relative_path(file_found))
+
+    return data_headers, data_list, ', '.join(dict.fromkeys(sources))

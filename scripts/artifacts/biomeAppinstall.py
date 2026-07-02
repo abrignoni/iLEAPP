@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "get_biomeAppinstall": {
         "name": "Biome - App Install",
         "description": "Parses airplane mode entries from biomes",
-        "author": "@JohnHyla",
+       "author": "@JohnHyla, @Gear-I",
         "creation_date": "2024-10-17",
         "last_update_date": "2026-06-18",
         "requirements": "none",
@@ -18,8 +18,7 @@ from datetime import timezone
 import blackboxprotobuf
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
-from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv
-from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv, logfunc
 
 @artifact_processor
 def get_biomeAppinstall(context):
@@ -113,7 +112,10 @@ def get_biomeAppinstall(context):
                 try:
                     protostuff, _ = blackboxprotobuf.decode_message(record.data, typess)
                 except (KeyError, ValueError, TypeError, IndexError) as ex:
-                    logfunc(f"Skipping biomeAppinstall record due to protobuf decode error: {ex}")
+                    logfunc(f"Skipping biomeAppinstall record due to protobuf decode error: {ex} |"
+                    f"File: {context.get_relative_path(file_found)} | "
+                    f"Offset: {record.data_start_offset}"
+                    )
                     continue
 
                 activity = protostuff['1']['1']

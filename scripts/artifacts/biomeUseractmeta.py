@@ -21,6 +21,13 @@ from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
 from scripts.ilapfuncs import artifact_processor, convert_time_obj_to_utc, get_plist_content
 
+from datetime import datetime as _dt
+
+def _safe_time_obj(value):
+    """Set UTC tzinfo on datetime objects; pass strings/None through unchanged."""
+    return convert_time_obj_to_utc(value) if isinstance(value, _dt) else value
+
+
 
 @artifact_processor
 def get_biomeUseractmeta(context):
@@ -57,7 +64,7 @@ def get_biomeUseractmeta(context):
                 
                 title = (deserialized_plist.get('title',''))
                 when = (deserialized_plist['when'])
-                when = convert_time_obj_to_utc(when)
+                when = _safe_time_obj(when)
                 actype = (deserialized_plist['activityType'])
                 #exdate = (deserialized_plist.get('expirationDate',''))
                 

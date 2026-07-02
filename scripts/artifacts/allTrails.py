@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "category": "Health & Fitness",
         "notes": "",
         "paths": ('*/Documents/AllTrails.sqlite*'),
-        "output_types": ["html", "tsv", "lava"],
+        "output_types": ["html", "tsv", "lava", "kml"],
         "artifact_icon": "map"
     },
     "allTrailsUserInfo": {

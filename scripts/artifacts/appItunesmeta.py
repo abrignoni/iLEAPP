@@ -15,6 +15,7 @@ __artifacts_v2__ = {
 
 import pathlib
 import os
+from datetime import datetime
 from scripts.ilapfuncs import artifact_processor, convert_time_obj_to_utc, convert_plist_date_to_utc, get_plist_file_content
 
 @artifact_processor
@@ -37,8 +38,9 @@ def get_appItunesmeta(context):
                 continue
                 
             purchasedate = plist.get('com.apple.iTunesStore.downloadInfo', {}).get('purchaseDate', '')
-            #print(purchasedate, timezone_offset)
-            purchasedate = convert_plist_date_to_utc(purchasedate)
+            # purchaseDate may be a plist <date> object or an ISO string; only convert objects
+            if isinstance(purchasedate, datetime):
+                purchasedate = convert_plist_date_to_utc(purchasedate)
             
             bundleid = plist.get('softwareVersionBundleId', '')
             itemname = plist.get('itemName', '')
@@ -48,7 +50,8 @@ def get_appItunesmeta(context):
             genre = plist.get('genre', '')
             factoryinstall = plist.get('isFactoryInstall', '')
             appreleasedate = plist.get('releaseDate', '')
-            appreleasedate = convert_plist_date_to_utc(appreleasedate)
+            if isinstance(appreleasedate, datetime):
+                appreleasedate = convert_plist_date_to_utc(appreleasedate)
             sourceapp = plist.get('sourceApp', '')
             sideloaded = plist.get('sideLoadedDeviceBasedVPP', '')
             variantid = plist.get('variantID', '')
@@ -67,7 +70,8 @@ def get_appItunesmeta(context):
                 else:
                     install_date = deserialized_plist.get('installDate', '')
                     #print(install_date, type(install_date))
-                    install_date = convert_time_obj_to_utc(install_date)
+                    if isinstance(install_date, datetime):
+                        install_date = convert_time_obj_to_utc(install_date)
             else:
                 install_date = ''
     

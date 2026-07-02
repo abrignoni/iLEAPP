@@ -1,43 +1,49 @@
-from datetime import datetime
-import os
-import plistlib
-
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, tsv, is_platform_windows 
-
-def get_findMy(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    data_list = []
-    file_found = str(files_found[0])
-    with open(file_found, "rb") as fp:
-        pl = plistlib.load(fp)
-        for key, val in pl.items():
-            
-            if key == 'addTime':
-                addtime = datetime.utcfromtimestamp(val)
-                data_list.append(('Find My iPhone Add Time', addtime))
-                logdevinfo(f"<b>Find My iPhone: </b>Enabled")
-                logdevinfo(f"<b>Find My iPhone Add Time: </b>{addtime}")
-                
-            else:
-                data_list.append((key, val ))
-                
-    if len(data_list) > 0:
-        report = ArtifactHtmlReport('Find My iPhone Settings')
-        report.start_artifact_report(report_folder, 'Find My iPhone Settings')
-        report.add_script()
-        data_headers = ('Key','Values' )     
-        report.write_artifact_data_table(data_headers, data_list, file_found)
-        report.end_artifact_report()
-        
-        tsvname = 'Find My iPhone Settings'
-        tsv(report_folder, data_headers, data_list, tsvname)
-    else:
-        logfunc('No Find My iPhone Settings available')
-            
-
-__artifacts__ = {
-    "findMy": (
-        "Identifiers",
-        ('*/mobile/Library/Preferences/com.apple.icloud.findmydeviced.FMIPAccounts.plist'),
-        get_findMy)
+__artifacts_v2__ = {
+    "findMy": {
+        "name": "Find My iPhone Settings",
+        "description": "Find My iPhone account settings (FMIPAccounts.plist)",
+        "author": "",
+        "creation_date": "2026-06-23",
+        "last_update_date": "2026-06-24",
+        "requirements": "none",
+        "category": "Identifiers",
+        "notes": "",
+        "paths": ('*/mobile/Library/Preferences/com.apple.icloud.findmydeviced.FMIPAccounts.plist',),
+        "output_types": "standard",
+        "artifact_icon": "map-pin"
+    }
 }
+
+import plistlib
+from datetime import datetime, timezone
+
+from scripts.ilapfuncs import artifact_processor
+
+
+@artifact_processor
+def findMy(context):
+    data_headers = ('Key', 'Value')
+    data_list = []
+
+    source_path = ''
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        if file_found.endswith('FMIPAccounts.plist'):
+            source_path = file_found
+            break
+    if not source_path:
+        return data_headers, data_list, ''
+
+    with open(source_path, 'rb') as fp:
+        pl = plistlib.load(fp)
+
+    for key, val in pl.items():
+        if key == 'addTime':
+            try:
+                val = datetime.fromtimestamp(val, tz=timezone.utc)
+                key = 'Find My iPhone Add Time'
+            except (TypeError, ValueError, OSError):
+                pass
+        data_list.append((key, val))
+
+    return data_headers, data_list, context.get_relative_path(source_path)

@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "category": "Clock",
         "notes": "",
         "paths": ('*/mobile/Library/Preferences/com.apple.mobiletimer.plist',),
-        "output_types": "standard",
+        "output_types": "all",
         "artifact_icon": "clock"
     }
 }
