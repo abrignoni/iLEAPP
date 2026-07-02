@@ -20,7 +20,23 @@ from pathlib import Path
 from urllib.parse import quote
 import scripts.artifact_report as artifact_report
 from scripts.context import Context
+from scripts.version_info import leapp_name
 
+# new location for modules imported for backward compatibility
+# existing functions that are moved should leave a commented out def line
+from leapp_functions.platform import (
+    ILLEGAL_FILENAME_CHARS,
+    format_illegal_filename_chars,
+    illegal_chars_in_filename,
+    sanitize_file_name,
+    sanitize_file_path,
+    validate_filename,
+)
+from leapp_functions.output import (
+    get_output_folder_base,
+    resolve_output_folder_name,
+    validate_output_folder_available,
+)
 
 _console_write = sys.stdout.write
 
@@ -70,13 +86,7 @@ class OutputParameters:
     screen_output_file_path = ''
 
     def __init__(self, output_folder, custom_folder_name=None):
-        now = datetime.now()
-        currenttime = str(now.strftime('%Y-%m-%d_%A_%H%M%S'))
-        if custom_folder_name:
-            folder_name = custom_folder_name
-        else:
-            folder_name = 'iLEAPP_Reports_' + currenttime
-        self.output_folder_base = os.path.join(output_folder, folder_name)
+        self.output_folder_base = get_output_folder_base(output_folder, custom_folder_name)
         self.data_folder = os.path.join(self.output_folder_base, 'data')
         self.media_folder = os.path.join(self.output_folder_base, 'media')
         self.html_media_folder = os.path.join(self.output_folder_base, '_HTML', 'media')
@@ -554,17 +564,11 @@ def is_platform_windows():
     '''Returns True if running on Windows'''
     return sys.platform == 'win32'
 
-def sanitize_file_path(filename, replacement_char='_'):
-    r'''
-    Removes illegal characters (for windows) from the string passed. Does not replace \ or /
-    '''
-    return re.sub(r'[*?:"<>|\'\r\n]', replacement_char, filename)
+# def sanitize_file_path(filename, replacement_char='_'):
+# Moved to leapp_functions.platform
 
-def sanitize_file_name(filename, replacement_char='_'):
-    '''
-    Removes illegal characters (for windows) from the string passed.
-    '''
-    return re.sub(r'[\\/*?:"<>|\'\r\n]', replacement_char, filename)
+# def sanitize_file_name(filename, replacement_char='_'):
+# Moved to leapp_functions.platform
 
 def get_next_unused_name(path):
     '''Checks if path exists, if it does, finds an unused name by appending -xx
