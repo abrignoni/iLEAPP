@@ -20,7 +20,7 @@ __artifacts_v2__ = {
         'description': 'Extract WhatsApp messages',
         'author': '@AlexisBrignoni',
         'creation_date': '2021-03-26',
-        'last_update_date': '2025-11-20',
+        'last_update_date': '2026-07-03',
         'requirements': '',
         'category': 'WhatsApp',
         'notes': '',
@@ -29,7 +29,19 @@ __artifacts_v2__ = {
             '*/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*',
             '*/mobile/Containers/Shared/AppGroup/*/Message/Media/*/*/*/*'),
         'output_types': 'all',
-        'artifact_icon': 'message'
+        'artifact_icon': 'message',
+        'data_views': {
+            'conversation': {
+                'conversationDiscriminatorColumn': 'Chat ID',
+                'conversationLabelColumn': 'Chat Name',
+                'textColumn': 'Message',
+                'directionColumn': 'Direction',
+                'directionSentValue': 'Outgoing',
+                'timeColumn': 'Timestamp',
+                'senderColumn': 'Sender Name',
+                'mediaColumn': 'Attachment File'
+            }
+        },
     },
     'whatsAppContacts': {
         'name': 'WhatsApp - Contacts',
@@ -195,7 +207,8 @@ def whatsAppMessages(context):
         ZLATITUDE,
         ZMEDIALOCALPATH,
         ZXMPPTHUMBPATH,
-        ZMETADATA
+        ZMETADATA,
+        ZWACHATSESSION.ZCONTACTJID
     FROM ZWAMESSAGE
     LEFT JOIN ZWAMEDIAITEM ON ZWAMESSAGE.Z_PK = ZWAMEDIAITEM.ZMESSAGE
     LEFT JOIN ZWACHATSESSION ON ZWACHATSESSION.Z_PK = ZWAMESSAGE.ZCHATSESSION
@@ -215,6 +228,9 @@ def whatsAppMessages(context):
         'Forwarded from',
         'Latitude',
         'Longitude',
+        'Direction',
+        'Chat ID',
+        'Chat Name',
         )
 
     db_records = get_sqlite_db_records(source_path, query)
@@ -268,8 +284,10 @@ def whatsAppMessages(context):
         lon = record['ZLONGITUDE'] if record['ZMESSAGETYPE'] == 5 else ''
         lat = record['ZLATITUDE'] if record['ZMESSAGETYPE'] == 5 else ''
 
+        direction = 'Outgoing' if record['ZISFROMME'] == 1 else 'Incoming'
         data_list.append((message_date, sender, record['ZFROMJID'], receiver, record['ZTOJID'],
                           record['ZTEXT'], attach_file, thumb, record['ZSTARRED'],
-                          number_forward, from_forward, lat, lon,))
+                          number_forward, from_forward, lat, lon, direction,
+                          record['ZCONTACTJID'], record['ZPARTNERNAME'],))
 
     return data_headers, data_list, source_path
