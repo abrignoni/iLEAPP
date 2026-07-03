@@ -4,13 +4,22 @@ __artifacts_v2__ = {
         "description": "Message query predictions from query_predictions.db",
         "author": "",
         "creation_date": "2026-06-23",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-03",
         "requirements": "none",
         "category": "SMS & iMessage",
         "notes": "",
         "paths": ('**/query_predictions.db',),
         "output_types": "standard",
-        "artifact_icon": "message"
+        "artifact_icon": "message",
+        "data_views": {
+            "conversation": {
+                "conversationDiscriminatorColumn": "Conversation ID",
+                "textColumn": "Content",
+                "directionColumn": "Is Sent?",
+                "directionSentValue": 1,
+                "timeColumn": "Timestamp"
+            }
+        },
     }
 }
 

@@ -4,13 +4,23 @@ __artifacts_v2__ = {
         "description": "Parses Oops Message Database",
         "author": "Heather Charpentier",
         "creation_date": "2024-06-26",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-03",
         "requirements": "none",
         "category": "Oops",
         "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/RongCloud/*/storage*',),
         "output_types": "standard",
-        "artifact_icon": "message-circle"
+        "artifact_icon": "message-circle",
+        "data_views": {
+            "conversation": {
+                "conversationDiscriminatorColumn": "User ID",
+                "textColumn": "Message",
+                "directionColumn": "Direction",
+                "directionSentValue": "Outgoing",
+                "timeColumn": "Date Sent",
+                "senderColumn": "Sender Name"
+            }
+        },
     }
 }
 
