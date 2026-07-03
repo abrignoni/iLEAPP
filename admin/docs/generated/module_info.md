@@ -14,8 +14,8 @@ Number of v2 artifacts: 590
 Number of artifacts with 'lava output': 581  
 Number of artifacts using 'artifact_icon': 583  
 Number of artifacts using 'version': 101  
-Number of artifacts using 'last_update_date': 486  
-Number of artifacts using context parameter: 422  
+Number of artifacts using 'last_update_date': 487  
+Number of artifacts using context parameter: 423  
 Number of artifacts with errors or no recognized artifacts: 2  
 
 ## V2 Artifacts Table
@@ -294,7 +294,7 @@ Number of artifacts with errors or no recognized artifacts: 2
 | [dhcpl.py](/scripts/artifacts/dhcpl.py) | dhcpLeases | DHCP Received List | DHCP | standard | Yes | wifi |  | 2026-06-24 | DHCP client lease information | ``*/db/dhcpclient/leases/en*`` |
 | [discordAcct.py](/scripts/artifacts/discordAcct.py) | get_discordAcct | Discord - Account | Discord | standard | Yes | brand-discord |  |  | Parses Discord accounts | ``*/mobile/Containers/Data/Application/*/Documents/mmkv/mmkv.default`` |
 | [discordChats.py](/scripts/artifacts/discordChats.py) | discordChats | Discord - Chats | Discord | standard | Yes | message-circle |  | 2026-06-18 | Parses Discord chat messages from fsCachedData and the local KV storage database | ``*/activation_record.plist``, ``*/com.hammerandchisel.discord/fsCachedData/*``, ``*/Library/Caches/kv-storage/@account*/a*``, ``*/Library/Caches/com.hackemist.SDImageCache/default/*`` |
-| [discord_a.py](/scripts/artifacts/discord_a.py) | DiscordChatsA | Discord Chats (KV Storage) | Discord | standard | No | message-circle |  |  | Parses Discord chats from "a" database | ``*/Library/Caches/kv-storage/@account*/a*`` |
+| [discord_a.py](/scripts/artifacts/discord_a.py) | DiscordChatsA | Discord Chats (KV Storage) | Discord | standard | Yes | message-circle |  | 2026-07-03 | Parses Discord chats from "a" database | ``*/Library/Caches/kv-storage/@account*/a*`` |
 | [discord_cache.py](/scripts/artifacts/discord_cache.py) | discord_cache | Discord Cache | Discord | standard | Yes | database |  |  | Parses Discord URL cache records and files from Cache.db and fsCachedData | ``*/Library/Caches/com.hammerandchisel.discord/Cache.db*``, ``*/Library/Caches/com.hammerandchisel.discord/fsCachedData/*`` |
 | [dmss.py](/scripts/artifacts/dmss.py) | get_dmss_pin | Dahua Technology (DMSS) - PIN | Dahua Technology (DMSS) | standard | Yes | password |  | 2025-11-25 | Extract PINs from Dahua Technology (DMSS) Application | ``*/Library/Support/configFile1`` |
 | [dmss.py](/scripts/artifacts/dmss.py) | get_dmss_channels | Dahua Technology (DMSS) - Channels | Dahua Technology (DMSS) | standard | Yes | layout-grid |  | 2025-11-25 | Extract channels from Dahua Technology (DMSS) Application | ``*/Library/Support/Devices.sqlite3*`` |
@@ -549,7 +549,7 @@ Number of artifacts with errors or no recognized artifacts: 2
 | [teamsSegment.py](/scripts/artifacts/teamsSegment.py) | teamsSegmentPower | Microsoft Teams - Power Log | Microsoft Teams | standard | Yes | battery-charging |  | 2026-06-24 | Power/battery segments logged by Microsoft Teams (DriveIQ) | ``*/mobile/Containers/Data/Application/*/Library/DriveIQ/segments/current/*.*`` |
 | [teamsSegment.py](/scripts/artifacts/teamsSegment.py) | teamsSegmentStateChange | Microsoft Teams - State Change | Microsoft Teams | standard | Yes | repeat |  | 2026-06-24 | State change segments logged by Microsoft Teams (DriveIQ) | ``*/mobile/Containers/Data/Application/*/Library/DriveIQ/segments/current/*.*`` |
 | [telegramMesssages.py](/scripts/artifacts/telegramMesssages.py) | telegramMessages | Telegram Messages | Telegram | standard | Yes | brand-telegram |  | 2026-06-25 | Parses Telegram messages, including text, media, and forwarding information from the local cache database. The Chat/Chat ID columns identify the conve | ``*/telegram-data/account-*/postbox/db/db_sqlite*``, ``*/telegram-data/account-*/postbox/media/**`` |
-| [teleguard.py](/scripts/artifacts/teleguard.py) | teleguardMessages | Teleguard Messages | Teleguard | standard | Yes | message-circle |  | 2026-06-24 | TeleGuard chat messages and shared media | ``*/Shared/AppGroup/*/Library/teleguard_database.db*``, ``*/Library/Caches/images/*`` |
+| [teleguard.py](/scripts/artifacts/teleguard.py) | teleguardMessages | Teleguard Messages | Teleguard | standard | Yes | message-circle |  | 2026-07-03 | TeleGuard chat messages and shared media | ``*/Shared/AppGroup/*/Library/teleguard_database.db*``, ``*/Library/Caches/images/*`` |
 | [teleguard.py](/scripts/artifacts/teleguard.py) | teleguardPosts | Teleguard Posts | Teleguard | standard | Yes | file-text |  | 2026-06-24 | TeleGuard channel posts | ``*/Shared/AppGroup/*/Library/teleguard_database.db*`` |
 | [teleguard.py](/scripts/artifacts/teleguard.py) | teleguardContacts | Teleguard Contacts | Teleguard | standard | Yes | users |  | 2026-06-24 | TeleGuard contacts (with avatar thumbnails) | ``*/Shared/AppGroup/*/Library/teleguard_database.db*`` |
 | [teleguard.py](/scripts/artifacts/teleguard.py) | teleguardChannels | Teleguard Channels | Teleguard | standard | Yes | radio |  | 2026-06-24 | TeleGuard channels | ``*/Shared/AppGroup/*/Library/teleguard_database.db*`` |
