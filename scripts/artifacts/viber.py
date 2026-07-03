@@ -53,7 +53,7 @@ __artifacts_v2__ = {
                        "and phone numbers.",
         'author': 'Evangelos Dragonas (@theAtropos4n6)',
         'creation_date': '2022-03-09',
-        'last_update_date': '2025-10-12',
+        'last_update_date': '2026-07-03',
         'requirements': '',
         'category': 'Viber',
         'notes': '',
@@ -62,7 +62,20 @@ __artifacts_v2__ = {
             '**/Containers/Data/Application/*/Documents/Attachments/*.*',
             '**/com.viber/ViberIcons/*.*'),
         'output_types': "all",
-        'artifact_icon': 'message'
+        'artifact_icon': 'message',
+        'data_views': {
+            'conversation': {
+                'conversationDiscriminatorColumn': 'Chat Participant(s)',
+                'conversationLabelColumn': 'Chat Name',
+                'textColumn': 'Message Content',
+                'directionColumn': 'State',
+                'directionSentValue': 'Outgoing',
+                'timeColumn': 'Timestamp',
+                'senderColumn': 'Sender (Display Full Name)',
+                'sentMessageStaticLabel': 'Local User',
+                'mediaColumn': 'Attachment'
+            }
+        },
     }
 
 }

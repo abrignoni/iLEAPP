@@ -4,14 +4,26 @@ __artifacts_v2__ = {
         "description": "Kik chat messages with attachments (kik.sqlite)",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-06-22",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-03",
         "requirements": "none",
         "category": "Kik",
         "notes": "",
         "paths": ('**/kik.sqlite*',
                   '*/mobile/Containers/Shared/AppGroup/*/cores/private/*/content_manager/data_cache/*'),
         "output_types": "standard",
-        "artifact_icon": "message-circle"
+        "artifact_icon": "message-circle",
+        "data_views": {
+            "conversation": {
+                "conversationDiscriminatorColumn": "User Name",
+                "textColumn": "Message",
+                "directionColumn": "Type",
+                "directionSentValue": "Sent",
+                "timeColumn": "Timestamp",
+                "senderColumn": "Display Name",
+                "sentMessageStaticLabel": "Local User",
+                "mediaColumn": "Attachment"
+            }
+        },
     },
     "kikUsers": {
         "name": "Kik Users",

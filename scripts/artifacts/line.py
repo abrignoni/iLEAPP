@@ -4,13 +4,24 @@ __artifacts_v2__ = {
         "description": "Line messages including message direction and associated usernames",
         "author": "Elliot Glendye",
         "creation_date": "2023-11-22",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-03",
         "requirements": "none",
         "category": "Line",
         "notes": "",
         "paths": ('**/Line.sqlite*',),
         "output_types": "standard",
-        "artifact_icon": "message-circle"
+        "artifact_icon": "message-circle",
+        "data_views": {
+            "conversation": {
+                "conversationDiscriminatorColumn": "Username",
+                "textColumn": "Message",
+                "directionColumn": "Sent / Received",
+                "directionSentValue": "Outgoing",
+                "timeColumn": "Timestamp",
+                "senderColumn": "Username",
+                "sentMessageStaticLabel": "Local User"
+            }
+        },
     }
 }
 

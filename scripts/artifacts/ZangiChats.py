@@ -5,13 +5,24 @@ __artifacts_v2__ = {
         "description": "Parses Zangi Chat database",
         "author": "Matt Beers",
         "creation_date": "2024-04-16",
-        "last_update_date": "2025-11-12",
+        "last_update_date": "2026-07-03",
         "requirements": "none",
         "category": "Chats",
         "notes": "",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/zangidb.sqlite*'),
         "output_types": "standard",
-        "artifact_icon": "message-circle"
+        "artifact_icon": "message-circle",
+        "data_views": {
+            "conversation": {
+                "conversationDiscriminatorColumn": "Number",
+                "textColumn": "Message Text",
+                "directionColumn": "Direction",
+                "directionSentValue": "SENT",
+                "timeColumn": "Timestamp",
+                "senderColumn": "First Name",
+                "sentMessageStaticLabel": "Local User"
+            }
+        },
     }
 }
 
