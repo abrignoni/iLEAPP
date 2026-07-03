@@ -2,10 +2,21 @@ __artifacts_v2__ = {
     "slackModelMessages": {
         "name": "Slack - Messages (ModelDatabase)",
         "description": "Slack chat messages from the newer ModelDatabase (ZCOREDATA*) schema",
-        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
+        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-07-03", "requirements": "none",
         "category": "Slack", "notes": "",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/*/ModelDatabase/db.sqlite*',),
-        "output_types": "standard", "artifact_icon": "message-circle"
+        "output_types": "standard", "artifact_icon": "message-circle",
+        "data_views": {
+            "conversation": {
+                "conversationDiscriminatorColumn": "Conversation ID",
+                "conversationLabelColumn": "Channel Name",
+                "textColumn": "Message",
+                "directionColumn": "Direction",
+                "directionSentValue": "Sent",
+                "timeColumn": "Timestamp",
+                "senderColumn": "Sender Name"
+            }
+        },
     },
     "slackModelUsers": {
         "name": "Slack - User Data (ModelDatabase)",
@@ -99,7 +110,7 @@ def _slack_prefix(db_path):
 @artifact_processor
 def slackModelMessages(context):
     data_headers = (('Timestamp', 'datetime'), 'Sender ID', 'Sender Name', 'Channel Name',
-                    'Message', 'Conversation ID', 'Group ID')
+                    'Message', 'Conversation ID', 'Group ID', 'Direction')
     data_list = []
     db_path = _find_model_db(context)
     if not db_path:
@@ -113,7 +124,8 @@ def slackModelMessages(context):
         ZCOREDATACONVERSATION.ZNAME,
         ZCOREDATAMESSAGE.ZTEXT,
         ZCOREDATAMESSAGE.ZCONVERSATIONID,
-        ZCOREDATACONVERSATION.ZCONTEXTTEAMID
+        ZCOREDATACONVERSATION.ZCONTEXTTEAMID,
+        CASE ZCOREDATAUSER.ZISME WHEN 1 THEN 'Sent' ELSE 'Received' END
     FROM ZCOREDATAMESSAGE
     LEFT OUTER JOIN ZCOREDATAUSER ON ZCOREDATAMESSAGE.ZUSERID = ZCOREDATAUSER.ZTSID
     LEFT OUTER JOIN ZCOREDATACONVERSATION ON ZCOREDATAMESSAGE.ZCONVERSATIONID = ZCOREDATACONVERSATION.ZTSID
