@@ -60,9 +60,9 @@ __artifacts_v2__ = {
         "html_columns": [ "Media URL", "Source file name", "Location" ],
         "artifact_icon": "message-circle",
         "data_views": {
-            "chat": {
+            "conversation": {
                 "directionSentValue": "Outgoing",
-                "threadDiscriminatorColumn": "Thread",
+                "conversationDiscriminatorColumn": "Thread",
                 "textColumn": "Message",
                 "directionColumn": "Direction",
                 "timeColumn": "Sent",
