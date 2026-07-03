@@ -11,9 +11,9 @@ __artifacts_v2__ = {
         "paths": ('*/Documents/user_accounts/*/dynamite.db*',),
         "output_types": "all",  # or ["html", "tsv", "timeline", "lava"]
         "data_views": {
-            "chat": {
+            "conversation": {
                 "directionSentValue": 1,
-                "threadDiscriminatorColumn": "Conversation Name",
+                "conversationDiscriminatorColumn": "Conversation Name",
                 "textColumn": "Message",
                 "directionColumn": "Is Sent",
                 "timeColumn": "Timestamp",
@@ -302,7 +302,7 @@ def get_googleChat(files_found, report_folder, seeker, _wrap_text, timezone_offs
                     if check == b'\xfe\xff\x00':
                         mediafilename = ''
                     else:
-                        protostuff, types = blackboxprotobuf.decode_message(protobufmedia)
+                        protostuff, _ = blackboxprotobuf.decode_message(protobufmedia)
                         aggregator = []
                         if isinstance(protostuff['1'], list):
                             nested_whatever=list(fla_tu(protostuff['1']))
@@ -324,7 +324,6 @@ def get_googleChat(files_found, report_folder, seeker, _wrap_text, timezone_offs
                                     thumb = media_to_html(attachment, (attachment,), report_folder)
                             else:
                                 mediafilename = ''
-                                media = ''
                     timestamp = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
 
                     data_list.append((timestamp, row[1], row[2], row[3], row[4], row[7], mediafilename, thumb, reaction, reactionuser, account_id))
