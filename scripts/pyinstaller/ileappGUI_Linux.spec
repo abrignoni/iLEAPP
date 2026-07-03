@@ -3,10 +3,11 @@
 
 a = Analysis(
     ['../../ileappGUI.py'],
-    pathex=['../scripts/artifacts'],
+    pathex=['../scripts/artifacts', '../..'],
     binaries=[],
-    datas=[('../', 'scripts'), ('../../assets', 'assets')],
+    datas=[('../', 'scripts'), ('../../assets', 'assets'), ('../../leapp_functions', 'leapp_functions')],
     hiddenimports=[
+        'leapp_functions.parsers.apple_atx',
         'astc_decomp_faster',
         'bencoding',
         'blackboxprotobuf',
@@ -27,7 +28,7 @@ a = Analysis(
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=[],
+    excludes=['scipy', 'matplotlib', 'pyarrow'],
     noarchive=False,
 )
 pyz = PYZ(a.pure)
