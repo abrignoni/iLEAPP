@@ -14,10 +14,45 @@ __artifacts_v2__ = {
         ),
         "output_types": "standard",
         "artifact_icon": "message-circle",
+        "data_views": {
+            "conversation": {
+                "conversationDiscriminatorColumn": "Room ID",
+                "textColumn": "Message",
+                "directionColumn": "Direction",
+                "directionSentValue": "Outgoing",
+                "timeColumn": "Server Timestamp",
+                "senderColumn": "Sender Display Name",
+                "mediaColumn": "Attachment"
+            }
+        },
     }
 }
 
+import json
+
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, attach_sqlite_db_readonly, check_in_media
+
+
+def _reddit_owner_id(source_path):
+    """Own Matrix user id from the .m.rule.invite_for_me push rule (its
+    state_key pattern is the account's own id, server-populated)."""
+    rows = get_sqlite_db_records(
+        source_path,
+        "SELECT ZDATA FROM ZACCOUNTSTORAGEACCOUNTDATAITEM WHERE ZEVENTTYPEFIELD = 'm.push_rules'")
+    for (blob,) in rows:
+        try:
+            rules = json.loads(blob.decode('utf-8', 'replace') if isinstance(blob, (bytes, bytearray)) else blob)
+        except (json.JSONDecodeError, TypeError, ValueError):
+            continue
+        for section in ((rules.get('content') or {}).get('global') or {}).values():
+            if not isinstance(section, list):
+                continue
+            for rule in section:
+                if rule.get('rule_id') == '.m.rule.invite_for_me':
+                    for cond in rule.get('conditions') or []:
+                        if cond.get('key') == 'state_key' and cond.get('pattern'):
+                            return cond['pattern']
+    return ''
 
 @artifact_processor
 def reddit_chats(context):
@@ -73,15 +108,21 @@ def reddit_chats(context):
     ORDER BY "Timestamp" ASC;
     '''
 
-    data_headers = (('Server Timestamp', 'datetime'),'Event ID', 'Sender Display Name','Sender ID','Recipient(s)','Event Type','Message Type','Message','Attachment Cached Name',('Attachment','media'),'Room ID')
+    data_headers = (('Server Timestamp', 'datetime'),'Event ID', 'Sender Display Name','Sender ID','Recipient(s)','Event Type','Message Type','Message','Attachment Cached Name',('Attachment','media'),'Room ID','Direction')
+
+    owner_id = _reddit_owner_id(source_path)
 
     db_records = get_sqlite_db_records(source_path, query, attach_query)
-    
+
     for record in db_records:
         attachment = ''
         for x in files_found:
             if str(record[8]) in x:
                 attachment = check_in_media(x,str(record[8]))
-        data_list.append((record[0], record[1], record[2], record[3], record[4], record[5], record[6], record[7], record[8], attachment, record[9]))
+        if owner_id and record[3]:
+            direction = 'Outgoing' if record[3] == owner_id else 'Incoming'
+        else:
+            direction = ''
+        data_list.append((record[0], record[1], record[2], record[3], record[4], record[5], record[6], record[7], record[8], attachment, record[9], direction))
 
     return data_headers, data_list, source_path

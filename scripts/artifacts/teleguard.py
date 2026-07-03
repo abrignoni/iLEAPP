@@ -2,11 +2,22 @@ __artifacts_v2__ = {
     "teleguardMessages": {
         "name": "Teleguard Messages",
         "description": "TeleGuard chat messages and shared media",
-        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
+        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-07-03", "requirements": "none",
         "category": "Teleguard", "notes": "Timestamps are UTC (epoch milliseconds).",
         "paths": ('*/Shared/AppGroup/*/Library/teleguard_database.db*',
                   '*/Library/Caches/images/*'),
-        "output_types": "standard", "artifact_icon": "message-circle"
+        "output_types": "standard", "artifact_icon": "message-circle",
+        "data_views": {
+            "conversation": {
+                "conversationDiscriminatorColumn": "Chat ID",
+                "textColumn": "Content",
+                "directionColumn": "Direction",
+                "directionSentValue": "Outgoing",
+                "timeColumn": "Timestamp",
+                "senderColumn": "Sender",
+                "mediaColumn": "Media"
+            }
+        },
     },
     "teleguardPosts": {
         "name": "Teleguard Posts",
@@ -51,17 +62,26 @@ def _find_db(context):
 @artifact_processor
 def teleguardMessages(context):
     data_headers = (('Timestamp', 'datetime'), ('User Time', 'datetime'), 'Type', 'Sender',
-                    'Receiver', 'Content', 'Metadata', ('Media', 'media'), 'Status', 'Is Edited?')
+                    'Receiver', 'Content', 'Metadata', ('Media', 'media'), 'Status', 'Is Edited?',
+                    'Direction', 'Chat ID')
     data_list = []
     db_path = _find_db(context)
     if not db_path:
         return data_headers, data_list, ''
 
+    # local account id lives in the service table ('user' row) of the same db
+    owner_id = ''
+    for (svc_data,) in get_sqlite_db_records(db_path, "SELECT data FROM service WHERE id = 'user'"):
+        try:
+            owner_id = (json.loads(svc_data) or {}).get('serverId', '')
+        except (json.JSONDecodeError, TypeError, ValueError):
+            owner_id = ''
+
     query = '''
     SELECT
         datetime(createDate/1000, 'unixepoch'),
         datetime(userTime/1000, 'unixepoch'),
-        type, sender, receiver, content, metadata, status, isEdited
+        type, sender, receiver, content, metadata, status, isEdited, chatId
     FROM messages
     '''
     for row in get_sqlite_db_records(db_path, query):
@@ -75,8 +95,12 @@ def teleguardMessages(context):
                 ref = check_in_media(fname)
                 if ref:
                     media_refs.append(ref)
+        if owner_id and row[3]:
+            direction = 'Outgoing' if row[3] == owner_id else 'Incoming'
+        else:
+            direction = ''
         data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6],
-                          media_refs or '', row[7], row[8]))
+                          media_refs or '', row[7], row[8], direction, row[9]))
 
     return data_headers, data_list, context.get_relative_path(db_path)
 
