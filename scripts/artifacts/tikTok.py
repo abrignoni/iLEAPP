@@ -5,7 +5,7 @@ __artifacts_v2__ = {
         "description": "Extracts TikTok message data from the ChatFiles databases",
         "author": "James Habben, John Hyla",
         "creation_date": "2024-11-08",
-        "last_update_date": "2026-06-18",
+        "last_update_date": "2026-07-03",
         "requirements": "none",
         "category": "TikTok",
         "notes": (
@@ -18,6 +18,16 @@ __artifacts_v2__ = {
         ),
         "output_types": "standard",
         "artifact_icon": "message-circle",
+        "data_views": {
+            "conversation": {
+                "conversationDiscriminatorColumn": "Conversation ID",
+                "textColumn": "Message",
+                "directionColumn": "Direction",
+                "directionSentValue": "Outgoing",
+                "timeColumn": "Timestamp",
+                "senderColumn": "Nickname"
+            }
+        },
         "sample_data": {
             "josh_ios_15": (
                 "32 message rows; AwemeContactsV5, TIMMessageORM, TIMMessageKVORM, "
@@ -255,7 +265,8 @@ def tiktok_messages(context):
                 END AS links_gifs_urls,
                 servercreatedat,
                 url1,
-                source_table
+                source_table,
+                belongingConversationIdentifier
             FROM TIMMessageORM
             LEFT JOIN DeduplicatedContacts ON DeduplicatedContacts.uid = sender
             ORDER BY localcreatedat
@@ -278,6 +289,8 @@ def tiktok_messages(context):
                 record[10],
                 account_id,
                 source_file,
+                record[11],
+                'Outgoing' if str(record[1]) == str(account_id) else 'Incoming',
             ))
 
     data_headers = (
@@ -294,6 +307,8 @@ def tiktok_messages(context):
         "Contact Table",
         "Account ID",
         "Source File",
+        "Conversation ID",
+        "Direction",
     )
 
     return data_headers, data_list, "see Source File column"

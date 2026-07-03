@@ -30,13 +30,23 @@ __artifacts_v2__ = {
         "description": "Parses Life360 chat messages",
         "author": "@KevinPagano3",
         "creation_date": "2024-01-15",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-03",
         "requirements": "none",
         "category": "Life360",
         "notes": "",
         "paths": ('*/Library/Application Support/Messaging.sqlite*',),
         "output_types": "all",
-        "artifact_icon": "message-circle"
+        "artifact_icon": "message-circle",
+        "data_views": {
+            "conversation": {
+                "conversationDiscriminatorColumn": "Thread ID",
+                "textColumn": "Message",
+                "directionColumn": "Direction",
+                "directionSentValue": "Outgoing",
+                "timeColumn": "Timestamp",
+                "senderColumn": "Sender First Name"
+            }
+        },
     },
     "life360Members": {
         "name": "Life360 - Members",
@@ -135,7 +145,7 @@ def life360DeviceBattery(context):
 def life360ChatMessages(context):
     data_headers = (('Timestamp', 'datetime'), 'Message ID', 'Sender First Name', 'Sender Last Name',
                     'Message', 'Sent Status', 'Message Seen', 'Message Deleted', 'Message Liked',
-                    'Action', 'Location Name', 'Latitude', 'Longitude')
+                    'Action', 'Location Name', 'Latitude', 'Longitude', 'Direction', 'Thread ID')
     data_list = []
     source_path = _find_db(context)
     if not source_path:
@@ -155,7 +165,9 @@ def life360ChatMessages(context):
         ZCHATMESSAGE.ZACTION,
         ZCHATMESSAGELOCATION.ZNAME,
         ZCHATMESSAGELOCATION.ZLATITUDE,
-        ZCHATMESSAGELOCATION.ZLONGITUDE
+        ZCHATMESSAGELOCATION.ZLONGITUDE,
+        CASE ZCHATMEMBER.ZISLOGGEDINUSER WHEN 1 THEN 'Outgoing' ELSE 'Incoming' END,
+        ZCHATMESSAGE.ZTHREAD
     FROM ZCHATMESSAGE
     LEFT JOIN ZCHATMEMBER ON ZCHATMEMBER.Z_PK = ZCHATMESSAGE.ZSENDER
     LEFT JOIN ZCHATMESSAGELOCATION ON ZCHATMESSAGELOCATION.ZMESSAGE = ZCHATMESSAGE.Z_PK
