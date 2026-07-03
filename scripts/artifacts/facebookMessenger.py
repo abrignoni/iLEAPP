@@ -25,8 +25,8 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "message-circle",
         "data_views": {
-            "chat": {
-                "threadDiscriminatorColumn": "Thread ID",
+            "conversation": {
+                "conversationDiscriminatorColumn": "Thread ID",
                 "textColumn": "Message",
                 "directionColumn": "Message Direction",
                 "directionSentValue": "Sent",
@@ -51,8 +51,8 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "message-circle",
         "data_views": {
-            "chat": {
-                "threadDiscriminatorColumn": "Thread ID",
+            "conversation": {
+                "conversationDiscriminatorColumn": "Thread ID",
                 "textColumn": "Message",
                 "directionColumn": "Message Direction",
                 "directionSentValue": "Sent",
