@@ -58,11 +58,13 @@ body {
   color: #bbb;
 }
 
-.sidebar .nav-link.active {
-  color: #fff;
-  border-left: 4px solid #fff;
-  padding-left: 6px;
-  margin-left: 16px;
+.sidebar .nav-link.active::before {
+  content: "";
+  position: absolute;
+  left: 8px;
+  width: 4px;
+  height: 1.5em; /* légèrement plus grand que le texte (1em) */
+  background-color: #fff;
 }
 
 .sidebar .nav-link.active .tabler-icon svg {
