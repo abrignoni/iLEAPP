@@ -1,127 +1,133 @@
 * {
-    scrollbar-color: #e30613 #2E3645 !important;
-    scrollbar-width: thin !important;
+  scrollbar-color: #e30613 #2e3645 !important;
+  scrollbar-width: thin !important;
 }
 
 body {
-    font-size: .875rem;
+  font-size: 0.875rem;
 }
 
 .tabler-icon svg {
-    width: 16px;
-    height: 16px;
-    stroke-width: 1.5;
-    margin-right: 4px;
-    color: #e30613;
-    vertical-align: text-bottom;
+  width: 16px;
+  height: 16px;
+  stroke-width: 1.5;
+  margin-right: 4px;
+  color: #e30613;
+  vertical-align: text-bottom;
 }
-
 
 /*
  * Sidebar
  */
 
 .sidebar {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 100;
-    /* Behind the navbar */
-    padding: 48px 0 0;
-    /* Height of navbar */
-    box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 100;
+  /* Behind the navbar */
+  padding: 48px 0 0;
+  /* Height of navbar */
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
 }
 
 .sidebar-sticky {
-    position: relative;
-    top: 0;
-    height: calc(100vh - 48px);
-    padding-top: .5rem;
-    overflow-x: hidden;
-    overflow-y: auto;
-    /* Scrollable contents if viewport is shorter than content. */
+  position: relative;
+  top: 0;
+  height: calc(100vh - 48px);
+  padding-top: 0.5rem;
+  overflow-x: hidden;
+  overflow-y: auto;
+  /* Scrollable contents if viewport is shorter than content. */
 }
 
 @supports ((position: -webkit-sticky) or (position: sticky)) {
-    .sidebar-sticky {
-        position: -webkit-sticky;
-        position: sticky;
-    }
+  .sidebar-sticky {
+    position: -webkit-sticky;
+    position: sticky;
+  }
 }
 
 .sidebar .nav-link {
-    font-weight: 400;
-    color: #999;
+  font-weight: 400;
+  color: #999;
 }
 
 .sidebar .nav-link:hover {
-    color: #9f040d;
+  color: #bbb;
 }
 
 .sidebar .nav-link.active {
-    color: #e30613;
+  color: #fff;
+  border-left: 4px solid #fff;
+  padding-left: 6px;
+  margin-left: 16px;
+}
+
+.sidebar .nav-link.active .tabler-icon svg {
+  color: #fff;
+  stroke-width: 2.5;
 }
 
 .sidebar-heading {
-    font-size: .75rem;
-    text-transform: uppercase;
-    color: #fff;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  text-decoration: underline;
+  color: #fff;
+  font-weight: 500;
 }
-
 
 /*
  * Content
  */
 
 [role="main"] {
-    padding-top: 48px;
-    /* Space for fixed navbar */
+  padding-top: 48px;
+  /* Space for fixed navbar */
 }
-
 
 /*
  * Navbar
  */
 
 .navbar-brand {
-    padding-top: .75rem;
-    padding-bottom: .75rem;
-    font-size: 1rem;
-    background-color: rgba(227, 6, 19, .2);
-    box-shadow: inset -1px 0 0 rgba(0, 0, 0, .25);
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  font-size: 1rem;
+  background-color: rgba(227, 6, 19, 0.2);
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.25);
 }
 
 .navbar .form-control {
-    padding: .75rem 1rem;
-    border-width: 0;
-    border-radius: 0;
+  padding: 0.75rem 1rem;
+  border-width: 0;
+  border-radius: 0;
 }
 
 .form-control-dark {
-    color: #fff;
-    background-color: rgba(255, 255, 255, .1);
-    border-color: rgba(255, 255, 255, .1);
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .form-control-dark:focus {
-    border-color: transparent;
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, .25);
+  border-color: transparent;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25);
 }
 
 .nav-link {
-    padding-bottom: .3rem;
+  padding-bottom: 0.3rem;
 }
-
 
 /* Added table-xsm for extra small table padding */
 
 table.table-xsm th {
-    padding-top: .6rem;
-    padding-bottom: .6rem
+  padding-top: 0.6rem;
+  padding-bottom: 0.6rem;
 }
 
 table.table-xsm td {
-    padding-top: .3rem;
-    padding-bottom: .3rem
+  padding-top: 0.3rem;
+  padding-bottom: 0.3rem;
 }
