@@ -54,7 +54,8 @@ div.dataTables_wrapper
   ul.pagination
   .page-item.active
   .page-link:focus {
-  background-color: #4285f4;
+  background-color: #fff;
+  color: #e30613;
 }
 div.dataTables_wrapper
   div.dataTables_paginate
