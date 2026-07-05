@@ -35,7 +35,7 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('Path/to/artifact/files',),
         "output_types": "all"  # or "standard" or ["html", "tsv", "timeline", "kml", "lava"],
-        "artifact_icon": "feather-icon-name",
+        "artifact_icon": "Tabler-icon-name",
         "sample_data": {
             "sample_name": "Short note about where this artifact has been tested"
         }
