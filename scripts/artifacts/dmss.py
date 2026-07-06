@@ -409,6 +409,6 @@ def get_dmss_created_media(context):
     for mfile in media_data_list:          
         if mfile[1] is not None:
             media = check_in_media(mfile[2], mfile[0])
-            data_list.append((mfile[0],media, mfile[2]))
+            data_list.append((mfile[0],media, context.get_relative_path(mfile[2])))
  
-    return data_headers, data_headers, 'see Source File for more info'
+    return data_headers, data_list, 'see Source File for more info'

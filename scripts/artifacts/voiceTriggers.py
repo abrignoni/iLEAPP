@@ -58,7 +58,7 @@ def voiceTriggers(context):
                     fl.get('productType', ''),
                     fl.get('utteranceWav', ''),
                     audio_id,
-                    info_file
+                    context.get_relative_path(info_file)
                 ))
 
         except (OSError, TypeError, ValueError, KeyError) as e:
