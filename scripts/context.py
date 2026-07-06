@@ -431,9 +431,14 @@ class Context:
         if not full_path or not Context._data_folder:
             return full_path
 
-        if full_path.startswith(Context._data_folder):
-            # Strip the base path and any leading separators
-            return full_path[len(Context._data_folder):].lstrip('/\\')
+        if Context._data_folder in full_path:
+            # Strip the base path everywhere it appears, including inside path
+            # strings concatenated with arbitrary separators (', ', '; ', ...)
+            base = Context._data_folder
+            return (full_path.replace(base + '/', '')
+                             .replace(base + '\\', '')
+                             .replace(base, '')
+                             .lstrip('/\\'))
 
         return full_path
 
