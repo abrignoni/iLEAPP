@@ -76,7 +76,7 @@ def get_appItunesmeta(context):
             else:
                 install_date = ''
     
-            data_list.append((install_date, purchasedate, bundleid, itemname, artistname, versionnum, downloadedby, genre, factoryinstall, appreleasedate, sourceapp, sideloaded, variantid, parent))   
+            data_list.append((install_date, purchasedate, bundleid, itemname, artistname, versionnum, downloadedby, genre, factoryinstall, appreleasedate, sourceapp, sideloaded, variantid, context.get_relative_path(parent)))   
 
     data_headers = (
         ('Installed Date','datetime'), 
