@@ -23,10 +23,8 @@ from leapp_functions.data_sources.json_files import get_json_file_content
 
 def get_tabler_icon_names():
     """Returns a set of available tabler icon names by scanning the tabler_icons directory."""
-    for _, dirs, files in Path.cwd().joinpath("assets/tabler_icons").walk():
-        if '__pycache__' in dirs:
-            dirs.remove('__pycache__')
-        return set(file.replace('.svg', '') for file in files if file.endswith('.svg'))
+    tabler_icon_dir = Path.cwd().joinpath("assets/tabler_icons")
+    return set(file.stem for file in tabler_icon_dir.rglob("*.svg"))
 
 
 def get_tabler_icon(icon_name):
