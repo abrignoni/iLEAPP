@@ -5,8 +5,17 @@ sidebar navigation, and the index summary page with case information and credits
 
 import html
 import os
+import sys
 from pathlib import Path
 import shutil
+
+
+def _base_dir():
+    """Directory holding bundled data (assets/, scripts/data/). In a PyInstaller
+    build this is sys._MEIPASS; running from source it is the cwd (repo root).
+    Resolving from here (not Path.cwd()) lets a packaged binary find its assets
+    no matter which directory it is launched from."""
+    return Path(getattr(sys, "_MEIPASS", Path.cwd()))
 
 from collections import OrderedDict
 from scripts.html_parts import nav_bar_script, nav_bar_script_footer, \
@@ -23,7 +32,7 @@ from leapp_functions.data_sources.json_files import get_json_file_content
 
 def get_tabler_icon_names():
     """Returns a set of available tabler icon names by scanning the tabler_icons directory."""
-    for _, dirs, files in Path.cwd().joinpath("assets/tabler_icons").walk():
+    for _, dirs, files in _base_dir().joinpath("assets/tabler_icons").walk():
         if '__pycache__' in dirs:
             dirs.remove('__pycache__')
         return set(file.replace('.svg', '') for file in files if file.endswith('.svg'))
@@ -31,7 +40,7 @@ def get_tabler_icon_names():
 
 def get_tabler_icon(icon_name):
     """Return the SVG contents for a Tabler icon by name."""
-    return get_txt_file_content(Path.cwd().joinpath("assets/tabler_icons", f"{icon_name}.svg"))
+    return get_txt_file_content(_base_dir().joinpath("assets/tabler_icons", f"{icon_name}.svg"))
 
 
 def generate_report(reportfolderbase, time_in_secs, time_hms, extraction_type, image_input_path,
@@ -42,8 +51,8 @@ def generate_report(reportfolderbase, time_in_secs, time_hms, extraction_type, i
     """
 
     tabler_icon_names = get_tabler_icon_names()
-    tabler_icon_correction = get_json_file_content('scripts/data/tabler_icon_correction.json')
-    feather_to_tabler_icon_names = get_json_file_content('scripts/data/feather_to_tabler_icon_names.json')
+    tabler_icon_correction = get_json_file_content(str(_base_dir() / 'scripts/data/tabler_icon_correction.json'))
+    feather_to_tabler_icon_names = get_json_file_content(str(_base_dir() / 'scripts/data/feather_to_tabler_icon_names.json'))
 
     control = None
     side_heading = \

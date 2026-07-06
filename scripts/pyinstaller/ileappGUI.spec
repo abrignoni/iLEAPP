@@ -3,10 +3,11 @@
 block_cipher = None
 
 a = Analysis(['..\\..\\ileappGUI.py'],
-             pathex=['..\\scripts\\artifacts'],
+             pathex=['..\\scripts\\artifacts', '..\\..'],
              binaries=[],
-             datas=[('..\\', '.\\scripts'), ('..\\..\\assets', '.\\assets')],
+             datas=[('..\\', '.\\scripts'), ('..\\..\\assets', '.\\assets'), ('..\\..\\leapp_functions', '.\\leapp_functions')],
              hiddenimports=[
+        'leapp_functions.parsers.apple_atx',
                 'astc_decomp_faster',
                 'bencoding',
                 'blackboxprotobuf',
@@ -24,7 +25,7 @@ a = Analysis(['..\\..\\ileappGUI.py'],
                 'xml.etree.ElementTree',
                 ],
              runtime_hooks=[],
-             excludes=[],
+             excludes=['scipy', 'matplotlib', 'pyarrow'],
              win_no_prefer_redirects=False,
              win_private_assemblies=False,
              cipher=block_cipher,
