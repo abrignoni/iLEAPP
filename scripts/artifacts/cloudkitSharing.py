@@ -45,6 +45,20 @@ def deep_get(data, path, default=''):
     return data
 
 
+def as_dict(data):
+    """Return a dictionary only when the plist value has that shape."""
+    return data if isinstance(data, dict) else {}
+
+
+def as_list(data):
+    """Normalize plist values that may be a single dict, list, or scalar."""
+    if isinstance(data, list):
+        return data
+    if isinstance(data, dict):
+        return [data]
+    return []
+
+
 def write_debug_bplist(report_folder, prefix, z_pk, data):
     """Writes extracted blobs to the report folder for validation."""
     filename = os.path.join(report_folder, f'{prefix}_{z_pk}.bplist')
@@ -69,18 +83,15 @@ def cloudkit_sharing(context):
         cursor = db.cursor()
 
         # 1. Process Server Record Data
-        cursor.execute('SELECT Z_PK, ZIDENTIFIER, ZSERVERRECORDDATA FROM ZICCLOUDSYNCINGOBJECT WHERE ZSERVERRECORDDATA IS NOT NULL')
+        cursor.execute('SELECT Z_PK, ZIDENTIFIER, ZSERVERRECORDDATA '
+                       'FROM ZICCLOUDSYNCINGOBJECT WHERE ZSERVERRECORDDATA IS NOT NULL')
         for row in cursor:
             z_pk, z_id, blob = row
             write_debug_bplist(context.get_report_folder(), 'zserverrecorddata', z_pk, blob)
 
             deserialized = nd.deserialize_plist(io.BytesIO(blob))
-            
-            record_items = []
-            if isinstance(deserialized, list):
-                record_items = [x for x in deserialized if isinstance(x, dict) and 'RecordID' in x]
-            elif isinstance(deserialized, dict) and 'RecordID' in deserialized:
-                record_items = [deserialized]
+
+            record_items = [x for x in as_list(deserialized) if isinstance(x, dict) and 'RecordID' in x]
 
             for item in record_items:
                 shares[z_pk] = {
@@ -103,18 +114,15 @@ def cloudkit_sharing(context):
                 break # Only take the first matching record item per Z_PK
 
         # 2. Process Server Share Data
-        cursor.execute('SELECT Z_PK, ZIDENTIFIER, ZSERVERSHAREDATA FROM ZICCLOUDSYNCINGOBJECT WHERE ZSERVERSHAREDATA IS NOT NULL')
+        cursor.execute('SELECT Z_PK, ZIDENTIFIER, ZSERVERSHAREDATA '
+                       'FROM ZICCLOUDSYNCINGOBJECT WHERE ZSERVERSHAREDATA IS NOT NULL')
         for row in cursor:
             z_pk, z_id, blob = row
             write_debug_bplist(context.get_report_folder(), 'zserversharedata', z_pk, blob)
 
             deserialized = nd.deserialize_plist(io.BytesIO(blob))
 
-            share_items = []
-            if isinstance(deserialized, list):
-                share_items = [x for x in deserialized if isinstance(x, dict) and 'RecordID' in x]
-            elif isinstance(deserialized, dict) and 'RecordID' in deserialized:
-                share_items = [deserialized]
+            share_items = [x for x in as_list(deserialized) if isinstance(x, dict) and 'RecordID' in x]
 
             for item in share_items:
                 if z_pk not in shares:
@@ -144,7 +152,8 @@ def cloudkit_sharing(context):
 
         for z_pk, s in shares.items():
             data_list.append((
-                context.get_relative_path(file_found), z_pk, s['z_id'], s['record_id'], s['root_id'], s['record_type'],
+                context.get_relative_path(file_found), z_pk, s['z_id'], s['record_id'],
+                s['root_id'], s['record_type'],
                 s['ctime'], s['creator'], s['mtime'], s['modifier'], s['device'],
                 s['container'], s['hostname'], s['permission'], s['visibility'],
                 s['anon'], s['known']
@@ -171,31 +180,34 @@ def cloudkit_participants(context):
 
         db = open_sqlite_db_readonly(file_found)
         cursor = db.cursor()
-        cursor.execute('SELECT Z_PK, ZIDENTIFIER, ZSERVERSHAREDATA FROM ZICCLOUDSYNCINGOBJECT WHERE ZSERVERSHAREDATA IS NOT NULL')
+        cursor.execute('SELECT Z_PK, ZIDENTIFIER, ZSERVERSHAREDATA '
+                       'FROM ZICCLOUDSYNCINGOBJECT WHERE ZSERVERSHAREDATA IS NOT NULL')
 
         for row in cursor:
             z_pk, z_id, blob = row
             deserialized = nd.deserialize_plist(io.BytesIO(blob))
 
-            share_items = []
-            if isinstance(deserialized, list):
-                share_items = [x for x in deserialized if isinstance(x, dict) and 'Participants' in x]
-            elif isinstance(deserialized, dict) and 'Participants' in deserialized:
-                share_items = [deserialized]
+            share_items = [x for x in as_list(deserialized) if isinstance(x, dict) and 'Participants' in x]
 
             for item in share_items:
                 share_record_id = deep_get(item, ['RecordID', 'RecordName'])
                 root_record_id = deep_get(item, ['RootRecordID', 'RecordName'])
 
-                participants = item.get('Participants') or []
+                participants = as_list(item.get('Participants'))
                 for p in participants:
-                    if not isinstance(p, dict):
+                    p = as_dict(p)
+                    if not p:
                         continue
-                    ui = p.get('UserIdentity') or {}
+                    ui = as_dict(p.get('UserIdentity'))
                     name_priv = deep_get(ui, ['NameComponents', 'NS.nameComponentsPrivate'], {})
+                    name_priv = as_dict(name_priv)
 
                     data_list.append((
-                        context.get_relative_path(file_found), z_pk, z_id, share_record_id, root_record_id,
+                        context.get_relative_path(file_found),
+                        z_pk,
+                        z_id,
+                        share_record_id,
+                        root_record_id,
                         p.get('ParticipantID', ''),
                         deep_get(ui, ['UserRecordID', 'RecordName']),
                         deep_get(ui, ['LookupInfo', 'EmailAddress']),
@@ -225,7 +237,8 @@ def cloudkit_participants(context):
 
     data_headers = (
         'Source File', 'Source Z_PK', 'ZIDENTIFIER', 'Share Record ID', 'Root Record ID',
-        'Participant ID', 'Participant User Record ID', 'Email Address', ('Phone Number', 'phonenumber'),
+        'Participant ID', 'Participant User Record ID', 'Email Address',
+        ('Phone Number', 'phonenumber'),
         'Participant Type', 'Acceptance Status', 'Permission', 'Original Participant Type',
         'Original Acceptance Status', 'Original Permission', 'Is Current User', 'Inviter ID',
         'Has iCloud Account', 'Invitation Token Status', 'Wants New Invitation Token',
