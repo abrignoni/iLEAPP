@@ -1,5 +1,3 @@
-_NOTE = "All timestamps are in LOCAL device time (the log records local time), not UTC."
-
 __artifacts_v2__ = {
     "mobileInstall_installed": {
         "name": "Apps - Installed",
@@ -9,7 +7,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Mobile Installation Logs",
-        "notes": _NOTE,
+        "notes": "All timestamps are in LOCAL device time (the log records local time), not UTC.",
         "paths": ('**/mobile_installation.log.*', '**/sysdiagnose_*.tar.gz'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "download"
@@ -22,7 +20,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Mobile Installation Logs",
-        "notes": _NOTE,
+        "notes": "All timestamps are in LOCAL device time (the log records local time), not UTC.",
         "paths": ('**/mobile_installation.log.*', '**/sysdiagnose_*.tar.gz'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "trash"
@@ -35,7 +33,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Mobile Installation Logs",
-        "notes": _NOTE,
+        "notes": "All timestamps are in LOCAL device time (the log records local time), not UTC.",
         "paths": ('**/mobile_installation.log.*', '**/sysdiagnose_*.tar.gz'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "list"
@@ -48,7 +46,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Mobile Installation Logs",
-        "notes": _NOTE,
+        "notes": "All timestamps are in LOCAL device time (the log records local time), not UTC.",
         "paths": ('**/mobile_installation.log.*', '**/sysdiagnose_*.tar.gz'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "refresh"
