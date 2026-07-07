@@ -610,7 +610,8 @@ class FileSeekerItunes(FileSeekerBase):
                     else:
                         copy2(original_location, data_path)
 
-                    file_info = FileInfo(original_location, creation_date, modification_date)
+                    source_path = relative_path.replace('\\', '/')
+                    file_info = FileInfo(source_path, creation_date, modification_date)
                     self.file_infos[data_path] = file_info
                     self.copied[original_location] = data_path
                 except OSError as ex:
