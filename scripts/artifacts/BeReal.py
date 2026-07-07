@@ -129,7 +129,7 @@ __artifacts_v2__ = {
             "senderColumn": "Author",
             "textColumn": "Emoji"
         },
-        "artifact_icon": "thumbs-up"
+        "artifact_icon": "thumb-up"
     },
     "bereal_comments": {
         "name": "BeReal Comments",
@@ -155,7 +155,7 @@ __artifacts_v2__ = {
             "senderColumn": "Author",
             "textColumn": "Text"
         },
-        "artifact_icon": "message-square"
+        "artifact_icon": "message"
     },
     "bereal_messages": {
         "name": "BeReal Messages",
@@ -179,7 +179,7 @@ __artifacts_v2__ = {
             "senderColumn": "Sender",
             "textColumn": "Message"
         },
-        "artifact_icon": "message-square"
+        "artifact_icon": "message"
     },
     "bereal_chat_list": {
         "name": "BeReal Chat List",
