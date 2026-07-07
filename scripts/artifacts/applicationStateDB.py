@@ -48,10 +48,10 @@ __artifacts_v2__ = {
     },
     "get_snapshot_creationDate": {
         "name": "Application Snapshot",
-        "description": "Extract XBApplicationSnapshotManifest records from applicationState.db. " +\
-                       "NOTE: these timestamps do not always indicate application usage " +\
-                       "but experiments on an iPhone 8 with iOS 16.7.7 suggest that these " +\
-                       "timestamps do indicate user-interaction with the " +\
+        "description": "Extract XBApplicationSnapshotManifest records from applicationState.db. "
+                       "NOTE: these timestamps do not always indicate application usage "
+                       "but experiments on an iPhone 8 with iOS 16.7.7 suggest that these "
+                       "timestamps do indicate user-interaction with the "
                        "device, such as switching between apps.",
         "author": "@mxkrt",
         "creation_date": "2025-08-04",
@@ -65,11 +65,11 @@ __artifacts_v2__ = {
     },
     "get_snapshot_lastUsedDate": {
         "name": "Application Snapshot lastUsedDate",
-        "description": "Extract XBApplicationSnapshotManifest records with a " +\
-                       "lastUsedDate from applicationState.db. " +\
-                       "NOTE: these timestamps do not always indicate application usage " +\
-                       "but experiments on an iPhone 8 with iOS 16.7.7 suggest that these " +\
-                       "timestamps do indicate user-interaction with the " +\
+        "description": "Extract XBApplicationSnapshotManifest records with a "
+                       "lastUsedDate from applicationState.db. "
+                       "NOTE: these timestamps do not always indicate application usage "
+                       "but experiments on an iPhone 8 with iOS 16.7.7 suggest that these "
+                       "timestamps do indicate user-interaction with the "
                        "device, such as switching between apps.",
         "author": "@mxkrt",
         "creation_date": "2025-08-04",
