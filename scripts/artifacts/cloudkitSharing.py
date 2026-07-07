@@ -69,13 +69,14 @@ def cloudkit_sharing(context):
         cursor = db.cursor()
 
         # 1. Process Server Record Data
-        cursor.execute('SELECT Z_PK, ZIDENTIFIER, ZSERVERRECORDDATA FROM ZICCLOUDSYNCINGOBJECT WHERE ZSERVERRECORDDATA IS NOT NULL')
+        cursor.execute('SELECT Z_PK, ZIDENTIFIER, ZSERVERRECORDDATA '
+                       'FROM ZICCLOUDSYNCINGOBJECT WHERE ZSERVERRECORDDATA IS NOT NULL')
         for row in cursor:
             z_pk, z_id, blob = row
             write_debug_bplist(context.get_report_folder(), 'zserverrecorddata', z_pk, blob)
 
             deserialized = nd.deserialize_plist(io.BytesIO(blob))
-            
+
             record_items = []
             if isinstance(deserialized, list):
                 record_items = [x for x in deserialized if isinstance(x, dict) and 'RecordID' in x]
@@ -103,7 +104,8 @@ def cloudkit_sharing(context):
                 break # Only take the first matching record item per Z_PK
 
         # 2. Process Server Share Data
-        cursor.execute('SELECT Z_PK, ZIDENTIFIER, ZSERVERSHAREDATA FROM ZICCLOUDSYNCINGOBJECT WHERE ZSERVERSHAREDATA IS NOT NULL')
+        cursor.execute('SELECT Z_PK, ZIDENTIFIER, ZSERVERSHAREDATA '
+                       'FROM ZICCLOUDSYNCINGOBJECT WHERE ZSERVERSHAREDATA IS NOT NULL')
         for row in cursor:
             z_pk, z_id, blob = row
             write_debug_bplist(context.get_report_folder(), 'zserversharedata', z_pk, blob)
@@ -144,7 +146,8 @@ def cloudkit_sharing(context):
 
         for z_pk, s in shares.items():
             data_list.append((
-                context.get_relative_path(file_found), z_pk, s['z_id'], s['record_id'], s['root_id'], s['record_type'],
+                context.get_relative_path(file_found), z_pk, s['z_id'], s['record_id'],
+                s['root_id'], s['record_type'],
                 s['ctime'], s['creator'], s['mtime'], s['modifier'], s['device'],
                 s['container'], s['hostname'], s['permission'], s['visibility'],
                 s['anon'], s['known']
@@ -171,7 +174,8 @@ def cloudkit_participants(context):
 
         db = open_sqlite_db_readonly(file_found)
         cursor = db.cursor()
-        cursor.execute('SELECT Z_PK, ZIDENTIFIER, ZSERVERSHAREDATA FROM ZICCLOUDSYNCINGOBJECT WHERE ZSERVERSHAREDATA IS NOT NULL')
+        cursor.execute('SELECT Z_PK, ZIDENTIFIER, ZSERVERSHAREDATA '
+                       'FROM ZICCLOUDSYNCINGOBJECT WHERE ZSERVERSHAREDATA IS NOT NULL')
 
         for row in cursor:
             z_pk, z_id, blob = row
@@ -192,10 +196,18 @@ def cloudkit_participants(context):
                     if not isinstance(p, dict):
                         continue
                     ui = p.get('UserIdentity') or {}
+                    if not isinstance(ui, dict):
+                        ui = {}
                     name_priv = deep_get(ui, ['NameComponents', 'NS.nameComponentsPrivate'], {})
+                    if not isinstance(name_priv, dict):
+                        name_priv = {}
 
                     data_list.append((
-                        context.get_relative_path(file_found), z_pk, z_id, share_record_id, root_record_id,
+                        context.get_relative_path(file_found),
+                        z_pk,
+                        z_id,
+                        share_record_id,
+                        root_record_id,
                         p.get('ParticipantID', ''),
                         deep_get(ui, ['UserRecordID', 'RecordName']),
                         deep_get(ui, ['LookupInfo', 'EmailAddress']),
@@ -225,7 +237,8 @@ def cloudkit_participants(context):
 
     data_headers = (
         'Source File', 'Source Z_PK', 'ZIDENTIFIER', 'Share Record ID', 'Root Record ID',
-        'Participant ID', 'Participant User Record ID', 'Email Address', ('Phone Number', 'phonenumber'),
+        'Participant ID', 'Participant User Record ID', 'Email Address',
+        ('Phone Number', 'phonenumber'),
         'Participant Type', 'Acceptance Status', 'Permission', 'Original Participant Type',
         'Original Acceptance Status', 'Original Permission', 'Is Current User', 'Inviter ID',
         'Has iCloud Account', 'Invitation Token Status', 'Wants New Invitation Token',
