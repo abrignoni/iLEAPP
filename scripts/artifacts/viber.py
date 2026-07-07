@@ -267,7 +267,9 @@ def viber_call_remnants(context):
     data_headers = (
         ('Timestamp - UTC', 'datetime'), 'Caller', 'Call Type', 'Duration')
 
-    db_records = get_sqlite_db_records(data_source, query)
+    db_records = list( get_sqlite_db_records(data_source, query) )
+    # NOTE: list-ing here becaose of line 277 after, but we should think if
+    #   we can improve it to just consume the generator once
 
     my_user_name = ''
     my_phone_number = ''
@@ -444,7 +446,9 @@ def viber_chats(context):
         'Message Time Bomb Timestamp - UTC', 'Conversation Marked Favorite', 'Likes Count',
         'Message Metadata Fragments')
 
-    db_records = get_sqlite_db_records(data_source, query)
+    db_records = list( get_sqlite_db_records(data_source, query) )
+    # NOTE: same as before, should think of a way to avoid bool() testing
+    #   db_records and we can keep it a generator
 
     my_user_name = ''
     my_phone_number = ''

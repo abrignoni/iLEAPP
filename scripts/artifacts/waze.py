@@ -1655,8 +1655,9 @@ def waze_recent_locations(context):
     '''
 
     db = get_sqlite_db_records(source_path, query)
-    if not db:
-        return data_headers, data_list, source_path
+    # if not db:
+    #     return data_headers, data_list, source_path
+    # NOTE: no need to test for bool(), for loop skips empty iterables
 
     for record in db:
         try:
@@ -1942,7 +1943,7 @@ def _parse_favorite_user_db(source_path: str, context, data_list: list) -> None:
     LEFT JOIN PLACES AS "P" ON (F.place_id = P.id)
     '''
 
-    db = get_sqlite_db_records(source_path, query)
+    db = list( get_sqlite_db_records(source_path, query) )
     if not db:
         return
     device_path = get_device_file_path(source_path, context)
@@ -2160,8 +2161,9 @@ def waze_shared_locations(context):
     '''
 
     db = get_sqlite_db_records(source_path, query)
-    if not db:
-        return data_headers, data_list, source_path
+    # if not db:
+    #     return data_headers, data_list, source_path
+    # NOTE: no need to test for bool(), for loop skips empty iterables
 
     for record in db:
         try:
@@ -2564,7 +2566,7 @@ def waze_tts(context):
 
     # Get all table names from the database
     query = "SELECT name FROM sqlite_master WHERE type='table'"
-    all_tables = get_sqlite_db_records(source_path, query)
+    all_tables = list( get_sqlite_db_records(source_path, query) )
     if not all_tables:
         return data_headers, data_list, source_path
 

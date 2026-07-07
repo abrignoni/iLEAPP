@@ -122,14 +122,18 @@ def sms(context):
                     'Attachment Name', ('Attachment File', 'media'), ('Attachment Timestamp', 'datetime'),
                     'Attachment Mimetype', 'Attachment Size (Bytes)', 'Message Row ID', 'Chat ID', 'From Me')
 
-    db_records = get_sqlite_db_records(source_path, query)
 
+    # NOTE: moved the definition outside to avoid creating a new function object
+    #   on every turn of the loop
+    def fix_cocoa_date(ts):
+        if not ts or ts == '': return ''
+        if ts > 1000000000000000: # Nanoseconds
+            ts = ts / 1000000000
+        return convert_cocoa_core_data_ts_to_utc(ts)
+    
+    db_records = get_sqlite_db_records(source_path, query)
+    
     for record in db_records:
-        def fix_cocoa_date(ts):
-            if not ts or ts == '': return ''
-            if ts > 1000000000000000: # Nanoseconds
-                ts = ts / 1000000000
-            return convert_cocoa_core_data_ts_to_utc(ts)
 
         message_timestamp = fix_cocoa_date(record[0])
         read_timestamp = fix_cocoa_date(record[1])

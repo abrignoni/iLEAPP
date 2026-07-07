@@ -249,7 +249,7 @@ def Ph33iCldSPLAssetsfromothercontribPhDaPsql(files_found, report_folder, seeker
                         'SPLzShare-Cloud Photo Count-SPL-45',
                         'SPLzShare-Assets AddedByCamera SmartSharing-46',
                         'SPLzShare-Cloud Video Count-SPL-47')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -500,6 +500,6 @@ def Ph33iCldSPLAssetsfromothercontribPhDaPsql(files_found, report_folder, seeker
                         'SPLzShare-Cloud Video Count-SPL-51',
                         'zExtAttr-Generative_AI_Type-52',
                         'zExtAttr-Credit-53')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path

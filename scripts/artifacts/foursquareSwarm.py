@@ -892,7 +892,12 @@ def foursquare_swarm_account(context):
     WHERE U.ZRELATIONSHIP = 'self'
     '''
 
-    db_records = get_sqlite_db_records(source_path, query)
+    # NOTE: I'm just list()-ing for ease of migration, but we don't have
+    #   to check for truthiness, iterating over an empty generator is a NOOP
+    #   so an empty db_records woul just skip the for loop and go straight
+    #   to the same result anyway
+    #   this applies to all calls of get_sqlite_db_records() in this file
+    db_records = list( get_sqlite_db_records(source_path, query) )
     if not db_records:
         return data_headers, (data_list, data_list_html), source_path
 
@@ -1102,7 +1107,7 @@ def foursquare_swarm_contacts(context):
     WHERE (U.ZRELATIONSHIP != 'self') OR (U.ZRELATIONSHIP IS NULL)
     '''
 
-    db_records = get_sqlite_db_records(source_path, query)
+    db_records = list( get_sqlite_db_records(source_path, query) )
     if not db_records:
         return data_headers, (data_list, data_list_html), source_path
 
@@ -1279,7 +1284,7 @@ def foursquare_swarm_address_book(context):
     ORDER BY AB.ZLASTNAME ASC, AB.ZFIRSTNAME ASC
     '''
 
-    db_records = get_sqlite_db_records(source_path, query)
+    db_records = list( get_sqlite_db_records(source_path, query) )
     if not db_records:
         return data_headers, (data_list, data_list_html), source_path
 
@@ -1851,7 +1856,7 @@ def foursquare_swarm_tips(context):
     ORDER BY T.ZCREATEDAT DESC
     '''
 
-    db_records = get_sqlite_db_records(source_path, query)
+    db_records = list( get_sqlite_db_records(source_path, query) )
     if not db_records:
         return data_headers, (data_list, data_list_html), source_path
 
@@ -1973,7 +1978,7 @@ def foursquare_swarm_stickers(context):
     LEFT JOIN ZFSSTICKERBONUS AS "SB" ON (S.Z_PK = SB.ZBONUSESINVERSE)
     '''
 
-    db_records = get_sqlite_db_records(source_path, query)
+    db_records = list( get_sqlite_db_records(source_path, query) )
     if not db_records:
         return data_headers, (data_list, data_list_html), source_path
 
@@ -2132,7 +2137,7 @@ def foursquare_swarm_venues_history(context):
     ORDER BY V.ZLASTVISITEDAT DESC
     '''
 
-    db_records = get_sqlite_db_records(source_path, query)
+    db_records = list( get_sqlite_db_records(source_path, query) )
     if not db_records:
         return data_headers, (data_list, data_list_html), source_path
 
@@ -2315,7 +2320,7 @@ def foursquare_swarm_photos(context):
     ORDER BY P.ZCREATEDAT DESC
     '''
 
-    db_records = get_sqlite_db_records(source_path, query)
+    db_records = list( get_sqlite_db_records(source_path, query) )
     if not db_records:
         return data_headers, (data_list, data_list_html), source_path
 
@@ -2512,7 +2517,7 @@ def foursquare_swarm_comments(context):
     ORDER BY C.ZCREATEDAT DESC
     '''
 
-    db_records = get_sqlite_db_records(source_path, query)
+    db_records = list( get_sqlite_db_records(source_path, query) )
     if not db_records:
         return data_headers, (data_list, data_list_html), source_path
 
@@ -2661,7 +2666,7 @@ def foursquare_swarm_friend_requests(context):
     ORDER BY FR.ZDATEREQUESTED DESC
     '''
 
-    db_records = get_sqlite_db_records(source_path, query)
+    db_records = list( get_sqlite_db_records(source_path, query) )
     if not db_records:
         return data_headers, (data_list, data_list_html), source_path
 
@@ -3238,7 +3243,7 @@ def foursquare_swarm_saved_lists(context):
     ORDER BY L.ZLISTUPDATEDAT DESC, LI.ZCREATEDAT DESC
     '''
 
-    db_records = get_sqlite_db_records(source_path, query)
+    db_records = list( get_sqlite_db_records(source_path, query) )
     if not db_records:
         return data_headers, (data_list, data_list_html), source_path
 
@@ -3374,7 +3379,7 @@ def foursquare_swarm_location_history(context):
     ORDER BY PL.ZTIMESTAMP DESC
     '''
 
-    db_records = get_sqlite_db_records(source_path, query)
+    db_records = list( get_sqlite_db_records(source_path, query) )
     if not db_records:
         return data_headers, data_list, source_path
 
@@ -3478,7 +3483,7 @@ def foursquare_swarm_plog(context):
     ORDER BY PL.ZTIMESTAMP DESC
     '''
 
-    db_records = get_sqlite_db_records(source_path, query)
+    db_records = list( get_sqlite_db_records(source_path, query) )
     if not db_records:
         return data_headers, (data_list, data_list_html), source_path
 
@@ -3845,7 +3850,7 @@ def foursquare_swarm_feed(context):
     ORDER BY FI.ZCREATEDAT DESC
     '''
 
-    db_records = get_sqlite_db_records(source_path, query)
+    db_records = list( get_sqlite_db_records(source_path, query) )
     if not db_records:
         return data_headers, (data_list, data_list_html), source_path
 

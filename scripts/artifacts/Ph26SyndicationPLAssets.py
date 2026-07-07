@@ -271,7 +271,7 @@ def Ph26_1SyndicationIDAssetsPhDaPsql(files_found, report_folder, seeker, wrap_t
                         'SWYConverszGenAlbum-Trashed State-41',
                         ('SWYConverszGenAlbum-Trash Date-42', 'datetime'),
                         'SWYConverszGenAlbum-Cloud Delete State-43')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -494,7 +494,7 @@ def Ph26_1SyndicationIDAssetsPhDaPsql(files_found, report_folder, seeker, wrap_t
                         ('SWYConverszGenAlbum-Trash Date-44', 'datetime'),
                         'SWYConverszGenAlbum-Cloud Delete State-45',
                         'SWYConverszGenAlbum-Privacy State-46')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 	
@@ -717,7 +717,7 @@ def Ph26_1SyndicationIDAssetsPhDaPsql(files_found, report_folder, seeker, wrap_t
                         ('SWYConverszGenAlbum-Trash Date-44', 'datetime'),
                         'SWYConverszGenAlbum-Cloud Delete State-45',
                         'SWYConverszGenAlbum-Privacy State-46')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -942,7 +942,7 @@ def Ph26_1SyndicationIDAssetsPhDaPsql(files_found, report_folder, seeker, wrap_t
                         ('SWYConverszGenAlbum-Trash Date-45', 'datetime'),
                         'SWYConverszGenAlbum-Cloud Delete State-46',
                         'SWYConverszGenAlbum-Privacy State-47')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -1163,7 +1163,7 @@ def Ph26_2SyndicationPLAssetsSyndPL(files_found, report_folder, seeker, wrap_tex
                         'SWYConverszGenAlbum-Trashed State-41',
                         ('SWYConverszGenAlbum-Trash Date-42', 'datetime'),
                         'SWYConverszGenAlbum-Cloud Delete State-43')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -1386,7 +1386,7 @@ def Ph26_2SyndicationPLAssetsSyndPL(files_found, report_folder, seeker, wrap_tex
                         ('SWYConverszGenAlbum-Trash Date-44', 'datetime'),
                         'SWYConverszGenAlbum-Cloud Delete State-45',
                         'SWYConverszGenAlbum-Privacy State-46')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 	
@@ -1609,7 +1609,7 @@ def Ph26_2SyndicationPLAssetsSyndPL(files_found, report_folder, seeker, wrap_tex
                         ('SWYConverszGenAlbum-Trash Date-44', 'datetime'),
                         'SWYConverszGenAlbum-Cloud Delete State-45',
                         'SWYConverszGenAlbum-Privacy State-46')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -1834,6 +1834,6 @@ def Ph26_2SyndicationPLAssetsSyndPL(files_found, report_folder, seeker, wrap_tex
                         ('SWYConverszGenAlbum-Trash Date-45', 'datetime'),
                         'SWYConverszGenAlbum-Cloud Delete State-46',
                         'SWYConverszGenAlbum-Privacy State-47')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path

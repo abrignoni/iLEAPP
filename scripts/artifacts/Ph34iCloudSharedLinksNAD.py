@@ -167,7 +167,7 @@ def Ph34iCloudSharedLinkRecordswithNADPhDaPsql(files_found, report_folder, seeke
                         'zShare-Trashed State-29',
                         'zShare-Cloud Delete State-30',
                         'zShare-zENT-31')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -374,7 +374,7 @@ def Ph34iCloudSharedLinkRecordswithNADPhDaPsql(files_found, report_folder, seeke
                         ('zShare-LastParticipant Asset Trash Notification Date-44', 'datetime'),
                         ('zShare-Last Participant Asset Trash Notification View Date-45', 'datetime'),
                         'zShare-zENT-46')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 	
@@ -581,7 +581,7 @@ def Ph34iCloudSharedLinkRecordswithNADPhDaPsql(files_found, report_folder, seeke
                         ('zShare-LastParticipant Asset Trash Notification Date-44', 'datetime'),
                         ('zShare-Last Participant Asset Trash Notification View Date-45', 'datetime'),
                         'zShare-zENT-46')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -788,6 +788,6 @@ def Ph34iCloudSharedLinkRecordswithNADPhDaPsql(files_found, report_folder, seeke
                         ('zShare-LastParticipant Asset Trash Notification Date-44', 'datetime'),
                         ('zShare-Last Participant Asset Trash Notification View Date-45', 'datetime'),
                         'zShare-zENT-46')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path

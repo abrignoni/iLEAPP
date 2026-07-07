@@ -376,7 +376,7 @@ def logarchive_artifacts(files_found, report_folder, seeker, wrap_text, timezone
         OR event_message LIKE '%Starting route to%'
     '''
 
-    data_list = get_sqlite_db_records(source_path, query)
+    data_list = list( get_sqlite_db_records(source_path, query) )
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
 
@@ -393,7 +393,7 @@ def logarchive_time_change(files_found, report_folder, seeker, wrap_text, timezo
     WHERE event_message LIKE '%Time change: Clock shifted by%'
     '''
     
-    data_list = get_sqlite_db_records(source_path, query)
+    data_list = list( get_sqlite_db_records(source_path, query) )
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
@@ -411,7 +411,7 @@ def logarchive_flashlight(files_found, report_folder, seeker, wrap_text, timezon
     OR event_message LIKE '%<<<<AVFlashlight>>>>-%'
     '''
     
-    data_list = get_sqlite_db_records(source_path, query)
+    data_list = list( get_sqlite_db_records(source_path, query) )
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
@@ -430,7 +430,7 @@ def logarchive_executed_apps(files_found, report_folder, seeker, wrap_text, time
         OR event_message LIKE '%transition source:%'
     '''
     
-    data_list = get_sqlite_db_records(source_path, query)
+    data_list = list( get_sqlite_db_records(source_path, query) )
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
@@ -447,7 +447,7 @@ def logarchive_motionstate(files_found, report_folder, seeker, wrap_text, timezo
     WHERE event_message LIKE '%Motion State Transition:%'
     '''
     
-    data_list = get_sqlite_db_records(source_path, query)
+    data_list = list( get_sqlite_db_records(source_path, query) )
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
@@ -466,7 +466,7 @@ def logarchive_tethering(files_found, report_folder, seeker, wrap_text, timezone
         OR event_message LIKE '%Previous tethering state was%'
     '''
     
-    data_list = get_sqlite_db_records(source_path, query)
+    data_list = list( get_sqlite_db_records(source_path, query) )
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
@@ -495,7 +495,7 @@ def logarchive_airplane_mode(files_found, report_folder, seeker, wrap_text, time
         OR event_message LIKE '%Airplane mode Disabled%'
     '''
     
-    data_list = get_sqlite_db_records(source_path, query)
+    data_list = list( get_sqlite_db_records(source_path, query) )
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
@@ -520,7 +520,7 @@ def logarchive_lock_status(files_found, report_folder, seeker, wrap_text, timezo
 
     '''
     
-    data_list = get_sqlite_db_records(source_path, query)
+    data_list = list( get_sqlite_db_records(source_path, query) )
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
@@ -560,7 +560,7 @@ def logarchive_wifi_status(files_found, report_folder, seeker, wrap_text, timezo
         OR event_message LIKE '%{AUTOJOIN, SCAN*} Scanning 5Ghz Channels found:%'
     '''
     
-    data_list = get_sqlite_db_records(source_path, query)
+    data_list = list( get_sqlite_db_records(source_path, query) )
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
@@ -605,7 +605,7 @@ def logarchive_bluetooth_status(files_found, report_folder, seeker, wrap_text, t
 
     '''
     
-    data_list = get_sqlite_db_records(source_path, query)
+    data_list = list( get_sqlite_db_records(source_path, query) )
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
@@ -628,7 +628,7 @@ def logarchive_audio_status(files_found, report_folder, seeker, wrap_text, timez
         OR event_message LIKE '%volumeValueDidChange%'
     '''
     
-    data_list = get_sqlite_db_records(source_path, query)
+    data_list = list( get_sqlite_db_records(source_path, query) )
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
@@ -661,7 +661,7 @@ def logarchive_navigation(files_found, report_folder, seeker, wrap_text, timezon
         OR event_message LIKE '%Arrived\\%'
     '''
     
-    data_list = get_sqlite_db_records(source_path, query)
+    data_list = list( get_sqlite_db_records(source_path, query) )
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     

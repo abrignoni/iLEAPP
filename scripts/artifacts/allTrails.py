@@ -82,7 +82,7 @@ def allTrailsTrailDetails(context):
         'Parking Area Name'
         )
     
-    data_list = get_sqlite_db_records(source_path, query)
+    data_list = list( get_sqlite_db_records(source_path, query) )
 
     return data_headers, data_list, source_path
 
@@ -137,6 +137,7 @@ def allTrailsUserInfo(context):
         creation_timestamp = convert_cocoa_core_data_ts_to_utc(record[0])
         data_list.append(
             (creation_timestamp, record[1], record[2], record[3], record[4], record[5], record[6], 
-             record[7], record[8], record[9], record[10], record[11], record[12], record[13]))
+             record[7], record[8], record[9], record[10], record[11], record[12], record[13])
+        )
 
     return data_headers, data_list, source_path

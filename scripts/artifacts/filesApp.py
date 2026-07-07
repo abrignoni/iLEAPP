@@ -168,7 +168,7 @@ def icloud_sync_device_names(context):
 
     data_headers = ('Device Number', 'Device Name')
 
-    data_list = get_sqlite_db_records(source_path, query)
+    data_list = list( get_sqlite_db_records(source_path, query) )
 
     return data_headers, data_list, source_path
 
@@ -202,7 +202,7 @@ def icloud_application_list(context):
         '''
         data_headers = ('Application Bundle ID', )
 
-    data_list = get_sqlite_db_records(source_path, query)
+    data_list = list( get_sqlite_db_records(source_path, query) )
 
     return data_headers, data_list, source_path
 

@@ -164,8 +164,9 @@ def fitnessWorkoutsAnalysis(context):
         GROUP BY location_series_data.series_identifier
         ORDER BY workout_activities.start_date
     '''
-    for row in get_sqlite_db_records(db_path, query):
-        data_list.append(tuple(row))
+    # for row in get_sqlite_db_records(db_path, query):
+    #     data_list.append(tuple(row))
+    data_list = list( get_sqlite_db_records(db_path, query) )
 
     return data_headers, data_list, context.get_relative_path(db_path)
 
@@ -197,7 +198,8 @@ def fitnessWorkoutsLocation(context):
         LEFT OUTER JOIN associations on associations.child_id = data_series.data_id
         LEFT OUTER JOIN workout_activities on workout_activities.owner_id = associations.parent_id
     '''
-    for row in get_sqlite_db_records(db_path, query):
-        data_list.append(tuple(row))
+    # for row in get_sqlite_db_records(db_path, query):
+    #     data_list.append(tuple(row))
+    data_list = list( get_sqlite_db_records(db_path, query) )
 
     return data_headers, data_list, context.get_relative_path(db_path)

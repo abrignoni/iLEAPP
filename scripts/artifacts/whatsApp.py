@@ -273,7 +273,7 @@ def whatsAppMessages(context):
                                 FROM ContactsV2.ZWAADDRESSBOOKCONTACT
                                 WHERE ZWHATSAPPID = '{from_forward}'
                             """
-                    contact_records = get_sqlite_db_records(source_path, query_contact, attach_query)
+                    contact_records = list( get_sqlite_db_records(source_path, query_contact, attach_query) )
                     if contact_records:
                         forwardedwhatsappid, fullname, phone = contact_records[0]
                         from_forward = f"{fullname} ({phone}) - ({forwardedwhatsappid})"

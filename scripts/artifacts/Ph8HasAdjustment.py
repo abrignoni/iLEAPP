@@ -127,7 +127,7 @@ def Ph8_1HasAdjustmentPhDaPsql(files_found, report_folder, seeker, wrap_text, ti
                         'zAddAssetAttr-zPK',
                         'zAsset-UUID = store.cloudphotodb',
                         'zAddAssetAttr-Master Fingerprint')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -211,7 +211,7 @@ def Ph8_1HasAdjustmentPhDaPsql(files_found, report_folder, seeker, wrap_text, ti
                         'zAsset-UUID = store.cloudphotodb-14',
                         'zAddAssetAttr-Master Fingerprint-15',
                         'zAddAssetAttr.Adjusted Fingerprint-16')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -348,7 +348,7 @@ def Ph8_1HasAdjustmentPhDaPsql(files_found, report_folder, seeker, wrap_text, ti
                         'zCompSyncAttr-Cloud_Compute_State_Adjustment_Fingerprint-30',
                         'zExtAttr-Generative_AI_Type-31',
                         'zExtAttr-Credit-32')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -499,6 +499,6 @@ def Ph8_3HasAdjustmentGenPlayPsql(files_found, report_folder, seeker, wrap_text,
                         'zCompSyncAttr-Cloud_Compute_State_Adjustment_Fingerprint-30',
                         'zExtAttr-Generative_AI_Type-31',
                         'zExtAttr-Credit-32')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path

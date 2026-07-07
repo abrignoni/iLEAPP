@@ -103,7 +103,7 @@ def Ph6_1ViewandPlayDataPhDaPsql(files_found, report_folder, seeker, wrap_text, 
                         'zAddAssetAttr-zPK',
                         'zAsset-UUID = store.cloudphotodb',
                         'zAddAssetAttr-Master Fingerprint')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -160,7 +160,7 @@ def Ph6_1ViewandPlayDataPhDaPsql(files_found, report_folder, seeker, wrap_text, 
                         'zAddAssetAttr-zPK',
                         'zAsset-UUID = store.cloudphotodb',
                         'zAddAssetAttr-Master Fingerprint')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -217,7 +217,7 @@ def Ph6_1ViewandPlayDataPhDaPsql(files_found, report_folder, seeker, wrap_text, 
                         'zAddAssetAttr-zPK',
                         'zAsset-UUID = store.cloudphotodb',
                         'zAddAssetAttr-Master Fingerprint')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -276,7 +276,7 @@ def Ph6_1ViewandPlayDataPhDaPsql(files_found, report_folder, seeker, wrap_text, 
                         'zAddAssetAttr-zPK',
                         'zAsset-UUID = store.cloudphotodb',
                         'zAddAssetAttr-Master Fingerprint')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -335,7 +335,7 @@ def Ph6_1ViewandPlayDataPhDaPsql(files_found, report_folder, seeker, wrap_text, 
                         'zAddAssetAttr-zPK',
                         'zAsset-UUID = store.cloudphotodb',
                         'zAddAssetAttr-Master Fingerprint')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -396,7 +396,7 @@ def Ph6_1ViewandPlayDataPhDaPsql(files_found, report_folder, seeker, wrap_text, 
                         'zAddAssetAttr-zPK-14',
                         'zAsset-UUID = store.cloudphotodb-15',
                         'zAddAssetAttr-Master Fingerprint-16')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -465,7 +465,7 @@ def Ph6_1ViewandPlayDataPhDaPsql(files_found, report_folder, seeker, wrap_text, 
                         'zAsset-UUID = store.cloudphotodb-16',
                         'zAddAssetAttr-Original Stable Hash-17',
                         'zAddAssetAttr.Adjusted Stable Hash-18')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -548,6 +548,6 @@ def Ph6_3ViewandPlayDataGenPlayPsql(files_found, report_folder, seeker, wrap_tex
                         'zAsset-UUID = store.cloudphotodb-16',
                         'zAddAssetAttr-Original Stable Hash-17',
                         'zAddAssetAttr.Adjusted Stable Hash-18')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path

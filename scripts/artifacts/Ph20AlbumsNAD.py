@@ -133,7 +133,7 @@ def Ph20_1AlbumRecordswithNADPhDaPsql(files_found, report_folder, seeker, wrap_t
                         ('zGenAlbum-Trash Date', 'datetime'),
                         'zGenAlbum-UUID',
                         'zGenAlbum-Cloud GUID')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -201,7 +201,7 @@ def Ph20_1AlbumRecordswithNADPhDaPsql(files_found, report_folder, seeker, wrap_t
                         ('zGenAlbum-Trash Date', 'datetime'),
                         'zGenAlbum-UUID',
                         'zGenAlbum-Cloud GUID')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -269,7 +269,7 @@ def Ph20_1AlbumRecordswithNADPhDaPsql(files_found, report_folder, seeker, wrap_t
                         ('zGenAlbum-Trash Date', 'datetime'),
                         'zGenAlbum-UUID',
                         'zGenAlbum-Cloud GUID')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -337,7 +337,7 @@ def Ph20_1AlbumRecordswithNADPhDaPsql(files_found, report_folder, seeker, wrap_t
                         ('zGenAlbum-Trash Date-11', 'datetime'),
                         'zGenAlbum-UUID-12',
                         'zGenAlbum-Cloud GUID-13')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -415,7 +415,7 @@ def Ph20_2AlbumRecordswithNADSyndPL(files_found, report_folder, seeker, wrap_tex
                         ('zGenAlbum-Trash Date', 'datetime'),
                         'zGenAlbum-UUID',
                         'zGenAlbum-Cloud GUID')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -483,7 +483,7 @@ def Ph20_2AlbumRecordswithNADSyndPL(files_found, report_folder, seeker, wrap_tex
                         ('zGenAlbum-Trash Date', 'datetime'),
                         'zGenAlbum-UUID',
                         'zGenAlbum-Cloud GUID')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -551,7 +551,7 @@ def Ph20_2AlbumRecordswithNADSyndPL(files_found, report_folder, seeker, wrap_tex
                         ('zGenAlbum-Trash Date', 'datetime'),
                         'zGenAlbum-UUID',
                         'zGenAlbum-Cloud GUID')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -619,7 +619,7 @@ def Ph20_2AlbumRecordswithNADSyndPL(files_found, report_folder, seeker, wrap_tex
                         ('zGenAlbum-Trash Date-11', 'datetime'),
                         'zGenAlbum-UUID-12',
                         'zGenAlbum-Cloud GUID-13')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -701,6 +701,6 @@ def Ph20_3AlbumRecordswithNADGenPlayPsql(files_found, report_folder, seeker, wra
                         ('zGenAlbum-Trash Date-11', 'datetime'),
                         'zGenAlbum-UUID-12',
                         'zGenAlbum-Cloud GUID-13')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path

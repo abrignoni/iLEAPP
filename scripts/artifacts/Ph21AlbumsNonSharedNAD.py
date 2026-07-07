@@ -227,7 +227,7 @@ def Ph21NonSharedAlbumRecordswithNADPhDaPsql(files_found, report_folder, seeker,
                         'zGenAlbum-Custom Query Type',
                         'zGenAlbum-Trashed State',
                         ('zGenAlbum-Trash Date', 'datetime'))
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -437,7 +437,7 @@ def Ph21NonSharedAlbumRecordswithNADPhDaPsql(files_found, report_folder, seeker,
                         'zGenAlbum-Trashed State',
                         ('zGenAlbum-Trash Date', 'datetime'),
                         'zGenAlbum-Cloud Delete State')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -660,7 +660,7 @@ def Ph21NonSharedAlbumRecordswithNADPhDaPsql(files_found, report_folder, seeker,
                         'zGenAlbum-Trashed State',
                         ('zGenAlbum-Trash Date', 'datetime'),
                         'zGenAlbum-Cloud Delete State')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -898,7 +898,7 @@ def Ph21NonSharedAlbumRecordswithNADPhDaPsql(files_found, report_folder, seeker,
                         'zGenAlbum-Trashed State',
                         ('zGenAlbum-Trash Date', 'datetime'),
                         'zGenAlbum-Cloud Delete State')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -1136,7 +1136,7 @@ def Ph21NonSharedAlbumRecordswithNADPhDaPsql(files_found, report_folder, seeker,
                         'zGenAlbum-Trashed State',
                         ('zGenAlbum-Trash Date', 'datetime'),
                         'zGenAlbum-Cloud Delete State')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -1396,7 +1396,7 @@ def Ph21NonSharedAlbumRecordswithNADPhDaPsql(files_found, report_folder, seeker,
                         'zGenAlbum-Search Index Rebuild State-45',
                         'zGenAlbum-Duplicate Type-46',
                         'zGenAlbum-Privacy State-47')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 	
@@ -1656,7 +1656,7 @@ def Ph21NonSharedAlbumRecordswithNADPhDaPsql(files_found, report_folder, seeker,
                         'zGenAlbum-Search Index Rebuild State-45',
                         'zGenAlbum-Duplicate Type-46',
                         'zGenAlbum-Privacy State-47')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -1916,6 +1916,6 @@ def Ph21NonSharedAlbumRecordswithNADPhDaPsql(files_found, report_folder, seeker,
                         'zGenAlbum-Search Index Rebuild State-45',
                         'zGenAlbum-Duplicate Type-46',
                         'zGenAlbum-Privacy State-47')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path

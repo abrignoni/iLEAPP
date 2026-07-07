@@ -270,7 +270,7 @@ def Ph32iCloudSPLAssetswithContributorPhDaPsql(files_found, report_folder, seeke
                         'SPLzSharePartic-z54SHARE-48',
                         'SPLzShare-Status-49',
                         'SPLzShare-Scope Type-50')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -508,7 +508,7 @@ def Ph32iCloudSPLAssetswithContributorPhDaPsql(files_found, report_folder, seeke
                         'SPLzSharePartic-z55SHARE-48',
                         'SPLzShare-Status-49',
                         'SPLzShare-Scope Type-50')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -759,6 +759,6 @@ def Ph32iCloudSPLAssetswithContributorPhDaPsql(files_found, report_folder, seeke
                         'SPLzShare-Cloud Video Count-SPL-51',
                         'zExtAttr-Generative_AI_Type-52',
                         'zExtAttr-Credit-53')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path

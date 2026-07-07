@@ -224,7 +224,7 @@ def tiktok_messages(context):
         aweme_im_db = _aweme_for_chat_db(chat_db, aweme_dbs)
         account_id = basename(dirname(chat_db))
         attach_query = attach_sqlite_db_readonly(aweme_im_db, "AwemeIM")
-        message_table = get_sqlite_db_records(
+        message_table = list( get_sqlite_db_records(
             chat_db,
             """
                 SELECT name
@@ -232,7 +232,7 @@ def tiktok_messages(context):
                 WHERE type = 'table'
                     AND name = 'TIMMessageORM'
             """,
-        )
+        ) )
 
         if not message_table:
             logfunc(f"Table TIMMessageORM not found in {chat_db}")

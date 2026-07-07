@@ -27,10 +27,13 @@ def clean_label(data):
 def remove_unused_rows(data, count_rows):
     data_count_rows = count_rows[0]
     rows_to_remove = []
-    for i in range(len(data_count_rows)):
-        if data_count_rows[i] == 0:
+    # for i in range(len(data_count_rows)):
+    #     if data_count_rows[i] == 0:
+    #         rows_to_remove.append(i)
+    for i, data in enumerate(data_count_rows):
+        if data == 0:
             rows_to_remove.append(i)
-    data = [i for r, i in enumerate(data) if r not in rows_to_remove]
+    data = ( i for r, i in enumerate(data) if r not in rows_to_remove )
     return tuple(data)
 
 
@@ -293,7 +296,7 @@ def addressBook(context):
     LEFT JOIN ABI.ABFullSizeImage ON ABPerson.ROWID = ABI.ABFullSizeImage.record_id
     '''
 
-    empty_cols_records = get_sqlite_db_records(source_path, remove_empty_cols_query, attach_query)
+    empty_cols_records = list( get_sqlite_db_records(source_path, remove_empty_cols_query, attach_query) )
     data_headers = remove_unused_rows(data_headers, empty_cols_records)
     data_list = [remove_unused_rows(data, empty_cols_records) for data in data_list]
 

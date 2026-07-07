@@ -112,7 +112,7 @@ def Ph3_1TrashedRecentlyDeletedPhDaPsql(files_found, report_folder, seeker, wrap
                         'zAddAssetAttr-zPK-8',
                         'zAsset-UUID = store.cloudphotodb-9',
                         'zAddAssetAttr-Master Fingerprint-10')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -163,7 +163,7 @@ def Ph3_1TrashedRecentlyDeletedPhDaPsql(files_found, report_folder, seeker, wrap
                         'zAddAssetAttr-zPK-8',
                         'zAsset-UUID = store.cloudphotodb-9',
                         'zAddAssetAttr-Master Fingerprint-10')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -227,7 +227,7 @@ def Ph3_1TrashedRecentlyDeletedPhDaPsql(files_found, report_folder, seeker, wrap
                         'zAddAssetAttr-zPK-10',
                         'zAsset-UUID = store.cloudphotodb-11',
                         'zAddAssetAttr-Master Fingerprint-12')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -302,7 +302,7 @@ def Ph3_1TrashedRecentlyDeletedPhDaPsql(files_found, report_folder, seeker, wrap
                         'zAddAssetAttr-zPK-14',
                         'zAsset-UUID = store.cloudphotodb-15',
                         'zAddAssetAttr-Master Fingerprint-16')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -379,7 +379,7 @@ def Ph3_1TrashedRecentlyDeletedPhDaPsql(files_found, report_folder, seeker, wrap
                         'zAsset-UUID = store.cloudphotodb-15',
                         'zAddAssetAttr-Original Stable Hash-16',
                         'zAddAssetAttr.Adjusted Stable Hash-17')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -460,7 +460,7 @@ def Ph3_2RemovedfromCameraRollSyndPL(files_found, report_folder, seeker, wrap_te
                         'zAddAssetAttr-zPK-11',
                         'zAsset-UUID = store.cloudphotodb-12',
                         'zAddAssetAttr-Master Fingerprint-13')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -538,7 +538,7 @@ def Ph3_2RemovedfromCameraRollSyndPL(files_found, report_folder, seeker, wrap_te
                         'zAddAssetAttr-zPK-15',
                         'zAsset-UUID = store.cloudphotodb-16',
                         'zAddAssetAttr-Master Fingerprint-17')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -615,7 +615,7 @@ def Ph3_2RemovedfromCameraRollSyndPL(files_found, report_folder, seeker, wrap_te
                         'zAsset-UUID = store.cloudphotodb-15',
                         'zAddAssetAttr-Original Stable Hash-16',
                         'zAddAssetAttr.Adjusted Stable Hash-17')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -706,6 +706,6 @@ def Ph3_3TrashedRecentlyDeletedGenPlayPsql(files_found, report_folder, seeker, w
                         'zAsset-UUID = store.cloudphotodb-15',
                         'zAddAssetAttr-Original Stable Hash-16',
                         'zAddAssetAttr.Adjusted Stable Hash-17')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path

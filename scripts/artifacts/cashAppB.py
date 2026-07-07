@@ -85,6 +85,9 @@ def get_cashAppB(context):
                 dunits = None
                 token = None
                 receipt = None
+                # NOTE: we could change this whole list to an
+                #   itertools.repeat( None, 6 ) unpacking over the names of the
+                #   variables
 
                 payment = protopayment['1'].get('extrainfo')
                 if payment is not None:
