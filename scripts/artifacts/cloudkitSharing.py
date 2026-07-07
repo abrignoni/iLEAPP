@@ -45,6 +45,20 @@ def deep_get(data, path, default=''):
     return data
 
 
+def as_dict(data):
+    """Return a dictionary only when the plist value has that shape."""
+    return data if isinstance(data, dict) else {}
+
+
+def as_list(data):
+    """Normalize plist values that may be a single dict, list, or scalar."""
+    if isinstance(data, list):
+        return data
+    if isinstance(data, dict):
+        return [data]
+    return []
+
+
 def write_debug_bplist(report_folder, prefix, z_pk, data):
     """Writes extracted blobs to the report folder for validation."""
     filename = os.path.join(report_folder, f'{prefix}_{z_pk}.bplist')
@@ -77,11 +91,7 @@ def cloudkit_sharing(context):
 
             deserialized = nd.deserialize_plist(io.BytesIO(blob))
 
-            record_items = []
-            if isinstance(deserialized, list):
-                record_items = [x for x in deserialized if isinstance(x, dict) and 'RecordID' in x]
-            elif isinstance(deserialized, dict) and 'RecordID' in deserialized:
-                record_items = [deserialized]
+            record_items = [x for x in as_list(deserialized) if isinstance(x, dict) and 'RecordID' in x]
 
             for item in record_items:
                 shares[z_pk] = {
@@ -112,11 +122,7 @@ def cloudkit_sharing(context):
 
             deserialized = nd.deserialize_plist(io.BytesIO(blob))
 
-            share_items = []
-            if isinstance(deserialized, list):
-                share_items = [x for x in deserialized if isinstance(x, dict) and 'RecordID' in x]
-            elif isinstance(deserialized, dict) and 'RecordID' in deserialized:
-                share_items = [deserialized]
+            share_items = [x for x in as_list(deserialized) if isinstance(x, dict) and 'RecordID' in x]
 
             for item in share_items:
                 if z_pk not in shares:
@@ -181,26 +187,20 @@ def cloudkit_participants(context):
             z_pk, z_id, blob = row
             deserialized = nd.deserialize_plist(io.BytesIO(blob))
 
-            share_items = []
-            if isinstance(deserialized, list):
-                share_items = [x for x in deserialized if isinstance(x, dict) and 'Participants' in x]
-            elif isinstance(deserialized, dict) and 'Participants' in deserialized:
-                share_items = [deserialized]
+            share_items = [x for x in as_list(deserialized) if isinstance(x, dict) and 'Participants' in x]
 
             for item in share_items:
                 share_record_id = deep_get(item, ['RecordID', 'RecordName'])
                 root_record_id = deep_get(item, ['RootRecordID', 'RecordName'])
 
-                participants = item.get('Participants') or []
+                participants = as_list(item.get('Participants'))
                 for p in participants:
-                    if not isinstance(p, dict):
+                    p = as_dict(p)
+                    if not p:
                         continue
-                    ui = p.get('UserIdentity') or {}
-                    if not isinstance(ui, dict):
-                        ui = {}
+                    ui = as_dict(p.get('UserIdentity'))
                     name_priv = deep_get(ui, ['NameComponents', 'NS.nameComponentsPrivate'], {})
-                    if not isinstance(name_priv, dict):
-                        name_priv = {}
+                    name_priv = as_dict(name_priv)
 
                     data_list.append((
                         context.get_relative_path(file_found),
