@@ -5,7 +5,7 @@ a = Analysis(
     ['../../ileappGUI.py'],
     pathex=['../scripts/artifacts'],
     binaries=[],
-    datas=[('../', 'scripts'), ('../../assets', 'assets')],
+    datas=[('../', 'scripts'), ('../../assets', 'assets'), ('../../leapp_functions', 'leapp_functions')],
     hiddenimports=[
         'astc_decomp_faster',
         'bencoding',
@@ -19,6 +19,7 @@ a = Analysis(
         'nska_deserialize',
         'pandas',
         'pgpy',
+        'PIL.ImageDraw',
         'pillow_heif',
         'typedstream',
         'xml.etree.ElementTree',
