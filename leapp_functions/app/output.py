@@ -3,7 +3,7 @@
 import os
 from datetime import datetime
 
-from leapp_functions.platform import validate_filename
+from leapp_functions.app.platform import validate_filename
 from scripts.version_info import leapp_name
 
 

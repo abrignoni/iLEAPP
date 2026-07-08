@@ -24,8 +24,8 @@ from leapp_functions.lava_launcher import (
     open_lava_project,
     open_output_folder,
 )
-from leapp_functions.platform import sanitize_file_name
-from leapp_functions.output import default_output_folder_name, validate_output_folder_available
+from leapp_functions.app.platform import sanitize_file_name
+from leapp_functions.app.output import default_output_folder_name, validate_output_folder_available
 from scripts.context import Context
 from scripts.lavafuncs import lava_json_name
 
