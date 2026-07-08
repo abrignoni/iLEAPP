@@ -24,8 +24,14 @@ from leapp_functions.lava_launcher import (
     open_lava_project,
     open_output_folder,
 )
+from leapp_functions.platform import sanitize_file_name
+from leapp_functions.output import default_output_folder_name, validate_output_folder_available
 from scripts.context import Context
 from scripts.lavafuncs import lava_json_name
+
+
+def allow_output_folder_name_chars(proposed):
+    return sanitize_file_name(proposed) == proposed
 
 
 def show_history_menu(button, path_type):
@@ -223,8 +229,17 @@ def ValidateInput():
         ext_type = Path(i_path).suffix[1:].lower()
 
     # check output now
-    if len(o_path) == 0:  # output folder
-        tk_msgbox.showerror(title='Error', message='No OUTPUT folder selected!', parent=main_window)
+    if len(o_path) == 0:  # output path
+        tk_msgbox.showerror(title='Error', message='No output path provided!', parent=main_window)
+        return False, ext_type, None
+
+    folder_name = output_folder_name_entry.get().strip()
+    if not folder_name:
+        tk_msgbox.showerror(title='Error', message='Output folder name cannot be empty!', parent=main_window)
+        return False, ext_type, None
+    folder_name_valid, folder_name_error = validate_output_folder_available(o_path, folder_name)
+    if not folder_name_valid:
+        tk_msgbox.showerror(title='Error', message=folder_name_error, parent=main_window)
         return False, ext_type, None
 
     # check if at least one module is selected
@@ -476,7 +491,7 @@ def process(casedata):
         selected_modules = [loader[module] for module in selected_modules]
         progress_bar.config(maximum=len(selected_modules))
         casedata = {key: value.get() for key, value in casedata.items()}
-        out_params = OutputParameters(output_folder)
+        out_params = OutputParameters(output_folder, output_folder_name_entry.get().strip())
         Context.set_output_params(out_params)
         wrap_text = True
         time_offset = timezone_set.get()
@@ -862,15 +877,26 @@ input_file_button.pack(side='left', padx=5, pady=4)
 input_folder_button = ttk.Button(input_frame, text='Browse Folder', command=lambda: select_input('folder'))
 input_folder_button.pack(side='left', padx=5, pady=4)
 
-output_frame = ttk.LabelFrame(main_window, text=' Select Output Folder: ')
+output_frame = ttk.LabelFrame(main_window, text=' Select Output Path ')
 output_frame.pack(padx=14, pady=5, fill='x')
-output_entry = ttk.Entry(output_frame)
+output_path_row = ttk.Frame(output_frame)
+output_path_row.pack(fill='x')
+output_entry = ttk.Entry(output_path_row)
 output_entry.pack(side='left', padx=5, pady=4, fill='x', expand=True)
-output_history_button = ttk.Button(output_frame, text='▼', width=3,
+output_history_button = ttk.Button(output_path_row, text='▼', width=3,
                                  command=lambda: show_history_menu(output_history_button, 'output'))
 output_history_button.pack(side='left', padx=2, pady=4)
-output_folder_button = ttk.Button(output_frame, text='Browse Folder', command=select_output)
+output_folder_button = ttk.Button(output_path_row, text='Browse Folder', command=select_output)
 output_folder_button.pack(side='left', padx=5, pady=4)
+output_folder_name_row = ttk.Frame(output_frame)
+output_folder_name_row.pack(fill='x', padx=5, pady=(0, 4))
+ttk.Label(output_folder_name_row, text='Folder name:').pack(side='left', padx=(0, 5))
+output_folder_name_entry = ttk.Entry(output_folder_name_row)
+output_folder_name_entry.insert(0, default_output_folder_name())
+output_folder_name_entry.configure(
+    validate='key',
+    validatecommand=(main_window.register(allow_output_folder_name_chars), '%P'))
+output_folder_name_entry.pack(side='left', fill='x', expand=True)
 
 mlist_frame = ttk.LabelFrame(main_window, text=' Available Modules: ', name='f_list')
 mlist_frame.pack(padx=14, pady=5, expand=True, fill='both')
