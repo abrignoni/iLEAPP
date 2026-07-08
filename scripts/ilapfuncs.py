@@ -14,7 +14,7 @@ import sqlite3
 import sys
 import xml
 
-from datetime import datetime, timezone, timedelta, UTC
+from datetime import datetime, timezone, timedelta
 from functools import lru_cache
 from pathlib import Path
 from urllib.parse import quote
@@ -1165,7 +1165,7 @@ def convert_unix_ts_to_utc(ts):
 def convert_unix_ts_to_str(ts):
     if ts:
         ts = convert_unix_ts_in_seconds(ts)
-        return datetime.fromtimestamp(ts, UTC).strftime('%Y-%m-%d %H:%M:%S')
+        return datetime.fromtimestamp(ts, timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
     else:
         return ts
 
