@@ -24,7 +24,7 @@ from scripts.version_info import leapp_name
 
 # new location for modules imported for backward compatibility
 # existing functions that are moved should leave a commented out def line
-from leapp_functions.platform import (
+from leapp_functions.app.platform import (
     ILLEGAL_FILENAME_CHARS,
     format_illegal_filename_chars,
     illegal_chars_in_filename,
@@ -32,7 +32,7 @@ from leapp_functions.platform import (
     sanitize_file_path,
     validate_filename,
 )
-from leapp_functions.output import (
+from leapp_functions.app.output import (
     get_output_folder_base,
     resolve_output_folder_name,
     validate_output_folder_available,
@@ -569,10 +569,10 @@ def is_platform_windows():
     return sys.platform == 'win32'
 
 # def sanitize_file_path(filename, replacement_char='_'):
-# Moved to leapp_functions.platform
+# Moved to leapp_functions.app.platform
 
 # def sanitize_file_name(filename, replacement_char='_'):
-# Moved to leapp_functions.platform
+# Moved to leapp_functions.app.platform
 
 def get_next_unused_name(path):
     '''Checks if path exists, if it does, finds an unused name by appending -xx

@@ -18,7 +18,7 @@ from shutil import copy2
 from getpass import getpass
 from scripts.search_files import *
 from scripts.ilapfuncs import *
-from leapp_functions.output import validate_output_folder_available
+from leapp_functions.app.output import validate_output_folder_available
 from scripts.version_info import leapp_name, leapp_version
 from time import process_time, gmtime, strftime, perf_counter
 from scripts.lavafuncs import *
