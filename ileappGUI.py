@@ -8,7 +8,7 @@ import webbrowser
 import base64
 
 import scripts.plugin_loader as plugin_loader
-import leapp_functions.history as history
+import leapp_functions.app.history as history
 
 from PIL import Image, ImageTk
 from tkinter import ttk, filedialog as tk_filedialog, messagebox as tk_msgbox

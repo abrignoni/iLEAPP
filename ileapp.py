@@ -12,7 +12,7 @@ import traceback
 import sys
 
 import scripts.plugin_loader as plugin_loader
-import leapp_functions.history as history
+import leapp_functions.app.history as history
 
 from shutil import copy2
 from getpass import getpass
