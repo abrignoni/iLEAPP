@@ -42,6 +42,7 @@ lava_data = None
 lava_db = None
 lava_db_name = '_lava_artifacts.db'
 lava_json_name = '_lava_data.lava'
+LAVA_SCHEMA_VERSION = 2
 
 
 def sanitize_sql_name(name):
@@ -96,6 +97,7 @@ def initialize_lava(input_path, output_path, input_type, profile_filename=None):
     global lava_data, lava_db
 
     lava_data = {
+        "lava_schema_version": LAVA_SCHEMA_VERSION,
         "parser_info": {
             "leapp_name": leapp_name,
             "leapp_version": leapp_version,
