@@ -13,9 +13,9 @@ Number of v1 artifacts: 0
 Number of v2 artifacts: 598  
 Number of artifacts with 'lava output': 589  
 Number of artifacts using 'artifact_icon': 590  
-Number of artifacts using 'version': 102  
-Number of artifacts using 'last_update_date': 494  
-Number of artifacts using context parameter: 431  
+Number of artifacts using 'version': 101  
+Number of artifacts using 'last_update_date': 495  
+Number of artifacts using context parameter: 432  
 Number of artifacts with errors or no recognized artifacts: 0  
 
 ## V2 Artifacts Table
@@ -350,7 +350,7 @@ Number of artifacts with errors or no recognized artifacts: 0
 | [geodPDPlaceCache.py](/scripts/artifacts/geodPDPlaceCache.py) | geodpdplacecache | Geolocation - PD Place Cache | Location | standard | Yes | map-pin |  | 2026-06-24 | Cached place lookups from the geod PDPlaceCache.db | ``**/PDPlaceCache.db*`` |
 | [gmail.py](/scripts/artifacts/gmail.py) | gmailOfflineSearch | Gmail - Offline Search | Gmail | html, tsv, lava, timeline | No | search | 0.0.2 |  | Parses Gmail offline search content | ``*/mobile/Containers/Data/Application/*/Library/Application Support/data/*/searchsqlitedb*`` |
 | [gmail.py](/scripts/artifacts/gmail.py) | gmailLabelDetails | Gmail - Label Details | Gmail | html, tsv, lava | No | tag | 0.0.2 |  | Parses Gmail label details | ``*/mobile/Containers/Data/Application/*/Library/Application Support/data/*/sqlitedb*`` |
-| [googleChat.py](/scripts/artifacts/googleChat.py) | get_googleChat | Google Chat | Google Chats | all | No | message-circle | 0.1 |  | Parses google chats | ``*/Documents/user_accounts/*/dynamite.db*`` |
+| [googleChat.py](/scripts/artifacts/googleChat.py) | google_chat | Google Chat | Google Chats | all | Yes | message-circle |  | 2025-06-04 | Parses google chats | ``*/Documents/user_accounts/*/dynamite.db*``, ``*/Documents/user_accounts/*/tmp/*`` |
 | [googleDuo.py](/scripts/artifacts/googleDuo.py) | googleDuoContacts | Google Duo - Contacts | Google Duo | standard | Yes | users |  | 2026-06-24 | Google Duo contacts | ``*/Application Support/DataStore*`` |
 | [googleDuo.py](/scripts/artifacts/googleDuo.py) | googleDuoCallHistory | Google Duo - Call History | Google Duo | standard | Yes | phone |  | 2026-06-24 | Google Duo call history | ``*/Application Support/DataStore*`` |
 | [googleDuo.py](/scripts/artifacts/googleDuo.py) | googleDuoClips | Google Duo - Clips | Google Duo | standard | Yes | movie |  | 2026-06-24 | Google Duo media clips (with thumbnails from ClipsCache) | ``*/Application Support/DataStore*``, ``*/Application Support/ClipsCache/*.png`` |
