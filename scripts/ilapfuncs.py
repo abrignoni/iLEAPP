@@ -245,6 +245,8 @@ def _check_in_media(media_id, source_path, is_embedded, name, media_data=None, c
             suffix = name.split('.')[-1]
         elif not is_embedded and len(source_path.split('.')[-1]) < 5:
             suffix = source_path.split('.')[-1]
+        elif media_data is None:
+            return None
         else:
             suffix = f".{guess_extension(media_data)}"
         if suffix and not suffix.startswith('.'):
@@ -332,8 +334,17 @@ def check_in_media(file_path, name="", converted_file_path=False, force_type=Non
     file_info = Context.get_seeker().file_infos.get(extraction_path)
     if file_info:
         media_id = hashlib.sha1(f"{file_info.source_path}".encode()).hexdigest()
-        with open(extraction_path, "rb") as f:
-            file_data = f.read()
+
+        media_ref_id = get_media_references_id(media_id, Context.get_artifact_name(), name)
+        needs_file_data = not (lava_get_media_references(media_ref_id) or lava_get_media_item(media_id))
+        if needs_file_data:
+            has_extension = force_extension or (name and len(name.split('.')[-1]) < 5) or len(file_path.split('.')[-1]) < 5
+            needs_file_data = not (force_type and has_extension)
+
+        file_data = None
+        if needs_file_data:
+            with open(extraction_path, "rb") as f:
+                file_data = f.read()
         return _check_in_media(media_id, file_path, False, name, media_data=file_data, converted_file_path=converted_file_path,
                                force_type=force_type, force_extension=force_extension,
                                force_creation_date=force_creation_date, force_modification_date=force_modification_date)
