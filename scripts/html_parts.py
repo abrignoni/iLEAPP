@@ -21,7 +21,8 @@ page_header = \
         <!-- Your custom styles (optional) -->
         <link rel="stylesheet" href="_elements/dashboard.css">
         <link rel="stylesheet" href="_elements/chats.css">
-        
+        <link rel="stylesheet" href="_elements/tabler-icons.css">
+
         <!-- MDBootstrap Datatables  -->
         <link rel="stylesheet" href="_elements/MDB-Free_4.13.0/css/addons/datatables.min.css" rel="stylesheet">
 
