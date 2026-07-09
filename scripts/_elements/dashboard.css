@@ -1,5 +1,5 @@
 * {
-  scrollbar-color: #e30613 #2e3645 !important;
+  scrollbar-color: #d02e26 #2e3645 !important;
   scrollbar-width: thin !important;
 }
 
@@ -7,12 +7,8 @@ body {
   font-size: 0.875rem;
 }
 
-.tabler-icon svg {
-  width: 16px;
-  height: 16px;
-  stroke-width: 1.5;
-  margin-right: 4px;
-  color: #e30613;
+.ti {
+  color: #d02e26;
   vertical-align: text-bottom;
 }
 
@@ -67,7 +63,7 @@ body {
   background-color: #fff;
 }
 
-.sidebar .nav-link.active .tabler-icon svg {
+.sidebar .nav-link.active .ti {
   color: #fff;
   stroke-width: 2.5;
 }
