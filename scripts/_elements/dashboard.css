@@ -7,11 +7,6 @@ body {
   font-size: 0.875rem;
 }
 
-.ti {
-  color: #d02e26;
-  vertical-align: text-bottom;
-}
-
 /*
  * Sidebar
  */
@@ -45,27 +40,35 @@ body {
   }
 }
 
+.ti {
+  font-size: 1rem;
+  vertical-align: text-bottom;
+}
+
 .sidebar .nav-link {
   font-weight: 400;
   color: #999;
 }
 
 .sidebar .nav-link:hover {
-  color: #bbb;
+  color: #ccc;
+}
+
+.sidebar .nav-link.active {
+  color: #fff;
 }
 
 .sidebar .nav-link.active::before {
   content: "";
   position: absolute;
-  left: 8px;
-  width: 4px;
+  left: 10px;
+  width: 3px;
   height: 1.5em; /* légèrement plus grand que le texte (1em) */
-  background-color: #fff;
+  background-color: #d02e26;
 }
 
 .sidebar .nav-link.active .ti {
-  color: #fff;
-  stroke-width: 2.5;
+  color: #d02e26;
 }
 
 .sidebar-heading {
