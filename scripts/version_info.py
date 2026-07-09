@@ -58,6 +58,5 @@ ileapp_contributors = [
      '@bruno_constanzo', 'https://github.com/bconstanzo/'],
     ['Marnix Kaart', '', '', 'https://github.com/mxkrt'],
     ['Arun Kalackattu Hari', 'https://dfdive.com/', '', 'https://github.com/ardfr'],
-    ['Dielle De Noon', 'www.linkedin.com/in/dielle-d-350a0b186', '@Gear-I', 'https://github.com/Gear-I'],
-
+    ['Dielle De Noon', 'https://www.linkedin.com/in/dielle-d-350a0b186', '@Gear-I', 'https://github.com/Gear-I'],
 ]
