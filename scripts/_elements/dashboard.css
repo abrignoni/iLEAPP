@@ -67,10 +67,6 @@ body {
   background-color: #d02e26;
 }
 
-.sidebar .nav-link.active .ti {
-  color: #d02e26;
-}
-
 .sidebar-heading {
   font-size: 0.8rem;
   text-transform: uppercase;
