@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "web_clips": {
         "name": "iOS Screens",
-        "description": "",
+        "description": "Parses home screen web clips (bookmarked web apps), including titles, URLs and icons, from the WebClips directory.",
         "author": "@AlexisBrignoni",
         "creation_date": "2020-04-20",
         "last_update_date": "2025-11-20",

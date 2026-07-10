@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "appleMapsApplication": {
         "name": "Apple Maps Last Activity Camera",
-        "description": "",
+        "description": "Parses the last Apple Maps camera/map location (latitude and longitude) from com.apple.Maps.plist.",
         "author": "@AlexisBrignoni",
         "creation_date": "2020-08-03",
         "last_update_date": "2025-10-08",

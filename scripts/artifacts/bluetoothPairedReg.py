@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "get_bluetoothPairedReg": {
         "name": "Bluetooth Paired",
-        "description": "",
+        "description": "Parses paired Bluetooth Classic devices and their last-seen times from com.apple.MobileBluetooth.devices.plist.",
         "author": "@JohnHyla",
         "creation_date": "2024-10-21",
         "last_update_date": "2025-11-03",

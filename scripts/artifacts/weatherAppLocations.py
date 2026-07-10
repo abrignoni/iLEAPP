@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "weather_app_locations": {
         "name": "Weather App - Locations",
-        "description": "",
+        "description": "Parses saved locations and update times from the iOS Weather app (group.com.apple.weather.plist).",
         "author": "@Anna-Mariya Mateyna",
         "creation_date": "2021-01-29",
         "last_update_date": "2025-11-20",

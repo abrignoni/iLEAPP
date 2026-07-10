@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "get_AWESearch": {
         "name": "TikTok",
-        "description": "",
+        "description": "Parses TikTok in-app search terms and timestamps from the AWESearchHistory file.",
         "author": "@gforce4n6",
         "creation_date": "2023-02-25",
         "last_update_date": "2022-09-26",
