@@ -19,7 +19,12 @@ __artifacts_v2__ = {
         "paths": ("*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist"),
         "output_types": [ "standard" ],
         "html_columns": [ "Profile Picture URL" ],
-        "artifact_icon": "user"
+        "artifact_icon": "user",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Waze Navigation & Live Traffic 5.11.5 | 1 row",
+            "iphone11_ios17": "iOS 17.3 | Waze Navigation & Live Traffic 4.100.0 | 2 rows",
+            "otto_ios17": "iOS 17.5.1 | Waze Navigation & Live Traffic 4.106.2 | 2 rows",
+        }
     },
     "waze_session_info": {
         "name": "Waze - Session Info",
@@ -32,7 +37,12 @@ __artifacts_v2__ = {
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist"),
         "output_types": [ "all" ],
-        "artifact_icon": "navigation"
+        "artifact_icon": "navigation",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Waze Navigation & Live Traffic 5.11.5 | 20 rows",
+            "iphone11_ios17": "iOS 17.3 | Waze Navigation & Live Traffic 4.100.0 | 25 rows",
+            "otto_ios17": "iOS 17.5.1 | Waze Navigation & Live Traffic 4.106.2 | 22 rows",
+        }
     },
     "waze_track_gps_quality": {
         "name": "Waze - Track GPS Quality",
@@ -45,7 +55,12 @@ __artifacts_v2__ = {
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Data/Application/*/Documents/spdlog.*logdata"),
         "output_types": [ "all" ],
-        "artifact_icon": "navigation"
+        "artifact_icon": "navigation",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Waze Navigation & Live Traffic 5.11.5 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | Waze Navigation & Live Traffic 4.100.0 | 7 rows",
+            "otto_ios17": "iOS 17.5.1 | Waze Navigation & Live Traffic 4.106.2 | 37 rows",
+        }
     },
     "waze_search_history": {
         "name": "Waze - Search History",
@@ -58,7 +73,12 @@ __artifacts_v2__ = {
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist"),
         "output_types": [ "all" ],
-        "artifact_icon": "search"
+        "artifact_icon": "search",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Waze Navigation & Live Traffic 5.11.5 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | Waze Navigation & Live Traffic 4.100.0 | 7 rows",
+            "otto_ios17": "iOS 17.5.1 | Waze Navigation & Live Traffic 4.106.2 | 12 rows",
+        }
     },
     "waze_recent_locations": {
         "name": "Waze - Recent Locations",
@@ -71,7 +91,12 @@ __artifacts_v2__ = {
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist"),
         "output_types": [ "all" ],
-        "artifact_icon": "map-pin"
+        "artifact_icon": "map-pin",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Waze Navigation & Live Traffic 5.11.5 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | Waze Navigation & Live Traffic 4.100.0 | 6 rows",
+            "otto_ios17": "iOS 17.5.1 | Waze Navigation & Live Traffic 4.106.2 | 11 rows",
+        }
     },
     "waze_favorite_locations": {
         "name": "Waze - Favorite Locations",
@@ -84,7 +109,12 @@ __artifacts_v2__ = {
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist"),
         "output_types": [ "all" ],
-        "artifact_icon": "star"
+        "artifact_icon": "star",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Waze Navigation & Live Traffic 5.11.5 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | Waze Navigation & Live Traffic 4.100.0 | 2 rows",
+            "otto_ios17": "iOS 17.5.1 | Waze Navigation & Live Traffic 4.106.2 | 2 rows",
+        }
     },
     "waze_shared_locations": {
         "name": "Waze - Shared Locations",
@@ -97,7 +127,12 @@ __artifacts_v2__ = {
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist"),
         "output_types": [ "all" ],
-        "artifact_icon": "map-pin"
+        "artifact_icon": "map-pin",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Waze Navigation & Live Traffic 5.11.5 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | Waze Navigation & Live Traffic 4.100.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | Waze Navigation & Live Traffic 4.106.2 | 0 rows",
+        }
     },
     "waze_planned_events": {
         "name": "Waze - Planned Events",
@@ -111,7 +146,12 @@ __artifacts_v2__ = {
         "paths": ("*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist"),
         "output_types": [ "all" ],
         "html_columns": [ "Image URL" ],
-        "artifact_icon": "calendar"
+        "artifact_icon": "calendar",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Waze Navigation & Live Traffic 5.11.5 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | Waze Navigation & Live Traffic 4.100.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | Waze Navigation & Live Traffic 4.106.2 | 0 rows",
+        }
     },
     "waze_tts": {
         "name": "Waze - Text-To-Speech Navigation",
@@ -124,7 +164,12 @@ __artifacts_v2__ = {
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist"),
         "output_types": [ "standard" ],
-        "artifact_icon": "volume-2"
+        "artifact_icon": "volume-2",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Waze Navigation & Live Traffic 5.11.5 | 76 rows",
+            "iphone11_ios17": "iOS 17.3 | Waze Navigation & Live Traffic 4.100.0 | 536 rows",
+            "otto_ios17": "iOS 17.5.1 | Waze Navigation & Live Traffic 4.106.2 | 63 rows",
+        }
     }
 }
 

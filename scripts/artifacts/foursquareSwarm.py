@@ -21,7 +21,10 @@ __artifacts_v2__ = {
                   "*/com.pinterest.PINDiskCache.PINRemoteImageManagerCache/*%2Fimg%2Fgeneral%2F*"),
         "output_types": [ "standard" ],
         "html_columns": [ "Facebook Profile", "Twitter Profile", "Profile Picture URL", "UID" ],
-        "artifact_icon": "user"
+        "artifact_icon": "user",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 1 row",
+        }
     },
     "foursquare_swarm_contacts": {
         "name": "Foursquare Swarm - Contacts",
@@ -36,7 +39,10 @@ __artifacts_v2__ = {
                   "*/com.pinterest.PINDiskCache.PINRemoteImageManagerCache/*%2Fimg%2Fuser%2F*"),
         "output_types": [ "standard" ],
         "html_columns": [ "Profile Picture URL", "UID" ],
-        "artifact_icon": "users"
+        "artifact_icon": "users",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 186 rows",
+        }
     },
     "foursquare_swarm_address_book": {
         "name": "Foursquare Swarm - Address Book",
@@ -50,7 +56,10 @@ __artifacts_v2__ = {
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Caches/foursquare.sqlite*"),
         "output_types": [ "standard" ],
         "html_columns": [ "Profile Picture", "Phone Numbers", "Facebook Profile" ],
-        "artifact_icon": "book"
+        "artifact_icon": "book",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 0 rows",
+        }
     },
     "foursquare_swarm_checkins": {
         "name": "Foursquare Swarm - Check-ins",
@@ -67,7 +76,10 @@ __artifacts_v2__ = {
         "output_types": [ "all" ],
         "html_columns": [ "Facebook Profile", "Twitter Profile", "Instagram Profile",
                           "Venue URL", "Check-in URL", "Website", "Entities" ],
-        "artifact_icon": "user-check"
+        "artifact_icon": "user-check",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 157 rows",
+        }
     },
     "foursquare_swarm_tips": {
         "name": "Foursquare Swarm - Tips",
@@ -83,7 +95,10 @@ __artifacts_v2__ = {
                   "*/com.pinterest.PINDiskCache.PINRemoteImageManagerCache/*%2Fimg%2Fgeneral%2F*"),
         "output_types": [ "all" ],
         "html_columns": [ "Tip URL", "Short URL", "Photo URL" ],
-        "artifact_icon": "info-circle"
+        "artifact_icon": "info-circle",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 3 rows",
+        }
     },
     "foursquare_swarm_stickers": {
         "name": "Foursquare Swarm - Stickers",
@@ -99,7 +114,10 @@ __artifacts_v2__ = {
                   "*/com.pinterest.PINDiskCache.PINRemoteImageManagerCache/*%2Fimg%2Fbadge%2F*"),
         "output_types": [ "lava", "html", "tsv" ],
         "html_columns": [ "Sticker URL" ],
-        "artifact_icon": "award"
+        "artifact_icon": "award",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 238 rows",
+        }
     },
     "foursquare_swarm_venues_history": {
         "name": "Foursquare Swarm - Venues History",
@@ -116,7 +134,10 @@ __artifacts_v2__ = {
         "output_types": [ "all" ],
         "html_columns": [ "Facebook Profile", "Twitter Profile", "Instagram Profile",
                           "Foursquare Profile", "Website" ],
-        "artifact_icon": "map-pin"
+        "artifact_icon": "map-pin",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 596 rows",
+        }
     },
     "foursquare_swarm_photos": {
         "name": "Foursquare Swarm - Photos",
@@ -133,7 +154,10 @@ __artifacts_v2__ = {
         "output_types": [ "all" ],
         "html_columns": [ "Facebook Profile", "Twitter Profile", "Instagram Profile",
                           "Foursquare Profile", "Website", "Photo URL" ],
-        "artifact_icon": "camera"
+        "artifact_icon": "camera",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 27 rows",
+        }
     },
     "foursquare_swarm_comments": {
         "name": "Foursquare Swarm - Comments",
@@ -148,7 +172,10 @@ __artifacts_v2__ = {
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Caches/foursquare.sqlite*"),
         "output_types": [ "all" ],
         "html_columns": [ "Entities" ],
-        "artifact_icon": "message"
+        "artifact_icon": "message",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 0 rows",
+        }
     },
     "foursquare_swarm_friend_requests": {
         "name": "Foursquare Swarm - Friend Requests",
@@ -163,7 +190,10 @@ __artifacts_v2__ = {
                   "*/com.pinterest.PINDiskCache.PINRemoteImageManagerCache/*%2Fimg%2Fuser%2F*"),                  
         "output_types": [ "standard" ],
         "html_columns": [ "Requester ID", "Requestee ID" ],
-        "artifact_icon": "user-plus"
+        "artifact_icon": "user-plus",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 0 rows",
+        }
     },
     "foursquare_swarm_plans": {
         "name": "Foursquare Swarm - Plans",
@@ -179,7 +209,10 @@ __artifacts_v2__ = {
                   "*/com.pinterest.PINDiskCache.PINRemoteImageManagerCache/*%2Fimg%2Fuser%2F*"),                  
         "output_types": [ "standard" ],
         "html_columns": [ "Entities" ],
-        "artifact_icon": "calendar"
+        "artifact_icon": "calendar",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 0 rows",
+        }
     },
     "foursquare_swarm_events": {
         "name": "Foursquare Swarm - Events",
@@ -195,7 +228,10 @@ __artifacts_v2__ = {
                   "*/com.pinterest.PINDiskCache.PINRemoteImageManagerCache/*%2Fimg%2Fgeneral%2F*"),
         "output_types": [ "standard" ],
         "html_columns": [ "Event URL" ],
-        "artifact_icon": "calendar"
+        "artifact_icon": "calendar",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 0 rows",
+        }
     },
     "foursquare_swarm_saved_lists": {
         "name": "Foursquare Swarm - Saved Lists",
@@ -209,7 +245,10 @@ __artifacts_v2__ = {
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Caches/foursquare.sqlite*"),
         "output_types": [ "all" ],
         "html_columns": [ "List URL", "Source URL" ],
-        "artifact_icon": "list"
+        "artifact_icon": "list",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 0 rows",
+        }
     },
     "foursquare_swarm_location_history": {
         "name": "Foursquare Swarm - Location History",
@@ -222,7 +261,10 @@ __artifacts_v2__ = {
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Caches/foursquare.sqlite*"),
         "output_types": ["all"],
-        "artifact_icon": "navigation"
+        "artifact_icon": "navigation",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 0 rows",
+        }
     },
     "foursquare_swarm_plog": {
         "name": "Foursquare Swarm - Logs",
@@ -236,7 +278,10 @@ __artifacts_v2__ = {
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Caches/foursquare.sqlite*",),
         "output_types": [ "standard", "kml" ],
         "html_columns": [ "Details" ],
-        "artifact_icon": "terminal"
+        "artifact_icon": "terminal",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 0 rows",
+        }
     },
     "foursquare_swarm_feed": {
         "name": "Foursquare Swarm - Activity Feed & Bulletins",
@@ -253,7 +298,10 @@ __artifacts_v2__ = {
         "output_types": [ "standard", "kml" ],
         "html_columns": [ "Participants", "Replies", "Social Actors", 
                           "Image URL", "Entities", "Target" ],
-        "artifact_icon": "activity"
+        "artifact_icon": "activity",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 6 rows",
+        }
     },
 }
 

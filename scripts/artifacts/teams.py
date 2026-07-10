@@ -24,7 +24,10 @@ __artifacts_v2__ = {
                 #"sentMessageStaticLabel": "This Device" 
             }
         },
-        "artifact_icon": "message-circle"
+        "artifact_icon": "message-circle",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | Microsoft Teams 6.13.1 | 125 rows",
+        }
     },
     "teamsContacts": {
         "name": "Teams Contacts",
@@ -36,7 +39,10 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*',),
         "output_types": "standard",
-        "artifact_icon": "address-book"
+        "artifact_icon": "address-book",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | Microsoft Teams 6.13.1 | 13 rows",
+        }
     },
     "teamsUser": {
         "name": "Teams User Information",
@@ -48,7 +54,10 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*',),
         "output_types": "standard",
-        "artifact_icon": "user"
+        "artifact_icon": "user",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | Microsoft Teams 6.13.1 | 10 rows",
+        }
     },
     "teamsCalls": {
         "name": "Teams Call Logs",
@@ -60,7 +69,10 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*',),
         "output_types": "standard",
-        "artifact_icon": "phone-call"
+        "artifact_icon": "phone-call",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | Microsoft Teams 6.13.1 | 9 rows",
+        }
     },
     "teamsLocations": {
         "name": "Teams Shared Locations",
@@ -72,7 +84,10 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*',),
         "output_types": "all",
-        "artifact_icon": "map-pin"
+        "artifact_icon": "map-pin",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | Microsoft Teams 6.13.1 | 13 rows",
+        }
     }
 }
 

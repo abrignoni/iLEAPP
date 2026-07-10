@@ -11,6 +11,16 @@ __artifacts_v2__ = {
         "paths": ('*/netusage.sqlite*'),
         "output_types": "standard",
         "artifact_icon": "chart-pie",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 282 rows",
+            "dexter_ios18": "iOS 18.3.2 | 534 rows",
+            "felix_ios17": "iOS 17.6.1 | 290 rows",
+            "fsfull002_ios17": "iOS 17.1 | 232 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 397 rows",
+            "iphone11_ios17": "iOS 17.3 | 595 rows",
+            "iphone12_ios18": "iOS 18.7 | 287 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 313 rows",
+        },
     },
     "netusage_connections": {
         "name": "Connections",
@@ -24,6 +34,16 @@ __artifacts_v2__ = {
         "paths": ('*/netusage.sqlite*'),
         "output_types": "standard",
         "artifact_icon": "network",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 518 rows",
+            "dexter_ios18": "iOS 18.3.2 | 1457 rows",
+            "felix_ios17": "iOS 17.6.1 | 974 rows",
+            "fsfull002_ios17": "iOS 17.1 | 4 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 430 rows",
+            "iphone11_ios17": "iOS 17.3 | 1232 rows",
+            "iphone12_ios18": "iOS 18.7 | 287 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 16 rows",
+        },
     }
 }
 

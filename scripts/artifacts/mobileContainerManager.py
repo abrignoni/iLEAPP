@@ -10,7 +10,13 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('**/containermanagerd.log.*',),
         "output_types": "standard",
-        "artifact_icon": "trash"
+        "artifact_icon": "trash",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+        }
     }
 }
 

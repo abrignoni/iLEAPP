@@ -11,7 +11,18 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*NoteStore.sqlite*',),
         "output_types": "standard",
-        "artifact_icon": "share-2"
+        "artifact_icon": "share-2",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | group.com.apple.notes | 3 rows",
+            "dexter_ios18": "iOS 18.3.2 | group.com.apple.notes | 9 rows",
+            "felix_ios17": "iOS 17.6.1 | group.com.apple.notes | 12 rows",
+            "fsfull002_ios17": "iOS 17.1 | group.com.apple.notes | 4 rows",
+            "hc_ios18_7": "iOS 18.7.8 | group.com.apple.notes | 10 rows",
+            "iphone11_ios17": "iOS 17.3 | group.com.apple.notes | 35 rows",
+            "iphone12_ios18": "iOS 18.7 | group.com.apple.notes | 40 rows",
+            "iphone14plus_ios18": "iOS 18.0 | group.com.apple.notes | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | group.com.apple.notes | 11 rows",
+        }
     },
     "cloudkit_participants": {
         "name": "CloudKit Share Participants",
@@ -24,7 +35,18 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*NoteStore.sqlite*',),
         "output_types": "standard",
-        "artifact_icon": "users"
+        "artifact_icon": "users",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | group.com.apple.notes | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | group.com.apple.notes | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | group.com.apple.notes | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | group.com.apple.notes | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | group.com.apple.notes | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | group.com.apple.notes | 6 rows",
+            "iphone12_ios18": "iOS 18.7 | group.com.apple.notes | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | group.com.apple.notes | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | group.com.apple.notes | 0 rows",
+        }
     }
 }
 

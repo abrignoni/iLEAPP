@@ -12,6 +12,11 @@ __artifacts_v2__ = {
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
         "artifact_icon": "history",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | Brave Browser & Search Engine 1.88 | 5 rows",
+            "iphone11_ios17": "iOS 17.3 | Brave Private Web Browser, VPN 1.61.1, Google Chrome 120.6099.119 | 9 rows",
+            "otto_ios17": "iOS 17.5.1 | Google Chrome 127.6533.107 | 5 rows",
+        },
     },
     "chromeWebVisits": {
         "name": "Web Visits",
@@ -26,6 +31,11 @@ __artifacts_v2__ = {
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
         "artifact_icon": "world",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | Brave Browser & Search Engine 1.88 | 17 rows",
+            "iphone11_ios17": "iOS 17.3 | Brave Private Web Browser, VPN 1.61.1, Google Chrome 120.6099.119 | 16 rows",
+            "otto_ios17": "iOS 17.5.1 | Google Chrome 127.6533.107 | 6 rows",
+        },
     },
     "chromeWebSearch": {
         "name": "Web Searches",
@@ -40,6 +50,11 @@ __artifacts_v2__ = {
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
         "artifact_icon": "search",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | Brave Browser & Search Engine 1.88 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | Brave Private Web Browser, VPN 1.61.1, Google Chrome 120.6099.119 | 2 rows",
+            "otto_ios17": "iOS 17.5.1 | Google Chrome 127.6533.107 | 1 row",
+        },
     },
     "chromeDownloads": {
         "name": "Downloads",
@@ -54,6 +69,11 @@ __artifacts_v2__ = {
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
         "artifact_icon": "download",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | Brave Browser & Search Engine 1.88 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | Brave Private Web Browser, VPN 1.61.1, Google Chrome 120.6099.119 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | Google Chrome 127.6533.107 | 0 rows",
+        },
     },
     "chromeKeywordSearchTerms": {
         "name": "Keyword Search Terms",
@@ -68,6 +88,11 @@ __artifacts_v2__ = {
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
         "artifact_icon": "search",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | Brave Browser & Search Engine 1.88 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | Brave Private Web Browser, VPN 1.61.1, Google Chrome 120.6099.119 | 1 row",
+            "otto_ios17": "iOS 17.5.1 | Google Chrome 127.6533.107 | 1 row",
+        },
     },
     "chromeAutofillEntries": {
         "name": "Autofill Entries",
@@ -82,6 +107,11 @@ __artifacts_v2__ = {
                   '*/Chromium/Default/Web Data*'),
         "output_types": "standard",
         "artifact_icon": "forms",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | Brave Browser & Search Engine 1.88 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | Brave Private Web Browser, VPN 1.61.1, Google Chrome 120.6099.119 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | Google Chrome 127.6533.107 | 0 rows",
+        },
     },
     "chromeAutofillProfiles": {
         "name": "Autofill Profiles",
@@ -96,6 +126,11 @@ __artifacts_v2__ = {
                   '*/Chromium/Default/Web Data*'),
         "output_types": "standard",
         "artifact_icon": "user",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | Brave Browser & Search Engine 1.88 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | Brave Private Web Browser, VPN 1.61.1, Google Chrome 120.6099.119 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | Google Chrome 127.6533.107 | 0 rows",
+        },
     },
     "chromeBookmarks": {
         "name": "Bookmarks",
@@ -110,6 +145,10 @@ __artifacts_v2__ = {
                   '*/Chromium/Default/Bookmarks*'),
         "output_types": "standard",
         "artifact_icon": "bookmark",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | Brave Browser & Search Engine 1.88 | 1 row",
+            "iphone11_ios17": "iOS 17.3 | Brave Private Web Browser, VPN 1.61.1 | 1 row",
+        },
     },
     "chromeCookies": {
         "name": "Cookies",
@@ -136,6 +175,11 @@ __artifacts_v2__ = {
         "paths": ('*/Chrome/Default/Login Data*', '*/app_sbrowser/Default/Login Data*', '*/app_opera/Login Data*', '*/Chromium/Default/Login Data*'),
         "output_types": "standard",
         "artifact_icon": "key",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | Brave Browser & Search Engine 1.88 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | Brave Private Web Browser, VPN 1.61.1, Google Chrome 120.6099.119 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | Google Chrome 127.6533.107 | 0 rows",
+        },
     },
     "chromeTopSites": {
         "name": "Top Sites",
@@ -149,6 +193,11 @@ __artifacts_v2__ = {
         "paths": ('*/Chrome/Default/Top Sites*', '*/app_sbrowser/Default/Top Sites*', '*/app_opera/Top Sites*', '*/Chromium/Default/Top Sites*'),
         "output_types": ['lava', 'tsv', 'html'],
         "artifact_icon": "star",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | Brave Browser & Search Engine 1.88 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | Google Chrome 120.6099.119 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | Google Chrome 127.6533.107 | 0 rows",
+        },
     },
     "chromeOfflinePages": {
         "name": "Offline Pages",

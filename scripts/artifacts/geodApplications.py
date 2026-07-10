@@ -10,7 +10,11 @@ __artifacts_v2__ = {
         "notes": "createtime assumed to be Mac absolute time (Cocoa, seconds since 2001-01-01 UTC).",
         "paths": ('**/AP.db*',),
         "output_types": "standard",
-        "artifact_icon": "map-pin"
+        "artifact_icon": "map-pin",
+        "sample_data": {
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+        }
     }
 }
 

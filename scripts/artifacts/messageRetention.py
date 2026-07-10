@@ -1,3 +1,4 @@
+# pylint: disable=E0601,W0611,W0613
 __artifacts_v2__ = {
     "messageRetention": {
         "name": "iOS Message Retention",
@@ -10,7 +11,18 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Library/Preferences/com.apple.MobileSMS.plist', '*/mobile/Library/Preferences/com.apple.mobileSMS.plist'),
         "output_types": ["html", "tsv", "lava"],
-        "artifact_icon": "message-circle"
+        "artifact_icon": "message-circle",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 1 row",
+            "dexter_ios18": "iOS 18.3.2 | 3 rows",
+            "felix_ios17": "iOS 17.6.1 | 1 row",
+            "fsfull002_ios17": "iOS 17.1 | 1 row",
+            "hc_ios18_7": "iOS 18.7.8 | 2 rows",
+            "iphone11_ios17": "iOS 17.3 | 1 row",
+            "iphone12_ios18": "iOS 18.7 | 3 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 3 rows",
+            "otto_ios17": "iOS 17.5.1 | 1 row",
+        }
     }
 }
 

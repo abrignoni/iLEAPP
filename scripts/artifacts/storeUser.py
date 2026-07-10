@@ -10,6 +10,16 @@ __artifacts_v2__ = {
         "paths": ('*/mobile/Library/Caches/com.apple.appstored/storeUser.db*',),
         "output_types": "standard",  # or ["html", "tsv", "timeline", "lava"]
         "artifact_icon": "package",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 50 rows",
+            "felix_ios17": "iOS 17.6.1 | 71 rows",
+            "fsfull002_ios17": "iOS 17.1 | 62 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 30 rows",
+            "iphone11_ios17": "iOS 17.3 | 96 rows",
+            "iphone12_ios18": "iOS 18.7 | 84 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 51 rows",
+            "otto_ios17": "iOS 17.5.1 | 84 rows",
+        },
     },
     "storeUser_pha": {  # This should match the function name exactly
         "name": "Purchased Apps History (storeUser)",
@@ -22,6 +32,16 @@ __artifacts_v2__ = {
         "paths": ('*/mobile/Library/Caches/com.apple.appstored/storeUser.db*',),
         "output_types": "standard",  # or ["html", "tsv", "timeline", "lava"]
         "artifact_icon": "shopping-cart",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 53 rows",
+            "felix_ios17": "iOS 17.6.1 | 35 rows",
+            "fsfull002_ios17": "iOS 17.1 | 25 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 31 rows",
+            "iphone11_ios17": "iOS 17.3 | 73 rows",
+            "iphone12_ios18": "iOS 18.7 | 49 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 18 rows",
+            "otto_ios17": "iOS 17.5.1 | 52 rows",
+        },
     }
 }
 

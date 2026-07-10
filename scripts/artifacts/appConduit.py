@@ -17,7 +17,10 @@ __artifacts_v2__ = {
         'notes': '',
         'paths': ('*/mobile/Library/Logs/AppConduit/AppConduit.log.*',),
         'output_types': 'standard',
-        'artifact_icon': 'activity'
+        'artifact_icon': 'activity',
+        'sample_data': {
+            'iphone11_ios17': 'iOS 17.3 | 64 rows',
+        }
     }
 }
 

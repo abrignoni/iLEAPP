@@ -10,7 +10,10 @@ __artifacts_v2__ = {
         "notes": "Timestamps are Cocoa/Mac absolute time (seconds since 2001-01-01 UTC), converted to UTC.",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-TileNetworkDB.sqlite*',),
         "output_types": "all",
-        "artifact_icon": "map-pin"
+        "artifact_icon": "map-pin",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | group.thetileapp.Tile.Documents | 0 rows",
+        }
     }
 }
 

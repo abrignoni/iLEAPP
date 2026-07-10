@@ -1,3 +1,4 @@
+# pylint: disable=W0613
 __artifacts_v2__ = {
     'tcc': {
         'name': 'Application Permissions',
@@ -10,7 +11,18 @@ __artifacts_v2__ = {
         'notes': '',
         'paths': ('*/mobile/Library/TCC/TCC.db*','*/logs/Accessibility/TCC.db*'),
         'output_types': 'standard',
-        'artifact_icon': 'key'
+        'artifact_icon': 'key',
+        'sample_data': {
+            'ctf2020_ios12': 'iOS 12.4 | 46 rows',
+            'dexter_ios18': 'iOS 18.3.2 | 141 rows',
+            'felix_ios17': 'iOS 17.6.1 | 118 rows',
+            'fsfull002_ios17': 'iOS 17.1 | 121 rows',
+            'hc_ios18_7': 'iOS 18.7.8 | 109 rows',
+            'iphone11_ios17': 'iOS 17.3 | 289 rows',
+            'iphone12_ios18': 'iOS 18.7 | 143 rows',
+            'iphone14plus_ios18': 'iOS 18.0 | 69 rows',
+            'otto_ios17': 'iOS 17.5.1 | 185 rows',
+        }
     }
 }
 

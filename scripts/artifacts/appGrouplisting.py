@@ -12,7 +12,18 @@ __artifacts_v2__ = {
             '*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist', 
             '*/Containers/Data/PluginKitPlugin/*/.com.apple.mobile_container_manager.metadata.plist'),
         "output_types": ["html", "tsv", "lava"],
-        "artifact_icon": "package"
+        "artifact_icon": "package",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 439 rows",
+            "dexter_ios18": "iOS 18.3.2 | 1111 rows",
+            "felix_ios17": "iOS 17.6.1 | 829 rows",
+            "fsfull002_ios17": "iOS 17.1 | 780 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 1085 rows",
+            "iphone11_ios17": "iOS 17.3 | 950 rows",
+            "iphone12_ios18": "iOS 18.7 | 1066 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 901 rows",
+            "otto_ios17": "iOS 17.5.1 | 892 rows",
+        }
     }
 }
 

@@ -10,7 +10,18 @@ __artifacts_v2__ = {
         "notes": "All timestamps are in LOCAL device time (the log records local time), not UTC.",
         "paths": ('*/mobile_installation.log.*',),
         "output_types": ["html", "tsv", "lava"],
-        "artifact_icon": "package"
+        "artifact_icon": "package",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 700 rows",
+            "felix_ios17": "iOS 17.6.1 | 697 rows",
+            "fsfull002_ios17": "iOS 17.1 | 714 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 408 rows",
+            "iphone11_ios17": "iOS 17.3 | 416 rows",
+            "iphone12_ios18": "iOS 18.7 | 681 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 960 rows",
+            "otto_ios17": "iOS 17.5.1 | 714 rows",
+        }
     },
     "mobileInstallb_reboots": {
         "name": "Reboots - Mobile Installation Logs",
@@ -23,7 +34,18 @@ __artifacts_v2__ = {
         "notes": "All timestamps are in LOCAL device time (the log records local time), not UTC.",
         "paths": ('*/mobile_installation.log.*',),
         "output_types": ["html", "tsv", "lava"],
-        "artifact_icon": "refresh"
+        "artifact_icon": "refresh",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 4 rows",
+            "felix_ios17": "iOS 17.6.1 | 2 rows",
+            "fsfull002_ios17": "iOS 17.1 | 15 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 26 rows",
+            "iphone11_ios17": "iOS 17.3 | 3 rows",
+            "iphone12_ios18": "iOS 18.7 | 6 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 6 rows",
+            "otto_ios17": "iOS 17.5.1 | 3 rows",
+        }
     }
 }
 

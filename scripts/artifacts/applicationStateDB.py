@@ -44,7 +44,18 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Library/FrontBoard/applicationState.db*'),
         "output_types": ["html","tsv","lava"],
-        "artifact_icon": "package"
+        "artifact_icon": "package",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 109 rows",
+            "dexter_ios18": "iOS 18.3.2 | 190 rows",
+            "felix_ios17": "iOS 17.6.1 | 158 rows",
+            "fsfull002_ios17": "iOS 17.1 | 78 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 145 rows",
+            "iphone11_ios17": "iOS 17.3 | 144 rows",
+            "iphone12_ios18": "iOS 18.7 | 187 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 156 rows",
+            "otto_ios17": "iOS 17.5.1 | 168 rows",
+        }
     },
     "get_snapshot_creationDate": {
         "name": "Application Snapshot",
@@ -61,7 +72,18 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Library/FrontBoard/applicationState.db*'),
         "output_types": "standard",
-        "artifact_icon": "device-mobile"
+        "artifact_icon": "device-mobile",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 257 rows",
+            "dexter_ios18": "iOS 18.3.2 | 733 rows",
+            "felix_ios17": "iOS 17.6.1 | 323 rows",
+            "fsfull002_ios17": "iOS 17.1 | 240 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 362 rows",
+            "iphone11_ios17": "iOS 17.3 | 658 rows",
+            "iphone12_ios18": "iOS 18.7 | 621 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 536 rows",
+            "otto_ios17": "iOS 17.5.1 | 747 rows",
+        }
     },
     "get_snapshot_lastUsedDate": {
         "name": "Application Snapshot lastUsedDate",
@@ -79,7 +101,18 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Library/FrontBoard/applicationState.db*'),
         "output_types": "standard",
-        "artifact_icon": "device-mobile"
+        "artifact_icon": "device-mobile",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 64 rows",
+            "dexter_ios18": "iOS 18.3.2 | 76 rows",
+            "felix_ios17": "iOS 17.6.1 | 19 rows",
+            "fsfull002_ios17": "iOS 17.1 | 23 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 31 rows",
+            "iphone11_ios17": "iOS 17.3 | 120 rows",
+            "iphone12_ios18": "iOS 18.7 | 85 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 24 rows",
+            "otto_ios17": "iOS 17.5.1 | 78 rows",
+        }
     }
 }
 

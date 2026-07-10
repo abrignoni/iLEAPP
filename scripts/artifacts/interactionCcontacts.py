@@ -10,7 +10,18 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('**/interactionC.db*',),
         "output_types": "standard",
-        "artifact_icon": "users"
+        "artifact_icon": "users",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 67 rows",
+            "dexter_ios18": "iOS 18.3.2 | 1601 rows",
+            "felix_ios17": "iOS 17.6.1 | 48 rows",
+            "fsfull002_ios17": "iOS 17.1 | 59 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 1251 rows",
+            "iphone11_ios17": "iOS 17.3 | 917 rows",
+            "iphone12_ios18": "iOS 18.7 | 259 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 102 rows",
+            "otto_ios17": "iOS 17.5.1 | 2287 rows",
+        }
     },
     "interactionCAttachments": {
         "name": "InteractionC - Attachments",
@@ -23,7 +34,18 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('**/interactionC.db*',),
         "output_types": "standard",
-        "artifact_icon": "paperclip"
+        "artifact_icon": "paperclip",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 15 rows",
+            "dexter_ios18": "iOS 18.3.2 | 4 rows",
+            "felix_ios17": "iOS 17.6.1 | 12 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 2 rows",
+            "iphone12_ios18": "iOS 18.7 | 6 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 4 rows",
+        }
     }
 }
 

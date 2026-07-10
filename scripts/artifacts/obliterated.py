@@ -11,6 +11,15 @@ __artifacts_v2__ = {
         "paths": ('*/root/.obliterated'),
         "output_types": "standard",
         "artifact_icon": "trash",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 1 row",
+            "felix_ios17": "iOS 17.6.1 | 1 row",
+            "fsfull002_ios17": "iOS 17.1 | 1 row",
+            "iphone11_ios17": "iOS 17.3 | 1 row",
+            "iphone12_ios18": "iOS 18.7 | 1 row",
+            "iphone14plus_ios18": "iOS 18.0 | 1 row",
+            "otto_ios17": "iOS 17.5.1 | 1 row",
+        },
     }
 }
 

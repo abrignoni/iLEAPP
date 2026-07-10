@@ -10,7 +10,18 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('**/Safari/History.db*',),
         "output_types": "standard",
-        "artifact_icon": "search"
+        "artifact_icon": "search",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | com.apple.mobilesafari | 95 rows",
+            "dexter_ios18": "iOS 18.3.2 | 7 rows",
+            "felix_ios17": "iOS 17.6.1 | 4 rows",
+            "fsfull002_ios17": "iOS 17.1 | 11 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 7 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | 26 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 12 rows",
+            "otto_ios17": "iOS 17.5.1 | 33 rows",
+        }
     }
 }
 

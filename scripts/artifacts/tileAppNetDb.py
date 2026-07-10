@@ -11,7 +11,10 @@ __artifacts_v2__ = {
         'paths': (
             '*/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-TileNetworkDB.sqlite*', ),
         'output_types': 'standard',
-        'artifact_icon': 'user'
+        'artifact_icon': 'user',
+        'sample_data': {
+            'otto_ios17': 'iOS 17.5.1 | group.thetileapp.Tile.Documents | 0 rows',
+        }
     }
 }
 

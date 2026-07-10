@@ -35,7 +35,10 @@ __artifacts_v2__ = {
                 'mediaColumn': 'Attachment File'
                 }
         },
-        "artifact_icon": "message"
+        "artifact_icon": "message",
+        "sample_data": {
+            "iphone14plus_ios18": "iOS 18.0 | Zangi Private Messenger 5.6.7 | 13 rows",
+        }
     },
     "zangi_contacts": {
         "name": "Zangi Messenger - Contacts",
@@ -49,7 +52,10 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/zangidb*.sqlite'),
         "output_types": "standard",
-        "artifact_icon": "users"
+        "artifact_icon": "users",
+        "sample_data": {
+            "iphone14plus_ios18": "iOS 18.0 | Zangi Private Messenger 5.6.7 | 0 rows",
+        }
     },
     "zangi_accounts": {
         "name": "Zangi Messenger - Accounts",
@@ -63,7 +69,10 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/zangidb*.sqlite'),
         "output_types": "standard",
-        "artifact_icon": "user"
+        "artifact_icon": "user",
+        "sample_data": {
+            "iphone14plus_ios18": "iOS 18.0 | Zangi Private Messenger 5.6.7 | 1 row",
+        }
     }
 }
 

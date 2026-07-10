@@ -10,7 +10,18 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Containers/Data/Application/*/Library/Image Cache/Favicons/Favicons.db*',),
         "output_types": "standard",
-        "artifact_icon": "photo"
+        "artifact_icon": "photo",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | com.apple.mobilesafari | 153 rows",
+            "dexter_ios18": "iOS 18.3.2 | com.apple.mobilesafari | 3 rows",
+            "felix_ios17": "iOS 17.6.1 | com.apple.mobilesafari | 9 rows",
+            "fsfull002_ios17": "iOS 17.1 | com.apple.mobilesafari | 5 rows",
+            "hc_ios18_7": "iOS 18.7.8 | com.apple.mobilesafari | 4 rows",
+            "iphone11_ios17": "iOS 17.3 | com.apple.mobilesafari | 3 rows",
+            "iphone12_ios18": "iOS 18.7 | com.apple.mobilesafari | 16 rows",
+            "iphone14plus_ios18": "iOS 18.0 | com.apple.mobilesafari | 6 rows",
+            "otto_ios17": "iOS 17.5.1 | com.apple.mobilesafari | 71 rows",
+        }
     }
 }
 

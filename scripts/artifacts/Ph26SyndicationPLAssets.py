@@ -1,3 +1,4 @@
+# pylint: disable=W0611,W0613,W0631
 __artifacts_v2__ = {
     'Ph26_1SyndicationIDAssetsPhDaPsql': {
         'name': 'Ph26.1-Syndication ID Assets-PhDaPsql',
@@ -21,7 +22,18 @@ __artifacts_v2__ = {
         'notes': '',
         'paths': ('*/PhotoData/Photos.sqlite*',),
         "output_types": ["standard", "tsv", "none"],
-        "artifact_icon": "refresh-ccw"
+        "artifact_icon": "refresh-ccw",
+        'sample_data': {
+            'ctf2020_ios12': 'iOS 12.4 | 0 rows',
+            'dexter_ios18': 'iOS 18.3.2 | 3 rows',
+            'felix_ios17': 'iOS 17.6.1 | 0 rows',
+            'fsfull002_ios17': 'iOS 17.1 | 0 rows',
+            'hc_ios18_7': 'iOS 18.7.8 | 0 rows',
+            'iphone11_ios17': 'iOS 17.3 | 3 rows',
+            'iphone12_ios18': 'iOS 18.7 | 0 rows',
+            'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
+            'otto_ios17': 'iOS 17.5.1 | 1 row',
+        }
     },
     'Ph26_2SyndicationPLAssetsSyndPL': {
         'name': 'Ph26.2-Syndication PL Assets-SyndPL',
@@ -45,7 +57,17 @@ __artifacts_v2__ = {
         'notes': '',
         'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
         "output_types": ["standard", "tsv", "none"],
-        "artifact_icon": "message-square"
+        "artifact_icon": "message-square",
+        'sample_data': {
+            'dexter_ios18': 'iOS 18.3.2 | 34 rows',
+            'felix_ios17': 'iOS 17.6.1 | 9 rows',
+            'fsfull002_ios17': 'iOS 17.1 | 25 rows',
+            'hc_ios18_7': 'iOS 18.7.8 | 0 rows',
+            'iphone11_ios17': 'iOS 17.3 | 16 rows',
+            'iphone12_ios18': 'iOS 18.7 | 2 rows',
+            'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
+            'otto_ios17': 'iOS 17.5.1 | 40 rows',
+        }
     }
 }
 

@@ -6,6 +6,9 @@ __artifacts_v2__ = {
         "category": "Slack", "notes": "",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/*/ModelDatabase/db.sqlite*',),
         "output_types": "standard", "artifact_icon": "message-circle",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | Slack 24.07.40 | 61 rows",
+        },
         "data_views": {
             "conversation": {
                 "conversationDiscriminatorColumn": "Conversation ID",
@@ -24,7 +27,10 @@ __artifacts_v2__ = {
         "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Slack", "notes": "",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/*/ModelDatabase/db.sqlite*',),
-        "output_types": "standard", "artifact_icon": "users"
+        "output_types": "standard", "artifact_icon": "users",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | Slack 24.07.40 | 5 rows",
+        }
     },
     "slackModelChannels": {
         "name": "Slack - Channel Data (ModelDatabase)",
@@ -32,7 +38,10 @@ __artifacts_v2__ = {
         "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Slack", "notes": "",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/*/ModelDatabase/db.sqlite*',),
-        "output_types": "standard", "artifact_icon": "hash"
+        "output_types": "standard", "artifact_icon": "hash",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | Slack 24.07.40 | 8 rows",
+        }
     },
     "slackMessages": {
         "name": "Slack - Messages",

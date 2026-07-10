@@ -10,7 +10,18 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Library/CallHistoryDB/CallHistory*'),
         "output_types": "standard",
-        "artifact_icon": "phone-call"
+        "artifact_icon": "phone-call",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 16 rows",
+            "dexter_ios18": "iOS 18.3.2 | 11 rows",
+            "felix_ios17": "iOS 17.6.1 | 4 rows",
+            "fsfull002_ios17": "iOS 17.1 | 14 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 1003 rows",
+            "iphone11_ios17": "iOS 17.3 | 36 rows",
+            "iphone12_ios18": "iOS 18.7 | 28 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 41 rows",
+        }
     },
     "callHistoryInteractionC": {
         "name": "interactionC Call History - Group Call",
@@ -24,7 +35,18 @@ __artifacts_v2__ = {
         "paths": (
             '*/mobile/Library/CoreDuet/People/interactionC.db*'),
         "output_types": "standard",
-        "artifact_icon": "phone-call"
+        "artifact_icon": "phone-call",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 8 rows",
+            "dexter_ios18": "iOS 18.3.2 | 1 row",
+            "felix_ios17": "iOS 17.6.1 | 4 rows",
+            "fsfull002_ios17": "iOS 17.1 | 2 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 458 rows",
+            "iphone11_ios17": "iOS 17.3 | 6 rows",
+            "iphone12_ios18": "iOS 18.7 | 25 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 13 rows",
+        }
     }
 }
 

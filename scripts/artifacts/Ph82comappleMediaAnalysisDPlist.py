@@ -1,3 +1,4 @@
+# pylint: disable=W0611,W0613
 __artifacts_v2__ = {
     'Ph82ComAppleMediaAnalysisDPlist': {
         'name': 'Ph82-Com-Apple-MediaAnalysisD-Plist',
@@ -14,7 +15,18 @@ __artifacts_v2__ = {
         'notes': '',
         'paths': ('*/mobile/Library/Preferences/com.apple.mediaanalysisd.plist',),
         "output_types": ["standard", "tsv", "none"],
-        "artifact_icon": "book"
+        "artifact_icon": "book",
+        'sample_data': {
+            'ctf2020_ios12': 'iOS 12.4 | 1 row',
+            'dexter_ios18': 'iOS 18.3.2 | 17 rows',
+            'felix_ios17': 'iOS 17.6.1 | 9 rows',
+            'fsfull002_ios17': 'iOS 17.1 | 9 rows',
+            'hc_ios18_7': 'iOS 18.7.8 | 19 rows',
+            'iphone11_ios17': 'iOS 17.3 | 9 rows',
+            'iphone12_ios18': 'iOS 18.7 | 17 rows',
+            'iphone14plus_ios18': 'iOS 18.0 | 15 rows',
+            'otto_ios17': 'iOS 17.5.1 | 9 rows',
+        }
     }
 }
 

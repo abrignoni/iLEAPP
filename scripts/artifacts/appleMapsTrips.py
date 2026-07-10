@@ -12,7 +12,18 @@ __artifacts_v2__ = {
                   '*/Library/Caches/com.apple.routined/Cloud-V2.sqlite*'),
         "output_types": ["html", "tsv", "lava"],
         "html_columns": ["Google Maps Link"],
-        "artifact_icon": "map-pin"
+        "artifact_icon": "map-pin",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 206 rows",
+            "felix_ios17": "iOS 17.6.1 | 45 rows",
+            "fsfull002_ios17": "iOS 17.1 | 50 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 22 rows",
+            "iphone11_ios17": "iOS 17.3 | 155 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 3 rows",
+            "otto_ios17": "iOS 17.5.1 | 242 rows",
+        }
     },
     "appleMapsSignificantLocations": {
         "name": "Apple Maps Significant Locations",
@@ -27,7 +38,18 @@ __artifacts_v2__ = {
                   '*/Library/Caches/com.apple.routined/Cloud-V2.sqlite*'),
         "output_types": ["html", "tsv", "lava", "kml"],
         "html_columns": ["Google Maps Link"],
-        "artifact_icon": "map-pin"
+        "artifact_icon": "map-pin",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 206 rows",
+            "felix_ios17": "iOS 17.6.1 | 45 rows",
+            "fsfull002_ios17": "iOS 17.1 | 50 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 22 rows",
+            "iphone11_ios17": "iOS 17.3 | 155 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 3 rows",
+            "otto_ios17": "iOS 17.5.1 | 242 rows",
+        }
     },
     "appleMapsSignificantLocationsVisits": {
         "name": "Apple Maps Significant Locations Visits",
@@ -42,7 +64,18 @@ __artifacts_v2__ = {
                   '*/Library/Caches/com.apple.routined/Cloud-V2.sqlite*'),
         "output_types": ["html", "tsv", "lava", "kml"],
         "html_columns": ["Google Maps Link"],
-        "artifact_icon": "map-pin"
+        "artifact_icon": "map-pin",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 136 rows",
+            "felix_ios17": "iOS 17.6.1 | 38 rows",
+            "fsfull002_ios17": "iOS 17.1 | 9 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 13 rows",
+            "iphone11_ios17": "iOS 17.3 | 103 rows",
+            "iphone12_ios18": "iOS 18.7 | 2 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 3 rows",
+            "otto_ios17": "iOS 17.5.1 | 241 rows",
+        }
     }
 }
 

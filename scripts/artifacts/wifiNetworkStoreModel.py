@@ -12,7 +12,10 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Library/Application Support/WiFiNetworkStoreModel.sqlite*'),
         "output_types": "all",
-        "artifact_icon": "wifi"
+        "artifact_icon": "wifi",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 7 rows",
+        }
     }
 }
 

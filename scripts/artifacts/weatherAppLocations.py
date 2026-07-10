@@ -10,7 +10,18 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.com.apple.weather.plist',),
         "output_types": "all",
-        "artifact_icon": "sun"
+        "artifact_icon": "sun",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | com.apple.weather | 2 rows",
+            "dexter_ios18": "iOS 18.3.2 | com.apple.weather | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | com.apple.weather | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | com.apple.weather | 2 rows",
+            "hc_ios18_7": "iOS 18.7.8 | com.apple.weather | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | com.apple.weather | 4 rows",
+            "iphone12_ios18": "iOS 18.7 | com.apple.weather | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | com.apple.weather | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | com.apple.weather | 6 rows",
+        }
     }
 }
 from scripts.ilapfuncs import (

@@ -1,3 +1,4 @@
+# pylint: disable=W0311,W0611,W0613,W0631
 __artifacts_v2__ = {
 	'Ph50_1AssetIntResouPhDaPsql': {
 		'name': 'Ph50.1-Asset_IntResou-PhDaPsql',
@@ -16,7 +17,18 @@ __artifacts_v2__ = {
 		'notes': '',
 		'paths': ('*/PhotoData/Photos.sqlite*',),
 		"output_types": ["standard", "tsv", "none"],
-		"artifact_icon": "database"
+		"artifact_icon": "database",
+  'sample_data': {
+      'ctf2020_ios12': 'iOS 12.4 | 0 rows',
+      'dexter_ios18': 'iOS 18.3.2 | 5009 rows',
+      'felix_ios17': 'iOS 17.6.1 | 216 rows',
+      'fsfull002_ios17': 'iOS 17.1 | 349 rows',
+      'hc_ios18_7': 'iOS 18.7.8 | 145 rows',
+      'iphone11_ios17': 'iOS 17.3 | 1521 rows',
+      'iphone12_ios18': 'iOS 18.7 | 9704 rows',
+      'iphone14plus_ios18': 'iOS 18.0 | 9 rows',
+      'otto_ios17': 'iOS 17.5.1 | 2339 rows',
+  }
 	},
 	'Ph50_2AssetIntResouSyndPL': {
 		'name': 'Ph50.2-Asset_IntResou-SyndPL',
@@ -35,7 +47,18 @@ __artifacts_v2__ = {
 		'notes': '',
 		'paths': ('*/PhotoData/Photos.sqlite*',),
 		"output_types": ["standard", "tsv", "none"],
-		"artifact_icon": "database"
+		"artifact_icon": "database",
+  'sample_data': {
+      'ctf2020_ios12': 'iOS 12.4 | 0 rows',
+      'dexter_ios18': 'iOS 18.3.2 | 5009 rows',
+      'felix_ios17': 'iOS 17.6.1 | 216 rows',
+      'fsfull002_ios17': 'iOS 17.1 | 349 rows',
+      'hc_ios18_7': 'iOS 18.7.8 | 145 rows',
+      'iphone11_ios17': 'iOS 17.3 | 1521 rows',
+      'iphone12_ios18': 'iOS 18.7 | 9704 rows',
+      'iphone14plus_ios18': 'iOS 18.0 | 9 rows',
+      'otto_ios17': 'iOS 17.5.1 | 2339 rows',
+  }
 	},
 	'Ph50_3AssetIntResouGenPlayPsql': {
 		'name': 'Ph50.3-Asset_IntResou-GenPlayPsql',
@@ -54,7 +77,10 @@ __artifacts_v2__ = {
         'notes': '',
         'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
         "output_types": ["standard", "tsv", "none"],
-		"artifact_icon": "database"
+		"artifact_icon": "database",
+  'sample_data': {
+      'dexter_ios18': 'iOS 18.3.2 | 81 rows',
+  }
 	}
 }
 

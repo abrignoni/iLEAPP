@@ -11,7 +11,18 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Library/Caches/Backup/cloudkit_cache.db*',),
         "output_types": "standard",
-        "artifact_icon": "cloud"
+        "artifact_icon": "cloud",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 3 rows",
+            "dexter_ios18": "iOS 18.3.2 | 3 rows",
+            "felix_ios17": "iOS 17.6.1 | 3 rows",
+            "fsfull002_ios17": "iOS 17.1 | 3 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 4 rows",
+            "iphone11_ios17": "iOS 17.3 | 3 rows",
+            "iphone12_ios18": "iOS 18.7 | 1 row",
+            "iphone14plus_ios18": "iOS 18.0 | 3 rows",
+            "otto_ios17": "iOS 17.5.1 | 2 rows",
+        }
     },
     "cloudkit_files": {
         "name": "iCloud Backup Files",
@@ -24,7 +35,18 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Library/Caches/Backup/cloudkit_cache.db*',),
         "output_types": "standard",
-        "artifact_icon": "file-text"
+        "artifact_icon": "file-text",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 11216 rows",
+            "felix_ios17": "iOS 17.6.1 | 4537 rows",
+            "fsfull002_ios17": "iOS 17.1 | 5658 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 11377 rows",
+            "iphone12_ios18": "iOS 18.7 | 2970 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 3166 rows",
+            "otto_ios17": "iOS 17.5.1 | 10037 rows",
+        }
     }
 }
 

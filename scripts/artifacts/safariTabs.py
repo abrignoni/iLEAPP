@@ -5,7 +5,18 @@ __artifacts_v2__ = {
         "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Safari Browser", "notes": "",
         "paths": ('**/Safari/BrowserState.db*',),
-        "output_types": "standard", "artifact_icon": "layout"
+        "output_types": "standard", "artifact_icon": "layout",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | com.apple.mobilesafari | 3 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 1 row",
+            "iphone12_ios18": "iOS 18.7 | 2 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 1 row",
+        }
     },
     "safariTabsiCloud": {
         "name": "Safari Browser - iCloud Tabs",
@@ -13,7 +24,18 @@ __artifacts_v2__ = {
         "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Safari Browser", "notes": "",
         "paths": ('**/Safari/CloudTabs.db*',),
-        "output_types": "standard", "artifact_icon": "cloud"
+        "output_types": "standard", "artifact_icon": "cloud",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 2 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 3 rows",
+            "fsfull002_ios17": "iOS 17.1 | 1 row",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 2 rows",
+            "iphone12_ios18": "iOS 18.7 | 2 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 2 rows",
+            "otto_ios17": "iOS 17.5.1 | 23 rows",
+        }
     }
 }
 

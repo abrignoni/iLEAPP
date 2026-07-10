@@ -1,3 +1,4 @@
+# pylint: disable=W0611,W0613
 __artifacts_v2__ = {
     'Ph80ComAppleMobileSlideshowPlist': {
         'name': 'Ph80-Com-Apple-MobileSlideshow-Plist',
@@ -13,7 +14,18 @@ __artifacts_v2__ = {
         'notes': '',
         'paths': ('*/Library/Preferences/com.apple.mobileslideshow.plist',),
         "output_types": ["standard", "tsv", "none"],
-        "artifact_icon": "settings"
+        "artifact_icon": "settings",
+        'sample_data': {
+            'ctf2020_ios12': 'iOS 12.4 | 23 rows',
+            'dexter_ios18': 'iOS 18.3.2 | 64 rows',
+            'felix_ios17': 'iOS 17.6.1 | 26 rows',
+            'fsfull002_ios17': 'iOS 17.1 | 8 rows',
+            'hc_ios18_7': 'iOS 18.7.8 | 6 rows',
+            'iphone11_ios17': 'iOS 17.3 | 19 rows',
+            'iphone12_ios18': 'iOS 18.7 | 35 rows',
+            'iphone14plus_ios18': 'iOS 18.0 | 5 rows',
+            'otto_ios17': 'iOS 17.5.1 | 26 rows',
+        }
     }
 }
 

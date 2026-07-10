@@ -20,6 +20,10 @@ __artifacts_v2__ = {
         "paths": ('*/mobile/Library/CoreAccessories/Analytics/acc_analytics_accessoryd_v3.db*',),
         "output_types": "standard",
         "artifact_icon": "plug-connected",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | 4 rows",
+            "otto_ios17": "iOS 17.5.1 | 40 rows",
+        },
     }
 }
 

@@ -11,7 +11,10 @@ __artifacts_v2__ = {
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-ProfileRepository/*'),
         "output_types": [ "lava", "html", "tsv", "timeline" ],
         "html_columns": [ "Profile picture URL", "Timezone", "Device UID", "Device Model and OS", "App version", "RealMojis" ],
-        "artifact_icon": "user"
+        "artifact_icon": "user",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | BeReal. Your friends for real. 2.24.0 | 1 row",
+        }
     },
     "bereal_contacts": {
         "name": "BeReal Contacts",
@@ -25,7 +28,10 @@ __artifacts_v2__ = {
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-RelationshipsContactsManager-contact/*'),
         "output_types": [ "lava", "html", "tsv" ],
         "html_columns": [ "Profile picture"],
-        "artifact_icon": "users"
+        "artifact_icon": "users",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | BeReal. Your friends for real. 2.24.0 | 5 rows",
+        }
     },
     "bereal_persons": {
         "name": "BeReal Persons",
@@ -39,7 +45,10 @@ __artifacts_v2__ = {
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/PersonRepository/*'),
         "output_types": [ "lava", "html", "tsv", "timeline" ],
         "html_columns": [ "Profile picture URL", "Urls" ],
-        "artifact_icon": "users"
+        "artifact_icon": "users",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | BeReal. Your friends for real. 2.24.0 | 0 rows",
+        }
     },
     "bereal_friends": {
         "name": "BeReal Friends",
@@ -57,7 +66,10 @@ __artifacts_v2__ = {
                   '*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-Production_FriendsStorage.followers/*'),
         "output_types": [ "lava", "html", "tsv", "timeline" ],
         "html_columns": [ "Profile picture URL" ],
-        "artifact_icon": "user-plus"
+        "artifact_icon": "user-plus",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | BeReal. Your friends for real. 2.24.0 | 2 rows",
+        }
     },
     "bereal_blocked_users": {
         "name": "BeReal Blocked Users",
@@ -71,7 +83,10 @@ __artifacts_v2__ = {
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-BlockedUserManager/*'),
         "output_types": [ "lava", "html", "tsv", "timeline" ],
         "html_columns": [ "Profile picture URL" ],
-        "artifact_icon": "slash"
+        "artifact_icon": "slash",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | BeReal. Your friends for real. 2.24.0 | 0 rows",
+        }
     },
     "bereal_posts": {
         "name": "BeReal Posts",
@@ -88,7 +103,10 @@ __artifacts_v2__ = {
                   '*/mobile/Containers/Shared/AppGroup/*/disk-bereal-Production_postFeedItems/*'),
         "output_types": [ "lava", "html", "tsv", "timeline" ],
         "html_columns": [ "Primary URL", "Secondary URL", "Thumbnail URL", "Tagged friends", "Source file name", "Location" ],
-        "artifact_icon": "calendar"
+        "artifact_icon": "calendar",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | BeReal. Your friends for real. 2.24.0, group.BeReal | 0 rows",
+        }
     },
     "bereal_pinned_memories": {
         "name": "BeReal Pinned Memories",
@@ -103,7 +121,10 @@ __artifacts_v2__ = {
                   '*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-PersonRepository-pinnedMemories-key/*'),
         "output_types": [ "lava", "html", "tsv", "timeline" ],
         "html_columns": [ "Primary URL", "Secondary URL", "Thumbnail URL", "Source file name", "Location" ],
-        "artifact_icon": "bookmark"
+        "artifact_icon": "bookmark",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | BeReal. Your friends for real. 2.24.0 | 0 rows",
+        }
     },
     "bereal_realmojis": {
         "name": "BeReal RealMojis",
@@ -129,7 +150,10 @@ __artifacts_v2__ = {
             "senderColumn": "Author",
             "textColumn": "Emoji"
         },
-        "artifact_icon": "thumb-up"
+        "artifact_icon": "thumb-up",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | BeReal. Your friends for real. 2.24.0, group.BeReal | 0 rows",
+        }
     },
     "bereal_comments": {
         "name": "BeReal Comments",
@@ -155,7 +179,10 @@ __artifacts_v2__ = {
             "senderColumn": "Author",
             "textColumn": "Text"
         },
-        "artifact_icon": "message"
+        "artifact_icon": "message",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | BeReal. Your friends for real. 2.24.0, group.BeReal | 0 rows",
+        }
     },
     "bereal_messages": {
         "name": "BeReal Messages",
@@ -179,7 +206,10 @@ __artifacts_v2__ = {
             "senderColumn": "Sender",
             "textColumn": "Message"
         },
-        "artifact_icon": "message"
+        "artifact_icon": "message",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | group.BeReal | 0 rows",
+        }
     },
     "bereal_chat_list": {
         "name": "BeReal Chat List",
@@ -194,7 +224,10 @@ __artifacts_v2__ = {
                   '*/mobile/Containers/Shared/AppGroup/*/bereal-chat.sqlite*'),
         "output_types": [ "lava", "html", "tsv", "timeline" ],
         "html_columns": [ "Administrators", "Participants" ],
-        "artifact_icon": "message-circle"
+        "artifact_icon": "message-circle",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | group.BeReal | 0 rows",
+        }
     }
 }
 

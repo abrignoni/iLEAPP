@@ -1,3 +1,4 @@
+# pylint: disable=W0611,W0613,W0631
 __artifacts_v2__ = {
     'Ph16_1PeopleFacesAssetDataPhDaPsql': {
         'name': 'Ph16.1-People & Faces Asset Data-PhDaPsql',
@@ -12,7 +13,18 @@ __artifacts_v2__ = {
         'notes': '',
         'paths': ('*/PhotoData/Photos.sqlite*',),
         "output_types": ["standard", "tsv", "none"],
-        "artifact_icon": "smile"
+        "artifact_icon": "smile",
+        'sample_data': {
+            'ctf2020_ios12': 'iOS 12.4 | 0 rows',
+            'dexter_ios18': 'iOS 18.3.2 | 729 rows',
+            'felix_ios17': 'iOS 17.6.1 | 6 rows',
+            'fsfull002_ios17': 'iOS 17.1 | 30 rows',
+            'hc_ios18_7': 'iOS 18.7.8 | 16 rows',
+            'iphone11_ios17': 'iOS 17.3 | 236 rows',
+            'iphone12_ios18': 'iOS 18.7 | 1201 rows',
+            'iphone14plus_ios18': 'iOS 18.0 | 1 row',
+            'otto_ios17': 'iOS 17.5.1 | 332 rows',
+        }
     },
     'Ph16_2PeopleFacesAssetDataSyndPL': {
         'name': 'Ph16.2-People & Faces Asset Data-SyndPL',
@@ -27,7 +39,17 @@ __artifacts_v2__ = {
         'notes': '',
         'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
         "output_types": ["standard", "tsv", "none"],
-        "artifact_icon": "smile"
+        "artifact_icon": "smile",
+        'sample_data': {
+            'dexter_ios18': 'iOS 18.3.2 | 4 rows',
+            'felix_ios17': 'iOS 17.6.1 | 0 rows',
+            'fsfull002_ios17': 'iOS 17.1 | 15 rows',
+            'hc_ios18_7': 'iOS 18.7.8 | 0 rows',
+            'iphone11_ios17': 'iOS 17.3 | 12 rows',
+            'iphone12_ios18': 'iOS 18.7 | 0 rows',
+            'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
+            'otto_ios17': 'iOS 17.5.1 | 29 rows',
+        }
     }
 }
 

@@ -12,6 +12,12 @@ __artifacts_v2__ = {
                   '*/mobile/Containers/Shared/AppGroup/*/cores/private/*/content_manager/data_cache/*'),
         "output_types": "standard",
         "artifact_icon": "message-circle",
+        "sample_data": {
+            "felix_ios17": "iOS 17.6.1 | Kik Messaging & Chat App 17.0.0 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | Kik Messaging & Chat App 16.9.3 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | Kik Messaging & Chat App 17.11.3 | 3 rows",
+            "iphone11_ios17": "iOS 17.3 | Kik Messaging & Chat App 16.16.1 | 32 rows",
+        },
         "data_views": {
             "conversation": {
                 "conversationDiscriminatorColumn": "User Name",
@@ -36,7 +42,13 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('**/kik.sqlite*',),
         "output_types": "standard",
-        "artifact_icon": "users"
+        "artifact_icon": "users",
+        "sample_data": {
+            "felix_ios17": "iOS 17.6.1 | Kik Messaging & Chat App 17.0.0 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | Kik Messaging & Chat App 16.9.3 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | Kik Messaging & Chat App 17.11.3 | 4 rows",
+            "iphone11_ios17": "iOS 17.3 | Kik Messaging & Chat App 16.16.1 | 7 rows",
+        }
     }
 }
 

@@ -10,7 +10,14 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/com.apple.MobileBluetooth.devices.plist'),
         "output_types": "standard",
-        "artifact_icon": "bluetooth-connected"
+        "artifact_icon": "bluetooth-connected",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 12 rows",
+            "felix_ios17": "iOS 17.6.1 | 3 rows",
+            "fsfull002_ios17": "iOS 17.1 | 2 rows",
+            "iphone11_ios17": "iOS 17.3 | 5 rows",
+            "otto_ios17": "iOS 17.5.1 | 8 rows",
+        }
     }
 }
 

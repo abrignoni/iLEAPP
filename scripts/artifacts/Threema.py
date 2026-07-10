@@ -14,6 +14,9 @@ __artifacts_v2__ = {
         ),
         'output_types': 'all',
         'artifact_icon': 'message',
+        'sample_data': {
+            'iphone11_ios17': 'iOS 17.3 | group.ch.threema | 45 rows',
+        },
         'data_views': {
             'conversation': {
                 'conversationDiscriminatorColumn': 'Chat-ID',
@@ -41,6 +44,9 @@ __artifacts_v2__ = {
         ),
         'output_types': 'standard',
         'artifact_icon': 'users',
+        'sample_data': {
+            'iphone11_ios17': 'iOS 17.3 | group.ch.threema | 2 rows',
+        },
     }
 }
 

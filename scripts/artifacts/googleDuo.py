@@ -5,7 +5,11 @@ __artifacts_v2__ = {
         "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Google Duo", "notes": "",
         "paths": ('*/Application Support/DataStore*',),
-        "output_types": "standard", "artifact_icon": "users"
+        "output_types": "standard", "artifact_icon": "users",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | Google Meet 225.0 | 10 rows",
+            "otto_ios17": "iOS 17.5.1 | Google Meet 257.0 | 1016 rows",
+        }
     },
     "googleDuoCallHistory": {
         "name": "Google Duo - Call History",
@@ -13,7 +17,11 @@ __artifacts_v2__ = {
         "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Google Duo", "notes": "",
         "paths": ('*/Application Support/DataStore*',),
-        "output_types": "standard", "artifact_icon": "phone"
+        "output_types": "standard", "artifact_icon": "phone",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | Google Meet 225.0 | 10 rows",
+            "otto_ios17": "iOS 17.5.1 | Google Meet 257.0 | 6 rows",
+        }
     },
     "googleDuoClips": {
         "name": "Google Duo - Clips",
@@ -21,7 +29,11 @@ __artifacts_v2__ = {
         "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Google Duo", "notes": "",
         "paths": ('*/Application Support/DataStore*', '*/Application Support/ClipsCache/*.png'),
-        "output_types": "standard", "artifact_icon": "movie"
+        "output_types": "standard", "artifact_icon": "movie",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | Google Meet 225.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | Google Meet 257.0 | 1 row",
+        }
     }
 }
 

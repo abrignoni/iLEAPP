@@ -10,7 +10,10 @@ __artifacts_v2__ = {
         "notes": "App version tested: 4.0.18, 4.3.3, 5.3.8, 5.4.11",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/Phoenix.sqlite*',),
         "output_types": "standard",
-        "artifact_icon": "user"
+        "artifact_icon": "user",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | group.adhoclabs.Burners | 1 row",
+        }
     },
     "get_burner_messages": {
         "name": "Burner Messages",
@@ -27,6 +30,17 @@ __artifacts_v2__ = {
                   '*/mobile/Containers/Data/Application/*/Library/Caches/thumbnails/**'),
         "output_types": "standard",
         "artifact_icon": "message-circle",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 32 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+        },
         "data_views": {
             "conversation": {
                 "directionSentValue": "Outgoing",
@@ -50,7 +64,10 @@ __artifacts_v2__ = {
         "notes": "App version tested: 4.0.18, 4.3.3, 5.3.8, 5.4.11",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/Phoenix.sqlite*',),
         "output_types": "standard",
-        "artifact_icon": "user"
+        "artifact_icon": "user",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | group.adhoclabs.Burners | 3 rows",
+        }
     },
     "get_burner_numbers": {
         "name": "Burner Numbers",
@@ -63,7 +80,10 @@ __artifacts_v2__ = {
         "notes": "App version tested: 4.0.18, 4.3.3, 5.3.8, 5.4.11",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/Phoenix.sqlite*',),
         "output_types": "standard",
-        "artifact_icon": "hash"
+        "artifact_icon": "hash",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | group.adhoclabs.Burners | 1 row",
+        }
     }
 }
 

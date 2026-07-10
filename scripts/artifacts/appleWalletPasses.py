@@ -10,7 +10,18 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Cards/*.pkpass/pass.json'),
         "output_types": "standard",
-        "artifact_icon": "credit-card"
+        "artifact_icon": "credit-card",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 107 rows",
+            "dexter_ios18": "iOS 18.3.2 | 92 rows",
+            "felix_ios17": "iOS 17.6.1 | 45 rows",
+            "fsfull002_ios17": "iOS 17.1 | 24 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 25 rows",
+            "iphone11_ios17": "iOS 17.3 | 24 rows",
+            "iphone12_ios18": "iOS 18.7 | 25 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 25 rows",
+            "otto_ios17": "iOS 17.5.1 | 35 rows",
+        }
     },
     "get_appleWalletNanoPasses": {
         "name": "Nano Passes",
@@ -23,7 +34,10 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/nanopasses.sqlite3*',),
         "output_types": "standard",
-        "artifact_icon": "device-watch"
+        "artifact_icon": "device-watch",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+        }
     }
 }
 

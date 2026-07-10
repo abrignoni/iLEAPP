@@ -10,7 +10,18 @@ __artifacts_v2__ = {
         'notes': '',
         'paths': ('*/mobile/Library/Accounts/Accounts3.sqlite*',),
         'output_types': 'standard',
-        'artifact_icon': 'user'
+        'artifact_icon': 'user',
+        'sample_data': {
+            'ctf2020_ios12': 'iOS 12.4 | 14 rows',
+            'dexter_ios18': 'iOS 18.3.2 | 20 rows',
+            'felix_ios17': 'iOS 17.6.1 | 17 rows',
+            'fsfull002_ios17': 'iOS 17.1 | 15 rows',
+            'hc_ios18_7': 'iOS 18.7.8 | 15 rows',
+            'iphone11_ios17': 'iOS 17.3 | 19 rows',
+            'iphone12_ios18': 'iOS 18.7 | 16 rows',
+            'iphone14plus_ios18': 'iOS 18.0 | 16 rows',
+            'otto_ios17': 'iOS 17.5.1 | 19 rows',
+        }
     }
 }
 

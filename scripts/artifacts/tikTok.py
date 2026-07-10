@@ -29,12 +29,15 @@ __artifacts_v2__ = {
             }
         },
         "sample_data": {
-            "josh_ios_15": (
-                "32 message rows; AwemeContactsV5, TIMMessageORM, TIMMessageKVORM, "
-                "and TIMMessageNewPropertyORM present"
-            ),
+            "josh_ios_15": "32 message rows; AwemeContactsV5, TIMMessageORM, TIMMessageKVORM, and TIMMessageNewPropertyORM present",
             "josh_ios_17": "No TikTok AwemeIM.db or ChatFiles db.sqlite found",
             "mvs_2026": "No TikTok AwemeIM.db or ChatFiles db.sqlite found",
+            "ctf2020_ios12": "iOS 12.4 | com.zhiliaoapp.musically | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | TikTok - Videos, Shop & LIVE 41.8.0 | 63 rows",
+            "fsfull002_ios17": "iOS 17.1 | TikTok 28.4.1 | 15 rows",
+            "iphone11_ios17": "iOS 17.3 | TikTok 35.1.0 | 50 rows",
+            "iphone12_ios18": "iOS 18.7 | TikTok - Videos, Shop & LIVE 42.7.0 | 5 rows",
+            "otto_ios17": "iOS 17.5.1 | TikTok 35.6.0 | 44 rows",
         },
     },
     "tiktok_contacts": {
@@ -53,6 +56,12 @@ __artifacts_v2__ = {
             "josh_ios_15": "4 contact rows from AwemeContactsV5",
             "josh_ios_17": "No TikTok AwemeIM.db found",
             "mvs_2026": "No TikTok AwemeIM.db found",
+            "ctf2020_ios12": "iOS 12.4 | com.zhiliaoapp.musically | 1 row",
+            "dexter_ios18": "iOS 18.3.2 | TikTok - Videos, Shop & LIVE 41.8.0 | 44 rows",
+            "fsfull002_ios17": "iOS 17.1 | TikTok 28.4.1 | 5 rows",
+            "iphone11_ios17": "iOS 17.3 | TikTok 35.1.0 | 15 rows",
+            "iphone12_ios18": "iOS 18.7 | TikTok - Videos, Shop & LIVE 42.7.0 | 2 rows",
+            "otto_ios17": "iOS 17.5.1 | TikTok 35.6.0 | 88 rows",
         },
     },
 }

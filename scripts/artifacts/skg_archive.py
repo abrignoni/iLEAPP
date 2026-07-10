@@ -15,7 +15,10 @@ __artifacts_v2__ = {
             '*/CoreSpotlight/SpotlightKnowledge/index.V2/archives/NSFileProtectionCompleteUntilFirstUserAuthentication/skg_archive-*'
         ),
         "output_types": "standard",
-        "artifact_icon": "search"
+        "artifact_icon": "search",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | 2219 rows",
+        }
     }
 }
 

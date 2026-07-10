@@ -10,7 +10,15 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Biome/streams/restricted/Device.Wireless.WiFi/local/*'),
         "output_types": "standard",
-        "artifact_icon": "wifi"
+        "artifact_icon": "wifi",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 432 rows",
+            "felix_ios17": "iOS 17.6.1 | 612 rows",
+            "fsfull002_ios17": "iOS 17.1 | 228 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 1164 rows",
+            "iphone11_ios17": "iOS 17.3 | 1287 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 16 rows",
+        }
     }
 }
 

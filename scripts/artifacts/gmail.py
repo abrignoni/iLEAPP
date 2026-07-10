@@ -10,7 +10,13 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/data/*/searchsqlitedb*',),
         "output_types": ["html", "tsv", "lava", "timeline"],
-        "artifact_icon": "search"
+        "artifact_icon": "search",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Gmail - Email by Google 6.0.250915 | 176 rows",
+            "iphone11_ios17": "iOS 17.3 | Gmail - Email by Google 6.0.231127 | 321 rows",
+            "iphone14plus_ios18": "iOS 18.0 | Gmail - Email by Google 6.0.251201 | 18 rows",
+            "otto_ios17": "iOS 17.5.1 | Gmail - Email by Google 6.0.240729 | 305 rows",
+        }
     },
     "gmailLabelDetails": {
         "name": "Gmail - Label Details",
@@ -23,7 +29,14 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/data/*/sqlitedb*',),
         "output_types": ["html", "tsv", "lava"],
-        "artifact_icon": "tag"
+        "artifact_icon": "tag",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | com.google.Gmail | 30 rows",
+            "dexter_ios18": "iOS 18.3.2 | Gmail - Email by Google 6.0.250915 | 35 rows",
+            "iphone11_ios17": "iOS 17.3 | Gmail - Email by Google 6.0.231127 | 31 rows",
+            "iphone14plus_ios18": "iOS 18.0 | Gmail - Email by Google 6.0.251201 | 33 rows",
+            "otto_ios17": "iOS 17.5.1 | Gmail - Email by Google 6.0.240729 | 33 rows",
+        }
     }
 }
 

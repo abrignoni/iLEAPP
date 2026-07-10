@@ -13,7 +13,17 @@ __artifacts_v2__ = {
             '*/mobile/Library/Caches/com.apple.appstored/storeUser.db*'
             ),
         "output_types": "standard",
-        "artifact_icon": "activity"
+        "artifact_icon": "activity",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 1343 rows",
+            "felix_ios17": "iOS 17.6.1 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 475 rows",
+            "fsfull002_ios17": "iOS 17.1 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 294 rows",
+            "hc_ios18_7": "iOS 18.7.8 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 484 rows",
+            "iphone11_ios17": "iOS 17.3 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 1891 rows",
+            "iphone12_ios18": "iOS 18.7 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 413 rows",
+            "iphone14plus_ios18": "iOS 18.0 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 21 rows",
+            "otto_ios17": "iOS 17.5.1 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 3064 rows",
+        }
     },
     "AMDSQLiteDB_StorageCapacity": {
         "name": "Device Storage Capacity",
@@ -28,7 +38,17 @@ __artifacts_v2__ = {
             '*/mobile/Containers/Data/PluginKitPlugin/*/Documents/AMDSQLite.db.0*'
             ),
         "output_types": "standard",
-        "artifact_icon": "database"
+        "artifact_icon": "database",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 13 rows",
+            "fsfull002_ios17": "iOS 17.1 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 17 rows",
+            "hc_ios18_7": "iOS 18.7.8 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 36 rows",
+            "iphone12_ios18": "iOS 18.7 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 49 rows",
+        }
     }
 }
 

@@ -14,6 +14,9 @@ __artifacts_v2__ = {
         ),
         "output_types": "all",
         "artifact_icon": "search",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | com.apple.Maps | 28 rows",
+        },
     }
 }
 

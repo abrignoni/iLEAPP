@@ -1,3 +1,4 @@
+# pylint: disable=W0611,W0613,W0631
 __artifacts_v2__ = {
     'Ph6_1ViewandPlayDataPhDaPsql': {
         'name': 'Ph6.1-View and Play Data-PhDaPsql',
@@ -14,7 +15,18 @@ __artifacts_v2__ = {
         'notes': '',
         'paths': ('*/PhotoData/Photos.sqlite*',),
         "output_types": ["standard", "tsv", "none"],
-        "artifact_icon": "eye"
+        "artifact_icon": "eye",
+        'sample_data': {
+            'ctf2020_ios12': 'iOS 12.4 | 46 rows',
+            'dexter_ios18': 'iOS 18.3.2 | 342 rows',
+            'felix_ios17': 'iOS 17.6.1 | 17 rows',
+            'fsfull002_ios17': 'iOS 17.1 | 29 rows',
+            'hc_ios18_7': 'iOS 18.7.8 | 16 rows',
+            'iphone11_ios17': 'iOS 17.3 | 259 rows',
+            'iphone12_ios18': 'iOS 18.7 | 50 rows',
+            'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
+            'otto_ios17': 'iOS 17.5.1 | 93 rows',
+        }
     },
     'Ph6_3ViewandPlayDataGenPlayPsql': {
         'name': 'Ph6.3-View and Play Data-GenPlayPsql',
@@ -31,7 +43,10 @@ __artifacts_v2__ = {
         'notes': '',
         'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
         "output_types": ["standard", "tsv", "none"],
-        "artifact_icon": "eye"
+        "artifact_icon": "eye",
+        'sample_data': {
+            'dexter_ios18': 'iOS 18.3.2 | 0 rows',
+        }
 		}
 }
 

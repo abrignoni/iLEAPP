@@ -11,6 +11,13 @@ __artifacts_v2__ = {
         "paths": ('*/cacheV0.db*',),
         "output_types": "standard",
         "artifact_icon": "photo",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | com.google.Drive, com.google.Gmail | 36 rows",
+            "dexter_ios18": "iOS 18.3.2 | Gmail - Email by Google 6.0.250915 | 2 rows",
+            "hc_ios18_7": "iOS 18.7.8 | Google Docs 1.2026.23106, Google Drive 4.2615.41600 | 1 row",
+            "iphone11_ios17": "iOS 17.3 | Google Chat 0.390, Google Voice 23.47, Gmail - Email by Google 6.0.231127 | 79 rows",
+            "otto_ios17": "iOS 17.5.1 | Google Drive 4.2430.11801 | 11 rows",
+        },
     }
 }
 

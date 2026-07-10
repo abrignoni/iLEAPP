@@ -63,7 +63,12 @@ __artifacts_v2__ = {
         "notes": "Media are stored under Documents/YYYY/MM/DD within the app container.",
         "paths": ('*/Documents/*/*/*/*.jpg', '*/Documents/*/*/*/*.mov', '*/Documents/*/*/*/*.mp4'),
         "output_types": "standard",
-        "artifact_icon": "movie"
+        "artifact_icon": "movie",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | com.disney.playdisneyparks, com.zhiliaoapp.musically | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | TikTok - Videos, Shop & LIVE 41.8.0 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | BeReal. Your friends for real. 2.24.0, Gmail - Email by Google 6.0.231127, Zoom Workplace 6.1.1 | 0 rows",
+        }
     }
 }
 

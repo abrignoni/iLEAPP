@@ -11,6 +11,9 @@ __artifacts_v2__ = {
         "paths": ('*/Documents/search_history/history_words/AWESearchHistory*',),
         "output_types": "standard",
         "artifact_icon": "brand-tiktok",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | TikTok 35.6.0 | 6 rows",
+        },
     }
 }
 

@@ -11,7 +11,17 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('**/mobileactivationd.log*', '**/sysdiagnose_*.tar.gz'),
         "output_types": "standard",
-        "artifact_icon": "settings"
+        "artifact_icon": "settings",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 23 rows",
+            "dexter_ios18": "iOS 18.3.2 | 31 rows",
+            "felix_ios17": "iOS 17.6.1 | 15 rows",
+            "fsfull002_ios17": "iOS 17.1 | 31 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 89 rows",
+            "iphone11_ios17": "iOS 17.3 | 25 rows",
+            "iphone12_ios18": "iOS 18.7 | 1 row",
+            "otto_ios17": "iOS 17.5.1 | 57 rows",
+        }
     }
 }
 

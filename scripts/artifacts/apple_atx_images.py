@@ -28,7 +28,18 @@ __artifacts_v2__ = {
             '**/*.atx',
         ),
         "output_types": "standard",
-        "artifact_icon": "photo"
+        "artifact_icon": "photo",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | com.apple.AppPredictionWidget.extension | 52 rows",
+            "dexter_ios18": "iOS 18.3.2 | 175 rows",
+            "felix_ios17": "iOS 17.6.1 | com.apple.PosterBoard, com.apple.mobilephone | 68 rows",
+            "fsfull002_ios17": "iOS 17.1 | com.apple.PosterBoard | 64 rows",
+            "hc_ios18_7": "iOS 18.7.8 | com.apple.PosterBoard, com.apple.mobilephone | 82 rows",
+            "iphone11_ios17": "iOS 17.3 | 108 rows",
+            "iphone12_ios18": "iOS 18.7 | com.apple.PosterBoard | 60 rows",
+            "iphone14plus_ios18": "iOS 18.0 | com.apple.PosterBoard | 66 rows",
+            "otto_ios17": "iOS 17.5.1 | 107 rows",
+        }
     }
 }
 

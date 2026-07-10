@@ -10,7 +10,10 @@ __artifacts_v2__ = {
         "notes": "Check -wal files for possible data remnants if the DB is missing.",
         "paths": ('*/Quick Look/cloudthumbnails.db*',),
         "output_types": "standard",
-        "artifact_icon": "eye"
+        "artifact_icon": "eye",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 1 row",
+        }
     }
 }
 

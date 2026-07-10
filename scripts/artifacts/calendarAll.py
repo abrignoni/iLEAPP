@@ -11,7 +11,18 @@ __artifacts_v2__ = {
         "paths": ('*/Calendar.sqlitedb',),
         "html_columns": ['Calendar Name', 'Location Coordinates', 'Invitees'],
         "output_types": "standard",
-        "artifact_icon": "calendar"
+        "artifact_icon": "calendar",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 118 rows",
+            "dexter_ios18": "iOS 18.3.2 | 456 rows",
+            "felix_ios17": "iOS 17.6.1 | 62 rows",
+            "fsfull002_ios17": "iOS 17.1 | 136 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 120 rows",
+            "iphone11_ios17": "iOS 17.3 | 142 rows",
+            "iphone12_ios18": "iOS 18.7 | 134 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 135 rows",
+            "otto_ios17": "iOS 17.5.1 | 137 rows",
+        }
     },
     "calendarBirthdays": {
         "name": "Calendar Birthdays",
@@ -25,7 +36,18 @@ __artifacts_v2__ = {
         "paths": ('*/Calendar.sqlitedb',),
         "html_columns": ['Calendar Name'],
         "output_types": "standard",
-        "artifact_icon": "gift"
+        "artifact_icon": "gift",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 1 row",
+        }
     },
     "calendarList": {
         "name": "Calendar List",
@@ -39,7 +61,18 @@ __artifacts_v2__ = {
         "paths": ('*/Calendar.sqlitedb',),
         "html_columns": ['Calendar Name', 'Sharing Participants'],
         "output_types": "standard",
-        "artifact_icon": "list"
+        "artifact_icon": "list",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 15 rows",
+            "dexter_ios18": "iOS 18.3.2 | 14 rows",
+            "felix_ios17": "iOS 17.6.1 | 10 rows",
+            "fsfull002_ios17": "iOS 17.1 | 10 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 11 rows",
+            "iphone11_ios17": "iOS 17.3 | 12 rows",
+            "iphone12_ios18": "iOS 18.7 | 11 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 11 rows",
+            "otto_ios17": "iOS 17.5.1 | 12 rows",
+        }
     }
 }
 

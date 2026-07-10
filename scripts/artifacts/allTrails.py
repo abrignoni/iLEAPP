@@ -10,7 +10,10 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Documents/AllTrails.sqlite*'),
         "output_types": ["html", "tsv", "lava", "kml"],
-        "artifact_icon": "map"
+        "artifact_icon": "map",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | AllTrails: Hike, Bike & Run 18.8.0 | 1 row",
+        }
     },
     "allTrailsUserInfo": {
         "name": "AllTrails - User Info",
@@ -23,7 +26,10 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Documents/AllTrails.sqlite*'),
         "output_types": "all",
-        "artifact_icon": "user"
+        "artifact_icon": "user",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | AllTrails: Hike, Bike & Run 18.8.0 | 1 row",
+        }
     }
 }
 

@@ -11,6 +11,12 @@ __artifacts_v2__ = {
         "paths": ("*/lightspeed-userDatabases/*.db*",),
         "output_types": "standard",
         "artifact_icon": "phone-call",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Messenger 526.0.0 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | Messenger 557.0.0 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | Messenger 468.1.0 | 20 rows",
+            "otto_ios17": "iOS 17.5.1 | Messenger 471.0.0 | 0 rows",
+        },
     },
     "facebookMessengerChats": {
         "name": "Facebook Messenger - Chats",
@@ -24,6 +30,12 @@ __artifacts_v2__ = {
         "paths": ("*/lightspeed-userDatabases/*.db*",),
         "output_types": "standard",
         "artifact_icon": "message-circle",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Messenger 526.0.0 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | Messenger 557.0.0 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | Messenger 468.1.0 | 90 rows",
+            "otto_ios17": "iOS 17.5.1 | Messenger 471.0.0 | 0 rows",
+        },
         "data_views": {
             "conversation": {
                 "conversationDiscriminatorColumn": "Thread ID",
@@ -50,6 +62,12 @@ __artifacts_v2__ = {
         ),
         "output_types": "standard",
         "artifact_icon": "message-circle",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Messenger 526.0.0 | 5 rows",
+            "hc_ios18_7": "iOS 18.7.8 | Messenger 557.0.0 | 10 rows",
+            "iphone11_ios17": "iOS 17.3 | Messenger 468.1.0 | 44 rows",
+            "otto_ios17": "iOS 17.5.1 | Messenger 471.0.0 | 9 rows",
+        },
         "data_views": {
             "conversation": {
                 "conversationDiscriminatorColumn": "Thread ID",
@@ -74,6 +92,12 @@ __artifacts_v2__ = {
         "paths": ("*/lightspeed-userDatabases/*.db*",),
         "output_types": "standard",
         "artifact_icon": "lock",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Messenger 526.0.0 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | Messenger 557.0.0 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | Messenger 468.1.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | Messenger 471.0.0 | 0 rows",
+        },
     },
     "facebookMessengerConversationGroups": {
         "name": "Facebook Messenger - Conversation Groups",
@@ -87,6 +111,12 @@ __artifacts_v2__ = {
         "paths": ("*/lightspeed-userDatabases/*.db*",),
         "output_types": "standard",
         "artifact_icon": "brand-facebook",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Messenger 526.0.0 | 2 rows",
+            "hc_ios18_7": "iOS 18.7.8 | Messenger 557.0.0 | 1 row",
+            "iphone11_ios17": "iOS 17.3 | Messenger 468.1.0 | 4 rows",
+            "otto_ios17": "iOS 17.5.1 | Messenger 471.0.0 | 2 rows",
+        },
     },
     "facebookMessengerContacts": {
         "name": "Facebook Messenger - Contacts",
@@ -100,6 +130,12 @@ __artifacts_v2__ = {
         "paths": ("*/lightspeed-userDatabases/*.db*",),
         "output_types": "standard",
         "artifact_icon": "users",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Messenger 526.0.0 | 3 rows",
+            "hc_ios18_7": "iOS 18.7.8 | Messenger 557.0.0 | 3 rows",
+            "iphone11_ios17": "iOS 17.3 | Messenger 468.1.0 | 3 rows",
+            "otto_ios17": "iOS 17.5.1 | Messenger 471.0.0 | 6 rows",
+        },
     },
 }
 
