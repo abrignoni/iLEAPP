@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "get_bluetoothPairedLE": {
         "name": "Bluetooth Paired LE",
-        "description": "",
+        "description": "Parses paired Bluetooth Low Energy devices, including name, address and last connection time, from com.apple.MobileBluetooth.ledevices.paired.db.",
         "author": "@JohnHyla",
         "creation_date": "2024-10-21",
         "last_update_date": "2025-11-03",

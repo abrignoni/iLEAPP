@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "get_cacheRoutesGmap": {
         "name": "Google Maps Cache Routes",
-        "description": "",
+        "description": "Parses cached Google Maps route data and timestamps from the app CachedRoutes plists.",
         "author": "@AlexisBrignoni",
         "creation_date": "2020-08-03",
         "last_update_date": "2025-11-12",

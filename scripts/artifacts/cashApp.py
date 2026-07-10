@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "get_cashApp": {
         "name": "Cash App",
-        "description": "",
+        "description": "Parses Cash App transactions and account data from the CCEntitySync SQLite stores.",
         "author": "@gforce4n6",
         "creation_date": "2021-10-06",
         "last_update_date": "2025-11-12",

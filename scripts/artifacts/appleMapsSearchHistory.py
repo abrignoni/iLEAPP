@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "get_appleMapsSearchHistory": {
         "name": "Get Apple Maps seach history",
-        "description": "",
+        "description": "Parses Apple Maps search history entries and timestamps from GeoHistory.mapsdata.",
         "author": "@any333",
         "creation_date": "2021-01-29",
         "last_update_date": "2023-10-22",

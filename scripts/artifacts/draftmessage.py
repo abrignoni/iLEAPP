@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "get_draftmessage": {  # This should match the function name exactly
         "name": "Draft Native Messages",
-        "description": "",
+        "description": "Parses unsent draft iMessage and SMS messages and their modified times from SMS/Drafts composition.plist files.",
         "author": "",
         "creation_date": "",
         "last_updated": "2025-11-25",

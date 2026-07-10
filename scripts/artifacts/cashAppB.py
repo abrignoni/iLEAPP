@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "get_cashAppB": {
         "name": "Cash App (B)",
-        "description": "",
+        "description": "Parses Cash App activity from the production account cashappapi SQLite database (alternate location).",
         "author": "Alexis Brignoni",
         "creation_date": "2025-08-24",
         "last_update_date": "2026-05-14",

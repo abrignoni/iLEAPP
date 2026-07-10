@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "appleMapsGroup": {
         "name": "Apple Maps Group",
-        "description": "",
+        "description": "Parses cached location coordinates from the Apple Maps app group preferences (group.com.apple.Maps.plist).",
         "author": "@AlexisBrignoni",
         "creation_date": "2020-08-03",
         "last_update_date": "2025-12-16",

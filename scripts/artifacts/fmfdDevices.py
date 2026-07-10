@@ -1,6 +1,7 @@
 __artifacts_v2__ = {
     "fmfd_notbackedup_devices": {
         "name": "Find My - Devices",
+        "description": "Parses Find My registered devices (name, identifier and capabilities) from the fmfd notbackedup preferences plist.",
         "author": "@ghmihkel",
         "version": "1.0",
         "date": "2026-03-31",
@@ -102,7 +103,7 @@ def fmfd_notbackedup_devices(context):
             devices = _parse_fmfd_plist(raw)
             data_list.extend(devices)
 
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             logfunc(f'fmfd: Error parsing {source_file}: {e}')
 
     return data_headers, data_list, source_file

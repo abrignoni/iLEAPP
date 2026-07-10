@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "carCD": {
         "name": "Last Car Connection and UDID",
-        "description": "",
+        "description": "Parses the last connected CarPlay vehicle and the device UDID from the locationd cache.plist.",
         "author": "@AlexisBrignoni",
         "creation_date": "2023-09-30",
         "last_update_date": "2025-11-12",
