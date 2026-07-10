@@ -1,3 +1,4 @@
+# pylint: disable=W0611,W0613
 __artifacts_v2__ = {
     'Ph86assetsdcloudServiceEnableLogPlist': {
         'name': 'Ph86-assetsd-cloud-Service-Enable-Log-Plist',
@@ -12,7 +13,15 @@ __artifacts_v2__ = {
         'notes': '',
         'paths': ('*/com.apple.assetsd/cloudServiceEnableLog.plist',),
         "output_types": ["standard", "tsv", "none"],
-        "artifact_icon": "settings"
+        "artifact_icon": "settings",
+        'sample_data': {
+            'dexter_ios18': 'iOS 18.3.2 | 1 row',
+            'hc_ios18_7': 'iOS 18.7.8 | 1 row',
+            'iphone11_ios17': 'iOS 17.3 | 1 row',
+            'iphone12_ios18': 'iOS 18.7 | 1 row',
+            'iphone14plus_ios18': 'iOS 18.0 | 1 row',
+            'otto_ios17': 'iOS 17.5.1 | 3 rows',
+        }
     }
 }
 

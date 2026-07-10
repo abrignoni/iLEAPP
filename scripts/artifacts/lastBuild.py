@@ -14,7 +14,18 @@ __artifacts_v2__ = {
             '*/installd/Library/MobileInstallation/LastBuildInfo.plist',
             '*/logs/SystemVersion/SystemVersion.plist'),
         "output_types": ["html", "tsv", "lava"],
-        "artifact_icon": "git-commit"
+        "artifact_icon": "git-commit",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 9 rows",
+            "dexter_ios18": "iOS 18.3.2 | 10 rows",
+            "felix_ios17": "iOS 17.6.1 | 10 rows",
+            "fsfull002_ios17": "iOS 17.1 | 10 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 10 rows",
+            "iphone11_ios17": "iOS 17.3 | 10 rows",
+            "iphone12_ios18": "iOS 18.7 | 10 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 10 rows",
+            "otto_ios17": "iOS 17.5.1 | 10 rows",
+        }
     }
 }
 

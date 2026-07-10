@@ -10,7 +10,13 @@ __artifacts_v2__ = {
         "notes": "LeaseStartDate is stored as UTC.",
         "paths": ('*/db/dhcpclient/leases/en*',),
         "output_types": "standard",
-        "artifact_icon": "wifi"
+        "artifact_icon": "wifi",
+        "sample_data": {
+            "felix_ios17": "iOS 17.6.1 | 6 rows",
+            "fsfull002_ios17": "iOS 17.1 | 6 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 6 rows",
+            "otto_ios17": "iOS 17.5.1 | 6 rows",
+        }
     }
 }
 

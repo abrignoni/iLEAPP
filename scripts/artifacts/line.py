@@ -11,6 +11,9 @@ __artifacts_v2__ = {
         "paths": ('**/Line.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "message-circle",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | group.com.linecorp.line | 62 rows",
+        },
         "data_views": {
             "conversation": {
                 "conversationDiscriminatorColumn": "Username",

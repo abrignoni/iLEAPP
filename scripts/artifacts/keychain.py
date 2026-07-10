@@ -15,6 +15,17 @@ __artifacts_v2__ = {
         ),
         "output_types": "standard",
         "artifact_icon": "wifi",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 6 rows",
+            "felix_ios17": "iOS 17.6.1 | 10 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 2 rows",
+            "iphone11_ios17": "iOS 17.3 | 10 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 5 rows",
+            "otto_ios17": "iOS 17.5.1 | 11 rows",
+        },
         "function": "keychain_wifi"
     },
     "keychain_web_passwords": {
@@ -33,6 +44,17 @@ __artifacts_v2__ = {
         ),
         "output_types": "standard",
         "artifact_icon": "key",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 15 rows",
+            "felix_ios17": "iOS 17.6.1 | 9 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 7 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 3 rows",
+            "otto_ios17": "iOS 17.5.1 | 3 rows",
+        },
         "function": "keychain_web_passwords"
     },
     "keychain_bluetooth_info": {
@@ -51,7 +73,18 @@ __artifacts_v2__ = {
         ),
         "output_types": "none",
         "function": "keychain_bluetooth_info",
-        "artifact_icon": "bluetooth"
+        "artifact_icon": "bluetooth",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | files found",
+            "dexter_ios18": "iOS 18.3.2 | files found",
+            "felix_ios17": "iOS 17.6.1 | files found",
+            "fsfull002_ios17": "iOS 17.1 | files found",
+            "hc_ios18_7": "iOS 18.7.8 | files found",
+            "iphone11_ios17": "iOS 17.3 | files found",
+            "iphone12_ios18": "iOS 18.7 | files found",
+            "iphone14plus_ios18": "iOS 18.0 | files found",
+            "otto_ios17": "iOS 17.5.1 | files found",
+        }
     },
     "keychain_bluetooth_paired": {
         "name": "Paired Bluetooth Devices",
@@ -71,6 +104,16 @@ __artifacts_v2__ = {
         ),
         "output_types": "standard",
         "artifact_icon": "bluetooth",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 5 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 7 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 1 row",
+            "otto_ios17": "iOS 17.5.1 | 6 rows",
+        },
         "function": "keychain_bluetooth_paired"
     },
     "keychain_mail_accounts": {
@@ -89,6 +132,17 @@ __artifacts_v2__ = {
         ),
         "output_types": "standard",
         "artifact_icon": "at",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 1 row",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+        },
         "function": "keychain_mail_accounts"
     },
 }

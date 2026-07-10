@@ -1,3 +1,4 @@
+# pylint: disable=E0606,W0611,W0613
 __artifacts_v2__ = {
     'Ph84CameraSmartSharingMetadataPlist': {
         'name': 'Ph84-Camera-Smart-Sharing-Metadata-Plist',
@@ -14,7 +15,10 @@ __artifacts_v2__ = {
         'notes': '',
         'paths': ('*/PhotoData/Caches/SmartSharing/camera_smart_sharing_metadata.plist',),
         "output_types": ["standard", "tsv", "none"],
-        "artifact_icon": "camera"
+        "artifact_icon": "camera",
+        'sample_data': {
+            'dexter_ios18': 'iOS 18.3.2 | 1 row',
+        }
     }
 }
 

@@ -14,7 +14,15 @@ __artifacts_v2__ = {
         "artifact_icon": "circle-check",
         "sample_data": {
             "josh_ios_15": "23 rows",
-            "mvs_2026": "6 rows but ZPEERINFO is empty"
+            "mvs_2026": "6 rows but ZPEERINFO is empty",
+            "dexter_ios18": "iOS 18.3.2 | 5 rows",
+            "felix_ios17": "iOS 17.6.1 | 13 rows",
+            "fsfull002_ios17": "iOS 17.1 | 5 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 24 rows",
+            "iphone12_ios18": "iOS 18.7 | 3 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 3 rows",
         }
     }
 }

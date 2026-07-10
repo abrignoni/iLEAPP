@@ -10,7 +10,11 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/db/dhcpd_leases*',),
         "output_types": "standard",
-        "artifact_icon": "wifi"
+        "artifact_icon": "wifi",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 15 rows",
+            "otto_ios17": "iOS 17.5.1 | 10 rows",
+        }
     }
 }
 

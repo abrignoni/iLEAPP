@@ -10,7 +10,18 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*wireless/Library/Preferences/com.apple.commcenter.device_specific_nobackup.plist',),
         "output_types": "standard",
-        "artifact_icon": "device-mobile"
+        "artifact_icon": "device-mobile",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 35 rows",
+            "dexter_ios18": "iOS 18.3.2 | 44 rows",
+            "felix_ios17": "iOS 17.6.1 | 39 rows",
+            "fsfull002_ios17": "iOS 17.1 | 41 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 32 rows",
+            "iphone11_ios17": "iOS 17.3 | 43 rows",
+            "iphone12_ios18": "iOS 18.7 | 40 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 43 rows",
+            "otto_ios17": "iOS 17.5.1 | 43 rows",
+        }
     }
 }
 

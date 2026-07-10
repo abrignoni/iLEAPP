@@ -10,7 +10,18 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/iTunesMetadata.plist', '*/BundleMetadata.plist',),
         "output_types": "standard",
-        "artifact_icon": "apps"
+        "artifact_icon": "apps",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 53 rows",
+            "dexter_ios18": "iOS 18.3.2 | 49 rows",
+            "felix_ios17": "iOS 17.6.1 | 32 rows",
+            "fsfull002_ios17": "iOS 17.1 | 47 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 30 rows",
+            "iphone11_ios17": "iOS 17.3 | 57 rows",
+            "iphone12_ios18": "iOS 18.7 | 45 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 17 rows",
+            "otto_ios17": "iOS 17.5.1 | 45 rows",
+        }
     }
 }
 

@@ -11,7 +11,18 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/db/timed/Library/Preferences/com.apple.preferences.datetime.plist',),
         "output_types": "standard",
-        "artifact_icon": "clock"
+        "artifact_icon": "clock",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 1 row",
+            "dexter_ios18": "iOS 18.3.2 | 1 row",
+            "felix_ios17": "iOS 17.6.1 | 1 row",
+            "fsfull002_ios17": "iOS 17.1 | 1 row",
+            "hc_ios18_7": "iOS 18.7.8 | 1 row",
+            "iphone11_ios17": "iOS 17.3 | 1 row",
+            "iphone12_ios18": "iOS 18.7 | 1 row",
+            "iphone14plus_ios18": "iOS 18.0 | 1 row",
+            "otto_ios17": "iOS 17.5.1 | 1 row",
+        }
     }
 }
 

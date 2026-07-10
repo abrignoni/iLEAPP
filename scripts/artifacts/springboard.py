@@ -12,7 +12,18 @@ __artifacts_v2__ = {
                  "flow order. See 'iOS Home Screen Layout - Visual' for a rendered image of each screen.",
         "paths": ('**/SpringBoard/IconState.plist',),
         "output_types": "standard",
-        "artifact_icon": "layout-grid"
+        "artifact_icon": "layout-grid",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 96 rows",
+            "dexter_ios18": "iOS 18.3.2 | 109 rows",
+            "felix_ios17": "iOS 17.6.1 | 71 rows",
+            "fsfull002_ios17": "iOS 17.1 | 63 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 74 rows",
+            "iphone11_ios17": "iOS 17.3 | 99 rows",
+            "iphone12_ios18": "iOS 18.7 | 75 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 61 rows",
+            "otto_ios17": "iOS 17.5.1 | 89 rows",
+        }
     },
     "icons_screen_visual": {
         "name": "iOS Home Screen Layout - Visual",
@@ -26,7 +37,18 @@ __artifacts_v2__ = {
                  "reference. The 'iOS Home Screen Layout' artifact holds the same data in queryable form.",
         "paths": ('**/SpringBoard/IconState.plist',),
         "output_types": "standard",
-        "artifact_icon": "layout-grid"
+        "artifact_icon": "layout-grid",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 5 rows",
+            "dexter_ios18": "iOS 18.3.2 | 4 rows",
+            "felix_ios17": "iOS 17.6.1 | 4 rows",
+            "fsfull002_ios17": "iOS 17.1 | 4 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 4 rows",
+            "iphone11_ios17": "iOS 17.3 | 6 rows",
+            "iphone12_ios18": "iOS 18.7 | 4 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 4 rows",
+            "otto_ios17": "iOS 17.5.1 | 4 rows",
+        }
     },
     "springboard_wallpaper": {
         "name": "SpringBoard Wallpaper",
@@ -47,7 +69,11 @@ __artifacts_v2__ = {
             '**/SpringBoard/*Background*.heic',
         ),
         "output_types": "standard",
-        "artifact_icon": "photo"
+        "artifact_icon": "photo",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 3 rows",
+            "fsfull002_ios17": "iOS 17.1 | 4 rows",
+        }
     },
     "posterboard_wallpaper": {
         "name": "PosterBoard Wallpaper",

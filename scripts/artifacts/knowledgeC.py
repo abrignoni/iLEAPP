@@ -10,7 +10,17 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
         "output_types": "standard",
-        "artifact_icon": "battery"
+        "artifact_icon": "battery",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 1408 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+        }
     },
     "knowledgeC_DevicePluginStatus": {
         "name": "knowledgeC - Device Plugin Status",
@@ -23,7 +33,17 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
         "output_types": "standard",
-        "artifact_icon": "battery-charging"
+        "artifact_icon": "battery-charging",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 53 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+        }
     },
     "knowledgeC_MediaPlaying": {
         "name": "knowledgeC - Media Playing",
@@ -38,7 +58,17 @@ __artifacts_v2__ = {
             - Ian Wiffin blog post https://www.doubleblak.com/blogPosts.php?id=29",
         "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
         "output_types": "standard",
-        "artifact_icon": "music"
+        "artifact_icon": "music",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 14 rows",
+            "dexter_ios18": "iOS 18.3.2 | 449 rows",
+            "felix_ios17": "iOS 17.6.1 | 13 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 65 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+        }
     },
     "knowledgeC_DoNotDisturb": {
         "name": "knowledgeC - Do Not Disturb",
@@ -51,7 +81,17 @@ __artifacts_v2__ = {
         "notes": "Based on research by Geraldine Blay and Dan Ogden",
         "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
         "output_types": "standard",
-        "artifact_icon": "moon"
+        "artifact_icon": "moon",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+        }
     },
     "knowledgeC_AppUsage": {
         "name": "knowledgeC - App Usage",
@@ -64,7 +104,17 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
         "output_types": "standard",
-        "artifact_icon": "activity"
+        "artifact_icon": "activity",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 691 rows",
+            "dexter_ios18": "iOS 18.3.2 | 363 rows",
+            "felix_ios17": "iOS 17.6.1 | 152 rows",
+            "fsfull002_ios17": "iOS 17.1 | 65 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 184 rows",
+            "iphone11_ios17": "iOS 17.3 | 435 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 143 rows",
+            "otto_ios17": "iOS 17.5.1 | 676 rows",
+        }
     },
     "knowledgeC_AppUsage_EndTime": {
         "name": "knowledgeC - App Usage End",
@@ -77,7 +127,17 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
         "output_types": "timeline",
-        "artifact_icon": "activity"
+        "artifact_icon": "activity",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | files found",
+            "dexter_ios18": "iOS 18.3.2 | files found",
+            "felix_ios17": "iOS 17.6.1 | files found",
+            "fsfull002_ios17": "iOS 17.1 | files found",
+            "hc_ios18_7": "iOS 18.7.8 | files found",
+            "iphone11_ios17": "iOS 17.3 | files found",
+            "iphone14plus_ios18": "iOS 18.0 | files found",
+            "otto_ios17": "iOS 17.5.1 | files found",
+        }
     },
     "knowledgeC_isLocked": {
         "name": "knowledgeC - Device Lock Status",
@@ -90,7 +150,17 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
         "output_types": "standard",
-        "artifact_icon": "device-mobile"
+        "artifact_icon": "device-mobile",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 287 rows",
+            "felix_ios17": "iOS 17.6.1 | 136 rows",
+            "fsfull002_ios17": "iOS 17.1 | 49 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 164 rows",
+            "iphone11_ios17": "iOS 17.3 | 91 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 33 rows",
+            "otto_ios17": "iOS 17.5.1 | 60 rows",
+        }
     },
     "knowledgeC_isBacklit": {
         "name": "knowledgeC - Device Screen Status",
@@ -103,7 +173,17 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
         "output_types": "standard",
-        "artifact_icon": "device-mobile"
+        "artifact_icon": "device-mobile",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 1331 rows",
+            "dexter_ios18": "iOS 18.3.2 | 1767 rows",
+            "felix_ios17": "iOS 17.6.1 | 383 rows",
+            "fsfull002_ios17": "iOS 17.1 | 182 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 515 rows",
+            "iphone11_ios17": "iOS 17.3 | 784 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 227 rows",
+            "otto_ios17": "iOS 17.5.1 | 2237 rows",
+        }
     }
 }
 

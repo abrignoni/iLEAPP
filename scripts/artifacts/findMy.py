@@ -10,7 +10,18 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Library/Preferences/com.apple.icloud.findmydeviced.FMIPAccounts.plist',),
         "output_types": "standard",
-        "artifact_icon": "map-pin"
+        "artifact_icon": "map-pin",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 5 rows",
+            "dexter_ios18": "iOS 18.3.2 | 5 rows",
+            "felix_ios17": "iOS 17.6.1 | 6 rows",
+            "fsfull002_ios17": "iOS 17.1 | 6 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 6 rows",
+            "iphone11_ios17": "iOS 17.3 | 6 rows",
+            "iphone12_ios18": "iOS 18.7 | 5 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 5 rows",
+            "otto_ios17": "iOS 17.5.1 | 6 rows",
+        }
     }
 }
 

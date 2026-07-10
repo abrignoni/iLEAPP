@@ -14,7 +14,13 @@ __artifacts_v2__ = {
             '*/Library/Caches/com.hammerandchisel.discord/fsCachedData/*'
         ),
         "output_types": "standard",
-        "artifact_icon": "database"
+        "artifact_icon": "database",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Discord - Talk, Play, Hang Out 298.0 | 76 rows",
+            "hc_ios18_7": "iOS 18.7.8 | Discord - Talk, Play, Hang Out 324.0 | 315 rows",
+            "iphone11_ios17": "iOS 17.3 | Discord - Talk, Play, Hang Out 238.0 | 106 rows",
+            "iphone12_ios18": "iOS 18.7 | Discord - Talk, Play, Hang Out 306.1 | 174 rows",
+        }
     }
 }
 

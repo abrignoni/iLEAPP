@@ -10,7 +10,10 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Library/Preferences/com.apple.cmfsyncagent.plist',),
         "output_types": ["html", "tsv", "lava"],
-        "artifact_icon": "user-x"
+        "artifact_icon": "user-x",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | 5 rows",
+        }
     }
 }
 

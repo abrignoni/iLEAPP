@@ -12,7 +12,10 @@ __artifacts_v2__ = {
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.adhoclabs.burner/Cache.db*'),
         "output_types": [ "lava", "html", "tsv", "timeline" ],
         "html_columns": [ "Source file name", "Location" ],
-        "artifact_icon": "user"
+        "artifact_icon": "user",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | Burner: Second Phone Number 5.4.11 | 2 rows",
+        }
     },
     "burnerCache_contacts": {
         "name": "Burner Cache Contacts",
@@ -27,7 +30,10 @@ __artifacts_v2__ = {
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.adhoclabs.burner/Cache.db*'),
         "output_types": [ "lava", "html", "tsv", "timeline" ],
         "html_columns": [ "Source file name", "Location" ],
-        "artifact_icon": "users"
+        "artifact_icon": "users",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | Burner: Second Phone Number 5.4.11 | 2 rows",
+        }
     },
     "burnerCache_numbers": {
         "name": "Burner Cache Numbers",
@@ -42,7 +48,10 @@ __artifacts_v2__ = {
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.adhoclabs.burner/Cache.db*'),
         "output_types": [ "lava", "html", "tsv", "timeline" ],
         "html_columns": [ "Source file name", "Location" ],
-        "artifact_icon": "phone"
+        "artifact_icon": "phone",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | Burner: Second Phone Number 5.4.11 | 1 row",
+        }
     },
     "burnerCache_messages": {
         "name": "Burner Cache Messages",
@@ -59,6 +68,9 @@ __artifacts_v2__ = {
         "output_types": [ "lava", "html", "tsv", "timeline" ],
         "html_columns": [ "Media URL", "Source file name", "Location" ],
         "artifact_icon": "message-circle",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | Burner: Second Phone Number 5.4.11 | 34 rows",
+        },
         "data_views": {
             "conversation": {
                 "directionSentValue": "Outgoing",

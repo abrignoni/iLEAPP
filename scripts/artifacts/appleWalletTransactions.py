@@ -11,6 +11,17 @@ __artifacts_v2__ = {
         'paths': ('*/mobile/Library/Passes/passes23.sqlite*'),
         'output_types': 'all',
         'artifact_icon': 'credit-card',
+        'sample_data': {
+            'ctf2020_ios12': 'iOS 12.4 | 0 rows',
+            'dexter_ios18': 'iOS 18.3.2 | 10 rows',
+            'felix_ios17': 'iOS 17.6.1 | 0 rows',
+            'fsfull002_ios17': 'iOS 17.1 | 0 rows',
+            'hc_ios18_7': 'iOS 18.7.8 | 0 rows',
+            'iphone11_ios17': 'iOS 17.3 | 0 rows',
+            'iphone12_ios18': 'iOS 18.7 | 0 rows',
+            'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
+            'otto_ios17': 'iOS 17.5.1 | 0 rows',
+        },
     }
 }
 

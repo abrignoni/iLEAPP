@@ -10,7 +10,16 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Biome/streams/restricted/_DKEvent.System.AirplaneMode/local/*'),
         "output_types": "standard",
-        "artifact_icon": "plane"
+        "artifact_icon": "plane",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 35 rows",
+            "felix_ios17": "iOS 17.6.1 | 14 rows",
+            "fsfull002_ios17": "iOS 17.1 | 13 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 48 rows",
+            "iphone11_ios17": "iOS 17.3 | 12 rows",
+            "iphone12_ios18": "iOS 18.7 | 27 rows",
+            "otto_ios17": "iOS 17.5.1 | 23 rows",
+        }
     }
 }
 

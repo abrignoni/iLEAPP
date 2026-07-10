@@ -10,7 +10,10 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/translate.db*'),
         "output_types": "standard",
-        "artifact_icon": "typography"
+        "artifact_icon": "typography",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | Google Translate 8.14.691 | 1 row",
+        }
     },
     "googleTranslateStarred": {
         "name": "Google Translate Favorite Translations",
@@ -23,7 +26,10 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/translate.db*'),
         "output_types": ["html", "tsv", "lava"],
-        "artifact_icon": "star"
+        "artifact_icon": "star",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | Google Translate 8.14.691 | 0 rows",
+        }
     },
     "googleTranslateTts": {
         "name": "Google Translate Text-To-Speech",
@@ -37,6 +43,9 @@ __artifacts_v2__ = {
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/translate.db*'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "volume-2",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | Google Translate 8.14.691 | 0 rows",
+        },
         "html_columns": ['Audio']
     }
 }

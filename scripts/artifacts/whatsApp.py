@@ -14,6 +14,15 @@ __artifacts_v2__ = {
         ),
         'output_types': 'standard',
         'artifact_icon': 'user',
+        'sample_data': {
+            'ctf2020_ios12': 'iOS 12.4 | net.whatsapp.WhatsApp | 0 rows',
+            'dexter_ios18': 'iOS 18.3.2 | WhatsApp Messenger 25.26.72 | 1 row',
+            'felix_ios17': 'iOS 17.6.1 | WhatsApp Messenger 24.17.78 | 0 rows',
+            'fsfull002_ios17': 'iOS 17.1 | WhatsApp Messenger 23.8.78 | 2 rows',
+            'hc_ios18_7': 'iOS 18.7.8 | WhatsApp Messenger 26.14.76 | 0 rows',
+            'iphone11_ios17': 'iOS 17.3 | WhatsApp Messenger 24.15.1 | 8 rows',
+            'otto_ios17': 'iOS 17.5.1 | WhatsApp Messenger 24.13.79 | 3 rows',
+        },
     },
     'whatsAppMessages': {
         'name': 'WhatsApp - Messages',
@@ -30,6 +39,15 @@ __artifacts_v2__ = {
             '*/mobile/Containers/Shared/AppGroup/*/Message/Media/*/*/*/*'),
         'output_types': 'all',
         'artifact_icon': 'message',
+        'sample_data': {
+            'ctf2020_ios12': 'iOS 12.4 | net.whatsapp.WhatsApp | 0 rows',
+            'dexter_ios18': 'iOS 18.3.2 | WhatsApp Messenger 25.26.72 | 77 rows',
+            'felix_ios17': 'iOS 17.6.1 | WhatsApp Messenger 24.17.78 | 4 rows',
+            'fsfull002_ios17': 'iOS 17.1 | WhatsApp Messenger 23.8.78 | 33 rows',
+            'hc_ios18_7': 'iOS 18.7.8 | WhatsApp Messenger 26.14.76 | 15 rows',
+            'iphone11_ios17': 'iOS 17.3 | WhatsApp Messenger 24.15.1 | 60 rows',
+            'otto_ios17': 'iOS 17.5.1 | WhatsApp Messenger 24.13.79 | 1803 rows',
+        },
         'data_views': {
             'conversation': {
                 'conversationDiscriminatorColumn': 'Chat ID',
@@ -54,7 +72,16 @@ __artifacts_v2__ = {
         'notes': '',
         'paths': ('*/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*',),
         'output_types': 'standard',
-        'artifact_icon': 'users'
+        'artifact_icon': 'users',
+        'sample_data': {
+            'ctf2020_ios12': 'iOS 12.4 | net.whatsapp.WhatsApp | 21 rows',
+            'dexter_ios18': 'iOS 18.3.2 | WhatsApp Messenger 25.26.72 | 10 rows',
+            'felix_ios17': 'iOS 17.6.1 | WhatsApp Messenger 24.17.78 | 7 rows',
+            'fsfull002_ios17': 'iOS 17.1 | WhatsApp Messenger 23.8.78 | 6 rows',
+            'hc_ios18_7': 'iOS 18.7.8 | WhatsApp Messenger 26.14.76 | 2 rows',
+            'iphone11_ios17': 'iOS 17.3 | WhatsApp Messenger 24.15.1 | 12 rows',
+            'otto_ios17': 'iOS 17.5.1 | WhatsApp Messenger 24.13.79 | 1017 rows',
+        }
     }
 }
 

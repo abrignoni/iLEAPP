@@ -11,7 +11,18 @@ __artifacts_v2__ = {
         "paths": ('*wireless/Library/Preferences/com.apple.commcenter.plist', 
                   '*wireless/Library/Preferences/com.apple.commcenter.device_specific_nobackup.plist'),
         "output_types": "standard",
-        "artifact_icon": "antenna"
+        "artifact_icon": "antenna",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 53 rows",
+            "dexter_ios18": "iOS 18.3.2 | 65 rows",
+            "felix_ios17": "iOS 17.6.1 | 60 rows",
+            "fsfull002_ios17": "iOS 17.1 | 120 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 48 rows",
+            "iphone11_ios17": "iOS 17.3 | 62 rows",
+            "iphone12_ios18": "iOS 18.7 | 56 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 63 rows",
+            "otto_ios17": "iOS 17.5.1 | 62 rows",
+        }
     }
 }
 

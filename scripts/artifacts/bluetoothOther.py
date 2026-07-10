@@ -10,7 +10,18 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Library/Database/com.apple.MobileBluetooth.ledevices.other.db*'),
         "output_types": "standard",
-        "artifact_icon": "bluetooth"
+        "artifact_icon": "bluetooth",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 50 rows",
+            "dexter_ios18": "iOS 18.3.2 | 1003 rows",
+            "felix_ios17": "iOS 17.6.1 | 1011 rows",
+            "fsfull002_ios17": "iOS 17.1 | 1013 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 237 rows",
+            "iphone11_ios17": "iOS 17.3 | 1056 rows",
+            "iphone12_ios18": "iOS 18.7 | 131 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 38 rows",
+            "otto_ios17": "iOS 17.5.1 | 1021 rows",
+        }
     }
 }
 

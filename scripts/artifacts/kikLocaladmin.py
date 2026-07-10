@@ -10,7 +10,13 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/kik.sqlite*',),
         "output_types": "standard",
-        "artifact_icon": "user"
+        "artifact_icon": "user",
+        "sample_data": {
+            "felix_ios17": "iOS 17.6.1 | Kik Messaging & Chat App 17.0.0 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | Kik Messaging & Chat App 16.9.3 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | Kik Messaging & Chat App 17.11.3 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | Kik Messaging & Chat App 16.16.1 | 1 row",
+        }
     }
 }
 

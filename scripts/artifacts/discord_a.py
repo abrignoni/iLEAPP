@@ -12,6 +12,12 @@ __artifacts_v2__ = {
         "paths": ('*/Library/Caches/kv-storage/@account*/a*'),
         "output_types": "standard",  # or ["html", "tsv", "timeline", "lava"]
         "artifact_icon": "message-circle",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Discord - Talk, Play, Hang Out 298.0 | 76 rows",
+            "hc_ios18_7": "iOS 18.7.8 | Discord - Talk, Play, Hang Out 324.0 | 8 rows",
+            "iphone11_ios17": "iOS 17.3 | Discord - Talk, Play, Hang Out 238.0 | 50 rows",
+            "iphone12_ios18": "iOS 18.7 | Discord - Talk, Play, Hang Out 306.1 | 4 rows",
+        },
         "data_views": {
             "conversation": {
                 "conversationDiscriminatorColumn": "Channel ID",

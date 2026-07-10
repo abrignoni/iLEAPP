@@ -1,3 +1,4 @@
+# pylint: disable=W0611,W0613,W0631
 __artifacts_v2__ = {
     'Ph2_1AssetBasicGenAlbumDataPhDaPsql': {
         'name': 'Ph2.1-Asset Basic Data & GenAlbum Data-PhDaPsql',
@@ -15,7 +16,18 @@ __artifacts_v2__ = {
         'notes': '',
         'paths': ('*/PhotoData/Photos.sqlite*',),
         "output_types": ["standard", "tsv", "none"],
-        "artifact_icon": "image"
+        "artifact_icon": "image",
+        'sample_data': {
+            'ctf2020_ios12': 'iOS 12.4 | 353 rows',
+            'dexter_ios18': 'iOS 18.3.2 | 1178 rows',
+            'felix_ios17': 'iOS 17.6.1 | 51 rows',
+            'fsfull002_ios17': 'iOS 17.1 | 89 rows',
+            'hc_ios18_7': 'iOS 18.7.8 | 36 rows',
+            'iphone11_ios17': 'iOS 17.3 | 585 rows',
+            'iphone12_ios18': 'iOS 18.7 | 7644 rows',
+            'iphone14plus_ios18': 'iOS 18.0 | 3 rows',
+            'otto_ios17': 'iOS 17.5.1 | 522 rows',
+        }
     },
     'Ph2_2AssetBasicConversationDataSyndPL': {
         'name': 'Ph2.2-Asset Basic Data & Convers Data-SyndPL',
@@ -34,7 +46,17 @@ __artifacts_v2__ = {
         'notes': '',
         'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
         "output_types": ["standard", "tsv", "none"],
-        "artifact_icon": "image"
+        "artifact_icon": "image",
+        'sample_data': {
+            'dexter_ios18': 'iOS 18.3.2 | 34 rows',
+            'felix_ios17': 'iOS 17.6.1 | 9 rows',
+            'fsfull002_ios17': 'iOS 17.1 | 25 rows',
+            'hc_ios18_7': 'iOS 18.7.8 | 0 rows',
+            'iphone11_ios17': 'iOS 17.3 | 16 rows',
+            'iphone12_ios18': 'iOS 18.7 | 2 rows',
+            'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
+            'otto_ios17': 'iOS 17.5.1 | 40 rows',
+        }
     },
     'Ph2_3AssetBasicGenAlbumGenPlayPsql': {
         'name': 'Ph2.3-Asset Basic Data & GenAlbum Data-GenPlayPsql',
@@ -52,7 +74,10 @@ __artifacts_v2__ = {
         'notes': '',
         'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
         "output_types": ["standard", "tsv", "none"],
-        "artifact_icon": "play"
+        "artifact_icon": "play",
+        'sample_data': {
+            'dexter_ios18': 'iOS 18.3.2 | 27 rows',
+        }
     }
 }
 

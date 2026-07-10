@@ -1,3 +1,4 @@
+# pylint: disable=W0311,W0611,W0613
 # Photos.sqlite
 # Author:  Scott Koenig, assisted by past contributors
 # Version: 2.0
@@ -5966,7 +5967,18 @@ __artifacts_v2__ = {
 		'category': 'Photos.sqlite-H-Possible_User_Adjusted_Data',
 		'notes': '',
 		'paths': '*/PhotoData/Photos.sqlite*',
-		'function': 'get_ph70adjusteddatetimezonelocphdapsql'
+		'function': 'get_ph70adjusteddatetimezonelocphdapsql',
+  'sample_data': {
+      'ctf2020_ios12': 'iOS 12.4 | 0 rows',
+      'dexter_ios18': 'iOS 18.3.2 | 0 rows',
+      'felix_ios17': 'iOS 17.6.1 | 0 rows',
+      'fsfull002_ios17': 'iOS 17.1 | 0 rows',
+      'hc_ios18_7': 'iOS 18.7.8 | 0 rows',
+      'iphone11_ios17': 'iOS 17.3 | 0 rows',
+      'iphone12_ios18': 'iOS 18.7 | 0 rows',
+      'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
+      'otto_ios17': 'iOS 17.5.1 | 0 rows',
+  }
 	},
 	'Ph71-1-Possible_Adjust_Date-Timezone-PhDaPsql': {
 		'name': 'PhDaPL Photos.sqlite Ph71.1 Possible Date Timezone Adjust',
@@ -5985,7 +5997,18 @@ __artifacts_v2__ = {
 		'category': 'Photos.sqlite-H-Possible_User_Adjusted_Data',
 		'notes': '',
 		'paths': '*/PhotoData/Photos.sqlite*',
-		'function': 'get_ph71adjusteddatetimezonephdapsql'
+		'function': 'get_ph71adjusteddatetimezonephdapsql',
+  'sample_data': {
+      'ctf2020_ios12': 'iOS 12.4 | 0 rows',
+      'dexter_ios18': 'iOS 18.3.2 | 0 rows',
+      'felix_ios17': 'iOS 17.6.1 | 0 rows',
+      'fsfull002_ios17': 'iOS 17.1 | 0 rows',
+      'hc_ios18_7': 'iOS 18.7.8 | 0 rows',
+      'iphone11_ios17': 'iOS 17.3 | 0 rows',
+      'iphone12_ios18': 'iOS 18.7 | 0 rows',
+      'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
+      'otto_ios17': 'iOS 17.5.1 | 0 rows',
+  }
 	},
 	'Ph72-1-Possible_Adjust_Date-Location-PhDaPsql': {
 		'name': 'PhDaPL Photos.sqlite Ph72.1 Possible Date Location Adjust',
@@ -6004,7 +6027,18 @@ __artifacts_v2__ = {
 		'category': 'Photos.sqlite-H-Possible_User_Adjusted_Data',
 		'notes': '',
 		'paths': '*/PhotoData/Photos.sqlite*',
-		'function': 'get_ph72adjusteddatelocphdapsql'
+		'function': 'get_ph72adjusteddatelocphdapsql',
+  'sample_data': {
+      'ctf2020_ios12': 'iOS 12.4 | 0 rows',
+      'dexter_ios18': 'iOS 18.3.2 | 0 rows',
+      'felix_ios17': 'iOS 17.6.1 | 0 rows',
+      'fsfull002_ios17': 'iOS 17.1 | 0 rows',
+      'hc_ios18_7': 'iOS 18.7.8 | 0 rows',
+      'iphone11_ios17': 'iOS 17.3 | 0 rows',
+      'iphone12_ios18': 'iOS 18.7 | 0 rows',
+      'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
+      'otto_ios17': 'iOS 17.5.1 | 0 rows',
+  }
 	},
 	'Ph73-1-Possible_Adjust_Date-PhDaPsql': {
 		'name': 'PhDaPL Photos.sqlite Ph73.1 Possible Date Adjust',
@@ -6022,7 +6056,18 @@ __artifacts_v2__ = {
 		'category': 'Photos.sqlite-H-Possible_User_Adjusted_Data',
 		'notes': '',
 		'paths': '*/PhotoData/Photos.sqlite*',
-		'function': 'get_ph73adjusteddatephdapsql'
+		'function': 'get_ph73adjusteddatephdapsql',
+  'sample_data': {
+      'ctf2020_ios12': 'iOS 12.4 | 0 rows',
+      'dexter_ios18': 'iOS 18.3.2 | 0 rows',
+      'felix_ios17': 'iOS 17.6.1 | 0 rows',
+      'fsfull002_ios17': 'iOS 17.1 | 0 rows',
+      'hc_ios18_7': 'iOS 18.7.8 | 0 rows',
+      'iphone11_ios17': 'iOS 17.3 | 0 rows',
+      'iphone12_ios18': 'iOS 18.7 | 0 rows',
+      'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
+      'otto_ios17': 'iOS 17.5.1 | 0 rows',
+  }
 	},
 	'Ph74-1-Possible_Adjust_Timezone-Location-PhDaPsql': {
 		'name': 'PhDaPL Photos.sqlite Ph74.1 Possible Timezone Location Adjust',
@@ -6041,7 +6086,18 @@ __artifacts_v2__ = {
 		'category': 'Photos.sqlite-H-Possible_User_Adjusted_Data',
 		'notes': '',
 		'paths': '*/PhotoData/Photos.sqlite*',
-		'function': 'get_ph74adjustedtimezonelocphdapsql'
+		'function': 'get_ph74adjustedtimezonelocphdapsql',
+  'sample_data': {
+      'ctf2020_ios12': 'iOS 12.4 | 0 rows',
+      'dexter_ios18': 'iOS 18.3.2 | 0 rows',
+      'felix_ios17': 'iOS 17.6.1 | 0 rows',
+      'fsfull002_ios17': 'iOS 17.1 | 0 rows',
+      'hc_ios18_7': 'iOS 18.7.8 | 0 rows',
+      'iphone11_ios17': 'iOS 17.3 | 0 rows',
+      'iphone12_ios18': 'iOS 18.7 | 0 rows',
+      'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
+      'otto_ios17': 'iOS 17.5.1 | 0 rows',
+  }
 	},
 	'Ph75-1-Possible_Adjust_Timezone-PhDaPsql': {
 		'name': 'PhDaPL Photos.sqlite Ph75.1 Possible Timezone Adjust',
@@ -6059,7 +6115,18 @@ __artifacts_v2__ = {
 		'category': 'Photos.sqlite-H-Possible_User_Adjusted_Data',
 		'notes': '',
 		'paths': '*/PhotoData/Photos.sqlite*',
-		'function': 'get_ph75adjustedtimezonephdapsql'
+		'function': 'get_ph75adjustedtimezonephdapsql',
+  'sample_data': {
+      'ctf2020_ios12': 'iOS 12.4 | 0 rows',
+      'dexter_ios18': 'iOS 18.3.2 | 0 rows',
+      'felix_ios17': 'iOS 17.6.1 | 0 rows',
+      'fsfull002_ios17': 'iOS 17.1 | 0 rows',
+      'hc_ios18_7': 'iOS 18.7.8 | 0 rows',
+      'iphone11_ios17': 'iOS 17.3 | 0 rows',
+      'iphone12_ios18': 'iOS 18.7 | 0 rows',
+      'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
+      'otto_ios17': 'iOS 17.5.1 | 0 rows',
+  }
 	},
 	'Ph76-1-Possible_Adjust_Location-PhDaPsql': {
 		'name': 'PhDaPL Photos.sqlite Ph76.1 Possible Location Adjust',
@@ -6077,6 +6144,17 @@ __artifacts_v2__ = {
 		'category': 'Photos.sqlite-H-Possible_User_Adjusted_Data',
 		'notes': '',
 		'paths': '*/PhotoData/Photos.sqlite*',
-		'function': 'get_ph76adjustedlocphdapsql'
+		'function': 'get_ph76adjustedlocphdapsql',
+  'sample_data': {
+      'ctf2020_ios12': 'iOS 12.4 | 0 rows',
+      'dexter_ios18': 'iOS 18.3.2 | 0 rows',
+      'felix_ios17': 'iOS 17.6.1 | 0 rows',
+      'fsfull002_ios17': 'iOS 17.1 | 0 rows',
+      'hc_ios18_7': 'iOS 18.7.8 | 0 rows',
+      'iphone11_ios17': 'iOS 17.3 | 0 rows',
+      'iphone12_ios18': 'iOS 18.7 | 0 rows',
+      'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
+      'otto_ios17': 'iOS 17.5.1 | 0 rows',
+  }
 	}
 }

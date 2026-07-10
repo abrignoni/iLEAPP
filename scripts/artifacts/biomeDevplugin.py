@@ -10,7 +10,17 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/biome/streams/restricted/_DKEvent.Device.IsPluggedIn/local/*'),
         "output_types": "standard",
-        "artifact_icon": "battery-charging"
+        "artifact_icon": "battery-charging",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 1415 rows",
+            "felix_ios17": "iOS 17.6.1 | 304 rows",
+            "fsfull002_ios17": "iOS 17.1 | 153 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 639 rows",
+            "iphone11_ios17": "iOS 17.3 | 476 rows",
+            "iphone12_ios18": "iOS 18.7 | 455 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 18 rows",
+            "otto_ios17": "iOS 17.5.1 | 746 rows",
+        }
     }
 }
 

@@ -10,7 +10,12 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/AccountData/*/store/store.wiredatabase*'),
         "output_types": "all",
-        "artifact_icon": "user"
+        "artifact_icon": "user",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | Wire • Secure Messenger 4.16.3 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | Wire • Secure Messenger 3.111.9 | 8 rows",
+            "iphone12_ios18": "iOS 18.7 | Wire • Secure Messenger 4.10.0 | 0 rows",
+        }
     },
     "wireMessages": {
         "name": "Wire Secure Messenger Messages",
@@ -23,7 +28,12 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/AccountData/*/store/store.wiredatabase*'),
         "output_types": "standard",
-        "artifact_icon": "message-circle"
+        "artifact_icon": "message-circle",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | Wire • Secure Messenger 4.16.3 | 19 rows",
+            "iphone11_ios17": "iOS 17.3 | Wire • Secure Messenger 3.111.9 | 50 rows",
+            "iphone12_ios18": "iOS 18.7 | Wire • Secure Messenger 4.10.0 | 38 rows",
+        }
     }
 }
 

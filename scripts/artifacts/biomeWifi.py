@@ -10,7 +10,16 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Biome/streams/restricted/_DKEvent.Wifi.Connection/local/*'),
         "output_types": "standard",
-        "artifact_icon": "wifi"
+        "artifact_icon": "wifi",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 398 rows",
+            "felix_ios17": "iOS 17.6.1 | 609 rows",
+            "fsfull002_ios17": "iOS 17.1 | 180 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 1113 rows",
+            "iphone11_ios17": "iOS 17.3 | 813 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 13 rows",
+            "otto_ios17": "iOS 17.5.1 | 239 rows",
+        }
     }
 }
 

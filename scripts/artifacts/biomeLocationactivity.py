@@ -10,7 +10,16 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/biome/streams/restricted/_DKEvent.App.LocationActivity/local/*'),
         "output_types": "standard",
-        "artifact_icon": "map-pin"
+        "artifact_icon": "map-pin",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 435 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 19 rows",
+            "iphone11_ios17": "iOS 17.3 | 93 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 32 rows",
+        }
     }
 }
 

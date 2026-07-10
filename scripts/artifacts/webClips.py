@@ -10,7 +10,10 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*WebClips/*.webclip/*',),
         "output_types": "standard",
-        "artifact_icon": "bookmark"
+        "artifact_icon": "bookmark",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 2 rows",
+        }
     }
 }
 from scripts.ilapfuncs import (

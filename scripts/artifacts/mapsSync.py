@@ -15,7 +15,17 @@ __artifacts_v2__ = {
                  "devices might show up here. Travel should be confirmed. Medium confidence.",
         "paths": ('*/MapsSync_0.0.1*',),
         "output_types": "all",
-        "artifact_icon": "map-pin"
+        "artifact_icon": "map-pin",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | com.apple.Maps | 50 rows",
+            "felix_ios17": "iOS 17.6.1 | com.apple.Maps | 2 rows",
+            "fsfull002_ios17": "iOS 17.1 | com.apple.Maps | 2 rows",
+            "hc_ios18_7": "iOS 18.7.8 | com.apple.Maps | 2 rows",
+            "iphone11_ios17": "iOS 17.3 | com.apple.Maps | 48 rows",
+            "iphone12_ios18": "iOS 18.7 | com.apple.Maps | 12 rows",
+            "iphone14plus_ios18": "iOS 18.0 | com.apple.Maps | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | com.apple.Maps | 28 rows",
+        }
     }
 }
 

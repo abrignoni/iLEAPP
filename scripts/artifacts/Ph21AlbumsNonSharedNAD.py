@@ -1,3 +1,4 @@
+# pylint: disable=W0611,W0613,W0631
 __artifacts_v2__ = {
     'Ph21NonSharedAlbumRecordswithNADPhDaPsql': {
         'name': 'Ph21-Non-Shared Album Records NAD-PhDaPsql',
@@ -12,7 +13,18 @@ __artifacts_v2__ = {
         'notes': '',
         'paths': ('*/PhotoData/Photos.sqlite*',),
         "output_types": ["standard", "tsv", "none"],
-        "artifact_icon": "book"
+        "artifact_icon": "book",
+        'sample_data': {
+            'ctf2020_ios12': 'iOS 12.4 | 4 rows',
+            'dexter_ios18': 'iOS 18.3.2 | 32 rows',
+            'felix_ios17': 'iOS 17.6.1 | 1 row',
+            'fsfull002_ios17': 'iOS 17.1 | 6 rows',
+            'hc_ios18_7': 'iOS 18.7.8 | 2 rows',
+            'iphone11_ios17': 'iOS 17.3 | 10 rows',
+            'iphone12_ios18': 'iOS 18.7 | 4 rows',
+            'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
+            'otto_ios17': 'iOS 17.5.1 | 4 rows',
+        }
     }
 }
 

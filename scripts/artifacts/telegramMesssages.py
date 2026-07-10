@@ -35,7 +35,15 @@ __artifacts_v2__ = {
                 "mediaColumn": "Thumbnail"
             }
         },
-        "artifact_icon": "brand-telegram"
+        "artifact_icon": "brand-telegram",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Telegram Messenger 12.0 | 57 rows",
+            "felix_ios17": "iOS 17.6.1 | Telegram Messenger 11.0.2 | 1 row",
+            "fsfull002_ios17": "iOS 17.1 | Telegram Messenger 9.6.3 | 33 rows",
+            "hc_ios18_7": "iOS 18.7.8 | Telegram Messenger 12.6.3 | 11 rows",
+            "iphone11_ios17": "iOS 17.3 | Telegram Messenger 10.14.2 | 250 rows",
+            "otto_ios17": "iOS 17.5.1 | Telegram Messenger 11.0 | 1687 rows",
+        }
     }
 }
 

@@ -10,7 +10,11 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Library/MedicalID/MedicalIDData.archive',),
         "output_types": "standard",
-        "artifact_icon": "heart"
+        "artifact_icon": "heart",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 16 rows",
+            "otto_ios17": "iOS 17.5.1 | 36 rows",
+        }
     }
 }
 

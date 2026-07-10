@@ -10,7 +10,18 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Library/Preferences/com.apple.mobile.ldbackup.plist',),
         "output_types": ["html", "tsv", "lava"],
-        "artifact_icon": "device-floppy"
+        "artifact_icon": "device-floppy",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 8 rows",
+            "dexter_ios18": "iOS 18.3.2 | 5 rows",
+            "felix_ios17": "iOS 17.6.1 | 6 rows",
+            "fsfull002_ios17": "iOS 17.1 | 4 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 3 rows",
+            "iphone11_ios17": "iOS 17.3 | 8 rows",
+            "iphone12_ios18": "iOS 18.7 | 5 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 4 rows",
+            "otto_ios17": "iOS 17.5.1 | 6 rows",
+        }
     }
 }
 

@@ -12,7 +12,18 @@ __artifacts_v2__ = {
                  "Creation/Changed timestamp is local time — use the Possible Exif Offset to compare.",
         "paths": ('*Media/PhotoData/Photos.sqlite*', '*Media/DCIM/*/**'),
         "output_types": "all",
-        "artifact_icon": "photo"
+        "artifact_icon": "photo",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | co.visualsupply.cam | 350 rows",
+            "dexter_ios18": "iOS 18.3.2 | 337 rows",
+            "felix_ios17": "iOS 17.6.1 | 3 rows",
+            "fsfull002_ios17": "iOS 17.1 | 5 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 27 rows",
+            "iphone11_ios17": "iOS 17.3 | 289 rows",
+            "iphone12_ios18": "iOS 18.7 | 4088 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 451 rows",
+        }
     }
 }
 

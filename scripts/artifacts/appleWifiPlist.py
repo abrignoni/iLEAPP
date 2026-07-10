@@ -12,7 +12,18 @@ __artifacts_v2__ = {
                   '*/com.apple.wifi-networks.plist.backup', 
                   '*/com.apple.wifi.known-networks.plist'),
         "output_types": "standard",
-        "artifact_icon": "wifi"
+        "artifact_icon": "wifi",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 8 rows",
+            "dexter_ios18": "iOS 18.3.2 | 8 rows",
+            "felix_ios17": "iOS 17.6.1 | 11 rows",
+            "fsfull002_ios17": "iOS 17.1 | 7 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 1 row",
+            "iphone11_ios17": "iOS 17.3 | 17 rows",
+            "iphone12_ios18": "iOS 18.7 | 2 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 3 rows",
+            "otto_ios17": "iOS 17.5.1 | 33 rows",
+        }
     },
     "appleWifiKnownNetworksTimes": {
         "name": "WiFi Known Networks Times",
@@ -27,7 +38,18 @@ __artifacts_v2__ = {
                   '*/com.apple.wifi-networks.plist.backup', 
                   '*/com.apple.wifi.known-networks.plist'),
         "output_types": "standard",
-        "artifact_icon": "clock"
+        "artifact_icon": "clock",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 8 rows",
+            "dexter_ios18": "iOS 18.3.2 | 8 rows",
+            "felix_ios17": "iOS 17.6.1 | 11 rows",
+            "fsfull002_ios17": "iOS 17.1 | 7 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 1 row",
+            "iphone11_ios17": "iOS 17.3 | 17 rows",
+            "iphone12_ios18": "iOS 18.7 | 2 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 3 rows",
+            "otto_ios17": "iOS 17.5.1 | 33 rows",
+        }
     },
     "appleWifiScannedPrivate": {
         "name": "WiFi Scanned Networks (Private)",
@@ -40,7 +62,17 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/com.apple.wifi-private-mac-networks.plist',),
         "output_types": "standard",
-        "artifact_icon": "eye-off"
+        "artifact_icon": "eye-off",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 9 rows",
+            "felix_ios17": "iOS 17.6.1 | 11 rows",
+            "fsfull002_ios17": "iOS 17.1 | 4 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 1 row",
+            "iphone11_ios17": "iOS 17.3 | 17 rows",
+            "iphone12_ios18": "iOS 18.7 | 2 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 2 rows",
+            "otto_ios17": "iOS 17.5.1 | 35 rows",
+        }
     },
     "appleWifiBSSList": {
         "name": "WiFi BSS List",
@@ -53,7 +85,17 @@ __artifacts_v2__ = {
         "notes": "Extracts detailed BSS information from the com.apple.wifi.plist file",
         "paths": ('*/com.apple.wifi.known-networks.plist',),
         "output_types": "all",
-        "artifact_icon": "wifi"
+        "artifact_icon": "wifi",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 43 rows",
+            "felix_ios17": "iOS 17.6.1 | 34 rows",
+            "fsfull002_ios17": "iOS 17.1 | 6 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 5 rows",
+            "iphone11_ios17": "iOS 17.3 | 100 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 6 rows",
+            "otto_ios17": "iOS 17.5.1 | 194 rows",
+        }
     }
 }
 

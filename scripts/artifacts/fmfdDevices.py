@@ -10,7 +10,16 @@ __artifacts_v2__ = {
         "notes": "Located in the NotBackedUp preferences area. Contains devices visible in the Find My Friends network.",
         "paths": ('*/Library/Preferences/com.apple.icloud.fmfd.notbackedup.plist',),
         "output_types": "all",
-        "artifact_icon": "map-pin"
+        "artifact_icon": "map-pin",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 1 row",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+        }
     }
 }
 

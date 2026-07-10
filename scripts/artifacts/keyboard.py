@@ -10,7 +10,13 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Library/Keyboard/*-dynamic.lm/dynamic-lexicon.dat',),
         "output_types": ["html", "tsv", "lava", "timeline"],
-        "artifact_icon": "vocabulary"
+        "artifact_icon": "vocabulary",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 2 rows",
+            "felix_ios17": "iOS 17.6.1 | 2 rows",
+            "iphone11_ios17": "iOS 17.3 | 1 row",
+            "otto_ios17": "iOS 17.5.1 | 1 row",
+        }
     },
     "keyboardAppUsage": {
         "name": "Keyboard Application Usage",
@@ -23,7 +29,10 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Library/Keyboard/app_usage_database.plist',),
         "output_types": ["html", "tsv", "lava", "timeline"],
-        "artifact_icon": "keyboard"
+        "artifact_icon": "keyboard",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 112 rows",
+        }
     },
     "keyboardUsageStats": {
         "name": "Keyboard Usage Stats",
@@ -36,7 +45,17 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Library/Keyboard/user_model_database.sqlite*',),
         "output_types": ["html", "tsv", "lava", "timeline"],
-        "artifact_icon": "chart-bar"
+        "artifact_icon": "chart-bar",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 4 rows",
+            "felix_ios17": "iOS 17.6.1 | 5 rows",
+            "fsfull002_ios17": "iOS 17.1 | 4 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 4 rows",
+            "iphone11_ios17": "iOS 17.3 | 4 rows",
+            "iphone12_ios18": "iOS 18.7 | 4 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 5 rows",
+            "otto_ios17": "iOS 17.5.1 | 4 rows",
+        }
     }
 }
 

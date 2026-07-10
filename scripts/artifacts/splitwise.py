@@ -10,7 +10,10 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Library/Application Support/database.sqlite*',),
         "output_types": "standard",
-        "artifact_icon": "user"
+        "artifact_icon": "user",
+        "sample_data": {
+            "iphone12_ios18": "iOS 18.7 | Proton VPN: Fast & Secure 6.6.5 | 0 rows",
+        }
     },
     "splitwiseExpenses": {
         "name": "Splitwise - Expenses",
@@ -23,7 +26,10 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Library/Application Support/database.sqlite*',),
         "output_types": "standard",
-        "artifact_icon": "currency-dollar"
+        "artifact_icon": "currency-dollar",
+        "sample_data": {
+            "iphone12_ios18": "iOS 18.7 | Proton VPN: Fast & Secure 6.6.5 | 0 rows",
+        }
     },
     "splitwiseExpenseBalances": {
         "name": "Splitwise - Expense Balances",
@@ -36,7 +42,10 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Library/Application Support/database.sqlite*',),
         "output_types": "standard",
-        "artifact_icon": "currency-dollar"
+        "artifact_icon": "currency-dollar",
+        "sample_data": {
+            "iphone12_ios18": "iOS 18.7 | Proton VPN: Fast & Secure 6.6.5 | 0 rows",
+        }
     },
     "splitwiseTotalBalances": {
         "name": "Splitwise - Total Balances",
@@ -49,7 +58,10 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Library/Application Support/database.sqlite*',),
         "output_types": "standard",
-        "artifact_icon": "currency-dollar"
+        "artifact_icon": "currency-dollar",
+        "sample_data": {
+            "iphone12_ios18": "iOS 18.7 | Proton VPN: Fast & Secure 6.6.5 | 0 rows",
+        }
     },
     "splitwiseGroups": {
         "name": "Splitwise - Groups",
@@ -63,6 +75,9 @@ __artifacts_v2__ = {
         "paths": ('*/Library/Application Support/database.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "users",
+        "sample_data": {
+            "iphone12_ios18": "iOS 18.7 | Proton VPN: Fast & Secure 6.6.5 | 0 rows",
+        },
         "html_columns": ['Members']
     },
     "splitwiseNotifications": {
@@ -77,6 +92,9 @@ __artifacts_v2__ = {
         "paths": ('*/Library/Application Support/database.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "bell",
+        "sample_data": {
+            "iphone12_ios18": "iOS 18.7 | Proton VPN: Fast & Secure 6.6.5 | 0 rows",
+        },
         "html_columns": ['Notification']
     }
 }

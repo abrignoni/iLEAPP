@@ -1,3 +1,4 @@
+# pylint: disable=W0611,W0613,W0631
 __artifacts_v2__ = {
     'Ph9_1BurstAvalanchePhDaPsql': {
         'name': 'Ph9.1-Burst Avalanche-PhDaPsql',
@@ -12,7 +13,18 @@ __artifacts_v2__ = {
         'notes': '',
         'paths': ('*/PhotoData/Photos.sqlite*',),
         "output_types": ["standard", "tsv", "none"],
-        "artifact_icon": "layers"
+        "artifact_icon": "layers",
+        'sample_data': {
+            'ctf2020_ios12': 'iOS 12.4 | 0 rows',
+            'dexter_ios18': 'iOS 18.3.2 | 0 rows',
+            'felix_ios17': 'iOS 17.6.1 | 3 rows',
+            'fsfull002_ios17': 'iOS 17.1 | 0 rows',
+            'hc_ios18_7': 'iOS 18.7.8 | 0 rows',
+            'iphone11_ios17': 'iOS 17.3 | 0 rows',
+            'iphone12_ios18': 'iOS 18.7 | 0 rows',
+            'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
+            'otto_ios17': 'iOS 17.5.1 | 0 rows',
+        }
     },
     'Ph9_3BurstAvalancheGenPlayPsql': {
         'name': 'Ph9.3-Burst Avalanche-GenPlayPsql',
@@ -27,7 +39,10 @@ __artifacts_v2__ = {
         'notes': '',
         'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
         "output_types": ["standard", "tsv", "none"],
-        "artifact_icon": "layers"
+        "artifact_icon": "layers",
+        'sample_data': {
+            'dexter_ios18': 'iOS 18.3.2 | 0 rows',
+        }
 	}
 }
 

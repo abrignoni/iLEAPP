@@ -10,7 +10,17 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Biome/streams/restricted/App.WebUsage/local/*'),
         "output_types": "standard",
-        "artifact_icon": "world"
+        "artifact_icon": "world",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 29 rows",
+            "felix_ios17": "iOS 17.6.1 | 30 rows",
+            "fsfull002_ios17": "iOS 17.1 | 12 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 26 rows",
+            "iphone11_ios17": "iOS 17.3 | 3 rows",
+            "iphone12_ios18": "iOS 18.7 | 110 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 46 rows",
+            "otto_ios17": "iOS 17.5.1 | 371 rows",
+        }
     }
 }
 

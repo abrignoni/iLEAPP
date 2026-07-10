@@ -10,7 +10,16 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Biome/streams/restricted/Device.Wireless.Bluetooth/local/*'),
         "output_types": "standard",
-        "artifact_icon": "bluetooth"
+        "artifact_icon": "bluetooth",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 73 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 4 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 22 rows",
+        }
     }
 }
 

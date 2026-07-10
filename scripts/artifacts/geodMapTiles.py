@@ -11,7 +11,18 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('**/MapTiles.sqlitedb*'),
         "output_types": "standard",
-        "artifact_icon": "map"
+        "artifact_icon": "map",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 678 rows",
+            "dexter_ios18": "iOS 18.3.2 | 2178 rows",
+            "felix_ios17": "iOS 17.6.1 | 19 rows",
+            "fsfull002_ios17": "iOS 17.1 | 38 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 13364 rows",
+            "iphone11_ios17": "iOS 17.3 | 22573 rows",
+            "iphone12_ios18": "iOS 18.7 | 1239 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 81 rows",
+            "otto_ios17": "iOS 17.5.1 | 2345 rows",
+        }
     }
 }
 

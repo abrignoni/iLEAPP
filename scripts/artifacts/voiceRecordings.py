@@ -13,7 +13,12 @@ __artifacts_v2__ = {
             '*/Recordings/*.m4a'
             ),
         "output_types": "standard",
-        "artifact_icon": "microphone"
+        "artifact_icon": "microphone",
+        "sample_data": {
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | com.apple.VoiceMemos | 3 rows",
+            "otto_ios17": "iOS 17.5.1 | com.apple.VoiceMemos | 3 rows",
+        }
     }   
 }
 

@@ -10,7 +10,17 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Data/Application/*/Library/Preferences/com.apple.Maps.plist'),
         "output_types": ["html", "tsv", "lava", "kml"],
-        "artifact_icon": "map-pin"
+        "artifact_icon": "map-pin",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | com.apple.Maps | 1 row",
+            "dexter_ios18": "iOS 18.3.2 | com.apple.Maps | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | com.apple.Maps | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | com.apple.Maps | 1 row",
+            "hc_ios18_7": "iOS 18.7.8 | com.apple.Maps | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | com.apple.Maps | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | com.apple.Maps | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | com.apple.Maps | 0 rows",
+        }
     }
 }
 

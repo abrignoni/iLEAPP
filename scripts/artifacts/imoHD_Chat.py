@@ -6,7 +6,10 @@ __artifacts_v2__ = {
         "category": "IMO HD Chat", "notes": "",
         "paths": ('*/IMODb2.sqlite*',
                   '*/mobile/Containers/Data/Application/*/Library/Caches/videos/*.webp'),
-        "output_types": "standard", "artifact_icon": "message-circle"
+        "output_types": "standard", "artifact_icon": "message-circle",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | imo video calls and chat HD 7.2.23 | 38 rows",
+        }
     },
     "imoHDChatContacts": {
         "name": "IMO HD Chat - Contacts",
@@ -14,7 +17,10 @@ __artifacts_v2__ = {
         "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "IMO HD Chat", "notes": "",
         "paths": ('*/IMODb2.sqlite*',),
-        "output_types": "standard", "artifact_icon": "users"
+        "output_types": "standard", "artifact_icon": "users",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | imo video calls and chat HD 7.2.23 | 5 rows",
+        }
     }
 }
 

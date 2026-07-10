@@ -10,7 +10,17 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/biome/streams/restricted/_DKEvent.Device.BatteryPercentage/local/*'),
         "output_types": "standard",
-        "artifact_icon": "battery"
+        "artifact_icon": "battery",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 4321 rows",
+            "felix_ios17": "iOS 17.6.1 | 1676 rows",
+            "fsfull002_ios17": "iOS 17.1 | 1857 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 4021 rows",
+            "iphone11_ios17": "iOS 17.3 | 6159 rows",
+            "iphone12_ios18": "iOS 18.7 | 1146 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 450 rows",
+            "otto_ios17": "iOS 17.5.1 | 4307 rows",
+        }
     }
 }
 

@@ -11,7 +11,18 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/wireless/Library/Preferences/com.apple.commcenter.plist'),
         "output_types": ["html", "tsv", "lava"],
-        "artifact_icon": "hash"
+        "artifact_icon": "hash",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 20 rows",
+            "dexter_ios18": "iOS 18.3.2 | 23 rows",
+            "felix_ios17": "iOS 17.6.1 | 23 rows",
+            "fsfull002_ios17": "iOS 17.1 | 21 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 18 rows",
+            "iphone11_ios17": "iOS 17.3 | 21 rows",
+            "iphone12_ios18": "iOS 18.7 | 18 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 22 rows",
+            "otto_ios17": "iOS 17.5.1 | 21 rows",
+        }
     }
 }
 

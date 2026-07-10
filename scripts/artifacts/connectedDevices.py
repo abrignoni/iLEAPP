@@ -10,7 +10,12 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/iTunes_Control/iTunes/iTunesPrefs',),
         "output_types": "standard",
-        "artifact_icon": "devices"
+        "artifact_icon": "devices",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 3 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 3 rows",
+            "iphone11_ios17": "iOS 17.3 | 2 rows",
+        }
     }
 }
 

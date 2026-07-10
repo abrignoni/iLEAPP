@@ -10,7 +10,18 @@ __artifacts_v2__ = {
         "notes": "Source location in the extraction is provided for each item.",
         "paths": ('*/fsCachedData/**',),
         "output_types": "standard",
-        "artifact_icon": "database"
+        "artifact_icon": "database",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 2746 rows",
+            "dexter_ios18": "iOS 18.3.2 | 1708 rows",
+            "felix_ios17": "iOS 17.6.1 | 872 rows",
+            "fsfull002_ios17": "iOS 17.1 | 298 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 2754 rows",
+            "iphone11_ios17": "iOS 17.3 | 3900 rows",
+            "iphone12_ios18": "iOS 18.7 | 915 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 1101 rows",
+            "otto_ios17": "iOS 17.5.1 | 3221 rows",
+        }
     }
 }
 

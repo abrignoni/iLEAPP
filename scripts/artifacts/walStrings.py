@@ -11,6 +11,17 @@ __artifacts_v2__ = {
         "paths": ('**/*-wal', '**/*-journal'),
         "output_types": "standard",
         "artifact_icon": "database",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 373 rows",
+            "dexter_ios18": "iOS 18.3.2 | 909 rows",
+            "felix_ios17": "iOS 17.6.1 | 502 rows",
+            "fsfull002_ios17": "iOS 17.1 | 461 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 814 rows",
+            "iphone11_ios17": "iOS 17.3 | 1012 rows",
+            "iphone12_ios18": "iOS 18.7 | 654 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 490 rows",
+            "otto_ios17": "iOS 17.5.1 | 813 rows",
+        },
         "html_columns": ['Output File']
     },
     "walStringsDetails": {
@@ -24,7 +35,18 @@ __artifacts_v2__ = {
         "notes": "LAVA-only detailed string output.",
         "paths": ('**/*-wal', '**/*-journal'),
         "output_types": "lava_only",
-        "artifact_icon": "database"
+        "artifact_icon": "database",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 789973 rows",
+            "dexter_ios18": "iOS 18.3.2 | 1161158 rows",
+            "felix_ios17": "iOS 17.6.1 | 788273 rows",
+            "fsfull002_ios17": "iOS 17.1 | 805831 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 1208783 rows",
+            "iphone11_ios17": "iOS 17.3 | 1279032 rows",
+            "iphone12_ios18": "iOS 18.7 | 565084 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 729482 rows",
+            "otto_ios17": "iOS 17.5.1 | 1199161 rows",
+        }
     }
 }
 

@@ -10,7 +10,18 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Library/Preferences/com.apple.sharingd.plist'),
         "output_types": "none",
-        "artifact_icon": "settings"
+        "artifact_icon": "settings",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | files found",
+            "dexter_ios18": "iOS 18.3.2 | files found",
+            "felix_ios17": "iOS 17.6.1 | files found",
+            "fsfull002_ios17": "iOS 17.1 | files found",
+            "hc_ios18_7": "iOS 18.7.8 | files found",
+            "iphone11_ios17": "iOS 17.3 | files found",
+            "iphone12_ios18": "iOS 18.7 | files found",
+            "iphone14plus_ios18": "iOS 18.0 | files found",
+            "otto_ios17": "iOS 17.5.1 | files found",
+        }
     }
 }
 

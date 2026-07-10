@@ -11,6 +11,10 @@ __artifacts_v2__ = {
         "paths": ('*/Caches/com.apple.findmy.fmipcore/Items.data'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "info-circle",
+        "sample_data": {
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 2 rows",
+        },
     },
     "findMyItemsLocations": {
         "name": "FindMy Items Locations",
@@ -23,7 +27,11 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Caches/com.apple.findmy.fmipcore/Items.data'),
         "output_types": "all",
-        "artifact_icon": "map-pin"
+        "artifact_icon": "map-pin",
+        "sample_data": {
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 2 rows",
+        }
     },
     "findMyItemsSafeLocations": {
         "name": "FindMy Items Safe Locations",
@@ -36,7 +44,11 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Caches/com.apple.findmy.fmipcore/Items.data'),
         "output_types": "all",
-        "artifact_icon": "shield-check"
+        "artifact_icon": "shield-check",
+        "sample_data": {
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 2 rows",
+        }
     },
     "findMyItemsCrowdsourcedLocations": {
         "name": "FindMy Items Crowdsourced Locations",
@@ -49,7 +61,11 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Caches/com.apple.findmy.fmipcore/Items.data'),
         "output_types": "all",
-        "artifact_icon": "users"
+        "artifact_icon": "users",
+        "sample_data": {
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 2 rows",
+        }
     }
 }
 

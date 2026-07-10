@@ -27,6 +27,14 @@ __artifacts_v2__ = {
         "sample_data": {
             "josh_ios_15": "75 rows; includes messages, VOIP call activity, and conversation view fields",
             "mvs_2026": "0 rows; verifies multi-DB handling with no matching thread records",
+            "ctf2020_ios12": "iOS 12.4 | com.burbn.instagram | 1 row",
+            "dexter_ios18": "iOS 18.3.2 | Instagram 400.0.0 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | Instagram 282.0 | 4 rows",
+            "hc_ios18_7": "iOS 18.7.8 | Instagram 425.0.0 | 4 rows",
+            "iphone11_ios17": "iOS 17.3 | Instagram 341.0.1 | 42 rows",
+            "iphone12_ios18": "iOS 18.7 | Instagram 408.0.0 | 20 rows",
+            "iphone14plus_ios18": "iOS 18.0 | Instagram 409.1.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | Instagram 344.0.9 | 11 rows",
         },
     },
     "instagram_calls": {
@@ -46,6 +54,14 @@ __artifacts_v2__ = {
         "sample_data": {
             "josh_ios_15": "25 rows; VOIP call activity extracted from Threads messages",
             "mvs_2026": "0 rows; verifies multi-DB handling with no matching call records",
+            "ctf2020_ios12": "iOS 12.4 | com.burbn.instagram | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | Instagram 400.0.0 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | Instagram 282.0 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | Instagram 425.0.0 | 2 rows",
+            "iphone11_ios17": "iOS 17.3 | Instagram 341.0.1 | 13 rows",
+            "iphone12_ios18": "iOS 18.7 | Instagram 408.0.0 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | Instagram 409.1.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | Instagram 344.0.9 | 0 rows",
         },
     },
 }
