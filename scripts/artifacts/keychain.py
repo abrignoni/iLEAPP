@@ -91,7 +91,7 @@ __artifacts_v2__ = {
         "description": "Parses keychain to extract the device's paired Bluetooth devices",
         "author": "@kobo220",
         "creation_date": "2026-06-18",
-        "last_update_date": "2026-06-18",
+        "last_update_date": "2026-07-10",
         "requirements": "none",
         "category": "Keychain",
         "notes": "",
@@ -282,10 +282,14 @@ def _normalize_date(date_str: str | datetime) -> datetime | None:
         base, frac = date_str.split('.', 1)
         frac = frac.rstrip('Z')[:6]
         date_str = f"{base}.{frac}Z"
-    try:
-        return datetime.strptime(date_str, "%Y%m%d%H%M%S.%fZ").replace(tzinfo=timezone.utc)
-    except ValueError:
-        return datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+    # ASN1 GeneralizedTime with and without fractional seconds, plus ISO 8601
+    for date_format in ("%Y%m%d%H%M%S.%fZ", "%Y%m%d%H%M%SZ", "%Y-%m-%dT%H:%M:%SZ"):
+        try:
+            return datetime.strptime(date_str, date_format).replace(tzinfo=timezone.utc)
+        except ValueError:
+            continue
+    logfunc(f"Unrecognized keychain date format: {date_str}")
+    return None
 
 def _extract_udid(text: str) -> str | None:
     """Extract UDID from text, supporting both 40-char hex and 8-16 format. Returns UDID in uppercase."""

@@ -4,10 +4,10 @@ __artifacts_v2__ = {
         "description": "Per-application location count entries from the geod AP.db (mkcount/dailycounts)",
         "author": "",
         "creation_date": "2026-06-23",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-10",
         "requirements": "none",
         "category": "Location",
-        "notes": "createtime assumed to be Mac absolute time (Cocoa, seconds since 2001-01-01 UTC).",
+        "notes": "createtime is stored either as Mac absolute time (Cocoa, seconds since 2001-01-01 UTC) or as a 'YYYY-MM-DD HH:MM:SS' text value assumed to be UTC.",
         "paths": ('**/AP.db*',),
         "output_types": "standard",
         "artifact_icon": "map-pin",
@@ -19,7 +19,21 @@ __artifacts_v2__ = {
 }
 
 from scripts.ilapfuncs import (artifact_processor, get_sqlite_db_records, does_table_exist_in_db,
-                               convert_cocoa_core_data_ts_to_utc)
+                               convert_cocoa_core_data_ts_to_utc, convert_ts_human_to_utc, logfunc)
+
+
+def _convert_createtime(createtime):
+    """createtime is numeric Mac absolute time in some schema versions and a
+    'YYYY-MM-DD HH:MM:SS' text value (assumed UTC) in others."""
+    if createtime is None or createtime == '':
+        return ''
+    if isinstance(createtime, (int, float)):
+        return convert_cocoa_core_data_ts_to_utc(createtime)
+    try:
+        return convert_ts_human_to_utc(str(createtime))
+    except ValueError:
+        logfunc(f'Unrecognized createtime value in AP.db: {createtime}')
+        return ''
 
 
 @artifact_processor
@@ -44,6 +58,6 @@ def geodapplications(context):
 
     if table:
         for row in get_sqlite_db_records(source_path, f'SELECT count_type, app_id, createtime FROM {table}'):
-            data_list.append((convert_cocoa_core_data_ts_to_utc(row[2]), row[0], row[1]))
+            data_list.append((_convert_createtime(row[2]), row[0], row[1]))
 
     return data_headers, data_list, context.get_relative_path(source_path)

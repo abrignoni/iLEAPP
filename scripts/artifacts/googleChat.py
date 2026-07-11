@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses google chats",
         "author": "@AlexisBrignoni",
         "creation_date": "2023-09-03",
-        "last_update_date": "2025-06-04",
+        "last_update_date": "2026-07-10",
         "requirements": "none",
         "category": "Google Chats",
         "notes": "",
@@ -237,7 +237,7 @@ def google_chat(context):
                     'Is Sent', 'Filename', ('Media', 'media'), 'Reaction', 'Reaction User', 'Account ID')
     data_list = []
     source_path = ''
-    timezone_offset = context.get_output_params().timezone_offset
+    timezone_offset = context.get_timezone_offset()
 
     for file_found in context.get_files_found():
         file_found = str(file_found)

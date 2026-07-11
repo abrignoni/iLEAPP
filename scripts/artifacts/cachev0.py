@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Images cached in the SQLite database.",
         "author": "@AlexisBrignoni",
         "creation_date": "2024-02-06",
-        "last_update_date": "2025-11-12",
+        "last_update_date": "2026-07-10",
         "requirements": "none",
         "category": "Image cacheV0",
         "notes": "",
@@ -29,7 +29,7 @@ from scripts.ilapfuncs import (
 
 @artifact_processor
 def cachev0(context):
-    
+    data_headers = ('ID', ('Media', 'media'), 'Source DB')
     data_list = []
     for file_found in context.get_files_found():
         file_found = str(file_found)
@@ -53,8 +53,4 @@ def cachev0(context):
                 if media_ref:
                     data_list.append((row[0], media_ref, context.get_relative_path(file_found)))
             
-    if not data_list:
-        return
-
-    data_headers = ('ID', ('Media', 'media'), 'Source DB')
     return data_headers, data_list, 'see Source File for more info'

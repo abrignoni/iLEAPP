@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses DKEvent Keybag IsLocked entries from biomes",
         "author": "@JohnHyla",
         "creation_date": "2025-04-29",
-        "last_update_date": "2025-10-31",
+        "last_update_date": "2026-07-10",
         "requirements": "none",
         "category": "Biome",
         "notes": "",
@@ -25,11 +25,13 @@ __artifacts_v2__ = {
 
 
 import os
+import struct
 from datetime import timezone
 import blackboxprotobuf
+from google.protobuf.message import DecodeError
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
-from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv
+from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv, logfunc
 
 
 @artifact_processor
@@ -90,12 +92,18 @@ def get_biomeDKKeybag(context):
             ts = ts.replace(tzinfo=timezone.utc)
 
             if record.state == EntryState.Written:
-                protostuff, _ = blackboxprotobuf.decode_message(record.data, typess)
+                try:
+                    protostuff, _ = blackboxprotobuf.decode_message(record.data, typess)
 
-                time2 = (webkit_timestampsconv(protostuff['2']))
-                time3 = (webkit_timestampsconv(protostuff['3']))
+                    time2 = (webkit_timestampsconv(protostuff['2']))
+                    time3 = (webkit_timestampsconv(protostuff['3']))
 
-                data_list.append((ts, time2, time3, '1 - Locked ' if protostuff['4']['4'] == 1 else '0 - Unlocked', filename))
+                    data_list.append((ts, time2, time3, '1 - Locked ' if protostuff['4']['4'] == 1 else '0 - Unlocked', filename))
+                except (DecodeError, struct.error, KeyError, ValueError, TypeError, IndexError) as ex:
+                    logfunc(f"Skipping biomeDKKeybag record due to protobuf decode error: {ex} | "
+                            f"File: {context.get_relative_path(file_found)} | "
+                            f"Offset: {record.data_start_offset}")
+                    continue
 
     data_headers = (('SEGB Timestamp', 'datetime'), ('Start Time', 'datetime'), ('End Time', 'datetime'), 'isLocked', 'Filename')
 

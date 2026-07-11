@@ -8,7 +8,6 @@ import math
 import nska_deserialize
 import os
 import plistlib
-import re
 import shutil
 import sqlite3
 import sys
@@ -20,11 +19,11 @@ from pathlib import Path
 from urllib.parse import quote
 import scripts.artifact_report as artifact_report
 from scripts.context import Context
-from scripts.version_info import leapp_name
+from scripts.version_info import leapp_name  # pylint: disable=unused-import
 
 # new location for modules imported for backward compatibility
 # existing functions that are moved should leave a commented out def line
-from leapp_functions.app.platform import (
+from leapp_functions.app.platform import (  # pylint: disable=unused-import
     ILLEGAL_FILENAME_CHARS,
     format_illegal_filename_chars,
     illegal_chars_in_filename,
@@ -32,7 +31,7 @@ from leapp_functions.app.platform import (
     sanitize_file_path,
     validate_filename,
 )
-from leapp_functions.app.output import (
+from leapp_functions.app.output import (  # pylint: disable=unused-import
     get_output_folder_base,
     resolve_output_folder_name,
     validate_output_folder_available,
@@ -339,6 +338,10 @@ def check_in_media(file_path, name="", converted_file_path=False, force_type=Non
         logfunc(f'No matching file found for "{file_path}"')
         return None
 
+    if os.path.isdir(extraction_path):
+        logfunc(f'Skipped media check-in for "{file_path}": path is a directory')
+        return None
+
     file_info = Context.get_seeker().file_infos.get(extraction_path)
     if file_info:
         media_id = hashlib.sha1(f"{file_info.source_path}".encode()).hexdigest()
@@ -485,6 +488,7 @@ def artifact_processor(func):
         Context.set_module_name(module_name)
         Context.set_module_file_path(module_file_path)
         Context.set_artifact_name(artifact_name)
+        Context.set_timezone_offset(timezone_offset)
 
         sig = inspect.signature(func)
         if len(sig.parameters) == 1:

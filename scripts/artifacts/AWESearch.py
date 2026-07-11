@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses TikTok in-app search terms and timestamps from the AWESearchHistory file.",
         "author": "@gforce4n6",
         "creation_date": "2023-02-25",
-        "last_update_date": "2022-09-26",
+        "last_update_date": "2026-07-10",
         "requirements": "none",
         "category": "TikTok",
         "notes": "",
@@ -26,7 +26,15 @@ def get_AWESearch(context):
         file_found = str(file_found)
         
         pl = get_plist_file_content(file_found)
-        for x in pl:
+        # Older TikTok versions store a list of search entries at the root;
+        # newer versions wrap the same entries in a dict under 'historyList'.
+        if isinstance(pl, dict):
+            entries = pl.get('historyList') or []
+        else:
+            entries = pl or []
+        for x in entries:
+            if not isinstance(x, dict):
+                continue
             kword = (x['keyword'])
             cocoatime = (x['time'])
             timestamp = convert_cocoa_core_data_ts_to_utc(cocoatime)
