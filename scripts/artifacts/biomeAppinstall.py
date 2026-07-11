@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses airplane mode entries from biomes",
        "author": "@JohnHyla, @Gear-I",
         "creation_date": "2024-10-17",
-        "last_update_date": "2026-06-18",
+        "last_update_date": "2026-07-10",
         "requirements": "none",
         "category": "Biome",
         "notes": "",
@@ -24,8 +24,10 @@ __artifacts_v2__ = {
 }
 
 import os
+import struct
 from datetime import timezone
 import blackboxprotobuf
+from google.protobuf.message import DecodeError
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
 from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv, logfunc
@@ -121,31 +123,31 @@ def get_biomeAppinstall(context):
             if record.state == EntryState.Written:
                 try:
                     protostuff, _ = blackboxprotobuf.decode_message(record.data, typess)
-                except (KeyError, ValueError, TypeError, IndexError) as ex:
+
+                    activity = protostuff['1']['1']
+                    timestart = webkit_timestampsconv(protostuff['2'])
+                    timeend = webkit_timestampsconv(protostuff['3'])
+
+                    bundleid = protostuff['4']['3']
+                    actionguid = protostuff['5']
+                    appinfo1 = appinfo2 = bundleinfo = ''
+
+                    if protostuff.get('7', '') != '':
+                        if isinstance(protostuff['7'], list):
+                            if len(protostuff['7']) < 3:
+                                appinfo1 = protostuff['7'][0]['2'].get('3', '')
+                            else:
+                                appinfo1 = protostuff['7'][0]['2'].get('3', '')
+                                bundleinfo = protostuff['7'][1]['2'].get('3', '')
+                                appinfo2 = protostuff['7'][2]['2'].get('3', '')
+
+                    timewrite = webkit_timestampsconv(protostuff['8'])
+                except (DecodeError, struct.error, KeyError, ValueError, TypeError, IndexError) as ex:
                     logfunc(f"Skipping biomeAppinstall record due to protobuf decode error: {ex} |"
                     f"File: {context.get_relative_path(file_found)} | "
                     f"Offset: {record.data_start_offset}"
                     )
                     continue
-
-                activity = protostuff['1']['1']
-                timestart = webkit_timestampsconv(protostuff['2'])
-                timeend = webkit_timestampsconv(protostuff['3'])
-
-                bundleid = protostuff['4']['3']
-                actionguid = protostuff['5']
-                appinfo1 = appinfo2 = bundleinfo = ''
-
-                if protostuff.get('7', '') != '':
-                    if isinstance(protostuff['7'], list):
-                        if len(protostuff['7']) < 3:
-                            appinfo1 = protostuff['7'][0]['2'].get('3', '')
-                        else:
-                            appinfo1 = protostuff['7'][0]['2'].get('3', '')
-                            bundleinfo = protostuff['7'][1]['2'].get('3', '')
-                            appinfo2 = protostuff['7'][2]['2'].get('3', '')
-
-                timewrite = webkit_timestampsconv(protostuff['8'])
 
                 data_list.append((
                     ts,

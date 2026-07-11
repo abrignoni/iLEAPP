@@ -3,7 +3,7 @@ __artifacts_v2__ = {
         "name": "Find My Items Info",
         "description": "Extract items information from Find My",
         "author": "@AlexisBrignoni",
-        "version": "0.3.1",
+        "version": "0.3.2",
         "date": "2022-01-22",
         "requirements": "none",
         "category": "Find My",
@@ -20,7 +20,7 @@ __artifacts_v2__ = {
         "name": "FindMy Items Locations",
         "description": "Extract items locations from Find My",
         "author": "@AlexisBrignoni",
-        "version": "0.3.1",
+        "version": "0.3.2",
         "date": "2022-01-22",
         "requirements": "none",
         "category": "Find My",
@@ -37,7 +37,7 @@ __artifacts_v2__ = {
         "name": "FindMy Items Safe Locations",
         "description": "Extract items safe locations from Find My",
         "author": "@AlexisBrignoni",
-        "version": "0.3.1",
+        "version": "0.3.2",
         "date": "2022-01-22",
         "requirements": "none",
         "category": "Find My",
@@ -54,7 +54,7 @@ __artifacts_v2__ = {
         "name": "FindMy Items Crowdsourced Locations",
         "description": "Extract items crowdsourced locations from Find My",
         "author": "@AlexisBrignoni",
-        "version": "0.3.1",
+        "version": "0.3.2",
         "date": "2022-01-22",
         "requirements": "none",
         "category": "Find My",
@@ -71,16 +71,33 @@ __artifacts_v2__ = {
 
 
 import json
-from scripts.ilapfuncs import artifact_processor
+from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.ilapfuncs import convert_unix_ts_to_timezone
+
+
+def _read_items_json(source_path):
+    """Deserializes Items.data, returning a list of items.
+
+    On recent iOS versions (~17.5+) Items.data is no longer plain JSON: it is
+    a binary plist wrapping an 'encryptedData' blob that cannot be decoded
+    without the device keys. Those files are reported and skipped instead of
+    crashing the artifact.
+    """
+    try:
+        with open(source_path, mode='r', encoding="UTF-8") as f:
+            return json.load(f)
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        logfunc(f'Items.data is not JSON (encrypted on recent iOS versions), unable to parse: {source_path}')
+        return []
+
 
 @artifact_processor
 def findMyItemsInfo(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
     data_list = []
     source_path = str(files_found[0])
-    
-    with open(source_path, mode='r', encoding="UTF-8") as f:
-        deserialized = json.load(f)
+
+    deserialized = _read_items_json(source_path)
+    if deserialized:
         for x in deserialized:
             name = (x['name'])
             serial = (x['serialNumber'])
@@ -114,8 +131,8 @@ def findMyItemsLocations(files_found, _report_folder, _seeker, _wrap_text, timez
     data_list = []
     source_path = str(files_found[0])
     
-    with open(source_path, mode='r', encoding="UTF-8") as f:
-        deserialized = json.load(f)
+    deserialized = _read_items_json(source_path)
+    if deserialized:
         for x in deserialized:
             ltimestamp = (x['location'].get('timeStamp'))
             ltimestamp = convert_unix_ts_to_timezone(ltimestamp, timezone_offset)
@@ -179,8 +196,8 @@ def findMyItemsSafeLocations(files_found, _report_folder, _seeker, _wrap_text, t
     data_list = []
     source_path = str(files_found[0])
     
-    with open(source_path, mode='r', encoding="UTF-8") as f:
-        deserialized = json.load(f)
+    deserialized = _read_items_json(source_path)
+    if deserialized:
         for x in deserialized:
             name = (x['name'])
             serial = (x['serialNumber'])
@@ -233,8 +250,8 @@ def findMyItemsCrowdsourcedLocations(files_found, _report_folder, _seeker, _wrap
     data_list = []
     source_path = str(files_found[0])
     
-    with open(source_path, mode='r', encoding="UTF-8") as f:
-        deserialized = json.load(f)
+    deserialized = _read_items_json(source_path)
+    if deserialized:
         for x in deserialized:
             crowdtimestamp= (x['crowdSourcedLocation'].get('timeStamp'))
             crowdtimestamp = convert_unix_ts_to_timezone(crowdtimestamp, timezone_offset)
