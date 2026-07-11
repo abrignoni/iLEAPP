@@ -3,7 +3,7 @@ __artifacts_v2__ = {
         "name": "Biome DB - App Openings",
         "description": "Per-launch application records (bundle ID, event time, launch type) pre-aggregated by Apple "
                        "in the ApplePay.Security.Features Biome database.",
-        "author": "@AlexisBrignoni",
+        "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
         "last_update_date": "2026-07-11",
         "requirements": "none",
@@ -18,7 +18,7 @@ __artifacts_v2__ = {
         "name": "Biome DB - App Openings (Hourly)",
         "description": "Hourly per-application launch counts pre-aggregated by Apple in the "
                        "ApplePay.Security.Features Biome database.",
-        "author": "@AlexisBrignoni",
+        "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
         "last_update_date": "2026-07-11",
         "requirements": "none",
@@ -33,7 +33,7 @@ __artifacts_v2__ = {
         "name": "Biome DB - Cable Plug Events",
         "description": "Cable connection/disconnection events pre-aggregated by Apple in the "
                        "ApplePay.Security.Features Biome database.",
-        "author": "@AlexisBrignoni",
+        "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
         "last_update_date": "2026-07-11",
         "requirements": "none",
@@ -47,7 +47,7 @@ __artifacts_v2__ = {
         "name": "Biome DB - Backlight Events",
         "description": "Screen backlight level change events pre-aggregated by Apple in the "
                        "ApplePay.Security.Features Biome database.",
-        "author": "@AlexisBrignoni",
+        "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
         "last_update_date": "2026-07-11",
         "requirements": "none",
@@ -61,7 +61,7 @@ __artifacts_v2__ = {
         "name": "Biome DB - Button Clicks (Daily)",
         "description": "Per-day hardware button click counts pre-aggregated by Apple in the "
                        "ApplePay.Security.Features Biome database.",
-        "author": "@AlexisBrignoni",
+        "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
         "last_update_date": "2026-07-11",
         "requirements": "none",
@@ -76,7 +76,7 @@ __artifacts_v2__ = {
         "name": "Biome DB - Minimum Battery (Daily)",
         "description": "Per-day minimum battery percentage pre-aggregated by Apple in the "
                        "ApplePay.Security.Features Biome database.",
-        "author": "@AlexisBrignoni",
+        "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
         "last_update_date": "2026-07-11",
         "requirements": "none",
@@ -91,7 +91,7 @@ __artifacts_v2__ = {
         "name": "Biome DB - CarPlay Activity (Daily)",
         "description": "Per-day CarPlay activity counts pre-aggregated by Apple in the "
                        "ApplePay.Security.Features Biome database.",
-        "author": "@AlexisBrignoni",
+        "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
         "last_update_date": "2026-07-11",
         "requirements": "none",

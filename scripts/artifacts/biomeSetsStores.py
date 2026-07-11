@@ -3,7 +3,7 @@ __artifacts_v2__ = {
         "name": "Biome Sets - Installed Apps",
         "description": "Installed application records (bundle ID and display name) from the App.InstalledApp "
                        "Biome Set.db store.",
-        "author": "@AlexisBrignoni",
+        "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
         "last_update_date": "2026-07-11",
         "requirements": "none",
@@ -17,7 +17,7 @@ __artifacts_v2__ = {
     "biomeSetsContacts": {
         "name": "Biome Sets - Contacts",
         "description": "Contact name records from the Contacts.Contact Biome Set.db store.",
-        "author": "@AlexisBrignoni",
+        "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
         "last_update_date": "2026-07-11",
         "requirements": "none",
@@ -32,7 +32,7 @@ __artifacts_v2__ = {
         "name": "Biome Sets - FindMy Devices",
         "description": "FindMy device records (device name and owner name) from the FindMy.Device Biome "
                        "Set.db store.",
-        "author": "@AlexisBrignoni",
+        "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
         "last_update_date": "2026-07-11",
         "requirements": "none",
@@ -46,7 +46,7 @@ __artifacts_v2__ = {
         "name": "Biome Sets - Significant Locations",
         "description": "Significant location records (label, street, locality, city, country) from the "
                        "Location.SignificantLocation Biome Set.db store.",
-        "author": "@AlexisBrignoni",
+        "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
         "last_update_date": "2026-07-11",
         "requirements": "none",
@@ -60,7 +60,7 @@ __artifacts_v2__ = {
         "name": "Biome Sets - App Shortcut Phrases",
         "description": "Per-application Siri/Shortcuts phrases from the App.Shortcut.Phrase Biome Set.db stores "
                        "(one store per source application).",
-        "author": "@AlexisBrignoni",
+        "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
         "last_update_date": "2026-07-11",
         "requirements": "none",
@@ -75,7 +75,7 @@ __artifacts_v2__ = {
         "name": "Biome Sets - App Shortcut Entities",
         "description": "Per-application entity records exposed to Siri/Shortcuts from the App.Shortcut.Entity "
                        "Biome Set.db stores (can include user content names such as note titles and board names).",
-        "author": "@AlexisBrignoni",
+        "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
         "last_update_date": "2026-07-11",
         "requirements": "none",

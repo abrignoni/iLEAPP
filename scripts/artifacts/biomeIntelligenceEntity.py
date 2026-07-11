@@ -3,7 +3,7 @@ __artifacts_v2__ = {
         "name": "Biome DB - Intelligence Platform Entities",
         "description": "Knowledge-graph entity records (contacts, apps, identifiers and their attributes) compiled "
                        "by Apple in the IntelligencePlatform.Entity Biome database.",
-        "author": "@AlexisBrignoni",
+        "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
         "last_update_date": "2026-07-11",
         "requirements": "none",
