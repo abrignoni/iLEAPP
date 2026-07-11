@@ -27,7 +27,6 @@ class Context:
     _data_folder = None
     _metadata = {}
     _installed_os_version = ""
-    _timezone_offset = None
 
     @staticmethod
     def set_output_params(output_params):
@@ -120,36 +119,6 @@ class Context:
         """
 
         Context._files_found = files_found
-
-    @staticmethod
-    def set_timezone_offset(timezone_offset):
-        """
-        Sets the timezone offset selected for the current run in the Context.
-
-        Args:
-            timezone_offset (str): The timezone name (e.g., 'UTC',
-            'America/New_York') selected for the run.
-        """
-
-        Context._timezone_offset = timezone_offset
-
-    @staticmethod
-    def get_timezone_offset():
-        """
-        Retrieves the timezone offset selected for the current run.
-
-        Raises:
-            ValueError: If the timezone offset is not set, indicating that
-            this function was called outside of an artifact context.
-
-        Returns:
-            str: The timezone name selected for the run.
-        """
-
-        if not Context._timezone_offset:
-            raise ValueError("Context not set. This function should be" +
-                             " called from within an artifact.")
-        return Context._timezone_offset
 
     @staticmethod
     def get_metadata(collection):
@@ -537,4 +506,3 @@ class Context:
         Context._artifact_name = None
         Context._files_found = []
         Context._filename_lookup_map = {}
-        Context._timezone_offset = None

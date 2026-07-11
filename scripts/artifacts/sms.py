@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses SMS and iMessage chats",
         "author": "@AlexisBrignoni, @XperyLab, @ydkhatri, @tobraha, @snoop168",
         "creation_date": "2020-04-30",
-        "last_update_date": "2025-03-24",
+        "last_update_date": "2026-07-10",
         "requirements": "none",
         "category": "SMS & iMessage",
         "notes": "",
@@ -38,12 +38,14 @@ __artifacts_v2__ = {
     }
 }
 
+import os
+
 import pandas as pd
 
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.chat_rendering import render_chat, chat_HTML
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, \
-    convert_cocoa_core_data_ts_to_utc, check_in_media, lava_get_full_media_info
+    convert_cocoa_core_data_ts_to_utc, check_in_media, lava_get_full_media_info, logfunc
 
 import typedstream
 
@@ -154,7 +156,13 @@ def sms(context):
         media_ref_id = None
         if attachment_path:
             clean_path = '*' + attachment_path.replace('~', '', 1)
-            media_ref_id = check_in_media(clean_path, record[11])
+            # Some attachments are directories (e.g. bundle-style payloads);
+            # check_in_media can only ingest regular files.
+            extraction_path = context.get_source_file_path(clean_path)
+            if extraction_path and os.path.isdir(extraction_path):
+                logfunc(f'Skipped media check-in for "{record[11]}": attachment is a directory')
+            else:
+                media_ref_id = check_in_media(clean_path, record[11])
 
         data_list.append((message_timestamp, read_timestamp, message_text, record[3], record[4], record[5],
                           record[6], record[7], record[8], record[9], record[10], record[11], media_ref_id,
