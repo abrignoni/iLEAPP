@@ -13,6 +13,8 @@ __artifacts_v2__ = {
         "artifact_icon": "brand-tiktok",
         "sample_data": {
             "otto_ios17": "iOS 17.5.1 | TikTok 35.6.0 | 6 rows",
+            "dexter_ios18": "iOS 18.3.2 | TikTok - Videos, Shop & LIVE 41.8.0 | 3 rows",
+            "iphone12_ios18": "iOS 18.7 | TikTok - Videos, Shop & LIVE 42.7.0 | 4 rows",
         },
     }
 }

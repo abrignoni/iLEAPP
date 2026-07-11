@@ -17,6 +17,7 @@ __artifacts_v2__ = {
             "hc_ios18_7": "iOS 18.7.8 | Google Docs 1.2026.23106, Google Drive 4.2615.41600 | 1 row",
             "iphone11_ios17": "iOS 17.3 | Google Chat 0.390, Google Voice 23.47, Gmail - Email by Google 6.0.231127 | 79 rows",
             "otto_ios17": "iOS 17.5.1 | Google Drive 4.2430.11801 | 11 rows",
+            "iphone14plus_ios18": "iOS 18.0 | Google Sheets 1.2025.49102 | 0 rows",
         },
     }
 }

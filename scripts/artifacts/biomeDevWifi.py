@@ -18,6 +18,7 @@ __artifacts_v2__ = {
             "hc_ios18_7": "iOS 18.7.8 | 1164 rows",
             "iphone11_ios17": "iOS 17.3 | 1287 rows",
             "iphone14plus_ios18": "iOS 18.0 | 16 rows",
+            "otto_ios17": "iOS 17.5.1 | 87 rows",
         }
     }
 }

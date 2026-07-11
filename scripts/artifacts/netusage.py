@@ -20,6 +20,7 @@ __artifacts_v2__ = {
             "iphone11_ios17": "iOS 17.3 | 595 rows",
             "iphone12_ios18": "iOS 18.7 | 287 rows",
             "iphone14plus_ios18": "iOS 18.0 | 313 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
         },
     },
     "netusage_connections": {
@@ -43,6 +44,7 @@ __artifacts_v2__ = {
             "iphone11_ios17": "iOS 17.3 | 1232 rows",
             "iphone12_ios18": "iOS 18.7 | 287 rows",
             "iphone14plus_ios18": "iOS 18.0 | 16 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
         },
     }
 }

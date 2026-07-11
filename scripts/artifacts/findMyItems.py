@@ -14,6 +14,9 @@ __artifacts_v2__ = {
         "sample_data": {
             "fsfull002_ios17": "iOS 17.1 | 0 rows",
             "iphone11_ios17": "iOS 17.3 | 2 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
         },
     },
     "findMyItemsLocations": {
@@ -31,6 +34,9 @@ __artifacts_v2__ = {
         "sample_data": {
             "fsfull002_ios17": "iOS 17.1 | 0 rows",
             "iphone11_ios17": "iOS 17.3 | 2 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
         }
     },
     "findMyItemsSafeLocations": {
@@ -48,6 +54,9 @@ __artifacts_v2__ = {
         "sample_data": {
             "fsfull002_ios17": "iOS 17.1 | 0 rows",
             "iphone11_ios17": "iOS 17.3 | 2 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
         }
     },
     "findMyItemsCrowdsourcedLocations": {
@@ -65,6 +74,9 @@ __artifacts_v2__ = {
         "sample_data": {
             "fsfull002_ios17": "iOS 17.1 | 0 rows",
             "iphone11_ios17": "iOS 17.3 | 2 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
         }
     }
 }

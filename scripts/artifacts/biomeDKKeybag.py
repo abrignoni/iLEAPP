@@ -19,6 +19,7 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 115 rows",
             "iphone14plus_ios18": "iOS 18.0 | 28 rows",
             "otto_ios17": "iOS 17.5.1 | 62 rows",
+            "dexter_ios18": "iOS 18.3.2 | 382 rows",
         }
     }
 }

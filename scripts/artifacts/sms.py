@@ -21,6 +21,7 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 27 rows",
             "iphone14plus_ios18": "iOS 18.0 | 13 rows",
             "otto_ios17": "iOS 17.5.1 | 223 rows",
+            "felix_ios17": "iOS 17.6.1 | 69 rows",
         },
         "data_views": {
             "conversation": {
