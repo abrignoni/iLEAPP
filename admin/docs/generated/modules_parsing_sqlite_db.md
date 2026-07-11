@@ -90,6 +90,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | logarchive |
 | mailprotect |
 | mediaLibrary |
+| netusage |
 | notes |
 | nsVault |
 | ooklaSpeedtestData |
@@ -176,7 +177,6 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | kikUsersgroups |
 | knowledgeC |
 | mapsSync |
-| netusage |
 | serialNumber |
 | swissmeteo |
 | teams |
