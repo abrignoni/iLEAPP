@@ -113,6 +113,7 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 0 rows",
             "iphone14plus_ios18": "iOS 18.0 | 1 row",
             "otto_ios17": "iOS 17.5.1 | 6 rows",
+            "dexter_ios18": "iOS 18.3.2 | 8 rows",
         },
         "function": "keychain_bluetooth_paired"
     },

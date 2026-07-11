@@ -22,7 +22,10 @@ __artifacts_v2__ = {
                 "mediaColumn": "Media"
             }
         },
-        "artifact_icon": "message-circle"
+        "artifact_icon": "message-circle",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | Google Chat 0.390 | 96 rows",
+        }
     }
 }
 
