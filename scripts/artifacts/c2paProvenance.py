@@ -13,16 +13,17 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-12",
         "requirements": "none",
         "category": "AI Provenance",
-        "notes": "Pure-Python (no external dependencies): a JUMBF/CBOR parser for C2PA, an XML "
+        "notes": "SIGNATURE CAVEAT: the signer, issuer, algorithm, and signing time are read "
+                 "from the C2PA manifest AS STATED. This artifact does NOT cryptographically "
+                 "verify the signature, validate the certificate chain, or check revocation, so "
+                 "'Signed By' is a lead to corroborate, not proof of origin. Implementation is "
+                 "pure-Python with no external dependencies: a JUMBF/CBOR parser for C2PA, an XML "
                  "reader for the IPTC/XMP DigitalSourceType (which AI tools often embed with no "
                  "C2PA manifest at all), and a COSE_Sign1 + X.509 + RFC 3161 reader for the "
                  "signature. The 'Metadata Source' column distinguishes C2PA from XMP/IPTC "
-                 "findings. IMPORTANT: the signer, issuer, algorithm, and signing time are read "
-                 "from the manifest as STATED; the artifact does NOT cryptographically verify the "
-                 "signature, validate the certificate chain, or check revocation, so 'Signed By' "
-                 "is a claim, not proof. JPEG (C2PA + XMP + signature) is validated against test "
-                 "files and real Google/Gemini images; PNG and ISOBMFF (HEIC/AVIF/MP4/MOV) "
-                 "containers are handled per the C2PA specification.",
+                 "findings. JPEG (C2PA + XMP + signature) is validated against test files and real "
+                 "Google/Gemini images; PNG and ISOBMFF (HEIC/AVIF/MP4/MOV) containers are handled "
+                 "per the C2PA specification.",
         "paths": ('*.jpg', '*.jpeg', '*.jpe', '*.png', '*.heic', '*.heif', '*.avif',
                   '*.webp', '*.tif', '*.tiff', '*.dng', '*.mp4', '*.mov', '*.m4v'),
         "output_types": "all",
