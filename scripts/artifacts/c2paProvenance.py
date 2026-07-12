@@ -5,20 +5,24 @@ __artifacts_v2__ = {
                        "paths: (1) C2PA / Content Credentials manifests and (2) IPTC/XMP "
                        "DigitalSourceType tags. Reports the claim generator, edit actions, digital "
                        "source type, author/creator, credit/copyright, ingredients (prior assets), "
-                       "and an AI-generated indicator. Useful for establishing whether an image was "
-                       "AI-generated or edited and by what tool.",
+                       "the stated signer certificate and signing time, and an AI-generated "
+                       "indicator. Useful for establishing whether an image was AI-generated or "
+                       "edited and by what tool.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-12",
         "last_update_date": "2026-07-12",
         "requirements": "none",
         "category": "AI Provenance",
-        "notes": "Pure-Python (no external dependencies): a JUMBF/CBOR parser for C2PA plus an "
-                 "XML reader for the IPTC/XMP DigitalSourceType (which AI tools often embed with "
-                 "no C2PA manifest at all). The 'Metadata Source' column distinguishes C2PA from "
-                 "XMP/IPTC findings. It does NOT cryptographically validate the C2PA signature, so "
-                 "'Signature: Present' confirms a signature box exists, not that it is trusted or "
-                 "unbroken. JPEG (C2PA + XMP) is validated against test files; PNG and ISOBMFF "
-                 "(HEIC/AVIF/MP4/MOV) containers are handled per the C2PA specification.",
+        "notes": "Pure-Python (no external dependencies): a JUMBF/CBOR parser for C2PA, an XML "
+                 "reader for the IPTC/XMP DigitalSourceType (which AI tools often embed with no "
+                 "C2PA manifest at all), and a COSE_Sign1 + X.509 + RFC 3161 reader for the "
+                 "signature. The 'Metadata Source' column distinguishes C2PA from XMP/IPTC "
+                 "findings. IMPORTANT: the signer, issuer, algorithm, and signing time are read "
+                 "from the manifest as STATED; the artifact does NOT cryptographically verify the "
+                 "signature, validate the certificate chain, or check revocation, so 'Signed By' "
+                 "is a claim, not proof. JPEG (C2PA + XMP + signature) is validated against test "
+                 "files and real Google/Gemini images; PNG and ISOBMFF (HEIC/AVIF/MP4/MOV) "
+                 "containers are handled per the C2PA specification.",
         "paths": ('*.jpg', '*.jpeg', '*.jpe', '*.png', '*.heic', '*.heif', '*.avif',
                   '*.webp', '*.tif', '*.tiff', '*.dng', '*.mp4', '*.mov', '*.m4v'),
         "output_types": "all",
@@ -462,13 +466,161 @@ def _iter_manifests(node):
         yield from _iter_manifests(child)
 
 
+# ===========================================================================
+# Signature parsing: COSE_Sign1 (RFC 9052) + minimal X.509 (RFC 5280) and the
+# RFC 3161 timestamp. This extracts the STATED signer, issuer, algorithm, and
+# signing time. It does NOT cryptographically verify the signature or validate
+# the certificate chain — treat the values as claimed, not proven.
+# ===========================================================================
+_COSE_ALG = {-7: 'ES256', -35: 'ES384', -36: 'ES512', -8: 'EdDSA', -37: 'PS256',
+             -38: 'PS384', -39: 'PS512', -257: 'RS256', -258: 'RS384', -259: 'RS512'}
+_OID_CN = bytes([0x55, 0x04, 0x03])          # 2.5.4.3 commonName
+_OID_O = bytes([0x55, 0x04, 0x0A])           # 2.5.4.10 organizationName
+_OID_TSTINFO = bytes([0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x09, 0x10, 0x01, 0x04])
+
+
+def _der_read(data, i):
+    """Read one DER TLV at offset i. Returns (tag, value_bytes, next_offset)."""
+    tag = data[i]
+    ln = data[i + 1]
+    i += 2
+    if ln & 0x80:
+        n = ln & 0x7f
+        ln = int.from_bytes(data[i:i + n], 'big')
+        i += n
+    return tag, data[i:i + ln], i + ln
+
+
+def _der_children(data):
+    out = []
+    i = 0
+    while i + 2 <= len(data):
+        tag, val, i = _der_read(data, i)
+        out.append((tag, val))
+    return out
+
+
+def _der_name(name_bytes):
+    """X.501 Name -> {'cn':..., 'o':...} (commonName / organizationName)."""
+    res = {}
+    for _, rdn in _der_children(name_bytes):
+        for _, atv in _der_children(rdn):
+            kids = _der_children(atv)
+            if len(kids) >= 2 and kids[0][0] == 0x06:
+                oid, val = kids[0][1], kids[1][1].decode('utf-8', 'replace')
+                if oid == _OID_CN:
+                    res['cn'] = val
+                elif oid == _OID_O:
+                    res['o'] = val
+    return res
+
+
+def _der_time(tag, val):
+    s = val.decode('ascii', 'replace')
+    if tag == 0x17 and len(s) >= 12:         # UTCTime YYMMDDHHMMSSZ
+        yy = int(s[0:2])
+        year = 2000 + yy if yy < 50 else 1900 + yy
+        return f"{year}-{s[2:4]}-{s[4:6]} {s[6:8]}:{s[8:10]}:{s[10:12]}"
+    if tag == 0x18 and len(s) >= 14:         # GeneralizedTime YYYYMMDDHHMMSSZ
+        return f"{s[0:4]}-{s[4:6]}-{s[6:8]} {s[8:10]}:{s[10:12]}:{s[12:14]}"
+    return s.rstrip('Z')
+
+
+def _parse_x509(der):
+    """Return {'subject','issuer','not_before','not_after'} from a DER cert."""
+    cert = _der_children(der)[0][1]                      # Certificate SEQUENCE value
+    tbs = _der_children(_der_children(cert)[0][1])       # tbsCertificate children
+    idx = 1 if tbs and tbs[0][0] == 0xA0 else 0          # skip optional [0] version
+    idx += 2                                             # serialNumber, signature alg
+    issuer = _der_name(tbs[idx][1]); idx += 1
+    validity = _der_children(tbs[idx][1]); idx += 1
+    subject = _der_name(tbs[idx][1])
+    return {'subject': subject, 'issuer': issuer,
+            'not_before': _der_time(*validity[0]), 'not_after': _der_time(*validity[1])}
+
+
+def _tsa_gentime(token):
+    """Walk an RFC 3161 timestamp token (CMS) to the TSTInfo genTime."""
+    def rec(data):
+        kids = _der_children(data)
+        for idx, (tag, val) in enumerate(kids):
+            if tag == 0x06 and val == _OID_TSTINFO and idx + 1 < len(kids):
+                ntag, nval = kids[idx + 1]
+                if ntag == 0xA0:
+                    oct_kids = _der_children(nval)
+                    if oct_kids and oct_kids[0][0] == 0x04:
+                        inner = _der_children(oct_kids[0][1])
+                        tstinfo = inner[0][1] if inner and inner[0][0] == 0x30 else oct_kids[0][1]
+                        for t, v in _der_children(tstinfo):
+                            if t == 0x18:
+                                return _der_time(0x18, v)
+            if tag & 0x20:
+                got = rec(val)
+                if got:
+                    return got
+        return None
+    return rec(token)
+
+
+def _fmt_dn(name):
+    """Format a distinguished name as 'Org (Common Name)'."""
+    org, cn = name.get('o'), name.get('cn')
+    if org and cn:
+        return f'{org} ({cn})'
+    return org or cn or ''
+
+
+def _parse_signature(cose):
+    """Parse a c2pa.signature COSE_Sign1 into stated signer/issuer/alg/time."""
+    sig = {'present': True, 'alg': '', 'signed_by': '', 'issuer': '',
+           'validity': '', 'signing_time': ''}
+    if not (isinstance(cose, list) and len(cose) >= 2):
+        return sig
+    try:
+        ph = _cbor_decode(cose[0]) if isinstance(cose[0], (bytes, bytearray)) else {}
+    except Exception:   # pylint: disable=broad-exception-caught
+        ph = {}
+    if isinstance(ph, dict):
+        sig['alg'] = _COSE_ALG.get(ph.get(1), '')
+        x5 = ph.get(33)
+        if isinstance(x5, (bytes, bytearray)):
+            x5 = [x5]
+        if isinstance(x5, list) and x5:
+            try:
+                cert = _parse_x509(x5[0])
+                sig['signed_by'] = _fmt_dn(cert['subject'])
+                sig['issuer'] = _fmt_dn(cert['issuer'])
+                if cert['not_before'] or cert['not_after']:
+                    sig['validity'] = f"{cert['not_before']} to {cert['not_after']} UTC"
+            except Exception:   # pylint: disable=broad-exception-caught
+                pass
+    unprot = cose[1] if len(cose) > 1 else None
+    if isinstance(unprot, dict):
+        for key in ('sigTst', 'sigTst2'):
+            box = unprot.get(key)
+            if isinstance(box, dict):
+                for tok in box.get('tstTokens', []) or []:
+                    val = tok.get('val') if isinstance(tok, dict) else None
+                    if isinstance(val, (bytes, bytearray)):
+                        try:
+                            gt = _tsa_gentime(bytes(val))
+                        except Exception:   # pylint: disable=broad-exception-caught
+                            gt = None
+                        if gt:
+                            sig['signing_time'] = gt
+                            break
+            if sig['signing_time']:
+                break
+    return sig
+
+
 def _normalize(tree):
     rows = []
     for man in _iter_manifests(tree):
         row = {
             'manifest': man['label'], 'claim_generator': '', 'title': '', 'format': '',
             'actions': [], 'software_agents': set(), 'digital_source': set(), 'ai': None,
-            'authors': [], 'signature': '', 'ingredients': [], 'when': set(),
+            'authors': [], 'sig': None, 'ingredients': [], 'when': set(),
         }
         for child in man['boxes']:
             base = _base_label(child['label'])
@@ -478,7 +630,7 @@ def _normalize(tree):
                 row['title'] = claim.get('dc:title') or claim.get('title') or ''
                 row['format'] = claim.get('dc:format') or claim.get('format') or ''
             elif base == 'c2pa.signature':
-                row['signature'] = 'Present'
+                row['sig'] = _parse_signature(_content_value(child))
             elif base == 'c2pa.assertions':
                 for a in child['boxes']:
                     abase = _base_label(a['label'])
@@ -529,7 +681,11 @@ def c2paProvenance(context):
         'Credit / Copyright',
         'Title',
         'Ingredients (Prior Assets)',
-        'Signature',
+        ('Signing Time (TSA)', 'datetime'),
+        'Signed By (stated)',
+        'Certificate Issuer',
+        'Certificate Validity',
+        'Signature Algorithm',
         'Manifest ID',
         'Format',
         'Source File',
@@ -587,6 +743,7 @@ def c2paProvenance(context):
         sources.append(rel)
 
         for r in c2pa_rows:
+            sig = r['sig'] or {}
             data_list.append((
                 thumb,
                 _ai_str(r['ai']),
@@ -599,7 +756,11 @@ def c2paProvenance(context):
                 '',
                 r['title'],
                 _fmt(r['ingredients']),
-                r['signature'],
+                sig.get('signing_time', ''),
+                sig.get('signed_by', ''),
+                sig.get('issuer', ''),
+                sig.get('validity', ''),
+                sig.get('alg', ''),
                 r['manifest'] or '',
                 r['format'],
                 rel,
@@ -616,6 +777,10 @@ def c2paProvenance(context):
                 '',
                 _fmt(xmp['creators']),
                 _fmt([xmp['credit'], xmp['copyright']]),
+                '',
+                '',
+                '',
+                '',
                 '',
                 '',
                 '',
