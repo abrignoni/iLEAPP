@@ -12,7 +12,13 @@ __artifacts_v2__ = {
         "html_columns" : ['Note'],
         "output_types": "standard",
         "function": "get_biomeNotes",
-        "artifact_icon": "notes"
+        "artifact_icon": "notes",
+        "sample_data": {
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 34 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+        }
     }
 }
 

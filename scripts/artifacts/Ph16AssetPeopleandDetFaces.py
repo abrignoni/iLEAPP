@@ -24,6 +24,12 @@ __artifacts_v2__ = {
             'iphone12_ios18': 'iOS 18.7 | 1201 rows',
             'iphone14plus_ios18': 'iOS 18.0 | 1 row',
             'otto_ios17': 'iOS 17.5.1 | 332 rows',
+            'abe_ios16': 'iOS 16.5 | 708 rows',
+            'felix23_ios16': 'iOS 16.5 | 5 rows',
+            'hickman_ios13': 'iOS 13.3.1 | 0 rows',
+            'hickman_ios14': 'iOS 14.3 | 0 rows',
+            'jess_ios15': 'iOS 15.0.2 | 0 rows',
+            'magnet_ios16': 'iOS 16.1.1 | 0 rows',
         }
     },
     'Ph16_2PeopleFacesAssetDataSyndPL': {
@@ -49,6 +55,10 @@ __artifacts_v2__ = {
             'iphone12_ios18': 'iOS 18.7 | 0 rows',
             'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
             'otto_ios17': 'iOS 17.5.1 | 29 rows',
+            'abe_ios16': 'iOS 16.5 | 8 rows',
+            'felix23_ios16': 'iOS 16.5 | 0 rows',
+            'jess_ios15': 'iOS 15.0.2 | 0 rows',
+            'magnet_ios16': 'iOS 16.1.1 | 0 rows',
         }
     }
 }

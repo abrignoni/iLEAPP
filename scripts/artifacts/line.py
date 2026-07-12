@@ -13,6 +13,8 @@ __artifacts_v2__ = {
         "artifact_icon": "message-circle",
         "sample_data": {
             "iphone11_ios17": "iOS 17.3 | group.com.linecorp.line | 62 rows",
+            "hickman_ios13": "iOS 13.3.1 | group.com.linecorp.line | 15 rows",
+            "hickman_ios14": "iOS 14.3 | group.com.linecorp.line | 16 rows",
         },
         "data_views": {
             "conversation": {

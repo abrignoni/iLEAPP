@@ -10,7 +10,10 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/DriveIQ/segments/current/*.*',),
         "output_types": ["html", "tsv", "timeline", "lava", "kml"],
-        "artifact_icon": "map-pin"
+        "artifact_icon": "map-pin",
+        "sample_data": {
+            "hickman_ios14": "iOS 14.3 | Microsoft Teams 2.3.1 | 53 rows",
+        }
     },
     "teamsSegmentMotion": {
         "name": "Microsoft Teams - Motion",
@@ -23,7 +26,10 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/DriveIQ/segments/current/*.*',),
         "output_types": "standard",
-        "artifact_icon": "activity"
+        "artifact_icon": "activity",
+        "sample_data": {
+            "hickman_ios14": "iOS 14.3 | Microsoft Teams 2.3.1 | 9 rows",
+        }
     },
     "teamsSegmentTimezone": {
         "name": "Microsoft Teams - Timezone",
@@ -36,7 +42,10 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/DriveIQ/segments/current/*.*',),
         "output_types": "standard",
-        "artifact_icon": "clock"
+        "artifact_icon": "clock",
+        "sample_data": {
+            "hickman_ios14": "iOS 14.3 | Microsoft Teams 2.3.1 | 2 rows",
+        }
     },
     "teamsSegmentPower": {
         "name": "Microsoft Teams - Power Log",
@@ -49,7 +58,10 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/DriveIQ/segments/current/*.*',),
         "output_types": "standard",
-        "artifact_icon": "battery-charging"
+        "artifact_icon": "battery-charging",
+        "sample_data": {
+            "hickman_ios14": "iOS 14.3 | Microsoft Teams 2.3.1 | 36 rows",
+        }
     },
     "teamsSegmentStateChange": {
         "name": "Microsoft Teams - State Change",
@@ -62,7 +74,10 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/DriveIQ/segments/current/*.*',),
         "output_types": "standard",
-        "artifact_icon": "repeat"
+        "artifact_icon": "repeat",
+        "sample_data": {
+            "hickman_ios14": "iOS 14.3 | Microsoft Teams 2.3.1 | 8 rows",
+        }
     }
 }
 

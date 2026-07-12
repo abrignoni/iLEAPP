@@ -21,6 +21,12 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 245 rows",
             "iphone14plus_ios18": "iOS 18.0 | 264 rows",
             "otto_ios17": "iOS 17.5.1 | 232 rows",
+            "abe_ios16": "iOS 16.5 | 218 rows",
+            "felix23_ios16": "iOS 16.5 | 255 rows",
+            "hickman_ios13": "iOS 13.3.1 | 196 rows",
+            "hickman_ios14": "iOS 14.3 | 220 rows",
+            "jess_ios15": "iOS 15.0.2 | 572 rows",
+            "magnet_ios16": "iOS 16.1.1 | 279 rows",
         }
     },
     "mobileInstall_uninstalled": {
@@ -45,6 +51,12 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 0 rows",
             "iphone14plus_ios18": "iOS 18.0 | 0 rows",
             "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 3 rows",
+            "hickman_ios13": "iOS 13.3.1 | 21 rows",
+            "hickman_ios14": "iOS 14.3 | 27 rows",
+            "jess_ios15": "iOS 15.0.2 | 5 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
         }
     },
     "mobileInstall_historical": {
@@ -69,6 +81,12 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 489 rows",
             "iphone14plus_ios18": "iOS 18.0 | 745 rows",
             "otto_ios17": "iOS 17.5.1 | 584 rows",
+            "abe_ios16": "iOS 16.5 | 686 rows",
+            "felix23_ios16": "iOS 16.5 | 2113 rows",
+            "hickman_ios13": "iOS 13.3.1 | 1389 rows",
+            "hickman_ios14": "iOS 14.3 | 1309 rows",
+            "jess_ios15": "iOS 15.0.2 | 861 rows",
+            "magnet_ios16": "iOS 16.1.1 | 757 rows",
         }
     },
     "mobileInstall_reboots": {
@@ -93,6 +111,12 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 6 rows",
             "iphone14plus_ios18": "iOS 18.0 | 6 rows",
             "otto_ios17": "iOS 17.5.1 | 3 rows",
+            "abe_ios16": "iOS 16.5 | 4 rows",
+            "felix23_ios16": "iOS 16.5 | 23 rows",
+            "hickman_ios13": "iOS 13.3.1 | 12 rows",
+            "hickman_ios14": "iOS 14.3 | 9 rows",
+            "jess_ios15": "iOS 15.0.2 | 7 rows",
+            "magnet_ios16": "iOS 16.1.1 | 7 rows",
         }
     }
 }

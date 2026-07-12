@@ -49,7 +49,11 @@ __artifacts_v2__ = {
         "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Slack", "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/Slack/*/*/main_db*',),
-        "output_types": "standard", "artifact_icon": "message-circle"
+        "output_types": "standard", "artifact_icon": "message-circle",
+        "sample_data": {
+            "hickman_ios14": "iOS 14.3 | Slack 21.02.10 | 27 rows",
+            "magnet_ios16": "iOS 16.1.1 | Slack 22.12.21 | 0 rows",
+        }
     },
     "slackUsers": {
         "name": "Slack - User Data",
@@ -57,7 +61,11 @@ __artifacts_v2__ = {
         "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Slack", "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/Slack/*/*/main_db*',),
-        "output_types": "standard", "artifact_icon": "users"
+        "output_types": "standard", "artifact_icon": "users",
+        "sample_data": {
+            "hickman_ios14": "iOS 14.3 | Slack 21.02.10 | 3 rows",
+            "magnet_ios16": "iOS 16.1.1 | Slack 22.12.21 | 0 rows",
+        }
     },
     "slackAttachments": {
         "name": "Slack - Attachments",
@@ -65,7 +73,11 @@ __artifacts_v2__ = {
         "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Slack", "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/Slack/*/*/main_db*',),
-        "output_types": "standard", "artifact_icon": "paperclip"
+        "output_types": "standard", "artifact_icon": "paperclip",
+        "sample_data": {
+            "hickman_ios14": "iOS 14.3 | Slack 21.02.10 | 4 rows",
+            "magnet_ios16": "iOS 16.1.1 | Slack 22.12.21 | 0 rows",
+        }
     },
     "slackChannels": {
         "name": "Slack - Channel Data",
@@ -73,7 +85,11 @@ __artifacts_v2__ = {
         "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Slack", "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/Slack/*/*/main_db*',),
-        "output_types": "standard", "artifact_icon": "hash"
+        "output_types": "standard", "artifact_icon": "hash",
+        "sample_data": {
+            "hickman_ios14": "iOS 14.3 | Slack 21.02.10 | 6 rows",
+            "magnet_ios16": "iOS 16.1.1 | Slack 22.12.21 | 0 rows",
+        }
     },
     "slackTeams": {
         "name": "Slack - Team Data",
@@ -81,7 +97,11 @@ __artifacts_v2__ = {
         "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Slack", "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/Slack/*/*/main_db*',),
-        "output_types": "standard", "artifact_icon": "briefcase"
+        "output_types": "standard", "artifact_icon": "briefcase",
+        "sample_data": {
+            "hickman_ios14": "iOS 14.3 | Slack 21.02.10 | 1 row",
+            "magnet_ios16": "iOS 16.1.1 | Slack 22.12.21 | 0 rows",
+        }
     }
 }
 

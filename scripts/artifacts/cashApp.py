@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "artifact_icon": "currency-dollar",
         "sample_data": {
             "hc_ios18_7": "iOS 18.7.8 | Cash App 5.46.0 | 1 row",
+            "abe_ios16": "iOS 16.5 | Cash App 4.0 | 1 row",
         },
     }
 }

@@ -55,6 +55,12 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 187 rows",
             "iphone14plus_ios18": "iOS 18.0 | 156 rows",
             "otto_ios17": "iOS 17.5.1 | 168 rows",
+            "abe_ios16": "iOS 16.5 | 99 rows",
+            "felix23_ios16": "iOS 16.5 | 92 rows",
+            "hickman_ios13": "iOS 13.3.1 | 87 rows",
+            "hickman_ios14": "iOS 14.3 | 102 rows",
+            "jess_ios15": "iOS 15.0.2 | 84 rows",
+            "magnet_ios16": "iOS 16.1.1 | 120 rows",
         }
     },
     "get_snapshot_creationDate": {
@@ -83,6 +89,12 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 621 rows",
             "iphone14plus_ios18": "iOS 18.0 | 536 rows",
             "otto_ios17": "iOS 17.5.1 | 747 rows",
+            "abe_ios16": "iOS 16.5 | 625 rows",
+            "felix23_ios16": "iOS 16.5 | 484 rows",
+            "hickman_ios13": "iOS 13.3.1 | 353 rows",
+            "hickman_ios14": "iOS 14.3 | 497 rows",
+            "jess_ios15": "iOS 15.0.2 | 290 rows",
+            "magnet_ios16": "iOS 16.1.1 | 487 rows",
         }
     },
     "get_snapshot_lastUsedDate": {
@@ -112,6 +124,12 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 85 rows",
             "iphone14plus_ios18": "iOS 18.0 | 24 rows",
             "otto_ios17": "iOS 17.5.1 | 78 rows",
+            "abe_ios16": "iOS 16.5 | 61 rows",
+            "felix23_ios16": "iOS 16.5 | 20 rows",
+            "hickman_ios13": "iOS 13.3.1 | 59 rows",
+            "hickman_ios14": "iOS 14.3 | 87 rows",
+            "jess_ios15": "iOS 15.0.2 | 28 rows",
+            "magnet_ios16": "iOS 16.1.1 | 58 rows",
         }
     }
 }

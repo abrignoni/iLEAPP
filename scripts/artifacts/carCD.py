@@ -21,6 +21,12 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | files found",
             "iphone14plus_ios18": "iOS 18.0 | files found",
             "otto_ios17": "iOS 17.5.1 | files found",
+            "abe_ios16": "iOS 16.5 | files found",
+            "felix23_ios16": "iOS 16.5 | files found",
+            "hickman_ios13": "iOS 13.3.1 | files found",
+            "hickman_ios14": "iOS 14.3 | files found",
+            "jess_ios15": "iOS 15.0.2 | files found",
+            "magnet_ios16": "iOS 16.1.1 | files found",
         },
     }
 }

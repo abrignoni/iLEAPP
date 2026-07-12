@@ -22,6 +22,11 @@ __artifacts_v2__ = {
             'hc_ios18_7': 'iOS 18.7.8 | WhatsApp Messenger 26.14.76 | 0 rows',
             'iphone11_ios17': 'iOS 17.3 | WhatsApp Messenger 24.15.1 | 8 rows',
             'otto_ios17': 'iOS 17.5.1 | WhatsApp Messenger 24.13.79 | 3 rows',
+            'abe_ios16': 'iOS 16.5 | WhatsApp Messenger 23.11.80 | 0 rows',
+            'felix23_ios16': 'iOS 16.5 | WhatsApp Messenger 23.12.76 | 0 rows',
+            'hickman_ios13': 'iOS 13.3.1 | WhatsApp Messenger 2.20.31 | 0 rows',
+            'hickman_ios14': 'iOS 14.3 | WhatsApp Messenger 2.21.20 | 0 rows',
+            'magnet_ios16': 'iOS 16.1.1 | WhatsApp Messenger 22.23.77 | 0 rows',
         },
     },
     'whatsAppMessages': {
@@ -47,6 +52,11 @@ __artifacts_v2__ = {
             'hc_ios18_7': 'iOS 18.7.8 | WhatsApp Messenger 26.14.76 | 15 rows',
             'iphone11_ios17': 'iOS 17.3 | WhatsApp Messenger 24.15.1 | 60 rows',
             'otto_ios17': 'iOS 17.5.1 | WhatsApp Messenger 24.13.79 | 1803 rows',
+            'abe_ios16': 'iOS 16.5 | WhatsApp Messenger 23.11.80 | 63 rows',
+            'felix23_ios16': 'iOS 16.5 | WhatsApp Messenger 23.12.76 | 10 rows',
+            'hickman_ios13': 'iOS 13.3.1 | WhatsApp Messenger 2.20.31 | 12 rows',
+            'hickman_ios14': 'iOS 14.3 | WhatsApp Messenger 2.21.20 | 17 rows',
+            'magnet_ios16': 'iOS 16.1.1 | WhatsApp Messenger 22.23.77 | 0 rows',
         },
         'data_views': {
             'conversation': {
@@ -81,6 +91,11 @@ __artifacts_v2__ = {
             'hc_ios18_7': 'iOS 18.7.8 | WhatsApp Messenger 26.14.76 | 2 rows',
             'iphone11_ios17': 'iOS 17.3 | WhatsApp Messenger 24.15.1 | 12 rows',
             'otto_ios17': 'iOS 17.5.1 | WhatsApp Messenger 24.13.79 | 1017 rows',
+            'abe_ios16': 'iOS 16.5 | WhatsApp Messenger 23.11.80 | 582 rows',
+            'felix23_ios16': 'iOS 16.5 | WhatsApp Messenger 23.12.76 | 6 rows',
+            'hickman_ios13': 'iOS 13.3.1 | WhatsApp Messenger 2.20.31 | 3 rows',
+            'hickman_ios14': 'iOS 14.3 | WhatsApp Messenger 2.21.20 | 5 rows',
+            'magnet_ios16': 'iOS 16.1.1 | WhatsApp Messenger 22.23.77 | 0 rows',
         }
     }
 }

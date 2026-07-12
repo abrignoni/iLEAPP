@@ -21,6 +21,11 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 79 rows",
             "iphone14plus_ios18": "iOS 18.0 | 64 rows",
             "otto_ios17": "iOS 17.5.1 | 188 rows",
+            "abe_ios16": "iOS 16.5 | 644 rows",
+            "felix23_ios16": "iOS 16.5 | 501 rows",
+            "hickman_ios13": "iOS 13.3.1 | 537 rows",
+            "hickman_ios14": "iOS 14.3 | 217 rows",
+            "jess_ios15": "iOS 15.0.2 | 448 rows",
         }
     },
     "sysShutdownReboots": {
@@ -44,6 +49,11 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 5 rows",
             "iphone14plus_ios18": "iOS 18.0 | 5 rows",
             "otto_ios17": "iOS 17.5.1 | 6 rows",
+            "abe_ios16": "iOS 16.5 | 18 rows",
+            "felix23_ios16": "iOS 16.5 | 35 rows",
+            "hickman_ios13": "iOS 13.3.1 | 3 rows",
+            "hickman_ios14": "iOS 14.3 | 7 rows",
+            "jess_ios15": "iOS 15.0.2 | 12 rows",
         }
     }
 }

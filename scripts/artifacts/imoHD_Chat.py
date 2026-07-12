@@ -9,6 +9,8 @@ __artifacts_v2__ = {
         "output_types": "standard", "artifact_icon": "message-circle",
         "sample_data": {
             "iphone11_ios17": "iOS 17.3 | imo video calls and chat HD 7.2.23 | 38 rows",
+            "hickman_ios13": "iOS 13.3.1 | imo video calls and chat HD 7.1.88, group.co.babypenguin | 5 rows",
+            "hickman_ios14": "iOS 14.3 | imo video calls and chat HD 7.2.8, group.co.babypenguin | 9 rows",
         }
     },
     "imoHDChatContacts": {
@@ -20,6 +22,8 @@ __artifacts_v2__ = {
         "output_types": "standard", "artifact_icon": "users",
         "sample_data": {
             "iphone11_ios17": "iOS 17.3 | imo video calls and chat HD 7.2.23 | 5 rows",
+            "hickman_ios13": "iOS 13.3.1 | group.co.babypenguin | 2 rows",
+            "hickman_ios14": "iOS 14.3 | group.co.babypenguin | 3 rows",
         }
     }
 }

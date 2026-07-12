@@ -15,6 +15,7 @@ __artifacts_v2__ = {
             "otto_ios17": "iOS 17.5.1 | TikTok 35.6.0 | 6 rows",
             "dexter_ios18": "iOS 18.3.2 | TikTok - Videos, Shop & LIVE 41.8.0 | 3 rows",
             "iphone12_ios18": "iOS 18.7 | TikTok - Videos, Shop & LIVE 42.7.0 | 4 rows",
+            "abe_ios16": "iOS 16.5 | TikTok 30.0.0 | 8 rows",
         },
     }
 }

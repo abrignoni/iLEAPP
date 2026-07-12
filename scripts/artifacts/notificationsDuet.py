@@ -19,6 +19,10 @@ __artifacts_v2__ = {
             "iphone11_ios17": "iOS 17.3 | 27202 rows",
             "iphone14plus_ios18": "iOS 18.0 | 142 rows",
             "otto_ios17": "iOS 17.5.1 | 26256 rows",
+            "abe_ios16": "iOS 16.5 | 18231 rows",
+            "felix23_ios16": "iOS 16.5 | 5425 rows",
+            "jess_ios15": "iOS 15.0.2 | 325 rows",
+            "magnet_ios16": "iOS 16.1.1 | 269 rows",
         }
     }
 }

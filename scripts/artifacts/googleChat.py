@@ -25,6 +25,7 @@ __artifacts_v2__ = {
         "artifact_icon": "message-circle",
         "sample_data": {
             "iphone11_ios17": "iOS 17.3 | Google Chat 0.390 | 96 rows",
+            "magnet_ios16": "iOS 16.1.1 | Gmail - Email by Google 6.0.221127 | 5 rows",
         }
     }
 }

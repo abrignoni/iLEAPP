@@ -16,6 +16,9 @@ __artifacts_v2__ = {
             "iphone11_ios17": "iOS 17.3 | Gmail - Email by Google 6.0.231127 | 321 rows",
             "iphone14plus_ios18": "iOS 18.0 | Gmail - Email by Google 6.0.251201 | 18 rows",
             "otto_ios17": "iOS 17.5.1 | Gmail - Email by Google 6.0.240729 | 305 rows",
+            "abe_ios16": "iOS 16.5 | Gmail - Email by Google 6.0.230528 | 430 rows",
+            "jess_ios15": "iOS 15.0.2 | Gmail - Email by Google 6.0.211226 | 81 rows",
+            "magnet_ios16": "iOS 16.1.1 | Gmail - Email by Google 6.0.221127 | 21 rows",
         }
     },
     "gmailLabelDetails": {
@@ -36,6 +39,9 @@ __artifacts_v2__ = {
             "iphone11_ios17": "iOS 17.3 | Gmail - Email by Google 6.0.231127 | 31 rows",
             "iphone14plus_ios18": "iOS 18.0 | Gmail - Email by Google 6.0.251201 | 33 rows",
             "otto_ios17": "iOS 17.5.1 | Gmail - Email by Google 6.0.240729 | 33 rows",
+            "abe_ios16": "iOS 16.5 | Gmail - Email by Google 6.0.230528 | 31 rows",
+            "jess_ios15": "iOS 15.0.2 | Gmail - Email by Google 6.0.211226 | 30 rows",
+            "magnet_ios16": "iOS 16.1.1 | Gmail - Email by Google 6.0.221127 | 28 rows",
         }
     }
 }

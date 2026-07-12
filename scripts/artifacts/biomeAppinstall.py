@@ -20,6 +20,9 @@ __artifacts_v2__ = {
             "iphone14plus_ios18": "iOS 18.0 | 92 rows",
             "otto_ios17": "iOS 17.5.1 | 244 rows",
             "iphone12_ios18": "iOS 18.7 | 123 rows",
+            "abe_ios16": "iOS 16.5 | 142 rows",
+            "felix23_ios16": "iOS 16.5 | 88 rows",
+            "magnet_ios16": "iOS 16.1.1 | 64 rows",
         }
     }
 }

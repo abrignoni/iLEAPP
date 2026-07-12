@@ -14,6 +14,8 @@ __artifacts_v2__ = {
         "sample_data": {
             "dexter_ios18": "iOS 18.3.2 | 15 rows",
             "otto_ios17": "iOS 17.5.1 | 10 rows",
+            "abe_ios16": "iOS 16.5 | 23 rows",
+            "felix23_ios16": "iOS 16.5 | 23 rows",
         }
     }
 }

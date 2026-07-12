@@ -30,6 +30,12 @@ Apple product identification, common name, OS, and timeframe of use",
             "iphone12_ios18": "iOS 18.7 | 1 row",
             "iphone14plus_ios18": "iOS 18.0 | 1 row",
             "otto_ios17": "iOS 17.5.1 | 5 rows",
+            "abe_ios16": "iOS 16.5 | 7 rows",
+            "felix23_ios16": "iOS 16.5 | 4 rows",
+            "hickman_ios13": "iOS 13.3.1 | 2 rows",
+            "hickman_ios14": "iOS 14.3 | 9 rows",
+            "jess_ios15": "iOS 15.0.2 | 1 row",
+            "magnet_ios16": "iOS 16.1.1 | 2 rows",
         }
     },
     "connected_device_info_consolidated_connected_device_history": {
@@ -56,6 +62,12 @@ Apple product grouped for starting and ending timeframe of use",
             "iphone12_ios18": "iOS 18.7 | 1 row",
             "iphone14plus_ios18": "iOS 18.0 | 1 row",
             "otto_ios17": "iOS 17.5.1 | 2 rows",
+            "abe_ios16": "iOS 16.5 | 3 rows",
+            "felix23_ios16": "iOS 16.5 | 3 rows",
+            "hickman_ios13": "iOS 13.3.1 | 2 rows",
+            "hickman_ios14": "iOS 14.3 | 3 rows",
+            "jess_ios15": "iOS 15.0.2 | 1 row",
+            "magnet_ios16": "iOS 16.1.1 | 2 rows",
         }
     },
     "connected_device_information_current_device_info": {
@@ -81,6 +93,12 @@ Current Apple Device and OS Information",
             "iphone12_ios18": "iOS 18.7 | 2 rows",
             "iphone14plus_ios18": "iOS 18.0 | 1 row",
             "otto_ios17": "iOS 17.5.1 | 1 row",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
         }
     }
 }

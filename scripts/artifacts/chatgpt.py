@@ -89,6 +89,9 @@ __artifacts_v2__ = {
             "hc_ios18_7": "iOS 18.7.8 | Kik Messaging & Chat App 17.11.3 | 1 row",
             "iphone11_ios17": "iOS 17.3 | Kik Messaging & Chat App 16.16.1, Imgur: Funny Memes & GIF Maker 2023.23.1, WhatsApp Messenger 24.15.1 | 6 rows",
             "otto_ios17": "iOS 17.5.1 | ChatGPT 1.2024.219 | 0 rows",
+            "abe_ios16": "iOS 16.5 | Clime: NOAA Weather Radar Live 4.39.2, Grindr - Gay Dating & Chat 9.11.1 | 3 rows",
+            "felix23_ios16": "iOS 16.5 | Private Photo Vault - Pic Safe 15.3, SV - Private Photo Vault PRO 15.3 | 4 rows",
+            "hickman_ios13": "iOS 13.3.1 | TextNow: Call + Text Unlimited 20.10.0 | 8 rows",
         }
     },
     "chatgptVoicePrompts": {

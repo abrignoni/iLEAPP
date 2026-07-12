@@ -18,6 +18,9 @@ __artifacts_v2__ = {
             "iphone11_ios17": "iOS 17.3 | 243LU875E5.groups.com.apple.podcasts | 6 rows",
             "iphone12_ios18": "iOS 18.7 | 243LU875E5.groups.com.apple.podcasts | 0 rows",
             "otto_ios17": "iOS 17.5.1 | 243LU875E5.groups.com.apple.podcasts | 2 rows",
+            "abe_ios16": "iOS 16.5 | 243LU875E5.groups.com.apple.podcasts | 4 rows",
+            "hickman_ios13": "iOS 13.3.1 | 243LU875E5.groups.com.apple.podcasts | 6 rows",
+            "hickman_ios14": "iOS 14.3 | 243LU875E5.groups.com.apple.podcasts | 6 rows",
         }
     },
     "get_applePodcastsEpisodes": {
@@ -39,6 +42,9 @@ __artifacts_v2__ = {
             "iphone11_ios17": "iOS 17.3 | 243LU875E5.groups.com.apple.podcasts | 1774 rows",
             "iphone12_ios18": "iOS 18.7 | 243LU875E5.groups.com.apple.podcasts | 0 rows",
             "otto_ios17": "iOS 17.5.1 | 243LU875E5.groups.com.apple.podcasts | 164 rows",
+            "abe_ios16": "iOS 16.5 | 243LU875E5.groups.com.apple.podcasts | 150 rows",
+            "hickman_ios13": "iOS 13.3.1 | 243LU875E5.groups.com.apple.podcasts | 1024 rows",
+            "hickman_ios14": "iOS 14.3 | 243LU875E5.groups.com.apple.podcasts | 1200 rows",
         }
     }
 }

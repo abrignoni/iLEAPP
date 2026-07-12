@@ -27,6 +27,7 @@ __artifacts_v2__ = {
         "artifact_icon": "message-circle",
         "sample_data": {
             "iphone11_ios17": "iOS 17.3 | Microsoft Teams 6.13.1 | 125 rows",
+            "hickman_ios14": "iOS 14.3 | Microsoft Teams 2.3.1 | 20 rows",
         }
     },
     "teamsContacts": {
@@ -42,6 +43,7 @@ __artifacts_v2__ = {
         "artifact_icon": "address-book",
         "sample_data": {
             "iphone11_ios17": "iOS 17.3 | Microsoft Teams 6.13.1 | 13 rows",
+            "hickman_ios14": "iOS 14.3 | Microsoft Teams 2.3.1 | 5 rows",
         }
     },
     "teamsUser": {
@@ -57,6 +59,7 @@ __artifacts_v2__ = {
         "artifact_icon": "user",
         "sample_data": {
             "iphone11_ios17": "iOS 17.3 | Microsoft Teams 6.13.1 | 10 rows",
+            "hickman_ios14": "iOS 14.3 | Microsoft Teams 2.3.1 | 2 rows",
         }
     },
     "teamsCalls": {
@@ -72,6 +75,7 @@ __artifacts_v2__ = {
         "artifact_icon": "phone-call",
         "sample_data": {
             "iphone11_ios17": "iOS 17.3 | Microsoft Teams 6.13.1 | 9 rows",
+            "hickman_ios14": "iOS 14.3 | Microsoft Teams 2.3.1 | 4 rows",
         }
     },
     "teamsLocations": {
@@ -87,6 +91,7 @@ __artifacts_v2__ = {
         "artifact_icon": "map-pin",
         "sample_data": {
             "iphone11_ios17": "iOS 17.3 | Microsoft Teams 6.13.1 | 13 rows",
+            "hickman_ios14": "iOS 14.3 | Microsoft Teams 2.3.1 | 4 rows",
         }
     }
 }

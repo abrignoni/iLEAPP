@@ -10,7 +10,11 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('**/Library/Caches/Chat.sqlite*',),
         "output_types": "standard",
-        "artifact_icon": "message-circle"
+        "artifact_icon": "message-circle",
+        "sample_data": {
+            "abe_ios16": "iOS 16.5 | Bumble: Dating & Friends App 5.319.0 | 40 rows",
+            "jess_ios15": "iOS 15.0.2 | Bumble - Dating. Friends. Bizz 5.247.0 | 8 rows",
+        }
     },
     "bumbleAccount": {
         "name": "Bumble - Account Details",
@@ -23,7 +27,11 @@ __artifacts_v2__ = {
         "notes": "Last location timestamp is Cocoa/Mac absolute time, converted to UTC.",
         "paths": ('**/Documents/yap-database.sqlite*',),
         "output_types": "standard",
-        "artifact_icon": "user"
+        "artifact_icon": "user",
+        "sample_data": {
+            "abe_ios16": "iOS 16.5 | Bumble: Dating & Friends App 5.319.0 | 6 rows",
+            "jess_ios15": "iOS 15.0.2 | Bumble - Dating. Friends. Bizz 5.247.0 | 6 rows",
+        }
     }
 }
 

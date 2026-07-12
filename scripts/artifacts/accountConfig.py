@@ -17,6 +17,12 @@ __artifacts_v2__ = {
             'fsfull002_ios17': 'iOS 17.1 | 28 rows',
             'iphone11_ios17': 'iOS 17.3 | 30 rows',
             'otto_ios17': 'iOS 17.5.1 | 30 rows',
+            'abe_ios16': 'iOS 16.5 | 30 rows',
+            'felix23_ios16': 'iOS 16.5 | 32 rows',
+            'hickman_ios13': 'iOS 13.3.1 | 28 rows',
+            'hickman_ios14': 'iOS 14.3 | 30 rows',
+            'jess_ios15': 'iOS 15.0.2 | 28 rows',
+            'magnet_ios16': 'iOS 16.1.1 | 30 rows',
         }
     }
 }

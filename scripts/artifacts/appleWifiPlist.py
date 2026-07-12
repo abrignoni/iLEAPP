@@ -23,6 +23,12 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 2 rows",
             "iphone14plus_ios18": "iOS 18.0 | 3 rows",
             "otto_ios17": "iOS 17.5.1 | 33 rows",
+            "abe_ios16": "iOS 16.5 | 55 rows",
+            "felix23_ios16": "iOS 16.5 | 3 rows",
+            "hickman_ios13": "iOS 13.3.1 | 1 row",
+            "hickman_ios14": "iOS 14.3 | 1 row",
+            "jess_ios15": "iOS 15.0.2 | 6 rows",
+            "magnet_ios16": "iOS 16.1.1 | 5 rows",
         }
     },
     "appleWifiKnownNetworksTimes": {
@@ -49,6 +55,12 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 2 rows",
             "iphone14plus_ios18": "iOS 18.0 | 3 rows",
             "otto_ios17": "iOS 17.5.1 | 33 rows",
+            "abe_ios16": "iOS 16.5 | 55 rows",
+            "felix23_ios16": "iOS 16.5 | 3 rows",
+            "hickman_ios13": "iOS 13.3.1 | 1 row",
+            "hickman_ios14": "iOS 14.3 | 1 row",
+            "jess_ios15": "iOS 15.0.2 | 6 rows",
+            "magnet_ios16": "iOS 16.1.1 | 5 rows",
         }
     },
     "appleWifiScannedPrivate": {
@@ -72,6 +84,10 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 2 rows",
             "iphone14plus_ios18": "iOS 18.0 | 2 rows",
             "otto_ios17": "iOS 17.5.1 | 35 rows",
+            "abe_ios16": "iOS 16.5 | 47 rows",
+            "felix23_ios16": "iOS 16.5 | 3 rows",
+            "hickman_ios14": "iOS 14.3 | 1 row",
+            "magnet_ios16": "iOS 16.1.1 | 5 rows",
         }
     },
     "appleWifiBSSList": {
@@ -95,6 +111,11 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 0 rows",
             "iphone14plus_ios18": "iOS 18.0 | 6 rows",
             "otto_ios17": "iOS 17.5.1 | 194 rows",
+            "abe_ios16": "iOS 16.5 | 271 rows",
+            "felix23_ios16": "iOS 16.5 | 10 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 44 rows",
+            "magnet_ios16": "iOS 16.1.1 | 37 rows",
         }
     }
 }

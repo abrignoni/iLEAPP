@@ -18,6 +18,8 @@ __artifacts_v2__ = {
             'hc_ios18_7': 'iOS 18.7.8 | group.viber.share.container | 14 rows',
             'iphone11_ios17': 'iOS 17.3 | group.viber.share.container | 16 rows',
             'otto_ios17': 'iOS 17.5.1 | group.viber.share.container | 17 rows',
+            'hickman_ios13': 'iOS 13.3.1 | group.viber.share.container | 14 rows',
+            'hickman_ios14': 'iOS 14.3 | group.viber.share.container | 15 rows',
         }
     },
     'viber_contacts': {
@@ -39,6 +41,8 @@ __artifacts_v2__ = {
             'hc_ios18_7': 'iOS 18.7.8 | group.viber.share.container | 2 rows',
             'iphone11_ios17': 'iOS 17.3 | group.viber.share.container | 12 rows',
             'otto_ios17': 'iOS 17.5.1 | group.viber.share.container | 1016 rows',
+            'hickman_ios13': 'iOS 13.3.1 | group.viber.share.container | 3 rows',
+            'hickman_ios14': 'iOS 14.3 | group.viber.share.container | 5 rows',
         }
     },
     'viber_call_remnants': {
@@ -59,6 +63,8 @@ __artifacts_v2__ = {
             'hc_ios18_7': 'iOS 18.7.8 | group.viber.share.container | 0 rows',
             'iphone11_ios17': 'iOS 17.3 | group.viber.share.container | 0 rows',
             'otto_ios17': 'iOS 17.5.1 | group.viber.share.container | 0 rows',
+            'hickman_ios13': 'iOS 13.3.1 | group.viber.share.container | 0 rows',
+            'hickman_ios14': 'iOS 14.3 | group.viber.share.container | 0 rows',
         }
     },
     'viber_chats': {
@@ -82,6 +88,8 @@ __artifacts_v2__ = {
             'hc_ios18_7': 'iOS 18.7.8 | group.viber.share.container | 0 rows',
             'iphone11_ios17': 'iOS 17.3 | Rakuten Viber Messenger 23.1.3, group.viber.share.container | 66 rows',
             'otto_ios17': 'iOS 17.5.1 | Rakuten Viber Messenger 23.3.1, group.viber.share.container | 3393 rows',
+            'hickman_ios13': 'iOS 13.3.1 | Viber Messenger: Chats & Calls 12.6.0, group.viber.share.container | 10 rows',
+            'hickman_ios14': 'iOS 14.3 | Viber Messenger: Chats & Calls 14.6.1, group.viber.share.container | 16 rows',
         },
         'data_views': {
             'conversation': {

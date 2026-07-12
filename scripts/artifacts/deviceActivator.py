@@ -9,7 +9,10 @@ __artifacts_v2__ = {
         "category": "Device Information",
         "paths": ('*/mobile/Library/Logs/mobileactivationd/ucrt_oob_request.txt',),
         "output_types": "standard",
-        "artifact_icon": "circle-check"
+        "artifact_icon": "circle-check",
+        "sample_data": {
+            "hickman_ios14": "iOS 14.3 | 39 rows",
+        }
     }
 }
 

@@ -21,6 +21,12 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | Evernote - Notes Organizer 10.167.1, Discord - Talk, Play, Hang Out 306.1, TikTok - Videos, Shop & LIVE 42.7.0 | 1 row",
             "iphone14plus_ios18": "iOS 18.0 | Untappd: Find Drinks You Love 4.7.0 | 0 rows",
             "otto_ios17": "iOS 17.5.1 | TikTok 35.6.0 | 0 rows",
+            "abe_ios16": "iOS 16.5 | TikTok 30.0.0 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | Discord - Chat, Talk & Hangout 183.0 | 1 row",
+            "hickman_ios13": "iOS 13.3.1 | Discord 15.0, TikTok - Make Your Day 15.4.0 | 4 rows",
+            "hickman_ios14": "iOS 14.3 | Discord - Talk, Chat, Hang Out 58.1, TikTok 18.4.5 | 2 rows",
+            "jess_ios15": "iOS 15.0.2 | Discord - Talk, Chat & Hangout 109.0 | 4 rows",
+            "magnet_ios16": "iOS 16.1.1 | Discord - Chat, Talk & Hangout 156.0, TikTok 27.0.1 | 8 rows",
         },  # or ["html", "tsv", "timeline", "lava"]
     }
 }

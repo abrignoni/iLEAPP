@@ -24,6 +24,7 @@ __artifacts_v2__ = {
             "dexter_ios18": "iOS 18.3.2 | Waze Navigation & Live Traffic 5.11.5 | 1 row",
             "iphone11_ios17": "iOS 17.3 | Waze Navigation & Live Traffic 4.100.0 | 2 rows",
             "otto_ios17": "iOS 17.5.1 | Waze Navigation & Live Traffic 4.106.2 | 2 rows",
+            "abe_ios16": "iOS 16.5 | Waze Navigation & Live Traffic 4.91.0 | 1 row",
         }
     },
     "waze_session_info": {
@@ -42,6 +43,7 @@ __artifacts_v2__ = {
             "dexter_ios18": "iOS 18.3.2 | Waze Navigation & Live Traffic 5.11.5 | 20 rows",
             "iphone11_ios17": "iOS 17.3 | Waze Navigation & Live Traffic 4.100.0 | 25 rows",
             "otto_ios17": "iOS 17.5.1 | Waze Navigation & Live Traffic 4.106.2 | 22 rows",
+            "abe_ios16": "iOS 16.5 | Waze Navigation & Live Traffic 4.91.0 | 25 rows",
         }
     },
     "waze_track_gps_quality": {
@@ -60,6 +62,7 @@ __artifacts_v2__ = {
             "dexter_ios18": "iOS 18.3.2 | Waze Navigation & Live Traffic 5.11.5 | 0 rows",
             "iphone11_ios17": "iOS 17.3 | Waze Navigation & Live Traffic 4.100.0 | 7 rows",
             "otto_ios17": "iOS 17.5.1 | Waze Navigation & Live Traffic 4.106.2 | 37 rows",
+            "abe_ios16": "iOS 16.5 | Waze Navigation & Live Traffic 4.91.0 | 0 rows",
         }
     },
     "waze_search_history": {
@@ -78,6 +81,7 @@ __artifacts_v2__ = {
             "dexter_ios18": "iOS 18.3.2 | Waze Navigation & Live Traffic 5.11.5 | 0 rows",
             "iphone11_ios17": "iOS 17.3 | Waze Navigation & Live Traffic 4.100.0 | 7 rows",
             "otto_ios17": "iOS 17.5.1 | Waze Navigation & Live Traffic 4.106.2 | 12 rows",
+            "abe_ios16": "iOS 16.5 | Waze Navigation & Live Traffic 4.91.0 | 25 rows",
         }
     },
     "waze_recent_locations": {
@@ -96,6 +100,7 @@ __artifacts_v2__ = {
             "dexter_ios18": "iOS 18.3.2 | Waze Navigation & Live Traffic 5.11.5 | 0 rows",
             "iphone11_ios17": "iOS 17.3 | Waze Navigation & Live Traffic 4.100.0 | 6 rows",
             "otto_ios17": "iOS 17.5.1 | Waze Navigation & Live Traffic 4.106.2 | 11 rows",
+            "abe_ios16": "iOS 16.5 | Waze Navigation & Live Traffic 4.91.0 | 21 rows",
         }
     },
     "waze_favorite_locations": {
@@ -114,6 +119,7 @@ __artifacts_v2__ = {
             "dexter_ios18": "iOS 18.3.2 | Waze Navigation & Live Traffic 5.11.5 | 0 rows",
             "iphone11_ios17": "iOS 17.3 | Waze Navigation & Live Traffic 4.100.0 | 2 rows",
             "otto_ios17": "iOS 17.5.1 | Waze Navigation & Live Traffic 4.106.2 | 2 rows",
+            "abe_ios16": "iOS 16.5 | Waze Navigation & Live Traffic 4.91.0 | 4 rows",
         }
     },
     "waze_shared_locations": {
@@ -132,6 +138,7 @@ __artifacts_v2__ = {
             "dexter_ios18": "iOS 18.3.2 | Waze Navigation & Live Traffic 5.11.5 | 0 rows",
             "iphone11_ios17": "iOS 17.3 | Waze Navigation & Live Traffic 4.100.0 | 0 rows",
             "otto_ios17": "iOS 17.5.1 | Waze Navigation & Live Traffic 4.106.2 | 0 rows",
+            "abe_ios16": "iOS 16.5 | Waze Navigation & Live Traffic 4.91.0 | 0 rows",
         }
     },
     "waze_planned_events": {
@@ -151,6 +158,7 @@ __artifacts_v2__ = {
             "dexter_ios18": "iOS 18.3.2 | Waze Navigation & Live Traffic 5.11.5 | 0 rows",
             "iphone11_ios17": "iOS 17.3 | Waze Navigation & Live Traffic 4.100.0 | 0 rows",
             "otto_ios17": "iOS 17.5.1 | Waze Navigation & Live Traffic 4.106.2 | 0 rows",
+            "abe_ios16": "iOS 16.5 | Waze Navigation & Live Traffic 4.91.0 | 0 rows",
         }
     },
     "waze_tts": {
@@ -169,6 +177,7 @@ __artifacts_v2__ = {
             "dexter_ios18": "iOS 18.3.2 | Waze Navigation & Live Traffic 5.11.5 | 76 rows",
             "iphone11_ios17": "iOS 17.3 | Waze Navigation & Live Traffic 4.100.0 | 536 rows",
             "otto_ios17": "iOS 17.5.1 | Waze Navigation & Live Traffic 4.106.2 | 63 rows",
+            "abe_ios16": "iOS 16.5 | Waze Navigation & Live Traffic 4.91.0 | 1053 rows",
         }
     }
 }
