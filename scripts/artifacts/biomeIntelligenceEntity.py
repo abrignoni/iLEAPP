@@ -15,6 +15,11 @@ __artifacts_v2__ = {
         "paths": ('*/Biome/databases/IntelligencePlatform.Entity/IntelligencePlatform.Entity.sqlite3*',),
         "output_types": "standard",
         "artifact_icon": "database",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 5123 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 1685 rows",
+            "iphone12_ios18": "iOS 18.7 | 1765 rows",
+        },
     }
 }
 

@@ -14,6 +14,16 @@ __artifacts_v2__ = {
                   '*/biome/streams/restricted/ProactiveHarvesting.Mail/local/*'),
         "output_types": "standard",
         "artifact_icon": "mail",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 295 rows",
+            "felix_ios17": "iOS 17.6.1 | 25 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 275 rows",
+            "iphone11_ios17": "iOS 17.3 | 299 rows",
+            "iphone12_ios18": "iOS 18.7 | 60 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 62 rows",
+            "otto_ios17": "iOS 17.5.1 | 193 rows",
+        },
     },
     "biomeProactiveMessages": {
         "name": "Biome - Proactive Harvesting Messages",
@@ -29,6 +39,16 @@ __artifacts_v2__ = {
                   '*/biome/streams/restricted/ProactiveHarvesting.Messages/local/*'),
         "output_types": "standard",
         "artifact_icon": "message-circle",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 383 rows",
+            "felix_ios17": "iOS 17.6.1 | 39 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 118 rows",
+            "iphone11_ios17": "iOS 17.3 | 27 rows",
+            "iphone12_ios18": "iOS 18.7 | 30 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 13 rows",
+            "otto_ios17": "iOS 17.5.1 | 170 rows",
+        },
     },
     "biomeMessagesRead": {
         "name": "Biome - Messages Read",
@@ -44,6 +64,16 @@ __artifacts_v2__ = {
                   '*/biome/streams/restricted/Messages.Read/local/*'),
         "output_types": "standard",
         "artifact_icon": "check",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 280 rows",
+            "felix_ios17": "iOS 17.6.1 | 53 rows",
+            "fsfull002_ios17": "iOS 17.1 | 14 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 136 rows",
+            "iphone11_ios17": "iOS 17.3 | 57 rows",
+            "iphone12_ios18": "iOS 18.7 | 74 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 16 rows",
+            "otto_ios17": "iOS 17.5.1 | 168 rows",
+        },
     },
     "biomeScreenTimeAppUsage": {
         "name": "Biome - ScreenTime App Usage",
@@ -58,6 +88,14 @@ __artifacts_v2__ = {
                   '*/biome/streams/restricted/ScreenTime.AppUsage/local/*'),
         "output_types": "standard",
         "artifact_icon": "clock",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 3678 rows",
+            "felix_ios17": "iOS 17.6.1 | 361 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 3723 rows",
+            "iphone12_ios18": "iOS 18.7 | 1152 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 317 rows",
+            "otto_ios17": "iOS 17.5.1 | 2783 rows",
+        },
     },
     "biomeKeyboardTokens": {
         "name": "Biome - Keyboard Learned Tokens",
@@ -73,6 +111,17 @@ __artifacts_v2__ = {
                   '*/biome/streams/restricted/Keyboard.TokenFrequency/local/*'),
         "output_types": "standard",
         "artifact_icon": "keyboard",
+        "sample_data": {
+            "abe_ios16": "iOS 16.5 | 290 rows",
+            "dexter_ios18": "iOS 18.3.2 | 167 rows",
+            "felix23_ios16": "iOS 16.5 | 3 rows",
+            "felix_ios17": "iOS 17.6.1 | 11 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 143 rows",
+            "iphone11_ios17": "iOS 17.3 | 379 rows",
+            "iphone12_ios18": "iOS 18.7 | 180 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 58 rows",
+            "otto_ios17": "iOS 17.5.1 | 187 rows",
+        },
     },
 }
 
