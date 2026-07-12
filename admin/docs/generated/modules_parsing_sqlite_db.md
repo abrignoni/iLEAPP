@@ -61,6 +61,8 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | appleWalletCards |
 | appleWalletTransactions |
 | atxDatastore |
+| biomeApplePaySecurity |
+| biomeIntelligenceEntity |
 | biomeSync |
 | booking |
 | box |
@@ -150,6 +152,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | applePodcasts |
 | appleWalletPasses |
 | applicationStateDB |
+| biomeSetsStores |
 | bluetoothOther |
 | bluetoothPairedLE |
 | box |
