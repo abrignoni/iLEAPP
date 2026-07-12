@@ -39,6 +39,12 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | Discord - Talk, Play, Hang Out 306.1 | 4 rows",
             "iphone14plus_ios18": "iOS 18.0 | Depop - Buy & Sell Clothes 2.375 | 0 rows",
             "otto_ios17": "iOS 17.5.1 | Life360: Find Friends & Family 24.31.0 | 0 rows",
+            "abe_ios16": "iOS 16.5 | Life360: Find Friends & Family 23.19.0, Coinbase Wallet: NFTs & Crypto 28.48.0 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | Yubo : Make new friends 4.11.82, Discord - Chat, Talk & Hangout 183.0 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 10 rows",
+            "hickman_ios14": "iOS 14.3 | 50 rows",
+            "jess_ios15": "iOS 15.0.2 | Chess - Play & Learn 3.9.29, Discord - Talk, Chat & Hangout 109.0 | 25 rows",
+            "magnet_ios16": "iOS 16.1.1 | Discord - Chat, Talk & Hangout 156.0, Mastodon for iPhone and iPad 1.4.8 | 8 rows",
         },
     }
 }

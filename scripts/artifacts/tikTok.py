@@ -38,6 +38,10 @@ __artifacts_v2__ = {
             "iphone11_ios17": "iOS 17.3 | TikTok 35.1.0 | 50 rows",
             "iphone12_ios18": "iOS 18.7 | TikTok - Videos, Shop & LIVE 42.7.0 | 5 rows",
             "otto_ios17": "iOS 17.5.1 | TikTok 35.6.0 | 44 rows",
+            "abe_ios16": "iOS 16.5 | TikTok 30.0.0 | 6 rows",
+            "hickman_ios13": "iOS 13.3.1 | TikTok - Make Your Day 15.4.0 | 9 rows",
+            "hickman_ios14": "iOS 14.3 | TikTok 18.4.5 | 12 rows",
+            "magnet_ios16": "iOS 16.1.1 | TikTok 27.0.1 | 0 rows",
         },
     },
     "tiktok_contacts": {
@@ -62,6 +66,10 @@ __artifacts_v2__ = {
             "iphone11_ios17": "iOS 17.3 | TikTok 35.1.0 | 15 rows",
             "iphone12_ios18": "iOS 18.7 | TikTok - Videos, Shop & LIVE 42.7.0 | 2 rows",
             "otto_ios17": "iOS 17.5.1 | TikTok 35.6.0 | 88 rows",
+            "abe_ios16": "iOS 16.5 | TikTok 30.0.0 | 54 rows",
+            "hickman_ios13": "iOS 13.3.1 | TikTok - Make Your Day 15.4.0 | 3 rows",
+            "hickman_ios14": "iOS 14.3 | TikTok 18.4.5 | 4 rows",
+            "magnet_ios16": "iOS 16.1.1 | TikTok 27.0.1 | 0 rows",
         },
     },
 }

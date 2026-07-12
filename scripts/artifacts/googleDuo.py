@@ -9,6 +9,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "iphone11_ios17": "iOS 17.3 | Google Meet 225.0 | 10 rows",
             "otto_ios17": "iOS 17.5.1 | Google Meet 257.0 | 1016 rows",
+            "hickman_ios14": "iOS 14.3 | Google Duo 116.0 | 5 rows",
         }
     },
     "googleDuoCallHistory": {
@@ -21,6 +22,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "iphone11_ios17": "iOS 17.3 | Google Meet 225.0 | 10 rows",
             "otto_ios17": "iOS 17.5.1 | Google Meet 257.0 | 6 rows",
+            "hickman_ios14": "iOS 14.3 | Google Duo 116.0 | 11 rows",
         }
     },
     "googleDuoClips": {
@@ -33,6 +35,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "iphone11_ios17": "iOS 17.3 | Google Meet 225.0 | 0 rows",
             "otto_ios17": "iOS 17.5.1 | Google Meet 257.0 | 1 row",
+            "hickman_ios14": "iOS 14.3 | Google Duo 116.0 | 2 rows",
         }
     }
 }

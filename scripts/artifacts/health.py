@@ -33,6 +33,12 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 0 rows",
             "iphone14plus_ios18": "iOS 18.0 | 0 rows",
             "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 6 rows",
+            "hickman_ios14": "iOS 14.3 | 12 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
         }
     },
     "health_provenances": {
@@ -62,6 +68,12 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 9 rows",
             "iphone14plus_ios18": "iOS 18.0 | 3 rows",
             "otto_ios17": "iOS 17.5.1 | 144 rows",
+            "abe_ios16": "iOS 16.5 | 79 rows",
+            "felix23_ios16": "iOS 16.5 | 10 rows",
+            "hickman_ios13": "iOS 13.3.1 | 31 rows",
+            "hickman_ios14": "iOS 14.3 | 54 rows",
+            "jess_ios15": "iOS 15.0.2 | 1 row",
+            "magnet_ios16": "iOS 16.1.1 | 5 rows",
         }
     },
     "health_headphone_audio_levels": {
@@ -91,6 +103,12 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 0 rows",
             "iphone14plus_ios18": "iOS 18.0 | 0 rows",
             "otto_ios17": "iOS 17.5.1 | 23 rows",
+            "abe_ios16": "iOS 16.5 | 17 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 8 rows",
+            "hickman_ios14": "iOS 14.3 | 13 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
         }
     },
     "health_heart_rate": {
@@ -121,6 +139,12 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 0 rows",
             "iphone14plus_ios18": "iOS 18.0 | 0 rows",
             "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 3651 rows",
+            "hickman_ios14": "iOS 14.3 | 21152 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
         }
     },
     "health_resting_heart_rate": {
@@ -151,6 +175,12 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 0 rows",
             "iphone14plus_ios18": "iOS 18.0 | 0 rows",
             "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 14 rows",
+            "hickman_ios14": "iOS 14.3 | 71 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
         }
     },
     "health_achievements": {
@@ -180,6 +210,12 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 0 rows",
             "iphone14plus_ios18": "iOS 18.0 | 0 rows",
             "otto_ios17": "iOS 17.5.1 | 22 rows",
+            "abe_ios16": "iOS 16.5 | 19 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 8 rows",
+            "hickman_ios14": "iOS 14.3 | 30 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
         }
     },
     "health_steps": {
@@ -204,6 +240,12 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 369 rows",
             "iphone14plus_ios18": "iOS 18.0 | 49 rows",
             "otto_ios17": "iOS 17.5.1 | 3265 rows",
+            "abe_ios16": "iOS 16.5 | 3337 rows",
+            "felix23_ios16": "iOS 16.5 | 81 rows",
+            "hickman_ios13": "iOS 13.3.1 | 5544 rows",
+            "hickman_ios14": "iOS 14.3 | 14275 rows",
+            "jess_ios15": "iOS 15.0.2 | 131 rows",
+            "magnet_ios16": "iOS 16.1.1 | 183 rows",
         }
     },
     "health_height": {
@@ -233,6 +275,12 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 0 rows",
             "iphone14plus_ios18": "iOS 18.0 | 0 rows",
             "otto_ios17": "iOS 17.5.1 | 1 row",
+            "abe_ios16": "iOS 16.5 | 1 row",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 1 row",
+            "hickman_ios14": "iOS 14.3 | 1 row",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
         }
     },
     "health_weight": {
@@ -261,6 +309,12 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 0 rows",
             "iphone14plus_ios18": "iOS 18.0 | 0 rows",
             "otto_ios17": "iOS 17.5.1 | 1 row",
+            "abe_ios16": "iOS 16.5 | 2 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 1105 rows",
+            "hickman_ios14": "iOS 14.3 | 1113 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
         }
     },
     "health_watch_worn_data": {
@@ -292,6 +346,12 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 0 rows",
             "iphone14plus_ios18": "iOS 18.0 | 0 rows",
             "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 15 rows",
+            "hickman_ios14": "iOS 14.3 | 37 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
         }
     },
     'health_all_watch_sleep_data': {
@@ -321,6 +381,12 @@ __artifacts_v2__ = {
             'iphone12_ios18': 'iOS 18.7 | 0 rows',
             'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
             'otto_ios17': 'iOS 17.5.1 | 0 rows',
+            'abe_ios16': 'iOS 16.5 | 0 rows',
+            'felix23_ios16': 'iOS 16.5 | 0 rows',
+            'hickman_ios13': 'iOS 13.3.1 | 0 rows',
+            'hickman_ios14': 'iOS 14.3 | 0 rows',
+            'jess_ios15': 'iOS 15.0.2 | 0 rows',
+            'magnet_ios16': 'iOS 16.1.1 | 0 rows',
         }
     },
     "health_watch_by_sleep_period": {
@@ -351,6 +417,12 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 0 rows",
             "iphone14plus_ios18": "iOS 18.0 | 0 rows",
             "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
         }
     },
     "health_source_devices": {
@@ -376,6 +448,12 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 1 row",
             "iphone14plus_ios18": "iOS 18.0 | 2 rows",
             "otto_ios17": "iOS 17.5.1 | 9 rows",
+            "abe_ios16": "iOS 16.5 | 9 rows",
+            "felix23_ios16": "iOS 16.5 | 4 rows",
+            "hickman_ios13": "iOS 13.3.1 | 4 rows",
+            "hickman_ios14": "iOS 14.3 | 13 rows",
+            "jess_ios15": "iOS 15.0.2 | 1 row",
+            "magnet_ios16": "iOS 16.1.1 | 2 rows",
         }
     },
     "health_wrist_temperature": {
@@ -402,6 +480,12 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 0 rows",
             "iphone14plus_ios18": "iOS 18.0 | 0 rows",
             "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
         }
     }
 }

@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         'artifact_icon': 'user',
         'sample_data': {
             'otto_ios17': 'iOS 17.5.1 | group.thetileapp.Tile.Documents | 0 rows',
+            'abe_ios16': 'iOS 16.5 | group.thetileapp.Tile.Documents | 1 row',
         }
     }
 }

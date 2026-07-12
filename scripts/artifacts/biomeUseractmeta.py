@@ -10,7 +10,13 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Biome/streams/restricted/UserActivityMetadata/local*'),
         "output_types": "standard",
-        "artifact_icon": "activity"
+        "artifact_icon": "activity",
+        "sample_data": {
+            "abe_ios16": "iOS 16.5 | 364 rows",
+            "felix23_ios16": "iOS 16.5 | 166 rows",
+            "jess_ios15": "iOS 15.0.2 | 72 rows",
+            "magnet_ios16": "iOS 16.1.1 | 131 rows",
+        }
     }
 }
 

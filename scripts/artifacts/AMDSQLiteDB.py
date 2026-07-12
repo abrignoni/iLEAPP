@@ -23,6 +23,12 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 413 rows",
             "iphone14plus_ios18": "iOS 18.0 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 21 rows",
             "otto_ios17": "iOS 17.5.1 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 3064 rows",
+            "abe_ios16": "iOS 16.5 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 6065 rows",
+            "felix23_ios16": "iOS 16.5 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 1119 rows",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 167 rows",
         }
     },
     "AMDSQLiteDB_StorageCapacity": {
@@ -48,6 +54,9 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 0 rows",
             "iphone14plus_ios18": "iOS 18.0 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 0 rows",
             "otto_ios17": "iOS 17.5.1 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 49 rows",
+            "abe_ios16": "iOS 16.5 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 15 rows",
+            "felix23_ios16": "iOS 16.5 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 20 rows",
+            "magnet_ios16": "iOS 16.1.1 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 2 rows",
         }
     }
 }

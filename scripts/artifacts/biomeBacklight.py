@@ -10,7 +10,13 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Biome/streams/public/Backlight/local/*'),
         "output_types": "standard",
-        "artifact_icon": "sun"
+        "artifact_icon": "sun",
+        "sample_data": {
+            "abe_ios16": "iOS 16.5 | 14254 rows",
+            "felix23_ios16": "iOS 16.5 | 3738 rows",
+            "jess_ios15": "iOS 15.0.2 | 607 rows",
+            "magnet_ios16": "iOS 16.1.1 | 659 rows",
+        }
     }
 }
 

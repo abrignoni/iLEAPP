@@ -15,6 +15,8 @@ __artifacts_v2__ = {
         "artifact_icon": "user",
         "sample_data": {
             "iphone11_ios17": "iOS 17.3 | Burner: Second Phone Number 5.4.11 | 2 rows",
+            "hickman_ios13": "iOS 13.3.1 | Burner - 2nd Phone Number 4.0.18 | 2 rows",
+            "hickman_ios14": "iOS 14.3 | Burner - Private Phone Line 4.3.3 | 2 rows",
         }
     },
     "burnerCache_contacts": {
@@ -33,6 +35,8 @@ __artifacts_v2__ = {
         "artifact_icon": "users",
         "sample_data": {
             "iphone11_ios17": "iOS 17.3 | Burner: Second Phone Number 5.4.11 | 2 rows",
+            "hickman_ios13": "iOS 13.3.1 | Burner - 2nd Phone Number 4.0.18 | 3 rows",
+            "hickman_ios14": "iOS 14.3 | Burner - Private Phone Line 4.3.3 | 4 rows",
         }
     },
     "burnerCache_numbers": {
@@ -51,6 +55,8 @@ __artifacts_v2__ = {
         "artifact_icon": "phone",
         "sample_data": {
             "iphone11_ios17": "iOS 17.3 | Burner: Second Phone Number 5.4.11 | 1 row",
+            "hickman_ios13": "iOS 13.3.1 | Burner - 2nd Phone Number 4.0.18 | 3 rows",
+            "hickman_ios14": "iOS 14.3 | Burner - Private Phone Line 4.3.3 | 2 rows",
         }
     },
     "burnerCache_messages": {
@@ -70,6 +76,8 @@ __artifacts_v2__ = {
         "artifact_icon": "message-circle",
         "sample_data": {
             "iphone11_ios17": "iOS 17.3 | Burner: Second Phone Number 5.4.11 | 34 rows",
+            "hickman_ios13": "iOS 13.3.1 | Burner - 2nd Phone Number 4.0.18 | 9 rows",
+            "hickman_ios14": "iOS 14.3 | Burner - Private Phone Line 4.3.3 | 12 rows",
         },
         "data_views": {
             "conversation": {

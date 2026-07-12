@@ -35,6 +35,9 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | Instagram 408.0.0 | 20 rows",
             "iphone14plus_ios18": "iOS 18.0 | Instagram 409.1.0 | 0 rows",
             "otto_ios17": "iOS 17.5.1 | Instagram 344.0.9 | 11 rows",
+            "abe_ios16": "iOS 16.5 | Instagram 288.1 | 24 rows",
+            "hickman_ios13": "iOS 13.3.1 | Instagram 135.0, Threads from Instagram 135.0 | 30 rows",
+            "hickman_ios14": "iOS 14.3 | Instagram 172.0, Threads from Instagram 172.0 | 60 rows",
         },
     },
     "instagram_calls": {
@@ -62,6 +65,9 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | Instagram 408.0.0 | 0 rows",
             "iphone14plus_ios18": "iOS 18.0 | Instagram 409.1.0 | 0 rows",
             "otto_ios17": "iOS 17.5.1 | Instagram 344.0.9 | 0 rows",
+            "abe_ios16": "iOS 16.5 | Instagram 288.1 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | Instagram 135.0, Threads from Instagram 135.0 | 10 rows",
+            "hickman_ios14": "iOS 14.3 | Instagram 172.0, Threads from Instagram 172.0 | 22 rows",
         },
     },
 }

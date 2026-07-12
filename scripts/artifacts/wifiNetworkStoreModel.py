@@ -15,6 +15,8 @@ __artifacts_v2__ = {
         "artifact_icon": "wifi",
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | 7 rows",
+            "hickman_ios13": "iOS 13.3.1 | 2 rows",
+            "hickman_ios14": "iOS 14.3 | 1 row",
         }
     }
 }

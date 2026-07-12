@@ -17,6 +17,9 @@ __artifacts_v2__ = {
             "fsfull002_ios17": "iOS 17.1 | Kik Messaging & Chat App 16.9.3 | 0 rows",
             "hc_ios18_7": "iOS 18.7.8 | Kik Messaging & Chat App 17.11.3 | 3 rows",
             "iphone11_ios17": "iOS 17.3 | Kik Messaging & Chat App 16.16.1 | 32 rows",
+            "felix23_ios16": "iOS 16.5 | Kik Messaging & Chat App 16.9.5 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | Kik 15.21.2 | 6 rows",
+            "hickman_ios14": "iOS 14.3 | Kik 15.25.1 | 8 rows",
         },
         "data_views": {
             "conversation": {
@@ -48,6 +51,9 @@ __artifacts_v2__ = {
             "fsfull002_ios17": "iOS 17.1 | Kik Messaging & Chat App 16.9.3 | 0 rows",
             "hc_ios18_7": "iOS 18.7.8 | Kik Messaging & Chat App 17.11.3 | 4 rows",
             "iphone11_ios17": "iOS 17.3 | Kik Messaging & Chat App 16.16.1 | 7 rows",
+            "felix23_ios16": "iOS 16.5 | Kik Messaging & Chat App 16.9.5 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | Kik 15.21.2 | 4 rows",
+            "hickman_ios14": "iOS 14.3 | Kik 15.25.1 | 4 rows",
         }
     }
 }

@@ -13,6 +13,7 @@ __artifacts_v2__ = {
         "artifact_icon": "map",
         "sample_data": {
             "iphone11_ios17": "iOS 17.3 | AllTrails: Hike, Bike & Run 18.8.0 | 1 row",
+            "jess_ios15": "iOS 15.0.2 | AllTrails: Hike, Bike & Run 14.3.1 | 50 rows",
         }
     },
     "allTrailsUserInfo": {
@@ -29,6 +30,7 @@ __artifacts_v2__ = {
         "artifact_icon": "user",
         "sample_data": {
             "iphone11_ios17": "iOS 17.3 | AllTrails: Hike, Bike & Run 18.8.0 | 1 row",
+            "jess_ios15": "iOS 15.0.2 | AllTrails: Hike, Bike & Run 14.3.1 | 1 row",
         }
     }
 }

@@ -10,7 +10,10 @@ __artifacts_v2__ = {
         "notes": "Log timestamps stored as UTC.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/log/com.thetileapp.tile*',),
         "output_types": "all",
-        "artifact_icon": "map-pin"
+        "artifact_icon": "map-pin",
+        "sample_data": {
+            "abe_ios16": "iOS 16.5 | Tile - Find lost keys & phone 2.115.0 | 0 rows",
+        }
     }
 }
 

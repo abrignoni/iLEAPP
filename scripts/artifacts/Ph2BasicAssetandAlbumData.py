@@ -27,6 +27,12 @@ __artifacts_v2__ = {
             'iphone12_ios18': 'iOS 18.7 | 7644 rows',
             'iphone14plus_ios18': 'iOS 18.0 | 3 rows',
             'otto_ios17': 'iOS 17.5.1 | 522 rows',
+            'abe_ios16': 'iOS 16.5 | 1922 rows',
+            'felix23_ios16': 'iOS 16.5 | 34 rows',
+            'hickman_ios13': 'iOS 13.3.1 | 57 rows',
+            'hickman_ios14': 'iOS 14.3 | 0 rows',
+            'jess_ios15': 'iOS 15.0.2 | 13 rows',
+            'magnet_ios16': 'iOS 16.1.1 | 101 rows',
         }
     },
     'Ph2_2AssetBasicConversationDataSyndPL': {
@@ -56,6 +62,10 @@ __artifacts_v2__ = {
             'iphone12_ios18': 'iOS 18.7 | 2 rows',
             'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
             'otto_ios17': 'iOS 17.5.1 | 40 rows',
+            'abe_ios16': 'iOS 16.5 | 39 rows',
+            'felix23_ios16': 'iOS 16.5 | 9 rows',
+            'jess_ios15': 'iOS 15.0.2 | 0 rows',
+            'magnet_ios16': 'iOS 16.1.1 | 0 rows',
         }
     },
     'Ph2_3AssetBasicGenAlbumGenPlayPsql': {

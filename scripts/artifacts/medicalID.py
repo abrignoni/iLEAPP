@@ -14,6 +14,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | 16 rows",
             "otto_ios17": "iOS 17.5.1 | 36 rows",
+            "abe_ios16": "iOS 16.5 | 36 rows",
         }
     }
 }

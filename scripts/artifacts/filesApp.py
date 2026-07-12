@@ -25,6 +25,12 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 1 row",
             "iphone14plus_ios18": "iOS 18.0 | 2 rows",
             "otto_ios17": "iOS 17.5.1 | 4 rows",
+            "abe_ios16": "iOS 16.5 | 3 rows",
+            "felix23_ios16": "iOS 16.5 | 1 row",
+            "hickman_ios13": "iOS 13.3.1 | 1 row",
+            "hickman_ios14": "iOS 14.3 | 3 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 1 row",
         }
     },
     "icloud_application_list": {
@@ -51,6 +57,12 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 44 rows",
             "iphone14plus_ios18": "iOS 18.0 | 28 rows",
             "otto_ios17": "iOS 17.5.1 | 32 rows",
+            "abe_ios16": "iOS 16.5 | 28 rows",
+            "felix23_ios16": "iOS 16.5 | 24 rows",
+            "hickman_ios13": "iOS 13.3.1 | 23 rows",
+            "hickman_ios14": "iOS 14.3 | 30 rows",
+            "jess_ios15": "iOS 15.0.2 | 15 rows",
+            "magnet_ios16": "iOS 16.1.1 | 21 rows",
         }
     },
     "icloud_drive_stored_files": {
@@ -78,6 +90,12 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 54 rows",
             "iphone14plus_ios18": "iOS 18.0 | 39 rows",
             "otto_ios17": "iOS 17.5.1 | 56 rows",
+            "abe_ios16": "iOS 16.5 | 67 rows",
+            "felix23_ios16": "iOS 16.5 | 50 rows",
+            "hickman_ios13": "iOS 13.3.1 | 38 rows",
+            "hickman_ios14": "iOS 14.3 | 74 rows",
+            "jess_ios15": "iOS 15.0.2 | 15 rows",
+            "magnet_ios16": "iOS 16.1.1 | 27 rows",
         }
     },
     "icloud_drive_shared_files": {
@@ -105,6 +123,12 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 0 rows",
             "iphone14plus_ios18": "iOS 18.0 | 0 rows",
             "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 1 row",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
         }
     },
     "icloud_drive_tagged_files": {
@@ -132,6 +156,12 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 0 rows",
             "iphone14plus_ios18": "iOS 18.0 | 1 row",
             "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
         }
     },
     "icloud_drive_favourite_files": {
@@ -159,6 +189,12 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 1 row",
             "iphone14plus_ios18": "iOS 18.0 | 0 rows",
             "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 1 row",
+            "felix23_ios16": "iOS 16.5 | 1 row",
+            "hickman_ios13": "iOS 13.3.1 | 1 row",
+            "hickman_ios14": "iOS 14.3 | 1 row",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
         }
     },
     "files_ios_updates": {
@@ -185,6 +221,12 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 1 row",
             "iphone14plus_ios18": "iOS 18.0 | 1 row",
             "otto_ios17": "iOS 17.5.1 | 6 rows",
+            "abe_ios16": "iOS 16.5 | 3 rows",
+            "felix23_ios16": "iOS 16.5 | 2 rows",
+            "hickman_ios13": "iOS 13.3.1 | 1 row",
+            "hickman_ios14": "iOS 14.3 | 2 rows",
+            "jess_ios15": "iOS 15.0.2 | 1 row",
+            "magnet_ios16": "iOS 16.1.1 | 1 row",
         }
     }
 }

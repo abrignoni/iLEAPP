@@ -13,6 +13,7 @@ __artifacts_v2__ = {
         "artifact_icon": "eye",
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | 1 row",
+            "hickman_ios13": "iOS 13.3.1 | 2 rows",
         }
     }
 }

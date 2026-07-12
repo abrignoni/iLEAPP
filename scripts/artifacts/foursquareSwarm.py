@@ -24,6 +24,7 @@ __artifacts_v2__ = {
         "artifact_icon": "user",
         "sample_data": {
             "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 1 row",
+            "abe_ios16": "iOS 16.5 | Foursquare Swarm: Check-in App 6.12.20 | 1 row",
         }
     },
     "foursquare_swarm_contacts": {
@@ -42,6 +43,7 @@ __artifacts_v2__ = {
         "artifact_icon": "users",
         "sample_data": {
             "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 186 rows",
+            "abe_ios16": "iOS 16.5 | Foursquare Swarm: Check-in App 6.12.20 | 749 rows",
         }
     },
     "foursquare_swarm_address_book": {
@@ -59,6 +61,7 @@ __artifacts_v2__ = {
         "artifact_icon": "book",
         "sample_data": {
             "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 0 rows",
+            "abe_ios16": "iOS 16.5 | Foursquare Swarm: Check-in App 6.12.20 | 0 rows",
         }
     },
     "foursquare_swarm_checkins": {
@@ -79,6 +82,7 @@ __artifacts_v2__ = {
         "artifact_icon": "user-check",
         "sample_data": {
             "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 157 rows",
+            "abe_ios16": "iOS 16.5 | Foursquare Swarm: Check-in App 6.12.20 | 524 rows",
         }
     },
     "foursquare_swarm_tips": {
@@ -98,6 +102,7 @@ __artifacts_v2__ = {
         "artifact_icon": "info-circle",
         "sample_data": {
             "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 3 rows",
+            "abe_ios16": "iOS 16.5 | Foursquare Swarm: Check-in App 6.12.20 | 67 rows",
         }
     },
     "foursquare_swarm_stickers": {
@@ -117,6 +122,7 @@ __artifacts_v2__ = {
         "artifact_icon": "award",
         "sample_data": {
             "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 238 rows",
+            "abe_ios16": "iOS 16.5 | Foursquare Swarm: Check-in App 6.12.20 | 240 rows",
         }
     },
     "foursquare_swarm_venues_history": {
@@ -137,6 +143,7 @@ __artifacts_v2__ = {
         "artifact_icon": "map-pin",
         "sample_data": {
             "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 596 rows",
+            "abe_ios16": "iOS 16.5 | Foursquare Swarm: Check-in App 6.12.20 | 1691 rows",
         }
     },
     "foursquare_swarm_photos": {
@@ -157,6 +164,7 @@ __artifacts_v2__ = {
         "artifact_icon": "camera",
         "sample_data": {
             "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 27 rows",
+            "abe_ios16": "iOS 16.5 | Foursquare Swarm: Check-in App 6.12.20 | 183 rows",
         }
     },
     "foursquare_swarm_comments": {
@@ -175,6 +183,7 @@ __artifacts_v2__ = {
         "artifact_icon": "message",
         "sample_data": {
             "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 0 rows",
+            "abe_ios16": "iOS 16.5 | Foursquare Swarm: Check-in App 6.12.20 | 0 rows",
         }
     },
     "foursquare_swarm_friend_requests": {
@@ -193,6 +202,7 @@ __artifacts_v2__ = {
         "artifact_icon": "user-plus",
         "sample_data": {
             "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 0 rows",
+            "abe_ios16": "iOS 16.5 | Foursquare Swarm: Check-in App 6.12.20 | 0 rows",
         }
     },
     "foursquare_swarm_plans": {
@@ -212,6 +222,7 @@ __artifacts_v2__ = {
         "artifact_icon": "calendar",
         "sample_data": {
             "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 0 rows",
+            "abe_ios16": "iOS 16.5 | Foursquare Swarm: Check-in App 6.12.20 | 0 rows",
         }
     },
     "foursquare_swarm_events": {
@@ -231,6 +242,7 @@ __artifacts_v2__ = {
         "artifact_icon": "calendar",
         "sample_data": {
             "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 0 rows",
+            "abe_ios16": "iOS 16.5 | Foursquare Swarm: Check-in App 6.12.20 | 0 rows",
         }
     },
     "foursquare_swarm_saved_lists": {
@@ -248,6 +260,7 @@ __artifacts_v2__ = {
         "artifact_icon": "list",
         "sample_data": {
             "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 0 rows",
+            "abe_ios16": "iOS 16.5 | Foursquare Swarm: Check-in App 6.12.20 | 8 rows",
         }
     },
     "foursquare_swarm_location_history": {
@@ -264,6 +277,7 @@ __artifacts_v2__ = {
         "artifact_icon": "navigation",
         "sample_data": {
             "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 0 rows",
+            "abe_ios16": "iOS 16.5 | Foursquare Swarm: Check-in App 6.12.20 | 0 rows",
         }
     },
     "foursquare_swarm_plog": {
@@ -281,6 +295,7 @@ __artifacts_v2__ = {
         "artifact_icon": "terminal",
         "sample_data": {
             "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 0 rows",
+            "abe_ios16": "iOS 16.5 | Foursquare Swarm: Check-in App 6.12.20 | 0 rows",
         }
     },
     "foursquare_swarm_feed": {
@@ -301,6 +316,7 @@ __artifacts_v2__ = {
         "artifact_icon": "activity",
         "sample_data": {
             "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 6 rows",
+            "abe_ios16": "iOS 16.5 | Foursquare Swarm: Check-in App 6.12.20 | 9 rows",
         }
     },
 }

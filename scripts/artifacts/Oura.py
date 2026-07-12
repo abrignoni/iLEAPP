@@ -26,6 +26,8 @@ __artifacts_v2__ = {
             "iphone11_ios17": "iOS 17.3 | BeReal. Your friends for real. 2.24.0, Life360: Find Friends & Family 24.28.0 | 1 row",
             "iphone12_ios18": "iOS 18.7 | Booksy for Customers 25.11.2500 | 2 rows",
             "otto_ios17": "iOS 17.5.1 | 12 rows",
+            "abe_ios16": "iOS 16.5 | Grindr - Gay Dating & Chat 9.11.1, Life360: Find Friends & Family 23.19.0 | 1 row",
+            "hickman_ios14": "iOS 14.3 | Venmo 8.14.1 | 1 row",
         },
     },
     "oura_find_my_ring_location": {
@@ -55,6 +57,8 @@ __artifacts_v2__ = {
             "iphone11_ios17": "iOS 17.3 | BeReal. Your friends for real. 2.24.0, Life360: Find Friends & Family 24.28.0 | 0 rows",
             "iphone12_ios18": "iOS 18.7 | Booksy for Customers 25.11.2500 | 0 rows",
             "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | Grindr - Gay Dating & Chat 9.11.1, Life360: Find Friends & Family 23.19.0 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | Venmo 8.14.1 | 0 rows",
         },
     },
     "oura_ring_status": {
@@ -83,6 +87,8 @@ __artifacts_v2__ = {
             "iphone11_ios17": "iOS 17.3 | BeReal. Your friends for real. 2.24.0, Life360: Find Friends & Family 24.28.0 | 0 rows",
             "iphone12_ios18": "iOS 18.7 | Booksy for Customers 25.11.2500 | 0 rows",
             "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | Grindr - Gay Dating & Chat 9.11.1, Life360: Find Friends & Family 23.19.0 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | Venmo 8.14.1 | 0 rows",
         },
     },
     "oura_app_activity": {
@@ -111,6 +117,8 @@ __artifacts_v2__ = {
             "iphone11_ios17": "iOS 17.3 | BeReal. Your friends for real. 2.24.0, Life360: Find Friends & Family 24.28.0 | 0 rows",
             "iphone12_ios18": "iOS 18.7 | Booksy for Customers 25.11.2500 | 0 rows",
             "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | Grindr - Gay Dating & Chat 9.11.1, Life360: Find Friends & Family 23.19.0 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | Venmo 8.14.1 | 0 rows",
         },
     },
     "oura_daytime_heart_rate": {
@@ -139,6 +147,8 @@ __artifacts_v2__ = {
             "iphone11_ios17": "iOS 17.3 | BeReal. Your friends for real. 2.24.0, Life360: Find Friends & Family 24.28.0 | 0 rows",
             "iphone12_ios18": "iOS 18.7 | Booksy for Customers 25.11.2500 | 0 rows",
             "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | Grindr - Gay Dating & Chat 9.11.1, Life360: Find Friends & Family 23.19.0 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | Venmo 8.14.1 | 0 rows",
         },
     },
     "oura_analytics_integrations": {
@@ -167,6 +177,8 @@ __artifacts_v2__ = {
             "iphone11_ios17": "iOS 17.3 | BeReal. Your friends for real. 2.24.0, Life360: Find Friends & Family 24.28.0 | 0 rows",
             "iphone12_ios18": "iOS 18.7 | Booksy for Customers 25.11.2500 | 1 row",
             "otto_ios17": "iOS 17.5.1 | 1 row",
+            "abe_ios16": "iOS 16.5 | Grindr - Gay Dating & Chat 9.11.1, Life360: Find Friends & Family 23.19.0 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | Venmo 8.14.1 | 0 rows",
         },
     },
     "oura_analytics_event_plan": {
@@ -195,6 +207,8 @@ __artifacts_v2__ = {
             "iphone11_ios17": "iOS 17.3 | BeReal. Your friends for real. 2.24.0, Life360: Find Friends & Family 24.28.0 | 0 rows",
             "iphone12_ios18": "iOS 18.7 | Booksy for Customers 25.11.2500 | 18 rows",
             "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | Grindr - Gay Dating & Chat 9.11.1, Life360: Find Friends & Family 23.19.0 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | Venmo 8.14.1 | 0 rows",
         },
     },
 }

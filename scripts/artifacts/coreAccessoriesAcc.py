@@ -23,6 +23,8 @@ __artifacts_v2__ = {
         "sample_data": {
             "hc_ios18_7": "iOS 18.7.8 | 4 rows",
             "otto_ios17": "iOS 17.5.1 | 40 rows",
+            "abe_ios16": "iOS 16.5 | 50 rows",
+            "jess_ios15": "iOS 15.0.2 | 3 rows",
         },
     }
 }

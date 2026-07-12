@@ -23,6 +23,12 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 75 rows",
             "iphone14plus_ios18": "iOS 18.0 | 61 rows",
             "otto_ios17": "iOS 17.5.1 | 89 rows",
+            "abe_ios16": "iOS 16.5 | 95 rows",
+            "felix23_ios16": "iOS 16.5 | 64 rows",
+            "hickman_ios13": "iOS 13.3.1 | 77 rows",
+            "hickman_ios14": "iOS 14.3 | 84 rows",
+            "jess_ios15": "iOS 15.0.2 | 51 rows",
+            "magnet_ios16": "iOS 16.1.1 | 73 rows",
         }
     },
     "icons_screen_visual": {
@@ -48,6 +54,12 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 4 rows",
             "iphone14plus_ios18": "iOS 18.0 | 4 rows",
             "otto_ios17": "iOS 17.5.1 | 4 rows",
+            "abe_ios16": "iOS 16.5 | 5 rows",
+            "felix23_ios16": "iOS 16.5 | 4 rows",
+            "hickman_ios13": "iOS 13.3.1 | 4 rows",
+            "hickman_ios14": "iOS 14.3 | 3 rows",
+            "jess_ios15": "iOS 15.0.2 | 4 rows",
+            "magnet_ios16": "iOS 16.1.1 | 4 rows",
         }
     },
     "springboard_wallpaper": {
@@ -73,6 +85,9 @@ __artifacts_v2__ = {
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | 3 rows",
             "fsfull002_ios17": "iOS 17.1 | 4 rows",
+            "hickman_ios13": "iOS 13.3.1 | 6 rows",
+            "hickman_ios14": "iOS 14.3 | 6 rows",
+            "jess_ios15": "iOS 15.0.2 | 6 rows",
         }
     },
     "posterboard_wallpaper": {

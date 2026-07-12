@@ -16,6 +16,7 @@ __artifacts_v2__ = {
         'artifact_icon': 'message',
         'sample_data': {
             'iphone11_ios17': 'iOS 17.3 | group.ch.threema | 45 rows',
+            'hickman_ios14': 'iOS 14.3 | group.ch.threema | 0 rows',
         },
         'data_views': {
             'conversation': {
@@ -46,6 +47,7 @@ __artifacts_v2__ = {
         'artifact_icon': 'users',
         'sample_data': {
             'iphone11_ios17': 'iOS 17.3 | group.ch.threema | 2 rows',
+            'hickman_ios14': 'iOS 14.3 | group.ch.threema | 2 rows',
         },
     }
 }
