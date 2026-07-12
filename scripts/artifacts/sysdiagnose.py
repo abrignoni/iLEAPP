@@ -53,15 +53,19 @@ def get_sysdiag_account_devices(context):
         else:
             continue
         sources.append(source_path)
-        opush = f["lastOctagonPush"]
+        # Older iOS otctl_status.txt may omit these keys entirely
+        opush = f.get("lastOctagonPush", '')
 
-        for elem in f["contextDump"]["peers"]:
-            model = elem["permanentInfo"]["model_id"]
-            m_name = context.lookup_metadata('apple_device_id_to_model', model)
-            os_bnum = elem["stableInfo"]["os_version"]
-            os_build = os_bnum.split('(')[1].split(')')[0]
-            os_ver = context.get_apple_os_version(os_build, model)
-            serial = elem["stableInfo"]["serial_number"]
+        for elem in f.get("contextDump", {}).get("peers", []):
+            try:
+                model = elem["permanentInfo"]["model_id"]
+                m_name = context.lookup_metadata('apple_device_id_to_model', model)
+                os_bnum = elem["stableInfo"]["os_version"]
+                os_build = os_bnum.split('(')[1].split(')')[0]
+                os_ver = context.get_apple_os_version(os_build, model)
+                serial = elem["stableInfo"]["serial_number"]
+            except (KeyError, IndexError):
+                continue
             if not any(serial in subliste for subliste in data_list):
                 data_list.append((opush, model, m_name, os_bnum, os_ver, serial))
     source_list = "; ".join(s for s in sources)

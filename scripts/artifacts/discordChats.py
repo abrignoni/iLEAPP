@@ -233,6 +233,9 @@ def _embed_values(message):
 
 
 def _message_rows(message, files_found, resolution, source_type, source_file, context, account_id):
+    # Some cached message entries are plain strings rather than objects
+    if not isinstance(message, dict):
+        return []
     timestamp = _discord_timestamp(message.get("timestamp"))
     if not timestamp:
         return []
