@@ -57,9 +57,17 @@ def safariHistory(context):
         LEFT JOIN history_items ON history_items.id = history_visits.history_item'''):
         id_url[str(row[0])] = row[1]
 
+    # visit_time is Apple absolute (Cocoa) time on iOS <= 18, but iOS 26+ may
+    # store a Unix timestamp instead. Cocoa values for realistic dates stay well
+    # below the 978307200 offset (year 2032 in Cocoa time), while Unix values are
+    # always above it, so the magnitude disambiguates the two encodings.
     query = '''
     SELECT
-        datetime(history_visits.visit_time + 978307200, 'unixepoch'),
+        CASE
+            WHEN history_visits.visit_time > 978307200
+                THEN datetime(history_visits.visit_time, 'unixepoch')
+            ELSE datetime(history_visits.visit_time + 978307200, 'unixepoch')
+        END,
         history_visits.title,
         history_items.url,
         history_items.visit_count,

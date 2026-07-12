@@ -49,9 +49,17 @@ def safariFavicons(context):
     if not source_path:
         return data_headers, data_list, ''
 
+    # "timestamp" is Apple absolute (Cocoa) time on iOS <= 18, but iOS 26+ may
+    # store a Unix timestamp instead. Cocoa values for realistic dates stay well
+    # below the 978307200 offset (year 2032 in Cocoa time), while Unix values are
+    # always above it, so the magnitude disambiguates the two encodings.
     query = '''
     SELECT
-        datetime('2001-01-01', "timestamp" || ' seconds'),
+        CASE
+            WHEN "timestamp" > 978307200
+                THEN datetime("timestamp", 'unixepoch')
+            ELSE datetime('2001-01-01', "timestamp" || ' seconds')
+        END,
         page_url.url,
         icon_info.url,
         icon_info.width,
