@@ -13,6 +13,11 @@ __artifacts_v2__ = {
         "paths": ('*/Biome/sets/Default/App.InstalledApp/Database/Set.db*',),
         "output_types": "standard",
         "artifact_icon": "package",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 95 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 76 rows",
+            "iphone12_ios18": "iOS 18.7 | 91 rows",
+        },
     },
     "biomeSetsContacts": {
         "name": "Biome Sets - Contacts",
@@ -27,6 +32,11 @@ __artifacts_v2__ = {
         "paths": ('*/Biome/sets/Default/Contacts.Contact/Database/Set.db*',),
         "output_types": "standard",
         "artifact_icon": "user",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 11 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 2 rows",
+            "iphone12_ios18": "iOS 18.7 | 4 rows",
+        },
     },
     "biomeSetsFindMyDevices": {
         "name": "Biome Sets - FindMy Devices",
@@ -41,6 +51,11 @@ __artifacts_v2__ = {
         "paths": ('*/Biome/sets/Default/FindMy.Device/Database/Set.db*',),
         "output_types": "standard",
         "artifact_icon": "device-mobile",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 4 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 1 row",
+            "iphone12_ios18": "iOS 18.7 | 1 row",
+        },
     },
     "biomeSetsSignificantLocations": {
         "name": "Biome Sets - Significant Locations",
@@ -55,6 +70,11 @@ __artifacts_v2__ = {
         "paths": ('*/Biome/sets/Default/Location.SignificantLocation/Database/Set.db*',),
         "output_types": "standard",
         "artifact_icon": "map-pin",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 74 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 1 row",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+        },
     },
     "biomeSetsShortcutPhrases": {
         "name": "Biome Sets - App Shortcut Phrases",
@@ -70,6 +90,11 @@ __artifacts_v2__ = {
         "paths": ('*/Biome/sets/Default/App.Shortcut.Phrase/*/Database/Set.db*',),
         "output_types": "standard",
         "artifact_icon": "message-circle",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 675 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 393 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+        },
     },
     "biomeSetsShortcutEntities": {
         "name": "Biome Sets - App Shortcut Entities",
@@ -84,6 +109,11 @@ __artifacts_v2__ = {
         "paths": ('*/Biome/sets/Default/App.Shortcut.Entity/*/Database/Set.db*',),
         "output_types": "standard",
         "artifact_icon": "database",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 32 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 6 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+        },
     },
 }
 
