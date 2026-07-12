@@ -102,6 +102,20 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "map-pin",
     },
+    "biomeDbAudioRoute": {
+        "name": "Biome DB - Audio Route (Daily)",
+        "description": "Per-day audio route change counts (headphones, Bluetooth, speaker) pre-aggregated "
+                       "by Apple in the ApplePay.Security.Features Biome database.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-07-11",
+        "last_update_date": "2026-07-11",
+        "requirements": "none",
+        "category": "Biome",
+        "notes": "Timestamps are normalized by Apple to the start of the day.",
+        "paths": ('*/Biome/databases/ApplePay.Security.Features/ApplePay.Security.Features.sqlite3*',),
+        "output_types": "standard",
+        "artifact_icon": "headphones",
+    },
 }
 
 from scripts.ilapfuncs import (artifact_processor, get_sqlite_db_records, does_table_exist_in_db,
@@ -208,4 +222,16 @@ def biomeDbCarPlay(context):
         SELECT date, carPlayActivityCount FROM CarPlayMatView''')
     for row in rows:
         data_list.append((convert_unix_ts_to_utc(row[0]), row[1]))
+    return data_headers, data_list, source_path
+
+
+@artifact_processor
+def biomeDbAudioRoute(context):
+    data_headers = (('Date (UTC)', 'datetime'), 'Route Type', 'External', 'Route Change Reason',
+                    'Audio Route Count')
+    data_list = []
+    rows, source_path = _table_rows(context, 'AudioRouteMatView', '''
+        SELECT date, type, external, routeChangeReason, audioRouteCount FROM AudioRouteMatView''')
+    for row in rows:
+        data_list.append((convert_unix_ts_to_utc(row[0]), row[1], row[2], row[3], row[4]))
     return data_headers, data_list, source_path
