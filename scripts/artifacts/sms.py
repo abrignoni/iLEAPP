@@ -177,20 +177,23 @@ def sms(context):
                 return media_item['extraction_path']
         return None
 
-    sms_df = pd.DataFrame(data_list,
-                          columns=['data-time', 'Read Timestamp', 'message', 'Service', 'Message Direction',
-                                   'Message Sent', 'Message Delivered', 'Message Read', 'Account', 'Account Login',
-                                   'data-name', 'Attachment Name', 'Attachment File', 'Attachment Timestamp',
-                                   'content-type', 'Attachment Size (Bytes)', 'message-id', 'Chat ID', 'from_me'])
+    # The threaded chat view is only rendered when there are messages;
+    # an empty DataFrame breaks the pandas apply in render_chat.
+    if data_list:
+        sms_df = pd.DataFrame(data_list,
+                              columns=['data-time', 'Read Timestamp', 'message', 'Service', 'Message Direction',
+                                       'Message Sent', 'Message Delivered', 'Message Read', 'Account', 'Account Login',
+                                       'data-name', 'Attachment Name', 'Attachment File', 'Attachment Timestamp',
+                                       'content-type', 'Attachment Size (Bytes)', 'message-id', 'Chat ID', 'from_me'])
 
-    sms_df["file-path"] = sms_df.apply(copy_attachments, axis=1)
+        sms_df["file-path"] = sms_df.apply(copy_attachments, axis=1)
 
-    report = ArtifactHtmlReport('SMS & iMessage - Messages (Threaded)')
-    report.start_artifact_report(context.get_report_folder(), 'SMS & iMessage - Messages (Threaded)')
-    report.add_script()
-    report.write_lead_text(f'SMS & iMessage Messages (Threaded) located at: {source_path}')
-    report.write_raw_html(chat_HTML)
-    report.add_script(render_chat(sms_df))
-    report.end_artifact_report()
+        report = ArtifactHtmlReport('SMS & iMessage - Messages (Threaded)')
+        report.start_artifact_report(context.get_report_folder(), 'SMS & iMessage - Messages (Threaded)')
+        report.add_script()
+        report.write_lead_text(f'SMS & iMessage Messages (Threaded) located at: {source_path}')
+        report.write_raw_html(chat_HTML)
+        report.add_script(render_chat(sms_df))
+        report.end_artifact_report()
 
     return data_headers, data_list, source_path
