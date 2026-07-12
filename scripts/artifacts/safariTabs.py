@@ -105,9 +105,17 @@ def safariTabsBrowserState(context):
     if not source_path:
         return data_headers, data_list, ''
 
+    # last_viewed_time is Apple absolute (Cocoa) time on iOS <= 18, but a Unix
+    # timestamp on iOS 26+. Cocoa values for realistic dates stay well below the
+    # 978307200 offset (which equals year 2032 in Cocoa time), while Unix values
+    # are always above it, so the magnitude disambiguates the two encodings.
     query = '''
     SELECT
-        datetime(last_viewed_time + 978307200, 'unixepoch'),
+        CASE
+            WHEN last_viewed_time > 978307200
+                THEN datetime(last_viewed_time, 'unixepoch')
+            ELSE datetime(last_viewed_time + 978307200, 'unixepoch')
+        END,
         title, url, user_visible_url, opened_from_link, private_browsing
     FROM tabs
     '''
